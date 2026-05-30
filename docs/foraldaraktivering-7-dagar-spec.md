@@ -1,7 +1,7 @@
 # Föräldaraktivering — 7-dagarsprogram
 
 **Skapad:** 2026-05-30  
-**Senast reviderad:** 2026-05-30 (v3.8 — aha opportunity rate; Day 30/60 retention lagras)  
+**Senast reviderad:** 2026-05-30 (v3.9 — låst minsta effektstorlek; dag 1 preview; modal; A/B-rollout)  
 **Status:** Implementation-ready (kausalt retention-experiment)  
 **Feature slug:** `foraldaraktivering_7d`  
 **Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard
@@ -217,6 +217,35 @@ WHERE event_at::date BETWEEN enroll_date + 12 AND enroll_date + 14
 
 Jämförs via **treatment vs control** (§13). Utan kontrollgrupp riskerar teamet optimera completion utan retention-effekt.
 
+### Experiment success threshold — minsta effektstorlek (v3.9, FROZEN)
+
+North Star-metricen är låst; **gränsen för "lovande resultat"** måste också frysa **före** data — annars riskerar teamet om 6 veckor debattera Control 24 % vs Treatment 26 % utan beslutskriterium.
+
+**Experiment anses lovande** om **minst ett** av följande uppfylls (Family Day 14 retention, treatment vs control):
+
+| Tröskel | Definition | Exempel (control = 24 %) |
+|---------|------------|--------------------------|
+| **Absolut** | Treatment ≥ control **+ 10 procentenheter** | Treatment ≥ **34 %** |
+| **Relativ** | Treatment ≥ control × **1,20** (+20 % relativ) | Treatment ≥ **29 %** |
+
+```js
+function isExperimentPromising(controlRate, treatmentRate) {
+  const absoluteLift = treatmentRate - controlRate;
+  const relativeLift = controlRate > 0 ? treatmentRate / controlRate : 0;
+  return absoluteLift >= 0.10 || relativeLift >= 1.20;
+}
+```
+
+| Utfall | Tolkning | Nästa steg |
+|--------|----------|------------|
+| Lovande (tröskel uppfylld) | Intervention påverkar sannolikt retention | Fortsätt; analysera aha-kedjan + Retention Wall |
+| Ej lovande (under tröskel) | Ingen tydlig retention-effekt i denna kohort | Fortfarande värdefullt — granska opportunity/conversion; intervjua Complete+Churned |
+| Signifikans | Separat — beräkna konfidensintervall i Fas 6 när N tillåter | Tröskeln är **produktbeslut**, inte ersättning för statistik |
+
+**⚠️ FROZEN efter experimentstart** — ändra inte tröskeln när första siffror kommer (p-hacking / målförflyttning).
+
+**Statistisk power:** tröskeln definierar *vad som räknas som framgång*; sample size för att *detektera* +10 pp beräknas separat när enroll-takt är känd. Dokumentera faktisk N i admin vid första utvärdering.
+
 ### Sekundära KPI:er — diagnostiska (v3.7, ej North Star)
 
 North Star förblir **Family Day 14 retention** ovan. Logga och visa i admin **parallellt** för att skilja mekanismer:
@@ -359,7 +388,7 @@ Barnets schema förblir oförändrat efter onboarding. Fokus: **förälderns bet
 
 | Dag | Rubrik | Push (Fas 5) | Uppdrag | Mätning |
 |-----|--------|--------------|---------|---------|
-| **1** | Dag 1 — kika tillsammans | *(ingen)* | Öppna barnläget och visa första aktiviteten tillsammans | `child_view_opened` eller `child_login` |
+| **1** | Dag 1 — kika tillsammans | *(ingen)* | Se barnupplevelsen via **inline preview** (§4.1) | `child_view_opened` (source: `day1_preview`) |
 | **2** | Dag 2 — morgonkollen | "God morgon! Kolla [barn]s schema — tar 30 sek 🌅" | Öppna dashboarden någon gång under dygnet | `parent_login` dygn 2 |
 | **3** | Dag 3 — fira en stjärna *(eller stödjande fallback)* | "Har [barn] fått en stjärna idag? Fira tillsammans ⭐" | Fira avklarad aktivitet **eller** stödjande copy om ingen completion | `parent_first_completion_seen` eller banner-view |
 
@@ -390,17 +419,24 @@ Banner-visning räknas fortfarande som `done` i `day_status` — `trigger` är e
 | **6** | Dag 6 — dela ansvaret | "Vill du dela ansvaret med någon? 👥" | Bjud in **eller** "Jag kör solo!" | `family_invite_created` / solo-dismiss |
 | **7** | En vecka! 🎉 | "Grattis! Hur har veckan varit?" | Värde-reflektion (§5.2) | `activation_program_completed` |
 
-### Dag 1 — kika tillsammans (v3)
+### Dag 1 — kika tillsammans (v3.9: inline preview, låst)
 
 **Varför ändrat:** "Visa PIN-inloggningen" ger föräldern inget direkt värde. Dag 1 ska optimera för:
 
-> **Föräldern ser barnvyn.**
+> **Föräldern ser barnupplevelsen.**
 
-Copy: *"Öppna barnläget och visa första aktiviteten — tillsammans."*
+Copy: *"Så här ser [barn] sitt schema — kika tillsammans."*
 
-CTA: "Öppna barnläget" → `/child-login` eller inline preview om tillgängligt.
+**CTA (låst v3.9):** **Inline barnvy-preview** i bannern eller modal — *inte* redirect till `/child-login` som primär path.
 
-Mätning: `child_view_opened` (ny analytics-event) eller `child_login`. Skapar första visuella "aha" — *så här ser barnet det*.
+| Alternativ | v1.0 |
+|------------|------|
+| **Inline preview** (första aktivitet + schema-snutt) | **Ja — primär** |
+| Länk till `/child-login` | Fallback endast om preview ej implementerbar i Fas 3 |
+
+**Varför preview > child-login:** målet är att föräldern *ser* barnupplevelsen — inte att genomföra ännu ett flöde. Färre steg → högre sannolikhet att dag 1 blir `done`.
+
+Mätning: `child_view_opened` med `{ source: 'day1_preview' }`. `child_login` räknas som alternativ fallback, inte primär signal.
 
 ### Dag 2 — närvaro, inte tidspress
 
@@ -490,7 +526,7 @@ När `parent_first_completion_seen` triggas — visa **dedikerad celebratory car
 └─────────────────────────────────────────┘
 ```
 
-- Placering: modal eller prominent card ovanför banner (engångs per completion)
+- Placering: **modal** (v3.9, låst) — hela hypotesen vilar på `parent_first_completion_seen`; missad exponering = missad mekanism
 - Dismiss → sparad i `parent_seen_completion`
 - Kan triggas dag 1+ om barnet hinner checka av före dag 3
 - Design: varm, stor emoji, barnets namn + aktivitet — **fira stunden**
@@ -1008,9 +1044,41 @@ function assignCohortArm(familyId) {
 |-----|-----------|
 | `ACTIVATION_PROGRAM_ENABLED=true` | Master switch |
 | **`ACTIVATION_PROGRAM_LAUNCH_AT`** | ISO 8601 UTC — kohort-cutoff (§13.1) |
-| `ACTIVATION_PROGRAM_TREATMENT_PCT=100` | Launch: alla treatment (default) |
-| `ACTIVATION_PROGRAM_TREATMENT_PCT=50` | A/B-test: 50/50 |
+| `ACTIVATION_PROGRAM_TREATMENT_PCT=100` | Smoke test: alla treatment (default dag 0–3) |
+| `ACTIVATION_PROGRAM_TREATMENT_PCT=50` | Experiment: 50/50 permanent efter smoke (§13.2) |
 | `ACTIVATION_PROGRAM_EXPIRY_DAY=21` | Kalenderdag efter `started_at` när `active` → `expired` (default 21) |
+| `ACTIVATION_PROGRAM_SMOKE_TEST_DAYS=3` | Dagar med 100 % treatment innan 50/50 (default 3; max 5) |
+
+### 13.2 A/B-rollout — smoke test → 50/50 (v3.9, låst)
+
+**Mål:** Verifiera tracking + banner + analytics **innan** kontrollgrupp aktiveras — men **inte** vänta veckor. Varje dag utan control är data som aldrig återvinns.
+
+| Fas | Duration | `ACTIVATION_PROGRAM_TREATMENT_PCT` | Syfte |
+|-----|----------|-------------------------------------|--------|
+| **Smoke test** | 3–5 dagar (default 3) | `100` | Verifiera: enroll, banner, events, celebratory card |
+| **Experiment** | Permanent efter smoke | `50` | Ren A/B — treatment vs control från dag 4–6 |
+
+```js
+// Alternativ: automatisk växling vid deploy efter smoke
+function assignCohortArm(familyId) {
+  const smokeDays = parseInt(process.env.ACTIVATION_PROGRAM_SMOKE_TEST_DAYS ?? '3', 10);
+  const launchAt = DateTime.fromISO(process.env.ACTIVATION_PROGRAM_LAUNCH_AT, { zone: 'utc' });
+  const inSmoke = DateTime.utc().diff(launchAt, 'days').days < smokeDays;
+  const pct = inSmoke
+    ? 100
+    : parseInt(process.env.ACTIVATION_PROGRAM_TREATMENT_PCT ?? '50', 10);
+  return hashToPercent(familyId) < pct ? 'treatment' : 'control';
+}
+```
+
+**Operational checklist vid smoke-slut:**
+1. Bekräfta: `activation_program_started`, `first_banner_seen`, `child_first_completion` loggas
+2. Sätt `ACTIVATION_PROGRAM_TREATMENT_PCT=50` (eller lita på automatisk växling ovan)
+3. **Ändra inte** `ACTIVATION_PROGRAM_LAUNCH_AT` — samma kohort fortsätter
+
+**Varför inte 2 veckor 100 % treatment:** förlorad kontrollgrupp-data; experimentet blir underpowered för Day 14.
+
+**Varför inte 50/50 dag 1:** risk att deploya trasig tracking utan möjlighet att felsöka på 100 % treatment först.
 
 ### 13.1 Launch cutoff — `ACTIVATION_PROGRAM_LAUNCH_AT` (v3.7, låst)
 
@@ -1063,11 +1131,11 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 **Fas 2 (~5h)**
 - [ ] `child_first_completion` event (check-off hook)
 - [ ] `parent_seen_completion` + `parent_first_completion_seen` (med `hours_since_completion`)
-- [ ] Celebratory card UI (`activation-program-aha-card.js`)
+- [ ] Celebratory card UI — **modal** (`activation-program-aha-card.js`)
 - [ ] `activation_program_first_banner_seen` vid banner-mount
 
 **Fas 3 (~4h)**
-- [ ] Banner + dag 1 "kika tillsammans"
+- [ ] Banner + dag 1 **inline barnvy-preview** (fallback: `/child-login`)
 - [ ] Dags-byte-animation via `day_advanced`
 - [ ] Dag 3 fallback-copy + `trigger: 'supportive_fallback'` vid day_done
 - [ ] `activation_program_cta_clicked` i banner
@@ -1083,7 +1151,7 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 - [ ] `activation-program-retention.js` — fönster 14/30/60
 - [ ] Aha opportunity rate + conversion rate
 - [ ] **Day 14 grouped by `parent_first_completion_seen`** (post-launch prioritet #1)
-- [ ] Day 30/60 API lagrar resultat; UI dold tills kohortmognad
+- [ ] **Experiment success threshold** i admin (+10 pp / +20 % relativ)
 
 ---
 
@@ -1095,7 +1163,7 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 4. `child_first_completion` + `parent_first_completion_seen` — separata events
 5. Banner-query: `status = 'active' AND cohort_arm = 'treatment'`
 6. Celebratory card vid första unseen completion
-7. Dag 1 → barnvy; dag 2 login anytime; dag 6 solo; dag 7 värde-fråga
+7. Dag 1 → inline preview (`child_view_opened` source `day1_preview`); dag 2 login anytime; dag 6 solo; dag 7 värde-fråga
 8. Miss → program fortsätter, ingen negativ copy
 9. Befintliga pre-launch familjer enrollas **inte** retroaktivt (`ACTIVATION_PROGRAM_LAUNCH_AT`)
 10. Endast `program_type = onboarding_7d` skapas i v1.0
@@ -1105,14 +1173,19 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 14. `status = 'expired'` sätts lazy vid `calendar_day > 21` (konfigurerbar via env)
 15. Aha opportunity rate + conversion rate beräknas i admin (Fas 6)
 16. Day 30/60 retention lagras via samma query-motor; UI dold tills kohortmognad
+17. Celebratory card = **modal** (ej inline card i v1)
+18. A/B: 3–5 dag smoke @ 100 % treatment, därefter 50/50 permanent
 
 ---
 
 ## 16. Success metrics
 
+### North Star + success threshold (v3.9, FROZEN)
+
 | Metric | Typ | Mål |
 |--------|-----|-----|
-| **Family Day 14 retention (treatment vs control)** | North Star | Signifikant högre treatment |
+| **Family Day 14 retention (treatment vs control)** | North Star | Se tröskel §2 — **+10 pp absolut ELLER +20 % relativ** |
+| **Experiment lovande?** | Beslutskriterium | `isExperimentPromising()` — fryst före data |
 | **Parent Day 14 retention (treatment vs control)** | Diagnostisk | Jämför med Family — tolkning, inte mål |
 | **Aha opportunity rate** | Diagnostisk | Baslinje före aha-gap-tolkning |
 | **Aha conversion rate** | Diagnostisk | Celebratory card / exponering givet barn-aktivering |
@@ -1141,10 +1214,14 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 
 ---
 
-## 18. Arkitektur-check (v3.8)
+## 18. Arkitektur-check (v3.9)
 
 | Komponent | Beslut |
 |-----------|--------|
+| Success threshold | +10 pp absolut eller +20 % relativ — FROZEN (§2) |
+| A/B-rollout | 3–5 dag smoke @ 100 % → 50/50 permanent (§13.2) |
+| Dag 1 CTA | Inline preview primär; child-login fallback |
+| Celebratory card | Modal i v1 — optimera upptäckt |
 | Dataaxlar | `cohort_arm` (experiment) separerad från `status` (livscykel) |
 | Dagbegrepp | `calendar_day` (expiry, Day 14) vs `effective_day` (innehåll, cap 7) |
 | Expiry | Lazy vid GET; `calendar_day > 21` → `expired` |
@@ -1223,11 +1300,12 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 
 ## 21. Öppna frågor (implementation, ej arkitektur)
 
-1. **Inline barnvy-preview på dag 1** — eller endast länk till `/child-login`?
-2. **Celebratory card: modal vs inline card** — A/B-testa i Fas 2?
-3. **När aktivera 50/50 A/B** — efter 2 veckor med 100% treatment baseline?
+*Inga öppna arkitektur- eller experimentfrågor kvar efter v3.9.*
 
-**Besvarade (v3.3–v3.8 — ej öppna):**
+**Besvarade (v3.3–v3.9 — ej öppna):**
+- ~~Dag 1 preview eller child-login?~~ → **Inline preview primär**; `/child-login` fallback (§4.1)
+- ~~Modal eller inline celebratory card?~~ → **Modal i v1** — hypotesen kräver synlig exponering (§5.3)
+- ~~När starta 50/50 A/B?~~ → **3–5 dag smoke @ 100 %**, därefter **50/50 permanent** (§13.2)
 - ~~Retroaktiv enroll för churn-risk~~ → **Nej i v1.0**; `reactivation_3d` i v1.2
 - ~~Befintliga familjer i samma program~~ → **Nej**; tre grupper, separata program
 - ~~Launch-datum cutoff~~ → **`ACTIVATION_PROGRAM_LAUNCH_AT`** ISO 8601 UTC (§13.1)
@@ -1254,7 +1332,8 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 | v3.6 | 2026-05-30 | Låst Day 14 (dag 13–15); Dag 3 fallback; CTA-click; reflektion dag 7+; Deep Dive flag |
 | v3.7 | 2026-05-30 | Låst `ACTIVATION_PROGRAM_LAUNCH_AT`; expired dag 21; `calendar_day`; Parent/Family Day 14 KPI; `supportive_fallback` trigger |
 | v3.8 | 2026-05-30 | Aha opportunity + conversion rate; Day 30/60 retention (lagras); post-launch admin-prioritet; `activation-program-retention.js` |
+| v3.9 | 2026-05-30 | Minsta effektstorlek (+10 pp / +20 % relativ); dag 1 preview; modal aha-card; smoke→50/50 A/B |
 
 ---
 
-*Implementation-ready v3.8. Experimentdesign + analysplan komplett. Fas 1 kan starta.*
+*Implementation-ready v3.9. Alla pre-kod- och pre-migration-beslut låsta. Fas 1 kan starta.*
