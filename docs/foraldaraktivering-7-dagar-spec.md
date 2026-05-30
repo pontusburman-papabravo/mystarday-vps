@@ -1,10 +1,10 @@
 # Föräldaraktivering — 7-dagarsprogram
 
 **Skapad:** 2026-05-30  
-**Senast reviderad:** 2026-05-30 (v3.9 — låst minsta effektstorlek; dag 1 preview; modal; A/B-rollout)  
+**Senast reviderad:** 2026-05-30 (v3.10 — operativ prioritering; launch-kriterier; Polsia Fas 1-task)  
 **Status:** Implementation-ready (kausalt retention-experiment)  
 **Feature slug:** `foraldaraktivering_7d`  
-**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard
+**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard, [Fas 1 task](./foraldaraktivering-fas1-task.md)
 
 ---
 
@@ -1296,14 +1296,19 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 | `src/lib/activation-program-scheduler.js` | 5 |
 | `src/lib/activation-program-retention.js` | 6 |
 | `src/routes/admin/activation-program.js` | 6 |
+| `docs/foraldaraktivering-fas1-task.md` | 1 (Polsia) |
 
 ---
 
 ## 21. Öppna frågor (implementation, ej arkitektur)
 
-*Inga öppna arkitektur- eller experimentfrågor kvar efter v3.9.*
+*Inga öppna arkitektur- eller experimentfrågor kvar efter v3.10.*
 
-**Besvarade (v3.3–v3.9 — ej öppna):**
+**Besvarade (v3.3–v3.10 — ej öppna):**
+- ~~Daglig logg vs 7-dagarsprogram?~~ → **Daglig logg först**; Fas 1 efter stabil completion (§22)
+- ~~Pilotfamiljer 1–5?~~ → **Nej**; intern smoke + 3–5 dag prod smoke (§22)
+- ~~Launch-datum?~~ → **Tekniskt kriterium**; sätt `LAUNCH_AT` vid MVP go-live (§22)
+- ~~Grupp C parallellt?~~ → **Research/win-back ja**; `reactivation_3d` nej tills hypotes utvärderad (§22)
 - ~~Dag 1 preview eller child-login?~~ → **Inline preview primär**; `/child-login` fallback (§4.1)
 - ~~Modal eller inline celebratory card?~~ → **Modal i v1** — hypotesen kräver synlig exponering (§5.3)
 - ~~När starta 50/50 A/B?~~ → **3–5 dag smoke @ 100 %**, därefter **50/50 permanent** (§13.2)
@@ -1318,7 +1323,70 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 
 ---
 
-## 22. Revisionslogg
+## 22. Operativ prioritering & launch (v3.10, låst)
+
+Beslut efter Polsia-sync 2026-05-30. Implementation task: [foraldaraktivering-fas1-task.md](./foraldaraktivering-fas1-task.md).
+
+### Prioriteringsordning (produktägare)
+
+```
+1. Daglig logg / supporteskalering     ← blockerar experimentet
+2. Bryt ned Fas 1–4 i tickets          ← parallellt
+3. Bygg Fas 1–4
+4. Intern smoke (staging + testkonton)
+5. Prod: 3–5 dag smoke @ 100 % treatment
+6. 50/50 experiment
+7. Day 14-kohort → analys
+8. Ev. reactivation_3d (Grupp C)       ← först efter hypotes utvärderad
+```
+
+**Princip:** Bygg inte retentionlager ovanpå en läckande kärnloop (`daily_log` → completion).
+
+### Daglig logg vs 7-dagarsprogram
+
+| | Beslut |
+|--|--------|
+| **Först** | Stabil daglig logg / completion-flöde |
+| **Parallellt** | Planera och ticket Fas 1–4 |
+| **Implementation** | Starta Fas 1 när completion kedjan är verifierad stabil |
+
+Annars kan misslyckat experiment bero på loggproblem — inte att hypotesen var fel.
+
+### Pilot — ingen extern 1–5-familj-pilot
+
+| Steg | Scope |
+|------|--------|
+| **Intern smoke** | Egna konton, staging — verifiera hela kedjan |
+| **Prod smoke** | 3–5 dagar @ 100 % treatment (§13.2) — *detta är piloten* |
+| **Experiment** | 50/50 permanent |
+
+1–5 "pilotfamiljer" ger koordinationskostnad utan extra lärande vs smoke-test.
+
+### Launch — tekniskt kriterium, inte kalenderdatum
+
+**Sätt `ACTIVATION_PROGRAM_LAUNCH_AT` först när Fas 1–4 MVP är live och verifierad:**
+
+- Migrationer körda
+- Enrollment, banner, celebratory modal fungerar
+- Analytics kedja observerad i prod (minst ett komplett testflöde)
+- **Sedan** fryser kohorten — **ändra aldrig LAUNCH_AT efter första riktiga enroll**
+
+### Grupp C (~93 riskfamiljer) — research parallellt, inte experiment
+
+| Gör | Gör inte |
+|-----|----------|
+| Export + manuell analys | `reactivation_3d` i v1.0 |
+| Ev. enkelt win-back-mail | Auto-enroll i onboarding_7d |
+| Intervjuer (kvalitativ) | Blanda in i Day 14 A/B |
+
+Två frågor, två system:
+
+- **Fråga A (nya familjer):** `onboarding_7d` — huvudexperiment
+- **Fråga B (churnade):** `reactivation_3d` — v1.2 efter hypotes utvärderad
+
+---
+
+## 23. Revisionslogg
 
 | Version | Datum | Ändring |
 |---------|-------|---------|
@@ -1334,7 +1402,8 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 | v3.7 | 2026-05-30 | Låst `ACTIVATION_PROGRAM_LAUNCH_AT`; expired dag 21; `calendar_day`; Parent/Family Day 14 KPI; `supportive_fallback` trigger |
 | v3.8 | 2026-05-30 | Aha opportunity + conversion rate; Day 30/60 retention (lagras); post-launch admin-prioritet; `activation-program-retention.js` |
 | v3.9 | 2026-05-30 | Minsta effektstorlek (+10 pp / +20 % relativ); dag 1 preview; modal aha-card; smoke→50/50 A/B |
+| v3.10 | 2026-05-30 | Operativ prioritering; launch-kriterier; Grupp C research; Fas 1 Polsia-task |
 
 ---
 
-*Implementation-ready v3.9. Alla pre-kod- och pre-migration-beslut låsta. Fas 1 kan starta.*
+*Implementation-ready v3.10. Fas 1-task klar — start efter daglig logg stabil.*
