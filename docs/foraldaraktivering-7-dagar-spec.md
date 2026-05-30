@@ -1012,6 +1012,7 @@ Fas 6: exponera `GET /api/admin/activation-program/retention?window=14|30|60`. A
   - Kräver opportunity rate i samma vy — annars missvisande
 - **Sekundära KPI:er (v3.7):** Family vs Parent Day 14 retention side-by-side (diagnostisk — ej North Star)
 - **Day 30/60 retention (v3.8):** beräknas och lagras i Fas 6; dold i UI tills kohortmognad ≥30/60 dagar
+- **Experiment success threshold (v3.9):** visa `isExperimentPromising()` mot fryst tröskel (+10 pp / +20 % relativ)
 - **Dag 3 fallback-analys:** andel `activation_program_day_done` med `trigger = 'supportive_fallback'` vs `trigger = 'aha'`
 - **Retention Wall 2×2** (§1.1): complete/incomplete × retained/churned
 - **Deep Dive Interview-flagga** (v3.6): treatment-familjer som
