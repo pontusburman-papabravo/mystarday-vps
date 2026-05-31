@@ -8,7 +8,7 @@
 | Dokument | Innehåll |
 |----------|----------|
 | [`docs/ios-städ.md`](ios-städ.md) | Teknisk städning efter native-steg 1–10 + webb-fixar |
-| [`app.md`](https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/create-app-md-1c33/app.md) | Native build-plan (Capacitor, TestFlight, 10 steg) |
+| [`app.md`](../app.md) | Native build-plan (Capacitor, TestFlight, 10 steg) |
 | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | Föräldrakonto: Apple, e-post, byt mail |
 | [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) | Barnlogin 3 skärmar + selfie |
 | [`docs/mockups/barnlogin-3-skarmar.png`](mockups/barnlogin-3-skarmar.png) | Designreferens barnlogin |
@@ -442,7 +442,7 @@ Fas D — Efter launch
 | Du vill… | Läs |
 |----------|-----|
 | Frysa webb vs native tekniskt | [`docs/ios-städ.md`](ios-städ.md) |
-| Bygga iOS/Android wrapper | [`app.md`](https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/create-app-md-1c33/app.md) |
+| Bygga iOS/Android wrapper | [`app.md`](../app.md) |
 | Föräldrakonto Apple/mail | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) |
 | Barnlogin + selfie | [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) |
 | Push-arkitektur | `src/lib/push-reminder-scheduler.js`, `docs/app-store-apns.md` |
