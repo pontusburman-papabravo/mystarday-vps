@@ -273,29 +273,78 @@ Familj
 
 ## 4. Vad som behöver städas 🔧
 
-### P0 — Parental Gate (måste före TestFlight)
+### P0 — Blocker-lista (ingen TestFlight förrän allt är grönt)
 
-**Inte polish — kärnsäkerhet.** Barnläge utan PG är blockerande för App Store-review och föräldraförtroende.
+**Regel:** Alla P0.x måste vara ✅ enligt [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature) innan TestFlight / 9A.
 
-| Risk utan PG | Konsekvens |
-|--------------|------------|
-| Barn når `/dashboard`, `/settings`, `/family` | Föräldra-kontroll underminerad |
-| Barn kan ändra familjeinställningar | Review-risk + support |
-| `sessionRestored` efter logout | Barn i vuxenläge utan avsikt |
-
-| Krav | Fix |
-|------|-----|
-| Barn → vuxen kräver PG | App-lås-PIN + biometri (§5.2) |
-| Persistent barnläge | `device_mode = 'child'` överlever force close (§5.2.1) |
-| Skyddade routes | Middleware/klient: barn-JWT blockeras från vuxen-API (redan delvis) |
-
-**Acceptans:** Se [§14.1 Parental Gate](#141-parental-gate).
-
-**PG-modell:** Per **inloggad förälder + enhet** — **inte** gemensam familje-PIN.
+| ID | Område | Varför blocker |
+|----|--------|----------------|
+| **P0.1** | Säkerhet & Gate | Barnläge utan lås = review-risk + föräldraförtroende |
+| **P0.2** | Native identity | Apple (iOS) / Google (Android) — **inte** web-wrapper-login |
+| **P0.3** | UI-gating | Guideline 4.2 — noll PWA/webb-känsla i native |
+| **P0.4** | Native tab bar | Primärt visuellt bevis att det är en **app** |
 
 ---
 
-### Prio 1 — Auth & plattform (blockerar TestFlight)
+#### P0.1 — Säkerhet & Gate (Parental Gate + delad enhet)
+
+| Krav | Spec |
+|------|------|
+| PG vid barn → vuxen | App-lås-PIN + biometri (§5.2) |
+| Persistent barnläge | `device_mode = 'child'` överlever force close (§5.2.1) |
+| Skyddade routes | Barn når inte dashboard/settings/family (§14.1) |
+| OS back-gest | Går **inte** att kringgå PG via iOS/Android "tillbaka" |
+
+**Acceptans:** [§14.1](#141-parental-gate-p01)
+
+---
+
+#### P0.2 — Native identity (Apple iOS + Google Android)
+
+| Plattform | Krav | Inte tillräckligt |
+|-----------|------|-------------------|
+| **iOS native** | Apple Sign In via Capacitor-plugin (`Platform.appleSignIn`) | Safari Apple JS i WebView |
+| **Android native** | Google Sign In via native plugin/shim | Webb-OAuth i WebView |
+| **Webb** | E-post + Apple JS (iOS Safari) | — |
+
+Inkluderar ios-städ auth-fixar (JWKS, CSRF, `platform.js` på login, `email_conflict`).
+
+**Obs:** Google backend (`POST /api/auth/google`) kan behöva skapas om saknas — minimalt scope för Android P0.
+
+**Acceptans:** [§14.3](#143-native-identity-p02) + [§14.8](#148-ios-städ-auth-stöd)
+
+---
+
+#### P0.3 — UI-gating (`body.is-native`)
+
+När `Platform.isNative()` === true ska **inget** av följande synas:
+
+- PWA-installguider (`pwa-install.js`, settings)
+- "Ladda ner app"-banners / `.pwa-callout`
+- Webb-hamburger som primär nav (ersätts av P0.4)
+- Cookie/marketing-banner (reducera eller dölj)
+
+**Fix:** `platform-gating.css` + `body.is-native` vid app-start.
+
+**Acceptans:** [§14.7](#147-ui-gating-p03)
+
+---
+
+#### P0.4 — Native tab bar (vuxen)
+
+| Krav | Spec |
+|------|------|
+| Position | Fast i botten, oavsett scroll |
+| Safe area | `env(safe-area-inset-bottom)` — notch + hem-indikator |
+| Flikar | Hem · Schema · Bibliotek · Familj · Inställningar |
+| Haptik | `Platform.haptics.light()` vid flikbyte |
+| Scope | Endast `Platform.isNative()` — **rör inte** `mobile-nav.js` på webb |
+
+**Acceptans:** [§14.6](#146-native-tab-bar-p04)
+
+---
+
+### Prio 1 — Auth-fixar (stöd till P0.2, tidigare fristående)
 
 | Problem | Var | Fix |
 |---------|-----|-----|
@@ -307,14 +356,9 @@ Familj
 | `platform.js` saknas | login, register, onboarding, settings, schedule | Ladda på alla sidor |
 | Lifetime free ignoreras | `src/middleware/subscription.js` | Respektera `is_lifetime_free` |
 
-### Prio 2 — UI-gating (App Store 4.2)
+### ~~Prio 2 — UI-gating~~ → **P0.3**
 
-| Problem | Fix |
-|---------|-----|
-| PWA-guider syns i native app | `body.is-native` + `platform-gating.css` |
-| "Ladda ner app" i appen | Dölj `[data-pwa-guide]`, cookie-banner reducera |
-
-### Prio 3 — Kontohantering A–F (ej implementerat)
+### Prio 3 — Kontohantering A–F (viktigt, ej P0)
 
 | Del | Innehåll |
 |-----|----------|
@@ -327,16 +371,16 @@ Familj
 
 Spec: [`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md)
 
-> **Obs:** Kontohantering A–F är viktigt men **inte** lika blockerande som P0 PG för första TestFlight med grundarfamiljer.
+> **Obs:** A–F viktigt för Android/Apple-only-konton men **blockerar inte** första TestFlight om e-post-login fungerar.
 
-### ~~Prio 4 — Säkerhet barnläge~~ → flyttad till **P0**
+### ~~Prio 4 — Säkerhet barnläge~~ → **P0.1**
 
-### Prio 5 — Design & UX-gap
+### Prio 5 — Design & UX-gap (efter P0 + Fas A+)
 
 | Gap | Åtgärd |
 |-----|--------|
 | Dashboard ≠ mockup | Horisontella barnkort, quick actions, IDAG-lista |
-| Native tab bar (vuxen) | `native-tab-bar.js` — Hem/Schema/Bibliotek/Familj/Inställningar |
+| ~~Native tab bar~~ | → **P0.4** |
 | Barnvy mid-flikar | Flytta till bottennav + swipe |
 | Sticky ⭐ i barn-header | Flytta `#totalStarBalance` till sticky zon |
 | Barnlogin 3 skärmar | Polsia P1/P2 |
@@ -700,32 +744,33 @@ Ju fler som är ✅ före review, desto starkare case:
 | **9B** | **Release Candidate — testfamiljer** | ○ Se nedan |
 | **10** | App Store / Play Store release | ○ |
 
-### Steg 9A — Intern QA (Release Candidate)
+### Steg 9A — Enhetstester (Release Candidate)
 
-| Enhet | Test |
-|-------|------|
-| iPhone SE (liten skärm) | PG, barnlogin, safe-area |
-| iPhone 16 / senaste | Apple Sign In, push, haptik |
-| iPad (kompatibilitetsläge) | Barnvy, barnläge persistent |
-| Android liten skärm | E-post login, push token |
-| Android stor skärm | Layout, tab bar |
+| Enhet | Varför | Testfokus |
+|-------|--------|-----------|
+| **iPhone SE** | Liten skärm, tight layout | Tab bar, barnlogin, PG-modal |
+| **iPhone 16 Pro Max** | Stor skärm, Dynamic Island | Safe-area, header |
+| **iPad** | Kompatibilitetsläge | Barnläge persistent, barnvy |
+| **Billig Android-platta** | Målgruppens verkliga enhet | Google login, layout, prestanda |
+| **Android telefon** | Push + FCM | Token, tab bar |
 
-**Gate:** Alla P0/P1 acceptanskriterier (§14) gröna på minst en iOS + en Android enhet.
+**Gate:** Alla **P0.1–P0.4** + §14 gröna på minst **en iOS + en Android**.
 
-### Steg 9B — Testfamiljer (Release Candidate)
+### Steg 9B — Familje-beta (Release Candidate)
 
-| Krav | Antal |
-|------|-------|
-| Familjer totalt | 10–20 |
-| Separerat hushåll (per-barn-inbjudan) | Minst 1 |
-| Pedagog kopplad | Minst 1 |
-| Barn på delad iPad | Minst 2 |
+| Krav | Syfte |
+|------|--------|
+| 10–20 familjer | Riktig användning |
+| **Minst 1 separerat hushåll** | Per-barn-inbjudan; pappa ser inte syskon |
+| Minst 1 pedagog | Roll `pedagog` isolerad |
+| Minst 2 barn på delad iPad | P0.1 `device_mode` + PG |
+| Synk mellan adresser/enheter | Schemaändring + avbockning syns; **ingen dataläcka** mellan barn |
 
-**Gate:** Golden Path (§11.0) + PG + push mottagen av förälder vid barns avbockning.
+**Gate:** Golden Path (§11.0) + P0 grön + push vid avbockning (om push ship:at).
 
 **Först efter 9A + 9B:** Steg 10 — public App Store / Play Store.
 
-**Nästa (teknisk ordning):** ios-städ Prio 1–3 → **P0 PG** → Barnlogin P1 → Dashboard mockup → tab bar → Capacitor 1–2 → push 4–5 → 9A.
+**Nästa (teknisk ordning):** **Fas A+ (The Core)** → Barnlogin P1 → Dashboard mockup → Capacitor 1–2 (om saknas) → push 4–5 → 9A.
 
 Fullständiga steg-prompter: [`app.md`](app.md) (Capacitor-detaljer).
 
@@ -751,58 +796,134 @@ Registrera / logga in (vuxen)
 
 **Vertikala sprintar:** En sprint = ett helt flöde (t.ex. "PG + persistent barnläge"), inte spridda halvfärdiga features.
 
-### 11.1 Kritisk väg till extern testgrupp (8 punkter)
+**Nästa:** **Fas A+ (The Core)** → Capacitor 1–2 om saknas → push → 9A.
+
+### 11.2 Fas A+ — "The Core" (super-uppdrag)
+
+**Mål:** En app som **tekniskt kan passera första App Store-granskning** — även om innehåll poleras senare.
+
+**Tre pelare i ett uppdrag:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Fas A+ — The Core                                      │
+├─────────────────────────────────────────────────────────┤
+│  1. ios-städ        Auth-fixar + lifetime_free (→ P0.2) │
+│  2. P0.1 PG         Säkerhetslås + device_mode          │
+│  3. P0.3 + P0.4    UI-gating + Native Tab Bar          │
+└─────────────────────────────────────────────────────────┘
+```
+
+| Pelare | P0 | Leverabel |
+|--------|-----|-----------|
+| ios-städ | P0.2 stöd | Apple native login fungerar; Android utan Apple-knapp |
+| Parental Gate | **P0.1** | Barn kan inte nå vuxenytor; PG vid utpassage |
+| UI-gating + Tab bar | **P0.3 + P0.4** | Ingen PWA-text; fast bottennav med haptik |
+
+**Efter Fas A+:** Barnlogin P1 → Dashboard mockup → push → TestFlight.
+
+**Polsia-prompt:** [§12 — Fas A+ (The Core)](#fas-a--the-core-super-uppdrag)
+
+### 11.1 Kritisk väg till extern testgrupp
 
 När dessa är klara är planen mogen för **första externa testgrupp** (9B):
 
 | # | Leverabel |
 |---|-----------|
-| 1 | ios-städ Prio 1–3 (auth, gating, lifetime_free) |
-| 2 | **P0 Parental Gate** (+ device_mode persistent) |
-| 3 | Barnlogin P1 |
-| 4 | Dashboard mockup |
-| 5 | Native tab bar |
-| 6 | Capacitor steg 1–2 |
-| 7 | Push-flöde (token + APNs/FCM leverans) |
-| 8 | TestFlight (→ 9A intern QA) |
-
-Kontohantering A–F, IAP UI och tillväxtfunktioner **efter** ovan.
+| 1 | **Fas A+ (The Core)** — P0.1–P0.4 + ios-städ auth |
+| 2 | Barnlogin P1 |
+| 3 | Dashboard mockup |
+| 4 | Capacitor steg 1–2 (om ej redan) |
+| 5 | Push-flöde (token + APNs/FCM) |
+| 6 | TestFlight → 9A → 9B |
 
 ```
-═══ Fas A — Säkerhet (blockerar TestFlight) ═══
- 1. ios-städ Prio 1–3  (auth, gating, lifetime_free)
- 2. P0 Parental Gate   (app-lås + device_mode §5.2.1)  ← före A–F
- 3. Barnlogin P1        (3 skärmar, siffertavla, haptik)
- 4. Kontohantering A–F  (parallellt om resurser finns)
+═══ Fas A+ — The Core (P0, före TestFlight) ═══
+ • ios-städ auth + lifetime_free
+ • P0.1 Parental Gate + device_mode
+ • P0.2 Apple native (iOS) + Google native (Android) — minimalt
+ • P0.3 UI-gating (noll PWA i native)
+ • P0.4 Native tab bar
 
-═══ Fas B — Design & native-känsla (4.2) ═══
- 5. Dashboard mockup    (barnkort, quick actions, IDAG)
- 6. Native tab bar      (vuxen)
- 7. Barnvy bottennav    (Schema/Skattkammaren/Min profil + swipe)
- 8. Barnlogin P2        (selfie Min profil)
- 9. Familje-flik UI     (Mina barn / Dela åtkomst)
-10. Onboarding mobil   + flow=add-child fix
+═══ Fas A — Fortsatt säkerhet & konto ═══
+ 1. Barnlogin P1
+ 2. Kontohantering A–F (parallellt)
+
+═══ Fas B — Design & polish ═══
+ 3. Dashboard mockup
+ 4. Barnvy bottennav + swipe
+ 5. Barnlogin P2, Familje-flik, onboarding mobil
 
 ═══ Fas C — Native build & push (före IAP) ═══
-11. Capacitor Steg 1–2
-12. Apple Sign In Steg 3
-13. Native push 4–5     ← före RevenueCat UI
-14. TestFlight 9 → 9A intern QA → 9B testfamiljer
+ 6. Capacitor Steg 1–2 (om A+ kördes utan)
+ 7. Native push 4–5
+ 8. TestFlight → 9A → 9B
 
 ═══ Fas D — Efter RC / launch ═══
-15. IAP RevenueCat UI (Steg 8)
-16. Push Fas 1 (rikare text)
-17. Magic link webb
-18. Föräldra-logg
-19. Google Sign In
-20. Push till barn (Fas 2)
+ 9. IAP RevenueCat UI
+10. Push Fas 1, magic link, föräldra-logg, push till barn
 ```
 
 ---
 
 ## 12. Polsia-uppdrag (copy-paste)
 
-### A — ios-städ fas 1 (Prio 1–3)
+### Fas A+ — "The Core" (super-uppdrag)
+
+**Kör detta först.** Ett deploy = grund som klarar första granskning.
+
+```
+Uppgift: Fas A+ — The Core (P0.1–P0.4 + ios-städ auth)
+
+Läs: app2.md §4 P0, §11.2, §14.1, §14.3, §14.6, §14.7, §14.8
+
+MÅL: Native app som INTE känns som web-wrapper. Ingen TestFlight förrän §14 P0-checklistor är gröna.
+
+═══ DEL 1 — ios-städ (stöd P0.2) ═══
+1. platform.js: body.is-native / is-native-ios; isAppleSignInAvailable()
+2. Ladda platform.js på login, register, onboarding, settings, schedule, dashboard
+3. auth.js: fix _jwkToPem (crypto.createPublicKey)
+4. csrf.js: exempt /auth/apple, /auth/apple/link
+5. login.html: email_conflict, handleAppleLink (idToken), modal istf prompt()
+6. subscription.js: respektera is_lifetime_free
+7. iOS native: Apple Sign In via Capacitor (inte webb-OAuth i WebView)
+8. Android native: Google Sign In via native plugin (minimalt — skapa /api/auth/google om saknas)
+9. Android native: INGEN Apple-knapp
+
+═══ DEL 2 — P0.1 Parental Gate ═══
+10. "Aktivera barnläge" — välj barn + app-lås-PIN (Secure Storage)
+11. device_mode='child' persistent; cold start → /child-login
+12. Gate: childLogout, sessionRestored, "Jag är vuxen", tillbaka, dörr
+13. Blockera OS back-gest från att kringgå PG (Capacitor App backButton / history)
+14. Biometri: @capacitor-community/biometric (iOS + Android)
+15. Glömt PIN → full logout + re-auth (tvinga e-post/Apple/Google)
+16. Endast PG sätter device_mode='parent'
+17. Server/klient: barn når inte /dashboard, /settings, /family, vuxen-API
+
+═══ DEL 3 — P0.3 UI-gating ═══
+18. public/css/platform-gating.css — dölj ALLT webb-only när .is-native
+19. pwa-install.js isNeeded() = false native
+20. Dölj hamburger/.mobile-topbar på föräldrasidor i native (förbered P0.4)
+
+═══ DEL 4 — P0.4 Native Tab Bar ═══
+21. public/js/native-tab-bar.js — endast Platform.isNative()
+22. Flikar: Hem / Schema / Bibliotek / Familj / Inställningar
+23. position:fixed bottom + safe-area-inset-bottom
+24. Platform.haptics.light() vid flikbyte
+25. body.has-native-tab-bar — dölj webb-nav
+
+26. SW bump
+
+TEST (§14):
+- P0.1: barn kan inte nå vuxenytor; force close → PIN; PG vid utpassage; glömt PIN = logout
+- P0.2: Apple login iOS app; Google login Android app; ingen Apple på Android
+- P0.3: ingen PWA-text i TestFlight
+- P0.4: tab bar fixed, safe-area, haptik
+
+Gör INTE: dashboard mockup, barnlogin redesign, IAP, RevenueCat UI
+```
+
+### A — ios-städ fas 1 (ingår i Fas A+ — kör ej separat om A+ körs)
 
 ```
 Uppgift: ios-städ fas 1 — Universal Auth + UI-gating + lifetime_free
@@ -956,7 +1077,7 @@ Alltid respektera `stjarndag_haptics_enabled` + `prefers-reduced-motion`.
 
 Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara grön innan merge/deploy.
 
-### 14.1 Parental Gate (P0)
+### 14.1 Parental Gate (P0.1)
 
 **Barn-session / barnläge (`device_mode = 'child'`):**
 
@@ -967,34 +1088,39 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] Logout i barnvy → `/child-login`, **inte** dashboard med `sessionRestored`
 - [ ] "Jag är vuxen" på login → PG-modal om `device_mode = child`
 - [ ] Force close → omstart → `/child-login` (§5.2.1)
+- [ ] **OS back-gest** kringgår **inte** PG (iOS edge swipe / Android back)
 
 **Parental Gate — ut ur barnläge:**
 
+- [ ] Kräver PIN **eller** biometri vid växling barnläge → vuxenläge
 - [ ] Rätt app-lås-PIN → vuxen dashboard
 - [ ] Fel PIN → stanna i barnläge; tydligt felmeddelande
-- [ ] 5 fel PIN-försök → tillfällig lockout (t.ex. 5 min) + ev. föräldra-notis
-- [ ] Biometri (Face ID / Touch ID) fungerar på **iOS native**
+- [ ] 5 fel PIN-försök → tillfällig lockout (t.ex. 5 min)
+- [ ] Biometri fungerar på **iOS native**
 - [ ] Biometri fungerar på **Android native** (om enhet stödjer)
-- [ ] "Glömt PIN" → full re-auth (e-post/lösenord/Apple) → nytt app-lås
+- [ ] **"Glömt PIN" → full logout** + tvinga re-auth (e-post/Apple/Google) — inte bypass
 - [ ] Endast PG sätter `device_mode = 'parent'`
 
 ### 14.2 Barnlogin P1
 
 - [ ] Rollval: "Jag är barn" / "Jag är vuxen"
 - [ ] Barnväljare (lista), inte fritext namn
+- [ ] **Egen siffertavla** — **inte** systemets tangentbord
+- [ ] **Selfie/avatar visas omedelbart** vid val av barn i listan
 - [ ] Siffertavla med haptik per siffra
 - [ ] Befintlig lockout (`pin_lockout`) fungerar
 - [ ] "+ Lägg till barn" → `/onboarding?flow=add-child`
 - [ ] Safe-area OK på iPhone med notch
 
-### 14.3 ios-städ Auth (Prio 1)
+### 14.3 Native identity (P0.2)
 
-- [ ] iOS native: Apple login → dashboard/onboarding
-- [ ] iOS Safari: Apple JS login
-- [ ] Android native: **ingen** Apple-knapp
+- [ ] **iOS native app:** Apple Sign In via Capacitor → dashboard/onboarding
+- [ ] **iOS native app:** E-post/lösenord fallback fungerar
+- [ ] **Android native app:** Google Sign In via native plugin
+- [ ] **Android native app:** E-post/lösenord fallback fungerar
+- [ ] **Android native:** **ingen** Apple-knapp
+- [ ] **Webb iOS Safari:** Apple JS (inte native plugin)
 - [ ] Desktop Chrome: e-post login, ingen Apple-knapp
-- [ ] `email_conflict` hanteras utan `prompt()`
-- [ ] `is_lifetime_free` → ingen 402
 
 ### 14.4 Native push
 
@@ -1012,18 +1138,46 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] Micro-copy eller toast med barnets namn
 - [ ] Förälder får push vid avbockning (online)
 
-### 14.6 Dashboard mockup
+### 14.6 Native tab bar (P0.4)
+
+- [ ] **Fast i botten** oavsett scroll (`position: fixed`)
+- [ ] **Safe area** — `env(safe-area-inset-bottom)` för notch + hem-indikator (iPhone SE → 16 Pro Max)
+- [ ] **Haptisk feedback** vid flikbyte (`Platform.haptics.light()`)
+- [ ] Flikar: Hem · Schema · Bibliotek · Familj · Inställningar
+- [ ] Endast `Platform.isNative()` — **mobil webb behåller hamburger** (`mobile-nav.js` oförändrad)
+- [ ] `body.has-native-tab-bar` döljer webb-nav på föräldrasidor
+
+### 14.7 UI-gating (P0.3)
+
+- [ ] `body.is-native` sätts vid app-start (Capacitor)
+- [ ] **Ingen** PWA-installguide i native (`pwa-install.js` → `isNeeded() === false`)
+- [ ] **Ingen** "Ladda ner app"-banner / `.pwa-callout` i native
+- [ ] Settings: push/PWA-sektion dold eller native-anpassad
+- [ ] Cookie/marketing-banner dold eller reducerad i native
+- [ ] Webb-hamburger **inte** primär nav i native (ersatt av §14.6)
+
+### 14.8 ios-städ auth-stöd (P0.2)
+
+- [ ] `auth.js`: JWKS → PEM via `crypto.createPublicKey`
+- [ ] CSRF exempt: `/auth/apple`, `/auth/apple/link`
+- [ ] `login.html`: `email_conflict` utan `prompt()` — modal med val
+- [ ] Apple-länkning: skickar `idToken`; kräver lösenord-login först
+- [ ] `platform.js` laddad på login, register, onboarding, settings, schedule, dashboard
+- [ ] `is_lifetime_free` respekteras i `subscription.js` (ingen 402)
+- [ ] Android native: **ingen** Apple-knapp (`Platform.isAppleSignInAvailable()`)
+
+### 14.9 Dashboard mockup (P1 — efter Fas A+)
 
 - [ ] Horisontella barnkort med Idag X/Y + totalt ⭐
 - [ ] Quick Actions fungerar (extra stjärna, ledig dag)
 - [ ] IDAG-lista med NU/NÄSTA
-- [ ] Desktop: sidomeny; mobil webb: hamburger; native: tab bar
+- [ ] Desktop: sidomeny; mobil webb: hamburger; native: tab bar (§14.6)
 
 ---
 
 ## 15. Beredskapsbedömning
 
-| Dimension | Idag | Efter Fas A + B | Mål launch |
+| Dimension | Idag | Efter Fas A+ + B | Mål launch |
 |-----------|------|-----------------|------------|
 | Produktvision | 9/10 | 9/10 | 9/10 |
 | Designriktning | 9/10 | 9/10 | 9/10 |
@@ -1031,7 +1185,7 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 | Native-beredskap | ~6/10 | ~8/10 | 9/10 |
 | App Store-beredskap | ~5/10 | ~8.5/10 | 9/10 |
 
-**Kritisk väg (sammanfattning):** ios-städ 1–3 → **P0 PG** → Barnlogin P1 → Dashboard mockup → tab bar → Capacitor 1–2 → push → TestFlight → **9A/9B RC** → release.
+**Kritisk väg (sammanfattning):** **Fas A+ (The Core)** → Barnlogin P1 → Dashboard mockup → Capacitor 1–2 (om ej i A+) → push → TestFlight → **9A/9B RC** → release.
 
 IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första externa testgrupp.
 
@@ -1057,6 +1211,7 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | P0.1–P0.4 blocker-lista, Fas A+ (The Core), §14.6–14.9, 9A/9B RC |
 | 2026-06-01 | P0 PG, RC 9A/9B, §14 acceptans, §15 beredskap, push före IAP |
 | 2026-05-31 | §5.2.1 device_mode, §5.3–5.7, §7.1 feedback, §13 strategi |
 | 2026-05-31 | Utökad §2 med wireframes, HTML-mockup-länkar |
