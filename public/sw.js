@@ -1,5 +1,60 @@
 /**
- * Min Stjärndag — Service Worker v131
+ * Min Stjärndag — Service Worker v162
+ * v162: Fix SyntaxError in admin-families.js:693 — email validation regex
+ *       had escaped closing slash (\/), preventing file from parsing →
+ *       loadFamilies/loadMessages never defined → Familjer/Meddelanden/Bibliotek
+ *       stuck on "Laddar..." forever. One-char fix: removed stray backslash.
+ * v161: Admin desktop infinite loading fix — apiLimiter no longer counts
+ *       authenticated requests (req.user.id skip); AbortController timeout
+ *       added to loadFamilies, loadMessages, loadDefaultTemplates so requests
+ *       fail fast instead of hanging if DB is slow.
+ * v159: Admin mobile fix — exempt static assets from global rate limiter (they
+ *       exhausted the 200 req/min IP budget on admin panel load → 429 on API
+ *       calls → redirect to /login). Admin-core.js catch block now only redirects
+ *       on 401/403 (auth failures), not 429/500/network errors.
+ * v150: Barnlogin Phase 2 — avatar upload display confirmation.
+ *       Avatar upload backend already in place (SW v140: POST /api/upload/avatar).
+ *       child-login.js: renderChildAvatar() already handles avatar_url → emoji → ⭐
+ *         fallback chain in both child selection list and PIN screen avatar.
+ *       child-login-magic.css: cl-avatar-ring img and .cl-pin-avatar img already styled.
+ *       SW bump v149→v150 for cache invalidation.
+ * v149: Barnlogin Phase 1 — "Stjärnutforskare" redesign.
+ *       Skärm 1: login.html already has role cards (kid/parent).
+ *       Skärm 2: child-login.html = 2-view flow (select child → PIN with custom keypad).
+ *       child-login-magic.css — night theme styles + animated stars/clouds.
+ *       child-login.js — keypad logic, child list from localStorage + /api/auth/me,
+ *         POST /api/auth/child-login (unchanged), lockout UI preserved.
+ *       onboarding.js: flow=add-child bypasses onboarding_completed guard,
+ *         skips invite step, redirects to /child-login after complete.
+ *       SW bump v148→v149 for cache invalidation.
+ * v148: Kontohantering F — Admin-stöd.
+ *       GET /api/admin/families-grouped includes hasPassword/hasAppleLinked/appleEmail per parent.
+ *       PUT /api/admin/parents/:id/email — admin email change with reason + audit.
+ *       DELETE /api/admin/parents/:id/apple-link — admin Apple unlink with reason + audit.
+ *       GET /api/admin/families/:familyId/audit-log — last 20 admin actions.
+ *       Admin panel: auth badges (🔑🍎⚠️📧), change-email modal, unlink-apple modal, audit panel.
+ *       reset-parent-password now logs to admin_audit_log with auth context.
+ *       Email sent to old + new address on admin email change.
+ * v138: Kontohantering C — "Konto & inloggning" UI på inställningssidan.
+ *       new /js/settings-account.js (dynamic rendering based on accountAuth).
+ *       settings.html: accountSection injected above legacy password section.
+ *       showAppleAuthUI() helper (Platform.isIOS()) for Apple linking UI gates.
+ *       Add-password success → replaces section with change-password form.
+ * v137: Kontohantering B — backend-grund.
+ *       GET /api/auth/me includes accountAuth object (hasPassword, hasAppleLinked,
+ *       email, appleEmail, canUnlinkApple).
+ *       POST /api/account/set-password for Apple-only accounts.
+ *       email_change_token migration deployed.
+ * v136: Login "magisk natt" redesign — new login-magic.css/js, login.html visual overhaul,
+ *       gradient navy→lila→rosa starfield, role cards (kid/parent), parent form reveal,
+ *       safe-area insets, all existing auth logic preserved. SW bump for cache invalidation.
+ * v134: Native vs Webb — platform-theme.js (synkront IIFE, Capacitor.isNativePlatform()),
+ *       platform-native.css (CSS gates för safe-area, hamburger, web payment),
+ *       platform-html.js middleware injecterar scripts i alla HTML responses.
+ *       Klasser .web-payment-only på upgrade.html-prissektion.
+ * v132: Hotfix — registrering kraschade med CHECK constraint violation. auth.js INSERT
+ *       använde 'trial'/'beta' men family_subscription_status_check tillåter bara
+ *       'none'|'active'|'expired'|'grace_period'|'cancelled'. Ändrat till 'none'.
  * v131: Hotfix — batch-ratings query referenced non-existent daily_log_item_rating table,
  *       crashing child daily-log endpoint. Fixed to use actual `rating` table.
  * v130: Barnvy-bugfix — humörbetyg nu styrs av show_mood_rating (per-child parent setting),
@@ -118,8 +173,13 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v131';
-// v129: Release prep — lifetime free för topp 200 familjer.
+const CACHE_NAME = 'stjarndag-v164';
+// v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
+//   — /child-login must work in all contexts (browser + app), not just installed apps.
+// v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.
+// v154: Instant DOM-uppdatering after mutations — no page reloads.
+// v153: Föräldralås (parent PIN) — PIN gate on child-login "Jag är vuxen",
+//   child-logout PIN overlay, login.html child session guard, SW cache bump.
 // v127: DB-migration för IAP-beredskap — is_lifetime_free, rc_customer_id, subscription_status DEFAULT 'none'
 // v126: App Store-förberedelse — /terms route, privacy.html Apple ID + APNs sections
 // v125: App Store-ready — terms.html, privacy.html Apple ID + APNs token sections
@@ -147,6 +207,7 @@ const STATIC_ASSETS = [
   // Child view pages + JS (offline reading)
   '/child-login.html',
   '/child-dashboard.html',
+  '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-dashboard.js',
   // Pedagog pages

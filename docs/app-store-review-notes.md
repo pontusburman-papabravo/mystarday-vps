@@ -1,7 +1,7 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-05-28 | SW v128
+> Last updated: 2026-05-29 | SW v155
 
 ---
 
@@ -56,12 +56,26 @@ Please use our dedicated App Store review test account:
 
 ---
 
+## Two Separate PINs
+
+Min Stjärndag has **two independent PIN systems**:
+
+| PIN Type | Example Value | Set By | Purpose |
+|----------|--------------|--------|---------|
+| **Child PIN** (Barn-PIN) | `4455` | Parent in Settings | Child login / child → parent switch |
+| **Parent PIN** (Föräldra-PIN) | `1234` | Parent in Settings → Föräldralås | Protects parent mode — prevents children from accessing the parent dashboard |
+
+- Child PIN (`4455`): set per child. Used when Anna logs in.
+- Parent PIN: set per family. When set, every child logout + "Jag är vuxen" click requires this PIN before the parent dashboard is shown.
+
+---
+
 ## Build Information
 
 | Field | Value |
 |-------|-------|
 | Bundle ID | `com.mystarday.app` |
-| Current SW version | v128 |
+| Current SW version | v155 |
 | Push notifications | Enabled via APNs (production + sandbox) |
 | Sign in with Apple | Enabled |
 | Rate limits | 100 req/min on auth endpoints |
@@ -82,7 +96,7 @@ Please use our dedicated App Store review test account:
 ## Privacy & Compliance
 
 - The app stores only non-sensitive family data (names, ages, routines)
-- Passwords are hashed with bcrypt (12 rounds)
+- Passwords are hashed with scrypt (OWASP parameters N=16384, r=8, p=1)
 - Push notification tokens are stored securely and can be deleted on request
 - GDPR: users can export or delete their data via Settings → Radera konto
 - Privacy Policy: https://stjarndag.polsia.app/privacy

@@ -31,7 +31,30 @@
       },
     }
   </script>
-  <script src="/js/auth.js?v=2.13.0"></script>
+  <script>
+    // Redirect interceptor: log the exact code path that triggers redirect to /login
+    // This MUST run before auth.js so it captures all redirect triggers with stack traces.
+    // Remove once the admin redirect bug is diagnosed.
+    (function() {
+      var _origHref = Object.getOwnPropertyDescriptor(window.location.__proto__, 'href') ||
+                      Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+      if (_origHref && _origHref.set) {
+        Object.defineProperty(window.location, 'href', {
+          set: function(v) {
+            if (typeof v === 'string' && v.indexOf('/login') !== -1) {
+              var stack = new Error().stack;
+              console.error('🔴 ADMIN REDIRECT to /login intercepted!', v, stack);
+              try { localStorage.setItem('admin_redirect_debug', JSON.stringify({ url: v, stack: stack, time: new Date().toISOString(), from: window.location.href })); } catch(e){}
+            }
+            return _origHref.set.call(this, v);
+          },
+          get: _origHref.get ? function() { return _origHref.get.call(this); } : undefined,
+          configurable: true
+        });
+      }
+    })();
+  </script>
+  <script src="/js/auth.js?v=2.14.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <style>
     /* Mobile admin sidebar */
@@ -236,6 +259,69 @@
               <button onclick="confirmFamilyDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">Radera permanent</button>
             </div>
           </div>
+        </div>
+
+        <!-- RESET PASSWORD CONFIRM MODAL -->
+        <div id="resetPwModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
+            <h3 class="text-xl font-heading font-bold text-navy mb-2">🔑 Återställ lösenord</h3>
+            <p class="text-text-soft text-sm mb-3">Skicka ett tillfälligt lösenord till <strong id="resetPwTargetEmail" class="text-navy"></strong></p>
+            <div id="resetPwWarnings" class="mb-4 text-sm"></div>
+            <div class="flex gap-3 justify-end">
+              <button onclick="closeResetPwModal()" class="px-4 py-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors">Avbryt</button>
+              <button onclick="confirmResetPw()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-lg font-semibold transition-colors">Skicka</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHANGE EMAIL MODAL -->
+        <div id="changeEmailModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
+            <h3 class="text-xl font-heading font-bold text-navy mb-2">📧 Byt e-postadress</h3>
+            <p class="text-text-soft text-sm mb-4">Ändra e-post för <strong id="changeEmailTargetEmail" class="text-navy"></strong></p>
+            <div class="mb-3">
+              <label class="block text-sm font-semibold text-navy mb-1">Ny e-postadress</label>
+              <input type="email" id="changeEmailInput" class="w-full px-3 py-2 rounded-lg border-2 border-lavender focus:border-gold outline-none" placeholder="ny@exempel.se">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold text-navy mb-1">Orsak <span class="text-red-500">*</span> (minst 10 tecken)</label>
+              <input type="text" id="changeEmailReason" class="w-full px-3 py-2 rounded-lg border-2 border-lavender focus:border-gold outline-none" placeholder="T.ex. användaren begärde ändring">
+            </div>
+            <div id="changeEmailError" class="text-red-600 text-sm font-semibold mb-3 hidden"></div>
+            <div class="flex gap-3 justify-end">
+              <button onclick="closeChangeEmailModal()" class="px-4 py-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors">Avbryt</button>
+              <button onclick="confirmChangeEmail()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-lg font-semibold transition-colors">Spara</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- UNLINK APPLE MODAL -->
+        <div id="unlinkAppleModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
+            <h3 class="text-xl font-heading font-bold text-navy mb-2">🍎 Koppla bort Apple</h3>
+            <p class="text-text-soft text-sm mb-4">För <strong id="unlinkAppleTargetEmail" class="text-navy"></strong></p>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-700">
+              ⚠️ <strong>Varning:</strong> Föräldern behöver ett lösenord för att logga in utan Apple. Se till att lösenordet har återställts först.
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-semibold text-navy mb-1">Orsak <span class="text-red-500">*</span></label>
+              <input type="text" id="unlinkAppleReason" class="w-full px-3 py-2 rounded-lg border-2 border-lavender focus:border-gold outline-none" placeholder="T.ex. användaren begärde bortkoppling">
+            </div>
+            <div id="unlinkAppleError" class="text-red-600 text-sm font-semibold mb-3 hidden"></div>
+            <div class="flex gap-3 justify-end">
+              <button onclick="closeUnlinkAppleModal()" class="px-4 py-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors">Avbryt</button>
+              <button onclick="confirmUnlinkApple()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">Koppla bort</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUDIT LOG PANEL (per-family, shown inline) -->
+        <div id="auditLogPanel" class="hidden mt-4 mb-2 p-4 bg-sky rounded-xl border border-lavender/40">
+          <div class="flex items-center justify-between mb-3">
+            <h5 class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider">Support-historik</h5>
+            <button onclick="closeAuditLog()" class="text-xs text-text-soft hover:text-navy">✕ Stäng</button>
+          </div>
+          <div id="auditLogEntries"></div>
         </div>
 
         <!-- CONTACT MESSAGES -->

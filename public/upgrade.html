@@ -73,8 +73,8 @@
         Hjälp oss att hålla utvecklingen igång — en liten avgift för en stor hjälp i vardagen.
       </p>
 
-      <!-- Pricing card -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
+      <!-- Pricing card — hidden in native (IAP via RevenueCat instead) -->
+      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8 web-payment-only">
         <div class="flex items-center justify-center gap-3 mb-2">
           <span class="text-5xl font-heading font-bold text-navy">59</span>
           <span class="text-2xl font-medium text-text-soft">kr</span>
@@ -119,7 +119,7 @@
            class="block w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
           Starta prenumeration — 59 kr/månad
         </button>
-        <p class="text-text-soft text-xs mt-3">Betalning via Stripe · Avsluta när som helst</p>
+        <p class="text-text-soft text-xs mt-3 web-payment-only">Betalning via Stripe · Avsluta när som helst</p>
       </div>
 
   <script>

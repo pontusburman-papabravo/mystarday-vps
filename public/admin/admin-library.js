@@ -452,22 +452,26 @@
     }
 
     async function loadDefaultTemplates() {
+      const container = document.getElementById('defaultTemplatesList');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         const [data, config] = await Promise.all([
           Auth.api('/api/admin/default-templates'),
           Auth.api('/api/admin/app-config'),
         ]);
+        clearTimeout(timeout);
         defaultTemplates = data;
         renderDefaultTemplates(data);
 
-        // Set toggle state from config
         const toggle = document.getElementById('applyDefaultSchemaToggle');
         if (toggle && config && config.apply_default_schema) {
           toggle.checked = config.apply_default_schema.value === 'true';
         }
       } catch (err) {
-        document.getElementById('defaultTemplatesList').innerHTML =
-          '<p class="text-red-500 text-center py-4">Kunde inte ladda aktiviteterna: ' + esc(err.message) + '</p>';
+        clearTimeout(timeout);
+        const msg = err.name === 'AbortError' ? ' (timeout — servern är upptagen)' : esc(err.message);
+        container.innerHTML = '<p class="text-red-500 text-center py-4">Kunde inte ladda aktiviteterna:' + msg + '</p>';
       }
     }
 

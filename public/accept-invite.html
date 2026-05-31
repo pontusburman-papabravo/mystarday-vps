@@ -195,7 +195,7 @@
           detailsHtml += `<div class="flex items-center gap-2"><span class="text-gold font-semibold">Inbjuden av:</span> <span>${escapeHtml(data.inviterName)}</span></div>`;
         }
         if (data.children && data.children.length > 0) {
-          detailsHtml += `<div class="flex items-start gap-2 mt-1"><span class="text-gold font-semibold">Barn:</span> <span>${data.children.map(c => escapeHtml(c.emoji || '⭐') + ' ' + escapeHtml(c.name)).join(', ')}</span></div>`;
+          detailsHtml += `<div class="flex items-start gap-2 mt-1"><span class="text-gold font-semibold">Barn:</span> <span>${data.children.map(c => renderChildAvatar(c, 24) + ' ' + escapeHtml(c.name)).join(', ')}</span></div>`;
         }
         detailsEl.innerHTML = detailsHtml || '';
         if (!detailsHtml) detailsEl.classList.add('hidden');

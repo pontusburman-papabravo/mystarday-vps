@@ -209,7 +209,7 @@ async function renderMonthView() {
   const activeDays = new Set(schedules.map(s => s.day_of_week)); // 0-6
 
   const child = children.find(c => c.id === currentChildId);
-  const childName = child ? `${child.emoji || '👤'} ${escHtml(child.name)}` : '';
+  const childName = child ? `${renderChildAvatar(child, 20)} ${escHtml(child.name)}` : '';
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -964,7 +964,7 @@ function renderDashboardCards() {
             stroke-dasharray="${ringCirc}" stroke-dashoffset="${ringOffset}"
             stroke-linecap="round" transform="rotate(-90 26 26)"/>
         </svg>` : ''}
-        <span class="dash-avatar-emoji">${c.emoji || '⭐'}</span>
+        <span class="dash-avatar-emoji">${renderChildAvatar(c, 28)}</span>
       </div>`;
 
     // ── Tidsblock-engine: map items → blocks with trafikljus-färg ─
@@ -2707,7 +2707,7 @@ function renderSbsView() {
     const data = sbsAllData[child.id] || { items: [], scheduleId: null };
     return `<div class="sbs-panel">
       <div class="sbs-panel-header">
-        <span class="text-2xl">${child.emoji || '👤'}</span>
+        ${renderChildAvatar(child, 28)}
         <span class="font-bold text-navy">${escHtml(child.name)}</span>
         <span class="text-xs text-text-soft ml-auto">${data.items.length} st</span>
       </div>
@@ -2797,6 +2797,17 @@ async function openOnceTaskModal() {
   document.getElementById('addActivityOnceDate').value = todayStr;
   document.getElementById('addActivityOnceDate').min = todayStr;
   const list = document.getElementById('addActivityOnceChildList');
+  // Pre-seed _onceCreateContext so single-child families work even when _onceMode
+  // is set before openCreateActivityModal saves the snapshot (fixes "Välj minst ett barn"
+  // when user skips step 1 and selects children in the create-modal instead).
+  _onceCreateContext = {
+    childIds: (children || []).length === 1 ? [children[0].id] : [],
+    date: new Date().toISOString().slice(0, 10),
+    startTime: null,
+    endTime: null,
+    section: 'dag',
+  };
+  _pendingTargetChildIds = _onceCreateContext.childIds;
   if ((children || []).length === 1) {
     // Single-child family: show static label, no checkbox needed — the only child is pre-selected.
     const c = children[0];
@@ -3295,7 +3306,12 @@ function pickStarVal(v) {
 }
 
 function resolveActivityTargetChildIds() {
-  if (_onceCreateContext?.childIds != null) return _onceCreateContext.childIds;
+  // Only trust the snapshot if it has actual selections — an empty array means
+  // the user skipped step 1, so defer to the child checkboxes in the create-modal.
+  if (_onceCreateContext?.childIds?.length) return _onceCreateContext.childIds;
+  // Fallback: read checked .child-pick-checkbox checkboxes in the create-modal.
+  const fromModal = Array.from(document.querySelectorAll('.child-pick-checkbox:checked')).map(el => el.value);
+  if (fromModal.length) return fromModal;
   if (_pendingTargetChildIds?.length) return _pendingTargetChildIds;
   if (currentChildId) return [currentChildId];
   if (children?.length) return [children[0].id];

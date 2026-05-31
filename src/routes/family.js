@@ -1,14 +1,14 @@
 const express = require('express');
 const crypto = require('crypto');
 const db = require('../lib/db');
-const { requireParent } = require('../middleware/auth');
+const { requireParent, requireAuth } = require('../middleware/auth');
 const { requireNotPedagogOnly, requirePrimaryParent } = require('../middleware/authz');
 const { syncAccountType, getChildrenForParent } = require('../../db/parent-access');
 const { sendEmail, sendInviteEmail } = require('../lib/email');
 const { hashPassword } = require('../lib/hash');
 const config = require('../lib/config');
 const { validate, validateParams } = require('../middleware/validate');
-const { inviteLimiter } = require('../middleware/rateLimiter');
+const { inviteLimiter, parentPinLimiter } = require('../middleware/rateLimiter');
 const {
   UpdateFamilySchema,
   UpdateFamilyMemberSchema,
@@ -1369,7 +1369,7 @@ router.get('/subscription-status', requireParent, async (req, res) => {
   try {
     const { rows } = await db.query(
       `SELECT subscription_status, trial_ends_at, is_lifetime_free FROM family WHERE id = $1`,
-      [req.user.family_id]
+      [req.user.familyId || req.user.family_id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Familj hittades inte' });
     const { subscription_status, trial_ends_at, is_lifetime_free } = rows[0];
@@ -1659,6 +1659,192 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
   } catch (err) {
     console.error('[FAMILY] pedagog-access revoke error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── Parent PIN (F) — Föräldralås ─────────────────────────────────────────────
+// Gate: all child→parent transitions require a valid parent PIN.
+
+// ─── GET /api/family/parent-pin-status ───────────────────────
+// Returns whether the family has a parent PIN set.
+// Frontend uses this to decide whether to show PIN guard.
+// Why requireAuth (not requireParent): child-login.js "Jag är vuxen" flow
+// calls this from a child session to decide whether to show PIN overlay.
+router.get('/parent-pin-status', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
+      [req.user.familyId]
+    );
+    res.json({ has_pin: result.rows[0]?.has_pin || false });
+  } catch (err) {
+    console.error('[FAMILY] parent-pin-status error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+// ─── POST /api/family/set-pin ──────────────────────────────────
+// Set or change the family parent PIN.
+// First set: { pin, confirmPin }
+// Change (with current PIN): { pin, confirmPin, currentPin }
+// Change (PIN forgotten): { pin, confirmPin, password }
+router.post('/set-pin', requireParent, async (req, res) => {
+  try {
+    const { pin, confirmPin, currentPin, password } = req.body;
+
+    // Validate: exactly 4 digits
+    if (!pin || !/^\d{4}$/.test(String(pin))) {
+      return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
+    }
+    if (pin !== confirmPin) {
+      return res.status(400).json({ error: 'PIN-koderna matchar inte' });
+    }
+
+    // Get current family PIN state
+    const familyResult = await db.query(
+      'SELECT parent_pin_hash FROM family WHERE id = $1',
+      [req.user.familyId]
+    );
+    const family = familyResult.rows[0];
+
+    if (family.parent_pin_hash) {
+      // ── Changing existing PIN ──────────────────────────────
+      if (!currentPin && !password) {
+        return res.status(400).json({ error: 'Ange nuvarande PIN-kod eller lösenord för att ändra' });
+      }
+
+      if (currentPin) {
+        const pinOk = await require('../lib/hash').comparePassword(currentPin, family.parent_pin_hash);
+        if (!pinOk) {
+          return res.status(401).json({ error: 'Felaktig nuvarande PIN-kod' });
+        }
+      } else {
+        const parentResult = await db.query(
+          'SELECT password_hash FROM parent WHERE id = $1',
+          [req.user.id]
+        );
+        if (!parentResult.rows[0]?.password_hash) {
+          return res.status(400).json({ error: 'Kontot saknar lösenord — ange nuvarande PIN-kod' });
+        }
+        const pwOk = await require('../lib/hash').comparePassword(password, parentResult.rows[0].password_hash);
+        if (!pwOk) {
+          return res.status(401).json({ error: 'Felaktigt lösenord' });
+        }
+      }
+    }
+    // First-time setup: no additional verification needed (requireParent already verified)
+
+    const newHash = await require('../lib/hash').hashPassword(pin);
+    await db.query(
+      'UPDATE family SET parent_pin_hash = $1 WHERE id = $2',
+      [newHash, req.user.familyId]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[FAMILY] set-pin error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen.' });
+  }
+});
+
+// ─── POST /api/family/verify-pin ──────────────────────────────
+// Verify the parent PIN and return a short-lived gate token (15 min JWT).
+// Rate limited to 5 attempts per family per 15 min via parentPinLimiter.
+// Why requireAuth (not requireParent): child-login.js PIN overlay calls this
+// from a child session. Both parent and child JWTs carry familyId.
+router.post('/verify-pin', parentPinLimiter, requireAuth, async (req, res) => {
+  try {
+    const { pin } = req.body;
+    if (!pin || !/^\d{4}$/.test(pin)) {
+      return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
+    }
+
+    const familyResult = await db.query(
+      'SELECT parent_pin_hash FROM family WHERE id = $1',
+      [req.user.familyId]
+    );
+    const family = familyResult.rows[0];
+
+    if (!family?.parent_pin_hash) {
+      return res.status(400).json({ error: 'Ingen PIN-kod satt för denna familj' });
+    }
+
+    const ok = await require('../lib/hash').comparePassword(pin, family.parent_pin_hash);
+    if (!ok) {
+      return res.status(401).json({ ok: false, attempts_remaining: null });
+    }
+
+    const gateToken = jwt.sign(
+      { type: 'gate', familyId: req.user.familyId, parentId: req.user.id },
+      config.jwt.secret,
+      { expiresIn: '15m' }
+    );
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    res.json({ ok: true, gateToken, expiresAt });
+  } catch (err) {
+    console.error('[FAMILY] verify-pin error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+// ─── POST /api/family/restore-parent-session ────────────────────
+// Verify gateToken and restore the saved parent session cookies.
+// Called after child logout when a parent session was saved.
+router.post('/restore-parent-session', async (req, res) => {
+  try {
+    const { gateToken } = req.body;
+    if (!gateToken) {
+      return res.status(400).json({ error: 'gateToken krävs' });
+    }
+
+    let payload;
+    try {
+      payload = jwt.verify(gateToken, config.jwt.secret);
+    } catch {
+      return res.status(401).json({ error: 'Sessionen har gått ut. Ange PIN-koden igen.' });
+    }
+
+    if (payload.type !== 'gate') {
+      return res.status(401).json({ error: 'Ogiltig sessionstoken.' });
+    }
+
+    const parentSessionCookie = req.cookies?.stjarndag_parent_session;
+    if (!parentSessionCookie) {
+      return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.' });
+    }
+
+    let session;
+    try {
+      session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
+    } catch {
+      return res.status(401).json({ error: 'Ogiltig session.' });
+    }
+
+    if (!session?.access_token || !session?.refresh_token) {
+      return res.status(401).json({ error: 'Saknad session. Logga in igen.' });
+    }
+
+    res.cookie('access_token', session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+    res.cookie('refresh_token', session.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/api/auth',
+    });
+    res.clearCookie('stjarndag_parent_session', { path: '/' });
+
+    res.json({ restored: true, expiresAt: payload.exp });
+  } catch (err) {
+    console.error('[FAMILY] restore-parent-session error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
   }
 });
 

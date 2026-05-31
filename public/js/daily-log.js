@@ -83,7 +83,16 @@
     async function loadChildren() {
       try {
         const res = await apiFetch('/api/children');
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+          let msg = 'Kunde inte ladda barn';
+          try {
+            const err = await res.json();
+            if (err?.error) msg = err.error;
+          } catch {}
+          showToast(msg + ' (status ' + res.status + ')', 'error');
+          console.warn('[daily-log] loadChildren failed — status', res.status, 'url', res.url);
+          return;
+        }
         children = await res.json();
 
         const tabs = document.getElementById('childTabs');
@@ -105,7 +114,7 @@
             style="min-height:44px"
             data-id="${c.id}"
             onclick="selectChild('${c.id}')">
-            ${c.emoji || '👤'} ${escHtml(c.name)}
+            ${renderChildAvatar(c, 24)} ${escHtml(c.name)}
           </button>
         `).join('');
 
@@ -288,7 +297,7 @@
 
       // ── Pause banner ─────────────────────────────────────
       const pauseBannerHtml = log.is_paused ? `
-        <div class="paused-overlay">
+        <div id="pauseOverlay" class="paused-overlay">
           <div class="flex items-center gap-3">
             <span class="text-3xl">😴</span>
             <div>
@@ -392,7 +401,7 @@
 
       // ── Actions bar ──────────────────────────────────────
       const actionsHtml = !log.is_paused ? `
-        <div class="pt-2">
+        <div id="pauseActionsBtn" class="pt-2">
           <button
             onclick="togglePause(true)"
             class="w-full px-4 py-3 border-2 border-dashed border-lavender text-text-soft rounded-xl font-semibold hover:border-gold hover:text-navy transition-colors text-sm"
@@ -425,7 +434,7 @@
       const pe = document.getElementById('printChildEmoji');
       const pn = document.getElementById('printChildName');
       const pd = document.getElementById('printDate');
-      if (pe) pe.textContent = child ? (child.emoji || '⭐') : '⭐';
+      if (pe) pe.innerHTML = child ? renderChildAvatar(child, 40) : '';
       if (pn) pn.textContent = child ? child.name : 'Barn';
       if (pd) pd.textContent = formatDateDisplay(currentDateStr);
 
@@ -758,7 +767,33 @@
         const updated = await res.json();
         currentLog = { ...currentLog, ...updated };
         showToast(pause ? '😴 Dagen har pausats' : '✅ Dagen har återaktiverats');
-        loadLog();
+
+        // Update pause banner in-place
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const pauseActionsBtn = document.getElementById('pauseActionsBtn');
+        const bumpBar = document.getElementById('bumpBar');
+        if (pause) {
+          if (pauseOverlay) pauseOverlay.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="text-3xl">😴</span>
+              <div>
+                <div class="font-heading font-bold text-navy">Pausad dag</div>
+                <div class="text-text-soft text-sm">Den här dagen är pausad (t.ex. sjukdag eller ledighet). Aktiviteterna räknas inte negativt.</div>
+              </div>
+            </div>
+            <button
+              onclick="togglePause(false)"
+              class="mt-3 w-full px-4 py-2 bg-white border-2 border-gold rounded-xl font-semibold text-navy hover:bg-gold-light transition-colors"
+              style="min-height:44px">
+              ✅ Återaktivera dagen
+            </button>`;
+          if (bumpBar) bumpBar.classList.add('hidden');
+          if (pauseActionsBtn) pauseActionsBtn.classList.add('hidden');
+        } else {
+          if (pauseOverlay) pauseOverlay.innerHTML = '';
+          if (bumpBar) bumpBar.classList.remove('hidden');
+          if (pauseActionsBtn) pauseActionsBtn.classList.remove('hidden');
+        }
       } catch {
         showToast('Kunde inte ändra status', 'error');
       }
@@ -891,7 +926,7 @@
       if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
       const child = children.find(c => c.id === currentChildId);
       const childName = child ? child.name : 'Barn';
-      const childEmoji = child ? (child.emoji || '⭐') : '⭐';
+      const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
 
       // Calculate Monday of current week
       const current = new Date(currentDateStr + 'T12:00:00');
@@ -980,7 +1015,7 @@
 
       const weekHtml = `
         <div class="week-header">
-          <span style="font-size:1.6em;">${childEmoji}</span>
+          <span style="font-size:1.6em;">${childAvatarHtml}</span>
           <div>
             <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(childName)} — Veckoschema</h1>
             <p style="color:#5A6178;margin:2px 0 0;font-size:9px;">${mondayStr} – ${sundayStr}</p>

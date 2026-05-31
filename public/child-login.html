@@ -2,25 +2,17 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/js/platform.js?v=1.0.0"></script>
-    <meta property="og:title" content="Min Stjärndag — Förenkla vardagen för hela familjen">
-    <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://mystarday.se/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Barnets inloggning - Min Stjärndag</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <title>Stjärnutforskare — Min Stjärndag</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/platform.js?v=1.0.0"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -45,432 +37,217 @@
     }
   </script>
 
+  <link rel="stylesheet" href="/css/child-login-magic.css?v=150">
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
+  <script src="/js/auth.js?v=2.14.0"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
 
-  <style>
-    body { background-color: #FAFBFF; }
-    .dark body { background-color: #0F1629; }
-    .star-animation { animation: twinkle 2s ease-in-out infinite; }
-    @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .pulse-glow { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
-
-    /* Attempt dots */
-    .attempt-dot {
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      border: 2px solid #F5A623;
-      display: inline-block;
-      transition: background 0.3s ease;
-    }
-    .attempt-dot.used { background: #F5A623; }
-    .attempt-dot.warn { background: #F97316; border-color: #F97316; }
-    .attempt-dot.danger { background: #EF4444; border-color: #EF4444; }
-
-    /* Hourglass animation during lockout */
-    .hourglass-spin {
-      display: inline-block;
-      animation: hourglassFlip 2s ease-in-out infinite;
-    }
-    @keyframes hourglassFlip {
-      0%, 45% { transform: rotate(0deg); }
-      50%, 95% { transform: rotate(180deg); }
-      100% { transform: rotate(180deg); }
-    }
-
-    /* Circular progress ring for lockout countdown */
-    .progress-ring { transform: rotate(-90deg); }
-    .progress-ring-circle {
-      transition: stroke-dashoffset 1s linear;
-      stroke-linecap: round;
-    }
-
-    /* Shake animation for wrong PIN */
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-8px); }
-      40% { transform: translateX(8px); }
-      60% { transform: translateX(-4px); }
-      80% { transform: translateX(4px); }
-    }
-    .shake { animation: shake 0.4s ease; }
-
-    /* Safe area: prevent iPhone home indicator from clipping PIN buttons/text */
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-      body { padding-bottom: env(safe-area-inset-bottom); }
-    }
-  </style>
-
-  <!-- PWA / Favicon -->
+  <!-- PWA -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#F5A623">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
-  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
 </head>
-<body class="font-body">
-  <!-- Star Logo Home Link -->
-  <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200">
-    <span class="text-4xl star-animation">⭐</span>
-  </a>
 
-  <!-- Background decorative stars -->
-  <div class="fixed inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute top-10 right-12 text-3xl star-animation" style="animation-delay: 0.3s">✨</div>
-    <div class="absolute top-1/3 left-8 text-2xl star-animation" style="animation-delay: 0.6s">⭐</div>
-    <div class="absolute bottom-20 right-1/4 text-3xl star-animation" style="animation-delay: 0.9s">✨</div>
-    <div class="absolute top-2/3 left-1/4 text-2xl star-animation" style="animation-delay: 1.2s">⭐</div>
-  </div>
+<!-- ── Magisk natt background ─────────────────────────────────────────────── -->
+<body class="child-login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right">
 
-  <div class="min-h-screen flex items-center justify-center px-4 py-8">
-    <div class="w-full max-w-md">
+  <!-- Animated stars -->
+  <div id="clStarsContainer" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;"></div>
+  <!-- Clouds -->
+  <div id="clCloudsContainer" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;"></div>
 
-      <!-- Welcome Section -->
-      <div class="text-center mb-10">
-        <div class="mb-6 flex justify-center">
-          <span class="text-8xl pulse-glow">🌟</span>
-        </div>
-        <h1 class="font-heading text-4xl md:text-5xl font-bold text-navy mb-3">
-          Hej, Stjärnutforskare!
-        </h1>
-        <p class="text-lg md:text-xl text-text-soft mb-4">
-          Skriv ditt namn och din PIN-kod för att börja ✨
-        </p>
-        <div class="inline-flex items-center gap-2 bg-gold-light border border-gold/30 rounded-full px-4 py-2 text-sm font-medium text-navy">
-          <span>💡</span>
-          <span>Få din PIN-kod av mamma eller pappa</span>
-        </div>
+  <!-- ── Main layout ─────────────────────────────────────────────────────── -->
+  <div class="child-login-layout">
+
+    <!-- Header: back + logo -->
+    <header class="child-login-header">
+      <button id="clBackBtn" class="cl-back-btn" onclick="window.location.href='/login'" aria-label="Tillbaka">
+        ← Tillbaka
+      </button>
+      <div class="cl-logo">
+        <span class="cl-logo-star">⭐</span>
+        <span>Stjärndag</span>
       </div>
+      <!-- Spacer to balance back button -->
+      <div style="width:80px;"></div>
+    </header>
 
-      <!-- Attempt counter (hidden until first failed attempt) -->
-      <div id="attemptCounter" class="hidden mb-4 text-center">
-        <p class="text-sm text-text-soft mb-2">Försök kvar</p>
-        <div id="attemptDots" class="flex justify-center gap-2"></div>
-      </div>
+    <!-- ── STEP 1: Select child ─────────────────────────────────────────── -->
+    <section id="clStepProfiles" class="cl-step active">
 
-      <!-- Error / Warning Message -->
-      <div id="errorAlert" class="hidden mb-6 p-4 bg-coral rounded-xl border-2 border-red-300">
-        <div class="flex items-start gap-3">
-          <span class="text-2xl" id="errorIcon">⚠️</span>
-          <div>
-            <p class="font-heading font-semibold text-navy" id="errorMessage"></p>
-          </div>
-        </div>
-      </div>
+      <h1 class="cl-select-title">Välj vem du är</h1>
+      <p class="cl-select-sub">Välj vilket barn du vill logga in som</p>
 
-      <!-- Lockout Panel (shown when locked) -->
-      <div id="lockoutPanel" class="hidden mb-6 p-6 bg-lavender rounded-2xl border-2 border-purple-300 text-center">
-        <div class="flex flex-col items-center gap-4">
-          <!-- Hourglass -->
-          <span class="hourglass-spin text-5xl">⏳</span>
-          <div>
-            <p class="font-heading font-bold text-navy text-lg mb-1" id="lockoutHeadline">Vänta en liten stund</p>
-            <p class="text-text-soft text-sm" id="lockoutSubtext">Du kan försöka igen snart</p>
-          </div>
-          <!-- Circular countdown ring -->
-          <div class="relative w-24 h-24 flex items-center justify-center">
-            <svg class="progress-ring absolute inset-0" width="96" height="96">
-              <circle cx="48" cy="48" r="42" stroke="#E8D8F8" stroke-width="6" fill="none"/>
-              <circle id="countdownRing" class="progress-ring-circle" cx="48" cy="48" r="42"
-                stroke="#9333EA" stroke-width="6" fill="none"
-                stroke-dasharray="264" stroke-dashoffset="0"/>
-            </svg>
-            <div class="text-center z-10">
-              <span id="countdownMinutes" class="font-heading font-bold text-2xl text-navy">--</span>
-              <span class="text-xs text-text-soft block -mt-1" id="countdownUnit">min</span>
-            </div>
-          </div>
-          <p class="text-xs text-text-soft">PIN-fältet aktiveras automatiskt när tiden går ut 🔓</p>
-        </div>
-      </div>
+      <!-- Error box -->
+      <div id="clProfileError" class="cl-error-box"></div>
 
-      <!-- Loading Spinner -->
-      <div id="loadingSpinner" class="hidden mb-6 flex justify-center">
-        <div class="w-12 h-12 border-4 border-gold-light border-t-gold rounded-full animate-spin"></div>
-      </div>
+      <!-- Child list -->
+      <ul id="clChildList" class="cl-child-list" role="list">
+        <!-- Rendered by child-login.js -->
+      </ul>
 
-      <!-- Success Message -->
-      <div id="successAlert" class="hidden mb-6 p-4 bg-mint rounded-lg border-2 border-teal-300">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl">✅</span>
-          <p class="font-heading font-semibold text-navy">Välkommen! 🚀</p>
-        </div>
-      </div>
-
-      <!-- Login Form -->
-      <form id="childLoginForm" class="bg-white rounded-2xl shadow-lg p-8 md:p-10 space-y-6 border-2 border-sky">
-        <!-- Name Field (required) -->
-        <div>
-          <label for="username" class="block font-heading font-semibold text-navy text-lg mb-3">
-            Ditt namn 👤
-          </label>
-          <input
-            id="username"
-            type="text"
-            placeholder="Skriv ditt förnamn"
-            required
-            class="w-full px-4 py-3 text-lg rounded-lg border-2 border-sky focus:border-gold focus:outline-none transition-colors duration-200 bg-sky/30 placeholder-text-soft"
-          >
-          <p class="text-xs text-text-soft mt-2">T.ex. "Dea" eller "Emil"</p>
-        </div>
-
-        <!-- PIN Field -->
-        <div>
-          <label for="pin" class="block font-heading font-semibold text-navy text-lg mb-3">
-            Din hemliga PIN 🔐
-          </label>
-          <input
-            id="pin"
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            maxlength="4"
-            placeholder="0000"
-            required
-            class="w-full px-4 py-3 text-2xl text-center rounded-lg border-2 border-sky focus:border-gold focus:outline-none transition-colors duration-200 bg-sky/30 placeholder-text-soft tracking-widest font-heading font-bold"
-          >
-          <p class="text-xs text-text-soft mt-2">Bara 4 siffror</p>
-        </div>
-
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          id="submitBtn"
-          class="w-full bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-navy font-heading font-bold text-xl py-4 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          <span>Kör!</span>
-          <span class="text-2xl">🚀</span>
+      <!-- Empty state (parent logged in but no children) -->
+      <div id="clEmptyState" class="cl-empty-state hidden">
+        <div style="font-size:3rem;">🌟</div>
+        <p>Inga barn registrerade ännu.</p>
+        <button class="cl-back-btn" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.9);" onclick="openAddChild()">
+          + Lägg till ett barn
         </button>
-      </form>
-
-      <!-- Divider -->
-      <div class="my-8 flex items-center gap-4">
-        <div class="flex-1 h-px bg-sky"></div>
-        <span class="text-text-soft text-sm">eller</span>
-        <div class="flex-1 h-px bg-sky"></div>
       </div>
 
-      <!-- Parent Login Link -->
-      <div class="text-center">
-        <p class="text-text-soft mb-3">Är du förälder?</p>
-        <a
-          href="/login"
-          class="inline-block px-6 py-2 border-2 border-navy text-navy font-heading font-semibold rounded-lg hover:bg-navy hover:text-white transition-colors duration-200"
-        >
-          Föräldra-inloggning 👨‍👩‍👧‍👦
-        </a>
+      <!-- No session state: manual name input so child can log in without parent session -->
+      <div id="clNoSessionState" class="cl-empty-state hidden">
+        <div style="font-size:3rem;">⭐</div>
+        <p style="margin-bottom:12px;">Skriv ditt namn för att logga in</p>
+        <form id="clManualNameForm" onsubmit="handleManualName(event)" style="width:100%;max-width:260px;margin:0 auto;">
+          <input id="clManualNameInput" type="text" placeholder="Ditt namn"
+            autocomplete="off" autocapitalize="words" spellcheck="false"
+            style="width:100%;padding:14px 16px;border-radius:16px;border:2px solid rgba(251,191,36,0.4);background:rgba(255,255,255,0.12);color:#fff;font-family:Outfit,sans-serif;font-size:1.05rem;text-align:center;outline:none;margin-bottom:10px;"
+          />
+          <button type="submit" class="cl-back-btn" style="width:100%;border-color:rgba(251,191,36,0.5);color:rgba(251,191,36,0.95);font-weight:600;padding:12px 16px;">
+            Fortsätt →
+          </button>
+        </form>
       </div>
 
-      <!-- Fun Footer -->
-      <div class="mt-12 text-center">
-        <p class="text-sm text-text-soft flex items-center justify-center gap-2">
-          <span>Lycka till! Må dina stjärnor lysa starkt</span>
-          <span class="text-xl">⭐</span>
-        </p>
+      <!-- "Jag är vuxen" — switch to parent mode (PIN guard handled by login.html) -->
+      <div id="clParentSwitch" style="margin-top:20px;text-align:center;">
+        <button class="cl-back-btn" style="border-color:rgba(251,191,36,0.35);color:rgba(251,191,36,0.8);font-size:0.85rem;padding:10px 16px;" onclick="handleParentSwitch()">
+          Jag är vuxen →
+        </button>
       </div>
-    </div>
+
+    </section>
+    <!-- end step-profiles -->
+
+
+    <!-- ── STEP 2: PIN entry ───────────────────────────────────────────── -->
+    <section id="clStepPin" class="cl-step">
+
+      <!-- Back button -->
+      <button class="cl-back-btn" onclick="clBackToProfiles()" aria-label="Välj ett annat barn" style="align-self:flex-start;margin-bottom:8px;">
+        ← Välj ett annat barn
+      </button>
+
+      <!-- Avatar ring -->
+      <div class="cl-pin-avatar-wrap">
+        <div class="cl-pin-avatar" id="clPinAvatar">
+          <!-- Set by child-login.js -->
+        </div>
+      </div>
+
+      <!-- Greeting + instruction -->
+      <h1 class="cl-pin-greeting" id="clPinGreeting">Hej!</h1>
+      <p class="cl-pin-sub">Ange din pinkod</p>
+
+      <!-- Attempt dots -->
+      <div id="clAttemptRow" class="hidden" style="margin-bottom:8px;">
+        <div style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">Försök kvar</div>
+        <div id="clAttemptBar" class="cl-attempt-bar"></div>
+      </div>
+
+      <!-- PIN dots -->
+      <div class="cl-pin-dots" id="clPinDots" aria-label="PIN-kod"></div>
+
+      <!-- Error -->
+      <div id="clErrorBox" class="cl-error-box"></div>
+
+      <!-- Loading -->
+      <div id="clLoading" class="cl-loading">
+        <div class="cl-spinner"></div>
+      </div>
+
+      <!-- Lockout -->
+      <div id="clLockoutPanel" class="cl-lockout-panel">
+        <div class="hourglass-spin">⏳</div>
+        <div class="cl-lockout-msg">Vänta en liten stund</div>
+        <div id="clLockoutSub" class="cl-lockout-sub">Du kan försöka igen snart</div>
+      </div>
+
+      <!-- Success -->
+      <div id="clSuccessBox" class="cl-success-box">
+        <div style="font-size:2rem;">🎉</div>
+        <div class="cl-success-msg">Välkommen!</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;">Tar dig till din instrumentpanel…</div>
+      </div>
+
+      <!-- Keypad -->
+      <div class="cl-keypad" id="clKeypad" role="group" aria-label="Siffertavla">
+        <!-- Built by child-login.js -->
+      </div>
+
+      <!-- Forgot PIN -->
+      <div class="cl-forgot-pin">
+        Glömt din pinkod?<br>
+        <span style="font-size:0.75rem;opacity:0.7;">Fråga mamma eller pappa</span>
+      </div>
+
+    </section>
+    <!-- end step-pin -->
+
+  </div>
+  <!-- end layout -->
+
+  <!-- Help link footer -->
+  <div class="cl-help-link" style="position:relative;z-index:1;">
+    Behöver du hjälp?
+    <a href="/forgot-password" style="color:rgba(255,255,255,0.55);text-decoration:underline;font-size:0.78rem;">
+      Kontakta en förälder
+    </a>
   </div>
 
-  <script src="/js/auth.js?v=2.13.0"></script>
+  <!-- SW Register -->
+  <script src="/js/sw-register.js?v=2.12.0"></script>
+  <script src="/js/child-login.js?v=158"></script>
 
+  <!-- Animated stars + clouds (same pattern as login-magic.js) -->
   <script>
-    const form = document.getElementById('childLoginForm');
-    const usernameInput = document.getElementById('username');
-    const pinInput = document.getElementById('pin');
-    const submitBtn = document.getElementById('submitBtn');
+    (function initBg() {
+      const sc = document.getElementById('clStarsContainer');
+      const cc = document.getElementById('clCloudsContainer');
+      if (!sc) return;
 
-    // ── State ──────────────────────────────────────────────────────────
-    let MAX_ATTEMPTS = 5; // server may return the real value
-    let countdownInterval = null;
-    let lockoutEndTime = null;
-
-    // ── Attempt dots ───────────────────────────────────────────────────
-    function renderAttemptDots(remaining, maxAttempts) {
-      const container = document.getElementById('attemptDots');
-      container.innerHTML = '';
-      for (let i = 0; i < maxAttempts; i++) {
-        const dot = document.createElement('span');
-        dot.className = 'attempt-dot';
-        const used = i >= remaining;
-        if (used) {
-          if (remaining <= 1) dot.classList.add('danger');
-          else if (remaining <= 2) dot.classList.add('warn');
-          else dot.classList.add('used');
-        }
-        container.appendChild(dot);
-      }
-      document.getElementById('attemptCounter').classList.remove('hidden');
-    }
-
-    // ── Error display ─────────────────────────────────────────────────
-    function showError(message, icon = '⚠️') {
-      document.getElementById('errorIcon').textContent = icon;
-      document.getElementById('errorMessage').textContent = message;
-      document.getElementById('errorAlert').classList.remove('hidden');
-      // Shake the PIN input for tactile feedback
-      pinInput.classList.remove('shake');
-      void pinInput.offsetWidth; // reflow
-      pinInput.classList.add('shake');
-    }
-
-    function hideError() {
-      document.getElementById('errorAlert').classList.add('hidden');
-    }
-
-    // ── Lockout panel ─────────────────────────────────────────────────
-    function showLockout(retryAfterSeconds, lockedUntilIso) {
-      const lockoutPanel = document.getElementById('lockoutPanel');
-      form.classList.add('hidden');
-      document.getElementById('attemptCounter').classList.add('hidden');
-      hideError();
-      lockoutPanel.classList.remove('hidden');
-
-      lockoutEndTime = lockedUntilIso ? new Date(lockedUntilIso) : new Date(Date.now() + retryAfterSeconds * 1000);
-      const totalSeconds = Math.ceil((lockoutEndTime - Date.now()) / 1000);
-
-      submitBtn.disabled = true;
-
-      function tick() {
-        const remaining = Math.max(0, Math.ceil((lockoutEndTime - Date.now()) / 1000));
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-
-        // Update ring: 264 = full circumference (2π×42)
-        const fraction = remaining / totalSeconds;
-        const offset = 264 * (1 - fraction);
-        document.getElementById('countdownRing').setAttribute('stroke-dashoffset', offset);
-
-        if (remaining > 60) {
-          document.getElementById('countdownMinutes').textContent = minutes;
-          document.getElementById('countdownUnit').textContent = 'min';
-          document.getElementById('lockoutSubtext').textContent = `Du kan försöka igen om ${minutes} minut${minutes !== 1 ? 'er' : ''}`;
-        } else if (remaining > 0) {
-          document.getElementById('countdownMinutes').textContent = seconds;
-          document.getElementById('countdownUnit').textContent = 'sek';
-          document.getElementById('lockoutSubtext').textContent = `Bara ${seconds} sekunder kvar!`;
-        } else {
-          // Timer expired — unlock the form automatically
-          clearInterval(countdownInterval);
-          lockoutPanel.classList.add('hidden');
-          form.classList.remove('hidden');
-          submitBtn.disabled = false;
-          document.getElementById('lockoutHeadline').textContent = 'Vänta en liten stund';
-          pinInput.value = '';
-          pinInput.focus();
-          document.getElementById('countdownRing').setAttribute('stroke-dashoffset', 264);
-          return;
-        }
+      // Stars
+      const STAR_COUNT = 28;
+      const starChars = ['✦','✧','⋆','✶','✷','✸','✹','✺'];
+      for (let i = 0; i < STAR_COUNT; i++) {
+        const s = document.createElement('div');
+        s.style.cssText = [
+          'position:absolute',
+          'font-size:' + (8 + Math.random() * 14) + 'px',
+          'left:' + Math.random() * 100 + '%',
+          'top:' + Math.random() * 100 + '%',
+          'color:rgba(255,255,255,' + (0.2 + Math.random() * 0.6) + ')',
+          '--float-dur:' + (3 + Math.random() * 5) + 's',
+          '--float-delay:' + Math.random() * 4 + 's',
+          '--twinkle-dur:' + (1.5 + Math.random() * 3) + 's',
+          '--twinkle-delay:' + Math.random() * 3 + 's',
+        ].join(';');
+        s.textContent = starChars[Math.floor(Math.random() * starChars.length)];
+        s.className = 'star-particle' + (Math.random() > 0.4 ? ' lit' : '') +
+          (Math.random() > 0.7 ? ' fast' : Math.random() > 0.5 ? ' slow' : '');
+        s.style.cssText += ';animation:float-star var(--float-dur) ease-in-out infinite;animation-delay:var(--float-delay);';
+        sc.appendChild(s);
       }
 
-      tick(); // run immediately
-      clearInterval(countdownInterval);
-      countdownInterval = setInterval(tick, 1000);
-    }
-
-    // ── Loading state ─────────────────────────────────────────────────
-    function setLoading(loading) {
-      submitBtn.disabled = loading;
-      document.getElementById('loadingSpinner').classList.toggle('hidden', !loading);
-    }
-
-    // ── Form submit ───────────────────────────────────────────────────
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const username = usernameInput.value.trim();
-      const pin = pinInput.value.trim();
-
-      if (!username) { showError('Skriv ditt namn!', '🙈'); return; }
-      if (!pin) { showError('Ange din PIN-kod!', '🔒'); return; }
-      if (pin.length !== 4 || !/^\d+$/.test(pin)) {
-        showError('PIN-koden måste vara exakt 4 siffror!', '🔢');
-        return;
+      // Clouds
+      const CLOUD_COUNT = 4;
+      const cloudSizes = [180, 240, 160, 200];
+      for (let i = 0; i < CLOUD_COUNT; i++) {
+        const c = document.createElement('div');
+        c.className = 'cloud';
+        c.style.cssText = [
+          'left:' + (i * 25 + Math.random() * 15) + '%',
+          'top:' + (20 + i * 18) + '%',
+          'width:' + cloudSizes[i] + 'px',
+          'height:' + (cloudSizes[i] * 0.45) + 'px',
+          '--drift-dur:' + (8 + Math.random() * 6) + 's',
+          '--drift-delay:' + Math.random() * 5 + 's',
+        ].join(';');
+        c.style.cssText += ';animation:drift var(--drift-dur) ease-in-out infinite;animation-delay:var(--drift-delay);';
+        cc.appendChild(c);
       }
-
-      setLoading(true);
-      hideError();
-
-      try {
-        const response = await fetch('/api/auth/child-login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ username, pin }),
-        });
-
-        const data = await response.json();
-
-        if (response.status === 429) {
-          // Lockout
-          setLoading(false);
-          showLockout(data.retry_after || 60, data.locked_until);
-          return;
-        }
-
-        if (!response.ok) {
-          setLoading(false);
-
-          // Show attempt counter if server returned info
-          if (data.max_attempts && data.attempts_remaining !== undefined && data.attempts_remaining !== null) {
-            MAX_ATTEMPTS = data.max_attempts;
-            renderAttemptDots(data.attempts_remaining, data.max_attempts);
-          }
-
-          // Choose icon based on remaining attempts
-          let icon = '⚠️';
-          if (data.attempts_remaining === 1) icon = '😬';
-          else if (data.attempts_remaining === 0) icon = '🔒';
-
-          showError(data.error || 'Något gick fel', icon);
-          pinInput.value = '';
-          pinInput.focus();
-          return;
-        }
-
-        // Success!
-        // Token is in httpOnly cookie (set by server). Pass null for token.
-        Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-        document.getElementById('successAlert').classList.remove('hidden');
-        form.classList.add('hidden');
-        document.getElementById('attemptCounter').classList.add('hidden');
-
-        setTimeout(() => {
-          window.location.href = '/child-dashboard';
-        }, 1200);
-
-      } catch (error) {
-        setLoading(false);
-        showError(error.message || 'Något gick fel. Försök igen.');
-        console.error('Inloggningsfel:', error);
-      }
-    });
-
-    // ── PIN input: numeric only ───────────────────────────────────────
-    pinInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '');
-    });
-
-    // ── Keyboard navigation ───────────────────────────────────────────
-    usernameInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { pinInput.focus(); }
-    });
-    pinInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { form.dispatchEvent(new Event('submit')); }
-    });
-    pinInput.addEventListener('animationend', () => {
-      pinInput.classList.remove('shake');
-    });
+    })();
   </script>
 
-  <!-- Support bubble for logged-out users -->
-  <script src="/js/support-bubble.js?v=2.12.0"></script>
-  <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
-  <script src="/js/sw-register.js?v=2.12.0"></script>
 </body>
 </html>

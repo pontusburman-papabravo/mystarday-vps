@@ -39,7 +39,7 @@ if (!isProduction) {
 
 // Initialize Pino logger
 const logger = pino({
-  level: process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug'),
+  level: (process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug')).toLowerCase(),
   // Pretty-print JSON in development, keep JSON in production
   transport,
   // Always include timestamp

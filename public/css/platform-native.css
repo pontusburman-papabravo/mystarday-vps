@@ -1,0 +1,123 @@
+/* platform-native.css — CSS gates for native iOS/Android (Capacitor) vs web.
+ *
+ * All rules gated by .platform-native on <html> (set by platform-theme.js).
+ * Dark mode: rules compose with existing .dark class on <html>.
+ *
+ * WHAT: styles that should only apply inside the native app shell.
+ * WHAT NOT: PWA-specific styles (those live in standalone CSS files).
+ */
+
+/* ── Hide marketing / web-only elements ──────────────────────────────── */
+.platform-native .hero,
+.platform-native .web-only,
+.platform-native [data-pwa-guide],
+.platform-native .pwa-install-banner,
+.platform-native .cookie-banner,
+.platform-native .cookie-banner-overlay {
+  display: none !important;
+}
+
+/* ── Safe area insets ────────────────────────────────────────────────────
+ * Topbar gets inset-top. Body/main do NOT — avoids double-padding on
+ * devices that already push content via the status bar. */
+.platform-native .mobile-topbar {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Bottom safe-area on main content only (no double-padding with tab bar) */
+.platform-native main,
+.platform-native .app-content {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Child pages — no native tab bar, no shell UI ───────────────────────── */
+.platform-native.platform-child-page .native-tab-bar,
+.platform-native.platform-child-page .tab-bar {
+  display: none !important;
+}
+
+/* ── Hide hamburger / mobile nav (native has its own shell UI) ─────────── */
+.platform-native .mobile-hamburger,
+.platform-native .mobile-dropdown {
+  display: none !important;
+}
+
+/* ── Hide web payment elements (native uses IAP via RevenueCat) ───────── */
+.platform-native .web-payment-only,
+.platform-native .stripe-checkout-section,
+.platform-native .stripe-section {
+  display: none !important;
+}
+
+/* ── Tap highlight — native apps feel snappy, no blue flash ──────────── */
+.platform-native * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── User-select: allow text selection in inputs / textareas ─────────── */
+.platform-native input,
+.platform-native textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ── Scroll momentum (iOS native feel) ─────────────────────────────────── */
+.platform-native main,
+.platform-native .app-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Status bar styling hint (iOS) ────────────────────────────────────── */
+.platform-native.platform-ios {
+  /* Safe area + notch: let content flow naturally under the status bar */
+}
+
+/* ── Native Tab Bar ──────────────────────────────────────────────────────
+ * Only shown on parent-shell pages (not child-dashboard / child-login).
+ * Dark mode: dark background with light active color (#0A84FF = iOS blue). */
+.platform-native .native-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: calc(56px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.12);
+  z-index: 9999;
+}
+.platform-native .tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+  color: #8E8E93;
+  font-size: 10px;
+  padding: 6px 12px;
+  transition: color 0.15s;
+}
+.platform-native .tab-icon { font-size: 24px; }
+.platform-native .tab-item.active { color: #007AFF; }
+
+/* Dark mode — works with .dark class OR html.dark on <html> */
+.platform-native.dark .native-tab-bar,
+.platform-native.html.dark .native-tab-bar {
+  background: rgba(28, 28, 30, 0.92);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+.platform-native.dark .tab-item,
+.platform-native.html.dark .tab-item { color: #8E8E93; }
+.platform-native.dark .tab-item.active,
+.platform-native.html.dark .tab-item.active { color: #0A84FF; }
+
+/* Push main content above tab bar */
+.platform-native main,
+.platform-native .app-content {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
+}

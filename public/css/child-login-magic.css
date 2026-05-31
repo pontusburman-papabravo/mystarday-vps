@@ -1,0 +1,485 @@
+/**
+ * child-login-magic.css — "Stjärnutforskare" child login redesign
+ * Covers: gradient bg, child selection list, PIN keypad, shared night theme.
+ * Owns: visual design for child-login.html 2-step flow (select child → PIN).
+ * Does NOT own: auth logic (child-login.js handles child-login POST).
+ */
+
+/* ── Layered gradient background (same as login-magic.css) ─────────────────── */
+.child-login-magic-bg {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.30) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.20) 0%, transparent 65%),
+    linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Animated stars (reuse keyframes from login-magic.css via parent) ─────── */
+/* Keyframes are defined once in login-magic.css; this file extends them. */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.4); }
+}
+@keyframes float-star {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes drift {
+  0%   { transform: translateX(0) translateY(0); }
+  33%  { transform: translateX(18px) translateY(-10px); }
+  66%  { transform: translateX(-12px) translateY(8px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+/* ── Safe area ─────────────────────────────────────────────────────────────── */
+.safe-area-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-area-left   { padding-left:   env(safe-area-inset-left,   0px); }
+.safe-area-right  { padding-right:  env(safe-area-inset-right, 0px); }
+
+/* ── Layout wrapper ─────────────────────────────────────────────────────────── */
+.child-login-layout {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+}
+
+/* ── Header (back button + logo) ────────────────────────────────────────────── */
+.child-login-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0 8px;
+  flex-shrink: 0;
+}
+.cl-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-height: 44px;
+}
+.cl-back-btn:hover {
+  background: rgba(255,255,255,0.13);
+  color: #fff;
+}
+.cl-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.cl-logo-star { font-size: 1.5rem; }
+
+/* ── Step views ─────────────────────────────────────────────────────────────── */
+.cl-step { display: none; flex-direction: column; flex: 1; }
+.cl-step.active { display: flex; }
+
+/* ── STEP 1: Select child ───────────────────────────────────────────────────── */
+.cl-select-title {
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #fff;
+  margin: 12px 0 4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.cl-select-sub {
+  text-align: center;
+  color: rgba(255,255,255,0.65);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+.cl-child-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+/* Child row card */
+.cl-child-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.10);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+  color: #fff;
+  min-height: 72px;
+}
+.cl-child-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(167,139,250,0.6);
+}
+.cl-child-card:active { transform: scale(0.98); }
+.cl-child-card.add-child {
+  border-style: dashed;
+  border-color: rgba(251,191,36,0.4);
+  background: rgba(251,191,36,0.08);
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.cl-child-card.add-child:hover {
+  background: rgba(251,191,36,0.15);
+  border-color: rgba(251,191,36,0.7);
+}
+
+/* Avatar circle */
+.cl-avatar-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid rgba(167,139,250,0.6);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 0 12px rgba(167,139,250,0.4);
+}
+.cl-avatar-ring img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cl-child-info { flex: 1; min-width: 0; }
+.cl-child-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cl-child-sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: 2px;
+}
+.cl-child-arrow {
+  color: rgba(255,255,255,0.5);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Add-child plus icon */
+.cl-add-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(251,191,36,0.25);
+  border: 2px solid rgba(251,191,36,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: rgba(251,191,36,0.9);
+  flex-shrink: 0;
+}
+.cl-add-text { color: rgba(251,191,36,0.9); font-size: 0.95rem; }
+
+/* Empty state */
+.cl-empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── STEP 2: PIN entry ───────────────────────────────────────────────────────── */
+.cl-pin-greeting {
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #fff;
+  margin: 8px 0 4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.cl-pin-sub {
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+}
+
+/* Large avatar ring for PIN screen */
+.cl-pin-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.cl-pin-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid rgba(167,139,250,0.7);
+  overflow: hidden;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  box-shadow: 0 0 24px rgba(167,139,250,0.5), 0 0 48px rgba(167,139,250,0.2);
+  animation: avatarGlow 2.5s ease-in-out infinite;
+}
+.cl-pin-avatar img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes avatarGlow {
+  0%, 100% { box-shadow: 0 0 24px rgba(167,139,250,0.5), 0 0 48px rgba(167,139,250,0.2); }
+  50%       { box-shadow: 0 0 32px rgba(167,139,250,0.7), 0 0 64px rgba(167,139,250,0.35); }
+}
+
+/* PIN dots */
+.cl-pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.cl-pin-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.4);
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.cl-pin-dot.filled {
+  background: #7B61FF;
+  border-color: #7B61FF;
+  transform: scale(1.1);
+}
+
+/* ── Custom numeric keypad ──────────────────────────────────────────────────── */
+.cl-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 8px;
+  margin-bottom: 12px;
+  flex: 1;
+  align-content: start;
+}
+.cl-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.18);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s ease, transform 0.08s ease, border-color 0.1s ease;
+  min-height: 68px;
+}
+.cl-key:active {
+  background: rgba(255,255,255,0.25);
+  transform: scale(0.94);
+  border-color: rgba(255,255,255,0.4);
+}
+.cl-key.ghost {
+  background: transparent;
+  border-color: transparent;
+  font-size: 1.3rem;
+}
+.cl-key.clear {
+  background: rgba(251,191,36,0.20);
+  border-color: rgba(251,191,36,0.45);
+  color: rgba(251,191,36,0.9);
+  font-size: 1.8rem;
+}
+.cl-key.clear:active {
+  background: rgba(251,191,36,0.35);
+}
+.cl-key.backspace {
+  background: rgba(123,97,255,0.25);
+  border-color: rgba(123,97,255,0.5);
+  font-size: 1.4rem;
+}
+.cl-key.backspace:active {
+  background: rgba(123,97,255,0.40);
+}
+
+/* Key haptic — scale animation */
+.cl-key.haptic {
+  animation: keyPop 0.12s ease-out;
+}
+@keyframes keyPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
+/* ── Forgot PIN link ────────────────────────────────────────────────────────── */
+.cl-forgot-pin {
+  text-align: center;
+  padding: 12px 0 20px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ── Error / lockout ─────────────────────────────────────────────────────────── */
+.cl-error-box {
+  background: rgba(239,68,68,0.18);
+  border-left: 4px solid #ef4444;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  margin: 0 8px 12px;
+  animation: fadeSlideIn 0.2s ease-out;
+  display: none;
+}
+.cl-error-box.visible { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Shake animation on wrong PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.cl-dots-shake { animation: shake 0.4s ease; }
+
+/* Lockout panel */
+.cl-lockout-panel {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  margin: 0 8px 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(167,139,250,0.3);
+  border-radius: 18px;
+}
+.cl-lockout-panel.visible { display: flex; }
+.cl-lockout-panel .hourglass-spin {
+  display: inline-block;
+  font-size: 2.5rem;
+  animation: hourglassFlip 2s ease-in-out infinite;
+}
+@keyframes hourglassFlip {
+  0%, 45% { transform: rotate(0deg); }
+  50%, 95% { transform: rotate(180deg); }
+  100% { transform: rotate(180deg); }
+}
+.cl-lockout-msg {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  text-align: center;
+}
+.cl-lockout-sub {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+}
+
+/* Loading spinner */
+.cl-loading {
+  display: none;
+  justify-content: center;
+  padding: 12px 0;
+}
+.cl-loading.visible { display: flex; }
+.cl-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: #7B61FF;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Attempt dots on PIN screen */
+.cl-attempt-bar {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cl-attempt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: background 0.2s ease;
+}
+.cl-attempt-dot.used { background: #f59e0b; border-color: #f59e0b; }
+.cl-attempt-dot.warn { background: #f97316; border-color: #f97316; }
+.cl-attempt-dot.danger { background: #ef4444; border-color: #ef4444; }
+
+/* Footer link */
+.cl-help-link {
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  padding: 8px 0 16px;
+  flex-shrink: 0;
+}
+
+/* Success state */
+.cl-success-box {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  margin: 0 8px 12px;
+  background: rgba(16,185,129,0.15);
+  border: 1.5px solid rgba(16,185,129,0.4);
+  border-radius: 18px;
+}
+.cl-success-box.visible { display: flex; }
+.cl-success-msg {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+}

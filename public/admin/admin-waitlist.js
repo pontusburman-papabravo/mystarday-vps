@@ -153,7 +153,7 @@ function renderWaitlistTable(entries) {
 
       const q2Display = e.survey_completed_at ? (e.current_method ? pp2ToLabel(e.current_method) : '—') : '—';
 
-      const statusDisplay = waitlistStatusBadge(e.survey_status);
+      const statusDisplay = statusBadge(e.survey_status);
       return `<tr class="border-b border-lavender/50 hover:bg-sky/50 transition-colors">
         <td class="px-4 py-3 text-text-soft">${rowNum}</td>
         <td class="px-4 py-3 font-semibold text-navy">${esc(e.name || '')}</td>
@@ -234,7 +234,7 @@ async function executeWlDelete() {
 }
 
 // ─── Status badge ───────────────────────────────────────────────────
-function waitlistStatusBadge(status) {
+function statusBadge(status) {
   if (status === 'completed') return '<span class="inline-block bg-green-100 text-green-700 text-xs font-bold rounded-full px-2 py-0.5">✓ Svarat</span>';
   if (status === 'skipped') return '<span class="inline-block bg-gray-100 text-gray-500 text-xs font-bold rounded-full px-2 py-0.5">Skipped</span>';
   return '<span class="inline-block bg-amber-100 text-amber-700 text-xs font-bold rounded-full px-2 py-0.5">Väntar</span>';

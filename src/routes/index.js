@@ -114,7 +114,7 @@ function registerRoutes(app) {
   // ─── SPA fallback for app pages ───────────────────────────
   const appPages = [
     'login', 'child-login',
-    'verify-email', 'forgot-password', 'reset-password',
+    'verify-email', 'forgot-password', 'reset-password', 'verify-email-change',
     'dashboard', 'child-dashboard',
     'settings', 'accept-invite', 'pedagog-invite', 'upgrade',
     'activities', 'library', 'schedule', 'assign-schedule', 'daily-log',

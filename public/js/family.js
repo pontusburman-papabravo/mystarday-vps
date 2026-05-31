@@ -86,7 +86,7 @@
           switcher.innerHTML = children.map(c => `
             <button onclick="openChildDrawer('${c.id}')"
               class="flex items-center gap-2 px-4 py-2 rounded-full border-2 font-semibold text-sm transition-colors border-lavender text-navy hover:border-gold hover:bg-gold-light dark:text-white dark:border-navy-soft dark:hover:border-gold">
-              ${c.emoji || '👤'} ${escHtml(c.name)}
+              ${renderChildAvatar(c, 24)} ${escHtml(c.name)}
             </button>`).join('');
         } else {
           switcher.classList.add('hidden');
@@ -140,7 +140,7 @@
                 onclick="event.stopPropagation()">⠿</span>
 
           <div class="flex items-center gap-3 mb-3">
-            ${child.emoji ? `<span class="text-3xl">${child.emoji}</span>` : '<span class="text-3xl">👤</span>'}
+            ${renderChildAvatar(child, 48)}
             <div class="flex-1 min-w-0">
               <p class="font-heading font-bold text-navy dark:text-white">${escHtml(child.name)}</p>
               <p class="text-xs text-text-soft">${ageText || 'Ålder okänd'}</p>
@@ -184,7 +184,7 @@
       const child = familyChildren.find(c => c.id === childId) || {};
 
       // Update header
-      document.getElementById('drawerChildEmoji').textContent = child.emoji || '👤';
+      document.getElementById('drawerChildEmoji').innerHTML = renderChildAvatar(child, 40);
       document.getElementById('drawerChildName').textContent = child.name || '';
       document.getElementById('drawerChildAge').textContent = child.birthday ? calculateAge(child.birthday) + ' — klicka för att ändra' : '⚠️ Ange födelsedatum — klicka här';
 
@@ -368,7 +368,7 @@
           <div class="bg-gold-light border-2 border-gold rounded-xl p-3 mb-2 flex items-center gap-3" id="redeem-req-${req.id}">
             <span class="text-2xl">${req.reward_icon || '🎁'}</span>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-heading font-bold text-navy">${escHtml(child.emoji || '')} ${escHtml(child.name || '')} vill lösa in ${escHtml(req.reward_name)}</p>
+              <p class="text-sm font-heading font-bold text-navy">${renderChildAvatar(child, 24)} ${escHtml(child.name || '')} vill lösa in ${escHtml(req.reward_name)}</p>
               <p class="text-xs text-text-soft">⭐ ${req.star_cost} stjärnor</p>
             </div>
             <div class="flex gap-1 flex-shrink-0">
@@ -382,7 +382,7 @@
           <div class="bg-lavender border-2 border-purple-200 rounded-xl p-3 mb-2 flex items-center gap-3" id="goal-req-${req.id}">
             <span class="text-2xl">${req.to_reward_icon || '🎯'}</span>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-heading font-bold text-navy">${escHtml(child.emoji || '')} ${escHtml(child.name || '')} vill byta mål till ${escHtml(req.to_reward_name)}</p>
+              <p class="text-sm font-heading font-bold text-navy">${renderChildAvatar(child, 24)} ${escHtml(child.name || '')} vill byta mål till ${escHtml(req.to_reward_name)}</p>
               <p class="text-xs text-text-soft">Målbytebegäran</p>
             </div>
             <div class="flex gap-1 flex-shrink-0">
@@ -563,7 +563,7 @@
       const child = familyChildren.find(c => c.id === drawerChildId);
       const modal = document.getElementById('manualStarModal');
       if (!modal) return;
-      document.getElementById('manualStarChildName').textContent = (child?.emoji || '⭐') + ' ' + (child?.name || '');
+      document.getElementById('manualStarChildName').innerHTML = (child ? renderChildAvatar(child, 28) + ' ' + escHtml(child.name) : '');
       document.getElementById('manualStarCount').value = '1';
       document.getElementById('manualStarReason').value = '';
       document.getElementById('manualStarMsg').textContent = '';
@@ -826,7 +826,7 @@
                     <input type="checkbox" class="pc-cb w-4 h-4 rounded border-lavender text-gold focus:ring-gold"
                       data-parent-id="${parent.id}" data-child-id="${c.id}" ${linked ? 'checked' : ''}
                       onchange="updateParentChildren('${parent.id}')">
-                    ${c.emoji || '👤'} ${c.name}
+                    ${renderChildAvatar(c, 20)} ${escHtml(c.name)}
                   </label>`;
                 }).join('')}
               </div>

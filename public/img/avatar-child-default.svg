@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#FFF3D6"/>
+  <circle cx="100" cy="100" r="88" fill="#F5A623" opacity="0.2"/>
+  <text x="100" y="100" font-size="80" text-anchor="middle" dominant-baseline="central">⭐</text>
+</svg>

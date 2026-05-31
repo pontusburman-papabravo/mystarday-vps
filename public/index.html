@@ -20,9 +20,13 @@
     <!-- Fonts: Fraunces for display, Satoshi for body -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
-    <script src="/js/cookie-banner.js?v=2.13.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Platform theme detection (web vs native) -->
+  <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
+  <script src="/js/cookie-banner.js?v=2.13.0"></script>
+  <!-- "Magisk natt" shared CSS (stars, clouds, glass) + landing overrides -->
+  <link rel="stylesheet" href="/css/login-magic.css?v=136">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -254,63 +258,339 @@
             line-height: 1.8; margin-bottom: 2.2rem;
         }
 
-        /* ===== LOGIN CARDS SECTION ===== */
+        /* ===== MAGISK NATT — landing page ===================================== */
+        .landing-magic-bg {
+            background:
+                radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
+                linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+        }
+
+        /* Stars / clouds on the landing page */
+        #landing-stars-container,
+        #landing-clouds-container {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        /* Nav on magical night — semi-transparent dark glass */
+        .landing-magic-bg nav {
+            background: rgba(15, 26, 61, 0.82) !important;
+            border-bottom-color: rgba(255,255,255,0.08) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .landing-magic-bg .logo-text { color: #fff !important; }
+        .landing-magic-bg .nav-link { color: rgba(255,255,255,0.75) !important; }
+        .landing-magic-bg .nav-link:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+        .landing-magic-bg .nav-login-link { color: #fbbf24 !important; font-weight: 700 !important; }
+        .landing-magic-bg .nav-login-link:hover { background: rgba(255,255,255,0.08) !important; }
+        .landing-magic-bg .nav-tipsa-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+            color: #1d1d1f !important;
+        }
+        .landing-magic-bg .nav-cta { background: var(--amber); color: #1d1d1f; }
+        .landing-magic-bg .lang-switcher { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+        .landing-magic-bg .lang-switcher:hover { background: rgba(255,255,255,0.15); }
+        .landing-magic-bg .lang-switcher--centered { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); display: flex; }
+        .landing-magic-bg .nav-hamburger span { background: #fff; }
+        /* Nav Facebook icon text — make visible on dark bg */
+        .landing-magic-bg .nav-links a[style*="#1877F2"] { color: #93c5fd !important; }
+
+        /* Hero on magical night — stars overlay + gradient bg */
+        .landing-magic-bg .hero {
+            background: transparent;
+            position: relative;
+        }
+        .landing-magic-bg .hero::before,
+        .landing-magic-bg .hero::after { display: none; }
+        .landing-magic-bg .hero-inner { z-index: 2; }
+        .landing-magic-bg .hero-eyebrow {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.85);
+        }
+        .landing-magic-bg .hero h1 { color: #fff; }
+        .landing-magic-bg .hero-ingress { color: rgba(255,255,255,0.75); }
+
+        /* Founders CTA on dark bg */
+        .landing-magic-bg #founderCta {
+            background: rgba(255,255,255,0.08) !important;
+            border-color: rgba(251,191,36,0.4) !important;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3) !important;
+        }
+        .landing-magic-bg #founderCta strong,
+        .landing-magic-bg #founderCta p { color: rgba(255,255,255,0.85) !important; }
+        .landing-magic-bg #founderCta p { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg #founderCta li { color: rgba(255,255,255,0.6) !important; }
+
+        /* Secondary login link — hide on magical night (login cards are right there) */
+        .landing-magic-bg .hero-text > div[style*="margin-bottom:1.4rem;text-align:center;"] { display: none !important; }
+
+        /* ===== LOGIN CARDS SECTION — glass-morphism on dark bg ===== */
         .login-cards-section {
             width: 100%; max-width: 460px;
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.4rem;
         }
         .login-cards-tagline {
             font-size: 0.75rem; font-weight: 700;
             text-transform: uppercase; letter-spacing: 0.12em;
-            color: var(--text-3); margin-bottom: 0.9rem;
+            color: rgba(255,255,255,0.55); margin-bottom: 0.9rem;
         }
         .login-cards-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;
         }
         .login-card {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: flex-start;
             text-decoration: none;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem 1.1rem 1.3rem;
-            min-height: 130px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 22px;
+            padding: 1.3rem 1.1rem;
+            min-height: 110px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
             position: relative; overflow: hidden; cursor: pointer;
-        }
-        .login-card::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(255,255,255,0.08);
-            opacity: 0; transition: opacity 0.18s;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 2px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.07);
+            gap: 0.9rem;
         }
         .login-card:hover { transform: translateY(-4px); }
-        .login-card:hover::after { opacity: 1; }
         .login-card:active { transform: scale(0.97); }
 
         .login-card-child {
-            background: linear-gradient(145deg, #7C3AED 0%, #5B21B6 100%);
-            box-shadow: 0 8px 28px rgba(124,58,237,0.32);
+            background: rgba(147, 112, 219, 0.25);
+            border-color: rgba(167, 139, 250, 0.4);
         }
-        .login-card-child:hover { box-shadow: 0 14px 40px rgba(124,58,237,0.48); }
+        .login-card-child:hover {
+            background: rgba(147, 112, 219, 0.38);
+            border-color: rgba(167, 139, 250, 0.65);
+            box-shadow: 0 8px 28px rgba(124, 58, 237, 0.35);
+        }
 
         .login-card-parent {
-            background: linear-gradient(145deg, #F5A623 0%, #D4891A 100%);
-            box-shadow: 0 8px 28px rgba(245,166,35,0.35);
+            background: rgba(251, 191, 36, 0.18);
+            border-color: rgba(251, 191, 36, 0.4);
         }
-        .login-card-parent:hover { box-shadow: 0 14px 40px rgba(245,166,35,0.52); }
+        .login-card-parent:hover {
+            background: rgba(251, 191, 36, 0.28);
+            border-color: rgba(251, 191, 36, 0.65);
+            box-shadow: 0 8px 28px rgba(245, 166, 35, 0.38);
+        }
 
-        .login-card-emoji { font-size: 2.2rem; margin-bottom: 0.55rem; line-height: 1; }
+        .login-card-emoji { font-size: 2.2rem; line-height: 1; flex-shrink: 0; }
+        .login-card-text { display: flex; flex-direction: column; }
         .login-card-label {
-            font-family: 'Fraunces', serif;
+            font-family: 'Outfit', sans-serif;
             font-size: 0.95rem; font-weight: 700;
-            color: white; text-align: center;
+            color: #fff; text-align: left;
         }
         .login-card-sub {
             font-size: 0.72rem; font-weight: 500;
-            opacity: 0.8; margin-top: 0.28rem;
-            text-align: center; color: white; line-height: 1.3;
+            opacity: 0.65; margin-top: 0.2rem;
+            text-align: left; color: #fff; line-height: 1.3;
         }
         .login-card-text { display: contents; /* becomes flex column on mobile via override */ }
+
+        /* Testimonials on dark bg */
+        .landing-magic-bg .testimonials-section { max-width: 460px; }
+        .landing-magic-bg .testimonials-label { color: rgba(255,255,255,0.6); }
+        .landing-magic-bg .testimonial-card {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.1);
+            backdrop-filter: blur(8px);
+        }
+        .landing-magic-bg .testimonial-quote { color: rgba(255,255,255,0.7); }
+
+        /* ===== PWA CALLOUT — simplified to just text, no install steps ===== */
+        .landing-magic-bg .pwa-callout {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: rgba(255,255,255,0.15) !important;
+            box-shadow: none !important;
+        }
+        .landing-magic-bg .pwa-callout-header { display: none; }
+        .landing-magic-bg .pwa-steps { display: none; }
+        .landing-magic-bg .pwa-callout-footer {
+            color: rgba(255,255,255,0.6) !important;
+            border-top-color: rgba(255,255,255,0.12) !important;
+            padding-top: 0.75rem;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+        /* Show the simple text */
+        .landing-magic-bg .pwa-callout::after {
+            content: 'Snart tillgänglig som app på App Store och Google Play';
+            display: block;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            padding: 0.5rem 0 0.2rem;
+        }
+
+        /* Mobile Facebook button on dark bg */
+        .landing-magic-bg #mobileFbBtn a { background: rgba(24,119,242,0.8) !important; }
+
+        /* Footer on magical night */
+        .landing-magic-bg .footer-cta-section { background: rgba(15,26,61,0.95) !important; }
+        .landing-magic-bg footer {
+            background: #0f1a3d !important;
+            border-top-color: rgba(255,255,255,0.06) !important;
+        }
+        .landing-magic-bg .footer-links a { color: rgba(255,255,255,0.45) !important; }
+        .landing-magic-bg .footer-links a:hover { color: rgba(255,255,255,0.8) !important; }
+        .landing-magic-bg .footer-copy { color: rgba(255,255,255,0.3) !important; }
+
+        /* Mobile FABs on dark bg */
+        .landing-magic-bg .landing-fab-hjalp { background: rgba(255,255,255,0.1); }
+        .landing-magic-bg .mobile-tipsa-fixed { background: linear-gradient(135deg,#fbbf24,#f59e0b); }
+
+        /* ===== LANDING NEWS CARDS — glass cards on dark bg ===== */
+        .landing-magic-bg #landingNewsGrid > div {
+            background: rgba(255,255,255,0.07) !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
+        }
+        .landing-magic-bg #landingNewsGrid h3 { color: rgba(255,255,255,0.9) !important; }
+        .landing-magic-bg #landingNewsGrid p  { color: rgba(255,255,255,0.6) !important; }
+
+        /* ===== SECTIONS — dark glass overrides ===== */
+        .landing-magic-bg .section { background: rgba(15,26,61,0.6) !important; }
+        .landing-magic-bg .section-header { }
+        .landing-magic-bg .section-label { color: rgba(251,191,36,0.85) !important; }
+        .landing-magic-bg .section-title { color: #fff !important; }
+        .landing-magic-bg .section-subtitle { color: rgba(255,255,255,0.6) !important; }
+
+        .landing-magic-bg #problemet { background: rgba(15,26,61,0.7) !important; }
+        .landing-magic-bg .problem-lead {
+            background: rgba(255,255,255,0.06) !important;
+            border-left-color: rgba(251,191,36,0.5) !important;
+            color: rgba(255,255,255,0.8) !important;
+        }
+        .landing-magic-bg .problem-answer { color: rgba(255,255,255,0.6) !important; }
+
+        .landing-magic-bg #losning { background: rgba(15,26,61,0.5) !important; }
+        .landing-magic-bg .solution-card {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+        }
+        .landing-magic-bg .solution-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.35) !important; }
+        .landing-magic-bg .solution-card h3 { color: rgba(255,255,255,0.9) !important; }
+        .landing-magic-bg .solution-card p { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg .solution-icon { background: rgba(251,191,36,0.15) !important; }
+
+        .landing-magic-bg #screenshots { background: rgba(15,26,61,0.7) !important; }
+        .landing-magic-bg .screenshots-intro { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg .screenshots-subheader h3 { color: #fff !important; }
+        .landing-magic-bg .screenshots-subheader p { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg .screenshot-caption { color: rgba(255,255,255,0.6) !important; }
+
+        .landing-magic-bg #pedagogue-share { background: rgba(15,26,61,0.5) !important; }
+        .landing-magic-bg .pedagogue-share-content h2 { color: #fff !important; }
+        .landing-magic-bg .pedagogue-share-content > p { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg .pedagogue-bullets li strong { color: rgba(255,255,255,0.9) !important; }
+        .landing-magic-bg .pedagogue-bullets li span { color: rgba(255,255,255,0.55) !important; }
+        .landing-magic-bg .pedagogue-bullet-icon { background: rgba(251,191,36,0.15) !important; }
+        .landing-magic-bg .pedagogue-share-illustration-inner {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .landing-magic-bg .pedagogue-cta-secondary {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: rgba(255,255,255,0.2) !important;
+            color: rgba(255,255,255,0.8) !important;
+        }
+        .landing-magic-bg .pedagogue-cta-secondary:hover { background: rgba(255,255,255,0.1) !important; border-color: rgba(251,191,36,0.5) !important; }
+
+        .landing-magic-bg #malgrupp { background: rgba(15,26,61,0.7) !important; }
+        .landing-magic-bg .target-body { color: rgba(255,255,255,0.6) !important; }
+        .landing-magic-bg .target-tag {
+            background: rgba(251,191,36,0.12) !important;
+            color: rgba(251,191,36,0.85) !important;
+            border-color: rgba(251,191,36,0.2) !important;
+        }
+        .landing-magic-bg .target-tag.purple {
+            background: rgba(147,112,219,0.12) !important;
+            color: rgba(167,139,250,0.85) !important;
+            border-color: rgba(147,112,219,0.2) !important;
+        }
+        .landing-magic-bg .faq-question {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: rgba(255,255,255,0.85) !important;
+        }
+        .landing-magic-bg .faq-question:hover { background: rgba(251,191,36,0.08) !important; border-color: rgba(251,191,36,0.25) !important; }
+        .landing-magic-bg .faq-answer-inner {
+            background: rgba(255,255,255,0.03) !important;
+            border-color: rgba(251,191,36,0.15) !important;
+            color: rgba(255,255,255,0.65) !important;
+        }
+
+        .landing-magic-bg #faq { background: rgba(15,26,61,0.5) !important; }
+        .landing-magic-bg .faq-item.open .faq-question { border-color: rgba(251,191,36,0.3) !important; }
+
+        .landing-magic-bg #kontakt { background: rgba(15,26,61,0.6) !important; }
+        .landing-magic-bg .contact-form-card {
+            background: rgba(255,255,255,0.04) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .landing-magic-bg .contact-form-card label { color: rgba(255,255,255,0.75) !important; }
+        .landing-magic-bg .contact-form-card input,
+        .landing-magic-bg .contact-form-card textarea {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            color: #fff !important;
+        }
+        .landing-magic-bg .contact-form-card input::placeholder,
+        .landing-magic-bg .contact-form-card textarea::placeholder { color: rgba(255,255,255,0.35) !important; }
+        .landing-magic-bg .contact-form-card input:focus,
+        .landing-magic-bg .contact-form-card textarea:focus {
+            border-color: rgba(251,191,36,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(251,191,36,0.08) !important;
+        }
+
+        /* Illustration on dark bg */
+        .landing-magic-bg .hero-illustration {
+            background: rgba(255,255,255,0.07) !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2) !important;
+        }
+        .landing-magic-bg .illus-logo { color: rgba(255,255,255,0.9) !important; }
+        .landing-magic-bg .illus-greeting { color: rgba(255,255,255,0.7) !important; }
+        .landing-magic-bg .illus-greeting strong { color: #fff !important; }
+        .landing-magic-bg .illus-card { background: rgba(255,255,255,0.06) !important; }
+        .landing-magic-bg .illus-progress { background: rgba(255,255,255,0.05) !important; }
+        .landing-magic-bg .illus-progress-label { color: rgba(255,255,255,0.65) !important; }
+
+        /* Dagens nyhet banner on dark bg */
+        .landing-magic-bg #dagensNyhetBanner {
+            background: rgba(28,35,64,0.9) !important;
+            border-bottom-color: rgba(251,191,36,0.4) !important;
+        }
+        .landing-magic-bg #dagensNyhetTitle { color: rgba(255,255,255,0.9) !important; }
+        .landing-magic-bg #dagensNyhetBody { color: rgba(255,255,255,0.6) !important; }
+
+        /* Mobile menu on dark bg */
+        .landing-magic-bg .mobile-menu { background: rgba(15,26,61,0.97) !important; }
+        .landing-magic-bg .mobile-menu a { color: rgba(255,255,255,0.8) !important; }
+        .landing-magic-bg .mobile-menu a:hover,
+        .landing-magic-bg .mobile-menu a:active { background: rgba(255,255,255,0.06) !important; }
+        .landing-magic-bg .mobile-menu .mobile-cta { background: rgba(251,191,36,0.8) !important; color: #1d1d1f !important; }
+
+        /* Hero illustration — hide child emoji on magic bg */
+        .landing-magic-bg .illus-child-figure { opacity: 0.6; }
+
+        /* Responsive: cards stack on mobile */
+        @media (max-width: 680px) {
+            .landing-magic-bg .login-cards-row { display: flex; flex-direction: column; }
+            .landing-magic-bg .login-card-child { order: 1; }
+            .landing-magic-bg .login-card-parent { order: 2; }
+            .landing-magic-bg .login-card { min-height: 88px; padding: 0.9rem 1rem; flex-direction: row; align-items: center; gap: 0.9rem; }
+            .landing-magic-bg .login-card-emoji { font-size: 1.9rem; margin-bottom: 0; }
+            .landing-magic-bg .login-card-text { display: flex; flex-direction: column; }
+            .landing-magic-bg .login-card-label { font-size: 0.92rem; text-align: left; }
+            .landing-magic-bg .login-card-sub { text-align: left; }
+        }
 
         .hero-cta-hint {
             font-size: 0.82rem; color: var(--text-3);
@@ -1299,7 +1579,12 @@
     }
     </script>
 </head>
-<body>
+<body class="platform-web" style="font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;">
+
+  <!-- Stars (platform-web only) -->
+  <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+  <!-- Clouds (platform-web only) -->
+  <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 
 <!-- ===== NAV ===== -->
 <nav>
@@ -2490,6 +2775,63 @@ function showLandingSharePopup() {
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.13.0"></script>
+
+  <!-- Landing page: apply magisk natt bg + star/cloud particles (web only) -->
+  <script>
+  (function() {
+    // Only apply on .platform-web — platform.js handles .platform-native redirect
+    if (!document.body.classList.contains('platform-web')) return;
+
+    document.body.classList.add('landing-magic-bg');
+
+    // ── Star generation (reuses login-magic.css star-particle classes) ──────────
+    function genStars(count) {
+      var c = document.getElementById('landing-stars-container');
+      if (!c) return;
+      for (var i = 0; i < count; i++) {
+        var s = document.createElement('div');
+        s.className = 'star-particle';
+        var sz = Math.random() < 0.7 ? Math.floor(Math.random() * 4) + 2 : Math.floor(Math.random() * 7) + 6;
+        s.style.cssText = [
+          'width:' + sz + 'px', 'height:' + sz + 'px',
+          'background:rgba(255,255,255,' + (Math.random() * 0.55 + 0.2).toFixed(2) + ')',
+          'left:' + (Math.random() * 100).toFixed(1) + '%',
+          'top:'  + (Math.random() * 100).toFixed(1) + '%',
+          '--float-dur:'    + (Math.random() * 5 + 3).toFixed(1) + 's',
+          '--float-delay:'  + (Math.random() * 4).toFixed(1) + 's',
+          '--twinkle-dur:'  + (Math.random() * 3 + 1.5).toFixed(1) + 's',
+          '--twinkle-delay:'+ (Math.random() * 3).toFixed(1) + 's'
+        ].join(';');
+        if (Math.random() < 0.35) s.classList.add('lit');
+        if (Math.random() < 0.2)  s.classList.add('fast');
+        if (Math.random() < 0.15) s.classList.add('slow');
+        c.appendChild(s);
+      }
+    }
+
+    // ── Cloud generation ──────────────────────────────────────────────────────
+    function genClouds(count) {
+      var c = document.getElementById('landing-clouds-container');
+      if (!c) return;
+      for (var i = 0; i < count; i++) {
+        var cl = document.createElement('div');
+        cl.className = 'cloud';
+        var w = Math.floor(Math.random() * 180 + 80);
+        cl.style.cssText = [
+          'width:' + w + 'px', 'height:' + Math.floor(w * (0.4 + Math.random() * 0.3)) + 'px',
+          'left:' + (Math.random() * 100).toFixed(1) + '%',
+          'top:'  + (Math.random() * 70).toFixed(1) + '%',
+          '--drift-dur:'   + (Math.random() * 15 + 10).toFixed(0) + 's',
+          '--drift-delay:' + (Math.random() * 8).toFixed(1) + 's'
+        ].join(';');
+        c.appendChild(cl);
+      }
+    }
+
+    genStars(60);
+    genClouds(6);
+  })();
+  </script>
 
   <!-- Landing news: server-side rendered by routes/landing.js (no client JS needed) -->
   <!-- Landing page survey popup (Målgrupp C) -->

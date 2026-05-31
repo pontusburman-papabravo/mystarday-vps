@@ -320,8 +320,8 @@
           document.getElementById('registerForm').classList.remove('hidden');
           document.getElementById('loginLink').classList.remove('hidden');
 
-          // Show Apple Sign In button on iOS/native
-          if (window.Platform && (window.Platform.isIOS() || window.Platform.isNative())) {
+          // Show Apple Sign In button on iOS only
+          if (window.Platform && window.Platform.isIOS()) {
             const appleSection = document.getElementById('appleRegisterSection');
             if (appleSection) appleSection.classList.remove('hidden');
           }
@@ -472,7 +472,7 @@
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
           setTimeout(() => window.location.href = '/onboarding', 300);
-        } else if (res.status === 409 && (data.code === 'APPLE_EMAIL_EXISTS' || data.code === 'email_conflict')) {
+        } else if (res.status === 409 && (data.error === 'APPLE_EMAIL_EXISTS' || data.error === 'email_conflict')) {
           showError('appleRegisterError', 'Ett konto med denna e-postadress finns redan. ' +
             'Logga in med Apple istället, eller använd lösenordsinloggning.');
         } else {

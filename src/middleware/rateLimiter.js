@@ -40,7 +40,14 @@ function onLimitReached(req, res, options) {
  * Authenticated requests are skipped — they are already protected by
  * apiLimiter with per-user keys (user:parentId). The global limiter only
  * applies to unauthenticated traffic (API abuse / brute-force protection).
+ *
+ * Static assets (.js, .css, .png, etc.) are exempt — they are not abuse
+ * vectors, and counting them against the IP limit caused the admin panel
+ * to break on mobile (20+ JS files per page load exhausted the IP budget
+ * → 429 on API calls → redirect to /login).
  */
+const STATIC_EXT_RE = /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map|webp|mp4|webm|json|xml|txt|pdf)$/i;
+
 const globalLimiter = rateLimit({
   windowMs: config.rateLimits.global.windowMs,
   max: ENABLED ? config.rateLimits.global.max : 0, // 0 = unlimited when disabled
@@ -49,12 +56,25 @@ const globalLimiter = rateLimit({
   message: { error: 'För många förfrågningar. Vänta en stund och försök igen.' },
   keyGenerator: (req) => getRealIp(req),
   // Skip SSE — long-lived connections must not consume rate limit tokens.
-  // Also skip authenticated requests — apiLimiter already handles per-user limits.
+  // Skip authenticated requests — apiLimiter already handles per-user limits.
+  //   NOTE: req.user is only set AFTER optionalAuth middleware, but globalLimiter
+  //   runs BEFORE optionalAuth. So this check only works for routes where auth is
+  //   applied earlier. Admin API paths are exempted explicitly below.
+  // Skip static assets — not abuse vectors; they exhaust the IP budget on
+  // asset-heavy pages (admin panel loads 20+ JS files per page).
+  // Skip admin API paths — requireAdmin middleware already gates these; the global
+  // limiter was causing 429s on admin panel load (20+ API calls in quick succession)
+  // which cascaded into failed silentRefresh → 401 → redirect to /login.
+  // Skip auth refresh — silentRefresh POSTs here; 429 leaves the access token expired,
+  // and the next API call gets a server-side 401 → redirect to /login.
   skip: (req) =>
     !ENABLED ||
     req.path === '/api/events' ||
     req.path.startsWith('/api/events') ||
-    (req.user && req.user.id),
+    req.path.startsWith('/api/admin') ||
+    req.path === '/api/auth/refresh' ||
+    (req.user && req.user.id) ||
+    STATIC_EXT_RE.test(req.path),
   handler: (req, res, next, options) => {
     onLimitReached(req, res, options);
     res.status(429).json({ error: 'För många förfrågningar. Vänta en stund och försök igen.' });
@@ -199,9 +219,18 @@ const apiLimiter = rateLimit({
     if (req.user && req.user.id) return `user:${req.user.id}`;
     return `ip:${getRealIp(req)}`;
   },
-  // Path is already stripped of /api prefix by Express mount — match '/events' not '/api/events'.
-  // Also check req.originalUrl as a safety net in case mount behaviour changes.
-  skip: (req) => !ENABLED || req.path === '/events' || req.path.startsWith('/events') || req.originalUrl?.startsWith('/api/events'),
+  // Skip SSE — long-lived connections must not consume rate limit tokens.
+  // Skip authenticated users — apiLimiter uses per-user keys (user:parentId) so
+  // authenticated users already have their own 100 req/min bucket. GlobalLimiter also
+  // has its own skip for these. Without this skip, authenticated admin requests could
+  // hit the 30 req/min unauthenticated limit when IP budget is exhausted (e.g. after
+  // loading many static files), causing 429 → infinite loading on admin pages.
+  skip: (req) =>
+    !ENABLED ||
+    (req.user && req.user.id) ||  // skip authenticated users
+    req.path === '/events' ||
+    req.path.startsWith('/events') ||
+    req.originalUrl?.startsWith('/api/events'),
   handler: (req, res, next, options) => {
     onLimitReached(req, res, options);
     const retryAfterSec = Math.ceil(options.windowMs / 1000);
@@ -259,6 +288,28 @@ const resendVerificationLimiter = rateLimit({
 });
 
 /**
+ * Parent PIN verify limiter: 5 attempts per family per 15 min.
+ * Protects against brute-force on the 4-digit parent PIN.
+ * Key: familyId for authenticated parents (auth required for all family/* endpoints).
+ */
+const parentPinLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: ENABLED ? 5 : 0,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `parent-pin:${req.user?.familyId || getRealIp(req)}`,
+  skip: () => !ENABLED,
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options);
+    const retryAfterSec = Math.ceil(options.windowMs / 1000);
+    res.status(429).json({
+      error: 'För många försök. Försök igen om 15 minuter.',
+      retry_after: retryAfterSec,
+    });
+  },
+});
+
+/**
  * IAP webhook limiter: 100 req/min for RevenueCat webhook endpoint.
  * Keyed by IP — webhook has no session cookie.
  */
@@ -290,4 +341,5 @@ module.exports = {
   resendVerificationLimiter,
   appleLoginLimiter,
   iapWebhookLimiter,
+  parentPinLimiter,
 };
