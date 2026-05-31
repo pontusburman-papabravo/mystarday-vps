@@ -7,6 +7,7 @@
 
 | Dokument | Innehåll |
 |----------|----------|
+| **[`docs/kravspec-app-webb.md`](kravspec-app-webb.md)** | **Kravspec:** auth, behörigheter, separerade hushåll, PG, push-faser |
 | [`docs/ios-städ.md`](ios-städ.md) | Teknisk städning efter native-steg 1–10 + webb-fixar |
 | [`app.md`](../app.md) | Native build-plan (Capacitor, TestFlight, 10 steg) |
 | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | Föräldrakonto: Apple, e-post, byt mail |
@@ -87,6 +88,8 @@ Föräldrar som använder **webbläsare** (majoriteten tills appen är släppt) 
 
 ## 2. Förälder ändrar e-post och byter från Apple-login
 
+> **Behörigheter & separerade hushåll:** Varje vuxen har eget konto; åtkomst till barn styrs per `parent_child`-länk (primary/shared/pedagog). Medförälder kan bjudas in till **specifika barn** via `family_invite.child_ids`. Se [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) §0 och §6.
+
 ### Mål
 
 Föräldern ska **själv** i Inställningar kunna:
@@ -163,23 +166,23 @@ Inställningar → Koppla bort Apple (kräver lösenord)
 ├─────────────────────────────────────────────────────────────┤
 │ 2. FÖRÄLDER FÖRBEREDER BARN                                 │
 │    • Onboarding (ny familj) ELLER wizard add-child (§6)     │
-│    • Sätter barn-PIN + ev. profilbild (selfie, § Phase 2)   │
-│    • Sätter FÖRÄLDRA-PIN (4 siffror, per familj) — PG-task  │
+│    • Sätter barn-PIN                                        │
+│    • Väljer vilka barn som ska finnas på enheten             │
+│    • Sätter app-lås (PIN / Face ID) — PG per förälder (§2.2)│
 ├─────────────────────────────────────────────────────────────┤
-│ 3. "Låt barnet använda appen" / "Byt till barnläge"         │
+│ 3. "Aktivera barnläge" / "Byt till barnläge"                │
 │    → /child-login (välj barn → PIN → barn-dashboard)        │
 │    Föräldersession sparas i stjarndag_parent_session        │
 ├─────────────────────────────────────────────────────────────┤
 │ 4. BARN ANVÄNDER APPEN                                      │
 │    • Schema, stjärnor, Skattkammaren                        │
-│    • Selfie/profilbild sätts av förälder i Inställningar    │
-│      (INTE vid login — barnet är inte inloggat som förälder)│
+│    • Selfie/profilbild i barnläge (Min profil) → molnsynk   │
 ├─────────────────────────────────────────────────────────────┤
 │ 5. TILLBAKA TILL FÖRÄLDER                                   │
-│    • "Jag är vuxen" / "Tillbaka till föräldraläge"          │
-│    → KRÄV FÖRÄLDRA-PIN (4 siffror) — INTE e-post igen       │
-│    • Rätt PIN → dashboard                                     │
-│    • Fel PIN → stanna i barnläge                              │
+│    • "Tillbaka till vuxen" / dörr-ikon (håll inne eller PG) │
+│    → Biometri ELLER förälderns app-lås-PIN — INTE barn-PIN  │
+│    • Rätt → dashboard (inloggad förälders session)          │
+│    • Fel → stanna i barnläge                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -190,16 +193,20 @@ Inställningar → Koppla bort Apple (kräver lösenord)
 | **Tillbaka till förälder** | Barn-dashboard header | Alla |
 | **Föräldra-PIN-modal** | Vid byte barn → vuxen | Alla |
 | **"Jag är vuxen"** | `login.html` / rollval | Alla — ska kräva PIN om session finns |
-| **Selfie/avatar** | Inställningar → Barn → Profilbild | iOS kamera + webb fil |
+| **Selfie/avatar** | Min profil (barnläge) + Inställningar (förälder) | iOS kamera + webb fil |
 
-### Parental Gate (PG) — ny task
+### Parental Gate (PG) — reviderad (per förälder/enhet)
 
 | Del | Spec |
 |-----|------|
-| DB | `family.parent_pin_hash` (bcrypt, en PIN per familj) |
-| API | `POST /api/family/set-pin`, `POST /api/family/verify-pin` |
-| Gate | Barn-logout `sessionRestored`, "Jag är vuxen", tillbaka-knapp |
-| Glömt PIN | Full re-auth (lösenord/Apple) → sätt ny PIN |
+| **App-lås-PIN** | 4–6 siffror, sätts av inloggad förälder vid "Aktivera barnläge" |
+| **Biometri** | Face ID / Touch ID via Capacitor (native) — fallback till PIN |
+| **Lagring** | Hash i Secure Storage / localStorage på enheten (rekommenderat) |
+| **Gate** | Barn-logout `sessionRestored`, "Jag är vuxen", tillbaka-knapp, dörr-ikon |
+| **Glömt PIN** | Full re-auth (lösenord/Apple) |
+| **≠ barn-PIN** | Barn-PIN loggar **in** barn; app-lås skyddar **ut** till vuxen |
+
+Full spec: [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) §2.2.
 
 **Koppling barnlogin-redesign:** [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) — skärm 2–3 + mockup.
 
@@ -364,23 +371,35 @@ if (me.onboarding_completed && !isAddChildFlow) {
 
 **Kanal:** APNs (iOS app), FCM (Android app), Web Push/VAPID (PWA).
 
-### Rekommendation v1.0 — **inga nya typer nu**
+### Rekommendation — fasad rollout
 
-Prioritera **stabilitet** framför fler notiser:
+**Fas 0 (v1.0):** Fixa leverans på befintliga typer (APNs/FCM/VAPID). Inkluderar redan `notifyParentsChildCompleted` vid avbockning.
+
+**Fas 1 (v1.1):** Rikare föräldertext — t.ex. "Astrid klarat morgonen", kvällspåminnelse, rapport utgår om 24 h.
+
+**Fas 2 (v1.2):** Push till barn (egen enhet) — kräver ny token-modell; föräldra-opt-in.
+
+| Typ | Fas | Mottagare |
+|-----|-----|-----------|
+| schedule_reminder, inactivity, milestones, backfill | 0 | Förälder |
+| Sektion klar / kvällspåminnelse | 1 | Förälder |
+| Rapport utgår | 1 | Förälder (pedagog) |
+| Morgon-schema, mål-nudge | 2 | Barn |
+
+Full lista: [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) §5.
+
+### Tidigare v1.0-not (leverans först)
+
+Prioritera **stabilitet** framför nya typer i Fas 0:
 
 1. ✅ Säkerställ att befintliga 4 påminnelsetyper fungerar på **native iOS** (APNs)
 2. ✅ Web Push fungerar i **installerad PWA** (iOS Safari kräver hemskärmsikon)
 3. ✅ Inställningar: toggles per typ (`push_preferences` JSONB)
-4. ⏸️ **Skjut upp** barn-push, chatt, sociala notiser
+4. ⏸️ **Nya typer** enligt faser ovan — efter leveransfix
 
-### Eventuella **v2**-notiser (efter launch)
+### ~~Eventuella **v2**-notiser~~ (ersatt av faser i kravspec)
 
-| Typ | Värde | Prioritet |
-|-----|-------|-----------|
-| Belöning godkänd/nekad | Förälder → barn | Medel |
-| Medförälder bjuden in accepterad | Förälder | Låg |
-| Schema ändrat idag | Barn (om barn-PIN-session?) | Låg — kräver barn-push |
-| Påminnelse till barn att bocka av | Barn | Låg — pedagogiskt känsligt |
+Se [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) §5.
 
 ### Plattform push
 
@@ -391,7 +410,7 @@ Prioritera **stabilitet** framför fler notiser:
 | Mobil webb PWA | VAPID + Service Worker | Installerad PWA (iOS!) |
 | Desktop webb | VAPID | Begränsat stöd |
 
-**Slutsats punkt 7:** Fler push-notiser **behövs inte** för v1.0 — **fixa leverans** på befintliga typer per plattform.
+**Slutsats punkt 7:** Fas 0 = fixa leverans. Fas 1–2 = strategiska notiser enligt kravspec.
 
 ---
 
@@ -399,12 +418,16 @@ Prioritera **stabilitet** framför fler notiser:
 
 | Område | Status / rekommendation |
 |--------|-------------------------|
+| **Separerade hushåll** | Datamodell ✅ (`parent_child` + `family_invite.child_ids`); UI Familj-flik ❌ |
+| **Offline-synk** | Delvis ✅ (`offline-queue.js`, IndexedDB); UX-banner ❌ |
+| **Föräldra-logg** | Ny feature v1.2 — korta daganteckningar mellan vuxna (§9 i kravspec) |
+| **Magic link (webb)** | v1.1 — komplement till e-post/lösenord |
 | **Lifetime free (200 familjer)** | Behåll; middleware ska respektera `is_lifetime_free` |
 | **IAP / betalning** | Efter App Store; native = RevenueCat, webb = Stripe senare |
 | **Tab bar (native)** | Ja — Guideline 4.2; se [`docs/ios-städ.md`](ios-städ.md) fas 2 |
 | **Google Sign In (Android)** | v2 — e-post räcker till launch |
 | **Pedagog-läge** | Separat feature-flag; inte i v1.0-app |
-| **Offline** | `/offline.html` + cache; barn kan se cachelagrat schema |
+| **Offline** | `/offline.html` + cache + `offline-queue.js`; se kravspec §7 |
 | **Radera konto** | ✅ Apple 5.1.1 — `DELETE /api/family/delete-account` |
 | **GDPR export** | ✅ `/api/account/export-data` |
 | **Admin support** | Kontohantering F — badges, admin byt mail |
@@ -441,6 +464,7 @@ Fas D — Efter launch
 
 | Du vill… | Läs |
 |----------|-----|
+| **Full kravspec (auth, hushåll, PG, push)** | [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) |
 | Frysa webb vs native tekniskt | [`docs/ios-städ.md`](ios-städ.md) |
 | Bygga iOS/Android wrapper | [`app.md`](../app.md) |
 | Föräldrakonto Apple/mail | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) |
@@ -454,4 +478,5 @@ Fas D — Efter launch
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-31 | PG per förälder/enhet; push-faser; länk till kravspec |
 | 2026-05-29 | Första version — 8 produktpunkter + plattformsmatris |

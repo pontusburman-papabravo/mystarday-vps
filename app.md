@@ -10,12 +10,13 @@ Klistra in **en prompt i taget** till en AI-utvecklare. Vänta tills steget är 
 
 | Dokument | Innehåll |
 |----------|----------|
+| **[`docs/kravspec-app-webb.md`](docs/kravspec-app-webb.md)** | **Kravspec:** auth, behörigheter, separerade hushåll, PG, push-faser, offline |
 | **[`docs/plattform-webb-ios-android.md`](docs/plattform-webb-ios-android.md)** | **Produkt-spec:** webb, iPhone, Android — inloggning, barnläge, onboarding, push m.m. (8 punkter) |
 | [`docs/ios-städ.md`](docs/ios-städ.md) | Teknisk städning efter native-steg 1–10 + webb-fixar |
 | [`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md) | Föräldrakonto: e-post, Apple, lösenord |
 | [`docs/polsia-barnlogin-design.md`](docs/polsia-barnlogin-design.md) | Barnlogin 3 skärmar + selfie |
 
-**Läs plattform-specen först** om frågan gäller hur webb vs native ska bete sig — denna fil (`app.md`) fokuserar på Capacitor-build och App Store-stegen 1–10.
+**Läs kravspec + plattform-spec först** om frågan gäller produkt, säkerhet eller webb vs native — denna fil (`app.md`) fokuserar på Capacitor-build och App Store-stegen 1–10.
 
 ---
 
