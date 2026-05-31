@@ -1,7 +1,8 @@
 # Min Stjärndag — app2.md (masterplan)
 
-**Skapad:** 2026-05-31  
-**Senast uppdaterad:** 2026-05-28  
+## Version 2.3
+
+**Skapad:** 2026-05-31 · **Senast uppdaterad:** 2026-05-28 · **Dokumentversion:** `2.3`
 **Syfte:** **Ett dokument** som samlar produktkrav, ny design, plattformsregler, vad som **redan finns**, vad som **behöver städas**, och vägen till **iPhone-app**, **Android-app**, **mobil webbläsare** och **desktop webbläsare**.
 
 **Snabbstart:** [§12 Fas A+ (The Core)](#fas-a--the-core-super-uppdrag) · [§18 Native & App Store 6→10](#18-native--app-store--väg-610) · [§16 Launch 10/10](#16-launch-beredskap-1010) · [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature)
@@ -1918,14 +1919,11 @@ När **allt** nedan är ✅ → Native-känsla och App Store-beredskap **9,5–1
 
 ## Versionshistorik
 
-| Datum | Ändring |
-|-------|---------|
-| 2026-05-28 | §18 Native & App Store väg 6→10, master-checklista, review-konto |
-| 2026-05-28 | §16.8 produktchefs-lager, §6.1 Familjecenter, §11.3, §16.5b wow 3 min |
-| 2026-05-28 | §16 Launch 10/10 (6 områden), §17 Observability & drift |
-| 2026-05-28 | P0.5 deep links, P0.6 crash, push före dashboard, §15 revision |
-| 2026-05-28 | P0.1–P0.4 blocker-lista, Fas A+ (The Core), §14.6–14.9, 9A/9B RC |
-| 2026-06-01 | P0 PG, RC 9A/9B, §14 acceptans, §15 beredskap, push före IAP |
-| 2026-05-31 | §5.2.1 device_mode, §5.3–5.7, §7.1 feedback, §13 strategi |
-| 2026-05-31 | Utökad §2 med wireframes, HTML-mockup-länkar |
-| 2026-05-31 | app2.md — samlat masterdokument |
+| Datum | Version | Ändring |
+|-------|---------|---------|
+| 2026-05-28 | **2.3** | §18 Native & App Store 6→10; versionsnummer i header |
+| 2026-05-28 | 2.2 | §16.8 produktchefs-lager, §6.1 Familjecenter, §11.3, §16.5b |
+| 2026-05-28 | 2.1 | §16 Launch 10/10, §17 Observability, P0.5/P0.6, push före dashboard |
+| 2026-05-28 | 2.0 | P0.1–P0.4, Fas A+, §14 acceptans, 9A/9B RC — **releaseplan v1.0** |
+| 2026-06-01 | 1.1 | P0 PG, RC 9A/9B, §14 acceptans, §15 beredskap |
+| 2026-05-31 | 1.0 | Första samlade masterdokument; §5.2.1 device_mode, §7.1, §13 |
