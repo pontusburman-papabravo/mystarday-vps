@@ -9,6 +9,18 @@
 **Detaljerade under-specar** (Polsia-prompts med radnivå):  
 [`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md) · [`docs/polsia-barnlogin-design.md`](docs/polsia-barnlogin-design.md) · [`docs/mockups/barnlogin-3-skarmar.png`](docs/mockups/barnlogin-3-skarmar.png)
 
+**Designmockups (interaktiva HTML — öppna i webbläsare):**
+
+| Mockup | Fil | Motsvarar |
+|--------|-----|-----------|
+| Vuxenvy (dashboard) | [`docs/mockups/foraldra.html`](docs/mockups/foraldra.html) | §2.1 |
+| Barnvy (schema) | [`docs/mockups/barnvy.html`](docs/mockups/barnvy.html) | §2.2 |
+| Belöningar | [`docs/mockups/beloningar.html`](docs/mockups/beloningar.html) | Skattkammaren |
+| Firande | [`docs/mockups/celebration.html`](docs/mockups/celebration.html) | Mål uppnått-animation |
+| Barnlogin | [`docs/mockups/barnlogin-3-skarmar.png`](docs/mockups/barnlogin-3-skarmar.png) | §2.3 |
+
+**Designtokens (gemensamma):** navy `#1B2340`, gold `#F5A623`, lavender `#EDE7F6`, Outfit + Plus Jakarta Sans.
+
 ---
 
 ## Innehåll
@@ -75,35 +87,109 @@ Vid native-start: `document.body.classList.add('is-native')`.
 
 ## 2. Ny design (mockups)
 
-Designreferenser: **Reimagined Parent Dashboard** + **Reimagined Child View** (rymd-tema).
+Designreferenser: **Reimagined Parent Dashboard** + **Reimagined Child View** (rymd-tema).  
+Samma data (schema, stjärnor, belöningar) — **olika presentation** för vuxen vs barn.
+
+### 2.0 Vy-jämförelse (samma app, olika roller)
+
+| Aspekt | Vuxenvy | Barnvy |
+|--------|---------|--------|
+| **Tema** | Ljus, `#F0F4FF` bakgrund, vita kort | Mörk rymd, stjärnor, lila gradient |
+| **Syfte** | Överblick, planera, snabbåtgärder | Motivation, bocka av, belöningar |
+| **Header** | Kompakt: logo + profil (native) / "Dashboard" + share (webb) | Namn + ⭐ saldo; **Tillbaka** (PG) på delad enhet |
+| **Primär nav** | Tab bar / sidomeny / hamburger | Bottennav: Schema · Skattkammaren · Min profil |
+| **Aktiviteter** | Lista med NU/NÄSTA, tomma cirklar (förälder checkar åt barn) | Stora gula kort, grön bock, emojis |
+| **Belöningar** | Gåva-ikon på barnkort (antal väntande) | Skattkammaren-flik, långsiktigt mål |
 
 ### 2.1 Vuxenvy — förälder (dashboard)
 
-| Element | Beskrivning | Plattform |
-|---------|-------------|-----------|
-| **Kompakt header** | Logo + "Min Stjärndag" + profilikon | Alla; safe-area på native |
-| **Översikt** | Horisontell scroll: barnkort med Idag X/Y, totalt ⭐, senaste aktivitet, väntande belöningar | Alla |
-| **Dagens Quick Actions** | "Ge extra stjärna", "Ledig dag", "+" | Alla; stora knappar mobil |
-| **IDAG** | Vertikal lista med NU / NÄSTA-taggar, tomma check-cirklar | Alla |
-| **Navigation** | **Native:** tab bar — Hem · Schema · Bibliotek · Familj · Inställningar | Native |
-| | **Webb desktop:** sidomeny (befintlig) | Desktop |
-| | **Webb mobil:** hamburger (befintlig `mobile-nav.js`) | Mobil webb |
+Wireframe (mobil/native):
 
-**Status idag:** Dashboard finns (`dashboard.html`, `dashboard.js`) men **inte** mockup-layout med horisontella barnkort + quick actions + native tab bar.
+```
+┌─────────────────────────────────────┐
+│ ⭐ Min Stjärndag              [👤]  │  ← kompakt header (safe-area)
+├─────────────────────────────────────┤
+│ Översikt                    ›       │
+│ ┌──────────┐ ┌──────────┐          │
+│ │ Astrid   │ │ Olle     │  →scroll │  ← horisontella barnkort
+│ │ Idag 4/14│ │ Idag …   │          │
+│ │ ⭐ 82    │ │ ⭐ …     │          │
+│ │ ▓▓▓░░    │ │          │          │
+│ │ 🎁 2     │ │          │          │
+│ └──────────┘ └──────────┘          │
+├─────────────────────────────────────┤
+│ Dagens Quick Actions                │
+│ [Ge extra stjärna] [Ledig dag] [+]  │
+├─────────────────────────────────────┤
+│ IDAG                                │
+│ ○ Förskola/Skola        [NU]  +7⭐  │
+│ ○ Mellanmål           [NÄSTA] +1⭐  │
+│ ○ Läxor / Pyssel              +2⭐  │
+│ ○ Fritidsaktivitet            +3⭐  │
+├─────────────────────────────────────┤
+│ 🏠  📅  📚  👨‍👩‍👧  ⚙️                    │  ← native tab bar
+│ Hem Schema Bibl. Familj Inst.       │
+└─────────────────────────────────────┘
+```
+
+| Element | Spec | Data/API | Plattform |
+|---------|------|----------|-----------|
+| **Kompakt header** | Navy bar, guld stjärna, vit titel, profilikon höger | `GET /api/auth/me` | Alla; native = ingen webbläsarfält |
+| **Barnkort (scroll)** | Ett kort per barn: progress-ring/avatar, "Idag X/Y", "Totalt ⭐", progressbar, 🎁 antal väntande inlösen, senaste + nästa aktivitet | `GET /api/me/children`, daily-log summary | Alla |
+| **Quick Actions** | 1) Ge extra stjärna → modal 2) Ledig dag → special day 3) **+** Lägg till aktivitet (primär mörk knapp i mockup v2) | befintliga routes | Touch ≥44px |
+| **IDAG-lista** | Vertikal lista, tom checkbox vänster, aktivitetsnamn, stjärnvärde höger, gul **NU** / lila **NÄSTA** badge | `GET /api/me/daily-log` | Samma logik som idag, ny layout |
+| **Share (webb)** | Dela-länk höger i header — valfritt native | share API | Webb mobil |
+| **Navigation** | **Native:** tab bar — Hem · Schema · Bibliotek · Familj · Inställningar | routes | Se §1-matris |
+| | **Desktop:** sidomeny | `mobile-nav.js` desktop-läge | Desktop |
+| | **Mobil webb:** hamburger | `mobile-nav.js` | Mobil webb |
+
+**Status idag:** `dashboard.html` + `dashboard.js` finns — **saknar** horisontella barnkort, quick actions-rad och native tab bar enligt mockup.
+
+**Polsia-referens:** [`docs/mockups/foraldra.html`](docs/mockups/foraldra.html)
 
 ### 2.2 Barnvy — barn (child-dashboard)
 
-| Element | Beskrivning | Plattform |
-|---------|-------------|-----------|
-| **Rymd-tema** | Mörk gradient, stjärnor, immersive bakgrund bakom status bar | Alla; fullskärm native (`@capacitor/status-bar`) |
-| **Sticky header** | Barnnamn + stjärnsaldo ⭐ alltid synligt vid scroll | Alla — **saknas delvis idag** (saldo scrollar bort) |
-| **Långsiktigt mål** | Progressbar mot vald belöning | ✅ Finns |
-| **Schema** | NU/NÄSTA/SEDAN eller dagdelar; stora delsteg-cirklar | ✅ Finns; polish behövs |
-| **Skattkammaren** | Belöningskort, mål, inlösen | ✅ Finns |
-| **Navigation** | **Mål:** bottennav — Dagens Schema · Skattkammaren · Min profil | Mockup; idag mid-screen-flikar |
-| **Swipe** | Swipa Schema ↔ Skattkammaren | Planerat |
-| **Tillbaka till vuxen** | Diskret knapp + Parental Gate (PIN/biometri) | ❌ PG saknas |
-| **Selfie** | Min profil — kamera → avatar molnsynk | Planerat (P2) |
+Wireframe (mobil/native):
+
+```
+┌─────────────────────────────────────┐
+│ ← Tillbaka    Dagens Schema    ☰   │  ← Tillbaka = PG på delad enhet
+├─────────────────────────────────────┤
+│        [ avatar ]                   │
+│      Hej Astrid!          ⭐ 82     │  ← sticky vid scroll (krav)
+├─────────────────────────────────────┤
+│ Långsiktigt mål                     │
+│ ▓▓▓░░░░░░░░  8 / 150  🎯 Utflykt…   │
+├─────────────────────────────────────┤
+│ ┌─────────────────────────────────┐ │
+│ │ ✓  🛏️  Bädda sängen             │ │  ← stora gula kort
+│ └─────────────────────────────────┘ │
+│ ┌─────────────────────────────────┐ │
+│ │ ✓  🏫  Förskola / Skola         │ │
+│ └─────────────────────────────────┘ │
+│ … scroll …                          │
+├─────────────────────────────────────┤
+│ 📅 Dagens Schema │ 💎 Skattkamm. │ 👤 │  ← bottennav (mockup)
+└─────────────────────────────────────┘
+     ↔ swipe till Skattkammaren
+```
+
+| Element | Spec | Plattform |
+|---------|------|-----------|
+| **Rymd-tema** | Mörk gradient, stjärnor; bakgrund bakom status bar | Native: `@capacitor/status-bar` overlay |
+| **Header** | "Dagens Schema" / aktiv flik; **Tillbaka** vänster (PG); hamburger höger (inställningar barn) | Alla |
+| **Profilzon** | Stor avatar, "Hej {namn}!", ⭐ saldo — **sticky** | Alla — idag scrollar saldo bort |
+| **Långsiktigt mål** | Progressbar + belöningsnamn + "X / Y stjärnor" | ✅ Finns |
+| **Aktivitetskort** | Stora rundade kort, emoji/ikon, grön bock vid klar; delsteg som stora cirklar | ✅ Finns; animation polish §7 |
+| **Skattkammaren** | Egen flik: belöningskort, parallax (native v2), mål-ceremoni | ✅ Grund; design → [`beloningar.html`](docs/mockups/beloningar.html) |
+| **Bottennav** | Dagens Schema · Skattkammaren · Min profil (selfie här) | Mockup; idag mid-screen-flikar |
+| **Swipe** | Horisontell pager Schema ↔ Skattkammaren | Planerat + haptik |
+| **Tillbaka till vuxen** | ← knapp + dörr (håll inne 3 s) → Parental Gate | ❌ PG saknas |
+| **Haptik/ljud** | Vid bock, stjärna, vybyte — se §7 | 🟡 Delvis |
+
+**Samma aktiviteter som vuxenvyn** — t.ex. "Förskola / Skola" och "Mellanmål" — men barnvänlig presentation.
+
+**Polsia-referens:** [`docs/mockups/barnvy.html`](docs/mockups/barnvy.html) · [`docs/mockups/beloningar.html`](docs/mockups/beloningar.html)
 
 ### 2.3 Barnlogin (3 skärmar)
 
@@ -551,14 +637,32 @@ Gör INTE: ändra webb mobile-nav.js
 ```
 Uppgift: Dashboard enligt reimagined mockup
 
-Läs: app2.md §2.1
+Läs: app2.md §2.1, docs/mockups/foraldra.html (designreferens — matcha tokens/layout)
 
 Gör:
-1. Horisontell scroll barnkort (Idag X/Y, totalt ⭐, belöningar)
-2. Quick Actions: Ge extra stjärna, Ledig dag, +
-3. IDAG-lista med NU/NÄSTA
-4. Responsiv: desktop sidomeny oförändrad, mobil hamburger, native tab bar
-5. SW bump
+1. Horisontell scroll barnkort (Idag X/Y, totalt ⭐, progressbar, 🎁 väntande, senaste/nästa)
+2. Quick Actions: Ge extra stjärna, Ledig dag, Lägg till aktivitet (+)
+3. IDAG-lista med NU/NÄSTA badges
+4. Responsiv: desktop sidomeny, mobil hamburger, native tab bar (ej i detta steg om separat task D)
+5. Använd befintliga API — ingen schema-logik-ändring
+6. SW bump
+```
+
+### F — Barnvy mockup (barn)
+
+```
+Uppgift: Barnvy enligt reimagined mockup
+
+Läs: app2.md §2.2, docs/mockups/barnvy.html, docs/mockups/beloningar.html
+
+Gör:
+1. Rymd-tema + sticky profilzon (namn + ⭐)
+2. Bottennav: Dagens Schema / Skattkammaren / Min profil — ersätt mid-screen-flikar
+3. Swipe mellan Schema och Skattkammaren
+4. Stora aktivitetskort (behåll befintlig check-logik + offline-kö)
+5. Tillbaka-knapp (UI only — PG kopplas i separat task B)
+6. Platform.haptics + safe-area
+7. SW bump
 ```
 
 ---
@@ -583,4 +687,5 @@ Gör:
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-31 | Utökad §2 med wireframes, HTML-mockup-länkar, Polsia F barnvy |
 | 2026-05-31 | app2.md — samlat masterdokument (design, plattform, städ, krav, native) |
