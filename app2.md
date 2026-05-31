@@ -549,6 +549,17 @@ När förälder lägger till barn 2+ (`flow=add-child`), erbjud **innan steg 1**
 
 **Varför:** Syskon har sällan helt olika morgonrutiner — sparar 5–10 min per barn.
 
+**10/10 utökning (föräldern ska spara tid varje dag):**
+
+| Feature | Prioritet | Mål |
+|---------|-----------|-----|
+| Kopiera från syskon | v1.0 | §5.3.1 ovan |
+| Kopiera från förra veckan | v1.1 | "Återanvänd förra veckans schema" |
+| Batch-redigering | v1.1 | §5.3.2 |
+| AI-förslag på rutiner | v2 | "Baserat på Astrids schema — förslag för Olle?" |
+
+**Kommersiellt mål:** Föräldern ska **behöva appen så lite som möjligt** — inte använda den mycket. Känsla: *"Wow, jag slapp 20 min administration."*
+
 **API-idé:** `POST /api/onboarding/copy-schedule-from-child` `{ sourceChildId, targetChildId }` eller i onboarding steg 1.
 
 #### 5.3.2 Batch editing — schema (v1.1)
@@ -646,6 +657,22 @@ parent_child (parent_id, child_id, role, revoked_at)
 | Pedagog | Astrid | `pedagog_invite` |
 
 Pappa ser **aldrig** Olle — `getChildrenForParent()` filtrerar automatiskt.
+
+### 6.1 Familjecenter — superkraft (10/10 differentiator)
+
+De flesta familjeappar antar *mamma + pappa + samma hem*. Min Stjärndag har redan **bonusföräldrar, växelvis boende, pedagoger** — det kan bli ett unikt säljargument som är svårt att kopiera.
+
+| Feature | Spec | Prioritet |
+|---------|------|-----------|
+| **Vem ser vilket barn** | Tydlig UI per barn: primary / delad / pedagog | v1.0 (Familje-flik) |
+| **Veckologg mellan vuxna** | Kort daganteckning synlig för medföräldrar (§5.4) | v1.1 |
+| **Delade anteckningar** | `general_observations` + viktiga flaggor | v1.0 delvis |
+| **Pedagogkommunikation** | Pedagoganteckningar + professionell delningslänk | v1.0 delvis |
+| **Familjecenter-vy** | En samlad flik: barn · vem har åtkomst · inbjudningar · senaste synk | v1.1 |
+
+**10/10-känsla:** Två vuxna samarbetar utan konflikter, utan dataläcka, utan att ringa varandra *"Har du ändrat schemat?"*
+
+---
 
 ### Säkerhetsregler (alltid)
 
@@ -927,6 +954,23 @@ När dessa är klara är planen mogen för **första externa testgrupp** (9B):
 11. IAP RevenueCat UI
 12. Push Fas 1, magic link, föräldra-logg, push till barn
 ```
+
+### 11.3 Produktchefs prioritering (efter TestFlight)
+
+**Fas A+ oförändrad** (P0.1–P0.4). Därefter:
+
+| Fas | Leverabel | Varför |
+|-----|-----------|--------|
+| A | Barnlogin P1 | Golden Path |
+| B | Dashboard mockup + Push | Parallellt möjligt; push prioriteras för 9B |
+| C | TestFlight → 9A → 9B | Bevis i fält |
+| **D — Direkt efter RC** | Barnets wow (§7.1, §16.5) | Retention |
+| **D** | Första belöning inom 3 min (§16.5b) | "Jag vill fortsätta" |
+| **D** | Smart schema-kopiering (§5.3.1) | Förälder sparar tid |
+| **D** | Familjecenter UI (§6.1) | Superkraft |
+| **Sist** | RevenueCat / betalning | Ökar sällan produktbetyg |
+
+> Om Fas A+ genomförs väl, barnvyn får §7-polish och separerade hushåll blir förstklassig — ingen strukturell anledning att produkten inte skulle nå **10/10 inom sin nisch**.
 
 ---
 
@@ -1308,17 +1352,19 @@ Alla sex områden i [§16](#16-launch-beredskap-1010) + operativ bas i [§17](#1
 
 ## 15. Beredskapsbedömning
 
-| Dimension | Idag | Efter Fas A+ + push + 9B | Mål launch |
+| Dimension | Idag | Efter Fas A+ + push + 9B | Mål 10/10 |
 |-----------|------|--------------------------|------------|
 | Produktvision | 9.5/10 | 9.5/10 | 9.5/10 |
+| Datamodell | 9/10 | 9/10 | 9/10 |
+| Familje-/behörighetsmodell | **10/10** | 10/10 | 10/10 |
 | Informationsarkitektur | 9/10 | 9/10 | 9/10 |
-| Behörighetsmodell | 9/10 | 9/10 | 9/10 |
-| Barnupplevelse | 8.5/10 | 8.5/10 | 9/10 |
-| Native-strategi | 8.5/10 | 8.5/10 | 9/10 |
+| Barnupplevelse | 8/10 | 8.5/10 | 10/10 (§16.8.1) |
+| Föräldraupplevelse | 8.5/10 | 9/10 | 10/10 (§16.8.2) |
+| Native-känsla | **~6/10** | ~8.5/10 (Fas A+) | 10/10 (§16.2) |
 | App Store-strategi | 9/10 | 9/10 | 9/10 |
-| Releaseplan | 9/10 | 9/10 | 9/10 |
-| App Store-beredskap | ~5/10 | **~8.5–9/10** (om P0.1–P0.4 + §14 gröna) | **10/10** ([§16](#16-launch-beredskap-1010)) |
-| Launch-beredskap (helhet) | ~5/10 | ~8.5/10 (Fas A+ + 9B) | **10/10** (§16 + §17 + fältdata) |
+| Releaseplan | 9/10 | 9/10 | 10/10 |
+| App Store-beredskap | **5–6/10** | **9–9.5/10** (P0 + §7 polish) | 10/10 ([§16](#16-launch-beredskap-1010)) |
+| Potential efter Fas A+ | — | **9–9.5/10** | 10/10 i nisch |
 
 **Skillnad 8,5 → 10:** Inte fler funktioner — **kvalitet, robusthet, produktkänsla, driftbarhet** ([§16](#16-launch-beredskap-1010)).
 
@@ -1347,6 +1393,15 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 
 **Kan man nå 10/10?** Ja — men det handlar inte om fler features. Funktionaliteten är redan stark. Gapet **8,5 → 10** är kvalitet, robusthet, produktkänsla och bevisad användning i fält.
 
+**Två lager:**
+
+| Lager | Innehåll | Gate |
+|-------|----------|------|
+| **Kärna** | §16.1–16.6 + §17 | Bred publik / launch 10/10 |
+| **Differentiering** | §16.8 | 10/10 **i nisch** — retention & säljargument |
+
+**Redan ovanligt starkt idag:** tydlig målgrupp, datamodell separerade hushåll, offline, push-arkitektur, barnläge, belöningssystem, native-strategi, App Store-tänk. Många appar når aldrig hit.
+
 ### Definition (produktansvarig)
 
 Launch är **10/10** när allt detta är sant:
@@ -1358,7 +1413,9 @@ Launch är **10/10** när allt detta är sant:
 - **Barnläget** går inte att kringgå.
 - **Push och synk** bara fungerar.
 
-**Gate:** Alla checklistor i §16.1–16.6 ✅ + [§17](#17-observability--drift) operativ.
+När de sex punkterna + §17 är uppfyllda är Min Stjärndag redo för **bred publik** — inte bara TestFlight.
+
+**Gate:** Alla checklistor i §16.1–16.6 ✅ + [§17](#17-observability--drift) operativ. §16.8 = excellens efter launch.
 
 ---
 
@@ -1413,6 +1470,17 @@ Många Capacitor-appar stannar på **7–8/10**. Användaren ska **inte** tänka
 - [ ] **Inga** webbläsarartefakter (dubbla headers, adressfält-känsla)
 - [ ] **Inga** scroll-jumps vid keyboard/PIN-tavla
 - [ ] `prefers-reduced-motion` + `stjarndag_haptics_enabled` respekteras
+
+**Native polish-paket (10/10 — glöm att det är WebView):**
+
+| Kapacitet | Användning |
+|-----------|------------|
+| Face ID / biometri | PG + valfritt app-lås |
+| Native share | Dela rapport / invite |
+| Native camera | Barn-selfie (§5.6) |
+| Native notifications | Push (§16.3) |
+| Native tab bar | P0.4 |
+| Native back-behaviour | Kapacitor App `backButton` + PG-gate |
 
 ---
 
@@ -1475,8 +1543,28 @@ Varje barnsession ska innehålla **minst en** av:
 - [ ] Raket (mål 100 %)
 - [ ] Progress-fyllning synlig ("Morgon 4/4")
 - [ ] Personlig feedback: **"Snyggt jobbat, Astrid! +2 ⭐"**
+- [ ] **Emotionell copy (10/10):** *"Du har hjälpt din stjärna att flyga 12 meter närmare månen 🚀"* — starkare än generisk "+1 stjärna"
+
+**Barnet ska vilja öppna appen spontant (§16.8.1):** avatar, streaks, samlarobjekt, stjärnkonstellationer — v2, men copy/animationer kan ship:as tidigt.
 
 Se [§7.1](#71-visuell-feedback--förutsägbarhet-struktur-för-barn). Animation ≤1,5 s, avbrytbar.
+
+### 16.5b Wow inom 3 minuter (Golden Path turbo)
+
+**10/10-produkter har wow i första 5 minuterna.** Nuvarande wow = första stjärnan. Mål: **första målet + skattkammar-belöning inom 3 min** efter barn login.
+
+```
+Ny familj → onboarding → barn loggar in
+  → första uppgift (≤60 s)
+  → första stjärnan + firande
+  → första belöning synlig i Skattkammaren
+  → barnet känner: "Jag vill fortsätta."
+```
+
+- [ ] Tid till första avbockning mäts (§17.2) — mål <2 min från barn-PIN
+- [ ] Tid till första stjärna <3 min
+- [ ] Minst en belöning redan konfigurerad i onboarding (default reward)
+- [ ] Första inlösen möjlig samma session (låg tröskel, t.ex. 3 ⭐)
 
 ---
 
@@ -1512,6 +1600,45 @@ Utöver [9B](#steg-9b--familje-beta-release-candidate) (10–20 familjer kort RC
 | Barn-wow | Delvis | ≥1 wow/session (formellt) |
 | Fält | 9B (kort) | 20 familjer × 4–6 v |
 | Drift | P0.6 crash | §17 full observability |
+| Barn-kärlek | Byggt för förälder | Barn öppnar spontant (§16.8.1) |
+| Förälder-effektivitet | Manuellt schema | Smart copy + "slapp 20 min" (§16.8.2) |
+| Familjecenter | API finns | UI-superkraft (§6.1) |
+| Första 3 min | Första stjärna | Belöning samma session (§16.5b) |
+
+---
+
+### 16.8 Produktchefs-lager — från 9 till 10 i nisch
+
+Fokus efter **Fas A+ + TestFlight:** inte fler features — **produktkänsla, robusthet, emotionell upplevelse**.
+
+#### 16.8.1 Barnet måste älska appen
+
+Idag är mycket byggt för **föräldern**. 10/10 kräver att barnet **spontant vill** öppna appen.
+
+| Element | Exempel | Prioritet |
+|---------|---------|-----------|
+| Personlig avatar / selfie | Min profil | P1–P2 |
+| Dagliga streaks | "5 dagar i rad!" | v1.1 |
+| Stjärnkonstellationer / nivåer | Visuell långsiktig progress | v2 |
+| Samlarobjekt | Skattkammaren-utökning | v2 |
+| Magiska firanden | §7.1 + emotionell copy | **Direkt efter TestFlight** |
+
+#### 16.8.2 Föräldern ska spara tid varje dag
+
+**Kommersiell kärna.** Målet är att föräldern **behöver** appen så lite som möjligt.
+
+- [ ] Smart schema-kopiering (§5.3.1) — syskon, förra veckan
+- [ ] Batch-redigering (§5.3.2)
+- [ ] Dashboard mockup med quick actions
+- [ ] (v2) AI-förslag på rutiner
+
+#### 16.8.3 Separerade hushåll = superkraft
+
+Utveckla [§6.1 Familjecenter](#61-familjecenter--superkraft-1010-differentiator) till förstklassig funktion — svår för konkurrenter att kopiera.
+
+#### 16.8.4 Betalning sist
+
+RevenueCat / IAP ökar sällan produktbetyget. **Ett fantastiskt barnflöde** gör det. IAP medvetet **efter** RC och §16.8-polish.
 
 ---
 
@@ -1538,11 +1665,19 @@ Tabell `analytics_events` finns (anonymiserad, ingen PII). **10/10** kräver att
 | Event | Varför |
 |-------|--------|
 | `onboarding_completed` | Var tappar vi? |
+| `time_to_first_checkoff` | Golden Path — mål <2 min |
+| `time_to_first_star` | Wow inom 3 min (§16.5b) |
+| `time_to_first_reward` | Skattkammaren-hook |
 | `first_star_earned` | Golden Path-mål |
+| `retention_d1` / `retention_d7` | Produkt-market fit |
+| `child_mode_activated` | Delad iPad-adoption |
+| `coparent_invite_sent` | Separerat hushåll-flöde |
 | `first_week_active` | Retention |
 | `parental_gate_failure` | Säkerhetsproblem |
 | `push_delivery_failed` | Limmet trasigt |
 | `sync_conflict` | Samarbetsproblem |
+
+**Regel:** Utan dessa metrics optimerar ni fel saker. Nästan alla produkter som fastnar på 8/10 saknar detta.
 
 ### 17.3 Feature flags
 
@@ -1601,6 +1736,7 @@ Minst veckovis granskning under 9B och efter launch:
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | §16.8 produktchefs-lager, §6.1 Familjecenter, §11.3, §16.5b wow 3 min |
 | 2026-05-28 | §16 Launch 10/10 (6 områden), §17 Observability & drift |
 | 2026-05-28 | P0.5 deep links, P0.6 crash, push före dashboard, §15 revision |
 | 2026-05-28 | P0.1–P0.4 blocker-lista, Fas A+ (The Core), §14.6–14.9, 9A/9B RC |
