@@ -42,6 +42,7 @@
 15. [Beredskapsbedömning](#15-beredskapsbedömning)
 16. [Launch-beredskap 10/10](#16-launch-beredskap-1010)
 17. [Observability & drift](#17-observability--drift)
+18. [Native & App Store — väg 6→10](#18-native--app-store--väg-610)
 
 ---
 
@@ -781,6 +782,8 @@ Gäller **native app** primärt; delar funkar i mobil webb (haptik begränsat).
 
 ### 4.2-checklista (argument för "riktig app")
 
+**Operativ väg 6→10:** [§18 Native & App Store](#18-native--app-store--väg-610)
+
 Ju fler som är ✅ före review, desto starkare case:
 
 | Native signal | Status | Prio före review |
@@ -1065,6 +1068,22 @@ Gör:
 
 TEST (§14.10): invite-länk öppnar app på fysisk enhet
 Gate: måste vara grön före Steg 10 (public launch)
+```
+
+### App Store review-prep (§18.2)
+
+```
+Uppgift: App Store review-upplevelse — launch screen + demo-konto
+
+Läs: app2.md §18.2, §18.3
+
+Gör:
+1. Capacitor splash/launch screen: navy #1B2340, gold ⭐, "Laddar…" (inte vit WebView)
+2. Skeleton visas direkt vid app-start (befintlig kod — verifiera i native)
+3. Seed review-konto: review@mystarday.se
+   - 2 barn (Astrid + Olle), schema ifyllt, stjärnor, minst 1 belöning
+   - Lösenord i App Store Connect Review Notes (ALDRIG i repo)
+4. Verifiera §18.3 master-checklista grön på fysisk iPhone före submit
 ```
 
 ### A — ios-städ fas 1 (ingår i Fas A+ — kör ej separat om A+ körs)
@@ -1360,10 +1379,10 @@ Alla sex områden i [§16](#16-launch-beredskap-1010) + operativ bas i [§17](#1
 | Informationsarkitektur | 9/10 | 9/10 | 9/10 |
 | Barnupplevelse | 8/10 | 8.5/10 | 10/10 (§16.8.1) |
 | Föräldraupplevelse | 8.5/10 | 9/10 | 10/10 (§16.8.2) |
-| Native-känsla | **~6/10** | ~8.5/10 (Fas A+) | 10/10 (§16.2) |
+| Native-känsla | **~6/10** | ~8.5/10 (Fas A+) | 10/10 ([§18](#18-native--app-store--väg-610)) |
 | App Store-strategi | 9/10 | 9/10 | 9/10 |
 | Releaseplan | 9/10 | 9/10 | 10/10 |
-| App Store-beredskap | **5–6/10** | **9–9.5/10** (P0 + §7 polish) | 10/10 ([§16](#16-launch-beredskap-1010)) |
+| App Store-beredskap | **5–6/10** | **9–9,5/10** (P0 + §18 checklista) | 10/10 ([§18](#18-native--app-store--väg-610)) |
 | Potential efter Fas A+ | — | **9–9.5/10** | 10/10 i nisch |
 
 **Skillnad 8,5 → 10:** Inte fler funktioner — **kvalitet, robusthet, produktkänsla, driftbarhet** ([§16](#16-launch-beredskap-1010)).
@@ -1712,6 +1731,168 @@ Minst veckovis granskning under 9B och efter launch:
 
 ---
 
+## 18. Native & App Store — väg 6→10
+
+**Kärninsikt:** Native-känsla 6/10 och App Store-beredskap 5–6/10 handlar **inte** om fler funktioner. Det handlar om att **eliminera alla signaler** som avslöjar att appen egentligen är en webbapp i WebView.
+
+| Område | Idag | Efter checklistan nedan |
+|--------|------|-------------------------|
+| Native-känsla | ~6/10 | **9,5–10/10** |
+| App Store-beredskap | 5–6/10 | **9,5–10/10** |
+
+**Största återstående risk efter grön checklista:** inte teknisk — utan om barn **vill** använda appen dagligen och föräldrar upplever att den **sparar tid** (§16.8).
+
+---
+
+### 18.1 Native-känsla: fyra stora dragare (6→10)
+
+#### 1. Parental Gate + persistent barnläge — **störst effekt**
+
+Både **säkerhet** och **native-känsla**. iPad i köket som öppnar på dashboard efter omstart = omedelbart "webbplats".
+
+```
+✅ 10/10:  Öppna app → barnläge aktivt → PIN → barnvy
+❌ Idag:   Öppna app → dashboard → barn kan navigera
+```
+
+| Uppgift | Var | P0 |
+|---------|-----|-----|
+| `device_mode = 'child'` persistent | §5.2.1 | P0.1 |
+| Cold start → `/child-login` | Fas A+ DEL 2 | P0.1 |
+| PG vid utpassage + OS back block | §14.1 | P0.1 |
+
+#### 2. Native navigation överallt
+
+iOS-användare förväntar sig: tab bar, swipe, safe area, rätt status bar, inga webbhopp.
+
+| Vy | Bottennav (inte mitt-på-skärmen) |
+|----|----------------------------------|
+| **Förälder** | Hem · Schema · Bibliotek · Familj · Inställningar |
+| **Barn** | Schema · Skattkammaren · Min profil |
+
+| Uppgift | Var |
+|---------|-----|
+| Vuxen tab bar | P0.4, `native-tab-bar.js` |
+| Barn bottennav + swipe | §7.2, Fas C |
+| Safe area + status bar | Capacitor config, `env(safe-area-inset-*)` |
+| Native back | Capacitor App + PG-gate |
+
+#### 3. Haptik på allt viktigt
+
+Utan haptik känns Capacitor-appen som webb. **Alla** rader måste vara gröna:
+
+| Händelse | Haptik | Fil(er) |
+|----------|--------|---------|
+| PIN-siffra | `light()` | `child-login.html` |
+| Flikbyte | `light()` | `native-tab-bar.js` |
+| Avbockning | `medium()` | `child-dashboard.js` |
+| Block klart | `heavy()` | `child-dashboard.js` |
+| Mål uppnått | `success()` | celebration flow |
+| Fel PIN | `error()` | PG + barn-PIN |
+
+Respektera `stjarndag_haptics_enabled` + `prefers-reduced-motion`.
+
+#### 4. Native integrationer som märks dagligen
+
+Minimikrav — när användaren träffar dessa **flera gånger per dag** glömmer de WebView:
+
+| Integration | Användning | Status |
+|-------------|------------|--------|
+| Face ID / Touch ID | PG | ❌ |
+| Kamera | Barn-selfie (§5.6) | ❌ |
+| Share sheet | Rapport / invite | ❌ |
+| Push (APNs/FCM) | Avbockning → förälder | ◐ |
+| Keep Awake | iPad i kök (§5.7) | ❌ |
+
+---
+
+### 18.2 App Store-beredskap: två spår
+
+#### A. Klara App Store Review (teknisk gate)
+
+| Krav | Uppgift | P0 |
+|------|---------|-----|
+| Noll webbspår | PWA-guide, cookie-banner, hamburger, "Öppna i Safari" | P0.3 |
+| Native login iOS | Apple Sign In via Capacitor — **inte** Safari OAuth | P0.2 |
+| Native login Android | Google Sign In via plugin | P0.2 |
+| Native push före IAP | APNs/FCM + token — **före** RevenueCat UI | §8, §11 |
+| Offline på riktigt | Schema + bock + animation + stjärna utan nät → synk → push | §9 ✅ |
+| Parental Gate | Apple 5.1.1 / barnskydd | P0.1 |
+
+#### B. Se ut som en app Apple **vill** ha
+
+Apple tänker "riktig app" när de ser: **Push · Offline · Biometri · Haptik · Kamera** — inte Paywall Paywall Paywall.
+
+| Signal | Spec |
+|--------|------|
+| **Launch screen** | Capacitor splash: ⭐ Min Stjärndag + "Laddar…" i navy/gold — **inte** vit WebView |
+| **Skeleton direkt** | Befintlig skeleton ✅ — reviewern ska aldrig se vit sida eller generisk "Loading…" |
+| **Review-demo-konto** | `review@mystarday.se` — 2 barn, schema, stjärnor, belöningar; credentials i App Store Connect Notes |
+| **Guideline 4.2 case** | Tab bar + push + biometri + offline = argument mot "tunn wrapper" |
+
+---
+
+### 18.3 Master-checklista: App Store-redo
+
+När **allt** nedan är ✅ → Native-känsla och App Store-beredskap **9,5–10/10**.
+
+#### Native
+
+- [ ] Native Apple Sign In (iOS)
+- [ ] Native Google Sign In (Android)
+- [ ] Native tab bar (vuxen)
+- [ ] Native bottennav (barn) + swipe
+- [ ] Face ID / biometrisk PG
+- [ ] Haptik enligt tabell §18.1.3
+- [ ] Push fungerar (token + leverans)
+- [ ] Kamera fungerar (selfie)
+- [ ] Share fungerar (rapport/invite)
+- [ ] Safe areas perfekta (SE → Pro Max)
+- [ ] Swipe / native back utan PG-bypass
+
+#### WebView-spår (eliminerade)
+
+- [ ] Ingen PWA-guide
+- [ ] Ingen cookie-banner i native
+- [ ] Ingen webbhamburger i native
+- [ ] Ingen Safari-OAuth
+- [ ] Ingen webb-layout-känsla (dubbla headers, scroll-jumps)
+
+#### Produkt (review + förtroende)
+
+- [ ] Persistent barnläge (`device_mode`)
+- [ ] Parental Gate vattentät (§16.1)
+- [ ] Offline: bock → animation → stjärna → synk → push
+- [ ] Push vid avbockning till förälder
+- [ ] Första stjärnan inom några minuter (§16.5b)
+- [ ] Launch screen + skeleton (§18.2)
+- [ ] Review-demo-konto seedat
+
+---
+
+### 18.4 Implementeringsordning (kortaste vägen 6→10)
+
+**Allt detta ingår i eller följer direkt på Fas A+:**
+
+```
+1. P0.1 PG + device_mode          ← störst effekt på native-känsla
+2. P0.2 Native Apple/Google login ← App Store A
+3. P0.3 UI-gating (.is-native)   ← eliminera webbspår
+4. P0.4 Native tab bar            ← 4.2-bevis #1
+5. Push token + APNs/FCM          ← 4.2-bevis #2, före IAP
+6. Haptik-tabell §18.1.3          ← billigt, stor effekt
+7. Barn bottennav + swipe         ← native navigation komplett
+8. Launch screen + review-konto   ← review-upplevelse
+9. Biometri + kamera + share      ← native polish-paket
+10. 9A enhetstester → TestFlight
+```
+
+**Polsia:** [§12 Fas A+](#fas-a--the-core-super-uppdrag) täcker steg 1–4. Steg 5–9 = separata uppdrag efter A+.
+
+**Koppling:** [§10 4.2-checklista](#42-checklista-argument-för-riktig-app) · [§16.2](#162-native-känsla--riktig-ios-app) · [§14.1](#141-parental-gate-p01)
+
+---
+
 ## Bilaga — filkarta
 
 | Område | Filer |
@@ -1736,6 +1917,7 @@ Minst veckovis granskning under 9B och efter launch:
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | §18 Native & App Store väg 6→10, master-checklista, review-konto |
 | 2026-05-28 | §16.8 produktchefs-lager, §6.1 Familjecenter, §11.3, §16.5b wow 3 min |
 | 2026-05-28 | §16 Launch 10/10 (6 områden), §17 Observability & drift |
 | 2026-05-28 | P0.5 deep links, P0.6 crash, push före dashboard, §15 revision |
