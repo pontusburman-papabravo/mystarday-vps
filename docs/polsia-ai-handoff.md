@@ -69,6 +69,10 @@ Familjeapp (svenska): scheman, stjärnor, belöningar (Skattkammaren), föräldr
 | README | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/README.md |
 | Release-checklista | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/RELEASE.md |
 | **Kontohantering A–F (Polsia-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-kontohantering-a-f.md |
+| **app2.md (masterplan)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/platform-architecture-freeze-1a8b/app2.md |
+| **Kravspec app & webb** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/platform-architecture-freeze-1a8b/docs/kravspec-app-webb.md |
+| **Native app (Capacitor, 10 steg)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/platform-architecture-freeze-1a8b/app.md |
+| **Plattform webb/iOS/Android (produkt-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/platform-architecture-freeze-1a8b/docs/plattform-webb-ios-android.md |
 | **Barnlogin redesign (Polsia-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-barnlogin-design.md |
 | **Barnlogin mockup (PNG)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/mockups/barnlogin-3-skarmar.png |
 | Denna handoff | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-ai-handoff.md |
