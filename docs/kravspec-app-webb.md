@@ -7,7 +7,8 @@
 
 | Dokument | Innehåll |
 |----------|----------|
-| [`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md) | Plattformsmatris, acceptanskriterier |
+| **[`app2.md`](../app2.md)** | **Masterplan** |
+| [`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md) | Plattformsmatris (kortversion) |
 | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | E-post, Apple, lösenord (A–F) |
 | [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) | Barnlogin 3 skärmar |
 | [`app.md`](../app.md) | Capacitor-build, TestFlight, 10 steg |

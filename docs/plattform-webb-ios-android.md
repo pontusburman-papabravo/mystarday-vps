@@ -7,7 +7,8 @@
 
 | Dokument | Innehåll |
 |----------|----------|
-| **[`docs/kravspec-app-webb.md`](kravspec-app-webb.md)** | **Kravspec:** auth, behörigheter, separerade hushåll, PG, push-faser |
+| **[`app2.md`](../app2.md)** | **Masterplan — läs detta först** |
+| [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) | Kravspec (detalj) — införlivad i app2.md |
 | [`docs/ios-städ.md`](ios-städ.md) | Teknisk städning efter native-steg 1–10 + webb-fixar |
 | [`app.md`](../app.md) | Native build-plan (Capacitor, TestFlight, 10 steg) |
 | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | Föräldrakonto: Apple, e-post, byt mail |

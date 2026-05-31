@@ -4,7 +4,8 @@
 
 | Dokument | Innehåll |
 |----------|----------|
-| **[`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md)** | **Produkt-spec: webb vs iPhone vs Android (8 punkter)** |
+| **[`app2.md`](../app2.md)** | **Masterplan — läs detta först** |
+| [`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md) | Plattformsmatris |
 | [`app.md`](../app.md) | Native build-plan (10 steg) |
 
 **Syfte:** Städa upp efter att alla 10 steg i [`app.md`](../app.md) körts, följt av snabba webb-fixar medan appen inte är släppt i App Store än.  
