@@ -40,6 +40,8 @@
 13. [Genomförandestrategi](#13-genomförandestrategi)
 14. [Acceptanskriterier per feature](#14-acceptanskriterier-per-feature)
 15. [Beredskapsbedömning](#15-beredskapsbedömning)
+16. [Launch-beredskap 10/10](#16-launch-beredskap-1010)
+17. [Observability & drift](#17-observability--drift)
 
 ---
 
@@ -1140,6 +1142,7 @@ Gör:
 | **G3 Push & retention** | Native push token + avbockning-notis (§14.4) | "Jag fick notis när Astrid bockade" |
 | **G4 Vuxen effektivitet** | Dashboard mockup + smart copy syskon | Förälder sparar tid |
 | **G5 Native shell + observability** | Capacitor + tab bar + P0.6 crash | TestFlight → 9A |
+| **G6 Launch 10/10** | §16.1–16.6 + §17 + fält 20×4–6v | Public launch-ready |
 
 **Regel:** Avsluta en sprint vertikalt (backend + UI + test) innan nästa påbörjas.
 
@@ -1168,7 +1171,7 @@ Alltid respektera `stjarndag_haptics_enabled` + `prefers-reduced-motion`.
 - [ ] Barnläge överlever omstart (§5.2.1)
 - [ ] P0 Parental Gate acceptans (§14.1) grön
 - [ ] Push mottagen vid barns avbockning (§14.4)
-- [ ] Minst en "wow"-moment per barnsession (§7.1)
+- [ ] Minst en "wow"-moment per barnsession (§7.1) — **formellt krav** vid 10/10 (§16.5)
 
 ---
 
@@ -1188,6 +1191,9 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] "Jag är vuxen" på login → PG-modal om `device_mode = child`
 - [ ] Force close → omstart → `/child-login` (§5.2.1)
 - [ ] **OS back-gest** kringgår **inte** PG (iOS edge swipe / Android back)
+- [ ] **10/10:** Direkt URL till vuxen-sida blockeras (§16.1)
+- [ ] **10/10:** Token refresh behåller barnläge (§16.1)
+- [ ] **10/10:** Offline — fortfarande inget vuxenläge (§16.1)
 
 **Parental Gate — ut ur barnläge:**
 
@@ -1228,6 +1234,8 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] Token tas bort vid logout
 - [ ] Test-notis når enhet inom 60 s
 - [ ] BadDeviceToken rensas automatiskt (APNs)
+- [ ] **10/10:** Avbockning, mål, belöning, veckosammanfattning levererar (§16.3)
+- [ ] **10/10:** Notis-tapp → rätt barn + sida (deep link, §16.3 + §14.10)
 
 ### 14.5 Golden Path (§11.0)
 
@@ -1292,6 +1300,10 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] Integritetspolicy nämner anonymiserad crash-rapportering
 - [ ] Minst en alert vid ny crash-signatur under 9B
 
+### 14.12 Launch 10/10 (sammanfattning)
+
+Alla sex områden i [§16](#16-launch-beredskap-1010) + operativ bas i [§17](#17-observability--drift) måste vara ✅ innan launch kallas **10/10**.
+
 ---
 
 ## 15. Beredskapsbedömning
@@ -1305,7 +1317,10 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 | Native-strategi | 8.5/10 | 8.5/10 | 9/10 |
 | App Store-strategi | 9/10 | 9/10 | 9/10 |
 | Releaseplan | 9/10 | 9/10 | 9/10 |
-| App Store-beredskap | ~5/10 | **~8.5–9/10** (om P0.1–P0.4 + §14 gröna) | 9/10 |
+| App Store-beredskap | ~5/10 | **~8.5–9/10** (om P0.1–P0.4 + §14 gröna) | **10/10** ([§16](#16-launch-beredskap-1010)) |
+| Launch-beredskap (helhet) | ~5/10 | ~8.5/10 (Fas A+ + 9B) | **10/10** (§16 + §17 + fältdata) |
+
+**Skillnad 8,5 → 10:** Inte fler funktioner — **kvalitet, robusthet, produktkänsla, driftbarhet** ([§16](#16-launch-beredskap-1010)).
 
 **Kritisk väg (sammanfattning):**
 
@@ -1318,10 +1333,247 @@ Fas A+ (The Core)
   → 9A QA
   → 9B familjer
   → P0.5 Deep links
-  → Launch
+  → Launch (8,5/10)
+  → §16 + §17 + 20 familjer × 4–6 v → 10/10
 ```
 
 IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första externa testgrupp.
+
+**10/10** kräver utöver launch: [§16](#16-launch-beredskap-1010) + [§17](#17-observability--drift).
+
+---
+
+## 16. Launch-beredskap 10/10
+
+**Kan man nå 10/10?** Ja — men det handlar inte om fler features. Funktionaliteten är redan stark. Gapet **8,5 → 10** är kvalitet, robusthet, produktkänsla och bevisad användning i fält.
+
+### Definition (produktansvarig)
+
+Launch är **10/10** när allt detta är sant:
+
+- En **sexåring** kan använda appen utan hjälp.
+- En **förälder** litar på appen fullt ut.
+- **Två vuxna** kan samarbeta utan konflikter eller dataläcka.
+- Appen **känns native** på iPhone (inte "hemsida i WebView").
+- **Barnläget** går inte att kringgå.
+- **Push och synk** bara fungerar.
+
+**Gate:** Alla checklistor i §16.1–16.6 ✅ + [§17](#17-observability--drift) operativ.
+
+---
+
+### 16.1 Barnläge helt vattentätt (viktigast)
+
+PG + `device_mode` (§5.2.1, P0.1) är grunden. **10/10** kräver att inget hål finns.
+
+| Krav | 8,5/10 | 10/10 |
+|------|--------|-------|
+| Barn → vuxen | PG vid utpassage | + ingen annan väg |
+| URL-manipulation | Delvis | `/dashboard` i barnläge → block/redirect |
+| OS/browser back | P0-krav | Kringgår **inte** PG |
+| Force close | `device_mode` persistent | Alltid barnläge |
+| Offline | Barnvy funkar | **Fortfarande** barnläge; ingen vuxen-yta |
+| Token refresh | — | Refresh behåller barn-session; ingen `sessionRestored` till dashboard |
+
+**Acceptans-checklista:**
+
+- [ ] Ingen väg från barnläge till vuxenläge utan PG
+- [ ] Direkt URL till vuxen-sida i barnläge → blockeras (klient + server 403)
+- [ ] iOS edge swipe / Android back kringgår inte PG
+- [ ] Force close → omstart → `/child-login` (inte dashboard)
+- [ ] Flygplansläge: barnvy + offline-kö; fortfarande inget vuxenläge
+- [ ] Access-token refresh under barnsession → fortfarande barnläge
+
+**Guldtest:** Ge en **smart 8-åring** en iPad i **30 minuter** utan instruktion. Om barnet **inte** når någon vuxensida → nära 10/10.
+
+---
+
+### 16.2 Native-känsla = riktig iOS-app
+
+Många Capacitor-appar stannar på **7–8/10**. Användaren ska **inte** tänka: *"Det här känns som en hemsida."*
+
+**Haptik (obligatorisk tabell):**
+
+| Händelse | Haptik |
+|----------|--------|
+| PIN-siffra | `light()` |
+| Avbockning | `medium()` |
+| Stjärna / belöning | `success()` |
+| Block klart (Morgon/Kväll) | `heavy()` |
+| Fel PIN | `error()` |
+| Flikbyte (vuxen tab bar) | `light()` |
+
+**Native navigation & polish:**
+
+- [ ] Tab bar (P0.4): fast, safe-area, haptik
+- [ ] Barnvy: bottennav + swipe Schema ↔ Skattkammaren
+- [ ] Face ID / biometri i PG
+- [ ] Native Apple Sign In (iOS); native Google (Android)
+- [ ] **Inga** PWA-spår (P0.3)
+- [ ] **Inga** webbläsarartefakter (dubbla headers, adressfält-känsla)
+- [ ] **Inga** scroll-jumps vid keyboard/PIN-tavla
+- [ ] `prefers-reduced-motion` + `stjarndag_haptics_enabled` respekteras
+
+---
+
+### 16.3 Push fungerar perfekt
+
+Föräldrar öppnar inte familjeappar 20 gånger om dagen. **Push är limmet.**
+
+**Kritiska push-typer (v1.0) måste leverera:**
+
+- [ ] Aktivitet avklarad (barn)
+- [ ] Mål uppnått / stjärnmilstolpe
+- [ ] Belöning inlöst
+- [ ] Veckosammanfattning
+
+**Deep linking (10/10 — inte bara "appen öppnas"):**
+
+```
+Notis tappad
+  → rätt barn
+  → rätt sida (schema / belöning / aktivitet)
+  → INTE generisk dashboard där föräldern letar
+```
+
+- [ ] Push-payload innehåller `child_id` + `url` (eller deep link path)
+- [ ] P0.5 Universal Links fungerar från notis
+- [ ] Leverans inom 60 s i prod (APNs + FCM)
+- [ ] Token re-registreras vid app-start; rensas vid logout
+
+---
+
+### 16.4 Synk mellan vuxna är "magisk"
+
+**Målupplevelse:** *"Det känns som Google Docs fast för barnrutiner."*
+
+| Nivå | Beteende |
+|------|----------|
+| 8,5/10 | Polling / manuell reload |
+| 10/10 | SSE eller WebSocket + konflikthantering |
+
+**Scenario:** Mamma ändrar schema → pappa ser det **nästan direkt** på sin telefon.
+
+- [ ] `schedule_updated` / `daily_log_updated` events (§5.5)
+- [ ] Live-uppdatering utan full sidreload
+- [ ] Konflikt: senaste vinner eller tydlig merge — **ingen tyst dataloss**
+- [ ] Separerat hushåll: pappa ser **bara** Astrid, aldrig Olle (§6)
+- [ ] Pedagog: ingen läckage till vuxen-familjedata
+
+**Teknik (v1.1+):** `GET /api/events/stream` (SSE) med polling-fallback 60 s.
+
+---
+
+### 16.5 Minst ett wow-moment per barnsession (formellt krav)
+
+**Produktens superkraft.** Billigt tekniskt — avgörande för upplevelse.
+
+Varje barnsession ska innehålla **minst en** av:
+
+- [ ] High five-animation (block klart)
+- [ ] Konfetti / stjärnregn
+- [ ] Raket (mål 100 %)
+- [ ] Progress-fyllning synlig ("Morgon 4/4")
+- [ ] Personlig feedback: **"Snyggt jobbat, Astrid! +2 ⭐"**
+
+Se [§7.1](#71-visuell-feedback--förutsägbarhet-struktur-för-barn). Animation ≤1,5 s, avbrytbar.
+
+---
+
+### 16.6 Verklig användning bekräftar modellen
+
+Den **sista procenten** — dokument och kod räcker inte.
+
+| Krav | Spec |
+|------|------|
+| Antal familjer | **Minst 20** |
+| Varaktighet | **4–6 veckor** |
+| Deltagare | Riktiga barn (6–10 år) |
+
+**Måste vara sant i fält:**
+
+- [ ] **Separerade hushåll:** Pappa ser bara Astrid — **aldrig** Olle
+- [ ] **Delad iPad:** Barnläge överlever — **alltid**
+- [ ] **Pedagog:** Ingen dataläckage; rätt barnisolering
+- [ ] **Offline:** Barnet märker knappt att internet försvann (kö synkas)
+
+Utöver [9B](#steg-9b--familje-beta-release-candidate) (10–20 familjer kort RC) — **10/10** kräver längre fältperiod.
+
+---
+
+### 16.7 Bedömningsmatris (snabbreferens)
+
+| Område | 8,5/10 | 10/10 |
+|--------|--------|-------|
+| Barnläge | PG + device_mode | + URL/offline/refresh + 8-års-test |
+| Native | Tab bar + gating | Full haptik-tabell + zero web-känsla |
+| Push | Token + en notis | Alla kritiska typer + deep link |
+| Synk | API funkar | Live SSE + konflikt |
+| Barn-wow | Delvis | ≥1 wow/session (formellt) |
+| Fält | 9B (kort) | 20 familjer × 4–6 v |
+| Drift | P0.6 crash | §17 full observability |
+
+---
+
+## 17. Observability & drift
+
+**Syns inte för användaren** — men ofta skillnaden mellan en **8/10-produkt** och en **10/10-produkt** som går att drifta med 5 000 familjer.
+
+Kopplar till **P0.6** (crash före 9B) och utökar till full operativ bas.
+
+### 17.1 Crash reporting (P0.6)
+
+| Verktyg | Scope |
+|---------|--------|
+| Firebase Crashlytics **eller** Sentry | iOS + Android native |
+| Source maps / dSYM | Per build-version |
+| Alerting | Ny crash-signatur → e-post/Slack |
+
+Acceptans: [§14.11](#1411-crash--analytics-p06)
+
+### 17.2 Produkt-analytics (befintlig + utökning)
+
+Tabell `analytics_events` finns (anonymiserad, ingen PII). **10/10** kräver att dessa mäts och granskas:
+
+| Event | Varför |
+|-------|--------|
+| `onboarding_completed` | Var tappar vi? |
+| `first_star_earned` | Golden Path-mål |
+| `first_week_active` | Retention |
+| `parental_gate_failure` | Säkerhetsproblem |
+| `push_delivery_failed` | Limmet trasigt |
+| `sync_conflict` | Samarbetsproblem |
+
+### 17.3 Feature flags
+
+Befintligt: `features` + `family_features`. **10/10 drift:**
+
+- [ ] Ny funktion kan rullas ut till **5 %** av familjer (`family_features`)
+- [ ] Admin kan stänga av feature utan deploy
+- [ ] `pedagoganteckningar`-mönster dokumenterat för nya features
+
+### 17.4 Health dashboard (intern)
+
+Minst veckovis granskning under 9B och efter launch:
+
+| Metric | Tröskel (exempel) |
+|--------|-------------------|
+| Push success rate | >95 % |
+| SSE/polling sync failures | <1 % requests |
+| Login failure rate | Spike → undersök |
+| PG failure / lockout rate | Spike → UX eller attack |
+| Crash-free sessions | >99,5 % |
+| API p95 latency | <500 ms kritiska routes |
+
+**Ägare:** Produkt + teknik. Data från `analytics_daily_snapshots`, `notification_log`, Crashlytics/Sentry, server-loggar.
+
+### 17.5 Acceptans Observability (10/10)
+
+- [ ] Crash dashboard aktiv (P0.6)
+- [ ] Minst 6 nyckel-events i `analytics_events` spåras
+- [ ] Veckorapport mall (manuell eller admin-vy)
+- [ ] Feature flag-rutin dokumenterad för nya features
+- [ ] Health metrics definierade med trösklar före public launch
 
 ---
 
@@ -1340,6 +1592,8 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 | Native nav | `public/js/mobile-nav.js`, planerad `native-tab-bar.js` |
 | Deep links | `capacitor.config.ts`, `@capacitor/app`, `public/.well-known/` |
 | Crash | Firebase Crashlytics eller Sentry (native SDK) |
+| Analytics | `analytics_events`, `analytics_daily_snapshots` |
+| Feature flags | `features`, `family_features`, `src/routes/admin/` |
 
 ---
 
@@ -1347,6 +1601,7 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | §16 Launch 10/10 (6 områden), §17 Observability & drift |
 | 2026-05-28 | P0.5 deep links, P0.6 crash, push före dashboard, §15 revision |
 | 2026-05-28 | P0.1–P0.4 blocker-lista, Fas A+ (The Core), §14.6–14.9, 9A/9B RC |
 | 2026-06-01 | P0 PG, RC 9A/9B, §14 acceptans, §15 beredskap, push före IAP |
