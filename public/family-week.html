@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
+  <script src="/js/dom-utils.js?v=2.13.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
@@ -407,7 +408,7 @@ function renderGrid() {
     return `<tr data-child-id="${child.id}">
       <td class="child-name-cell child-name-col">
         <div class="flex flex-col items-center gap-0.5">
-          <span style="font-size:24px; line-height:1;">${escHtml(child.emoji || '👤')}</span>
+          <span style="font-size:24px; line-height:1;">${renderChildAvatar(child, 28)}</span>
           <span style="font-size:11px; font-weight:700; color:#1B2340; text-align:center; word-break:break-word; max-width:80px; line-height:1.2; margin-top:2px;">${escHtml(child.name)}</span>
         </div>
       </td>

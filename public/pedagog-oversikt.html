@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/dom-utils.js?v=2.13.0"></script>
   <style>
     :root {
       --navy: #1C2340;
@@ -172,7 +173,7 @@ function renderChildren(list) {
         data-child-id="${child.id}"
         data-family-label="${encodeURIComponent(child.family_label)}"
         data-emoji="${child.emoji || '👧'}">
-      <td class="emoji-col" style="padding:14px 14px;font-size:22px;width:44px;">${child.emoji || '👧'}</td>
+      <td class="emoji-col" style="padding:14px 14px;font-size:22px;width:44px;">${renderChildAvatar(child, 32)}</td>
       <td style="padding:14px 12px;" data-emoji="${child.emoji || '👧'}">${child.family_label}</td>
       <td style="padding:14px 14px;font-size:13px;">${renderStatus(child)}</td>
     </tr>

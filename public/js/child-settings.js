@@ -13,6 +13,7 @@ if (!childId) { window.location.href = '/family'; }
 let childData = null;
 let pinBuffer = '';
 let selectedEmoji = '';
+let selectedAvatarUrl = null;   // set when iOS parent picks a new photo
 let rewardsData = [];
 
 // showToast (red/navy) and showSuccessToast (green) are in /js/toast.js
@@ -259,6 +260,8 @@ async function saveProfile(e) {
   const birthday = (bdYear && bdMonth && bdDay) ? `${bdYear}-${bdMonth}-${bdDay}` : undefined;
   const body = { name: nameVal, emoji: selectedEmoji };
   if (birthday) body.birthday = birthday;
+  // Include avatar_url if parent picked a new photo
+  if (selectedAvatarUrl) body.avatar_url = selectedAvatarUrl;
   try {
     const updated = await Auth.api(`/api/children/${childId}`, {
       method: 'PUT',
@@ -267,9 +270,39 @@ async function saveProfile(e) {
     childData = { ...childData, ...updated };
     document.getElementById('pageTitle').textContent = updated.name || 'Inställningar';
     document.getElementById('pageEmoji').textContent = updated.emoji || '⭐';
+    // Update header avatar image if it changed
+    const hdrImg = document.getElementById('headerAvatarImg');
+    if (hdrImg && updated.avatar_url) hdrImg.src = updated.avatar_url;
     showSuccessToast('Inställningar sparade!');
   } catch (err) {
     showToast('Kunde inte spara: ' + err.message, true);
+  }
+}
+
+// ── iOS Avatar Photo Picker ───────────────────────────
+async function changeChildPhoto() {
+  const btn = document.getElementById('changePhotoBtn');
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Laddar…';
+  try {
+    const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
+    if (!result) { btn.disabled = false; btn.textContent = orig; return; }
+    btn.textContent = 'Laddar upp…';
+    const url = await Platform.camera.upload(result.dataUrl);
+    selectedAvatarUrl = url;
+    // Update header image immediately
+    const hdrImg = document.getElementById('headerAvatarImg');
+    if (hdrImg) { hdrImg.src = url; hdrImg.classList.add('ring-2', 'ring-gold'); }
+    btn.textContent = '✓ Bild vald';
+    btn.classList.remove('text-gold'); btn.classList.add('text-green-600');
+    setTimeout(() => { btn.textContent = '🔄 Byt bild'; btn.classList.remove('text-green-600'); btn.classList.add('text-gold'); }, 2000);
+  } catch (err) {
+    console.error('[child-settings] photo change failed:', err.message);
+    showToast('Kunde inte byta bild. Försök igen.', true);
+  } finally {
+    btn.disabled = false;
+    if (btn.textContent === 'Laddar upp…') btn.textContent = orig;
   }
 }
 
@@ -433,15 +466,24 @@ function escHtml(s) {
 function renderPage(child) {
   const currentViewType = child.view_type || 'day_sections';
   const ageText = child.birthday ? calcAge(child.birthday) : null;
+  const avatarUrl = selectedAvatarUrl || child.avatar_url || null;
 
   const html = `
   <!-- Child header card -->
   <div class="section-card fade-in" style="background: linear-gradient(135deg, #FFF9EE, #FFF0D0); border: 2px solid rgba(245,166,35,0.3);">
     <div class="flex items-center gap-4">
-      <span class="text-5xl">${child.emoji || '👤'}</span>
+      ${avatarUrl
+        ? `<img src="${escHtml(avatarUrl)}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" alt="${escHtml(child.name)}" id="headerAvatarImg" />`
+        : `<span class="text-5xl flex-shrink-0">${child.emoji || '👤'}</span>`
+      }
       <div>
         <h2 class="text-xl font-heading font-bold text-navy">${escHtml(child.name)}</h2>
         <p class="text-sm text-text-soft">${ageText ? ageText : 'Ålder okänd'}</p>
+        <!-- iOS: "Byt bild" button shown only on native iOS -->
+        ${window.Platform && Platform.isNative() ? `
+        <button id="changePhotoBtn" onclick="changeChildPhoto()" class="mt-1.5 text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
+          📷 Byt bild
+        </button>` : ''}
       </div>
     </div>
   </div>

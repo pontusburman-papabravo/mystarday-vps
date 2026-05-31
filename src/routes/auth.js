@@ -125,11 +125,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       const familyCount = countResult.rows[0].count;
       const isLifetimeFree = familyCount < 200;
 
-      // Create family — new accounts get a 14-day trial
-      // trial_ends_at is used by requireActiveSubscription to gate access after trial expires
+      // Create family — subscription_status defaults to 'none' (CHECK constraint).
+      // Trial access is tracked via trial_ends_at + family_subscriptions table.
       const familyResult = await client.query(
         `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free)
-         VALUES ($1, 'trial', NOW() + INTERVAL '14 days', $2)
+         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2)
          RETURNING id`,
         [finalFamilyName, isLifetimeFree]
       );
@@ -341,12 +341,24 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Analytics: funnel step — signup_started (family just created)
       require('../lib/analytics-tracker').trackSignupStarted(familyId);
 
-      // Send verification email after commit (fire-and-forget — don't block registration)
-      sendVerificationEmail(normalizedEmail, verifyToken).catch(err => {
-        console.error('[AUTH] Verification email send failed:', err.message);
-      });
-      // Register as known contact so future transactional emails are never rate-limited
-      registerContact(normalizedEmail, trimmedName, 'signup').catch(() => {});
+      // Register as contact FIRST so the email proxy accepts the verification mail
+      // (proxy blocks cold outreach unless the recipient is a known contact).
+      // This must complete before we call sendVerificationEmail — race = 429.
+      try {
+        await registerContact(normalizedEmail, trimmedName, 'signup');
+      } catch (err) {
+        console.error('[AUTH] registerContact FAILED for', normalizedEmail, ':', err.message);
+        // Block — can't send verification email if proxy doesn't know this contact
+        return res.status(503).json({ error: 'Kunde inte initiera e-postverifiering. Försök igen.' });
+      }
+
+      // Send verification email (blocking so errors are surfaced immediately)
+      try {
+        await sendVerificationEmail(normalizedEmail, verifyToken);
+      } catch (err) {
+        console.error('[AUTH] sendVerificationEmail FAILED for', normalizedEmail, ':', err.message);
+        // Don't block HTTP response — user can still log in and request resend
+      }
 
       // Send welcome email (fire-and-forget — don't block registration response)
       // Gate 2J: valkomstmail — only send if feature is live/dev for this family
@@ -1004,7 +1016,10 @@ router.get('/me', requireAuth, async (req, res) => {
                 COALESCE(p.onboarding_completed, true) as onboarding_completed,
                 COALESCE(p.account_type, 'family') as account_type,
                 COALESCE(p.preferred_view_mode, 'parent') as preferred_view_mode,
-                f.is_lifetime_free
+                f.is_lifetime_free,
+                p.password_hash IS NOT NULL AS has_password,
+                p.apple_user_id IS NOT NULL AS has_apple_linked,
+                p.apple_email
          FROM parent p
          JOIN family f ON f.id = p.family_id
          WHERE p.id = $1`,
@@ -1050,6 +1065,13 @@ router.get('/me', requireAuth, async (req, res) => {
         hasPedagogChildren,
         isDualRole,
         is_lifetime_free: parent.is_lifetime_free,
+        accountAuth: {
+          hasPassword: parent.has_password,
+          hasAppleLinked: parent.has_apple_linked,
+          email: parent.email,
+          appleEmail: parent.apple_email || null,
+          canUnlinkApple: parent.has_password && parent.has_apple_linked,
+        },
         children,
       });
     }
@@ -1277,42 +1299,9 @@ async function _fetchAppleJwks() {
 }
 
 function _jwkToPem(jwk) {
-  const { n: modulusB64, e: exponentB64, kty } = jwk;
-  if (kty !== 'RSA') return null;
-
-  const decodeBase64Url = (b64url) => {
-    const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
-    const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - b64.length % 4);
-    return Buffer.from(b64 + pad, 'base64');
-  };
-
-  const nBytes = decodeBase64Url(modulusB64);
-  const eBytes = decodeBase64Url(exponentB64);
-
-  // DER encode RSA public key
-  const nLen = nBytes.length;
-  const eLen = eBytes.length;
-
-  const totalSize = 4 + nLen + 4 + eLen + 6;
-  const buf = Buffer.alloc(2048);
-  let pos = 0;
-
-  buf[pos++] = 0x30; // SEQUENCE tag
-  const seqLen = 4 + nLen + 4 + eLen;
-  if (seqLen > 127) {
-    buf[pos++] = 0x82;
-    buf[pos++] = (seqLen >> 8) & 0xff;
-    buf[pos++] = seqLen & 0xff;
-  } else {
-    buf[pos++] = seqLen;
-  }
-
-  buf[pos++] = 0x02; buf[pos++] = nLen; nBytes.copy(buf, pos); pos += nLen;
-  buf[pos++] = 0x02; buf[pos++] = eLen; eBytes.copy(buf, pos); pos += eLen;
-
-  const der = buf.slice(0, pos);
-  const base64Key = der.toString('base64');
-  return `-----BEGIN PUBLIC KEY-----\n${base64Key.match(/.{1,64}/g).join('\n')}\n-----END PUBLIC KEY-----`;
+  if (!jwk || jwk.kty !== 'RSA') return null;
+  return crypto.createPublicKey({ key: jwk, format: 'jwk' })
+    .export({ type: 'spki', format: 'pem' });
 }
 
 async function verifyAppleIdToken(idToken) {
@@ -1364,8 +1353,8 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
     const familyName = `${displayName}s familj`;
 
     const familyResult = await client.query(
-      `INSERT INTO family (name, subscription_status)
-       VALUES ($1, 'beta')
+      `INSERT INTO family (name, subscription_status, is_lifetime_free)
+       VALUES ($1, 'none', true)
        RETURNING id`,
       [familyName]
     );
@@ -1448,14 +1437,19 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
     // Analytics: signup started
     require('../lib/analytics-tracker').trackSignupStarted(familyId);
 
-    // Welcome email (fire-and-forget)
+    // Register contact FIRST so emails are accepted by the proxy (no cold outreach block)
     if (appleEmail) {
+      await registerContact(appleEmail, displayName, 'signup').catch(err => {
+        console.error('[AUTH] registerContact failed for', appleEmail, ':', err.message);
+      });
+      // Welcome email (fire-and-forget)
       const { hasAccess } = require('../../db/features');
       const welcomeEmailAllowed = await hasAccess(familyId, 'valkomstmail');
       if (welcomeEmailAllowed) {
-        sendWelcomeEmail(appleEmail, parent.id, { foralderns_namn: displayName, barnets_namn: '' }).catch(() => {});
+        sendWelcomeEmail(appleEmail, parent.id, { foralderns_namn: displayName, barnets_namn: '' }).catch(err => {
+          console.error('[AUTH] Welcome email send failed for', appleEmail, ':', err.message);
+        });
       }
-      registerContact(appleEmail, displayName, 'signup').catch(() => {});
     }
 
     return parent;
@@ -1569,12 +1563,29 @@ router.post('/logout', async (req, res) => {
       }
 
       if (session?.access_token && session?.refresh_token) {
-        // Restore parent session cookies and return sessionRestored flag
+        // Check if family has parent PIN — if so, keep session but require PIN first.
+        // The frontend will show the PIN overlay before calling restore-parent-session.
+        try {
+          const familyResult = await db.query(
+            'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
+            [decoded.familyId]
+          );
+          if (familyResult.rows[0]?.has_pin) {
+            // Parent PIN set — return needsParentPin: true so frontend shows PIN overlay.
+            // Keep the parent session cookie intact (don't clear it).
+            return res.json({ message: 'Utloggad', needsParentPin: true });
+          }
+        } catch (err) {
+          console.error('[AUTH] Logout: parent-pin check failed:', err.message);
+          // On error, fall through to auto-restore (favor usability)
+        }
+
+        // No parent PIN → auto-restore parent session
         res.cookie('access_token', session.access_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 15 * 60 * 1000, // match parent access token TTL (15 min)
+          maxAge: 15 * 60 * 1000,
           path: '/',
         });
         res.cookie('refresh_token', session.refresh_token, {

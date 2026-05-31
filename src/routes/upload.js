@@ -1,4 +1,4 @@
-// Owns: POST /api/upload/image — authenticated image upload to Polsia R2.
+// Owns: POST /api/upload/image, POST /api/upload/avatar — authenticated image uploads to Polsia R2.
 // Does NOT own: auth token issuance, family/child data, any other file types.
 
 const express = require('express');
@@ -37,15 +37,18 @@ function sanitizeFilename(name) {
   if (!name) return 'upload.jpg';
   // Remove null bytes, path traversal sequences, and control chars
   return name
-    .replace(/\x00/g, '')
-    .replace(/\.\.[/\\]/g, '')
+    .replace(/\u0000/g, '')
+    .replace(/\f\f[/\\]/g, '')
     .replace(/[/\\]/g, '')
-    .replace(/[^\w.\-]/g, '_')
+    .replace(/[^\f.\f-]/g, '_')
     .substring(0, 128);
 }
 
-// 5 MB hard limit enforced by multer
+// 5 MB hard limit for general image uploads
 const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+
+// 2 MB limit for child avatar uploads (jpeg/png/webp only)
+const avatarMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 router.post('/', requireParent, uploadMiddleware.single('image'), async (req, res) => {
   try {
@@ -79,6 +82,41 @@ router.post('/', requireParent, uploadMiddleware.single('image'), async (req, re
   } catch (err) {
     // Log the error message only — never log file content
     console.error('[UPLOAD] Image error:', err.message);
+    res.status(500).json({ error: 'Uppladdning misslyckades' });
+  }
+});
+
+// POST /api/upload/avatar — child avatar upload (2MB, jpeg/png/webp only)
+// Uploads to R2 and returns a public URL to be stored in child.avatar_url
+router.post('/avatar', requireParent, avatarMiddleware.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Ingen bild skickad' });
+
+    const declaredType = (req.file.mimetype || '').toLowerCase();
+    if (!declaredType.startsWith('image/') || declaredType === 'image/svg+xml' || declaredType.startsWith('text/')) {
+      return res.status(400).json({ error: 'Filtypen är inte tillåten' });
+    }
+
+    const detectedMime = detectImageMime(req.file.buffer);
+    if (!detectedMime) {
+      return res.status(400).json({ error: 'Endast JPEG, PNG eller WebP är tillåtna' });
+    }
+
+    const safeFilename = sanitizeFilename(req.file.originalname || 'avatar.jpg');
+    const fd = new FormData();
+    fd.append('file', req.file.buffer, { filename: safeFilename, contentType: detectedMime });
+
+    const r2Res = await nodeFetch('https://polsia.com/api/proxy/r2/upload', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.POLSIA_API_KEY}`, ...fd.getHeaders() },
+      body: fd,
+    });
+    const r2Data = await r2Res.json();
+    if (!r2Data.success) throw new Error(r2Data.error?.message || 'Upload misslyckades');
+
+    res.json({ url: r2Data.file.url });
+  } catch (err) {
+    console.error('[UPLOAD/AVATAR] error:', err.message);
     res.status(500).json({ error: 'Uppladdning misslyckades' });
   }
 });

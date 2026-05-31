@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
+  <script src="/js/dom-utils.js?v=2.13.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
@@ -414,7 +415,7 @@
       for (const child of children) {
         const btn = document.createElement('button');
         btn.className = 'child-tab' + (child.id === selectedChildId ? ' active' : '');
-        btn.textContent = (child.emoji ? child.emoji + ' ' : '') + child.name;
+        btn.innerHTML = (child.avatar_url ? renderChildAvatar(child, 20) + ' ' : (child.emoji ? escapeHtml(child.emoji) + ' ' : '')) + escapeHtml(child.name);
         btn.onclick = () => selectChild(child.id);
         container.appendChild(btn);
       }

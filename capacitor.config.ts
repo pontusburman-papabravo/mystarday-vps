@@ -7,8 +7,7 @@
  * The app loads https://mystarday.se in production (remote URL, no bundled copy).
  * In development (CAP_DEV=true), connects to http://localhost:3000.
  *
- * Plugins configured: SplashScreen, StatusBar, Keyboard.
- * Plugins deferred to future waves: push, haptics, share, apple-sign-in.
+ * Plugins configured: SplashScreen, StatusBar, Keyboard, SignInWithApple, Camera.
  */
 import type { CapacitorConfig } from '@capacitor/cli';
 
@@ -41,6 +40,8 @@ const config: CapacitorConfig = {
       resize: 'body',
       resizeOnFullScreen: true,
     },
+    SignInWithApple: {},   // @capacitor-community/apple-sign-in
+    Camera: {},            // @capacitor/camera
   },
 };
 

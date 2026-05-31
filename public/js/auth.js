@@ -215,7 +215,7 @@ const Auth = {
                 if (currentUser && meData.type && meData.type !== currentUser.type) {
                   console.warn('[AUTH] User type mismatch after refresh: expected', currentUser.type, 'got', meData.type, '— forcing re-login');
                   this.clearAuth();
-                  window.location.href = (currentUser.type === 'child') ? '/child-login' : '/login';
+                  window.location.href = '/login';
                   return null;
                 }
               }
@@ -239,11 +239,10 @@ const Auth = {
             return true;
           }
 
-          // 401 = refresh token genuinely expired/revoked
+          // 401 = refresh token genuinely expired/revoked — always to /login (role selection)
           if (res.status === 401) {
-            const user = this.getUser();
             this.clearAuth();
-            window.location.href = (user && user.type === 'child') ? '/child-login' : '/login';
+            window.location.href = '/login';
             return null;
           }
 
@@ -343,9 +342,18 @@ const Auth = {
   },
 
   requireAuth(type = null) {
+    // NOTE: localStorage check only — used by pages that follow with API verification.
+    // Pages needing strict check should use authGuard() instead.
     if (!this.isLoggedIn()) {
-      window.location.href = type === 'child' ? '/child-login' : '/login';
-      return false;
+      // localStorage may be cleared (privacy mode, mobile Safari) while httpOnly
+      // cookies are still valid. Try to recover the session from the API before
+      // redirecting. If both localStorage and cookies are gone, redirect follows.
+      if (!document.cookie.includes('access_token')) {
+        window.location.href = '/login';
+        return false;
+      }
+      // Has access_token cookie — let the next API call succeed or redirect
+      return true;
     }
     return true;
   },
@@ -370,29 +378,205 @@ const Auth = {
           await this.ensureCsrfToken();
           continue; // retry with fresh CSRF
         }
-        // Cookies cleared by server — clear client state.
-        // sessionRestored: true means child logged out AND parent session was restored
-        // (server re-issued parent httpOnly cookies). Redirect to /dashboard so parent
-        // stays logged in. Otherwise, go to landing page.
-        let redirectTo = '/';
-        if (res.ok) {
-          try {
-            const data = await res.clone().json();
-            if (data.sessionRestored) redirectTo = '/dashboard';
-          } catch {}
+        let data;
+        try { data = await res.json(); } catch { data = {}; }
+
+        if (data.sessionRestored) {
+          // No parent PIN → parent session restored → go to dashboard
+          window.location.href = '/dashboard';
+          return;
         }
-        this.clearAuth();
-        window.location.href = redirectTo;
+
+        if (data.needsParentPin) {
+          // Parent PIN required — clear child tokens, show PIN overlay, then restore
+          this._clearChildCookies();
+          this._showParentPinGateOverlay(function () {
+            // PIN verified → call restore-parent-session endpoint
+            Auth.api('/api/family/restore-parent-session', {
+              method: 'POST',
+              body: JSON.stringify({ gateToken: window._ppinGateToken }),
+            }).then(function () {
+              window.location.href = '/dashboard';
+            }).catch(function () {
+              window.location.href = '/login';
+            });
+          }, function () {
+            // PIN cancelled → go to login
+            window.location.href = '/login';
+          });
+          return;
+        }
+
+        // No session to restore → go to / (web) or /login (app)
+        this._fullClear();
+        if (
+          (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
+          (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
+        ) {
+          window.location.href = '/login';
+        } else {
+          window.location.href = '/';
+        }
         return;
       } catch {
         // Network error — break and fall through
         break;
       }
     }
-    // Fetch failed after retries: still clear client state and go to landing page.
-    // Server-side cookie clearing should have happened (try/catch in server).
+    // Fetch failed after retries: clear state, go to / (web) or /login (app).
+    this._fullClear();
+    if (
+      (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
+      (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
+    ) {
+      window.location.href = '/login';
+    } else {
+      window.location.href = '/';
+    }
+  },
+
+  /**
+   * Full localStorage + cookie cleanup on logout.
+   * Clears auth keys AND all app-specific data (known_children, etc.)
+   * so the next user on a shared device starts clean.
+   */
+  _fullClear() {
     this.clearAuth();
-    window.location.href = '/';
+    try {
+      localStorage.removeItem('stjarndag_known_children');
+      localStorage.removeItem('stjarndag_selected_child');
+      localStorage.removeItem('stjarndag_theme');
+    } catch {}
+  },
+
+  /**
+   * Clear child-specific localStorage state (keep parent session if present).
+   * Child tokens (httpOnly cookies) are revoked server-side.
+   */
+  _clearChildCookies: function () {
+    try {
+      localStorage.removeItem('stjarndag_selected_child');
+      localStorage.removeItem('stjarndag_theme');
+    } catch {}
+  },
+
+  /**
+   * Show the parent PIN gate overlay after child logout.
+   * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
+   */
+  _showParentPinGateOverlay: function (onSuccess, onCancel) {
+    var old = document.getElementById('ppin-gate-overlay');
+    if (old) document.body.removeChild(old);
+    window._ppinGateToken = null;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'ppin-gate-overlay';
+    overlay.style.cssText = [
+      'position:fixed;inset:0;z-index:9999;background:rgba(27,35,64,0.85);',
+      'display:flex;align-items:center;justify-content:center;',
+      'backdrop-filter:blur(4px);',
+    ].join('');
+
+    var card = document.createElement('div');
+    card.style.cssText = [
+      'background:#fff;border-radius:24px;padding:32px 24px;max-width:320px;width:100%;',
+      'margin:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;',
+    ].join('');
+
+    card.innerHTML = [
+      '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
+      '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
+      '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">Ange din PIN-kod för att fortsätta</p>',
+      '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
+        '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
+        '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
+        '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
+        '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
+      '</div>',
+      '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="PIN-tavla"></div>',
+      '<div id="ppgo-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
+      '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">Avbryt</button>',
+    ].join('');
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    var entered = '';
+    var msgEl = document.getElementById('ppgo-err');
+    var dots = document.querySelectorAll('.ppgo-dot');
+
+    function updateDots() {
+      dots.forEach(function (d, i) {
+        d.style.background = i < entered.length ? '#F5A623' : '#EDE7F6';
+      });
+    }
+
+    function buildKeypad() {
+      var kbd = document.getElementById('ppgo-keypad');
+      kbd.innerHTML = '';
+      var digits = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+      digits.forEach(function (d) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = d;
+        btn.style.cssText = [
+          d === '⌫' || d === '✓' ?
+            'padding:12px;font-size:1.1rem;font-weight:600;background:#EDE7F6;border:none;border-radius:12px;cursor:pointer;color:#5A6178;min-height:52px;' :
+            'padding:14px;font-size:1.3rem;font-weight:700;background:#EDE7F6;border:none;border-radius:12px;cursor:pointer;color:#1B2340;min-height:52px;',
+          'transition:background 0.1s;',
+        ].join('');
+        btn.addEventListener('mouseenter', function () { btn.style.background = '#D8BFD8'; });
+        btn.addEventListener('mouseleave', function () { btn.style.background = '#EDE7F6'; });
+        btn.addEventListener('click', function () {
+          msgEl.textContent = '';
+          if (d === '⌫') {
+            entered = entered.slice(0, -1);
+          } else if (d === '✓') {
+            if (entered.length === 4) submitPin();
+            return;
+          } else if (entered.length < 4) {
+            entered += d;
+          }
+          updateDots();
+        });
+        kbd.appendChild(btn);
+      });
+    }
+
+    function submitPin() {
+      var pin = entered;
+      var csrf = Auth.getCsrfToken() || '';
+      fetch('/api/family/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
+        body: JSON.stringify({ pin: pin }),
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (res.ok && res.gateToken) {
+          window._ppinGateToken = res.gateToken;
+          document.body.removeChild(overlay);
+          onSuccess();
+        } else {
+          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          entered = '';
+          updateDots();
+          buildKeypad();
+        }
+      }).catch(function () {
+        msgEl.textContent = 'Något gick fel — försök igen';
+        entered = '';
+        updateDots();
+        buildKeypad();
+      });
+    }
+
+    document.getElementById('ppgo-cancel').addEventListener('click', function () {
+      document.body.removeChild(overlay);
+      onCancel();
+    });
+
+    buildKeypad();
+    updateDots();
   },
 };
 
@@ -502,10 +686,8 @@ window.apiFetch = async function(url, options = {}) {
  * Auth guard for parent-only pages.
  */
 window.authGuard = async function() {
-  if (!Auth.isLoggedIn()) {
-    window.location.href = '/login';
-    return null;
-  }
+  // Always verify with API — localStorage may be cleared (privacy mode, mobile Safari)
+  // while httpOnly cookies are still valid. Do NOT redirect based on localStorage alone.
   try {
     const res = await window.apiFetch('/api/auth/me');
     if (!res.ok) {
@@ -515,6 +697,7 @@ window.authGuard = async function() {
     }
     return await res.json();
   } catch {
+    Auth.clearAuth();
     window.location.href = '/login';
     return null;
   }

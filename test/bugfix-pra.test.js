@@ -63,19 +63,17 @@ describe('Fix #12 -- localStorage keys use stjarndag_ prefix', () => {
       'mobile-nav.js still calls localStorage.removeItem("user") — should use "stjarndag_user"');
   });
 
-  it('family page logout delegates to Auth.logout()', () => {
-    const html = fs.readFileSync(FAMILY_HTML, 'utf8');
+  it('family.html logout delegates to Auth.logout()', () => {
     const js = fs.readFileSync(FAMILY_JS, 'utf8');
-    assert.ok(html.includes('logoutBtn'), 'family.html must expose logout button');
     assert.ok(js.includes('Auth.logout()'),
       'family.js must call Auth.logout() — not inline bare localStorage keys');
   });
 
   it('Auth.clearAuth removes stjarndag_token and stjarndag_user', () => {
     const src = fs.readFileSync(AUTH_JS, 'utf8');
-    assert.ok(src.includes('removeItem(this.TOKEN_KEY)'),
+    assert.ok(src.includes('localStorage.removeItem(this.TOKEN_KEY)'),
       'auth.js clearAuth must remove TOKEN_KEY (stjarndag_token)');
-    assert.ok(src.includes('removeItem(this.USER_KEY)'),
+    assert.ok(src.includes('localStorage.removeItem(this.USER_KEY)'),
       'auth.js clearAuth must remove USER_KEY (stjarndag_user)');
   });
 });

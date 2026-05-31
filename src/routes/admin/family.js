@@ -62,7 +62,10 @@ router.get('/families-grouped', async (req, res) => {
         COALESCE(json_agg(DISTINCT jsonb_build_object(
           'id', p.id, 'email', p.email, 'name', p.name,
           'verified', p.verified, 'is_admin', p.is_admin,
-          'locked', COALESCE(p.locked, false), 'created_at', p.created_at
+          'locked', COALESCE(p.locked, false), 'created_at', p.created_at,
+          'hasPassword', p.password_hash IS NOT NULL,
+          'hasAppleLinked', p.apple_user_id IS NOT NULL,
+          'appleEmail', p.apple_email
         )) FILTER (WHERE p.id IS NOT NULL), '[]') as parents,
         COALESCE(json_agg(DISTINCT jsonb_build_object(
           'id', c.id, 'name', c.name, 'emoji', c.emoji,
@@ -374,6 +377,168 @@ router.post('/create-admin', async (req, res) => {
   }
 });
 
+// ─── PUT /api/admin/parents/:id/email ────────────────────
+// Admin changes a parent's email address. Requires reason (min 10 chars).
+// Notifies both old and new address. Logs to admin_audit_log.
+router.put('/parents/:id/email', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!guardParentId(id, res)) return;
+
+    const { newEmail, reason } = req.body;
+    if (!newEmail || typeof newEmail !== 'string' || newEmail.trim().length === 0) {
+      return res.status(400).json({ error: 'Ny e-postadress krävs' });
+    }
+    if (!reason || typeof reason !== 'string' || reason.trim().length < 10) {
+      return res.status(400).json({ error: 'Ange en orsak (minst 10 tecken)' });
+    }
+
+    // Check email not already in use
+    const existing = await db.query(
+      'SELECT id FROM parent WHERE LOWER(email) = LOWER($1) AND id != $2',
+      [newEmail.trim(), id]
+    );
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'E-postadressen används redan' });
+    }
+
+    // Get current email for notification
+    const parentResult = await db.query(
+      'SELECT id, email, name, family_id FROM parent WHERE id = $1',
+      [id]
+    );
+    if (parentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Förälder hittades inte' });
+    }
+    const parent = parentResult.rows[0];
+    const oldEmail = parent.email;
+    const trimmedEmail = newEmail.trim().toLowerCase();
+
+    await db.query('UPDATE parent SET email = $1 WHERE id = $2', [trimmedEmail, id]);
+
+    // Notify both addresses
+    await sendEmail({
+      to: oldEmail,
+      subject: 'Din e-postadress på Min Stjärndag har ändrats',
+      html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #1B2340;">E-postadress ändrad</h2>
+        <p>Din e-postadress på Min Stjärndag har ändrats av en administratör.</p>
+        <p><strong>Ny adress:</strong> ${trimmedEmail}</p>
+        <p>Om du inte känner igen denna ändring, kontakta oss direkt.</p>
+      </div>`,
+    });
+    await sendEmail({
+      to: trimmedEmail,
+      subject: 'Din e-postadress på Min Stjärndag har ändrats',
+      html: `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #1B2340;">E-postadress bekräftad</h2>
+        <p>Din e-postadress på Min Stjärndag har ändrats till denna adress.</p>
+        <p>Du kan nu logga in med: ${trimmedEmail}</p>
+      </div>`,
+    });
+
+    await db.query(
+      `INSERT INTO admin_audit_log (admin_id, target_family_id, action, metadata)
+       VALUES ($1, $2, 'admin_change_email', $3)`,
+      [req.user.id, parent.family_id, JSON.stringify({
+        target_parent_id: id,
+        target_email: trimmedEmail,
+        old_email: oldEmail,
+        reason: reason.trim(),
+      })]
+    );
+
+    console.log(`[ADMIN] Email changed for parent ${id}: ${oldEmail} → ${trimmedEmail} by admin ${req.user.id}`);
+    res.json({ message: 'E-postadress uppdaterad', email: trimmedEmail });
+  } catch (err) {
+    console.error('[ADMIN] Change parent email error:', err);
+    res.status(500).json({ error: 'Kunde inte ändra e-postadress' });
+  }
+});
+
+// ─── DELETE /api/admin/parents/:id/apple-link ──────────────
+// Admin forcibly unlinks Apple from a parent account. Requires reason + parent must have password.
+router.delete('/parents/:id/apple-link', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!guardParentId(id, res)) return;
+
+    const { reason } = req.body;
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      return res.status(400).json({ error: 'Ange en orsak' });
+    }
+
+    // Get parent info + check password exists
+    const parentResult = await db.query(
+      'SELECT id, email, name, family_id, password_hash IS NOT NULL as has_password, apple_user_id FROM parent WHERE id = $1',
+      [id]
+    );
+    if (parentResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Förälder hittades inte' });
+    }
+    const parent = parentResult.rows[0];
+
+    if (!parent.has_password) {
+      return res.status(400).json({
+        error: 'Föräldern måste ha ett lösenord innan Apple kan kopplas bort. Återställ lösenordet först.',
+      });
+    }
+
+    if (!parent.apple_user_id) {
+      return res.status(400).json({ error: 'Ingen Apple-link att ta bort' });
+    }
+
+    await db.query(
+      'UPDATE parent SET apple_user_id = NULL, apple_email = NULL WHERE id = $1',
+      [id]
+    );
+
+    await db.query(
+      `INSERT INTO admin_audit_log (admin_id, target_family_id, action, metadata)
+       VALUES ($1, $2, 'admin_unlink_apple', $3)`,
+      [req.user.id, parent.family_id, JSON.stringify({
+        target_parent_id: id,
+        target_email: parent.email,
+        reason: reason.trim(),
+      })]
+    );
+
+    console.log(`[ADMIN] Apple unlinked for parent ${id} (${parent.email}) by admin ${req.user.id}`);
+    res.json({ message: 'Apple-konto har kopplats bort' });
+  } catch (err) {
+    console.error('[ADMIN] Admin unlink Apple error:', err);
+    res.status(500).json({ error: 'Kunde inte koppla bort Apple' });
+  }
+});
+
+// ─── GET /api/admin/families/:familyId/audit-log ──────────
+// Returns the 20 most recent admin audit log entries for a family.
+// Covers: admin_reset_password, admin_change_email, admin_unlink_apple, impersonate_start
+router.get('/families/:familyId/audit-log', async (req, res) => {
+  try {
+    const { familyId } = req.params;
+    if (!UUID_RE.test(familyId)) {
+      return res.status(400).json({ error: 'Ogiltigt family-id' });
+    }
+
+    const result = await db.query(`
+      SELECT aal.id, aal.action, aal.metadata, aal.created_at,
+             p.email as admin_email
+      FROM admin_audit_log aal
+      LEFT JOIN parent p ON p.id = aal.admin_id
+      WHERE aal.target_family_id = $1
+        AND aal.action IN ('admin_reset_password', 'admin_change_email', 'admin_unlink_apple', 'impersonate_start')
+      ORDER BY aal.created_at DESC
+      LIMIT 20
+    `, [familyId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('[ADMIN] Audit log error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta audit-log' });
+  }
+});
+
 // ─── PUT /api/admin/change-password ───────────────────────
 router.put('/change-password', async (req, res) => {
   try {
@@ -418,20 +583,23 @@ router.put('/reset-parent-password/:id', async (req, res) => {
     const { id } = req.params;
 
     // Find parent — newPassword from body is intentionally ignored; always generate random
-    const parent = await db.query('SELECT id, email FROM parent WHERE id = $1', [id]);
-    if (parent.rows.length === 0) {
+    const parentResult = await db.query(
+      'SELECT id, email, family_id, password_hash IS NOT NULL as had_password, apple_user_id IS NOT NULL as had_apple_linked FROM parent WHERE id = $1',
+      [id]
+    );
+    if (parentResult.rows.length === 0) {
       return res.status(404).json({ error: 'Föräldern hittades inte' });
     }
+    const parent = parentResult.rows[0];
 
     // Generate a cryptographically random password — never predictable, never logged
     const password = crypto.randomBytes(16).toString('base64url');
-
     const passwordHash = await hashPassword(password);
     await db.query('UPDATE parent SET password_hash = $1 WHERE id = $2', [passwordHash, id]);
 
     // Send the new password to the parent's email — do NOT include it in the API response
     await sendEmail({
-      to: parent.rows[0].email,
+      to: parent.email,
       subject: 'Ditt lösenord på Min Stjärndag har återställts',
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -446,7 +614,18 @@ router.put('/reset-parent-password/:id', async (req, res) => {
       `,
     });
 
-    console.log(`[ADMIN] Password reset for ${parent.rows[0].email} by admin ${req.user.id}`);
+    await db.query(
+      `INSERT INTO admin_audit_log (admin_id, target_family_id, action, metadata)
+       VALUES ($1, $2, 'admin_reset_password', $3)`,
+      [req.user.id, parent.family_id, JSON.stringify({
+        target_parent_id: id,
+        target_email: parent.email,
+        had_password_before: parent.had_password,
+        had_apple_linked: parent.had_apple_linked,
+      })]
+    );
+
+    console.log(`[ADMIN] Password reset for ${parent.email} by admin ${req.user.id}`);
     res.json({ success: true, message: 'Lösenord skickat via e-post' });
   } catch (err) {
     console.error('[ADMIN] Reset password error:', err.message);

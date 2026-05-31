@@ -20,6 +20,7 @@ const checkMaintenanceMode = require('./src/middleware/maintenance');
 const { blockImpersonationWrites } = require('./src/middleware/impersonation');
 const { csrfProtect } = require('./src/middleware/csrf');
 const { createDomainRedirect } = require('./src/lib/domain-redirect');
+const platformHtmlInject = require('./src/middleware/platform-html');
 const { registerRoutes } = require('./src/routes/index');
 
 const app = express();
@@ -45,6 +46,9 @@ app.use(cookieParser());
 app.use(requestIdMiddleware());
 
 app.use(globalLimiter);
+
+// ─── Platform HTML injection (Capacitor vs web) ──
+app.use(platformHtmlInject);
 
 // ─── Security headers ─────────────────────────────────────
 app.use(securityHeadersMiddleware());

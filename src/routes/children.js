@@ -92,7 +92,7 @@ router.get('/', async (req, res) => {
               c.dopamin_animation, c.visual_timer,
               c.time_adjustment, c.color_coding,
               c.view_type,
-              c.username, c.created_at, pc.role
+              c.username, c.avatar_url, c.created_at, pc.role
        FROM child c
        JOIN parent_child pc ON pc.child_id = c.id
        WHERE pc.parent_id = $1
@@ -102,7 +102,7 @@ router.get('/', async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    console.error('[CHILDREN] List error:', err);
+    console.error('[CHILDREN] List error for parent', req.user.id, ':', err.message, err.stack);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
@@ -265,10 +265,10 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
 
       // Create child
       const childResult = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, pin, username, pin_fingerprint)
+        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, pin, username, pin_fingerprint, avatar_url)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING id, name, emoji, birthday, timezone, view_mode, username, created_at`,
-        [req.user.familyId, name.trim(), emoji, birthday || null, childTimezone, childViewMode, pinHash, username, pinFp]
+         RETURNING id, name, emoji, birthday, timezone, view_mode, username, avatar_url, created_at`,
+        [req.user.familyId, name.trim(), emoji, birthday || null, childTimezone, childViewMode, pinHash, username, pinFp, req.body.avatar_url || null]
       );
 
       const child = childResult.rows[0];
@@ -519,7 +519,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
 
     const result = await db.query(
       `SELECT id, name, emoji, birthday, timezone, view_mode, allow_child_reorder, show_now_next, show_mood_rating,
-              hide_clock, lock_schedule, dopamin_animation, visual_timer, username, created_at
+              hide_clock, lock_schedule, dopamin_animation, visual_timer, username, avatar_url, created_at
        FROM child WHERE id = $1`,
       [req.params.id]
     );
@@ -665,7 +665,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE child SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, created_at`,
+       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, avatar_url, created_at`,
       values
     );
 

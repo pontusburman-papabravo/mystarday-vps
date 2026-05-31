@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Bekräfta e-postadress — Min Stjärndag">
+  <meta property="og:description" content="Bekräfta din nya e-postadress för Min Stjärndag">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://mystarday.se/og-image.png">
+  <title>Byt e-postadress — Min Stjärndag</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#F5A623',
+            'gold-light': '#FFF3D6',
+            navy: '#1B2340',
+            'navy-soft': '#2A3458',
+            sky: '#E8F0FE',
+            lavender: '#EDE7F6',
+            mint: '#E0F5EC',
+            coral: '#FDEAE7',
+            'text-soft': '#5A6178',
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    body { background-color: #FAFBFF; }
+    .star-animation { animation: twinkle 2s ease-in-out infinite; }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+</head>
+<body class="font-body">
+
+  <!-- Star Logo Home Link -->
+  <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200">
+    <span class="text-4xl star-animation">⭐</span>
+  </a>
+
+  <!-- Background decorative stars -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-20 right-10 text-3xl star-animation" style="animation-delay: 0.3s">✨</div>
+    <div class="absolute top-1/3 left-12 text-2xl star-animation" style="animation-delay: 0.6s">⭐</div>
+    <div class="absolute bottom-24 right-16 text-3xl star-animation" style="animation-delay: 0.9s">✨</div>
+  </div>
+
+  <div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+
+      <!-- Loading State -->
+      <div id="loadingState" class="text-center">
+        <div class="mb-8 flex justify-center">
+          <div class="w-16 h-16 border-4 border-gold-light border-t-gold rounded-full animate-spin"></div>
+        </div>
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
+          Bekräftar e-postadress
+        </h1>
+        <p class="text-lg text-text-soft">
+          Vänta medan vi uppdaterar din e-postadress...
+        </p>
+      </div>
+
+      <!-- Success State -->
+      <div id="successState" class="hidden text-center">
+        <div class="mb-8 flex justify-center">
+          <span class="text-8xl animate-bounce" style="animation-delay: 0s">✅</span>
+        </div>
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
+          E-post uppdaterad!
+        </h1>
+        <p class="text-lg text-text-soft mb-2">
+          Din nya e-postadress är nu verifierad.
+        </p>
+        <p class="text-sm text-text-soft mb-6">
+          Logga in med din nya e-postadress för att fortsätta.
+        </p>
+        <a href="/login"
+          class="inline-block px-8 py-3 bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-navy font-heading font-bold text-lg rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+          Gå till inloggning
+        </a>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="hidden text-center">
+        <div class="mb-8 flex justify-center">
+          <span class="text-8xl">⚠️</span>
+        </div>
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
+          Något gick fel
+        </h1>
+        <p id="errorMessage" class="text-lg text-text-soft mb-6">
+          Länken är ogiltig eller har gått ut.
+        </p>
+        <a href="/settings"
+          class="inline-block px-8 py-3 bg-navy hover:bg-navy-soft text-white font-heading font-bold text-lg rounded-lg transition-all duration-200">
+          Gå till Inställningar
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-12 text-center">
+        <p class="text-sm text-text-soft">
+          Behöver du hjälp? <a href="mailto:info@mystarday.se" class="text-gold font-semibold hover:underline">Kontakta oss</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function confirmEmailChange() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        showError('Ingen token hittades i länken.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/account/change-email/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ token }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showError(err.error || 'Länken är ogiltig eller har gått ut.');
+          return;
+        }
+
+        showSuccess();
+      } catch (err) {
+        showError('Något gick fel. Försök igen.');
+        console.error('[verify-email-change]', err);
+      }
+    }
+
+    function showSuccess() {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('errorState').classList.add('hidden');
+      document.getElementById('successState').classList.remove('hidden');
+    }
+
+    function showError(msg) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('successState').classList.add('hidden');
+      document.getElementById('errorState').classList.remove('hidden');
+      document.getElementById('errorMessage').textContent = msg;
+    }
+
+    window.addEventListener('DOMContentLoaded', confirmEmailChange);
+  </script>
+
+  <!-- Support bubble for logged-out users -->
+  <script src="/js/support-bubble.js?v=2.12.0"></script>
+  <!-- Service Worker -->
+  <script src="/js/sw-register.js?v=2.12.0"></script>
+</body>
+</html>

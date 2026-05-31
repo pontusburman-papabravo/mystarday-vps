@@ -50,18 +50,40 @@ function requireAuth(req, res, next) {
 
 /**
  * Require parent auth (not child).
- * Logs rejections with user type to diagnose shared-device token collisions
- * (child refresh cookie overwriting parent's → wrong token type after silent refresh).
+ * When a parent navigates to a parent-only page while logged in as a child
+ * (child-login overwrites httpOnly cookies), this restores the saved parent
+ * session from stjarndag_parent_session before rejecting.
  */
 function requireParent(req, res, next) {
   requireAuth(req, res, () => {
-    if (req.user.type !== 'parent') {
-      console.warn(
-        `[AUTH] requireParent rejected — type=${req.user.type} id=${req.user.id} path=${req.method} ${req.originalUrl}`
-      );
-      return res.status(403).json({ error: 'Förbjuden — kräver föräldrabehörighet' });
+    if (req.user.type === 'parent') return next();
+
+    // Parent reached a parent-only page with an active child token.
+    // Restore the saved parent session from stjarndag_parent_session cookie.
+    const saved = req.cookies?.stjarndag_parent_session;
+    if (saved) {
+      try {
+        const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
+        if (session?.access_token) {
+          // Swap child cookie for parent cookie — requireAuth will re-parse on next tick
+          req.cookies.access_token = session.access_token;
+          req.cookies.refresh_token = session.refresh_token;
+          // Re-verify as parent
+          const decoded = verifyToken(session.access_token);
+          if (decoded.type === 'parent') {
+            req.user = decoded;
+            return next();
+          }
+        }
+      } catch {
+        // Corrupt cookie or bad token — fall through to reject
+      }
     }
-    next();
+
+    console.warn(
+      `[AUTH] requireParent rejected — type=${req.user.type} id=${req.user.id} path=${req.method} ${req.originalUrl}`
+    );
+    return res.status(403).json({ error: 'Förbjuden — kräver föräldrabehörighet' });
   });
 }
 
@@ -189,9 +211,11 @@ function restoreParentSession(req, res, next) {
       }
     }
     if (!currentIsValidChild) {
-      // Token is not a valid child token — restore parent session.
-      // Clearing the saved session would destroy it; let restoreParentSession
-      // handle the next request when the parent re-authenticates.
+      // Token is null, invalid, or not a child token.
+      // Parent session restoration is NOT safe here — the current token may be
+      // a fresh parent/admin session that just happens to be unreadable locally
+      // (e.g., privacy mode, localStorage cleared). Let optionalAuth handle it.
+      return next();
     }
   }
 

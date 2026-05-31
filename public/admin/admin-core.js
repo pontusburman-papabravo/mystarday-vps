@@ -238,7 +238,13 @@
         setInterval(refreshAdminStats, 30000);
       } catch (error) {
         console.error('Admin init failed:', error);
-        window.location.href = '/login';
+        // Only redirect to login on genuine auth failures (401/403).
+        // 429 (rate limit) and network errors should NOT redirect —
+        // the session is still valid, just temporarily blocked.
+        if (error.status === 401 || error.status === 403) {
+          window.location.href = '/login';
+        }
+        // For other errors (429, 500, network): stay on page, user can retry
       }
     });
 

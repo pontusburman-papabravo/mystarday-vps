@@ -46,7 +46,12 @@ async function injectLandingNews(html) {
   const cardsHtml = items.map(item => {
     const imgHtml = item.image_url
       ? '<div style="overflow:hidden;border-radius:14px 14px 0 0;background:#f7f3ea;">'
-          + '<img src="' + esc(item.image_url) + '" alt="" loading="eager" style="width:100%;display:block;object-fit:cover;max-height:240px;min-height:140px;" onerror="this.style.display=\'none\'">'
+          + (item.button_url
+              ? '<a href="' + esc(item.button_url) + '" aria-label="Läs mer" tabindex="0" style="display:block;">'
+                  + '<img src="' + esc(item.image_url) + '" alt="" loading="eager" style="width:100%;display:block;object-fit:cover;max-height:240px;min-height:140px;cursor:pointer;" onerror="this.style.display=\'none\'">'
+                  + '</a>'
+              : '<img src="' + esc(item.image_url) + '" alt="" loading="eager" style="width:100%;display:block;object-fit:cover;max-height:240px;min-height:140px;" onerror="this.style.display=\'none\'">'
+            )
           + '</div>'
       : '';
     const btnHtml = item.button_url

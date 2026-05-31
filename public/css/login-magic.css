@@ -1,0 +1,373 @@
+/**
+ * login-magic.css — "Magisk natt" redesign for login.html
+ * Covers: gradient bg, animated stars/clouds, role cards, parent form, shared utils.
+ * Does NOT own: auth logic (auth.js handles login POST/Apple).
+ */
+
+/* ── Layered gradient background ─────────────────────────────────────────── */
+.login-magic-bg {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.30) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.20) 0%, transparent 65%),
+    linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Animated stars (CSS keyframes) ───────────────────────────────────────── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.4); }
+}
+@keyframes float-star {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+@keyframes drift {
+  0%   { transform: translateX(0) translateY(0); }
+  33%  { transform: translateX(18px) translateY(-10px); }
+  66%  { transform: translateX(-12px) translateY(8px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+.star-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float-star var(--float-dur, 4s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+.star-particle.lit {
+  animation: twinkle var(--twinkle-dur, 2.5s) ease-in-out infinite,
+             float-star var(--float-dur, 5s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s), var(--twinkle-delay, 0s);
+}
+.star-particle.fast { --twinkle-dur: 1.2s; --float-dur: 3s; }
+.star-particle.slow { --twinkle-dur: 4s;   --float-dur: 7s; }
+
+/* ── Cloud shapes ─────────────────────────────────────────────────────────── */
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+  filter: blur(12px);
+  pointer-events: none;
+  animation: drift var(--drift-dur, 12s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+/* ── Logo / header text ───────────────────────────────────────────────────── */
+.login-magic-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.login-magic-logo .logo-mascot {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.login-magic-logo h1 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 2.4rem;
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.login-magic-logo p {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+}
+
+/* ── Role cards ───────────────────────────────────────────────────────────── */
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 16px;
+  border-radius: 22px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  text-decoration: none;
+  min-height: 130px;
+  justify-content: center;
+  color: #fff;
+}
+.role-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.14);
+}
+.role-card:active {
+  transform: translateY(-1px) scale(0.98);
+}
+.role-card .card-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.role-card .card-label {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: center;
+  line-height: 1.2;
+}
+.role-card.kid-card {
+  background: rgba(147, 112, 219, 0.22);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+.role-card.kid-card:hover {
+  background: rgba(147, 112, 219, 0.35);
+  border-color: rgba(167, 139, 250, 0.6);
+}
+.role-card.parent-card {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+.role-card.parent-card:hover {
+  background: rgba(251, 191, 36, 0.28);
+  border-color: rgba(251, 191, 36, 0.6);
+}
+.role-card .card-sub {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ── Parent login section ─────────────────────────────────────────────────── */
+#parent-login-section {
+  width: 100%;
+}
+
+/* ── Divider with text ───────────────────────────────────────────────────── */
+.magic-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 18px 0;
+}
+.magic-divider::before,
+.magic-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.25);
+}
+.magic-divider span {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+/* ── Apple button (iOS/native only) ───────────────────────────────────────── */
+.apple-btn-magic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: #fff;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 15px 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  min-height: 50px;
+}
+.apple-btn-magic:hover { background: #f5f5f7; }
+.apple-btn-magic:active { transform: scale(0.98); }
+.apple-btn-magic svg { flex-shrink: 0; }
+
+/* ── Ghost / text buttons ─────────────────────────────────────────────────── */
+.ghost-btn {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.ghost-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.55);
+  color: #fff;
+}
+
+/* ── Form fields (shown after role selection) ───────────────────────────── */
+.magic-form-fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeSlideIn 0.3s ease-out;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.magic-form-fields label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+.magic-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;
+  min-height: 48px;
+}
+.magic-input::placeholder { color: rgba(255,255,255,0.4); }
+.magic-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.15);
+}
+.magic-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1d1d1f;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 15px 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  min-height: 52px;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 16px rgba(251,191,36,0.4);
+}
+.magic-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(251,191,36,0.5);
+}
+.magic-submit-btn:active { transform: translateY(0); }
+.magic-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Error / message boxes ───────────────────────────────────────────────── */
+.magic-error-box {
+  background: rgba(239, 68, 68, 0.15);
+  border-left: 4px solid #ef4444;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  animation: fadeSlideIn 0.2s ease-out;
+}
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.magic-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background 0.15s ease;
+  text-decoration: none;
+}
+.magic-back-btn:hover {
+  background: rgba(255,255,255,0.13);
+  color: #fff;
+}
+
+/* ── Footer link ─────────────────────────────────────────────────────────── */
+.magic-footer-link {
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: 14px;
+}
+.magic-footer-link a {
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.magic-footer-link a:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,0.7);
+}
+
+/* ── Apple iOS caption ───────────────────────────────────────────────────── */
+.ios-caption {
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 6px;
+}
+
+/* ── Card reveal transition ──────────────────────────────────────────────── */
+.card-transition {
+  animation: fadeSlideIn 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Safe area ───────────────────────────────────────────────────────────── */
+.safe-area-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-area-left   { padding-left:   env(safe-area-inset-left,   0px); }
+.safe-area-right  { padding-right:  env(safe-area-inset-right, 0px); }
+
+/* ── WCAG 2.5.8 — min 44×44px touch target ──────────────────────────────── */
+.touch-card { min-height: 44px; }
+.touch-btn  { min-height: 44px; }

@@ -12,7 +12,7 @@
       return days + ' dagar sedan';
     }
 
-    function retentionStatusBadge(status) {
+    function statusBadge(status) {
       if (status === 'green') return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>Aktiv</span>';
       if (status === 'yellow') return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700"><span class="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span>Varnande</span>';
       return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span>Risk</span>';
@@ -42,7 +42,7 @@
           const rowBg = { red: 'bg-red-50', yellow: 'bg-yellow-50', green: '' };
           tbody.innerHTML = families.map(f => `
             <tr class="border-t border-lavender ${rowBg[f.status] || ''}">
-              <td class="px-4 py-3">${retentionStatusBadge(f.status)}</td>
+              <td class="px-4 py-3">${statusBadge(f.status)}</td>
               <td class="px-4 py-3 font-semibold text-navy">${escapeHtml(f.family_name)}</td>
               <td class="px-4 py-3 text-text-soft">${formatRelativeTime(f.last_activity)}</td>
               <td class="px-4 py-3 text-right font-semibold text-navy">${f.activity_index}</td>

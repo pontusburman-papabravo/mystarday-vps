@@ -33,7 +33,7 @@ router.post('/create-checkout-session', requireAuth, async (req, res) => {
     }
 
     const s = getStripe();
-    const familyId = req.user.family_id;
+    const familyId = req.user.familyId || req.user.family_id;
     const parentEmail = req.user.email;
 
     const session = await s.checkout.sessions.create({

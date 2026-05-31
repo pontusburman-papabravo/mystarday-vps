@@ -542,7 +542,7 @@ async function renderChildrenOverview() {
 
     return `<div class="child-card border-2 border-lavender rounded-2xl p-5 bg-white hover:border-gold">
       <div class="flex items-start justify-between mb-3 cursor-pointer" onclick="selectChild('${child.id}')">
-        <div class="flex items-center gap-3"><span class="text-4xl">${child.emoji||'👤'}</span>
+        <div class="flex items-center gap-3"><span class="text-4xl">${renderChildAvatar(child, 40)}</span>
           <div><h4 class="font-heading font-bold text-navy text-lg">${escHtml(child.name)}</h4><p class="text-sm text-text-soft">${hasDays?`${ad} dag(ar) med schema`:'Inget schema ännu'}</p></div>
         </div><span class="text-gold text-sm font-semibold">→</span>
       </div>
@@ -3558,7 +3558,7 @@ function fwRenderGrid() {
     return `<tr>
       <td class="fw-child-cell fw-child-col">
         <div class="flex flex-col items-center gap-0.5">
-          <span style="font-size:24px; line-height:1;">${escHtml(child.emoji || '👤')}</span>
+          <span style="display:inline-block;">${renderChildAvatar(child, 30)}</span>
           <span style="font-size:11px; font-weight:700; color:#1B2340; text-align:center; word-break:break-word; max-width:80px; line-height:1.2; margin-top:2px;">${escHtml(child.name)}</span>
         </div>
       </td>

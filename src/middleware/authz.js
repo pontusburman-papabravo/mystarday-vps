@@ -277,6 +277,7 @@ module.exports = {
 // requireNotPedagogOnly — blocks pedagog-only parents from family routes.
 // Use on: dashboard-stats, children CRUD, rewards, family settings.
 // Does NOT block dual-role parents (they have primary/shared too).
+// Catches DB errors and logs them so we can diagnose 500s on /api/children.
 function requireNotPedagogOnly(req, res, next) {
   if (!ENABLED) return next();
   getParentRoles(req.user.id).then(({ hasPedagogOnly }) => {
@@ -284,7 +285,10 @@ function requireNotPedagogOnly(req, res, next) {
       return res.status(403).json({ error: 'PEDAGOG_ONLY', message: 'Åtkomst nekad.' });
     }
     next();
-  }).catch(next);
+  }).catch(err => {
+    console.error('[AUTHZ] requireNotPedagogOnly failed for parent', req.user.id, ':', err.message);
+    next(err);
+  });
 }
 
 // requirePrimaryParent — blocks shared parents from pedagog-invite operations.

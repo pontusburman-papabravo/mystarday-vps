@@ -32,6 +32,9 @@
     "stripe": "^17.7.0"
   },
   "devDependencies": {
+    "@capacitor-community/apple-sign-in": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/camera": "^7.0.0",
     "eslint": "^9.0.0",
     "pino-pretty": "^10.3.0"
   }

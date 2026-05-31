@@ -278,7 +278,7 @@ function renderSbsView() {
     const data = sbsAllData[child.id] || { items: [], scheduleId: null };
     return `<div class="sbs-panel">
       <div class="sbs-panel-header">
-        <span class="text-2xl">${child.emoji || '👤'}</span>
+        <span class="text-2xl">${renderChildAvatar(child, 32)}</span>
         <span class="font-bold text-navy">${escHtml(child.name)}</span>
         <span class="text-xs text-text-soft ml-auto">${data.items.length} st</span>
       </div>

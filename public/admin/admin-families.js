@@ -3,10 +3,13 @@
 
     async function loadFamilies() {
       const container = document.getElementById('familiesContainer');
+      container.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         const families = await Auth.api('/api/admin/families-grouped');
+        clearTimeout(timeout);
         allFamilies = families || [];
-        // Re-apply current search filter if any
         const searchVal = document.getElementById('familySearch')?.value?.trim() || '';
         if (searchVal) {
           filterFamilies(searchVal);
@@ -14,8 +17,9 @@
           renderFamilyCards(families, container);
         }
       } catch (e) {
+        clearTimeout(timeout);
         console.error('Failed to load families:', e);
-        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjer</div>';
+        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjer' + (e.name === 'AbortError' ? ' (timeout — servern är upptagen)' : '') + '</div>';
       }
     }
 
@@ -79,7 +83,25 @@
           const lockBtn = p.locked
             ? `<button onclick="unlockParent('${esc(p.id)}')" class="px-2 py-1 bg-mint hover:bg-green-200 text-green-700 text-xs rounded-lg font-semibold transition-colors">Lås upp</button>`
             : `<button onclick="lockParent('${esc(p.id)}', '${esc(p.email)}')" class="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs rounded-lg font-semibold transition-colors">Lås</button>`;
+          // Auth method badges (F1)
+          const hasPassword = p.hasPassword;
+          const hasAppleLinked = p.hasAppleLinked;
+          const appleEmail = p.appleEmail || '';
+          const isRelay = appleEmail.includes('privaterelay');
+          const isAppleOnly = hasAppleLinked && !hasPassword;
+          const authBadges = [
+            hasPassword ? '<span class="text-xs" title="Lösenord">🔑</span>' : '',
+            hasAppleLinked ? '<span class="text-xs" title="Apple">🍎</span>' : '',
+            isAppleOnly ? '<span class="text-xs" title="Apple utan lösenord — risk">⚠️</span>' : '',
+            isRelay ? '<span class="text-xs" title="Apple privaterelay">📧</span>' : '',
+          ].filter(Boolean).join(' ');
+
           const resetPwBtn = `<button onclick="resetParentPassword('${esc(p.id)}', '${esc(p.email)}')" class="px-2 py-1 bg-sky hover:bg-lavender text-navy text-xs rounded-lg font-semibold transition-colors">Återställ lösenord</button>`;
+          const changeEmailBtn = `<button onclick="openChangeEmailModal('${esc(p.id)}', '${esc(p.email)}')" class="px-2 py-1 bg-lavender hover:bg-purple-200 text-purple-700 text-xs rounded-lg font-semibold transition-colors">📧 Byt e-post</button>`;
+          const unlinkAppleBtn = hasAppleLinked && hasPassword
+            ? `<button onclick="openUnlinkAppleModal('${esc(p.id)}', '${esc(p.email)}')" class="px-2 py-1 bg-orange-100 hover:bg-orange-200 text-orange-700 text-xs rounded-lg font-semibold transition-colors">🍎 Koppla bort</button>`
+            : '';
+          const auditBtn = `<button onclick="toggleAuditLog('${family.id}')" class="px-2 py-1 bg-sky hover:bg-lavender text-navy text-xs rounded-lg font-semibold transition-colors">📋 Audit</button>`;
           const adminToggleBtn = p.is_admin
             ? `<button onclick="toggleAdmin('${esc(p.id)}', '${esc(p.email)}', false)" class="px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 text-xs rounded-lg font-semibold transition-colors">Ta bort admin</button>`
             : `<button onclick="toggleAdmin('${esc(p.id)}', '${esc(p.email)}', true)" class="px-2 py-1 bg-lavender hover:bg-purple-200 text-purple-700 text-xs rounded-lg font-semibold transition-colors">Gör till admin</button>`;
@@ -90,11 +112,12 @@
               <div class="flex flex-wrap items-center gap-2">
                 <span class="text-navy font-medium text-sm truncate">${esc(p.email)}</span>
                 ${verifiedBadge}${adminBadge}${lockedBadge}
+                ${authBadges ? `<span class="flex flex-wrap gap-0.5">${authBadges}</span>` : ''}
               </div>
               <p class="text-text-soft text-xs mt-0.5">${esc(p.name || '')}</p>
             </div>
             <div class="flex flex-wrap gap-1 shrink-0 action-btns">
-              ${approveBtn}${lockBtn}${adminToggleBtn}${resetPwBtn}${deleteBtn}
+              ${approveBtn}${lockBtn}${adminToggleBtn}${resetPwBtn}${changeEmailBtn}${unlinkAppleBtn}${auditBtn}${deleteBtn}
             </div>
           </div>`;
         }).join('');
@@ -349,12 +372,16 @@
     }
 
     async function loadMessages() {
+      const container = document.getElementById('messagesContainer');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
         const url = typeFilter
           ? `/api/admin/contact-messages?type=${encodeURIComponent(typeFilter)}`
           : '/api/admin/contact-messages';
         const messages = await Auth.api(url);
+        clearTimeout(timeout);
         allMessages = messages;
         const unreadCount = messages.filter(m => !m.is_read).length;
         document.getElementById('unreadMessagesCount').textContent = unreadCount;
@@ -362,7 +389,6 @@
         document.getElementById('totalMessagesCount').textContent = messages.length;
         updateMessagesBadge(unreadCount);
 
-        // Update section header badge
         const sectionBadge = document.getElementById('sectionUnreadBadge');
         if (sectionBadge) {
           if (unreadCount > 0) {
@@ -375,8 +401,9 @@
 
         renderMessages(messages);
       } catch (e) {
+        clearTimeout(timeout);
         console.error('Failed to load contact messages:', e);
-        document.getElementById('messagesContainer').innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden</div>';
+        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden' + (e.name === 'AbortError' ? ' (timeout)' : '') + '</div>';
       }
     }
 
@@ -530,13 +557,54 @@
       }
     }
 
-    // Reset parent password
+    // Reset parent password (F2 — modal with auth context)
+    window._resetPwParentId = null;
+    window._resetPwParentEmail = null;
+
     async function resetParentPassword(parentId, email) {
-      if (!confirm(`Återställ lösenord för ${email}? Ett tillfälligt lösenord genereras automatiskt.`)) return;
+      // Find auth info for this parent
+      let parentData = null;
+      for (const family of allFamilies || []) {
+        const p = (family.parents || []).find(p => p.id === parentId);
+        if (p) { parentData = p; break; }
+      }
+
+      const hasPassword = parentData && parentData.hasPassword;
+      const hasAppleLinked = parentData && parentData.hasAppleLinked;
+      const isRelay = parentData && parentData.appleEmail && parentData.appleEmail.includes('privaterelay');
+
+      let warnings = '';
+      if (!hasPassword) {
+        warnings += '<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-yellow-700 text-xs mb-2">⚠️ Konto saknar lösenord — föräldern kan inte logga in utan Apple.</div>';
+      }
+      if (hasAppleLinked) {
+        warnings += '<div class="bg-sky border border-lavender rounded-lg p-2 text-navy text-xs mb-2">🍎 Apple är kopplat — det nya lösenordet skickas via e-post.</div>';
+      }
+      if (isRelay) {
+        warnings += '<div class="bg-red-50 border border-red-200 rounded-lg p-2 text-red-700 text-xs">📧 Apple relay — kontrollera att e-postadressen är korrekt innan du fortsätter.</div>';
+      }
+
+      window._resetPwParentId = parentId;
+      window._resetPwParentEmail = email;
+      document.getElementById('resetPwTargetEmail').textContent = email;
+      document.getElementById('resetPwWarnings').innerHTML = warnings;
+      document.getElementById('resetPwModal').classList.remove('hidden');
+    }
+
+    function closeResetPwModal() {
+      document.getElementById('resetPwModal').classList.add('hidden');
+      window._resetPwParentId = null;
+      window._resetPwParentEmail = null;
+    }
+
+    async function confirmResetPw() {
+      const parentId = window._resetPwParentId;
+      const email = window._resetPwParentEmail;
+      if (!parentId) return;
+      closeResetPwModal();
       try {
-        const data = await Auth.api(`/api/admin/reset-parent-password/${parentId}`, { method: 'PUT' });
-        const tempPassword = data.temporaryPassword || data.password || data.tempPassword || '(se serverloggen)';
-        alert(`Tillfälligt lösenord för ${email}:\n\n${tempPassword}\n\nKopiera detta och skicka till föräldern.`);
+        await Auth.api(`/api/admin/reset-parent-password/${parentId}`, { method: 'PUT' });
+        alert(`Lösenord skickat till ${email}`);
         loadFamilies();
       } catch (err) {
         alert(err.message || 'Kunde inte återställa lösenord');
@@ -594,5 +662,154 @@
       if (tab === 'activities') loadDefaultTemplates();
       else if (tab === 'rewards') loadDefaultRewards();
       else if (tab === 'schedules') loadDefaultSchedules();
+    }
+
+    // ─── F3: Change Email Modal ──────────────────────────────
+
+    window._changeEmailParentId = null;
+
+    function openChangeEmailModal(parentId, email) {
+      window._changeEmailParentId = parentId;
+      document.getElementById('changeEmailTargetEmail').textContent = email;
+      document.getElementById('changeEmailInput').value = '';
+      document.getElementById('changeEmailReason').value = '';
+      document.getElementById('changeEmailError').classList.add('hidden');
+      document.getElementById('changeEmailModal').classList.remove('hidden');
+    }
+
+    function closeChangeEmailModal() {
+      document.getElementById('changeEmailModal').classList.add('hidden');
+      window._changeEmailParentId = null;
+    }
+
+    async function confirmChangeEmail() {
+      const parentId = window._changeEmailParentId;
+      if (!parentId) return;
+
+      const newEmail = document.getElementById('changeEmailInput').value.trim();
+      const reason = document.getElementById('changeEmailReason').value.trim();
+      const errEl = document.getElementById('changeEmailError');
+
+      if (!newEmail || !/^[^\n\t@]+@[^\n\t@]+/.test(newEmail)) {
+        errEl.textContent = 'Ange en giltig e-postadress';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!reason || reason.length < 10) {
+        errEl.textContent = 'Ange en orsak (minst 10 tecken)';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        await Auth.api(`/api/admin/parents/${parentId}/email`, {
+          method: 'PUT',
+          body: JSON.stringify({ newEmail, reason }),
+        });
+        closeChangeEmailModal();
+        loadFamilies();
+      } catch (err) {
+        errEl.textContent = err.message || 'Kunde inte ändra e-postadress';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    // ─── F4: Unlink Apple Modal ──────────────────────────────
+
+    window._unlinkAppleParentId = null;
+
+    function openUnlinkAppleModal(parentId, email) {
+      window._unlinkAppleParentId = parentId;
+      document.getElementById('unlinkAppleTargetEmail').textContent = email;
+      document.getElementById('unlinkAppleReason').value = '';
+      document.getElementById('unlinkAppleError').classList.add('hidden');
+      document.getElementById('unlinkAppleModal').classList.remove('hidden');
+    }
+
+    function closeUnlinkAppleModal() {
+      document.getElementById('unlinkAppleModal').classList.add('hidden');
+      window._unlinkAppleParentId = null;
+    }
+
+    async function confirmUnlinkApple() {
+      const parentId = window._unlinkAppleParentId;
+      if (!parentId) return;
+
+      const reason = document.getElementById('unlinkAppleReason').value.trim();
+      const errEl = document.getElementById('unlinkAppleError');
+
+      if (!reason) {
+        errEl.textContent = 'Ange en orsak';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        await Auth.api(`/api/admin/parents/${parentId}/apple-link`, {
+          method: 'DELETE',
+          body: JSON.stringify({ reason }),
+        });
+        closeUnlinkAppleModal();
+        loadFamilies();
+      } catch (err) {
+        errEl.textContent = err.message || 'Kunde inte koppla bort Apple';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    // ─── F5: Audit Log Panel ────────────────────────────────
+
+    let _auditVisibleFamilyId = null;
+
+    async function toggleAuditLog(familyId) {
+      const panel = document.getElementById('auditLogPanel');
+      const entries = document.getElementById('auditLogEntries');
+
+      if (_auditVisibleFamilyId === familyId && !panel.classList.contains('hidden')) {
+        closeAuditLog();
+        return;
+      }
+
+      _auditVisibleFamilyId = familyId;
+      panel.classList.remove('hidden');
+      entries.innerHTML = '<div class="text-text-soft text-sm py-2">Laddar...</div>';
+
+      try {
+        const logs = await Auth.api(`/api/admin/families/${familyId}/audit-log`);
+        if (!logs || logs.length === 0) {
+          entries.innerHTML = '<div class="text-text-soft text-sm py-2">Inga admin-åtgärder än.</div>';
+          return;
+        }
+        entries.innerHTML = logs.map(log => {
+          const actionLabels = {
+            admin_reset_password: 'Återställde lösenord',
+            admin_change_email: 'Ändrade e-post',
+            admin_unlink_apple: 'Kopplade bort Apple',
+            impersonate_start: 'Startade support-läge',
+          };
+          const date = new Date(log.created_at).toLocaleString('sv-SE', {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+          const meta = log.metadata ? JSON.parse(log.metadata) : {};
+          let metaNote = '';
+          if (log.action === 'admin_change_email') {
+            metaNote = ` → ${meta.old_email} → ${meta.target_email}`;
+          } else if (log.action === 'admin_unlink_apple') {
+            metaNote = ` (${meta.reason || ''})`;
+          }
+          return `<div class="flex items-start gap-3 py-2 border-b border-lavender/30 text-sm">
+            <span class="text-text-soft text-xs shrink-0 mt-0.5">${date}</span>
+            <span class="font-semibold text-navy">${actionLabels[log.action] || log.action}</span>
+            <span class="text-text-soft text-xs">${esc(log.admin_email || 'admin')}${metaNote}</span>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        entries.innerHTML = `<div class="text-red-600 text-sm py-2">Kunde inte ladda audit-log: ${esc(err.message || '')}</div>`;
+      }
+    }
+
+    function closeAuditLog() {
+      document.getElementById('auditLogPanel').classList.add('hidden');
+      _auditVisibleFamilyId = null;
     }
 

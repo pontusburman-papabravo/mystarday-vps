@@ -114,7 +114,7 @@ function renderChildSelector() {
   el.innerHTML = reportChildren.map(child => `
     <button class="child-pill px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 ${child.id === reportCurrentChildId ? 'selected' : ''}"
       onclick="selectChild('${child.id}', this)">
-      <span>${child.emoji || '👧'}</span> ${escHtml(child.name)}
+      ${renderChildAvatar(child, 24)} ${escHtml(child.name)}
     </button>
   `).join('');
 }
@@ -130,7 +130,7 @@ function renderActivityChildSelector() {
   el.innerHTML = reportChildren.map(child => `
     <button class="child-pill px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 ${child.id === reportCurrentChildId ? 'selected' : ''}"
       onclick="selectActivityChild('${child.id}', this)">
-      <span>${child.emoji || '👧'}</span> ${escHtml(child.name)}
+      ${renderChildAvatar(child, 20)} ${escHtml(child.name)}
     </button>
   `).join('');
 }
@@ -1142,7 +1142,7 @@ function renderSharedList(links) {
     const child = reportChildren.find(c => c.id === link.child_id);
     const childLabel = link.anonymous
       ? '<span class="text-purple-600 font-medium">🔒 Anonym</span>'
-      : (child ? `${child.emoji || '👧'} ${child.name}` : 'Okänt barn');
+      : (child ? `${renderChildAvatar(child, 20)} ${escHtml(child.name)}` : 'Okänt barn');
 
     return `
       <div class="report-row bg-white rounded-xl border border-lavender p-4">

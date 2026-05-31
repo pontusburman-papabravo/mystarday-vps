@@ -273,33 +273,44 @@ var Platform = (function () {
   }
 
   // ── Apple Sign In ────────────────────────────────────────────────
-  // Native: delegates to @capacitor/sign-in-with-apple plugin.
+  // Native: uses Capacitor bridge (Capacitor.Plugins.SignInWithApple)
+  //   from @capacitor-community/apple-sign-in — no ES import needed.
+  //   On Capacitor 4+ the plugin registers directly on the bridge.
   // Web: falls back to Sign in with Apple JS (https://appleid.apple.com/auth/js)
   // which requires a valid Apple Developer configured domain.
   var appleSignIn = {
+    /** Returns true if the native Capacitor plugin is registered. */
+    isAvailable() {
+      return isNative() && !!(Capacitor && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple);
+    },
+
     /**
      * Start Apple Sign In and return the identity token.
-     * On native: calls the Capacitor plugin.
+     * On native: calls the Capacitor plugin via bridge.
      * On web: loads Apple's JS and uses the Sign in with Apple popup flow.
      * Returns: { idToken, name } or throws on failure/cancel.
      */
     async signIn() {
       if (isNative()) {
         try {
-          const { SignInWithApple } = await import('@sign-in-with-apple/native');
-          const result = await SignInWithApple.signIn({
+          // Access via Capacitor bridge — bare-specifier imports don't resolve
+          // in a remote-URL WebView without a bundler.
+          var plugin = Capacitor && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple;
+          if (!plugin) throw new Error('SIGN_IN_UNAVAILABLE');
+          var result = await plugin.authorize({
             clientId: 'se.mystarday.app',
-            redirectUri: 'se.mystarday.app://oauth-callback',
+            redirectURI: 'se.mystarday.app://oauth-callback',
             scopes: 'email name',
           });
+          var resp = result.response || result;
           return {
-            idToken: result.identityToken,
-            name: result.fullName.givenName
-              ? `${result.fullName.givenName} ${result.fullName.familyName || ''}`.trim()
+            idToken: resp.identityToken,
+            name: resp.fullName && resp.fullName.givenName
+              ? (resp.fullName.givenName + ' ' + (resp.fullName.familyName || '')).trim()
               : null,
           };
         } catch (err) {
-          if (err.message === 'cancel') return null;
+          if (err.message === 'cancel' || err.message === 'SIGN_IN_UNAVAILABLE' || (err.code && err.code === 'ERR_CANCELED')) return null;
           throw err;
         }
       }
@@ -338,6 +349,88 @@ var Platform = (function () {
     });
   }
 
+  // ── Camera / Photo Picker ────────────────────────────────────────────────
+  // Uses @capacitor/camera on native. Falls back to Web FileInput on web.
+  var camera = {
+    /**
+     * Pick a photo from the library or camera (iOS native only).
+     * Web: shows a standard file input picker.
+     *
+     * Options:
+     *   source: 'library' | 'camera'   (native only; web ignores)
+     *   quality: 'low' | 'medium' | 'high'   (default 'medium')
+     *
+     * Returns: { dataUrl: string(base64 JPEG), mimeType: string }
+     *          or null if cancelled.
+     */
+    async pick(opts) {
+      opts = opts || {};
+      if (isNative()) {
+        try {
+          const { Camera } = await import('@capacitor/camera');
+          const result = await Camera.getPhoto({
+            quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
+            allowEditing: false,
+            resultType: 'base64',
+            source: opts.source === 'camera'
+              ? (CameraSource.Camera || 'CAMERA')
+              : (CameraSource.Photos || 'PHOTOS'),
+          });
+          return {
+            dataUrl: 'data:image/jpeg;base64,' + result.base64String,
+            mimeType: 'image/jpeg',
+          };
+        } catch (err) {
+          if (err.message && err.message.toLowerCase().includes('cancelled')) return null;
+          if (err.code === 'USER_DID_NOT_GRANT_PERMISSION') return null;
+          console.error('[Platform.camera] Pick failed:', err.message);
+          return null;
+        }
+      }
+      // Web fallback: file input
+      return new Promise((resolve) => {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg,image/png,image/webp';
+        input.onchange = function () {
+          if (!input.files || !input.files[0]) { resolve(null); return; }
+          var file = input.files[0];
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            resolve({ dataUrl: e.target.result, mimeType: file.type || 'image/jpeg' });
+          };
+          reader.onerror = function () { resolve(null); };
+          reader.readAsDataURL(file);
+        };
+        input.oncancel = function () { resolve(null); };
+        input.click();
+      });
+    },
+
+    /**
+     * Upload a child avatar (dataUrl) to /api/upload/avatar.
+     * Returns the CDN URL on success, or throws on failure.
+     * Uses the dedicated avatar endpoint (2MB, jpeg/png/webp).
+     */
+    async upload(dataUrl) {
+      var resp = await fetch(dataUrl);
+      var blob = await resp.blob();
+      var fd = new FormData();
+      fd.append('image', blob, 'avatar.jpg');
+      var result = await fetch('/api/upload/avatar', {
+        method: 'POST',
+        credentials: 'include',
+        body: fd,
+      });
+      if (!result.ok) {
+        var err = await result.json().catch(() => ({}));
+        throw new Error(err.error || 'Upload misslyckades');
+      }
+      var json = await result.json();
+      return json.url;
+    },
+  };
+
   return {
     isNative: isNative,
     isIOS: isIOS,
@@ -350,6 +443,7 @@ var Platform = (function () {
     isHapticsEnabled: isHapticsEnabled,
     setHapticsEnabled: setHapticsEnabled,
     appleSignIn: appleSignIn,
+    camera: camera,
   };
 })();
 
