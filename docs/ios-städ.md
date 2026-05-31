@@ -1,6 +1,12 @@
 # iOS-städ — Frysa plattformsarkitekturen (webb + native)
 
-**Skapad:** 2026-05-29  
+**Relaterade dokument:**
+
+| Dokument | Innehåll |
+|----------|----------|
+| **[`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md)** | **Produkt-spec: webb vs iPhone vs Android (8 punkter)** |
+| [`app.md`](https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/create-app-md-1c33/app.md) | Native build-plan (10 steg) |
+
 **Syfte:** Städa upp efter att alla 10 steg i [`app.md`](https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/create-app-md-1c33/app.md) körts, följt av snabba webb-fixar medan appen inte är släppt i App Store än.  
 **Mål:** En kodbas där **webb (desktop/mobil/PWA)** och **native app (Capacitor)** samexisterar utan att varje release kräver om-skrivning.
 
