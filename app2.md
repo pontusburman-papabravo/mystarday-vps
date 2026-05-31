@@ -37,6 +37,7 @@
 10. [Native build (Capacitor)](#10-native-build-capacitor)
 11. [Implementeringsordning](#11-implementeringsordning)
 12. [Polsia-uppdrag (copy-paste)](#12-polsia-uppdrag-copy-paste)
+13. [Genomförandestrategi](#13-genomförandestrategi)
 
 ---
 
@@ -306,7 +307,8 @@ Spec: [`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md)
 
 | Problem | Fix |
 |---------|-----|
-| Barn logout → dashboard utan PIN | Parental Gate (PG) |
+| Barn logout → dashboard utan PIN | Parental Gate (PG) + **persistent device_mode** (§5.2.1) |
+| App glömmer barnläge efter omstart | `stjarndag_device_mode = 'child'` överlever force close |
 | "Jag är vuxen" oskyddat | PG-modal |
 | Dörr-ikon utan lås | Håll inne 3 s → PG (PIN / Face ID) |
 
@@ -325,6 +327,9 @@ Spec: [`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md)
 | `flow=add-child` | Tillåt onboarding wizard trots `onboarding_completed` |
 | Räknare 100 vs 200 | `landing.js`, `index.html` → 200 |
 | PIN haptik | `Platform.haptics.light()` på siffertavla |
+| Block-milstolpar barnvy | "High five" när Morgon/Kväll-block klart (§7.1) |
+| Personlig micro-copy | "Snyggt jobbat, Astrid! +1 ⭐" (§7.1) |
+| Smart copy syskon | Kopiera schema vid add-child (§5.3.1) |
 
 ### Prio 6 — Native build (Steg 1–10)
 
@@ -361,11 +366,49 @@ Barn använder appen → "Tillbaka till vuxen" → PG → dashboard
 | Varje barn egen PIN | ✅ |
 | Varje vuxen eget konto | ✅ |
 | Spara föräldersession lokalt | Delvis (`stjarndag_parent_session`) |
+| **Persistent barnläge (state)** | ❌ Se §5.2.1 |
 | Barn kan inte nå inställningar | ❌ PG saknas |
-| Selfie i barnläge (Min profil) | ❌ P2 |
+| Selfie i barnläge (Min profil) | ❌ P2 — se §5.6 |
 | Välj vilka barn på enheten | ❌ |
 
-### 5.3 Onboarding
+#### 5.2.1 State management — delad enhet (kritiskt UX)
+
+**Problem idag:** Appen kan "glömma" barnläge efter force close eller omstart → förälder landar på dashboard utan att vilja.
+
+**Målbeteende:**
+
+```
+Aktivera barnläge
+  → localStorage/Secure Storage: device_mode = 'child'
+  → allowed_child_ids[], last_child_id (valfritt)
+  → parent_session_encrypted (för återställning efter PG)
+
+App start / cold open
+  → om device_mode === 'child'
+      → Gå DIREKT till /child-login (välj barn → PIN)
+      → ALDRIG dashboard utan Parental Gate
+  → om device_mode === 'parent' eller saknas
+      → Normal vuxen-flöde
+
+Endast PG (app-lås-PIN / Face ID / full re-auth) sätter device_mode tillbaka till 'parent'
+```
+
+| Händelse | device_mode efter |
+|----------|-------------------|
+| Barn loggar in med PIN | `child` (behåll) |
+| Force close / omstart | `child` (behåll) |
+| Barn trycker logout | `child` → `/child-login` (inte dashboard) |
+| Förälder passerar PG | `parent` → dashboard |
+| Förälder loggar ut helt | rensa device_mode + parent session |
+
+**Teknik:** Ny nyckel t.ex. `stjarndag_device_mode` + `stjarndag_device_children` i localStorage (webb) / `@capacitor/preferences` eller Secure Storage (native). Koppla till PG-task (§4 Prio 4).
+
+**Acceptans:**
+- [ ] iPad i barnläge → stäng app → öppna → PIN-skärm (inte dashboard)
+- [ ] Endast korrekt PG bryter barnläge
+- [ ] Förälder som öppnar appen på **egen** telefon (ej aktiverat barnläge) → normal login
+
+### 5.3 Onboarding & schemaredigering (förälder)
 
 | Flöde | Route | Status |
 |-------|-------|--------|
@@ -375,10 +418,93 @@ Barn använder appen → "Tillbaka till vuxen" → PG → dashboard
 
 **6 steg:** Barn+schema → barnvy → preview → 3 belöningar → barn-PIN → bjud in medförälder.
 
+#### 5.3.1 Smart copy — syskon (effektivitet)
+
+När förälder lägger till barn 2+ (`flow=add-child`), erbjud **innan steg 1**:
+
+> *"Kopiera Astrids morgonrutin till [nytt barn]?"*
+
+| Alternativ | Beteende |
+|------------|----------|
+| **Kopiera schema från syskon** | Klona `weekly_schedule` + items från valt barn; namn/belöningar/PIN fortfarande unika |
+| **Börja från mall** | Befintligt flöde (förskola/skola/…) |
+| **Tomt schema** | Minimal start |
+
+**Varför:** Syskon har sällan helt olika morgonrutiner — sparar 5–10 min per barn.
+
+**API-idé:** `POST /api/onboarding/copy-schedule-from-child` `{ sourceChildId, targetChildId }` eller i onboarding steg 1.
+
+#### 5.3.2 Batch editing — schema (v1.1)
+
+I schemavyn (`schedule.html`): förälder markerar **flera aktiviteter** → gemensam åtgärd:
+
+| Åtgärd | Exempel |
+|--------|---------|
+| **Flytta tid** | +30 min på alla markerade |
+| **Byt dag** | Flytta tisdag-aktiviteter till onsdag |
+| **Ta bort** | Radera 5 valda på en gång |
+
+**UX:** Long-press eller checkbox-läge; desktop = shift-klick. **Prioritet:** v1.1.
+
 ### 5.4 Föräldra-logg (v1.2)
 
 Korta daganteckningar mellan vuxna om barnet — *"Trött vid hämtning, gav extra stjärna"*.  
 Ny tabell `parent_day_note` eller utökning av `child_observation`. Push till medförälder.
+
+### 5.5 Synk-konflikter & realtid (separerade hushåll)
+
+**Scenario:** Mamma ändrar aktivitetstid kl. 07:30 → 08:00 medan pappa tittar på samma schema.
+
+| Nivå | Beteende | Prioritet |
+|------|----------|-----------|
+| **MVP (v1.0)** | Optimistic UI + `updated_at` på schema; vid save-konflikt → "Schemat ändrades av [namn]. Ladda om?" | Launch |
+| **Bäst i klassen (v1.1)** | **SSE eller WebSocket** per familj/barn: `schedule_updated`, `daily_log_updated` → vyn uppdateras utan full reload | v1.1 |
+
+**Teknik (förslag):**
+
+```
+GET /api/events/stream?familyId=…   (SSE, auth cookie)
+  → event: schedule_updated { childId, changedBy, at }
+  → event: daily_log_updated { childId, … }
+```
+
+- Klient: `EventSource` på dashboard + schedule + barnvy (read-only refresh av data)
+- Ingen PII i event-payload utöver föräldernamn + childId
+- Fallback: polling var 60:e sek om SSE ej tillgänglig
+
+**Acceptans:**
+- [ ] Pappa ser mammas schemaändring inom ~5 s utan F5
+- [ ] Samtidig redigering → tydlig konfliktmeddelande, ingen tyst dataförlust
+
+### 5.6 Barnets integritet vs förälderns kontroll (selfie)
+
+Gäller §5.2 selfie i **Min profil**:
+
+| Krav | Spec |
+|------|------|
+| **Lagring** | Uppladdning via befintlig R2/Polsia proxy; HTTPS; URL i `child.avatar_url` |
+| **Åtkomst** | Bild visas för barn + föräldrar med `parent_child` till barnet — **inte** publikt |
+| **Barnets rättighet** | Barn kan byta selfie i barnläge (kamera) |
+| **Förälderns kontroll** | Inställningar → Barn → **"Tillåt selfie/kamera i barnvyn"** (toggle, default på) |
+| **Distraktion av** | Förälder stänger av → Min profil visar emoji/avatar, ingen kameraknapp |
+| **Moderering** | Förälder kan återställa/radera bild i inställningar |
+
+**Not:** Full "kryptering at rest" beror på R2/bucket-policy — dokumentera i integritetspolicy; app-lager ska inte exponera avatar-URL utan auth.
+
+### 5.7 Batterioptimering & "bordsklocka"-läge
+
+Barnvyn används ibland som **fast skärm** (iPad i kök, laddare i).
+
+| Feature | Spec | Plattform |
+|---------|------|-----------|
+| **Keep awake** | När barnläge aktivt + skärm i barnvy → `@capacitor-community/keep-awake` eller `navigator.wakeLock` | Native + webb (Wake Lock API) |
+| **Villkor** | Endast i barn-dashboard, inte i vuxenvy; valfri toggle "Håll skärmen tänd" i barninställningar (default **på** vid laddning) |
+| **Batteri** | Auto-av efter 30 min på batteri utan laddare (med varning) — undvik urladdning |
+| **Dimning** | Respektera systemets ljusstyrka; ingen extra animation i bakgrunden när inaktiv >2 min |
+
+**Acceptans:**
+- [ ] iPad i laddare + barnvy → skärmen slocknar inte
+- [ ] På batteri → skärmen får slockna efter timeout
 
 ---
 
@@ -422,6 +548,22 @@ Pappa ser **aldrig** Olle — `getChildrenForParent()` filtrerar automatiskt.
 ## 7. Native polish (barnvy)
 
 Gäller **native app** primärt; delar funkar i mobil webb (haptik begränsat).
+
+### 7.1 Visuell feedback & förutsägbarhet (struktur för barn)
+
+**Kärnfråga för barnet:** *"När är jag klar?"*
+
+| Feature | Spec | Status |
+|---------|------|--------|
+| **Dagblock** | Gruppera i Morgon · Skola · Kväll (befintliga `dagdel` i barnvy) — **inte** oändlig flat lista | 🟡 Finns delvis |
+| **Block klart** | När alla aktiviteter i block bockats → **"High five"**-animation (kort, haptik + ljud) + blocket får grön kant / check-banner | ❌ |
+| **Progress i block** | "Morgon 4/4" synligt i block-header | 🟡 Delvis |
+| **Micro-copy** | Ersätt generiska toasts: ❌ "Aktiviteten sparad" → ✅ **"Snyggt jobbat, {namn}! +1 stjärna"** | ❌ |
+| **Nästa steg** | Efter bock: markera tydligt **nästa** aktivitet (NU/NÄSTA redan i vuxenvy; samma i barnvy) | 🟡 |
+
+**Animation:** Kort (≤1,5 s), avbrytbar, hoppa över om `prefers-reduced-motion`. Se [`docs/mockups/celebration.html`](docs/mockups/celebration.html) för firande-referens.
+
+### 7.2 Teknisk polish
 
 | Feature | Beskrivning | Status |
 |---------|-------------|--------|
@@ -527,11 +669,29 @@ Fullständiga steg-prompter: [`app.md`](app.md) (Capacitor-detaljer).
 
 ## 11. Implementeringsordning
 
+### 11.0 The Golden Path (prioritet #1)
+
+Innan bred feature-utbyggnad — gör detta flöde **magiskt**:
+
+```
+Registrera / logga in (vuxen)
+  → Onboarding steg 1–6
+  → Barn-PIN satt
+  → Barn loggar in (PIN-tavla)
+  → Första aktiviteten bockad
+  → Första stjärnan + personlig feedback ("Snyggt jobbat!")
+  → Förälder ser push/notis
+```
+
+**Test:** Ge en riktig 6–10-åring telefonen **utan förklaring**. Om de inte hittar bocken inom 30 s → förenkla designen.
+
+**Vertikala sprintar:** En sprint = ett helt flöde (t.ex. "PG + persistent barnläge"), inte spridda halvfärdiga features.
+
 ```
 ═══ Fas A — Städning & säkerhet (Polsia) ═══
  1. ios-städ Prio 1–3  (auth, gating, lifetime_free)
  2. Kontohantering A–F  (e-post, Apple, lösenord)
- 3. Parental Gate       (app-lås per förälder/enhet)
+ 3. Parental Gate       (app-lås + device_mode persistent §5.2.1)
  4. Barnlogin P1        (3 skärmar, siffertavla, haptik)
  5. Barnlogin P2        (selfie Min profil)
 
@@ -588,16 +748,18 @@ Test: iOS native Apple login; Android ingen Apple-knapp; Safari PWA-guide syns; 
 ```
 Uppgift: Parental Gate — barn kan inte nå vuxenläge utan app-lås
 
-Läs: app2.md §4 Prio 4, §5.2
+Läs: app2.md §4 Prio 4, §5.2, §5.2.1
 
 Gör:
-1. "Aktivera barnläge" i inställningar/dashboard — välj barn + sätt app-lås-PIN (local Secure Storage hash)
-2. Native: @capacitor-community/biometric som alternativ
-3. Gate childLogout sessionRestored, "Jag är vuxen", tillbaka-knapp, dörr (håll inne 3s)
-4. Glömt PIN → full re-auth
-5. SW bump
+1. "Aktivera barnläge" — välj barn + sätt app-lås-PIN (Secure Storage hash)
+2. device_mode = 'child' persistent över force close; cold start → /child-login
+3. Native: @capacitor-community/biometric som alternativ
+4. Gate childLogout, sessionRestored, "Jag är vuxen", tillbaka, dörr (håll inne 3s)
+5. Endast PG sätter device_mode = 'parent'
+6. Glömt PIN → full re-auth
+7. SW bump
 
-Test: barn kan inte nå dashboard; rätt PIN/biometri → dashboard
+Test: force close i barnläge → PIN-skärm; PG → dashboard
 ```
 
 ### C — Barnlogin P1
@@ -667,6 +829,48 @@ Gör:
 
 ---
 
+## 13. Genomförandestrategi
+
+### Vertikala sprintar (rekommenderat arbetssätt)
+
+| Sprint | Scope | Leverabel |
+|--------|-------|-----------|
+| **G0 Golden Path** | Login → onboarding → barn-PIN → första stjärna | Demo-bar för barn-test |
+| **G1 Barnläge** | PG + `device_mode` persistent (§5.2.1) | iPad glömmer inte barnläge |
+| **G2 Barnvy känsla** | Block-animation, micro-copy, haptik (§7.1) | "Känns som riktig app" |
+| **G3 Vuxen effektivitet** | Dashboard mockup + smart copy syskon | Förälder sparar tid |
+| **G4 Native shell** | Capacitor + tab bar + push | TestFlight |
+
+**Regel:** Avsluta en sprint vertikalt (backend + UI + test) innan nästa påbörjas.
+
+### Testa på barn tidigt
+
+- Barn är de mest ärliga testarna
+- Om bock-flödet kräver förklaring → designen är för komplex
+- Observationsprotokoll: tid till första avbockning, antal missklick, "var är jag klar?"-frågor
+
+### Capacitor — snåla inte med haptik
+
+Haptik är det som skiljer **native pryl** från **hemsida i WebView**:
+
+| Händelse | Haptik |
+|----------|--------|
+| PIN-siffra | `light()` |
+| Avbockning | `medium()` |
+| Block klart / stjärna | `heavy()` + `success()` |
+| Fel PIN | `error()` |
+
+Alltid respektera `stjarndag_haptics_enabled` + `prefers-reduced-motion`.
+
+### Definition of "magisk" launch
+
+- [ ] Golden Path utan handholding
+- [ ] Barnläge överlever omstart
+- [ ] Förälder + barn på separata enheter ser samma schema inom 5 s (SSE v1.1) eller vid reload (MVP)
+- [ ] Minst en "wow"-moment (konfetti, high five, eller stjärn-ljud) per session
+
+---
+
 ## Bilaga — filkarta
 
 | Område | Filer |
@@ -687,5 +891,6 @@ Gör:
 
 | Datum | Ändring |
 |-------|---------|
-| 2026-05-31 | Utökad §2 med wireframes, HTML-mockup-länkar, Polsia F barnvy |
-| 2026-05-31 | app2.md — samlat masterdokument (design, plattform, städ, krav, native) |
+| 2026-05-31 | §5.2.1 device_mode, §5.3–5.7, §7.1 feedback, §13 strategi |
+| 2026-05-31 | Utökad §2 med wireframes, HTML-mockup-länkar |
+| 2026-05-31 | app2.md — samlat masterdokument |
