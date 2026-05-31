@@ -273,16 +273,24 @@ Familj
 
 ## 4. Vad som behöver städas 🔧
 
-### P0 — Blocker-lista (ingen TestFlight förrän allt är grönt)
+### P0 — Blocker-lista (tiered gates)
 
-**Regel:** Alla P0.x måste vara ✅ enligt [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature) innan TestFlight / 9A.
+**Regler:** Olika P0-nivåer gäller vid olika release-faser — se [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature).
 
-| ID | Område | Varför blocker |
-|----|--------|----------------|
-| **P0.1** | Säkerhet & Gate | Barnläge utan lås = review-risk + föräldraförtroende |
-| **P0.2** | Native identity | Apple (iOS) / Google (Android) — **inte** web-wrapper-login |
-| **P0.3** | UI-gating | Guideline 4.2 — noll PWA/webb-känsla i native |
-| **P0.4** | Native tab bar | Primärt visuellt bevis att det är en **app** |
+| Fas | P0-krav måste vara ✅ |
+|-----|------------------------|
+| **TestFlight / 9A** | P0.1–P0.4 |
+| **9B familje-beta** | P0.1–P0.4 + **P0.6** (crash) |
+| **Public launch (Steg 10)** | Alla P0.1–P0.6 inkl. **P0.5** (deep links) |
+
+| ID | Område | Varför blocker | Gate |
+|----|--------|----------------|------|
+| **P0.1** | Säkerhet & Gate | Barnläge utan lås = review-risk + föräldraförtroende | 9A |
+| **P0.2** | Native identity | Apple (iOS) / Google (Android) — **inte** web-wrapper-login | 9A |
+| **P0.3** | UI-gating | Guideline 4.2 — noll PWA/webb-känsla i native | 9A |
+| **P0.4** | Native tab bar | Primärt visuellt bevis att det är en **app** | 9A |
+| **P0.5** | Deep links & URL | Inbjudningar + push-tapp fungerar i native app | **Launch** |
+| **P0.6** | Crash & analytics | Stacktrace vid "appen stängdes" från testfamiljer | **9B** |
 
 ---
 
@@ -341,6 +349,50 @@ När `Platform.isNative()` === true ska **inget** av följande synas:
 | Scope | Endast `Platform.isNative()` — **rör inte** `mobile-nav.js` på webb |
 
 **Acceptans:** [§14.6](#146-native-tab-bar-p04)
+
+---
+
+#### P0.5 — Deep links & URL-hantering (före public launch)
+
+**Problem idag:** Saknas helt. Inbjudningslänkar och framtida push-tapp öppnar webbläsare — inte appen.
+
+| Typ | Exempel | Användning |
+|-----|---------|------------|
+| Universal / App Link | `https://mystarday.se/invite/{token}` | Familjeinbjudan (co-parent) |
+| Universal / App Link | `https://mystarday.se/pedagog-invite/{token}` | Pedagoginbjudan |
+| Universal / App Link | `https://mystarday.se/confirm-email/{token}` | E-postbekräftelse (native) |
+| Custom scheme (valfritt) | `mystarday://child/{id}` | Framtida push deep link |
+| Custom scheme (valfritt) | `mystarday://reward/{id}` | Framtida push deep link |
+
+| Krav | Spec |
+|------|------|
+| iOS | Associated Domains + `apple-app-site-association` |
+| Android | App Links + `assetlinks.json` |
+| Capacitor | `@capacitor/app` `appUrlOpen` → route till rätt sida |
+| Fallback | Webb-URL fungerar fortfarande om app ej installerad |
+| Auth | Deep link till skyddad route → login → redirect till mål |
+
+**Gate:** Före **Steg 10** (public App Store / Play Store) — **inte** blocker för TestFlight / 9A.
+
+**Acceptans:** [§14.10](#1410-deep-links--url-p05)
+
+---
+
+#### P0.6 — Crash & analytics (före 9B)
+
+**Problem:** Testfamiljer rapporterar "appen stängdes" utan stacktrace — omöjligt att felsöka barn-edge-cases.
+
+| Krav | Spec |
+|------|------|
+| Crash reporting | Firebase Crashlytics **eller** Sentry (native SDK) |
+| Scope | iOS + Android native (webb valfritt senare) |
+| Privacy | Ingen PII i crash payloads; GDPR-notis i integritetspolicy |
+| Release mapping | Source maps / dSYM kopplade till build-version |
+| Alerting | Minst en kanal (e-post/Slack) vid ny crash-signatur |
+
+**Gate:** Före **9B** — familje-beta utan crash-rapportering ger för lite signal.
+
+**Acceptans:** [§14.11](#1411-crash--analytics-p06)
 
 ---
 
@@ -434,6 +486,8 @@ Barn använder appen → "Tillbaka till vuxen" → PG → dashboard
 
 #### 5.2.1 State management — delad enhet (kritiskt UX)
 
+> **Prioritet:** Likvärdig med Parental Gate (P0.1). Utan persistent `device_mode` underminerar force-close hela barnlägeskonceptet — samma mönster som skärmtidsappar, skolappar och kiosk-appar.
+
 **Problem idag:** Appen kan "glömma" barnläge efter force close eller omstart → förälder landar på dashboard utan att vilja.
 
 **Målbeteende:**
@@ -462,7 +516,7 @@ Endast PG (app-lås-PIN / Face ID / full re-auth) sätter device_mode tillbaka t
 | Förälder passerar PG | `parent` → dashboard |
 | Förälder loggar ut helt | rensa device_mode + parent session |
 
-**Teknik:** Ny nyckel t.ex. `stjarndag_device_mode` + `stjarndag_device_children` i localStorage (webb) / `@capacitor/preferences` eller Secure Storage (native). Koppla till PG-task (§4 Prio 4).
+**Teknik:** Ny nyckel t.ex. `stjarndag_device_mode` + `stjarndag_device_children` i localStorage (webb) / `@capacitor/preferences` eller Secure Storage (native). Koppla till PG-task (**P0.1**).
 
 **Acceptans:**
 - [ ] iPad i barnläge → stäng app → öppna → PIN-skärm (inte dashboard)
@@ -754,7 +808,7 @@ Ju fler som är ✅ före review, desto starkare case:
 | **Billig Android-platta** | Målgruppens verkliga enhet | Google login, layout, prestanda |
 | **Android telefon** | Push + FCM | Token, tab bar |
 
-**Gate:** Alla **P0.1–P0.4** + §14 gröna på minst **en iOS + en Android**.
+**Gate:** P0.1–P0.4 + §14 gröna på minst **en iOS + en Android**.
 
 ### Steg 9B — Familje-beta (Release Candidate)
 
@@ -766,11 +820,11 @@ Ju fler som är ✅ före review, desto starkare case:
 | Minst 2 barn på delad iPad | P0.1 `device_mode` + PG |
 | Synk mellan adresser/enheter | Schemaändring + avbockning syns; **ingen dataläcka** mellan barn |
 
-**Gate:** Golden Path (§11.0) + P0 grön + push vid avbockning (om push ship:at).
+**Gate:** Golden Path (§11.0) + P0.1–P0.4 grön + **P0.6 crash-rapportering** + push vid avbockning.
 
-**Först efter 9A + 9B:** Steg 10 — public App Store / Play Store.
+**Först efter 9A + 9B:** Steg 10 — public App Store / Play Store (kräver **P0.5** deep links).
 
-**Nästa (teknisk ordning):** **Fas A+ (The Core)** → Barnlogin P1 → Dashboard mockup → Capacitor 1–2 (om saknas) → push 4–5 → 9A.
+**Nästa (teknisk ordning):** **Fas A+** → Barnlogin P1 → **Push (token + leverans)** → Dashboard mockup → Capacitor 1–2 (om saknas) → 9A → 9B.
 
 Fullständiga steg-prompter: [`app.md`](app.md) (Capacitor-detaljer).
 
@@ -796,7 +850,7 @@ Registrera / logga in (vuxen)
 
 **Vertikala sprintar:** En sprint = ett helt flöde (t.ex. "PG + persistent barnläge"), inte spridda halvfärdiga features.
 
-**Nästa:** **Fas A+ (The Core)** → Capacitor 1–2 om saknas → push → 9A.
+**Nästa:** **Fas A+ (The Core)** → Barnlogin P1 → **Push** → Dashboard mockup → 9A.
 
 ### 11.2 Fas A+ — "The Core" (super-uppdrag)
 
@@ -820,7 +874,9 @@ Registrera / logga in (vuxen)
 | Parental Gate | **P0.1** | Barn kan inte nå vuxenytor; PG vid utpassage |
 | UI-gating + Tab bar | **P0.3 + P0.4** | Ingen PWA-text; fast bottennav med haptik |
 
-**Efter Fas A+:** Barnlogin P1 → Dashboard mockup → push → TestFlight.
+**Efter Fas A+:** Barnlogin P1 → **Push (token + leverans)** → Dashboard mockup → TestFlight.
+
+> **Varför push före dashboard:** För extern testgrupp (9B) är *"Jag fick notis när Astrid bockade av"* mer värdefullt än snyggare barnkort. Push är retention — dashboard är effektivitet.
 
 **Polsia-prompt:** [§12 — Fas A+ (The Core)](#fas-a--the-core-super-uppdrag)
 
@@ -832,10 +888,12 @@ När dessa är klara är planen mogen för **första externa testgrupp** (9B):
 |---|-----------|
 | 1 | **Fas A+ (The Core)** — P0.1–P0.4 + ios-städ auth |
 | 2 | Barnlogin P1 |
-| 3 | Dashboard mockup |
+| 3 | **Push-flöde** (token + APNs/FCM + avbockning-notis) |
 | 4 | Capacitor steg 1–2 (om ej redan) |
-| 5 | Push-flöde (token + APNs/FCM) |
-| 6 | TestFlight → 9A → 9B |
+| 5 | Dashboard mockup (kan poleras parallellt med 9A) |
+| 6 | **P0.6** Crashlytics/Sentry |
+| 7 | TestFlight → 9A → 9B |
+| 8 | **P0.5** Deep links → Steg 10 launch |
 
 ```
 ═══ Fas A+ — The Core (P0, före TestFlight) ═══
@@ -849,19 +907,23 @@ När dessa är klara är planen mogen för **första externa testgrupp** (9B):
  1. Barnlogin P1
  2. Kontohantering A–F (parallellt)
 
-═══ Fas B — Design & polish ═══
- 3. Dashboard mockup
- 4. Barnvy bottennav + swipe
- 5. Barnlogin P2, Familje-flik, onboarding mobil
+═══ Fas B — Native leverans (före design-polish) ═══
+ 3. Capacitor Steg 1–2 (om A+ kördes utan)
+ 4. Native push 4–5          ← före dashboard (retention > polish)
+ 5. P0.6 Crashlytics/Sentry ← före 9B
 
-═══ Fas C — Native build & push (före IAP) ═══
- 6. Capacitor Steg 1–2 (om A+ kördes utan)
- 7. Native push 4–5
- 8. TestFlight → 9A → 9B
+═══ Fas C — Design & polish ═══
+ 6. Dashboard mockup
+ 7. Barnvy bottennav + swipe
+ 8. Barnlogin P2, Familje-flik, onboarding mobil
 
-═══ Fas D — Efter RC / launch ═══
- 9. IAP RevenueCat UI
-10. Push Fas 1, magic link, föräldra-logg, push till barn
+═══ Fas D — Release Candidate ═══
+ 9. TestFlight → 9A → 9B
+
+═══ Fas E — Launch ═══
+10. P0.5 Deep links
+11. IAP RevenueCat UI
+12. Push Fas 1, magic link, föräldra-logg, push till barn
 ```
 
 ---
@@ -921,6 +983,42 @@ TEST (§14):
 - P0.4: tab bar fixed, safe-area, haptik
 
 Gör INTE: dashboard mockup, barnlogin redesign, IAP, RevenueCat UI
+```
+
+### P0.6 — Crash & analytics (före 9B)
+
+```
+Uppgift: P0.6 — Crashlytics/Sentry i native (före familje-beta)
+
+Läs: app2.md §4 P0.6, §14.11
+
+Gör:
+1. Välj Firebase Crashlytics ELLER Sentry (@sentry/capacitor)
+2. Integrera i iOS + Android Capacitor-projekt
+3. Koppla build-version till git commit / SW version
+4. Verifiera test-crash syns i dashboard
+5. GDPR: ingen PII i payloads; uppdatera integritetspolicy
+
+TEST (§14.11): test-crash inom 5 min; alert vid ny signatur
+Gate: måste vara grön före 9B
+```
+
+### P0.5 — Deep links (före launch)
+
+```
+Uppgift: P0.5 — Universal Links / App Links
+
+Läs: app2.md §4 P0.5, §14.10
+
+Gör:
+1. apple-app-site-association på mystarday.se (invite, pedagog-invite, confirm-email)
+2. Android assetlinks.json
+3. Capacitor Associated Domains (iOS) + intent filters (Android)
+4. @capacitor/app appUrlOpen → route till accept-invite / login+redirect
+5. Fallback: webb fungerar om app ej installerad
+
+TEST (§14.10): invite-länk öppnar app på fysisk enhet
+Gate: måste vara grön före Steg 10 (public launch)
 ```
 
 ### A — ios-städ fas 1 (ingår i Fas A+ — kör ej separat om A+ körs)
@@ -1039,8 +1137,9 @@ Gör:
 | **G0 Golden Path** | Login → onboarding → barn-PIN → första stjärna | Demo-bar för barn-test |
 | **G1 Barnläge** | PG + `device_mode` persistent (§5.2.1) | iPad glömmer inte barnläge |
 | **G2 Barnvy känsla** | Block-animation, micro-copy, haptik (§7.1) | "Känns som riktig app" |
-| **G3 Vuxen effektivitet** | Dashboard mockup + smart copy syskon | Förälder sparar tid |
-| **G4 Native shell** | Capacitor + tab bar + push | TestFlight |
+| **G3 Push & retention** | Native push token + avbockning-notis (§14.4) | "Jag fick notis när Astrid bockade" |
+| **G4 Vuxen effektivitet** | Dashboard mockup + smart copy syskon | Förälder sparar tid |
+| **G5 Native shell + observability** | Capacitor + tab bar + P0.6 crash | TestFlight → 9A |
 
 **Regel:** Avsluta en sprint vertikalt (backend + UI + test) innan nästa påbörjas.
 
@@ -1166,26 +1265,61 @@ Gör Polsia-uppdrag och QA testbara. Varje feature = checklista som måste vara 
 - [ ] `is_lifetime_free` respekteras i `subscription.js` (ingen 402)
 - [ ] Android native: **ingen** Apple-knapp (`Platform.isAppleSignInAvailable()`)
 
-### 14.9 Dashboard mockup (P1 — efter Fas A+)
+### 14.9 Dashboard mockup (P1 — efter push)
 
 - [ ] Horisontella barnkort med Idag X/Y + totalt ⭐
 - [ ] Quick Actions fungerar (extra stjärna, ledig dag)
 - [ ] IDAG-lista med NU/NÄSTA
 - [ ] Desktop: sidomeny; mobil webb: hamburger; native: tab bar (§14.6)
 
+### 14.10 Deep links & URL (P0.5)
+
+- [ ] `https://mystarday.se/invite/{token}` öppnar **native app** om installerad (iOS + Android)
+- [ ] `https://mystarday.se/pedagog-invite/{token}` samma beteende
+- [ ] Ej installerad → webbläsare (befintligt flöde)
+- [ ] Inloggad användare → acceptera invite direkt
+- [ ] Ej inloggad → login/register → redirect till invite
+- [ ] `apple-app-site-association` + Android `assetlinks.json` deployade
+- [ ] Capacitor `appUrlOpen` hanterar inkommande URL utan dubbel-navigation
+- [ ] (Framtid) Push-tapp med deep link route:ar till rätt barn/vy
+
+### 14.11 Crash & analytics (P0.6)
+
+- [ ] Crashlytics **eller** Sentry SDK i iOS + Android native builds
+- [ ] Test-crash syns i dashboard inom 5 min
+- [ ] Build-version + commit synlig per crash
+- [ ] Ingen barn-PIN, e-post eller namn i crash payload
+- [ ] Integritetspolicy nämner anonymiserad crash-rapportering
+- [ ] Minst en alert vid ny crash-signatur under 9B
+
 ---
 
 ## 15. Beredskapsbedömning
 
-| Dimension | Idag | Efter Fas A+ + B | Mål launch |
-|-----------|------|-----------------|------------|
-| Produktvision | 9/10 | 9/10 | 9/10 |
-| Designriktning | 9/10 | 9/10 | 9/10 |
-| Datamodell | 8.5/10 | 8.5/10 | 9/10 |
-| Native-beredskap | ~6/10 | ~8/10 | 9/10 |
-| App Store-beredskap | ~5/10 | ~8.5/10 | 9/10 |
+| Dimension | Idag | Efter Fas A+ + push + 9B | Mål launch |
+|-----------|------|--------------------------|------------|
+| Produktvision | 9.5/10 | 9.5/10 | 9.5/10 |
+| Informationsarkitektur | 9/10 | 9/10 | 9/10 |
+| Behörighetsmodell | 9/10 | 9/10 | 9/10 |
+| Barnupplevelse | 8.5/10 | 8.5/10 | 9/10 |
+| Native-strategi | 8.5/10 | 8.5/10 | 9/10 |
+| App Store-strategi | 9/10 | 9/10 | 9/10 |
+| Releaseplan | 9/10 | 9/10 | 9/10 |
+| App Store-beredskap | ~5/10 | **~8.5–9/10** (om P0.1–P0.4 + §14 gröna) | 9/10 |
 
-**Kritisk väg (sammanfattning):** **Fas A+ (The Core)** → Barnlogin P1 → Dashboard mockup → Capacitor 1–2 (om ej i A+) → push → TestFlight → **9A/9B RC** → release.
+**Kritisk väg (sammanfattning):**
+
+```
+Fas A+ (The Core)
+  → Barnlogin P1
+  → Push (token + leverans)
+  → Dashboard mockup
+  → P0.6 Crash
+  → 9A QA
+  → 9B familjer
+  → P0.5 Deep links
+  → Launch
+```
 
 IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första externa testgrupp.
 
@@ -1203,7 +1337,9 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 | Offline | `public/js/offline-queue.js` |
 | Push | `src/lib/push-reminder-scheduler.js`, `public/js/push-manager.js` |
 | Onboarding | `public/js/onboarding.js`, `public/onboarding.html` |
-| Native nav | `public/js/mobile-nav.js` (+ planerad `native-tab-bar.js`) |
+| Native nav | `public/js/mobile-nav.js`, planerad `native-tab-bar.js` |
+| Deep links | `capacitor.config.ts`, `@capacitor/app`, `public/.well-known/` |
+| Crash | Firebase Crashlytics eller Sentry (native SDK) |
 
 ---
 
@@ -1211,6 +1347,7 @@ IAP/RevenueCat UI medvetet **efter** RC — inte på kritisk väg till första e
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | P0.5 deep links, P0.6 crash, push före dashboard, §15 revision |
 | 2026-05-28 | P0.1–P0.4 blocker-lista, Fas A+ (The Core), §14.6–14.9, 9A/9B RC |
 | 2026-06-01 | P0 PG, RC 9A/9B, §14 acceptans, §15 beredskap, push före IAP |
 | 2026-05-31 | §5.2.1 device_mode, §5.3–5.7, §7.1 feedback, §13 strategi |
