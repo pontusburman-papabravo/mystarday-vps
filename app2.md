@@ -1,7 +1,10 @@
 # Min Stjärndag — app2.md (masterplan)
 
 **Skapad:** 2026-05-31  
+**Senast uppdaterad:** 2026-05-28  
 **Syfte:** **Ett dokument** som samlar produktkrav, ny design, plattformsregler, vad som **redan finns**, vad som **behöver städas**, och vägen till **iPhone-app**, **Android-app**, **mobil webbläsare** och **desktop webbläsare**.
+
+**Snabbstart:** [§12 Fas A+ (The Core)](#fas-a--the-core-super-uppdrag) · [§18 Native & App Store 6→10](#18-native--app-store--väg-610) · [§16 Launch 10/10](#16-launch-beredskap-1010) · [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature)
 
 **Produktion:** https://mystarday.se · https://stjarndag.polsia.app  
 **Stack:** Node.js 20, Express, Neon PostgreSQL, Tailwind, PWA + Capacitor (remote WebView)
