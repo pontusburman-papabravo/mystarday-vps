@@ -1,13 +1,13 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.2  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.3  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 
 **Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` är endast Android-tillägg — se [`android.md`](../android.md) § Styrning.
 
 ---
 
-## Körordning (25 tasks — 15 gemensam + Gate 0 + 9 Android)
+## Körordning (26 tasks — 15 gemensam + Gate 0 + 9 Android + Gate 24)
 
 ### Del A — Gemensam native (iOS + Android WebView)
 
@@ -50,10 +50,13 @@
 | 23 | 21 Android PG-härdning (back, switcher…) | P0.1 | 2–3 |
 | 24 | 22 Deep Links (före 9B) | P0.5 | 2–3 |
 | 25 | 23 Android smoke gate | RC | 2 |
+| 26 | **24** Gate 24 — Native parity verification | Parity | 1–2 |
 
-**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig platta) ‖ **Gate 0** → sprint 16–23 → **22** → **9B** → **SSE** → **barn-wow** → **20 familjer × 4–6 v**.
+**Blockerar 9B** tills Gate 24 (pos 26) är grön. Sprint 23 ≈ 8,5–9/10 release readiness — inte 9B utan parity.
 
-**Ändring v1.2:** Gate 0 före 16; fältstudie **efter** SSE+wow. Se [`android.md`](../android.md) v1.2.
+**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig platta) ‖ **Gate 0** → 16–23 → **Gate 24** → **9B** → **SSE** → **barn-wow** → **20 familjer × 4–6 v**.
+
+**Ändring v1.3:** Gate 24 före 9B. Se [`android.md`](../android.md) v1.3.
 
 ---
 
@@ -492,10 +495,11 @@ Android-specifik (sprint 16–23):
 □ Sprint 22: Push-tap → deep link → rätt route
 □ 9A: minst en FYSISK låg/mellanpris-platta (Lenovo Tab, Samsung A…) — inte bara Pixel-flaggskepp
 
-→ Då: Play Internal + 9B tillåten på Android
+→ Då: Play Internal tillåten (teknisk RC)
+→ 9B först efter Gate 24 (pos 26) grön
 ```
 
-Full spec: [`android.md`](../android.md) Release-gate.
+Full spec: [`android.md`](../android.md) Release-gate + Gate 24.
 
 ---
 
@@ -756,7 +760,36 @@ TEST:
 □ Alla rader android.md Release-gate ✅
 □ Enhet = låg/mellansegment (inte endast emulator/flaggskepp)
 
-Release-gate: Android redo → Play Internal tillåten
+Release-gate: Android release readiness (~8,5–9/10) — Gate 24 krävs för 9B
+```
+
+---
+
+## GATE 24 — Native parity verification
+
+```
+Uppgift: Gate 24 — Native parity verification (före 9B)
+
+Läs: android.md § Gate 24, app2 §9B, ios-städ Release-gate
+
+Gör endast:
+1. Revisionslista — signera ✅ per rad på BÅDE iPhone OCH Android (billig platta):
+   - Feature-paritet (schema, belöningar, barnvy, inställningar)
+   - Onboarding (samma slutläge; Apple iOS / Google Android)
+   - Push (token, test-notis, tap → samma route)
+   - PG / device_mode (barnläge, PIN, back/switcher)
+   - Child mode (barnlogin, avbockning, stjärnor)
+   - Analytics (samma event-typer vid samma åtgärder)
+2. Dokumentera avvikelser i kommentar — fixa ENDAST parity-buggar (ingen ny feature)
+3. Parity-matris: modell iOS + modell Android per rad
+
+Gör INTE: ny funktionalitet, SSE, barn-wow, Play upload, fältstudie
+
+TEST:
+□ 6/6 områden ✅ på båda plattformar ELLER dokumenterad fix + re-test
+□ Inga kända "fungerar bara på iPhone"-blockers kvar
+
+Release-gate: 9B tillåten (iOS + Android testfamiljer)
 ```
 
 ---
@@ -765,6 +798,7 @@ Release-gate: Android redo → Play Internal tillåten
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | v1.3: Gate 24 iOS↔Android parity före 9B; blockerar testfamiljer |
 | 2026-05-28 | v1.2: Sprint 0 Gate 0 före 16; makro SSE/wow före fältstudie |
 | 2026-05-28 | v1.1: 20.5 observability, 21 PG, 22 deep links före 9B, 23 smoke; app2-styrning |
 | 2026-05-28 | Sprint 16–21 Android + android.md; Release-gate Android |
