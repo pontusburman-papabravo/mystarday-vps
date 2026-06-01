@@ -79,7 +79,9 @@ Layer 5 — Product Reality
 
 **Efter 25:** Dashboard polish **#2143405** → 9A → 9B → SSE → barn-wow → Gate 25
 
-**Raw:** https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md
+**Polsia Release OS (kanon — 25 sprintfiler + tester):** [`docs/polsia-release-os/README.md`](polsia-release-os/README.md)
+
+**Raw:** https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/README.md
 
 ---
 
@@ -979,6 +981,7 @@ Release-gate: "Min Stjärndag är 10/10" — först efter Gate 25 grön
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | RELEASE OS: 25 tasks; #2143329 Gate 24 + parity-manifest; 23A/23B; Sprint 14 #2143272 |
 | 2026-05-28 | FULL KÖ 27 tasks + Polsia IDs; Sprint 4 en task; 22a/22b; P0.6+#2142922; Dashboard #2143015 |
 | 2026-05-28 | v1.4: Gate 25 Family Delight (10/10 fält); ej Android-specifik |
 | 2026-05-28 | v1.3: Gate 24 iOS↔Android parity före 9B; blockerar testfamiljer |

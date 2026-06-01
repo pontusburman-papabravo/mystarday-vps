@@ -76,8 +76,10 @@ Familjeapp (svenska): scheman, stjärnor, belöningar (Skattkammaren), föräldr
 | **Barnlogin redesign (Polsia-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-barnlogin-design.md |
 | **Barnlogin mockup (PNG)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/mockups/barnlogin-3-skarmar.png |
 | Denna handoff | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-ai-handoff.md |
-| **Sprint-kö / RELEASE OS (25 tasks)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md |
-| **Parity Manifest (SPOT)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/parity-manifest.md |
+| **Release OS (Polsia kör härifrån)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/README.md |
+| **Polsia startprompt** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/POLSIA_START_PROMPT.md |
+| **Sprint-kö (översikt)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md |
+| **Parity Manifest (SPOT)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/parity-manifest.md |
 | Sprint-kö raw | https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md |
 
 ### Mappar (tree-länkar)
