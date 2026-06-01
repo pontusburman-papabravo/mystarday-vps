@@ -22,6 +22,7 @@ Uppgift: Dashboard polish — skeletons · transitions · polish
 
 Polsia: #2143405
 Läs: app2 (dashboard efter push), ej ny scope utan polish
+Design: docs/mockups/DESIGN-dashboard-reimagined.md, DESIGN-dashboard-vuxen-barn.md, foraldra.html, barnvy.html
 
 Gör endast:
 1. Dashboard: loading skeletons där det saknas

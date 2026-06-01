@@ -75,6 +75,9 @@ Familjeapp (svenska): scheman, stjärnor, belöningar (Skattkammaren), föräldr
 | **Plattform webb/iOS/Android (produkt-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/platform-architecture-freeze-1a8b/docs/plattform-webb-ios-android.md |
 | **Barnlogin redesign (Polsia-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-barnlogin-design.md |
 | **Barnlogin mockup (PNG)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/mockups/barnlogin-3-skarmar.png |
+| **Dashboard design (index)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/mockups/README.md |
+| **Dashboard REIMAGINED spec** | …/docs/mockups/DESIGN-dashboard-reimagined.md |
+| **Dashboard Vuxen/Barn spec** | …/docs/mockups/DESIGN-dashboard-vuxen-barn.md |
 | Denna handoff | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-ai-handoff.md |
 | **Release OS (Polsia kör härifrån)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/README.md |
 | **Polsia startprompt** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/POLSIA_START_PROMPT.md |

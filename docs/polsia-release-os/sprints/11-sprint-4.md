@@ -19,6 +19,7 @@
 Uppgift: Sprint 4 — Native tab bar vuxen (P0.4) — #2141717
 
 Läs: app2.md §4 P0.4, §14.6, ios-städ Uppdrag E
+Design: docs/mockups/DESIGN-dashboard-reimagined.md (5 flikar förälder, 3 flikar barn)
 
 Gör endast:
 1. public/js/native-tab-bar.js — ENDAST Platform.isNative(); 5 flikar (Hem/Schema/Bibliotek/Familj/Inställningar)
