@@ -230,6 +230,27 @@ function restoreParentSession(req, res, next) {
   next();
 }
 
+/**
+ * When a valid child JWT is in the cookie but the caller hits a parent API,
+ * restore req.user from stjarndag_parent_session for this request only.
+ * Used by childParentApiBlock (runs before route-level requireParent).
+ */
+function restoreParentUserFromCookie(req) {
+  const saved = req.cookies?.stjarndag_parent_session;
+  if (!saved) return false;
+
+  try {
+    const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
+    if (!session?.access_token) return false;
+    const decoded = verifyToken(session.access_token);
+    if (decoded.type !== 'parent') return false;
+    req.user = decoded;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 module.exports = {
   requireAuth,
   requireParent,
@@ -239,4 +260,5 @@ module.exports = {
   verifyToken,
   extractToken,
   restoreParentSession,
+  restoreParentUserFromCookie,
 };

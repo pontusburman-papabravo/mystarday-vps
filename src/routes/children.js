@@ -2,7 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const db = require('../lib/db');
 const { hashPassword, pinFingerprint } = require('../lib/hash');
-const { requireParent } = require('../middleware/auth');
+const { requireAuth, requireParent } = require('../middleware/auth');
 const { requireNotPedagogOnly } = require('../middleware/authz');
 const { validate, validateParams } = require('../middleware/validate');
 const {
@@ -14,11 +14,45 @@ const {
   UUIDParam,
 } = require('../lib/schemas');
 const pinLockout = require('../../db/pin-lockout');
+const { getChildrenForParent } = require('../../db/parent-access');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 
 const router = express.Router();
 
-// All routes require parent auth + pedagogen-only guard (family-level resource)
+// ─── GET /api/children/:id/view-config (parent OR child self) ──
+router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (req, res) => {
+  try {
+    if (req.user.type === 'child') {
+      if (req.user.id !== req.params.id) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    } else {
+      const access = await db.query(
+        `SELECT role FROM parent_child
+         WHERE parent_id = $1 AND child_id = $2 AND revoked_at IS NULL`,
+        [req.user.id, req.params.id]
+      );
+      if (access.rows.length === 0) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    }
+
+    const result = await db.query(
+      'SELECT child_view_config FROM child WHERE id = $1',
+      [req.params.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Barnet hittades inte' });
+    }
+
+    res.json(result.rows[0].child_view_config);
+  } catch (err) {
+    console.error('[VIEW-CONFIG] GET error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// All other routes require parent auth + pedagogen-only guard
 router.use(requireParent);
 router.use(requireNotPedagogOnly);
 
@@ -82,57 +116,38 @@ function validatePin(pin) {
   return null;
 }
 
+function toChildListResponse(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    emoji: row.emoji,
+    birthday: row.birthday,
+    timezone: row.timezone,
+    view_mode: row.view_mode,
+    allow_child_reorder: row.allow_child_reorder,
+    show_now_next: row.show_now_next,
+    show_mood_rating: row.show_mood_rating,
+    hide_clock: row.hide_clock,
+    lock_schedule: row.lock_schedule,
+    dopamin_animation: row.dopamin_animation,
+    visual_timer: row.visual_timer,
+    time_adjustment: row.time_adjustment,
+    color_coding: row.color_coding,
+    view_type: row.view_type,
+    username: row.username,
+    avatar_url: row.avatar_url,
+    created_at: row.created_at,
+    role: row.role,
+  };
+}
+
 // ─── GET /api/children ──────────────────────────────────
 router.get('/', async (req, res) => {
   try {
-    const result = await db.query(
-      `SELECT c.id, c.name, c.emoji, c.birthday, c.timezone, c.view_mode,
-              c.allow_child_reorder, c.show_now_next, c.show_mood_rating,
-              c.hide_clock, c.lock_schedule,
-              c.dopamin_animation, c.visual_timer,
-              c.time_adjustment, c.color_coding,
-              c.view_type,
-              c.username, c.avatar_url, c.created_at, pc.role
-       FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1
-       ORDER BY c.sort_order ASC, c.created_at ASC`,
-      [req.user.id]
-    );
-
-    res.json(result.rows);
+    const rows = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
+    res.json(rows.map(toChildListResponse));
   } catch (err) {
     console.error('[CHILDREN] List error for parent', req.user.id, ':', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
-  }
-});
-
-// ─── GET /api/children/:id/view-config ─────────────────────
-router.get('/:id/view-config', validateParams(UUIDParam), async (req, res) => {
-  try {
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      console.warn('[VIEW-CONFIG] GET denied — no access for parent', req.user.id, 'child', req.params.id);
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
-
-    const result = await db.query(
-      'SELECT child_view_config FROM child WHERE id = $1',
-      [req.params.id]
-    );
-    if (result.rows.length === 0) {
-      console.warn('[VIEW-CONFIG] GET child not found:', req.params.id);
-      return res.status(404).json({ error: 'Barnet hittades inte' });
-    }
-
-    const cfg = result.rows[0].child_view_config;
-    console.log('[VIEW-CONFIG] GET returned for child', req.params.id, ':', JSON.stringify(cfg));
-    res.json(cfg);
-  } catch (err) {
-    console.error('[VIEW-CONFIG] GET error:', err.message, err.stack);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

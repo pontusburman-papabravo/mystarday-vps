@@ -2,6 +2,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const jwt = require('jsonwebtoken');
+const config = require('../src/lib/config');
 const { childParentApiBlock } = require('../src/middleware/child-parent-api-block');
 const { injectPlatformHtml } = require('../src/middleware/platform-html');
 
@@ -32,6 +34,32 @@ test('childParentApiBlock blocks /family for child JWT', () => {
   childParentApiBlock(req, res, () => { nextCalled = true; });
   assert.equal(nextCalled, false);
   assert.equal(statusCode, 403);
+});
+
+test('childParentApiBlock restores parent session for GET /children', () => {
+  const parentToken = jwt.sign(
+    { type: 'parent', id: 'p1', familyId: 'f1' },
+    config.jwt.secret,
+    { expiresIn: '1h' }
+  );
+  const session = Buffer.from(JSON.stringify({
+    access_token: parentToken,
+    refresh_token: 'rt',
+  }), 'utf8').toString('base64');
+
+  let called = false;
+  const req = {
+    user: { type: 'child', id: 'c1' },
+    path: '/children',
+    cookies: { stjarndag_parent_session: session },
+  };
+  const res = { status() { return res; }, json() {} };
+  childParentApiBlock(req, res, () => {
+    called = true;
+    assert.equal(req.user.type, 'parent');
+    assert.equal(req.user.id, 'p1');
+  });
+  assert.equal(called, true);
 });
 
 test('childParentApiBlock denies unknown child routes by default', () => {

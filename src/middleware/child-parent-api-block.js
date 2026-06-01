@@ -1,6 +1,10 @@
 /**
  * Sprint 3c — Barn-JWT: deny-by-default; endast explicit tillåtna vuxen/barn-API.
+ * Om barn-cookie är aktiv men förälder sparade session finns, återställ förälder
+ * för vuxen-API (t.ex. GET /api/children) så daglig logg/dashboard fungerar.
  */
+const { restoreParentUserFromCookie } = require('./auth');
+
 const CHILD_ALLOWED = [
   /^\/me(\/|$)/,
   /^\/auth(\/|$)/,
@@ -13,6 +17,7 @@ const CHILD_ALLOWED = [
   /^\/features(\/|$)/,
   /^\/family\/verify-pin$/,
   /^\/family\/restore-parent-session$/,
+  /^\/children\/[^/]+\/view-config$/,
 ];
 
 function childParentApiBlock(req, res, next) {
@@ -22,6 +27,8 @@ function childParentApiBlock(req, res, next) {
   for (let i = 0; i < CHILD_ALLOWED.length; i++) {
     if (CHILD_ALLOWED[i].test(subPath)) return next();
   }
+
+  if (restoreParentUserFromCookie(req)) return next();
 
   return res.status(403).json({
     error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
