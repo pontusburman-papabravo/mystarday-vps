@@ -7,9 +7,14 @@
 
 ---
 
+## Git-push
+
+**Polsia behöver INTE pusha.** Källkod: `https://github.com/pontusburman-papabravo/MyStarday-Polsia` branch `main`.  
+Se [`POLSIA_DEPLOY_UTAN_GIT_PUSH.md`](POLSIA_DEPLOY_UTAN_GIT_PUSH.md).
+
 ## Scope (EN uppgift)
 
-1. Deploy `main` till Render (full repo sync — inte cherry-pick)
+1. Deploy `main` från MyStarday-Polsia till Render (clone/rsync/rebuild — inte cherry-pick, ingen git push krävs)
 2. Kör på server efter deploy:
    ```bash
    npm run migrate
