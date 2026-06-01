@@ -1,67 +1,90 @@
 /**
- * platform-html.js — middleware that injects platform-theme.js and platform-native.css
- * into all HTML responses served by Express (res.send / res.sendFile).
- *
- * Injects after <head>:
- *   <script src="/js/platform-theme.js?v=1.0.0"></script>
- *   <link rel="stylesheet" href="/css/platform-native.css?v=1.0.0">
- *
- * Injects before </body>:
- *   <script src="/js/platform-tab-bar.js?v=1.0.0" defer></script>
- *
- * Idempotent: skips if platform-theme.js is already present in the response.
+ * platform-html.js — injects Release OS scripts into HTML (res.send + res.sendFile).
+ * Idempotent when device-mode.js is already present.
  */
+const fs = require('fs');
+const path = require('path');
+
+const RELEASE_TAG = '2026-05-29-release-os';
+
+function injectPlatformHtml(body) {
+  if (typeof body !== 'string') return body;
+  if (body.includes('device-mode.js')) return body;
+
+  var headMarker = '<head>';
+  var tailMarker = '</body>';
+
+  var headParts = [];
+  if (!body.includes('/js/platform.js')) {
+    headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
+  }
+  headParts.push(
+    '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.1">',
+    '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">'
+  );
+  var headInject = headParts.join('\n') + '\n';
+
+  var bodyInject =
+    '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n';
+
+  var headIdx = body.indexOf(headMarker);
+  if (headIdx !== -1) {
+    body = body.slice(0, headIdx + headMarker.length) + '\n' + headInject + body.slice(headIdx + headMarker.length);
+  }
+
+  var tailIdx = body.lastIndexOf(tailMarker);
+  if (tailIdx !== -1) {
+    body = body.slice(0, tailIdx) + bodyInject + body.slice(tailIdx);
+  }
+
+  return body;
+}
 
 function platformHtmlInject(req, res, next) {
-  // Wrap res.send
   var originalSend = res.send;
   res.send = function (body) {
-    if (res.get('Content-Type') && res.get('Content-Type').includes('text/html') && typeof body === 'string') {
-      // Idempotent: skip if already injected
-      if (body.includes('platform-theme.js')) {
-        return originalSend.call(this, body);
-      }
-
-      var headMarker = '<head>';
-      var tailMarker = '</body>';
-
-      var headInject =
-        '<script src="/js/platform.js?v=2026-05-29-release-os"><\/script>\n' +
-        '<script src="/js/device-mode.js?v=2026-05-29-release-os"><\/script>\n' +
-        '<script src="/js/session-gate.js?v=2026-05-29-release-os"><\/script>\n' +
-        '<script src="/js/platform-theme.js?v=2026-05-29-release-os"><\/script>\n' +
-        '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.1">\n' +
-        '<link rel="stylesheet" href="/css/platform-gating.css?v=2026-05-29-release-os">';
-
-      var bodyInject =
-        '<script src="/js/crash-reporter.js?v=2026-05-29-release-os" defer><\/script>\n' +
-        '<script src="/js/deep-link-router.js?v=2026-05-29-release-os" defer><\/script>\n' +
-        '<script src="/js/parental-gate.js?v=2026-05-29-release-os" defer><\/script>\n' +
-        '<script src="/js/native-tab-bar.js?v=2026-05-29-release-os" defer><\/script>';
-
-      // Inject after <head>
-      var headIdx = body.indexOf(headMarker);
-      if (headIdx !== -1) {
-        body = body.slice(0, headIdx + headMarker.length) + '\n' + headInject + body.slice(headIdx + headMarker.length);
-      }
-
-      // Inject before </body>
-      var tailIdx = body.lastIndexOf(tailMarker);
-      if (tailIdx !== -1) {
-        body = body.slice(0, tailIdx) + bodyInject + '\n' + body.slice(tailIdx);
+    var ct = res.get('Content-Type') || '';
+    if ((ct.includes('text/html') || (typeof body === 'string' && body.trim().startsWith('<!'))) && typeof body === 'string') {
+      body = injectPlatformHtml(body);
+      if (!ct.includes('text/html')) {
+        res.type('html');
       }
     }
     return originalSend.call(this, body);
   };
 
-  // Wrap res.sendFile (Express 4.x)
   var originalSendFile = res.sendFile;
   res.sendFile = function (filePath, options, callback) {
-    var _this = this;
-    originalSendFile.call(this, filePath, options, function (err) {
-      // After sendFile, try to inject via res.send override (same Content-Type check)
-      // Note: sendFile already fired — middleware below handles HTML responses on next request
-      if (callback) callback.apply(_this, arguments);
+    var opts = options;
+    var cb = callback;
+    if (typeof opts === 'function') {
+      cb = opts;
+      opts = {};
+    }
+    opts = opts || {};
+
+    var file = typeof filePath === 'string' ? filePath : String(filePath);
+    var ext = path.extname(file).toLowerCase();
+    if (ext !== '.html' && ext !== '.htm') {
+      return originalSendFile.call(this, filePath, opts, cb);
+    }
+
+    var resolved = path.isAbsolute(file) ? file : path.resolve(opts.root || process.cwd(), file);
+    var self = this;
+
+    fs.readFile(resolved, 'utf8', function (err, html) {
+      if (err) {
+        return originalSendFile.call(self, filePath, opts, cb);
+      }
+      self.type('html');
+      self.send(injectPlatformHtml(html));
+      if (cb) cb(null);
     });
   };
 
@@ -69,3 +92,4 @@ function platformHtmlInject(req, res, next) {
 }
 
 module.exports = platformHtmlInject;
+module.exports.injectPlatformHtml = injectPlatformHtml;

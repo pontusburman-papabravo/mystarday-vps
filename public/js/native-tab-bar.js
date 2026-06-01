@@ -71,7 +71,7 @@
         if (cfg && cfg.nativeTabbarEnabled === false) return;
         mount();
       })
-      .catch(function () { mount(); });
+      .catch(function () { /* fail closed — no tab bar until app-config is available */ });
   }
 
   if (document.readyState === 'loading') {

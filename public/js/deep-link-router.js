@@ -65,15 +65,33 @@
     return navigate(normalized);
   }
 
+  function getAppPlugin() {
+    if (typeof Capacitor === 'undefined') return null;
+    if (Capacitor.Plugins && Capacitor.Plugins.App) return Capacitor.Plugins.App;
+    if (typeof Capacitor.getPlugin === 'function') {
+      try {
+        return Capacitor.getPlugin('App');
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
   function initNativeAppListener() {
     if (typeof Platform === 'undefined' || !Platform.isNative || !Platform.isNative()) return;
-    if (typeof Capacitor === 'undefined' || !Capacitor.Plugins || !Capacitor.Plugins.App) return;
-    Capacitor.Plugins.App.addListener('appUrlOpen', function (event) {
-      if (event && event.url) handleUrl(event.url);
-    }).catch(function () {});
-    Capacitor.Plugins.App.getLaunchUrl().then(function (ret) {
-      if (ret && ret.url) handleUrl(ret.url);
-    }).catch(function () {});
+    var App = getAppPlugin();
+    if (!App) return;
+    if (typeof App.addListener === 'function') {
+      App.addListener('appUrlOpen', function (event) {
+        if (event && event.url) handleUrl(event.url);
+      }).catch(function () {});
+    }
+    if (typeof App.getLaunchUrl === 'function') {
+      App.getLaunchUrl().then(function (ret) {
+        if (ret && ret.url) handleUrl(ret.url);
+      }).catch(function () {});
+    }
   }
 
   /** Push notification tap — call from push-manager / native bridge. */

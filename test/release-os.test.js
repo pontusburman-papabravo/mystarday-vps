@@ -3,10 +3,19 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { childParentApiBlock } = require('../src/middleware/child-parent-api-block');
+const { injectPlatformHtml } = require('../src/middleware/platform-html');
 
 test('childParentApiBlock allows /me for child JWT', () => {
   let called = false;
   const req = { user: { type: 'child', id: 'c1' }, path: '/me/rewards' };
+  const res = { status() { return res; }, json() {} };
+  childParentApiBlock(req, res, () => { called = true; });
+  assert.equal(called, true);
+});
+
+test('childParentApiBlock allows verify-pin for child JWT', () => {
+  let called = false;
+  const req = { user: { type: 'child', id: 'c1' }, path: '/family/verify-pin' };
   const res = { status() { return res; }, json() {} };
   childParentApiBlock(req, res, () => { called = true; });
   assert.equal(called, true);
@@ -25,10 +34,36 @@ test('childParentApiBlock blocks /family for child JWT', () => {
   assert.equal(statusCode, 403);
 });
 
+test('childParentApiBlock denies unknown child routes by default', () => {
+  let statusCode;
+  const req = { user: { type: 'child', id: 'c1' }, path: '/messages/inbox' };
+  const res = {
+    status(code) { statusCode = code; return res; },
+    json() {},
+  };
+  childParentApiBlock(req, res, () => {});
+  assert.equal(statusCode, 403);
+});
+
 test('childParentApiBlock passes parent through', () => {
   let called = false;
   const req = { user: { type: 'parent', id: 'p1' }, path: '/family/members' };
   const res = { status() { return res; }, json() {} };
   childParentApiBlock(req, res, () => { called = true; });
   assert.equal(called, true);
+});
+
+test('injectPlatformHtml adds device-mode and skips duplicate platform.js', () => {
+  const html = '<!DOCTYPE html><html><head><script src="/js/platform.js"></script></head><body></body></html>';
+  const out = injectPlatformHtml(html);
+  assert.match(out, /device-mode\.js/);
+  assert.match(out, /native-tab-bar\.js/);
+  const platformCount = (out.match(/\/js\/platform\.js/g) || []).length;
+  assert.equal(platformCount, 1);
+});
+
+test('injectPlatformHtml is idempotent', () => {
+  const once = injectPlatformHtml('<html><head></head><body></body></html>');
+  const twice = injectPlatformHtml(once);
+  assert.equal(once, twice);
 });
