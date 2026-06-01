@@ -1,8 +1,8 @@
 # Min Stjärndag — android.md (Android native)
 
-## Version 1.3
+## Version 1.4
 
-**Skapad:** 2026-05-28 · **Dokumentversion:** `1.3`
+**Skapad:** 2026-05-28 · **Dokumentversion:** `1.4`
 
 ---
 
@@ -18,6 +18,7 @@
 | **Gate 0** | Native parity freeze — **före** sprint 16 (se nedan) |
 | **Android-spår** | Sprint **16–23** = Android-specifika luckor ovanpå den gemensamma basen |
 | **Gate 24** | Native parity verification — **efter** sprint 23, **före** 9B (revisionslista, ingen ny kod) |
+| **Gate 25** | Family Delight Verification — **efter** SSE + barn-wow; **verifierad 10/10** (app2 §16.6, ej Android-specifik) |
 
 Utan denna ordning riskerar Android-planen att leva sitt eget liv.
 
@@ -32,21 +33,22 @@ Utan denna ordning riskerar Android-planen att leva sitt eget liv.
 | **Gemensam produktutveckling** | 1–15 | `app2.md` + `ios-städ.md` |
 | **Arkitektur-gate** | **0** (Gate 0) | `ios-städ.md` Arkitekturregel + detta avsnitt |
 | **Android-specifika luckor** | 16–23 | `android.md` (detta dokument) |
-| **Parity-gate** | **24** (Gate 24) | iOS ↔ Android revisionslista före testfamiljer |
+| **Parity-gate** | **24** | iOS ↔ Android före 9B |
+| **Produkt-gate** | **25** | Fält + retention — **endast här** är 10/10 verifierad |
 
 Sprint **1–15** bygger **samma kod** för `Platform.isNative()`. Android är **inte** Play-klar när bara iOS/TestFlight är grön.
 
-**Beredskapsnivåer (inte samma som 10/10 produkt):**
+**Beredskapsnivåer (produkt, inte bara Android):**
 
 | Steg | Nivå | Vad det betyder |
 |------|------|-----------------|
-| Sprint **23** | ~**8,5–9/10** | **Release readiness** — Google, push, deep links, PG Android, crash |
-| **Gate 24** | Parity signerad | Samma produktbeteende iOS ↔ Android — fångar *"fungerar på iPhone men inte Android"* |
-| Live-synk (efter 9B) | ~**9,5** | Vuxen-wow, schema synkas |
-| Barn-wow | ~**9,5–10** | Formellt app2-krav per session |
-| **20 familjer × 4–6 v** | **Verklig 10/10** | Fältvalidering — inte bara att tekniken startar |
+| Sprint **23** | ~**8,5–9/10** | Release readiness — login, push, links, crash |
+| **Gate 24** | ~**9/10** | iOS == Android — samma onboarding, PG, push, barnläge, analytics |
+| **Live-synk (SSE)** | ~**9,5/10** | Eliminerar *"jag måste uppdatera"* (app2 §16.4) |
+| **Barn-wow** | ~**9,5–10/10** | Känslomässig återkomst — minst en wow/session (§16.5) |
+| **Gate 25** | **Verifierad 10/10** | 20 familjer × 4–6 veckor — produkten **älskas**, inte bara startar |
 
-Google login + push + deep links = **release readiness**, inte produkt-10/10. Se [§ Vad saknas för 10/10](#vad-saknas-för-1010-enligt-app2).
+**"Färdig app" → "älskad produkt":** Inget som återstår för 10/10 är Android-specifikt. Se [§ Vad saknas för 10/10](#vad-saknas-för-1010-enligt-app2).
 
 ---
 
@@ -79,10 +81,12 @@ Live-synk (SSE)            ← app2 §16.4 — första version före lång fält
     ↓
 Barn-wow-polish            ← app2 §16.5 — minst en wow/session
     ↓
-20 familjer × 4–6 veckor   ← app2 §16.6 — mät produkten som ska bli 10/10
+Gate 25                    ← Family Delight Verification (20 familjer × 4–6 v)
 ```
 
-**Varför SSE/wow före fält:** Annars blir feedback *"man måste uppdatera"* / *"det känns statiskt"* — saker ni redan planerar att lösa. Fältstudien ska validera **nästan-10/10**, inte MVP-gap.
+**Varför SSE/wow före Gate 25:** Familjer ska testa nästan-slutprodukten — inte MVP-gap ni redan ska bygga.
+
+**Gate 25:** Ingen intern QA, TestFlight eller Android-smoke ersätter **20 familjer som använder appen varje dag**.
 
 **Skillnad 8,5 → 10:** robusthet, synk, push, barnläge och **verklig användning** — inte fler skärmar.
 
@@ -335,7 +339,36 @@ Polsia: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.m
 
 ---
 
-### Google Play (efter 9A + Gate 24 + 9B)
+## Gate 25 — Family Delight Verification (verifierad 10/10)
+
+**Efter live-synk (SSE) och barn-wow.** **Ej Android-specifik** — gäller hela produkten (`app2.md` §16.6). Ingen ny feature-kod i denna gate; **mätning och sign-off**.
+
+**Först här** kan ni på allvar säga: *"Min Stjärndag är 10/10."*
+
+| Krav | Detalj |
+|------|--------|
+| **20 familjer** | Verkliga hushåll, inte intern QA |
+| **4–6 veckor** | Kontinuerlig vardagsanvändning |
+| **Retention** | Mäts och dokumenteras (vecka 1 → 4/6) |
+| **Barn** | Använder appen **frivilligt** flera gånger per vecka |
+| **Föräldrar** | Behöver **inte** löpande support för PG/login/push/sync |
+| **Blockerare** | Inga återkommande blockerande PG-, push- eller sync-problem |
+
+**Effekt av föregående (ej Android):**
+
+| Område | Effekt |
+|--------|--------|
+| Live-synk (SSE/WebSocket) | Eliminerar *"jag måste uppdatera"* |
+| Barn-wow | Skapar känslomässig återkomst |
+| Gate 25 (fält) | Bevisar att produkten fungerar i verkligheten |
+
+**Signering:** Gate 25-rapport (antal familjer, retention, citat, kända kvarvarande P2/P3) — godkänd av produktägare.
+
+**Det som inte räcker:** Sprint 23, Gate 24, 9A, 9B, TestFlight, Play Internal, Android smoke.
+
+---
+
+### Google Play (efter 9A + Gate 24 + 9B; public efter Gate 25 om målet är 10/10-launch)
 
 | Krav | Detalj |
 |------|--------|
@@ -422,26 +455,26 @@ Sprint 1–15 (gemensam, app2) — grön; verifiera på Android där möjligt
     ↓
 9A  (obligatorisk billig platta) ‖ redan under 16–23
     ↓
-9B  (testfamiljer) → SSE → barn-wow → 20 familjer
+9B  (testfamiljer) → SSE → barn-wow → Gate 25 (20 familjer × 4–6 v)
 ```
 
-Polsia-prompter: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.md) — Sprint **0**, **Gate 24**, 16–23.
+Polsia: sprint **0**, **16–23**, **Gate 24**. Gate **25** = produktägare / fält (checklista i `polsia-sprint-koordinering.md`).
 
 ---
 
 ## Vad saknas för 10/10 (enligt app2)
 
-| Steg | Nivå | app2 |
-|------|------|------|
-| Sprint 23 | ~8,5–9/10 | Release readiness (login, push, links, crash) |
-| Gate 24 | Parity klar | iOS ↔ Android — samma produkt, inte två appar |
-| Live-synk | ~9,5 | §16.4 SSE/WebSocket |
-| Barn-wow | ~9,5–10 | §16.5 — minst en wow/session |
-| 20 familjer × 4–6 v | **Verklig 10/10** | §16.6 — fältvalidering |
+**Inget av det som återstår är Android-specifikt.** Android-spåret (16–23 + Gate 0 + Gate 24) tar er till ~**9/10** produktparitet. Resten är **gemensam produkt**:
 
-För **10/10 produkt** krävs **inte** fler Android-menyer efter Gate 24:
+| Område | Effekt | app2 | Nivå |
+|--------|--------|------|------|
+| Live-synk (SSE/WebSocket) | Slut på *"jag måste uppdatera"* | §16.4 | ~9,5/10 |
+| Barn-wow | Känslomässig återkomst, inte kosmetik | §16.5 | ~9,5–10/10 |
+| **Gate 25** — 20 familjer × 4–6 v | **Älskad produkt** i verkligheten | §16.6 | **Verifierad 10/10** |
 
-**Ordning efter 9B (mät rätt produkt):** live-synk (första version) → barn-wow (första version) → **sedan** 20 familjer × 4–6 veckor. Fältstudien validerar nästan-10/10, inte kända MVP-gap.
+**Ordning:** 9B → SSE → barn-wow → **Gate 25**.
+
+Fler Android-menyer eller fler native-sprintar löser **inte** 10/10. Det skiljer *"färdig app"* från *"älskad produkt"*.
 
 ---
 
@@ -462,6 +495,7 @@ För **10/10 produkt** krävs **inte** fler Android-menyer efter Gate 24:
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
+| 2026-05-28 | 1.4 | Gate 25 Family Delight; 10/10 ej Android-specifik; nivåskala 23→25 |
 | 2026-05-28 | 1.3 | Gate 24 iOS↔Android parity före 9B; beredskapsnivå-tabell |
 | 2026-05-28 | 1.2 | Gate 0 native freeze; makro: SSE/wow före fältstudie |
 | 2026-05-28 | 1.1 | app2-styrning; sprint 20.5/21/22/23; 9A billig platta; deep links före 9B; 10/10-gap |

@@ -1,6 +1,6 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.3  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.4  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 
 **Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` är endast Android-tillägg — se [`android.md`](../android.md) § Styrning.
@@ -54,9 +54,11 @@
 
 **Blockerar 9B** tills Gate 24 (pos 26) är grön. Sprint 23 ≈ 8,5–9/10 release readiness — inte 9B utan parity.
 
-**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig platta) ‖ **Gate 0** → 16–23 → **Gate 24** → **9B** → **SSE** → **barn-wow** → **20 familjer × 4–6 v**.
+**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** ‖ **Gate 0** → 16–23 → **Gate 24** → **9B** → **SSE** → **barn-wow** → **Gate 25** (20 familjer × 4–6 v = verifierad 10/10).
 
-**Ändring v1.3:** Gate 24 före 9B. Se [`android.md`](../android.md) v1.3.
+**10/10 återstår (ej Android):** live-synk · barn-wow · Gate 25 fält. Se [`android.md`](../android.md) § Gate 25.
+
+**Ändring v1.4:** Gate 25 Family Delight efter SSE+wow. Se [`android.md`](../android.md) v1.4.
 
 ---
 
