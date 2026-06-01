@@ -74,6 +74,18 @@
       <!-- Form Card -->
       <div id="formCard" class="bg-sky rounded-2xl p-8 shadow-sm">
         <!-- Apple Sign In button — iOS/native only -->
+        <div id="googleRegisterSection" class="hidden mb-5">
+          <button type="button" id="googleRegisterBtn" class="w-full bg-white hover:bg-gray-50 text-navy font-semibold py-3 rounded-lg border-2 border-lavender transition-colors flex items-center justify-center gap-3" style="min-height:44px;">
+            <span style="font-size:1.1rem;">G</span>
+            Registrera med Google
+          </button>
+          <div id="googleRegisterError" class="text-sm text-coral mt-2 hidden"></div>
+          <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-lavender"></div></div>
+            <div class="relative flex justify-center text-xs"><span class="bg-sky px-2 text-text-soft">eller</span></div>
+          </div>
+        </div>
+
         <div id="appleRegisterSection" class="hidden mb-5">
           <button
             type="button"
@@ -325,6 +337,10 @@
             const appleSection = document.getElementById('appleRegisterSection');
             if (appleSection) appleSection.classList.remove('hidden');
           }
+          if (window.Platform && typeof Platform.isGoogleSignInAvailable === 'function' && Platform.isGoogleSignInAvailable()) {
+            const googleSection = document.getElementById('googleRegisterSection');
+            if (googleSection) googleSection.classList.remove('hidden');
+          }
         } catch {
           window.location.href = '/login';
           return;
@@ -487,6 +503,7 @@
     }
   </script>
   <!-- Support bubble for logged-out users -->
+  <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/support-bubble.js?v=2.12.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

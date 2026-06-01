@@ -35,6 +35,7 @@ function platformHtmlInject(req, res, next) {
 
       var bodyInject =
         '<script src="/js/crash-reporter.js?v=2026-05-29-release-os" defer><\/script>\n' +
+        '<script src="/js/deep-link-router.js?v=2026-05-29-release-os" defer><\/script>\n' +
         '<script src="/js/parental-gate.js?v=2026-05-29-release-os" defer><\/script>\n' +
         '<script src="/js/native-tab-bar.js?v=2026-05-29-release-os" defer><\/script>';
 

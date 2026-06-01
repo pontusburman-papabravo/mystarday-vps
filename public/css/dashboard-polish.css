@@ -1,0 +1,25 @@
+/**
+ * dashboard-polish.css — Sprint 26: transitions (no new features).
+ */
+#childCardsGrid {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+#childCardsGrid.dash-grid-ready {
+  opacity: 1;
+  transform: none;
+}
+.dash-child-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.dash-child-card:active {
+  transform: scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  #childCardsGrid,
+  .dash-child-card {
+    transition: none;
+    transform: none;
+  }
+}

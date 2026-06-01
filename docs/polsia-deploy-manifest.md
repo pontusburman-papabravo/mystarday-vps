@@ -1,7 +1,7 @@
 # Polsia deploy — filer att ladda ner till produktion
 
-**Branch:** `cursor/release-os-sprints-1a8b` (eller senaste `main` efter merge)  
-**Datum:** 2026-05-28  
+**Branch:** `cursor/release-os-sprints-2-1a8b` (eller `main` efter merge)  
+**Datum:** 2026-05-28 · **SW:** v167
 **Syfte:** Ge Polsia en **komplett fillista** efter att Cursor kört Release OS sprint 1–26 i repo.
 
 ---
@@ -22,7 +22,11 @@ npm run polsia:gate0
 | `RENDER_GIT_COMMIT` | 14 | Auto på Render → `release` i Sentry |
 | `PARENTAL_GATE_ENABLED` | 3c | `false` endast nödfall |
 | `NATIVE_TABBAR_ENABLED` | 4 | `false` = webb-hamburger kvar i native |
-| `FIREBASE_*` / FCM | 19 | Redan planerat — befintlig `sendFCM` |
+| `FCM_SERVER_KEY` | 19 | Android push (legacy FCM API) |
+| `GOOGLE_WEB_CLIENT_ID` | 18 | Google Sign In Android |
+| `ANDROID_SHA256_CERT_FINGERPRINT` | 22a | App Links (komma-separerad) |
+| `ANDROID_PACKAGE_NAME` | 22a | Default `se.mystarday.app` |
+| `APPLE_TEAM_ID` | 22a | AASA appID |
 | `APNS_*` | 20 | Befintlig `sendAPNs` |
 
 ---
@@ -40,6 +44,9 @@ npm run polsia:gate0
 | `src/middleware/platform-html.js` | 1.2, 14, 3a, 4 |
 | `src/middleware/child-parent-api-block.js` | 3c |
 | `src/middleware/securityHeaders.js` | 14 |
+| `src/routes/static-routes.js` | 22a |
+| `src/lib/push-notifications.js` | 19 |
+| `capacitor.config.ts` | 18 |
 
 ### Klient (nya)
 
@@ -50,6 +57,10 @@ npm run polsia:gate0
 | `public/js/parental-gate.js` | 3b |
 | `public/js/crash-reporter.js` | 14 |
 | `public/js/native-tab-bar.js` | 4 |
+| `public/js/deep-link-router.js` | 22b |
+| `public/js/google-auth-ui.js` | 18 |
+| `public/js/dashboard-polish.js` | 26 |
+| `public/css/dashboard-polish.css` | 26 |
 
 ### Klient (ändrade)
 
@@ -64,7 +75,10 @@ npm run polsia:gate0
 | `public/login.html` | 1.3 |
 | `public/css/platform-gating.css` | 2a |
 | `public/css/platform-native.css` | 2a, 4 |
-| `public/sw.js` | **v166** — obligatorisk |
+| `public/register.html` | 18 |
+| `public/dashboard.html` | 26 |
+| `public/sw.js` | **v167** — obligatorisk |
+| `package.json` | 18 (Capacitor deps) |
 
 ### Tester (valfritt på Polsia, bra för CI)
 

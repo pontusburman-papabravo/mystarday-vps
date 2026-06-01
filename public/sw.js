@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v166
+ * Min Stjärndag — Service Worker v167
+ * v167: Sprint 18 Google UI, 22 deep links, 19 FCM send, 26 dashboard polish, 5b PIN haptik
  * v166: Release OS sprint 1–26 agent batch — device_mode, session-gate, native-tab-bar,
  *       crash-reporter, app-config, child API block, platform gating full
  * v165: Release OS pre-work — platform.js gating APIs, platform-theme via Platform,
@@ -177,7 +178,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v166';
+const CACHE_NAME = 'stjarndag-v167';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.
@@ -228,7 +229,11 @@ const STATIC_ASSETS = [
   '/js/parental-gate.js',
   '/js/crash-reporter.js',
   '/js/native-tab-bar.js',
+  '/js/deep-link-router.js',
+  '/js/google-auth-ui.js',
+  '/js/dashboard-polish.js',
   '/css/platform-gating.css',
+  '/css/dashboard-polish.css',
   // Professional report
   '/professional-report.html',
 ];

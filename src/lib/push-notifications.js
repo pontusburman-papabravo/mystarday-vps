@@ -340,8 +340,26 @@ async function sendFCM(deviceToken, { title, body, url }) {
     console.warn('[PUSH-FCM] Not configured — set FCM_SERVER_KEY env var');
     return;
   }
-  // Future: POST to https://fcm.googleapis.com/fcm/send with { to: deviceToken, notification: { title, body } }
-  console.log(`[PUSH-FCM] Would send to ${deviceToken.slice(0, 20)}...: "${title}"`);
+  const fetch = require('node-fetch');
+  const payload = {
+    to: deviceToken,
+    notification: { title, body },
+    data: { url: url || '/', title: title || '', body: body || '' },
+    priority: 'high',
+  };
+  const res = await fetch('https://fcm.googleapis.com/fcm/send', {
+    method: 'POST',
+    headers: {
+      Authorization: `key=${FCM_SERVER_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    console.error('[PUSH-FCM] send failed', res.status, text.slice(0, 200));
+    throw new Error(`FCM ${res.status}`);
+  }
 }
 
 const BATCH_SIZE = 25;

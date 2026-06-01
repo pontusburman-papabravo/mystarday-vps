@@ -5,6 +5,7 @@
  */
 const express = require('express');
 const path = require('path');
+const { buildAssetLinks, buildAppleAppSiteAssociation } = require('../lib/well-known');
 
 const router = express.Router();
 
@@ -24,10 +25,13 @@ router.get('/manifest.json', (req, res) => {
 router.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.json([{
-    relation: ['delegate_permission/common.handle_all_urls'],
-    target: { namespace: 'web', site: 'https://mystarday.se' }
-  }]);
+  res.json(buildAssetLinks());
+});
+
+router.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.json(buildAppleAppSiteAssociation());
 });
 
 // ─── Child view routing (A/B toggle) — serves before static middleware ──

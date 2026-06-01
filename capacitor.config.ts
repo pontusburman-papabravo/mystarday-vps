@@ -42,6 +42,11 @@ const config: CapacitorConfig = {
     },
     SignInWithApple: {},   // @capacitor-community/apple-sign-in
     Camera: {},            // @capacitor/camera
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
+      forceCodeForRefreshToken: false,
+    },
   },
 };
 

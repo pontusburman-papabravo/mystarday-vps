@@ -43,17 +43,45 @@ var Platform = (function () {
     return isNative() && isAndroid();
   }
 
+  var _googleClientId = null;
+
+  function loadGoogleClientId() {
+    if (_googleClientId) return Promise.resolve(_googleClientId);
+    return fetch('/api/app-config', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (cfg) {
+        _googleClientId = (cfg && cfg.googleWebClientId) || '';
+        return _googleClientId;
+      })
+      .catch(function () { return ''; });
+  }
+
   var googleSignIn = {
     isAvailable: isGoogleSignInAvailable,
     async signIn() {
       if (!isGoogleSignInAvailable()) {
         throw new Error('Google Sign In är endast tillgängligt i Android-appen');
       }
+      var clientId = await loadGoogleClientId();
       if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth) {
+        if (clientId && typeof Capacitor.Plugins.GoogleAuth.initialize === 'function') {
+          try {
+            await Capacitor.Plugins.GoogleAuth.initialize({
+              clientId: clientId,
+              scopes: ['profile', 'email'],
+              grantOfflineAccess: false,
+            });
+          } catch (_) {}
+        }
         const result = await Capacitor.Plugins.GoogleAuth.signIn();
-        return { idToken: result.authentication && result.authentication.idToken };
+        var idToken =
+          (result && result.authentication && result.authentication.idToken) ||
+          (result && result.idToken);
+        return { idToken: idToken };
       }
-      throw new Error('Google Sign In-plugin saknas — installera @codetrix-studio/capacitor-google-auth (sprint 18)');
+      throw new Error(
+        'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
+      );
     },
   };
 

@@ -46,6 +46,7 @@
   <script src="/js/auth.js?v=2.15.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-magic.js?v=153"></script>
+  <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
   <style>
     /* WCAG 2.5.8: min 44×44px touch target */
     .touch-link { display: block; min-height: 44px; padding: 10px 4px; }
@@ -200,6 +201,16 @@
           <div class="magic-divider" style="margin:18px 0;">
             <span>eller</span>
           </div>
+        </div>
+
+        <!-- Google Sign In — Android native (sprint 18) -->
+        <div id="googleLoginSection" class="hidden" style="width:100%;margin-bottom:12px;">
+          <button type="button" id="googleLoginBtn" class="apple-btn-magic" style="background:#fff;color:#1d1d1f;border:2px solid rgba(255,255,255,0.3);">
+            <span style="font-size:1.1rem;margin-right:8px;">G</span>
+            Logga in med Google
+          </button>
+          <div id="googleLoginError" class="magic-error-box" style="display:none;margin-top:12px;"></div>
+          <div class="magic-divider" style="margin:18px 0;"><span>eller</span></div>
         </div>
 
         <!-- Email/password form — always shown unless Apple-only on iOS -->

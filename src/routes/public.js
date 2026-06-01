@@ -110,6 +110,7 @@ router.get('/app-config', (req, res) => {
     parental_gate_enabled: process.env.PARENTAL_GATE_ENABLED !== 'false',
     native_tabbar_enabled: process.env.NATIVE_TABBAR_ENABLED !== 'false',
     sentryDsn: process.env.SENTRY_DSN || process.env.SENTRY_DSN_PUBLIC || '',
+    googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
     release: `stjarndag@${(process.env.npm_package_version || '1.0.0')}+${commit.slice(0, 7)}`,
     buildId: commit,
   });

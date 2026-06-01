@@ -216,7 +216,9 @@ function buildKeypad() {
       } else {
         if (pinDigits.length < 4) pinDigits.push(k);
       }
-      // Haptic feedback
+      if (window.Platform && Platform.haptics && typeof Platform.haptics.light === 'function') {
+        Platform.haptics.light();
+      }
       btn.classList.add('haptic');
       setTimeout(() => btn.classList.remove('haptic'), 140);
 
