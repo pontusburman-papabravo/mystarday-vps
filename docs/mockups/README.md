@@ -36,6 +36,7 @@
 | [`DESIGN-dashboard-reimagined.md`](DESIGN-dashboard-reimagined.md) | REIMAGINED parent + child (dual screen) |
 | [`DESIGN-dashboard-vuxen-barn.md`](DESIGN-dashboard-vuxen-barn.md) | Vuxenvyn / Barnvyn med IMAGE_0–5 |
 | [`../polsia-barnlogin-design.md`](../polsia-barnlogin-design.md) | Barnlogin 3 skärmar |
+| [`../design-feedback-barnvy-native.md`](../design-feedback-barnvy-native.md) | Källtext: barnvy + Skattkammaren PWA→native |
 
 ---
 

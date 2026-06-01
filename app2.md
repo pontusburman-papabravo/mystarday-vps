@@ -1,8 +1,8 @@
 # Min Stjärndag — app2.md (masterplan)
 
-## Version 2.3
+## Version 2.4
 
-**Skapad:** 2026-05-31 · **Senast uppdaterad:** 2026-05-28 · **Dokumentversion:** `2.3`
+**Skapad:** 2026-05-31 · **Senast uppdaterad:** 2026-05-28 · **Dokumentversion:** `2.4`
 **Syfte:** **Ett dokument** som samlar produktkrav, ny design, plattformsregler, vad som **redan finns**, vad som **behöver städas**, och vägen till **iPhone-app**, **Android-app**, **mobil webbläsare** och **desktop webbläsare**.
 
 **Snabbstart:** [§12 Fas A+ (The Core)](#fas-a--the-core-super-uppdrag) · [§18 Native & App Store 6→10](#18-native--app-store--väg-610) · [§16 Launch 10/10](#16-launch-beredskap-1010) · [§14 Acceptanskriterier](#14-acceptanskriterier-per-feature)
@@ -11,7 +11,7 @@
 **Stack:** Node.js 20, Express, Neon PostgreSQL, Tailwind, PWA + Capacitor (remote WebView)
 
 **Detaljerade under-specar** (Polsia-prompts med radnivå):  
-[`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md) · [`docs/polsia-barnlogin-design.md`](docs/polsia-barnlogin-design.md) · [`docs/mockups/barnlogin-3-skarmar.png`](docs/mockups/barnlogin-3-skarmar.png)
+[`docs/polsia-kontohantering-a-f.md`](docs/polsia-kontohantering-a-f.md) · [`docs/polsia-barnlogin-design.md`](docs/polsia-barnlogin-design.md) · [`docs/mockups/barnlogin-3-skarmar.png`](docs/mockups/barnlogin-3-skarmar.png) · [`docs/design-feedback-barnvy-native.md`](docs/design-feedback-barnvy-native.md) *(källtext barnvy → native)*
 
 **Designmockups (interaktiva HTML — öppna i webbläsare):**
 
@@ -697,6 +697,8 @@ De flesta familjeappar antar *mamma + pappa + samma hem*. Min Stjärndag har red
 ## 7. Native polish (barnvy)
 
 Gäller **native app** primärt; delar funkar i mobil webb (haptik begränsat).
+
+> **Produktfeedback (källtext):** Ordagrant genomgång av barnvy, Skattkammaren, PIN, offline och ljud — med screenshot-referenser och mappning till tabellerna nedan — finns i [`docs/design-feedback-barnvy-native.md`](docs/design-feedback-barnvy-native.md). Denna §7 är den **normativa** checklistan; feedback-dokumentet förklarar *intentionen* bakom kraven.
 
 ### 7.1 Visuell feedback & förutsägbarhet (struktur för barn)
 
@@ -1921,6 +1923,7 @@ När **allt** nedan är ✅ → Native-känsla och App Store-beredskap **9,5–1
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
+| 2026-05-28 | **2.4** | Källtext barnvy→native: `docs/design-feedback-barnvy-native.md`; länk i §7 |
 | 2026-05-28 | **2.3** | §18 Native & App Store 6→10; versionsnummer i header |
 | 2026-05-28 | 2.2 | §16.8 produktchefs-lager, §6.1 Familjecenter, §11.3, §16.5b |
 | 2026-05-28 | 2.1 | §16 Launch 10/10, §17 Observability, P0.5/P0.6, push före dashboard |
