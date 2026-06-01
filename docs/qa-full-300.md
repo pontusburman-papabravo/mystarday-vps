@@ -1,6 +1,6 @@
 # Fullständig QA — Min Stjärndag (300 kontrollpunkter)
 
-> **Status:** Ej påbörjad — dokumentet är en körbar checklista, inte en automatisk testkörning.  
+> **Status:** Pågår — lokal kodkörning **QA-2026-06-01-LOCAL-001** ([rapport](qa-run-local-2026-06-01.md))  
 > **Version:** 1.1 · 2026-06-01 — utökad med dokumentationskartläggning och förväntat beteende enligt specs.  
 > **Omfattning:** Webb (desktop + mobil), PWA, iOS native, Android native (där markerat), admin.
 
@@ -615,17 +615,21 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 
 ---
 
-## Resultatsammanfattning (fyll i efter körning)
+## Resultatsammanfattning (lokal körning 2026-06-01)
 
 | Metrik | Värde |
 |--------|--------|
+| **Kör-ID** | `QA-2026-06-01-LOCAL-001` |
 | Totalt antal punkter | 300 |
-| Godkända `[x]` | |
-| Underkända `[!]` | |
-| Ej körda `[ ]` | |
-| P0 öppna | |
-| P1 öppna | |
-| **Beslut** | ☐ Godkänd release · ☐ Villkorad · ☐ Stoppad |
+| ✅ Kod/static pass | 139 |
+| ⚠️ Partial (kräver DB/browser) | 150 |
+| ❌ Fail | 0 |
+| ⏭ Skip | 11 |
+| `npm test` | **159/159** gröna |
+| Miljö | Ingen `DATABASE_URL` — ingen live API/browser |
+| **Beslut** | ☐ Godkänd release · ☑ Villkorad (staging + manuell) · ☐ Stoppad |
+
+Detaljer: [`docs/qa-run-local-2026-06-01.md`](qa-run-local-2026-06-01.md)
 
 ### Logg underkända (mall)
 
