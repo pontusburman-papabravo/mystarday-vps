@@ -90,6 +90,13 @@ function renderChildList() {
 
     if (empty) empty.classList.add('hidden');
     if (noSession) noSession.classList.add('hidden');
+
+    var addRow = document.getElementById('clAddChildRow');
+    if (addRow) {
+      var showAdd = Auth.isLoggedIn() || (parentChildren && parentChildren.length > 0);
+      addRow.classList.toggle('hidden', !showAdd);
+    }
+
     list.innerHTML = merged.map(child => `
       <a href="#" class="cl-child-card" data-username="${escapeHtml(child.username)}" onclick="selectChild('${escapeJs(child.username)}'); return false;">
         <div class="cl-avatar-ring">${renderClChildAvatar(child, 52)}</div>
