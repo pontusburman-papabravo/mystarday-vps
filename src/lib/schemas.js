@@ -323,7 +323,16 @@ const UpdateFamilyMemberSchema = z.object({
 
 const InviteMemberSchema = z.object({
   email: email,
+  name: z.string().min(1).max(100).optional(),
   child_ids: z.array(uuid).optional(),
+  family_role: z.enum(['mamma', 'pappa', 'bonusförälder', 'annan']).optional().nullable(),
+});
+
+const CheckFamilyMemberSchema = z.object({
+  email: email.optional(),
+  childName: z.string().min(1).max(100).optional(),
+}).refine((d) => d.email || d.childName, {
+  message: 'Ange e-post eller barnnamn att kontrollera',
 });
 
 const AcceptInviteSchema = z.object({
@@ -506,6 +515,7 @@ module.exports = {
   UpdateFamilySchema,
   UpdateFamilyMemberSchema,
   InviteMemberSchema,
+  CheckFamilyMemberSchema,
   AcceptInviteSchema,
   // Account
   UpdateAccountSchema,

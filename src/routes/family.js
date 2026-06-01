@@ -13,9 +13,15 @@ const {
   UpdateFamilySchema,
   UpdateFamilyMemberSchema,
   InviteMemberSchema,
+  CheckFamilyMemberSchema,
   AcceptInviteSchema,
   UUIDParam,
 } = require('../lib/schemas');
+const {
+  checkAdultInviteEligibility,
+  checkChildNameInFamily,
+  VALID_FAMILY_ROLES,
+} = require('../lib/family-duplicates');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 
 const router = express.Router();
@@ -82,7 +88,7 @@ router.post('/invite/accept-new', async (req, res) => {
     // Look up invite
     const inviteResult = await db.query(
       `SELECT fi.id, fi.family_id, fi.email, fi.child_ids, fi.expires_at, fi.accepted,
-              fi.invitee_name,
+              fi.invitee_name, fi.invitee_family_role,
               f.name AS family_name
        FROM family_invite fi
        JOIN family f ON f.id = fi.family_id
@@ -122,11 +128,14 @@ router.post('/invite/accept-new', async (req, res) => {
       await client.query('BEGIN');
 
       // Create the new parent account (auto-verified, onboarding done)
+      const roleFromInvite = invite.invitee_family_role && VALID_FAMILY_ROLES.includes(invite.invitee_family_role)
+        ? invite.invitee_family_role
+        : null;
       const newParentResult = await client.query(
         `INSERT INTO parent (family_id, email, password_hash, name, verified, is_admin, family_role, onboarding_completed)
-         VALUES ($1, $2, $3, $4, true, false, NULL, true)
+         VALUES ($1, $2, $3, $4, true, false, $5, true)
          RETURNING id, email, name`,
-        [invite.family_id, normalizedEmail, passwordHash, parentName]
+        [invite.family_id, normalizedEmail, passwordHash, parentName, roleFromInvite]
       );
       const newParent = newParentResult.rows[0];
 
@@ -614,47 +623,52 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
   }
 });
 
-// ─── POST /api/family/invite ────────────────────────────
-router.post('/invite', inviteLimiter, async (req, res) => {
+// ─── POST /api/family/check-member ───────────────────────
+router.post('/check-member', validate(CheckFamilyMemberSchema), async (req, res) => {
   try {
-    const { email, name, childIds } = req.body;
+    const { email, childName } = req.body;
+    const result = {};
 
-    if (!email) {
-      return res.status(400).json({ error: 'E-postadress krävs' });
+    if (email) {
+      const adult = await checkAdultInviteEligibility(db, email, req.user.familyId);
+      result.adult = adult.ok
+        ? { status: 'available' }
+        : { status: adult.code, error: adult.error, existingName: adult.existingName || null };
     }
-    if (typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ error: 'Ogiltig e-postadress' });
+
+    if (childName) {
+      const child = await checkChildNameInFamily(db, childName, req.user.familyId);
+      result.child = child.ok
+        ? { status: 'available' }
+        : { status: child.code, error: child.error, suggestions: child.suggestions || [] };
     }
+
+    res.json(result);
+  } catch (err) {
+    console.error('[FAMILY] check-member error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── POST /api/family/invite ────────────────────────────
+router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, res) => {
+  try {
+    const { email, name, childIds, family_role: familyRole } = req.body;
 
     const normalizedEmail = email.toLowerCase().trim();
     const inviteeName = name ? name.trim() : null;
 
-    // Check if already in THIS family
-    const existingInFamily = await db.query(
-      'SELECT id FROM parent WHERE LOWER(email) = $1 AND family_id = $2',
-      [normalizedEmail, req.user.familyId]
-    );
-    if (existingInFamily.rows.length > 0) {
-      return res.status(409).json({ error: 'Denna person är redan medlem i din familj' });
+    const eligibility = await checkAdultInviteEligibility(db, normalizedEmail, req.user.familyId);
+    if (!eligibility.ok) {
+      return res.status(409).json({ error: eligibility.error, code: eligibility.code });
     }
 
-    // Check if email belongs to ANOTHER family
-    const existingOtherFamily = await db.query(
-      'SELECT id FROM parent WHERE LOWER(email) = $1 AND family_id != $2',
-      [normalizedEmail, req.user.familyId]
-    );
-    if (existingOtherFamily.rows.length > 0) {
-      return res.status(409).json({ error: 'Denna e-postadress är redan kopplad till en annan familj' });
-    }
-
-    // Check for existing pending invite in this family
-    const existingInvite = await db.query(
-      `SELECT id FROM family_invite
-       WHERE family_id = $1 AND LOWER(email) = $2 AND accepted = false AND expires_at > NOW()`,
-      [req.user.familyId, normalizedEmail]
-    );
-    if (existingInvite.rows.length > 0) {
-      return res.status(409).json({ error: 'Det finns redan en väntande inbjudan för denna e-post' });
+    let inviteeFamilyRole = null;
+    if (familyRole !== undefined && familyRole !== null && familyRole !== '') {
+      if (!VALID_FAMILY_ROLES.includes(familyRole)) {
+        return res.status(400).json({ error: 'Ogiltig roll. Välj: mamma, pappa, bonusförälder eller annan' });
+      }
+      inviteeFamilyRole = familyRole;
     }
 
     // Get inviter name and family name
@@ -674,9 +688,9 @@ router.post('/invite', inviteLimiter, async (req, res) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 3600_000); // 7 days
 
     await db.query(
-      `INSERT INTO family_invite (family_id, email, child_ids, token, expires_at, inviter_name, invitee_name)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [req.user.familyId, normalizedEmail, childIds || [], token, expiresAt, inviterName, inviteeName]
+      `INSERT INTO family_invite (family_id, email, child_ids, token, expires_at, inviter_name, invitee_name, invitee_family_role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [req.user.familyId, normalizedEmail, childIds || [], token, expiresAt, inviterName, inviteeName, inviteeFamilyRole]
     );
 
     // Send invite email

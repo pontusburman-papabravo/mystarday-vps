@@ -22,6 +22,7 @@ const {
   OnboardingRewardSchema,
 } = require('../lib/schemas');
 const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
+const { checkChildNameInFamily } = require('../lib/family-duplicates');
 
 const router = express.Router();
 router.use(requireParent);
@@ -83,6 +84,15 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
     }
 
     const childName = name.trim();
+
+    const dupName = await checkChildNameInFamily(db, childName, req.user.familyId);
+    if (!dupName.ok) {
+      return res.status(409).json({
+        error: dupName.error,
+        code: dupName.code,
+        suggestions: dupName.suggestions,
+      });
+    }
 
     // Generate unique username
     let username = generateUsername(childName);

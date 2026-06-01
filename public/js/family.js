@@ -895,23 +895,65 @@
       }
     }
 
+    async function scanAndAddAdult() {
+      if (!window.FamilyInviteScan) {
+        document.getElementById('addAdultModal').classList.remove('hidden');
+        return;
+      }
+      const raw = FamilyInviteScan.scanAdultQrInteractive();
+      if (!raw) return;
+      const parsed = FamilyInviteScan.parseQrPayload(raw);
+      document.getElementById('addAdultModal').classList.remove('hidden');
+      const msg = document.getElementById('addAdultMsg');
+      msg.textContent = '';
+      msg.className = 'text-sm text-text-soft min-h-[1.2em]';
+      if (parsed.email) {
+        document.getElementById('addAdultEmailInput').value = parsed.email;
+      }
+      if (parsed.inviteToken) {
+        try {
+          const res = await fetch('/api/family/invite/' + encodeURIComponent(parsed.inviteToken));
+          const info = await res.json();
+          if (res.ok) {
+            if (info.email) document.getElementById('addAdultEmailInput').value = info.email;
+            if (info.inviteeName) document.getElementById('addAdultNameInput').value = info.inviteeName;
+          }
+        } catch {
+          /* manual entry ok */
+        }
+      }
+    }
+    window.scanAndAddAdult = scanAndAddAdult;
+
     async function addAdult(e) {
       e.preventDefault();
       const name = document.getElementById('addAdultNameInput').value.trim();
       const email = document.getElementById('addAdultEmailInput').value.trim();
+      const roleEl = document.getElementById('addAdultRoleInput');
+      const family_role = roleEl && roleEl.value ? roleEl.value : null;
       const msg = document.getElementById('addAdultMsg');
       const btn = document.getElementById('addAdultSubmitBtn');
       btn.disabled = true;
       btn.textContent = 'Skickar...';
       try {
+        const check = await Auth.api('/api/family/check-member', {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        });
+        if (check.adult && check.adult.status !== 'available') {
+          msg.textContent = check.adult.error || 'Personen finns redan i familjen eller har en väntande inbjudan.';
+          msg.className = 'text-sm text-red-500 font-medium';
+          return;
+        }
         await Auth.api('/api/family/invite', {
           method: 'POST',
-          body: JSON.stringify({ name, email }),
+          body: JSON.stringify({ name, email, family_role }),
         });
         msg.textContent = '✓ Inbjudan skickad till ' + email + '!';
         msg.className = 'text-sm text-green-600 font-medium';
         document.getElementById('addAdultNameInput').value = '';
         document.getElementById('addAdultEmailInput').value = '';
+        if (roleEl) roleEl.value = '';
         setTimeout(() => {
           closeModal('addAdultModal');
           init();

@@ -15,6 +15,7 @@ const {
 } = require('../lib/schemas');
 const pinLockout = require('../../db/pin-lockout');
 const { getChildrenForParent } = require('../../db/parent-access');
+const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 
 const router = express.Router();
@@ -212,6 +213,15 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
     }
     if (name.trim().length < 1) {
       return res.status(400).json({ error: 'Namn krävs' });
+    }
+
+    const dupName = await checkChildNameInFamily(db, name.trim(), req.user.familyId);
+    if (!dupName.ok) {
+      return res.status(409).json({
+        error: dupName.error,
+        code: dupName.code,
+        suggestions: dupName.suggestions,
+      });
     }
 
     // Validate birthday format if provided
