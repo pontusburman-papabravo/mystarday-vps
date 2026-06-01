@@ -7,6 +7,8 @@ Du är Polsia och hostar Min Stjärndag. Deploy-repo: https://github.com/Polsia-
 
 UPPGIFT: Kör STJÄRNDAG RELEASE OS sprint för sprint tills #25 Gate 24 är grön.
 
+**Alternativ (2026-05-28):** Cursor Agent kan ta all repo-kod — se [`docs/cursor-release-os-sprints.md`](../cursor-release-os-sprints.md). Polsia behövs då bara för deploy om ni vill.
+
 Läs först (GitHub raw):
 https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-release-os/README.md
 
