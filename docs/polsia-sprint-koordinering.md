@@ -1,63 +1,85 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.4  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.4 · [`parity-manifest.md`](parity-manifest.md) (SPOT)  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 
-**Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` är endast Android-tillägg — se [`android.md`](../android.md) § Styrning.
+**Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` = Android-tillägg.
 
 ---
 
-## FULL KÖ — 27 tasks (Polsia UI = sanning)
+## STJÄRNDAG RELEASE OS
 
-**Splittar:** Sprint 2 → 2a+2b · Sprint 3 → 3a+3b+3c · Sprint 5 → 5a+5b+5c · Sprint 22 → 22a+22b  
-**Sprint 4:** en task i Polsia (innehåll = tidigare 4a+4b+4c i ett deploy).  
-**Android:** 1 task per sprint (backend+klient i samma task där det är filpar).  
-**Obs köordning Fas A:** UI-gating (2a–2b) **före** PG (3a–3c) i Polsia — `ios-städ` rekommenderade PG först; följ **denna tabell** i Polsia.
+**25 tasks · 3 gates (14, 23A, 24) · 4 failure policies · 2 kill switches**
 
-### FAS A — iOS + universal (kör först)
+```
+Layer 1 — Core Product (Fas A: 1–1.4 + 14)
+  1.1 → 1.2 → 1.3 → 1.4 → 14 (runtime safety / observability)
 
-| # | Sprint | Polsia task | P0 | h |
-|---|--------|-------------|-----|---|
-| 1 | 1.1 | #2141408 Backend auth | P0.2 | 2 |
-| 2 | 1.2 | #2141409 platform.js | P0.2 | 3 |
-| 3 | 1.3 | #2141410 login + register UI | P0.2 | 3 |
-| 4 | 1.4 | #2141411 CSS scaffold + SW | P0.3 | 1 |
-| 5 | 2a | #2141905 platform-gating full | P0.3 | 2 |
-| 6 | 2b | #2141914 pwa-install isNeeded | P0.3 | 1 |
-| 7 | 3a | #2141844 device_mode + Session Gate | P0.1 | 2 |
-| 8 | 3b | #2141848 PG-modal + PIN + biometri | P0.1 | 2 |
-| 9 | 3c | #2141855 Server 403 + feature flag | P0.1 | 2 |
-| 10 | **4** | #2141717 Native tab bar vuxen | P0.4 | 3 |
-| 11 | 5a | #2141868 login rollval | P1 | 1 |
-| 12 | 5b | #2141884 barnväljare + PIN-tavla | P1 | 2 |
-| 13 | 5c | #2141897 add-child redirect | P1 | 1 |
+Layer 2 — Platform Bridge (2a–5c)
+  2a → 2b → 3a → 3b → 3c → 4 → 5a → 5b → 5c
 
-### FAS B — Android-spår (efter Fas A; delvis ‖ 9A)
+Layer 3 — Android Execution (16–22b)
+  16 → 17 → 18 → 19 → 20 → 21 → 22a → 22b
 
-| # | Sprint | Polsia task | P0 | h |
-|---|--------|-------------|-----|---|
-| 14 | **0** | #2142916 Gate 0 audit | — | 2 |
-| 15 | 16 | #2142930 Capacitor Android smoke | — | 4 |
-| 16 | 17 | #2142967 Google backend | — | 2 |
-| 17 | 18 | #2142973 Google native client | — | 2 |
-| 18 | 19 | #2142979 FCM server | — | 2 |
-| 19 | 20 | #2142983 FCM client | — | 2 |
-| 20 | **P0.6** | #2142922 Crashlytics/Sentry (iOS+Android) | P0.6 | 2 |
-| 21 | 20.5 | #2142988 Android observability | P0.6 | 2 |
-| 22 | 21 | #2142994 Android PG-härdning | — | 2 |
-| 23 | 22a | #2142999 Deep links server | P0.5 | 2 |
-| 24 | 22b | #2143005 Deep links client | P0.5 | 2 |
-| 25 | 23 | #2143009 Android smoke gate | — | 3 |
-| 26 | **Gate 24** | #2143012 iOS↔Android parity | — | 1 |
-| 27 | — | #2143015 Dashboard polish | — | 2 |
+Layer 4 — Control System
+  14     MANDATORY RUNTIME LAYER (observability)
+  22a    + FEATURE FREEZE + CI + ROLLBACK POLICY (vid deploy)
+  23A    BINARY SMOKE GATE (6 pass/fail)
+  23B    BUGFIX CONTAINMENT (23A GREEN först)
+  Gate 24  PARITY + Parity Manifest + 72h + KILL_SWITCH_23A/24
 
-**Efter 27 (ej task i Polsia):** 9A smoke → 9B → SSE → barn-wow → **Gate 25** (20 familjer × 4–6 v). Se [`android.md`](../android.md).
+Layer 5 — Product Reality
+  9A → Dashboard polish → 9B → SSE → Barn-wow → Gate 25
+```
 
-**Blockerar 9B:** Gate 24 (#2143012) grön. **Gate 0** blockerar sprint 16+.
+### Operativa regler
 
-**Makro (app2):** Fas A (1–13) → Fas B (14–26) → Dashboard (#27) → 9A → Gate 24 → 9B → SSE → wow → Gate 25.
+| Händelse | Policy |
+|----------|--------|
+| **23A FAIL** | 23B blockerad · 48h · eskalering · `KILL_SWITCH_23A` överväg |
+| **Gate 24 FAIL** | Re-open Gate 24 · [`parity-manifest.md`](parity-manifest.md) uppdateras |
+| **Divergens** | Feature → owner · beteende-bugg → omedelbar fix |
+| **Credits slut** | Fas A (1–1.4) + **Sprint 14** prioriteras |
 
-**Raw / dela:** https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md
+**Parity Manifest SPOT:** Engineering underhåller [`docs/parity-manifest.md`](parity-manifest.md).
+
+**Blockerare nu:** Company paused + 0 credits → kör **#2141408** först när löst.
+
+---
+
+## KÖRLISTA — inkrement-ID (rätt ordning)
+
+| # | Sprint | Polsia ID |
+|---|--------|-----------|
+| 1 | Sprint 1.1 | **#2141408** |
+| 2 | Sprint 1.2 | **#2141409** |
+| 3 | Sprint 1.3 | **#2141410** |
+| 4 | Sprint 1.4 | **#2141411** |
+| 5 | Sprint 14 | **#2143272** |
+| 6 | Sprint 2a | **#2141905** |
+| 7 | Sprint 2b | **#2141914** |
+| 8 | Sprint 3a | **#2141844** |
+| 9 | Sprint 3b | **#2141848** |
+| 10 | Sprint 3c | **#2141855** |
+| 11 | Sprint 4 | **#2141717** |
+| 12 | Sprint 5a | **#2141868** |
+| 13 | Sprint 5b | **#2141884** |
+| 14 | Sprint 5c | **#2141897** |
+| 15 | Sprint 16 | **#2142930** |
+| 16 | Sprint 17 | **#2143390** |
+| 17 | Sprint 18 | **#2143391** |
+| 18 | Sprint 19 | **#2143394** |
+| 19 | Sprint 20 | **#2143395** |
+| 20 | Sprint 21 | **#2143396** |
+| 21 | Sprint 22a | **#2143403** |
+| 22 | Sprint 22b | **#2143404** |
+| 23 | Sprint 23A | **#2143273** |
+| 24 | Sprint 23B | **#2143274** |
+| 25 | Gate 24 | **#2143329** |
+
+**Efter 25:** Dashboard polish **#2143405** → 9A → 9B → SSE → barn-wow → Gate 25
+
+**Raw:** https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md
 
 ---
 
@@ -162,6 +184,33 @@ TEST:
 □ SW ny version laddar på login efter hård refresh
 
 Release-gate: Drift ✓ SW deployad
+```
+
+---
+
+## SPRINT 14 — Mandatory runtime layer · Polsia #2143272
+
+```
+Uppgift: Sprint 14 — Mandatory runtime layer (observability)
+
+Polsia: #2143272
+Läs: app2 P0.6, app2 §14.11, android.md sprint 20.5
+
+Gör endast:
+1. Sentry ELLER Crashlytics — Capacitor iOS + Android (runtime safety tidigt i kedjan)
+2. release: app-version + git commit (build-id) i varje event
+3. Test-crash iOS + Android — stack traces läsbara
+4. GDPR: ingen PII i breadcrumbs
+5. Dokumentera env i Polsia Dashboard (ej i repo)
+
+Gör INTE: PG, tab bar, deep links, parity
+
+TEST:
+□ Test-crash syns <5 min på båda plattformar
+□ Version + commit i dashboard
+
+Release-gate: Runtime layer ✓ — prioriteras om credits slut
+Kill switch: se parity-manifest.md (kopplas till 23A/24 senare)
 ```
 
 ---
@@ -719,12 +768,12 @@ Release-gate: Android PG-härdning ✓
 
 ---
 
-## SPRINT 22a — Deep links server · Polsia #2142999
+## SPRINT 22a — Deep links server · Polsia #2143403
 
 ```
-Uppgift: Sprint 22a — Deep links server (assetlinks + routes)
+Uppgift: Sprint 22a — Deep links server + FEATURE FREEZE + CI + ROLLBACK
 
-Polsia: #2142999
+Polsia: #2143403
 Läs: android.md sprint 22, app2 P0.5
 
 Gör endast:
@@ -732,6 +781,8 @@ Gör endast:
 2. Capacitor/AndroidManifest intent filters: invite, confirm-email, pedagog-invite
 3. Server/static: route-stöd för cold-start URLs (samma paths som iOS Universal Links där möjligt)
 4. iOS AASA paritet om ändringar i well-known
+5. FEATURE FREEZE: inga nya features i samma deploy — endast deep links + policy
+6. Dokumentera CI-check + rollback (feature flags ios-städ) i PR
 
 Gör INTE: @capacitor/app klient-routing (22b), Play public, SSE
 
@@ -744,12 +795,12 @@ Release-gate: Deep links server (del av P0.5)
 
 ---
 
-## SPRINT 22b — Deep links client · Polsia #2143005
+## SPRINT 22b — Deep links client · Polsia #2143404
 
 ```
 Uppgift: Sprint 22b — Deep links client + push-tap routing
 
-Polsia: #2143005
+Polsia: #2143404
 Läs: app2 P0.5, push-manager.js
 
 Gör endast:
@@ -770,118 +821,108 @@ Release-gate: Deep links före 9B ✓
 
 ---
 
-## SPRINT 23 — Android smoke gate · Polsia #2143009
+## SPRINT 23A — Binary smoke gate · Polsia #2143273
 
 ```
-Uppgift: Sprint 23 — Android smoke gate (helhet)
+Uppgift: Sprint 23A — Binary smoke gate (6 pass/fail)
 
-Läs: android.md Release-gate, app2 §9A (billig platta obligatorisk)
+Polsia: #2143273
+Läs: android.md Release-gate, app2 §9A (billig platta)
 
-Gör endast:
-1. Kör full checklista android.md Release-gate på FYSISK låg/mellanpris-enhet
-2. Signera TESTLOGG: modell, Android-version, alla sprint 16–22 rader
-3. Google + e-post login, ingen Apple, tab bar, FCM+deep link, PG, crash SDK
-4. Fixa endast bugs — inga nya features
+Förutsättning: Sprint 16–22b deployade.
 
-Gör INTE: Play Console upload (kan förberedas separat)
+Gör endast — signera PASS/FAIL per rad på FYSISK låg/mellanpris-Android:
+1. App startar native (Platform.isNative, ingen vit WebView-crash)
+2. Login: Google ELLER e-post → dashboard/onboarding
+3. Ingen Apple-knapp på Android
+4. FCM: token i DB + test-notis <60s
+5. PG: hardware/gesture back kringgår inte barnläge
+6. Deep link: push-tap ELLER adb VIEW invite → rätt route
 
-TEST:
-□ Alla rader android.md Release-gate ✅
-□ Enhet = låg/mellansegment (inte endast emulator/flaggskepp)
+Gör INTE: nya features · Play upload · 23B om någon rad FAIL
 
-Release-gate: Android release readiness (~8,5–9/10) — Gate 24 krävs för 9B
-```
+VI HÄNDER 23A FAIL:
+→ 23B #2143274 BLOCKERAD
+→ 48h eskalering
+→ Överväg KILL_SWITCH_23A (docs/parity-manifest.md)
 
----
+TEST: 6/6 PASS = 23A GREEN
 
-## P0.6 — Crashlytics/Sentry (iOS + Android) · Polsia #2142922
-
-```
-Uppgift: P0.6 — Crashlytics/Sentry i native (iOS + Android)
-
-Polsia: #2142922
-Läs: app2 P0.6, app2 §14.11
-
-Gör endast:
-1. Sentry ELLER Firebase Crashlytics — Capacitor native iOS + Android builds
-2. release: app-version + git commit i varje event
-3. Test-crash på BÅDA plattformar — syns i dashboard
-4. Ingen PII i breadcrumbs
-
-Gör INTE: Android-only symbolisering (→ sprint 20.5), PG, deep links
-
-TEST:
-□ iOS test-crash + Android test-crash inom 5 min
-□ Version + commit syns
-
-Release-gate: P0.6 delad ✓ (före 9B)
+Release-gate: 23A GREEN krävs för 23B + Gate 24
 ```
 
 ---
 
-## SPRINT 20.5 — Android observability · Polsia #2142988
+## SPRINT 23B — Bugfix containment · Polsia #2143274
 
 ```
-Uppgift: Sprint 20.5 — Android observability (P0.6 Android-del)
+Uppgift: Sprint 23B — Bugfix containment (endast efter 23A GREEN)
 
-Polsia: #2142988
-Läs: android.md sprint 20.5, app2 P0.6
+Polsia: #2143274
+
+BLOCKERAD om 23A #2143273 inte är GREEN.
 
 Gör endast:
-1. Verifiera Android stack traces / symbolisering (Sentry eller Crashlytics)
-2. GDPR: ingen PII i Android-specifik config
-3. Ev. separat Android DSN/project om krävs
+1. Fixa ENDAST rader som FAIL:ade i 23A
+2. Re-kör 23A-matrisen — alla 6 ska bli PASS
+3. Inga nya features, refactors, eller scope utanför FAIL-rader
 
-Förutsättning: P0.6 #2142922 redan deployad.
-
-Gör INTE: iOS-only ändringar, PG, deep links
+Gör INTE: Gate 24, Dashboard, SSE, 9B
 
 TEST:
-□ Android test-crash stack trace läsbar
-□ Ingen e-post/barnnamn i payload
+□ 23A omkörd — 6/6 PASS
+□ TESTLOGG: modell + Android-version i PR
 
-Release-gate: P0.6 Android ✓
+Release-gate: Android ~8,5–9/10 → Gate 24 tillåten
 ```
 
 ---
 
-## GATE 24 — Native parity verification · Polsia #2143012
+## GATE 24 — Parity gate + Manifest · Polsia #2143329
 
 ```
-Uppgift: Gate 24 — Native parity verification (före 9B)
+Uppgift: Gate 24 — Parity gate + Parity Manifest + 72h + kill switches
 
-Polsia: #2143012
+Polsia: #2143329
 
-Läs: android.md § Gate 24, app2 §9B, ios-städ Release-gate
+Läs: docs/parity-manifest.md (SPOT), android.md § Gate 24, app2 §9B
+
+Förutsättning: 23A #2143273 GREEN (23B om fixes behövdes).
 
 Gör endast:
-1. Revisionslista — signera ✅ per rad på BÅDE iPhone OCH Android (billig platta):
-   - Feature-paritet (schema, belöningar, barnvy, inställningar)
-   - Onboarding (samma slutläge; Apple iOS / Google Android)
-   - Push (token, test-notis, tap → samma route)
-   - PG / device_mode (barnläge, PIN, back/switcher)
-   - Child mode (barnlogin, avbockning, stjärnor)
-   - Analytics (samma event-typer vid samma åtgärder)
-2. Dokumentera avvikelser i kommentar — fixa ENDAST parity-buggar (ingen ny feature)
-3. Parity-matris: modell iOS + modell Android per rad
+1. Fyll i docs/parity-manifest.md — alla 6 rader ✅ iOS OCH Android
+2. Signering: datum, git commit, enhetsmodeller, signerad av
+3. Parity Manifest = SPOT — engineering underhåller
+4. Divergens: beteende → omedelbar fix · feature-gap → owner + ❌ i manifest
+5. Gate 24 FAIL → re-open #2143329 · manifest uppdateras · re-test
 
-Gör INTE: ny funktionalitet, SSE, barn-wow, Play upload, fältstudie
+72h-regel:
+□ Varje ❌ har plan inom 72h (fix deploy eller godkänd undantag + owner)
+
+Kill switch policy (dokumentera i manifest/PR):
+□ KILL_SWITCH_23A — vid 23A FAIL/incident: blockerar 23B + bred Android-release
+□ KILL_SWITCH_24 — endast produktägare + 72h remediation (parity bypass akut 9B)
+
+Gör INTE: nya features, SSE, barn-wow, fältstudie
 
 TEST:
-□ 6/6 områden ✅ på båda plattformar ELLER dokumenterad fix + re-test
-□ Inga kända "fungerar bara på iPhone"-blockers kvar
+□ parity-manifest.md 6/6 ✅
+□ Kill switches AV om Gate 24 GREEN
 
-Release-gate: 9B tillåten (iOS + Android testfamiljer)
+VI HÄNDER Gate 24 FAIL:
+→ Re-open #2143329 · manifest uppdateras · 9B blockerad
+
+Release-gate: 9B tillåten
 ```
 
 ---
 
-## Dashboard polish · Polsia #2143015
+## Dashboard polish · Polsia #2143405
 
 ```
 Uppgift: Dashboard polish — skeletons · transitions · polish
 
-Polsia: #2143015
+Polsia: #2143405
 Läs: app2 (dashboard efter push), ej ny scope utan polish
 
 Gör endast:
