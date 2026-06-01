@@ -1,8 +1,8 @@
 # iOS-städ — Frysa plattformsarkitekturen (webb + native)
 
-## Version 2.0
+## Version 2.1
 
-**Skapad:** 2026-05-29 · **Senast uppdaterad:** 2026-05-28 · **Dokumentversion:** `2.0`
+**Skapad:** 2026-05-29 · **Senast uppdaterad:** 2026-05-28 · **Dokumentversion:** `2.1`
 
 > **Masterplan:** [`app2.md`](../app2.md) **v2.3** är huvudplan (P0, Fas A+, §14, §18).  
 > Detta dokument är den **operativa styrspecifikationen** för plattformsstäd — problem → orsak → målarkitektur → åtgärd → acceptans.
@@ -79,13 +79,58 @@ document.documentElement.classList.add('is-native-ios'); // om iOS
 
 CSS-gating utifrån klass — **inte** spridd `if (Platform…)` i varje HTML-fil.
 
-#### Arkitekturregel (obligatorisk)
+#### Arkitekturregel 1 — `platform.js` = enda sanningen
 
 > **Ingen ny plattformslogik får införas utanför `platform.js` utan särskilt skäl** (dokumenterat i PR).
 
 Om ni sprider `Capacitor.isNativePlatform()` i views igen → samma röra om några månader.
 
-### 2. CSS-gating (global)
+#### Arkitekturregel 2 — Plattformsneutrala features
+
+**Framtida funktioner måste vara plattformsneutrala.**
+
+Feature-kod får **aldrig** fråga direkt:
+
+- Är detta iOS?
+- Är detta Android?
+- Är detta webb?
+
+Feature-kod frågar **endast** Platform API.
+
+| ✅ OK | ❌ Inte OK |
+|--------|----------|
+| `Platform.push.subscribe()` | `if (Capacitor.isNativePlatform()) { … }` |
+| `Platform.haptics.light()` | `if (/iPhone/.test(navigator.userAgent))` |
+| `Platform.isNative() ? tabBar : hamburger` *(i platform.js)* | Plattformscheck i `dashboard.js`, `schedule.js`, … |
+
+Detta avgör om projektet fortfarande är rent om ett år.
+
+### 2. Parental Gate = plattformsregel
+
+Parental Gate är **inte** en "säkerhetsfeature i kanten" — det är en **plattformsregel** på samma nivå som `platform.js` (se app2 P0.1).
+
+När `device_mode = 'child'` **vinner det alltid** över:
+
+| Genväg | Måste blockeras/styras |
+|--------|----------------------|
+| `sessionRestored` | Får **inte** skicka till dashboard |
+| Deep links | Route via Session Gate → barnvy eller PG |
+| Token refresh | Behåll barnläge efter refresh |
+| Back navigation (OS/browser) | Kringgår **inte** PG |
+| Direkt URL (`/dashboard`, `/settings`, …) | Redirect → `/child-login` eller PG |
+
+**Ingen route får avgöra detta själv.**  
+All routing vid app-start och navigering ska gå via **`Platform` / Session Gate** (t.ex. `Platform.session.resolveInitialRoute()` eller motsvarande central funktion i `platform.js`).
+
+Det förhindrar framtida genvägar när nya sidor läggs till.
+
+| Endast PG får sätta | `device_mode = 'parent'` |
+|---------------------|-------------------------|
+| Persistent lagring | `@capacitor/preferences` / Secure Storage (native), localStorage (webb) |
+
+**Spec:** app2 §5.2.1, §14.1, Fas A+ DEL 2.
+
+### 3. CSS-gating (global)
 
 ```css
 .is-native [data-pwa-guide],
@@ -98,7 +143,7 @@ Om ni sprider `Capacitor.isNativePlatform()` i views igen → samma röra om nå
 
 **Gör INTE i native:** "Ladda ner appen", "Lägg till på hemskärmen", Stripe-checkout, länkar till webb-betalning.
 
-### 3. Navigation
+### 4. Navigation
 
 | Plattform | Navigation |
 |-----------|------------|
@@ -144,29 +189,25 @@ Om ni sprider `Capacitor.isNativePlatform()` i views igen → samma röra om nå
 
 ---
 
-### Prio 2 — Parental Gate + persistent barnläge
+### Prio 2 — Parental Gate (plattformsregel)
 
-**Varför Prio 2:** Största **säkerhets- och förtroenderisken** inför externa familjer och delad iPad (se app2 §5.2.1, P0.1).
+**Implementerar:** [§ Parental Gate = plattformsregel](#2-parental-gate--plattformsregel) ovan.
+
+**Varför direkt efter auth:** Största säkerhets- och förtroenderisken inför externa familjer — viktigare än tab bar eller dashboard-polish.
 
 ```
 ❌ Idag:   Barn lämnar barnläge → dashboard (sessionRestored)
-✅ Mål:    device_mode = 'child' → cold start → /child-login → PIN → barnvy
-           Endast PG sätter device_mode = 'parent'
+✅ Mål:    device_mode = 'child' → Session Gate → /child-login → PIN → barnvy
 ```
 
 | Krav | Spec |
 |------|------|
-| Persistent `device_mode` | Överlever force close (§5.2.1) |
+| Session Gate | All initial routing + deep links + refresh |
+| Persistent `device_mode` | Force close → fortfarande barnläge |
 | PG vid barn → vuxen | App-lås-PIN + biometri |
-| Skyddade routes | Barn når inte dashboard/settings/family |
-| OS back | Kringgår inte PG |
+| Server | Barn-JWT → 403 på vuxen-API |
 
-**Implementering:** [`app2.md`](../app2.md) Fas A+ DEL 2, §14.1 — **eget Polsia-deploy**, inte blandat med auth om möjligt.
-
-**Acceptans:**
-- [ ] Force close i barnläge → omstart → PIN-skärm (inte dashboard)
-- [ ] Smart 8-åring 30 min → når ingen vuxensida
-- [ ] "Glömt PIN" → full logout + re-auth
+**Polsia:** Uppdrag B. **Acceptans:** app2 §14.1, 8-års iPad-test.
 
 ---
 
@@ -209,16 +250,40 @@ Om ni sprider `Capacitor.isNativePlatform()` i views igen → samma röra om nå
 
 ---
 
-## Rekommenderad körordning (Polsia)
+## Slutgiltig prioritering (externa familjer / release-styrande)
 
-| Steg | Prio | Deploy |
-|------|------|--------|
-| 1 | **1 Auth** (+ ev. **4 lifetime** i samma) | Ett deploy |
-| 2 | **3 UI-gating** | Eget deploy |
-| 3 | **2 Parental Gate** | Eget deploy — **inte** ihop med dashboard-polish |
-| 4 | **5 Tab bar** | Eget deploy (helst med native build) |
+Om målet är **externa familjer** (9B), kör i denna ordning. Samma riktning som app2 — med **PG på absolut toppnivå** efter auth.
 
-**Synk med app2:** Fas A+ = Prio 1 + 2 + 3 + 5 i ett **super-uppdrag** endast om Polsia håller strikt scope; annars vertikalt enligt tabellen.
+| # | Leverabel | Gate / deploy |
+|---|-----------|----------------|
+| 1 | **Platform.js-frys** | `is-native`, API, Session Gate-skelett |
+| 2 | **Native auth** | Prio 1 — Apple iOS, Google Android, e-post webb |
+| 3 | **Parental Gate** | Prio 2 — plattformsregel, `device_mode` |
+| 4 | **UI-gating** | Prio 3 — noll PWA/webb i native |
+| 5 | **Lifetime free** | Prio 4 — middleware |
+| 6 | **Native tab bar** | Prio 5 |
+| 7 | **Push** | Token + APNs/FCM (app2 — före dashboard) |
+| 8 | **Crashlytics/Sentry** | P0.6 — före 9B |
+| 9 | **9A** | Intern QA (§18) |
+| 10 | **9B** | Testfamiljer |
+| 11 | Dashboard-polish | Efter RC |
+| 12 | Deep links | Före public launch (P0.5) |
+
+**Fas A+** i app2 = steg **1–6**. Markeras **inte** klar förrän [Release-gate Fas A+](#release-gate--fas-a) är helt grön.
+
+---
+
+## Rekommenderad körordning (Polsia, vertikalt)
+
+| Steg | Innehåll | Deploy |
+|------|----------|--------|
+| 1 | Platform.js-frys + Uppdrag A (auth + ev. lifetime) | Ett |
+| 2 | Uppdrag B (PG + Session Gate) | Eget — **direkt efter auth** |
+| 3 | Uppdrag C (UI-gating) | Eget |
+| 4 | Uppdrag E (tab bar) | Eget |
+| 5 | Push, P0.6, 9A, 9B | Enligt app2 |
+
+**Synk med app2:** Fas A+ super-uppdrag endast om Polsia håller strikt scope; annars steg-för-steg ovan.
 
 ---
 
@@ -229,7 +294,7 @@ Om ni sprider `Capacitor.isNativePlatform()` i views igen → samma röra om nå
 ```
 Uppgift: iOS-städ Uppdrag A — Universal Auth (Prio 1)
 
-Läs: docs/ios-städ.md v2.0, app2.md §4 P0.2, §14.8, plattformsmatris Apple+Google
+Läs: docs/ios-städ.md v2.1, app2.md §4 P0.2, §14.8
 
 Gör:
 1. platform.js: is-native-klasser, isAppleSignInAvailable(), isGoogleSignInAvailable() (Android native)
@@ -262,15 +327,22 @@ Klart när **alla** är signerade (av dig, inte bara Polsia):
 ### Uppdrag B — Parental Gate (Prio 2)
 
 ```
-Uppgift: iOS-städ Uppdrag B — Parental Gate + device_mode (Prio 2)
+Uppgift: iOS-städ Uppdrag B — Parental Gate + Session Gate (Prio 2)
 
-Läs: app2.md §5.2.1, §4 P0.1, §14.1, Fas A+ DEL 2
+Läs: ios-städ.md § "Parental Gate = plattformsregel", app2.md §5.2.1, §14.1
 
-Gör: device_mode persistent, PG-modal, blockera vuxen-routes, OS back-gate, glömt PIN = logout
+Gör:
+1. device_mode persistent (child/parent)
+2. Platform.session / Session Gate: ALL initial routing + deep link + token refresh
+   - device_mode=child vinner över sessionRestored, direkt URL, back
+3. PG-modal vid utpassage; biometri; glömt PIN = full logout
+4. Server: barn når inte vuxen-API/routes
+5. Feature flag: parental_gate_enabled (se Rollback-plan)
+6. SW bump
 
-Gör INTE: tab bar, dashboard mockup, barnlogin 3-skärmar
+Gör INTE: tab bar, dashboard mockup, barnlogin redesign
 
-Test: §14.1 + 8-års iPad-test (app2 §16.1)
+Test: §14.1 + Release-gate Parental Gate
 ```
 
 ---
@@ -363,6 +435,85 @@ Dessa ska **aldrig** introduceras (code review / Polsia-prompt):
 | Ta bort native push för web-push | `if (isNative()) … else VAPID` |
 | En navigation för alla plattformar | Tab bar native, hamburger webb |
 | Blanda PG + auth + tab bar i ett deploy | Vertikala sprintar |
+| Route som ignorerar `device_mode` | Session Gate i `platform.js` |
+| `sessionRestored` → dashboard i barnläge | Session Gate redirect |
+
+---
+
+## Rollback-plan
+
+När **9B-familjer** kör produktion måste kritiska Fas A+-ändringar kunna stängas av **utan ny App Store-release**.
+
+### Rollback-regel
+
+Alla ändringar i Fas A+ (steg 1–6) ska kunna disable:as via **feature flags** (server och/eller klient).
+
+| Flagga | Styr | Vid kritisk bug |
+|--------|------|----------------|
+| `native_auth_enabled` | Native Apple/Google-flöden | Av → e-post-login only |
+| `parental_gate_enabled` | Session Gate + PG | Av → endast vid nöd; dokumentera risk |
+| `native_tabbar_enabled` | `native-tab-bar.js` | Av → webb-hamburger i native |
+| `native_ui_gating_enabled` | `platform-gating.css` / PWA-dölj | Av → temporärt (review-risk) |
+
+**Implementering (förslag):**
+
+- Klient: läs från `GET /api/config` eller befintlig `features` / `family_features`
+- Server: env-override `FEATURE_PARENTAL_GATE=false` för snabb prod-toggle
+- Default: **på** i prod efter 9A grön
+
+### Vid kritisk bug
+
+```
+1. Stäng feature flag (admin eller env)
+2. Deploy config / server — ingen App Store-build krävs för klient-flaggor som läses vid start
+3. Om klient-cache: SW bump + tvinga reload
+4. Postmortem → fix → flagga på igen
+```
+
+**PG-flagga:** Stäng **inte** `parental_gate_enabled` lättvindigt i produktion med barn på delad iPad — endast nödfall.
+
+---
+
+## Release-gate — Fas A+
+
+**Fas A+ får inte markeras klar** förrän alla rader nedan är ✅. Därefter: **TestFlight → 9A**.
+
+### Auth
+
+- [ ] Apple native **iOS** (TestFlight eller noterat blocker)
+- [ ] Google native **Android** (om Android i scope)
+- [ ] E-post login **webb** (desktop + mobil)
+
+### UI (native)
+
+- [ ] Ingen PWA-text i native
+- [ ] Ingen webb-banner / cookie som avslöjar webb i native
+
+### Subscription
+
+- [ ] `is_lifetime_free` fungerar (review-konto + grundarfamiljer)
+
+### Navigation
+
+- [ ] Native tab bar (vuxen, native only)
+- [ ] Webb hamburger kvar (ingen regression)
+
+### Parental Gate (plattformsregel)
+
+- [ ] **Force close** → fortfarande barnläge → PIN
+- [ ] **Back gesture** kringgår inte PG
+- [ ] **Session restore** → inte dashboard i barnläge
+- [ ] **Token refresh** → fortfarande barnläge
+- [ ] **Direkt URL** till vuxen-sida blockeras i barnläge
+
+### Drift
+
+- [ ] Feature flags deployade och testade (minst av/på i staging)
+- [ ] SW deployad till prod
+
+**Alla gröna → TestFlight tillåten.**
+
+Full launch-checklista: [`app2.md` §18](../app2.md#18-native--app-store--väg-610).
 
 ---
 
@@ -382,5 +533,6 @@ Dessa ska **aldrig** introduceras (code review / Polsia-prompt):
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
+| 2026-05-28 | **2.1** | PG som plattformsregel + Session Gate; plattformsneutrala features; rollback-plan; Release-gate Fas A+; slutgiltig prio för 9B |
 | 2026-05-28 | **2.0** | PG → Prio 2; Google-matris; förbjudna mönster; DoD Uppdrag A; platform.js-regel; koppling app2 v2.3 |
 | 2026-05-29 | 1.0 | Första version — arkitektur-frys efter steg 1–10 + webb-backning |
