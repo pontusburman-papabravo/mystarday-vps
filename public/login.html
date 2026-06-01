@@ -320,8 +320,8 @@
         })
         .catch(() => {});
 
-      // Show Apple Sign In button on iOS only (not on Android or desktop)
-      if (window.Platform && window.Platform.isIOS()) {
+      // Apple Sign In — iOS native/Safari only (not Android/desktop)
+      if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
         const appleSection = document.getElementById('appleLoginSection');
         if (appleSection) appleSection.classList.remove('hidden');
       }

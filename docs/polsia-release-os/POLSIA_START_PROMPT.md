@@ -30,5 +30,7 @@ Svara efter varje sprint:
 3. Env som saknas i Dashboard
 4. Gate-rader ✅
 
-Börja med #2141408 när jag bekräftar start.
+Läs docs/polsia-release-os/04-redan-klart-i-repo.md — sprint 1.1–1.4 delvis klara i repo.
+Kör npm run polsia:release-os:check efter varje deploy.
+Börja med första sprint som INTE är ✅ i 04-redan-klart (troligen #2143272 Sprint 14).
 ```

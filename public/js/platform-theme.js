@@ -2,22 +2,20 @@
   'use strict';
   var root = document.documentElement;
   var isNative =
-    typeof Capacitor !== 'undefined' &&
-    typeof Capacitor.isNativePlatform === 'function' &&
-    Capacitor.isNativePlatform();
+    typeof window.Platform !== 'undefined' &&
+    typeof window.Platform.isNative === 'function' &&
+    window.Platform.isNative();
   if (isNative) {
     root.classList.add('platform-native');
-    // Child pages get platform-child-page class so CSS can hide tab bar
     var childPagePath = (window.location.pathname || '').replace(/\/$/, '');
     var isChildPage = childPagePath === '/child-dashboard' || childPagePath === '/child-login';
     if (isChildPage) root.classList.add('platform-child-page');
-    if (typeof Capacitor.getPlatform === 'function') {
-      var plat = Capacitor.getPlatform();
-      if (plat === 'ios') root.classList.add('platform-ios');
-      if (plat === 'android') root.classList.add('platform-android');
+    if (typeof window.Platform.isIOS === 'function' && window.Platform.isIOS()) {
+      root.classList.add('platform-ios');
     }
-    // Redirect marketing landing to login — only for exact root/en paths, never /login /register /dashboard /api/*
-    // Guard with sessionStorage so a post-redirect page (or child page) can't trigger a loop
+    if (typeof window.Platform.isAndroid === 'function' && window.Platform.isAndroid()) {
+      root.classList.add('platform-android');
+    }
     try {
       if (!sessionStorage.getItem('native_landing_redirected')) {
         var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
@@ -38,9 +36,7 @@
   } else {
     root.classList.add('platform-web');
     try {
-      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
-        root.classList.add('platform-pwa');
-      }
+      sessionStorage.removeItem('native_landing_redirected');
     } catch (_) {}
   }
 })();

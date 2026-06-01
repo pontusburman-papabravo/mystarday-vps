@@ -26,8 +26,10 @@ function platformHtmlInject(req, res, next) {
       var tailMarker = '</body>';
 
       var headInject =
-        '<script src="/js/platform-theme.js?v=1.0.0"><\/script>\n' +
-        '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.0">';
+        '<script src="/js/platform.js?v=2026-05-29-release-os"><\/script>\n' +
+        '<script src="/js/platform-theme.js?v=2026-05-29-release-os"><\/script>\n' +
+        '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.0">\n' +
+        '<link rel="stylesheet" href="/css/platform-gating.css?v=2026-05-29-release-os">';
 
       var bodyInject = '<script src="/js/platform-tab-bar.js?v=1.0.0" defer><\/script>';
 

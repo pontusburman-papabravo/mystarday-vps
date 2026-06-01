@@ -1,0 +1,14 @@
+/**
+ * platform-gating.css — hide web-only UI in native (.is-native / .platform-native).
+ * Full rules expanded in Polsia sprint 2a.
+ */
+html.is-native [data-pwa-guide],
+html.is-native .pwa-callout,
+html.is-native .pwa-install-banner,
+html.is-native .download-app-callout,
+html.platform-native [data-pwa-guide],
+html.platform-native .pwa-callout,
+html.platform-native .pwa-install-banner,
+html.platform-native .download-app-callout {
+  display: none !important;
+}

@@ -321,7 +321,7 @@
           document.getElementById('loginLink').classList.remove('hidden');
 
           // Show Apple Sign In button on iOS only
-          if (window.Platform && window.Platform.isIOS()) {
+          if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
             const appleSection = document.getElementById('appleRegisterSection');
             if (appleSection) appleSection.classList.remove('hidden');
           }

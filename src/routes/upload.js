@@ -35,13 +35,13 @@ function detectImageMime(buf) {
 
 function sanitizeFilename(name) {
   if (!name) return 'upload.jpg';
-  // Remove null bytes, path traversal sequences, and control chars
-  return name
+  const cleaned = String(name)
     .replace(/\u0000/g, '')
-    .replace(/\f\f[/\\]/g, '')
+    .replace(/\.\./g, '')
     .replace(/[/\\]/g, '')
-    .replace(/[^\f.\f-]/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
     .substring(0, 128);
+  return cleaned || 'upload.jpg';
 }
 
 // 5 MB hard limit for general image uploads

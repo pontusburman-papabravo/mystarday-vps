@@ -86,7 +86,10 @@
 
   /** True if running on iOS (iPhone/iPad/iPod). */
   function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (typeof window.Platform !== 'undefined' && typeof window.Platform.isIOS === 'function') {
+      return window.Platform.isIOS();
+    }
+    return false;
   }
 
   /** True if running as a native iOS/Android Capacitor app. */

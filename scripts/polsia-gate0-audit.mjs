@@ -5,7 +5,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ALLOW = ['public/js/platform.js', 'public/js/push-manager.js'];
+const ALLOW_FILES = new Set([
+  'public/js/platform.js',
+  'public/js/push-manager.js',
+]);
 
 function rg(pattern) {
   try {
@@ -27,8 +30,8 @@ const checks = [
 let fail = 0;
 for (const { name, pattern } of checks) {
   const hits = rg(pattern).filter((line) => {
-    const file = line.split(':')[0];
-    return !ALLOW.some((a) => file.endsWith(a.replace('public/', '')) || line.includes(a));
+    const file = line.split(':')[0].trim();
+    return !ALLOW_FILES.has(file);
   });
   if (hits.length) {
     console.error(`FAIL: ${name}`);

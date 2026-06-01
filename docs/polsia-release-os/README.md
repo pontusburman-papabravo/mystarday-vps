@@ -5,6 +5,8 @@
 
 ## Start (Polsia)
 
+**Läs först:** [`04-redan-klart-i-repo.md`](04-redan-klart-i-repo.md) — vad som redan är gjort i Git.
+
 1. Läs [`00-styrning.md`](00-styrning.md) och [`02-verify-and-tests.md`](02-verify-and-tests.md).
 2. Kör sprintfiler i ordning: [`sprints/01-sprint-1.1-backend-auth.md`](sprints/01-sprint-1.1-backend-auth.md) → … → [`sprints/25-sprint-gate-24.md`](sprints/25-sprint-gate-24.md).
 3. **Före sprint 16:** [`gates/gate-0-native-freeze.md`](gates/gate-0-native-freeze.md).
