@@ -7,65 +7,65 @@
 
 ---
 
-## Körordning (26 tasks — 15 gemensam + Gate 0 + 9 Android + Gate 24)
+## FULL KÖ — 27 tasks (Polsia UI = sanning)
 
-### Del A — Gemensam native (iOS + Android WebView)
+**Splittar:** Sprint 2 → 2a+2b · Sprint 3 → 3a+3b+3c · Sprint 5 → 5a+5b+5c · Sprint 22 → 22a+22b  
+**Sprint 4:** en task i Polsia (innehåll = tidigare 4a+4b+4c i ett deploy).  
+**Android:** 1 task per sprint (backend+klient i samma task där det är filpar).  
+**Obs köordning Fas A:** UI-gating (2a–2b) **före** PG (3a–3c) i Polsia — `ios-städ` rekommenderade PG först; följ **denna tabell** i Polsia.
 
-| Pos | Sprint | P0 | Tim |
-|-----|--------|-----|-----|
-| 1 | 1.1 Backend auth | P0.2 | 2 |
-| 2 | 1.2 platform.js | P0.2 | 3 |
-| 3 | 1.3 login + register | P0.2 | 3 |
-| 4 | 1.4 CSS scaffold + SW | P0.3 | 1 |
-| 5 | 3a device_mode + Session Gate | P0.1 | 2 |
-| 6 | 3b PG-modal + biometri | P0.1 | 2–4 |
-| 7 | 3c Server 403 + feature flag | P0.1 | 2 |
-| 8 | 2a platform-gating full | P0.3 | 2 |
-| 9 | 2b pwa-install isNeeded | P0.3 | 1 |
-| 10 | 4a native-tab-bar.js kärna | P0.4 | 2 |
-| 11 | 4b montera + dölj hamburger | P0.4 | 2 |
-| 12 | 4c haptik + safe-area + SW | P0.4 | 1 |
-| 13 | 5a login rollval | P1 | 1 |
-| 14 | 5b child-login tavla | P1 | 2–4 |
-| 15 | 5c add-child redirect | P1 | 1 |
+### FAS A — iOS + universal (kör först)
 
-### Gate 0 — Native parity freeze (obligatorisk före Android-spår)
+| # | Sprint | Polsia task | P0 | h |
+|---|--------|-------------|-----|---|
+| 1 | 1.1 | #2141408 Backend auth | P0.2 | 2 |
+| 2 | 1.2 | #2141409 platform.js | P0.2 | 3 |
+| 3 | 1.3 | #2141410 login + register UI | P0.2 | 3 |
+| 4 | 1.4 | #2141411 CSS scaffold + SW | P0.3 | 1 |
+| 5 | 2a | #2141905 platform-gating full | P0.3 | 2 |
+| 6 | 2b | #2141914 pwa-install isNeeded | P0.3 | 1 |
+| 7 | 3a | #2141844 device_mode + Session Gate | P0.1 | 2 |
+| 8 | 3b | #2141848 PG-modal + PIN + biometri | P0.1 | 2 |
+| 9 | 3c | #2141855 Server 403 + feature flag | P0.1 | 2 |
+| 10 | **4** | #2141717 Native tab bar vuxen | P0.4 | 3 |
+| 11 | 5a | #2141868 login rollval | P1 | 1 |
+| 12 | 5b | #2141884 barnväljare + PIN-tavla | P1 | 2 |
+| 13 | 5c | #2141897 add-child redirect | P1 | 1 |
 
-| Pos | Sprint | P0 | Tim |
-|-----|--------|-----|-----|
-| 16 | **0** Gate 0 — Native architecture freeze | Arkitektur | 1–2 |
+### FAS B — Android-spår (efter Fas A; delvis ‖ 9A)
 
-**Blockerar:** alla sprint 16–23 tills audit är grön (0 otillåtna träffar).
+| # | Sprint | Polsia task | P0 | h |
+|---|--------|-------------|-----|---|
+| 14 | **0** | #2142916 Gate 0 audit | — | 2 |
+| 15 | 16 | #2142930 Capacitor Android smoke | — | 4 |
+| 16 | 17 | #2142967 Google backend | — | 2 |
+| 17 | 18 | #2142973 Google native client | — | 2 |
+| 18 | 19 | #2142979 FCM server | — | 2 |
+| 19 | 20 | #2142983 FCM client | — | 2 |
+| 20 | **P0.6** | #2142922 Crashlytics/Sentry (iOS+Android) | P0.6 | 2 |
+| 21 | 20.5 | #2142988 Android observability | P0.6 | 2 |
+| 22 | 21 | #2142994 Android PG-härdning | — | 2 |
+| 23 | 22a | #2142999 Deep links server | P0.5 | 2 |
+| 24 | 22b | #2143005 Deep links client | P0.5 | 2 |
+| 25 | 23 | #2143009 Android smoke gate | — | 3 |
+| 26 | **Gate 24** | #2143012 iOS↔Android parity | — | 1 |
+| 27 | — | #2143015 Dashboard polish | — | 2 |
 
-### Del B — Android-spår (efter Gate 0)
+**Efter 27 (ej task i Polsia):** 9A smoke → 9B → SSE → barn-wow → **Gate 25** (20 familjer × 4–6 v). Se [`android.md`](../android.md).
 
-| Pos | Sprint | P0 | Tim |
-|-----|--------|-----|-----|
-| 17 | 16 Capacitor Android smoke | — | 2 |
-| 18 | 17 Google backend `/api/auth/google` | P0.2 | 2–3 |
-| 19 | 18 Google native klient + login UI | P0.2 | 3 |
-| 20 | 19 FCM server `sendFCM` | Push | 2–3 |
-| 21 | 20 FCM klient Android | Push | 2 |
-| 22 | 20.5 Android observability (Sentry/Crashlytics) | P0.6 | 2 |
-| 23 | 21 Android PG-härdning (back, switcher…) | P0.1 | 2–3 |
-| 24 | 22 Deep Links (före 9B) | P0.5 | 2–3 |
-| 25 | 23 Android smoke gate | RC | 2 |
-| 26 | **24** Gate 24 — Native parity verification | Parity | 1–2 |
+**Blockerar 9B:** Gate 24 (#2143012) grön. **Gate 0** blockerar sprint 16+.
 
-**Blockerar 9B** tills Gate 24 (pos 26) är grön. Sprint 23 ≈ 8,5–9/10 release readiness — inte 9B utan parity.
+**Makro (app2):** Fas A (1–13) → Fas B (14–26) → Dashboard (#27) → 9A → Gate 24 → 9B → SSE → wow → Gate 25.
 
-**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** ‖ **Gate 0** → 16–23 → **Gate 24** → **9B** → **SSE** → **barn-wow** → **Gate 25** (20 familjer × 4–6 v = verifierad 10/10).
-
-**10/10 återstår (ej Android):** live-synk · barn-wow · Gate 25 fält. Se [`android.md`](../android.md) § Gate 25.
-
-**Ändring v1.4:** Gate 25 Family Delight efter SSE+wow. Se [`android.md`](../android.md) v1.4.
+**Raw / dela:** https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md
 
 ---
 
-## SPRINT 1.1 — Backend auth
+## SPRINT 1.1 — Backend auth · Polsia #2141408
 
 ```
 Uppgift: Sprint 1.1 — Backend auth (JWKS, CSRF, lifetime_free)
+Polsia: #2141408
 
 Läs: ios-städ.md v2.1 Prio 1, app2.md §14.8
 
@@ -303,7 +303,35 @@ Release-gate UI: ✓ (tillsammans med 2a)
 
 ---
 
-## SPRINT 4a — native-tab-bar.js kärna
+## SPRINT 4 — Native tab bar vuxen · Polsia #2141717
+
+**Kanonisk i Polsia-kön (en deploy).** Nedan 4a–4c = samma scope uppdelat om ni behöver tre mindre deploy.
+
+```
+Uppgift: Sprint 4 — Native tab bar vuxen (P0.4) — #2141717
+
+Läs: app2.md §4 P0.4, §14.6, ios-städ Uppdrag E
+
+Gör endast:
+1. public/js/native-tab-bar.js — ENDAST Platform.isNative(); 5 flikar (Hem/Schema/Bibliotek/Familj/Inställningar)
+2. Montera på dashboard, schedule, settings, family — INTE child-dashboard
+3. body.has-native-tab-bar → dölj hamburger på dessa sidor; webb oförändrad
+4. safe-area + Platform.haptics.light() vid flikbyte
+5. Feature flag native_tabbar_enabled (default true) + SW bump
+
+Gör INTE: PG, push, barnlogin, mobile-nav.js refactor på webb
+
+TEST:
+□ Native: tab bar, ingen hamburger på dashboard
+□ Webb mobil: hamburger kvar
+□ child-dashboard: ingen föräldra-tab bar
+
+Release-gate Fas A+: Navigation native tab + webb hamburger (ios-städ)
+```
+
+---
+
+## SPRINT 4a — native-tab-bar.js kärna (valfri uppdelning)
 
 ```
 Uppgift: Sprint 4a — native-tab-bar.js kärna (P0.4)
@@ -662,34 +690,7 @@ Release-gate: FCM klient ✓
 
 ---
 
-## SPRINT 20.5 — Android observability
-
-```
-Uppgift: Sprint 20.5 — Android observability (P0.6)
-
-Läs: android.md sprint 20.5, app2 P0.6
-
-Gör endast:
-1. Installera Sentry ELLER Firebase Crashlytics på Android Capacitor-build
-2. Konfigurera release: app-version + git commit (eller build-id) i varje event
-3. Avsiktlig test-crash — verifiera i Sentry/Crashlytics-dashboard
-4. Verifiera Android stack traces (symbolikering)
-5. GDPR: ingen PII i breadcrumbs/user context (e-post, barnnamn, PIN)
-
-Gör INTE: PG, deep links, Play upload, iOS-ändringar (om inte delad init)
-
-TEST:
-□ Test-crash syns inom 5 min
-□ Stack trace läsbar
-□ Version + commit syns
-□ Ingen e-post/barnnamn i payload
-
-Release-gate: P0.6 Android ✓ (före 9B)
-```
-
----
-
-## SPRINT 21 — Android PG-härdning
+## SPRINT 21 — Android PG-härdning · Polsia #2142994
 
 ```
 Uppgift: Sprint 21 — Android PG-härdning (device_mode)
@@ -718,24 +719,50 @@ Release-gate: Android PG-härdning ✓
 
 ---
 
-## SPRINT 22 — Deep Links (före 9B)
+## SPRINT 22a — Deep links server · Polsia #2142999
 
 ```
-Uppgift: Sprint 22 — Android Deep Links (App Links)
+Uppgift: Sprint 22a — Deep links server (assetlinks + routes)
 
-Läs: android.md sprint 22, app2 P0.5, app2 §4
+Polsia: #2142999
+Läs: android.md sprint 22, app2 P0.5
 
 Gör endast:
-1. /.well-known/assetlinks.json på mystarday.se (SHA256 från signing key)
-2. Capacitor/AndroidManifest intent filters för invite, confirm-email, pedagog-invite
-3. Route-hantering i app/web vid cold start från länk
-4. Test: FCM-notis (sprint 20) med URL → tap öppnar RÄTT skärm i native app
-5. Fallback: webb om app ej installerad
+1. /.well-known/assetlinks.json på mystarday.se (SHA256 signing key)
+2. Capacitor/AndroidManifest intent filters: invite, confirm-email, pedagog-invite
+3. Server/static: route-stöd för cold-start URLs (samma paths som iOS Universal Links där möjligt)
+4. iOS AASA paritet om ändringar i well-known
 
-Gör INTE: Play Console public, IAP, live-synk SSE
+Gör INTE: @capacitor/app klient-routing (22b), Play public, SSE
 
 TEST:
-□ adb am start -a android.intent.action.VIEW -d "https://mystarday.se/invite/TEST" → rätt vy
+□ assetlinks.json validerar (Google Statement List Tester eller adb)
+□ Intent filter dokumenterat i PR
+
+Release-gate: Deep links server (del av P0.5)
+```
+
+---
+
+## SPRINT 22b — Deep links client · Polsia #2143005
+
+```
+Uppgift: Sprint 22b — Deep links client + push-tap routing
+
+Polsia: #2143005
+Läs: app2 P0.5, push-manager.js
+
+Gör endast:
+1. @capacitor/app (eller motsvarande) — lyssna på appUrlOpen / deep link
+2. Route-hantering: invite, confirm-email, pedagog-invite → rätt vy i WebView
+3. FCM-notis (sprint 20): tap med URL → samma route-handler
+4. Fallback: öppna webb-URL om path okänd
+5. SW bump om klient ändrad
+
+Gör INTE: assetlinks (22a), IAP, SSE
+
+TEST:
+□ adb VIEW https://mystarday.se/invite/TEST → rätt vy
 □ Push-tap → rätt route (inte bara dashboard root)
 
 Release-gate: Deep links före 9B ✓
@@ -743,7 +770,7 @@ Release-gate: Deep links före 9B ✓
 
 ---
 
-## SPRINT 23 — Android smoke gate
+## SPRINT 23 — Android smoke gate · Polsia #2143009
 
 ```
 Uppgift: Sprint 23 — Android smoke gate (helhet)
@@ -767,10 +794,63 @@ Release-gate: Android release readiness (~8,5–9/10) — Gate 24 krävs för 9B
 
 ---
 
-## GATE 24 — Native parity verification
+## P0.6 — Crashlytics/Sentry (iOS + Android) · Polsia #2142922
+
+```
+Uppgift: P0.6 — Crashlytics/Sentry i native (iOS + Android)
+
+Polsia: #2142922
+Läs: app2 P0.6, app2 §14.11
+
+Gör endast:
+1. Sentry ELLER Firebase Crashlytics — Capacitor native iOS + Android builds
+2. release: app-version + git commit i varje event
+3. Test-crash på BÅDA plattformar — syns i dashboard
+4. Ingen PII i breadcrumbs
+
+Gör INTE: Android-only symbolisering (→ sprint 20.5), PG, deep links
+
+TEST:
+□ iOS test-crash + Android test-crash inom 5 min
+□ Version + commit syns
+
+Release-gate: P0.6 delad ✓ (före 9B)
+```
+
+---
+
+## SPRINT 20.5 — Android observability · Polsia #2142988
+
+```
+Uppgift: Sprint 20.5 — Android observability (P0.6 Android-del)
+
+Polsia: #2142988
+Läs: android.md sprint 20.5, app2 P0.6
+
+Gör endast:
+1. Verifiera Android stack traces / symbolisering (Sentry eller Crashlytics)
+2. GDPR: ingen PII i Android-specifik config
+3. Ev. separat Android DSN/project om krävs
+
+Förutsättning: P0.6 #2142922 redan deployad.
+
+Gör INTE: iOS-only ändringar, PG, deep links
+
+TEST:
+□ Android test-crash stack trace läsbar
+□ Ingen e-post/barnnamn i payload
+
+Release-gate: P0.6 Android ✓
+```
+
+---
+
+## GATE 24 — Native parity verification · Polsia #2143012
 
 ```
 Uppgift: Gate 24 — Native parity verification (före 9B)
+
+Polsia: #2143012
 
 Läs: android.md § Gate 24, app2 §9B, ios-städ Release-gate
 
@@ -796,10 +876,70 @@ Release-gate: 9B tillåten (iOS + Android testfamiljer)
 
 ---
 
+## Dashboard polish · Polsia #2143015
+
+```
+Uppgift: Dashboard polish — skeletons · transitions · polish
+
+Polsia: #2143015
+Läs: app2 (dashboard efter push), ej ny scope utan polish
+
+Gör endast:
+1. Dashboard: loading skeletons där det saknas
+2. Mjuka transitions mellan tillstånd (CSS/JS, inga tunga libs)
+3. Visuell polish på barnkort/rad — INGA nya features eller API
+
+Gör INTE: SSE, barn-wow, ny navigation, PG-ändringar
+
+TEST:
+□ Native + webb: dashboard känns snabbare/renare utan regression
+□ SW bump om CSS/JS ändrats
+
+Release-gate: Dashboard polish (parallellt med 9A OK)
+```
+
+---
+
+## GATE 25 — Family Delight Verification (verifierad 10/10)
+
+**Ej Polsia-deploy.** Produktägare / fält — **efter** SSE + barn-wow. Ingen ny kod i denna gate.
+
+```
+Uppgift: Gate 25 — Family Delight Verification
+
+Läs: android.md § Gate 25, app2 §16.5–16.6
+
+Gör endast (4–6 veckor):
+1. Rekrytera och följ 20 familjer (iOS och/eller Android — samma produkt)
+2. Mät retention vecka 1 → vecka 4/6 (dokumentera metod + siffror)
+3. Signera per kriterium:
+   □ Barn använder appen frivilligt flera gånger/vecka
+   □ Föräldrar behöver inte löpande support (PG, login, push, sync)
+   □ Inga blockerande återkommande PG-/push-/sync-problem
+4. Gate 25-rapport: retention, citat, kvarvarande P2/P3 — godkänd av produktägare
+
+Gör INTE: nya stora features under perioden (riskerar att förstöra mätningen)
+
+Förutsättningar (ska vara klart):
+□ Live-synk (SSE) första version deployad
+□ Barn-wow första version deployad
+□ Gate 24 + 9B genomförd
+
+TEST:
+□ 20/20 familjer genomfört minst 4 veckor ELLER dokumenterat varför inte
+□ Retention trend dokumenterad
+
+Release-gate: "Min Stjärndag är 10/10" — först efter Gate 25 grön
+```
+
+---
+
 ## Versionshistorik
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | FULL KÖ 27 tasks + Polsia IDs; Sprint 4 en task; 22a/22b; P0.6+#2142922; Dashboard #2143015 |
+| 2026-05-28 | v1.4: Gate 25 Family Delight (10/10 fält); ej Android-specifik |
 | 2026-05-28 | v1.3: Gate 24 iOS↔Android parity före 9B; blockerar testfamiljer |
 | 2026-05-28 | v1.2: Sprint 0 Gate 0 före 16; makro SSE/wow före fältstudie |
 | 2026-05-28 | v1.1: 20.5 observability, 21 PG, 22 deep links före 9B, 23 smoke; app2-styrning |

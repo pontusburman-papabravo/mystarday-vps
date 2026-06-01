@@ -76,6 +76,8 @@ Familjeapp (svenska): scheman, stjärnor, belöningar (Skattkammaren), föräldr
 | **Barnlogin redesign (Polsia-spec)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-barnlogin-design.md |
 | **Barnlogin mockup (PNG)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/mockups/barnlogin-3-skarmar.png |
 | Denna handoff | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/main/docs/polsia-ai-handoff.md |
+| **Sprint-kö (27 tasks, copy-paste)** | https://github.com/pontusburman-papabravo/MyStarday-Polsia/blob/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md |
+| Sprint-kö raw | https://raw.githubusercontent.com/pontusburman-papabravo/MyStarday-Polsia/cursor/polsia-sprint-koordinering-1a8b/docs/polsia-sprint-koordinering.md |
 
 ### Mappar (tree-länkar)
 
