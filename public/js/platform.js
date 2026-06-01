@@ -27,6 +27,36 @@ var Platform = (function () {
     return !isNative();
   }
 
+  /** Native iOS with plugin, or iOS Safari (Apple JS). */
+  function isAppleSignInAvailable() {
+    if (isNative() && isIOS()) {
+      return !!(typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple);
+    }
+    if (isWeb() && typeof navigator !== 'undefined') {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+    return false;
+  }
+
+  /** Native Android only — Google plugin wired in sprint 18. */
+  function isGoogleSignInAvailable() {
+    return isNative() && isAndroid();
+  }
+
+  var googleSignIn = {
+    isAvailable: isGoogleSignInAvailable,
+    async signIn() {
+      if (!isGoogleSignInAvailable()) {
+        throw new Error('Google Sign In är endast tillgängligt i Android-appen');
+      }
+      if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth) {
+        const result = await Capacitor.Plugins.GoogleAuth.signIn();
+        return { idToken: result.authentication && result.authentication.idToken };
+      }
+      throw new Error('Google Sign In-plugin saknas — installera @codetrix-studio/capacitor-google-auth (sprint 18)');
+    },
+  };
+
   function ready() {
     if (isNative()) {
       // Capacitor has already initialised — resolve immediately.
@@ -436,6 +466,9 @@ var Platform = (function () {
     isIOS: isIOS,
     isAndroid: isAndroid,
     isWeb: isWeb,
+    isAppleSignInAvailable: isAppleSignInAvailable,
+    isGoogleSignInAvailable: isGoogleSignInAvailable,
+    googleSignIn: googleSignIn,
     ready: ready,
     haptics: haptics,
     share: share,
@@ -449,3 +482,20 @@ var Platform = (function () {
 
 // Expose globally.
 window.Platform = Platform;
+
+(function applyPlatformDomClasses() {
+  function run() {
+    var html = document.documentElement;
+    var body = document.body;
+    if (!Platform.isNative()) return;
+    html.classList.add('is-native');
+    if (body) body.classList.add('is-native');
+    if (Platform.isIOS()) html.classList.add('is-native-ios');
+    if (Platform.isAndroid()) html.classList.add('is-native-android');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();

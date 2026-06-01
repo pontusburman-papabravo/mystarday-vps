@@ -37,8 +37,9 @@
 }
 
 /* ── Hide hamburger / mobile nav (native has its own shell UI) ─────────── */
-.platform-native .mobile-hamburger,
-.platform-native .mobile-dropdown {
+.platform-native body.has-native-tab-bar .mobile-hamburger,
+.platform-native body.has-native-tab-bar .mobile-dropdown,
+.platform-native body.has-native-tab-bar .mobile-topbar {
   display: none !important;
 }
 

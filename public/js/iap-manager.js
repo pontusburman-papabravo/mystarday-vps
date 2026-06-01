@@ -24,13 +24,10 @@
   // ── Platform detection (mirrors platform.js pattern) ────
   function isNative() {
     if (_isNative !== null) return _isNative;
-    if (typeof window !== 'undefined' && typeof window.Platform !== 'undefined') {
-      _isNative = window.Platform.isNative();
-    } else {
-      _isNative = typeof Capacitor !== 'undefined' &&
-        typeof Capacitor.isNativePlatform === 'function' &&
-        Capacitor.isNativePlatform();
-    }
+    _isNative = typeof window !== 'undefined' &&
+      typeof window.Platform !== 'undefined' &&
+      typeof window.Platform.isNative === 'function' &&
+      window.Platform.isNative();
     return _isNative;
   }
 

@@ -12,12 +12,8 @@
 // If platform.js hasn't run yet, check navigator.userAgent as a fallback.
 const Skeleton = {
   isNative: (function () {
-    if (typeof window !== 'undefined' && window.Platform) {
+    if (typeof window !== 'undefined' && window.Platform && typeof window.Platform.isNative === 'function') {
       return window.Platform.isNative();
-    }
-    // Fallback: UA check for Capacitor WebView
-    if (typeof navigator !== 'undefined') {
-      return /Capacitor|iOS|iPhone|iPad|Android/.test(navigator.userAgent);
     }
     return false;
   })(),

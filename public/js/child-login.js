@@ -362,6 +362,7 @@ async function submitLogin() {
 
     // Success
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+    if (window.DeviceMode) DeviceMode.enterChild();
     upsertKnownChild({
       username: data.user.username,
       name: data.user.name,
@@ -400,11 +401,13 @@ window.handleParentSwitch = function () {
     }).then(function (pinData) {
       if (pinData.has_pin) {
         showParentPinGateOverlay(function () {
+          if (window.DeviceMode) DeviceMode.enterParent();
           window.location.href = '/dashboard';
         }, function () {
           // cancelled — stay on child login screen
         });
       } else {
+        if (window.DeviceMode) DeviceMode.enterParent();
         window.location.href = '/dashboard';
       }
     }).catch(function () {

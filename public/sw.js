@@ -1,5 +1,9 @@
 /**
- * Min Stjärndag — Service Worker v162
+ * Min Stjärndag — Service Worker v166
+ * v166: Release OS sprint 1–26 agent batch — device_mode, session-gate, native-tab-bar,
+ *       crash-reporter, app-config, child API block, platform gating full
+ * v165: Release OS pre-work — platform.js gating APIs, platform-theme via Platform,
+ *       platform-gating.css scaffold, upload sanitizeFilename fix, gate0 green.
  * v162: Fix SyntaxError in admin-families.js:693 — email validation regex
  *       had escaped closing slash (\/), preventing file from parsing →
  *       loadFamilies/loadMessages never defined → Familjer/Meddelanden/Bibliotek
@@ -173,7 +177,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v164';
+const CACHE_NAME = 'stjarndag-v166';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.
@@ -218,6 +222,13 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-sse.js',
   '/js/help-bubble.js',
   '/js/feature-check.js',
+  '/js/platform.js',
+  '/js/device-mode.js',
+  '/js/session-gate.js',
+  '/js/parental-gate.js',
+  '/js/crash-reporter.js',
+  '/js/native-tab-bar.js',
+  '/css/platform-gating.css',
   // Professional report
   '/professional-report.html',
 ];

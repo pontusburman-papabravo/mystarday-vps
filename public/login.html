@@ -290,7 +290,12 @@
             // Edge case: child logout via auth.js sends sessionRestored: true → redirect to /dashboard,
             // which lands here and would wrongly redirect the child to parent dashboard.
             if (user && user.type === 'child') {
+              if (window.DeviceMode) DeviceMode.enterChild();
               window.location.href = '/child-dashboard';
+              return;
+            }
+            if (window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
+              window.location.href = '/child-login';
               return;
             }
             if (user && (user.isAdmin || user.is_admin)) {
@@ -320,8 +325,8 @@
         })
         .catch(() => {});
 
-      // Show Apple Sign In button on iOS only (not on Android or desktop)
-      if (window.Platform && window.Platform.isIOS()) {
+      // Apple Sign In — iOS native/Safari only (not Android/desktop)
+      if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
         const appleSection = document.getElementById('appleLoginSection');
         if (appleSection) appleSection.classList.remove('hidden');
       }
@@ -476,7 +481,11 @@
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-          setTimeout(() => Auth.redirectToDashboard(), 300);
+          if (data.user.onboarding_completed === false) {
+            setTimeout(() => { window.location.href = '/onboarding'; }, 300);
+          } else {
+            setTimeout(() => Auth.redirectToDashboard(), 300);
+          }
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();

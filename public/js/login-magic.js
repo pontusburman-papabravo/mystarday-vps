@@ -65,11 +65,18 @@
 
     kidCard.addEventListener('click', function (e) {
       e.preventDefault();
+      if (window.DeviceMode) DeviceMode.enterChild();
       window.location.href = '/child-login';
     });
 
     parentCard.addEventListener('click', function (e) {
       e.preventDefault();
+      if (window.ParentalGate && window.DeviceMode && DeviceMode.isChildMode()) {
+        ParentalGate.requireParentMode(function () {
+          showParentLogin();
+        });
+        return;
+      }
       // If parent already has an active session, skip login form → go to dashboard.
       if (window.Auth && Auth.isLoggedIn()) {
         parentCard.disabled = true;
@@ -86,7 +93,7 @@
               if (pinData.has_pin) {
                 // PIN is set → show PIN overlay to gate parent access
                 showParentPinGateOverlay(function (gateToken) {
-                  // PIN verified → redirect to dashboard
+                  if (window.DeviceMode) DeviceMode.enterParent();
                   window.location.href = '/dashboard';
                 }, function () {
                   // PIN failed or cancelled → go back

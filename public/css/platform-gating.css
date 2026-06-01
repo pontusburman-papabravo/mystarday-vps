@@ -1,0 +1,27 @@
+/**
+ * platform-gating.css — hide web-only UI in native (.is-native / .platform-native).
+ * Full rules expanded in Polsia sprint 2a.
+ */
+html.is-native [data-pwa-guide],
+html.is-native .pwa-callout,
+html.is-native .pwa-install-banner,
+html.is-native .download-app-callout,
+html.is-native #pwaInstallGuide,
+html.is-native .cookie-banner,
+html.is-native .cookie-banner-overlay,
+html.platform-native [data-pwa-guide],
+html.platform-native .pwa-callout,
+html.platform-native .pwa-install-banner,
+html.platform-native .download-app-callout,
+html.platform-native #pwaInstallGuide,
+html.platform-native .cookie-banner,
+html.platform-native .cookie-banner-overlay {
+  display: none !important;
+}
+
+/* Sprint 2a — förbered P0.4: dölj webb-topbar när native tab bar aktiv */
+html.platform-native body.has-native-tab-bar .mobile-topbar,
+html.platform-native body.has-native-tab-bar .mobile-hamburger,
+html.platform-native body.has-native-tab-bar .mobile-dropdown {
+  display: none !important;
+}
