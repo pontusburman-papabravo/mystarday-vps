@@ -27,11 +27,16 @@ function platformHtmlInject(req, res, next) {
 
       var headInject =
         '<script src="/js/platform.js?v=2026-05-29-release-os"><\/script>\n' +
+        '<script src="/js/device-mode.js?v=2026-05-29-release-os"><\/script>\n' +
+        '<script src="/js/session-gate.js?v=2026-05-29-release-os"><\/script>\n' +
         '<script src="/js/platform-theme.js?v=2026-05-29-release-os"><\/script>\n' +
-        '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.0">\n' +
+        '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.1">\n' +
         '<link rel="stylesheet" href="/css/platform-gating.css?v=2026-05-29-release-os">';
 
-      var bodyInject = '<script src="/js/platform-tab-bar.js?v=1.0.0" defer><\/script>';
+      var bodyInject =
+        '<script src="/js/crash-reporter.js?v=2026-05-29-release-os" defer><\/script>\n' +
+        '<script src="/js/parental-gate.js?v=2026-05-29-release-os" defer><\/script>\n' +
+        '<script src="/js/native-tab-bar.js?v=2026-05-29-release-os" defer><\/script>';
 
       // Inject after <head>
       var headIdx = body.indexOf(headMarker);

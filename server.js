@@ -101,7 +101,8 @@ app.use('/api', blockImpersonationWrites);
 // SSE (/api/events) is skipped inside apiLimiter — long-lived connections
 // must not consume rate limit tokens.
 // Restore parent session before auth check — fixes child-login overwriting parent cookies.
-app.use('/api', restoreParentSession, optionalAuth, apiLimiter);
+const { childParentApiBlock } = require('./src/middleware/child-parent-api-block');
+app.use('/api', restoreParentSession, optionalAuth, childParentApiBlock, apiLimiter);
 
 // ─── API Routes ───────────────────────────────────────────
 registerRoutes(app);

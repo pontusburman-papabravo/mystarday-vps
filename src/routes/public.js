@@ -98,6 +98,23 @@ router.get('/registration-status', (req, res) => {
   res.json({ mode: 'registration', registration_enabled: true, payment_mode: false });
 });
 
+// ─── GET /api/app-config ─────────────────────────────────
+// Klient feature flags + observability (Sprint 3c, 4, 14). Ingen PII.
+router.get('/app-config', (req, res) => {
+  const commit =
+    process.env.RENDER_GIT_COMMIT ||
+    process.env.GIT_COMMIT ||
+    process.env.VERCEL_GIT_COMMIT_SHA ||
+    'dev';
+  res.json({
+    parental_gate_enabled: process.env.PARENTAL_GATE_ENABLED !== 'false',
+    native_tabbar_enabled: process.env.NATIVE_TABBAR_ENABLED !== 'false',
+    sentryDsn: process.env.SENTRY_DSN || process.env.SENTRY_DSN_PUBLIC || '',
+    release: `stjarndag@${(process.env.npm_package_version || '1.0.0')}+${commit.slice(0, 7)}`,
+    buildId: commit,
+  });
+});
+
 // ─── POST /api/public/professional-interest ──────────────
 // Public form submission from /pedagoger-och-terapeuter — no auth required.
 const VALID_ROLES = ['Arbetsterapeut', 'Logoped', 'Specialpedagog', 'Psykolog', 'Annan'];

@@ -1623,4 +1623,43 @@ router.post('/logout', async (req, res) => {
   }
 });
 
+// ─── POST /api/auth/google ───────────────────────────────
+// Sprint 17: verify Google idToken; login existing parent by verified email.
+const fetch = require('node-fetch');
+
+router.post('/google', appleLoginLimiter, async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({ error: 'idToken krävs' });
+    }
+
+    const tokenRes = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
+    );
+    if (!tokenRes.ok) {
+      return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
+    }
+    const tokenData = await tokenRes.json();
+    const email = (tokenData.email || '').toLowerCase().trim();
+    const emailOk = tokenData.email_verified === 'true' || tokenData.email_verified === true;
+    if (!email || !emailOk) {
+      return res.status(401).json({ error: 'Google-kontot saknar verifierad e-post' });
+    }
+
+    const existing = await parentDb.getParentByEmail(email);
+    if (!existing) {
+      return res.status(404).json({
+        error: 'Inget konto med denna e-post. Registrera dig först med e-post eller Apple.',
+        code: 'GOOGLE_ACCOUNT_NOT_FOUND',
+      });
+    }
+
+    return completeLogin(req, res, existing, 'parent');
+  } catch (err) {
+    console.error('[AUTH] Google Sign In error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 module.exports = router;

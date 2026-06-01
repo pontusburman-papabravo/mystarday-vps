@@ -17,11 +17,11 @@ function securityHeadersMiddleware() {
   // Domains: Google Fonts, GA4/GTM, Meta Pixel, Polsia R2 (image uploads).
   const CSP_REPORT_ONLY = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net",
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://r2.polsia.com https://mystarday.se",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://polsia.com",
+    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://polsia.com https://*.ingest.sentry.io https://oauth2.googleapis.com",
     "frame-ancestors 'none'",
   ].join('; ');
 

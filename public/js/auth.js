@@ -382,7 +382,10 @@ const Auth = {
         try { data = await res.json(); } catch { data = {}; }
 
         if (data.sessionRestored) {
-          // No parent PIN → parent session restored → go to dashboard
+          if (window.SessionGate && SessionGate.shouldBlockSessionRestore && SessionGate.shouldBlockSessionRestore()) {
+            window.location.href = '/child-login';
+            return;
+          }
           window.location.href = '/dashboard';
           return;
         }

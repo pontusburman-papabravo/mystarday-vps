@@ -43,6 +43,20 @@ var Platform = (function () {
     return isNative() && isAndroid();
   }
 
+  var googleSignIn = {
+    isAvailable: isGoogleSignInAvailable,
+    async signIn() {
+      if (!isGoogleSignInAvailable()) {
+        throw new Error('Google Sign In är endast tillgängligt i Android-appen');
+      }
+      if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth) {
+        const result = await Capacitor.Plugins.GoogleAuth.signIn();
+        return { idToken: result.authentication && result.authentication.idToken };
+      }
+      throw new Error('Google Sign In-plugin saknas — installera @codetrix-studio/capacitor-google-auth (sprint 18)');
+    },
+  };
+
   function ready() {
     if (isNative()) {
       // Capacitor has already initialised — resolve immediately.
@@ -454,6 +468,7 @@ var Platform = (function () {
     isWeb: isWeb,
     isAppleSignInAvailable: isAppleSignInAvailable,
     isGoogleSignInAvailable: isGoogleSignInAvailable,
+    googleSignIn: googleSignIn,
     ready: ready,
     haptics: haptics,
     share: share,
