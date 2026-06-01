@@ -363,6 +363,7 @@ const Auth = {
    */
   async switchChildMember() {
     try {
+      await this.ensureCsrfToken();
       const csrf = this.getCsrfToken();
       const headers = { 'Content-Type': 'application/json' };
       if (csrf) headers['X-CSRF-Token'] = csrf;

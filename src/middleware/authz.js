@@ -41,7 +41,7 @@ async function getChildAccess(parentId, childId) {
     `SELECT c.id, c.family_id, c.timezone, c.birthday, c.name
      FROM child c
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND c.id = $2`,
+     WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, childId]
   );
   return result.rows[0] || null;

@@ -10,16 +10,36 @@
 // ── State ────────────────────────────────────────────────────────────────────
 let pinDigits = [];          // max 4 digits
 let selectedChild = null;   // { username, name, emoji, avatar_url, familyId, lastLoginAt }
+/** Senast renderad barnlista (API + known_children) — selectChild måste använda denna. */
+let lastMergedChildren = [];
 let MAX_ATTEMPTS = 5;
 let lockoutEndTime = null;
 let countdownInterval = null;
 
 // ── Avatar rendering helper (same as dom-utils.js) ──────────────────────────
-function renderChildAvatar(child, size) {
-  if (child.avatar_url) {
-    return `<img src="${child.avatar_url}" alt="${child.name}" />`;
+function renderClChildAvatar(child, size) {
+  if (typeof window.renderChildAvatar === 'function') {
+    return window.renderChildAvatar(child, size || 52);
   }
-  return `<span>${child.emoji || '⭐'}</span>`;
+  size = size || 52;
+  if (child && child.avatar_url) {
+    return '<img src="' + escapeHtml(child.avatar_url) + '" alt="' + escapeHtml(child.name || '') + '" ' +
+      'style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;" />';
+  }
+  var emoji = (child && child.emoji) || '⭐';
+  return '<span style="font-size:' + Math.round(size * 0.85) + 'px;">' + escapeHtml(emoji) + '</span>';
+}
+
+function mergeKnownIntoApiChild(apiChild, knownEntry) {
+  if (!knownEntry) return apiChild;
+  return {
+    username: apiChild.username || knownEntry.username,
+    name: apiChild.name || knownEntry.name,
+    emoji: apiChild.emoji || knownEntry.emoji || '⭐',
+    avatar_url: apiChild.avatar_url || knownEntry.avatar_url || null,
+    familyId: apiChild.familyId || knownEntry.familyId || null,
+    lastLoginAt: knownEntry.lastLoginAt || null,
+  };
 }
 
 // ── Render child selection list (Step 1) ─────────────────────────────────────
@@ -33,19 +53,23 @@ function renderChildList() {
   let merged = [...known];
 
   // If parent is logged in, fetch their children too
-  fetchMeChildren().then(parentChildren => {
+  fetchMeChildren().then(function (parentChildren) {
     if (parentChildren && parentChildren.length > 0) {
-      // Deduplicate by username: prefer richer data from parent session
-      const seen = new Set();
-      merged = parentChildren.map(pc => {
+      var knownByUser = {};
+      for (var i = 0; i < known.length; i++) {
+        knownByUser[known[i].username] = known[i];
+      }
+      var seen = new Set();
+      merged = parentChildren.map(function (pc) {
         seen.add(pc.username);
-        return pc;
+        return mergeKnownIntoApiChild(pc, knownByUser[pc.username]);
       });
-      // Append known children not already in parent list
-      for (const kc of known) {
-        if (!seen.has(kc.username)) merged.push(kc);
+      for (var j = 0; j < known.length; j++) {
+        if (!seen.has(known[j].username)) merged.push(known[j]);
       }
     }
+
+    lastMergedChildren = merged;
 
     if (merged.length === 0) {
       list.innerHTML = '';
@@ -68,7 +92,7 @@ function renderChildList() {
     if (noSession) noSession.classList.add('hidden');
     list.innerHTML = merged.map(child => `
       <a href="#" class="cl-child-card" data-username="${escapeHtml(child.username)}" onclick="selectChild('${escapeJs(child.username)}'); return false;">
-        <div class="cl-avatar-ring">${renderChildAvatar(child, 52)}</div>
+        <div class="cl-avatar-ring">${renderClChildAvatar(child, 52)}</div>
         <div class="cl-child-info">
           <div class="cl-child-name">${escapeHtml(child.name)}</div>
           <div class="cl-child-sub">${escapeHtml(child.username)}</div>
@@ -146,15 +170,13 @@ function upsertKnownChild(child) {
 
 // ── Select child → show PIN step ─────────────────────────────────────────────
 window.selectChild = function(username) {
-  const known = loadKnownChildren();
-  const parentChildren = []; // will be set if we have them
-
-  // Find in known
-  let child = known.find(k => k.username === username);
-
-  // Fallback: construct from username for parent children
+  var child = lastMergedChildren.find(function (k) { return k.username === username; });
   if (!child) {
-    child = { username, name: username, emoji: '⭐', avatar_url: null };
+    var known = loadKnownChildren();
+    child = known.find(function (k) { return k.username === username; });
+  }
+  if (!child) {
+    child = { username: username, name: username, emoji: '⭐', avatar_url: null, familyId: null };
   }
 
   selectedChild = child;
@@ -166,7 +188,7 @@ window.selectChild = function(username) {
 
   // Update greeting + avatar
   document.getElementById('clPinGreeting').textContent = `Hej ${child.name}!`;
-  document.getElementById('clPinAvatar').innerHTML = renderChildAvatar(child, 100);
+  document.getElementById('clPinAvatar').innerHTML = renderClChildAvatar(child, 100);
 
   // Clear PIN
   pinDigits = [];
@@ -180,7 +202,7 @@ window.selectChild = function(username) {
 };
 
 // ── Back to child selection ────────────────────────────────────────────────────
-window.clBackToProfiles = function() {
+window.clBackToProfiles = function () {
   selectedChild = null;
   sessionStorage.removeItem('cl_selected_username');
   pinDigits = [];

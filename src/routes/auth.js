@@ -1086,7 +1086,7 @@ router.get('/me', requireAuth, async (req, res) => {
 
     if (req.user.type === 'child') {
       const childResult = await db.query(
-        `SELECT id, name, emoji, family_id, username, view_mode, timezone, birthday, created_at
+        `SELECT id, name, emoji, avatar_url, family_id, username, view_mode, timezone, birthday, created_at
          FROM child WHERE id = $1`,
         [req.user.id]
       );

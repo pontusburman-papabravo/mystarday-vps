@@ -90,6 +90,12 @@ test('injectPlatformHtml adds device-mode and skips duplicate platform.js', () =
   assert.equal(platformCount, 1);
 });
 
+test('getChildAccess SQL filters revoked_at', () => {
+  const fs = require('fs');
+  const authz = fs.readFileSync(require('path').join(__dirname, '../src/middleware/authz.js'), 'utf8');
+  assert.match(authz, /getChildAccess[\s\S]*revoked_at IS NULL/);
+});
+
 test('login-picker path allowed for child JWT', () => {
   let called = false;
   const req = { user: { type: 'child', id: 'c1' }, path: '/auth/login-picker-children' };
