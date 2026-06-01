@@ -12,6 +12,9 @@ let pinDigits = [];          // max 4 digits
 let selectedChild = null;   // { username, name, emoji, avatar_url, familyId, lastLoginAt }
 /** Senast renderad barnlista (API + known_children) — selectChild måste använda denna. */
 let lastMergedChildren = [];
+/** True when login-picker-children found a parent session (cookie or JWT). */
+let lastPickerHasSession = false;
+const ADD_CHILD_ONBOARDING_URL = '/onboarding?flow=add-child';
 let MAX_ATTEMPTS = 5;
 let lockoutEndTime = null;
 let countdownInterval = null;
@@ -53,7 +56,11 @@ function renderChildList() {
   let merged = [...known];
 
   // If parent is logged in, fetch their children too
-  fetchMeChildren().then(function (parentChildren) {
+  fetchMeChildren().then(function (result) {
+    const parentChildren = result && result.list;
+    const hasSession = result && result.hasSession;
+    const canAddChild = Auth.isLoggedIn() || hasSession;
+
     if (parentChildren && parentChildren.length > 0) {
       var knownByUser = {};
       for (var i = 0; i < known.length; i++) {
@@ -75,8 +82,8 @@ function renderChildList() {
       list.innerHTML = '';
       // No children at all — check if we have a parent session.
       // Without a session there's no family to add children to.
-      const hasSession = Auth.isLoggedIn();
-      if (!hasSession && noSession) {
+      const hasFamilySession = Auth.isLoggedIn() || hasSession;
+      if (!hasFamilySession && noSession) {
         // No session, no known children → show manual name input form
         if (empty) empty.classList.add('hidden');
         noSession.classList.remove('hidden');
@@ -90,6 +97,10 @@ function renderChildList() {
 
     if (empty) empty.classList.add('hidden');
     if (noSession) noSession.classList.add('hidden');
+
+    var addRow = document.getElementById('clAddChildRow');
+    if (addRow) addRow.classList.toggle('hidden', !canAddChild);
+
     list.innerHTML = merged.map(child => `
       <a href="#" class="cl-child-card" data-username="${escapeHtml(child.username)}" onclick="selectChild('${escapeJs(child.username)}'); return false;">
         <div class="cl-avatar-ring">${renderClChildAvatar(child, 52)}</div>
@@ -114,28 +125,46 @@ function mapPickerChild(c, familyIdFallback) {
   };
 }
 
-function fetchPickerChildrenFromApi() {
-  return fetch('/api/auth/login-picker-children', { credentials: 'same-origin' })
-    .then(function (r) { return r.ok ? r.json() : []; })
-    .then(function (list) {
-      if (!list || !list.length) return null;
-      return list.map(function (c) { return mapPickerChild(c, null); });
-    })
-    .catch(function () { return null; });
-}
-
 function fetchMeChildren() {
-  return fetchPickerChildrenFromApi().then(function (fromPicker) {
-    if (fromPicker && fromPicker.length > 0) return fromPicker;
+  const loadCtx = window.Auth && Auth.fetchLoginPickerContext
+    ? function () { return Auth.fetchLoginPickerContext(); }
+    : function () {
+        return fetch('/api/auth/login-picker-children', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : { hasSession: false, children: [] }; })
+          .then(function (data) {
+            if (Array.isArray(data)) {
+              return { hasSession: data.length > 0, children: data, parent: null };
+            }
+            return data;
+          })
+          .catch(function () { return { hasSession: false, children: [], parent: null }; });
+      };
+
+  return loadCtx().then(function (ctx) {
+    lastPickerHasSession = !!ctx.hasSession;
+    const fromPicker = (ctx.children || []).map(function (c) {
+      return mapPickerChild(c, null);
+    });
+    if (fromPicker.length > 0) {
+      return { list: fromPicker, hasSession: ctx.hasSession };
+    }
+    if (ctx.hasSession) {
+      return { list: [], hasSession: true };
+    }
     return window.apiFetch('/api/auth/me')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (me) {
-        if (!me || !me.children || me.children.length === 0) return null;
-        return me.children.map(function (c) {
-          return mapPickerChild(c, me.familyId);
-        });
+        if (!me || !me.children || me.children.length === 0) {
+          return { list: null, hasSession: Auth.isLoggedIn() };
+        }
+        return {
+          hasSession: true,
+          list: me.children.map(function (c) {
+            return mapPickerChild(c, me.familyId);
+          }),
+        };
       })
-      .catch(function () { return null; });
+      .catch(function () { return { list: null, hasSession: false }; });
   });
 }
 
@@ -213,15 +242,21 @@ window.clBackToProfiles = function () {
   clearCountdown();
 };
 
-// ── Add child: redirect to onboarding ─────────────────────────────────────────
-window.openAddChild = function() {
+// ── Add child: barn-onboarding wizard (flow=add-child) ───────────────────────
+window.openAddChild = async function () {
   if (Auth.isLoggedIn()) {
-    window.location.href = '/onboarding?flow=add-child';
-  } else {
-    // Save intended destination, redirect to login
-    sessionStorage.setItem('cl_add_child_next', '/onboarding?flow=add-child');
-    window.location.href = '/login?next=' + encodeURIComponent('/onboarding?flow=add-child');
+    window.location.href = ADD_CHILD_ONBOARDING_URL;
+    return;
   }
+  if (window.Auth && typeof Auth.hydrateUserFromLoginPicker === 'function') {
+    const hydrated = await Auth.hydrateUserFromLoginPicker();
+    if (hydrated) {
+      window.location.href = ADD_CHILD_ONBOARDING_URL;
+      return;
+    }
+  }
+  sessionStorage.setItem('cl_add_child_next', ADD_CHILD_ONBOARDING_URL);
+  window.location.href = '/login?next=' + encodeURIComponent(ADD_CHILD_ONBOARDING_URL);
 };
 
 // ── Keypad ────────────────────────────────────────────────────────────────────
@@ -661,10 +696,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check for pending add-child redirect after parent login
   const savedNext = sessionStorage.getItem('cl_add_child_next');
   if (savedNext) {
-    // If parent just logged in, redirect to add-child
-    if (Auth.isLoggedIn()) {
-      sessionStorage.removeItem('cl_add_child_next');
-      window.location.href = savedNext;
-    }
+    (async function () {
+      if (Auth.isLoggedIn()) {
+        sessionStorage.removeItem('cl_add_child_next');
+        window.location.href = savedNext;
+        return;
+      }
+      if (typeof Auth.hydrateUserFromLoginPicker === 'function' && await Auth.hydrateUserFromLoginPicker()) {
+        sessionStorage.removeItem('cl_add_child_next');
+        window.location.href = savedNext;
+      }
+    })();
   }
 });
