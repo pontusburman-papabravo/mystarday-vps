@@ -1,13 +1,13 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.1  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.2  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 
 **Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` är endast Android-tillägg — se [`android.md`](../android.md) § Styrning.
 
 ---
 
-## Körordning (24 tasks — 15 gemensam + 9 Android)
+## Körordning (25 tasks — 15 gemensam + Gate 0 + 9 Android)
 
 ### Del A — Gemensam native (iOS + Android WebView)
 
@@ -29,23 +29,31 @@
 | 14 | 5b child-login tavla | P1 | 2–4 |
 | 15 | 5c add-child redirect | P1 | 1 |
 
-### Del B — Android-spår (efter 15 grön på kod; testa iOS under Del A)
+### Gate 0 — Native parity freeze (obligatorisk före Android-spår)
 
 | Pos | Sprint | P0 | Tim |
 |-----|--------|-----|-----|
-| 16 | 16 Capacitor Android smoke | — | 2 |
-| 17 | 17 Google backend `/api/auth/google` | P0.2 | 2–3 |
-| 18 | 18 Google native klient + login UI | P0.2 | 3 |
-| 19 | 19 FCM server `sendFCM` | Push | 2–3 |
-| 20 | 20 FCM klient Android | Push | 2 |
-| 21 | 20.5 Android observability (Sentry/Crashlytics) | P0.6 | 2 |
-| 22 | 21 Android PG-härdning (back, switcher…) | P0.1 | 2–3 |
-| 23 | 22 Deep Links (före 9B) | P0.5 | 2–3 |
-| 24 | 23 Android smoke gate | RC | 2 |
+| 16 | **0** Gate 0 — Native architecture freeze | Arkitektur | 1–2 |
 
-**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig Android-platta obligatorisk) ‖ sprint 16–23 parallellt → **22 Deep Links** → **9B** → 20 familjer × 4–6 v → live-synk → barn-wow.
+**Blockerar:** alla sprint 16–23 tills audit är grön (0 otillåtna träffar).
 
-**Ändring v1.1:** Sprint **20.5** crash, **21** PG Android, **22** deep links **före 9B**, **23** smoke. Se [`android.md`](../android.md) v1.1.
+### Del B — Android-spår (efter Gate 0)
+
+| Pos | Sprint | P0 | Tim |
+|-----|--------|-----|-----|
+| 17 | 16 Capacitor Android smoke | — | 2 |
+| 18 | 17 Google backend `/api/auth/google` | P0.2 | 2–3 |
+| 19 | 18 Google native klient + login UI | P0.2 | 3 |
+| 20 | 19 FCM server `sendFCM` | Push | 2–3 |
+| 21 | 20 FCM klient Android | Push | 2 |
+| 22 | 20.5 Android observability (Sentry/Crashlytics) | P0.6 | 2 |
+| 23 | 21 Android PG-härdning (back, switcher…) | P0.1 | 2–3 |
+| 24 | 22 Deep Links (före 9B) | P0.5 | 2–3 |
+| 25 | 23 Android smoke gate | RC | 2 |
+
+**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig platta) ‖ **Gate 0** → sprint 16–23 → **22** → **9B** → **SSE** → **barn-wow** → **20 familjer × 4–6 v**.
+
+**Ändring v1.2:** Gate 0 före 16; fältstudie **efter** SSE+wow. Se [`android.md`](../android.md) v1.2.
 
 ---
 
@@ -462,6 +470,7 @@ Navigation: Native tab bar | Webb hamburger
 PG: Force close | Back gesture | Session restore | Token refresh | Direkt URL
 
 → Då: TestFlight → 9A (iOS)
+→ Innan Android sprint 16: Gate 0 (Sprint 0) grön
 ```
 
 ---
@@ -487,6 +496,35 @@ Android-specifik (sprint 16–23):
 ```
 
 Full spec: [`android.md`](../android.md) Release-gate.
+
+---
+
+## SPRINT 0 — Gate 0: Native parity freeze
+
+```
+Uppgift: Sprint 0 — Gate 0: Native architecture freeze (före Android 16)
+
+Läs: android.md § Sprint 0, ios-städ.md Arkitekturregel 1–2, app2 P0.2/P0.3
+
+Gör endast:
+1. Audit public/: rg/grep efter:
+   - window.Capacitor / Capacitor.isNativePlatform()
+   - navigator.userAgent (plattformsgrenar)
+   - if (Android) / includes('Android') / includes('iPhone')
+2. Tillåtna plattforms-API:er ska bo i platform.js:
+   isNative(), isIOS(), isAndroid(), isAppleSignInAvailable(), isGoogleSignInAvailable()
+3. Flytta kvarvarande träffar till platform.js wrappers — INGEN ny feature
+4. Signera i PR-kommentar: antal filer fixade + "0 otillåtna träffar kvar"
+
+Gör INTE: Capacitor android build, Google, FCM, PG-ändringar, tab bar
+
+TEST:
+□ rg Capacitor\.isNativePlatform public/js public/*.html → endast platform.js (ev. push-manager via Platform)
+□ rg userAgent.*(Android|iPhone|iPad) public/ → 0 plattformsgrenar i views
+□ Alla auth-sidor laddar platform.js
+
+Release-gate: Gate 0 grön — Android sprint 16 tillåten
+```
 
 ---
 
@@ -727,6 +765,7 @@ Release-gate: Android redo → Play Internal tillåten
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | v1.2: Sprint 0 Gate 0 före 16; makro SSE/wow före fältstudie |
 | 2026-05-28 | v1.1: 20.5 observability, 21 PG, 22 deep links före 9B, 23 smoke; app2-styrning |
 | 2026-05-28 | Sprint 16–21 Android + android.md; Release-gate Android |
 | 2026-05-28 | Första koordineringsdoc — 15 tasks, PG före gating, Sprint 4 tillagd |

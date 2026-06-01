@@ -1,8 +1,8 @@
 # Min Stjärndag — android.md (Android native)
 
-## Version 1.1
+## Version 1.2
 
-**Skapad:** 2026-05-28 · **Dokumentversion:** `1.1`
+**Skapad:** 2026-05-28 · **Dokumentversion:** `1.2`
 
 ---
 
@@ -15,6 +15,7 @@
 | **Konflikt** | Vid motsägelse gäller **`app2.md`** |
 | **Scope** | Detta dokument beskriver **endast** Android-specifika implementationer som **inte** redan täcks av app2 |
 | **Gemensam produkt** | Sprint **1–15** + all logik i app2 (Fas A+, push, 9A/9B, 10/10) är **styrande** |
+| **Gate 0** | Native parity freeze — **före** sprint 16 (se nedan) |
 | **Android-spår** | Sprint **16–23** = Android-specifika luckor ovanpå den gemensamma basen |
 
 Utan denna ordning riskerar Android-planen att leva sitt eget liv.
@@ -28,6 +29,7 @@ Utan denna ordning riskerar Android-planen att leva sitt eget liv.
 | Spår | Sprint | Dokument |
 |------|--------|----------|
 | **Gemensam produktutveckling** | 1–15 | `app2.md` + `ios-städ.md` |
+| **Arkitektur-gate** | **0** (Gate 0) | `ios-städ.md` Arkitekturregel + detta avsnitt |
 | **Android-specifika luckor** | 16–23 | `android.md` (detta dokument) |
 
 Sprint **1–15** bygger **samma kod** för `Platform.isNative()`. Android är **inte** Play-klar när bara iOS/TestFlight är grön.
@@ -59,12 +61,14 @@ Deep Links                 ← sprint 22 — före 9B (push + route måste testa
     ↓
 9B (testfamiljer)
     ↓
-20 familjer × 4–6 veckor   ← app2 §16.6 — i praktiken 10/10
+Live-synk (SSE)            ← app2 §16.4 — första version före lång fält
     ↓
-Live-synk (SSE)            ← app2 §16.4
+Barn-wow-polish            ← app2 §16.5 — minst en wow/session
     ↓
-Barn-wow-polish            ← app2 §16.5
+20 familjer × 4–6 veckor   ← app2 §16.6 — mät produkten som ska bli 10/10
 ```
+
+**Varför SSE/wow före fält:** Annars blir feedback *"man måste uppdatera"* / *"det känns statiskt"* — saker ni redan planerar att lösa. Fältstudien ska validera **nästan-10/10**, inte MVP-gap.
 
 **Skillnad 8,5 → 10:** robusthet, synk, push, barnläge och **verklig användning** — inte fler skärmar.
 
@@ -75,6 +79,7 @@ Barn-wow-polish            ← app2 §16.5
 | Gate | Var |
 |------|-----|
 | Sprint 1–15 gröna | `docs/polsia-sprint-koordinering.md` Del A |
+| **Sprint 0 / Gate 0** | Native parity freeze — **obligatorisk före sprint 16** |
 | Fas A+ Release-gate | `docs/ios-städ.md` — Auth, UI, PG, Navigation |
 | `platform.js` frys | `isAndroid()`, inga Capacitor-checks i views |
 | PG + Session Gate | Samma `device_mode` på Android |
@@ -146,6 +151,27 @@ Efter sprint 1–15 utan extra Android-arbete bör detta fungera på Android Web
 - `is_lifetime_free` middleware
 
 **Verifiera alltid på fysisk enhet** — Android back och app switcher är aggressivare än iOS.
+
+---
+
+## Sprint 0 — Gate 0: Native parity freeze
+
+**Före sprint 16.** Låter litet — vanligaste orsaken till hybridapp-röra om den hoppas över.
+
+| Mål | Detalj |
+|-----|--------|
+| **Enda sanning** | Plattforms-API:er **endast** i `public/js/platform.js` |
+| **Tillåtna exports** (minimum) | `isNative()`, `isIOS()`, `isAndroid()`, `isAppleSignInAvailable()`, `isGoogleSignInAvailable()` (+ befintliga wrappers: push, PG, session — inga nya utan PR-motivering) |
+| **Förbjudet i vyer/HTML** | `if (window.Capacitor)`, `Capacitor.isNativePlatform()`, `navigator.userAgent.includes(...)`, `if (Android)`, egna iOS/Android-grenar |
+
+**Audit (Polsia sprint 0):**
+1. `rg` / grep i `public/` efter mönster ovan — lista träffar
+2. Flytta eller wrappa till `platform.js` — **ingen** ny feature
+3. Signera: *0 otillåtna träffar* i view-filer (`.html`, `dashboard.js`, `schedule.js`, …)
+
+**Om regeln bryts senare:** Android-fixar hamnar i HTML, iOS-specialfall i `login.html`, regressions varje sprint.
+
+Se `ios-städ.md` Arkitekturregel 1–2. Polsia: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.md) — **Sprint 0**.
 
 ---
 
@@ -322,6 +348,8 @@ Kör full [Release-gate](#release-gate--android-redo) på **låg/mellanpris-enhe
 ```
 Sprint 1–15 (gemensam, app2) — grön; verifiera på Android där möjligt
     ↓
+0   Gate 0 — Native parity freeze (audit, 0 otillåtna träffar)
+    ↓
 16  Capacitor Android smoke
     ↓
 17  Google backend
@@ -343,7 +371,7 @@ Sprint 1–15 (gemensam, app2) — grön; verifiera på Android där möjligt
 9A  (obligatorisk billig platta) → 9B → Play Internal
 ```
 
-Polsia-prompter: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.md) — Sprint 16–23.
+Polsia-prompter: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.md) — Sprint **0**, 16–23.
 
 ---
 
@@ -357,7 +385,7 @@ Detta dokument + sprint 23 ≈ **8,5–9/10 Android-teknisk beredskap**. För **
 | **Barn-wow** | §16.5 | Minst en wow per session (stjärnregn, raket, konfetti, high five, personlig feedback) — **formellt krav**, inte kosmetik |
 | **Fältstudie** | §16.6 | **20 familjer × 4–6 veckor** — största steget; i praktiken 10/10 om det håller |
 
-Implementationsordning efter 9B: **fält först** (signal), sedan **live-synk**, sedan **barn-wow-polish** — enligt produktägare ovan och app2.
+**Ordning efter 9B (mät rätt produkt):** live-synk (första version) → barn-wow (första version) → **sedan** 20 familjer × 4–6 veckor. Fältstudien validerar nästan-10/10, inte kända MVP-gap.
 
 ---
 
@@ -378,5 +406,6 @@ Implementationsordning efter 9B: **fält först** (signal), sedan **live-synk**,
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
+| 2026-05-28 | 1.2 | Gate 0 native freeze; makro: SSE/wow före fältstudie |
 | 2026-05-28 | 1.1 | app2-styrning; sprint 20.5/21/22/23; 9A billig platta; deep links före 9B; 10/10-gap |
 | 2026-05-28 | 1.0 | Första android.md — Google, FCM, Play gate, sprint 16–21 |

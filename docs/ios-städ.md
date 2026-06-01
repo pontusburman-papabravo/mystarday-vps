@@ -511,7 +511,11 @@ Alla ändringar i Fas A+ (steg 1–6) ska kunna disable:as via **feature flags**
 - [ ] Feature flags deployade och testade (minst av/på i staging)
 - [ ] SW deployad till prod
 
-**Alla gröna → TestFlight tillåten.**
+### Före Android-spår (Gate 0)
+
+- [ ] **Sprint 0 / Gate 0:** Native parity freeze — 0 otillåtna `Capacitor` / `userAgent` / `Android`-grenar i views ([`android.md`](../android.md) § Sprint 0, Polsia sprint 0)
+
+**Alla gröna → TestFlight tillåten.** Android sprint **16+** kräver Gate 0 grön.
 
 Full launch-checklista: [`app2.md` §18](../app2.md#18-native--app-store--väg-610).
 
