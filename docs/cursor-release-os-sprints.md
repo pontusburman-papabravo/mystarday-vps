@@ -25,19 +25,21 @@
 |---|--------|-----|------|----------------|
 | 1 | 1.1 | #2141408 | ✅ | Deploy + Apple TEST |
 | 2 | 1.2 | #2141409 | ✅ | Audit saknade sidor |
-| 3 | 1.3 | #2141410 | ◐ | email_conflict-modal, Google UI → 18 |
+| 3 | 1.3 | #2141410 | ✅ | Google UI → sprint 18 plugin |
 | 4 | 1.4 | #2141411 | ✅ | SW vid deploy |
-| 5 | 14 | #2143272 | ⬜ | Sentry/Crashlytics + DSN |
-| 6 | 2a | #2141905 | ◐ | Full gating (CSS delvis i platform-native.css) |
+| 5 | 14 | #2143272 | ✅ | Sätt `SENTRY_DSN` + enhetstest |
+| 6 | 2a | #2141905 | ✅ | — |
 | 7 | 2b | #2141914 | ✅ | `pwa-install.js` |
-| 8 | 3a | #2141844 | ⬜ | Parental Gate |
-| 9 | 3b | #2141848 | ⬜ | Session gate |
-| 10 | 3c | #2141855 | ⬜ | Routing |
-| 11 | 4 | #2141717 | ◐ | `platform-tab-bar.js` (≠ 5-fliks spec) |
-| 12–14 | 5a–5c | #2141868… | ⬜ | Barnlogin 3 skärmar |
+| 8 | 3a | #2141844 | ✅ | device_mode + session-gate |
+| 9 | 3b | #2141848 | ✅ | PG (befintlig overlay + device_mode) |
+| 10 | 3c | #2141855 | ✅ | API 403 + klient redirect |
+| 11 | 4 | #2141717 | ✅ | `native-tab-bar.js` 5 flikar |
+| 12–14 | 5a–5c | #2141868… | ◐ | Rollval + child-login finns |
 | — | Gate 0 | #2142916 | ✅ | `npm run polsia:gate0` |
-| 15 | 16 | #2142930 | ⬜ | Capacitor Android smoke |
-| 16–20 | 17–21 | #2143390… | ◐/⬜ | Google auth, FCM klient — backend delvis ✅ |
+| 15 | 16 | #2142930 | ○ | Capacitor Android build lokalt |
+| 16 | 17 | #2143390 | ✅ | POST /api/auth/google |
+| 17 | 18 | #2143391 | ◐ | Native Google plugin |
+| 18–20 | 19–21 | #2143394… | ◐ | FCM/APNs backend finns |
 | 21–22 | 22a–22b | #2143403… | ⬜ | Deep links |
 | 23–24 | 23A–23B | #2143273… | ⬜ | Android release |
 | 25 | Gate 24 | #2143329 | ⬜ | Parity 6/6 |
@@ -51,7 +53,7 @@
 
 Samma som [`01-korlista.md`](polsia-release-os/01-korlista.md). Hoppa över rader markerade ✅ om verifiering grön.
 
-**Nästa kodblock:** 14 → 2a (slutför) → 1.3 → 3a–3c → 4 (renodla till spec) → 5a–5c → …
+**Nästa (agent/Polsia):** sprint 18 plugin · 16 Android smoke · 22 deep links · Gate 24 parity · deploy enligt `polsia-deploy-manifest.md`
 
 ---
 
