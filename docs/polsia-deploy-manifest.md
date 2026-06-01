@@ -1,7 +1,7 @@
 # Polsia deploy — filer att ladda ner till produktion
 
-**Branch:** `cursor/release-os-sprints-2-1a8b` (eller `main` efter merge)  
-**Datum:** 2026-05-28 · **SW:** v167
+**Branch:** `main` (mergad 2026-06-01, commit `c93dff7`)  
+**Datum:** 2026-06-01 · **SW:** v167
 **Syfte:** Ge Polsia en **komplett fillista** efter att Cursor kört Release OS sprint 1–26 i repo.
 
 ---

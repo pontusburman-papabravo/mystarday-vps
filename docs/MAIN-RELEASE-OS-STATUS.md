@@ -1,6 +1,6 @@
 # Vad som ligger på `main` (Release OS)
 
-**Senast verifierat:** merge **PR #45** (`c03a616`) + kommande **PR sprint 2**.
+**Senast verifierat:** `main` @ **`c93dff7`** (PR #45 + sprint 2 mergade).
 
 ## På main idag (efter #45)
 
@@ -11,19 +11,12 @@
 | Observability | `crash-reporter.js`, `GET /api/app-config` |
 | Auth | Apple onboarding redirect, `POST /api/auth/google` (befintligt konto) |
 | Barn API | `child-parent-api-block.js` |
-| SW | v166 (v167 i sprint-2-branch) |
-
-## Sprint 2-branch (denna PR) — tillkommer
-
-| Sprint | Innehåll |
-|--------|----------|
-| 5b | PIN haptik `Platform.haptics.light()` |
-| 18 | Google-knapp login/register + `google-auth-ui.js` |
-| 19 | FCM `sendFCM` implementerad |
-| 22a | `assetlinks.json` + `apple-app-site-association` |
-| 22b | `deep-link-router.js` |
-| 26 | `dashboard-polish.css/js` |
-| 16, 23 | Checklist-dokument |
+| SW | **v167** |
+| 5b | PIN haptik |
+| 18 | Google UI + `google-auth-ui.js` |
+| 19 | FCM `sendFCM` |
+| 22a/b | well-known + `deep-link-router.js` |
+| 26 | `dashboard-polish` |
 
 ## Fortfarande enhet / Polsia
 
