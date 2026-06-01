@@ -1,11 +1,13 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.0  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 
 ---
 
-## Körordning (15 tasks)
+## Körordning (21 tasks — 15 gemensam + 6 Android)
+
+### Del A — Gemensam native (iOS + Android WebView)
 
 | Pos | Sprint | P0 | Tim |
 |-----|--------|-----|-----|
@@ -25,9 +27,20 @@
 | 14 | 5b child-login tavla | P1 | 2–4 |
 | 15 | 5c add-child redirect | P1 | 1 |
 
-**Efter 15:** Push → P0.6 Crash → 9A → 9B → Dashboard-polish → Deep links (app2).
+### Del B — Android-spår (efter 15 grön på kod; testa iOS under Del A)
 
-**Ändring mot tidigare 12-kö:** PG (3) **före** UI-gating (2). Tab bar (4) tillagd.
+| Pos | Sprint | P0 | Tim |
+|-----|--------|-----|-----|
+| 16 | 16 Capacitor Android smoke | — | 2 |
+| 17 | 17 Google backend `/api/auth/google` | P0.2 | 2–3 |
+| 18 | 18 Google native klient + login UI | P0.2 | 3 |
+| 19 | 19 FCM server `sendFCM` | Push | 2–3 |
+| 20 | 20 FCM klient Android | Push | 2 |
+| 21 | 21 Android smoke gate | RC | 2 |
+
+**Efter 21:** 9A (iPhone **+** Android-platta) → 9B → Play Internal → Deep links (P0.5) → Dashboard-polish.
+
+**Ändring mot tidigare 12-kö:** PG (3) **före** UI-gating (2). Tab bar (4) tillagd. Android = sprint **16–21** ([`android.md`](../android.md)).
 
 ---
 
@@ -443,7 +456,183 @@ Subscription: lifetime_free
 Navigation: Native tab bar | Webb hamburger
 PG: Force close | Back gesture | Session restore | Token refresh | Direkt URL
 
-→ Då: TestFlight → 9A
+→ Då: TestFlight → 9A (iOS)
+```
+
+---
+
+## Release-gate — Android redo (klipp in vid Sprint 21 klar)
+
+```
+ANDROID REDO (Play Internal) endast om alla ✅:
+
+Delad (sprint 1–15): PG, UI-gating, tab bar, lifetime_free — verifierat PÅ ANDROID
+Android-specifik:
+□ Capacitor android/ bygger
+□ Google native login → dashboard/onboarding
+□ INGEN Apple-knapp på Android
+□ E-post login på Android
+□ FCM token + test-notis inom 60s
+□ PG: Android back-knapp kringgår inte
+□ Crash SDK på Android build (P0.6)
+
+→ Då: Play Internal + 9A Android-rad
+```
+
+Full spec: [`android.md`](../android.md) Release-gate.
+
+---
+
+## SPRINT 16 — Capacitor Android smoke
+
+```
+Uppgift: Sprint 16 — Capacitor Android smoke (bygg + isNative)
+
+Läs: android.md §1, app.md Steg 1
+
+Gör endast:
+1. Verifiera @capacitor/android installerat; npx cap sync android
+2. Android Studio: bygg debug, starta mot mystarday.se (prod URL)
+3. Verifiera window.Capacitor och Platform.isNative() === true
+4. Verifiera body.is-native vid start (platform.js sprint 1.2)
+5. Dokumentera eventuella android/build.gradle targetSdk
+
+Gör INTE: Google login, FCM, store-upload
+
+TEST:
+□ App öppnas utan vit WebView-crash
+□ Login-sida laddar
+
+Release-gate Android: Capacitor bygger
+```
+
+---
+
+## SPRINT 17 — Google backend
+
+```
+Uppgift: Sprint 17 — POST /api/auth/google (backend)
+
+Läs: android.md §2 Backend, app2 §4 P0.2, auth.js Apple-mönster
+
+Gör endast:
+1. POST /api/auth/google — verifiera Google idToken (google-auth-library eller JWT)
+2. Skapa/länka parent + session cookies (samma som Apple/e-post)
+3. Returnera onboarding_completed för redirect-beslut
+4. csrf.js: exempt /api/auth/google om CSRF blockerar
+5. 409 email_conflict om e-post redan finns med annan metod
+
+Gör INTE: login.html UI, Capacitor plugin, PG, push
+
+Env: GOOGLE_CLIENT_ID (dokumentera i .env.example om finns)
+
+TEST:
+□ Postman/curl med test-idToken → 200 + Set-Cookie
+□ Ogiltig token → 401
+
+Release-gate: Google backend (del av P0.2)
+```
+
+---
+
+## SPRINT 18 — Google native klient
+
+```
+Uppgift: Sprint 18 — Google Sign In native klient + login/register UI
+
+Läs: android.md §2 Klient, ios-städ plattformsmatris, app2 §14.3
+
+Gör endast:
+1. platform.js: Platform.isGoogleSignInAvailable() — true endast native Android
+2. Platform.googleSignIn.signIn() — Capacitor Google Auth plugin (dokumentera paket)
+3. login.html + register.html: Google-knapp endast isGoogleSignInAvailable()
+4. Android native: INGEN Apple-knapp (isAppleSignInAvailable false)
+5. Redirect: onboarding vs dashboard efter svar
+6. SW bump
+
+Gör INTE: FCM, PG, tab bar
+
+TEST (fysisk Android eller emulator):
+□ Google login → dashboard eller onboarding
+□ Ingen Apple-knapp synlig
+□ E-post login regression OK
+
+Release-gate: Google native Android ✓
+```
+
+---
+
+## SPRINT 19 — FCM server
+
+```
+Uppgift: Sprint 19 — Implementera sendFCM (server)
+
+Läs: android.md §3 Server, src/lib/push-notifications.js, app.md Steg 5
+
+Gör endast:
+1. Implementera sendFCM() — FCM HTTP v1 (firebase-admin) ELLER server key
+2. Env: FCM_SERVICE_ACCOUNT_JSON eller FCM_SERVER_KEY — dokumentera
+3. Vid ogiltig token: rensa push_subscriptions (samma som APNs-mönster)
+4. Logga fel utan PII
+
+Gör INTE: klient push-manager, Google login
+
+TEST:
+□ Enhetstest eller manuell send till test-token från sprint 20
+□ Utan env: tydlig warn, ingen crash
+
+Release-gate: FCM server
+```
+
+---
+
+## SPRINT 20 — FCM klient Android
+
+```
+Uppgift: Sprint 20 — FCM klient + push-manager Android
+
+Läs: android.md §3 Klient, app2 §14.4, push-manager.js
+
+Gör endast:
+1. @capacitor/push-notifications — Android permissions i manifest (via cap sync)
+2. push-manager.js: Platform.push.subscribe() på native Android
+3. POST token till backend med platform=android, native_token=…
+4. Re-register vid app start; remove vid logout
+5. SW bump om klient ändrad
+
+Gör INTE: sendFCM server (sprint 19), APNs-ändringar
+
+TEST:
+□ Token syns i push_subscriptions platform=android
+□ Test-push från admin/test-endpoint når enheten <60s
+
+Release-gate: FCM klient ✓
+```
+
+---
+
+## SPRINT 21 — Android smoke gate
+
+```
+Uppgift: Sprint 21 — Android smoke gate (helhet)
+
+Läs: android.md Release-gate, app2 §9A (billig platta)
+
+Gör endast:
+1. Kör igenom checklista android.md Release-gate på FYSISK Android
+2. Signera TESTLOGG i kommentar/PR:
+   - Google login, e-post login, ingen Apple
+   - PG: force close, Android BACK, device_mode
+   - Tab bar, ingen PWA-banner
+   - FCM notis vid avbockning (om barn/testdata finns)
+3. Fixa endast bugs som hittas — inga nya features
+
+Gör INTE: Play Console upload, deep links
+
+TEST:
+□ Alla rader android.md Release-gate ✅
+
+Release-gate: Android redo → Play Internal tillåten
 ```
 
 ---
@@ -452,4 +641,5 @@ PG: Force close | Back gesture | Session restore | Token refresh | Direkt URL
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | Sprint 16–21 Android + android.md; Release-gate Android |
 | 2026-05-28 | Första koordineringsdoc — 15 tasks, PG före gating, Sprint 4 tillagd |
