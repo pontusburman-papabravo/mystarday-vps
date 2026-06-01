@@ -1,11 +1,13 @@
 # Polsia — Sprint-kö (copy-paste)
 
-**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.0  
+**Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.1  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
+
+**Styrning:** Vid konflikt gäller **`app2.md`**. `android.md` är endast Android-tillägg — se [`android.md`](../android.md) § Styrning.
 
 ---
 
-## Körordning (21 tasks — 15 gemensam + 6 Android)
+## Körordning (24 tasks — 15 gemensam + 9 Android)
 
 ### Del A — Gemensam native (iOS + Android WebView)
 
@@ -36,11 +38,14 @@
 | 18 | 18 Google native klient + login UI | P0.2 | 3 |
 | 19 | 19 FCM server `sendFCM` | Push | 2–3 |
 | 20 | 20 FCM klient Android | Push | 2 |
-| 21 | 21 Android smoke gate | RC | 2 |
+| 21 | 20.5 Android observability (Sentry/Crashlytics) | P0.6 | 2 |
+| 22 | 21 Android PG-härdning (back, switcher…) | P0.1 | 2–3 |
+| 23 | 22 Deep Links (före 9B) | P0.5 | 2–3 |
+| 24 | 23 Android smoke gate | RC | 2 |
 
-**Efter 21:** 9A (iPhone **+** Android-platta) → 9B → Play Internal → Deep links (P0.5) → Dashboard-polish.
+**Makro (app2 styr):** Fas A+ → Barnlogin P1 → Push → Dashboard → **20.5** → **9A** (billig Android-platta obligatorisk) ‖ sprint 16–23 parallellt → **22 Deep Links** → **9B** → 20 familjer × 4–6 v → live-synk → barn-wow.
 
-**Ändring mot tidigare 12-kö:** PG (3) **före** UI-gating (2). Tab bar (4) tillagd. Android = sprint **16–21** ([`android.md`](../android.md)).
+**Ändring v1.1:** Sprint **20.5** crash, **21** PG Android, **22** deep links **före 9B**, **23** smoke. Se [`android.md`](../android.md) v1.1.
 
 ---
 
@@ -461,22 +466,24 @@ PG: Force close | Back gesture | Session restore | Token refresh | Direkt URL
 
 ---
 
-## Release-gate — Android redo (klipp in vid Sprint 21 klar)
+## Release-gate — Android redo (klipp in vid Sprint 23 klar)
 
 ```
 ANDROID REDO (Play Internal) endast om alla ✅:
 
-Delad (sprint 1–15): PG, UI-gating, tab bar, lifetime_free — verifierat PÅ ANDROID
-Android-specifik:
+Delad (sprint 1–15): UI-gating, tab bar, lifetime_free — verifierat PÅ ANDROID
+Android-specifik (sprint 16–23):
 □ Capacitor android/ bygger
 □ Google native login → dashboard/onboarding
 □ INGEN Apple-knapp på Android
 □ E-post login på Android
 □ FCM token + test-notis inom 60s
-□ PG: Android back-knapp kringgår inte
-□ Crash SDK på Android build (P0.6)
+□ Sprint 20.5: Sentry/Crashlytics — test-crash, stack traces, version+commit, ingen PII
+□ Sprint 21: PG — hardware back, gesture back, app switcher, force close, cold start, token refresh
+□ Sprint 22: Push-tap → deep link → rätt route
+□ 9A: minst en FYSISK låg/mellanpris-platta (Lenovo Tab, Samsung A…) — inte bara Pixel-flaggskepp
 
-→ Då: Play Internal + 9A Android-rad
+→ Då: Play Internal + 9B tillåten på Android
 ```
 
 Full spec: [`android.md`](../android.md) Release-gate.
@@ -611,26 +618,105 @@ Release-gate: FCM klient ✓
 
 ---
 
-## SPRINT 21 — Android smoke gate
+## SPRINT 20.5 — Android observability
 
 ```
-Uppgift: Sprint 21 — Android smoke gate (helhet)
+Uppgift: Sprint 20.5 — Android observability (P0.6)
 
-Läs: android.md Release-gate, app2 §9A (billig platta)
+Läs: android.md sprint 20.5, app2 P0.6
 
 Gör endast:
-1. Kör igenom checklista android.md Release-gate på FYSISK Android
-2. Signera TESTLOGG i kommentar/PR:
-   - Google login, e-post login, ingen Apple
-   - PG: force close, Android BACK, device_mode
-   - Tab bar, ingen PWA-banner
-   - FCM notis vid avbockning (om barn/testdata finns)
-3. Fixa endast bugs som hittas — inga nya features
+1. Installera Sentry ELLER Firebase Crashlytics på Android Capacitor-build
+2. Konfigurera release: app-version + git commit (eller build-id) i varje event
+3. Avsiktlig test-crash — verifiera i Sentry/Crashlytics-dashboard
+4. Verifiera Android stack traces (symbolikering)
+5. GDPR: ingen PII i breadcrumbs/user context (e-post, barnnamn, PIN)
 
-Gör INTE: Play Console upload, deep links
+Gör INTE: PG, deep links, Play upload, iOS-ändringar (om inte delad init)
+
+TEST:
+□ Test-crash syns inom 5 min
+□ Stack trace läsbar
+□ Version + commit syns
+□ Ingen e-post/barnnamn i payload
+
+Release-gate: P0.6 Android ✓ (före 9B)
+```
+
+---
+
+## SPRINT 21 — Android PG-härdning
+
+```
+Uppgift: Sprint 21 — Android PG-härdning (device_mode)
+
+Läs: android.md sprint 21, ios-städ Session Gate, app2 P0.1
+
+Gör endast:
+1. Testmatris på FYSISK Android (gärna billig platta) — signera varje rad:
+   - Hardware Back (barnläge / PG aktiv)
+   - Gesture Back
+   - App switcher (recents) → tillbaka
+   - Force close → cold start
+   - Cold start: device_mode + Session Gate
+   - Token refresh: ingen redirect-loop, PG vid behov
+2. Fixa endast buggar i PG/session-gate/platform.js — inga nya features
+
+Gör INTE: Google login, FCM, deep links, crash SDK (sprint 20.5)
+
+TEST (alla mot device_mode barn/förälder):
+□ Back kringgår inte PG
+□ App switcher läcker inte föräldravy i barnläge
+□ Force close → korrekt gate vid återöppning
+
+Release-gate: Android PG-härdning ✓
+```
+
+---
+
+## SPRINT 22 — Deep Links (före 9B)
+
+```
+Uppgift: Sprint 22 — Android Deep Links (App Links)
+
+Läs: android.md sprint 22, app2 P0.5, app2 §4
+
+Gör endast:
+1. /.well-known/assetlinks.json på mystarday.se (SHA256 från signing key)
+2. Capacitor/AndroidManifest intent filters för invite, confirm-email, pedagog-invite
+3. Route-hantering i app/web vid cold start från länk
+4. Test: FCM-notis (sprint 20) med URL → tap öppnar RÄTT skärm i native app
+5. Fallback: webb om app ej installerad
+
+Gör INTE: Play Console public, IAP, live-synk SSE
+
+TEST:
+□ adb am start -a android.intent.action.VIEW -d "https://mystarday.se/invite/TEST" → rätt vy
+□ Push-tap → rätt route (inte bara dashboard root)
+
+Release-gate: Deep links före 9B ✓
+```
+
+---
+
+## SPRINT 23 — Android smoke gate
+
+```
+Uppgift: Sprint 23 — Android smoke gate (helhet)
+
+Läs: android.md Release-gate, app2 §9A (billig platta obligatorisk)
+
+Gör endast:
+1. Kör full checklista android.md Release-gate på FYSISK låg/mellanpris-enhet
+2. Signera TESTLOGG: modell, Android-version, alla sprint 16–22 rader
+3. Google + e-post login, ingen Apple, tab bar, FCM+deep link, PG, crash SDK
+4. Fixa endast bugs — inga nya features
+
+Gör INTE: Play Console upload (kan förberedas separat)
 
 TEST:
 □ Alla rader android.md Release-gate ✅
+□ Enhet = låg/mellansegment (inte endast emulator/flaggskepp)
 
 Release-gate: Android redo → Play Internal tillåten
 ```
@@ -641,5 +727,6 @@ Release-gate: Android redo → Play Internal tillåten
 
 | Datum | Ändring |
 |-------|---------|
+| 2026-05-28 | v1.1: 20.5 observability, 21 PG, 22 deep links före 9B, 23 smoke; app2-styrning |
 | 2026-05-28 | Sprint 16–21 Android + android.md; Release-gate Android |
 | 2026-05-28 | Första koordineringsdoc — 15 tasks, PG före gating, Sprint 4 tillagd |
