@@ -745,14 +745,14 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
 
     // Find child — username match first, then display name
     let childResult = await db.query(
-      'SELECT id, family_id, name, emoji, username, pin FROM child WHERE LOWER(username) = $1',
+      'SELECT id, family_id, name, emoji, username, pin, avatar_url FROM child WHERE LOWER(username) = $1',
       [normalizedInput]
     );
     let child = childResult.rows[0];
 
     if (!child) {
       const nameResult = await db.query(
-        'SELECT id, family_id, name, emoji, username, pin FROM child WHERE LOWER(name) = $1',
+        'SELECT id, family_id, name, emoji, username, pin, avatar_url FROM child WHERE LOWER(name) = $1',
         [normalizedInput]
       );
       if (nameResult.rows.length === 1) {
@@ -968,7 +968,15 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     setAccessCookie(res, accessToken, expiresInSecs);
 
     const csrfToken = generateCsrfToken(res);
-    const user = { id: child.id, name: child.name, emoji: child.emoji, familyId: child.family_id, username: child.username, type: 'child' };
+    const user = {
+      id: child.id,
+      name: child.name,
+      emoji: child.emoji,
+      avatar_url: child.avatar_url || null,
+      familyId: child.family_id,
+      username: child.username,
+      type: 'child',
+    };
     // expiresAt lets the frontend schedule proactive silent refresh
     const expiresAt = Date.now() + expiresInSecs * 1000;
     return res.json({ csrfToken, user, expiresAt });
@@ -1512,12 +1520,38 @@ async function completeLogin(req, res, parent, userType) {
   res.json({ csrfToken, user, expiresAt });
 }
 
+// ─── GET /api/auth/login-picker-children ───────────────────
+// Barnväljare: barn i familjen (namn + avatar) utan att aktivera vuxensession i klienten.
+router.get('/login-picker-children', async (req, res) => {
+  try {
+    const { resolveParentIdForLoginPicker } = require('../middleware/auth');
+    const parentId = resolveParentIdForLoginPicker(req);
+    if (!parentId) return res.json([]);
+
+    const children = await getChildrenForParent(parentId, { allowedRoles: ['primary', 'shared'] });
+    res.json(
+      children.map((c) => ({
+        username: c.username,
+        name: c.name,
+        emoji: c.emoji || '⭐',
+        avatar_url: c.avatar_url || null,
+        familyId: c.family_id || null,
+      }))
+    );
+  } catch (err) {
+    console.error('[AUTH] login-picker-children error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 // ─── POST /api/auth/logout ────────────────────────────────
 // Revoke the refresh token and clear cookies.
 // When a child logs out, if a parent session was saved (via stjarndag_parent_session),
 // restore it so the parent remains logged in.
+// Body { switchChild: true } — end child session only; keep parent session cookie for barnväljare.
 router.post('/logout', async (req, res) => {
   try {
+    const switchChild = req.body?.switchChild === true;
     const raw = req.cookies?.refresh_token;
     if (raw) {
       await revokeRefreshToken(raw);
@@ -1549,6 +1583,10 @@ router.post('/logout', async (req, res) => {
       // Parent logout (or unknown type) — clear parent session cookie and do full logout
       res.clearCookie('stjarndag_parent_session', { path: '/' });
       return res.json({ message: 'Utloggad' });
+    }
+
+    if (switchChild) {
+      return res.json({ message: 'Utloggad', switchChild: true });
     }
 
     const parentSessionCookie = req.cookies?.stjarndag_parent_session;

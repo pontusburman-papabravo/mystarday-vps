@@ -79,21 +79,40 @@ function renderChildList() {
   });
 }
 
-function fetchMeChildren() {
-  return window.apiFetch('/api/auth/me')
-    .then(r => r.ok ? r.json() : null)
-    .then(me => {
-      if (!me || !me.children || me.children.length === 0) return null;
-      return me.children.map(c => ({
-        username: c.username || c.name?.toLowerCase().replace(/\b\//g, '') || c.name,
-        name: c.name || c.username,
-        emoji: c.emoji || '⭐',
-        avatar_url: c.avatar_url || null,
-        familyId: c.family_id || me.familyId || null,
-        lastLoginAt: null,
-      }));
+function mapPickerChild(c, familyIdFallback) {
+  return {
+    username: c.username || (c.name && String(c.name).toLowerCase().replace(/\s+/g, '')) || c.name,
+    name: c.name || c.username,
+    emoji: c.emoji || '⭐',
+    avatar_url: c.avatar_url || null,
+    familyId: c.familyId || c.family_id || familyIdFallback || null,
+    lastLoginAt: null,
+  };
+}
+
+function fetchPickerChildrenFromApi() {
+  return fetch('/api/auth/login-picker-children', { credentials: 'same-origin' })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (list) {
+      if (!list || !list.length) return null;
+      return list.map(function (c) { return mapPickerChild(c, null); });
     })
-    .catch(() => null);
+    .catch(function () { return null; });
+}
+
+function fetchMeChildren() {
+  return fetchPickerChildrenFromApi().then(function (fromPicker) {
+    if (fromPicker && fromPicker.length > 0) return fromPicker;
+    return window.apiFetch('/api/auth/me')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (me) {
+        if (!me || !me.children || me.children.length === 0) return null;
+        return me.children.map(function (c) {
+          return mapPickerChild(c, me.familyId);
+        });
+      })
+      .catch(function () { return null; });
+  });
 }
 
 // ── localStorage: stjarndag_known_children ────────────────────────────────────

@@ -90,6 +90,14 @@ test('injectPlatformHtml adds device-mode and skips duplicate platform.js', () =
   assert.equal(platformCount, 1);
 });
 
+test('login-picker path allowed for child JWT', () => {
+  let called = false;
+  const req = { user: { type: 'child', id: 'c1' }, path: '/auth/login-picker-children' };
+  const res = { status() { return res; }, json() {} };
+  childParentApiBlock(req, res, () => { called = true; });
+  assert.equal(called, true);
+});
+
 test('injectPlatformHtml is idempotent', () => {
   const once = injectPlatformHtml('<html><head></head><body></body></html>');
   const twice = injectPlatformHtml(once);

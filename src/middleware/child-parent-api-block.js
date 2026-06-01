@@ -8,6 +8,7 @@ const { restoreParentUserFromCookie } = require('./auth');
 const CHILD_ALLOWED = [
   /^\/me(\/|$)/,
   /^\/auth(\/|$)/,
+  /^\/auth\/login-picker-children$/,
   /^\/push(\/|$)/,
   /^\/events(\/|$)/,
   /^\/i18n(\/|$)/,

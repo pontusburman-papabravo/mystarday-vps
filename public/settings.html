@@ -81,6 +81,7 @@
         <button onclick="toggleDarkMode()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> Mörkt läge
         </button>
+        <button type="button" id="switchUserBtn" class="w-full px-4 py-2 mb-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors">Byt användare</button>
         <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
       </div>
     </nav>
@@ -615,6 +616,7 @@
           Theme.setColorBlind(cbSelect.value);
         });
 
+        document.getElementById('switchUserBtn').addEventListener('click', () => Auth.logout());
         document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
         // (Immediate deletion — no pending state needed)

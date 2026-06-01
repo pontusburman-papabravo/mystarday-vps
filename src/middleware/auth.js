@@ -251,6 +251,32 @@ function restoreParentUserFromCookie(req) {
   }
 }
 
+/**
+ * Parent id for barnväljaren — aktiv vuxensession eller sparad stjarndag_parent_session.
+ */
+function resolveParentIdForLoginPicker(req) {
+  const token = extractToken(req);
+  if (token) {
+    try {
+      const decoded = verifyToken(token);
+      if (decoded.type === 'parent') return decoded.id;
+    } catch {
+      /* fall through */
+    }
+  }
+  const saved = req.cookies?.stjarndag_parent_session;
+  if (!saved) return null;
+  try {
+    const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
+    if (!session?.access_token) return null;
+    const decoded = verifyToken(session.access_token);
+    if (decoded.type === 'parent') return decoded.id;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 module.exports = {
   requireAuth,
   requireParent,
@@ -261,4 +287,5 @@ module.exports = {
   extractToken,
   restoreParentSession,
   restoreParentUserFromCookie,
+  resolveParentIdForLoginPicker,
 };

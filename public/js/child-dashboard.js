@@ -2364,6 +2364,15 @@ function toggleChildDarkMode() {
   if (btn) btn.textContent = isDark ? '☀️' : '🌙';
 }
 
+// ── Byt barn (familjemedlem) — barnväljare utan att aktivera vuxenpanel ──
+function switchChildMember() {
+  if (window.Auth && typeof Auth.switchChildMember === 'function') {
+    Auth.switchChildMember();
+    return;
+  }
+  window.location.href = '/child-login';
+}
+
 // ── Child logout ────────────────────────────────────────
 async function childLogout() {
   try {
@@ -2521,9 +2530,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (minimalUiActive) {
       const printBtn = document.getElementById('printBtn');
       const logoutBtn = document.getElementById('logoutBtn');
+      const switchChildBtn = document.getElementById('switchChildBtn');
       const darkModeBtn = document.getElementById('childDarkBtn');
       if (printBtn) printBtn.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'none';
+      if (switchChildBtn) switchChildBtn.style.display = 'none';
       if (darkModeBtn) darkModeBtn.style.display = 'none';
     }
 
