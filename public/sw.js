@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v171
+ * Min Stjärndag — Service Worker v172
+ * v172: Lägg till barn → onboarding flow=add-child (barnväljare + picker parent hydrate)
  * v171: Barnväljare mockup — subtitle, Lägg till ett barn-rad + CSS
  * v167: Sprint 18 Google UI, 22 deep links, 19 FCM send, 26 dashboard polish, 5b PIN haptik
  * v166: Release OS sprint 1–26 agent batch — device_mode, session-gate, native-tab-bar,
@@ -179,7 +180,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v171';
+const CACHE_NAME = 'stjarndag-v172';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

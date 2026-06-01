@@ -170,6 +170,48 @@ const Auth = {
   },
 
   /**
+   * Barnväljare: familjens barn + om föräldersession finns (cookie).
+   * Supports legacy array responses for backwards compatibility.
+   */
+  async fetchLoginPickerContext() {
+    try {
+      const res = await fetch('/api/auth/login-picker-children', { credentials: 'include' });
+      if (!res.ok) return { hasSession: false, children: [], parent: null };
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return {
+          hasSession: data.length > 0,
+          children: data,
+          parent: null,
+        };
+      }
+      return {
+        hasSession: !!data.hasSession,
+        children: data.children || [],
+        parent: data.parent || null,
+      };
+    } catch {
+      return { hasSession: false, children: [], parent: null };
+    }
+  },
+
+  /**
+   * Hydrate localStorage parent user from barnväljare (stjarndag_parent_session / parent JWT).
+   * Used for flow=add-child onboarding when Auth was cleared (e.g. after "Byt barn").
+   */
+  async hydrateUserFromLoginPicker() {
+    if (this.isLoggedIn()) {
+      const u = this.getUser();
+      if (u && u.type === 'parent') return true;
+    }
+    const ctx = await this.fetchLoginPickerContext();
+    if (!ctx.hasSession || !ctx.parent) return false;
+    this.setAuth(null, ctx.parent);
+    await this.ensureCsrfToken();
+    return true;
+  },
+
+  /**
    * Schedule a silent refresh 2 min before token expiry.
    */
   _scheduleRefresh(expMs) {

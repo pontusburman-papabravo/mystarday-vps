@@ -989,26 +989,38 @@ function initIOSAvatarPicker() {
 
 // ────────────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!Auth.isLoggedIn() && !IS_ADD_CHILD) {
-    // add-child can reach onboarding without login — will redirect via openAddChild()
-    window.location.href = '/login';
-    return;
-  }
+  const addChildReturnUrl = window.location.pathname + window.location.search;
+
   if (!Auth.isLoggedIn()) {
-    window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname + window.location.search);
-    return;
+    if (!IS_ADD_CHILD) {
+      window.location.href = '/login';
+      return;
+    }
+    const hydrated = await Auth.hydrateUserFromLoginPicker();
+    if (!hydrated) {
+      window.location.href = '/login?next=' + encodeURIComponent(addChildReturnUrl);
+      return;
+    }
   }
 
-  let me = null;
-  try {
-    const res = await window.apiFetch('/api/auth/me');
-    if (!res.ok) { Auth.clearAuth(); window.location.href = '/login'; return; }
-    me = await res.json();
-    if (!IS_ADD_CHILD && me.onboarding_completed) { window.location.href = '/dashboard'; return; }
-    if (me.is_admin) { window.location.href = '/admin'; return; }
-  } catch {
-    window.location.href = '/login';
-    return;
+  let me = Auth.getUser();
+  if (IS_ADD_CHILD && me && me.type === 'parent') {
+    // Barnväljare: use picker parent — /api/auth/me may still be child JWT in cookie.
+  } else {
+    try {
+      const res = await window.apiFetch('/api/auth/me');
+      if (!res.ok) { Auth.clearAuth(); window.location.href = '/login'; return; }
+      me = await res.json();
+      if (IS_ADD_CHILD && me.type === 'child' && (await Auth.hydrateUserFromLoginPicker())) {
+        me = Auth.getUser();
+      }
+      if (!IS_ADD_CHILD && me.onboarding_completed) { window.location.href = '/dashboard'; return; }
+      if (me.is_admin) { window.location.href = '/admin'; return; }
+      Auth.setAuth(null, me);
+    } catch {
+      window.location.href = '/login';
+      return;
+    }
   }
 
   buildEmojiGrid();

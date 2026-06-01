@@ -1522,22 +1522,44 @@ async function completeLogin(req, res, parent, userType) {
 
 // ─── GET /api/auth/login-picker-children ───────────────────
 // Barnväljare: barn i familjen (namn + avatar) utan att aktivera vuxensession i klienten.
+// Response: { hasSession, children[], parent? } — parent enables add-child onboarding without full re-login.
 router.get('/login-picker-children', async (req, res) => {
   try {
     const { resolveParentIdForLoginPicker } = require('../middleware/auth');
     const parentId = resolveParentIdForLoginPicker(req);
-    if (!parentId) return res.json([]);
+    if (!parentId) {
+      return res.json({ hasSession: false, children: [] });
+    }
+
+    const parentResult = await db.query(
+      `SELECT id, email, family_id, is_admin, onboarding_completed
+       FROM parent WHERE id = $1`,
+      [parentId]
+    );
+    const parentRow = parentResult.rows[0];
+    if (!parentRow) {
+      return res.json({ hasSession: false, children: [] });
+    }
 
     const children = await getChildrenForParent(parentId, { allowedRoles: ['primary', 'shared'] });
-    res.json(
-      children.map((c) => ({
+    res.json({
+      hasSession: true,
+      children: children.map((c) => ({
         username: c.username,
         name: c.name,
         emoji: c.emoji || '⭐',
         avatar_url: c.avatar_url || null,
         familyId: c.family_id || null,
-      }))
-    );
+      })),
+      parent: {
+        id: parentRow.id,
+        email: parentRow.email || null,
+        familyId: parentRow.family_id,
+        isAdmin: parentRow.is_admin || false,
+        type: 'parent',
+        onboarding_completed: parentRow.onboarding_completed,
+      },
+    });
   } catch (err) {
     console.error('[AUTH] login-picker-children error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
