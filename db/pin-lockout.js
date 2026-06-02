@@ -12,20 +12,20 @@ const config = require('../src/lib/config');
 
 // ─── Lockout thresholds ───────────────────────────────────
 // Exponential backoff schedule:
-//   ≥ MAX_ATTEMPTS: baseLockoutMinutes (default 1min)
-//   ≥ MAX_ATTEMPTS + 3: 5 × base (default 5min)
-//   ≥ MAX_ATTEMPTS + 6: 15 × base (default 15min)
-const MAX_ATTEMPTS = config.rateLimits.childPin.maxAttempts; // default 5
-const BASE_MINUTES = config.rateLimits.childPin.baseLockoutMinutes; // default 1
+//   ≥ MAX_ATTEMPTS: baseLockoutSeconds (default 30s)
+//   ≥ MAX_ATTEMPTS + 3: 5 × base (default 150s)
+//   ≥ MAX_ATTEMPTS + 6: 15 × base (default 450s)
+const MAX_ATTEMPTS = config.rateLimits.childPin.maxAttempts; // default 3
+const BASE_SECONDS = config.rateLimits.childPin.baseLockoutSeconds || 30;
 
 /**
- * Compute lockout duration in minutes based on total attempt count.
+ * Compute lockout duration in seconds based on total attempt count.
  * Returns 0 if not yet locked.
  */
-function getLockoutMinutes(attemptCount) {
-  if (attemptCount >= MAX_ATTEMPTS + 6) return BASE_MINUTES * 15;
-  if (attemptCount >= MAX_ATTEMPTS + 3) return BASE_MINUTES * 5;
-  if (attemptCount >= MAX_ATTEMPTS) return BASE_MINUTES;
+function getLockoutSeconds(attemptCount) {
+  if (attemptCount >= MAX_ATTEMPTS + 6) return BASE_SECONDS * 15;
+  if (attemptCount >= MAX_ATTEMPTS + 3) return BASE_SECONDS * 5;
+  if (attemptCount >= MAX_ATTEMPTS) return BASE_SECONDS;
   return 0;
 }
 
@@ -63,11 +63,11 @@ async function recordFailedAttempt(childId, ipAddress) {
     [childId, ipAddress || null]
   );
   const row = result.rows[0];
-  const lockoutMinutes = getLockoutMinutes(row.attempt_count);
+  const lockoutSeconds = getLockoutSeconds(row.attempt_count);
 
   // Apply lockout if threshold crossed
-  if (lockoutMinutes > 0) {
-    const lockedUntil = new Date(Date.now() + lockoutMinutes * 60_000);
+  if (lockoutSeconds > 0) {
+    const lockedUntil = new Date(Date.now() + lockoutSeconds * 1000);
     await db.query(
       `UPDATE pin_lockout SET locked_until = $1 WHERE child_id = $2`,
       [lockedUntil, childId]
@@ -78,7 +78,8 @@ async function recordFailedAttempt(childId, ipAddress) {
   const attemptsRemaining = Math.max(0, MAX_ATTEMPTS - row.attempt_count);
   return {
     ...row,
-    lockout_minutes: lockoutMinutes,
+    lockout_seconds: lockoutSeconds,
+    lockout_minutes: Math.ceil(lockoutSeconds / 60),
     attempts_remaining: attemptsRemaining,
   };
 }
@@ -108,6 +109,7 @@ async function checkLockout(childId) {
   return {
     locked: true,
     locked_until: lockout.locked_until,
+    lockout_seconds: Math.ceil(msRemaining / 1000),
     lockout_minutes: minutesRemaining,
     retry_after_seconds: Math.ceil(msRemaining / 1000),
   };
@@ -184,8 +186,8 @@ async function getAuditLog(childId, limit = 50) {
 
 module.exports = {
   MAX_ATTEMPTS,
-  BASE_MINUTES,
-  getLockoutMinutes,
+  BASE_SECONDS,
+  getLockoutSeconds,
   getLockout,
   recordFailedAttempt,
   clearLockout,

@@ -180,9 +180,12 @@
         </section>
 
         <!-- ─── Children Section ──────────────────────────────── -->
-        <section>
+        <section aria-labelledby="my-children-heading">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
+            <div>
+              <h3 id="my-children-heading" class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Mina barn</h3>
+              <p class="text-xs text-text-soft mt-1">Barn du har aktiv åtkomst till via familjelänkar.</p>
+            </div>
             <button onclick="document.getElementById('addChildModal').classList.remove('hidden')"
               class="px-3 py-1.5 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">
               + Lägg till barn
@@ -208,9 +211,12 @@
         </section>
 
         <!-- ─── Adults Section ────────────────────────────────── -->
-        <section>
+        <section aria-labelledby="share-access-heading">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Vuxna</h3>
+            <div>
+              <h3 id="share-access-heading" class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Dela åtkomst</h3>
+              <p class="text-xs text-text-soft mt-1">Bjud in vuxna och styr åtkomst till familjens barn.</p>
+            </div>
             <div class="flex gap-2">
               <button id="inviteBtn" onclick="document.getElementById('inviteModal').classList.remove('hidden')"
                 class="hidden px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">

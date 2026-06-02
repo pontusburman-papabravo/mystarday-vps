@@ -74,10 +74,12 @@ module.exports = {
     },
     // Child PIN lockout: exponential backoff, DB-based per child_id + IP
     childPin: {
-      // Max failed attempts before first lockout (task: 5, parent fat-finger safe)
-      maxAttempts: parseInt(process.env.MAX_PIN_ATTEMPTS) || 5,
-      // Base lockout duration in minutes (after maxAttempts failures)
-      // Backoff: baseMinutes → 5× → 15×
+      // Max failed attempts before first lockout (spec: 3 failed attempts)
+      maxAttempts: parseInt(process.env.MAX_PIN_ATTEMPTS) || 3,
+      // Base lockout duration in seconds (spec: 30s first lockout)
+      // Backoff: baseSeconds → 5× → 15×
+      baseLockoutSeconds: parseInt(process.env.LOCKOUT_BASE_SECONDS) || 30,
+      // Backward-compatible alias for older code paths.
       baseLockoutMinutes: parseInt(process.env.LOCKOUT_BASE_MINUTES) || 1,
     },
     // Legacy alias (used by old code path — kept for compat)

@@ -11,8 +11,8 @@
 
 | Status | Antal |
 |--------|------|
-| ✅ pass | 139 |
-| ⚠️ partial | 151 |
+| ✅ pass | 141 |
+| ⚠️ partial | 149 |
 | ❌ fail | 0 |
 | ⏭ skip | 10 |
 | **Totalt** | **300** |
@@ -120,7 +120,7 @@
 | QA-097 | ✅ pass |  |
 | QA-098 | ✅ pass |  |
 | QA-099 | ⚠️ partial | Kräver API |
-| QA-100 | ⚠️ partial | Spec säger 3×30s; kod maxAttempts=? (exponential min) |
+| QA-100 | ✅ pass | 3 försök + 30s lockout (exponential backoff) |
 | QA-101 | ⚠️ partial | Kräver API |
 | QA-102 | ✅ pass | PIN notify kod |
 | QA-103 | ✅ pass |  |
@@ -216,7 +216,7 @@
 | QA-193 | ⚠️ partial | PDF |
 | QA-194 | ⚠️ partial | date filter |
 | QA-195 | ⚠️ partial | is_important UI |
-| QA-196 | ⚠️ partial | family.html finns men saknar kravspec §6 UI-rubriker |
+| QA-196 | ✅ pass |  |
 | QA-197 | ✅ pass |  |
 | QA-198 | ✅ pass | childIds i family.js |
 | QA-199 | ✅ pass |  |

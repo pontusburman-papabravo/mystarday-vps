@@ -156,8 +156,13 @@ if (clJs.includes('handleManualName')) pass('QA-096');
 if (clHtml.includes('step-profiles') || clJs.includes('renderChildList')) pass('QA-097');
 if (clHtml.includes('step-pin')) pass('QA-098');
 partial('QA-099', 'Kräver API');
-const maxPin = config.match(/maxAttempts:\s*(\d+)/)?.[1] || '?';
-if (ex('db/pin-lockout.js')) partial('QA-100', `Spec säger 3×30s; kod maxAttempts=${maxPin} (exponential min)`);
+const maxPin = config.match(/maxAttempts:.*\|\|\s*(\d+)/)?.[1] || '?';
+const baseLockoutSeconds = config.match(/baseLockoutSeconds:.*\|\|\s*(\d+)/)?.[1] || '?';
+if (ex('db/pin-lockout.js') && maxPin === '3' && baseLockoutSeconds === '30') {
+  pass('QA-100', '3 försök + 30s lockout (exponential backoff)');
+} else if (ex('db/pin-lockout.js')) {
+  partial('QA-100', `Förväntat 3×30s; kod maxAttempts=${maxPin}, baseLockoutSeconds=${baseLockoutSeconds}`);
+}
 partial('QA-101', 'Kräver API');
 if (auth.includes('pin_notification') || read('db/pin-lockout.js').includes('notification')) pass('QA-102', 'PIN notify kod');
 if (ex('public/child-dashboard.html')) pass('QA-103');

@@ -789,8 +789,10 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     // ── Check existing lockout (DB-based, child_id scoped) ──────────────
     const lockoutStatus = await pinLockout.checkLockout(child.id);
     if (lockoutStatus.locked) {
-      const minutes = lockoutStatus.lockout_minutes;
-      const minuteText = minutes === 1 ? 'minut' : 'minuter';
+      const retrySeconds = lockoutStatus.retry_after_seconds;
+      const waitText = retrySeconds < 60
+        ? `${retrySeconds} sekunder`
+        : `${Math.ceil(retrySeconds / 60)} ${Math.ceil(retrySeconds / 60) === 1 ? 'minut' : 'minuter'}`;
       console.warn(
         `[PIN] Blocked attempt during lockout — child=${child.id} ip=${clientIp} ` +
         `locked_until=${lockoutStatus.locked_until}`
@@ -799,7 +801,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
         .set('Retry-After', String(lockoutStatus.retry_after_seconds))
         .status(429)
         .json({
-          error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+          error: `Vänta en liten stund ⏰ Du kan försöka igen om ${waitText}`,
           locked: true,
           retry_after: lockoutStatus.retry_after_seconds,
           locked_until: lockoutStatus.locked_until,
@@ -865,24 +867,26 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
       }
 
       // ── New lockout triggered? ────────────────────────────────────────
-      if (updated.lockout_minutes > 0) {
-        const minutes = updated.lockout_minutes;
-        const minuteText = minutes === 1 ? 'minut' : 'minuter';
+      if (updated.lockout_seconds > 0) {
+        const retrySeconds = updated.lockout_seconds;
+        const waitText = retrySeconds < 60
+          ? `${retrySeconds} sekunder`
+          : `${Math.ceil(retrySeconds / 60)} ${Math.ceil(retrySeconds / 60) === 1 ? 'minut' : 'minuter'}`;
         console.warn(
           `[PIN] Lockout triggered — child=${child.id} ip=${clientIp} ` +
-          `attempts=${attemptCount} lockout=${minutes}min`
+          `attempts=${attemptCount} lockout=${retrySeconds}s`
         );
         pinLockout.auditLog(child.id, child.family_id, 'lockout', clientIp, {
-          lockout_minutes: minutes,
+          lockout_seconds: retrySeconds,
           attempt_count: attemptCount,
         }).catch(() => {});
         return res
-          .set('Retry-After', String(minutes * 60))
+          .set('Retry-After', String(retrySeconds))
           .status(429)
           .json({
-            error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+            error: `Vänta en liten stund ⏰ Du kan försöka igen om ${waitText}`,
             locked: true,
-            retry_after: minutes * 60,
+            retry_after: retrySeconds,
             locked_until: updated.locked_until,
           });
       }
