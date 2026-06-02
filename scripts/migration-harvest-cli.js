@@ -236,13 +236,16 @@ async function impersonate(base, jar, csrf, familyId) {
 async function downloadGdprZip(base, bearer, destPath) {
   const res = await apiRequest(base, '/api/account/export-data', { bearer });
   if (res.status === 429) {
-    return { ok: false, reason: 'rate_limited' };
+    return { ok: false, reason: 'rate_limited', status: 429 };
   }
   if (!res.ok) {
     const body = await readJson(res);
-    return { ok: false, reason: body.error || `HTTP ${res.status}` };
+    return { ok: false, reason: body.error || `HTTP ${res.status}`, status: res.status };
   }
   const buf = await res.buffer();
+  if (buf.length < 64) {
+    return { ok: false, reason: 'empty_response', status: res.status };
+  }
   fs.writeFileSync(destPath, buf);
   return { ok: true, bytes: buf.length };
 }
@@ -475,10 +478,16 @@ async function main() {
         gdpr_export: harvest.gdpr_export || null,
       });
       const gdprNote =
-        opts.gdprOnly && harvest.gdpr_export && !harvest.gdpr_export.ok
-          ? ` (${harvest.gdpr_export.reason || 'gdpr fel'})`
-          : '';
-      console.log('ok' + gdprNote);
+        harvest.gdpr_export && !harvest.gdpr_export.ok
+          ? harvest.gdpr_export.reason || 'gdpr fel'
+          : null;
+      if (opts.gdprOnly && gdprNote) {
+        console.log('MISS:', gdprNote);
+      } else if (gdprNote) {
+        console.log('ok (' + gdprNote + ')');
+      } else {
+        console.log('ok');
+      }
     } catch (err) {
       console.log('FEL:', err.message);
       index.families.push({ id: f.id, name: label, error: err.message });

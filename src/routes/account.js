@@ -113,7 +113,8 @@ router.get('/export-data', requireParent, async (req, res) => {
       ),
       // Reward redemptions
       db.query(
-        `SELECT c.name AS barn, r.name AS beloning, rr.stars_spent AS stjarnor,
+        `SELECT c.name AS barn, r.name AS beloning,
+                COALESCE(rr.star_cost, r.star_cost) AS stjarnor,
                 rr.redeemed_at AS inlost
          FROM reward_redemption rr
          JOIN child c ON rr.child_id = c.id
@@ -124,31 +125,34 @@ router.get('/export-data', requireParent, async (req, res) => {
       ),
       // Daily log summary (per child per day)
       db.query(
-        `SELECT c.name AS barn, dl.log_date AS datum,
-                dl.total_stars AS totala_stjarnor, dl.completed_count AS avbockade,
-                dl.total_count AS totalt
+        `SELECT c.name AS barn, dl.date AS datum,
+                COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed), 0) AS totala_stjarnor,
+                COUNT(*) FILTER (WHERE dli.completed) AS avbockade,
+                COUNT(dli.id) AS totalt
          FROM daily_log dl
          JOIN child c ON dl.child_id = c.id
+         LEFT JOIN daily_log_item dli ON dli.daily_log_id = dl.id
          WHERE c.family_id = $1
-         ORDER BY c.name, dl.log_date DESC`,
+         GROUP BY c.name, dl.id, dl.date
+         ORDER BY c.name, dl.date DESC`,
         [family_id]
       ),
       // Daily log items (activity completions)
       db.query(
-        `SELECT c.name AS barn, dl.log_date AS datum, at2.name AS aktivitet,
-                dli.completed AS avbockad, dli.stars_earned AS tjänade_stjärnor,
+        `SELECT c.name AS barn, dl.date AS datum, at2.name AS aktivitet,
+                dli.completed AS avbockad, dli.star_value AS tjänade_stjärnor,
                 dli.completed_at AS avbockad_kl, dli.section
          FROM daily_log_item dli
          JOIN daily_log dl ON dli.daily_log_id = dl.id
          JOIN child c ON dl.child_id = c.id
          LEFT JOIN activity_template at2 ON dli.activity_template_id = at2.id
          WHERE c.family_id = $1
-         ORDER BY c.name, dl.log_date DESC, dli.section`,
+         ORDER BY c.name, dl.date DESC, dli.section`,
         [family_id]
       ),
       // Ratings
       db.query(
-        `SELECT c.name AS barn, dl.log_date AS datum, at2.name AS aktivitet,
+        `SELECT c.name AS barn, dl.date AS datum, at2.name AS aktivitet,
                 r.score AS betyg, r.user_type AS bedomare, r.comment AS kommentar,
                 r.created_at AS registrerad
          FROM rating r
