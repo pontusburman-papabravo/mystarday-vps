@@ -13,7 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { apiRequest, readJson, adminLogin } = require('./lib/migration-http');
+const { apiRequest, readJson, adminLogin, ensureAdminSession, sleep } = require('./lib/migration-http');
 
 function parseArgs(argv) {
   const opts = {
@@ -24,6 +24,9 @@ function parseArgs(argv) {
     familyId: null,
     skipGdpr: false,
     includeArchived: true,
+    resume: false,
+    onlyFailed: false,
+    delayMs: 4000,
   };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--url' && argv[i + 1]) opts.baseUrl = argv[++i].replace(/\/$/, '');
@@ -33,6 +36,9 @@ function parseArgs(argv) {
     else if (argv[i] === '--family-id' && argv[i + 1]) opts.familyId = argv[++i];
     else if (argv[i] === '--skip-gdpr') opts.skipGdpr = true;
     else if (argv[i] === '--no-archived') opts.includeArchived = false;
+    else if (argv[i] === '--resume') opts.resume = true;
+    else if (argv[i] === '--only-failed') opts.onlyFailed = true;
+    else if (argv[i] === '--delay-ms' && argv[i + 1]) opts.delayMs = parseInt(argv[++i], 10) || 4000;
     else if (argv[i] === '--help' || argv[i] === '-h') {
       console.log(`Harvest family data via admin + impersonation (no server deploy).
 
@@ -43,11 +49,76 @@ Options:
   --family-id <uuid> One family only
   --skip-gdpr        Skip GET /api/account/export-data per family
   --no-archived      Skip archived families
+  --resume           Skip families that already have harvest.json
+  --only-failed      With --resume on same --out dir: retry index.json errors only
+  --delay-ms <n>     Pause between families (default: 4000)
 `);
       process.exit(0);
     }
   }
   return opts;
+}
+
+function isHarvestComplete(familyDir) {
+  const file = path.join(familyDir, 'harvest.json');
+  if (!fs.existsSync(file)) return false;
+  try {
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return data.format === 'api-harvest-v1' && data.api && data.api.family;
+  } catch {
+    return false;
+  }
+}
+
+function loadFailedIds(outDir) {
+  const indexPath = path.join(outDir, 'index.json');
+  if (!fs.existsSync(indexPath)) return null;
+  try {
+    const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+    return new Set(
+      (index.families || []).filter((f) => f.error).map((f) => f.id)
+    );
+  } catch {
+    return null;
+  }
+}
+
+async function impersonateWithRetry(base, session, familyId) {
+  const tryOnce = async () => {
+    await ensureAdminSession(session);
+    return impersonate(base, session.jar, session.csrfToken, familyId);
+  };
+
+  try {
+    return await tryOnce();
+  } catch (err) {
+    const msg = err.message || '';
+    if (msg.includes('token') || msg.includes('Token') || msg.includes('401')) {
+      await ensureAdminSession(session);
+      return tryOnce();
+    }
+    throw err;
+  }
+}
+
+async function harvestFamilyWithRetry(base, listing, session, opts, familyDir) {
+  const maxAttempts = 4;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const bearer = await impersonateWithRetry(base, session, listing.id);
+      return await harvestFamily(base, listing, bearer, opts, familyDir);
+    } catch (err) {
+      const isRateLimit =
+        err.message.includes('För många') || err.message.includes('429');
+      if (isRateLimit && attempt < maxAttempts) {
+        const waitSec = 65 * attempt;
+        console.log(`\n    väntar ${waitSec}s (rate limit) ... `);
+        await sleep(waitSec * 1000);
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 function addDays(isoDate, days) {
@@ -69,12 +140,19 @@ function dateRanges(from, to, maxDays = 90) {
 }
 
 async function fetchJson(base, path, bearer) {
-  const res = await apiRequest(base, path, { bearer });
-  const body = await readJson(res);
-  if (!res.ok) {
-    return { ok: false, status: res.status, error: body.error || res.statusText, body };
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    const res = await apiRequest(base, path, { bearer });
+    if (res.status === 429 && attempt < 4) {
+      await sleep(65000 * attempt);
+      continue;
+    }
+    const body = await readJson(res);
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: body.error || res.statusText, body };
+    }
+    return { ok: true, body };
   }
-  return { ok: true, body };
+  return { ok: false, status: 429, error: 'Rate limit' };
 }
 
 async function listFamilies(base, jar, csrf, includeArchived) {
@@ -251,9 +329,14 @@ async function main() {
   fs.mkdirSync(familiesDir, { recursive: true });
 
   console.log(`Loggar in som admin mot ${opts.baseUrl} ...`);
-  const { jar, csrfToken } = await adminLogin(opts.baseUrl, opts.email, opts.password);
+  const session = await adminLogin(opts.baseUrl, opts.email, opts.password);
 
-  let families = await listFamilies(opts.baseUrl, jar, csrfToken, opts.includeArchived);
+  let families = await listFamilies(
+    opts.baseUrl,
+    session.jar,
+    session.csrfToken,
+    opts.includeArchived
+  );
   if (opts.familyId) {
     families = families.filter((f) => f.id === opts.familyId);
     if (families.length === 0) {
@@ -262,8 +345,18 @@ async function main() {
     }
   }
 
+  if (opts.onlyFailed) {
+    const failedIds = loadFailedIds(opts.out);
+    if (!failedIds || failedIds.size === 0) {
+      console.log('Inga misslyckade familjer i index.json — inget att göra.');
+      process.exit(0);
+    }
+    families = families.filter((f) => failedIds.has(f.id));
+    console.log(`Kör om ${families.length} misslyckade familj(er)`);
+  }
+
   console.log(`Harvestar ${families.length} familj(er) → ${opts.out}`);
-  console.log('(Detta kan ta lång tid — många API-anrop per familj)\n');
+  console.log(`Paus ${opts.delayMs}ms mellan familjer (minskar rate limit)\n`);
 
   const index = {
     exported_at: new Date().toISOString(),
@@ -276,12 +369,18 @@ async function main() {
   for (let i = 0; i < families.length; i++) {
     const f = families[i];
     const label = f.family_name || f.name || f.id;
+    const familyDir = path.join(familiesDir, f.id);
+
+    if (opts.resume && isHarvestComplete(familyDir)) {
+      console.log(`[${i + 1}/${families.length}] ${label} ... hoppa över (finns redan)`);
+      index.families.push({ id: f.id, name: label, skipped: true });
+      continue;
+    }
+
     process.stdout.write(`[${i + 1}/${families.length}] ${label} ... `);
 
     try {
-      const bearer = await impersonate(opts.baseUrl, jar, csrfToken, f.id);
-      const familyDir = path.join(familiesDir, f.id);
-      const harvest = await harvestFamily(opts.baseUrl, f, bearer, opts, familyDir);
+      const harvest = await harvestFamilyWithRetry(opts.baseUrl, f, session, opts, familyDir);
       index.families.push({
         id: f.id,
         name: label,
@@ -292,9 +391,29 @@ async function main() {
       console.log('FEL:', err.message);
       index.families.push({ id: f.id, name: label, error: err.message });
     }
+
+    if (i < families.length - 1 && opts.delayMs > 0) {
+      await sleep(opts.delayMs);
+    }
   }
 
-  fs.writeFileSync(path.join(opts.out, 'index.json'), JSON.stringify(index, null, 2));
+  // Merge with previous index so --only-failed keeps successful rows
+  const indexPath = path.join(opts.out, 'index.json');
+  if (opts.onlyFailed && fs.existsSync(indexPath)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      const merged = new Map((prev.families || []).map((row) => [row.id, row]));
+      for (const row of index.families) {
+        merged.set(row.id, row);
+      }
+      index.families = Array.from(merged.values());
+      index.family_count = index.families.length;
+    } catch {
+      /* use new index only */
+    }
+  }
+
+  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
   console.log(`\nKlar. Index: ${path.join(opts.out, 'index.json')}`);
   console.log('Obs: import-family-data.js förväntar DB-export-format — harvest är för arkiv/manuell migrering.');
 }

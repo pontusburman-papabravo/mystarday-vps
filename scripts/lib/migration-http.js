@@ -88,7 +88,44 @@ async function adminLogin(baseUrl, email, password) {
   if (!body.csrfToken) {
     throw new Error('Inget csrfToken i login-svar');
   }
-  return { jar, csrfToken: body.csrfToken, user: body.user };
+  return { jar, csrfToken: body.csrfToken, user: body.user, email, password, baseUrl };
+}
+
+/** Renew short-lived access_token using refresh_token cookie (same as web app). */
+async function adminRefresh(baseUrl, jar) {
+  const response = await apiRequest(baseUrl, '/api/auth/refresh', {
+    method: 'POST',
+    jar,
+  });
+  const body = await readJson(response);
+  if (!response.ok) {
+    const err = new Error(body.error || `Refresh failed (${response.status})`);
+    err.status = response.status;
+    throw err;
+  }
+  if (!body.csrfToken) {
+    throw new Error('Inget csrfToken i refresh-svar');
+  }
+  return body.csrfToken;
+}
+
+/**
+ * Keep admin session alive during long harvest runs (access JWT expires ~15 min).
+ */
+async function ensureAdminSession(session) {
+  try {
+    session.csrfToken = await adminRefresh(session.baseUrl, session.jar);
+    return session;
+  } catch {
+    const login = await adminLogin(session.baseUrl, session.email, session.password);
+    session.jar = login.jar;
+    session.csrfToken = login.csrfToken;
+    return session;
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 module.exports = {
@@ -96,4 +133,7 @@ module.exports = {
   apiRequest,
   readJson,
   adminLogin,
+  adminRefresh,
+  ensureAdminSession,
+  sleep,
 };
