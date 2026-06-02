@@ -28,4 +28,14 @@
 
 Lokal nedladdning: `npm run migration:export` (admin-e-post/lösenord + secret).
 
+**Hel databas som SQL** (alla public-tabeller, schema + data):
+
+| Metod | Krav |
+|-------|------|
+| Admin UI → Familjer → **Exportera hela databasen (SQL)** | `MIGRATION_EXPORT_ENABLED=true` + admin-inloggning |
+| `GET /api/admin/export/sql` | Samma |
+| `npm run export:database:sql` | `DATABASE_URL` (Render Shell / lokal) |
+
+Maskerar `password_hash`, `token_hash`, `native_token` som `[REDACTED]`. Schema via `pg_dump --schema-only` när verktyget finns på servern; annars kör `npm run migrate` på måldatabasen först.
+
 Efter env-ändring: **omstart/redeploy** app på Render.

@@ -219,9 +219,14 @@
         <div id="familiesSection" class="mb-8 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 class="text-2xl font-heading font-bold text-navy">Familjer</h3>
+            <div class="flex flex-wrap gap-2">
             <button id="exportEmailsBtn" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-lg font-semibold transition-colors text-sm">
               📧 Exportera mailadresser
             </button>
+            <button id="exportFullDatabaseBtn" type="button" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold transition-colors text-sm" title="Kräver MIGRATION_EXPORT_ENABLED på servern">
+              🗄️ Exportera hela databasen (SQL)
+            </button>
+            </div>
           </div>
           <div class="mb-4">
             <input type="text" id="familySearch" placeholder="🔍 Sök familj, förälder eller e-post..."
@@ -1611,6 +1616,7 @@ Använd dubbla radbrytningar för nya stycken.
   </div>
 
   <script src="/admin/admin-core.js"></script>
+  <script src="/admin/admin-database-export.js"></script>
   <script src="/admin/admin-families.js?v=2.1.0"></script>
   <script src="/admin/admin-subscription-settings.js"></script>
   <script src="/admin/admin-library.js"></script>
