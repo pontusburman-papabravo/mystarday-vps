@@ -7,6 +7,7 @@
     "dev": "node server.js",
     "build": "npm run migrate",
     "migrate": "node migrate.js",
+    "export:families": "node scripts/export-family-data.js",
     "test": "node --test test/*.test.js",
     "polsia:gate0": "node scripts/polsia-gate0-audit.mjs",
     "polsia:release-os:check": "npm run lint && npm run test && npm run polsia:gate0",
