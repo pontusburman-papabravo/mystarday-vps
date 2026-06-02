@@ -19,4 +19,13 @@
 
 **Redan satta (rör ej om de fungerar):** `DATABASE_URL`, `JWT_SECRET`, `POLSIA_API_KEY`, `STRIPE_*`, `VAPID_*`
 
+### Migration export (tillfälligt vid plattformsflytt)
+
+| Variabel | Värde | Kommentar |
+|----------|-------|-----------|
+| `MIGRATION_EXPORT_ENABLED` | `true` | Sätt `false` eller ta bort efter flytt |
+| `MIGRATION_EXPORT_SECRET` | lång slumpsträng | Samma värde lokalt som `MIGRATION_EXPORT_SECRET` i CLI |
+
+Lokal nedladdning: `npm run migration:export` (admin-e-post/lösenord + secret).
+
 Efter env-ändring: **omstart/redeploy** app på Render.
