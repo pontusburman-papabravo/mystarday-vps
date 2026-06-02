@@ -35,9 +35,11 @@ const subscriptionSettingsRouter = require('./admin/subscription-settings');
 const emailLogRouter = require('./admin/email-log');
 const landingNewsRouter = require('./admin/landing-news');
 const migrationExportRouter = require('./admin/migration-export');
+const databaseExportRouter = require('./admin/database-export');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
+router.use(databaseExportRouter);
 router.use(featuresRouter);
 router.use('/subscription-settings', subscriptionSettingsRouter);
 router.use('/landing-news', landingNewsRouter);

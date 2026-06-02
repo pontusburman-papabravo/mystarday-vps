@@ -9,8 +9,9 @@
  *   DATABASE_URL=... node scripts/export-family-data-sql.js --out ./export/families.sql
  *   DATABASE_URL=... node scripts/export-family-data-sql.js --family-id <uuid>
  *
- * Full database dump (all tables, not just families):
- *   pg_dump "$DATABASE_URL" --format=custom --file=stjarndag-full.dump
+ * Full database (all tables, schema + data as SQL):
+ *   npm run export:database:sql
+ *   Or admin: GET /api/admin/export/sql (MIGRATION_EXPORT_ENABLED=true)
  */
 
 const fs = require('fs');

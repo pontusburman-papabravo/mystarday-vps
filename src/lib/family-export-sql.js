@@ -2,6 +2,8 @@
  * Build SQL INSERT statements from family export rows.
  */
 
+const { rowsToInsertSql } = require('./sql-export-utils');
+
 /** @type {{ table: string, file: string, conflict: string[] }[]} */
 const SQL_EXPORT_ORDER = [
   { table: 'family', file: 'family.json', conflict: ['id'] },
@@ -46,72 +48,6 @@ const SQL_EXPORT_ORDER = [
   { table: 'notification_preference', file: 'notification_preference.json', conflict: ['parent_id'] },
   { table: 'email_subscriptions', file: 'email_subscriptions.json', conflict: ['id'] },
 ];
-
-function quoteIdent(name) {
-  if (!/^[a-z_][a-z0-9_]*$/i.test(name)) {
-    throw new Error(`Invalid SQL identifier: ${name}`);
-  }
-  return `"${name}"`;
-}
-
-function escapeString(str) {
-  return String(str).replace(/'/g, "''");
-}
-
-function sqlLiteral(val) {
-  if (val === null || val === undefined) return 'NULL';
-  if (typeof val === 'boolean') return val ? 'TRUE' : 'FALSE';
-  if (typeof val === 'number') {
-    if (!Number.isFinite(val)) return 'NULL';
-    return String(val);
-  }
-  if (val instanceof Date) {
-    return `'${val.toISOString()}'::timestamptz`;
-  }
-  if (Buffer.isBuffer(val)) {
-    return `'\\\\x${val.toString('hex')}'`;
-  }
-  if (Array.isArray(val)) {
-    if (val.length === 0) return `'{}'`;
-    const parts = val.map((item) => {
-      if (item === null) return 'NULL';
-      return `"${escapeString(item).replace(/"/g, '\\"')}"`;
-    });
-    return `'${`{${parts.join(',')}}`}'`;
-  }
-  if (typeof val === 'object') {
-    return `'${escapeString(JSON.stringify(val))}'::jsonb`;
-  }
-  const s = String(val);
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) {
-    return `'${s}'::uuid`;
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    return `'${s}'::date`;
-  }
-  return `'${escapeString(s)}'`;
-}
-
-/**
- * @param {string} table
- * @param {Record<string, unknown>[]} rows
- * @param {string[]} conflictCols
- */
-function rowsToInsertSql(table, rows, conflictCols) {
-  if (!rows.length) return [];
-  const columns = Object.keys(rows[0]);
-  const colList = columns.map(quoteIdent).join(', ');
-  const conflict = conflictCols.map(quoteIdent).join(', ');
-  const lines = [];
-
-  for (const row of rows) {
-    const values = columns.map((c) => sqlLiteral(row[c])).join(', ');
-    lines.push(
-      `INSERT INTO ${quoteIdent(table)} (${colList}) VALUES (${values}) ON CONFLICT (${conflict}) DO NOTHING;`
-    );
-  }
-  return lines;
-}
 
 /**
  * @param {Record<string, object[]>} files — keys like family.json

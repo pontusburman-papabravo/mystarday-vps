@@ -9,6 +9,7 @@
     "migrate": "node migrate.js",
     "export:families": "node scripts/export-family-data.js",
     "export:families:sql": "node scripts/export-family-data-sql.js",
+    "export:database:sql": "node scripts/export-full-database-sql.js",
     "import:families": "node scripts/import-family-data.js",
     "migration:export": "node scripts/migration-export-cli.js",
     "migration:harvest": "node scripts/migration-harvest-cli.js",
