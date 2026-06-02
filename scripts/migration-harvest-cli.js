@@ -52,7 +52,7 @@ Options:
   --out <dir>        Output directory
   --family-id <uuid> One family only
   --skip-gdpr        Skip GET /api/account/export-data per family
-  --gdpr-only        Only download gdpr-export.zip (requires existing harvest.json)
+  --gdpr-only        Only download gdpr-export.zip (impersonate; updates harvest.json if present)
   --missing-gdpr     With --gdpr-only: only families without gdpr-export.zip
   --no-archived      Skip archived families
   --resume           Skip complete families (harvest.json, or gdpr zip with --gdpr-only)
@@ -68,12 +68,34 @@ Harvest + GDPR is for archive; npm run import:families needs JSON/SQL DB export.
   return opts;
 }
 
+function resolveFamilyDir(outDir, familyId) {
+  const candidates = [
+    path.join(outDir, 'families', familyId),
+    path.join(outDir, familyId),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'harvest.json'))) return dir;
+  }
+  // Default write location for new harvest runs
+  return path.join(outDir, 'families', familyId);
+}
+
 function isHarvestComplete(familyDir) {
   const file = path.join(familyDir, 'harvest.json');
   if (!fs.existsSync(file)) return false;
   try {
     const data = JSON.parse(fs.readFileSync(file, 'utf8'));
     return data.format === 'api-harvest-v1' && data.api && data.api.family;
+  } catch {
+    return false;
+  }
+}
+
+function hasHarvestJson(familyDir) {
+  const file = path.join(familyDir, 'harvest.json');
+  if (!fs.existsSync(file)) return false;
+  try {
+    return fs.statSync(file).size > 32;
   } catch {
     return false;
   }
@@ -337,19 +359,29 @@ async function harvestFamily(base, listing, bearer, opts, familyDir) {
 }
 
 async function harvestGdprOnly(base, listing, session, familyDir) {
-  if (!isHarvestComplete(familyDir)) {
-    throw new Error('Saknar harvest.json — kör full harvest utan --gdpr-only först');
-  }
-
   const bearer = await impersonateWithRetry(base, session, listing.id);
+  fs.mkdirSync(familyDir, { recursive: true });
   const gdprPath = path.join(familyDir, 'gdpr-export.zip');
   const gdpr = await downloadGdprZip(base, bearer, gdprPath);
 
   const harvestPath = path.join(familyDir, 'harvest.json');
-  const harvest = JSON.parse(fs.readFileSync(harvestPath, 'utf8'));
-  harvest.gdpr_export = gdpr;
-  harvest.gdpr_exported_at = new Date().toISOString();
-  fs.writeFileSync(harvestPath, JSON.stringify(harvest, null, 2));
+  if (hasHarvestJson(familyDir)) {
+    const harvest = JSON.parse(fs.readFileSync(harvestPath, 'utf8'));
+    harvest.gdpr_export = gdpr;
+    harvest.gdpr_exported_at = new Date().toISOString();
+    fs.writeFileSync(harvestPath, JSON.stringify(harvest, null, 2));
+  } else {
+    const stub = {
+      format: 'api-harvest-v1',
+      exported_at: new Date().toISOString(),
+      family_id: listing.id,
+      family_name: listing.family_name || listing.name,
+      gdpr_only: true,
+      gdpr_export: gdpr,
+      gdpr_exported_at: new Date().toISOString(),
+    };
+    fs.writeFileSync(harvestPath, JSON.stringify(stub, null, 2));
+  }
 
   return { gdpr_export: gdpr };
 }
@@ -394,8 +426,7 @@ async function main() {
   }
 
   if (opts.gdprOnly && opts.missingGdprOnly) {
-    const familiesDir = path.join(opts.out, 'families');
-    families = families.filter((f) => !hasGdprZip(path.join(familiesDir, f.id)));
+    families = families.filter((f) => !hasGdprZip(resolveFamilyDir(opts.out, f.id)));
     console.log(`${families.length} familj(er) saknar gdpr-export.zip`);
     if (families.length === 0) {
       console.log('Alla har redan GDPR-ZIP.');
@@ -418,7 +449,7 @@ async function main() {
   for (let i = 0; i < families.length; i++) {
     const f = families[i];
     const label = f.family_name || f.name || f.id;
-    const familyDir = path.join(familiesDir, f.id);
+    const familyDir = resolveFamilyDir(opts.out, f.id);
 
     if (opts.gdprOnly) {
       if (opts.resume && hasGdprZip(familyDir)) {
