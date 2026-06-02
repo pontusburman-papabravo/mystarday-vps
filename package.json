@@ -10,6 +10,7 @@
     "export:families": "node scripts/export-family-data.js",
     "import:families": "node scripts/import-family-data.js",
     "migration:export": "node scripts/migration-export-cli.js",
+    "migration:harvest": "node scripts/migration-harvest-cli.js",
     "test": "node --test test/*.test.js",
     "polsia:gate0": "node scripts/polsia-gate0-audit.mjs",
     "polsia:release-os:check": "npm run lint && npm run test && npm run polsia:gate0",
