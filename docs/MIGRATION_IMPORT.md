@@ -8,9 +8,51 @@
 | **Familjer SQL** | `DATABASE_URL=<källa> npm run export:families:sql` | Ja → `psql` på mål |
 | **Familjer JSON** | `DATABASE_URL=<källa> npm run export:families` | Ja → `npm run import:families` |
 | **Admin SQL** | Admin → Exportera hela databasen (kräver deploy + `MIGRATION_EXPORT_ENABLED=true`) | Ja → `psql` |
-| **Harvest + GDPR** | `npm run migration:harvest` (+ `npm run migration:harvest:gdpr`) | **Nej** — arkiv / manuell återställning |
+| **Harvest + GDPR** | `npm run migration:harvest` (+ `npm run migration:harvest:gdpr`) | **Delvis** — se `import:harvest` nedan |
+| **Harvest → Postgres** | `npm run import:harvest` | Ja — **begränsad** (ingen full historik) |
 
-Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en databasexport om målet är att köra appen på ny miljö med samma data.
+Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en SQL-export om målet är 100 % identisk data. Med `import:harvest` kan du dock köra appen på ny miljö med scheman, aktiviteter, belöningar m.m.
+
+---
+
+## Plan B: Importera harvest (`import:harvest`)
+
+När du **inte** har `DATABASE_URL` men har kört `migration:harvest` (104 familjer med `harvest.json`):
+
+```bash
+# På måldatabas (tom instans)
+npm run migrate
+
+# Testkörning (ingen skrivning)
+DATABASE_URL="$TARGET" npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --dry-run
+
+# En familj
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id <uuid-från-index.json>
+
+# Alla familjer
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02
+```
+
+### Vad som importeras
+
+| Data | Status |
+|------|--------|
+| Familj, föräldrar, barn, länkar | Ja |
+| Kategorier, aktiviteter, delsteg | Ja |
+| Veckoschema + specialdagar | Ja |
+| Belöningar, mål, inlösen | Ja (matchar belöning via namn om `reward_id` saknas) |
+| Observationer, systemmeddelanden | Ja |
+| `daily_log` (dag-rader) | Ja — **utan** `daily_log_item` (avbockningar/stjärnor) |
+| PIN, lösenord | **Nej** — temporärt lösenord + ny PIN i appen |
+| Push-prenumerationer, bilder (R2) | Nej |
+| Pedagog-inbjudningar, audit-loggar | Nej |
+
+Standardlösenord om `HARVEST_IMPORT_PASSWORD` utelämnas: `ChangeMeAfterImport2026!`
 
 ---
 
