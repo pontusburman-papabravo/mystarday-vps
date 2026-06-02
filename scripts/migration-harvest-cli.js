@@ -23,6 +23,8 @@ function parseArgs(argv) {
     out: path.join(process.cwd(), 'export', `harvest-${new Date().toISOString().slice(0, 10)}`),
     familyId: null,
     skipGdpr: false,
+    gdprOnly: false,
+    missingGdprOnly: false,
     includeArchived: true,
     resume: false,
     onlyFailed: false,
@@ -35,6 +37,8 @@ function parseArgs(argv) {
     else if (argv[i] === '--out' && argv[i + 1]) opts.out = path.resolve(argv[++i]);
     else if (argv[i] === '--family-id' && argv[i + 1]) opts.familyId = argv[++i];
     else if (argv[i] === '--skip-gdpr') opts.skipGdpr = true;
+    else if (argv[i] === '--gdpr-only') opts.gdprOnly = true;
+    else if (argv[i] === '--missing-gdpr') opts.missingGdprOnly = true;
     else if (argv[i] === '--no-archived') opts.includeArchived = false;
     else if (argv[i] === '--resume') opts.resume = true;
     else if (argv[i] === '--only-failed') opts.onlyFailed = true;
@@ -48,10 +52,15 @@ Options:
   --out <dir>        Output directory
   --family-id <uuid> One family only
   --skip-gdpr        Skip GET /api/account/export-data per family
+  --gdpr-only        Only download gdpr-export.zip (requires existing harvest.json)
+  --missing-gdpr     With --gdpr-only: only families without gdpr-export.zip
   --no-archived      Skip archived families
-  --resume           Skip families that already have harvest.json
+  --resume           Skip complete families (harvest.json, or gdpr zip with --gdpr-only)
   --only-failed      With --resume on same --out dir: retry index.json errors only
   --delay-ms <n>     Pause between families (default: 4000)
+
+Import on new server: use DATABASE_URL + npm run export:database:sql (not harvest).
+Harvest + GDPR is for archive; npm run import:families needs JSON/SQL DB export.
 `);
       process.exit(0);
     }
@@ -65,6 +74,16 @@ function isHarvestComplete(familyDir) {
   try {
     const data = JSON.parse(fs.readFileSync(file, 'utf8'));
     return data.format === 'api-harvest-v1' && data.api && data.api.family;
+  } catch {
+    return false;
+  }
+}
+
+function hasGdprZip(familyDir) {
+  const zipPath = path.join(familyDir, 'gdpr-export.zip');
+  if (!fs.existsSync(zipPath)) return false;
+  try {
+    return fs.statSync(zipPath).size > 64;
   } catch {
     return false;
   }
@@ -317,8 +336,27 @@ async function harvestFamily(base, listing, bearer, opts, familyDir) {
   return harvest;
 }
 
+async function harvestGdprOnly(base, listing, session, familyDir) {
+  if (!isHarvestComplete(familyDir)) {
+    throw new Error('Saknar harvest.json — kör full harvest utan --gdpr-only först');
+  }
+
+  const bearer = await impersonateWithRetry(base, session, listing.id);
+  const gdprPath = path.join(familyDir, 'gdpr-export.zip');
+  const gdpr = await downloadGdprZip(base, bearer, gdprPath);
+
+  const harvestPath = path.join(familyDir, 'harvest.json');
+  const harvest = JSON.parse(fs.readFileSync(harvestPath, 'utf8'));
+  harvest.gdpr_export = gdpr;
+  harvest.gdpr_exported_at = new Date().toISOString();
+  fs.writeFileSync(harvestPath, JSON.stringify(harvest, null, 2));
+
+  return { gdpr_export: gdpr };
+}
+
 async function main() {
   const opts = parseArgs(process.argv);
+  if (opts.gdprOnly) opts.skipGdpr = false;
   if (!opts.email || !opts.password) {
     console.error('ERROR: Ange ADMIN_EMAIL och ADMIN_PASSWORD (eller --email / --password)');
     process.exit(1);
@@ -355,7 +393,18 @@ async function main() {
     console.log(`Kör om ${families.length} misslyckade familj(er)`);
   }
 
-  console.log(`Harvestar ${families.length} familj(er) → ${opts.out}`);
+  if (opts.gdprOnly && opts.missingGdprOnly) {
+    const familiesDir = path.join(opts.out, 'families');
+    families = families.filter((f) => !hasGdprZip(path.join(familiesDir, f.id)));
+    console.log(`${families.length} familj(er) saknar gdpr-export.zip`);
+    if (families.length === 0) {
+      console.log('Alla har redan GDPR-ZIP.');
+      process.exit(0);
+    }
+  }
+
+  const modeLabel = opts.gdprOnly ? 'GDPR-export' : 'Harvest';
+  console.log(`${modeLabel} ${families.length} familj(er) → ${opts.out}`);
   console.log(`Paus ${opts.delayMs}ms mellan familjer (minskar rate limit)\n`);
 
   const index = {
@@ -371,7 +420,13 @@ async function main() {
     const label = f.family_name || f.name || f.id;
     const familyDir = path.join(familiesDir, f.id);
 
-    if (opts.resume && isHarvestComplete(familyDir)) {
+    if (opts.gdprOnly) {
+      if (opts.resume && hasGdprZip(familyDir)) {
+        console.log(`[${i + 1}/${families.length}] ${label} ... hoppa över (GDPR finns)`);
+        index.families.push({ id: f.id, name: label, skipped: true, gdpr_export: { ok: true } });
+        continue;
+      }
+    } else if (opts.resume && isHarvestComplete(familyDir)) {
       console.log(`[${i + 1}/${families.length}] ${label} ... hoppa över (finns redan)`);
       index.families.push({ id: f.id, name: label, skipped: true });
       continue;
@@ -380,13 +435,19 @@ async function main() {
     process.stdout.write(`[${i + 1}/${families.length}] ${label} ... `);
 
     try {
-      const harvest = await harvestFamilyWithRetry(opts.baseUrl, f, session, opts, familyDir);
+      const harvest = opts.gdprOnly
+        ? await harvestGdprOnly(opts.baseUrl, f, session, familyDir)
+        : await harvestFamilyWithRetry(opts.baseUrl, f, session, opts, familyDir);
       index.families.push({
         id: f.id,
         name: label,
         gdpr_export: harvest.gdpr_export || null,
       });
-      console.log('ok');
+      const gdprNote =
+        opts.gdprOnly && harvest.gdpr_export && !harvest.gdpr_export.ok
+          ? ` (${harvest.gdpr_export.reason || 'gdpr fel'})`
+          : '';
+      console.log('ok' + gdprNote);
     } catch (err) {
       console.log('FEL:', err.message);
       index.families.push({ id: f.id, name: label, error: err.message });
@@ -397,9 +458,9 @@ async function main() {
     }
   }
 
-  // Merge with previous index so --only-failed keeps successful rows
+  // Merge with previous index so partial runs keep other families
   const indexPath = path.join(opts.out, 'index.json');
-  if (opts.onlyFailed && fs.existsSync(indexPath)) {
+  if ((opts.onlyFailed || opts.gdprOnly) && fs.existsSync(indexPath)) {
     try {
       const prev = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
       const merged = new Map((prev.families || []).map((row) => [row.id, row]));
@@ -414,8 +475,13 @@ async function main() {
   }
 
   fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
-  console.log(`\nKlar. Index: ${path.join(opts.out, 'index.json')}`);
-  console.log('Obs: import-family-data.js förväntar DB-export-format — harvest är för arkiv/manuell migrering.');
+  const gdprOk = index.families.filter((row) => row.gdpr_export?.ok).length;
+  console.log(`\nKlar. Index: ${indexPath}`);
+  console.log(`GDPR-ZIP ok (enligt index): ${gdprOk} / ${index.families.length}`);
+  console.log(
+    '\nImportera på ny server: npm run export:database:sql (DATABASE_URL) eller admin SQL-export.'
+  );
+  console.log('Harvest + GDPR är arkiv — import:families använder JSON/SQL DB-export, inte harvest.json.');
 }
 
 main().catch((err) => {
