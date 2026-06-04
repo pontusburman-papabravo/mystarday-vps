@@ -48,6 +48,7 @@ HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run impo
 | Belöningar, mål, inlösen | Ja (matchar belöning via namn om `reward_id` saknas) |
 | Observationer, systemmeddelanden | Ja |
 | `daily_log` (dag-rader) | Ja — **utan** `daily_log_item` (avbockningar/stjärnor) |
+| **Stjärnhistorik / avbockningar** | Via `import:gdpr-history` från `gdpr-export.zip` (07_aktiviteter.csv) |
 | PIN, lösenord | **Nej** — temporärt lösenord + ny PIN i appen |
 | Push-prenumerationer, bilder (R2) | Nej |
 | Pedagog-inbjudningar, audit-loggar | Nej |
@@ -82,6 +83,25 @@ Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på local
 
 Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.
 
+### Stjärnhistorik och avbockningar (GDPR-ZIP)
+
+Harvest API saknar `daily_log_item`. Om `migration:harvest` inkluderade GDPR finns `gdpr-export.zip` per familj med full historik (`07_aktiviteter.csv`, `09_manuella_stjarnor.csv`).
+
+```bash
+npm run import:gdpr-history -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+
+# Skriv om befintliga daily_log_item för importerade dagar:
+npm run import:gdpr-history -- --replace --in ... --family-id ...
+```
+
+Saknas ZIP? Hämta från prod:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run migration:harvest:gdpr -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 --family-id <uuid>
+```
 
 ---
 

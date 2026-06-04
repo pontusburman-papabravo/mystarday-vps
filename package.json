@@ -14,6 +14,7 @@
     "import:harvest": "node scripts/import-harvest-data.js",
     "harvest:library": "node scripts/harvest-global-library.js",
     "import:library": "node scripts/import-global-library.js",
+    "import:gdpr-history": "node scripts/import-gdpr-history.js",
     "bootstrap:migration": "node scripts/bootstrap-migration-local.js",
     "migration:export": "node scripts/migration-export-cli.js",
     "migration:harvest": "node scripts/migration-harvest-cli.js",
