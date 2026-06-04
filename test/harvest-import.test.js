@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { buildHarvestImportBundles } = require('../src/lib/harvest-import');
+const { buildHarvestImportBundles, countSchedulesInHarvest } = require('../src/lib/harvest-import');
 
 const FAMILY_ID = '550e8400-e29b-41d4-a716-446655440000';
 const PARENT_ID = '660e8400-e29b-41d4-a716-446655440001';
@@ -205,6 +205,27 @@ describe('harvest-import', () => {
     const items = bundles.find((b) => b.table === 'daily_log_item');
     assert.equal(items.rows[0].activity_template_id, null);
     assert.ok(warnings.some((w) => w.includes('saknas')));
+  });
+
+  it('countSchedulesInHarvest reads items wrapper from API', () => {
+    const stats = countSchedulesInHarvest(minimalHarvest().api);
+    assert.equal(stats.items, 1);
+    assert.equal(stats.perChild[0].name, 'Astrid');
+    assert.equal(stats.perChild[0].items, 1);
+  });
+
+  it('skips weekly_schedule_item when activity_template missing from harvest', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.schedules[`${CHILD_ID}_items`][SCHED_ID].items.push({
+      id: 'orphan-wsi',
+      activity_template_id: '00000000-0000-0000-0000-000000000099',
+      sort_order: 99,
+      section: 'morgon',
+    });
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const items = bundles.find((b) => b.table === 'weekly_schedule_item');
+    assert.equal(items.rows.length, 1);
+    assert.ok(warnings.some((w) => w.includes('weekly_schedule_item')));
   });
 
   it('skips goals referencing missing rewards', async () => {

@@ -104,6 +104,52 @@ npm run import:gdpr-history -- --in ./Backup/... --family-id ...
 
 Saknas ZIP och GDPR ger fel? Använd **Alternativ A** ovan.
 
+### Veckoschema (Astrid / Olle) syns inte eller är tomt
+
+`import:harvest` använder `ON CONFLICT DO NOTHING`. Om första importen kördes **innan** API-svaret `{ items: [...] }` parsades korrekt kan `weekly_schedule` finnas **utan** `weekly_schedule_item` — då visar appen tomt schema och omimport ger `0/169 inserts`.
+
+**1. Kontrollera backup:**
+
+```bash
+npm run verify:harvest-schedules -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Förväntat: t.ex. Astrid ~90+ rader, Olle ~70+ rader. Om `0 aktiviteter` — hämta om från prod:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run migration:harvest -- \
+  --url https://mystarday.se \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+**2. Kontrollera databasen:**
+
+```sql
+SELECT c.name, COUNT(DISTINCT ws.id) AS days, COUNT(wsi.id) AS items
+FROM child c
+JOIN parent p ON p.family_id = c.family_id
+LEFT JOIN weekly_schedule ws ON ws.child_id = c.id
+LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+GROUP BY c.name;
+```
+
+**3. Importera om scheman** (behåller stjärnhistorik om du inte kör full familj-reset):
+
+```bash
+git pull origin cursor/gdpr-history-import-5a1f
+
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9 \
+  --replace-schedules
+```
+
+Du ska då se t.ex. `weekly_schedule_item: 169/169 inserts` (inte `0/169`).
+
 ---
 
 ## Lokal Mac-test (utan prod)

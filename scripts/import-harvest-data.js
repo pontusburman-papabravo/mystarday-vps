@@ -49,12 +49,31 @@ const IMPORT_TABLE_ORDER = [
   'system_messages',
 ];
 
+async function deleteFamilyChildSchedules(client, familyId) {
+  await client.query(
+    `DELETE FROM weekly_schedule_item
+     WHERE weekly_schedule_id IN (
+       SELECT ws.id FROM weekly_schedule ws
+       JOIN child c ON c.id = ws.child_id
+       WHERE c.family_id = $1
+     )`,
+    [familyId]
+  );
+  const { rowCount } = await client.query(
+    `DELETE FROM weekly_schedule
+     WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`,
+    [familyId]
+  );
+  return rowCount;
+}
+
 function parseArgs(argv) {
-  const opts = { inDir: null, familyId: null, dryRun: false };
+  const opts = { inDir: null, familyId: null, dryRun: false, replaceSchedules: false };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--in' && argv[i + 1]) opts.inDir = path.resolve(argv[++i]);
     else if (argv[i] === '--family-id' && argv[i + 1]) opts.familyId = argv[++i];
     else if (argv[i] === '--dry-run') opts.dryRun = true;
+    else if (argv[i] === '--replace-schedules') opts.replaceSchedules = true;
     else if (argv[i] === '--help' || argv[i] === '-h') {
       console.log(`Import api-harvest-v1 bundles into Postgres.
 
@@ -62,6 +81,7 @@ Options:
   --in <dir>         Harvest output (contains families/<uuid>/harvest.json)
   --family-id <id>   Import one family only
   --dry-run          Print row counts, no writes
+  --replace-schedules  Delete child weekly_schedule(+items) before import
 
 Env:
   DATABASE_URL              Target database (required)
@@ -147,6 +167,11 @@ async function importHarvestFile(pool, harvestPath, opts) {
 
   try {
     if (!opts.dryRun) await client.query('BEGIN');
+
+    if (opts.replaceSchedules && !opts.dryRun) {
+      const deleted = await deleteFamilyChildSchedules(client, meta.familyId);
+      warnings.unshift(`replace-schedules: raderade ${deleted} weekly_schedule för barn i familjen`);
+    }
 
     for (const table of IMPORT_TABLE_ORDER) {
       const bundle = bundleByTable.get(table);

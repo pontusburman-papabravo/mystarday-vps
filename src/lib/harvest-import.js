@@ -17,6 +17,44 @@ function asArray(value) {
   return [];
 }
 
+/** Count weekly schedule rows in harvest.json (for verify script). */
+function countSchedulesInHarvest(api) {
+  const children = api?.family?.children || [];
+  const perChild = [];
+  let scheduleDays = 0;
+  let items = 0;
+  let itemErrors = 0;
+
+  for (const child of children) {
+    if (!child?.id) continue;
+    let days = 0;
+    let childItems = 0;
+    const schedList = api?.schedules?.[child.id];
+    if (isApiError(schedList)) {
+      itemErrors++;
+      perChild.push({ name: child.name, id: child.id, days: 0, items: 0, error: schedList._error });
+      continue;
+    }
+    const scheds = asArray(schedList);
+    days = scheds.length;
+    scheduleDays += days;
+    const itemsMap = api?.schedules?.[`${child.id}_items`] || {};
+    for (const sched of scheds) {
+      const payload = itemsMap[sched.id];
+      if (isApiError(payload)) {
+        itemErrors++;
+        continue;
+      }
+      const list = payload?.items || asArray(payload);
+      childItems += list.length;
+    }
+    items += childItems;
+    perChild.push({ name: child.name, id: child.id, days, items: childItems });
+  }
+
+  return { scheduleDays, items, itemErrors, perChild, hasSchedules: scheduleDays > 0 || items > 0 };
+}
+
 function pick(row, allowed) {
   const out = {};
   for (const key of allowed) {
@@ -205,6 +243,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   // ── weekly schedules + items ──
   const weeklyScheduleRows = [];
   const weeklyItemRows = [];
+  const activityIds = new Set(activityRows.map((a) => a.id));
 
   for (const child of childRows) {
     const schedList = api.schedules?.[child.id];
@@ -225,10 +264,21 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       collectSubSteps(items);
       for (const item of items) {
         if (!item.id) continue;
+        const actId = item.activity_template_id;
+        if (actId && !activityIds.has(actId)) {
+          warnings.push(
+            `weekly_schedule_item ${item.id}: aktivitet ${actId} saknas — hoppar över schemarad`
+          );
+          continue;
+        }
+        if (!actId) {
+          warnings.push(`weekly_schedule_item ${item.id}: saknar activity_template_id — hoppar över`);
+          continue;
+        }
         weeklyItemRows.push({
           id: item.id,
           weekly_schedule_id: sched.id,
-          activity_template_id: item.activity_template_id,
+          activity_template_id: actId,
           start_time: item.start_time || null,
           end_time: item.end_time || null,
           sort_order: item.sort_order ?? 0,
@@ -363,7 +413,6 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 
   const { rows: dailyLogItemRows, warnings: itemWarnings } = buildDailyLogItemRows(childRows, api);
   warnings.push(...itemWarnings);
-  const activityIds = new Set(activityRows.map((a) => a.id));
   for (const row of dailyLogItemRows) {
     if (row.activity_template_id && !activityIds.has(row.activity_template_id)) {
       warnings.push(
@@ -497,5 +546,6 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 
 module.exports = {
   buildHarvestImportBundles,
+  countSchedulesInHarvest,
   DEFAULT_IMPORT_PASSWORD,
 };
