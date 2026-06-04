@@ -51,8 +51,29 @@ HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run impo
 | PIN, lösenord | **Nej** — temporärt lösenord + ny PIN i appen |
 | Push-prenumerationer, bilder (R2) | Nej |
 | Pedagog-inbjudningar, audit-loggar | Nej |
+| **Standardbibliotek** (`default_*`) | **Nej** — global admin-data; se `harvest:library` + `import:library` nedan |
 
 Standardlösenord om `HARVEST_IMPORT_PASSWORD` utelämnas: `ChangeMeAfterImport2026!`
+
+### Standardbibliotek (globalt, alla familjer)
+
+Harvest per familj inkluderar **inte** standardscheman/belöningar/aktiviteter från admin-biblioteket. Efter `npm run migrate` är tabellerna `default_schedule`, `default_reward`, `default_activity_template` tomma.
+
+**Med admin-access mot prod (en gång):**
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:library -- \
+  --url https://mystarday.se \
+  --out ./Backup/stjarndag-harvest-2026-06-02
+
+DATABASE_URL="$TARGET" npm run import:library -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02
+```
+
+**Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
+
+Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.
+
 
 ---
 
