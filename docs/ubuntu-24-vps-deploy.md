@@ -246,10 +246,27 @@ cd /var/www/mystarday
 
 ---
 
+## Status — vad är klart?
+
+Kör på servern (efter `git pull`):
+
+```bash
+cd /var/www/mystarday
+chmod +x scripts/vps-status.sh
+./scripts/vps-status.sh
+```
+
+Skriptet listar ✓ / ! / ✗ för SSH, Postgres, `.env`, systemd, `/health`, DNS m.m. (inga lösenord visas). Klistra in utskriften när du vill att någon ska se var ni är i processen.
+
+JSON: `./scripts/vps-status.sh --json`
+
+---
+
 ## Filer i repot
 
 | Fil | Syfte |
 |-----|--------|
+| `scripts/vps-status.sh` | Migreringsstatus / checklista |
 | `scripts/postgres-vps-init.sh` | Engångs Postgres-setup |
 | `deploy/mystarday.service` | systemd |
 | `deploy/nginx-mystarday.conf.example` | nginx |
