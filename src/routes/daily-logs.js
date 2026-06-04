@@ -916,7 +916,7 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
        LEFT JOIN daily_log_item_sub_step t
          ON t.activity_sub_step_id = s.id AND t.daily_log_item_id = $1
        WHERE s.activity_template_id = $2
-       ORDER BY s.sort_order, s.created_at`,
+       ORDER BY s.sort_order, s.id`,
       [req.params.itemId, item.activity_template_id]
     );
 

@@ -252,7 +252,7 @@ router.get('/:id/sub-steps', async (req, res) => {
       `SELECT id, name, icon, sort_order
        FROM activity_sub_step
        WHERE activity_template_id = $1
-       ORDER BY sort_order ASC, created_at ASC`,
+       ORDER BY sort_order ASC, id ASC`,
       [req.params.id]
     );
     res.json(result.rows);
