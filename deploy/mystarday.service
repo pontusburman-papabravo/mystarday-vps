@@ -1,7 +1,7 @@
 [Unit]
 Description=Min Stjärndag (mystarday-vps)
 Documentation=file:///var/www/mystarday/docs/ubuntu-24-vps-deploy.md
-After=network-online.target
+After=network-online.target postgresql.service
 Wants=network-online.target
 
 [Service]
