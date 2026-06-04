@@ -70,6 +70,14 @@ DATABASE_URL="$TARGET" npm run import:library -- \
   --in ./Backup/stjarndag-harvest-2026-06-02
 ```
 
+**Feature-flag lokalt:** Baseline-schema seedar inte `features`. Utan `standardbibliotek` = `live` blockeras `/api/standard-library/*` (403) även om `default_*` har data. Kör:
+
+```bash
+npm run bootstrap:migration
+```
+
+Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på localhost, och visar om `default_*` saknas.
+
 **Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
 
 Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.

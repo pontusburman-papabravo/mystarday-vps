@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
-const { buildGlobalLibraryBundles } = require('../src/lib/global-library-import');
+const { buildGlobalLibraryBundles, ensureStandardLibraryAccess, isLocalMigrationDb } = require('../src/lib/global-library-import');
 
 const IMPORT_TABLE_ORDER = [
   'default_activity_template',
@@ -121,6 +121,10 @@ async function main() {
         inserted: result.inserted,
         conflicts_skipped: result.skipped,
       };
+    }
+
+    if (!opts.dryRun && isLocalMigrationDb()) {
+      await ensureStandardLibraryAccess(client);
     }
 
     if (!opts.dryRun) await client.query('COMMIT');

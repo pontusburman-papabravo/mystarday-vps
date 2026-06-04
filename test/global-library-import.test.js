@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { buildGlobalLibraryBundles } = require('../src/lib/global-library-import');
+const { buildGlobalLibraryBundles, isLocalMigrationDb } = require('../src/lib/global-library-import');
 
 const ACT_ID = '880e8400-e29b-41d4-a716-446655440003';
 const REWARD_ID = '990e8400-e29b-41d4-a716-446655440004';
@@ -66,5 +66,11 @@ describe('global-library-import', () => {
 
   it('rejects unknown format', () => {
     assert.throws(() => buildGlobalLibraryBundles({ format: 'nope' }), /global-library-v1/);
+  });
+
+  it('detects local migration database URLs', () => {
+    assert.equal(isLocalMigrationDb('postgres://user@localhost:5432/dev'), true);
+    assert.equal(isLocalMigrationDb('postgres://user@127.0.0.1:5432/dev'), true);
+    assert.equal(isLocalMigrationDb('postgres://user@neon.tech/db'), false);
   });
 });

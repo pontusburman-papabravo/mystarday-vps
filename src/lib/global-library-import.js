@@ -100,4 +100,34 @@ function buildGlobalLibraryBundles(data) {
   };
 }
 
-module.exports = { buildGlobalLibraryBundles, normalizeJsonb };
+/**
+ * Local migration DBs need standardbibliotek feature live + features table seeded.
+ * Prod uses admin-managed feature status — only force live on localhost.
+ */
+function isLocalMigrationDb(connectionString) {
+  const url = connectionString || process.env.DATABASE_URL || '';
+  return url.includes('localhost') || url.includes('127.0.0.1');
+}
+
+async function ensureStandardLibraryAccess(client, { forceLive = isLocalMigrationDb() } = {}) {
+  if (!forceLive) return { updated: false };
+
+  const result = await client.query(
+    `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+     VALUES (
+       'standardbibliotek',
+       'Standardbibliotek',
+       'Admin-seedade globala aktiviteter, belöningar och scheman',
+       'live',
+       ARRAY['features'],
+       'medium',
+       4,
+       15.0
+     )
+     ON CONFLICT (slug) DO UPDATE SET status = 'live', updated_at = NOW()
+     RETURNING slug, status`
+  );
+  return { updated: true, slug: result.rows[0]?.slug, status: result.rows[0]?.status };
+}
+
+module.exports = { buildGlobalLibraryBundles, normalizeJsonb, ensureStandardLibraryAccess, isLocalMigrationDb };
