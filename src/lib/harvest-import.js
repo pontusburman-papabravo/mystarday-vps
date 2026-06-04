@@ -3,6 +3,7 @@
  */
 
 const { hashPassword } = require('./hash');
+const { buildDailyLogItemRows, buildManualStarRows } = require('./harvest-history');
 
 const DEFAULT_IMPORT_PASSWORD = 'ChangeMeAfterImport2026!';
 
@@ -14,6 +15,52 @@ function asArray(value) {
   if (!value || isApiError(value)) return [];
   if (Array.isArray(value)) return value;
   return [];
+}
+
+/** Unwrap list endpoints that return `{ items: [...] }` or `{ rewards: [...] }`. */
+function unwrapApiList(payload, listKey) {
+  if (!payload || isApiError(payload)) return [];
+  if (Array.isArray(payload)) return payload;
+  if (listKey && Array.isArray(payload[listKey])) return payload[listKey];
+  return [];
+}
+
+/** Count weekly schedule rows in harvest.json (for verify script). */
+function countSchedulesInHarvest(api) {
+  const children = api?.family?.children || [];
+  const perChild = [];
+  let scheduleDays = 0;
+  let items = 0;
+  let itemErrors = 0;
+
+  for (const child of children) {
+    if (!child?.id) continue;
+    let days = 0;
+    let childItems = 0;
+    const schedList = api?.schedules?.[child.id];
+    if (isApiError(schedList)) {
+      itemErrors++;
+      perChild.push({ name: child.name, id: child.id, days: 0, items: 0, error: schedList._error });
+      continue;
+    }
+    const scheds = asArray(schedList);
+    days = scheds.length;
+    scheduleDays += days;
+    const itemsMap = api?.schedules?.[`${child.id}_items`] || {};
+    for (const sched of scheds) {
+      const payload = itemsMap[sched.id];
+      if (isApiError(payload)) {
+        itemErrors++;
+        continue;
+      }
+      const list = payload?.items || asArray(payload);
+      childItems += list.length;
+    }
+    items += childItems;
+    perChild.push({ name: child.name, id: child.id, days, items: childItems });
+  }
+
+  return { scheduleDays, items, itemErrors, perChild, hasSchedules: scheduleDays > 0 || items > 0 };
 }
 
 function pick(row, allowed) {
@@ -204,6 +251,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   // ── weekly schedules + items ──
   const weeklyScheduleRows = [];
   const weeklyItemRows = [];
+  const activityIds = new Set(activityRows.map((a) => a.id));
 
   for (const child of childRows) {
     const schedList = api.schedules?.[child.id];
@@ -224,10 +272,21 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       collectSubSteps(items);
       for (const item of items) {
         if (!item.id) continue;
+        const actId = item.activity_template_id;
+        if (actId && !activityIds.has(actId)) {
+          warnings.push(
+            `weekly_schedule_item ${item.id}: aktivitet ${actId} saknas — hoppar över schemarad`
+          );
+          continue;
+        }
+        if (!actId) {
+          warnings.push(`weekly_schedule_item ${item.id}: saknar activity_template_id — hoppar över`);
+          continue;
+        }
         weeklyItemRows.push({
           id: item.id,
           weekly_schedule_id: sched.id,
-          activity_template_id: item.activity_template_id,
+          activity_template_id: actId,
           start_time: item.start_time || null,
           end_time: item.end_time || null,
           sort_order: item.sort_order ?? 0,
@@ -290,7 +349,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   bundles.push({ table: 'special_day_schedule_item', conflict: ['id'], rows: specialItemRows });
 
   // ── rewards ──
-  const rewardRows = asArray(api.rewards).map((r) => ({
+  const rewardRows = unwrapApiList(api.rewards, 'rewards').map((r) => ({
     id: r.id,
     family_id: familyId,
     name: r.name,
@@ -300,11 +359,9 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
     is_active: r.is_active !== false,
     sort_order: r.sort_order ?? 0,
     visible_to_children:
-      r.visible_to_children === false
-        ? []
-        : Array.isArray(r.visible_to_children)
-          ? r.visible_to_children
-          : null,
+      Array.isArray(r.visible_to_children) && r.visible_to_children.length > 0
+        ? r.visible_to_children
+        : null,
   }));
   bundles.push({ table: 'reward', conflict: ['id'], rows: rewardRows });
 
@@ -353,20 +410,49 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       }
     }
   }
-  if (dailyLogRows.length) {
+  if (dailyLogRows.length && !api.daily_log_details) {
     warnings.push(
-      `daily_log: ${dailyLogRows.length} dag(ar) importeras utan daily_log_item (avbockningar/stjärnor saknas i harvest)`
+      `daily_log: ${dailyLogRows.length} dag(ar) utan daily_log_item — kör harvest:history eller import:gdpr-history`
     );
   }
-  bundles.push({ table: 'daily_log', conflict: ['id'], rows: dailyLogRows });
+  bundles.push({ table: 'daily_log', conflict: ['child_id', 'date'], rows: dailyLogRows });
+
+  const { rows: dailyLogItemRows, warnings: itemWarnings } = buildDailyLogItemRows(childRows, api);
+  warnings.push(...itemWarnings);
+  for (const row of dailyLogItemRows) {
+    if (row.activity_template_id && !activityIds.has(row.activity_template_id)) {
+      warnings.push(
+        `daily_log_item ${row.id}: aktivitet ${row.activity_template_id} saknas — sparar utan koppling (behåller namn)`
+      );
+      row.activity_template_id = null;
+    }
+  }
+  if (dailyLogItemRows.length) {
+    bundles.push({ table: 'daily_log_item', conflict: ['id'], rows: dailyLogItemRows });
+  }
+
+  const manualStarRows = buildManualStarRows(childRows, api, primaryParentId);
+  if (manualStarRows.length) {
+    bundles.push({ table: 'manual_star_grant', conflict: ['id'], rows: manualStarRows });
+  }
 
   // ── redemptions ──
   const redemptionRows = [];
-  for (const rr of asArray(api.reward_redemptions)) {
-    let rewardId = rr.reward_id;
-    if (!rewardId && rr.reward_name) {
-      rewardId = rewardByName.get(String(rr.reward_name).toLowerCase());
+  const resolveRewardId = (rr) => {
+    if (rr.reward_id && rewardIds.has(rr.reward_id)) return rr.reward_id;
+    if (!rr.reward_name) return null;
+    const nameKey = String(rr.reward_name).toLowerCase();
+    const matches = rewardRows.filter((r) => r.name?.toLowerCase() === nameKey);
+    if (matches.length === 1) return matches[0].id;
+    if (matches.length > 1 && rr.star_cost != null) {
+      const cost = parseInt(rr.star_cost, 10);
+      const byCost = matches.find((r) => r.star_cost === cost);
+      if (byCost) return byCost.id;
     }
+    return matches[0]?.id || rewardByName.get(nameKey) || null;
+  };
+  for (const rr of asArray(api.reward_redemptions)) {
+    const rewardId = resolveRewardId(rr);
     if (!rewardId) {
       warnings.push(`reward_redemption ${rr.id}: kunde inte matcha belöning "${rr.reward_name}"`);
       continue;
@@ -384,11 +470,27 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   }
   bundles.push({ table: 'reward_redemption', conflict: ['id'], rows: redemptionRows });
 
-  // ── streak ──
+  // ── streak (from harvest child_progress / GET /api/children/:id/progress) ──
+  const hasChildProgress = api.child_progress && typeof api.child_progress === 'object';
+  if (!hasChildProgress) {
+    warnings.push('Ingen child_progress i harvest.json — kör npm run harvest:streaks för streak-värden');
+  }
+  const streakRows = childRows.map((c) => {
+    const progress = api.child_progress?.[c.id];
+    const streak =
+      progress && !isApiError(progress) && progress.streak ? progress.streak : null;
+    return {
+      child_id: c.id,
+      current_streak: parseInt(streak?.current_streak, 10) || 0,
+      cycle_day: parseInt(streak?.cycle_day, 10) || 0,
+      last_active_date: streak?.last_active_date || null,
+    };
+  });
   bundles.push({
     table: 'streak',
     conflict: ['child_id'],
-    rows: childRows.map((c) => ({ child_id: c.id, current_streak: 0, cycle_day: 0 })),
+    rows: streakRows,
+    upsert: true,
   });
 
   // ── child observations ──
@@ -476,5 +578,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 
 module.exports = {
   buildHarvestImportBundles,
+  countSchedulesInHarvest,
+  unwrapApiList,
   DEFAULT_IMPORT_PASSWORD,
 };

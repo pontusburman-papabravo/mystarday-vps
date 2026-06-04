@@ -118,7 +118,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
               dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
               dli.sort_order, dli.child_sort_order, dli.section,
-              dli.parent_note, dli.child_note, dli.mood_rating,
+              dli.parent_note, dli.child_note,
               COALESCE(at.feedback_for, 'both') AS feedback_for
        FROM daily_log_item dli
        LEFT JOIN activity_template at ON at.id = dli.activity_template_id
@@ -230,17 +230,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   );
 
   if (specialDayResult.rows.length > 0) {
-    // Special day found — use it instead of the weekly template
     const specialDayId = specialDayResult.rows[0].id;
-
-    const logResult = await q.query(
-      `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
-       VALUES ($1, $2, false, NULL)
-       ON CONFLICT (child_id, date) DO UPDATE SET generated_from = NULL
-       RETURNING id, child_id, date, is_paused, generated_from, created_at`,
-      [childId, dateStr]
-    );
-    const log = logResult.rows[0];
 
     const specialItems = await q.query(
       `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
@@ -251,23 +241,35 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       [specialDayId]
     );
 
-    // Batch insert all items in one query
-    await batchInsertDailyLogItems(q, log.id, specialItems.rows);
+    if (specialItems.rows.length > 0) {
+      const logResult = await q.query(
+        `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
+         VALUES ($1, $2, false, NULL)
+         ON CONFLICT (child_id, date) DO UPDATE SET generated_from = NULL
+         RETURNING id, child_id, date, is_paused, generated_from, created_at`,
+        [childId, dateStr]
+      );
+      const log = logResult.rows[0];
 
-    const items = await q.query(
-      `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
-              dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
-              dli.sort_order, dli.child_sort_order, dli.section,
-              dli.parent_note, dli.child_note, dli.mood_rating,
-              COALESCE(at.feedback_for, 'both') AS feedback_for
-       FROM daily_log_item dli
-       LEFT JOIN activity_template at ON at.id = dli.activity_template_id
-       WHERE dli.daily_log_id = $1
-       ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
-      [log.id]
-    );
+      // Batch insert all items in one query
+      await batchInsertDailyLogItems(q, log.id, specialItems.rows);
 
-    return { log, items: items.rows, generated: true, from_special_day: true };
+      const items = await q.query(
+        `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+                dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
+                dli.sort_order, dli.child_sort_order, dli.section,
+                dli.parent_note, dli.child_note,
+                COALESCE(at.feedback_for, 'both') AS feedback_for
+         FROM daily_log_item dli
+         LEFT JOIN activity_template at ON at.id = dli.activity_template_id
+         WHERE dli.daily_log_id = $1
+         ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+        [log.id]
+      );
+
+      return { log, items: items.rows, generated: true, from_special_day: true };
+    }
+    // Empty special day row — fall through to weekly schedule below
   }
 
   // ── 4b. Find weekly schedule for that day_of_week ────────

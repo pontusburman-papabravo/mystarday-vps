@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
        LEFT JOIN (
          SELECT activity_template_id,
                 COUNT(*) AS cnt,
-                json_agg(json_build_object('id', id, 'name', name, 'icon', icon, 'sort_order', sort_order) ORDER BY sort_order ASC, created_at ASC) AS steps
+                json_agg(json_build_object('id', id, 'name', name, 'icon', icon, 'sort_order', sort_order) ORDER BY sort_order ASC, id ASC) AS steps
          FROM activity_sub_step
          GROUP BY activity_template_id
        ) sub ON sub.activity_template_id = at.id

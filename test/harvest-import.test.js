@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { buildHarvestImportBundles } = require('../src/lib/harvest-import');
+const { buildHarvestImportBundles, countSchedulesInHarvest } = require('../src/lib/harvest-import');
 
 const FAMILY_ID = '550e8400-e29b-41d4-a716-446655440000';
 const PARENT_ID = '660e8400-e29b-41d4-a716-446655440001';
@@ -150,7 +150,7 @@ describe('harvest-import', () => {
       { component: 'basic_app', expires_at: null },
     ]);
 
-    assert.ok(warnings.some((w) => w.includes('daily_log_item')));
+    assert.ok(warnings.some((w) => w.includes('daily_log') || w.includes('harvest:history')));
     assert.ok(warnings.some((w) => w.includes('lösenord')));
   });
 
@@ -181,6 +181,68 @@ describe('harvest-import', () => {
     assert.equal(JSON.parse(sub.rows[0].components)[0].component, 'basic_app');
   });
 
+  it('nulls missing activity_template_id on daily_log_item import', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.daily_log_details = {
+      [CHILD_ID]: {
+        '2026-05-15': {
+          log: { id: 'dl1', date: '2026-05-15' },
+          items: [
+            {
+              id: 'dli1',
+              activity_template_id: '00000000-0000-0000-0000-000000000099',
+              name: 'Borttagen aktivitet',
+              icon: '⭐',
+              completed: true,
+              star_value: 1,
+              section: 'morgon',
+            },
+          ],
+        },
+      },
+    };
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const items = bundles.find((b) => b.table === 'daily_log_item');
+    assert.equal(items.rows[0].activity_template_id, null);
+    assert.ok(warnings.some((w) => w.includes('saknas')));
+  });
+
+  it('countSchedulesInHarvest reads items wrapper from API', () => {
+    const stats = countSchedulesInHarvest(minimalHarvest().api);
+    assert.equal(stats.items, 1);
+    assert.equal(stats.perChild[0].name, 'Astrid');
+    assert.equal(stats.perChild[0].items, 1);
+  });
+
+  it('skips weekly_schedule_item when activity_template missing from harvest', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.schedules[`${CHILD_ID}_items`][SCHED_ID].items.push({
+      id: 'orphan-wsi',
+      activity_template_id: '00000000-0000-0000-0000-000000000099',
+      sort_order: 99,
+      section: 'morgon',
+    });
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const items = bundles.find((b) => b.table === 'weekly_schedule_item');
+    assert.equal(items.rows.length, 1);
+    assert.ok(warnings.some((w) => w.includes('weekly_schedule_item')));
+  });
+
+  it('unwrapApiList reads rewards wrapper from GET /api/rewards', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.rewards = {
+      rewards: [
+        { id: REWARD_ID, name: 'Glass', icon: '🍦', star_cost: 5, is_active: true },
+        { id: 'r2', name: 'Extra saga', icon: '📖', star_cost: 10, is_active: true },
+      ],
+      children: [],
+    };
+    const { bundles } = await buildHarvestImportBundles(harvest);
+    const rewards = bundles.find((b) => b.table === 'reward');
+    assert.equal(rewards.rows.length, 2);
+    assert.equal(rewards.rows[0].visible_to_children, null);
+  });
+
   it('skips goals referencing missing rewards', async () => {
     const harvest = minimalHarvest();
     harvest.api.goals = {
@@ -197,5 +259,47 @@ describe('harvest-import', () => {
     const goals = bundles.find((b) => b.table === 'child_reward_goal');
     assert.equal(goals.rows.length, 0);
     assert.ok(warnings.some((w) => w.includes('child_reward_goal')));
+  });
+
+  it('imports streak from child_progress', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.child_progress = {
+      [CHILD_ID]: {
+        streak: {
+          current_streak: 7,
+          cycle_day: 3,
+          last_active_date: '2026-05-30',
+        },
+      },
+    };
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const streak = bundles.find((b) => b.table === 'streak');
+    assert.equal(streak.upsert, true);
+    assert.equal(streak.rows[0].current_streak, 7);
+    assert.equal(streak.rows[0].cycle_day, 3);
+    assert.equal(streak.rows[0].last_active_date, '2026-05-30');
+    assert.ok(!warnings.some((w) => w.includes('harvest:streaks')));
+  });
+
+  it('matches duplicate reward names by star_cost on redemption', async () => {
+    const harvest = minimalHarvest();
+    const dupId = 'aa0e8400-e29b-41d4-a716-446655440099';
+    harvest.api.rewards = [
+      { id: REWARD_ID, name: 'Glass', icon: '🍦', star_cost: 5 },
+      { id: dupId, name: 'Glass', icon: '🍨', star_cost: 10 },
+    ];
+    harvest.api.reward_redemptions = [
+      {
+        id: 'rr-dup',
+        child_id: CHILD_ID,
+        reward_name: 'Glass',
+        star_cost: 10,
+        status: 'approved',
+        created_at: '2026-01-01T10:00:00.000Z',
+      },
+    ];
+    const { bundles } = await buildHarvestImportBundles(harvest);
+    const redemptions = bundles.find((b) => b.table === 'reward_redemption');
+    assert.equal(redemptions.rows[0].reward_id, dupId);
   });
 });

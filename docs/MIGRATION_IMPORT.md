@@ -19,6 +19,45 @@ Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en SQL-export om
 
 När du **inte** har `DATABASE_URL` men har kört `migration:harvest` (104 familjer med `harvest.json`):
 
+### Hämta all data (samma som Pontus) för alla familjer
+
+Ett kommando uppdaterar **history + streaks** för alla familjer som redan har `harvest.json`:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:complete -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02
+```
+
+Med **senaste** scheman/belöningar från prod (långsammare, ~104 × base-harvest):
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:complete -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --refresh-base \
+  --with-library
+```
+
+| Flagga | Effekt |
+|--------|--------|
+| `--resume` (default) | Hoppar över familjer som redan har history + streaks |
+| `--force` | Hämtar om history/streaks även om de finns |
+| `--refresh-base` | Kör `migration:harvest --refresh` per familj först |
+| `--with-library` | Hämtar `global-library.json` (standardbibliotek) en gång |
+| `--family-id <uuid>` | Bara en familj |
+
+Status sparas i `enrich-index.json` i backup-mappen.
+
+```bash
+# Testa en familj
+npm run harvest:complete -- --in ./Backup/... --family-id 5fa79406-...
+
+# Importera till lokal DB efteråt
+npm run import:library -- --in ./Backup/...
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- --in ./Backup/...
+```
+
+---
+
 ```bash
 # På måldatabas (tom instans)
 npm run migrate
@@ -45,9 +84,11 @@ HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run impo
 | Familj, föräldrar, barn, länkar | Ja |
 | Kategorier, aktiviteter, delsteg | Ja |
 | Veckoschema + specialdagar | Ja |
-| Belöningar, mål, inlösen | Ja (matchar belöning via namn om `reward_id` saknas) |
+| Belöningar, mål, inlösen | Ja (matchar belöning via namn + star_cost vid dubbletter) |
+| Streak | Ja — via `child_progress` i harvest (kör `harvest:streaks` om saknas) |
 | Observationer, systemmeddelanden | Ja |
 | `daily_log` (dag-rader) | Ja — **utan** `daily_log_item` (avbockningar/stjärnor) |
+| **Stjärnhistorik / avbockningar** | Via `import:gdpr-history` från `gdpr-export.zip` (07_aktiviteter.csv) |
 | PIN, lösenord | **Nej** — temporärt lösenord + ny PIN i appen |
 | Push-prenumerationer, bilder (R2) | Nej |
 | Pedagog-inbjudningar, audit-loggar | Nej |
@@ -80,8 +121,156 @@ Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på local
 
 **Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
 
-Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.
+Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest`. API:t returnerar `{ rewards: [...] }` — om du körde import före fixen kan tabellen vara tom trots backup.
 
+```bash
+npm run verify:harvest-rewards -- --in ./Backup/... --family-id 5fa79406-...
+
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- --in ./Backup/... --family-id 5fa79406-...
+```
+
+Kontroll i DB:
+
+```sql
+SELECT name, star_cost, is_active FROM reward r
+JOIN family f ON f.id = r.family_id
+JOIN parent p ON p.family_id = f.id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+ORDER BY sort_order;
+```
+
+---
+
+**Alternativ A — API (rekommenderat när GDPR-export ger 500):**
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:history -- \
+  --url https://mystarday.se \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+
+npm run import:harvest -- --in ./Backup/stjarndag-harvest-2026-06-02 --family-id 5fa79406-...
+```
+
+**Alternativ B — GDPR-ZIP** (`07_aktiviteter.csv`) om export fungerar:
+
+```bash
+npm run import:gdpr-history -- --in ./Backup/... --family-id ...
+```
+
+Saknas ZIP och GDPR ger fel? Använd **Alternativ A** ovan.
+
+### Veckoschema (Astrid / Olle) syns inte eller är tomt
+
+`import:harvest` använder `ON CONFLICT DO NOTHING`. Om första importen kördes **innan** API-svaret `{ items: [...] }` parsades korrekt kan `weekly_schedule` finnas **utan** `weekly_schedule_item` — då visar appen tomt schema och omimport ger `0/169 inserts`.
+
+**1. Kontrollera backup:**
+
+```bash
+npm run verify:harvest-schedules -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Förväntat: t.ex. Astrid ~90+ rader, Olle ~70+ rader. Om `0 aktiviteter` — hämta om från prod:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run migration:harvest -- \
+  --url https://mystarday.se \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+**2. Kontrollera databasen:**
+
+```sql
+SELECT c.name, COUNT(DISTINCT ws.id) AS days, COUNT(wsi.id) AS items
+FROM child c
+JOIN parent p ON p.family_id = c.family_id
+LEFT JOIN weekly_schedule ws ON ws.child_id = c.id
+LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+GROUP BY c.name;
+```
+
+**3. Importera om scheman** (behåller stjärnhistorik om du inte kör full familj-reset):
+
+```bash
+git pull origin cursor/gdpr-history-import-5a1f
+
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9 \
+  --replace-schedules
+```
+
+Du ska då se t.ex. `weekly_schedule_item: 169/169 inserts` (inte `0/169`).
+
+**4. Synka dagens logg** (dashboard läser `daily_log`, inte veckoschema direkt):
+
+```bash
+npm run sync:daily-logs -- --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Ladda om dashboard (Cmd+Shift+R). Veckoschema finns under **Veckoschema** i menyn; översikten visar **dagens** aktiviteter.
+
+Om Astrid fortfarande är tom idag — kontrollera torsdag (day_of_week=4):
+
+```sql
+SELECT c.name, ws.day_of_week, COUNT(wsi.id) AS items
+FROM child c
+JOIN weekly_schedule ws ON ws.child_id = c.id
+LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+GROUP BY c.name, ws.day_of_week
+ORDER BY 1, 2;
+```
+
+Olle har bara **5 veckodagar** i backup — om torsdag saknas är "Inget schema" idag förväntat för honom.
+
+---
+
+### Streak och belöningsinlösen
+
+**Streak** hämtas via `GET /api/children/:id/progress` → `api.child_progress` i harvest.json. Nyare `migration:harvest` inkluderar detta automatiskt. För äldre backup:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:streaks -- \
+  --url https://mystarday.se \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Import uppdaterar befintliga streak-rader (`ON CONFLICT (child_id) DO UPDATE`).
+
+**Belöningsinlösen** (`reward_redemption`) importeras via namn-matchning (API returnerar max 100 rader utan `reward_id`). Om första importen misslyckades eller du har duplicerade belöningar med samma namn:
+
+```bash
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9 \
+  --replace-redemptions
+```
+
+Kontroll:
+
+```sql
+SELECT c.name, s.current_streak, s.cycle_day, s.last_active_date
+FROM streak s
+JOIN child c ON c.id = s.child_id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc';
+
+SELECT c.name, r.name, rr.status, rr.star_cost, rr.redeemed_at
+FROM reward_redemption rr
+JOIN reward r ON r.id = rr.reward_id
+JOIN child c ON c.id = rr.child_id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+ORDER BY rr.redeemed_at DESC
+LIMIT 20;
+```
 
 ---
 
