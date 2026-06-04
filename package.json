@@ -16,6 +16,7 @@
     "import:library": "node scripts/import-global-library.js",
     "harvest:history": "node scripts/harvest-family-history.js",
     "harvest:streaks": "node scripts/harvest-family-streaks.js",
+    "harvest:complete": "node scripts/harvest-complete-all.js",
     "verify:harvest-history": "node scripts/verify-harvest-history.js",
     "verify:harvest-schedules": "node scripts/verify-harvest-schedules.js",
     "verify:harvest-rewards": "node scripts/verify-harvest-rewards.js",

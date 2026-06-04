@@ -19,6 +19,45 @@ Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en SQL-export om
 
 När du **inte** har `DATABASE_URL` men har kört `migration:harvest` (104 familjer med `harvest.json`):
 
+### Hämta all data (samma som Pontus) för alla familjer
+
+Ett kommando uppdaterar **history + streaks** för alla familjer som redan har `harvest.json`:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:complete -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02
+```
+
+Med **senaste** scheman/belöningar från prod (långsammare, ~104 × base-harvest):
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:complete -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --refresh-base \
+  --with-library
+```
+
+| Flagga | Effekt |
+|--------|--------|
+| `--resume` (default) | Hoppar över familjer som redan har history + streaks |
+| `--force` | Hämtar om history/streaks även om de finns |
+| `--refresh-base` | Kör `migration:harvest --refresh` per familj först |
+| `--with-library` | Hämtar `global-library.json` (standardbibliotek) en gång |
+| `--family-id <uuid>` | Bara en familj |
+
+Status sparas i `enrich-index.json` i backup-mappen.
+
+```bash
+# Testa en familj
+npm run harvest:complete -- --in ./Backup/... --family-id 5fa79406-...
+
+# Importera till lokal DB efteråt
+npm run import:library -- --in ./Backup/...
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- --in ./Backup/...
+```
+
+---
+
 ```bash
 # På måldatabas (tom instans)
 npm run migrate

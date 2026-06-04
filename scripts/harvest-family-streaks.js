@@ -1,24 +1,27 @@
 #!/usr/bin/env node
 /**
  * Fetch streak data via GET /api/children/:id/progress and merge into harvest.json.
- * Use when harvest.json lacks api.child_progress (older migration:harvest runs).
  *
  * Usage:
  *   ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:streaks -- \
- *     --url https://mystarday.se \
  *     --in ./Backup/stjarndag-harvest-2026-06-02 \
  *     --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+ *
+ * All families: npm run harvest:complete -- --in ./Backup/...
  */
 
-const fs = require('fs');
 const path = require('path');
 const {
-  apiRequest,
-  readJson,
   adminLogin,
   ensureAdminSession,
-  sleep,
 } = require('./lib/migration-http');
+const {
+  impersonateFamily,
+  resolveFamilyHarvestPath,
+  loadHarvestJson,
+  saveHarvestJson,
+  harvestFamilyStreaksInto,
+} = require('./lib/harvest-family-ops');
 
 function parseArgs(argv) {
   const opts = {
@@ -42,17 +45,16 @@ function parseArgs(argv) {
 Options:
   --url, --email, --password   Admin credentials
   --in <dir>                   Harvest dir (families/<uuid>/harvest.json)
-  --family-id <uuid>           One family
+  --family-id <uuid>           One family (required)
   --delay-ms <n>               Pause between requests (default 200)
 
-Then import:
-  HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- --in <dir> --family-id <uuid>
+All families: npm run harvest:complete -- --in <dir>
 `);
       process.exit(0);
     }
   }
   if (!opts.inDir || !opts.familyId) {
-    console.error('ERROR: --in and --family-id are required');
+    console.error('ERROR: --in and --family-id are required (or use npm run harvest:complete)');
     process.exit(1);
   }
   if (!opts.email || !opts.password) {
@@ -62,72 +64,36 @@ Then import:
   return opts;
 }
 
-async function fetchJson(base, apiPath, bearer) {
-  const res = await apiRequest(base, apiPath, { bearer });
-  const body = await readJson(res);
-  return { ok: res.ok, status: res.status, body, error: body.error || body._raw };
-}
-
-async function impersonate(base, jar, csrf, familyId) {
-  const res = await apiRequest(base, `/api/admin/impersonate/${familyId}`, {
-    method: 'POST',
-    jar,
-    csrf,
-    body: {},
-  });
-  const body = await readJson(res);
-  if (!res.ok || !body.token) throw new Error(body.error || 'Impersonate failed');
-  return body.token;
-}
-
 async function main() {
   const opts = parseArgs(process.argv);
-  const familyDir = path.join(opts.inDir, 'families', opts.familyId);
-  const harvestPath = path.join(familyDir, 'harvest.json');
+  const harvestPath = resolveFamilyHarvestPath(opts.inDir, opts.familyId);
+  const harvest = loadHarvestJson(harvestPath);
 
-  if (!fs.existsSync(harvestPath)) {
-    console.error(`ERROR: ${harvestPath} not found — run migration:harvest first`);
-    process.exit(1);
-  }
-
-  const harvest = JSON.parse(fs.readFileSync(harvestPath, 'utf8'));
-  const children = harvest.api?.family?.children || [];
-  if (!children.length) {
-    console.error('ERROR: harvest.json saknar barn');
+  if (!harvest?.api?.family?.children?.length) {
+    console.error(`ERROR: ${harvestPath} saknar barn — kör migration:harvest först`);
     process.exit(1);
   }
 
   console.log(`Loggar in som admin mot ${opts.baseUrl} ...`);
   const session = await adminLogin(opts.baseUrl, opts.email, opts.password);
   await ensureAdminSession(session);
-  const bearer = await impersonate(opts.baseUrl, session.jar, session.csrfToken, opts.familyId);
+  const bearer = await impersonateFamily(opts.baseUrl, session.jar, session.csrfToken, opts.familyId);
 
-  if (!harvest.api.child_progress) harvest.api.child_progress = {};
+  const results = await harvestFamilyStreaksInto(harvest, {
+    baseUrl: opts.baseUrl,
+    bearer,
+    delayMs: opts.delayMs,
+  });
 
-  for (const child of children) {
-    const childId = child.id;
-    if (!childId) continue;
-
-    const progress = await fetchJson(opts.baseUrl, `/api/children/${childId}/progress`, bearer);
-    harvest.api.child_progress[childId] = progress.ok ? progress.body : { _error: progress.error };
-
-    const streak = progress.ok ? progress.body?.streak : null;
-    const label = child.name || childId;
-    if (streak) {
-      console.log(
-        `  ${label}: streak=${streak.current_streak ?? 0} cycle_day=${streak.cycle_day ?? 0} last=${streak.last_active_date || '-'}`
-      );
-    } else if (!progress.ok) {
-      console.log(`  ${label}: API-fel — ${progress.error}`);
+  for (const row of results) {
+    if (row.ok) {
+      console.log(`  ${row.name}: streak=${row.current_streak}`);
     } else {
-      console.log(`  ${label}: ingen streak-data`);
+      console.log(`  ${row.name}: API-fel — ${row.error}`);
     }
-
-    await sleep(opts.delayMs);
   }
 
-  harvest.streaks_harvested_at = new Date().toISOString();
-  fs.writeFileSync(harvestPath, JSON.stringify(harvest, null, 2));
+  saveHarvestJson(harvestPath, harvest);
 
   console.log(`\nKlart → ${harvestPath}`);
   console.log(

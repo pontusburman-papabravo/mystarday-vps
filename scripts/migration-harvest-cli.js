@@ -28,6 +28,7 @@ function parseArgs(argv) {
     includeArchived: true,
     resume: false,
     onlyFailed: false,
+    refresh: false,
     delayMs: 4000,
   };
   for (let i = 2; i < argv.length; i++) {
@@ -42,6 +43,7 @@ function parseArgs(argv) {
     else if (argv[i] === '--no-archived') opts.includeArchived = false;
     else if (argv[i] === '--resume') opts.resume = true;
     else if (argv[i] === '--only-failed') opts.onlyFailed = true;
+    else if (argv[i] === '--refresh') opts.refresh = true;
     else if (argv[i] === '--delay-ms' && argv[i + 1]) opts.delayMs = parseInt(argv[++i], 10) || 4000;
     else if (argv[i] === '--help' || argv[i] === '-h') {
       console.log(`Harvest family data via admin + impersonation (no server deploy).
@@ -57,6 +59,7 @@ Options:
   --no-archived      Skip archived families
   --resume           Skip complete families (harvest.json, or gdpr zip with --gdpr-only)
   --only-failed      With --resume on same --out dir: retry index.json errors only
+  --refresh          Re-fetch harvest.json even if already complete
   --delay-ms <n>     Pause between families (default: 4000)
 
 Import on new server: use DATABASE_URL + npm run export:database:sql (not harvest).
@@ -465,7 +468,7 @@ async function main() {
         index.families.push({ id: f.id, name: label, skipped: true, gdpr_export: { ok: true } });
         continue;
       }
-    } else if (opts.resume && isHarvestComplete(familyDir)) {
+    } else if (opts.resume && !opts.refresh && isHarvestComplete(familyDir)) {
       console.log(`[${i + 1}/${families.length}] ${label} ... hoppa över (finns redan)`);
       index.families.push({ id: f.id, name: label, skipped: true });
       continue;
