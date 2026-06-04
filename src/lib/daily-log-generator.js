@@ -118,7 +118,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
               dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
               dli.sort_order, dli.child_sort_order, dli.section,
-              dli.parent_note, dli.child_note, dli.mood_rating,
+              dli.parent_note, dli.child_note,
               COALESCE(at.feedback_for, 'both') AS feedback_for
        FROM daily_log_item dli
        LEFT JOIN activity_template at ON at.id = dli.activity_template_id
@@ -258,7 +258,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
         `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
                 dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                 dli.sort_order, dli.child_sort_order, dli.section,
-                dli.parent_note, dli.child_note, dli.mood_rating,
+                dli.parent_note, dli.child_note,
                 COALESCE(at.feedback_for, 'both') AS feedback_for
          FROM daily_log_item dli
          LEFT JOIN activity_template at ON at.id = dli.activity_template_id
