@@ -181,6 +181,32 @@ describe('harvest-import', () => {
     assert.equal(JSON.parse(sub.rows[0].components)[0].component, 'basic_app');
   });
 
+  it('nulls missing activity_template_id on daily_log_item import', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.daily_log_details = {
+      [CHILD_ID]: {
+        '2026-05-15': {
+          log: { id: 'dl1', date: '2026-05-15' },
+          items: [
+            {
+              id: 'dli1',
+              activity_template_id: '00000000-0000-0000-0000-000000000099',
+              name: 'Borttagen aktivitet',
+              icon: '⭐',
+              completed: true,
+              star_value: 1,
+              section: 'morgon',
+            },
+          ],
+        },
+      },
+    };
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const items = bundles.find((b) => b.table === 'daily_log_item');
+    assert.equal(items.rows[0].activity_template_id, null);
+    assert.ok(warnings.some((w) => w.includes('saknas')));
+  });
+
   it('skips goals referencing missing rewards', async () => {
     const harvest = minimalHarvest();
     harvest.api.goals = {

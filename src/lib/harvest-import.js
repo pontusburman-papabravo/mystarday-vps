@@ -363,6 +363,15 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 
   const { rows: dailyLogItemRows, warnings: itemWarnings } = buildDailyLogItemRows(childRows, api);
   warnings.push(...itemWarnings);
+  const activityIds = new Set(activityRows.map((a) => a.id));
+  for (const row of dailyLogItemRows) {
+    if (row.activity_template_id && !activityIds.has(row.activity_template_id)) {
+      warnings.push(
+        `daily_log_item ${row.id}: aktivitet ${row.activity_template_id} saknas — sparar utan koppling (behåller namn)`
+      );
+      row.activity_template_id = null;
+    }
+  }
   if (dailyLogItemRows.length) {
     bundles.push({ table: 'daily_log_item', conflict: ['id'], rows: dailyLogItemRows });
   }
