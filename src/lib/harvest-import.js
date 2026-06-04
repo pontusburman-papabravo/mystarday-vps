@@ -218,8 +218,9 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
         name: sched.name || null,
       });
       const itemsKey = `${child.id}_items`;
-      const itemsBySched = api.schedules?.[itemsKey]?.[sched.id];
-      const items = Array.isArray(itemsBySched) ? itemsBySched : asArray(itemsBySched);
+      const itemsPayload = api.schedules?.[itemsKey]?.[sched.id];
+      if (isApiError(itemsPayload)) continue;
+      const items = itemsPayload?.items || asArray(itemsPayload);
       collectSubSteps(items);
       for (const item of items) {
         if (!item.id) continue;

@@ -77,15 +77,19 @@ function minimalHarvest() {
       schedules: {
         [CHILD_ID]: [{ id: SCHED_ID, day_of_week: 1, sort_order: 1 }],
         [`${CHILD_ID}_items`]: {
-          [SCHED_ID]: [
-            {
-              id: ITEM_ID,
-              activity_template_id: ACTIVITY_ID,
-              sort_order: 0,
-              section: 'morgon',
-              sub_steps: [{ id: 'ss1', name: 'Steg 1', sort_order: 0 }],
-            },
-          ],
+          [SCHED_ID]: {
+            schedule_id: SCHED_ID,
+            day_of_week: 1,
+            items: [
+              {
+                id: ITEM_ID,
+                activity_template_id: ACTIVITY_ID,
+                sort_order: 0,
+                section: 'morgon',
+                sub_steps: [{ id: 'ss1', name: 'Steg 1', sort_order: 0 }],
+              },
+            ],
+          },
         },
       },
       daily_logs: {
