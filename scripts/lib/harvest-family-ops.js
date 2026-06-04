@@ -48,14 +48,64 @@ function saveHarvestJson(harvestPath, harvest) {
 
 function listFamilyIds(inDir) {
   const familiesRoot = path.join(inDir, 'families');
-  if (!fs.existsSync(familiesRoot)) return [];
-  return fs
-    .readdirSync(familiesRoot)
-    .filter((name) => {
+  const ids = new Set();
+
+  if (fs.existsSync(familiesRoot)) {
+    for (const name of fs.readdirSync(familiesRoot)) {
       const dir = path.join(familiesRoot, name);
-      return fs.statSync(dir).isDirectory() && fs.existsSync(path.join(dir, 'harvest.json'));
-    })
-    .sort();
+      if (fs.statSync(dir).isDirectory() && fs.existsSync(path.join(dir, 'harvest.json'))) {
+        ids.add(name);
+      }
+    }
+  }
+
+  const indexPath = path.join(inDir, 'index.json');
+  if (fs.existsSync(indexPath)) {
+    try {
+      const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      for (const row of index.families || []) {
+        if (row.id && fs.existsSync(resolveFamilyHarvestPath(inDir, row.id))) ids.add(row.id);
+      }
+    } catch {
+      /* ignore bad index */
+    }
+  }
+
+  return [...ids].sort();
+}
+
+/** Admin family list (for bootstrap when backup dir is empty). */
+async function listFamiliesFromAdmin(baseUrl, jar, csrf, includeArchived = true) {
+  const activeRes = await apiRequest(baseUrl, '/api/admin/families-grouped', { jar, csrf });
+  const active = await readJson(activeRes);
+  if (!activeRes.ok) {
+    throw new Error(active.error || 'Kunde inte hämta familjer från admin');
+  }
+  let all = Array.isArray(active) ? active : [];
+  if (includeArchived) {
+    const archRes = await apiRequest(baseUrl, '/api/admin/families-grouped?archived=true', { jar, csrf });
+    const archived = await readJson(archRes);
+    if (archRes.ok && Array.isArray(archived)) {
+      const seen = new Set(all.map((f) => f.id));
+      for (const f of archived) {
+        if (!seen.has(f.id)) all.push(f);
+      }
+    }
+  }
+  return all;
+}
+
+function describeBackupDir(inDir) {
+  const familiesRoot = path.join(inDir, 'families');
+  const lines = [`Backup: ${inDir}`];
+  if (!fs.existsSync(inDir)) {
+    lines.push('  (mappen finns inte — skapas vid första hämtning)');
+    return lines.join('\n');
+  }
+  lines.push(`  families/: ${fs.existsSync(familiesRoot) ? 'ja' : 'saknas'}`);
+  lines.push(`  index.json: ${fs.existsSync(path.join(inDir, 'index.json')) ? 'ja' : 'saknas'}`);
+  lines.push(`  harvest.json: ${listFamilyIds(inDir).length} st`);
+  return lines.join('\n');
 }
 
 /**
@@ -200,6 +250,8 @@ module.exports = {
   loadHarvestJson,
   saveHarvestJson,
   listFamilyIds,
+  listFamiliesFromAdmin,
+  describeBackupDir,
   assessFamilyEnrichment,
   harvestFamilyHistoryInto,
   harvestFamilyStreaksInto,
