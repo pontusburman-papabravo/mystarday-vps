@@ -24,6 +24,21 @@ function pick(row, allowed) {
   return out;
 }
 
+/** JSONB array for pg — node-pg serializes JS arrays as PG arrays, not JSON. */
+function normalizeJsonbArray(value, fallback = []) {
+  let parsed = value;
+  if (parsed == null || parsed === '') parsed = fallback;
+  if (typeof parsed === 'string') {
+    try {
+      parsed = JSON.parse(parsed);
+    } catch {
+      parsed = fallback;
+    }
+  }
+  if (!Array.isArray(parsed)) parsed = fallback;
+  return JSON.stringify(parsed);
+}
+
 /**
  * @param {object} harvest — parsed harvest.json
  * @param {{ defaultPassword?: string }} [opts]
@@ -425,7 +440,9 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
           family_id: familyId,
           tier: subscription.tier,
           trial_expires_at: subscription.trial_expires_at || null,
-          components: subscription.components || [{ component: 'basic_app', expires_at: null }],
+          components: normalizeJsonbArray(subscription.components, [
+            { component: 'basic_app', expires_at: null },
+          ]),
         },
       ],
     });

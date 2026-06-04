@@ -141,6 +141,10 @@ describe('harvest-import', () => {
     assert.ok(!('longest_streak' in byTable.streak.rows[0]));
 
     assert.equal(byTable.family_subscriptions.rows[0].tier, 'lifetime_free');
+    assert.equal(typeof byTable.family_subscriptions.rows[0].components, 'string');
+    assert.deepEqual(JSON.parse(byTable.family_subscriptions.rows[0].components), [
+      { component: 'basic_app', expires_at: null },
+    ]);
 
     assert.ok(warnings.some((w) => w.includes('daily_log_item')));
     assert.ok(warnings.some((w) => w.includes('lösenord')));
@@ -160,6 +164,17 @@ describe('harvest-import', () => {
     const pc = bundles.find((b) => b.table === 'parent_child');
     assert.equal(pc.rows.length, 1);
     assert.equal(pc.rows[0].role, 'primary');
+  });
+
+  it('stringifies subscription components for JSONB insert', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.subscription.components = JSON.stringify([
+      { component: 'basic_app', expires_at: null, granted_at: '2026-01-01T00:00:00.000Z' },
+    ]);
+    const { bundles } = await buildHarvestImportBundles(harvest);
+    const sub = bundles.find((b) => b.table === 'family_subscriptions');
+    assert.equal(typeof sub.rows[0].components, 'string');
+    assert.equal(JSON.parse(sub.rows[0].components)[0].component, 'basic_app');
   });
 
   it('skips goals referencing missing rewards', async () => {
