@@ -438,11 +438,21 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 
   // ── redemptions ──
   const redemptionRows = [];
-  for (const rr of asArray(api.reward_redemptions)) {
-    let rewardId = rr.reward_id;
-    if (!rewardId && rr.reward_name) {
-      rewardId = rewardByName.get(String(rr.reward_name).toLowerCase());
+  const resolveRewardId = (rr) => {
+    if (rr.reward_id && rewardIds.has(rr.reward_id)) return rr.reward_id;
+    if (!rr.reward_name) return null;
+    const nameKey = String(rr.reward_name).toLowerCase();
+    const matches = rewardRows.filter((r) => r.name?.toLowerCase() === nameKey);
+    if (matches.length === 1) return matches[0].id;
+    if (matches.length > 1 && rr.star_cost != null) {
+      const cost = parseInt(rr.star_cost, 10);
+      const byCost = matches.find((r) => r.star_cost === cost);
+      if (byCost) return byCost.id;
     }
+    return matches[0]?.id || rewardByName.get(nameKey) || null;
+  };
+  for (const rr of asArray(api.reward_redemptions)) {
+    const rewardId = resolveRewardId(rr);
     if (!rewardId) {
       warnings.push(`reward_redemption ${rr.id}: kunde inte matcha belöning "${rr.reward_name}"`);
       continue;
@@ -460,11 +470,27 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   }
   bundles.push({ table: 'reward_redemption', conflict: ['id'], rows: redemptionRows });
 
-  // ── streak ──
+  // ── streak (from harvest child_progress / GET /api/children/:id/progress) ──
+  const hasChildProgress = api.child_progress && typeof api.child_progress === 'object';
+  if (!hasChildProgress) {
+    warnings.push('Ingen child_progress i harvest.json — kör npm run harvest:streaks för streak-värden');
+  }
+  const streakRows = childRows.map((c) => {
+    const progress = api.child_progress?.[c.id];
+    const streak =
+      progress && !isApiError(progress) && progress.streak ? progress.streak : null;
+    return {
+      child_id: c.id,
+      current_streak: parseInt(streak?.current_streak, 10) || 0,
+      cycle_day: parseInt(streak?.cycle_day, 10) || 0,
+      last_active_date: streak?.last_active_date || null,
+    };
+  });
   bundles.push({
     table: 'streak',
     conflict: ['child_id'],
-    rows: childRows.map((c) => ({ child_id: c.id, current_streak: 0, cycle_day: 0 })),
+    rows: streakRows,
+    upsert: true,
   });
 
   // ── child observations ──

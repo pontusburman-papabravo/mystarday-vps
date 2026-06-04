@@ -45,7 +45,8 @@ HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' DATABASE_URL="$TARGET" npm run impo
 | Familj, föräldrar, barn, länkar | Ja |
 | Kategorier, aktiviteter, delsteg | Ja |
 | Veckoschema + specialdagar | Ja |
-| Belöningar, mål, inlösen | Ja (matchar belöning via namn om `reward_id` saknas) |
+| Belöningar, mål, inlösen | Ja (matchar belöning via namn + star_cost vid dubbletter) |
+| Streak | Ja — via `child_progress` i harvest (kör `harvest:streaks` om saknas) |
 | Observationer, systemmeddelanden | Ja |
 | `daily_log` (dag-rader) | Ja — **utan** `daily_log_item` (avbockningar/stjärnor) |
 | **Stjärnhistorik / avbockningar** | Via `import:gdpr-history` från `gdpr-export.zip` (07_aktiviteter.csv) |
@@ -188,6 +189,49 @@ ORDER BY 1, 2;
 ```
 
 Olle har bara **5 veckodagar** i backup — om torsdag saknas är "Inget schema" idag förväntat för honom.
+
+---
+
+### Streak och belöningsinlösen
+
+**Streak** hämtas via `GET /api/children/:id/progress` → `api.child_progress` i harvest.json. Nyare `migration:harvest` inkluderar detta automatiskt. För äldre backup:
+
+```bash
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:streaks -- \
+  --url https://mystarday.se \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Import uppdaterar befintliga streak-rader (`ON CONFLICT (child_id) DO UPDATE`).
+
+**Belöningsinlösen** (`reward_redemption`) importeras via namn-matchning (API returnerar max 100 rader utan `reward_id`). Om första importen misslyckades eller du har duplicerade belöningar med samma namn:
+
+```bash
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9 \
+  --replace-redemptions
+```
+
+Kontroll:
+
+```sql
+SELECT c.name, s.current_streak, s.cycle_day, s.last_active_date
+FROM streak s
+JOIN child c ON c.id = s.child_id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc';
+
+SELECT c.name, r.name, rr.status, rr.star_cost, rr.redeemed_at
+FROM reward_redemption rr
+JOIN reward r ON r.id = rr.reward_id
+JOIN child c ON c.id = rr.child_id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+ORDER BY rr.redeemed_at DESC
+LIMIT 20;
+```
 
 ---
 

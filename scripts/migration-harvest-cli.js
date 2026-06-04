@@ -325,6 +325,10 @@ async function harvestFamily(base, listing, bearer, opts, familyDir) {
     );
     api[`observations_${childId}`] = obs.ok ? obs.body : { _error: obs.error };
 
+    const progress = await fetchJson(base, `/api/children/${childId}/progress`, bearer);
+    if (!api.child_progress) api.child_progress = {};
+    api.child_progress[childId] = progress.ok ? progress.body : { _error: progress.error };
+
     api.daily_logs[childId] = [];
     for (const range of dateRanges(historyStart, today, 90)) {
       const logs = await fetchJson(
