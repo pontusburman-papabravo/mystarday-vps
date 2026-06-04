@@ -79,12 +79,12 @@ async function injectLandingNews(html) {
 
 // ─── GET / — Swedish landing page ──────────────────────────
 router.get('/', async (req, res) => {
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
+  const slug = process.env.GA_MEASUREMENT_ID || process.env.POLSIA_ANALYTICS_SLUG || '';
   const htmlPath = path.join(__dirname, '..', '..', 'public', 'index.html');
 
   if (fs.existsSync(htmlPath)) {
     let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
+    html = html.replace(/__GA_MEASUREMENT_ID__|__POLSIA_SLUG__/g, slug);
     html = await injectLandingNews(html);
     html = injectAppMode(html);
     res.type('html').send(html);
@@ -98,12 +98,12 @@ router.get('/', async (req, res) => {
 router.get('/en', async (req, res) => {
   const allowed = await hasAccess(null, 'engelsk_landingssida');
   if (!allowed) return res.redirect('/');
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
+  const slug = process.env.GA_MEASUREMENT_ID || process.env.POLSIA_ANALYTICS_SLUG || '';
   const htmlPath = path.join(__dirname, '..', '..', 'public', 'en.html');
 
   if (fs.existsSync(htmlPath)) {
     let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
+    html = html.replace(/__GA_MEASUREMENT_ID__|__POLSIA_SLUG__/g, slug);
     html = injectAppMode(html);
     res.type('html').send(html);
   } else {
@@ -124,12 +124,12 @@ router.get('/sv/tack', async (req, res) => {
 
 // ─── GET /en/thank-you — English waitlist thank-you page ──
 router.get('/en/thank-you', async (req, res) => {
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
+  const slug = process.env.GA_MEASUREMENT_ID || process.env.POLSIA_ANALYTICS_SLUG || '';
   const htmlPath = path.join(__dirname, '..', '..', 'public', 'en-thank-you.html');
 
   if (fs.existsSync(htmlPath)) {
     let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
+    html = html.replace(/__GA_MEASUREMENT_ID__|__POLSIA_SLUG__/g, slug);
     res.type('html').send(html);
   } else {
     res.redirect(302, '/en');

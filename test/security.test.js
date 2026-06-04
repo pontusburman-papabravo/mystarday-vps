@@ -244,12 +244,11 @@ describe('Fix 6 -- JWT_SECRET production enforcement', () => {
   function saveEnv() {
     origEnv.NODE_ENV = process.env.NODE_ENV;
     origEnv.JWT_SECRET = process.env.JWT_SECRET;
-    origEnv.POLSIA_API_TOKEN = process.env.POLSIA_API_TOKEN;
   }
 
   function restoreEnv() {
     // Restore original values (or delete if they were undefined)
-    for (const key of ['NODE_ENV', 'JWT_SECRET', 'POLSIA_API_TOKEN']) {
+    for (const key of ['NODE_ENV', 'JWT_SECRET']) {
       if (origEnv[key] === undefined) {
         delete process.env[key];
       } else {
@@ -265,7 +264,6 @@ describe('Fix 6 -- JWT_SECRET production enforcement', () => {
     try {
       process.env.NODE_ENV = 'production';
       delete process.env.JWT_SECRET;
-      delete process.env.POLSIA_API_TOKEN;
       delete require.cache[require.resolve(CONFIG_JS)];
       assert.throws(
         () => require(CONFIG_JS),
@@ -309,7 +307,6 @@ describe('Fix 6 -- JWT_SECRET production enforcement', () => {
     try {
       process.env.NODE_ENV = 'development';
       delete process.env.JWT_SECRET;
-      delete process.env.POLSIA_API_TOKEN;
       delete require.cache[require.resolve(CONFIG_JS)];
       const config = require(CONFIG_JS);
       assert.ok(config.jwt.secret, 'should have a dev fallback secret');

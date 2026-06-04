@@ -16,9 +16,8 @@ if (isProd && process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
   throw new Error('FATAL: JWT_SECRET must be at least 32 characters in production');
 }
 
-// Non-production: allow POLSIA_API_TOKEN fallback for local dev/CI.
-// The old hardcoded fallback was removed — it was a security risk.
-const jwtSecret = process.env.JWT_SECRET || process.env.POLSIA_API_TOKEN || (() => {
+// Non-production dev fallback only (never use in production).
+const jwtSecret = process.env.JWT_SECRET || (() => {
   if (isProd) throw new Error('FATAL: JWT_SECRET must be set in production');
   return 'dev-only-not-for-production';
 })();

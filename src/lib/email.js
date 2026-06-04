@@ -1,92 +1,78 @@
 /**
- * Email service — wraps the Polsia email proxy.
+ * Email service — SMTP (nodemailer).
  * Owns: all outbound transactional email for Min Stjärndag.
  * Does NOT own: push notifications (push.js), in-app messages (system-messages).
  *
- * Kill switch: set EMAIL_ENABLED=false to disable all sending (safe for local dev).
+ * Kill switch: EMAIL_ENABLED=false disables all sending.
+ *
+ * Required env: SMTP_HOST, SMTP_USER, SMTP_PASS (SMTP_PORT default 587).
  */
+const nodemailer = require('nodemailer');
 const config = require('./config');
 
-/**
- * Register a user as a known contact with the Polsia proxy.
- * Call on signup so transactional emails are never rate-limited.
- */
-async function registerContact(email, name, source = 'signup') {
-  const apiKey = process.env.POLSIA_API_KEY;
-  if (!apiKey) return;
+const FROM_ADDRESS = 'info@mystarday.se';
 
-  try {
-    await fetch('https://polsia.com/api/proxy/email/contacts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+let _transport = null;
+
+function isEmailConfigured() {
+  return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
+function getTransport() {
+  if (!_transport) {
+    _transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-      body: JSON.stringify({ email, name, source }),
-      signal: AbortSignal.timeout(5000),
     });
-  } catch {
-    // Non-critical — fire-and-forget
   }
+  return _transport;
 }
 
 /**
- * Send an email via the Polsia email proxy.
- * https://polsia.com/api/proxy/email/send
+ * No-op — kept for signup hook compatibility (former Polsia contacts API).
  */
-const FROM_ADDRESS = 'info@mystarday.se';
+async function registerContact() {
+  return;
+}
 
+/**
+ * Send an email via SMTP.
+ */
 async function sendEmail({ to, subject, body: textBody, html, from }) {
-  // Kill switch
   if (process.env.EMAIL_ENABLED === 'false') {
     console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${to}, subject="${subject}"`);
     return { success: true, provider: 'suppressed' };
   }
 
-  const apiKey = process.env.POLSIA_API_KEY;
+  console.log(`[EMAIL] Sending email to=${to}, subject="${subject}", configured=${isEmailConfigured()}`);
 
-  console.log(`[EMAIL] Sending email to=${to}, subject="${subject}", hasApiKey=${!!apiKey}`);
-
-  if (!apiKey) {
-    console.error('[EMAIL] No POLSIA_API_KEY — email not sent. Check env vars.');
+  if (!isEmailConfigured()) {
+    console.error('[EMAIL] SMTP not configured — set SMTP_HOST, SMTP_USER, SMTP_PASS');
     return { success: false, provider: 'none' };
   }
 
-  // plain-text body is required by the proxy; derive from html if caller omits it
   const plainText = textBody || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : subject);
+  const fromHeader = from || `Min Stjärndag <${FROM_ADDRESS}>`;
 
   try {
-    const payload = {
+    const info = await getTransport().sendMail({
+      from: fromHeader,
       to,
-      from: from || `Min Stjärndag <${FROM_ADDRESS}>`,
       replyTo: `Min Stjärndag <${FROM_ADDRESS}>`,
       subject,
-      body: plainText,
+      text: plainText,
       html,
-    };
-
-    const res = await fetch('https://polsia.com/api/proxy/email/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
     });
-
-    if (res.ok) {
-      const data = await res.json().catch(() => ({}));
-      console.log(`[EMAIL] Sent OK to=${to}, provider=polsia-proxy`);
-      return { success: true, provider: 'polsia-proxy', data };
-    }
-
-    const errText = await res.text().catch(() => '');
-    console.error(`[EMAIL] Proxy returned ${res.status}: ${errText}`);
-    return { success: false, provider: 'polsia-proxy', status: res.status, error: errText };
+    console.log(`[EMAIL] Sent OK to=${to}, messageId=${info.messageId || 'n/a'}`);
+    return { success: true, provider: 'smtp', messageId: info.messageId };
   } catch (err) {
-    console.error('[EMAIL] Proxy request failed:', err.message);
-    return { success: false, provider: 'none', error: err.message };
+    console.error('[EMAIL] SMTP send failed:', err.message);
+    return { success: false, provider: 'smtp', error: err.message };
   }
 }
 
@@ -131,9 +117,6 @@ async function sendPasswordResetEmail(email, token, recipientName) {
 
 /**
  * Send family invite link to new member.
- * @param {string} email - Recipient email
- * @param {string} token - Invite token
- * @param {object} opts - { inviteeName, inviterName, familyName }
  */
 async function sendInviteEmail(email, token, { inviteeName, inviterName, familyName } = {}) {
   const url = `${config.email.baseUrl}/accept-invite?token=${token}`;
@@ -158,19 +141,10 @@ async function sendInviteEmail(email, token, { inviteeName, inviterName, familyN
   });
 }
 
-/**
- * Send notification to parent about child's failed login attempts.
- * Legacy function — kept for compat. New code uses sendPinWarningEmail.
- */
 async function sendChildLockoutNotification(parentEmail, childName) {
   return sendPinWarningEmail(parentEmail, childName);
 }
 
-/**
- * Send a heads-up to the parent when the child has made 3 failed PIN attempts.
- * Not a lockout — just a friendly warning so parent can assist.
- * Subject uses ⚠️ prefix per task spec.
- */
 async function sendPinWarningEmail(parentEmail, childName) {
   const baseUrl = config.email.baseUrl;
   return sendEmail({
@@ -190,9 +164,6 @@ async function sendPinWarningEmail(parentEmail, childName) {
   });
 }
 
-/**
- * Send deletion confirmation when account deletion is requested.
- */
 async function sendAccountDeletionRequestedEmail(email, firstName) {
   const baseUrl = config.email.baseUrl;
   return sendEmail({
@@ -214,9 +185,6 @@ async function sendAccountDeletionRequestedEmail(email, firstName) {
   });
 }
 
-/**
- * Send confirmation when account has been fully deleted.
- */
 async function sendAccountDeletedEmail(email, firstName) {
   return sendEmail({
     to: email,
@@ -237,16 +205,6 @@ async function sendAccountDeletedEmail(email, firstName) {
   });
 }
 
-/**
- * Send win-back re-engagement email.
- * Subject/Body are in docs/win-back-email-copy.md (UTKAST — not approved for live sending).
- * Copy is isolated here for easy modification without touching scheduler logic.
- *
- * @param {string} to          — recipient email
- * @param {string} parentName  — first name for personalization
- * @param {string} childName   — child's name for CTA headline
- * @param {string} ctaUrl      — CTA button URL with UTM params
- */
 async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
   return sendEmail({
@@ -256,42 +214,20 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;">Hej ${firstName}! 👋</h2>
         <p style="color:#5A6178;">Det var ett tag sedan du var här inne — ${childName}s schema väntar på dig.</p>
-
         <div style="background:#FFF8E8;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
           <div style="font-size:32px;margin-bottom:8px;">⭐</div>
-          <p style="margin:0;font-size:18px;font-weight:600;color:#1B2340;">
-            Det tar bara en minut att kolla av schemat
-          </p>
+          <p style="margin:0;font-size:18px;font-weight:600;color:#1B2340;">Det tar bara en minut att kolla av schemat</p>
         </div>
-
-        <p style="color:#5A6178;">
-          Barnet har stjärnor att tjäna och belöningar att lösa in. Så fort du öppnar appen är allt på plats.
-        </p>
-
+        <p style="color:#5A6178;">Barnet har stjärnor att tjäna och belöningar att lösa in. Så fort du öppnar appen är allt på plats.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${ctaUrl}"
-             style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
-                    border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Öppna schemat →
-          </a>
+          <a href="${ctaUrl}" style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">Öppna schemat →</a>
         </div>
-
-        <p style="color:#5A6178;font-size:14px;margin-top:16px;">
-          Du kan stänga av dessa mejl under <strong>Inställningar → Aviseringar</strong> i appen.
-        </p>
+        <p style="color:#5A6178;font-size:14px;margin-top:16px;">Du kan stänga av dessa mejl under <strong>Inställningar → Aviseringar</strong> i appen.</p>
       </div>
     `,
   });
 }
 
-/**
- * Send pedagog invite email.
- * @param {string} to - Recipient email
- * @param {string|null} inviteeName - Recipient name
- * @param {string} inviterName - Inviting parent name
- * @param {string} familyName - Family name
- * @param {string} inviteToken - Invite token
- */
 async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName, inviteToken }) {
   const baseUrl = config.email.baseUrl;
   const url = `${baseUrl}/pedagog-invite?token=${inviteToken}`;
@@ -309,13 +245,9 @@ async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName
         <p><strong>${inviterText}</strong> har bjudit in dig som pedagog i ${familyText} på Min Stjärndag.</p>
         <p>Som pedagog får du tillgång till att dokumentera observationer och följa barnets schema.</p>
         <div style="text-align: center; margin: 28px 0;">
-          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
-            Acceptera inbjudan →
-          </a>
+          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">Acceptera inbjudan →</a>
         </div>
-        <p style="color: #5A6178; font-size: 14px;">
-          Inbjudan gäller i 7 dagar. Om du inte förväntade dig detta mail kan du ignorera det.
-        </p>
+        <p style="color: #5A6178; font-size: 14px;">Inbjudan gäller i 7 dagar. Om du inte förväntade dig detta mail kan du ignorera det.</p>
       </div>
     `,
   });
@@ -324,6 +256,7 @@ async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName
 module.exports = {
   sendEmail,
   registerContact,
+  isEmailConfigured,
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendInviteEmail,

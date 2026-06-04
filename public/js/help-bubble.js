@@ -55,7 +55,7 @@
           faqs: [
             { q: 'Hur bjuder jag in en annan vuxen?', a: 'Gå till <strong>Familjen & inställningar → Familjemedlemmar</strong> → klicka "Bjud in". Den inbjudna personen får ett e-postmeddelande med inloggningslänk.' },
             { q: 'Hur loggar barnet in?', a: 'Barnet loggar in på <strong>/child-login</strong> med sitt användarnamn och PIN-kod. Inloggningsuppgifterna hittar du under <strong>Familjen & inställningar → Barn</strong>.' },
-            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:my-starday@polsia.app" style="color:#F5A623;font-weight:600;">my-starday@polsia.app</a> — vi svarar inom 24 timmar.' },
+            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> — vi svarar inom 24 timmar.' },
           ],
         },
       ],
@@ -184,7 +184,7 @@
           faqs: [
             { q: 'Hur ändrar jag mitt lösenord?', a: 'Gå till <strong>Inställningar</strong> (⚙️) i menyn → "Byt lösenord". Du behöver ange ditt nuvarande lösenord.' },
             { q: 'Hur aktiverar jag notiser?', a: 'Gå till Inställningar → "Påminnelser" → slå på notiser och välj tider. Notiser kräver att du godkänner webbläsar-tillstånd.' },
-            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:my-starday@polsia.app" style="color:#F5A623;font-weight:600;">my-starday@polsia.app</a> — vi svarar inom 24 timmar.' },
+            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> — vi svarar inom 24 timmar.' },
           ],
         },
       ],
@@ -255,7 +255,7 @@
           faqs: [
             { q: 'Hur ändrar jag mitt lösenord?', a: 'Fyll i ditt nuvarande lösenord och det nya lösenordet → klicka "Spara". Lösenordet måste vara minst 6 tecken.' },
             { q: 'Hur ändrar jag min e-postadress?', a: 'Ange din nya e-postadress → klicka "Spara". Du kan behöva verifiera den nya adressen via e-post.' },
-            { q: 'Hur tar jag bort mitt konto?', a: 'Kontakta oss på <a href="mailto:my-starday@polsia.app" style="color:#F5A623;font-weight:600;">my-starday@polsia.app</a> för kontoradering. Vi hanterar det inom 48 timmar.' },
+            { q: 'Hur tar jag bort mitt konto?', a: 'Kontakta oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> för kontoradering. Vi hanterar det inom 48 timmar.' },
           ],
         },
         {
@@ -263,7 +263,7 @@
           label: '🔔 Notiser',
           faqs: [
             { q: 'Hur aktiverar jag påminnelser?', a: 'Slå på växeln under "Påminnelser" → välj tid och vilka dagar. Din webbläsare måste godkänna notiser.' },
-            { q: 'Jag får inga notiser trots att det är aktiverat', a: 'Kontrollera att webbläsaren har tillåtit notiser för sidan. Gå till webbläsarinställningarna → Notiser → hitta my-starday.polsia.app → Tillåt.' },
+            { q: 'Jag får inga notiser trots att det är aktiverat', a: 'Kontrollera att webbläsaren har tillåtit notiser för sidan. Gå till webbläsarinställningarna → Notiser → hitta mystarday.se → Tillåt.' },
           ],
         },
       ],

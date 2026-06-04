@@ -1,6 +1,6 @@
 /**
  * Payment success route — verifies Stripe checkout and injects pixel data.
- * Owns: checkout session verification via Polsia API, pixel data injection.
+ * Owns: Stripe Checkout session lookup for conversion pixels.
  * Does NOT own: Stripe webhook handling, payment creation.
  */
 const express = require('express');
@@ -9,10 +9,7 @@ const fs = require('fs');
 
 const router = express.Router();
 
-// Gate 2E: betalning — if feature is OFF, redirect to dashboard
 router.get('/success', async (req, res) => {
-  // No auth on this route (Stripe redirects here). Use checkAccessPublic with null familyId.
-  // hasAccess(null, slug) returns false if feature.status is 'off' or doesn't exist.
   const { hasAccess } = require('../../db/features');
   const allowed = await hasAccess(null, 'betalning');
   if (!allowed) {
@@ -25,20 +22,18 @@ router.get('/success', async (req, res) => {
 
   let paymentData = null;
   try {
-    const polsiaUrl = process.env.POLSIA_API_URL;
-    const polsiaKey = process.env.POLSIA_API_KEY;
-    if (polsiaUrl && polsiaKey) {
-      const verifyRes = await fetch(
-        `${polsiaUrl}/api/company-payments/verify?session_id=${encodeURIComponent(sessionId)}`,
-        { headers: { Authorization: `Bearer ${polsiaKey}` } }
-      );
-      const json = await verifyRes.json();
-      if (json.verified && json.payment) {
-        paymentData = json.payment;
+    if (process.env.STRIPE_SECRET_KEY) {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-04-30.basil' });
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (session.payment_status === 'paid' || session.status === 'complete') {
+        paymentData = {
+          amount: (session.amount_total || 0) / 100,
+          currency: (session.currency || 'sek').toUpperCase(),
+        };
       }
     }
   } catch (err) {
-    console.error('[payment/success] Verification error:', err.message);
+    console.error('[payment/success] Stripe verification error:', err.message);
   }
 
   const htmlPath = path.join(__dirname, '..', '..', 'public', 'payment-success.html');

@@ -29,8 +29,8 @@
     "cap:dev": "CAP_DEV=true npx cap sync"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1061.0",
     "archiver": "^8.0.0",
-    "pdfkit": "^0.15.0",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-rate-limit": "^7.4.1",
@@ -38,19 +38,21 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.7.0",
+    "nodemailer": "^8.0.10",
+    "pdfkit": "^0.15.0",
     "pg": "^8.11.3",
     "pino": "^8.20.0",
+    "stripe": "^17.7.0",
     "uuid": "^9.0.1",
     "web-push": "^3.6.7",
-    "zod": "^3.22.4",
-    "stripe": "^17.7.0"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@capacitor-community/apple-sign-in": "^7.0.0",
     "@capacitor/app": "^7.0.0",
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/cli": "^7.0.0",
     "@capacitor/camera": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
     "eslint": "^9.0.0",
     "pino-pretty": "^10.3.0"
   }

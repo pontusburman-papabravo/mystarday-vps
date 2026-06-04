@@ -72,9 +72,9 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## External integrations
 
-- **Polsia R2 proxy** — image uploads for manual star grants and child avatar photos
-- **Polsia email proxy** — all outbound email (verification, invite, welcome, newsletter, PIN warning, account deletion, feedback, weekly summary); via `src/lib/email.js` → `https://polsia.com/api/proxy/email/send`; `POLSIA_API_KEY` env var; kill switch `EMAIL_ENABLED=false`; sender always `Min Stjärndag <info@mystarday.se>` (from name is hardcoded, never uses parent's name)
-- **Polsia Stripe proxy** — payment checkout and verification (Stripe SDK at `stripe@17` for webhook verification via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` env vars)
+- **Cloudflare R2 (S3 API)** — image uploads via `src/lib/object-storage.js`; env `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_BASE_URL`
+- **SMTP email** — all outbound email via `src/lib/email.js` (nodemailer); env `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`; kill switch `EMAIL_ENABLED=false`; sender always `Min Stjärndag <info@mystarday.se>`
+- **Stripe** — direct SDK (`stripe@17`) for checkout, webhooks (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`)
 - **Web Push (VAPID)** — push notifications via VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY env vars
 - **Apple APNs** — iOS native push via raw HTTP/2 + ES256 JWT auth (APNS_KEY_ID, APNS_TEAM_ID, APNS_KEY_PATH, APNS_BUNDLE_ID env vars); BadDeviceToken/Unregistered tokens are auto-deleted from push_subscriptions; docs at `docs/app-store-apns.md`
 - **Facebook Graph API** — cross-post dagens nyhet to page feed (FACEBOOK_PAGE_ACCESS_TOKEN + FACEBOOK_PAGE_ID env vars)

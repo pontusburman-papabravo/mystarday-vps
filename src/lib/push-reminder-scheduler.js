@@ -8,7 +8,7 @@
  *   - star_milestone     : when child reaches 10/25/50/100 total stars
  *   - backfill_reminder  : 09:00 if yesterday's schedule is incomplete
  *
- * Guard: requires POLSIA_IN_PROCESS_CRONS_ENABLED=true (Render, not Blaxel).
+ * Guard: requires IN_PROCESS_CRONS_ENABLED=true on single-instance hosts.
  * Uses pg_advisory_lock(LOCK_ID) so horizontally scaled instances don't collide.
  *
  * Does NOT own: push delivery (see src/lib/push-notifications.js).
@@ -425,12 +425,14 @@ function scheduleNextRun() {
 
 /**
  * Start the push reminder scheduler.
- * Guard: only starts if POLSIA_IN_PROCESS_CRONS_ENABLED === 'true'.
- * Declares recurring work in polsia.toml for Blaxel/Render cron.
+ * Guard: only starts if IN_PROCESS_CRONS_ENABLED === 'true'.
+ * See deploy/crons.toml for scheduled job definitions on multi-instance hosts.
  */
 function startPushReminderScheduler() {
-  if (process.env.POLSIA_IN_PROCESS_CRONS_ENABLED !== 'true') {
-    console.log('[PUSH-REMINDER] Disabled (POLSIA_IN_PROCESS_CRONS_ENABLED != true)');
+  const enabled = process.env.IN_PROCESS_CRONS_ENABLED === 'true'
+    || process.env.POLSIA_IN_PROCESS_CRONS_ENABLED === 'true';
+  if (!enabled) {
+    console.log('[PUSH-REMINDER] Disabled (IN_PROCESS_CRONS_ENABLED != true)');
     return;
   }
   scheduleNextRun();

@@ -1,0 +1,24 @@
+# Scheduled jobs for Min Stjärndag (VPS / systemd / cron).
+#
+# Single-instance VPS: set IN_PROCESS_CRONS_ENABLED=true in .env
+# (push reminders run inside the Node process; midnight/weekly start from server.js).
+#
+# Multi-instance: run these commands via cron or systemd timers instead.
+
+[[crons]]
+name = "push-reminder-scheduler"
+schedule = "*/5 * * * *"
+command = "node src/lib/push-reminder-scheduler.js"
+description = "Push notifications (schedule_reminder, inactivity_nudge, star_milestone, backfill_reminder) every 5 minutes."
+
+[[crons]]
+name = "midnight-scheduler"
+schedule = "0 0 * * *"
+command = "node src/lib/midnight-scheduler.js"
+description = "Daily: daily_log rows, prune notification_log, analytics_daily_snapshots."
+
+[[crons]]
+name = "weekly-summary-email"
+schedule = "0 21 * * 0"
+command = "node src/lib/weekly-summary-scheduler.js"
+description = "Weekly summary emails — Sunday 21:00 Europe/Stockholm."

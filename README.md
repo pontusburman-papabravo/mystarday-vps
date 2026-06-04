@@ -44,6 +44,9 @@ npm run lint
 | `NODE_ENV` | No | Set to `production` in deployed env |
 | `VAPID_PUBLIC_KEY` | No | Web Push VAPID public key |
 | `VAPID_PRIVATE_KEY` | No | Web Push VAPID private key |
+| `SMTP_HOST` | Yes (prod) | Outbound mail server |
+| `SMTP_USER` / `SMTP_PASS` | Yes (prod) | SMTP credentials |
+| `R2_ACCOUNT_ID` + R2 keys | Yes (uploads) | Cloudflare R2 direct upload |
 | `EMAIL_ENABLED` | No | Set to `false` to disable email sending |
 | `REQUIRE_EMAIL_VERIFICATION` | No | Set to `false` after email delivery confirmed |
 | `SECURITY_HEADERS_ENABLED` | No | Set to `false` to disable security headers |
@@ -59,9 +62,9 @@ migrations/1750000000000_add_new_table.js
 
 ## External Integrations
 
-- **Polsia email proxy** — invite emails and notifications (configured via Polsia infra)
-- **Polsia R2 proxy** — image uploads for manual star grants
-- **Polsia Stripe proxy** — payment checkout
+- **SMTP** — transactional email (`SMTP_*` env vars)
+- **Cloudflare R2** — image uploads (`R2_*` env vars)
+- **Stripe** — checkout and webhooks (`STRIPE_*` env vars)
 - **Web Push (VAPID)** — browser push notifications
 
 ## Key Endpoints

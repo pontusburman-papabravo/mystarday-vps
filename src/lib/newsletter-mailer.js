@@ -1,17 +1,16 @@
 /**
  * src/lib/newsletter-mailer.js
- * Owns: Sending newsletter emails via the Polsia e-postproxy
+ * Owns: Sending newsletter emails via SMTP (email.js)
  *       when a nyhet is published or admin sends a standalone newsletter.
  *       HTML template rendering, batch sending, unsubscribe token handling.
  * Does NOT own: subscription management (routes/newsletter.js),
  *               push notifications (push-notifications.js),
  *               or any DB writes on dagens_nyhet (that's db/dagens-nyhet.js).
  *
- * All email is sent via https://polsia.com/api/proxy/email/send (POLSIA_API_KEY).
- * Batches of 50 with 1s delay to manage proxy load.
+ * Batches of 50 with 1s delay between batches.
  */
 
-const { sendEmail } = require('./email');
+const { sendEmail, isEmailConfigured } = require('./email');
 const db = require('./db');
 
 const APP_URL = process.env.APP_URL || 'https://mystarday.se';
@@ -27,8 +26,8 @@ const BATCH_DELAY_MS = 1000;
  * @returns {Promise<{ sent: number, failed: number }>}
  */
 async function sendNewsletterForNyhet(nyhet) {
-  if (!process.env.POLSIA_API_KEY) {
-    console.warn('[NEWSLETTER-MAILER] POLSIA_API_KEY not set — skipping email send');
+  if (!isEmailConfigured()) {
+    console.warn('[NEWSLETTER-MAILER] SMTP not configured — skipping email send');
     return { sent: 0, failed: 0 };
   }
 
@@ -167,8 +166,8 @@ function sleep(ms) {
  * @returns {Promise<{ sent: number, failed: number }>}
  */
 async function sendNewsletterToRecipients(nyhet, recipientIds) {
-  if (!process.env.POLSIA_API_KEY) {
-    console.warn('[NEWSLETTER-MAILER] POLSIA_API_KEY not set — skipping email send');
+  if (!isEmailConfigured()) {
+    console.warn('[NEWSLETTER-MAILER] SMTP not configured — skipping email send');
     return { sent: 0, failed: 0 };
   }
 
@@ -238,9 +237,9 @@ async function sendNewsletterToRecipients(nyhet, recipientIds) {
  * @returns {Promise<{ sent: number, failed: number }>}
  */
 async function sendStandaloneNewsletter(newsletter, recipientIds) {
-  if (!process.env.POLSIA_API_KEY) {
-    console.warn('[NEWSLETTER-MAILER] POLSIA_API_KEY not set — skipping standalone newsletter');
-    return { sent: 0, failed: 0, apiError: 'POLSIA_API_KEY saknas' };
+  if (!isEmailConfigured()) {
+    console.warn('[NEWSLETTER-MAILER] SMTP not configured — skipping standalone newsletter');
+    return { sent: 0, failed: 0, apiError: 'SMTP saknas' };
   }
 
   if (!recipientIds || recipientIds.length === 0) {

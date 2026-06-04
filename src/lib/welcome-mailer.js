@@ -2,7 +2,7 @@
  * Welcome email — sent to new parents immediately after successful registration.
  * Template is admin-editable via /api/admin/welcome-email (welcome_email_template table).
  * Supports **bold** markup, newlines, and {{foralderns_namn}} / {{barnets_namn}} variable substitution.
- * Delivered via the Polsia e-postproxy (https://polsia.com/api/proxy/email/send).
+ * Delivered via SMTP (src/lib/email.js).
  */
 
 const { sendEmail } = require('./email');

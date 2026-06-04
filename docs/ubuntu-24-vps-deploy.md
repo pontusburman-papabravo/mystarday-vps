@@ -181,10 +181,11 @@ npm run build
 | `JWT_SECRET` | Minst 32 tecken |
 | `NODE_ENV` | `production` |
 | `APP_URL` | `https://mystarday.se` |
-| `POLSIA_API_KEY` | E-post, R2, m.m. |
-| `POLSIA_IN_PROCESS_CRONS_ENABLED` | `true` på enkel VPS |
+| `IN_PROCESS_CRONS_ENABLED` | `true` på enkel VPS |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | Utgående e-post (ingen Polsia) |
+| `R2_*` | Cloudflare R2 direkt — se `docs/remove-polsia-migration.md` |
 
-Övrig prod-lista: `docs/RELEASE.md`, `docs/polsia-release-os/ENV_FOR_POLSIA_DASHBOARD.md`.
+Övrig prod-lista: `docs/RELEASE.md`, `docs/remove-polsia-migration.md`.
 
 ---
 

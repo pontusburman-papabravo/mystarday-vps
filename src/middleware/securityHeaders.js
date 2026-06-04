@@ -14,14 +14,20 @@ function securityHeadersMiddleware() {
   const ENABLED = process.env.SECURITY_HEADERS_ENABLED !== 'false';
 
   // CSP Report-Only: allows self + all external scripts currently in use.
-  // Domains: Google Fonts, GA4/GTM, Meta Pixel, Polsia R2 (image uploads).
+  // Domains: Google Fonts, GA4/GTM, Meta Pixel, R2/CDN (image uploads).
+  const r2Origin = (() => {
+    try {
+      const u = process.env.R2_PUBLIC_BASE_URL;
+      return u ? ` ${new URL(u).origin}` : '';
+    } catch { return ''; }
+  })();
   const CSP_REPORT_ONLY = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://r2.polsia.com https://mystarday.se",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://polsia.com https://*.ingest.sentry.io https://oauth2.googleapis.com",
+    `img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://mystarday.se${r2Origin}`,
+    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://*.ingest.sentry.io https://oauth2.googleapis.com",
     "frame-ancestors 'none'",
   ].join('; ');
 

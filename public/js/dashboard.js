@@ -774,7 +774,7 @@ function openDelaAppenShare() {
     navigator.share({
       title: 'Min Stjärndag',
       text: 'Min Stjärndag — Hjälp ditt barn med vardagsrutiner och stjärnor!',
-      url: 'https://stjarndag.polsia.app',
+      url: window.location.origin,
     }).then(function () {
       // Mark as shared, dismiss banner
       sendShareNotify();
@@ -787,7 +787,7 @@ function openDelaAppenShare() {
     });
   } else {
     // Fallback: copy link to clipboard
-    var url = 'https://stjarndag.polsia.app';
+    var url = window.location.origin;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function () {
         // Show brief toast
