@@ -236,10 +236,12 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       if (!Array.isArray(parsed)) continue;
       for (const step of parsed) {
         if (!step.id || subStepIds.has(step.id)) continue;
+        const actId = item.activity_template_id;
+        if (!actId || !activityIds.has(actId)) continue;
         subStepIds.add(step.id);
         subStepRows.push({
           id: step.id,
-          activity_template_id: item.activity_template_id,
+          activity_template_id: actId,
           name: step.name,
           icon: step.icon || '⭐',
           sort_order: step.sort_order ?? 0,
