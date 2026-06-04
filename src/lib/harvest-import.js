@@ -283,7 +283,12 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
     requires_approval: r.requires_approval !== false,
     is_active: r.is_active !== false,
     sort_order: r.sort_order ?? 0,
-    visible_to_children: r.visible_to_children !== false,
+    visible_to_children:
+      r.visible_to_children === false
+        ? []
+        : Array.isArray(r.visible_to_children)
+          ? r.visible_to_children
+          : null,
   }));
   bundles.push({ table: 'reward', conflict: ['id'], rows: rewardRows });
 

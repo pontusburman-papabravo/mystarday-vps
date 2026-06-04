@@ -56,7 +56,39 @@ Standardlösenord om `HARVEST_IMPORT_PASSWORD` utelämnas: `ChangeMeAfterImport2
 
 ---
 
-## Harvest + GDPR (utan DATABASE_URL)
+## Lokal Mac-test (utan prod)
+
+När prod är otillgänglig: repot innehåller **baseline-schema** (`db/baseline-schema.sql`) som skapar alla tabeller tomma.
+
+```bash
+# Postgres
+createdb mystarday_dev
+export DATABASE_URL=postgres://$(whoami)@localhost:5432/mystarday_dev
+export JWT_SECRET=dev-secret-minst-32-tecken-lokal-kor
+
+# Schema + repo-migrationer
+npm run migrate
+
+# Verifiera
+psql "$DATABASE_URL" -c "\\dt family"
+
+# Importera harvest (104 familjer)
+git checkout cursor/baseline-schema-5a1f   # eller main efter merge
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02 \
+  --dry-run
+
+# Skarp import
+HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' npm run import:harvest -- \
+  --in ./Backup/stjarndag-harvest-2026-06-02
+
+npm run dev
+# http://localhost:3000 — logga in med temp-lösenord
+```
+
+**OBS:** Baseline-schema är härledt från kod — inte 100 % identiskt med prod. Rapportera kolumnfel så justeras `db/baseline-schema.sql`.
+
+---
 
 ### 1. API-data (redan gjort om alla familjer har `harvest.json`)
 

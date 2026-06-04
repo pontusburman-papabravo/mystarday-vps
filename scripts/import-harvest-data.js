@@ -143,8 +143,9 @@ async function importHarvestFile(pool, harvestPath, opts) {
 
       const result = await insertRows(client, table, bundle.rows, bundle.conflict, opts.dryRun);
       if (result.tableMissing) {
-        summary[table] = { table_missing: true };
-        continue;
+        throw new Error(
+          `Table "${table}" does not exist — run "npm run migrate" (baseline schema) before import:harvest`
+        );
       }
       summary[table] = {
         rows: bundle.rows.length,
