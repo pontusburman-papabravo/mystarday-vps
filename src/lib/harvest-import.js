@@ -172,9 +172,14 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   // ── parent_child ──
   const parentChildRows = [];
   const pcKeys = new Set();
+  const childIds = new Set(childRows.map((c) => c.id));
   for (const p of parents) {
-    const childIds = asArray(p.linked_child_ids);
-    for (const childId of childIds) {
+    const linkedIds = asArray(p.linked_child_ids);
+    for (const childId of linkedIds) {
+      if (!childIds.has(childId)) {
+        warnings.push(`parent_child: barn ${childId} saknas i harvest — hoppar länk för ${p.email || p.id}`);
+        continue;
+      }
       const key = `${p.id}:${childId}`;
       if (pcKeys.has(key)) continue;
       pcKeys.add(key);

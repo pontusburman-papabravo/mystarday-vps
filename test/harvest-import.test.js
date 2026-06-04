@@ -170,6 +170,19 @@ describe('harvest-import', () => {
     assert.equal(pc.rows[0].role, 'primary');
   });
 
+  it('skips parent_child links to children missing from harvest', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.family.parents[0].linked_child_ids = [
+      CHILD_ID,
+      '00000000-0000-0000-0000-000000000099',
+    ];
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const pc = bundles.find((b) => b.table === 'parent_child');
+    assert.equal(pc.rows.length, 1);
+    assert.equal(pc.rows[0].child_id, CHILD_ID);
+    assert.ok(warnings.some((w) => w.includes('parent_child') && w.includes('saknas')));
+  });
+
   it('stringifies subscription components for JSONB insert', async () => {
     const harvest = minimalHarvest();
     harvest.api.subscription.components = JSON.stringify([
