@@ -22,6 +22,7 @@ const path = require('path');
 const { Pool } = require('pg');
 const { buildHarvestImportBundles } = require('../src/lib/harvest-import');
 const { countHistoryInHarvest, remapDailyLogItemRows } = require('../src/lib/harvest-history');
+const { getOrGenerateDailyLog, getLocalDateStr } = require('../src/lib/daily-log-generator');
 
 const IMPORT_TABLE_ORDER = [
   'family',
@@ -138,6 +139,22 @@ async function insertRows(client, table, rows, conflictCols, dryRun) {
   return { inserted, skipped };
 }
 
+async function syncTodayDailyLogs(pool, childRows) {
+  const lines = [];
+  for (const child of childRows) {
+    const tzRes = await pool.query('SELECT timezone FROM child WHERE id = $1', [child.id]);
+    const tz = tzRes.rows[0]?.timezone || 'Europe/Stockholm';
+    const today = getLocalDateStr(new Date(), tz);
+    try {
+      const { items } = await getOrGenerateDailyLog(child.id, today);
+      lines.push(`daily_log ${child.name || child.id} (${today}): ${items.length} aktivitet(er) idag`);
+    } catch (err) {
+      lines.push(`daily_log sync misslyckades för ${child.name || child.id}: ${err.message}`);
+    }
+  }
+  return lines;
+}
+
 async function importHarvestFile(pool, harvestPath, opts) {
   const raw = fs.readFileSync(harvestPath, 'utf8');
   const harvest = JSON.parse(raw);
@@ -208,11 +225,22 @@ async function importHarvestFile(pool, harvestPath, opts) {
 
     if (!opts.dryRun) await client.query('COMMIT');
 
+    const childBundle = bundleByTable.get('child');
+    let syncWarnings = [];
+    if (!opts.dryRun && childBundle?.rows?.length) {
+      const scheduleBundle = bundleByTable.get('weekly_schedule_item');
+      const hadScheduleWork =
+        opts.replaceSchedules || (scheduleBundle?.rows?.length && summary.weekly_schedule_item?.inserted > 0);
+      if (hadScheduleWork) {
+        syncWarnings = await syncTodayDailyLogs(pool, childBundle.rows);
+      }
+    }
+
     return {
       familyId: meta.familyId,
       familyName: meta.familyName,
       summary,
-      warnings,
+      warnings: [...syncWarnings, ...warnings],
       tempPassword: meta.passwordPlain,
     };
   } catch (err) {

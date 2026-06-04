@@ -150,6 +150,29 @@ HARVEST_IMPORT_PASSWORD='BytMigEfterImport!' npm run import:harvest -- \
 
 Du ska då se t.ex. `weekly_schedule_item: 169/169 inserts` (inte `0/169`).
 
+**4. Synka dagens logg** (dashboard läser `daily_log`, inte veckoschema direkt):
+
+```bash
+npm run sync:daily-logs -- --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
+```
+
+Ladda om dashboard (Cmd+Shift+R). Veckoschema finns under **Veckoschema** i menyn; översikten visar **dagens** aktiviteter.
+
+Om Astrid fortfarande är tom idag — kontrollera torsdag (day_of_week=4):
+
+```sql
+SELECT c.name, ws.day_of_week, COUNT(wsi.id) AS items
+FROM child c
+JOIN weekly_schedule ws ON ws.child_id = c.id
+LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
+JOIN parent p ON p.family_id = c.family_id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+GROUP BY c.name, ws.day_of_week
+ORDER BY 1, 2;
+```
+
+Olle har bara **5 veckodagar** i backup — om torsdag saknas är "Inget schema" idag förväntat för honom.
+
 ---
 
 ## Lokal Mac-test (utan prod)

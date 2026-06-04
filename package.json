@@ -17,6 +17,7 @@
     "harvest:history": "node scripts/harvest-family-history.js",
     "verify:harvest-history": "node scripts/verify-harvest-history.js",
     "verify:harvest-schedules": "node scripts/verify-harvest-schedules.js",
+    "sync:daily-logs": "node scripts/sync-family-daily-logs.js",
     "import:gdpr-history": "node scripts/import-gdpr-history.js",
     "bootstrap:migration": "node scripts/bootstrap-migration-local.js",
     "migration:export": "node scripts/migration-export-cli.js",
