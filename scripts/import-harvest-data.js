@@ -21,6 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
 const { buildHarvestImportBundles } = require('../src/lib/harvest-import');
+const { countHistoryInHarvest, remapDailyLogItemRows } = require('../src/lib/harvest-history');
 
 const IMPORT_TABLE_ORDER = [
   'family',
@@ -125,9 +126,20 @@ async function importHarvestFile(pool, harvestPath, opts) {
     throw new Error(`Okänt format i ${harvestPath} (förväntar api-harvest-v1)`);
   }
 
+  const historyStats = countHistoryInHarvest(harvest.api);
+  const preWarnings = [];
+  if (historyStats.hasDetails && historyStats.items === 0 && historyStats.errors > 0) {
+    preWarnings.push(`daily_log_details: ${historyStats.errors} dag(ar) med API-fel i harvest.json`);
+  } else if (!historyStats.hasDetails && harvest.api?.daily_logs) {
+    preWarnings.push('Ingen daily_log_details i harvest.json — kör npm run harvest:history först');
+  } else if (historyStats.items > 0) {
+    preWarnings.push(`daily_log_details: ${historyStats.items} aktivitetsrader i harvest.json`);
+  }
+
   const { bundles, warnings, meta } = await buildHarvestImportBundles(harvest, {
     defaultPassword: process.env.HARVEST_IMPORT_PASSWORD,
   });
+  warnings.unshift(...preWarnings);
 
   const bundleByTable = new Map(bundles.map((b) => [b.table, b]));
   const client = await pool.connect();
@@ -143,7 +155,20 @@ async function importHarvestFile(pool, harvestPath, opts) {
         continue;
       }
 
-      const result = await insertRows(client, table, bundle.rows, bundle.conflict, opts.dryRun);
+      let rows = bundle.rows;
+      if (table === 'daily_log_item' && !opts.dryRun) {
+        const remapped = await remapDailyLogItemRows(client, rows);
+        rows = remapped.rows;
+        if (remapped.skipped > 0) {
+          warnings.push(`daily_log_item: ${remapped.skipped} rad(er) hoppades över (saknar daily_log i DB)`);
+        }
+        if (!rows.length) {
+          summary[table] = { rows: bundle.rows.length, inserted: 0, conflicts_skipped: 0, skipped_no_log: remapped.skipped };
+          continue;
+        }
+      }
+
+      const result = await insertRows(client, table, rows, bundle.conflict, opts.dryRun);
       if (result.tableMissing) {
         throw new Error(
           `Table "${table}" does not exist — run "npm run migrate" (baseline schema) before import:harvest`
@@ -228,7 +253,7 @@ async function main() {
         console.log('ok');
         ok++;
         for (const [table, stat] of Object.entries(result.summary)) {
-          if (stat.rows > 0) {
+          if (stat.rows > 0 || table === 'daily_log_item' || table === 'manual_star_grant') {
             console.log(`    ${table}: ${stat.inserted}/${stat.rows} inserts`);
           }
         }

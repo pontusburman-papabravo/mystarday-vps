@@ -359,7 +359,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       `daily_log: ${dailyLogRows.length} dag(ar) utan daily_log_item — kör harvest:history eller import:gdpr-history`
     );
   }
-  bundles.push({ table: 'daily_log', conflict: ['id'], rows: dailyLogRows });
+  bundles.push({ table: 'daily_log', conflict: ['child_id', 'date'], rows: dailyLogRows });
 
   const { rows: dailyLogItemRows, warnings: itemWarnings } = buildDailyLogItemRows(childRows, api);
   warnings.push(...itemWarnings);
