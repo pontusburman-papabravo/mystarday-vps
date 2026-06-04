@@ -3,6 +3,7 @@
  */
 
 const { hashPassword } = require('./hash');
+const { buildDailyLogItemRows, buildManualStarRows } = require('./harvest-history');
 
 const DEFAULT_IMPORT_PASSWORD = 'ChangeMeAfterImport2026!';
 
@@ -353,12 +354,23 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
       }
     }
   }
-  if (dailyLogRows.length) {
+  if (dailyLogRows.length && !api.daily_log_details) {
     warnings.push(
-      `daily_log: ${dailyLogRows.length} dag(ar) importeras utan daily_log_item (avbockningar/stjärnor saknas i harvest)`
+      `daily_log: ${dailyLogRows.length} dag(ar) utan daily_log_item — kör harvest:history eller import:gdpr-history`
     );
   }
   bundles.push({ table: 'daily_log', conflict: ['id'], rows: dailyLogRows });
+
+  const { rows: dailyLogItemRows, warnings: itemWarnings } = buildDailyLogItemRows(childRows, api);
+  warnings.push(...itemWarnings);
+  if (dailyLogItemRows.length) {
+    bundles.push({ table: 'daily_log_item', conflict: ['id'], rows: dailyLogItemRows });
+  }
+
+  const manualStarRows = buildManualStarRows(childRows, api, primaryParentId);
+  if (manualStarRows.length) {
+    bundles.push({ table: 'manual_star_grant', conflict: ['id'], rows: manualStarRows });
+  }
 
   // ── redemptions ──
   const redemptionRows = [];

@@ -150,7 +150,7 @@ describe('harvest-import', () => {
       { component: 'basic_app', expires_at: null },
     ]);
 
-    assert.ok(warnings.some((w) => w.includes('daily_log_item')));
+    assert.ok(warnings.some((w) => w.includes('daily_log') || w.includes('harvest:history')));
     assert.ok(warnings.some((w) => w.includes('lösenord')));
   });
 

@@ -240,7 +240,8 @@ async function downloadGdprZip(base, bearer, destPath) {
   }
   if (!res.ok) {
     const body = await readJson(res);
-    return { ok: false, reason: body.error || `HTTP ${res.status}`, status: res.status };
+    const detail = body.error || body._raw || `HTTP ${res.status}`;
+    return { ok: false, reason: detail, status: res.status, body };
   }
   const buf = await res.buffer();
   if (buf.length < 64) {

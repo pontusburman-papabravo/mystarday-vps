@@ -37,6 +37,8 @@ const IMPORT_TABLE_ORDER = [
   'reward',
   'child_reward_goal',
   'daily_log',
+  'daily_log_item',
+  'manual_star_grant',
   'reward_redemption',
   'streak',
   'child_observation',

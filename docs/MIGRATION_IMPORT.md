@@ -83,25 +83,26 @@ Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på local
 
 Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.
 
-### Stjärnhistorik och avbockningar (GDPR-ZIP)
+### Stjärnhistorik och avbockningar
 
-Harvest API saknar `daily_log_item`. Om `migration:harvest` inkluderade GDPR finns `gdpr-export.zip` per familj med full historik (`07_aktiviteter.csv`, `09_manuella_stjarnor.csv`).
+**Alternativ A — API (rekommenderat när GDPR-export ger 500):**
 
 ```bash
-npm run import:gdpr-history -- \
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:history -- \
+  --url https://mystarday.se \
   --in ./Backup/stjarndag-harvest-2026-06-02 \
   --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
 
-# Skriv om befintliga daily_log_item för importerade dagar:
-npm run import:gdpr-history -- --replace --in ... --family-id ...
+npm run import:harvest -- --in ./Backup/stjarndag-harvest-2026-06-02 --family-id 5fa79406-...
 ```
 
-Saknas ZIP? Hämta från prod:
+**Alternativ B — GDPR-ZIP** (`07_aktiviteter.csv`) om export fungerar:
 
 ```bash
-ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run migration:harvest:gdpr -- \
-  --in ./Backup/stjarndag-harvest-2026-06-02 --family-id <uuid>
+npm run import:gdpr-history -- --in ./Backup/... --family-id ...
 ```
+
+Saknas ZIP och GDPR ger fel? Använd **Alternativ A** ovan.
 
 ---
 
