@@ -521,7 +521,7 @@ async function main() {
   console.log(
     '\nImportera på ny server: npm run export:database:sql (DATABASE_URL) eller admin SQL-export.'
   );
-  console.log('Harvest + GDPR är arkiv — import:families använder JSON/SQL DB-export, inte harvest.json.');
+  console.log('Harvest klar. Importera med: npm run import:harvest -- --in <out-dir>');
 }
 
 main().catch((err) => {

@@ -1,16 +1,13 @@
 /**
  * Optional role (mamma/pappa/…) stored on invite until invitee accepts.
  */
-exports.up = (pgm) => {
-  pgm.sql(`
-    ALTER TABLE family_invite
-    ADD COLUMN IF NOT EXISTS invitee_family_role VARCHAR(32);
-  `);
-};
+module.exports = {
+  name: '1793000000000_family_invite_role',
 
-exports.down = (pgm) => {
-  pgm.sql(`
-    ALTER TABLE family_invite
-    DROP COLUMN IF EXISTS invitee_family_role;
-  `);
+  up: async (client) => {
+    await client.query(`
+      ALTER TABLE family_invite
+      ADD COLUMN IF NOT EXISTS invitee_family_role VARCHAR(32)
+    `);
+  },
 };

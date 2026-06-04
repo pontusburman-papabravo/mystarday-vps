@@ -549,7 +549,7 @@ const FEATURES = [
     slug: 'standardbibliotek',
     name: 'Standardbibliotek',
     description: 'Admin-seedade globala aktiviteter och belöningar som standardutbud',
-    status: 'off',
+    status: 'live',
     tags: ['features'],
     priority: 'medium',
     complexity: 4,
