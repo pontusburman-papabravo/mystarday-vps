@@ -81,9 +81,25 @@ Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på local
 
 **Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
 
-Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest` — det är inte samma sak som standardbiblioteket.
+Familjens **egna** belöningar (`reward`-tabellen) importeras via `import:harvest`. API:t returnerar `{ rewards: [...] }` — om du körde import före fixen kan tabellen vara tom trots backup.
 
-### Stjärnhistorik och avbockningar
+```bash
+npm run verify:harvest-rewards -- --in ./Backup/... --family-id 5fa79406-...
+
+HARVEST_IMPORT_PASSWORD='...' npm run import:harvest -- --in ./Backup/... --family-id 5fa79406-...
+```
+
+Kontroll i DB:
+
+```sql
+SELECT name, star_cost, is_active FROM reward r
+JOIN family f ON f.id = r.family_id
+JOIN parent p ON p.family_id = f.id
+WHERE LOWER(p.email) = 'pontus@burman.cc'
+ORDER BY sort_order;
+```
+
+---
 
 **Alternativ A — API (rekommenderat när GDPR-export ger 500):**
 

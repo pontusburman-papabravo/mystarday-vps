@@ -228,6 +228,21 @@ describe('harvest-import', () => {
     assert.ok(warnings.some((w) => w.includes('weekly_schedule_item')));
   });
 
+  it('unwrapApiList reads rewards wrapper from GET /api/rewards', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.rewards = {
+      rewards: [
+        { id: REWARD_ID, name: 'Glass', icon: '🍦', star_cost: 5, is_active: true },
+        { id: 'r2', name: 'Extra saga', icon: '📖', star_cost: 10, is_active: true },
+      ],
+      children: [],
+    };
+    const { bundles } = await buildHarvestImportBundles(harvest);
+    const rewards = bundles.find((b) => b.table === 'reward');
+    assert.equal(rewards.rows.length, 2);
+    assert.equal(rewards.rows[0].visible_to_children, null);
+  });
+
   it('skips goals referencing missing rewards', async () => {
     const harvest = minimalHarvest();
     harvest.api.goals = {

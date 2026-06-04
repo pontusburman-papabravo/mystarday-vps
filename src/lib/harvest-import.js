@@ -17,6 +17,14 @@ function asArray(value) {
   return [];
 }
 
+/** Unwrap list endpoints that return `{ items: [...] }` or `{ rewards: [...] }`. */
+function unwrapApiList(payload, listKey) {
+  if (!payload || isApiError(payload)) return [];
+  if (Array.isArray(payload)) return payload;
+  if (listKey && Array.isArray(payload[listKey])) return payload[listKey];
+  return [];
+}
+
 /** Count weekly schedule rows in harvest.json (for verify script). */
 function countSchedulesInHarvest(api) {
   const children = api?.family?.children || [];
@@ -341,7 +349,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   bundles.push({ table: 'special_day_schedule_item', conflict: ['id'], rows: specialItemRows });
 
   // ── rewards ──
-  const rewardRows = asArray(api.rewards).map((r) => ({
+  const rewardRows = unwrapApiList(api.rewards, 'rewards').map((r) => ({
     id: r.id,
     family_id: familyId,
     name: r.name,
@@ -351,11 +359,9 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
     is_active: r.is_active !== false,
     sort_order: r.sort_order ?? 0,
     visible_to_children:
-      r.visible_to_children === false
-        ? []
-        : Array.isArray(r.visible_to_children)
-          ? r.visible_to_children
-          : null,
+      Array.isArray(r.visible_to_children) && r.visible_to_children.length > 0
+        ? r.visible_to_children
+        : null,
   }));
   bundles.push({ table: 'reward', conflict: ['id'], rows: rewardRows });
 
@@ -547,5 +553,6 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
 module.exports = {
   buildHarvestImportBundles,
   countSchedulesInHarvest,
+  unwrapApiList,
   DEFAULT_IMPORT_PASSWORD,
 };
