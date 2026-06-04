@@ -27,6 +27,8 @@ const {
   loadHarvestJson,
   saveHarvestJson,
   listFamilyIds,
+  listFamiliesFromAdmin,
+  describeBackupDir,
   assessFamilyEnrichment,
   harvestFamilyHistoryInto,
   harvestFamilyStreaksInto,
@@ -46,6 +48,7 @@ function parseArgs(argv) {
     skipBase: false,
     skipHistory: false,
     skipStreaks: false,
+    bootstrap: true,
     delayMs: 250,
     familyDelayMs: 3000,
   };
@@ -64,6 +67,7 @@ function parseArgs(argv) {
     else if (argv[i] === '--skip-base') opts.skipBase = true;
     else if (argv[i] === '--skip-history') opts.skipHistory = true;
     else if (argv[i] === '--skip-streaks') opts.skipStreaks = true;
+    else if (argv[i] === '--no-bootstrap') opts.bootstrap = false;
     else if (argv[i] === '--delay-ms' && argv[i + 1]) opts.delayMs = parseInt(argv[++i], 10) || 250;
     else if (argv[i] === '--family-delay-ms' && argv[i + 1]) {
       opts.familyDelayMs = parseInt(argv[++i], 10) || 3000;
@@ -81,6 +85,7 @@ Options:
   --skip-base            Do not refresh base harvest
   --skip-history         Skip daily_log_details
   --skip-streaks         Skip child_progress
+  --no-bootstrap         Fail if no local harvest.json (do not fetch from prod)
   --delay-ms <n>         Pause between API calls (default 250)
   --family-delay-ms <n>  Pause between families (default 3000)
 
@@ -120,20 +125,24 @@ function saveEnrichIndex(inDir, index) {
   fs.writeFileSync(path.join(inDir, 'enrich-index.json'), JSON.stringify(index, null, 2));
 }
 
-function runBaseHarvest(opts, familyId) {
+function runMigrationHarvest(opts, familyId = null) {
   const args = [
     path.join(__dirname, 'migration-harvest-cli.js'),
     '--url',
     opts.baseUrl,
     '--out',
     opts.inDir,
-    '--family-id',
-    familyId,
     '--skip-gdpr',
-    '--refresh',
     '--delay-ms',
     String(Math.max(opts.familyDelayMs, 1000)),
   ];
+  if (familyId) {
+    args.push('--family-id', familyId, '--refresh');
+  } else if (opts.force || !opts.resume) {
+    args.push('--refresh');
+  } else {
+    args.push('--resume');
+  }
   const result = spawnSync(process.execPath, args, {
     stdio: 'inherit',
     env: {
@@ -143,6 +152,10 @@ function runBaseHarvest(opts, familyId) {
     },
   });
   return result.status === 0;
+}
+
+function runBaseHarvest(opts, familyId) {
+  return runMigrationHarvest(opts, familyId);
 }
 
 function runHarvestLibrary(opts) {
@@ -244,26 +257,61 @@ async function enrichOneFamily(familyId, opts, session) {
 
 async function main() {
   const opts = parseArgs(process.argv);
+  fs.mkdirSync(path.join(opts.inDir, 'families'), { recursive: true });
+
+  console.log(describeBackupDir(opts.inDir));
+  console.log('');
+
+  console.log(`Loggar in som admin mot ${opts.baseUrl} ...`);
+  const session = await adminLogin(opts.baseUrl, opts.email, opts.password);
+
   let familyIds = listFamilyIds(opts.inDir);
 
   if (opts.familyId) {
-    familyIds = familyIds.filter((id) => id === opts.familyId);
-    if (!familyIds.length && fs.existsSync(resolveFamilyHarvestPath(opts.inDir, opts.familyId))) {
+    if (!familyIds.includes(opts.familyId)) {
+      if (opts.bootstrap) {
+        console.log(`\n[bootstrap] Hämtar familj ${opts.familyId} från prod ...`);
+        if (!runMigrationHarvest(opts, opts.familyId)) process.exit(1);
+        familyIds = listFamilyIds(opts.inDir);
+      }
+      if (!familyIds.includes(opts.familyId)) {
+        familyIds = [opts.familyId];
+        opts.skipBase = false;
+        opts.refreshBase = true;
+      }
+    } else {
       familyIds = [opts.familyId];
     }
-    if (!familyIds.length) {
-      console.error('Familjen hittades inte i backup-mappen');
+  } else if (!familyIds.length) {
+    if (!opts.bootstrap) {
+      console.error(`\nInga familjer med harvest.json under ${path.join(opts.inDir, 'families')}`);
+      console.error('Kör utan --no-bootstrap, eller: npm run migration:harvest -- --out ' + opts.inDir);
       process.exit(1);
+    }
+    const adminFamilies = await listFamiliesFromAdmin(
+      opts.baseUrl,
+      session.jar,
+      session.csrfToken,
+      true
+    );
+    console.log(
+      `\n[bootstrap] Ingen lokal backup — hämtar ${adminFamilies.length} familj(er) från prod (migration:harvest) ...`
+    );
+    console.log('(Detta tar tid — ca flera timmar för ~100 familjer. Avbryt med Ctrl+C och kör igen med --resume.)\n');
+    if (!runMigrationHarvest(opts)) process.exit(1);
+    familyIds = listFamilyIds(opts.inDir);
+    if (!familyIds.length) {
+      familyIds = adminFamilies.map((f) => f.id).filter(Boolean);
+      opts.refreshBase = true;
     }
   }
 
   if (!familyIds.length) {
-    console.error(`Inga familjer med harvest.json under ${path.join(opts.inDir, 'families')}`);
-    console.error('Kör först: npm run migration:harvest -- --out ...');
+    console.error('Inga familjer att bearbeta efter bootstrap');
     process.exit(1);
   }
 
-  console.log(`Harvest complete — ${familyIds.length} familj(er) → ${opts.inDir}`);
+  console.log(`\nHarvest complete — ${familyIds.length} familj(er) → ${opts.inDir}`);
   console.log(
     `Steg: ${opts.skipBase && !opts.refreshBase ? '' : 'base '}${opts.skipHistory ? '' : 'history '}${opts.skipStreaks ? '' : 'streaks'}${opts.withLibrary ? ' library' : ''}\n`
   );
@@ -276,9 +324,6 @@ async function main() {
     }
     console.log('');
   }
-
-  console.log(`Loggar in som admin mot ${opts.baseUrl} ...`);
-  const session = await adminLogin(opts.baseUrl, opts.email, opts.password);
 
   const enrichIndex = loadEnrichIndex(opts.inDir);
   if (!enrichIndex.families) enrichIndex.families = {};
