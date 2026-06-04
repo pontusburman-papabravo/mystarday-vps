@@ -161,4 +161,22 @@ describe('harvest-import', () => {
     assert.equal(pc.rows.length, 1);
     assert.equal(pc.rows[0].role, 'primary');
   });
+
+  it('skips goals referencing missing rewards', async () => {
+    const harvest = minimalHarvest();
+    harvest.api.goals = {
+      goals: [
+        {
+          id: 'goal-orphan',
+          child_id: CHILD_ID,
+          reward_id: '00000000-0000-0000-0000-000000000099',
+          status: 'active',
+        },
+      ],
+    };
+    const { bundles, warnings } = await buildHarvestImportBundles(harvest);
+    const goals = bundles.find((b) => b.table === 'child_reward_goal');
+    assert.equal(goals.rows.length, 0);
+    assert.ok(warnings.some((w) => w.includes('child_reward_goal')));
+  });
 });

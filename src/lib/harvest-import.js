@@ -293,18 +293,28 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   bundles.push({ table: 'reward', conflict: ['id'], rows: rewardRows });
 
   const rewardByName = new Map(rewardRows.map((r) => [r.name?.toLowerCase(), r.id]));
+  const rewardIds = new Set(rewardRows.map((r) => r.id));
 
   // ── goals ──
   const goalsPayload = api.goals;
   const goalList = goalsPayload?.goals || asArray(goalsPayload);
-  const goalRows = asArray(goalList).map((g) => ({
-    id: g.id,
-    child_id: g.child_id,
-    reward_id: g.reward_id,
-    status: g.status || 'active',
-    set_by: primaryParentId,
-    created_at: g.created_at || new Date().toISOString(),
-  }));
+  const goalRows = [];
+  for (const g of asArray(goalList)) {
+    let rewardId = g.reward_id;
+    if (rewardId && !rewardIds.has(rewardId)) {
+      warnings.push(`child_reward_goal ${g.id}: belöning ${rewardId} saknas i harvest — hoppar över`);
+      continue;
+    }
+    if (!rewardId) continue;
+    goalRows.push({
+      id: g.id,
+      child_id: g.child_id,
+      reward_id: rewardId,
+      status: g.status || 'active',
+      set_by: primaryParentId,
+      created_at: g.created_at || new Date().toISOString(),
+    });
+  }
   bundles.push({ table: 'child_reward_goal', conflict: ['id'], rows: goalRows });
 
   // ── daily logs (headers only — harvest saknar loggrad-detaljer) ──
