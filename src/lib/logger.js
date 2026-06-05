@@ -19,10 +19,11 @@ const pino = require('pino');
 // Determine environment
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Build transport config for pretty-printing in development
+// Pretty-print only in non-production when pino-pretty is installed (devDependency).
 let transport = undefined;
 if (!isProduction) {
   try {
+    require.resolve('pino-pretty');
     transport = {
       target: 'pino-pretty',
       options: {
@@ -32,8 +33,8 @@ if (!isProduction) {
         singleLine: false,
       },
     };
-  } catch (err) {
-    // pino-pretty not available in production build
+  } catch {
+    // npm ci --omit=dev or VPS without devDependencies — JSON logs are fine
   }
 }
 
