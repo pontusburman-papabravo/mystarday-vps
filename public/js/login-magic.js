@@ -65,6 +65,11 @@
 
     kidCard.addEventListener('click', function (e) {
       e.preventDefault();
+      // User chose child login — do not resume add-child parent gate on barnväljare.
+      try {
+        sessionStorage.removeItem('cl_add_child_pending');
+        sessionStorage.removeItem('cl_add_child_next');
+      } catch { /* ignore */ }
       if (window.DeviceMode) DeviceMode.enterChild();
       window.location.href = '/child-login';
     });
