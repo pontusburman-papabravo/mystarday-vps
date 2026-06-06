@@ -35,6 +35,42 @@ function onLimitReached(req, res, options) {
 }
 
 /**
+ * Auth / barnväljare bootstrap paths — each has its own route limiter where needed,
+ * or is a cheap session probe. Exempt from the 30 req/min unauthenticated apiLimiter
+ * so add-child + login flows do not block /api/auth/login after many /me probes.
+ */
+const API_BOOTSTRAP_PREFIXES = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/child-login',
+  '/auth/forgot-password',
+  '/auth/resend-verification',
+  '/auth/apple',
+  '/auth/google',
+  '/auth/refresh',
+  '/auth/csrf-token',
+  '/auth/login-picker-children',
+  '/auth/me',
+  '/auth/logout',
+  '/family/parent-pin-status-picker',
+  '/family/verify-pin-picker',
+  '/family/restore-parent-session',
+];
+
+function isApiBootstrapPath(req) {
+  const p = req.path || '';
+  const orig = (req.originalUrl || '').split('?')[0];
+  return API_BOOTSTRAP_PREFIXES.some(function (prefix) {
+    return (
+      p === prefix ||
+      p.startsWith(prefix + '/') ||
+      orig === '/api' + prefix ||
+      orig.startsWith('/api' + prefix + '/')
+    );
+  });
+}
+
+/**
  * Global limiter: 200 req/min per IP.
  * SSE endpoint (/api/events) is long-lived and explicitly skipped.
  * Authenticated requests are skipped — they are already protected by
@@ -228,6 +264,7 @@ const apiLimiter = rateLimit({
   skip: (req) =>
     !ENABLED ||
     (req.user && req.user.id) ||  // skip authenticated users
+    isApiBootstrapPath(req) ||
     req.path === '/events' ||
     req.path.startsWith('/events') ||
     req.originalUrl?.startsWith('/api/events'),
