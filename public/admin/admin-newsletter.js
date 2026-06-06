@@ -293,7 +293,7 @@
       } catch (err) {
         btn.disabled = false;
         btn.innerHTML = `Skicka till <span id="nlSendCount">${checks.length}</span> mottagare`;
-        const detail = err.body?.message || err.message || 'Försök igen.';
+        const detail = err.body?.detail || err.body?.message || err.message || 'Försök igen.';
         alert(`Fel vid utskick: ${detail}`);
       }
     };
