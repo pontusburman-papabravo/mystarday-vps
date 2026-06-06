@@ -133,7 +133,7 @@ router.get('/subscribers', requireAdmin, async (req, res) => {
         es.subscribed,
         es.subscribed_at,
         es.unsubscribed_at,
-        es.created_at
+        es.updated_at
       FROM email_subscriptions es
       JOIN parent p ON p.id = es.parent_id
       ${whereClause}

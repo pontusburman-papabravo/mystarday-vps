@@ -47,9 +47,9 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
       const childResult = await db.query(
         `SELECT c.name
          FROM child c
-         JOIN parent_child pc ON pc.child_id = c.id
+         JOIN parent_child pc ON pc.child_id = c.id AND pc.revoked_at IS NULL
          WHERE pc.parent_id = $1
-         ORDER BY pc.is_primary DESC NULLS LAST, pc.created_at ASC
+         ORDER BY (pc.role = 'primary') DESC, pc.connected_at ASC NULLS LAST
          LIMIT 1`,
         [parentId]
       );
