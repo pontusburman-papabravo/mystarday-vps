@@ -11,6 +11,7 @@ const CORE_FEATURES = [
   'veckoschema', 'daglogg', 'beloningssystem', 'aktivitetsbibliotek',
   'specialdagar', 'kalender', 'familjeinbjudan', 'onboarding',
   'manuella_stjarnor', 'barninloggning', 'streak', 'admin_analytics',
+  'child_creation_wizard', // add-child onboarding + child-wizard — must work for all families
 ];
 
 // ─── Features CRUD ─────────────────────────────────────

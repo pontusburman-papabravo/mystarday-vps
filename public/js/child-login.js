@@ -98,8 +98,10 @@ function renderChildList() {
     if (empty) empty.classList.add('hidden');
     if (noSession) noSession.classList.add('hidden');
 
+    // Always show add-child when at least one child is listed — openAddChild() routes
+    // to parent login if no session (stjarndag_parent_session / Auth).
     var addRow = document.getElementById('clAddChildRow');
-    if (addRow) addRow.classList.toggle('hidden', !canAddChild);
+    if (addRow) addRow.classList.remove('hidden');
 
     list.innerHTML = merged.map(child => `
       <a href="#" class="cl-child-card" data-username="${escapeHtml(child.username)}" onclick="selectChild('${escapeJs(child.username)}'); return false;">
