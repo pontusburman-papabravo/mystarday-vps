@@ -391,6 +391,32 @@ async function redirectToLoginForAddChild(pending) {
   window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
 }
 
+function showAddChildNeedsParentOverlay() {
+  var existing = document.getElementById('cl-add-child-needs-parent');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'cl-add-child-needs-parent';
+  overlay.className = 'cl-modal-overlay';
+  overlay.innerHTML = [
+    '<div class="cl-modal-card" role="dialog">',
+      '<div style="font-size:2rem;margin-bottom:8px;">👤</div>',
+      '<h3 class="cl-modal-title">Vuxen behövs</h3>',
+      '<p class="cl-modal-sub">För att lägga till barn måste en vuxen logga in först. Barnets PIN räcker inte för detta steg.</p>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">Logga in som vuxen</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">Avbryt</button>',
+    '</div>',
+  ].join('');
+  document.body.appendChild(overlay);
+
+  document.getElementById('clAddChildGoParentBtn').addEventListener('click', function () {
+    redirectToLoginForAddChild('choice');
+  });
+  document.getElementById('clAddChildNeedsParentCancel').addEventListener('click', function () {
+    overlay.remove();
+  });
+}
+
 /** End active child JWT before vuxen-gated actions (add child). Keeps parent session cookie. */
 async function ensureChildSessionEndedForParentAction() {
   try {
@@ -422,7 +448,7 @@ async function runAddChildWithParentGate(onAuthorized) {
   const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
 
   if (!hasSession) {
-    await redirectToLoginForAddChild('choice');
+    showAddChildNeedsParentOverlay();
     return;
   }
 
@@ -440,7 +466,7 @@ async function runAddChildWithParentGate(onAuthorized) {
       }
     }
     if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
-      await redirectToLoginForAddChild('choice');
+      showAddChildNeedsParentOverlay();
       return;
     }
     onAuthorized();

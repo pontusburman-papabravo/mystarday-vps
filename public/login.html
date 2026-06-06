@@ -133,6 +133,15 @@
       <!-- ── PARENT LOGIN (shown when parent card clicked) ─────────────────── -->
       <div id="parent-login-section" style="display:none;flex-direction:column;align-items:center;gap:0;width:100%;">
 
+        <div id="addChildLoginBanner" class="hidden" style="width:100%;margin-bottom:16px;padding:12px 16px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.35);border-radius:14px;text-align:center;">
+          <p style="color:#fff;font-size:0.9rem;font-weight:600;margin:0;line-height:1.5;">
+            👶 Logga in som vuxen för att lägga till ett barn
+          </p>
+          <p style="color:rgba(255,255,255,0.65);font-size:0.78rem;margin:8px 0 0;line-height:1.4;">
+            «Jag är barn» räcker inte här — det krävs en förälder eller pedagog.
+          </p>
+        </div>
+
         <!-- Back button -->
         <button onclick="LoginMagic.backToRoleSelection()" class="magic-back-btn" aria-label="Tillbaka">
           ← Tillbaka
@@ -300,13 +309,23 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       var loginNextUrl = getLoginNextUrl();
-      // Browser: show role cards when returning for add-child (?next=…addChild…).
-      var showRoleCardsForNext = loginNextUrl && loginNextUrl.indexOf('addChild') !== -1;
-      if (!isInstalledApp() && !showRoleCardsForNext) {
+      var isAddChildReturn = loginNextUrl && loginNextUrl.indexOf('addChild') !== -1;
+      // Add-child requires vuxenlogin — never show "Jag är barn" choice for that flow.
+      if (!isInstalledApp() || isAddChildReturn) {
         var roleSel = document.getElementById('role-selection');
         if (roleSel) roleSel.style.display = 'none';
         var parentSection = document.getElementById('parent-login-section');
         if (parentSection) parentSection.style.display = 'flex';
+        var addBanner = document.getElementById('addChildLoginBanner');
+        if (addBanner) addBanner.classList.toggle('hidden', !isAddChildReturn);
+        var backBtn = parentSection && parentSection.querySelector('.magic-back-btn');
+        if (backBtn && isAddChildReturn) {
+          backBtn.textContent = '← Tillbarnväljaren';
+          backBtn.onclick = function () { window.location.href = '/child-login'; };
+        }
+      }
+      if (window.LoginMagic && LoginMagic.setAddChildReturnMode) {
+        LoginMagic.setAddChildReturnMode(isAddChildReturn);
       }
 
       // Redirect already-logged-in users — but VALIDATE the token first

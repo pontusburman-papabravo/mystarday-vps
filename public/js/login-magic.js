@@ -56,6 +56,43 @@
     }
   }
 
+  /* ── Add-child return mode (?next=…addChild…) ───────────────────────────── */
+  var _addChildReturnMode = false;
+
+  function isAddChildLoginReturn() {
+    try {
+      var next = new URLSearchParams(window.location.search).get('next') || '';
+      return next.indexOf('addChild') !== -1;
+    } catch {
+      return false;
+    }
+  }
+
+  function setAddChildReturnMode(on) {
+    _addChildReturnMode = !!on;
+    var kidCard = document.getElementById('kid-role-card');
+    if (kidCard && _addChildReturnMode) {
+      kidCard.style.opacity = '0.45';
+      kidCard.style.pointerEvents = 'none';
+      kidCard.setAttribute('aria-disabled', 'true');
+    }
+  }
+
+  function redirectAfterParentCardLogin() {
+    if (isAddChildLoginReturn()) {
+      try {
+        var next = new URLSearchParams(window.location.search).get('next');
+        if (next && next.startsWith('/') && !next.startsWith('//')) {
+          if (window.DeviceMode) DeviceMode.enterParent();
+          window.location.href = next;
+          return;
+        }
+      } catch { /* fall through */ }
+    }
+    if (window.DeviceMode) DeviceMode.enterParent();
+    window.location.href = '/dashboard';
+  }
+
   /* ── Role card interaction ──────────────────────────────────────────────── */
   function initRoleCards() {
     var kidCard   = document.getElementById('kid-role-card');
@@ -63,8 +100,16 @@
 
     if (!kidCard || !parentCard) return;
 
+    if (isAddChildLoginReturn()) setAddChildReturnMode(true);
+
     kidCard.addEventListener('click', function (e) {
       e.preventDefault();
+      if (_addChildReturnMode || isAddChildLoginReturn()) {
+        showParentLogin();
+        var banner = document.getElementById('addChildLoginBanner');
+        if (banner) banner.classList.remove('hidden');
+        return;
+      }
       // User chose child login — do not resume add-child parent gate on barnväljare.
       try {
         sessionStorage.removeItem('cl_add_child_pending');
@@ -98,22 +143,17 @@
               if (pinData.has_pin) {
                 // PIN is set → show PIN overlay to gate parent access
                 showParentPinGateOverlay(function (gateToken) {
-                  if (window.DeviceMode) DeviceMode.enterParent();
-                  window.location.href = '/dashboard';
+                  redirectAfterParentCardLogin();
                 }, function () {
                   // PIN failed or cancelled → go back
                   parentCard.disabled = false;
                   parentCard.style.opacity = '';
                 });
               } else {
-                // No PIN set → go directly to dashboard
-                if (window.DeviceMode) DeviceMode.enterParent();
-                window.location.href = '/dashboard';
+                redirectAfterParentCardLogin();
               }
             }).catch(function () {
-              // Network error — go to dashboard
-              if (window.DeviceMode) DeviceMode.enterParent();
-              window.location.href = '/dashboard';
+              redirectAfterParentCardLogin();
             });
           } else {
             Auth.clearAuth();
@@ -293,6 +333,8 @@
     },
     showParentLogin: showParentLogin,
     backToRoleSelection: backToRoleSelection,
+    setAddChildReturnMode: setAddChildReturnMode,
+    isAddChildLoginReturn: isAddChildLoginReturn,
   };
 
   /* ── Init ──────────────────────────────────────────────────────────────── */
