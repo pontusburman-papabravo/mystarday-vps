@@ -79,6 +79,16 @@
   }
 
   function redirectAfterParentCardLogin() {
+    try {
+      var pending = sessionStorage.getItem('cl_add_child_pending');
+      if (pending === 'new') {
+        sessionStorage.removeItem('cl_add_child_pending');
+        sessionStorage.removeItem('cl_add_child_next');
+        if (window.DeviceMode) DeviceMode.enterParent();
+        window.location.href = '/onboarding?flow=add-child';
+        return;
+      }
+    } catch { /* fall through */ }
     if (isAddChildLoginReturn()) {
       try {
         var next = new URLSearchParams(window.location.search).get('next');

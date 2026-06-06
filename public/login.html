@@ -298,6 +298,14 @@
     }
 
     function redirectAfterParentLogin() {
+      var pending = sessionStorage.getItem('cl_add_child_pending');
+      if (pending === 'new') {
+        sessionStorage.removeItem('cl_add_child_pending');
+        sessionStorage.removeItem('cl_add_child_next');
+        if (window.DeviceMode) DeviceMode.enterParent();
+        window.location.href = '/onboarding?flow=add-child';
+        return;
+      }
       var nextUrl = getLoginNextUrl();
       if (nextUrl) {
         if (window.DeviceMode) DeviceMode.enterParent();

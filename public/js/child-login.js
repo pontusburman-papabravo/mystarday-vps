@@ -484,7 +484,27 @@ async function ensureChildSessionEndedForParentAction() {
   } catch { /* ignore */ }
 }
 
+/** Active parent JWT (e-post/lösenord) — not only sparad barnväljare-session. */
+async function resolveActiveParentSession() {
+  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') return true;
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const me = await meRes.json();
+      if (me.type === 'parent') {
+        Auth.setAuth(null, me);
+        return true;
+      }
+    }
+  } catch { /* ignore */ }
+  return false;
+}
+
 async function runNewChildWithParentGate() {
+  if (await resolveActiveParentSession()) {
+    await proceedToNewChildWizard();
+    return;
+  }
   await runAddChildWithParentGate(async function () {
     const ready = await ensureParentReadyForOnboarding();
     if (!ready) {
@@ -497,6 +517,13 @@ async function runNewChildWithParentGate() {
 
 async function runAddChildWithParentGate(onAuthorized) {
   await ensureChildSessionEndedForParentAction();
+
+  // Nyligen inloggad vuxen (mail/lösenord) — hoppa över PIN-gate
+  if (await resolveActiveParentSession()) {
+    onAuthorized();
+    return;
+  }
+
   const ctx = await Auth.fetchLoginPickerContext();
   const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
 
@@ -1030,10 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setTimeout(function () {
       if (intent === 'new') {
-        runAddChildWithParentGate(async function () {
-          const ready = await ensureParentReadyForOnboarding();
-          if (ready) window.location.href = ADD_CHILD_ONBOARDING_URL;
-        });
+        runNewChildWithParentGate();
       } else {
         openAddChild();
       }
