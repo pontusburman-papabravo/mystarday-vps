@@ -36,6 +36,7 @@ const Auth = {
   USER_KEY: 'stjarndag_user',
   CSRF_KEY: 'stjarndag_csrf',
   TOKEN_EXP_KEY: 'stjarndag_token_exp',
+  KNOWN_CHILDREN_KEY: 'stjarndag_known_children',
 
   // Minimum ms before expiry at which we proactively refresh (2 minutes).
   REFRESH_THRESHOLD_MS: 2 * 60 * 1000,
@@ -478,6 +479,9 @@ const Auth = {
       window.Platform.push.unregister().catch(() => {});
     }
 
+    // Keep barnväljare usable after vuxen logout — snapshot family children to device.
+    await this.snapshotKnownChildrenBeforeLogout();
+
     // Retry once on CSRF mismatch — cookie clearing is the critical path.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
@@ -551,14 +555,63 @@ const Auth = {
   },
 
   /**
+   * Merge family children into stjarndag_known_children (device barnväljare cache).
+   * Preserves lastLoginAt for entries that already logged in on this device.
+   */
+  persistKnownChildrenFromSession(children, familyId) {
+    if (!children || !children.length) return;
+    try {
+      var raw = localStorage.getItem(this.KNOWN_CHILDREN_KEY);
+      var known = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(known)) known = [];
+
+      for (var i = 0; i < children.length; i++) {
+        var c = children[i];
+        if (!c || !c.username) continue;
+        var entry = {
+          username: c.username,
+          name: c.name || c.username,
+          emoji: c.emoji || '⭐',
+          avatar_url: c.avatar_url || null,
+          familyId: c.familyId || c.family_id || familyId || null,
+        };
+        var idx = known.findIndex(function (k) { return k.username === entry.username; });
+        if (idx >= 0) {
+          entry.lastLoginAt = known[idx].lastLoginAt || null;
+          known[idx] = Object.assign({}, known[idx], entry);
+        } else {
+          known.unshift(entry);
+        }
+      }
+      if (known.length > 10) known.splice(10);
+      localStorage.setItem(this.KNOWN_CHILDREN_KEY, JSON.stringify(known));
+    } catch { /* ignore */ }
+  },
+
+  /** Before vuxen logout: save barnlistan so barnväljare works without session. */
+  async snapshotKnownChildrenBeforeLogout() {
+    try {
+      var user = this.getUser();
+      if (user && user.type === 'parent' && user.children && user.children.length) {
+        this.persistKnownChildrenFromSession(user.children, user.familyId);
+        return;
+      }
+      var res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) return;
+      var me = await res.json();
+      if (me.type === 'parent' && me.children && me.children.length) {
+        this.persistKnownChildrenFromSession(me.children, me.familyId || me.family_id);
+      }
+    } catch { /* ignore */ }
+  },
+
+  /**
    * Full localStorage + cookie cleanup on logout.
-   * Clears auth keys AND all app-specific data (known_children, etc.)
-   * so the next user on a shared device starts clean.
+   * Clears auth keys; keeps stjarndag_known_children so barn can log in after vuxen logout.
    */
   _fullClear() {
     this.clearAuth();
     try {
-      localStorage.removeItem('stjarndag_known_children');
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_theme');
     } catch {}
