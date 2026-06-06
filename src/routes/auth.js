@@ -1571,44 +1571,48 @@ router.get('/login-picker-children', async (req, res) => {
 // When a child logs out, if a parent session was saved (via stjarndag_parent_session),
 // restore it so the parent remains logged in.
 // Body { switchChild: true } — end child session only; keep parent session cookie for barnväljare.
+
+/** Clear session cookies — uses config.cookieSecure + legacy opposite flag for mismatched deploys. */
+function clearAllSessionCookies(res) {
+  clearAccessCookie(res);
+  clearRefreshCookie(res);
+  res.clearCookie('csrf_token', { path: '/' });
+  const altSecure = !config.cookieSecure;
+  res.clearCookie('access_token', {
+    httpOnly: true,
+    secure: altSecure,
+    sameSite: 'lax',
+    path: '/',
+  });
+  res.clearCookie('refresh_token', {
+    httpOnly: true,
+    secure: altSecure,
+    sameSite: 'lax',
+    path: '/api/auth',
+  });
+}
+
 router.post('/logout', async (req, res) => {
   try {
     const switchChild = req.body?.switchChild === true;
     const raw = req.cookies?.refresh_token;
+    const accessTokenStr = req.cookies?.access_token;
+    const decoded = accessTokenStr ? jwt.decode(accessTokenStr) : null;
+
     if (raw) {
       await revokeRefreshToken(raw);
     }
-    // Explicitly clear access_token with exact matching attributes (path, secure, sameSite).
-    // Using res.clearCookie directly (not clearAccessCookie) as a belt-and-suspenders approach
-    // to ensure the cookie is deleted even if the helper has a subtle mismatch.
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
-    });
-    // Clear CSRF cookie too
-    res.clearCookie('csrf_token', { path: '/' });
+    clearAllSessionCookies(res);
 
-    // ── Restore parent session only if CHILD is logging out ────────────────
-    // Always decode access token from cookie to determine who is logging out.
-    // Only restore the parent session when the child (not the parent) logs out.
-    const accessTokenStr = req.headers.cookie?.split(';').find(c => c.trim().startsWith('access_token='))?.split('=').slice(1).join('=');
-    const decoded = accessTokenStr ? jwt.decode(accessTokenStr) : null;
-    if (decoded?.type !== 'child') {
-      // Parent logout (or unknown type) — clear parent session cookie and do full logout
-      res.clearCookie('stjarndag_parent_session', { path: '/' });
-      return res.json({ message: 'Utloggad' });
+    // ── Byt barn: end child JWT only; keep stjarndag_parent_session for barnväljare ──
+    if (switchChild && decoded?.type === 'child') {
+      return res.json({ message: 'Utloggad', switchChild: true });
     }
 
-    if (switchChild) {
-      return res.json({ message: 'Utloggad', switchChild: true });
+    // ── Restore parent session only if CHILD is logging out ────────────────
+    if (decoded?.type !== 'child') {
+      res.clearCookie('stjarndag_parent_session', { path: '/' });
+      return res.json({ message: 'Utloggad' });
     }
 
     const parentSessionCookie = req.cookies?.stjarndag_parent_session;
@@ -1643,14 +1647,14 @@ router.post('/logout', async (req, res) => {
         // No parent PIN → auto-restore parent session
         res.cookie('access_token', session.access_token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: config.cookieSecure,
           sameSite: 'lax',
           maxAge: 15 * 60 * 1000,
           path: '/',
         });
         res.cookie('refresh_token', session.refresh_token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: config.cookieSecure,
           sameSite: 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000,
           path: '/api/auth',
@@ -1664,20 +1668,7 @@ router.post('/logout', async (req, res) => {
     res.json({ message: 'Utloggad' });
   } catch (err) {
     console.error('[AUTH] Logout error:', err);
-    // Still clear cookies even on error
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
-    });
-    res.clearCookie('csrf_token', { path: '/' });
+    clearAllSessionCookies(res);
     res.clearCookie('stjarndag_parent_session', { path: '/' });
     res.json({ message: 'Utloggad' });
   }

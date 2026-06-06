@@ -427,28 +427,44 @@ const Auth = {
    * End child session and open barnväljare (keeps known_children + parent session cookie).
    */
   async switchChildMember() {
+    if (this._refreshPromise) {
+      try { await this._refreshPromise; } catch { /* ignore */ }
+    }
+    if (this._refreshTimer) {
+      clearTimeout(this._refreshTimer);
+      this._refreshTimer = null;
+    }
+
     try {
       await this.ensureCsrfToken();
       const csrf = this.getCsrfToken();
       const headers = { 'Content-Type': 'application/json' };
       if (csrf) headers['X-CSRF-Token'] = csrf;
-      await fetch('/api/auth/logout', {
+      const res = await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
         headers,
         body: JSON.stringify({ switchChild: true }),
       });
-    } catch {
-      /* still navigate */
+      if (!res.ok) {
+        console.warn('[AUTH] switchChild logout HTTP', res.status);
+      }
+    } catch (err) {
+      console.warn('[AUTH] switchChild logout failed:', err.message);
     }
+
     this.clearAuth();
     try {
       localStorage.removeItem('stjarndag_selected_child');
-    } catch {}
-    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-      DeviceMode.enterParent();
+      localStorage.removeItem('stjarndag_child');
+      sessionStorage.removeItem('cl_selected_username');
+    } catch { /* ignore */ }
+
+    if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+      DeviceMode.enterChild();
     }
-    window.location.href = '/child-login';
+
+    window.location.replace('/child-login');
   },
 
   async logout() {

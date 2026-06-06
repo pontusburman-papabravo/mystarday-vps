@@ -871,6 +871,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Build keypad buttons
   buildKeypad();
 
+  // Always start on barnväljare (not PIN step) after navigation / byt barn
+  document.getElementById('clStepPin')?.classList.remove('active');
+  document.getElementById('clStepProfiles')?.classList.add('active');
+  selectedChild = null;
+  pinDigits = [];
+  renderPinDots();
+
   // Check if returning with a preselected child
   const preselected = sessionStorage.getItem('cl_selected_username');
   if (preselected) {

@@ -2365,12 +2365,12 @@ function toggleChildDarkMode() {
 }
 
 // ── Byt barn (familjemedlem) — barnväljare utan att aktivera vuxenpanel ──
-function switchChildMember() {
+async function switchChildMember() {
   if (window.Auth && typeof Auth.switchChildMember === 'function') {
-    Auth.switchChildMember();
+    await Auth.switchChildMember();
     return;
   }
-  window.location.href = '/child-login';
+  window.location.replace('/child-login');
 }
 
 // ── Child logout ────────────────────────────────────────
