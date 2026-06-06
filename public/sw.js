@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v188
+ * Min Stjärndag — Service Worker v189
+ * v189: Befintligt barn på kopplad enhet — namn+PIN, ingen vuxenlogin
  * v188: Byt barn → alltid barnlistan (aldrig auto-hopp till PIN)
  * v187: add-child — kräv vuxenlogin direkt (ingen loop via Jag är barn)
  * v186: add-child efter Byt barn — avsluta barnsession, rensa pending, inget auto-hopp till PIN
@@ -196,7 +197,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v188';
+const CACHE_NAME = 'stjarndag-v189';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

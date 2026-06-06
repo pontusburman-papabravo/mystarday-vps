@@ -326,7 +326,7 @@ function showAddChildChoiceOverlay() {
     '<div class="cl-modal-card" role="dialog" aria-labelledby="clAddChildTitle">',
       '<div style="font-size:2rem;margin-bottom:8px;">👶</div>',
       '<h3 id="clAddChildTitle" class="cl-modal-title">Lägg till ett barn</h3>',
-      '<p class="cl-modal-sub">Välj om barnet redan finns i familjen eller ska skapas som nytt.</p>',
+      '<p class="cl-modal-sub">Syskon som redan finns i familjen: ange namn + PIN. Nytt barn kräver vuxen.</p>',
       '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">Nytt barn</button>',
       '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">Befintligt barn</button>',
       '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">Avbryt</button>',
@@ -337,16 +337,15 @@ function showAddChildChoiceOverlay() {
 
   document.getElementById('clAddNewBtn').addEventListener('click', async function () {
     closeAddChildChoiceOverlay();
-    const ready = await ensureParentReadyForOnboarding();
-    if (!ready) {
-      await redirectToLoginForAddChild('new');
+    await runNewChildWithParentGate();
+  });
+  document.getElementById('clAddExistingBtn').addEventListener('click', async function () {
+    closeAddChildChoiceOverlay();
+    if (await deviceHasFamilyContext()) {
+      showExistingChildForm();
       return;
     }
-    await proceedToNewChildWizard();
-  });
-  document.getElementById('clAddExistingBtn').addEventListener('click', function () {
-    closeAddChildChoiceOverlay();
-    showExistingChildForm();
+    await runAddChildWithParentGate(showExistingChildForm);
   });
   document.getElementById('clAddChildCancel').addEventListener('click', closeAddChildChoiceOverlay);
 }
@@ -357,6 +356,12 @@ function showExistingChildForm() {
   if (empty) empty.classList.add('hidden');
   if (noSession) {
     noSession.classList.remove('hidden');
+    var hint = noSession.querySelector('p');
+    if (hint) {
+      hint.textContent = loadKnownChildren().length > 0
+        ? 'Skriv syskonets namn — sedan ange hens PIN'
+        : 'Skriv barnets namn för att logga in';
+    }
     var input = document.getElementById('clManualNameInput');
     if (input) setTimeout(function () { input.focus(); }, 80);
   }
@@ -391,9 +396,46 @@ async function redirectToLoginForAddChild(pending) {
   window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
 }
 
-function showAddChildNeedsParentOverlay() {
+/** Device already used for this family (known child, parent cookie, or active session). */
+async function deviceHasFamilyContext() {
+  if (loadKnownChildren().length > 0) return true;
+
+  try {
+    const ctx = await Auth.fetchLoginPickerContext();
+    if (ctx.hasSession) return true;
+  } catch { /* ignore */ }
+
+  if (Auth.isLoggedIn()) {
+    const u = Auth.getUser();
+    if (u && (u.familyId || u.type === 'child')) return true;
+  }
+
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const me = await meRes.json();
+      if (me.familyId) return true;
+    }
+  } catch { /* ignore */ }
+
+  return false;
+}
+
+function getDeviceFamilyId() {
+  const known = loadKnownChildren();
+  for (var i = 0; i < known.length; i++) {
+    if (known[i].familyId) return known[i].familyId;
+  }
+  return null;
+}
+
+function showAddChildNeedsParentOverlay(reason) {
   var existing = document.getElementById('cl-add-child-needs-parent');
   if (existing) existing.remove();
+
+  var message = reason === 'new_child'
+    ? 'För att skapa ett nytt barn i familjen behöver en vuxen logga in.'
+    : 'Enheten är inte kopplad till en familj ännu. En vuxen måste logga in först.';
 
   var overlay = document.createElement('div');
   overlay.id = 'cl-add-child-needs-parent';
@@ -402,7 +444,7 @@ function showAddChildNeedsParentOverlay() {
     '<div class="cl-modal-card" role="dialog">',
       '<div style="font-size:2rem;margin-bottom:8px;">👤</div>',
       '<h3 class="cl-modal-title">Vuxen behövs</h3>',
-      '<p class="cl-modal-sub">För att lägga till barn måste en vuxen logga in först. Barnets PIN räcker inte för detta steg.</p>',
+      '<p class="cl-modal-sub">' + message + '</p>',
       '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">Logga in som vuxen</button>',
       '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">Avbryt</button>',
     '</div>',
@@ -410,7 +452,7 @@ function showAddChildNeedsParentOverlay() {
   document.body.appendChild(overlay);
 
   document.getElementById('clAddChildGoParentBtn').addEventListener('click', function () {
-    redirectToLoginForAddChild('choice');
+    redirectToLoginForAddChild(reason === 'new_child' ? 'new' : 'choice');
   });
   document.getElementById('clAddChildNeedsParentCancel').addEventListener('click', function () {
     overlay.remove();
@@ -442,13 +484,24 @@ async function ensureChildSessionEndedForParentAction() {
   } catch { /* ignore */ }
 }
 
+async function runNewChildWithParentGate() {
+  await runAddChildWithParentGate(async function () {
+    const ready = await ensureParentReadyForOnboarding();
+    if (!ready) {
+      await redirectToLoginForAddChild('new');
+      return;
+    }
+    await proceedToNewChildWizard();
+  });
+}
+
 async function runAddChildWithParentGate(onAuthorized) {
   await ensureChildSessionEndedForParentAction();
   const ctx = await Auth.fetchLoginPickerContext();
   const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
 
   if (!hasSession) {
-    showAddChildNeedsParentOverlay();
+    showAddChildNeedsParentOverlay('no_family');
     return;
   }
 
@@ -466,7 +519,7 @@ async function runAddChildWithParentGate(onAuthorized) {
       }
     }
     if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
-      showAddChildNeedsParentOverlay();
+      showAddChildNeedsParentOverlay('new_child');
       return;
     }
     onAuthorized();
@@ -480,9 +533,11 @@ async function runAddChildWithParentGate(onAuthorized) {
 }
 
 window.openAddChild = async function () {
-  await runAddChildWithParentGate(function () {
+  if (await deviceHasFamilyContext()) {
     showAddChildChoiceOverlay();
-  });
+    return;
+  }
+  await runAddChildWithParentGate(showAddChildChoiceOverlay);
 };
 
 // ── Keypad ────────────────────────────────────────────────────────────────────
@@ -667,6 +722,17 @@ async function submitLogin() {
     // Success — verify httpOnly cookie actually switched to child (parent cookie can shadow).
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
     if (window.DeviceMode) DeviceMode.enterChild();
+
+    const deviceFamilyId = getDeviceFamilyId();
+    const loginFamilyId = data.user.familyId || null;
+    if (deviceFamilyId && loginFamilyId && deviceFamilyId !== loginFamilyId) {
+      hideLoading();
+      showError('Det barnet tillhör en annan familj.', '⚠️');
+      Auth.clearAuth();
+      pinDigits = [];
+      renderPinDots();
+      return;
+    }
 
     try {
       const verifyRes = await fetch('/api/auth/me', { credentials: 'include' });
