@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v182
+ * Min Stjärndag — Service Worker v183
+ * v183: Föräldralås — unik PIN per vuxen (parent.parent_pin_hash)
  * v182: Föräldralås UI — ett steg i taget (välj → bekräfta), smalare keypad
  * v181: Byt barn — korrekt utloggning (cookie secure-flagga + DeviceMode child)
  * v180: föräldralås-PIN i onboarding + Familj-sida; vuxenlogin → dashboard (DeviceMode)
@@ -190,7 +191,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v182';
+const CACHE_NAME = 'stjarndag-v183';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

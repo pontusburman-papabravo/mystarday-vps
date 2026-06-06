@@ -24,6 +24,7 @@ const {
   setAccessCookie,
   clearAccessCookie,
 } = require('../lib/refresh-tokens');
+const parentPinDb = require('../../db/parent-pin');
 const {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -1627,16 +1628,19 @@ router.post('/logout', async (req, res) => {
       }
 
       if (session?.access_token && session?.refresh_token) {
-        // Check if family has parent PIN — if so, keep session but require PIN first.
-        // The frontend will show the PIN overlay before calling restore-parent-session.
+        // Require PIN if the saved parent account has one set.
         try {
-          const familyResult = await db.query(
-            'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
-            [decoded.familyId]
-          );
-          if (familyResult.rows[0]?.has_pin) {
-            // Parent PIN set — return needsParentPin: true so frontend shows PIN overlay.
-            // Keep the parent session cookie intact (don't clear it).
+          let savedParentId = null;
+          try {
+            const parentDecoded = jwt.decode(session.access_token);
+            if (parentDecoded?.type === 'parent') savedParentId = parentDecoded.id;
+          } catch { /* fall through */ }
+
+          const needsPin = savedParentId
+            ? await parentPinDb.parentHasPin(savedParentId)
+            : await parentPinDb.familyAnyParentHasPin(decoded.familyId);
+
+          if (needsPin) {
             return res.json({ message: 'Utloggad', needsParentPin: true });
           }
         } catch (err) {

@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS family (
   stripe_customer_id VARCHAR(255),
   stripe_subscription_id VARCHAR(255),
   rc_customer_id VARCHAR(255),
-  parent_pin_hash TEXT,
   archived_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -52,6 +51,7 @@ CREATE TABLE IF NOT EXISTS parent (
   widget_order JSONB,
   push_preferences JSONB DEFAULT '{}'::jsonb,
   admin_push_enabled BOOLEAN DEFAULT false,
+  parent_pin_hash TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

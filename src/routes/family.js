@@ -1678,8 +1678,8 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
   }
 });
 
-// ─── Parent PIN (F) — Föräldralås ─────────────────────────────────────────────
-// Gate: all child→parent transitions require a valid parent PIN.
+// ─── Parent PIN (F) — Föräldralås (unik PIN per vuxen) ────────────────────────
+const parentPinDb = require('../../db/parent-pin');
 
 /** Resolve parent + family from barnväljare (active parent JWT or stjarndag_parent_session). */
 async function resolvePickerParentContext(req) {
@@ -1752,13 +1752,10 @@ router.get('/parent-pin-status-picker', async (req, res) => {
     if (!ctx) {
       return res.json({ has_session: false, has_pin: false });
     }
-    const result = await db.query(
-      'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
-      [ctx.familyId]
-    );
+    const hasPin = await parentPinDb.parentHasPin(ctx.parentId);
     res.json({
       has_session: true,
-      has_pin: result.rows[0]?.has_pin || false,
+      has_pin: hasPin,
     });
   } catch (err) {
     console.error('[FAMILY] parent-pin-status-picker error:', err);
@@ -1775,17 +1772,15 @@ router.post('/verify-pin-picker', attachPickerFamily, parentPinLimiter, async (r
       return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
     }
 
-    const familyResult = await db.query(
-      'SELECT parent_pin_hash FROM family WHERE id = $1',
-      [req.user.familyId]
-    );
-    const family = familyResult.rows[0];
-
-    if (!family?.parent_pin_hash) {
-      return res.status(400).json({ error: 'Ingen PIN-kod satt för denna familj' });
+    if (!(await parentPinDb.parentHasPin(req.user.id))) {
+      return res.status(400).json({ error: 'Ingen PIN-kod satt för ditt konto' });
     }
 
-    const ok = await require('../lib/hash').comparePassword(pin, family.parent_pin_hash);
+    const { ok } = await parentPinDb.verifyParentPin({
+      familyId: req.user.familyId,
+      parentId: req.user.id,
+      pin,
+    });
     if (!ok) {
       return res.status(401).json({ ok: false, attempts_remaining: null });
     }
@@ -1824,17 +1819,17 @@ router.post('/verify-pin-picker', attachPickerFamily, parentPinLimiter, async (r
 });
 
 // ─── GET /api/family/parent-pin-status ───────────────────────
-// Returns whether the family has a parent PIN set.
-// Frontend uses this to decide whether to show PIN guard.
-// Why requireAuth (not requireParent): child-login.js "Jag är vuxen" flow
-// calls this from a child session to decide whether to show PIN overlay.
+// Parent: own PIN. Child session: any adult in family has PIN (for "Jag är vuxen" gate).
+// Why requireAuth (not requireParent): child-login.js calls this from a child session.
 router.get('/parent-pin-status', requireAuth, async (req, res) => {
   try {
-    const result = await db.query(
-      'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
-      [req.user.familyId]
-    );
-    res.json({ has_pin: result.rows[0]?.has_pin || false });
+    let hasPin;
+    if (req.user.type === 'parent') {
+      hasPin = await parentPinDb.parentHasPin(req.user.id);
+    } else {
+      hasPin = await parentPinDb.familyAnyParentHasPin(req.user.familyId);
+    }
+    res.json({ has_pin: hasPin });
   } catch (err) {
     console.error('[FAMILY] parent-pin-status error:', err);
     res.status(500).json({ error: 'Något gick fel.' });
@@ -1842,7 +1837,7 @@ router.get('/parent-pin-status', requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/family/set-pin ──────────────────────────────────
-// Set or change the family parent PIN.
+// Set or change the logged-in adult's own parent PIN.
 // First set: { pin, confirmPin }
 // Change (with current PIN): { pin, confirmPin, currentPin }
 // Change (PIN forgotten): { pin, confirmPin, password }
@@ -1858,21 +1853,16 @@ router.post('/set-pin', requireParent, async (req, res) => {
       return res.status(400).json({ error: 'PIN-koderna matchar inte' });
     }
 
-    // Get current family PIN state
-    const familyResult = await db.query(
-      'SELECT parent_pin_hash FROM family WHERE id = $1',
-      [req.user.familyId]
-    );
-    const family = familyResult.rows[0];
+    const pinRow = await parentPinDb.getParentPinRow(req.user.id);
 
-    if (family.parent_pin_hash) {
+    if (pinRow?.parent_pin_hash) {
       // ── Changing existing PIN ──────────────────────────────
       if (!currentPin && !password) {
         return res.status(400).json({ error: 'Ange nuvarande PIN-kod eller lösenord för att ändra' });
       }
 
       if (currentPin) {
-        const pinOk = await require('../lib/hash').comparePassword(currentPin, family.parent_pin_hash);
+        const pinOk = await require('../lib/hash').comparePassword(currentPin, pinRow.parent_pin_hash);
         if (!pinOk) {
           return res.status(401).json({ error: 'Felaktig nuvarande PIN-kod' });
         }
@@ -1893,10 +1883,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
     // First-time setup: no additional verification needed (requireParent already verified)
 
     const newHash = await require('../lib/hash').hashPassword(pin);
-    await db.query(
-      'UPDATE family SET parent_pin_hash = $1 WHERE id = $2',
-      [newHash, req.user.familyId]
-    );
+    await parentPinDb.setParentPinHash(req.user.id, newHash);
 
     res.json({ success: true });
   } catch (err) {
@@ -1906,10 +1893,9 @@ router.post('/set-pin', requireParent, async (req, res) => {
 });
 
 // ─── POST /api/family/verify-pin ──────────────────────────────
-// Verify the parent PIN and return a short-lived gate token (15 min JWT).
-// Rate limited to 5 attempts per family per 15 min via parentPinLimiter.
-// Why requireAuth (not requireParent): child-login.js PIN overlay calls this
-// from a child session. Both parent and child JWTs carry familyId.
+// Verify parent PIN and return a short-lived gate token (15 min JWT).
+// Parent session: own PIN. Child session: any adult's PIN in the family.
+// Why requireAuth (not requireParent): child-login.js PIN overlay calls this from child JWT.
 router.post('/verify-pin', parentPinLimiter, requireAuth, async (req, res) => {
   try {
     const { pin } = req.body;
@@ -1917,23 +1903,31 @@ router.post('/verify-pin', parentPinLimiter, requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
     }
 
-    const familyResult = await db.query(
-      'SELECT parent_pin_hash FROM family WHERE id = $1',
-      [req.user.familyId]
-    );
-    const family = familyResult.rows[0];
+    const familyId = req.user.familyId;
+    const isParent = req.user.type === 'parent';
 
-    if (!family?.parent_pin_hash) {
-      return res.status(400).json({ error: 'Ingen PIN-kod satt för denna familj' });
+    const hasPin = isParent
+      ? await parentPinDb.parentHasPin(req.user.id)
+      : await parentPinDb.familyAnyParentHasPin(familyId);
+
+    if (!hasPin) {
+      return res.status(400).json({
+        error: isParent ? 'Ingen PIN-kod satt för ditt konto' : 'Ingen vuxen har satt PIN-kod ännu',
+      });
     }
 
-    const ok = await require('../lib/hash').comparePassword(pin, family.parent_pin_hash);
+    const { ok, parentId: matchedParentId } = await parentPinDb.verifyParentPin({
+      familyId,
+      parentId: isParent ? req.user.id : undefined,
+      pin,
+    });
     if (!ok) {
       return res.status(401).json({ ok: false, attempts_remaining: null });
     }
 
+    const gateParentId = matchedParentId || (isParent ? req.user.id : null);
     const gateToken = jwt.sign(
-      { type: 'gate', familyId: req.user.familyId, parentId: req.user.id },
+      { type: 'gate', familyId, parentId: gateParentId },
       config.jwt.secret,
       { expiresIn: '15m' }
     );

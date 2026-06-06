@@ -406,8 +406,8 @@ async function initParentPinSection() {
       <h3 class="text-xl font-heading font-bold text-navy mb-1">Föräldralås</h3>
       <p class="text-sm text-text-soft mb-4">
         ${hasPin
-          ? 'En PIN-kod skyddar föräldraläget så att barn inte kan lämna barnläget utan din PIN.'
-          : 'Sätt en PIN-kod för att skydda föräldraläget — barn kan inte lämna barnläget utan din PIN.'}
+          ? 'Din personliga PIN-kod skyddar föräldraläget — barn kan inte lämna barnläget utan din PIN.'
+          : 'Sätt din egen 4-siffriga PIN — barn kan inte lämna barnläget utan din PIN.'}
       </p>
       <div id="parentPinFormWrap">
         ${hasPin ? buildParentPinChangeForm() : buildParentPinSetForm()}

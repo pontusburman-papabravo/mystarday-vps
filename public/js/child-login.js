@@ -424,7 +424,7 @@ async function runAddChildWithParentGate(onAuthorized) {
   showParentPinGateOverlay(async function () {
     await activateParentSessionAfterPinVerify(window._ppinGateVerifyResult);
     onAuthorized();
-  }, function () {});
+  }, function () {}, { hint: 'Ange din PIN-kod för att fortsätta' });
 }
 
 window.openAddChild = async function () {
@@ -677,7 +677,7 @@ window.handleParentSwitch = function () {
           window.location.href = '/dashboard';
         }, function () {
           // cancelled — stay on child login screen
-        });
+        }, { hint: 'Ange en vuxens PIN-kod för att fortsätta' });
       } else {
         if (window.DeviceMode) DeviceMode.enterParent();
         window.location.href = '/dashboard';
@@ -691,8 +691,9 @@ window.handleParentSwitch = function () {
 };
 
 // ── Parent PIN gate overlay (same pattern as auth.js + login-magic.js) ───────
-// Shown when child is logged in and taps "Jag är vuxen" with parent session saved.
-function showParentPinGateOverlay(onSuccess, onCancel) {
+// Shown for add-child PIN gate and "Jag är vuxen" from child session.
+function showParentPinGateOverlay(onSuccess, onCancel, opts) {
+  var hint = (opts && opts.hint) || 'Ange din PIN-kod för att fortsätta';
   var old = document.getElementById('ppin-gate-overlay');
   if (old) document.body.removeChild(old);
   window._ppinGateToken = null;
@@ -714,7 +715,7 @@ function showParentPinGateOverlay(onSuccess, onCancel) {
   card.innerHTML = [
     '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
     '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
-    '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">Ange din PIN-kod för att fortsätta</p>',
+    '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' + hint + '</p>',
     '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',

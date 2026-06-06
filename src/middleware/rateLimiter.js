@@ -288,16 +288,22 @@ const resendVerificationLimiter = rateLimit({
 });
 
 /**
- * Parent PIN verify limiter: 5 attempts per family per 15 min.
- * Protects against brute-force on the 4-digit parent PIN.
- * Key: familyId for authenticated parents (auth required for all family/* endpoints).
+ * Parent PIN verify limiter: 5 attempts per adult (or per family from child session) per 15 min.
  */
 const parentPinLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: ENABLED ? 5 : 0,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => `parent-pin:${req.user?.familyId || getRealIp(req)}`,
+  keyGenerator: (req) => {
+    if (req.user?.type === 'parent' && req.user.id) {
+      return `parent-pin:parent:${req.user.id}`;
+    }
+    if (req.user?.familyId) {
+      return `parent-pin:family:${req.user.familyId}`;
+    }
+    return `parent-pin:ip:${getRealIp(req)}`;
+  },
   skip: () => !ENABLED,
   handler: (req, res, next, options) => {
     onLimitReached(req, res, options);
