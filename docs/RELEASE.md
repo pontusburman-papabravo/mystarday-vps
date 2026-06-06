@@ -42,8 +42,22 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `EMAIL_FROM` | `info@mystarday.se` | Avsändaradress (måste vara verifierad domän i Resend) |
 | `EMAIL_ENABLED` | `true` | Sätt `false` för att stänga av utskick |
 | `POLSIA_API_KEY` | (från Polsia Dashboard) | Bilduppladdning (R2-proxy) — **inte** e-post |
-| `EMAIL_ENABLED` | `false` eller `true` | Styr om email skickas |
 | `DATABASE_URL` | (Neon-connection string) | Ska redan finnas |
+
+### Resend MCP (Cursor / Claude Code)
+
+Projektet inkluderar `.cursor/mcp.json` för Resend MCP (skicka/testa mail från editorn).
+
+1. Sätt `RESEND_API_KEY` i din shell eller `.env` (kopiera från `.env.example`)
+2. Starta om Cursor → **Settings → MCP** → aktivera `resend`
+
+**Stdio (standard, redan konfigurerad):** läser nyckeln från `${env:RESEND_API_KEY}`.
+
+**HTTP (valfritt, t.ex. flera klienter):**
+```bash
+RESEND_API_KEY=re_xxx npx -y resend-mcp --http --port 3000
+```
+Lägg till i Cursor MCP med URL `http://127.0.0.1:3000/mcp` och header `Authorization: Bearer re_xxx`.
 
 ### RevenueCat Webhook — URL
 Peka RevenueCat-dashboarden mot:
