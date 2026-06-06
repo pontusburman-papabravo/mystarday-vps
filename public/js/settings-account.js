@@ -655,6 +655,7 @@ async function saveParentPin(pin) {
 }
 
 let _ppChangeNewPin = null;
+let _ppVerifiedCurrentPin = null;
 
 async function handleCurrentPinEntry(pin) {
   _ppChangeNewPin = null;
@@ -664,7 +665,7 @@ async function handleCurrentPinEntry(pin) {
       body: JSON.stringify({ pin }),
     });
     if (res.ok) {
-      // Correct PIN — proceed to new PIN entry
+      _ppVerifiedCurrentPin = pin;
       document.getElementById('ppChangeStep1').classList.add('hidden');
       document.getElementById('ppChangeStep2').classList.remove('hidden');
       showNewPinChooseStep();
@@ -721,10 +722,17 @@ async function handleNewPinConfirmEntry(confirmPin) {
     return;
   }
 
-  // Normal change flow (verify current PIN, then save with currentPin)
-  const currentPin = await promptCurrentPinForChange();
+  // Normal change flow — current PIN already verified in step 1
+  const currentPin = _ppVerifiedCurrentPin;
   if (!currentPin) {
+    if (msg) {
+      msg.textContent = 'Sessionen har gått ut — ange nuvarande PIN igen';
+      msg.className = 'text-sm text-red-500 text-center';
+    }
     _ppChangeNewPin = null;
+    document.getElementById('ppChangeStep2')?.classList.add('hidden');
+    document.getElementById('ppChangeStep1')?.classList.remove('hidden');
+    initParentPinNumpad('ppChangeKeypad', 'ppCurrentDots', handleCurrentPinEntry);
     return;
   }
 
@@ -737,19 +745,13 @@ async function handleNewPinConfirmEntry(confirmPin) {
       msg.textContent = '✓ PIN-koden har ändrats!';
       msg.className = 'text-sm text-green-600 text-center';
     }
+    _ppVerifiedCurrentPin = null;
     setTimeout(initParentPinSection, 1500);
   } catch (err) {
     if (msg) { msg.textContent = err.message || 'Kunde inte ändra PIN-kod'; msg.className = 'text-sm text-red-500 text-center'; }
     _ppChangeNewPin = null;
     showNewPinChooseStep();
   }
-}
-
-function promptCurrentPinForChange() {
-  return new Promise((resolve) => {
-    const pin = prompt('Ange nuvarande PIN-kod för att bekräfta:');
-    resolve(pin || null);
-  });
 }
 
 function showForgotPinForm() {
