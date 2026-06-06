@@ -2370,7 +2370,7 @@ async function switchChildMember() {
     await Auth.switchChildMember();
     return;
   }
-  window.location.replace('/child-login');
+  window.location.replace('/child-login?picker=1');
 }
 
 // ── Child logout ────────────────────────────────────────

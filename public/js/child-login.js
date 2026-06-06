@@ -935,24 +935,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const addChildParam = url.searchParams.get('addChild');
   const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
   const resumeAddChild = addChildParam === '1' || pendingAddChild;
+  const forcePicker = url.searchParams.get('picker') === '1' || sessionStorage.getItem('cl_force_picker') === '1';
 
-  // Only restore PIN step when NOT resuming add-child (avoid jumping to last child's PIN)
-  if (!resumeAddChild) {
-    const preselected = sessionStorage.getItem('cl_selected_username');
-    if (preselected) {
-      const known = loadKnownChildren();
-      const child = known.find(k => k.username === preselected);
-      if (child) {
-        window.selectChild(preselected);
-      } else {
-        sessionStorage.removeItem('cl_selected_username');
-      }
-    }
-  } else {
+  if (forcePicker) {
+    sessionStorage.removeItem('cl_force_picker');
     sessionStorage.removeItem('cl_selected_username');
+    selectedChild = null;
+    pinDigits = [];
+    document.getElementById('clStepPin')?.classList.remove('active');
+    document.getElementById('clStepProfiles')?.classList.add('active');
+    if (url.searchParams.has('picker')) {
+      url.searchParams.delete('picker');
+      window.history.replaceState({}, '', url.pathname + (url.search || ''));
+    }
   }
 
-  // Render child list
+  // Render child list (always start on väljare — never auto-open PIN after Byt barn)
   renderChildList();
 
   // Resume add-child flow after parent login (?addChild=1)

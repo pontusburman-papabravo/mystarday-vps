@@ -460,13 +460,14 @@ const Auth = {
       sessionStorage.removeItem('cl_selected_username');
       sessionStorage.removeItem('cl_add_child_pending');
       sessionStorage.removeItem('cl_add_child_next');
+      sessionStorage.setItem('cl_force_picker', '1');
     } catch { /* ignore */ }
 
     if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
       DeviceMode.enterChild();
     }
 
-    window.location.replace('/child-login');
+    window.location.replace('/child-login?picker=1');
   },
 
   async logout() {
