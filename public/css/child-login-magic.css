@@ -187,6 +187,73 @@
   font-weight: 700;
 }
 
+/* Add-child choice modal */
+.cl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(27,35,64,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  padding: 16px;
+}
+.cl-modal-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px 22px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  text-align: center;
+}
+.cl-modal-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  color: #1B2340;
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+.cl-modal-sub {
+  font-size: 0.875rem;
+  color: #5A6178;
+  margin-bottom: 20px;
+  line-height: 1.45;
+}
+.cl-modal-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 10px;
+  border: none;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.cl-modal-btn:active { transform: scale(0.98); }
+.cl-modal-btn-primary {
+  background: #F5A623;
+  color: #1B2340;
+}
+.cl-modal-btn-secondary {
+  background: #EDE7F6;
+  color: #1B2340;
+}
+.cl-modal-btn-cancel {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #5A6178;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
 /* Avatar circle */
 .cl-avatar-ring {
   width: 52px;

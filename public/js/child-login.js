@@ -80,17 +80,17 @@ function renderChildList() {
 
     if (merged.length === 0) {
       list.innerHTML = '';
+      var addRow = document.getElementById('clAddChildRow');
       // No children at all — check if we have a parent session.
-      // Without a session there's no family to add children to.
       const hasFamilySession = Auth.isLoggedIn() || hasSession;
       if (!hasFamilySession && noSession) {
-        // No session, no known children → show manual name input form
         if (empty) empty.classList.add('hidden');
+        if (addRow) addRow.classList.remove('hidden');
         noSession.classList.remove('hidden');
       } else {
-        // Parent is logged in but has no children yet → show original empty state
         if (noSession) noSession.classList.add('hidden');
         if (empty) empty.classList.remove('hidden');
+        if (addRow) addRow.classList.remove('hidden');
       }
       return;
     }
@@ -244,9 +244,121 @@ window.clBackToProfiles = function () {
   clearCountdown();
 };
 
-// ── Add child: barn-onboarding wizard (flow=add-child) ───────────────────────
-window.openAddChild = async function () {
+// ── Add child: choice (nytt/befintligt) + parent PIN gate ────────────────────
+
+async function fetchParentPinStatusForAddChild() {
   if (Auth.isLoggedIn()) {
+    try {
+      const res = await window.apiFetch('/api/family/parent-pin-status');
+      if (res.ok) {
+        const data = await res.json();
+        return { has_session: true, has_pin: !!data.has_pin };
+      }
+    } catch { /* fall through */ }
+  }
+  try {
+    const res = await fetch('/api/family/parent-pin-status-picker', { credentials: 'same-origin' });
+    if (res.ok) return res.json();
+  } catch { /* ignore */ }
+  return { has_session: false, has_pin: false };
+}
+
+async function hasActiveAuthSession() {
+  if (Auth.isLoggedIn()) return true;
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function resolvePinVerifyUrl() {
+  if (await hasActiveAuthSession()) return '/api/family/verify-pin';
+  const ctx = await Auth.fetchLoginPickerContext();
+  if (ctx.hasSession) return '/api/family/verify-pin-picker';
+  return '/api/family/verify-pin';
+}
+
+async function activateParentSessionAfterPinVerify(resData) {
+  if (resData && resData.parent) {
+    Auth.setAuth(null, resData.parent);
+  }
+  if (resData && resData.csrfToken) {
+    localStorage.setItem(Auth.CSRF_KEY, resData.csrfToken);
+  }
+  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') return true;
+  if (typeof Auth.hydrateUserFromLoginPicker === 'function') {
+    if (await Auth.hydrateUserFromLoginPicker()) return true;
+  }
+  const gateToken = window._ppinGateToken;
+  if (!gateToken) return false;
+  try {
+    const csrf = Auth.getCsrfToken() || '';
+    const res = await fetch('/api/family/restore-parent-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      credentials: 'include',
+      body: JSON.stringify({ gateToken }),
+    });
+    if (!res.ok) return false;
+    await Auth.ensureCsrfToken();
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) Auth.setAuth(null, await meRes.json());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function closeAddChildChoiceOverlay() {
+  var el = document.getElementById('cl-add-child-choice');
+  if (el) el.remove();
+}
+
+function showAddChildChoiceOverlay() {
+  closeAddChildChoiceOverlay();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'cl-add-child-choice';
+  overlay.className = 'cl-modal-overlay';
+  overlay.innerHTML = [
+    '<div class="cl-modal-card" role="dialog" aria-labelledby="clAddChildTitle">',
+      '<div style="font-size:2rem;margin-bottom:8px;">👶</div>',
+      '<h3 id="clAddChildTitle" class="cl-modal-title">Lägg till ett barn</h3>',
+      '<p class="cl-modal-sub">Välj om barnet redan finns i familjen eller ska skapas som nytt.</p>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">Nytt barn</button>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">Befintligt barn</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">Avbryt</button>',
+    '</div>',
+  ].join('');
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('clAddNewBtn').addEventListener('click', function () {
+    closeAddChildChoiceOverlay();
+    proceedToNewChildWizard();
+  });
+  document.getElementById('clAddExistingBtn').addEventListener('click', function () {
+    closeAddChildChoiceOverlay();
+    showExistingChildForm();
+  });
+  document.getElementById('clAddChildCancel').addEventListener('click', closeAddChildChoiceOverlay);
+}
+
+function showExistingChildForm() {
+  var noSession = document.getElementById('clNoSessionState');
+  var empty = document.getElementById('clEmptyState');
+  if (empty) empty.classList.add('hidden');
+  if (noSession) {
+    noSession.classList.remove('hidden');
+    var input = document.getElementById('clManualNameInput');
+    if (input) setTimeout(function () { input.focus(); }, 80);
+  }
+}
+
+async function proceedToNewChildWizard() {
+  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') {
     window.location.href = ADD_CHILD_ONBOARDING_URL;
     return;
   }
@@ -259,6 +371,43 @@ window.openAddChild = async function () {
   }
   sessionStorage.setItem('cl_add_child_next', ADD_CHILD_ONBOARDING_URL);
   window.location.href = '/login?next=' + encodeURIComponent(ADD_CHILD_ONBOARDING_URL);
+}
+
+async function runAddChildWithParentGate(onAuthorized) {
+  const ctx = await Auth.fetchLoginPickerContext();
+  const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
+
+  if (!hasSession) {
+    sessionStorage.setItem('cl_add_child_pending', 'choice');
+    window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
+    return;
+  }
+
+  const pinStatus = await fetchParentPinStatusForAddChild();
+
+  if (!pinStatus.has_pin) {
+    if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
+      await Auth.hydrateUserFromLoginPicker();
+    }
+    if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
+      sessionStorage.setItem('cl_add_child_pending', 'choice');
+      window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
+      return;
+    }
+    onAuthorized();
+    return;
+  }
+
+  showParentPinGateOverlay(async function () {
+    await activateParentSessionAfterPinVerify(window._ppinGateVerifyResult);
+    onAuthorized();
+  }, function () {});
+}
+
+window.openAddChild = async function () {
+  await runAddChildWithParentGate(function () {
+    showAddChildChoiceOverlay();
+  });
 };
 
 // ── Keypad ────────────────────────────────────────────────────────────────────
@@ -603,28 +752,33 @@ function showParentPinGateOverlay(onSuccess, onCancel) {
   function submitPin() {
     var pin = entered;
     var csrf = Auth.getCsrfToken() || '';
-    fetch('/api/family/verify-pin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      credentials: 'include',
-      body: JSON.stringify({ pin: pin }),
-    }).then(function (r) { return r.json(); }).then(function (res) {
-      if (res.ok && res.gateToken) {
-        window._ppinGateToken = res.gateToken;
-        document.body.removeChild(overlay);
-        onSuccess();
-      } else {
-        msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+    resolvePinVerifyUrl().then(function (verifyUrl) {
+      return fetch(verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
+        body: JSON.stringify({ pin: pin }),
+      });
+    }).then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (result) {
+        var res = result.data;
+        if (result.ok && res.ok && res.gateToken) {
+          window._ppinGateToken = res.gateToken;
+          window._ppinGateVerifyResult = res;
+          document.body.removeChild(overlay);
+          onSuccess();
+        } else {
+          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          entered = '';
+          updateDots();
+          buildKeypad();
+        }
+      }).catch(function () {
+        msgEl.textContent = 'Något gick fel — försök igen';
         entered = '';
         updateDots();
         buildKeypad();
-      }
-    }).catch(function () {
-      msgEl.textContent = 'Något gick fel — försök igen';
-      entered = '';
-      updateDots();
-      buildKeypad();
-    });
+      });
   }
 
   document.getElementById('ppgo-cancel').addEventListener('click', function () {
@@ -729,5 +883,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = savedNext;
       }
     })();
+  }
+
+  // Re-open add-child choice after parent login (?addChild=1)
+  const addChildParam = url.searchParams.get('addChild');
+  const pendingChoice = sessionStorage.getItem('cl_add_child_pending') === 'choice';
+  if (addChildParam === '1' || pendingChoice) {
+    sessionStorage.removeItem('cl_add_child_pending');
+    if (addChildParam === '1') {
+      url.searchParams.delete('addChild');
+      window.history.replaceState({}, '', url.pathname + (url.search || ''));
+    }
+    setTimeout(function () { openAddChild(); }, 150);
   }
 });

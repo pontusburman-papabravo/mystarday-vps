@@ -56,6 +56,9 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/waitlist/skip',
   // Public professional interest form — no session
   '/public/professional-interest',
+  // Barnväljare: parent PIN without active JWT (stjarndag_parent_session only)
+  '/family/verify-pin-picker',
+  '/family/restore-parent-session',
   // Email change confirm: user is not logged in when clicking the link
   '/account/change-email/confirm',
 ]);

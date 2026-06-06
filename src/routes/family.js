@@ -1,7 +1,9 @@
 const express = require('express');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const db = require('../lib/db');
-const { requireParent, requireAuth } = require('../middleware/auth');
+const { requireParent, requireAuth, resolveParentIdForLoginPicker } = require('../middleware/auth');
+const { generateCsrfToken } = require('../middleware/csrf');
 const { requireNotPedagogOnly, requirePrimaryParent } = require('../middleware/authz');
 const { syncAccountType, getChildrenForParent } = require('../../db/parent-access');
 const { sendEmail, sendInviteEmail } = require('../lib/email');
@@ -1678,6 +1680,148 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
 
 // ─── Parent PIN (F) — Föräldralås ─────────────────────────────────────────────
 // Gate: all child→parent transitions require a valid parent PIN.
+
+/** Resolve parent + family from barnväljare (active parent JWT or stjarndag_parent_session). */
+async function resolvePickerParentContext(req) {
+  const parentId = resolveParentIdForLoginPicker(req);
+  if (!parentId) return null;
+  const parentResult = await db.query(
+    `SELECT id, email, family_id, is_admin, onboarding_completed
+     FROM parent WHERE id = $1`,
+    [parentId]
+  );
+  const parentRow = parentResult.rows[0];
+  if (!parentRow) return null;
+  return {
+    parentId: parentRow.id,
+    familyId: parentRow.family_id,
+    parent: parentRow,
+  };
+}
+
+/** Activate parent httpOnly cookies from stjarndag_parent_session (add-child / onboarding). */
+function activateParentSessionCookies(req, res) {
+  const parentSessionCookie = req.cookies?.stjarndag_parent_session;
+  if (!parentSessionCookie) return false;
+  let session;
+  try {
+    session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
+  } catch {
+    return false;
+  }
+  if (!session?.access_token || !session?.refresh_token) return false;
+
+  res.cookie('access_token', session.access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 15 * 60 * 1000,
+    path: '/',
+  });
+  res.cookie('refresh_token', session.refresh_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/api/auth',
+  });
+  res.clearCookie('stjarndag_parent_session', { path: '/' });
+  return true;
+}
+
+/** Attach req.user from barnväljare for rate limiting on picker PIN routes. */
+async function attachPickerFamily(req, res, next) {
+  try {
+    const ctx = await resolvePickerParentContext(req);
+    if (!ctx) {
+      return res.status(401).json({ error: 'Ingen sparad vuxensession. Logga in som vuxen.' });
+    }
+    req.user = { id: ctx.parentId, familyId: ctx.familyId, type: 'parent' };
+    next();
+  } catch (err) {
+    console.error('[FAMILY] attachPickerFamily error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+}
+
+// ─── GET /api/family/parent-pin-status-picker ────────────────
+// Barnväljare without active JWT — uses stjarndag_parent_session only.
+router.get('/parent-pin-status-picker', async (req, res) => {
+  try {
+    const ctx = await resolvePickerParentContext(req);
+    if (!ctx) {
+      return res.json({ has_session: false, has_pin: false });
+    }
+    const result = await db.query(
+      'SELECT parent_pin_hash IS NOT NULL AS has_pin FROM family WHERE id = $1',
+      [ctx.familyId]
+    );
+    res.json({
+      has_session: true,
+      has_pin: result.rows[0]?.has_pin || false,
+    });
+  } catch (err) {
+    console.error('[FAMILY] parent-pin-status-picker error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+// ─── POST /api/family/verify-pin-picker ────────────────────────
+// Verify parent PIN from barnväljare (no active JWT) and restore parent session cookies.
+router.post('/verify-pin-picker', attachPickerFamily, parentPinLimiter, async (req, res) => {
+  try {
+    const { pin } = req.body;
+    if (!pin || !/^\d{4}$/.test(String(pin))) {
+      return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
+    }
+
+    const familyResult = await db.query(
+      'SELECT parent_pin_hash FROM family WHERE id = $1',
+      [req.user.familyId]
+    );
+    const family = familyResult.rows[0];
+
+    if (!family?.parent_pin_hash) {
+      return res.status(400).json({ error: 'Ingen PIN-kod satt för denna familj' });
+    }
+
+    const ok = await require('../lib/hash').comparePassword(pin, family.parent_pin_hash);
+    if (!ok) {
+      return res.status(401).json({ ok: false, attempts_remaining: null });
+    }
+
+    const gateToken = jwt.sign(
+      { type: 'gate', familyId: req.user.familyId, parentId: req.user.id },
+      config.jwt.secret,
+      { expiresIn: '15m' }
+    );
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+    const ctx = await resolvePickerParentContext(req);
+    activateParentSessionCookies(req, res);
+
+    const csrfToken = generateCsrfToken(res);
+    const p = ctx?.parent;
+
+    res.json({
+      ok: true,
+      gateToken,
+      expiresAt,
+      csrfToken,
+      parent: p ? {
+        id: p.id,
+        email: p.email || null,
+        familyId: p.family_id,
+        isAdmin: p.is_admin || false,
+        type: 'parent',
+        onboarding_completed: p.onboarding_completed,
+      } : undefined,
+    });
+  } catch (err) {
+    console.error('[FAMILY] verify-pin-picker error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
 
 // ─── GET /api/family/parent-pin-status ───────────────────────
 // Returns whether the family has a parent PIN set.
