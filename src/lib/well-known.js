@@ -39,6 +39,8 @@ function buildAppleAppSiteAssociation() {
           '/reset-password*',
           '/register*',
           '/invite/*',
+          '/child-login*',
+          '/child-dashboard*',
         ],
       }],
     },

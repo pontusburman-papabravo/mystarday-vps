@@ -16,6 +16,19 @@
 (function () {
   if (!('serviceWorker' in navigator)) return;
 
+  // Native Capacitor (iOS/Android): skip SW — cached auth/child-login JS breaks login flows.
+  // Unregister legacy SW from earlier app builds.
+  var isNativeApp = (
+    (typeof Capacitor !== 'undefined' && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) ||
+    (typeof window !== 'undefined' && window.Platform && typeof window.Platform.isNative === 'function' && window.Platform.isNative())
+  );
+  if (isNativeApp) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
+    return;
+  }
+
   // Gate 2I: offline_pwa — only register SW if the feature is available for this family.
   // If the feature check fails (non-critical), register anyway (SW failure is non-fatal).
   async function registerSW() {

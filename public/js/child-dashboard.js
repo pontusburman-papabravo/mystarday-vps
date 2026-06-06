@@ -2375,22 +2375,7 @@ async function switchChildMember() {
 
 // ── Child logout ────────────────────────────────────────
 async function childLogout() {
-  try {
-    const result = await Auth.api('/api/auth/logout', { method: 'POST' });
-    // If session was restored (parent session was saved during child login),
-    // redirect to parent dashboard instead of child login
-    if (result?.sessionRestored) {
-      window.location.href = '/dashboard';
-      return;
-    }
-  } catch (e) {
-    // Ignore errors — still clear local state
-  }
-  // Clear any remaining localStorage items
-  localStorage.removeItem('stjarndag_child');
-  localStorage.removeItem('stjarndag_user');
-  // Redirect to child login page
-  window.location.href = '/child-login';
+  await Auth.logout({ childFlow: true });
 }
 
 // ── View type toggle (child can switch view in-session) ─
@@ -2508,6 +2493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = '/child-login';
       return;
     }
+    if (window.DeviceMode) DeviceMode.enterChild();
     Auth.setAuth(null, me);
     // Cache child profile for offline access
     if (me && window.OfflineStore) {

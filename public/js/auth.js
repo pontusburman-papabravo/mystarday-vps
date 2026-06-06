@@ -471,7 +471,28 @@ const Auth = {
     window.location.replace('/child-login?picker=1');
   },
 
-  async logout() {
+  _redirectAfterLogoutClear(childFlow) {
+    this._fullClear();
+    if (childFlow) {
+      window.location.href = '/child-login';
+      return;
+    }
+    if (
+      (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
+      (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
+    ) {
+      window.location.href = '/login';
+    } else {
+      window.location.href = '/';
+    }
+  },
+
+  async logout(options) {
+    options = options || {};
+    var childFlow = options.childFlow === true;
+
+    if (childFlow && window.DeviceMode) DeviceMode.enterChild();
+
     // Unregister native push token BEFORE hitting the logout API so the
     // correct user is associated with the token at time of deletion.
     // Fire-and-forget — logout must not stall on this.
@@ -480,7 +501,9 @@ const Auth = {
     }
 
     // Keep barnväljare usable after vuxen logout — snapshot family children to device.
-    await this.snapshotKnownChildrenBeforeLogout();
+    if (!childFlow) {
+      await this.snapshotKnownChildrenBeforeLogout();
+    }
 
     // Retry once on CSRF mismatch — cookie clearing is the critical path.
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -509,6 +532,7 @@ const Auth = {
         if (data.needsParentPin) {
           // Parent PIN required — clear child tokens, show PIN overlay, then restore
           this._clearChildCookies();
+          var cancelUrl = childFlow ? '/child-login' : '/login';
           this._showParentPinGateOverlay(function () {
             // PIN verified → call restore-parent-session endpoint
             Auth.api('/api/family/restore-parent-session', {
@@ -517,41 +541,22 @@ const Auth = {
             }).then(function () {
               window.location.href = '/dashboard';
             }).catch(function () {
-              window.location.href = '/login';
+              window.location.href = cancelUrl;
             });
           }, function () {
-            // PIN cancelled → go to login
-            window.location.href = '/login';
+            window.location.href = cancelUrl;
           });
           return;
         }
 
-        // No session to restore → go to / (web) or /login (app)
-        this._fullClear();
-        if (
-          (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
-          (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
-        ) {
-          window.location.href = '/login';
-        } else {
-          window.location.href = '/';
-        }
+        this._redirectAfterLogoutClear(childFlow);
         return;
       } catch {
         // Network error — break and fall through
         break;
       }
     }
-    // Fetch failed after retries: clear state, go to / (web) or /login (app).
-    this._fullClear();
-    if (
-      (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
-      (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
-    ) {
-      window.location.href = '/login';
-    } else {
-      window.location.href = '/';
-    }
+    this._redirectAfterLogoutClear(childFlow);
   },
 
   /**

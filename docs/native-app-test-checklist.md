@@ -243,6 +243,33 @@
 
 ---
 
+## 12. Delad enhet — barnväljare (iOS + Android)
+
+> Testa på **fysisk enhet** med Capacitor-appen (TestFlight / intern Android-build).
+> Appen laddar JS från `https://mystarday.se` — deploya servern före test.
+
+### 12.1 Vuxen → barn efter logout
+- [ ] Logga in som vuxen → logga ut → «Jag är barn» → **båda/syskon syns** på barnväljaren
+- [ ] Välj barn → PIN → barnvy öppnas
+- [ ] Stäng appen helt → öppna igen → hamnar på barnväljare (inte vuxenvy)
+
+### 12.2 Byt barn
+- [ ] Från barnvy: «Byt barn» → **lista med alla barn** (ingen auto-PIN)
+- [ ] Välj syskon → PIN → rätt barns schema
+
+### 12.3 Lägg till barn
+- [ ] «Nytt barn» → vuxenlogin (mail/lösenord) → **onboarding direkt** (ingen dubbel PIN)
+- [ ] «Befintligt barn» på enhet där syskon redan loggat in → namn+PIN utan vuxenlogin
+
+### 12.4 Barn logout med föräldralås
+- [ ] Barn trycker logout när vuxen har PIN → **PIN-ruta visas** (inte tyst redirect till dashboard)
+- [ ] Avbryt PIN → tillbaka till barnväljare
+
+### 12.5 Uppdatering efter deploy
+- [ ] Efter server-deploy: stäng och öppna appen → senaste login-flöde fungerar (SW registreras **inte** i native)
+
+---
+
 ## Sammanfattande resultatmatris
 
 | Område | Antal testfall | Klar | Pending | Fallerad |
