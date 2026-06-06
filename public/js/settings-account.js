@@ -416,6 +416,7 @@ async function initParentPinSection() {
     `;
 
     section.innerHTML = html;
+    ensureParentPinStyles();
     wireParentPinForm(hasPin);
   } catch (err) {
     console.error('[settings-account] parent-pin init failed:', err);
@@ -424,7 +425,7 @@ async function initParentPinSection() {
 
 function buildParentPinSetForm() {
   return `
-    <div id="parentPinStep1">
+    <div id="ppSetChooseStep">
       <p class="text-sm text-navy mb-3">Välj en 4-siffrig PIN-kod</p>
       <div class="mb-3 text-center">
         <div id="ppSetDots" class="flex justify-center gap-3">
@@ -435,21 +436,22 @@ function buildParentPinSetForm() {
         </div>
       </div>
       <div id="ppSetMsg" class="text-sm text-red-500 text-center mb-2"></div>
-      <div id="ppSetKeypad" class="grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Siffertavla"></div>
-      <div id="ppSetConfirmWrap" class="hidden space-y-3">
-        <p class="text-sm text-navy mb-2">Bekräfta PIN-koden</p>
-        <div class="mb-3 text-center">
-          <div id="ppConfirmDots" class="flex justify-center gap-3">
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-          </div>
-        </div>
-        <div id="ppConfirmKeypad" class="grid grid-cols-3 gap-2" role="group" aria-label="Bekräfta PIN-tavla"></div>
-      </div>
-      <div id="ppSetResultMsg" class="text-sm text-center"></div>
+      <div id="ppSetKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2" role="group" aria-label="Siffertavla"></div>
     </div>
+    <div id="ppSetConfirmStep" class="hidden">
+      <p class="text-sm text-navy mb-3">Bekräfta PIN-koden</p>
+      <div class="mb-3 text-center">
+        <div id="ppConfirmDots" class="flex justify-center gap-3">
+          <div class="w-4 h-4 rounded-full bg-lavender"></div>
+          <div class="w-4 h-4 rounded-full bg-lavender"></div>
+          <div class="w-4 h-4 rounded-full bg-lavender"></div>
+          <div class="w-4 h-4 rounded-full bg-lavender"></div>
+        </div>
+      </div>
+      <div id="ppConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Bekräfta PIN-tavla"></div>
+      <button type="button" id="ppSetBackBtn" class="text-xs text-text-soft underline block mx-auto">← Byt PIN-kod</button>
+    </div>
+    <div id="ppSetResultMsg" class="text-sm text-center mt-2"></div>
   `;
 }
 
@@ -466,7 +468,7 @@ function buildParentPinChangeForm() {
             <div class="w-4 h-4 rounded-full bg-lavender"></div>
           </div>
         </div>
-        <div id="ppChangeKeypad" class="grid grid-cols-3 gap-2 mb-3" role="group" aria-label="PIN-tavla"></div>
+        <div id="ppChangeKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="PIN-tavla"></div>
         <button type="button" id="ppForgotPinBtn" class="text-xs text-text-soft underline mx-auto block mb-2">
           Glömt PIN-koden?
         </button>
@@ -474,18 +476,20 @@ function buildParentPinChangeForm() {
       </div>
 
       <div id="ppChangeStep2" class="hidden">
-        <p class="text-sm text-navy mb-3">Välj ny PIN-kod</p>
-        <div class="mb-3 text-center">
-          <div id="ppNewDots" class="flex justify-center gap-3">
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
-            <div class="w-4 h-4 rounded-full bg-lavender"></div>
+        <div id="ppNewChooseStep">
+          <p class="text-sm text-navy mb-3">Välj ny PIN-kod</p>
+          <div class="mb-3 text-center">
+            <div id="ppNewDots" class="flex justify-center gap-3">
+              <div class="w-4 h-4 rounded-full bg-lavender"></div>
+              <div class="w-4 h-4 rounded-full bg-lavender"></div>
+              <div class="w-4 h-4 rounded-full bg-lavender"></div>
+              <div class="w-4 h-4 rounded-full bg-lavender"></div>
+            </div>
           </div>
+          <div id="ppNewKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Ny PIN-tavla"></div>
         </div>
-        <div id="ppNewKeypad" class="grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Ny PIN-tavla"></div>
-        <div id="ppNewConfirmWrap" class="hidden space-y-3">
-          <p class="text-sm text-navy mb-2">Bekräfta ny PIN-kod</p>
+        <div id="ppNewConfirmStep" class="hidden">
+          <p class="text-sm text-navy mb-3">Bekräfta ny PIN-kod</p>
           <div class="mb-3 text-center">
             <div id="ppNewConfirmDots" class="flex justify-center gap-3">
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -494,7 +498,8 @@ function buildParentPinChangeForm() {
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
             </div>
           </div>
-          <div id="ppNewConfirmKeypad" class="grid grid-cols-3 gap-2" role="group" aria-label="Bekräfta ny PIN-tavla"></div>
+          <div id="ppNewConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Bekräfta ny PIN-tavla"></div>
+          <button type="button" id="ppNewBackBtn" class="text-xs text-text-soft underline block mx-auto">← Byt PIN-kod</button>
         </div>
         <div id="ppChangeResultMsg" class="text-sm text-center"></div>
       </div>
@@ -513,6 +518,17 @@ function buildParentPinChangeForm() {
   `;
 }
 
+function ensureParentPinStyles() {
+  if (document.getElementById('parent-pin-ui-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'parent-pin-ui-styles';
+  style.textContent = [
+    '.pp-pin-keypad { max-width: 280px; margin-left: auto; margin-right: auto; }',
+    '#parentPinSection .pp-pin-keypad button { touch-action: manipulation; }',
+  ].join('\n');
+  document.head.appendChild(style);
+}
+
 function wireParentPinForm(hasPin) {
   if (hasPin) {
     initParentPinNumpad('ppChangeKeypad', 'ppCurrentDots', handleCurrentPinEntry);
@@ -520,9 +536,55 @@ function wireParentPinForm(hasPin) {
     if (forgotBtn) forgotBtn.addEventListener('click', showForgotPinForm);
     const verifyBtn = document.getElementById('ppForgotVerifyBtn');
     if (verifyBtn) verifyBtn.addEventListener('click', handleForgotPinVerify);
+    const newBackBtn = document.getElementById('ppNewBackBtn');
+    if (newBackBtn) newBackBtn.addEventListener('click', showNewPinChooseStep);
   } else {
-    initParentPinNumpad('ppSetKeypad', 'ppSetDots', handleSetPinEntry);
+    showSetPinChooseStep();
+    const backBtn = document.getElementById('ppSetBackBtn');
+    if (backBtn) backBtn.addEventListener('click', showSetPinChooseStep);
   }
+}
+
+let _ppSetPendingPin = null;
+
+function showSetPinChooseStep() {
+  _ppSetPendingPin = null;
+  const choose = document.getElementById('ppSetChooseStep');
+  const confirm = document.getElementById('ppSetConfirmStep');
+  const result = document.getElementById('ppSetResultMsg');
+  if (choose) choose.classList.remove('hidden');
+  if (confirm) confirm.classList.add('hidden');
+  if (result) result.textContent = '';
+  initParentPinNumpad('ppSetKeypad', 'ppSetDots', handleSetPinChooseComplete);
+}
+
+function handleSetPinChooseComplete(pin) {
+  _ppSetPendingPin = pin;
+  document.getElementById('ppSetChooseStep')?.classList.add('hidden');
+  document.getElementById('ppSetConfirmStep')?.classList.remove('hidden');
+  initParentPinNumpad('ppConfirmKeypad', 'ppConfirmDots', handleSetPinConfirmComplete);
+}
+
+async function handleSetPinConfirmComplete(confirmPin) {
+  if (confirmPin !== _ppSetPendingPin) {
+    const msg = document.getElementById('ppSetResultMsg');
+    if (msg) {
+      msg.textContent = 'PIN-koderna matchar inte — försök igen';
+      msg.className = 'text-sm text-red-500 text-center mt-2';
+    }
+    showSetPinChooseStep();
+    return;
+  }
+  await saveParentPin(confirmPin);
+}
+
+function showNewPinChooseStep() {
+  _ppChangeNewPin = null;
+  document.getElementById('ppNewChooseStep')?.classList.remove('hidden');
+  document.getElementById('ppNewConfirmStep')?.classList.add('hidden');
+  const msg = document.getElementById('ppChangeResultMsg');
+  if (msg) msg.textContent = '';
+  initParentPinNumpad('ppNewKeypad', 'ppNewDots', handleNewPinEntry);
 }
 
 function initParentPinNumpad(containerId, dotsId, onComplete) {
@@ -561,6 +623,9 @@ function initParentPinNumpad(containerId, dotsId, onComplete) {
           entered += d;
         }
         updateDots();
+        if (entered.length === 4 && d !== '⌫' && d !== '✓') {
+          setTimeout(function () { onComplete(entered, dotsEl, containerId); }, 120);
+        }
       });
       container.appendChild(btn);
     });
@@ -568,28 +633,6 @@ function initParentPinNumpad(containerId, dotsId, onComplete) {
 
   buildKeypad();
   updateDots();
-}
-
-async function handleSetPinEntry(pin, dotsEl, containerId) {
-  const wrap = document.getElementById('ppSetConfirmWrap');
-  const keypad = document.getElementById('ppSetKeypad');
-  const msg = document.getElementById('ppSetMsg');
-
-  if (!wrap.classList.contains('visible') && !wrap.classList.contains('shown')) {
-    // First entry — show confirm step
-    wrap.classList.remove('hidden');
-    // Swap to confirm keypad
-    initParentPinNumpad('ppConfirmKeypad', 'ppConfirmDots', (confirmPin) => {
-      if (confirmPin !== pin) {
-        document.getElementById('ppSetResultMsg').textContent = 'PIN-koderna matchar inte — försök igen';
-        document.getElementById('ppSetResultMsg').className = 'text-sm text-red-500 text-center';
-        // Reset confirm dots
-        initParentPinNumpad('ppConfirmKeypad', 'ppConfirmDots', handleSetPinEntry);
-        return;
-      }
-      saveParentPin(pin);
-    });
-  }
 }
 
 async function saveParentPin(pin) {
@@ -624,7 +667,7 @@ async function handleCurrentPinEntry(pin) {
       // Correct PIN — proceed to new PIN entry
       document.getElementById('ppChangeStep1').classList.add('hidden');
       document.getElementById('ppChangeStep2').classList.remove('hidden');
-      initParentPinNumpad('ppNewKeypad', 'ppNewDots', handleNewPinEntry);
+      showNewPinChooseStep();
     }
   } catch (err) {
     const msg = document.getElementById('ppChangeStep1Msg');
@@ -638,7 +681,8 @@ async function handleCurrentPinEntry(pin) {
 async function handleNewPinEntry(pin) {
   if (_ppChangeNewPin === null) {
     _ppChangeNewPin = pin;
-    document.getElementById('ppNewConfirmWrap').classList.remove('hidden');
+    document.getElementById('ppNewChooseStep')?.classList.add('hidden');
+    document.getElementById('ppNewConfirmStep')?.classList.remove('hidden');
     initParentPinNumpad('ppNewConfirmKeypad', 'ppNewConfirmDots', handleNewPinConfirmEntry);
   }
 }
@@ -652,8 +696,7 @@ async function handleNewPinConfirmEntry(confirmPin) {
       msg.className = 'text-sm text-red-500 text-center';
     }
     _ppChangeNewPin = null;
-    document.getElementById('ppNewConfirmWrap').classList.add('hidden');
-    initParentPinNumpad('ppNewKeypad', 'ppNewDots', handleNewPinEntry);
+    showNewPinChooseStep();
     return;
   }
 
@@ -673,7 +716,7 @@ async function handleNewPinConfirmEntry(confirmPin) {
       if (msg) { msg.textContent = err.message || 'Kunde inte ändra PIN-kod'; msg.className = 'text-sm text-red-500 text-center'; }
       _ppChangeNewPin = null;
       _ppForgotVerifiedPassword = null;
-      document.getElementById('ppNewConfirmWrap').classList.add('hidden');
+      showNewPinChooseStep();
     }
     return;
   }
@@ -698,7 +741,7 @@ async function handleNewPinConfirmEntry(confirmPin) {
   } catch (err) {
     if (msg) { msg.textContent = err.message || 'Kunde inte ändra PIN-kod'; msg.className = 'text-sm text-red-500 text-center'; }
     _ppChangeNewPin = null;
-    document.getElementById('ppNewConfirmWrap').classList.add('hidden');
+    showNewPinChooseStep();
   }
 }
 
@@ -733,7 +776,7 @@ async function handleForgotPinVerify() {
   document.getElementById('ppForgotPinForm').classList.add('hidden');
   document.getElementById('ppChangeStep2').classList.remove('hidden');
   _ppForgotVerifiedPassword = pw;
-  initParentPinNumpad('ppNewKeypad', 'ppNewDots', handleNewPinEntry);
+  showNewPinChooseStep();
 }
 
 // Store the verified password for the forgot-PIN flow (used by saveParentPin)
