@@ -654,6 +654,34 @@
         <p class="text-text-soft text-sm">Bjud in en annan vuxen i hushållet — eller hoppa vidare direkt.</p>
       </div>
 
+      <!-- Föräldralås (vuxen-PIN) — döljs om PIN redan satt eller add-child-läge -->
+      <div id="onboardingParentPinBlock" class="bg-gold-light border border-gold rounded-2xl p-4 mb-5">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔒</span>
+          <span class="font-semibold text-navy text-sm">Sätt föräldralås</span>
+          <span class="ml-auto text-xs text-text-soft bg-white px-2 py-0.5 rounded-full border border-gold">Rekommenderas</span>
+        </div>
+        <p class="text-xs text-text-soft mb-3 leading-relaxed">
+          En 4-siffrig PIN skyddar vuxenläget — t.ex. när barn ska lägga till syskon eller du loggar in som vuxen på barnets enhet.
+        </p>
+        <p class="text-sm font-semibold text-navy mb-2">Välj PIN-kod</p>
+        <div class="pin-input-group mb-3">
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObD1" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObD2" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObD3" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObD4" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+        </div>
+        <p class="text-sm font-semibold text-navy mb-2">Bekräfta PIN-kod</p>
+        <div class="pin-input-group mb-2">
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObC1" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObC2" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObC3" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+          <input type="tel" maxlength="1" class="pin-digit" id="ppObC4" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
+        </div>
+        <div id="onboardingParentPinError" class="hidden error-box text-xs mb-2"></div>
+        <p class="text-xs text-text-soft">Du kan ändra PIN senare under Familjen &amp; inställningar.</p>
+      </div>
+
       <!-- Invite another adult -->
       <div class="bg-sky border border-lavender rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-3">
@@ -788,7 +816,7 @@
     .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
   </style>
 
-  <script src="/js/onboarding.js?v=2.15.0"></script>
+  <script src="/js/onboarding.js?v=2.16.0"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

@@ -274,6 +274,10 @@ function goToStep(n) {
   });
 
   window.scrollTo(0, 0);
+
+  if (n === 6 && !IS_ADD_CHILD) {
+    initParentPinOnboardingBlock();
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -622,21 +626,101 @@ window.saveCustomPin = async function() {
 
 // Auto-advance PIN digit inputs
 function setupPinInputs() {
-  for (let i = 1; i <= 4; i++) {
-    const input = document.getElementById(`pinD${i}`);
+  wirePinDigitGroup(['pinD1', 'pinD2', 'pinD3', 'pinD4']);
+}
+
+function wirePinDigitGroup(ids) {
+  for (let i = 0; i < ids.length; i++) {
+    const input = document.getElementById(ids[i]);
     if (!input) continue;
     input.addEventListener('input', (e) => {
       const val = e.target.value.replace(/\D/g, '');
       e.target.value = val.slice(0, 1);
-      if (val && i < 4) {
-        document.getElementById(`pinD${i + 1}`).focus();
+      if (val && i < ids.length - 1) {
+        document.getElementById(ids[i + 1]).focus();
       }
     });
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && i > 1) {
-        document.getElementById(`pinD${i - 1}`).focus();
+      if (e.key === 'Backspace' && !input.value && i > 0) {
+        document.getElementById(ids[i - 1]).focus();
       }
     });
+  }
+}
+
+function setupParentPinOnboardingInputs() {
+  wirePinDigitGroup(['ppObD1', 'ppObD2', 'ppObD3', 'ppObD4']);
+  wirePinDigitGroup(['ppObC1', 'ppObC2', 'ppObC3', 'ppObC4']);
+}
+
+function readOnboardingParentPin(prefix) {
+  return [1, 2, 3, 4].map(function (i) {
+    return (document.getElementById(prefix + i)?.value || '').trim();
+  }).join('');
+}
+
+async function initParentPinOnboardingBlock() {
+  const block = document.getElementById('onboardingParentPinBlock');
+  if (!block || IS_ADD_CHILD) return;
+  try {
+    const res = await window.apiFetch('/api/family/parent-pin-status');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.has_pin) {
+        block.classList.add('hidden');
+        return;
+      }
+    }
+  } catch { /* show block */ }
+  block.classList.remove('hidden');
+}
+
+async function saveOnboardingParentPinIfProvided() {
+  const block = document.getElementById('onboardingParentPinBlock');
+  const errorEl = document.getElementById('onboardingParentPinError');
+  if (!block || block.classList.contains('hidden')) return true;
+
+  const pin = readOnboardingParentPin('ppObD');
+  const confirm = readOnboardingParentPin('ppObC');
+  if (!pin && !confirm) return true;
+
+  if (errorEl) errorEl.classList.add('hidden');
+
+  if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+    if (errorEl) {
+      errorEl.textContent = 'Ange en 4-siffrig PIN-kod eller lämna fälten tomma';
+      errorEl.classList.remove('hidden');
+    }
+    return false;
+  }
+  if (pin !== confirm) {
+    if (errorEl) {
+      errorEl.textContent = 'PIN-koderna matchar inte';
+      errorEl.classList.remove('hidden');
+    }
+    return false;
+  }
+
+  try {
+    const res = await window.apiFetch('/api/family/set-pin', {
+      method: 'POST',
+      body: JSON.stringify({ pin: pin, confirmPin: confirm }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(function () { return {}; });
+      if (errorEl) {
+        errorEl.textContent = data.error || 'Kunde inte spara PIN-koden';
+        errorEl.classList.remove('hidden');
+      }
+      return false;
+    }
+    return true;
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message || 'Kunde inte spara PIN-koden';
+      errorEl.classList.remove('hidden');
+    }
+    return false;
   }
 }
 
@@ -655,6 +739,11 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
   }
 
   setLoading(btn, 'Slutför…');
+
+  if (!(await saveOnboardingParentPinIfProvided())) {
+    setLoading(btn, '🏠 Gå till dashboarden', false);
+    return;
+  }
 
   // Celebration effect
   launchStars();
@@ -866,6 +955,8 @@ window.skipInvite = async function() {
   const errorEl = document.getElementById('step6Error');
   errorEl.classList.add('hidden');
 
+  if (!(await saveOnboardingParentPinIfProvided())) return;
+
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
     if (!res.ok) throw new Error('Kunde inte slutföra onboardingen');
@@ -927,6 +1018,8 @@ if (IS_ADD_CHILD) {
   if (inviteSection) inviteSection.classList.add('hidden');
   const step6Btn = document.getElementById('step6Btn');
   if (step6Btn) step6Btn.textContent = 'Klar! →';
+  const parentPinBlock = document.getElementById('onboardingParentPinBlock');
+  if (parentPinBlock) parentPinBlock.classList.add('hidden');
 }
 // ────────────────────────────────────────────────────────────────────────────
 /**
@@ -1027,6 +1120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initBirthdayPicker();
   initIOSAvatarPicker();
   setupPinInputs();
+  setupParentPinOnboardingInputs();
   goToStep(1);
 
   // Show email verification banner if needed (after auth check)

@@ -102,10 +102,12 @@
                 });
               } else {
                 // No PIN set → go directly to dashboard
+                if (window.DeviceMode) DeviceMode.enterParent();
                 window.location.href = '/dashboard';
               }
             }).catch(function () {
               // Network error — go to dashboard
+              if (window.DeviceMode) DeviceMode.enterParent();
               window.location.href = '/dashboard';
             });
           } else {

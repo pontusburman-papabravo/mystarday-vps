@@ -384,12 +384,24 @@ const Auth = {
     const user = this.getUser();
     if (!user) return;
     if (user.type === 'child' || (!user.email && user.username)) {
+      if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+        DeviceMode.enterChild();
+      }
       window.location.href = '/child-dashboard';
     } else if (user.isAdmin || user.is_admin) {
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
       window.location.href = '/admin';
     } else if (user.onboarding_completed === false) {
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
       window.location.href = '/onboarding';
     } else {
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
       window.location.href = '/dashboard';
     }
   },
