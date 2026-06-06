@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v173
+ * Min Stjärndag — Service Worker v174
+ * v174: daily-log + reports — include dom-utils.js (renderChildAvatar missing → "Kunde inte ladda barn")
  * v173: Skanna/lägg till vuxen (namn, e-post, roll) + dubblettkoll barn/vuxen
  * v172: Lägg till barn → onboarding flow=add-child (barnväljare + picker parent hydrate)
  * v171: Barnväljare mockup — subtitle, Lägg till ett barn-rad + CSS
@@ -181,7 +182,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v173';
+const CACHE_NAME = 'stjarndag-v174';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

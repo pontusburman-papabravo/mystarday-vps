@@ -123,7 +123,8 @@
         const paramChildId = urlParams.get('childId');
         const targetChild = paramChildId && children.find(c => c.id === paramChildId) ? paramChildId : children[0].id;
         selectChild(targetChild);
-      } catch {
+      } catch (err) {
+        console.error('[daily-log] loadChildren error:', err);
         showToast('Kunde inte ladda barn', 'error');
       }
     }
