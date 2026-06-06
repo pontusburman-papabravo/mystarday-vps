@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v184
+ * Min Stjärndag — Service Worker v185
+ * v185: login — "Jag är barn" rensar add-child-pending; ?next= efter vuxenlogin
  * v184: Ta bort dubbel prompt vid PIN-byte (återanvänd verifierad PIN från steg 1)
  * v183: Föräldralås — unik PIN per vuxen (parent.parent_pin_hash)
  * v182: Föräldralås UI — ett steg i taget (välj → bekräfta), smalare keypad
@@ -192,7 +193,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v184';
+const CACHE_NAME = 'stjarndag-v185';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

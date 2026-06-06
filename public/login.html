@@ -280,10 +280,29 @@
       );
     }
 
+    /** Safe post-login redirect from ?next= (relative path only). */
+    function getLoginNextUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var next = params.get('next');
+      if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
+      return next;
+    }
+
+    function redirectAfterParentLogin() {
+      var nextUrl = getLoginNextUrl();
+      if (nextUrl) {
+        if (window.DeviceMode) DeviceMode.enterParent();
+        window.location.href = nextUrl;
+        return;
+      }
+      setTimeout(function () { Auth.redirectToDashboard(); }, 300);
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
-      // In a regular browser (not installed app): hide role selection, show parent form directly.
-      // In installed app: show role selection cards as usual.
-      if (!isInstalledApp()) {
+      var loginNextUrl = getLoginNextUrl();
+      // Browser: show role cards when returning for add-child (?next=…addChild…).
+      var showRoleCardsForNext = loginNextUrl && loginNextUrl.indexOf('addChild') !== -1;
+      if (!isInstalledApp() && !showRoleCardsForNext) {
         var roleSel = document.getElementById('role-selection');
         if (roleSel) roleSel.style.display = 'none';
         var parentSection = document.getElementById('parent-login-section');
@@ -311,10 +330,10 @@
             }
             if (user && (user.isAdmin || user.is_admin)) {
               if (window.DeviceMode) DeviceMode.enterParent();
-              window.location.href = '/admin';
+              window.location.href = loginNextUrl || '/admin';
             } else {
               if (window.DeviceMode) DeviceMode.enterParent();
-              window.location.href = '/dashboard';
+              window.location.href = loginNextUrl || '/dashboard';
             }
             return;
           } else {
@@ -373,7 +392,7 @@
 
           if (res.ok && data.user) {
             Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-            setTimeout(() => Auth.redirectToDashboard(), 300);
+            redirectAfterParentLogin();
           } else if (res.status === 403 && data.code === 'EMAIL_VERIFICATION_REQUIRED') {
             showVerificationRequired(data.email || email.value);
           } else {
@@ -497,7 +516,7 @@
           if (data.user.onboarding_completed === false) {
             setTimeout(() => { window.location.href = '/onboarding'; }, 300);
           } else {
-            setTimeout(() => Auth.redirectToDashboard(), 300);
+            redirectAfterParentLogin();
           }
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
@@ -582,7 +601,7 @@
         Auth.setAuth(null, loginData.user, loginData.csrfToken, loginData.expiresAt);
         closeAppleLinkModal();
         dismissAppleLinking();
-        setTimeout(() => Auth.redirectToDashboard(), 300);
+        redirectAfterParentLogin();
       } catch {
         document.getElementById('appleLinkModalError').textContent = 'Länkning misslyckades.';
         document.getElementById('appleLinkModalError').style.display = 'block';
