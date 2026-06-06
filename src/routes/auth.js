@@ -342,15 +342,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Analytics: funnel step — signup_started (family just created)
       require('../lib/analytics-tracker').trackSignupStarted(familyId);
 
-      // Register as contact FIRST so the email proxy accepts the verification mail
-      // (proxy blocks cold outreach unless the recipient is a known contact).
-      // This must complete before we call sendVerificationEmail — race = 429.
+      // Register contact (no-op with Resend — kept for compatibility)
       try {
         await registerContact(normalizedEmail, trimmedName, 'signup');
       } catch (err) {
-        console.error('[AUTH] registerContact FAILED for', normalizedEmail, ':', err.message);
-        // Block — can't send verification email if proxy doesn't know this contact
-        return res.status(503).json({ error: 'Kunde inte initiera e-postverifiering. Försök igen.' });
+        console.error('[AUTH] registerContact failed for', normalizedEmail, ':', err.message);
       }
 
       // Send verification email (blocking so errors are surfaced immediately)

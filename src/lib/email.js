@@ -1,91 +1,80 @@
 /**
- * Email service — wraps the Polsia email proxy.
+ * Email service — Resend API (https://resend.com).
  * Owns: all outbound transactional email for Min Stjärndag.
  * Does NOT own: push notifications (push.js), in-app messages (system-messages).
  *
- * Kill switch: set EMAIL_ENABLED=false to disable all sending (safe for local dev).
+ * Env: RESEND_API_KEY (required for live sends), EMAIL_FROM (default info@mystarday.se),
+ *      EMAIL_ENABLED=false kill switch for local dev.
  */
 const config = require('./config');
 
-/**
- * Register a user as a known contact with the Polsia proxy.
- * Call on signup so transactional emails are never rate-limited.
- */
-async function registerContact(email, name, source = 'signup') {
-  const apiKey = process.env.POLSIA_API_KEY;
-  if (!apiKey) return;
+const FROM_ADDRESS = config.email.from;
+const FROM_HEADER = `${config.email.fromName} <${FROM_ADDRESS}>`;
+const RESEND_API_URL = 'https://api.resend.com/emails';
 
-  try {
-    await fetch('https://polsia.com/api/proxy/email/contacts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({ email, name, source }),
-      signal: AbortSignal.timeout(5000),
-    });
-  } catch {
-    // Non-critical — fire-and-forget
-  }
+function getResendApiKey() {
+  return process.env.RESEND_API_KEY || null;
 }
 
 /**
- * Send an email via the Polsia email proxy.
- * https://polsia.com/api/proxy/email/send
+ * Legacy hook from Polsia era — Resend does not require pre-registering contacts.
+ * Kept for call-site compatibility (signup, resend verification).
  */
-const FROM_ADDRESS = 'info@mystarday.se';
+async function registerContact(_email, _name, _source = 'signup') {
+  return;
+}
 
+/**
+ * Send an email via Resend.
+ */
 async function sendEmail({ to, subject, body: textBody, html, from }) {
-  // Kill switch
   if (process.env.EMAIL_ENABLED === 'false') {
     console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${to}, subject="${subject}"`);
     return { success: true, provider: 'suppressed' };
   }
 
-  const apiKey = process.env.POLSIA_API_KEY;
+  const apiKey = getResendApiKey();
 
   console.log(`[EMAIL] Sending email to=${to}, subject="${subject}", hasApiKey=${!!apiKey}`);
 
   if (!apiKey) {
-    console.error('[EMAIL] No POLSIA_API_KEY — email not sent. Check env vars.');
-    return { success: false, provider: 'none' };
+    console.error('[EMAIL] No RESEND_API_KEY — email not sent. Check env vars.');
+    return { success: false, provider: 'none', error: 'RESEND_API_KEY saknas' };
   }
 
-  // plain-text body is required by the proxy; derive from html if caller omits it
   const plainText = textBody || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : subject);
+  const toList = Array.isArray(to) ? to : [to];
 
   try {
-    const payload = {
-      to,
-      from: from || `Min Stjärndag <${FROM_ADDRESS}>`,
-      replyTo: `Min Stjärndag <${FROM_ADDRESS}>`,
-      subject,
-      body: plainText,
-      html,
-    };
-
-    const res = await fetch('https://polsia.com/api/proxy/email/send', {
+    const res = await fetch(RESEND_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        from: from || FROM_HEADER,
+        to: toList,
+        subject,
+        html: html || undefined,
+        text: plainText,
+        reply_to: FROM_ADDRESS,
+      }),
       signal: AbortSignal.timeout(10000),
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (res.ok) {
-      const data = await res.json().catch(() => ({}));
-      console.log(`[EMAIL] Sent OK to=${to}, provider=polsia-proxy`);
-      return { success: true, provider: 'polsia-proxy', data };
+      console.log(`[EMAIL] Sent OK to=${to}, provider=resend, id=${data.id || 'n/a'}`);
+      return { success: true, provider: 'resend', data };
     }
 
-    const errText = await res.text().catch(() => '');
-    console.error(`[EMAIL] Proxy returned ${res.status}: ${errText}`);
-    return { success: false, provider: 'polsia-proxy', status: res.status, error: errText };
+    const errText = data.message || data.error || JSON.stringify(data);
+    console.error(`[EMAIL] Resend returned ${res.status}: ${errText}`);
+    return { success: false, provider: 'resend', status: res.status, error: errText };
   } catch (err) {
-    console.error('[EMAIL] Proxy request failed:', err.message);
+    console.error('[EMAIL] Resend request failed:', err.message);
     return { success: false, provider: 'none', error: err.message };
   }
 }
@@ -131,9 +120,6 @@ async function sendPasswordResetEmail(email, token, recipientName) {
 
 /**
  * Send family invite link to new member.
- * @param {string} email - Recipient email
- * @param {string} token - Invite token
- * @param {object} opts - { inviteeName, inviterName, familyName }
  */
 async function sendInviteEmail(email, token, { inviteeName, inviterName, familyName } = {}) {
   const url = `${config.email.baseUrl}/accept-invite?token=${token}`;
@@ -158,19 +144,10 @@ async function sendInviteEmail(email, token, { inviteeName, inviterName, familyN
   });
 }
 
-/**
- * Send notification to parent about child's failed login attempts.
- * Legacy function — kept for compat. New code uses sendPinWarningEmail.
- */
 async function sendChildLockoutNotification(parentEmail, childName) {
   return sendPinWarningEmail(parentEmail, childName);
 }
 
-/**
- * Send a heads-up to the parent when the child has made 3 failed PIN attempts.
- * Not a lockout — just a friendly warning so parent can assist.
- * Subject uses ⚠️ prefix per task spec.
- */
 async function sendPinWarningEmail(parentEmail, childName) {
   const baseUrl = config.email.baseUrl;
   return sendEmail({
@@ -190,9 +167,6 @@ async function sendPinWarningEmail(parentEmail, childName) {
   });
 }
 
-/**
- * Send deletion confirmation when account deletion is requested.
- */
 async function sendAccountDeletionRequestedEmail(email, firstName) {
   const baseUrl = config.email.baseUrl;
   return sendEmail({
@@ -214,9 +188,6 @@ async function sendAccountDeletionRequestedEmail(email, firstName) {
   });
 }
 
-/**
- * Send confirmation when account has been fully deleted.
- */
 async function sendAccountDeletedEmail(email, firstName) {
   return sendEmail({
     to: email,
@@ -237,16 +208,6 @@ async function sendAccountDeletedEmail(email, firstName) {
   });
 }
 
-/**
- * Send win-back re-engagement email.
- * Subject/Body are in docs/win-back-email-copy.md (UTKAST — not approved for live sending).
- * Copy is isolated here for easy modification without touching scheduler logic.
- *
- * @param {string} to          — recipient email
- * @param {string} parentName  — first name for personalization
- * @param {string} childName   — child's name for CTA headline
- * @param {string} ctaUrl      — CTA button URL with UTM params
- */
 async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
   return sendEmail({
@@ -256,18 +217,15 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;">Hej ${firstName}! 👋</h2>
         <p style="color:#5A6178;">Det var ett tag sedan du var här inne — ${childName}s schema väntar på dig.</p>
-
         <div style="background:#FFF8E8;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
           <div style="font-size:32px;margin-bottom:8px;">⭐</div>
           <p style="margin:0;font-size:18px;font-weight:600;color:#1B2340;">
             Det tar bara en minut att kolla av schemat
           </p>
         </div>
-
         <p style="color:#5A6178;">
           Barnet har stjärnor att tjäna och belöningar att lösa in. Så fort du öppnar appen är allt på plats.
         </p>
-
         <div style="text-align:center;margin:28px 0;">
           <a href="${ctaUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
@@ -275,7 +233,6 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
             Öppna schemat →
           </a>
         </div>
-
         <p style="color:#5A6178;font-size:14px;margin-top:16px;">
           Du kan stänga av dessa mejl under <strong>Inställningar → Aviseringar</strong> i appen.
         </p>
@@ -284,14 +241,6 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
   });
 }
 
-/**
- * Send pedagog invite email.
- * @param {string} to - Recipient email
- * @param {string|null} inviteeName - Recipient name
- * @param {string} inviterName - Inviting parent name
- * @param {string} familyName - Family name
- * @param {string} inviteToken - Invite token
- */
 async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName, inviteToken }) {
   const baseUrl = config.email.baseUrl;
   const url = `${baseUrl}/pedagog-invite?token=${inviteToken}`;
@@ -321,9 +270,6 @@ async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName
   });
 }
 
-/**
- * Confirm newsletter opt-in (settings toggle or registration).
- */
 async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
   const greeting = recipientName ? `Hej ${recipientName}` : 'Hej';
   const settingsUrl = `${config.email.baseUrl}/settings`;

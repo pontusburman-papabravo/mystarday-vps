@@ -94,6 +94,7 @@ module.exports = {
 
   email: {
     from: process.env.EMAIL_FROM || 'info@mystarday.se',
+    fromName: process.env.EMAIL_FROM_NAME || 'Min Stjärndag',
     baseUrl: process.env.APP_URL || 'https://mystarday.se',
     // Max 1 PIN warning email per child per N minutes (prevents parent spam during lockout storm)
     pinEmailCooldownMinutes: parseInt(process.env.PIN_EMAIL_COOLDOWN_MINUTES) || 30,
