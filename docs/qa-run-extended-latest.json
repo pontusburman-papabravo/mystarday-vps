@@ -1,0 +1,826 @@
+{
+  "QA-007": {
+    "status": "pass",
+    "note": "/ HTML"
+  },
+  "QA-008": {
+    "status": "partial",
+    "note": "/en → 302"
+  },
+  "QA-009": {
+    "status": "partial",
+    "note": "/en-thank-you → 302"
+  },
+  "QA-010": {
+    "status": "partial",
+    "note": "/pedagoger-och-terapeuter → 302"
+  },
+  "QA-012": {
+    "status": "pass",
+    "note": "/privacy HTML"
+  },
+  "QA-014": {
+    "status": "partial",
+    "note": "/offline → 302"
+  },
+  "QA-022": {
+    "status": "pass",
+    "note": "/forgot-password HTML"
+  },
+  "QA-023": {
+    "status": "pass",
+    "note": "/reset-password HTML"
+  },
+  "QA-059": {
+    "status": "pass",
+    "note": "/onboarding HTML"
+  },
+  "QA-060": {
+    "status": "pass",
+    "note": "/onboarding HTML"
+  },
+  "QA-065": {
+    "status": "pass",
+    "note": "/assign-schedule HTML"
+  },
+  "QA-070": {
+    "status": "pass",
+    "note": "/dashboard HTML"
+  },
+  "QA-071": {
+    "status": "pass",
+    "note": "/dashboard HTML"
+  },
+  "QA-072": {
+    "status": "pass",
+    "note": "/child-login HTML"
+  },
+  "QA-073": {
+    "status": "pass",
+    "note": "/onboarding?flow=add-child HTML"
+  },
+  "QA-074": {
+    "status": "pass",
+    "note": "systemmeddelanden unread"
+  },
+  "QA-079": {
+    "status": "pass",
+    "note": "unread count"
+  },
+  "QA-082": {
+    "status": "pass",
+    "note": "redigera barn → 200"
+  },
+  "QA-085": {
+    "status": "pass",
+    "note": "view-config"
+  },
+  "QA-092": {
+    "status": "pass",
+    "note": "2 barn i lista"
+  },
+  "QA-093": {
+    "status": "partial",
+    "note": "/family-week → 301"
+  },
+  "QA-094": {
+    "status": "pass",
+    "note": "/calendar HTML"
+  },
+  "QA-127": {
+    "status": "pass",
+    "note": "7-dagars schema data"
+  },
+  "QA-142": {
+    "status": "pass",
+    "note": "aktivitetsbibliotek API"
+  },
+  "QA-143": {
+    "status": "partial",
+    "note": "library API"
+  },
+  "QA-151": {
+    "status": "pass",
+    "note": "daily-logs range"
+  },
+  "QA-171": {
+    "status": "pass",
+    "note": "belöningar CRUD lista"
+  },
+  "QA-180": {
+    "status": "pass",
+    "note": "/reports HTML"
+  },
+  "QA-199": {
+    "status": "pass",
+    "note": "/accept-invite HTML"
+  },
+  "QA-211": {
+    "status": "partial",
+    "note": "/pedagog-oversikt → 302"
+  },
+  "QA-224": {
+    "status": "pass",
+    "note": "notification_log API"
+  },
+  "QA-232": {
+    "status": "pass",
+    "note": "/dashboard HTML"
+  },
+  "QA-251": {
+    "status": "pass",
+    "note": "/upgrade HTML"
+  },
+  "QA-255": {
+    "status": "pass",
+    "note": "push prefs API"
+  },
+  "QA-257": {
+    "status": "partial",
+    "note": "tyck HTML — POST kräver feature flag"
+  },
+  "QA-258": {
+    "status": "pass",
+    "note": "consent GET"
+  },
+  "QA-019": {
+    "status": "partial",
+    "note": "grace period — inloggad utan verify"
+  },
+  "QA-025": {
+    "status": "skip",
+    "note": "Apple IdP"
+  },
+  "QA-026": {
+    "status": "skip",
+    "note": "Apple IdP"
+  },
+  "QA-027": {
+    "status": "partial",
+    "note": "isAppleSignInAvailable — kod OK, Android ej testad här"
+  },
+  "QA-030": {
+    "status": "skip",
+    "note": "load test"
+  },
+  "QA-031": {
+    "status": "partial",
+    "note": "30d cookie TTL — kräver browser"
+  },
+  "QA-034": {
+    "status": "pass",
+    "note": "barn → family 403"
+  },
+  "QA-035": {
+    "status": "pass",
+    "note": "barn /api/me/rewards OK"
+  },
+  "QA-037": {
+    "status": "partial",
+    "note": "refresh körd i full suite"
+  },
+  "QA-039": {
+    "status": "skip",
+    "note": "multi-tab browser"
+  },
+  "QA-040": {
+    "status": "pass",
+    "note": "httpOnly cookies"
+  },
+  "QA-043": {
+    "status": "partial",
+    "note": "XSS — npm test lokalt"
+  },
+  "QA-044": {
+    "status": "partial",
+    "note": "security headers — kräver header-inspektion"
+  },
+  "QA-045": {
+    "status": "skip",
+    "note": "maintenance mode"
+  },
+  "QA-046": {
+    "status": "skip",
+    "note": "admin impersonation"
+  },
+  "QA-047": {
+    "status": "partial",
+    "note": "request-id i fel"
+  },
+  "QA-048": {
+    "status": "partial",
+    "note": "static exempt — kod"
+  },
+  "QA-049": {
+    "status": "partial",
+    "note": "admin refresh exempt — kod"
+  },
+  "QA-050": {
+    "status": "pass",
+    "note": "PIN hash ej i API-svar"
+  },
+  "QA-068": {
+    "status": "pass",
+    "note": "barnkort data"
+  },
+  "QA-116": {
+    "status": "pass",
+    "note": "pin-status"
+  },
+  "QA-084": {
+    "status": "partial",
+    "note": "avatar fallback — manuell UI"
+  },
+  "QA-083": {
+    "status": "skip",
+    "note": "R2 upload kräver fil"
+  },
+  "QA-087": {
+    "status": "skip",
+    "note": "radera barn — destruktivt"
+  },
+  "QA-088": {
+    "status": "partial",
+    "note": "primary-only delete — kod"
+  },
+  "QA-089": {
+    "status": "skip",
+    "note": "PIN-ändring destruktiv"
+  },
+  "QA-091": {
+    "status": "pass",
+    "note": "username för child-login finns"
+  },
+  "QA-095": {
+    "status": "partial",
+    "note": "födelsedag/tidszon UI"
+  },
+  "QA-128": {
+    "status": "partial",
+    "note": "bibliotek — via onboarding redan"
+  },
+  "QA-136": {
+    "status": "pass",
+    "note": "veckomall finns"
+  },
+  "QA-129": {
+    "status": "partial",
+    "note": "standardbibliotek"
+  },
+  "QA-130": {
+    "status": "pass",
+    "note": "egen aktivitet → 201"
+  },
+  "QA-144": {
+    "status": "pass",
+    "note": "kategorier"
+  },
+  "QA-132": {
+    "status": "skip",
+    "note": "schedule item delete — destruktivt"
+  },
+  "QA-133": {
+    "status": "skip",
+    "note": "destruktivt"
+  },
+  "QA-134": {
+    "status": "skip",
+    "note": "DnD browser"
+  },
+  "QA-135": {
+    "status": "skip",
+    "note": "touch browser"
+  },
+  "QA-137": {
+    "status": "skip",
+    "note": "manuell schedule edit"
+  },
+  "QA-138": {
+    "status": "skip",
+    "note": "särskild dag — manuell"
+  },
+  "QA-141": {
+    "status": "skip",
+    "note": "fill-week manuell"
+  },
+  "QA-145": {
+    "status": "skip",
+    "note": "retroaktiv logg"
+  },
+  "QA-146": {
+    "status": "partial",
+    "note": "tidszon — Europe/Stockholm default"
+  },
+  "QA-147": {
+    "status": "partial",
+    "note": "sektionstider family settings"
+  },
+  "QA-148": {
+    "status": "skip",
+    "note": "pedagog roll"
+  },
+  "QA-149": {
+    "status": "skip",
+    "note": "subscription paywall test"
+  },
+  "QA-150": {
+    "status": "skip",
+    "note": "bulk edit"
+  },
+  "QA-172": {
+    "status": "pass",
+    "note": "skapa belöning"
+  },
+  "QA-175": {
+    "status": "pass",
+    "note": "redemptions lista"
+  },
+  "QA-110": {
+    "status": "skip",
+    "note": "barn inlösen — kräver barnsession + saldo"
+  },
+  "QA-111": {
+    "status": "skip",
+    "note": "barn saldo"
+  },
+  "QA-173": {
+    "status": "partial",
+    "note": "redigera belöning — skip write"
+  },
+  "QA-174": {
+    "status": "skip",
+    "note": "destruktiv"
+  },
+  "QA-176": {
+    "status": "skip",
+    "note": "barnvy inlösen"
+  },
+  "QA-177": {
+    "status": "skip",
+    "note": "push redemption"
+  },
+  "QA-178": {
+    "status": "skip",
+    "note": "admin default rewards"
+  },
+  "QA-179": {
+    "status": "skip",
+    "note": "Skattkammaren UI browser"
+  },
+  "QA-203": {
+    "status": "pass",
+    "note": "familj: QA Primarys familj"
+  },
+  "QA-198": {
+    "status": "partial",
+    "note": "childIds invite — kräver e-post token"
+  },
+  "QA-202": {
+    "status": "pass",
+    "note": "pending invites i API"
+  },
+  "QA-186": {
+    "status": "partial",
+    "note": "observations → 400"
+  },
+  "QA-195": {
+    "status": "pass",
+    "note": "general observations"
+  },
+  "QA-188": {
+    "status": "partial",
+    "note": "reports → 500"
+  },
+  "QA-189": {
+    "status": "skip",
+    "note": "PDF export"
+  },
+  "QA-190": {
+    "status": "skip",
+    "note": "share link create"
+  },
+  "QA-191": {
+    "status": "skip",
+    "note": "pedagog notes"
+  },
+  "QA-192": {
+    "status": "skip",
+    "note": "view_count"
+  },
+  "QA-193": {
+    "status": "skip",
+    "note": "PDF"
+  },
+  "QA-194": {
+    "status": "skip",
+    "note": "date filter UI"
+  },
+  "QA-201": {
+    "status": "skip",
+    "note": "expired invite token"
+  },
+  "QA-204": {
+    "status": "partial",
+    "note": "shared pedagog — kod requirePrimaryParent"
+  },
+  "QA-205": {
+    "status": "skip",
+    "note": "delete-account destruktivt"
+  },
+  "QA-208": {
+    "status": "skip",
+    "note": "pedagog invite — kräver setup"
+  },
+  "QA-209": {
+    "status": "skip",
+    "note": "pedagog accept"
+  },
+  "QA-210": {
+    "status": "skip",
+    "note": "pedagog dashboard"
+  },
+  "QA-212": {
+    "status": "skip",
+    "note": "pedagog-only konto"
+  },
+  "QA-213": {
+    "status": "skip",
+    "note": "pedagog observation"
+  },
+  "QA-215": {
+    "status": "skip",
+    "note": "revoke pedagog"
+  },
+  "QA-216": {
+    "status": "skip",
+    "note": "account_type"
+  },
+  "QA-217": {
+    "status": "skip",
+    "note": "professionell rapport PIN"
+  },
+  "QA-218": {
+    "status": "partial",
+    "note": "pedagog landning HTML testad"
+  },
+  "QA-219": {
+    "status": "skip",
+    "note": "dual account"
+  },
+  "QA-225": {
+    "status": "partial",
+    "note": "markera läst — skip mutation"
+  },
+  "QA-220": {
+    "status": "skip",
+    "note": "web push browser"
+  },
+  "QA-221": {
+    "status": "skip",
+    "note": "APNs"
+  },
+  "QA-222": {
+    "status": "skip",
+    "note": "FCM"
+  },
+  "QA-223": {
+    "status": "skip",
+    "note": "APNs cleanup"
+  },
+  "QA-226": {
+    "status": "skip",
+    "note": "push tap device"
+  },
+  "QA-227": {
+    "status": "skip",
+    "note": "admin push"
+  },
+  "QA-228": {
+    "status": "partial",
+    "note": "reminders scheduler — kod"
+  },
+  "QA-229": {
+    "status": "partial",
+    "note": "admin_push_enabled"
+  },
+  "QA-230": {
+    "status": "partial",
+    "note": "badge UI"
+  },
+  "QA-231": {
+    "status": "partial",
+    "note": "push av"
+  },
+  "QA-244": {
+    "status": "partial",
+    "note": "subscription status"
+  },
+  "QA-245": {
+    "status": "pass",
+    "note": "familyId subscription"
+  },
+  "QA-246": {
+    "status": "partial",
+    "note": "trial info i status"
+  },
+  "QA-247": {
+    "status": "partial",
+    "note": "trial expired — ej testbar"
+  },
+  "QA-248": {
+    "status": "skip",
+    "note": "Stripe checkout live"
+  },
+  "QA-249": {
+    "status": "partial",
+    "note": "payment-success HTML finns"
+  },
+  "QA-250": {
+    "status": "skip",
+    "note": "IAP webhook"
+  },
+  "QA-253": {
+    "status": "partial",
+    "note": "visningsnamn: ?"
+  },
+  "QA-254": {
+    "status": "pass",
+    "note": "accountAuth i /me"
+  },
+  "QA-256": {
+    "status": "skip",
+    "note": "newsletter mutation"
+  },
+  "QA-259": {
+    "status": "skip",
+    "note": "family_features admin"
+  },
+  "QA-260": {
+    "status": "pass",
+    "note": "svenska default"
+  },
+  "QA-261": {
+    "status": "partial",
+    "note": "header UI browser"
+  },
+  "QA-106": {
+    "status": "skip",
+    "note": "PG browser"
+  },
+  "QA-108": {
+    "status": "skip",
+    "note": "barn selfie"
+  },
+  "QA-112": {
+    "status": "skip",
+    "note": "v2 child"
+  },
+  "QA-113": {
+    "status": "skip",
+    "note": "device mode browser"
+  },
+  "QA-114": {
+    "status": "partial",
+    "note": "barn logout"
+  },
+  "QA-115": {
+    "status": "skip",
+    "note": "animationer browser"
+  },
+  "QA-117": {
+    "status": "skip",
+    "note": "unlock PIN primary"
+  },
+  "QA-118": {
+    "status": "skip",
+    "note": "biometri"
+  },
+  "QA-119": {
+    "status": "partial",
+    "note": "parent-pin API finns"
+  },
+  "QA-120": {
+    "status": "skip",
+    "note": "PG re-auth"
+  },
+  "QA-121": {
+    "status": "skip",
+    "note": "dörr-ikon"
+  },
+  "QA-122": {
+    "status": "partial",
+    "note": "barn-PIN ≠ parent-PIN — separata"
+  },
+  "QA-123": {
+    "status": "skip",
+    "note": "PIN email cooldown"
+  },
+  "QA-124": {
+    "status": "partial",
+    "note": "PIN maskering UI"
+  },
+  "QA-125": {
+    "status": "partial",
+    "note": "låst barn URL — delvis"
+  },
+  "QA-233": {
+    "status": "partial",
+    "note": "SW version — kod"
+  },
+  "QA-234": {
+    "status": "skip",
+    "note": "offline sync browser"
+  },
+  "QA-235": {
+    "status": "partial",
+    "note": "platform-theme inject"
+  },
+  "QA-236": {
+    "status": "skip",
+    "note": "native CSS"
+  },
+  "QA-237": {
+    "status": "skip",
+    "note": "safe area native"
+  },
+  "QA-238": {
+    "status": "skip",
+    "note": "Android back"
+  },
+  "QA-239": {
+    "status": "skip",
+    "note": "deep link device"
+  },
+  "QA-240": {
+    "status": "skip",
+    "note": "PWA install"
+  },
+  "QA-241": {
+    "status": "skip",
+    "note": "Google auth"
+  },
+  "QA-242": {
+    "status": "skip",
+    "note": "iOS statusbar"
+  },
+  "QA-243": {
+    "status": "skip",
+    "note": "haptik"
+  },
+  "QA-262": {
+    "status": "skip",
+    "note": "admin — inga credentials"
+  },
+  "QA-263": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-264": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-265": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-266": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-267": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-268": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-269": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-270": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-271": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-272": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-273": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-274": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-275": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-276": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-277": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-278": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-279": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-280": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-281": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-282": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-283": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-284": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-285": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-286": {
+    "status": "skip",
+    "note": "admin panel"
+  },
+  "QA-287": {
+    "status": "skip",
+    "note": "surveys live"
+  },
+  "QA-288": {
+    "status": "skip",
+    "note": "surveys"
+  },
+  "QA-289": {
+    "status": "skip",
+    "note": "surveys"
+  },
+  "QA-290": {
+    "status": "skip",
+    "note": "surveys"
+  },
+  "QA-291": {
+    "status": "skip",
+    "note": "contest"
+  },
+  "QA-292": {
+    "status": "skip",
+    "note": "dagens_nyhet admin"
+  },
+  "QA-293": {
+    "status": "skip",
+    "note": "newsletter admin"
+  },
+  "QA-294": {
+    "status": "partial",
+    "note": "välkomstmail — registrering körd"
+  },
+  "QA-295": {
+    "status": "skip",
+    "note": "EMAIL_ENABLED env"
+  },
+  "QA-296": {
+    "status": "skip",
+    "note": "unsubscribe token"
+  },
+  "QA-297": {
+    "status": "skip",
+    "note": "a11y keyboard browser"
+  },
+  "QA-298": {
+    "status": "skip",
+    "note": "touch targets browser"
+  },
+  "QA-299": {
+    "status": "skip",
+    "note": "perf 4G browser"
+  },
+  "QA-300": {
+    "status": "partial",
+    "note": "JS parse — qa-local-run"
+  }
+}

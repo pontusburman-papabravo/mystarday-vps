@@ -456,6 +456,9 @@ function writeReport() {
     lines.push(`| ${id} | ${icon} ${v.status} | ${v.note.replace(/\|/g, '\\|')} |`);
   }
   fs.writeFileSync(reportPath, lines.join('\n'));
+  const jsonOut = {};
+  for (const [id, v] of results.entries()) jsonOut[id] = { status: v.status, note: v.note };
+  fs.writeFileSync(path.join(root, 'docs/qa-run-full-latest.json'), JSON.stringify(jsonOut, null, 2));
   console.log('\n---');
   console.log('Credentials: docs/qa-live-credentials.json');
   console.log('Report:', reportPath);
