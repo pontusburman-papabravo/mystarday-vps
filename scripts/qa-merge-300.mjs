@@ -44,7 +44,7 @@ function parseVpsRun() {
     let rawId = m[1].trim();
     rawId = rawId.replace(/^b2-/, '');
     rawId = rawId.replace(/-html$/, '').replace(/-ui$/, '').replace(/-shared$/, '');
-    rawId = rawId.replace(/-\d+$/, '');
+    if (/^QA-\d{3}-\d+$/.test(rawId)) rawId = rawId.replace(/-\d+$/, '');
     if (!/^QA-\d{3}$/.test(rawId)) continue;
     const existing = map.get(rawId);
     const entry = { status: m[2], note: m[3].trim() };
@@ -80,8 +80,11 @@ function merge() {
       sources.none++;
       continue;
     }
-    candidates.sort((a, b) => statusRank(b.status) - statusRank(a.status));
-    const best = candidates[0];
+
+    const live = candidates.filter((c) => c.src === 'extended' || c.src === 'full');
+    const pool = live.length > 0 ? live : candidates;
+    pool.sort((a, b) => statusRank(b.status) - statusRank(a.status));
+    const best = pool[0];
     merged.set(id, best);
     sources[best.src]++;
   }
