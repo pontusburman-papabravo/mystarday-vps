@@ -46,6 +46,24 @@ function mergeKnownIntoApiChild(apiChild, knownEntry) {
 }
 
 // ── Render child selection list (Step 1) ─────────────────────────────────────
+function paintChildListCards(merged) {
+  const list = document.getElementById('clChildList');
+  if (!list) return;
+  list.innerHTML = merged.map(function (child) {
+    return [
+      '<a href="#" class="cl-child-card" data-username="', escapeHtml(child.username),
+      '" onclick="selectChild(\'', escapeJs(child.username), '\'); return false;">',
+      '<div class="cl-avatar-ring">', renderClChildAvatar(child, 52), '</div>',
+      '<div class="cl-child-info">',
+      '<div class="cl-child-name">', escapeHtml(child.name), '</div>',
+      '<div class="cl-child-sub">', escapeHtml(child.username), '</div>',
+      '</div>',
+      '<div class="cl-child-arrow">›</div>',
+      '</a>',
+    ].join('');
+  }).join('');
+}
+
 function renderChildList() {
   const list = document.getElementById('clChildList');
   const empty = document.getElementById('clEmptyState');
@@ -55,11 +73,20 @@ function renderChildList() {
   const known = loadKnownChildren();
   let merged = [...known];
 
+  // Show cached device children immediately (survives vuxen logout)
+  if (known.length > 0) {
+    lastMergedChildren = known;
+    if (empty) empty.classList.add('hidden');
+    if (noSession) noSession.classList.add('hidden');
+    var addRowEarly = document.getElementById('clAddChildRow');
+    if (addRowEarly) addRowEarly.classList.remove('hidden');
+    paintChildListCards(known);
+  }
+
   // If parent is logged in, fetch their children too
   fetchMeChildren().then(function (result) {
     const parentChildren = result && result.list;
     const hasSession = result && result.hasSession;
-    const canAddChild = Auth.isLoggedIn() || hasSession;
 
     if (parentChildren && parentChildren.length > 0) {
       var knownByUser = {};
@@ -73,6 +100,10 @@ function renderChildList() {
       });
       for (var j = 0; j < known.length; j++) {
         if (!seen.has(known[j].username)) merged.push(known[j]);
+      }
+      if (typeof Auth.persistKnownChildrenFromSession === 'function') {
+        var familyId = merged[0] && merged[0].familyId;
+        Auth.persistKnownChildrenFromSession(merged, familyId);
       }
     }
 
@@ -103,16 +134,7 @@ function renderChildList() {
     var addRow = document.getElementById('clAddChildRow');
     if (addRow) addRow.classList.remove('hidden');
 
-    list.innerHTML = merged.map(child => `
-      <a href="#" class="cl-child-card" data-username="${escapeHtml(child.username)}" onclick="selectChild('${escapeJs(child.username)}'); return false;">
-        <div class="cl-avatar-ring">${renderClChildAvatar(child, 52)}</div>
-        <div class="cl-child-info">
-          <div class="cl-child-name">${escapeHtml(child.name)}</div>
-          <div class="cl-child-sub">${escapeHtml(child.username)}</div>
-        </div>
-        <div class="cl-child-arrow">›</div>
-      </a>
-    `).join('');
+    paintChildListCards(merged);
   });
 }
 
