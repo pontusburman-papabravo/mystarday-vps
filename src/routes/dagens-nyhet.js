@@ -551,7 +551,7 @@ router.post('/:id/send-newsletter', requireAdmin, requireFeature('nyhetsbrev'), 
       failed: result.failed,
       email_sent_count: result.sent,
       email_sent_at: result.sent > 0 ? new Date().toISOString() : null,
-      email_failed: failed,
+      email_failed: result.failed > 0,
       message: result.sent > 0
         ? `Nyhetsbrev skickat till ${result.sent} mottagare`
         : 'Inga e-postmeddelanden skickades (inga aktiva prenumeranter bland de valda)',

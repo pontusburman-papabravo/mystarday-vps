@@ -117,6 +117,13 @@
              </button>`
           : '';
 
+        const emailBtn = isPublished
+          ? `<button type="button" onclick="showEmailRecipientModal('${escapeHtml(n.id)}', '${escapeHtml(n.title || '')}')"
+               class="text-xs px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold transition-colors border border-emerald-200">
+               📧 ${n.email_sent_at ? 'Skicka e-post igen' : 'Skicka e-post'}
+             </button>`
+          : '';
+
         // Draft actions: edit + quick-publish
         const draftBtns = isDraft
           ? `<button onclick="startEditNyhet('${escapeHtml(n.id)}')"
@@ -138,6 +145,7 @@
                 <div class="flex items-center gap-2 flex-wrap mb-1">
                   ${nyhetStatusBadge(status)}
                   ${unpublishBtn}
+                  ${emailBtn}
                   ${draftBtns}
                 </div>
                 <p class="font-semibold text-navy text-sm">${escapeHtml(n.title || '(ingen titel)')}</p>
@@ -273,6 +281,9 @@
         msg.className = 'text-sm text-green-600';
         nyhetHistoryLoaded = false;
         loadNyheter();
+        if (confirm('Vill du skicka nyheten som e-post till prenumeranter?')) {
+          showEmailRecipientModal(id, title);
+        }
       } catch (err) {
         alert('Nätverksfel. Försök igen.');
       }
@@ -391,10 +402,17 @@
           } else {
             msg.textContent = '✅ ' + (data.message || 'Publicerad!');
             msg.className = 'text-sm text-green-600';
+            const savedEditId = editingNyhetId;
+            const offerEmail = document.getElementById('nyhetSendEmail')?.checked;
             exitEditMode();
-            // Reload history
             nyhetHistoryLoaded = false;
             loadNyheter();
+            const nyhetId = data.nyhet?.id || data.id || savedEditId;
+            if (offerEmail && newStatus === 'published' && nyhetId) {
+              setTimeout(function () {
+                showEmailRecipientModal(nyhetId, title);
+              }, 400);
+            }
           }
         } catch (err) {
           msg.textContent = 'Nätverksfel. Försök igen.';
@@ -461,6 +479,8 @@
     // ─── Newsletter email recipient modal ───────────────────
     // Shows after publish if "Skicka nyhetsbrev" was checked.
     // Step 2 of 2: admin selects recipients, then confirms send.
+
+    window.showEmailRecipientModal = showEmailRecipientModal;
 
     function showEmailRecipientModal(nyhetId, nyhetTitle) {
       fetch('/api/newsletter/recipients', { credentials: 'include' })

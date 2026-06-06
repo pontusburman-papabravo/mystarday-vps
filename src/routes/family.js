@@ -1473,7 +1473,6 @@ router.delete('/delete-account', requireParent, async (req, res) => {
     await client.query(`DELETE FROM pedagog_invite WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM professional_share_link WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM system_messages WHERE family_id = $1`, [family_id]);
-    await client.query(`DELETE FROM newsletters WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM win_back_email_log WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM push_subscriptions WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM notification_log WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);

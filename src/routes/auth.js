@@ -604,6 +604,9 @@ router.post('/resend-verification', resendVerificationLimiter, validate(ResendVe
       ]
     );
 
+    await registerContact(normalizedEmail, parent.name || '', 'signup').catch(function (err) {
+      console.error('[AUTH] resend registerContact failed for', normalizedEmail, ':', err.message);
+    });
     await sendVerificationEmail(normalizedEmail, verifyToken);
 
     res.json({ message: successMessage });

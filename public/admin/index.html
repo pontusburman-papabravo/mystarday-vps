@@ -750,7 +750,11 @@
                     <span id="nyhetFbStatus" class="ml-1 text-xs font-normal text-text-soft">(kontrollerar...)</span>
                   </span>
                 </label>
-                <!-- Newsletter is now a separate flow under "Nyhetsbrev" in the menu -->
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" id="nyhetSendEmail" class="w-5 h-5 rounded accent-gold">
+                  <span class="text-sm font-semibold text-navy">📧 Erbjud e-post till prenumeranter efter publicering</span>
+                </label>
+                <p class="text-xs text-text-soft -mt-1 ml-8">Öppnar mottagarval — samma flöde som under Nyhetsbrev. Gäller inte schemalagda nyheter.</p>
               </div>
               <div class="flex items-center gap-3 pt-2 flex-wrap">
                 <button type="submit" id="nyhetSubmitBtn"

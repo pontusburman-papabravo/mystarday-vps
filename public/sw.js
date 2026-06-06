@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v192
+ * v193: Admin e-post — dagens nyhet mottagarval, newsletters-tabell
  * v192: Native parity — childLogout, SW skip on Capacitor (se sw-register.js)
  * v191: Behåll barnväljare efter vuxenlogout (known_children + snapshot)
  * v190: Nytt barn efter vuxenlogin — direkt till onboarding, ingen dubbel PIN
@@ -200,7 +201,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v192';
+const CACHE_NAME = 'stjarndag-v193';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

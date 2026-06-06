@@ -8,6 +8,7 @@ const db = require('../lib/db');
 const { requireParent, requireAdmin } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
+const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
 
 const router = express.Router();
 
@@ -68,6 +69,15 @@ router.put('/subscription', requireParent, async (req, res) => {
           unsubscribed_at = NULL,
           updated_at = NOW()
       `, [req.user.id, email]);
+
+      const parentName = await db.query(
+        'SELECT COALESCE(name, \'\') AS name FROM parent WHERE id = $1',
+        [req.user.id]
+      );
+      sendNewsletterSubscriptionConfirmation(email, parentName.rows[0]?.name || '')
+        .catch(function (err) {
+          console.error('[NEWSLETTER] Subscription confirmation email failed:', err.message);
+        });
     } else {
       // Opt-out: update to subscribed=false and record unsubscribed_at
       await db.query(`
