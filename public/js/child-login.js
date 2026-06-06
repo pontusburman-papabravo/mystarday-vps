@@ -391,7 +391,33 @@ async function redirectToLoginForAddChild(pending) {
   window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
 }
 
+/** End active child JWT before vuxen-gated actions (add child). Keeps parent session cookie. */
+async function ensureChildSessionEndedForParentAction() {
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!meRes.ok) return;
+    const me = await meRes.json();
+    if (me.type !== 'child') return;
+
+    await Auth.ensureCsrfToken().catch(function () {});
+    const csrf = Auth.getCsrfToken() || '';
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      body: JSON.stringify({ switchChild: true }),
+    });
+    Auth.clearAuth();
+    sessionStorage.removeItem('cl_selected_username');
+    selectedChild = null;
+    pinDigits = [];
+    document.getElementById('clStepPin')?.classList.remove('active');
+    document.getElementById('clStepProfiles')?.classList.add('active');
+  } catch { /* ignore */ }
+}
+
 async function runAddChildWithParentGate(onAuthorized) {
+  await ensureChildSessionEndedForParentAction();
   const ctx = await Auth.fetchLoginPickerContext();
   const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
 
@@ -879,27 +905,32 @@ document.addEventListener('DOMContentLoaded', () => {
   pinDigits = [];
   renderPinDots();
 
-  // Check if returning with a preselected child
-  const preselected = sessionStorage.getItem('cl_selected_username');
-  if (preselected) {
-    // Restore selected child from known_children
-    const known = loadKnownChildren();
-    const child = known.find(k => k.username === preselected);
-    if (child) {
-      window.selectChild(preselected);
-    } else {
-      sessionStorage.removeItem('cl_selected_username');
+  const url = new URL(window.location.href);
+  const addChildParam = url.searchParams.get('addChild');
+  const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
+  const resumeAddChild = addChildParam === '1' || pendingAddChild;
+
+  // Only restore PIN step when NOT resuming add-child (avoid jumping to last child's PIN)
+  if (!resumeAddChild) {
+    const preselected = sessionStorage.getItem('cl_selected_username');
+    if (preselected) {
+      const known = loadKnownChildren();
+      const child = known.find(k => k.username === preselected);
+      if (child) {
+        window.selectChild(preselected);
+      } else {
+        sessionStorage.removeItem('cl_selected_username');
+      }
     }
+  } else {
+    sessionStorage.removeItem('cl_selected_username');
   }
 
   // Render child list
   renderChildList();
 
   // Resume add-child flow after parent login (?addChild=1)
-  const url = new URL(window.location.href);
-  const addChildParam = url.searchParams.get('addChild');
-  const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
-  if (addChildParam === '1' || pendingAddChild) {
+  if (resumeAddChild) {
     const intent = pendingAddChild || 'choice';
     sessionStorage.removeItem('cl_add_child_pending');
     sessionStorage.removeItem('cl_add_child_next'); // legacy — never skip choice modal

@@ -458,6 +458,8 @@ const Auth = {
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_child');
       sessionStorage.removeItem('cl_selected_username');
+      sessionStorage.removeItem('cl_add_child_pending');
+      sessionStorage.removeItem('cl_add_child_next');
     } catch { /* ignore */ }
 
     if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {

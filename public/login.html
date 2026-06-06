@@ -317,12 +317,15 @@
           if (res.ok) {
             const user = Auth.getUser();
             // Child session: stay in child mode (redirect to child-dashboard, NOT dashboard).
-            // Edge case: child logout via auth.js sends sessionRestored: true → redirect to /dashboard,
-            // which lands here and would wrongly redirect the child to parent dashboard.
+            // Exception: add-child flow needs vuxen — don't bounce back to barnets dashboard.
             if (user && user.type === 'child') {
-              if (window.DeviceMode) DeviceMode.enterChild();
-              window.location.href = '/child-dashboard';
-              return;
+              if (loginNextUrl && loginNextUrl.indexOf('addChild') !== -1) {
+                Auth.clearAuth();
+              } else {
+                if (window.DeviceMode) DeviceMode.enterChild();
+                window.location.href = '/child-dashboard';
+                return;
+              }
             }
             if (window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
               window.location.href = '/child-login';
