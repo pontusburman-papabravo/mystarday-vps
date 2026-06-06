@@ -38,7 +38,10 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `PAYMENT_ENABLED` | `false` | Stripe inaktiverat — IAP via RevenueCat |
 | `STRIPE_SECRET_KEY` | (sätts ändå för admin-fliken) | Backend Stripe-funktionalitet |
 | `STRIPE_WEBHOOK_SECRET` | (från Stripe Dashboard) | För Stripe-webhooks |
-| `POLSIA_API_KEY` | (från Polsia Dashboard) | Email-proxy |
+| `RESEND_API_KEY` | (från Resend Dashboard) | All e-post (verifiering, nyhetsbrev, välkomst m.m.) |
+| `EMAIL_FROM` | `info@mystarday.se` | Avsändaradress (måste vara verifierad domän i Resend) |
+| `EMAIL_ENABLED` | `true` | Sätt `false` för att stänga av utskick |
+| `POLSIA_API_KEY` | (från Polsia Dashboard) | Bilduppladdning (R2-proxy) — **inte** e-post |
 | `EMAIL_ENABLED` | `false` eller `true` | Styr om email skickas |
 | `DATABASE_URL` | (Neon-connection string) | Ska redan finnas |
 
