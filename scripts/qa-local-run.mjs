@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const RUN_ID = 'QA-2026-06-01-LOCAL-001';
+const RUN_ID = 'QA-2026-06-04-LOCAL-002';
 const out = new Map(); // id -> { status, note }
 
 function set(id, status, note = '') {
@@ -271,8 +271,10 @@ partial('QA-195', 'is_important UI');
 // ─── N ───
 if (ex('public/family.html')) {
   const fam = read('public/family.html');
-  if (fam.includes('Mina barn') || fam.includes('Dela åtkomst')) pass('QA-196');
-  else partial('QA-196', 'family.html finns men saknar kravspec §6 UI-rubriker');
+  if (fam.includes('Mina barn') && fam.includes('Dela åtkomst')) {
+    if (fam.includes('Pedagog')) pass('QA-196', 'Alla tre kravspec-rubriker');
+    else partial('QA-196', 'Mina barn + Dela åtkomst ✅; egen Pedagoger-rubrik saknas');
+  } else partial('QA-196', 'family.html saknar kravspec §6 UI-rubriker');
 }
 if (family.includes('/invite') && family.includes('childIds')) pass('QA-197');
 pass('QA-198', 'childIds i family.js');
@@ -418,7 +420,7 @@ md.push(`# QA-körning — ${RUN_ID}`);
 md.push('');
 md.push(`| Fält | Värde |`);
 md.push(`|------|--------|`);
-md.push(`| Datum | 2026-06-01 |`);
+md.push(`| Datum | 2026-06-04 |`);
 md.push(`| Miljö | local (kod + npm test, ingen DATABASE_URL) |`);
 md.push(`| Branch | cursor/full-qa-300-checkpoints-49c0 |`);
 md.push(`| npm test | 159/159 pass |`);

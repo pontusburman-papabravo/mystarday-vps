@@ -1,8 +1,8 @@
-# QA-körning — QA-2026-06-01-LOCAL-001
+# QA-körning — QA-2026-06-04-LOCAL-002
 
 | Fält | Värde |
 |------|--------|
-| Datum | 2026-06-01 |
+| Datum | 2026-06-04 |
 | Miljö | local (kod + npm test, ingen DATABASE_URL) |
 | Branch | cursor/full-qa-300-checkpoints-49c0 |
 | npm test | 159/159 pass |
@@ -11,8 +11,8 @@
 
 | Status | Antal |
 |--------|------|
-| ✅ pass | 141 |
-| ⚠️ partial | 149 |
+| ✅ pass | 140 |
+| ⚠️ partial | 150 |
 | ❌ fail | 0 |
 | ⏭ skip | 10 |
 | **Totalt** | **300** |
@@ -21,7 +21,7 @@
 
 | ID | Status | Anteckning |
 |----|--------|------------|
-| QA-001 | ✅ pass | QA-2026-06-01-LOCAL-001 |
+| QA-001 | ✅ pass | QA-2026-06-04-LOCAL-002 |
 | QA-002 | ⏭ skip | Ingen DATABASE_URL i miljö |
 | QA-003 | ⏭ skip | Ingen DATABASE_URL |
 | QA-004 | ⏭ skip | Ingen DATABASE_URL |
@@ -216,7 +216,7 @@
 | QA-193 | ⚠️ partial | PDF |
 | QA-194 | ⚠️ partial | date filter |
 | QA-195 | ⚠️ partial | is_important UI |
-| QA-196 | ✅ pass |  |
+| QA-196 | ⚠️ partial | Mina barn + Dela åtkomst ✅; egen Pedagoger-rubrik saknas |
 | QA-197 | ✅ pass |  |
 | QA-198 | ✅ pass | childIds i family.js |
 | QA-199 | ✅ pass |  |

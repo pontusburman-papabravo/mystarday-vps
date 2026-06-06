@@ -724,7 +724,7 @@ router.post('/reset-password', validate(ResetPasswordSchema), async (req, res) =
 
 // ─── POST /api/auth/child-login ───────────────────────────
 // Requires BOTH name + PIN. Tracks attempts in pin_lockout table with
-// exponential backoff (5 attempts → 1min, 8 → 5min, 11 → 15min).
+// exponential backoff (3 attempts → 30s, 6 → 150s, 9 → 450s).
 // Notifies parent at 3rd failed attempt (in-app + email, with email cooldown).
 router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async (req, res) => {
   try {

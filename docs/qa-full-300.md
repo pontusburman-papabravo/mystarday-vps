@@ -1,7 +1,7 @@
 # Fullständig QA — Min Stjärndag (300 kontrollpunkter)
 
-> **Status:** Pågår — lokal kodkörning **QA-2026-06-01-LOCAL-001** ([rapport](qa-run-local-2026-06-01.md))  
-> **Version:** 1.1 · 2026-06-01 — utökad med dokumentationskartläggning och förväntat beteende enligt specs.  
+> **Status:** Pågår — lokal kodkörning **QA-2026-06-04-LOCAL-002** ([rapport](qa-run-local-2026-06-01.md))  
+> **Version:** 1.2 · 2026-06-04 — synkad med kodfixar (PIN lockout 3×30s, family UI, settings-account, SessionGate, barnlogin-magic).  
 > **Omfattning:** Webb (desktop + mobil), PWA, iOS native, Android native (där markerat), admin.
 
 ---
@@ -32,6 +32,16 @@ Markera varje punkt: `[ ]` ej testad · `[x]` godkänd · `[!]` underkänd (note
 | 🔀 | Plattformsberoende — testa per plattform i kolumnen |
 
 **Regel:** QA verifierar **avsedd produkt** (dokumenten), inte bara “vad som råkar finnas”. Vid 📋/🐛: notera avvikelse mot spec i loggen.
+
+### Automatiserade verktyg (lokal körning)
+
+| Kommando | Vad det testar |
+|----------|----------------|
+| `node scripts/qa-local-run.mjs` | Statisk kodverifiering mot alla 300 punkter (ingen DB/browser) |
+| `npm test` | Enhetstester (159 tester, inkl. XSS) |
+| `QA_BASE_URL=http://localhost:3000 npm run qa:live` | Live HTTP E2E: registrera familj → onboarding → PIN lockout → `/family` (sparar `docs/qa-live-credentials.json`, gitignored) |
+
+Kräver `npm install` + `DATABASE_URL` för live E2E. Cloud-agenter når normalt inte din lokala `localhost`.
 
 ---
 
@@ -73,23 +83,23 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 |---------|-----------|----------------------|----------------|
 | A Miljö | `app-store-demo-konto.md` | ✅ testkonton | — |
 | B Landning | `kravspec` | ✅ sidor | EN waitlist |
-| C Auth | `polsia-kontohantering`, `plattform` §1 | ✅ e-post, Apple iOS | 📋 A–F inställningar, Android dölj Apple |
+| C Auth | `polsia-kontohantering`, `plattform` §1 | ✅ e-post, Apple via `isAppleSignInAvailable()` | 📋 biometri-PG |
 | D Session | `authz-audit`, `kravspec` §0 | ✅ refresh, authz | 🐛 HTML static utan injektion |
 | E Onboarding | `plattform` §5–6, `barnlogin` §3.2.1 | ✅ 6 steg, add-child | 📋 mobil polish |
 | F Dashboard | `app2` §2.1, mockups | ✅ v1 dashboard | 📋 v2/reimagined om flagg |
 | G Barn | `kravspec` §2.1 selfie | ✅ avatar upload (förälder) | 📋 barn selfie i barnläge (v1.2) |
-| H Barnlogin | `polsia-barnlogin-design` | ✅ PIN, lockout, väljare | 📋 magisk natt UI + tavla; ✅ fritext fallback |
-| I PG | `kravspec` §2.2, `plattform` §3 | 📋 per-enhet app-lås + biometri | 🐛 logout→dashboard utan PG |
+| H Barnlogin | `polsia-barnlogin-design` | ✅ PIN 3×30s, väljare, magisk natt CSS + keypad | 📋 rollval på `login.html` skärm 1 |
+| I PG | `kravspec` §2.2, `plattform` §3 | ✅ app-lås-PIN (`parental-gate.js`, `needsParentPin`) | 📋 biometri; 🔀 sessionRestored om ej child mode |
 | J Schema | `kravspec`, befintlig API | ✅ vecka, särskild dag | — |
 | K Daglogg | `CLAUDE.md` daily_log | ✅ stjärnor, retroaktivt | — |
 | L Belöningar | `app2` Skattkammaren | ✅ CRUD + inlösen | — |
 | M Rapporter | datamodell | ✅ observationer, delningslänk | 📋 föräldra-logg v1.2 |
-| N Familj | `kravspec` §6 | ✅ API `childIds` | 📋 UI "Mina barn / Dela åtkomst" |
+| N Familj | `kravspec` §6 | ✅ API + UI Mina barn / Dela åtkomst | 📋 egen rubrik "Pedagoger" på `/family` |
 | O Pedagog | `kravspec` §0 | ✅ invite, roller | — |
 | P Push | `kravspec` §5 Fas 0 | ✅ 7 typer backend | 📋 Fas 1–2 notiser; barn-push v1.2 |
 | Q PWA/offline | `kravspec` §7 | ✅ kö, SW, offline-sida | 📋 banner "sparar…synkas" |
 | R Prenumeration | `CLAUDE.md`, bugfix SW164 | ✅ lifetime_free | IAP senare |
-| S Inställningar | `polsia-kontohantering` E | ✅ export, radera | 📋 byt e-post, set-password UI |
+| S Inställningar | `polsia-kontohantering` E | ✅ `settings-account.js`: set-password, change-email, unlink Apple, parent-pin | 📋 byt visningsnamn (ej dedikerat fält) |
 | T Admin | befintlig panel | ✅ familjer, bibliotek | — |
 | U Enkät/nyhet | datamodell | ✅ surveys, dagens_nyhet | — |
 | V A11y/prestanda | `app2`, HIG | ✅ generellt | 🐛 child-dashboard header emoji |
@@ -148,7 +158,7 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 | QA-024 | P1 | ✅ | Utgången återställningslänk ger felmeddelande |
 | QA-025 | P0 | 🔀 | 🍎 Apple Sign In (iOS app/Safari) — ny användare skapar konto + family (`polsia-kontohantering`) |
 | QA-026 | P0 | ✅ | 🍎 Apple Sign In — befintlig användare loggas in till rätt familj |
-| QA-027 | P1 | 🔀 | 🤖 Android/webb: **ingen** Apple-knapp (`Platform.isIOS()` only — `polsia-kontohantering` A) |
+| QA-027 | P1 | ✅ | 🤖 Android/webb: **ingen** Apple-knapp (`Platform.isAppleSignInAvailable()` — `login.html` + `register.html`) |
 | QA-028 | P1 | ✅ | Utloggning rensar session och redirect till `/login` |
 | QA-029 | P0 | ✅ | `/login` redirectar inloggad användare till dashboard |
 | QA-030 | P1 | ✅ | Rate limit på inloggning ger 429 utan att krascha UI |
@@ -263,7 +273,7 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 ## H. Barnlogin och barnvy (QA-096 – QA-115)
 
 
-> **Spec:** `polsia-barnlogin-design` — skärm 2 välj barn → skärm 3 PIN-tavla (mål); `login.html` skärm 1 rollval. **Fallback:** manuellt namn+PIN om ingen lista (`BARNAPP` felsökning). `stjarndag_known_children` filtreras per `familyId`. Glömt PIN: fråga vuxen, ingen barn-reset.
+> **Spec:** `polsia-barnlogin-design` — skärm 2 välj barn → skärm 3 PIN-tavla (`child-login-magic.css` + keypad i `child-login.js`); `login.html` skärm 1 rollval 📋. **Fallback:** manuellt namn+PIN om ingen lista (`BARNAPP` felsökning). `stjarndag_known_children` filtreras per `familyId`. Glömt PIN: fråga vuxen, ingen barn-reset.
 
 | ID | P | Lev | Kontrollpunkt |
 |----|---|-----|---------------|
@@ -277,14 +287,14 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 | QA-103 | P0 | ✅ | Barnvy visar dagens schema med sektioner (fm/em/kväll) |
 | QA-104 | P0 | ✅ | Avklara aktivitet → stjärna ökar i barnvy |
 | QA-105 | P1 | ✅ | Avmarkera aktivitet (om tillåtet) → stjärna minskar |
-| QA-106 | P1 | 📋 | "Tillbaka till vuxen" kräver **Parental Gate** (app-lås/biometri/re-auth) — ej barn-PIN (`plattform` §3) |
+| QA-106 | P1 | 🔀 | "Tillbaka till vuxen" kräver **Parental Gate** (`ParentalGate.requireParentMode` + app-lås-PIN) — biometri 📋 |
 | QA-107 | P1 | ✅ | Barn kan inte nå `/settings`, `/family`, admin |
 | QA-108 | P2 | 📋 | Barn selfie/profilbild i barnläge (om aktiverat) |
 | QA-109 | P1 | ✅ | `/skattkammaren` (barn) visar belöningar och saldo |
 | QA-110 | P1 | ✅ | Lös in belöning i barnvy med tillräckligt saldo |
 | QA-111 | P0 | ✅ | Otillräckligt saldo → tydligt fel, ingen debitering |
 | QA-112 | P2 | 📋 | `/v2/child` parity med v1 barnvy (om flaggad) |
-| QA-113 | P1 | 📋 | Device mode: `stjarndag_parent_session` + "Jag är vuxen" → PG (`kravspec` §2) |
+| QA-113 | P1 | 🔀 | Device mode: `DeviceMode` + `SessionGate` blockerar `sessionRestored` i barnläge; "Jag är vuxen" → PG (`login-magic.js`) |
 | QA-114 | P2 | ✅ | Barn logout rensar barn-session men kan behålla device-läge |
 | QA-115 | P3 | ✅ | Barnvy animationer/feedback vid stjärna (ingen layout shift) |
 
@@ -293,14 +303,14 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 ## I. PIN, audit och parental gate (QA-116 – QA-125)
 
 
-> **Spec:** `kravspec` §2.2 PG **≠** barn-PIN. Barn-PIN: 4 siffror, lockout 3×30s, `pin_audit_log`. PG (app-lås/biometri): skydd **ut** från barnläge — **ska** krävas vid logout/sessionRestored (idag dokumenterad bugg om bypass).
+> **Spec:** `kravspec` §2.2 PG **≠** barn-PIN. Barn-PIN: 4 siffror, lockout **3×30s** (exponential backoff), `pin_audit_log`. PG (app-lås-PIN): `parental-gate.js` + `needsParentPin` vid logout om parent_pin satt; `SessionGate` blockerar dashboard-redirect i `device_mode=child`. Biometri 📋.
 
 | ID | P | Lev | Kontrollpunkt |
 |----|---|-----|---------------|
 | QA-116 | P1 | ✅ | `pin_audit_log` får poster vid försök/låsning |
 | QA-117 | P1 | 📋 | Förälder kan låsa upp barn-PIN från inställningar (primary) |
 | QA-118 | P2 | 📋 | Parental gate: Face ID/Touch ID via Capacitor (`kravspec` §2.2) |
-| QA-119 | P1 | 📋 | Parental gate: app-lås-PIN på enhet |
+| QA-119 | P1 | ✅ | Parental gate: app-lås-PIN på enhet (`/api/family/parent-pin`, `settings-account.js`) |
 | QA-120 | P1 | 📋 | Parental gate fallback: full re-auth |
 | QA-121 | P2 | 📋 | Håll inne 3 sek på dörr-ikon → gate (om implementerat) |
 | QA-122 | P1 | 📋 | Barn-PIN ≠ förälder app-lås-PIN |
@@ -427,18 +437,18 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 
 | ID | P | Lev | Kontrollpunkt |
 |----|---|-----|---------------|
-| QA-196 | P0 | 📋 | `/family` visar struktur: Mina barn / Dela åtkomst / Pedagoger (`kravspec` §6 UI-mål) |
-| QA-197 | P0 | 📋 | Skicka `family_invite` till e-post |
+| QA-196 | P0 | 🔀 | `/family`: **Mina barn** + **Dela åtkomst** ✅; egen rubrik **Pedagoger** saknas (pedagog-flöde i §O) |
+| QA-197 | P0 | ✅ | Skicka `family_invite` till e-post (`POST /api/family/invite`) |
 | QA-198 | P1 | ✅ | Inbjudan med `childIds[]` — endast valda barn länkas |
-| QA-199 | P0 | 📋 | `/accept-invite` — befintlig användare accepterar |
-| QA-200 | P0 | 📋 | `/accept-invite` — ny användare skapar eget konto |
-| QA-201 | P1 | 📋 | Utgången inbjudan nekas |
-| QA-202 | P1 | 📋 | Primary kan ta bort shared-förälder / revoka länk |
-| QA-203 | P2 | 📋 | Familjenamn och tidszon redigeras (primary) |
-| QA-204 | P1 | 📋 | Shared kan inte bjuda in pedagog |
-| QA-205 | P1 | 📋 | `DELETE /api/family/delete-account` — GDPR-radering |
-| QA-206 | P1 | 📋 | Export data (`/api/account/export-data`) laddar ner JSON |
-| QA-207 | P2 | 📋 | Två föräldrar på olika adresser ser olika barnmängder korrekt |
+| QA-199 | P0 | ✅ | `/accept-invite` — befintlig användare accepterar |
+| QA-200 | P0 | ✅ | `/accept-invite` — ny användare skapar eget konto (`accept-new`) |
+| QA-201 | P1 | ✅ | Utgången inbjudan nekas |
+| QA-202 | P1 | ✅ | Primary kan ta bort shared-förälder / revoka länk |
+| QA-203 | P2 | 🔀 | Familjenamn redigeras (primary); tidszon-UI 📋 |
+| QA-204 | P1 | ✅ | Shared kan inte bjuda in pedagog (`requirePrimaryParent` på invite-pedagog) |
+| QA-205 | P1 | ✅ | `DELETE /api/family/delete-account` — GDPR-radering |
+| QA-206 | P1 | ✅ | Export data (`/api/account/export-data`) laddar ner JSON |
+| QA-207 | P2 | ✅ | Två föräldrar på olika adresser ser olika barnmängder korrekt (`parent_child` per barn) |
 
 ---
 
@@ -529,18 +539,18 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 ## S. Inställningar och konto (QA-252 – QA-261)
 
 
-> **Spec:** `polsia-kontohantering` C–E — **mål:** `accountAuth`, set-password, change-email, unlink Apple. **Levererat:** export, delete account, push prefs, newsletter.
+> **Spec:** `polsia-kontohantering` C–E — **`settings-account.js`:** `accountAuth`, set-password, change-email, unlink Apple, parent-pin. Export, delete account, push prefs, newsletter.
 
 | ID | P | Lev | Kontrollpunkt |
 |----|---|-----|---------------|
-| QA-252 | P1 | 📋 | `/settings` alla sektioner laddar |
-| QA-253 | P1 | 📋 | Byta visningsnamn |
-| QA-254 | P1 | 📋 | Byta e-post: request → mail till **ny** adress → `/verify-email-change` (`polsia-kontohantering` E) |
+| QA-252 | P1 | ✅ | `/settings` alla sektioner laddar (inkl. dynamisk `settings-account.js`) |
+| QA-253 | P1 | 📋 | Byta visningsnamn (familjenamn via hidden `parentName`, ej dedikerat fält) |
+| QA-254 | P1 | ✅ | Byta e-post: request → mail till **ny** adress → `/verify-email-change` (`settings-account.js` + API) |
 | QA-255 | P2 | ✅ | Push-inställningar per typ |
-| QA-256 | P1 | 📋 | Nyhetsbrev opt-in/out (`email_subscriptions`) |
-| QA-257 | P2 | 📋 | `/tyck` feedback skickas |
-| QA-258 | P1 | 📋 | Samtycke `/consent` GDPR |
-| QA-259 | P2 | 📋 | Feature flags per familj (`family_features`) |
+| QA-256 | P1 | ✅ | Nyhetsbrev opt-in/out (`email_subscriptions`, `/api/newsletter`) |
+| QA-257 | P2 | ✅ | `/tyck` feedback skickas |
+| QA-258 | P1 | ✅ | Samtycke `/consent` GDPR |
+| QA-259 | P2 | ✅ | Feature flags per familj (`family_features`) |
 | QA-260 | P2 | 📋 | Språk/landing — svenska standard |
 | QA-261 | P3 | 📋 | Logotyp och familjeavatar i header |
 
@@ -611,25 +621,25 @@ Masterplan och under-specar — läs dessa före eller parallellt med QA:
 | QA-297 | P2 | 🐛 | Fokusindikator synlig vid tangentbordsnavigering |
 | QA-298 | P2 | 🐛 | Touch targets ≥44px på mobil huvudknappar |
 | QA-299 | P1 | 🐛 | Kritisk väg (login → dashboard) <3s på 4G |
-| QA-300 | P1 | 🐛 | Inga uncaught ReferenceError på onboarding, dashboard, schedule, admin |
+| QA-300 | P1 | ✅ | Inga uncaught ReferenceError på onboarding, dashboard, schedule, admin (statisk parse + TDZ-fix SW163) |
 
 ---
 
-## Resultatsammanfattning (lokal körning 2026-06-01)
+## Resultatsammanfattning (lokal körning 2026-06-04)
 
 | Metrik | Värde |
 |--------|--------|
-| **Kör-ID** | `QA-2026-06-01-LOCAL-001` |
+| **Kör-ID** | `QA-2026-06-04-LOCAL-002` |
 | Totalt antal punkter | 300 |
-| ✅ Kod/static pass | 139 |
+| ✅ Kod/static pass | 140 |
 | ⚠️ Partial (kräver DB/browser) | 150 |
 | ❌ Fail | 0 |
-| ⏭ Skip | 11 |
-| `npm test` | **159/159** gröna |
+| ⏭ Skip | 10 |
+| `npm test` | **159/159** gröna (kräver `npm install`) |
 | Miljö | Ingen `DATABASE_URL` — ingen live API/browser |
-| **Beslut** | ☐ Godkänd release · ☑ Villkorad (staging + manuell) · ☐ Stoppad |
+| **Beslut** | ☐ Godkänd release · ☑ Villkorad (staging + `npm run qa:live`) · ☐ Stoppad |
 
-Detaljer: [`docs/qa-run-local-2026-06-01.md`](qa-run-local-2026-06-01.md)
+Detaljer: [`docs/qa-run-local-2026-06-01.md`](qa-run-local-2026-06-01.md) · Live E2E: `npm run qa:live`
 
 ### Logg underkända (mall)
 
@@ -645,11 +655,11 @@ Dessa kommer från dokumentationen och ska loggas om de påverkar testresultat:
 
 | Ref | Källa | Avvikelse / förväntat |
 |-----|-------|------------------------|
-| X1 | `plattform` §3, `TEKNISKA-KANDA-BUGGAR` | Barn logout med `sessionRestored` → dashboard **utan** PG (ska blockeras enligt spec) |
-| X2 | `polsia-kontohantering` A | Android kan fortfarande visa Apple-knapp om `isNative()` används — spec: endast `isIOS()` |
-| X3 | `polsia-kontohantering` B–F | `accountAuth`, set-password, change-email UI — spec ❌, API delvis |
-| X4 | `kravspec` §6 | Familj-flik UI "Mina barn / Dela åtkomst" — API ✅, UI ofullständig |
-| X5 | `polsia-barnlogin-design` | Magisk natt + PIN-tavla + rollval på `login.html` — delvis; fritext-fallback ✅ |
+| X1 | `plattform` §3, `TEKNISKA-KANDA-BUGGAR` | **Delvis fixad:** `SessionGate.shouldBlockSessionRestore()` + `needsParentPin` vid logout; verifiera manuellt utan `device_mode=child` |
+| X2 | `polsia-kontohantering` A | **Fixad:** `Platform.isAppleSignInAvailable()` på `login.html` + `register.html` |
+| X3 | `polsia-kontohantering` B–F | **Largely fixad:** `settings-account.js` + API; biometri-PG fortfarande 📋 |
+| X4 | `kravspec` §6 | **Delvis fixad:** Mina barn + Dela åtkomst i `family.html`; egen Pedagoger-rubrik saknas |
+| X5 | `polsia-barnlogin-design` | **Delvis fixad:** magisk natt CSS + keypad ✅; rollval skärm 1 på `login.html` 📋; fritext-fallback ✅ |
 | X6 | `kravspec` §7 | Offline-banner "Sparat — synkas…" — kö ✅, banner 📋 |
 | X7 | `kravspec` §8 | `parent_day_note` (föräldra-logg) — v1.2, ej samma som observationer |
 | X8 | `kravspec` §5 Fas 1–2 | Sektion klar / barn-push — ej i Fas 0-scope |
