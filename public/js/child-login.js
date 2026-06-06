@@ -335,9 +335,14 @@ function showAddChildChoiceOverlay() {
 
   document.body.appendChild(overlay);
 
-  document.getElementById('clAddNewBtn').addEventListener('click', function () {
+  document.getElementById('clAddNewBtn').addEventListener('click', async function () {
     closeAddChildChoiceOverlay();
-    proceedToNewChildWizard();
+    const ready = await ensureParentReadyForOnboarding();
+    if (!ready) {
+      await redirectToLoginForAddChild('new');
+      return;
+    }
+    await proceedToNewChildWizard();
   });
   document.getElementById('clAddExistingBtn').addEventListener('click', function () {
     closeAddChildChoiceOverlay();
@@ -358,19 +363,32 @@ function showExistingChildForm() {
 }
 
 async function proceedToNewChildWizard() {
-  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') {
-    window.location.href = ADD_CHILD_ONBOARDING_URL;
-    return;
-  }
+  await ensureParentReadyForOnboarding();
+  window.location.href = ADD_CHILD_ONBOARDING_URL;
+}
+
+/** Restore vuxensession (cookie/localStorage) before add-child onboarding. */
+async function ensureParentReadyForOnboarding() {
+  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') return true;
   if (window.Auth && typeof Auth.hydrateUserFromLoginPicker === 'function') {
-    const hydrated = await Auth.hydrateUserFromLoginPicker();
-    if (hydrated) {
-      window.location.href = ADD_CHILD_ONBOARDING_URL;
-      return;
-    }
+    if (await Auth.hydrateUserFromLoginPicker()) return true;
   }
-  sessionStorage.setItem('cl_add_child_next', ADD_CHILD_ONBOARDING_URL);
-  window.location.href = '/login?next=' + encodeURIComponent(ADD_CHILD_ONBOARDING_URL);
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const me = await meRes.json();
+      if (me.type === 'parent') {
+        Auth.setAuth(null, me);
+        return true;
+      }
+    }
+  } catch { /* ignore */ }
+  return false;
+}
+
+async function redirectToLoginForAddChild(pending) {
+  sessionStorage.setItem('cl_add_child_pending', pending);
+  window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
 }
 
 async function runAddChildWithParentGate(onAuthorized) {
@@ -378,8 +396,7 @@ async function runAddChildWithParentGate(onAuthorized) {
   const hasSession = Auth.isLoggedIn() || ctx.hasSession || lastPickerHasSession;
 
   if (!hasSession) {
-    sessionStorage.setItem('cl_add_child_pending', 'choice');
-    window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
+    await redirectToLoginForAddChild('choice');
     return;
   }
 
@@ -390,8 +407,14 @@ async function runAddChildWithParentGate(onAuthorized) {
       await Auth.hydrateUserFromLoginPicker();
     }
     if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
-      sessionStorage.setItem('cl_add_child_pending', 'choice');
-      window.location.href = '/login?next=' + encodeURIComponent('/child-login?addChild=1');
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' }).catch(function () { return null; });
+      if (meRes && meRes.ok) {
+        const me = await meRes.json();
+        if (me.type === 'parent') Auth.setAuth(null, me);
+      }
+    }
+    if (!Auth.isLoggedIn() || Auth.getUser()?.type !== 'parent') {
+      await redirectToLoginForAddChild('choice');
       return;
     }
     onAuthorized();
@@ -864,36 +887,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render child list
   renderChildList();
 
-  // Handle login redirect with next param
+  // Resume add-child flow after parent login (?addChild=1)
   const url = new URL(window.location.href);
-  const next = url.searchParams.get('next');
-  if (next) sessionStorage.setItem('cl_add_child_next', next);
-
-  // Check for pending add-child redirect after parent login
-  const savedNext = sessionStorage.getItem('cl_add_child_next');
-  if (savedNext) {
-    (async function () {
-      if (Auth.isLoggedIn()) {
-        sessionStorage.removeItem('cl_add_child_next');
-        window.location.href = savedNext;
-        return;
-      }
-      if (typeof Auth.hydrateUserFromLoginPicker === 'function' && await Auth.hydrateUserFromLoginPicker()) {
-        sessionStorage.removeItem('cl_add_child_next');
-        window.location.href = savedNext;
-      }
-    })();
-  }
-
-  // Re-open add-child choice after parent login (?addChild=1)
   const addChildParam = url.searchParams.get('addChild');
-  const pendingChoice = sessionStorage.getItem('cl_add_child_pending') === 'choice';
-  if (addChildParam === '1' || pendingChoice) {
+  const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
+  if (addChildParam === '1' || pendingAddChild) {
+    const intent = pendingAddChild || 'choice';
     sessionStorage.removeItem('cl_add_child_pending');
+    sessionStorage.removeItem('cl_add_child_next'); // legacy — never skip choice modal
     if (addChildParam === '1') {
       url.searchParams.delete('addChild');
       window.history.replaceState({}, '', url.pathname + (url.search || ''));
     }
-    setTimeout(function () { openAddChild(); }, 150);
+    setTimeout(function () {
+      if (intent === 'new') {
+        runAddChildWithParentGate(async function () {
+          const ready = await ensureParentReadyForOnboarding();
+          if (ready) window.location.href = ADD_CHILD_ONBOARDING_URL;
+        });
+      } else {
+        openAddChild();
+      }
+    }, 150);
   }
 });
