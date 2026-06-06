@@ -500,14 +500,14 @@ function renderPage(child) {
       </div>
       <div>
         <label class="block text-xs font-semibold text-text-soft mb-1.5">Födelsedag</label>
-        <div class="grid sm:grid-cols-3 grid-cols-1 gap-2">
-          <select id="bdYear" onchange="updateBirthdayDays('bd')" class="px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
+        <div class="grid grid-cols-3 gap-2">
+          <select id="bdYear" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
             <option value="">År</option>
           </select>
-          <select id="bdMonth" onchange="updateBirthdayDays('bd')" class="px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
+          <select id="bdMonth" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
             <option value="">Månad</option>
           </select>
-          <select id="bdDay" class="px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
+          <select id="bdDay" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
             <option value="">Dag</option>
           </select>
         </div>

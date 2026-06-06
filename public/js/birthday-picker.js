@@ -91,21 +91,41 @@
   }
 
   /**
+   * Normalize birthday from API/DB to { year, month, day } strings.
+   * Handles 'YYYY-MM-DD' and ISO datetimes like '2018-10-15T22:00:00.000Z'.
+   */
+  function parseBirthdayParts(birthday) {
+    if (!birthday) return null;
+    var dateOnly = String(birthday).split('T')[0];
+    var parts = dateOnly.split('-');
+    if (parts.length !== 3) return null;
+    var dayNum = parseInt(parts[2], 10);
+    if (!dayNum || dayNum < 1 || dayNum > 31) return null;
+    return {
+      year: parts[0],
+      month: parts[1],
+      day: String(dayNum).padStart(2, '0'),
+    };
+  }
+
+  /**
    * Set the selected values of the birthday selects.
    * Call AFTER initBirthdayPicker so options exist.
    * @param {string} birthday - ISO date string 'YYYY-MM-DD' or null/undefined
    * @param {string} [prefix] - ID prefix (default: 'bd')
    */
   function setBirthdayValue(birthday, prefix) {
-    if (!birthday) return;
-    var parts = birthday.split('-');
-    if (parts.length !== 3) return;
-    var yearEl = document.getElementById((prefix || 'bd') + 'Year');
-    var monthEl = document.getElementById((prefix || 'bd') + 'Month');
-    var dayEl = document.getElementById((prefix || 'bd') + 'Day');
-    if (yearEl) yearEl.value = parts[0];
-    if (monthEl) monthEl.value = parts[1];
-    if (dayEl) dayEl.value = parts[2];
+    var parsed = parseBirthdayParts(birthday);
+    if (!parsed) return;
+    var pre = prefix || 'bd';
+    var yearEl = document.getElementById(pre + 'Year');
+    var monthEl = document.getElementById(pre + 'Month');
+    var dayEl = document.getElementById(pre + 'Day');
+    if (yearEl) yearEl.value = parsed.year;
+    if (monthEl) monthEl.value = parsed.month;
+    // Repopulate days for the selected year+month before setting day value.
+    updateBirthdayDays(prefix);
+    if (dayEl) dayEl.value = parsed.day;
   }
 
   // Expose globally
