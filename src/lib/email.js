@@ -321,6 +321,27 @@ async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName
   });
 }
 
+/**
+ * Confirm newsletter opt-in (settings toggle or registration).
+ */
+async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
+  const greeting = recipientName ? `Hej ${recipientName}` : 'Hej';
+  const settingsUrl = `${config.email.baseUrl}/settings`;
+  return sendEmail({
+    to: email,
+    subject: 'Du prenumererar på nyhetsbrev från Min Stjärndag',
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #1B2340;">Tack för din prenumeration! ⭐</h2>
+        <p>${greeting},</p>
+        <p>Du prenumererar nu på nyhetsbrev från Min Stjärndag med tips, nyheter och uppdateringar om appen.</p>
+        <p>Du kan när som helst avsluta prenumerationen under <a href="${settingsUrl}">Inställningar</a> i appen, eller via länken längst ner i varje nyhetsbrev.</p>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">Med vänliga hälsningar,<br>Min Stjärndag</p>
+      </div>
+    `,
+  });
+}
+
 module.exports = {
   sendEmail,
   registerContact,
@@ -333,4 +354,5 @@ module.exports = {
   sendAccountDeletedEmail,
   sendWinBackEmail,
   sendPedagogInviteEmail,
+  sendNewsletterSubscriptionConfirmation,
 };
