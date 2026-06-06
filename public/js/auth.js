@@ -169,6 +169,17 @@ const Auth = {
     return !!this.getUser();
   },
 
+  /** Redirect target when session is lost — child pages go to barnväljare, not /login. */
+  _sessionLostRedirect() {
+    const user = this.getUser();
+    const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
+    const childContext =
+      (user && user.type === 'child') ||
+      path === '/child-dashboard' ||
+      path === '/child-login';
+    window.location.href = childContext ? '/child-login' : '/login';
+  },
+
   /**
    * Barnväljare: familjens barn + om föräldersession finns (cookie).
    * Supports legacy array responses for backwards compatibility.
@@ -257,7 +268,7 @@ const Auth = {
                 if (currentUser && meData.type && meData.type !== currentUser.type) {
                   console.warn('[AUTH] User type mismatch after refresh: expected', currentUser.type, 'got', meData.type, '— forcing re-login');
                   this.clearAuth();
-                  window.location.href = '/login';
+                  this._sessionLostRedirect();
                   return null;
                 }
               }
@@ -284,7 +295,7 @@ const Auth = {
           // 401 = refresh token genuinely expired/revoked — always to /login (role selection)
           if (res.status === 401) {
             this.clearAuth();
-            window.location.href = '/login';
+            this._sessionLostRedirect();
             return null;
           }
 

@@ -2468,14 +2468,16 @@ function launchConfetti() {
 // ── Init ───────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!Auth.isLoggedIn()) {
+  const localUser = Auth.getUser();
+  const hasCookie = document.cookie.includes('access_token=');
+
+  if (!localUser && !hasCookie) {
     window.location.href = '/child-login';
     return;
   }
 
   // Guard: parent tokens cannot access child-dashboard — show clear message
-  const _storedUser = Auth.getUser();
-  if (_storedUser && _storedUser.type && _storedUser.type !== 'child') {
+  if (localUser && localUser.type && localUser.type !== 'child') {
     document.getElementById('scheduleView').innerHTML = `
       <div class="text-center py-12 bg-white rounded-2xl mt-2">
         <p class="text-4xl mb-3">🔒</p>
@@ -2500,6 +2502,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch { /* fail open */ }
 
     me = await Auth.api('/api/auth/me');
+    if (me.type !== 'child') {
+      console.warn('[child-dashboard] Session is not child (got', me.type, ') — redirect to barnväljare');
+      Auth.clearAuth();
+      window.location.href = '/child-login';
+      return;
+    }
+    Auth.setAuth(null, me);
     // Cache child profile for offline access
     if (me && window.OfflineStore) {
       OfflineStore.saveChildProfile(me.id, me).catch(() => {});
@@ -2551,6 +2560,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     console.error('Init error:', err);
     Auth.clearAuth();
-    window.location.href = '/child-login';
+    const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
+    window.location.href = path === '/child-dashboard' ? '/child-login' : '/login';
   }
 });

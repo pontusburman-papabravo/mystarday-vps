@@ -21,6 +21,7 @@
  *     or the operation is explicitly user-initiated with a one-time token).
  */
 const crypto = require('crypto');
+const config = require('../lib/config');
 
 // Safe methods: no CSRF needed
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -76,7 +77,7 @@ function generateCsrfToken(res) {
   const token = crypto.randomBytes(32).toString('hex');
   res.cookie('csrf_token', token, {
     httpOnly: false,   // Must be readable by JS so client can set the header
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'strict',
     maxAge: 24 * 60 * 60 * 1000, // 24h — refreshed on each CSRF token request
     path: '/',

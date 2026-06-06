@@ -95,7 +95,7 @@ function setRefreshCookie(res, raw) {
   const maxAgeMs = config.refreshToken.expiryDays * 24 * 60 * 60 * 1000;
   res.cookie('refresh_token', raw, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     // 'lax' so the cookie is sent on top-level navigations (e.g. the user returns to the app).
     // 'strict' would block the cookie being sent when the user opens a link from email.
     // SSE uses a query param fallback, not this cookie.
@@ -111,7 +111,7 @@ function setRefreshCookie(res, raw) {
 function clearRefreshCookie(res) {
   res.clearCookie('refresh_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'lax',
     path: '/api/auth',
   });
@@ -136,7 +136,7 @@ function setAccessCookie(res, token, expiresInSecs) {
   const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
   res.cookie('access_token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'lax',
     maxAge: THIRTY_DAYS_MS,
     path: '/',
@@ -149,7 +149,7 @@ function setAccessCookie(res, token, expiresInSecs) {
 function clearAccessCookie(res) {
   res.clearCookie('access_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'lax',
     path: '/',
   });

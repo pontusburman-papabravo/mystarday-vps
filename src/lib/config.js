@@ -113,4 +113,8 @@ module.exports = {
   pin: {
     fingerprintSecret: process.env.PIN_FINGERPRINT_SECRET || jwtSecret,
   },
+
+  // Set COOKIE_SECURE=false on VPS behind HTTP or broken SSL (cookies won't stick otherwise).
+  cookieSecure:
+    process.env.COOKIE_SECURE !== 'false' && isProd,
 };

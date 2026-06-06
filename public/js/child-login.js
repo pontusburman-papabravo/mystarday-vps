@@ -440,9 +440,29 @@ async function submitLogin() {
       return;
     }
 
-    // Success
+    // Success — verify httpOnly cookie actually switched to child (parent cookie can shadow).
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
     if (window.DeviceMode) DeviceMode.enterChild();
+
+    try {
+      const verifyRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (verifyRes.ok) {
+        const me = await verifyRes.json();
+        if (me.type !== 'child' || me.id !== data.user.id) {
+          hideLoading();
+          showError(
+            'Inloggningen sparades inte i webbläsaren. Logga ut som vuxen (Jag är vuxen) och försök igen.',
+            '⚠️'
+          );
+          Auth.clearAuth();
+          pinDigits = [];
+          renderPinDots();
+          return;
+        }
+        Auth.setAuth(null, me, data.csrfToken, data.expiresAt);
+      }
+    } catch (_) { /* proceed — localStorage session may still work */ }
+
     upsertKnownChild({
       username: data.user.username,
       name: data.user.name,
