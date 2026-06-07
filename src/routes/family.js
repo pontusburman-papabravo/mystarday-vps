@@ -680,8 +680,9 @@ router.post('/invite', inviteLimiter, async (req, res) => {
     );
 
     // Send invite email
+    const { isQaMode } = require('../lib/qa-mode');
     const emailResult = await sendInviteEmail(normalizedEmail, token, { inviteeName, inviterName, familyName });
-    if (!emailResult.success) {
+    if (!emailResult.success && !isQaMode()) {
       return res.status(502).json({ error: 'Kunde inte skicka inbjudan via e-post. Försök igen.' });
     }
 
@@ -691,6 +692,7 @@ router.post('/invite', inviteLimiter, async (req, res) => {
         email: normalizedEmail,
         expiresAt,
       },
+      ...(isQaMode() && { inviteToken: token }),
     });
   } catch (err) {
     console.error('[FAMILY] Invite error:', err);

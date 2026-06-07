@@ -63,13 +63,21 @@ function merge() {
     Object.assign(full, loadJson('docs/qa-run-full-latest.json'));
   }
   const ext = loadJson('docs/qa-run-extended-latest.json');
+  const email = loadJson('docs/qa-run-email-latest.json');
+  const admin = loadJson('docs/qa-run-admin-latest.json');
+  const browser = loadJson('docs/qa-run-browser-latest.json');
+  const destructive = loadJson('docs/qa-run-destructive-latest.json');
 
   const merged = new Map();
-  const sources = { extended: 0, full: 0, local: 0, none: 0 };
+  const sources = { email: 0, admin: 0, browser: 0, destructive: 0, extended: 0, full: 0, local: 0, none: 0 };
 
   for (let n = 1; n <= 300; n++) {
     const id = `QA-${String(n).padStart(3, '0')}`;
     const candidates = [
+      destructive[id] && { ...destructive[id], src: 'destructive' },
+      admin[id] && { ...admin[id], src: 'admin' },
+      email[id] && { ...email[id], src: 'email' },
+      browser[id] && { ...browser[id], src: 'browser' },
       ext[id] && { ...ext[id], src: 'extended' },
       full[id] && { ...full[id], src: 'full' },
       local.get(id) && { ...local.get(id), src: 'local' },
@@ -81,7 +89,9 @@ function merge() {
       continue;
     }
 
-    const live = candidates.filter((c) => c.src === 'extended' || c.src === 'full');
+    const live = candidates.filter((c) =>
+      ['destructive', 'admin', 'email', 'browser', 'extended', 'full'].includes(c.src)
+    );
     const pool = live.length > 0 ? live : candidates;
     pool.sort((a, b) => statusRank(b.status) - statusRank(a.status));
     const best = pool[0];
@@ -100,7 +110,7 @@ function merge() {
     `| Kör-ID | ${RUN_ID} |`,
     `| Datum | ${date} |`,
     '',
-    'Prioritet: **extended live** > **full live** > **static local**',
+    'Prioritet: **destructive/admin/email/browser** > **extended live** > **full live** > **static local**',
     '',
     '## Sammanfattning',
     '',

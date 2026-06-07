@@ -11,6 +11,12 @@
     "qa:live": "node scripts/qa-e2e-live.mjs",
     "qa:full": "node scripts/qa-e2e-full.mjs",
     "qa:extended": "node scripts/qa-e2e-extended.mjs",
+    "qa:email": "node scripts/qa-e2e-email.mjs",
+    "qa:admin": "node scripts/qa-e2e-admin.mjs",
+    "qa:browser": "node scripts/qa-e2e-browser.mjs",
+    "qa:destructive": "node scripts/qa-e2e-destructive.mjs",
+    "qa:skipped": "node scripts/qa-run-skipped.mjs",
+    "qa:setup-admin": "node scripts/qa-setup-admin.mjs",
     "qa:merge": "node scripts/qa-merge-300.mjs",
     "polsia:gate0": "node scripts/polsia-gate0-audit.mjs",
     "polsia:release-os:check": "npm run lint && npm run test && npm run polsia:gate0",
@@ -45,6 +51,7 @@
     "@capacitor/cli": "^7.0.0",
     "@capacitor/camera": "^7.0.0",
     "eslint": "^9.0.0",
-    "pino-pretty": "^10.3.0"
+    "pino-pretty": "^10.3.0",
+    "playwright": "^1.49.0"
   }
 }

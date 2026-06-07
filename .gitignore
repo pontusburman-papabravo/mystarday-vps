@@ -2,6 +2,7 @@ node_modules/
 .env
 .env.*
 docs/qa-live-credentials.json
+docs/qa-run-*-latest.json
 !.env.example
 .DS_Store
 

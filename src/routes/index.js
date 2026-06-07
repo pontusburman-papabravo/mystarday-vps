@@ -85,6 +85,12 @@ function registerRoutes(app) {
   app.use('/api/pedagog-invite', require('./pedagog-invite'));
   app.use('/api/features', require('./features'));
 
+  // QA harness (staging only — QA_MODE=true + QA_SECRET)
+  if (process.env.QA_MODE === 'true' && process.env.QA_SECRET) {
+    app.use('/api/qa', require('./qa-harness'));
+    console.log('[QA] Harness mounted at /api/qa (QA_MODE aktiv)');
+  }
+
   // RevenueCat IAP config (native clients only)
   app.use('/api/iap', require('./iap'));
 
