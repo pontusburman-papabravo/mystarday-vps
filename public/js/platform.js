@@ -540,12 +540,13 @@ var Platform = (function () {
       fd.append('image', blob, filename);
 
       async function postAvatar(retry) {
-        if (!window.Auth || typeof Auth.ensureCsrfToken !== 'function') {
+        var authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
+        if (!authObj || typeof authObj.ensureCsrfToken !== 'function') {
           throw new Error('Ej inloggad');
         }
-        if (retry) localStorage.removeItem(Auth.CSRF_KEY);
-        await Auth.ensureCsrfToken();
-        var csrf = Auth.getCsrfToken();
+        if (retry) localStorage.removeItem(authObj.CSRF_KEY);
+        await authObj.ensureCsrfToken();
+        var csrf = authObj.getCsrfToken();
         if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
         var headers = { 'X-CSRF-Token': csrf };
         return fetch('/api/upload/avatar', {

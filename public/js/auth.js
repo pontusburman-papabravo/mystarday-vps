@@ -764,6 +764,8 @@ const Auth = {
   },
 };
 
+window.Auth = Auth;
+
 // Re-schedule refresh on page load.
 (function () {
   const expMs = Auth._getExpiryMs();
