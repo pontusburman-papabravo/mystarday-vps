@@ -11,6 +11,15 @@ module.exports = {
       ADD COLUMN IF NOT EXISTS parent_pin_hash TEXT
     `);
 
+    // Fresh installs (baseline-schema): parent_pin_hash already on parent, never on family.
+    const { rows } = await client.query(`
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'family'
+        AND column_name = 'parent_pin_hash'
+    `);
+    if (rows.length === 0) return;
+
     await client.query(`
       UPDATE parent p
       SET parent_pin_hash = f.parent_pin_hash
