@@ -1394,7 +1394,7 @@ router.get('/subscription-status', requireParent, async (req, res) => {
       const diff = new Date(trial_ends_at) - new Date();
       trial_days_remaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
-    const payment_enabled = process.env.PAYMENT_ENABLED === 'true';
+    const payment_enabled = false; // Web Stripe removed — IAP via Apple/Google only
     res.json({ subscription_status, is_lifetime_free: !!is_lifetime_free, is_beta: subscription_status === 'beta', trial_days_remaining, payment_enabled });
   } catch (err) {
     console.error('[FAMILY] subscription-status error:', err);

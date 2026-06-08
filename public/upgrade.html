@@ -73,13 +73,13 @@
         Hjälp oss att hålla utvecklingen igång — en liten avgift för en stor hjälp i vardagen.
       </p>
 
-      <!-- Pricing card — hidden in native (IAP via RevenueCat instead) -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8 web-payment-only">
+      <!-- Pricing card — web: use mobile app; native: IAP via RevenueCat -->
+      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
         <div class="flex items-center justify-center gap-3 mb-2">
           <span class="text-5xl font-heading font-bold text-navy">59</span>
           <span class="text-2xl font-medium text-text-soft">kr</span>
         </div>
-        <p class="text-text-soft text-sm mb-6">per månad · betalas månadsvis</p>
+        <p class="text-text-soft text-sm mb-6">per månad · betalas via App Store eller Google Play</p>
 
         <ul class="text-left space-y-3 mb-8">
           <li class="flex items-start gap-3">
@@ -114,42 +114,55 @@
           </li>
         </ul>
 
-        <!-- Upgrade button — creates Stripe Checkout session -->
-        <button id="upgradeBtn"
-           class="block w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+        <!-- Native: RevenueCat purchase (shown only in Capacitor app) -->
+        <button id="iapUpgradeBtn" type="button"
+           class="hidden w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
           Starta prenumeration — 59 kr/månad
         </button>
-        <p class="text-text-soft text-xs mt-3 web-payment-only">Betalning via Stripe · Avsluta när som helst</p>
+
+        <!-- Web: no web payment — use mobile app -->
+        <div id="webUpgradeInfo" class="web-payment-only">
+          <p class="text-navy text-sm font-medium mb-3">Prenumeration hanteras i mobilappen</p>
+          <p class="text-text-soft text-sm leading-relaxed">
+            Ladda ner Min Stjärndag i App Store eller Google Play och starta prenumerationen där.
+            Webbversionen har ingen kortbetalning.
+          </p>
+        </div>
+        <p class="text-text-soft text-xs mt-3">Avsluta när som helst via App Store eller Google Play</p>
       </div>
 
+  <script src="/js/iap-manager.js"></script>
   <script>
     (function () {
-      var btn = document.getElementById('upgradeBtn');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        btn.disabled = true;
-        btn.textContent = 'Laddar...';
-        fetch('/api/stripe/create-checkout-session', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.url) {
-            window.location.href = data.url;
-          } else {
-            btn.disabled = false;
-            btn.textContent = 'Starta prenumeration — 59 kr/månad';
-            alert(data.error || 'Något gick fel. Försök igen.');
-          }
-        })
-        .catch(function () {
-          btn.disabled = false;
-          btn.textContent = 'Starta prenumeration — 59 kr/månad';
-          alert('Något gick fel. Försök igen.');
+      var iapBtn = document.getElementById('iapUpgradeBtn');
+      var webInfo = document.getElementById('webUpgradeInfo');
+      if (!iapBtn) return;
+
+      var isNative = window.IAPManager && window.IAPManager.isNative && window.IAPManager.isNative();
+      if (isNative) {
+        iapBtn.classList.remove('hidden');
+        if (webInfo) webInfo.classList.add('hidden');
+        iapBtn.addEventListener('click', function () {
+          iapBtn.disabled = true;
+          iapBtn.textContent = 'Laddar...';
+          import('@revenuecat/purchases-capacitor').then(function (mod) {
+            return mod.Purchases.purchasePackage
+              ? mod.Purchases.getOfferings().then(function (offerings) {
+                  var pkg = offerings.current && offerings.current.availablePackages && offerings.current.availablePackages[0];
+                  if (!pkg) throw new Error('Inget paket tillgängligt');
+                  return mod.Purchases.purchasePackage({ aPackage: pkg });
+                })
+              : Promise.reject(new Error('IAP ej tillgängligt'));
+          }).then(function () {
+            window.location.href = '/dashboard';
+          }).catch(function (err) {
+            iapBtn.disabled = false;
+            iapBtn.textContent = 'Starta prenumeration — 59 kr/månad';
+            if (err && err.userCancelled) return;
+            alert('Kunde inte starta köpet. Försök igen i appen.');
+          });
         });
-      });
+      }
     })();
   </script>
 

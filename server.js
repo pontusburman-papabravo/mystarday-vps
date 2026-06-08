@@ -118,13 +118,13 @@ app.use(checkMaintenanceMode);
 
 // ─── Subscription paywall guard ─────────────────────────────────────
 // Blocks expired/future-require families from accessing protected routes.
-// Exempts: auth, webhook, health, upgrade page routes.
+// Exempts: auth, IAP webhook, health, landing routes.
 const { requireActiveSubscription } = require('./src/middleware/subscription');
 app.use('/api', (req, res, next) => {
   const p = req.path;
   if (
     p.startsWith('/auth') ||
-    p.startsWith('/stripe') ||
+    p.startsWith('/iap') ||
     p === '/health' ||
     p.startsWith('/landing') ||
     p === '/i18n' ||
@@ -135,12 +135,6 @@ app.use('/api', (req, res, next) => {
 
 // Public static pages (privacy policy, professional landing page)
 app.use(require('./src/routes/public-pages'));
-
-// ─── Payment success ──────────────────────────────────────
-app.use('/payment', require('./src/routes/payment'));
-
-// ─── Upgrade success (Stripe redirect) ───────────────────
-app.use('/upgrade', require('./src/routes/upgrade-success'));
 
 // ─── 404 handler ──────────────────────────────────────────
 app.use((req, res) => {
