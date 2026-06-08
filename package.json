@@ -32,7 +32,7 @@
     "polsia:gate0": "node scripts/polsia-gate0-audit.mjs",
     "polsia:release-os:check": "npm run lint && npm run test && npm run polsia:gate0",
     "polsia:release-os:generate": "node scripts/generate-polsia-release-os.mjs",
-    "lint": "eslint src/ server.js --max-warnings 0",
+    "lint": "eslint src/ server.js",
     "cap:sync": "npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",

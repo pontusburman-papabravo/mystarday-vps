@@ -380,7 +380,7 @@ async function buildHarvestImportBundles(harvest, opts = {}) {
   const goalList = goalsPayload?.goals || asArray(goalsPayload);
   const goalRows = [];
   for (const g of asArray(goalList)) {
-    let rewardId = g.reward_id;
+    const rewardId = g.reward_id;
     if (rewardId && !rewardIds.has(rewardId)) {
       warnings.push(`child_reward_goal ${g.id}: belöning ${rewardId} saknas i harvest — hoppar över`);
       continue;

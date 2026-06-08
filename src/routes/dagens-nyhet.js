@@ -125,7 +125,7 @@ router.post('/', requireAdmin, async (req, res) => {
     // If published immediately (not scheduled), send newsletter email to subscribers
     // Del 2: email is now sent MANUALLY via POST /api/dagens-nyhet/:id/send-newsletter
     // (recipient selection modal in admin UI). Remove automatic send.
-    let emailResult = { sent: 0, failed: 0, skipped: true };
+    const emailResult = { sent: 0, failed: 0, skipped: true };
 
     // If Facebook cross-post was requested AND published immediately (not scheduled), post now
     let facebookResult = { posted: false, postId: null, warning: null };

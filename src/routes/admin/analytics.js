@@ -5,6 +5,7 @@
  */
 
 const express = require('express');
+const db = require('../../lib/db');
 const analytics = require('../../../db/analytics');
 
 const router = express.Router();

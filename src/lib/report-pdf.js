@@ -241,14 +241,14 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
 
       doc.rect(x0 + Math.round(barGap / 2), barTop, barW, barH).fill(AMBER);
 
-      var pctStr = pct + '%';
+      const pctStr = pct + '%';
       doc.fontSize(7).font('Helvetica').fillColor(GRAY);
-      var pctW = doc.widthOfString(pctStr);
+      const pctW = doc.widthOfString(pctStr);
       doc.text(pctStr, x0 + Math.round(barGap / 2) + Math.round(barW / 2) - pctW / 2, barTop - 5, { lineBreak: false });
 
-      var weekLabel = fmtWeek(data.dates);
+      const weekLabel = fmtWeek(data.dates);
       doc.fontSize(7).font('Helvetica').fillColor('#888888');
-      var weekLabelW = doc.widthOfString(weekLabel);
+      const weekLabelW = doc.widthOfString(weekLabel);
       doc.text(weekLabel, x0 + (barSlotW - weekLabelW) / 2, chartY + chartH + 3, { lineBreak: false });
     });
 
@@ -454,7 +454,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
         const mealParts = [];
         const mealKeys = { frukost: 'Fru', lunch: 'Lunch', mellanmal: 'Mellanmål' };
         Object.keys(mealKeys).forEach(function(k) {
-          var val = n.meals_structured[k];
+          const val = n.meals_structured[k];
           if (val && mealsLabelMap[val]) mealParts.push(mealKeys[k] + ': ' + mealsLabelMap[val]);
         });
         if (mealParts.length > 0) {

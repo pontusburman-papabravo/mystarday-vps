@@ -256,7 +256,8 @@
     <!-- Error -->
     <div id="errorState" class="hidden bg-coral border-l-4 border-red-500 p-6 rounded-lg mt-6">
       <p class="text-red-700 font-semibold">Funktionen kunde inte laddas.</p>
-      <a href="/admin/development" class="mt-2 text-gold font-semibold hover:underline">← Tillbaka till Utveckling</a>
+      <p id="errorDetail" class="text-sm text-text-soft mt-2 font-mono"></p>
+      <a href="/admin/development" class="mt-2 inline-block text-gold font-semibold hover:underline">← Tillbaka till Utveckling</a>
     </div>
   </main>
 
@@ -277,33 +278,76 @@
         }
         await loadFeature();
       } catch (err) {
-        console.error('[ADMIN-DEV-DETAIL] Init error:', err);
-        document.getElementById('errorState').classList.remove('hidden');
+        showLoadError(err);
       } finally {
         document.getElementById('loadingState').classList.add('hidden');
       }
     });
 
     // ─── Load feature ──────────────────────────────────────────
+    function showLoadError(err) {
+      console.error('[ADMIN-DEV-DETAIL]', err);
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('content').classList.add('hidden');
+      const detail = document.getElementById('errorDetail');
+      if (detail) {
+        const msg = err && err.message ? err.message : String(err || 'Okänt fel');
+        detail.textContent = slug ? `${slug}: ${msg}` : msg;
+      }
+      document.getElementById('errorState').classList.remove('hidden');
+    }
+
     async function loadFeature() {
+      if (!slug) {
+        showLoadError(new Error('Saknar slug i URL'));
+        return;
+      }
       try {
-        feature = await Auth.api(`/api/admin/features/${slug}`);
-        renderFeature();
+        feature = await Auth.api(`/api/admin/features/${encodeURIComponent(slug)}`);
+        if (!feature || !feature.slug) {
+          throw new Error('Tomt svar från servern');
+        }
+        try {
+          renderFeature();
+        } catch (renderErr) {
+          showLoadError(renderErr);
+        }
       } catch (err) {
-        console.error(err);
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('errorState').classList.remove('hidden');
+        showLoadError(err);
       }
     }
 
     // ─── Render ─────────────────────────────────────────────────
+    function asArray(val) {
+      if (Array.isArray(val)) return val;
+      if (val == null) return [];
+      if (typeof val === 'string') {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+      }
+      return [];
+    }
+
+    function asDoc(val) {
+      if (val && typeof val === 'object' && !Array.isArray(val)) return val;
+      if (typeof val === 'string') {
+        try {
+          const parsed = JSON.parse(val);
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+        } catch { return {}; }
+      }
+      return {};
+    }
+
     function renderFeature() {
       document.getElementById('loadingState').classList.add('hidden');
       document.getElementById('content').classList.remove('hidden');
 
-      const doc = feature.documentation || {};
-      const docs = doc.dev_notes || [];
-      const changelog = doc.changelog || [];
+      const doc = asDoc(feature.documentation);
+      const docs = asArray(doc.dev_notes).length ? asArray(doc.dev_notes) : asArray(feature.dev_notes);
+      const changelog = asArray(doc.changelog).length ? asArray(doc.changelog) : asArray(feature.changelog);
 
       document.getElementById('pageTitle').textContent = feature.name;
 
@@ -353,8 +397,9 @@
 
     function updateStatusBadge(status) {
       const badge = document.getElementById('statusBadge');
-      badge.textContent = status.toUpperCase();
-      badge.className = `px-3 py-1 rounded-full text-xs font-bold status-${status}`;
+      const safe = status || 'off';
+      badge.textContent = safe.toUpperCase();
+      badge.className = `px-3 py-1 rounded-full text-xs font-bold status-${safe}`;
     }
 
     function renderDevNotes(notes) {
