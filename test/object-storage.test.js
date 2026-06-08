@@ -112,6 +112,22 @@ describe('object-storage', () => {
     restoreEnv();
   });
 
+  it('getR2S3Endpoint ignores global endpoint when R2_JURISDICTION=eu', () => {
+    saveEnv();
+    process.env.R2_ACCOUNT_ID = '82c8772fba7b38fb5c0001b62c82ac8f';
+    process.env.R2_JURISDICTION = 'eu';
+    process.env.R2_S3_ENDPOINT = 'https://82c8772fba7b38fb5c0001b62c82ac8f.r2.cloudflarestorage.com';
+
+    delete require.cache[require.resolve('../src/lib/object-storage')];
+    const mod = require('../src/lib/object-storage');
+    assert.equal(
+      mod.getR2S3Endpoint(),
+      'https://82c8772fba7b38fb5c0001b62c82ac8f.eu.r2.cloudflarestorage.com'
+    );
+
+    restoreEnv();
+  });
+
   it('uploadToLocal writes file and returns APP_URL-based URL', async () => {
     saveEnv();
     for (const key of Object.keys(orig)) delete process.env[key];

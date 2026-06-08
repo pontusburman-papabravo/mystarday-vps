@@ -16,19 +16,22 @@ function getS3Module() {
 }
 
 function getR2S3Endpoint() {
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const jurisdiction = process.env.R2_JURISDICTION;
+
   if (process.env.R2_S3_ENDPOINT) {
     let endpoint = process.env.R2_S3_ENDPOINT.replace(/\/$/, '');
-    // Cloudflare UI shows …cloudflarestorage.com/bucket — strip bucket suffix if pasted
     const bucket = process.env.R2_BUCKET_NAME;
     if (bucket && endpoint.endsWith(`/${bucket}`)) {
       endpoint = endpoint.slice(0, -(bucket.length + 1));
     }
-    return endpoint;
+    // EU bucket but global endpoint pasted — ignore and rebuild below
+    const euMismatch = jurisdiction === 'eu' && !endpoint.includes('.eu.r2.cloudflarestorage.com');
+    if (!euMismatch) return endpoint;
   }
-  const accountId = process.env.R2_ACCOUNT_ID;
+
   if (!accountId) return null;
-  // EU buckets use *.eu.r2.cloudflarestorage.com (set R2_JURISDICTION=eu)
-  const host = process.env.R2_JURISDICTION === 'eu'
+  const host = jurisdiction === 'eu'
     ? `${accountId}.eu.r2.cloudflarestorage.com`
     : `${accountId}.r2.cloudflarestorage.com`;
   return `https://${host}`;
