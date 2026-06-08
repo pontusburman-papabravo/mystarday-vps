@@ -10,7 +10,8 @@ describe('object-storage', () => {
   function saveEnv() {
     for (const key of [
       'R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY',
-      'R2_BUCKET_NAME', 'R2_PUBLIC_BASE_URL', 'UPLOAD_STORAGE', 'UPLOAD_LOCAL_DIR',
+      'R2_BUCKET_NAME', 'R2_PUBLIC_BASE_URL', 'R2_S3_ENDPOINT', 'R2_JURISDICTION',
+      'UPLOAD_STORAGE', 'UPLOAD_LOCAL_DIR',
     ]) {
       orig[key] = process.env[key];
     }
@@ -51,6 +52,36 @@ describe('object-storage', () => {
     const mod = require('../src/lib/object-storage');
     assert.equal(mod.isR2Configured(), true);
     assert.equal(mod.usesLocalStorage(), false);
+
+    restoreEnv();
+  });
+
+  it('getR2S3Endpoint uses EU host when R2_JURISDICTION=eu', () => {
+    saveEnv();
+    process.env.R2_ACCOUNT_ID = '82c8772fba7b38fb5c0001b62c82ac8f';
+    process.env.R2_JURISDICTION = 'eu';
+
+    delete require.cache[require.resolve('../src/lib/object-storage')];
+    const mod = require('../src/lib/object-storage');
+    assert.equal(
+      mod.getR2S3Endpoint(),
+      'https://82c8772fba7b38fb5c0001b62c82ac8f.eu.r2.cloudflarestorage.com'
+    );
+
+    restoreEnv();
+  });
+
+  it('getR2S3Endpoint strips bucket suffix from pasted Cloudflare URL', () => {
+    saveEnv();
+    process.env.R2_BUCKET_NAME = 'mystarday';
+    process.env.R2_S3_ENDPOINT = 'https://82c8772fba7b38fb5c0001b62c82ac8f.eu.r2.cloudflarestorage.com/mystarday';
+
+    delete require.cache[require.resolve('../src/lib/object-storage')];
+    const mod = require('../src/lib/object-storage');
+    assert.equal(
+      mod.getR2S3Endpoint(),
+      'https://82c8772fba7b38fb5c0001b62c82ac8f.eu.r2.cloudflarestorage.com'
+    );
 
     restoreEnv();
   });

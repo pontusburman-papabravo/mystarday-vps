@@ -16,13 +16,33 @@ function getS3Module() {
 }
 
 function isR2Configured() {
+  const hasEndpoint = !!(process.env.R2_S3_ENDPOINT || process.env.R2_ACCOUNT_ID);
   return !!(
-    process.env.R2_ACCOUNT_ID &&
+    hasEndpoint &&
     process.env.R2_ACCESS_KEY_ID &&
     process.env.R2_SECRET_ACCESS_KEY &&
     process.env.R2_BUCKET_NAME &&
     process.env.R2_PUBLIC_BASE_URL
   );
+}
+
+function getR2S3Endpoint() {
+  if (process.env.R2_S3_ENDPOINT) {
+    let endpoint = process.env.R2_S3_ENDPOINT.replace(/\/$/, '');
+    // Cloudflare UI shows …cloudflarestorage.com/bucket — strip bucket suffix if pasted
+    const bucket = process.env.R2_BUCKET_NAME;
+    if (bucket && endpoint.endsWith(`/${bucket}`)) {
+      endpoint = endpoint.slice(0, -(bucket.length + 1));
+    }
+    return endpoint;
+  }
+  const accountId = process.env.R2_ACCOUNT_ID;
+  if (!accountId) return null;
+  // EU buckets use *.eu.r2.cloudflarestorage.com (set R2_JURISDICTION=eu)
+  const host = process.env.R2_JURISDICTION === 'eu'
+    ? `${accountId}.eu.r2.cloudflarestorage.com`
+    : `${accountId}.r2.cloudflarestorage.com`;
+  return `https://${host}`;
 }
 
 function getLocalUploadDir() {
@@ -45,10 +65,12 @@ function usesLocalStorage() {
 }
 
 function getS3Client() {
+  const endpoint = getR2S3Endpoint();
+  if (!endpoint) throw new Error('R2 S3 endpoint not configured (R2_S3_ENDPOINT or R2_ACCOUNT_ID)');
   const { S3Client } = getS3Module();
   return new S3Client({
     region: 'auto',
-    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint,
     credentials: {
       accessKeyId: process.env.R2_ACCESS_KEY_ID,
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
@@ -106,4 +128,5 @@ module.exports = {
   isR2Configured,
   usesLocalStorage,
   getLocalUploadDir,
+  getR2S3Endpoint,
 };
