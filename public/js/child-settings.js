@@ -13,7 +13,7 @@ if (!childId) { window.location.href = '/family'; }
 let childData = null;
 let pinBuffer = '';
 let selectedEmoji = '';
-let selectedAvatarUrl = null;   // set when iOS parent picks a new photo
+let selectedAvatarUrl = null;   // set when parent picks a new photo (PWA + native)
 let rewardsData = [];
 
 // showToast (red/navy) and showSuccessToast (green) are in /js/toast.js
@@ -279,7 +279,7 @@ async function saveProfile(e) {
   }
 }
 
-// ── iOS Avatar Photo Picker ───────────────────────────
+// ── Avatar photo picker (PWA + native) ───────────────────
 async function changeChildPhoto() {
   const btn = document.getElementById('changePhotoBtn');
   if (!btn) return;
@@ -479,11 +479,10 @@ function renderPage(child) {
       <div>
         <h2 class="text-xl font-heading font-bold text-navy">${escHtml(child.name)}</h2>
         <p class="text-sm text-text-soft">${ageText ? ageText : 'Ålder okänd'}</p>
-        <!-- iOS: "Byt bild" button shown only on native iOS -->
-        ${window.Platform && Platform.isNative() ? `
+        <!-- Byt profilbild (PWA + native) -->
         <button id="changePhotoBtn" onclick="changeChildPhoto()" class="mt-1.5 text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
           📷 Byt bild
-        </button>` : ''}
+        </button>
       </div>
     </div>
   </div>

@@ -475,9 +475,16 @@ var Platform = (function () {
       var blob = await resp.blob();
       var fd = new FormData();
       fd.append('image', blob, 'avatar.jpg');
+      var headers = {};
+      if (window.Auth && typeof Auth.ensureCsrfToken === 'function') {
+        await Auth.ensureCsrfToken();
+        var csrf = Auth.getCsrfToken();
+        if (csrf) headers['X-CSRF-Token'] = csrf;
+      }
       var result = await fetch('/api/upload/avatar', {
         method: 'POST',
         credentials: 'include',
+        headers: headers,
         body: fd,
       });
       if (!result.ok) {
