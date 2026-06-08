@@ -239,7 +239,7 @@
             </div>
 
             <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Inloggningar <span class="font-normal normal-case text-text-soft">(sessioner hålls ofta vid liv — se Aktiva ovan)</span></p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
               <div class="bg-white rounded-2xl p-6 border-2 border-lavender">
                 <p class="text-text-soft text-sm font-semibold mb-1">FÖRÄLDRAR — INLOGGNINGAR</p>
                 <p id="overviewLoginParentTotal" class="text-2xl font-heading font-bold text-navy">&mdash;</p>
@@ -248,6 +248,17 @@
                 <p class="text-text-soft text-sm font-semibold mb-1">BARN — INLOGGNINGAR</p>
                 <p id="overviewLoginChildTotal" class="text-2xl font-heading font-bold text-navy">&mdash;</p>
               </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider">Per familj</p>
+              <label class="flex items-center gap-2 text-sm text-text-soft cursor-pointer">
+                <input type="checkbox" id="overviewActiveOnly" class="rounded border-lavender text-gold focus:ring-gold" onchange="renderOverviewFamilies()">
+                Visa endast aktiva i perioden
+              </label>
+            </div>
+            <div id="overviewFamiliesContainer" class="space-y-4">
+              <div class="text-center text-text-soft py-8">Laddar...</div>
             </div>
           </div>
         </div>

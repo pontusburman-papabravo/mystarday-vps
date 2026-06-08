@@ -674,6 +674,7 @@
 
     // ─── Overview period stats (new + active + logins) ────────
     let _overviewPeriod = '7d';
+    let _overviewFamiliesData = [];
 
     const _overviewPeriodIds = [
       'overviewNewFamilies', 'overviewNewParents', 'overviewNewChildren',
@@ -710,6 +711,8 @@
         const el = document.getElementById(id);
         if (el) el.textContent = '…';
       });
+      const famContainer = document.getElementById('overviewFamiliesContainer');
+      if (famContainer) famContainer.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
       const maxAttempts = retries || 1;
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
@@ -724,6 +727,8 @@
           document.getElementById('overviewStars').textContent = fmtOverviewNum(data.activity?.stars);
           document.getElementById('overviewLoginParentTotal').textContent = fmtOverviewNum(data.logins?.parents);
           document.getElementById('overviewLoginChildTotal').textContent = fmtOverviewNum(data.logins?.children);
+          _overviewFamiliesData = data.families || [];
+          renderOverviewFamilies();
           return;
         } catch (err) {
           console.error('[ADMIN] Overview stats failed (attempt ' + (attempt + 1) + '):', err.message);
@@ -736,9 +741,150 @@
         const el = document.getElementById(id);
         if (el) el.textContent = '!';
       });
+      const famContainer = document.getElementById('overviewFamiliesContainer');
+      if (famContainer) famContainer.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjestatistik</div>';
     }
 
     function loadOverviewLoginStats(retries) { return loadOverviewStats(retries); }
+
+    function overviewUserActive(u) {
+      return (u.logins || 0) > 0 || (u.completions || 0) > 0 || !!u.last_activity;
+    }
+
+    function overviewFamilyActive(family) {
+      return (family.parents || []).some(overviewUserActive) || (family.children || []).some(overviewUserActive);
+    }
+
+    function fmtOverviewDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('sv-SE', {
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+      });
+    }
+
+    function renderOverviewFamilies() {
+      const container = document.getElementById('overviewFamiliesContainer');
+      if (!container) return;
+
+      const activeOnly = document.getElementById('overviewActiveOnly')?.checked;
+      let families = _overviewFamiliesData || [];
+      if (activeOnly) {
+        families = families.filter(overviewFamilyActive);
+      }
+
+      if (families.length === 0) {
+        container.innerHTML = activeOnly
+          ? '<div class="text-center text-text-soft py-8">Inga aktiva familjer under vald period.</div>'
+          : '<div class="text-center text-text-soft py-8">Inga familjer att visa.</div>';
+        return;
+      }
+
+      container.innerHTML = families.map(family => {
+        const parents = family.parents || [];
+        const children = family.children || [];
+        const familyId = family.family_id.replace(/-/g, '_');
+        const activeBadge = overviewFamilyActive(family)
+          ? '<span class="text-xs bg-mint text-green-700 px-2 py-0.5 rounded-full font-semibold">Aktiv</span>'
+          : '<span class="text-xs bg-lavender text-text-soft px-2 py-0.5 rounded-full font-semibold">Inaktiv</span>';
+
+        return `
+          <div class="bg-white rounded-2xl border-2 border-lavender overflow-hidden">
+            <button
+              class="w-full flex items-center justify-between p-5 hover:bg-sky transition-colors text-left"
+              onclick="toggleOverviewFamily('${familyId}')"
+              aria-expanded="false"
+              id="overviewFamilyBtn_${familyId}"
+            >
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="text-xl">&#128104;&#8205;&#128105;&#8205;&#128103;</span>
+                <span class="font-heading font-bold text-navy text-lg">${escHtml(family.family_name)}</span>
+                ${activeBadge}
+              </div>
+              <div class="flex items-center gap-4 text-sm text-text-soft">
+                <span>${parents.length} förälder${parents.length !== 1 ? 'ar' : ''}</span>
+                <span>&middot;</span>
+                <span>${children.length} barn</span>
+                <svg id="overviewFamilyChevron_${familyId}" class="w-4 h-4 transition-transform -rotate-90 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </button>
+            <div id="overviewFamilyBody_${familyId}" class="hidden border-t border-lavender">
+              ${parents.length ? `
+                <div class="px-5 pt-4 pb-2">
+                  <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-2">Föräldrar</p>
+                  ${renderOverviewUserTable(parents.map(renderOverviewParentRow).join(''), true)}
+                </div>
+              ` : ''}
+              ${children.length ? `
+                <div class="px-5 pt-2 pb-4">
+                  <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-2">Barn</p>
+                  ${renderOverviewUserTable(children.map(renderOverviewChildRow).join(''), false)}
+                </div>
+              ` : ''}
+              ${!parents.length && !children.length ? '<div class="px-5 py-4 text-text-soft text-sm">Inga användare i denna familj.</div>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderOverviewUserTable(rows, isParent) {
+      return `
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-text-soft text-xs border-b border-lavender">
+                <th class="py-2 pr-4 font-semibold">${isParent ? 'E-post / namn' : 'Namn / användarnamn'}</th>
+                <th class="py-2 pr-4 font-semibold text-right">Avbockningar</th>
+                <th class="py-2 pr-4 font-semibold text-right">Inloggningar</th>
+                <th class="py-2 font-semibold text-right">Senaste aktivitet</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-lavender">${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderOverviewParentRow(u) {
+      const label = u.email
+        ? (u.name ? `${u.email} (${u.name})` : u.email)
+        : (u.name || '—');
+      return `
+        <tr class="hover:bg-sky transition-colors">
+          <td class="py-2 pr-4 font-medium text-navy">${escHtml(label)}</td>
+          <td class="py-2 pr-4 text-right text-text-soft">—</td>
+          <td class="py-2 pr-4 text-right font-heading font-bold text-navy">${u.logins || 0}</td>
+          <td class="py-2 text-right text-text-soft text-xs">${fmtOverviewDate(u.last_activity)}</td>
+        </tr>
+      `;
+    }
+
+    function renderOverviewChildRow(u) {
+      const label = u.username
+        ? `${u.name || '—'} (${u.username})`
+        : (u.name || '—');
+      const starsHint = u.stars > 0 ? ` <span class="text-text-soft font-normal">· ${u.stars}⭐</span>` : '';
+      return `
+        <tr class="hover:bg-sky transition-colors">
+          <td class="py-2 pr-4 font-medium text-navy">${escHtml(label)}${starsHint}</td>
+          <td class="py-2 pr-4 text-right font-heading font-bold text-navy">${u.completions || 0}</td>
+          <td class="py-2 pr-4 text-right text-text-soft">${u.logins || 0}</td>
+          <td class="py-2 text-right text-text-soft text-xs">${fmtOverviewDate(u.last_activity)}</td>
+        </tr>
+      `;
+    }
+
+    function toggleOverviewFamily(id) {
+      const body = document.getElementById('overviewFamilyBody_' + id);
+      const chevron = document.getElementById('overviewFamilyChevron_' + id);
+      const btn = document.getElementById('overviewFamilyBtn_' + id);
+      const isHidden = body.classList.contains('hidden');
+      body.classList.toggle('hidden', !isHidden);
+      chevron.classList.toggle('-rotate-90', !isHidden);
+      btn.setAttribute('aria-expanded', String(isHidden));
+    }
 
     // ─── Login Stats (Användning) ─────────────────────────────
     async function loadLoginStats() {
