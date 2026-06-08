@@ -15,17 +15,6 @@ function getS3Module() {
   return s3Module;
 }
 
-function isR2Configured() {
-  const hasEndpoint = !!(process.env.R2_S3_ENDPOINT || process.env.R2_ACCOUNT_ID);
-  return !!(
-    hasEndpoint &&
-    process.env.R2_ACCESS_KEY_ID &&
-    process.env.R2_SECRET_ACCESS_KEY &&
-    process.env.R2_BUCKET_NAME &&
-    process.env.R2_PUBLIC_BASE_URL
-  );
-}
-
 function getR2S3Endpoint() {
   if (process.env.R2_S3_ENDPOINT) {
     let endpoint = process.env.R2_S3_ENDPOINT.replace(/\/$/, '');
@@ -43,6 +32,29 @@ function getR2S3Endpoint() {
     ? `${accountId}.eu.r2.cloudflarestorage.com`
     : `${accountId}.r2.cloudflarestorage.com`;
   return `https://${host}`;
+}
+
+/** R2_PUBLIC_BASE_URL must be a browser-visible URL (r2.dev or custom domain), not the S3 API. */
+function validateR2PublicBaseUrl() {
+  const url = process.env.R2_PUBLIC_BASE_URL || '';
+  if (/cloudflarestorage\.com/i.test(url)) {
+    throw new Error(
+      'R2_PUBLIC_BASE_URL must not be the S3 API URL (cloudflarestorage.com). '
+      + 'Use R2_S3_ENDPOINT for upload and enable Public access on the bucket for R2_PUBLIC_BASE_URL '
+      + '(e.g. https://pub-xxxxx.r2.dev or https://cdn.mystarday.se).'
+    );
+  }
+}
+
+function isR2Configured() {
+  const hasEndpoint = !!(process.env.R2_S3_ENDPOINT || process.env.R2_ACCOUNT_ID);
+  return !!(
+    hasEndpoint &&
+    process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY &&
+    process.env.R2_BUCKET_NAME &&
+    process.env.R2_PUBLIC_BASE_URL
+  );
 }
 
 function getLocalUploadDir() {
@@ -84,6 +96,7 @@ function buildObjectKey(filename, prefix) {
 }
 
 async function uploadToR2({ buffer, filename, contentType, prefix }) {
+  validateR2PublicBaseUrl();
   const { PutObjectCommand } = getS3Module();
   const key = buildObjectKey(filename, prefix);
   const client = getS3Client();
@@ -129,4 +142,5 @@ module.exports = {
   usesLocalStorage,
   getLocalUploadDir,
   getR2S3Endpoint,
+  validateR2PublicBaseUrl,
 };

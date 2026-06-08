@@ -98,6 +98,20 @@ describe('object-storage', () => {
     restoreEnv();
   });
 
+  it('validateR2PublicBaseUrl rejects cloudflarestorage.com as public URL', () => {
+    saveEnv();
+    process.env.R2_PUBLIC_BASE_URL = 'https://82c8772fba7b38fb5c0001b62c82ac8f.r2.cloudflarestorage.com';
+
+    delete require.cache[require.resolve('../src/lib/object-storage')];
+    const mod = require('../src/lib/object-storage');
+    assert.throws(
+      () => mod.validateR2PublicBaseUrl(),
+      /R2_PUBLIC_BASE_URL must not be the S3 API URL/
+    );
+
+    restoreEnv();
+  });
+
   it('uploadToLocal writes file and returns APP_URL-based URL', async () => {
     saveEnv();
     for (const key of Object.keys(orig)) delete process.env[key];
