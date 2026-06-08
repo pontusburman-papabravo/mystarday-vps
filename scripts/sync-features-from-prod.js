@@ -62,7 +62,24 @@ async function fetchAdminJson(baseUrl, session, apiPath) {
   return body;
 }
 
+function buildDocumentation(row) {
+  const doc = row.documentation && typeof row.documentation === 'object' && !Array.isArray(row.documentation)
+    ? { ...row.documentation }
+    : {};
+  const devNotes = Array.isArray(row.dev_notes)
+    ? row.dev_notes
+    : (Array.isArray(doc.dev_notes) ? doc.dev_notes : []);
+  const changelog = Array.isArray(row.changelog)
+    ? row.changelog
+    : (Array.isArray(doc.changelog) ? doc.changelog : []);
+  return { ...doc, dev_notes: devNotes, changelog };
+}
+
 async function upsertFeature(client, row) {
+  const documentation = buildDocumentation(row);
+  const devNotes = documentation.dev_notes || [];
+  const changelog = documentation.changelog || [];
+
   await client.query(
     `INSERT INTO features (
       slug, name, description, status, tags, priority, complexity,
@@ -90,9 +107,9 @@ async function upsertFeature(client, row) {
       row.priority || 'medium',
       row.complexity ?? 5,
       row.estimated_hours ?? null,
-      JSON.stringify(row.documentation || {}),
-      JSON.stringify(row.dev_notes || []),
-      JSON.stringify(row.changelog || []),
+      documentation,
+      devNotes,
+      changelog,
       row.category || null,
     ]
   );
@@ -147,21 +164,28 @@ async function main() {
 
     await client.query('BEGIN');
     for (const row of features) {
-      await upsertFeature(client, row);
-      if (row.status === 'live') live++;
-      else if (row.status === 'dev') dev++;
+      // List endpoint omits full documentation — fetch detail per feature
+      let detail = row;
+      try {
+        detail = await fetchAdminJson(opts.baseUrl, session, `/api/admin/features/${encodeURIComponent(row.slug)}`);
+      } catch (err) {
+        console.warn(`  ${row.slug}: kunde inte hämta detalj — ${err.message}`);
+      }
+
+      await upsertFeature(client, detail);
+      if (detail.status === 'live') live++;
+      else if (detail.status === 'dev') dev++;
       else off++;
 
-      if (row.status === 'dev') {
-        const detail = await fetchAdminJson(opts.baseUrl, session, `/api/admin/features/${row.slug}`);
+      if (detail.status === 'dev') {
         const ids = (detail.assigned_families || []).map((f) => f.family_id);
-        const n = await syncFamilyAssignments(client, row.slug, ids);
+        const n = await syncFamilyAssignments(client, detail.slug, ids);
         devAssignments += n;
         if (n > 0) {
-          console.log(`  ${row.slug}: dev → ${n} familj(er)`);
+          console.log(`  ${detail.slug}: dev → ${n} familj(er)`);
         }
       } else {
-        await client.query('DELETE FROM family_features WHERE feature_slug = $1', [row.slug]);
+        await client.query('DELETE FROM family_features WHERE feature_slug = $1', [detail.slug]);
       }
     }
     await client.query('COMMIT');

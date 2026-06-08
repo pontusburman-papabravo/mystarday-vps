@@ -5,6 +5,7 @@
  */
 
 const db = require('../src/lib/db');
+const { normalizeFeatureRow } = require('../src/lib/feature-normalize');
 
 // CORE_FEATURES: these 12 slugs can never be turned off — always return true from hasAccess()
 const CORE_FEATURES = [
@@ -31,7 +32,6 @@ async function listFeatures() {
             SELECT COUNT(*)::int
             FROM family fam
             WHERE fam.archived_at IS NULL
-              AND fam.subscription_status IN ('active', 'trial', 'beta')
           )
         ELSE COUNT(ff.family_id)::int
       END AS family_count
@@ -40,7 +40,7 @@ async function listFeatures() {
     GROUP BY f.id
     ORDER BY f.category ASC NULLS LAST, f.priority DESC, f.created_at ASC
   `);
-  return result.rows;
+  return result.rows.map(normalizeFeatureRow);
 }
 
 /**
@@ -51,7 +51,7 @@ async function getFeature(slug) {
     'SELECT * FROM features WHERE slug = $1',
     [slug]
   );
-  return result.rows[0] || null;
+  return normalizeFeatureRow(result.rows[0] || null);
 }
 
 /**
@@ -64,7 +64,7 @@ async function createFeature({ slug, name, description, status, tags, priority, 
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *
   `, [slug, name, description || null, status || 'off', tags || [], priority || 'medium', complexity || 5, estimatedHours || null]);
-  return result.rows[0];
+  return normalizeFeatureRow(result.rows[0]);
 }
 
 /**
@@ -102,7 +102,7 @@ async function updateFeature(slug, fields) {
     `UPDATE features SET ${setClauses.join(', ')} WHERE slug = $${idx} RETURNING *`,
     values
   );
-  return result.rows[0] || null;
+  return normalizeFeatureRow(result.rows[0] || null);
 }
 
 /**
@@ -322,6 +322,7 @@ async function listActiveFeatures() {
 }
 
 module.exports = {
+  normalizeFeatureRow,
   listFeatures,
   getFeature,
   createFeature,
