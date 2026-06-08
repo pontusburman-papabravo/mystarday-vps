@@ -49,6 +49,9 @@
       if (name === 'prenumeration') loadSubscriptionSettings();
       if (name === 'families') loadFamilies();
       if (name === 'messages') loadMessages();
+      if (name === 'defaults') {
+        if (typeof switchLibTab === 'function') switchLibTab('activities');
+      }
       if (name === 'anvandning') loadLoginStats();
       if (name === 'valkomstmail') loadWelcomeEmailTemplate();
       if (name === 'intresseanmalningar') loadInterests();
@@ -122,7 +125,6 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         Auth.requireAuth();
-        showSection('overview');
 
         // Verify admin status
         const me = await Auth.api('/api/auth/me');
@@ -136,11 +138,15 @@
           return;
         }
 
+        // Show section from URL hash (e.g. #defaults, #anvandning) or overview
+        const initialHash = (window.location.hash || '').slice(1);
+        showSection(sectionTitles[initialHash] ? initialHash : 'overview');
+
         // Load stats (retry up to 3 times on transient failures)
         await loadAdminStats(3);
 
         // Load overview period stats (default period: 7d, retry up to 3 times)
-        loadOverviewStats(3);
+        if (typeof loadOverviewStats === 'function') loadOverviewStats(3);
 
         // Load grouped families
         loadFamilies();
