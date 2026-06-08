@@ -1,5 +1,44 @@
 'use strict';
 
+function sanitizeString(s) {
+  return String(s).replace(/\u0000/g, '');
+}
+
+/** Deep-sanitize values for PostgreSQL JSONB (no NaN, null bytes, undefined keys). */
+function sanitizeForJson(val) {
+  if (val === undefined || val === null) return null;
+  if (typeof val === 'string') return sanitizeString(val);
+  if (typeof val === 'number') return Number.isFinite(val) ? val : null;
+  if (typeof val === 'boolean') return val;
+  if (Array.isArray(val)) {
+    return val.map((item) => sanitizeForJson(item)).filter((item) => item !== null);
+  }
+  if (typeof val === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(val)) {
+      if (v === undefined) continue;
+      const sv = sanitizeForJson(v);
+      if (sv !== null && sv !== undefined) out[k] = sv;
+    }
+    return out;
+  }
+  return sanitizeString(val);
+}
+
+/** Safe JSON string for $N::jsonb bind params. */
+function toJsonbParam(val, fallback) {
+  const base = val === undefined || val === '' ? fallback : val;
+  let sanitized = sanitizeForJson(base);
+  if (sanitized === null || sanitized === undefined) sanitized = fallback;
+  try {
+    const s = JSON.stringify(sanitized);
+    if (!s || s === '""') return JSON.stringify(fallback);
+    return s;
+  } catch {
+    return JSON.stringify(fallback);
+  }
+}
+
 function parseJsonbField(val, fallback) {
   if (val == null) return fallback;
   if (typeof val === 'string') {
@@ -128,10 +167,11 @@ function prepareFeatureForDb(row) {
     status: n.status || 'off',
     tags: normalizeTags(n.tags),
     priority: n.priority || 'medium',
-    complexity: n.complexity != null ? Number(n.complexity) : 5,
-    estimated_hours: n.estimated_hours != null && n.estimated_hours !== ''
-      ? Number(n.estimated_hours)
-      : null,
+    complexity: Number.isFinite(Number(n.complexity)) ? Number(n.complexity) : 5,
+    estimated_hours:
+      n.estimated_hours != null && n.estimated_hours !== '' && Number.isFinite(Number(n.estimated_hours))
+        ? Number(n.estimated_hours)
+        : null,
     documentation,
     dev_notes: devNotes,
     changelog,
@@ -142,6 +182,8 @@ function prepareFeatureForDb(row) {
 module.exports = {
   parseJsonbField,
   asStringArray,
+  sanitizeForJson,
+  toJsonbParam,
   normalizeDocumentation,
   normalizeTags,
   normalizeFeatureRow,
