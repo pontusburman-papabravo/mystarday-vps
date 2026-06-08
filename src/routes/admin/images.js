@@ -6,9 +6,8 @@
 
 const express = require('express');
 const multer = require('multer');
-const nodeFetch = require('node-fetch');
-const FormData = require('form-data');
 const { requireAdmin } = require('../../middleware/auth');
+const { uploadImage, isObjectStorageConfigured } = require('../../lib/object-storage');
 const { listAll, create, deleteById } = require('../../../db/admin-images');
 
 const router = express.Router();
@@ -69,20 +68,20 @@ router.post('/upload', requireAdmin, uploadMiddleware.single('image'), async (re
       .replace(/[^a-zA-Z0-9.\\-]/g, '_')
       .substring(0, 128) || 'upload.jpg';
 
-    const fd = new FormData();
-    fd.append('file', req.file.buffer, { filename: safeFilename, contentType: detectedMime });
+    if (!isObjectStorageConfigured()) {
+      return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });
+    }
 
-    const r2Res = await nodeFetch('https://polsia.com/api/proxy/r2/upload', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.POLSIA_API_KEY}`, ...fd.getHeaders() },
-      body: fd,
+    const publicUrl = await uploadImage({
+      buffer: req.file.buffer,
+      filename: safeFilename,
+      contentType: detectedMime,
+      prefix: 'admin',
     });
-    const r2Data = await r2Res.json();
-    if (!r2Data.success) throw new Error(r2Data.error?.message || 'Upload misslyckades');
 
     const record = await create({
       uploaderId: req.user.id,
-      url: r2Data.file.url,
+      url: publicUrl,
       filename: safeFilename,
       mimeType: detectedMime,
       fileSize: req.file.size,

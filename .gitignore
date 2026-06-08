@@ -4,6 +4,10 @@ node_modules/
 !.env.example
 .DS_Store
 
+# Uploaded images (local disk storage)
+data/uploads/*
+!data/uploads/.gitkeep
+
 # Prisma
 prisma/*.db
 prisma/*.db-journal

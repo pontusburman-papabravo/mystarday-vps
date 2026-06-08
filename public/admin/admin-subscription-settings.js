@@ -19,22 +19,19 @@ function renderSubscriptionSettings() {
   document.getElementById('basicPriceInput').value = subscriptionData.basic_price_sek ?? 59;
   document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
 
-  // Stripe product status — always show info (Stripe managed via Polsia dashboard)
+  // IAP status — web Stripe removed; subscriptions via Apple/Google (RevenueCat)
   const label = document.getElementById('stripeStatusLabel');
   const hint = document.getElementById('stripeStatusHint');
-  if (subscriptionData.stripe_configured) {
-    label.textContent = 'Stripe-produkt: ✅ Konfigurerad';
-    label.className = 'text-sm font-semibold text-green-700';
-    hint.textContent = 'Betalning aktiveras när du slår på "Betalning aktiverad" nedan.';
-    hint.className = 'text-xs text-green-600 mt-0.5';
-  } else {
-    label.textContent = 'Stripe-produkt: Ej konfigurerad';
-    label.className = 'text-sm font-semibold text-text-soft';
-    hint.textContent = 'Konfigurera betalning via Polsias instrumentpanel (inte här).';
+  if (label) {
+    label.textContent = 'IAP: Apple / Google Play';
+    label.className = 'text-sm font-semibold text-navy';
+  }
+  if (hint) {
+    hint.textContent = 'Webb-Stripe är borttagen. Prenumeration sköts via RevenueCat i mobilapparna.';
     hint.className = 'text-xs text-text-soft mt-0.5';
   }
 
-  // Payment toggle
+  // Payment toggle (legacy — web payment disabled)
   const toggle = document.getElementById('paymentEnabledToggle');
   toggle.checked = !!subscriptionData.payment_enabled;
   document.getElementById('paymentToggleLabel').textContent = subscriptionData.payment_enabled ? 'PÅ' : 'AV';
