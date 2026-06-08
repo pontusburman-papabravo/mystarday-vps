@@ -68,7 +68,7 @@
     fetch('/api/app-config', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
-        if (cfg && cfg.nativeTabbarEnabled === false) return;
+        if (cfg && (cfg.nativeTabbarEnabled === false || cfg.native_tabbar_enabled === false)) return;
         mount();
       })
       .catch(function () { /* fail closed — no tab bar until app-config is available */ });
