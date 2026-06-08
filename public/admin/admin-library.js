@@ -741,7 +741,6 @@
         const el = document.getElementById(id);
         if (el) el.textContent = '!';
       });
-      const famContainer = document.getElementById('overviewFamiliesContainer');
       if (famContainer) famContainer.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjestatistik</div>';
     }
 
