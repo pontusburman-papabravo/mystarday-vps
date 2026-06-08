@@ -7,6 +7,15 @@ const db = require('../../lib/db');
 
 const router = express.Router();
 
+function familyActivityScore(family) {
+  const parentScore = (family.parents || []).reduce((sum, u) => sum + (u.logins || 0), 0);
+  const childScore = (family.children || []).reduce(
+    (sum, u) => sum + (u.logins || 0) + (u.completions || 0),
+    0
+  );
+  return parentScore + childScore;
+}
+
 // ─── GET /api/admin/stats ─────────────────────────────────
 router.get('/stats', async (req, res) => {
   try {
@@ -28,6 +37,198 @@ router.get('/stats', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Stats error:', err);
     res.status(500).json({ error: 'Kunde inte hämta statistik' });
+  }
+});
+
+// ─── GET /api/admin/overview-stats ────────────────────────
+// Period-scoped growth + activity metrics for admin overview (not just logins).
+// Query: ?period=24h|7d|30d|365d (default 7d)
+router.get('/overview-stats', async (req, res) => {
+  try {
+    const PERIOD_MAP = { '24h': '24 hours', '7d': '7 days', '30d': '30 days', '365d': '365 days' };
+    const periodKey = req.query.period && PERIOD_MAP[req.query.period] ? req.query.period : '7d';
+    const interval = PERIOD_MAP[periodKey];
+
+    const [newCounts, activeCounts, loginCounts, activityCounts, familiesResult] = await Promise.all([
+      db.query(`
+        SELECT
+          (SELECT COUNT(*)::int FROM family WHERE archived_at IS NULL AND created_at >= NOW() - $1::interval) AS families,
+          (SELECT COUNT(*)::int FROM parent WHERE is_admin = false AND created_at >= NOW() - $1::interval) AS parents,
+          (SELECT COUNT(*)::int FROM child WHERE created_at >= NOW() - $1::interval) AS children
+      `, [interval]),
+      db.query(`
+        WITH since AS (SELECT NOW() - $1::interval AS t),
+        active_families AS (
+          SELECT DISTINCT family_id FROM (
+            SELECT c.family_id
+            FROM daily_log_item dli
+            JOIN daily_log dl ON dl.id = dli.daily_log_id
+            JOIN child c ON c.id = dl.child_id
+            CROSS JOIN since
+            WHERE dli.completed = true AND dli.completed_at >= since.t
+            UNION
+            SELECT le.family_id FROM login_event le CROSS JOIN since WHERE le.occurred_at >= since.t
+            UNION
+            SELECT ae.family_id FROM analytics_events ae CROSS JOIN since WHERE ae.created_at >= since.t
+          ) x
+        ),
+        active_children AS (
+          SELECT DISTINCT dl.child_id
+          FROM daily_log_item dli
+          JOIN daily_log dl ON dl.id = dli.daily_log_id
+          CROSS JOIN since
+          WHERE dli.completed = true AND dli.completed_at >= since.t
+        ),
+        active_parents AS (
+          SELECT DISTINCT p.id
+          FROM parent p
+          CROSS JOIN since
+          WHERE p.is_admin = false
+            AND (
+              EXISTS (
+                SELECT 1 FROM login_event le
+                WHERE le.user_id = p.id AND le.role = 'parent' AND le.occurred_at >= since.t
+              )
+              OR EXISTS (SELECT 1 FROM active_families af WHERE af.family_id = p.family_id)
+            )
+        )
+        SELECT
+          (SELECT COUNT(*)::int FROM active_families) AS families,
+          (SELECT COUNT(*)::int FROM active_parents) AS parents,
+          (SELECT COUNT(*)::int FROM active_children) AS children
+      `, [interval]),
+      db.query(`
+        SELECT role, COUNT(*)::int AS total
+        FROM login_event
+        WHERE role IN ('parent', 'child')
+          AND occurred_at >= NOW() - $1::interval
+        GROUP BY role
+      `, [interval]),
+      db.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE dli.completed = true)::int AS completions,
+          COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed = true), 0)::int AS stars
+        FROM daily_log_item dli
+        WHERE dli.completed = true
+          AND dli.completed_at >= NOW() - $1::interval
+      `, [interval]),
+      db.query(`
+        WITH since AS (SELECT NOW() - $1::interval AS t),
+        parent_logins AS (
+          SELECT le.user_id, COUNT(*)::int AS logins, MAX(le.occurred_at) AS last_login
+          FROM login_event le CROSS JOIN since
+          WHERE le.role = 'parent' AND le.occurred_at >= since.t
+          GROUP BY le.user_id
+        ),
+        child_logins AS (
+          SELECT le.user_id, COUNT(*)::int AS logins, MAX(le.occurred_at) AS last_login
+          FROM login_event le CROSS JOIN since
+          WHERE le.role = 'child' AND le.occurred_at >= since.t
+          GROUP BY le.user_id
+        ),
+        child_completions AS (
+          SELECT dl.child_id,
+                 COUNT(*)::int AS completions,
+                 COALESCE(SUM(dli.star_value), 0)::int AS stars,
+                 MAX(dli.completed_at) AS last_activity
+          FROM daily_log_item dli
+          JOIN daily_log dl ON dl.id = dli.daily_log_id
+          CROSS JOIN since
+          WHERE dli.completed = true AND dli.completed_at >= since.t
+          GROUP BY dl.child_id
+        ),
+        parent_family_activity AS (
+          SELECT p.id AS parent_id, MAX(cc.last_activity) AS last_child_activity
+          FROM parent p
+          JOIN child c ON c.family_id = p.family_id
+          LEFT JOIN child_completions cc ON cc.child_id = c.id
+          GROUP BY p.id
+        )
+        SELECT
+          f.id AS family_id,
+          COALESCE(f.name, 'Namnlös familj') AS family_name,
+          json_agg(DISTINCT jsonb_build_object(
+            'id', p.id,
+            'name', COALESCE(p.name, ''),
+            'email', COALESCE(p.email, ''),
+            'logins', COALESCE(pl.logins, 0),
+            'completions', 0,
+            'stars', 0,
+            'last_activity', CASE
+              WHEN pl.last_login IS NULL AND pfa.last_child_activity IS NULL THEN NULL
+              ELSE GREATEST(COALESCE(pl.last_login, '-infinity'::timestamptz), COALESCE(pfa.last_child_activity, '-infinity'::timestamptz))
+            END
+          )) FILTER (WHERE p.id IS NOT NULL) AS parents,
+          json_agg(DISTINCT jsonb_build_object(
+            'id', c.id,
+            'name', c.name,
+            'username', COALESCE(c.username, ''),
+            'logins', COALESCE(cl.logins, 0),
+            'completions', COALESCE(cc.completions, 0),
+            'stars', COALESCE(cc.stars, 0),
+            'last_activity', CASE
+              WHEN cl.last_login IS NULL AND cc.last_activity IS NULL THEN NULL
+              ELSE GREATEST(COALESCE(cl.last_login, '-infinity'::timestamptz), COALESCE(cc.last_activity, '-infinity'::timestamptz))
+            END
+          )) FILTER (WHERE c.id IS NOT NULL) AS children
+        FROM family f
+        LEFT JOIN parent p ON p.family_id = f.id AND p.is_admin = false
+        LEFT JOIN parent_logins pl ON pl.user_id = p.id
+        LEFT JOIN parent_family_activity pfa ON pfa.parent_id = p.id
+        LEFT JOIN child c ON c.family_id = f.id
+        LEFT JOIN child_logins cl ON cl.user_id = c.id
+        LEFT JOIN child_completions cc ON cc.child_id = c.id
+        WHERE f.archived_at IS NULL
+        GROUP BY f.id, f.name
+        ORDER BY f.created_at DESC
+      `, [interval]),
+    ]);
+
+    const logins = { parents: 0, children: 0 };
+    for (const row of loginCounts.rows) {
+      if (row.role === 'parent') logins.parents = row.total;
+      if (row.role === 'child') logins.children = row.total;
+    }
+
+    res.json({
+      period: periodKey,
+      new: {
+        families: newCounts.rows[0].families,
+        parents: newCounts.rows[0].parents,
+        children: newCounts.rows[0].children,
+      },
+      active: {
+        families: activeCounts.rows[0].families,
+        parents: activeCounts.rows[0].parents,
+        children: activeCounts.rows[0].children,
+      },
+      logins,
+      activity: {
+        completions: activityCounts.rows[0].completions,
+        stars: activityCounts.rows[0].stars,
+      },
+      families: familiesResult.rows
+        .map(row => ({
+          family_id: row.family_id,
+          family_name: row.family_name,
+          parents: (row.parents || []).map(p => ({
+            ...p,
+            logins: parseInt(p.logins, 10) || 0,
+            completions: parseInt(p.completions, 10) || 0,
+            stars: parseInt(p.stars, 10) || 0,
+          })),
+          children: (row.children || []).map(c => ({
+            ...c,
+            logins: parseInt(c.logins, 10) || 0,
+            completions: parseInt(c.completions, 10) || 0,
+            stars: parseInt(c.stars, 10) || 0,
+          })),
+        }))
+        .sort((a, b) => familyActivityScore(b) - familyActivityScore(a)),
+    });
+  } catch (err) {
+    console.error('[ADMIN] Overview stats error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta översiktsstatistik' });
   }
 });
 
