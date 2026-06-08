@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizeFeatureRow } = require('../src/lib/feature-normalize');
+const { normalizeFeatureRow, asStringArray } = require('../src/lib/feature-normalize');
 
 describe('normalizeFeatureRow', () => {
   it('merges top-level dev_notes into documentation', () => {
@@ -35,5 +35,27 @@ describe('normalizeFeatureRow', () => {
     const out = normalizeFeatureRow(row);
     assert.equal(out.documentation.purpose, 'y');
     assert.ok(Array.isArray(out.documentation.dev_notes));
+  });
+
+  it('coerces acceptance_criteria string to array', () => {
+    const row = {
+      slug: 'aktivitetsbibliotek',
+      name: 'Aktivitetsbibliotek',
+      status: 'live',
+      documentation: {
+        acceptance_criteria: 'Förälder kan skapa egna aktiviteter.',
+      },
+      dev_notes: [],
+      changelog: [],
+      tags: ['kärna'],
+    };
+    const out = normalizeFeatureRow(row);
+    assert.deepEqual(out.documentation.acceptance_criteria, [
+      'Förälder kan skapa egna aktiviteter.',
+    ]);
+  });
+
+  it('asStringArray splits multiline strings', () => {
+    assert.deepEqual(asStringArray('a\nb'), ['a', 'b']);
   });
 });
