@@ -58,12 +58,15 @@
   },
   "devDependencies": {
     "@capacitor-community/apple-sign-in": "^7.0.0",
+    "@capacitor/android": "^7.6.6",
     "@capacitor/app": "^7.0.0",
     "@capacitor/camera": "^7.0.0",
     "@capacitor/cli": "^7.0.0",
     "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.6.6",
     "@capacitor/push-notifications": "^7.0.6",
     "eslint": "^9.0.0",
-    "pino-pretty": "^10.3.0"
+    "pino-pretty": "^10.3.0",
+    "typescript": "~5.7.0"
   }
 }
