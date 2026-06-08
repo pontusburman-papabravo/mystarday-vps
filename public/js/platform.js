@@ -538,20 +538,33 @@ var Platform = (function () {
 
       var fd = new FormData();
       fd.append('image', blob, filename);
-      var headers = {};
-      if (window.Auth && typeof Auth.ensureCsrfToken === 'function') {
+
+      async function postAvatar(retry) {
+        if (!window.Auth || typeof Auth.ensureCsrfToken !== 'function') {
+          throw new Error('Ej inloggad');
+        }
+        if (retry) localStorage.removeItem(Auth.CSRF_KEY);
         await Auth.ensureCsrfToken();
         var csrf = Auth.getCsrfToken();
-        if (csrf) headers['X-CSRF-Token'] = csrf;
+        if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
+        var headers = { 'X-CSRF-Token': csrf };
+        return fetch('/api/upload/avatar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: headers,
+          body: fd,
+        });
       }
-      var result = await fetch('/api/upload/avatar', {
-        method: 'POST',
-        credentials: 'include',
-        headers: headers,
-        body: fd,
-      });
+
+      var result = await postAvatar(false);
+      if (result.status === 403) {
+        var errBody = await result.clone().json().catch(function () { return {}; });
+        if (errBody.code === 'CSRF_MISSING' || errBody.code === 'CSRF_INVALID') {
+          result = await postAvatar(true);
+        }
+      }
       if (!result.ok) {
-        var err = await result.json().catch(() => ({}));
+        var err = await result.json().catch(function () { return {}; });
         throw new Error(err.error || 'Upload misslyckades');
       }
       var json = await result.json();

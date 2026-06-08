@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v196
+ * Min Stjärndag — Service Worker v197
+ * v197: CSRF cookie sync för mobil PWA avatar-uppladdning
  * v196: Mobil PWA avatar — filväljare timeout, blob utan fetch(dataUrl)
  * v195: PWA barnavatar — Byt bild i child-settings + CSRF på upload/avatar
  * v194: Admin e-post — dagens nyhet mottagarval, newsletters-tabell
@@ -202,7 +203,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v196';
+const CACHE_NAME = 'stjarndag-v197';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

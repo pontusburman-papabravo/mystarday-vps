@@ -66,15 +66,25 @@ const Auth = {
   },
 
   /**
-   * Read CSRF token from cookie (set by server on login/csrf-token endpoint).
-   * The cookie is NOT httpOnly so JS can read it for the double-submit pattern.
+   * Read csrf_token from document.cookie (double-submit cookie half).
+   */
+  _readCsrfCookie() {
+    const match = document.cookie.match(/(?:^|;)\s*csrf_token=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  },
+
+  /**
+   * Read CSRF token — cookie is source of truth (must match X-CSRF-Token header).
+   * localStorage alone is not enough; without cookie the server returns CSRF_MISSING.
    */
   getCsrfToken() {
-    const cached = localStorage.getItem(this.CSRF_KEY);
-    if (cached) return cached;
-
-    const match = document.cookie.match(/(?:^|;\u0020)csrf_token=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : null;
+    const cookieToken = this._readCsrfCookie();
+    if (cookieToken) {
+      const cached = localStorage.getItem(this.CSRF_KEY);
+      if (cached !== cookieToken) localStorage.setItem(this.CSRF_KEY, cookieToken);
+      return cookieToken;
+    }
+    return null;
   },
 
   /**
@@ -103,6 +113,7 @@ const Auth = {
    */
   async ensureCsrfToken() {
     if (this.getCsrfToken()) return this.getCsrfToken();
+    localStorage.removeItem(this.CSRF_KEY);
     if (this._csrfFetchPromise) return this._csrfFetchPromise;
 
     this._csrfFetchPromise = (async () => {
@@ -765,12 +776,10 @@ const Auth = {
   }
 })();
 
-// Proactively fetch CSRF token on page load for authenticated users.
+// Proactively fetch CSRF token on page load (cookie + localStorage must stay in sync).
 (function () {
   if (!Auth.isLoggedIn()) return;
-  if (!Auth.getCsrfToken()) {
-    Auth.ensureCsrfToken();
-  }
+  Auth.ensureCsrfToken();
 })();
 
 // Visibility change handler — refresh token when app/tab comes back to foreground.
