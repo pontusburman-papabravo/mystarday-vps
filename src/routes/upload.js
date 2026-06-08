@@ -1,4 +1,4 @@
-// Owns: POST /api/upload/image, POST /api/upload/avatar — authenticated image uploads to R2.
+// Owns: POST /api/upload/image, POST /api/upload/avatar — authenticated image uploads (R2 or local disk).
 // Does NOT own: auth token issuance, family/child data, any other file types.
 
 const express = require('express');

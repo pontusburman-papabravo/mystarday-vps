@@ -72,7 +72,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## External integrations
 
-- **Cloudflare R2** — image uploads for manual star grants and child avatar photos (`R2_*` env vars, `@aws-sdk/client-s3`)
+- **Image uploads** — Cloudflare R2 when `R2_*` is set, otherwise **local disk** on VPS (`data/uploads`, served at `/uploads/…`)
 - **Resend** — all outbound email (verification, invite, welcome, newsletter, PIN warning, account deletion, feedback, weekly summary); via `src/lib/email.js` → `https://api.resend.com/emails`; `RESEND_API_KEY` env var; kill switch `EMAIL_ENABLED=false`; sender `Min Stjärndag <info@mystarday.se>` (`EMAIL_FROM` / `EMAIL_FROM_NAME`)
 - **Polsia Stripe proxy** — payment checkout and verification (Stripe SDK at `stripe@17` for webhook verification via `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` env vars)
 - **Web Push (VAPID)** — push notifications via VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY env vars

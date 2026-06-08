@@ -110,6 +110,10 @@ registerRoutes(app);
 // ─── Static files ─────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
+// Local image uploads (when R2 is not configured — default on VPS)
+const { getLocalUploadDir } = require('./src/lib/object-storage');
+app.use('/uploads', express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
+
 // ─── V2.0 design mockup (static, read-only) ───────────────
 app.use('/V2.0', express.static(path.join(__dirname, 'public', 'v2'), { index: 'index.html' }));
 
