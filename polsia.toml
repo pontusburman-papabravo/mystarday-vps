@@ -1,10 +1,10 @@
 # polsia.toml — recurring product work declarations for Min Stjärndag.
 #
-# Blaxel / Render Cron: set POLSIA_IN_PROCESS_CRONS_ENABLED=false on Blaxel,
+# Blaxel / Render Cron: set IN_PROCESS_CRONS_ENABLED=false on Blaxel,
 # and render a [[crons]] entry that calls the same job.
 #
 # During the Blaxel shadow phase, the in-process scheduler is guarded by
-# POLSIA_IN_PROCESS_CRONS_ENABLED (set true on Render, false on Blaxel).
+# IN_PROCESS_CRONS_ENABLED (set true on app server; legacy: POLSIA_IN_PROCESS_CRONS_ENABLED).
 
 [[crons]]
 name = "push-reminder-scheduler"
