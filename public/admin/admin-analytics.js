@@ -64,7 +64,8 @@ async function switchTab(tabName) {
   if (target) target.classList.remove('hidden');
 
   // Load data for the active tab
-  if (tabName === 'dynamics') await loadDynamics();
+  if (tabName === 'overview') await loadOverviewTab();
+  else if (tabName === 'dynamics') await loadDynamics();
   else if (tabName === 'warnings') await loadWarnings();
   else if (tabName === 'retention') await loadRetention();
   else if (tabName === 'trends') await loadTrends();
@@ -361,27 +362,42 @@ function buildAnalyticsHTML() {
 
 // ─── Tab loaders ──────────────────────────────────────────
 
-async function loadDynamics() {
-  if (document.getElementById('dynamicsParentTable').dataset.loaded) return;
+async function loadOverviewTab() {
+  const container = document.getElementById('kpiCards');
+  if (!container || container.dataset.loaded === 'true') return;
   try {
-    const [kpisRes, snapshotsRes, funnelRes, featuresRes, dynamicsRes, heatmapRes] = await Promise.all([
-      fetch('/api/admin/analytics/kpis').then(r => r.json()),
-      fetch('/api/admin/analytics/snapshots?days=14').then(r => r.json()),
-      fetch('/api/admin/analytics/funnel').then(r => r.json()),
-      fetch('/api/admin/analytics/features').then(r => r.json()),
-      fetch('/api/admin/analytics/family-dynamics').then(r => r.json()),
-      fetch('/api/admin/analytics/heatmap').then(r => r.json()),
+    const [kpisRes, snapshotsRes, funnelRes, featuresRes] = await Promise.all([
+      Auth.api('/api/admin/analytics/kpis'),
+      Auth.api('/api/admin/analytics/snapshots?days=14'),
+      Auth.api('/api/admin/analytics/funnel'),
+      Auth.api('/api/admin/analytics/features'),
     ]);
 
     renderKpiCards(kpisRes, snapshotsRes);
     renderFunnelChart(funnelRes);
     renderFeatureChart(featuresRes);
+    container.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadOverviewTab error:', err);
+    if (container) {
+      container.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda analytics: ' + (typeof esc === 'function' ? esc(err.message || 'Okänt fel') : 'fel') + '</p>';
+    }
+  }
+}
 
-    // Family dynamics
+async function loadDynamics() {
+  if (document.getElementById('dynamicsParentTable').dataset.loaded) return;
+  try {
+    // Ensure overview charts are populated (shared KPI/funnel data)
+    await loadOverviewTab();
+
+    const [dynamicsRes, heatmapRes] = await Promise.all([
+      Auth.api('/api/admin/analytics/family-dynamics'),
+      Auth.api('/api/admin/analytics/heatmap'),
+    ]);
+
     renderDynamicsParentTable(dynamicsRes.breakdown);
     renderDynamicsComparison(dynamicsRes.comparison);
-
-    // Heatmap
     renderHeatmap(heatmapRes);
 
     document.getElementById('dynamicsParentTable').dataset.loaded = 'true';

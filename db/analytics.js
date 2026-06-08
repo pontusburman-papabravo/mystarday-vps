@@ -43,28 +43,41 @@ async function track(familyId, eventType, metadata = {}) {
  * Steps: landing_visit, signup_started, email_verified, first_child_created
  */
 async function getFunnelCounts() {
-  const result = await db.query(`
-    SELECT event_type, COUNT(DISTINCT family_id) AS unique_families
-    FROM analytics_events
-    WHERE event_type IN (
-      'funnel_landing_visit',
-      'funnel_signup_started',
-      'funnel_email_verified',
-      'funnel_first_child_created'
-    )
-    GROUP BY event_type
-  `);
+  const [eventsResult, fallbackResult] = await Promise.all([
+    db.query(`
+      SELECT event_type, COUNT(DISTINCT family_id) AS unique_families
+      FROM analytics_events
+      WHERE event_type IN (
+        'funnel_landing_visit',
+        'funnel_signup_started',
+        'funnel_email_verified',
+        'funnel_first_child_created'
+      )
+      GROUP BY event_type
+    `),
+    db.query(`
+      SELECT
+        (SELECT COUNT(*)::int FROM family WHERE archived_at IS NULL) AS families_registered,
+        (SELECT COUNT(DISTINCT p.family_id)::int FROM parent p
+         JOIN family f ON f.id = p.family_id
+         WHERE f.archived_at IS NULL AND p.verified = true AND p.is_admin = false) AS families_verified,
+        (SELECT COUNT(DISTINCT c.family_id)::int FROM child c
+         JOIN family f ON f.id = c.family_id WHERE f.archived_at IS NULL) AS families_with_child
+    `),
+  ]);
 
   const map = {};
-  for (const row of result.rows) {
-    map[row.event_type] = parseInt(row.unique_families);
+  for (const row of eventsResult.rows) {
+    map[row.event_type] = parseInt(row.unique_families, 10);
   }
+  const fb = fallbackResult.rows[0] || {};
 
+  // Use analytics events when tracked; fall back to real DB counts for older families.
   return [
-    { step: 'Landningssida besökt', event: 'funnel_landing_visit',        count: map['funnel_landing_visit'] || 0 },
-    { step: 'Registrering påbörjad', event: 'funnel_signup_started',       count: map['funnel_signup_started'] || 0 },
-    { step: 'E-post verifierad',     event: 'funnel_email_verified',       count: map['funnel_email_verified'] || 0 },
-    { step: 'Första barn skapat',    event: 'funnel_first_child_created',  count: map['funnel_first_child_created'] || 0 },
+    { step: 'Landningssida besökt', event: 'funnel_landing_visit', count: map.funnel_landing_visit || 0 },
+    { step: 'Registrering påbörjad', event: 'funnel_signup_started', count: map.funnel_signup_started || fb.families_registered || 0 },
+    { step: 'E-post verifierad', event: 'funnel_email_verified', count: map.funnel_email_verified || fb.families_verified || 0 },
+    { step: 'Första barn skapat', event: 'funnel_first_child_created', count: map.funnel_first_child_created || fb.families_with_child || 0 },
   ];
 }
 
@@ -181,17 +194,30 @@ async function computeLiveKpis() {
     pwaResult,
     newsletterResult,
   ] = await Promise.all([
-    // Active families in last 24h (via analytics_events)
+    // Active families: analytics events OR real usage (completions, logins)
     db.query(`
-      SELECT COUNT(DISTINCT family_id) AS count
-      FROM analytics_events
-      WHERE created_at >= NOW() - INTERVAL '24 hours'
+      SELECT COUNT(DISTINCT family_id) AS count FROM (
+        SELECT family_id FROM analytics_events WHERE created_at >= NOW() - INTERVAL '24 hours'
+        UNION
+        SELECT c.family_id FROM daily_log_item dli
+        JOIN daily_log dl ON dl.id = dli.daily_log_id
+        JOIN child c ON c.id = dl.child_id
+        WHERE dli.completed = true AND dli.completed_at >= NOW() - INTERVAL '24 hours'
+        UNION
+        SELECT family_id FROM login_event WHERE occurred_at >= NOW() - INTERVAL '24 hours'
+      ) active
     `),
-    // Active families in last 7 days
     db.query(`
-      SELECT COUNT(DISTINCT family_id) AS count
-      FROM analytics_events
-      WHERE created_at >= NOW() - INTERVAL '7 days'
+      SELECT COUNT(DISTINCT family_id) AS count FROM (
+        SELECT family_id FROM analytics_events WHERE created_at >= NOW() - INTERVAL '7 days'
+        UNION
+        SELECT c.family_id FROM daily_log_item dli
+        JOIN daily_log dl ON dl.id = dli.daily_log_id
+        JOIN child c ON c.id = dl.child_id
+        WHERE dli.completed = true AND dli.completed_at >= NOW() - INTERVAL '7 days'
+        UNION
+        SELECT family_id FROM login_event WHERE occurred_at >= NOW() - INTERVAL '7 days'
+      ) active
     `),
     // Total stars given (all time from daily_log_item)
     db.query(`
@@ -225,8 +251,18 @@ async function computeLiveKpis() {
 
   const funnelMap = {};
   for (const row of funnelResult.rows) funnelMap[row.event_type] = parseInt(row.cnt);
-  const started = funnelMap['funnel_signup_started'] || 0;
-  const completed = funnelMap['funnel_first_child_created'] || 0;
+  let started = funnelMap['funnel_signup_started'] || 0;
+  let completed = funnelMap['funnel_first_child_created'] || 0;
+  if (started === 0 || completed === 0) {
+    const fb = await db.query(`
+      SELECT
+        (SELECT COUNT(*)::int FROM family WHERE archived_at IS NULL) AS families_registered,
+        (SELECT COUNT(DISTINCT c.family_id)::int FROM child c
+         JOIN family f ON f.id = c.family_id WHERE f.archived_at IS NULL) AS families_with_child
+    `);
+    if (started === 0) started = fb.rows[0]?.families_registered || 0;
+    if (completed === 0) completed = fb.rows[0]?.families_with_child || 0;
+  }
   const conversionRate = started > 0 ? Math.round((completed / started) * 10000) / 100 : 0;
 
   const pwaMap = {};
