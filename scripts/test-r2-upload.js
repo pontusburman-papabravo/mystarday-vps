@@ -19,7 +19,8 @@ if (fs.existsSync(envPath)) {
     if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1);
     }
-    if (process.env[key] === undefined) process.env[key] = val;
+    // .env wins over inherited shell/systemd vars (avoids stale R2_S3_ENDPOINT)
+    process.env[key] = val;
   }
 }
 
@@ -29,6 +30,8 @@ async function main() {
   console.log('R2 configured:', isR2Configured());
   console.log('Uses local storage:', usesLocalStorage());
   if (isR2Configured()) {
+    console.log('R2_JURISDICTION:', process.env.R2_JURISDICTION || '(not set)');
+    console.log('R2_S3_ENDPOINT:', process.env.R2_S3_ENDPOINT || '(not set)');
     console.log('S3 endpoint:', getR2S3Endpoint());
     console.log('Public base URL:', process.env.R2_PUBLIC_BASE_URL);
   }
