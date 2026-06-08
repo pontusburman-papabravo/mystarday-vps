@@ -7,7 +7,8 @@
 # Visar inga hemligheter (.env-värden).
 set -uo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/mystarday}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="${APP_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
 SERVICE_NAME="${SERVICE_NAME:-mystarday}"
 JSON_MODE=false
