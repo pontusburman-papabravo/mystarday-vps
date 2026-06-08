@@ -204,6 +204,51 @@ var Platform = (function () {
     throw new Error('Share not supported');
   };
 
+  // Native push token cache (for unregister + bridge listener).
+  var _lastNativePushToken = null;
+  var _nativePushListenersReady = false;
+
+  function pushAuthHeaders() {
+    var headers = { 'Content-Type': 'application/json' };
+    var csrf = (window.Auth && window.Auth.getCsrfToken && window.Auth.getCsrfToken()) ||
+      (function () {
+        var m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : null;
+      })();
+    if (csrf) headers['X-CSRF-Token'] = csrf;
+    return headers;
+  }
+
+  /** Capacitor bridge — bare-specifier imports fail in remote-URL WebView. */
+  function getPushNotificationsPlugin() {
+    return (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.PushNotifications) || null;
+  }
+
+  async function ensureNativePushListeners(PushNotifications) {
+    if (_nativePushListenersReady) return;
+    _nativePushListenersReady = true;
+    await PushNotifications.addListener('registration', async function (tokenEvt) {
+      _lastNativePushToken = tokenEvt.value;
+      var platform = isIOS() ? 'ios' : 'android';
+      try {
+        var res = await fetch('/api/push/register-native', {
+          method: 'POST',
+          headers: pushAuthHeaders(),
+          body: JSON.stringify({ token: tokenEvt.value, platform: platform }),
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          console.error('[Platform.push] Token registration failed:', res.status, await res.text().catch(function () { return ''; }));
+        }
+      } catch (err) {
+        console.error('[Platform.push] Token registration failed:', err);
+      }
+    });
+    await PushNotifications.addListener('registrationError', function (err) {
+      console.error('[Platform.push] Registration error:', err);
+    });
+  }
+
   // Push — Web Push on web, Capacitor PushNotifications on native.
   var push = {
     /**
@@ -215,34 +260,22 @@ var Platform = (function () {
     async register() {
       if (isNative()) {
         try {
-          const { PushNotifications } = await import('@capacitor/push-notifications');
-          const permResult = await PushNotifications.requestPermissions();
+          var PushNotifications = getPushNotificationsPlugin();
+          if (!PushNotifications) {
+            console.warn('[Platform.push] PushNotifications plugin not available — run npx cap sync ios');
+            return { success: false, reason: 'push_plugin_unavailable' };
+          }
+          await ensureNativePushListeners(PushNotifications);
+          var permResult = await PushNotifications.requestPermissions();
           if (permResult.receive !== 'granted') {
             console.warn('[Platform.push] Permission denied:', permResult);
             return { success: false, reason: 'permission_denied' };
           }
-          const result = await PushNotifications.register();
-          // Get the token that was registered
-          PushNotifications.addListener('registration', async (tokenEvt) => {
-            const platform = isIOS() ? 'ios' : 'android';
-            try {
-              await fetch('/api/push/register-native', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: tokenEvt.value, platform }),
-                credentials: 'include',
-              });
-            } catch (err) {
-              console.error('[Platform.push] Token registration failed:', err);
-            }
-          });
-          PushNotifications.addListener('registrationError', (err) => {
-            console.error('[Platform.push] Registration error:', err);
-          });
-          return { success: true, token: result };
+          await PushNotifications.register();
+          return { success: true, token: _lastNativePushToken };
         } catch (err) {
           console.error('[Platform.push] Register failed:', err);
-          return { success: false, reason: err.message };
+          return { success: false, reason: err.message || 'register_failed' };
         }
       } else {
         // Web: use the Service Worker registration + VAPID subscription
@@ -260,12 +293,16 @@ var Platform = (function () {
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
-        await fetch('/api/push/subscribe', {
+        const subRes = await fetch('/api/push/subscribe', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: pushAuthHeaders(),
           body: JSON.stringify({ subscription: sub.toJSON() }),
           credentials: 'include',
         });
+        if (!subRes.ok) {
+          const err = await subRes.json().catch(function () { return {}; });
+          return { success: false, reason: err.error || 'subscribe_failed' };
+        }
         return { success: true };
       }
     },
@@ -277,20 +314,18 @@ var Platform = (function () {
     async unregister() {
       if (isNative()) {
         try {
-          const { PushNotifications } = await import('@capacitor/push-notifications');
-          const tokenResult = await PushNotifications.getLastDeliveredNotification?.();
-          // Unregister from Capacitor
-          await PushNotifications.unregister?.();
-          // The token to remove comes from the 'registration' event stored in memory;
-          // for simplicity, clear all native tokens by platform if we can't get the token.
-          const platform = isIOS() ? 'ios' : 'android';
-          // Try to get current token to delete the right one
+          var PushNotifications = getPushNotificationsPlugin();
+          if (PushNotifications && typeof PushNotifications.unregister === 'function') {
+            await PushNotifications.unregister();
+          }
+          var platform = isIOS() ? 'ios' : 'android';
           await fetch('/api/push/unregister-native', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ platform, token: '' }),
+            headers: pushAuthHeaders(),
+            body: JSON.stringify({ platform: platform, token: _lastNativePushToken || '' }),
             credentials: 'include',
-          }).catch(() => {});
+          }).catch(function () {});
+          _lastNativePushToken = null;
           return { success: true };
         } catch (err) {
           console.error('[Platform.push] Unregister failed:', err);
@@ -303,7 +338,7 @@ var Platform = (function () {
           if (sub) {
             await fetch('/api/push/unsubscribe', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: pushAuthHeaders(),
               body: JSON.stringify({ endpoint: sub.endpoint }),
               credentials: 'include',
             });

@@ -84,12 +84,12 @@
     return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   }
 
-  /** True if running on iOS (iPhone/iPad/iPod). */
+  /** True if running on iOS (native app or iOS Safari/PWA). */
   function isIOS() {
-    if (typeof window.Platform !== 'undefined' && typeof window.Platform.isIOS === 'function') {
+    if (isNative() && typeof window.Platform !== 'undefined' && typeof window.Platform.isIOS === 'function') {
       return window.Platform.isIOS();
     }
-    return false;
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   }
 
   /** True if running as a native iOS/Android Capacitor app. */
@@ -144,6 +144,9 @@
           return { success: true };
         }
         if (result.reason === 'permission_denied') return { success: false, denied: true, error: 'Notistillstånd nekades i app-inställningar.' };
+        if (result.reason === 'push_plugin_unavailable') {
+          return { success: false, error: 'Push-plugin saknas i appen. Kör npx cap sync ios och bygg om.' };
+        }
         return { success: false, error: result.reason || 'Kunde inte aktivera push-notiser' };
       }
       return { success: false, error: 'Plattform push-stöd saknas' };
@@ -228,12 +231,14 @@
    */
   async function requestAndSubscribe() {
     // iOS PWA requires standalone install — skip if native (Capacitor handles push natively)
-    if (isIOS() && !isStandalone() && !_isNative) return 'ios-not-installed';
+    if (isIOS() && !isStandalone() && !isNative()) {
+      return { status: 'ios-not-installed', message: 'Lägg till appen på hemskärmen för push i Safari.' };
+    }
 
     const result = await subscribe();
-    if (result.success) return 'granted';
-    if (result.denied) return 'denied';
-    return 'error';
+    if (result.success) return { status: 'granted' };
+    if (result.denied) return { status: 'denied', message: result.error };
+    return { status: 'error', message: result.error || 'Kunde inte aktivera push-notiser' };
   }
 
   // ─── Backend preferences ────────────────────────────────

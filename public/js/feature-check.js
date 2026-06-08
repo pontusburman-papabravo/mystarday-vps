@@ -17,6 +17,7 @@
     'veckoschema', 'daglogg', 'beloningssystem', 'aktivitetsbibliotek',
     'specialdagar', 'kalender', 'familjeinbjudan', 'onboarding',
     'manuella_stjarnor', 'barninloggning', 'streak', 'admin_analytics',
+    'push_notiser',
   ];
 
   var GATED_PATHS = {

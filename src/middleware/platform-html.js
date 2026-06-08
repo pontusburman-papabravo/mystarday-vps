@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const RELEASE_TAG = '2026-05-29-release-os';
+const RELEASE_TAG = '2026-06-08-push-fix';
 
 function injectPlatformHtml(body) {
   if (typeof body !== 'string') return body;

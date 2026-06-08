@@ -13,6 +13,7 @@ const CORE_FEATURES = [
   'specialdagar', 'kalender', 'familjeinbjudan', 'onboarding',
   'manuella_stjarnor', 'barninloggning', 'streak', 'admin_analytics',
   'child_creation_wizard', // add-child onboarding + child-wizard — must work for all families
+  'push_notiser', // v1.0 — push for all families (web VAPID + native APNs/FCM)
 ];
 
 // ─── Features CRUD ─────────────────────────────────────

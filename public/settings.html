@@ -1209,21 +1209,23 @@
           msgEl.className = 'text-sm text-text-soft';
 
           const result = await Push.requestAndSubscribe();
+          const status = (result && result.status) || result;
 
-          if (result === 'granted') {
+          if (status === 'granted') {
             pushEnabled = true;
             updateMainToggleUI(true);
             renderChildToggles();
             await Push.savePreferences({ enabled: true, per_child: perChild });
             msgEl.textContent = '✅ Push-notiser aktiverade!';
             msgEl.className = 'text-sm text-green-600';
-          } else if (result === 'denied') {
-            msgEl.textContent = '🚫 Tillstånd nekat. Aktivera i webbläsarens inställningar.';
+          } else if (status === 'denied') {
+            msgEl.textContent = result.message || '🚫 Tillstånd nekat. Aktivera i webbläsarens eller appens inställningar.';
             msgEl.className = 'text-sm text-red-500';
-          } else if (result === 'ios-not-installed') {
-            msgEl.textContent = '';
+          } else if (status === 'ios-not-installed') {
+            msgEl.textContent = result.message || 'Lägg till Min Stjärndag på hemskärmen för push i Safari.';
+            msgEl.className = 'text-sm text-amber-600';
           } else {
-            msgEl.textContent = 'Något gick fel. Försök igen.';
+            msgEl.textContent = (result && result.message) || 'Något gick fel. Försök igen.';
             msgEl.className = 'text-sm text-red-500';
           }
         } else {

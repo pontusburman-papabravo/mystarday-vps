@@ -369,7 +369,7 @@ const FEATURES = [
     slug: 'push_notiser',
     name: 'Push-notiser',
     description: 'Webbläsarbaserade push-notiser för påminnelser och belöningar',
-    status: 'off',
+    status: 'live',
     tags: ['notifications'],
     priority: 'high',
     complexity: 6,
