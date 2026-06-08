@@ -181,35 +181,72 @@
             </div>
           </div>
 
-          <!-- Login Stats with Time Filter -->
+          <!-- Period stats: new + active + logins -->
           <div class="mt-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h3 class="text-2xl font-heading font-bold text-navy">Inloggningar</h3>
-              <div class="flex gap-2" id="loginPeriodFilter">
-                <button onclick="setLoginPeriod('24h')" data-period="24h" class="login-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">24h</button>
-                <button onclick="setLoginPeriod('7d')" data-period="7d" class="login-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-gold bg-gold-light text-navy transition-colors">7 dagar</button>
-                <button onclick="setLoginPeriod('30d')" data-period="30d" class="login-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">1 månad</button>
-                <button onclick="setLoginPeriod('365d')" data-period="365d" class="login-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">1 år</button>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+              <h3 class="text-2xl font-heading font-bold text-navy">Utveckling &amp; användning</h3>
+              <div class="flex gap-2" id="overviewPeriodFilter">
+                <button onclick="setOverviewPeriod('24h')" data-period="24h" class="overview-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">24h</button>
+                <button onclick="setOverviewPeriod('7d')" data-period="7d" class="overview-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-gold bg-gold-light text-navy transition-colors">7 dagar</button>
+                <button onclick="setOverviewPeriod('30d')" data-period="30d" class="overview-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">1 månad</button>
+                <button onclick="setOverviewPeriod('365d')" data-period="365d" class="overview-period-btn px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-text-soft hover:border-gold hover:text-navy transition-colors">1 år</button>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="bg-lavender rounded-2xl p-6 border-2 border-lavender">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-text-soft text-sm font-semibold mb-1">BARN — INLOGGNINGAR</p>
-                    <p id="overviewLoginChildTotal" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
-                  </div>
-                  <span class="text-4xl">&#128103;</span>
-                </div>
+            <p class="text-text-soft text-sm mb-6">Aktiva = klarmarkerade aktiviteter, inloggningar eller app-händelser under vald period.</p>
+
+            <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Nya registreringar</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div class="bg-sky rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">NYA FAMILJER</p>
+                <p id="overviewNewFamilies" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
               </div>
               <div class="bg-mint rounded-2xl p-6 border-2 border-mint">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-text-soft text-sm font-semibold mb-1">FÖRÄLDRAR — INLOGGNINGAR</p>
-                    <p id="overviewLoginParentTotal" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
-                  </div>
-                  <span class="text-4xl">&#128105;&#8205;&#128188;</span>
-                </div>
+                <p class="text-text-soft text-sm font-semibold mb-1">NYA FÖRÄLDRAR</p>
+                <p id="overviewNewParents" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+              <div class="bg-lavender rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">NYA BARN</p>
+                <p id="overviewNewChildren" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+            </div>
+
+            <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Aktiva i perioden</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div class="bg-sky rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">AKTIVA FAMILJER</p>
+                <p id="overviewActiveFamilies" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+              <div class="bg-mint rounded-2xl p-6 border-2 border-mint">
+                <p class="text-text-soft text-sm font-semibold mb-1">AKTIVA FÖRÄLDRAR</p>
+                <p id="overviewActiveParents" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+              <div class="bg-lavender rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">AKTIVA BARN</p>
+                <p id="overviewActiveChildren" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+            </div>
+
+            <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Aktivitet i perioden</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div class="bg-gold-light rounded-2xl p-6 border-2 border-gold/30">
+                <p class="text-text-soft text-sm font-semibold mb-1">KLARMARKERADE AKTIVITETER</p>
+                <p id="overviewCompletions" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+              <div class="bg-gold-light rounded-2xl p-6 border-2 border-gold/30">
+                <p class="text-text-soft text-sm font-semibold mb-1">UTDELADE STJÄRNOR</p>
+                <p id="overviewStars" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+            </div>
+
+            <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Inloggningar <span class="font-normal normal-case text-text-soft">(sessioner hålls ofta vid liv — se Aktiva ovan)</span></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">FÖRÄLDRAR — INLOGGNINGAR</p>
+                <p id="overviewLoginParentTotal" class="text-2xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+              <div class="bg-white rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">BARN — INLOGGNINGAR</p>
+                <p id="overviewLoginChildTotal" class="text-2xl font-heading font-bold text-navy">&mdash;</p>
               </div>
             </div>
           </div>

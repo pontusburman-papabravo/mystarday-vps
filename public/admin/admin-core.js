@@ -45,7 +45,7 @@
       }
 
       // Refresh data when navigating to a section
-      if (name === 'overview') { refreshAdminStats(); loadOverviewLoginStats(); }
+      if (name === 'overview') { refreshAdminStats(); loadOverviewStats(); }
       if (name === 'prenumeration') loadSubscriptionSettings();
       if (name === 'families') loadFamilies();
       if (name === 'messages') loadMessages();
@@ -139,8 +139,8 @@
         // Load stats (retry up to 3 times on transient failures)
         await loadAdminStats(3);
 
-        // Load overview login stats (default period: 7d, retry up to 3 times)
-        loadOverviewLoginStats(3);
+        // Load overview period stats (default period: 7d, retry up to 3 times)
+        loadOverviewStats(3);
 
         // Load grouped families
         loadFamilies();

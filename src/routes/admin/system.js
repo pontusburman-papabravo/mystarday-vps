@@ -31,6 +31,110 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/overview-stats ────────────────────────
+// Period-scoped growth + activity metrics for admin overview (not just logins).
+// Query: ?period=24h|7d|30d|365d (default 7d)
+router.get('/overview-stats', async (req, res) => {
+  try {
+    const PERIOD_MAP = { '24h': '24 hours', '7d': '7 days', '30d': '30 days', '365d': '365 days' };
+    const periodKey = req.query.period && PERIOD_MAP[req.query.period] ? req.query.period : '7d';
+    const interval = PERIOD_MAP[periodKey];
+
+    const [newCounts, activeCounts, loginCounts, activityCounts] = await Promise.all([
+      db.query(`
+        SELECT
+          (SELECT COUNT(*)::int FROM family WHERE archived_at IS NULL AND created_at >= NOW() - $1::interval) AS families,
+          (SELECT COUNT(*)::int FROM parent WHERE is_admin = false AND created_at >= NOW() - $1::interval) AS parents,
+          (SELECT COUNT(*)::int FROM child WHERE created_at >= NOW() - $1::interval) AS children
+      `, [interval]),
+      db.query(`
+        WITH since AS (SELECT NOW() - $1::interval AS t),
+        active_families AS (
+          SELECT DISTINCT family_id FROM (
+            SELECT c.family_id
+            FROM daily_log_item dli
+            JOIN daily_log dl ON dl.id = dli.daily_log_id
+            JOIN child c ON c.id = dl.child_id
+            CROSS JOIN since
+            WHERE dli.completed = true AND dli.completed_at >= since.t
+            UNION
+            SELECT le.family_id FROM login_event le CROSS JOIN since WHERE le.occurred_at >= since.t
+            UNION
+            SELECT ae.family_id FROM analytics_events ae CROSS JOIN since WHERE ae.created_at >= since.t
+          ) x
+        ),
+        active_children AS (
+          SELECT DISTINCT dl.child_id
+          FROM daily_log_item dli
+          JOIN daily_log dl ON dl.id = dli.daily_log_id
+          CROSS JOIN since
+          WHERE dli.completed = true AND dli.completed_at >= since.t
+        ),
+        active_parents AS (
+          SELECT DISTINCT p.id
+          FROM parent p
+          CROSS JOIN since
+          WHERE p.is_admin = false
+            AND (
+              EXISTS (
+                SELECT 1 FROM login_event le
+                WHERE le.user_id = p.id AND le.role = 'parent' AND le.occurred_at >= since.t
+              )
+              OR EXISTS (SELECT 1 FROM active_families af WHERE af.family_id = p.family_id)
+            )
+        )
+        SELECT
+          (SELECT COUNT(*)::int FROM active_families) AS families,
+          (SELECT COUNT(*)::int FROM active_parents) AS parents,
+          (SELECT COUNT(*)::int FROM active_children) AS children
+      `, [interval]),
+      db.query(`
+        SELECT role, COUNT(*)::int AS total
+        FROM login_event
+        WHERE role IN ('parent', 'child')
+          AND occurred_at >= NOW() - $1::interval
+        GROUP BY role
+      `, [interval]),
+      db.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE dli.completed = true)::int AS completions,
+          COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed = true), 0)::int AS stars
+        FROM daily_log_item dli
+        WHERE dli.completed = true
+          AND dli.completed_at >= NOW() - $1::interval
+      `, [interval]),
+    ]);
+
+    const logins = { parents: 0, children: 0 };
+    for (const row of loginCounts.rows) {
+      if (row.role === 'parent') logins.parents = row.total;
+      if (row.role === 'child') logins.children = row.total;
+    }
+
+    res.json({
+      period: periodKey,
+      new: {
+        families: newCounts.rows[0].families,
+        parents: newCounts.rows[0].parents,
+        children: newCounts.rows[0].children,
+      },
+      active: {
+        families: activeCounts.rows[0].families,
+        parents: activeCounts.rows[0].parents,
+        children: activeCounts.rows[0].children,
+      },
+      logins,
+      activity: {
+        completions: activityCounts.rows[0].completions,
+        stars: activityCounts.rows[0].stars,
+      },
+    });
+  } catch (err) {
+    console.error('[ADMIN] Overview stats error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta översiktsstatistik' });
+  }
+});
+
 // ─── GET /api/admin/export-emails ─────────────────────────
 // Exports all registered family emails as a CSV file
 router.get('/export-emails', async (req, res) => {

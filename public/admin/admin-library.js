@@ -672,13 +672,19 @@
       }
     }
 
-    // ─── Overview Login Stats (with period filter) ────────────
-    let _overviewLoginPeriod = '7d';
+    // ─── Overview period stats (new + active + logins) ────────
+    let _overviewPeriod = '7d';
 
-    function setLoginPeriod(period) {
-      _overviewLoginPeriod = period;
-      // Update button styles
-      document.querySelectorAll('.login-period-btn').forEach(btn => {
+    const _overviewPeriodIds = [
+      'overviewNewFamilies', 'overviewNewParents', 'overviewNewChildren',
+      'overviewActiveFamilies', 'overviewActiveParents', 'overviewActiveChildren',
+      'overviewCompletions', 'overviewStars',
+      'overviewLoginParentTotal', 'overviewLoginChildTotal',
+    ];
+
+    function setOverviewPeriod(period) {
+      _overviewPeriod = period;
+      document.querySelectorAll('.overview-period-btn').forEach(btn => {
         const active = btn.dataset.period === period;
         btn.classList.remove('border-gold', 'bg-gold-light', 'border-lavender', 'text-text-soft');
         if (active) {
@@ -689,31 +695,50 @@
           btn.classList.remove('border-gold', 'bg-gold-light');
         }
       });
-      loadOverviewLoginStats();
+      loadOverviewStats();
     }
 
-    async function loadOverviewLoginStats(retries) {
-      document.getElementById('overviewLoginChildTotal').textContent = '…';
-      document.getElementById('overviewLoginParentTotal').textContent = '…';
+    // Backward compat if old onclick name is cached
+    function setLoginPeriod(period) { setOverviewPeriod(period); }
+
+    function fmtOverviewNum(n) {
+      return (n ?? 0).toLocaleString('sv-SE');
+    }
+
+    async function loadOverviewStats(retries) {
+      _overviewPeriodIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '…';
+      });
       const maxAttempts = retries || 1;
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
         try {
-          const data = await Auth.api('/api/admin/login-stats?period=' + _overviewLoginPeriod);
-          document.getElementById('overviewLoginChildTotal').textContent =
-            data.totals.children.toLocaleString('sv-SE');
-          document.getElementById('overviewLoginParentTotal').textContent =
-            data.totals.parents.toLocaleString('sv-SE');
-          return; // success
+          const data = await Auth.api('/api/admin/overview-stats?period=' + _overviewPeriod);
+          document.getElementById('overviewNewFamilies').textContent = fmtOverviewNum(data.new?.families);
+          document.getElementById('overviewNewParents').textContent = fmtOverviewNum(data.new?.parents);
+          document.getElementById('overviewNewChildren').textContent = fmtOverviewNum(data.new?.children);
+          document.getElementById('overviewActiveFamilies').textContent = fmtOverviewNum(data.active?.families);
+          document.getElementById('overviewActiveParents').textContent = fmtOverviewNum(data.active?.parents);
+          document.getElementById('overviewActiveChildren').textContent = fmtOverviewNum(data.active?.children);
+          document.getElementById('overviewCompletions').textContent = fmtOverviewNum(data.activity?.completions);
+          document.getElementById('overviewStars').textContent = fmtOverviewNum(data.activity?.stars);
+          document.getElementById('overviewLoginParentTotal').textContent = fmtOverviewNum(data.logins?.parents);
+          document.getElementById('overviewLoginChildTotal').textContent = fmtOverviewNum(data.logins?.children);
+          return;
         } catch (err) {
-          console.error('[ADMIN] Login stats failed (attempt ' + (attempt + 1) + '):', err.message);
+          console.error('[ADMIN] Overview stats failed (attempt ' + (attempt + 1) + '):', err.message);
           if (attempt < maxAttempts - 1) {
             await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
           }
         }
       }
-      document.getElementById('overviewLoginChildTotal').textContent = '!';
-      document.getElementById('overviewLoginParentTotal').textContent = '!';
+      _overviewPeriodIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '!';
+      });
     }
+
+    function loadOverviewLoginStats(retries) { return loadOverviewStats(retries); }
 
     // ─── Login Stats (Användning) ─────────────────────────────
     async function loadLoginStats() {
