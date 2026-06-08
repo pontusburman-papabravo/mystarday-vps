@@ -13,6 +13,9 @@ import path from 'path';
 const podfilePath = path.join(process.cwd(), 'ios', 'App', 'Podfile');
 
 const POST_INSTALL_BLOCK = `
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+  end
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
@@ -20,11 +23,15 @@ const POST_INSTALL_BLOCK = `
     end
   end
   installer.aggregate_targets.each do |aggregate_target|
+    aggregate_target.user_project.build_configurations.each do |config|
+      config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+    end
     aggregate_target.user_project.native_targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
       end
     end
+    aggregate_target.user_project.save
   end
 `;
 
@@ -38,13 +45,44 @@ let content = fs.readFileSync(podfilePath, 'utf8');
 
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');
 const hasSandboxFix = content.includes('ENABLE_USER_SCRIPT_SANDBOXING');
+const hasSaveFix = content.includes('user_project.save');
 
-if (hasQuotedFix && hasSandboxFix) {
-  console.log('Podfile already patched (quoted includes + script sandbox).');
+if (hasQuotedFix && hasSandboxFix && hasSaveFix) {
+  console.log('Podfile already patched (quoted includes + script sandbox + save).');
   process.exit(0);
 }
 
-if (hasQuotedFix && !hasSandboxFix) {
+if (hasQuotedFix && hasSandboxFix && !hasSaveFix) {
+  // Upgrade older patch: add project-level configs + save
+  if (!content.includes('installer.pods_project.build_configurations')) {
+    content = content.replace(
+      /installer\.pods_project\.targets\.each do \|target\|/,
+      `installer.pods_project.build_configurations.each do |config|
+    config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+  end
+  installer.pods_project.targets.each do |target|`
+    );
+  }
+  if (content.includes('installer.aggregate_targets') && !content.includes('user_project.build_configurations')) {
+    content = content.replace(
+      /installer\.aggregate_targets\.each do \|aggregate_target\|/,
+      `installer.aggregate_targets.each do |aggregate_target|
+    aggregate_target.user_project.build_configurations.each do |config|
+      config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+    end`
+    );
+  }
+  if (!content.includes('user_project.save')) {
+    content = content.replace(
+      /(installer\.aggregate_targets\.each do \|aggregate_target\|[\s\S]*?)(\s+end\s+end)/m,
+      (match, body, closing) => {
+        if (body.includes('user_project.save')) return match;
+        return `${body}
+    aggregate_target.user_project.save${closing}`;
+      }
+    );
+  }
+} else if (hasQuotedFix && !hasSandboxFix) {
   content = content.replace(
     "config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'",
     `config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
@@ -54,11 +92,15 @@ if (hasQuotedFix && !hasSandboxFix) {
     content = content.replace(
       /(\s+end\s+end\s+)(assertDeploymentTarget|$)/m,
       `$1  installer.aggregate_targets.each do |aggregate_target|
+    aggregate_target.user_project.build_configurations.each do |config|
+      config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+    end
     aggregate_target.user_project.native_targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
       end
     end
+    aggregate_target.user_project.save
   end
 $2`
     );
@@ -74,4 +116,4 @@ $2`
 
 fs.writeFileSync(podfilePath, content);
 console.log('Patched ios/App/Podfile for Xcode 15/16.');
-console.log('Next: cd ios/App && pod install && Clean Build in Xcode');
+console.log('Next: cd ios/App && pod install');
