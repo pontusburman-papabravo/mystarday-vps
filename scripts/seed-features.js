@@ -495,7 +495,7 @@ const FEATURES = [
     slug: 'feedback_formular',
     name: 'Feedbackformulär',
     description: 'In-app feedback-formulär för att samla in föräldrars synpunkter',
-    status: 'off',
+    status: 'live',
     tags: ['features'],
     priority: 'low',
     complexity: 3,
