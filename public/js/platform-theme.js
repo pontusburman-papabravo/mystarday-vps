@@ -1,6 +1,9 @@
 (function () {
   'use strict';
+
+  function applyPlatformTheme() {
   var root = document.documentElement;
+  root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page');
   var isNative =
     typeof window.Platform !== 'undefined' &&
     typeof window.Platform.isNative === 'function' &&
@@ -38,5 +41,14 @@
     try {
       sessionStorage.removeItem('native_landing_redirected');
     } catch (_) {}
+  }
+  }
+
+  // platform.js is often loaded later in <head> (after middleware injection).
+  // Wait until DOM is ready so Platform + Capacitor bridge exist.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyPlatformTheme);
+  } else {
+    applyPlatformTheme();
   }
 })();
