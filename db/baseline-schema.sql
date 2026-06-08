@@ -689,7 +689,19 @@ CREATE TABLE IF NOT EXISTS contact_message (
   email VARCHAR(255),
   message TEXT,
   message_type VARCHAR(32),
+  is_read BOOLEAN DEFAULT false,
+  internal_note TEXT,
+  noted_at TIMESTAMPTZ,
+  noted_by UUID REFERENCES parent(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS app_config (
+  key VARCHAR(255) PRIMARY KEY,
+  value TEXT,
+  description TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_by UUID REFERENCES parent(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS dagens_nyhet (
