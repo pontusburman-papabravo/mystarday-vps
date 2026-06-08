@@ -114,7 +114,8 @@ async function runPushReminderJob() {
       hour: '2-digit', minute: '2-digit',
       hour12: false,
     }).format(now);
-    const [sDate, sTime] = stockholmNow.split('T');
+    // sv-SE uses space ("2026-06-04 23:25"), not ISO "T" separator
+    const [sDate, sTime] = stockholmNow.split(/[T ]/);
     const [year, month, day] = sDate.split('-').map(Number);
     const [hour, minute] = sTime.split(':').map(Number);
     const currentTimeMin = hour * 60 + minute;
