@@ -214,7 +214,9 @@ Signera modell + Android-version i testlogg.
 
 ## Steg 8 — Play Console metadata
 
-Kopiera från [`google-play-metadata.md`](google-play-metadata.md) (baserat på iOS-listing).
+**App content (policy-formulär):** [`google-play-app-content.md`](google-play-app-content.md) — svar för varje sektion i "Konfigurera appen".
+
+Kopiera butikstext från [`google-play-metadata.md`](google-play-metadata.md) (baserat på iOS-listing).
 
 Obligatoriskt i Play Console:
 
