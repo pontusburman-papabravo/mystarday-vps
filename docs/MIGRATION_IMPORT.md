@@ -13,6 +13,12 @@
 
 Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en SQL-export om målet är 100 % identisk data. Med `import:harvest` kan du dock köra appen på ny miljö med scheman, aktiviteter, belöningar m.m.
 
+**Prod-URL för harvest/sync:** Använd `https://stjarndag.polsia.app` — inte `mystarday.se` (DNS kan peka på VPS under flytt). Sätt i `.env`:
+
+```bash
+MIGRATION_EXPORT_BASE_URL=https://stjarndag.polsia.app
+```
+
 ---
 
 ## Plan B: Importera harvest (`import:harvest`)
@@ -104,7 +110,7 @@ Harvest per familj inkluderar **inte** standardscheman/belöningar/aktiviteter f
 
 ```bash
 ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:library -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --out ./Backup/stjarndag-harvest-2026-06-02
 
 DATABASE_URL="$TARGET" npm run import:library -- \
@@ -118,6 +124,13 @@ npm run bootstrap:migration
 ```
 
 Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på localhost, och visar om `default_*` saknas.
+
+**Synka alla feature-flaggor från prod** (harvest importerar inte `features` / `family_features`):
+
+```bash
+set -a && source .env && set +a
+MIGRATION_EXPORT_BASE_URL=https://stjarndag.polsia.app npm run sync:features -- --seed-first
+```
 
 **Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
 
@@ -145,7 +158,7 @@ ORDER BY sort_order;
 
 ```bash
 ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:history -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --in ./Backup/stjarndag-harvest-2026-06-02 \
   --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
 
@@ -176,7 +189,7 @@ Förväntat: t.ex. Astrid ~90+ rader, Olle ~70+ rader. Om `0 aktiviteter` — h�
 
 ```bash
 ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run migration:harvest -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --in ./Backup/stjarndag-harvest-2026-06-02 \
   --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
 ```
@@ -237,7 +250,7 @@ Olle har bara **5 veckodagar** i backup — om torsdag saknas är "Inget schema"
 
 ```bash
 ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:streaks -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --in ./Backup/stjarndag-harvest-2026-06-02 \
   --family-id 5fa79406-0e65-4bce-bcb0-6c65e27a0af9
 ```
@@ -312,7 +325,7 @@ npm run dev
 
 ```bash
 npm run migration:harvest -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --out ./export/harvest-2026-06-02 \
   --resume
 ```
@@ -326,7 +339,7 @@ export ADMIN_EMAIL="..."
 export ADMIN_PASSWORD="..."
 
 npm run migration:harvest:gdpr -- \
-  --url https://mystarday.se \
+  --url https://stjarndag.polsia.app \
   --out ./export/harvest-2026-06-02 \
   --delay-ms 6000
 ```

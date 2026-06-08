@@ -65,7 +65,7 @@ async function main() {
 Standardbiblioteket är tomt. Hämta från prod (en gång):
 
   ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:library -- \\
-    --url https://mystarday.se --out ./Backup/stjarndag-harvest-2026-06-02
+    --url https://stjarndag.polsia.app --out ./Backup/stjarndag-harvest-2026-06-02
 
   npm run import:library -- --in ./Backup/stjarndag-harvest-2026-06-02
 `);

@@ -6,7 +6,7 @@
  *
  * Usage:
  *   ADMIN_EMAIL=... ADMIN_PASSWORD=... node scripts/migration-harvest-cli.js
- *   node scripts/migration-harvest-cli.js --url https://mystarday.se --email ... --password ...
+ *   node scripts/migration-harvest-cli.js --url https://stjarndag.polsia.app --email ... --password ...
  *
  * Slower and less complete than DATABASE_URL export, but works when you only have admin access.
  */
@@ -17,7 +17,7 @@ const { apiRequest, readJson, adminLogin, ensureAdminSession, sleep } = require(
 
 function parseArgs(argv) {
   const opts = {
-    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://mystarday.se',
+    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://stjarndag.polsia.app',
     email: process.env.ADMIN_EMAIL || '',
     password: process.env.ADMIN_PASSWORD || '',
     out: path.join(process.cwd(), 'export', `harvest-${new Date().toISOString().slice(0, 10)}`),
@@ -49,7 +49,7 @@ function parseArgs(argv) {
       console.log(`Harvest family data via admin + impersonation (no server deploy).
 
 Options:
-  --url <base>       App URL (default: https://mystarday.se)
+  --url <base>       App URL (default: https://stjarndag.polsia.app)
   --email / --password   Admin credentials (or ADMIN_EMAIL / ADMIN_PASSWORD)
   --out <dir>        Output directory
   --family-id <uuid> One family only

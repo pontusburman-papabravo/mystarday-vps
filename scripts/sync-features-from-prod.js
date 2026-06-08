@@ -4,10 +4,10 @@
  *
  * Usage:
  *   set -a && source .env && set +a
- *   MIGRATION_EXPORT_BASE_URL=https://stjardag.polsia.app npm run sync:features
+ *   MIGRATION_EXPORT_BASE_URL=https://stjarndag.polsia.app npm run sync:features
  *
  * Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL
- * Optional: --url (default MIGRATION_EXPORT_BASE_URL or https://stjardag.polsia.app)
+ * Optional: --url (default MIGRATION_EXPORT_BASE_URL or https://stjarndag.polsia.app)
  *           --seed-first  Run seed-features.js if features table has < 5 rows
  */
 
@@ -21,7 +21,7 @@ function parseArgs(argv) {
     baseUrl:
       process.env.MIGRATION_EXPORT_BASE_URL ||
       process.env.BASE_URL ||
-      'https://stjarday.polsia.app',
+      'https://stjarndag.polsia.app',
     seedFirst: false,
   };
   for (let i = 2; i < argv.length; i++) {
@@ -31,7 +31,7 @@ function parseArgs(argv) {
       console.log(`Sync features table + family_features from prod admin API.
 
 Options:
-  --url <base>     Prod URL (default: stjardag.polsia.app)
+  --url <base>     Prod URL (default: stjarndag.polsia.app)
   --seed-first     Run seed-features.js if features table nearly empty
 
 Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL

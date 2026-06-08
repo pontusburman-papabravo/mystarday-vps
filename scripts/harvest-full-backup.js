@@ -11,7 +11,7 @@
  *   npm run harvest:full -- --out ./Backup/stjarndag-full-2026-06-08
  *
  * Env: ADMIN_EMAIL, ADMIN_PASSWORD
- * Optional: MIGRATION_EXPORT_BASE_URL or --url (default https://mystarday.se)
+ * Optional: MIGRATION_EXPORT_BASE_URL or --url (default https://stjarndag.polsia.app)
  */
 
 const fs = require('fs');
@@ -23,7 +23,7 @@ const { countHistoryInHarvest } = require('../src/lib/harvest-history');
 function parseArgs(argv) {
   const date = new Date().toISOString().slice(0, 10);
   const opts = {
-    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://mystarday.se',
+    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://stjarndag.polsia.app',
     out: path.join(process.cwd(), 'Backup', `stjarndag-full-${date}`),
     familyDelayMs: 4000,
     skipLibrary: false,
@@ -42,7 +42,7 @@ function parseArgs(argv) {
 
 Options:
   --out <dir>              Output directory (default: ./Backup/stjarndag-full-YYYY-MM-DD)
-  --url <base>             Prod URL (default: https://mystarday.se)
+  --url <base>             Prod URL (default: https://stjarndag.polsia.app)
   --family-delay-ms <n>    Pause between families in phase 1 (default: 4000)
   --skip-library           Skip global-library.json (default_* tables)
   --dump-vps-db            Also pg_dump local DATABASE_URL next to harvest (VPS snapshot)

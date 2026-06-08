@@ -4,7 +4,7 @@
  *
  * Usage:
  *   ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run harvest:library -- \
- *     --url https://mystarday.se --out ./Backup/stjarndag-harvest-2026-06-02
+ *     --url https://stjarndag.polsia.app --out ./Backup/stjarndag-harvest-2026-06-02
  *
  * Writes global-library.json next to families/ (same dir as migration:harvest).
  */
@@ -15,7 +15,7 @@ const { apiRequest, readJson, adminLogin, ensureAdminSession } = require('./lib/
 
 function parseArgs(argv) {
   const opts = {
-    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://mystarday.se',
+    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || process.env.BASE_URL || 'https://stjarndag.polsia.app',
     email: process.env.ADMIN_EMAIL || '',
     password: process.env.ADMIN_PASSWORD || '',
     out: path.join(process.cwd(), 'export', `harvest-${new Date().toISOString().slice(0, 10)}`),
@@ -29,7 +29,7 @@ function parseArgs(argv) {
       console.log(`Harvest global standard library (default_* tables) via admin API.
 
 Options:
-  --url <base>         App URL (default: https://mystarday.se)
+  --url <base>         App URL (default: https://stjarndag.polsia.app)
   --email / --password Admin credentials (or ADMIN_EMAIL / ADMIN_PASSWORD)
   --out <dir>          Harvest output dir (writes global-library.json)
 

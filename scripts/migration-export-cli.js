@@ -6,7 +6,7 @@
  *   node scripts/migration-export-cli.js
  *
  * Environment (or flags):
- *   MIGRATION_EXPORT_BASE_URL   — default https://mystarday.se
+ *   MIGRATION_EXPORT_BASE_URL   — default https://stjarndag.polsia.app
  *   MIGRATION_EXPORT_SECRET     — must match server MIGRATION_EXPORT_SECRET
  *   ADMIN_EMAIL / ADMIN_PASSWORD — optional (otherwise prompted)
  *
@@ -22,7 +22,7 @@ const fetch = require('node-fetch');
 
 function parseArgs(argv) {
   const opts = {
-    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || 'https://mystarday.se',
+    baseUrl: process.env.MIGRATION_EXPORT_BASE_URL || 'https://stjarndag.polsia.app',
     secret: process.env.MIGRATION_EXPORT_SECRET || '',
     email: process.env.ADMIN_EMAIL || '',
     password: process.env.ADMIN_PASSWORD || '',
@@ -40,7 +40,7 @@ function parseArgs(argv) {
       console.log(`Migration export CLI — download family data ZIP via admin API.
 
 Options:
-  --url <base>         App URL (default: MIGRATION_EXPORT_BASE_URL or https://mystarday.se)
+  --url <base>         App URL (default: MIGRATION_EXPORT_BASE_URL or https://stjarndag.polsia.app)
   --secret <token>     MIGRATION_EXPORT_SECRET (required)
   --email <email>      Admin email (or ADMIN_EMAIL)
   --password <pass>    Admin password (or ADMIN_PASSWORD, else prompt)
@@ -50,7 +50,7 @@ Options:
 
 Example:
   MIGRATION_EXPORT_SECRET=xxx ADMIN_EMAIL=you@example.com \\
-    node scripts/migration-export-cli.js --url https://mystarday.se
+    node scripts/migration-export-cli.js --url https://stjarndag.polsia.app
 `);
       process.exit(0);
     }
