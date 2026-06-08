@@ -249,6 +249,27 @@ function initEmojiPicker(currentEmoji) {
   });
 }
 
+// ── Header avatar preview ───────────────────────────────
+function setHeaderAvatarPreview(url) {
+  const card = document.querySelector('.section-card .flex.items-center.gap-4');
+  if (!card || !url) return;
+  let hdrImg = document.getElementById('headerAvatarImg');
+  if (hdrImg) {
+    hdrImg.src = url;
+    hdrImg.classList.add('ring-2', 'ring-gold');
+    return;
+  }
+  const emojiSpan = card.querySelector('span.text-5xl');
+  if (emojiSpan) {
+    const img = document.createElement('img');
+    img.id = 'headerAvatarImg';
+    img.src = url;
+    img.alt = childData?.name || '';
+    img.className = 'w-16 h-16 rounded-full object-cover flex-shrink-0 ring-2 ring-gold';
+    emojiSpan.replaceWith(img);
+  }
+}
+
 // ── Profile save ────────────────────────────────────────
 async function saveProfile(e) {
   e.preventDefault();
@@ -270,9 +291,7 @@ async function saveProfile(e) {
     childData = { ...childData, ...updated };
     document.getElementById('pageTitle').textContent = updated.name || 'Inställningar';
     document.getElementById('pageEmoji').textContent = updated.emoji || '⭐';
-    // Update header avatar image if it changed
-    const hdrImg = document.getElementById('headerAvatarImg');
-    if (hdrImg && updated.avatar_url) hdrImg.src = updated.avatar_url;
+    if (updated.avatar_url) setHeaderAvatarPreview(updated.avatar_url);
     showSuccessToast('Inställningar sparade!');
   } catch (err) {
     showToast('Kunde inte spara: ' + err.message, true);
@@ -296,10 +315,18 @@ async function changeChildPhoto() {
     btn.textContent = 'Laddar upp…';
     const url = await Platform.camera.upload(result);
     selectedAvatarUrl = url;
-    // Update header image immediately
-    const hdrImg = document.getElementById('headerAvatarImg');
-    if (hdrImg) { hdrImg.src = url; hdrImg.classList.add('ring-2', 'ring-gold'); }
-    btn.textContent = '✓ Bild vald';
+    setHeaderAvatarPreview(url);
+    btn.textContent = 'Sparar…';
+    const updated = await Auth.api(`/api/children/${childId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ avatar_url: url }),
+    });
+    childData = { ...childData, ...updated };
+    selectedAvatarUrl = updated.avatar_url || url;
+    if (childData.username && typeof Auth.persistKnownChildrenFromSession === 'function') {
+      Auth.persistKnownChildrenFromSession([childData], Auth.getFamilyId());
+    }
+    btn.textContent = '✓ Bild sparad';
     btn.classList.remove('text-gold'); btn.classList.add('text-green-600');
     setTimeout(() => { btn.textContent = '🔄 Byt bild'; btn.classList.remove('text-green-600'); btn.classList.add('text-gold'); }, 2000);
   } catch (err) {

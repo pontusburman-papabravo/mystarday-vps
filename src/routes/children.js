@@ -606,7 +606,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
-    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding } = req.body;
+    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, avatar_url } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -681,6 +681,10 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     if (color_coding !== undefined) {
       updates.push(`color_coding = $${idx++}`);
       values.push(!!color_coding);
+    }
+    if (avatar_url !== undefined) {
+      updates.push(`avatar_url = $${idx++}`);
+      values.push(avatar_url);
     }
 
     if (updates.length === 0) {
