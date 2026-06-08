@@ -288,8 +288,13 @@ async function changeChildPhoto() {
   try {
     const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
     if (!result) { btn.disabled = false; btn.textContent = orig; return; }
+    if (result.error) {
+      showToast(result.error, true);
+      btn.disabled = false; btn.textContent = orig;
+      return;
+    }
     btn.textContent = 'Laddar upp…';
-    const url = await Platform.camera.upload(result.dataUrl);
+    const url = await Platform.camera.upload(result);
     selectedAvatarUrl = url;
     // Update header image immediately
     const hdrImg = document.getElementById('headerAvatarImg');
@@ -299,10 +304,12 @@ async function changeChildPhoto() {
     setTimeout(() => { btn.textContent = '🔄 Byt bild'; btn.classList.remove('text-green-600'); btn.classList.add('text-gold'); }, 2000);
   } catch (err) {
     console.error('[child-settings] photo change failed:', err.message);
-    showToast('Kunde inte byta bild. Försök igen.', true);
+    showToast(err.message || 'Kunde inte byta bild. Försök igen.', true);
   } finally {
     btn.disabled = false;
-    if (btn.textContent === 'Laddar upp…') btn.textContent = orig;
+    if (btn.textContent === 'Laddar…' || btn.textContent === 'Laddar upp…') {
+      btn.textContent = orig;
+    }
   }
 }
 

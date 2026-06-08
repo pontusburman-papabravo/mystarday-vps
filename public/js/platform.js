@@ -408,7 +408,26 @@ var Platform = (function () {
   }
 
   // ── Camera / Photo Picker ────────────────────────────────────────────────
-  // Uses @capacitor/camera on native. Falls back to Web FileInput on web.
+  // Uses @capacitor/camera on native. Falls back to Web FileInput on web/PWA.
+
+  function dataUrlToBlob(dataUrl) {
+    var parts = dataUrl.split(',');
+    if (parts.length < 2) throw new Error('Ogiltig bilddata');
+    var mimeMatch = parts[0].match(/:(.*?);/);
+    var mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    var binary = atob(parts[1]);
+    var len = binary.length;
+    var arr = new Uint8Array(len);
+    for (var i = 0; i < len; i++) arr[i] = binary.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  function blobFromPickResult(result) {
+    if (result.file instanceof Blob) return result.file;
+    if (result.dataUrl) return dataUrlToBlob(result.dataUrl);
+    throw new Error('Ingen bild vald');
+  }
+
   var camera = {
     /**
      * Pick a photo from the library or camera (iOS native only).
@@ -445,22 +464,53 @@ var Platform = (function () {
           return null;
         }
       }
-      // Web fallback: file input
-      return new Promise((resolve) => {
+      // Web/PWA fallback — file input (iOS Safari: oncancel fires rarely; use focus timeout)
+      return new Promise(function (resolve) {
+        var settled = false;
+        var picking = true;
         var input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'image/jpeg,image/png,image/webp';
+        input.accept = 'image/jpeg,image/png,image/webp,image/*';
+        input.style.cssText = 'position:fixed;left:-9999px;opacity:0;width:1px;height:1px;';
+        document.body.appendChild(input);
+
+        function finish(val) {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timer);
+          window.removeEventListener('focus', onWindowFocus);
+          if (input.parentNode) input.parentNode.removeChild(input);
+          resolve(val);
+        }
+
+        function onWindowFocus() {
+          window.setTimeout(function () {
+            if (!settled && picking && (!input.files || !input.files.length)) finish(null);
+          }, 1000);
+        }
+
         input.onchange = function () {
-          if (!input.files || !input.files[0]) { resolve(null); return; }
+          picking = false;
+          if (!input.files || !input.files[0]) { finish(null); return; }
           var file = input.files[0];
+          if (file.size > 2 * 1024 * 1024) {
+            finish({ error: 'Bilden får max vara 2 MB' });
+            return;
+          }
           var reader = new FileReader();
           reader.onload = function (e) {
-            resolve({ dataUrl: e.target.result, mimeType: file.type || 'image/jpeg' });
+            finish({
+              dataUrl: e.target.result,
+              mimeType: file.type || 'image/jpeg',
+              file: file,
+            });
           };
-          reader.onerror = function () { resolve(null); };
+          reader.onerror = function () { finish(null); };
           reader.readAsDataURL(file);
         };
-        input.oncancel = function () { resolve(null); };
+
+        var timer = window.setTimeout(function () { finish(null); }, 120000);
+        window.addEventListener('focus', onWindowFocus);
         input.click();
       });
     },
@@ -470,11 +520,24 @@ var Platform = (function () {
      * Returns the CDN URL on success, or throws on failure.
      * Uses the dedicated avatar endpoint (2MB, jpeg/png/webp).
      */
-    async upload(dataUrl) {
-      var resp = await fetch(dataUrl);
-      var blob = await resp.blob();
+    async upload(dataUrlOrResult) {
+      var blob;
+      var filename = 'avatar.jpg';
+      if (typeof dataUrlOrResult === 'string') {
+        blob = dataUrlToBlob(dataUrlOrResult);
+      } else if (dataUrlOrResult && dataUrlOrResult.file) {
+        blob = dataUrlOrResult.file;
+        var ext = (dataUrlOrResult.mimeType || '').split('/')[1] || 'jpg';
+        if (ext === 'jpeg') ext = 'jpg';
+        filename = 'avatar.' + ext;
+      } else if (dataUrlOrResult && dataUrlOrResult.dataUrl) {
+        blob = dataUrlToBlob(dataUrlOrResult.dataUrl);
+      } else {
+        throw new Error('Ingen bild att ladda upp');
+      }
+
       var fd = new FormData();
-      fd.append('image', blob, 'avatar.jpg');
+      fd.append('image', blob, filename);
       var headers = {};
       if (window.Auth && typeof Auth.ensureCsrfToken === 'function') {
         await Auth.ensureCsrfToken();

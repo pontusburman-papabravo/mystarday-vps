@@ -1064,7 +1064,7 @@ function initIOSAvatarPicker() {
       }
       // Upload to CDN
       chooseBtn.textContent = 'Laddar upp…';
-      const url = await Platform.camera.upload(result.dataUrl);
+      const url = await Platform.camera.upload(result);
       selectedAvatarUrl = url;
       preview.src = url;
       preview.classList.add('ring-2', 'ring-gold');
