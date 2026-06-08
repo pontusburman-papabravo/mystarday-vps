@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizeFeatureRow, asStringArray } = require('../src/lib/feature-normalize');
+const { normalizeFeatureRow, asStringArray, toJsonbParam, sanitizeForJson } = require('../src/lib/feature-normalize');
 
 describe('normalizeFeatureRow', () => {
   it('merges top-level dev_notes into documentation', () => {
@@ -57,5 +57,14 @@ describe('normalizeFeatureRow', () => {
 
   it('asStringArray splits multiline strings', () => {
     assert.deepEqual(asStringArray('a\nb'), ['a', 'b']);
+  });
+
+  it('toJsonbParam rejects empty string and null bytes', () => {
+    assert.equal(toJsonbParam('', {}), '{}');
+    assert.equal(toJsonbParam({ note: 'a\u0000b' }, {}), '{"note":"ab"}');
+  });
+
+  it('sanitizeForJson drops NaN', () => {
+    assert.equal(sanitizeForJson(Number.NaN), null);
   });
 });

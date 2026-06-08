@@ -19,27 +19,31 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 const { Pool } = require('pg');
 const { apiRequest, readJson, adminLogin } = require('./lib/migration-http');
-const { prepareFeatureForDb } = require('../src/lib/feature-normalize');
+const { prepareFeatureForDb, toJsonbParam } = require('../src/lib/feature-normalize');
 
 function parseArgs(argv) {
   const opts = {
-    baseUrl:
-      process.env.MIGRATION_EXPORT_BASE_URL ||
-      process.env.BASE_URL ||
-      'https://mystarday.se',
+    baseUrl: process.env.BASE_URL || 'https://mystarday.se',
     seedFirst: false,
+    allowLegacyPolsia: false,
+    explicitUrl: false,
   };
   for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === '--url' && argv[i + 1]) opts.baseUrl = argv[++i].replace(/\/$/, '');
-    else if (argv[i] === '--seed-first') opts.seedFirst = true;
+    if (argv[i] === '--url' && argv[i + 1]) {
+      opts.baseUrl = argv[++i].replace(/\/$/, '');
+      opts.explicitUrl = true;
+    } else if (argv[i] === '--seed-first') opts.seedFirst = true;
+    else if (argv[i] === '--allow-legacy-polsia') opts.allowLegacyPolsia = true;
     else if (argv[i] === '--help' || argv[i] === '-h') {
       console.log(`Sync features table + family_features from prod admin API.
 
 Options:
-  --url <base>     Prod URL (default: mystarday.se)
-  --seed-first     Run seed-features.js if features table nearly empty
+  --url <base>              Prod URL (default: mystarday.se)
+  --seed-first              Run seed-features.js if features table nearly empty
+  --allow-legacy-polsia     Tillåt MIGRATION_EXPORT_BASE_URL=stjarndag.polsia.app
 
 Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL
+      MIGRATION_EXPORT_BASE_URL (endast mystarday.se; legacy kräver --allow-legacy-polsia)
 `);
       process.exit(0);
     }
@@ -52,6 +56,20 @@ Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL
     console.error('ERROR: DATABASE_URL required');
     process.exit(1);
   }
+  if (!opts.explicitUrl && process.env.MIGRATION_EXPORT_BASE_URL) {
+    const fromEnv = process.env.MIGRATION_EXPORT_BASE_URL.replace(/\/$/, '');
+    const isLegacy = fromEnv.includes('stjarndag.polsia.app');
+    if (isLegacy && !opts.allowLegacyPolsia) {
+      console.warn(
+        '[sync:features] Ignorerar MIGRATION_EXPORT_BASE_URL=stjarndag.polsia.app (legacy Polsia).\n' +
+          '  Prod är mystarday.se — ta bort raden ur .env.\n' +
+          '  För engångs-harvest från gamla Polsia: npm run sync:features -- --allow-legacy-polsia'
+      );
+    } else {
+      opts.baseUrl = fromEnv;
+    }
+  }
+
   return opts;
 }
 
@@ -75,7 +93,7 @@ async function upsertFeature(client, row) {
     `INSERT INTO features (
       slug, name, description, status, tags, priority, complexity,
       estimated_hours, documentation, dev_notes, changelog, category
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10::jsonb, $11::jsonb, $12)
     ON CONFLICT (slug) DO UPDATE SET
       name = EXCLUDED.name,
       description = EXCLUDED.description,
@@ -98,9 +116,9 @@ async function upsertFeature(client, row) {
       prepared.priority,
       prepared.complexity,
       prepared.estimated_hours,
-      prepared.documentation,
-      prepared.dev_notes,
-      prepared.changelog,
+      toJsonbParam(prepared.documentation, {}),
+      toJsonbParam(prepared.dev_notes, []),
+      toJsonbParam(prepared.changelog, []),
       prepared.category,
     ]
   );
@@ -143,11 +161,8 @@ async function main() {
       if (seed.status !== 0) process.exit(1);
     }
 
-    if (process.env.MIGRATION_EXPORT_BASE_URL?.includes('stjarndag.polsia.app')) {
-      console.warn(
-        '[sync:features] VARNING: MIGRATION_EXPORT_BASE_URL pekar på legacy Polsia.\n' +
-          '  Prod är mystarday.se — ta bort raden ur .env om du synkar mot VPS-prod.'
-      );
+    if (process.env.MIGRATION_EXPORT_BASE_URL?.includes('stjarndag.polsia.app') && opts.allowLegacyPolsia) {
+      console.warn('[sync:features] Hämtar från legacy Polsia (stjarndag.polsia.app) …');
     }
 
     console.log(`[sync:features] Hämtar från ${opts.baseUrl} ...`);
@@ -159,6 +174,7 @@ async function main() {
     let dev = 0;
     let off = 0;
     let devAssignments = 0;
+    let skipped = 0;
 
     await client.query('BEGIN');
     for (const row of features) {
@@ -173,7 +189,9 @@ async function main() {
       try {
         await upsertFeature(client, detail);
       } catch (err) {
-        throw new Error(`${detail.slug}: ${err.message}`);
+        console.warn(`  ${detail.slug}: HOPPAR ÖVER — ${err.message}`);
+        skipped++;
+        continue;
       }
       if (detail.status === 'live') live++;
       else if (detail.status === 'dev') dev++;
@@ -198,6 +216,7 @@ async function main() {
 
     console.log('\n[sync:features] Klart');
     console.log(`  LIVE: ${live}  DEV: ${dev}  OFF: ${off}`);
+    if (skipped > 0) console.log(`  Hoppade över: ${skipped} (korrupt JSONB i källan)`);
     console.log(`  family_features rader (dev): ${devAssignments}`);
     console.log('  DB:', summary.map((r) => `${r.status}=${r.n}`).join(', '));
   } catch (err) {
