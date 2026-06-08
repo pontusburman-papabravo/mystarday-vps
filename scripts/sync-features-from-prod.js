@@ -2,13 +2,17 @@
 /**
  * Sync features + family_features from production admin API to local DATABASE_URL.
  *
+ * Produktion: https://mystarday.se
+ * Legacy Polsia (endast vid första harvest innan DNS-cutover): https://stjarndag.polsia.app
+ *
  * Usage:
  *   set -a && source .env && set +a
- *   MIGRATION_EXPORT_BASE_URL=https://stjardag.polsia.app npm run sync:features
+ *   npm run sync:features
  *
  * Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL
- * Optional: --url (default MIGRATION_EXPORT_BASE_URL or https://stjardag.polsia.app)
- *           --seed-first  Run seed-features.js if features table has < 5 rows
+ * Optional: MIGRATION_EXPORT_BASE_URL (default https://mystarday.se)
+ *           --url              Samma som MIGRATION_EXPORT_BASE_URL
+ *           --seed-first       Run seed-features.js if features table has < 5 rows
  */
 
 const { spawnSync } = require('child_process');
@@ -21,7 +25,7 @@ function parseArgs(argv) {
     baseUrl:
       process.env.MIGRATION_EXPORT_BASE_URL ||
       process.env.BASE_URL ||
-      'https://stjarday.polsia.app',
+      'https://mystarday.se',
     seedFirst: false,
   };
   for (let i = 2; i < argv.length; i++) {
@@ -31,7 +35,7 @@ function parseArgs(argv) {
       console.log(`Sync features table + family_features from prod admin API.
 
 Options:
-  --url <base>     Prod URL (default: stjardag.polsia.app)
+  --url <base>     Prod URL (default: mystarday.se)
   --seed-first     Run seed-features.js if features table nearly empty
 
 Env: ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL

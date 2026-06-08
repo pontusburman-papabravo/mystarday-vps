@@ -13,6 +13,23 @@
 
 Harvest (`harvest.json` + `gdpr-export.zip`) ersätter **inte** en SQL-export om målet är 100 % identisk data. Med `import:harvest` kan du dock köra appen på ny miljö med scheman, aktiviteter, belöningar m.m.
 
+### URL:er
+
+| Miljö | URL | När |
+|--------|-----|-----|
+| **Produktion** | `https://mystarday.se` | Nuvarande live (VPS efter cutover) |
+| **Legacy Polsia** | `https://stjarndag.polsia.app` | Endast vid **första** harvest från gamla Polsia-hostingen |
+
+Standard för `migration:harvest`, `sync:features` m.m. är **`mystarday.se`**. Använd `--url https://stjarndag.polsia.app` bara om du hämtar data från den gamla Polsia-instansen (innan DNS pekar `mystarday.se` till VPS).
+
+```bash
+# Vanligt (prod / VPS efter cutover)
+npm run sync:features
+
+# Engångs-harvest från legacy Polsia
+npm run migration:harvest -- --url https://stjarndag.polsia.app --out ./Backup/...
+```
+
 ---
 
 ## Plan B: Importera harvest (`import:harvest`)
@@ -118,6 +135,15 @@ npm run bootstrap:migration
 ```
 
 Det seedar `features` om tomt, sätter `standardbibliotek` till `live` på localhost, och visar om `default_*` saknas.
+
+**Synka feature-flaggor från prod** (harvest importerar inte `features` / `family_features`):
+
+```bash
+set -a && source .env && set +a
+npm run sync:features
+```
+
+Kör mot `mystarday.se` (prod). Legacy: `--url https://stjarndag.polsia.app` om källan fortfarande är gamla Polsia.
 
 **Alternativ:** SQL-export från prod med endast `default_activity_template`, `default_reward`, `default_schedule`, `default_schedule_item` → `psql` på mål.
 
