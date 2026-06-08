@@ -41,11 +41,20 @@ module.exports = [
         Intl: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
       },
     },
     rules: {
       // Catch typos and unused imports early
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       // var is discouraged; let/const are safer
       'no-var': 'error',
       // Prefer const for variables that are never reassigned

@@ -1077,7 +1077,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
     for (const row of pendingResult.rows) pendingMap[row.child_id] = parseInt(row.count, 10);
 
     // Pending goal change requests per child
-    let pendingGoalMap = {};
+    const pendingGoalMap = {};
     try {
       const pendingGoalResult = await db.query(
         `SELECT crgcr.child_id, COUNT(*) AS count
@@ -1175,7 +1175,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
 
     // Build response
     // Manual star grants per child
-    let manualMap = {};
+    const manualMap = {};
     try {
       const manualResult = await db.query(
         `SELECT child_id, COALESCE(SUM(star_count), 0) AS manual

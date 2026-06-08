@@ -609,7 +609,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     // Used by the child UI to decide whether to show an expand button.
     // One batch query: count sub-steps per activity_template_id.
     const templateIds = [...new Set(sortedItems.map(i => i.activity_template_id).filter(Boolean))];
-    let subStepCountMap = {};
+    const subStepCountMap = {};
     if (templateIds.length > 0) {
       const countResult = await db.query(
         `SELECT activity_template_id, COUNT(*) AS cnt

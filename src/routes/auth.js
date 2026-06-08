@@ -744,7 +744,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     const clientIp = req.ip || 'unknown';
 
     // Find child — username match first, then display name
-    let childResult = await db.query(
+    const childResult = await db.query(
       'SELECT id, family_id, name, emoji, username, pin, avatar_url FROM child WHERE LOWER(username) = $1',
       [normalizedInput]
     );
