@@ -318,6 +318,13 @@
     }
 
     // ─── Render ─────────────────────────────────────────────────
+    function asTextLines(val) {
+      if (val == null) return '';
+      if (Array.isArray(val)) return val.map(String).join('\n');
+      if (typeof val === 'string') return val;
+      return String(val);
+    }
+
     function asArray(val) {
       if (Array.isArray(val)) return val;
       if (val == null) return [];
@@ -383,7 +390,7 @@
       document.getElementById('dUserStories').value = Array.isArray(userStory) ? userStory.join('\n') : userStory;
 
       // ── Section 11: Acceptance Criteria
-      document.getElementById('dAcceptanceCriteria').value = (doc.acceptance_criteria || []).join('\n');
+      document.getElementById('dAcceptanceCriteria').value = asTextLines(doc.acceptance_criteria);
 
       // ── Section 12: Technical Notes
       document.getElementById('dTechnical').value = doc.technical_notes || '';

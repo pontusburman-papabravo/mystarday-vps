@@ -19,6 +19,7 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 const { Pool } = require('pg');
 const { apiRequest, readJson, adminLogin } = require('./lib/migration-http');
+const { prepareFeatureForDb } = require('../src/lib/feature-normalize');
 
 function parseArgs(argv) {
   const opts = {
@@ -66,23 +67,9 @@ async function fetchAdminJson(baseUrl, session, apiPath) {
   return body;
 }
 
-function buildDocumentation(row) {
-  const doc = row.documentation && typeof row.documentation === 'object' && !Array.isArray(row.documentation)
-    ? { ...row.documentation }
-    : {};
-  const devNotes = Array.isArray(row.dev_notes)
-    ? row.dev_notes
-    : (Array.isArray(doc.dev_notes) ? doc.dev_notes : []);
-  const changelog = Array.isArray(row.changelog)
-    ? row.changelog
-    : (Array.isArray(doc.changelog) ? doc.changelog : []);
-  return { ...doc, dev_notes: devNotes, changelog };
-}
-
 async function upsertFeature(client, row) {
-  const documentation = buildDocumentation(row);
-  const devNotes = documentation.dev_notes || [];
-  const changelog = documentation.changelog || [];
+  const prepared = prepareFeatureForDb(row);
+  if (!prepared) throw new Error('Ogiltig feature-rad (saknar slug)');
 
   await client.query(
     `INSERT INTO features (
@@ -103,18 +90,18 @@ async function upsertFeature(client, row) {
       category = EXCLUDED.category,
       updated_at = NOW()`,
     [
-      row.slug,
-      row.name,
-      row.description || null,
-      row.status || 'off',
-      row.tags || [],
-      row.priority || 'medium',
-      row.complexity ?? 5,
-      row.estimated_hours ?? null,
-      documentation,
-      devNotes,
-      changelog,
-      row.category || null,
+      prepared.slug,
+      prepared.name,
+      prepared.description,
+      prepared.status,
+      prepared.tags,
+      prepared.priority,
+      prepared.complexity,
+      prepared.estimated_hours,
+      prepared.documentation,
+      prepared.dev_notes,
+      prepared.changelog,
+      prepared.category,
     ]
   );
 }
@@ -156,6 +143,13 @@ async function main() {
       if (seed.status !== 0) process.exit(1);
     }
 
+    if (process.env.MIGRATION_EXPORT_BASE_URL?.includes('stjarndag.polsia.app')) {
+      console.warn(
+        '[sync:features] VARNING: MIGRATION_EXPORT_BASE_URL pekar på legacy Polsia.\n' +
+          '  Prod är mystarday.se — ta bort raden ur .env om du synkar mot VPS-prod.'
+      );
+    }
+
     console.log(`[sync:features] Hämtar från ${opts.baseUrl} ...`);
     const session = await adminLogin(opts.baseUrl, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
     const features = await fetchAdminJson(opts.baseUrl, session, '/api/admin/features');
@@ -176,7 +170,11 @@ async function main() {
         console.warn(`  ${row.slug}: kunde inte hämta detalj — ${err.message}`);
       }
 
-      await upsertFeature(client, detail);
+      try {
+        await upsertFeature(client, detail);
+      } catch (err) {
+        throw new Error(`${detail.slug}: ${err.message}`);
+      }
       if (detail.status === 'live') live++;
       else if (detail.status === 'dev') dev++;
       else off++;
