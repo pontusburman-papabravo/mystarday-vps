@@ -834,12 +834,45 @@ router.post('/update-pin', async (req, res) => {
 // Tracks funnel_onboarding_completed analytics event.
 router.post('/complete', async (req, res) => {
   try {
+    const beforeResult = await db.query(
+      'SELECT onboarding_completed FROM parent WHERE id = $1',
+      [req.user.id]
+    );
+    const wasAlreadyOnboarded = beforeResult.rows[0]?.onboarding_completed === true;
+
     await db.query(
       'UPDATE parent SET onboarding_completed = true WHERE id = $1',
       [req.user.id]
     );
     // Analytics: funnel step — onboarding completed
     require('../lib/analytics-tracker').trackOnboardingCompleted(req.user.familyId);
+
+    // Föräldraaktivering 7D — auto-enroll (Grupp A, post-launch only)
+    try {
+      const programDb = require('../../db/parent-activation-program');
+      const { canEnrollOnboardingProgram, assignCohortArm } = require('../lib/activation-program-enroll');
+      const activationAnalytics = require('../lib/activation-program-analytics');
+
+      const eligible = await canEnrollOnboardingProgram({
+        wasAlreadyOnboarded,
+        familyId: req.user.familyId,
+        getActiveProgram: programDb.getActiveByFamily,
+      });
+
+      if (eligible) {
+        const cohortArm = assignCohortArm(req.user.familyId);
+        await programDb.create({
+          familyId: req.user.familyId,
+          parentId: req.user.id,
+          cohortArm,
+          programType: 'onboarding_7d',
+        });
+        activationAnalytics.trackProgramStarted(req.user.familyId, cohortArm, 'onboarding_7d');
+      }
+    } catch (enrollErr) {
+      console.error('[ONBOARDING] activation enroll error:', enrollErr.message);
+    }
+
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);

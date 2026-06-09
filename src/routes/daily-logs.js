@@ -325,6 +325,9 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+        require('../lib/activation-program-completion').maybeTrackChildFirstCompletion(
+          fid, item.child_id, req.params.itemId, activityName
+        ).catch(() => {});
         // Pass req.user.id as excludeParentId — parent should not notify themselves
         notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch(() => {});
       } catch (_) {}
@@ -765,6 +768,9 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+        require('../lib/activation-program-completion').maybeTrackChildFirstCompletion(
+          fid, req.user.id, req.params.itemId, activityName
+        ).catch(() => {});
         notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch(() => {});
       } catch (_) {}
     }).catch(() => {});
