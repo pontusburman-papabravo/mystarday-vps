@@ -2,6 +2,7 @@
 
 **Skapad:** 2026-05-30  
 **Spec:** [foraldaraktivering-7-dagar-spec.md](./foraldaraktivering-7-dagar-spec.md) v3.10  
+**Invariants:** [activation-program-invariants.md](./activation-program-invariants.md) — alla implementationer måste följa dessa  
 **Scope:** Migration + dag-logik + A/B helper  
 **Estimat:** ~3h  
 **Risk:** Låg

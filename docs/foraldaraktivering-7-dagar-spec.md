@@ -4,7 +4,7 @@
 **Senast reviderad:** 2026-05-30 (v3.10 — operativ prioritering; launch-kriterier; Polsia Fas 1-task)  
 **Status:** Implementation-ready (kausalt retention-experiment)  
 **Feature slug:** `foraldaraktivering_7d`  
-**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard, [Fas 1 task](./foraldaraktivering-fas1-task.md)
+**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard, [Fas 1 task](./foraldaraktivering-fas1-task.md), [Invariants](./activation-program-invariants.md) (får aldrig brytas)
 
 ---
 
@@ -1216,6 +1216,8 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-02T06:00:00Z  // 08:00 svensk sommartid
 ---
 
 ## 18. Arkitektur-check (v3.9)
+
+**Invariants (låsta):** [activation-program-invariants.md](./activation-program-invariants.md) — 15 regler som aldrig får brytas vid implementation.
 
 | Komponent | Beslut |
 |-----------|--------|

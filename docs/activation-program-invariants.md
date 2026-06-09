@@ -2,7 +2,8 @@
 
 Får aldrig brytas.
 
-Full spec: [foraldaraktivering-7-dagar-spec.md](./foraldaraktivering-7-dagar-spec.md)
+**Kopplad till:** [Föräldaraktivering — 7-dagarsprogram](./foraldaraktivering-7-dagar-spec.md) (`foraldaraktivering_7d`)  
+**Implementation:** [Fas 1 task](./foraldaraktivering-fas1-task.md)
 
 ---
 
