@@ -131,11 +131,18 @@
 
     parentCard.addEventListener('click', function (e) {
       e.preventDefault();
-      if (window.ParentalGate && window.DeviceMode && DeviceMode.isChildMode()) {
+      // Barnläge + aktiv session → PIN-gate. Utloggad → visa e-post/lösenord direkt.
+      if (
+        window.ParentalGate && window.DeviceMode && DeviceMode.isChildMode() &&
+        window.Auth && Auth.isLoggedIn()
+      ) {
         ParentalGate.requireParentMode(function () {
           showParentLogin();
         });
         return;
+      }
+      if (window.DeviceMode && DeviceMode.isChildMode()) {
+        DeviceMode.enterParent();
       }
       // If parent already has an active session, skip login form → go to dashboard.
       if (window.Auth && Auth.isLoggedIn()) {
@@ -182,7 +189,7 @@
     });
   }
 
-  /* ── Parent PIN gate overlay ──────────────────────────────────────────── */
+  /* ── Parent PIN gate overlay (global for parental-gate.js on /login) ─ */
   function showParentPinGateOverlay(onSuccess, onCancel) {
     var overlay = document.createElement('div');
     overlay.id = 'ppin-overlay';
@@ -292,6 +299,7 @@
     buildKeypad();
     updateDots();
   }
+  window.showParentPinGateOverlay = showParentPinGateOverlay;
 
   /* ── Show parent login form ─────────────────────────────────────────────── */
   function showParentLogin() {

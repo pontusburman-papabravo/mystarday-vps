@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const RELEASE_TAG = '2026-06-08-native-theme';
+const RELEASE_TAG = '2026-06-08-login-pin-fix';
 
 function injectPlatformHtml(body) {
   if (typeof body !== 'string') return body;

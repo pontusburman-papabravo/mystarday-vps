@@ -488,6 +488,9 @@ const Auth = {
       window.location.href = '/child-login';
       return;
     }
+    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+      DeviceMode.enterParent();
+    }
     if (
       (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
       (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)

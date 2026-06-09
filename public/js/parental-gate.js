@@ -13,9 +13,12 @@
       }, onCancel || function () {});
       return;
     }
-    if (window.confirm('Föräldralås kräver PIN — logga in som vuxen på inställningar.')) {
-      window.location.href = '/login';
+    if (window.DeviceMode && DeviceMode.isChildMode()) DeviceMode.enterParent();
+    if (window.LoginMagic && typeof LoginMagic.showParentLogin === 'function') {
+      LoginMagic.showParentLogin();
+      return;
     }
+    window.location.href = '/login';
   }
 
   /**
