@@ -2,6 +2,8 @@
 
 **Skapad:** 2026-05-30  
 **Spec:** [foraldaraktivering-7-dagar-spec.md](./foraldaraktivering-7-dagar-spec.md) v3.10  
+**Contract:** [foraldaraktivering-implementation-contract.md](./foraldaraktivering-implementation-contract.md)  
+**Implementation:** PR [#94](https://github.com/pontusburman-papabravo/mystarday-vps/pull/94) (Fas 1–4 MVP)  
 **Scope:** Migration + dag-logik + A/B helper  
 **Estimat:** ~3h  
 **Risk:** Låg

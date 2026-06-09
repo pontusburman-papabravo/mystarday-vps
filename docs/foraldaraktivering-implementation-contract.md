@@ -2,9 +2,12 @@
 
 Version: MVP v1.0
 
+**Epic:** [Föräldaraktivering — 7-dagarsprogram](./foraldaraktivering-7-dagar-spec.md)  
+**Relaterat:** [Fas 1 task](./foraldaraktivering-fas1-task.md) · PR [#94](https://github.com/pontusburman-papabravo/mystarday-vps/pull/94)
+
 Syfte:
 Detta dokument är den tekniska sanningen för implementationen.
-Om detta dokument och PRD:n motsäger varandra gäller detta dokument.
+Om detta dokument och [7-dagars-specen](./foraldaraktivering-7-dagar-spec.md) motsäger varandra gäller detta dokument.
 
 ---
 

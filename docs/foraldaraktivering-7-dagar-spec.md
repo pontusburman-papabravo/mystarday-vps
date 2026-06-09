@@ -1,10 +1,10 @@
 # Föräldaraktivering — 7-dagarsprogram
 
 **Skapad:** 2026-05-30  
-**Senast reviderad:** 2026-05-30 (v3.10 — operativ prioritering; launch-kriterier; Polsia Fas 1-task)  
-**Status:** Implementation-ready (kausalt retention-experiment)  
+**Senast reviderad:** 2026-06-09 (MVP Fas 1–4 implementerad)  
+**Status:** MVP Fas 1–4 merged i kod — väntar launch (`ACTIVATION_PROGRAM_LAUNCH_AT`)  
 **Feature slug:** `foraldaraktivering_7d`  
-**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard, [Fas 1 task](./foraldaraktivering-fas1-task.md)
+**Relaterat:** onboarding, push-reminder-scheduler, win-back, retention-dashboard, [Fas 1 task](./foraldaraktivering-fas1-task.md), [Implementation contract](./foraldaraktivering-implementation-contract.md), PR [#94](https://github.com/pontusburman-papabravo/mystarday-vps/pull/94)
 
 ---
 
@@ -1297,6 +1297,21 @@ Framtida program återanvänder samma motor — ny content-fil + `program_type`,
 | `src/lib/activation-program-retention.js` | 6 |
 | `src/routes/admin/activation-program.js` | 6 |
 | `docs/foraldaraktivering-fas1-task.md` | 1 (Polsia) |
+| `docs/foraldaraktivering-implementation-contract.md` | MVP (teknisk sanning) |
+| `test/activation-program.test.js` | 1 |
+| `src/lib/activation-program-analytics.js` | 2–4 |
+| `src/lib/activation-program-completion.js` | 2 |
+
+### MVP Fas 1–4 — implementeringsstatus (2026-06-09)
+
+| Fas | Status |
+|-----|--------|
+| 1 Migration + dag-logik + A/B | ✅ |
+| 2 Aha-tracking + celebratory modal | ✅ |
+| 3 Dashboard-banner + dag 1 preview | ✅ |
+| 4 Auto-enrollment + env vars | ✅ (env sätts vid go-live) |
+| 5 Push-scheduler | ⏳ Ej påbörjad |
+| 6 Admin + Day 14-analys | ⏳ Ej påbörjad |
 
 ---
 
