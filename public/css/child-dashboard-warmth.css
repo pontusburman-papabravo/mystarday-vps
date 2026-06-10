@@ -1,0 +1,105 @@
+/**
+ * child-dashboard-warmth.css — focused schedule tab, narrative history, clearer stars.
+ */
+
+/* Week nav collapsed by default */
+.child-week-details {
+  background: white;
+  border-bottom: 1px solid #EDE7F6;
+}
+.child-week-summary {
+  list-style: none;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5A6178;
+  cursor: pointer;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+.child-week-summary::-webkit-details-marker { display: none; }
+.child-week-details[open] .child-week-summary {
+  border-bottom: 1px solid #EDE7F6;
+  color: #1B2340;
+}
+
+/* Compact goal teaser on schedule tab */
+.child-goal-teaser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid #EDE7F6;
+  background: linear-gradient(135deg, #FFF8E7, #FFFFFF);
+  transition: border-color 0.15s, transform 0.1s;
+  cursor: pointer;
+  text-align: left;
+}
+.child-goal-teaser:active { transform: scale(0.98); }
+.child-goal-teaser:hover { border-color: #F5A623; }
+.child-goal-teaser-icon { font-size: 1.5rem; flex-shrink: 0; }
+.child-goal-teaser-text { flex: 1; min-width: 0; }
+.child-goal-teaser-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5A6178;
+}
+.child-goal-teaser-name {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1B2340;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.child-goal-teaser-sub {
+  font-size: 11px;
+  color: #B45309;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.child-goal-teaser-arrow {
+  font-size: 18px;
+  color: #F5A623;
+  flex-shrink: 0;
+}
+
+/* Narrative history stories */
+.skatt-history-story {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #FFFBEB, #FFFFFF);
+  border: 1.5px solid rgba(245, 166, 35, 0.25);
+  border-radius: 14px;
+}
+.skatt-history-story-text {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1B2340;
+  line-height: 1.35;
+}
+.skatt-history-story-when {
+  font-size: 11px;
+  color: #9AA0B8;
+  margin-top: 4px;
+}
+
+.skatt-economy-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 8px;
+  line-height: 1.4;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}

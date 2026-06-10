@@ -325,7 +325,7 @@ function showTab(tab) {
   const ts = document.getElementById('tabSchedule');
   const tr = document.getElementById('tabRewards');
   // Schedule-only sections that must hide on rewards tab
-  const weekNav = document.getElementById('weekNavSection');
+  const weekNav = document.getElementById('weekNavDetails');
   const progress = document.getElementById('progressSection');
   if (tab === 'schedule') {
     sv.classList.remove('hidden'); rv.classList.add('hidden');
@@ -486,12 +486,12 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
           <div class="skatt-chest" style="font-size:3rem;line-height:1;">🪙</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:2px;">Stjärnsaldo</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:2px;">Dina sparade stjärnor</div>
           <div style="font-family:'Outfit',sans-serif;font-size:3.2rem;font-weight:800;color:#FFD700;line-height:1;text-shadow:0 0 20px rgba(255,215,0,0.5);">⭐ ${starBalance}</div>
-          ${totalEarned > starBalance ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif;">Totalt tjänat: ⭐ ${totalEarned}</div>` : ''}
+          ${window.ChildDashboardWarmth ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned) : (totalEarned > starBalance ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:4px;">Totalt tjänat: ⭐ ${totalEarned}</div>` : '')}
         </div>
         <div style="text-align:center;">
-          <div class="skatt-chest" style="font-size:3rem;line-height:1;animation-delay:-1.5s;">💰</div>
+          <div class="skatt-chest" style="font-size:3rem;line-height:1;animation-delay:-1.5s;">🎁</div>
         </div>
       </div>
     </div>
@@ -748,10 +748,9 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
   // ══════════════════════════════════════════════════════
   // 6. HISTORIKBOKEN — Redemption History
   // ══════════════════════════════════════════════════════
-  const denied = redemptions.filter(r => r.status === 'denied');
-  const allHistory = [...trophies, ...denied].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const historyWins = [...trophies].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-  if (allHistory.length > 0) {
+  if (historyWins.length > 0) {
     html += `<div class="skatt-section" style="margin-bottom:24px;">
       <div class="skatt-section-header">
         <div class="skatt-section-icon" style="background:linear-gradient(135deg,#74b9ff,#0984e3);">📖</div>
@@ -759,18 +758,10 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       </div>
       <div class="skatt-section-body" style="padding-bottom:8px;">`;
 
-    for (const r of allHistory.slice(0, 10)) {
-      const d = new Date(r.created_at);
-      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' });
-      const isApproved = r.status === 'approved' || r.status === 'auto';
-      html += `<div class="skatt-history-item">
-        <div style="width:40px;height:40px;min-width:40px;background:${isApproved ? '#d1fae5' : '#fee2e2'};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${r.reward_icon || '🎁'}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(r.reward_name)}</div>
-          <div style="font-size:0.7rem;color:#9AA0B8;">${dateStr}</div>
-        </div>
-        <span style="font-size:1.1rem;">${isApproved ? '✅' : '❌'}</span>
-      </div>`;
+    for (const r of historyWins.slice(0, 10)) {
+      html += window.ChildDashboardWarmth
+        ? window.ChildDashboardWarmth.renderHistoryStoryHtml(r)
+        : `<div class="skatt-history-story"><div class="skatt-history-story-text">Du låste upp ${escHtml(r.reward_name)} ${r.reward_icon || '🎁'} 🎉</div></div>`;
     }
 
     html += `</div></div>`;
@@ -1177,6 +1168,7 @@ function updateGoalBar(goalData) {
     if (bar) bar.style.width = '0%';
     if (label) label.textContent = 'Inget mål valt';
     if (nameEl) nameEl.textContent = 'Gå till Skattkammaren för att välja mål';
+    if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(null);
     return;
   }
   const balance = goalData.star_balance || 0;
@@ -1189,6 +1181,7 @@ function updateGoalBar(goalData) {
   if (label) label.textContent = `⭐ ${balance} av ${starCost}`;
   if (nameEl) nameEl.textContent = `${icon} ${name}`;
   if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
+  if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(goalData);
 }
 
 // ── Schedule / Activities ──────────────────────────────
@@ -1211,6 +1204,7 @@ function renderActivities(data, trueStarBalance) {
   if (document.getElementById('starCount')) {
     document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
   }
+  if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateTodayStars(todayStars);
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
   if (document.getElementById('progressBar')) {
     document.getElementById('progressBar').style.width = `${pct}%`;
@@ -2556,6 +2550,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     todayStr = getLocalDate();
     currentDate = todayStr;
+    if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.init();
     renderDayTabs();
     updateDateLine();
     await loadDay(todayStr);

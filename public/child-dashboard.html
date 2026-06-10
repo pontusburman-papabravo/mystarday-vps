@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.0.0">
   <link rel="stylesheet" href="/css/child-today-focus.css?v=1.0.0">
+  <link rel="stylesheet" href="/css/child-dashboard-warmth.css?v=2026-06-10-child">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.21.0"></script>
@@ -1353,8 +1354,10 @@
     </div>
   </div>
 
-  <!-- Week Navigation + Day Tabs (schedule-only — hidden on rewards tab) -->
-  <div id="weekNavSection" class="bg-white border-b border-lavender sticky top-[60px] z-10">
+  <!-- Week Navigation + Day Tabs (collapsed by default — schedule tab only) -->
+  <details id="weekNavDetails" class="child-week-details sticky top-[60px] z-10">
+    <summary class="child-week-summary">📅 Andra dagar</summary>
+    <div id="weekNavSection">
     <div class="flex items-center gap-1 px-2 pt-2 max-w-lg mx-auto">
       <button onclick="navigateWeek(-1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" title="Föregående vecka">‹</button>
       <div class="flex-1 text-center text-xs font-semibold text-text-soft" id="weekLabel"></div>
@@ -1362,17 +1365,18 @@
       <button onclick="navigateWeek(1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" title="Nästa vecka">›</button>
     </div>
     <div class="flex gap-1 p-2 max-w-lg mx-auto overflow-x-auto" id="dayTabs"></div>
-  </div>
+    </div>
+  </details>
 
-  <!-- Progress: Three Separate Elements (schedule-only — hidden on rewards tab) -->
+  <!-- Progress: focused schedule summary (hidden on rewards tab) -->
   <div id="progressSection" class="bg-white px-4 py-3 border-b border-lavender">
     <div class="max-w-lg mx-auto space-y-3">
 
-      <!-- Element 1: Dagens progress (today's activities) -->
+      <!-- Dagens uppgifter -->
       <div>
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">📅 Dagens aktiviteter</span>
-          <span class="text-sm font-heading font-bold text-gold" id="starCount">0 / 0 ⭐</span>
+          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">✅ Dagens uppgifter</span>
+          <span class="text-sm font-heading font-bold text-navy" id="progressLabel">0 av 0 klara</span>
         </div>
         <div class="w-full bg-lavender rounded-full h-3.5 overflow-hidden relative" id="progressBarContainer">
           <div class="progress-fill h-3.5 rounded-full" id="progressBar" style="width:0%"></div>
@@ -1383,36 +1387,32 @@
             <div class="milestone-marker" style="left:75%" title="75%"></div>
           </div>
         </div>
-        <div class="flex justify-between mt-0.5">
-          <span class="text-xs text-text-soft" id="progressLabel">0 av 0 klara</span>
-        </div>
       </div>
 
-      <!-- Element 2: Totala stjärnor (separate balance) -->
-      <div class="flex items-center justify-between bg-gradient-to-r from-gold-light to-white rounded-xl px-3 py-2 border border-gold/20">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">💰</span>
-          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">Stjärnsaldo</span>
-        </div>
-        <span class="text-lg font-heading font-bold text-gold" id="totalStarBalance">⭐ 0</span>
+      <!-- Dagens stjärnor -->
+      <div class="flex items-center justify-between bg-gradient-to-r from-gold-light to-white rounded-xl px-3 py-2.5 border border-gold/25">
+        <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">⭐ Dagens stjärnor</span>
+        <span class="text-sm font-heading font-bold text-gold" id="todayStarsEarned">0 stjärnor</span>
       </div>
 
-      <!-- Element 3: Långsiktigt mål (always visible) -->
-      <div id="goalBarSection">
-        <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">🎯 Långsiktigt mål</span>
-          <span class="text-sm font-heading font-bold text-navy" id="goalBarLabel">Inget mål valt</span>
+      <!-- Mitt mål — compact link to Skattkammaren -->
+      <button type="button" id="goalTeaserBtn" onclick="showTab('rewards')" class="child-goal-teaser" aria-label="Öppna Skattkammaren och se ditt mål">
+        <span id="goalTeaserIcon" class="child-goal-teaser-icon">🎯</span>
+        <div class="child-goal-teaser-text">
+          <div class="child-goal-teaser-label">Mitt mål</div>
+          <div id="goalTeaserName" class="child-goal-teaser-name">Välj ett mål i Skattkammaren</div>
+          <div id="goalTeaserSub" class="child-goal-teaser-sub">Tryck här för att välja</div>
         </div>
-        <div class="w-full bg-lavender rounded-full h-3.5 overflow-hidden relative">
-          <div class="h-3.5 rounded-full transition-all duration-700 ease-out" id="goalProgressBarTop"
-            style="width:0%; background: linear-gradient(90deg, #F5A623, #22C55E)"></div>
-          <div style="position:absolute;left:25%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.6);border-radius:1px;"></div>
-          <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.6);border-radius:1px;"></div>
-          <div style="position:absolute;left:75%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.6);border-radius:1px;"></div>
-        </div>
-        <div class="flex justify-between mt-0.5">
-          <span class="text-xs text-text-soft truncate" id="goalBarName">Gå till Skattkammaren för att välja mål</span>
-        </div>
+        <span class="child-goal-teaser-arrow" aria-hidden="true">→</span>
+      </button>
+
+      <!-- Legacy elements kept for JS compatibility (hidden on schedule tab) -->
+      <span id="starCount" class="hidden">0 / 0 ⭐</span>
+      <span id="totalStarBalance" class="hidden">⭐ 0</span>
+      <div id="goalBarSection" class="hidden" aria-hidden="true">
+        <span id="goalBarLabel"></span>
+        <div id="goalProgressBarTop"></div>
+        <span id="goalBarName"></span>
       </div>
 
     </div>
@@ -1545,7 +1545,8 @@
   <script src="/js/child-skatt-house.js?v=2.0.0"></script>
   <script src="/js/child-today-focus.js?v=1.0.0"></script>
   <!-- Main child dashboard logic (schedule, activities, rewards, ratings) -->
-  <script src="/js/child-dashboard.js?v=2.20.0"></script>
+  <script src="/js/child-dashboard-warmth.js?v=2026-06-10-child"></script>
+  <script src="/js/child-dashboard.js?v=2.21.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
 

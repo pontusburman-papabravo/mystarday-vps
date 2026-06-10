@@ -60,7 +60,7 @@
   }
 
   function hideLegacyChrome() {
-    ['weekNavSection', 'progressSection'].forEach(function (id) {
+    ['weekNavSection', 'progressSection', 'weekNavDetails'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) {
         el.classList.add('ctf-hidden');
