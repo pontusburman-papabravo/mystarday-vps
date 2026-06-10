@@ -14,9 +14,10 @@ function injectPlatformHtml(body) {
   const headMarker = '<head>';
   const tailMarker = '</body>';
 
-  const headParts = [
-    '<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>',
-  ];
+  const headParts = [];
+  if (!body.includes('/js/platform.js')) {
+    headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
+  }
   headParts.push(
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
