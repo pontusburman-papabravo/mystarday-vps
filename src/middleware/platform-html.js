@@ -5,24 +5,25 @@
 const fs = require('fs');
 const path = require('path');
 
-const RELEASE_TAG = '2026-06-08-login-pin-fix';
+const RELEASE_TAG = '2026-06-09-native-shell';
+const INJECT_MARKER = '<!-- platform-html-inject -->';
 
 function injectPlatformHtml(body) {
   if (typeof body !== 'string') return body;
-  if (body.includes('device-mode.js')) return body;
+  if (body.includes(INJECT_MARKER)) return body;
 
   const headMarker = '<head>';
   const tailMarker = '</body>';
 
-  const headParts = [];
-  if (!body.includes('/js/platform.js')) {
-    headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
-  }
+  const headParts = [
+    INJECT_MARKER,
+    '<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>',
+  ];
   headParts.push(
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.1">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.2">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">'
   );
   const headInject = headParts.join('\n') + '\n';

@@ -5,19 +5,16 @@
 (function () {
   'use strict';
 
-  if (typeof Platform === 'undefined' || !Platform.isNative || !Platform.isNative()) return;
+  function isNativeShell() {
+    if (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) return true;
+    if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) return true;
+    return false;
+  }
 
-  var html = document.documentElement;
-  if (!html.classList.contains('platform-native')) return;
+  if (!isNativeShell()) return;
 
   var path = (window.location.pathname || '').replace(/\/$/, '');
   if (path === '/child-dashboard' || path === '/child-login') return;
-
-  var PARENT_PAGES =
-    document.getElementById('sidebar') ||
-    document.querySelector('nav.bg-navy') ||
-    document.querySelector('.mobile-topbar');
-  if (!PARENT_PAGES) return;
 
   var TABS = [
     { href: '/dashboard', label: 'Hem', icon: '🏠', paths: ['/dashboard', '/daily-log', '/'] },
@@ -36,8 +33,18 @@
     return false;
   }
 
+  function hasParentShell() {
+    return !!(
+      document.getElementById('sidebar') ||
+      document.querySelector('nav.bg-navy') ||
+      document.querySelector('.mobile-topbar')
+    );
+  }
+
   function mount() {
     if (document.querySelector('.native-tab-bar')) return;
+    if (!hasParentShell()) return false;
+
     document.body.classList.add('has-native-tab-bar');
 
     var items = '';
@@ -62,6 +69,16 @@
       if (!link) return;
       if (Platform.haptics && Platform.haptics.light) Platform.haptics.light();
     });
+    return true;
+  }
+
+  function tryMount() {
+    if (mount()) return;
+    var retries = 0;
+    var timer = setInterval(function () {
+      retries += 1;
+      if (mount() || retries >= 30) clearInterval(timer);
+    }, 100);
   }
 
   function start() {
@@ -69,14 +86,24 @@
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
         if (cfg && (cfg.nativeTabbarEnabled === false || cfg.native_tabbar_enabled === false)) return;
-        mount();
+        tryMount();
       })
-      .catch(function () { /* fail closed — no tab bar until app-config is available */ });
+      .catch(function () {
+        // Default on — native shell should not look like PWA if app-config is slow.
+        tryMount();
+      });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
+  function boot() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+    window.addEventListener('platform-theme-applied', function () {
+      tryMount();
+    });
   }
+
+  boot();
 })();
