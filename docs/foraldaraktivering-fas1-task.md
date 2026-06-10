@@ -2,6 +2,9 @@
 
 **Skapad:** 2026-05-30  
 **Spec:** [foraldaraktivering-7-dagar-spec.md](./foraldaraktivering-7-dagar-spec.md) v3.10  
+**Contract:** [foraldaraktivering-implementation-contract.md](./foraldaraktivering-implementation-contract.md)  
+**Invariants:** [activation-program-invariants.md](./activation-program-invariants.md)  
+**Execution plan:** [cursor-execution-plan.md](./cursor-execution-plan.md)  
 **Scope:** Migration + dag-logik + A/B helper  
 **Estimat:** ~3h  
 **Risk:** Låg
