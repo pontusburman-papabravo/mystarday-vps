@@ -178,6 +178,23 @@
             </button>
           </div>
           <p id="familySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
+
+          <div id="familyChestSetting" class="mt-5 pt-5 border-t border-lavender/60 dark:border-gray-600 hidden">
+            <div class="flex items-start gap-3">
+              <label class="relative inline-flex items-center cursor-pointer mt-0.5 flex-shrink-0">
+                <input type="checkbox" id="familyChestToggle" class="sr-only peer" checked>
+                <span class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></span>
+              </label>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-navy dark:text-white text-sm">⭐ Familjekista</div>
+                <p class="text-xs text-text-soft mt-1 leading-relaxed">
+                  Visa gemensamma stjärnor som samlas när barnen klarar uppdrag.
+                  Familjeberättelsen sparas även om kistan är av.
+                </p>
+              </div>
+            </div>
+            <p id="familyChestSaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
+          </div>
         </section>
 
         <!-- ─── Familjemuseum (V4) ───────────────────────────── -->
@@ -922,6 +939,7 @@
   <script src="/js/family-invite-scan.js?v=1"></script>
   <script src="/js/settings-account.js?v=2.18.0"></script>
   <script src="/js/family-museum.js?v=1.0.0"></script>
+  <script src="/js/family-chest-setting.js?v=1.0.0"></script>
   <script src="/js/family.js?v=2.14.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

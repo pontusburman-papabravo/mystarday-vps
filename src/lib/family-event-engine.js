@@ -40,7 +40,12 @@ async function recordActivityContribution({
       [familyId, childId, JSON.stringify(payload)]
     );
 
-    if (stars > 0) {
+    const chestRow = await client.query(
+      'SELECT family_chest_enabled FROM family WHERE id = $1',
+      [familyId]
+    );
+    const chestEnabled = chestRow.rows[0]?.family_chest_enabled !== false;
+    if (chestEnabled && stars > 0) {
       await client.query(
         `INSERT INTO family_chest (family_id, total_stars, updated_at)
          VALUES ($1, $2, NOW())

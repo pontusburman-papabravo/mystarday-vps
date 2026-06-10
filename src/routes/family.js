@@ -203,7 +203,8 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     const familyResult = await db.query(
       `SELECT id, name, timezone, time_display_mode, morning_start, morning_end,
               day_start, day_end, evening_start, evening_end,
-              night_start, night_end, streak_start_day, sound_enabled, created_at
+              night_start, night_end, streak_start_day, sound_enabled,
+              family_chest_enabled, created_at
        FROM family WHERE id = $1`,
       [req.user.familyId]
     );
@@ -542,6 +543,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       night_start, night_end,
       streak_start_day,
       sound_enabled,
+      family_chest_enabled,
     } = req.body;
 
     const updates = [];
@@ -602,6 +604,11 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       values.push(!!sound_enabled);
     }
 
+    if (family_chest_enabled !== undefined) {
+      updates.push(`family_chest_enabled = $${idx++}`);
+      values.push(!!family_chest_enabled);
+    }
+
     if (updates.length === 0) {
       return res.status(400).json({ error: 'Inga inställningar att uppdatera' });
     }
@@ -611,7 +618,8 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       `UPDATE family SET ${updates.join(', ')} WHERE id = $${idx}
        RETURNING id, name, timezone, time_display_mode, morning_start, morning_end,
                  day_start, day_end, evening_start, evening_end,
-                 night_start, night_end, streak_start_day, sound_enabled`,
+                 night_start, night_end, streak_start_day, sound_enabled,
+                 family_chest_enabled`,
       values
     );
 

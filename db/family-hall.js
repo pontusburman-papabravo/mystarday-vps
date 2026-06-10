@@ -29,8 +29,13 @@ async function getFamilyHall(familyId) {
        LIMIT 50`,
       [familyId]
     ),
-    db.query('SELECT id, name FROM family WHERE id = $1', [familyId]),
+    db.query(
+      'SELECT id, name, family_chest_enabled FROM family WHERE id = $1',
+      [familyId]
+    ),
   ]);
+
+  const chestEnabled = familyRes.rows[0]?.family_chest_enabled !== false;
 
   const projectIds = projectsRes.rows.map((p) => p.id);
   let contributorsByProject = {};
@@ -67,8 +72,9 @@ async function getFamilyHall(familyId) {
       createdAt: p.created_at,
       updatedAt: p.updated_at,
     })),
-    chest: chestRes.rows[0]?.total_stars ?? 0,
-    chestUpdatedAt: chestRes.rows[0]?.updated_at ?? null,
+    chestEnabled,
+    chest: chestEnabled ? (chestRes.rows[0]?.total_stars ?? 0) : null,
+    chestUpdatedAt: chestEnabled ? (chestRes.rows[0]?.updated_at ?? null) : null,
     story: eventsRes.rows.map(formatStoryEvent),
   };
 }
@@ -93,8 +99,17 @@ async function listProjects(familyId) {
   return result.rows;
 }
 
+async function isFamilyChestEnabled(familyId) {
+  const result = await db.query(
+    'SELECT family_chest_enabled FROM family WHERE id = $1',
+    [familyId]
+  );
+  return result.rows[0]?.family_chest_enabled !== false;
+}
+
 module.exports = {
   getFamilyHall,
   createProject,
   listProjects,
+  isFamilyChestEnabled,
 };

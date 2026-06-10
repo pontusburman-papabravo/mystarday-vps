@@ -73,6 +73,17 @@
     '</div>';
   }
 
+  function renderChestSection(data) {
+    if (data.chestEnabled === false) return '';
+    return '<section class="cfh-section">' +
+      '<h2 class="cfh-section-title">⭐ Familjeskista</h2>' +
+      '<div class="cfh-chest">' +
+        '<div class="cfh-chest-value">' + (data.chest || 0) + '</div>' +
+        '<div class="cfh-chest-label">stjärnor tillsammans</div>' +
+      '</div>' +
+    '</section>';
+  }
+
   function render(data) {
     return '<div class="cfh-shell">' +
       '<div class="cfh-header">' +
@@ -83,13 +94,7 @@
         '<h2 class="cfh-section-title">🎯 Familjeprojekt</h2>' +
         renderProjects(data.projects) +
       '</section>' +
-      '<section class="cfh-section">' +
-        '<h2 class="cfh-section-title">⭐ Familjeskista</h2>' +
-        '<div class="cfh-chest">' +
-          '<div class="cfh-chest-value">' + (data.chest || 0) + '</div>' +
-          '<div class="cfh-chest-label">stjärnor tillsammans</div>' +
-        '</div>' +
-      '</section>' +
+      renderChestSection(data) +
       '<section class="cfh-section">' +
         '<h2 class="cfh-section-title">📖 Familjens berättelse</h2>' +
         renderStory(data.story) +

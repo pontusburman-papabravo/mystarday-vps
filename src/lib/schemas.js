@@ -315,6 +315,7 @@ const UpdateFamilySchema = z.object({
   night_end: timeString,
   streak_start_day: z.coerce.number().int().min(0).max(6).optional(),
   sound_enabled: z.boolean().optional(),
+  family_chest_enabled: z.boolean().optional(),
 }).partial();
 
 const UpdateFamilyMemberSchema = z.object({

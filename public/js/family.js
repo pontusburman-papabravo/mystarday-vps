@@ -68,6 +68,7 @@
       const section = document.getElementById('familyInfoSection');
       section.classList.remove('hidden');
       document.getElementById('familyNameInput').value = data.name || '';
+      if (window.FamilyChestSetting) FamilyChestSetting.init(data);
 
       const children = data.children || [];
       familyChildren = children;
