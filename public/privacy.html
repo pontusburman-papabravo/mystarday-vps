@@ -71,35 +71,37 @@
     </nav>
 
     <div class="content">
-        <h1>Integritetspolicy</h1>
-        <p class="updated">Senast uppdaterad: maj 2026</p>
+        <h1>Integritetspolicy för Min Stjärndag</h1>
+        <p class="updated">Senast uppdaterad: juni 2026</p>
 
         <div class="highlight-box">
-            <p>Vi värnar om din integritet. Min Stjärndag samlar in så lite data som möjligt — bara det som behövs för att appen ska fungera. Vi säljer inte din information och använder den inte för riktad annonsmarknadsföring. Delning med någon utanför tjänsten sker bara om du själv aktivt väljer det (se avsnittet om rapport för samtal nedan) eller när det krävs för drift via våra personuppgiftsbiträden.</p>
+            <p>Vi värnar om din integritet. Min Stjärndag samlar in så lite data som möjligt — bara det som behövs för att appen ska fungera. Vi säljer inte din information och använder den inte för riktad annonsmarknadsföring. Delning med någon utanför tjänsten sker bara om du själv aktivt väljer det (se avsnittet om rapport för samtal nedan) eller när det krävs för drift via våra underleverantörer (personuppgiftsbiträden).</p>
         </div>
 
+        <p><strong>Personuppgiftsansvarig:</strong> Papa Bravo AB, med e-post <a href="mailto:info@mystarday.se">info@mystarday.se</a>, är personuppgiftsansvarig för behandlingen av dina personuppgifter.</p>
+
         <h2>Vad vi samlar in</h2>
-        <p>Vi samlar in följande information om föräldrar och familjer:</p>
+        <p>Vi behandlar din data med stöd av avtal som rättslig grund (det vill säga för att vi ska kunna tillhandahålla appen och de funktioner du registrerar dig för). Vi samlar in följande information om föräldrar och familjer:</p>
         <ul>
             <li><strong>E-postadress</strong> — för inloggning och kontokommunikation</li>
-            <li><strong>Förnamn</strong> — för att personalisera upplevelsen</li>
+            <li><strong>För- och efternamn</strong> — för att personalisera upplevelsen och hantera ditt konto</li>
             <li><strong>Aktivitetsloggar</strong> — vilka aktiviteter som slutförts och när</li>
             <li><strong>Stjärnhistorik</strong> — intjänade och inlösta stjärnor</li>
-            <li><strong>Schema och aktiviteter</strong> — de scheman och aktiviteter du skapar</li>
+            <li><strong>Schema och aktiviteter</strong> — de scheman, rutiner och uppgifter du skapar</li>
         </ul>
-        <p>Barn identifieras enbart med <strong>förnamn och en vald emoji</strong>. Inga efternamn, personnummer eller kontaktuppgifter för barn lagras.</p>
+        <p><strong>Viktigt om barnens integritet:</strong> Barn identifieras enbart med förnamn (eller smeknamn) och en vald emoji. Inga efternamn, personnummer eller kontaktuppgifter för barn samlas in eller lagras.</p>
 
         <h2>Vad vi INTE samlar in</h2>
         <ul>
-            <li>Inga efternamn</li>
-            <li>Inga personnummer</li>
+            <li>Inga efternamn på barn</li>
+            <li>Inga personnummer (varken för vuxna eller barn)</li>
             <li>Ingen information om barnets hälsa, diagnos eller funktionsnedsättning</li>
             <li>Ingen betalningsinformation (vi hanterar inte betalningar direkt)</li>
             <li>Ingen platsdata</li>
         </ul>
 
         <h2>Hur vi använder din data</h2>
-        <p>All data används uteslutande för att tillhandahålla tjänsten:</p>
+        <p>All data används uteslutande för att tillhandahålla och förbättra tjänsten:</p>
         <ul>
             <li>Visa ditt barn dess dagliga schema</li>
             <li>Spara framsteg och stjärnhistorik</li>
@@ -108,67 +110,72 @@
         </ul>
 
         <h2>Delning med tredje part</h2>
-        <p>Vi delar <strong>inte</strong> din information med tredje part i marknadsföringssyfte. Vi använder följande underleverantörer för driften av tjänsten:</p>
+        <p>Vi delar <strong>inte</strong> din information med tredje part i marknadsföringssyfte. Vi använder följande underleverantörer (personuppgiftsbiträden) för att driva tjänsten. De behandlar uppgifter endast enligt våra instruktioner och i enlighet med GDPR:</p>
         <ul>
-            <li><strong>Neon (databas)</strong> — lagring av kontodata och scheman</li>
-            <li><strong>Render (hosting)</strong> — serverdrift</li>
-            <li><strong>Postmark (e-post)</strong> — för transaktionsmejl (verifiering, lösenordsåterställning)</li>
+            <li><strong>Neon (databas)</strong> — lagring av kontodata, scheman, aktiviteter och familjeinformation</li>
+            <li><strong>Egen serverdrift (VPS inom EU/EES)</strong> — drift av webbapp och API</li>
+            <li><strong>Resend (e-post)</strong> — transaktionsmejl (t.ex. kontoverifiering, lösenordsåterställning, välkomstmejl och viktiga kontomeddelanden)</li>
+            <li><strong>Cloudflare R2 (fillagring)</strong> — lagring av uppladdade profilbilder när funktionen används</li>
+            <li><strong>Apple &amp; Google (inloggning och notiser)</strong> — hantering av Apple Sign In, Google Sign-In samt push-notiser via APNs (iOS) och FCM (Android) när du använder dessa funktioner</li>
+            <li><strong>RevenueCat (köp i appen)</strong> — hantering av prenumerationer och köp i iOS- och Android-appen; vi delar endast det som behövs för att koppla köpet till rätt familjekonto</li>
         </ul>
 
-        <p><strong>Rapport för samtal:</strong> Om du som vårdnadshavare skapar en tidsbegränsad länk till en sammanställning av utvald aktivitets- och belöningsstatistik för ett barn, kan du dela denna länk med till exempel en pedagog eller terapeut. Det sker endast på ditt initiativ. Du väljer själv vilken information som ingår i sammanställningen och kan när som helst återkalla länken så att den slutar fungera. Mottagaren behöver inte ha konto i Min Stjärndag. Om du väljer att skydda länken med en kod ska koden hanteras varsamt och inte spridas i samma kanal som själva länken om ni vill minska risken vid obehörig åtkomst.</p>
+        <h2>Rapport för samtal</h2>
+        <p>Om du som vårdnadshavare skapar en tidsbegränsad länk till en sammanställning av utvald aktivitets- och belöningsstatistik för ett barn, kan du dela den med t.ex. pedagog eller terapeut. Det sker <strong>endast på ditt initiativ</strong>. Du väljer själv vad som ingår och kan när som helst återkalla länken så att den slutar fungera. Mottagaren behöver inte ha konto i Min Stjärndag.</p>
+        <p>Om du väljer att lösenordsskydda länken bör koden hanteras varsamt. Skicka inte koden och länken i samma meddelande (t.ex. i samma SMS eller mejl) för att minimera risken vid obehörig åtkomst.</p>
 
-        <p>Alla underleverantörer är GDPR-kompatibla och behandlar data enligt våra instruktioner.</p>
+        <h2>Tredjepartsinloggning (Apple och Google)</h2>
+        <p>Om du väljer att logga in via externa tjänster hanterar vi följande:</p>
+        <ul>
+            <li><strong>Sign in with Apple:</strong> Vi hanterar ditt namn och din e-postadress. Om du väljer &quot;Dölj min e-postadress&quot; lagrar vi den unika relay-adress som Apple skapar för att skicka kontokommunikation.</li>
+            <li><strong>Google Sign-In:</strong> Vi tar emot och lagrar den e-postadress samt det namn som är kopplat till ditt Google-konto för att skapa din profil.</li>
+        </ul>
+        <p>Respektive plattforms (Apples och Googles) egna integritetspolicys gäller för deras egen hantering av dina uppgifter.</p>
+
+        <h2>Push-notiser och enhetstokens</h2>
+        <p>Om du aktiverar push-notiser på din enhet lagrar vi en unik enhetstoken (APNs för iOS eller FCM för Android) med stöd av ditt samtycke, för att kunna leverera notiser till rätt enhet. Token lagras kopplat till ditt konto.</p>
+        <p>Tokens rensas automatiskt när du loggar ut eller om plattformen rapporterar att token är ogiltig (t.ex. vid enhetsbyte eller avinstallation). Vi lagrar aldrig din enhetsidentifierare utan en aktiv push-prenumeration. Vill du inaktivera push-notiser gör du det under <strong>Inställningar → Push-notiser</strong> i appen, eller via enhetens systeminställningar.</p>
+
+        <h2>Hur länge vi sparar din data</h2>
+        <p>Vi sparar din data så länge ditt konto är aktivt. Om du väljer att radera ditt konto raderas all data permanent och omedelbart (se nedan).</p>
+
+        <h2>Radera ditt konto</h2>
+        <p>Du raderar ditt konto direkt i appen under <strong>Inställningar → Radera konto</strong>. Du bekräftar raderingen med ditt lösenord (eller verifiering via tredjepartsinloggning).</p>
+        <p><strong>⚠️ Observera:</strong> All data raderas omedelbart och permanent — det går inte att ångra.</p>
+        <p>Följande tas bort och ingen data kvarstår efter radering:</p>
+        <ul>
+            <li>Föräldrakontot (inklusive namn och e-postadress)</li>
+            <li>Alla barnprofiler kopplade till familjen</li>
+            <li>Alla veckoscheman, rutiner och aktiviteter</li>
+            <li>Alla dagliga loggar och aktivitetsdata</li>
+            <li>Alla betyg och kommentarer</li>
+            <li>Alla belöningar och inlösningar</li>
+            <li>Alla inbjudningar till familjen</li>
+        </ul>
+
+        <h2>Lagring och säkerhet</h2>
+        <p>Data lagras inom EU/EES. Vi använder krypterade förbindelser (HTTPS) och industristandardiserade säkerhetsrutiner. Lösenord lagras aldrig i klartext — vi använder bcrypt-hashing.</p>
+
+        <h2>Cookies</h2>
+        <p>Vi använder enbart nödvändiga tekniska cookies för att hålla dig inloggad och för att spara dina inställningar (exempelvis mörkt läge) i webbgränssnitt eller webbvyer. Inga spårningscookies eller tredjepartscookies används.</p>
 
         <h2>Dina rättigheter (GDPR)</h2>
         <p>Du har följande rättigheter enligt GDPR:</p>
         <ul>
             <li><strong>Rätt att radera ditt konto</strong> — du kan när som helst radera ditt konto och all data direkt i appen</li>
-            <li><strong>Rätt att begära registerutdrag</strong> — vill du veta vilken data vi har om dig, kontakta oss via kontaktformuläret</li>
+            <li><strong>Rätt att begära registerutdrag</strong> — vill du veta vilken data vi har om dig, kontakta oss via e-post</li>
             <li>Rätt att begära rättelse av felaktiga uppgifter</li>
-            <li>Rätt att invända mot behandling</li>
-            <li>Rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY)</li>
+            <li>Rätt att invända mot behandling eller begära begränsning</li>
+            <li>Rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY) om du anser att vi behandlar dina personuppgifter i strid med GDPR</li>
         </ul>
-
-        <h2>Radera ditt konto</h2>
-        <p>Du raderar ditt konto direkt i appen under <strong>Inställningar → Radera konto</strong>. Du bekräftar raderingen med ditt lösenord.</p>
-        <p><strong>All data raderas omedelbart och permanent</strong> — det går inte att ångra. Följande tas bort:</p>
-        <ul>
-            <li>Föräldrakontot</li>
-            <li>Alla barn kopplade till familjen</li>
-            <li>Alla veckoscheman och aktiviteter</li>
-            <li>Alla aktiviteter och dagliga loggar</li>
-            <li>Alla betyg och kommentarer</li>
-            <li>Alla belöningar och inlösningar</li>
-            <li>Alla inbjudningar till familjen</li>
-        </ul>
-        <p>Ingen data kvarstår efter radering.</p>
-
-        <h2>Lagring och säkerhet</h2>
-        <p>Data lagras i EU/EES. Vi använder krypterade förbindelser (HTTPS) och industristandardiserade säkerhetsrutiner. Lösenord lagras aldrig i klartext — vi använder bcrypt-hashing.</p>
-
-        <h2>Inloggning med Apple</h2>
-        <p>Om du loggar in med Apple-ID via Apple Sign In hanterar vi följande uppgifter:</p>
-        <ul>
-            <li><strong>Ditt namn och e-postadress</strong> — överförs av Apple när du godkänner inloggningen</li>
-            <li><strong>Apple Relay-e-post</strong> — om du väljer Apples "Dölj min e-postadress" får du en unik vidarebefordrande adress istället för din riktiga e-post. Vi lagrar den adress Apple skickar vidare och använder den för kontokommunikation</li>
-        </ul>
-        <p>Vi använder aldrig Apple-ID-uppgifter i marknadsföringssyfte. Apples integritetspolicy gäller för Apples hantering av dina uppgifter.</p>
-
-        <h2>Push-notiser och enhetstokens</h2>
-        <p>Om du aktiverar push-notiser på din enhet lagrar vi en unik enhetstoken (APNs device token) för att kunna leverera notiser till rätt enhet. Token lagras kopplat till ditt konto.</p>
-        <p>Tokens rensas automatiskt när du loggar ut eller om Apple rapporterar att token är ogiltig (t.ex. vid enhetsbyte eller avinstallation). Vi lagrar aldrig din enhetsidentifierare utan en aktiv push-prenumeration.</p>
-        <p>Vill du inaktivera push-notiser gör du det under <strong>Inställningar → Push-notiser</strong> i appen.</p>
-
-        <h2>Cookies</h2>
-        <p>Vi använder enbart nödvändiga tekniska cookies för att hålla dig inloggad och för att spara dina inställningar (exempelvis mörkt läge). Inga spårningscookies eller tredjepartscookies används.</p>
 
         <h2>Kontakt</h2>
         <p>Har du frågor om hur vi hanterar din data? Kontakta oss:</p>
-        <p><a href="mailto:stjarndag@polsia.app">stjarndag@polsia.app</a></p>
+        <p><a href="mailto:info@mystarday.se">info@mystarday.se</a></p>
     </div>
 
     <footer>
-        <p>Min Stjärndag &mdash; <a href="/">Startsidan</a> &bull; <a href="/terms">Användarvillkor</a> &bull; <a href="/privacy">Integritetspolicy</a> &bull; <a href="mailto:stjarndag@polsia.app">stjarndag@polsia.app</a></p>
+        <p>Min Stjärndag &mdash; <a href="/">Startsidan</a> &bull; <a href="/terms">Användarvillkor</a> &bull; <a href="/privacy">Integritetspolicy</a> &bull; <a href="mailto:info@mystarday.se">info@mystarday.se</a></p>
     </footer>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
