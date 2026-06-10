@@ -6,7 +6,7 @@ Implementera aldrig mer än en fas åt gången.
 
 Begär alltid plan innan kod skrivs.
 
-**Inget till användare förrän produktägare säger go live** — se [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt).
+**Go live först efter Fas 6C** — inget till användare (föräldrar) förrän produktägare säger till. Se [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt).
 
 **Relaterat:** [Implementation contract](./foraldaraktivering-implementation-contract.md) · [Invariants](./activation-program-invariants.md) · [Spec](./foraldaraktivering-7-dagar-spec.md)
 
@@ -121,29 +121,6 @@ nya familjer (väg A) och inaktiva befintliga via e-post (väg B) kan välja ja/
 
 Ingen A/B vid launch — `cohort_arm = treatment` för alla som väljer ja.
 
-**Inte live för användare** — fortsatt `ACTIVATION_PROGRAM_ENABLED=false` i prod tills § Go live.
-
----
-
-# Go live (sista steg — efter Fas 4)
-
-Mål:
-
-Aktivera för riktiga användare — **endast på produktägares uttryckliga godkännande**.
-
-Gör:
-
-- Verifiera checklista i [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt)
-- Sätt `ACTIVATION_PROGRAM_LAUNCH_AT` (fryses permanent efter första enroll)
-- Sätt `ACTIVATION_PROGRAM_ENABLED=true` i prod
-- Deploy
-
-Klart när:
-
-produktägare bekräftat go live och första nya familj kan se onboarding-valet.
-
-**Implementation ska aldrig aktivera prod-flaggor utan PO-beslut.**
-
 ---
 
 # Fas 5
@@ -152,7 +129,17 @@ Mål:
 
 Push scheduler.
 
-Ej MVP.
+Implementera:
+
+dag 2–7 push (max 1/dag)
+
+activation_program_push_sent / clicked
+
+använder getEffectiveProgramDay() — aldrig last_seen_day
+
+Klart när:
+
+push triggas korrekt per programdag i staging.
 
 ---
 
@@ -170,7 +157,11 @@ Day 30
 
 Day 60
 
-retention calculations
+retention calculations (activation-program-retention.js)
+
+Klart när:
+
+Family Day 14-beräkning matchar låst definition (dag 13–15).
 
 ---
 
@@ -187,6 +178,12 @@ opportunity rate
 conversion rate
 
 retention wall
+
+GET /api/admin/activation-program/retention
+
+Klart när:
+
+admin-API returnerar korrekta kohorttal (även om UI kommer i 6C).
 
 ---
 
@@ -205,3 +202,34 @@ charts
 exports
 
 cohort analysis
+
+Day 14 grouped by parent_first_completion_seen
+
+experiment success threshold (isExperimentPromising)
+
+Klart när:
+
+admin kan följa funnel och Day 14 utan manuella SQL-frågor.
+
+---
+
+# Go live (sista steg — efter Fas 6C)
+
+Mål:
+
+Aktivera för riktiga användare — **endast på produktägares uttryckliga godkännande**.
+
+**Förutsättning:** Fas 1–6C tekniskt klara och verifierade.
+
+Gör:
+
+- Verifiera checklista i [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt)
+- Sätt `ACTIVATION_PROGRAM_LAUNCH_AT` (fryses permanent efter första enroll)
+- Sätt `ACTIVATION_PROGRAM_ENABLED=true` i prod
+- Deploy
+
+Klart när:
+
+produktägare bekräftat go live — väg A + väg B aktiva; push live; admin redo för uppföljning.
+
+**Implementation ska aldrig aktivera prod-flaggor utan PO-beslut.**

@@ -1,6 +1,6 @@
 # Föräldraaktivering 7D — Implementation Contract
 
-Version: MVP v1.3
+Version: MVP v1.4
 
 Syfte:
 Detta dokument är den tekniska sanningen för implementationen.
@@ -12,31 +12,30 @@ Om detta dokument och PRD:n motsäger varandra gäller detta dokument.
 
 # Scope
 
-Implementera endast Fas 1–4.
+**Bygg Fas 1–6C innan go live.** Användare ser inget förrän alla faser är klara och produktägare säger till (§ Go live).
 
-Ingår:
+Ingår (implementeras före go live):
 
-- Datamodell
-- Daglogik
-- Enrollment (nya föräldrar — onboarding-val)
-- E-postinbjudan (befintliga inaktiva föräldrar — opt-in via länk)
-- Banner
-- Aha-tracking
-- Celebratory modal
-- Reflection
-- Analytics-events
+| Fas | Innehåll |
+|-----|----------|
+| **1** | Datamodell, daglogik |
+| **2** | Aha-tracking, celebratory modal |
+| **3** | Banner, inline preview, reflektion |
+| **4** | Enrollment väg A (onboarding-val) + väg B (e-post 7+ dagar inaktiv) |
+| **5** | Push scheduler (dag 2–7) |
+| **6A** | Retention engine (Day 14/30/60-beräkningar) |
+| **6B** | Analytics API (opportunity, conversion, retention wall) |
+| **6C** | Admin UI (funnel, kohort, export) |
 
-Ingår inte (vid go live):
+Ingår inte:
 
-- Push scheduler
-- Admin dashboard
-- Day 30 retention UI
-- Day 60 retention UI
-- Slumpmässig A/B (50/50) — **senare**, när inflödet ökar
-- Reactivation_3d (separat programtyp — ej MVP; samma 7-dagarsmotor + `onboarding_7d`)
+- Slumpmässig A/B (50/50) — **efter go live**, när inflödet ökar
+- Reactivation_3d (separat programtyp; samma motor möjlig senare)
 - Win-back (befintligt flöde — ej samma som aktiveringsutskick)
 - Summer programs
 - School restart programs
+
+**Admin Day 30/60-vyer:** beräknas i 6A; visas i 6C först när kohort har mognad (samma regel som spec).
 
 ---
 
@@ -474,18 +473,22 @@ Implementation ska **alltid** kontrollera båda innan något användarsynligt el
 
 ## Go-live-checklista (körs en gång)
 
-Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter**:
+Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter Fas 6C**:
 
-- [ ] Fas 1–4 implementerade och verifierade (staging + intern testfamilj)
-- [ ] **Väg A:** onboarding-val → banner → completion → ev. modal
+- [ ] **Fas 1–4** verifierade (staging + intern testfamilj)
+- [ ] **Väg A:** onboarding-val → banner → completion → modal
 - [ ] **Väg B:** e-postmall + eligibility (7+ dagar inaktiv) + länk → val-skärm → enroll
-- [ ] Verifierat att **aktiva familjer** (<7 dagar sedan login) **exkluderas** från utskick
-- [ ] Analytics-kedja verifierad (inkl. `email_invite_*` och `enroll_source`)
+- [ ] Aktiva familjer (<7 dagar login) **exkluderas** från utskick
+- [ ] **Fas 5:** push dag 2–7 testad (max 1/dag)
+- [ ] **Fas 6A:** Day 14-retention beräknas korrekt (Family North Star)
+- [ ] **Fas 6B:** opportunity rate, conversion rate, retention wall API
+- [ ] **Fas 6C:** admin-vy med funnel, Day 14 kohort, aha-gruppering, export
+- [ ] Analytics-kedja end-to-end (inkl. `email_invite_*`, `enroll_source`, push)
 - [ ] `ACTIVATION_PROGRAM_LAUNCH_AT` satt (ändras **aldrig** efter första riktiga enroll — invariant #13)
 - [ ] `ACTIVATION_PROGRAM_ENABLED=true` i prod
 - [ ] Deploy genomförd **efter** env-vars ovan
 
-**Go live omfattar både nya och befintliga (väg A + B) samtidigt** — inte fasad per målgrupp.
+**Go live omfattar väg A + B samtidigt** — full produkt (inkl. push + admin internt), inte fasad per målgrupp.
 
 ## Före go-live (tillåtet)
 
@@ -506,14 +509,14 @@ Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter**:
 | Roll | Ansvar |
 |------|--------|
 | **Produktägare** | Enda som kan säga go live |
-| **Implementation** | Bygger Fas 1–4 med flaggor av; aktiverar inte prod själv |
+| **Implementation** | Bygger Fas 1–6C med flaggor av; aktiverar inte prod själv |
 
 ---
 
 # Success
 
-**Tekniskt klar** när Fas 1–4 uppfyller acceptanskriterierna.
+**Tekniskt klar** när Fas 1–6C uppfyller acceptanskriterierna.
 
 **Produktionslive** när § Go live-checklistan är avbockad och produktägare godkänt.
 
-Dessa är **två separata tillstånd**. Tekniskt klar ≠ användare ser funktionen.
+Dessa är **två separata tillstånd**. Fas 4 klar ≠ go live. Fas 6C klar ≠ go live. Endast PO-beslut + flaggor = användare ser funktionen.
