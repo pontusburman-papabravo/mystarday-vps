@@ -1,6 +1,9 @@
 /**
- * Capture App Store screenshots from production (mystarday.se).
- * Uses review@mystarday.se — outputs PNGs sized for iPhone 6.7" (1290×2796).
+ * WEB/PWA preview only — NOT for App Store upload (looks like mobile Safari, not native).
+ * For App Store: use Xcode Simulator + Cmd+S — see docs/app-store-screenshots/NATIVE-CAPTURE.md
+ *
+ * If used internally: outputs 1284×2778 (one of Apple's accepted sizes:
+ * 1242×2688, 1284×2778, 2688×1242, 2778×1284 — NOT 1290×2796).
  *
  *   npx playwright install chromium   # once
  *   node scripts/capture-app-store-screenshots.mjs
@@ -15,11 +18,11 @@ const PASSWORD = 'AppReview2026!';
 const CHILD_NAME = 'Anna';
 const CHILD_PIN = '4455';
 
-/** iPhone 15 Pro Max logical size × 3 → 1290×2796 (App Store 6.7") */
-const VIEWPORT = { width: 430, height: 932 };
+/** 428×926 logical @ 3× → 1284×2778 (App Store Connect accepted) */
+const VIEWPORT = { width: 428, height: 926 };
 const DEVICE_SCALE = 3;
 
-const OUT_DIR = path.join(process.cwd(), 'docs/app-store-screenshots/iphone-6.7');
+const OUT_DIR = path.join(process.cwd(), 'docs/app-store-screenshots/iphone-6.5');
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
 async function shot(page, name) {

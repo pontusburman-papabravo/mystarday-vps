@@ -76,32 +76,34 @@ Skapa dagsscheman, ge stjärnor och låt barnen följa sin egen vy. Min Stjärnd
 
 ## Screenshots & Preview
 
-**Källa:** `docs/app-store-screenshots/` (genereras med `node scripts/capture-app-store-screenshots.mjs` mot produktion).
+**Källa:** Xcode Simulator eller TestFlight (native app) — se `docs/app-store-screenshots/NATIVE-CAPTURE.md`.  
+Playwright/PWA-bilder i repot är **inte** för upload.
 
-### iPhone 6.7" (1290 × 2796 px) — uppdaterad 2026-06-08
+### Godkända mått (endast dessa)
 
-| # | Fil | Innehåll |
+| Portrait | Landscape |
+|----------|-----------|
+| **1242 × 2688** | **2688 × 1242** |
+| **1284 × 2778** | **2778 × 1284** |
+
+**Avvisas:** 1290×2796, 1242×2208, och alla andra storlekar.
+
+Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×2688 · Screenshot **⌘S**.
+
+### Innehåll (ordning 1–5)
+
+| # | Vy | Innehåll |
 |---|-----|----------|
-| 1 | `iphone-6.7/01-parent-dashboard.png` | Föräldraöversikt (Anna, veckoframsteg) |
-| 2 | `iphone-6.7/02-child-picker.png` | Barninloggning — välj barn |
-| 3 | `iphone-6.7/03-child-idag.png` | Barnvy — **☀️ Idag** (schema + uppdrag) |
-| 4 | `iphone-6.7/04-child-skattkammaren.png` | Barnvy — **💎 Skattkammaren** (universum-hub) |
-| 5 | `iphone-6.7/05-child-familj.png` | Barnvy — **🏡 Familj** (Familjehallen) |
-
-Ladda upp i App Store Connect → **iPhone 6.7" Display** i ordning 1–5.
-
-### Övriga enheter (valfritt)
-
-| Device | Size | Notes |
-|--------|------|-------|
-| iPhone 6.5" | 1284 × 2778 px | Skala om 6.7"-set eller kör script med viewport 428×926 |
-| iPhone 5.5" (8 Plus) | 1242 × 2208 px | Äldre enhet — valfritt |
-| iPad Pro 12.9" | 2048 × 2732 px | Endast om iPad-stöd söks |
+| 1 | Förälder | Hem med native bottenflik (Hem · Schema · …) |
+| 2 | Barn | Välj barn / PIN |
+| 3 | Barn | **☀️ Idag** |
+| 4 | Barn | **💎 Skattkammaren** (rum-hub) |
+| 5 | Barn | **🏡 Familj** |
 
 **Screenshot-krav:**
-- Visa föräldraöversikt och barnvy med **3-fliksnavigation** (Idag · Skattkammaren · Familj)
-- Visa Skattkammaren som universum (rum-hub), inte gamla hamburger-menyn
-- Alla screenshots måste visa reellt innehåll från review-kontot (ingen placeholder)
+- Native UI (inte mobil webb med hamburger-meny)
+- **3-fliksnavigation** i barnvy (Idag · Skattkammaren · Familj)
+- Reellt innehåll från review-kontot
 
 ---
 

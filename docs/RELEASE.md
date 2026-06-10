@@ -157,14 +157,13 @@ https://appstoreconnect.apple.com
 Klista in hela innehållet från `docs/app-store-review-notes.md` i fältet **Review Notes**.
 
 ### 6. Screenshots
-Färdiga PNG:er i `docs/app-store-screenshots/iphone-6.7/` (1290×2796).
 
-Generera om efter UI-ändringar:
-```bash
-node scripts/capture-app-store-screenshots.mjs
-```
+**Godkända mått:** 1242×2688, 1284×2778, 2688×1242, 2778×1284 (inga andra).
 
-Ladda upp till **iPhone 6.7" Display**:
+Ta i **Xcode Simulator** (native app) — se `docs/app-store-screenshots/NATIVE-CAPTURE.md`.  
+⌘S sparar på Skrivbordet. Verifiera: `file ~/Desktop/*.png`
+
+Ladda upp (portrait **1284×2778** från iPhone 14 Plus simulator):
 1. Föräldraöversikt
 2. Barnväljare (PIN-inloggning)
 3. Barnvy — Idag

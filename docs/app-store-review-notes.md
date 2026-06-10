@@ -88,6 +88,12 @@ Min Stjärndag has **two independent PIN systems**:
 
 ---
 
+## Screenshot note (internal)
+
+App Store Connect accepts only: **1242×2688**, **1284×2778**, or landscape **2688×1242** / **2778×1284**. Capture in Xcode Simulator (native shell), not mobile web.
+
+---
+
 ## Build Information
 
 | Field | Value |

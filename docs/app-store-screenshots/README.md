@@ -1,31 +1,59 @@
 # App Store Screenshots — Min Stjärndag
 
-Screenshots captured from production (`https://mystarday.se`) using the review account `review@mystarday.se`.
+## Godkända mått (App Store Connect)
 
-## Regenerate
+**Endast dessa pixelstorlekar accepteras** (Apple visar exakt detta felmeddelande om måttet är fel):
+
+| Orientering | Bredd × höjd |
+|-------------|----------------|
+| Portrait | **1242 × 2688** |
+| Portrait | **1284 × 2778** |
+| Landscape | **2688 × 1242** |
+| Landscape | **2778 × 1284** |
+
+**Avvisas:** t.ex. **1290 × 2796** (Playwright standard iPhone 15 Pro Max), **1242 × 2208**, eller valfri annan storlek.
+
+Kontrollera alltid före upload:
 
 ```bash
-npx playwright install chromium   # once per machine
-node scripts/capture-app-store-screenshots.mjs
+file din-bild.png
+# Måste visa exakt ett av: 1242 x 2688  eller  1284 x 2778  (portrait)
 ```
 
-## iPhone 6.7" (`iphone-6.7/`)
+---
 
-Logical viewport 430×932 @ 3× → **1290×2796 px** (iPhone 14/15 Pro Max class).
+## Rätt källa: native app (inte PWA i Safari)
 
-| File | Content |
-|------|---------|
-| `01-parent-dashboard.png` | Parent overview with child profile |
-| `02-child-picker.png` | Child login — "Välj vem du är" |
-| `03-child-idag.png` | Child view — **☀️ Idag** tab (schedule + tasks) |
-| `04-child-skattkammaren.png` | Child view — **💎 Skattkammaren** universe hub |
-| `05-child-familj.png` | Child view — **🏡 Familj** (Familjehallen) |
+Playwright-skriptet (`capture-app-store-screenshots.mjs`) fångar **mobil webb/PWA** — hamburger-meny, `?`-knapp, ingen native bottenflik. Det **ska inte** laddas upp till App Store.
 
-## Upload to App Store Connect
+**Ta screenshots i Xcode Simulator eller TestFlight på iPhone** — se [`NATIVE-CAPTURE.md`](./NATIVE-CAPTURE.md).
 
-1. App Store Connect → Min Stjärndag → **App Store** → your version
-2. **Screenshots** → iPhone 6.7" Display
-3. Upload `01`–`05` in order (parent first, then child flow)
-4. Optionally duplicate resized set for 6.5" if required by Connect
+---
 
-Last captured: 2026-06-08 · SW v222 · 3-tab child navigation (Idag · Skattkammaren · Familj)
+## Web-referens (internt only)
+
+Mappen `web-reference/` (om den finns) eller Playwright-output är endast för dokumentation/intern QA.
+
+```bash
+npx playwright install chromium
+node scripts/capture-app-store-screenshots.mjs
+# → 1284×2778 men fortfarande PWA-utseende
+```
+
+---
+
+## Rekommenderat uppladdnings-set (native)
+
+| # | Vy | Innehåll |
+|---|-----|----------|
+| 1 | Förälder | Hem med **native bottenflik** (Hem · Schema · Bibliotek · Familj · Inställn.) |
+| 2 | Barn | Välj barn / PIN |
+| 3 | Barn | **☀️ Idag** |
+| 4 | Barn | **💎 Skattkammaren** |
+| 5 | Barn | **🏡 Familj** |
+
+Simulator som ger rätt mått:
+- **1284 × 2778** → iPhone **14 Plus** (eller 13 Pro Max / 12 Pro Max)
+- **1242 × 2688** → iPhone **11 Pro Max** (eller XS Max)
+
+Screenshot i Simulator: **⌘S** → sparas på Skrivbordet.
