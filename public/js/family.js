@@ -48,6 +48,7 @@
         familyData = await Auth.api('/api/family');
         renderAll(familyData);
         initFamilyDnD();
+        if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
 
         // Handle URL params: ?child=ID&tab=rewards opens the child drawer on that tab
         const urlParams = new URLSearchParams(window.location.search);

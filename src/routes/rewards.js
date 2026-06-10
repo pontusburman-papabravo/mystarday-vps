@@ -757,4 +757,4 @@ async function notifyParentsOfRedemption(childId, reward) {
   }
 }
 
-module.exports = { parentRouter, childRouter };
+module.exports = { parentRouter, childRouter, getStarBalance };

@@ -399,6 +399,7 @@ async function loadRewards() {
     rewardsLoaded = true;
     _currentGoalData = goalData;
     _currentRewardsData = rewardsData;
+    if (window.ChildUniverse) ChildUniverse.invalidate();
     updateGoalBar(goalData);
     renderSkattkammaren(rewardsData, goalData, manualData);
   } catch (err) {
