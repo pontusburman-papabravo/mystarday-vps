@@ -107,6 +107,18 @@
 
       <div class="flex-1 p-4 md:p-8 overflow-auto space-y-8 max-w-2xl">
 
+        <!-- Native app: logout + child login (sidebar is hidden on mobile/native) -->
+        <section id="nativeAccountActions" class="native-account-actions hidden border-2 border-lavender rounded-2xl p-4 bg-sky/40 space-y-3">
+          <h3 class="text-lg font-heading font-bold text-navy">Konto</h3>
+          <p class="text-sm text-text-soft">Byt till barnets inloggning eller logga ut helt från appen.</p>
+          <button type="button" id="nativeChildLoginBtn" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
+            👶 Barnet loggar in
+          </button>
+          <button type="button" id="nativeLogoutBtn" class="w-full px-4 py-3 bg-coral hover:bg-red-200 text-navy rounded-xl font-semibold transition-colors">
+            Logga ut
+          </button>
+        </section>
+
         <!-- Notifications -->
         <section>
           <h3 class="text-xl font-heading font-bold text-navy mb-4">Notis-inställningar</h3>
@@ -519,9 +531,22 @@
   <script>
     let familyChildren = [];
 
+    function initNativeAccountActions() {
+      var section = document.getElementById('nativeAccountActions');
+      if (!section) return;
+      var isNative = window.Platform && Platform.isNative && Platform.isNative();
+      if (!isNative) return;
+      section.classList.remove('hidden');
+      var logoutBtn = document.getElementById('nativeLogoutBtn');
+      var childBtn = document.getElementById('nativeChildLoginBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', function () { Auth.logout(); });
+      if (childBtn) childBtn.addEventListener('click', function () { Auth.logout({ childFlow: true }); });
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         Auth.requireAuth();
+        initNativeAccountActions();
 
         // Fetch current user first (needed for view switch and pedagog invite)
         const me = await Auth.api('/api/auth/me');

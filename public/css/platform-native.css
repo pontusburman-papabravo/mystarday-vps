@@ -125,3 +125,18 @@ html.is-native body.has-native-tab-bar .mobile-topbar {
 .platform-native .app-content {
   padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }
+
+/* Floating help + feedback above native tab bar (z-index 9999) */
+html.platform-native #helpBtn,
+html.platform-native #hbBtn,
+html.is-native #helpBtn,
+html.is-native #hbBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px) !important;
+  z-index: 10001 !important;
+}
+
+html.platform-native #globalFeedbackBtn,
+html.is-native #globalFeedbackBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  z-index: 10001 !important;
+}

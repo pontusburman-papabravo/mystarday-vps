@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const RELEASE_TAG = '2026-06-09-native-shell';
+const RELEASE_TAG = '2026-06-09-native-account';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 
 function injectPlatformHtml(body) {
@@ -23,7 +23,7 @@ function injectPlatformHtml(body) {
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.2">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.3">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">'
   );
   const headInject = headParts.join('\n') + '\n';
