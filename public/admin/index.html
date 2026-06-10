@@ -102,6 +102,7 @@
         <li><a href="#defaults" onclick="showSection('defaults');closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="defaults">Bibliotek</a></li>
         <li><a href="#anvandning" onclick="showSection('anvandning');closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="anvandning">Användning</a></li>
         <li><a href="#retention" onclick="showSection('retention');loadRetentionData();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="retention">Retention</a></li>
+        <li><a href="#foraldaraktivering" onclick="showSection('foraldaraktivering');loadActivationProgramAdmin();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="foraldaraktivering">Föräldraaktivering</a></li>
         <li><a href="#dagensnyhet" onclick="showSection('dagensnyhet');loadNyheter();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="dagensnyhet">Dagens nyhet</a></li>
         <li><a href="#landning" onclick="showSection('landning');loadLandingNews();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="landning">🌐 Landningssida</a></li>
         <li><a href="#bildbank" onclick="showSection('bildbank');loadAdminImages();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="bildbank">🖼️ Bildbank</a></li>
@@ -742,6 +743,67 @@
                 <p class="text-text-soft text-center py-4">Laddar...</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- FÖRÄLDRAAKTIVERING (7-dagars experiment) -->
+        <div id="foraldaraktiveringSection" class="mb-8 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-2xl font-heading font-bold text-navy">Föräldraaktivering</h3>
+              <p class="text-text-soft text-sm mt-1">Aktiveringsprogram — funnel, retention och experiment (Fas 6)</p>
+              <p id="activationLoadStatus" class="text-xs text-text-soft mt-2">—</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" data-activation-window="14" onclick="setActivationWindow(14)" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:bg-sky transition-colors">14d</button>
+              <button type="button" data-activation-window="30" onclick="setActivationWindow(30)" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:bg-sky transition-colors">30d</button>
+              <button type="button" data-activation-window="60" onclick="setActivationWindow(60)" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:bg-sky transition-colors">60d</button>
+              <button type="button" onclick="loadActivationProgramAdmin(true)" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">↺ Uppdatera</button>
+              <button type="button" onclick="exportActivationCsv()" class="px-4 py-2 border-2 border-lavender rounded-xl text-sm font-semibold hover:bg-sky transition-colors">📥 Exportera CSV</button>
+            </div>
+          </div>
+          <p id="activationWindowHint" class="text-sm text-text-soft mb-4">—</p>
+          <span id="activationEnrollmentGap" class="hidden" aria-hidden="true">—</span>
+
+          <div id="activationKpiCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <p class="text-text-soft col-span-full">Laddar…</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Funnel (registrering → dag 14)</h4>
+              <div class="h-64">
+                <canvas id="activationFunnelChart"></canvas>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Aha-retention (med/utan parent aha)</h4>
+              <div class="h-64">
+                <canvas id="activationAhaRetentionChart"></canvas>
+              </div>
+              <p id="activationAhaRetentionNote" class="text-xs text-text-soft mt-2">—</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6">
+            <h4 class="text-base font-heading font-bold text-navy mb-3">Retention wall (treatment)</h4>
+            <div id="activationRetentionWall"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Dag 3 — utlösare</h4>
+              <div id="activationDay3Stats" class="text-sm space-y-1">—</div>
+            </div>
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Reflektion (dag 7)</h4>
+              <div id="activationReflectionDist" class="space-y-2">—</div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+            <h4 class="text-base font-heading font-bold text-navy mb-3">Deep dive — kandidater</h4>
+            <div id="activationDeepDiveList"></div>
           </div>
         </div>
 
@@ -1674,6 +1736,7 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 
   <script src="/admin/admin-retention.js"></script>
+  <script src="/admin/admin-activation-program.js"></script>
   <script src="/admin/admin-dagensnyhet.js?v=2.0.0"></script>
   <script src="/admin/admin-landing-news.js"></script>
   <script src="/admin/admin-images.js"></script>

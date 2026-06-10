@@ -8,6 +8,7 @@
       defaults: 'Bibliotek',
       anvandning: 'Användning',
       retention: 'Retention & Aktivitetsstatistik',
+      foraldaraktivering: 'Föräldraaktivering',
       dagensnyhet: 'Dagens nyhet',
       nyhetsbrev: 'Nyhetsbrevsprenumeranter',
       valkomstmail: 'Välkomstmail',
@@ -53,6 +54,9 @@
         if (typeof switchLibTab === 'function') switchLibTab('activities');
       }
       if (name === 'anvandning') loadLoginStats();
+      if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
+        loadActivationProgramAdmin();
+      }
       if (name === 'valkomstmail') loadWelcomeEmailTemplate();
       if (name === 'intresseanmalningar') loadInterests();
       if (name === 'waitlist') loadWaitlist();
