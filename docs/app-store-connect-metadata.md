@@ -76,18 +76,32 @@ Skapa dagsscheman, ge stjärnor och låt barnen följa sin egen vy. Min Stjärnd
 
 ## Screenshots & Preview
 
+**Källa:** `docs/app-store-screenshots/` (genereras med `node scripts/capture-app-store-screenshots.mjs` mot produktion).
+
+### iPhone 6.7" (1290 × 2796 px) — uppdaterad 2026-06-08
+
+| # | Fil | Innehåll |
+|---|-----|----------|
+| 1 | `iphone-6.7/01-parent-dashboard.png` | Föräldraöversikt (Anna, veckoframsteg) |
+| 2 | `iphone-6.7/02-child-picker.png` | Barninloggning — välj barn |
+| 3 | `iphone-6.7/03-child-idag.png` | Barnvy — **☀️ Idag** (schema + uppdrag) |
+| 4 | `iphone-6.7/04-child-skattkammaren.png` | Barnvy — **💎 Skattkammaren** (universum-hub) |
+| 5 | `iphone-6.7/05-child-familj.png` | Barnvy — **🏡 Familj** (Familjehallen) |
+
+Ladda upp i App Store Connect → **iPhone 6.7" Display** i ordning 1–5.
+
+### Övriga enheter (valfritt)
+
 | Device | Size | Notes |
 |--------|------|-------|
-| iPhone 6.5" (12 Pro Max) | 1284 × 2778 px | Parent dashboard + child view |
-| iPhone 5.5" (8 Plus) | 1242 × 2208 px | Registration flow |
-| iPad Pro 12.9" | 2048 × 2732 px | Pedagog overview |
+| iPhone 6.5" | 1284 × 2778 px | Skala om 6.7"-set eller kör script med viewport 428×926 |
+| iPhone 5.5" (8 Plus) | 1242 × 2208 px | Äldre enhet — valfritt |
+| iPad Pro 12.9" | 2048 × 2732 px | Endast om iPad-stöd söks |
 
 **Screenshot-krav:**
-- Visa föräldraöversikt (schema + stjärnor)
-- Visa barnvy (stjärntema, aktiviteter, Skattkammaren)
-- Visa pedagoganteckningar (relevant om pedagog-feature är aktiverad)
-- Visa belöningsöversikt
-- Alla screenshots måste visa reellt innehåll (ingen placeholder/dummy-data)
+- Visa föräldraöversikt och barnvy med **3-fliksnavigation** (Idag · Skattkammaren · Familj)
+- Visa Skattkammaren som universum (rum-hub), inte gamla hamburger-menyn
+- Alla screenshots måste visa reellt innehåll från review-kontot (ingen placeholder)
 
 ---
 

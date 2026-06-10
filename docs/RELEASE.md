@@ -157,9 +157,19 @@ https://appstoreconnect.apple.com
 Klista in hela innehållet från `docs/app-store-review-notes.md` i fältet **Review Notes**.
 
 ### 6. Screenshots
-Ladda upp för:
-- **6.7"** (iPhone 14/15 Pro): Startskärm + föräldravy + barnvy
-- **5.5"** (iPhone 8/SE): Startskärm + föräldravy
+Färdiga PNG:er i `docs/app-store-screenshots/iphone-6.7/` (1290×2796).
+
+Generera om efter UI-ändringar:
+```bash
+node scripts/capture-app-store-screenshots.mjs
+```
+
+Ladda upp till **iPhone 6.7" Display**:
+1. Föräldraöversikt
+2. Barnväljare (PIN-inloggning)
+3. Barnvy — Idag
+4. Barnvy — Skattkammaren
+5. Barnvy — Familj
 
 ### 7. Inköp i appen (IAP)
 Konfigurera i App Store Connect → **Inköp i appen**:
@@ -185,9 +195,9 @@ Barnet i testkontot heter **Anna** med PIN **4455** (ej å/ä/ö för Apple-gran
 ### Snabbtest för reviewer
 1. Logga in: `review@mystarday.se` / `AppReview2026!`
 2. Öppna parent dashboard
-3. Tryck "Byt till barnvy" → ange PIN `4455`
-4. Markera en aktivitet som klar
-5. Öppna Skattkammaren från hamburger-menyn
+3. "Barnet loggar in" → välj Anna → PIN `4455`
+4. Markera en aktivitet på **Idag**-fliken
+5. Byt till **Skattkammaren** och **Familj** via bottenflikarna
 6. Testa inställningar → Integritetspolicy
 
 ---
