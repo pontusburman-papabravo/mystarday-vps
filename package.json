@@ -35,6 +35,7 @@
     "lint": "eslint src/ server.js",
     "cap:sync": "npx cap sync",
     "cap:sync:ios": "npx cap sync ios && node scripts/patch-ios-podfile.mjs && node scripts/patch-ios-info-plist.mjs && sh -c 'cd ios/App && pod install' && node scripts/patch-ios-xcode-sandbox.mjs",
+    "icons:install": "node scripts/install-app-icons.mjs",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
     "cap:dev": "CAP_DEV=true npx cap sync"
