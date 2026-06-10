@@ -270,6 +270,41 @@ async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName
   });
 }
 
+async function sendActivationProgramInviteEmail({ to, parentName, childName, ctaUrl }) {
+  const firstName = (parentName || '').split(' ')[0] || 'du';
+  const child = childName || 'barnet';
+  return sendEmail({
+    to,
+    subject: `En mjuk start för ${child}s rutiner?`,
+    html: `
+      <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
+        <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
+        <p style="color:#5A6178;">
+          Ni har skapat konto och satt upp ${child}s schema — bra gjort.
+        </p>
+        <p style="color:#5A6178;">
+          Många familjer berättar att det som kan vara svårast inte är att komma igång,
+          utan att <strong>hålla i rutinen</strong> när vardagen tar vid.
+        </p>
+        <p style="color:#5A6178;">
+          Nu kan ni prova vårt <strong>7-dagars kom-igång-program</strong>: korta dagliga steg
+          som hjälper er som förälder hålla momentum. Barnets schema ändras inte.
+        </p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${ctaUrl}"
+             style="display:inline-block;background:#4F46E5;color:white;padding:14px 36px;
+                    border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
+            Ja, hjälp oss första veckan
+          </a>
+        </div>
+        <p style="color:#5A6178;font-size:14px;">
+          Vill ni inte ha guiden fungerar appen som vanligt — allt ni redan satt upp finns kvar.
+        </p>
+      </div>
+    `,
+  });
+}
+
 async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
   const greeting = recipientName ? `Hej ${recipientName}` : 'Hej';
   const settingsUrl = `${config.email.baseUrl}/settings`;
@@ -299,6 +334,7 @@ module.exports = {
   sendAccountDeletionRequestedEmail,
   sendAccountDeletedEmail,
   sendWinBackEmail,
+  sendActivationProgramInviteEmail,
   sendPedagogInviteEmail,
   sendNewsletterSubscriptionConfirmation,
 };

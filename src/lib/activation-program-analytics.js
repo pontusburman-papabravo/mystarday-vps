@@ -48,6 +48,35 @@ function trackDaySolo(familyId, day) {
   track(familyId, 'activation_program_day_solo', { day });
 }
 
+function trackProgramStarted(familyId, cohortArm, programType, enrollSource) {
+  track(familyId, 'activation_program_started', {
+    cohort_arm: cohortArm,
+    program_type: programType,
+    enroll_source: enrollSource || null,
+  });
+}
+
+function trackEnrollChoice(familyId, { choice, enrollSource, ctaVariant }) {
+  track(familyId, 'activation_program_enroll_choice', {
+    choice,
+    enroll_source: enrollSource,
+    cta_variant: ctaVariant || 'help_us_week_one',
+    direct_cta: choice === 'direct' ? 'we_run_ourselves' : null,
+  });
+}
+
+function trackEmailInviteSent(familyId, parentId) {
+  track(familyId, 'activation_program_email_invite_sent', {
+    parent_id: String(parentId),
+  });
+}
+
+function trackEmailInviteClicked(familyId, parentId) {
+  track(familyId, 'activation_program_email_invite_clicked', {
+    parent_id: String(parentId),
+  });
+}
+
 module.exports = {
   trackFirstBannerSeen,
   trackCtaClicked,
@@ -57,4 +86,8 @@ module.exports = {
   trackDaySkipped,
   trackOptedOut,
   trackDaySolo,
+  trackProgramStarted,
+  trackEnrollChoice,
+  trackEmailInviteSent,
+  trackEmailInviteClicked,
 };

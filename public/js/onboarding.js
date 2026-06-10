@@ -759,7 +759,17 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
       Auth.setAuth(Auth.getToken(), user);
     }
 
-    // Show loading then navigate
+    // Fas 4: val-skärm innan dashboard (väg A)
+    if (!IS_ADD_CHILD && window.ActivationProgramEnrollChoice) {
+      const showedChoice = await ActivationProgramEnrollChoice.maybeShowAfterOnboarding({
+        onDone: () => { window.location.href = '/dashboard'; },
+      });
+      if (showedChoice) {
+        setLoading(btn, '🏠 Gå till dashboarden', false);
+        return;
+      }
+    }
+
     document.getElementById('step6').classList.remove('active');
     document.getElementById('loadingStep').classList.remove('hidden');
     setTimeout(() => {

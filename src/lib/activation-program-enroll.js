@@ -1,5 +1,5 @@
 /**
- * Parent activation program — enrollment + A/B assignment.
+ * Parent activation program — enrollment (Fas 4: föräldraval, ingen auto-enroll).
  * Invariants: docs/activation-program-invariants.md
  */
 
@@ -7,10 +7,9 @@ const crypto = require('crypto');
 const { DateTime } = require('luxon');
 
 const MVP_PROGRAM_TYPE = 'onboarding_7d';
+const ENROLL_SOURCES = new Set(['onboarding_complete', 'email_reactivation']);
+const ENROLL_CHOICES = new Set(['guided', 'direct']);
 
-/**
- * Deterministic 0–99 bucket from family_id (reproducible cohort arm).
- */
 function hashToPercent(familyId) {
   const hash = crypto.createHash('sha256').update(String(familyId)).digest();
   return hash.readUInt32BE(0) % 100;
@@ -38,7 +37,7 @@ function isInSmokePeriod() {
 }
 
 /**
- * Assign treatment or control at enroll time (invariant #5 — control exists in DB).
+ * Future A/B — not used at go live (contract § Cohort).
  */
 function assignCohortArm(familyId) {
   const pct = isInSmokePeriod() ? 100 : getTreatmentPercent();
@@ -46,8 +45,15 @@ function assignCohortArm(familyId) {
 }
 
 /**
- * Invariant #12 — no enrollment before ACTIVATION_PROGRAM_LAUNCH_AT.
+ * Go live: all guided enrollments are treatment (no random A/B).
  */
+function assignCohortArmAtLaunch() {
+  if (process.env.ACTIVATION_PROGRAM_AB_ENABLED === 'true') {
+    return null;
+  }
+  return 'treatment';
+}
+
 function isPostLaunchEnrollment(now = DateTime.utc()) {
   const launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT;
   if (!launchAt) return false;
@@ -62,8 +68,15 @@ function isActivationProgramEnabled() {
   return process.env.ACTIVATION_PROGRAM_ENABLED === 'true';
 }
 
+function isActivationEmailEnabled() {
+  return (
+    isActivationProgramEnabled() &&
+    process.env.ACTIVATION_PROGRAM_EMAIL_ENABLED === 'true'
+  );
+}
+
 /**
- * MVP enrollment eligibility (invariant #15 — onboarding_7d only).
+ * @deprecated Fas 4 — use enroll-choice flow instead of auto-enroll.
  */
 function canEnrollOnboardingProgram({
   onboardingJustCompleted = false,
@@ -78,12 +91,33 @@ function canEnrollOnboardingProgram({
   );
 }
 
+function normalizeEnrollSource(source) {
+  return ENROLL_SOURCES.has(source) ? source : null;
+}
+
+function normalizeEnrollChoice(choice) {
+  return ENROLL_CHOICES.has(choice) ? choice : null;
+}
+
+function getCohortArmForEnroll(familyId) {
+  const atLaunch = assignCohortArmAtLaunch();
+  if (atLaunch) return atLaunch;
+  return assignCohortArm(familyId);
+}
+
 module.exports = {
   MVP_PROGRAM_TYPE,
+  ENROLL_SOURCES,
+  ENROLL_CHOICES,
   hashToPercent,
   assignCohortArm,
+  assignCohortArmAtLaunch,
   isPostLaunchEnrollment,
   isActivationProgramEnabled,
+  isActivationEmailEnabled,
   canEnrollOnboardingProgram,
   isInSmokePeriod,
+  normalizeEnrollSource,
+  normalizeEnrollChoice,
+  getCohortArmForEnroll,
 };

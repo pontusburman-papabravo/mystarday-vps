@@ -8,7 +8,18 @@ const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const parentActivationProgram = require('../../db/parent-activation-program');
 const parentSeenCompletion = require('../../db/parent-seen-completion');
-const { isActivationProgramEnabled } = require('../lib/activation-program-enroll');
+const {
+  isActivationProgramEnabled,
+  normalizeEnrollSource,
+  normalizeEnrollChoice,
+  getCohortArmForEnroll,
+  MVP_PROGRAM_TYPE,
+} = require('../lib/activation-program-enroll');
+const {
+  canShowOnboardingEnrollChoice,
+  canShowEmailEnrollChoice,
+  isProgramFeatureLive,
+} = require('../lib/activation-program-eligibility');
 const {
   getCalendarDay,
   getEffectiveProgramDay,
@@ -181,6 +192,130 @@ async function buildProgramResponse(program, timezone, parentId, familyId, markB
     reflection_text: program.reflection_text,
   };
 }
+
+const ENROLL_CHOICE_COPY = {
+  intro_title: 'Hur vill ni börja?',
+  intro_body: 'Ni har satt upp barnets schema — bra start. Många familjer upptäcker att den största utmaningen inte är att komma igång, utan att hålla i rutinen de första dagarna när vardagen tar vid. Välj det som passar er:',
+  card_guided_title: 'Håll i rutinen första veckan',
+  card_guided_body: 'Många familjer uppskattar lite stöd efter att schemat är klart. Inte för att något är fel, utan för att nya vanor tar tid att sätta sig.',
+  card_guided_benefits: [
+    'Korta dagliga påminnelser som hjälper er hålla igång',
+    'Se när barnet klarar uppgifter utan extra tjat',
+    'Barnets schema är redan klart — vi hjälper er få rutinen att fungera',
+    'Avsluta när ni vill',
+  ],
+  card_guided_cta: 'Ja, hjälp oss första veckan',
+  card_direct_title: 'Kör igång direkt',
+  card_direct_body: 'Ni känner er redo att köra på själva. Allt finns på plats och ni kan börja direkt.',
+  card_direct_benefits: [
+    'Direkt till dashboarden',
+    'Samma schema, stjärnor och belöningar',
+    'Använd appen i er egen takt',
+  ],
+  card_direct_cta: 'Vi kör själva',
+  footnote: 'Oavsett vilket ni väljer kan ni använda appen fullt ut. Guidad start ger bara lite extra stöd under den första veckan.',
+};
+
+/**
+ * GET /api/me/activation-program/enroll-choice
+ */
+router.get('/enroll-choice', async (req, res) => {
+  try {
+    if (!isProgramFeatureLive()) {
+      return res.json({ show: false });
+    }
+
+    const familyId = req.user.familyId;
+    const enrollSource = normalizeEnrollSource(req.query.enroll_source)
+      || 'onboarding_complete';
+    const inviteToken = req.query.invite_token || null;
+
+    let show = false;
+    if (enrollSource === 'email_reactivation') {
+      show = await canShowEmailEnrollChoice({ familyId, inviteToken });
+    } else {
+      show = await canShowOnboardingEnrollChoice({
+        familyId,
+        onboardingCompleted: true,
+      });
+    }
+
+    res.json({
+      show,
+      enroll_source: enrollSource,
+      copy: ENROLL_CHOICE_COPY,
+    });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] enroll-choice GET error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+/**
+ * POST /api/me/activation-program/enroll-choice
+ * Body: { choice: 'guided'|'direct', enroll_source, invite_token? }
+ */
+router.post('/enroll-choice', async (req, res) => {
+  try {
+    if (!isProgramFeatureLive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const familyId = req.user.familyId;
+    const parentId = req.user.id;
+    const choice = normalizeEnrollChoice(req.body?.choice);
+    const enrollSource = normalizeEnrollSource(req.body?.enroll_source);
+    const inviteToken = req.body?.invite_token || null;
+
+    if (!choice || !enrollSource) {
+      return res.status(400).json({ error: 'Ogiltigt val' });
+    }
+
+    let allowed = false;
+    if (enrollSource === 'email_reactivation') {
+      allowed = await canShowEmailEnrollChoice({ familyId, inviteToken });
+    } else {
+      allowed = await canShowOnboardingEnrollChoice({
+        familyId,
+        onboardingCompleted: true,
+      });
+    }
+
+    if (!allowed) {
+      return res.status(404).json({ error: 'Val-skärmen är inte tillgänglig' });
+    }
+
+    programAnalytics.trackEnrollChoice(familyId, {
+      choice,
+      enrollSource,
+      ctaVariant: 'help_us_week_one',
+    });
+
+    let enrolled = false;
+    if (choice === 'guided') {
+      const cohortArm = getCohortArmForEnroll(familyId);
+      await parentActivationProgram.create({
+        familyId,
+        parentId,
+        cohortArm,
+        programType: MVP_PROGRAM_TYPE,
+        enrollSource,
+      });
+      programAnalytics.trackProgramStarted(
+        familyId,
+        cohortArm,
+        MVP_PROGRAM_TYPE,
+        enrollSource
+      );
+      enrolled = true;
+    }
+
+    res.json({ ok: true, enrolled });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] enroll-choice POST error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
 
 /**
  * GET /api/me/activation-program

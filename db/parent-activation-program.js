@@ -38,6 +38,7 @@ async function create({
   programType = 'onboarding_7d',
   status = 'active',
   startedAt = null,
+  enrollSource = null,
 }, client = db) {
   assertValidStatus(status);
   assertValidCohortArm(cohortArm);
@@ -50,10 +51,16 @@ async function create({
     startedClause = `$${params.length}`;
   }
 
+  let enrollClause = 'NULL';
+  if (enrollSource) {
+    params.push(enrollSource);
+    enrollClause = `$${params.length}`;
+  }
+
   const result = await client.query(
     `INSERT INTO parent_activation_program
-       (family_id, parent_id, status, cohort_arm, program_type, started_at)
-     VALUES ($1, $2, $3, $4, $5, ${startedClause})
+       (family_id, parent_id, status, cohort_arm, program_type, started_at, enroll_source)
+     VALUES ($1, $2, $3, $4, $5, ${startedClause}, ${enrollClause})
      RETURNING *`,
     params
   );

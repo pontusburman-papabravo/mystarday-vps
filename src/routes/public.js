@@ -610,4 +610,33 @@ router.post('/public/report/:publicId/session', reportPinLimiter, async (req, re
   }
 });
 
+// ─── GET /api/public/activation-program/invite/:token ───
+// Väg B — track click, redirect to val-skärm (ingen auto-enroll).
+router.get('/public/activation-program/invite/:token', async (req, res) => {
+  try {
+    const emailInviteDb = require('../../db/activation-program-email-invite');
+    const config = require('../lib/config');
+    const programAnalytics = require('../lib/activation-program-analytics');
+    const { isActivationProgramEnabled, isPostLaunchEnrollment } = require('../lib/activation-program-enroll');
+
+    if (!isActivationProgramEnabled() || !isPostLaunchEnrollment()) {
+      return res.redirect('/');
+    }
+
+    const invite = await emailInviteDb.getByToken(req.params.token);
+    if (!invite || !invite.sent_at) {
+      return res.redirect('/');
+    }
+
+    await emailInviteDb.markClicked(req.params.token);
+    programAnalytics.trackEmailInviteClicked(invite.family_id, invite.parent_id);
+
+    const baseUrl = config.email?.baseUrl || `${req.protocol}://${req.get('host')}`;
+    res.redirect(`${baseUrl}/activation-enroll.html?token=${invite.token}`);
+  } catch (err) {
+    console.error('[PUBLIC] activation invite click error:', err);
+    res.redirect('/');
+  }
+});
+
 module.exports = router;

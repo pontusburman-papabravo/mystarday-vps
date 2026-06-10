@@ -607,6 +607,31 @@ const FEATURES = [
     changelog: [],
   },
 
+  {
+    slug: 'foraldaraktivering_7d',
+    name: 'Föräldaraktivering 7 dagar',
+    description: '7-dagars kom-igång-program med banner, aha-modal och föräldraval vid onboarding/e-post',
+    status: 'dev',
+    tags: ['retention', 'onboarding'],
+    priority: 'high',
+    complexity: 5,
+    estimated_hours: 40.0,
+    documentation: {
+      purpose: 'Hjälpa föräldrar etablera vardagsrutin dag 1–7 via valfritt guidat program.',
+      user_story: 'Som ny förälder vill jag välja om jag vill ha stöd första veckan eller köra själv.',
+      acceptance_criteria: 'Val-skärm väg A+B; enroll endast vid guided; ACTIVATION_PROGRAM_ENABLED=false default.',
+      technical_notes: 'parent_activation_program + enroll_source. Feature flags: ACTIVATION_PROGRAM_ENABLED, ACTIVATION_PROGRAM_LAUNCH_AT, ACTIVATION_PROGRAM_EMAIL_ENABLED.',
+      events: [
+        'activation_program_enroll_choice',
+        'activation_program_started',
+        'activation_program_email_invite_sent',
+        'activation_program_email_invite_clicked',
+      ],
+    },
+    dev_notes: [],
+    changelog: [],
+  },
+
   // ── Minimal UI — distraktionsfritt barnläge (R5-T4) ─────────────────────────
   {
     slug: 'minimal_ui',
