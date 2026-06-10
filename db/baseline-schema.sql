@@ -710,13 +710,35 @@ CREATE TABLE IF NOT EXISTS dagens_nyhet (
   body VARCHAR(280) NOT NULL,
   show_landing BOOLEAN DEFAULT false,
   send_push BOOLEAN DEFAULT false,
+  post_to_facebook BOOLEAN DEFAULT false,
+  created_by UUID REFERENCES parent(id) ON DELETE SET NULL,
   status VARCHAR(32) DEFAULT 'draft',
   publish_at TIMESTAMPTZ,
   unpublish_at TIMESTAMPTZ,
+  published_at TIMESTAMPTZ,
   expires_at TIMESTAMPTZ,
+  facebook_post_id VARCHAR(255),
+  push_sent_at TIMESTAMPTZ,
+  email_sent_count INTEGER DEFAULT 0,
+  email_failed_count INTEGER DEFAULT 0,
+  email_sent_at TIMESTAMPTZ,
+  email_failed BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS library_update_log (
+  id SERIAL PRIMARY KEY,
+  kind VARCHAR(32) NOT NULL,
+  change_count INTEGER NOT NULL DEFAULT 1,
+  sample_description TEXT,
+  flush_after TIMESTAMPTZ NOT NULL,
+  sent_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS library_update_log_pending_kind_idx
+  ON library_update_log (kind) WHERE sent_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS win_back_email_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
