@@ -1,0 +1,372 @@
+/**
+ * child-skatt-house.css — Skattkammaren som navigerbart hus (Fas 1).
+ */
+
+.skatt-house {
+  min-height: 60vh;
+  padding-bottom: 24px;
+}
+
+.skatt-house-header {
+  text-align: center;
+  padding: 8px 16px 20px;
+}
+.skatt-house-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin: 0 0 4px;
+}
+.skatt-house-sub {
+  font-size: 0.8rem;
+  color: #5A6178;
+  margin: 0;
+}
+
+/* Illustrated house silhouette */
+.skatt-house-scene {
+  position: relative;
+  max-width: 340px;
+  margin: 0 auto 20px;
+  padding: 20px 16px 24px;
+  background: linear-gradient(180deg, #E8F4FD 0%, #F5F0FF 55%, #FFF8E7 100%);
+  border-radius: 24px;
+  border: 3px solid #EDE7F6;
+  box-shadow: 0 8px 32px rgba(27, 35, 64, 0.08);
+}
+.skatt-house-roof {
+  width: 0;
+  height: 0;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 48px solid #C4B5FD;
+  margin: 0 auto 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
+.skatt-house-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.skatt-room-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 88px;
+  padding: 12px 8px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.skatt-room-door:active { transform: scale(0.96); }
+.skatt-room-door:hover {
+  border-color: #F5A623;
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.2);
+}
+.skatt-room-door.is-wide {
+  grid-column: span 2;
+  min-height: 72px;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 14px 16px;
+  gap: 12px;
+}
+.skatt-room-emoji { font-size: 1.75rem; line-height: 1; }
+.skatt-room-door.is-wide .skatt-room-emoji { font-size: 2rem; }
+.skatt-room-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #1B2340;
+  line-height: 1.2;
+}
+.skatt-room-hint {
+  font-size: 0.62rem;
+  color: #9AA0B8;
+  font-weight: 600;
+}
+.skatt-room-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: #FFF3D6;
+  color: #B45309;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+/* Room view (inside a door) */
+.skatt-room-view {
+  animation: skatt-room-in 0.35s ease;
+}
+@keyframes skatt-room-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.skatt-room-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(27, 35, 64, 0.08);
+  color: #1B2340;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.skatt-room-back:active { transform: scale(0.97); }
+
+/* Stjärnkistan — chest tiers */
+.skatt-chest-room {
+  text-align: center;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, #1a1a2e, #2d1f4e);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.skatt-chest-room .skatt-chest-tier {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.4));
+  cursor: pointer;
+}
+.skatt-chest-tier.tier-0 { font-size: 3rem; }
+.skatt-chest-tier.tier-1 { font-size: 3.5rem; }
+.skatt-chest-tier.tier-2 { font-size: 4rem; }
+.skatt-chest-tier.tier-3 { font-size: 4.5rem; }
+.skatt-chest-tier.is-open { animation: chest-pop 0.5s ease; }
+@keyframes chest-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.skatt-chest-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 40%, rgba(255,215,0,0.15), transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(255,215,0,0.1), transparent 40%);
+}
+.skatt-chest-balance {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  margin-top: 12px;
+}
+.skatt-chest-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 215, 0, 0.7);
+  margin-top: 4px;
+}
+
+.skatt-house-hidden-sections { display: none !important; }
+
+/* Min berättelse — äventyrsalbum */
+.skatt-story-album { display: flex; flex-direction: column; gap: 10px; }
+.skatt-story-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #F0F7FF, #FFF8E7);
+  border: 1.5px solid rgba(116, 185, 255, 0.25);
+}
+.skatt-story-date {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #5A6178;
+  margin-bottom: 4px;
+}
+.skatt-story-text {
+  font-size: 0.85rem;
+  color: #1B2340;
+  line-height: 1.4;
+}
+
+/* V1 — Immersive fullscreen */
+.skatt-house.is-immersive { min-height: 70vh; }
+#skattkammarView.skatt-in-room,
+#skattkammarView:has(.skatt-room-immersive) {
+  max-width: none !important;
+  padding: 0 12px 24px !important;
+}
+.skatt-room-immersive { min-height: 55vh; }
+.skatt-room-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1B2340;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Entrance animation */
+.skatt-entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(27, 35, 64, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: skatt-entrance-in 0.4s ease;
+}
+.skatt-entrance.is-done { animation: skatt-entrance-out 0.6s ease forwards; }
+@keyframes skatt-entrance-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes skatt-entrance-out { to { opacity: 0; pointer-events: none; } }
+.skatt-entrance-inner { text-align: center; color: white; }
+.skatt-entrance-door { font-size: 4rem; animation: skatt-door-open 1s ease 0.2s both; }
+@keyframes skatt-door-open {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.skatt-entrance-text { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.1rem; margin-top: 12px; }
+.skatt-entrance-sub { font-size: 0.85rem; opacity: 0.7; margin-top: 4px; }
+
+.skatt-house-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 8px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.skatt-house-avatar-chip .cu-avatar-preview { transform: scale(0.55); transform-origin: left center; margin: -16px 0; }
+.cu-pet-hub { font-size: 1.75rem; animation: cu-pet-bounce 2s ease infinite; }
+@keyframes cu-pet-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Theme picker */
+.skatt-theme-picker { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.skatt-theme-btn {
+  font-size: 0.65rem; font-weight: 700; padding: 5px 10px; border-radius: 999px;
+  border: 1.5px solid #EDE7F6; background: white; color: #5A6178; cursor: pointer;
+}
+.skatt-theme-btn.is-active { border-color: #F5A623; background: #FFF3D6; color: #B45309; }
+
+/* House themes */
+.skatt-theme-castle .skatt-house-scene {
+  background: linear-gradient(180deg, #E8F4FD, #F5F0FF 55%, #FFF8E7);
+  border-color: #C4B5FD;
+}
+.skatt-theme-castle .skatt-house-roof { border-bottom-color: #C4B5FD; }
+.skatt-theme-treehouse .skatt-house-scene {
+  background: linear-gradient(180deg, #E0F5EC, #D4EDDA 50%, #F0FFF4);
+  border-color: #55EFC4;
+}
+.skatt-theme-treehouse .skatt-house-roof { border-bottom-color: #00B894; }
+.skatt-theme-space .skatt-house-scene {
+  background: linear-gradient(180deg, #1a1a2e, #2d1f4e 60%, #0f0c29);
+  border-color: #6C5CE7;
+}
+.skatt-theme-space .skatt-house-title,
+.skatt-theme-space .skatt-house-sub,
+.skatt-theme-space .skatt-room-label { color: #fff; }
+.skatt-theme-space .skatt-room-hint { color: rgba(255,255,255,0.5); }
+.skatt-theme-space .skatt-house-roof { border-bottom-color: #A29BFE; }
+.skatt-theme-space .skatt-room-door { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+
+.skatt-room-door.is-locked { opacity: 0.45; pointer-events: none; }
+
+/* Avatar builder */
+.cu-avatar-preview {
+  position: relative; width: 100px; height: 100px; margin: 0 auto 16px;
+  border-radius: 50%; background: var(--cu-color, #F5A623);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.cu-avatar-preview.has-photo { background: #EDE7F6; overflow: hidden; }
+.cu-avatar-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.cu-avatar-hat { position: absolute; top: -8px; font-size: 1.5rem; z-index: 3; }
+.cu-avatar-hair { font-size: 2.5rem; }
+.cu-avatar-face { font-size: 2rem; }
+.cu-avatar-outfit { position: absolute; bottom: -4px; font-size: 1.2rem; }
+.cu-pick-group { margin-bottom: 14px; }
+.cu-pick-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9AA0B8; margin-bottom: 6px; }
+.cu-pick-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.cu-pick-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 10px; border-radius: 12px; border: 1.5px solid #EDE7F6;
+  background: white; font-size: 0.6rem; font-weight: 700; cursor: pointer; min-width: 52px;
+}
+.cu-pick-btn.is-active { border-color: #F5A623; background: #FFF3D6; }
+.cu-pick-btn span:first-child { font-size: 1.2rem; }
+.cu-color-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1.5px #EDE7F6; cursor: pointer; }
+.cu-color-btn.is-active { box-shadow: 0 0 0 2px #1B2340; }
+.cu-avatar-hint { text-align: center; font-size: 0.75rem; color: #9AA0B8; margin-top: 8px; }
+
+/* Collections */
+.cu-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cu-col-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px; border-radius: 14px; border: 1.5px solid #EDE7F6; text-align: center;
+}
+.cu-col-item.is-owned { background: #FFF8E7; border-color: #F5A623; }
+.cu-col-item.is-locked { opacity: 0.5; }
+.cu-col-emoji { font-size: 1.5rem; }
+.cu-col-name { font-size: 0.6rem; font-weight: 700; color: #1B2340; line-height: 1.2; }
+.cu-col-rarity, .cu-col-cost { font-size: 0.55rem; color: #9AA0B8; }
+.cu-r-rare.is-owned { border-color: #6C5CE7; background: #F0EDFF; }
+.cu-r-legend.is-owned { border-color: #E17055; background: #FFF0EB; }
+
+/* Pet */
+.cu-pet-big { font-size: 4rem; animation: cu-pet-bounce 2s ease infinite; }
+.cu-pet-name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.2rem; color: #1B2340; }
+.cu-pet-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.cu-pet-pick {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 14px; border-radius: 16px; border: 2px solid #EDE7F6; background: white; cursor: pointer;
+}
+.cu-pet-pick.is-active { border-color: #00B894; background: #E0F5EC; }
+.cu-pet-pick span:first-child { font-size: 2rem; }
+.cu-pet-name-input {
+  width: 100%; padding: 12px; border: 2px solid #EDE7F6; border-radius: 12px;
+  font-size: 0.9rem; text-align: center;
+}
+
+/* Museum */
+.cu-museum-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.cu-museum-stat {
+  text-align: center; padding: 12px 8px; border-radius: 14px;
+  background: linear-gradient(135deg, #FFF8E7, #FFF3D6); border: 1.5px solid rgba(245,166,35,0.3);
+}
+.cu-museum-num { display: block; font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #B45309; }
+.cu-museum-lbl { font-size: 0.62rem; font-weight: 600; color: #5A6178; }
+.cu-museum-year-title { font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 800; color: #1B2340; margin: 0 0 10px; }
+
+/* Parent family museum card */
+.fm-museum-card {
+  margin: 16px 0; padding: 16px; border-radius: 16px;
+  background: linear-gradient(135deg, #FFF8E7, #F0F7FF);
+  border: 2px solid #EDE7F6;
+}
+.fm-museum-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1rem; color: #1B2340; margin-bottom: 10px; }
+.fm-museum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fm-museum-stat { text-align: center; padding: 10px; background: white; border-radius: 12px; }
+.fm-museum-stat strong { display: block; font-size: 1.25rem; color: #B45309; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skatt-room-view, .skatt-chest-tier.is-open, .skatt-entrance,
+  .skatt-entrance-door, .cu-pet-hub, .cu-pet-big { animation: none; }
+}
