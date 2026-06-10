@@ -161,15 +161,24 @@
     el.classList.remove('hidden');
   }
 
-  function updatePageTitles() {
+  function getPageTitle(stats) {
+    var children = stats && stats.children ? stats.children : [];
+    var totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
+    if (totalStarsToday > 0) return '🌟 Dagens stjärnor';
+    var h = new Date().getHours();
+    if (h >= 5 && h < 12) return '👋 Välkommen tillbaka';
+    return '🌟 Familjens framsteg idag';
+  }
+
+  function updatePageTitles(stats) {
     var pageTitle = document.getElementById('dashboardPageTitle');
-    if (pageTitle) pageTitle.textContent = '🌟 Dagens framsteg';
+    if (pageTitle) pageTitle.textContent = getPageTitle(stats);
 
     var sectionTitle = document.getElementById('dashboardSectionTitle');
-    if (sectionTitle) sectionTitle.textContent = timeGreeting();
+    if (sectionTitle) sectionTitle.classList.add('hidden');
 
     var sectionSub = document.getElementById('dashboardSectionSub');
-    if (sectionSub) sectionSub.textContent = 'Klicka på ett barn för mer · Veckans stjärnor nedan';
+    if (sectionSub) sectionSub.classList.add('hidden');
   }
 
   /**
@@ -222,7 +231,13 @@
       var gap = nearest.star_cost - stars;
       if (gap > 0 && gap <= 8) {
         var gapLabel = gap === 1 ? '1 stjärna' : gap + ' stjärnor';
-        secondaryHtml += '<div class="dash-stat-reward-hint">🎁 ' + gapLabel + ' till ' + nearest.name + '</div>';
+        var rewardHint = '🎁 Bara ' + gapLabel + ' kvar till nästa belöning';
+        if (done === 0 && gap <= 5) {
+          primaryHtml = '<div class="dash-stat-primary dash-stat-reward-primary">' + rewardHint + '</div>';
+          secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+        } else {
+          secondaryHtml += '<div class="dash-stat-reward-hint">' + rewardHint + '</div>';
+        }
       }
     }
 
@@ -230,7 +245,7 @@
   }
 
   function update(stats) {
-    updatePageTitles();
+    updatePageTitles(stats);
     renderBanner(pickSummary(stats));
   }
 

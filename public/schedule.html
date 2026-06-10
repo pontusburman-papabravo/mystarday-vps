@@ -11,7 +11,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Veckoschema - Min Stjärndag</title>
+  <title>Schema - Min Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -36,6 +36,7 @@
   <script src="/js/schedule-views.js?v=1.3.0"></script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
@@ -339,7 +340,7 @@
       <div class="bg-sky border-b border-lavender p-4 md:p-6">
         <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
           <div class="flex items-center gap-3 flex-wrap">
-            <h2 class="text-xl font-heading font-bold text-navy">Veckoschema</h2>
+            <h2 id="schedulePageTitle" class="text-xl font-heading font-bold text-navy">📅 Veckoplanering</h2>
             <div class="schedule-mode-toggle">
               <button id="btnModeSingle" onclick="setScheduleMode('single')" class="schedule-mode-btn active">👤 Mitt barn</button>
               <button id="btnModeFamily" onclick="setScheduleMode('family')" class="schedule-mode-btn">👨‍👩‍👧 Alla barn</button>
@@ -402,28 +403,27 @@
         <div id="childrenListView">
           <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h3 class="text-lg font-heading font-bold text-navy mb-1">Välj barn</h3>
-              <p class="text-sm text-text-soft">Klicka på ett barn för att se och redigera dess veckoschema</p>
+              <h3 id="scheduleChildrenTitle" class="text-lg font-heading font-bold text-navy mb-1">Familjens schema</h3>
+              <p class="text-sm text-text-soft">Klicka på ett barn för att planera veckan</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">+ Lägg till barn</button>
+              <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">➕ Lägg till ett barn</button>
             </div>
           </div>
           <div id="childCardsContainer" class="space-y-4"><div class="text-text-soft text-sm py-8 text-center">Laddar…</div></div>
 
           <!-- Tips section -->
-          <div class="mt-6 bg-sky border border-lavender rounded-2xl p-4">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-lg">💡</span>
-              <span class="font-semibold text-navy text-sm">Tips: Så här skapar du ett schema med delsteg</span>
-            </div>
-            <ul class="text-xs text-text-soft space-y-1.5">
-              <li>• Klicka på ett barn nedan för att öppna veckoschema-editorn</li>
-              <li>• Välj dag och lägg till aktiviteter från ditt bibliotek</li>
-              <li>• Aktiviteter med delsteg visas expanderade — barnet bockar av ett steg i taget</li>
+          <details class="warm-tips mt-6">
+            <summary class="warm-tips-summary">💡 Tips för schemat</summary>
+            <div class="warm-tips-body">
+            <ul class="space-y-1.5">
+              <li>• Klicka på ett barn nedan för att öppna veckan</li>
+              <li>• Välj dag och lägg till aktiviteter från biblioteket</li>
+              <li>• Aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
               <li>• Kopiera hela dagar eller veckor med knapparna i schemat</li>
             </ul>
-          </div>
+            </div>
+          </details>
         </div>
 
         <!-- Schedule editor -->

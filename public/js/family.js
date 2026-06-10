@@ -70,6 +70,15 @@
 
       const children = data.children || [];
       familyChildren = children;
+
+      const summaryEl = document.getElementById('familySummary');
+      if (summaryEl) {
+        const parents = data.parents || [];
+        const parts = [];
+        if (children.length) parts.push(children.length === 1 ? '1 barn' : children.length + ' barn');
+        if (parents.length) parts.push(parents.length === 1 ? '1 förälder' : parents.length + ' föräldrar');
+        summaryEl.textContent = parts.join(' · ');
+      }
       const noChildren = document.getElementById('noChildrenState');
       const childrenGrid = document.getElementById('childrenGrid');
       const switcher = document.getElementById('childSwitcherTabs');
