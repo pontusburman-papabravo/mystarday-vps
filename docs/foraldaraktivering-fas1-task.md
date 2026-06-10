@@ -2,7 +2,9 @@
 
 **Skapad:** 2026-05-30  
 **Spec:** [foraldaraktivering-7-dagar-spec.md](./foraldaraktivering-7-dagar-spec.md) v3.10  
-**Invariants:** [activation-program-invariants.md](./activation-program-invariants.md) — alla implementationer måste följa dessa  
+**Contract:** [foraldaraktivering-implementation-contract.md](./foraldaraktivering-implementation-contract.md)  
+**Invariants:** [activation-program-invariants.md](./activation-program-invariants.md)  
+**Execution plan:** [cursor-execution-plan.md](./cursor-execution-plan.md)  
 **Scope:** Migration + dag-logik + A/B helper  
 **Estimat:** ~3h  
 **Risk:** Låg
@@ -162,7 +164,7 @@ Kör: `node --test test/activation-program.test.js`
 4. `assignCohortArm()` deterministisk + smoke-test-logik (§13.2)
 5. Alla DST-tester gröna
 6. `db/parent-activation-program.js` med CRUD: create, getByFamily, updateStatus, updateLastSeenDay
-7. Ingen prod-deploy med `ACTIVATION_PROGRAM_ENABLED=true` (vänta Fas 4)
+7. Ingen prod-deploy med `ACTIVATION_PROGRAM_ENABLED=true` (vänta **Go live efter Fas 6C** — produktägare säger till; se contract § Go live)
 
 ---
 

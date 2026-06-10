@@ -3,7 +3,7 @@
 Får aldrig brytas.
 
 **Kopplad till:** [Föräldaraktivering — 7-dagarsprogram](./foraldaraktivering-7-dagar-spec.md) (`foraldaraktivering_7d`)  
-**Implementation:** [Fas 1 task](./foraldaraktivering-fas1-task.md)
+**Implementation:** [Implementation contract](./foraldaraktivering-implementation-contract.md) · [Execution plan](./cursor-execution-plan.md) · [Fas 1 task](./foraldaraktivering-fas1-task.md)
 
 ---
 
@@ -101,3 +101,17 @@ Ingen negativ copy.
 ## 15
 
 MVP får endast skapa onboarding_7d.
+
+---
+
+## 16
+
+Inget användarsynligt förrän produktägare säger go live — **efter Fas 6C** (inte efter Fas 4).
+
+`ACTIVATION_PROGRAM_ENABLED=false` och/eller saknad `ACTIVATION_PROGRAM_LAUNCH_AT` = ingen påverkan i prod.
+
+---
+
+## 17
+
+Implementation-agenten testar efter varje fas och kör full regression efter Fas 6C innan go-live-förslag.
