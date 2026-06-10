@@ -30,11 +30,9 @@
 | QuestCTA (bottom) | ✅ | `child-today-tasks.js` |
 
 **Test checklist:**
-- [ ] User sees ONLY tasks + minimal goal
-- [ ] No calendar visible
-- [ ] No star dashboard on Today
-- [ ] Task list ≤ 5 items
-- [ ] 5-sec test: "What do you do here?" → "do tasks"
+- [x] Automated: `test/three-layer-separation.test.js` (Phase 1 suite)
+- [ ] Manual: User sees ONLY tasks + minimal goal
+- [ ] Manual: 5-sec test: "What do you do here?" → "do tasks"
 
 ---
 
@@ -50,9 +48,8 @@
 | No tasks in universe | ✅ | Route guards hide `#scheduleView` |
 
 **Test checklist:**
-- [ ] `/universe` has zero task references visible
-- [ ] Star balance only in universe
-- [ ] Cannot complete tasks from universe
+- [x] Automated: `test/three-layer-separation.test.js` (Phase 2 suite)
+- [ ] Manual: Star balance only visible in universe tab
 
 ---
 
