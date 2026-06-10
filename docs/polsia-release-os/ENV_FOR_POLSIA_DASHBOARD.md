@@ -19,6 +19,20 @@
 
 **Redan satta (rör ej om de fungerar):** `DATABASE_URL`, `JWT_SECRET`, `POLSIA_API_KEY`, `STRIPE_*`, `VAPID_*`
 
+### Föräldraaktivering 7D (go-live — efter Fas 6C + PO-beslut)
+
+Full runbook: [`docs/foraldaraktivering-go-live.md`](../foraldaraktivering-go-live.md)
+
+| Variabel | Go-live | Kommentar |
+|----------|---------|-----------|
+| `ACTIVATION_PROGRAM_ENABLED` | `true` | Master switch — **ändra inte utan PO** |
+| `ACTIVATION_PROGRAM_LAUNCH_AT` | ISO UTC, t.ex. `2026-06-11T06:00:00Z` | **Fryses efter första enroll** |
+| `ACTIVATION_PROGRAM_EMAIL_ENABLED` | `true` | Väg B (7+ dagar inaktiv) |
+| `ACTIVATION_PROGRAM_AB_ENABLED` | *(tom)* | **Inte** `true` vid launch |
+| `ACTIVATION_PROGRAM_EXPIRY_DAY` | `21` | Default |
+
+Efter env: **redeploy**. Verifiera: `npm run verify:activation-go-live`
+
 ### Migration export (tillfälligt vid plattformsflytt)
 
 | Variabel | Värde | Kommentar |

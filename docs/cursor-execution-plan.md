@@ -227,10 +227,12 @@ Aktivera för riktiga användare — **endast på produktägares uttryckliga god
 
 Gör:
 
+- Följ [go-live runbook](./foraldaraktivering-go-live.md)
 - Verifiera checklista i [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt)
+- `npm run verify:activation-go-live`
 - Sätt `ACTIVATION_PROGRAM_LAUNCH_AT` (fryses permanent efter första enroll)
-- Sätt `ACTIVATION_PROGRAM_ENABLED=true` i prod
-- Deploy
+- Sätt `ACTIVATION_PROGRAM_ENABLED=true` + `ACTIVATION_PROGRAM_EMAIL_ENABLED=true` i prod
+- Deploy / redeploy efter env
 
 Klart när:
 

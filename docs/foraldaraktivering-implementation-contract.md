@@ -475,15 +475,15 @@ Implementation ska **alltid** kontrollera båda innan något användarsynligt el
 
 Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter Fas 6C**:
 
-- [ ] **Fas 1–4** verifierade (staging + intern testfamilj)
-- [ ] **Väg A:** onboarding-val → banner → completion → modal
-- [ ] **Väg B:** e-postmall + eligibility (7+ dagar inaktiv) + länk → val-skärm → enroll
-- [ ] Aktiva familjer (<7 dagar login) **exkluderas** från utskick
-- [ ] **Fas 5:** push dag 2–7 testad (max 1/dag)
-- [ ] **Fas 6A:** Day 14-retention beräknas korrekt (Family North Star)
-- [ ] **Fas 6B:** opportunity rate, conversion rate, retention wall API
-- [ ] **Fas 6C:** admin-vy med funnel, Day 14 kohort, aha-gruppering, export
-- [ ] Analytics-kedja end-to-end (inkl. `email_invite_*`, `enroll_source`, push)
+- [x] **Fas 1–4** verifierade (staging + intern testfamilj)
+- [x] **Väg A:** onboarding-val → banner → completion → modal
+- [x] **Väg B:** e-postmall + eligibility (7+ dagar inaktiv) + länk → val-skärm → enroll
+- [x] Aktiva familjer (<7 dagar login) **exkluderas** från utskick
+- [x] **Fas 5:** push dag 2–7 testad (max 1/dag)
+- [x] **Fas 6A:** Day 14-retention beräknas korrekt (Family North Star)
+- [x] **Fas 6B:** opportunity rate, conversion rate, retention wall API
+- [x] **Fas 6C:** admin-vy med funnel, Day 14 kohort, aha-gruppering, export
+- [x] Analytics-kedja end-to-end (inkl. `email_invite_*`, `enroll_source`, push)
 - [ ] `ACTIVATION_PROGRAM_LAUNCH_AT` satt (ändras **aldrig** efter första riktiga enroll — invariant #13)
 - [ ] `ACTIVATION_PROGRAM_ENABLED=true` i prod
 - [ ] Deploy genomförd **efter** env-vars ovan
