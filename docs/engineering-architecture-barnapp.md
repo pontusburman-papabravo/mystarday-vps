@@ -451,7 +451,7 @@ Registered in `features` + gated via `family_features` / `featureAccess()`.
 
 - [ ] `FamilyPage` shell (parent: extend `family-museum.js`; child: new tab or gated)
 - [ ] `FamilyHall` static mock (projects UI, no backend)
-- [ ] Feature flag `familjehallen_v0`
+- [x] Familjehallen `live` for all families
 
 ### Phase 3 — Family aggregation (backend only)
 
