@@ -79,7 +79,7 @@
     }
 
     if (layer === 'family' && window.ChildFamilyHall) {
-      ChildFamilyHall.mount();
+      ChildFamilyHall.refresh();
     }
   }
 

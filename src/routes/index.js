@@ -23,6 +23,10 @@ function registerRoutes(app) {
   const childUniverse = require('./child-universe');
   app.use('/api/me', childUniverse.childRouter);
   app.use('/api/family', childUniverse.parentRouter);
+  const familyHall = require('./family-hall');
+  app.use('/api/me', familyHall.childRouter);
+  app.use('/api/family', familyHall.parentRouter);
+  app.use('/api/family', familyHall.memoryRouter);
 
   app.use('/api/events', require('./events'));
   app.use('/api/auth', require('./auth'));

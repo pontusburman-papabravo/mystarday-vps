@@ -56,21 +56,26 @@
 
 ---
 
-## Fas 3 — Family shell V0 ✅
+## Fas 3 — Family V0 (event-sourced, real) ✅
 
-**Goal:** Family layer without gameplay.
+**Goal:** Event-sourced family memory — real persistence, zero child UI writes.
 
 | Task | Status | Kod |
 |------|--------|-----|
 | `/family` route | ✅ | `index.js` redirect + `#family` hash |
-| FamilyHall static mock | ✅ | `child-family-hall.js` |
-| No writes / no star calc | ✅ | Mock data only |
-| Feature flag gate | ✅ | `data-feature="familjehallen_v0"` |
+| DB tables | ✅ | `family_project`, `family_event`, `family_chest` |
+| GET `/api/me/family` | ✅ | `src/routes/family-hall.js` |
+| Event-driven writes | ✅ | `family-event-engine.js` ← activity completion |
+| UI from API only | ✅ | `child-family-client.js` + `child-family-hall.js` |
+| Parent project create | ✅ | `POST /api/family/projects` (parent only) |
+| Feature flag gate | ✅ | `familjehallen_v0` |
 
 **Test checklist:**
-- [ ] Family page does not affect universe
-- [ ] No write APIs called
-- [ ] Can be deleted without breaking app
+- [ ] Family page loads real API data
+- [ ] Story updates after child completes task (event stream)
+- [ ] Chest aggregates from completions (not manual UI)
+- [ ] No mock arrays in frontend
+- [ ] Child UI has no write buttons
 
 ---
 

@@ -344,7 +344,7 @@ function showTab(tab) {
     if (weekNav) { weekNav.classList.add('hidden'); weekNav.setAttribute('aria-hidden', 'true'); }
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
     if (isUniverse && !rewardsLoaded) loadRewards();
-    if (isFamily && window.ChildFamilyHall) ChildFamilyHall.mount();
+    if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
   }
   [ts, tr, tf].forEach(el => {
     if (!el) return;
@@ -2312,7 +2312,7 @@ async function loadDay(dateStr, showLoader = true) {
   }
 
   try {
-  const focusLayer = isTodayFocusLayer();
+    const focusLayer = isTodayFocusLayer();
     const [data, rwdData, goalData] = await Promise.all(
       focusLayer
         ? [

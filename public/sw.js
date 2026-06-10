@@ -205,7 +205,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v219';
+const CACHE_NAME = 'stjarndag-v220';
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

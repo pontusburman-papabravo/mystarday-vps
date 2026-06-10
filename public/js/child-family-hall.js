@@ -1,41 +1,79 @@
 /**
- * child-family-hall.js — Family layer V0 (read-only shell, mock data).
- * NO star calculations, NO event writes, NO backend mutations.
+ * child-family-hall.js — Family layer V0 (event-sourced read model).
+ * All data from GET /api/me/family — NO mocks, NO UI writes.
  */
 (function () {
   'use strict';
 
-  var familyMock = {
-    projects: [
-      { id: 'p1', emoji: '🌱', title: 'Plantera blommor', progress: 0, note: 'Kommer snart — familjeprojekt' },
-      { id: 'p2', emoji: '📚', title: 'Bygga bokhörna', progress: 0, note: 'Kommer snart' },
-    ],
-    story: [
-      { id: 's1', date: '—', text: 'Er familjeberättelse börjar här när ni testar tillsammans.' },
-    ],
-    chest: 0,
-  };
+  function esc(str) {
+    if (typeof window.escHtml === 'function') return window.escHtml(str);
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
-  var _mounted = false;
+  function formatDate(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    } catch (_) {
+      return '';
+    }
+  }
 
-  function render() {
-    var projectsHtml = familyMock.projects.map(function (p) {
-      return '<div class="cfh-card cfh-card-muted">' +
-        '<span class="cfh-card-emoji">' + p.emoji + '</span>' +
+  function renderProjects(projects) {
+    if (!projects || !projects.length) {
+      return '<p class="cfh-empty">Inga familjeprojekt ännu — föräldern kan lägga till ett gemensamt mål.</p>';
+    }
+    return projects.map(function (p) {
+      var pct = p.targetValue > 0
+        ? Math.min(100, Math.round((p.currentValue / p.targetValue) * 100))
+        : 0;
+      var contrib = (p.contributors || []).map(function (c) {
+        return esc(c.name);
+      }).join(', ');
+      return '<div class="cfh-card">' +
+        '<span class="cfh-card-emoji">' + esc(p.emoji || '🎯') + '</span>' +
         '<div class="cfh-card-body">' +
-          '<div class="cfh-card-title">' + p.title + '</div>' +
-          '<div class="cfh-card-sub">' + p.note + '</div>' +
+          '<div class="cfh-card-title">' + esc(p.title) + '</div>' +
+          '<div class="cfh-progress-track"><div class="cfh-progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="cfh-card-sub">⭐ ' + (p.currentValue || 0) + ' / ' + (p.targetValue || 0) +
+            (contrib ? ' · ' + contrib : '') +
+          '</div>' +
         '</div>' +
       '</div>';
     }).join('');
+  }
 
-    var storyHtml = familyMock.story.map(function (s) {
+  function renderStory(story) {
+    if (!story || !story.length) {
+      return '<p class="cfh-empty">Er familjeberättelse börjar när någon klarar ett uppdrag ✨</p>';
+    }
+    return story.map(function (s) {
       return '<div class="cfh-story-item">' +
-        '<div class="cfh-story-date">📅 ' + s.date + '</div>' +
-        '<div class="cfh-story-text">' + s.text + '</div>' +
+        '<div class="cfh-story-date">📅 ' + formatDate(s.createdAt) + '</div>' +
+        '<div class="cfh-story-text">' + esc(s.text) + '</div>' +
       '</div>';
     }).join('');
+  }
 
+  function renderLoading() {
+    return '<div class="cfh-shell cfh-loading">' +
+      '<p class="text-4xl mb-3">🏡</p>' +
+      '<p class="text-text-soft">Laddar familjehallen...</p>' +
+    '</div>';
+  }
+
+  function renderError() {
+    return '<div class="cfh-shell cfh-error">' +
+      '<p class="text-4xl mb-3">😴</p>' +
+      '<p class="text-navy font-semibold">Familjehallen är inte tillgänglig ännu</p>' +
+      '<p class="text-text-soft text-sm mt-2">Be en vuxen aktivera funktionen.</p>' +
+    '</div>';
+  }
+
+  function render(data) {
     return '<div class="cfh-shell">' +
       '<div class="cfh-header">' +
         '<div class="cfh-title">🏡 Familjehallen</div>' +
@@ -43,34 +81,46 @@
       '</div>' +
       '<section class="cfh-section">' +
         '<h2 class="cfh-section-title">🎯 Familjeprojekt</h2>' +
-        '<p class="cfh-section-hint">Förhandsvisning — inget sparas ännu</p>' +
-        projectsHtml +
+        renderProjects(data.projects) +
       '</section>' +
       '<section class="cfh-section">' +
         '<h2 class="cfh-section-title">⭐ Familjeskista</h2>' +
         '<div class="cfh-chest">' +
-          '<div class="cfh-chest-value">' + familyMock.chest + '</div>' +
-          '<div class="cfh-chest-label">gemensamma stjärnor (auto-aggregat — ej aktivt)</div>' +
+          '<div class="cfh-chest-value">' + (data.chest || 0) + '</div>' +
+          '<div class="cfh-chest-label">stjärnor tillsammans</div>' +
         '</div>' +
       '</section>' +
       '<section class="cfh-section">' +
         '<h2 class="cfh-section-title">📖 Familjens berättelse</h2>' +
-        storyHtml +
+        renderStory(data.story) +
       '</section>' +
     '</div>';
   }
 
   function mount() {
     var root = document.getElementById('familyHallMount');
-    if (!root) return;
-    if (!_mounted) {
-      root.innerHTML = render();
-      _mounted = true;
-    }
+    if (!root || !window.ChildFamily) return;
+
+    root.innerHTML = renderLoading();
+
+    ChildFamily.load()
+      .then(function (data) {
+        root.innerHTML = render(data);
+      })
+      .catch(function () {
+        root.innerHTML = renderError();
+      });
+  }
+
+  function refresh() {
+    if (!window.ChildFamily) return Promise.resolve();
+    ChildFamily.invalidate();
+    mount();
+    return Promise.resolve();
   }
 
   window.ChildFamilyHall = {
     mount: mount,
-    getMock: function () { return familyMock; },
+    refresh: refresh,
   };
 })();

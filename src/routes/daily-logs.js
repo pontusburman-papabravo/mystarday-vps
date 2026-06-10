@@ -312,6 +312,11 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
       [req.params.itemId, logDate]
     );
     res.json(result.rows[0]);
+    // Family layer: derived contribution event (fire-and-forget)
+    if (!item.completed) {
+      const { handleActivityCompleted } = require('../lib/family-event-engine');
+      handleActivityCompleted(req.params.itemId, item.child_id, false).catch(() => {});
+    }
     // Broadcast SSE + push to OTHER parents (fire-and-forget; acting parent is excluded)
     getChildFamilyId(item.child_id).then(async (fid) => {
       if (!fid) return;
@@ -753,6 +758,11 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       [req.params.itemId, logDate2]
     );
     res.json(result.rows[0]);
+    // Family layer: derived contribution event (fire-and-forget)
+    if (!item.completed) {
+      const { handleActivityCompleted } = require('../lib/family-event-engine');
+      handleActivityCompleted(req.params.itemId, req.user.id, false).catch(() => {});
+    }
     // Broadcast to all family members + push notify parents (fire-and-forget)
     getChildFamilyId(req.user.id).then(async (fid) => {
       if (!fid) return;

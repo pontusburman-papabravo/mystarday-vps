@@ -88,7 +88,7 @@ const FEATURES = [
   {
     slug: 'familjehallen_v0',
     name: 'Familjehallen V0',
-    description: 'Familj-flik med read-only hall UI (mock projects, ingen stjärnekonomi)',
+    description: 'Familj-flik med event-sourced hall (projects, chest, story från API)',
     status: 'dev',
     tags: ['barn', 'familj'],
     priority: 'medium',

@@ -120,3 +120,31 @@
   color: #1B2340;
   line-height: 1.4;
 }
+
+.cfh-empty {
+  font-size: 0.82rem;
+  color: #9AA0B8;
+  padding: 8px 0;
+  line-height: 1.4;
+}
+
+.cfh-progress-track {
+  height: 6px;
+  background: #EDE7F6;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 6px 0 4px;
+}
+
+.cfh-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F5A623, #FBBF24);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.cfh-loading,
+.cfh-error {
+  text-align: center;
+  padding: 40px 16px;
+}

@@ -267,7 +267,7 @@ Implementation (vanilla JS interim): `ChildEventBus.emit('ActivityCompleted', pa
 | ActivityCompletedEvent | ✅ | `child-event-bus.js` |
 | 3-root bottom nav | ⚠️ | 2 tabs idag; Family V0 ej live |
 | `/today` `/universe` routes | ⚠️ | Tab-state; React Phase 5 |
-| Family Hall V0 | ❌ | Feature flag `familjehallen_v0` off |
+| Family Hall V0 (event-sourced) | ✅ | `family_event` + `GET /api/me/family` |
 
 ---
 
