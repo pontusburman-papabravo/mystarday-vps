@@ -16,18 +16,42 @@
 (function () {
   if (!('serviceWorker' in navigator)) return;
 
-  // Native Capacitor (iOS/Android): skip SW — cached auth/child-login JS breaks login flows.
-  // Unregister legacy SW from earlier app builds.
-  var isNativeApp = (
-    (typeof Capacitor !== 'undefined' && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) ||
-    (typeof window !== 'undefined' && window.Platform && typeof window.Platform.isNative === 'function' && window.Platform.isNative())
-  );
-  if (isNativeApp) {
+  function isNativeShell() {
+    if (typeof window !== 'undefined' && typeof window.WEBVIEW_SERVER_URL === 'string' && window.WEBVIEW_SERVER_URL) {
+      return true;
+    }
+    if (typeof Capacitor !== 'undefined' && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) {
+      return true;
+    }
+    if (typeof window !== 'undefined' && window.Platform && typeof window.Platform.isNative === 'function' && window.Platform.isNative()) {
+      return true;
+    }
+    return false;
+  }
+
+  function unregisterAllServiceWorkers() {
     navigator.serviceWorker.getRegistrations().then(function (regs) {
       regs.forEach(function (r) { r.unregister(); });
     }).catch(function () {});
+  }
+
+  // Native Capacitor: never register SW — it caches remote HTML/JS and the app looks like PWA.
+  if (isNativeShell()) {
+    unregisterAllServiceWorkers();
     return;
   }
+
+  // Capacitor bridge may load after this script — recheck briefly before registering SW.
+  var nativeRechecks = 0;
+  var nativeTimer = setInterval(function () {
+    nativeRechecks += 1;
+    if (isNativeShell()) {
+      clearInterval(nativeTimer);
+      unregisterAllServiceWorkers();
+      return;
+    }
+    if (nativeRechecks >= 20) clearInterval(nativeTimer);
+  }, 50);
 
   // Gate 2I: offline_pwa — only register SW if the feature is available for this family.
   // If the feature check fails (non-critical), register anyway (SW failure is non-fatal).
@@ -206,6 +230,10 @@
   // Only register the service worker if offline_pwa feature is available.
   // If feature check fails, register anyway (SW failure is non-fatal).
   window.addEventListener('load', async function () {
+    if (isNativeShell()) {
+      unregisterAllServiceWorkers();
+      return;
+    }
     clearBadgeIfSupported();
     try {
       const resp = await fetch('/api/features', { credentials: 'include' });

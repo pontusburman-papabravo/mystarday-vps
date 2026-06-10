@@ -22,6 +22,9 @@ html.platform-native .cookie-banner-overlay {
 /* Sprint 2a — förbered P0.4: dölj webb-topbar när native tab bar aktiv */
 html.platform-native body.has-native-tab-bar .mobile-topbar,
 html.platform-native body.has-native-tab-bar .mobile-hamburger,
-html.platform-native body.has-native-tab-bar .mobile-dropdown {
+html.platform-native body.has-native-tab-bar .mobile-dropdown,
+html.is-native body.has-native-tab-bar .mobile-topbar,
+html.is-native body.has-native-tab-bar .mobile-hamburger,
+html.is-native body.has-native-tab-bar .mobile-dropdown {
   display: none !important;
 }
