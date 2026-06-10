@@ -322,27 +322,38 @@ let rewardsLoaded = false;
 function showTab(tab) {
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
+  const fv = document.getElementById('familyView');
   const ts = document.getElementById('tabSchedule');
   const tr = document.getElementById('tabRewards');
+  const tf = document.getElementById('tabFamily');
   // Schedule-only sections that must hide on rewards tab
   const weekNav = document.getElementById('weekNavDetails');
   const progress = document.getElementById('progressSection');
-  if (tab === 'schedule') {
-    sv.classList.remove('hidden'); rv.classList.add('hidden');
+  const isToday = tab === 'schedule';
+  const isUniverse = tab === 'rewards';
+  const isFamily = tab === 'family';
+  if (sv) sv.classList.toggle('hidden', !isToday);
+  if (rv) rv.classList.toggle('hidden', !isUniverse);
+  if (fv) fv.classList.toggle('hidden', !isFamily);
+  if (isToday) {
     if (!window.ChildTodayFocus) {
       if (weekNav) { weekNav.classList.remove('hidden'); weekNav.removeAttribute('aria-hidden'); }
       if (progress) { progress.classList.remove('hidden'); progress.removeAttribute('aria-hidden'); }
     }
-    ts.classList.add('border-gold', 'text-gold'); ts.classList.remove('border-transparent', 'text-text-soft');
-    tr.classList.remove('border-gold', 'text-gold'); tr.classList.add('border-transparent', 'text-text-soft');
   } else {
-    sv.classList.add('hidden'); rv.classList.remove('hidden');
     if (weekNav) { weekNav.classList.add('hidden'); weekNav.setAttribute('aria-hidden', 'true'); }
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
-    tr.classList.add('border-gold', 'text-gold'); tr.classList.remove('border-transparent', 'text-text-soft');
-    ts.classList.remove('border-gold', 'text-gold'); ts.classList.add('border-transparent', 'text-text-soft');
-    if (!rewardsLoaded) loadRewards();
+    if (isUniverse && !rewardsLoaded) loadRewards();
+    if (isFamily && window.ChildFamilyHall) ChildFamilyHall.mount();
   }
+  [ts, tr, tf].forEach(el => {
+    if (!el) return;
+    const active = (el === ts && isToday) || (el === tr && isUniverse) || (el === tf && isFamily);
+    el.classList.toggle('border-gold', active);
+    el.classList.toggle('text-gold', active);
+    el.classList.toggle('border-transparent', !active);
+    el.classList.toggle('text-text-soft', !active);
+  });
   if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(tab);
 }
 
@@ -1486,6 +1497,7 @@ function renderActivities(data, trueStarBalance) {
       break; // Only auto-expand the first one (the NOW item)
     }
   }
+  if (window.ChildTodayTasks) ChildTodayTasks.afterRender(data, isToday);
 }
 
 // ── NOW card (large, featured) ──────────────────────────
@@ -2071,6 +2083,14 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
   // ── Dedupe concurrent loadDay: wait for any in-flight call ──────────────
   try {
     await _refreshLoadDay();
+    if (!isCurrentlyDone && window.ChildEventBus) {
+      ChildEventBus.emitActivityCompleted({
+        childId: me && me.id,
+        activityId: itemId,
+        itemId: itemId,
+        timestamp: new Date().toISOString(),
+      });
+    }
     // Scroll to the new NU card so the child sees what's next
     setTimeout(() => {
       const newNowCard = document.querySelector('.now-card');
@@ -2555,8 +2575,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDateLine();
     await loadDay(todayStr);
 
-    // Hash navigation: #rewards switches to Skattkammaren tab on load
-    if (window.location.hash === '#rewards') {
+    if (window.ChildLayerRouter) ChildLayerRouter.init();
+    // Legacy hash: #rewards → universe layer
+    else if (window.location.hash === '#rewards') {
       showTab('rewards');
     }
   } catch (err) {

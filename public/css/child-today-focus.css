@@ -108,3 +108,45 @@
 .today-focus-mode #childName {
   font-size: 1rem;
 }
+
+/* Reward micro-feedback per task */
+.ctf-reward-teaser {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #B45309;
+  background: rgba(245, 166, 35, 0.12);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.ctf-more-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #9AA0B8;
+  padding: 10px 12px;
+  margin-top: 8px;
+}
+
+.ctf-skatt-bottom {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+}
+
+.ctf-skatt-bottom.ctf-hidden {
+  display: none;
+}
+
+/* Route guard: universe must not leak task DOM */
+[data-child-layer="universe"] #scheduleView,
+[data-child-layer="universe"] #todayFocusMount,
+[data-child-layer="family"] #scheduleView,
+[data-child-layer="family"] #todayFocusMount,
+[data-child-layer="family"] #rewardsView {
+  display: none !important;
+}

@@ -28,21 +28,14 @@
       ? '⭐ ' + balance + ' / ' + cost
       : '';
 
-    var missionSub = _progress.total > 0
-      ? _progress.completed + ' av ' + _progress.total + ' klara'
-      : '';
-
     return '<div class="ctf-bar" id="todayFocusBar">' +
       '<div class="ctf-greeting">Hej ' + firstName(_childName) + ' 👋</div>' +
       '<div class="ctf-goal-card">' +
         '<div class="ctf-goal-name">' + goalLine + '</div>' +
         (starsLine ? '<div class="ctf-goal-stars">' + starsLine + '</div>' : '') +
       '</div>' +
-      '<button type="button" class="ctf-skatt-btn" id="ctfSkattBtn">💎 Besök Skattkammaren</button>' +
-      '<div class="ctf-divider"></div>' +
       '<div class="ctf-missions-head">' +
         '<span class="ctf-missions-title">Dagens uppdrag</span>' +
-        (missionSub ? '<span class="ctf-missions-sub">' + missionSub + '</span>' : '') +
       '</div>' +
     '</div>';
   }
@@ -51,12 +44,6 @@
     var existing = document.getElementById('todayFocusMount');
     if (!existing) return;
     existing.innerHTML = renderFocusBar();
-    var btn = document.getElementById('ctfSkattBtn');
-    if (btn) {
-      btn.addEventListener('click', function () {
-        if (typeof showTab === 'function') showTab('rewards');
-      });
-    }
   }
 
   function hideLegacyChrome() {
@@ -67,8 +54,15 @@
         el.setAttribute('aria-hidden', 'true');
       }
     });
-    var ringBadge = document.getElementById('ringActivityBadge');
-    if (ringBadge) ringBadge.classList.add('ctf-hidden');
+    var ringWrap = document.getElementById('childHeaderRing');
+    if (ringWrap) {
+      ringWrap.classList.add('ctf-hidden');
+      ringWrap.setAttribute('aria-hidden', 'true');
+    }
+    ['viewToggleBtn', 'printBtn'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('ctf-hidden');
+    });
   }
 
   function renameTab() {

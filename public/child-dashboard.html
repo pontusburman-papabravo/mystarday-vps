@@ -34,7 +34,8 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.0.0">
-  <link rel="stylesheet" href="/css/child-today-focus.css?v=1.0.0">
+  <link rel="stylesheet" href="/css/child-today-focus.css?v=1.1.0">
+  <link rel="stylesheet" href="/css/child-family-hall.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-dashboard-warmth.css?v=2026-06-10-child">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -1312,7 +1313,7 @@
     <div class="flex items-center justify-between max-w-lg mx-auto">
       <div class="flex items-center gap-2">
         <!-- Progress ring wrapping child emoji — shows today's X/Y activity progress -->
-        <div style="position:relative;width:44px;height:44px;flex-shrink:0;" title="Dagens framsteg">
+        <div id="childHeaderRing" style="position:relative;width:44px;height:44px;flex-shrink:0;" title="Dagens framsteg">
           <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;inset:0;transform:rotate(-90deg);" aria-hidden="true">
             <!-- Track -->
             <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="3.5"/>
@@ -1420,11 +1421,12 @@
     <div id="milestoneToast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-yellow-400 via-orange-400 to-gold text-navy px-6 py-3 rounded-2xl shadow-xl font-heading font-bold text-sm max-w-xs text-center celeb-slide"></div>
   </div>
 
-  <!-- Tab Nav: Schema / Belöningar -->
-  <div class="bg-white border-b border-lavender">
+  <!-- Tab Nav: Today | Universe | Family -->
+  <div class="bg-white border-b border-lavender" id="childLayerNav">
     <div class="flex max-w-lg mx-auto">
       <button id="tabSchedule" onclick="showTab('schedule')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-gold text-gold transition-colors">☀️ Idag</button>
       <button id="tabRewards" onclick="showTab('rewards')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-text-soft transition-colors">💎 Skattkammaren</button>
+      <button id="tabFamily" data-feature="familjehallen_v0" onclick="showTab('family')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-text-soft transition-colors">🏡 Familj</button>
     </div>
   </div>
 
@@ -1445,8 +1447,13 @@
     </div>
   </div>
 
+  <!-- Family View = Familjehallen V0 (read-only shell) -->
+  <div id="familyView" class="hidden pb-20" data-layer="family" style="background: linear-gradient(180deg, #fff8f0 0%, #f0fff4 100%);">
+    <div id="familyHallMount"></div>
+  </div>
+
   <!-- Rewards View = Skattkammaren -->
-  <div id="rewardsView" class="hidden pb-20" style="background: linear-gradient(180deg, #f0e8ff 0%, #e8f0ff 40%, #f0fff4 100%);">
+  <div id="rewardsView" class="hidden pb-20" data-layer="universe" style="background: linear-gradient(180deg, #f0e8ff 0%, #e8f0ff 40%, #f0fff4 100%);">
     <!-- Loading state -->
     <div id="skattkammarLoading" class="p-6 text-center py-16">
       <p class="text-5xl mb-3 animate-spin" style="display:inline-block">⭐</p>
@@ -1543,7 +1550,11 @@
   <script src="/js/child-pet.js?v=1.0.0"></script>
   <script src="/js/child-museum.js?v=1.0.0"></script>
   <script src="/js/child-skatt-house.js?v=2.0.0"></script>
-  <script src="/js/child-today-focus.js?v=1.0.0"></script>
+  <script src="/js/child-event-bus.js?v=1.0.0"></script>
+  <script src="/js/child-today-focus.js?v=1.1.0"></script>
+  <script src="/js/child-today-tasks.js?v=1.0.0"></script>
+  <script src="/js/child-family-hall.js?v=1.0.0"></script>
+  <script src="/js/child-layer-router.js?v=1.0.0"></script>
   <!-- Main child dashboard logic (schedule, activities, rewards, ratings) -->
   <script src="/js/child-dashboard-warmth.js?v=2026-06-10-child"></script>
   <script src="/js/child-dashboard.js?v=2.21.0"></script>

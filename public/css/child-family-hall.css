@@ -1,0 +1,122 @@
+/**
+ * child-family-hall.css — Family layer V0 (read-only shell).
+ */
+
+#familyView[data-active="true"] {
+  display: block;
+}
+
+.cfh-shell {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 16px 16px 80px;
+}
+
+.cfh-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cfh-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1B2340;
+}
+
+.cfh-subtitle {
+  font-size: 0.85rem;
+  color: #5A6178;
+  margin-top: 4px;
+}
+
+.cfh-section {
+  margin-bottom: 20px;
+}
+
+.cfh-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin-bottom: 4px;
+}
+
+.cfh-section-hint {
+  font-size: 0.72rem;
+  color: #9AA0B8;
+  margin-bottom: 10px;
+}
+
+.cfh-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1.5px solid #EDE7F6;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.cfh-card-muted {
+  opacity: 0.75;
+}
+
+.cfh-card-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.cfh-card-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1B2340;
+}
+
+.cfh-card-sub {
+  font-size: 0.75rem;
+  color: #9AA0B8;
+  margin-top: 2px;
+}
+
+.cfh-chest {
+  background: linear-gradient(135deg, #FFF8E7, #FFFBEB);
+  border: 1.5px solid rgba(245, 166, 35, 0.35);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.cfh-chest-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #B45309;
+}
+
+.cfh-chest-label {
+  font-size: 0.75rem;
+  color: #9AA0B8;
+  margin-top: 4px;
+}
+
+.cfh-story-item {
+  background: #fff;
+  border: 1.5px solid #EDE7F6;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.cfh-story-date {
+  font-size: 0.7rem;
+  color: #9AA0B8;
+  margin-bottom: 4px;
+}
+
+.cfh-story-text {
+  font-size: 0.85rem;
+  color: #1B2340;
+  line-height: 1.4;
+}

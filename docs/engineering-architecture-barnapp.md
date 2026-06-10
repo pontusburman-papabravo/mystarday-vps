@@ -2,7 +2,7 @@
 
 > **Syfte:** Implementation-grade system design. Styr frontend ownership, API-gränser, dataflöde och migration.
 >
-> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt + beteende)
+> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) (hårda gränser) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) (fasplan)
 >
 > **Senast uppdaterad:** 2026-06-10
 
@@ -444,10 +444,13 @@ if (!hall) hideFamilyTab();
 
 - [x] Universe modularized (`child-skatt-house.js` + rooms)
 - [x] Today focus header (`child-today-focus.js`)
-- [ ] Extract `TaskList` from `child-dashboard.js` → `child-today-tasks.js`
-- [ ] Add `RewardTeaser` per task (`+N ⭐`)
-- [ ] Hide header progress ring on Today
-- [ ] Cap visible tasks to 3–5 (quest log mode)
+- [x] Extract `TaskList` hooks → `child-today-tasks.js`
+- [x] Add `RewardTeaser` per task (`+N ⭐`)
+- [x] Hide header progress ring on Today
+- [x] Cap visible tasks to 5 (quest log mode)
+- [x] Event bus (`child-event-bus.js`) + `ActivityCompletedEvent`
+- [x] Layer router (`child-layer-router.js`) + `/today` `/universe` `/family`
+- [x] Family shell V0 (`child-family-hall.js`, flag `familjehallen_v0`)
 - [ ] 5-second user test
 
 ### Phase 2 — Family read-only

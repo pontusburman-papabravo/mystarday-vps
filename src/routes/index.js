@@ -127,6 +127,11 @@ function registerRoutes(app) {
       res.sendFile(join(__dirname, '../../public', `${page}.html`));
     });
   }
+
+  // 3-layer child app routes (hash-scoped layers on child-dashboard)
+  app.get('/today', (req, res) => res.redirect(302, '/child-dashboard#today'));
+  app.get('/universe', (req, res) => res.redirect(302, '/child-dashboard#universe'));
+  app.get('/family', (req, res) => res.redirect(302, '/child-dashboard#family'));
   app.get('/family-week', (req, res) => res.redirect(301, '/schedule?view=family'));
 
   app.get('/admin', (req, res) => {
