@@ -2,6 +2,8 @@
 
 > **Syfte:** Teamreferens för design, backend och test. Styr var funktioner *bor*, inte bara var de *finns*.
 >
+> **Engineering:** [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) — React-träd, API, stores, migration.
+>
 > **Senast uppdaterad:** 2026-06-10 · **Branch:** `main`
 
 ---
