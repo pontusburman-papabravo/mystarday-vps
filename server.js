@@ -19,6 +19,10 @@ const {
   startActivationEmailScheduler,
   stopActivationEmailScheduler,
 } = require('./src/lib/activation-program-email-scheduler');
+const {
+  startActivationPushScheduler,
+  stopActivationPushScheduler,
+} = require('./src/lib/activation-program-scheduler');
 const { pool } = require('./src/lib/db');
 const checkMaintenanceMode = require('./src/middleware/maintenance');
 const { blockImpersonationWrites } = require('./src/middleware/impersonation');
@@ -174,13 +178,14 @@ const server = app.listen(port, () => {
   startPushReminderScheduler();
   startWinBackScheduler();
   startActivationEmailScheduler();
+  startActivationPushScheduler();
 });
 
 // ─── Graceful termination (#17) ───────────────────────────
 // Render sends SIGTERM on deploy — stop timers, drain pool, then exit.
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

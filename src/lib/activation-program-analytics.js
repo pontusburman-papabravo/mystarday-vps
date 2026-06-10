@@ -77,6 +77,14 @@ function trackEmailInviteClicked(familyId, parentId) {
   });
 }
 
+function trackPushSent(familyId, day) {
+  track(familyId, 'activation_program_push_sent', { day });
+}
+
+function trackPushClicked(familyId, day) {
+  track(familyId, 'activation_program_push_clicked', { day });
+}
+
 module.exports = {
   trackFirstBannerSeen,
   trackCtaClicked,
@@ -90,4 +98,6 @@ module.exports = {
   trackEnrollChoice,
   trackEmailInviteSent,
   trackEmailInviteClicked,
+  trackPushSent,
+  trackPushClicked,
 };

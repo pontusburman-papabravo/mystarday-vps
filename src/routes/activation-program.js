@@ -481,6 +481,30 @@ router.post('/reflection', async (req, res) => {
   }
 });
 
+router.post('/push-clicked', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.json({ ok: true });
+    }
+
+    const day = parseInt(req.body?.day, 10);
+    if (!Number.isFinite(day) || day < 2 || day > 7) {
+      return res.status(400).json({ error: 'Ogiltig dag' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.json({ ok: true });
+    }
+
+    programAnalytics.trackPushClicked(req.user.familyId, day);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] push-clicked error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 router.post('/cta-clicked', async (req, res) => {
   try {
     if (!isFeatureActive()) {

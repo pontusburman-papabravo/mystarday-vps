@@ -185,6 +185,45 @@ async function getFamilyTimezone(familyId, client = db) {
   return result.rows[0]?.timezone || 'Europe/Stockholm';
 }
 
+/**
+ * Active treatment programs for push scheduler (invariant #6 — control excluded).
+ */
+async function listActiveTreatmentPrograms(client = db) {
+  const result = await client.query(
+    `SELECT pap.*,
+            COALESCE(f.timezone, 'Europe/Stockholm') AS family_timezone,
+            (
+              SELECT c.name FROM child c
+              WHERE c.family_id = pap.family_id
+              ORDER BY c.sort_order ASC NULLS LAST, c.created_at ASC
+              LIMIT 1
+            ) AS child_name
+     FROM parent_activation_program pap
+     JOIN family f ON f.id = pap.family_id
+     WHERE pap.status = 'active'
+       AND pap.cohort_arm = 'treatment'`
+  );
+  return result.rows;
+}
+
+function wasPushSentForDay(program, effectiveDay) {
+  const sent = program.push_sent_days || {};
+  return Boolean(sent[String(effectiveDay)]);
+}
+
+async function markPushSent(programId, effectiveDay, client = db) {
+  const key = String(effectiveDay);
+  const result = await client.query(
+    `UPDATE parent_activation_program
+     SET push_sent_days = COALESCE(push_sent_days, '{}'::jsonb) || jsonb_build_object($2::text, to_jsonb(NOW()::text)),
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [programId, key]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   VALID_STATUSES,
   VALID_COHORT_ARMS,
@@ -198,4 +237,7 @@ module.exports = {
   setFirstBannerSeenAt,
   updateDayStatus,
   getFamilyTimezone,
+  listActiveTreatmentPrograms,
+  wasPushSentForDay,
+  markPushSent,
 };

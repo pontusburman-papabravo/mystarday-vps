@@ -215,9 +215,32 @@
     }
   }
 
+  async function trackPushClickFromUrl() {
+    if (typeof window.apiFetch !== 'function') return;
+    const params = new URLSearchParams(window.location.search);
+    const day = parseInt(params.get('ap_push'), 10);
+    if (!Number.isFinite(day) || day < 2 || day > 7) return;
+
+    params.delete('ap_push');
+    const qs = params.toString();
+    const cleanUrl = window.location.pathname + (qs ? `?${qs}` : '');
+    window.history.replaceState({}, '', cleanUrl);
+
+    try {
+      await window.apiFetch('/api/me/activation-program/push-clicked', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day }),
+      });
+    } catch (_) {
+      // Non-critical
+    }
+  }
+
   async function init() {
+    await trackPushClickFromUrl();
     await load();
   }
 
-  window.ActivationProgramBanner = { init, load };
+  window.ActivationProgramBanner = { init, load, trackPushClickFromUrl };
 })();

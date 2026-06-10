@@ -60,4 +60,32 @@ function getDayContent(effectiveDay, ctx = {}) {
   return days[effectiveDay] || days[7];
 }
 
-module.exports = { getDayContent };
+/**
+ * Push copy for days 2–7 (spec §4). Day 1 has no push.
+ * @returns {{ title: string, body: string, url: string } | null}
+ */
+function getPushContent(effectiveDay, ctx = {}) {
+  if (effectiveDay < 2 || effectiveDay > 7) return null;
+
+  const childName = ctx.childName || 'barnet';
+  const dayContent = getDayContent(effectiveDay, ctx);
+  const bodies = {
+    2: `God morgon! Kolla ${childName}s schema — tar 30 sek 🌅`,
+    3: `Har ${childName} fått en stjärna idag? Fira tillsammans ⭐`,
+    4: 'Något som känns fel? Byt ut en aktivitet ✏️',
+    5: `Kolla Skattkammaren — vad drömmer ${childName} om? 🎁`,
+    6: 'Vill du dela ansvaret med någon? 👥',
+    7: 'Grattis! Hur har veckan varit?',
+  };
+
+  const baseUrl = dayContent.cta_url || '/dashboard';
+  const separator = baseUrl.includes('?') ? '&' : '?';
+
+  return {
+    title: 'Min Stjärndag',
+    body: bodies[effectiveDay],
+    url: `${baseUrl}${separator}ap_push=${effectiveDay}`,
+  };
+}
+
+module.exports = { getDayContent, getPushContent };
