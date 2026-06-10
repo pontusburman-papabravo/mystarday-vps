@@ -33,6 +33,7 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
+  <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/pwa-install.js?v=2.12.0"></script>
@@ -139,27 +140,27 @@
     <main class="flex-1 flex flex-col">
       <div class="hidden md:flex bg-sky border-b border-lavender p-4 md:p-6 justify-between items-center">
         <div>
-          <h2 class="text-xl font-heading font-bold text-navy">⚙️ Familjen &amp; inställningar</h2>
-          <p id="todayLabel" class="text-sm text-text-soft"></p>
+          <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 Familjen</h2>
+          <p id="familySummary" class="text-sm text-text-soft mt-0.5"></p>
+          <p id="todayLabel" class="text-sm text-text-soft hidden"></p>
         </div>
         <span id="userEmail" class="text-sm text-text-soft"></span>
       </div>
 
       <div class="flex-1 p-4 md:p-8 overflow-auto space-y-8">
 
-        <!-- Tips section -->
-        <div class="bg-sky border border-lavender rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">💡</span>
-            <span class="font-semibold text-navy text-sm">Tips: Familjen &amp; inställningar</span>
+        <!-- Tips section (collapsed by default) -->
+        <details class="warm-tips">
+          <summary class="warm-tips-summary">💡 Tips för familjen</summary>
+          <div class="warm-tips-body">
+            <ul class="space-y-1.5">
+              <li>• Bjud in en medförälder via "Bjud in förälder"</li>
+              <li>• Ställ in morgon-, dag- och kvällstider för hela familjen</li>
+              <li>• Varje barn har egen PIN och emoji i barnvyn</li>
+              <li>• Välj vilka belöningar som gäller per barn</li>
+            </ul>
           </div>
-          <ul class="text-xs text-text-soft space-y-1.5">
-            <li>• Bjud in din partner eller medförälder via "Lägg till vuxen"</li>
-            <li>• Ställ in section-tider (morgon/dag/kväll) som gäller för hela familjen</li>
-            <li>• Varje barn har sin egen PIN-kod och emoji för barnvyn</li>
-            <li>• Aktivera/inaktivera belöningar per barn i barnets inställningar</li>
-          </ul>
-        </div>
+        </details>
 
         <!-- ─── Family Info Section ─────────────────────────── -->
         <section id="familyInfoSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden">
@@ -188,7 +189,7 @@
             <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
             <button onclick="document.getElementById('addChildModal').classList.remove('hidden')"
               class="px-3 py-1.5 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">
-              + Lägg till barn
+              ➕ Lägg till ett barn
             </button>
           </div>
 
@@ -205,7 +206,7 @@
             <p class="text-text-soft text-sm mb-6">Lägg till ditt första barn för att komma igång!</p>
             <button onclick="document.getElementById('addChildModal').classList.remove('hidden')"
               class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
-              + Lägg till barn
+              ➕ Lägg till ett barn
             </button>
           </div>
         </section>

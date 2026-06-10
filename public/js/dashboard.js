@@ -1100,7 +1100,7 @@ function renderDashboardCards() {
           <!-- Name + progress highlights -->
           <div class="flex-1 min-w-0" style="min-width:60px;">
             <div class="flex items-center gap-1.5 mb-0.5">
-              <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">${escHtml(name)}</h4>
+              <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">🌟 ${escHtml(name)}</h4>
               ${allDone ? '<span class="text-base" title="Alla klara!">🌟</span>' : ''}
               ${isPaused ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-200">PAUSAD</span>' : ''}
             </div>

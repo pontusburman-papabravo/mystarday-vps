@@ -12,7 +12,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Översikt - Min Stjärndag</title>
+  <title>Hem - Min Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -568,7 +568,7 @@
     <main class="flex-1 flex flex-col min-w-0">
       <div class="bg-sky border-b border-lavender p-4 md:p-6">
         <div class="flex justify-between items-center mb-3">
-          <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy">🌟 Dagens framsteg</h2>
+          <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy">🌟 Familjens framsteg idag</h2>
           <div class="flex items-center gap-3">
             <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">← Alla barn</button>
           </div>
@@ -661,11 +661,7 @@
         <!-- Dashboard: child cards side-by-side + weekly overview -->
         <div id="childrenListView">
           <!-- Header -->
-          <div class="mb-5 flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h3 id="dashboardSectionTitle" class="text-lg font-heading font-bold text-navy mb-0.5">Hej!</h3>
-              <p id="dashboardSectionSub" class="text-xs text-text-soft">Klicka på ett barn för mer · Veckans stjärnor nedan</p>
-            </div>
+          <div class="mb-5 flex items-center justify-end flex-wrap gap-3">
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
@@ -681,7 +677,7 @@
           <!-- Star history chart (replaces weekly overview) -->
           <div id="starHistorySection" class="hidden">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-lg font-heading font-bold text-navy">⭐ Veckans stjärnor</h3>
+              <h3 class="text-lg font-heading font-bold text-navy">⭐ Veckans framsteg</h3>
               <span class="text-xs text-text-soft font-semibold">Senaste 8 veckorna</span>
             </div>
             <div id="starHistoryStory" class="hidden"></div>

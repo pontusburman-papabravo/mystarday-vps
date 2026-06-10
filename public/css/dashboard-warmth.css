@@ -102,6 +102,35 @@
   font-weight: 600;
   margin-top: 2px;
 }
+.dash-stat-reward-primary {
+  color: #7C3AED;
+  font-weight: 700;
+}
+
+/* ── Collapsible tips (library, schedule, family) ── */
+.warm-tips {
+  border: 1px solid #EDE7F6;
+  border-radius: 16px;
+  background: #F0F9FF;
+  overflow: hidden;
+}
+.warm-tips-summary {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1B2340;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.warm-tips-summary::-webkit-details-marker { display: none; }
+.warm-tips[open] .warm-tips-summary { border-bottom: 1px solid #EDE7F6; }
+.warm-tips-body {
+  padding: 12px 16px 14px;
+  font-size: 12px;
+  color: #5A6178;
+}
+.warm-tips-body li { margin-bottom: 6px; }
 
 /* ── Weekly story (above chart) ── */
 .dash-week-story-inner {

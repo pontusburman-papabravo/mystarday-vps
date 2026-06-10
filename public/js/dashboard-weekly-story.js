@@ -85,8 +85,7 @@
     storyEl.innerHTML =
       '<div class="dash-week-story-inner">' +
         '<div class="dash-week-main">' +
-          '<span class="dash-week-label">Den här veckan</span>' +
-          '<span class="dash-week-total">' + story.thisWeekTotal + ' ⭐</span>' +
+          '<span class="dash-week-total">' + story.thisWeekTotal + ' ⭐ denna vecka</span>' +
         '</div>' +
         (story.diffHtml ? '<div class="dash-week-meta">' + story.diffHtml + '</div>' : '') +
         bestHtml +

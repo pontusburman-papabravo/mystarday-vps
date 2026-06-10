@@ -377,6 +377,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadScheduleForDay();
       }
     }
+  } else if (children.length === 1 && preSelectView !== 'family') {
+    await selectChild(children[0].id);
   }
 
   // Auto-adjust end time when start time changes to after current end time
@@ -466,6 +468,29 @@ function sectionTimeLabel(key) {
 }
 
 // ── Children overview ────────────────────────────────────
+function capScheduleChildName(name) {
+  if (!name) return '';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function buildScheduleChildSubtitle(ad, totalActivities) {
+  if (ad === 0) return 'Inget schema ännu — börja planera veckan';
+  if (ad >= 7) {
+    if (totalActivities > 0) return `${totalActivities} planerade aktiviteter · alla dagar klara ✅`;
+    return 'Schema för hela veckan ✅';
+  }
+  if (totalActivities > 0) return `${totalActivities} planerade aktiviteter denna vecka`;
+  return `${ad} av 7 dagar planerade`;
+}
+
+function updateSchedulePageTitle(child) {
+  const el = document.getElementById('schedulePageTitle');
+  if (!el) return;
+  el.textContent = child
+    ? `📅 ${capScheduleChildName(child.name)}s schema`
+    : '📅 Veckoplanering';
+}
+
 async function loadChildren() {
   const res = await window.apiFetch('/api/children');
   if (res.ok) {
@@ -516,6 +541,9 @@ async function renderChildrenOverview() {
     const schedules = sm[child.id] || [];
     const dayItems = childDayItems[child.id] || {};
     const ad = schedules.filter(s=>s.day_of_week!==undefined).length;
+    let totalActivities = 0;
+    for (const d of [1, 2, 3, 4, 5, 6, 0]) totalActivities += (dayItems[d] || []).length;
+    const subtitle = buildScheduleChildSubtitle(ad, totalActivities);
 
     // Build day-by-day schedule summary with activity names
     const daySummaryHtml = [1,2,3,4,5,6,0].map(d => {
@@ -528,11 +556,12 @@ async function renderChildrenOverview() {
         </div>`
       ).join('');
       const moreHtml = items.length > 6 ? `<div class="text-[10px] text-lavender hover:text-gold ml-5 cursor-pointer transition-colors" title="Visa alla ${items.length - 6} aktiviteter">Visa alla (${items.length - 6})</div>` : '';
+      const actLabel = items.length === 1 ? '1 aktivitet' : `${items.length} aktiviteter`;
       return `<div class="border border-gray-100 rounded-xl p-2.5 bg-gray-50/50">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="inline-block w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
-          <span class="text-xs font-bold text-navy">${DAYS_SHORT[d]}</span>
-          <span class="text-[10px] text-text-soft ml-auto">${items.length} st</span>
+          <span class="text-xs font-bold text-navy">${DAYS[d]}</span>
+          <span class="text-[10px] text-text-soft ml-auto">${actLabel}</span>
         </div>
         ${actList}${moreHtml}
       </div>`;
@@ -543,13 +572,13 @@ async function renderChildrenOverview() {
     return `<div class="child-card border-2 border-lavender rounded-2xl p-5 bg-white hover:border-gold">
       <div class="flex items-start justify-between mb-3 cursor-pointer" onclick="selectChild('${child.id}')">
         <div class="flex items-center gap-3"><span class="text-4xl">${renderChildAvatar(child, 40)}</span>
-          <div><h4 class="font-heading font-bold text-navy text-lg">${escHtml(child.name)}</h4><p class="text-sm text-text-soft">${hasDays?`${ad} dag(ar) med schema`:'Inget schema ännu'}</p></div>
+          <div><h4 class="font-heading font-bold text-navy text-lg">🌟 ${escHtml(capScheduleChildName(child.name))}</h4><p class="text-sm text-text-soft">${subtitle}</p></div>
         </div><span class="text-gold text-sm font-semibold">→</span>
       </div>
       ${hasDays ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">${daySummaryHtml}</div>` : ''}
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <button onclick="event.stopPropagation(); window.location.href='/family?child=${child.id}&tab=rewards'" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">🏆 Belöningar</button>
-        <button onclick="selectChild('${child.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm">Redigera schema →</button>
+        <button onclick="selectChild('${child.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm">✏️ Redigera schema →</button>
       </div>
     </div>`;
   }).join('');
@@ -572,6 +601,7 @@ async function selectChild(id) {
     document.getElementById('calNavBar').classList.remove('hidden');
     // Show rewards button in editor header with child name
     const child = children.find(c => c.id === id);
+    updateSchedulePageTitle(child);
     const editorRewardsBtn = document.getElementById('editorRewardsBtn');
     if (editorRewardsBtn) {
       editorRewardsBtn.classList.remove('hidden');
@@ -613,6 +643,7 @@ function backToChildrenList() {
   // Reset mode toggle button to generic label
   const singleBtn = document.getElementById('btnModeSingle');
   if (singleBtn) singleBtn.textContent = '👤 Mitt barn';
+  updateSchedulePageTitle(null);
 }
 
 function openRewardsForCurrentChild() {

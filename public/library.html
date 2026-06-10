@@ -11,7 +11,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Mitt bibliotek - Min Stjärndag</title>
+  <title>Bibliotek - Min Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -33,6 +33,7 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
@@ -313,8 +314,8 @@
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center">
         <div>
-          <h2 class="text-xl font-heading font-bold text-navy">📚 Mitt bibliotek</h2>
-          <p class="text-sm text-text-soft mt-0.5">Schema, aktiviteter, belöningar och standardbibliotek</p>
+          <h2 class="text-xl font-heading font-bold text-navy">📚 Aktiviteter &amp; belöningar</h2>
+          <p class="text-sm text-text-soft mt-0.5">Skapa aktiviteter och belöningar som passar era barn</p>
         </div>
       </div>
 
@@ -323,19 +324,18 @@
         <!-- Toast -->
         <div id="toast" class="hidden fixed top-4 right-4 z-50 bg-navy text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs"></div>
 
-        <!-- Tips section -->
-        <div class="bg-sky border border-lavender rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">💡</span>
-            <span class="font-semibold text-navy text-sm">Tips: Bibliotek</span>
+        <!-- Tips section (collapsed by default) -->
+        <details class="warm-tips">
+          <summary class="warm-tips-summary">💡 Tips för biblioteket</summary>
+          <div class="warm-tips-body">
+            <ul class="space-y-1.5">
+              <li>• Skapa aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
+              <li>• Kopiera från standardbiblioteket och anpassa för er familj</li>
+              <li>• Belöningar blir mål barnet strävar mot i sin vy</li>
+              <li>• Välj vilka barn som ser varje belöning</li>
+            </ul>
           </div>
-          <ul class="text-xs text-text-soft space-y-1.5">
-            <li>• Skapa aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
-            <li>• Kopiera aktiviteter från standardbiblioteket och anpassa dem för din familj</li>
-            <li>• Belöningar sparas som mål — barnet ser sin progress i sin vy</li>
-            <li>• Aktivera/inaktivera belöningar för specifika barn i barnvyn</li>
-          </ul>
-        </div>
+        </details>
 
         <!-- ── Main Tab Bar (Schema / Aktiviteter / Belöningar / Standardbibliotek) ─── -->
         <!-- Skattkammaren removed from tabs — accessible only via sidebar menu -->
@@ -368,10 +368,10 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">👧 Barnens scheman</h3>
-                <p class="text-sm text-text-soft mt-0.5">Varje barn har sitt eget veckoschema — klicka för att redigera</p>
+                <p class="text-sm text-text-soft mt-0.5">Välj vilket schema du vill ändra</p>
               </div>
               <a href="/schedule" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
-                📅 Schemaredigeraren
+                ✏️ Redigera schema
               </a>
             </div>
             <div id="schemaChildrenList" class="space-y-3">
@@ -557,8 +557,8 @@
           <section>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
               <div>
-                <h3 class="text-lg font-heading font-bold text-navy">Belöningsbibliotek</h3>
-                <p class="text-sm text-text-soft mt-0.5">Alla belöningar tillgängliga i familjen</p>
+                <h3 class="text-lg font-heading font-bold text-navy">🎁 Mål att jobba mot</h3>
+                <p class="text-sm text-text-soft mt-0.5">Belöningar barnen kan sträva mot med sina stjärnor</p>
               </div>
               <button onclick="openRewardModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
                 + Ny belöning
