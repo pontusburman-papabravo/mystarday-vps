@@ -6,6 +6,8 @@ Implementera aldrig mer än en fas åt gången.
 
 Begär alltid plan innan kod skrivs.
 
+**Inget till användare förrän produktägare säger go live** — se [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt).
+
 **Relaterat:** [Implementation contract](./foraldaraktivering-implementation-contract.md) · [Invariants](./activation-program-invariants.md) · [Spec](./foraldaraktivering-7-dagar-spec.md)
 
 ---
@@ -108,6 +110,29 @@ activation_program_enroll_choice
 Klart när:
 
 nya familjer kan välja "Ja, hjälp oss första veckan" eller "Vi kör själva".
+
+**Inte live för användare** — fortsatt `ACTIVATION_PROGRAM_ENABLED=false` i prod tills § Go live.
+
+---
+
+# Go live (sista steg — efter Fas 4)
+
+Mål:
+
+Aktivera för riktiga användare — **endast på produktägares uttryckliga godkännande**.
+
+Gör:
+
+- Verifiera checklista i [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt)
+- Sätt `ACTIVATION_PROGRAM_LAUNCH_AT` (fryses permanent efter första enroll)
+- Sätt `ACTIVATION_PROGRAM_ENABLED=true` i prod
+- Deploy
+
+Klart när:
+
+produktägare bekräftat go live och första nya familj kan se onboarding-valet.
+
+**Implementation ska aldrig aktivera prod-flaggor utan PO-beslut.**
 
 ---
 

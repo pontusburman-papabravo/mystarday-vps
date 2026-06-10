@@ -101,3 +101,11 @@ Ingen negativ copy.
 ## 15
 
 MVP får endast skapa onboarding_7d.
+
+---
+
+## 16
+
+Inget användarsynligt förrän produktägare säger go live.
+
+`ACTIVATION_PROGRAM_ENABLED=false` och/eller saknad `ACTIVATION_PROGRAM_LAUNCH_AT` = ingen påverkan i prod.

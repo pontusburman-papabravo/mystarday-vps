@@ -1,6 +1,6 @@
 # Föräldraaktivering 7D — Implementation Contract
 
-Version: MVP v1.1
+Version: MVP v1.2
 
 Syfte:
 Detta dokument är den tekniska sanningen för implementationen.
@@ -359,13 +359,58 @@ Före launch: ingen val-skärm, ingen programrad (befintligt beteende).
 
 ---
 
+# Go live (sista steg — obligatoriskt)
+
+**Inget av detta får nå användare förrän produktägare uttryckligen säger till.**
+
+Kod i `main`, migrerad databas och mergade PR:er räknas **inte** som live. Användare ska inte se onboarding-val, banner, modal eller enrollment förrän hela checklistan nedan är uppfylld.
+
+## Dubbel grind (båda krävs)
+
+| Grind | Prod-värde före go-live | Effekt |
+|-------|-------------------------|--------|
+| `ACTIVATION_PROGRAM_ENABLED` | `false` (eller ej satt) | All programlogik och UI är av — även om kod finns deployad |
+| `ACTIVATION_PROGRAM_LAUNCH_AT` | Ej satt / framtida ISO 8601 UTC | Ingen enroll, ingen val-skärm |
+
+Implementation ska **alltid** kontrollera båda innan något användarsynligt eller enroll-relaterat körs.
+
+## Go-live-checklista (körs en gång)
+
+Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter**:
+
+- [ ] Fas 1–4 implementerade och verifierade (staging + intern testfamilj)
+- [ ] Minst ett komplett flöde observerat: val → banner → completion → ev. modal
+- [ ] Analytics-kedja verifierad i prod-lik miljö
+- [ ] `ACTIVATION_PROGRAM_LAUNCH_AT` satt till avsiktligt tidpunkt (ändras **aldrig** efter första riktiga enroll — invariant #13)
+- [ ] `ACTIVATION_PROGRAM_ENABLED=true` i prod
+- [ ] Deploy genomförd **efter** env-vars ovan
+
+## Före go-live (tillåtet)
+
+- Dokumentation i repo
+- Migrationer körda (tomma tabeller påverkar inte UX)
+- Kod mergad bakom feature flag (`ENABLED=false`)
+- Intern test med flagga på staging / testkonton
+
+## Efter go-live (förbjudet utan ny PO-beslut)
+
+- Ändra `ACTIVATION_PROGRAM_LAUNCH_AT`
+- Tvinga enroll utan val-skärm
+- Retroaktiv enroll av befintliga familjer
+
+## Roll
+
+| Roll | Ansvar |
+|------|--------|
+| **Produktägare** | Enda som kan säga go live |
+| **Implementation** | Bygger Fas 1–4 med flaggor av; aktiverar inte prod själv |
+
+---
+
 # Success
 
-Implementation anses klar när:
+**Tekniskt klar** när Fas 1–4 uppfyller acceptanskriterierna.
 
-- Fas 1
-- Fas 2
-- Fas 3
-- Fas 4
+**Produktionslive** när § Go live-checklistan är avbockad och produktägare godkänt.
 
-uppfyller acceptanskriterierna.
+Dessa är **två separata tillstånd**. Tekniskt klar ≠ användare ser funktionen.

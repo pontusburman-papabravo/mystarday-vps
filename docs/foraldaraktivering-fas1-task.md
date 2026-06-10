@@ -164,7 +164,7 @@ Kör: `node --test test/activation-program.test.js`
 4. `assignCohortArm()` deterministisk + smoke-test-logik (§13.2)
 5. Alla DST-tester gröna
 6. `db/parent-activation-program.js` med CRUD: create, getByFamily, updateStatus, updateLastSeenDay
-7. Ingen prod-deploy med `ACTIVATION_PROGRAM_ENABLED=true` (vänta Fas 4)
+7. Ingen prod-deploy med `ACTIVATION_PROGRAM_ENABLED=true` (vänta **Go live** — produktägare säger till; se contract § Go live)
 
 ---
 
