@@ -91,21 +91,23 @@ hela dag 1–7 kan visas.
 
 Mål:
 
-Enrollment.
+Enrollment via föräldraval.
 
 Implementera:
 
-onboarding hook
+onboarding-val-skärm (copy i contract § Onboarding-val)
+
+onboarding hook (guided → enroll, direct → ingen rad)
 
 feature flags
 
 launch cutoff
 
-control-arm
+activation_program_enroll_choice
 
 Klart när:
 
-nya familjer enrollas automatiskt.
+nya familjer kan välja "Ja, hjälp oss första veckan" eller "Vi kör själva".
 
 ---
 
