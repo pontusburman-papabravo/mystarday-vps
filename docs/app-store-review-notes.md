@@ -1,7 +1,7 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-05-29 | SW v155
+> Last updated: 2026-06-08 | SW v222
 
 ---
 
@@ -11,10 +11,11 @@
 
 Key features:
 - Parent dashboard with weekly schedule builder
-- Child view (PIN-protected, t.ex. `4455`) with star rewards
+- Child view (PIN-protected, e.g. `4455`) with three focused tabs: **Idag**, **Skattkammaren**, **Familj**
 - Push notifications for schedule reminders
 - Apple Sign In for parents
 - Skattkammaren (reward redemption system)
+- Familjehallen (family projects and shared story — read-only for children in V0)
 - Swedish + English language support
 
 ---
@@ -29,22 +30,39 @@ Please use our dedicated App Store review test account:
 | **Parent password** | `AppReview2026!` |
 | **Child name** | Anna |
 | **Child PIN** | `4455` |
-| **App URL** | https://stjarndag.polsia.app |
+| **App URL** | https://mystarday.se |
 
-**Note:** This account is pre-seeded in our database and is not connected to any real family's data. It contains only fictional review content.
+**Note:** This account is pre-seeded in our database and is not connected to any real family's data. It contains only fictional review content. The account has **lifetime free** access — no subscription or payment is required to test.
 
 ---
 
 ## How to Test the Full Flow (No Own Account Needed)
 
-1. **Open the app** on a simulator or test device
+### Parent mode
+
+1. **Open the app** on a physical device (recommended) or simulator
 2. **Log in** with `review@mystarday.se` / `AppReview2026!`
-3. **View the parent dashboard** — shows "Review Family" with one child profile
-4. **Switch to child view** — tap the child's card → enter PIN `4455`
-5. **Complete an activity** — tap an activity to mark it done and earn a star
-6. **Return to parent view** — tap "Byt tillbaka till föräldraläge" → enter PIN `4455`
-7. **Open Skattkammaren** (treasure chamber) from the hamburger menu — shows available rewards and redemption history
-8. **Test settings** — go to Inställningar → Integritetspolicy and Användarvillkor (Terms of Service)
+3. **View the parent dashboard** — shows the review family with one child profile (**Anna**)
+
+### Switch to child view
+
+4. From the dashboard, tap **"Barnet loggar in"** (or go to child login), then select **Anna**
+5. **Enter child PIN** `4455` on the numeric keypad
+6. You are now in the **child view** with three bottom tabs:
+
+| Tab | Purpose |
+|-----|---------|
+| **☀️ Idag** | Today's schedule — tap activities to mark them complete and earn stars |
+| **💎 Skattkammaren** | Rewards, star balance, and treasure-chamber rooms |
+| **🏡 Familj** | Family hall — shared projects and family story (may be empty if no projects exist) |
+
+### Core loop to verify
+
+7. On **Idag**, tap an activity to mark it done — star count increases
+8. Switch to **Skattkammaren** — view rewards and star balance
+9. Switch to **Familj** — family hall loads (empty state is OK)
+10. **Return to parent view** — tap **"Jag är vuxen"** → enter PIN `4455` (or parent PIN if set)
+11. **Test settings** — Inställningar → Integritetspolicy and Användarvillkor (Terms of Service)
 
 ---
 
@@ -52,7 +70,7 @@ Please use our dedicated App Store review test account:
 
 - **PIN:** `4455`
 - **Child name:** Anna (🌟)
-- **Purpose:** Demonstrates the PIN-gated child view feature. The reviewer can enter this PIN at any prompt to switch between parent and child modes.
+- **Purpose:** Demonstrates the PIN-gated child view. Use this PIN when switching between parent and child modes.
 
 ---
 
@@ -75,21 +93,24 @@ Min Stjärndag has **two independent PIN systems**:
 | Field | Value |
 |-------|-------|
 | Bundle ID | `com.mystarday.app` |
-| Current SW version | v155 |
+| Production URL | https://mystarday.se |
+| Current SW version | v222 |
 | Push notifications | Enabled via APNs (production + sandbox) |
 | Sign in with Apple | Enabled |
 | Rate limits | 100 req/min on auth endpoints |
-| Test account family ID | Pre-seeded, no setup required |
+| Test account | Pre-seeded, lifetime free, no setup required |
 
 ---
 
 ## Notes for the Reviewer
 
+- The native iOS app loads **https://mystarday.se** in a Capacitor shell (remote URL, not a bundled offline copy). A network connection is required for the first load.
+- The child view uses a **3-tab bottom navigation**: Idag · Skattkammaren · Familj. Skattkammaren is no longer in the parent hamburger menu when testing as a child.
 - The app works in both Swedish (default) and English. You can switch language in the parent's settings.
-- Push notifications are sent via APNs. If you are testing on a simulator, push notifications cannot be received — this is an iOS limitation, not a bug. On a physical device they work correctly.
+- Push notifications are sent via APNs. Simulators cannot receive push — this is an iOS limitation. On a physical device they work correctly.
 - Apple Sign In requires a real Apple ID and cannot be tested on the simulator. Please test on a physical device.
 - The review test account has no payment information and no real personal data. All content is fictional.
-- If you need to reset the test data at any point, contact us at `support@mystarday.se` and reference this review build.
+- If you need to reset the test data, contact us at `support@mystarday.se` and reference this review build.
 
 ---
 
@@ -99,8 +120,8 @@ Min Stjärndag has **two independent PIN systems**:
 - Passwords are hashed with scrypt (OWASP parameters N=16384, r=8, p=1)
 - Push notification tokens are stored securely and can be deleted on request
 - GDPR: users can export or delete their data via Settings → Radera konto
-- Privacy Policy: https://stjarndag.polsia.app/privacy
-- Terms of Service: https://stjarndag.polsia.app/terms
+- Privacy Policy: https://mystarday.se/privacy
+- Terms of Service: https://mystarday.se/terms
 
 ---
 
