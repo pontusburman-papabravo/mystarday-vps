@@ -36,6 +36,7 @@ const emailLogRouter = require('./admin/email-log');
 const landingNewsRouter = require('./admin/landing-news');
 const migrationExportRouter = require('./admin/migration-export');
 const databaseExportRouter = require('./admin/database-export');
+const activationProgramRouter = require('./admin/activation-program');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -48,6 +49,7 @@ router.use(scheduleRouter);
 router.use(rewardRouter);
 router.use(systemRouter);
 router.use(analyticsRouter);
+router.use(activationProgramRouter);
 router.use('/welcome-email', welcomeEmailRouter);
 router.use('/email-templates', emailTemplatesRouter);
 router.use('/email-log', emailLogRouter);
