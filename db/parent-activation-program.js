@@ -96,16 +96,35 @@ async function getBannerProgramByFamily(familyId, client = db) {
   return result.rows[0] || null;
 }
 
-async function updateStatus(programId, status, client = db) {
+async function updateStatus(programId, status, extraOrClient = {}, clientMaybe = db) {
+  let extra = {};
+  let client = clientMaybe;
+  if (extraOrClient && typeof extraOrClient.query === 'function') {
+    client = extraOrClient;
+  } else if (extraOrClient && typeof extraOrClient === 'object') {
+    extra = extraOrClient;
+  }
+
   assertValidStatus(status);
-  const extra = {};
-  if (status === 'completed') extra.completed_at = 'NOW()';
-  if (status === 'opted_out') extra.opted_out_at = 'NOW()';
 
   const sets = ['status = $2', 'updated_at = NOW()'];
   const params = [programId, status];
-  if (extra.completed_at) sets.push('completed_at = NOW()');
-  if (extra.opted_out_at) sets.push('opted_out_at = NOW()');
+  let idx = 3;
+
+  if (status === 'completed') {
+    sets.push('completed_at = COALESCE(completed_at, NOW())');
+  }
+  if (status === 'opted_out') {
+    sets.push('opted_out_at = COALESCE(opted_out_at, NOW())');
+  }
+  if (extra.reflectionScore != null) {
+    sets.push(`reflection_score = $${idx++}`);
+    params.push(extra.reflectionScore);
+  }
+  if (extra.reflectionText !== undefined) {
+    sets.push(`reflection_text = $${idx++}`);
+    params.push(extra.reflectionText);
+  }
 
   const result = await client.query(
     `UPDATE parent_activation_program
@@ -140,6 +159,25 @@ async function setFirstBannerSeenAt(programId, client = db) {
   return result.rows[0] || null;
 }
 
+async function updateDayStatus(programId, dayStatus, client = db) {
+  const result = await client.query(
+    `UPDATE parent_activation_program
+     SET day_status = $2::jsonb, updated_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [programId, JSON.stringify(dayStatus)]
+  );
+  return result.rows[0] || null;
+}
+
+async function getFamilyTimezone(familyId, client = db) {
+  const result = await client.query(
+    `SELECT COALESCE(timezone, 'Europe/Stockholm') AS timezone FROM family WHERE id = $1`,
+    [familyId]
+  );
+  return result.rows[0]?.timezone || 'Europe/Stockholm';
+}
+
 module.exports = {
   VALID_STATUSES,
   VALID_COHORT_ARMS,
@@ -151,4 +189,6 @@ module.exports = {
   updateStatus,
   updateLastSeenDay,
   setFirstBannerSeenAt,
+  updateDayStatus,
+  getFamilyTimezone,
 };

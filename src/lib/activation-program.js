@@ -71,6 +71,43 @@ function isControlArm(program) {
   return program.cohort_arm === 'control';
 }
 
+/**
+ * Mark pending days before effectiveDay as missed (internal only — invariant #14).
+ */
+function rolloverDayStatus(dayStatus, effectiveDay) {
+  const next = { ...(dayStatus || {}) };
+  for (let d = 1; d < effectiveDay; d++) {
+    const key = String(d);
+    if (!next[key] || next[key] === 'pending') {
+      next[key] = 'missed';
+    }
+  }
+  const effKey = String(effectiveDay);
+  if (!next[effKey]) {
+    next[effKey] = 'pending';
+  }
+  return next;
+}
+
+function markDayDone(dayStatus, day, _trigger = 'manual') {
+  return { dayStatus: { ...(dayStatus || {}), [String(day)]: 'done' }, trigger: _trigger };
+}
+
+function isDayDone(dayStatus, day) {
+  return (dayStatus || {})[String(day)] === 'done';
+}
+
+/**
+ * Reflection window: calendar_day >= 7 until submitted or terminal status.
+ */
+function showReflection(program, timezone = DEFAULT_TIMEZONE) {
+  if (!program) return false;
+  if (program.status === 'completed' || program.status === 'opted_out') return false;
+  if (program.status === 'expired') return false;
+  if (program.reflection_score != null) return false;
+  return getCalendarDay(program, timezone) >= 7;
+}
+
 module.exports = {
   DEFAULT_TIMEZONE,
   DEFAULT_EXPIRY_DAY,
@@ -81,4 +118,8 @@ module.exports = {
   maybeExpireProgram,
   shouldShowBanner,
   isControlArm,
+  rolloverDayStatus,
+  markDayDone,
+  isDayDone,
+  showReflection,
 };

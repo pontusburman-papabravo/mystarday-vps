@@ -390,6 +390,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory(), loadTrialBanner()]);
+  if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
   showMedforalderCtaIfEligible();
   initDelaAppenCta();

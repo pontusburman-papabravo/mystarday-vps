@@ -26,6 +26,21 @@ async function hasSeen(parentId, dailyLogItemId, client = db) {
   return result.rows.length > 0;
 }
 
+async function hasChildCompletionSince(familyId, since, client = db) {
+  const result = await client.query(
+    `SELECT 1
+     FROM daily_log_item dli
+     JOIN daily_log dl ON dl.id = dli.daily_log_id
+     JOIN child c ON c.id = dl.child_id
+     WHERE c.family_id = $1
+       AND dli.completed = true
+       AND dli.completed_at >= $2
+     LIMIT 1`,
+    [familyId, since]
+  );
+  return result.rows.length > 0;
+}
+
 async function verifyFamilyItemAccess(parentId, familyId, dailyLogItemId, client = db) {
   const result = await client.query(
     `SELECT dli.id
@@ -43,5 +58,6 @@ async function verifyFamilyItemAccess(parentId, familyId, dailyLogItemId, client
 module.exports = {
   markSeen,
   hasSeen,
+  hasChildCompletionSince,
   verifyFamilyItemAccess,
 };

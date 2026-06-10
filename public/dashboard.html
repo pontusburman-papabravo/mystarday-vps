@@ -1390,6 +1390,7 @@
   <!-- SSE real-time sync -->
   <script src="/js/sse-client.js?v=2.12.0"></script>
   <script src="/js/activation-program-aha-card.js?v=1.0.0"></script>
+  <script src="/js/activation-program-banner.js?v=1.0.0"></script>
   <script src="/js/dashboard-banner.js?v=2.12.0"></script>
 
   <!-- Dagens nyhet in-app banner logic -->
@@ -1445,6 +1446,16 @@
       setTimeout(function () { window.refreshReportsActiveCount(); }, 500);
     });
   </script>
+
+  <style>
+    @keyframes activationDayAdvance {
+      from { opacity: 0.6; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .activation-day-advanced {
+      animation: activationDayAdvance 0.45s ease-out;
+    }
+  </style>
 
   <!-- ─── ACTIVATION PROGRAM AHA MODAL (Fas 2) ─────────────────────────────── -->
   <div id="activationAhaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9300] p-4">

@@ -1,13 +1,26 @@
 /**
- * Parent activation program — parent-facing API (Fas 2: aha / new-completions).
+ * Parent activation program API — banner (Fas 3), aha (Fas 2), reflection.
  */
 
 const express = require('express');
+const { DateTime } = require('luxon');
+const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const parentActivationProgram = require('../../db/parent-activation-program');
 const parentSeenCompletion = require('../../db/parent-seen-completion');
 const { isActivationProgramEnabled } = require('../lib/activation-program-enroll');
-const { shouldShowBanner } = require('../lib/activation-program');
+const {
+  getCalendarDay,
+  getEffectiveProgramDay,
+  maybeExpireProgram,
+  shouldShowBanner,
+  rolloverDayStatus,
+  markDayDone,
+  isDayDone,
+  showReflection,
+} = require('../lib/activation-program');
+const { getDayContent } = require('../lib/activation-program-content');
+const programAnalytics = require('../lib/activation-program-analytics');
 const {
   listUnseenCompletions,
   maybeTrackParentFirstCompletionSeen,
@@ -23,9 +36,352 @@ function isFeatureActive() {
   return isActivationProgramEnabled();
 }
 
+async function loadProgramContext(familyId) {
+  let program = await parentActivationProgram.getActiveByFamily(familyId);
+  if (!program) return null;
+
+  const timezone = await parentActivationProgram.getFamilyTimezone(familyId);
+  const expired = maybeExpireProgram(program, timezone);
+  if (expired.status === 'expired' && program.status === 'active') {
+    program = await parentActivationProgram.updateStatus(program.id, 'expired');
+  } else {
+    program = expired;
+  }
+
+  return { program, timezone };
+}
+
+async function getFirstChildPreview(familyId) {
+  const childResult = await db.query(
+    `SELECT id, name, emoji, avatar_url FROM child
+     WHERE family_id = $1
+     ORDER BY sort_order ASC, created_at ASC
+     LIMIT 1`,
+    [familyId]
+  );
+  const child = childResult.rows[0];
+  if (!child) return null;
+
+  const tz = await parentActivationProgram.getFamilyTimezone(familyId);
+  const today = DateTime.now().setZone(tz).toISODate();
+
+  const logResult = await db.query(
+    `SELECT dl.id FROM daily_log dl
+     WHERE dl.child_id = $1 AND dl.date = $2
+     LIMIT 1`,
+    [child.id, today]
+  );
+
+  let activities = [];
+  if (logResult.rows[0]) {
+    const items = await db.query(
+      `SELECT name, section, completed, star_value
+       FROM daily_log_item
+       WHERE daily_log_id = $1
+       ORDER BY sort_order ASC
+       LIMIT 4`,
+      [logResult.rows[0].id]
+    );
+    activities = items.rows;
+  }
+
+  return {
+    child_id: child.id,
+    child_name: child.name,
+    child_emoji: child.emoji,
+    child_avatar_url: child.avatar_url,
+    activities,
+  };
+}
+
+async function maybeMarkDay3Aha(familyId, program, timezone) {
+  const effectiveDay = getEffectiveProgramDay(program, timezone);
+  if (effectiveDay < 3 || isDayDone(program.day_status, 3)) return;
+
+  const dayStatus = markDayDone(program.day_status || {}, 3, 'aha').dayStatus;
+  await parentActivationProgram.updateDayStatus(program.id, dayStatus);
+  programAnalytics.trackDayDone(familyId, 3, 'aha', true);
+}
+
+async function buildProgramResponse(program, timezone, parentId, familyId, markBannerSeen) {
+  const calendarDay = getCalendarDay(program, timezone);
+  const effectiveDay = getEffectiveProgramDay(program, timezone);
+  let dayStatus = rolloverDayStatus(program.day_status || {}, effectiveDay);
+
+  const previewCtx = await getFirstChildPreview(familyId);
+  const childName = previewCtx?.child_name || 'barnet';
+  let content = getDayContent(effectiveDay, { childName });
+
+  const hasChildCompletion = await parentSeenCompletion.hasChildCompletionSince(
+    familyId,
+    program.started_at
+  );
+
+  if (effectiveDay >= 3 && !hasChildCompletion && content.supportive_fallback) {
+    content = {
+      ...content,
+      body: content.supportive_fallback,
+      is_supportive_fallback: true,
+    };
+    if (!isDayDone(dayStatus, 3) && !isDayDone(program.day_status || {}, 3)) {
+      dayStatus = markDayDone(dayStatus, 3, 'supportive_fallback').dayStatus;
+      programAnalytics.trackDayDone(familyId, 3, 'supportive_fallback', true);
+    }
+  }
+
+  const inReflectionWindow = showReflection(program, timezone);
+  if (inReflectionWindow) {
+    content = {
+      ...getDayContent(7, { childName }),
+      show_reflection: true,
+    };
+  }
+
+  const preview = effectiveDay === 1 ? previewCtx : null;
+
+  const dayAdvanced = effectiveDay > program.last_seen_day;
+  let firstBannerSeen = false;
+
+  if (markBannerSeen && program.cohort_arm === 'treatment') {
+    const updated = await parentActivationProgram.setFirstBannerSeenAt(program.id);
+    if (updated && !program.first_banner_seen_at) {
+      firstBannerSeen = true;
+      const hoursSinceEnroll = DateTime.fromJSDate(new Date(program.started_at), { zone: 'utc' })
+        .diffNow('hours')
+        .negate().hours;
+      programAnalytics.trackFirstBannerSeen(
+        familyId,
+        effectiveDay,
+        Math.round(hoursSinceEnroll * 10) / 10
+      );
+    }
+    if (dayAdvanced) {
+      await parentActivationProgram.updateLastSeenDay(program.id, effectiveDay);
+    }
+    if (JSON.stringify(dayStatus) !== JSON.stringify(program.day_status || {})) {
+      await parentActivationProgram.updateDayStatus(program.id, dayStatus);
+    }
+  }
+
+  return {
+    active: true,
+    cohort_arm: program.cohort_arm,
+    status: program.status,
+    program_type: program.program_type,
+    calendar_day: calendarDay,
+    effective_day: effectiveDay,
+    last_seen_day: program.last_seen_day,
+    day_advanced: dayAdvanced,
+    first_banner_seen: firstBannerSeen,
+    day_status: dayStatus,
+    content,
+    preview,
+    show_reflection: inReflectionWindow,
+    reflection_score: program.reflection_score,
+    reflection_text: program.reflection_text,
+  };
+}
+
 /**
- * GET /api/me/activation-program/new-completions
- * Treatment only (invariant #4, #6). Returns unseen completed items for celebratory modal.
+ * GET /api/me/activation-program
+ */
+router.get('/', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.json({ active: false });
+    }
+
+    const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.json({ active: false });
+    }
+
+    const ctx = await loadProgramContext(familyId);
+    if (!ctx || ctx.program.status !== 'active') {
+      return res.json({ active: false, status: ctx?.program?.status || null });
+    }
+
+    if (ctx.program.cohort_arm === 'control') {
+      return res.json({
+        active: false,
+        cohort_arm: 'control',
+        status: 'active',
+      });
+    }
+
+    const payload = await buildProgramResponse(
+      ctx.program,
+      ctx.timezone,
+      req.user.id,
+      familyId,
+      true
+    );
+    res.json(payload);
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] GET error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/skip-day', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.status(404).json({ error: 'Inget aktivt program' });
+    }
+
+    const effectiveDay = getEffectiveProgramDay(ctx.program, ctx.timezone);
+    const dayStatus = { ...(ctx.program.day_status || {}), [String(effectiveDay)]: 'skipped' };
+    await parentActivationProgram.updateDayStatus(ctx.program.id, dayStatus);
+    programAnalytics.trackDaySkipped(req.user.familyId, effectiveDay);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] skip-day error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/complete-day', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.status(404).json({ error: 'Inget aktivt program' });
+    }
+
+    const day = req.body?.day || getEffectiveProgramDay(ctx.program, ctx.timezone);
+    const { dayStatus } = markDayDone(ctx.program.day_status || {}, day, 'manual');
+    await parentActivationProgram.updateDayStatus(ctx.program.id, dayStatus);
+    programAnalytics.trackDayDone(req.user.familyId, day, 'manual', false);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] complete-day error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/solo-day', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.status(404).json({ error: 'Inget aktivt program' });
+    }
+
+    const { dayStatus } = markDayDone(ctx.program.day_status || {}, 6, 'solo_dismiss');
+    await parentActivationProgram.updateDayStatus(ctx.program.id, dayStatus);
+    programAnalytics.trackDayDone(req.user.familyId, 6, 'solo_dismiss', false);
+    programAnalytics.trackDaySolo(req.user.familyId, 6);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] solo-day error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/opt-out', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || ctx.program.status !== 'active') {
+      return res.status(404).json({ error: 'Inget aktivt program' });
+    }
+
+    const effectiveDay = getEffectiveProgramDay(ctx.program, ctx.timezone);
+    await parentActivationProgram.updateStatus(ctx.program.id, 'opted_out');
+    programAnalytics.trackOptedOut(req.user.familyId, effectiveDay);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] opt-out error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/reflection', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.status(404).json({ error: 'Inte tillgängligt' });
+    }
+
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.status(404).json({ error: 'Inget aktivt program' });
+    }
+
+    if (!showReflection(ctx.program, ctx.timezone) && ctx.program.status === 'active') {
+      return res.status(400).json({ error: 'Reflektionen är inte tillgänglig än' });
+    }
+
+    const score = parseInt(req.body?.score, 10);
+    if (!score || score < 1 || score > 5) {
+      return res.status(400).json({ error: 'Ogiltigt betyg' });
+    }
+    const text = req.body?.text ? String(req.body.text).trim().substring(0, 500) : null;
+
+    const { dayStatus } = markDayDone(ctx.program.day_status || {}, 7, 'reflection');
+    await parentActivationProgram.updateDayStatus(ctx.program.id, dayStatus);
+    await parentActivationProgram.updateStatus(ctx.program.id, 'completed', {
+      reflectionScore: score,
+      reflectionText: text,
+    });
+    programAnalytics.trackDayDone(req.user.familyId, 7, 'reflection', false);
+    programAnalytics.trackProgramCompleted(req.user.familyId, score);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] reflection error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+router.post('/cta-clicked', async (req, res) => {
+  try {
+    if (!isFeatureActive()) {
+      return res.json({ ok: true });
+    }
+
+    const { day, cta_type: ctaType, destination, child_id: childId, source } = req.body || {};
+    const ctx = await loadProgramContext(req.user.familyId);
+    if (!ctx || !shouldShowBanner(ctx.program)) {
+      return res.json({ ok: true });
+    }
+
+    programAnalytics.trackCtaClicked(req.user.familyId, day, ctaType, destination);
+
+    if (ctaType === 'open_child_view' && childId) {
+      programAnalytics.trackChildViewOpened(
+        req.user.familyId,
+        childId,
+        source || 'day1_preview'
+      );
+      if (day === 1 && !isDayDone(ctx.program.day_status || {}, 1)) {
+        const { dayStatus } = markDayDone(ctx.program.day_status || {}, 1, 'child_view');
+        await parentActivationProgram.updateDayStatus(ctx.program.id, dayStatus);
+        programAnalytics.trackDayDone(req.user.familyId, 1, 'child_view', true);
+      }
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[ACTIVATION-PROGRAM] cta-clicked error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+/**
+ * GET /api/me/activation-program/new-completions (Fas 2)
  */
 router.get('/new-completions', async (req, res) => {
   try {
@@ -61,6 +417,10 @@ router.get('/new-completions', async (req, res) => {
       timezone,
     });
 
+    if (parentFirstSeenEmitted) {
+      await maybeMarkDay3Aha(familyId, program, timezone);
+    }
+
     const now = new Date();
     res.json({
       completions: rows.map((row) => mapCompletionRow(row, now)),
@@ -73,8 +433,7 @@ router.get('/new-completions', async (req, res) => {
 });
 
 /**
- * POST /api/me/activation-program/aha-dismiss
- * Body: { daily_log_item_id }
+ * POST /api/me/activation-program/aha-dismiss (Fas 2)
  */
 router.post('/aha-dismiss', async (req, res) => {
   try {
