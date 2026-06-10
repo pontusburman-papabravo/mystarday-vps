@@ -423,18 +423,12 @@ Registered in `features` + gated via `family_features` / `featureAccess()`.
 | Slug | Default | Phase | Meaning |
 |------|---------|-------|---------|
 | `skattkammar_universum` | `live` | — | Universe layer enabled |
-| `familjehallen_v0` | `dev` | 2 | Family tab + read-only hall UI |
+| `familjehallen_v0` | `live` | 2 | Family tab + read-only hall UI (all families) |
 | `familjeprojekt` | `off` | 4 | Family projects gameplay |
 | `dual_currency` | `off` | 3 | Family stars in completion response |
 | `vuxenbidrag` | `off` | 4 | Parent contribution events |
 
-**V0 rule:** All family gameplay flags `off` or `dev`. UI mock only. `GET /api/family/museum` stays read-only.
-
-```javascript
-// Frontend gate pattern
-const hall = await FeatureCheck.has('familjehallen_v0');
-if (!hall) hideFamilyTab();
-```
+**V0 rule:** Familjehallen V0 is `live` for all families. Child UI is read-only; parent creates projects via API.
 
 ---
 

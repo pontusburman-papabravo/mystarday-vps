@@ -40,7 +40,7 @@ Om Skattkammaren börjar kräva handling → den blir svag.
 
 | Komponent | Status | Notering |
 |-----------|--------|----------|
-| 🏡 **Familjehallen** (nav) | ❌ | Prototyp + användartest först |
+| 🏡 **Familjehallen** (nav) | ✅ Live | `child-family-hall.js`, `GET /api/me/family` |
 | 🎯 **Familjeprojekt** | ❌ | Delmål från alla medlemmar |
 | ⭐ **Familjestjärnor** | ❌ | Auto-aggregat från barnaktivitet |
 | 📖 **Familjens berättelse** | ❌ | Gemensam narrativ historik |

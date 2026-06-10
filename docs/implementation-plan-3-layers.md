@@ -65,11 +65,11 @@
 | Event-driven writes | ✅ | `family-event-engine.js` ← activity completion |
 | UI from API only | ✅ | `child-family-client.js` + `child-family-hall.js` |
 | Parent project create | ✅ | `POST /api/family/projects` (parent only) |
-| Feature flag gate | ✅ | `familjehallen_v0` |
+| Live for all families | ✅ | `familjehallen_v0` status `live`, no per-family assign |
 
 **Test checklist:**
 - [x] Automated: `test/three-layer-separation.test.js` + `test/family-hall.test.js`
-- [ ] Manual: Enable `familjehallen_v0` → complete task → story + chest update
+- [ ] Manual: Complete task → story + chest update (all families)
 
 ---
 

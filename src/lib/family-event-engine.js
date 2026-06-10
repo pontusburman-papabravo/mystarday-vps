@@ -5,13 +5,11 @@
  * NO UI writes. Called only from server-side completion handlers.
  */
 const db = require('./db');
-const { featureAccess } = require('./feature-access');
-
-const FEATURE_SLUG = 'familjehallen_v0';
 
 /**
  * Record a family contribution derived from ActivityCompletedEvent.
  * Updates: family_event, family_chest, family_project progress.
+ * Live for all families — no feature-flag gate.
  */
 async function recordActivityContribution({
   familyId,
@@ -22,9 +20,6 @@ async function recordActivityContribution({
   starValue,
 }) {
   if (!familyId) return null;
-
-  const enabled = await featureAccess(familyId, FEATURE_SLUG);
-  if (!enabled) return null;
 
   const stars = Math.max(0, parseInt(starValue, 10) || 0);
   const payload = {
@@ -128,5 +123,4 @@ async function handleActivityCompleted(itemId, childId, wasAlreadyCompleted) {
 module.exports = {
   recordActivityContribution,
   handleActivityCompleted,
-  FEATURE_SLUG,
 };

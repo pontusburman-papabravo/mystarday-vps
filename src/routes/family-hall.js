@@ -4,9 +4,7 @@ const express = require('express');
 const { z } = require('zod');
 const { requireChild, requireParent, requireAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
-const { featureAccess } = require('../lib/feature-access');
 const familyHallDb = require('../../db/family-hall');
-const { FEATURE_SLUG } = require('../lib/family-event-engine');
 
 const CreateProjectSchema = z.object({
   title: z.string().min(1).max(128),
@@ -22,12 +20,10 @@ async function resolveFamilyId(user) {
   return user.familyId || user.family_id || null;
 }
 
-async function requireFamilyHallAccess(req, res, next) {
+async function requireFamilyContext(req, res, next) {
   try {
     const familyId = await resolveFamilyId(req.user);
     if (!familyId) return res.status(400).json({ error: 'Ingen familj kopplad' });
-    const allowed = await featureAccess(familyId, FEATURE_SLUG);
-    if (!allowed) return res.status(403).json({ error: 'Familjehallen är inte tillgänglig ännu' });
     req.familyId = familyId;
     next();
   } catch (err) {
@@ -47,13 +43,13 @@ async function getHallHandler(req, res, next) {
 // ─── Child: GET /api/me/family ────────────────────────────
 
 const childRouter = express.Router();
-childRouter.use(requireChild, requireFamilyHallAccess);
+childRouter.use(requireChild, requireFamilyContext);
 childRouter.get('/family', getHallHandler);
 
 // ─── Parent: GET /api/family/hall, POST /api/family/projects ─
 
 const parentRouter = express.Router();
-parentRouter.use(requireParent, requireFamilyHallAccess);
+parentRouter.use(requireParent, requireFamilyContext);
 parentRouter.get('/hall', getHallHandler);
 parentRouter.post('/projects', validate(CreateProjectSchema), async (req, res, next) => {
   try {
@@ -78,6 +74,6 @@ parentRouter.post('/projects', validate(CreateProjectSchema), async (req, res, n
 // ─── Shared read: GET /api/family/memory (child or parent) ─
 
 const memoryRouter = express.Router();
-memoryRouter.get('/memory', requireAuth, requireFamilyHallAccess, getHallHandler);
+memoryRouter.get('/memory', requireAuth, requireFamilyContext, getHallHandler);
 
-module.exports = { childRouter, parentRouter, memoryRouter, FEATURE_SLUG };
+module.exports = { childRouter, parentRouter, memoryRouter };

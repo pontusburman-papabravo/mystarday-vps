@@ -68,8 +68,8 @@
   function renderError() {
     return '<div class="cfh-shell cfh-error">' +
       '<p class="text-4xl mb-3">😴</p>' +
-      '<p class="text-navy font-semibold">Familjehallen är inte tillgänglig ännu</p>' +
-      '<p class="text-text-soft text-sm mt-2">Be en vuxen aktivera funktionen.</p>' +
+      '<p class="text-navy font-semibold">Kunde inte ladda familjehallen</p>' +
+      '<p class="text-text-soft text-sm mt-2">Försök igen om en stund.</p>' +
     '</div>';
   }
 
