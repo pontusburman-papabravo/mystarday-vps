@@ -6,6 +6,10 @@ Implementera aldrig mer än en fas åt gången.
 
 Begär alltid plan innan kod skrivs.
 
+**Testa efter varje fas** — kör `npm run lint` + `npm test` (+ fas-specifika tester). Nästa fas först när grönt.
+
+**Full regression efter Fas 6C** — implementation-agenten testar hela kedjan (Fas 1–6C) innan go-live-förslag till produktägare. Se [contract § Test](./foraldaraktivering-implementation-contract.md#test-implementation-agent).
+
 **Go live först efter Fas 6C** — inget till användare (föräldrar) förrän produktägare säger till. Se [contract § Go live](./foraldaraktivering-implementation-contract.md#go-live-sista-steg--obligatoriskt).
 
 **Relaterat:** [Implementation contract](./foraldaraktivering-implementation-contract.md) · [Invariants](./activation-program-invariants.md) · [Spec](./foraldaraktivering-7-dagar-spec.md)

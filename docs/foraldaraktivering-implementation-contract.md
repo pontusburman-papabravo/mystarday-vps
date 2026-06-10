@@ -1,6 +1,6 @@
 # Föräldraaktivering 7D — Implementation Contract
 
-Version: MVP v1.4
+Version: MVP v1.5
 
 Syfte:
 Detta dokument är den tekniska sanningen för implementationen.

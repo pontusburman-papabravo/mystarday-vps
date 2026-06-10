@@ -109,3 +109,9 @@ MVP får endast skapa onboarding_7d.
 Inget användarsynligt förrän produktägare säger go live — **efter Fas 6C** (inte efter Fas 4).
 
 `ACTIVATION_PROGRAM_ENABLED=false` och/eller saknad `ACTIVATION_PROGRAM_LAUNCH_AT` = ingen påverkan i prod.
+
+---
+
+## 17
+
+Implementation-agenten testar efter varje fas och kör full regression efter Fas 6C innan go-live-förslag.
