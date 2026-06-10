@@ -946,7 +946,7 @@ function renderDashboardCards() {
     // ── Avatar progress ring (today's activity completion) ──
     // Ring shows X/Y activities completed TODAY
     // Colors: empty=0, gold <50%, orange 50-99%, green 100%
-    const ringR = 24;
+    const ringR = 28;
     const ringCirc = 2 * Math.PI * ringR;
     const showRing = total > 0;
     let ringColor = '#E5E7EB'; // default gray (0%)
@@ -959,13 +959,13 @@ function renderDashboardCards() {
     const avatarHtml = `
       <div class="dash-avatar-wrap" title="${escHtml(ringTooltip)}">
         ${showRing ? `
-        <svg class="dash-avatar-ring" viewBox="0 0 52 52">
-          <circle cx="26" cy="26" r="${ringR}" fill="none" stroke="#E5E7EB" stroke-width="3.5"/>
-          <circle cx="26" cy="26" r="${ringR}" fill="none" stroke="${ringColor}" stroke-width="3.5"
+        <svg class="dash-avatar-ring" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="${ringR}" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="32" cy="32" r="${ringR}" fill="none" stroke="${ringColor}" stroke-width="4"
             stroke-dasharray="${ringCirc}" stroke-dashoffset="${ringOffset}"
-            stroke-linecap="round" transform="rotate(-90 26 26)"/>
+            stroke-linecap="round" transform="rotate(-90 32 32)"/>
         </svg>` : ''}
-        <span class="dash-avatar-emoji">${renderChildAvatar(c, 28)}</span>
+        <span class="dash-avatar-emoji">${renderChildAvatar(c, 32)}</span>
       </div>`;
 
     // ── Tidsblock-engine: map items → blocks with trafikljus-färg ─
@@ -1086,22 +1086,26 @@ function renderDashboardCards() {
         🎁 ${totalPending}
       </button>` : '';
 
-    return `<div class="dash-child-card ${isPaused ? 'paused' : ''} ${isExpanded ? 'is-expanded' : ''}" data-child-id="${c.id}">
+    const cardStats = window.DashboardDailySummary
+      ? window.DashboardDailySummary.buildChildStats(c)
+      : { primaryHtml: `<div class="text-xs text-text-soft">Idag ${done}/${total}</div>`, secondaryHtml: `<div class="text-xs font-bold text-gold">⭐ Totalt ${stars}</div>`, cardClass: '' };
+
+    return `<div class="dash-child-card ${isPaused ? 'paused' : ''} ${isExpanded ? 'is-expanded' : ''} ${cardStats.cardClass || ''}" data-child-id="${c.id}">
       <!-- ── COMPACT TOP (always visible) ── -->
       <div class="dash-card-compact" onclick="toggleCardExpand('${c.id}')">
         <div class="flex items-center gap-3">
           <!-- Avatar with reward ring -->
           ${avatarHtml}
 
-          <!-- Name + stars -->
+          <!-- Name + progress highlights -->
           <div class="flex-1 min-w-0" style="min-width:60px;">
             <div class="flex items-center gap-1.5 mb-0.5">
-              <h4 class="font-heading font-bold text-navy text-sm leading-tight truncate">${escHtml(name)}</h4>
-              ${allDone ? '<span class="text-sm" title="Alla klara!">🌟</span>' : ''}
+              <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">${escHtml(name)}</h4>
+              ${allDone ? '<span class="text-base" title="Alla klara!">🌟</span>' : ''}
               ${isPaused ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-200">PAUSAD</span>' : ''}
             </div>
-            <div class="text-xs text-text-soft leading-tight">Idag ${done}/${total}</div>
-            <div class="text-xs font-bold text-gold leading-tight">⭐ Totalt ${stars}</div>
+            ${cardStats.primaryHtml}
+            ${cardStats.secondaryHtml}
           </div>
 
           <!-- Section pills + chevron -->
@@ -1163,6 +1167,10 @@ function renderDashboardCards() {
       </div>
     </div>`;
   }).join('');
+
+  if (window.DashboardDailySummary && dashboardStats) {
+    window.DashboardDailySummary.update(dashboardStats);
+  }
 }
 
 function toggleCardExpand(childId) {
@@ -1463,6 +1471,10 @@ function renderStarHistory() {
   `;
 
   content.innerHTML = html;
+
+  if (window.DashboardWeeklyStory) {
+    window.DashboardWeeklyStory.render(starHistoryData);
+  }
 }
 
 // ── Give Stars Modal ──────────────────────────────────────

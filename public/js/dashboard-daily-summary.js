@@ -1,0 +1,241 @@
+/**
+ * Dashboard warmth — positive daily summary, warmer copy, child card highlights.
+ * Called from dashboard.js after dashboard-stats load.
+ */
+(function () {
+  'use strict';
+
+  function capName(name) {
+    if (!name) return '';
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  function timeGreeting() {
+    var h = new Date().getHours();
+    if (h >= 5 && h < 11) return 'God morgon!';
+    if (h >= 11 && h < 17) return 'Hej!';
+    if (h >= 17 && h < 22) return 'God kväll!';
+    return 'Hej!';
+  }
+
+  function pickSummary(stats) {
+    var children = stats && stats.children ? stats.children : [];
+    if (!children.length) return null;
+
+    var totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
+    var totalPending = stats.total_pending_redemptions || 0;
+    var totalDoneToday = children.reduce(function (s, c) { return s + (c.today_completed || 0); }, 0);
+
+    // Pending reward requests — actionable
+    if (totalPending > 0) {
+      var pendingChild = children.find(function (c) {
+        return (c.pending_redemptions || 0) + (c.pending_goal_changes || 0) > 0;
+      });
+      var pName = pendingChild ? capName(pendingChild.name) : 'Barnet';
+      return {
+        emoji: '🎁',
+        headline: pName + ' vill lösa in en belöning',
+        sub: totalPending === 1 ? 'En förfrågan väntar på dig' : totalPending + ' förfrågningar väntar på dig',
+        action: { label: 'Visa förfrågan', onclick: pendingChild ? "toggleCardExpand('" + pendingChild.id + "')" : null },
+        tone: 'reward',
+      };
+    }
+
+    // Close to next reward
+    var closeReward = null;
+    var closestGap = Infinity;
+    for (var i = 0; i < children.length; i++) {
+      var c = children[i];
+      if (!c.nearest_reward) continue;
+      var gap = c.nearest_reward.star_cost - (c.star_balance || 0);
+      if (gap > 0 && gap <= 5 && gap < closestGap) {
+        closestGap = gap;
+        closeReward = { child: c, gap: gap };
+      }
+    }
+    if (closeReward) {
+      var crName = capName(closeReward.child.name);
+      var gapLabel = closeReward.gap === 1 ? '1 stjärna' : closeReward.gap + ' stjärnor';
+      return {
+        emoji: '🌟',
+        headline: crName + ' är bara ' + gapLabel + ' från nästa belöning',
+        sub: (closeReward.child.nearest_reward.icon || '🎁') + ' ' + closeReward.child.nearest_reward.name,
+        action: { label: 'Se belöningar', href: '/library#rewards' },
+        tone: 'gold',
+      };
+    }
+
+    // Stars earned today (family)
+    if (totalStarsToday > 0) {
+      var starLabel = totalStarsToday === 1 ? '1 stjärna' : totalStarsToday + ' stjärnor';
+      var childCount = children.filter(function (c) { return (c.stars_today || 0) > 0; }).length;
+      var sub = childCount === 1
+        ? capName(children.find(function (c) { return c.stars_today > 0; }).name) + ' har tjänat dem idag'
+        : 'Barnen har tjänat dem idag';
+      return {
+        emoji: '🎉',
+        headline: 'Barnen har tjänat ' + starLabel + ' idag',
+        sub: sub,
+        action: totalDoneToday > 0 ? { label: 'Se dagens schema', href: '/schedule' } : null,
+        tone: 'celebrate',
+      };
+    }
+
+    // Tasks completed today
+    var activeChild = children
+      .filter(function (c) { return (c.today_completed || 0) > 0 && !c.today_is_paused; })
+      .sort(function (a, b) { return (b.today_completed || 0) - (a.today_completed || 0); })[0];
+
+    if (activeChild) {
+      var done = activeChild.today_completed || 0;
+      var taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
+      return {
+        emoji: '🔥',
+        headline: capName(activeChild.name) + ' har redan klarat ' + taskLabel + ' idag',
+        sub: activeChild.today_total > done
+          ? (activeChild.today_total - done) + ' kvar av dagens schema'
+          : 'Alla aktiviteter klara — bra jobbat!',
+        action: { label: 'Se schema', href: '/schedule?child=' + activeChild.id },
+        tone: 'progress',
+      };
+    }
+
+    // Next activity ready
+    var readyChild = null;
+    for (var j = 0; j < children.length; j++) {
+      var ch = children[j];
+      if (ch.today_is_paused || !(ch.today_items || []).length) continue;
+      var nu = ch.today_items.find(function (it) { return it.status === 'NU' && !it.completed; });
+      if (nu) {
+        readyChild = { child: ch, item: nu };
+        break;
+      }
+    }
+    if (readyChild) {
+      return {
+        emoji: '👋',
+        headline: capName(readyChild.child.name) + ' är redo för nästa aktivitet',
+        sub: (readyChild.item.icon || '') + ' ' + readyChild.item.name,
+        action: { label: 'Öppna schema', href: '/schedule?child=' + readyChild.child.id },
+        tone: 'progress',
+      };
+    }
+
+    // Fallback greeting
+    return {
+      emoji: '🌟',
+      headline: timeGreeting() + ' Så går det idag',
+      sub: children.length === 1
+        ? 'Följ ' + capName(children[0].name) + 's framsteg här'
+        : 'Följ barnens framsteg här',
+      action: null,
+      tone: 'neutral',
+    };
+  }
+
+  function renderBanner(summary) {
+    var el = document.getElementById('dashboardDailySummary');
+    if (!el) return;
+    if (!summary) {
+      el.classList.add('hidden');
+      return;
+    }
+
+    var actionHtml = '';
+    if (summary.action) {
+      if (summary.action.href) {
+        actionHtml = '<a href="' + summary.action.href + '" class="dash-summary-action">' + summary.action.label + ' →</a>';
+      } else if (summary.action.onclick) {
+        actionHtml = '<button type="button" class="dash-summary-action" onclick="' + summary.action.onclick + '">' + summary.action.label + ' →</button>';
+      }
+    }
+
+    el.className = 'dash-daily-summary dash-summary-' + summary.tone;
+    el.innerHTML =
+      '<span class="dash-summary-emoji" aria-hidden="true">' + summary.emoji + '</span>' +
+      '<div class="dash-summary-text">' +
+        '<p class="dash-summary-headline">' + summary.headline + '</p>' +
+        (summary.sub ? '<p class="dash-summary-sub">' + summary.sub + '</p>' : '') +
+      '</div>' +
+      actionHtml;
+    el.classList.remove('hidden');
+  }
+
+  function updatePageTitles() {
+    var pageTitle = document.getElementById('dashboardPageTitle');
+    if (pageTitle) pageTitle.textContent = '🌟 Dagens framsteg';
+
+    var sectionTitle = document.getElementById('dashboardSectionTitle');
+    if (sectionTitle) sectionTitle.textContent = timeGreeting();
+
+    var sectionSub = document.getElementById('dashboardSectionSub');
+    if (sectionSub) sectionSub.textContent = 'Klicka på ett barn för mer · Veckans stjärnor nedan';
+  }
+
+  /**
+   * Build highlight lines for compact child card stats.
+   * @returns {{ primaryHtml: string, secondaryHtml: string, cardClass: string }}
+   */
+  function buildChildStats(c) {
+    var name = capName(c.name);
+    var done = c.today_completed || 0;
+    var total = c.today_total || 0;
+    var stars = c.star_balance || 0;
+    var starsToday = c.stars_today || 0;
+    var nearest = c.nearest_reward || null;
+    var isPaused = c.today_is_paused || false;
+    var allDone = total > 0 && done === total;
+    var cardClass = '';
+
+    var primaryHtml = '';
+    var secondaryHtml = '';
+
+    if (isPaused) {
+      primaryHtml = '<div class="dash-stat-primary text-text-soft">⏸ Pausad idag</div>';
+      secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+    } else if (allDone) {
+      cardClass = 'has-today-win';
+      primaryHtml = '<div class="dash-stat-primary dash-stat-win">🌟 Alla klara idag!</div>';
+      secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+    } else if (done > 0) {
+      cardClass = 'has-today-progress';
+      var taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
+      primaryHtml = '<div class="dash-stat-primary dash-stat-hot">🔥 ' + taskLabel + ' klara idag</div>';
+      if (total > done) {
+        secondaryHtml = '<div class="dash-stat-secondary">' + (total - done) + ' kvar · ' + done + '/' + total + '</div>';
+      }
+      secondaryHtml += '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+    } else if (total === 0) {
+      primaryHtml = '<div class="dash-stat-primary text-text-soft">Inget schema idag</div>';
+      secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+    } else {
+      primaryHtml = '<div class="dash-stat-primary">Idag <strong>' + done + '/' + total + '</strong></div>';
+      secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
+    }
+
+    if (starsToday > 0 && !isPaused) {
+      var stLabel = starsToday === 1 ? '+1 stjärna' : '+' + starsToday + ' stjärnor';
+      secondaryHtml = '<div class="dash-stat-today-stars">' + stLabel + ' idag</div>' + secondaryHtml;
+    }
+
+    if (nearest && !isPaused) {
+      var gap = nearest.star_cost - stars;
+      if (gap > 0 && gap <= 8) {
+        var gapLabel = gap === 1 ? '1 stjärna' : gap + ' stjärnor';
+        secondaryHtml += '<div class="dash-stat-reward-hint">🎁 ' + gapLabel + ' till ' + nearest.name + '</div>';
+      }
+    }
+
+    return { primaryHtml: primaryHtml, secondaryHtml: secondaryHtml, cardClass: cardClass };
+  }
+
+  function update(stats) {
+    updatePageTitles();
+    renderBanner(pickSummary(stats));
+  }
+
+  window.DashboardDailySummary = {
+    update: update,
+    buildChildStats: buildChildStats,
+  };
+})();
