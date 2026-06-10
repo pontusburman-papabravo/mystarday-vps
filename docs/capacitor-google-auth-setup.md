@@ -29,7 +29,7 @@ För debug-byggen, lägg även till debug-keystore SHA-1 (`~/.android/debug.keys
 
 ## 3. Server-env
 
-Sätt på Render/Polsia:
+Sätt i `.env` på er VPS (prod):
 
 ```
 GOOGLE_WEB_CLIENT_ID=….apps.googleusercontent.com

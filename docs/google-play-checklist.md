@@ -1,7 +1,7 @@
 # Google Play — Checklista för Min Stjärndag
 
 **Paket:** `se.mystarday.app` · **App-namn:** Min Stjärndag  
-**Senast uppdaterad:** 2026-06-08
+**Senast uppdaterad:** 2026-06-08 · **Hosting:** egen VPS (`mystarday.se`)
 
 Detta dokument är er **steg-för-steg-guide** från nuvarande kodbas till Play Store (Internal testing → Production). Teknisk Android-plan finns i [`android.md`](../android.md).
 
@@ -96,9 +96,9 @@ Lägg till debug-SHA1 som extra Android OAuth-klient om ni testar Google login i
 
 ---
 
-## Steg 4 — Server-env (Render / Polsia)
+## Steg 4 — Server-env (egen VPS)
 
-Sätt i prod (se även [`ENV_FOR_POLSIA_DASHBOARD.md`](polsia-release-os/ENV_FOR_POLSIA_DASHBOARD.md)):
+Sätt i `.env` på servern (eller motsvarande secrets-hantering) och starta om Node-processen efter ändring:
 
 | Variabel | Exempel | Syfte |
 |----------|---------|-------|
@@ -289,6 +289,7 @@ Först när:
 
 | Fil | Innehåll |
 |-----|----------|
+| [`VPS-ANDROID-ENV.md`](VPS-ANDROID-ENV.md) | Deploy + env på egen server |
 | [`android.md`](../android.md) | Sprint 16–23, Gate 24, parity |
 | [`docs/capacitor-android-smoke.md`](capacitor-android-smoke.md) | Sprint 16 smoke |
 | [`docs/capacitor-google-auth-setup.md`](capacitor-google-auth-setup.md) | Google Auth plugin |
