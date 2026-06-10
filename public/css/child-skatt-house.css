@@ -1,0 +1,206 @@
+/**
+ * child-skatt-house.css — Skattkammaren som navigerbart hus (Fas 1).
+ */
+
+.skatt-house {
+  min-height: 60vh;
+  padding-bottom: 24px;
+}
+
+.skatt-house-header {
+  text-align: center;
+  padding: 8px 16px 20px;
+}
+.skatt-house-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin: 0 0 4px;
+}
+.skatt-house-sub {
+  font-size: 0.8rem;
+  color: #5A6178;
+  margin: 0;
+}
+
+/* Illustrated house silhouette */
+.skatt-house-scene {
+  position: relative;
+  max-width: 340px;
+  margin: 0 auto 20px;
+  padding: 20px 16px 24px;
+  background: linear-gradient(180deg, #E8F4FD 0%, #F5F0FF 55%, #FFF8E7 100%);
+  border-radius: 24px;
+  border: 3px solid #EDE7F6;
+  box-shadow: 0 8px 32px rgba(27, 35, 64, 0.08);
+}
+.skatt-house-roof {
+  width: 0;
+  height: 0;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 48px solid #C4B5FD;
+  margin: 0 auto 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
+.skatt-house-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.skatt-room-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 88px;
+  padding: 12px 8px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.skatt-room-door:active { transform: scale(0.96); }
+.skatt-room-door:hover {
+  border-color: #F5A623;
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.2);
+}
+.skatt-room-door.is-wide {
+  grid-column: span 2;
+  min-height: 72px;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 14px 16px;
+  gap: 12px;
+}
+.skatt-room-emoji { font-size: 1.75rem; line-height: 1; }
+.skatt-room-door.is-wide .skatt-room-emoji { font-size: 2rem; }
+.skatt-room-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #1B2340;
+  line-height: 1.2;
+}
+.skatt-room-hint {
+  font-size: 0.62rem;
+  color: #9AA0B8;
+  font-weight: 600;
+}
+.skatt-room-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: #FFF3D6;
+  color: #B45309;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+/* Room view (inside a door) */
+.skatt-room-view {
+  animation: skatt-room-in 0.35s ease;
+}
+@keyframes skatt-room-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.skatt-room-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(27, 35, 64, 0.08);
+  color: #1B2340;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.skatt-room-back:active { transform: scale(0.97); }
+
+/* Stjärnkistan — chest tiers */
+.skatt-chest-room {
+  text-align: center;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, #1a1a2e, #2d1f4e);
+  border-radius: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.skatt-chest-room .skatt-chest-tier {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.4));
+  cursor: pointer;
+}
+.skatt-chest-tier.tier-0 { font-size: 3rem; }
+.skatt-chest-tier.tier-1 { font-size: 3.5rem; }
+.skatt-chest-tier.tier-2 { font-size: 4rem; }
+.skatt-chest-tier.tier-3 { font-size: 4.5rem; }
+.skatt-chest-tier.is-open { animation: chest-pop 0.5s ease; }
+@keyframes chest-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.skatt-chest-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 40%, rgba(255,215,0,0.15), transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(255,215,0,0.1), transparent 40%);
+}
+.skatt-chest-balance {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  margin-top: 12px;
+}
+.skatt-chest-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 215, 0, 0.7);
+  margin-top: 4px;
+}
+
+.skatt-house-hidden-sections { display: none !important; }
+
+/* Min berättelse — äventyrsalbum */
+.skatt-story-album { display: flex; flex-direction: column; gap: 10px; }
+.skatt-story-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #F0F7FF, #FFF8E7);
+  border: 1.5px solid rgba(116, 185, 255, 0.25);
+}
+.skatt-story-date {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #5A6178;
+  margin-bottom: 4px;
+}
+.skatt-story-text {
+  font-size: 0.85rem;
+  color: #1B2340;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skatt-room-view, .skatt-chest-tier.is-open { animation: none; }
+}

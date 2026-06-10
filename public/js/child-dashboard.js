@@ -772,7 +772,15 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     html += `</div></div>`;
   }
 
-  // Done — render to DOM
+  // Done — render to DOM (hus-hub när tillgänglig, annars linjär scroll)
+  if (!minimalUiActive && window.ChildSkattHouse) {
+    const economyHtml = totalEarned > starBalance
+      ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:12px;font-family:'Plus Jakarta Sans',sans-serif;">Totalt tjänat: ⭐ ${totalEarned}</div>`
+      : '';
+    ChildSkattHouse.present(view, html, { starBalance, trophies, economyHtml });
+    return;
+  }
+
   view.innerHTML = html;
 
   // Animate trophy items with staggered delays
