@@ -1389,6 +1389,7 @@
 
   <!-- SSE real-time sync -->
   <script src="/js/sse-client.js?v=2.12.0"></script>
+  <script src="/js/activation-program-aha-card.js?v=1.0.0"></script>
   <script src="/js/dashboard-banner.js?v=2.12.0"></script>
 
   <!-- Dagens nyhet in-app banner logic -->
@@ -1444,6 +1445,24 @@
       setTimeout(function () { window.refreshReportsActiveCount(); }, 500);
     });
   </script>
+
+  <!-- ─── ACTIVATION PROGRAM AHA MODAL (Fas 2) ─────────────────────────────── -->
+  <div id="activationAhaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9300] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+      <div class="text-5xl mb-4" aria-hidden="true">🎉</div>
+      <h2 class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
+        <span id="activationAhaChildName">Barnet</span> klarade &ldquo;<span id="activationAhaActivityName">en aktivitet</span>&rdquo;
+      </h2>
+      <p class="text-text-soft text-sm mb-6 leading-relaxed">
+        Utan att du behövde påminna.
+      </p>
+      <button id="activationAhaDismissBtn"
+              type="button"
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+        Toppen!
+      </button>
+    </div>
+  </div>
 
   <!-- ─── MEDFÖRÄLDER CTA INVITE MODAL ─────────────────────────────────────── -->
   <div id="medforalderCtaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">

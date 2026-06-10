@@ -19,6 +19,7 @@ function registerRoutes(app) {
   app.use('/api/me', require('./rewards').childRouter);
   app.use('/api/me', require('./goals').childRouter);
   app.use('/api/me', require('./ratings').childRouter);
+  app.use('/api/me/activation-program', require('./activation-program'));
 
   app.use('/api/events', require('./events'));
   app.use('/api/auth', require('./auth'));

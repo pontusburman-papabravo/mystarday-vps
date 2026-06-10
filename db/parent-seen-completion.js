@@ -26,7 +26,22 @@ async function hasSeen(parentId, dailyLogItemId, client = db) {
   return result.rows.length > 0;
 }
 
+async function verifyFamilyItemAccess(parentId, familyId, dailyLogItemId, client = db) {
+  const result = await client.query(
+    `SELECT dli.id
+     FROM daily_log_item dli
+     JOIN daily_log dl ON dl.id = dli.daily_log_id
+     JOIN child c ON c.id = dl.child_id
+     JOIN parent_child pc ON pc.child_id = c.id AND pc.parent_id = $1
+     WHERE c.family_id = $2 AND dli.id = $3
+     LIMIT 1`,
+    [parentId, familyId, dailyLogItemId]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   markSeen,
   hasSeen,
+  verifyFamilyItemAccess,
 };

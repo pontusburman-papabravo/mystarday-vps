@@ -80,6 +80,12 @@ function trackNewsletterUnsubscribed(familyId) {
   analytics.track(familyId, 'newsletter_unsubscribed');
 }
 
+// ─── Activation program (Fas 2+) ───────────────────────────
+
+function trackParentAhaMomentDismissed(familyId, metadata = {}) {
+  analytics.track(familyId, 'parent_aha_moment_dismissed', metadata);
+}
+
 module.exports = {
   trackLandingVisit,
   trackSignupStarted,
@@ -97,4 +103,5 @@ module.exports = {
   trackNewsletterUnsubscribed,
   trackWinBackEmailSent,
   trackWinBackReturned,
+  trackParentAhaMomentDismissed,
 };

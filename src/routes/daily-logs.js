@@ -757,6 +757,33 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     getChildFamilyId(req.user.id).then(async (fid) => {
       if (!fid) return;
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
+      // Activation program: child_first_completion (Fas 2 — child path only)
+      if (!item.completed) {
+        try {
+          const parentActivationProgram = require('../../db/parent-activation-program');
+          const { isActivationProgramEnabled } = require('../lib/activation-program-enroll');
+          const { maybeTrackChildFirstCompletion, getFamilyTimezone } = require('../lib/activation-program-aha');
+          if (isActivationProgramEnabled()) {
+            const program = await parentActivationProgram.getActiveByFamily(fid);
+            if (program) {
+              const [activityRow, timezone] = await Promise.all([
+                db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
+                getFamilyTimezone(fid),
+              ]);
+              await maybeTrackChildFirstCompletion({
+                familyId: fid,
+                program,
+                childId: req.user.id,
+                dailyLogItemId: req.params.itemId,
+                activityName: activityRow.rows[0]?.name || 'en aktivitet',
+                timezone,
+              });
+            }
+          }
+        } catch (err) {
+          console.error('[ACTIVATION-PROGRAM] child_first_completion error:', err.message);
+        }
+      }
       // Push notification: look up child name + activity name, then notify parents
       try {
         const [childRow, activityRow] = await Promise.all([
