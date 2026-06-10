@@ -30,11 +30,9 @@
 | QuestCTA (bottom) | ✅ | `child-today-tasks.js` |
 
 **Test checklist:**
-- [ ] User sees ONLY tasks + minimal goal
-- [ ] No calendar visible
-- [ ] No star dashboard on Today
-- [ ] Task list ≤ 5 items
-- [ ] 5-sec test: "What do you do here?" → "do tasks"
+- [x] Automated: `test/three-layer-separation.test.js` (Phase 1 suite)
+- [ ] Manual: User sees ONLY tasks + minimal goal
+- [ ] Manual: 5-sec test: "What do you do here?" → "do tasks"
 
 ---
 
@@ -50,9 +48,8 @@
 | No tasks in universe | ✅ | Route guards hide `#scheduleView` |
 
 **Test checklist:**
-- [ ] `/universe` has zero task references visible
-- [ ] Star balance only in universe
-- [ ] Cannot complete tasks from universe
+- [x] Automated: `test/three-layer-separation.test.js` (Phase 2 suite)
+- [ ] Manual: Star balance only visible in universe tab
 
 ---
 
@@ -71,11 +68,8 @@
 | Feature flag gate | ✅ | `familjehallen_v0` |
 
 **Test checklist:**
-- [ ] Family page loads real API data
-- [ ] Story updates after child completes task (event stream)
-- [ ] Chest aggregates from completions (not manual UI)
-- [ ] No mock arrays in frontend
-- [ ] Child UI has no write buttons
+- [x] Automated: `test/three-layer-separation.test.js` + `test/family-hall.test.js`
+- [ ] Manual: Enable `familjehallen_v0` → complete task → story + chest update
 
 ---
 
