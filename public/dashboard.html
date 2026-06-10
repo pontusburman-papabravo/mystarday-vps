@@ -536,6 +536,7 @@
   <script src="/js/skeleton.js?v=1.0.0"></script>
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
+  <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard.js?v=2.36.0"></script>
 
@@ -666,6 +667,22 @@
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
               <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">🏠 Ledig dag</button>
+            </div>
+          </div>
+
+          <!-- Child login handoff (native app + mobile — logout hidden in tab bar) -->
+          <div id="dashboardChildHandoff" class="hidden dash-child-handoff mb-4" role="region" aria-label="Byt till barnets inloggning">
+            <div class="dash-child-handoff-inner">
+              <span class="dash-child-handoff-emoji" aria-hidden="true">👶</span>
+              <div class="dash-child-handoff-text">
+                <p class="dash-child-handoff-title">Dags för barnet att logga in?</p>
+                <p class="dash-child-handoff-sub">Byt till barnets vy med PIN-kod — eller logga ut helt</p>
+              </div>
+              <button type="button" id="dashboardChildHandoffDismiss" class="dash-child-handoff-dismiss hidden" title="Stäng">✕</button>
+              <div class="dash-child-handoff-actions">
+                <button type="button" id="dashboardChildLoginBtn" class="dash-child-handoff-primary">👶 Barnet loggar in</button>
+                <button type="button" id="dashboardParentLogoutBtn" class="dash-child-handoff-secondary">Logga ut</button>
+              </div>
             </div>
           </div>
 

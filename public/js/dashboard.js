@@ -394,6 +394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Medförälder CTA: show banner for single-parent families
   showMedforalderCtaIfEligible();
   initDelaAppenCta();
+  if (window.DashboardChildHandoff) DashboardChildHandoff.init();
   if (skeletonTimer) skeletonTimer.stop();
 
   // Safety net: if dashboard cards didn't render (e.g. API failed silently,
