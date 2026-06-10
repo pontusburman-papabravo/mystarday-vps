@@ -329,8 +329,10 @@ function showTab(tab) {
   const progress = document.getElementById('progressSection');
   if (tab === 'schedule') {
     sv.classList.remove('hidden'); rv.classList.add('hidden');
-    if (weekNav) { weekNav.classList.remove('hidden'); weekNav.removeAttribute('aria-hidden'); }
-    if (progress) { progress.classList.remove('hidden'); progress.removeAttribute('aria-hidden'); }
+    if (!window.ChildTodayFocus) {
+      if (weekNav) { weekNav.classList.remove('hidden'); weekNav.removeAttribute('aria-hidden'); }
+      if (progress) { progress.classList.remove('hidden'); progress.removeAttribute('aria-hidden'); }
+    }
     ts.classList.add('border-gold', 'text-gold'); ts.classList.remove('border-transparent', 'text-text-soft');
     tr.classList.remove('border-gold', 'text-gold'); tr.classList.add('border-transparent', 'text-text-soft');
   } else {
@@ -341,6 +343,7 @@ function showTab(tab) {
     ts.classList.remove('border-gold', 'text-gold'); ts.classList.add('border-transparent', 'text-text-soft');
     if (!rewardsLoaded) loadRewards();
   }
+  if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(tab);
 }
 
 // ── Rewards & Goals ────────────────────────────────────
@@ -1185,6 +1188,7 @@ function updateGoalBar(goalData) {
   if (bar) bar.style.width = `${pct}%`;
   if (label) label.textContent = `⭐ ${balance} av ${starCost}`;
   if (nameEl) nameEl.textContent = `${icon} ${name}`;
+  if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
 }
 
 // ── Schedule / Activities ──────────────────────────────
@@ -1201,10 +1205,17 @@ function renderActivities(data, trueStarBalance) {
   const totalStarCount = total > 0 ? items.reduce((s, i) => s + (i.star_value || 1), 0) : 0;
 
   // Bar 1: Today's progress — X / Y where X = earned today, Y = total available today
-  document.getElementById('progressLabel').textContent = `${completed} av ${total} klara`;
-  document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
+  if (document.getElementById('progressLabel')) {
+    document.getElementById('progressLabel').textContent = `${completed} av ${total} klara`;
+  }
+  if (document.getElementById('starCount')) {
+    document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
+  }
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-  document.getElementById('progressBar').style.width = `${pct}%`;
+  if (document.getElementById('progressBar')) {
+    document.getElementById('progressBar').style.width = `${pct}%`;
+  }
+  if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
 
   // Progress ring around child emoji — shows today's progress (X/Y activities done)
   // Circumference of r=18 circle = 2π×18 ≈ 113.1
@@ -2512,6 +2523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     document.getElementById('childName').textContent = me.name || 'Mitt schema';
     document.getElementById('childEmoji').textContent = me.emoji || '⭐';
+    if (window.ChildTodayFocus) ChildTodayFocus.init(me.name);
     const darkBtn = document.getElementById('childDarkBtn');
     if (darkBtn) darkBtn.textContent = Theme.isDark() ? '☀️' : '🌙';
 

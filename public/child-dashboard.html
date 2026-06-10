@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.0.0">
+  <link rel="stylesheet" href="/css/child-today-focus.css?v=1.0.0">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.21.0"></script>
@@ -1422,7 +1423,7 @@
   <!-- Tab Nav: Schema / Belöningar -->
   <div class="bg-white border-b border-lavender">
     <div class="flex max-w-lg mx-auto">
-      <button id="tabSchedule" onclick="showTab('schedule')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-gold text-gold transition-colors">📅 Schema</button>
+      <button id="tabSchedule" onclick="showTab('schedule')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-gold text-gold transition-colors">☀️ Idag</button>
       <button id="tabRewards" onclick="showTab('rewards')" class="flex-1 py-3 text-sm font-semibold border-b-2 border-transparent text-text-soft transition-colors">💎 Skattkammaren</button>
     </div>
   </div>
@@ -1432,6 +1433,9 @@
     <span>📶</span>
     <span id="offlineBannerText"></span>
   </div>
+
+  <!-- Idag: fokuserad header (uppdrag + kompakt mål) -->
+  <div id="todayFocusMount"></div>
 
   <!-- Schedule View -->
   <div id="scheduleView" class="p-4 max-w-lg mx-auto pb-20">
@@ -1539,8 +1543,9 @@
   <script src="/js/child-pet.js?v=1.0.0"></script>
   <script src="/js/child-museum.js?v=1.0.0"></script>
   <script src="/js/child-skatt-house.js?v=2.0.0"></script>
+  <script src="/js/child-today-focus.js?v=1.0.0"></script>
   <!-- Main child dashboard logic (schedule, activities, rewards, ratings) -->
-  <script src="/js/child-dashboard.js?v=2.19.0"></script>
+  <script src="/js/child-dashboard.js?v=2.20.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
 
