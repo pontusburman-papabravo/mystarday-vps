@@ -413,7 +413,6 @@ async function loadRewards() {
     rewardsLoaded = true;
     _currentGoalData = goalData;
     _currentRewardsData = rewardsData;
-    if (window.ChildUniverse) ChildUniverse.invalidate();
     updateGoalBar(goalData);
     renderSkattkammaren(rewardsData, goalData, manualData);
   } catch (err) {
@@ -1167,7 +1166,15 @@ function initTimeTimers() {
 
 // ── Goal progress bar (top) ─────────────────────────────
 
+function isTodayFocusLayer() {
+  return document.documentElement.classList.contains('today-focus-mode');
+}
+
 function updateGoalBar(goalData) {
+  if (isTodayFocusLayer()) {
+    if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
+    return;
+  }
   const section = document.getElementById('goalBarSection');
   if (!section) return;
   const bar = document.getElementById('goalProgressBarTop');
@@ -1208,55 +1215,50 @@ function renderActivities(data, trueStarBalance) {
   const todayStars = items.filter(i => i.completed).reduce((s, i) => s + (i.star_value || 1), 0);
   const totalStarCount = total > 0 ? items.reduce((s, i) => s + (i.star_value || 1), 0) : 0;
 
-  // Bar 1: Today's progress — X / Y where X = earned today, Y = total available today
-  if (document.getElementById('progressLabel')) {
-    document.getElementById('progressLabel').textContent = `${completed} av ${total} klara`;
-  }
-  if (document.getElementById('starCount')) {
-    document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
-  }
-  if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateTodayStars(todayStars);
-  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-  if (document.getElementById('progressBar')) {
-    document.getElementById('progressBar').style.width = `${pct}%`;
-  }
-  if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
-
-  // Progress ring around child emoji — shows today's progress (X/Y activities done)
-  // Circumference of r=18 circle = 2π×18 ≈ 113.1
-  const ringEl = document.getElementById('emojiProgressRing');
-  if (ringEl) {
-    const circ = 2 * Math.PI * 18; // ≈ 113.1
-    const filled = total > 0 ? (completed / total) * circ : 0;
-    const remaining = circ - filled;
-    ringEl.setAttribute('stroke-dasharray', `${filled.toFixed(1)} ${remaining.toFixed(1)}`);
-    // Color: grey if 0%, gold if partial, green if 100%
-    if (total === 0 || completed === 0) {
-      ringEl.setAttribute('stroke', 'rgba(255,255,255,0.18)');
-    } else if (completed === total) {
-      ringEl.setAttribute('stroke', '#22C55E');
-    } else {
-      ringEl.setAttribute('stroke', '#F5A623');
+  if (isTodayFocusLayer()) {
+    if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
+  } else {
+    // Legacy dashboard chrome (hidden in today-focus-mode)
+    if (document.getElementById('progressLabel')) {
+      document.getElementById('progressLabel').textContent = `${completed} av ${total} klara`;
     }
-  }
-  // Update activity count badge on ring (shows clearly this is TODAY's activities, not goal)
-  const ringBadge = document.getElementById('ringActivityBadge');
-  if (ringBadge) {
-    ringBadge.textContent = `${completed}/${total}`;
-    // Match ring color
-    if (total === 0 || completed === 0) {
-      ringBadge.style.background = '#6B7280';
-    } else if (completed === total) {
-      ringBadge.style.background = '#22C55E';
-    } else {
-      ringBadge.style.background = '#F5A623';
+    if (document.getElementById('starCount')) {
+      document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
     }
-  }
-
-  // Element 2: Total star balance (separate from today's progress)
-  const totalBalanceEl = document.getElementById('totalStarBalance');
-  if (totalBalanceEl) {
-    totalBalanceEl.textContent = `⭐ ${trueStarBalance !== undefined ? trueStarBalance : todayStars}`;
+    if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateTodayStars(todayStars);
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    if (document.getElementById('progressBar')) {
+      document.getElementById('progressBar').style.width = `${pct}%`;
+    }
+    const ringEl = document.getElementById('emojiProgressRing');
+    if (ringEl) {
+      const circ = 2 * Math.PI * 18;
+      const filled = total > 0 ? (completed / total) * circ : 0;
+      const remaining = circ - filled;
+      ringEl.setAttribute('stroke-dasharray', `${filled.toFixed(1)} ${remaining.toFixed(1)}`);
+      if (total === 0 || completed === 0) {
+        ringEl.setAttribute('stroke', 'rgba(255,255,255,0.18)');
+      } else if (completed === total) {
+        ringEl.setAttribute('stroke', '#22C55E');
+      } else {
+        ringEl.setAttribute('stroke', '#F5A623');
+      }
+    }
+    const ringBadge = document.getElementById('ringActivityBadge');
+    if (ringBadge) {
+      ringBadge.textContent = `${completed}/${total}`;
+      if (total === 0 || completed === 0) {
+        ringBadge.style.background = '#6B7280';
+      } else if (completed === total) {
+        ringBadge.style.background = '#22C55E';
+      } else {
+        ringBadge.style.background = '#F5A623';
+      }
+    }
+    const totalBalanceEl = document.getElementById('totalStarBalance');
+    if (totalBalanceEl) {
+      totalBalanceEl.textContent = `⭐ ${trueStarBalance !== undefined ? trueStarBalance : todayStars}`;
+    }
   }
   if (isToday) {
     checkMilestones(total, completed);
@@ -2310,11 +2312,20 @@ async function loadDay(dateStr, showLoader = true) {
   }
 
   try {
-    const [data, rwdData, goalData] = await Promise.all([
-      Auth.api(`/api/me/daily-log?date=${dateStr}`),
-      Auth.api('/api/me/rewards').catch(() => null),
-      Auth.api('/api/me/goal').catch(() => null),
-    ]);
+  const focusLayer = isTodayFocusLayer();
+    const [data, rwdData, goalData] = await Promise.all(
+      focusLayer
+        ? [
+            Auth.api(`/api/me/daily-log?date=${dateStr}`),
+            Promise.resolve(null),
+            Auth.api('/api/me/goal').catch(() => null),
+          ]
+        : [
+            Auth.api(`/api/me/daily-log?date=${dateStr}`),
+            Auth.api('/api/me/rewards').catch(() => null),
+            Auth.api('/api/me/goal').catch(() => null),
+          ]
+    );
     if (skeletonTimer) skeletonTimer.stop();
 
     // ── Cache data for offline use ─────────────────────────────
