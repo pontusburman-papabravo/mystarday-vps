@@ -1,6 +1,6 @@
 # Föräldraaktivering 7D — Implementation Contract
 
-Version: MVP v1.2
+Version: MVP v1.3
 
 Syfte:
 Detta dokument är den tekniska sanningen för implementationen.
@@ -18,21 +18,23 @@ Ingår:
 
 - Datamodell
 - Daglogik
-- Enrollment
+- Enrollment (nya föräldrar — onboarding-val)
+- E-postinbjudan (befintliga inaktiva föräldrar — opt-in via länk)
 - Banner
 - Aha-tracking
 - Celebratory modal
 - Reflection
 - Analytics-events
 
-Ingår inte:
+Ingår inte (vid go live):
 
 - Push scheduler
 - Admin dashboard
 - Day 30 retention UI
 - Day 60 retention UI
-- Reactivation_3d
-- Win-back
+- Slumpmässig A/B (50/50) — **senare**, när inflödet ökar
+- Reactivation_3d (separat programtyp — ej MVP; samma 7-dagarsmotor + `onboarding_7d`)
+- Win-back (befintligt flöde — ej samma som aktiveringsutskick)
 - Summer programs
 - School restart programs
 
@@ -65,10 +67,29 @@ Måste innehålla:
 - last_seen_day
 - reflection_score
 - reflection_text
+- enroll_source (varifrån enroll triggades — se nedan)
 
 ---
 
-# Enrollment (Fas 4 — föräldraval)
+# Enrollment — två vägar in (samma program, samma val-skärm)
+
+Båda vägarna är **live vid go live** (inte fasad). Båda kräver **aktivt val** — ingen tyst enroll.
+
+| Väg | Målgrupp | Trigger |
+|-----|----------|---------|
+| **A — Onboarding** | Nya familjer | Sista steget efter onboarding complete |
+| **B — E-post** | Befintliga inaktiva | Personlig inbjudan med länk till val-skärm |
+
+Samma `onboarding_7d`-motor, samma copy och CTA-par. Skillnad: `enroll_source` och analytics-segment.
+
+| `enroll_source` | Väg |
+|-----------------|-----|
+| `onboarding_complete` | A |
+| `email_reactivation` | B |
+
+---
+
+# Enrollment (Fas 4 — föräldraval, väg A)
 
 Alla nya föräldrar som slutför onboarding ska få välja — **ingen tvingad enroll**.
 
@@ -82,14 +103,81 @@ Placering: sista steget i onboarding, **innan** dashboard.
 Regler:
 
 - Default: kort 1 (rekommenderas) är förvalt
-- Ingen slumpmässig 50/50 A/B vid enroll i MVP v1.1
-- Jämförelsegrupp = familjer som valde "Vi kör själva" (observationell, ingen `parent_activation_program`-rad)
-- `cohort_arm = control` finns kvar i schemat men tilldelas **inte** vid föräldraval i MVP
+- **Ingen slumpmässig A/B vid go live** — alla som väljer ja får `cohort_arm = treatment`
+- A/B-tester (CTA-text, 50/50 control, etc.) införs **senare** när inflödet motiverar det
+- Jämförelsegrupp vid launch = familjer som valde "Vi kör själva" (observationell)
+- `cohort_arm = control` finns i schemat men tilldelas **inte** förrän explicit A/B-fas beslutas
 - Opt-out i bannern kvarstår för enrolled familjer ("Avsluta när ni vill")
 
 ---
 
+# E-postinbjudan — befintliga föräldrar (väg B, Fas 4)
+
+## Målgrupp (eligibility — låst)
+
+**Får mail:**
+
+- `onboarding_completed = true`
+- Minst ett barn med schema (`has_weekly_schedule`)
+- **Ingen förälder-inlogg på 7+ hela dagar** (familj `timezone`, räknat från senaste `parent`-login)
+- Inget aktivt `parent_activation_program` (`status = active`)
+- Post-launch (`NOW >= ACTIVATION_PROGRAM_LAUNCH_AT`) vid utskick
+
+**Får INTE mail:**
+
+- **Aktiva familjer** — någon förälder loggat in inom de senaste **7 dagarna**
+- Familjer utan schema / ofullständig onboarding
+- Familjer med pågående program
+- Administratörer / testkonton (exkludera i export)
+
+## Flöde
+
+```
+E-post med personlig länk
+        ↓
+Inloggning (om behövs)
+        ↓
+Samma val-skärm som onboarding (§ Onboarding-val — copy)
+        ↓
+"Ja, hjälp oss första veckan" → enroll, enroll_source = email_reactivation
+"Vi kör själva"             → ingen programrad
+```
+
+**Ingen enroll vid klick på länk** — endast vid aktivt val på skärmen.
+
+## E-post — copy (utkast, låst intent)
+
+**Ämne:** *En mjuk start för [barn]s rutiner?* (eller personaliserat förnamn)
+
+**Brödtext (kärna):**
+
+> Hej [Förnamn],
+>
+> Ni har skapat konto och satt upp [barn]s schema — bra gjort.
+>
+> Många familjer berättar att det som kan vara svårast inte är att komma igång, utan att **hålla i rutinen** när vardagen tar vid.
+>
+> Nu kan ni prova vårt **7-dagars kom-igång-program**: korta dagliga steg som hjälper er som förälder hålla momentum. Barnets schema ändras inte.
+>
+> **[Ja, hjälp oss första veckan]** ← länk till val-skärm
+>
+> Vill ni inte ha guiden fungerar appen som vanligt — allt ni redan satt upp finns kvar.
+
+Ton: stödjande, **inte** skuldbelagd ("ni har misslyckats").
+
+## Analytics (väg B)
+
+| Event | När |
+|-------|-----|
+| `activation_program_email_invite_sent` | E-post skickad |
+| `activation_program_email_invite_clicked` | Länk klickad |
+| `activation_program_enroll_choice` | Val på skärm — inkl. `enroll_source: email_reactivation` |
+
+---
+
 # Onboarding-val — copy (låst)
+
+Gäller **väg A och väg B** (samma skärm).
 
 ## Intro
 
@@ -133,7 +221,9 @@ Rubriken säljer **utfallet**, inte produktnamnet ("guidad start" ska inte stå 
 - Ton: stödjande, inte dömande (ingen skuldbelagd copy vid val av kort 2)
 - Barnets schema påverkas inte av valet — endast förälderns stöd första veckan
 
-## CTA A/B-test (valfritt post-launch)
+## CTA A/B-test (senare — när inflödet ökar)
+
+**Inte vid initial go live.** Testordning när A/B-fas aktiveras:
 
 Testordning för primär knapp (håll sekundär konstant: "Vi kör själva"):
 
@@ -152,12 +242,12 @@ Schema tillåter:
 treatment
 control
 
-MVP v1.1 enroll:
+Vid go live (alla vägar):
 
-- Val "Ja, hjälp oss första veckan" → `cohort_arm = treatment`
-- Val "Vi kör själva" → ingen rad (jämförelsegrupp utanför tabellen)
+- Val "Ja, hjälp oss första veckan" → `cohort_arm = treatment`, `enroll_source` enligt väg
+- Val "Vi kör själva" → ingen rad
 
-`cohort_arm = control` tilldelas inte vid föräldraval.
+`cohort_arm = control` tilldelas inte förrän explicit A/B-fas.
 
 Control / icke-enrolled ska INTE se:
 
@@ -289,6 +379,10 @@ Måste implementeras:
 
 activation_program_enroll_choice
 
+activation_program_email_invite_sent
+
+activation_program_email_invite_clicked
+
 activation_program_started
 
 activation_program_first_banner_seen
@@ -307,13 +401,14 @@ parent_aha_moment_dismissed
 
 ## activation_program_enroll_choice (Fas 4)
 
-När föräldern väljer på onboarding-skärmen.
+När föräldern väljer på val-skärmen (väg A eller B).
 
 ```json
 {
   "event_type": "activation_program_enroll_choice",
   "metadata": {
     "choice": "guided",
+    "enroll_source": "onboarding_complete",
     "cta_variant": "help_us_week_one"
   }
 }
@@ -322,7 +417,8 @@ När föräldern väljer på onboarding-skärmen.
 | Fält | Värden |
 |------|--------|
 | `choice` | `guided` \| `direct` |
-| `cta_variant` | `help_us_week_one` \| `hold_routine` \| `choose_guided_start` \| `get_support_week_one` (endast vid CTA-test) |
+| `enroll_source` | `onboarding_complete` \| `email_reactivation` |
+| `cta_variant` | `help_us_week_one` \| `hold_routine` \| `choose_guided_start` \| `get_support_week_one` (endast vid A/B-fas) |
 | `direct_cta` | `we_run_ourselves` (konstant under CTA-test) |
 
 `activation_program_started` loggas endast vid `choice = guided` (samma request eller direkt efter).
@@ -349,13 +445,15 @@ Definitionen får inte ändras.
 
 # Launch
 
-Onboarding-val-skärmen visas endast efter:
+Val-skärm, e-postutskick och enroll tillåts endast efter:
 
 ACTIVATION_PROGRAM_LAUNCH_AT
 
-Ingen retroaktiv enrollment.
+**Retroaktiv tyst enroll** (programrad utan förälderns val) är förbjuden.
 
-Före launch: ingen val-skärm, ingen programrad (befintligt beteende).
+E-post till befintliga är **inbjudan + opt-in** — inte retroaktiv enroll.
+
+Före launch: ingen val-skärm, inget utskick, ingen programrad.
 
 ---
 
@@ -379,11 +477,15 @@ Implementation ska **alltid** kontrollera båda innan något användarsynligt el
 Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter**:
 
 - [ ] Fas 1–4 implementerade och verifierade (staging + intern testfamilj)
-- [ ] Minst ett komplett flöde observerat: val → banner → completion → ev. modal
-- [ ] Analytics-kedja verifierad i prod-lik miljö
-- [ ] `ACTIVATION_PROGRAM_LAUNCH_AT` satt till avsiktligt tidpunkt (ändras **aldrig** efter första riktiga enroll — invariant #13)
+- [ ] **Väg A:** onboarding-val → banner → completion → ev. modal
+- [ ] **Väg B:** e-postmall + eligibility (7+ dagar inaktiv) + länk → val-skärm → enroll
+- [ ] Verifierat att **aktiva familjer** (<7 dagar sedan login) **exkluderas** från utskick
+- [ ] Analytics-kedja verifierad (inkl. `email_invite_*` och `enroll_source`)
+- [ ] `ACTIVATION_PROGRAM_LAUNCH_AT` satt (ändras **aldrig** efter första riktiga enroll — invariant #13)
 - [ ] `ACTIVATION_PROGRAM_ENABLED=true` i prod
 - [ ] Deploy genomförd **efter** env-vars ovan
+
+**Go live omfattar både nya och befintliga (väg A + B) samtidigt** — inte fasad per målgrupp.
 
 ## Före go-live (tillåtet)
 
@@ -396,7 +498,8 @@ Produktägare godkänner uttryckligen ("go live" / "kör igång") **efter**:
 
 - Ändra `ACTIVATION_PROGRAM_LAUNCH_AT`
 - Tvinga enroll utan val-skärm
-- Retroaktiv enroll av befintliga familjer
+- Tyst programrad utan förälderns val (gäller både nya och e-post-mottagare)
+- Maila aktiva familjer (<7 dagar sedan login)
 
 ## Roll
 

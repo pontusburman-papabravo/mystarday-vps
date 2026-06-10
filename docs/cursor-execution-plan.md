@@ -97,9 +97,15 @@ Enrollment via föräldraval.
 
 Implementera:
 
-onboarding-val-skärm (copy i contract § Onboarding-val)
+onboarding-val-skärm (copy i contract § Onboarding-val) — väg A
 
-onboarding hook (guided → enroll, direct → ingen rad)
+e-postinbjudan + eligibility (7+ dagar inaktiv, ej aktiva) — väg B
+
+samma val-skärm från e-postlänk
+
+enroll_source (onboarding_complete | email_reactivation)
+
+onboarding hook + e-postlänk-hook (guided → enroll, direct → ingen rad)
 
 feature flags
 
@@ -107,9 +113,13 @@ launch cutoff
 
 activation_program_enroll_choice
 
+activation_program_email_invite_sent / clicked
+
 Klart när:
 
-nya familjer kan välja "Ja, hjälp oss första veckan" eller "Vi kör själva".
+nya familjer (väg A) och inaktiva befintliga via e-post (väg B) kan välja ja/nej.
+
+Ingen A/B vid launch — `cohort_arm = treatment` för alla som väljer ja.
 
 **Inte live för användare** — fortsatt `ACTIVATION_PROGRAM_ENABLED=false` i prod tills § Go live.
 
