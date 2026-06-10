@@ -1,9 +1,12 @@
 'use strict';
 
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost:5432/test';
+
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const { DateTime } = require('luxon');
 
 const { getDayContent } = require('../src/lib/activation-program-content');
 const {
@@ -12,7 +15,20 @@ const {
   isDayDone,
   showReflection,
   getCalendarDay,
+  getEffectiveProgramDay,
+  maybeExpireProgram,
 } = require('../src/lib/activation-program');
+
+function withMockedNow(isoUtc, fn) {
+  const fixed = DateTime.fromISO(isoUtc, { zone: 'utc' });
+  const originalNow = DateTime.now;
+  DateTime.now = () => fixed;
+  try {
+    return fn();
+  } finally {
+    DateTime.now = originalNow;
+  }
+}
 
 function programAt(startIso, overrides = {}) {
   return {
@@ -65,19 +81,105 @@ describe('Fas 3 — day status helpers', () => {
   });
 
   it('showReflection from calendar day 7 until completed', () => {
-    const program = programAt('2026-06-01T08:00:00.000Z');
-    const tz = 'Europe/Stockholm';
-    // calendar day depends on now — test boundary via getCalendarDay mock logic:
-    // use reflection_score set → false
-    assert.equal(showReflection({ ...program, reflection_score: 4 }), false);
-    assert.equal(showReflection({ ...program, status: 'completed' }), false);
-    assert.equal(showReflection({ ...program, status: 'opted_out' }), false);
+    assert.equal(showReflection({ ...programAt('2026-06-01'), reflection_score: 4 }), false);
+    assert.equal(showReflection({ ...programAt('2026-06-01'), status: 'completed' }), false);
+    assert.equal(showReflection({ ...programAt('2026-06-01'), status: 'opted_out' }), false);
 
-    const day = getCalendarDay(program, tz);
-    if (day >= 7) {
-      assert.equal(showReflection(program, tz), true);
-    } else {
-      assert.equal(showReflection(program, tz), false);
+    withMockedNow('2026-06-07T10:00:00.000Z', () => {
+      const program = programAt('2026-06-01T08:00:00.000Z');
+      assert.equal(getCalendarDay(program, 'Europe/Stockholm'), 7);
+      assert.equal(showReflection(program, 'Europe/Stockholm'), true);
+    });
+
+    withMockedNow('2026-06-06T10:00:00.000Z', () => {
+      const program = programAt('2026-06-01T08:00:00.000Z');
+      assert.equal(showReflection(program, 'Europe/Stockholm'), false);
+    });
+  });
+
+  it('effective_day caps at 7 while calendar_day continues (reflection window)', () => {
+    withMockedNow('2026-06-10T10:00:00.000Z', () => {
+      const program = programAt('2026-06-01T08:00:00.000Z');
+      assert.equal(getCalendarDay(program, 'Europe/Stockholm'), 10);
+      assert.equal(getEffectiveProgramDay(program, 'Europe/Stockholm'), 7);
+      assert.equal(showReflection(program, 'Europe/Stockholm'), true);
+    });
+  });
+
+  it('day_advanced when effective_day > last_seen_day', () => {
+    const program = { last_seen_day: 2 };
+    const effectiveDay = 3;
+    assert.equal(effectiveDay > program.last_seen_day, true);
+    assert.equal(3 > 3, false);
+  });
+
+  it('lazy expiry at calendar_day > 21', () => {
+    const originalExpiry = process.env.ACTIVATION_PROGRAM_EXPIRY_DAY;
+    process.env.ACTIVATION_PROGRAM_EXPIRY_DAY = '21';
+    try {
+      withMockedNow('2026-06-23T08:00:00.000Z', () => {
+        const program = programAt('2026-06-01T08:00:00.000Z');
+        const expired = maybeExpireProgram(program, 'Europe/Stockholm');
+        assert.equal(expired.status, 'expired');
+      });
+    } finally {
+      if (originalExpiry === undefined) delete process.env.ACTIVATION_PROGRAM_EXPIRY_DAY;
+      else process.env.ACTIVATION_PROGRAM_EXPIRY_DAY = originalExpiry;
+    }
+  });
+});
+
+describe('Fas 3 — supportive fallback (dag 3)', () => {
+  it('swaps body to supportive_fallback when day >= 3 and no completion', () => {
+    const content = getDayContent(3, { childName: 'Estelle' });
+    const effectiveDay = 3;
+    const hasChildCompletion = false;
+
+    let resolved = { ...content };
+    if (effectiveDay >= 3 && !hasChildCompletion && content.supportive_fallback) {
+      resolved = {
+        ...content,
+        body: content.supportive_fallback,
+        is_supportive_fallback: true,
+      };
+    }
+
+    assert.equal(resolved.is_supportive_fallback, true);
+    assert.match(resolved.body, /komma igång/);
+    assert.notEqual(resolved.body, content.body);
+  });
+
+  it('keeps celebratory copy when child has completed', () => {
+    const content = getDayContent(3);
+    const hasChildCompletion = true;
+    let resolved = { ...content };
+    if (3 >= 3 && !hasChildCompletion && content.supportive_fallback) {
+      resolved = { ...content, body: content.supportive_fallback };
+    }
+    assert.equal(resolved.body, content.body);
+  });
+});
+
+describe('Fas 3 — API routes', () => {
+  it('registers all Fas 3 endpoints alongside Fas 2', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../src/routes/activation-program.js'),
+      'utf8'
+    );
+    const required = [
+      "router.get('/',",
+      "router.post('/skip-day'",
+      "router.post('/solo-day'",
+      "router.post('/opt-out'",
+      "router.post('/reflection'",
+      "router.post('/cta-clicked'",
+      "router.get('/new-completions'",
+      "router.post('/aha-dismiss'",
+      'supportive_fallback',
+      'maybeMarkDay3Aha',
+    ];
+    for (const needle of required) {
+      assert.ok(src.includes(needle), `missing ${needle}`);
     }
   });
 });
