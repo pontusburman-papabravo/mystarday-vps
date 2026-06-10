@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/dashboard-polish.css?v=2026-05-29-release-os">
+  <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-09-warmth">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.14.0"></script>
@@ -285,15 +286,15 @@
     /* Avatar with reward progress ring */
     .dash-avatar-wrap {
       position: relative; flex-shrink: 0;
-      width: 52px; height: 52px;
+      width: 64px; height: 64px;
     }
     .dash-avatar-ring {
-      position: absolute; top: 0; left: 0; width: 52px; height: 52px;
+      position: absolute; top: 0; left: 0; width: 64px; height: 64px;
     }
     .dash-avatar-ring circle { transition: stroke-dashoffset 0.6s ease; }
     .dash-avatar-emoji {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 22px; line-height: 1;
+      font-size: 26px; line-height: 1;
     }
 
     /* Section pills (trafikljus) */
@@ -534,7 +535,9 @@
   <script src="/js/dashboard-impersonation.js?v=2.12.0"></script>
   <script src="/js/skeleton.js?v=1.0.0"></script>
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
-  <script src="/js/dashboard.js?v=2.35.0"></script>
+  <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
+  <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
+  <script src="/js/dashboard.js?v=2.36.0"></script>
 
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
@@ -565,7 +568,7 @@
     <main class="flex-1 flex flex-col min-w-0">
       <div class="bg-sky border-b border-lavender p-4 md:p-6">
         <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xl font-heading font-bold text-navy">🏠 Översikt</h2>
+          <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy">🌟 Dagens framsteg</h2>
           <div class="flex items-center gap-3">
             <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">← Alla barn</button>
           </div>
@@ -650,6 +653,9 @@
                 title="Stäng">✕</button>
       </div>
 
+      <!-- Positive daily summary (warmth banner) -->
+      <div id="dashboardDailySummary" class="hidden" role="status" aria-live="polite"></div>
+
       <div class="flex-1 p-4 md:p-8 overflow-auto">
 
         <!-- Dashboard: child cards side-by-side + weekly overview -->
@@ -657,8 +663,8 @@
           <!-- Header -->
           <div class="mb-5 flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h3 class="text-lg font-heading font-bold text-navy mb-0.5">Barnens progress</h3>
-              <p class="text-xs text-text-soft">Klicka på ett barn för schema · Stjärnhistorik nedan</p>
+              <h3 id="dashboardSectionTitle" class="text-lg font-heading font-bold text-navy mb-0.5">Hej!</h3>
+              <p id="dashboardSectionSub" class="text-xs text-text-soft">Klicka på ett barn för mer · Veckans stjärnor nedan</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
@@ -675,9 +681,10 @@
           <!-- Star history chart (replaces weekly overview) -->
           <div id="starHistorySection" class="hidden">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-lg font-heading font-bold text-navy">⭐ Stjärnhistorik</h3>
+              <h3 class="text-lg font-heading font-bold text-navy">⭐ Veckans stjärnor</h3>
               <span class="text-xs text-text-soft font-semibold">Senaste 8 veckorna</span>
             </div>
+            <div id="starHistoryStory" class="hidden"></div>
             <div id="starHistoryContent" class="bg-white border-2 border-lavender rounded-2xl p-4 overflow-x-auto"></div>
           </div>
 

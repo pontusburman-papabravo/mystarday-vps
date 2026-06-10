@@ -1,0 +1,145 @@
+/**
+ * Dashboard warmth — positive summary banner, child card energy, weekly story.
+ */
+
+/* ── Daily summary banner ── */
+.dash-daily-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 16px 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 2px solid #F5D78E;
+  background: linear-gradient(135deg, #FFF8E7 0%, #FFFFFF 60%);
+  animation: dash-summary-in 0.4s ease;
+}
+.dash-summary-gold { border-color: #F5A623; background: linear-gradient(135deg, #FFF3D6 0%, #FFFFFF 70%); }
+.dash-summary-reward { border-color: #F59E0B; background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 70%); }
+.dash-summary-celebrate { border-color: #34D399; background: linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 70%); }
+.dash-summary-progress { border-color: #A78BFA; background: linear-gradient(135deg, #F5F3FF 0%, #FFFFFF 70%); }
+
+@keyframes dash-summary-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.dash-summary-emoji { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.dash-summary-text { flex: 1; min-width: 0; }
+.dash-summary-headline {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1B2340;
+  margin: 0;
+  line-height: 1.35;
+}
+.dash-summary-sub {
+  font-size: 12px;
+  color: #5A6178;
+  margin: 3px 0 0;
+  line-height: 1.3;
+}
+.dash-summary-action {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1B2340;
+  background: white;
+  border: 2px solid #EDE7F6;
+  border-radius: 10px;
+  padding: 8px 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.dash-summary-action:hover {
+  border-color: #F5A623;
+  background: #FFF8E7;
+}
+
+/* ── Child card stats (bigger, warmer) ── */
+.dash-child-card.has-today-progress {
+  border-color: #FCD34D;
+  box-shadow: 0 2px 12px rgba(245, 166, 35, 0.15);
+}
+.dash-child-card.has-today-win {
+  border-color: #6EE7B7;
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.15);
+}
+
+.dash-stat-primary {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1B2340;
+  line-height: 1.3;
+}
+.dash-stat-hot { color: #B45309; }
+.dash-stat-win { color: #047857; font-weight: 700; }
+.dash-stat-secondary {
+  font-size: 11px;
+  color: #5A6178;
+  margin-top: 1px;
+}
+.dash-stat-stars {
+  font-size: 13px;
+  font-weight: 700;
+  color: #B45309;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+.dash-stars-num { font-size: 18px; font-weight: 800; }
+.dash-stat-today-stars {
+  font-size: 11px;
+  font-weight: 700;
+  color: #047857;
+  margin-bottom: 1px;
+}
+.dash-stat-reward-hint {
+  font-size: 11px;
+  color: #7C3AED;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ── Weekly story (above chart) ── */
+.dash-week-story-inner {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #FFF8E7, #FFFFFF);
+  border: 2px solid #F5D78E;
+  border-radius: 14px;
+}
+.dash-week-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dash-week-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5A6178;
+}
+.dash-week-total {
+  font-size: 22px;
+  font-weight: 800;
+  color: #B45309;
+  font-family: inherit;
+}
+.dash-week-meta { margin-top: 4px; }
+.dash-week-diff {
+  font-size: 12px;
+  font-weight: 600;
+}
+.dash-week-best {
+  font-size: 13px;
+  font-weight: 700;
+  color: #047857;
+  margin: 6px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-daily-summary { animation: none; }
+}
