@@ -205,7 +205,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v223';
+const CACHE_NAME = 'stjarndag-v224';
+// v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
 // v155: Föräldralås (Parental PIN) — fix child→parent PIN guard security hole.

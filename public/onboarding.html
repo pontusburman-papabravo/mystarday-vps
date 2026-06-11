@@ -112,10 +112,17 @@
       letter-spacing: 0.05em; margin-bottom: 4px; margin-top: 8px;
     }
 
-    /* Emoji grid */
-    .emoji-btn { cursor: pointer; border: 2px solid transparent; transition: all 0.15s; border-radius: 12px; }
+    /* Emoji grid — 44px min touch target for iPad / iOS */
+    .emoji-btn {
+      cursor: pointer; border: 2px solid transparent; transition: all 0.15s; border-radius: 12px;
+      min-width: 44px; min-height: 44px; touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(245,166,35,0.2);
+    }
     .emoji-btn:hover { background: #E8F0FE; border-color: #F5A623; }
     .emoji-btn.selected { background: #FFF3D6; border-color: #F5A623; box-shadow: 0 0 0 2px rgba(245,166,35,0.3); }
+    .emoji-opt, .add-emoji-opt, .drawer-emoji-opt {
+      min-width: 44px; min-height: 44px; touch-action: manipulation;
+    }
 
     /* Schedule preview */
     .schedule-item {
@@ -330,9 +337,9 @@
             class="form-input text-sm py-2.5" />
         </div>
 
-        <!-- iOS native avatar picker — shown only on iOS via initIOSAvatarPicker() -->
-        <div id="avatarPickerSection" class="hidden">
-          <label class="block text-sm font-semibold text-navy mb-3">Barnets profilbild</label>
+        <!-- iOS native avatar picker — optional, shown below emoji on iOS/iPad -->
+        <div id="avatarPickerSection" class="hidden mt-4 pt-4 border-t border-lavender">
+          <label class="block text-sm font-semibold text-navy mb-3">Valfritt: profilbild</label>
           <div class="flex flex-col items-center gap-4">
             <img id="avatarPreview" src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/bac2e263-dc2f-4046-8870-cc4f4dd6f3a0.jpg"
               class="w-24 h-24 rounded-full object-cover bg-gold-light border-2 border-gold"

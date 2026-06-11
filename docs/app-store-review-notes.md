@@ -1,7 +1,7 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-06-08 | SW v222
+> Last updated: 2026-06-10 | SW v224
 
 ---
 
@@ -115,6 +115,7 @@ App Store Connect accepts only: **1242×2688**, **1284×2778**, or landscape **2
 - The app works in both Swedish (default) and English. You can switch language in the parent's settings.
 - Push notifications are sent via APNs. Simulators cannot receive push — this is an iOS limitation. On a physical device they work correctly.
 - Apple Sign In requires a real Apple ID and cannot be tested on the simulator. Please test on a physical device.
+- **Child onboarding (iPad/iOS):** Step 1 shows an emoji grid (tap to select) plus an optional profile photo below. A default emoji (🌟) is pre-selected so you can continue without tapping if preferred.
 - The review test account has no payment information and no real personal data. All content is fictional.
 - If you need to reset the test data, contact us at `support@mystarday.se` and reference this review build.
 

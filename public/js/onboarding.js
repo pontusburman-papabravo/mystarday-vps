@@ -78,19 +78,24 @@ function updateBirthdayHidden() {
 // ────────────────────────────────────────────────────────────────────────────
 // EMOJI GRID
 // ────────────────────────────────────────────────────────────────────────────
+function selectEmojiButton(btn, emoji) {
+  document.querySelectorAll('.emoji-btn').forEach(function (b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedEmojiValue = emoji;
+  var custom = document.getElementById('customEmoji');
+  if (custom) custom.value = '';
+}
+
 function buildEmojiGrid() {
   const grid = document.getElementById('emojiGrid');
+  if (!grid) return;
   EMOJIS.forEach(emoji => {
     const btn = document.createElement('button');
     btn.className = 'emoji-btn text-2xl p-1.5 text-center';
     btn.textContent = emoji;
     btn.type = 'button';
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedEmojiValue = emoji;
-      document.getElementById('customEmoji').value = '';
-    });
+    btn.setAttribute('aria-label', 'Välj emoji ' + emoji);
+    btn.addEventListener('click', function () { selectEmojiButton(btn, emoji); });
     grid.appendChild(btn);
   });
   document.getElementById('customEmoji').addEventListener('input', (e) => {
@@ -1033,32 +1038,43 @@ if (IS_ADD_CHILD) {
 }
 // ────────────────────────────────────────────────────────────────────────────
 /**
- * On iOS native: replaces emoji grid with photo-picker UI.
- * On web: emoji grid stays as-is (emoji picker fallback).
+ * On iOS native: optional photo picker alongside emoji grid (iPhone + iPad).
+ * Emoji picker must stay visible — App Review tested on iPad and could not pick emoji when hidden.
  */
 function initIOSAvatarPicker() {
-  // Only active on iOS native — Android camera support is future work
   if (!window.Platform || !Platform.isIOS()) return;
 
   const avatarSection = document.getElementById('avatarPickerSection');
   const emojiSection = document.getElementById('emojiSection');
   if (!avatarSection || !emojiSection) return;
 
-  // Hide web emoji picker, show iOS photo picker
-  emojiSection.classList.add('hidden');
+  // Keep emoji grid visible; photo is optional add-on below
+  emojiSection.classList.remove('hidden');
   avatarSection.classList.remove('hidden');
 
   const preview = document.getElementById('avatarPreview');
   const chooseBtn = document.getElementById('pickPhotoBtn');
   const useDefaultBtn = document.getElementById('useDefaultAvatarBtn');
 
-  // "Use default" — deselects photo, falls back to emoji
+  function selectDefaultEmoji() {
+    var starBtn = Array.prototype.find.call(
+      document.querySelectorAll('.emoji-btn'),
+      function (b) { return b.textContent === '🌟'; }
+    );
+    if (starBtn) selectEmojiButton(starBtn, '🌟');
+  }
+
+  // Pre-select 🌟 so onboarding can continue even if reviewer skips emoji tap
+  if (!selectedEmojiValue) selectDefaultEmoji();
+
+  // "Use default" — deselects photo, keep emoji
   useDefaultBtn.addEventListener('click', () => {
     selectedAvatarUrl = null;
     preview.src = 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/bac2e263-dc2f-4046-8870-cc4f4dd6f3a0.jpg';
     preview.classList.remove('ring-2', 'ring-gold');
     chooseBtn.classList.remove('hidden');
     useDefaultBtn.classList.add('hidden');
+    if (!selectedEmojiValue) selectDefaultEmoji();
   });
 
   // "Choose photo" — opens camera/photo library
