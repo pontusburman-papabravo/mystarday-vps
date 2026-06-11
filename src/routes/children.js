@@ -17,6 +17,7 @@ const pinLockout = require('../../db/pin-lockout');
 const { getChildrenForParent } = require('../../db/parent-access');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
+const { resolveDefaultScheduleName, seedChildDefaultSchedule } = require('../lib/seed-child-default-schedule');
 
 const router = express.Router();
 
@@ -323,190 +324,44 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
         [child.id]
       );
 
-      // ── Auto-seed weekly schedule from age-based default_schedule ──
-      // Determine age group: Förskola (< 6) or Skola (6+). Default to förskola.
-      let defaultScheduleName = 'Förskola vardag';
-      if (birthday) {
-        const birthDate = new Date(birthday);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-        if (age >= 6) defaultScheduleName = 'Skola vardag';
-      }
-
-      // Look up the matching default_schedule (admin-maintained curated schedules)
-      const defaultSchedRow = await client.query(
-        `SELECT ds.id FROM default_schedule ds WHERE ds.name = $1 LIMIT 1`,
-        [defaultScheduleName]
-      );
-
-      let seeded = false;
-      if (defaultSchedRow.rows.length > 0) {
-        const defaultSchedId = defaultSchedRow.rows[0].id;
-
-        // Fetch all items for this default schedule, ordered by section + sort_order
-        // Include sub_steps JSONB so we can create activity_sub_step records
-        const defaultItems = await client.query(
-          `SELECT name, icon, section, star_value, sort_order, start_time, end_time, sub_steps
-           FROM default_schedule_item
-           WHERE default_schedule_id = $1
-           ORDER BY sort_order ASC`,
-          [defaultSchedId]
-        );
-
-        if (defaultItems.rows.length > 0) {
-          // Ensure activity_template records exist for each item (reuse by name if already exists)
-          // Use a category named after the schedule (Morgon/Dag/Kväll) to group activities
-          const sectionToCategoryName = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
-          const categoryMap = {};
-
-          // Load existing categories for this family
-          const existingCats = await client.query(
-            'SELECT id, name FROM category WHERE family_id = $1',
-            [req.user.familyId]
-          );
-          for (const ec of existingCats.rows) {
-            categoryMap[ec.name] = ec.id;
-          }
-
-          // Ensure we have category records for each section used
-          const sectionsUsed = [...new Set(defaultItems.rows.map(r => r.section))];
-          const categorySortOrder = { morgon: 0, dag: 1, kvall: 2, natt: 3 };
-          for (const sec of sectionsUsed) {
-            const catName = sectionToCategoryName[sec] || 'Dag';
-            if (!categoryMap[catName]) {
-              const catResult = await client.query(
-                `INSERT INTO category (family_id, name, sort_order, is_default)
-                 VALUES ($1, $2, $3, true)
-                 RETURNING id`,
-                [req.user.familyId, catName, categorySortOrder[sec] ?? 99]
-              );
-              categoryMap[catName] = catResult.rows[0].id;
-            }
-          }
-
-          // Ensure activity_template records exist (upsert by name+family to avoid duplicates)
-          // Batch: fetch all existing templates for this family in one query
-          const templateMap = {}; // name → activity_template.id
-          const itemNames = defaultItems.rows.map(r => r.name);
-          const existingTemplates = await client.query(
-            `SELECT id, name FROM activity_template WHERE family_id = $1 AND LOWER(name) = ANY($2)`,
-            [req.user.familyId, itemNames.map(n => n.toLowerCase())]
-          );
-          for (const et of existingTemplates.rows) {
-            templateMap[et.name] = et.id;
-          }
-
-          // Insert missing templates (ones not already in templateMap)
-          // Also create activity_sub_step records from default_schedule_item.sub_steps JSONB
-          const missingItems = defaultItems.rows.filter(item => !templateMap[item.name]);
-          for (const item of missingItems) {
-            const catName = sectionToCategoryName[item.section] || 'Dag';
-            const catId = categoryMap[catName];
-            const inserted = await client.query(
-              `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order)
-               VALUES ($1, $2, $3, $4, $5, $6)
-               RETURNING id`,
-              [req.user.familyId, catId, item.name, item.icon, item.star_value, item.sort_order]
-            );
-            const newTemplateId = inserted.rows[0].id;
-            templateMap[item.name] = newTemplateId;
-
-            // Copy sub-steps from default_schedule_item if present
-            const subSteps = item.sub_steps || [];
-            if (Array.isArray(subSteps) && subSteps.length > 0) {
-              for (let si = 0; si < subSteps.length; si++) {
-                await client.query(
-                  `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                   VALUES ($1, $2, $3, $4)`,
-                  [newTemplateId, subSteps[si].name, subSteps[si].icon || null, si]
-                );
-              }
-            }
-          }
-
-          // Backfill sub-steps for existing templates that are missing them
-          // (handles case where family was created before sub_steps were added)
-          const existingTemplateIds = defaultItems.rows
-            .filter(item => !missingItems.includes(item) && item.sub_steps && Array.isArray(item.sub_steps) && item.sub_steps.length > 0)
-            .map(item => ({ id: templateMap[item.name], subSteps: item.sub_steps, name: item.name }))
-            .filter(t => t.id);
-          for (const tpl of existingTemplateIds) {
-            // Only backfill if template has zero sub_steps currently
-            const existingSubs = await client.query(
-              'SELECT COUNT(*) AS cnt FROM activity_sub_step WHERE activity_template_id = $1',
-              [tpl.id]
-            );
-            if (parseInt(existingSubs.rows[0].cnt, 10) === 0) {
-              for (let si = 0; si < tpl.subSteps.length; si++) {
-                await client.query(
-                  `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                   VALUES ($1, $2, $3, $4)`,
-                  [tpl.id, tpl.subSteps[si].name, tpl.subSteps[si].icon || null, si]
-                );
-              }
-            }
-          }
-
-          // School/preschool schedules → weekdays only (Mon–Fri); weekends left empty.
-          // The parent can add a weekend schedule later via the schedule library.
-          const weekdaysOnly = [1, 2, 3, 4, 5]; // Mon=1, Tue=2, Wed=3, Thu=4, Fri=5
-          const schedResult = await client.query(
-            `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order)
-             VALUES ${weekdaysOnly.map((_, i) => `($1, $${i+2}, $${i+2})`).join(', ')}
-             RETURNING id, day_of_week`,
-            [child.id, ...weekdaysOnly]
-          );
-
-          // Build all schedule items in a single batch insert
-          const validItems = defaultItems.rows.filter(item => templateMap[item.name]);
-          if (validItems.length > 0 && schedResult.rows.length > 0) {
-            const values = [];
-            const params = [];
-            let paramIdx = 1;
-            for (const sched of schedResult.rows) {
-              let sortIdx = 0;
-              for (const item of validItems) {
-                values.push(`($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5})`);
-                params.push(sched.id, templateMap[item.name], item.start_time || null, item.end_time || null, sortIdx++, item.section);
-                paramIdx += 6;
-              }
-            }
-            await client.query(
-              `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
-               VALUES ${values.join(', ')}`,
-              params
-            );
-          }
-          seeded = true;
-        }
-      }
-
-      // Fallback: if no default schedule found, leave schedule empty (parent can fill manually)
-      void seeded;
+      const defaultScheduleName = resolveDefaultScheduleName(birthday);
 
       await client.query('COMMIT');
 
-      // Generate today's daily log so the dashboard shows items immediately (Bug fix:
-      // without this, new children show "Inget schema" until the midnight scheduler runs)
+      // Schedule seeding is best-effort — child must exist even if library/schema seeding fails.
+      let seeded = false;
+      try {
+        const seedResult = await seedChildDefaultSchedule({
+          childId: child.id,
+          familyId: req.user.familyId,
+          birthday,
+        });
+        seeded = seedResult.seeded;
+      } catch (seedErr) {
+        console.error(
+          '[CHILDREN] Default schedule seed failed for child',
+          child.id,
+          ':',
+          seedErr.code,
+          seedErr.message,
+          seedErr.detail || ''
+        );
+      }
+
       if (seeded) {
         const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: childTimezone });
         try {
           await getOrGenerateDailyLog(child.id, todayStr);
         } catch (dlErr) {
-          // Non-critical: midnight scheduler will catch up if this fails
           console.error('[CHILDREN] Daily log generation after child creation failed:', dlErr.message);
         }
       }
 
       res.status(201).json({
         ...child,
-        pin: rawPin, // Show PIN once so parent can save it
+        pin: rawPin,
         message: `${name.trim()} har lagts till! Spara PIN-koden: ${rawPin}`,
-        wizard: true, // Signal frontend to redirect to wizard onboarding
+        wizard: true,
         default_schedule_name: defaultScheduleName,
       });
     } catch (err) {
@@ -525,7 +380,17 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
         suggestions,
       });
     }
-    console.error('[CHILDREN] Create error:', err);
+    console.error(
+      '[CHILDREN] Create error for parent',
+      req.user?.id,
+      'family',
+      req.user?.familyId,
+      ':',
+      err.code,
+      err.message,
+      err.detail || '',
+      err.stack
+    );
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
