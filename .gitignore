@@ -24,6 +24,10 @@ agent-*
 ios/
 android/
 
+# Android upload keystore (backup locally — required for all future Play updates)
+assets/play-store/signing/*.keystore
+assets/play-store/signing/*.jks
+
 # Polsia safety (auto-injected)
 .claude/
 .claude.json*

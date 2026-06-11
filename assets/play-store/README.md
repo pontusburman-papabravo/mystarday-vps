@@ -67,3 +67,47 @@ Skriptet simulerar **Android WebView** (native tab bar, ingen desktop-sidebar).
 |--|--|
 | Förälder | `review@mystarday.se` / `AppReview2026!` |
 | Barn | Anna / PIN `4455` |
+
+## Android App Bundle (AAB)
+
+**Uppladdning till Play Console:**
+
+```
+assets/play-store/out/min-stjarnadag-release.aab
+```
+
+| | |
+|--|--|
+| Paket | `se.mystarday.app` |
+| Storlek | ~7,3 MB |
+| Signering | Upload key (`mystarday-upload`) |
+
+### Bygga om
+
+```bash
+npm run android:aab
+```
+
+Valfritt (Google Sign In i native):
+
+```bash
+GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com npm run android:aab
+```
+
+### Upload key (spara säkert)
+
+Keystore skapas vid första build och **checkas inte in** i git:
+
+```
+assets/play-store/signing/mystarday-upload.keystore
+```
+
+| | |
+|--|--|
+| Alias | `mystarday-upload` |
+| Lösenord | `MinStjarnadagUpload2026!` (byt vid produktion) |
+
+**SHA-1:** `8D:B3:2D:CD:77:6C:97:CB:1B:13:B7:D0:30:FD:52:3E:AC:AE:76:81`  
+**SHA-256:** `E5:53:1C:CD:B0:1A:FF:11:C0:16:D5:9E:A9:C6:D5:A5:D8:3A:9A:3E:F3:A6:7B:34:E2:4C:05:96:4A:6E:42:88`
+
+Registrera SHA-1 i Google Cloud Console (OAuth) och `/.well-known/assetlinks.json` på servern.
