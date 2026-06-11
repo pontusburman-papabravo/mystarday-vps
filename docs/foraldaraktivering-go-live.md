@@ -36,9 +36,11 @@ Checklista (ska vara grön efter smoke 1–6c):
 
 ---
 
-## 2. Sätt env i Polsia Dashboard
+## 2. Sätt env i Render
 
-**Ordning:** Sätt alla variabler → redeploy/omstart → verifiera med testkonto.
+**Var:** [Render Dashboard](https://dashboard.render.com) → din Web Service (`mystarday`) → **Environment**.
+
+**Ordning:** Sätt alla variabler → **Manual Deploy** (eller vänta på auto-deploy från `main`) → verifiera med testkonto.
 
 | Variabel | Go-live värde | Kommentar |
 |----------|---------------|-----------|
@@ -63,15 +65,17 @@ ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-11T06:00:00Z
 
 ## 3. Deploy
 
-1. Bekräfta att `main` är deployad (migrationer `179950…`–`179990…` körda)
-2. Sätt env ovan i Polsia Dashboard
-3. **Redeploy / omstart** appen
-4. Valfritt (Render Shell):
+1. Merge + push till `main` (migrationer `179950…`–`179990…` körs via `npm run build` → `npm run migrate`)
+2. Sätt env ovan i **Render → Environment**
+3. **Deploy Latest** (vid behov: Clear build cache)
+4. Valfritt — **Render Shell** (samma service):
 
 ```bash
 node scripts/seed-features.js
-node scripts/verify-activation-go-live.js
+npm run verify:activation-go-live
 ```
+
+**Git:** push till `main` triggar deploy om auto-deploy är på. Env-ändringar kräver alltid ny deploy/omstart på Render.
 
 ---
 

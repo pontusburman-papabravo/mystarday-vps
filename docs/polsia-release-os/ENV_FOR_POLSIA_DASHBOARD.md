@@ -21,6 +21,8 @@
 
 ### Föräldraaktivering 7D (go-live — efter Fas 6C + PO-beslut)
 
+> **Obs:** Polsia används inte längre. Sätt variablerna i **Render → Environment** (samma service som övrig prod).
+
 Full runbook: [`docs/foraldaraktivering-go-live.md`](../foraldaraktivering-go-live.md)
 
 | Variabel | Go-live | Kommentar |
@@ -31,7 +33,7 @@ Full runbook: [`docs/foraldaraktivering-go-live.md`](../foraldaraktivering-go-li
 | `ACTIVATION_PROGRAM_AB_ENABLED` | *(tom)* | **Inte** `true` vid launch |
 | `ACTIVATION_PROGRAM_EXPIRY_DAY` | `21` | Default |
 
-Efter env: **redeploy**. Verifiera: `npm run verify:activation-go-live`
+Efter env: **Deploy Latest** på Render. Verifiera: `npm run verify:activation-go-live` (Render Shell)
 
 ### Migration export (tillfälligt vid plattformsflytt)
 

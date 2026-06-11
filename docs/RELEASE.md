@@ -44,6 +44,20 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `POLSIA_API_KEY` | (från Polsia Dashboard) | Bilduppladdning (R2-proxy) — **inte** e-post |
 | `DATABASE_URL` | (Neon-connection string) | Ska redan finnas |
 
+### Föräldraaktivering 7D (go-live)
+
+Sätt i **Render → Environment** efter Fas 6C + produktägares beslut. Full runbook: [`docs/foraldaraktivering-go-live.md`](foraldaraktivering-go-live.md).
+
+| Variabel | Go-live | Kommentar |
+|----------|---------|-----------|
+| `ACTIVATION_PROGRAM_ENABLED` | `true` | Master switch |
+| `ACTIVATION_PROGRAM_LAUNCH_AT` | ISO UTC | **Fryses efter första enroll** |
+| `ACTIVATION_PROGRAM_EMAIL_ENABLED` | `true` | Väg B — inaktiva familjer |
+| `ACTIVATION_PROGRAM_EXPIRY_DAY` | `21` | Default |
+| `ACTIVATION_PROGRAM_AB_ENABLED` | *(tom)* | Inte `true` vid launch |
+
+Efter env: **Deploy Latest** på Render. Verifiera i Shell: `npm run verify:activation-go-live`.
+
 ### Resend MCP (Cursor / Claude Code)
 
 Projektet inkluderar `.cursor/mcp.json` för Resend MCP (skicka/testa mail från editorn).

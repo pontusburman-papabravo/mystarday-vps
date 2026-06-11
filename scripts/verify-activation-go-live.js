@@ -64,10 +64,10 @@ async function main() {
     console.log('[SKIP] DATABASE_URL — table check skipped');
   }
 
-  console.log('\n[ENV] Production (Polsia Dashboard):');
+  console.log('\n[ENV] Production (Render → Environment):');
   for (const key of PROD_ENV_KEYS) {
     const val = process.env[key];
-    console.log(`  ${key}=${val ?? '<set in prod dashboard>'}`);
+    console.log(`  ${key}=${val ?? '<set in Render dashboard>'}`);
   }
 
   if (process.env.ACTIVATION_PROGRAM_ENABLED === 'true' && !process.env.ACTIVATION_PROGRAM_LAUNCH_AT) {
