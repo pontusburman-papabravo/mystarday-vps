@@ -140,7 +140,7 @@ Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×
 
 **Contact First Name:** [First name]
 **Contact Last Name:** [Last name]
-**Contact Email:** stjarndag@polsia.app
+**Contact Email:** info@mystarday.se
 **Phone:** [Phone number — optional]
 **Demo Account Username:** review@mystarday.se
 **Demo Account Password:** AppReview2026!

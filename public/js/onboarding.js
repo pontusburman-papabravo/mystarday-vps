@@ -557,7 +557,7 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
 // STEP 5 — Login info helpers
 // ────────────────────────────────────────────────────────────────────────────
 async function copyLoginInfo() {
-  const text = `Min Stjärndag — ${childName}\nAnvändarnamn: ${childUsername}\nPIN: ${childPin}\nApp: https://my-starday.polsia.app/child-login`;
+  const text = `Min Stjärndag — ${childName}\nAnvändarnamn: ${childUsername}\nPIN: ${childPin}\nApp: https://mystarday.se/child-login`;
   try {
     await navigator.clipboard.writeText(text);
     const btn = document.getElementById('copyPinBtn');
@@ -574,7 +574,7 @@ async function emailLoginInfo() {
     const email = me.email || '';
     const subject = encodeURIComponent(`Min Stjärndag — Inloggning för ${childName}`);
     const body = encodeURIComponent(
-      `Hej!\n\nHär är inloggningsuppgifterna till Min Stjärndag för ${childName}:\n\nAnvändarnamn: ${childUsername}\nPIN-kod: ${childPin}\n\nÖppna appen: https://my-starday.polsia.app/child-login\n\nMed vänliga hälsningar,\nMin Stjärndag`
+      `Hej!\n\nHär är inloggningsuppgifterna till Min Stjärndag för ${childName}:\n\nAnvändarnamn: ${childUsername}\nPIN-kod: ${childPin}\n\nÖppna appen: https://mystarday.se/child-login\n\nMed vänliga hälsningar,\nMin Stjärndag`
     );
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   } catch {
