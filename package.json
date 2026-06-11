@@ -40,7 +40,8 @@
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
     "cap:dev": "CAP_DEV=true npx cap sync",
-    "play-store:assets": "node scripts/generate-play-store-assets.mjs"
+    "play-store:assets": "node scripts/generate-play-store-assets.mjs",
+    "android:aab": "node scripts/build-android-aab.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",
