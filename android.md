@@ -488,6 +488,7 @@ Fler Android-menyer eller fler native-sprintar löser **inte** 10/10. Det skilje
 | `src/routes/auth.js` | Apple + (Google) |
 | `src/lib/push-notifications.js` | `sendFCM` |
 | `db/push-subscriptions.js` | `platform`, `native_token` |
+| `docs/google-play-checklist.md` | Steg-för-steg Play Console → Production |
 
 ---
 
