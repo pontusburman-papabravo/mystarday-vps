@@ -132,7 +132,7 @@ Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×
 | Field | Value |
 |-------|-------|
 | Developer Website | https://mystarday.se |
-| Copyright | © 2026 My Starday |
+| Copyright | © 2026 Papa Bravo AB |
 
 ---
 
