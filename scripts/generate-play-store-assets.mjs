@@ -52,22 +52,38 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+const ONLY_SHOTS = (process.env.ONLY_SHOTS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+function shotNum(filename) {
+  const m = filename.match(/^(\d{2})-/);
+  return m ? m[1] : null;
+}
+
+function shouldCapture(filename) {
+  if (!ONLY_SHOTS.length) return true;
+  const n = shotNum(filename);
+  return n && ONLY_SHOTS.includes(n);
+}
+
 async function ensureOut() {
   fs.mkdirSync(OUT, { recursive: true });
   for (const file of fs.readdirSync(OUT)) {
-    if (
-      file.match(/^\d{2}-.*-mobile-1080x\d+\.png$/) ||
-      file.startsWith('_tmp-')
-    ) {
+    const isShot = file.match(/^\d{2}-.*-mobile-1080x\d+\.png$/);
+    if (isShot && !shouldCapture(file)) continue;
+    if (isShot || file.startsWith('_tmp-')) {
       fs.unlinkSync(path.join(OUT, file));
     }
   }
 }
 
-/** Inject Capacitor + Platform before any page script runs */
+/** Inject Capacitor + Platform before any page script runs (once per page) */
 async function setupNativeAndroid(page) {
   await page.setUserAgent(ANDROID_UA);
   await page.setViewport(MOBILE);
+  if (page.__nativeAndroidReady) return;
   await page.evaluateOnNewDocument(() => {
     window.Capacitor = {
       isNativePlatform: () => true,
@@ -75,6 +91,32 @@ async function setupNativeAndroid(page) {
       Plugins: {},
     };
   });
+  page.__nativeAndroidReady = true;
+}
+
+/** Pages using Auth.requireAuth / Auth.isLoggedIn need localStorage — httpOnly cookie alone is not enough */
+async function hydrateParentAuth(page) {
+  const ok = await page.evaluate(async () => {
+    if (window.Auth && Auth.isLoggedIn()) return true;
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) return false;
+    const me = await res.json();
+    if (!me.email) return false;
+    if (window.Auth) {
+      Auth.setAuth(null, {
+        id: me.id,
+        email: me.email,
+        familyId: me.family_id || me.familyId,
+        type: 'parent',
+        isAdmin: !!(me.isAdmin || me.is_admin),
+        onboarding_completed: me.onboarding_completed !== false,
+        account_type: me.account_type,
+        preferred_view_mode: me.preferred_view_mode,
+      });
+    }
+    return !!(window.Auth && Auth.isLoggedIn());
+  });
+  if (!ok) throw new Error('Failed to hydrate parent Auth in localStorage');
 }
 
 async function normalizePhoneScreenshot(filePath) {
@@ -122,6 +164,9 @@ async function loginParent(page) {
       body: JSON.stringify({ email, password }),
     });
     const body = await res.json().catch(() => ({}));
+    if (res.ok && body.user && window.Auth) {
+      Auth.setAuth(null, body.user, body.csrfToken, body.expiresAt);
+    }
     return { status: res.status, error: body.error || null };
   }, REVIEW_EMAIL, REVIEW_PASSWORD);
 
@@ -131,8 +176,9 @@ async function loginParent(page) {
     );
   }
 
-  await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await sleep(1200);
+  await hydrateParentAuth(page);
+  await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await sleep(2000);
 
   if ((page.url() || '').includes('/login')) {
     throw new Error('Login failed — redirected to login. Check REVIEW_EMAIL/PASSWORD.');
@@ -151,19 +197,60 @@ async function waitForNativeShell(page) {
   await sleep(600);
 }
 
+async function waitForPageReady(page, urlPath) {
+  if (urlPath === '/library') {
+    await page.waitForSelector('#tab-schema-btn', { timeout: 20000 });
+    await page.waitForFunction(
+      () => document.querySelectorAll('#tab-schema [data-id]').length > 0,
+      { timeout: 20000 }
+    ).catch(() => {});
+  } else if (urlPath === '/family') {
+    await page.waitForFunction(
+      () => {
+        const s = document.getElementById('familyInfoSection');
+        return s && !s.classList.contains('hidden');
+      },
+      { timeout: 20000 }
+    );
+  } else if (urlPath === '/skattkammaren') {
+    await page.waitForFunction(
+      () => {
+        const chips = document.getElementById('childChips');
+        return chips && chips.children.length > 0;
+      },
+      { timeout: 20000 }
+    );
+  } else if (urlPath === '/settings') {
+    await page.waitForSelector('#familyName', { timeout: 20000 });
+    await page.waitForFunction(
+      () => (document.getElementById('familyName')?.value || '').length > 0,
+      { timeout: 20000 }
+    );
+  }
+}
+
 async function captureMobile(page, filename, urlPath, { waitSelector, requireParent } = {}) {
-  if (requireParent) await assertParentSession(page);
+  if (requireParent) {
+    await assertParentSession(page);
+    await hydrateParentAuth(page);
+  }
   await setupNativeAndroid(page);
-  await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   if ((page.url() || '').includes('/login')) {
     await loginParent(page);
-    await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'networkidle2', timeout: 60000 });
+    await hydrateParentAuth(page);
+    await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   }
   await waitForNativeShell(page);
+  await waitForPageReady(page, urlPath);
   if (waitSelector) {
     await page.waitForSelector(waitSelector, { timeout: 15000 }).catch(() => {});
   }
-  await sleep(1200);
+  await sleep(1500);
+  const finalUrl = page.url() || '';
+  if (finalUrl.includes('/login')) {
+    throw new Error(`Still on login when capturing ${filename} — auth not hydrated`);
+  }
   await savePhoneScreenshot(page, filename);
   console.log('  ←', urlPath);
 }
@@ -349,20 +436,28 @@ async function main() {
   });
   const page = await browser.newPage();
 
+  const need01 = shouldCapture(PHONE_SHOTS[0].file);
+  const need02 = shouldCapture(PHONE_SHOTS[1].file);
+  const need03 = shouldCapture('03-barnvy-mobile-1080x1920.png');
+  const need04 = shouldCapture('04-skattkammaren-barn-mobile-1080x1920.png');
+  const needParentBatch = PHONE_SHOTS.some((s) => shouldCapture(s.file));
+
   try {
-    await screenshotFeatureGraphic(page);
+    if (!ONLY_SHOTS.length) await screenshotFeatureGraphic(page);
 
     console.log('\nLogging in as', REVIEW_EMAIL, `(child: ${CHILD_NAME} / ${CHILD_PIN}) on`, BASE_URL);
     await loginParent(page);
 
-    await captureMobile(page, PHONE_SHOTS[0].file, PHONE_SHOTS[0].path, PHONE_SHOTS[0]);
-    await captureMobile(page, PHONE_SHOTS[1].file, PHONE_SHOTS[1].path, PHONE_SHOTS[1]);
-    await captureChildScreens(page);
+    if (need01) await captureMobile(page, PHONE_SHOTS[0].file, PHONE_SHOTS[0].path, PHONE_SHOTS[0]);
+    if (need02) await captureMobile(page, PHONE_SHOTS[1].file, PHONE_SHOTS[1].path, PHONE_SHOTS[1]);
+    if (need03 || need04) await captureChildScreens(page);
     for (const shot of PHONE_SHOTS.slice(2)) {
-      await captureMobile(page, shot.file, shot.path, shot);
+      if (shouldCapture(shot.file)) {
+        await captureMobile(page, shot.file, shot.path, shot);
+      }
     }
 
-    await captureDesktopComparison(browser);
+    if (!ONLY_SHOTS.length) await captureDesktopComparison(browser);
     await validateOutputs();
   } finally {
     await browser.close();
