@@ -443,7 +443,12 @@ var Platform = (function () {
   }
 
   // ── Camera / Photo Picker ────────────────────────────────────────────────
-  // Uses @capacitor/camera on native. Falls back to Web FileInput on web/PWA.
+  // Native: Capacitor bridge (bare-specifier imports fail in remote-URL WebView).
+  // Web/PWA: standard file input.
+
+  function getCameraPlugin() {
+    return (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.Camera) || null;
+  }
 
   function dataUrlToBlob(dataUrl) {
     var parts = dataUrl.split(',');
@@ -478,25 +483,31 @@ var Platform = (function () {
     async pick(opts) {
       opts = opts || {};
       if (isNative()) {
+        var Camera = getCameraPlugin();
+        if (!Camera) {
+          console.error('[Platform.camera] Camera plugin not registered — run cap sync ios');
+          return { error: 'Kameran är inte tillgänglig i appen. Uppdatera till senaste versionen.' };
+        }
         try {
-          const { Camera } = await import('@capacitor/camera');
-          const result = await Camera.getPhoto({
+          var result = await Camera.getPhoto({
             quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
             allowEditing: false,
             resultType: 'base64',
-            source: opts.source === 'camera'
-              ? (CameraSource.Camera || 'CAMERA')
-              : (CameraSource.Photos || 'PHOTOS'),
+            source: opts.source === 'camera' ? 'CAMERA' : 'PHOTOS',
           });
+          if (!result || !result.base64String) return null;
           return {
             dataUrl: 'data:image/jpeg;base64,' + result.base64String,
             mimeType: 'image/jpeg',
           };
         } catch (err) {
-          if (err.message && err.message.toLowerCase().includes('cancelled')) return null;
-          if (err.code === 'USER_DID_NOT_GRANT_PERMISSION') return null;
-          console.error('[Platform.camera] Pick failed:', err.message);
-          return null;
+          var msg = (err && err.message) || '';
+          if (msg.toLowerCase().includes('cancel') || msg.toLowerCase().includes('cancelled')) return null;
+          if (err && (err.code === 'USER_DID_NOT_GRANT_PERMISSION' || err.code === 'permission-denied')) {
+            return { error: 'Tillåt åtkomst till fotobiblioteket i Inställningar → Min Stjärndag.' };
+          }
+          console.error('[Platform.camera] Pick failed:', msg || err);
+          return { error: 'Kunde inte öppna fotobiblioteket. Försök igen.' };
         }
       }
       // Web/PWA fallback — file input (iOS Safari: oncancel fires rarely; use focus timeout)

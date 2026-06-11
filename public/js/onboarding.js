@@ -79,11 +79,24 @@ function updateBirthdayHidden() {
 // EMOJI GRID
 // ────────────────────────────────────────────────────────────────────────────
 function selectEmojiButton(btn, emoji) {
-  document.querySelectorAll('.emoji-btn').forEach(function (b) { b.classList.remove('selected'); });
-  btn.classList.add('selected');
+  if (btn) {
+    document.querySelectorAll('.emoji-btn').forEach(function (b) { b.classList.remove('selected'); });
+    btn.classList.add('selected');
+  }
   selectedEmojiValue = emoji;
   var custom = document.getElementById('customEmoji');
   if (custom) custom.value = '';
+}
+
+function ensureDefaultEmoji() {
+  if (selectedEmojiValue) return selectedEmojiValue;
+  var starBtn = Array.prototype.find.call(
+    document.querySelectorAll('.emoji-btn'),
+    function (b) { return b.textContent === '🌟'; }
+  );
+  if (starBtn) selectEmojiButton(starBtn, '🌟');
+  else selectEmojiButton(null, '🌟');
+  return selectedEmojiValue;
 }
 
 function buildEmojiGrid() {
@@ -291,14 +304,17 @@ function goToStep(n) {
 document.getElementById('step1Btn').addEventListener('click', async () => {
   const name = document.getElementById('childName').value.trim();
   const customEmojiVal = document.getElementById('customEmoji').value.trim();
-  const emoji = customEmojiVal || selectedEmojiValue;
+  let emoji = customEmojiVal || selectedEmojiValue;
   const errorEl = document.getElementById('step1Error');
   errorEl.classList.add('hidden');
 
   if (!name) { showError(errorEl, 'Ange barnets namn'); return; }
-  // iOS native with avatar: emoji is optional (falls back to ⭐ placeholder)
   const hasAvatar = Platform && Platform.isNative() && selectedAvatarUrl;
-  if (!emoji && !hasAvatar) { showError(errorEl, 'Välj en emoji för barnet'); return; }
+  if (!emoji && !hasAvatar) {
+    // iOS/iPad: emoji rutnät ska vara synligt; fallback till 🌟 om inget valts
+    if (Platform && Platform.isIOS()) emoji = ensureDefaultEmoji();
+    if (!emoji && !hasAvatar) { showError(errorEl, 'Välj en emoji för barnet'); return; }
+  }
   if (!selectedDayPref) { showError(errorEl, 'Välj ett schema'); return; }
 
   const btn = document.getElementById('step1Btn');
@@ -1056,25 +1072,19 @@ function initIOSAvatarPicker() {
   const chooseBtn = document.getElementById('pickPhotoBtn');
   const useDefaultBtn = document.getElementById('useDefaultAvatarBtn');
 
-  function selectDefaultEmoji() {
-    var starBtn = Array.prototype.find.call(
-      document.querySelectorAll('.emoji-btn'),
-      function (b) { return b.textContent === '🌟'; }
-    );
-    if (starBtn) selectEmojiButton(starBtn, '🌟');
-  }
-
   // Pre-select 🌟 so onboarding can continue even if reviewer skips emoji tap
-  if (!selectedEmojiValue) selectDefaultEmoji();
+  ensureDefaultEmoji();
+
+  if (!chooseBtn) return;
 
   // "Use default" — deselects photo, keep emoji
-  useDefaultBtn.addEventListener('click', () => {
+  if (useDefaultBtn) useDefaultBtn.addEventListener('click', () => {
     selectedAvatarUrl = null;
     preview.src = 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/bac2e263-dc2f-4046-8870-cc4f4dd6f3a0.jpg';
     preview.classList.remove('ring-2', 'ring-gold');
     chooseBtn.classList.remove('hidden');
     useDefaultBtn.classList.add('hidden');
-    if (!selectedEmojiValue) selectDefaultEmoji();
+    ensureDefaultEmoji();
   });
 
   // "Choose photo" — opens camera/photo library
@@ -1084,8 +1094,10 @@ function initIOSAvatarPicker() {
     try {
       const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
       if (!result) {
-        chooseBtn.disabled = false;
-        chooseBtn.textContent = 'Välj foto';
+        return;
+      }
+      if (result.error) {
+        showToast(result.error, true);
         return;
       }
       // Upload to CDN
