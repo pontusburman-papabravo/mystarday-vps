@@ -29,6 +29,7 @@ const OUT = path.join(ROOT, 'assets', 'play-store', 'out');
 const BASE_URL = (process.env.BASE_URL || 'https://mystarday.se').replace(/\/$/, '');
 const REVIEW_EMAIL = process.env.REVIEW_EMAIL || 'review@mystarday.se';
 const REVIEW_PASSWORD = process.env.REVIEW_PASSWORD || 'AppReview2026!';
+const CHILD_NAME = process.env.CHILD_NAME || 'Anna';
 const CHILD_PIN = process.env.CHILD_PIN || '4455';
 
 /** Play: 9:16 portrait + campaign min 1080 px on both sides → 1080×1920 */
@@ -150,9 +151,14 @@ async function waitForNativeShell(page) {
   await sleep(600);
 }
 
-async function captureMobile(page, filename, urlPath, { waitSelector } = {}) {
+async function captureMobile(page, filename, urlPath, { waitSelector, requireParent } = {}) {
+  if (requireParent) await assertParentSession(page);
   await setupNativeAndroid(page);
   await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'networkidle2', timeout: 60000 });
+  if ((page.url() || '').includes('/login')) {
+    await loginParent(page);
+    await page.goto(`${BASE_URL}${urlPath}`, { waitUntil: 'networkidle2', timeout: 60000 });
+  }
   await waitForNativeShell(page);
   if (waitSelector) {
     await page.waitForSelector(waitSelector, { timeout: 15000 }).catch(() => {});
@@ -162,73 +168,72 @@ async function captureMobile(page, filename, urlPath, { waitSelector } = {}) {
   console.log('  ←', urlPath);
 }
 
-async function loginChild(page) {
-  const childLogin = await page.evaluate(async (pin) => {
-    const me = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json());
-    const child = me && me.children && me.children[0];
-    if (!child) return { ok: false, reason: 'no children on account' };
-    const username = child.username || child.name;
-    const res = await fetch('/api/auth/child-login', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, pin }),
-    });
-    const body = await res.json().catch(() => ({}));
-    return { ok: res.ok, status: res.status, username, error: body.error };
-  }, CHILD_PIN);
-
-  if (childLogin.ok) return childLogin;
-
-  console.warn('Child API login failed:', childLogin, '— using PIN UI');
+async function loginChildViaUi(page) {
   await page.goto(`${BASE_URL}/child-login`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await page.waitForSelector('.cl-child-card', { timeout: 15000 });
-  await sleep(800);
-  await page.click('.cl-child-card');
+  await page.waitForSelector('.cl-child-card', { timeout: 20000 });
+  await sleep(1000);
+
+  const username = await page.evaluate((childName) => {
+    const cards = Array.from(document.querySelectorAll('.cl-child-card'));
+    const wanted = childName.toLowerCase();
+    const card =
+      cards.find((el) => (el.textContent || '').toLowerCase().includes(wanted)) || cards[0];
+    if (!card) return null;
+    const u = card.getAttribute('data-username');
+    if (typeof window.selectChild === 'function' && u) window.selectChild(u);
+    else card.click();
+    return u;
+  }, CHILD_NAME);
+  if (!username) throw new Error(`No child card found for ${CHILD_NAME}`);
+
   await page.waitForSelector('#clKeypad', { timeout: 10000 });
   for (const digit of CHILD_PIN.split('')) {
-    await page.click(`#clKey${digit}`).catch(() => page.click(`[data-digit="${digit}"]`));
+    await page.click(`#clKeypad button[data-action="${digit}"]`);
     await sleep(150);
   }
-  await page.waitForFunction(() => window.location.pathname.includes('child-dashboard'), {
-    timeout: 25000,
+  await sleep(800);
+
+  await page.waitForFunction(
+    () =>
+      window.location.pathname.includes('child-dashboard') &&
+      document.getElementById('childName') &&
+      document.getElementById('childName').textContent !== 'Mitt schema',
+    { timeout: 35000 }
+  );
+  const name = await page.$eval('#childName', (el) => el.textContent);
+  console.log('Child login via UI:', name.trim());
+  return { ok: true, via: 'ui', name: name.trim() };
+}
+
+async function assertParentSession(page) {
+  const ok = await page.evaluate(async () => {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) return false;
+    const me = await res.json();
+    return me.type === 'parent' || !!me.email;
   });
-  return { ok: true, via: 'ui' };
+  if (!ok) {
+    console.warn('Parent session missing — logging in again');
+    await loginParent(page);
+  }
 }
 
 async function restoreParentAfterChild(page) {
-  const restored = await page.evaluate(async () => {
-    const res = await fetch('/api/auth/logout', {
+  await page.evaluate(async () => {
+    await fetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
-    const body = await res.json().catch(() => ({}));
-    const me = await fetch('/api/auth/me', { credentials: 'include' }).then((r) =>
-      r.ok ? r.json() : null
-    );
-    return {
-      sessionRestored: !!body.sessionRestored,
-      parentType: me && me.type === 'parent',
-      email: me && me.email,
-    };
   });
-  if (!restored.parentType) {
-    console.warn('Parent session not restored after child logout — re-logging in');
-    await loginParent(page);
-  } else {
-    console.log('Parent session restored:', restored.email || '(ok)');
-  }
+  await loginParent(page);
 }
 
 async function captureChildScreens(page) {
   await setupNativeAndroid(page);
-  await loginChild(page);
-
-  await page.goto(`${BASE_URL}/child-dashboard`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await page.waitForSelector('#childName', { timeout: 20000 }).catch(() => {});
-  await sleep(2000);
+  await loginChildViaUi(page);
+  await sleep(1500);
   await savePhoneScreenshot(page, '03-barnvy-mobile-1080x1920.png');
   console.log('  ← /child-dashboard (barnschema)');
 
@@ -317,13 +322,23 @@ async function validateOutputs() {
 }
 
 const PHONE_SHOTS = [
-  { file: '01-foralder-dashboard-mobile-1080x1920.png', path: '/dashboard' },
-  { file: '02-schema-mobile-1080x1920.png', path: '/schedule' },
+  { file: '01-foralder-dashboard-mobile-1080x1920.png', path: '/dashboard', requireParent: true },
+  { file: '02-schema-mobile-1080x1920.png', path: '/schedule', requireParent: true },
   // 03–04 captured in captureChildScreens()
-  { file: '05-bibliotek-mobile-1080x1920.png', path: '/library' },
-  { file: '06-familj-mobile-1080x1920.png', path: '/family' },
-  { file: '07-skattkammaren-foralder-mobile-1080x1920.png', path: '/skattkammaren' },
-  { file: '08-installningar-mobile-1080x1920.png', path: '/settings' },
+  { file: '05-bibliotek-mobile-1080x1920.png', path: '/library', requireParent: true },
+  { file: '06-familj-mobile-1080x1920.png', path: '/family', requireParent: true },
+  {
+    file: '07-skattkammaren-foralder-mobile-1080x1920.png',
+    path: '/skattkammaren',
+    requireParent: true,
+    waitSelector: 'main, .skatt-page, #app',
+  },
+  {
+    file: '08-installningar-mobile-1080x1920.png',
+    path: '/settings',
+    requireParent: true,
+    waitSelector: '#settingsForm, main, h1',
+  },
 ];
 
 async function main() {
@@ -337,14 +352,14 @@ async function main() {
   try {
     await screenshotFeatureGraphic(page);
 
-    console.log('\nLogging in as', REVIEW_EMAIL, 'on', BASE_URL);
+    console.log('\nLogging in as', REVIEW_EMAIL, `(child: ${CHILD_NAME} / ${CHILD_PIN}) on`, BASE_URL);
     await loginParent(page);
 
-    await captureMobile(page, PHONE_SHOTS[0].file, PHONE_SHOTS[0].path);
-    await captureMobile(page, PHONE_SHOTS[1].file, PHONE_SHOTS[1].path);
+    await captureMobile(page, PHONE_SHOTS[0].file, PHONE_SHOTS[0].path, PHONE_SHOTS[0]);
+    await captureMobile(page, PHONE_SHOTS[1].file, PHONE_SHOTS[1].path, PHONE_SHOTS[1]);
     await captureChildScreens(page);
     for (const shot of PHONE_SHOTS.slice(2)) {
-      await captureMobile(page, shot.file, shot.path);
+      await captureMobile(page, shot.file, shot.path, shot);
     }
 
     await captureDesktopComparison(browser);

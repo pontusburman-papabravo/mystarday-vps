@@ -19,7 +19,11 @@ npm run play-store:assets
 Eller mot annan miljö:
 
 ```bash
-BASE_URL=https://mystarday.se REVIEW_EMAIL=review@mystarday.se REVIEW_PASSWORD='AppReview2026!' node scripts/generate-play-store-assets.mjs
+BASE_URL=https://mystarday.se \
+  REVIEW_EMAIL=review@mystarday.se \
+  REVIEW_PASSWORD='AppReview2026!' \
+  CHILD_NAME=Anna CHILD_PIN=4455 \
+  node scripts/generate-play-store-assets.mjs
 ```
 
 ## Output (`out/`)
