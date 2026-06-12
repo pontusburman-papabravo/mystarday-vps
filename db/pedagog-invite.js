@@ -5,6 +5,7 @@
  */
 
 const db = require('../src/lib/db');
+const { createNewsletterSubscription } = require('../src/lib/newsletter-subscribe');
 
 /**
  * Create or find an existing (non-accepted) invite for this email in this family.
@@ -192,6 +193,8 @@ async function acceptNewParent({ token, password, inviteId }) {
       'INSERT INTO notification_preference (parent_id) VALUES ($1) ON CONFLICT DO NOTHING',
       [newParent.id]
     );
+
+    await createNewsletterSubscription(client, newParent.id, normalizedEmail);
 
     // Link pedagogen to invited children (role='pedagog')
     if (invite.child_ids && invite.child_ids.length > 0) {

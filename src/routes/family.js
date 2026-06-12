@@ -7,6 +7,7 @@ const { generateCsrfToken } = require('../middleware/csrf');
 const { requireNotPedagogOnly, requirePrimaryParent } = require('../middleware/authz');
 const { syncAccountType, getChildrenForParent } = require('../../db/parent-access');
 const { sendEmail, sendInviteEmail } = require('../lib/email');
+const { createNewsletterSubscription } = require('../lib/newsletter-subscribe');
 const { hashPassword } = require('../lib/hash');
 const config = require('../lib/config');
 const { validate, validateParams } = require('../middleware/validate');
@@ -146,6 +147,8 @@ router.post('/invite/accept-new', async (req, res) => {
         'INSERT INTO notification_preference (parent_id) VALUES ($1) ON CONFLICT DO NOTHING',
         [newParent.id]
       );
+
+      await createNewsletterSubscription(client, newParent.id, normalizedEmail);
 
       // Link new parent to invited child_ids (if specified), else all family children
       let childIdsToLink = invite.child_ids && invite.child_ids.length > 0
@@ -838,6 +841,8 @@ router.post('/add-parent', async (req, res) => {
         'INSERT INTO notification_preference (parent_id) VALUES ($1) ON CONFLICT DO NOTHING',
         [newParent.id]
       );
+
+      await createNewsletterSubscription(client, newParent.id, normalizedEmail);
 
       // Link new parent to all existing children in the family (shared access)
       const childrenResult = await client.query(
