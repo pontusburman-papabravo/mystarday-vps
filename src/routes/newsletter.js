@@ -10,6 +10,10 @@ const { requireFeature } = require('../middleware/feature-gate');
 const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
 const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
 const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
+const {
+  getCampaignStats,
+  getCampaignRecipients,
+} = require('../../db/newsletter-email-tracking');
 
 const router = express.Router();
 
@@ -427,6 +431,28 @@ router.post('/newsletters/:id/send', requireAdmin, requireFeature('nyhetsbrev'),
     console.error('[NEWSLETTER] Send newsletter error:', err.message, err.stack);
     const detail = err.message || (typeof err === 'string' ? err : 'Okänt fel');
     res.status(500).json({ error: 'Kunde inte skicka nyhetsbrev', detail });
+  }
+});
+
+// ─── ADMIN: GET /api/newsletter/newsletters/:id/stats ─────
+router.get('/newsletters/:id/stats', requireAdmin, async (req, res) => {
+  try {
+    const stats = await getCampaignStats('standalone', req.params.id);
+    res.json(stats);
+  } catch (err) {
+    console.error('[NEWSLETTER] Campaign stats error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta statistik' });
+  }
+});
+
+// ─── ADMIN: GET /api/newsletter/newsletters/:id/recipients ─
+router.get('/newsletters/:id/recipients-tracking', requireAdmin, async (req, res) => {
+  try {
+    const rows = await getCampaignRecipients('standalone', req.params.id);
+    res.json(rows);
+  } catch (err) {
+    console.error('[NEWSLETTER] Campaign recipients error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta mottagarstatistik' });
   }
 });
 

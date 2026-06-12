@@ -373,6 +373,20 @@ const iapWebhookLimiter = rateLimit({
   },
 });
 
+/** Resend email webhook — 200 req/min per IP */
+const resendWebhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => getRealIp(req),
+  skip: () => !ENABLED,
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options);
+    res.status(429).json({ error: 'För många webhook-förfrågningar.' });
+  },
+});
+
 module.exports = {
   globalLimiter,
   loginLimiter,
@@ -384,5 +398,6 @@ module.exports = {
   resendVerificationLimiter,
   appleLoginLimiter,
   iapWebhookLimiter,
+  resendWebhookLimiter,
   parentPinLimiter,
 };

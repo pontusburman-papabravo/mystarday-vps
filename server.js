@@ -45,6 +45,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─── Resend webhook (raw body — must run before express.json) ─
+const { handleResendWebhook } = require('./src/routes/resend-webhook');
+const { resendWebhookLimiter } = require('./src/middleware/rateLimiter');
+app.post(
+  '/api/resend/webhook',
+  resendWebhookLimiter,
+  express.raw({ type: 'application/json' }),
+  handleResendWebhook
+);
+
 // ─── Middleware ────────────────────────────────────────────
 app.set('trust proxy', 1);
 app.use(express.json());
@@ -137,6 +147,7 @@ app.use('/api', (req, res, next) => {
   if (
     p.startsWith('/auth') ||
     p.startsWith('/iap') ||
+    p.startsWith('/resend/') ||
     p === '/health' ||
     p.startsWith('/landing') ||
     p === '/i18n' ||
