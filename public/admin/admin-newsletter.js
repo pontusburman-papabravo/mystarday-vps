@@ -54,7 +54,8 @@
         }
 
         const sentInfo = nl.sent_at
-          ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">📧 ${nl.sent_count || 0} mottagare · ${sentDate}</span>`
+          ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">📧 ${nl.sent_count || 0} mottagare · ${sentDate}</span>
+             <span id="nl-stats-${nl.id}" class="text-xs text-sky-700 font-semibold hidden"></span>`
           : '';
 
         // Truncate body preview to 120 chars
@@ -77,6 +78,18 @@
             </div>
           </div>`;
       }).join('');
+
+      newsletters.filter(nl => nl.sent_at).forEach(nl => {
+        const el = document.getElementById('nl-stats-' + nl.id);
+        if (el && window.AdminEmailStats) {
+          AdminEmailStats.loadBadge(
+            el,
+            `/api/newsletter/newsletters/${nl.id}/stats`,
+            `/api/newsletter/newsletters/${nl.id}/recipients-tracking`,
+            nl.subject || 'Nyhetsbrev'
+          );
+        }
+      });
     }
 
     // ─── Compose form ──────────────────────────────────────────

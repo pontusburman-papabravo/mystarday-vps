@@ -19,6 +19,10 @@
  */
 const express = require('express');
 const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
+const {
+  getCampaignStats,
+  getCampaignRecipients,
+} = require('../../db/newsletter-email-tracking');
 const db = require('../lib/db');
 const { requireAdmin, requireParent } = require('../middleware/auth');
 const { hasAccess } = require('../../db/features');
@@ -560,6 +564,36 @@ router.post('/:id/send-newsletter', requireAdmin, requireFeature('nyhetsbrev'), 
   } catch (err) {
     console.error('[DAGENS-NYHET] Send newsletter error:', err);
     res.status(500).json({ error: 'Kunde inte skicka nyhetsbrevet' });
+  }
+});
+
+// ─── GET /api/dagens-nyhet/:id/email-stats ─────────────────
+router.get('/:id/email-stats', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+      return res.status(400).json({ error: 'Ogiltigt id' });
+    }
+    const stats = await getCampaignStats('dagens_nyhet', id);
+    res.json(stats);
+  } catch (err) {
+    console.error('[DAGENS-NYHET] Email stats error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta e-poststatistik' });
+  }
+});
+
+// ─── GET /api/dagens-nyhet/:id/email-recipients ────────────
+router.get('/:id/email-recipients', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+      return res.status(400).json({ error: 'Ogiltigt id' });
+    }
+    const rows = await getCampaignRecipients('dagens_nyhet', id);
+    res.json(rows);
+  } catch (err) {
+    console.error('[DAGENS-NYHET] Email recipients error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta mottagarstatistik' });
   }
 });
 

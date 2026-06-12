@@ -27,7 +27,7 @@ async function registerContact(_email, _name, _source = 'signup') {
 /**
  * Send an email via Resend.
  */
-async function sendEmail({ to, subject, body: textBody, html, from }) {
+async function sendEmail({ to, subject, body: textBody, html, from, tags }) {
   if (process.env.EMAIL_ENABLED === 'false') {
     console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${to}, subject="${subject}"`);
     return { success: true, provider: 'suppressed' };
@@ -59,6 +59,7 @@ async function sendEmail({ to, subject, body: textBody, html, from }) {
         html: html || undefined,
         text: plainText,
         reply_to: FROM_ADDRESS,
+        tags: Array.isArray(tags) && tags.length > 0 ? tags : undefined,
       }),
       signal: AbortSignal.timeout(10000),
     });
@@ -67,7 +68,7 @@ async function sendEmail({ to, subject, body: textBody, html, from }) {
 
     if (res.ok) {
       console.log(`[EMAIL] Sent OK to=${to}, provider=resend, id=${data.id || 'n/a'}`);
-      return { success: true, provider: 'resend', data };
+      return { success: true, provider: 'resend', data, emailId: data.id || null };
     }
 
     const errText = data.message || data.error || JSON.stringify(data);

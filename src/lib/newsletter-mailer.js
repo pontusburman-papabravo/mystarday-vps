@@ -13,6 +13,7 @@
 
 const { sendEmail } = require('./email');
 const db = require('./db');
+const { recordSend } = require('../../db/newsletter-email-tracking');
 const {
   PARENT_HAS_EMAIL,
   IS_ACTIVE_SUBSCRIBER,
@@ -24,6 +25,35 @@ const APP_URL = process.env.APP_URL || 'https://mystarday.se';
 // Batch size and inter-batch delay (ms) — Polsia proxy handles rate limiting
 const BATCH_SIZE = 50;
 const BATCH_DELAY_MS = 1000;
+
+async function sendTrackedNewsletterEmail({ to, subject, html, campaignType, campaignId, parentId }) {
+  const tags = [
+    { name: 'campaign_type', value: campaignType },
+    { name: 'campaign_id', value: String(campaignId) },
+  ];
+  if (parentId) {
+    tags.push({ name: 'parent_id', value: String(parentId) });
+  }
+
+  const result = await sendEmail({ to, subject, html, tags });
+  if (!result.success) {
+    throw new Error(result.error || 'Email send failed');
+  }
+
+  if (result.emailId) {
+    await recordSend({
+      campaignType,
+      campaignId,
+      parentId: parentId || null,
+      recipientEmail: to,
+      resendEmailId: result.emailId,
+    }).catch((err) => {
+      console.error('[NEWSLETTER-MAILER] recordSend failed:', err.message);
+    });
+  }
+
+  return result;
+}
 
 /**
  * Send newsletter email to all active subscribers for a published nyhet.
@@ -40,7 +70,8 @@ async function sendNewsletterForNyhet(nyhet) {
   await ensureSubscriberRecords(db);
 
   const result = await db.query(`
-    SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email, es.unsubscribe_token
+    SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email,
+           es.unsubscribe_token, p.id AS parent_id
     FROM parent p
     LEFT JOIN email_subscriptions es ON es.parent_id = p.id
     WHERE ${PARENT_HAS_EMAIL}
@@ -68,8 +99,14 @@ async function sendNewsletterForNyhet(nyhet) {
       const html = buildEmailHtml({ nyhet, unsubscribeUrl });
 
       try {
-        const result = await sendEmail({ to: sub.email, subject: nyhet.title, html });
-        if (!result.success) throw new Error(result.error || 'Email send failed');
+        await sendTrackedNewsletterEmail({
+          to: sub.email,
+          subject: nyhet.title,
+          html,
+          campaignType: 'dagens_nyhet',
+          campaignId: nyhet.id,
+          parentId: sub.parent_id,
+        });
         totalSent++;
       } catch (err) {
         totalFailed++;
@@ -189,7 +226,8 @@ async function sendNewsletterToRecipients(nyhet, recipientIds) {
   await ensureSubscriberRecords(db);
 
   const result = await db.query(
-    `SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email, es.unsubscribe_token
+    `SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email,
+            es.unsubscribe_token, p.id AS parent_id
      FROM parent p
      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
      WHERE ${PARENT_HAS_EMAIL}
@@ -219,8 +257,14 @@ async function sendNewsletterToRecipients(nyhet, recipientIds) {
       const html = buildEmailHtml({ nyhet, unsubscribeUrl });
 
       try {
-        const result = await sendEmail({ to: sub.email, subject: nyhet.title, html });
-        if (!result.success) throw new Error(result.error || 'Email send failed');
+        await sendTrackedNewsletterEmail({
+          to: sub.email,
+          subject: nyhet.title,
+          html,
+          campaignType: 'dagens_nyhet',
+          campaignId: nyhet.id,
+          parentId: sub.parent_id,
+        });
         totalSent++;
       } catch (err) {
         totalFailed++;
@@ -313,8 +357,14 @@ async function sendStandaloneNewsletter(newsletter, recipientIds) {
       const html = buildStandaloneEmailHtml({ newsletter, unsubscribeUrl, foralderns_namn: sub.foralderns_namn, barnets_namn: sub.barnets_namn });
 
       try {
-        const result = await sendEmail({ to: sub.email, subject: newsletter.subject, html });
-        if (!result.success) throw new Error(result.error || 'Email send failed');
+        await sendTrackedNewsletterEmail({
+          to: sub.email,
+          subject: newsletter.subject,
+          html,
+          campaignType: 'standalone',
+          campaignId: newsletter.id,
+          parentId: sub.parent_id,
+        });
         totalSent++;
       } catch (err) {
         totalFailed++;
