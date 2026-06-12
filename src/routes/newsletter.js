@@ -9,6 +9,7 @@ const { requireParent, requireAdmin } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
 const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
+const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
 
 const router = express.Router();
 
@@ -22,13 +23,27 @@ router.get('/subscription', requireParent, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.json({ subscribed: false, opted_in: false, subscribed_at: null, unsubscribed_at: null });
+      const parentResult = await db.query(
+        `SELECT newsletter_subscribed, email
+         FROM parent WHERE id = $1`,
+        [req.user.id]
+      );
+      const parent = parentResult.rows[0];
+      const hasEmail = parent?.email && String(parent.email).trim() !== '';
+      const subscribed = hasEmail && parent.newsletter_subscribed !== false;
+      return res.json({
+        subscribed,
+        opted_in: subscribed,
+        subscribed_at: null,
+        unsubscribed_at: null,
+      });
     }
 
     const row = result.rows[0];
+    const subscribed = row.subscribed !== false;
     res.json({
-      subscribed:   row.subscribed,
-      opted_in:     row.subscribed,
+      subscribed,
+      opted_in: subscribed,
       subscribed_at: row.subscribed_at,
       unsubscribed_at: row.unsubscribed_at,
     });
@@ -118,25 +133,26 @@ router.get('/subscribers', requireAdmin, async (req, res) => {
     const sort   = req.query.sort    || 'subscribed_at';
     const limit  = Math.min(parseInt(req.query.limit) || 200, 1000);
 
-    let whereClause = '';
-    if (status === 'active')   whereClause = 'WHERE es.subscribed = true';
-    if (status === 'inactive') whereClause = 'WHERE es.subscribed = false';
+    let statusClause = '';
+    if (status === 'active')   statusClause = `AND ${IS_ACTIVE_SUBSCRIBER}`;
+    if (status === 'inactive') statusClause = 'AND es.subscribed = false';
 
-    const orderCol = sort === 'name' ? 'p.name ASC' : 'es.subscribed_at DESC';
+    const orderCol = sort === 'name' ? 'p.name ASC' : 'es.subscribed_at DESC NULLS LAST';
 
     const result = await db.query(`
       SELECT
         es.id,
-        es.parent_id,
+        p.id AS parent_id,
         COALESCE(p.name, '(inget namn)') AS name,
-        es.email,
-        es.subscribed,
+        COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email,
+        ${IS_ACTIVE_SUBSCRIBER} AS subscribed,
         es.subscribed_at,
         es.unsubscribed_at,
         es.updated_at
-      FROM email_subscriptions es
-      JOIN parent p ON p.id = es.parent_id
-      ${whereClause}
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE ${PARENT_HAS_EMAIL}
+      ${statusClause}
       ORDER BY ${orderCol}
       LIMIT $1
     `, [limit]);
@@ -154,10 +170,12 @@ router.get('/subscribers/count', requireAdmin, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT
-        COUNT(*) FILTER (WHERE subscribed = true)  AS active,
-        COUNT(*) FILTER (WHERE subscribed = false) AS inactive,
-        COUNT(*)                                   AS total
-      FROM email_subscriptions
+        COUNT(*) FILTER (WHERE ${IS_ACTIVE_SUBSCRIBER}) AS active,
+        COUNT(*) FILTER (WHERE es.subscribed = false) AS inactive,
+        COUNT(*) AS total
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE ${PARENT_HAS_EMAIL}
     `);
 
     res.json({
@@ -178,13 +196,14 @@ router.get('/recipients', requireAdmin, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT
-        es.parent_id,
+        p.id AS parent_id,
         COALESCE(p.name, '(inget namn)') AS name,
-        es.email
-      FROM email_subscriptions es
-      JOIN parent p ON p.id = es.parent_id
-      WHERE es.subscribed = true
-      ORDER BY es.subscribed_at DESC
+        COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE ${PARENT_HAS_EMAIL}
+        AND ${IS_ACTIVE_SUBSCRIBER}
+      ORDER BY es.subscribed_at DESC NULLS LAST, p.name ASC
     `);
 
     console.log(`[NEWSLETTER] /recipients: ${result.rows.length} active subscribers`);
@@ -204,12 +223,13 @@ router.get('/subscribers/export', requireAdmin, async (req, res) => {
     const result = await db.query(`
       SELECT
         COALESCE(p.name, '(inget namn)') AS name,
-        es.email,
+        COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email,
         es.subscribed_at
-      FROM email_subscriptions es
-      JOIN parent p ON p.id = es.parent_id
-      WHERE es.subscribed = true
-      ORDER BY es.subscribed_at DESC
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE ${PARENT_HAS_EMAIL}
+        AND ${IS_ACTIVE_SUBSCRIBER}
+      ORDER BY es.subscribed_at DESC NULLS LAST, p.name ASC
     `);
 
     const date = new Date().toISOString().slice(0, 10);

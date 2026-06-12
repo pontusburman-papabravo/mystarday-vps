@@ -13,6 +13,11 @@
 
 const { sendEmail } = require('./email');
 const db = require('./db');
+const {
+  PARENT_HAS_EMAIL,
+  IS_ACTIVE_SUBSCRIBER,
+  ensureSubscriberRecords,
+} = require('./newsletter-subscribe');
 
 const APP_URL = process.env.APP_URL || 'https://mystarday.se';
 
@@ -32,13 +37,15 @@ async function sendNewsletterForNyhet(nyhet) {
     return { sent: 0, failed: 0 };
   }
 
-  // Fetch all active subscribers with their unsubscribe tokens
+  await ensureSubscriberRecords(db);
+
   const result = await db.query(`
-    SELECT es.email, es.unsubscribe_token
-    FROM email_subscriptions es
-    WHERE es.subscribed = true
-      AND es.email IS NOT NULL
-      AND es.email <> ''
+    SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email, es.unsubscribe_token
+    FROM parent p
+    LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+    WHERE ${PARENT_HAS_EMAIL}
+      AND ${IS_ACTIVE_SUBSCRIBER}
+      AND es.unsubscribe_token IS NOT NULL
   `);
 
   if (result.rows.length === 0) {
@@ -179,13 +186,16 @@ async function sendNewsletterToRecipients(nyhet, recipientIds) {
 
   // Fetch only the specified subscribers with their unsubscribe tokens
   const placeholders = recipientIds.map((_, i) => `$${i + 1}`).join(',');
+  await ensureSubscriberRecords(db);
+
   const result = await db.query(
-    `SELECT es.email, es.unsubscribe_token
-     FROM email_subscriptions es
-     WHERE es.subscribed = true
-       AND es.email IS NOT NULL
-       AND es.email <> ''
-       AND es.parent_id IN (${placeholders})`,
+    `SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email, es.unsubscribe_token
+     FROM parent p
+     LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+     WHERE ${PARENT_HAS_EMAIL}
+       AND ${IS_ACTIVE_SUBSCRIBER}
+       AND es.unsubscribe_token IS NOT NULL
+       AND p.id IN (${placeholders})`,
     recipientIds
   );
 
@@ -248,13 +258,17 @@ async function sendStandaloneNewsletter(newsletter, recipientIds) {
   }
 
   const placeholders = recipientIds.map((_, i) => `$${i + 1}`).join(',');
+  await ensureSubscriberRecords(db);
+
   const result = await db.query(
-    `SELECT es.email, es.unsubscribe_token, es.parent_id
-     FROM email_subscriptions es
-     WHERE es.subscribed = true
-       AND es.email IS NOT NULL
-       AND es.email <> ''
-       AND es.parent_id IN (${placeholders})`,
+    `SELECT COALESCE(NULLIF(TRIM(es.email), ''), p.email) AS email,
+            es.unsubscribe_token, p.id AS parent_id
+     FROM parent p
+     LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+     WHERE ${PARENT_HAS_EMAIL}
+       AND ${IS_ACTIVE_SUBSCRIBER}
+       AND es.unsubscribe_token IS NOT NULL
+       AND p.id IN (${placeholders})`,
     recipientIds
   );
 

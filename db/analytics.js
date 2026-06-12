@@ -241,11 +241,13 @@ async function computeLiveKpis() {
       WHERE event_type IN ('pwa_installed','pwa_browser')
       GROUP BY event_type
     `),
-    // Newsletter subscribers
+    // Newsletter subscribers (default on — parents without a row count as subscribed)
     db.query(`
       SELECT COUNT(*) AS total
-      FROM email_subscriptions
-      WHERE subscribed = true
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE p.email IS NOT NULL AND TRIM(p.email) <> ''
+        AND COALESCE(es.subscribed, true) = true
     `),
   ]);
 

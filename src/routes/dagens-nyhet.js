@@ -18,6 +18,7 @@
  * GET    /api/dagens-nyhet/facebook-status  (admin) — check if Facebook integration is configured
  */
 const express = require('express');
+const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
 const db = require('../lib/db');
 const { requireAdmin, requireParent } = require('../middleware/auth');
 const { hasAccess } = require('../../db/features');
@@ -566,9 +567,13 @@ router.post('/:id/send-newsletter', requireAdmin, requireFeature('nyhetsbrev'), 
 // Returns total active subscriber count (for the send-newsletter modal).
 router.get('/recipients-count', requireAdmin, async (req, res) => {
   try {
-    const result = await db.query(
-      `SELECT COUNT(*) AS total FROM email_subscriptions WHERE subscribed = true`
-    );
+    const result = await db.query(`
+      SELECT COUNT(*) AS total
+      FROM parent p
+      LEFT JOIN email_subscriptions es ON es.parent_id = p.id
+      WHERE ${PARENT_HAS_EMAIL}
+        AND ${IS_ACTIVE_SUBSCRIBER}
+    `);
     res.json({ total: parseInt(result.rows[0].total, 10) });
   } catch (err) {
     console.error('[DAGENS-NYHET] Recipients count error:', err);

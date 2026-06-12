@@ -32,6 +32,7 @@ const {
   registerContact,
 } = require('../lib/email');
 const { sendWelcomeEmail } = require('../lib/welcome-mailer');
+const { createNewsletterSubscription } = require('../lib/newsletter-subscribe');
 const pinLockout = require('../../db/pin-lockout');
 const { createSystemMessage } = require('../../db/system-messages');
 const familySubscriptions = require('../../db/family-subscriptions');
@@ -317,15 +318,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         [parentId, verifyToken, new Date(Date.now() + config.verification.tokenExpiryHours * 3600_000)]
       );
 
-      // Auto-subscribe new parents to the newsletter (Del 1 of task #1562663).
-      // newsletter_subscribed = true is set on the parent record; create the email_subscriptions
-      // record so the parent appears in the admin subscriber list immediately.
-      await client.query(
-        `INSERT INTO email_subscriptions (parent_id, email, subscribed, subscribed_at, unsubscribe_token)
-         VALUES ($1, $2, true, NOW(), gen_random_uuid())
-         ON CONFLICT (parent_id) DO NOTHING`,
-        [parentId, normalizedEmail]
-      );
+      await createNewsletterSubscription(client, parentId, normalizedEmail);
 
       // Create component-based subscription (14-day trial + basic_app)
       await client.query(
@@ -1431,6 +1424,8 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
 
     // Notification preferences
     await client.query('INSERT INTO notification_preference (parent_id) VALUES ($1)', [parent.id]);
+
+    await createNewsletterSubscription(client, parent.id, parent.email);
 
     // Apple Sign In users get lifetime_free tier — no trial, no expiry.
     // These are among the inaugural 200 families who signed up via Apple.

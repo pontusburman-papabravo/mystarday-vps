@@ -839,15 +839,13 @@
       const toggle = document.getElementById('newsletterToggleInline');
       const knob   = document.getElementById('newsletterKnobInline');
 
-      let subscribed = false;
+      let subscribed = true;
 
-      // Load current subscription status
+      // Load current subscription status (default on — opt-out via toggle)
       try {
         const data = await Auth.api('/api/newsletter/subscription');
-        subscribed = data.subscribed === true;
-      } catch (_) {
-        // If endpoint returns 404 (no record yet), default to off
-      }
+        subscribed = data.subscribed !== false;
+      } catch (_) {}
 
       function updateUI(on) {
         if (on) {
