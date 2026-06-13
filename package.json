@@ -34,7 +34,7 @@
     "polsia:release-os:generate": "node scripts/generate-polsia-release-os.mjs",
     "lint": "eslint src/ server.js",
     "cap:sync": "npx cap sync",
-    "cap:sync:ios": "node scripts/prepare-ios-native.mjs && npx cap sync ios && node scripts/patch-ios-podfile.mjs && node scripts/patch-ios-apple-sign-in-presentation.mjs && node scripts/patch-ios-info-plist.mjs && sh -c 'cd ios/App && pod install' && node scripts/patch-ios-xcode-sandbox.mjs && node scripts/verify-ios-no-google-pods.mjs",
+    "cap:sync:ios": "node scripts/prepare-ios-native.mjs && npx cap sync ios && node scripts/patch-ios-podfile.mjs && node scripts/patch-ios-apple-sign-in-presentation.mjs && node scripts/patch-ios-info-plist.mjs && sh -c 'cd ios/App && pod install' && node scripts/patch-ios-entitlements.mjs && node scripts/patch-ios-xcode-sandbox.mjs && node scripts/verify-ios-no-google-pods.mjs",
     "icons:install": "node scripts/install-app-icons.mjs",
     "cap:sync:android": "npm install @codetrix-studio/capacitor-google-auth@^3.4.0-rc.4 --legacy-peer-deps --no-save && npx cap sync android && node scripts/patch-android-manifest.mjs && node scripts/patch-android-strings.mjs",
     "cap:ios": "npx cap open ios",
