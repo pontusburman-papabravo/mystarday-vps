@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Add iOS privacy usage descriptions required by @capacitor/camera (ITMS-90683).
- * Run after `npx cap sync ios` — cap sync does not add these automatically.
+ * iOS privacy usage descriptions for @capacitor/camera (ITMS-90683 + App Review 5.1.1).
+ * Run after `npx cap sync ios` — upserts keys with App Review–approved copy.
  *
  * Usage: node scripts/patch-ios-info-plist.mjs
  */
@@ -10,14 +10,16 @@ import path from 'path';
 
 const infoPlistPath = path.join(process.cwd(), 'ios', 'App', 'App', 'Info.plist');
 
-/** User-facing Swedish strings shown in iOS permission dialogs. */
+const APP_NAME = 'Min Stjärndag'; // pragma: allowlist secret
+
+/** User-facing Swedish strings — must explain use + example (Guideline 5.1.1). */
 const USAGE_KEYS = {
   NSCameraUsageDescription:
-    'Min Stjärndag behöver kameran så att du kan ta en profilbild till barnet.',
+    `${APP_NAME} använder kameran så att du som förälder kan ta en ny profilbild till barnet i appen. Bilden sparas i familjekontot och visas endast för din familj.`,
   NSPhotoLibraryUsageDescription:
-    'Min Stjärndag behöver åtkomst till ditt fotobibliotek så att du kan välja en profilbild till barnet.',
+    `${APP_NAME} behöver åtkomst till dina foton så att du kan välja en befintlig bild som barnets profilbild. Exempel: du väljer ett foto från albumet "Semester" och det visas som barnets avatar i schemat.`,
   NSPhotoLibraryAddUsageDescription:
-    'Min Stjärndag behöver spara bilder i ditt fotobibliotek när du tar eller väljer en profilbild.',
+    `${APP_NAME} kan spara en profilbild du tar i appen till ditt fotobibliotek om du väljer det, så att du behåller en kopia på din enhet.`,
 };
 
 function escapePlistString(value) {
@@ -28,36 +30,20 @@ function escapePlistString(value) {
     .replace(/"/g, '&quot;');
 }
 
-function patchInfoPlist(content) {
-  let updated = content;
-  const toInsert = [];
-
-  for (const [key, value] of Object.entries(USAGE_KEYS)) {
-    if (new RegExp(`<key>${key}</key>`).test(updated)) {
-      console.log('Already set:', key);
-      continue;
-    }
-    toInsert.push(
-      `\t<key>${key}</key>\n\t<string>${escapePlistString(value)}</string>`
-    );
+function upsertPlistKey(content, key, value) {
+  const escaped = escapePlistString(value);
+  const block = `\t<key>${key}</key>\n\t<string>${escaped}</string>`;
+  const existing = new RegExp(
+    `\\t<key>${key}</key>\\s*\\n\\s*<string>[\\s\\S]*?</string>`
+  );
+  if (existing.test(content)) {
+    return content.replace(existing, block);
   }
-
-  if (toInsert.length === 0) {
-    return { content: updated, changed: false };
-  }
-
-  const closingDict = updated.lastIndexOf('</dict>');
+  const closingDict = content.lastIndexOf('</dict>');
   if (closingDict === -1) {
     throw new Error('Could not find </dict> in Info.plist');
   }
-
-  updated =
-    updated.slice(0, closingDict) +
-    toInsert.join('\n') +
-    '\n' +
-    updated.slice(closingDict);
-
-  return { content: updated, changed: true, added: toInsert.length };
+  return content.slice(0, closingDict) + block + '\n' + content.slice(closingDict);
 }
 
 if (!fs.existsSync(infoPlistPath)) {
@@ -66,14 +52,17 @@ if (!fs.existsSync(infoPlistPath)) {
   process.exit(1);
 }
 
-const before = fs.readFileSync(infoPlistPath, 'utf8');
-const result = patchInfoPlist(before);
+let content = fs.readFileSync(infoPlistPath, 'utf8');
+const before = content;
+for (const [key, value] of Object.entries(USAGE_KEYS)) {
+  content = upsertPlistKey(content, key, value);
+}
 
-if (!result.changed) {
-  console.log('Info.plist already has all camera/photo library usage descriptions.');
+if (content === before) {
+  console.log('Info.plist usage descriptions unchanged.');
 } else {
-  fs.writeFileSync(infoPlistPath, result.content);
-  console.log(`Patched Info.plist: added ${result.added} usage description(s).`);
+  fs.writeFileSync(infoPlistPath, content);
+  console.log(`Patched Info.plist: updated ${Object.keys(USAGE_KEYS).length} usage description(s).`);
 }
 
 console.log('Next: bump Build in Xcode → Archive → Upload');
