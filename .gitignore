@@ -20,9 +20,10 @@ fix-*
 repair-*
 agent-*
 
-# Capacitor native projects (managed locally via npx cap sync / cap open)
-ios/
+# Capacitor Android project (generated locally via npx cap sync / cap open)
 android/
+
+# iOS: committed for Xcode Cloud (see ios/.gitignore for build artifacts)
 
 # Android upload keystore (backup locally — required for all future Play updates)
 assets/play-store/signing/*.keystore
