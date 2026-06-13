@@ -4,6 +4,7 @@
  */
 
 const PARENT_HAS_EMAIL = `p.email IS NOT NULL AND TRIM(p.email) <> ''`;
+const PARENT_ROW_HAS_EMAIL = `email IS NOT NULL AND TRIM(email) <> ''`;
 const IS_ACTIVE_SUBSCRIBER = `COALESCE(es.subscribed, true) = true`;
 
 async function createNewsletterSubscription(queryable, parentId, email) {
@@ -49,7 +50,7 @@ async function backfillAllParentsNewsletterSubscriptions(client) {
   await client.query(`
     UPDATE parent
     SET newsletter_subscribed = true
-    WHERE ${PARENT_HAS_EMAIL}
+    WHERE ${PARENT_ROW_HAS_EMAIL}
       AND (newsletter_subscribed IS NULL OR newsletter_subscribed = false)
   `);
 
