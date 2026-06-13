@@ -1,0 +1,31 @@
+# systemd unit TEMPLATE for the auto-deploy webhook listener.
+#
+# Fill in the placeholders (<...>) to match your install, then:
+#   sudo cp deploy/webhook-deploy.service /etc/systemd/system/<service>-webhook.service
+#   sudo systemctl edit <service>-webhook      # add DEPLOY_WEBHOOK_SECRET (see below)
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now <service>-webhook
+#
+# Provide the secret WITHOUT committing it, via a drop-in created by
+# `systemctl edit <service>-webhook`:
+#   [Service]
+#   Environment=DEPLOY_WEBHOOK_SECRET=<the-secret-you-set-in-github>
+
+[Unit]
+Description=App auto-deploy webhook listener
+After=network.target
+
+[Service]
+Type=simple
+User=<deploy-user>
+WorkingDirectory=<app-dir>
+ExecStart=/usr/bin/env node <app-dir>/deploy/webhook-deploy.js
+Environment=DEPLOY_WEBHOOK_PORT=9001
+Environment=DEPLOY_WEBHOOK_BRANCH=main
+Environment=DEPLOY_SERVICE_NAME=<app-service-name>
+# DEPLOY_WEBHOOK_SECRET is provided via `systemctl edit` drop-in (not committed).
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

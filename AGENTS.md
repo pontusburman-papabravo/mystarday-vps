@@ -36,3 +36,7 @@ All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, W
 - CI (`.github/workflows/ci.yml`) currently fails at the `npm ci` step because it does **not** pass `--legacy-peer-deps`; that is a pre-existing repo/CI issue, not an environment problem.
 - One unit test (`test/release-os.test.js` → `injectPlatformHtml adds device-mode and skips duplicate platform.js`) is a **pre-existing failure**, unrelated to environment setup. The rest pass (331/332).
 - The **global standard library** (`default_schedule`, `default_activity_template`, `default_reward`) is empty in a fresh local DB — it is harvested from production via `npm run harvest:library` + `npm run import:library` (needs prod admin creds). Consequence: the onboarding wizard's "schedule template" step fails locally with *"Inga aktiviteter hittades för valt schema"*. Per-family activities ARE seeded at registration (the family gets ~56 activities), so the core activity/reward/star loop works without the global library; only the prebuilt template picker is affected.
+
+### Production / deploy
+- Production runs on a VPS as a systemd service (the app's service unit) under a dedicated deploy user. Restart with `sudo systemctl restart <service>` and read logs via `sudo journalctl -u <service>` (discover the exact unit with `systemctl list-units | grep -i node`).
+- Push-to-deploy is available via a webhook listener (see `deploy/README.md`): a commit to `main` triggers `deploy/deploy.sh` (git pull + conditional `npm install`/`migrate` + service restart).
