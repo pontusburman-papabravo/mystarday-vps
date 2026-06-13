@@ -4,8 +4,8 @@ set -e
 
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
-echo "🧹 Removing cached Pods (prevents ITMS-91061 from stale GoogleSignIn)"
-rm -rf ios/App/Pods ios/App/Podfile.lock
+echo "🧹 Prepare clean iOS native tree (no Google Sign-In SDK)"
+node scripts/prepare-ios-native.mjs
 
 echo "🔄 Re-sync iOS + fresh pod install"
 npm run cap:sync:ios
