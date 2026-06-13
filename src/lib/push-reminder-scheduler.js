@@ -18,6 +18,7 @@ const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { getDayOfWeek } = require('./daily-log-generator');
+const { shouldSendScheduleReminder } = require('./push-reminder-timing');
 
 const LOCK_ID = PUSH_REMINDER_SCHEDULER_LOCK_ID; // 1006
 
@@ -147,8 +148,8 @@ async function runPushReminderJob() {
 }
 
 /**
- * Send schedule reminders for activities starting in [lead_minutes-5, lead_minutes]
- * from now (10 min window centered on the configured lead time).
+ * Send schedule reminders for activities starting in (lead_minutes-5, lead_minutes]
+ * minutes from now (one 5-minute cron tick per activity).
  */
 async function sendScheduleReminders(year, month, day, currentTimeMin) {
   // Today's date (Stockholm) + its day_of_week, using the same convention as
@@ -169,6 +170,7 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
       const r = rawPrefs || {};
       return {
         enabled: r.enabled !== false,
+        schedule_reminder: r.schedule_reminder !== false,
         reminder_lead_minutes: r.reminder_lead_minutes ?? 10,
         per_child: r.per_child || {},
       };
@@ -178,10 +180,6 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
     if (isQuietHours()) continue;
 
     const leadMin = prefs.reminder_lead_minutes;
-    // 10-min window centered on (now + lead): notify for items starting ~leadMin from now.
-    const nowPlusLead = currentTimeMin + leadMin;
-    const nowPlusLeadStart = Math.max(0, nowPlusLead - 5);
-    const nowPlusLeadEnd   = Math.min(1440, nowPlusLead + 5);
 
     // Get all children for this parent
     const childrenResult = await db.query(
@@ -223,18 +221,27 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
       for (const item of itemsResult.rows) {
         const [sh, sm] = (item.scheduled_time || '00:00').split(':').map(Number);
         const itemTimeMin = sh * 60 + sm;
-        if (itemTimeMin >= nowPlusLeadStart && itemTimeMin <= nowPlusLeadEnd) {
-          const minsUntil = itemTimeMin - currentTimeMin;
-          if (minsUntil > 0 && minsUntil <= leadMin) {
-            await sendPushNotification(parent_id, {
-              title: `Dags för "${item.activity_name}" om ${minsUntil} minuter! ⭐`,
-              body: `Påminnelse för ${child.name}`,
-              type: 'schedule_reminder',
-              url: '/child-dashboard',
-            });
-            console.log(`[PUSH-REMINDER] Schedule reminder sent to parent ${parent_id} for child ${child.name}: ${item.activity_name}`);
-          }
-        }
+        if (!shouldSendScheduleReminder(itemTimeMin, currentTimeMin, leadMin)) continue;
+
+        const minsUntil = itemTimeMin - currentTimeMin;
+        const titlePrefix = `Dags för "${item.activity_name}"`;
+        const dupCheck = await db.query(
+          `SELECT 1 FROM notification_log
+           WHERE parent_id = $1 AND type = 'schedule_reminder'
+             AND title LIKE $2
+             AND created_at > NOW() - INTERVAL '2 hours'
+           LIMIT 1`,
+          [parent_id, `${titlePrefix}%`]
+        );
+        if (dupCheck.rows.length > 0) continue;
+
+        await sendPushNotification(parent_id, {
+          title: `${titlePrefix} om ${minsUntil} minuter! ⭐`,
+          body: `Påminnelse för ${child.name}`,
+          type: 'schedule_reminder',
+          url: '/child-dashboard',
+        });
+        console.log(`[PUSH-REMINDER] Schedule reminder sent to parent ${parent_id} for child ${child.name}: ${item.activity_name}`);
       }
     }
   }
