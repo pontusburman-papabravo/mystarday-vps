@@ -3,6 +3,9 @@
  * iOS privacy usage descriptions for @capacitor/camera (ITMS-90683 + App Review 5.1.1).
  * Run after `npx cap sync ios` — upserts keys with App Review–approved copy.
  *
+ * English strings: App Review devices are often set to English (Guideline 5.1.1).
+ * We do not save to the photo library — only NSPhotoLibraryUsageDescription is needed.
+ *
  * Usage: node scripts/patch-ios-info-plist.mjs
  */
 import fs from 'fs';
@@ -12,15 +15,16 @@ const infoPlistPath = path.join(process.cwd(), 'ios', 'App', 'App', 'Info.plist'
 
 const APP_NAME = 'Min Stjärndag'; // pragma: allowlist secret
 
-/** User-facing Swedish strings — must explain use + example (Guideline 5.1.1). */
+/** Must explain use + concrete example (Guideline 5.1.1). */
 const USAGE_KEYS = {
   NSCameraUsageDescription:
-    `${APP_NAME} använder kameran så att du som förälder kan ta en ny profilbild till barnet i appen. Bilden sparas i familjekontot och visas endast för din familj.`,
+    `${APP_NAME} uses the camera so you, as a parent, can take a new profile photo for your child in the app. The photo is saved to your family account and shown only to your family.`,
   NSPhotoLibraryUsageDescription:
-    `${APP_NAME} behöver åtkomst till dina foton så att du kan välja en befintlig bild som barnets profilbild. Exempel: du väljer ett foto från albumet "Semester" och det visas som barnets avatar i schemat.`,
-  NSPhotoLibraryAddUsageDescription:
-    `${APP_NAME} kan spara en profilbild du tar i appen till ditt fotobibliotek om du väljer det, så att du behåller en kopia på din enhet.`,
+    `${APP_NAME} needs access to your photos so you can choose an existing picture as your child's profile photo. For example, you can select a photo from your "Summer vacation" album and it will appear as your child's avatar in their daily schedule.`,
 };
+
+/** App only reads photos; never saves to the library. */
+const REMOVE_KEYS = ['NSPhotoLibraryAddUsageDescription'];
 
 function escapePlistString(value) {
   return value
@@ -46,6 +50,13 @@ function upsertPlistKey(content, key, value) {
   return content.slice(0, closingDict) + block + '\n' + content.slice(closingDict);
 }
 
+function removePlistKey(content, key) {
+  return content.replace(
+    new RegExp(`\\t<key>${key}</key>\\s*\\n\\s*<string>[\\s\\S]*?</string>\\s*\\n?`),
+    ''
+  );
+}
+
 if (!fs.existsSync(infoPlistPath)) {
   console.error('Not found:', infoPlistPath);
   console.error('Run: npx cap add ios && npm run cap:sync:ios');
@@ -54,6 +65,9 @@ if (!fs.existsSync(infoPlistPath)) {
 
 let content = fs.readFileSync(infoPlistPath, 'utf8');
 const before = content;
+for (const key of REMOVE_KEYS) {
+  content = removePlistKey(content, key);
+}
 for (const [key, value] of Object.entries(USAGE_KEYS)) {
   content = upsertPlistKey(content, key, value);
 }
