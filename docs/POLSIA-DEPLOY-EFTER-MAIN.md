@@ -1,5 +1,7 @@
 # Polsia — en deploy räcker (ingen kod i chat)
 
+> **ARKIVERAT (juni 2026).** Polsia-deploy är avvecklat. Se [`ARKIVERAT-POLSIA-REPO.md`](ARKIVERAT-POLSIA-REPO.md) och [`VPS-ANDROID-ENV.md`](VPS-ANDROID-ENV.md).
+
 **Status:** Polsia har **inte** deployat än → en enda deploy av senaste **`main`** från `MyStarday-Polsia` täcker allt nedan.
 
 ## Källa

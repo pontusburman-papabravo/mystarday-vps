@@ -1,5 +1,9 @@
 # Handoff till Polsia AI
 
+> **ARKIVERAT (juni 2026).** Polsia-deploy och repot MyStarday-Polsia är avvecklat. Produktion och utveckling sker i [`mystarday-vps`](https://github.com/pontusburman-papabravo/mystarday-vps). Detta dokument finns kvar som historik — använd inte för ny drift. Se [`ARKIVERAT-POLSIA-REPO.md`](ARKIVERAT-POLSIA-REPO.md).
+
+---
+
 Kopiera blocket under **"Prompt att klistra in"** när du vill att Polsia ska deploya, granska eller fortsätta arbeta på Min Stjärndag.
 
 **Källa till sanning (produktion):** Senaste **ZIP-exporten** från Polsia (t.ex. `stjarndag (16).zip`) = exakt det som kör på https://stjarndag.polsia.app.  

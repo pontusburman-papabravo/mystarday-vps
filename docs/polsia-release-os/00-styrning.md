@@ -1,5 +1,7 @@
 # Styrning — Release OS
 
+> **ARKIVERAT (juni 2026).** Polsia-deploy avvecklat — se [`../ARKIVERAT-POLSIA-REPO.md`](../ARKIVERAT-POLSIA-REPO.md).
+
 | Regel | |
 |-------|---|
 | **Huvudplan** | [`app2.md`](../../app2.md) — vid konflikt vinner app2 |
@@ -7,10 +9,10 @@
 | **Android-tillägg** | [`android.md`](../../android.md) |
 | **Parity SPOT** | [`parity-manifest.md`](parity-manifest.md) |
 
-## Polsia deploy
+## Polsia deploy (arkiverat)
 
-- **Prod:** https://github.com/Polsia-Inc/stjarndag  
-- **Diff/handoff:** https://github.com/pontusburman-papabravo/MyStarday-Polsia  
+- **Prod (nu):** https://github.com/pontusburman-papabravo/mystarday-vps → https://mystarday.se  
+- **Tidigare Polsia:** https://github.com/Polsia-Inc/stjarndag (avvecklat)  
 - **En task = ett deploy** — inga sammanslagna sprintar
 
 ## Failure policies

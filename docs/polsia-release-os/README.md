@@ -1,5 +1,7 @@
 # STJÄRNDAG — Polsia Release OS (produktionspaket)
 
+> **ARKIVERAT (juni 2026).** Polsia-deploy är avvecklat. Kanonisk repo och drift: [`mystarday-vps`](https://github.com/pontusburman-papabravo/mystarday-vps) → [`../ARKIVERAT-POLSIA-REPO.md`](../ARKIVERAT-POLSIA-REPO.md).
+
 **Syfte:** Färdigt material för **Polsia AI** — kopiera sprint för sprint, deploya, kör verifiering, signera.  
 **Kanon:** Denna mapp. Översikt: [`../polsia-sprint-koordinering.md`](../polsia-sprint-koordinering.md).
 
