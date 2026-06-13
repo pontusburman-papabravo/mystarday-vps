@@ -17,6 +17,7 @@
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { getDayOfWeek } = require('./daily-log-generator');
 
 const LOCK_ID = PUSH_REMINDER_SCHEDULER_LOCK_ID; // 1006
 
@@ -150,6 +151,11 @@ async function runPushReminderJob() {
  * from now (10 min window centered on the configured lead time).
  */
 async function sendScheduleReminders(year, month, day, currentTimeMin) {
+  // Today's date (Stockholm) + its day_of_week, using the same convention as
+  // daily-log-generator (0=Sun .. 6=Sat) that weekly_schedule.day_of_week stores.
+  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const dayOfWeek = getDayOfWeek(dateStr, 'Europe/Stockholm');
+
   // Get parents with schedule_reminder enabled
   const parentsResult = await db.query(
     `SELECT p.id AS parent_id, p.push_preferences
@@ -172,12 +178,10 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
     if (isQuietHours()) continue;
 
     const leadMin = prefs.reminder_lead_minutes;
-    const windowStart = leadMin - 5; // e.g. 5 min before lead time
-    const windowEnd   = leadMin + 5; // e.g. 5 min after lead time
-
+    // 10-min window centered on (now + lead): notify for items starting ~leadMin from now.
     const nowPlusLead = currentTimeMin + leadMin;
-    const nowPlusLeadStart = Math.max(0, windowStart);
-    const nowPlusLeadEnd   = Math.min(1440, windowEnd);
+    const nowPlusLeadStart = Math.max(0, nowPlusLead - 5);
+    const nowPlusLeadEnd   = Math.min(1440, nowPlusLead + 5);
 
     // Get all children for this parent
     const childrenResult = await db.query(
@@ -192,20 +196,28 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
       const childPrefs = prefs.per_child?.[child.id];
       if (childPrefs?.schedule_reminder === false) continue;
 
-      // Find scheduled items that fall in the reminder window today
+      // Find scheduled items for today's weekly schedule that aren't already
+      // completed in today's daily log. The activity name comes from
+      // activity_template; the time is weekly_schedule_item.start_time.
       const itemsResult = await db.query(
-        `SELECT wsi.id, wsi.activity_name, wsi.scheduled_time, wsi.child_id
+        `SELECT wsi.id, at.name AS activity_name, wsi.start_time AS scheduled_time, ws.child_id
          FROM weekly_schedule_item wsi
          JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+         JOIN activity_template at ON at.id = wsi.activity_template_id
          WHERE ws.child_id = $1
-           AND (EXTRACT(DOW FROM DATE '${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}')::int
-                = (EXTRACT(DOW FROM wsi.start_date)::int + 1) % 7 + 1)
-           AND wsi.start_date <= DATE '${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}'
-           AND (wsi.end_date IS NULL OR wsi.end_date >= DATE '${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}')
-           AND wsi.completed = false
-           AND wsi.scheduled_time IS NOT NULL
+           AND ws.day_of_week = $2
+           AND wsi.start_time IS NOT NULL
+           AND NOT EXISTS (
+             SELECT 1
+             FROM daily_log dl
+             JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+             WHERE dl.child_id = ws.child_id
+               AND dl.date = $3::date
+               AND dli.activity_template_id = wsi.activity_template_id
+               AND dli.completed = true
+           )
          LIMIT 3`,
-        [child.id]
+        [child.id, dayOfWeek, dateStr]
       );
 
       for (const item of itemsResult.rows) {
