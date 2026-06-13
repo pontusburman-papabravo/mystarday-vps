@@ -4,6 +4,7 @@
  * Fixes:
  *   - double-quoted include in framework header (CapacitorCordova)
  *   - Sandbox deny on Pods-App-frameworks.sh (User Script Sandboxing)
+ *   - Remove Google Auth pod on iOS (Android-only; old GoogleSignIn SDK lacks privacy manifest)
  *
  * Usage: node scripts/patch-ios-podfile.mjs
  */
@@ -43,11 +44,19 @@ if (!fs.existsSync(podfilePath)) {
 
 let content = fs.readFileSync(podfilePath, 'utf8');
 
+const GOOGLE_AUTH_POD =
+  /^\s*pod 'CodetrixStudioCapacitorGoogleAuth'.*\n/m;
+if (GOOGLE_AUTH_POD.test(content)) {
+  content = content.replace(GOOGLE_AUTH_POD, '');
+  console.log('Removed CodetrixStudioCapacitorGoogleAuth from iOS Podfile (Android-only plugin).');
+}
+
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');
 const hasSandboxFix = content.includes('ENABLE_USER_SCRIPT_SANDBOXING');
 const hasSaveFix = content.includes('user_project.save');
 
 if (hasQuotedFix && hasSandboxFix && hasSaveFix) {
+  fs.writeFileSync(podfilePath, content);
   console.log('Podfile already patched (quoted includes + script sandbox + save).');
   process.exit(0);
 }
