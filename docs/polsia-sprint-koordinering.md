@@ -1,5 +1,7 @@
 # Polsia — Sprint-kö (copy-paste)
 
+> **ARKIVERAT (juni 2026).** Polsia-deploy avvecklat — se [`ARKIVERAT-POLSIA-REPO.md`](ARKIVERAT-POLSIA-REPO.md).
+
 **Källor:** [`app2.md`](../app2.md) v2.3 · [`ios-städ.md`](ios-städ.md) v2.1 · [`android.md`](../android.md) v1.4 · [`parity-manifest.md`](parity-manifest.md) (SPOT)  
 **Regel:** En task = ett deploy. Max scope i listan. Inga refactors.
 

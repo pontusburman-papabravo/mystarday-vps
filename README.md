@@ -1,12 +1,14 @@
-# Min Stjärndag (MyStarday-Polsia)
+# Min Stjärndag
 
 Swedish family app for children's daily routines, star rewards, and schedule management. Parents create structured daily schedules, children earn stars by completing activities, and redeem stars for rewards in the "Skattkammaren" (treasure chamber).
 
-**Repository:** [pontusburman-papabravo/MyStarday-Polsia](https://github.com/pontusburman-papabravo/MyStarday-Polsia) — Polsia-hosted deployment of the Stjärndag codebase (`polsia.toml` for cron jobs and platform integrations).
+**Repository:** [pontusburman-papabravo/mystarday-vps](https://github.com/pontusburman-papabravo/mystarday-vps) — produktion på egen VPS ([mystarday.se](https://mystarday.se)).
+
+> Det tidigare repot **MyStarday-Polsia** är omdöpt till `mystarday-vps` och Polsia-deploy är avvecklat. Se [`docs/ARKIVERAT-POLSIA-REPO.md`](docs/ARKIVERAT-POLSIA-REPO.md).
 
 ## Stack
 
-Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render (Polsia: email, R2 uploads, Stripe proxy — see [External Integrations](#external-integrations)).
+Express.js + Neon PostgreSQL + Tailwind CDN, deployed on VPS (Resend email, R2 or local uploads, Stripe — see [External Integrations](#external-integrations)).
 
 ## Local Development
 
@@ -59,10 +61,11 @@ migrations/1750000000000_add_new_table.js
 
 ## External Integrations
 
-- **Polsia email proxy** — invite emails and notifications (configured via Polsia infra)
-- **Polsia R2 proxy** — image uploads for manual star grants
-- **Polsia Stripe proxy** — payment checkout
+- **Resend** — outbound email (verification, invites, newsletters)
+- **Cloudflare R2** or **local disk** — image uploads (`data/uploads` on VPS without R2)
+- **Stripe** — payment checkout (direct API on VPS)
 - **Web Push (VAPID)** — browser push notifications
+- **Apple APNs / FCM** — native push (iOS/Android)
 
 ## Key Endpoints
 
@@ -74,18 +77,18 @@ migrations/1750000000000_add_new_table.js
 
 ## Deployment
 
-Deployed to Render. Push to main auto-deploys to staging. Manual production deploy via GitHub Actions.
+Produktion: VPS på https://mystarday.se. Efter merge till `main`:
 
-Build: `npm run build` (= `npm run migrate`)
+```bash
+git pull origin main
+npm install
+npm run migrate
+# starta om appen (systemd/pm2/docker)
+```
+
+Se [`docs/VPS-ANDROID-ENV.md`](docs/VPS-ANDROID-ENV.md) för env och verifiering.
+
+Build: `npm run build` (= `npm run migrate`)  
 Start: `npm start`
-
-## Polsia / this repository
-
-| Item | Value |
-|------|--------|
-| GitHub | [MyStarday-Polsia](https://github.com/pontusburman-papabravo/MyStarday-Polsia) |
-| Product | Min Stjärndag (`stjarndag` in `package.json`) |
-| Cron jobs | Declared in `polsia.toml` (push reminders, midnight tasks, weekly email) |
-| Proxies | Email, R2 uploads, Stripe — configured in Polsia (not in this repo) |
 
 Tests expect **Node 20** (see `.nvmrc`). Run `npm ci` then `npm test` with `DATABASE_URL`, `JWT_SECRET`, and `NODE_ENV=test` set (CI uses mock values — see `.github/workflows/ci.yml`).
