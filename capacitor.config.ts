@@ -24,6 +24,14 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     allowsLinkPreview: false,
     scrollEnabled: true,
+    // Google Sign-In is Android-only (platform.js). Excluding it avoids bundling
+    // GoogleSignIn/GTMAppAuth/GTMSessionFetcher without Apple-required privacy manifests.
+    includePlugins: [
+      '@capacitor-community/apple-sign-in',
+      '@capacitor/app',
+      '@capacitor/camera',
+      '@capacitor/push-notifications',
+    ],
   },
   plugins: {
     SplashScreen: {
