@@ -97,7 +97,7 @@
           } else {
             flags.push(`<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">📧 Skickat till ${emailCount} prenumerant${emailCount !== 1 ? 'er' : ''}</span>`);
           }
-          flags.push(`<span id="dn-stats-${n.id}" class="text-xs text-sky-700 font-semibold hidden"></span>`);
+          flags.push(`<span id="dn-stats-${n.id}" class="inline-block"></span>`);
         }
         if (n.post_to_facebook) {
           if (n.facebook_post_id) {
@@ -167,7 +167,8 @@
             el,
             `/api/dagens-nyhet/${n.id}/email-stats`,
             `/api/dagens-nyhet/${n.id}/email-recipients`,
-            n.title || 'Dagens nyhet'
+            n.title || 'Dagens nyhet',
+            n.email_sent_count || 0
           );
         }
       });

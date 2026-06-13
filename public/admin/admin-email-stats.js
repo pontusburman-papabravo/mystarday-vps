@@ -9,8 +9,21 @@
     return d.innerHTML;
   }
 
+  async function fetchJson(url) {
+    try {
+      if (typeof Auth !== 'undefined' && Auth.api) {
+        return await Auth.api(url);
+      }
+      const r = await fetch(url, { credentials: 'include' });
+      if (!r.ok) return null;
+      return r.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
   function formatBadge(stats) {
-    if (!stats || !stats.sent) return '';
+    if (!stats || !stats.sent) return '📊 Statistik';
     let text = `📬 ${stats.open_rate}% öppnat (${stats.opened_unique}/${stats.sent})`;
     if (stats.clicked_unique > 0) {
       text += ` · 👆 ${stats.click_rate}% klick (${stats.clicked_unique}/${stats.sent})`;
@@ -18,24 +31,43 @@
     return text;
   }
 
-  async function fetchJson(url) {
-    const r = await fetch(url, { credentials: 'include' });
-    if (!r.ok) return null;
-    return r.json();
+  function statsButtonHtml(id, label) {
+    return `<button type="button" id="${id}"
+      class="text-xs text-sky-800 font-semibold px-2 py-0.5 rounded-lg bg-sky/40 hover:bg-sky border border-sky transition-colors"
+      title="Visa vem som öppnat och klickat">${esc(label)}</button>`;
   }
 
-  async function loadBadge(el, statsUrl, recipientsUrl, title) {
-    if (!el) return;
-    const stats = await fetchJson(statsUrl);
+  async function openCampaign(statsUrl, recipientsUrl, title, fallbackSent) {
+    let stats = await fetchJson(statsUrl);
     if (!stats || !stats.sent) {
-      el.textContent = '';
-      el.classList.add('hidden');
-      return;
+      stats = {
+        sent: fallbackSent || 0,
+        delivered: 0,
+        opened_unique: 0,
+        opened_total: 0,
+        clicked_unique: 0,
+        clicked_total: 0,
+        open_rate: 0,
+        click_rate: 0,
+        no_tracking: true,
+      };
     }
-    el.textContent = formatBadge(stats);
+    await showDetailModal(title, stats, recipientsUrl);
+  }
+
+  async function loadBadge(el, statsUrl, recipientsUrl, title, fallbackSent) {
+    if (!el) return;
+
+    const open = () => openCampaign(statsUrl, recipientsUrl, title, fallbackSent);
+    el.innerHTML = statsButtonHtml(el.id + '-btn', '📊 Statistik');
     el.classList.remove('hidden');
-    el.classList.add('cursor-pointer', 'underline', 'decoration-dotted');
-    el.onclick = () => showDetailModal(title, stats, recipientsUrl);
+    const btn = el.querySelector('button');
+    if (btn) btn.onclick = open;
+
+    const stats = await fetchJson(statsUrl);
+    if (stats && stats.sent > 0 && btn) {
+      btn.textContent = formatBadge(stats);
+    }
   }
 
   async function showDetailModal(title, stats, recipientsUrl) {
@@ -58,6 +90,10 @@
       </tr>`;
     }).join('');
 
+    const noTrackingNote = stats.no_tracking
+      ? '<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Ingen per-mottagare-spårning för detta utskick (skickat före spårning aktiverades). Antal mottagare från utskicksloggen.</p>'
+      : '';
+
     const modal = document.createElement('div');
     modal.id = 'emailStatsDetailModal';
     modal.innerHTML = `
@@ -70,9 +106,10 @@
             </div>
             <button type="button" onclick="AdminEmailStats.closeModal()" class="text-navy/60 hover:text-navy text-2xl leading-none font-bold">&times;</button>
           </div>
-          <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 text-sm text-navy space-y-1">
+          <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 text-sm text-navy space-y-2">
+            ${noTrackingNote}
             <p><strong>Skickat:</strong> ${stats.sent} · <strong>Öppnat:</strong> ${stats.opened_unique} (${stats.open_rate}%) · <strong>Klick:</strong> ${stats.clicked_unique} (${stats.click_rate}%)</p>
-            <p class="text-xs text-text-soft">Öppningsfrekvens från Resend — kan vara lägre än verkligheten (t.ex. Apple Mail Privacy).</p>
+            <p class="text-xs text-text-soft">Öppningsfrekvens från Resend — kräver tracking-subdomän + webhook. Kan vara lägre än verkligheten.</p>
           </div>
           <div class="flex-1 overflow-y-auto px-4 py-3">
             <table class="w-full text-sm">
@@ -84,7 +121,7 @@
                   <th class="pb-2">Klick</th>
                 </tr>
               </thead>
-              <tbody>${rows || '<tr><td colspan="4" class="py-6 text-center text-text-soft">Ingen per-mottagare-data</td></tr>'}</tbody>
+              <tbody>${rows || '<tr><td colspan="4" class="py-6 text-center text-text-soft">Ingen per-mottagare-data för detta utskick</td></tr>'}</tbody>
             </table>
           </div>
         </div>
@@ -93,7 +130,7 @@
   }
 
   function closeModal(event) {
-    if (event && event.target && !event.target.id && event.target.closest('.bg-white')) return;
+    if (event && event.target && event.target.closest && event.target.closest('.bg-white')) return;
     const m = document.getElementById('emailStatsDetailModal');
     if (m) m.remove();
   }
@@ -101,6 +138,7 @@
   window.AdminEmailStats = {
     formatBadge,
     loadBadge,
+    openCampaign,
     showDetailModal,
     closeModal,
   };
