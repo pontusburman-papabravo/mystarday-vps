@@ -15,7 +15,6 @@ npm config set maxsockets 3
 npm ci --legacy-peer-deps --include=dev
 
 echo "🔄 Syncing Capacitor iOS (copy assets, patch Podfile, pod install)"
-rm -rf ios/App/Pods ios/App/Podfile.lock
 npm run cap:sync:ios
 
 echo "🔍 Verify no Google Sign-In pods"
