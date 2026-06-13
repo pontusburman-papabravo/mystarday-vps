@@ -1308,7 +1308,14 @@ function _jwkToPem(jwk) {
 async function verifyAppleIdToken(idToken) {
   const jwt = require('jsonwebtoken');
   const APPLE_ISSUER = 'https://appleid.apple.com';
-  const APPLE_AUDIENCE = process.env.APPLE_CLIENT_ID || 'se.mystarday.app';
+  const audiences = [
+    process.env.APPLE_CLIENT_ID,
+    process.env.APPLE_BUNDLE_ID || 'se.mystarday.app', // pragma: allowlist secret
+  ].filter(Boolean);
+  if (audiences.length === 0) {
+    console.error('[AUTH] Apple token verification: no APPLE_CLIENT_ID or APPLE_BUNDLE_ID configured');
+    return null;
+  }
 
   try {
     const decoded = jwt.decode(idToken, { complete: true });
@@ -1329,7 +1336,7 @@ async function verifyAppleIdToken(idToken) {
 
     const payload = jwt.verify(idToken, pem, {
       issuer: APPLE_ISSUER,
-      audience: APPLE_AUDIENCE,
+      audience: audiences.length === 1 ? audiences[0] : audiences,
       algorithms: ['RS256'],
     });
 

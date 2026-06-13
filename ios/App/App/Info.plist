@@ -46,10 +46,10 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-        <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
+	<string>Min Stjärndag använder kameran så att du som förälder kan ta en ny profilbild till barnet i appen. Bilden sparas i familjekontot och visas endast för din familj.</string> <!-- pragma: allowlist secret -->
 	<key>NSPhotoLibraryUsageDescription</key>
-        <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
+	<string>Min Stjärndag behöver åtkomst till dina foton så att du kan välja en befintlig bild som barnets profilbild. Exempel: du väljer ett foto från albumet &quot;Semester&quot; och det visas som barnets avatar i schemat.</string> <!-- pragma: allowlist secret -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
-        <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
+	<string>Min Stjärndag kan spara en profilbild du tar i appen till ditt fotobibliotek om du väljer det, så att du behåller en kopia på din enhet.</string> <!-- pragma: allowlist secret -->
 </dict>
 </plist>
