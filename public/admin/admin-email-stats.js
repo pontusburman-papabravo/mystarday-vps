@@ -2,6 +2,8 @@
 // Used by admin-newsletter.js and admin-dagensnyhet.js.
 
 (function () {
+  const BTN_CLASS = 'js-email-stats-btn text-xs px-2 py-1 rounded-lg bg-gold hover:bg-yellow-500 text-navy font-semibold transition-colors border border-gold cursor-pointer inline-flex items-center gap-1';
+
   function esc(s) {
     if (typeof window.esc === 'function') return window.esc(s);
     const d = document.createElement('div');
@@ -31,10 +33,15 @@
     return text;
   }
 
-  function statsButtonHtml(id, label) {
-    return `<button type="button" id="${id}"
-      class="text-xs text-sky-800 font-semibold px-2 py-0.5 rounded-lg bg-sky/40 hover:bg-sky border border-sky transition-colors"
-      title="Visa vem som öppnat och klickat">${esc(label)}</button>`;
+  /** Inline HTML — synlig direkt i listan, ingen async-span behövs. */
+  function renderButton(statsUrl, recipientsUrl, title, fallbackSent) {
+    return `<button type="button"
+      class="${BTN_CLASS}"
+      data-stats-url="${esc(statsUrl)}"
+      data-recipients-url="${esc(recipientsUrl)}"
+      data-title="${esc(title || 'Nyhetsbrev')}"
+      data-fallback-sent="${esc(String(fallbackSent || 0))}"
+      title="Visa vem som öppnat och klickat">📊 Statistik</button>`;
   }
 
   async function openCampaign(statsUrl, recipientsUrl, title, fallbackSent) {
@@ -55,19 +62,37 @@
     await showDetailModal(title, stats, recipientsUrl);
   }
 
-  async function loadBadge(el, statsUrl, recipientsUrl, title, fallbackSent) {
-    if (!el) return;
+  function openFromButton(btn) {
+    if (!btn || !btn.dataset) return;
+    return openCampaign(
+      btn.dataset.statsUrl,
+      btn.dataset.recipientsUrl,
+      btn.dataset.title,
+      parseInt(btn.dataset.fallbackSent, 10) || 0
+    );
+  }
 
-    const open = () => openCampaign(statsUrl, recipientsUrl, title, fallbackSent);
-    el.innerHTML = statsButtonHtml(el.id + '-btn', '📊 Statistik');
-    el.classList.remove('hidden');
-    const btn = el.querySelector('button');
-    if (btn) btn.onclick = open;
-
-    const stats = await fetchJson(statsUrl);
-    if (stats && stats.sent > 0 && btn) {
+  async function enrichButton(btn) {
+    if (!btn || !btn.dataset.statsUrl) return;
+    const stats = await fetchJson(btn.dataset.statsUrl);
+    if (stats && stats.sent > 0) {
       btn.textContent = formatBadge(stats);
     }
+  }
+
+  async function enrichButtons(root) {
+    const scope = root && root.querySelectorAll ? root : document;
+    const buttons = scope.querySelectorAll('.js-email-stats-btn');
+    await Promise.all(Array.from(buttons).map(enrichButton));
+  }
+
+  /** @deprecated — use renderButton + enrichButtons */
+  async function loadBadge(el, statsUrl, recipientsUrl, title, fallbackSent) {
+    if (!el) return;
+    el.innerHTML = renderButton(statsUrl, recipientsUrl, title, fallbackSent);
+    el.classList.remove('hidden');
+    const btn = el.querySelector('.js-email-stats-btn');
+    if (btn) await enrichButton(btn);
   }
 
   async function showDetailModal(title, stats, recipientsUrl) {
@@ -135,8 +160,18 @@
     if (m) m.remove();
   }
 
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.js-email-stats-btn');
+    if (!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openFromButton(btn);
+  });
+
   window.AdminEmailStats = {
     formatBadge,
+    renderButton,
+    enrichButtons,
     loadBadge,
     openCampaign,
     showDetailModal,

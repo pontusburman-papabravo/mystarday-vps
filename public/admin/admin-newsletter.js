@@ -53,9 +53,19 @@
           statusBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">📝 Utkast</span>`;
         }
 
+        const statsBtn = nl.sent_at
+          ? (window.AdminEmailStats
+            ? AdminEmailStats.renderButton(
+                `/api/newsletter/newsletters/${nl.id}/stats`,
+                `/api/newsletter/newsletters/${nl.id}/recipients-tracking`,
+                nl.subject || 'Nyhetsbrev',
+                nl.sent_count || 0
+              )
+            : '<button type="button" class="text-xs px-2 py-1 rounded-lg bg-gold text-navy font-semibold border border-gold" disabled>📊 Statistik</button>')
+          : '';
         const sentInfo = nl.sent_at
           ? `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">📧 ${nl.sent_count || 0} mottagare · ${sentDate}</span>
-             <span id="nl-stats-${nl.id}" class="inline-block"></span>`
+             ${statsBtn}`
           : '';
 
         // Truncate body preview to 120 chars
@@ -79,18 +89,9 @@
           </div>`;
       }).join('');
 
-      newsletters.filter(nl => nl.sent_at).forEach(nl => {
-        const el = document.getElementById('nl-stats-' + nl.id);
-        if (el && window.AdminEmailStats) {
-          AdminEmailStats.loadBadge(
-            el,
-            `/api/newsletter/newsletters/${nl.id}/stats`,
-            `/api/newsletter/newsletters/${nl.id}/recipients-tracking`,
-            nl.subject || 'Nyhetsbrev',
-            nl.sent_count || 0
-          );
-        }
-      });
+      if (window.AdminEmailStats) {
+        AdminEmailStats.enrichButtons(container);
+      }
     }
 
     // ─── Compose form ──────────────────────────────────────────

@@ -97,7 +97,14 @@
           } else {
             flags.push(`<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-semibold">📧 Skickat till ${emailCount} prenumerant${emailCount !== 1 ? 'er' : ''}</span>`);
           }
-          flags.push(`<span id="dn-stats-${n.id}" class="inline-block"></span>`);
+          if (window.AdminEmailStats) {
+            flags.push(AdminEmailStats.renderButton(
+              `/api/dagens-nyhet/${n.id}/email-stats`,
+              `/api/dagens-nyhet/${n.id}/email-recipients`,
+              n.title || 'Dagens nyhet',
+              n.email_sent_count || 0
+            ));
+          }
         }
         if (n.post_to_facebook) {
           if (n.facebook_post_id) {
@@ -160,18 +167,9 @@
           </div>`;
       }).join('');
 
-      nyheter.filter(n => n.email_sent_at).forEach(n => {
-        const el = document.getElementById('dn-stats-' + n.id);
-        if (el && window.AdminEmailStats) {
-          AdminEmailStats.loadBadge(
-            el,
-            `/api/dagens-nyhet/${n.id}/email-stats`,
-            `/api/dagens-nyhet/${n.id}/email-recipients`,
-            n.title || 'Dagens nyhet',
-            n.email_sent_count || 0
-          );
-        }
-      });
+      if (window.AdminEmailStats) {
+        AdminEmailStats.enrichButtons(container);
+      }
     }
 
     // ─── Draft: save as draft ────────────────────────────────

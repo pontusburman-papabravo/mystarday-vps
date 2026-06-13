@@ -57,6 +57,9 @@
       if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
         loadActivationProgramAdmin();
       }
+      if (name === 'nyhetsbrev' && typeof loadNewsletterSubscribers === 'function') {
+        loadNewsletterSubscribers();
+      }
       if (name === 'valkomstmail') loadWelcomeEmailTemplate();
       if (name === 'intresseanmalningar') loadInterests();
       if (name === 'waitlist') loadWaitlist();
