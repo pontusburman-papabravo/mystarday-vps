@@ -4,6 +4,11 @@ Workflow: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml)
 
 Körs vid **push till `main`** och kan även startas manuellt under **Actions → Deploy to VPS → Run workflow**.
 
+Konfigurationen ligger i GitHub environment **`vps`**:
+
+- **Environment secrets** — känslig data (endast privat SSH-nyckel)
+- **Environment variables** — övrig deploy-konfiguration (icke-känsligt, synligt för repo-admins)
+
 ## 1. Skapa deploy-nyckel (engångs)
 
 På din laptop:
@@ -12,87 +17,88 @@ På din laptop:
 ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/stjarndag-deploy -N ""
 ```
 
-På VPS — lägg till **publika** nyckeln:
+På VPS — lägg till **publika** nyckeln för användaren `deploy`:
 
 ```bash
-# som den användare som ska deploya (t.ex. deploy eller din vanliga user)
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 echo 'INNEHÅLL_FRÅN_stjarndag-deploy.pub' >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-Ge användaren rätt att starta om appen, t.ex. sudoers:
+Ge `deploy` rätt att starta om appen (visudo):
 
 ```bash
-# /etc/sudoers.d/stjarndag-deploy (visudo)
+# /etc/sudoers.d/stjarndag-deploy
 deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart stjarndag
 ```
 
-(Anpassa service-namn om ni kör pm2/docker — se `VPS_RESTART_CMD` nedan.)
+## 2. GitHub environment `vps`
 
-## 2. GitHub Secrets
+**Settings → Environments → `vps`**
 
-**Repo → Settings → Secrets and variables → Actions → New repository secret**
+### Environment secrets
 
-| Secret | Obligatorisk | Exempel |
-|--------|--------------|---------|
-| `VPS_HOST` | Ja | serverns IP eller hostname |
-| `VPS_USER` | Ja | `deploy` |
-| `VPS_SSH_KEY` | Ja | Hela **privata** nyckeln (`stjarndag-deploy`) |
-| `VPS_APP_PATH` | Ja | `/var/www/stjarndag-vps` |
-| `VPS_SSH_PORT` | Nej | `22` (default) |
-| `VPS_RESTART_CMD` | Nej | `sudo systemctl restart stjarndag` (default om utelämnad) |
-| `VPS_HEALTH_URL` | Nej | `http://127.0.0.1:3000/health` på servern (default) |
+| Secret | Beskrivning |
+|--------|-------------|
+| `VPS_SSH_KEY` | Hela **privata** deploy-nyckeln (`~/.ssh/stjarndag-deploy`) |
 
-### GitHub Environment (rekommenderat)
+### Environment variables (prod)
 
-Workflowen använder environment **`vps`**. Skapa den under **Settings → Environments → New environment** och lägg secrets där (samma namn som ovan). Då kan ni kräva manuellt godkännande innan deploy om ni vill.
+| Variable | Värde | Beskrivning |
+|----------|-------|-------------|
+| `VPS_HOST` | `188.66.60.93` | Server-IP |
+| `VPS_USER` | `deploy` | SSH-användare |
+| `VPS_SSH_PORT` | `22` | SSH-port |
+| `VPS_APP_PATH` | se GitHub environment `vps` | Git-repo på servern |
+| `VPS_RESTART_CMD` | `sudo systemctl restart stjarndag` | Starta om efter migrate |
+| `VPS_HEALTH_URL` | `http://127.0.0.1:3000/health` | Health check på servern |
+
+Workflowen använder `secrets.VPS_SSH_KEY` och `vars.VPS_*` i [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml).
+
+Valfritt: **Required reviewers** på environment `vps` för manuellt godkännande före deploy.
 
 ## 3. Förbered VPS (engångs)
 
 ```bash
-cd /var/www/stjarndag-vps   # samma som VPS_APP_PATH
-git clone https://github.com/ORG/REPO.git .
-# eller: git remote add origin … om katalogen redan finns
+cd "$VPS_APP_PATH"   # samma path som i GitHub variable VPS_APP_PATH
 
 # Node 20 (nvm)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-nvm install 20
-nvm use 20
+nvm install 20 && nvm use 20
 
-# .env med DATABASE_URL, JWT_SECRET, m.m. — redan på plats i prod
 npm install --legacy-peer-deps
 npm run migrate
+sudo systemctl enable stjarndag
+sudo systemctl start stjarndag
 ```
 
-## 4. Kör allt i ett
+## 4. Deploy
 
-1. Skapa GitHub environment **`vps`** och lägg in secrets (steg 2)
-2. Pusha/mergea till `main` — workflow startar automatiskt  
-   **eller** Actions → **Deploy to VPS** → **Run workflow**
+1. Secrets + variables enligt steg 2
+2. **Actions → Deploy to VPS → Run workflow** (eller push till `main`)
 3. Följ loggen under Actions
 
-Verifiera (ersätt med er publika domän):
+Verifiera mot publik domän eller:
 
 ```bash
-curl -sS https://ER-DOMAN/health
-curl -sS https://ER-DOMAN/sw.js | grep CACHE_NAME
+curl -sS http://188.66.60.93/health
+curl -sS http://127.0.0.1:3000/health   # på servern
 ```
 
-## pm2 / Docker istället för systemd
+## pm2 / Docker
 
-Sätt `VPS_RESTART_CMD`:
+Ändra variable `VPS_RESTART_CMD` i environment `vps`:
 
-| Setup | `VPS_RESTART_CMD` |
-|-------|-------------------|
+| Setup | Värde |
+|-------|-------|
 | pm2 | `pm2 restart stjarndag` |
-| Docker Compose | `cd /var/www/stjarndag-vps && docker compose up -d --build` |
+| Docker Compose | `cd $VPS_APP_PATH && docker compose up -d --build` |
 
 ## Felsökning
 
 | Problem | Åtgärd |
 |---------|--------|
-| `Permission denied (publickey)` | Kontrollera `VPS_SSH_KEY` och `authorized_keys` på servern |
-| `git: not a directory` | Fel `VPS_APP_PATH` — måste peka på git-repo-roten |
-| `systemctl: command not found` | Sätt `VPS_RESTART_CMD` till pm2/docker |
-| Health check timeout | Appen startar långsamt — sätt `VPS_HEALTH_URL` eller fixa restart-kommando |
+| `Permission denied (publickey)` | Kontrollera secret `VPS_SSH_KEY` och `authorized_keys` för `deploy` |
+| `Input required and not supplied: host` | Variable `VPS_HOST` saknas i environment `vps` |
+| `git: not a directory` | Fel `VPS_APP_PATH` |
+| Health check timeout | `journalctl -u stjarndag -f` på servern |
