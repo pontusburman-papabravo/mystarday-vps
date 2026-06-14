@@ -49,7 +49,7 @@ deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart stjarndag
 | `VPS_HOST` | `188.66.60.93` | Server-IP |
 | `VPS_USER` | `deploy` | SSH-användare |
 | `VPS_SSH_PORT` | `22` | SSH-port |
-| `VPS_APP_PATH` | se GitHub environment `vps` | Git-repo på servern |
+| `VPS_APP_PATH` | `/var/www/mystarday` | Git-repo på servern | <!-- pragma: allowlist secret -->
 | `VPS_RESTART_CMD` | `sudo systemctl restart stjarndag` | Starta om efter migrate |
 | `VPS_HEALTH_URL` | `http://127.0.0.1:3000/health` | Health check på servern |
 
@@ -60,7 +60,7 @@ Valfritt: **Required reviewers** på environment `vps` för manuellt godkännand
 ## 3. Förbered VPS (engångs)
 
 ```bash
-cd "$VPS_APP_PATH"   # samma path som i GitHub variable VPS_APP_PATH
+cd /var/www/mystarday   # samma som VPS_APP_PATH i GitHub  # pragma: allowlist secret
 
 # Node 20 (nvm)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -92,7 +92,7 @@ curl -sS http://127.0.0.1:3000/health   # på servern
 | Setup | Värde |
 |-------|-------|
 | pm2 | `pm2 restart stjarndag` |
-| Docker Compose | `cd $VPS_APP_PATH && docker compose up -d --build` |
+| Docker Compose | `cd /var/www/mystarday && docker compose up -d --build` | <!-- pragma: allowlist secret -->
 
 ## Felsökning
 
