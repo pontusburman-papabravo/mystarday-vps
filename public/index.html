@@ -24,7 +24,7 @@
     <!-- Platform theme detection (web vs native) -->
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
-  <script src="/js/cookie-banner.js?v=2.13.0"></script>
+  <script src="/js/cookie-banner.js?v=2.13.1"></script>
   <!-- "Magisk natt" shared CSS (stars, clouds, glass) + landing overrides -->
   <link rel="stylesheet" href="/css/login-magic.css?v=136">
     <style>
@@ -53,14 +53,37 @@
             --radius-xl:28px;
         }
 
-        html { scroll-behavior: smooth; }
+        html {
+            scroll-behavior: smooth;
+            overflow-x: clip;
+            max-width: 100%;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text);
             background: var(--cream);
-            overflow-x: hidden;
+            overflow-x: clip;
+            max-width: 100%;
             line-height: 1.65;
+        }
+
+        /* Magisk natt gradient on web — applied immediately (no JS wait) */
+        body.platform-web {
+            background:
+                radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
+                linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        body.platform-web .hero {
+            background: transparent;
+        }
+        body.platform-web .hero::before,
+        body.platform-web .hero::after {
+            display: none;
         }
 
         h1, h2, h3, h4 {
@@ -226,9 +249,10 @@
             display: grid; grid-template-columns: 1fr 1fr;
             gap: 4rem; align-items: center;
             position: relative; z-index: 2;
+            min-width: 0;
         }
 
-        .hero-text { }
+        .hero-text { min-width: 0; width: 100%; }
 
         .hero-eyebrow {
             display: inline-flex; align-items: center; gap: 0.45rem;
@@ -270,7 +294,9 @@
         /* Stars / clouds on the landing page */
         #landing-stars-container,
         #landing-clouds-container {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+            overflow: hidden;
         }
 
         /* Nav on magical night — semi-transparent dark glass */
@@ -1142,10 +1168,19 @@
             .nav-hamburger { display: flex; }
             .lang-switcher--centered { display: flex; }
             /* Tighter hero padding so headline+cards fit above fold */
-            .hero { padding: 5.5rem 1.4rem 2.5rem; }
+            .hero { padding: 5.5rem 1rem 2.5rem; align-items: flex-start; }
+            .hero-inner { gap: 2rem; }
             .hero h1 { font-size: 2rem; margin-bottom: 0.9rem; }
-            .hero-ingress { font-size: 0.94rem; margin-bottom: 1.2rem; }
+            .hero-ingress { font-size: 0.94rem; margin-bottom: 1.2rem; max-width: 100%; }
             .hero-eyebrow { margin-bottom: 0.9rem; }
+            /* Full-width hero blocks — prevents clipped CTA + empty right gutter */
+            .hero-text > #founderCta,
+            .hero-text > #landingNewsSection,
+            .login-cards-section,
+            .testimonials-section,
+            .pwa-callout { max-width: 100% !important; width: 100% !important; }
+            /* Mockup below fold on mobile — keeps focus on CTA, avoids overflow */
+            .hero-visual { display: none; }
             /* Keep login cards large and prominent on mobile */
             .login-cards-section { max-width: 100%; margin-bottom: 1rem; }
             .login-cards-row { gap: 0.7rem; }
@@ -1579,7 +1614,7 @@
     }
     </script>
 </head>
-<body class="platform-web" style="font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;">
+<body class="platform-web landing-magic-bg" style="font-family:'Plus Jakarta Sans',sans-serif;overflow-x:clip;">
 
   <!-- Stars (platform-web only) -->
   <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>

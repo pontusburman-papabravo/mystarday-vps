@@ -203,8 +203,15 @@
       '.cb-save-row{margin-top:1rem;display:flex;justify-content:center}',
       '.cb-btn-save{background:#1B2340;color:#fff;width:100%;max-width:280px;padding:0.75rem 1.5rem;border-radius:8px;font-family:"Plus Jakarta Sans",sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;border:none;transition:opacity 0.15s}',
       '.cb-btn-save:hover{opacity:0.85}',
-      // Mobil
-      '@media(max-width:600px){.cb-inner{padding:1.1rem 1rem}.cb-btn-row{flex-direction:column;align-items:stretch}.cb-btn{width:100%;justify-content:center}}',
+      // Mobil — kompakt layout så bannern inte täcker halva skärmen
+      '@media(max-width:600px){',
+      '.cb-inner{padding:0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom,0px))}',
+      '.cb-text{font-size:0.84rem;line-height:1.45;margin-bottom:0.7rem}',
+      '.cb-btn-row{flex-direction:row;flex-wrap:wrap;gap:0.5rem;align-items:stretch}',
+      '.cb-btn{padding:0.58rem 0.75rem;font-size:0.82rem;white-space:normal;text-align:center}',
+      '.cb-btn-manage{order:3;flex:1 1 100%;padding:0.5rem 0.85rem}',
+      '.cb-btn-deny,.cb-btn-accept{flex:1 1 calc(50% - 0.25rem);min-width:0}',
+      '}',
     ].join('');
     document.head.appendChild(style);
   }
