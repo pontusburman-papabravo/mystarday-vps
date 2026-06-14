@@ -23,12 +23,19 @@
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
-const { loadEnvFile } = require('./src/lib/load-env');
+const { loadEnvFile, diagnoseDatabaseUrl } = require('./src/lib/load-env');
 
-loadEnvFile();
-
-if (!process.env.DATABASE_URL) {
-  console.error('ERROR: DATABASE_URL is required. Add it to .env or export it before running migrate.');
+const envLoaded = loadEnvFile();
+const dbDiag = diagnoseDatabaseUrl(process.env.DATABASE_URL);
+if (!dbDiag.ok) {
+  console.error('ERROR:', dbDiag.message);
+  if (!envLoaded) {
+    console.error('No .env file found in', process.cwd());
+  } else {
+    console.error('Tip: grep DATABASE_URL .env — use postgresql://user:password@host:5432/dbname');
+    console.error('If password has special chars, URL-encode them (e.g. @ → %40, # → %23).');
+    console.error('Or run: set -a && source .env && set +a && npm run migrate');
+  }
   process.exit(1);
 }
 
