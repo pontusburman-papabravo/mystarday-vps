@@ -23,9 +23,18 @@
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
+const { loadEnvFile } = require('./src/lib/load-env');
+
+loadEnvFile();
+
+if (!process.env.DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL is required. Add it to .env or export it before running migrate.');
+  process.exit(1);
+}
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false },
 });
 
 async function migrate() {
