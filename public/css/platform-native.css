@@ -58,6 +58,13 @@ html.is-native body.has-native-tab-bar .mobile-topbar {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Prevent accidental double-tap zoom on tappable controls */
+.platform-native button,
+.platform-native a.tab-item,
+.platform-native .cl-key {
+  touch-action: manipulation;
+}
+
 /* ── User-select: allow text selection in inputs / textareas ─────────── */
 .platform-native input,
 .platform-native textarea {

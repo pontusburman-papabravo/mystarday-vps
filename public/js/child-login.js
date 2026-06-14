@@ -920,7 +920,7 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
         d === '⌫' || d === '✓' ?
           'padding:12px;font-size:1.1rem;font-weight:600;background:#EDE7F6;border:none;border-radius:12px;cursor:pointer;color:#5A6178;min-height:52px;' :
           'padding:14px;font-size:1.3rem;font-weight:700;background:#EDE7F6;border:none;border-radius:12px;cursor:pointer;color:#1B2340;min-height:52px;',
-        'transition:background 0.1s;',
+        'transition:background 0.1s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;',
       ].join('');
       btn.addEventListener('mouseenter', function () { btn.style.background = '#D8BFD8'; });
       btn.addEventListener('mouseleave', function () { btn.style.background = '#EDE7F6'; });

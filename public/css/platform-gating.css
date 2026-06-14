@@ -28,3 +28,12 @@ html.is-native body.has-native-tab-bar .mobile-hamburger,
 html.is-native body.has-native-tab-bar .mobile-dropdown {
   display: none !important;
 }
+
+/* PIN keypads — prevent double-tap zoom when tapping digits quickly */
+.cl-key,
+#ppin-keypad button,
+#ppgo-keypad button,
+.pp-pin-keypad button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
