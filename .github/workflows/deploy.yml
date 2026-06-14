@@ -19,10 +19,10 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          port: ${{ vars.VPS_SSH_PORT || 22 }}
           command_timeout: 15m
           script_stop: true
           envs: VPS_APP_PATH,VPS_RESTART_CMD,VPS_HEALTH_URL
@@ -30,7 +30,7 @@ jobs:
             set -euo pipefail
 
             if [ -z "${VPS_APP_PATH:-}" ]; then
-              echo "VPS_APP_PATH secret is not set"
+              echo "VPS_APP_PATH variable is not set"
               exit 1
             fi
 
@@ -74,6 +74,6 @@ jobs:
             echo "health check failed: $HEALTH_URL"
             exit 1
         env:
-          VPS_APP_PATH: ${{ secrets.VPS_APP_PATH }}
-          VPS_RESTART_CMD: ${{ secrets.VPS_RESTART_CMD }}
-          VPS_HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
+          VPS_APP_PATH: ${{ vars.VPS_APP_PATH }}
+          VPS_RESTART_CMD: ${{ vars.VPS_RESTART_CMD }}
+          VPS_HEALTH_URL: ${{ vars.VPS_HEALTH_URL }}
