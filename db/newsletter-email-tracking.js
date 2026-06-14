@@ -2,6 +2,7 @@
  * Newsletter e-postspårning — per mottagare och kampanj (Resend webhooks).
  */
 const db = require('../src/lib/db');
+const { computeCampaignRates } = require('../src/lib/newsletter-campaign-stats');
 
 async function recordSend({
   campaignType,
@@ -73,6 +74,7 @@ async function getCampaignStats(campaignType, campaignId) {
   const sent = row.sent || 0;
   const opened = row.opened_unique || 0;
   const clicked = row.clicked_unique || 0;
+  const rates = computeCampaignRates(sent, opened, clicked);
   return {
     sent,
     delivered: row.delivered || 0,
@@ -80,8 +82,8 @@ async function getCampaignStats(campaignType, campaignId) {
     opened_total: row.opened_total || 0,
     clicked_unique: clicked,
     clicked_total: row.clicked_total || 0,
-    open_rate: sent > 0 ? Math.round((opened / sent) * 1000) / 10 : 0,
-    click_rate: sent > 0 ? Math.round((clicked / sent) * 1000) / 10 : 0,
+    open_rate: rates.open_rate,
+    click_rate: rates.click_rate,
   };
 }
 

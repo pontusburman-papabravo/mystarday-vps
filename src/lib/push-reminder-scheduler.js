@@ -19,6 +19,10 @@ const { sendPushNotification } = require('./push-notifications');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { getDayOfWeek } = require('./daily-log-generator');
 const { shouldSendScheduleReminder } = require('./push-reminder-timing');
+const {
+  parseScheduleReminderPrefs,
+  isScheduleReminderEnabled,
+} = require('./push-reminder-prefs');
 
 const LOCK_ID = PUSH_REMINDER_SCHEDULER_LOCK_ID; // 1006
 
@@ -66,25 +70,6 @@ async function getParentPrefs(parentId) {
     per_child:          raw.per_child  || {},
     reminder_lead_minutes: raw.reminder_lead_minutes ?? 10,
   };
-}
-
-/**
- * Check if notifications are enabled for a specific child (per_child overrides).
- */
-function isChildNotificationEnabled(prefs, childId, type) {
-  const childPrefs = prefs.per_child?.[childId];
-  if (childPrefs && typeof childPrefs === 'object') {
-    if (childPrefs[type] === false) return false;
-    if (childPrefs[type] === true)  return true;
-  }
-  // Fall back to global toggle
-  const globalToggle = {
-    schedule_reminder: prefs.schedule_reminder,
-    inactivity_nudge:  prefs.inactivity_nudge,
-    star_milestone:    prefs.star_milestone,
-    backfill_reminder: prefs.backfill_reminder,
-  };
-  return globalToggle[type] !== false;
 }
 
 /**
@@ -166,17 +151,9 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
   );
 
   for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
-    const prefs = (() => {
-      const r = rawPrefs || {};
-      return {
-        enabled: r.enabled !== false,
-        schedule_reminder: r.schedule_reminder !== false,
-        reminder_lead_minutes: r.reminder_lead_minutes ?? 10,
-        per_child: r.per_child || {},
-      };
-    })();
+    const prefs = parseScheduleReminderPrefs(rawPrefs);
 
-    if (!prefs.enabled || prefs.schedule_reminder === false) continue;
+    if (!isScheduleReminderEnabled(prefs)) continue;
     if (isQuietHours()) continue;
 
     const leadMin = prefs.reminder_lead_minutes;
@@ -191,8 +168,7 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
     );
 
     for (const child of childrenResult.rows) {
-      const childPrefs = prefs.per_child?.[child.id];
-      if (childPrefs?.schedule_reminder === false) continue;
+      if (!isScheduleReminderEnabled(prefs, child.id)) continue;
 
       // Find scheduled items for today's weekly schedule that aren't already
       // completed in today's daily log. The activity name comes from

@@ -7,6 +7,11 @@ const PARENT_HAS_EMAIL = `p.email IS NOT NULL AND TRIM(p.email) <> ''`;
 const PARENT_ROW_HAS_EMAIL = `email IS NOT NULL AND TRIM(email) <> ''`;
 const IS_ACTIVE_SUBSCRIBER = `COALESCE(es.subscribed, true) = true`;
 
+/** JS mirror of IS_ACTIVE_SUBSCRIBER — missing row or null counts as subscribed. */
+function isActiveNewsletterSubscriber(subscribed) {
+  return subscribed !== false;
+}
+
 async function createNewsletterSubscription(queryable, parentId, email) {
   const normalized = typeof email === 'string' ? email.trim() : '';
   if (!normalized) return;
@@ -73,6 +78,7 @@ async function ensureSubscriberRecords(queryable) {
 module.exports = {
   PARENT_HAS_EMAIL,
   IS_ACTIVE_SUBSCRIBER,
+  isActiveNewsletterSubscriber,
   createNewsletterSubscription,
   ensureSubscriberRecords,
   backfillAllParentsNewsletterSubscriptions,
