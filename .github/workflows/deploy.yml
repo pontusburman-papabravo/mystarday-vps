@@ -1,0 +1,79 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vps-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy main to VPS
+    runs-on: ubuntu-latest
+    environment: vps
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          command_timeout: 15m
+          script_stop: true
+          envs: VPS_APP_PATH,VPS_RESTART_CMD,VPS_HEALTH_URL
+          script: |
+            set -euo pipefail
+
+            if [ -z "${VPS_APP_PATH:-}" ]; then
+              echo "VPS_APP_PATH secret is not set"
+              exit 1
+            fi
+
+            cd "$VPS_APP_PATH"
+
+            echo "→ Fetch latest main"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "→ Node 20"
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              # shellcheck disable=SC1091
+              . "$NVM_DIR/nvm.sh"
+              nvm use 20 2>/dev/null || nvm use default 2>/dev/null || true
+            fi
+
+            echo "→ npm install"
+            npm install --legacy-peer-deps
+
+            echo "→ migrate"
+            npm run migrate
+
+            echo "→ restart app"
+            if [ -n "${VPS_RESTART_CMD:-}" ]; then
+              eval "$VPS_RESTART_CMD"
+            else
+              sudo systemctl restart stjarndag
+            fi
+
+            echo "→ health check (on server)"
+            HEALTH_URL="${VPS_HEALTH_URL:-http://127.0.0.1:3000/health}"
+            for i in 1 2 3 4 5; do
+              if curl -fsS "$HEALTH_URL" >/dev/null; then
+                echo "OK: $HEALTH_URL"
+                exit 0
+              fi
+              echo "waiting for app… ($i/5)"
+              sleep 3
+            done
+            echo "health check failed: $HEALTH_URL"
+            exit 1
+        env:
+          VPS_APP_PATH: ${{ secrets.VPS_APP_PATH }}
+          VPS_RESTART_CMD: ${{ secrets.VPS_RESTART_CMD }}
+          VPS_HEALTH_URL: ${{ secrets.VPS_HEALTH_URL }}
