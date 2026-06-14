@@ -398,6 +398,7 @@
   margin-bottom: 12px;
   flex: 1;
   align-content: start;
+  touch-action: manipulation;
 }
 .cl-key {
   display: flex;
@@ -413,6 +414,7 @@
   font-size: 1.6rem;
   cursor: pointer;
   user-select: none;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.1s ease, transform 0.08s ease, border-color 0.1s ease;
   min-height: 68px;

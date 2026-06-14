@@ -1,6 +1,18 @@
 (function () {
   'use strict';
 
+  /** Block pinch/double-tap zoom in native WebView (App Store–style shell). */
+  function patchViewportNoZoom() {
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return;
+    var c = meta.getAttribute('content') || '';
+    if (/\bmaximum-scale\s*=\s*1\b/i.test(c) && /\buser-scalable\s*=\s*no\b/i.test(c)) return;
+    c = c.replace(/,?\s*maximum-scale\s*=[^,]*/gi, '');
+    c = c.replace(/,?\s*user-scalable\s*=[^,]*/gi, '');
+    c = c.trim().replace(/,\s*$/, '');
+    meta.setAttribute('content', c + ', maximum-scale=1, user-scalable=no');
+  }
+
   function detectNative() {
     if (typeof window.Platform !== 'undefined' &&
         typeof window.Platform.isNative === 'function' &&
@@ -22,6 +34,7 @@
     root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page');
 
     if (isNative) {
+      patchViewportNoZoom();
       root.classList.add('platform-native');
       var childPagePath = (window.location.pathname || '').replace(/\/$/, '');
       var isChildPage = childPagePath === '/child-dashboard' || childPagePath === '/child-login';
