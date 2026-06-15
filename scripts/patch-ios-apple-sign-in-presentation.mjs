@@ -8,18 +8,26 @@
 import fs from 'fs';
 import path from 'path';
 
-const pluginSwift = path.join(
+const pluginRoot = path.join(
   process.cwd(),
   'node_modules',
   '@capacitor-community',
   'apple-sign-in',
-  'ios',
-  'Sources',
-  'SignInWithApple',
-  'Plugin.swift'
+  'ios'
 );
 
-if (!fs.existsSync(pluginSwift)) {
+// The plugin moved its Swift source between versions:
+//   - v7 (CocoaPods layout):  ios/Plugin/Plugin.swift
+//   - SPM layout:             ios/Sources/SignInWithApple/Plugin.swift
+// Try every known location so the patch is never silently skipped.
+const candidatePaths = [
+  path.join(pluginRoot, 'Plugin', 'Plugin.swift'),
+  path.join(pluginRoot, 'Sources', 'SignInWithApple', 'Plugin.swift'),
+];
+
+const pluginSwift = candidatePaths.find((p) => fs.existsSync(p));
+
+if (!pluginSwift) {
   console.log('Apple Sign In plugin not installed — skip presentation patch.');
   process.exit(0);
 }
