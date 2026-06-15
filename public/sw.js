@@ -205,8 +205,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v233';
-// v233: App view mode toggle (klassisk / ny design) + parent magic home hub
+const CACHE_NAME = 'stjarndag-v234';
+// v234: Parent magic hub layout v2 — child ready row + 2×3 action grid
 // v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.

@@ -21,12 +21,6 @@
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-  function isNativeShell() {
-    return (window.Platform && Platform.isNative && Platform.isNative()) ||
-      document.body.classList.contains('has-native-tab-bar') ||
-      document.documentElement.classList.contains('platform-native');
-  }
-
   function isOverviewVisible() {
     var editor = document.getElementById('scheduleEditorView');
     var list = document.getElementById('childrenListView');
@@ -53,54 +47,28 @@
     return 'Hej!';
   }
 
-  function familySubtitle(children) {
-    if (!children.length) return 'Lägg till barn för att komma igång';
-    var done = children.reduce(function (s, c) { return s + (c.today_completed || 0); }, 0);
-    var total = children.reduce(function (s, c) { return s + (c.today_total || 0); }, 0);
-    if (total > 0 && done === total) return 'Alla aktiviteter klara idag — bra jobbat!';
-    if (total > 0) return done + ' av ' + total + ' aktiviteter klara i familjen idag';
-    var stars = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
-    if (stars > 0) return stars + ' stjärnor tjänade idag';
-    return 'Följ familjens stjärnor och schema här';
+  function getChildStatus(c) {
+    if (c.today_is_paused) return { text: 'Ledig idag', icon: '🏠' };
+    var items = c.today_items || [];
+    var total = c.today_total || 0;
+    var done = c.today_completed || 0;
+    if (total > 0 && done === total) return { text: 'Allt klart!', icon: '✅' };
+    if (total === 0) return { text: 'Inget schema', icon: '📋' };
+    var next = items.find(function (item) { return !item.completed; });
+    if (next) return { text: next.name, icon: next.icon || '📋' };
+    return { text: done + '/' + total + ' klara', icon: '⭐' };
   }
 
-  function findNextActivity(children) {
+  function findFocusChild(children) {
     for (var i = 0; i < children.length; i++) {
       var c = children[i];
       if (c.today_is_paused) continue;
       var items = c.today_items || [];
       for (var j = 0; j < items.length; j++) {
-        if (!items[j].completed) {
-          return { child: c, item: items[j] };
-        }
+        if (!items[j].completed) return c.id;
       }
     }
-    return null;
-  }
-
-  function pickScheduleChild(children) {
-    var withItems = children.filter(function (c) { return (c.today_items || []).length > 0; });
-    if (withItems.length) return withItems[0];
-    return children[0] || null;
-  }
-
-  function renderRing(done, total) {
-    var r = 18;
-    var circ = 2 * Math.PI * r;
-    var pct = total > 0 ? done / total : 0;
-    var offset = circ - pct * circ;
-    return '<svg class="parent-ring" viewBox="0 0 44 44" aria-hidden="true">' +
-      '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="4"/>' +
-      '<circle cx="22" cy="22" r="' + r + '" fill="none" stroke="#ffcc33" stroke-width="4"' +
-      ' stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '"' +
-      ' stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>';
-  }
-
-  function rewardProgress(c) {
-    var reward = c.nearest_reward;
-    if (!reward || !reward.star_cost) return 0;
-    var bal = c.star_balance || 0;
-    return Math.min(100, Math.round((bal / reward.star_cost) * 100));
+    return children.length ? children[0].id : null;
   }
 
   function buildWeekSeries(children) {
@@ -152,7 +120,7 @@
     var polyline = points.map(function (pt) { return pt.x + ',' + pt.y; }).join(' ');
     var area = polyline + ' ' + (padX + (series.length - 1) * step) + ',' + h + ' ' + padX + ',' + h;
 
-    var labels = series.map(function (p, i) {
+    var labels = series.map(function (p) {
       return '<span class="' + (p.isToday ? 'is-today' : '') + '">' + escHtml(p.label) + '</span>';
     }).join('');
 
@@ -192,6 +160,38 @@
     return '<span>' + escHtml(child.emoji || '⭐') + '</span>';
   }
 
+  function renderReadyRow(children, focusId) {
+    if (!children.length) {
+      return '<p class="parent-ready-empty">Lägg till barn under Familj för att se status här.</p>';
+    }
+    return children.map(function (c) {
+      var status = getChildStatus(c);
+      var active = c.id === focusId ? ' is-active' : '';
+      return '<button type="button" class="parent-ready-child' + active + '" data-action="open-schedule" data-child-id="' + escHtml(c.id) + '">' +
+        (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
+        '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
+        '<div class="parent-ready-name">' + escHtml(capName(c.name)) + '</div>' +
+        '<div class="parent-ready-task">' + escHtml(status.icon) + ' ' + escHtml(status.text) + '</div>' +
+        '</button>';
+    }).join('');
+  }
+
+  function renderActionGrid() {
+    var actions = [
+      { action: 'give-stars', icon: '⭐', label: 'Ge extra stjärnor' },
+      { action: 'once-task', icon: '📋', label: 'Engångsaktivitet' },
+      { action: 'ledig-dag', icon: '🏠', label: 'Ledig dag' },
+      { action: 'today-schedule', icon: '📅', label: 'Dagens schema' },
+      { action: 'stats', icon: '📊', label: 'Statistik' },
+      { action: 'messages', icon: '💬', label: 'Meddelanden' },
+    ];
+    return actions.map(function (a) {
+      return '<button type="button" class="parent-action-tile" data-action="' + escHtml(a.action) + '">' +
+        '<span class="parent-action-icon" aria-hidden="true">' + a.icon + '</span>' +
+        '<span class="parent-action-label">' + escHtml(a.label) + '</span></button>';
+    }).join('');
+  }
+
   function render(stats) {
     var mount = document.getElementById('parentHomeHubMount');
     if (!mount) return false;
@@ -209,107 +209,48 @@
     var children = (stats && stats.children) ? stats.children : [];
     var user = (window.Auth && Auth.getUser) ? Auth.getUser() : null;
     var parentInitial = user && user.name ? user.name.charAt(0).toUpperCase() : '👤';
-    var next = findNextActivity(children);
-    var scheduleChild = pickScheduleChild(children);
+    var focusId = findFocusChild(children);
     var enc = encouragementCopy(children);
     var weekSeries = buildWeekSeries(children);
-
-    var ctaHtml = '';
-    if (next) {
-      ctaHtml =
-        '<div class="parent-glass-card parent-cta-card">' +
-        '<span class="parent-cta-icon" aria-hidden="true">👋</span>' +
-        '<div class="parent-cta-text">' +
-        '<p class="parent-cta-title">' + escHtml(capName(next.child.name)) + ' är redo för nästa aktivitet</p>' +
-        '<p class="parent-cta-sub">' + escHtml(next.item.icon || '') + ' ' + escHtml(next.item.name) + '</p>' +
-        '</div>' +
-        '<button type="button" class="parent-cta-btn" data-action="open-schedule" data-child-id="' + escHtml(next.child.id) + '">Öppna schema →</button>' +
-        '</div>';
-    }
-
-    var scheduleHtml = '';
-    if (scheduleChild) {
-      var items = scheduleChild.today_items || [];
-      var done = scheduleChild.today_completed || 0;
-      var total = scheduleChild.today_total || 0;
-      var listHtml = items.length
-        ? items.slice(0, 6).map(function (item) {
-          var cls = 'parent-schedule-item';
-          if (item.completed) cls += ' is-done';
-          else if (item.status === 'NÄSTA' || item.status === 'NU') cls += ' is-next';
-          return '<li class="' + cls + '"><span>' + escHtml(item.icon || '📋') + '</span><span class="truncate">' +
-            escHtml(item.name) + '</span></li>';
-        }).join('')
-        : '<li class="parent-schedule-item"><span>📋</span><span>Inget schema idag</span></li>';
-
-      scheduleHtml =
-        '<div class="parent-glass-card parent-schedule-card">' +
-        '<div class="parent-schedule-card-head">' +
-        '<h3>Dagens schema</h3>' +
-        '<a class="parent-schedule-link" href="/schedule?child=' + encodeURIComponent(scheduleChild.id) + '">Visa alla</a>' +
-        '</div>' +
-        '<ul class="parent-schedule-list">' + listHtml + '</ul>' +
-        '<div class="parent-schedule-progress">' +
-        renderRing(done, total) +
-        '<div class="parent-ring-label">' + done + '/' + total + ' klara idag<span>' + escHtml(capName(scheduleChild.name)) + '</span></div>' +
-        '</div></div>';
-    }
-
-    var starsHtml = children.map(function (c) {
-      var prog = rewardProgress(c);
-      return '<article class="parent-star-card" data-action="expand-child" data-child-id="' + escHtml(c.id) + '">' +
-        '<div class="parent-star-card-top">' + renderAvatar(c, 36) +
-        '<div><div class="parent-star-card-name">' + escHtml(capName(c.name)) + '</div>' +
-        '<div class="parent-star-count">' + (c.star_balance || 0) + ' ⭐ totalt</div></div></div>' +
-        '<div class="parent-star-bar-track"><div class="parent-star-bar-fill" style="width:' + prog + '%"></div></div>' +
-        '</article>';
-    }).join('');
+    var scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
 
     mount.innerHTML =
       '<div class="parent-home-hub">' +
-      '<header class="parent-hub-header">' +
-      '<div class="parent-hub-greeting-wrap">' +
-      '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +
-      '<p class="parent-hub-sub">' + escHtml(familySubtitle(children)) + '</p>' +
-      '</div>' +
+      '<header class="parent-hub-top">' +
+      '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
       '<div class="parent-hub-header-actions">' +
       '<a href="/notifications" class="parent-hub-icon-btn" aria-label="Notiser">🔔</a>' +
       '<a href="/settings" class="parent-hub-icon-btn" aria-label="Profil">' + escHtml(parentInitial) + '</a>' +
       '</div></header>' +
-      '<div class="parent-hub-hero">' +
-      '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
+      '<div class="parent-hub-greeting-block">' +
+      '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +
+      '<p class="parent-hub-sub">Här är en översikt av er familjs framsteg. ✨</p>' +
       '<div class="parent-hub-mascot" aria-hidden="true">⭐</div>' +
       '</div>' +
-      ctaHtml +
-      '<div class="parent-quick-grid">' +
-      '<button type="button" class="parent-quick-tile" data-action="give-stars"><span class="parent-quick-tile-icon">⭐</span><span class="parent-quick-tile-label">Ge extra stjärnor</span></button>' +
-      '<button type="button" class="parent-quick-tile" data-action="once-task"><span class="parent-quick-tile-icon">📋</span><span class="parent-quick-tile-label">Engångsaktivitet</span></button>' +
-      '<button type="button" class="parent-quick-tile" data-action="ledig-dag"><span class="parent-quick-tile-icon">🏠</span><span class="parent-quick-tile-label">Ledig dag</span></button>' +
-      '<button type="button" class="parent-quick-tile" data-action="stats"><span class="parent-quick-tile-icon">📊</span><span class="parent-quick-tile-label">Statistik</span></button>' +
+      '<section class="parent-ready-section parent-glass-card">' +
+      '<div class="parent-ready-head">' +
+      '<h2>Redo för nästa aktivitet</h2>' +
+      '<a class="parent-schedule-link" href="' + scheduleHref + '">Visa schema →</a>' +
       '</div>' +
-      '<div class="parent-hub-row">' +
-      '<div class="parent-glass-card parent-handoff-card">' +
-      '<p class="parent-handoff-title">🔒 Dags för barnet att logga in?</p>' +
-      '<p class="parent-handoff-sub">Byt till barnets vy med PIN-kod</p>' +
+      '<div class="parent-ready-scroll">' + renderReadyRow(children, focusId) + '</div>' +
+      '</section>' +
+      '<div class="parent-action-grid">' + renderActionGrid() + '</div>' +
+      '<section class="parent-glass-card parent-handoff-card parent-handoff-large">' +
+      '<div class="parent-handoff-lock" aria-hidden="true">🔒</div>' +
+      '<div class="parent-handoff-copy">' +
+      '<p class="parent-handoff-title">Dags för barnet att logga in?</p>' +
+      '<p class="parent-handoff-sub">Byt till barnets vy med PIN-kod — eller logga ut helt.</p>' +
+      '</div>' +
       '<div class="parent-handoff-actions">' +
       '<button type="button" class="parent-handoff-primary" data-action="child-login">👶 Barnet loggar in</button>' +
       '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">Logga ut</button>' +
-      '</div></div>' +
-      scheduleHtml +
-      '</div>' +
-      '<section class="parent-stars-section">' +
-      '<div class="parent-stars-section-head">' +
-      '<h3>Våra stjärnor</h3>' +
-      '<span class="parent-stars-filter">Senaste 7 dagarna</span>' +
-      '</div>' +
-      '<div class="parent-stars-scroll">' + (starsHtml || '<p class="text-sm opacity-70">Inga barn tillagda</p>') + '</div>' +
-      '</section>' +
+      '</div></section>' +
       '<section class="parent-glass-card parent-week-section">' +
       '<h3>Veckans framsteg</h3>' +
       renderWeekChart(weekSeries) +
-      '<div class="parent-glass-card parent-encourage-card">' +
+      '<div class="parent-encourage-inline">' +
       '<span class="emoji" aria-hidden="true">' + enc.emoji + '</span>' +
-      '<div><h4>' + escHtml(enc.title) + '</h4><p>' + escHtml(enc.sub) + '</p></div>' +
+      '<div><strong>' + escHtml(enc.title) + '</strong><span>' + escHtml(enc.sub) + '</span></div>' +
       '</div></section>' +
       '</div>';
 
@@ -329,6 +270,10 @@
         window.openOnceTaskModal();
       } else if (action === 'ledig-dag' && typeof window.openLedigDagModal === 'function') {
         window.openLedigDagModal();
+      } else if (action === 'today-schedule') {
+        window.location.href = '/schedule';
+      } else if (action === 'messages') {
+        window.location.href = '/notifications';
       } else if (action === 'stats') {
         var week = mount.querySelector('.parent-week-section');
         if (week) week.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -349,9 +294,6 @@
         } else if (typeof window.logout === 'function') {
           window.logout();
         }
-      } else if (action === 'expand-child') {
-        var childId = btn.getAttribute('data-child-id');
-        if (childId) window.location.href = '/schedule?child=' + encodeURIComponent(childId);
       }
     };
   }

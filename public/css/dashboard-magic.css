@@ -511,9 +511,232 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   color: rgba(244, 244, 255, 0.7);
 }
 
+/* ── Header (mockup v2) ── */
+.parent-hub-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.parent-hub-greeting-block {
+  position: relative;
+  margin-bottom: 16px;
+  padding-right: 72px;
+}
+
+.parent-hub-greeting-block .parent-hub-mascot {
+  position: absolute;
+  right: 0;
+  top: -8px;
+  width: 64px;
+  height: 64px;
+  min-height: 0;
+  flex: none;
+  border-radius: 50%;
+  font-size: 36px;
+  box-shadow: 0 8px 28px rgba(255, 204, 51, 0.25);
+}
+
+/* ── Redo för nästa aktivitet ── */
+.parent-ready-section {
+  padding: 14px 12px 12px;
+}
+
+.parent-ready-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.parent-ready-head h2 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.parent-ready-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.parent-ready-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.parent-ready-child {
+  position: relative;
+  flex: 0 0 108px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px 10px 10px;
+  text-align: center;
+  cursor: pointer;
+  color: #f4f4ff;
+  font-family: inherit;
+}
+
+.parent-ready-child.is-active {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(255, 204, 51, 0.15);
+}
+
+.parent-ready-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 12px;
+}
+
+.parent-ready-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+  font-size: 28px;
+}
+
+.parent-ready-name {
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.parent-ready-task {
+  font-size: 10px;
+  color: rgba(244, 244, 255, 0.7);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.parent-ready-empty {
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.65);
+  padding: 8px 4px;
+  margin: 0;
+}
+
+/* ── 2×3 action grid ── */
+.parent-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.parent-action-tile {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 14px 8px 12px;
+  text-align: center;
+  cursor: pointer;
+  color: #f4f4ff;
+  font-family: inherit;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.parent-action-tile:active {
+  transform: scale(0.97);
+}
+
+.parent-action-icon {
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+}
+
+.parent-action-label {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* ── Handoff card (bottom) ── */
+.parent-handoff-large {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.parent-handoff-lock {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.parent-handoff-copy .parent-handoff-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.parent-handoff-copy .parent-handoff-sub {
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.68);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.parent-handoff-large .parent-handoff-primary {
+  padding: 14px 16px;
+  font-size: 14px;
+  border-radius: 14px;
+}
+
+.parent-handoff-large .parent-handoff-secondary {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.parent-encourage-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.parent-encourage-inline .emoji {
+  font-size: 28px;
+}
+
+.parent-encourage-inline strong {
+  display: block;
+  font-size: 13px;
+}
+
+.parent-encourage-inline span {
+  display: block;
+  font-size: 11px;
+  color: rgba(244, 244, 255, 0.65);
+  margin-top: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .parent-quick-tile:active,
-  .parent-star-card:active {
+  .parent-action-tile:active,
+  .parent-ready-child:active {
     transform: none;
   }
 }
