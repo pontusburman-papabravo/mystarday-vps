@@ -371,6 +371,24 @@ var Platform = (function () {
   //   On Capacitor 4+ the plugin registers directly on the bridge.
   // Web: falls back to Sign in with Apple JS (https://appleid.apple.com/auth/js)
   // which requires a valid Apple Developer configured domain.
+  function mapAppleSignInError(err) {
+    if (!err) return 'Apple Sign In misslyckades.';
+    const msg = String(err.message || err.error || '');
+    const code = err.code != null ? String(err.code) : '';
+    if (msg === 'cancel' || code === 'ERR_CANCELED' || /cancel/i.test(msg)) return null;
+    if (msg === 'SIGN_IN_UNAVAILABLE') {
+      return 'Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.';
+    }
+    if (/1000|unknown|ASAuthorizationErrorUnknown/i.test(msg + code)) {
+      return 'Apple-inloggning kunde inte startas. Kontrollera att du har senaste appversionen och försök igen.';
+    }
+    if (/1001|canceled/i.test(msg + code)) return null;
+    if (/presentation|anchor|window/i.test(msg)) {
+      return 'Apple-inloggning kunde inte visas på den här enheten. Uppdatera appen och försök igen.';
+    }
+    return msg || 'Apple Sign In misslyckades.';
+  }
+
   var appleSignIn = {
     /** Returns true if the native Capacitor plugin is registered. */
     isAvailable() {
@@ -403,8 +421,11 @@ var Platform = (function () {
               : null,
           };
         } catch (err) {
-          if (err.message === 'cancel' || err.message === 'SIGN_IN_UNAVAILABLE' || (err.code && err.code === 'ERR_CANCELED')) return null;
-          throw err;
+          const mapped = mapAppleSignInError(err);
+          if (mapped === null) return null;
+          const e = new Error(mapped);
+          e.code = err.code;
+          throw e;
         }
       }
       // Web: use Sign in with Apple JS
