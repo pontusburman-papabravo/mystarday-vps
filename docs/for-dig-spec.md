@@ -94,10 +94,11 @@ Konkurrenter säljer verktyg. Föräldrar köper utfall.
 
 - Community / användargenererat innehåll
 - AI-genererade rutiner
-- Betyg/recensioner
+- Betyg/recensioner (offentliga)
 - Ersätta biblioteket
 - Ny komplex datamodell i Sprint 1
 - Paket-tabell i Sprint 1 (hårdkodad config räcker)
+- Generellt feedbacksystem / NPS / survey-builder (se §19 — lärsystem med tre mikro-ögonblick istället)
 
 ---
 
@@ -418,10 +419,17 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 | `for_dig_activate_success` | Copy lyckades | `goal_slug`, `child_id`, `schedule_id` |
 | `for_dig_activate_fail` | Copy misslyckades | `goal_slug`, `error` |
 | `for_dig_library_link` | "Visa hela biblioteket" | — |
+| `for_dig_feedback_intent` | Intent-modal besvarad | `goal_slug`, `intent_reason`, `child_id` |
+| `for_dig_feedback_outcome` | 7-dagars check-in besvarad | `goal_slug`, `outcome_score`, `child_id` |
+| `for_dig_feedback_suggestion` | Föreslå förbättring skickad | `goal_slug`, `free_text` |
 
 ### 11.2 North Star (indikativ)
 
 Familjer som aktiverat ≥1 mål vecka 2–8 har högre retention än kontroll.
+
+### 11.3 North Star — lärande (outcome)
+
+Andel `outcome`-svar med `outcome_score >= 3` (🙂 eller 😊) per `goal_slug` — **inte** sidvisningar eller NPS.
 
 ---
 
@@ -564,11 +572,17 @@ Frontend: exportera som `window.ForDigConfig` om IIFE, eller ES module om projek
 - [ ] Barnväljare-modal
 - [ ] Bekräftelse + toast
 - [ ] Analytics: activate success/fail
+- [ ] Intent-modal vid aktivering (§19)
+- [ ] Migration `for_dig_goal_feedback`
+- [ ] `POST /api/for-dig/feedback`
 
 ### Sprint 3
 - [ ] `for_dig_goal_install` migration
 - [ ] "Populärt just nu"
 - [ ] Redan aktiverad-indikator
+- [ ] 7-dagars outcome-banner på dashboard (§19)
+- [ ] "Föreslå förbättring" på lösningskort (§19)
+- [ ] Admin-lista: aktiveringar + outcome per mål (§19)
 
 ### Sprint 4
 - [ ] Bottom nav-omläggning
@@ -576,7 +590,206 @@ Frontend: exportera som `window.ForDigConfig` om IIFE, eller ES module om projek
 
 ---
 
-## 18. Sammanfattning
+## 19. Feedback & lärande
+
+Med ~140 familjer bygger vi **inte** ett feedbacksystem. Vi bygger ett **lärsystem** — tre mikro-ögonblick inbakade i flödet.
+
+### 19.1 Princip
+
+| ❌ Dålig fråga | ✅ Bra fråga | Vad vi lär oss |
+|----------------|-------------|----------------|
+| "Tycker du om För dig?" | "Vad hoppas du få hjälp med?" | **Intent** — varför de aktiverade |
+| NPS / stjärnbetyg | "Hur har det gått?" (efter 7 dagar) | **Outcome** — fungerade det? |
+| Generella feature requests | "Vad blev bättre?" / "Vad saknas?" | **Copy** för marknadsföring + nästa lösning |
+
+**Inte:** Survey-motorn (`surveys`), NPS, community-recensioner, AI-analys av fritext i V1.
+
+**Ja:** En tabell, tre faser, enkel admin-lista, manuell uppföljning med ~10 % av aktiva familjer.
+
+**Befintligt mönster att återanvända:** 7-dagarsprogrammets reflektion (`activation-program-banner.js` → `POST /api/me/activation-program/reflection`). Samma UX-principer — inte samma datamodell.
+
+### 19.2 Tre ögonblick (V1)
+
+#### A. Vid aktivering — intent (obligatoriskt, 1 klick)
+
+Visas direkt efter success-toast *"Kvällsrutinen är igång!"* — liten modal, kräver val innan dismiss:
+
+```
+Vi är nyfikna — vad hoppas du att detta ska hjälpa med?
+
+○ Mindre tjat
+○ Tydligare rutiner
+○ Självständighet
+○ Mindre stress
+○ Annat
+```
+
+Ingen fritext här — minimal friktion.
+
+#### B. Efter 7 dagar — outcome (1 klick)
+
+Dashboard-banner (rekommenderat — samma mönster som aktiveringsprogrammet):
+
+```
+Hur har det gått med Trygga kvällar?
+
+😊 Stor förbättring
+🙂 Lite bättre
+😐 Ingen skillnad
+🙁 Fungerar inte
+```
+
+**Visa endast om:**
+
+- Målet aktiverades för ≥7 kalenderdagar sedan (`for_dig_goal_install` eller `intent`-radens `created_at`)
+- Inget `outcome`-svar finns för `(family_id, child_id, goal_slug)`
+- Föräldern är inloggad
+
+#### C. Villkorlig fritext (valfritt)
+
+| Outcome-svar | Uppföljning |
+|--------------|-------------|
+| 😊 (`4`) eller 🙂 (`3`) | "Vad blev bättre?" (textarea, valfritt) |
+| 😐 (`2`) eller 🙁 (`1`) | "Vad saknas?" (textarea, valfritt) |
+
+Sparas i samma rad som `outcome` (uppdatera `free_text`) eller som separat POST direkt efter score.
+
+#### D. På varje lösningskort (alltid tillgänglig)
+
+```
+Saknar du något här?  💡 Föreslå förbättring
+```
+
+→ textarea → `phase: 'suggestion'`. Ingen 7-dagars-väntan.
+
+### 19.3 Datamodell
+
+**Använd inte** `surveys` / `survey_questions` — overkill för 140 familjer.
+
+```sql
+CREATE TABLE for_dig_goal_feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+  parent_id UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  child_id UUID REFERENCES child(id) ON DELETE SET NULL,
+  goal_slug VARCHAR(64) NOT NULL,
+  phase VARCHAR(32) NOT NULL,       -- 'intent' | 'outcome' | 'suggestion'
+  intent_reason VARCHAR(64),          -- mindre_tjat | tydligare_rutiner | sjalvstandighet | mindre_stress | annat
+  outcome_score SMALLINT,             -- 1=🙁 2=😐 3=🙂 4=😊
+  free_text TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_for_dig_feedback_goal_phase
+  ON for_dig_goal_feedback (goal_slug, phase, created_at DESC);
+
+-- Max ett intent + ett outcome per aktivering (barn+mål)
+CREATE UNIQUE INDEX idx_for_dig_feedback_intent_unique
+  ON for_dig_goal_feedback (family_id, child_id, goal_slug)
+  WHERE phase = 'intent' AND child_id IS NOT NULL;
+
+CREATE UNIQUE INDEX idx_for_dig_feedback_outcome_unique
+  ON for_dig_goal_feedback (family_id, child_id, goal_slug)
+  WHERE phase = 'outcome' AND child_id IS NOT NULL;
+```
+
+**Filer:**
+
+| Fil | Ansvar |
+|-----|--------|
+| `migrations/*_for_dig_goal_feedback.js` | Tabell |
+| `db/for-dig-goal-feedback.js` | Insert, list för admin, pending outcome |
+| `src/routes/for-dig.js` | `POST /api/for-dig/feedback`, `GET /api/for-dig/feedback/pending` |
+
+### 19.4 API
+
+```
+POST /api/for-dig/feedback
+Body: {
+  goal_slug: string,
+  child_id?: uuid,           -- krävs för intent/outcome
+  phase: 'intent' | 'outcome' | 'suggestion',
+  intent_reason?: string,    -- vid phase=intent
+  outcome_score?: 1-4,       -- vid phase=outcome
+  free_text?: string         -- vid suggestion eller outcome-uppföljning
+}
+```
+
+```
+GET /api/for-dig/feedback/pending
+→ [{ goal_slug, goal_title, child_id, child_name, activated_at }]
+  -- mål där intent finns, outcome saknas, activated_at <= now - 7 days
+```
+
+Validering:
+
+- `intent_reason` måste vara ett av de fem tillåtna värdena
+- `outcome_score` måste vara 1–4
+- `free_text` max 500 tecken
+- Upsert `free_text` på befintlig outcome-rad om uppföljning kommer direkt efter score
+
+### 19.5 Admin — enkel lista, inte dashboard
+
+Med 140 familjer räcker SQL eller en admin-flik (`admin-for-dig-feedback.js`):
+
+```
+Trygga kvällar
+  42 intent-svar
+  27 outcome-svar
+  14 😊/🙂  |  8 😐  |  5 🙁
+
+  Senaste fritexter (positiva):
+  "Nu går läggningen utan bråk."
+  "Hon borstar tänderna själv nu."
+
+  Senaste fritexter (negativa):
+  "Barnet vägrar fortfarande pyjamas."
+```
+
+Query-exempel:
+
+```sql
+SELECT goal_slug, phase, outcome_score, free_text, created_at
+FROM for_dig_goal_feedback
+WHERE goal_slug = 'trygga-kvallar'
+ORDER BY created_at DESC
+LIMIT 50;
+```
+
+### 19.6 Manuell uppföljning
+
+Bygg en lista över familjer som **faktiskt använt** lösningarna (intent + outcome). Kontakta manuellt:
+
+> *"Hej! Jag såg att ni testat Trygga kvällar i en vecka. Skulle du vilja berätta hur det gått?"*
+
+**Mål:** 10 % svar på utvalda familjer ger mer insikt än månaders passiv analytics.
+
+**Favoritfråga för intervju** (telefon/mejl — inte i appen V1):
+
+> *"Vad är annorlunda hemma idag jämfört med innan ni började?"*
+
+Använd på familjer som svarat 😊 med fritext. För öppen för 1-klicks-UI i produkten.
+
+### 19.7 Vad vi inte bygger i V1
+
+- Survey-builder i admin
+- NPS-widget
+- Offentliga recensioner / community
+- AI-sammanfattning av fritext
+- Koppling till generella `feedback_formular` (bug/feedback — håll För dig separat)
+
+### 19.8 Sprint-koppling
+
+| Sprint | Feedback-leverans |
+|--------|-------------------|
+| Sprint 2 | Intent-modal + migration + API |
+| Sprint 3 | 7-dagars outcome-banner + föreslå förbättring + admin-lista |
+
+Uppskattad insats: **2–3 timmar** backend + UI för intent/outcome-kärnan.
+
+---
+
+## 20. Sammanfattning
 
 För dig är **inte** ny funktionalitet under huven. Det är översättningen från:
 
@@ -586,4 +799,4 @@ till:
 
 > *"Här är lösningen på ditt problem — och så här bra kan det bli för barnet."*
 
-Högsta UX-avkastning per utvecklingstimme: en sida, sex hårdkodade mål, befintlig copy-logik, föräldraspråk.
+Högsta UX-avkastning per utvecklingstimme: en sida, sex hårdkodade mål, befintlig copy-logik, föräldraspråk — plus ett lärsystem som svarar *"hjälpte det?"* istället för *"gillar du det?"*.
