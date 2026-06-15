@@ -97,6 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   else switchTab('schema');
 
   await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+
+  if (window.LibraryMagicHub) await LibraryMagicHub.init();
 });
 
 // ─── Main tab switching (4 tabs: schema, activities, rewards, standard) ──

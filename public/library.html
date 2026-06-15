@@ -33,6 +33,9 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
+  <link rel="stylesheet" href="/css/library-magic.css?v=1">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=1">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
@@ -271,7 +274,7 @@
   <div class="min-h-screen flex flex-col md:flex-row">
 
     <!-- Mobile Top Bar -->
-    <div class="md:hidden bg-navy text-white p-4 flex items-center justify-between sticky top-0 z-20">
+    <div class="md:hidden bg-navy text-white p-4 flex items-center justify-between sticky top-0 z-20 mobile-topbar library-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-2 no-underline text-white hover:text-white">
         <span class="text-xl">⭐</span>
         <h1 class="text-lg font-heading font-bold">Min Stjärndag</h1>
@@ -311,8 +314,12 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="libraryMagicChrome" class="hidden" aria-live="polite"></div>
+      <div id="libraryMagicHubMount" class="hidden" aria-live="polite"></div>
+
       <!-- Header -->
-      <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center">
+      <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center library-magic-legacy-hide">
         <div>
           <h2 class="text-xl font-heading font-bold text-navy">📚 Aktiviteter &amp; belöningar</h2>
           <p class="text-sm text-text-soft mt-0.5">Skapa aktiviteter och belöningar som passar era barn</p>
@@ -325,7 +332,7 @@
         <div id="toast" class="hidden fixed top-4 right-4 z-50 bg-navy text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs"></div>
 
         <!-- Tips section (collapsed by default) -->
-        <details class="warm-tips">
+        <details class="warm-tips library-magic-legacy-hide">
           <summary class="warm-tips-summary">💡 Tips för biblioteket</summary>
           <div class="warm-tips-body">
             <ul class="space-y-1.5">
@@ -339,7 +346,7 @@
 
         <!-- ── Main Tab Bar (Schema / Aktiviteter / Belöningar / Standardbibliotek) ─── -->
         <!-- Skattkammaren removed from tabs — accessible only via sidebar menu -->
-        <div class="bg-sky/60 rounded-2xl p-1.5 flex gap-1 sm:gap-1.5 overflow-x-auto">
+        <div class="bg-sky/60 rounded-2xl p-1.5 flex gap-1 sm:gap-1.5 overflow-x-auto library-magic-legacy-hide">
           <button id="tab-schema-btn" onclick="switchTab('schema')"
             class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap">
             📅 Schema
@@ -837,11 +844,13 @@
     </div>
   </div>
 
+<script src="/js/app-view-mode.js?v=1"></script>
 <script src="/js/library-schema.js?v=2.13.0"></script>
 <script src="/js/library-standard.js?v=2.12.0"></script>
 <script src="/js/library-substeps.js?v=2.12.0"></script>
 <script src="/js/library-treasury.js?v=2.12.0"></script>
 <script src="/js/library.js?v=2.16.0"></script>
+<script src="/js/library-magic-hub.js?v=1"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
@@ -851,5 +860,28 @@
 
 <!-- Feature-flag frontend gates -->
 <script src="/js/feature-check.js?v=2.14.0"></script>
+
+  <nav id="parentBottomNav" class="parent-bottom-nav" aria-label="Huvudnavigering">
+    <a href="/dashboard" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">🏠</span>
+      <span>Hem</span>
+    </a>
+    <a href="/schedule" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">📅</span>
+      <span>Schema</span>
+    </a>
+    <a href="/library" class="parent-bottom-nav-btn is-active">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">📚</span>
+      <span>Bibliotek</span>
+    </a>
+    <a href="/family" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">👨‍👩‍👧</span>
+      <span>Familj</span>
+    </a>
+    <a href="/settings" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">⚙️</span>
+      <span>Inställn.</span>
+    </a>
+  </nav>
 </body>
 </html>
