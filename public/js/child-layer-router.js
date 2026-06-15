@@ -118,6 +118,9 @@
   }
 
   function navigateToLayer(layer) {
+    if (layer === 'home' && window.AppViewMode && !AppViewMode.isMagic()) {
+      layer = 'today';
+    }
     var entry = LAYERS[layer];
     if (!entry || typeof window.showTab !== 'function') return;
     window.showTab(entry.tab);
@@ -139,8 +142,10 @@
     var initial = layerFromHash();
     if (initial) {
       navigateToLayer(initial);
-    } else {
+    } else if (window.AppViewMode && AppViewMode.isMagic()) {
       window.showTab('home');
+    } else {
+      window.showTab('schedule');
     }
   }
 

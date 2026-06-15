@@ -1,0 +1,106 @@
+/**
+ * app-view-toggle.css — Klassisk / Ny design växlare
+ */
+
+.app-view-toggle-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+body.parent-magic-dashboard .app-view-toggle-wrap,
+body.child-magic-view .app-view-toggle-wrap {
+  background: rgba(12, 12, 36, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(27, 35, 64, 0.06);
+  border: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+body.parent-magic-dashboard .app-view-toggle,
+body.child-magic-view .app-view-toggle {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.app-view-toggle-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5a6178;
+  padding-left: 8px;
+}
+
+body.parent-magic-dashboard .app-view-toggle-label,
+body.child-magic-view .app-view-toggle-label {
+  color: rgba(244, 244, 255, 0.55);
+}
+
+.app-view-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #5a6178;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+body.parent-magic-dashboard .app-view-toggle-btn,
+body.child-magic-view .app-view-toggle-btn {
+  color: rgba(244, 244, 255, 0.65);
+}
+
+.app-view-toggle-btn.is-active {
+  background: #fff;
+  color: #1b2340;
+  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.12);
+}
+
+body.parent-magic-dashboard .app-view-toggle-btn.is-active,
+body.child-magic-view .app-view-toggle-btn.is-active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+  box-shadow: 0 2px 12px rgba(255, 204, 51, 0.25);
+}
+
+.app-view-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.app-view-toggle-btn:active {
+  transform: scale(0.98);
+}
+
+@media (min-width: 768px) {
+  .app-view-toggle-wrap {
+    position: relative;
+    top: auto;
+  }
+}

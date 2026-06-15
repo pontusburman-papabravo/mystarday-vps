@@ -389,6 +389,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  if (window.AppViewMode) {
+    AppViewMode.initParent();
+    const toggleMount = document.getElementById('appViewToggleMount');
+    if (toggleMount) AppViewMode.mountToggle(toggleMount);
+    AppViewMode.onChange(function () {
+      if (window.DashboardHomeHub) {
+        DashboardHomeHub.render(dashboardStats);
+      }
+    });
+  }
+
   await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory(), loadTrialBanner()]);
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
@@ -1171,6 +1182,10 @@ function renderDashboardCards() {
 
   if (window.DashboardDailySummary && dashboardStats) {
     window.DashboardDailySummary.update(dashboardStats);
+  }
+
+  if (window.DashboardHomeHub) {
+    DashboardHomeHub.render(dashboardStats);
   }
 }
 

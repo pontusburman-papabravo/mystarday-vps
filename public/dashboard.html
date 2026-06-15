@@ -37,6 +37,9 @@
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/dashboard-polish.css?v=2026-05-29-release-os">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-09-warmth">
+  <link rel="stylesheet" href="/css/dashboard-magic.css?v=1">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=1">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.14.0"></script>
@@ -537,6 +540,8 @@
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
+  <script src="/js/app-view-mode.js?v=1"></script>
+  <script src="/js/dashboard-home-hub.js?v=1"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard.js?v=2.36.0"></script>
 
@@ -567,7 +572,8 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col min-w-0">
-      <div class="bg-sky border-b border-lavender p-4 md:p-6">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-hide-header">
         <div class="flex justify-between items-center mb-3">
           <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy">🌟 Familjens framsteg idag</h2>
           <div class="flex items-center gap-3">
@@ -655,14 +661,16 @@
       </div>
 
       <!-- Positive daily summary (warmth banner) -->
-      <div id="dashboardDailySummary" class="hidden" role="status" aria-live="polite"></div>
+      <div id="dashboardDailySummary" class="hidden parent-magic-legacy-hide" role="status" aria-live="polite"></div>
 
       <div class="flex-1 p-4 md:p-8 overflow-auto">
 
         <!-- Dashboard: child cards side-by-side + weekly overview -->
         <div id="childrenListView">
+          <div id="parentHomeHubMount" class="hidden" aria-live="polite"></div>
+
           <!-- Header -->
-          <div class="mb-5 flex items-center justify-end flex-wrap gap-3">
+          <div class="mb-5 flex items-center justify-end flex-wrap gap-3 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
@@ -671,7 +679,7 @@
           </div>
 
           <!-- Child login handoff (native app + mobile — logout hidden in tab bar) -->
-          <div id="dashboardChildHandoff" class="hidden dash-child-handoff mb-4" role="region" aria-label="Byt till barnets inloggning">
+          <div id="dashboardChildHandoff" class="hidden dash-child-handoff mb-4 parent-magic-legacy-hide" role="region" aria-label="Byt till barnets inloggning">
             <div class="dash-child-handoff-inner">
               <span class="dash-child-handoff-emoji" aria-hidden="true">👶</span>
               <div class="dash-child-handoff-text">
@@ -687,12 +695,12 @@
           </div>
 
           <!-- Child cards: compact stacked (max 3 visible without scroll on mobile) -->
-          <div id="childCardsGrid" class="flex flex-col gap-3 mb-6">
+          <div id="childCardsGrid" class="flex flex-col gap-3 mb-6 parent-magic-legacy-hide">
             <div class="text-text-soft text-sm py-8 text-center">Laddar…</div>
           </div>
 
           <!-- Star history chart (replaces weekly overview) -->
-          <div id="starHistorySection" class="hidden">
+          <div id="starHistorySection" class="hidden parent-magic-legacy-hide">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-lg font-heading font-bold text-navy">⭐ Veckans framsteg</h3>
               <span class="text-xs text-text-soft font-semibold">Senaste 8 veckorna</span>
@@ -710,7 +718,7 @@
           </div>
 
           <!-- Tips section -->
-          <div class="mt-6 bg-sky border border-lavender rounded-2xl p-4">
+          <div class="mt-6 bg-sky border border-lavender rounded-2xl p-4 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 mb-2">
               <span class="text-lg">💡</span>
               <span class="font-semibold text-navy text-sm">Tips: Så funkar stjärnor</span>
@@ -1557,6 +1565,30 @@
       <p class="text-text-soft text-xs mt-4">Betalning via Stripe · Avsluta när som helst</p>
     </div>
   </div>
+
+  <!-- Bottom tab bar (PWA mobile — mockup parent nav) -->
+  <nav id="parentBottomNav" class="parent-bottom-nav" aria-label="Huvudnavigering">
+    <a href="/dashboard" class="parent-bottom-nav-btn is-active">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">🏠</span>
+      <span>Hem</span>
+    </a>
+    <a href="/schedule" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">📅</span>
+      <span>Schema</span>
+    </a>
+    <a href="/library" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">📚</span>
+      <span>Bibliotek</span>
+    </a>
+    <a href="/family" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">👨‍👩‍👧</span>
+      <span>Familj</span>
+    </a>
+    <a href="/settings" class="parent-bottom-nav-btn">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">⚙️</span>
+      <span>Inställn.</span>
+    </a>
+  </nav>
 
   </body>
 </html>

@@ -84,5 +84,10 @@
     }
   }
 
-  window.DashboardChildHandoff = { init: init, dismiss: dismiss };
+  window.DashboardChildHandoff = {
+    init: init,
+    dismiss: dismiss,
+    startChildLogin: startChildLogin,
+    parentLogout: parentLogout,
+  };
 })();

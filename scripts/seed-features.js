@@ -651,6 +651,26 @@ const FEATURES = [
     changelog: [],
   },
 
+  // ── Föräldrahem mockup (ny design) ─────────────────────────────────────────
+  {
+    slug: 'parent_home_magic',
+    name: 'Föräldrahem ny design',
+    description: 'Mockup-baserad föräldraöversikt (mörk glass, snabbknappar, veckodiagram) — växlas via vyväljare',
+    status: 'dev',
+    tags: ['ui', 'parent'],
+    priority: 'high',
+    complexity: 6,
+    estimated_hours: 24.0,
+    documentation: {
+      purpose: 'Erbjuda mockup-baserad föräldraöversikt parallellt med klassisk dashboard.',
+      user_story: 'Som förälder vill jag välja mellan klassisk vy och ny design direkt på startsidan.',
+      acceptance_criteria: 'Vyväxlare på /dashboard; magic-vy visar hub med snabbknappar, schema, stjärnor och veckodiagram; klassisk vy oförändrad.',
+      technical_notes: 'dashboard-home-hub.js + app-view-mode.js; localStorage stjarndag_parent_ui_view.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
+
   // ── Medförälder CTA (R5-T2, M1) ─────────────────────────────────────────────
   {
     slug: 'medforalder_cta',

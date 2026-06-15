@@ -318,8 +318,36 @@ function updateDateLine() {
 // ── Tabs ───────────────────────────────────────────────
 
 let rewardsLoaded = false;
+let childUiMagic = false;
+
+function applyChildViewChrome() {
+  childUiMagic = !!(window.AppViewMode && AppViewMode.isMagic());
+
+  const bottomNav = document.getElementById('childBottomNav');
+  if (bottomNav) bottomNav.style.display = childUiMagic ? '' : 'none';
+
+  const legacyNav = document.getElementById('childLayerNav');
+  if (legacyNav) {
+    legacyNav.classList.toggle('hidden', childUiMagic);
+    if (childUiMagic) legacyNav.setAttribute('aria-hidden', 'true');
+    else legacyNav.removeAttribute('aria-hidden');
+  }
+}
+
+function applyChildViewMode() {
+  applyChildViewChrome();
+
+  if (childUiMagic) {
+    showTab('home');
+    if (!rewardsLoaded) loadRewards();
+  } else {
+    document.body.classList.remove('child-home-active');
+    showTab('schedule');
+  }
+}
 
 function showTab(tab) {
+  if (tab === 'home' && !childUiMagic) tab = 'schedule';
   const hv = document.getElementById('homeView');
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
@@ -340,8 +368,8 @@ function showTab(tab) {
   if (fv) fv.classList.toggle('hidden', !isFamily);
   if (mv) mv.classList.toggle('hidden', !isMore);
 
-  document.body.classList.toggle('child-has-bottom-nav', true);
-  document.body.classList.toggle('child-home-active', isHome);
+  document.body.classList.toggle('child-has-bottom-nav', childUiMagic);
+  document.body.classList.toggle('child-home-active', childUiMagic && isHome);
 
   if (isToday) {
     if (!window.ChildTodayFocus) {
@@ -809,7 +837,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     avatarUrl: me && me.avatar_url,
   };
 
-  if (!minimalUiActive && window.ChildSkattHouse) {
+  if (!minimalUiActive && childUiMagic && window.ChildSkattHouse) {
     const homeMount = document.getElementById('homeHubMount');
     const homeLoader = document.getElementById('homeHubLoading');
     if (homeMount) {
@@ -2617,16 +2645,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     todayStr = getLocalDate();
     currentDate = todayStr;
     if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.init();
+
+    let dbViewMode = 'classic';
+    try {
+      const viewCfgRes = await Auth.api(`/api/children/${me.id}/view-config`);
+      if (viewCfgRes && viewCfgRes.view_mode) dbViewMode = viewCfgRes.view_mode;
+    } catch (_) { /* default classic */ }
+
+    if (window.AppViewMode) {
+      AppViewMode.initChild(me.id, dbViewMode);
+      const toggleMount = document.getElementById('appViewToggleMount');
+      if (toggleMount) AppViewMode.mountToggle(toggleMount);
+      AppViewMode.onChange(function () { applyChildViewMode(); });
+    }
+
     renderDayTabs();
     updateDateLine();
     await loadDay(todayStr);
 
-    if (window.ChildLayerRouter) ChildLayerRouter.init();
-    else if (window.location.hash === '#rewards') {
+    if (window.ChildLayerRouter) {
+      ChildLayerRouter.init();
+      if (window.AppViewMode) applyChildViewChrome();
+    } else if (window.location.hash === '#rewards') {
       showTab('rewards');
+    } else if (window.AppViewMode) {
+      applyChildViewMode();
     } else {
-      showTab('home');
-      if (!rewardsLoaded) loadRewards();
+      showTab('schedule');
     }
   } catch (err) {
     console.error('Init error:', err);

@@ -8,7 +8,7 @@
   left: 0;
   right: 0;
   z-index: 40;
-  display: flex;
+  display: none;
   align-items: stretch;
   justify-content: space-around;
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
@@ -19,6 +19,10 @@
   box-shadow: 0 -4px 24px rgba(27, 35, 64, 0.08);
   max-width: 520px;
   margin: 0 auto;
+}
+
+body.child-magic-view .child-bottom-nav {
+  display: flex;
 }
 
 .dark .child-bottom-nav {
@@ -74,13 +78,22 @@ body.child-home-active #homeView {
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
-body.child-home-active #childMainHeader,
-body.child-home-active #childLayerNav,
-body.child-home-active #weekNavDetails,
-body.child-home-active #progressSection {
+body.child-magic-view.child-home-active #childMainHeader,
+body.child-magic-view.child-home-active #childLayerNav,
+body.child-magic-view.child-home-active #weekNavDetails,
+body.child-magic-view.child-home-active #progressSection {
   display: none !important;
 }
 
-body.child-home-active {
+body.child-magic-view.child-home-active {
   background: #1a1035;
+}
+
+/* Klassisk vy: visa legacy-flikar */
+body:not(.child-magic-view) #childLayerNav {
+  display: block !important;
+}
+
+body:not(.child-magic-view) #childLayerNav[aria-hidden="true"] {
+  display: block !important;
 }

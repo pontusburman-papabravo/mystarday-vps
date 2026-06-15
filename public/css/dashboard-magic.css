@@ -1,0 +1,519 @@
+/**
+ * dashboard-magic.css — Parent home mockup (dark glass, mobile/native).
+ * Scoped to body.parent-magic-dashboard
+ */
+
+body.parent-magic-dashboard {
+  background: #07071a;
+  color: #f4f4ff;
+}
+
+body.parent-magic-dashboard .parent-magic-legacy-hide {
+  display: none !important;
+}
+
+body.parent-magic-dashboard .parent-magic-hide-header {
+  display: none !important;
+}
+
+body.parent-magic-dashboard nav.w-full.md\:w-64 {
+  display: none !important;
+}
+
+body.parent-magic-dashboard main {
+  padding-bottom: max(88px, calc(env(safe-area-inset-bottom, 0px) + 88px));
+}
+
+body.parent-magic-dashboard .native-tab-bar,
+body.parent-magic-dashboard .parent-bottom-nav {
+  background: rgba(12, 12, 36, 0.92) !important;
+  border-top: 1px solid rgba(255, 204, 51, 0.15) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+body.parent-magic-dashboard .native-tab-bar .tab-item.active,
+body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
+  color: #ffcc33 !important;
+}
+
+/* ── Hub shell ── */
+.parent-home-hub {
+  min-height: 100%;
+  padding: max(12px, env(safe-area-inset-top, 0px)) 16px 24px;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(88, 56, 180, 0.45), transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(255, 204, 51, 0.12), transparent 35%),
+    linear-gradient(180deg, #0b0b2a 0%, #07071a 100%);
+}
+
+/* ── Header ── */
+.parent-hub-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.parent-hub-greeting-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.parent-hub-greeting {
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.parent-hub-sub {
+  font-size: 13px;
+  color: rgba(244, 244, 255, 0.72);
+  margin: 6px 0 0;
+  line-height: 1.35;
+}
+
+.parent-hub-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.parent-hub-icon-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.parent-hub-icon-btn .badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #f97316;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+}
+
+.parent-hub-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.parent-hub-family-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border: 2px solid rgba(255, 204, 51, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.parent-hub-mascot {
+  flex: 1;
+  min-height: 72px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255, 204, 51, 0.25), transparent 45%),
+    linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(30, 27, 75, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  filter: drop-shadow(0 8px 24px rgba(255, 204, 51, 0.2));
+}
+
+/* ── Glass cards ── */
+.parent-glass-card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.parent-cta-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.parent-cta-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(255, 204, 51, 0.35));
+}
+
+.parent-cta-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.parent-cta-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.parent-cta-sub {
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.7);
+  margin: 3px 0 0;
+}
+
+.parent-cta-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Quick actions grid ── */
+.parent-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.parent-quick-tile {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  color: #f4f4ff;
+  font-family: inherit;
+}
+
+.parent-quick-tile:active {
+  transform: scale(0.97);
+}
+
+.parent-quick-tile-icon {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.parent-quick-tile-label {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+/* ── Two-column row ── */
+.parent-hub-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 380px) {
+  .parent-hub-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.parent-handoff-card .parent-handoff-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.parent-handoff-card .parent-handoff-sub {
+  font-size: 11px;
+  color: rgba(244, 244, 255, 0.65);
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.parent-handoff-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.parent-handoff-primary {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.parent-handoff-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 12px;
+  background: transparent;
+  color: rgba(244, 244, 255, 0.85);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.parent-schedule-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.parent-schedule-card-head h3 {
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.parent-schedule-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffcc33;
+  text-decoration: none;
+}
+
+.parent-schedule-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.parent-schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.parent-schedule-item:last-child {
+  border-bottom: none;
+}
+
+.parent-schedule-item.is-done {
+  opacity: 0.45;
+}
+
+.parent-schedule-item.is-next {
+  color: #ffcc33;
+  font-weight: 700;
+}
+
+.parent-schedule-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.parent-ring {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.parent-ring-label {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.parent-ring-label span {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(244, 244, 255, 0.65);
+}
+
+/* ── Stars section ── */
+.parent-stars-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.parent-stars-section-head h3 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.parent-stars-filter {
+  font-size: 11px;
+  color: rgba(244, 244, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.parent-stars-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.parent-stars-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.parent-star-card {
+  flex: 0 0 148px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  cursor: pointer;
+}
+
+.parent-star-card:active {
+  transform: scale(0.98);
+}
+
+.parent-star-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.parent-star-card-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.parent-star-count {
+  font-size: 11px;
+  color: #ffcc33;
+  font-weight: 800;
+}
+
+.parent-star-bar-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.parent-star-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffcc33, #fbbf24);
+}
+
+/* ── Weekly chart ── */
+.parent-week-section h3 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+
+.parent-week-chart {
+  position: relative;
+  height: 100px;
+  margin-bottom: 8px;
+}
+
+.parent-week-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.parent-week-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(244, 244, 255, 0.55);
+  padding: 0 2px;
+}
+
+.parent-week-labels .is-today {
+  color: #ffcc33;
+}
+
+.parent-encourage-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, rgba(255, 204, 51, 0.15), rgba(124, 58, 237, 0.12));
+  border-color: rgba(255, 204, 51, 0.25);
+}
+
+.parent-encourage-card .emoji {
+  font-size: 32px;
+}
+
+.parent-encourage-card h4 {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.parent-encourage-card p {
+  font-size: 11px;
+  margin: 3px 0 0;
+  color: rgba(244, 244, 255, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parent-quick-tile:active,
+  .parent-star-card:active {
+    transform: none;
+  }
+}

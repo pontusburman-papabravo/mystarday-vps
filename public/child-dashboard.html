@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.1.0">
   <link rel="stylesheet" href="/css/child-bottom-nav.css?v=1">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
   <link rel="stylesheet" href="/css/child-today-focus.css?v=1.1.0">
   <link rel="stylesheet" href="/css/child-family-hall.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-dashboard-warmth.css?v=2026-06-10-child">
@@ -1356,6 +1357,8 @@
     </div>
   </div>
 
+  <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+
   <!-- Week Navigation + Day Tabs (collapsed by default — schedule tab only) -->
   <details id="weekNavDetails" class="child-week-details sticky top-[60px] z-10">
     <summary class="child-week-summary">📅 Andra dagar</summary>
@@ -1422,12 +1425,12 @@
     <div id="milestoneToast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-yellow-400 via-orange-400 to-gold text-navy px-6 py-3 rounded-2xl shadow-xl font-heading font-bold text-sm max-w-xs text-center celeb-slide"></div>
   </div>
 
-  <!-- Tab Nav: legacy top tabs (hidden when bottom nav active) -->
+  <!-- Tab Nav: legacy top tabs (klassisk vy) -->
   <div class="bg-white border-b border-lavender hidden" id="childLayerNav" aria-hidden="true">
     <div class="flex max-w-lg mx-auto">
-      <button id="tabScheduleLegacy" class="flex-1 py-3 text-sm font-semibold">☀️ Idag</button>
-      <button id="tabRewardsLegacy" class="flex-1 py-3 text-sm font-semibold">💎 Skattkammaren</button>
-      <button id="tabFamilyLegacy" class="flex-1 py-3 text-sm font-semibold">🏡 Familj</button>
+      <button type="button" id="tabScheduleLegacy" class="flex-1 py-3 text-sm font-semibold text-navy border-b-2 border-gold" onclick="showTab('schedule')">☀️ Idag</button>
+      <button type="button" id="tabRewardsLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('rewards')">💎 Skattkammaren</button>
+      <button type="button" id="tabFamilyLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('family')">🏡 Familj</button>
     </div>
   </div>
 
@@ -1591,6 +1594,7 @@
   <script src="/js/child-pet.js?v=1.0.0"></script>
   <script src="/js/child-museum.js?v=1.0.0"></script>
   <script src="/js/child-skatt-house.js?v=2.1.0"></script>
+  <script src="/js/app-view-mode.js?v=1"></script>
   <script src="/js/child-event-bus.js?v=1.0.0"></script>
   <script src="/js/child-today-focus.js?v=1.1.0"></script>
   <script src="/js/child-today-tasks.js?v=1.0.0"></script>
