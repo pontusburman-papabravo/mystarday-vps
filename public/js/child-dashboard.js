@@ -320,21 +320,29 @@ function updateDateLine() {
 let rewardsLoaded = false;
 
 function showTab(tab) {
+  const hv = document.getElementById('homeView');
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
   const fv = document.getElementById('familyView');
-  const ts = document.getElementById('tabSchedule');
-  const tr = document.getElementById('tabRewards');
-  const tf = document.getElementById('tabFamily');
-  // Schedule-only sections that must hide on rewards tab
+  const mv = document.getElementById('moreView');
   const weekNav = document.getElementById('weekNavDetails');
   const progress = document.getElementById('progressSection');
+
+  const isHome = tab === 'home';
   const isToday = tab === 'schedule';
   const isUniverse = tab === 'rewards';
   const isFamily = tab === 'family';
+  const isMore = tab === 'more';
+
+  if (hv) hv.classList.toggle('hidden', !isHome);
   if (sv) sv.classList.toggle('hidden', !isToday);
   if (rv) rv.classList.toggle('hidden', !isUniverse);
   if (fv) fv.classList.toggle('hidden', !isFamily);
+  if (mv) mv.classList.toggle('hidden', !isMore);
+
+  document.body.classList.toggle('child-has-bottom-nav', true);
+  document.body.classList.toggle('child-home-active', isHome);
+
   if (isToday) {
     if (!window.ChildTodayFocus) {
       if (weekNav) { weekNav.classList.remove('hidden'); weekNav.removeAttribute('aria-hidden'); }
@@ -343,18 +351,30 @@ function showTab(tab) {
   } else {
     if (weekNav) { weekNav.classList.add('hidden'); weekNav.setAttribute('aria-hidden', 'true'); }
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
-    if (isUniverse && !rewardsLoaded) loadRewards();
-    if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
   }
-  [ts, tr, tf].forEach(el => {
+
+  if ((isHome || isUniverse) && !rewardsLoaded) loadRewards();
+  if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
+
+  const bottomTabs = {
+    home: 'tabHome',
+    schedule: 'tabSchedule',
+    rewards: 'tabRewards',
+    more: 'tabMore',
+    family: 'tabMore',
+  };
+  ['tabHome', 'tabSchedule', 'tabRewards', 'tabMore'].forEach(function (id) {
+    const el = document.getElementById(id);
     if (!el) return;
-    const active = (el === ts && isToday) || (el === tr && isUniverse) || (el === tf && isFamily);
-    el.classList.toggle('border-gold', active);
-    el.classList.toggle('text-gold', active);
-    el.classList.toggle('border-transparent', !active);
-    el.classList.toggle('text-text-soft', !active);
+    const active = id === bottomTabs[tab];
+    el.classList.toggle('is-active', active);
   });
-  if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(tab);
+
+  if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(isHome ? 'home' : tab);
+
+  if (isHome && rewardsLoaded && window.ChildSkattHouse) {
+    ChildSkattHouse.showHub();
+  }
 }
 
 // ── Rewards & Goals ────────────────────────────────────
@@ -777,16 +797,31 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     html += `</div></div>`;
   }
 
-  // Done — render to DOM (hus-hub när tillgänglig, annars linjär scroll)
-  if (!minimalUiActive && window.ChildSkattHouse) {
-    const economyHtml = totalEarned > starBalance
+  // Done — render to DOM
+  const hubMeta = {
+    starBalance,
+    trophies,
+    economyHtml: totalEarned > starBalance
       ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:12px;font-family:'Plus Jakarta Sans',sans-serif;">Totalt tjänat: ⭐ ${totalEarned}</div>`
-      : '';
-    ChildSkattHouse.present(view, html, { starBalance, trophies, economyHtml });
-    return;
-  }
+      : '',
+    childName: me && me.name,
+    childEmoji: me && me.emoji,
+    avatarUrl: me && me.avatar_url,
+  };
 
-  view.innerHTML = html;
+  if (!minimalUiActive && window.ChildSkattHouse) {
+    const homeMount = document.getElementById('homeHubMount');
+    const homeLoader = document.getElementById('homeHubLoading');
+    if (homeMount) {
+      ChildSkattHouse.mountHome(homeMount, html, hubMeta).then(function () {
+        if (homeLoader) homeLoader.style.display = 'none';
+        homeMount.style.display = '';
+      });
+    }
+    view.innerHTML = html;
+  } else {
+    view.innerHTML = html;
+  }
 
   // Animate trophy items with staggered delays
   const trophyItems = view.querySelectorAll('.skatt-trophy-item');
@@ -2587,9 +2622,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadDay(todayStr);
 
     if (window.ChildLayerRouter) ChildLayerRouter.init();
-    // Legacy hash: #rewards → universe layer
     else if (window.location.hash === '#rewards') {
       showTab('rewards');
+    } else {
+      showTab('home');
+      if (!rewardsLoaded) loadRewards();
     }
   } catch (err) {
     console.error('Init error:', err);

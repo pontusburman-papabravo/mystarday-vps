@@ -19,6 +19,27 @@
 
   var THEME_LABELS = { castle: '🏰 Slott', treehouse: '🌳 Trädkoja', space: '🚀 Rymden' };
 
+  /** Themed art emoji per room (mockup-style cards) */
+  var THEME_ROOM_ART = {
+    castle: {
+      chest: '💰', dreams: '🎯', trophy: '🏆', shelf: '🎁', collections: '🗂️',
+      story: '📖', avatar: '👧', pet: '🐕', shop: '🛍️', museum: '🏛️',
+    },
+    treehouse: {
+      chest: '🪵', dreams: '🎯', trophy: '🏆', shelf: '🎁', collections: '🍃',
+      story: '📗', avatar: '🧒', pet: '🐹', shop: '🧺', museum: '🖼️',
+    },
+    space: {
+      chest: '🛸', dreams: '🎯', trophy: '🏆', shelf: '💎', collections: '🔮',
+      story: '📘', avatar: '👩‍🚀', pet: '🤖', shop: '🛒', museum: '🪐',
+    },
+  };
+
+  var FOOT_ICONS = {
+    chest: '💰', dreams: '🎯', trophy: '🏆', shelf: '🎁', collections: '🗂️',
+    story: '📖', avatar: '🧑', pet: '🐾', shop: '🛍️', museum: '🏛️',
+  };
+
   var _view = null;
   var _sections = {};
   var _meta = {};
@@ -114,6 +135,32 @@
       '<div class="skatt-trophy-grid">' + items + '</div></div></div>';
   }
 
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function currentTheme() {
+    return (_universe && _universe.house && _universe.house.theme) || 'castle';
+  }
+
+  function roomArtEmoji(roomId) {
+    var theme = currentTheme();
+    var map = THEME_ROOM_ART[theme] || THEME_ROOM_ART.castle;
+    return map[roomId] || FOOT_ICONS[roomId] || '⭐';
+  }
+
+  function renderHubAvatar() {
+    if (_meta.avatarUrl) {
+      return '<img src="' + esc(_meta.avatarUrl) + '" alt="" class="skatt-hub-avatar-img" />';
+    }
+    var emoji = _meta.childEmoji || (_universe && _universe.avatar && _universe.avatar.emoji) || '⭐';
+    return '<span class="skatt-hub-avatar-emoji">' + emoji + '</span>';
+  }
+
   function renderThemePicker() {
     if (!_universe || !_universe.house) return '';
     var themes = _universe.house.unlocked_themes || ['castle'];
@@ -126,52 +173,61 @@
     return '<div class="skatt-theme-picker">' + btns + '</div>';
   }
 
-  function renderEntrance() {
-    if (_entered) return '';
-    var name = (_universe && _universe.avatar && _universe.avatar.name) || 'du';
-    return '<div class="skatt-entrance ' + themeClass() + '" id="skattEntrance">' +
-      '<div class="skatt-entrance-inner">' +
-        '<div class="skatt-entrance-door">🚪</div>' +
-        '<p class="skatt-entrance-text">Du går in i ditt rum…</p>' +
-        '<p class="skatt-entrance-sub">Hej ' + name + '! ✨</p>' +
-      '</div></div>';
-  }
-
   function renderHub() {
+    var theme = currentTheme();
     var rooms = unlockedRooms();
-    var doors = BASE_ROOMS.filter(function (r) { return rooms.indexOf(r.id) >= 0; }).map(function (room) {
-      var badge = '';
-      if (room.id === 'chest' && _meta.starBalance > 0) badge = '<span class="skatt-room-badge">⭐ ' + _meta.starBalance + '</span>';
-      else if (room.id === 'trophy' && _universe && _universe.achievements) badge = '<span class="skatt-room-badge">' + _universe.achievements.length + '</span>';
-      else if (room.id === 'collections' && _universe && _universe.collectibles) badge = '<span class="skatt-room-badge">' + _universe.collectibles.length + '</span>';
+    var name = _meta.childName || (_universe && _universe.avatar && _universe.avatar.name) || 'du';
+    var balance = _meta.starBalance || 0;
 
-      var locked = rooms.indexOf(room.id) < 0;
-      var wide = room.wide ? ' is-wide' : '';
-      var lockCls = locked ? ' is-locked' : '';
-      return '<button type="button" class="skatt-room-door' + wide + lockCls + '" data-room="' + room.id + '" aria-label="' + room.label + '">' +
-        '<span class="skatt-room-emoji">' + room.emoji + '</span>' +
-        '<div><div class="skatt-room-label">' + room.label + '</div>' +
-        '<div class="skatt-room-hint">' + (locked ? '🔒 Samla fler stjärnor' : room.hint) + '</div>' + badge + '</div></button>';
+    var cards = BASE_ROOMS.map(function (room) {
+      var unlocked = rooms.indexOf(room.id) >= 0;
+      var badge = '';
+      if (unlocked && room.id === 'chest' && balance > 0) {
+        badge = '<span class="skatt-hub-card-badge">' + balance + '</span>';
+      } else if (unlocked && room.id === 'trophy' && _universe && _universe.achievements && _universe.achievements.length) {
+        badge = '<span class="skatt-hub-card-badge">' + _universe.achievements.length + '</span>';
+      } else if (unlocked && room.id === 'collections' && _universe && _universe.collectibles && _universe.collectibles.length) {
+        badge = '<span class="skatt-hub-card-badge">' + _universe.collectibles.length + '</span>';
+      }
+
+      var lockCls = unlocked ? '' : ' is-locked';
+      var hint = unlocked ? room.hint : '🔒 Samla stjärnor';
+      var artEmoji = roomArtEmoji(room.id);
+
+      return '<button type="button" class="skatt-hub-card' + lockCls + '" data-room="' + room.id + '" aria-label="' + esc(room.label) + '"' +
+        (unlocked ? '' : ' disabled') + '>' +
+        '<div class="skatt-hub-card-art" aria-hidden="true"><span class="skatt-hub-card-art-emoji">' + artEmoji + '</span></div>' +
+        '<div class="skatt-hub-card-foot">' +
+          '<span class="skatt-hub-card-icon">' + (FOOT_ICONS[room.id] || '⭐') + '</span>' +
+          '<div class="skatt-hub-card-text">' +
+            '<div class="skatt-hub-card-title">' + esc(room.label) + '</div>' +
+            '<div class="skatt-hub-card-hint">' + esc(hint) + '</div>' +
+          '</div>' +
+          badge +
+        '</div></button>';
     }).join('');
 
-    var avatarChip = (window.ChildAvatar && _universe) ? ChildAvatar.renderHubChip(_universe) : '';
-    var petChip = (window.ChildPet && _universe) ? ChildPet.renderHubPet(_universe.pet) : '';
-
-    return '<div class="skatt-house ' + themeClass() + ' is-immersive">' +
-      renderEntrance() +
-      '<div class="skatt-house-topbar">' +
-        '<div class="skatt-house-avatar-chip">' + avatarChip + '</div>' +
-        petChip +
-      '</div>' +
-      '<div class="skatt-house-header">' +
-        '<h2 class="skatt-house-title">' + (THEME_LABELS[(_universe && _universe.house && _universe.house.theme) || 'castle'] || '🏰 Mitt hus') + '</h2>' +
-        '<p class="skatt-house-sub">Du är hemma — tryck på ett rum</p>' +
+    return '<div class="skatt-hub ' + themeClass() + '">' +
+      '<div class="skatt-hub-bg" aria-hidden="true"></div>' +
+      '<div class="skatt-hub-scene-deco" aria-hidden="true"></div>' +
+      '<div class="skatt-hub-content">' +
+        '<header class="skatt-hub-topbar">' +
+          '<div class="skatt-hub-avatar">' + renderHubAvatar() + '</div>' +
+          '<button type="button" class="skatt-hub-switch" onclick="typeof switchChildMember===\'function\'&&switchChildMember()">Byt barn</button>' +
+          '<button type="button" class="skatt-hub-menu" onclick="typeof showTab===\'function\'&&showTab(\'more\')" aria-label="Mer">☰</button>' +
+        '</header>' +
+        '<div class="skatt-hub-greeting">' +
+          '<h1 class="skatt-hub-hello">Hej ' + esc(name) + '!</h1>' +
+          '<p class="skatt-hub-sub">Vad vill du göra idag?</p>' +
+        '</div>' +
+        '<div class="skatt-hub-stars-pill">' +
+          '<span class="skatt-hub-stars-num">⭐ ' + balance + '</span>' +
+          '<span class="skatt-hub-stars-label">Dina stjärnor</span>' +
+        '</div>' +
         renderThemePicker() +
+        '<div class="skatt-hub-grid">' + cards + '</div>' +
       '</div>' +
-      '<div class="skatt-house-scene">' +
-        '<div class="skatt-house-roof" aria-hidden="true"></div>' +
-        '<div class="skatt-house-body">' + doors + '</div>' +
-      '</div></div>';
+    '</div>';
   }
 
   function renderChestRoom() {
@@ -231,6 +287,7 @@
 
     _view.innerHTML = inner;
     _view.classList.add('skatt-in-room');
+    document.body.classList.remove('child-home-active');
     bindRoomEvents();
     if (roomId === 'chest') bindChestTap();
     if (roomId === 'pet' && window.ChildPet && _universe) {
@@ -248,22 +305,12 @@
     _view.classList.remove('skatt-in-room');
     _view.innerHTML = renderHub();
     bindHubEvents();
-    runEntranceAnimation();
-  }
-
-  function runEntranceAnimation() {
-    var el = document.getElementById('skattEntrance');
-    if (!el) return;
-    setTimeout(function () {
-      el.classList.add('is-done');
-      _entered = true;
-      setTimeout(function () { if (el.parentNode) el.remove(); }, 700);
-    }, 1200);
+    document.body.classList.add('child-home-active');
   }
 
   function bindHubEvents() {
     if (!_view) return;
-    _view.querySelectorAll('.skatt-room-door:not(.is-locked)').forEach(function (btn) {
+    _view.querySelectorAll('.skatt-hub-card:not(.is-locked)').forEach(function (btn) {
       btn.addEventListener('click', function () { showRoom(btn.getAttribute('data-room')); });
     });
     _view.querySelectorAll('.skatt-theme-btn').forEach(function (btn) {
@@ -300,8 +347,7 @@
     });
   }
 
-  function present(view, legacyHtml, meta) {
-    _view = view;
+  function prepareLegacy(legacyHtml, meta) {
     _meta = meta || {};
     _sections = { shelf: buildShelfFromTrophies(_meta.trophies || []) };
 
@@ -310,16 +356,40 @@
     parseSections(temp);
     if (_sections.bonus) _sections.story = (_sections.story || '') + _sections.bonus;
     _meta.trophyCount = (_meta.trophies || []).length;
+  }
 
+  function loadUniverseAndShowHub() {
     var loadPromise = (window.ChildUniverse)
       ? ChildUniverse.load(true)
       : Promise.resolve(null);
 
-    loadPromise.then(function (u) {
+    return loadPromise.then(function (u) {
       _universe = u;
-      showHub();
+      if (_view) showHub();
     });
   }
 
-  window.ChildSkattHouse = { present: present, showHub: showHub, showRoom: showRoom };
+  function present(view, legacyHtml, meta) {
+    _view = view;
+    prepareLegacy(legacyHtml, meta);
+    return loadUniverseAndShowHub();
+  }
+
+  function mountHome(homeViewEl, legacyHtml, meta) {
+    var mount = homeViewEl.querySelector('#homeHubMount') || homeViewEl;
+    _view = mount;
+    prepareLegacy(legacyHtml, meta);
+    return loadUniverseAndShowHub();
+  }
+
+  window.ChildSkattHouse = {
+    present: present,
+    mountHome: mountHome,
+    showHub: showHub,
+    showRoom: showRoom,
+    refreshMeta: function (meta) {
+      _meta = Object.assign(_meta || {}, meta || {});
+      if (_view && !_view.classList.contains('skatt-in-room')) showHub();
+    },
+  };
 })();

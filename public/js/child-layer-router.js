@@ -1,23 +1,29 @@
 /**
- * child-layer-router.js — 3-layer route isolation (Today / Universe / Family).
+ * child-layer-router.js — 4-layer route isolation (Home / Today / Universe / Family+More).
  * Separation contract: no cross-layer UI on wrong route.
  */
 (function () {
   'use strict';
 
   var LAYERS = {
-    today: { tab: 'schedule', hash: 'today', label: '☀️ Idag' },
+    home: { tab: 'home', hash: 'home', label: '🏠 Hem' },
+    today: { tab: 'schedule', hash: 'today', label: '📅 Schema' },
     universe: { tab: 'rewards', hash: 'universe', label: '💎 Skattkammaren' },
     family: { tab: 'family', hash: 'family', label: '🏡 Familj' },
+    more: { tab: 'more', hash: 'more', label: '⋯ Mer' },
   };
 
   var TAB_TO_LAYER = {
+    home: 'home',
     schedule: 'today',
     rewards: 'universe',
     family: 'family',
+    more: 'more',
   };
 
   var HASH_ALIASES = {
+    home: 'home',
+    hem: 'home',
     today: 'today',
     schedule: 'today',
     idag: 'today',
@@ -26,9 +32,11 @@
     skattkammaren: 'universe',
     family: 'family',
     familj: 'family',
+    more: 'more',
+    mer: 'more',
   };
 
-  var _currentLayer = 'today';
+  var _currentLayer = 'home';
   var _originalShowTab = null;
 
   function layerFromHash() {
@@ -54,28 +62,24 @@
     var todayFocus = document.getElementById('todayFocusMount');
     var rewardsView = document.getElementById('rewardsView');
     var familyView = document.getElementById('familyView');
+    var homeView = document.getElementById('homeView');
 
-    // Today-only elements
-    var todayOnly = [scheduleView, todayFocus];
-    todayOnly.forEach(function (el) {
-      if (!el) return;
-      if (layer === 'today') {
-        if (el === todayFocus && window.ChildTodayFocus) {
-          ChildTodayFocus.onTabChange('schedule');
-        }
-      }
-    });
+    if (layer === 'today' && todayFocus && window.ChildTodayFocus) {
+      ChildTodayFocus.onTabChange('schedule');
+    }
 
-    // Universe: no task DOM
     if (layer === 'universe' && scheduleView) {
       scheduleView.setAttribute('data-layer-hidden', 'true');
     } else if (scheduleView) {
       scheduleView.removeAttribute('data-layer-hidden');
     }
 
-    // Family: no tasks, no universe shop actions in family view
     if (familyView) {
       familyView.setAttribute('data-active', layer === 'family' ? 'true' : 'false');
+    }
+
+    if (homeView) {
+      homeView.setAttribute('data-active', layer === 'home' ? 'true' : 'false');
     }
 
     if (layer === 'family' && window.ChildFamilyHall) {
@@ -85,31 +89,29 @@
 
   function highlightTab(tab) {
     var map = {
+      home: 'tabHome',
       schedule: 'tabSchedule',
       rewards: 'tabRewards',
-      family: 'tabFamily',
+      more: 'tabMore',
+      family: 'tabMore',
     };
-    Object.keys(map).forEach(function (key) {
-      var el = document.getElementById(map[key]);
+    Object.keys({ home: 1, schedule: 1, rewards: 1, more: 1 }).forEach(function (key) {
+      var el = document.getElementById(map[key] || key);
       if (!el) return;
-      if (key === tab) {
-        el.classList.add('border-gold', 'text-gold');
-        el.classList.remove('border-transparent', 'text-text-soft');
-      } else {
-        el.classList.remove('border-gold', 'text-gold');
-        el.classList.add('border-transparent', 'text-text-soft');
-      }
+      el.classList.toggle('is-active', map[tab] === map[key]);
     });
   }
 
   function onTabShown(tab) {
-    var layer = TAB_TO_LAYER[tab] || 'today';
+    var layer = TAB_TO_LAYER[tab] || 'home';
     setHash(layer);
     applyRouteGuards(layer);
     highlightTab(tab);
 
     if (tab === 'schedule' && window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange('schedule');
+    } else if (tab === 'home' && window.ChildTodayFocus) {
+      ChildTodayFocus.onTabChange('home');
     } else if (window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange(tab);
     }
@@ -138,7 +140,7 @@
     if (initial) {
       navigateToLayer(initial);
     } else {
-      applyRouteGuards('today');
+      window.showTab('home');
     }
   }
 

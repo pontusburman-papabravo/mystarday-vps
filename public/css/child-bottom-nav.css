@@ -1,0 +1,86 @@
+/**
+ * child-bottom-nav.css — Mockup-style bottom tab bar (Hem / Schema / Skattkammaren / Mer)
+ */
+
+.child-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(27, 35, 64, 0.08);
+  box-shadow: 0 -4px 24px rgba(27, 35, 64, 0.08);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.dark .child-bottom-nav {
+  background: rgba(27, 35, 64, 0.94);
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.child-bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 4px 6px;
+  border: none;
+  background: transparent;
+  color: #9AA0B8;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: color 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.child-bottom-nav-btn .child-bottom-nav-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.child-bottom-nav-btn.is-active {
+  color: #7B61FF;
+  background: rgba(123, 97, 255, 0.1);
+}
+
+.dark .child-bottom-nav-btn.is-active {
+  color: #C4B5FD;
+  background: rgba(196, 181, 253, 0.12);
+}
+
+.child-bottom-nav-btn:active {
+  transform: scale(0.96);
+}
+
+/* Extra bottom padding on scroll areas when bottom nav visible */
+body.child-has-bottom-nav #scheduleView,
+body.child-has-bottom-nav #rewardsView,
+body.child-has-bottom-nav #familyView,
+body.child-home-active #homeView {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+body.child-home-active #childMainHeader,
+body.child-home-active #childLayerNav,
+body.child-home-active #weekNavDetails,
+body.child-home-active #progressSection {
+  display: none !important;
+}
+
+body.child-home-active {
+  background: #1a1035;
+}

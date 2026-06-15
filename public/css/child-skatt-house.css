@@ -366,6 +366,296 @@
 .fm-museum-stat { text-align: center; padding: 10px; background: white; border-radius: 12px; }
 .fm-museum-stat strong { display: block; font-size: 1.25rem; color: #B45309; }
 
+/* ═══════════════════════════════════════════════════════════
+   HOME HUB — mockup (Hem-flik, tematiserad fullskärm)
+   ═══════════════════════════════════════════════════════════ */
+
+#homeView {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0;
+  max-width: none;
+}
+
+#homeHubMount {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.skatt-hub {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.skatt-hub-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.skatt-hub-scene-deco {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.skatt-hub-content {
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Castle theme ── */
+.skatt-theme-castle .skatt-hub-bg {
+  background: linear-gradient(180deg, #87CEEB 0%, #B8D4F0 25%, #90C695 55%, #5AAD5A 80%, #3D8B3D 100%);
+}
+.skatt-theme-castle .skatt-hub-scene-deco {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 85%, rgba(255,255,255,0.25) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cpath fill='%23C4B5FD' d='M60 90 L70 50 L80 65 L90 40 L100 60 L110 35 L120 55 L130 45 L140 90 Z'/%3E%3Crect fill='%23A78BFA' x='55' y='90' width='90' height='25' rx='4'/%3E%3C/svg%3E") center 72% / 70% auto no-repeat;
+}
+.skatt-theme-castle .skatt-hub-card-art {
+  background: linear-gradient(180deg, #E8F4FD 0%, #C4E7C4 100%);
+}
+
+/* ── Treehouse theme ── */
+.skatt-theme-treehouse .skatt-hub-bg {
+  background: linear-gradient(180deg, #FFB347 0%, #FFD194 20%, #87CEEB 45%, #228B22 70%, #1B5E20 100%);
+}
+.skatt-theme-treehouse .skatt-hub-scene-deco {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 80%, rgba(34,139,34,0.4) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cellipse fill='%23228B22' cx='100' cy='100' rx='90' ry='30'/%3E%3Crect fill='%238B6914' x='70' y='55' width='60' height='40' rx='4'/%3E%3Cpolygon fill='%23556B2F' points='100,20 130,55 70,55'/%3E%3C/svg%3E") center 68% / 65% auto no-repeat;
+}
+.skatt-theme-treehouse .skatt-hub-card-art {
+  background: linear-gradient(180deg, #FFF3D6 0%, #C8E6C9 100%);
+}
+
+/* ── Space theme ── */
+.skatt-theme-space .skatt-hub-bg {
+  background: linear-gradient(180deg, #0a0a1a 0%, #1a1035 35%, #2d1b69 65%, #4a2c6a 100%);
+}
+.skatt-theme-space .skatt-hub-scene-deco {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,255,255,0.8) 1px, transparent 1px),
+    radial-gradient(circle at 80% 25%, rgba(255,255,255,0.6) 1px, transparent 1px),
+    radial-gradient(circle at 40% 60%, rgba(255,255,255,0.5) 1px, transparent 1px),
+    radial-gradient(circle at 70% 80%, rgba(255,255,255,0.7) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cellipse fill='%23E17055' cx='160' cy='30' rx='25' ry='25'/%3E%3Cpath fill='%23fff' d='M30 70 L50 40 L55 55 L70 35 L75 70 Z'/%3E%3Ccircle fill='%23DDD' cx='50' cy='75' r='8'/%3E%3C/svg%3E") center 75% / 60% auto no-repeat;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 60% auto;
+}
+.skatt-theme-space .skatt-hub-hello,
+.skatt-theme-space .skatt-hub-sub,
+.skatt-theme-space .skatt-hub-stars-label { color: rgba(255,255,255,0.85); }
+.skatt-theme-space .skatt-hub-hello { color: #fff; }
+.skatt-theme-space .skatt-hub-switch {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
+}
+.skatt-theme-space .skatt-hub-menu {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.skatt-theme-space .skatt-hub-card-art {
+  background: linear-gradient(180deg, #2d1f4e 0%, #1a1035 100%);
+}
+.skatt-theme-space .skatt-hub-card-foot {
+  background: rgba(255,255,255,0.95);
+}
+
+/* ── Top bar ── */
+.skatt-hub-topbar {
+  display: grid;
+  grid-template-columns: 52px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.skatt-hub-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.skatt-hub-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.skatt-hub-avatar-emoji { font-size: 1.6rem; line-height: 1; }
+
+.skatt-hub-switch {
+  justify-self: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.85);
+  color: #7B61FF;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+.skatt-hub-menu {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* ── Greeting + stars ── */
+.skatt-hub-greeting { text-align: center; margin-bottom: 14px; }
+.skatt-hub-hello {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin: 0 0 4px;
+  text-shadow: 0 1px 8px rgba(255,255,255,0.5);
+}
+.skatt-hub-sub {
+  font-size: 0.9rem;
+  color: #5A6178;
+  margin: 0;
+  font-weight: 600;
+}
+
+.skatt-hub-stars-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 16px;
+  padding: 10px 20px;
+  max-width: 280px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 999px;
+  box-shadow: 0 4px 20px rgba(245,166,35,0.25);
+  border: 2px solid rgba(245,166,35,0.35);
+}
+.skatt-hub-stars-num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #B45309;
+}
+.skatt-hub-stars-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #5A6178;
+}
+
+.skatt-theme-picker {
+  margin-bottom: 14px;
+}
+
+/* ── Card grid (3 columns) ── */
+.skatt-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.skatt-hub-card {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(27,35,64,0.12);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 0;
+}
+.skatt-hub-card:active { transform: scale(0.96); }
+.skatt-hub-card.is-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.skatt-hub-card-art {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+}
+.skatt-hub-card-art-emoji {
+  font-size: clamp(2rem, 8vw, 2.75rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+}
+
+.skatt-hub-card-foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 8px 10px;
+  background: #fff;
+  position: relative;
+  min-height: 52px;
+}
+.skatt-hub-card-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+.skatt-hub-card-text { flex: 1; min-width: 0; }
+.skatt-hub-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #1B2340;
+  line-height: 1.2;
+}
+.skatt-hub-card-hint {
+  font-size: 0.52rem;
+  font-weight: 600;
+  color: #9AA0B8;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.skatt-hub-card-badge {
+  position: absolute;
+  top: -10px;
+  right: 6px;
+  background: #F5A623;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(245,166,35,0.4);
+}
+
+.skatt-in-room .skatt-hub-bg,
+.skatt-in-room .skatt-hub-scene-deco { display: none; }
+
+@media (max-width: 360px) {
+  .skatt-hub-grid { gap: 8px; }
+  .skatt-hub-card-title { font-size: 0.58rem; }
+  .skatt-hub-card-hint { font-size: 0.48rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skatt-room-view, .skatt-chest-tier.is-open, .skatt-entrance,
   .skatt-entrance-door, .cu-pet-hub, .cu-pet-big { animation: none; }
