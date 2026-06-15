@@ -291,6 +291,7 @@ function renderActivities() {
 
   container.innerHTML = html;
   initActivityDnD();
+  if (window.LibraryMagicMine) LibraryMagicMine.refresh();
 
   // Reopen sub-step panels
   for (const templateId of openSubStepPanels) {

@@ -1,6 +1,7 @@
 /**
  * library-magic-hub.js — Bibliotek mockup navigation (ny design).
  * Reuses switchTab / switchStdSubTab from library.js.
+ * Section screens: library-magic-schedules.js, library-magic-mine.js.
  */
 (function () {
   'use strict';
@@ -52,15 +53,32 @@
       .replace(/"/g, '&quot;');
   }
 
+  function clearSectionClasses() {
+    document.body.classList.remove(
+      'library-magic-section-standard',
+      'library-magic-section-activities',
+      'library-magic-section-rewards',
+      'library-magic-section-mine',
+      'library-magic-has-section-mount'
+    );
+  }
+
   function applyLayout() {
     var magic = isMagic();
     document.body.classList.toggle('parent-magic-library', magic);
     if (!magic) {
       document.body.classList.remove('library-magic-on-hub', 'library-magic-in-section');
+      clearSectionClasses();
       var hub = document.getElementById('libraryMagicHubMount');
       var chrome = document.getElementById('libraryMagicChrome');
+      var sectionMount = document.getElementById('libraryMagicSectionMount');
+      var mineSeg = document.getElementById('libraryMagicMineSegments');
       if (hub) { hub.innerHTML = ''; hub.classList.add('hidden'); }
       if (chrome) { chrome.classList.add('hidden'); chrome.innerHTML = ''; }
+      if (sectionMount) { sectionMount.innerHTML = ''; sectionMount.classList.add('hidden'); }
+      if (mineSeg) mineSeg.innerHTML = '';
+      if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
+      if (window.LibraryMagicMine) LibraryMagicMine.refresh();
       return;
     }
     routeFromHash();
@@ -123,6 +141,8 @@
       actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-activity">+ Ny</button>';
     } else if (sectionKey === 'rewards' && typeof window.openRewardModal === 'function') {
       actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-reward">+ Ny</button>';
+    } else if (sectionKey === 'mine' && typeof window.openCreateTemplateModal === 'function') {
+      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-template">+ Schema</button>';
     }
 
     chrome.classList.remove('hidden');
@@ -143,27 +163,25 @@
         window.openActivityModal();
       } else if (action === 'new-reward') {
         window.openRewardModal();
+      } else if (action === 'new-template') {
+        window.openCreateTemplateModal();
       }
     };
   }
 
-  function openSection(key, fromSearch) {
-    var s = SECTIONS[key];
-    if (!s || typeof window.switchTab !== 'function') return;
-
-    _section = key;
-    document.body.classList.remove('library-magic-on-hub');
-    document.body.classList.add('library-magic-in-section');
-
-    var hub = document.getElementById('libraryMagicHubMount');
-    if (hub) {
-      hub.classList.add('hidden');
-      hub.innerHTML = '';
-    }
-
-    window.switchTab(s.tab);
-    if (key === 'standard' && typeof window.switchStdSubTab === 'function') {
-      window.switchStdSubTab('schedules');
+  function afterSectionOpen(key, fromSearch) {
+    if (key === 'standard' && window.LibraryMagicSchedules) {
+      LibraryMagicSchedules.show();
+    } else if (key === 'mine' && window.LibraryMagicMine) {
+      LibraryMagicMine.show();
+    } else {
+      var sectionMount = document.getElementById('libraryMagicSectionMount');
+      if (sectionMount) {
+        sectionMount.classList.add('hidden');
+        sectionMount.innerHTML = '';
+      }
+      if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
+      if (window.LibraryMagicMine) LibraryMagicMine.refresh();
     }
 
     if (fromSearch && _hubSearch) {
@@ -176,21 +194,64 @@
         }
       }, 100);
     }
+  }
+
+  function openSection(key, fromSearch) {
+    var s = SECTIONS[key];
+    if (!s || typeof window.switchTab !== 'function') return;
+
+    _section = key;
+    document.body.classList.remove('library-magic-on-hub');
+    document.body.classList.add('library-magic-in-section');
+    clearSectionClasses();
+    document.body.classList.add('library-magic-section-' + key);
+
+    var hub = document.getElementById('libraryMagicHubMount');
+    if (hub) {
+      hub.classList.add('hidden');
+      hub.innerHTML = '';
+    }
+
+    if (key === 'standard' && window.LibraryMagicSchedules) {
+      LibraryMagicSchedules.reset();
+    }
+    if (key === 'mine' && window.LibraryMagicMine) {
+      LibraryMagicMine.reset();
+    }
+
+    window.switchTab(s.tab);
+    if (key === 'standard' && typeof window.switchStdSubTab === 'function') {
+      window.switchStdSubTab('schedules');
+    }
 
     renderChrome(key);
     window.location.hash = 'magic-' + key;
+    afterSectionOpen(key, fromSearch);
   }
 
   function showHub() {
     _section = null;
     document.body.classList.add('library-magic-on-hub');
     document.body.classList.remove('library-magic-in-section');
+    clearSectionClasses();
 
     var chrome = document.getElementById('libraryMagicChrome');
     if (chrome) {
       chrome.classList.add('hidden');
       chrome.innerHTML = '';
     }
+
+    var sectionMount = document.getElementById('libraryMagicSectionMount');
+    if (sectionMount) {
+      sectionMount.classList.add('hidden');
+      sectionMount.innerHTML = '';
+    }
+
+    var mineSeg = document.getElementById('libraryMagicMineSegments');
+    if (mineSeg) mineSeg.innerHTML = '';
+
+    if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
+    if (window.LibraryMagicMine) LibraryMagicMine.refresh();
 
     ['schema', 'activities', 'standard', 'rewards'].forEach(function (t) {
       var pane = document.getElementById('tab-' + t);
@@ -252,5 +313,6 @@
     showHub: showHub,
     openSection: openSection,
     isMagic: isMagic,
+    getSection: function () { return _section; },
   };
 })();

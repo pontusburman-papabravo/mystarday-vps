@@ -32,6 +32,7 @@ async function loadStandardLibrary() {
     renderStandardRewards();
     renderStdSchedulesInStdTab();
     switchStdSubTab('schedules');  // Default sub-tab
+    if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
   } catch {
     container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">Något gick fel</p>';
   }

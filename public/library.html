@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
-  <link rel="stylesheet" href="/css/library-magic.css?v=1">
+  <link rel="stylesheet" href="/css/library-magic.css?v=2">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=1">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -317,6 +317,8 @@
       <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
       <div id="libraryMagicChrome" class="hidden" aria-live="polite"></div>
       <div id="libraryMagicHubMount" class="hidden" aria-live="polite"></div>
+      <div id="libraryMagicSectionMount" class="hidden" aria-live="polite"></div>
+      <div id="libraryMagicMineSegments" class="library-magic-mine-segments-wrap" aria-live="polite"></div>
 
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center library-magic-legacy-hide">
@@ -371,8 +373,8 @@
         <div id="tab-schema" class="tab-pane space-y-5">
 
           <!-- ── Section: Barnens scheman ─── -->
-          <div>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+          <div class="library-magic-mine-block" data-mine-block="scheman">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">👧 Barnens scheman</h3>
                 <p class="text-sm text-text-soft mt-0.5">Välj vilket schema du vill ändra</p>
@@ -387,8 +389,8 @@
           </div>
 
           <!-- ── Section: Mina scheman (family templates) ─── -->
-          <div class="border-t-2 border-lavender pt-5">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+          <div class="border-t-2 border-lavender pt-5 library-magic-mine-block" data-mine-block="scheman">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">📝 Mina scheman</h3>
                 <p class="text-sm text-text-soft mt-0.5">Egna schemamallar — skapa, redigera och kopiera till barn</p>
@@ -402,9 +404,9 @@
             </div>
           </div>
 
-          <!-- ── Section: Standardbiblioteket ─── -->
-          <div class="border-t-2 border-lavender pt-5">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+          <!-- ── Section: Standardbiblioteket (schema tab) ─── -->
+          <div id="libraryMineStdSection" class="border-t-2 border-lavender pt-5 library-magic-mine-block" data-mine-block="scheman">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">📚 Standardbiblioteket</h3>
                 <p class="text-sm text-text-soft mt-0.5">Färdiga scheman — kopiera till barn och anpassa fritt efteråt</p>
@@ -422,14 +424,14 @@
         <div id="tab-activities" class="tab-pane space-y-5">
 
           <!-- Schema tabs (Förskola / Skola / custom) -->
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-2 flex-wrap library-magic-activities-toolbar">
             <div id="schemaTabsContainer" class="flex items-center gap-2 flex-wrap">
               <!-- Filled dynamically -->
             </div>
           </div>
 
           <!-- Header + add button for current tab -->
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 library-magic-legacy-hide">
             <div>
               <h3 id="schemaTabTitle" class="text-lg font-heading font-bold text-navy">Aktiviteter</h3>
               <p class="text-sm text-text-soft mt-0.5">Grupperade efter tid på dagen</p>
@@ -503,13 +505,13 @@
         <!-- TAB 3: Standardbibliotek (3 sub-tabs)                  -->
         <!-- ══════════════════════════════════════════════════════ -->
         <div id="tab-standard" class="tab-pane space-y-5" data-feature="standardbibliotek">
-          <div>
+          <div class="library-magic-legacy-hide">
             <h3 class="text-lg font-heading font-bold text-navy">📚 Standardbibliotek</h3>
             <p class="text-sm text-text-soft mt-0.5">Färdiga aktiviteter från standardbiblioteket — kopiera till ditt bibliotek med ett klick</p>
           </div>
 
           <!-- Sub-tabs: Scheman / Aktiviteter / Belöningar -->
-          <div class="bg-lavender/30 rounded-xl p-1 flex gap-1">
+          <div class="bg-lavender/30 rounded-xl p-1 flex gap-1 library-magic-legacy-hide">
             <button id="std-sub-schedules-btn" onclick="switchStdSubTab('schedules')"
               class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all">
               📅 Scheman
@@ -525,7 +527,7 @@
           </div>
 
           <!-- Sub-tab: Scheman -->
-          <div id="std-sub-schedules" class="std-sub-pane space-y-4">
+          <div id="std-sub-schedules" class="std-sub-pane space-y-4 library-magic-legacy-hide">
             <p class="text-sm text-text-soft">Färdiga dagscheman — kopiera till ett barn och anpassa fritt</p>
             <div id="stdSchedulesContainer" class="grid gap-4 sm:grid-cols-2">
               <div class="text-center py-8 text-text-soft col-span-full">Laddar standardscheman…</div>
@@ -533,7 +535,7 @@
           </div>
 
           <!-- Sub-tab: Aktiviteter -->
-          <div id="std-sub-activities" class="std-sub-pane hidden space-y-4">
+          <div id="std-sub-activities" class="std-sub-pane hidden space-y-4 library-magic-legacy-hide">
             <p class="text-sm text-text-soft">Färdiga aktiviteter — kopiera enskilda eller alla till ditt eget bibliotek</p>
             <div id="standardLibraryContainer" class="space-y-2">
               <div class="text-center py-8 text-text-soft">Laddar standardaktiviteter…</div>
@@ -541,7 +543,7 @@
           </div>
 
           <!-- Sub-tab: Belöningar -->
-          <div id="std-sub-rewards" class="std-sub-pane hidden space-y-4">
+          <div id="std-sub-rewards" class="std-sub-pane hidden space-y-4 library-magic-legacy-hide">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <p class="text-sm text-text-soft">Fördefinierade belöningar — välj och kopiera till ditt belöningsbibliotek</p>
@@ -562,7 +564,7 @@
         <!-- ══════════════════════════════════════════════════════ -->
         <div id="tab-rewards" class="tab-pane space-y-6">
           <section>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">🎁 Mål att jobba mot</h3>
                 <p class="text-sm text-text-soft mt-0.5">Belöningar barnen kan sträva mot med sina stjärnor</p>
@@ -850,7 +852,9 @@
 <script src="/js/library-substeps.js?v=2.12.0"></script>
 <script src="/js/library-treasury.js?v=2.12.0"></script>
 <script src="/js/library.js?v=2.16.0"></script>
-<script src="/js/library-magic-hub.js?v=1"></script>
+<script src="/js/library-magic-schedules.js?v=1"></script>
+<script src="/js/library-magic-mine.js?v=1"></script>
+<script src="/js/library-magic-hub.js?v=2"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

@@ -33,6 +33,8 @@ async function loadSchemaTab() {
     renderFamilyTemplates();
     renderStandardScheduleCards();
     renderStdSchedulesSubTab();
+    if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
+    if (window.LibraryMagicMine) LibraryMagicMine.refresh();
   } catch {
     document.getElementById('schemaChildrenList').innerHTML = '<p class="text-red-500 text-center py-6">Kunde inte ladda scheman</p>';
   }

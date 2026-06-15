@@ -286,3 +286,316 @@ body.parent-magic-library .parent-bottom-nav-btn.is-active {
     transform: none;
   }
 }
+
+/* ── Section mount (Standardscheman) ── */
+#libraryMagicSectionMount {
+  padding: 0 16px 16px;
+}
+
+body.parent-magic-library.library-magic-section-standard #tab-standard > * {
+  display: none !important;
+}
+
+body.parent-magic-library.library-magic-has-section-mount #libraryMagicSectionMount:not(.hidden) {
+  display: block !important;
+}
+
+/* ── Filter chips ── */
+.library-magic-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.library-magic-filter {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 244, 255, 0.85);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.library-magic-filter.is-active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+  border-color: transparent;
+}
+
+/* ── Segmented controls ── */
+.library-magic-segments {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.library-magic-segment {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: rgba(244, 244, 255, 0.7);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.library-magic-segment.is-active {
+  background: rgba(255, 204, 51, 0.2);
+  color: #ffcc33;
+}
+
+#libraryMagicMineSegments {
+  padding: 0 16px 8px;
+  display: none;
+}
+
+body.parent-magic-library.library-magic-section-mine #libraryMagicMineSegments:not(:empty) {
+  display: block;
+}
+
+/* ── Schedule cards ── */
+.library-magic-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.library-magic-schedule-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 14px;
+  text-align: left;
+  color: #f4f4ff;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.library-magic-schedule-card-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.library-magic-schedule-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-magic-schedule-card-body strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.library-magic-schedule-card-body > span:not(.library-magic-schedule-meta) {
+  display: block;
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.62);
+}
+
+.library-magic-schedule-meta {
+  display: block;
+  font-size: 11px;
+  color: rgba(244, 244, 255, 0.45);
+  margin-top: 6px;
+}
+
+.library-magic-schedule-tags,
+.library-magic-tag {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.library-magic-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.25);
+  color: #c4b5fd;
+  margin-top: 6px;
+}
+
+/* ── Schedule detail / timeline ── */
+.library-magic-detail-head {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.library-magic-detail-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.library-magic-detail-head h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.library-magic-detail-head p {
+  font-size: 13px;
+  color: rgba(244, 244, 255, 0.65);
+  margin: 0;
+}
+
+.library-magic-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.library-magic-timeline-item {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.library-magic-timeline-time {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffcc33;
+  padding-top: 4px;
+}
+
+.library-magic-timeline-content {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 12px;
+}
+
+.library-magic-timeline-row.is-expandable {
+  cursor: pointer;
+}
+
+.library-magic-substep-badge {
+  font-size: 11px;
+  color: #ffcc33;
+  font-weight: 700;
+}
+
+.library-magic-detail-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.library-magic-btn-primary,
+.library-magic-btn-secondary {
+  flex: 1;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+}
+
+.library-magic-btn-primary {
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+}
+
+.library-magic-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f4ff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.library-magic-empty,
+.library-magic-std-hint {
+  font-size: 13px;
+  color: rgba(244, 244, 255, 0.62);
+  text-align: center;
+  padding: 20px 8px;
+}
+
+.library-magic-std-hint {
+  text-align: left;
+  padding: 0 0 12px;
+}
+
+/* ── Substeps in magic mode (activities + schedule items) ── */
+body.parent-magic-library .substeps-panel {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-library .substeps-panel.open {
+  display: block;
+}
+
+body.parent-magic-library .substep-item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.parent-magic-library .library-magic-substeps {
+  border-left-color: rgba(255, 204, 51, 0.35) !important;
+}
+
+body.parent-magic-library .library-magic-timeline-content .text-navy,
+body.parent-magic-library .library-magic-timeline-content .text-text-soft {
+  color: rgba(244, 244, 255, 0.85) !important;
+}
+
+body.parent-magic-library #substep-btn-[data-id],
+body.parent-magic-library [id^="substep-btn-"] {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+
+body.parent-magic-library .substep-count-badge {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #86efac !important;
+}
+
+/* ── Mina bibliotek segment visibility ── */
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-scheman #tab-schema .library-magic-mine-block[data-mine-block="scheman"] {
+  display: block;
+}
+
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-scheman #libraryMineStdSection.hidden {
+  display: none !important;
+}
+
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter #tab-schema,
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-beloningar #tab-schema {
+  display: none !important;
+}
+
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter #tab-activities.active,
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-beloningar #tab-rewards.active {
+  display: block !important;
+}
+
+body.parent-magic-library.library-magic-section-activities .library-magic-activities-toolbar,
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter .library-magic-activities-toolbar {
+  display: flex !important;
+}
+
+body.parent-magic-library.library-magic-section-activities #activitiesContainer [data-id],
+body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter #activitiesContainer [data-id] {
+  overflow: visible;
+}
+
