@@ -582,7 +582,8 @@ Frontend: exportera som `window.ForDigConfig` om IIFE, eller ES module om projek
 - [ ] Redan aktiverad-indikator
 - [ ] 7-dagars outcome-banner på dashboard (§19)
 - [ ] "Föreslå förbättring" på lösningskort (§19)
-- [ ] Admin-lista: aktiveringar + outcome per mål (§19)
+- [ ] Admin-sektion **För dig** med KPI, svarstabell, citatvägg (§19.5)
+- [ ] `GET /api/admin/for-dig/stats` + `/responses`
 
 ### Sprint 4
 - [ ] Bottom nav-omläggning
@@ -699,7 +700,9 @@ CREATE UNIQUE INDEX idx_for_dig_feedback_outcome_unique
 |-----|--------|
 | `migrations/*_for_dig_goal_feedback.js` | Tabell |
 | `db/for-dig-goal-feedback.js` | Insert, list för admin, pending outcome |
-| `src/routes/for-dig.js` | `POST /api/for-dig/feedback`, `GET /api/for-dig/feedback/pending` |
+| `src/routes/for-dig.js` | Parent: feedback + pending |
+| `src/routes/admin/for-dig.js` | Admin: stats + svar-lista |
+| `public/admin/admin-for-dig.js` | Admin-gränssnitt — presentera alla svar |
 
 ### 19.4 API
 
@@ -721,6 +724,38 @@ GET /api/for-dig/feedback/pending
   -- mål där intent finns, outcome saknas, activated_at <= now - 7 days
 ```
 
+**Admin (kräver `requireAdmin`):**
+
+```
+GET /api/admin/for-dig/stats
+→ {
+    goals: [{
+      slug, title,
+      intent_count, outcome_count, suggestion_count,
+      outcome_positive,  // score 3–4
+      outcome_neutral,   // score 2
+      outcome_negative,  // score 1
+      intent_breakdown: { mindre_tjat: N, ... }
+    }],
+    totals: { families_with_feedback, responses_7d }
+  }
+
+GET /api/admin/for-dig/responses?goal_slug=&phase=&outcome_min=&limit=50&offset=0
+→ {
+    rows: [{
+      id, created_at,
+      goal_slug, goal_title,
+      phase, intent_reason, intent_label,   // svensk etikett
+      outcome_score, outcome_emoji,         // 😊 🙂 😐 🙁
+      free_text,
+      child_name, child_age,
+      parent_email,                         // för manuell uppföljning
+      family_id
+    }],
+    total
+  }
+```
+
 Validering:
 
 - `intent_reason` måste vara ett av de fem tillåtna värdena
@@ -728,37 +763,115 @@ Validering:
 - `free_text` max 500 tecken
 - Upsert `free_text` på befintlig outcome-rad om uppföljning kommer direkt efter score
 
-### 19.5 Admin — enkel lista, inte dashboard
+### 19.5 Admin-gränssnitt — presentera alla svar
 
-Med 140 familjer räcker SQL eller en admin-flik (`admin-for-dig-feedback.js`):
+**Krav:** Alla svar från intent-, outcome- och suggestion-frågorna ska vara **läsbara i admin** — inte bara via SQL. Detta är primär källa för produktinsikt vid 140 familjer.
+
+#### Placering
+
+Ny admin-sektion: **För dig** (`#for-dig` i `public/admin/index.html`)
+
+- Sidebar-länk efter **Föräldraaktivering** / **Retention**
+- Mönster: samma layout som `admin-activation-program.js` (KPI-kort + tabeller)
+
+#### Vy 1 — Översikt per utvecklingsmål
+
+KPI-kort per `goal_slug`:
 
 ```
-Trygga kvällar
-  42 intent-svar
-  27 outcome-svar
-  14 😊/🙂  |  8 😐  |  5 🙁
-
-  Senaste fritexter (positiva):
-  "Nu går läggningen utan bråk."
-  "Hon borstar tänderna själv nu."
-
-  Senaste fritexter (negativa):
-  "Barnet vägrar fortfarande pyjamas."
+🌙 Trygga kvällar
+  42 aktiveringar (intent)
+  27 svar efter 7 dagar (outcome)
+  14 positiva (😊/🙂)  ·  8 neutrala  ·  5 negativa
+  6 förbättringsförslag
 ```
 
-Query-exempel:
+Under kortet: **intent-fördelning** (horisontell stapel eller lista):
 
-```sql
-SELECT goal_slug, phase, outcome_score, free_text, created_at
-FROM for_dig_goal_feedback
-WHERE goal_slug = 'trygga-kvallar'
-ORDER BY created_at DESC
-LIMIT 50;
+| Anledning | Antal |
+|-----------|-------|
+| Mindre tjat | 18 |
+| Tydligare rutiner | 12 |
+| … | |
+
+Klick på mål → filtrerar Vy 2 till det målet.
+
+#### Vy 2 — Alla svar (tabell)
+
+Sorterbar tabell med en rad per feedback-post:
+
+| Datum | Mål | Fas | Svar | Fritext | Barn | Ålder | Förälder |
+|-------|-----|-----|------|---------|------|-------|----------|
+| 2026-06-10 | Trygga kvällar | outcome | 😊 | "Nu går läggningen utan bråk." | Astrid | 4 år | anna@… |
+| 2026-06-03 | Trygga kvällar | intent | Mindre tjat | — | Astrid | 4 år | anna@… |
+| 2026-06-08 | Bra morgnar | suggestion | — | "Behöver helg-variant" | — | — | erik@… |
+
+**Filter:**
+
+- Mål (`goal_slug`)
+- Fas (`intent` | `outcome` | `suggestion`)
+- Outcome (`positiva` = 3–4, `neutrala` = 2, `negativa` = 1)
+- Endast rader med fritext
+- Senaste 7 / 30 / 90 dagar
+
+**Åtgärder per rad:**
+
+- Kopiera e-post (för manuell uppföljning)
+- Länk till familj i admin (impersonation / familj-vy om finns)
+
+#### Vy 3 — Citatvägg (marknadsföring)
+
+Automatisk lista: alla `free_text` där `phase = outcome` och `outcome_score >= 3`, senaste först.
+
 ```
+"Nu går läggningen utan bråk."        — Trygga kvällar, 4 år, 2026-06-10
+"Hon borstar tänderna själv nu."       — Självständighet, 5 år, 2026-06-08
+```
+
+Knapp **Kopiera alla** för att klistra in i marknadsmaterial.
+
+#### Vy 4 — Väntar på outcome
+
+Lista familjer med `intent` men utan `outcome` efter ≥7 dagar — kandidater för manuellt mejl (§19.6).
+
+#### Etiketter i admin (svenska)
+
+| `intent_reason` | Visas som |
+|-----------------|-----------|
+| `mindre_tjat` | Mindre tjat |
+| `tydligare_rutiner` | Tydligare rutiner |
+| `sjalvstandighet` | Självständighet |
+| `mindre_stress` | Mindre stress |
+| `annat` | Annat |
+
+| `outcome_score` | Visas som |
+|-----------------|-----------|
+| 4 | 😊 Stor förbättring |
+| 3 | 🙂 Lite bättre |
+| 2 | 😐 Ingen skillnad |
+| 1 | 🙁 Fungerar inte |
+
+#### Filer (admin)
+
+| Fil | Ansvar |
+|-----|--------|
+| `public/admin/index.html` | Sektion `#for-dig`, sidebar-länk, script-tag |
+| `public/admin/admin-for-dig.js` | Ladda stats, render KPI, tabell, citatvägg |
+| `db/for-dig-goal-feedback.js` | `getAdminStats()`, `listResponses(filters)` |
+| `src/routes/admin/for-dig.js` | `GET /stats`, `GET /responses` |
+
+#### Acceptanskriterier (admin)
+
+- [ ] Admin ser aggregerad intent/outcome per mål utan SQL
+- [ ] Varje enskilt svar (inkl. fritext) syns i tabell
+- [ ] Positiva citat samlas på en vy för marknadsföring
+- [ ] Förälder-e-post visas för manuell uppföljning (admin-only)
+- [ ] Filter på mål, fas och outcome fungerar
+- [ ] Tomt state: "Inga svar ännu" — inte fel
 
 ### 19.6 Manuell uppföljning
 
-Bygg en lista över familjer som **faktiskt använt** lösningarna (intent + outcome). Kontakta manuellt:
+Bygg en lista över familjer som **faktiskt använt** lösningarna (intent + outcome). Admin-vyn **Väntar på outcome** (§19.5) är startpunkten — kontakta manuellt:
 
 > *"Hej! Jag såg att ni testat Trygga kvällar i en vecka. Skulle du vilja berätta hur det gått?"*
 
@@ -782,10 +895,13 @@ Använd på familjer som svarat 😊 med fritext. För öppen för 1-klicks-UI i
 
 | Sprint | Feedback-leverans |
 |--------|-------------------|
-| Sprint 2 | Intent-modal + migration + API |
-| Sprint 3 | 7-dagars outcome-banner + föreslå förbättring + admin-lista |
+| Sprint 2 | Intent-modal + migration + parent API |
+| Sprint 3 | Outcome-banner + föreslå förbättring + **admin-gränssnitt (§19.5)** |
 
-Uppskattad insats: **2–3 timmar** backend + UI för intent/outcome-kärnan.
+Uppskattad insats:
+
+- Parent feedback (intent/outcome/suggestion): **2–3 timmar**
+- Admin-gränssnitt (stats + tabell + citatvägg): **3–4 timmar**
 
 ---
 
