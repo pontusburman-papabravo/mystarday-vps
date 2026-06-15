@@ -2,7 +2,8 @@
 
 /* ─── Mobile Layout Fixes ─────────────────────────── */
 html, body {
-  overflow-x: clip;
+  overflow-x: hidden; /* fallback: Safari ≤15 / iOS ≤15 */
+  overflow-x: clip;   /* preferred: doesn't create scroll container (Safari 16+, Chrome 90+) */
   max-width: 100%;
 }
 
