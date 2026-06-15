@@ -105,14 +105,8 @@
   }
 
   function show() {
-    var chain = Promise.resolve();
-    if (typeof window.loadSchemaTab === 'function') {
-      chain = chain.then(function () { return window.loadSchemaTab(); });
-    }
-    return chain.then(function () {
-      applySegmentVisibility();
-      refresh();
-    });
+    applySegmentVisibility();
+    return refresh();
   }
 
   function getSegment() {

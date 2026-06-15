@@ -32,6 +32,10 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=1">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.14.0"></script>
@@ -64,7 +68,7 @@
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
-    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
         <span class="text-2xl">⭐</span>
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
@@ -88,12 +92,15 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col">
-      <div class="bg-sky border-b border-lavender p-4 md:p-6">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
+      <div id="magicSettingsBackBar"></div>
+      <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
         <h2 class="text-xl font-heading font-bold text-navy">Inställningar</h2>
       </div>
 
       <!-- View switch (dual-role only) -->
-      <div id="viewSwitchSection" class="hidden bg-lavender border-b border-lavender p-4 md:p-6">
+      <div id="viewSwitchSection" class="hidden bg-lavender border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
         <p class="text-sm text-text-soft mb-3">Du har tillgång till både föräldra- och pedagogvyn.</p>
         <div class="flex gap-3 flex-wrap">
           <button id="switchToPedagog" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors">
@@ -643,6 +650,8 @@
 
         document.getElementById('switchUserBtn').addEventListener('click', () => Auth.logout());
         document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
+
+        if (window.ParentMagicShell) await ParentMagicShell.init('settings');
 
         // (Immediate deletion — no pending state needed)
       } catch (error) {
@@ -1455,6 +1464,9 @@
       if (typeof Theme !== 'undefined') { Theme.toggleDark(); }
     }
   </script>
+  <script src="/js/app-view-mode.js?v=1"></script>
+  <script src="/js/parent-magic-page-hubs.js?v=1"></script>
+  <script src="/js/parent-magic-shell.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
 <script src="/js/mobile-nav.js?v=2.14.0"></script>

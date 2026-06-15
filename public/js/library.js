@@ -88,17 +88,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   selectStar(1);
   setApproval(true);
 
-  const hash = window.location.hash.replace('#', '');
-  if (hash === 'schema') switchTab('schema');
-  else if (hash === 'rewards') switchTab('rewards');
-  else if (hash === 'standard') switchTab('standard');
-  else if (hash === 'activities') switchTab('activities');
-  else if (hash === 'treasury') window.location.href = '/skattkammaren'; // redirect to dedicated page
-  else switchTab('schema');
-
   await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
 
-  if (window.LibraryMagicHub) await LibraryMagicHub.init();
+  if (window.LibraryMagicHub) {
+    await LibraryMagicHub.init();
+  } else {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'schema') switchTab('schema');
+    else if (hash === 'rewards') switchTab('rewards');
+    else if (hash === 'standard') switchTab('standard');
+    else if (hash === 'activities') switchTab('activities');
+    else if (hash === 'treasury') window.location.href = '/skattkammaren';
+    else switchTab('schema');
+  }
+  if (window.ParentMagicShell) await ParentMagicShell.init('library');
 });
 
 // ─── Main tab switching (4 tabs: schema, activities, rewards, standard) ──
@@ -110,7 +113,11 @@ function switchTab(tab) {
     if (pane) pane.classList.toggle('active', t === tab);
     if (btn) btn.classList.toggle('active', t === tab);
   });
-  window.location.hash = tab;
+  // Magic hub owns location.hash — writing classic tab hashes here caused an
+  // infinite hashchange loop (standard ↔ magic-standard) and 429 rate limits.
+  if (!(window.LibraryMagicHub && LibraryMagicHub.isMagic())) {
+    window.location.hash = tab;
+  }
   if (tab === 'standard' && !_standardLoaded) loadStandardLibrary();
   if (tab === 'schema' && !_schemaLoaded) loadSchemaTab();
 }

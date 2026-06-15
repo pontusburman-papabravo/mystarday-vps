@@ -12,6 +12,7 @@ let standardDefaultRewards = [];
 let selectedRewardIds = new Set();
 
 async function loadStandardLibrary() {
+  if (_standardLoaded) return;
   const container = document.getElementById('standardLibraryContainer');
   try {
     const [templatesRes, rewardsRes, schedulesRes] = await Promise.all([

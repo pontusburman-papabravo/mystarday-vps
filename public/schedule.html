@@ -36,6 +36,10 @@
   <script src="/js/schedule-views.js?v=1.3.0"></script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=1">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
@@ -313,7 +317,7 @@
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
-    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
         <span class="text-2xl">⭐</span>
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
@@ -337,7 +341,9 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col min-w-0">
-      <div class="bg-sky border-b border-lavender p-4 md:p-6">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
+      <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
         <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
           <div class="flex items-center gap-3 flex-wrap">
             <h2 id="schedulePageTitle" class="text-xl font-heading font-bold text-navy">📅 Veckoplanering</h2>
@@ -1017,6 +1023,9 @@
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
 <script src="/js/feature-check.js?v=2.13.0"></script>
+<script src="/js/app-view-mode.js?v=1"></script>
+<script src="/js/parent-magic-page-hubs.js?v=1"></script>
+<script src="/js/parent-magic-shell.js?v=1"></script>
 <script src="/js/mobile-nav.js?v=2.13.0"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.0"></script>

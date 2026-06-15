@@ -39,6 +39,15 @@
 
   var _section = null;
   var _hubSearch = '';
+  var _navLock = false;
+
+  function setMagicHash(hash) {
+    var current = (window.location.hash || '').replace('#', '');
+    if (current === hash) return;
+    _navLock = true;
+    window.location.hash = hash;
+    setTimeout(function () { _navLock = false; }, 0);
+  }
 
   function isMagic() {
     return window.AppViewMode && AppViewMode.isAllowed() && AppViewMode.isMagic();
@@ -89,7 +98,7 @@
     if (!mount) return;
     mount.classList.remove('hidden');
     mount.innerHTML =
-      '<div class="library-magic-hub">' +
+      '<div class="library-magic-hub magic-3d-scene">' +
       '<div class="library-magic-hub-head">' +
       '<div><h1>📚 Biblioteket</h1><p>Scheman, aktiviteter och belöningar för er familj</p></div>' +
       '<div class="library-magic-mascot" aria-hidden="true">⭐</div></div>' +
@@ -120,7 +129,7 @@
 
   function menuCard(key) {
     var s = SECTIONS[key];
-    return '<button type="button" class="library-magic-menu-card" data-library-section="' + key + '">' +
+    return '<button type="button" class="library-magic-menu-card magic-3d-card" data-library-section="' + key + '">' +
       '<span class="library-magic-menu-icon ' + s.iconClass + '" aria-hidden="true">' + s.icon + '</span>' +
       '<span class="library-magic-menu-text"><strong>' + escHtml(s.title) + '</strong><span>' + escHtml(s.subtitle) + '</span></span>' +
       '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
@@ -200,6 +209,12 @@
     var s = SECTIONS[key];
     if (!s || typeof window.switchTab !== 'function') return;
 
+    var targetHash = 'magic-' + key;
+    if (_section === key && !fromSearch &&
+        (window.location.hash || '').replace('#', '') === targetHash) {
+      return;
+    }
+
     _section = key;
     document.body.classList.remove('library-magic-on-hub');
     document.body.classList.add('library-magic-in-section');
@@ -225,11 +240,16 @@
     }
 
     renderChrome(key);
-    window.location.hash = 'magic-' + key;
+    setMagicHash(targetHash);
     afterSectionOpen(key, fromSearch);
   }
 
   function showHub() {
+    if (_section === null && document.body.classList.contains('library-magic-on-hub')) {
+      var existing = document.getElementById('libraryMagicHubMount');
+      if (existing && existing.innerHTML) return;
+    }
+
     _section = null;
     document.body.classList.add('library-magic-on-hub');
     document.body.classList.remove('library-magic-in-section');
@@ -259,10 +279,11 @@
     });
 
     renderHub();
-    window.location.hash = 'magic-hub';
+    setMagicHash('magic-hub');
   }
 
   function routeFromHash() {
+    if (_navLock) return;
     if (!isMagic()) return;
 
     var hash = (window.location.hash || '').replace('#', '');

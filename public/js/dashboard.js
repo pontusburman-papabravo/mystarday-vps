@@ -389,7 +389,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (window.AppViewMode) {
+  if (window.ParentMagicShell) {
+    await ParentMagicShell.init('dashboard');
+  } else if (window.AppViewMode) {
     await AppViewMode.initParent();
     if (AppViewMode.isAllowed()) {
       const toggleMount = document.getElementById('appViewToggleMount');

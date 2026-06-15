@@ -18,7 +18,9 @@
   border-top: 1px solid rgba(255, 204, 51, 0.15);
 }
 
-body.parent-magic-dashboard .parent-bottom-nav {
+body.parent-magic-dashboard .parent-bottom-nav,
+body.parent-magic-view .parent-bottom-nav,
+body.parent-magic-library .parent-bottom-nav {
   display: flex;
 }
 

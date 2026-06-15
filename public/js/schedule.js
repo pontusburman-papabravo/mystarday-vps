@@ -449,6 +449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   initTouchDndBridge();
   bindRecurrenceAddHandlers();
+  if (window.ParentMagicShell) await ParentMagicShell.init('schedule');
   } catch (err) {
     console.error('[SCHEDULE] Init error:', err);
     const container = document.getElementById('childCardsContainer');

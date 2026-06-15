@@ -51,6 +51,7 @@
 
   function applyBodyClasses() {
     var magic = _allowed && _mode === 'magic';
+    document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
     document.body.classList.toggle('parent-magic-dashboard', _role === 'parent' && magic);
     document.body.classList.toggle('child-magic-view', _role === 'child' && magic);
     document.body.classList.toggle('child-has-bottom-nav', _role === 'child' && magic);

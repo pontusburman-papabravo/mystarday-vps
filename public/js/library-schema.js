@@ -12,6 +12,7 @@ let familyTemplates = [];
 let _libIsAdmin = false;
 
 async function loadSchemaTab() {
+  if (_schemaLoaded) return;
   try {
     const [childrenRes, schedulesRes, templatesRes] = await Promise.all([
       window.apiFetch('/api/children'),

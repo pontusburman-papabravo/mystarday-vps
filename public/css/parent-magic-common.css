@@ -1,0 +1,254 @@
+/**
+ * parent-magic-common.css — Shared shell for schedule / family / settings magic view.
+ */
+
+body.parent-magic-view {
+  background: #07071a;
+  color: #f4f4ff;
+}
+
+body.parent-magic-view .parent-magic-legacy-hide {
+  display: none !important;
+}
+
+body.parent-magic-view nav.w-full.md\:w-64,
+body.parent-magic-view nav#sidebar,
+body.parent-magic-view .md\:hidden.bg-navy.sticky,
+body.parent-magic-view .mobile-topbar {
+  display: none !important;
+}
+
+body.parent-magic-view main {
+  padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
+}
+
+body.parent-magic-view .parent-bottom-nav {
+  display: flex;
+}
+
+body.parent-magic-view .app-view-toggle-wrap {
+  padding: 8px 16px 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Page hero ── */
+.magic-page-shell {
+  padding: max(4px, env(safe-area-inset-top, 0px)) 16px 12px;
+  background:
+    radial-gradient(ellipse 120% 55% at 50% -8%, rgba(88, 56, 180, 0.45), transparent 58%),
+    radial-gradient(circle at 90% 20%, rgba(255, 204, 51, 0.1), transparent 40%),
+    linear-gradient(180deg, #0b0b2a 0%, #07071a 100%);
+}
+
+.magic-page-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.magic-page-hero-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, rgba(124, 58, 237, 0.5), rgba(30, 27, 75, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.magic-page-hero h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.magic-page-hero p {
+  font-size: 13px;
+  color: rgba(244, 244, 255, 0.68);
+  margin: 6px 0 0;
+}
+
+.magic-page-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.magic-page-stats::-webkit-scrollbar {
+  display: none;
+}
+
+.magic-page-stat-card {
+  flex: 0 0 auto;
+  min-width: 100px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.magic-page-stat-card strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffcc33;
+}
+
+.magic-page-stat-card span {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(244, 244, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Settings group menu ── */
+.magic-settings-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.magic-settings-group-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4ff;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.magic-settings-group-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.magic-settings-group-icon.profile { background: rgba(59, 130, 246, 0.2); }
+.magic-settings-group-icon.family { background: rgba(168, 85, 247, 0.2); }
+.magic-settings-group-icon.app { background: rgba(255, 204, 51, 0.15); }
+
+.magic-settings-group-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.magic-settings-group-text span {
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.58);
+}
+
+.magic-settings-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f4ff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+body.parent-magic-view.magic-settings-in-group .magic-settings-menu,
+body.parent-magic-view.magic-settings-in-group .magic-page-hero-wrap {
+  display: none;
+}
+
+body.parent-magic-view:not(.magic-settings-in-group) [data-magic-settings-content] {
+  display: none !important;
+}
+
+body.parent-magic-view.magic-settings-in-group [data-magic-settings-content] {
+  display: block !important;
+}
+
+body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
+  display: block;
+}
+
+.magic-settings-back-bar {
+  display: none;
+  padding: 8px 16px 0;
+}
+
+/* ── Dark content overrides ── */
+body.parent-magic-view .bg-white,
+body.parent-magic-view .bg-sky,
+body.parent-magic-view .bg-sky\/40,
+body.parent-magic-view .bg-sky\/60 {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f4f4ff;
+}
+
+body.parent-magic-view .text-navy,
+body.parent-magic-view h2,
+body.parent-magic-view h3,
+body.parent-magic-view h4 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .text-text-soft {
+  color: rgba(244, 244, 255, 0.62) !important;
+}
+
+body.parent-magic-view input[type="text"],
+body.parent-magic-view input[type="email"],
+body.parent-magic-view input[type="password"],
+body.parent-magic-view input[type="search"],
+body.parent-magic-view select,
+body.parent-magic-view textarea {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view .border-lavender,
+body.parent-magic-view hr.border-lavender {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view button.bg-gold,
+body.parent-magic-view a.bg-gold {
+  background: linear-gradient(180deg, #ffd966 0%, #f5a623 100%) !important;
+  color: #1b2340 !important;
+  border: none;
+}
+
+body.parent-magic-page-schedule .magic-page-shell {
+  padding-bottom: 0;
+}
+
+body.parent-magic-page-schedule main > .bg-sky {
+  background: transparent !important;
+  border: none !important;
+  padding-top: 0 !important;
+}

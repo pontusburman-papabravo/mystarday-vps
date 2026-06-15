@@ -33,6 +33,10 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=1">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
@@ -98,7 +102,7 @@
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Mobile Top Bar -->
-    <div class="md:hidden bg-navy text-white p-4 flex items-center justify-between sticky top-0 z-20">
+    <div class="md:hidden bg-navy text-white p-4 flex items-center justify-between sticky top-0 z-20 parent-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-2 no-underline text-white hover:text-white">
         <span class="text-xl">⭐</span>
         <h1 class="text-lg font-heading font-bold">Min Stjärndag</h1>
@@ -114,7 +118,7 @@
     </div>
 
     <!-- Sidebar -->
-    <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+    <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
       <a href="/dashboard" class="hidden md:flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
         <span class="text-2xl">⭐</span>
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
@@ -138,7 +142,9 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col">
-      <div class="hidden md:flex bg-sky border-b border-lavender p-4 md:p-6 justify-between items-center">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
+      <div class="hidden md:flex bg-sky border-b border-lavender p-4 md:p-6 justify-between items-center parent-magic-legacy-hide">
         <div>
           <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 Familjen</h2>
           <p id="familySummary" class="text-sm text-text-soft mt-0.5"></p>
@@ -150,7 +156,7 @@
       <div class="flex-1 p-4 md:p-8 overflow-auto space-y-8">
 
         <!-- Tips section (collapsed by default) -->
-        <details class="warm-tips">
+        <details class="warm-tips parent-magic-legacy-hide">
           <summary class="warm-tips-summary">💡 Tips för familjen</summary>
           <div class="warm-tips-body">
             <ul class="space-y-1.5">
@@ -936,6 +942,9 @@
     </div>
   </div>
 
+  <script src="/js/app-view-mode.js?v=1"></script>
+  <script src="/js/parent-magic-page-hubs.js?v=1"></script>
+  <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/family-invite-scan.js?v=1"></script>
   <script src="/js/settings-account.js?v=2.18.0"></script>
   <script src="/js/family-museum.js?v=1.0.0"></script>

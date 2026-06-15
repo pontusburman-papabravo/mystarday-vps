@@ -168,7 +168,7 @@
     return children.map(function (c) {
       var status = getChildStatus(c);
       var active = c.id === focusId ? ' is-active' : '';
-      return '<button type="button" class="parent-ready-child' + active + '" data-action="open-schedule" data-child-id="' + escHtml(c.id) + '">' +
+      return '<button type="button" class="parent-ready-child magic-3d-card' + active + '" data-action="open-schedule" data-child-id="' + escHtml(c.id) + '">' +
         (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
         '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
         '<div class="parent-ready-name">' + escHtml(capName(c.name)) + '</div>' +
@@ -187,7 +187,7 @@
       { action: 'messages', icon: '💬', label: 'Meddelanden' },
     ];
     return actions.map(function (a) {
-      return '<button type="button" class="parent-action-tile" data-action="' + escHtml(a.action) + '">' +
+      return '<button type="button" class="parent-action-tile magic-3d-card" data-action="' + escHtml(a.action) + '">' +
         '<span class="parent-action-icon" aria-hidden="true">' + a.icon + '</span>' +
         '<span class="parent-action-label">' + escHtml(a.label) + '</span></button>';
     }).join('');
@@ -216,7 +216,7 @@
     var scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
 
     mount.innerHTML =
-      '<div class="parent-home-hub">' +
+      '<div class="parent-home-hub magic-3d-scene">' +
       '<header class="parent-hub-top">' +
       '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
       '<div class="parent-hub-header-actions">' +

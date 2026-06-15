@@ -8,6 +8,11 @@ body.parent-magic-library {
   color: #f4f4ff;
 }
 
+body.parent-magic-library,
+body.parent-magic-library.parent-magic-view {
+  background: #07071a;
+}
+
 body.parent-magic-library .library-magic-legacy-hide {
   display: none !important;
 }
@@ -120,10 +125,7 @@ body.parent-magic-library.library-magic-in-section .tab-pane.active {
   color: #f4f4ff;
   font-family: inherit;
   cursor: pointer;
-}
-
-.library-magic-menu-card:active {
-  transform: scale(0.99);
+  transform-style: preserve-3d;
 }
 
 .library-magic-menu-icon {

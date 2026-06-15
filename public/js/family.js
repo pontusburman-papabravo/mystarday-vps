@@ -63,6 +63,7 @@
     }
     initBirthdayPicker('drawerEditBirthday');
     init();
+    if (window.ParentMagicShell) ParentMagicShell.init('family');
 
     function renderAll(data) {
       const section = document.getElementById('familyInfoSection');
@@ -132,6 +133,10 @@
         `).join('');
       } else {
         pendingSection.classList.add('hidden');
+      }
+
+      if (window.ParentMagicPageHub && window.ParentMagicShell && ParentMagicShell.isMagic()) {
+        ParentMagicPageHub.refresh('family', true);
       }
     }
 
