@@ -8,40 +8,67 @@
 import fs from 'fs';
 import path from 'path';
 
-const pluginRoot = path.join(
+const pluginPkgRoot = path.join(
   process.cwd(),
   'node_modules',
   '@capacitor-community',
-  'apple-sign-in',
-  'ios'
+  'apple-sign-in'
 );
 
-// The plugin moved its Swift source between versions:
-//   - v7 (CocoaPods layout):  ios/Plugin/Plugin.swift
-//   - SPM layout:             ios/Sources/SignInWithApple/Plugin.swift
-// Try every known location so the patch is never silently skipped.
-const candidatePaths = [
-  path.join(pluginRoot, 'Plugin', 'Plugin.swift'),
-  path.join(pluginRoot, 'Sources', 'SignInWithApple', 'Plugin.swift'),
-];
+function findPluginSwift(root) {
+  const knownPaths = [
+    path.join(root, 'ios', 'Plugin', 'Plugin.swift'), // v7.0.x CocoaPods layout
+    path.join(root, 'ios', 'Sources', 'SignInWithApple', 'Plugin.swift'), // v7.1+ SPM layout
+  ];
+  for (const candidate of knownPaths) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
 
-const pluginSwift = candidatePaths.find((p) => fs.existsSync(p));
+  const iosDir = path.join(root, 'ios');
+  if (!fs.existsSync(iosDir)) return null;
 
-if (!pluginSwift) {
+  /** @type {string[]} */
+  const stack = [iosDir];
+  while (stack.length) {
+    const dir = stack.pop();
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(full);
+      } else if (entry.isFile() && entry.name === 'Plugin.swift') {
+        return full;
+      }
+    }
+  }
+  return null;
+}
+
+if (!fs.existsSync(pluginPkgRoot)) {
   console.log('Apple Sign In plugin not installed — skip presentation patch.');
   process.exit(0);
+}
+
+const pluginSwift = findPluginSwift(pluginPkgRoot);
+
+if (!pluginSwift) {
+  console.error(
+    'ERROR: @capacitor-community/apple-sign-in is installed but Plugin.swift was not found.\n' +
+      '       Run: npm install --legacy-peer-deps\n' +
+      '       Then re-run: npm run cap:sync:ios'
+  );
+  process.exit(1);
 }
 
 let content = fs.readFileSync(pluginSwift, 'utf8');
 
 if (content.includes('ASAuthorizationControllerPresentationContextProviding')) {
-  console.log('Apple Sign In presentation patch already applied.');
+  console.log(`Apple Sign In presentation patch already applied (${pluginSwift}).`);
   process.exit(0);
 }
 
 const performMarker = 'authorizationController.performRequests()';
 if (!content.includes(performMarker)) {
-  console.error('Could not find performRequests() in Plugin.swift');
+  console.error(`Could not find performRequests() in ${pluginSwift}`);
   process.exit(1);
 }
 
@@ -71,4 +98,4 @@ extension SignInWithApple: ASAuthorizationControllerPresentationContextProviding
 
 content = content.trimEnd() + extensionBlock + '\n';
 fs.writeFileSync(pluginSwift, content);
-console.log('Patched Apple Sign In plugin for iPad presentation context.');
+console.log(`Patched Apple Sign In plugin for iPad presentation context (${pluginSwift}).`);
