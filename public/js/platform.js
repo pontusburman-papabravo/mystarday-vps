@@ -403,7 +403,19 @@ var Platform = (function () {
               : null,
           };
         } catch (err) {
-          if (err.message === 'cancel' || err.message === 'SIGN_IN_UNAVAILABLE' || (err.code && err.code === 'ERR_CANCELED')) return null;
+          var msg = (err && (err.message || err.errorMessage)) || '';
+          var code = err && (err.code || err.errorCode);
+          if (
+            msg === 'cancel' ||
+            msg === 'SIGN_IN_UNAVAILABLE' ||
+            code === 'ERR_CANCELED' ||
+            code === 1001 ||
+            code === '1001' ||
+            /AuthorizationError error 1001/i.test(msg) ||
+            /cancel/i.test(msg)
+          ) {
+            return null;
+          }
           throw err;
         }
       }
