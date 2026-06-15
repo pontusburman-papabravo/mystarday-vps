@@ -205,7 +205,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v229';
+const CACHE_NAME = 'stjarndag-v230';
 // v225: iOS camera via Capacitor bridge + emoji fallback vid onboarding
 // v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js

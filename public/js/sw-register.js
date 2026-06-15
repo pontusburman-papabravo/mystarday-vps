@@ -55,7 +55,6 @@
 
   // Gate 2I: offline_pwa — only register SW if the feature is available for this family.
   // If the feature check fails (non-critical), register anyway (SW failure is non-fatal).
-  async function registerSW() {
 
   // Prevent double-reload when controllerchange fires during a navigation
   var refreshing = false;

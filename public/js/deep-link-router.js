@@ -83,9 +83,11 @@
     var App = getAppPlugin();
     if (!App) return;
     if (typeof App.addListener === 'function') {
-      App.addListener('appUrlOpen', function (event) {
-        if (event && event.url) handleUrl(event.url);
-      }).catch(function () {});
+      try {
+        App.addListener('appUrlOpen', function (event) {
+          if (event && event.url) handleUrl(event.url);
+        });
+      } catch (_) {}
     }
     if (typeof App.getLaunchUrl === 'function') {
       App.getLaunchUrl().then(function (ret) {
