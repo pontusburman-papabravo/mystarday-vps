@@ -37,7 +37,7 @@
     }
   </script>
 
-  <link rel="stylesheet" href="/css/child-login-magic.css?v=153">
+  <link rel="stylesheet" href="/css/child-login-magic.css?v=154">
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <script src="/js/auth.js?v=2.22.0"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -74,8 +74,8 @@
     <!-- ── STEP 1: Select child ─────────────────────────────────────────── -->
     <section id="clStepProfiles" class="cl-step active">
 
-      <h1 class="cl-select-title">Välj vem du är</h1>
-      <p class="cl-select-sub">Välj vilket barn du vill logga in som</p>
+      <h1 class="cl-select-title" id="clSelectTitle">Vem är du?</h1>
+      <p class="cl-select-sub" id="clSelectSub">Tryck på barnet →</p>
 
       <!-- Error box -->
       <div id="clProfileError" class="cl-error-box"></div>
@@ -116,12 +116,7 @@
         </form>
       </div>
 
-      <!-- "Jag är vuxen" — switch to parent mode (PIN guard handled by login.html) -->
-      <div id="clParentSwitch" style="margin-top:20px;text-align:center;">
-        <button class="cl-back-btn" style="border-color:rgba(251,191,36,0.35);color:rgba(251,191,36,0.8);font-size:0.85rem;padding:10px 16px;" onclick="handleParentSwitch()">
-          Jag är vuxen →
-        </button>
-      </div>
+      <!-- "Jag är vuxen" removed — barn ska aldrig se vuxeninloggning här -->
 
     </section>
     <!-- end step-profiles -->
@@ -130,9 +125,12 @@
     <!-- ── STEP 2: PIN entry ───────────────────────────────────────────── -->
     <section id="clStepPin" class="cl-step">
 
-      <!-- Back button -->
-      <button class="cl-back-btn" onclick="clBackToProfiles()" aria-label="Byt barn" style="align-self:flex-start;margin-bottom:8px;">
+      <!-- Back buttons -->
+      <button id="clPinBackProfiles" class="cl-back-btn" onclick="clBackToProfiles()" aria-label="Byt barn" style="align-self:flex-start;margin-bottom:8px;">
         ← Byt barn
+      </button>
+      <button id="clPinBackLogin" class="cl-back-btn hidden" onclick="window.location.href='/login'" aria-label="Tillbaka" style="align-self:flex-start;margin-bottom:8px;">
+        ← Tillbaka
       </button>
 
       <!-- Avatar ring -->
@@ -144,7 +142,20 @@
 
       <!-- Greeting + instruction -->
       <h1 class="cl-pin-greeting" id="clPinGreeting">Hej!</h1>
-      <p class="cl-pin-sub">Ange din pinkod</p>
+      <p class="cl-pin-sub">Ange din kod</p>
+
+      <!-- Hidden numeric input — opens correct keyboard if focused -->
+      <input
+        type="tel"
+        id="clPinInput"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        maxlength="4"
+        autocomplete="off"
+        aria-hidden="true"
+        tabindex="-1"
+        class="cl-pin-input-hidden"
+      />
 
       <!-- Attempt dots -->
       <div id="clAttemptRow" class="hidden" style="margin-bottom:8px;">
@@ -205,7 +216,7 @@
   <!-- SW Register -->
   <script src="/js/sw-register.js?v=2.13.0"></script>
   <script src="/js/dom-utils.js?v=2.13.0"></script>
-  <script src="/js/child-login.js?v=2.21.0"></script>
+  <script src="/js/child-login.js?v=2.22.0"></script>
 
   <!-- Animated stars + clouds (same pattern as login-magic.js) -->
   <script>

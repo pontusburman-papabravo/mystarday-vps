@@ -10,6 +10,8 @@
 // ── State ────────────────────────────────────────────────────────────────────
 let pinDigits = [];          // max 4 digits
 let selectedChild = null;   // { username, name, emoji, avatar_url, familyId, lastLoginAt }
+/** True when exactly one child — skip profile picker and go straight to PIN. */
+let directPinMode = false;
 /** Senast renderad barnlista (API + known_children) — selectChild måste använda denna. */
 let lastMergedChildren = [];
 /** True when login-picker-children found a parent session (cookie or JWT). */
@@ -51,20 +53,49 @@ function paintChildListCards(merged) {
   if (!list) return;
   list.innerHTML = merged.map(function (child) {
     return [
-      '<a href="#" class="cl-child-card" data-username="', escapeHtml(child.username),
-      '" onclick="selectChild(\'', escapeJs(child.username), '\'); return false;">',
-      '<div class="cl-avatar-ring">', renderClChildAvatar(child, 52), '</div>',
+      '<button type="button" class="cl-child-card" data-username="', escapeHtml(child.username),
+      '" onclick="selectChild(\'', escapeJs(child.username), '\')">',
+      '<div class="cl-avatar-ring">', renderClChildAvatar(child, 56), '</div>',
       '<div class="cl-child-info">',
       '<div class="cl-child-name">', escapeHtml(child.name), '</div>',
-      '<div class="cl-child-sub">', escapeHtml(child.username), '</div>',
       '</div>',
-      '<div class="cl-child-arrow">›</div>',
-      '</a>',
+      '<div class="cl-child-arrow" aria-hidden="true">›</div>',
+      '</button>',
     ].join('');
   }).join('');
 }
 
-function renderChildList() {
+function updateProfileStepCopy(childCount) {
+  var title = document.getElementById('clSelectTitle');
+  var sub = document.getElementById('clSelectSub');
+  if (!title || !sub) return;
+  if (childCount > 1) {
+    title.textContent = 'Vem är du?';
+    sub.textContent = 'Tryck på barnet →';
+  } else {
+    title.textContent = 'Välj vem du är';
+    sub.textContent = 'Välj vilket barn du vill logga in som';
+  }
+}
+
+function updatePinBackButtons() {
+  var swapBtn = document.getElementById('clPinBackProfiles');
+  var loginBtn = document.getElementById('clPinBackLogin');
+  if (swapBtn) swapBtn.classList.toggle('hidden', directPinMode);
+  if (loginBtn) loginBtn.classList.toggle('hidden', !directPinMode);
+}
+
+function maybeAutoSelectOnlyChild(opts) {
+  opts = opts || {};
+  if (opts.forcePicker || opts.resumeAddChild) return;
+  if (lastMergedChildren.length !== 1) return;
+  var only = lastMergedChildren[0];
+  if (!only || !only.username) return;
+  selectChild(only.username, { directPin: true });
+}
+
+function renderChildList(initOpts) {
+  initOpts = initOpts || {};
   const list = document.getElementById('clChildList');
   const empty = document.getElementById('clEmptyState');
   const noSession = document.getElementById('clNoSessionState');
@@ -135,6 +166,11 @@ function renderChildList() {
     if (addRow) addRow.classList.remove('hidden');
 
     paintChildListCards(merged);
+    updateProfileStepCopy(merged.length);
+    maybeAutoSelectOnlyChild({
+      forcePicker: !!initOpts.forcePicker,
+      resumeAddChild: !!initOpts.resumeAddChild,
+    });
   });
 }
 
@@ -222,7 +258,16 @@ function upsertKnownChild(child) {
 }
 
 // ── Select child → show PIN step ─────────────────────────────────────────────
-window.selectChild = function(username) {
+window.selectChild = function(username, opts) {
+  opts = opts || {};
+  if (opts.directPin === true) {
+    directPinMode = true;
+  } else if (opts.directPin === false) {
+    directPinMode = false;
+  } else if (lastMergedChildren.length > 1) {
+    directPinMode = false;
+  }
+
   var child = lastMergedChildren.find(function (k) { return k.username === username; });
   if (!child) {
     var known = loadKnownChildren();
@@ -240,15 +285,17 @@ window.selectChild = function(username) {
   document.getElementById('clStepPin').classList.add('active');
 
   // Update greeting + avatar
-  document.getElementById('clPinGreeting').textContent = `Hej ${child.name}!`;
+  document.getElementById('clPinGreeting').textContent = 'Hej ' + child.name + '!';
   document.getElementById('clPinAvatar').innerHTML = renderClChildAvatar(child, 100);
 
   // Clear PIN
   pinDigits = [];
   renderPinDots();
+  syncPinInput();
   hideError();
   hideLockout();
   hideSuccess();
+  updatePinBackButtons();
 
   // Focus first key (mobile: keyboard stays hidden anyway)
   document.getElementById('clKey0')?.focus();
@@ -256,14 +303,20 @@ window.selectChild = function(username) {
 
 // ── Back to child selection ────────────────────────────────────────────────────
 window.clBackToProfiles = function () {
+  if (directPinMode) {
+    window.location.href = '/login';
+    return;
+  }
   selectedChild = null;
   sessionStorage.removeItem('cl_selected_username');
   pinDigits = [];
+  syncPinInput();
   document.getElementById('clStepPin').classList.remove('active');
   document.getElementById('clStepProfiles').classList.add('active');
   hideError();
   hideLockout();
   clearCountdown();
+  updatePinBackButtons();
 };
 
 // ── Add child: choice (nytt/befintligt) + parent PIN gate ────────────────────
@@ -592,6 +645,48 @@ window.openAddChild = async function () {
 // ── Keypad ────────────────────────────────────────────────────────────────────
 const KEYS = ['1','2','3','4','5','6','7','8','9','clear','0','⌫'];
 const KEY_ACTIONS = { clear: 'CLEAR', '⌫': 'BACKSPACE' };
+const KEY_COLOR_CLASS = {
+  '1': 'col-purple', '4': 'col-purple', '7': 'col-purple',
+  '2': 'col-teal', '5': 'col-teal', '8': 'col-teal',
+  '3': 'col-pink', '6': 'col-pink', '9': 'col-pink',
+  '0': 'col-gold',
+};
+
+function applyPinDigit(digit) {
+  if (pinDigits.length >= 4) return;
+  pinDigits.push(String(digit));
+  renderPinDots();
+  syncPinInput();
+  if (pinDigits.length === 4) setTimeout(submitLogin, 120);
+}
+
+function clearPinDigits() {
+  pinDigits = [];
+  renderPinDots();
+  syncPinInput();
+}
+
+function backspacePinDigit() {
+  pinDigits.pop();
+  renderPinDots();
+  syncPinInput();
+}
+
+function syncPinInput() {
+  var input = document.getElementById('clPinInput');
+  if (input) input.value = pinDigits.join('');
+}
+
+function bindPinInput() {
+  var input = document.getElementById('clPinInput');
+  if (!input) return;
+  input.addEventListener('input', function () {
+    var digits = String(input.value || '').replace(/\D/g, '').slice(0, 4);
+    pinDigits = digits.split('');
+    renderPinDots();
+    if (pinDigits.length === 4) setTimeout(submitLogin, 120);
+  });
+}
 
 function buildKeypad() {
   const container = document.getElementById('clKeypad');
@@ -600,43 +695,40 @@ function buildKeypad() {
     const action = KEY_ACTIONS[k] || null;
     let extra = '';
     if (k === 'clear') extra = '★';
-    return `<button
-      id="clKey${i}"
-      class="cl-key ${k === 'clear' ? 'clear' : k === '⌫' ? 'backspace' : ''} ${k === '' ? 'ghost' : ''}"
-      aria-label="${action ? (action === 'CLEAR' ? 'Rensa PIN' : 'Radera') : k}"
-      data-action="${action || k}"
-      type="button">${extra || k}</button>`;
+    const colorClass = KEY_COLOR_CLASS[k] || '';
+    const digitClass = action ? '' : ' digit ' + colorClass;
+    return '<button' +
+      ' id="clKey' + i + '"' +
+      ' class="cl-key' + digitClass +
+      (k === 'clear' ? ' clear' : '') +
+      (k === '⌫' ? ' backspace' : '') +
+      '"' +
+      ' aria-label="' + (action ? (action === 'CLEAR' ? 'Rensa PIN' : 'Radera') : k) + '"' +
+      ' data-action="' + (action || k) + '"' +
+      ' type="button">' + (extra || k) + '</button>';
   }).join('');
 
   // Attach events
   KEYS.forEach((k, i) => {
-    const btn = document.getElementById(`clKey${i}`);
+    const btn = document.getElementById('clKey' + i);
     if (!btn) return;
 
     btn.addEventListener('click', () => {
       const action = KEY_ACTIONS[k] || null;
       if (action === 'CLEAR') {
-        pinDigits = [];
+        clearPinDigits();
       } else if (action === 'BACKSPACE') {
-        pinDigits.pop();
+        backspacePinDigit();
       } else {
-        if (pinDigits.length < 4) pinDigits.push(k);
+        applyPinDigit(k);
       }
       if (window.Platform && Platform.haptics && typeof Platform.haptics.light === 'function') {
         Platform.haptics.light();
       }
       btn.classList.add('haptic');
-      setTimeout(() => btn.classList.remove('haptic'), 140);
-
-      renderPinDots();
-
-      // Auto-submit when 4 digits entered
-      if (pinDigits.length === 4) {
-        setTimeout(submitLogin, 120);
-      }
+      setTimeout(function () { btn.classList.remove('haptic'); }, 140);
     });
 
-    // Keyboard accessibility: Enter submits
     btn.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') btn.click();
     });
@@ -1009,9 +1101,12 @@ window.handleManualName = function(e) {
   document.getElementById('clPinAvatar').innerHTML = '<span>⭐</span>';
   pinDigits = [];
   renderPinDots();
+  syncPinInput();
   hideError();
   hideLockout();
   hideSuccess();
+  directPinMode = false;
+  updatePinBackButtons();
   document.getElementById('clKey0')?.focus();
 };
 
@@ -1038,13 +1133,17 @@ function escapeJs(str) {
 document.addEventListener('DOMContentLoaded', () => {
   // Build keypad buttons
   buildKeypad();
+  bindPinInput();
 
-  // Always start on barnväljare (not PIN step) after navigation / byt barn
+  // Start on profile step — maybeAutoSelectOnlyChild() may jump to PIN
   document.getElementById('clStepPin')?.classList.remove('active');
   document.getElementById('clStepProfiles')?.classList.add('active');
   selectedChild = null;
+  directPinMode = false;
   pinDigits = [];
   renderPinDots();
+  syncPinInput();
+  updatePinBackButtons();
 
   const url = new URL(window.location.href);
   const addChildParam = url.searchParams.get('addChild');
@@ -1065,8 +1164,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render child list (always start on väljare — never auto-open PIN after Byt barn)
-  renderChildList();
+  // Render child list (single-child families may auto-jump to PIN)
+  renderChildList({
+    forcePicker: forcePicker,
+    resumeAddChild: resumeAddChild,
+  });
 
   // Resume add-child flow after parent login (?addChild=1)
   if (resumeAddChild) {
