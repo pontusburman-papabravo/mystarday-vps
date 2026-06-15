@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Min Stjärndag — Visuellt schema-app för barn | Skattkammaren</title>
     <meta name="description" content="Min Stjärndag — visuell schema-app för barn. Ger stöd i vardagen genom tydligt bildstöd och struktur. Ett värdefullt verktyg vid ADHD och autism. Prova gratis.">
     <meta property="og:title" content="Min Stjärndag — Skattkammaren, där motivationen bor">
@@ -1206,6 +1206,32 @@
             #founderCtaBtn { margin-top: 0.85rem !important; padding: 0.7rem 1rem !important; font-size: 0.85rem !important; }
             #familyCounter { margin-top: 0.6rem !important; padding-top: 0.6rem !important; }
             #counterLabel { font-size: 0.72rem !important; }
+            /* Footer + sticky Tipsa — safe area, inga FABs som skymmer innehåll */
+            .landing-fab-kontakt,
+            .landing-fab-hjalp { display: none !important; }
+            .mobile-tipsa-fixed {
+                bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+                left: 16px;
+                right: 16px;
+                width: auto;
+                max-width: none;
+                transform: none;
+                justify-content: center;
+            }
+            .mobile-tipsa-fixed:hover {
+                transform: translateY(-2px);
+            }
+            .footer-cta-section {
+                padding-bottom: calc(5rem + 4.5rem + env(safe-area-inset-bottom, 0px));
+            }
+            footer {
+                padding-bottom: calc(2.5rem + 4.5rem + env(safe-area-inset-bottom, 0px));
+            }
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 0.75rem 1.25rem;
+            }
+            html { scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
         }
 
         @media (max-width: 400px) {
@@ -1371,9 +1397,6 @@
 
         @media (max-width: 680px) {
             .mobile-tipsa-fixed { display: flex !important; align-items: center; gap: 0.4rem; }
-            /* Reposition Hjälp/Kontakt FABs to not overlap mobile tipsa */
-            .landing-fab-kontakt { bottom: 80px !important; }
-            .landing-fab-hjalp { bottom: 142px !important; }
         }
 
         /* ===== FLOATING BOTTOM-RIGHT BUTTONS ===== */
@@ -1466,12 +1489,6 @@
         }
         .share-popup-btn:hover { background: var(--amber-lt); border-color: var(--amber); }
         .share-popup-btn span { font-size: 1.1rem; flex-shrink: 0; }
-
-        @media (max-width: 680px) {
-            /* Reposition FABs above the mobile tipsa button */
-            .landing-fab-kontakt { bottom: 80px; right: 16px; width: 48px; height: 48px; font-size: 1.15rem; }
-            .landing-fab-hjalp { bottom: 142px; right: 16px; width: 48px; height: 48px; font-size: 1.15rem; }
-        }
 
     </style>
 
