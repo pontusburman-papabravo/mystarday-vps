@@ -12,6 +12,7 @@ const config = require('../lib/config');
 const crypto = require('crypto');
 const { loginLimiter, childLoginLimiter, registrationLimiter, forgotPasswordLimiter, resendVerificationLimiter, appleLoginLimiter } = require('../middleware/rateLimiter');
 const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../db/parent-access');
+const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../lib/magic-view-access');
 const { requireAuth } = require('../middleware/auth');
 const { generateCsrfToken } = require('../middleware/csrf');
 const {
@@ -1061,6 +1062,7 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.json({
         ...parent,
         isAdmin: !!parent.is_admin,
+        magic_view_enabled: isEmailAllowlisted(parent.email),
         account_type: parent.account_type,
         preferred_view_mode: effectiveViewMode,
         hasPedagogChildren,
@@ -1087,7 +1089,10 @@ router.get('/me', requireAuth, async (req, res) => {
         return res.status(404).json({ error: 'Användare hittades inte' });
       }
 
-      return res.json({ ...childResult.rows[0], type: 'child' });
+      const child = childResult.rows[0];
+      const magicViewEnabled = await familyHasMagicViewAccess(child.family_id);
+
+      return res.json({ ...child, type: 'child', magic_view_enabled: magicViewEnabled });
     }
 
     res.status(400).json({ error: 'Okänd användartyp' });

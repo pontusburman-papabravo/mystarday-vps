@@ -31,6 +31,7 @@
 
   function shouldUse() {
     if (!isOverviewVisible()) return false;
+    if (window.AppViewMode && !AppViewMode.isAllowed()) return false;
     if (window.AppViewMode && !AppViewMode.isMagic()) return false;
     if (window._stjarndagFeatures && window._stjarndagFeatures.parent_home_magic === false) return false;
     return true;

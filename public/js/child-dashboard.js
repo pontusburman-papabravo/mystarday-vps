@@ -2653,9 +2653,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (_) { /* default classic */ }
 
     if (window.AppViewMode) {
-      AppViewMode.initChild(me.id, dbViewMode);
-      const toggleMount = document.getElementById('appViewToggleMount');
-      if (toggleMount) AppViewMode.mountToggle(toggleMount);
+      await AppViewMode.initChild(me.id, dbViewMode);
+      if (AppViewMode.isAllowed()) {
+        const toggleMount = document.getElementById('appViewToggleMount');
+        if (toggleMount) AppViewMode.mountToggle(toggleMount);
+      }
       AppViewMode.onChange(function () { applyChildViewMode(); });
     }
 
@@ -2665,10 +2667,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (window.ChildLayerRouter) {
       ChildLayerRouter.init();
-      if (window.AppViewMode) applyChildViewChrome();
+      applyChildViewChrome();
     } else if (window.location.hash === '#rewards') {
       showTab('rewards');
-    } else if (window.AppViewMode) {
+    } else if (window.AppViewMode && AppViewMode.isAllowed()) {
       applyChildViewMode();
     } else {
       showTab('schedule');

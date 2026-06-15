@@ -390,9 +390,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (window.AppViewMode) {
-    AppViewMode.initParent();
-    const toggleMount = document.getElementById('appViewToggleMount');
-    if (toggleMount) AppViewMode.mountToggle(toggleMount);
+    await AppViewMode.initParent();
+    if (AppViewMode.isAllowed()) {
+      const toggleMount = document.getElementById('appViewToggleMount');
+      if (toggleMount) AppViewMode.mountToggle(toggleMount);
+    }
     AppViewMode.onChange(function () {
       if (window.DashboardHomeHub) {
         DashboardHomeHub.render(dashboardStats);

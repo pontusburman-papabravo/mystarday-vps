@@ -665,7 +665,7 @@ const FEATURES = [
       purpose: 'Erbjuda mockup-baserad föräldraöversikt parallellt med klassisk dashboard.',
       user_story: 'Som förälder vill jag välja mellan klassisk vy och ny design direkt på startsidan.',
       acceptance_criteria: 'Vyväxlare på /dashboard; magic-vy visar hub med snabbknappar, schema, stjärnor och veckodiagram; klassisk vy oförändrad.',
-      technical_notes: 'dashboard-home-hub.js + app-view-mode.js; localStorage stjarndag_parent_ui_view.',
+      technical_notes: 'dashboard-home-hub.js + app-view-mode.js; localStorage stjarndag_parent_ui_view. Preview: MAGIC_VIEW_ALLOWLIST env (default pontus@burman.cc) via /api/auth/me magic_view_enabled.',
     },
     dev_notes: [],
     changelog: [],
