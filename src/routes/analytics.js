@@ -23,6 +23,16 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'feature_treasure_chest',
   'feature_schedule_edit',
   'feature_daily_log',
+  'for_dig_page_view',
+  'for_dig_goal_expand',
+  'for_dig_activate_click',
+  'for_dig_activate_success',
+  'for_dig_activate_fail',
+  'for_dig_library_link',
+  'for_dig_feedback_intent',
+  'for_dig_feedback_outcome',
+  'for_dig_feedback_suggestion',
+  'for_dig_install_logged',
 ]);
 
 /**

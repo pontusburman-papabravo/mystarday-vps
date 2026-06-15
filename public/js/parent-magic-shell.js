@@ -7,7 +7,7 @@
   var NAV = [
     { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Hem' },
     { id: 'schedule', href: '/schedule', icon: '📅', label: 'Schema' },
-    { id: 'library', href: '/library', icon: '📚', label: 'Bibliotek' },
+    { id: 'for-dig', href: '/for-dig', icon: '✨', label: 'För dig' },
     { id: 'family', href: '/family', icon: '👨‍👩‍👧', label: 'Familj' },
     { id: 'settings', href: '/settings', icon: '⚙️', label: 'Inställn.' },
   ];

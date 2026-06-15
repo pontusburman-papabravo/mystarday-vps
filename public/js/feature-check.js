@@ -23,6 +23,7 @@
   var GATED_PATHS = {
     '/reports':      'klinisk_rapportering',
     '/pedagog-note': 'pedagoganteckningar',
+    '/for-dig':      'for_dig',
   };
 
   function isCoreSlug(slug) {

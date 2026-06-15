@@ -90,6 +90,7 @@ function registerRoutes(app) {
   app.use('/api/pedagog-notes', require('./pedagog-notes'));
   app.use('/api/pedagog-invite', require('./pedagog-invite'));
   app.use('/api/features', require('./features'));
+  app.use('/api/for-dig', require('./for-dig'));
 
   // RevenueCat IAP config (native clients only)
   app.use('/api/iap', require('./iap'));
@@ -122,7 +123,7 @@ function registerRoutes(app) {
     'verify-email', 'forgot-password', 'reset-password', 'verify-email-change',
     'dashboard', 'child-dashboard',
     'settings', 'accept-invite', 'pedagog-invite', 'upgrade',
-    'activities', 'library', 'schedule', 'assign-schedule', 'daily-log',
+    'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
     'family', 'calendar', 'onboarding', 'child-settings', 'child-wizard', 'notifications',
   ];
   const { join } = require('path');

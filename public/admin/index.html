@@ -103,6 +103,7 @@
         <li><a href="#anvandning" onclick="showSection('anvandning');closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="anvandning">Användning</a></li>
         <li><a href="#retention" onclick="showSection('retention');loadRetentionData();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="retention">Retention</a></li>
         <li><a href="#foraldaraktivering" onclick="showSection('foraldaraktivering');loadActivationProgramAdmin();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="foraldaraktivering">Föräldraaktivering</a></li>
+        <li><a href="#fordig" onclick="showSection('fordig');loadForDigAdmin();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="fordig">För dig</a></li>
         <li><a href="#dagensnyhet" onclick="showSection('dagensnyhet');loadNyheter();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="dagensnyhet">Dagens nyhet</a></li>
         <li><a href="#landning" onclick="showSection('landning');loadLandingNews();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="landning">🌐 Landningssida</a></li>
         <li><a href="#bildbank" onclick="showSection('bildbank');loadAdminImages();closeMobileMenu()" class="nav-item block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-section="bildbank">🖼️ Bildbank</a></li>
@@ -804,6 +805,30 @@
           <div class="bg-white rounded-2xl border-2 border-lavender p-4">
             <h4 class="text-base font-heading font-bold text-navy mb-3">Deep dive — kandidater</h4>
             <div id="activationDeepDiveList"></div>
+          </div>
+        </div>
+
+        <!-- FÖR DIG -->
+        <div id="fordigSection" class="mb-8 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-2xl font-heading font-bold text-navy">För dig</h3>
+              <p class="text-text-soft text-sm mt-1">Intent, outcome och förbättringsförslag per utvecklingsmål</p>
+              <p id="forDigAdminStatus" class="text-xs text-text-soft mt-2">—</p>
+            </div>
+            <button type="button" onclick="loadForDigAdmin(true)" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">↺ Uppdatera</button>
+          </div>
+          <p id="forDigAdminTotals" class="text-sm text-text-soft mb-4">—</p>
+          <div id="forDigAdminGoalCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <p class="text-text-soft col-span-full">Laddar…</p>
+          </div>
+          <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-base font-heading font-bold text-navy">Alla svar</h4>
+              <button type="button" onclick="filterForDigResponses(null)" class="text-xs text-gold underline">Visa alla</button>
+            </div>
+            <p id="forDigAdminFilterLabel" class="text-xs text-text-soft mb-2">Alla mål</p>
+            <div id="forDigAdminResponses" class="overflow-x-auto">—</div>
           </div>
         </div>
 
@@ -1737,6 +1762,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-retention.js"></script>
   <script src="/admin/admin-activation-program.js"></script>
+  <script src="/admin/admin-for-dig.js"></script>
   <script src="/admin/admin-email-stats.js"></script>
   <script src="/admin/admin-dagensnyhet.js?v=2.0.0"></script>
   <script src="/admin/admin-landing-news.js"></script>

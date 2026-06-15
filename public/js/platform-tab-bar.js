@@ -28,6 +28,7 @@
   var TABS = [
     { href: '/dashboard', label: 'Hem',   icon: '🏠', paths: ['/dashboard', '/daily-log', '/'] },
     { href: '/schedule',  label: 'Schema', icon: '📅', paths: ['/schedule', '/calendar', '/activities', '/assign-schedule'] },
+    { href: '/for-dig',   label: 'För dig', icon: '✨', paths: ['/for-dig'] },
     { href: '/skattkammaren', label: 'Skatt', icon: '🏆', paths: ['/skattkammaren'] },
     { href: '/family',    label: 'Mer',   icon: '⚙️', paths: ['/family', '/settings', '/library', '/reports', '/pedagog-note'] },
   ];

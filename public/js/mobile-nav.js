@@ -59,6 +59,7 @@
   var GATED_PATHS = {
     '/reports':      'klinisk_rapportering',
     '/pedagog-note': 'pedagoganteckningar',
+    '/for-dig':      'for_dig',
   };
   // Populated async after features load. Default to {} (fail-closed = hide gated links until confirmed)
   var accessibleFeatures = {};
