@@ -1,7 +1,7 @@
 # För dig — Upptäck & utvecklingsmål
 
 **Skapad:** 2026-06-15  
-**Status:** Implementation-ready (Sprint 1–4)  
+**Status:** Roadmap V1–V5 · Engineering Sprints 1–5 (Sprint 1 implementation-ready)  
 **Feature slug:** `for_dig`  
 **URL:** `/for-dig`  
 **Relaterat:** onboarding, `foraldaraktivering_7d`, standardbibliotek, bibliotek, Skattkammaren
@@ -90,7 +90,7 @@ Konkurrenter säljer verktyg. Föräldrar köper utfall.
 3. Göra produkten personlig via barnets ålder och namn
 4. Positionera appen som **utvecklingsverktyg**, inte schemasystem
 
-### 2.2 Icke-mål (V1–V3)
+### 2.2 Icke-mål (V1–V5)
 
 - Community / användargenererat innehåll
 - AI-genererade rutiner
@@ -106,6 +106,8 @@ Konkurrenter säljer verktyg. Föräldrar köper utfall.
 
 ### 3.1 Mogen produktkarta
 
+Se **§21** för fullständig V1–V5 × Sprint 1–5-matris.
+
 ```
 Onboarding
     ↓
@@ -116,6 +118,8 @@ För dig (/for-dig)          ← NY
 Schema (/schedule)
     ↓
 Bibliotek (/library)        ← expertverktyg, sekundär nav (Sprint 4)
+    ↓
+Mina favoriter + Mest installerade (Sprint 5 / V3 + V5)
 ```
 
 ### 3.2 Koppling till 7-dagarsprogrammet
@@ -156,13 +160,27 @@ Under Mer:
 
 ### 4.3 Sidstruktur
 
+**V1 (Sprint 1):**
+
+```
+/for-dig
+├── Hälsning + fokusfråga ("Vad vill du fokusera på just nu?")
+├── Utvecklingsmål (6 kort)
+│   ├── Primära (Aktivera-knapp — Sprint 2)
+│   └── Sekundära (Utforska → detalj)
+├── Rekommenderat för [barn] (enkel åldersfiltrering)
+└── Länk: "Visa hela biblioteket" → /library
+```
+
+**V3 + V5 (Sprint 5) — utökad:**
+
 ```
 /for-dig
 ├── Hälsning + fokusfråga
+├── Mina favoriter (V3)
+├── Mest installerade (V5)
 ├── Utvecklingsmål (6 kort)
-│   ├── Primära (Aktivera-knapp)
-│   └── Sekundära (Utforska → detalj)
-├── Rekommenderat för [barn] (åldersfiltrerat)
+├── Rekommenderat för [barn] (V4)
 └── Länk: "Visa hela biblioteket" → /library
 ```
 
@@ -197,7 +215,9 @@ Under Mer:
 
 ---
 
-## 6. Sprint 1 — MVP (hårdkodat)
+## 6. Sprint 1 — MVP (V1: Startsida & statisk config)
+
+**Produktversion V1** levererar `/for-dig` som problemorienterad ingång: hälsning, fokusfrågan *"Vad vill du fokusera på just nu?"*, sex utvecklingsmål från hårdkodad `for-dig-config.js`, Utforska-detaljvy och enkel åldersfiltrerad rekommendationssektion (statiska `highlightActivities` — ingen copy-logik ännu). **Aktivera** kan vara stub eller disabled tills Sprint 2.
 
 ### 6.1 Leverans
 
@@ -287,7 +307,9 @@ Flera barn: visa ett block per barn (max 3), sorterat `sort_order`, `created_at`
 
 ---
 
-## 7. Sprint 2 — Aktiveringsflöde
+## 7. Sprint 2 — Aktiveringsflöde (V2: Paket, copy & intent)
+
+**Produktversion V2** kopplar **Aktivera** till befintlig standardbibliotek-copy (`schedule` + `activityNames` + `rewardNames`), barnväljare, bekräftelse och success-toast. Vid lyckad aktivering visas **intent-feedback** (§19.2 A) — första steget i lärsystemet.
 
 ### 7.1 UX
 
@@ -333,7 +355,9 @@ Om `default_schedule` saknas lokalt (tomt admin-bibliotek): visa vänligt fel + 
 
 ---
 
-## 8. Sprint 3 — Personifiering & data
+## 8. Sprint 3 — Personifiering & data (V4 + V5-förberedelse)
+
+**Produktversion V4** gör *"Rekommenderat för [barn]"* till en riktig personaliseringsmotor: åldersfiltrering, dölj mål utanför spann, sortering per barn, redan-aktiverad-indikator. **V5-förberedelse:** `for_dig_goal_install` + aggregat för *"Mest installerade"* / *"Populärt just nu"* (full data-driven sortering i Sprint 5).
 
 ### 8.1 Förbättrad "För Astrid"
 
@@ -360,9 +384,13 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 
 ---
 
-## 9. Sprint 4 — Navigation
+## 9. Sprint 4 — Navigation (ingen ny V-version)
 
-**Förutsättning:** Mätning visar att För dig används.
+**Engineering Sprint 4** är ren produktnavigering — ingen ny produktversion. Flyttar För dig till primär bottom nav och Bibliotek under *Mer* när metrics motiverar det (§9.1). Befintliga användare påverkas av synlighet, inte av ny funktionalitet (§22).
+
+### 9.1 Förutsättning
+
+Mätning visar att För dig används.
 
 | Metric | Mål (indikativt) |
 |--------|------------------|
@@ -375,6 +403,78 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 - `dashboard.html` bottom nav: Byt **Bibliotek** → **För dig**
 - `platform-tab-bar.js`: Bibliotek under "Mer"
 - Sidebar: För dig prominent, Bibliotek under "Avancerat"
+
+---
+
+## 9.5 Sprint 5 — Favoriter & populär sortering (V3 + V5)
+
+**Produktversion V3** introducerar **Mina favoriter** på `/for-dig` och utökar `is_favorite` till utvecklingsmål, scheman och belöningar — inte bara aktiviteter. **Produktversion V5** fullföljer data-driven discovery med sektionen *"Mest installerade"* sorterad på `install_count` från `for_dig_goal_install`.
+
+### 9.5.1 V3 — Mina favoriter
+
+**Placering på `/for-dig`:**
+
+```
+Mina favoriter
+  ⭐ Trygga kvällar          [Aktivera]
+  ⭐ Kvällsrutin (schema)    [Öppna schema]
+  ⭐ Extra saga (belöning)   [Öppna Skattkammaren]
+```
+
+**Beteende:**
+
+- Favoritmarkering (★) på lösningskort, biblioteksrader och schema-/belöningsrader
+- Favoriter visas överst på För dig-sidan, före fokusfrågan eller direkt under hälsningen
+- Tom state: *"Spara favoriter med stjärnan — då hittar du dem här."*
+- Max 12 favoriter synliga; resten bakom *"Visa alla favoriter"*
+
+### 9.5.2 Utökning av `is_favorite`
+
+| Entitet | Idag | Sprint 5 |
+|---------|------|----------|
+| `activity_template` | `is_favorite BOOLEAN` ✅ | Oförändrat — redan i bibliotek |
+| `weekly_schedule` | saknas | Ny kolumn `is_favorite BOOLEAN DEFAULT false` |
+| `reward` | saknas | Ny kolumn `is_favorite BOOLEAN DEFAULT false` |
+| Utvecklingsmål (config) | saknas | Ny tabell `for_dig_goal_favorite` (family_id, parent_id, goal_slug) |
+
+**API:**
+
+```
+PATCH /api/activities/:id        { is_favorite: true }   — befintligt
+PATCH /api/schedules/:id         { is_favorite: true }   — nytt
+PATCH /api/rewards/:id           { is_favorite: true }   — nytt
+POST  /api/for-dig/favorites     { goal_slug }           — toggle mål-favorit
+GET   /api/for-dig/favorites     → { goals[], schedules[], rewards[], activities[] }
+```
+
+**Analytics:** `for_dig_favorite_toggle` med `entity_type`, `entity_id`, `goal_slug`.
+
+### 9.5.3 V5 — Mest installerade
+
+Bygger på `for_dig_goal_install` (Sprint 3):
+
+```
+Mest installerade just nu
+  1. 🌙 Trygga kvällar      — 89 familjer
+  2. ☀️ Bra morgnar         — 67 familjer
+  3. 🎒 Skolansvar          — 41 familjer
+```
+
+- Sortering: `COUNT(DISTINCT family_id)` senaste 90 dagarna (konfigurerbart i admin)
+- Visa endast om ≥3 mål har `install_count >= 5` (undvik tom/skammande lista tidigt)
+- Badge på kort: *"Populärt"* om målet är topp-3 globalt
+- Admin: aggregerad vy i befintlig För dig-admin (§19.5) — flik *Installationer*
+
+### 9.5.4 Filer (Sprint 5)
+
+| Fil | Ansvar |
+|-----|--------|
+| `migrations/*_for_dig_favorites.js` | `for_dig_goal_favorite` + kolumner på schedule/reward |
+| `db/for-dig-favorites.js` | CRUD favoriter, aggregerad install_count |
+| `src/routes/for-dig.js` | `GET/POST /favorites`, utöka activate med install-logg |
+| `public/js/for-dig.js` | Mina favoriter-sektion, ★-toggle, Mest installerade |
+| `public/js/library.js` | ★ på schema- och belöningsrader |
+| `public/css/for-dig.css` | Favorit- och populär-badges |
 
 ---
 
@@ -395,10 +495,13 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 
 ### 10.2 Rollout
 
-1. `dev` — endast familjer med `family_features.for_dig`
-2. Intern dogfood
-3. `live` — alla familjer
-4. Sprint 4 nav — efter metrics
+Se **§22** för detaljerad plan per sprint (befintliga användare, kommunikation).
+
+1. `dev` — endast familjer med `family_features.for_dig` (Sprint 1–2)
+2. Intern dogfood → utökad dogfood (Sprint 2)
+3. `live` — alla familjer (Sprint 3)
+4. Sprint 4 nav — efter metrics, alla `live`-användare
+5. Sprint 5 favoriter + populärt — direkt `live`, ingen separat gate
 
 ### 10.3 Auth
 
@@ -422,6 +525,8 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 | `for_dig_feedback_intent` | Intent-modal besvarad | `goal_slug`, `intent_reason`, `child_id` |
 | `for_dig_feedback_outcome` | 7-dagars check-in besvarad | `goal_slug`, `outcome_score`, `child_id` |
 | `for_dig_feedback_suggestion` | Föreslå förbättring skickad | `goal_slug`, `free_text` |
+| `for_dig_favorite_toggle` | Favorit togglad (Sprint 5) | `entity_type`, `entity_id`, `goal_slug`, `is_favorite` |
+| `for_dig_install_logged` | Install registrerad (Sprint 3+) | `goal_slug`, `child_id` |
 
 ### 11.2 North Star (indikativ)
 
@@ -550,44 +655,106 @@ Frontend: exportera som `window.ForDigConfig` om IIFE, eller ES module om projek
 
 1. **Förnamn:** E-post-local-part räcker V1, eller vänta på `display_name`?
 2. **Kväll alla dagar vs vardagar:** Bekräfta med produktägare
-3. **ADHD-stöd:** Eget mål i V2 när admin-innehåll finns
+3. **ADHD-stöd:** Eget mål i V2+ när admin-innehåll finns
 4. **Alias `/upptack`:** A/B mot `/for-dig`?
+5. **Favoriter-gräns:** 12 synliga räcker, eller paginering direkt? (Sprint 5)
+6. **Populärt-fönster:** 90 dagar default — justerbart i admin? (Sprint 5)
 
 ---
 
 ## 17. Implementation-checklista
 
-### Sprint 1
-- [ ] `docs/for-dig-spec.md` (denna fil)
-- [ ] `public/for-dig.html`
-- [ ] `public/js/for-dig-config.js`
-- [ ] `public/js/for-dig.js`
-- [ ] Feature `for_dig` i `seed-features.js`
-- [ ] Sidebar-länk på dashboard/library
-- [ ] SW cache bump
-- [ ] Analytics: `for_dig_page_view`
+Checklistan täcker alla fem engineering-sprints mappade till produktversioner V1–V5 (se §21).
 
-### Sprint 2
-- [ ] Aktiverings-orchestrator
-- [ ] Barnväljare-modal
-- [ ] Bekräftelse + toast
-- [ ] Analytics: activate success/fail
-- [ ] Intent-modal vid aktivering (§19)
-- [ ] Migration `for_dig_goal_feedback`
-- [ ] `POST /api/for-dig/feedback`
+### Sprint 1 — V1: Startsida & statisk config
 
-### Sprint 3
-- [ ] `for_dig_goal_install` migration
-- [ ] "Populärt just nu"
-- [ ] Redan aktiverad-indikator
-- [ ] 7-dagars outcome-banner på dashboard (§19)
-- [ ] "Föreslå förbättring" på lösningskort (§19)
-- [ ] Admin-sektion **För dig** med KPI, svarstabell, citatvägg (§19.5)
-- [ ] `GET /api/admin/for-dig/stats` + `/responses`
+**Mål:** Föräldern ser problemorienterad ingång med sex mål — utan backend-aktivering.
 
-### Sprint 4
-- [ ] Bottom nav-omläggning
-- [ ] `platform-tab-bar.js` uppdatering
+- [ ] `docs/for-dig-spec.md` (denna fil, inkl. §21–§22)
+- [ ] `public/for-dig.html` — auth-gate, layout, script-tags
+- [ ] `public/js/for-dig-config.js` — alla 6 mål med `scheduleName`, `activityNames`, `rewardNames`, `highlightActivities`
+- [ ] `public/js/for-dig.js` — render hälsning, fokusfråga, 6 kort, Utforska-detaljvy (inline/modal)
+- [ ] `public/css/for-dig.css` — kort, CTA 44px, mörkt läge (valfritt om befintlig CSS räcker)
+- [ ] Feature `for_dig` i `scripts/seed-features.js` (`status: 'dev'`)
+- [ ] Sidebar-länk *För dig* på `dashboard.html`, `library.html`, ev. `schedule.html`
+- [ ] Dashboard-CTA (valfritt): *"Vad vill du fokusera på?"* → `/for-dig`
+- [ ] Enkel *Rekommenderat för [barn]* — `calcAge()` + filtrera config `ageMin`/`ageMax`, visa `highlightActivities` (statiska strängar)
+- [ ] Aktivera-knapp: disabled eller toast *"Kommer snart"* tills Sprint 2
+- [ ] `public/sw.js` — CACHE_NAME bump
+- [ ] Analytics: `for_dig_page_view`, `for_dig_goal_expand`
+- [ ] Manuell test: §14.1 (oinloggad redirect, 6 kort, birthday-rekommendation, feature gate)
+
+### Sprint 2 — V2: Paket, copy & intent-feedback
+
+**Mål:** Aktivera kopierar innehåll till barnets schema; intent samlas in direkt efter.
+
+- [ ] Aktiverings-orchestrator i `for-dig.js` (eller `POST /api/for-dig/:slug/activate`)
+- [ ] Barnväljare-modal om flera barn
+- [ ] Bekräftelsedialog (*"Aktivera … för [barn]?"*) med `overwrite: true`-varning
+- [ ] Spinner + success-toast per mål (målspecifik copy)
+- [ ] Sekundär CTA *"Visa schema"* → `/schedule?child=…`
+- [ ] `days`-mapping per mål (§7.2 tabell)
+- [ ] Namn-matchning mot `default_schedule` / aktiviteter / belöningar
+- [ ] Vänligt fel vid tomt admin-bibliotek (inte 500)
+- [ ] Analytics: `for_dig_activate_click`, `for_dig_activate_success`, `for_dig_activate_fail`
+- [ ] Migration `for_dig_goal_feedback` (§19.3)
+- [ ] `db/for-dig-goal-feedback.js` — insert intent/outcome/suggestion
+- [ ] `src/routes/for-dig.js` — `POST /api/for-dig/feedback`
+- [ ] Intent-modal efter success-toast (§19.2 A) — obligatoriskt 1-klick, fem val
+- [ ] Analytics: `for_dig_feedback_intent`
+- [ ] `test/for-dig-config.test.js` — config-validering
+- [ ] Integrationstest: aktivering mot standard-library (mock DB)
+
+### Sprint 3 — V4 + V5-förberedelse: Personifiering, install_count & lärsystem
+
+**Mål:** *Rekommenderat för [barn]* blir smart; install-logg startar; outcome + admin-UI live.
+
+- [ ] Migration `for_dig_goal_install` (§8.2)
+- [ ] Logga install vid lyckad aktivering (`goal_slug`, `family_id`, `child_id`)
+- [ ] *Rekommenderat för [barn]* — dölj mål utanför ålder, sortera relevanta först
+- [ ] Redan aktiverad-indikator (heuristik: schedule-namn i barnets veckoschema)
+- [ ] Ev. `child.schema_type` i sortering om satt
+- [ ] Förhandsvisning *Populärt just nu* — enkel topp-3 om data finns (full V5 i Sprint 5)
+- [ ] 7-dagars outcome-banner på dashboard (§19.2 B) — mönster `activation-program-banner.js`
+- [ ] `GET /api/for-dig/feedback/pending` — mål som väntar på outcome
+- [ ] Villkorlig fritext efter outcome (§19.2 C)
+- [ ] *Föreslå förbättring* på varje lösningskort (§19.2 D)
+- [ ] Analytics: `for_dig_feedback_outcome`, `for_dig_feedback_suggestion`
+- [ ] Admin-sektion **För dig** i `public/admin/index.html` (§19.5)
+- [ ] `public/admin/admin-for-dig.js` — KPI, tabell, citatvägg, väntar på outcome
+- [ ] `src/routes/admin/for-dig.js` — `GET /api/admin/for-dig/stats`, `/responses`
+- [ ] `db/for-dig-goal-feedback.js` — `getAdminStats()`, `listResponses()`
+- [ ] Acceptanskriterier admin (§19.5) — alla checkboxar
+
+### Sprint 4 — Navigation (ingen V-version)
+
+**Mål:** För dig blir primär nav-flik; Bibliotek flyttas under *Mer* — endast efter metrics.
+
+- [ ] Verifiera metrics (§9.1): page views vecka 2+, aktiverings-rate, bibliotek-trend
+- [ ] `dashboard.html` bottom nav: **Bibliotek** → **För dig** (`/for-dig`)
+- [ ] `public/js/platform-tab-bar.js` — Bibliotek under *Mer*
+- [ ] Sidebar: För dig prominent, Bibliotek under *Avancerat*
+- [ ] Uppdatera deep links / onboarding-CTA som pekade på `/library` där det passar
+- [ ] `public/sw.js` — cache bump
+- [ ] Kommunikation till befintliga användare (§22.4) — dagens nyhet eller in-app-banner
+- [ ] Analytics: jämför `for_dig_page_view` före/efter nav-byte
+
+### Sprint 5 — V3 + V5: Favoriter & Mest installerade
+
+**Mål:** Föräldrar sparar favoriter; populära mål visas data-drivet.
+
+- [ ] Migration: `for_dig_goal_favorite` + `is_favorite` på `weekly_schedule` och `reward`
+- [ ] `db/for-dig-favorites.js` — toggle, lista per familj/förälder
+- [ ] `PATCH` endpoints för schedule/reward `is_favorite`
+- [ ] `GET/POST /api/for-dig/favorites`
+- [ ] *Mina favoriter*-sektion överst på `/for-dig` (§9.5.1)
+- [ ] ★-toggle på lösningskort, biblioteksaktiviteter, scheman, belöningar
+- [ ] Tom state + *Visa alla favoriter* vid >12
+- [ ] *Mest installerade*-sektion med `install_count` aggregat 90d (§9.5.3)
+- [ ] *Populärt*-badge på topp-3 mål
+- [ ] Admin-flik *Installationer* i `admin-for-dig.js`
+- [ ] Analytics: `for_dig_favorite_toggle`
+- [ ] Manuell test: favorit sparas, syns på För dig + bibliotek, Mest installerade sorteras korrekt
 
 ---
 
@@ -893,10 +1060,13 @@ Använd på familjer som svarat 😊 med fritext. För öppen för 1-klicks-UI i
 
 ### 19.8 Sprint-koppling
 
-| Sprint | Feedback-leverans |
-|--------|-------------------|
-| Sprint 2 | Intent-modal + migration + parent API |
-| Sprint 3 | Outcome-banner + föreslå förbättring + **admin-gränssnitt (§19.5)** |
+| Sprint | Produktversion | Feedback-leverans |
+|--------|----------------|-------------------|
+| Sprint 1 | V1 | — (ingen feedback ännu) |
+| Sprint 2 | V2 | Intent-modal + migration + parent API |
+| Sprint 3 | V4 (+ V5 prep) | Outcome-banner + föreslå förbättring + **admin-gränssnitt (§19.5)** |
+| Sprint 4 | — | Ingen ny feedback — nav-byte endast |
+| Sprint 5 | V3 + V5 | Admin-flik *Installationer*; favoriter påverkar inte feedback-flödet |
 
 Uppskattad insats:
 
@@ -915,4 +1085,124 @@ till:
 
 > *"Här är lösningen på ditt problem — och så här bra kan det bli för barnet."*
 
+**Produktroadmap V1–V5** bygger i lager: statisk ingång (V1) → aktivering + intent (V2) → favoriter (V3) → barnspecifik rekommendation (V4) → populär sortering (V5). **Engineering Sprints 1–5** mappar dit med Sprint 4 som ren navigationsomläggning. Se §21 för fullständig matris.
+
 Högsta UX-avkastning per utvecklingstimme: en sida, sex hårdkodade mål, befintlig copy-logik, föräldraspråk — plus ett lärsystem som svarar *"hjälpte det?"* istället för *"gillar du det?"*.
+
+---
+
+## 21. Master roadmap (V1–V5 × Sprints 1–5)
+
+### 21.1 Produktversioner — översikt
+
+| Version | Namn | Kärnlöfte | Primär sprint |
+|---------|------|-----------|---------------|
+| **V1** | Startsida | *"Vad vill du fokusera på just nu?"* — 6 utvecklingsmål, statisk config | Sprint 1 |
+| **V2** | Aktivera | Paket kopplade till copy-logik; intent-feedback vid aktivering | Sprint 2 |
+| **V3** | Favoriter | *Mina favoriter* + `is_favorite` på mål, scheman, belöningar | Sprint 5 |
+| **V4** | Rekommenderat | *"Rekommenderat för [barn]"* — åldersfiltrering, redan aktiverad, smart sortering | Sprint 3 |
+| **V5** | Populärt | *"Mest installerade"* — data-driven sortering via `install_count` | Sprint 3 (prep) + Sprint 5 (full) |
+
+**OBS:** Sprint 4 har ingen motsvarande V-version — det är navigationsomläggning efter mätning.
+
+### 21.2 Matris — V-version × Engineering Sprint
+
+|  | **Sprint 1** | **Sprint 2** | **Sprint 3** | **Sprint 4** | **Sprint 5** |
+|--|:---:|:---:|:---:|:---:|:---:|
+| **V1** Startsida & 6 mål | ● **Primary** | ○ underhåll | ○ underhåll | ○ underhåll | ○ underhåll |
+| **V2** Aktivera + copy | ○ stub/disabled | ● **Primary** | ○ underhåll | — | — |
+| **V3** Mina favoriter | — | — | — | — | ● **Primary** |
+| **V4** Rekommenderat för [barn] | ◐ enkel filter | ◐ oförändrat | ● **Primary** | — | ○ underhåll |
+| **V5** Mest installerade | — | — | ◐ install_count + preview | — | ● **Primary** |
+| **Nav** Primär flik För dig | — | — | — | ● **Primary** | — |
+| **Feedback** Intent | — | ● intent | — | — | — |
+| **Feedback** Outcome + admin | — | — | ● outcome + §19.5 | — | ○ install-flik |
+
+**Förklaring:** ● Primary = huvudleverans · ◐ Delvis = förberedelse eller enkel variant · ○ Underhåll = bugfix/copy · — = ej i scope
+
+### 21.3 Engineering Sprints — sammanfattning
+
+| Sprint | Produktversion(er) | Leverans i ett stycke |
+|--------|-------------------|------------------------|
+| **1** | V1 | `/for-dig`-sida, `for-dig-config.js` med 6 mål, Utforska-detaljvy, enkel åldersrekommendation, feature gate, sidebar-länk. Aktivera stub. |
+| **2** | V2 | Copy-orchestrator mot standardbibliotek, barnväljare, bekräftelse/toast, `for_dig_goal_feedback` + intent-modal. |
+| **3** | V4, V5 prep | Smart *Rekommenderat för [barn]*, `for_dig_goal_install`, redan aktiverad-badge, outcome-banner, admin För dig-UI (§19.5), förhandsvisning populärt. |
+| **4** | — (nav) | Bottom nav: För dig ersätter Bibliotek; Bibliotek under *Mer*. Kräver metrics (§9.1). |
+| **5** | V3, V5 | `for_dig_goal_favorite`, `is_favorite` på schema/belöning, *Mina favoriter*-sektion, *Mest installerade* med full sortering. |
+
+### 21.4 Beroendekedja
+
+```
+V1 (Sprint 1) ──► V2 (Sprint 2) ──► V4 (Sprint 3) ──► V5 full (Sprint 5)
+                      │                    │
+                      └──── intent ────────┴──── outcome + admin
+                                           │
+Sprint 4 (nav) ◄── metrics ────────────────┘ (parallellt efter Sprint 3)
+
+V3 (Sprint 5) ◄── kan starta efter Sprint 2; oberoende av Sprint 4
+```
+
+### 21.5 Uppskattad insats per sprint
+
+| Sprint | Insats (indikativt) | Blockerare |
+|--------|---------------------|------------|
+| 1 | 1–2 dagar | Feature gate, tom admin-bibliotek lokalt |
+| 2 | 2–3 dagar | `default_schedule` namn synkade med config |
+| 3 | 3–4 dagar | Sprint 2 live; admin-mönster från aktiveringsprogram |
+| 4 | 0,5–1 dag | Metrics + produktbeslut |
+| 5 | 2–3 dagar | Sprint 3 `install_count`; migration för favoriter |
+
+---
+
+## 22. Befintliga användare — rollout per sprint
+
+### 22.1 Princip
+
+Befintliga familjer (~140+) ska **aldrig** få en trasig eller tom upplevelse. Varje sprint har tydlig feature-gate-, synlighets- och kommunikationsplan.
+
+### 22.2 Vad de ser — sprint för sprint
+
+| Sprint | Feature gate | Vad befintliga användare ser | Vad de *inte* ser ännu |
+|--------|--------------|------------------------------|-------------------------|
+| **1** | `for_dig` = `dev` | Endast familjer med `family_features.for_dig`: ny sidebar-länk *För dig*, startsida med 6 mål. Aktivera disabled/stub. | Intent, outcome, favoriter, primär nav |
+| **2** | `dev` → utökad dogfood | Dogfood-familjer: **Aktivera** fungerar; intent-modal efter aktivering. Övriga: oförändrat. | Outcome-banner, admin-insikt, favoriter |
+| **3** | `dev` → **`live`** (alla) | Alla inloggade föräldrar: `/for-dig` med smart rekommendation, aktivering, outcome-banner (7d), *Föreslå förbättring*. Sidebar-länk för alla. | Favoriter, *Mest installerade* (full), primär nav |
+| **4** | `live` | Alla: **För dig** i bottom nav (ersätter Bibliotek). Bibliotek under *Mer*. | Ingen ny funktion — endast synlighet |
+| **5** | `live` | Alla: *Mina favoriter*, ★ på bibliotek/schema/belöning, *Mest installerade*-sektion. | — |
+
+### 22.3 Rollout-steg (feature flag)
+
+1. **Sprint 1:** `status: 'dev'` — 3–5 interna familjer via `family_features`
+2. **Sprint 2:** Utöka dogfood till ~15 familjer; samla intent-data
+3. **Sprint 3:** `status: 'live'` i `seed-features.js` — alla nya + befintliga familjer får åtkomst automatiskt (ingen `family_features`-rad krävs)
+4. **Sprint 4:** Nav-byte för **alla** `live`-användare samtidigt (undvik A/B på nav — förvirrande)
+5. **Sprint 5:** Direkt `live` — favoriter och populärt kräver ingen separat gate
+
+### 22.4 Kommunikation per sprint
+
+| Sprint | Kanal | Budskap (exempel) |
+|--------|-------|-------------------|
+| **1** | — | Ingen extern kommunikation (intern dogfood) |
+| **2** | Slack/mejl till dogfood | *"Testa Aktivera på För dig — vi vill veta varför ni valde målet (1 klick)."* |
+| **3** | Dagens nyhet + valfri push | *"Nytt: För dig hjälper dig lösa kvällskaos, morgonkaos och mer — utan att bygga schema själv."* |
+| **3** | Dashboard-banner (7d) | Outcome-fråga — ingen separat nyhet behövs |
+| **4** | Dagens nyhet | *"För dig finns nu direkt i menyn. Biblioteket finns kvar under Mer."* |
+| **5** | Dagens nyhet (kort) | *"Spara favoriter med stjärnan — och se vad andra familjer aktiverar mest."* |
+
+### 22.5 Risker för befintliga användare
+
+| Risk | Sprint | Mitigering |
+|------|--------|------------|
+| Aktivera skriver över anpassat schema | 2+ | Bekräftelsedialog; tydlig copy om `overwrite` |
+| Power users hittar inte Bibliotek | 4 | Bibliotek kvar under *Mer*; dagens nyhet 48h före nav-byte |
+| Tom *Mest installerade*-lista | 5 | Visa sektion endast om ≥3 mål med `install_count >= 5` |
+| Förvirring mellan Bibliotek och För dig | 3 | Tydlig *"Visa hela biblioteket"*-länk; olika språk (problem vs verktyg) |
+
+### 22.6 Onboarding vs befintliga
+
+| Användartyp | Första kontakt med För dig |
+|-------------|---------------------------|
+| Ny registrering (post Sprint 3) | Dashboard-CTA vecka 2 eller efter onboarding |
+| Befintlig aktiv familj | Dagens nyhet Sprint 3 + sidebar-länk |
+| Befintlig inaktiv familj | Win-back-mejl kan länka till `/for-dig` med konkret mål (t.ex. kvällsrutin) |
+| Pedagog-only-konto | Ingen åtkomst (`requireNotPedagogOnly` — samma som bibliotek) |
