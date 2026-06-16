@@ -206,19 +206,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-<<<<<<< HEAD
-const CACHE_NAME = 'stjarndag-v249';
+const CACHE_NAME = 'stjarndag-v250';
+// v250: Model A founder program — pricing-info, admin founder limit, Grundarmedlem banner
 // v249: email-logg load on hash nav + timeout + window exports
-// v245: För dig UX — unified activate modal, honest explore toasts, goal recommendations, features cache
-// v244: För dig analytics dedup (no client+server double-count) + tab bar subpath active-state
-// v243: PWA parent tab bar parity — same bottom nav as native app on mobile
-// v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
-// v241: För dig Sprint 5 — favorites, Mest installerade, admin installationer
-// v239: 3D magic shell — schedule/family/settings + library hash-loop fix
-=======
-const CACHE_NAME = 'stjarndag-v231';
-// v225: iOS camera via Capacitor bridge + emoji fallback vid onboarding
->>>>>>> db1b70a (feat: Model A founder program — admin limit, pricing info, Grundarmedlem (SW v231))
 // v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js
 //   — /child-login must work in all contexts (browser + app), not just installed apps.
