@@ -89,6 +89,30 @@
   margin-top: 1.5rem;
 }
 
+.for-dig-recommend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.for-dig-recommend-activate {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #F5A623;
+  background: #fff;
+  border: 2px solid #F5A623;
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.for-dig-recommend-activate:active {
+  opacity: 0.85;
+}
+
 .for-dig-fav-star {
   min-width: 44px;
   min-height: 44px;

@@ -20,6 +20,7 @@ function injectPlatformHtml(body) {
     '<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>',
   ];
   headParts.push(
+    '<script src="/js/features-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',

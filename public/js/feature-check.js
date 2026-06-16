@@ -106,11 +106,11 @@
     });
   }
 
-  fetch('/api/features', { credentials: 'include' })
-    .then(function (res) {
-      if (!res.ok) return [];
-      return res.json();
-    })
+  var loadFeatures = window.fetchStjarndagFeatures
+    ? window.fetchStjarndagFeatures()
+    : fetch('/api/features', { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : []; });
+
+  loadFeatures
     .then(function (features) {
       var accessible = {};
       for (var i = 0; i < features.length; i++) {

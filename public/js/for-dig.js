@@ -173,6 +173,21 @@
     });
   }
 
+  function scheduleLabel(goal) {
+    if (goal.activateLabel && goal.activateLabel.toLowerCase().startsWith('aktivera ')) {
+      const rest = goal.activateLabel.slice(9);
+      return rest.charAt(0).toUpperCase() + rest.slice(1);
+    }
+    return goal.title;
+  }
+
+  function confirmActivationText(goal, child) {
+    if (goal.scheduleName) {
+      return `<strong>${esc(scheduleLabel(goal))}</strong> kommer att läggas till för <strong>${esc(child.name)}</strong>. Rutinen kan ersätta befintligt innehåll i veckoschemat.`;
+    }
+    return `Material för <strong>${esc(goal.title)}</strong> läggs till i biblioteket.`;
+  }
+
   function renderRecommendations() {
     const mount = document.getElementById('forDigRecommendations');
     if (!mount) return;
@@ -189,15 +204,19 @@
     for (const child of sorted) {
       const age = calcAge(child.birthday);
       if (age == null) continue;
-      const relevant = goals.filter((g) => age >= g.ageMin && age <= g.ageMax);
+      const relevant = goals.filter((g) => age >= g.ageMin && age <= g.ageMax).slice(0, 3);
       if (relevant.length === 0) continue;
-      const highlights = relevant[0].highlightActivities || [];
       html += `
         <div class="for-dig-recommend mb-3">
           <p class="font-semibold text-navy text-sm mb-2">För ${esc(child.name)} (${age} år) — Rekommenderat just nu</p>
-          <ul class="text-sm text-text-soft space-y-1">
-            ${highlights.slice(0, 3).map((h) => `<li>· ${esc(h)}</li>`).join('')}
-          </ul>
+          <div class="space-y-2">
+            ${relevant.map((g) => `
+              <div class="for-dig-recommend-row">
+                <span class="text-sm text-navy">${g.icon} ${esc(g.title)}</span>
+                <button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}">Aktivera</button>
+              </div>
+            `).join('')}
+          </div>
         </div>`;
     }
     mount.innerHTML = html;
@@ -279,17 +298,11 @@
     return backdrop;
   }
 
-  async function pickChild(goalSlug) {
-    if (children.length === 0) {
-      window.showToast && showToast('Lägg till ett barn först under Familjen.', true);
-      return null;
-    }
-    if (children.length === 1) return children[0];
-
-    return new Promise((resolve) => {
-      const html = `
+  function buildActivationModalHtml(goal, phase, selectedChild) {
+    if (phase === 'pick') {
+      return `
         <h3 class="font-heading font-bold text-navy text-lg mb-3">Välj barn</h3>
-        <p class="text-sm text-text-soft mb-4">Vem ska rutinen gälla?</p>
+        <p class="text-sm text-text-soft mb-4">Vem ska det gälla?</p>
         <div class="space-y-2" id="forDigChildPicker">
           ${children.map((c) => `
             <button type="button" class="for-dig-intent-option" data-child-id="${esc(c.id)}">
@@ -297,20 +310,64 @@
             </button>
           `).join('')}
         </div>
-        <button type="button" class="mt-3 text-sm text-text-soft underline w-full" id="forDigChildCancel">Avbryt</button>
+        <button type="button" class="mt-3 text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
       `;
-      const backdrop = showModal(html, (el) => {
-        el.querySelector('#forDigChildPicker').addEventListener('click', (ev) => {
-          const btn = ev.target.closest('[data-child-id]');
-          if (!btn) return;
-          const child = children.find((c) => c.id === btn.dataset.childId);
-          backdrop.remove();
-          resolve(child || null);
-        });
-        el.querySelector('#forDigChildCancel').addEventListener('click', () => {
+    }
+
+    return `
+      <h3 class="font-heading font-bold text-navy text-lg mb-3">Aktivera</h3>
+      <p class="text-sm text-text-soft mb-5">${confirmActivationText(goal, selectedChild)}</p>
+      <div class="flex gap-2">
+        <button type="button" class="for-dig-cta for-dig-cta-secondary flex-1" data-action="activate-cancel">Avbryt</button>
+        <button type="button" class="for-dig-cta for-dig-cta-primary flex-1" data-action="activate-confirm">Aktivera</button>
+      </div>
+    `;
+  }
+
+  async function confirmActivation(goal) {
+    if (children.length === 0) {
+      window.showToast && showToast('Lägg till ett barn först under Familjen.', true);
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      let phase = children.length === 1 ? 'confirm' : 'pick';
+      let selectedChild = children.length === 1 ? children[0] : null;
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'for-dig-modal-backdrop';
+      backdrop.innerHTML = `<div class="for-dig-modal" role="dialog">${buildActivationModalHtml(goal, phase, selectedChild)}</div>`;
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
           backdrop.remove();
           resolve(null);
-        });
+        }
+      });
+      document.body.appendChild(backdrop);
+
+      backdrop.addEventListener('click', (ev) => {
+        const cancelBtn = ev.target.closest('[data-action="activate-cancel"]');
+        if (cancelBtn) {
+          backdrop.remove();
+          resolve(null);
+          return;
+        }
+
+        if (phase === 'pick') {
+          const pickBtn = ev.target.closest('[data-child-id]');
+          if (!pickBtn) return;
+          selectedChild = children.find((c) => c.id === pickBtn.dataset.childId) || null;
+          if (!selectedChild) return;
+          phase = 'confirm';
+          backdrop.querySelector('.for-dig-modal').innerHTML = buildActivationModalHtml(goal, phase, selectedChild);
+          return;
+        }
+
+        const confirmBtn = ev.target.closest('[data-action="activate-confirm"]');
+        if (confirmBtn && selectedChild) {
+          backdrop.remove();
+          resolve(selectedChild);
+        }
       });
     });
   }
@@ -319,13 +376,8 @@
     const goal = goals.find((g) => g.slug === slug);
     if (!goal) return;
 
-    const child = await pickChild(slug);
+    const child = await confirmActivation(goal);
     if (!child) return;
-
-    const confirmMsg = `Aktivera "${goal.title}" för ${child.name}?${
-      goal.scheduleName ? ' Rutinen läggs in i veckoschemat och kan ersätta befintligt innehåll.' : ''
-    }`;
-    if (!confirm(confirmMsg)) return;
 
     // Note: the server records `for_dig_activate_click` (and `_success`/`_fail`)
     // on the activate route — do not also track client-side or it double-counts.
@@ -489,6 +541,16 @@
           renderFavorites();
           return;
         }
+        const activate = ev.target.closest('[data-action="activate"]');
+        if (activate) {
+          activateGoal(activate.dataset.slug);
+        }
+      });
+    }
+
+    const recMount = document.getElementById('forDigRecommendations');
+    if (recMount) {
+      recMount.addEventListener('click', (ev) => {
         const activate = ev.target.closest('[data-action="activate"]');
         if (activate) {
           activateGoal(activate.dataset.slug);

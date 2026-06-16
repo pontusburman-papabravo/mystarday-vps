@@ -19,6 +19,31 @@ function findByNames(items, names) {
   return items.filter((item) => wanted.some((w) => normalizeName(item.name).includes(w) || w.includes(normalizeName(item.name))));
 }
 
+function libraryUnavailableError(context) {
+  const err = new Error(
+    'Materialet för detta mål är inte tillgängligt just nu. Försök igen senare eller kontakta oss om problemet kvarstår.'
+  );
+  err.status = 503;
+  err.context = context;
+  return err;
+}
+
+function scheduleActivatableLabel(goal) {
+  if (goal.activateLabel && /^aktivera\s+/i.test(goal.activateLabel)) {
+    const rest = goal.activateLabel.replace(/^aktivera\s+/i, '');
+    return rest.charAt(0).toUpperCase() + rest.slice(1);
+  }
+  return goal.title;
+}
+
+function buildActivationSuccessMessage(goal, result) {
+  const name = result.child_name;
+  if (result.schedule) {
+    return `${scheduleActivatableLabel(goal)} är nu igång för ${name}!`;
+  }
+  return `Material för ${goal.title} finns nu i biblioteket.`;
+}
+
 async function verifyChildAccess(parentId, childId) {
   const result = await db.query(
     `SELECT c.id, c.family_id, c.name
@@ -36,9 +61,7 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
     [scheduleName]
   );
   if (scheduleResult.rows.length === 0) {
-    const err = new Error(`Schemat "${scheduleName}" hittades inte i standardbiblioteket.`);
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError(`schedule:${scheduleName}`);
   }
 
   const scheduleId = scheduleResult.rows[0].id;
@@ -51,9 +74,7 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
   );
 
   if (items.rows.length === 0) {
-    const err = new Error(`Schemat "${scheduleName}" har inga aktiviteter.`);
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError(`schedule_empty:${scheduleName}`);
   }
 
   const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
@@ -138,16 +159,12 @@ async function copyActivities(client, familyId, activityNames) {
     `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template ORDER BY sort_order ASC`
   );
   if (defaults.rows.length === 0) {
-    const err = new Error('Standardbiblioteket har inga aktiviteter ännu.');
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError('activities_empty');
   }
 
   const matched = findByNames(defaults.rows, activityNames);
   if (matched.length === 0) {
-    const err = new Error('Inga matchande aktiviteter hittades i standardbiblioteket.');
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError('activities_no_match');
   }
 
   const existing = await client.query(
@@ -190,16 +207,12 @@ async function copyRewards(client, familyId, rewardNames) {
     `SELECT id, name, icon, star_cost FROM default_reward ORDER BY sort_order ASC`
   );
   if (defaults.rows.length === 0) {
-    const err = new Error('Standardbiblioteket har inga belöningar ännu.');
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError('rewards_empty');
   }
 
   const matched = findByNames(defaults.rows, rewardNames);
   if (matched.length === 0) {
-    const err = new Error('Inga matchande belöningar hittades i standardbiblioteket.');
-    err.status = 404;
-    throw err;
+    throw libraryUnavailableError('rewards_no_match');
   }
 
   const existingCopies = await client.query(
@@ -275,9 +288,7 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
     }
 
     if (activityResult && activityResult.matched === 0 && !scheduleResult && !rewardResult) {
-      const err = new Error('Inga matchande aktiviteter hittades i standardbiblioteket.');
-      err.status = 404;
-      throw err;
+      throw libraryUnavailableError('activities_no_match');
     }
 
     await client.query('COMMIT');
@@ -308,4 +319,9 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
   };
 }
 
-module.exports = { activateGoal, verifyChildAccess };
+module.exports = {
+  activateGoal,
+  verifyChildAccess,
+  buildActivationSuccessMessage,
+  scheduleActivatableLabel,
+};

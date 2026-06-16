@@ -10,7 +10,7 @@ const { requireFeature } = require('../middleware/feature-gate');
 const analytics = require('../../db/analytics');
 const feedbackDb = require('../../db/for-dig-goal-feedback');
 const favoritesDb = require('../../db/for-dig-favorites');
-const { activateGoal } = require('../lib/for-dig-activate');
+const { activateGoal, buildActivationSuccessMessage } = require('../lib/for-dig-activate');
 const {
   FOR_DIG_GOALS,
   VALID_INTENT_REASONS,
@@ -212,7 +212,7 @@ router.post('/:slug/activate', async (req, res) => {
     trackEvent(req.user.familyId, 'for_dig_install_logged', { goal_slug: slug, child_id: childId });
 
     res.status(201).json({
-      message: `${goal.title} är igång för ${result.child_name}!`,
+      message: buildActivationSuccessMessage(goal, result),
       child_id: childId,
       child_name: result.child_name,
       goal_slug: slug,

@@ -106,9 +106,9 @@
     }
     // Check if the for_dig feature is accessible before calling its API
     try {
-      const featRes = await window.apiFetch('/api/features');
-      if (!featRes.ok) return;
-      const features = await featRes.json();
+      const features = window.fetchStjarndagFeatures
+        ? await window.fetchStjarndagFeatures()
+        : await (await window.apiFetch('/api/features')).json();
       const hasForDig = Array.isArray(features) && features.some((f) => f.slug === 'for_dig');
       if (!hasForDig) return;
     } catch (_) { return; }
