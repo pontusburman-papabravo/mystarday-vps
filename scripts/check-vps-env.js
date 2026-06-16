@@ -25,3 +25,13 @@ if (diag.ok) {
   console.log('FAIL:', diag.code, '-', diag.message);
   process.exit(1);
 }
+
+function envStatus(key) {
+  const v = process.env[key];
+  if (v === undefined) return '(unset)';
+  if (v === '') return '(empty string)';
+  return '(set)';
+}
+
+console.log('ACTIVATION_PROGRAM_LAUNCH_AT:', envStatus('ACTIVATION_PROGRAM_LAUNCH_AT'));
+console.log('ACTIVATION_PROGRAM_ENABLED:', envStatus('ACTIVATION_PROGRAM_ENABLED'));
