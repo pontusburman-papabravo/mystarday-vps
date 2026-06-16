@@ -48,15 +48,8 @@
         free_text: freeText || undefined,
       }),
     });
-    fetch('/api/analytics/event', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_type: 'for_dig_feedback_outcome',
-        metadata: { goal_slug: item.goal_slug, outcome_score: score, child_id: item.child_id },
-      }),
-    }).catch(() => {});
+    // Server records `for_dig_feedback_outcome` on the feedback route — no
+    // client-side analytics call here, otherwise the event is counted twice.
   }
 
   function showFollowUp(item, score, banner) {

@@ -327,7 +327,8 @@
     }`;
     if (!confirm(confirmMsg)) return;
 
-    track('for_dig_activate_click', { goal_slug: slug, child_id: child.id });
+    // Note: the server records `for_dig_activate_click` (and `_success`/`_fail`)
+    // on the activate route — do not also track client-side or it double-counts.
 
     const btn = document.querySelector(`[data-action="activate"][data-slug="${slug}"]`);
     if (btn) {
@@ -383,11 +384,7 @@
               intent_reason: btn.dataset.reason,
             }),
           });
-          track('for_dig_feedback_intent', {
-            goal_slug: goalSlug,
-            intent_reason: btn.dataset.reason,
-            child_id: childId,
-          });
+          // Server records `for_dig_feedback_intent` on successful insert.
         } catch (_) { /* non-blocking */ }
         backdrop.remove();
       });
@@ -414,7 +411,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ goal_slug: goalSlug, phase: 'suggestion', free_text: text }),
           });
-          track('for_dig_feedback_suggestion', { goal_slug: goalSlug });
+          // Server records `for_dig_feedback_suggestion` on successful insert.
           window.showToast && showToast('Tack för ditt förslag!');
         } catch (_) {
           window.showToast && showToast('Kunde inte skicka', true);
@@ -473,7 +470,7 @@
       } else {
         goalFavoriteSlugs.delete(slug);
       }
-      track('for_dig_favorite_toggle', { entity_type: 'goal', goal_slug: slug, is_favorite: data.is_favorite });
+      // Server records `for_dig_favorite_toggle` on the favorites route.
       await loadFavorites();
       renderFavorites();
       renderGoals();

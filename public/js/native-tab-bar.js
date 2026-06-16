@@ -26,8 +26,12 @@
   function isActive(tab) {
     var p = path || '/';
     for (var i = 0; i < tab.paths.length; i++) {
-      if (p === tab.paths[i]) return true;
-      if (tab.paths[i] === '/dashboard' && p.indexOf('/daily') === 0) return true;
+      var tp = tab.paths[i];
+      if (p === tp) return true;
+      if (tp === '/dashboard' && p.indexOf('/daily') === 0) return true;
+      // Match deeper subpaths (e.g. /reports/123 → Mer) without letting '/'
+      // greedily match everything.
+      if (tp !== '/' && p.indexOf(tp + '/') === 0) return true;
     }
     return false;
   }

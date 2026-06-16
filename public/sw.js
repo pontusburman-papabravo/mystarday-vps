@@ -206,7 +206,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v243';
+const CACHE_NAME = 'stjarndag-v244';
+// v244: För dig analytics dedup (no client+server double-count) + tab bar subpath active-state
 // v243: PWA parent tab bar parity — same bottom nav as native app on mobile
 // v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
 // v241: För dig Sprint 5 — favorites, Mest installerade, admin installationer
