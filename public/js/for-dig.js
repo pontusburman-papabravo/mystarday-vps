@@ -625,6 +625,25 @@
     }
   }
 
+  function captureWinbackUtm() {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source');
+    const utmMedium = params.get('utm_medium');
+    if (utmSource !== 'winback') return null;
+    const payload = {
+      utm_source: utmSource,
+      utm_medium: utmMedium || 'email',
+    };
+    try {
+      sessionStorage.setItem('stjarndag_winback_utm', JSON.stringify({
+        ...payload,
+        captured_at: Date.now(),
+      }));
+    } catch (_) { /* private mode */ }
+    track('win_back_landing', payload);
+    return payload;
+  }
+
   async function init() {
     if (typeof Auth !== 'undefined' && Auth.requireParent) {
       const ok = await Auth.requireParent();
@@ -640,7 +659,11 @@
       renderPopular();
       renderGoals();
       bindEvents();
-      track('for_dig_page_view', { child_count: children.length });
+      const utm = captureWinbackUtm();
+      track('for_dig_page_view', {
+        child_count: children.length,
+        ...(utm ? { utm_source: utm.utm_source, utm_medium: utm.utm_medium } : {}),
+      });
     } catch (err) {
       const mount = document.getElementById('forDigGoals');
       if (mount) {

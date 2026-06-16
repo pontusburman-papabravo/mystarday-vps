@@ -68,6 +68,10 @@
       parts.push(`<span class="block text-xs text-navy mt-1">För dig: ${esc(formatGoalSlug(e.for_dig_goal_slug))}</span>`);
     }
 
+    if (e.win_back_landings > 0) {
+      parts.push(`<span class="block text-xs text-navy mt-0.5">Klickade mejllänken</span>`);
+    }
+
     if (e.completions_after_send > 0) {
       parts.push(`<span class="block text-xs text-navy mt-0.5">${e.completions_after_send} avbockning${e.completions_after_send === 1 ? '' : 'ar'}</span>`);
     }
@@ -111,6 +115,7 @@
     const records = emailLogData.records || [];
     const pending = emailLogPendingCount;
     const attrDays = eng.attribution_days || 14;
+    const staleHours = eng.stale_pending_hours || 168;
 
     container.innerHTML = `
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -134,7 +139,7 @@
 
     <div class="bg-sky/40 border-2 border-lavender rounded-2xl p-5 mb-6">
       <h4 class="text-sm font-bold text-navy mb-3">Uppföljning efter utskick <span class="font-normal text-text-soft">(${attrDays} dagar)</span></h4>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
           <div class="text-xl font-bold text-green-700">${eng.returned_7d ?? 0}</div>
           <div class="text-xs text-text-soft mt-1">Inloggade inom 7d</div>
@@ -148,6 +153,10 @@
           <div class="text-xs text-text-soft mt-1">Återkomst (${eng.sent_tracked ?? 0} skickade)</div>
         </div>
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-navy">${eng.win_back_landings_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Klickade mejllänken</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
           <div class="text-xl font-bold text-navy">${eng.for_dig_14d ?? 0}</div>
           <div class="text-xs text-text-soft mt-1">Aktiverade För dig</div>
         </div>
@@ -157,7 +166,9 @@
         </div>
       </div>
       <p class="text-xs text-text-soft mt-3">
-        Mäter mottagarens inloggning, För dig-aktivering och barnets avbockningar efter <code class="bg-white px-1 rounded">sent_at</code>.
+        Mäter mottagarens inloggning, mejllänk-klick (<code class="bg-white px-1 rounded">utm_source=winback</code>),
+        För dig-aktivering och barnets avbockningar efter <code class="bg-white px-1 rounded">sent_at</code>.
+        Väntande poster auto-avvisas efter <strong>${staleHours}h</strong> (<code class="bg-white px-1 rounded">WIN_BACK_STALE_HOURS</code>).
       </p>
     </div>
 

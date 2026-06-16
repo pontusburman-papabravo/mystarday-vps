@@ -12,6 +12,7 @@ const config = require('../lib/config');
 const crypto = require('crypto');
 const { loginLimiter, childLoginLimiter, registrationLimiter, forgotPasswordLimiter, resendVerificationLimiter, appleLoginLimiter } = require('../middleware/rateLimiter');
 const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../db/parent-access');
+const { recordLoginEvent } = require('../lib/login-event');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../lib/magic-view-access');
 const { requireAuth } = require('../middleware/auth');
 const { generateCsrfToken } = require('../middleware/csrf');
@@ -443,10 +444,7 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
 
     // Record login event for analytics
     const loginRole = parent.is_admin ? 'admin' : 'parent';
-    db.query(
-      'INSERT INTO login_event (user_id, role, family_id) VALUES ($1, $2, $3)',
-      [parent.id, loginRole, parent.family_id]
-    ).catch(() => {}); // fire-and-forget, never block the response
+    recordLoginEvent({ userId: parent.id, role: loginRole, familyId: parent.family_id }).catch(() => {});
 
     const accessToken = jwt.sign(
       {
@@ -1495,10 +1493,7 @@ async function completeLogin(req, res, parent, userType) {
   // here to keep the helper self-contained and avoid closure surprises.
 
   // Record login event for analytics
-  db.query(
-    'INSERT INTO login_event (user_id, role, family_id) VALUES ($1, $2, $3)',
-    [parent.id, userType, parent.family_id]
-  ).catch(() => {});
+  recordLoginEvent({ userId: parent.id, role: userType, familyId: parent.family_id }).catch(() => {});
 
   const accessToken = jwt.sign(
     {

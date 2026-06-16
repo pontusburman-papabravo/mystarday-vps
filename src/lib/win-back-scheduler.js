@@ -145,7 +145,7 @@ async function fetchEligibleFamilies() {
        AND NOT EXISTS (
          SELECT 1 FROM win_back_email_log wbel
          WHERE wbel.parent_id = p.id
-           AND wbel.status IN ('pending_approval', 'approved')
+           AND wbel.status IN ('pending_approval', 'approved', 'failed')
        )
      ORDER BY p.family_id, p.created_at ASC`,
     []

@@ -139,14 +139,16 @@ async function markFailed(id, error) {
  * @param {number} hours
  */
 async function getStalePending(hours = 48) {
+  const safeHours = Math.max(1, Math.min(parseInt(hours, 10) || 48, 24 * 90));
   const result = await db.query(
     `SELECT wbel.*, f.name AS family_name
      FROM win_back_email_log wbel
      LEFT JOIN family f ON f.id = wbel.family_id
      WHERE wbel.status = 'pending_approval'
-       AND wbel.created_at < NOW() - INTERVAL '${hours} hours'
+       AND wbel.created_at < NOW() - ($1::text || ' hours')::interval
      ORDER BY wbel.created_at ASC
-     LIMIT 20`
+     LIMIT 20`,
+    [String(safeHours)]
   );
   return result.rows;
 }

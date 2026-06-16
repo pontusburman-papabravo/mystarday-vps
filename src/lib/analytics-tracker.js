@@ -34,12 +34,12 @@ function trackOnboardingAbandoned(familyId, step) {
 
 // ─── Win-back email ────────────────────────────────────────
 
-function trackWinBackEmailSent(familyId, childName) {
-  analytics.track(familyId, 'win_back_email_sent', { child_name: childName });
+function trackWinBackEmailSent(familyId, childName, metadata = {}) {
+  analytics.track(familyId, 'win_back_email_sent', { child_name: childName, ...metadata });
 }
 
-function trackWinBackReturned(familyId) {
-  analytics.track(familyId, 'win_back_returned');
+function trackWinBackReturned(familyId, metadata = {}) {
+  analytics.track(familyId, 'win_back_returned', metadata);
 }
 
 // ─── Feature usage ────────────────────────────────────────

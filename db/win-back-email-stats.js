@@ -4,6 +4,7 @@
  */
 
 const db = require('../src/lib/db');
+const { getWinBackStaleHours } = require('../src/lib/win-back-config');
 
 const ATTRIBUTION_DAYS = 14;
 
@@ -41,6 +42,15 @@ const ENGAGEMENT_LATERALS = `
       AND COALESCE(dli.completed_at, dli.completed_date::timestamptz)
             <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
   ) completions ON wbel.status = 'sent' AND wbel.sent_at IS NOT NULL
+  LEFT JOIN LATERAL (
+    SELECT COUNT(*)::int AS n
+    FROM analytics_events ae
+    WHERE wbel.family_id IS NOT NULL
+      AND ae.family_id = wbel.family_id
+      AND ae.event_type = 'win_back_landing'
+      AND ae.created_at > wbel.sent_at
+      AND ae.created_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
+  ) landings ON wbel.status = 'sent' AND wbel.sent_at IS NOT NULL
 `;
 
 function mapEngagementRow(row) {
@@ -59,6 +69,8 @@ function mapEngagementRow(row) {
     for_dig_goal_slug: row.for_dig_goal_slug || null,
     for_dig_installed_at: row.for_dig_installed_at || null,
     completions_after_send: row.completions_after_send || 0,
+    win_back_landings: row.win_back_landings || 0,
+    returned_at: row.returned_at || null,
   };
 }
 
@@ -79,7 +91,9 @@ async function getEngagementByLogIds(logIds) {
        parent_login.parent_login_within_7d,
        for_dig.goal_slug AS for_dig_goal_slug,
        for_dig.installed_at AS for_dig_installed_at,
-       COALESCE(completions.n, 0)::int AS completions_after_send
+       COALESCE(completions.n, 0)::int AS completions_after_send,
+       COALESCE(landings.n, 0)::int AS win_back_landings,
+       wbel.returned_at
      FROM win_back_email_log wbel
      ${ENGAGEMENT_LATERALS}
      WHERE wbel.id = ANY($1::uuid[])`,
@@ -114,6 +128,8 @@ async function attachEngagementToRecords(records) {
         for_dig_goal_slug: null,
         for_dig_installed_at: null,
         completions_after_send: 0,
+        win_back_landings: 0,
+        returned_at: null,
       }),
     };
   });
@@ -138,7 +154,9 @@ async function getEngagementSummary() {
          parent_login.first_parent_login_at,
          parent_login.parent_login_within_7d,
          for_dig.goal_slug AS for_dig_goal_slug,
-         COALESCE(completions.n, 0)::int AS completions_after_send
+         COALESCE(completions.n, 0)::int AS completions_after_send,
+         COALESCE(landings.n, 0)::int AS win_back_landings,
+         wbel.returned_at
        FROM win_back_email_log wbel
        INNER JOIN sent s ON s.id = wbel.id
        ${ENGAGEMENT_LATERALS}
@@ -153,7 +171,9 @@ async function getEngagementSummary() {
            AND sent_at > NOW() - INTERVAL '30 days'
        )::int AS returned_14d_recent,
        COUNT(*) FILTER (WHERE for_dig_goal_slug IS NOT NULL)::int AS for_dig_14d,
-       COUNT(*) FILTER (WHERE completions_after_send > 0)::int AS active_completions_14d
+       COUNT(*) FILTER (WHERE completions_after_send > 0)::int AS active_completions_14d,
+       COUNT(*) FILTER (WHERE win_back_landings > 0)::int AS win_back_landings_14d,
+       COUNT(*) FILTER (WHERE returned_at IS NOT NULL)::int AS returned_tracked_14d
      FROM enriched`
   );
 
@@ -171,6 +191,9 @@ async function getEngagementSummary() {
     return_rate_14d: sent > 0 ? Math.round((returned14 / sent) * 1000) / 10 : 0,
     for_dig_14d: row.for_dig_14d || 0,
     active_completions_14d: row.active_completions_14d || 0,
+    win_back_landings_14d: row.win_back_landings_14d || 0,
+    returned_tracked_14d: row.returned_tracked_14d || 0,
+    stale_pending_hours: getWinBackStaleHours(),
   };
 }
 

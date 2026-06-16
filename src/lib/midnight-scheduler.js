@@ -17,6 +17,7 @@ const db = require('./db');
 const notificationLog = require('../../db/notification-log');
 const analyticsDb = require('../../db/analytics');
 const winBackLog = require('../../db/win-back-email-log');
+const { getWinBackStaleHours } = require('./win-back-config');
 const { MIDNIGHT_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 
 let _timer = null;
@@ -91,9 +92,10 @@ async function runMidnightJob() {
       console.error('[MIDNIGHT-SCHEDULER] Analytics snapshot failed:', err.message);
     }
 
-    // Auto-reject win-back email records pending > 48 hours
+    // Auto-reject win-back email records pending longer than WIN_BACK_STALE_HOURS
     try {
-      const stale = await winBackLog.getStalePending(48);
+      const staleHours = getWinBackStaleHours();
+      const stale = await winBackLog.getStalePending(staleHours);
       if (stale.length > 0) {
         for (const record of stale) {
           await winBackLog.reject(record.id);

@@ -15,6 +15,7 @@ describe('win-back-email-stats', () => {
       for_dig_goal_slug: 'trygga-kvallar',
       for_dig_installed_at: loginAt,
       completions_after_send: 2,
+      win_back_landings: 1,
     });
 
     assert.equal(row.returned, true);
@@ -22,6 +23,7 @@ describe('win-back-email-stats', () => {
     assert.equal(row.days_to_return, 2);
     assert.equal(row.for_dig_goal_slug, 'trygga-kvallar');
     assert.equal(row.completions_after_send, 2);
+    assert.equal(row.win_back_landings, 1);
   });
 
   it('mapEngagementRow handles no activity after send', () => {

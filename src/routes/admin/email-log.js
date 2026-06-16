@@ -11,6 +11,7 @@ const winBackLog = require('../../../db/win-back-email-log');
 const { attachEngagementToRecords, getEngagementSummary } = require('../../../db/win-back-email-stats');
 const { sendWinBackEmail } = require('../../lib/email');
 const { trackWinBackEmailSent } = require('../../lib/analytics-tracker');
+const { getWinBackStaleHours } = require('../../lib/win-back-config');
 const config = require('../../lib/config');
 
 const router = express.Router();
@@ -73,13 +74,14 @@ router.post('/trigger-winback', async (req, res) => {
 // POST /api/admin/email-log/auto-reject — manually trigger stale pending rejection
 router.post('/auto-reject', async (req, res) => {
   try {
-    const stale = await winBackLog.getStalePending(48);
+    const staleHours = getWinBackStaleHours();
+    const stale = await winBackLog.getStalePending(staleHours);
     let rejected = 0;
     for (const record of stale) {
       await winBackLog.reject(record.id);
       rejected++;
     }
-    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected });
+    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected, stale_hours: staleHours });
   } catch (err) {
     console.error('[EMAIL-LOG] auto-reject error:', err);
     res.status(500).json({ error: 'Kunde inte köra auto-reject', detail: err.message });
@@ -106,7 +108,7 @@ router.post('/:id/approve', async (req, res) => {
     if (result.success) {
       const sent = await winBackLog.markSent(id);
       if (sent?.family_id) {
-        trackWinBackEmailSent(sent.family_id, sent.child_name);
+        trackWinBackEmailSent(sent.family_id, sent.child_name, { win_back_log_id: sent.id });
       }
       res.json({ message: 'Mejl skickat!', status: 'sent' });
     } else {
