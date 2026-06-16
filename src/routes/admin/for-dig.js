@@ -5,8 +5,8 @@
  */
 
 const express = require('express');
-const feedbackDb = require('../../db/for-dig-goal-feedback');
-const favoritesDb = require('../../db/for-dig-favorites');
+const feedbackDb = require('../../../db/for-dig-goal-feedback');
+const favoritesDb = require('../../../db/for-dig-favorites');
 
 const router = express.Router();
 
