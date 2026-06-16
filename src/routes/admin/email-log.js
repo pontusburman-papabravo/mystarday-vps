@@ -38,6 +38,49 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+// GET /api/admin/email-log/summary — just the summary counts
+router.get('/summary', async (req, res) => {
+  try {
+    const summary = await winBackLog.getSummary();
+    res.json(summary);
+  } catch (err) {
+    console.error('[EMAIL-LOG] summary error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta sammanfattning', detail: err.message });
+  }
+});
+
+// POST /api/admin/email-log/trigger-winback — manually trigger win-back scheduler
+router.post('/trigger-winback', async (req, res) => {
+  if (process.env.WIN_BACK_ENABLED !== 'true') {
+    return res.status(400).json({ error: 'WIN_BACK_ENABLED=false — aktivera i miljövariabler först' });
+  }
+  try {
+    const { runWinBackNow } = require('../../lib/win-back-scheduler');
+    await runWinBackNow();
+    const pending = await winBackLog.getPending();
+    res.json({ message: 'Win-back scheduler körde klart', pending_count: pending.length });
+  } catch (err) {
+    console.error('[EMAIL-LOG] trigger-winback error:', err);
+    res.status(500).json({ error: 'Kunde inte köra win-back scheduler', detail: err.message });
+  }
+});
+
+// POST /api/admin/email-log/auto-reject — manually trigger stale pending rejection
+router.post('/auto-reject', async (req, res) => {
+  try {
+    const stale = await winBackLog.getStalePending(48);
+    let rejected = 0;
+    for (const record of stale) {
+      await winBackLog.reject(record.id);
+      rejected++;
+    }
+    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected });
+  } catch (err) {
+    console.error('[EMAIL-LOG] auto-reject error:', err);
+    res.status(500).json({ error: 'Kunde inte köra auto-reject', detail: err.message });
+  }
+});
+
 // POST /api/admin/email-log/:id/approve — approve and send
 router.post('/:id/approve', async (req, res) => {
   const { id } = req.params;
@@ -80,49 +123,6 @@ router.post('/:id/reject', async (req, res) => {
   } catch (err) {
     console.error('[EMAIL-LOG] reject error:', err);
     res.status(500).json({ error: 'Kunde inte avvisa mejl' });
-  }
-});
-
-// GET /api/admin/email-log/summary — just the summary counts
-router.get('/summary', async (req, res) => {
-  try {
-    const summary = await winBackLog.getSummary();
-    res.json(summary);
-  } catch (err) {
-    console.error('[EMAIL-LOG] summary error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta sammanfattning' });
-  }
-});
-
-// POST /api/admin/email-log/trigger-winback — manually trigger win-back scheduler
-router.post('/trigger-winback', async (req, res) => {
-  if (process.env.WIN_BACK_ENABLED !== 'true') {
-    return res.status(400).json({ error: 'WIN_BACK_ENABLED=false — aktivera i miljövariabler först' });
-  }
-  try {
-    const { runWinBackNow } = require('../../lib/win-back-scheduler');
-    await runWinBackNow();
-    const pending = await winBackLog.getPending();
-    res.json({ message: 'Win-back scheduler körde klart', pending_count: pending.length });
-  } catch (err) {
-    console.error('[EMAIL-LOG] trigger-winback error:', err);
-    res.status(500).json({ error: 'Kunde inte köra win-back scheduler' });
-  }
-});
-
-// POST /api/admin/email-log/auto-reject — manually trigger stale pending rejection
-router.post('/auto-reject', async (req, res) => {
-  try {
-    const stale = await winBackLog.getStalePending(48);
-    let rejected = 0;
-    for (const record of stale) {
-      await winBackLog.reject(record.id);
-      rejected++;
-    }
-    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected });
-  } catch (err) {
-    console.error('[EMAIL-LOG] auto-reject error:', err);
-    res.status(500).json({ error: 'Kunde inte köra auto-reject' });
   }
 });
 

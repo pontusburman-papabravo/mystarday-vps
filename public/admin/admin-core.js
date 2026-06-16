@@ -58,6 +58,9 @@
       if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
         loadActivationProgramAdmin();
       }
+      if (name === 'emaillog' && typeof loadEmailLog === 'function') {
+        loadEmailLog();
+      }
       if (name === 'fordig' && typeof loadForDigAdmin === 'function') {
         loadForDigAdmin();
       }

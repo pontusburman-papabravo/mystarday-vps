@@ -206,8 +206,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v248';
-// v248: win_back_email_log migration + email-log error detail
+const CACHE_NAME = 'stjarndag-v249';
+// v249: email-logg load on hash nav + timeout + window exports
 // v245: För dig UX — unified activate modal, honest explore toasts, goal recommendations, features cache
 // v244: För dig analytics dedup (no client+server double-count) + tab bar subpath active-state
 // v243: PWA parent tab bar parity — same bottom nav as native app on mobile
