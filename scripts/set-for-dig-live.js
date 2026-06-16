@@ -3,10 +3,11 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const { loadEnvFile, diagnoseDatabaseUrl } = require('../src/lib/load-env');
+
+loadEnvFile();
 const db = require('../src/lib/db');
 
 async function main() {
-  loadEnvFile();
   const diag = diagnoseDatabaseUrl(process.env.DATABASE_URL);
   if (!diag.ok) {
     console.error('[for-dig-live]', diag.message);

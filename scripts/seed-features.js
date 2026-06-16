@@ -9,6 +9,8 @@
  *   priority, complexity, estimated_hours
  */
 
+const { loadEnvFile } = require('../src/lib/load-env');
+loadEnvFile();
 const db = require('../src/lib/db');
 
 const FEATURES = [
