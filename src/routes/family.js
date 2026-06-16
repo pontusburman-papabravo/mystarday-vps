@@ -10,6 +10,7 @@ const { sendEmail, sendInviteEmail } = require('../lib/email');
 const { createNewsletterSubscription } = require('../lib/newsletter-subscribe');
 const { hashPassword } = require('../lib/hash');
 const config = require('../lib/config');
+const appSettings = require('../../db/app-settings');
 const { validate, validateParams } = require('../middleware/validate');
 const { inviteLimiter, parentPinLimiter } = require('../middleware/rateLimiter');
 const {
@@ -1407,8 +1408,17 @@ router.get('/subscription-status', requireParent, async (req, res) => {
       const diff = new Date(trial_ends_at) - new Date();
       trial_days_remaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
-    const payment_enabled = false; // Web Stripe removed — IAP via Apple/Google only
-    res.json({ subscription_status, is_lifetime_free: !!is_lifetime_free, is_beta: subscription_status === 'beta', trial_days_remaining, payment_enabled });
+    const paymentPolicy = require('../lib/payment-policy');
+    const payment_enabled = await appSettings.getPaymentEnabled();
+    res.json({
+      subscription_status,
+      is_lifetime_free: !!is_lifetime_free,
+      is_beta: subscription_status === 'beta',
+      trial_days_remaining,
+      payment_enabled,
+      pricing_info_url: '/pricing-info',
+      founder_limit: await paymentPolicy.getFounderFamilyLimit(),
+    });
   } catch (err) {
     console.error('[FAMILY] subscription-status error:', err);
     res.status(500).json({ error: 'Kunde inte hämta prenumerationsstatus' });

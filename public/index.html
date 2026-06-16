@@ -1796,7 +1796,8 @@
                     <span style="font-size:1.4rem;">🎁</span>
                     <strong style="font-family:'Fraunces',serif;font-size:1.05rem;color:#1C2340;line-height:1.2;">Lanseringserbjudande</strong>
                 </div>
-                <p style="font-size:0.88rem;color:#1C2340;font-weight:600;margin-bottom:0.85rem;">De första 200 familjerna som registrerar sig får det <strong style="color:#1C2340;">kostnadsfritt.</strong></p>
+                <p style="font-size:0.88rem;color:#1C2340;font-weight:600;margin-bottom:0.85rem;">De första <span id="founderLimitHero">200</span> familjerna får <strong style="color:#1C2340;">livstids tillgång utan kostnad</strong> — som grundarmedlemmar.</p>
+                <p style="font-size:0.8rem;color:#5A6178;margin:-0.4rem 0 0.85rem;"><a href="/pricing-info" style="color:#D4891A;font-weight:700;text-decoration:none;">Läs mer om grundarprogrammet →</a></p>
                 <ul style="list-style:none;padding:0;margin:0 0 1rem 0;display:flex;flex-direction:column;gap:0.45rem;">
                     <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
                         <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
@@ -2647,9 +2648,10 @@ function closeMobileMenu() {
     var bar = document.getElementById('progressFill');
     var label = document.getElementById('counterLabel');
 
-    function animateCounter(targetCount) {
-        var capped = Math.min(targetCount, 200);
-        var targetPct = Math.round((capped / 200) * 100);
+    function animateCounter(targetCount, limit) {
+        var cap = Math.min(targetCount, limit);
+        var targetPct = Math.round((cap / limit) * 100);
+        var remaining = Math.max(0, limit - targetCount);
 
         // Animate counter text from 0 → target
         var startTime = null;
@@ -2659,8 +2661,8 @@ function closeMobileMenu() {
             var elapsed = timestamp - startTime;
             var progress = Math.min(elapsed / duration, 1);
             var eased = 1 - Math.pow(1 - progress, 3);
-            var current = Math.round(eased * capped);
-            if (label) label.textContent = current + '+ familjer har redan gått med';
+            var current = Math.round(eased * cap);
+            if (label) label.textContent = current + ' / ' + limit + ' familjer har redan gått med';
             if (progress < 1) {
                 requestAnimationFrame(step);
             }
@@ -2680,7 +2682,16 @@ function closeMobileMenu() {
         .then(function(r) { return r.json(); })
         .then(function(d) {
             var count = (d && typeof d.count === 'number') ? d.count : 93;
-            animateCounter(count);
+            var limit = (d && typeof d.limit === 'number') ? d.limit : 200;
+            var heroLimit = document.getElementById('founderLimitHero');
+            if (heroLimit) heroLimit.textContent = String(limit);
+            var sub = document.getElementById('counterSub');
+            if (sub && typeof d.spots_remaining === 'number') {
+                sub.textContent = d.spots_remaining > 0
+                    ? (d.spots_remaining + (d.spots_remaining === 1 ? ' plats kvar' : ' platser kvar') + ' som grundarmedlem')
+                    : 'Grundarplatserna är fulla – nya familjer erbjuds Premium ' + (d.price_sek || 59) + ' kr/månad';
+            }
+            animateCounter(count, limit);
         })
         .catch(function() { /* fail-silent: keep static HTML values */ });
 })();
@@ -2818,24 +2829,24 @@ function showLandingSharePopup() {
   <!-- Founder counter: fetch live family count and update UI -->
   <script>
   (function() {
-    var LIMIT = 200;
-    function updateCounter(count) {
-      count = Math.max(0, Math.min(count, LIMIT));
-      var remaining = LIMIT - count;
+    function updateCounter(count, limit) {
+      limit = limit || 200;
+      count = Math.max(0, Math.min(count, limit));
+      var remaining = limit - count;
       var label = document.getElementById('counterLabel');
       var fill  = document.getElementById('progressFill');
       var msg   = document.querySelector('#familyCounter p:last-child');
-      if (label) label.textContent = count + '/' + LIMIT + ' familjer har redan gått med';
-      if (fill)  fill.style.width  = count + '%';
+      if (label) label.textContent = count + '/' + limit + ' familjer har redan gått med';
+      if (fill)  fill.style.width  = Math.round((count / limit) * 100) + '%';
       if (msg && remaining > 0) {
-        msg.textContent = 'Bli en av de ' + remaining + ' återstående — obegränsat antal barn, utan bindningstid.';
+        msg.textContent = remaining + (remaining === 1 ? ' plats kvar' : ' platser kvar') + ' som grundarmedlem';
       }
       var section = document.getElementById('familyCounter');
-      if (section && count >= LIMIT) section.style.display = 'none';
+      if (section && count >= limit) section.style.display = 'none';
     }
     fetch('/api/landing/stats')
       .then(function(r) { return r.json(); })
-      .then(function(data) { updateCounter(data.count || 0); })
+      .then(function(data) { updateCounter(data.count || 0, data.limit || 200); })
       .catch(function() { /* fail-safe: leave static HTML as-is */ });
   })();
   </script>
