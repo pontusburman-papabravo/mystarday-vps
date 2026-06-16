@@ -1,3 +1,6 @@
+const { loadEnvFile } = require('./src/lib/load-env');
+loadEnvFile();
+
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
