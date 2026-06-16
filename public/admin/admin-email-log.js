@@ -15,6 +15,7 @@
     approved: { label: '✅ Godkänd', class: 'bg-green-100 text-green-800' },
     sent: { label: '📤 Skickat', class: 'bg-blue-100 text-blue-800' },
     rejected: { label: '❌ Avvisat', class: 'bg-gray-200 text-gray-600' },
+    failed: { label: '⚠️ Misslyckades', class: 'bg-red-100 text-red-800' },
   };
 
   function esc(str) {
@@ -175,11 +176,11 @@
     </div>
 
     <div class="flex gap-2 mb-6 flex-wrap">
-      ${['all', 'pending_approval', 'sent', 'rejected'].map((tab) => {
+      ${['all', 'pending_approval', 'sent', 'failed', 'rejected'].map((tab) => {
     const count = tab === 'all'
       ? records.length
       : records.filter((r) => r.status === tab).length;
-    const label = tab === 'all' ? 'Alla' : tab === 'pending_approval' ? '⏳ Väntar' : tab === 'sent' ? '📤 Skickade' : '❌ Avvisade';
+    const label = tab === 'all' ? 'Alla' : tab === 'pending_approval' ? '⏳ Väntar' : tab === 'sent' ? '📤 Skickade' : tab === 'failed' ? '⚠️ Misslyckade' : '❌ Avvisade';
     const isActive = emailLogActiveTab === tab;
     return `<button type="button" onclick="switchEmailLogTab('${tab}')"
           class="px-4 py-2 rounded-xl font-semibold text-sm transition-colors ${isActive ? 'bg-gold text-navy' : 'bg-sky text-navy hover:bg-lavender'}">${label} <span class="opacity-70">${count}</span></button>`;
@@ -231,8 +232,12 @@
          </div>`
         : r.status === 'approved'
           ? '<span class="text-xs text-yellow-700">⏳ Skickas…</span>'
-          : r.error
-            ? `<span class="text-xs text-red-600" title="${esc(r.error)}">❌ Fel</span>`
+          : r.status === 'failed'
+            ? `<div class="flex gap-2 justify-end items-center">
+               <span class="text-xs text-red-600" title="${esc(r.error || '')}">⚠️ ${esc(r.error || 'Fel')}</span>
+               <button type="button" onclick="approveEmailLogRow('${r.id}')" class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition">Försök igen</button>
+               <button type="button" onclick="rejectEmailLogRow('${r.id}')" class="px-3 py-1 bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-400 transition">Avvisa</button>
+             </div>`
             : '<span class="text-xs text-gray-400">—</span>';
 
       return `<tr class="border-t border-lavender/30 hover:bg-sky/20 transition">

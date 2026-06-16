@@ -201,9 +201,9 @@ async function runWinBackJob() {
         const childResult = await db.query(
           `SELECT c.name, c.id
            FROM child c
-           JOIN parent_child pc ON pc.child_id = c.id
+           JOIN parent_child pc ON pc.child_id = c.id AND pc.revoked_at IS NULL
            WHERE pc.parent_id = $1
-           ORDER BY c.created_at ASC
+           ORDER BY (pc.role = 'primary') DESC, c.created_at ASC
            LIMIT 1`,
           [row.parent_id]
         );
