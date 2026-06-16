@@ -173,6 +173,7 @@ async function getAdminStats() {
     goals.push({
       slug: goal.slug,
       title: goal.title,
+      icon: goal.icon,
       intent_count: stats.rows[0].intent_count,
       outcome_count: stats.rows[0].outcome_count,
       suggestion_count: stats.rows[0].suggestion_count,
@@ -270,7 +271,6 @@ module.exports = {
   clearFeedbackForReactivation,
   logInstall,
   getInstallsForFamily,
-  getPopularGoals,
   getPendingOutcomes,
   getAdminStats,
   listResponses,

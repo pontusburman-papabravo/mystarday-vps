@@ -111,6 +111,14 @@
       const user = Auth.getUser();
       if (!user || user.type !== 'parent') return;
     }
+    // Check if the for_dig feature is accessible before calling its API
+    try {
+      const featRes = await window.apiFetch('/api/features');
+      if (!featRes.ok) return;
+      const features = await featRes.json();
+      const hasForDig = Array.isArray(features) && features.some((f) => f.slug === 'for_dig');
+      if (!hasForDig) return;
+    } catch (_) { return; }
     try {
       const res = await window.apiFetch('/api/for-dig/feedback/pending');
       if (!res.ok) return;

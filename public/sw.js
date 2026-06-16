@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v199
+ * Min Stjärndag — Service Worker v242 // pragma: allowlist secret
+ * v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
  * v199: avatar_url sparas vid PUT + direktsparning efter uppladdning
  * v198: window.Auth + avatar upload auth check fix
  * v196: Mobil PWA avatar — filväljare timeout, blob utan fetch(dataUrl)
@@ -205,7 +206,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v241';
+const CACHE_NAME = 'stjarndag-v242';
+// v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
+// v241: För dig Sprint 5 — favorites, Mest installerade, admin installationer
 // v239: 3D magic shell — schedule/family/settings + library hash-loop fix
 // v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js

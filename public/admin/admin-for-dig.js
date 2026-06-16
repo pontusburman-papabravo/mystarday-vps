@@ -80,7 +80,7 @@
     el.innerHTML = (stats.goals || []).map((g) => `
       <button type="button" class="text-left bg-white border-2 border-lavender rounded-2xl p-4 hover:border-gold transition-colors w-full"
         onclick="filterForDigResponses('${esc(g.slug)}')">
-        <p class="text-2xl mb-1">${esc(g.slug === 'trygga-kvallar' ? '🌙' : g.slug === 'bra-morgnar' ? '☀️' : '✨')} ${esc(g.title)}</p>
+        <p class="text-2xl mb-1">${esc(g.icon || '✨')} ${esc(g.title)}</p>
         <p class="text-sm text-text-soft">${g.intent_count} intent · ${g.outcome_count} outcome · ${g.suggestion_count} förslag</p>
         <p class="text-xs text-text-soft mt-1">
           😊/🙂 ${g.outcome_positive} · 😐 ${g.outcome_neutral} · 🙁 ${g.outcome_negative}
