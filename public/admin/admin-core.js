@@ -61,6 +61,9 @@
       if (name === 'fordig' && typeof loadForDigAdmin === 'function') {
         loadForDigAdmin();
       }
+      if (name === 'analytics' && typeof loadAnalytics === 'function') {
+        loadAnalytics();
+      }
       if (name === 'valkomstmail') loadWelcomeEmailTemplate();
       if (name === 'intresseanmalningar') loadInterests();
       if (name === 'waitlist') loadWaitlist();
