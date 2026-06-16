@@ -5,6 +5,17 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Strip trailing inline comments from unquoted .env values.
+ * systemd EnvironmentFile does NOT strip " # comment" — breaks ISO timestamps.
+ */
+function sanitizeEnvValue(value) {
+  if (value == null) return value;
+  const s = String(value).trim();
+  const commentStart = s.search(/\s+#/);
+  return commentStart === -1 ? s : s.slice(0, commentStart).trim();
+}
+
 function parseEnvLine(line) {
   let trimmed = line.trim();
   if (!trimmed || trimmed.startsWith('#')) return null;
@@ -21,6 +32,8 @@ function parseEnvLine(line) {
 
   if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
     val = val.slice(1, -1);
+  } else {
+    val = sanitizeEnvValue(val);
   }
 
   return { key, val };
@@ -35,7 +48,8 @@ function shouldApplyEnvValue(key, val) {
   return false;
 }
 
-function loadEnvFile(envPath) {
+function loadEnvFile(envPath, options = {}) {
+  const { override = false } = options;
   const file = envPath || process.env.ENV_FILE || path.join(process.cwd(), '.env');
   if (!fs.existsSync(file)) return false;
 
@@ -45,7 +59,8 @@ function loadEnvFile(envPath) {
   for (const line of content.split('\n')) {
     const parsed = parseEnvLine(line);
     if (!parsed) continue;
-    if (shouldApplyEnvValue(parsed.key, parsed.val)) {
+    const shouldApply = override || shouldApplyEnvValue(parsed.key, parsed.val);
+    if (shouldApply) {
       process.env[parsed.key] = parsed.val;
     }
   }
@@ -84,4 +99,4 @@ function diagnoseDatabaseUrl(url) {
   return { ok: true, host: parsed.hostname, database: parsed.pathname.replace(/^\//, '') };
 }
 
-module.exports = { loadEnvFile, parseEnvLine, diagnoseDatabaseUrl };
+module.exports = { loadEnvFile, parseEnvLine, sanitizeEnvValue, diagnoseDatabaseUrl };

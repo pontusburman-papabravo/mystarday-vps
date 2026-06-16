@@ -9,9 +9,20 @@ describe('load-env', () => {
     assert.equal(p.val, 'postgres://localhost/db');
   });
 
-  test('parseEnvLine strips quotes', () => {
-    const p = parseEnvLine('JWT_SECRET="abc-def"');
-    assert.equal(p.val, 'abc-def');
+  test('parseEnvLine strips inline comments from unquoted values', () => {
+    const p = parseEnvLine(
+      'ACTIVATION_PROGRAM_LAUNCH_AT=2026-06-10T06:00:00Z # välj er faktiska go-live-tid (UTC)'
+    );
+    assert.equal(p.key, 'ACTIVATION_PROGRAM_LAUNCH_AT');
+    assert.equal(p.val, '2026-06-10T06:00:00Z');
+  });
+
+  test('sanitizeEnvValue strips systemd-style polluted timestamps', () => {
+    const { sanitizeEnvValue } = require('../src/lib/load-env');
+    assert.equal(
+      sanitizeEnvValue('2026-06-10T06:00:00Z # välj er faktiska go-live-tid (UTC)'),
+      '2026-06-10T06:00:00Z'
+    );
   });
 
   test('diagnoseDatabaseUrl rejects empty', () => {

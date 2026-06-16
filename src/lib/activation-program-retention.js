@@ -5,6 +5,7 @@
  */
 
 const { DateTime } = require('luxon');
+const { getActivationProgramLaunchAt } = require('./activation-program-enroll');
 
 const RETENTION_WINDOWS = Object.freeze([14, 30, 60]);
 const FAMILY_RETENTION_EVENT_TYPES = new Set(['parent_login', 'child_completion']);
@@ -167,7 +168,7 @@ async function evaluateProgramRetention(program, windowDays, client) {
  */
 async function computeCohortRetention({
   windowDays = 14,
-  launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT,
+  launchAt = getActivationProgramLaunchAt(),
   now = DateTime.now(),
   client,
 } = {}) {

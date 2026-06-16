@@ -1,5 +1,10 @@
-const { loadEnvFile } = require('./src/lib/load-env');
-loadEnvFile();
+const { loadEnvFile, sanitizeEnvValue } = require('./src/lib/load-env');
+loadEnvFile(undefined, { override: true });
+if (process.env.ACTIVATION_PROGRAM_LAUNCH_AT) {
+  process.env.ACTIVATION_PROGRAM_LAUNCH_AT = sanitizeEnvValue(
+    process.env.ACTIVATION_PROGRAM_LAUNCH_AT
+  );
+}
 
 const express = require('express');
 const path = require('path');

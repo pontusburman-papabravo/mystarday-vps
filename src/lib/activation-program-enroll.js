@@ -5,6 +5,7 @@
 
 const crypto = require('crypto');
 const { DateTime } = require('luxon');
+const { sanitizeEnvValue } = require('./load-env');
 
 const MVP_PROGRAM_TYPE = 'onboarding_7d';
 const ENROLL_SOURCES = new Set(['onboarding_complete', 'email_reactivation']);
@@ -25,8 +26,15 @@ function getSmokeTestDays() {
   return Number.isFinite(parsed) ? parsed : 3;
 }
 
+function getActivationProgramLaunchAt() {
+  const raw = process.env.ACTIVATION_PROGRAM_LAUNCH_AT;
+  if (!raw) return null;
+  const cleaned = sanitizeEnvValue(raw);
+  return cleaned || null;
+}
+
 function isInSmokePeriod() {
-  const launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT;
+  const launchAt = getActivationProgramLaunchAt();
   if (!launchAt) return false;
 
   const launch = DateTime.fromISO(launchAt, { zone: 'utc' });
@@ -55,7 +63,7 @@ function assignCohortArmAtLaunch() {
 }
 
 function isPostLaunchEnrollment(now = DateTime.utc()) {
-  const launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT;
+  const launchAt = getActivationProgramLaunchAt();
   if (!launchAt) return false;
 
   const launch = DateTime.fromISO(launchAt, { zone: 'utc' });
@@ -112,6 +120,7 @@ module.exports = {
   hashToPercent,
   assignCohortArm,
   assignCohortArmAtLaunch,
+  getActivationProgramLaunchAt,
   isPostLaunchEnrollment,
   isActivationProgramEnabled,
   isActivationEmailEnabled,

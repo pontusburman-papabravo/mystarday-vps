@@ -12,6 +12,7 @@ const {
   isRetentionWindowMature,
   RETENTION_WINDOWS,
 } = require('./activation-program-retention');
+const { getActivationProgramLaunchAt } = require('./activation-program-enroll');
 
 function rate(numerator, denominator) {
   if (!denominator) return 0;
@@ -111,7 +112,7 @@ function parseWindowDays(raw) {
  */
 async function buildActivationRetentionReport({
   windowDays = 14,
-  launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT,
+  launchAt = getActivationProgramLaunchAt(),
   now = DateTime.now(),
   client,
 } = {}) {
@@ -276,7 +277,7 @@ function formatReportAsCsv(report, funnel) {
  * Experiment funnel + enrollment gap (Fas 6C).
  */
 async function buildActivationFunnel({
-  launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT,
+  launchAt = getActivationProgramLaunchAt(),
   windowDays = 14,
   now = DateTime.now(),
   client,

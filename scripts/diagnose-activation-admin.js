@@ -6,6 +6,7 @@
 'use strict';
 
 const { loadEnvFile } = require('../src/lib/load-env');
+const { getActivationProgramLaunchAt } = require('../src/lib/activation-program-enroll');
 loadEnvFile();
 
 const { DateTime } = require('luxon');
@@ -38,7 +39,7 @@ async function main() {
   console.log('ACTIVATION_PROGRAM_LAUNCH_AT:', envStatus('ACTIVATION_PROGRAM_LAUNCH_AT'));
   console.log('ACTIVATION_PROGRAM_ENABLED:', envStatus('ACTIVATION_PROGRAM_ENABLED'));
 
-  const launchAt = process.env.ACTIVATION_PROGRAM_LAUNCH_AT;
+  const launchAt = getActivationProgramLaunchAt();
   const tables = [
     'parent_activation_program',
     'login_event',
