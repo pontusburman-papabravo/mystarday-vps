@@ -43,7 +43,7 @@ function renderEmailLogUI() {
 
   container.innerHTML = `
     <!-- Summary cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
       <div class="bg-white border-2 border-lavender rounded-2xl p-4 text-center">
         <div class="text-2xl font-bold text-navy">${s.sent_count || 0}</div>
         <div class="text-xs text-text-soft mt-1">Skickade mejl</div>
@@ -60,6 +60,16 @@ function renderEmailLogUI() {
         <div class="text-2xl font-bold text-navy">${s.sent_30d || 0}</div>
         <div class="text-xs text-text-soft mt-1">Win-back (30 dagar)</div>
       </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mb-8">
+      <button type="button" onclick="triggerWinBackNow()"
+        class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">
+        ↺ Kör win-back nu
+      </button>
+      <p class="text-xs text-text-soft self-center max-w-xl">
+        Skapar <strong>väntande</strong> poster för familjer inaktiva &gt;18 dagar. Du godkänner och skickar under fliken Väntar.
+      </p>
     </div>
 
     <!-- Tabs -->
@@ -153,6 +163,18 @@ async function rejectEmailLogRow(id) {
     await loadEmailLog();
   } catch (err) {
     alert(`Fel vid avvisande: ${err.message}`);
+  }
+}
+
+async function triggerWinBackNow() {
+  if (!confirm('Skapa win-back-poster för alla inaktiva familjer (>18 dagar)? Mejlen skickas inte förrän du godkänner dem.')) return;
+  try {
+    const data = await Auth.api('/api/admin/email-log/trigger-winback', { method: 'POST' });
+    alert(`Klart. ${data.pending_count ?? 0} poster väntar godkännande.`);
+    await loadEmailLog();
+    switchEmailLogTab('pending_approval');
+  } catch (err) {
+    alert(`Win-back: ${err.message}`);
   }
 }
 

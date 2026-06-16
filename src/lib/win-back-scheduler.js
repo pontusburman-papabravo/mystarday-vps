@@ -99,21 +99,41 @@ function msUntilNextSunday1000Stockholm() {
 
 /**
  * Fetch families eligible for a pending win-back email record.
+ * Inactive = no parent login and no child completion in the last N days
+ * (same signals as admin retention dashboard — works for migrated users without analytics_events).
  * Cooldown checks for 'sent' status only — pending_approval records don't block.
  */
 async function fetchEligibleFamilies() {
   return db.query(
-    `SELECT
+    `SELECT DISTINCT ON (p.family_id)
        p.id         AS parent_id,
        p.email      AS parent_email,
        p.name       AS parent_name,
        p.family_id,
        c.name       AS child_name
      FROM parent p
+     JOIN family f ON f.id = p.family_id AND f.archived_at IS NULL
      JOIN child c ON c.family_id = p.family_id
-     JOIN notification_preference np ON np.parent_id = p.id
-     WHERE np.email_enabled = true
-       AND p.verified = true
+     LEFT JOIN notification_preference np ON np.parent_id = p.id
+     WHERE p.verified = true
+       AND p.is_admin = false
+       AND p.email IS NOT NULL
+       AND COALESCE(np.email_enabled, true) = true
+       -- Inactive: no login or child completion in threshold window
+       AND NOT EXISTS (
+         SELECT 1 FROM login_event le
+         WHERE le.family_id = p.family_id
+           AND le.occurred_at > NOW() - INTERVAL '${INACTIVITY_THRESHOLD_DAYS} days'
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM daily_log_item dli
+         JOIN daily_log dl ON dl.id = dli.daily_log_id
+         JOIN child c2 ON c2.id = dl.child_id
+         WHERE c2.family_id = p.family_id
+           AND dli.completed = true
+           AND dli.completed_at IS NOT NULL
+           AND dli.completed_at > NOW() - INTERVAL '${INACTIVITY_THRESHOLD_DAYS} days'
+       )
        -- Not already in cooldown: no 'sent' win-back in the last 30 days
        AND NOT EXISTS (
          SELECT 1 FROM win_back_email_log wbel
@@ -127,14 +147,7 @@ async function fetchEligibleFamilies() {
          WHERE wbel.parent_id = p.id
            AND wbel.status IN ('pending_approval', 'approved')
        )
-       -- Active within the last 18 days (via analytics_events)
-       AND EXISTS (
-         SELECT 1 FROM analytics_events ae
-         WHERE ae.family_id = p.family_id
-           AND ae.created_at > NOW() - INTERVAL '${INACTIVITY_THRESHOLD_DAYS} days'
-       )
-     GROUP BY p.id, p.email, p.name, p.family_id, c.name
-     ORDER BY p.id`,
+     ORDER BY p.family_id, p.created_at ASC`,
     []
   );
 }
@@ -244,4 +257,7 @@ module.exports = {
   startWinBackScheduler,
   stopWinBackScheduler,
   runWinBackNow,
+  fetchEligibleFamilies,
+  INACTIVITY_THRESHOLD_DAYS,
+  EMAIL_COOLDOWN_DAYS,
 };
