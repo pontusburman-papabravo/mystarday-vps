@@ -145,7 +145,7 @@ async function fetchEligibleFamilies() {
        AND NOT EXISTS (
          SELECT 1 FROM win_back_email_log wbel
          WHERE wbel.parent_id = p.id
-           AND wbel.status IN ('pending_approval', 'approved')
+           AND wbel.status IN ('pending_approval', 'approved', 'failed')
        )
      ORDER BY p.family_id, p.created_at ASC`,
     []
@@ -201,9 +201,9 @@ async function runWinBackJob() {
         const childResult = await db.query(
           `SELECT c.name, c.id
            FROM child c
-           JOIN parent_child pc ON pc.child_id = c.id
+           JOIN parent_child pc ON pc.child_id = c.id AND pc.revoked_at IS NULL
            WHERE pc.parent_id = $1
-           ORDER BY c.created_at ASC
+           ORDER BY (pc.role = 'primary') DESC, c.created_at ASC
            LIMIT 1`,
           [row.parent_id]
         );

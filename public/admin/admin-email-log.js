@@ -1,5 +1,5 @@
 // Admin Email Log: send log + approval panel for win-back emails.
-// Owns: loading log, approve/reject actions, summary stats.
+// Owns: loading log, approve/reject actions, summary stats, return tracking.
 // Does NOT own: email template editing, actual send delivery.
 
 (function () {
@@ -15,11 +15,22 @@
     approved: { label: '✅ Godkänd', class: 'bg-green-100 text-green-800' },
     sent: { label: '📤 Skickat', class: 'bg-blue-100 text-blue-800' },
     rejected: { label: '❌ Avvisat', class: 'bg-gray-200 text-gray-600' },
+    failed: { label: '⚠️ Misslyckades', class: 'bg-red-100 text-red-800' },
   };
 
   function esc(str) {
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function formatGoalSlug(slug) {
+    if (!slug) return '';
+    return slug.replace(/-/g, ' ');
+  }
+
+  function formatShortDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   function apiWithTimeout(url, options, ms = 20000) {
@@ -29,6 +40,43 @@
         setTimeout(() => reject(new Error(`Timeout efter ${ms / 1000}s — ${url}`)), ms);
       }),
     ]);
+  }
+
+  function renderEngagementCell(record) {
+    if (record.status !== 'sent' || !record.sent_at) {
+      return '<span class="text-xs text-text-soft">—</span>';
+    }
+
+    const e = record.engagement;
+    if (!e) {
+      return '<span class="text-xs text-text-soft">—</span>';
+    }
+
+    const parts = [];
+
+    if (e.returned) {
+      const days = e.days_to_return != null ? ` (${e.days_to_return}d)` : '';
+      parts.push(`<span class="text-green-700 font-semibold">✓ Inloggad${days}</span>`);
+      if (e.first_login_at) {
+        parts.push(`<span class="block text-xs text-text-soft">${esc(formatShortDate(e.first_login_at))}</span>`);
+      }
+    } else {
+      parts.push('<span class="text-text-soft">Ej inloggad</span>');
+    }
+
+    if (e.for_dig_goal_slug) {
+      parts.push(`<span class="block text-xs text-navy mt-1">För dig: ${esc(formatGoalSlug(e.for_dig_goal_slug))}</span>`);
+    }
+
+    if (e.win_back_landings > 0) {
+      parts.push(`<span class="block text-xs text-navy mt-0.5">Klickade mejllänken</span>`);
+    }
+
+    if (e.completions_after_send > 0) {
+      parts.push(`<span class="block text-xs text-navy mt-0.5">${e.completions_after_send} avbockning${e.completions_after_send === 1 ? '' : 'ar'}</span>`);
+    }
+
+    return parts.join('');
   }
 
   async function loadEmailLog(force) {
@@ -63,8 +111,11 @@
     if (!container) return;
 
     const s = emailLogData.summary || {};
+    const eng = s.engagement || {};
     const records = emailLogData.records || [];
     const pending = emailLogPendingCount;
+    const attrDays = eng.attribution_days || 14;
+    const staleHours = eng.stale_pending_hours || 168;
 
     container.innerHTML = `
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -86,6 +137,41 @@
       </div>
     </div>
 
+    <div class="bg-sky/40 border-2 border-lavender rounded-2xl p-5 mb-6">
+      <h4 class="text-sm font-bold text-navy mb-3">Uppföljning efter utskick <span class="font-normal text-text-soft">(${attrDays} dagar)</span></h4>
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-green-700">${eng.returned_7d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Inloggade inom 7d</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-green-700">${eng.returned_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Inloggade inom ${attrDays}d</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-navy">${eng.return_rate_14d ?? 0}%</div>
+          <div class="text-xs text-text-soft mt-1">Återkomst (${eng.sent_tracked ?? 0} skickade)</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-navy">${eng.win_back_landings_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Klickade mejllänken</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-navy">${eng.for_dig_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Aktiverade För dig</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+          <div class="text-xl font-bold text-navy">${eng.active_completions_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Bockade av aktiviteter</div>
+        </div>
+      </div>
+      <p class="text-xs text-text-soft mt-3">
+        Mäter mottagarens inloggning, mejllänk-klick (<code class="bg-white px-1 rounded">utm_source=winback</code>),
+        För dig-aktivering och barnets avbockningar efter <code class="bg-white px-1 rounded">sent_at</code>.
+        Väntande poster auto-avvisas efter <strong>${staleHours}h</strong> (<code class="bg-white px-1 rounded">WIN_BACK_STALE_HOURS</code>).
+      </p>
+    </div>
+
     <div class="flex flex-wrap gap-3 mb-8">
       <button type="button" onclick="triggerWinBackNow()"
         class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">
@@ -101,26 +187,26 @@
     </div>
 
     <div class="flex gap-2 mb-6 flex-wrap">
-      ${['all', 'pending_approval', 'sent', 'rejected'].map((tab) => {
+      ${['all', 'pending_approval', 'sent', 'failed', 'rejected'].map((tab) => {
     const count = tab === 'all'
       ? records.length
       : records.filter((r) => r.status === tab).length;
-    const label = tab === 'all' ? 'Alla' : tab === 'pending_approval' ? '⏳ Väntar' : tab === 'sent' ? '📤 Skickade' : '❌ Avvisade';
+    const label = tab === 'all' ? 'Alla' : tab === 'pending_approval' ? '⏳ Väntar' : tab === 'sent' ? '📤 Skickade' : tab === 'failed' ? '⚠️ Misslyckade' : '❌ Avvisade';
     const isActive = emailLogActiveTab === tab;
     return `<button type="button" onclick="switchEmailLogTab('${tab}')"
           class="px-4 py-2 rounded-xl font-semibold text-sm transition-colors ${isActive ? 'bg-gold text-navy' : 'bg-sky text-navy hover:bg-lavender'}">${label} <span class="opacity-70">${count}</span></button>`;
   }).join('')}
     </div>
 
-    <div class="bg-white border-2 border-lavender rounded-2xl overflow-hidden">
-      <table class="w-full text-sm">
+    <div class="bg-white border-2 border-lavender rounded-2xl overflow-x-auto">
+      <table class="w-full text-sm min-w-[900px]">
         <thead>
           <tr class="bg-sky text-text-soft text-xs font-semibold uppercase tracking-wide">
             <th class="px-4 py-3 text-left">Datum</th>
-            <th class="px-4 py-3 text-left">Typ</th>
             <th class="px-4 py-3 text-left">Mottagare</th>
-            <th class="px-4 py-3 text-left">Familj</th>
+            <th class="px-4 py-3 text-left">Familj / barn</th>
             <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Uppföljning</th>
             <th class="px-4 py-3 text-right">Åtgärder</th>
           </tr>
         </thead>
@@ -143,9 +229,13 @@
 
     return records.map((r) => {
       const statusInfo = STATUS_LABELS[r.status] || { label: r.status, class: 'bg-gray-100 text-gray-700' };
-      const date = r.created_at
+      const created = r.created_at
         ? new Date(r.created_at).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' })
         : '—';
+      const sentLine = r.sent_at
+        ? `<span class="block text-xs text-green-700">Skickat ${esc(formatShortDate(r.sent_at))}</span>`
+        : '';
+
       const actions = r.status === 'pending_approval'
         ? `<div class="flex gap-2 justify-end">
            <button type="button" onclick="approveEmailLogRow('${r.id}')" class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition">Godkänn</button>
@@ -153,18 +243,20 @@
          </div>`
         : r.status === 'approved'
           ? '<span class="text-xs text-yellow-700">⏳ Skickas…</span>'
-          : r.status === 'sent'
-            ? `<span class="text-xs text-green-700">✓ Skickat ${r.sent_at ? new Date(r.sent_at).toLocaleString('sv-SE', { dateStyle: 'short' }) : ''}</span>`
-            : r.error
-              ? `<span class="text-xs text-red-600" title="${esc(r.error)}">❌ Fel</span>`
-              : '<span class="text-xs text-gray-400">—</span>';
+          : r.status === 'failed'
+            ? `<div class="flex gap-2 justify-end items-center">
+               <span class="text-xs text-red-600" title="${esc(r.error || '')}">⚠️ ${esc(r.error || 'Fel')}</span>
+               <button type="button" onclick="approveEmailLogRow('${r.id}')" class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition">Försök igen</button>
+               <button type="button" onclick="rejectEmailLogRow('${r.id}')" class="px-3 py-1 bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-400 transition">Avvisa</button>
+             </div>`
+            : '<span class="text-xs text-gray-400">—</span>';
 
       return `<tr class="border-t border-lavender/30 hover:bg-sky/20 transition">
-      <td class="px-4 py-3 text-text-soft">${date}</td>
-      <td class="px-4 py-3 font-semibold text-navy">${esc(r.email_type || 'win-back')}</td>
-      <td class="px-4 py-3">${esc(r.parent_name || '—')} <span class="text-xs text-text-soft">${esc(r.parent_email || '')}</span></td>
-      <td class="px-4 py-3 text-sm">${esc(r.family_name || r.family_id || '—')}</td>
+      <td class="px-4 py-3 text-text-soft">${esc(created)}${sentLine}</td>
+      <td class="px-4 py-3">${esc(r.parent_name || '—')} <span class="text-xs text-text-soft block">${esc(r.parent_email || '')}</span></td>
+      <td class="px-4 py-3 text-sm">${esc(r.family_name || '—')}<span class="block text-xs text-text-soft">${esc(r.child_name || '')}</span></td>
       <td class="px-4 py-3"><span class="px-2 py-1 rounded-lg text-xs font-semibold ${statusInfo.class}">${statusInfo.label}</span></td>
+      <td class="px-4 py-3 text-sm">${renderEngagementCell(r)}</td>
       <td class="px-4 py-3 text-right">${actions}</td>
     </tr>`;
     }).join('');

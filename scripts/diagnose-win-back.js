@@ -13,6 +13,7 @@ const {
   fetchEligibleFamilies,
   INACTIVITY_THRESHOLD_DAYS,
 } = require('../src/lib/win-back-scheduler');
+const { getWinBackStaleHours } = require('../src/lib/win-back-config');
 
 function envOn(key) {
   return process.env[key] === 'true' ? 'ON' : 'OFF/unset';
@@ -24,6 +25,7 @@ async function main() {
   console.log('EMAIL_ENABLED:', envOn('EMAIL_ENABLED'));
   console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? 'set' : 'missing');
   console.log('Inactivity threshold:', INACTIVITY_THRESHOLD_DAYS, 'days');
+  console.log('Stale pending auto-reject:', getWinBackStaleHours(), 'hours (WIN_BACK_STALE_HOURS)');
 
   const np = await db.query(`
     SELECT

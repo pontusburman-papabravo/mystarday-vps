@@ -8,7 +8,11 @@
 
 const express = require('express');
 const winBackLog = require('../../../db/win-back-email-log');
+const { attachEngagementToRecords, getEngagementSummary } = require('../../../db/win-back-email-stats');
 const { sendWinBackEmail } = require('../../lib/email');
+const { trackWinBackEmailSent } = require('../../lib/analytics-tracker');
+const { getWinBackStaleHours } = require('../../lib/win-back-config');
+const config = require('../../lib/config');
 
 const router = express.Router();
 
@@ -16,11 +20,13 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
-    const [records, summary] = await Promise.all([
+    const [records, summary, engagement] = await Promise.all([
       winBackLog.getAll({ status }),
       winBackLog.getSummary(),
+      getEngagementSummary(),
     ]);
-    res.json({ records, summary });
+    const recordsWithEngagement = await attachEngagementToRecords(records);
+    res.json({ records: recordsWithEngagement, summary: { ...summary, engagement } });
   } catch (err) {
     console.error('[EMAIL-LOG] list error:', err);
     res.status(500).json({ error: 'Kunde inte hämta email-logg', detail: err.message });
@@ -68,13 +74,14 @@ router.post('/trigger-winback', async (req, res) => {
 // POST /api/admin/email-log/auto-reject — manually trigger stale pending rejection
 router.post('/auto-reject', async (req, res) => {
   try {
-    const stale = await winBackLog.getStalePending(48);
+    const staleHours = getWinBackStaleHours();
+    const stale = await winBackLog.getStalePending(staleHours);
     let rejected = 0;
     for (const record of stale) {
       await winBackLog.reject(record.id);
       rejected++;
     }
-    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected });
+    res.json({ message: `Auto-rejected ${rejected} poster`, count: rejected, stale_hours: staleHours });
   } catch (err) {
     console.error('[EMAIL-LOG] auto-reject error:', err);
     res.status(500).json({ error: 'Kunde inte köra auto-reject', detail: err.message });
@@ -95,11 +102,14 @@ router.post('/:id/approve', async (req, res) => {
       to: record.parent_email,
       parentName: record.parent_name,
       childName: record.child_name,
-      ctaUrl: `https://mystarday.se/dashboard?utm_source=winback&utm_medium=email`,
+      ctaUrl: `${config.email.baseUrl}/for-dig?utm_source=winback&utm_medium=email`,
     });
 
     if (result.success) {
-      await winBackLog.markSent(id);
+      const sent = await winBackLog.markSent(id);
+      if (sent?.family_id) {
+        trackWinBackEmailSent(sent.family_id, sent.child_name, { win_back_log_id: sent.id });
+      }
       res.json({ message: 'Mejl skickat!', status: 'sent' });
     } else {
       await winBackLog.markFailed(id, result.error || 'Okänt fel');
