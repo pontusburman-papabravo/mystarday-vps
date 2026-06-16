@@ -62,6 +62,18 @@ async function main() {
   );
   console.log('Pending approval in queue:', pending.rows[0]?.n ?? 0);
 
+  try {
+    const winBackLog = require('../db/win-back-email-log');
+    const summary = await winBackLog.getSummary();
+    const records = await winBackLog.getAll({ limit: 1 });
+    console.log('getSummary(): OK', summary);
+    console.log('getAll(): OK, sample rows:', records.length);
+  } catch (err) {
+    console.error('email-log API queries FAIL:', err.message);
+    console.error('→ Run npm run migrate (needs email_type + error columns)');
+    process.exitCode = 1;
+  }
+
   await db.pool.end();
 }
 

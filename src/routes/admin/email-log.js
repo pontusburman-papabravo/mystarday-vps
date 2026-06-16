@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
     res.json({ records, summary });
   } catch (err) {
     console.error('[EMAIL-LOG] list error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta email-logg' });
+    res.status(500).json({ error: 'Kunde inte hämta email-logg', detail: err.message });
   }
 });
 
@@ -34,7 +34,7 @@ router.get('/pending', async (req, res) => {
     res.json(records);
   } catch (err) {
     console.error('[EMAIL-LOG] pending error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta väntande mejl' });
+    res.status(500).json({ error: 'Kunde inte hämta väntande mejl', detail: err.message });
   }
 });
 

@@ -28,7 +28,8 @@ async function loadEmailLog() {
     emailLogPendingCount = pending.length;
     renderEmailLogUI();
   } catch (err) {
-    container.innerHTML = `<p class="text-red-500">Kunde inte ladda email-logg: ${esc(err.message)}</p>`;
+    const detail = err.body?.detail;
+    container.innerHTML = `<p class="text-red-500">Kunde inte ladda email-logg: ${esc(err.message)}${detail ? `<br><span class="text-xs font-mono">${esc(detail)}</span>` : ''}</p>`;
   }
 }
 
