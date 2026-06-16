@@ -213,25 +213,31 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
   return sendEmail({
     to,
-    subject: `${childName}s schema väntar — en snabb koll? ⭐`,
+    subject: `${childName}s schema väntar — har du sett För dig? ⭐`,
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;">Hej ${firstName}! 👋</h2>
-        <p style="color:#5A6178;">Det var ett tag sedan du var här inne — ${childName}s schema väntar på dig.</p>
+        <p style="color:#5A6178;">Det var ett tag sedan du var här inne. ${childName}s schema ligger kvar — och vi har gjort det enklare att komma igång igen.</p>
+        <div style="background:#F0F4FF;border-radius:12px;padding:20px;margin:20px 0;">
+          <p style="margin:0 0 8px 0;font-size:13px;font-weight:700;color:#1B2340;text-transform:uppercase;letter-spacing:0.5px;">Nyhet: För dig</p>
+          <p style="margin:0;color:#5A6178;line-height:1.6;">
+            Välj ett mål som passar er — till exempel <strong>trygga kvällar</strong> eller <strong>bra morgnar</strong> — och aktivera en färdig rutin med ett tryck. Inga scheman att bygga från scratch.
+          </p>
+        </div>
         <div style="background:#FFF8E8;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
           <div style="font-size:32px;margin-bottom:8px;">⭐</div>
           <p style="margin:0;font-size:18px;font-weight:600;color:#1B2340;">
-            Det tar bara en minut att kolla av schemat
+            Det tar bara en minut att komma igång
           </p>
         </div>
         <p style="color:#5A6178;">
-          Barnet har stjärnor att tjäna och belöningar att lösa in. Så fort du öppnar appen är allt på plats.
+          Barnet har stjärnor att tjäna och belöningar att lösa in. Allt är redan på plats.
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${ctaUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Öppna schemat →
+            Utforska För dig →
           </a>
         </div>
         <p style="color:#5A6178;font-size:14px;margin-top:16px;">

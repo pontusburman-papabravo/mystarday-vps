@@ -9,6 +9,7 @@
 const express = require('express');
 const winBackLog = require('../../../db/win-back-email-log');
 const { sendWinBackEmail } = require('../../lib/email');
+const config = require('../../lib/config');
 
 const router = express.Router();
 
@@ -95,7 +96,7 @@ router.post('/:id/approve', async (req, res) => {
       to: record.parent_email,
       parentName: record.parent_name,
       childName: record.child_name,
-      ctaUrl: `https://mystarday.se/dashboard?utm_source=winback&utm_medium=email`,
+      ctaUrl: `${config.email.baseUrl}/for-dig?utm_source=winback&utm_medium=email`,
     });
 
     if (result.success) {
