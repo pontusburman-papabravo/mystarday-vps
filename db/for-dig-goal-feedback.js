@@ -222,6 +222,7 @@ async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset =
     `SELECT f.id, f.created_at, f.goal_slug, f.phase, f.intent_reason,
             f.outcome_score, f.free_text, f.child_id, f.family_id,
             c.name AS child_name, c.birthday AS child_birthday,
+            COALESCE(p.name, '(inget namn)') AS parent_name,
             p.email AS parent_email
      FROM for_dig_goal_feedback f
      LEFT JOIN child c ON c.id = f.child_id
@@ -258,6 +259,7 @@ async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset =
       free_text: row.free_text,
       child_name: row.child_name,
       child_age: childAge,
+      parent_name: row.parent_name,
       parent_email: row.parent_email,
       family_id: row.family_id,
     };

@@ -97,6 +97,21 @@
     el.textContent = `${t.families_with_feedback || 0} familjer med feedback · ${t.responses_7d || 0} svar senaste 7 dagarna`;
   }
 
+  const PHASE_LABELS = {
+    intent: 'Intent',
+    outcome: 'Utfall',
+    suggestion: 'Förslag',
+  };
+
+  function formatSender(row) {
+    const name = row.parent_name || '(inget namn)';
+    const email = row.parent_email || '';
+    if (email) {
+      return `<span class="font-medium text-navy">${esc(name)}</span><br><span class="text-xs text-text-soft">${esc(email)}</span>`;
+    }
+    return esc(name);
+  }
+
   function renderResponsesTable(data) {
     const el = document.getElementById('forDigAdminResponses');
     if (!el) return;
@@ -111,6 +126,7 @@
         <thead>
           <tr class="text-left text-text-soft border-b border-lavender">
             <th class="py-2 pr-2">Datum</th>
+            <th class="py-2 pr-2">Förälder</th>
             <th class="py-2 pr-2">Mål</th>
             <th class="py-2 pr-2">Fas</th>
             <th class="py-2 pr-2">Svar</th>
@@ -120,13 +136,14 @@
         </thead>
         <tbody>
           ${rows.map((r) => `
-            <tr class="border-b border-lavender/50">
+            <tr class="border-b border-lavender/50 align-top">
               <td class="py-2 pr-2 whitespace-nowrap">${new Date(r.created_at).toLocaleDateString('sv-SE')}</td>
+              <td class="py-2 pr-2 min-w-[10rem]">${formatSender(r)}</td>
               <td class="py-2 pr-2">${esc(r.goal_title)}</td>
-              <td class="py-2 pr-2">${esc(r.phase)}</td>
+              <td class="py-2 pr-2">${esc(PHASE_LABELS[r.phase] || r.phase)}</td>
               <td class="py-2 pr-2">${r.outcome_emoji || esc(r.intent_label) || '—'}</td>
               <td class="py-2 pr-2">${esc(r.child_name || '—')}</td>
-              <td class="py-2 text-xs text-text-soft max-w-xs truncate">${esc(r.free_text || '')}</td>
+              <td class="py-2 text-xs text-text-soft max-w-sm whitespace-pre-wrap break-words">${esc(r.free_text || '')}</td>
             </tr>
           `).join('')}
         </tbody>
