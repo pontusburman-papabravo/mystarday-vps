@@ -42,6 +42,17 @@ function setBasicTrialDays(days) {
   return upsertSetting('basic_trial_days', days);
 }
 
+function getFounderFamilyLimit() {
+  return getSetting('founder_family_limit').then(v => {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) && n > 0 ? n : 200;
+  });
+}
+
+function setFounderFamilyLimit(limit) {
+  return upsertSetting('founder_family_limit', limit);
+}
+
 function getAllSettings() {
   return query('SELECT key, value FROM app_settings ORDER BY key');
 }
@@ -65,6 +76,7 @@ module.exports = {
   getPaymentEnabled, setPaymentEnabled,
   getBasicPrice, setBasicPrice,
   getBasicTrialDays, setBasicTrialDays,
+  getFounderFamilyLimit, setFounderFamilyLimit,
   getAllSettings,
   getStripePriceId, setStripePriceId,
   getStripeProductId, setStripeProductId,

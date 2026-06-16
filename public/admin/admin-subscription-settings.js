@@ -18,6 +18,7 @@ function renderSubscriptionSettings() {
   // Basic
   document.getElementById('basicPriceInput').value = subscriptionData.basic_price_sek ?? 59;
   document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
+  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 200;
 
   // IAP status — web Stripe removed; subscriptions via Apple/Google (RevenueCat)
   const label = document.getElementById('stripeStatusLabel');
@@ -120,11 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const price = document.getElementById('basicPriceInput').value;
     const trial = document.getElementById('basicTrialInput').value;
+    const founderLimit = document.getElementById('founderLimitInput').value;
     const msg = document.getElementById('basicSettingsMsg');
     try {
       const data = await Auth.api('/api/admin/subscription-settings', {
         method: 'PATCH',
-        body: JSON.stringify({ basic_price_sek: parseInt(price, 10), basic_trial_days: parseInt(trial, 10) }),
+        body: JSON.stringify({
+          basic_price_sek: parseInt(price, 10),
+          basic_trial_days: parseInt(trial, 10),
+          founder_family_limit: parseInt(founderLimit, 10),
+        }),
       });
       msg.textContent = '✓ Sparat!';
       msg.className = 'text-sm text-green-600';

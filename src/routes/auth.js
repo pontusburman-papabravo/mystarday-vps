@@ -120,12 +120,14 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     try {
       await client.query('BEGIN');
 
-      // Determine is_lifetime_free: first 200 families get it automatically.
+      // Determine is_lifetime_free: first N families (admin founder limit) get it automatically.
       // Count + insert in same transaction to prevent race condition.
       // Families beyond #200 require a paid subscription.
       const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
       const familyCount = countResult.rows[0].count;
-      const isLifetimeFree = familyCount < 200;
+      const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../lib/payment-policy');
+      const founderLimit = await getFounderFamilyLimitWithClient(client);
+      const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
 
       // Create family — subscription_status defaults to 'none' (CHECK constraint).
       // Trial access is tracked via trial_ends_at + family_subscriptions table.
@@ -137,7 +139,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       );
       const familyId = familyResult.rows[0].id;
 
-      console.log(`[AUTH] Family #${familyCount + 1} created — lifetime_free: ${isLifetimeFree}`);
+      console.log(`[AUTH] Family #${familyCount + 1} created — lifetime_free: ${isLifetimeFree} (limit ${founderLimit})`);
 
       // New parents always start unverified. They get a 24h grace period to log in
       // while they verify their email. After 24h, login is blocked until verified.
@@ -1360,11 +1362,17 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
 
     const familyName = `${displayName}s familj`;
 
+    const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
+    const familyCount = countResult.rows[0].count;
+    const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../lib/payment-policy');
+    const founderLimit = await getFounderFamilyLimitWithClient(client);
+    const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
+
     const familyResult = await client.query(
-      `INSERT INTO family (name, subscription_status, is_lifetime_free)
-       VALUES ($1, 'none', true)
+      `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free)
+       VALUES ($1, 'none', CASE WHEN $2 THEN NULL ELSE NOW() + INTERVAL '14 days' END, $2)
        RETURNING id`,
-      [familyName]
+      [familyName, isLifetimeFree]
     );
     const familyId = familyResult.rows[0].id;
 
@@ -1434,12 +1442,16 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
 
     await createNewsletterSubscription(client, parent.id, parent.email);
 
-    // Apple Sign In users get lifetime_free tier — no trial, no expiry.
-    // These are among the inaugural 200 families who signed up via Apple.
+    // Founder families: lifetime_free tier. Later families: trial then paid (when stores live).
+    const subTier = isLifetimeFree ? 'lifetime_free' : 'trial';
     await client.query(
-      `INSERT INTO family_subscriptions (family_id, tier, components)
-       VALUES ($1, 'lifetime_free', $2)`,
-      [familyId, JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }])]
+      `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
+       VALUES ($1, $2, CASE WHEN $2 = 'trial' THEN NOW() + INTERVAL '14 days' ELSE NULL END, $3)`,
+      [
+        familyId,
+        subTier,
+        JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }]),
+      ]
     );
 
     await client.query('COMMIT');

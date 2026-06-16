@@ -8,20 +8,28 @@ const addons = require('../../../db/subscription-addons');
 const router = express.Router();
 
 // GET /api/admin/subscription-settings
-// Returns: { payment_enabled, basic_price_sek, basic_trial_days, addons[], stripe_configured }
 router.get('/', async (req, res, next) => {
   try {
-    const [payment_enabled, basic_price_sek, basic_trial_days, stripe_price_id, addonsResult] = await Promise.all([
+    const [
+      payment_enabled,
+      basic_price_sek,
+      basic_trial_days,
+      stripe_price_id,
+      addonsResult,
+      founder_family_limit,
+    ] = await Promise.all([
       appSettings.getPaymentEnabled(),
       appSettings.getBasicPrice(),
       appSettings.getBasicTrialDays(),
       appSettings.getStripePriceId(),
       addons.getAllAddons(),
+      appSettings.getFounderFamilyLimit(),
     ]);
     res.json({
       payment_enabled,
       basic_price_sek,
       basic_trial_days,
+      founder_family_limit,
       stripe_configured: !!stripe_price_id,
       addons: addonsResult.rows,
     });
@@ -29,10 +37,10 @@ router.get('/', async (req, res, next) => {
 });
 
 // PATCH /api/admin/subscription-settings
-// Body: { basic_price_sek?, basic_trial_days? }
+// Body: { basic_price_sek?, basic_trial_days?, founder_family_limit? }
 router.patch('/', async (req, res, next) => {
   try {
-    const { basic_price_sek, basic_trial_days } = req.body;
+    const { basic_price_sek, basic_trial_days, founder_family_limit } = req.body;
     const updates = [];
     if (basic_price_sek !== undefined) {
       const n = parseInt(basic_price_sek, 10);
@@ -46,14 +54,23 @@ router.patch('/', async (req, res, next) => {
       await appSettings.setBasicTrialDays(n);
       updates.push('basic_trial_days');
     }
+    if (founder_family_limit !== undefined) {
+      const n = parseInt(founder_family_limit, 10);
+      if (isNaN(n) || n < 1) return res.status(400).json({ error: 'founder_family_limit must be at least 1' });
+      await appSettings.setFounderFamilyLimit(n);
+      updates.push('founder_family_limit');
+    }
     if (!updates.length) return res.status(400).json({ error: 'No valid fields to update' });
-    const [price, trial] = await Promise.all([appSettings.getBasicPrice(), appSettings.getBasicTrialDays()]);
-    res.json({ message: 'Updated: ' + updates.join(', '), basic_price_sek: price, basic_trial_days: trial });
+    const [price, trial, limit] = await Promise.all([
+      appSettings.getBasicPrice(),
+      appSettings.getBasicTrialDays(),
+      appSettings.getFounderFamilyLimit(),
+    ]);
+    res.json({ message: 'Updated: ' + updates.join(', '), basic_price_sek: price, basic_trial_days: trial, founder_family_limit: limit });
   } catch (err) { next(err); }
 });
 
-// PATCH /api/admin/payment-enabled
-// Body: { enabled: boolean }
+// PATCH /api/admin/payment-enabled — IAP master switch (when App Store IAP is live)
 router.patch('/payment-enabled', async (req, res, next) => {
   try {
     const { enabled } = req.body;

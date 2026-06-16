@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const { hasAccess } = require('../../db/features');
 const { getFounderCount } = require('../../db/family-stats');
+const { getFounderStatus } = require('../lib/payment-policy');
 const { getActiveItems } = require('../../db/landing-news');
 
 const router = express.Router();
@@ -140,11 +141,29 @@ router.get('/en/thank-you', async (req, res) => {
 // No auth — public endpoint for the family counter on the homepage
 router.get('/api/landing/stats', async (req, res) => {
   try {
-    const count = await getFounderCount();
-    res.json({ count, limit: 200 });
+    const status = await getFounderStatus();
+    res.json({
+      count: status.count,
+      limit: status.limit,
+      spots_remaining: status.spots_remaining,
+      price_sek: status.price_sek,
+      founder_program_active: status.founder_program_active,
+    });
   } catch (err) {
     console.error('[landing] stats error:', err.message);
-    res.status(200).json({ count: 93, limit: 200 }); // fail-safe: preserve last known value
+    res.status(200).json({ count: 93, limit: 200, spots_remaining: 107, price_sek: 59, founder_program_active: true });
+  }
+});
+
+router.get('/api/public/pricing-info', async (req, res) => {
+  try {
+    res.json(await getFounderStatus());
+  } catch (err) {
+    console.error('[landing] pricing-info error:', err.message);
+    res.status(200).json({
+      count: 0, limit: 200, spots_remaining: 200, price_sek: 59,
+      payment_enabled: false, founder_program_active: true,
+    });
   }
 });
 

@@ -7,38 +7,35 @@
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
 const familySubscriptions = require('../../db/family-subscriptions');
+const appSettings = require('../../db/app-settings');
 const { STRIPE_COMPONENT_MAP } = require('../../config/subscription-components');
 
 const router = express.Router();
 
-// Web Stripe checkout removed — subscriptions handled via Apple/Google IAP (RevenueCat).
-const PAYMENT_ENABLED = false;
-
 /**
  * GET /api/subscription/status
  * Returns the full subscription state for the authenticated family.
- * Frontend uses this to decide whether to show trial banners, upgrade CTAs, etc.
  */
 router.get('/status', requireParent, async (req, res) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
     const sub = await familySubscriptions.getByFamilyId(familyId);
+    const payment_enabled = await appSettings.getPaymentEnabled();
+    const price = await appSettings.getBasicPrice();
 
     if (!sub) {
-      // Legacy family without subscription record — treat as lifetime_free
       return res.json({
         tier: 'lifetime_free',
         trial_days_remaining: null,
         trial_expired: false,
         components: [{ component: 'basic_app', expires_at: null }],
-        payment_enabled: PAYMENT_ENABLED,
-        iap_enabled: true,
+        payment_enabled,
+        iap_enabled: payment_enabled,
         upgrade_url: '/upgrade',
-        price_monthly_sek: STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59,
+        price_monthly_sek: price || 59,
       });
     }
 
-    // Calculate trial days remaining
     let trialDaysRemaining = null;
     let trialExpired = false;
     if (sub.tier === 'trial' && sub.trial_expires_at) {
@@ -53,10 +50,10 @@ router.get('/status', requireParent, async (req, res) => {
       trial_expired: trialExpired,
       trial_expires_at: sub.trial_expires_at || null,
       components: sub.components || [],
-      payment_enabled: PAYMENT_ENABLED,
-      iap_enabled: true,
+      payment_enabled,
+      iap_enabled: payment_enabled,
       upgrade_url: '/upgrade',
-      price_monthly_sek: STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59,
+      price_monthly_sek: price || STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59,
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] status error:', err);

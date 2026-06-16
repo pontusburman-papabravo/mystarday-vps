@@ -7,17 +7,18 @@
 const db = require('../src/lib/db');
 
 /**
- * Returns the number of "founder" families — those with an active
- * subscription status (active, trial, or beta).
- * Used by the landing page counter: "X/200 familjer har redan gått med".
+ * Total registered families — used for founder counter and lifetime-free eligibility.
  */
-async function getFounderCount() {
-  const result = await db.query(`
-    SELECT COUNT(*) AS total
-    FROM family
-    WHERE subscription_status IN ('active', 'trial', 'beta')
-  `);
-  return parseInt(result.rows[0].total || 0);
+async function getTotalFamilyCount() {
+  const result = await db.query('SELECT COUNT(*)::int AS total FROM family');
+  return result.rows[0].total || 0;
 }
 
-module.exports = { getFounderCount };
+/**
+ * Legacy alias — landing page founder counter.
+ */
+async function getFounderCount() {
+  return getTotalFamilyCount();
+}
+
+module.exports = { getFounderCount, getTotalFamilyCount };

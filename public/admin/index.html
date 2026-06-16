@@ -1176,6 +1176,11 @@
                 <input type="number" id="basicTrialInput" min="0" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
                 <span class="text-sm text-text-soft">dagar</span>
               </div>
+              <div class="flex items-center gap-4">
+                <label class="text-sm font-semibold text-navy whitespace-nowrap">Grundargräns:</label>
+                <input type="number" id="founderLimitInput" min="1" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
+                <span class="text-sm text-text-soft">familjer (lifetime free)</span>
+              </div>
               <button type="submit" class="px-6 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold transition-colors text-sm">
                 Spara Basic-inställningar
               </button>
@@ -1230,7 +1235,7 @@
               </label>
               <span id="paymentToggleLabel" class="text-sm font-semibold text-navy">AV</span>
             </div>
-            <p class="text-xs text-text-soft">Av = nya användare registrerar gratis &nbsp;|&nbsp; På = 14 dagars trial → betalning</p>
+            <p class="text-xs text-text-soft">På = IAP aktivt i appen (familj {gräns+1}+ betalar). Av = ingen IAP-köpväg (under granskning).</p>
             <div id="paymentToggleMsg" class="text-sm mt-2"></div>
           </div>
         </div>
