@@ -16,8 +16,18 @@ function assertValidWindow(windowDays) {
   }
 }
 
+function toUtcDateTime(value) {
+  if (value instanceof Date) {
+    return DateTime.fromJSDate(value, { zone: 'utc' });
+  }
+  if (typeof value === 'string') {
+    return DateTime.fromISO(value, { zone: 'utc' });
+  }
+  return DateTime.fromISO(String(value), { zone: 'utc' });
+}
+
 function enrollLocalStart(startedAt, timezone) {
-  return DateTime.fromISO(startedAt, { zone: 'utc' }).setZone(timezone).startOf('day');
+  return toUtcDateTime(startedAt).setZone(timezone).startOf('day');
 }
 
 /**
@@ -41,7 +51,7 @@ function getRetentionWindowBounds(program, windowDays, timezone) {
 }
 
 function toEventLocalDay(at, timezone) {
-  return DateTime.fromISO(at, { zone: 'utc' }).setZone(timezone).startOf('day');
+  return toUtcDateTime(at).setZone(timezone).startOf('day');
 }
 
 function isEventInRetentionWindow(eventAt, bounds) {

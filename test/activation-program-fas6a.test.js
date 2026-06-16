@@ -64,6 +64,17 @@ describe('Fas 6A — retention windows (FROZEN)', () => {
     assert.equal(bounds.from.toISODate(), '2026-04-28');
     assert.equal(bounds.to.toISODate(), '2026-04-30');
   });
+
+  it('accepts PostgreSQL Date objects (not only ISO strings)', () => {
+    const startedAt = new Date('2026-06-01T08:00:00.000Z');
+    const bounds = getRetentionWindowBounds(
+      { started_at: startedAt, family_timezone: TZ },
+      14,
+      TZ
+    );
+    assert.equal(bounds.from.toISODate(), '2026-06-13');
+    assert.equal(bounds.to.toISODate(), '2026-06-15');
+  });
 });
 
 describe('Fas 6A — Family Day 14 North Star', () => {
