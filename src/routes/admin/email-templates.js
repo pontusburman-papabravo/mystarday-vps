@@ -8,6 +8,10 @@
 
 const express = require('express');
 const db = require('../../../db/email-templates');
+const {
+  getDefaultEmailTemplate,
+  mergeWithEmailTemplateDefaults,
+} = require('../../lib/email-template-defaults');
 
 const router = express.Router();
 
@@ -17,7 +21,7 @@ const VALID_TYPES = ['undersokning', 'valkomstmail', 'nyhetsbrev', 'win-back'];
 router.get('/', async (req, res) => {
   try {
     const templates = await db.getAllEmailTemplates();
-    res.json(templates);
+    res.json(mergeWithEmailTemplateDefaults(templates));
   } catch (err) {
     console.error('[EMAIL-TEMPLATES] list error:', err);
     res.status(500).json({ error: 'Kunde inte hämta email-mallar' });
@@ -32,7 +36,22 @@ router.get('/:type', async (req, res) => {
   }
   try {
     const template = await db.getEmailTemplate(type);
-    if (!template) return res.status(404).json({ error: 'Mall hittades inte' });
+    if (!template) {
+      const defaults = getDefaultEmailTemplate(type);
+      if (!defaults) return res.status(404).json({ error: 'Mall hittades inte' });
+      return res.json({ ...defaults, id: null, updated_at: null });
+    }
+    if (!template.subject?.trim() || !template.body_text?.trim()) {
+      const defaults = getDefaultEmailTemplate(type);
+      if (defaults) {
+        return res.json({
+          ...template,
+          label: template.label || defaults.label,
+          subject: template.subject?.trim() ? template.subject : defaults.subject,
+          body_text: template.body_text?.trim() ? template.body_text : defaults.body_text,
+        });
+      }
+    }
     res.json(template);
   } catch (err) {
     console.error('[EMAIL-TEMPLATES] get error:', err);

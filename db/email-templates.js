@@ -62,6 +62,7 @@ function labelForType(type) {
     undersokning: 'Undersökningsmail',
     valkomstmail: 'Välkomstmail',
     nyhetsbrev:   'Nyhetsbrev',
+    'win-back':   'Återaktivering',
   };
   return labels[type] || type;
 }
