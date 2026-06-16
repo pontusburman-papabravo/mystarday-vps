@@ -23,6 +23,7 @@
   var GATED_PATHS = {
     '/reports':      'klinisk_rapportering',
     '/pedagog-note': 'pedagoganteckningar',
+    '/for-dig':      'for_dig',
   };
 
   function isCoreSlug(slug) {
@@ -105,11 +106,11 @@
     });
   }
 
-  fetch('/api/features', { credentials: 'include' })
-    .then(function (res) {
-      if (!res.ok) return [];
-      return res.json();
-    })
+  var loadFeatures = window.fetchStjarndagFeatures
+    ? window.fetchStjarndagFeatures()
+    : fetch('/api/features', { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : []; });
+
+  loadFeatures
     .then(function (features) {
       var accessible = {};
       for (var i = 0; i < features.length; i++) {
@@ -118,6 +119,7 @@
       window._stjarndagFeatures = accessible;
       applyFeatureGate(accessible);
       observeNewElements();
+      window.dispatchEvent(new CustomEvent('stjarndag-features-loaded'));
     })
     .catch(function () {
       // fail-closed: leave elements hidden on network/server error

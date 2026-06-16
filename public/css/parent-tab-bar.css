@@ -1,0 +1,99 @@
+/**
+ * parent-tab-bar.css — Bottom tab bar for parent PWA + native (mobile).
+ * Desktop keeps sidebar; tab bar hidden from md breakpoint up.
+ */
+
+/* ── Mobile tab bar (PWA + native) ─────────────────────────────────────── */
+@media (max-width: 767px) {
+  body.has-native-tab-bar .native-tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.12);
+    z-index: 9999;
+  }
+
+  body.has-native-tab-bar .native-tab-bar .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: #8E8E93;
+    font-size: 10px;
+    padding: 6px 10px;
+    min-width: 56px;
+    transition: color 0.15s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body.has-native-tab-bar .native-tab-bar .tab-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  body.has-native-tab-bar .native-tab-bar .tab-item.active {
+    color: #007AFF;
+  }
+
+  html.dark body.has-native-tab-bar .native-tab-bar,
+  body.dark.has-native-tab-bar .native-tab-bar {
+    background: rgba(28, 28, 30, 0.92);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  html.dark body.has-native-tab-bar .native-tab-bar .tab-item,
+  body.dark.has-native-tab-bar .native-tab-bar .tab-item {
+    color: #8E8E93;
+  }
+
+  html.dark body.has-native-tab-bar .native-tab-bar .tab-item.active,
+  body.dark.has-native-tab-bar .native-tab-bar .tab-item.active {
+    color: #0A84FF;
+  }
+
+  /* Main content clearance above tab bar */
+  body.has-native-tab-bar main {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Hide duplicate legacy bottom nav + hamburger when tab bar active */
+  body.has-native-tab-bar .parent-bottom-nav {
+    display: none !important;
+  }
+
+  body.has-native-tab-bar .mobile-topbar,
+  body.has-native-tab-bar .mobile-hamburger,
+  body.has-native-tab-bar .mobile-dropdown {
+    display: none !important;
+  }
+
+  /* Floating help above tab bar */
+  body.has-native-tab-bar #helpBtn,
+  body.has-native-tab-bar #hbBtn {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px) !important;
+    z-index: 10001 !important;
+  }
+
+  body.has-native-tab-bar #globalFeedbackBtn {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+    z-index: 10001 !important;
+  }
+}
+
+/* Desktop: sidebar only, no tab bar */
+@media (min-width: 768px) {
+  body.has-native-tab-bar .native-tab-bar {
+    display: none !important;
+  }
+}

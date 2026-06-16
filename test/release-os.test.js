@@ -86,6 +86,7 @@ test('injectPlatformHtml adds device-mode and skips duplicate platform.js', () =
   const out = injectPlatformHtml(html);
   assert.match(out, /device-mode\.js/);
   assert.match(out, /native-tab-bar\.js/);
+  assert.match(out, /parent-tab-bar\.css/);
   const platformCount = (out.match(/\/js\/platform\.js/g) || []).length;
   assert.equal(platformCount, 1);
 });

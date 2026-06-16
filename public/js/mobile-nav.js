@@ -59,13 +59,16 @@
   var GATED_PATHS = {
     '/reports':      'klinisk_rapportering',
     '/pedagog-note': 'pedagoganteckningar',
+    '/for-dig':      'for_dig',
   };
   // Populated async after features load. Default to {} (fail-closed = hide gated links until confirmed)
   var accessibleFeatures = {};
 
-  // Fetch accessible features (for dropdown gate filtering)
-  fetch('/api/features', { credentials: 'include' })
-    .then(function (res) { return res.ok ? res.json() : []; })
+  // Fetch accessible features (for dropdown gate filtering) — shared cache
+  var featuresFetch = window.fetchStjarndagFeatures
+    ? window.fetchStjarndagFeatures()
+    : fetch('/api/features', { credentials: 'include' }).then(function (res) { return res.ok ? res.json() : []; });
+  featuresFetch
     .then(function (features) {
       accessibleFeatures = {};
       for (var fi = 0; fi < features.length; fi++) {

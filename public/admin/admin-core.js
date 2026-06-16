@@ -9,6 +9,7 @@
       anvandning: 'Användning',
       retention: 'Retention & Aktivitetsstatistik',
       foraldaraktivering: 'Föräldraaktivering',
+      fordig: 'För dig',
       dagensnyhet: 'Dagens nyhet',
       nyhetsbrev: 'Nyhetsbrevsprenumeranter',
       valkomstmail: 'Välkomstmail',

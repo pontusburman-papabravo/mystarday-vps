@@ -47,4 +47,9 @@ router.get('/pedagog-oversikt', optionalAuth, gateHtmlPage('pedagoganteckningar'
   res.sendFile(path.join(__dirname, '..', '..', 'public', 'pedagog-oversikt.html'));
 });
 
+// ─── GET /for-dig ────────────────────────────────────────
+router.get('/for-dig', optionalAuth, gateHtmlPage('for_dig', '/dashboard'), (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'for-dig.html'));
+});
+
 module.exports = router;

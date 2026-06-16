@@ -650,6 +650,24 @@ const FEATURES = [
     dev_notes: [],
     changelog: [],
   },
+  {
+    slug: 'for_dig',
+    name: 'För dig',
+    description: 'Problemorienterad ingång till rutiner och belöningar',
+    status: 'live',
+    tags: ['growth', 'bibliotek'],
+    priority: 'critical',
+    complexity: 5,
+    estimated_hours: 20.0,
+    documentation: {
+      purpose: 'Översätt admin-kurerat innehåll till föräldraproblem med ett tryck.',
+      user_story: 'Som förälder vill jag välja ett utvecklingsmål och aktivera en färdig rutin utan att bygga schema själv.',
+      acceptance_criteria: 'Sex utvecklingsmål, aktivering via standardbibliotek, intent/outcome-feedback.',
+      technical_notes: 'docs/for-dig-spec.md. Feature slug for_dig. URL /for-dig.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
 
   // ── Föräldrahem mockup (ny design) ─────────────────────────────────────────
   {

@@ -1,110 +1,201 @@
 # För dig — Nyhetsbrev & lanseringscopy
 
-**Feature:** För dig (`/for-dig`)  
+**Feature:** För dig (`/for-dig`) — **implementerad** (Sprint 1–5) + uppdaterad mobilmeny  
 **Målgrupp:** Befintliga föräldrar (~140 familjer)  
 **Ton:** Varm, föräldravänlig, utfallsfokuserad — inte teknisk  
-**Princip:** Lösningar på föräldraproblem, inte ett nytt bibliotek
+**Princip:** Lösninger på föräldraproblem, inte ett nytt bibliotek
 
-> **Inför utskick:** Ersätt `APPEN` med produktnamn och `LÄNK_FOR_DIG` med full URL till `/for-dig`.
+> **Inför utskick:** Ersätt `APPEN` med produktnamn och `LÄNK_FOR_DIG` med full URL till `/for-dig` (inloggad förälder).
+
+---
+
+## Kommunikationsprincip för denna lansering
+
+| Vikt | Budskap | Andel |
+|------|---------|-------|
+| **Huvudfokus** | För dig — lugnare kvällar, mindre tjat, aktivera rutin | 80–90 % |
+| **Sekundärt** | Ny mobilmeny — enklare att hitta, smakprov på framtida app | 10–20 % |
+
+Föräldrar bryr sig om vardagslösningar, inte produktplanen. Menyn förklarar *var* För dig finns — den ska inte bli huvudbudskapet.
+
+### Om mobilmenyn — så får ni nämna den
+
+✅ "För att göra det enklare att hitta rätt har vi uppdaterat mobilens meny."  
+✅ "Nu hittar ni Hem, Schema, För dig, Skatt och Mer direkt längst ned på skärmen."  
+✅ "Den nya menyn är ett litet smakprov på den appupplevelse vi arbetar med inför framtiden."  
+✅ "Den nya mobilmenyn är första steget mot den kommande appupplevelsen."
+
+### Om mobilmenyn — undvik
+
+❌ "Samma som i appen" / "samma som mobilappen"  
+❌ "Samma som i App Store-versionen"  
+❌ "Nu ser APPEN ut som den kommer göra i App Store"  
+❌ Lova datum för app-lansering  
+❌ Låta huvudbudskapet bli "vi bygger en app"
+
+---
+
+## Vad som finns i appen (internt — så copyn stämmer)
+
+### För dig — funktioner
+- **6 utvecklingsmål:** trygga kvällar, bra morgnar, självständighet, skolansvar, samarbete hemma, motivation
+- **Aktivera** — kopierar färdig rutin till barnets schema (med bekräftelse innan)
+- **Rekommendationer** — förslag anpassade efter barnets ålder
+- **Mina favoriter** — spara mål, aktiviteter, scheman och belöningar med stjärnan ★
+- **Mest installerade** — se vad andra familjer aktiverar mest
+- **Föreslå förbättring** — feedback direkt på varje mål
+
+### Mobilmeny (internt)
+Fem bottenflikar på mobil: **Hem · Schema · För dig · Skatt · Mer**  
+Bibliotek under **Mer**. Dator — sidomeny som vanligt.  
+Appen i App Store/Google Play är under utveckling — **inget datum att kommunicera**.
+
+**Konsekvent terminologi:** För dig · Aktivera · Mina favoriter · Mest installerade
+
+**Inte nämna i extern copy:** intent-modal, outcome-banner, admin-statistik, feature flags, App Store, Google Play, release-datum.
 
 ---
 
 ## 1. Kort version (push / ämnesrad)
 
-Tre varianter att A/B-testa. Push-titel + brödtext, eller som e-postämnesrad.
+Prioritera variant A eller B. Variant C endast om ni vill lyfta menyn — fortfarande med För dig i fokus.
 
-### Variant A — Kvällsfokus
+### Variant A — Kvällsfokus (rekommenderad)
 **Titel:** Lugnare kvällar? 🌙  
-**Brödtext:** Ny sida i appen: För dig. Välj vad ni vill fokusera på — och aktivera en rutin med ett tryck.  
+**Brödtext:** För dig finns i menyn. Välj ett mål — tryck Aktivera — rutinen är igång.  
 **Ämnesrad:** Lugnare kvällar börjar här 🌙
 
 ### Variant B — Problemfokus
 **Titel:** Mindre tjat hemma?  
-**Brödtext:** Vi har lagt till För dig — en plats där du väljer utvecklingsmål som trygga kvällar, bra morgnar och självständighet.  
+**Brödtext:** Nytt: För dig. Välj utvecklingsmål och aktivera med ett tryck.  
 **Ämnesrad:** Nytt i APPEN: lösningar för det som känns svårt just nu
 
-### Variant C — Personligt
-**Titel:** För dig — och för ert barn ✨  
-**Brödtext:** Öppna För dig i appen. Se förslag anpassade efter barnets ålder och kom igång på några sekunder.  
-**Ämnesrad:** Vi har byggt något nytt åt dig — För dig
+### Variant C — Meny (sekundär, max 10–20 % av utskick)
+**Titel:** För dig — nu lättare att hitta ✨  
+**Brödtext:** Vi har uppdaterat mobilens meny. Tryck För dig, välj mål, aktivera. Klart.  
+**Ämnesrad:** För dig finns nu direkt i menyn
 
 ---
 
-## 2. E-post nyhetsbrev
+## 2. E-post nyhetsbrev (huvudutskick)
 
-**Ämnesrad (rekommenderad):** Lugnare kvällar? Nytt i appen: För dig 🌙  
-**Förhandsvisning:** Välj vad ni vill fokusera på — trygga kvällar, bra morgnar, självständighet — och kom igång med ett tryck.
+**Ämnesrad (rekommenderad):** Lugnare kvällar? Prova För dig 🌙  
+**Förhandsvisning:** Välj utvecklingsmål, tryck Aktivera — rutinen är igång på några sekunder. Biblioteket finns kvar.
 
 ---
 
 Hej!
 
-Ni har använt APPEN ett tag nu — kanske för stjärnor, schema och Skattkammaren. Vi vet att det som verkligen spelar roll hemma hos er sällan handlar om "aktiviteter" eller "scheman". Det handlar om lugnare kvällar. Mindre tjat. Att barnet vågar göra mer själv.
+Ni har använt APPEN ett tag nu — kanske för stjärnor, schema och Skattkammaren. Det som verkligen spelar roll hemma är sällan schemat i sig. Det är lugnare kvällar, mindre tjat och att barnet klarar mer på egen hand.
 
-Därför har vi lagt till **För dig** — en ny sida i appen där ni väljer vad ni vill fokusera på just nu.
+Därför har vi byggt **För dig**.
 
-Kanske är det trygga kvällar utan stress vid läggdags. Kanske är det morgnar där alla kommer iväg i tid. Eller att barnet klär på sig, borstar tänderna eller tar ansvar för läxorna — på egen hand.
+**För dig** är en plats där ni väljer vad ni vill fokusera på just nu: trygga kvällar, bra morgnar, självständighet, skolansvar med mera. Ni ser förslag anpassade efter barnets ålder, trycker på **Aktivera** — och rutinen läggs in i barnets veckoschema. Klart på några sekunder.
 
-Ni väljer ett utvecklingsmål, ser vad det kan ge ert barn, och trycker på **Aktivera kvällsrutinen** (eller motsvarande för det ni valt). Rutinen läggs in i barnets schema — klart på några sekunder.
+**Vad ni kan göra:**
 
-För dig är anpassat efter barnets ålder, så ni ser förslag som passar just nu. Och oroa er inte: ert bibliotek och alla aktiviteter ni redan har finns kvar precis som förut. För dig är ett tillval — en enklare väg in när ni vill lösa något specifikt.
+- **Sex utvecklingsmål** — från kvällsrutin till skolansvar
+- **Mina favoriter** — spara det ni gillar med stjärnan ★
+- **Mest installerade** — se vad andra familjer aktiverar mest
+- **Föreslå förbättring** — vi läser all feedback
 
-**[Öppna För dig i appen →]** (LÄNK_FOR_DIG)
+Och oroa er inte: inget ni redan har byggt påverkas om ni inte väljer att aktivera ett nytt mål. För dig är helt frivilligt.
 
-Vi hoppas att det gör vardagen lite lättare. Och om ni saknar något — säg till. Vi bygger vidare utifrån det som faktiskt hjälper hemma hos er.
+**[Prova För dig →](LÄNK_FOR_DIG)**
+
+---
+
+För att göra det enklare att hitta rätt har vi också uppdaterat mobilens meny. Nu hittar ni Hem, Schema, För dig, Skatt och Mer direkt längst ned på skärmen. Biblioteket finns kvar under **Mer** (och i sidomenyn på datorn).
+
+Den nya menyn är dessutom ett litet smakprov på den appupplevelse vi arbetar med inför framtiden.
+
+---
+
+### Kort FAQ
+
+**Kan jag ångra mig?**  
+Ja. Du får alltid en bekräftelse innan en rutin läggs till — och kan ändra schemat efteråt.
+
+**Var är biblioteket?**  
+Under **Mer** i bottenmenyn (mobil), eller i sidomenyn på dator.
+
+**Påverkar det vårt befintliga schema?**  
+Bara om du väljer att aktivera ett nytt mål. Annars händer ingenting.
+
+Vi hoppas att det gör vardagen lite lättare.
 
 Varma hälsningar,  
 Teamet bakom APPEN
 
 ---
 
-*Ordantal: ~290*
+*Ordantal: ~370. För dig ~85 %, meny ~15 %.*
 
 ---
 
-## 3. Kort in-app meddelande (systemmeddelande)
+## 2b. Uppföljningsmejl (valfritt, +10–14 dagar)
 
-Text för admin att skicka via systemmeddelanden till befintliga familjer.
+**Ämnesrad:** Har ni testat För dig än? 🌙  
+**Förhandsvisning:** Sex mål att välja mellan — och favoriter att spara med stjärnan.
+
+---
+
+Hej igen!
+
+En snabb påminnelse: **För dig** finns i menyn i APPEN — tryck på **För dig** längst ned på skärmen.
+
+Om kvällarna fortfarande känns stressiga — prova **Trygga kvällar**. Ett tryck på Aktivera, så är kvällsrutinen igång.
+
+Eller välj något av de andra målen om ni vill fokusera på morgnar, självständighet eller skolan.
+
+Tips: spara det ni gillar med stjärnan ★ — då samlas allt under *Mina favoriter*.
+
+**[Öppna För dig →](LÄNK_FOR_DIG)**
+
+---
+
+## 3. Systemmeddelande (in-app)
 
 > **Nytt: För dig** 🌙  
 >  
-> Vi har lagt till en ny sida i appen — För dig. Där väljer du vad ni vill fokusera på just nu: trygga kvällar, bra morgnar, självständighet med mera.  
+> Vi har lagt till **För dig** — välj utvecklingsmål som trygga kvällar, bra morgnar eller självständighet. Tryck **Aktivera** så läggs rutinen in i barnets schema. Spara favoriter med stjärnan ★.  
 >  
-> Välj ett mål, tryck på Aktivera — och rutinen är igång. Ert bibliotek och schema finns kvar som vanligt.  
+> För dig finns i menyn längst ned på skärmen. Biblioteket under **Mer**.  
 >  
-> [Öppna För dig →]
+> [Öppna För dig →](LÄNK_FOR_DIG)
 
 ---
 
 ## 4. Dagens nyhet (max 280 tecken)
 
-**Variant 1 (279 tecken):**
-> Nytt i appen: För dig 🌙 Välj vad ni vill fokusera på — lugnare kvällar, mindre morgontjat eller mer självständighet. Tryck Aktivera och rutinen är igång på några sekunder. Ert bibliotek finns kvar. Prova För dig idag!
+**Variant 1 — För dig (rekommenderad, 277 tecken):**
+> För dig finns nu i menyn 🌙 Välj utvecklingsmål — lugnare kvällar, bra morgnar eller självständighet. Tryck Aktivera så läggs rutinen in i barnets schema. Spara favoriter med stjärnan. Biblioteket finns kvar under Mer. Prova För dig!
 
-**Variant 2 (268 tecken):**
-> För dig är här! En ny sida där du väljer utvecklingsmål som passar ert barn — trygga kvällar, bra morgnar, självständighet. Ett tryck så är rutinen igång. Biblioteket och schemat ni redan har påverkas inte. Öppna För dig i appen ✨
+**Variant 2 — Utfallsfokus (264 tecken):**
+> Nytt: För dig ✨ Sex färdiga mål anpassade efter barnets ålder. Ett tryck på Aktivera så är rutinen igång. Spara favoriter med stjärnan. Biblioteket finns kvar. Öppna menyn och prova idag!
+
+**Variant 3 — Meny + smakprov (valfri, 272 tecken):**
+> Vi har uppdaterat mobilens meny — nu hittar ni För dig direkt längst ned 🌙 Välj utvecklingsmål, aktivera rutin, klart. Ett smakprov på den appupplevelse vi arbetar med. Bibliotek under Mer. Prova idag!
 
 ---
 
 ## 5. Social media
 
-### Post 1 — Instagram/Facebook (utfallsfokus)
+### Post 1 — Utfallsfokus (rekommenderad)
 
 🌙 Lugnare kvällar utan att tjata?
 
-Vi har lagt till **För dig** i APPEN — en plats där du väljer vad ni vill fokusera på just nu. Trygga kvällar. Bra morgnar. Mer självständighet.
+**För dig** finns nu i APPEN.
 
-Välj ett mål → tryck Aktivera → rutinen är igång.
+Välj ett utvecklingsmål → tryck **Aktivera** → rutinen är igång.
 
-Ert bibliotek finns kvar. Det här är bara en enklare väg in.
-
-Länk i bio.
+Sex färdiga mål. Anpassat efter barnets ålder. Spara favoriter med ★.
 
 #föräldraskap #vardagsrutiner #barn #familjeliv
 
 ---
 
-### Post 2 — Instagram/Facebook (personligt / bakom kulisserna)
+### Post 2 — Bakom kulisserna
 
 Vi frågade oss: vad tänker föräldrar på efter några veckor i appen?
 
@@ -114,27 +205,83 @@ Inte "hur bygger jag ett schema". Utan:
 → Hur slipper vi morgontjatet?  
 → Hur hjälper vi barnet bli mer självständigt?
 
-Svaret blev **För dig** — en ny sida i appen där ni väljer utvecklingsmål och kommer igång med ett tryck.
-
-För er som redan använder appen: allt ni har finns kvar. För dig är till för nästa steg.
+Svaret blev **För dig**. Välj mål, aktivera, klart.
 
 Prova gärna och berätta vad ni tycker 💛
 
 ---
 
-## 6. FAQ — tre frågor föräldrar kan ha
+### Post 3 — Favoriter
 
-### Vad är För dig — är det ett nytt bibliotek?
+★ Spara det ni gillar
 
-Nej. För dig är inte ett bibliotek utan en plats där du väljer *vad ni vill uppnå* — till exempel lugnare kvällar, färre morgonbråk eller mer självständighet. Appen visar en färdig lösning anpassad efter barnets ålder, och du aktiverar den med ett tryck. Ert befintliga bibliotek, schema och aktiviteter finns kvar precis som förut.
+I **För dig** kan ni spara utvecklingsmål som favoriter — med stjärnan.
 
-### Påverkar det schemat vi redan har?
+Plus: se vad andra familjer aktiverar mest under *Mest installerade*.
 
-Bara om du väljer att aktivera ett nytt mål — då läggs den rutinen in i barnets veckoschema (du får bekräfta innan). Vill du inte ändra något behöver du inte öppna För dig alls. Det är helt frivilligt.
+Tryck på **För dig** i menyn.
 
-### Vad händer när jag trycker "Aktivera kvällsrutinen"?
+---
 
-Appen lägger in en färdig kvällsrutin i barnets schema — med aktiviteter och stjärnor som passar målet. Barnet kan börja samla stjärnor direkt, och belöningar i Skattkammaren fungerar som vanligt. Du kan alltid justera detaljerna själv i biblioteket eller schemat efteråt.
+### Post 4 — Meny (valfri, max en gång per vecka)
+
+För att göra det enklare att hitta rätt har vi uppdaterat mobilens meny i APPEN.
+
+Nu: Hem · Schema · **För dig** · Skatt · Mer — direkt längst ned.
+
+Ett litet smakprov på den appupplevelse vi arbetar med inför framtiden. Men det viktigaste just nu? Prova **För dig** 🌙
+
+---
+
+## 6. FAQ — komplett (för webb/support)
+
+### Vad är För dig?
+
+En plats där du väljer *vad ni vill uppnå* — lugnare kvällar, färre morgonbråk eller mer självständighet. Appen visar färdiga lösningar anpassade efter barnets ålder. Du aktiverar med ett tryck. Ert bibliotek och schema finns kvar.
+
+### Var hittar jag För dig?
+
+På mobilen: längst ned på skärmen, fliken **För dig**. På datorn: i sidomenyn.
+
+### Var hittar jag Bibliotek?
+
+Under **Mer** i bottenmenyn (mobil), eller i sidomenyn på dator. Inget innehåll har tagits bort.
+
+### Varför ser menyn annorlunda ut?
+
+Vi har uppdaterat mobilens meny så att det blir enklare att hitta Hem, Schema, För dig, Skatt och Mer. Den nya menyn är också ett smakprov på den appupplevelse vi arbetar med inför framtiden — utan att lova något datum.
+
+### Vad händer när jag trycker Aktivera?
+
+Appen lägger in en färdig rutin i barnets schema — med aktiviteter och stjärnor. Du får bekräfta innan. Barnet kan börja samla stjärnor direkt.
+
+### Kan jag ångra mig?
+
+Ja. Bekräftelse visas alltid innan en rutin läggs till. Du kan ändra eller ta bort aktiviteter i schemat efteråt.
+
+### Vad är stjärnan / Mina favoriter?
+
+Tryck ★ på ett utvecklingsmål (eller i biblioteket på aktiviteter, scheman och belöningar). Alla favoriter samlas högst upp på För dig-sidan.
+
+### Vad är Mest installerade?
+
+En lista som visar vilka utvecklingsmål flest familjer aktiverat — inspiration, inte press.
+
+---
+
+## 7. Utskick — rekommenderad ordning
+
+| Steg | Kanal | När | Copy | Fokus |
+|------|-------|-----|------|-------|
+| 1 | Dagens nyhet | Launch-dag | §4 variant 1 | För dig |
+| 2 | Systemmeddelande | Samma dag | §3 | För dig |
+| 3 | E-post | 0–2 dagar efter | §2 huvudutskick | För dig 85 % + meny 15 % |
+| 4 | Push (valfritt) | Med e-post | §1 variant A | För dig |
+| 5 | Uppföljning (valfritt) | +10–14 dagar | §2b | För dig |
+| 6 | Social | Sprid över veckan | §5 post 1–3 | För dig |
+| 7 | Social (valfritt) | +3–7 dagar | §5 post 4 | Meny som smakprov |
+
+**Primära lanseringsbudskap:** §2 huvudutskick + §4 variant 1.
 
 ---
 
@@ -143,9 +290,13 @@ Appen lägger in en färdig kvällsrutin i barnets schema — med aktiviteter oc
 | Gör | Undvik |
 |-----|--------|
 | "Lugnare kvällar", "mindre tjat", "självständighet" | "Schema", "aktivitetspaket", "biblioteksuppdatering" |
-| "Aktivera kvällsrutinen" | "Installera paket", "Kopiera till bibliotek" |
-| "Ny sida i appen" / "tillval" | "Vi har byggt om appen" |
-| "Anpassat efter barnets ålder" | Tekniska detaljer om filtrering |
-| Varm, föräldravänlig ton | Produkt-/dev-språk |
+| "För dig" som huvudbudskap (80–90 %) | Låta menyn eller appen bli huvudbudskap |
+| "Uppdaterat mobilens meny" / "lättare att hitta" | "Samma som i appen", "samma som mobilappen" |
+| "Smakprov på appupplevelsen inför framtiden" | "Nu ser det ut som App Store", lova datum |
+| "Bibliotek under Mer" | "Ersatt Bibliotek", "tagit Biblioteks plats" |
+| "Aktivera" / "Tryck Aktivera" | "Installera paket", "Kopiera till bibliotek" |
+| "Prova För dig" / "Hitta ett mål för er familj" som CTA | Rent navigations-CTA ("Öppna För dig") i huvudmejl |
+| "Tryck på För dig" / fliken **För dig** | ✨ eller andra ikoner som navigationshjälp |
+| Varm, föräldravänlig ton | Produkt-/dev-språk, roadmap-språk |
 
-**Inför utskick:** Sök och ersätt `APPEN` med produktnamn, `LÄNK_FOR_DIG` → full URL till inloggad `/for-dig`-sida.
+**Inför utskick:** Sök och ersätt `APPEN` → produktnamn, `LÄNK_FOR_DIG` → full URL till inloggad `/for-dig`.

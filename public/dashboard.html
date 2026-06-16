@@ -559,9 +559,10 @@
         <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Översikt</a></li>
         <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
         <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
+        <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
         <li><a href="/reports" data-feature="klinisk_rapportering" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
         <li><a href="/pedagog-note" data-feature="pedagoganteckningar" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📝 Pedagoganteckningar</a></li>
-        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
+        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80">📚 Bibliotek (avancerat)</a></li>
         <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
         <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
       </ul>
@@ -1422,6 +1423,7 @@
   <script src="/js/sse-client.js?v=2.12.0"></script>
   <script src="/js/activation-program-aha-card.js?v=1.0.0"></script>
   <script src="/js/activation-program-banner.js?v=1.0.0"></script>
+  <script src="/js/for-dig-outcome-banner.js?v=2"></script>
   <script src="/js/dashboard-banner.js?v=2.12.0"></script>
 
   <!-- Dagens nyhet in-app banner logic -->
@@ -1579,9 +1581,9 @@
       <span class="parent-bottom-nav-icon" aria-hidden="true">📅</span>
       <span>Schema</span>
     </a>
-    <a href="/library" class="parent-bottom-nav-btn">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">📚</span>
-      <span>Bibliotek</span>
+    <a href="/for-dig" class="parent-bottom-nav-btn" data-feature="for_dig">
+      <span class="parent-bottom-nav-icon" aria-hidden="true">✨</span>
+      <span>För dig</span>
     </a>
     <a href="/family" class="parent-bottom-nav-btn">
       <span class="parent-bottom-nav-icon" aria-hidden="true">👨‍👩‍👧</span>

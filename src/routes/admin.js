@@ -37,6 +37,7 @@ const landingNewsRouter = require('./admin/landing-news');
 const migrationExportRouter = require('./admin/migration-export');
 const databaseExportRouter = require('./admin/database-export');
 const activationProgramRouter = require('./admin/activation-program');
+const forDigRouter = require('./admin/for-dig');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -50,6 +51,7 @@ router.use(rewardRouter);
 router.use(systemRouter);
 router.use(analyticsRouter);
 router.use(activationProgramRouter);
+router.use(forDigRouter);
 router.use('/welcome-email', welcomeEmailRouter);
 router.use('/email-templates', emailTemplatesRouter);
 router.use('/email-log', emailLogRouter);

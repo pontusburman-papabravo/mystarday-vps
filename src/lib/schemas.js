@@ -213,6 +213,7 @@ const UpdateRewardSchema = z.object({
   star_cost: positiveInt.optional(),
   requires_approval: z.boolean().optional(),
   is_active: z.boolean().optional(),
+  is_favorite: z.boolean().optional(),
   visible_to_children: z.array(uuid).optional().nullable(),
 }).partial();
 
