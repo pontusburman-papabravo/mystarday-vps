@@ -52,6 +52,13 @@
 
     document.body.classList.add('has-native-tab-bar');
 
+    // Remove mobile-nav.js topbar/dropdown from DOM — prevents FOUC where
+    // hamburger is briefly visible before this tab bar takes over.
+    var mobileTopbar = document.querySelector('.mobile-topbar');
+    if (mobileTopbar) mobileTopbar.remove();
+    var mobileDropdown = document.querySelector('.mobile-dropdown');
+    if (mobileDropdown) mobileDropdown.remove();
+
     var items = '';
     for (var j = 0; j < TABS.length; j++) {
       var tab = TABS[j];
@@ -113,6 +120,16 @@
       tryMount();
     });
     window.addEventListener('stjarndag-features-loaded', function () {
+      // Only remount if a gated tab's visibility actually changed.
+      // For most families (for_dig is live) nothing changes → skip the flash.
+      var needsRemount = TABS.some(function (tab) {
+        if (!tab.feature) return false;
+        var nowVisible = isTabVisible(tab);
+        var tabEl = document.querySelector('.native-tab-bar .tab-item[data-tab-href="' + tab.href + '"]');
+        var wasVisible = !!tabEl;
+        return nowVisible !== wasVisible;
+      });
+      if (!needsRemount) return;
       var existing = document.querySelector('.native-tab-bar');
       if (existing) existing.remove();
       document.body.classList.remove('has-native-tab-bar');
