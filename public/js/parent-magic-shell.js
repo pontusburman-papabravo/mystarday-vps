@@ -37,6 +37,12 @@
   }
 
   function renderBottomNav(activeId) {
+    // Unified tab bar (native-tab-bar.js) handles mobile nav on PWA + native.
+    if (document.body.classList.contains('has-native-tab-bar') || document.querySelector('.native-tab-bar')) {
+      var hidden = document.getElementById('parentBottomNav');
+      if (hidden) hidden.style.display = 'none';
+      return;
+    }
     var nav = document.getElementById('parentBottomNav');
     if (!nav) {
       nav = document.createElement('nav');

@@ -19,13 +19,16 @@ html.platform-native .cookie-banner-overlay {
   display: none !important;
 }
 
-/* Sprint 2a — förbered P0.4: dölj webb-topbar när native tab bar aktiv */
+/* Sprint 2a — dölj webb-topbar när parent tab bar aktiv (native + PWA) */
 html.platform-native body.has-native-tab-bar .mobile-topbar,
 html.platform-native body.has-native-tab-bar .mobile-hamburger,
 html.platform-native body.has-native-tab-bar .mobile-dropdown,
 html.is-native body.has-native-tab-bar .mobile-topbar,
 html.is-native body.has-native-tab-bar .mobile-hamburger,
-html.is-native body.has-native-tab-bar .mobile-dropdown {
+html.is-native body.has-native-tab-bar .mobile-dropdown,
+body.has-native-tab-bar .mobile-topbar,
+body.has-native-tab-bar .mobile-hamburger,
+body.has-native-tab-bar .mobile-dropdown {
   display: none !important;
 }
 

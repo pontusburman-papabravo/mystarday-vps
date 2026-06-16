@@ -1,6 +1,7 @@
 /**
- * native-tab-bar.js — Sprint 4 (P0.4): 5 flikar för vuxen i native.
- * Endast Platform.isNative(); feature flag från /api/app-config.
+ * native-tab-bar.js — Parent bottom tab bar (PWA + native Capacitor).
+ * Same five tabs on web and in the app: Hem · Schema · För dig · Skatt · Mer.
+ * Injected on all parent-shell HTML pages via platform-html middleware.
  */
 (function () {
   'use strict';
@@ -11,15 +12,13 @@
     return false;
   }
 
-  if (!isNativeShell()) return;
-
   var path = (window.location.pathname || '').replace(/\/$/, '');
   if (path === '/child-dashboard' || path === '/child-login') return;
 
   var TABS = [
     { href: '/dashboard', label: 'Hem', icon: '🏠', paths: ['/dashboard', '/daily-log', '/'] },
     { href: '/schedule', label: 'Schema', icon: '📅', paths: ['/schedule', '/calendar', '/activities', '/assign-schedule'] },
-    { href: '/for-dig', label: 'För dig', icon: '✨', paths: ['/for-dig'] },
+    { href: '/for-dig', label: 'För dig', icon: '✨', paths: ['/for-dig'], feature: 'for_dig' },
     { href: '/skattkammaren', label: 'Skatt', icon: '🏆', paths: ['/skattkammaren'] },
     { href: '/family', label: 'Mer', icon: '⚙️', paths: ['/family', '/settings', '/library', '/reports', '/pedagog-note'] },
   ];
@@ -36,13 +35,19 @@
   function hasParentShell() {
     return !!(
       document.getElementById('sidebar') ||
-      document.querySelector('nav.bg-navy') ||
-      document.querySelector('.mobile-topbar')
+      document.querySelector('nav.bg-navy')
     );
   }
 
+  function isTabVisible(tab) {
+    if (!tab.feature) return true;
+    var features = window._stjarndagFeatures;
+    if (!features) return true;
+    return !!features[tab.feature];
+  }
+
   function mount() {
-    if (document.querySelector('.native-tab-bar')) return;
+    if (document.querySelector('.native-tab-bar')) return true;
     if (!hasParentShell()) return false;
 
     document.body.classList.add('has-native-tab-bar');
@@ -50,9 +55,12 @@
     var items = '';
     for (var j = 0; j < TABS.length; j++) {
       var tab = TABS[j];
+      if (!isTabVisible(tab)) continue;
       var active = isActive(tab);
+      var featureAttr = tab.feature ? ' data-feature="' + tab.feature + '"' : '';
       items +=
-        '<a href="' + tab.href + '" class="tab-item' + (active ? ' active' : '') + '" data-tab-href="' + tab.href + '">' +
+        '<a href="' + tab.href + '" class="tab-item' + (active ? ' active' : '') + '"' +
+        ' data-tab-href="' + tab.href + '"' + featureAttr + '>' +
         '<span class="tab-icon">' + tab.icon + '</span>' +
         '<span class="tab-label">' + tab.label + '</span></a>';
     }
@@ -67,7 +75,9 @@
     nav.addEventListener('click', function (e) {
       var link = e.target.closest('a.tab-item');
       if (!link) return;
-      if (Platform.haptics && Platform.haptics.light) Platform.haptics.light();
+      if (isNativeShell() && Platform.haptics && Platform.haptics.light) {
+        Platform.haptics.light();
+      }
     });
     return true;
   }
@@ -89,7 +99,6 @@
         tryMount();
       })
       .catch(function () {
-        // Default on — native shell should not look like PWA if app-config is slow.
         tryMount();
       });
   }
@@ -101,6 +110,12 @@
       start();
     }
     window.addEventListener('platform-theme-applied', function () {
+      tryMount();
+    });
+    window.addEventListener('stjarndag-features-loaded', function () {
+      var existing = document.querySelector('.native-tab-bar');
+      if (existing) existing.remove();
+      document.body.classList.remove('has-native-tab-bar');
       tryMount();
     });
   }

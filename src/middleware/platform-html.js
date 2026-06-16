@@ -24,7 +24,8 @@ function injectPlatformHtml(body) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.4">',
-    '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">'
+    '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
+    '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'
   );
   const headInject = headParts.join('\n') + '\n';
 

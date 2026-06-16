@@ -119,6 +119,7 @@
       window._stjarndagFeatures = accessible;
       applyFeatureGate(accessible);
       observeNewElements();
+      window.dispatchEvent(new CustomEvent('stjarndag-features-loaded'));
     })
     .catch(function () {
       // fail-closed: leave elements hidden on network/server error
