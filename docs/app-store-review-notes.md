@@ -5,6 +5,38 @@
 
 ---
 
+## Build 14 — Resubmission (2026-06-16)
+
+**Paste into App Review Information → Notes:**
+
+```
+In this version (Build 14), we have completely removed all In-App Purchases and subscription purchase code from the app. No IAP products are configured in App Store Connect. The app is 100% free to use for all users during our founding-member program (first 200 families receive lifetime complimentary access).
+
+Please use the provided review account to test the application. No subscription purchase flow is available or required.
+```
+
+**If replying to Apple's message instead of resubmitting:**
+
+```
+Hello App Review,
+
+Thank you for your message.
+
+My Starday currently operates an early-adopter program where the first 200 families receive complimentary lifetime access ("Founding Members").
+
+The review account provided to App Review is one of these founding-member accounts and therefore has full access without requiring a subscription purchase. Because of this, no subscription purchase flow is displayed for the review account.
+
+No In-App Purchase products are configured in App Store Connect for this version. We are preparing our subscription offering for families registered after the founder limit in a future release.
+
+For this review, please evaluate the app using the provided review credentials and core functionality.
+
+Thank you for your review.
+Best regards,
+Pontus Burman
+```
+
+---
+
 ## App Purpose
 
 **Min Stjärndag** ("My Starday") is a family routine app for parents and children aged 3–10. Parents create structured daily schedules, children earn stars by completing activities, and redeem stars for rewards in the "Skattkammaren" (treasure chamber). The app supports Swedish and English, includes PIN-protected child views, and runs as both a web app and native iOS app.

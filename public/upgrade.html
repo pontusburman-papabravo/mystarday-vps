@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Uppgradera – Min Stjärndag</title>
+  <title>My Starday — gratis under grundarprogrammet</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,28 +38,24 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
   <style>
     body { background: linear-gradient(135deg, #FFF8F0 0%, #F5F0FF 100%); }
   </style>
 </head>
 <body class="font-body text-navy min-h-screen flex flex-col">
-  <!-- Top nav -->
   <nav class="w-full px-4 py-4 flex items-center justify-between max-w-5xl mx-auto">
     <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
       <div class="w-9 h-9 bg-gold rounded-full flex items-center justify-center shadow">
         <span class="text-lg">⭐</span>
       </div>
-      <span class="font-heading font-bold text-navy text-xl">Min Stjärndag</span>
+      <span class="font-heading font-bold text-navy text-xl">My Starday</span>
     </a>
     <a href="/login" class="text-sm text-text-soft hover:text-navy transition-colors">Logga in</a>
   </nav>
 
-  <!-- Main content -->
   <main class="flex-1 flex items-center justify-center px-4 py-10">
     <div class="w-full max-w-lg text-center">
-
-      <!-- Icon + heading -->
       <div class="mb-6">
         <div class="w-20 h-20 bg-gradient-to-br from-amber-100 to-yellow-200 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
           <span class="text-4xl">⭐</span>
@@ -67,21 +63,15 @@
       </div>
 
       <h1 class="text-3xl font-heading font-bold text-navy mb-3">
-        Fortsätt använda My Starday
+        My Starday är gratis just nu
       </h1>
       <p class="text-text-soft text-lg mb-8 leading-relaxed">
-        Hjälp oss att hålla utvecklingen igång — en liten avgift för en stor hjälp i vardagen.
+        De första 200 familjerna får livstids fri tillgång som grundarmedlemmar.
+        Ingen prenumeration krävs i den här versionen.
       </p>
 
-      <!-- Pricing card — web: use mobile app; native: IAP via RevenueCat -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-        <div class="flex items-center justify-center gap-3 mb-2">
-          <span class="text-5xl font-heading font-bold text-navy">59</span>
-          <span class="text-2xl font-medium text-text-soft">kr</span>
-        </div>
-        <p class="text-text-soft text-sm mb-6">per månad · betalas via App Store eller Google Play</p>
-
-        <ul class="text-left space-y-3 mb-8">
+      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8 text-left">
+        <ul class="space-y-3 mb-8">
           <li class="flex items-start gap-3">
             <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -106,71 +96,21 @@
             </svg>
             <span class="text-navy text-sm">Barnvy och föräldradashboard</span>
           </li>
-          <li class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <span class="text-navy text-sm">Rapporter för pedagog &amp; föräldrar</span>
-          </li>
         </ul>
 
-        <!-- Native: RevenueCat purchase (shown only in Capacitor app) -->
-        <button id="iapUpgradeBtn" type="button"
-           class="hidden w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
-          Starta prenumeration — 59 kr/månad
-        </button>
-
-        <!-- Web: no web payment — use mobile app -->
-        <div id="webUpgradeInfo" class="web-payment-only">
-          <p class="text-navy text-sm font-medium mb-3">Prenumeration hanteras i mobilappen</p>
-          <p class="text-text-soft text-sm leading-relaxed">
-            Ladda ner Min Stjärndag i App Store eller Google Play och starta prenumerationen där.
-            Webbversionen har ingen kortbetalning.
-          </p>
-        </div>
-        <p class="text-text-soft text-xs mt-3">Avsluta när som helst via App Store eller Google Play</p>
+        <a href="/pricing-info"
+           class="block w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] text-center">
+          Läs om grundarprogrammet
+        </a>
+        <a href="/dashboard"
+           class="block w-full mt-3 text-navy font-medium text-sm py-3 hover:underline text-center">
+          Tillbaka till dashboard
+        </a>
       </div>
 
-  <script src="/js/iap-manager.js"></script>
-  <script>
-    (function () {
-      var iapBtn = document.getElementById('iapUpgradeBtn');
-      var webInfo = document.getElementById('webUpgradeInfo');
-      if (!iapBtn) return;
-
-      var isNative = window.IAPManager && window.IAPManager.isNative && window.IAPManager.isNative();
-      if (isNative) {
-        iapBtn.classList.remove('hidden');
-        if (webInfo) webInfo.classList.add('hidden');
-        iapBtn.addEventListener('click', function () {
-          iapBtn.disabled = true;
-          iapBtn.textContent = 'Laddar...';
-          import('@revenuecat/purchases-capacitor').then(function (mod) {
-            return mod.Purchases.purchasePackage
-              ? mod.Purchases.getOfferings().then(function (offerings) {
-                  var pkg = offerings.current && offerings.current.availablePackages && offerings.current.availablePackages[0];
-                  if (!pkg) throw new Error('Inget paket tillgängligt');
-                  return mod.Purchases.purchasePackage({ aPackage: pkg });
-                })
-              : Promise.reject(new Error('IAP ej tillgängligt'));
-          }).then(function () {
-            window.location.href = '/dashboard';
-          }).catch(function (err) {
-            iapBtn.disabled = false;
-            iapBtn.textContent = 'Starta prenumeration — 59 kr/månad';
-            if (err && err.userCancelled) return;
-            alert('Kunde inte starta köpet. Försök igen i appen.');
-          });
-        });
-      }
-    })();
-  </script>
-
-      <!-- Questions? -->
       <p class="text-text-soft text-sm">
-        Frågor? Skriv till <a href="mailto:info@mystarday.se" class="text-navy font-medium underline hover:no-underline">info@mystarday.se</a>
+        Frågor? Skriv till <a href="/" class="text-navy font-medium underline hover:no-underline">kontakta oss via appen</a>
       </p>
-
     </div>
   </main>
 </body>
