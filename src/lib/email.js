@@ -213,25 +213,30 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
   return sendEmail({
     to,
-    subject: `${childName}s schema väntar — har du sett För dig? ⭐`,
+    subject: 'Kom igång igen på en minut ⭐',
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;">Hej ${firstName}! 👋</h2>
-        <p style="color:#5A6178;">Det var ett tag sedan du var här inne. ${childName}s schema ligger kvar — och vi har gjort det enklare att komma igång igen.</p>
-        <div style="background:#F0F4FF;border-radius:12px;padding:20px;margin:20px 0;">
-          <p style="margin:0 0 8px 0;font-size:13px;font-weight:700;color:#1B2340;text-transform:uppercase;letter-spacing:0.5px;">Nyhet: För dig</p>
+        <p style="color:#5A6178;line-height:1.6;">
+          Det var ett tag sedan du var här inne. ${childName}s schema finns kvar precis som du lämnade det.
+        </p>
+        <p style="color:#5A6178;line-height:1.6;">
+          Men nu har vi gjort det enklare att komma igång igen.
+        </p>
+        <div style="background:#F0F4FF;border-radius:12px;padding:20px;margin:24px 0;">
+          <p style="margin:0 0 12px 0;font-size:18px;font-weight:700;color:#1B2340;">⭐ För dig</p>
+          <p style="margin:0 0 12px 0;color:#5A6178;line-height:1.6;">
+            Välj ett mål som passar er — till exempel <strong>lugnare kvällar</strong> eller <strong>bättre morgnar</strong> — och aktivera en färdig rutin med ett tryck.
+          </p>
           <p style="margin:0;color:#5A6178;line-height:1.6;">
-            Välj ett mål som passar er — till exempel <strong>trygga kvällar</strong> eller <strong>bra morgnar</strong> — och aktivera en färdig rutin med ett tryck. Inga scheman att bygga från scratch.
+            Ingen planering. Inget att bygga från början.
           </p>
         </div>
-        <div style="background:#FFF8E8;border-radius:12px;padding:20px;margin:20px 0;text-align:center;">
-          <div style="font-size:32px;margin-bottom:8px;">⭐</div>
-          <p style="margin:0;font-size:18px;font-weight:600;color:#1B2340;">
-            Det tar bara en minut att komma igång
-          </p>
-        </div>
-        <p style="color:#5A6178;">
-          Barnet har stjärnor att tjäna och belöningar att lösa in. Allt är redan på plats.
+        <p style="color:#5A6178;line-height:1.6;">
+          Det tar bara en minut att komma igång.
+        </p>
+        <p style="color:#5A6178;line-height:1.6;">
+          Barnet kan samla stjärnor och lösa in belöningar direkt — allt är redan på plats.
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${ctaUrl}"
