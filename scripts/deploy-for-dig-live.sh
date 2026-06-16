@@ -17,11 +17,6 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
   nvm use 20 2>/dev/null || nvm use default 2>/dev/null || true
 fi
 
-if [ -z "${DATABASE_URL:-}" ]; then
-  echo "DATABASE_URL saknas. Sätt i .env eller exportera innan körning."
-  exit 1
-fi
-
 echo "→ git fetch main"
 git fetch origin main
 git reset --hard origin/main
@@ -32,40 +27,33 @@ npm install --legacy-peer-deps
 echo "→ migrate"
 npm run migrate
 
-echo "→ for_dig live"
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c \
-  "UPDATE features SET status = 'live', updated_at = NOW() WHERE slug = 'for_dig';"
-
-FOR_DIG_STATUS="$(psql "$DATABASE_URL" -tAc "SELECT status FROM features WHERE slug = 'for_dig' LIMIT 1" | tr -d '[:space:]')"
-if [ -z "$FOR_DIG_STATUS" ]; then
-  echo "→ seed features (for_dig saknas)"
-  node scripts/seed-features.js
-  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c \
-    "UPDATE features SET status = 'live', updated_at = NOW() WHERE slug = 'for_dig';"
-  FOR_DIG_STATUS="$(psql "$DATABASE_URL" -tAc "SELECT status FROM features WHERE slug = 'for_dig' LIMIT 1" | tr -d '[:space:]')"
-fi
-
-echo "for_dig status: ${FOR_DIG_STATUS:-okänd}"
+echo "→ for_dig live (via node — läser .env som migrate)"
+node scripts/set-for-dig-live.js
 
 echo "→ restart"
-if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files stjarndag.service >/dev/null 2>&1; then
-  sudo systemctl restart stjarndag
-elif command -v pm2 >/dev/null 2>&1; then
-  pm2 restart stjarndag
+if [ -n "${SYSTEMD_SERVICE:-}" ]; then
+  sudo systemctl restart "$SYSTEMD_SERVICE"
+  echo "restart: $SYSTEMD_SERVICE"
+elif command -v pm2 >/dev/null 2>&1 && pm2 describe app >/dev/null 2>&1; then
+  pm2 restart app
+  echo "restart: pm2 app"
 else
-  echo "Ingen stjarndag-tjänst hittad. Starta om appen manuellt."
+  echo "Sätt SYSTEMD_SERVICE i .env och kör: sudo systemctl restart \$SYSTEMD_SERVICE"
 fi
 
 echo "→ health"
-HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/health}"
-for i in 1 2 3 4 5; do
-  if curl -fsS "$HEALTH_URL" >/dev/null; then
-    echo "OK: $HEALTH_URL"
-    echo "För dig: /for-dig (på er publika domän)"
-    exit 0
-  fi
-  sleep 3
+PORT="${PORT:-3000}"
+for URL in "http://127.0.0.1:${PORT}/health" "http://127.0.0.1/health"; do
+  for i in 1 2 3 4 5; do
+    if curl -fsS "$URL" >/dev/null 2>&1; then
+      echo "OK: $URL"
+      curl -fsS "$URL"
+      echo ""
+      exit 0
+    fi
+    sleep 3
+  done
 done
 
-echo "Health check misslyckades: $HEALTH_URL"
+echo "Health check misslyckades. Kör: sudo systemctl status \$SYSTEMD_SERVICE"
 exit 1
