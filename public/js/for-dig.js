@@ -16,7 +16,12 @@
   let children = [];
   let installs = [];
   let popular = [];
+  let favorites = { goals: [], activities: [], rewards: [], schedules: [] };
+  let goalFavoriteSlugs = new Set();
   let expandedSlug = null;
+  let showAllFavorites = false;
+
+  const FAVORITES_VISIBLE_MAX = 12;
 
   function esc(str) {
     return String(str || '')
@@ -62,13 +67,105 @@
     return installs.some((i) => i.goal_slug === slug && i.child_id === childId);
   }
 
+  function topPopularSlugs() {
+    return new Set(popular.slice(0, 3).map((p) => p.goal_slug));
+  }
+
   function popularSlugs() {
     return new Set(popular.map((p) => p.goal_slug));
   }
 
+  function allFavoriteItems() {
+    const items = [];
+    for (const g of favorites.goals || []) {
+      items.push({ type: 'goal', key: 'goal:' + g.goal_slug, label: g.title, icon: g.icon || '⭐', slug: g.goal_slug });
+    }
+    for (const s of favorites.schedules || []) {
+      items.push({ type: 'schedule', key: 'schedule:' + s.id, label: s.name, icon: '📅', id: s.id });
+    }
+    for (const r of favorites.rewards || []) {
+      items.push({ type: 'reward', key: 'reward:' + r.id, label: r.name, icon: r.icon || '🏆', id: r.id });
+    }
+    for (const a of favorites.activities || []) {
+      items.push({ type: 'activity', key: 'activity:' + a.id, label: a.name, icon: a.icon || '📋', id: a.id });
+    }
+    return items;
+  }
+
+  function renderFavorites() {
+    const mount = document.getElementById('forDigFavorites');
+    if (!mount) return;
+
+    const items = allFavoriteItems();
+    if (items.length === 0) {
+      mount.innerHTML = `
+        <div class="for-dig-favorites">
+          <p class="font-semibold text-navy text-sm mb-1">Mina favoriter</p>
+          <p class="text-sm text-text-soft">Spara favoriter med stjärnan — då hittar du dem här.</p>
+        </div>`;
+      return;
+    }
+
+    const visible = showAllFavorites ? items : items.slice(0, FAVORITES_VISIBLE_MAX);
+    mount.innerHTML = `
+      <div class="for-dig-favorites">
+        <p class="font-semibold text-navy text-sm mb-3">Mina favoriter</p>
+        <div class="space-y-0">
+          ${visible.map((item) => `
+            <div class="for-dig-favorites-item">
+              <span class="text-sm text-navy truncate">${item.icon} ${esc(item.label)}</span>
+              ${renderFavoriteAction(item)}
+            </div>
+          `).join('')}
+        </div>
+        ${items.length > FAVORITES_VISIBLE_MAX && !showAllFavorites
+          ? `<button type="button" class="text-sm text-gold underline mt-3" data-action="show-all-favorites">Visa alla favoriter (${items.length})</button>`
+          : ''}
+      </div>`;
+  }
+
+  function renderFavoriteAction(item) {
+    if (item.type === 'goal') {
+      const goal = goals.find((g) => g.slug === item.slug);
+      const label = goal ? (goal.activateLabel || 'Aktivera') : 'Aktivera';
+      return `<button type="button" class="text-xs font-semibold text-gold whitespace-nowrap" data-action="activate" data-slug="${esc(item.slug)}">${esc(label)}</button>`;
+    }
+    if (item.type === 'schedule') {
+      return `<a href="/schedule?view=template&amp;template=${esc(item.id)}" class="text-xs font-semibold text-gold whitespace-nowrap">Öppna schema</a>`;
+    }
+    if (item.type === 'reward') {
+      return `<a href="/skattkammaren" class="text-xs font-semibold text-gold whitespace-nowrap">Skattkammaren</a>`;
+    }
+    return `<a href="/library" class="text-xs font-semibold text-gold whitespace-nowrap">Bibliotek</a>`;
+  }
+
+  function renderMostInstalled() {
+    const mount = document.getElementById('forDigMostInstalled');
+    if (!mount) return;
+
+    if (popular.length < 3) {
+      mount.innerHTML = '';
+      return;
+    }
+
+    mount.innerHTML = `
+      <div class="for-dig-most-installed">
+        <p class="font-semibold text-navy text-sm mb-2">Mest installerade just nu</p>
+        <ol class="text-sm space-y-1">
+          ${popular.map((p, i) => `
+            <li>${p.rank || i + 1}. ${esc(p.icon)} ${esc(p.title)} <span class="text-text-soft">— ${p.install_count} familjer</span></li>
+          `).join('')}
+        </ol>
+      </div>`;
+  }
+
   function sortGoalsForDisplay() {
     const pop = popularSlugs();
+    const fav = goalFavoriteSlugs;
     return [...goals].sort((a, b) => {
+      const aFav = fav.has(a.slug) ? 2 : 0;
+      const bFav = fav.has(b.slug) ? 2 : 0;
+      if (aFav !== bFav) return bFav - aFav;
       const aPop = pop.has(a.slug) ? 1 : 0;
       const bPop = pop.has(b.slug) ? 1 : 0;
       if (aPop !== bPop) return bPop - aPop;
@@ -107,28 +204,15 @@
   }
 
   function renderPopular() {
-    const mount = document.getElementById('forDigPopular');
-    if (!mount || popular.length < 3) {
-      if (mount) mount.innerHTML = '';
-      return;
-    }
-
-    mount.innerHTML = `
-      <div class="for-dig-popular">
-        <p class="font-semibold text-navy text-sm mb-2">Populärt just nu</p>
-        <ol class="text-sm space-y-1">
-          ${popular.slice(0, 3).map((p, i) => `
-            <li>${i + 1}. ${esc(p.icon)} ${esc(p.title)} <span class="text-text-soft">— ${p.install_count} familjer</span></li>
-          `).join('')}
-        </ol>
-      </div>`;
+    renderMostInstalled();
   }
 
   function renderGoalCard(goal) {
     const isExplore = goal.primaryAction === 'explore';
     const expanded = expandedSlug === goal.slug;
     const installedAny = children.some((c) => isInstalled(goal.slug, c.id));
-    const isPop = popularSlugs().has(goal.slug);
+    const isPop = topPopularSlugs().has(goal.slug);
+    const isFav = goalFavoriteSlugs.has(goal.slug);
 
     return `
       <article class="for-dig-goal-card${installedAny ? ' is-installed' : ''}" data-slug="${esc(goal.slug)}">
@@ -143,6 +227,7 @@
             <p class="text-sm text-text-soft mt-0.5">${esc(goal.tagline)}</p>
             <p class="text-xs text-text-soft mt-1">För barn ${goal.ageMin}–${goal.ageMax} år</p>
           </div>
+          <button type="button" class="for-dig-fav-star${isFav ? ' is-on' : ''}" data-action="toggle-favorite" data-slug="${esc(goal.slug)}" aria-label="${isFav ? 'Ta bort favorit' : 'Spara som favorit'}">${isFav ? '★' : '☆'}</button>
         </div>
 
         ${expanded ? renderGoalDetail(goal) : ''}
@@ -361,13 +446,59 @@
   }
 
   async function loadPopular() {
-    const res = await window.apiFetch('/api/for-dig/popular');
+    const res = await window.apiFetch('/api/for-dig/popular?min_count=5');
     if (!res.ok) return;
     const data = await res.json();
     popular = data.goals || [];
   }
 
+  async function loadFavorites() {
+    const res = await window.apiFetch('/api/for-dig/favorites');
+    if (!res.ok) return;
+    favorites = await res.json();
+    goalFavoriteSlugs = new Set((favorites.goals || []).map((g) => g.goal_slug));
+  }
+
+  async function toggleGoalFavorite(slug) {
+    try {
+      const res = await window.apiFetch('/api/for-dig/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal_slug: slug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Kunde inte spara favorit');
+      if (data.is_favorite) {
+        goalFavoriteSlugs.add(slug);
+      } else {
+        goalFavoriteSlugs.delete(slug);
+      }
+      track('for_dig_favorite_toggle', { entity_type: 'goal', goal_slug: slug, is_favorite: data.is_favorite });
+      await loadFavorites();
+      renderFavorites();
+      renderGoals();
+    } catch (err) {
+      window.showToast && showToast(err.message || 'Kunde inte spara favorit', true);
+    }
+  }
+
   function bindEvents() {
+    const favMount = document.getElementById('forDigFavorites');
+    if (favMount) {
+      favMount.addEventListener('click', (ev) => {
+        const showAll = ev.target.closest('[data-action="show-all-favorites"]');
+        if (showAll) {
+          showAllFavorites = true;
+          renderFavorites();
+          return;
+        }
+        const activate = ev.target.closest('[data-action="activate"]');
+        if (activate) {
+          activateGoal(activate.dataset.slug);
+        }
+      });
+    }
+
     const mount = document.getElementById('forDigGoals');
     if (!mount) return;
 
@@ -395,6 +526,12 @@
       const suggest = ev.target.closest('[data-action="suggest"]');
       if (suggest) {
         showSuggestionModal(suggest.dataset.slug);
+        return;
+      }
+
+      const fav = ev.target.closest('[data-action="toggle-favorite"]');
+      if (fav) {
+        toggleGoalFavorite(fav.dataset.slug);
       }
     });
 
@@ -413,7 +550,8 @@
     document.getElementById('forDigGreeting').textContent = `Hej ${parentFirstName()} 👋`;
 
     try {
-      await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular()]);
+      await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular(), loadFavorites()]);
+      renderFavorites();
       renderRecommendations();
       renderPopular();
       renderGoals();

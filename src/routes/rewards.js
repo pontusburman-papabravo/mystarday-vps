@@ -151,7 +151,7 @@ parentRouter.get('/', async (req, res) => {
       [req.user.id]
     );
     const result = await db.query(
-      `SELECT id, name, icon, star_cost, requires_approval, is_active, sort_order, visible_to_children
+      `SELECT id, name, icon, star_cost, requires_approval, is_active, is_favorite, sort_order, visible_to_children
        FROM reward WHERE family_id = $1 ORDER BY sort_order ASC, star_cost ASC`,
       [req.user.familyId]
     );
@@ -262,6 +262,9 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
     if (body.is_active !== undefined) {
       updates.push('is_active = $' + idx); idx++; values.push(Boolean(body.is_active));
     }
+    if (body.is_favorite !== undefined) {
+      updates.push('is_favorite = $' + idx); idx++; values.push(Boolean(body.is_favorite));
+    }
     if (body.visible_to_children !== undefined) {
       // null = all children, [] = no children, [id,...] = specific children
       let validated = null; // default: visible to all
@@ -292,7 +295,7 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE reward SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, star_cost, requires_approval, is_active, visible_to_children`,
+       RETURNING id, name, icon, star_cost, requires_approval, is_active, is_favorite, visible_to_children`,
       values
     );
     res.json(result.rows[0]);

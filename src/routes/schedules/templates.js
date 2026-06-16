@@ -20,7 +20,7 @@ router.use(requireParent);
 router.get('/', async (req, res) => {
   try {
     const templates = await db.query(
-      `SELECT ws.id, ws.name, ws.sort_order, ws.created_at,
+      `SELECT ws.id, ws.name, ws.sort_order, ws.created_at, ws.is_favorite,
               COUNT(wsi.id) AS item_count
        FROM weekly_schedule ws
        LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
@@ -189,6 +189,31 @@ router.post('/from-standard/:standardId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Create from standard error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// PUT /api/schedule-templates/:templateId — update family template (e.g. is_favorite)
+router.put('/:templateId', async (req, res) => {
+  try {
+    const { is_favorite: isFavorite } = req.body || {};
+    if (isFavorite === undefined) {
+      return res.status(400).json({ error: 'Inget att uppdatera' });
+    }
+
+    const result = await db.query(
+      `UPDATE weekly_schedule
+       SET is_favorite = $1
+       WHERE id = $2 AND family_id = $3 AND child_id IS NULL
+       RETURNING id, name, is_favorite`,
+      [Boolean(isFavorite), req.params.templateId, req.user.familyId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Schemamallen hittades inte' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('[SCHEDULE-TEMPLATES] Update error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

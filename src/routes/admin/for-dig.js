@@ -6,8 +6,21 @@
 
 const express = require('express');
 const feedbackDb = require('../../db/for-dig-goal-feedback');
+const favoritesDb = require('../../db/for-dig-favorites');
 
 const router = express.Router();
+
+router.get('/for-dig/installations', async (req, res) => {
+  try {
+    const days = parseInt(req.query.days, 10) || 90;
+    const minCount = parseInt(req.query.min_count, 10) || 1;
+    const rows = await favoritesDb.getInstallLeaderboard(days, minCount);
+    res.json({ installations: rows, days, min_count: minCount });
+  } catch (err) {
+    console.error('[ADMIN for-dig] installations error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta installationer' });
+  }
+});
 
 router.get('/for-dig/stats', async (req, res) => {
   try {

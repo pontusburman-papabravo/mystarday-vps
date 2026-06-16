@@ -339,6 +339,9 @@ function renderActivityItem(a) {
         </div>
         <!-- Desktop: inline buttons (hidden on mobile via CSS) -->
         <div class="icon-btns-desktop flex gap-1 flex-shrink-0">
+          <button onclick="toggleActivityFavoriteInline('${a.id}', ${a.is_favorite ? 'true' : 'false'})"
+            class="icon-btn px-2 py-1 rounded-lg text-sm transition-colors ${a.is_favorite ? 'text-gold' : 'text-gray-300'}"
+            title="${a.is_favorite ? 'Ta bort favorit' : 'Spara som favorit'}">${a.is_favorite ? '★' : '☆'}</button>
           <button onclick="toggleSubSteps('${a.id}')"
             id="substep-btn-${a.id}"
             title="Delsteg"
@@ -473,6 +476,39 @@ function selectStar(val) {
 }
 
 // ─── Favorite toggle ──────────────────────────────────────
+async function toggleActivityFavoriteInline(id, currentlyFavorite) {
+  const act = activities.find(a => a.id === id);
+  if (!act) return;
+  const isFavorite = currentlyFavorite === true || currentlyFavorite === 'true';
+  const res = await window.apiFetch(`/api/activities/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: act.name,
+      icon: act.icon,
+      category_id: act.category_id,
+      star_value: act.star_value,
+      is_favorite: !isFavorite,
+      feedback_for: act.feedback_for,
+    }),
+  });
+  if (res.ok) {
+    act.is_favorite = !isFavorite;
+    renderActivities();
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type: 'for_dig_favorite_toggle',
+        metadata: { entity_type: 'activity', entity_id: id, is_favorite: !isFavorite },
+      }),
+    }).catch(() => {});
+  } else {
+    showToast('Kunde inte uppdatera favorit', true);
+  }
+}
+
 function toggleFavorite() {
   favValue = !favValue;
   document.getElementById('activityFavorite').value = favValue ? 'true' : 'false';
@@ -1105,6 +1141,7 @@ function renderRewards() {
 
 function renderRewardItem(r) {
   const isActive = r.is_active !== false;
+  const isFavorite = r.is_favorite === true;
   const visLabel = !r.visible_to_children || r.visible_to_children.length === 0
     ? 'Alla barn'
     : `${r.visible_to_children.length} barn`;
@@ -1112,6 +1149,7 @@ function renderRewardItem(r) {
     <div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ${!isActive ? 'opacity-50' : ''}" data-id="${r.id}">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <span class="drag-handle text-text-soft text-sm select-none px-1">☰</span>
+        <button type="button" onclick="toggleRewardFavorite('${r.id}', ${isFavorite})" class="text-lg flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}" aria-label="${isFavorite ? 'Ta bort favorit' : 'Spara som favorit'}">${isFavorite ? '★' : '☆'}</button>
         <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
@@ -1165,6 +1203,31 @@ function initRewardsDnD() {
       } catch { showToast('Kunde inte spara ordningen', true); }
     },
   });
+}
+
+async function toggleRewardFavorite(id, currentlyFavorite) {
+  const reward = rewards.find(r => r.id === id);
+  if (!reward) return;
+  const res = await window.apiFetch(`/api/rewards/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_favorite: !currentlyFavorite }),
+  });
+  if (res.ok) {
+    reward.is_favorite = !currentlyFavorite;
+    renderRewards();
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type: 'for_dig_favorite_toggle',
+        metadata: { entity_type: 'reward', entity_id: id, is_favorite: !currentlyFavorite },
+      }),
+    }).catch(() => {});
+  } else {
+    showToast('Kunde inte uppdatera favorit', true);
+  }
 }
 
 async function toggleRewardActive(id, currentlyActive) {

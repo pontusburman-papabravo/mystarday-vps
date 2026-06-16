@@ -89,6 +89,62 @@
   margin-top: 1.5rem;
 }
 
+.for-dig-fav-star {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.for-dig-fav-star.is-on {
+  color: #F5A623;
+}
+
+.for-dig-fav-star:not(.is-on) {
+  color: #c4c9d4;
+}
+
+.for-dig-favorites {
+  background: #fff;
+  border: 2px solid #FFF3D6;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.for-dig-favorites-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #EDE7F6;
+}
+
+.for-dig-favorites-item:last-child {
+  border-bottom: none;
+}
+
+.for-dig-most-installed {
+  background: #FFF3D6;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+html.dark .for-dig-favorites {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+html.dark .for-dig-most-installed {
+  background: #422006;
+}
+
 .for-dig-popular {
   background: #FFF3D6;
   border-radius: 1rem;

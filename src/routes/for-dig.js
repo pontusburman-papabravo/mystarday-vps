@@ -9,6 +9,7 @@ const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const analytics = require('../../db/analytics');
 const feedbackDb = require('../../db/for-dig-goal-feedback');
+const favoritesDb = require('../../db/for-dig-favorites');
 const { activateGoal } = require('../lib/for-dig-activate');
 const {
   FOR_DIG_GOALS,
@@ -40,20 +41,48 @@ router.get('/installs', async (req, res) => {
 
 router.get('/popular', async (req, res) => {
   try {
-    const rows = await feedbackDb.getPopularGoals(90, 3);
-    const goals = rows.map((row) => {
-      const goal = getGoalBySlug(row.goal_slug);
-      return {
-        goal_slug: row.goal_slug,
-        title: goal ? goal.title : row.goal_slug,
-        icon: goal ? goal.icon : '⭐',
-        install_count: row.install_count,
-      };
-    });
-    res.json({ goals });
+    const minCount = parseInt(req.query.min_count, 10) || 5;
+    const days = parseInt(req.query.days, 10) || 90;
+    const rows = await favoritesDb.getInstallLeaderboard(days, minCount);
+    res.json({ goals: rows });
   } catch (err) {
     console.error('[FOR-DIG] popular error:', err);
     res.status(500).json({ error: 'Kunde inte hämta populära mål' });
+  }
+});
+
+router.get('/favorites', async (req, res) => {
+  try {
+    const favorites = await favoritesDb.listFavorites(req.user.id, req.user.familyId);
+    res.json(favorites);
+  } catch (err) {
+    console.error('[FOR-DIG] favorites list error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta favoriter' });
+  }
+});
+
+router.post('/favorites', async (req, res) => {
+  const { goal_slug: goalSlug } = req.body || {};
+  if (!goalSlug) {
+    return res.status(400).json({ error: 'goal_slug krävs' });
+  }
+
+  try {
+    const result = await favoritesDb.toggleGoalFavorite(
+      req.user.id,
+      req.user.familyId,
+      goalSlug
+    );
+    trackEvent(req.user.familyId, 'for_dig_favorite_toggle', {
+      entity_type: 'goal',
+      goal_slug: goalSlug,
+      is_favorite: result.is_favorite,
+    });
+    res.json(result);
+  } catch (err) {
+    const status = err.status || 500;
+    console.error('[FOR-DIG] favorites toggle error:', err);
+    res.status(status).json({ error: err.message || 'Kunde inte uppdatera favorit' });
   }
 });
 

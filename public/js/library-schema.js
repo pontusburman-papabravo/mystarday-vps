@@ -93,14 +93,19 @@ function renderFamilyTemplates() {
     return;
   }
 
-  container.innerHTML = familyTemplates.map(t => `
+  container.innerHTML = familyTemplates.map(t => {
+    const isFavorite = t.is_favorite === true;
+    return `
     <div class="bg-white rounded-2xl border-2 border-lavender hover:border-gold transition-colors overflow-hidden fade-in">
       <div class="bg-sky/60 px-4 py-3 border-b border-lavender">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <div>
             <h4 class="font-heading font-bold text-navy">${escHtml(t.name)}</h4>
             <div class="text-xs text-text-soft mt-0.5">${parseInt(t.item_count || 0)} aktiviteter</div>
           </div>
+          <button type="button" onclick="toggleTemplateFavorite('${t.id}', ${isFavorite})"
+            class="text-xl min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}"
+            aria-label="${isFavorite ? 'Ta bort favorit' : 'Spara som favorit'}">${isFavorite ? '★' : '☆'}</button>
         </div>
       </div>
       <div class="px-4 py-3 flex flex-col gap-2">
@@ -120,7 +125,32 @@ function renderFamilyTemplates() {
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
+}
+
+async function toggleTemplateFavorite(templateId, currentlyFavorite) {
+  const res = await window.apiFetch(`/api/schedule-templates/${templateId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_favorite: !currentlyFavorite }),
+  });
+  if (res.ok) {
+    const t = familyTemplates.find(x => x.id === templateId);
+    if (t) t.is_favorite = !currentlyFavorite;
+    renderFamilyTemplates();
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type: 'for_dig_favorite_toggle',
+        metadata: { entity_type: 'schedule', entity_id: templateId, is_favorite: !currentlyFavorite },
+      }),
+    }).catch(() => {});
+  } else {
+    showToast('Kunde inte uppdatera favorit', true);
+  }
 }
 
 // ─── Create schedule template ────────────────────────────

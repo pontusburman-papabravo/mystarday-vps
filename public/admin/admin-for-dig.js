@@ -6,6 +6,7 @@
 
   let loaded = false;
   let selectedGoal = null;
+  let adminTab = 'feedback';
 
   function esc(str) {
     return String(str || '')
@@ -13,6 +14,63 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function switchForDigAdminTab(tab) {
+    adminTab = tab;
+    const feedbackPanel = document.getElementById('forDigAdminFeedbackPanel');
+    const installPanel = document.getElementById('forDigAdminInstallationsPanel');
+    const tabFeedback = document.getElementById('forDigTabFeedback');
+    const tabInstall = document.getElementById('forDigTabInstallations');
+    if (feedbackPanel) feedbackPanel.classList.toggle('hidden', tab !== 'feedback');
+    if (installPanel) installPanel.classList.toggle('hidden', tab !== 'installations');
+    if (tabFeedback) {
+      tabFeedback.classList.toggle('border-gold', tab === 'feedback');
+      tabFeedback.classList.toggle('bg-gold', tab === 'feedback');
+      tabFeedback.classList.toggle('border-lavender', tab !== 'feedback');
+    }
+    if (tabInstall) {
+      tabInstall.classList.toggle('border-gold', tab === 'installations');
+      tabInstall.classList.toggle('bg-gold', tab === 'installations');
+      tabInstall.classList.toggle('border-lavender', tab !== 'installations');
+    }
+    if (tab === 'installations') loadForDigInstallations();
+  }
+
+  window.switchForDigAdminTab = switchForDigAdminTab;
+
+  async function loadForDigInstallations() {
+    const el = document.getElementById('forDigAdminInstallations');
+    if (!el) return;
+    try {
+      const data = await Auth.api('/api/admin/for-dig/installations?days=90&min_count=1');
+      const rows = data.installations || [];
+      if (rows.length === 0) {
+        el.innerHTML = '<p class="text-text-soft">Inga installationer registrerade ännu.</p>';
+        return;
+      }
+      el.innerHTML = `
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-text-soft border-b border-lavender">
+              <th class="py-2 pr-2">#</th>
+              <th class="py-2 pr-2">Mål</th>
+              <th class="py-2">Familjer (90d)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r) => `
+              <tr class="border-b border-lavender/50">
+                <td class="py-2 pr-2">${r.rank}</td>
+                <td class="py-2 pr-2">${esc(r.icon)} ${esc(r.title)}</td>
+                <td class="py-2">${r.install_count}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    } catch (_) {
+      el.innerHTML = '<p class="text-red-500">Kunde inte ladda installationer</p>';
+    }
   }
 
   function renderGoalCards(stats) {
@@ -100,6 +158,7 @@
       renderGoalCards(stats);
       renderTotals(stats);
       await loadResponses(selectedGoal);
+      if (adminTab === 'installations') await loadForDigInstallations();
       loaded = true;
       if (status) status.textContent = 'Uppdaterad ' + new Date().toLocaleTimeString('sv-SE');
     } catch (err) {

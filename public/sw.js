@@ -205,7 +205,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v240';
+const CACHE_NAME = 'stjarndag-v241';
 // v239: 3D magic shell — schedule/family/settings + library hash-loop fix
 // v224: iPad/iOS onboarding — emoji picker visible alongside optional photo (App Review 2.1a fix)
 // v157: Remove isInstalledApp() redirect from child-login.js + child-dashboard.js

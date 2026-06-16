@@ -818,6 +818,11 @@
             </div>
             <button type="button" onclick="loadForDigAdmin(true)" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">↺ Uppdatera</button>
           </div>
+          <div class="flex gap-2 mb-4">
+            <button type="button" id="forDigTabFeedback" onclick="switchForDigAdminTab('feedback')" class="px-4 py-2 rounded-xl border-2 border-gold bg-gold text-navy text-sm font-semibold">Feedback</button>
+            <button type="button" id="forDigTabInstallations" onclick="switchForDigAdminTab('installations')" class="px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:bg-sky transition-colors">Installationer</button>
+          </div>
+          <div id="forDigAdminFeedbackPanel">
           <p id="forDigAdminTotals" class="text-sm text-text-soft mb-4">—</p>
           <div id="forDigAdminGoalCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <p class="text-text-soft col-span-full">Laddar…</p>
@@ -829,6 +834,13 @@
             </div>
             <p id="forDigAdminFilterLabel" class="text-xs text-text-soft mb-2">Alla mål</p>
             <div id="forDigAdminResponses" class="overflow-x-auto">—</div>
+          </div>
+          </div>
+          <div id="forDigAdminInstallationsPanel" class="hidden">
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Installationer (90 dagar)</h4>
+              <div id="forDigAdminInstallations" class="text-sm">Laddar…</div>
+            </div>
           </div>
         </div>
 
