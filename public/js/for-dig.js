@@ -210,12 +210,16 @@
         <div class="for-dig-recommend mb-3">
           <p class="font-semibold text-navy text-sm mb-2">För ${esc(child.name)} (${age} år) — Rekommenderat just nu</p>
           <div class="space-y-2">
-            ${relevant.map((g) => `
+            ${relevant.map((g) => {
+              const done = isInstalled(g.slug, child.id);
+              return `
               <div class="for-dig-recommend-row">
                 <span class="text-sm text-navy">${g.icon} ${esc(g.title)}</span>
-                <button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}">Aktivera</button>
-              </div>
-            `).join('')}
+                ${done
+                  ? '<span class="for-dig-recommend-done">Aktiverad ✓</span>'
+                  : `<button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}" data-child-id="${esc(child.id)}">Aktivera</button>`}
+              </div>`;
+            }).join('')}
           </div>
         </div>`;
     }
@@ -324,18 +328,26 @@
     `;
   }
 
-  async function confirmActivation(goal) {
+  async function confirmActivation(goal, preselectedChild) {
     if (children.length === 0) {
       window.showToast && showToast('Lägg till ett barn först under Familjen.', true);
       return null;
     }
 
+    // Guard: don't stack multiple activation modals on rapid double-clicks.
+    if (document.querySelector('.for-dig-modal-backdrop[data-activation]')) {
+      return null;
+    }
+
+    const initialChild = preselectedChild || (children.length === 1 ? children[0] : null);
+
     return new Promise((resolve) => {
-      let phase = children.length === 1 ? 'confirm' : 'pick';
-      let selectedChild = children.length === 1 ? children[0] : null;
+      let phase = initialChild ? 'confirm' : 'pick';
+      let selectedChild = initialChild;
 
       const backdrop = document.createElement('div');
       backdrop.className = 'for-dig-modal-backdrop';
+      backdrop.setAttribute('data-activation', '1');
       backdrop.innerHTML = `<div class="for-dig-modal" role="dialog">${buildActivationModalHtml(goal, phase, selectedChild)}</div>`;
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) {
@@ -372,21 +384,30 @@
     });
   }
 
-  async function activateGoal(slug) {
+  async function activateGoal(slug, preselectedChildId) {
     const goal = goals.find((g) => g.slug === slug);
     if (!goal) return;
 
-    const child = await confirmActivation(goal);
+    const preselectedChild = preselectedChildId
+      ? children.find((c) => c.id === preselectedChildId) || null
+      : null;
+
+    const child = await confirmActivation(goal, preselectedChild);
     if (!child) return;
 
     // Note: the server records `for_dig_activate_click` (and `_success`/`_fail`)
     // on the activate route — do not also track client-side or it double-counts.
 
-    const btn = document.querySelector(`[data-action="activate"][data-slug="${slug}"]`);
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Aktiverar…';
-    }
+    // The same goal can have an Aktivera button in favorites, recommendations
+    // and the goal card. Disable them all and restore each to its own label.
+    const btns = Array.from(
+      document.querySelectorAll(`[data-action="activate"][data-slug="${CSS.escape(slug)}"]`)
+    );
+    const originalLabels = btns.map((b) => b.textContent);
+    btns.forEach((b) => {
+      b.disabled = true;
+      b.textContent = 'Aktiverar…';
+    });
 
     try {
       const res = await window.apiFetch(`/api/for-dig/${slug}/activate`, {
@@ -400,14 +421,18 @@
       window.showToast && showToast(data.message || 'Klart!');
       await loadInstalls();
       renderGoals();
+      renderRecommendations();
       showIntentModal(slug, child.id, goal.title);
     } catch (err) {
       window.showToast && showToast(err.message || 'Något gick fel', true);
     } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = goal.activateLabel || 'Aktivera';
-      }
+      // renderGoals()/renderRecommendations() may have replaced some buttons;
+      // restore only those still attached to the DOM.
+      btns.forEach((b, i) => {
+        if (!b.isConnected) return;
+        b.disabled = false;
+        b.textContent = originalLabels[i];
+      });
     }
   }
 
@@ -553,7 +578,7 @@
       recMount.addEventListener('click', (ev) => {
         const activate = ev.target.closest('[data-action="activate"]');
         if (activate) {
-          activateGoal(activate.dataset.slug);
+          activateGoal(activate.dataset.slug, activate.dataset.childId);
         }
       });
     }

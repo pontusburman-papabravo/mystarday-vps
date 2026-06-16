@@ -113,6 +113,13 @@
   opacity: 0.85;
 }
 
+.for-dig-recommend-done {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3a9d5d;
+}
+
 .for-dig-fav-star {
   min-width: 44px;
   min-height: 44px;

@@ -194,7 +194,6 @@ router.post('/:slug/activate', async (req, res) => {
   trackEvent(req.user.familyId, 'for_dig_activate_click', { goal_slug: slug, child_id: childId });
 
   try {
-    await feedbackDb.clearFeedbackForReactivation(req.user.familyId, childId, slug);
     const result = await activateGoal({
       parentId: req.user.id,
       familyId: req.user.familyId,
@@ -203,6 +202,9 @@ router.post('/:slug/activate', async (req, res) => {
       overwrite: overwrite !== false,
     });
 
+    // Reset the feedback loop only after a successful (re)activation so a
+    // failed attempt never wipes previously-recorded intent/outcome answers.
+    await feedbackDb.clearFeedbackForReactivation(req.user.familyId, childId, slug);
     await feedbackDb.logInstall(slug, req.user.familyId, childId);
     trackEvent(req.user.familyId, 'for_dig_activate_success', {
       goal_slug: slug,
