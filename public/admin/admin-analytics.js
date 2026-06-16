@@ -17,6 +17,9 @@ async function loadAnalytics() {
   const container = document.getElementById('analyticsContainer');
   if (!container) return;
 
+  Object.keys(chartInstances).forEach(destroyChart);
+  activeTab = 'overview';
+
   container.innerHTML = buildAnalyticsHTML();
   initTabs();
 
@@ -101,14 +104,14 @@ function buildAnalyticsHTML() {
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Onboarding-tratt</h3>
           <p class="text-text-soft text-sm mb-4">Antal unika familjer per steg (all tid)</p>
-          <div style="max-height:280px"><canvas id="funnelChart"></canvas></div>
+          <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="funnelChart"></canvas></div>
         </div>
 
         <!-- Feature popularity -->
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Feature-popularitet</h3>
           <p class="text-text-soft text-sm mb-4">Antal händelser per funktion (senaste 30 dagarna)</p>
-          <div style="max-height:280px"><canvas id="featureChart"></canvas></div>
+          <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="featureChart"></canvas></div>
           <div id="featureTable" class="mt-4"></div>
         </div>
       </div>
@@ -204,7 +207,7 @@ function buildAnalyticsHTML() {
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h4 class="text-base font-heading font-bold text-navy mb-1">📉 Tappat engagemang per vecka</h4>
           <p class="text-text-soft text-xs mb-4">Antal familjer som tappat engagemang veckan innan — identifiera trender</p>
-          <div style="max-height:200px"><canvas id="churnTrendChart"></canvas></div>
+          <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="churnTrendChart"></canvas></div>
         </div>
 
         <!-- Ghost families -->
@@ -291,27 +294,27 @@ function buildAnalyticsHTML() {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="trendCharts">
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">Aktiva familjer (24h)</h4>
-            <canvas id="trendActiveFamilies" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendActiveFamilies"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">Aktiva familjer (7d)</h4>
-            <canvas id="trendActiveFamilies7d" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendActiveFamilies7d"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">⭐ Stjärnor utdelade</h4>
-            <canvas id="trendStars" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendStars"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">📊 Konverteringsgrad</h4>
-            <canvas id="trendConversion" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendConversion"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">📱 PWA installerad</h4>
-            <canvas id="trendPwa" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendPwa"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-3">📧 Nyhetsbrevsprenumeranter</h4>
-            <canvas id="trendNewsletter" height="120"></canvas>
+            <div class="analytics-chart-wrap"><canvas id="trendNewsletter"></canvas></div>
           </div>
         </div>
       </div>
@@ -550,7 +553,7 @@ function renderKpiCards(kpis, snapshots) {
       </div>
       <div class="text-3xl font-heading font-bold text-navy">${c.value}</div>
       <div class="text-xs text-text-soft">${c.subtext}</div>
-      <canvas id="${c.id}-spark" height="40" class="w-full"></canvas>
+      <div class="analytics-chart-wrap analytics-chart-wrap--spark"><canvas id="${c.id}-spark"></canvas></div>
     </div>
   `).join('');
 
@@ -628,6 +631,13 @@ function renderFeatureChart(features) {
 
   const sorted = [...features].sort((a, b) => b.total_uses - a.total_uses);
   const colors = ['#F5A623', '#1B2340', '#10B981', '#6366F1'];
+  const useHorizontal = sorted.length > 6;
+  const wrap = canvas.parentElement;
+  if (wrap) {
+    wrap.classList.toggle('analytics-chart-wrap--tall', !useHorizontal);
+    wrap.style.height = useHorizontal ? `${Math.min(520, 56 + sorted.length * 28)}px` : '';
+    wrap.style.maxHeight = useHorizontal ? `${Math.min(520, 56 + sorted.length * 28)}px` : '';
+  }
 
   destroyChart('featureChart');
   chartInstances['featureChart'] = new Chart(canvas, {
@@ -639,7 +649,20 @@ function renderFeatureChart(features) {
         { label: 'Unika familjer',   data: sorted.map(f => f.unique_families), backgroundColor: colors.map(c => c + '60'), borderRadius: 6, borderSkipped: false },
       ],
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+    options: {
+      indexAxis: useHorizontal ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: useHorizontal
+        ? {
+            x: { beginAtZero: true, ticks: { precision: 0 } },
+            y: { ticks: { autoSkip: false, font: { size: 11 } } },
+          }
+        : {
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+          },
+    },
   });
 
   if (tableEl) {

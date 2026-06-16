@@ -79,6 +79,22 @@
     .sortable-chosen { box-shadow: 0 8px 25px rgba(0,0,0,0.15); transform: scale(1.02); }
     .drag-handle { cursor: grab; touch-action: none; }
     .drag-handle:active { cursor: grabbing; }
+    /* Analytics: Chart.js needs explicit container height (otherwise canvases grow unbounded) */
+    .analytics-chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      max-height: 240px;
+      overflow: hidden;
+    }
+    .analytics-chart-wrap--tall { height: 280px; max-height: 280px; }
+    .analytics-chart-wrap--compact { height: 200px; max-height: 200px; }
+    .analytics-chart-wrap--spark { height: 44px; max-height: 44px; }
+    .analytics-chart-wrap canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
   </style>
 </head>
 <body class="bg-white font-body text-navy">
@@ -1788,7 +1804,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <!-- Chart.js for analytics charts and sparklines -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="/admin/admin-analytics.js?v=2.1.0"></script>
+  <script src="/admin/admin-analytics.js?v=2.2.0"></script>
   <script src="/admin/admin-user-stats.js"></script>
 
   <script src="/admin/admin-surveys.js"></script>
