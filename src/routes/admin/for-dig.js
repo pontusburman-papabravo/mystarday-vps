@@ -22,6 +22,22 @@ router.get('/for-dig/installations', async (req, res) => {
   }
 });
 
+router.get('/for-dig/installation-log', async (req, res) => {
+  try {
+    const { goal_slug, days, limit, offset } = req.query;
+    const data = await feedbackDb.listInstallLog({
+      goalSlug: goal_slug || null,
+      days: days ? parseInt(days, 10) : 90,
+      limit: limit ? parseInt(limit, 10) : 100,
+      offset: offset ? parseInt(offset, 10) : 0,
+    });
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN for-dig] installation-log error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta installationslogg' });
+  }
+});
+
 router.get('/for-dig/stats', async (req, res) => {
   try {
     const stats = await feedbackDb.getAdminStats();
