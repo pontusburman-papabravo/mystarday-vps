@@ -41,36 +41,77 @@
 
   async function loadForDigInstallations() {
     const el = document.getElementById('forDigAdminInstallations');
+    const logEl = document.getElementById('forDigAdminInstallLog');
     if (!el) return;
     try {
-      const data = await Auth.api('/api/admin/for-dig/installations?days=90&min_count=1');
-      const rows = data.installations || [];
+      const [summary, log] = await Promise.all([
+        Auth.api('/api/admin/for-dig/installations?days=90&min_count=1'),
+        logEl ? Auth.api('/api/admin/for-dig/installation-log?days=90&limit=100') : null,
+      ]);
+      const rows = summary.installations || [];
       if (rows.length === 0) {
         el.innerHTML = '<p class="text-text-soft">Inga installationer registrerade ännu.</p>';
-        return;
-      }
-      el.innerHTML = `
-        <table class="w-full">
-          <thead>
-            <tr class="text-left text-text-soft border-b border-lavender">
-              <th class="py-2 pr-2">#</th>
-              <th class="py-2 pr-2">Mål</th>
-              <th class="py-2">Familjer (90d)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map((r) => `
-              <tr class="border-b border-lavender/50">
-                <td class="py-2 pr-2">${r.rank}</td>
-                <td class="py-2 pr-2">${esc(r.icon)} ${esc(r.title)}</td>
-                <td class="py-2">${r.install_count}</td>
+      } else {
+        el.innerHTML = `
+          <table class="w-full">
+            <thead>
+              <tr class="text-left text-text-soft border-b border-lavender">
+                <th class="py-2 pr-2">#</th>
+                <th class="py-2 pr-2">Mål</th>
+                <th class="py-2">Familjer (90d)</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>`;
+            </thead>
+            <tbody>
+              ${rows.map((r) => `
+                <tr class="border-b border-lavender/50">
+                  <td class="py-2 pr-2">${r.rank}</td>
+                  <td class="py-2 pr-2">${esc(r.icon)} ${esc(r.title)}</td>
+                  <td class="py-2">${r.install_count}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+      }
+
+      if (logEl && log) {
+        renderInstallLogTable(log, logEl);
+      }
     } catch (_) {
       el.innerHTML = '<p class="text-red-500">Kunde inte ladda installationer</p>';
+      if (logEl) logEl.innerHTML = '<p class="text-red-500">Kunde inte ladda installationslogg</p>';
     }
+  }
+
+  function renderInstallLogTable(data, el) {
+    const rows = data.rows || [];
+    if (rows.length === 0) {
+      el.innerHTML = '<p class="text-text-soft text-sm">Inga enskilda installationer ännu.</p>';
+      return;
+    }
+
+    el.innerHTML = `
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-text-soft border-b border-lavender">
+            <th class="py-2 pr-2">Datum</th>
+            <th class="py-2 pr-2">Förälder</th>
+            <th class="py-2 pr-2">Barn</th>
+            <th class="py-2">Mål</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r) => `
+            <tr class="border-b border-lavender/50 align-top">
+              <td class="py-2 pr-2 whitespace-nowrap">${new Date(r.installed_at).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' })}</td>
+              <td class="py-2 pr-2 min-w-[10rem]">${formatSender(r)}</td>
+              <td class="py-2 pr-2">${esc(r.child_name || '—')}</td>
+              <td class="py-2">${esc(r.goal_icon || '⭐')} ${esc(r.goal_title)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <p class="text-xs text-text-soft mt-2">Visar ${rows.length} av ${data.total || rows.length} (senaste 90 dagarna). Äldre rader kan sakna förälder tills de aktiveras igen.</p>
+    `;
   }
 
   function renderGoalCards(stats) {

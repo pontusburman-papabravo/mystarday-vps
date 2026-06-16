@@ -205,7 +205,7 @@ router.post('/:slug/activate', async (req, res) => {
     // Reset the feedback loop only after a successful (re)activation so a
     // failed attempt never wipes previously-recorded intent/outcome answers.
     await feedbackDb.clearFeedbackForReactivation(req.user.familyId, childId, slug);
-    await feedbackDb.logInstall(slug, req.user.familyId, childId);
+    await feedbackDb.logInstall(slug, req.user.familyId, childId, req.user.id);
     trackEvent(req.user.familyId, 'for_dig_activate_success', {
       goal_slug: slug,
       child_id: childId,

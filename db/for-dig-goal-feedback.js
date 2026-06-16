@@ -60,13 +60,14 @@ async function clearFeedbackForReactivation(familyId, childId, goalSlug) {
   );
 }
 
-async function logInstall(goalSlug, familyId, childId) {
+async function logInstall(goalSlug, familyId, childId, parentId = null) {
   await db.query(
-    `INSERT INTO for_dig_goal_install (goal_slug, family_id, child_id, installed_at)
-     VALUES ($1, $2, $3, NOW())
+    `INSERT INTO for_dig_goal_install (goal_slug, family_id, child_id, parent_id, installed_at)
+     VALUES ($1, $2, $3, $4, NOW())
      ON CONFLICT (goal_slug, family_id, child_id)
-     DO UPDATE SET installed_at = NOW()`,
-    [goalSlug, familyId, childId]
+     DO UPDATE SET installed_at = NOW(),
+                   parent_id = COALESCE(EXCLUDED.parent_id, for_dig_goal_install.parent_id)`,
+    [goalSlug, familyId, childId, parentId || null]
   );
 }
 
@@ -268,6 +269,58 @@ async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset =
   return { rows, total: countResult.rows[0].total };
 }
 
+async function listInstallLog({ goalSlug, days = 90, limit = 100, offset = 0 } = {}) {
+  const conditions = [
+    `i.installed_at >= NOW() - ($1::int || ' days')::interval`,
+  ];
+  const values = [days];
+  let idx = 2;
+
+  if (goalSlug) {
+    conditions.push(`i.goal_slug = $${idx++}`);
+    values.push(goalSlug);
+  }
+
+  values.push(limit, offset);
+
+  const result = await db.query(
+    `SELECT i.goal_slug, i.installed_at, i.family_id, i.child_id,
+            c.name AS child_name,
+            COALESCE(p.name, '(inget namn)') AS parent_name,
+            p.email AS parent_email
+     FROM for_dig_goal_install i
+     LEFT JOIN child c ON c.id = i.child_id
+     LEFT JOIN parent p ON p.id = i.parent_id
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY i.installed_at DESC
+     LIMIT $${idx++} OFFSET $${idx}`,
+    values
+  );
+
+  const countResult = await db.query(
+    `SELECT COUNT(*)::int AS total
+     FROM for_dig_goal_install i
+     WHERE ${conditions.join(' AND ')}`,
+    values.slice(0, -2)
+  );
+
+  const rows = result.rows.map((row) => {
+    const goal = FOR_DIG_GOALS.find((g) => g.slug === row.goal_slug);
+    return {
+      goal_slug: row.goal_slug,
+      goal_title: goal ? goal.title : row.goal_slug,
+      goal_icon: goal ? goal.icon : '⭐',
+      installed_at: row.installed_at,
+      child_name: row.child_name,
+      parent_name: row.parent_name,
+      parent_email: row.parent_email,
+      family_id: row.family_id,
+    };
+  });
+
+  return { rows, total: countResult.rows[0].total };
+}
+
 module.exports = {
   insertFeedback,
   clearFeedbackForReactivation,
@@ -276,4 +329,5 @@ module.exports = {
   getPendingOutcomes,
   getAdminStats,
   listResponses,
+  listInstallLog,
 };
