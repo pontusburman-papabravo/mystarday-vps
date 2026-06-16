@@ -101,7 +101,7 @@ Därför har vi byggt **För dig**.
 
 Och oroa er inte: inget ni redan har byggt påverkas om ni inte väljer att aktivera ett nytt mål. För dig är helt frivilligt.
 
-**[Öppna För dig →](LÄNK_FOR_DIG)**
+**[Prova För dig →](LÄNK_FOR_DIG)**
 
 ---
 
@@ -142,7 +142,7 @@ Teamet bakom APPEN
 
 Hej igen!
 
-En snabb påminnelse: **För dig** finns i menyn i APPEN — tryck på ✨ längst ned på skärmen.
+En snabb påminnelse: **För dig** finns i menyn i APPEN — tryck på **För dig** längst ned på skärmen.
 
 Om kvällarna fortfarande känns stressiga — prova **Trygga kvällar**. Ett tryck på Aktivera, så är kvällsrutinen igång.
 
@@ -219,7 +219,7 @@ I **För dig** kan ni spara utvecklingsmål som favoriter — med stjärnan.
 
 Plus: se vad andra familjer aktiverar mest under *Mest installerade*.
 
-Öppna För dig i menyn.
+Tryck på **För dig** i menyn.
 
 ---
 
@@ -241,7 +241,7 @@ En plats där du väljer *vad ni vill uppnå* — lugnare kvällar, färre morgo
 
 ### Var hittar jag För dig?
 
-På mobilen: längst ned på skärmen, fliken **För dig** (✨). På datorn: i sidomenyn.
+På mobilen: längst ned på skärmen, fliken **För dig**. På datorn: i sidomenyn.
 
 ### Var hittar jag Bibliotek?
 
@@ -295,6 +295,8 @@ En lista som visar vilka utvecklingsmål flest familjer aktiverat — inspiratio
 | "Smakprov på appupplevelsen inför framtiden" | "Nu ser det ut som App Store", lova datum |
 | "Bibliotek under Mer" | "Ersatt Bibliotek", "tagit Biblioteks plats" |
 | "Aktivera" / "Tryck Aktivera" | "Installera paket", "Kopiera till bibliotek" |
+| "Prova För dig" / "Hitta ett mål för er familj" som CTA | Rent navigations-CTA ("Öppna För dig") i huvudmejl |
+| "Tryck på För dig" / fliken **För dig** | ✨ eller andra ikoner som navigationshjälp |
 | Varm, föräldravänlig ton | Produkt-/dev-språk, roadmap-språk |
 
 **Inför utskick:** Sök och ersätt `APPEN` → produktnamn, `LÄNK_FOR_DIG` → full URL till inloggad `/for-dig`.
