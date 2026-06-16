@@ -251,7 +251,17 @@
       loaded = true;
     } catch (err) {
       console.error('[Activation admin]', err);
-      if (status) status.textContent = 'Fel vid laddning';
+      const kpiEl = document.getElementById('activationKpiCards');
+      if (kpiEl) {
+        const detail = err.body?.detail;
+        const msg = err.message || 'Fel vid laddning';
+        kpiEl.innerHTML = `<p class="text-red-600 col-span-full text-sm">${esc(msg)}${detail ? `<br><span class="text-xs font-mono">${esc(detail)}</span>` : ''}</p>`;
+      }
+      if (status) {
+        status.textContent = err.body?.detail
+          ? `${err.message || 'Fel vid laddning'} — ${err.body.detail}`
+          : (err.message || 'Fel vid laddning');
+      }
     }
   }
 

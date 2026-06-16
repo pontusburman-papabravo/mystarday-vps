@@ -72,7 +72,7 @@ async function fetchDay3DoneTriggers(familyIds, client = db) {
      FROM analytics_events
      WHERE family_id = ANY($1::uuid[])
        AND event_type = 'activation_program_day_done'
-       AND (metadata->>'day')::int = 3
+       AND metadata->>'day' = '3'
      GROUP BY metadata->>'trigger'`,
     [familyIds]
   );

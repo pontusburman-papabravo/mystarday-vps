@@ -35,7 +35,10 @@ router.get('/activation-program/retention', async (req, res) => {
     res.json(report);
   } catch (err) {
     console.error('[ADMIN activation-program] retention error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta aktiverings-retention' });
+    res.status(500).json({
+      error: 'Kunde inte hämta aktiverings-retention',
+      detail: err.message,
+    });
   }
 });
 
@@ -55,7 +58,10 @@ router.get('/activation-program/funnel', async (req, res) => {
     res.json(funnel);
   } catch (err) {
     console.error('[ADMIN activation-program] funnel error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta aktiverings-funnel' });
+    res.status(500).json({
+      error: 'Kunde inte hämta aktiverings-funnel',
+      detail: err.message,
+    });
   }
 });
 
