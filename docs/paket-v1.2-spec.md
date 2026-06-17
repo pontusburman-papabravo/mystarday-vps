@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§9.8 intressefas före köp-live)  
+**Uppdaterad:** 2026-06-17 (§9.8 Apple-säker intressefas / fake door)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -785,12 +785,14 @@ if (hasFeature('read_aloud') && ttsAvailable) { showSpeakerButton(); }
 
 Fyra löfteskort — rubrik = nytta. **Alla fyra syns alltid**, även paket som redan är köpta.
 
-| Kort | Rubrik | Tillstånd |
-|------|--------|-----------|
-| Basic | Vardagens grundfunktioner | *Ingår* / aktiv |
-| Rapportering | Följ utveckling över tid | Preview + **Köp nu** eller *Aktivt* |
-| Pedagog | Samarbeta med pedagoger | Preview + **Köp nu** eller *Aktivt* |
-| Extra stöd | Ökad förutsägbarhet | Preview + **Köp nu** eller *Aktivt* |
+| Kort | Rubrik | Tillstånd (intressefas) | Tillstånd (köp-live) |
+|------|--------|-------------------------|------------------------|
+| Basic | Vardagens grundfunktioner | *Ingår* / aktiv | *Ingår* / aktiv |
+| Rapportering | Följ utveckling över tid | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+| Pedagog | Samarbeta med pedagoger | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+| Extra stöd | Ökad förutsägbarhet | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+
+**Intressefas:** inga priser (kr/mån) på kort eller preview — se §9.8.
 
 Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) — inte bara en checklista.
 
@@ -801,7 +803,7 @@ Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) 
 | Element | Spec |
 |---------|------|
 | **Knapp (köp-live)** | `Köp nu` (primär) — när `PACKAGES_ROLLOUT_MODE=purchase` |
-| **Knapp (intressefas)** | `Jag är intresserad av [paket]` — när `PACKAGES_ROLLOUT_MODE=interest` |
+| **Knapp (intressefas)** | Se godkänd copy §9.8 — t.ex. *Anmäl intresse för beta* |
 | **Placering** | Preview-banner (top) · bottom sticky på mobil · uppgraderingskort |
 | **Klick (intressefas)** | `POST /api/subscription/interest` → bekräftelse *"Tack! Vi har noterat ditt intresse."* |
 | **Klick (native iOS, köp-live)** | Öppna RevenueCat/StoreKit — **Apple** plattformsbetalning (App Store) |
@@ -922,53 +924,102 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 **Referens:** `docs/app-store-iap.md` · `src/routes/iap.js` · `public/js/iap-manager.js`
 
-### 9.8 Intressefas — bygg allt, mät intresse före köp-live
+### 9.8 Intressefas — fake door / smoke test före köp-live
 
-**Beslut:** Alla delar i v1.2 **kan byggas och shipas** — men familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän produktteamet aktiverar köp. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview för tilläggspaketen och kan registrera intresse.
+**Beslut:** Alla delar i v1.2 **kan byggas** — men familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän datat motiverar det. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview och kan anmäla intresse via en **beta-väntelista** — inte en trasig köpknapp.
+
+*Produktmetod: **fake door test** / **smoke test** — validera köpintention och paketprioritet innan IAP och full implementation.*
 
 | Fas | `PACKAGES_ROLLOUT_MODE` | CTA | Vad familjer får |
 |-----|-------------------------|-----|------------------|
-| **Intressefas** *(rekommenderad start)* | `interest` | **Jag är intresserad av …** | Mock-preview · läsa/skrolla · ingen write · ingen IAP |
+| **Intressefas** *(rekommenderad start)* | `interest` | **Anmäl intresse för beta** *(ej "Köp")* | Mock-preview · väntelista · ingen write · ingen IAP · **inga priser** |
 | **Köp-live** | `purchase` | **Köp nu** | Preview → IAP (§9.7) eller aktivt paket |
 
-**Varför:** Mät efterfrågan bland befintliga föräldrar innan IAP-produkter, priser och support kapas. Minimerar risk att lansera paket ingen vill ha.
+**Varför:** Mät efterfrågan bland befintliga föräldrar innan IAP-produkter, priser och support kapas.
+
+#### Godkänd copy (intressefas)
+
+| ❌ Använd inte | ✅ Använd istället |
+|---------------|-------------------|
+| Köp nu | **Anmäl intresse för beta** |
+| Lås upp / Aktivera | **Håll mig uppdaterad** |
+| Pris (t.ex. 19 kr/mån) | *(ingen prisinfo)* |
+| "Funktionen är inte klar" | *"Förhandsvisning — lanseras under [period]"* |
+
+**Primär CTA per paket (rekommenderat):**
+
+| Paket | Knapptext |
+|-------|-----------|
+| Rapportering | Anmäl intresse för beta |
+| Pedagog | Anmäl intresse för beta |
+| Extra stöd | Anmäl intresse för beta |
+
+Alternativ: *Håll mig uppdaterad* · *Ansök om tidig tillgång*.
 
 #### Vad alla familjer ser (intressefas)
 
-| Flik / paket | Innehåll | CTA |
-|--------------|----------|-----|
-| **Utveckling** (reporting) | Mock-rapport, trender, PDF-exempel | Jag är intresserad av Rapportering |
-| **Samarbete** (pedagog) | Mock-pedagog, anteckning | Jag är intresserad av Pedagog |
-| **Barn/Stöd** → Extra stöd (teacch) | Mock De sju frågorna | Jag är intresserad av Extra stöd |
-| **Basic** | Oförändrat — full funktion | — |
-
-**Gäller även `lifetime_free`:** de har `basic_app` men ser mock för tillägg — samma som alla andra utan köpt komponent.
-
-#### Intresse-CTA — beteende
+Preview-sidan är en **förhandsvisning + väntelista** — inte en placeholder med död knapp.
 
 ```
 ┌─────────────────────────────────────┐
-│ Exempel — så här kan Utveckling     │
-│ se ut (inte din familjs data)        │
+│ Förhandsvisning — Familj Rapportering │
+│                                     │
+│ Så här kan det se ut när funktionen  │
+│ lanseras. Exempeldata — inte din familj. │
 │                                     │
 │ [ mockad dashboard ]                │
 │                                     │
-│ [ Jag är intresserad av Rapportering ]│
+│ Vi bjuder in familjer till stängd   │
+│ beta. Anmäl intresse så meddelar vi │
+│ när er familj kan aktivera det.     │
+│                                     │
+│ [ Anmäl intresse för beta ]         │
 └─────────────────────────────────────┘
         ↓ klick
 ┌─────────────────────────────────────┐
-│ Tack! Vi har noterat ditt intresse. │
-│ Du får veta när paketet är tillgängligt. │
+│ Tack!                               │
+│ Vi har lagt till er familj på       │
+│ väntelistan för beta.               │
+│ Du får en notis när funktionen      │
+│ blir tillgänglig.                   │
 └─────────────────────────────────────┘
 ```
 
+| Flik / paket | Innehåll | CTA |
+|--------------|----------|-----|
+| **Utveckling** (reporting) | Mock-rapport, trender | Anmäl intresse för beta |
+| **Samarbete** (pedagog) | Mock-pedagog | Anmäl intresse för beta |
+| **Barn/Stöd** → Extra stöd (teacch) | Mock De sju frågorna | Anmäl intresse för beta |
+| **Basic** | Full funktion | — |
+
+**Gäller även `lifetime_free`.**
+
 | Regel | Beskrivning |
 |-------|-------------|
-| En knapp per preview | Primär CTA — ingen Köp nu i intressefas |
+| En knapp per preview | Primär CTA — **aldrig** Köp nu i intressefas |
+| **Inga priser** | Varken på preview, `/upgrade` eller triggers |
 | Ingen write | API/write fortfarande `requireComponent()` — 403 |
 | Barnläge | Barn ser **inte** intresse-CTA eller tilläggspreview |
-| Dubbelklick | Andra klick = *"Du har redan visat intresse"* (mjuk, inte fel) |
-| Sekundär | Valfri *"Berätta mer"* → kort valfri kommentar (max 280 tecken) |
+| Dubbelklick | *"Ni står redan på väntelistan"* (mjuk bekräftelse) |
+| Sekundär | Valfri kort kommentar (max 280 tecken) |
+
+#### Apple App Review & Google Play (kritiskt)
+
+Intressefasen får **inte** se ut som en trasig IAP-knapp.
+
+| Riktlinje | Risk | Åtgärd |
+|-----------|------|--------|
+| **Apple 2.1** App Completeness | Knapp → "vi bygger detta" = **avvisning** | Frama som **beta-väntelista** med fungerande bekräftelse |
+| **Apple 3.1.1** In-App Purchase | "Köp" eller pris utan StoreKit = **avvisning** | Inga kommersiella ord; inga priser i intressefas |
+| **Google Play** | Liknande policy | Samma copy och UX |
+
+**Strategi inför granskning:**
+
+1. **Nuvarande submission:** appen förblir **100 % gratis** — ingen intressefas i första godkända builden om osäkert
+2. **Efter godkännande:** ship intressefas som **ny uppdatering** (t.ex. v1.1) med beta-väntelista-copy ovan
+3. **App Review Notes:** *"New sections are preview/waitlist for upcoming features. No purchases. Users can register interest for a future beta."*
+
+**Native builds:** `PACKAGES_ROLLOUT_MODE=interest` ska vara aktiv i den build som skickas till review — med rätt copy, inte Köp nu.
 
 #### Datainsamling
 
@@ -979,42 +1030,55 @@ POST /api/subscription/interest
 Body: { "component": "reporting" | "pedagog" | "teacch", "source": "preview_nav", "comment": null }
 ```
 
-**Lagring:**
+**Lagring:** tabell `package_interest` (se tidigare schema).
 
-```sql
-CREATE TABLE package_interest (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id     UUID NOT NULL REFERENCES family(id),
-  parent_id     UUID NOT NULL REFERENCES parent(id),
-  component     TEXT NOT NULL,  -- reporting | pedagog | teacch
-  source        TEXT,           -- preview_nav | upgrade | trigger
-  comment       TEXT,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (family_id, component)
-);
+**Analytics (primär KPI för intressefas):**
+
+```javascript
+event_type: 'interest_registered',  // alias: package_interest_registered
+metadata: {
+  paket: 'teacch',           // reporting | pedagog | teacch
+  source: 'bottom_nav_preview'  // preview_nav | upgrade | contextual_trigger
+}
 ```
 
-**Analytics:** `package_interest_registered` i `analytics_events` (§15) — parallellt med DB för aggregering.
+**North Star under intressefas:** konvertering *preview → intresseanmälan* per paket (§15).
 
 #### Admin & beslut
 
 | Vy | Innehåll |
 |----|----------|
 | Admin → Paketintresse | Antal familjer per komponent · lista · export CSV |
-| Intern dashboard | Intresse % av aktiva familjer per paket |
+| Intern dashboard | Intresse-% av aktiva familjer · ranking per paket |
 
-**Beslut att gå köp-live:** När intresse + strategi motiverar → sätt `PACKAGES_ROLLOUT_MODE=purchase`, aktivera IAP (§9.7), byt CTA till Köp nu. Familjer med registrerat intresse kan få push/e-post *(valfritt, separat kampanj)*.
+**Beslut att gå köp-live:** När intresse + strategi motiverar → `PACKAGES_ROLLOUT_MODE=purchase`, IAP (§9.7), priser synliga, CTA = Köp nu. Väntelistefamiljer kan prioriteras till beta *(valfritt)*.
 
 #### Teknisk växling
 
 | Env / feature flag | Värde |
 |--------------------|-------|
-| `PACKAGES_ROLLOUT_MODE` | `interest` *(default vid första ship)* \| `purchase` |
+| `PACKAGES_ROLLOUT_MODE` | `interest` *(default vid smoke test)* \| `purchase` |
 | `PACKAGES_PURCHASE_ENABLED` | `false` i intressefas · `true` vid köp-live |
+| `PACKAGES_SHOW_PRICES` | `false` i intressefas · `true` vid köp-live |
 
-`preview-shell.js` läser `/api/subscription/access` → `rollout_mode` → rätt CTA.
+`preview-shell.js` läser `/api/subscription/access` → `rollout_mode` + `show_prices` → rätt CTA och copy.
 
-**Byggordning påverkas inte:** §16 gäller oförändrat — intressefas är ett **deploy-läge**, inte ett kortare scope.
+#### Minimal smoke test (snabbaste vägen live)
+
+För att mäta intresse **utan** att bygga hela v1.2:
+
+| Epic | Leverans |
+|------|----------|
+| **E1** | `package-access` + `/api/subscription/access` |
+| **E2** | `preview-data.js` + `preview-shell.js` (beta-copy, intresse-CTA) |
+| **E4** | Nav förälder — nya flikar öppnar preview |
+| **E10** | `interest_registered` analytics + `package_interest` API |
+
+*Epic E6–E9 (Extra stöd full implementation) väntar på intressedata.*
+
+**Rekommenderad körning:** smoke test **2 veckor** → dashboard visar vilket paket som prioriteras → bygg det paketet först.
+
+**Byggordning full v1.2:** §16 oförändrad — intressefas är deploy-läge, inte kortare scope om ni väljer full build parallellt.
 
 ---
 
@@ -1032,7 +1096,7 @@ CREATE TABLE package_interest (
 | **4** | 10–11 | Analytics §15 + kontextuella triggers §9.5 |
 | **5** | 12 | IAP-produkter App Store + Play Console (§9.7) — **efter** intressefas |
 
-**Rekommenderad go-to-market:** Ship Fas 0–4 med `PACKAGES_ROLLOUT_MODE=interest` → mät §9.8 → aktivera Fas 5 + `purchase` när datat motiverar.
+**Rekommenderad go-to-market:** (1) Godkänn gratis app i review · (2) Ship **smoke test** (E1+E2+E4+E10) med `interest`-läge · (3) Mät 2 v · (4) Bygg vinnande paket · (5) `purchase` + IAP.
 
 ---
 
@@ -1057,7 +1121,7 @@ CREATE TABLE package_interest (
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
-- [ ] Intressefas §9.8 — mock för alla tillägg + `package_interest` + CTA växling
+- [ ] Intressefas §9.8 — beta-väntelista, inga priser, Apple-säker copy, `interest_registered`
 
 ---
 
@@ -1090,7 +1154,8 @@ CREATE TABLE package_interest (
 | W | **North Star** = genomförda aktiviteter/barn/vecka; retention = ≥3 dagar/vecka (§15) |
 | X | **AI får föreslå, aldrig automatiskt ändra** utan föräldragodkännande (§14.12) |
 | Y | **Betalning endast via Apple/Google IAP** — ingen Stripe/webb-checkout (§9.7) |
-| Z | **Intressefas före köp-live** — bygg allt, mät med *Jag är intresserad* (§9.8) |
+| Z | **Intressefas före köp-live** — fake door / beta-väntelista (§9.8) |
+| AA | **Apple-säker intresse-copy** — inga priser, inga "Köp"-ord i intressefas (§9.8) |
 
 ---
 
@@ -1375,7 +1440,7 @@ Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `
 | Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` |
 | Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` |
 | Preview → köp | `upgrade_from_preview` | `{ paket: 'reporting' }` |
-| Intresse registrerat | `package_interest_registered` | `{ component: 'reporting', source: 'preview_nav' }` |
+| Intresse registrerat | `interest_registered` | `{ paket: 'reporting', source: 'bottom_nav_preview' }` |
 | Kontextuell trigger | `upgrade_trigger_shown` | `{ trigger: '14_day_reporting' }` |
 
 **Regel:** KPI:er beräknas i midnight-scheduler till `analytics_daily_snapshots` — inte ad hoc i produktionsqueries.
@@ -1587,7 +1652,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | **E10** | 4 | analytics + triggers | E2, E3 |
 | **E11** | 5 | IAP produkter + webhook components | E3 |
 
-**Rekommenderad start:** E1 → E2 → E3 med `PACKAGES_ROLLOUT_MODE=interest`. E3b (IAP) när intressedata motiverar köp-live.
+**Rekommenderad start:** E1 → E2 → E4 → E10 för **smoke test** (§9.8 minimal path). Full v1.2 enligt §16 parallellt eller efter intressedata.
 
 ### 16.10 Visuell implementation
 
