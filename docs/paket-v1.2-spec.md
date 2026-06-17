@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (designprinciper & mockup §13)  
+**Uppdaterad:** 2026-06-17 (§14 produktprinciper, nav-hierarki §6.6, domänmodell §7.2)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -26,6 +26,17 @@ För dig
 **Navigation (vid köp):** Paket säljs modulärt, men menyn ska **inte** spegla paketlogiken. Se §6 — arbetsflöden, inte funktionslista.
 
 **Beslutregel vid nya funktioner:** *Vilket problem löser den?* → ska peka på **ett** paket (eller För dig under Basic).
+
+**Positionering (10-sekundersregeln):**
+
+| Problem (kund) | Paket |
+|----------------|-------|
+| Vardagen fungerar inte | **Basic** |
+| Jag vill följa utveckling | **Familj Rapportering** |
+| Jag samarbetar med skola/pedagog | **Familj Pedagog** |
+| Mitt barn behöver mer struktur | **Familj Extra stöd** |
+
+**Konstitutionell regel:** *Ett paket = ett primärt problem.* Nya features måste stärka det problemet — inte läggas till "för att de finns". Se §14.
 
 ---
 
@@ -252,20 +263,25 @@ Anteckning 15 juni: Övergång till lunch gick bättre idag.
 
 ### 5.1 Innehåll v1.2
 
-| Funktion | Feature slug |
-|----------|--------------|
-| **De sju frågorna** | `de_sju_fragorna` |
+| Funktion | Feature slug | Not |
+|----------|--------------|-----|
+| **De sju frågorna** | `de_sju_fragorna` | Med **bild-/symbolstöd** per svar (§7.2) — inte ren text |
+| **Visuell timer** | `visual_timer` | Krympande cirkel / Time Timer vid `how_long` — **inte** bara texten "5 minuter" |
+| **Läs upp** | `read_aloud` | Talsyntes för aktivitet + ifyllda frågor (§7.5) |
 
 Frågor: Vad? · Var? · Vem? · Hur länge? · Vad händer sen? · Vad behöver jag? · Varför?
+
+**Tillgänglighetskrav (v1.2 P0):** Barn som inte läser ska kunna förstå NU-vyn utan att en vuxen läser högt — via pictogram, visuell timer och valfri uppläsning.
 
 ### 5.2 Innehåll v1.3+
 
 | Funktion | Feature slug |
 |----------|--------------|
 | Distraktionsfri barnvy | `minimal_ui` |
-| Visuella timrar | `visual_timer` *(delvis i barnvy idag — paketeras under teacch)* |
 | Övergångsstöd | `transition_support` *(planerad)* |
 | Sociala berättelser | `social_stories` *(planerad)* |
+
+*`visual_timer` finns delvis i barnvy idag (`child.visual_timer`) — v1.2 paketerar och **kräver** visuell representation i Extra stöd-läget, kopplat till `how_long`.*
 
 ### 5.3 UI-identitet
 
@@ -285,13 +301,18 @@ Frågor: Vad? · Var? · Vem? · Hur länge? · Vad händer sen? · Vad behöver
 **Wireframe — De sju frågorna (v1.2):**
 
 ```
-NU — Borsta tänderna
-📍 Var? Badrummet
-👤 Med vem? Själv
-⏱ Hur länge? 5 minuter
-➡ Vad händer sen? Frukost
-[ Klar ]
+[🔊 Läs upp]                                    NU — Borsta tänderna
+
+📍 Var?     [🚿 pictogram]  Badrummet          ← bild primär, text sekundär
+👤 Vem?     [👤 pictogram]  Själv
+⏱ Hur länge?  [○○○○● krympande cirkel]         ← visuell timer, inte bara "5 min"
+➡ Sen?    [🥣 pictogram]  Frukost
+🎒 Behöver? [🪥🧴 pictogram] Tandborste, tandkräm
+
+[ ✓ Klar! ]
 ```
+
+Tomma rader döljs. Pictogram hämtas från `icon_key` / aktivitetsbibliotek (§7.2).
 
 **Wireframe — distraktionsfri (v1.3+):**
 
@@ -404,6 +425,38 @@ Kontextbaserad beroende på barn och aktiva paket:
 
 Ersätter dagens separata *Skatt*-flik och delar av *För dig*.
 
+### 6.6 Nav-hierarki (informationsarkitektur)
+
+Varje funktion har **exakt en primär ingångspunkt**. Sekundära genvägar (t.ex. Idag → schema) är tillåtna men får inte duplicera hela moduler.
+
+```
+Idag                          Rutiner
+├── Dagens rutiner            ├── Veckoschema
+├── NU / NÄSTA                ├── Specialdagar
+├── Stjärnor idag             ├── Aktivitetsbibliotek
+├── Snabb status per barn     ├── Delsteg
+└── För dig (modul)           └── Mallar
+
+Utveckling                    Samarbete
+├── Rapporter                 ├── Pedagoginbjudningar
+├── Historik                  ├── Anteckningar
+├── PDF-export                ├── Gemensam vy
+├── Trender                   └── Begränsad åtkomst
+└── Observationer
+
+Barn / Stöd                   Inställningar (top-right)
+├── Genväg barnvy             ├── Konto
+├── Skattkammare (Basic)      ├── Familjeinställningar
+└── Extra stöd-hub (teacch)    ├── Abonnemang
+                              └── Barnhantering
+```
+
+| Regel | Beskrivning |
+|-------|-------------|
+| **En ingång** | Varje feature-slug har en primär flik/modul (denna tabell) |
+| **Ingen parallell väg** | Samma modul får inte ha egen bottom-nav-flik *och* Idag-kort med samma scope |
+| **Barn max 2 val** | Barnläge: Idag · Skatt — inga fler samtidiga nav-val (§14.6) |
+
 ### 6.4 Mappning — gammal → ny meny
 
 | Idag (nuvarande) | Ny struktur |
@@ -514,10 +567,90 @@ ALTER TABLE activity_template
   ADD COLUMN IF NOT EXISTS seven_questions JSONB NOT NULL DEFAULT '{}'::jsonb;
 ```
 
+**Varje svar är ett objekt — inte en ren textsträng.** Ren text räcker inte för barn som inte läser.
+
+```json
+{
+  "version": 1,
+  "where": {
+    "text": "Badrummet",
+    "icon_key": "bathroom",
+    "emoji": "🚿",
+    "image_url": null
+  },
+  "who": {
+    "text": "Själv",
+    "icon_key": "alone",
+    "emoji": "👤",
+    "image_url": null
+  },
+  "how_long": {
+    "text": "5 minuter",
+    "minutes": 5
+  },
+  "what_next": {
+    "text": "Frukost",
+    "activity_template_id": "uuid-breakfast",
+    "icon_key": null,
+    "emoji": null
+  },
+  "what_need": {
+    "text": "Tandborste, tandkräm",
+    "items": [
+      { "text": "Tandborste", "icon_key": "toothbrush", "emoji": "🪥" },
+      { "text": "Tandkräm", "icon_key": "toothpaste", "emoji": "🧴" }
+    ]
+  }
+}
+```
+
+| Fält (rot) | Typ | Syfte |
+|------------|-----|-------|
+| `version` | number | Schemaversion — börja på `1`; krävs för framtida migreringar |
+
+| Fält per svar | Typ | Syfte |
+|---------------|-----|-------|
+| `text` | string | Föräldredigering + uppläsning (max 500 tecken) |
+| `icon_key` | string? | Nyckel till pictogram-bibliotek |
+| `emoji` | string? | Fallback-symbol |
+| `image_url` | string? | **Egen familjebild** (foto på badrum, mamma, …) — *rekommenderad nivå* för maximal tillgänglighet (§14.1) |
+| `activity_template_id` | uuid? | Referens till aktivitetsmall — `what_next` (och senare `where`/`who`) ärver emoji, namn, bild |
+| `minutes` | number? | Endast `how_long` — driver visuell timer |
+| `items` | array? | Endast `what_need` — flera objekt med egna symboler |
+
+**Pictogram-bibliotek (v1.2):** `config/seven-questions-pictograms.js` — stabilt schema från dag ett:
+
+```javascript
+{
+  key: 'bathroom',
+  label: 'Badrum',
+  category: 'place',       // place | person | object | activity
+  emoji: '🚿',
+  image_url: '/pictograms/bathroom.svg',
+  locale: { sv: 'Badrum' } // v1.3+ lokalisering
+}
+```
+
+~40 seedade pictogram. Kategorier möjliggör sökning, filtrering och framtida egna bilder utan schemaändring.
+
+**Koppling till aktivitetsbibliotek:** `activity_template_id` på `what_next` (v1.2 P0) — NÄSTA ärver automatiskt ikon, namn och metadata från nästa aktivitet. Samma mönster kan utökas till `where`/`who` i v1.3.
+
+**Barnvy — renderingsprioritet (obligatorisk):**
+
+```
+1. image_url     → familjefoto (störst)
+2. icon_key      → pictogram från bibliotek
+3. emoji         → explicit eller auto-genererad från icon_key/kategori
+4. (aldrig)      → enbart text utan visuellt stöd
+```
+
+Om endast `text` finns: `normalizeSevenQuestions()` tilldelar **auto emoji-fallback** från kategori/heuristik — barnet ska aldrig möta en ren textrad. Föräldervy visar mjuk uppmaning: *"Lägg till bild för bättre stöd"* (inte blockerande fel).
+
 | Metod | Endpoint | Ändring |
 |-------|----------|---------|
-| GET/POST/PUT | `/api/activities` | `seven_questions` |
+| GET/POST/PUT | `/api/activities` | `seven_questions` (objekt per fält) |
 | GET | `/api/children/me/daily-log` | Berika från `activity_template` |
+| GET | `/api/pictograms` *(ny)* | Lista tillgängliga `icon_key` + URL/emoji |
 
 ### 7.3 Tekniska krav
 
@@ -527,7 +660,9 @@ const QUESTION_ORDER = [
 ];
 ```
 
-`normalizeSevenQuestions(input)` — trimma, ta bort tomma, ignorera okända nycklar, max 500 tecken.
+`normalizeSevenQuestions(input)` — trimma `text`, sätt `version: 1` om saknas, ta bort tomma fält, validera `icon_key` mot bibliotek, `minutes` 1–120 för `how_long`, max 500 tecken per `text`, tillämpa auto emoji-fallback om inget visuellt finns.
+
+**Bakåtkompatibilitet:** Legacy-sträng (`"Badrummet"`) → `{ text: "Badrummet", emoji: "📍" }` (kategori-heuristik). Aldrig text-only i barnvy.
 
 ### 7.4 Barnvy — NU-kort
 
@@ -539,6 +674,46 @@ const QUESTION_ORDER = [
 ```
 
 NÄSTA-kort synligt (övergångsstöd). Redigering i biblioteket (progressive disclosure).
+
+### 7.5 Tillgänglighet — icke-läsande barn (v1.2 P0)
+
+Tre **kritiska broar** mellan text och visuell förståelse — utan dessa fungerar Extra stöd inte för målgruppen.
+
+| # | Bro | v1.2-krav | Spec |
+|---|-----|-----------|------|
+| 1 | **Bild-/symbolstöd** | Varje ifyllt svar har pictogram (§7.2) | Utan `icon_key`/`emoji`/`image_url` = ofullständigt svar i barnvy |
+| 2 | **Visuell timer** | `how_long` → krympande cirkel (befintlig Time Timer) | Texten "5 minuter" är **sekundär** — aldrig enda representationen |
+| 3 | **Läs upp** | `read_aloud` — högtalarikon på NU-kortet | Web Speech API (web) · native TTS (iOS/Android) · läser aktivitet + ifyllda frågor |
+
+**Läs upp — beteende:**
+
+```
+[🔊]  →  "Nu ska du borsta tänderna.
+          Du ska vara i badrummet.
+          Du är själv.
+          Det tar ungefär fem minuter."
+```
+
+- En tryckning = hela NU-kontexten (aktivitet + alla ifyllda sju frågor)
+- Språk: svenska (`sv-SE`)
+- Respekterar `prefers-reduced-motion` / systemets "läs inte automatiskt"
+- Gated: `requireComponent('teacch')` + `hasFeature('read_aloud')`
+- **Fallback:** Om TTS ej tillgänglig (webbläsare/enhet) → **dölj högtalarknappen** — aldrig visa knapp som ger felmeddelande i barnvy
+
+**Visuell timer — beteende (Extra stöd):**
+
+- Aktiveras när `how_long.minutes` eller `start_time`/`end_time` finns
+- Samma SVG-cirkel som idag i `child-dashboard.js` (`initTimeTimers`)
+- Vid `teacch`: timer **alltid synlig** när tidsfält finns — förälder kan inte lämna barnet med enbart text
+- Paketeras under `visual_timer` i `teacch`-komponenten
+
+**Barn-nav — strikt nedstängning (§13.4):**
+
+| Läge | Bottom nav |
+|------|------------|
+| Barn Basic | **Endast** Idag · Skatt — inga Rutiner, Mer, Inställningar |
+| Barn Extra stöd (NU aktiv) | **Dölj bottom nav** tills aktivitet är avklarad — barnet ska inte kunna "villa bort sig" |
+| Efter ✓ Klar | Visa Idag · Skatt igen |
 
 ---
 
@@ -567,16 +742,31 @@ const STRIPE_COMPONENT_MAP = {
 };
 ```
 
-`STRIPE_ENABLED=false` tills betalning aktiveras. Middleware: `requireComponent()` i `src/middleware/require-component.js`.
+`STRIPE_ENABLED=false` tills betalning aktiveras.
 
-### 8.1 Feature-slug → komponent (register)
+### 8.2 Gating — två nivåer
+
+| Nivå | API | Syfte |
+|------|-----|-------|
+| **Komponent** | `hasComponent('teacch')` / `requireComponent('teacch')` | Paketköp — "har familjen Extra stöd?" |
+| **Feature** | `hasFeature('visual_timer')` / `requireFeature('read_aloud')` | Finmaskig rollout inom paket (v1.3: `social_stories`, `minimal_ui` utan nytt paket) |
+
+Middleware i `src/middleware/require-component.js` utökas med `requireFeature(slug)` som kollar `family_features` + komponent-mapping (§8.1).
+
+```javascript
+// Exempel
+if (hasComponent('teacch') && hasFeature('de_sju_fragorna')) { … }
+if (hasFeature('read_aloud') && ttsAvailable) { showSpeakerButton(); }
+```
+
+### 8.3 Feature-slug → komponent (register)
 
 | Komponent | Feature slugs |
 |-----------|---------------|
 | `basic_app` | `for_dig`, `veckoschema`, `specialdagar`, `kalender`, `aktivitetsbibliotek`, `daglogg`, `manuella_stjarnor`, `beloningssystem`, `skattkammar_universum`, `familjeinbjudan`, `barninloggning`, `push_notiser`, `onboarding` |
 | `reporting` | `klinisk_rapportering` |
 | `pedagog` | `pedagog_invite`, `pedagoganteckningar`, `pedagog_dashboard` |
-| `teacch` | `de_sju_fragorna`, `minimal_ui`, `visual_timer`, `transition_support`, `social_stories` |
+| `teacch` | `de_sju_fragorna`, `visual_timer`, `read_aloud`, `minimal_ui`, `transition_support`, `social_stories` |
 
 *(Planerade slugs i kursiv logik: `pedagog_dashboard`, `transition_support`, `social_stories` — lägg till i `seed-features.js` vid implementation.)*
 
@@ -642,20 +832,54 @@ NU: Borsta tänderna · Var? Badrummet · Sen? Frukost
 
 Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 
+### 9.5 Kontextuella uppgraderingspunkter (konvertering)
+
+Utöver passiv preview — visa **Köp nu** när användaren naturligt behöver paketet:
+
+| Paket | Trigger | Copy (exempel) |
+|-------|---------|----------------|
+| **Rapportering** | ≥14 dagar med aktivitetsdata | *"Du har registrerat aktiviteter i två veckor. Se utvecklingen över tid."* |
+| **Pedagog** | Förälder försöker bjuda in extern vuxen | *"Vill du samarbeta med pedagog?"* |
+| **Extra stöd** | Förälder redigerar aktivitet / öppnar sju frågor | *"Lägg till visuellt stöd med De sju frågorna."* |
+
+Triggers är **icke-blockerande** i v1.2 (banner/modal med dismiss) — men ska loggas i `analytics_events` för A/B.
+
+### 9.6 Centralt preview-register
+
+En källa för all mock-data — samma innehåll i bottom-nav-preview, `/upgrade` och djup länkar:
+
+```javascript
+// config/preview-data.js
+module.exports = {
+  reporting: { /* statisk rapport, trender, PDF-miniatyr */ },
+  pedagog:   { /* fiktiv pedagog, anteckning */ },
+  teacch:    { /* NU-kort med sju frågor + pictogram */ },
+};
+```
+
+**Regel:** Ingen familjedata i preview. Alla vyer importerar från `preview-data.js` — inte hårdkodad demo per sida.
+
 ---
 
 ## 10. Rollout v1.2
+
+**Rekommenderad ordning** (minimerar risk att bygga UI innan paketering fungerar):
 
 | Steg | Leverans |
 |------|----------|
 | 1 | Paketspec + register (denna fil) ✅ |
 | 2 | `pedagog` + `teacch` i `subscription-components.js` |
-| 3 | Feature → komponent-mapping i gating |
-| 4 | Uppgraderingssida + preview-mockar + Köp nu-flöde |
-| 5 | De sju frågorna (Extra stöd P0) |
-| 7 | UI enligt designprinciper §13 (mockup-granskning) |
-| 8 | Navigationsomläggning enligt §6 (iterativt) |
-| 9 | Betalning separat |
+| 3 | `hasComponent()` + `hasFeature()`-mapping |
+| 4 | Uppgraderingssida + `preview-data.js` + Köp nu-flöde |
+| 5 | `teacch`-komponent aktiverbar |
+| 6 | `seven_questions` JSONB + `version` + `normalizeSevenQuestions()` |
+| 7 | Pictogram-bibliotek (`config/seven-questions-pictograms.js`) |
+| 8 | Barnvy-rendering (pictogram + auto-fallback) |
+| 9 | Visuell timer i Extra stöd-NU |
+| 10 | Läs upp (`read_aloud`) med TTS-fallback |
+| 11 | Navigationsomläggning enligt §6 (iterativt) |
+| 12 | Kontextuella uppgraderingspunkter (§9.5) |
+| 13 | Betalning separat |
 
 ---
 
@@ -664,7 +888,14 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 - [ ] Fyra paket med löfte, komponent, feature-register
 - [ ] För dig dokumenterat under Basic — inte femte paket
 - [ ] `pedagog_dashboard`, `transition_support`, `social_stories` planerade under rätt paket
-- [ ] De sju frågorna: datamodell + lugn barnvy-ton + `teacch`-gating
+- [ ] `hasComponent()` + `hasFeature()` tvånivå-gating (§8.2)
+- [ ] `seven_questions.version` + `activity_template_id` på `what_next` (§7.2)
+- [ ] Pictogram-schema med `key`, `category`, `image_url` (§7.2)
+- [ ] Auto emoji-fallback — barnvy aldrig text-only (§7.2)
+- [ ] `config/preview-data.js` — en mock-källa (§9.6)
+- [ ] Kontextuella uppgraderingspunkter (§9.5)
+- [ ] TTS: dölj högtalare om ej tillgänglig (§7.5)
+- [ ] Nav-hierarki: en primär ingång per feature (§6.6)
 - [ ] Uppgradering & preview enligt §9 (alla paket synliga, mock + Köp nu)
 - [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
 - [ ] Mock-data tydligt märkt; ingen familjedata i preview
@@ -681,7 +912,7 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 | A | v1.2 = Paket — fyra säljbara moduler |
 | B | **För dig ∈ Basic** — familjens målyta, inte eget paket |
 | C | Feature-slug-register per komponent (§7.1) |
-| D | De sju frågorna = Extra stöd v1.2; övrigt Extra stöd = v1.3+ |
+| D | Extra stöd v1.2 = De sju frågorna + pictogram + visuell timer + Läs upp; `minimal_ui` m.m. = v1.3+ |
 | E | Nya funktioner → ett paket via beslutregeln (§0) |
 | F | **Meny = arbetsflöden** vid köp — inte paketknappar (§6) |
 | G | För dig = modul i Idag — aldrig egen huvudflik |
@@ -690,6 +921,16 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 | J | Mock = statiskt exempel; aldrig familjens riktiga data i preview |
 | K | Extra stöd = overlay på barnets NU-vy — inte separat app med egen nav (§13) |
 | L | Idag har en nav-väg — inte grid + bottom nav som dubbel huvudmeny (§13) |
+| M | **Svar på sju frågor = objekt med pictogram** — ren text räcker inte i barnvy (§7.2) |
+| N | **Visuell timer ∈ v1.2** under `teacch` — `how_long` får aldrig vara text-only (§7.5) |
+| O | **Läs upp (`read_aloud`) ∈ v1.2** — TTS som komplement till pictogram (§7.5) |
+| P | **Barn-nav strikt** — Basic: Idag+Skatt; Extra stöd under aktivitet: dölj nav (§7.5) |
+| Q | **Ett paket = ett problem** — positioneringstabell §0 |
+| R | **En primär nav-ingång** per feature (§6.6) |
+| S | **`hasComponent` + `hasFeature`** — tvånivå-gating (§8.2) |
+| T | **`seven_questions.version`** + `activity_template_id` på `what_next` (§7.2) |
+| U | **Centralt `preview-data.js`** — en mock-källa (§9.6) |
+| V | **Kontextuella uppgraderingspunkter** — inte bara passiv preview (§9.5) |
 
 ---
 
@@ -798,23 +1039,52 @@ Barn med teacch:      NU + sju frågor-lista + Klar  (samma skärm, lugnare ton)
 **Målbild — NU med Extra stöd:**
 
 ```
-⭐ 24                                    [←]
+[🔊]                                              NU — Borsta tänderna
 
-NU — Borsta tänderna
-
-📍 Var?        Badrummet
-👤 Vem?        Själv
-⏱ Hur länge?   5 minuter
-➡ Sen?         Frukost
-🎒 Behöver?    Tandborste, tandkräm
-💡 Varför?     För friska tänder
+📍 Var?     [🚿]  Badrummet          ← pictogram stort, text liten
+👤 Vem?     [👤]  Själv
+⏱ Hur länge?  [○○●●● timer-ring]
+➡ Sen?    [🥣]  Frukost
+🎒 Behöver? [🪥][🧴]
+💡 Varför?  [😁]  För friska tänder
 
 NÄSTA — Frukost
 
 [ ✓ Klar! ]
+
+(ingen bottom nav medan aktivitet pågår)
 ```
 
-Dölj tomma rader. NÄSTA kvar för övergångsstöd.
+Dölj tomma rader. NÄSTA kvar för övergångsstöd. **Utan pictogram = ofullständig implementation** — inte godkänd för release.
+
+### 13.9 Tillgänglighetsgranskning — icke-läsande barn (2026-06-17)
+
+*Referens: mockup `paket-v1.2-nav.png` + extern granskning.*
+
+**Det som fungerar:**
+
+| Styrka | Varför |
+|--------|--------|
+| NU / NÄSTA-separation | Kronologisk sekvens utan läsning |
+| Aktivitetsikoner (emoji/illustration) | Barn förstår rutiner utan text |
+| Nedtonad stress i Extra stöd | Inga stjärnor/poäng i kontextvyn |
+| En primär handling | ✓ Klar — inget valkaos |
+
+**Kritiska luckor (åtgärdade i §7.5):**
+
+| Problem i mockup/spec | Åtgärd |
+|-----------------------|--------|
+| Sju frågor = textvägg | Objekt-datamodell + pictogram per svar (§7.2) |
+| "5 minuter" abstrakt | Visuell timer flyttad till v1.2 (§5.1) |
+| Ingen uppläsning | `read_aloud` tillagt (§7.5) |
+| Rutiner/Mer i barn-nav | Strikt Idag+Skatt; dölj nav under aktiv NU (§13.4) |
+
+**Rekommenderad prioritering vid implementation:**
+
+1. Pictogram-datamodell + barnvy-rendering (blockerande)
+2. Visuell timer kopplad till `how_long` (blockerande)
+3. Läs upp (hög prioritet — komplement till bildstöd)
+4. `minimal_ui` (v1.3 — helbild + en knapp för mest utmanade barn)
 
 ### 13.6 Preview-skärm (ej i mockup — ska skissas)
 
@@ -851,9 +1121,39 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 |-----|-------|--------|
 | Föräldarläge (Idag-feed) | 8/10 | Behåll innehåll; förenkla nav |
 | Barnläge | 9/10 | Nära målbild; minska flikar |
-| Extra stöd-innehåll | 9/10 | Behåll lista; integrera i NU |
+| Extra stöd-innehåll | 7/10 → 9/10 | Integrera i NU **med pictogram + timer + Läs upp** |
 | Paketstrategi i UI | 7/10 | Lägg till preview-skärmar |
+| Tillgänglighet icke-läsande | — | §7.5 + §14.1 — pictogram, timer, TTS, familjefoto |
 
 ---
 
-*Spec v1.2 Paket — godkänd för implementation.*
+## 14. Produktprinciper (oföränderliga regler)
+
+*Konstitutionella regler — gäller alla versioner. När teamet växer är det dessa som avgör om produkten fortfarande känns sammanhållen om två år.*
+
+| # | Princip |
+|---|---------|
+| **14.1** | **Barn ska kunna använda produkten utan att läsa** — pictogram, timer, TTS och familjefoto (`image_url`) är tillgänglighetslager, inte nice-to-have |
+| **14.2** | **Varje funktion tillhör exakt ett paket** (eller För dig under Basic) |
+| **14.3** | **Varje funktion har exakt en primär navigationsväg** (§6.6) |
+| **14.4** | **Extra stöd är alltid ett lager ovanpå vardagen** — aldrig en separat app med egen nav |
+| **14.5** | **Preview visar värde, inte funktionslistor** — mockad upplevelse med Köp nu |
+| **14.6** | **Barn får aldrig fler än två navigationsval samtidigt** — Idag · Skatt; dölj nav under aktiv NU |
+| **14.7** | **Ett paket = ett primärt problem** — inget feature creep utan problemkoppling (§0) |
+| **14.8** | **Barnvy visar aldrig text utan visuellt stöd** — auto emoji-fallback minimum; familjefoto = rekommenderad nivå |
+| **14.9** | **Gating på två nivåer** — komponent (paket) + feature (rollout) (§8.2) |
+| **14.10** | **Samma preview-data överallt** — `preview-data.js`, aldrig familjens riktiga data (§9.6) |
+
+### 14.11 Vägen till 10/10 — luckor täppta
+
+| Dimension | Nu | 10/10 kräver |
+|-----------|-----|--------------|
+| Produktstrategi | 9.5 | Positioneringstabell + §14.7 ✅ |
+| Informationsarkitektur | 9 | Nav-träd §6.6 + en-ingångsregel ✅ |
+| Tillgänglighet | 9 | Familjefoto rekommenderat + auto-fallback §14.8 ✅ |
+| Implementerbarhet | 8.5 | `hasFeature`, `version`, pictogram-schema, preview-register ✅ |
+| Monetisering | 9 | Kontextuella triggers §9.5 ✅ |
+
+---
+
+*Spec v1.2 Paket — godkänd för implementation. Produktprinciper §14 gäller oförändrat över versioner.*
