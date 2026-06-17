@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (granskningsluckor — `off`-konsistens, schema, grandfathering, numrering)  
+**Uppdaterad:** 2026-06-17 (extern granskning v2 — grandfathering-lockout, nödutgång, JSONB-scrub, PWA-köp, eventbindning)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -475,13 +475,17 @@ Barn / Stöd                   Inställningar (top-right)
 
 **Princip (vid `interest` eller `purchase`):** Användaren ska kunna **se alla paket** (och alla huvudflikar) men **inte använda** dem förrän de betalats eller admin tilldelat komponent. Det som visas utan köp är **mockade exempel** — inte familjens riktiga data.
 
-| Tillstånd | Vad användaren ser | Vad användaren kan göra | CTA |
-|-----------|-------------------|-------------------------|-----|
-| **`off`** | Nuvarande app (Hem · Schema · …) | Oförändrat | — |
-| **Aktivt paket** | Riktig data, full funktion | Allt inom paketet | — |
-| **Ej köpt** (`interest`) | Förhandsvisning med mock | Läsa/skrolla demo | **Anmäl intresse för beta** |
-| **Ej köpt** (`purchase`) | Förhandsvisning med mock | Läsa/skrolla demo | **Köp nu** |
-| **Basic** | Alltid aktivt (eller ingår) | Full åtkomst | — |
+**Avgörande villkor:** Tillståndet styrs av `hasComponent(familyId, component)`, **inte** av `rollout_mode` ensamt. `rollout_mode` styr bara CTA-copy och om preview-shellen monteras alls.
+
+| Tillstånd | Villkor | Vad användaren ser | CTA |
+|-----------|---------|-------------------|-----|
+| **`off`** | `rollout_mode = off` | Nuvarande app (Hem · Schema · …) | — |
+| **Har komponent** | `hasComponent = true` (köpt/grandfathered/admin) | Riktig data, full funktion | — |
+| **Saknar komponent** (`interest`) | `hasComponent = false` | Förhandsvisning med mock | **Anmäl intresse för beta** |
+| **Saknar komponent** (`purchase`) | `hasComponent = false` | Förhandsvisning med mock | **Köp nu** |
+| **Basic** | Alltid | Aktivt (eller ingår) | — |
+
+**Aldrig preview för den som äger komponenten** — grandfathered reporting/pedagog-familjer (§8.4) ser sin riktiga `/reports` respektive Samarbete-vy direkt, även i `interest`-läge.
 
 **Bottom nav (vid `interest` / `purchase`):** alla fem v1.2-flikar **syns alltid**. Flikar utan köpt paket öppnar **preview-läge**, inte tom sida eller dold flik.
 
@@ -565,6 +569,21 @@ Top-right:
 Dölj tomma fält. Kortare svar i barnvy. Delsteg = Basic (hur); sju frågor = Extra stöd (kontext).
 
 **`what` lagras inte i `seven_questions`.** Aktivitetsnamnet (`activity_template.name` / NU-rubriken) *är* svaret på "Vad ska jag göra?". `QUESTION_ORDER` inkluderar `what` endast för renderingsordning i barnvy — värdet hämtas från aktivitetsmallen, inte dupliceras i JSONB.
+
+**Enhetlig rendering (undvik specialfall i UI):** Vid **läsning** (GET daily-log / activities) injicerar backend ett **virtuellt** `what`-objekt så att frontend kan loopa `QUESTION_ORDER` utan undantag för första frågan:
+
+```javascript
+// vid serialisering, ej i DB
+seven_questions.what = {
+  text: activity.name,
+  icon_key: activity.icon_key || null,
+  emoji: activity.emoji || null,
+  image_url: activity.avatar_url || null,
+  virtual: true   // markör — sparas aldrig vid POST/PUT
+};
+```
+
+`normalizeSevenQuestions()` vid **skrivning** rensar bort `what` (och alla `virtual: true`) så att det aldrig persisteras i JSONB.
 
 ### 7.2 Datamodell & API
 
@@ -671,7 +690,20 @@ Pictogram-biblioteket ska inkludera en *abstract*-kategori (~8 st: t.ex. `health
 4. (aldrig)      → enbart text utan visuellt stöd
 ```
 
-Om endast `text` finns: `normalizeSevenQuestions()` tilldelar **auto emoji-fallback** från kategori/heuristik — barnet ska aldrig möta en ren textrad. Föräldervy visar mjuk uppmaning: *"Lägg till bild för bättre stöd"* (inte blockerande fel).
+Om endast `text` finns: `normalizeSevenQuestions()` tilldelar **auto emoji-fallback** — barnet ska aldrig möta en ren textrad. Föräldervy visar mjuk uppmaning: *"Lägg till bild för bättre stöd"* (inte blockerande fel).
+
+**Fallback baseras på fältnyckel — aldrig på textinnehåll (v1.2).** Systemet tolkar **inte** strängens betydelse (ingen "skola" → 🏫-matchning) — det undviker en i18n-mardröm i v1.3. Endast vilket fält det är avgör emoji:
+
+| Fält | Auto-emoji |
+|------|-----------|
+| `where` | 📍 |
+| `who` | 👤 |
+| `how_long` | ⏱ |
+| `what_next` | ➡️ |
+| `what_need` | 🎒 |
+| `why` | 💡 |
+
+Vill föräldern ha en specifik bild väljer hen `icon_key` ur biblioteket eller laddar upp `image_url` — textmatchning sker aldrig automatiskt.
 
 | Metod | Endpoint | Ändring |
 |-------|----------|---------|
@@ -687,9 +719,9 @@ const QUESTION_ORDER = [
 ];
 ```
 
-`normalizeSevenQuestions(input)` — trimma `text`, sätt `version: 1` om saknas, ta bort tomma fält, validera `icon_key` mot bibliotek, `minutes` 1–120 för `how_long`, max 500 tecken per `text`, tillämpa auto emoji-fallback om inget visuellt finns.
+`normalizeSevenQuestions(input)` — trimma `text`, sätt `version: 1` om saknas, ta bort tomma fält, rensa `what` + alla `virtual: true`, validera `icon_key` mot bibliotek, `minutes` 1–120 för `how_long`, max 500 tecken per `text`, tillämpa **fältbaserad** auto emoji-fallback (§7.2) om inget visuellt finns.
 
-**Bakåtkompatibilitet:** Legacy-sträng (`"Badrummet"`) → `{ text: "Badrummet", emoji: "📍" }` (kategori-heuristik). Aldrig text-only i barnvy.
+**Bakåtkompatibilitet:** Legacy-sträng (`"Badrummet"`) → `{ text: "Badrummet", emoji: "📍" }` (fältbaserad fallback, ej textmatchning). Aldrig text-only i barnvy.
 
 ### 7.4 Barnvy — NU-kort
 
@@ -743,6 +775,16 @@ Tre **kritiska broar** mellan text och visuell förståelse — utan dessa funge
 | Barn Basic | **Endast** Idag · Skatt — inga Rutiner, Mer, Inställningar |
 | Barn Extra stöd (NU aktiv) | **Dölj bottom nav** tills aktivitet är avklarad — barnet ska inte kunna "villa bort sig" |
 | Efter ✓ Klar | Visa Idag · Skatt igen |
+
+**Nödutgång — obligatorisk (v1.2 P0):** Dold bottom nav får **aldrig** låsa in barnet utan väg ut. En vuxen ska alltid kunna avbryta en pågående aktivitet om vardagen krisar (barnet vägrar klicka Klar, timern fryser, nät tappas).
+
+| Krav | Spec |
+|------|------|
+| **Vuxen-gated avbryt** | Långtryck 3 s i ett hörn (eller diskret ✕ som kräver bekräftelse) → stänger aktiviteten, återställer nav |
+| **Inte barntillgänglig** | Får inte vara en stor synlig knapp barnet råkar trycka — gestbaserad eller bekräftelsesteg |
+| **Ingen stjärna utdelas** | Avbruten aktivitet räknas inte som genomförd (ingen `daily_log_item`-completion) |
+| **Timer-frys / offline** | Timern är klientberäknad (ingen nätverksberoende) — men avbryt fungerar även om allt annat hänger |
+| **Återgång** | Efter avbryt: barnet tillbaka till Idag-listan, nav synlig igen |
 
 ---
 
@@ -958,17 +1000,31 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 **Webb/PWA — Köp nu-beteende:**
 
+Renodlade webb-/PWA-användare har **ingen native-app att hoppa till** — *"Öppna appen"* blir en återvändsgränd. Detektera plattform via `window.Capacitor?.isNativePlatform()` och visa rätt flöde:
+
+| Kontext | Detektering | Flöde |
+|---------|-------------|-------|
+| **Native (Capacitor)** | `isNativePlatform() === true` | StoreKit / Play Billing direkt |
+| **Webb / PWA / desktop** | `isNativePlatform()` falskt/odefinierat | **Ladda ner-flöde** — inte "öppna appen" |
+
 ```
 ┌─────────────────────────────────────┐
-│ Köp Familj Rapportering i appen     │
+│ Köp Familj Rapportering              │
 │                                     │
-│ Betalning sker via App Store eller  │
-│ Google Play — öppna familjeappen   │
-│ i appen för att slutföra köpet.     │
+│ Köp sker i mobilappen via App Store  │
+│ eller Google Play.                  │
 │                                     │
-│ [ Öppna appen ]  [ App Store ]      │
+│ Skanna för att hämta appen:          │
+│   [ QR-kod ]                        │
+│                                     │
+│ [ App Store ]  [ Google Play ]      │
+│ [ Skicka nedladdningslänk via SMS ] │
 └─────────────────────────────────────┘
 ```
+
+- **QR-kod / store-knappar:** leder till appbutik (inte en död "öppna app"-länk)
+- **SMS-länk** *(valfritt v1.2)*: skicka nedladdningslänk till telefonen
+- **Framtida webb-checkout:** om Apple/Google-policy tillåter extern betalning för webb-plattformen kan en webb-exklusiv Stripe-länk läggas till här — men **aldrig** i native-builden (§9.7 förbjudet)
 
 **Admin / livstidsgratis:** `lifetime_free` och manuell komponenttilldelning i admin kvarstår — utan IAP.
 
@@ -976,7 +1032,9 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 ### 9.8 Intressefas — fake door / smoke test före köp-live
 
-**Beslut:** Alla delar i v1.2 **kan byggas i kod** — men **synlig funktion styrs av admin** via `PACKAGES_ROLLOUT_MODE`. Familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän datat motiverar det. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview och kan anmäla intresse via en **beta-väntelista** — inte en trasig köpknapp.
+**Beslut:** Alla delar i v1.2 **kan byggas i kod** — men **synlig funktion styrs av admin** via `PACKAGES_ROLLOUT_MODE`. Familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän datat motiverar det. Under intressefasen ser familjer **som saknar komponenten** mock-preview och kan anmäla intresse via en **beta-väntelista** — inte en trasig köpknapp.
+
+> **Kritisk regel (grandfathering, §8.4):** Preview visas **endast** om `hasComponent(familyId, component) === false`. En familj som behållit/tilldelats komponenten (grandfathered eller admin-tilldelad) ser sin **riktiga data direkt** — oavsett `rollout_mode`. En lojal familj som använt rapporter i ett år får **aldrig** "Anmäl intresse för beta" istället för sina egna rapporter.
 
 *Produktmetod: **fake door test** / **smoke test** — validera köpintention och paketprioritet innan IAP och full implementation.*
 
@@ -1235,7 +1293,13 @@ För att mäta intresse **utan** att bygga hela v1.2:
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
 - [ ] `PACKAGES_ROLLOUT_MODE=off` som default — ingen synlig förändring vid deploy/review
 - [ ] Grandfathering §8.4 — befintliga reporting/pedagog-familjer behåller åtkomst
+- [ ] **Preview endast om `hasComponent === false`** — grandfathered familjer ser riktig data, aldrig intresse-CTA (§6.6, §9.8)
 - [ ] `package_interest`-schema + canonical `source`-taxonomi (§9.8)
+- [ ] **Vuxen-gated nödutgång** ur dold barn-nav (§7.5)
+- [ ] **DELETE-route scrubbar `what_next.activity_template_id`** — inga ghost-länkar (§7.2, §16.6)
+- [ ] **Fältbaserad** emoji-fallback — ingen textmatchning (§7.2)
+- [ ] **Webb/PWA köp** = ladda ner-flöde (QR/store), inte död "öppna app" (§9.7)
+- [ ] **Ett analytics-event per fas** — `interest_registered` vs `upgrade_from_preview` (§15.3)
 - [ ] Intressefas §9.8 — beta-väntelista, inga priser, Apple-säker copy, `interest_registered`
 
 ---
@@ -1274,6 +1338,11 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | AB | **`off` som default** — all v1.2-kod deploybar utan synlig effekt; admin aktiverar `interest` / `purchase` (§9.8) |
 | AC | **Grandfathering** — familjer med befintlig reporting/pedagog-åtkomst behåller komponent (§8.4) |
 | AD | **`app_config` för rollout** — enum i `app_config`, inte boolean `feature_flag` (§9.8) |
+| AE | **Preview styrs av `hasComponent`, inte enbart `rollout_mode`** — den som äger komponenten ser aldrig mock (§6.6, §9.8) |
+| AF | **Vuxen-gated nödutgång** — dold barn-nav får aldrig låsa in barnet (§7.5) |
+| AG | **Fältbaserad emoji-fallback** — ingen textmatchning i v1.2 (§7.2) |
+| AH | **Webb/PWA = ladda ner-flöde** vid köp — aldrig en död "öppna app"-länk (§9.7) |
+| AI | **Ett analytics-event per fas** — `interest_registered` (interest) vs `upgrade_from_preview` (purchase) (§15.3) |
 
 ---
 
@@ -1553,15 +1622,25 @@ Mäter vanemönster och churn-risk. Använd som komplement — inte som primärt
 
 Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `analytics_daily_snapshots`.
 
-| Event (exempel) | `event_type` | `metadata` |
-|-----------------|--------------|------------|
-| Aktivitet avklarad | `activity_completed` | `{ child_id_hash, source: 'child'|'parent' }` |
-| Rapport exporterad | `report_exported` | `{ format: 'pdf' }` |
-| Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` |
-| Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` |
-| Preview → köp | `upgrade_from_preview` | `{ component: 'reporting', source: 'bottom_nav_preview' }` |
-| Intresse registrerat | `interest_registered` | `{ component: 'reporting', source: 'bottom_nav_preview' }` |
-| Kontextuell trigger | `upgrade_trigger_shown` | `{ component: 'reporting', trigger: '14_day_activity_data' }` |
+| Event (exempel) | `event_type` | `metadata` | Fas |
+|-----------------|--------------|------------|-----|
+| Aktivitet avklarad | `activity_completed` | `{ child_id_hash, source: 'child'|'parent' }` | alla |
+| Rapport exporterad | `report_exported` | `{ format: 'pdf' }` | alla |
+| Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` | alla |
+| Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` | alla |
+| Preview visad | `preview_shown` | `{ component: 'reporting', source: 'bottom_nav_preview' }` | `interest` + `purchase` |
+| **Intresse registrerat** | `interest_registered` | `{ component: 'reporting', source: 'bottom_nav_preview' }` | **endast `interest`** |
+| **Köp påbörjat** | `upgrade_from_preview` | `{ component: 'reporting', source: 'bottom_nav_preview' }` | **endast `purchase`** |
+| Kontextuell trigger | `upgrade_trigger_shown` | `{ component: 'reporting', trigger: '14_day_activity_data' }` | `interest` + `purchase` |
+
+**Regel — ett event per fas (undvik dubbelspårning):**
+
+| `rollout_mode` | CTA-klick triggar |
+|----------------|-------------------|
+| `interest` | `interest_registered` — **aldrig** `upgrade_from_preview` |
+| `purchase` | `upgrade_from_preview` (= köp påbörjat, betaldialog öppnas) — **aldrig** `interest_registered` |
+
+`interest_registered` och `upgrade_from_preview` mäter **olika** handlingar i **olika** faser. Bygg spårningen mot rätt event för aktuell fas — annars blir intressedatat oanvändbart de första veckorna.
 
 **Regel:** KPI:er beräknas i midnight-scheduler till `analytics_daily_snapshots` — inte ad hoc i produktionsqueries.
 
@@ -1707,18 +1786,32 @@ Bygg i denna ordning:
 | 3.1 | Migration `seven_questions JSONB` | `migrations/` |
 | 3.2 | `normalizeSevenQuestions()`, `QUESTION_ORDER` | `src/lib/seven-questions.js` *(ny)* |
 | 3.3 | Pictogram-bibliotek (~40 st) | `config/seven-questions-pictograms.js` *(ny)* |
-| 3.4 | API: activities + pictograms + daily-log enrich | `src/routes/activities.js`, `src/lib/schemas.js` |
+| 3.4 | API: activities + pictograms + daily-log enrich (inkl. virtuellt `what`, §7.1) | `src/routes/activities.js`, `src/lib/schemas.js` |
+| 3.4b | **DELETE-route scrubbar JSONB-referenser** (§7.2) | `src/routes/activities.js` |
 | 3.5 | Förälder: redigering i bibliotek | `public/js/library.js` |
-| 3.6 | Barnvy: NU-kort med sju frågor | `public/js/child-seven-questions.js` *(ny)* |
-| 3.7 | Visuell timer kopplad till `how_long` | återanvänd `initTimeTimers()` i `child-dashboard.js` |
+| 3.6 | Barnvy: NU-kort med sju frågor + **nödutgång** (§7.5) | `public/js/child-seven-questions.js` *(ny)* |
+| 3.7 | Visuell timer (klientberäknad) kopplad till `how_long` | återanvänd `initTimeTimers()` i `child-dashboard.js` |
 | 3.8 | Läs upp (TTS) — dölj om ej tillgänglig | `public/js/child-read-aloud.js` *(ny)* |
 | 3.9 | Feature-seed | `scripts/seed-features.js` |
 
 **Gating:** `requireComponent('teacch')` på write; read i barnvy om komponent finns.
 
+**Referensintegritet (3.4b):** PostgreSQL kan **inte** sätta FK från ett JSONB-fält. När en aktivitet raderas måste `DELETE /api/activities/:id` därför **i applikationskoden** rensa alla `what_next.activity_template_id` som pekar på den raderade mallen — annars uppstår "ghost"-länkar:
+
+```sql
+UPDATE activity_template
+SET seven_questions = jsonb_set(
+  seven_questions, '{what_next,activity_template_id}', 'null'
+)
+WHERE family_id = $1
+  AND seven_questions->'what_next'->>'activity_template_id' = $2;
+```
+
+Görs i samma transaktion som raderingen. `normalizeSevenQuestions()` vid läsning behåller `text` men droppar trasig `activity_template_id` som extra skyddsnät.
+
 **Designreferens:** `docs/mockups/paket-v1.2-nav.png` panel 3 · `docs/mockups/barnvy.html` · §13.5.
 
-**Exit-kriterium:** Barn ser pictogram (aldrig text-only); timer vid `how_long`; högtalare om TTS finns; ingen bottom nav under aktivitet.
+**Exit-kriterium:** Barn ser pictogram (aldrig text-only); timer vid `how_long`; högtalare om TTS finns; ingen bottom nav under aktivitet **men vuxen-gated nödutgång finns** (§7.5); radering av aktivitet lämnar inga ghost-referenser.
 
 ### 16.7 Fas 4 — Analytics & triggers
 
@@ -1726,7 +1819,7 @@ Bygg i denna ordning:
 |---|----------|-----|
 | 4.1 | `activity_completed` — standardisera metadata | befintliga completion-flöden |
 | 4.2 | `seven_questions_shown` | `child-seven-questions.js` |
-| 4.3 | `upgrade_from_preview` | `preview-shell.js` |
+| 4.3 | `interest_registered` (interest) / `upgrade_from_preview` (purchase) — ett per fas (§15.3) | `preview-shell.js` |
 | 4.4 | `upgrade_trigger_shown` | kontextuella banners (§9.5) |
 | 4.5 | Midnight snapshot — NSM | befintlig scheduler |
 
@@ -1798,6 +1891,11 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | `lifetime_free` fail-open (alla paket) | Explicit `basic_app` only i Fas 0.5 |
 | `hasAccess` ignorerar komponenter | `package-access.js` bridge i Fas 0 |
 | Befintliga familjer förlorar reporting/pedagog | Grandfathering-migration §8.4 **före** `requireComponent` på routes |
+| **Grandfathered familj ser intresse-CTA istället för sin data** | Preview gated på `hasComponent === false`, inte enbart `rollout_mode` (§6.6, §9.8) |
+| **Barn inlåst i dold-nav-aktivitet** | Vuxen-gated nödutgång (§7.5); klientberäknad timer (ej nätberoende) |
+| **Ghost-länkar i `seven_questions` JSONB** | DELETE-route scrubbar `activity_template_id` i transaktion (§16.6 3.4b) |
+| **Webb/PWA-köp blir återvändsgränd** | Plattformsdetektering → ladda ner-flöde (QR/store/SMS) (§9.7) |
+| **Dubbelspårning av intresse vs köp** | Ett event per fas — `interest_registered` / `upgrade_from_preview` (§15.3) |
 | `off` vs preview-copy krockar | All preview-UI gated på `rollout_mode !== 'off'` (§9.8) |
 | `feature_flag` för enum | Använd `app_config` för `PACKAGES_ROLLOUT_MODE` (§9.8) |
 | `child-dashboard.js` växer okontrollerat | All Extra stöd-UI i egna filer (§16.6) |
