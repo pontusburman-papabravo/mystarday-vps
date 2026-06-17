@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§14 produktprinciper, nav-hierarki §6.6, domänmodell §7.2)  
+**Uppdaterad:** 2026-06-17 (§15 success metrics, §14.12 AI-princip)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -879,7 +879,8 @@ module.exports = {
 | 10 | Läs upp (`read_aloud`) med TTS-fallback |
 | 11 | Navigationsomläggning enligt §6 (iterativt) |
 | 12 | Kontextuella uppgraderingspunkter (§9.5) |
-| 13 | Betalning separat |
+| 13 | Analytics-events för §15 KPI:er |
+| 14 | Betalning separat |
 
 ---
 
@@ -896,6 +897,8 @@ module.exports = {
 - [ ] Kontextuella uppgraderingspunkter (§9.5)
 - [ ] TTS: dölj högtalare om ej tillgänglig (§7.5)
 - [ ] Nav-hierarki: en primär ingång per feature (§6.6)
+- [ ] AI-princip §14.12 dokumenterad — inga autonoma AI-skrivningar utan föräldragodkännande
+- [ ] Success metrics §15 — NSM + paket-KPI:er instrumenterade i `analytics_events`
 - [ ] Uppgradering & preview enligt §9 (alla paket synliga, mock + Köp nu)
 - [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
 - [ ] Mock-data tydligt märkt; ingen familjedata i preview
@@ -931,6 +934,8 @@ module.exports = {
 | T | **`seven_questions.version`** + `activity_template_id` på `what_next` (§7.2) |
 | U | **Centralt `preview-data.js`** — en mock-källa (§9.6) |
 | V | **Kontextuella uppgraderingspunkter** — inte bara passiv preview (§9.5) |
+| W | **North Star** = genomförda aktiviteter/barn/vecka; retention = ≥3 dagar/vecka (§15) |
+| X | **AI får föreslå, aldrig automatiskt ändra** utan föräldragodkännande (§14.12) |
 
 ---
 
@@ -1144,16 +1149,86 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 | **14.9** | **Gating på två nivåer** — komponent (paket) + feature (rollout) (§8.2) |
 | **14.10** | **Samma preview-data överallt** — `preview-data.js`, aldrig familjens riktiga data (§9.6) |
 
+### 14.12 AI-princip (framtidssäkring)
+
+*Gäller all framtida AI-funktionalitet — byggs inte i v1.2, men beslutet tas nu för att undvika senare kaos.*
+
+| Regel | Beskrivning |
+|-------|-------------|
+| **AI får föreslå** | Rutiner, schemaförändringar, rapporter, observationer, stödmaterial |
+| **AI får aldrig automatiskt ändra** | Schema, rapporter, `seven_questions`, belöningar eller stödmaterial utan explicit godkännande från förälder |
+| **AI-output är utkast** | Alltid preview + *Godkänn* / *Avvisa* — aldrig tyst skrivning till `activity_template`, `weekly_schedule` eller `daily_log` |
+| **Barndata** | AI får inte tränas på familjens data utan separat samtycke (GDPR) |
+
+Exempel på framtida features som omfattas: AI-rutiner · AI-förslag i För dig · AI-sammanfattade rapporter · AI-observationer.
+
 ### 14.11 Vägen till 10/10 — luckor täppta
 
-| Dimension | Nu | 10/10 kräver |
-|-----------|-----|--------------|
-| Produktstrategi | 9.5 | Positioneringstabell + §14.7 ✅ |
-| Informationsarkitektur | 9 | Nav-träd §6.6 + en-ingångsregel ✅ |
-| Tillgänglighet | 9 | Familjefoto rekommenderat + auto-fallback §14.8 ✅ |
-| Implementerbarhet | 8.5 | `hasFeature`, `version`, pictogram-schema, preview-register ✅ |
-| Monetisering | 9 | Kontextuella triggers §9.5 ✅ |
+| Dimension | Före | Nu |
+|-----------|------|-----|
+| Produktstrategi | 9.5 | **10** — §0 + §14.7 ✅ |
+| Informationsarkitektur | 9 | **10** — §6.6 ✅ |
+| Tillgänglighet | 9 | **10** — §7.2 + §14.8 ✅ |
+| Implementerbarhet | 8.5 | **10** — §7.2 + §8.2 ✅ |
+| Monetisering | 9 | **10** — §9.5 ✅ |
+| Styrning & uppföljning | — | **10** — §15 + §14.12 ✅ |
 
 ---
 
-*Spec v1.2 Paket — godkänd för implementation. Produktprinciper §14 gäller oförändrat över versioner.*
+## 15. Success metrics
+
+*Specen definierar vad produkten är, hur den fungerar och hur den säljs. Detta avsnitt definierar **hur vi vet att den fungerar**.*
+
+### 15.1 North Star Metric
+
+**Primär NSM (v1.2):**
+
+> **Antal genomförda aktiviteter per barn och vecka**
+
+Mäter kärnvärdet: barnet genomför rutiner, föräldern ser framsteg, produkten används i vardagen.
+
+**Stödjande retention-metric:**
+
+> **Andel familjer aktiva ≥ 3 dagar/vecka**
+
+Mäter vanemönster och churn-risk. Använd som komplement — inte som primärt optimeringsmål om det konkurrerar med djup användning (kvalitet före frekvens).
+
+### 15.2 KPI per paket
+
+| Paket | KPI | Mätdefinition | Mål (initialt) |
+|-------|-----|---------------|----------------|
+| **Basic** | Aktiv rutin | % familjer med ≥1 avklarad aktivitet/dag i 30 dagar efter onboarding | Baseline → +10% efter 90 dagar |
+| **Basic** | För dig-engagemang | % familjer som klickar För dig-modulen ≥1 gång/vecka | ≥25% av aktiva |
+| **Rapportering** | Rapportanvändning | Antal skapade/exporterade rapporter per familj och månad | ≥1/månad bland köpare |
+| **Pedagog** | Aktiva relationer | Antal familjer med ≥1 accepterad pedagoginbjudan + aktiv inom 30 dagar | Baseline efter lansering |
+| **Extra stöd** | Sju frågor-täckning | % schemalagda aktiviteter med ≥3 ifyllda `seven_questions`-fält (inkl. pictogram) | ≥60% bland teacch-köpare |
+| **Extra stöd** | Visuellt stöd | % svar med `image_url` eller `icon_key` (ej enbart auto-fallback) | ≥40% inom 60 dagar |
+| **Monetisering** | Konvertering preview → köp | % familjer som köper efter kontextuell trigger (§9.5) | Baseline → A/B-test |
+| **Tillgänglighet** | Läs upp-användning | % NU-sessioner med teacch där `read_aloud` används | Baseline (valfritt) |
+
+### 15.3 Datainsamling
+
+Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `analytics_daily_snapshots`.
+
+| Event (exempel) | `event_type` | `metadata` |
+|-----------------|--------------|------------|
+| Aktivitet avklarad | `activity_completed` | `{ child_id_hash, source: 'child'|'parent' }` |
+| Rapport exporterad | `report_exported` | `{ format: 'pdf' }` |
+| Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` |
+| Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` |
+| Preview → köp | `upgrade_from_preview` | `{ paket: 'reporting' }` |
+| Kontextuell trigger | `upgrade_trigger_shown` | `{ trigger: '14_day_reporting' }` |
+
+**Regel:** KPI:er beräknas i midnight-scheduler till `analytics_daily_snapshots` — inte ad hoc i produktionsqueries.
+
+### 15.4 Granskningsrytm
+
+| Intervall | Aktivitet |
+|-----------|-----------|
+| Veckovis | NSM + aktiva familjer (internt dashboard) |
+| Månadsvis | KPI per paket — beslut om iteration |
+| Per release | Acceptanskriterier §11 + relevanta KPI:er gröna innan "klar" |
+
+---
+
+*Spec v1.2 Paket — **implementationsklar**. Produktprinciper §14 och success metrics §15 gäller oförändrat över versioner.*
