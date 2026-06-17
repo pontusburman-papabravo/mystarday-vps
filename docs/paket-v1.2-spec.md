@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (preview + Köp nu, §6.5 §9)  
+**Uppdaterad:** 2026-06-17 (designprinciper & mockup §13)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -653,8 +653,9 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 | 3 | Feature → komponent-mapping i gating |
 | 4 | Uppgraderingssida + preview-mockar + Köp nu-flöde |
 | 5 | De sju frågorna (Extra stöd P0) |
-| 7 | Navigationsomläggning enligt §6 (iterativt; kan efterlöpa paket-gating) |
-| 8 | Betalning separat |
+| 7 | UI enligt designprinciper §13 (mockup-granskning) |
+| 8 | Navigationsomläggning enligt §6 (iterativt) |
+| 9 | Betalning separat |
 
 ---
 
@@ -668,7 +669,8 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 - [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
 - [ ] Mock-data tydligt märkt; ingen familjedata i preview
 - [ ] API/write blockerat via `requireComponent()` tills köp
-- [ ] Inställningar i top-right, inte bottom nav
+- [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
+- [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
 
 ---
 
@@ -686,6 +688,171 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 | H | Bottom nav max 5; Inställningar top-right |
 | I | **Se allt, använd det du betalat** — mock-preview + Köp nu (§6.5, §9) |
 | J | Mock = statiskt exempel; aldrig familjens riktiga data i preview |
+| K | Extra stöd = overlay på barnets NU-vy — inte separat app med egen nav (§13) |
+| L | Idag har en nav-väg — inte grid + bottom nav som dubbel huvudmeny (§13) |
+
+---
+
+## 13. Designprinciper & mockup-granskning
+
+*Referens: treläges-mockup (Föräldarläge · Barnläge · Extra stöd-läge), 2026-06-17.*
+
+### 13.1 Tre lägen — rätt modell
+
+| Läge | Syfte | Målgrupp |
+|------|-------|----------|
+| **Föräldarläge** | Full översikt, alla arbetsflöden | Förälder |
+| **Barnläge** | Enkel vy — fokus på nuet | Barn (Basic-ton) |
+| **Extra stöd (barn)** | Lugn struktur — De sju frågorna | Barn med `teacch` |
+
+**Viktigt:** Tre lägen är *upplevelser*, inte tre paket. Paket säljs kommersiellt; lägen styrs av roll + aktiva komponenter.
+
+### 13.2 Designprinciper (gäller implementation)
+
+| # | Princip |
+|---|---------|
+| 1 | **En primär nav-väg** — bottom nav (5 flikar) är huvudnavigering; Idag duplicerar inte hela menyn |
+| 2 | **Idag = action** — checklista, stjärnor, NU/NÄSTA, För dig-modul; inte sex jämbördiga kort |
+| 3 | **Inställningar top-right** — kugghjul/avatar; aldrig sjätte kort i grid eller bottom nav |
+| 4 | **Extra stöd = overlay** — De sju frågorna visas *inuti* barnets NU-vy, inte som separat app med egen meny |
+| 5 | **Barn = minimal nav** — Idag + Skatt/Stöd; ingen Rutiner, Utveckling, Samarbete eller Mer |
+| 6 | **En primär handling (barn)** — ✓ Klar; inga konkurrerande knappar |
+| 7 | **Färg = arbetsflöde** — konsekvent palett: Rutiner (teal) · Utveckling (blå) · Samarbete (lila) · Barn/Stöd (grön) · Extra stöd (dämpad blå) |
+| 8 | **Preview synlig** — ej köpta flikar visar mock + Köp nu (§9), inte tom eller dold |
+
+### 13.3 Föräldarläge — mockup
+
+**Det som fungerar:**
+
+- Idag överst: checklista, +stjärnor, barnväljare
+- Fem bottom-flikar: Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd
+- Färgkodade områdeskort med kort beskrivning — tydlig paketidentitet utan paketknappar
+
+**Justera:**
+
+| Problem | Rekommendation |
+|---------|----------------|
+| Grid **och** bottom nav visar samma fem områden | **Alternativ A (rekommenderat):** Idag = bara dagens action + För dig-modul; bottom nav = enda huvudnav |
+| Inställningar som grått kort i grid | Flytta till **top-right** (header) |
+| För dig-modul saknas | Lägg under checklistan: *"Fortsätt utveckla" · "Rekommenderade rutiner"* |
+
+**Målbild — Idag (förälder):**
+
+```
+[Anna ▾]                              [🔔] [⚙️]
+
+Idag
+✓ Borsta tänderna  ✓ Klä på sig  ○ Läxor
++2 stjärnor idag                    [Skatt]
+
+── Fortsätt utveckla ──          ← För dig-modul (Basic)
+Rekommenderad rutin: Trygga kvällar
+[Aktivera]
+
+(bottom nav: Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd)
+```
+
+### 13.4 Barnläge — mockup
+
+**Det som fungerar (9/10):**
+
+- NU stort med illustration
+- NÄSTA synligt (övergångsstöd)
+- En grön **✓ Klar!**-knapp
+- Stjärnor diskret (⭐ 24) — motivation utan att dominera
+
+**Justera:**
+
+| Problem | Rekommendation |
+|---------|----------------|
+| Rutiner i barn-bottom nav | **Dölj** — barn planerar inte schema |
+| Mer i bottom nav | **Dölj** — bryter mot distraktionsfrihet |
+| Skatt + Stöd som separata flikar | Överväg **2 flikar:** Idag · Skatt (Stöd = del av Idag när teacch aktivt) |
+
+**Målbild — barn-bottom nav (Basic):**
+
+```
+[ Idag ]  [ Skatt ]
+```
+
+**Med teacch:** samma — Extra stöd är innehåll på Idag, inte egen flik.
+
+### 13.5 Extra stöd — mockup (barn)
+
+**Det som fungerar (9/10):**
+
+- Vertikal lista med De sju frågorna + ikoner
+- Lugn blå palett — tydlig skillnad mot Basic
+- En **✓ Klar!**-knapp
+- Inga stjärnor/poäng i kontextlistan
+
+**Största greppet:**
+
+Extra stöd-skärmens *innehåll* är rätt — men det ska vara **hur NU-kortet ser ut** när `teacch` är aktivt, inte ett tredje läge med egen bottom nav.
+
+```
+Barn utan teacch:     NU + illustration + timer + Klar
+Barn med teacch:      NU + sju frågor-lista + Klar  (samma skärm, lugnare ton)
+```
+
+**Målbild — NU med Extra stöd:**
+
+```
+⭐ 24                                    [←]
+
+NU — Borsta tänderna
+
+📍 Var?        Badrummet
+👤 Vem?        Själv
+⏱ Hur länge?   5 minuter
+➡ Sen?         Frukost
+🎒 Behöver?    Tandborste, tandkräm
+💡 Varför?     För friska tänder
+
+NÄSTA — Frukost
+
+[ ✓ Klar! ]
+```
+
+Dölj tomma rader. NÄSTA kvar för övergångsstöd.
+
+### 13.6 Preview-skärm (ej i mockup — ska skissas)
+
+För ej köpta paket i **föräldarläge**:
+
+```
+┌─────────────────────────────────────┐
+│ Exempel — så här kan Utveckling     │
+│ se ut                               │
+│                                     │
+│ [mockad dashboard, statisk data]    │
+│                                     │
+│ [ Köp Familj Rapportering ]         │
+└─────────────────────────────────────┘
+```
+
+Samma mönster för Samarbete och Extra stöd (§9.3).
+
+### 13.7 Mockup vs spec — checklista
+
+| Mockup | Spec | Åtgärd |
+|--------|------|--------|
+| Idag som hub | ✅ | Behåll |
+| För dig-modul | Modul i Idag | Lägg till under checklista |
+| Inställningar-kort | Top-right | Flytta till header |
+| Grid + bottom nav | En nav-väg | Förenkla Idag |
+| Extra stöd = eget läge | Overlay på NU | Integrera innehåll |
+| Preview / Köp nu | §9 | Skissa preview-skärmar |
+| Barn: Rutiner, Mer | Minimal nav | Ta bort från barnläge |
+
+### 13.8 Sammanfattande dom
+
+| Del | Betyg | Beslut |
+|-----|-------|--------|
+| Föräldarläge (Idag-feed) | 8/10 | Behåll innehåll; förenkla nav |
+| Barnläge | 9/10 | Nära målbild; minska flikar |
+| Extra stöd-innehåll | 9/10 | Behåll lista; integrera i NU |
+| Paketstrategi i UI | 7/10 | Lägg till preview-skärmar |
 
 ---
 
