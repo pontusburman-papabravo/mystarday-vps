@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (navigationsarkitektur §6)  
+**Uppdaterad:** 2026-06-17 (preview + Köp nu, §6.5 §9)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -416,18 +416,49 @@ Ersätter dagens separata *Skatt*-flik och delar av *För dig*.
 | *(nytt vid full access)* | **Utveckling** |
 | *(nytt vid full access)* | **Samarbete** |
 
-### 6.5 Delvis åtkomst (inte alla paket)
+### 6.5 Delvis åtkomst — se allt, använd det du betalat
 
-Bottom nav visar **endast flikar användaren har tillgång till** — inga låsta paketknappar i huvudnav.
+**Princip:** Användaren ska kunna **se alla paket** (och alla huvudflikar) men **inte använda** dem förrän de betalats. Det som visas utan köp är **mockade exempel** — inte familjens riktiga data — med en enkel **Köp nu**-knapp.
 
-| Komponenter aktiva | Synliga flikar (exempel) |
-|--------------------|--------------------------|
-| `basic_app` only | Idag · Rutiner · Barn/Stöd |
-| + `reporting` | + Utveckling |
-| + `pedagog` | + Samarbete |
-| + `teacch` | Barn/Stöd utökas med stödverktyg |
+| Tillstånd | Vad användaren ser | Vad användaren kan göra |
+|-----------|-------------------|-------------------------|
+| **Aktivt paket** | Riktig data, full funktion | Allt inom paketet |
+| **Ej köpt paket** | Förhandsvisning med mock-exempel | Läsa/skrolla demo · **Köp nu** |
+| **Basic** | Alltid aktivt (eller ingår) | Full åtkomst |
 
-Saknad komponent → flik dold (eller upgrade-prompt vid djup länk, inte i bottom nav).
+**Bottom nav:** alla fem flikar **syns alltid** (arbetsflödesmodellen är konstant). Flikar utan köpt paket öppnar **preview-läge**, inte tom sida eller dold flik.
+
+```
+[ Idag ] [ Rutiner ] [ Utveckling🔒 ] [ Samarbete🔒 ] [ Barn/Stöd ]
+                         ↑
+              mockad rapportvy + [ Köp nu ]
+```
+
+#### Preview-läge per flik (ej köpt)
+
+| Flik | Mock-exempel (statiskt) | CTA |
+|------|-------------------------|-----|
+| **Utveckling** | Demo-dashboard: närvaro 92%, aktiviteter +12%, exempel-PDF | Köp Familj Rapportering |
+| **Samarbete** | Demo-pedagogkort, exempelanteckning | Köp Familj Pedagog |
+| **Barn / Stöd** (teacch-del) | Demo NU-kort med De sju frågorna ifyllda | Köp Familj Extra stöd |
+
+**Regler för mock-data:**
+
+| Regel | Detalj |
+|-------|--------|
+| Tydligt märkt | Banner: *"Exempel — så här kan det se ut"* |
+| Ingen riktig data | Mock får **inte** blanda in familjens barnnamn, loggar eller observationer |
+| Ingen write | Inga spara/export/delning-knappar som fungerar — endast Köp nu |
+| En CTA | En primär **Köp nu** per preview-yta (sekundär: *Läs mer*) |
+| Efter köp | Samma vy byter till riktig data utan nav-omläggning |
+
+#### Teknisk gating (oförändrad)
+
+- **UI preview:** alltid tillgänglig (läs/mock)
+- **API & write:** `requireComponent()` → 403 `COMPONENT_MISSING` + `upgrade_url`
+- **Barnläge:** preview av Extra stöd gäller föräldravyn; barn ser aldrig låsta paket
+
+**Skilj från:** döda/låsta flikar (❌) · tom upgrade-modal vid varje klick (❌) · feature-lista utan kontext (❌)
 
 ### 6.6 Barnläge vs föräldraläge
 
@@ -551,18 +582,65 @@ const STRIPE_COMPONENT_MAP = {
 
 ---
 
-## 9. Uppgraderingssidan
+## 9. Uppgradering & förhandsvisning (Köp nu)
 
-Fyra löfteskort — rubrik = nytta, inte funktionsdump:
+### 9.1 Uppgraderingssidan (`/upgrade`)
 
-| Kort | Rubrik | Checklista (kort) |
-|------|--------|-------------------|
-| Basic | Vardagens grundfunktioner | Schema · Belöningar · För dig · Flera barn |
-| Rapportering | Följ utveckling över tid | Rapporter · Historik · PDF · Delningslänkar |
-| Pedagog | Samarbeta med pedagoger | Inbjudan · Anteckningar · Delad översikt |
-| Extra stöd | Ökad förutsägbarhet | De sju frågorna · Visuellt stöd · Övergångsstöd |
+Fyra löfteskort — rubrik = nytta. **Alla fyra syns alltid**, även paket som redan är köpta.
 
-Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
+| Kort | Rubrik | Tillstånd |
+|------|--------|-----------|
+| Basic | Vardagens grundfunktioner | *Ingår* / aktiv |
+| Rapportering | Följ utveckling över tid | Preview + **Köp nu** eller *Aktivt* |
+| Pedagog | Samarbeta med pedagoger | Preview + **Köp nu** eller *Aktivt* |
+| Extra stöd | Ökad förutsägbarhet | Preview + **Köp nu** eller *Aktivt* |
+
+Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) — inte bara en checklista.
+
+### 9.2 Köp nu — enhetligt beteende
+
+| Element | Spec |
+|---------|------|
+| **Knapp** | `Köp nu` (primär) — samma copy överallt |
+| **Placering** | Preview-banner (top) · bottom sticky på mobil · uppgraderingskort |
+| **Klick** | → `/upgrade?paket=reporting` (eller Stripe checkout när aktivt) |
+| **Efter köp** | Komponent tillagd i `family_subscriptions` → preview ersätts av riktig vy, ingen omstart |
+
+### 9.3 Preview-mockar (innehåll)
+
+Statiskt exempelinnehåll — fiktiva namn och siffror:
+
+**Utveckling (reporting):**
+```
+Exempel — så här kan det se ut
+Senaste 30 dagarna · Närvaro: 92% · Aktiviteter: +12%
+[ Köp Familj Rapportering ]
+```
+
+**Samarbete (pedagog):**
+```
+Exempel
+Emma Larsson, specialpedagog — "Övergång till lunch gick bättre idag."
+[ Köp Familj Pedagog ]
+```
+
+**Extra stöd (teacch):**
+```
+Exempel — De sju frågorna
+NU: Borsta tänderna · Var? Badrummet · Sen? Frukost
+[ Köp Familj Extra stöd ]
+```
+
+### 9.4 Var preview visas
+
+| Yta | Beteende |
+|-----|----------|
+| Bottom nav-flik (ej köpt) | Fullskärms-preview med mock |
+| Uppgraderingssida | Miniatyr + Köp nu per kort |
+| Djup länk till låst feature | Redirect till preview eller upgrade med `?paket=` |
+| Inställningar → Abonnemang | Alla paket med status Aktivt / Köp nu |
+
+Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 
 ---
 
@@ -573,7 +651,7 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 | 1 | Paketspec + register (denna fil) ✅ |
 | 2 | `pedagog` + `teacch` i `subscription-components.js` |
 | 3 | Feature → komponent-mapping i gating |
-| 4 | Uppgraderingssida — fyra kort |
+| 4 | Uppgraderingssida + preview-mockar + Köp nu-flöde |
 | 5 | De sju frågorna (Extra stöd P0) |
 | 7 | Navigationsomläggning enligt §6 (iterativt; kan efterlöpa paket-gating) |
 | 8 | Betalning separat |
@@ -586,9 +664,10 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 - [ ] För dig dokumenterat under Basic — inte femte paket
 - [ ] `pedagog_dashboard`, `transition_support`, `social_stories` planerade under rätt paket
 - [ ] De sju frågorna: datamodell + lugn barnvy-ton + `teacch`-gating
-- [ ] Uppgraderingssida enligt §9
-- [ ] Navigation: arbetsflödesflikar vid full access (§6); För dig ej egen bottom-tab
-- [ ] Delvis åtkomst: endast relevanta flikar synliga
+- [ ] Uppgradering & preview enligt §9 (alla paket synliga, mock + Köp nu)
+- [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
+- [ ] Mock-data tydligt märkt; ingen familjedata i preview
+- [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav
 
 ---
@@ -605,6 +684,8 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 | F | **Meny = arbetsflöden** vid köp — inte paketknappar (§6) |
 | G | För dig = modul i Idag — aldrig egen huvudflik |
 | H | Bottom nav max 5; Inställningar top-right |
+| I | **Se allt, använd det du betalat** — mock-preview + Köp nu (§6.5, §9) |
+| J | Mock = statiskt exempel; aldrig familjens riktiga data i preview |
 
 ---
 
