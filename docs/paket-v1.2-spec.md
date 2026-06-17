@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§9.8 Apple-säker intressefas / fake door)  
+**Uppdaterad:** 2026-06-17 (§9.8 `off` som default — admin aktiverar intresse/köp)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -926,16 +926,21 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 ### 9.8 Intressefas — fake door / smoke test före köp-live
 
-**Beslut:** Alla delar i v1.2 **kan byggas** — men familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän datat motiverar det. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview och kan anmäla intresse via en **beta-väntelista** — inte en trasig köpknapp.
+**Beslut:** Alla delar i v1.2 **kan byggas i kod** — men **synlig funktion styrs av admin** via `PACKAGES_ROLLOUT_MODE`. Familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän datat motiverar det. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview och kan anmäla intresse via en **beta-väntelista** — inte en trasig köpknapp.
 
 *Produktmetod: **fake door test** / **smoke test** — validera köpintention och paketprioritet innan IAP och full implementation.*
 
 | Fas | `PACKAGES_ROLLOUT_MODE` | CTA | Vad familjer får |
 |-----|-------------------------|-----|------------------|
-| **Intressefas** *(rekommenderad start)* | `interest` | **Anmäl intresse för beta** *(ej "Köp")* | Mock-preview · väntelista · ingen write · ingen IAP · **inga priser** |
-| **Köp-live** | `purchase` | **Köp nu** | Preview → IAP (§9.7) eller aktivt paket |
+| **Av** *(default vid deploy + App Review)* | `off` | — | **Ingen ny UI** — appen beter sig exakt som idag |
+| **Intressefas** *(admin aktiverar)* | `interest` | **Anmäl intresse för beta** *(ej "Köp")* | Mock-preview · väntelista · ingen write · ingen IAP · **inga priser** |
+| **Köp-live** *(admin aktiverar)* | `purchase` | **Köp nu** | Preview → IAP (§9.7) eller aktivt paket |
 
-**Varför:** Mät efterfrågan bland befintliga föräldrar innan IAP-produkter, priser och support kapas.
+**Default:** `off`. All v1.2-kod kan ligga i produktion utan att användare ser något — tills admin (Pontus) sätter `interest` eller `purchase`.
+
+**Full funktion per familj:** Oberoende av rollout-läge kan admin tilldela komponenter i `family_subscriptions` (t.ex. ge `teacch` till en testfamilj) — då får familjen riktig funktion utan mock.
+
+**Varför:** Mät efterfrågan bland befintliga föräldrar innan IAP-produkter, priser och support kapas — utan att påverka pågående App Review.
 
 #### Godkänd copy (intressefas)
 
@@ -1015,11 +1020,11 @@ Intressefasen får **inte** se ut som en trasig IAP-knapp.
 
 **Strategi inför granskning:**
 
-1. **Nuvarande submission:** appen förblir **100 % gratis** — ingen intressefas i första godkända builden om osäkert
-2. **Efter godkännande:** ship intressefas som **ny uppdatering** (t.ex. v1.1) med beta-väntelista-copy ovan
-3. **App Review Notes:** *"New sections are preview/waitlist for upcoming features. No purchases. Users can register interest for a future beta."*
+1. **Nuvarande submission:** `PACKAGES_ROLLOUT_MODE=off` — appen förblir **100 % oförändrad** för granskaren; v1.2-kod får finnas men är inaktiv
+2. **Efter godkännande:** admin sätter `interest` i ny uppdatering (t.ex. v1.1) med beta-väntelista-copy ovan
+3. **App Review Notes (vid `interest`):** *"New sections are preview/waitlist for upcoming features. No purchases. Users can register interest for a future beta."*
 
-**Native builds:** `PACKAGES_ROLLOUT_MODE=interest` ska vara aktiv i den build som skickas till review — med rätt copy, inte Köp nu.
+**Native builds:** Skicka med `off` till review om osäkert. Vid `interest` i review-build: rätt beta-copy, **aldrig** Köp nu eller priser.
 
 #### Datainsamling
 
@@ -1057,11 +1062,21 @@ metadata: {
 
 | Env / feature flag | Värde |
 |--------------------|-------|
-| `PACKAGES_ROLLOUT_MODE` | `interest` *(default vid smoke test)* \| `purchase` |
-| `PACKAGES_PURCHASE_ENABLED` | `false` i intressefas · `true` vid köp-live |
-| `PACKAGES_SHOW_PRICES` | `false` i intressefas · `true` vid köp-live |
+| `PACKAGES_ROLLOUT_MODE` | `off` *(default)* \| `interest` \| `purchase` |
+| `PACKAGES_PURCHASE_ENABLED` | `false` i `off` och intressefas · `true` vid köp-live |
+| `PACKAGES_SHOW_PRICES` | `false` i `off` och intressefas · `true` vid köp-live |
 
-`preview-shell.js` läser `/api/subscription/access` → `rollout_mode` + `show_prices` → rätt CTA och copy.
+**Admin:** samma flaggor kan sättas via `feature_flag` i admin (överstyr env). Env är fallback om flagga saknas.
+
+**Klientbeteende per läge:**
+
+| `rollout_mode` | Nav v1.2 | Preview-shell | Intresse-CTA | IAP |
+|----------------|----------|---------------|--------------|-----|
+| `off` | Nej — nuvarande nav | Monteras inte | Nej | Nej |
+| `interest` | Ja | Ja (mock + beta-copy) | Ja | Nej |
+| `purchase` | Ja | Ja (mock eller aktivt) | Nej — Köp nu | Ja (native) |
+
+`preview-shell.js` och `native-tab-bar.js` läser `/api/subscription/access` → `rollout_mode` + `show_prices` → monterar inget när `off`.
 
 #### Minimal smoke test (snabbaste vägen live)
 
@@ -1096,7 +1111,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | **4** | 10–11 | Analytics §15 + kontextuella triggers §9.5 |
 | **5** | 12 | IAP-produkter App Store + Play Console (§9.7) — **efter** intressefas |
 
-**Rekommenderad go-to-market:** (1) Godkänn gratis app i review · (2) Ship **smoke test** (E1+E2+E4+E10) med `interest`-läge · (3) Mät 2 v · (4) Bygg vinnande paket · (5) `purchase` + IAP.
+**Rekommenderad go-to-market:** (1) Deploy v1.2-kod med `off` → godkänn gratis app i review · (2) Admin sätter `interest` → ship smoke test (E1+E2+E4+E10) · (3) Mät 2 v · (4) Bygg vinnande paket · (5) Admin sätter `purchase` + IAP.
 
 ---
 
@@ -1121,6 +1136,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
+- [ ] `PACKAGES_ROLLOUT_MODE=off` som default — ingen synlig förändring vid deploy/review
 - [ ] Intressefas §9.8 — beta-väntelista, inga priser, Apple-säker copy, `interest_registered`
 
 ---
@@ -1156,6 +1172,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | Y | **Betalning endast via Apple/Google IAP** — ingen Stripe/webb-checkout (§9.7) |
 | Z | **Intressefas före köp-live** — fake door / beta-väntelista (§9.8) |
 | AA | **Apple-säker intresse-copy** — inga priser, inga "Köp"-ord i intressefas (§9.8) |
+| AB | **`off` som default** — all v1.2-kod deploybar utan synlig effekt; admin aktiverar `interest` / `purchase` (§9.8) |
 
 ---
 
@@ -1505,6 +1522,7 @@ Config: subscription-components.js · component-feature-map.js
 
 | # | Leverans | Filer |
 |---|----------|-------|
+| 0.0 | Rollout-läge `off` som default + admin-flaggor | `feature_flag` seed, `src/lib/package-access.js` |
 | 0.1 | `pedagog` + `teacch` i paketregister | `config/subscription-components.js` |
 | 0.2 | Feature → komponent-mapping | `config/component-feature-map.js` *(ny)* |
 | 0.3 | Enhetlig access-modul | `src/lib/package-access.js` *(ny)* |
@@ -1515,9 +1533,12 @@ Config: subscription-components.js · component-feature-map.js
 ```javascript
 // GET /api/subscription/access — svar
 {
+  rollout_mode: 'off',   // 'off' | 'interest' | 'purchase' — default 'off'
+  show_prices: false,
+  purchase_enabled: false,
   components: { basic_app: true, reporting: false, pedagog: false, teacch: false },
   features:   { de_sju_fragorna: false, read_aloud: false, klinisk_rapportering: false, … },
-  preview:    { reporting: true, pedagog: true, teacch: true }
+  preview:    { reporting: false, pedagog: false, teacch: false }  // true endast när rollout_mode !== 'off'
 }
 ```
 
