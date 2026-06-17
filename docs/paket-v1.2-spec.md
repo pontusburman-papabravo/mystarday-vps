@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§9.8 `off` som default — admin aktiverar intresse/köp)  
+**Uppdaterad:** 2026-06-17 (granskningsluckor — `off`-konsistens, schema, grandfathering, numrering)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -425,7 +425,7 @@ Kontextbaserad beroende på barn och aktiva paket:
 
 Ersätter dagens separata *Skatt*-flik och delar av *För dig*.
 
-### 6.6 Nav-hierarki (informationsarkitektur)
+### 6.4 Nav-hierarki (informationsarkitektur)
 
 Varje funktion har **exakt en primär ingångspunkt**. Sekundära genvägar (t.ex. Idag → schema) är tillåtna men får inte duplicera hela moduler.
 
@@ -457,7 +457,7 @@ Barn / Stöd                   Inställningar (top-right)
 | **Ingen parallell väg** | Samma modul får inte ha egen bottom-nav-flik *och* Idag-kort med samma scope |
 | **Barn max 2 val** | Barnläge: Idag · Skatt — inga fler samtidiga nav-val (§14.6) |
 
-### 6.4 Mappning — gammal → ny meny
+### 6.5 Mappning — gammal → ny meny
 
 | Idag (nuvarande) | Ny struktur |
 |------------------|-------------|
@@ -469,51 +469,55 @@ Barn / Stöd                   Inställningar (top-right)
 | *(nytt vid full access)* | **Utveckling** |
 | *(nytt vid full access)* | **Samarbete** |
 
-### 6.5 Delvis åtkomst — se allt, använd det du betalat
+### 6.6 Delvis åtkomst — se allt, använd det du betalat
 
-**Princip:** Användaren ska kunna **se alla paket** (och alla huvudflikar) men **inte använda** dem förrän de betalats. Det som visas utan köp är **mockade exempel** — inte familjens riktiga data — med en enkel **Köp nu**-knapp.
+**Gäller endast när `rollout_mode` ≠ `off`** (§9.8). I `off`-läge: nuvarande nav och inga preview-ytor.
 
-| Tillstånd | Vad användaren ser | Vad användaren kan göra |
-|-----------|-------------------|-------------------------|
-| **Aktivt paket** | Riktig data, full funktion | Allt inom paketet |
-| **Ej köpt paket** | Förhandsvisning med mock-exempel | Läsa/skrolla demo · **Köp nu** |
-| **Basic** | Alltid aktivt (eller ingår) | Full åtkomst |
+**Princip (vid `interest` eller `purchase`):** Användaren ska kunna **se alla paket** (och alla huvudflikar) men **inte använda** dem förrän de betalats eller admin tilldelat komponent. Det som visas utan köp är **mockade exempel** — inte familjens riktiga data.
 
-**Bottom nav:** alla fem flikar **syns alltid** (arbetsflödesmodellen är konstant). Flikar utan köpt paket öppnar **preview-läge**, inte tom sida eller dold flik.
+| Tillstånd | Vad användaren ser | Vad användaren kan göra | CTA |
+|-----------|-------------------|-------------------------|-----|
+| **`off`** | Nuvarande app (Hem · Schema · …) | Oförändrat | — |
+| **Aktivt paket** | Riktig data, full funktion | Allt inom paketet | — |
+| **Ej köpt** (`interest`) | Förhandsvisning med mock | Läsa/skrolla demo | **Anmäl intresse för beta** |
+| **Ej köpt** (`purchase`) | Förhandsvisning med mock | Läsa/skrolla demo | **Köp nu** |
+| **Basic** | Alltid aktivt (eller ingår) | Full åtkomst | — |
+
+**Bottom nav (vid `interest` / `purchase`):** alla fem v1.2-flikar **syns alltid**. Flikar utan köpt paket öppnar **preview-läge**, inte tom sida eller dold flik.
 
 ```
 [ Idag ] [ Rutiner ] [ Utveckling🔒 ] [ Samarbete🔒 ] [ Barn/Stöd ]
                          ↑
-              mockad rapportvy + [ Köp nu ]
+              mockad rapportvy + CTA (beroende på rollout_mode)
 ```
 
 #### Preview-läge per flik (ej köpt)
 
-| Flik | Mock-exempel (statiskt) | CTA |
-|------|-------------------------|-----|
-| **Utveckling** | Demo-dashboard: närvaro 92%, aktiviteter +12%, exempel-PDF | Köp Familj Rapportering |
-| **Samarbete** | Demo-pedagogkort, exempelanteckning | Köp Familj Pedagog |
-| **Barn / Stöd** (teacch-del) | Demo NU-kort med De sju frågorna ifyllda | Köp Familj Extra stöd |
+| Flik | Mock-exempel (statiskt) | CTA (`interest`) | CTA (`purchase`) |
+|------|-------------------------|------------------|------------------|
+| **Utveckling** | Demo-dashboard: närvaro 92%, aktiviteter +12%, exempel-PDF | Anmäl intresse för beta | Köp Familj Rapportering |
+| **Samarbete** | Demo-pedagogkort, exempelanteckning | Anmäl intresse för beta | Köp Familj Pedagog |
+| **Barn / Stöd** (teacch-del) | Demo NU-kort med De sju frågorna ifyllda | Anmäl intresse för beta | Köp Familj Extra stöd |
 
 **Regler för mock-data:**
 
 | Regel | Detalj |
 |-------|--------|
-| Tydligt märkt | Banner: *"Exempel — så här kan det se ut"* |
+| Tydligt märkt | Banner: *"Förhandsvisning — exempeldata, inte din familj"* |
 | Ingen riktig data | Mock får **inte** blanda in familjens barnnamn, loggar eller observationer |
-| Ingen write | Inga spara/export/delning-knappar som fungerar — endast Köp nu |
-| En CTA | En primär **Köp nu** per preview-yta (sekundär: *Läs mer*) |
+| Ingen write | Inga spara/export/delning-knappar som fungerar — endast CTA |
+| En CTA | En primär knapp per preview-yta (sekundär: *Läs mer*) — copy enligt `rollout_mode` |
 | Efter köp | Samma vy byter till riktig data utan nav-omläggning |
 
 #### Teknisk gating (oförändrad)
 
-- **UI preview:** alltid tillgänglig (läs/mock)
+- **UI preview:** tillgänglig endast när `rollout_mode` ≠ `off`
 - **API & write:** `requireComponent()` → 403 `COMPONENT_MISSING` + `upgrade_url`
-- **Barnläge:** preview av Extra stöd gäller föräldravyn; barn ser aldrig låsta paket
+- **Barnläge:** preview av Extra stöd gäller föräldravyn; barn ser aldrig låsta paket eller intresse-CTA
 
 **Skilj från:** döda/låsta flikar (❌) · tom upgrade-modal vid varje klick (❌) · feature-lista utan kontext (❌)
 
-### 6.6 Barnläge vs föräldraläge
+### 6.7 Barnläge vs föräldraläge
 
 Implicit **mode** — olika nav, samma app:
 
@@ -528,7 +532,7 @@ Implicit **mode** — olika nav, samma app:
 
 Barn ser aldrig Utveckling, Samarbete eller administrativa inställningar.
 
-### 6.7 Kort sammanfattning — full access
+### 6.8 Kort sammanfattning — full access
 
 ```
 Bottom nav (förälder, alla paket):
@@ -559,6 +563,8 @@ Top-right:
 | Varför? | `why` |
 
 Dölj tomma fält. Kortare svar i barnvy. Delsteg = Basic (hur); sju frågor = Extra stöd (kontext).
+
+**`what` lagras inte i `seven_questions`.** Aktivitetsnamnet (`activity_template.name` / NU-rubriken) *är* svaret på "Vad ska jag göra?". `QUESTION_ORDER` inkluderar `what` endast för renderingsordning i barnvy — värdet hämtas från aktivitetsmallen, inte dupliceras i JSONB.
 
 ### 7.2 Datamodell & API
 
@@ -624,7 +630,7 @@ ALTER TABLE activity_template
 {
   key: 'bathroom',
   label: 'Badrum',
-  category: 'place',       // place | person | object | activity
+  category: 'place',       // place | person | object | activity | abstract
   emoji: '🚿',
   image_url: '/pictograms/bathroom.svg',
   locale: { sv: 'Badrum' } // v1.3+ lokalisering
@@ -634,6 +640,27 @@ ALTER TABLE activity_template
 ~40 seedade pictogram. Kategorier möjliggör sökning, filtrering och framtida egna bilder utan schemaändring.
 
 **Koppling till aktivitetsbibliotek:** `activity_template_id` på `what_next` (v1.2 P0) — NÄSTA ärver automatiskt ikon, namn och metadata från nästa aktivitet. Samma mönster kan utökas till `where`/`who` i v1.3.
+
+**Referensintegritet `what_next.activity_template_id`:**
+
+| Händelse | Beteende |
+|----------|----------|
+| Refererad mall finns | Ärv `name`, `emoji`, `icon_key`, `image_url` till NÄSTA-kort |
+| Mall raderas eller tillhör annan familj | Sätt `activity_template_id = null`; behåll `text` + manuella symboler om ifyllda |
+| API validering vid save | Avvisa `activity_template_id` som inte tillhör familjen |
+
+**Abstrakta svar (`why` m.m.) — visuellt stöd:**
+
+Fält som *Varför?* kan inte alltid mappas till ett konkret pictogram. Strategi:
+
+| Prioritet | Källa |
+|-----------|-------|
+| 1 | Förälder väljer `icon_key` från kategori *abstract* / *emotion* i pictogram-biblioteket |
+| 2 | Förälder laddar upp `image_url` (familjefoto) |
+| 3 | Auto-fallback: `emoji` från heuristik (`why` → 💡, `who` → 👤, `where` → 📍) |
+| 4 | Aldrig ren text i barnvy — minst emoji måste finnas efter `normalizeSevenQuestions()` |
+
+Pictogram-biblioteket ska inkludera en *abstract*-kategori (~8 st: t.ex. `health` 😁, `safety` 🛡️, `routine` 🔁, `calm` 😌) för Varför-svar.
 
 **Barnvy — renderingsprioritet (obligatorisk):**
 
@@ -695,16 +722,18 @@ Tre **kritiska broar** mellan text och visuell förståelse — utan dessa funge
 ```
 
 - En tryckning = hela NU-kontexten (aktivitet + alla ifyllda sju frågor)
-- Språk: svenska (`sv-SE`)
+- Språk: `sv-SE` i v1.2 (appens huvudspråk); i18n för TTS = v1.3+
 - Respekterar `prefers-reduced-motion` / systemets "läs inte automatiskt"
 - Gated: `requireComponent('teacch')` + `hasFeature('read_aloud')`
 - **Fallback:** Om TTS ej tillgänglig (webbläsare/enhet) → **dölj högtalarknappen** — aldrig visa knapp som ger felmeddelande i barnvy
 
 **Visuell timer — beteende (Extra stöd):**
 
-- Aktiveras när `how_long.minutes` eller `start_time`/`end_time` finns
+- **Primär datakälla:** `seven_questions.how_long.minutes` (1–120) satt av förälder i biblioteket
+- **Sekundär källa:** `weekly_schedule_item` / `special_day_schedule_item` med `start_time` + `end_time` — används om `minutes` saknas men schemat har tidsintervall
+- **Precedens:** `how_long.minutes` > schema `start_time`/`end_time` > ingen timer (dölj timer-UI)
 - Samma SVG-cirkel som idag i `child-dashboard.js` (`initTimeTimers`)
-- Vid `teacch`: timer **alltid synlig** när tidsfält finns — förälder kan inte lämna barnet med enbart text
+- Vid `teacch`: timer **alltid synlig** när någon tidskälla finns — förälder kan inte lämna barnet med enbart text
 - Paketeras under `visual_timer` i `teacch`-komponenten
 
 **Barn-nav — strikt nedstängning (§13.4):**
@@ -751,6 +780,10 @@ const PACKAGE_COMPONENT_MAP = {
 
 **Betalning:** endast plattforms-IAP (§9.7). Ingen Stripe-checkout, inga kortformulär, inga externa betalningslänkar i appen.
 
+### 8.1 Komponentregister
+
+Se `config/subscription-components.js` (metadata) och `config/component-feature-map.js` (feature → komponent). Fyra komponenter: `basic_app`, `reporting`, `pedagog`, `teacch`. Priser är metadata för köp-live — visas endast när `rollout_mode=purchase` och `show_prices=true`.
+
 ### 8.2 Gating — två nivåer
 
 | Nivå | API | Syfte |
@@ -777,20 +810,37 @@ if (hasFeature('read_aloud') && ttsAvailable) { showSpeakerButton(); }
 
 *(Planerade slugs i kursiv logik: `pedagog_dashboard`, `transition_support`, `social_stories` — lägg till i `seed-features.js` vid implementation.)*
 
+### 8.4 Grandfathering — befintliga familjer
+
+Flera tilläggspaket-features är **redan live** utan komponentköp (`klinisk_rapportering`, `pedagog_invite`, `pedagoganteckningar`). Införande av `requireComponent()` får **inte** ta bort funktioner familjer redan använder.
+
+**Migreringsregel (Fas 0, före gating live):**
+
+| Familj | Villkor | Åtgärd |
+|--------|---------|--------|
+| Använder rapporter idag | ≥1 `professional_share_link` **eller** ≥1 rapportexport senaste 12 mån | `grantComponent(familyId, 'reporting')` — permanent, ingen `expires_at` |
+| Har aktiv pedagog | ≥1 `parent_child` med `role=pedagog` och `revoked_at IS NULL` | `grantComponent(familyId, 'pedagog')` |
+| `lifetime_free` | Alltid | Behåll **endast** `basic_app` — inga tillägg automatiskt |
+| Övriga | — | Ingen tilläggskomponent; preview enligt `rollout_mode` |
+
+**Implementation:** engångsmigration `migrations/*_grandfather_package_components.js` + logg i admin. `package-access.js` läser komponent från DB — grandfathering är data, inte specialfall i middleware.
+
+**Efter migration:** nya familjer behöver komponent (köp, admin eller intresse-beta) för tillägg. Befintlig funktion = behållen åtkomst.
+
 ---
 
 ## 9. Uppgradering & förhandsvisning (Köp nu)
 
 ### 9.1 Uppgraderingssidan (`/upgrade`)
 
-Fyra löfteskort — rubrik = nytta. **Alla fyra syns alltid**, även paket som redan är köpta.
+Fyra löfteskort — rubrik = nytta. **Alla fyra syns när `rollout_mode` ≠ `off`**; i `off`-läge förblir nuvarande `/upgrade` oförändrad.
 
-| Kort | Rubrik | Tillstånd (intressefas) | Tillstånd (köp-live) |
-|------|--------|-------------------------|------------------------|
-| Basic | Vardagens grundfunktioner | *Ingår* / aktiv | *Ingår* / aktiv |
-| Rapportering | Följ utveckling över tid | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
-| Pedagog | Samarbeta med pedagoger | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
-| Extra stöd | Ökad förutsägbarhet | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+| Kort | Rubrik | `off` | Intressefas | Köp-live |
+|------|--------|-------|-------------|----------|
+| Basic | Vardagens grundfunktioner | Oförändrad sida | *Ingår* / aktiv | *Ingår* / aktiv |
+| Rapportering | Följ utveckling över tid | — | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+| Pedagog | Samarbeta med pedagoger | — | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
+| Extra stöd | Ökad förutsägbarhet | — | Preview + **Anmäl intresse** | Preview + **Köp nu** eller *Aktivt* |
 
 **Intressefas:** inga priser (kr/mån) på kort eller preview — se §9.8.
 
@@ -813,39 +863,39 @@ Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) 
 
 ### 9.3 Preview-mockar (innehåll)
 
-Statiskt exempelinnehåll — fiktiva namn och siffror:
+Statiskt exempelinnehåll — fiktiva namn och siffror. **CTA-copy styrs av `rollout_mode`** (§9.8) — exemplen nedan visar `purchase`; i `interest` ersätts knapptext med *Anmäl intresse för beta*.
 
 **Utveckling (reporting):**
 ```
-Exempel — så här kan det se ut
+Förhandsvisning — exempeldata
 Senaste 30 dagarna · Närvaro: 92% · Aktiviteter: +12%
-[ Köp Familj Rapportering ]
+[ CTA enligt rollout_mode ]
 ```
 
 **Samarbete (pedagog):**
 ```
-Exempel
+Förhandsvisning
 Emma Larsson, specialpedagog — "Övergång till lunch gick bättre idag."
-[ Köp Familj Pedagog ]
+[ CTA enligt rollout_mode ]
 ```
 
 **Extra stöd (teacch):**
 ```
-Exempel — De sju frågorna
+Förhandsvisning — De sju frågorna
 NU: Borsta tänderna · Var? Badrummet · Sen? Frukost
-[ Köp Familj Extra stöd ]
+[ CTA enligt rollout_mode ]
 ```
 
 ### 9.4 Var preview visas
 
 | Yta | Beteende |
 |-----|----------|
-| Bottom nav-flik (ej köpt) | Fullskärms-preview med mock |
-| Uppgraderingssida | Miniatyr + Köp nu per kort |
-| Djup länk till låst feature | Redirect till preview eller upgrade med `?paket=` |
-| Inställningar → Abonnemang | Alla paket med status Aktivt / Köp nu |
+| Bottom nav-flik (ej köpt) | Fullskärms-preview med mock — **endast** `rollout_mode` ≠ `off` |
+| Uppgraderingssida | Miniatyr + CTA per kort — **endast** `rollout_mode` ≠ `off` |
+| Djup länk till låst feature | Redirect till preview eller upgrade med `?component=` |
+| Inställningar → Abonnemang | Alla paket med status Aktivt / CTA — **endast** `rollout_mode` ≠ `off` |
 
-Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
+Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan — **endast** när `show_prices=true` (`purchase`).
 
 ### 9.5 Kontextuella uppgraderingspunkter (konvertering)
 
@@ -1032,20 +1082,56 @@ Intressefasen får **inte** se ut som en trasig IAP-knapp.
 
 ```
 POST /api/subscription/interest
-Body: { "component": "reporting" | "pedagog" | "teacch", "source": "preview_nav", "comment": null }
+Body: {
+  "component": "reporting" | "pedagog" | "teacch",
+  "source": "bottom_nav_preview" | "upgrade_page" | "contextual_trigger",
+  "comment": null   // valfritt, max 280 tecken
+}
 ```
 
-**Lagring:** tabell `package_interest` (se tidigare schema).
+**Lagring — tabell `package_interest`:**
+
+```sql
+CREATE TABLE IF NOT EXISTS package_interest (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id       UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+  parent_id       UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  component       TEXT NOT NULL CHECK (component IN ('reporting', 'pedagog', 'teacch')),
+  source          TEXT NOT NULL,
+  comment         TEXT CHECK (char_length(comment) <= 280),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (family_id, component)   -- en rad per familj per komponent; uppdatera comment vid ny anmälan
+);
+
+CREATE INDEX IF NOT EXISTS idx_package_interest_component ON package_interest (component);
+CREATE INDEX IF NOT EXISTS idx_package_interest_created ON package_interest (created_at DESC);
+```
+
+| Kolumn | Regel |
+|--------|-------|
+| `family_id` | Autentiserad förälders familj |
+| `parent_id` | Vem som klickade (audit) |
+| `component` | Paket som intresset gäller |
+| `source` | Var klicket skedde — **samma enum** som analytics (nedan) |
+| Dubbelklick | `ON CONFLICT (family_id, component) DO UPDATE SET comment = EXCLUDED.comment, created_at = NOW()` → UI: *"Ni står redan på väntelistan"* |
 
 **Analytics (primär KPI för intressefas):**
 
 ```javascript
-event_type: 'interest_registered',  // alias: package_interest_registered
+event_type: 'interest_registered',   // enda canonical name — inget alias
 metadata: {
-  paket: 'teacch',           // reporting | pedagog | teacch
-  source: 'bottom_nav_preview'  // preview_nav | upgrade | contextual_trigger
+  component: 'teacch',              // reporting | pedagog | teacch — samma nyckel som API
+  source: 'bottom_nav_preview'      // bottom_nav_preview | upgrade_page | contextual_trigger
 }
 ```
+
+**`source`-taxonomi (canonical — använd överallt):**
+
+| Värde | Var |
+|-------|-----|
+| `bottom_nav_preview` | Flik i bottom nav öppnar preview |
+| `upgrade_page` | `/upgrade` eller abonnemang i inställningar |
+| `contextual_trigger` | Banner/modal från §9.5 |
 
 **North Star under intressefas:** konvertering *preview → intresseanmälan* per paket (§15).
 
@@ -1060,13 +1146,24 @@ metadata: {
 
 #### Teknisk växling
 
-| Env / feature flag | Värde |
-|--------------------|-------|
-| `PACKAGES_ROLLOUT_MODE` | `off` *(default)* \| `interest` \| `purchase` |
-| `PACKAGES_PURCHASE_ENABLED` | `false` i `off` och intressefas · `true` vid köp-live |
-| `PACKAGES_SHOW_PRICES` | `false` i `off` och intressefas · `true` vid köp-live |
+| Inställning | Lagring | Värde |
+|-------------|---------|-------|
+| `PACKAGES_ROLLOUT_MODE` | `app_config` (JSON string) | `off` *(default)* \| `interest` \| `purchase` |
+| `PACKAGES_SHOW_PRICES` | `app_config` (boolean) | `false` i `off`/`interest` · `true` vid `purchase` |
 
-**Admin:** samma flaggor kan sättas via `feature_flag` i admin (överstyr env). Env är fallback om flagga saknas.
+**Env-fallback:** `process.env.PACKAGES_ROLLOUT_MODE` används om `app_config` saknar nyckeln. Env default = `off`.
+
+**Admin:** `PUT /api/admin/app-config/PACKAGES_ROLLOUT_MODE` — **inte** `feature_flag` (boolean passar inte enum). Env är fallback.
+
+**Härledda värden (ingen separat flagga):**
+
+| `rollout_mode` | `purchase_enabled` | `show_prices` |
+|----------------|---------------------|---------------|
+| `off` | `false` | `false` |
+| `interest` | `false` | `false` |
+| `purchase` | `true` | `true` |
+
+`package-access.js` returnerar dessa i `/api/subscription/access` — klienten behöver inte tolka enum själv.
 
 **Klientbeteende per läge:**
 
@@ -1127,16 +1224,18 @@ För att mäta intresse **utan** att bygga hela v1.2:
 - [ ] `config/preview-data.js` — en mock-källa (§9.6)
 - [ ] Betalning endast via Apple (iOS) / Google (Android) IAP — ingen webb-checkout (§9.7)
 - [ ] TTS: dölj högtalare om ej tillgänglig (§7.5)
-- [ ] Nav-hierarki: en primär ingång per feature (§6.6)
+- [ ] Nav-hierarki: en primär ingång per feature (§6.4)
 - [ ] AI-princip §14.12 dokumenterad — inga autonoma AI-skrivningar utan föräldragodkännande
 - [ ] Success metrics §15 — NSM + paket-KPI:er instrumenterade i `analytics_events`
-- [ ] Uppgradering & preview enligt §9 (alla paket synliga, mock + Köp nu)
+- [ ] Uppgradering & preview enligt §9 — CTA enligt `rollout_mode`; i `off` ingen förändring
 - [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
 - [ ] Mock-data tydligt märkt; ingen familjedata i preview
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
 - [ ] `PACKAGES_ROLLOUT_MODE=off` som default — ingen synlig förändring vid deploy/review
+- [ ] Grandfathering §8.4 — befintliga reporting/pedagog-familjer behåller åtkomst
+- [ ] `package_interest`-schema + canonical `source`-taxonomi (§9.8)
 - [ ] Intressefas §9.8 — beta-väntelista, inga priser, Apple-säker copy, `interest_registered`
 
 ---
@@ -1153,7 +1252,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | F | **Meny = arbetsflöden** vid köp — inte paketknappar (§6) |
 | G | För dig = modul i Idag — aldrig egen huvudflik |
 | H | Bottom nav max 5; Inställningar top-right |
-| I | **Se allt, använd det du betalat** — mock-preview + Köp nu (§6.5, §9) |
+| I | **Se allt, använd det du betalat** — mock-preview + CTA enligt `rollout_mode` (§6.6, §9) |
 | J | Mock = statiskt exempel; aldrig familjens riktiga data i preview |
 | K | Extra stöd = overlay på barnets NU-vy — inte separat app med egen nav (§13) |
 | L | Idag har en nav-väg — inte grid + bottom nav som dubbel huvudmeny (§13) |
@@ -1162,7 +1261,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | O | **Läs upp (`read_aloud`) ∈ v1.2** — TTS som komplement till pictogram (§7.5) |
 | P | **Barn-nav strikt** — Basic: Idag+Skatt; Extra stöd under aktivitet: dölj nav (§7.5) |
 | Q | **Ett paket = ett problem** — positioneringstabell §0 |
-| R | **En primär nav-ingång** per feature (§6.6) |
+| R | **En primär nav-ingång** per feature (§6.4) |
 | S | **`hasComponent` + `hasFeature`** — tvånivå-gating (§8.2) |
 | T | **`seven_questions.version`** + `activity_template_id` på `what_next` (§7.2) |
 | U | **Centralt `preview-data.js`** — en mock-källa (§9.6) |
@@ -1173,6 +1272,8 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | Z | **Intressefas före köp-live** — fake door / beta-väntelista (§9.8) |
 | AA | **Apple-säker intresse-copy** — inga priser, inga "Köp"-ord i intressefas (§9.8) |
 | AB | **`off` som default** — all v1.2-kod deploybar utan synlig effekt; admin aktiverar `interest` / `purchase` (§9.8) |
+| AC | **Grandfathering** — familjer med befintlig reporting/pedagog-åtkomst behåller komponent (§8.4) |
+| AD | **`app_config` för rollout** — enum i `app_config`, inte boolean `feature_flag` (§9.8) |
 
 ---
 
@@ -1201,7 +1302,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | 5 | **Barn = minimal nav** — Idag + Skatt/Stöd; ingen Rutiner, Utveckling, Samarbete eller Mer |
 | 6 | **En primär handling (barn)** — ✓ Klar; inga konkurrerande knappar |
 | 7 | **Färg = arbetsflöde** — konsekvent palett: Rutiner (teal) · Utveckling (blå) · Samarbete (lila) · Barn/Stöd (grön) · Extra stöd (dämpad blå) |
-| 8 | **Preview synlig** — ej köpta flikar visar mock + Köp nu (§9), inte tom eller dold |
+| 8 | **Preview synlig** — ej köpta flikar visar mock + CTA enligt `rollout_mode` (§9.8), inte tom eller dold; i `off` ingen preview |
 
 ### 13.3 Föräldarläge — mockup
 
@@ -1299,7 +1400,7 @@ NÄSTA — Frukost
 
 Dölj tomma rader. NÄSTA kvar för övergångsstöd. **Utan pictogram = ofullständig implementation** — inte godkänd för release.
 
-### 13.9 Tillgänglighetsgranskning — icke-läsande barn (2026-06-17)
+### 13.6 Tillgänglighetsgranskning — icke-läsande barn (2026-06-17)
 
 *Referens: mockup `paket-v1.2-nav.png` + extern granskning.*
 
@@ -1328,24 +1429,24 @@ Dölj tomma rader. NÄSTA kvar för övergångsstöd. **Utan pictogram = ofullst
 3. Läs upp (hög prioritet — komplement till bildstöd)
 4. `minimal_ui` (v1.3 — helbild + en knapp för mest utmanade barn)
 
-### 13.6 Preview-skärm (ej i mockup — ska skissas)
+### 13.7 Preview-skärm (ej i mockup — ska skissas)
 
-För ej köpta paket i **föräldarläge**:
+För ej köpta paket i **föräldarläge** (endast `rollout_mode` ≠ `off`):
 
 ```
 ┌─────────────────────────────────────┐
-│ Exempel — så här kan Utveckling     │
-│ se ut                               │
+│ Förhandsvisning — Utveckling        │
+│ Exempeldata — inte din familj       │
 │                                     │
 │ [mockad dashboard, statisk data]    │
 │                                     │
-│ [ Köp Familj Rapportering ]         │
+│ [ CTA enligt rollout_mode ]         │
 └─────────────────────────────────────┘
 ```
 
-Samma mönster för Samarbete och Extra stöd (§9.3).
+Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl intresse för beta*. I `purchase`: *Köp Familj Rapportering*.
 
-### 13.7 Mockup vs spec — checklista
+### 13.8 Mockup vs spec — checklista
 
 | Mockup | Spec | Åtgärd |
 |--------|------|--------|
@@ -1354,10 +1455,10 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 | Inställningar-kort | Top-right | Flytta till header |
 | Grid + bottom nav | En nav-väg | Förenkla Idag |
 | Extra stöd = eget läge | Overlay på NU | Integrera innehåll |
-| Preview / Köp nu | §9 | Skissa preview-skärmar |
+| Preview / CTA | §9 | Skissa preview-skärmar; tre rollout-lägen |
 | Barn: Rutiner, Mer | Minimal nav | Ta bort från barnläge |
 
-### 13.8 Sammanfattande dom
+### 13.9 Sammanfattande dom
 
 | Del | Betyg | Beslut |
 |-----|-------|--------|
@@ -1377,9 +1478,9 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 |---|---------|
 | **14.1** | **Barn ska kunna använda produkten utan att läsa** — pictogram, timer, TTS och familjefoto (`image_url`) är tillgänglighetslager, inte nice-to-have |
 | **14.2** | **Varje funktion tillhör exakt ett paket** (eller För dig under Basic) |
-| **14.3** | **Varje funktion har exakt en primär navigationsväg** (§6.6) |
+| **14.3** | **Varje funktion har exakt en primär navigationsväg** (§6.4) |
 | **14.4** | **Extra stöd är alltid ett lager ovanpå vardagen** — aldrig en separat app med egen nav |
-| **14.5** | **Preview visar värde, inte funktionslistor** — mockad upplevelse med Köp nu |
+| **14.5** | **Preview visar värde, inte funktionslistor** — mockad upplevelse; CTA enligt `rollout_mode` (`off` = ingen preview) |
 | **14.6** | **Barn får aldrig fler än två navigationsval samtidigt** — Idag · Skatt; dölj nav under aktiv NU |
 | **14.7** | **Ett paket = ett primärt problem** — inget feature creep utan problemkoppling (§0) |
 | **14.8** | **Barnvy visar aldrig text utan visuellt stöd** — auto emoji-fallback minimum; familjefoto = rekommenderad nivå |
@@ -1405,7 +1506,7 @@ Exempel på framtida features som omfattas: AI-rutiner · AI-förslag i För dig
 | Dimension | Före | Nu |
 |-----------|------|-----|
 | Produktstrategi | 9.5 | **10** — §0 + §14.7 ✅ |
-| Informationsarkitektur | 9 | **10** — §6.6 ✅ |
+| Informationsarkitektur | 9 | **10** — §6.4 ✅ |
 | Tillgänglighet | 9 | **10** — §7.2 + §14.8 ✅ |
 | Implementerbarhet | 8.5 | **10** — §7.2 + §8.2 ✅ |
 | Monetisering | 9 | **10** — §9.5 ✅ |
@@ -1425,6 +1526,8 @@ Exempel på framtida features som omfattas: AI-rutiner · AI-förslag i För dig
 
 Mäter kärnvärdet: barnet genomför rutiner, föräldern ser framsteg, produkten används i vardagen.
 
+**Baseline (före v1.2):** mät nuvarande medelvärde i `analytics_daily_snapshots` eller ad hoc-query — sätt mål som +10% relativt baseline efter 90 dagar med v1.2 live. Exakt siffra är ett produktbeslut vid go-live, inte hårdkodad i spec.
+
 **Stödjande retention-metric:**
 
 > **Andel familjer aktiva ≥ 3 dagar/vecka**
@@ -1441,9 +1544,9 @@ Mäter vanemönster och churn-risk. Använd som komplement — inte som primärt
 | **Pedagog** | Aktiva relationer | Antal familjer med ≥1 accepterad pedagoginbjudan + aktiv inom 30 dagar | Baseline efter lansering |
 | **Extra stöd** | Sju frågor-täckning | % schemalagda aktiviteter med ≥3 ifyllda `seven_questions`-fält (inkl. pictogram) | ≥60% bland teacch-köpare |
 | **Extra stöd** | Visuellt stöd | % svar med `image_url` eller `icon_key` (ej enbart auto-fallback) | ≥40% inom 60 dagar |
-| **Monetisering** | Konvertering preview → köp | % familjer som köper efter kontextuell trigger (§9.5) |
-| **Intressefas** | Registrerat intresse | Antal familjer per komponent i `package_interest` (§9.8) |
-| **Intressefas** | Intresse-rate | % aktiva familjer med ≥1 intresse / paket | Baseline → A/B-test |
+| **Monetisering** | Konvertering preview → köp | % familjer som köper efter kontextuell trigger (§9.5) | Baseline efter `purchase`-live |
+| **Intressefas** | Registrerat intresse | Antal familjer per `component` i `package_interest` (§9.8) | Ranking per paket |
+| **Intressefas** | Intresse-rate | % aktiva familjer med ≥1 intresse / komponent | Baseline → A/B-test |
 | **Tillgänglighet** | Läs upp-användning | % NU-sessioner med teacch där `read_aloud` används | Baseline (valfritt) |
 
 ### 15.3 Datainsamling
@@ -1456,9 +1559,9 @@ Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `
 | Rapport exporterad | `report_exported` | `{ format: 'pdf' }` |
 | Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` |
 | Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` |
-| Preview → köp | `upgrade_from_preview` | `{ paket: 'reporting' }` |
-| Intresse registrerat | `interest_registered` | `{ paket: 'reporting', source: 'bottom_nav_preview' }` |
-| Kontextuell trigger | `upgrade_trigger_shown` | `{ trigger: '14_day_reporting' }` |
+| Preview → köp | `upgrade_from_preview` | `{ component: 'reporting', source: 'bottom_nav_preview' }` |
+| Intresse registrerat | `interest_registered` | `{ component: 'reporting', source: 'bottom_nav_preview' }` |
+| Kontextuell trigger | `upgrade_trigger_shown` | `{ component: 'reporting', trigger: '14_day_activity_data' }` |
 
 **Regel:** KPI:er beräknas i midnight-scheduler till `analytics_daily_snapshots` — inte ad hoc i produktionsqueries.
 
@@ -1522,7 +1625,8 @@ Config: subscription-components.js · component-feature-map.js
 
 | # | Leverans | Filer |
 |---|----------|-------|
-| 0.0 | Rollout-läge `off` som default + admin-flaggor | `feature_flag` seed, `src/lib/package-access.js` |
+| 0.0 | Rollout-läge `off` som default i `app_config` | `app_config` seed, `src/lib/package-access.js` |
+| 0.0b | Grandfathering-migration | `migrations/*_grandfather_package_components.js` (§8.4) |
 | 0.1 | `pedagog` + `teacch` i paketregister | `config/subscription-components.js` |
 | 0.2 | Feature → komponent-mapping | `config/component-feature-map.js` *(ny)* |
 | 0.3 | Enhetlig access-modul | `src/lib/package-access.js` *(ny)* |
@@ -1544,7 +1648,7 @@ Config: subscription-components.js · component-feature-map.js
 
 **Tester:** `test/package-access.test.js` — komponent + feature + lifetime_free.
 
-**Exit-kriterium:** Admin kan tilldela komponent → rätt features togglas; API returnerar konsekvent state.
+**Exit-kriterium:** Admin kan tilldela komponent → rätt features togglas; API returnerar konsekvent state. Med `rollout_mode=off` ser klienten ingen ny UI.
 
 ### 16.4 Fas 1 — Preview + intresse (eller köp)
 
@@ -1553,7 +1657,7 @@ Config: subscription-components.js · component-feature-map.js
 | 1.1 | Central mock-data | `config/preview-data.js` |
 | 1.2 | Preview-shell (banner, vattenstämpel, CTA växling) | `public/js/preview-shell.js`, `public/css/preview-shell.css` |
 | 1.3 | `/upgrade` — fyra löfteskort (§9.1) | `public/upgrade.html` |
-| 1.4 | **Intressefas:** `POST /api/subscription/interest` + `package_interest` | `src/routes/subscription.js`, migration |
+| 1.4 | **Intressefas:** `POST /api/subscription/interest` + `package_interest` | `src/routes/subscription.js`, migration (§9.8 schema) |
 | 1.5 | CTA: *Jag är intresserad* när `rollout_mode=interest` | `preview-shell.js` |
 | 1.6 | **Köp-live:** Native Köp nu → RevenueCat | `public/js/iap-manager.js` |
 | 1.7 | Webb Köp nu → öppna appen (§9.7) | `preview-shell.js` |
@@ -1682,7 +1786,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | Förälder | Ljus bakgrund `#F0F4FF`, navy header, gold accenter | `docs/mockups/foraldra.html` |
 | Barn | Mörk `#0F1629`, gold NU, stjärnhimmel | `docs/mockups/barnvy.html` |
 | Extra stöd | Pictogram större än text, grön Klar, ingen nav under aktivitet | `docs/mockups/paket-v1.2-nav.png` |
-| Preview | Fade + vattenstämpel + gold Köp nu | §9.3, panel 4 i mockup |
+| Preview | Fade + vattenstämpel + CTA enligt `rollout_mode` | §9.3, panel 4 i mockup |
 
 **Typsnitt:** Outfit (rubriker) · Plus Jakarta Sans (brödtext).  
 **Vid konflikt:** HTML-mockups > design-affisch > improvisation.
@@ -1693,10 +1797,14 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 |------|--------|
 | `lifetime_free` fail-open (alla paket) | Explicit `basic_app` only i Fas 0.5 |
 | `hasAccess` ignorerar komponenter | `package-access.js` bridge i Fas 0 |
+| Befintliga familjer förlorar reporting/pedagog | Grandfathering-migration §8.4 **före** `requireComponent` på routes |
+| `off` vs preview-copy krockar | All preview-UI gated på `rollout_mode !== 'off'` (§9.8) |
+| `feature_flag` för enum | Använd `app_config` för `PACKAGES_ROLLOUT_MODE` (§9.8) |
 | `child-dashboard.js` växer okontrollerat | All Extra stöd-UI i egna filer (§16.6) |
 | Nav bryts på Capacitor iOS/Android | Testa `native-tab-bar.js` på riktiga enheter |
 | App Review avvisar webb-betalningstext | §9.7 checklista före submit |
 | IAP webhook synkar fel komponent | Idempotent webhook + logg i `iap.js` |
+| Analytics `source` inkonsekvent | Canonical enum §9.8 — samma i API, DB och events |
 
 ### 16.12 Medvetet inte i v1.2
 
