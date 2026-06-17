@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paket v1.2 — Navigationsmockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --gold: #F5A623; --gold-light: #FFF3D6; --gold-dark: #D4880A;
+            --navy: #1B2340; --navy-soft: #2A3458; --navy-deep: #0F1629;
+            --sky: #E8F0FE; --lavender: #EDE7F6; --lavender-deep: #7C6BC4;
+            --mint: #E0F5EC; --coral: #FDEAE7;
+            --text: #1B2340; --text-soft: #5A6178; --text-light: #9AA0B8;
+            --white: #FFFFFF; --green: #22C55E;
+            --bg: #0F1629;
+            --radius-sm: 12px; --radius-md: 18px; --radius-lg: 24px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.15);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.25);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.35);
+        }
+        html { font-size: 14px; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem 3rem;
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(124,107,196,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(245,166,35,0.08) 0%, transparent 45%);
+        }
+        .page-header { text-align: center; margin-bottom: 2.25rem; }
+        .page-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+        .page-header p {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.55);
+        }
+        .page-header .version {
+            display: inline-block;
+            margin-top: 12px;
+            background: rgba(245,166,35,0.15);
+            color: var(--gold);
+            font-size: 0.68rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 5px 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(245,166,35,0.3);
+        }
+        .phones-row {
+            display: flex;
+            gap: 1.1rem;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .phone-col { width: 268px; flex-shrink: 0; }
+        .phone-label { text-align: center; margin-bottom: 0.85rem; min-height: 48px; }
+        .phone-label h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: white;
+        }
+        .phone-label p {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 3px;
+        }
+        .phone-frame {
+            width: 268px;
+            background: #080d18;
+            border-radius: 38px;
+            padding: 10px;
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .phone-screen {
+            background: #F8FAFF;
+            border-radius: 30px;
+            overflow: hidden;
+            height: 540px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .phone-screen.child { background: var(--navy-deep); }
+        .notch {
+            position: absolute;
+            top: 6px; left: 50%;
+            transform: translateX(-50%);
+            width: 72px; height: 22px;
+            background: #080d18;
+            border-radius: 0 0 14px 14px;
+            z-index: 30;
+        }
+
+        /* Header */
+        .hdr {
+            background: linear-gradient(160deg, var(--navy) 0%, var(--navy-soft) 100%);
+            padding: 38px 14px 12px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .hdr::after {
+            content: '';
+            position: absolute;
+            top: -40px; right: -30px;
+            width: 110px; height: 110px;
+            background: radial-gradient(circle, rgba(245,166,35,0.22) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hdr-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+                            <div class="hdr-title">Översikt</div>
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+        }
+        .hdr-icon {
+            width: 30px; height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.85);
+        }
+        .hdr-sub {
+            font-size: 0.67rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 3px;
+            position: relative;
+            z-index: 2;
+        }
+        .child-tabs {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        .child-tab {
+            background: rgba(255,255,255,0.08);
+            border-radius: 50px;
+            padding: 4px 10px 4px 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.67rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.55);
+        }
+        .child-tab.active {
+            background: rgba(124,107,196,0.35);
+            color: white;
+            border: 1px solid rgba(124,107,196,0.5);
+        }
+        .child-tab .av {
+            width: 22px; height: 22px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+        }
+
+        .scroll { flex: 1; overflow: hidden; padding: 10px 12px; }
+        .scroll.light { background: #F8FAFF; }
+        .scroll.dark { background: var(--navy-deep); }
+        .section-h {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            margin-bottom: 7px;
+        }
+        .section-h.light { color: rgba(255,255,255,0.35); }
+
+        .feed-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 10px 11px;
+            margin-bottom: 7px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .feed-card .em {
+            width: 34px; height: 34px;
+            background: var(--sky);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .feed-card .info { flex: 1; }
+        .feed-card .title { font-size: 0.76rem; font-weight: 600; color: var(--navy); }
+        .feed-card .meta { font-size: 0.64rem; color: var(--text-soft); margin-top: 1px; }
+        .badge {
+            font-size: 0.58rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 50px;
+            flex-shrink: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+        .badge-gold { background: var(--gold-light); color: var(--gold-dark); }
+        .badge-green { background: #dcfce7; color: #15803d; }
+
+        .fordig {
+            background: linear-gradient(145deg, #f0ebff, #e8e0ff);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            border: 1.5px solid rgba(124,107,196,0.2);
+        }
+        .fordig h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+        .fordig-item {
+            background: rgba(255,255,255,0.75);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            font-size: 0.7rem;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .fordig-item:last-child { margin-bottom: 0; }
+
+        /* Bottom nav */
+        .bottom-nav {
+            background: white;
+            padding: 7px 2px 16px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(27,35,64,0.07);
+            flex-shrink: 0;
+        }
+        .bottom-nav.dark {
+            background: var(--navy);
+            border-top-color: rgba(255,255,255,0.07);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-light);
+            min-width: 0;
+        }
+        .bottom-nav.dark .nav-item { color: rgba(255,255,255,0.35); }
+        .nav-item.active { color: var(--gold); }
+        .nav-item .nav-icon { font-size: 0.95rem; }
+        .nav-item .nav-label {
+            font-size: 0.48rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            text-align: center;
+            max-width: 46px;
+            line-height: 1.15;
+        }
+        .nav-item.dim { opacity: 0.4; }
+
+        /* Child */
+        .child-greeting {
+            text-align: center;
+            padding: 38px 14px 14px;
+            background: linear-gradient(160deg, var(--navy), var(--navy-soft));
+            position: relative;
+            flex-shrink: 0;
+        }
+        .child-greeting .hi { font-size: 0.67rem; color: rgba(255,255,255,0.55); }
+        .child-greeting .name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: 2px;
+        }
+        .stars-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 9px;
+            background: rgba(245,166,35,0.18);
+            border-radius: 50px;
+            padding: 5px 14px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: var(--gold);
+            font-size: 0.88rem;
+        }
+        .nu-card {
+            background: linear-gradient(135deg, #FFF9EE, #FFF0D0);
+            border: 2.5px solid var(--gold);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 20px rgba(245,166,35,0.22);
+            position: relative;
+        }
+        .nu-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--gold);
+            color: white;
+            font-size: 0.58rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            padding: 3px 9px;
+            border-radius: 50px;
+            margin-bottom: 10px;
+        }
+        .nu-row { display: flex; align-items: center; gap: 12px; }
+        .nu-row .em {
+            width: 48px; height: 48px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .nu-row .t {
+            flex: 1;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--navy);
+        }
+        .nu-row .arrow {
+            width: 40px; height: 40px;
+            background: var(--gold);
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 3px 12px rgba(245,166,35,0.45);
+        }
+        .next-card {
+            background: rgba(27,35,64,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 7px;
+        }
+        .next-card .em {
+            width: 34px; height: 34px;
+            background: rgba(124,107,196,0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        .tag-next {
+            font-size: 0.52rem;
+            font-weight: 700;
+            background: rgba(124,107,196,0.35);
+            color: #c4b5fd;
+            padding: 2px 7px;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            margin-bottom: 2px;
+        }
+        .next-title { font-size: 0.74rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+        .next-time { font-size: 0.63rem; color: rgba(255,255,255,0.4); }
+
+        /* Extra stöd — inline NU with pictograms */
+        .teacch-nu {
+            background: linear-gradient(160deg, #1a2540, #1e2d4a);
+            border: 1.5px solid rgba(124,107,196,0.35);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .teacch-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .read-aloud {
+            width: 32px; height: 32px;
+            background: rgba(124,107,196,0.35);
+            border: 1px solid rgba(124,107,196,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #c4b5fd;
+        }
+        .teacch-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .teacch-activity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .teacch-activity .big-em {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .teacch-activity .act-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+        }
+        .answer-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+        }
+        .answer-row .picto {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+        }
+        .answer-row .ans-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-family: 'Outfit', sans-serif;
+        }
+        .answer-row .ans-text {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.55);
+        }
+        .timer-ring {
+            width: 40px; height: 40px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .timer-ring svg { width: 40px; height: 40px; transform: rotate(-90deg); }
+        .timer-ring .track { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 3; }
+        .timer-ring .progress { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 88; stroke-dashoffset: 30; }
+        .klar-btn {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #22C55E, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 12px;
+            width: 100%;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(34,197,94,0.35);
+        }
+        .no-nav-note {
+            text-align: center;
+            font-size: 0.58rem;
+            color: rgba(255,255,255,0.25);
+            padding: 8px;
+            font-style: italic;
+        }
+
+        /* Seven questions (legacy overlay — unused) */
+        .sq-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(8,13,24,0.65);
+            z-index: 15;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+        }
+        .sq-sheet {
+            background: white;
+            border-radius: 22px 22px 14px 14px;
+            padding: 14px 12px 12px;
+            width: 100%;
+            max-height: 92%;
+            overflow: hidden;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.35);
+        }
+        .sq-sheet h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--navy);
+        }
+        .sq-sheet .sub {
+            font-size: 0.64rem;
+            color: var(--text-soft);
+            margin: 2px 0 10px;
+        }
+        .sq-list { display: flex; flex-direction: column; gap: 4px; }
+        .sq-q {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f4f6fb;
+            border-radius: 10px;
+            padding: 6px 9px;
+            font-size: 0.68rem;
+            color: var(--navy);
+            font-weight: 500;
+        }
+        .sq-q.active {
+            background: var(--gold-light);
+            border: 1.5px solid var(--gold);
+            font-weight: 600;
+        }
+        .sq-q .num {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+        .sq-q .num.c1 { background: #7C6BC4; }
+        .sq-q .num.c2 { background: #3B82F6; }
+        .sq-q .num.c3 { background: #22C55E; }
+        .sq-q .num.c4 { background: #F59E0B; }
+        .sq-q .num.c5 { background: #EC4899; }
+        .sq-q .num.c6 { background: #14B8A6; }
+        .sq-q .num.c7 { background: #8B5CF6; }
+        .sq-q .ico { font-size: 0.85rem; flex-shrink: 0; }
+        .sq-btn {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #7C6BC4, #5b4a9e);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 11px;
+            width: 100%;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(124,107,196,0.4);
+        }
+
+        /* Preview */
+        .upsell-card {
+            background: linear-gradient(145deg, #2d2554, #3d3270);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin: 10px 12px 8px;
+            text-align: center;
+            border: 1px solid rgba(124,107,196,0.3);
+            flex-shrink: 0;
+        }
+        .upsell-card .star { font-size: 1.4rem; margin-bottom: 6px; }
+        .upsell-card p {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        .btn-kop {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 4px 16px rgba(245,166,35,0.45);
+        }
+        .preview-scroll {
+            flex: 1;
+            padding: 0 12px 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .chart-mock {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-sm);
+            opacity: 0.75;
+        }
+        .chart-mock h4 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+        .bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 56px;
+            margin-bottom: 6px;
+        }
+        .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            background: var(--sky);
+        }
+        .bar.h1 { height: 28px; }
+        .bar.h2 { height: 40px; background: var(--lavender); }
+        .bar.h3 { height: 22px; }
+        .bar.h4 { height: 48px; background: var(--mint); }
+        .bar.h5 { height: 34px; }
+        .bar.h6 { height: 44px; background: var(--lavender); }
+        .bar-label { font-size: 0.52rem; color: var(--text-light); }
+        .locked-row {
+            background: white;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            opacity: 0.7;
+        }
+        .locked-row .icon {
+            width: 28px; height: 28px;
+            background: var(--mint);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+        }
+        .locked-row .txt { flex: 1; font-size: 0.68rem; color: var(--text-soft); }
+        .locked-row .lock { font-size: 0.75rem; opacity: 0.5; }
+        .watermark {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: rgba(27,35,64,0.06);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1>Paket v1.2 — Navigationsmockup</h1>
+        <p>Arbetsflödesmeny · Pictogram · Visuell timer · Läs upp</p>
+        <span class="version">Spec v1.2</span>
+    </header>
+
+    <div class="phones-row">
+        <!-- 1. Föräldraläge -->
+        <div class="phone-col">
+            <div class="phone-label">
+                <h2>Föräldraläge</h2>
+                <p>Idag + För dig-modul · 5 flikar</p>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-screen">
+                    <div class="notch"></div>
+                    <div class="hdr">
+                        <div class="hdr-top">
+                            <div class="hdr-title">Översikt</div>
+                            <div class="hdr-icon">&#9881;</div>
+                        </div>
+                        <div class="hdr-sub">Fredag 17 juni</div>
+                        <div class="child-tabs">
+                            <div class="child-tab active"><div class="av">&#128102;</div>Lova</div>
+                            <div class="child-tab"><div class="av">&#128103;</div>Erik</div>
+                        </div>
+                    </div>
+                    <div class="scroll light">
+                        <div class="section-h">Händer nu</div>
+                        <div class="feed-card">
+                            <div class="em">&#127871;</div>
+                            <div class="info">
+                                <div class="title">Belöningsförfrågan</div>
+                                <div class="meta">Lova · Filmkväll · 15 &#9733;</div>
+                            </div>
+                            <div class="badge badge-gold">Ny</div>
+                        </div>
+                        <div class="feed-card">
+                            <div class="em">&#9989;</div>
+                            <div class="info">
+                                <div class="title">5 av 8 klara idag</div>
+                                <div class="meta">Lova · 12 stjärnor</div>
+                            </div>
+                            <div class="badge badge-green">+2</div>
+                        </div>
+                        <div class="section-h" style="margin-top:8px">För dig</div>
+                        <div class="fordig">
+                            <h3>Fortsätt utveckla</h3>
+                            <div class="fordig-item">&#128161; Lägg till kvällsrutin</div>
+                            <div class="fordig-item">&#127775; Nästa steg för Lova</div>
+                            <div class="fordig-item">&#128197; Rekommenderat schema</div>
+                        </div>
+                    </div>
+                    <div class="bottom-nav">
+                        <div class="nav-item active"><div class="nav-icon">&#127968;</div><div class="nav-label">Idag</div></div>
+                        <div class="nav-item"><div class="nav-icon">&#128197;</div><div class="nav-label">Rutiner</div></div>
+                        <div class="nav-item dim"><div class="nav-icon">&#128200;</div><div class="nav-label">Utveckling</div></div>
+                        <div class="nav-item dim"><div class="nav-icon">&#129309;</div><div class="nav-label">Samarbete</div></div>
+                        <div class="nav-item"><div class="nav-icon">&#11088;</div><div class="nav-label">Barn/Stöd</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Barnläge Basic -->
+        <div class="phone-col">
+            <div class="phone-label">
+                <h2>Barnläge (Basic)</h2>
+                <p>NU / Nästa · Idag + Skatt</p>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-screen child">
+                    <div class="notch"></div>
+                    <div class="child-greeting">
+                        <div class="hi">Hej</div>
+                        <div class="name">Lova</div>
+                        <div class="stars-pill">&#9733; 12 stjärnor</div>
+                    </div>
+                    <div class="scroll dark">
+                        <div class="nu-card">
+                            <div class="nu-badge">&#9679; NU</div>
+                            <div class="nu-row">
+                                <div class="em">&#129379;</div>
+                                <div class="t">Frukost<br><span style="font-size:0.65rem;font-weight:400;color:var(--text-soft)">07:30 – 08:00</span></div>
+                                <div class="arrow">&#8594;</div>
+                            </div>
+                        </div>
+                        <div class="section-h light">Nästa</div>
+                        <div class="next-card">
+                            <div class="em">&#129463;</div>
+                            <div>
+                                <div class="tag-next">Nästa</div>
+                                <div class="next-title">Borsta tänderna</div>
+                                <div class="next-time">08:00</div>
+                            </div>
+                        </div>
+                        <div class="next-card" style="opacity:0.65">
+                            <div class="em" style="background:rgba(56,189,248,0.2)">&#127890;</div>
+                            <div>
+                                <div class="next-title">Skolan</div>
+                                <div class="next-time">08:30</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottom-nav dark">
+                        <div class="nav-item active"><div class="nav-icon">&#127968;</div><div class="nav-label">Idag</div></div>
+                        <div class="nav-item"><div class="nav-icon">&#127873;</div><div class="nav-label">Skatt</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Barnläge Extra stöd -->
+        <div class="phone-col">
+            <div class="phone-label">
+                <h2>Barnläge (Extra stöd)</h2>
+                <p>Pictogram · timer · Läs upp · ingen nav</p>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-screen child">
+                    <div class="notch"></div>
+                    <div class="child-greeting" style="padding:38px 14px 10px">
+                        <div class="hi">NU</div>
+                        <div class="name" style="font-size:0.85rem;color:rgba(255,255,255,0.7)">Borsta tänderna</div>
+                    </div>
+                    <div class="scroll dark" style="padding:8px 10px">
+                        <div class="teacch-nu">
+                            <div class="teacch-top">
+                                <div class="teacch-title">&#9679; Extra stöd</div>
+                                <div class="read-aloud" title="Läs upp">&#128266;</div>
+                            </div>
+                            <div class="teacch-activity">
+                                <div class="big-em">&#129463;</div>
+                                <div class="act-name">Borsta tänderna</div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="picto">&#128705;</div>
+                                <div>
+                                    <div class="ans-label">Var?</div>
+                                    <div class="ans-text">Badrummet</div>
+                                </div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="picto">&#128100;</div>
+                                <div>
+                                    <div class="ans-label">Vem?</div>
+                                    <div class="ans-text">Själv</div>
+                                </div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="timer-ring">
+                                    <svg viewBox="0 0 40 40"><circle class="track" cx="20" cy="20" r="14"/><circle class="progress" cx="20" cy="20" r="14"/></svg>
+                                </div>
+                                <div>
+                                    <div class="ans-label">Hur länge?</div>
+                                    <div class="ans-text">5 min</div>
+                                </div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="picto">&#129379;</div>
+                                <div>
+                                    <div class="ans-label">Sen?</div>
+                                    <div class="ans-text">Frukost</div>
+                                </div>
+                            </div>
+                            <div class="answer-row">
+                                <div class="picto" style="font-size:1rem">&#129701;&#129701;</div>
+                                <div>
+                                    <div class="ans-label">Behöver?</div>
+                                    <div class="ans-text">Tandborste, tandkräm</div>
+                                </div>
+                            </div>
+                            <button class="klar-btn">&#10003; Klar!</button>
+                        </div>
+                        <div class="section-h light">Nästa</div>
+                        <div class="next-card" style="opacity:0.5">
+                            <div class="em">&#129379;</div>
+                            <div>
+                                <div class="next-title">Frukost</div>
+                                <div class="next-time">08:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="no-nav-note">Bottom nav dold under aktivitet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Utveckling preview -->
+        <div class="phone-col">
+            <div class="phone-label">
+                <h2>Utveckling</h2>
+                <p>Preview · mock-data · Köp nu</p>
+            </div>
+            <div class="phone-frame">
+                <div class="phone-screen">
+                    <div class="notch"></div>
+                    <div class="hdr" style="padding-bottom:8px">
+                        <div class="hdr-top">
+                            <div class="hdr-title">Utveckling</div>
+                            <div class="hdr-icon">&#9881;</div>
+                        </div>
+                        <div class="hdr-sub">Exempeldata · inte din familj</div>
+                    </div>
+                    <div class="upsell-card">
+                        <div class="star">&#11088;</div>
+                        <p>Lås upp Rapportering för att följa utveckling</p>
+                        <button class="btn-kop">Köp nu</button>
+                    </div>
+                    <div class="preview-scroll">
+                        <div class="watermark">Förhandsvisning</div>
+                        <div class="chart-mock">
+                            <h4>Stjärnor per vecka (exempel)</h4>
+                            <div class="bars">
+                                <div class="bar-wrap"><div class="bar h1"></div><div class="bar-label">v20</div></div>
+                                <div class="bar-wrap"><div class="bar h2"></div><div class="bar-label">v21</div></div>
+                                <div class="bar-wrap"><div class="bar h3"></div><div class="bar-label">v22</div></div>
+                                <div class="bar-wrap"><div class="bar h4"></div><div class="bar-label">v23</div></div>
+                                <div class="bar-wrap"><div class="bar h5"></div><div class="bar-label">v24</div></div>
+                                <div class="bar-wrap"><div class="bar h6"></div><div class="bar-label">v25</div></div>
+                            </div>
+                        </div>
+                        <div class="locked-row">
+                            <div class="icon">&#128196;</div>
+                            <div class="txt">Veckorapport · PDF-export</div>
+                            <div class="lock">&#128274;</div>
+                        </div>
+                        <div class="locked-row">
+                            <div class="icon" style="background:var(--lavender)">&#128202;</div>
+                            <div class="txt">Trender · observationer</div>
+                            <div class="lock">&#128274;</div>
+                        </div>
+                        <div class="locked-row">
+                            <div class="icon" style="background:var(--sky)">&#128221;</div>
+                            <div class="txt">Historik · 30 dagar</div>
+                            <div class="lock">&#128274;</div>
+                        </div>
+                        <div class="locked-row">
+                            <div class="icon" style="background:var(--coral)">&#128279;</div>
+                            <div class="txt">Delningslänkar · pedagog</div>
+                            <div class="lock">&#128274;</div>
+                        </div>
+                    </div>
+                    <div class="bottom-nav">
+                        <div class="nav-item"><div class="nav-icon">&#127968;</div><div class="nav-label">Idag</div></div>
+                        <div class="nav-item"><div class="nav-icon">&#128197;</div><div class="nav-label">Rutiner</div></div>
+                        <div class="nav-item active"><div class="nav-icon">&#128200;</div><div class="nav-label">Utveckling</div></div>
+                        <div class="nav-item dim"><div class="nav-icon">&#129309;</div><div class="nav-label">Samarbete</div></div>
+                        <div class="nav-item"><div class="nav-icon">&#11088;</div><div class="nav-label">Barn/Stöd</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
