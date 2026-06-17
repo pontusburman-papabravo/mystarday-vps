@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (paketregister + För dig under Basic)  
+**Uppdaterad:** 2026-06-17 (navigationsarkitektur §6)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -22,6 +22,8 @@ För dig
 ```
 
 **Konceptuellt beslut:** Fyra tydliga säljbara paket. **För dig** är den naturliga ingången till produkten — inte ett femte paket användaren måste förstå.
+
+**Navigation (vid köp):** Paket säljs modulärt, men menyn ska **inte** spegla paketlogiken. Se §6 — arbetsflöden, inte funktionslista.
 
 **Beslutregel vid nya funktioner:** *Vilket problem löser den?* → ska peka på **ett** paket (eller För dig under Basic).
 
@@ -305,9 +307,162 @@ NU — Borsta tänderna
 
 ---
 
-## 6. De sju frågorna — detaljspec (Extra stöd v1.2)
+## 6. Navigation — arbetsflöden (inte paketknappar)
 
-### 6.1 Ramverk & fältnycklar
+### 6.1 Grundprincip
+
+När användaren har tillgång till flera paket (särskilt **alla fyra**) får menyn **inte** bli en funktionslista med 12 entry points. Paket säljs modulärt — men navigeras som **vardagslogik**.
+
+| Fel (paketlogik) | Rätt (arbetsflöde) |
+|------------------|---------------------|
+| "Vilket paket innehåller detta?" | **"Vad vill jag göra nu?"** |
+| En knapp per feature | Rollerad + kontextbaserad navigation |
+| För dig som egen flik | För dig som modul i Idag |
+
+**Stort grepp:** från *feature navigation* → *mental model navigation*.
+
+### 6.2 Full åtkomst — ny huvudmeny (förälder)
+
+**Bottom nav: max 5 items** (oförändrad mobilregel). **Inställningar** flyttas till **top-right** — inte i bottom nav.
+
+| # | Flik | Syfte (arbetsflöde) | Paket som matar innehåll |
+|---|------|---------------------|--------------------------|
+| 1 | **Idag** | Allt som händer *nu* | Basic + Extra stöd (overlay) |
+| 2 | **Rutiner** | Planera och strukturera vardagen | Basic |
+| 3 | **Utveckling** | Förstå och följa över tid | Rapportering |
+| 4 | **Samarbete** | Dela och kommunicera med andra vuxna | Pedagog |
+| 5 | **Barn / Stöd** | Barnläge + behovsbaserat stöd | Basic + Extra stöd |
+
+**⚙️ Inställningar** (top-right): konto · familjeinställningar · abonnemang · barnhantering · (tidigare *Mer*)
+
+### 6.3 Innehåll per flik
+
+#### 1. Idag *(ersätter Hem + delar av För dig)*
+
+| Innehåll | Källa |
+|----------|-------|
+| Dagens rutiner | Basic |
+| NU / NÄSTA | Basic + Extra stöd overlay |
+| Snabb start av aktiviteter | Basic |
+| Stjärnor idag | Basic |
+| Snabb status per barn | Basic |
+| **För dig-modul** *(ej egen flik)* | Basic |
+
+**För dig inuti Idag** — modul, inte navigation:
+
+```
+Fortsätt utveckla
+Rekommenderade rutiner
+Nästa steg för ditt barn
+```
+
+Undvik duplicerad navigation + innehåll.
+
+#### 2. Rutiner *(= Schema + aktivitetsbibliotek)*
+
+| Innehåll |
+|----------|
+| Veckoschema |
+| Specialdagar |
+| Aktivitetsbibliotek |
+| Delsteg |
+| Mallar |
+
+Basic *lever som system* här — inte som feed.
+
+#### 3. Utveckling *(= Rapportering)*
+
+| Innehåll |
+|----------|
+| Rapporter |
+| Historik |
+| PDF-export |
+| Trender |
+| Observationer |
+
+Helt separat **analytiskt läge** — professionell ton (§3).
+
+#### 4. Samarbete *(= Pedagog)*
+
+| Innehåll |
+|----------|
+| Pedagoginbjudningar |
+| Anteckningar |
+| Gemensam vy |
+| Begränsad åtkomst (schema/logg) |
+
+Ska kännas som **extern yta** — inte familjeinterna inställningar.
+
+#### 5. Barn / Stöd *(dynamisk hub)*
+
+Kontextbaserad beroende på barn och aktiva paket:
+
+| Om familjen har… | Hubben visar |
+|------------------|--------------|
+| **Extra stöd** (`teacch`) | De sju frågorna · visuell timer · övergångsstöd · minimal UI-läge |
+| **Basic only** | Skattkammare · belöningar · genväg till barnvy |
+
+Ersätter dagens separata *Skatt*-flik och delar av *För dig*.
+
+### 6.4 Mappning — gammal → ny meny
+
+| Idag (nuvarande) | Ny struktur |
+|------------------|-------------|
+| Hem | **Idag** |
+| Schema | **Rutiner** |
+| För dig | **Inuti Idag** (modul) |
+| Skatt | **Barn / Stöd** |
+| Mer | **Inställningar** (top-right) |
+| *(nytt vid full access)* | **Utveckling** |
+| *(nytt vid full access)* | **Samarbete** |
+
+### 6.5 Delvis åtkomst (inte alla paket)
+
+Bottom nav visar **endast flikar användaren har tillgång till** — inga låsta paketknappar i huvudnav.
+
+| Komponenter aktiva | Synliga flikar (exempel) |
+|--------------------|--------------------------|
+| `basic_app` only | Idag · Rutiner · Barn/Stöd |
+| + `reporting` | + Utveckling |
+| + `pedagog` | + Samarbete |
+| + `teacch` | Barn/Stöd utökas med stödverktyg |
+
+Saknad komponent → flik dold (eller upgrade-prompt vid djup länk, inte i bottom nav).
+
+### 6.6 Barnläge vs föräldraläge
+
+Implicit **mode** — olika nav, samma app:
+
+| 👩 Förälder | 👶 Barn (inloggad) |
+|-------------|-------------------|
+| Idag | Idag (NU/NÄSTA) |
+| Rutiner | — |
+| Utveckling | — |
+| Samarbete | — |
+| Barn / Stöd | Skatt / Stöd (enkel vy) |
+| Inställningar (top-right) | — |
+
+Barn ser aldrig Utveckling, Samarbete eller administrativa inställningar.
+
+### 6.7 Kort sammanfattning — full access
+
+```
+Bottom nav (förälder, alla paket):
+  Idag        → action
+  Rutiner     → struktur
+  Utveckling  → insikt
+  Samarbete   → extern vuxen
+  Barn/Stöd   → behov + barnläge
+
+Top-right:
+  Inställningar → meta (konto, familj, abonnemang)
+```
+
+---
+
+## 7. De sju frågorna — detaljspec (Extra stöd v1.2)
+
+### 7.1 Ramverk & fältnycklar
 
 | Fråga | Fältnyckel |
 |-------|------------|
@@ -321,7 +476,7 @@ NU — Borsta tänderna
 
 Dölj tomma fält. Kortare svar i barnvy. Delsteg = Basic (hur); sju frågor = Extra stöd (kontext).
 
-### 6.2 Datamodell & API
+### 7.2 Datamodell & API
 
 ```sql
 ALTER TABLE activity_template
@@ -333,7 +488,7 @@ ALTER TABLE activity_template
 | GET/POST/PUT | `/api/activities` | `seven_questions` |
 | GET | `/api/children/me/daily-log` | Berika från `activity_template` |
 
-### 6.3 Tekniska krav
+### 7.3 Tekniska krav
 
 ```javascript
 const QUESTION_ORDER = [
@@ -343,7 +498,7 @@ const QUESTION_ORDER = [
 
 `normalizeSevenQuestions(input)` — trimma, ta bort tomma, ignorera okända nycklar, max 500 tecken.
 
-### 6.4 Barnvy — NU-kort
+### 7.4 Barnvy — NU-kort
 
 ```
 1. Aktivitetsnamn
@@ -356,7 +511,7 @@ NÄSTA-kort synligt (övergångsstöd). Redigering i biblioteket (progressive di
 
 ---
 
-## 7. Tekniskt paketregister
+## 8. Tekniskt paketregister
 
 Målbild för `config/subscription-components.js`:
 
@@ -383,7 +538,7 @@ const STRIPE_COMPONENT_MAP = {
 
 `STRIPE_ENABLED=false` tills betalning aktiveras. Middleware: `requireComponent()` i `src/middleware/require-component.js`.
 
-### 7.1 Feature-slug → komponent (register)
+### 8.1 Feature-slug → komponent (register)
 
 | Komponent | Feature slugs |
 |-----------|---------------|
@@ -396,7 +551,7 @@ const STRIPE_COMPONENT_MAP = {
 
 ---
 
-## 8. Uppgraderingssidan
+## 9. Uppgraderingssidan
 
 Fyra löfteskort — rubrik = nytta, inte funktionsdump:
 
@@ -411,7 +566,7 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 
 ---
 
-## 9. Rollout v1.2
+## 10. Rollout v1.2
 
 | Steg | Leverans |
 |------|----------|
@@ -420,21 +575,25 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 | 3 | Feature → komponent-mapping i gating |
 | 4 | Uppgraderingssida — fyra kort |
 | 5 | De sju frågorna (Extra stöd P0) |
-| 6 | Betalning separat |
+| 7 | Navigationsomläggning enligt §6 (iterativt; kan efterlöpa paket-gating) |
+| 8 | Betalning separat |
 
 ---
 
-## 10. Acceptanskriterier
+## 11. Acceptanskriterier
 
 - [ ] Fyra paket med löfte, komponent, feature-register
 - [ ] För dig dokumenterat under Basic — inte femte paket
 - [ ] `pedagog_dashboard`, `transition_support`, `social_stories` planerade under rätt paket
 - [ ] De sju frågorna: datamodell + lugn barnvy-ton + `teacch`-gating
-- [ ] Uppgraderingssida enligt §8
+- [ ] Uppgraderingssida enligt §9
+- [ ] Navigation: arbetsflödesflikar vid full access (§6); För dig ej egen bottom-tab
+- [ ] Delvis åtkomst: endast relevanta flikar synliga
+- [ ] Inställningar i top-right, inte bottom nav
 
 ---
 
-## 11. Beslut
+## 12. Beslut
 
 | # | Beslut |
 |---|--------|
@@ -443,6 +602,9 @@ Basic markerat *Ingår* för nya användare. Tillägg kombinerbara.
 | C | Feature-slug-register per komponent (§7.1) |
 | D | De sju frågorna = Extra stöd v1.2; övrigt Extra stöd = v1.3+ |
 | E | Nya funktioner → ett paket via beslutregeln (§0) |
+| F | **Meny = arbetsflöden** vid köp — inte paketknappar (§6) |
+| G | För dig = modul i Idag — aldrig egen huvudflik |
+| H | Bottom nav max 5; Inställningar top-right |
 
 ---
 
