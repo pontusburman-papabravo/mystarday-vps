@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§16 implementationsplan)  
+**Uppdaterad:** 2026-06-17 (§9.8 intressefas före köp-live)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -796,14 +796,18 @@ Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) 
 
 ### 9.2 Köp nu — enhetligt beteende
 
+**CTA-läge styrs av rollout-fas (§9.8):** under *intressefas* visas **Jag är intresserad** istället för Köp nu.
+
 | Element | Spec |
 |---------|------|
-| **Knapp** | `Köp nu` (primär) — samma copy överallt |
+| **Knapp (köp-live)** | `Köp nu` (primär) — när `PACKAGES_ROLLOUT_MODE=purchase` |
+| **Knapp (intressefas)** | `Jag är intresserad av [paket]` — när `PACKAGES_ROLLOUT_MODE=interest` |
 | **Placering** | Preview-banner (top) · bottom sticky på mobil · uppgraderingskort |
-| **Klick (native iOS)** | Öppna RevenueCat/StoreKit — **Apple** plattformsbetalning (App Store) |
-| **Klick (native Android)** | Öppna RevenueCat/Play Billing — **Google** plattformsbetalning (Play Store) |
-| **Klick (webb/PWA)** | **Ingen checkout** — visa *"Öppna i appen för att köpa"* eller deep link till rätt store; preview kvar |
-| **Efter köp** | Webhook (`POST /api/iap/webhook`) → `family_subscriptions.components` uppdateras → preview ersätts av riktig vy |
+| **Klick (intressefas)** | `POST /api/subscription/interest` → bekräftelse *"Tack! Vi har noterat ditt intresse."* |
+| **Klick (native iOS, köp-live)** | Öppna RevenueCat/StoreKit — **Apple** plattformsbetalning (App Store) |
+| **Klick (native Android, köp-live)** | Öppna RevenueCat/Play Billing — **Google** plattformsbetalning (Play Store) |
+| **Klick (webb/PWA, köp-live)** | **Ingen checkout** — *"Öppna i appen för att köpa"* |
+| **Efter köp** | Webhook → `family_subscriptions.components` → preview ersätts av riktig vy |
 
 ### 9.3 Preview-mockar (innehåll)
 
@@ -843,13 +847,15 @@ Tillägg kombinerbara. Totalpris vid flerval på upgrade-sidan.
 
 ### 9.5 Kontextuella uppgraderingspunkter (konvertering)
 
-Utöver passiv preview — visa **Köp nu** när användaren naturligt behöver paketet:
+Utöver passiv preview — visa CTA när användaren naturligt behöver paketet:
 
-| Paket | Trigger | Copy (exempel) |
-|-------|---------|----------------|
-| **Rapportering** | ≥14 dagar med aktivitetsdata | *"Du har registrerat aktiviteter i två veckor. Se utvecklingen över tid."* |
-| **Pedagog** | Förälder försöker bjuda in extern vuxen | *"Vill du samarbeta med pedagog?"* |
-| **Extra stöd** | Förälder redigerar aktivitet / öppnar sju frågor | *"Lägg till visuellt stöd med De sju frågorna."* |
+| Paket | Trigger | Copy (exempel) | CTA (intressefas) |
+|-------|---------|----------------|-------------------|
+| **Rapportering** | ≥14 dagar med aktivitetsdata | *"Du har registrerat aktiviteter i två veckor…"* | Jag är intresserad av Rapportering |
+| **Pedagog** | Förälder försöker bjuda in extern vuxen | *"Vill du samarbeta med pedagog?"* | Jag är intresserad av Pedagog |
+| **Extra stöd** | Förälder redigerar aktivitet / sju frågor | *"Lägg till visuellt stöd…"* | Jag är intresserad av Extra stöd |
+
+Vid `PACKAGES_ROLLOUT_MODE=purchase` → samma triggers med **Köp nu** istället.
 
 Triggers är **icke-blockerande** i v1.2 (banner/modal med dismiss) — men ska loggas i `analytics_events` för A/B.
 
@@ -916,6 +922,100 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 **Referens:** `docs/app-store-iap.md` · `src/routes/iap.js` · `public/js/iap-manager.js`
 
+### 9.8 Intressefas — bygg allt, mät intresse före köp-live
+
+**Beslut:** Alla delar i v1.2 **kan byggas och shipas** — men familjer går inte live med Rapportering, Pedagog eller Extra stöd förrän produktteamet aktiverar köp. Under intressefasen ser **alla familjer** (inkl. `lifetime_free`) mock-preview för tilläggspaketen och kan registrera intresse.
+
+| Fas | `PACKAGES_ROLLOUT_MODE` | CTA | Vad familjer får |
+|-----|-------------------------|-----|------------------|
+| **Intressefas** *(rekommenderad start)* | `interest` | **Jag är intresserad av …** | Mock-preview · läsa/skrolla · ingen write · ingen IAP |
+| **Köp-live** | `purchase` | **Köp nu** | Preview → IAP (§9.7) eller aktivt paket |
+
+**Varför:** Mät efterfrågan bland befintliga föräldrar innan IAP-produkter, priser och support kapas. Minimerar risk att lansera paket ingen vill ha.
+
+#### Vad alla familjer ser (intressefas)
+
+| Flik / paket | Innehåll | CTA |
+|--------------|----------|-----|
+| **Utveckling** (reporting) | Mock-rapport, trender, PDF-exempel | Jag är intresserad av Rapportering |
+| **Samarbete** (pedagog) | Mock-pedagog, anteckning | Jag är intresserad av Pedagog |
+| **Barn/Stöd** → Extra stöd (teacch) | Mock De sju frågorna | Jag är intresserad av Extra stöd |
+| **Basic** | Oförändrat — full funktion | — |
+
+**Gäller även `lifetime_free`:** de har `basic_app` men ser mock för tillägg — samma som alla andra utan köpt komponent.
+
+#### Intresse-CTA — beteende
+
+```
+┌─────────────────────────────────────┐
+│ Exempel — så här kan Utveckling     │
+│ se ut (inte din familjs data)        │
+│                                     │
+│ [ mockad dashboard ]                │
+│                                     │
+│ [ Jag är intresserad av Rapportering ]│
+└─────────────────────────────────────┘
+        ↓ klick
+┌─────────────────────────────────────┐
+│ Tack! Vi har noterat ditt intresse. │
+│ Du får veta när paketet är tillgängligt. │
+└─────────────────────────────────────┘
+```
+
+| Regel | Beskrivning |
+|-------|-------------|
+| En knapp per preview | Primär CTA — ingen Köp nu i intressefas |
+| Ingen write | API/write fortfarande `requireComponent()` — 403 |
+| Barnläge | Barn ser **inte** intresse-CTA eller tilläggspreview |
+| Dubbelklick | Andra klick = *"Du har redan visat intresse"* (mjuk, inte fel) |
+| Sekundär | Valfri *"Berätta mer"* → kort valfri kommentar (max 280 tecken) |
+
+#### Datainsamling
+
+**API:**
+
+```
+POST /api/subscription/interest
+Body: { "component": "reporting" | "pedagog" | "teacch", "source": "preview_nav", "comment": null }
+```
+
+**Lagring:**
+
+```sql
+CREATE TABLE package_interest (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id     UUID NOT NULL REFERENCES family(id),
+  parent_id     UUID NOT NULL REFERENCES parent(id),
+  component     TEXT NOT NULL,  -- reporting | pedagog | teacch
+  source        TEXT,           -- preview_nav | upgrade | trigger
+  comment       TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (family_id, component)
+);
+```
+
+**Analytics:** `package_interest_registered` i `analytics_events` (§15) — parallellt med DB för aggregering.
+
+#### Admin & beslut
+
+| Vy | Innehåll |
+|----|----------|
+| Admin → Paketintresse | Antal familjer per komponent · lista · export CSV |
+| Intern dashboard | Intresse % av aktiva familjer per paket |
+
+**Beslut att gå köp-live:** När intresse + strategi motiverar → sätt `PACKAGES_ROLLOUT_MODE=purchase`, aktivera IAP (§9.7), byt CTA till Köp nu. Familjer med registrerat intresse kan få push/e-post *(valfritt, separat kampanj)*.
+
+#### Teknisk växling
+
+| Env / feature flag | Värde |
+|--------------------|-------|
+| `PACKAGES_ROLLOUT_MODE` | `interest` *(default vid första ship)* \| `purchase` |
+| `PACKAGES_PURCHASE_ENABLED` | `false` i intressefas · `true` vid köp-live |
+
+`preview-shell.js` läser `/api/subscription/access` → `rollout_mode` → rätt CTA.
+
+**Byggordning påverkas inte:** §16 gäller oförändrat — intressefas är ett **deploy-läge**, inte ett kortare scope.
+
 ---
 
 ## 10. Rollout v1.2 (översikt)
@@ -930,7 +1030,9 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 | **2** | 4–5 | Nav förälder + barn (§6) |
 | **3** | 6–9 | Extra stöd: datamodell, bibliotek, barnvy, TTS |
 | **4** | 10–11 | Analytics §15 + kontextuella triggers §9.5 |
-| **5** | 12 | IAP-produkter App Store + Play Console (§9.7) |
+| **5** | 12 | IAP-produkter App Store + Play Console (§9.7) — **efter** intressefas |
+
+**Rekommenderad go-to-market:** Ship Fas 0–4 med `PACKAGES_ROLLOUT_MODE=interest` → mät §9.8 → aktivera Fas 5 + `purchase` när datat motiverar.
 
 ---
 
@@ -955,7 +1057,7 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
-- [ ] Implementationsplan §16 följd — Fas 0 (access-brygga) före UI
+- [ ] Intressefas §9.8 — mock för alla tillägg + `package_interest` + CTA växling
 
 ---
 
@@ -988,6 +1090,7 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 | W | **North Star** = genomförda aktiviteter/barn/vecka; retention = ≥3 dagar/vecka (§15) |
 | X | **AI får föreslå, aldrig automatiskt ändra** utan föräldragodkännande (§14.12) |
 | Y | **Betalning endast via Apple/Google IAP** — ingen Stripe/webb-checkout (§9.7) |
+| Z | **Intressefas före köp-live** — bygg allt, mät med *Jag är intresserad* (§9.8) |
 
 ---
 
@@ -1256,7 +1359,9 @@ Mäter vanemönster och churn-risk. Använd som komplement — inte som primärt
 | **Pedagog** | Aktiva relationer | Antal familjer med ≥1 accepterad pedagoginbjudan + aktiv inom 30 dagar | Baseline efter lansering |
 | **Extra stöd** | Sju frågor-täckning | % schemalagda aktiviteter med ≥3 ifyllda `seven_questions`-fält (inkl. pictogram) | ≥60% bland teacch-köpare |
 | **Extra stöd** | Visuellt stöd | % svar med `image_url` eller `icon_key` (ej enbart auto-fallback) | ≥40% inom 60 dagar |
-| **Monetisering** | Konvertering preview → köp | % familjer som köper efter kontextuell trigger (§9.5) | Baseline → A/B-test |
+| **Monetisering** | Konvertering preview → köp | % familjer som köper efter kontextuell trigger (§9.5) |
+| **Intressefas** | Registrerat intresse | Antal familjer per komponent i `package_interest` (§9.8) |
+| **Intressefas** | Intresse-rate | % aktiva familjer med ≥1 intresse / paket | Baseline → A/B-test |
 | **Tillgänglighet** | Läs upp-användning | % NU-sessioner med teacch där `read_aloud` används | Baseline (valfritt) |
 
 ### 15.3 Datainsamling
@@ -1270,6 +1375,7 @@ Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `
 | Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` |
 | Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` |
 | Preview → köp | `upgrade_from_preview` | `{ paket: 'reporting' }` |
+| Intresse registrerat | `package_interest_registered` | `{ component: 'reporting', source: 'preview_nav' }` |
 | Kontextuell trigger | `upgrade_trigger_shown` | `{ trigger: '14_day_reporting' }` |
 
 **Regel:** KPI:er beräknas i midnight-scheduler till `analytics_daily_snapshots` — inte ad hoc i produktionsqueries.
@@ -1354,19 +1460,23 @@ Config: subscription-components.js · component-feature-map.js
 
 **Exit-kriterium:** Admin kan tilldela komponent → rätt features togglas; API returnerar konsekvent state.
 
-### 16.4 Fas 1 — Preview + uppgradering
+### 16.4 Fas 1 — Preview + intresse (eller köp)
 
 | # | Leverans | Filer |
 |---|----------|-------|
 | 1.1 | Central mock-data | `config/preview-data.js` |
-| 1.2 | Preview-shell (banner, vattenstämpel, Köp nu) | `public/js/preview-shell.js`, `public/css/preview-shell.css` |
-| 1.3 | `/upgrade` — fyra löfteskort (§9.1) | `public/upgrade.html` *(ombyggd)*; behåll grundar-sida separat |
-| 1.4 | Native Köp nu → RevenueCat | `public/js/iap-manager.js` — `purchasePackage(paket)` |
-| 1.5 | Webb Köp nu → öppna appen | `preview-shell.js` — ingen checkout (§9.7) |
-| 1.6 | Webhook → `family_subscriptions.components` | `src/routes/iap.js` — utöka webhook-handler |
-| 1.7 | Preview på Utveckling (första flik) | `public/reports.html` eller motsv. + preview-shell |
+| 1.2 | Preview-shell (banner, vattenstämpel, CTA växling) | `public/js/preview-shell.js`, `public/css/preview-shell.css` |
+| 1.3 | `/upgrade` — fyra löfteskort (§9.1) | `public/upgrade.html` |
+| 1.4 | **Intressefas:** `POST /api/subscription/interest` + `package_interest` | `src/routes/subscription.js`, migration |
+| 1.5 | CTA: *Jag är intresserad* när `rollout_mode=interest` | `preview-shell.js` |
+| 1.6 | **Köp-live:** Native Köp nu → RevenueCat | `public/js/iap-manager.js` |
+| 1.7 | Webb Köp nu → öppna appen (§9.7) | `preview-shell.js` |
+| 1.8 | Webhook → `family_subscriptions.components` | `src/routes/iap.js` |
+| 1.9 | Admin: paketintresse-vy | `public/admin/` |
 
-**Exit-kriterium:** Familj utan `reporting` ser mock + Köp nu; API write returnerar 403; native köp (sandbox) aktiverar komponent.
+**Exit-kriterium (intressefas):** Alla familjer ser mock för reporting/pedagog/teacch; klick loggas; ingen IAP; ingen write.
+
+**Exit-kriterium (köp-live):** `PACKAGES_ROLLOUT_MODE=purchase` → Köp nu + sandbox-köp aktiverar komponent.
 
 ### 16.5 Fas 2 — Navigation
 
@@ -1465,8 +1575,9 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | Epic | Fas | Beskrivning | Beror på |
 |------|-----|-------------|----------|
 | **E1** | 0 | package-access + API | — |
-| **E2** | 1 | preview-data + preview-shell | E1 |
-| **E3** | 1 | /upgrade 4-paket + IAP-köp native | E1, E2 |
+| **E2** | 1 | preview-data + preview-shell + intresse-CTA | E1 |
+| **E3** | 1 | `/upgrade` 4-paket + interest API | E1, E2 |
+| **E3b** | 5 | IAP-köp native (efter intressefas) | E3, admin-beslut |
 | **E4** | 2 | Nav förälder (native-tab-bar) | E2 |
 | **E5** | 2 | Nav barn (2 flikar, dölj vid NU) | — |
 | **E6** | 3 | seven_questions migration + lib | E1 |
@@ -1476,7 +1587,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | **E10** | 4 | analytics + triggers | E2, E3 |
 | **E11** | 5 | IAP produkter + webhook components | E3 |
 
-**Rekommenderad start:** E1 → E2 → E3 (validera gating utan nav-omläggning).
+**Rekommenderad start:** E1 → E2 → E3 med `PACKAGES_ROLLOUT_MODE=interest`. E3b (IAP) när intressedata motiverar köp-live.
 
 ### 16.10 Visuell implementation
 
