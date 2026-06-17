@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§9.7 plattformsbetalning — endast Apple/Google)  
+**Uppdaterad:** 2026-06-17 (§16 implementationsplan)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -918,26 +918,19 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 
 ---
 
-## 10. Rollout v1.2
+## 10. Rollout v1.2 (översikt)
 
-**Rekommenderad ordning** (minimerar risk att bygga UI innan paketering fungerar):
+**Detaljerad plan:** §16.  
+**Princip:** Bygg paketering och preview **före** nav-omläggning och Extra stöd-UI.
 
-| Steg | Leverans |
-|------|----------|
-| 1 | Paketspec + register (denna fil) ✅ |
-| 2 | `pedagog` + `teacch` i `subscription-components.js` |
-| 3 | `hasComponent()` + `hasFeature()`-mapping |
-| 4 | Uppgraderingssida + `preview-data.js` + Köp nu-flöde |
-| 5 | `teacch`-komponent aktiverbar |
-| 6 | `seven_questions` JSONB + `version` + `normalizeSevenQuestions()` |
-| 7 | Pictogram-bibliotek (`config/seven-questions-pictograms.js`) |
-| 8 | Barnvy-rendering (pictogram + auto-fallback) |
-| 9 | Visuell timer i Extra stöd-NU |
-| 10 | Läs upp (`read_aloud`) med TTS-fallback |
-| 11 | Navigationsomläggning enligt §6 (iterativt) |
-| 12 | Kontextuella uppgraderingspunkter (§9.5) |
-| 13 | Analytics-events för §15 KPI:er |
-| 14 | IAP-produkter i App Store Connect + Play Console (RevenueCat offerings per paket) |
+| Fas | Epics | Leverans |
+|-----|-------|----------|
+| **0** | 1 | Access-brygga (`package-access`, `/api/subscription/access`) |
+| **1** | 2–3 | Preview-shell + `/upgrade` (4 paket, IAP på native) |
+| **2** | 4–5 | Nav förälder + barn (§6) |
+| **3** | 6–9 | Extra stöd: datamodell, bibliotek, barnvy, TTS |
+| **4** | 10–11 | Analytics §15 + kontextuella triggers §9.5 |
+| **5** | 12 | IAP-produkter App Store + Play Console (§9.7) |
 
 ---
 
@@ -962,6 +955,7 @@ Köp nu → iap-manager.js → Purchases.purchasePackage()
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav
+- [ ] Implementationsplan §16 följd — Fas 0 (access-brygga) före UI
 
 ---
 
@@ -1290,4 +1284,232 @@ Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `
 
 ---
 
-*Spec v1.2 Paket — **implementationsklar**. Produktprinciper §14 och success metrics §15 gäller oförändrat över versioner.*
+## 16. Implementationsplan
+
+*Hur v1.2 byggs i kod — kopplar spec, designmockups och befintlig kodbas.*
+
+### 16.1 Nuläge vs mål
+
+| Område | Finns idag | v1.2 mål |
+|--------|------------|----------|
+| `family_subscriptions` + `has_component()` | ✅ | + `pedagog`, `teacch` i register |
+| `requireComponent()` | ✅ | Använd på alla paket-gatade routes; `lifetime_free` = endast `basic_app` |
+| `requireFeature()` + `hasAccess()` | ✅ | Koppla till komponenter via `component-feature-map` (§8.2) |
+| Föräldernav | Hem · Schema · För dig · Skatt · Mer | Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd (§6) |
+| Barnnav | 4 flikar | Idag · Skatt; dölj under aktiv NU med teacch (§7.5) |
+| Betalning | RevenueCat IAP (iOS/Android), ej webb | Fyra paket via IAP; webb = preview only (§9.7) |
+| `visual_timer` | ✅ på `child` | Paketerat under teacch i Extra stöd-NU |
+| Rapporter | `requireFeature('klinisk_rapportering')` | + `requireComponent('reporting')` + preview |
+| De sju frågorna | — | Migration, API, bibliotek, barnvy (§7) |
+| Preview-register | — | `config/preview-data.js` (§9.6) |
+
+**Kritisk insikt:** Två gating-system (`requireComponent` vs `requireFeature`) pratar inte ihop idag. **Fas 0** måste länka dem innan UI byggs.
+
+### 16.2 Arkitektur
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Frontend                                                     │
+│  native-tab-bar.js · preview-shell.js · child-seven-       │
+│  questions.js · iap-manager.js · features-cache.js            │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ GET /api/subscription/access
+┌──────────────────────────▼──────────────────────────────────┐
+│ Backend                                                      │
+│  package-access.js · requireComponent() · requireFeature()    │
+│  family_subscriptions · features / family_features          │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ POST /api/iap/webhook
+┌──────────────────────────▼──────────────────────────────────┐
+│ RevenueCat → App Store (iOS) / Play Billing (Android)        │
+└─────────────────────────────────────────────────────────────┘
+
+Config: subscription-components.js · component-feature-map.js
+        preview-data.js · seven-questions-pictograms.js
+```
+
+**Regel:** `hasComponent('teacch')` = familjen har köpt paketet. `hasFeature('de_sju_fragorna')` = feature rollout inom paketet. Klienten hämtar **båda** från ett API.
+
+### 16.3 Fas 0 — Fundament (backend, inget synligt UI)
+
+| # | Leverans | Filer |
+|---|----------|-------|
+| 0.1 | `pedagog` + `teacch` i paketregister | `config/subscription-components.js` |
+| 0.2 | Feature → komponent-mapping | `config/component-feature-map.js` *(ny)* |
+| 0.3 | Enhetlig access-modul | `src/lib/package-access.js` *(ny)* |
+| 0.4 | Uppdatera `hasAccess()` — komponent krävs för icke-CORE features | `db/features.js` |
+| 0.5 | Fixa `lifetime_free` — ge `basic_app`, inte alla paket | `src/middleware/require-component.js` |
+| 0.6 | API för klient | `GET /api/subscription/access` *(ny route)* |
+
+```javascript
+// GET /api/subscription/access — svar
+{
+  components: { basic_app: true, reporting: false, pedagog: false, teacch: false },
+  features:   { de_sju_fragorna: false, read_aloud: false, klinisk_rapportering: false, … },
+  preview:    { reporting: true, pedagog: true, teacch: true }
+}
+```
+
+**Tester:** `test/package-access.test.js` — komponent + feature + lifetime_free.
+
+**Exit-kriterium:** Admin kan tilldela komponent → rätt features togglas; API returnerar konsekvent state.
+
+### 16.4 Fas 1 — Preview + uppgradering
+
+| # | Leverans | Filer |
+|---|----------|-------|
+| 1.1 | Central mock-data | `config/preview-data.js` |
+| 1.2 | Preview-shell (banner, vattenstämpel, Köp nu) | `public/js/preview-shell.js`, `public/css/preview-shell.css` |
+| 1.3 | `/upgrade` — fyra löfteskort (§9.1) | `public/upgrade.html` *(ombyggd)*; behåll grundar-sida separat |
+| 1.4 | Native Köp nu → RevenueCat | `public/js/iap-manager.js` — `purchasePackage(paket)` |
+| 1.5 | Webb Köp nu → öppna appen | `preview-shell.js` — ingen checkout (§9.7) |
+| 1.6 | Webhook → `family_subscriptions.components` | `src/routes/iap.js` — utöka webhook-handler |
+| 1.7 | Preview på Utveckling (första flik) | `public/reports.html` eller motsv. + preview-shell |
+
+**Exit-kriterium:** Familj utan `reporting` ser mock + Köp nu; API write returnerar 403; native köp (sandbox) aktiverar komponent.
+
+### 16.5 Fas 2 — Navigation
+
+#### Förälder — `native-tab-bar.js`
+
+| Nu | v1.2 | Route |
+|----|------|-------|
+| Hem | **Idag** | `/dashboard` |
+| Schema | **Rutiner** | `/schedule`, `/library` |
+| För dig | *(modul i Idag)* | `/dashboard#fordig` |
+| Skatt | *(in i Barn/Stöd)* | — |
+| Mer | **Inställningar** | top-right ⚙️ → `/settings` |
+| *(ny)* | **Utveckling** | `/reports` (preview om ej köpt) |
+| *(ny)* | **Samarbete** | pedagog-hub *(ny eller befintliga sidor)* |
+| *(ny)* | **Barn/Stöd** | hub: barnvy-genväg + Extra stöd |
+
+**Filer:** `public/js/native-tab-bar.js`, `public/js/parent-magic-shell.js`, `public/js/dashboard-home-hub.js` (För dig-modul), `public/css/parent-bottom-nav.css`.
+
+**Redirects:** `/for-dig` → `/dashboard#fordig` (bokmärken).
+
+#### Barn — `child-dashboard.html`
+
+| Nu | v1.2 |
+|----|------|
+| Idag · Schema · Skatt · Mer | **Idag · Skatt** |
+| Nav alltid synlig | Dölj nav under aktiv NU + teacch |
+
+**Filer:** `public/child-dashboard.html`, `public/js/child-dashboard.js`, `public/css/child-bottom-nav.css`.
+
+**Exit-kriterium:** 5 flikar förälder; För dig inte i nav; barn max 2 flikar; gamla URL:er redirectar.
+
+### 16.6 Fas 3 — Extra stöd (teacch)
+
+Bygg i denna ordning:
+
+| # | Leverans | Filer |
+|---|----------|-------|
+| 3.1 | Migration `seven_questions JSONB` | `migrations/` |
+| 3.2 | `normalizeSevenQuestions()`, `QUESTION_ORDER` | `src/lib/seven-questions.js` *(ny)* |
+| 3.3 | Pictogram-bibliotek (~40 st) | `config/seven-questions-pictograms.js` *(ny)* |
+| 3.4 | API: activities + pictograms + daily-log enrich | `src/routes/activities.js`, `src/lib/schemas.js` |
+| 3.5 | Förälder: redigering i bibliotek | `public/js/library.js` |
+| 3.6 | Barnvy: NU-kort med sju frågor | `public/js/child-seven-questions.js` *(ny)* |
+| 3.7 | Visuell timer kopplad till `how_long` | återanvänd `initTimeTimers()` i `child-dashboard.js` |
+| 3.8 | Läs upp (TTS) — dölj om ej tillgänglig | `public/js/child-read-aloud.js` *(ny)* |
+| 3.9 | Feature-seed | `scripts/seed-features.js` |
+
+**Gating:** `requireComponent('teacch')` på write; read i barnvy om komponent finns.
+
+**Designreferens:** `docs/mockups/paket-v1.2-nav.png` panel 3 · `docs/mockups/barnvy.html` · §13.5.
+
+**Exit-kriterium:** Barn ser pictogram (aldrig text-only); timer vid `how_long`; högtalare om TTS finns; ingen bottom nav under aktivitet.
+
+### 16.7 Fas 4 — Analytics & triggers
+
+| # | Leverans | Var |
+|---|----------|-----|
+| 4.1 | `activity_completed` — standardisera metadata | befintliga completion-flöden |
+| 4.2 | `seven_questions_shown` | `child-seven-questions.js` |
+| 4.3 | `upgrade_from_preview` | `preview-shell.js` |
+| 4.4 | `upgrade_trigger_shown` | kontextuella banners (§9.5) |
+| 4.5 | Midnight snapshot — NSM | befintlig scheduler |
+
+**Kontextuella triggers (§9.5):**
+
+| Paket | Trigger | Hook |
+|-------|---------|------|
+| Rapportering | ≥14 dagar aktivitetsdata | midnight scheduler |
+| Pedagog | pedagoginbjudan | `pedagog_invite` routes |
+| Extra stöd | redigera aktivitet / sju frågor | `library.js` |
+
+### 16.8 Fas 5 — IAP-produkter (§9.7)
+
+| # | Leverans |
+|---|----------|
+| 5.1 | Produkt-ID per paket i App Store Connect + Play Console |
+| 5.2 | RevenueCat offerings/packages mappade till `basic_app`, `reporting`, `pedagog`, `teacch` |
+| 5.3 | Webhook uppdaterar `family_subscriptions.components[]` med `component` + `expires_at` |
+| 5.4 | Sandbox-test iOS + Android |
+| 5.5 | App Review — inga webb-betalningstexter i native |
+
+**Målbild RevenueCat:**
+
+```
+Offering "v1.2"
+  ├── package_basic      → basic_app
+  ├── package_reporting  → reporting
+  ├── package_pedagog    → pedagog
+  └── package_teacch     → teacch
+```
+
+Kombinerbara köp = flera packages i samma offering (produktbeslut).
+
+### 16.9 Epics — PR-uppdelning
+
+| Epic | Fas | Beskrivning | Beror på |
+|------|-----|-------------|----------|
+| **E1** | 0 | package-access + API | — |
+| **E2** | 1 | preview-data + preview-shell | E1 |
+| **E3** | 1 | /upgrade 4-paket + IAP-köp native | E1, E2 |
+| **E4** | 2 | Nav förälder (native-tab-bar) | E2 |
+| **E5** | 2 | Nav barn (2 flikar, dölj vid NU) | — |
+| **E6** | 3 | seven_questions migration + lib | E1 |
+| **E7** | 3 | library editor + pictograms | E6 |
+| **E8** | 3 | child-seven-questions UI | E6, E7 |
+| **E9** | 3 | read_aloud + timer teacch | E8 |
+| **E10** | 4 | analytics + triggers | E2, E3 |
+| **E11** | 5 | IAP produkter + webhook components | E3 |
+
+**Rekommenderad start:** E1 → E2 → E3 (validera gating utan nav-omläggning).
+
+### 16.10 Visuell implementation
+
+| Yta | Profil | Referens |
+|-----|--------|----------|
+| Förälder | Ljus bakgrund `#F0F4FF`, navy header, gold accenter | `docs/mockups/foraldra.html` |
+| Barn | Mörk `#0F1629`, gold NU, stjärnhimmel | `docs/mockups/barnvy.html` |
+| Extra stöd | Pictogram större än text, grön Klar, ingen nav under aktivitet | `docs/mockups/paket-v1.2-nav.png` |
+| Preview | Fade + vattenstämpel + gold Köp nu | §9.3, panel 4 i mockup |
+
+**Typsnitt:** Outfit (rubriker) · Plus Jakarta Sans (brödtext).  
+**Vid konflikt:** HTML-mockups > design-affisch > improvisation.
+
+### 16.11 Risker
+
+| Risk | Åtgärd |
+|------|--------|
+| `lifetime_free` fail-open (alla paket) | Explicit `basic_app` only i Fas 0.5 |
+| `hasAccess` ignorerar komponenter | `package-access.js` bridge i Fas 0 |
+| `child-dashboard.js` växer okontrollerat | All Extra stöd-UI i egna filer (§16.6) |
+| Nav bryts på Capacitor iOS/Android | Testa `native-tab-bar.js` på riktiga enheter |
+| App Review avvisar webb-betalningstext | §9.7 checklista före submit |
+| IAP webhook synkar fel komponent | Idempotent webhook + logg i `iap.js` |
+
+### 16.12 Medvetet inte i v1.2
+
+| Postponerat | Version |
+|-------------|---------|
+| `minimal_ui` (helbild + en knapp) | v1.3 |
+| `transition_support`, `social_stories` | v1.3+ |
+| Stripe / webb-checkout | Aldrig (§9.7) |
+| AI-rutiner / AI-rapporter | Framtid (§14.12) |
+
+---
+
+*Spec v1.2 Paket — **implementationsklar**. Produktprinciper §14, success metrics §15 och implementationsplan §16 gäller oförändrat över versioner.*
