@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§15 success metrics, §14.12 AI-princip)  
+**Uppdaterad:** 2026-06-17 (§9.7 plattformsbetalning — endast Apple/Google)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -722,27 +722,34 @@ Tre **kritiska broar** mellan text och visuell förståelse — utan dessa funge
 Målbild för `config/subscription-components.js`:
 
 ```javascript
-const STRIPE_COMPONENT_MAP = {
+// Priser/metadata — själva köpet sker via IAP (RevenueCat), inte Stripe (§9.7)
+const PACKAGE_COMPONENT_MAP = {
   basic_app: {
     name: 'Basic',
     price_monthly_sek: 59,
+    rc_product_id: null, // App Store / Play Console via RevenueCat
   },
   reporting: {
     name: 'Familj Rapportering',
     price_monthly_sek: 19,
+    rc_product_id: null,
   },
   pedagog: {
     name: 'Familj Pedagog',
     price_monthly_sek: null,
+    rc_product_id: null,
   },
   teacch: {
     name: 'Familj Extra stöd',
     price_monthly_sek: null,
+    rc_product_id: null,
   },
 };
 ```
 
-`STRIPE_ENABLED=false` tills betalning aktiveras.
+*Befintlig export `STRIPE_COMPONENT_MAP` kan bytas namn vid implementation — innehållet är paketmetadata, inte betalningskanal.*
+
+**Betalning:** endast plattforms-IAP (§9.7). Ingen Stripe-checkout, inga kortformulär, inga externa betalningslänkar i appen.
 
 ### 8.2 Gating — två nivåer
 
@@ -793,8 +800,10 @@ Varje ej köpt kort visar **en mockad miniatyr** (skärmdump eller inline-demo) 
 |---------|------|
 | **Knapp** | `Köp nu` (primär) — samma copy överallt |
 | **Placering** | Preview-banner (top) · bottom sticky på mobil · uppgraderingskort |
-| **Klick** | → `/upgrade?paket=reporting` (eller Stripe checkout när aktivt) |
-| **Efter köp** | Komponent tillagd i `family_subscriptions` → preview ersätts av riktig vy, ingen omstart |
+| **Klick (native iOS)** | Öppna RevenueCat/StoreKit — **Apple** plattformsbetalning (App Store) |
+| **Klick (native Android)** | Öppna RevenueCat/Play Billing — **Google** plattformsbetalning (Play Store) |
+| **Klick (webb/PWA)** | **Ingen checkout** — visa *"Öppna i appen för att köpa"* eller deep link till rätt store; preview kvar |
+| **Efter köp** | Webhook (`POST /api/iap/webhook`) → `family_subscriptions.components` uppdateras → preview ersätts av riktig vy |
 
 ### 9.3 Preview-mockar (innehåll)
 
@@ -859,6 +868,54 @@ module.exports = {
 
 **Regel:** Ingen familjedata i preview. Alla vyer importerar från `preview-data.js` — inte hårdkodad demo per sida.
 
+### 9.7 Betalning — endast Apple / Google (plattforms-IAP)
+
+**Beslut:** Betalning sker **enbart** via respektive appbutiks betalning — inte via webben, Stripe eller egna kortformulär.
+
+| Plattform | Betalning | Teknik | Tillåtet i UI |
+|-----------|-----------|--------|---------------|
+| **iOS-app** | Apple (App Store) | RevenueCat + StoreKit | Native köpdialog; Face ID / Apple Pay som betalmetod på Apples sida |
+| **Android-app** | Google (Play Store) | RevenueCat + Play Billing | Native köpdialog; Google Pay som betalmetod på Googles sida |
+| **Webb / PWA** | **Ingen** | — | Preview + Köp nu → *Öppna i appen*; **aldrig** Stripe-länk eller kortfält |
+
+**Motivering:**
+- Apple App Store Review Guideline 3.1.1 — digitala abonnemang i iOS-app ska via IAP
+- Google Play Billing Policy — motsvarande för Android
+- En köpväg per plattform — familjens `family_subscriptions` synkas via RevenueCat webhook (befintlig `src/routes/iap.js`)
+
+**Köpflöde (native):**
+
+```
+Köp nu → iap-manager.js → Purchases.purchasePackage()
+  → iOS: StoreKit (Apple)  /  Android: Play Billing (Google)
+  → RevenueCat webhook → family_subscriptions.components
+```
+
+**Fyra paket i v1.2** mappas till RevenueCat *offerings/packages* (ett eller flera produkt-ID:n per komponent — produktbeslut vid IAP-setup).
+
+**Förbjudet överallt i native:**
+- Stripe Checkout / Polsia Stripe-proxy i appen
+- Länkar till webb-betalning (`upgrade.html` med kortbetalning)
+- Text som uppmanar att betala utanför App Store / Play Store
+
+**Webb/PWA — Köp nu-beteende:**
+
+```
+┌─────────────────────────────────────┐
+│ Köp Familj Rapportering i appen     │
+│                                     │
+│ Betalning sker via App Store eller  │
+│ Google Play — öppna familjeappen   │
+│ i appen för att slutföra köpet.     │
+│                                     │
+│ [ Öppna appen ]  [ App Store ]      │
+└─────────────────────────────────────┘
+```
+
+**Admin / livstidsgratis:** `lifetime_free` och manuell komponenttilldelning i admin kvarstår — utan IAP.
+
+**Referens:** `docs/app-store-iap.md` · `src/routes/iap.js` · `public/js/iap-manager.js`
+
 ---
 
 ## 10. Rollout v1.2
@@ -880,7 +937,7 @@ module.exports = {
 | 11 | Navigationsomläggning enligt §6 (iterativt) |
 | 12 | Kontextuella uppgraderingspunkter (§9.5) |
 | 13 | Analytics-events för §15 KPI:er |
-| 14 | Betalning separat |
+| 14 | IAP-produkter i App Store Connect + Play Console (RevenueCat offerings per paket) |
 
 ---
 
@@ -894,7 +951,7 @@ module.exports = {
 - [ ] Pictogram-schema med `key`, `category`, `image_url` (§7.2)
 - [ ] Auto emoji-fallback — barnvy aldrig text-only (§7.2)
 - [ ] `config/preview-data.js` — en mock-källa (§9.6)
-- [ ] Kontextuella uppgraderingspunkter (§9.5)
+- [ ] Betalning endast via Apple (iOS) / Google (Android) IAP — ingen webb-checkout (§9.7)
 - [ ] TTS: dölj högtalare om ej tillgänglig (§7.5)
 - [ ] Nav-hierarki: en primär ingång per feature (§6.6)
 - [ ] AI-princip §14.12 dokumenterad — inga autonoma AI-skrivningar utan föräldragodkännande
@@ -936,6 +993,7 @@ module.exports = {
 | V | **Kontextuella uppgraderingspunkter** — inte bara passiv preview (§9.5) |
 | W | **North Star** = genomförda aktiviteter/barn/vecka; retention = ≥3 dagar/vecka (§15) |
 | X | **AI får föreslå, aldrig automatiskt ändra** utan föräldragodkännande (§14.12) |
+| Y | **Betalning endast via Apple/Google IAP** — ingen Stripe/webb-checkout (§9.7) |
 
 ---
 
@@ -1148,6 +1206,7 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 | **14.8** | **Barnvy visar aldrig text utan visuellt stöd** — auto emoji-fallback minimum; familjefoto = rekommenderad nivå |
 | **14.9** | **Gating på två nivåer** — komponent (paket) + feature (rollout) (§8.2) |
 | **14.10** | **Samma preview-data överallt** — `preview-data.js`, aldrig familjens riktiga data (§9.6) |
+| **14.11** | **Betalning endast i appen** — Apple (iOS) eller Google (Android); webb visar preview och hänvisar till appen (§9.7) |
 
 ### 14.12 AI-princip (framtidssäkring)
 
@@ -1162,7 +1221,7 @@ Samma mönster för Samarbete och Extra stöd (§9.3).
 
 Exempel på framtida features som omfattas: AI-rutiner · AI-förslag i För dig · AI-sammanfattade rapporter · AI-observationer.
 
-### 14.11 Vägen till 10/10 — luckor täppta
+### 14.13 Vägen till 10/10 — luckor täppta
 
 | Dimension | Före | Nu |
 |-----------|------|-----|
