@@ -5,6 +5,41 @@
 
 ---
 
+## Build 15 — Resubmission (2026-06-16, after 2.1(b) rejection)
+
+Apple rejected Build 14 because subscription text remained in the web UI (landing page, pricing page, dashboard HTML). Build 15 removes **all** user-facing subscription/payment references.
+
+**Paste into App Review Information → Notes:**
+
+```
+This version (Build 15) is a completely free app. We have removed all In-App Purchase code and all subscription/payment UI text from the application.
+
+No In-App Purchase products exist or are configured in App Store Connect. There is no subscription purchase flow anywhere in the app.
+
+The review account provided in the Review Notes section has full complimentary access as a founding member. Please test core functionality using the provided credentials. <!-- pragma: allowlist secret -->
+
+Thank you.
+```
+
+**Reply to Apple's message in App Store Connect:**
+
+```
+Hello App Review,
+
+Thank you for your follow-up.
+
+We understand the issue: our app previously contained text references to subscriptions in the web content loaded by the native app, even though no In-App Purchase products were ever created in App Store Connect.
+
+In Build 15 we have removed all subscription and payment UI from the entire application. The app is now 100% free with no references to paid subscriptions or In-App Purchases.
+
+No IAP products are configured in App Store Connect, and we do not intend to offer In-App Purchases in this version. Please review the app as a free application using the provided test account.
+
+Thank you,
+Pontus Burman
+```
+
+---
+
 ## Build 14 — Resubmission (2026-06-16)
 
 **Paste into App Review Information → Notes:**

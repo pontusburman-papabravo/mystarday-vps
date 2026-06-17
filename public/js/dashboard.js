@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory(), loadTrialBanner()]);
+  await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
   showMedforalderCtaIfEligible();
@@ -842,64 +842,9 @@ function initDelaAppenCta() {
   showDelaAppenCtaIfEligible();
 }
 
-// ── Trial countdown banner ─────────────────────────────────
-// WHY payment_enabled check: all payment UI is hidden until owner enables PAYMENT_ENABLED env var
-const BETA_FREEZE = new Date('2027-06-30T23:59:59Z');
-
-async function loadTrialBanner() {
-  const banner = document.getElementById('trialBanner');
-  const bannerText = document.getElementById('trialBannerText');
-  const bannerCta = document.getElementById('trialBannerCta');
-  if (!banner || !bannerText) return;
-
-  try {
-    const res = await window.apiFetch('/api/family/subscription-status');
-    if (!res.ok) return;
-    const data = await res.json();
-
-    // Hide all payment UI unless PAYMENT_ENABLED is true on the server
-    if (!data.payment_enabled) { banner.style.display = 'none'; return; }
-
-    // Only show for trial families
-    if (data.subscription_status !== 'trial') { banner.style.display = 'none'; return; }
-    if (data.is_beta && new Date() <= BETA_FREEZE) { banner.style.display = 'none'; return; }
-
-    const days = data.trial_days_remaining;
-    if (days == null || days <= 0) {
-      // Trial expired — show upgrade modal if payment is enabled
-      showPaymentPrompt();
-      banner.style.display = 'none';
-      return;
-    }
-
-    if (days <= 3) {
-      banner.style.background = '#991B1B';
-      banner.style.borderBottomColor = '#DC2626';
-    }
-
-    const suffix = days === 1 ? 'dag' : 'dagar';
-    bannerText.textContent = `🐣 ${days} ${suffix} kvar av gratis provperiod — sedan 59 kr/månad`;
-    if (bannerCta) bannerCta.style.display = '';
-    banner.style.display = 'block';
-  } catch (_) { /* non-critical */ }
-}
-
-/** Show the payment prompt modal when trial has expired and payment is enabled. */
-function showPaymentPrompt() {
-  const modal = document.getElementById('paymentPromptModal');
-  if (modal) modal.classList.remove('hidden');
-}
-
-/** Dismiss the payment prompt modal (user chooses to continue in limited mode). */
-function dismissPaymentPrompt() {
-  const modal = document.getElementById('paymentPromptModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-/** Redirect to upgrade page for payment. */
-function goToUpgrade() {
-  window.location.href = '/upgrade';
-}
+// Payment UI removed for App Store review — no subscription references in client.
+function dismissPaymentPrompt() {}
+function goToUpgrade() { window.location.href = '/dashboard'; }
 
 // Track which card is expanded
 let _expandedCardId = null;

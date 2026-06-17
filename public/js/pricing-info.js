@@ -1,5 +1,5 @@
 /**
- * pricing-info.js — founder program info page (Model A).
+ * pricing-info.js — founder program info page.
  */
 (function () {
   'use strict';
@@ -15,13 +15,10 @@
     var remaining = typeof data.spots_remaining === 'number'
       ? data.spots_remaining
       : Math.max(0, limit - count);
-    var price = data.price_sek || 59;
     var pct = Math.min(100, Math.round((Math.min(count, limit) / limit) * 100));
 
     setText('founderLimitLabel', String(limit));
     setText('founderLimitLabel2', String(limit));
-    setText('priceLabel', String(price));
-    setText('priceLabel2', String(price));
 
     var main = document.getElementById('counterMain');
     var sub = document.getElementById('counterSub');
@@ -36,7 +33,7 @@
       if (closedBlock) closedBlock.classList.add('hidden');
     } else {
       if (main) main.textContent = 'Alla ' + limit + ' grundarplatser är tagna';
-      if (sub) sub.textContent = 'Nya familjer erbjuds Premium ' + price + ' kr/månad';
+      if (sub) sub.textContent = 'Kontakta oss om du vill ställa dig på väntelista';
       if (openBlock) openBlock.classList.add('hidden');
       if (closedBlock) closedBlock.classList.remove('hidden');
     }
@@ -47,6 +44,6 @@
     .then(function (r) { return r.json(); })
     .then(render)
     .catch(function () {
-      render({ count: 0, limit: 200, spots_remaining: 200, price_sek: 59 });
+      render({ count: 0, limit: 200, spots_remaining: 200 });
     });
 })();

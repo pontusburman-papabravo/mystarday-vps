@@ -509,21 +509,6 @@
     <span id="parentOfflineTime" class="ml-2 text-amber-600 text-xs"></span>
   </div>
 
-  <!-- ─── TRIAL COUNTDOWN BANNER ───────────────────────────────── -->
-  <!-- Shown for trial families; hidden for beta/active/expired. -->
-  <div id="trialBanner" style="display:none; position:relative; z-index:9990; background:#1B2340; color:white; padding:10px 16px 10px 20px; border-bottom:3px solid #F5A623; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-    <div style="display:flex; align-items:center; gap:10px; max-width:900px; margin:0 auto;">
-      <span style="font-size:18px; flex-shrink:0;">⭐</span>
-      <div style="flex:1; min-width:0;">
-        <p id="trialBannerText" style="font-size:13px; font-weight:600; margin:0; line-height:1.4;"></p>
-      </div>
-      <a id="trialBannerCta" href="/upgrade"
-         style="flex-shrink:0; background:#F5A623; color:#1B2340; border-radius:8px; padding:6px 14px; font-size:12px; font-weight:800; text-decoration:none; white-space:nowrap;">
-        Uppgradera – 59 kr/mån
-      </a>
-    </div>
-  </div>
-
   <!-- ─── SYSTEM MESSAGE BANNER ────────────────────────────────── -->
   <!-- Hidden by default. Shown when unread system messages exist.  -->
   <div id="systemMsgBanner" style="display:none; position:relative; z-index:9990; background:#1B2340; color:white; padding:12px 16px 12px 20px; border-bottom:3px solid #F5A623; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
@@ -1550,27 +1535,6 @@
     </div>
   </div>
 
-  <!-- ─── PAYMENT PROMPT MODAL (hidden until trial expires + payment enabled) ──── -->
-  <div id="paymentPromptModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-      <div class="w-16 h-16 bg-gradient-to-br from-amber-100 to-yellow-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-        <span class="text-3xl">⭐</span>
-      </div>
-      <h2 class="text-xl font-heading font-bold text-navy mb-2">Din provperiod är slut</h2>
-      <p class="text-text-soft text-sm mb-6 leading-relaxed">
-        Fortsätt med Basic för <strong>59 kr/månad</strong> och behåll alla funktioner i Min Stjärndag.
-      </p>
-      <button onclick="goToUpgrade()"
-        class="block w-full bg-gold hover:bg-yellow-600 text-white font-semibold text-lg py-3 px-6 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98] mb-3">
-        Uppgradera — 59 kr/mån
-      </button>
-      <button onclick="dismissPaymentPrompt()"
-        class="block w-full text-text-soft hover:text-navy text-sm py-2 transition-colors">
-        Fortsätt med begränsad åtkomst
-      </button>
-      <p class="text-text-soft text-xs mt-4">Betalning via Stripe · Avsluta när som helst</p>
-    </div>
-  </div>
 
   <!-- Bottom tab bar (PWA mobile — mockup parent nav) -->
   <nav id="parentBottomNav" class="parent-bottom-nav" aria-label="Huvudnavigering">

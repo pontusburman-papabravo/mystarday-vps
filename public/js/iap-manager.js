@@ -1,8 +1,5 @@
 /**
- * iap-manager.js — subscription access stub (Build 14 / App Review).
- *
- * In-app purchases are not active in this version. All users have full access
- * during the founder program. IAP will be re-enabled in a future release.
+ * iap-manager.js — access stub (App Review: no in-app purchases in this version).
  */
 
 (function () {

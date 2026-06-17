@@ -1550,7 +1550,7 @@
           "name": "Kostar det något?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "De första 200 familjerna som registrerar sig får det kostnadsfritt — obegränsat antal barn, ingen bindningstid. Därefter en familje prenumeration utan bindningstid."
+            "text": "De första 200 familjerna som registrerar sig får det kostnadsfritt — obegränsat antal barn, livstids tillgång som grundarmedlem."
           }
         },
         {
@@ -1794,24 +1794,24 @@
             <div id="founderCta" style="width:100%;max-width:460px;margin-bottom:1.4rem;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border:2px solid #F5A623;border-radius:18px;padding:1.2rem 1.4rem;box-shadow:0 6px 24px rgba(245,166,35,0.18);">
                 <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.7rem;">
                     <span style="font-size:1.4rem;">🎁</span>
-                    <strong style="font-family:'Fraunces',serif;font-size:1.05rem;color:#1C2340;line-height:1.2;">Lanseringserbjudande</strong>
+                    <strong style="font-family:'Fraunces',serif;font-size:1.05rem;color:#1C2340;line-height:1.2;">Grundarprogrammet</strong>
                 </div>
                 <p style="font-size:0.88rem;color:#1C2340;font-weight:600;margin-bottom:0.85rem;">De första <span id="founderLimitHero">200</span> familjerna får <strong style="color:#1C2340;">livstids tillgång utan kostnad</strong> — som grundarmedlemmar.</p>
                 <p style="font-size:0.8rem;color:#5A6178;margin:-0.4rem 0 0.85rem;"><a href="/pricing-info" style="color:#D4891A;font-weight:700;text-decoration:none;">Läs mer om grundarprogrammet →</a></p>
                 <ul style="list-style:none;padding:0;margin:0 0 1rem 0;display:flex;flex-direction:column;gap:0.45rem;">
                     <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
                         <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
-                        <span><strong style="color:#1C2340;">Familjeprenumeration:</strong> Gäller för ett obegränsat antal barn</span>
+                        <span><strong style="color:#1C2340;">Hela familjen:</strong> Gäller för ett obegränsat antal barn</span>
                     </li>
                     <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
                         <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
-                        <span><strong style="color:#1C2340;">Flexibelt:</strong> Ingen bindningstid, avsluta när du vill</span>
+                        <span><strong style="color:#1C2340;">Alla funktioner:</strong> Scheman, stjärnor och belöningar ingår</span>
                     </li>
                 </ul>
                 <a href="/register" id="founderCtaBtn" style="display:flex;align-items:center;justify-content:center;gap:0.45rem;margin-bottom:0.6rem;padding:0.85rem 1.6rem;background:linear-gradient(135deg,#F5A623,#D4891A);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;border-radius:14px;text-decoration:none;box-shadow:0 5px 18px rgba(245,166,35,0.48);transition:transform 0.18s,box-shadow 0.18s;position:relative;z-index:1;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(245,166,35,0.6)';" onmouseout="this.style.transform='';this.style.boxShadow='0 5px 18px rgba(245,166,35,0.48)';">
                     Starta kostnadsfritt konto →
                 </a>
-                <p style="font-size:0.75rem;color:#5A6178;margin:0;">Ingen bindningstid · obegränsat antal barn · avsluta när du vill</p>
+                <p style="font-size:0.75rem;color:#5A6178;margin:0;">Kostnadsfritt för grundarmedlemmar · obegränsat antal barn</p>
             </div>
 
             <!-- ===== LANDING NEWS — inline between Lanseringserbjudande and login ===== -->
@@ -2274,7 +2274,7 @@
                     </button>
                     <div class="faq-answer">
                         <div class="faq-answer-inner">
-                            De första 200 familjerna som registrerar sig får det <strong>kostnadsfritt</strong> — obegränsat antal barn, ingen bindningstid, avsluta när du vill. Därefter en familje prenumeration utan bindningstid.
+                            De första 200 familjerna som registrerar sig får det <strong>kostnadsfritt</strong> — obegränsat antal barn och livstids tillgång som grundarmedlem.
                         </div>
                     </div>
                 </div>
@@ -2500,8 +2500,8 @@
 <!-- ===== FOOTER CTA ===== -->
 <section class="footer-cta-section">
     <div style="max-width:640px;margin:0 auto;">
-        <h2>Prova Min Stjärndag gratis</h2>
-        <p>Lanseringserbjudande · Kostnadsfritt för de första 200 familjerna · Obegränsat antal barn</p>
+        <h2>Skapa konto — kostnadsfritt</h2>
+        <p>Grundarprogrammet · Livstids tillgång för de första 200 familjerna · Obegränsat antal barn</p>
         <button class="btn-cta-scroll" onclick="document.getElementById('toppen').scrollIntoView({behavior:'smooth'})">
             Starta kostnadsfritt konto
         </button>
@@ -2689,7 +2689,7 @@ function closeMobileMenu() {
             if (sub && typeof d.spots_remaining === 'number') {
                 sub.textContent = d.spots_remaining > 0
                     ? (d.spots_remaining + (d.spots_remaining === 1 ? ' plats kvar' : ' platser kvar') + ' som grundarmedlem')
-                    : 'Grundarplatserna är fulla – nya familjer erbjuds Premium ' + (d.price_sek || 59) + ' kr/månad';
+                    : 'Grundarplatserna är fulla – kontakta oss om du vill ställa dig på väntelista';
             }
             animateCounter(count, limit);
         })
@@ -2698,7 +2698,7 @@ function closeMobileMenu() {
 
 // ===== TIPSA / SHARE FUNCTIONALITY =====
 var SHARE_URL = 'https://mystarday.se';
-var SHARE_TEXT = 'Hej! Min Stjärndag hjälper barn med vardagsrutinerna — visuellt schema och belöningar. Just nu finns ett lanseringserbjudande: de första 200 familjerna får det kostnadsfritt! Kolla här: ' + SHARE_URL;
+var SHARE_TEXT = 'Hej! Kolla in den här appen för barns vardagsrutiner — visuellt schema och belöningar. Just nu kostnadsfritt för de f00f6rsta 200 familjerna! Kolla h00e4r: ' + SHARE_URL; // pragma: allowlist secret
 
 function notifyLandingShare() {
     // Fire-and-forget notification to info@mystarday.se (public, no auth needed)
