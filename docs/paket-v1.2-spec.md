@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17  
+**Uppdaterad:** 2026-06-17 (paketidentitet + UI/UX-löften)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -10,182 +10,378 @@
 
 ## 0. Vad v1.2 är
 
-**Produktversion v1.2 heter Paket** — det är den kommersiella och tekniska uppdelningen av appen i modulära tillägg ovanpå en gemensam grund.
+**Produktversion v1.2 heter Paket** — den kommersiella och tekniska uppdelningen i modulära tillägg ovanpå en gemensam grund.
 
 | Begrepp | Betydelse |
 |---------|-----------|
 | **v1.2 Paket** | Hela paketmodellen — denna spec |
-| **Basic, Rapportering, Pedagog, TEACCH** | De fyra paketen *inom* v1.2 |
-| **Komponent-slug** | Tekniskt namn i `family_subscriptions.components` |
+| **Basic, Rapportering, Pedagog, Extra stöd** | De fyra paketen *inom* v1.2 |
+| **Komponent-slug** | `basic_app`, `reporting`, `pedagog`, `teacch` |
 | **Feature slug** | Operativ flagga i `features` / `family_features` |
 
-v1.2 är **inte** synonymt med TEACCH eller De sju frågorna. TEACCH är **ett av fyra paket**.
+### 0.1 Produktstrategi — varje paket äger ett område
+
+Om målet är att sälja fyra separata paket ska varje paket kännas som **ett eget löfte till familjen**, inte bara en samling funktioner. UI/UX bör förstärka paketens identitet.
+
+| Paket | Äger | Guidande fråga |
+|-------|------|----------------|
+| **Basic** | Motivation & vardagsrutiner | *Hjälper vardagen att fungera?* |
+| **Rapportering** | Insikter & dokumentation | *Förstår vi mönster över tid?* |
+| **Pedagog** | Samarbete mellan vuxna | *Delar alla vuxna samma bild?* |
+| **Extra stöd** | Förutsägbarhet & struktur | *Minskar det stress och osäkerhet?* |
+
+**Beslutregel vid nya funktioner:** *Vilket problem löser den?* — svaret ska nästan automatiskt peka på **ett** paket. Då hålls produkt, prissättning och UI konsekvent över tid.
+
+### 0.2 Teknisk modell
+
+```
+family_subscriptions.components = [
+  { component: 'basic_app', ... },
+  { component: 'reporting', ... },
+  { component: 'pedagog', ... },
+  { component: 'teacch', ... }
+]
+```
+
+Middleware: `requireComponent()` — `src/middleware/require-component.js`.  
+Config: `config/subscription-components.js`.
 
 ---
 
-## 1. Översikt — fyra paket
-
-Appen säljs som **modulära tillägg** ovanpå grundfunktionalitet. Varje paket har egen komponent-slug och kopplade feature flags.
-
-| # | Paket (kundnamn) | Komponent-slug | Kort beskrivning | Status |
-|---|------------------|----------------|------------------|--------|
-| 1 | **Basic** | `basic_app` | Flera barn, schema, stjärnor, belöningar | ✅ Live |
-| 2 | **Familj Rapportering** | `reporting` | Rapporter, delningslänkar, export | ⚙️ Feature finns |
-| 3 | **Familj Pedagog** | `pedagog` | Externa pedagoger, anteckningar | ⚙️ Feature finns |
-| 4 | **Familj Extra stöd** | `teacch` | TEACCH-inspirerat stöd för förutsägbarhet | 📋 Spec klar |
-
-### 1.1 Principer
-
-| Princip | Beskrivning |
-|---------|-------------|
-| Basic räcker för de flesta | Schema + stjärnor + belöningar = kärnloopen |
-| Tillägg = tydligt värde | Varje paket löser ett avgränsat problem |
-| Kan kombineras | T.ex. Basic + Rapportering + TEACCH utan Pedagog |
-| Dubbel gating | Komponent (`has_component`) för betalning; feature flag för rollout/dev |
-| lifetime_free | Grundarfamiljer behåller `basic_app`; tillägg är separat produktbeslut |
-
-### 1.2 Teknisk modell (befintlig)
-
-```
-family_subscriptions
-  ├── tier: lifetime_free | trial | paid
-  └── components: [
-        { component: 'basic_app', granted_at, expires_at },
-        { component: 'reporting', ... },
-        { component: 'pedagog', ... },
-        { component: 'teacch', ... }
-      ]
-```
-
-Middleware: `requireComponent('reporting')` — se `src/middleware/require-component.js`.  
-Config: `config/subscription-components.js` (idag: `basic_app`, `reporting`).
-
-**v1.2 leverans (teknik):** lägg till `pedagog` och `teacch` i config; dokumentera feature-mapping per paket; koppla gating i UI/API.
-
----
-
-## 2. Paket 1 — Basic
+## 1. Paket 1 — Basic
 
 | | |
 |--|--|
-| **Kundnamn** | Basic (ingår i grund) |
+| **Löfte** | Hjälper familjen att få vardagen att fungera |
+| **Målgrupp** | Alla familjer |
 | **Komponent** | `basic_app` |
-| **Pris (indikativt)** | ~59 SEK/mån (när betalning aktiveras) |
-| **Status** | ✅ Live — alla familjer |
+| **Pris (indikativt)** | ~59 SEK/mån |
+| **Status** | ✅ Live |
 
-### Innehåll
+### 1.1 Innehåll
 
 | Funktion | Feature slug |
 |----------|--------------|
-| Flera barn | `barninloggning`, child CRUD |
+| Flera barn | `barninloggning` |
 | Veckoschema | `veckoschema` |
+| Aktiviteter & delsteg | `aktivitetsbibliotek` |
 | Stjärnor & daglogg | `daglogg`, `manuella_stjarnor` |
 | Belöningar / Skattkammaren | `beloningssystem`, `skattkammar_universum` |
-| Aktivitetsbibliotek | `aktivitetsbibliotek` |
-| Delsteg | (del av aktivitetsbibliotek) |
-| Specialdagar & kalender | `specialdagar`, `kalender` |
-| Onboarding | `onboarding` |
-| Familjeinbjudan (medförälder) | `familjeinbjudan` |
+| Kalender & specialdagar | `kalender`, `specialdagar` |
 | Push | `push_notiser` |
+| Familjeinbjudan | `familjeinbjudan` |
+| Onboarding | `onboarding` |
 
-**Alla nya familjer** får `basic_app` vid registrering (trial + komponent).
+### 1.2 UI/UX-identitet
+
+Basic ska kännas:
+
+| Egenskap | Uttryck |
+|----------|---------|
+| **Varm** | Mjuka former, välkomnande copy |
+| **Lekfull** | Emoji, stjärnor, illustrationer |
+| **Enkel** | Få val per skärm, tydlig hierarki |
+| **Motiverande** | Framsteg synligt, positiv förstärkning |
+
+**Visuell ton:** färger · illustrationer · stjärnor · framsteg  
+**Fokus:** motivation och rutiner
+
+### 1.3 Wireframe — förälder (Idag)
+
+```
+Idag
+
+Anna
+✓ Borsta tänderna
+✓ Klä på sig
+○ Läxor
+
++2 stjärnor idag
+
+Nästa aktivitet:
+Fotbollsträning
+```
+
+### 1.4 Wireframe — barn
+
+```
+⭐ 24 stjärnor
+
+NU
+Borsta tänderna
+
+[ Starta ]
+```
 
 ---
 
-## 3. Paket 2 — Familj Rapportering
+## 2. Paket 2 — Familj Rapportering
 
 | | |
 |--|--|
-| **Kundnamn** | Familj Rapportering |
+| **Löfte** | Förstå mönster och dela utveckling |
+| **Målgrupp** | Familjer som samarbetar med skola/vård eller vill följa utveckling över tid |
 | **Komponent** | `reporting` |
 | **Pris (indikativt)** | ~19 SEK/mån (TBD) |
-| **Status** | Feature live; komponent i config; betalning ej aktiverad |
+| **Status** | ⚙️ Feature finns; betalning ej aktiverad |
 
-### Innehåll
+### 2.1 Innehåll
 
 | Funktion | Feature slug |
 |----------|--------------|
 | Klinisk rapportering | `klinisk_rapportering` |
-| Professionella delningslänkar | (del av klinisk_rapportering) |
-| PDF/export, observationshistorik | (del av klinisk_rapportering) |
+| Observationer & historik | (del av klinisk_rapportering) |
+| Export & PDF | (del av klinisk_rapportering) |
+| Delningslänkar | (del av klinisk_rapportering) |
 
-### Gating
+### 2.2 UI/UX-identitet
 
-- API: `requireComponent('reporting')` på rapportroutes
-- UI: `/reports` — `data-feature="klinisk_rapportering"` + komponentcheck
+Mer **professionellt** än Basic. Mindre lekfullt. Mer **dataorienterat**.
 
-### v1.2-aktivitet (paketnivå)
+| Egenskap | Uttryck |
+|----------|---------|
+| **Ny huvudsektion** | *Rapporter* (egen nav/flik när paketet är aktivt) |
+| **Visuell ton** | diagram · statistik · sammanfattningar |
+| **Fokus** | insikter |
 
-- [ ] Säkerställ att alla rapportfeatures mappas till `reporting`
-- [ ] Upgrade-UI visar Rapportering som tillägg (när `STRIPE_ENABLED`)
+**Skillnad mot Basic:** inga stjärn-animationer i rapportvy; neutral palett; tabeller och trender.
+
+### 2.3 Wireframe — dashboard
+
+```
+Rapporter
+Dashboard
+Senaste 30 dagarna
+
+Närvaro: 92%
+
+Genomförda aktiviteter:  +12%
+Belöningar:              34
+Svåra övergångar:        5
+```
+
+### 2.4 Wireframe — export
+
+```
+Generera rapport
+
+Period:
+[ Senaste månaden ]
+
+Innehåll:
+✓ Schema
+✓ Daglogg
+✓ Observationer
+
+[ Skapa PDF ]
+```
+
+### 2.5 Gating
+
+- API: `requireComponent('reporting')`
+- UI: `/reports` + `data-feature="klinisk_rapportering"`
 
 ---
 
-## 4. Paket 3 — Familj Pedagog
+## 3. Paket 3 — Familj Pedagog
 
 | | |
 |--|--|
-| **Kundnamn** | Familj Pedagog |
+| **Löfte** | Samarbete mellan familj och pedagog |
+| **Målgrupp** | Familjer med resurspedagog, specialpedagog, elevassistent eller kontaktperson |
 | **Komponent** | `pedagog` |
 | **Pris (indikativt)** | TBD |
-| **Status** | Features finns; komponent **ej** i config än |
+| **Status** | ⚙️ Features finns; komponent ej i config |
 
-### Innehåll
+### 3.1 Innehåll
 
 | Funktion | Feature slug / kod |
 |----------|-------------------|
 | Pedagoginbjudan | `pedagog_invite` |
-| Pedagogroll (begränsad åtkomst) | `parent_child.role = pedagog` |
-| Pedagoganteckningar | `pedagoganteckningar` |
-| Pedagog-översikt | pedagog-vy i appen |
-| Begränsad barnvy för extern pedagog | read-only schema + logg |
+| Pedagogroll | `parent_child.role = pedagog` |
+| Anteckningar | `pedagoganteckningar` |
+| Pedagogöversikt | pedagog-vy |
+| Begränsad åtkomst | read-only schema + logg |
 
-### Gating (vid implementation)
+### 3.2 UI/UX-identitet
+
+**Samarbetsverktyg** — inte rapportverktyg (det är Rapportering).
+
+| Egenskap | Uttryck |
+|----------|---------|
+| **Ny sektion** | *Samarbete* |
+| **Visuell ton** | professionell · trygg · samarbete |
+| **Fokus** | samma information till alla vuxna runt barnet |
+
+**Pedagogvy — ingen åtkomst till:** betalning · familjeinställningar · belöningar
+
+### 3.3 Wireframe — samarbete
+
+```
+Samarbete
+Pedagogkort
+Aktiva pedagoger
+
+Emma Larsson
+Specialpedagog
+
+Senast aktiv: Idag
+
+Anteckningar
+15 juni
+Övergång till lunch gick bättre idag.
+
+[ Kommentera ]
+```
+
+### 3.4 Wireframe — pedagogvy
+
+```
+Schema
+Daglogg
+Anteckningar
+
+(ingen åtkomst till betalning, inställningar, belöningar)
+```
+
+### 3.5 Gating
 
 - `requireComponent('pedagog')` på pedagogroutes
-- Pedagoginbjudan skapas endast om familjen har paketet
-
-### v1.2-aktivitet (paketnivå)
-
-- [ ] Lägg till `pedagog` i `subscription-components.js`
-- [ ] Dokumentera feature-mapping (denna spec)
-- [ ] Full gating kan ske i v1.3 om betalning inte är redo
+- Inbjudan skapas endast om familjen har paketet
 
 ---
 
-## 5. Paket 4 — Familj Extra stöd (TEACCH)
+## 4. Paket 4 — Familj Extra stöd
 
 | | |
 |--|--|
-| **Kundnamn** | Familj Extra stöd |
+| **Löfte** | Mer förutsägbarhet. Mindre stress. |
+| **Målgrupp** | Barn som gynnas av visuellt stöd, tydliga övergångar och extra struktur |
 | **Komponent** | `teacch` |
 | **Pris (indikativt)** | TBD |
-| **Status** | Spec klar för första funktionen |
+| **Status** | 📋 Spec klar — troligen det **mest emotionella** paketet |
 
 > **Formulering:** Inspirerad av TEACCH, visuellt stöd och strukturerad pedagogik — **inte** en officiell TEACCH-metod.
 
-**Produkttext:**
+### 4.1 Innehåll per version
 
-> *Familj Extra stöd ger verktyg för barn som gynnas av ökad förutsägbarhet i vardagen.*
+| Funktion | Version | Feature slug |
+|----------|---------|--------------|
+| **De sju frågorna** | v1.2 | `de_sju_fragorna` |
+| Distraktionsfri barnvy | v1.3+ | `minimal_ui` |
+| Övergångsstöd | v1.3+ | (ny) |
+| Visuella nedräkningar | v1.3+ | (ny) |
+| Förberedelsekort | v1.3+ | (ny) |
+| Sociala berättelser | v1.3+ | (ny) |
 
-### Innehåll
+### 4.2 UI/UX-identitet
 
-| Funktion | Feature slug | Prioritet |
-|----------|--------------|-----------|
-| **De sju frågorna** | `de_sju_fragorna` | P0 |
-| Distraktionsfri barnvy | `minimal_ui` | P1 |
-| (Framtida TEACCH-verktyg) | — | v1.2.x+ |
+**Mycket lugnare än Basic.** Ingen visuell stress. Ingen överflödig information.
 
-### Gating
+| Basic (motivation) | Extra stöd (förutsägbarhet) |
+|--------------------|------------------------------|
+| ⭐ Stjärnor | — |
+| 🎉 Belöningar | — |
+| 🎁 Skattkammare | — |
+| Färgstark, lekfull | Dämpad, strukturerad |
+| Många UI-element | Ett fokus: NU + kontext |
 
-- `requireComponent('teacch')` + `de_sju_fragorna` feature flag
-- Dogfood: enbart `family_features` utan betalning
+**Visuell ton:** lugn · förutsägbar · tydlig · minimalt  
+**Fokus:** vad händer nu, var, med vem, vad händer sen
+
+### 4.3 Wireframe — barnvy med De sju frågorna (v1.2)
+
+```
+NU
+Borsta tänderna
+
+📍 Var?
+   Badrummet
+
+👤 Med vem?
+   Själv
+
+⏱ Hur länge?
+   5 minuter
+
+➡ Vad händer sen?
+   Frukost
+
+[ Klar ]
+```
+
+Alternativ kompakt kontext (utan expand):
+
+```
+NU
+Borsta tänderna
+
+Var?           Badrummet
+Med vem?       Mamma
+Vad händer sen? Frukost
+
+[ Klar ]
+```
+
+### 4.4 Wireframe — distraktionsfri vy (v1.3+)
+
+```
+NU
+Borsta tänderna
+
+[ Klar ]
+
+(inga menyer · inga stjärnor · inga poäng · inga sidfunktioner)
+```
+
+### 4.5 Gating
+
+- `requireComponent('teacch')` + feature flags per funktion
+- Dogfood: `family_features` utan betalning
 
 ---
 
-## 6. De sju frågorna — detaljspec (TEACCH-paketet, P0)
+## 5. Uppgraderingssidan — fyra paketkort
 
-*Hör till paket 4 (TEACCH), inte till hela v1.2.*
+På `/upgrade` (eller motsvarande) visas **fyra tydliga kort** — varje kort = ett löfte, inte en funktionslista i första hand.
+
+```
+┌─────────────────────┐  ┌─────────────────────┐
+│ Basic               │  │ Familj Rapportering │
+│ Vardagens           │  │ Följ utveckling     │
+│ grundfunktioner     │  │ över tid            │
+│                     │  │                     │
+│ ✓ Schema            │  │ ✓ Rapporter         │
+│ ✓ Belöningar        │  │ ✓ Historik          │
+│ ✓ Aktiviteter       │  │ ✓ PDF-export        │
+│ ✓ Flera barn        │  │ ✓ Delningslänkar    │
+└─────────────────────┘  └─────────────────────┘
+
+┌─────────────────────┐  ┌─────────────────────┐
+│ Familj Pedagog      │  │ Familj Extra stöd   │
+│ Samarbeta med       │  │ Ökad                │
+│ pedagoger           │  │ förutsägbarhet      │
+│                     │  │                     │
+│ ✓ Pedagoginbjudan   │  │ ✓ De sju frågorna   │
+│ ✓ Anteckningar      │  │ ✓ Distraktionsfri vy│
+│ ✓ Delad översikt    │  │ ✓ Visuellt stöd     │
+│ ✓ Begränsad åtkomst │  │ ✓ Övergångsstöd     │
+└─────────────────────┘  └─────────────────────┘
+```
+
+**Copy-princip per kort:** rubrik = löfte · underrubrik = målgruppsnytta · checklista = bevis.
+
+**Beteende:**
+
+| Situation | UI |
+|-----------|-----|
+| Familj har Basic | Basic markerat "Ingår" · övriga "Lägg till" |
+| Kombinationer | Visa totalpris · inget "allt eller inget" |
+| lifetime_free | Basic alltid aktiv · tillägg separat |
+
+---
+
+## 6. De sju frågorna — detaljspec (Extra stöd, v1.2 P0)
 
 ### 6.1 Ramverket
 
@@ -199,66 +395,27 @@ Config: `config/subscription-components.js` (idag: `basic_app`, `reporting`).
 | 6 | Vad behöver jag ha? | `what_need` |
 | 7 | Varför ska jag göra det? | `why` |
 
-| | Delsteg (Basic) | De sju frågorna (TEACCH) |
-|--|-----------------|--------------------------|
+| | Delsteg (Basic) | De sju frågorna (Extra stöd) |
+|--|-----------------|-------------------------------|
 | Svarar på | Hur gör jag? | Vad innebär situationen? |
-| Barnvy | Avbockning | Läsning |
+| Ton | Motiverande | Lugn, informativ |
 
-**Dölj tomma fält.** Kortare svar föredras i barnvy.
+**Dölj tomma fält.** Kortare svar i barnvy. En primär handling: **Klar**.
 
-### 6.2 Datamodell
-
-```sql
-ALTER TABLE activity_template
-  ADD COLUMN IF NOT EXISTS seven_questions JSONB NOT NULL DEFAULT '{}'::jsonb;
-```
-
-```json
-{
-  "where": "I badrummet",
-  "who": "Ensam",
-  "how_long": "Cirka 5 minuter",
-  "what_next": "Frukost",
-  "what_need": "Tandborste och tandkräm",
-  "why": "För att ha friska tänder"
-}
-```
-
-### 6.3 Tekniska krav
-
-**`QUESTION_ORDER`** — fast ordning, oberoende av JSON-nycklar:
-
-```javascript
-const QUESTION_ORDER = [
-  'what', 'where', 'who', 'how_long', 'what_next', 'what_need', 'why',
-];
-```
-
-**`normalizeSevenQuestions(input)`** — trimma, ta bort tomma, ignorera okända nycklar, max 500 tecken. Används i POST, PUT, migrationer, tester.
-
-### 6.4 API (inga nya endpoints)
-
-| Metod | Endpoint | Ändring |
-|-------|----------|---------|
-| GET/POST/PUT | `/api/activities` | `seven_questions` |
-| GET | `/api/children/me/daily-log` | Berika från `activity_template` |
-
-### 6.5 UX — barn
-
-NU-kort prioritet:
+### 6.2 NU-kort prioritet (barn)
 
 ```
 1. Aktivitetsnamn
-2. Delsteg (Basic)
-3. De sju frågorna (TEACCH)
+2. Delsteg (Basic — om aktivt)
+3. De sju frågorna (Extra stöd — om aktivt)
 4. Klar-knapp
 ```
 
-NÄSTA-kort synligt (övergångsstöd). En primär handling. Panel dold på klara aktiviteter.
+NÄSTA-kort synligt hela tiden (övergångsstöd). Panel dold på klara aktiviteter.
 
-### 6.6 UX — förälder
+### 6.3 Förälder — bibliotek
 
-Redigering i **biblioteket** (`/library`), progressive disclosure:
+Progressive disclosure i aktivitetsmodal:
 
 ```
 ▼ Delsteg
@@ -266,50 +423,74 @@ Redigering i **biblioteket** (`/library`), progressive disclosure:
 ▼ Avancerat
 ```
 
+### 6.4 Datamodell
+
+```sql
+ALTER TABLE activity_template
+  ADD COLUMN IF NOT EXISTS seven_questions JSONB NOT NULL DEFAULT '{}'::jsonb;
+```
+
+### 6.5 Tekniska krav
+
+**`QUESTION_ORDER`:**
+
+```javascript
+const QUESTION_ORDER = [
+  'what', 'where', 'who', 'how_long', 'what_next', 'what_need', 'why',
+];
+```
+
+**`normalizeSevenQuestions(input)`** — trimma, ta bort tomma, ignorera okända nycklar, max 500 tecken.
+
+### 6.6 API (inga nya endpoints)
+
+| Metod | Endpoint | Ändring |
+|-------|----------|---------|
+| GET/POST/PUT | `/api/activities` | `seven_questions` |
+| GET | `/api/children/me/daily-log` | Berika från `activity_template` |
+
 ---
 
 ## 7. config/subscription-components.js (målbild)
 
 ```javascript
 const STRIPE_COMPONENT_MAP = {
-  basic_app:  { name: 'Basic',              price_monthly_sek: 59 },
-  reporting:  { name: 'Familj Rapportering', price_monthly_sek: 19 },
-  pedagog:    { name: 'Familj Pedagog',      price_monthly_sek: null },
-  teacch:     { name: 'Familj Extra stöd',  price_monthly_sek: null },
+  basic_app:  { name: 'Basic',               price_monthly_sek: 59 },
+  reporting:  { name: 'Familj Rapportering',  price_monthly_sek: 19 },
+  pedagog:    { name: 'Familj Pedagog',       price_monthly_sek: null },
+  teacch:     { name: 'Familj Extra stöd',   price_monthly_sek: null },
 };
 ```
 
-Priser TBD. `STRIPE_ENABLED=false` tills betalning aktiveras.
+---
+
+## 8. Rollout v1.2
+
+| Steg | Leverans |
+|------|----------|
+| 1 | Paketspec med UI/UX-identitet ✅ |
+| 2 | `pedagog` + `teacch` i config |
+| 3 | Uppgraderingssida — fyra paketkort |
+| 4 | De sju frågorna (Extra stöd P0) |
+| 5 | Paket-specifik nav/sektioner (Rapporter, Samarbete) — iterativt |
+| 6 | Betalning (`STRIPE_ENABLED`) separat |
 
 ---
 
-## 8. Rollout v1.2 (Paket)
+## 9. Acceptanskriterier
 
-| Steg | Vad |
-|------|-----|
-| 1 | Denna spec godkänd ✅ |
-| 2 | `pedagog` + `teacch` i config (stub) |
-| 3 | Feature-mapping dokumenterad (§1–5) |
-| 4 | De sju frågorna implementerad (TEACCH P0) |
-| 5 | `minimal_ui` kopplad till `teacch` (P1) |
-| 6 | Upgrade-sida visar alla fyra paket |
-| 7 | Betalning aktiveras separat (`STRIPE_ENABLED`) |
+### Paketmodell & identitet
 
----
+- [ ] Varje paket har dokumenterat löfte, målgrupp och visuell ton
+- [ ] Nya funktioner mappas till ett paket via beslutregeln (§0.1)
+- [ ] Uppgraderingssida visar fyra löfteskort (§5)
+- [ ] Fyra komponenter i `subscription-components.js`
 
-## 9. Acceptanskriterier v1.2 (Paket)
+### Extra stöd P0 (De sju frågorna)
 
-### Paketmodell
-
-- [ ] Fyra paket dokumenterade med komponent-slug och feature-mapping
-- [ ] `basic_app` + `reporting` + `pedagog` + `teacch` i `subscription-components.js`
-- [ ] Tydlig skillnad: v1.2 = Paket, TEACCH = ett paket bland fyra
-
-### TEACCH P0 (De sju frågorna)
-
-- [ ] `seven_questions` JSONB + normalisering + tester
-- [ ] Biblioteksredigering + barnvy-panel, gated på `teacch`
-- [ ] Ingen påverkan på familjer utan paketet
+- [ ] Lugnare barnvy-ton än Basic — inga stjärnor i kontextpanelen
+- [ ] `seven_questions` + normalisering + gating på `teacch`
+- [ ] Endast ifyllda frågor visas
 
 ---
 
@@ -317,12 +498,12 @@ Priser TBD. `STRIPE_ENABLED=false` tills betalning aktiveras.
 
 | # | Beslut |
 |---|--------|
-| A | **v1.2 = Paket** — hela paketuppdelningen |
-| B | Fyra paket: Basic, Rapportering, Pedagog, TEACCH |
-| C | TEACCH (`teacch`) = Familj Extra stöd, inte hela v1.2 |
-| D | De sju frågorna = P0 inom TEACCH-paketet |
-| E | Modulära tillägg — kombinerbara |
-| F | lifetime_free behåller Basic; tillägg separat |
+| A | v1.2 = Paket — fyra löften, inte fyra funktionslistor |
+| B | Varje paket äger ett produktområde (§0.1) |
+| C | UI/UX ska förstärka paketidentitet — olika ton per paket |
+| D | Extra stöd = lugnast; Basic = varmast/lekfullast |
+| E | De sju frågorna = v1.2 inom Extra stöd; minimal_ui = v1.3+ |
+| F | Uppgraderingssida = fyra kort med löfte + checklista |
 
 ---
 
