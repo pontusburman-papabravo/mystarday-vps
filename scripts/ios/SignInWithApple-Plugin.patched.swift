@@ -94,9 +94,6 @@ extension SignInWithApple: ASAuthorizationControllerPresentationContextProviding
         for scene in UIApplication.shared.connectedScenes {
             guard let windowScene = scene as? UIWindowScene else { continue }
             if windowScene.activationState == .foregroundActive || windowScene.activationState == .foregroundInactive {
-                if let keyWindow = windowScene.keyWindow {
-                    return keyWindow
-                }
                 if let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
                     return window
                 }
