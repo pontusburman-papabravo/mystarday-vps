@@ -135,6 +135,22 @@ curl -sS https://mystarday.se/api/app-config | jq .googleWebClientId
 | JSON med `"namespace": "web"` | Sätt `ANDROID_SHA256_CERT_FINGERPRINT` (se ovan) |
 | JSON med `android_app` men Play failar ändå | Kontrollera att SHA-256 är från **app-signeringsnyckeln**, inte upload key |
 | Efter fix: fortfarande röd i Play Console | Öppna **App Links** → **Verifiera domäner** igen (kan ta några timmar) |
+| Lokalt 200 men `https://…` ger 302 | Apache kan strippa `/.well-known/` — se Apache-rad nedan |
+
+**Apache (vanlig orsak):** `ProxyPass /.well-known/ http://127.0.0.1:3000/` skickar `/assetlinks.json` till Node utan prefix. Koden har fallback-rutter för det. Alternativt ändra till:
+
+```apache
+ProxyPass / http://127.0.0.1:3000/
+ProxyPassReverse / http://127.0.0.1:3000/
+```
+
+Hitta config (värd kan sakna `sites-enabled`):
+
+```bash
+sudo ss -tlnp | grep -E ':80|:443'
+sudo apachectl -S 2>/dev/null || sudo httpd -S 2>/dev/null
+sudo grep -rE 'ProxyPass|REDACTED_DOMAIN' /etc/apache2 /etc/httpd 2>/dev/null
+```
 
 ```bash
 # Ska returnera HTTP 200 och android_app (inte redirect)
