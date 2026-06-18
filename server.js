@@ -89,17 +89,24 @@ app.get('/health', (req, res) => {
 });
 
 // ─── App Links / Universal Links (mount early — Google rejects 302 redirects) ─
-app.get('/.well-known/assetlinks.json', (req, res) => {
+// Some Apache ProxyPass configs strip `/.well-known/` before the request hits Node;
+// keep fallback paths without the prefix (see docs/google-play-checklist.md).
+function sendAssetLinks(_req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.json(buildAssetLinks());
-});
+}
 
-app.get('/.well-known/apple-app-site-association', (req, res) => {
+function sendAppleAppSiteAssociation(_req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.json(buildAppleAppSiteAssociation());
-});
+}
+
+app.get('/.well-known/assetlinks.json', sendAssetLinks);
+app.get('/assetlinks.json', sendAssetLinks);
+app.get('/.well-known/apple-app-site-association', sendAppleAppSiteAssociation);
+app.get('/apple-app-site-association', sendAppleAppSiteAssociation);
 
 // ─── Redirect secondary domains to main domain ────────────
 app.use(createDomainRedirect());

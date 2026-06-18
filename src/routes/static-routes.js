@@ -9,6 +9,18 @@ const { buildAssetLinks, buildAppleAppSiteAssociation } = require('../lib/well-k
 
 const router = express.Router();
 
+function sendAssetLinks(_req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.json(buildAssetLinks());
+}
+
+function sendAppleAppSiteAssociation(_req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.json(buildAppleAppSiteAssociation());
+}
+
 router.get('/sw.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.setHeader('Service-Worker-Allowed', '/');
@@ -22,17 +34,11 @@ router.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, '..', '..', 'public', 'manifest.json'));
 });
 
-router.get('/.well-known/assetlinks.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.json(buildAssetLinks());
-});
+router.get('/.well-known/assetlinks.json', sendAssetLinks);
+router.get('/assetlinks.json', sendAssetLinks);
 
-router.get('/.well-known/apple-app-site-association', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.json(buildAppleAppSiteAssociation());
-});
+router.get('/.well-known/apple-app-site-association', sendAppleAppSiteAssociation);
+router.get('/apple-app-site-association', sendAppleAppSiteAssociation);
 
 // ─── Child view routing (A/B toggle) — serves before static middleware ──
 router.use('/child', require('./child-view'));
