@@ -606,7 +606,12 @@
           showErrorInline('appleLoginError', data.error || 'Något gick fel med Apple-inloggningen.');
         }
       } catch (err) {
-        showErrorInline('appleLoginError', err.message || 'Apple Sign In misslyckades.');
+        var appleMsg = (err && err.message) || '';
+        if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
+          showErrorInline('appleLoginError', 'Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.');
+        } else {
+          showErrorInline('appleLoginError', appleMsg || 'Apple Sign In misslyckades.');
+        }
       } finally {
         btn.disabled = false;
         btn.textContent = orig;

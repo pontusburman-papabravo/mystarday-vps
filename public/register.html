@@ -495,7 +495,12 @@
           showError('appleRegisterError', data.error || 'Något gick fel med Apple-registreringen.');
         }
       } catch (err) {
-        showError('appleRegisterError', err.message || 'Apple Sign In misslyckades.');
+        var appleMsg = (err && err.message) || '';
+        if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
+          showError('appleRegisterError', 'Apple-inloggning misslyckades. Försök igen eller registrera med e-post.');
+        } else {
+          showError('appleRegisterError', appleMsg || 'Apple Sign In misslyckades.');
+        }
       } finally {
         btn.disabled = false;
         btn.textContent = orig;

@@ -5,6 +5,29 @@
 
 ---
 
+## Build 16 — Apple Sign In iPad fix (2026-06-18, after 2.1(a) rejection)
+
+Apple rejected Build 15: Sign in with Apple error on iPad Air 11-inch (M3), iPadOS 26.5.
+
+**Root cause:** `@capacitor-community/apple-sign-in` omits `ASAuthorizationControllerPresentationContextProviding` — required on iPad.
+
+**Fix:** Vendored patched `Plugin.swift` applied during `npm run cap:sync:ios` (before AND after `pod install`), with verification script.
+
+**Mac build checklist:**
+```bash
+npm install --legacy-peer-deps
+npm run cap:sync:ios
+grep presentationContextProvider node_modules/@capacitor-community/apple-sign-in/ios/Sources/SignInWithApple/Plugin.swift
+# must show: presentationContextProvider = self
+```
+
+**Review Notes addendum:**
+```
+Sign in with Apple works on iPad in Build 16. If Apple Sign In fails, use the email/password review account credentials listed above.
+```
+
+---
+
 ## Build 15 — Resubmission (2026-06-16, after 2.1(b) rejection)
 
 Apple rejected Build 14 because subscription text remained in the web UI (landing page, pricing page, dashboard HTML). Build 15 removes **all** user-facing subscription/payment references.
@@ -108,7 +131,7 @@ Please use our dedicated App Store review test account:
 ### Parent mode
 
 1. **Open the app** on a physical device (recommended) or simulator
-2. **Log in** with `review@mystarday.se` / `AppReview2026!`
+Sign in with Apple works on iPad in Build 16. If Apple Sign In fails, use the email/password review account credentials listed above.
 3. **View the parent dashboard** — shows the review family with one child profile (**Anna**)
 
 ### Switch to child view

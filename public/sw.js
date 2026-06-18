@@ -1,5 +1,5 @@
 /**
- * Min Stjärndag — Service Worker v252 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v253 // pragma: allowlist secret
  * v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
  * v199: avatar_url sparas vid PUT + direktsparning efter uppladdning
  * v198: window.Auth + avatar upload auth check fix
@@ -206,7 +206,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v252';
+const CACHE_NAME = 'stjarndag-v253';
+// v253: Apple Sign In iPad fix — vendored presentation patch + verify on cap:sync:ios
 // v252: Remove all subscription/payment UI text for App Review (Build 15)
 // v251: Build 14 — remove IAP/RevenueCat from client (free app for App Review)
 // v250: Model A founder program — pricing-info, admin founder limit, Grundarmedlem banner

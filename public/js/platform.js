@@ -403,7 +403,7 @@ var Platform = (function () {
               : null,
           };
         } catch (err) {
-          var msg = (err && (err.message || err.errorMessage)) || '';
+          var msg = (err && (err.message || err.errorMessage)) || String(err || '');
           var code = err && (err.code || err.errorCode);
           if (
             msg === 'cancel' ||
@@ -416,7 +416,9 @@ var Platform = (function () {
           ) {
             return null;
           }
-          throw err;
+          // Native plugin errors — avoid leaking raw ASAuthorizationError strings to users.
+          console.warn('[Platform] Apple Sign In failed:', msg, code);
+          throw new Error('APPLE_SIGN_IN_FAILED');
         }
       }
       // Web: use Sign in with Apple JS
