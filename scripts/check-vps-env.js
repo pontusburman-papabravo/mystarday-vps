@@ -35,3 +35,11 @@ function envStatus(key) {
 
 console.log('ACTIVATION_PROGRAM_LAUNCH_AT:', envStatus('ACTIVATION_PROGRAM_LAUNCH_AT'));
 console.log('ACTIVATION_PROGRAM_ENABLED:', envStatus('ACTIVATION_PROGRAM_ENABLED'));
+
+const sha256 = process.env.ANDROID_SHA256_CERT_FINGERPRINT;
+if (!sha256 || !sha256.trim()) {
+  console.log('WARN: ANDROID_SHA256_CERT_FINGERPRINT is unset — assetlinks.json serves web fallback (Google App Links will fail)');
+} else {
+  const parts = sha256.split(',').map((s) => s.trim()).filter(Boolean);
+  console.log('OK: ANDROID_SHA256_CERT_FINGERPRINT has', parts.length, 'fingerprint(s)');
+}
