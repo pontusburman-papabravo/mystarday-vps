@@ -117,6 +117,31 @@ curl -sS https://mystarday.se/api/app-config | jq .googleWebClientId
 
 `assetlinks.json` ska innehålla `android_app` med er release-SHA256 (inte bara `web`-fallback).
 
+### SHA-256 från Play Console
+
+1. Play Console → **Inställningar** → **Appintegritet** → **App-signering**
+2. Kopiera **SHA-256-certifikatfingeravtryck** under **App-signeringsnyckelcertifikat** (inte bara uppladdningsnyckeln)
+3. Lägg i VPS `.env`:
+   ```
+   ANDROID_SHA256_CERT_FINGERPRINT=AA:BB:CC:DD:...
+   ```
+4. Starta om Node-appen (t.ex. `sudo systemctl restart <er-tjänst>`)
+
+### Felsökning: "Underkändes i domänkontroller"
+
+| Symptom | Åtgärd |
+|---------|--------|
+| `curl -I …/assetlinks.json` → **302** till `/` | Deploy senaste kod + starta om Node (routen ska ge **200**) |
+| JSON med `"namespace": "web"` | Sätt `ANDROID_SHA256_CERT_FINGERPRINT` (se ovan) |
+| JSON med `android_app` men Play failar ändå | Kontrollera att SHA-256 är från **app-signeringsnyckeln**, inte upload key |
+| Efter fix: fortfarande röd i Play Console | Öppna **App Links** → **Verifiera domäner** igen (kan ta några timmar) |
+
+```bash
+# Ska returnera HTTP 200 och android_app (inte redirect)
+curl -sSI https://[REDACTED]/.well-known/assetlinks.json | head -5
+curl -sS https://[REDACTED]/.well-known/assetlinks.json | jq .
+```
+
 ---
 
 ## Steg 5 — Lokal Android-build

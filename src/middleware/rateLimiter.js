@@ -105,6 +105,7 @@ const globalLimiter = rateLimit({
   // and the next API call gets a server-side 401 → redirect to /login.
   skip: (req) =>
     !ENABLED ||
+    req.path.startsWith('/.well-known/') ||
     req.path === '/api/events' ||
     req.path.startsWith('/api/events') ||
     req.path.startsWith('/api/admin') ||

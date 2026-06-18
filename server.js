@@ -37,6 +37,7 @@ const { blockImpersonationWrites } = require('./src/middleware/impersonation');
 const { csrfProtect } = require('./src/middleware/csrf');
 const { createDomainRedirect } = require('./src/lib/domain-redirect');
 const platformHtmlInject = require('./src/middleware/platform-html');
+const { buildAssetLinks, buildAppleAppSiteAssociation } = require('./src/lib/well-known');
 const { registerRoutes } = require('./src/routes/index');
 
 const app = express();
@@ -85,6 +86,19 @@ loadLocales();
 // ─── Health check (no DB query — allows Neon auto-suspend) ─
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', version: '2.3.1' });
+});
+
+// ─── App Links / Universal Links (mount early — Google rejects 302 redirects) ─
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.json(buildAssetLinks());
+});
+
+app.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.json(buildAppleAppSiteAssociation());
 });
 
 // ─── Redirect secondary domains to main domain ────────────
@@ -171,6 +185,9 @@ app.use(require('./src/routes/public-pages'));
 app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Endpoint hittades inte' });
+  }
+  if (req.path.startsWith('/.well-known/')) {
+    return res.status(404).json({ error: 'Not found' });
   }
   res.redirect('/');
 });

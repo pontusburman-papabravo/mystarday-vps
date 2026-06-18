@@ -13,8 +13,9 @@ let maintenanceCacheAt = 0;
 const MAINTENANCE_CACHE_TTL = 5000; // 5 seconds
 
 async function checkMaintenanceMode(req, res, next) {
-  // Always allow health check
+  // Always allow health check and App Links / Universal Links verification
   if (req.path === '/health') return next();
+  if (req.path.startsWith('/.well-known/')) return next();
 
   // Always allow admin login flow during maintenance
   const allowedPaths = ['/login', '/admin', '/api/auth/login', '/api/auth/me', '/verify-email', '/api/auth/verify-email', '/reset-password', '/api/auth/reset-password', '/api/auth/forgot-password', '/forgot-password'];
