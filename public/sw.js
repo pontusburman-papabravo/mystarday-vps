@@ -206,8 +206,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v264';
-// v264: paket v1.2 — package-access-cache, rate-limit fix, hub-page tab bar
+const CACHE_NAME = 'stjarndag-v265';
+// v265: bottom nav Extra tab (Hem·Schema·För dig·Skatt·Extra·Mer) + nav remount fix
 // v263: app-config — Services ID only for web Apple; redirect URI falls back to request origin
 // v252: Remove all subscription/payment UI text for App Review (Build 15)
 // v251: Build 14 — remove IAP/RevenueCat from client (free app for App Review)

@@ -46,6 +46,27 @@
     color: #007AFF;
   }
 
+  /* Six-tab layout (Hem·Schema·För dig·Skatt·Extra·Mer) */
+  body.has-native-tab-bar .native-tab-bar.tab-bar--many .tab-item {
+    min-width: 0;
+    flex: 1 1 0;
+    max-width: 72px;
+    padding: 6px 2px;
+    font-size: 9px;
+  }
+
+  body.has-native-tab-bar .native-tab-bar.tab-bar--many .tab-icon {
+    font-size: 20px;
+  }
+
+  body.has-native-tab-bar .native-tab-bar.tab-bar--many .tab-label {
+    max-width: 56px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+  }
+
   html.dark body.has-native-tab-bar .native-tab-bar,
   body.dark.has-native-tab-bar .native-tab-bar {
     background: rgba(28, 28, 30, 0.92);

@@ -12,12 +12,13 @@
     { id: 'settings', href: '/settings', icon: '⚙️', label: 'Inställn.' },
   ];
 
-  var V12_NAV = [
-    { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Idag' },
-    { id: 'schedule', href: '/schedule', icon: '📅', label: 'Rutiner' },
-    { id: 'reports', href: '/reports', icon: '📊', label: 'Utveckling' },
-    { id: 'samarbete', href: '/samarbete', icon: '🤝', label: 'Samarbete' },
-    { id: 'barn-stod', href: '/barn-stod', icon: '🧒', label: 'Barn/Stöd' },
+  var ROLLOUT_NAV = [
+    { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Hem' },
+    { id: 'schedule', href: '/schedule', icon: '📅', label: 'Schema' },
+    { id: 'for-dig', href: '/for-dig', icon: '✨', label: 'För dig' },
+    { id: 'skattkammaren', href: '/skattkammaren', icon: '🏆', label: 'Skatt' },
+    { id: 'upgrade', href: '/upgrade', icon: '💫', label: 'Extra' },
+    { id: 'family', href: '/family', icon: '⚙️', label: 'Mer' },
   ];
 
   var NAV = LEGACY_NAV;
@@ -47,7 +48,6 @@
   }
 
   function renderBottomNav(activeId) {
-    // Unified tab bar (native-tab-bar.js) handles mobile nav on PWA + native.
     if (document.body.classList.contains('has-native-tab-bar') || document.querySelector('.native-tab-bar')) {
       var hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
@@ -91,10 +91,12 @@
       renderBottomNav(_page);
     } else {
       removeOrbs();
-      var nav = document.getElementById('parentBottomNav');
-      if (nav && !document.body.classList.contains('parent-magic-dashboard') &&
-          !document.body.classList.contains('parent-magic-library')) {
-        nav.style.display = '';
+      if (!document.body.classList.contains('has-native-tab-bar')) {
+        var nav = document.getElementById('parentBottomNav');
+        if (nav && !document.body.classList.contains('parent-magic-dashboard') &&
+            !document.body.classList.contains('parent-magic-library')) {
+          nav.style.display = '';
+        }
       }
     }
     if (window.ParentMagicPageHub) {
@@ -102,11 +104,15 @@
     }
   }
 
+  function applyNavFromAccess(access) {
+    NAV = (access && access.rollout_mode && access.rollout_mode !== 'off') ? ROLLOUT_NAV : LEGACY_NAV;
+  }
+
   function loadNavConfig() {
     if (!window.fetchPackageAccess) return Promise.resolve();
     return window.fetchPackageAccess()
       .then(function (access) {
-        NAV = (access && access.rollout_mode && access.rollout_mode !== 'off') ? V12_NAV : LEGACY_NAV;
+        applyNavFromAccess(access);
       })
       .catch(function () { /* keep legacy */ });
   }
@@ -137,6 +143,11 @@
       });
     });
   }
+
+  window.addEventListener('stjarndag-package-access-loaded', function (e) {
+    applyNavFromAccess(e.detail);
+    refresh();
+  });
 
   window.ParentMagicShell = {
     init: init,

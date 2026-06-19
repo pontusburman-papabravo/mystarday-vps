@@ -24,13 +24,12 @@ test('admin UI has package interest table', () => {
   assert.match(js, /Intressefas/);
 });
 
-test('native-tab-bar has v1.2 tabs', () => {
+test('native-tab-bar has rollout Extra tab (6 tabs)', () => {
   const src = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
-  assert.match(src, /V12_TABS/);
-  assert.match(src, /Utveckling/);
-  assert.match(src, /Samarbete/);
-  assert.match(src, /Barn\/Stöd/);
-  assert.match(src, /V12_HUB_PATHS/);
+  assert.match(src, /ROLLOUT_TABS/);
+  assert.match(src, /label: 'Extra'/);
+  assert.match(src, /href: '\/upgrade'/);
+  assert.match(src, /tab-bar--many/);
   assert.match(src, /fetchPackageAccess/);
 });
 
