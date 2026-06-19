@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§8.5 Arkivprincip · §6.9 vy-prioritet · renderingsordning · paketlivscykel)  
+**Uppdaterad:** 2026-06-17 (§4.4 midnatt/concurrency · §7.2 scrub-snapshot · §9.7 PWA · IAP idempotens)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -441,6 +441,17 @@ Andersson-familjen har avslutat samarbetet för Ella.
 [ Tillbaka till översikt ]
 ```
 
+**Session vid revoke (GDPR, P0):** Ingen WebSocket i v1.2. Istället:
+
+| Trigger | Beteende |
+|---------|----------|
+| **Varje API-anrop** | `requirePedagogAccess(childId)` — `403 ACCESS_REVOKED` om `revoked_at` satt |
+| **App resume / flikväxling** | Klienten anropar `GET /api/subscription/access` + validerar pedagog-barnlista |
+| **403 ACCESS_REVOKED** | **Omedelbar hård redirect** till `/pedagog-oversikt` + revoke-modal — rensa cache för barnet |
+| **Pågående skärm** | Pedagog får **inte** fortsätta se känslig data efter nästa interaktion |
+
+*Motivering:* Reaktiv middleware räcker om klienten alltid validerar vid resume — ingen passiv "sitta kvar på skärmen".
+
 **Barnväxling (Idag-flik):** Header `Andersson — Ella ▼` med dropdown över alla delade barn. Senast valt barn sparas i `localStorage` (`pedagog_last_child_id`). Vid 0 barn → tomt tillstånd ovan.
 
 **Befintlig kod:** `pedagog_invite`, `pedagog-oversikt.html`, `dashboard.js` redirect vid `account_type=educator` eller `preferred_view_mode=pedagog`.
@@ -548,6 +559,18 @@ UTKAST: redigerbar ≤7 dagar · äldre → read-only
 | **Samarbetskommentar** | Egen kommentar inom **24h** (§4.4.7) |
 
 *Motivering:* Anteckningar är dagens dokumentation — lås vid midnatt. Skolaktiviteter och avbockningar behåller 7-dagarsfönster.
+
+**Midnatt & tidszoner (P0):**
+
+| Regel | Detalj |
+|-------|--------|
+| **Datumgräns** | Alltid familjens `family.timezone` — oavsett var pedagogen befinner sig |
+| **Cron-lås** | `note_status: published → locked` kl 23:59 **per anteckningens `date`** (inte "nu") |
+| **Utkast förbi midnatt** | Utkast för *igår* förblir `UTKAST` i historik — **inte** permanent `ÅTGÄRD KRÄVS` om < 7 dagar |
+| **Retroaktiv publicering** | Pedagog öppnar utkast via Historik (§4.4.13) och publicerar i efterhand → historikstatus uppdateras **retroaktivt** `UTKAST` → `KLAR` för det datumet |
+| **Låst utan publicering** | Utkast > 7 dagar utan publicering → read-only `UTKAST` i historik (inte `ÅTGÄRD KRÄVS`) |
+
+*Dashboard visar alltid status för **valt datum** i datumväljaren — inte "idag" i pedagogens enhetstidszon.*
 
 #### 4.4.6 Anteckningsflöde (`pedagoganteckningar`)
 
@@ -691,6 +714,12 @@ Dashboard ska visa **inloggad pedagogs egen arbetsstatus** per delat barn — **
 | `FRÅNVARANDE` | **Egen** frånvaromarkering (§4.4.8) |
 | `UTKAST` | **Egen** anteckning påbörjad men ej publicerad |
 
+**Dashboard & datum (P0):**
+
+- Översikten beräknar status **endast för valt datum** (`date` i datumväljaren) — nollställs inte automatiskt vid midnatt i pedagogens tidszon.
+- Vid byte till *igår*: visar gårdagens status (t.ex. `UTKAST` eller `ÅTGÄRD KRÄVS`) — inte dagens.
+- **Retroaktiv uppdatering:** Om pedagog publicerar ett gammalt utkast (< 7 dagar) via Historik → raden för det datumet uppdateras till `KLAR` i både Historik och Översikt (om samma datum väljs).
+
 **Wireframe — pedagogöversikt:**
 
 ```
@@ -818,6 +847,33 @@ Kommentar: "Hungrig idag"
 |-------|----------|-------------|
 | GET | `/api/pedagog/daily-log?childId=&date=` | Dagens aktiviteter + completion-status |
 | PATCH | `/api/pedagog/daily-log/items/:id` | Markera av/ångra + `completion_comment` |
+
+**Concurrency & felför hantering (Modell A, P0):**
+
+| HTTP | Kod | När |
+|------|-----|-----|
+| **409** | `ACTIVITY_ALREADY_COMPLETED` | Pedagog försöker avbocka aktivitet som redan är klar (hemma eller skola) |
+| **409** | `ACTIVITY_ALREADY_COMPLETED` | Race: barn och pedagog klickar nästan samtidigt — första transaktion vinner |
+
+**Svar vid 409:**
+
+```json
+{
+  "error": "ACTIVITY_ALREADY_COMPLETED",
+  "message": "Aktiviteten är redan markerad som klar",
+  "completed_by": "child",
+  "completed_by_name": "Ella",
+  "completed_at": "2026-06-17T07:15:00Z"
+}
+```
+
+**Klient (obligatoriskt):**
+
+1. Rulla tillbaka checkbox i UI (ingen "flicker")
+2. Visa diskret toast: *"Aktiviteten uppdaterades precis av [namn]"*
+3. Uppdatera raden med serverns `completed_by` / `completed_at` (ersätt cache)
+
+*Offline v1.2: ingen write-queue — vid nätverksfel efter misslyckad PATCH, refetch dagvy.*
 
 #### 4.4.12 Skolaktiviteter (`pedagog_skolaktivitet`)
 
@@ -1545,8 +1601,10 @@ ALTER TABLE activity_template
 | Händelse | Beteende |
 |----------|----------|
 | Refererad mall finns | Ärv `name`, `emoji`, `icon_key`, `image_url` till NÄSTA-kort |
-| Mall raderas eller tillhör annan familj | Sätt `activity_template_id = null`; behåll `text` + manuella symboler om ifyllda |
+| Mall raderas eller tillhör annan familj | **Frys** `what_next`: sätt `activity_template_id = null` men **behåll** `text`, `emoji`, `icon_key`, `image_url` i JSONB (snapshot) |
 | API validering vid save | Avvisa `activity_template_id` som inte tillhör familjen |
+
+*Vid scrub får NÄSTA-kortet aldrig bli tomt — barnet ska alltid se fryst visuellt tillstånd (§14.8).*
 
 **Abstrakta svar (`why` m.m.) — visuellt stöd:**
 
@@ -1600,6 +1658,16 @@ const QUESTION_ORDER = [
 ```
 
 `normalizeSevenQuestions(input)` — trimma `text`, sätt `version: 1` om saknas, ta bort tomma fält, rensa `what` + alla `virtual: true`, validera `icon_key` mot bibliotek, `minutes` 1–120 för `how_long`, max 500 tecken per `text`, tillämpa **fältbaserad** auto emoji-fallback (§7.2) om inget visuellt finns.
+
+**Datagränser `what_need.items` (P0):**
+
+| Gräns | Värde |
+|-------|-------|
+| Max antal items | **5** |
+| Max tecken per item `text` | **30** |
+| Överskridande | Trunkera eller avvisa med `400 VALIDATION_ERROR` vid save |
+
+*Motivering:* Förhindrar att NU-kortet spricker i barnvyn.
 
 **Bakåtkompatibilitet:** Legacy-sträng (`"Badrummet"`) → `{ text: "Badrummet", emoji: "📍" }` (fältbaserad fallback, ej textmatchning). Aldrig text-only i barnvy.
 
@@ -1852,8 +1920,16 @@ v1.2 behåller befintliga routes utan `/v1`-prefix (bakåtkompatibilitet). **Nya
 |----------|------------|
 | Två föräldrar redigerar samma aktivitet | **Last-write-wins** på `activity_template` |
 | Två pedagoger, samma barn, samma dag | **Separata rader** (`UNIQUE child_id, pedagog_id, date`) — ingen konflikt |
-| Pedagog + barn avbockar samma aktivitet | **Modell A** (§4.4.11) — första completion vinner; andra ser read-only |
+| Pedagog + barn avbockar samma aktivitet | **Modell A** (§4.4.11) — första completion vinner; andra får **409 `ACTIVITY_ALREADY_COMPLETED`** |
 | Samarbetskommentar | Upsert per `(child, date, role)` — senaste vinner inom 24h |
+
+**Standardiserade felkoder (pedagog daglogg):**
+
+| Kod | HTTP | Klientåtgärd |
+|-----|------|--------------|
+| `ACTIVITY_ALREADY_COMPLETED` | 409 | Rollback UI + toast med `completed_by_name` (§4.4.11) |
+| `ACCESS_REVOKED` | 403 | Hård redirect till översikt (§4.4.1) |
+| `EDIT_WINDOW_EXPIRED` | 403 | Visa låst läge; redirect till read-only |
 
 **v1.3+:** Optimistic locking (`updated_at` / ETag) på `pedagog_notes` och `daily_log_item` om supportärenden kräver det.
 
@@ -1971,7 +2047,8 @@ module.exports = {
 |-----------|-----------|--------|---------------|
 | **iOS-app** | Apple (App Store) | RevenueCat + StoreKit | Native köpdialog; Face ID / Apple Pay som betalmetod på Apples sida |
 | **Android-app** | Google (Play Store) | RevenueCat + Play Billing | Native köpdialog; Google Pay som betalmetod på Googles sida |
-| **Webb / PWA** | **Ingen** | — | Preview + Köp nu → *Öppna i appen*; **aldrig** Stripe-länk eller kortfält |
+| **Webb / PWA** | **Ingen köp-UI** | — | Preview + Köp nu → ladda ner-flöde; **aldrig** Stripe-länk eller kortfält |
+| **Webb / PWA (efter köp)** | **Full funktion** | Samma konto | Läs + skriv enligt `package-access` — **endast själva köptransaktionen** blockeras på webben |
 
 **Motivering:**
 - Apple App Store Review Guideline 3.1.1 — digitala abonnemang i iOS-app ska via IAP
@@ -2019,6 +2096,7 @@ Renodlade webb-/PWA-användare har **ingen native-app att hoppa till** — *"Öp
 
 - **QR-kod / store-knappar:** leder till appbutik (inte en död "öppna app"-länk)
 - **SMS-länk** *(valfritt v1.2)*: skicka nedladdningslänk till telefonen
+- **Efter köp i appen:** Användaren loggar in på webben/PWA med samma konto → `package-access.js` läser DB → **full läs/skriv** för köpta paket (samma som native). Preview försvinner automatiskt.
 - **Framtida webb-checkout:** om Apple/Google-policy tillåter extern betalning för webb-plattformen kan en webb-exklusiv Stripe-länk läggas till här — men **aldrig** i native-builden (§9.7 förbjudet)
 
 **Admin / livstidsgratis:** `lifetime_free` och manuell komponenttilldelning i admin kvarstår — utan IAP.
@@ -2330,6 +2408,12 @@ Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
 - [ ] **Post-köp onboarding §9.9** — wizard per paket + tomma tillstånd
 - [ ] **Inställningar → Arkiv** — läs-only + export + återaktivera-CTA
 - [ ] **GDPR-export** inkl. `pedagog_audit_log` (§8.5, §4.4.14)
+- [ ] **409 ACTIVITY_ALREADY_COMPLETED** + klient-rollback (§4.4.11)
+- [ ] **Revoke-session** — validera vid resume; 403 → hård redirect (§4.4.1)
+- [ ] **what_next scrub fryser snapshot** — inte tom NÄSTA-rad (§7.2, §16.6)
+- [ ] **what_need.items** max 5 × 30 tecken i `normalizeSevenQuestions()`
+- [ ] **PWA efter köp** — full läs/skriv, endast köp blockeras (§9.7)
+- [ ] **IAP idempotens** — `revenuecat_event_id` (§16.8)
 
 ---
 
@@ -2379,6 +2463,11 @@ Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
 | AN | **Anteckningslås Alternativ A** — publicerad → låst 23:59 permanent (§4.4.5) |
 | AO | **Dashboard per pedagog** — status aggregeras aldrig över flera pedagoger (§4.4.9) |
 | AP | **Pedagog-nav 4 flikar** — Översikt · Idag · Historik · ⚙️ (§4.4.16) |
+| AQ | **409 ACTIVITY_ALREADY_COMPLETED** — Modell A race + klient-rollback (§4.4.11) |
+| AR | **Revoke-session** — validera vid resume; 403 hård redirect (§4.4.1) |
+| AS | **what_next scrub fryser visuellt snapshot** vid mallradering (§7.2) |
+| AT | **PWA full funktion efter köp** — endast köptransaktion blockeras på webben (§9.7) |
+| AU | **IAP webhook idempotent** via `revenuecat_event_id` (§16.8) |
 
 ---
 
@@ -2880,18 +2969,34 @@ Bygg i denna ordning:
 
 **Gating:** `requireComponent('teacch')` på write; read i barnvy om komponent finns.
 
-**Referensintegritet (3.4b):** PostgreSQL kan **inte** sätta FK från ett JSONB-fält. När en aktivitet raderas måste `DELETE /api/activities/:id` därför **i applikationskoden** rensa alla `what_next.activity_template_id` som pekar på den raderade mallen — annars uppstår "ghost"-länkar:
+**Referensintegritet (3.4b):** PostgreSQL kan **inte** sätta FK från ett JSONB-fält. När en aktivitet raderas måste `DELETE /api/activities/:id` i **samma transaktion**:
+
+1. Hämta `name`, `emoji`, `icon_key`, `image_url` från mallen som ska raderas
+2. Skriv in dessa som **snapshot** i `what_next` på alla berörda rader (frys visuellt tillstånd)
+3. Sätt `activity_template_id = null`
+4. Radera mallen
 
 ```sql
+-- Pseudokod: applicera per träffande rad med värden från raderad mall ($name, $emoji, …)
 UPDATE activity_template
 SET seven_questions = jsonb_set(
-  seven_questions, '{what_next,activity_template_id}', 'null'
+  jsonb_set(
+    jsonb_set(
+      jsonb_set(
+        jsonb_set(seven_questions, '{what_next,activity_template_id}', 'null'),
+        '{what_next,text}', to_jsonb($name::text)
+      ),
+      '{what_next,emoji}', to_jsonb($emoji::text)
+    ),
+    '{what_next,icon_key}', to_jsonb($icon_key::text)
+  ),
+  '{what_next,image_url}', to_jsonb($image_url::text)
 )
 WHERE family_id = $1
   AND seven_questions->'what_next'->>'activity_template_id' = $2;
 ```
 
-Görs i samma transaktion som raderingen. `normalizeSevenQuestions()` vid läsning behåller `text` men droppar trasig `activity_template_id` som extra skyddsnät.
+`normalizeSevenQuestions()` vid läsning: om `activity_template_id` saknas men `text`/symbol finns → rendera fryst kort; droppa endast trasig referens utan snapshot.
 
 **Designreferens:** `docs/mockups/paket-v1.2-nav.png` panel 3 · `docs/mockups/barnvy.html` · §13.5.
 
@@ -2922,6 +3027,7 @@ Görs i samma transaktion som raderingen. `normalizeSevenQuestions()` vid läsni
 | 5.1 | Produkt-ID per paket i App Store Connect + Play Console |
 | 5.2 | RevenueCat offerings/packages mappade till `basic_app`, `reporting`, `pedagog`, `teacch` |
 | 5.3 | Webhook uppdaterar `family_subscriptions.components[]` med `component` + `expires_at` |
+| 5.3b | **Idempotent webhook** — `revenuecat_event_id` UNIQUE; duplicerade events ignoreras | `iap_webhook_log` eller kolumn på subscription |
 | 5.4 | Sandbox-test iOS + Android |
 | 5.5 | App Review — inga webb-betalningstexter i native |
 
@@ -2936,6 +3042,19 @@ Offering "v1.2"
 ```
 
 Kombinerbara köp = flera packages i samma offering (produktbeslut).
+
+**IAP idempotens (P0):**
+
+```sql
+CREATE TABLE IF NOT EXISTS iap_webhook_log (
+  revenuecat_event_id TEXT PRIMARY KEY,
+  event_type          TEXT NOT NULL,
+  family_id           UUID REFERENCES family(id),
+  processed_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → returnera 200. Förhindrar dubbel `component_state=active` vid RevenueCat-retries.
 
 ### 16.9 Epics — PR-uppdelning
 
@@ -2986,7 +3105,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | `child-dashboard.js` växer okontrollerat | All Extra stöd-UI i egna filer (§16.6) |
 | Nav bryts på Capacitor iOS/Android | Testa `native-tab-bar.js` på riktiga enheter |
 | App Review avvisar webb-betalningstext | §9.7 checklista före submit |
-| IAP webhook synkar fel komponent | Idempotent webhook + logg i `iap.js` |
+| IAP webhook synkar fel komponent | Idempotent webhook + `revenuecat_event_id` UNIQUE (§16.8) |
 | Analytics `source` inkonsekvent | Canonical enum §9.8 — samma i API, DB och events |
 | Nedgradering raderar data | Arkivprincip §8.5 — `component_state=archived`, aldrig DELETE |
 | Tre parallella preview-implementationer | Renderingsordning §6.6 — ett `package-access`-svar |
@@ -3028,7 +3147,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | `/api/subscription/access` | GET | E1 |
 | `/api/subscription/interest` | POST | E2 |
 | `/api/pedagog-notes` | GET, POST, publish | E12 (befintlig + utökad) |
-| `/api/pedagog/daily-log` | GET, PATCH | E12 |
+| `/api/pedagog/daily-log` | GET, PATCH (+ 409) | E12 |
 | `/api/pedagog/school-activities` | GET library, POST, DELETE | E12 |
 | `/api/pedagog/day-comments` | GET, POST | E12 |
 | `/api/pedagog/absence` | PUT, DELETE | E12 |
@@ -3062,7 +3181,8 @@ Visuellt ERD: lägg till `docs/diagrams/paket-v1.2-erd.png` vid implementation.
 | E12.2 | Ella kryssat av "Lunch" hemma | Pedagog öppnar dagvy | Lunch visar *Klar hemma* — ej kryssbar |
 | E12.3 | Pedagog publicerar anteckning 14:32 | Klockan passerar 23:59 (familj TZ) | `note_status=locked` · förälder ser i Samarbete |
 | E12.4 | Familj saknar `pedagog`-komponent | Förälder öppnar Samarbete | Preview **eller** arkiv-läs (§8.5) — aldrig raderad data |
-| E12.5 | Anna publicerat, Johan ej | Varje pedagog öppnar översikt | Respektive egen status — inte aggregerad |
+| E12.6 | Ella kryssat av hemma | Pedagog PATCH samma rad | 409 + toast *"uppdaterades av Ella"* |
+| E12.7 | Förälder revokerar åtkomst | Pedagog klickar vidare | 403 → omedelbar redirect |
 
 ---
 
