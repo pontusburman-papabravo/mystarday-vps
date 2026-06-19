@@ -5,12 +5,37 @@
  */
 
 const express = require('express');
-const { requireParent } = require('../middleware/auth');
+const { requireAuth, requireParent } = require('../middleware/auth');
 const familySubscriptions = require('../../db/family-subscriptions');
 const appSettings = require('../../db/app-settings');
+const { getFamilyAccess } = require('../lib/package-access');
 const { STRIPE_COMPONENT_MAP } = require('../../config/subscription-components');
 
 const router = express.Router();
+
+/**
+ * GET /api/subscription/access
+ * Unified package access for client (§6.6, §16.3).
+ */
+router.get('/access', requireAuth, async (req, res) => {
+  try {
+    const familyId = req.user.familyId || req.user.family_id;
+    if (!familyId) {
+      return res.status(400).json({ error: 'Ingen familj kopplad till kontot' });
+    }
+
+    const session = {
+      preferredViewMode: req.query.view_mode || req.user.preferred_view_mode,
+      hasActiveTeacchActivity: req.query.teacch_active === '1',
+    };
+
+    const access = await getFamilyAccess(familyId, req.user, session);
+    res.json(access);
+  } catch (err) {
+    console.error('[SUBSCRIPTION] access error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta pakettillgång' });
+  }
+});
 
 /**
  * GET /api/subscription/status

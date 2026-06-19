@@ -25,15 +25,42 @@ function requireComponent(componentName) {
     try {
       const sub = await familySubscriptions.getByFamilyId(familyId);
 
-      // No subscription record — allow through (legacy families without record)
-      if (!sub) return next();
+      // No subscription record — legacy families: basic_app only
+      if (!sub) {
+        if (componentName === 'basic_app') return next();
+        return res.status(403).json({
+          error: 'Komponent saknas',
+          code: 'COMPONENT_MISSING',
+          component: componentName,
+          upgrade_url: '/upgrade',
+        });
+      }
 
-      // lifetime_free families always have access to basic_app
-      if (sub.tier === 'lifetime_free') return next();
+      // lifetime_free: only basic_app included — other components need explicit grant
+      if (sub.tier === 'lifetime_free' && componentName === 'basic_app') {
+        return next();
+      }
 
-      // Check component exists and is not expired
       const comp = (sub.components || []).find(c => c.component === componentName);
       if (!comp) {
+        return res.status(403).json({
+          error: 'Komponent saknas',
+          code: 'COMPONENT_MISSING',
+          component: componentName,
+          upgrade_url: '/upgrade',
+        });
+      }
+
+      const state = comp.state || 'active';
+      if (state === 'archived') {
+        return res.status(403).json({
+          error: 'Komponent arkiverad',
+          code: 'COMPONENT_ARCHIVED',
+          component: componentName,
+          upgrade_url: '/upgrade',
+        });
+      }
+      if (state !== 'active') {
         return res.status(403).json({
           error: 'Komponent saknas',
           code: 'COMPONENT_MISSING',
