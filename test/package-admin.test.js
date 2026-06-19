@@ -30,6 +30,25 @@ test('native-tab-bar has v1.2 tabs', () => {
   assert.match(src, /Utveckling/);
   assert.match(src, /Samarbete/);
   assert.match(src, /Barn\/Stöd/);
+  assert.match(src, /V12_HUB_PATHS/);
+  assert.match(src, /fetchPackageAccess/);
+});
+
+test('package-access-cache dedupes subscription access fetches', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/package-access-cache.js'), 'utf8');
+  assert.match(src, /fetchPackageAccess/);
+  assert.match(src, /_packageAccessPromise/);
+  const platform = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+  assert.match(platform, /package-access-cache\.js/);
+});
+
+test('globalLimiter skips authenticated traffic after early optionalAuth', () => {
+  const server = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
+  const limiter = fs.readFileSync(path.join(ROOT, 'src/middleware/rateLimiter.js'), 'utf8');
+  const authIdx = server.indexOf('app.use(optionalAuth)');
+  const limitIdx = server.indexOf('app.use(globalLimiter)');
+  assert.ok(authIdx !== -1 && limitIdx !== -1 && authIdx < limitIdx);
+  assert.match(limiter, /\/subscription\/access/);
 });
 
 test('admin family-components API and UI exist', () => {

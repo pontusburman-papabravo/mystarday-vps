@@ -4,13 +4,23 @@
 (function () {
   'use strict';
 
-  var NAV = [
+  var LEGACY_NAV = [
     { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Hem' },
     { id: 'schedule', href: '/schedule', icon: '📅', label: 'Schema' },
     { id: 'for-dig', href: '/for-dig', icon: '✨', label: 'För dig' },
     { id: 'family', href: '/family', icon: '👨‍👩‍👧', label: 'Familj' },
     { id: 'settings', href: '/settings', icon: '⚙️', label: 'Inställn.' },
   ];
+
+  var V12_NAV = [
+    { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Idag' },
+    { id: 'schedule', href: '/schedule', icon: '📅', label: 'Rutiner' },
+    { id: 'reports', href: '/reports', icon: '📊', label: 'Utveckling' },
+    { id: 'samarbete', href: '/samarbete', icon: '🤝', label: 'Samarbete' },
+    { id: 'barn-stod', href: '/barn-stod', icon: '🧒', label: 'Barn/Stöd' },
+  ];
+
+  var NAV = LEGACY_NAV;
 
   var _page = null;
 
@@ -92,26 +102,39 @@
     }
   }
 
+  function loadNavConfig() {
+    if (!window.fetchPackageAccess) return Promise.resolve();
+    return window.fetchPackageAccess()
+      .then(function (access) {
+        NAV = (access && access.rollout_mode && access.rollout_mode !== 'off') ? V12_NAV : LEGACY_NAV;
+      })
+      .catch(function () { /* keep legacy */ });
+  }
+
   function init(page) {
     _page = page || 'dashboard';
     if (window.ParentMagicAuto) {
       ParentMagicAuto.prepareDom();
     }
     if (!window.AppViewMode) {
-      refresh();
-      return Promise.resolve(false);
+      return loadNavConfig().then(function () {
+        refresh();
+        return Promise.resolve(false);
+      });
     }
 
-    return AppViewMode.initParent().then(function () {
-      var toggleMount = document.getElementById('appViewToggleMount');
-      if (toggleMount && AppViewMode.isAllowed()) {
-        AppViewMode.mountToggle(toggleMount);
-      } else if (toggleMount) {
-        toggleMount.style.display = 'none';
-      }
-      AppViewMode.onChange(refresh);
-      refresh();
-      return isMagic();
+    return loadNavConfig().then(function () {
+      return AppViewMode.initParent().then(function () {
+        var toggleMount = document.getElementById('appViewToggleMount');
+        if (toggleMount && AppViewMode.isAllowed()) {
+          AppViewMode.mountToggle(toggleMount);
+        } else if (toggleMount) {
+          toggleMount.style.display = 'none';
+        }
+        AppViewMode.onChange(refresh);
+        refresh();
+        return isMagic();
+      });
     });
   }
 

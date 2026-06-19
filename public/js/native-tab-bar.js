@@ -43,11 +43,16 @@
     return false;
   }
 
+  var V12_HUB_PATHS = ['/reports', '/samarbete', '/barn-stod', '/upgrade'];
+
   function hasParentShell() {
-    return !!(
-      document.getElementById('sidebar') ||
-      document.querySelector('nav.bg-navy')
-    );
+    if (document.getElementById('sidebar') || document.querySelector('nav.bg-navy')) return true;
+    var p = path || '/';
+    for (var i = 0; i < V12_HUB_PATHS.length; i++) {
+      var hp = V12_HUB_PATHS[i];
+      if (p === hp || p.indexOf(hp + '/') === 0) return true;
+    }
+    return false;
   }
 
   function isTabVisible(tab) {
@@ -58,8 +63,12 @@
   }
 
   function loadTabsConfig() {
-    return fetch('/api/subscription/access', { credentials: 'include' })
-      .then(function (r) { return r.ok ? r.json() : null; })
+    var loader = window.fetchPackageAccess
+      ? window.fetchPackageAccess()
+      : fetch('/api/subscription/access', { credentials: 'include' })
+          .then(function (r) { return r.ok ? r.json() : null; });
+
+    return loader
       .then(function (access) {
         activeTabs = (access && access.rollout_mode && access.rollout_mode !== 'off')
           ? V12_TABS

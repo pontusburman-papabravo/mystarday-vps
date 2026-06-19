@@ -20,8 +20,12 @@
 
   const readyPromise = (async function prefetchAccess() {
     try {
-      const res = await fetch('/api/subscription/access', { credentials: 'include' });
-      accessCache = res.ok ? await res.json() : null;
+      if (window.fetchPackageAccess) {
+        accessCache = await window.fetchPackageAccess();
+      } else {
+        const res = await fetch('/api/subscription/access', { credentials: 'include' });
+        accessCache = res.ok ? await res.json() : null;
+      }
     } catch (_) {
       accessCache = null;
     }

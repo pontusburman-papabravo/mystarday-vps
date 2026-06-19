@@ -39,9 +39,9 @@
 
   async function init() {
     try {
-      const res = await fetch('/api/subscription/access', { credentials: 'include' });
-      if (!res.ok) return;
-      const access = await res.json();
+      const access = window.fetchPackageAccess
+        ? await window.fetchPackageAccess()
+        : await (await fetch('/api/subscription/access', { credentials: 'include' })).json();
       if (access.rollout_mode && access.rollout_mode !== 'off') {
         v12Nav = true;
         applyTwoTabNav();

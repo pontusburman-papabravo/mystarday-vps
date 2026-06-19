@@ -36,6 +36,10 @@
 
   async function loadAccess(force) {
     if (accessCache && !force) return accessCache;
+    if (global.fetchPackageAccess) {
+      accessCache = await global.fetchPackageAccess(force);
+      return accessCache;
+    }
     const res = await fetch('/api/subscription/access', { credentials: 'include' });
     if (!res.ok) throw new Error('access_fetch_failed');
     accessCache = await res.json();
@@ -53,6 +57,8 @@
   function clearCache() {
     accessCache = null;
     previewDataCache = null;
+    window._packageAccessPromise = null;
+    window._packageAccess = null;
   }
 
   async function shouldShowPreview(component) {

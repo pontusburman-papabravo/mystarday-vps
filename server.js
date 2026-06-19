@@ -72,6 +72,11 @@ app.use(cookieParser());
 // ─── Structured logging with Pino ──────────────────────────
 app.use(requestIdMiddleware());
 
+// Decode JWT before globalLimiter so authenticated API traffic is skipped
+// (globalLimiter runs before /api optionalAuth; without this, every API call
+// counts against the 200 req/min IP bucket and v1.2 pages exhaust the limit).
+app.use(optionalAuth);
+
 app.use(globalLimiter);
 
 // ─── Platform HTML injection (Capacitor vs web) ──

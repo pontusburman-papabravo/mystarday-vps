@@ -206,7 +206,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v260';
+const CACHE_NAME = 'stjarndag-v261';
+// v261: paket v1.2 — package-access-cache, rate-limit fix, hub-page tab bar
 // v253: Apple Sign In iPad fix — vendored presentation patch + verify on cap:sync:ios
 // v252: Remove all subscription/payment UI text for App Review (Build 15)
 // v251: Build 14 — remove IAP/RevenueCat from client (free app for App Review)
@@ -259,6 +260,7 @@ const STATIC_ASSETS = [
   '/js/feature-check.js',
   '/js/platform.js',
   '/js/device-mode.js',
+  '/js/package-access-cache.js',
   '/js/session-gate.js',
   '/js/parental-gate.js',
   '/js/crash-reporter.js',

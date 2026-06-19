@@ -83,6 +83,7 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>',
   ];
   headParts.push(
+    '<script src="/js/package-access-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/features-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
