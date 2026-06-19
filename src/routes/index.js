@@ -88,6 +88,8 @@ function registerRoutes(app) {
   app.use('/api/analytics', require('./analytics'));
   app.use('/api/subscription', require('./subscription'));
   app.use('/api/pedagog-notes', require('./pedagog-notes'));
+  app.use('/api/pedagog/daily-log', require('./pedagog-daily-log'));
+  app.use('/api/pedagog/day-comments', require('./pedagog-day-comments'));
   app.use('/api/pedagog-invite', require('./pedagog-invite'));
   app.use('/api/features', require('./features'));
   app.use('/api/for-dig', require('./for-dig'));

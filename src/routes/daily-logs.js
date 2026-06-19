@@ -632,6 +632,23 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       item.sub_step_count = subStepCountMap[item.activity_template_id] || 0;
     }
 
+    // ── Enrich items with seven_questions from activity templates (teacch) ──
+    const sevenQuestionsMap = {};
+    if (templateIds.length > 0) {
+      const sqResult = await db.query(
+        `SELECT id, seven_questions FROM activity_template WHERE id = ANY($1::uuid[])`,
+        [templateIds]
+      );
+      for (const row of sqResult.rows) {
+        sevenQuestionsMap[row.id] = row.seven_questions || {};
+      }
+    }
+    for (const item of sortedItems) {
+      if (item.activity_template_id && sevenQuestionsMap[item.activity_template_id]) {
+        item.seven_questions = sevenQuestionsMap[item.activity_template_id];
+      }
+    }
+
     // ── Batch-fetch child ratings for all items in one query ───────────────
     // Replaces N sequential GET /api/me/daily-log-items/:id/rating calls.
     // Uses the `rating` table (daily_log_item_id + user_type='child').

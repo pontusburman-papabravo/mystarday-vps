@@ -129,4 +129,42 @@ router.get('/overview', async (req, res) => {
   }
 });
 
+// ─── POST /api/pedagog-notes/publish ───────────────────────
+router.post('/publish', async (req, res) => {
+  try {
+    const { childId, date } = req.body;
+    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+
+    const hasAccess = await verifyPedagogAccess(req.user.id, childId);
+    if (!hasAccess) return res.status(403).json({ error: 'Åtkomst nekad' });
+
+    const db = require('../lib/db');
+    const { rows } = await db.query(
+      `UPDATE pedagog_notes
+       SET is_draft = false,
+           note_status = 'published',
+           published_at = COALESCE(published_at, NOW()),
+           updated_at = NOW()
+       WHERE child_id = $1 AND pedagog_id = $2 AND date = $3::date
+       RETURNING *`,
+      [childId, req.user.id, date]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Anteckning hittades inte' });
+
+    const { logPedagogEvent } = require('../lib/pedagog-audit');
+    const childRow = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
+    await logPedagogEvent({
+      familyId: childRow.rows[0]?.family_id,
+      childId,
+      pedagogId: req.user.id,
+      action: 'pedagog_note_published',
+    });
+
+    res.json({ ok: true, note: rows[0] });
+  } catch (err) {
+    console.error('[PEDAGOG-NOTES] publish error:', err);
+    res.status(500).json({ error: 'Kunde inte publicera' });
+  }
+});
+
 module.exports = router;

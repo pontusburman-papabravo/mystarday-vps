@@ -31,3 +31,29 @@ test('native-tab-bar has v1.2 tabs', () => {
   assert.match(src, /Samarbete/);
   assert.match(src, /Barn\/Stöd/);
 });
+
+test('admin family-components API and UI exist', () => {
+  const api = fs.readFileSync(path.join(ROOT, 'src/routes/admin/family-components.js'), 'utf8');
+  const familiesJs = fs.readFileSync(path.join(ROOT, 'public/admin/admin-families.js'), 'utf8');
+  assert.match(api, /\/families\/:familyId\/subscription/);
+  assert.match(api, /component_archived/);
+  assert.match(familiesJs, /loadFamilyComponents/);
+  assert.match(familiesJs, /Paket-komponenter/);
+});
+
+test('child seven questions tryRender is synchronous', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/child-seven-questions.js'), 'utf8');
+  assert.doesNotMatch(src, /async function tryRender/);
+  assert.match(src, /ready:\s*\(\)\s*=>\s*readyPromise/);
+});
+
+test('pedagog-notes publish uses correct db path', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/pedagog-notes.js'), 'utf8');
+  assert.match(src, /require\('\.\.\/lib\/db'\)/);
+  assert.doesNotMatch(src, /\.\.\/\.\.\/src\/lib\/db/);
+});
+
+test('family-components rejects basic_app mutations', () => {
+  const api = fs.readFileSync(path.join(ROOT, 'src/routes/admin/family-components.js'), 'utf8');
+  assert.match(api, /basic_app kan inte ändras via admin/);
+});

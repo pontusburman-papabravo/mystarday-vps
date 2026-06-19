@@ -40,6 +40,14 @@ router.get('/barn-stod', optionalAuth, requireParentPage, (req, res) => {
   res.sendFile(path.join(__dirname, '..', '..', 'public', 'barn-stod.html'));
 });
 
+router.get('/pedagog-dag', optionalAuth, requireParentPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'pedagog-dag.html'));
+});
+
+router.get('/pedagog-historik', optionalAuth, requireParentPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'pedagog-historik.html'));
+});
+
 // ─── GET /pedagog-note ───────────────────────────────────
 // Requires 'pedagoganteckningar' feature. Redirects to /dashboard if no access.
 router.get('/pedagog-note', optionalAuth, gateHtmlPage('pedagoganteckningar', '/dashboard'), (req, res) => {

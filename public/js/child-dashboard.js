@@ -1568,6 +1568,15 @@ function renderActivities(data, trueStarBalance) {
 // ── NOW card (large, featured) ──────────────────────────
 
 function renderNowCard(item, canToggle) {
+  if (window.ChildSevenQuestions && typeof ChildSevenQuestions.tryRender === 'function') {
+    const teacchHtml = ChildSevenQuestions.tryRender(item, canToggle);
+    if (teacchHtml) {
+      if (window.ChildPackageNav) ChildPackageNav.setNavHidden(true);
+      return teacchHtml;
+    }
+  }
+  if (window.ChildPackageNav) ChildPackageNav.setNavHidden(false);
+
   const isDone = item.completed;
   const timeStr = item.start_time ? (item.end_time ? `${item.start_time}–${item.end_time}` : item.start_time) : '';
   const checkAttr = canToggle && !isDone ? `onclick="toggleItem('${item.id}', false)"` : '';
@@ -2424,6 +2433,9 @@ async function loadDay(dateStr, showLoader = true) {
     visualTimer = data.visual_timer !== false; // default true
     hideClock = !!data.hide_clock; // default false
     colorCoding = data.color_coding !== false; // default true
+    if (window.ChildSevenQuestions?.ready) {
+      await ChildSevenQuestions.ready();
+    }
     renderActivities(data, rwdData?.starBalance);
     updateGoalBar(goalData);
   } catch (err) {

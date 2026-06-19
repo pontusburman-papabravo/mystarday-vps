@@ -2,6 +2,7 @@
 // Owns: activity_template table (legacy name, conceptually just "activities").
 // Does NOT own: schedules, daily logs, rewards.
 const express = require('express');
+const { normalizeSevenQuestions, scrubWhatNextReferences } = require('../lib/seven-questions');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
@@ -29,6 +30,7 @@ router.get('/', async (req, res) => {
     const result = await db.query(
       `SELECT at.id, at.name, at.icon, at.category_id, at.star_value, at.is_favorite,
               at.feedback_for, at.sort_order, at.schema_type,
+              COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
               c.name AS category_name, c.sort_order AS category_sort_order
        FROM activity_template at
@@ -72,6 +74,11 @@ router.get('/icons', async (req, res) => {
     '⭐', '🏆', '🎉', '📱', '🎬', '⛺', '🎢', '🧁',
   ];
   res.json({ icons: POPULAR_ICONS, free_picker: true });
+});
+
+router.get('/pictograms', (req, res) => {
+  const { PICTOGRAMS } = require('../../config/seven-questions-pictograms');
+  res.json({ pictograms: PICTOGRAMS });
 });
 
 const VALID_FEEDBACK_FOR = new Set(['both', 'child', 'parent', 'none']);
@@ -162,7 +169,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    const { name, icon, category_id, star_value, is_favorite, feedback_for, sort_order, time_group } = req.body;
+    const { name, icon, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -211,6 +218,10 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       if (!VALID_TIME_GROUPS.has(time_group)) return res.status(400).json({ error: 'Ogiltig tidsgrupp' });
       updates.push(`time_group = $${idx++}`);
       values.push(time_group);
+    }
+    if (seven_questions !== undefined) {
+      updates.push(`seven_questions = $${idx++}::jsonb`);
+      values.push(JSON.stringify(normalizeSevenQuestions(seven_questions)));
     }
 
     if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
@@ -407,31 +418,46 @@ router.delete('/:id/sub-steps/:stepId', async (req, res) => {
 
 // ─── DELETE /api/activities/:id ───────────────────────────
 router.delete('/:id', async (req, res) => {
+  const client = await db.getClient();
   try {
-    const existing = await db.query(
-      'SELECT id FROM activity_template WHERE id = $1 AND family_id = $2',
+    await client.query('BEGIN');
+
+    const existing = await client.query(
+      'SELECT id, name, icon, seven_questions FROM activity_template WHERE id = $1 AND family_id = $2',
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    // Check if template is used in any weekly schedule item
-    const used = await db.query(
+    const used = await client.query(
       'SELECT COUNT(*) FROM weekly_schedule_item WHERE activity_template_id = $1',
       [req.params.id]
     );
     if (parseInt(used.rows[0].count, 10) > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({
         error: 'Aktiviteten används i ett eller flera veckoscheman. Ta bort den därifrån först.',
       });
     }
 
-    await db.query('DELETE FROM activity_template WHERE id = $1', [req.params.id]);
+    const snap = existing.rows[0];
+    await scrubWhatNextReferences(client, req.user.familyId, req.params.id, {
+      name: snap.name,
+      emoji: snap.icon,
+      icon_key: null,
+    });
+
+    await client.query('DELETE FROM activity_template WHERE id = $1', [req.params.id]);
+    await client.query('COMMIT');
     res.json({ message: 'Aktiviteten har tagits bort' });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('[ACTIVITIES] Delete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
   }
 });
 

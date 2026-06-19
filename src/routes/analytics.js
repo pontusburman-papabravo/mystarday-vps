@@ -38,6 +38,8 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'preview_shown',
   'interest_registered',
   'upgrade_from_preview',
+  'seven_questions_shown',
+  'read_aloud_used',
 ]);
 
 /**
