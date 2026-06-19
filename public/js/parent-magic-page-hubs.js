@@ -40,6 +40,14 @@
       '</div></div>';
   }
 
+  function renderForDigHero() {
+    return '<div class="magic-page-shell magic-3d-scene">' +
+      '<div class="magic-page-hero">' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">✨</div>' +
+      '<div><h1>För dig</h1><p>Mål, favoriter och rekommendationer</p></div>' +
+      '</div></div>';
+  }
+
   function renderFamilyHero() {
     var summary = document.getElementById('familySummary');
     var sub = summary && summary.textContent ? summary.textContent : 'Er familj på ett ställe';
@@ -164,6 +172,8 @@
     el.classList.remove('hidden');
     if (page === 'schedule') {
       el.innerHTML = renderScheduleHero();
+    } else if (page === 'for-dig') {
+      el.innerHTML = renderForDigHero();
     } else if (page === 'family') {
       el.innerHTML = renderFamilyHero();
     } else if (page === 'settings') {

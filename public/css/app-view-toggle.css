@@ -14,6 +14,7 @@
 }
 
 body.parent-magic-dashboard .app-view-toggle-wrap,
+body.parent-magic-view .app-view-toggle-wrap,
 body.child-magic-view .app-view-toggle-wrap {
   background: rgba(12, 12, 36, 0.92);
   border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -32,6 +33,7 @@ body.child-magic-view .app-view-toggle-wrap {
 }
 
 body.parent-magic-dashboard .app-view-toggle,
+body.parent-magic-view .app-view-toggle,
 body.child-magic-view .app-view-toggle {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.1);
@@ -48,6 +50,7 @@ body.child-magic-view .app-view-toggle {
 }
 
 body.parent-magic-dashboard .app-view-toggle-label,
+body.parent-magic-view .app-view-toggle-label,
 body.child-magic-view .app-view-toggle-label {
   color: rgba(244, 244, 255, 0.55);
 }
@@ -72,6 +75,7 @@ body.child-magic-view .app-view-toggle-label {
 }
 
 body.parent-magic-dashboard .app-view-toggle-btn,
+body.parent-magic-view .app-view-toggle-btn,
 body.child-magic-view .app-view-toggle-btn {
   color: rgba(244, 244, 255, 0.65);
 }
@@ -83,6 +87,7 @@ body.child-magic-view .app-view-toggle-btn {
 }
 
 body.parent-magic-dashboard .app-view-toggle-btn.is-active,
+body.parent-magic-view .app-view-toggle-btn.is-active,
 body.child-magic-view .app-view-toggle-btn.is-active {
   background: linear-gradient(135deg, #ffcc33, #f5a623);
   color: #1b2340;
