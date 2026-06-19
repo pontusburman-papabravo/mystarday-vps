@@ -283,91 +283,118 @@ Full-screen modal, no bottom nav.
 
 ---
 
-### Panel 12 — Kommentar-input + Inställningar (split or focus)
-
-**Option A — Kommentar (förälder):**
+### Panel 12 — Förälder kommentar
 
 ```
-Samarbetskommentar
+Samarbete · Kommentar
 
 Anna · publicerad 14:32
 Humör 4/5 · Lunch gick bra
 
 Din kommentar (max 1 per dag)
 [                                    ]
+
 [ Avbryt ]              [ Spara ]
 
-5-tab parent nav, Samarbete active.
+5-tab nav: Idag · Rutiner · Utveckling · Samarbete (purple) · Barn/Stöd
 ```
 
-**Option B — Inställningar pedagog (⚙️ from Panel 1):**
+---
+
+### Panel 13 — Publicera steg 3 (ERSÄTTER feed-panel)
+
+**Kritisk panel** — knyter ihop hela pedagog-flödet.
+
+```
+← Andersson — Ella ▼    ons 17 jun
+
+Steg 3 av 3
+
+✓ Barn valt
+✓ Dokumentation
+● Publicera
+
+── Dagens sammanfattning ──────────────
+✓ Rast
+✓ Lunch · Hungrig idag
+✓ Grupparbete
+
+Humör 4/5 · Lunch OK · Lugn eftermiddag
+
+┌─────────────────────────────────┐
+│      [ Publicera ]              │  ← enda primära CTA, purple
+└─────────────────────────────────┘
+
+Bottom nav: Idag active.
+```
+
+**INTE:** "Today 3 active", "This week 5 active", notis-statistik.
+
+---
+
+### Panel 14 — Inställningar (pedagog)
 
 ```
 Inställningar
 
-KONTO
-  Profil · Byt lösenord
-
-NOTISER
-  Kommentar från förälder  [toggle on]
-  Ny koppling              [toggle on]
-  Aktivitetspush           [toggle on]
-
-SUPPORT
-  Support · FAQ
+KONTO — Profil · Byt lösenord
+NOTISER — toggles (förälder, koppling, push)
+SUPPORT — Support · FAQ
 
 [ Logga ut ]
-```
 
-*För 12-panel sheet: visa Panel 12 som Kommentar; Inställningar = Panel 1 ⚙️ destination.*
+No bottom nav. Opened from ⚙️ on Panel 1.
+```
 
 ---
 
-## AI-bildprompt (klistra in)
+## AI-bildprompt (v3.1 — klistra in)
 
 ```
-Product design contact sheet, 12 iPhone screens, 4 columns x 3 rows, Swedish family routine app pedagog v1.2 UX 10/10. Scandinavian B2B2C professional, NOT photorealistic NOT 3D. Warm off-white #F5F4F0 background, navy #1B2340 text, lavender purple #8B5CF6 accents, green #22C55E success, amber #F5A623 action stripe. Outfit headings Plus Jakarta Sans body. White cards 16px radius subtle shadow. Thin Swedish labels Panel 1-12 below each screen.
+Product design contact sheet, 14 iPhone screens, Swedish family routine app pedagog v1.2 UX 10/10 production. Scandinavian B2B2C, NOT photorealistic NOT 3D. Off-white #F5F4F0, navy #1B2340, lavender #8B5CF6, green #22C55E, amber action stripes only on priority queue. Outfit + Plus Jakarta Sans. Labels Panel 1-14 below.
 
-CRITICAL NAV RULES:
-- Pedagog screens: bottom nav ONLY "Översikt Idag Historik" + gear top-right. NEVER Hem NEVER Mer.
-- Parent screens: bottom nav ALL 5 tabs "Idag Rutiner Utveckling Samarbete Barn/Stöd".
+NAV: Pedagog = Översikt Idag Historik + gear. Parent = ALL 5 tabs Idag Rutiner Utveckling Samarbete Barn/Stöd. NEVER Hem NEVER Mer.
 
-Panel 1 Pedagog priority queue NOT colleague list: orange left stripe Ella "2 aktiviteter kvar Fortsätt", green Noah "Allt klart", grey Maja "Frånvarande". Alert "2 barn kräver åtgärd". Översikt tab active.
+P1 Work queue: orange stripe Ella "Samarbetssvar saknas" [Fortsätt], green Noah "Allt klart" [Visa], grey Maja frånvarande. Alert 2 barn kräver åtgärd.
 
-Panel 2 Idag stepper "Steg 2 av 3 Dokumentation", collapsed activities, mood chips, Model A "Klar hemma 07:15" muted, sticky purple Publicera anteckning footer, compact week strip, Frånvaro menu header.
+P2 Workflow NOT info display: Step 2 of 3 checkmarks Barn valt Documentation Publish, activities Model A, Fortsätt till publicering button.
 
-Panel 3 Bottom sheet add school activity: chip buttons Rast Lunch Utflykt Grupparbete, name field, optional stars, Avbryt Lägg till. NO recurring NO start time.
+P3 School activity chips Rast Lunch Utflykt Grupparbete, optional stars for rewards NOT 5-star focus rating.
 
-Panel 4 Welcome invitation purple checkmark Acceptera inbjudan Ella.
+P4 Invitation welcome Acceptera.
 
-Panel 5 Dual role Föräldraläge Pedagogläge profile Logga ut.
+P5 Dual role Föräldraläge Pedagogläge NOT "Följ dagliga".
 
-Panel 6 Empty state Inga barn delade numbered 3 steps illustration Uppdatera button.
+P6 Parent Samarbete Idag tab pulse card Dagens puls, segmented Idag Pedagoger Historik, 5-tab nav.
 
-Panel 7 Parent Samarbete segmented tabs Idag active: "Dagens puls" summary card Anna published, two-line comment exchange NOT chat feed, "Väntar Johan" card, Lägg till kommentar, 5-tab nav Samarbete purple active.
+P7 Parent Samarbete Pedagoger tab teacher list Återkalla.
 
-Panel 8 Parent Samarbete Pedagoger tab: teacher list with Återkalla, 5-tab nav.
+P8 Historik month ONLY date list 17 juni 16 juni 15 juni NO summary stats NO Aktiviteter 5 Avvikelser 0.
 
-Panel 9 Pedagog Historik date list Publicerad 4/4 aktiviteter NO monthly summary Historik tab active.
+P9 Historik day read-only activity list.
 
-Panel 10 Absence lavendel banner TOP "Barn markerat som frånvarande", greyed disabled checkboxes, Ta bort frånvaro header, no Publish.
+P10 Absence calm lavendel banner TOP "Barn markerat som frånvarande idag" grey locked activities NO amber FRÅNVARO REGISTRERAD.
 
-Panel 11 Access revoked lock modal Åtkomst borttagen Gå till Översikt no bottom nav.
+P11 Access revoked lock Gå till Översikt.
 
-Panel 12 Parent comment input max 1 per dag Spara button 5-tab nav OR pedagog settings grouped KONTO NOTISER SUPPORT.
+P12 Parent comment max 1 per dag Spara 5-tab nav.
 
-No notification badges no unread counts no chat timeline no weekly statistics on overview.
+P13 Publish Step 3 of 3 summary Rast Lunch Grupparbete purple Publicera button REPLACES any feed or notification stats panel.
+
+P14 Settings KONTO NOTISER SUPPORT grouped.
+
+No chat feed no unread badges no weekly stats on overview no notification feed panel.
 ```
 
 ---
 
 ## Implementationschecklista (10/10)
 
-- [ ] Översikt = barnkö med handling, inte kollegor/statistik
-- [ ] Idag = stepper + sticky Publicera
-- [ ] Skolaktivitet = 1 skärm, chips, ingen återkommande
-- [ ] Samarbete = puls + 3 segment, inte feed
-- [ ] Förälder = 5 flikar alltid
-- [ ] Pedagog = 3 flikar + ⚙️, aldrig Hem/Mer
-- [ ] Frånvaro = banner top, lavendel
-- [ ] Kommentar = max 1/dag, Spara inte Skicka
+- [ ] Översikt = arbetskö med `[Fortsätt]` / `[Visa]` per kort
+- [ ] Idag = steg 2 arbetsflöde (✓ Barn · ● Dokumentation · ○ Publicera)
+- [ ] Panel 13 = Publicera steg 3 med sammanfattning — **ingen feed-panel**
+- [ ] Skolaktivitet = chips, stjärnor = belöning inte fokus-betyg
+- [ ] Samarbete = puls + segment, inte notis-statistik
+- [ ] Historik månad = datumlista only
+- [ ] Frånvaro = lavendel, lugn, top banner
+- [ ] Förälder = 5 flikar · Pedagog = 3 + ⚙️
