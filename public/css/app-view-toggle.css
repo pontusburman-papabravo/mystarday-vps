@@ -13,6 +13,12 @@
   backdrop-filter: blur(12px);
 }
 
+/* No flash for non-allowlisted families: an empty mount (toggle not rendered)
+   must not show the sticky bar before /api/auth/me resolves. */
+.app-view-toggle-wrap:empty {
+  display: none !important;
+}
+
 body.parent-magic-dashboard .app-view-toggle-wrap,
 body.parent-magic-view .app-view-toggle-wrap,
 body.child-magic-view .app-view-toggle-wrap {
