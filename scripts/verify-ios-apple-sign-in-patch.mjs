@@ -35,5 +35,16 @@ if (!content.includes('ASAuthorizationControllerPresentationContextProviding')) 
   console.error('❌ Apple Sign In iPad patch NOT applied. Run: npm run cap:sync:ios');
   process.exit(1);
 }
+if (!content.includes('presentationContextProvider = self')) {
+  console.error('❌ Apple Sign In patch present but presentationContextProvider is not assigned. Run: npm run cap:sync:ios');
+  process.exit(1);
+}
+// Guard against the regression that shipped in build 16: windowScene.keyWindow is
+// iOS 15+, but the pod deploys at iOS 14 → compile error → build silently fell back
+// to the unpatched plugin → Apple Sign In failed on iPad (App Review 2.1a).
+if (/windowScene\.keyWindow/.test(content)) {
+  console.error('❌ Apple Sign In patch uses windowScene.keyWindow (iOS 15+) on an iOS 14 target — this breaks the build. Remove it.');
+  process.exit(1);
+}
 
 console.log('✅ Apple Sign In iPad presentation patch present');

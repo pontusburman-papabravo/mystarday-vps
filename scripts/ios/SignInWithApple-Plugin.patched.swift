@@ -87,10 +87,21 @@ extension SignInWithApple: ASAuthorizationControllerDelegate {
 }
 
 extension SignInWithApple: ASAuthorizationControllerPresentationContextProviding {
+    // iPad (and macOS) REQUIRE a presentation anchor — without a real, on-screen
+    // window the request fails with ASAuthorizationError 1000 and Apple shows an
+    // error sheet (App Review 2.1a). iPhone tolerates a missing anchor, which is
+    // why this bug only reproduces on iPad. All APIs below are available on the
+    // iOS 14 deployment target.
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        // 1. Preferred: the window hosting Capacitor's WKWebView (the app's UI).
+        if let window = self.bridge?.webView?.window {
+            return window
+        }
+        // 2. The window of the Capacitor bridge view controller.
         if let window = self.bridge?.viewController?.view.window {
             return window
         }
+        // 3. First foreground window scene's key/visible window.
         for scene in UIApplication.shared.connectedScenes {
             guard let windowScene = scene as? UIWindowScene else { continue }
             if windowScene.activationState == .foregroundActive || windowScene.activationState == .foregroundInactive {
@@ -102,9 +113,17 @@ extension SignInWithApple: ASAuthorizationControllerPresentationContextProviding
                 }
             }
         }
+        // 4. Any key window across the app.
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             return window
         }
-        return UIApplication.shared.windows.first ?? ASPresentationAnchor()
+        // 5. Last resort: any existing window, else a real visible window. Never
+        //    return a detached/empty ASPresentationAnchor() — that re-triggers 1000.
+        if let window = UIApplication.shared.windows.first {
+            return window
+        }
+        let fallback = UIWindow(frame: UIScreen.main.bounds)
+        fallback.makeKeyAndVisible()
+        return fallback
     }
 }
