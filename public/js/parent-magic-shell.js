@@ -94,6 +94,9 @@
 
   function init(page) {
     _page = page || 'dashboard';
+    if (window.ParentMagicAuto) {
+      ParentMagicAuto.prepareDom();
+    }
     if (!window.AppViewMode) {
       refresh();
       return Promise.resolve(false);

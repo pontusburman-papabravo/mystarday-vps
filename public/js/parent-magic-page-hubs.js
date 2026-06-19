@@ -10,6 +10,16 @@
     { id: 'app', icon: '📱', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
   ];
 
+  var PAGE_HEROES = {
+    calendar: { icon: '📆', title: 'Kalender', sub: 'Månadsvy över alla barn' },
+    activities: { icon: '📋', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },
+    'assign-schedule': { icon: '📅', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
+    'daily-log': { icon: '📝', title: 'Daglig logg', sub: 'Följ barnens dag' },
+    skattkammaren: { icon: '🏆', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
+    'child-settings': { icon: '⭐', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
+    notifications: { icon: '🔔', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
+  };
+
   var _activeSettingsGroup = null;
 
   function escHtml(str) {
@@ -22,6 +32,14 @@
 
   function mount() {
     return document.getElementById('parentMagicPageMount');
+  }
+
+  function renderGenericHero(cfg) {
+    return '<div class="magic-page-shell magic-3d-scene">' +
+      '<div class="magic-page-hero">' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + cfg.icon + '</div>' +
+      '<div><h1>' + escHtml(cfg.title) + '</h1><p>' + escHtml(cfg.sub) + '</p></div>' +
+      '</div></div>';
   }
 
   function renderScheduleHero() {
@@ -184,6 +202,8 @@
         var backBar = document.getElementById('magicSettingsBackBar');
         if (backBar) backBar.innerHTML = '';
       }
+    } else if (PAGE_HEROES[page]) {
+      el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');

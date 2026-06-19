@@ -348,7 +348,7 @@ const FEATURES = [
     slug: 'klinisk_rapportering',
     name: 'Klinisk rapportering',
     description: 'PDF-rapporter för BUP/psykolog med avancerad data',
-    status: 'live',
+    status: 'dev',
     tags: ['rapporter'],
     priority: 'high',
     complexity: 8,

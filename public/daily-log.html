@@ -298,11 +298,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="dashboard">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="daily-log">
   <div class="min-h-screen flex flex-col md:flex-row">
 
     <!-- ── Sidebar ─────────────────────────────────────────── -->
-    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
         <span class="text-2xl">⭐</span>
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
@@ -327,6 +327,7 @@
     <!-- ── Main ───────────────────────────────────────────── -->
     <main class="flex-1 flex flex-col min-w-0">
       <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
 
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center parent-magic-legacy-hide">
@@ -423,8 +424,10 @@
 <script src="/js/feature-check.js?v=2.13.0"></script>
 <script src="/js/mobile-nav.js?v=2.13.0"></script>
 <script src="/js/app-view-mode.js?v=3"></script>
-<script src="/js/parent-magic-shell.js?v=1"></script>
-<script src="/js/parent-magic-bootstrap.js?v=1"></script>
+<script src="/js/parent-magic-page-hubs.js?v=1"></script>
+<script src="/js/parent-magic-shell.js?v=2"></script>
+<script src="/js/parent-magic-auto.js?v=1"></script>
+<script src="/js/parent-magic-bootstrap.js?v=2"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.0"></script>
 </body>

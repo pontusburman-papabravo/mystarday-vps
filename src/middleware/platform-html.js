@@ -7,8 +7,72 @@ const path = require('path');
 
 const RELEASE_TAG = '2026-06-14-prevent-zoom';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
+const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
+const MAGIC_VERSION = '1';
 
-function injectPlatformHtml(body) {
+const PARENT_MAGIC_PATHS = new Set([
+  '/dashboard',
+  '/daily-log',
+  '/schedule',
+  '/calendar',
+  '/activities',
+  '/assign-schedule',
+  '/for-dig',
+  '/family',
+  '/settings',
+  '/library',
+  '/skattkammaren',
+  '/child-settings',
+  '/notifications',
+  '/family-week',
+]);
+
+function normalizeHtmlPath(path) {
+  if (!path) return '';
+  let p = path.replace(/\/$/, '') || '/';
+  if (p.endsWith('.html')) p = p.slice(0, -5);
+  return p;
+}
+
+function injectParentMagicHtml(body, reqPath) {
+  if (typeof body !== 'string' || !body.includes('<html')) return body;
+  if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
+
+  const path = normalizeHtmlPath(reqPath);
+  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+
+  const cssBlock = [
+    MAGIC_INJECT_MARKER,
+    '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">',
+    '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">',
+    '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">',
+    '<link rel="stylesheet" href="/css/app-view-toggle.css?v=' + MAGIC_VERSION + '">',
+  ].join('\n');
+
+  const scriptBlock = [
+    '<script src="/js/app-view-mode.js?v=3"><\/script>',
+    '<script src="/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/parent-magic-shell.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>',
+  ].join('\n');
+
+  const headMarker = '<head>';
+  const headIdx = body.indexOf(headMarker);
+  if (headIdx !== -1) {
+    body = body.slice(0, headIdx + headMarker.length) + '\n' + cssBlock + '\n' + body.slice(headIdx + headMarker.length);
+  }
+
+  const tailMarker = '</body>';
+  const tailIdx = body.lastIndexOf(tailMarker);
+  if (tailIdx !== -1) {
+    body = body.slice(0, tailIdx) + scriptBlock + '\n' + body.slice(tailIdx);
+  }
+
+  return body;
+}
+
+function injectPlatformHtml(body, reqPath) {
   if (typeof body !== 'string') return body;
   if (body.includes(INJECT_MARKER)) return body;
 
@@ -46,7 +110,7 @@ function injectPlatformHtml(body) {
     body = body.slice(0, tailIdx) + bodyInject + body.slice(tailIdx);
   }
 
-  return body;
+  return injectParentMagicHtml(body, reqPath);
 }
 
 function platformHtmlInject(req, res, next) {
@@ -54,7 +118,7 @@ function platformHtmlInject(req, res, next) {
   res.send = function (body) {
     const ct = res.get('Content-Type') || '';
     if ((ct.includes('text/html') || (typeof body === 'string' && body.trim().startsWith('<!'))) && typeof body === 'string') {
-      body = injectPlatformHtml(body);
+      body = injectPlatformHtml(body, req.path);
       if (!ct.includes('text/html')) {
         res.type('html');
       }
@@ -86,7 +150,7 @@ function platformHtmlInject(req, res, next) {
         return originalSendFile.call(self, filePath, opts, cb);
       }
       self.type('html');
-      self.send(injectPlatformHtml(html));
+      self.send(injectPlatformHtml(html, req.path));
       if (cb) cb(null);
     });
   };
@@ -96,3 +160,4 @@ function platformHtmlInject(req, res, next) {
 
 module.exports = platformHtmlInject;
 module.exports.injectPlatformHtml = injectPlatformHtml;
+module.exports.injectParentMagicHtml = injectParentMagicHtml;

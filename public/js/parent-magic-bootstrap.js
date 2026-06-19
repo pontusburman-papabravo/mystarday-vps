@@ -1,6 +1,5 @@
 /**
- * parent-magic-bootstrap.js — Auto-init magic view from data-magic-page on <body>.
- * Pages with manual ParentMagicShell.init() (dashboard, schedule, …) omit the attribute.
+ * parent-magic-bootstrap.js — Auto-init magic view from data-magic-page or URL path.
  */
 (function () {
   'use strict';
@@ -8,9 +7,18 @@
   var _started = false;
 
   function boot() {
-    if (_started) return;
+    if (_started || !window.ParentMagicShell) return;
+
     var page = document.body && document.body.getAttribute('data-magic-page');
-    if (!page || !window.ParentMagicShell) return;
+    if (!page && window.ParentMagicAuto) {
+      page = ParentMagicAuto.resolvePage();
+    }
+    if (!page) return;
+
+    if (window.ParentMagicAuto) {
+      ParentMagicAuto.prepareDom();
+    }
+
     _started = true;
     ParentMagicShell.init(page);
   }
