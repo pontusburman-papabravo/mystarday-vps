@@ -9,7 +9,8 @@
     { id: 'all', label: 'Alla' },
     { id: 'forskola', label: 'Förskola', test: /förskola/i },
     { id: 'skola', label: 'Skola', test: /skola/i, exclude: /förskola/i },
-    { id: 'helg', label: 'Helg', test: /helg|lördag|söndag|weekend/i },
+    { id: 'helg', label: 'Helg', test: /helg|lördag|söndag|weekend/i, exclude: /jullov|sommarlov/i },
+    { id: 'lov', label: 'Lov', test: /lov|sportlov|höstlov|påsklov/i, exclude: /förskola/i },
     { id: 'kvall', label: 'Kväll', test: /kväll|kvall|night/i },
   ];
 
