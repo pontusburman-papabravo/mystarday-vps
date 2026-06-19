@@ -80,6 +80,15 @@ async function runMidnightJob() {
       console.error('[MIDNIGHT-SCHEDULER] Notification prune failed:', err.message);
     }
 
+    // Lock published pedagog notes whose calendar day has passed (family TZ)
+    try {
+      const { lockPublishedNotesPastDate } = require('./pedagog-note-lock');
+      const locked = await lockPublishedNotesPastDate();
+      if (locked > 0) console.log(`[MIDNIGHT-SCHEDULER] Locked ${locked} pedagog notes`);
+    } catch (err) {
+      console.error('[MIDNIGHT-SCHEDULER] Pedagog note lock failed:', err.message);
+    }
+
     // Write analytics daily snapshot for yesterday
     try {
       const yesterday = new Date();

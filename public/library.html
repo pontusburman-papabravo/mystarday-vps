@@ -704,6 +704,16 @@
           </div>
         </div>
 
+        <!-- De sju frågorna (Extra stöd, E7) -->
+        <div id="libSevenQuestionsSection" class="hidden border-t border-lavender pt-4">
+          <button type="button" id="libSqToggle" onclick="document.getElementById('libSevenQuestionsBody').classList.toggle('hidden'); this.querySelector('span').textContent = document.getElementById('libSevenQuestionsBody').classList.contains('hidden') ? '▼' : '▲';"
+            class="flex items-center gap-2 text-sm font-semibold text-navy w-full text-left mb-2">
+            🧩 Extra stöd — De sju frågorna <span class="text-text-soft">▼</span>
+          </button>
+          <p class="text-xs text-text-soft mb-3">Visuellt stöd som visas i barnets NU-kort (kräver paketet Extra stöd).</p>
+          <div id="libSevenQuestionsBody" class="space-y-3"></div>
+        </div>
+
         <div id="activityError" class="text-red-500 text-sm hidden"></div>
 
         <div id="libActSubstepEditModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
@@ -854,7 +864,10 @@
 <script src="/js/library-standard.js?v=2.12.0"></script>
 <script src="/js/library-substeps.js?v=2.12.0"></script>
 <script src="/js/library-treasury.js?v=2.12.0"></script>
-<script src="/js/library.js?v=2.16.0"></script>
+<script src="/js/preview-shell.js?v=1.0.0"></script>
+<script src="/js/package-interest-triggers.js?v=1.0.0"></script>
+<script src="/js/library-seven-questions.js?v=1.0.0"></script>
+<script src="/js/library.js?v=2.17.0"></script>
 <script src="/js/parent-magic-shell.js?v=1"></script>
 <script src="/js/library-magic-schedules.js?v=1"></script>
 <script src="/js/library-magic-mine.js?v=1"></script>

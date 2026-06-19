@@ -797,12 +797,18 @@ async function openActivityModal(act) {
   const substepInput = document.getElementById('libActSubstepInput');
   if (substepInput) substepInput.value = '';
 
+  if (window.LibrarySevenQuestions) {
+    if (act) await LibrarySevenQuestions.initForActivity(act);
+    else LibrarySevenQuestions.reset();
+  }
+
   document.getElementById('activityModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('activityName').focus(), 100);
 }
 
 function closeActivityModal() {
   document.getElementById('activityModal').classList.add('hidden');
+  if (window.LibrarySevenQuestions) LibrarySevenQuestions.reset();
 }
 
 async function submitActivity(e) {
@@ -814,6 +820,7 @@ async function submitActivity(e) {
   const star_value = parseInt(document.getElementById('activityStarValue').value, 10);
   const is_favorite = document.getElementById('activityFavorite').value === 'true';
   const feedback_for = document.getElementById('activityFeedbackFor').value || 'both';
+  const seven_questions = window.LibrarySevenQuestions ? LibrarySevenQuestions.getPayload() : undefined;
 
   const btn = document.getElementById('activitySubmitBtn');
   const errEl = document.getElementById('activityError');
@@ -821,7 +828,9 @@ async function submitActivity(e) {
   btn.disabled = true; btn.textContent = 'Sparar…';
   const url = id ? `/api/activities/${id}` : '/api/activities';
   const method = id ? 'PUT' : 'POST';
-  const res = await window.apiFetch(url, { method, body: JSON.stringify({ name, icon, category_id, star_value, is_favorite, feedback_for }) });
+  const body = { name, icon, category_id, star_value, is_favorite, feedback_for };
+  if (seven_questions !== undefined) body.seven_questions = seven_questions;
+  const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
     const activityId = id || data.id;

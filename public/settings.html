@@ -1405,6 +1405,10 @@
         const form = document.getElementById('pedagogInviteForm');
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
+          if (window.PackageInterestTriggers) {
+            const ok = await PackageInterestTriggers.guardAction('pedagog', 'contextual_trigger');
+            if (!ok) return;
+          }
           const email = document.getElementById('pedagogEmail').value.trim();
           const name = document.getElementById('pedagogName').value.trim();
           const checked = Array.from(
@@ -1464,6 +1468,8 @@
       if (typeof Theme !== 'undefined') { Theme.toggleDark(); }
     }
   </script>
+  <script src="/js/preview-shell.js?v=1.0.0"></script>
+  <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
   <script src="/js/app-view-mode.js?v=1"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>

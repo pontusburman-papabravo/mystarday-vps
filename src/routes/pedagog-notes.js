@@ -100,9 +100,15 @@ router.get('/', async (req, res) => {
       const note = await getNote(childId, req.user.id, date);
       res.json({ note: note || null });
     } else if (from && to) {
-      // Period fetch for reports
-      const notes = await getNotesForPeriod(childId, from, to);
-      res.json({ notes });
+      // Period fetch for pedagog historik — own notes incl. drafts
+      const { rows } = await db.query(
+        `SELECT id, date, notes, mood, is_draft, note_status, published_at, created_at, updated_at
+         FROM pedagog_notes
+         WHERE child_id = $1 AND pedagog_id = $2 AND date BETWEEN $3::date AND $4::date
+         ORDER BY date DESC`,
+        [childId, req.user.id, from, to]
+      );
+      res.json({ notes: rows });
     } else {
       return res.status(400).json({ error: 'Ange date (YYYY-MM-DD) eller from+to' });
     }

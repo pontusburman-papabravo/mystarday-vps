@@ -53,6 +53,37 @@ test('pedagog-notes publish uses correct db path', () => {
   assert.doesNotMatch(src, /\.\.\/\.\.\/src\/lib\/db/);
 });
 
+test('E12 pedagog routes exist', () => {
+  const school = fs.readFileSync(path.join(ROOT, 'src/routes/pedagog-school-activities.js'), 'utf8');
+  const absence = fs.readFileSync(path.join(ROOT, 'src/routes/pedagog-absence.js'), 'utf8');
+  const lock = fs.readFileSync(path.join(ROOT, 'src/lib/pedagog-note-lock.js'), 'utf8');
+  const index = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+  assert.match(school, /pedagog_school_activity/);
+  assert.match(absence, /pedagog_day_absence/);
+  assert.match(lock, /note_status = 'locked'/);
+  assert.match(index, /pedagog-school-activities/);
+});
+
+test('E7 library seven questions editor exists', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'public/js/library-seven-questions.js'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, 'public/library.html'), 'utf8');
+  assert.match(js, /LibrarySevenQuestions/);
+  assert.match(html, /libSevenQuestionsSection/);
+});
+
+test('E10 contextual interest triggers exist', () => {
+  const triggers = fs.readFileSync(path.join(ROOT, 'public/js/package-interest-triggers.js'), 'utf8');
+  const dash = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-package-triggers.js'), 'utf8');
+  assert.match(triggers, /guardAction/);
+  assert.match(dash, /reporting_14d/);
+});
+
+test('family export includes pedagog audit tables', () => {
+  const exp = fs.readFileSync(path.join(ROOT, 'src/lib/family-export.js'), 'utf8');
+  assert.match(exp, /pedagog_audit_log/);
+  assert.match(exp, /pedagog_school_activity/);
+});
+
 test('family-components rejects basic_app mutations', () => {
   const api = fs.readFileSync(path.join(ROOT, 'src/routes/admin/family-components.js'), 'utf8');
   assert.match(api, /basic_app kan inte ändras via admin/);
