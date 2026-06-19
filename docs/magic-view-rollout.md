@@ -33,7 +33,8 @@ Magic preview styrs separat via `MAGIC_VIEW_ALLOWLIST` (e-post), inte feature-ta
 | Skattkammaren | `/skattkammaren` | bootstrap + hero |
 | Barninställningar | `/child-settings` | platform-inject + auto |
 | Notiser | `/notifications` | platform-inject + auto |
-| Familjevecka | `/family-week` | platform-inject (family-hub) |
+
+`/family-week` redirectar 301 → `/schedule?view=family` (magic via schema-sidan).
 
 Ny kod: `platform-html.js` injicerar magic-CSS/JS automatiskt på parent-shell-sidor som saknar det. `parent-magic-auto.js` skapar toggle-mount, hero-mount och döljer legacy-sidebar.
 

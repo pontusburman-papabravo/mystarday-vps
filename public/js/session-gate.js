@@ -20,7 +20,6 @@
     '/for-dig',
     '/child-settings',
     '/notifications',
-    '/family-week',
     '/pedagog-note',
     '/onboarding',
     '/admin',

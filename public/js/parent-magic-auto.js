@@ -18,7 +18,6 @@
     '/skattkammaren': 'skattkammaren',
     '/child-settings': 'child-settings',
     '/notifications': 'notifications',
-    '/family-week': 'family',
   };
 
   function normalizePath(path) {

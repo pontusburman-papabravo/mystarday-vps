@@ -24,7 +24,6 @@ const PARENT_MAGIC_PATHS = new Set([
   '/skattkammaren',
   '/child-settings',
   '/notifications',
-  '/family-week',
 ]);
 
 function normalizeHtmlPath(path) {
