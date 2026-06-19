@@ -3526,7 +3526,7 @@ Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → r
 | Barn | Mörk `#0F1629`, gold NU, stjärnhimmel | `docs/mockups/barnvy.html` |
 | Extra stöd | Pictogram större än text, grön Klar, ingen nav under aktivitet | `docs/mockups/paket-v1.2-nav.png` |
 | Preview | Fade + vattenstämpel + CTA enligt `rollout_mode` | §9.3, panel 4 i mockup |
-| Pedagogläge | 12-panel kontaktkarta, Samarbete förälder utan chat | `docs/mockups/pedagog-lage-v12-reference-PROMPT.md` §9.10.9 |
+| Pedagogläge | 12-panel UX 10/10: kö, stepper, puls | `pedagog-lage-v12-ux-v3-PROMPT.md` §13.10 |
 
 **Typsnitt:** Outfit (rubriker) · Plus Jakarta Sans (brödtext).  
 **Vid konflikt:** HTML-mockups > design-affisch > improvisation.
