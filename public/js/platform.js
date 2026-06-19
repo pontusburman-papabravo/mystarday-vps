@@ -365,17 +365,21 @@ var Platform = (function () {
     return outputArray;
   }
 
-  var _appleClientId = null;
+  var _appleWebConfig = null;
 
-  function loadAppleClientId() {
-    if (_appleClientId) return Promise.resolve(_appleClientId);
+  function loadAppleWebConfig() {
+    if (_appleWebConfig) return Promise.resolve(_appleWebConfig);
     return fetch('/api/app-config', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
-        _appleClientId = (cfg && cfg.appleClientId) || '';
-        return _appleClientId;
+        var clientId = (cfg && cfg.appleClientId) || '';
+        var redirectUri = (cfg && cfg.appleWebRedirectUri) || window.location.origin;
+        _appleWebConfig = { clientId: clientId, redirectUri: redirectUri };
+        return _appleWebConfig;
       })
-      .catch(function () { return ''; });
+      .catch(function () {
+        return { clientId: '', redirectUri: window.location.origin };
+      });
   }
 
   // ── Apple Sign In ────────────────────────────────────────────────
@@ -439,12 +443,12 @@ var Platform = (function () {
       }
       // Web: use Sign in with Apple JS
       return loadAppleAuthJs()
-        .then(loadAppleClientId)
-        .then(function (clientId) {
-          if (!clientId) {
+        .then(loadAppleWebConfig)
+        .then(function (cfg) {
+          if (!cfg.clientId) {
             return Promise.reject(new Error('Apple Sign In är inte konfigurerat'));
           }
-          return attemptWebSignIn(clientId);
+          return attemptWebSignIn(cfg.clientId, cfg.redirectUri);
         });
     },
   };
@@ -492,7 +496,7 @@ var Platform = (function () {
     });
   }
 
-  function attemptWebSignIn(clientId) {
+  function attemptWebSignIn(clientId, redirectUri) {
     var apple = window.AppleID;
     if (!apple || !apple.auth) {
       return Promise.reject(new Error('Apple Sign In JS inte tillgänglig'));
@@ -502,8 +506,9 @@ var Platform = (function () {
       apple.auth.init({
         clientId: clientId,
         scope: 'name email',
-        redirectURI: window.location.origin,
+        redirectURI: redirectUri || window.location.origin,
         usePopup: true,
+        responseMode: 'web_message',
       });
     } catch (_) {}
 
