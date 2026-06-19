@@ -1,0 +1,13 @@
+/* Extra stöd NU overlay (E8) */
+.teacch-now-card { background: linear-gradient(180deg, #f0f9ff 0%, #fff 100%); }
+.teacch-questions { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.teacch-q-row { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.6rem 0.75rem; background: #fff; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+.teacch-q-emoji { font-size: 1.5rem; }
+.teacch-q-label { display: block; font-size: 0.65rem; text-transform: uppercase; color: #64748b; }
+.teacch-q-text { font-size: 1rem; font-weight: 600; color: #1e293b; }
+.teacch-now-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
+.teacch-read-btn, .teacch-exit-btn { padding: 0.5rem 0.85rem; border-radius: 999px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.teacch-read-btn { background: #e0f2fe; color: #0369a1; }
+.teacch-exit-btn { background: #f1f5f9; color: #475569; }
+.child-nav-hidden { transform: translateY(110%); opacity: 0; pointer-events: none; }
+.child-bottom-nav { transition: transform 0.25s ease, opacity 0.25s ease; }

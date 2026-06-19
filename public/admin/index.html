@@ -1334,6 +1334,72 @@
             <p class="text-xs text-text-soft">På = IAP aktivt i appen (familj {gräns+1}+ betalar). Av = ingen IAP-köpväg (under granskning).</p>
             <div id="paymentToggleMsg" class="text-sm mt-2"></div>
           </div>
+
+          <!-- v1.2 Paket rollout -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">🚀 Rollout &amp; lansering (v1.2)</h4>
+            <p class="text-xs text-text-soft mb-4">Styr om familjer ser mock-preview och intresse-CTA. Default = Av (ingen förändring).</p>
+            <div class="flex flex-wrap gap-2 mb-4" id="rolloutModeButtons">
+              <button type="button" data-rollout="off" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender">Av</button>
+              <button type="button" data-rollout="interest" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender">Intressefas</button>
+              <button type="button" data-rollout="purchase" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender opacity-50" disabled title="Köp-live byggs i E11">Köp live (ej än)</button>
+            </div>
+            <div id="rolloutDerived" class="text-xs text-text-soft grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3"></div>
+            <div id="rolloutMsg" class="text-sm min-h-[1.4em]"></div>
+          </div>
+
+          <!-- v1.2 KPI -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
+            <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+              <h4 class="text-lg font-heading font-bold text-navy">📊 Paketstatistik</h4>
+              <select id="packageStatsPeriod" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+                <option value="7d">7 dagar</option>
+                <option value="30d" selected>30 dagar</option>
+                <option value="90d">90 dagar</option>
+              </select>
+            </div>
+            <div id="packageStatsSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm"></div>
+            <div id="packageStatsBars" class="space-y-3"></div>
+          </div>
+
+          <!-- v1.2 Paketintresse -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
+            <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+              <h4 class="text-lg font-heading font-bold text-navy">💌 Paketintresse</h4>
+              <a id="exportPackageInterestBtn" href="/api/admin/package-interest/export.csv" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-bold">Exportera CSV</a>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <select id="interestFilterComponent" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+                <option value="">Alla paket</option>
+                <option value="reporting">Rapportering</option>
+                <option value="pedagog">Pedagog</option>
+                <option value="teacch">Extra stöd</option>
+              </select>
+              <select id="interestFilterSource" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+                <option value="">Alla källor</option>
+                <option value="bottom_nav_preview">Bottom nav</option>
+                <option value="upgrade_page">Uppgradering</option>
+                <option value="contextual_trigger">Kontextuell</option>
+              </select>
+              <button type="button" id="reloadPackageInterestBtn" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-bold">Uppdatera</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-text-soft border-b border-lavender">
+                    <th class="py-2 pr-3">Datum</th>
+                    <th class="py-2 pr-3">Familj</th>
+                    <th class="py-2 pr-3">Paket</th>
+                    <th class="py-2 pr-3">Källa</th>
+                  </tr>
+                </thead>
+                <tbody id="packageInterestTableBody">
+                  <tr><td colspan="4" class="py-6 text-center text-text-soft">Laddar...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p id="packageInterestCount" class="text-xs text-text-soft mt-3"></p>
+          </div>
         </div>
 
         <div id="passwordSection" class="mb-8 hidden">
@@ -1832,7 +1898,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-core.js?v=2.1.2"></script>
   <script src="/admin/admin-database-export.js"></script>
-  <script src="/admin/admin-families.js?v=2.1.0"></script>
+  <script src="/admin/admin-families.js?v=2.2.0"></script>
   <script src="/admin/admin-subscription-settings.js"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 

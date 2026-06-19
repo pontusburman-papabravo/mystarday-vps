@@ -61,6 +61,15 @@ const FAMILY_EXPORT_TABLES = [
   { file: 'streak.json', sql: `SELECT * FROM streak WHERE child_id IN ${CHILD_IDS}` },
   { file: 'parent_note.json', sql: `SELECT * FROM parent_note WHERE child_id IN ${CHILD_IDS}`, optional: true },
   { file: 'pedagog_notes.json', sql: `SELECT * FROM pedagog_notes WHERE child_id IN ${CHILD_IDS}`, optional: true },
+  { file: 'pedagog_audit_log.json', sql: `SELECT * FROM pedagog_audit_log WHERE family_id = $1`, optional: true },
+  { file: 'pedagog_day_comment.json', sql: `
+    SELECT pdc.* FROM pedagog_day_comment pdc
+    JOIN child c ON c.id = pdc.child_id WHERE c.family_id = $1`, optional: true },
+  { file: 'pedagog_day_absence.json', sql: `
+    SELECT pda.* FROM pedagog_day_absence pda
+    JOIN child c ON c.id = pda.child_id WHERE c.family_id = $1`, optional: true },
+  { file: 'pedagog_school_activity.json', sql: `
+    SELECT * FROM pedagog_school_activity WHERE family_id = $1`, optional: true },
   { file: 'child_observation.json', sql: `
     SELECT * FROM child_observation WHERE child_id IN ${CHILD_IDS}`, optional: true },
   { file: 'general_observations.json', sql: `

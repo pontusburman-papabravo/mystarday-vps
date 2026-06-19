@@ -6,6 +6,8 @@
 
 const db = require('../src/lib/db');
 const { normalizeFeatureRow } = require('../src/lib/feature-normalize');
+const { getComponentForFeature } = require('../config/component-feature-map');
+const familySubscriptions = require('./family-subscriptions');
 
 // CORE_FEATURES: these 12 slugs can never be turned off — always return true from hasAccess()
 const CORE_FEATURES = [
@@ -267,15 +269,9 @@ async function searchFamilies(query, featureSlug, limit = 20) {
 // ─── Public: Feature Access Check ────────────────────
 
 /**
- * Check if a family has access to a feature.
- * Returns true if:
- *   - status = 'live' (global), OR
- *   - status = 'dev' AND family is in family_features table
+ * Feature flag only — no component gate (internal).
  */
-async function hasAccess(familyId, featureSlug) {
-  // CORE_FEATURES: always allowed — cannot be disabled
-  if (CORE_FEATURES.includes(featureSlug)) return true;
-
+async function hasFeatureFlag(familyId, featureSlug) {
   const feature = await getFeature(featureSlug);
   if (!feature) return false;
 
@@ -288,6 +284,25 @@ async function hasAccess(familyId, featureSlug) {
     return result.rows.length > 0;
   }
   return false;
+}
+
+/**
+ * Check if a family has access to a feature.
+ * Returns true if:
+ *   - CORE_FEATURES slug (always on), OR
+ *   - feature flag allows AND required component is active (§8.2, §16.3)
+ */
+async function hasAccess(familyId, featureSlug) {
+  // CORE_FEATURES: always allowed — cannot be disabled
+  if (CORE_FEATURES.includes(featureSlug)) return true;
+
+  const componentSlug = getComponentForFeature(featureSlug);
+  if (componentSlug && componentSlug !== 'basic_app') {
+    const hasComponentActive = await familySubscriptions.hasActiveComponent(familyId, componentSlug);
+    if (!hasComponentActive) return false;
+  }
+
+  return hasFeatureFlag(familyId, featureSlug);
 }
 
 /**
@@ -337,6 +352,7 @@ module.exports = {
   listFeatureFamilies,
   searchFamilies,
   hasAccess,
+  hasFeatureFlag,
   getAccessibleFeatures,
   listActiveFeatures,
 };

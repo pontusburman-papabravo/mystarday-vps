@@ -194,6 +194,16 @@
                 <div id="msgHistory-${family.id}" class="mt-3 space-y-1.5"></div>
               </div>
             </div>
+            <!-- Package components (§9.10.6) -->
+            <div class="px-4 md:px-6 py-3 border-t border-lavender" style="background:rgba(245,166,35,0.06);">
+              <button type="button" onclick="toggleFamilyComponents('${family.id}')" class="flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-gold transition-colors">
+                📦 Paket-komponenter <span id="pkgChevron-${family.id}" style="display:inline-block;">▼</span>
+              </button>
+              <div id="familyComponents-${family.id}" style="display:none; margin-top:10px;" class="text-sm">
+                <p class="text-text-soft text-xs mb-2">Ge, arkivera eller återaktivera paket per familj.</p>
+                <div id="familyComponentsBody-${family.id}" class="text-text-soft text-xs">Öppna för att ladda…</div>
+              </div>
+            </div>
             <div class="px-4 md:px-6 py-3 border-t border-lavender flex flex-wrap gap-2 items-center justify-between bg-sky/30">
               <button onclick="openImpersonation('${family.id}', '${esc(familyLabel)}')" class="px-3 py-1.5 bg-sky hover:bg-lavender text-navy text-xs rounded-lg font-semibold transition-colors border border-lavender">👁️ Visa Dashboard</button>
               <div class="flex flex-wrap gap-2">
@@ -786,6 +796,8 @@
             admin_change_email: 'Ändrade e-post',
             admin_unlink_apple: 'Kopplade bort Apple',
             impersonate_start: 'Startade support-läge',
+            component_granted: 'Gav paketkomponent',
+            component_archived: 'Arkiverade paketkomponent',
           };
           const date = new Date(log.created_at).toLocaleString('sv-SE', {
             year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -811,5 +823,85 @@
     function closeAuditLog() {
       document.getElementById('auditLogPanel').classList.add('hidden');
       _auditVisibleFamilyId = null;
+    }
+
+    // ─── Family package components (§9.10.6) ─────────────────
+
+    const COMPONENT_LABELS = {
+      basic_app: 'Basic',
+      reporting: 'Rapportering',
+      pedagog: 'Pedagog',
+      teacch: 'Extra stöd',
+    };
+
+    const _familyComponentsLoaded = new Set();
+
+    function toggleFamilyComponents(familyId) {
+      const panel = document.getElementById('familyComponents-' + familyId);
+      const chevron = document.getElementById('pkgChevron-' + familyId);
+      if (!panel) return;
+      const isHidden = panel.style.display === 'none';
+      panel.style.display = isHidden ? '' : 'none';
+      if (chevron) chevron.textContent = isHidden ? '▲' : '▼';
+      if (isHidden && !_familyComponentsLoaded.has(familyId)) {
+        loadFamilyComponents(familyId);
+      }
+    }
+
+    async function loadFamilyComponents(familyId) {
+      const body = document.getElementById('familyComponentsBody-' + familyId);
+      if (!body) return;
+      body.innerHTML = '<span class="text-text-soft">Laddar…</span>';
+      try {
+        const data = await Auth.api(`/api/admin/families/${familyId}/subscription`);
+        _familyComponentsLoaded.add(familyId);
+        const tier = data.tier || 'lifetime_free';
+        const rows = Object.entries(data.components || {}).map(([slug, comp]) => {
+          const label = COMPONENT_LABELS[slug] || slug;
+          const state = comp.state || 'disabled';
+          const stateBadge = state === 'active'
+            ? '<span class="text-green-700 bg-green-100 px-1.5 py-0.5 rounded text-xs">Aktiv</span>'
+            : state === 'archived'
+              ? '<span class="text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded text-xs">Arkiverad</span>'
+              : '<span class="text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded text-xs">Saknas</span>';
+          let actions = '';
+          if (slug === 'basic_app') {
+            actions = '<span class="text-text-soft text-xs">Ingår alltid</span>';
+          } else if (state === 'active') {
+            actions = `<button type="button" onclick="setFamilyComponent('${familyId}','${slug}','archive')" class="px-2 py-1 bg-orange-100 hover:bg-orange-200 text-orange-800 text-xs rounded-lg font-semibold">Arkivera</button>`;
+          } else if (state === 'archived') {
+            actions = `<button type="button" onclick="setFamilyComponent('${familyId}','${slug}','reactivate')" class="px-2 py-1 bg-mint hover:bg-green-200 text-green-800 text-xs rounded-lg font-semibold">Återaktivera</button>`;
+          } else {
+            actions = `<button type="button" onclick="setFamilyComponent('${familyId}','${slug}','grant')" class="px-2 py-1 bg-gold hover:bg-yellow-500 text-navy text-xs rounded-lg font-semibold">Ge åtkomst</button>`;
+          }
+          const source = comp.source ? ` <span class="text-text-soft">(${esc(comp.source)})</span>` : '';
+          return `<div class="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-lavender/40">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-navy">${esc(label)}</span>
+              ${stateBadge}${source}
+            </div>
+            <div>${actions}</div>
+          </div>`;
+        }).join('');
+        body.innerHTML = `<p class="text-xs text-text-soft mb-2">Nivå: <strong>${esc(tier)}</strong></p>${rows}`;
+      } catch (err) {
+        body.innerHTML = `<span class="text-red-600">Kunde inte ladda: ${esc(err.message || '')}</span>`;
+      }
+    }
+
+    async function setFamilyComponent(familyId, slug, action) {
+      const label = COMPONENT_LABELS[slug] || slug;
+      const verb = action === 'archive' ? 'arkivera' : action === 'reactivate' ? 'återaktivera' : 'ge åtkomst till';
+      if (!confirm(`${verb.charAt(0).toUpperCase() + verb.slice(1)} ${label}?`)) return;
+      try {
+        await Auth.api(`/api/admin/families/${familyId}/components/${slug}`, {
+          method: 'PUT',
+          body: JSON.stringify({ action }),
+        });
+        _familyComponentsLoaded.delete(familyId);
+        await loadFamilyComponents(familyId);
+      } catch (err) {
+        alert(err.message || 'Kunde inte uppdatera komponent');
+      }
     }
 

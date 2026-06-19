@@ -61,6 +61,22 @@ async function hasComponent(familyId, componentName) {
 }
 
 /**
+ * True only when component exists with state=active (write access).
+ * @param {number} familyId
+ * @param {string} componentName
+ */
+async function hasActiveComponent(familyId, componentName) {
+  const sub = await getByFamilyId(familyId);
+  if (!sub) return componentName === 'basic_app';
+
+  const entry = (sub.components || []).find((c) => c.component === componentName);
+  if (!entry) return false;
+  if ((entry.state || 'active') !== 'active') return false;
+  if (entry.expires_at && new Date(entry.expires_at) <= new Date()) return false;
+  return true;
+}
+
+/**
  * Get the full subscription record for a family.
  * Returns null if no subscription record exists.
  *
@@ -100,11 +116,14 @@ async function isTrialExpired(familyId) {
  * @param {string} componentName
  * @param {Date|null} expiresAt - null means lifetime
  */
-async function grantComponent(familyId, componentName, expiresAt = null) {
+async function grantComponent(familyId, componentName, expiresAt = null, options = {}) {
   const component = {
     component: componentName,
+    state: options.state || 'active',
+    source: options.source || 'admin',
     granted_at: new Date().toISOString(),
     expires_at: expiresAt ? expiresAt.toISOString() : null,
+    archived_at: options.archived_at ?? null,
   };
 
   // Upsert: add component if not present, update expires_at if it is present
@@ -138,6 +157,7 @@ module.exports = {
   createForNewFamily,
   grantLifetimeFree,
   hasComponent,
+  hasActiveComponent,
   getByFamilyId,
   isTrialExpired,
   grantComponent,

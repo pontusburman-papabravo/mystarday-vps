@@ -25,6 +25,16 @@ const STRIPE_COMPONENT_MAP = {
     name: 'Rapportering',
     price_monthly_sek: 19,
   },
+  pedagog: {
+    stripe_price_id: null,
+    name: 'Pedagog',
+    price_monthly_sek: 29,
+  },
+  teacch: {
+    stripe_price_id: null,
+    name: 'Extra stöd',
+    price_monthly_sek: 39,
+  },
 };
 
 /**

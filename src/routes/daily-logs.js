@@ -304,12 +304,17 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
     );
     const logDate = logDateResult.rows[0]?.date || new Date();
 
+    // Modell A (§4.4.11): only the first completion wins. Don't overwrite a
+    // school completion done by a pedagog; record 'parent' as the home source.
     const result = await db.query(
       `UPDATE daily_log_item
-       SET completed = true, completed_at = NOW(), completed_date = $2
+       SET completed = true, completed_at = NOW(), completed_date = $2,
+           completed_by = COALESCE(completed_by, 'parent'),
+           completed_by_parent_id = COALESCE(completed_by_parent_id, $3),
+           completion_source = COALESCE(completion_source, 'home')
        WHERE id = $1
        RETURNING id, completed, completed_at, completed_date`,
-      [req.params.itemId, logDate]
+      [req.params.itemId, logDate, req.user.id]
     );
     res.json(result.rows[0]);
     // Family layer: derived contribution event (fire-and-forget)
@@ -632,6 +637,23 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       item.sub_step_count = subStepCountMap[item.activity_template_id] || 0;
     }
 
+    // ── Enrich items with seven_questions from activity templates (teacch) ──
+    const sevenQuestionsMap = {};
+    if (templateIds.length > 0) {
+      const sqResult = await db.query(
+        `SELECT id, seven_questions FROM activity_template WHERE id = ANY($1::uuid[])`,
+        [templateIds]
+      );
+      for (const row of sqResult.rows) {
+        sevenQuestionsMap[row.id] = row.seven_questions || {};
+      }
+    }
+    for (const item of sortedItems) {
+      if (item.activity_template_id && sevenQuestionsMap[item.activity_template_id]) {
+        item.seven_questions = sevenQuestionsMap[item.activity_template_id];
+      }
+    }
+
     // ── Batch-fetch child ratings for all items in one query ───────────────
     // Replaces N sequential GET /api/me/daily-log-items/:id/rating calls.
     // Uses the `rating` table (daily_log_item_id + user_type='child').
@@ -750,9 +772,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     );
     const logDate2 = logDateResult2.rows[0]?.date || new Date();
 
+    // Modell A (§4.4.11): record 'child' as home source; don't overwrite a
+    // pedagog/school completion that already happened first.
     const result = await db.query(
       `UPDATE daily_log_item
-       SET completed = true, completed_at = NOW(), completed_date = $2
+       SET completed = true, completed_at = NOW(), completed_date = $2,
+           completed_by = COALESCE(completed_by, 'child'),
+           completion_source = COALESCE(completion_source, 'home')
        WHERE id = $1
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]

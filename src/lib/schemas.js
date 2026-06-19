@@ -154,6 +154,11 @@ const timeGroupEnum = z.enum(['morgon', 'formiddag', 'eftermiddag', 'kvall']);
 const feedbackForEnum = z.enum(['both', 'child', 'parent', 'none']);
 const schemaTypeEnum = z.enum(['forskola', 'skola']).optional().nullable();
 
+// De sju frågorna (teacch, §7.2). Loose object — sanitized server-side by
+// normalizeSevenQuestions(). Must be declared on the activity schemas, else
+// Zod strips it out before it reaches the route handler.
+const sevenQuestions = z.record(z.string(), z.any()).optional().nullable();
+
 const CreateActivitySchema = z.object({
   name: z.string().min(1, 'Aktivitetsnamn krävs').max(200),
   icon: emoji,
@@ -163,6 +168,7 @@ const CreateActivitySchema = z.object({
   feedback_for: feedbackForEnum.optional().default('both'),
   time_group: timeGroupEnum.optional().default('morgon'),
   schema_type: schemaTypeEnum,
+  seven_questions: sevenQuestions,
 });
 
 const UpdateActivitySchema = z.object({
@@ -174,6 +180,7 @@ const UpdateActivitySchema = z.object({
   feedback_for: feedbackForEnum.optional(),
   sort_order: z.coerce.number().int().optional(),
   time_group: timeGroupEnum.optional(),
+  seven_questions: sevenQuestions,
 }).partial();
 
 const ReorderSchema = z.object({

@@ -1,14 +1,136 @@
 // Admin: Subscription Settings section (Prenumeration)
-// Handles: basic pricing, trial days, add-ons, payment toggle.
+// Handles: basic pricing, trial days, add-ons, payment toggle, v1.2 rollout + intresse.
 
 let subscriptionData = null;
+let packageRolloutMode = 'off';
+
+const PACKAGE_LABELS = {
+  reporting: 'Rapportering',
+  pedagog: 'Pedagog',
+  teacch: 'Extra stöd',
+};
+
+const SOURCE_LABELS = {
+  bottom_nav_preview: 'Bottom nav',
+  upgrade_page: 'Uppgradering',
+  contextual_trigger: 'Kontextuell',
+};
 
 async function loadSubscriptionSettings() {
   try {
-    subscriptionData = await Auth.api('/api/admin/subscription-settings');
+    const [sub, rollout] = await Promise.all([
+      Auth.api('/api/admin/subscription-settings'),
+      Auth.api('/api/admin/package-rollout/rollout').catch(() => ({ rollout_mode: 'off' })),
+    ]);
+    subscriptionData = sub;
+    packageRolloutMode = rollout.rollout_mode || 'off';
     renderSubscriptionSettings();
+    renderRolloutUI(rollout);
+    await Promise.all([loadPackageStats(), loadPackageInterest()]);
   } catch (err) {
     console.error('[Admin:subscription] Load failed:', err);
+  }
+}
+
+function renderRolloutUI(rollout) {
+  const mode = rollout.rollout_mode || 'off';
+  document.querySelectorAll('.rollout-mode-btn').forEach((btn) => {
+    const active = btn.dataset.rollout === mode;
+    btn.classList.toggle('bg-gold', active);
+    btn.classList.toggle('border-gold', active);
+    btn.classList.toggle('text-navy', active);
+  });
+  const derived = document.getElementById('rolloutDerived');
+  if (derived) {
+    derived.innerHTML = `
+      <span>Preview: <strong>${mode !== 'off' ? 'PÅ' : 'AV'}</strong></span>
+      <span>Intresse-CTA: <strong>${mode === 'interest' ? 'PÅ' : 'AV'}</strong></span>
+      <span>IAP-köp: <strong>${mode === 'purchase' ? 'PÅ' : 'AV'}</strong></span>
+      <span>Priser i UI: <strong>${rollout.show_prices ? 'PÅ' : 'AV'}</strong></span>
+    `;
+  }
+}
+
+async function saveRolloutMode(mode) {
+  if (mode === 'purchase') {
+    alert('Köp-live (IAP) är inte aktiverat ännu. Använd Intressefas för att mäta efterfrågan.');
+    return;
+  }
+  if (mode !== 'off' && !confirm('Detta påverkar alla familjer utan köpt komponent. Fortsätta?')) return;
+  const msg = document.getElementById('rolloutMsg');
+  try {
+    const data = await Auth.api('/api/admin/package-rollout/rollout', {
+      method: 'PUT',
+      body: JSON.stringify({ mode }),
+    });
+    packageRolloutMode = data.rollout_mode;
+    renderRolloutUI(data);
+    msg.textContent = '✓ ' + (data.message || 'Sparat');
+    msg.className = 'text-sm text-green-600';
+  } catch (err) {
+    msg.textContent = 'Fel: ' + (err.message || err);
+    msg.className = 'text-sm text-red-500';
+  }
+}
+
+async function loadPackageStats() {
+  const period = document.getElementById('packageStatsPeriod')?.value || '30d';
+  const summaryEl = document.getElementById('packageStatsSummary');
+  const barsEl = document.getElementById('packageStatsBars');
+  if (!summaryEl || !barsEl) return;
+
+  try {
+    const stats = await Auth.api('/api/admin/subscription-stats?period=' + encodeURIComponent(period));
+    summaryEl.innerHTML = `
+      <div class="bg-lavender/20 rounded-xl p-3"><span class="block text-xs text-text-soft">Intresse totalt</span><strong class="text-lg">${stats.summary.interest_families_total}</strong></div>
+      <div class="bg-lavender/20 rounded-xl p-3"><span class="block text-xs text-text-soft">Aktiva paket</span><strong class="text-lg">${stats.summary.active_package_families}</strong></div>
+      <div class="bg-lavender/20 rounded-xl p-3"><span class="block text-xs text-text-soft">Arkiverade</span><strong class="text-lg">${stats.summary.archived_package_families}</strong></div>
+      <div class="bg-lavender/20 rounded-xl p-3"><span class="block text-xs text-text-soft">Lifetime free</span><strong class="text-lg">${stats.summary.lifetime_free_families}</strong></div>
+    `;
+
+    const maxInterest = Math.max(1, ...stats.by_component.map((c) => c.interest_families));
+    barsEl.innerHTML = stats.by_component.map((c) => {
+      const pct = Math.round((c.interest_families / maxInterest) * 100);
+      const conv = c.conversion_pct != null ? c.conversion_pct + '% preview→intresse' : '—';
+      return `<div>
+        <div class="flex justify-between text-xs mb-1"><span>${PACKAGE_LABELS[c.component] || c.component}</span><span>${c.interest_families} intresse · ${conv}</span></div>
+        <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    barsEl.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda statistik</p>';
+  }
+}
+
+async function loadPackageInterest() {
+  const tbody = document.getElementById('packageInterestTableBody');
+  const countEl = document.getElementById('packageInterestCount');
+  if (!tbody) return;
+
+  const component = document.getElementById('interestFilterComponent')?.value || '';
+  const source = document.getElementById('interestFilterSource')?.value || '';
+  const params = new URLSearchParams();
+  if (component) params.set('component', component);
+  if (source) params.set('source', source);
+
+  try {
+    const data = await Auth.api('/api/admin/package-interest?' + params.toString());
+    if (!data.rows.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-text-soft">Inga intresseanmälningar ännu</td></tr>';
+    } else {
+      tbody.innerHTML = data.rows.map((row) => {
+        const date = row.created_at ? new Date(row.created_at).toLocaleDateString('sv-SE') : '—';
+        return `<tr class="border-b border-lavender/40">
+          <td class="py-2 pr-3 whitespace-nowrap">${esc(date)}</td>
+          <td class="py-2 pr-3">${esc(row.family_name || '—')}</td>
+          <td class="py-2 pr-3">${esc(row.component_label || row.component)}</td>
+          <td class="py-2 pr-3">${esc(SOURCE_LABELS[row.source] || row.source)}</td>
+        </tr>`;
+      }).join('');
+    }
+    if (countEl) countEl.textContent = `Visar ${data.rows.length} av ${data.total}`;
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-red-500">Kunde inte ladda intresse</td></tr>';
   }
 }
 
@@ -220,6 +342,18 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('paymentToggleLabel').textContent = !enabled ? 'PÅ' : 'AV';
     }
   });
+
+  document.querySelectorAll('.rollout-mode-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      saveRolloutMode(btn.dataset.rollout);
+    });
+  });
+
+  document.getElementById('packageStatsPeriod')?.addEventListener('change', loadPackageStats);
+  document.getElementById('reloadPackageInterestBtn')?.addEventListener('click', loadPackageInterest);
+  document.getElementById('interestFilterComponent')?.addEventListener('change', loadPackageInterest);
+  document.getElementById('interestFilterSource')?.addEventListener('change', loadPackageInterest);
 
   // Initialize on section show (called from admin-core.js showSection)
   // We also need to ensure data is loaded on first navigation

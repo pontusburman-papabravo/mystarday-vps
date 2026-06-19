@@ -5,12 +5,110 @@
  */
 
 const express = require('express');
-const { requireParent } = require('../middleware/auth');
+const { z } = require('zod');
+const { requireAuth, requireParent } = require('../middleware/auth');
+const { validate } = require('../middleware/validate');
 const familySubscriptions = require('../../db/family-subscriptions');
+const packageInterest = require('../../db/package-interest');
 const appSettings = require('../../db/app-settings');
+const analytics = require('../../db/analytics');
+const { getFamilyAccess } = require('../lib/package-access');
+const { getAllPreviewPackages } = require('../../config/preview-data');
+const {
+  INTEREST_COMPONENTS,
+  INTEREST_SOURCES,
+  PACKAGE_LABELS,
+} = require('../lib/package-interest-constants');
 const { STRIPE_COMPONENT_MAP } = require('../../config/subscription-components');
 
 const router = express.Router();
+
+const InterestBodySchema = z.object({
+  component: z.enum(INTEREST_COMPONENTS),
+  source: z.enum(INTEREST_SOURCES),
+  comment: z.string().max(280).nullable().optional(),
+});
+
+/**
+ * GET /api/subscription/preview-data
+ * Central mock content for preview-shell (§9.6).
+ */
+router.get('/preview-data', requireAuth, (req, res) => {
+  res.json(getAllPreviewPackages());
+});
+
+/**
+ * GET /api/subscription/access
+ * Unified package access for client (§6.6, §16.3).
+ */
+router.get('/access', requireAuth, async (req, res) => {
+  try {
+    const familyId = req.user.familyId || req.user.family_id;
+    if (!familyId) {
+      return res.status(400).json({ error: 'Ingen familj kopplad till kontot' });
+    }
+
+    const session = {
+      preferredViewMode: req.query.view_mode || req.user.preferred_view_mode,
+      hasActiveTeacchActivity: req.query.teacch_active === '1',
+    };
+
+    const access = await getFamilyAccess(familyId, req.user, session);
+    res.json(access);
+  } catch (err) {
+    console.error('[SUBSCRIPTION] access error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta pakettillgång' });
+  }
+});
+
+/**
+ * POST /api/subscription/interest
+ * Register beta waitlist interest (§9.8). Interest phase only.
+ */
+router.post('/interest', requireParent, validate(InterestBodySchema), async (req, res) => {
+  try {
+    const familyId = req.user.familyId || req.user.family_id;
+    const parentId = req.user.id;
+    const { component, source, comment = null } = req.body;
+
+    const access = await getFamilyAccess(familyId, req.user);
+    if (access.rollout_mode !== 'interest') {
+      return res.status(400).json({
+        error: 'Intresseanmälan är inte aktiv just nu',
+        code: 'INTEREST_NOT_ENABLED',
+      });
+    }
+
+    if (access.components[component]?.has) {
+      return res.status(400).json({
+        error: 'Er familj har redan tillgång till detta paket',
+        code: 'COMPONENT_ALREADY_ACTIVE',
+      });
+    }
+
+    const { alreadyRegistered } = await packageInterest.registerInterest(
+      familyId,
+      parentId,
+      component,
+      source,
+      comment
+    );
+
+    await analytics.track(familyId, 'interest_registered', { component, source });
+
+    const label = PACKAGE_LABELS[component] || component;
+    res.json({
+      ok: true,
+      already_registered: alreadyRegistered,
+      message: alreadyRegistered
+        ? `Ni står redan på väntelistan för ${label}.`
+        : 'Tack! Vi har noterat ditt intresse.',
+    });
+  } catch (err) {
+    console.error('[SUBSCRIPTION] interest error:', err);
+    res.status(500).json({ error: 'Kunde inte registrera intresse' });
+  }
+});
 
 /**
  * GET /api/subscription/status
