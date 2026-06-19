@@ -365,12 +365,32 @@ var Platform = (function () {
     return outputArray;
   }
 
+  var _appleWebConfig = null;
+
+  function loadAppleWebConfig() {
+    if (_appleWebConfig) return Promise.resolve(_appleWebConfig);
+    return fetch('/api/app-config', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (cfg) {
+        var clientId = (cfg && cfg.appleClientId) || '';
+        var redirectUri = (cfg && cfg.appleWebRedirectUri) || window.location.origin;
+        _appleWebConfig = { clientId: clientId, redirectUri: redirectUri };
+        return _appleWebConfig;
+      })
+      .catch(function () {
+        return { clientId: '', redirectUri: window.location.origin };
+      });
+  }
+
   // ── Apple Sign In ────────────────────────────────────────────────
   // Native: uses Capacitor bridge (Capacitor.Plugins.SignInWithApple)
   //   from @capacitor-community/apple-sign-in — no ES import needed.
   //   On Capacitor 4+ the plugin registers directly on the bridge.
-  // Web: falls back to Sign in with Apple JS (https://appleid.apple.com/auth/js)
-  // which requires a valid Apple Developer configured domain.
+  // Web: falls back to Sign in with Apple JS (Apple CDN).
+  // Requires the site origin registered as Return URL in Apple Developer.
+  var APPLE_AUTH_JS_URL =
+    'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+
   var appleSignIn = {
     /** Returns true if the native Capacitor plugin is registered. */
     isAvailable() {
@@ -422,37 +442,83 @@ var Platform = (function () {
         }
       }
       // Web: use Sign in with Apple JS
-      return new Promise((resolve, reject) => {
-        if (!document.getElementById('apple-id-auth')) {
-          const script = document.createElement('script');
-          script.id = 'apple-id-auth';
-          script.src = 'https://appleid.apple.com/auth/js';
-          script.async = true;
-          script.onload = () => attemptWebSignIn(resolve, reject);
-          script.onerror = () => reject(new Error('Kunde inte ladda Apple Sign In'));
-          document.head.appendChild(script);
-        } else {
-          attemptWebSignIn(resolve, reject);
-        }
-      });
+      return loadAppleAuthJs()
+        .then(loadAppleWebConfig)
+        .then(function (cfg) {
+          if (!cfg.clientId) {
+            return Promise.reject(new Error('Apple Sign In är inte konfigurerat'));
+          }
+          return attemptWebSignIn(cfg.clientId, cfg.redirectUri);
+        });
     },
   };
 
-  function attemptWebSignIn(resolve, reject) {
-    const apple = window.AppleID;
-    if (!apple) {
-      reject(new Error('Apple Sign In JS inte tillgänglig'));
-      return;
+  function waitForAppleId(attempts) {
+    if (window.AppleID && window.AppleID.auth) return Promise.resolve();
+    if (attempts >= 40) {
+      return Promise.reject(new Error('Apple Sign In JS inte tillgänglig'));
     }
-    apple.auth.signIn({
-      clientId: 'se.mystarday.app',
-      scope: 'name email',
-      redirectURI: window.location.origin,
-    }).then(res => {
-      resolve({ idToken: res.authorization.id_token, name: null });
-    }).catch(err => {
-      if (err.error === 'user_cancelled') { resolve(null); return; }
-      reject(err);
+    return new Promise(function (resolve) {
+      setTimeout(resolve, 50);
+    }).then(function () {
+      return waitForAppleId(attempts + 1);
+    });
+  }
+
+  function loadAppleAuthJs() {
+    if (window.AppleID && window.AppleID.auth) return Promise.resolve();
+
+    var existing = document.getElementById('apple-id-auth');
+    if (existing) {
+      if (existing.dataset.loadState === 'error') {
+        existing.remove();
+      } else if (existing.dataset.loadState === 'ready') {
+        return waitForAppleId(0);
+      } else {
+        return waitForAppleId(0);
+      }
+    }
+
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.id = 'apple-id-auth';
+      script.src = APPLE_AUTH_JS_URL;
+      script.async = true;
+      script.onload = function () {
+        script.dataset.loadState = 'ready';
+        waitForAppleId(0).then(resolve).catch(reject);
+      };
+      script.onerror = function () {
+        script.dataset.loadState = 'error';
+        reject(new Error('Kunde inte ladda Apple Sign In'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  function attemptWebSignIn(clientId, redirectUri) {
+    var apple = window.AppleID;
+    if (!apple || !apple.auth) {
+      return Promise.reject(new Error('Apple Sign In JS inte tillgänglig'));
+    }
+
+    try {
+      apple.auth.init({
+        clientId: clientId,
+        scope: 'name email',
+        redirectURI: redirectUri || window.location.origin,
+        usePopup: true,
+        responseMode: 'web_message',
+      });
+    } catch (_) {}
+
+    return apple.auth.signIn().then(function (res) {
+      return { idToken: res.authorization.id_token, name: null };
+    }).catch(function (err) {
+      if (err && (err.error === 'user_cancelled' || err.error === 'popup_closed_by_user')) {
+        return null;
+      }
+      throw err;
     });
   }
 
