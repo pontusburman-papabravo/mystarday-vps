@@ -843,10 +843,48 @@
           <div id="forDigAdminGoalCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <p class="text-text-soft col-span-full">Laddar…</p>
           </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Väntar på outcome</h4>
+              <p class="text-xs text-text-soft mb-3">Intent finns men inget utfall efter ≥7 dagar — kandidater för manuellt mejl.</p>
+              <div id="forDigAdminPending" class="overflow-x-auto text-sm">Laddar…</div>
+            </div>
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <h4 class="text-base font-heading font-bold text-navy mb-3">Citatvägg</h4>
+              <p class="text-xs text-text-soft mb-3">Positiva utfall (😊/🙂) med fritext — för marknadsföring.</p>
+              <div id="forDigAdminQuotes" class="overflow-x-auto text-sm">Laddar…</div>
+            </div>
+          </div>
+
           <div class="bg-white rounded-2xl border-2 border-lavender p-4">
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
               <h4 class="text-base font-heading font-bold text-navy">Alla svar</h4>
-              <button type="button" onclick="filterForDigResponses(null)" class="text-xs text-gold underline">Visa alla</button>
+              <button type="button" onclick="resetForDigResponseFilters()" class="text-xs text-gold underline">Visa alla</button>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-3 text-sm">
+              <select id="forDigFilterPhase" class="border border-lavender rounded-lg px-2 py-1" onchange="applyForDigResponseFilters()">
+                <option value="">Alla faser</option>
+                <option value="intent">Intent</option>
+                <option value="outcome">Utfall</option>
+                <option value="suggestion">Förslag</option>
+              </select>
+              <select id="forDigFilterOutcome" class="border border-lavender rounded-lg px-2 py-1" onchange="applyForDigResponseFilters()">
+                <option value="">Alla utfall</option>
+                <option value="positive">Positiva (😊/🙂)</option>
+                <option value="neutral">Neutrala (😐)</option>
+                <option value="negative">Negativa (🙁)</option>
+              </select>
+              <select id="forDigFilterDays" class="border border-lavender rounded-lg px-2 py-1" onchange="applyForDigResponseFilters()">
+                <option value="">Alla datum</option>
+                <option value="7">Senaste 7 dagar</option>
+                <option value="30">Senaste 30 dagar</option>
+                <option value="90">Senaste 90 dagar</option>
+              </select>
+              <label class="inline-flex items-center gap-1 text-text-soft">
+                <input type="checkbox" id="forDigFilterFreeText" onchange="applyForDigResponseFilters()">
+                Endast fritext
+              </label>
             </div>
             <p id="forDigAdminFilterLabel" class="text-xs text-text-soft mb-2">Alla mål</p>
             <div id="forDigAdminResponses" class="overflow-x-auto">—</div>
@@ -1800,7 +1838,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-retention.js"></script>
   <script src="/admin/admin-activation-program.js"></script>
-  <script src="/admin/admin-for-dig.js?v=2.2.0"></script>
+  <script src="/admin/admin-for-dig.js?v=2.3.0"></script>
   <script src="/admin/admin-email-stats.js"></script>
   <script src="/admin/admin-dagensnyhet.js?v=2.0.0"></script>
   <script src="/admin/admin-landing-news.js"></script>
