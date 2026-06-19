@@ -1,6 +1,6 @@
 /**
  * app-view-mode.js — Växla mellan klassisk vy och mockup/redesign (magic).
- * Endast tillåten för e-postadresser i MAGIC_VIEW_ALLOWLIST (server-side via /api/auth/me).
+ * Tillgång styrs server-side via /api/auth/me → magic_view_enabled.
  */
 (function () {
   'use strict';

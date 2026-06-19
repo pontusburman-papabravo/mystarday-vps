@@ -3,31 +3,62 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const {
-  isEmailAllowlisted,
-  getAllowlist,
-} = require('../src/lib/magic-view-access');
+function loadModule(env = {}) {
+  const keys = [
+    'MAGIC_VIEW_ALLOWLIST',
+    'MAGIC_VIEW_PREVIEW_ONLY',
+    'MAGIC_VIEW_DISABLED',
+  ];
+  const prev = {};
+  for (const k of keys) {
+    prev[k] = process.env[k];
+    if (env[k] === undefined) delete process.env[k];
+    else process.env[k] = env[k];
+  }
+  delete require.cache[require.resolve('../src/lib/magic-view-access')];
+  const mod = require('../src/lib/magic-view-access');
+  return {
+    mod,
+    restore() {
+      for (const k of keys) {
+        if (prev[k] === undefined) delete process.env[k];
+        else process.env[k] = prev[k];
+      }
+      delete require.cache[require.resolve('../src/lib/magic-view-access')];
+    },
+  };
+}
 
-test('isEmailAllowlisted matches default preview allowlist', () => {
-  const list = getAllowlist();
-  assert.ok(list.includes('pontus@burman.cc'));
-  assert.equal(isEmailAllowlisted('pontus@burman.cc'), true);
-  assert.equal(isEmailAllowlisted('Pontus@Burman.CC'), true);
-  assert.equal(isEmailAllowlisted('other@example.com'), false);
+test('default mode enables magic for all emails', () => {
+  const { mod, restore } = loadModule();
+  try {
+    assert.equal(mod.isEmailAllowlisted('anyone@example.com'), true);
+    assert.equal(mod.isEmailAllowlisted('pontus@burman.cc'), true);
+  } finally {
+    restore();
+  }
 });
 
-test('MAGIC_VIEW_ALLOWLIST env overrides defaults', () => {
-  const prev = process.env.MAGIC_VIEW_ALLOWLIST;
-  process.env.MAGIC_VIEW_ALLOWLIST = 'alpha@test.se,beta@test.se';
+test('MAGIC_VIEW_DISABLED kills access', () => {
+  const { mod, restore } = loadModule({ MAGIC_VIEW_DISABLED: 'true' });
   try {
-    delete require.cache[require.resolve('../src/lib/magic-view-access')];
-    const mod = require('../src/lib/magic-view-access');
-    assert.deepEqual(mod.getAllowlist(), ['alpha@test.se', 'beta@test.se']);
-    assert.equal(mod.isEmailAllowlisted('alpha@test.se'), true);
     assert.equal(mod.isEmailAllowlisted('pontus@burman.cc'), false);
   } finally {
-    if (prev === undefined) delete process.env.MAGIC_VIEW_ALLOWLIST;
-    else process.env.MAGIC_VIEW_ALLOWLIST = prev;
-    delete require.cache[require.resolve('../src/lib/magic-view-access')];
+    restore();
+  }
+});
+
+test('preview mode restricts to allowlist', () => {
+  const { mod, restore } = loadModule({
+    MAGIC_VIEW_PREVIEW_ONLY: 'true',
+    MAGIC_VIEW_ALLOWLIST: 'alpha@test.se,beta@test.se',
+  });
+  try {
+    assert.deepEqual(mod.getAllowlist(), ['alpha@test.se', 'beta@test.se']);
+    assert.equal(mod.isEmailAllowlisted('alpha@test.se'), true);
+    assert.equal(mod.isEmailAllowlisted('Pontus@Burman.CC'), false);
+    assert.equal(mod.isEmailAllowlisted('other@example.com'), false);
+  } finally {
+    restore();
   }
 });

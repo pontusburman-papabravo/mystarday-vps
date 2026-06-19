@@ -1,7 +1,16 @@
 /**
- * magic-view-access.js — Who may use the classic/magic view toggle (internal preview).
- * Default allowlist: MAGIC_VIEW_ALLOWLIST env (comma-separated emails).
+ * magic-view-access.js — Classic/magic view toggle access.
+ * Default: all families. MAGIC_VIEW_PREVIEW_ONLY=true restricts to allowlist.
+ * MAGIC_VIEW_DISABLED=true emergency kill switch.
  */
+
+function isMagicViewDisabled() {
+  return process.env.MAGIC_VIEW_DISABLED === 'true';
+}
+
+function isPreviewOnlyMode() {
+  return process.env.MAGIC_VIEW_PREVIEW_ONLY === 'true';
+}
 
 function getAllowlist() {
   const raw = process.env.MAGIC_VIEW_ALLOWLIST || 'pontus@burman.cc';
@@ -12,13 +21,15 @@ function getAllowlist() {
 }
 
 function isEmailAllowlisted(email) {
-  if (!email || typeof email !== 'string') return false;
+  if (!email || typeof email !== 'string' || isMagicViewDisabled()) return false;
+  if (!isPreviewOnlyMode()) return true;
   const normalized = email.toLowerCase().trim();
   return getAllowlist().includes(normalized);
 }
 
 async function familyHasMagicViewAccess(familyId) {
-  if (!familyId) return false;
+  if (!familyId || isMagicViewDisabled()) return false;
+  if (!isPreviewOnlyMode()) return true;
   const allowlist = getAllowlist();
   if (!allowlist.length) return false;
   const db = require('./db');
@@ -35,4 +46,6 @@ module.exports = {
   getAllowlist,
   isEmailAllowlisted,
   familyHasMagicViewAccess,
+  isMagicViewDisabled,
+  isPreviewOnlyMode,
 };

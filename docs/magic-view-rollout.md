@@ -2,21 +2,23 @@
 
 Senast uppdaterad: 2026-06-19
 
-## Prod-status (feature-flaggor)
+## Prod-status
 
-| Familjer | Betydelse | Exempel |
-|----------|-----------|---------|
-| **159** | Live för alla | veckoschema, daglogg, kalender, bibliotek, för dig |
-| **1** | Dev, en testfamilj | `klinisk_rapportering`, `pedagoganteckningar` |
-| **0** | Dev, ej tilldelad | `parent_home_magic`, `ny_barnvy` |
+Magic-växlare (Klassisk / Ny design) är **globalt aktiverad** för alla familjer via `magic_view_enabled` i `/api/auth/me`.
 
-Magic preview styrs separat via `MAGIC_VIEW_ALLOWLIST` (e-post), inte feature-tabellen.
+| Env | Effekt |
+|-----|--------|
+| *(standard)* | Alla familjer ser växlaren |
+| `MAGIC_VIEW_DISABLED=true` | Nödstopp — ingen magic |
+| `MAGIC_VIEW_PREVIEW_ONLY=true` | Begränsa till `MAGIC_VIEW_ALLOWLIST` |
+
+Feature-flaggor i admin (`parent_home_magic`, `ny_barnvy`) är satta till `live` i seed.
 
 ---
 
 ## Föräldrasidor — magic-täckning
 
-### ✅ Magic på alla live-sidor (159 familjer)
+### ✅ Magic på alla live-sidor
 
 | Sida | Route | Hur |
 |------|-------|-----|
@@ -36,7 +38,7 @@ Magic preview styrs separat via `MAGIC_VIEW_ALLOWLIST` (e-post), inte feature-ta
 
 `/family-week` redirectar 301 → `/schedule?view=family` (magic via schema-sidan).
 
-Ny kod: `platform-html.js` injicerar magic-CSS/JS automatiskt på parent-shell-sidor som saknar det. `parent-magic-auto.js` skapar toggle-mount, hero-mount och döljer legacy-sidebar.
+`platform-html.js` injicerar magic-CSS/JS automatiskt på parent-shell-sidor. `parent-magic-auto.js` skapar toggle-mount, hero-mount och döljer legacy-sidebar.
 
 ### ❌ Medvetet utan magic
 
@@ -50,18 +52,17 @@ Ny kod: `platform-html.js` injicerar magic-CSS/JS automatiskt på parent-shell-s
 
 ## Barnvy — sammankopplat system
 
-| `child_view_config.view_mode` | Preview-familj | Övriga |
-|-------------------------------|----------------|--------|
-| `classic` | child-dashboard klassisk | child-dashboard klassisk |
-| `new` | child-dashboard magic | child-new (legacy) |
+| `child_view_config.view_mode` | Effekt |
+|-------------------------------|--------|
+| `classic` | child-dashboard klassisk |
+| `new` | child-dashboard magic |
 
 DB = sanning. Barnets UI-växlare sparar via `PATCH /view-config/self`.
 
 ---
 
-## Nästa steg (ej magic-shell)
+## Nästa steg
 
 1. Förbättra innehålls-UX i magic (inte bara hero/shell) på schema-undersidor
-2. Global rollout: ta bort `MAGIC_VIEW_ALLOWLIST`
-3. Deprecera `child-new.html` när magic är globalt
-4. Synka seed: `klinisk_rapportering` = `dev` (matchar prod)
+2. Deprecera `child-new.html` när magic är stabilt globalt
+3. Magic på rapporter/pedagog när dev-features går live
