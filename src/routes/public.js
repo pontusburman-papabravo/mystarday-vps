@@ -106,15 +106,17 @@ router.get('/app-config', (req, res) => {
     process.env.GIT_COMMIT ||
     process.env.VERCEL_GIT_COMMIT_SHA ||
     'dev';
+  const configuredRedirect = (process.env.APPLE_WEB_REDIRECT_URI || process.env.APP_URL || '')
+    .replace(/\/$/, '');
+  const requestOrigin = `${req.protocol}://${req.get('host')}`.replace(/\/$/, '');
   res.json({
     parental_gate_enabled: process.env.PARENTAL_GATE_ENABLED !== 'false',
     native_tabbar_enabled: process.env.NATIVE_TABBAR_ENABLED !== 'false',
     sentryDsn: process.env.SENTRY_DSN || process.env.SENTRY_DSN_PUBLIC || '',
     googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
-    // Web Sign in with Apple uses the Services ID; native JWT accepts bundle ID too.
-    appleClientId: process.env.APPLE_CLIENT_ID || process.env.APPLE_BUNDLE_ID || '',
-    appleWebRedirectUri: (process.env.APPLE_WEB_REDIRECT_URI || process.env.APP_URL || '')
-      .replace(/\/$/, ''),
+    // Web Sign in with Apple requires the Services ID — never fall back to bundle ID.
+    appleClientId: process.env.APPLE_CLIENT_ID || '',
+    appleWebRedirectUri: configuredRedirect || requestOrigin,
     release: `stjarndag@${(process.env.npm_package_version || '1.0.0')}+${commit.slice(0, 7)}`,
     buildId: commit,
   });
