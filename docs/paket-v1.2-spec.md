@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§4.4 midnatt/concurrency · §7.2 scrub-snapshot · §9.7 PWA · IAP idempotens)  
+**Uppdaterad:** 2026-06-17 (§9.10 admin prenumeration · §4.4 · mockup v2 12-panel)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -2268,10 +2268,7 @@ metadata: {
 
 #### Admin & beslut
 
-| Vy | Innehåll |
-|----|----------|
-| Admin → Paketintresse | Antal familjer per komponent · lista · export CSV |
-| Intern dashboard | Intresse-% av aktiva familjer · ranking per paket |
+Se **§9.10** — fullständig admin-yta under *Prenumeration* (rollout, statistik, paketintresse, familj-komponenter).
 
 **Beslut att gå köp-live:** När intresse + strategi motiverar → `PACKAGES_ROLLOUT_MODE=purchase`, IAP (§9.7), priser synliga, CTA = Köp nu. Väntelistefamiljer kan prioriteras till beta *(valfritt)*.
 
@@ -2349,6 +2346,289 @@ För att mäta intresse **utan** att bygga hela v1.2:
 
 Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
 
+### 9.10 Admin → Prenumeration (P0)
+
+**Route:** `/admin` → sektion **💳 Prenumeration** (`#prenumeration`)  
+**Behörighet:** `requireAdmin` — samma som övriga admin-panelen.  
+**Syfte:** Pontus (admin) ska kunna **styra lansering**, **tilldela paket per familj**, **läsa statistik** och **exportera intressedata** — utan deploy eller env-ändringar.
+
+**Relation till befintlig kod:** Idag finns Basic-pris, trial, grundargräns, betalnings-toggle och legacy add-ons (`public/admin/admin-subscription-settings.js`). v1.2 **utökar** samma sektion — ersätter inte Familjer eller Analytics.
+
+#### 9.10.1 Informationsarkitektur — fem block
+
+```
+💳 Prenumerationsinställningar
+├── A. Rollout & lansering
+├── B. Paket & priser
+├── C. Statistik (dashboard)
+├── D. Paketintresse (lista + export)
+└── E. Familj-komponenter (länk + inline i Familjer)
+```
+
+| Block | Admin kan | Klient/app påverkas |
+|-------|-----------|---------------------|
+| **A** | Växla `off` / `interest` / `purchase` | Nav v1.2, preview-shell, CTA-copy, IAP |
+| **B** | Redigera metadata per komponent (pris, namn, aktiv) | `/upgrade`, preview-kort — **inte** App Store-pris (RevenueCat) |
+| **C** | Se KPI:er, trender, ranking | — (read-only) |
+| **D** | Lista, filtrera, exportera intresseanmälningar | — |
+| **E** | Tilldela/återkalla `active`/`archived` per familj | `hasComponent()`, preview vs riktig data |
+
+#### 9.10.2 A — Rollout & lansering
+
+**Wireframe:**
+
+```
+── Rollout & lansering ─────────────────────────────────────
+
+Nuvarande läge:  [ Av ▾ ]  [ Intressefas ]  [ Köp live ]
+
+Vid val av Intressefas:
+  ⚠ Alla familjer utan komponent ser mock-preview + beta-CTA.
+  Ingen IAP. Inga priser.
+
+Vid val av Köp live:
+  ⚠ Native IAP aktiveras. Priser synliga. CTA = Köp nu.
+
+Härledda värden (read-only):
+  Preview-shell:  AV / PÅ
+  IAP-köp:         AV / PÅ
+  Priser i UI:     AV / PÅ
+
+[ Spara rollout-läge ]
+```
+
+| Inställning | Lagring | API |
+|-------------|---------|-----|
+| `PACKAGES_ROLLOUT_MODE` | `app_config` | `PUT /api/admin/app-config/PACKAGES_ROLLOUT_MODE` |
+| `PACKAGES_SHOW_PRICES` | `app_config` *(härledd — skrivs automatiskt)* | Sätts till `true` endast vid `purchase` |
+
+**Env-fallback:** `process.env.PACKAGES_ROLLOUT_MODE` om `app_config` saknar nyckeln. Default = `off`.
+
+**Regler:**
+
+- **Inte** `feature_flag` (boolean) — enum kräver `app_config`.
+- Byte till `interest` eller `purchase` loggas i `admin_audit_log` med `action=rollout_mode_changed`.
+- Bekräftelsedialog vid byte från `off` — *"Detta påverkar alla familjer utan köpt komponent."*
+- `payment_enabled` (befintlig toggle) är **separat** — master för IAP i appen; ska vara synlig bredvid rollout med tydlig etikett *"IAP i appen (Apple/Google)"*.
+
+**Härledda värden** (returneras i `/api/subscription/access` — §9.8):
+
+| `rollout_mode` | `purchase_enabled` | `show_prices` | Nav v1.2 | Preview | Intresse-CTA |
+|----------------|---------------------|---------------|----------|---------|--------------|
+| `off` | `false` | `false` | Nej | Nej | Nej |
+| `interest` | `false` | `false` | Ja | Ja | Ja |
+| `purchase` | `true` | `true` | Ja | Ja | Nej — Köp nu |
+
+#### 9.10.3 B — Paket & priser
+
+Fyra komponenter enligt §0 — ersätter legacy *Add-ons*-listan i admin (behåll API tills migration rensar `subscription_addons`).
+
+| `component` | Visningsnamn | Standardpris (metadata) | RevenueCat-produkt |
+|-------------|--------------|-------------------------|-------------------|
+| `basic_app` | Basic | 59 kr/mån | `basic_monthly` *(exempel)* |
+| `reporting` | Rapportering | 19 kr/mån | `reporting_monthly` |
+| `pedagog` | Pedagog | 29 kr/mån | `pedagog_monthly` |
+| `teacch` | Extra stöd | 29 kr/mån | `teacch_monthly` |
+
+**Wireframe:**
+
+```
+── Paket & priser ──────────────────────────────────────────
+
+🟢 Basic (basic_app)          59 kr/mån   [ Redigera ]
+📊 Rapportering               19 kr/mån   [ Redigera ]
+👩‍🏫 Pedagog                    29 kr/mån   [ Redigera ]
+🧩 Extra stöd (teacch)         29 kr/mån   [ Redigera ]
+
+── Grundinställningar (befintligt) ───────────────────────
+Pris Basic · Trial · Grundargräns (lifetime free)
+```
+
+| Fält per paket | Redigerbart i admin | Synkas till App Store |
+|----------------|---------------------|------------------------|
+| `name`, `description` | ✅ | ❌ (manuellt i ASC/Play) |
+| `price_monthly_sek` (metadata) | ✅ | ❌ — visning i app endast |
+| `revenuecat_product_id` | ✅ (referens) | ✅ via RevenueCat |
+| `is_active` (säljbar) | ✅ | — |
+
+**API (nya eller utökade):**
+
+- `GET /api/admin/subscription-settings` — inkl. `components[]`, `rollout_mode`, `payment_enabled`
+- `PATCH /api/admin/subscription-settings/components/:slug` — metadata
+- Befintlig `PATCH /api/admin/subscription-settings` — Basic-pris, trial, `founder_family_limit`
+
+**Prisvisning:** I `off` och `interest` visas **inga** priser i preview/upgrade (§9.8). Admin kan redigera metadata i förväg — synligt först vid `purchase`.
+
+#### 9.10.4 C — Statistik (dashboard)
+
+**Wireframe:**
+
+```
+── Prenumerationsstatistik ─────────────────────────────────
+
+Period: [ 7 dagar ▾ ] [ 30 dagar ] [ 90 dagar ]
+
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ Intresse    │ Aktiva      │ Preview →   │ IAP köp     │
+│ anmälningar │ familjer    │ intresse %  │ (30d)       │
+│ 47 totalt   │ per paket   │ 12.4 %      │ 8           │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+
+Per komponent (ranking):
+  pedagog      ████████████  23 intresse ·  4 aktiva
+  reporting    ████████      18 intresse · 12 aktiva
+  teacch       ██████        14 intresse ·  2 aktiva
+
+Källa: package_interest · family_subscriptions · analytics_events · iap_webhook_log
+```
+
+| KPI | Definition | Källa |
+|-----|------------|-------|
+| **Intresse totalt** | Unika familjer med ≥1 rad i `package_interest` | `package_interest` |
+| **Intresse per komponent** | `COUNT(DISTINCT family_id) GROUP BY component` | `package_interest` |
+| **Preview → intresse %** | `interest_registered` / `preview_viewed` per komponent | `analytics_events` (§15) |
+| **Aktiva familjer** | `state=active` i `family_subscriptions.components` | DB |
+| **Arkiverade** | `state=archived` | DB |
+| **Lifetime free** | `family.is_lifetime_free=true` | `family` |
+| **IAP köp / förnyelser** | Webhook-händelser senaste N dagar | `iap_webhook_log` |
+| **Churn** | `subscription_status=expired` senaste N dagar | `family` |
+
+**API:**
+
+- `GET /api/admin/subscription-stats?period=7d|30d|90d`
+- Returnerar: `summary`, `by_component[]`, `interest_trend[]`, `purchases_trend[]`
+
+**North Star under intressefas:** konvertering *preview → intresseanmälan* per paket (§15) — visas som primär KPI när `rollout_mode=interest`.
+
+#### 9.10.5 D — Paketintresse (lista + export)
+
+Bygger på `package_interest` (§9.8 schema).
+
+**Wireframe:**
+
+```
+── Paketintresse ───────────────────────────────────────────
+
+Filter: [ Komponent: Alla ▾ ] [ Källa ▾ ] [ Från–Till ]
+
+17 jun  Andersson    pedagog     bottom_nav_preview
+16 jun  Lindqvist    reporting   upgrade_page
+15 jun  Svensson     teacch      contextual_trigger
+
+[ Exportera CSV ]     Visar 47 av 47
+```
+
+| Kolumn | Fält |
+|--------|------|
+| Datum | `created_at` |
+| Familj | `family.name` (ej PII i export om anonymiserat läge) |
+| Komponent | `reporting` \| `pedagog` \| `teacch` |
+| Källa | `bottom_nav_preview` \| `upgrade_page` \| `contextual_trigger` |
+| Prioriterad beta | `is_priority` *(valfritt admin-flagga)* |
+
+**API:**
+
+- `GET /api/admin/package-interest?component=&source=&from=&to=&limit=&offset=`
+- `GET /api/admin/package-interest/export.csv` — samma filter
+- `PATCH /api/admin/package-interest/:id` — `{ is_priority: true }` *(valfritt)*
+
+#### 9.10.6 E — Familj-komponenter (per familj)
+
+**Primär ingång:** Admin → **Familjer** → familjekort → panel *Paket & åtkomst*.  
+**Sekundär:** Snabblänk från Prenumeration-statistik (*"Visa familjer med pedagog"*).
+
+**Wireframe (på familjekort):**
+
+```
+── Paket & åtkomst — Andersson ─────────────────────────────
+
+Lifetime free:  Nej
+Rollout:        Intressefas (familjen ser preview om ej köpt)
+
+Komponent        Status      Tilldelad        Åtgärd
+basic_app        ● Aktiv     grandfather      —
+reporting        ○ Saknas    —                [ Tilldela ]
+pedagog          ● Aktiv     admin 2026-06-01 [ Arkivera ]
+teacch           ○ Saknas    —                [ Tilldela ]
+
+[ Spara ]   Audit: alla ändringar loggas
+```
+
+| Åtgärd | Effekt |
+|--------|--------|
+| **Tilldela** | `grantComponent(familyId, slug)` → `state=active`, `granted_at=now`, `source=admin` |
+| **Arkivera** | `state=archived`, `archived_at=now` — data kvar (§8.5) |
+| **Återaktivera** | `state=active` — full write |
+| **Ta bort tilldelning** | Endast om `source=admin` och ingen IAP-historik — annars arkivera |
+
+**Regler (§8.4, §2122):**
+
+- Oberoende av `rollout_mode` kan admin ge valfri komponent → familjen ser **riktig data**, aldrig mock.
+- `lifetime_free` → endast `basic_app` automatiskt; tillägg kräver explicit admin-tilldelning eller köp.
+- Grandfathered familjer (migration) visas med `source=grandfather` — ej raderbar.
+
+**API:**
+
+- `GET /api/admin/families/:id/subscription` — komponenter + tier + `is_lifetime_free`
+- `PUT /api/admin/families/:id/components/:slug` — `{ action: 'grant'|'archive'|'reactivate' }`
+- Alla anrop → `admin_audit_log` (`action=component_granted|component_archived`, `metadata`)
+
+#### 9.10.7 Audit & säkerhet
+
+| Händelse | Logg |
+|----------|------|
+| Rollout-byte | `rollout_mode_changed` |
+| Komponent tilldelad/arkiverad | `component_granted`, `component_archived` |
+| Basic-pris/trial ändrat | `subscription_settings_updated` |
+| `payment_enabled` toggle | `payment_enabled_changed` |
+
+**Ingen** massändring av komponenter utan bekräftelse. Export CSV kräver admin — rate-limit enligt befintlig `globalLimiter` exempt för `/api/admin/*`.
+
+#### 9.10.8 Implementation — filer & epic
+
+| # | Leverans | Filer |
+|---|----------|-------|
+| 9.10.1 | Migration `package_interest` | `migrations/*_package_interest.js` |
+| 9.10.2 | Stats + intresse API | `src/routes/admin/subscription-stats.js`, `package-interest.js` |
+| 9.10.3 | Familj-komponent API | `src/routes/admin/family-components.js` |
+| 9.10.4 | Admin UI — rollout + stats + intresse | `public/admin/admin-subscription-settings.js` *(utökad)*, `index.html` `#prenumerationSection` |
+| 9.10.5 | Familj-panel komponenter | `public/admin/admin-families.js` |
+| 9.10.6 | `subscription-components.js` — alla fyra paket | `config/subscription-components.js` |
+
+**Epic:** **E10** (intresse + analytics) + **E13** *(ny)* Admin prenumeration full. Minimal smoke test (§9.8) kräver minst **A + D + C (grund)** innan `interest` sätts live.
+
+**Exit-kriterium:**
+
+- [ ] Admin kan sätta `rollout_mode` utan deploy
+- [ ] Statistik visar intresse per komponent + export CSV
+- [ ] Admin kan tilldela `pedagog` till testfamilj → familjen ser riktig Samarbete, inte mock
+- [ ] Alla admin-ändringar i audit-logg
+- [ ] Befintlig Basic/trial/grundargräns/betalnings-toggle fungerar oförändrat
+
+#### 9.10.9 Visuell referens — pedagogläge mockup (12 paneler)
+
+**Definitiv v1.2-implementationsreferens:** `docs/mockups/pedagog-lage-v12-reference-PROMPT.md`  
+**Utdatafil:** `docs/mockups/pedagog-lage-v12-reference.png`
+
+Kontaktkarta 4×3 (12 iPhone-skärmar). Kritiska IA-regler:
+
+| Panel | Innehåll |
+|-------|----------|
+| 1 | Pedagogöversikt — 3-fliksnav + ⚙️ |
+| 2 | Idag — Modell A, `Markera frånvarande` |
+| 3 | Lägg till skolaktivitet (modal) |
+| 4 | Inbjudan accepterad |
+| 5 | Dual-roll profil |
+| 6 | Tomt tillstånd — *Inga barn delade* |
+| 7 | **Förälder Samarbete** — strukturerade sektioner, **ingen chat**; nav: Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd |
+| 8 | Historik — datumlista med `4/4 aktiviteter`, **ingen** månadssammanfattning |
+| 9 | Frånvaro — *Barn markerat som frånvarande*, `Ta bort frånvaro` |
+| 10 | Åtkomst borttagen — redirect till översikt |
+| 11 | Samarbetskommentar input — max 1 per sida/dag |
+| 12 | Pedagog inställningar (⚙️) — profil, notiser, logga ut |
+
+**Pedagog har aldrig Samarbete-flik.** Förälder har aldrig Hem/Rapport i bottom nav.
+
 ---
 
 ## 10. Rollout v1.2 (översikt)
@@ -2393,6 +2673,7 @@ Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
 - [ ] Pedagogläge §4.4 — delade barn, anteckningar, daglogg i skola, skolaktiviteter
 - [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav, pedagog-nav **4 flikar**
 - [ ] `PACKAGES_ROLLOUT_MODE=off` som default — ingen synlig förändring vid deploy/review
+- [ ] **Admin → Prenumeration (§9.10)** — rollout, statistik, paketintresse, familj-komponenter
 - [ ] Grandfathering §8.4 — befintliga reporting/pedagog-familjer behåller åtkomst
 - [ ] **Preview endast om `hasComponent === false`** — grandfathered familjer ser riktig data, aldrig intresse-CTA (§6.6, §9.8)
 - [ ] `package_interest`-schema + canonical `source`-taxonomi (§9.8)
@@ -2892,7 +3173,7 @@ Config: subscription-components.js · component-feature-map.js
 | 1.6 | **Köp-live:** Native Köp nu → RevenueCat | `public/js/iap-manager.js` |
 | 1.7 | Webb Köp nu → öppna appen (§9.7) | `preview-shell.js` |
 | 1.8 | Webhook → `family_subscriptions.components` | `src/routes/iap.js` |
-| 1.9 | Admin: paketintresse-vy | `public/admin/` |
+| 1.9 | Admin: paketintresse + rollout + statistik (§9.10) | `public/admin/admin-subscription-settings.js`, `admin-families.js` |
 
 **Exit-kriterium (intressefas):** Alla familjer ser mock för reporting/pedagog/teacch; klick loggas; ingen IAP; ingen write.
 
@@ -3070,11 +3351,12 @@ Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → r
 | **E7** | 3 | library editor + pictograms | E6 |
 | **E8** | 3 | child-seven-questions UI | E6, E7 |
 | **E9** | 3 | read_aloud + timer teacch | E8 |
-| **E10** | 4 | analytics + triggers | E2, E3 |
+| **E10** | 4 | analytics + triggers + admin stats/intresse | E2, E3 |
 | **E11** | 5 | IAP produkter + webhook components | E3 |
 | **E12** | 2b | Pedagogläge: arbetsflöde, audit, flera pedagoger, 4-fliks nav (§4.4) | E1 |
+| **E13** | 1/4 | Admin → Prenumeration full (§9.10): rollout, komponenter, familj-tilldelning | E1 |
 
-**Rekommenderad start:** E1 → E2 → E4 → E10 för **smoke test** (§9.8 minimal path). **E12** kan byggas parallellt efter E1 om Pedagog prioriteras. Full v1.2 enligt §16 parallellt eller efter intressedata.
+**Rekommenderad start:** E1 → **E13 (minimal)** → E2 → E4 → E10 för **smoke test** (§9.8 minimal path). **E12** kan byggas parallellt efter E1 om Pedagog prioriteras. Full v1.2 enligt §16 parallellt eller efter intressedata.
 
 ### 16.10 Visuell implementation
 
@@ -3084,6 +3366,7 @@ Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → r
 | Barn | Mörk `#0F1629`, gold NU, stjärnhimmel | `docs/mockups/barnvy.html` |
 | Extra stöd | Pictogram större än text, grön Klar, ingen nav under aktivitet | `docs/mockups/paket-v1.2-nav.png` |
 | Preview | Fade + vattenstämpel + CTA enligt `rollout_mode` | §9.3, panel 4 i mockup |
+| Pedagogläge | 12-panel kontaktkarta, Samarbete förälder utan chat | `docs/mockups/pedagog-lage-v12-reference-PROMPT.md` §9.10.9 |
 
 **Typsnitt:** Outfit (rubriker) · Plus Jakarta Sans (brödtext).  
 **Vid konflikt:** HTML-mockups > design-affisch > improvisation.
@@ -3151,6 +3434,11 @@ Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → r
 | `/api/pedagog/school-activities` | GET library, POST, DELETE | E12 |
 | `/api/pedagog/day-comments` | GET, POST | E12 |
 | `/api/pedagog/absence` | PUT, DELETE | E12 |
+| `/api/admin/subscription-stats` | GET | E13 |
+| `/api/admin/package-interest` | GET, export CSV | E13 |
+| `/api/admin/families/:id/subscription` | GET | E13 |
+| `/api/admin/families/:id/components/:slug` | PUT | E13 |
+| `/api/admin/app-config/PACKAGES_ROLLOUT_MODE` | PUT | E13 |
 
 Fullständiga request/response-schemas i `src/lib/schemas.js` vid implementation.
 
