@@ -2607,12 +2607,10 @@ teacch           ○ Saknas    —                [ Tilldela ]
 
 #### 9.10.9 Visuell referens — pedagogläge mockup
 
-**Definitiv 10/10 UX-referens:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (§13.10)  
+**Definitiv 10/10 UX-referens:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (§13.10, v3.1 — 14 paneler)  
 **Utdatafil:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
 
-**Minimikrav IA (v2):** `docs/mockups/pedagog-lage-v12-reference-PROMPT.md` — använd endast om v3 saknas.
-
-Kontaktkarta 4×3 (12 skärmar). Kritiska regler: prioriteringskö · stepper · puls-kort · ingen chat · pedagog `Översikt·Idag·Historik` · förälder 5 flikar.
+Kontaktkarta 14 paneler. Kärnflöde: **kö → steg 2 → publicera steg 3 → historik**. Panel 13 = Publicera (ersätter feed).
 
 ---
 
@@ -2933,7 +2931,7 @@ Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl int
 | Extra stöd-innehåll | 7/10 → 9/10 | Integrera i NU **med pictogram + timer + Läs upp** |
 | Paketstrategi i UI | 7/10 | Lägg till preview-skärmar |
 | Tillgänglighet icke-läsande | — | §7.5 + §14.1 — pictogram, timer, TTS, familjefoto |
-| **Pedagog & Samarbete** | v2: 7/10 · snygg fel-IA: 5/10 | **Mål 10/10:** §13.10 + `pedagog-lage-v12-ux-v3-PROMPT.md` |
+| **Pedagog & Samarbete** | 8.5/10 iteration → **10/10 v3.1** | §13.10 + `pedagog-lage-v12-ux-v3-PROMPT.md` |
 
 ### 13.10 Pedagog & Samarbete — UX 10/10 (målbild)
 
@@ -2984,32 +2982,93 @@ Idag · 2 kräver åtgärd · onsdag 17 juni
 
 **Nav:** `Översikt · Idag · Historik` + ⚙️ — **aldrig** Hem/Mer.
 
-#### 13.10.2 Idag — guidat stepper (inte tre formulär)
+#### 13.10.2 Idag — guidat arbetsflöde (inte informationsvy)
+
+**Princip:** Skärmen ska svara *"vad är nästa sak jag ska göra?"* — inte *"här är dagens data"*.
+
+**Steg-modell (låst ordning):**
+
+```
+✓ Barn valt  →  ● Dokumentation  →  ○ Publicera
+```
+
+Panel 2 visar typiskt **steg 2** (dokumentation + aktiviteter). Panel 13 visar **steg 3** (publicera) — se §13.10.2b.
 
 ```
 Andersson — Ella ▼     ons 17 jun  [ Frånvaro ▾ ]
 
-●━━━━━○━━━━━○  Steg 2 av 3 · Dokumentation
+Steg 2 av 3
 
-── 1. Aktiviteter ───────────────  ✓ Klar  [▾]
-── 2. Dokumentation ─────────────  ● Nu
-   Humör  [😊 4/5]  Måltider  Beteende  (chips, tap-to-set)
-── 3. Publicera ──────────────────  ○
+✓ Barn valt
+● Dokumentation        ← aktiv
+○ Publicera
 
-+ Lägg till skolaktivitet          (sekundär länk)
+── Aktiviteter (hopfällbar om klara) ──
+☑ Morgonsamling    ✓ Klar hemma 07:15
+☐ Rast
+☑ Lunch            ✓ 11:45 i skolan
+
+── Dokumentation ──
+Humör [😊 4/5]  Måltider  Beteende  (chips)
+
++ Lägg till skolaktivitet
 
 ┌─────────────────────────────────────┐
-│  [ Publicera anteckning ]           │  ← sticky footer
+│  [ Fortsätt till publicering → ]    │  ← eller sticky preview av steg 3
 └─────────────────────────────────────┘
 ```
 
 | UX-regel | Detalj |
 |----------|--------|
-| **Stepper** | Klara steg hopfälls till en rad |
-| **Veckoremsa** *(valfritt)* | Kompakt M T O T F under header — kompletterar barnväljare |
-| **Modell A** | `✓ Klar hemma 07:15` som muted chip — checkbox endast för ej-klara |
-| **Sticky Publicera** | Syns när steg 2 påbörjat |
-| **Frånvaro** | `Frånvaro ▾` i header — banner top + allt disabled, ingen stepper |
+| **Stepper alltid synlig** | Tre steg med check/active/pending — inte dold i sektioner |
+| **Känsla** | Arbetsflöde — inte formulär |
+| **Modell A** | Muted chips på redan klara aktiviteter |
+| **Frånvaro** | Ingen stepper — lavendel banner top, allt disabled (§13.10.2c) |
+
+#### 13.10.2b Publicera — steg 3 (egen panel i mockup)
+
+**Ersätter** alla *Samarbete-feed* / *notis-statistik*-paneler. Knýter ihop pedagog-flödet.
+
+```
+Andersson — Ella ▼     ons 17 jun
+
+Steg 3 av 3
+
+✓ Barn valt
+✓ Dokumentation
+● Publicera
+
+── Dagens sammanfattning ──────────────
+✓ Rast
+✓ Lunch · Hungrig idag
+✓ Grupparbete
+
+Humör 4/5 · Lunch OK · Lugn eftermiddag
+
+┌─────────────────────────────────────┐
+│  [ Publicera ]                      │  ← enda primära CTA
+└─────────────────────────────────────┘
+
+Efter publicering: toast *"Föräldern meddelas"* → tillbaka till Översikt
+```
+
+**Flöde:** Översikt → Idag (steg 2) → Lägg till aktivitet *(valfritt)* → **Publicera (steg 3)** → Historik.
+
+#### 13.10.2c Frånvaro — nästan tråkig (avsiktligt)
+
+Frånvaro ska **inte** kännas som fel eller varning.
+
+```
+💜 Barn markerat som frånvarande idag     ← lavendel, inte amber ⚠
+
+Aktiviteter (låsta)
+☑ Morgonsamling   (grå, disabled)
+☐ Rast            (grå)
+
+[ Ta bort frånvaro ]   ← enda handling
+```
+
+**Förbjudet:** `FRÅNVARO REGISTRERAD`, orange varningsbanner, lås-ikoner som "error state".
 
 #### 13.10.3 Lägg till skolaktivitet — en skärm, extremt snabb
 
@@ -3102,10 +3161,55 @@ Samarbete                         [ + Bjud in pedagog ]
 |---------|-------|--------|
 | v1 (11 panel) | 6/10 | Superseded |
 | v2 (12 panel, form-tung) | 7/10 | Minimikrav IA |
-| Snygg fel-IA (14 panel, Hem/Mer) | 5/10 | **Avvisa** |
-| **v3 (12 panel, §13.10)** | **10/10 mål** | **Definitiv referens** |
+| Snygg fel-IA (Hem/Mer) | 5/10 | Avvisa |
+| 14-panel iteration | 8.5/10 | Nära — arbetsflödesluckor kvar |
+| **v3.1 production (14 panel, §13.10)** | **10/10 mål** | **Definitiv referens** |
 
-**Prompt:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md`  
+**Granskningsmatris (senaste iteration → v3.1):**
+
+| Område | Före | Nu | Kvar till 10/10 |
+|--------|------|-----|-----------------|
+| Informationsarkitektur | 5/10 | 9/10 | — |
+| Navigering | 4/10 | 9/10 | — |
+| Prioritering av arbete | 6/10 | 8/10 | Panel 1: `[Fortsätt]`/`[Visa]` på varje kort |
+| Samarbete | 4/10 | 9/10 | Ta bort feed-panel (Panel 13) |
+| Dokumentationsflöde | 6/10 | 7/10 | Panel 2 stepper + Panel 13 Publicera |
+| Visuell polish | 7/10 | 8.5/10 | Frånvaro lavendel, historik ren |
+
+**Kontaktkarta v3.1 (14 paneler):**
+
+| # | Panel | Roll |
+|---|-------|------|
+| 1 | Översikt — arbetskö | Pedagog |
+| 2 | Idag — steg 2 Dokumentation | Pedagog |
+| 3 | Lägg till skolaktivitet | Pedagog |
+| 4 | Inbjudan accepterad | Onboarding |
+| 5 | Profil — Föräldraläge / Pedagogläge | Dual-roll |
+| 6 | Samarbete · Idag (puls) | Förälder |
+| 7 | Samarbete · Pedagoger | Förälder |
+| 8 | Historik månad — **endast datumlista** | Pedagog |
+| 9 | Historik dag (read-only) | Pedagog |
+| 10 | Frånvaro — lavendel, låst | Pedagog |
+| 11 | Åtkomst borttagen | System |
+| 12 | Förälder kommentar (max 1/dag) | Förälder |
+| 13 | **Publicera — steg 3** *(ersätter feed)* | Pedagog |
+| 14 | Inställningar | Pedagog |
+
+**End-to-end pedagog-flöde:**
+
+```
+Översikt (kö)
+    ↓ [Fortsätt]
+Idag steg 2 (dokumentation)
+    ↓ [+ Lägg till aktivitet] (valfritt)
+Publicera steg 3
+    ↓
+Historik
+```
+
+**Förbjudet:** Panel med *"Today 3 active · This week 5 active"* eller annan notis-/statistik-feed.
+
+**Prompt:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (v3.1)  
 **Utdata:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
 
 ---

@@ -1,9 +1,11 @@
-# Pedagogläge v1.2 — UX 10/10 mockup (v3)
+# Pedagogläge v1.2 — UX 10/10 mockup (v3.1 production)
 
-**Status:** Definitiv implementationsreferens  
+**Status:** Definitiv implementationsreferens (production-ready)  
 **Spec:** `docs/paket-v1.2-spec.md` §4.2, §4.4, §6, **§13.10**  
 **Utdatafil:** `docs/mockups/pedagog-lage-v12-ux-v3.png`  
-**Supersedes:** v1, v2, och 14-panel "snygg fel-IA"-mockup
+**Paneler:** 14 (ersätter feed-panel med **Publicera steg 3**)
+
+**Bedömning senaste iteration:** 8.5/10 — kvarvarande 15 % är **arbetsflödesproblem**, inte visuella.
 
 ---
 
@@ -40,7 +42,11 @@
 
 ---
 
-## Kontaktkarta — 4×3 = 12 paneler
+## Kontaktkarta — 14 paneler
+
+**Pedagog end-to-end:** Översikt → Idag (steg 2) → Lägg till aktivitet → **Publicera (steg 3)** → Historik
+
+**FÖRBUDET:** Panel med "Today 3 active", "This week 5 active", notis-feed, eller månadssammanfattning (Aktiviteter 5 / Avvikelser 0).
 
 ### Panel 1 — Pedagogöversikt (prioriteringsmotor)
 
@@ -71,33 +77,33 @@ Bottom nav: Översikt (active purple) · Idag · Historik
 
 ---
 
-### Panel 2 — Idag stepper (normal dag)
+### Panel 2 — Idag steg 2 (arbetsflöde, inte informationsvy)
 
 ```
 ← Andersson — Ella ▼    ons 17 jun    [ Frånvaro ▾ ]
 
-  M  T  O  T  F  L  S
-      ●  7
+Steg 2 av 3
 
-●━━━━━━○━━━━━━○  Steg 2 av 3 · Dokumentation
-
-── 1. Aktiviteter ──────────────  ✓ Klar  [▾ collapsed]
-── 2. Dokumentation ────────────  ● Pågår
-   Humör [😊 4/5]  Måltider  Sömn  Beteende
-── 3. Publicera ─────────────────  ○
+✓ Barn valt
+● Dokumentation
+○ Publicera
 
 ☑ Morgonsamling    ✓ Klar hemma 07:15  (muted)
 ☐ Rast
-☑ Lunch            ✓ 11:45 i skolan · Hungrig idag
+☑ Lunch            ✓ 11:45 i skolan
+
+Humör [😊 4/5]  Måltider  Beteende
 
 + Lägg till skolaktivitet
 
 ┌─────────────────────────────────┐
-│   [ Publicera anteckning ]      │  STICKY purple
+│ [ Fortsätt till publicering → ] │
 └─────────────────────────────────┘
 
 Bottom nav: Idag (active)
 ```
+
+**INTE:** platt schema-lista utan stepper.
 
 ---
 
@@ -113,7 +119,7 @@ Lägg till skolaktivitet
 Namn
 [ Grupparbete              ]
 
-★ Stjärnor (valfritt)  0
+★ Stjärnor (valfritt)  0    ← belöning, INTE 5-stjärnig "fokus"-rating
 
 [ Avbryt ]        [ Lägg till ]
 ```
@@ -210,44 +216,59 @@ Same 5-tab parent bottom nav.
 
 ---
 
-### Panel 9 — Historik (pedagog)
+### Panel 8 — Historik månad (ren lista)
 
 ```
 Historik                                     ⚙️
 
 [ Barn: Ella ▾ ]  [ Månad: Juni ▾ ]
 
-17 juni   ✓ Publicerad · 4/4 aktiviteter
-16 juni   ○ Utkast · 3/4 aktiviteter
-15 juni   — FRÅNVARANDE
-14 juni   ✓ Låst · 4/4 aktiviteter
+17 juni
+16 juni
+15 juni
+14 juni
+13 juni
 ```
 
-**INTE:** månadssammanfattning, procent, AI-text.
+**INTE:** Aktiviteter 5 · Avvikelser 0 · Samarbeten 2. **INTE:** kalendergrid med sammanfattning.
 
 Bottom nav: Historik active.
 
 ---
 
-### Panel 10 — Frånvaro dagvy
+### Panel 9 — Historik dag (read-only)
 
 ```
-← Andersson — Ella ▼    ons 17 jun    [ Ta bort frånvaro ▾ ]
+Historik · 7 juni 2025 · Ella
 
-┌─ lavendel banner TOP ─────────────────┐
-│ ⚠ Barn markerat som frånvarande       │
-└───────────────────────────────────────┘
+✓ Rast
+✓ Lunch
+✓ Grupparbete
 
-☑ Morgonsamling   (greyed, disabled)
-☐ Rast            (greyed)
-☑ Lunch           (greyed)
+Humör 4/5 · Allt klart utan avvikelser
+```
 
-Dokumentation section greyed, no Publicera button.
+Read-only. Bottom nav: Historik active.
+
+---
+
+### Panel 10 — Frånvaro (nästan tråkig — avsiktligt)
+
+```
+← Andersson — Ella ▼    7 juni    [ Ta bort frånvaro ]
+
+┌─ lavendel #E9E5FF banner TOP ─────────────┐
+│ Barn markerat som frånvarande idag         │  ← INTE amber FRÅNVARO REGISTRERAD
+└───────────────────────────────────────────┘
+
+Aktiviteter (låsta)
+☑ Morgonsamling   (grey disabled)
+☐ Rast            (grey disabled)
+
+No Publicera. No warning icons.
 
 Bottom nav: Idag active.
 ```
-
-Banner **top** — not bottom. Orange avoided; use lavendel/grey.
 
 ---
 
