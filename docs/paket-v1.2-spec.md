@@ -2397,7 +2397,7 @@ Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
 - [ ] **Preview endast om `hasComponent === false`** — grandfathered familjer ser riktig data, aldrig intresse-CTA (§6.6, §9.8)
 - [ ] `package_interest`-schema + canonical `source`-taxonomi (§9.8)
 - [ ] **Vuxen-gated nödutgång** ur dold barn-nav (§7.5)
-- [ ] **DELETE-route scrubbar `what_next.activity_template_id`** — inga ghost-länkar (§7.2, §16.6)
+- [ ] **DELETE-route scrubbar `what_next`** — fryser snapshot, inga tomma NÄSTA-kort (§7.2, §16.6)
 - [ ] **Fältbaserad** emoji-fallback — ingen textmatchning (§7.2)
 - [ ] **Webb/PWA köp** = ladda ner-flöde (QR/store), inte död "öppna app" (§9.7)
 - [ ] **Ett analytics-event per fas** — `interest_registered` vs `upgrade_from_preview` (§15.3)
