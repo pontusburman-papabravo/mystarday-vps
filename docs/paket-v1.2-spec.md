@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§4.4 Pedagogläge v1.2 — behörigheter, flera pedagoger, arbetsflöde, audit, P0-beslut)  
+**Uppdaterad:** 2026-06-17 (§4.2 Samarbete + §4.4 låsning/dashboard/frånvaro — spec låst för implementation)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -226,7 +226,7 @@ Närvaro: 92%  |  Aktiviteter: +12%  |  Belöningar: 34  |  Svåra övergångar:
 
 **Ingen åtkomst till:** betalning · familjeinställningar · administrativa funktioner · belöningar
 
-### 4.2 UI-identitet
+### 4.2 Samarbete — förälderns vy
 
 | Fokus |
 |-------|
@@ -235,10 +235,26 @@ Närvaro: 92%  |  Aktiviteter: +12%  |  Belöningar: 34  |  Svåra övergångar:
 | Gemensam bild |
 
 **Ton:** samarbetsverktyg — inte rapportverktyg (det är Rapportering).  
-**Ny sektion (förälder):** *Samarbete* — se wireframe nedan.  
-**Pedagogens egen vy:** se **§4.4 Pedagogläge** (inloggning, delade barn, anteckningar, daglogg, skolaktiviteter).
+**Route:** Samarbete-fliken i föräldernav (§6) · `rollout_mode=off` → befintlig UI oförändrad.  
+**Pedagogens egen vy:** se **§4.4**.
 
-**Wireframe — förälder (Samarbete-fliken):**
+#### 4.2.1 Innehåll
+
+| Område | Beskrivning |
+|--------|-------------|
+| **Pedagoglista** | Alla aktiva pedagoger med profil (§4.4.4), delade barn, senast aktiv |
+| **Bjuda in** | Primärförälder väljer barn + e-post → `pedagog_invite` |
+| **Återkalla** | Revokerar `parent_child`-länk omedelbart + audit |
+| **Dagens flöde** | Per valt barn: alla pedagogers publicerade anteckningar + samarbetskommentar |
+| **Historik** | Senaste 30 dagar · sök/filter (§4.2.4) |
+| **Audit-sammanfattning** | *"Senaste aktivitet"* per pedagog (§4.4.14) |
+| **Frånvaro** | Visar vem som rapporterat frånvaro |
+
+**Gating:** `requireComponent('pedagog')` för inbjudan. Preview enligt §6.6 om ej köpt. Grandfathered familjer ser riktig vy direkt (§8.4).
+
+#### 4.2.2 Pedagoglista & inbjudan
+
+**Wireframe — Samarbete (översikt):**
 
 ```
 Samarbete                                    [ + Bjud in pedagog ]
@@ -246,25 +262,101 @@ Samarbete                                    [ + Bjud in pedagog ]
 ── Aktiva pedagoger ─────────────────────────
 Anna Svensson · Klasslärare · Förskolan Solen
   Delade barn: Ella
-  Senast aktiv: Idag 14:32
-  [ Återkalla ]
+  Senast aktiv: Idag 14:32 · anteckning publicerad
+  [ Visa historik ]  [ Återkalla ]
 
 Johan Nilsson · Resurspedagog
   Delade barn: Ella
-  Senast aktiv: Igår
-  [ Återkalla ]
+  Senast aktiv: Igår · ingen anteckning idag
+  [ Visa historik ]  [ Återkalla ]
 
-── Idag · Ella · 17 juni ────────────────────
-Anteckning (Anna Svensson, publicerad 14:32):
-  Humör 4/5 · Lunch gick bra · Lugn eftermiddag
-
-Samarbetskommentar (§4.4.7):
-  Förälder (08:15): "Sov dåligt inatt."
-  Pedagog (08:45): "Tack, vi håller extra koll idag."
-  [ Lägg till kommentar ]   ← max 1 per sida per dag
+── Barn: Ella ▼ ─────────────────────────────
 ```
 
-**Inte chat** — en tråd per barn per dag, max en kommentar från förälder och en från pedagog (§4.4.7).
+**Wireframe — bjud in pedagog:**
+
+```
+┌─────────────────────────────────────┐
+│ Bjud in pedagog                     │
+│                                     │
+│ E-post: [ anna@skola.se        ]    │
+│ Namn:   [ Anna Svensson        ]    │
+│                                     │
+│ Dela barn:                          │
+│ ☑ Ella                              │
+│ ☐ Noah                              │
+│                                     │
+│ [ Avbryt ]  [ Skicka inbjudan ]     │
+└─────────────────────────────────────┘
+```
+
+**Regler:** Primärförälder only · minst ett barn · `requireComponent('pedagog')` · trigger intresse-CTA om ej köpt (§9.5).
+
+#### 4.2.3 Dagvy — per barn
+
+Förälder väljer barn i header. Visar **alla pedagogers** publicerade/låsta anteckningar — var för sig med attribution (§4.4.6). **Inte** aggregerad status.
+
+**Wireframe — idag · Ella · 17 juni:**
+
+```
+── Anteckningar idag ───────────────────────
+
+Anna Svensson · Klasslärare · publicerad 14:32
+  Humör 4/5 · Lunch gick bra · Lugn eftermiddag
+
+Johan Nilsson · Resurspedagog
+  ○ Ingen anteckning idag
+
+── Skolaktiviteter & avbockningar ──────────
+☑ Lunch · Avklarad i skolan av Anna 11:45
+  Kommentar: "Hungrig idag"
+☑ Utflykt · Tillagd av Anna
+
+── Frånvaro ────────────────────────────────
+(ingen idag)
+
+── Samarbetskommentar ──────────────────────
+Förälder (08:15): "Sov dåligt inatt."
+Pedagog Anna (08:45): "Tack, vi håller extra koll idag."
+[ Lägg till kommentar ]   ← max 1 per sida per dag (§4.4.7)
+```
+
+**Inte chat** — en tråd per barn per dag, max en kommentar från förälder och en från pedagog.
+
+#### 4.2.4 Historik & sökning
+
+| Element | Spec |
+|---------|------|
+| **Sök barn** | Dropdown/filter i header |
+| **Filter månad** | Välj månad (default: innevarande) |
+| **Filter pedagog** | Visa alla · endast Anna · endast Johan |
+| **Lista** | Datum · pedagog · anteckningsstatus · frånvaro |
+| **Klick** | Expandera dagvy (§4.2.3) read-only |
+
+**Wireframe — historik (i Samarbete eller underflik):**
+
+```
+Historik · Ella
+
+[ Sök barn ▾ ]  [ Månad: Juni ▾ ]  [ Pedagog: Alla ▾ ]
+
+17 juni  Anna Svensson   ✓ Publicerad
+16 juni  Anna Svensson   ✓ Publicerad
+16 juni  Johan Nilsson   ○ Saknas
+15 juni  —               FRÅNVARANDE (Anna)
+```
+
+#### 4.2.5 Förälder vs pedagog — ansvarsfördelning
+
+| Aspekt | Förälder (§4.2) | Pedagog (§4.4) |
+|--------|-----------------|----------------|
+| Status *KLAR* | Per pedagog — visas separat | Per **egen** pedagog — dashboard är inte aggregerat per barn |
+| Anteckningar | Ser alla publicerade | Ser/redigerar endast egna |
+| Inbjudan/återkalla | ✅ | ❌ |
+| Avbockning hemma | ✅ | ❌ (read-only) |
+| Avbockning skola | Ser resultat | ✅ |
+| Audit-logg | Sammanfattning + GDPR-export | — |
+| Prenumeration upphör | Badge (§4.4.18) | Befintlig åtkomst behålls |
 
 ### 4.3 Gating & prenumeration
 
@@ -358,7 +450,7 @@ Andersson-familjen har avslutat samarbetet för Ella.
 
 | Funktion | Läs | Skapa | Ändra | Ta bort |
 |----------|-----|-------|-------|---------|
-| Daganteckning (`pedagog_notes`) | ✅ egen | ✅ | ✅ egen, inom tidsfönster (§4.4.5) | ❌ |
+| Daganteckning (`pedagog_notes`) | ✅ egen | ✅ | ✅ egen: utkast ≤7d, publicerad t.o.m. 23:59 (§4.4.5) | ❌ |
 | Skolaktivitet (`pedagog_school_activity`) | ✅ egen + andras publicerade | ✅ | ✅ egen, inom tidsfönster | ✅ egen, inom tidsfönster |
 | Familjens schemaaktiviteter | ✅ | ❌ | ❌ | ❌ |
 | Familjens `daily_log_item` (hemma) | ✅ | ❌ | ❌ *(avbockning hemma låst)* | ❌ |
@@ -423,16 +515,18 @@ Fylls vid `/pedagog-invite` accept (valfria fält) eller senare under ⚙️ Ins
 
 **Tidszon:** Familjens `family.timezone` gäller för alla datumgränser — **inte** pedagogens enhet. Datumväljare och "idag" beräknas i familjens tidszon.
 
-**Redigeringsfönster** (anteckningar + skolaktiviteter + egna avbockningar):
+**P0-beslut — Alternativ A (anteckningar):** Publicerad anteckning låses **kl 23:59 samma dag** → `locked`. **Ingen redigering efter låsning.** Utkast följer separat regel nedan.
 
-| Datum | Beteende |
-|-------|----------|
-| **Idag** | Fri redigering |
-| **Igår** | Tillåtet |
-| **2–7 dagar bakåt** | Tillåtet |
-| **Äldre än 7 dagar** | 🔒 Låst — read-only |
+| Datatyp | Redigeringsregel |
+|---------|------------------|
+| **Anteckning — utkast** | Redigerbar inom **7 dagar**; äldre → read-only |
+| **Anteckning — publicerad** | Redigerbar **t.o.m. 23:59 samma dag** (familjens tidszon) |
+| **Anteckning — låst** | Aldrig redigerbar |
+| **Skolaktiviteter** | CRUD inom **7 dagar** |
+| **Egna avbockningar** | Ångra/redigera inom **7 dagar** |
+| **Samarbetskommentar** | Egen kommentar inom **24h** (§4.4.7) |
 
-**Anteckningslås (publicerad):** Publicerad anteckning låses automatiskt **kl 23:59** samma dag (familjens tidszon) → status `locked` (§4.4.6). Pedagog kan fortfarande redigera **före** midnatt om inom 7-dagarsfönstret.
+*Motivering:* Anteckningar är dagens dokumentation — lås vid midnatt ger tydlighet. Skolaktiviteter och avbockningar behåller 7-dagarsfönster för korrigering.
 
 #### 4.4.6 Anteckningsflöde (`pedagoganteckningar`)
 
@@ -454,9 +548,9 @@ Utkast → Publicerad → Låst
 
 | Status | DB-värde | Synlig för förälder | Redigerbar av pedagog |
 |--------|----------|---------------------|----------------------|
-| **Utkast** | `draft` | Nej | Ja (auto-spar) |
-| **Publicerad** | `published` | Ja | Ja, t.o.m. 23:59 samma dag |
-| **Låst** | `locked` | Ja | Nej |
+| **Utkast** | `draft` | Nej | Ja, inom 7 dagar |
+| **Publicerad** | `published` | Ja | Ja, **endast t.o.m. 23:59 samma dag** |
+| **Låst** | `locked` | Ja | **Nej — permanent** |
 
 **Migration:** `is_draft=true` → `note_status='draft'`; `is_draft=false` → `note_status='published'`. Ny kolumn `note_status TEXT NOT NULL DEFAULT 'draft'`.
 
@@ -525,7 +619,8 @@ Pedagog ska kunna markera **barn frånvarande** för en dag.
 
 | Konsekvens | Beteende |
 |------------|----------|
-| **Aktiviteter** | Döljs i pedagog dagvy (ej obligatoriska) |
+| **Aktiviteter** | **Visas read-only** i pedagog dagvy — checkboxar inaktiverade |
+| **Banner** | *"Barn markerat som frånvarande"* högst upp i dagvy |
 | **Anteckning** | Valfri — inte obligatorisk |
 | **Status i översikt** | `FRÅNVARANDE` (inte "åtgärd krävs") |
 | **Förälder** | Ser frånvaromarkering i daglogg med etikett *"Frånvarande (rapporterat av [pedagog])"* |
@@ -549,23 +644,31 @@ CREATE TABLE IF NOT EXISTS pedagog_day_absence (
 
 **Route:** `/pedagog-oversikt`
 
-Dashboard ska visa **arbetsstatus** — vad pedagogen behöver göra, inte bara siffror.
+Dashboard ska visa **inloggad pedagogs egen arbetsstatus** per delat barn — **inte** aggregerat över alla pedagoger.
 
 | Element | Funktion |
 |---------|----------|
 | Datumväljare | Välj dag (familjens tidszon) |
-| Barnlista | Alla delade barn med arbetsstatus |
+| Barnlista | Alla delade barn med **egen** arbetsstatus |
 | Filter | Visa alla · åtgärd krävs · klara · frånvarande |
-| Progress | *(X av Y klara)* |
+| Progress | *(X av Y klara)* — räknar **denna pedagogs** rader |
 
-**Status per barn:**
+**P0-beslut — status är per pedagog, inte per barn:**
+
+| Scenario | Annas dashboard | Johans dashboard | Förälder (§4.2.3) |
+|----------|-----------------|------------------|-------------------|
+| Anna publicerat, Johan ej | Ella = **KLAR** | Ella = **ÅTGÄRD KRÄVS** | Två separata rader |
+| Båda publicerat | KLAR | KLAR | Båda anteckningar visas |
+| Frånvaro markerad av Anna | **FRÅNVARANDE** | (påverkas ej) | Frånvaro visas med attribution |
+
+**Status per barn (för inloggad pedagog):**
 
 | Status | Villkor |
 |--------|---------|
-| `ÅTGÄRD KRÄVS` | Anteckning saknas/utkast **eller** obligatoriska aktiviteter ej klara |
-| `KLAR` | Publicerad anteckning + alla aktiviteter klara (eller frånvarande) |
-| `FRÅNVARANDE` | Frånvaro markerad (§4.4.8) |
-| `UTKAST` | Anteckning påbörjad men ej publicerad |
+| `ÅTGÄRD KRÄVS` | **Egen** anteckning saknas/utkast **eller** egna obligatoriska aktiviteter ej klara |
+| `KLAR` | **Egen** publicerad/låst anteckning + egna aktiviteter klara |
+| `FRÅNVARANDE` | **Egen** frånvaromarkering (§4.4.8) |
+| `UTKAST` | **Egen** anteckning påbörjad men ej publicerad |
 
 **Wireframe — pedagogöversikt:**
 
@@ -602,12 +705,15 @@ Pedagogen tänker i **tre steg** — inte en blandad lista.
 ```
 ←  Andersson — Ella ▼ · onsdag 17 juni
 
-[ Markera frånvarande ]
+⚠️ Barn markerat som frånvarande          ← vid frånvaro (§4.4.8)
+
+[ Markera frånvarande ] / [ Ta bort frånvaro ]
 
 ── 1. Dagens aktiviteter ─────────────────
 ☑ Morgonsamling     ✓ Klar hemma 07:15    ← Modell A: ej dubbelkryss
 ☐ Rast              ○
 ☑ Lunch             ✓ 11:45  [i skolan]
+   Kommentar (valfri): "Hungrig idag"     ← expanderar vid avbockning
 ☐ Vila              ○
 
 ── 2. Dagens dokumentation ───────────────
@@ -641,11 +747,35 @@ Pedagog **kan inte** kryssa igen. Ingen dubbel stjärnutdelning. Ingen separat s
 
 | Aspekt | Spec |
 |--------|------|
-| **Vad visas** | Dagens schemaaktiviteter + skolaktiviteter (§4.4.12) — ej dolda vid frånvaro |
+| **Vad visas** | Dagens schemaaktiviteter + skolaktiviteter (§4.4.12) — vid frånvaro: **read-only** + banner (§4.4.8) |
 | **Vad pedagog kan** | Kryssa av ej-klara aktiviteter · ångra **egen** avbockning · valfri kommentar |
 | **Vad pedagog inte kan** | Dubbelkryssa hemma-klara · ändra stjärnvärde · radera familjens aktiviteter |
-| **Synlighet för förälder** | *"Avklarad i skolan av [pedagog]"* eller *"Klar hemma av [barn]"* |
-| **Stjärnor** | En gång per aktivitet enligt `star_value` — pedagog-UI visar diskret hint: *"Ella får 2 stjärnor"* (pedagog ser inte Skattkammare) |
+| **Synlighet för förälder** | *"Avklarad i skolan av [pedagog]"* eller *"Klar hemma av [barn]"* + kommentar om finns |
+| **Stjärnor** | En gång per aktivitet enligt `star_value` — diskret hint: *"Ella får 2 stjärnor"* |
+
+**UX — `completion_comment`:**
+
+Pedagog (vid/efter avbockning):
+
+```
+☑ Lunch
+Kommentar (valfri):
+[ Hungrig idag                    ]
+```
+
+Förälder (Idag / Samarbete, §4.2.3):
+
+```
+Lunch
+Avklarad i skolan av Anna · 11:45
+Kommentar: "Hungrig idag"
+```
+
+| Regel | Detalj |
+|-------|--------|
+| **Fält** | `completion_comment` på `daily_log_item`, max 280 tecken |
+| **Valfritt** | Visas endast om ifyllt |
+| **Redigering** | Inom 7-dagarsfönster (§4.4.5), samma transaktion som ångra avbockning |
 
 **Datamodell — utökning `daily_log_item`:**
 
@@ -729,11 +859,26 @@ CREATE TABLE IF NOT EXISTS pedagog_school_activity (
 | Innehåll | Detalj |
 |----------|--------|
 | **Lista** | Senaste 30 dagar per valt barn |
-| **Rad** | Datum · anteckningsstatus · aktiviteter klara · frånvaro |
-| **Klick** | Öppna dagvy read-only om låst; redigerbar om inom 7-dagarsfönster |
-| **Filter** | Per barn · per månad |
+| **Rad** | Datum · **egen** anteckningsstatus · egna aktiviteter klara · frånvaro |
+| **Klick** | Öppna dagvy read-only om låst; redigerbar om inom tillåtet fönster (§4.4.5) |
+| **Sök barn** | Dropdown i header (samma som Idag-flik) |
+| **Filter månad** | Välj månad (default: innevarande) |
+| **Filter pedagog** | *(endast förälder i §4.2.4)* — pedagog ser alltid **egen** historik |
 
-Förälder har motsvarande historik i Samarbete-fliken (senaste anteckningar per pedagog).
+**Wireframe — pedagog historik:**
+
+```
+Historik
+
+[ Barn: Ella ▼ ]  [ Månad: Juni ▾ ]
+
+17 juni   ✓ Publicerad · 4/4 aktiviteter
+16 juni   ○ Utkast · 3/4 aktiviteter
+15 juni   FRÅNVARANDE
+14 juni   ✓ Låst · 4/4 aktiviteter
+```
+
+Förälder har motsvarande historik i Samarbete-fliken (§4.2.4) med filter per pedagog.
 
 #### 4.4.14 Åtkomstlogg (GDPR)
 
@@ -765,7 +910,9 @@ CREATE INDEX IF NOT EXISTS idx_pedagog_audit_child ON pedagog_audit_log (child_i
 | `access_revoked` | Förälder återkallar |
 | `absence_marked` | Frånvaro rapporterad |
 
-**Retention:** 12 månader. Förälder ser sammanfattning i Samarbete → *"Senaste aktivitet"* per pedagog. Full logg export via GDPR-export (befintlig `family-export`).
+**Retention:** 12 månader. Förälder ser sammanfattning i Samarbete → *"Senaste aktivitet"* per pedagog (§4.2.1).
+
+**GDPR-export (krav):** `pedagog_audit_log` **ska ingå** i familjens GDPR-export (`family-export.js` / `family-export-sql.js`) — samma scope som övriga barnrelaterade tabeller (`child_id IN family children`). Primärförälder kan begära full logg via befintlig exportfunktion.
 
 #### 4.4.15 Push-notiser
 
@@ -904,7 +1051,7 @@ pedagog: [
 | Audit-logg | ❌ | `pedagog_audit_log` |
 | Push | ❌ | §4.4.15 |
 | Pedagog-nav | ❌ (enkelsida) | 4 flikar + `pedagog-nav.js` |
-| Förälder Samarbete | ⚙️ Delvis | Full hantering (§4.2) |
+| Förälder Samarbete | ⚙️ Delvis | Full vy §4.2 (lista, dagvy, historik, kommentarer) |
 
 **Filer (implementation):**
 
@@ -2479,13 +2626,14 @@ Bygg efter Fas 0 (gating) — kan parallellt med Fas 2 eller 3.
 | 2b.5 | Pedagog dagvy (tre sektioner) | `public/pedagog-dag.html`, `public/js/pedagog-dag.js` *(ny)* |
 | 2b.6 | Pedagog-nav (**4 flikar**) + historik | `public/js/pedagog-nav.js`, `public/pedagog-historik.html` |
 | 2b.7 | Arbetsstatus-dashboard | `public/pedagog-oversikt.html` |
-| 2b.8 | Förälder Samarbete: hantera delning, kommentarer, attribution | Samarbete-flik / befintlig invite-UI |
+| 2b.8 | Förälder Samarbete (§4.2): lista, dagvy, historik/sök, kommentarer | Samarbete-flik + `public/js/samarbete.js` *(ny)* |
 | 2b.9 | Push-notiser pedagog + förälder | befintlig push-infra + `pedagog-push.js` |
 | 2b.10 | Feature-seed + analytics | `scripts/seed-features.js`, §15.3 |
+| 2b.11 | GDPR-export inkl. `pedagog_audit_log` | `src/lib/family-export.js`, `family-export-sql.js` |
 
 **Gating:** `requireComponent('pedagog')` på **nya** inbjudningar (§4.3); `requirePedagogAccess(childId)` på alla pedagog-write-routes.
 
-**Exit-kriterium:** Pedagog kan genomföra hela arbetsflödet (§4.4.17): öppna barn → avbocka (Modell A) → skolaktivitet → dokumentera → publicera → förälder får notis → anteckning låses 23:59. Flera pedagoger per barn med attribution. Audit-logg skriver vid view/publish/revoke. Samarbetskommentar per dag fungerar.
+**Exit-kriterium:** Pedagog arbetsflöde (§4.4.17) + förälder Samarbete (§4.2). Dashboard-status per pedagog (ej aggregerad). Anteckning låses 23:59 permanent. Frånvaro = read-only aktiviteter + banner. `completion_comment` i UI. GDPR-export inkluderar audit-logg.
 
 ### 16.6 Fas 3 — Extra stöd (teacch)
 
