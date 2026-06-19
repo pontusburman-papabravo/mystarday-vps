@@ -701,6 +701,172 @@ async function getNewsletterEffect() {
   };
 }
 
+/**
+ * UI view-mode toggle stats (Klassisk / Ny design) + child_view_config distribution.
+ * @param {number} days lookback window (default 30)
+ */
+async function getViewModeStats(days = 30) {
+  const windowDays = Math.min(90, Math.max(1, parseInt(days, 10) || 30));
+
+  const [childDbResult, previewAccessResult, analyticsResult] = await Promise.all([
+    db.query(`
+      SELECT
+        COALESCE(child_view_config->>'view_mode', 'classic') AS view_mode,
+        COUNT(*)::int AS count
+      FROM child
+      GROUP BY 1
+      ORDER BY 1
+    `),
+    db.query(`
+      SELECT COUNT(DISTINCT family_id)::int AS families_with_preview_access
+      FROM parent
+      WHERE LOWER(email) = ANY($1::text[])
+    `, [require('../src/lib/magic-view-access').getAllowlist()]),
+    db.query(`
+      WITH switched AS (
+        SELECT
+          family_id,
+          metadata->>'role' AS role,
+          COUNT(*) FILTER (
+            WHERE metadata->>'to_mode' = 'magic'
+          )::int AS switches_to_magic,
+          COUNT(*) FILTER (
+            WHERE metadata->>'to_mode' = 'classic' AND metadata->>'from_mode' = 'magic'
+          )::int AS switches_back_to_classic
+        FROM analytics_events
+        WHERE event_type = 'ui_view_mode_switched'
+          AND created_at >= NOW() - ($1::int * INTERVAL '1 day')
+        GROUP BY family_id, metadata->>'role'
+      ),
+      latest AS (
+        SELECT DISTINCT ON (family_id, metadata->>'role')
+          family_id,
+          metadata->>'role' AS role,
+          COALESCE(metadata->>'to_mode', metadata->>'mode') AS current_mode
+        FROM analytics_events
+        WHERE event_type IN ('ui_view_mode_session', 'ui_view_mode_switched')
+          AND created_at >= NOW() - ($1::int * INTERVAL '1 day')
+        ORDER BY family_id, metadata->>'role', created_at DESC
+      ),
+      sessions AS (
+        SELECT
+          metadata->>'role' AS role,
+          metadata->>'mode' AS mode,
+          COUNT(*)::int AS session_count,
+          COUNT(DISTINCT family_id)::int AS unique_families
+        FROM analytics_events
+        WHERE event_type = 'ui_view_mode_session'
+          AND created_at >= NOW() - ($1::int * INTERVAL '1 day')
+        GROUP BY metadata->>'role', metadata->>'mode'
+      ),
+      child_config_switches AS (
+        SELECT
+          COUNT(*) FILTER (WHERE metadata->>'to_mode' = 'new')::int AS to_new,
+          COUNT(*) FILTER (
+            WHERE metadata->>'to_mode' = 'classic' AND metadata->>'from_mode' = 'new'
+          )::int AS back_to_classic,
+          COUNT(DISTINCT family_id) FILTER (WHERE metadata->>'to_mode' = 'new')::int AS families_tried_new
+        FROM analytics_events
+        WHERE event_type = 'child_view_config_switched'
+          AND created_at >= NOW() - ($1::int * INTERVAL '1 day')
+      )
+      SELECT
+        (SELECT json_agg(row_to_json(s)) FROM sessions s) AS sessions,
+        (SELECT json_agg(row_to_json(l)) FROM latest l) AS latest_modes,
+        (SELECT json_agg(row_to_json(sw)) FROM switched sw) AS switches,
+        (SELECT row_to_json(ccs) FROM child_config_switches ccs) AS child_config_switches
+    `, [windowDays]),
+  ]);
+
+  const childDbView = { classic: 0, new: 0 };
+  for (const row of childDbResult.rows) {
+    if (row.view_mode === 'new') childDbView.new = row.count;
+    else childDbView.classic += row.count;
+  }
+
+  const raw = analyticsResult.rows[0] || {};
+  const sessions = raw.sessions || [];
+  const latestModes = raw.latest_modes || [];
+  const switches = raw.switches || [];
+  const childConfigSwitches = raw.child_config_switches || { to_new: 0, back_to_classic: 0, families_tried_new: 0 };
+
+  function buildRoleStats(role) {
+    const roleSessions = sessions.filter((s) => s.role === role);
+    const roleLatest = latestModes.filter((l) => l.role === role);
+    const roleSwitches = switches.filter((s) => s.role === role);
+
+    const sessionStats = {
+      classic: { sessions: 0, families: 0 },
+      magic: { sessions: 0, families: 0 },
+    };
+    for (const s of roleSessions) {
+      const bucket = s.mode === 'magic' ? sessionStats.magic : sessionStats.classic;
+      bucket.sessions += parseInt(s.session_count, 10) || 0;
+      bucket.families += parseInt(s.unique_families, 10) || 0;
+    }
+
+    const latestModeCounts = { classic: 0, magic: 0 };
+    for (const l of roleLatest) {
+      const mode = l.current_mode === 'magic' ? 'magic' : 'classic';
+      latestModeCounts[mode] += 1;
+    }
+
+    const triedMagicFamilies = new Set();
+    const switchedBackFamilies = new Set();
+    for (const sw of roleSwitches) {
+      if ((parseInt(sw.switches_to_magic, 10) || 0) > 0) {
+        triedMagicFamilies.add(sw.family_id);
+      }
+      if ((parseInt(sw.switches_back_to_classic, 10) || 0) > 0) {
+        switchedBackFamilies.add(sw.family_id);
+      }
+    }
+    for (const l of roleLatest) {
+      if (l.current_mode === 'magic') triedMagicFamilies.add(l.family_id);
+    }
+
+    const triedMagic = triedMagicFamilies.size;
+    const switchedBack = switchedBackFamilies.size;
+
+    return {
+      sessions: sessionStats,
+      latest_mode: latestModeCounts,
+      tried_magic: triedMagic,
+      switched_back: switchedBack,
+      switch_back_rate_pct: triedMagic > 0
+        ? Math.round((switchedBack / triedMagic) * 1000) / 10
+        : 0,
+      total_switches_to_magic: roleSwitches.reduce(
+        (sum, sw) => sum + (parseInt(sw.switches_to_magic, 10) || 0), 0
+      ),
+      total_switches_back: roleSwitches.reduce(
+        (sum, sw) => sum + (parseInt(sw.switches_back_to_classic, 10) || 0), 0
+      ),
+    };
+  }
+
+  const familiesTriedNew = parseInt(childConfigSwitches.families_tried_new, 10) || 0;
+  const backToClassic = parseInt(childConfigSwitches.back_to_classic, 10) || 0;
+
+  return {
+    period_days: windowDays,
+    preview_access_families: parseInt(previewAccessResult.rows[0]?.families_with_preview_access, 10) || 0,
+    ui_toggle: {
+      parent: buildRoleStats('parent'),
+      child: buildRoleStats('child'),
+    },
+    child_db_view: childDbView,
+    child_config_switches: {
+      to_new: parseInt(childConfigSwitches.to_new, 10) || 0,
+      back_to_classic: backToClassic,
+      families_tried_new: familiesTriedNew,
+      switch_back_rate_pct: familiesTriedNew > 0
+        ? Math.round((backToClassic / familiesTriedNew) * 1000) / 10
+        : 0,
+    },
+  };
+}
+
 module.exports = {
   track,
   recordEvent,
@@ -715,4 +881,5 @@ module.exports = {
   getRetentionCurve,
   getTrendData,
   getNewsletterEffect,
+  getViewModeStats,
 };

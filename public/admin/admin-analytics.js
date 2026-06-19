@@ -73,6 +73,7 @@ async function switchTab(tabName) {
   else if (tabName === 'retention') await loadRetention();
   else if (tabName === 'trends') await loadTrends();
   else if (tabName === 'newsletter') await loadNewsletter();
+  else if (tabName === 'viewmodes') await loadViewModes();
 }
 
 // ─── HTML skeleton ────────────────────────────────────────
@@ -89,6 +90,7 @@ function buildAnalyticsHTML() {
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">📈 Retention</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="trends">📉 Trender</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="newsletter">📧 Nyhetsbrev</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="viewmodes">🎨 Vyer</button>
       </div>
 
       <!-- ── OVERVIEW (Del 1) ──────────────────────────────── -->
@@ -359,6 +361,37 @@ function buildAnalyticsHTML() {
         </div>
       </div>
 
+      <!-- ── VIEW MODES ─────────────────────────────────── -->
+      <div id="section-viewmodes" class="analytics-section hidden space-y-8">
+        <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">🎨 Vy-användning</h3>
+          <p class="text-text-soft text-sm mb-6">Klassisk vs Ny design (UI-växlare) och barnvy i databasen</p>
+        </div>
+
+        <div id="viewModesSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <p class="text-text-soft text-sm col-span-full">Laddar...</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-sky p-6">
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Föräldrar — UI-växlare</h4>
+            <p class="text-text-soft text-xs mb-4">Senaste kända läge + växlingar (preview-allowlist)</p>
+            <div id="viewModesParentTable"></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-sky p-6">
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Barn — UI-växlare</h4>
+            <p class="text-text-soft text-xs mb-4">Senaste kända läge + växlingar i barn-dashboard</p>
+            <div id="viewModesChildTable"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-sky p-6">
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Barnvy i databasen (child_view_config)</h4>
+          <p class="text-text-soft text-xs mb-4">Föräldrainställning Klassisk / Ny som routar till child-new</p>
+          <div id="viewModesChildDbTable"></div>
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -521,6 +554,144 @@ async function loadNewsletter() {
   } catch (err) {
     console.error('[Analytics] loadNewsletter error:', err);
   }
+}
+
+async function loadViewModes() {
+  const summary = document.getElementById('viewModesSummary');
+  if (!summary || summary.dataset.loaded === 'true') return;
+  try {
+    const data = await Auth.api('/api/admin/analytics/view-modes?days=30');
+    renderViewModes(data);
+    summary.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadViewModes error:', err);
+    if (summary) {
+      summary.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda vy-statistik: ' + esc(err.message || 'fel') + '</p>';
+    }
+  }
+}
+
+function renderViewModeRoleTable(containerId, stats) {
+  const el = document.getElementById(containerId);
+  if (!el || !stats) return;
+
+  const classicSessions = stats.sessions?.classic || { sessions: 0, families: 0 };
+  const magicSessions = stats.sessions?.magic || { sessions: 0, families: 0 };
+  const latest = stats.latest_mode || { classic: 0, magic: 0 };
+
+  el.innerHTML = `
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-sky text-left text-text-soft text-xs font-semibold uppercase tracking-wide">
+          <th class="pb-2 pr-4">Mått</th>
+          <th class="pb-2 pr-4 text-right">Klassisk</th>
+          <th class="pb-2 text-right">Ny design</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-sky/40">
+          <td class="py-2 pr-4">Sessioner (30d)</td>
+          <td class="py-2 pr-4 text-right">${classicSessions.sessions}</td>
+          <td class="py-2 text-right">${magicSessions.sessions}</td>
+        </tr>
+        <tr class="border-b border-sky/40">
+          <td class="py-2 pr-4">Unika familjer (sessioner)</td>
+          <td class="py-2 pr-4 text-right">${classicSessions.families}</td>
+          <td class="py-2 text-right">${magicSessions.families}</td>
+        </tr>
+        <tr class="border-b border-sky/40">
+          <td class="py-2 pr-4">Senaste kända läge</td>
+          <td class="py-2 pr-4 text-right font-semibold">${latest.classic}</td>
+          <td class="py-2 text-right font-semibold text-amber-700">${latest.magic}</td>
+        </tr>
+        <tr class="border-b border-sky/40">
+          <td class="py-2 pr-4">Testat Ny design</td>
+          <td class="py-2 pr-4 text-right" colspan="2">${stats.tried_magic || 0} familjer</td>
+        </tr>
+        <tr class="border-b border-sky/40">
+          <td class="py-2 pr-4">Växlade tillbaka till Klassisk</td>
+          <td class="py-2 pr-4 text-right" colspan="2">${stats.switched_back || 0} familjer</td>
+        </tr>
+        <tr>
+          <td class="py-2 pr-4">Återvänderate</td>
+          <td class="py-2 pr-4 text-right" colspan="2">${stats.switch_back_rate_pct || 0}%</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="text-xs text-text-soft mt-3">Växlingar: ${stats.total_switches_to_magic || 0} → Ny design, ${stats.total_switches_back || 0} → Klassisk</p>
+  `;
+}
+
+function renderViewModes(data) {
+  const summary = document.getElementById('viewModesSummary');
+  if (!summary) return;
+
+  const parent = data.ui_toggle?.parent || {};
+  const child = data.ui_toggle?.child || {};
+  const childDb = data.child_db_view || { classic: 0, new: 0 };
+  const cfg = data.child_config_switches || {};
+
+  summary.innerHTML = `
+    <div class="bg-white rounded-2xl border border-sky p-4">
+      <p class="text-xs text-text-soft mb-1">Preview-tillgång</p>
+      <p class="text-2xl font-heading font-bold text-navy">${data.preview_access_families || 0}</p>
+      <p class="text-xs text-text-soft">familjer med UI-växlare</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-sky p-4">
+      <p class="text-xs text-text-soft mb-1">Föräldrar på Ny design</p>
+      <p class="text-2xl font-heading font-bold text-amber-700">${parent.latest_mode?.magic || 0}</p>
+      <p class="text-xs text-text-soft">senaste kända läge (${data.period_days || 30}d)</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-sky p-4">
+      <p class="text-xs text-text-soft mb-1">Barn på Ny design (UI)</p>
+      <p class="text-2xl font-heading font-bold text-amber-700">${child.latest_mode?.magic || 0}</p>
+      <p class="text-xs text-text-soft">senaste kända läge (${data.period_days || 30}d)</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-sky p-4">
+      <p class="text-xs text-text-soft mb-1">Barnvy Ny (databas)</p>
+      <p class="text-2xl font-heading font-bold text-navy">${childDb.new || 0}</p>
+      <p class="text-xs text-text-soft">av ${(childDb.classic || 0) + (childDb.new || 0)} barn totalt</p>
+    </div>
+  `;
+
+  renderViewModeRoleTable('viewModesParentTable', parent);
+  renderViewModeRoleTable('viewModesChildTable', child);
+
+  const childDbEl = document.getElementById('viewModesChildDbTable');
+  if (childDbEl) {
+    childDbEl.innerHTML = `
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-sky text-left text-text-soft text-xs font-semibold uppercase tracking-wide">
+            <th class="pb-2 pr-4">Vy</th>
+            <th class="pb-2 pr-4 text-right">Antal barn</th>
+            <th class="pb-2 text-right">Andel</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-sky/40">
+            <td class="py-2 pr-4">Klassisk</td>
+            <td class="py-2 pr-4 text-right">${childDb.classic || 0}</td>
+            <td class="py-2 text-right">${pct(childDb.classic, childDb.classic + childDb.new)}</td>
+          </tr>
+          <tr class="border-b border-sky/40">
+            <td class="py-2 pr-4">Ny (child-new)</td>
+            <td class="py-2 pr-4 text-right">${childDb.new || 0}</td>
+            <td class="py-2 text-right">${pct(childDb.new, childDb.classic + childDb.new)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="text-xs text-text-soft mt-3">
+        Föräldraväxlingar (30d): ${cfg.to_new || 0} till Ny, ${cfg.back_to_classic || 0} tillbaka till Klassisk
+        (${cfg.switch_back_rate_pct || 0}% återvänderate, ${cfg.families_tried_new || 0} familjer testade)
+      </p>
+    `;
+  }
+}
+
+function pct(part, total) {
+  if (!total) return '0%';
+  return Math.round((part / total) * 1000) / 10 + '%';
 }
 
 // ─── KPI Cards (Del 1) ───────────────────────────────────

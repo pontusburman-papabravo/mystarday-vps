@@ -35,6 +35,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'for_dig_install_logged',
   'for_dig_favorite_toggle',
   'win_back_landing',
+  'ui_view_mode_session',
+  'ui_view_mode_switched',
+  'child_view_config_switched',
 ]);
 
 /**

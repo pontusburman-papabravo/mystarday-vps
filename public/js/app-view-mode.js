@@ -14,6 +14,30 @@
   var _allowed = false;
   var _ready = false;
   var _listeners = [];
+  var SESSION_TRACK_KEY = 'stjarndag_view_analytics_session';
+
+  function trackViewEvent(eventType, metadata) {
+    try {
+      fetch('/api/analytics/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: eventType, metadata: metadata || {} }),
+        credentials: 'include',
+      }).catch(function () {});
+    } catch (_) {}
+  }
+
+  function trackSessionOnce() {
+    if (!_allowed || !_role) return;
+    try {
+      var key = SESSION_TRACK_KEY + '_' + _role + (_childId ? '_' + _childId : '');
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+      trackViewEvent('ui_view_mode_session', { role: _role, mode: _mode });
+    } catch (_) {
+      trackViewEvent('ui_view_mode_session', { role: _role, mode: _mode });
+    }
+  }
 
   function normalize(mode) {
     return mode === 'magic' ? 'magic' : 'classic';
@@ -92,6 +116,7 @@
     applyBodyClasses();
     updateToggleUi();
     setToggleVisible(_allowed);
+    trackSessionOnce();
     notify();
     return _allowed;
   }
@@ -144,7 +169,13 @@
     mode = normalize(mode);
     if (mode === _mode && !options.force) return _mode;
 
+    var previousMode = _mode;
     _mode = mode;
+    trackViewEvent('ui_view_mode_switched', {
+      role: _role,
+      from_mode: previousMode,
+      to_mode: mode,
+    });
     if (_role === 'parent') {
       writeStorage(PARENT_KEY, mode);
     } else if (_role === 'child' && _childId) {

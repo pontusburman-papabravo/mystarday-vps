@@ -115,6 +115,15 @@ function initViewConfigPanel() {
           newBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.add('hidden');
           showSuccessToast('Klassisk vy sparad!');
+          fetch('/api/analytics/event', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_type: 'child_view_config_switched',
+              metadata: { child_id: childId, from_mode: 'new', to_mode: 'classic' },
+            }),
+          }).catch(() => {});
         }
       }
     };
@@ -128,6 +137,15 @@ function initViewConfigPanel() {
           classicBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.remove('hidden');
           showSuccessToast('Ny vy sparad!');
+          fetch('/api/analytics/event', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_type: 'child_view_config_switched',
+              metadata: { child_id: childId, from_mode: 'classic', to_mode: 'new' },
+            }),
+          }).catch(() => {});
         }
       }
     };

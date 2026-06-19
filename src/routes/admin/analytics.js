@@ -131,6 +131,19 @@ router.get('/analytics/newsletter-effect', async (req, res) => {
     res.status(500).json({ error: 'Kunde inte hämta nyhetsbrevseffekt' });
   }
 });
+// ─── GET /api/admin/analytics/view-modes ─────────────────
+// UI view toggle adoption + switch-back rates (Klassisk / Ny design)
+router.get('/analytics/view-modes', async (req, res) => {
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(req.query.days, 10) || 30));
+    const data = await analytics.getViewModeStats(days);
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN analytics] view-modes error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta vy-statistik' });
+  }
+});
+
 // ─── POST /api/admin/analytics/snapshot ──────────────────
 // Manually trigger today's snapshot write (useful on deploy)
 router.post('/analytics/snapshot', async (req, res) => {
