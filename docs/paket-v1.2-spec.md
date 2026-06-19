@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§9.10 admin prenumeration · §4.4 · mockup v2 12-panel)  
+**Uppdaterad:** 2026-06-17 (§13.10 UX 10/10 · §9.10 admin · pedagog mockup v3)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -2605,29 +2605,14 @@ teacch           ○ Saknas    —                [ Tilldela ]
 - [ ] Alla admin-ändringar i audit-logg
 - [ ] Befintlig Basic/trial/grundargräns/betalnings-toggle fungerar oförändrat
 
-#### 9.10.9 Visuell referens — pedagogläge mockup (12 paneler)
+#### 9.10.9 Visuell referens — pedagogläge mockup
 
-**Definitiv v1.2-implementationsreferens:** `docs/mockups/pedagog-lage-v12-reference-PROMPT.md`  
-**Utdatafil:** `docs/mockups/pedagog-lage-v12-reference.png`
+**Definitiv 10/10 UX-referens:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (§13.10)  
+**Utdatafil:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
 
-Kontaktkarta 4×3 (12 iPhone-skärmar). Kritiska IA-regler:
+**Minimikrav IA (v2):** `docs/mockups/pedagog-lage-v12-reference-PROMPT.md` — använd endast om v3 saknas.
 
-| Panel | Innehåll |
-|-------|----------|
-| 1 | Pedagogöversikt — 3-fliksnav + ⚙️ |
-| 2 | Idag — Modell A, `Markera frånvarande` |
-| 3 | Lägg till skolaktivitet (modal) |
-| 4 | Inbjudan accepterad |
-| 5 | Dual-roll profil |
-| 6 | Tomt tillstånd — *Inga barn delade* |
-| 7 | **Förälder Samarbete** — strukturerade sektioner, **ingen chat**; nav: Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd |
-| 8 | Historik — datumlista med `4/4 aktiviteter`, **ingen** månadssammanfattning |
-| 9 | Frånvaro — *Barn markerat som frånvarande*, `Ta bort frånvaro` |
-| 10 | Åtkomst borttagen — redirect till översikt |
-| 11 | Samarbetskommentar input — max 1 per sida/dag |
-| 12 | Pedagog inställningar (⚙️) — profil, notiser, logga ut |
-
-**Pedagog har aldrig Samarbete-flik.** Förälder har aldrig Hem/Rapport i bottom nav.
+Kontaktkarta 4×3 (12 skärmar). Kritiska regler: prioriteringskö · stepper · puls-kort · ingen chat · pedagog `Översikt·Idag·Historik` · förälder 5 flikar.
 
 ---
 
@@ -2749,6 +2734,7 @@ Kontaktkarta 4×3 (12 iPhone-skärmar). Kritiska IA-regler:
 | AS | **what_next scrub fryser visuellt snapshot** vid mallradering (§7.2) |
 | AT | **PWA full funktion efter köp** — endast köptransaktion blockeras på webben (§9.7) |
 | AU | **IAP webhook idempotent** via `revenuecat_event_id` (§16.8) |
+| AV | **Pedagog UX v3** — prioriteringskö, stepper, puls-kort; IA > estetik (§13.10) |
 
 ---
 
@@ -2947,6 +2933,180 @@ Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl int
 | Extra stöd-innehåll | 7/10 → 9/10 | Integrera i NU **med pictogram + timer + Läs upp** |
 | Paketstrategi i UI | 7/10 | Lägg till preview-skärmar |
 | Tillgänglighet icke-läsande | — | §7.5 + §14.1 — pictogram, timer, TTS, familjefoto |
+| **Pedagog & Samarbete** | v2: 7/10 · snygg fel-IA: 5/10 | **Mål 10/10:** §13.10 + `pedagog-lage-v12-ux-v3-PROMPT.md` |
+
+### 13.10 Pedagog & Samarbete — UX 10/10 (målbild)
+
+*§4.2/§4.4 = **vad**. Denna sektion = **hur det ska kännas**. Implementation ska sikta hit — inte form-tunga wireframes eller snygga men felaktiga mockups.*
+
+**Konstitutionell UX-regel:** *IA > estetik.* En pedagog öppnar appen för att svara på tre frågor inom 2 sekunder:
+
+1. **Vad behöver jag göra nu?**
+2. **Vilket barn gäller det?**
+3. **Finns något som kräver åtgärd?**
+
+**Förbjudet i pedagog-UI:** kollegolistor, veckostatistik, notis-feeds, *"senaste kommentarer"*, återkommande schema i dagvy, `Hem`/`Mer`-nav.
+
+#### 13.10.1 Pedagogöversikt — prioriteringsmotor
+
+**Princip:** En **kö** sorterad på handling — inte dashboard med statistik.
+
+```
+Pedagogöversikt                              ⚙️
+Idag · 2 kräver åtgärd · onsdag 17 juni
+
+⚠️ 2 barn kräver åtgärd
+
+────────────────────────────────────────
+🟠 Ella Andersson
+   2 aktiviteter kvar · anteckning saknas
+   [ Fortsätt → ]
+────────────────────────────────────────
+🟢 Noah Lindqvist
+   Allt klart · publicerad 14:32
+   [ Visa → ]
+────────────────────────────────────────
+⚪ Maja Svensson
+   Frånvarande idag
+   [ Visa → ]
+────────────────────────────────────────
+
+[ Filter ▾ ]  Åtgärd krävs · Alla · Klara · Frånvarande
+```
+
+| UX-regel | Detalj |
+|----------|--------|
+| **Färgremsa vänster** | Orange = åtgärd · grön = klar · grå = frånvaro |
+| **Primär copy = handling** | *"Fortsätt dokumentation"* — inte skrikande `ÅTGÄRD KRÄVS` |
+| **Hela raden klickbar** | → Idag med rätt `childId` |
+| **Frånvaro egen grupp** | Längst ner — blockerar inte prioritetskö |
+| **Aldrig här** | Andra pedagoger · veckosammanfattning · *"12 skolaktiviteter"* |
+
+**Nav:** `Översikt · Idag · Historik` + ⚙️ — **aldrig** Hem/Mer.
+
+#### 13.10.2 Idag — guidat stepper (inte tre formulär)
+
+```
+Andersson — Ella ▼     ons 17 jun  [ Frånvaro ▾ ]
+
+●━━━━━○━━━━━○  Steg 2 av 3 · Dokumentation
+
+── 1. Aktiviteter ───────────────  ✓ Klar  [▾]
+── 2. Dokumentation ─────────────  ● Nu
+   Humör  [😊 4/5]  Måltider  Beteende  (chips, tap-to-set)
+── 3. Publicera ──────────────────  ○
+
++ Lägg till skolaktivitet          (sekundär länk)
+
+┌─────────────────────────────────────┐
+│  [ Publicera anteckning ]           │  ← sticky footer
+└─────────────────────────────────────┘
+```
+
+| UX-regel | Detalj |
+|----------|--------|
+| **Stepper** | Klara steg hopfälls till en rad |
+| **Veckoremsa** *(valfritt)* | Kompakt M T O T F under header — kompletterar barnväljare |
+| **Modell A** | `✓ Klar hemma 07:15` som muted chip — checkbox endast för ej-klara |
+| **Sticky Publicera** | Syns när steg 2 påbörjat |
+| **Frånvaro** | `Frånvaro ▾` i header — banner top + allt disabled, ingen stepper |
+
+#### 13.10.3 Lägg till skolaktivitet — en skärm, extremt snabb
+
+**Förbjudet:** starttid, återkommande, typ-dropdown, grupphantering.
+
+```
+Lägg till skolaktivitet
+
+[ 🏃 Rast ]  [ 🍎 Lunch ]  [ 🚌 Utflykt ]  [ 👥 Grupparbete ]
+
+Namn
+[ Grupparbete                    ]
+
+★ Stjärnor (valfritt)  [ 0 ▾ ]
+
+[ Avbryt ]              [ Lägg till ]
+```
+
+Bottom sheet eller modal — **max 5 interaktioner** till klar.
+
+#### 13.10.4 Samarbete (förälder) — arbetsyta, inte feed
+
+**Segmenterad vy** (underflikar i Samarbete — **inte** extra bottom-nav-flikar):
+
+```
+Samarbete                         [ + Bjud in pedagog ]
+
+[ Ella ▾ ]
+
+[ Idag ● | Pedagoger | Historik ]
+
+┌─ Dagens puls · 17 juni ─────────────────┐
+│ 📋 Anna · publicerad 14:32               │
+│ Humör bra · Lunch OK · Lugn eftermiddag   │
+│                                          │
+│ 💬 Förälder: "Sov dåligt inatt"          │
+│    Anna: "Vi håller extra koll"          │  ← max 2 rader
+└──────────────────────────────────────────┘
+
+┌─ Väntar ─────────────────────────────────┐
+│ Johan har inte antecknat idag            │
+└──────────────────────────────────────────┘
+
+[ Lägg till kommentar ]   ← endast om ej kommenterat idag
+```
+
+| Flik | Innehåll |
+|------|----------|
+| **Idag** | Puls-kort + väntar-status + kommentar-CTA |
+| **Pedagoger** | Profil, barn, senast aktiv, Återkalla, Visa historik |
+| **Historik** | §4.2.4 — filter månad/pedagog |
+
+**Förbjudet:** *"1 oläst"*, *"SENASTE KOMMENTARER"*, kronologisk chat, *"Svara"*.
+
+**Bottom nav (förälder):** `Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd` — **alla 5 alltid**.
+
+#### 13.10.5 Övriga skärmar — polish från snygg mockup (behåll)
+
+| Skärm | Behåll från senaste iteration | Justera |
+|-------|------------------------------|---------|
+| Inbjudan | Stor check, tydlig CTA | — |
+| Tomt tillstånd | Illustration + en primär CTA | 3 numrerade steg, inte textvägg; *Uppdatera* sekundär |
+| Åtkomst borttagen | Empati + en knapp | *"Gå till Översikt"* |
+| Inställningar | KONTO / NOTISER / SUPPORT | Minimikrav §4.4.16: profil + logga ut |
+| Kommentar-input | *max 1 per dag* | Knapp *Spara* — inte *Skicka* |
+
+#### 13.10.6 Mikrointeraktioner
+
+| Moment | Beteende |
+|--------|----------|
+| Avbocka aktivitet | Check-animation + *"Ella får 2 stjärnor"* (diskret) |
+| Publicera | Toast + haptic · *"Föräldern meddelas"* |
+| Frånvaro | Mjuk övergång till disabled — lavendel banner **top** |
+| Revoke | Empati-copy — inte tekniskt 403 |
+
+#### 13.10.7 Visuell hierarki & designsystem
+
+| Nivå | Exempel |
+|------|---------|
+| 1 — Primär | Barnnamn, puls-rubrik |
+| 2 — Handling | Lila knappar: Fortsätt, Publicera, Lägg till |
+| 3 — Status | Muted: Klar hemma 07:15, publicerad 14:32 |
+| 4 — Meta | Filter, sekundära länkar |
+
+**Tokens:** bakgrund `#F5F4F0` · navy `#1B2340` · lila `#8B5CF6` · grön `#22C55E` · amber `#F5A623` · Outfit + Plus Jakarta Sans · kort 16px radius.
+
+#### 13.10.8 Mockup-versioner — vilken gäller?
+
+| Version | Betyg | Status |
+|---------|-------|--------|
+| v1 (11 panel) | 6/10 | Superseded |
+| v2 (12 panel, form-tung) | 7/10 | Minimikrav IA |
+| Snygg fel-IA (14 panel, Hem/Mer) | 5/10 | **Avvisa** |
+| **v3 (12 panel, §13.10)** | **10/10 mål** | **Definitiv referens** |
+
+**Prompt:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md`  
+**Utdata:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
 
 ---
 
