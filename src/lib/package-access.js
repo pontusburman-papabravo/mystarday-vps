@@ -5,6 +5,7 @@
 
 const appConfig = require('../../db/app-config');
 const familySubscriptions = require('../../db/family-subscriptions');
+const packageInterest = require('../../db/package-interest');
 const featuresDb = require('../../db/features');
 const db = require('./db');
 const {
@@ -160,6 +161,7 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
   };
 
   const featureAccess = await buildFeatureAccess(familyId, components);
+  const interest = await packageInterest.getInterestMapForFamily(familyId);
 
   return {
     rollout_mode,
@@ -169,6 +171,7 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
     features: featureAccess,
     preview,
     archive,
+    interest,
   };
 }
 

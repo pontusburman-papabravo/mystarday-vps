@@ -38,6 +38,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // ── Init ─────────────────────────────────────────────────────────
 async function initReports() {
+  if (window.PreviewShell) {
+    try {
+      const tookOver = await PreviewShell.takeOverPage({
+        component: 'reporting',
+        source: 'contextual_trigger',
+        container: document.getElementById('reportsMain'),
+      });
+      if (tookOver) return;
+    } catch (_) { /* fall through to real reports */ }
+  }
+
   await loadChildren();
   loadSharedReports();
   // Show/hide pedagog_notes checkbox based on whether parent has pedagogen-linked children

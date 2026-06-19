@@ -1,0 +1,236 @@
+/* Preview shell — mock package surfaces (§9.3) */
+
+.preview-shell {
+  position: relative;
+  width: 100%;
+}
+
+.preview-shell--full {
+  min-height: calc(100vh - 5rem);
+  padding: 1rem 1rem 6rem;
+  box-sizing: border-box;
+}
+
+.preview-shell-inner {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.preview-banner {
+  background: linear-gradient(135deg, #fff8f0 0%, #ede7f6 100%);
+  border: 1px solid rgba(27, 35, 64, 0.08);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.preview-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7c5cbf;
+  background: #f3ecff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+
+.preview-banner strong {
+  display: block;
+  font-size: 1.25rem;
+  color: #1b2340;
+  margin-bottom: 0.25rem;
+}
+
+.preview-tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #5a6178;
+  line-height: 1.45;
+}
+
+.preview-mock {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(27, 35, 64, 0.1);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.preview-mock--watermarked::after {
+  content: attr(data-watermark);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  font-size: clamp(1rem, 4vw, 1.35rem);
+  font-weight: 700;
+  color: rgba(27, 35, 64, 0.08);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.preview-child-name,
+.preview-educator,
+.preview-meta {
+  font-size: 0.85rem;
+  color: #5a6178;
+  margin: 0 0 0.75rem;
+}
+
+.preview-section-title {
+  font-size: 1.1rem;
+  color: #1b2340;
+  margin: 0 0 1rem;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.preview-stat {
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.preview-stat-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1b2340;
+}
+
+.preview-stat-label {
+  font-size: 0.75rem;
+  color: #5a6178;
+}
+
+.preview-highlights {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #2a3458;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.preview-quote {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid #f5a623;
+  background: #fff8f0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  color: #2a3458;
+}
+
+.preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.preview-chip {
+  font-size: 0.75rem;
+  background: #e8f0fe;
+  color: #1b2340;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.preview-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.preview-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+}
+
+.preview-question-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.preview-question-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #5a6178;
+}
+
+.preview-question-value {
+  display: block;
+  font-size: 0.95rem;
+  color: #1b2340;
+  font-weight: 600;
+}
+
+.preview-cta-area {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 30%);
+  padding: 1rem 0 0.5rem;
+  text-align: center;
+}
+
+.preview-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(100%, 18rem);
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f5a623 0%, #e8940f 100%);
+  color: #1b2340;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.35);
+}
+
+.preview-cta-btn:disabled {
+  opacity: 0.75;
+  cursor: default;
+  box-shadow: none;
+}
+
+.preview-cta-sublabel {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #5a6178;
+}
+
+.preview-cta-feedback {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #2a7a4b;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .preview-cta-area {
+    position: static;
+    background: none;
+    padding-top: 0.5rem;
+  }
+}
