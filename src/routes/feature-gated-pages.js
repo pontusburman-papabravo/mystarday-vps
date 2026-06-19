@@ -17,10 +17,27 @@ const db = require('../lib/db');
 
 const router = express.Router();
 
+function requireParentPage(req, res, next) {
+  if (!req.user || req.user.type !== 'parent') {
+    return res.redirect('/login?next=' + encodeURIComponent(req.originalUrl || '/dashboard'));
+  }
+  next();
+}
+
 // ─── GET /reports ────────────────────────────────────────
-// Requires 'klinisk_rapportering' feature. Redirects to /dashboard if no access.
-router.get('/reports', optionalAuth, gateHtmlPage('klinisk_rapportering', '/dashboard'), (req, res) => {
+// Page loads for all parents; preview-shell or real UI per package-access (§6.6).
+router.get('/reports', optionalAuth, requireParentPage, (req, res) => {
   res.sendFile(path.join(__dirname, '..', '..', 'public', 'reports.html'));
+});
+
+// ─── GET /samarbete — pedagog hub (preview or real per component) ───
+router.get('/samarbete', optionalAuth, requireParentPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'samarbete.html'));
+});
+
+// ─── GET /barn-stod — teacch + child shortcuts hub ───
+router.get('/barn-stod', optionalAuth, requireParentPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', '..', 'public', 'barn-stod.html'));
 });
 
 // ─── GET /pedagog-note ───────────────────────────────────

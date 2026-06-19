@@ -55,7 +55,7 @@ async function getInterestMapForFamily(familyId) {
 }
 
 /**
- * Admin stats helper (E13).
+ * Get admin stats helper (E13).
  */
 async function getInterestCountsByComponent() {
   const { rows } = await db.query(
@@ -67,8 +67,89 @@ async function getInterestCountsByComponent() {
   return rows;
 }
 
+/**
+ * List interest registrations for admin (§9.10.5).
+ * @param {{ component?: string, source?: string, from?: string, to?: string, limit?: number, offset?: number }} filters
+ */
+async function listInterest(filters = {}) {
+  const {
+    component,
+    source,
+    from,
+    to,
+    limit = 50,
+    offset = 0,
+  } = filters;
+
+  const conditions = ['1=1'];
+  const params = [];
+  let idx = 1;
+
+  if (component) {
+    conditions.push(`pi.component = $${idx++}`);
+    params.push(component);
+  }
+  if (source) {
+    conditions.push(`pi.source = $${idx++}`);
+    params.push(source);
+  }
+  if (from) {
+    conditions.push(`pi.created_at >= $${idx++}::timestamptz`);
+    params.push(from);
+  }
+  if (to) {
+    conditions.push(`pi.created_at <= $${idx++}::timestamptz`);
+    params.push(to);
+  }
+
+  const where = conditions.join(' AND ');
+  const limitIdx = idx++;
+  const offsetIdx = idx++;
+  params.push(Math.min(Math.max(limit, 1), 200), Math.max(offset, 0));
+
+  const { rows } = await db.query(
+    `SELECT
+       pi.id,
+       pi.family_id,
+       pi.parent_id,
+       pi.component,
+       pi.source,
+       pi.comment,
+       pi.created_at,
+       f.name AS family_name,
+       p.name AS parent_name
+     FROM package_interest pi
+     JOIN family f ON f.id = pi.family_id
+     JOIN parent p ON p.id = pi.parent_id
+     WHERE ${where}
+     ORDER BY pi.created_at DESC
+     LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+    params
+  );
+
+  const countParams = params.slice(0, params.length - 2);
+  const { rows: countRows } = await db.query(
+    `SELECT COUNT(*)::int AS total
+     FROM package_interest pi
+     WHERE ${where}`,
+    countParams
+  );
+
+  return { rows, total: countRows[0]?.total ?? 0 };
+}
+
+/**
+ * CSV export rows (same filters as listInterest, no pagination cap for export).
+ */
+async function listInterestForExport(filters = {}) {
+  const result = await listInterest({ ...filters, limit: 10000, offset: 0 });
+  return result.rows;
+}
+
 module.exports = {
   registerInterest,
   getInterestMapForFamily,
   getInterestCountsByComponent,
+  listInterest,
+  listInterestForExport,
 };
