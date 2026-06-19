@@ -3,6 +3,47 @@ require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 platform :ios, '14.0'
 use_frameworks!
 
+# Durable Sign in with Apple iPad fix.
+#
+# @capacitor-community/apple-sign-in ships a Plugin.swift WITHOUT an
+# ASAuthorizationControllerPresentationContextProviding — required on iPad,
+# otherwise Apple Sign In fails with ASAuthorizationError 1000 (App Review 2.1a).
+#
+# We patch it here, in the committed Podfile, so the fix is applied on EVERY
+# `pod install` — whether the build runs on Xcode Cloud or a local Xcode archive.
+# This is intentionally redundant with scripts/patch-ios-apple-sign-in-presentation.mjs
+# so the fix can never silently fall out of the binary again.
+def patch_apple_sign_in_presentation!
+  patched = File.expand_path('../../scripts/ios/SignInWithApple-Plugin.patched.swift', __dir__)
+  target = File.expand_path(
+    '../../node_modules/@capacitor-community/apple-sign-in/ios/Sources/SignInWithApple/Plugin.swift',
+    __dir__
+  )
+
+  unless File.exist?(patched)
+    Pod::UI.warn "[apple-sign-in] Patched source missing (#{patched}); iPad presentation fix NOT applied."
+    return
+  end
+  unless File.exist?(target)
+    Pod::UI.warn "[apple-sign-in] Plugin.swift not found (#{target}); iPad presentation fix NOT applied."
+    return
+  end
+
+  patched_contents = File.read(patched)
+  unless patched_contents.include?('ASAuthorizationControllerPresentationContextProviding') &&
+         patched_contents.include?('presentationContextProvider = self')
+    Pod::UI.warn '[apple-sign-in] Vendored patch is missing the presentation context provider; aborting patch.'
+    return
+  end
+
+  if File.read(target) == patched_contents
+    Pod::UI.message '[apple-sign-in] iPad presentation fix already present.'
+  else
+    File.write(target, patched_contents)
+    Pod::UI.message '[apple-sign-in] Applied iPad presentation fix to Plugin.swift.'
+  end
+end
+
 # workaround to avoid Xcode caching of Pods that requires
 # Product -> Clean Build Folder after new Cordova plugins installed
 # Requires CocoaPods 1.6 or newer
@@ -23,6 +64,8 @@ target 'App' do
 end
 
 post_install do |installer|
+  patch_apple_sign_in_presentation!
+
   installer.pods_project.build_configurations.each do |config|
     config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
   end
