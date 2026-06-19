@@ -15,6 +15,16 @@
   var _ready = false;
   var _listeners = [];
 
+  function persistChildDbMode(mode) {
+    if (_role !== 'child' || !_childId || !_allowed) return;
+    fetch('/api/children/' + _childId + '/view-config/self', {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ view_mode: uiModeToDb(mode) }),
+    }).catch(function () {});
+  }
+
   function normalize(mode) {
     return mode === 'magic' ? 'magic' : 'classic';
   }
@@ -107,10 +117,12 @@
   function initChild(childId, dbViewMode) {
     _role = 'child';
     _childId = childId;
-    var stored = childId ? readStorage(childKey(childId)) : null;
-    var initial = stored || dbModeToUi(dbViewMode || 'classic');
+    var dbUi = dbModeToUi(dbViewMode || 'classic');
     return fetchAccess().then(function () {
-      return finishInit(initial);
+      if (_allowed && childId) {
+        writeStorage(childKey(childId), dbUi);
+      }
+      return finishInit(dbUi);
     });
   }
 
@@ -149,6 +161,7 @@
       writeStorage(PARENT_KEY, mode);
     } else if (_role === 'child' && _childId) {
       writeStorage(childKey(_childId), mode);
+      persistChildDbMode(mode);
     }
 
     applyBodyClasses();

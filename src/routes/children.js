@@ -54,6 +54,41 @@ router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (re
   }
 });
 
+// ─── PATCH /api/children/:id/view-config/self (child — view_mode only) ──
+router.patch('/:id/view-config/self', requireAuth, validateParams(UUIDParam), async (req, res) => {
+  try {
+    if (req.user.type !== 'child' || req.user.id !== req.params.id) {
+      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    }
+
+    const { view_mode: viewMode } = req.body || {};
+    if (!viewMode || !['classic', 'new'].includes(viewMode)) {
+      return res.status(400).json({ error: 'view_mode must be "classic" or "new"' });
+    }
+
+    const existing = await db.query(
+      'SELECT child_view_config FROM child WHERE id = $1',
+      [req.params.id]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Barnet hittades inte' });
+    }
+
+    const current = existing.rows[0].child_view_config || {};
+    const merged = { ...current, view_mode: viewMode };
+
+    await db.query(
+      'UPDATE child SET child_view_config = $1 WHERE id = $2',
+      [JSON.stringify(merged), req.params.id]
+    );
+
+    res.json(merged);
+  } catch (err) {
+    console.error('[VIEW-CONFIG] PATCH self error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 // All other routes require parent auth + pedagogen-only guard
 router.use(requireParent);
 router.use(requireNotPedagogOnly);

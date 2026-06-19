@@ -5,12 +5,16 @@
  * Does NOT own: auth middleware (handled at mount level), daily-log rendering.
  * Feature gate: ny_barnvy gates access to the new view. If feature is off, the
  * child_view_config setting is ignored and all children go to the classic view.
+ * Magic preview families: view_mode 'new' routes to child-dashboard (AppViewMode magic),
+ * not child-new.html. Other families still use child-new for 'new'.
  * Admin bypass: req.user.isAdmin skips feature gates.
  */
 const express = require('express');
 const db = require('../lib/db');
 const { optionalAuth } = require('../middleware/auth');
 const { redirectIfNoAccess } = require('../middleware/feature-gate');
+const { familyHasMagicViewAccess } = require('../lib/magic-view-access');
+const { resolveChildViewPath } = require('../lib/child-view-redirect');
 
 const router = express.Router();
 
@@ -32,20 +36,23 @@ router.get('/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child-da
     }
 
     const result = await db.query(
-      'SELECT child_view_config FROM child WHERE id = $1',
+      'SELECT family_id, child_view_config FROM child WHERE id = $1',
       [childId]
     );
     if (result.rows.length === 0) {
       return res.redirect('/child-login');
     }
 
-    const { view_mode: viewMode } = result.rows[0].child_view_config || {};
+    const row = result.rows[0];
+    const { view_mode: viewMode } = row.child_view_config || {};
 
-    if (viewMode === 'new') {
-      return res.redirect(`/child-new/${childId}`);
-    }
-
-    return res.redirect(`/child-dashboard?child=${childId}`);
+    const target = await resolveChildViewPath({
+      viewMode,
+      childId,
+      familyId: row.family_id,
+      hasMagicAccess: familyHasMagicViewAccess,
+    });
+    return res.redirect(target);
   } catch (err) {
     console.error('[CHILD-VIEW] Route error:', err);
     return res.redirect('/child-login');
@@ -60,7 +67,23 @@ router.get('/new/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/chil
   if (!isValidUuid(childId)) {
     return res.redirect('/child-login');
   }
-  res.redirect(`/child-new.html?child=${childId}`);
+  try {
+    const result = await db.query(
+      'SELECT family_id FROM child WHERE id = $1',
+      [childId]
+    );
+    if (result.rows.length === 0) {
+      return res.redirect('/child-login');
+    }
+    const hasMagicDashboard = await familyHasMagicViewAccess(result.rows[0].family_id);
+    if (hasMagicDashboard) {
+      return res.redirect(`/child-dashboard?child=${childId}`);
+    }
+    res.redirect(`/child-new.html?child=${childId}`);
+  } catch (err) {
+    console.error('[CHILD-VIEW] /new route error:', err);
+    res.redirect('/child-login');
+  }
 });
 
 module.exports = router;

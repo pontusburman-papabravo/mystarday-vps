@@ -127,7 +127,7 @@ function initViewConfigPanel() {
           newBtn.classList.add('active');
           classicBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.remove('hidden');
-          showSuccessToast('Ny vy sparad!');
+          showSuccessToast('Ny design sparad!');
         }
       }
     };
@@ -583,15 +583,16 @@ function renderPage(child) {
   <!-- 2b. Barnvy-inställningar -->
   <div class="section-card fade-in">
     <div class="section-title">🎨 Barnvy-inställningar</div>
-    <p class="text-xs text-text-soft mb-4">Hur ser <strong>${escHtml(child.name)}</strong> appen?</p>
+    <p class="text-xs text-text-soft mb-2">Hur ser <strong>${escHtml(child.name)}</strong> appen? Samma val som barnets vyväxlare (Klassisk / Ny design).</p>
+    <p class="text-xs text-text-soft mb-4" style="opacity:0.85">Preview-familjer får Ny design i barn-dashboard. Övriga familjer använder legacy child-new tills magic rullas ut brett.</p>
     <div class="view-toggle mb-4" id="childViewToggle">
       <button class="view-btn" id="viewModeClassic" type="button">
-        ○ Klassisk vy<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Nuvarande</span>
+        ○ Klassisk<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Nuvarande layout</span>
       </button>
       <button class="view-btn" id="viewModeNew" type="button">
-        ● Ny vy<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Ny design</span>
+        ● Ny design<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Magic-vy</span>
       </button>
     </div>
     <!-- Element visibility — only shown when new view is selected -->
