@@ -199,7 +199,16 @@ async function getAdminStats() {
   };
 }
 
-async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset = 0 }) {
+async function listResponses({
+  goalSlug,
+  phase,
+  outcomeMin,
+  outcomeTier,
+  hasFreeText,
+  days,
+  limit = 50,
+  offset = 0,
+}) {
   const conditions = ['1=1'];
   const values = [];
   let idx = 1;
@@ -215,6 +224,20 @@ async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset =
   if (outcomeMin) {
     conditions.push(`f.outcome_score >= $${idx++}`);
     values.push(parseInt(outcomeMin, 10));
+  }
+  if (outcomeTier === 'positive') {
+    conditions.push('f.outcome_score >= 3');
+  } else if (outcomeTier === 'neutral') {
+    conditions.push('f.outcome_score = 2');
+  } else if (outcomeTier === 'negative') {
+    conditions.push('f.outcome_score = 1');
+  }
+  if (hasFreeText === true || hasFreeText === 'true') {
+    conditions.push(`f.free_text IS NOT NULL AND TRIM(f.free_text) <> ''`);
+  }
+  if (days) {
+    conditions.push(`f.created_at >= NOW() - ($${idx++}::int || ' days')::interval`);
+    values.push(parseInt(days, 10));
   }
 
   values.push(limit, offset);
@@ -263,6 +286,129 @@ async function listResponses({ goalSlug, phase, outcomeMin, limit = 50, offset =
       parent_name: row.parent_name,
       parent_email: row.parent_email,
       family_id: row.family_id,
+    };
+  });
+
+  return { rows, total: countResult.rows[0].total };
+}
+
+async function listQuotes({ limit = 50, offset = 0 } = {}) {
+  const result = await db.query(
+    `SELECT f.id, f.created_at, f.goal_slug, f.outcome_score, f.free_text,
+            c.name AS child_name, c.birthday AS child_birthday,
+            COALESCE(p.name, '(inget namn)') AS parent_name,
+            p.email AS parent_email
+     FROM for_dig_goal_feedback f
+     LEFT JOIN child c ON c.id = f.child_id
+     LEFT JOIN parent p ON p.id = f.parent_id
+     WHERE f.phase = 'outcome'
+       AND f.outcome_score >= 3
+       AND f.free_text IS NOT NULL
+       AND TRIM(f.free_text) <> ''
+     ORDER BY f.created_at DESC
+     LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+
+  const countResult = await db.query(
+    `SELECT COUNT(*)::int AS total
+     FROM for_dig_goal_feedback f
+     WHERE f.phase = 'outcome'
+       AND f.outcome_score >= 3
+       AND f.free_text IS NOT NULL
+       AND TRIM(f.free_text) <> ''`
+  );
+
+  const rows = result.rows.map((row) => {
+    const goal = FOR_DIG_GOALS.find((g) => g.slug === row.goal_slug);
+    let childAge = null;
+    if (row.child_birthday) {
+      const b = new Date(row.child_birthday);
+      childAge = new Date().getFullYear() - b.getFullYear();
+    }
+    return {
+      id: row.id,
+      created_at: row.created_at,
+      goal_slug: row.goal_slug,
+      goal_title: goal ? goal.title : row.goal_slug,
+      outcome_score: row.outcome_score,
+      outcome_emoji: OUTCOME_EMOJI[row.outcome_score] || null,
+      free_text: row.free_text,
+      child_name: row.child_name,
+      child_age: childAge,
+      parent_name: row.parent_name,
+      parent_email: row.parent_email,
+    };
+  });
+
+  return { rows, total: countResult.rows[0].total };
+}
+
+async function listPendingOutcomesAdmin({ limit = 100, offset = 0 } = {}) {
+  const result = await db.query(
+    `SELECT i.goal_slug, i.family_id, i.child_id, i.installed_at,
+            c.name AS child_name,
+            COALESCE(p.name, '(inget namn)') AS parent_name,
+            p.email AS parent_email,
+            fi.intent_reason, fi.created_at AS intent_at
+     FROM for_dig_goal_install i
+     JOIN for_dig_goal_feedback fi
+       ON fi.family_id = i.family_id
+      AND fi.child_id = i.child_id
+      AND fi.goal_slug = i.goal_slug
+      AND fi.phase = 'intent'
+     LEFT JOIN child c ON c.id = i.child_id
+     LEFT JOIN parent p ON p.id = COALESCE(i.parent_id, fi.parent_id)
+     WHERE i.installed_at <= NOW() - INTERVAL '7 days'
+       AND NOT EXISTS (
+         SELECT 1 FROM for_dig_goal_feedback fo
+         WHERE fo.family_id = i.family_id
+           AND fo.child_id = i.child_id
+           AND fo.goal_slug = i.goal_slug
+           AND fo.phase = 'outcome'
+       )
+     ORDER BY i.installed_at ASC
+     LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+
+  const countResult = await db.query(
+    `SELECT COUNT(*)::int AS total
+     FROM for_dig_goal_install i
+     JOIN for_dig_goal_feedback fi
+       ON fi.family_id = i.family_id
+      AND fi.child_id = i.child_id
+      AND fi.goal_slug = i.goal_slug
+      AND fi.phase = 'intent'
+     WHERE i.installed_at <= NOW() - INTERVAL '7 days'
+       AND NOT EXISTS (
+         SELECT 1 FROM for_dig_goal_feedback fo
+         WHERE fo.family_id = i.family_id
+           AND fo.child_id = i.child_id
+           AND fo.goal_slug = i.goal_slug
+           AND fo.phase = 'outcome'
+       )`
+  );
+
+  const rows = result.rows.map((row) => {
+    const goal = FOR_DIG_GOALS.find((g) => g.slug === row.goal_slug);
+    const daysSinceInstall = Math.floor(
+      (Date.now() - new Date(row.installed_at).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return {
+      goal_slug: row.goal_slug,
+      goal_title: goal ? goal.title : row.goal_slug,
+      goal_icon: goal ? goal.icon : '⭐',
+      family_id: row.family_id,
+      child_id: row.child_id,
+      child_name: row.child_name,
+      parent_name: row.parent_name,
+      parent_email: row.parent_email,
+      intent_reason: row.intent_reason,
+      intent_label: row.intent_reason ? (INTENT_LABELS[row.intent_reason] || row.intent_reason) : null,
+      installed_at: row.installed_at,
+      intent_at: row.intent_at,
+      days_since_install: daysSinceInstall,
     };
   });
 
@@ -329,5 +475,7 @@ module.exports = {
   getPendingOutcomes,
   getAdminStats,
   listResponses,
+  listQuotes,
+  listPendingOutcomesAdmin,
   listInstallLog,
 };

@@ -50,11 +50,14 @@ router.get('/for-dig/stats', async (req, res) => {
 
 router.get('/for-dig/responses', async (req, res) => {
   try {
-    const { goal_slug, phase, outcome_min, limit, offset } = req.query;
+    const { goal_slug, phase, outcome_min, outcome_tier, has_free_text, days, limit, offset } = req.query;
     const data = await feedbackDb.listResponses({
       goalSlug: goal_slug || null,
       phase: phase || null,
       outcomeMin: outcome_min || null,
+      outcomeTier: outcome_tier || null,
+      hasFreeText: has_free_text || null,
+      days: days ? parseInt(days, 10) : null,
       limit: limit ? parseInt(limit, 10) : 50,
       offset: offset ? parseInt(offset, 10) : 0,
     });
@@ -62,6 +65,34 @@ router.get('/for-dig/responses', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN for-dig] responses error:', err);
     res.status(500).json({ error: 'Kunde inte hämta svar' });
+  }
+});
+
+router.get('/for-dig/quotes', async (req, res) => {
+  try {
+    const { limit, offset } = req.query;
+    const data = await feedbackDb.listQuotes({
+      limit: limit ? parseInt(limit, 10) : 50,
+      offset: offset ? parseInt(offset, 10) : 0,
+    });
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN for-dig] quotes error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta citat' });
+  }
+});
+
+router.get('/for-dig/pending-outcomes', async (req, res) => {
+  try {
+    const { limit, offset } = req.query;
+    const data = await feedbackDb.listPendingOutcomesAdmin({
+      limit: limit ? parseInt(limit, 10) : 100,
+      offset: offset ? parseInt(offset, 10) : 0,
+    });
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN for-dig] pending-outcomes error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta väntande outcome' });
   }
 });
 
