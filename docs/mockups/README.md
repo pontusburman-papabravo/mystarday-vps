@@ -12,6 +12,8 @@
 | [`barnlogin-3-skarmar.png`](barnlogin-3-skarmar.png) | Barnlogin: rollval → välj barn → PIN | ✅ I repo |
 | [`paket-v1.2-nav.png`](paket-v1.2-nav.png) | **Paket v1.2** — 4 lägen: Förälder · Barn Basic · Extra stöd (pictogram) · Preview | ✅ I repo |
 | [`paket-v1.2-nav.html`](paket-v1.2-nav.html) | Interaktiv HTML-källa för ovan | ✅ I repo |
+| `pedagog-lage-v12-v2.png` | **Pedagogläge v1.2** — 11 paneler (korrigerad v2) | ⬜ Väntar på generering |
+| [`pedagog-lage-v12-v2-PROMPT.md`](pedagog-lage-v12-v2-PROMPT.md) | Korrigeringsbrief + AI-prompt för v2 | ✅ I repo |
 | `dashboard-vuxen-barn-annotated.png` | **Vuxenvyn + Barnvyn** med IMAGE_0–5 | ⬜ Spara chat-bilden här |
 
 **Om PNG saknas:** använd HTML-mockups + DESIGN-*.md nedan.
