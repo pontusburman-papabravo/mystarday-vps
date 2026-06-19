@@ -23,11 +23,11 @@ function securityHeadersMiddleware() {
   })();
   const CSP_REPORT_ONLY = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com https://appleid.cdn-apple.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     `img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://mystarday.se${r2Origin}`,
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://*.ingest.sentry.io https://oauth2.googleapis.com",
+    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.facebook.com https://*.ingest.sentry.io https://oauth2.googleapis.com https://appleid.apple.com https://appleid.cdn-apple.com",
     "frame-ancestors 'none'",
   ].join('; ');
 
