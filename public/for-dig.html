@@ -26,6 +26,9 @@
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
+  <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=2">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=2">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <link rel="stylesheet" href="/css/for-dig.css?v=2">
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -36,8 +39,8 @@
     .sidebar-nav a { display: block; padding: 10px 16px; min-height: 44px; }
   </style>
 </head>
-<body class="font-body bg-sky min-h-screen flex flex-col md:flex-row for-dig-page">
-  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+<body class="font-body bg-sky min-h-screen flex flex-col md:flex-row for-dig-page" data-magic-page="for-dig">
+  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
     <a href="/dashboard" class="hidden md:flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
       <span class="text-2xl">⭐</span>
       <h1 class="text-xl font-heading font-bold">[REDACTED]</h1>
@@ -61,7 +64,9 @@
   </nav>
 
   <main class="flex-1 flex flex-col min-h-screen pb-20 md:pb-4">
-    <div class="bg-sky border-b border-lavender p-4 md:p-6">
+    <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+    <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
+    <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
       <p id="forDigGreeting" class="for-dig-greeting">Hej 👋</p>
       <p class="for-dig-focus">Vad vill du fokusera på just nu?</p>
     </div>
@@ -105,6 +110,10 @@
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/feature-check.js?v=2.14.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
+  <script src="/js/app-view-mode.js?v=1"></script>
+  <script src="/js/parent-magic-page-hubs.js?v=1"></script>
+  <script src="/js/parent-magic-shell.js?v=1"></script>
+  <script src="/js/parent-magic-bootstrap.js?v=1"></script>
   <script src="/js/for-dig.js?v=2.1"></script>
   <script>
     document.getElementById('logoutBtn')?.addEventListener('click', () => Auth.logout());

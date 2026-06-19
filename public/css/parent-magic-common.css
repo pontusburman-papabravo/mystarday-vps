@@ -203,7 +203,11 @@ body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
 body.parent-magic-view .bg-white,
 body.parent-magic-view .bg-sky,
 body.parent-magic-view .bg-sky\/40,
-body.parent-magic-view .bg-sky\/60 {
+body.parent-magic-view .bg-sky\/60,
+body.parent-magic-view .bg-lavender,
+body.parent-magic-view .bg-mint,
+body.parent-magic-view .bg-gold-light,
+body.parent-magic-view .bg-cream {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f4f4ff;
@@ -236,11 +240,134 @@ body.parent-magic-view hr.border-lavender {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* ── Buttons — readable on dark magic shell ── */
 body.parent-magic-view button.bg-gold,
-body.parent-magic-view a.bg-gold {
+body.parent-magic-view a.bg-gold,
+body.parent-magic-view button.bg-yellow-500,
+body.parent-magic-view a.bg-yellow-500 {
   background: linear-gradient(180deg, #ffd966 0%, #f5a623 100%) !important;
   color: #1b2340 !important;
   border: none;
+}
+
+body.parent-magic-view button.bg-lavender,
+body.parent-magic-view a.bg-lavender,
+body.parent-magic-view button.bg-sky,
+body.parent-magic-view a.bg-sky,
+body.parent-magic-view button.bg-white,
+body.parent-magic-view a.bg-white {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view button.bg-navy,
+body.parent-magic-view a.bg-navy {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view button.bg-coral,
+body.parent-magic-view a.bg-coral {
+  background: rgba(239, 68, 68, 0.22) !important;
+  border-color: rgba(248, 113, 113, 0.45) !important;
+  color: #fecaca !important;
+}
+
+body.parent-magic-view .view-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: rgba(244, 244, 255, 0.78) !important;
+}
+
+body.parent-magic-view .view-btn:hover {
+  border-color: rgba(255, 204, 51, 0.45) !important;
+  color: #ffcc33 !important;
+}
+
+body.parent-magic-view .view-btn.active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+  border-color: transparent !important;
+}
+
+body.parent-magic-view .schedule-mode-toggle {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view .schedule-mode-btn {
+  background: transparent !important;
+  color: rgba(244, 244, 255, 0.75) !important;
+}
+
+body.parent-magic-view .schedule-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .schedule-mode-btn.active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .cal-view-btn.bg-white {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(244, 244, 255, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.parent-magic-view .cal-view-btn.bg-navy {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .for-dig-cta-primary {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .for-dig-cta-secondary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .for-dig-intent-option {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .for-dig-intent-option:hover {
+  background: rgba(255, 204, 51, 0.12) !important;
+  border-color: rgba(255, 204, 51, 0.4) !important;
+}
+
+body.parent-magic-view .for-dig-recommend-activate {
+  background: rgba(255, 204, 51, 0.12) !important;
+  border-color: rgba(255, 204, 51, 0.45) !important;
+  color: #ffcc33 !important;
+}
+
+body.parent-magic-view .for-dig-greeting,
+body.parent-magic-view .for-dig-focus {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .for-dig-goal-card,
+body.parent-magic-view .for-dig-favorites,
+body.parent-magic-view .for-dig-recommend {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f4f4ff;
+}
+
+body.parent-magic-view .for-dig-modal {
+  background: #12122e !important;
+  color: #f4f4ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 body.parent-magic-page-schedule .magic-page-shell {

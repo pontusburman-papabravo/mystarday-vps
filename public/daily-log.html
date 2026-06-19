@@ -32,6 +32,10 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
+  <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=2">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
@@ -294,7 +298,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="dashboard">
   <div class="min-h-screen flex flex-col md:flex-row">
 
     <!-- ── Sidebar ─────────────────────────────────────────── -->
@@ -322,9 +326,10 @@
 
     <!-- ── Main ───────────────────────────────────────────── -->
     <main class="flex-1 flex flex-col min-w-0">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
 
       <!-- Header -->
-      <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center">
+      <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center parent-magic-legacy-hide">
         <h2 class="text-xl font-heading font-bold text-navy">Daglig logg</h2>
         <div class="flex items-center gap-2">
           <div class="relative" id="printDropdown">
@@ -417,6 +422,9 @@
 
 <script src="/js/feature-check.js?v=2.13.0"></script>
 <script src="/js/mobile-nav.js?v=2.13.0"></script>
+<script src="/js/app-view-mode.js?v=1"></script>
+<script src="/js/parent-magic-shell.js?v=1"></script>
+<script src="/js/parent-magic-bootstrap.js?v=1"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.0"></script>
 </body>
