@@ -12,6 +12,9 @@
 | [`barnlogin-3-skarmar.png`](barnlogin-3-skarmar.png) | Barnlogin: rollval → välj barn → PIN | ✅ I repo |
 | [`paket-v1.2-nav.png`](paket-v1.2-nav.png) | **Paket v1.2** — 4 lägen: Förälder · Barn Basic · Extra stöd (pictogram) · Preview | ✅ I repo |
 | [`paket-v1.2-nav.html`](paket-v1.2-nav.html) | Interaktiv HTML-källa för ovan | ✅ I repo |
+| `pedagog-lage-v12-ux-v3.png` | **Pedagogläge v1.2 UX 10/10** — 12 paneler (definitiv) | ⬜ Generera med prompt |
+| [`pedagog-lage-v12-ux-v3-PROMPT.md`](pedagog-lage-v12-ux-v3-PROMPT.md) | v3: prioriteringskö, stepper, puls (§13.10) | ✅ I repo |
+| [`pedagog-lage-v12-reference-PROMPT.md`](pedagog-lage-v12-reference-PROMPT.md) | v2 minimikrav IA (superseded av v3) | ✅ Arkiv |
 | `dashboard-vuxen-barn-annotated.png` | **Vuxenvyn + Barnvyn** med IMAGE_0–5 | ⬜ Spara chat-bilden här |
 
 **Om PNG saknas:** använd HTML-mockups + DESIGN-*.md nedan.
@@ -36,7 +39,7 @@
 |----------|----------|
 | [`DESIGN-dashboard-reimagined.md`](DESIGN-dashboard-reimagined.md) | REIMAGINED parent + child (dual screen) |
 | [`DESIGN-dashboard-vuxen-barn.md`](DESIGN-dashboard-vuxen-barn.md) | Vuxenvyn / Barnvyn med IMAGE_0–5 |
-| [`../polsia-barnlogin-design.md`](../polsia-barnlogin-design.md) | Barnlogin 3 skärmar |
+| [`../paket-v1.2-spec.md`](../paket-v1.2-spec.md) | Paket v1.2 — inkl. §9.10 Admin prenumeration |
 | [`../design-feedback-barnvy-native.md`](../design-feedback-barnvy-native.md) | Källtext: barnvy + Skattkammaren PWA→native |
 
 ---

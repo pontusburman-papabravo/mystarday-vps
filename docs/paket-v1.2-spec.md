@@ -1,7 +1,7 @@
 # Paket — Spec v1.2
 
 **Skapad:** 2026-06-17  
-**Uppdaterad:** 2026-06-17 (§4.4 Pedagogläge — inloggning, daglogg, skolaktiviteter)  
+**Uppdaterad:** 2026-06-17 (§13.10 UX 10/10 · §9.10 admin · pedagog mockup v3)  
 **Status:** ✅ **Approved for implementation (v1.2)**  
 **Produktversion:** v1.2 = **Paket**  
 **Teknisk grund:** `family_subscriptions.components` JSONB + `has_component()` + `requireComponent()`
@@ -217,14 +217,16 @@ Närvaro: 92%  |  Aktiviteter: +12%  |  Belöningar: 34  |  Svåra övergångar:
 | Pedagoginbjudan | `pedagog_invite` |
 | Pedagogroll | `parent_child.role = pedagog` |
 | Pedagoganteckningar | `pedagoganteckningar` |
-| Pedagogöversikt | `pedagog_dashboard` — se **§4.4** *(delvis live; daglogg + skolaktiviteter v1.2)* |
+| Pedagogöversikt | `pedagog_dashboard` — se **§4.4** *(delvis live; arbetsflöde v1.2)* |
 | Daglogg i skola | `pedagog_daglogg` *(v1.2 ny)* |
 | Skolaktiviteter | `pedagog_skolaktivitet` *(v1.2 ny)* |
-| Begränsad åtkomst | Schema (läs) · Daglogg (markera i skola) · Anteckningar |
+| Samarbetskommentarer | `pedagog_samarbete` *(v1.2 ny)* |
+| Åtkomstlogg | `pedagog_audit` *(v1.2 ny)* |
+| Begränsad åtkomst | Schema (läs) · Daglogg (markera i skola) · Anteckningar · Historik |
 
 **Ingen åtkomst till:** betalning · familjeinställningar · administrativa funktioner · belöningar
 
-### 4.2 UI-identitet
+### 4.2 Samarbete — förälderns vy
 
 | Fokus |
 |-------|
@@ -233,25 +235,144 @@ Närvaro: 92%  |  Aktiviteter: +12%  |  Belöningar: 34  |  Svåra övergångar:
 | Gemensam bild |
 
 **Ton:** samarbetsverktyg — inte rapportverktyg (det är Rapportering).  
-**Ny sektion (förälder):** *Samarbete* — se wireframe nedan.  
-**Pedagogens egen vy:** se **§4.4 Pedagogläge** (inloggning, delade barn, anteckningar, daglogg, skolaktiviteter).
+**Route:** Samarbete-fliken i föräldernav (§6) · `rollout_mode=off` → befintlig UI oförändrad.  
+**Pedagogens egen vy:** se **§4.4**.
 
-**Wireframe — förälder (Samarbete-fliken):**
+#### 4.2.1 Innehåll
+
+| Område | Beskrivning |
+|--------|-------------|
+| **Pedagoglista** | Alla aktiva pedagoger med profil (§4.4.4), delade barn, senast aktiv |
+| **Bjuda in** | Primärförälder väljer barn + e-post → `pedagog_invite` |
+| **Återkalla** | Revokerar `parent_child`-länk omedelbart + audit |
+| **Dagens flöde** | Per valt barn: alla pedagogers publicerade anteckningar + samarbetskommentar |
+| **Historik** | Senaste 30 dagar · sök/filter (§4.2.4) |
+| **Audit-sammanfattning** | *"Senaste aktivitet"* per pedagog (§4.4.14) |
+| **Frånvaro** | Visar vem som rapporterat frånvaro |
+
+**Gating:** `requireComponent('pedagog')` för inbjudan. Preview enligt §6.6 om ej köpt. Grandfathered familjer ser riktig vy direkt (§8.4).
+
+#### 4.2.2 Pedagoglista & inbjudan
+
+**Wireframe — Samarbete (översikt):**
 
 ```
-Samarbete
-Emma Larsson — Specialpedagog — Senast aktiv: Idag
-Anteckning 15 juni: Övergång till lunch gick bättre idag.
-[ Kommentera ]
+Samarbete                                    [ + Bjud in pedagog ]
+
+── Aktiva pedagoger ─────────────────────────
+Anna Svensson · Klasslärare · Förskolan Solen
+  Delade barn: Ella
+  Senast aktiv: Idag 14:32 · anteckning publicerad
+  [ Visa historik ]  [ Återkalla ]
+
+Johan Nilsson · Resurspedagog
+  Delade barn: Ella
+  Senast aktiv: Igår · ingen anteckning idag
+  [ Visa historik ]  [ Återkalla ]
+
+── Barn: Ella ▼ ─────────────────────────────
 ```
 
-### 4.3 Gating
+**Wireframe — bjud in pedagog:**
 
-`requireComponent('pedagog')` · inbjudan endast om familjen har paketet
+```
+┌─────────────────────────────────────┐
+│ Bjud in pedagog                     │
+│                                     │
+│ E-post: [ anna@skola.se        ]    │
+│ Namn:   [ Anna Svensson        ]    │
+│                                     │
+│ Dela barn:                          │
+│ ☑ Ella                              │
+│ ☐ Noah                              │
+│                                     │
+│ [ Avbryt ]  [ Skicka inbjudan ]     │
+└─────────────────────────────────────┘
+```
 
-### 4.4 Pedagogläge — inloggning, delade barn och skoldokumentation
+**Regler:** Primärförälder only · minst ett barn · `requireComponent('pedagog')` · trigger intresse-CTA om ej köpt (§9.5).
+
+#### 4.2.3 Dagvy — per barn
+
+Förälder väljer barn i header. Visar **alla pedagogers** publicerade/låsta anteckningar — var för sig med attribution (§4.4.6). **Inte** aggregerad status.
+
+**Wireframe — idag · Ella · 17 juni:**
+
+```
+── Anteckningar idag ───────────────────────
+
+Anna Svensson · Klasslärare · publicerad 14:32
+  Humör 4/5 · Lunch gick bra · Lugn eftermiddag
+
+Johan Nilsson · Resurspedagog
+  ○ Ingen anteckning idag
+
+── Skolaktiviteter & avbockningar ──────────
+☑ Lunch · Avklarad i skolan av Anna 11:45
+  Kommentar: "Hungrig idag"
+☑ Utflykt · Tillagd av Anna
+
+── Frånvaro ────────────────────────────────
+(ingen idag)
+
+── Samarbetskommentar ──────────────────────
+Förälder (08:15): "Sov dåligt inatt."
+Pedagog Anna (08:45): "Tack, vi håller extra koll idag."
+[ Lägg till kommentar ]   ← max 1 per sida per dag (§4.4.7)
+```
+
+**Inte chat** — en tråd per barn per dag, max en kommentar från förälder och en från pedagog.
+
+#### 4.2.4 Historik & sökning
+
+| Element | Spec |
+|---------|------|
+| **Sök barn** | Dropdown/filter i header |
+| **Filter månad** | Välj månad (default: innevarande) |
+| **Filter pedagog** | Visa alla · endast Anna · endast Johan |
+| **Lista** | Datum · pedagog · anteckningsstatus · frånvaro |
+| **Klick** | Expandera dagvy (§4.2.3) read-only |
+
+**Wireframe — historik (i Samarbete eller underflik):**
+
+```
+Historik · Ella
+
+[ Sök barn ▾ ]  [ Månad: Juni ▾ ]  [ Pedagog: Alla ▾ ]
+
+17 juni  Anna Svensson   ✓ Publicerad
+16 juni  Anna Svensson   ✓ Publicerad
+16 juni  Johan Nilsson   ○ Saknas
+15 juni  —               FRÅNVARANDE (Anna)
+```
+
+#### 4.2.5 Förälder vs pedagog — ansvarsfördelning
+
+| Aspekt | Förälder (§4.2) | Pedagog (§4.4) |
+|--------|-----------------|----------------|
+| Status *KLAR* | Per pedagog — visas separat | Per **egen** pedagog — dashboard är inte aggregerat per barn |
+| Anteckningar | Ser alla publicerade | Ser/redigerar endast egna |
+| Inbjudan/återkalla | ✅ | ❌ |
+| Avbockning hemma | ✅ | ❌ (read-only) |
+| Avbockning skola | Ser resultat | ✅ |
+| Audit-logg | Sammanfattning + GDPR-export | — |
+| Prenumeration upphör | Badge (§4.4.18) | Befintlig åtkomst behålls |
+
+### 4.3 Gating, prenumeration & arkiv
+
+| Åtgärd | Krav |
+|--------|------|
+| **Ny inbjudan** | `requireComponent('pedagog')` på familjens sida |
+| **Ny pedagogkoppling** | Blockeras om komponent saknas |
+| **Befintlig relation** | Behålls vid utgången prenumeration (§8.5) |
+| **Pedagog write** | `requirePedagogAccess(childId)` — länken räcker; familjens komponentstatus blockerar inte befintliga samarbeten |
+| **Nedgradering** | Data arkiveras — raderas aldrig (§8.5) |
+
+### 4.4 Pedagogläge — komplett dokumentationsflöde
 
 *Pedagogens egen upplevelse i appen. Kompletterar §4.2 (förälderns Samarbete-vy).*
+
+**Produktmål v1.2:** Pedagogläget ska vara ett **komplett dokumentationsflöde** — inte bara en extra vy. Tydlig ansvarsfördelning, GDPR-spårbarhet och stöd för flera pedagoger per barn.
 
 #### 4.4.1 Roller & inloggning
 
@@ -275,9 +396,84 @@ Nästa inloggning → redirect till /pedagog-oversikt
 Ser endast barn som föräldern valt att dela
 ```
 
+**Wireframe — inbjudan accepterad (`/pedagog-invite`):**
+
+```
+Välkommen!
+
+Du har blivit inbjuden till:
+
+  👧 Ella Andersson
+  Förskolan Solen · Andersson-familjen
+
+[ Acceptera inbjudan ]
+```
+
+**Wireframe — dual-roll (inställningar, ⚙️):**
+
+```
+Profil
+
+Visningsläge
+  ○ Föräldarläge
+  ● Pedagogläge
+
+[ Logga ut ]
+```
+
+**Tomt tillstånd** (inga delade barn):
+
+```
+Inga barn delade
+
+Be en förälder bjuda in dig till sitt barn.
+
+[ Uppdatera ]
+```
+
+**Revoke-tillstånd** (förälder återkallar medan pedagog är inloggad):
+
+```
+Åtkomst borttagen
+
+Andersson-familjen har avslutat samarbetet för Ella.
+
+[ Tillbaka till översikt ]
+```
+
+**Session vid revoke (GDPR, P0):** Ingen WebSocket i v1.2. Istället:
+
+| Trigger | Beteende |
+|---------|----------|
+| **Varje API-anrop** | `requirePedagogAccess(childId)` — `403 ACCESS_REVOKED` om `revoked_at` satt |
+| **App resume / flikväxling** | Klienten anropar `GET /api/subscription/access` + validerar pedagog-barnlista |
+| **403 ACCESS_REVOKED** | **Omedelbar hård redirect** till `/pedagog-oversikt` + revoke-modal — rensa cache för barnet |
+| **Pågående skärm** | Pedagog får **inte** fortsätta se känslig data efter nästa interaktion |
+
+*Motivering:* Reaktiv middleware räcker om klienten alltid validerar vid resume — ingen passiv "sitta kvar på skärmen".
+
+**Barnväxling (Idag-flik):** Header `Andersson — Ella ▼` med dropdown över alla delade barn. Senast valt barn sparas i `localStorage` (`pedagog_last_child_id`). Vid 0 barn → tomt tillstånd ovan.
+
 **Befintlig kod:** `pedagog_invite`, `pedagog-oversikt.html`, `dashboard.js` redirect vid `account_type=educator` eller `preferred_view_mode=pedagog`.
 
-#### 4.4.2 Delade barn — föräldern bestämmer
+#### 4.4.2 Behörighetsmodell
+
+**Konstitutionell regel:** Pedagog får endast **skapa och redigera data med `source = 'educator'`**. Familjens data (`source = 'family'`) är read-only.
+
+| Funktion | Läs | Skapa | Ändra | Ta bort |
+|----------|-----|-------|-------|---------|
+| Daganteckning (`pedagog_notes`) | ✅ egen | ✅ | ✅ egen: utkast ≤7d, publicerad t.o.m. 23:59 (§4.4.5) | ❌ |
+| Skolaktivitet (`pedagog_school_activity`) | ✅ egen + andras publicerade | ✅ | ✅ egen, inom tidsfönster | ✅ egen, inom tidsfönster |
+| Familjens schemaaktiviteter | ✅ | ❌ | ❌ | ❌ |
+| Familjens `daily_log_item` (hemma) | ✅ | ❌ | ❌ *(avbockning hemma låst)* | ❌ |
+| Barnprofil | Begränsad (namn, emoji, inga kontaktuppgifter) | ❌ | ❌ | ❌ |
+| Kontaktuppgifter (förälder/e-post/telefon) | ❌ | ❌ | ❌ | ❌ |
+| Veckoschema | ✅ read-only (§4.4.19) | ❌ | ❌ | ❌ |
+| Samarbetskommentar | ✅ | ✅ max 1/dag | ✅ egen inom 24h | ❌ |
+
+**Authz:** `requirePedagogAccess(childId)` på alla pedagog-routes. `requireComponent('pedagog')` endast på **nya** inbjudningar (§4.3).
+
+#### 4.4.3 Delade barn & flera pedagoger
 
 Pedagog ser **aldrig** hela familjen — bara barn som primärföräldern explicit valt vid inbjudan.
 
@@ -286,57 +482,99 @@ Pedagog ser **aldrig** hela familjen — bara barn som primärföräldern explic
 | **Vem bjuder in** | Primärförälder (`requirePrimaryParent`) |
 | **Vilka barn** | `childIds[]` i `POST /api/pedagog-invite` — minst ett |
 | **Åtkomst** | `parent_child` med `role=pedagog'`, `revoked_at IS NULL` |
-| **Återkalla** | Förälder revokerar länk → pedagog förlorar barnet omedelbart |
-| **Flera familjer** | Samma pedagog-konto kan vara kopplat till barn i **flera familjer** (olika `family_id` via olika invites) |
+| **Återkalla** | Förälder revokerar länk → pedagog förlorar barnet omedelbart + audit (§4.4.14) |
+| **Flera familjer** | Samma pedagog-konto kan vara kopplat till barn i **flera familjer** |
+| **Flera pedagoger per barn** | ✅ v1.2 — t.ex. klasslärare + resurspedagog + fritidspedagog |
 
-**Förälder hanterar delning** i Samarbete-fliken (§4.2): lista aktiva pedagoger · bjuda in · välja barn · återkalla.
-
-**Pedagogöversikt visar:** `Familjnamn — Barnnamn` (t.ex. *Andersson — Ella*) så pedagogen vet vilket barn i vilken familj.
-
-#### 4.4.3 Pedagogöversikt (`pedagog_dashboard`)
-
-**Route:** `/pedagog-oversikt`  
-**Befintlig:** tabell med delade barn, datumväljare, status per barn (SAKNAS / UTKAST / KLAR).
-
-| Element | Funktion |
-|---------|----------|
-| Datumväljare | Välj dag att dokumentera |
-| Barnlista | Alla delade barn med anteckningsstatus |
-| Filter | Visa alla · endast saknas · endast klara · endast utkast |
-| Progress | *(X av Y klara)* |
-| Snabbval | Klicka barn → öppna dagvy |
-
-**v1.2 tillägg på översikten:**
-
-| Ny kolumn / indikator | Visar |
-|-----------------------|-------|
-| **Aktiviteter** | Antal schemalagda skolaktiviteter idag · antal avklarade |
-| **Senast aktiv** | Tidsstämpel för senaste anteckning eller avbockning |
-
-**Wireframe — pedagogöversikt:**
+**Exempel — flera pedagoger:**
 
 ```
-←  Pedagogöversikt                    [⚙️]
-(3 av 5 klara) · onsdag 17 juni
-
-[ Datum ▾ ]  [ Filter: Visa alla ▾ ]
-
-┌────────────────────────────────────────┐
-│ 👧 Andersson — Ella    ○ SAKNAS       │
-│    2/4 aktiviteter klara               │
-├────────────────────────────────────────┤
-│ 👦 Lindqvist — Noah    ✓ KLAR 🙂     │
-│    4/4 aktiviteter · 14:32            │
-└────────────────────────────────────────┘
-
-        ↓ klick på rad
-   Öppna dagvy (§4.4.5)
+Ella
+ ├─ Anna Svensson (klasslärare)
+ ├─ Johan Nilsson (resurspedagog)
+ └─ Resursteam (kontaktperson)
 ```
 
-#### 4.4.4 Anteckningar (`pedagoganteckningar`)
+Varje pedagog har **egen** anteckningsrad per dag (`UNIQUE child_id, pedagog_id, date` på `pedagog_notes`). Förälder ser **alla publicerade** anteckningar med attribution (§4.4.6). Pedagog ser och redigerar **endast egna** anteckningar.
 
-**Route:** `/pedagog-note?childId=&date=`  
-**Befintlig:** strukturerat dagformulär per barn per datum.
+**Pedagogöversikt visar:** `Familjnamn — Barnnamn` (t.ex. *Andersson — Ella*).
+
+#### 4.4.4 Pedagogprofil
+
+Föräldern ska veta **vem** personen är. Profil visas i Samarbete-fliken (§4.2) och i antecknings-attribution.
+
+| Fält | Krav |
+|------|------|
+| **Namn** | Från `parent.name` — obligatoriskt |
+| **Roll** | T.ex. *Klasslärare*, *Resurspedagog* — valfritt, sätts vid accept eller i profil |
+| **Förskola/skola** | Organisation — valfritt |
+| **Profilbild** | Valfri (`parent` avatar eller dedikerat fält) |
+
+**Datamodell — utökning `pedagog_profile` (1:1 med `parent` för pedagog-konton):**
+
+```sql
+CREATE TABLE IF NOT EXISTS pedagog_profile (
+  parent_id       UUID PRIMARY KEY REFERENCES parent(id) ON DELETE CASCADE,
+  role_title      TEXT,           -- t.ex. 'Specialpedagog'
+  organization    TEXT,           -- t.ex. 'Förskolan Solen'
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Fylls vid `/pedagog-invite` accept (valfria fält) eller senare under ⚙️ Inställningar.
+
+#### 4.4.5 Tidslåsning & tidszon
+
+**Tidszon:** Familjens `family.timezone` gäller för alla datumgränser — **inte** pedagogens enhet. Datumväljare och "idag" beräknas i familjens tidszon.
+
+**P0-beslut — Alternativ A (anteckningar):** Publicerad anteckning låses **kl 23:59 samma dag** → `locked`. **Ingen redigering efter låsning.**
+
+**Statusdiagram — anteckningar (enda källan):**
+
+```
+                    ┌─────────┐
+         skapa ───► │ UTKAST  │◄─── auto-spar
+                    └────┬────┘
+                         │ publicera
+                         ▼
+                    ┌───────────┐
+                    │PUBLICERAD │  redigerbar t.o.m. 23:59 (familjens TZ)
+                    └─────┬─────┘
+                          │ midnatt (cron)
+                          ▼
+                    ┌─────────┐
+                    │  LÅST   │  permanent read-only
+                    └─────────┘
+
+UTKAST: redigerbar ≤7 dagar · äldre → read-only
+```
+
+| Datatyp | Redigeringsregel |
+|---------|------------------|
+| **Anteckning — utkast** | Redigerbar inom **7 dagar**; äldre → read-only |
+| **Anteckning — publicerad** | Redigerbar **t.o.m. 23:59 samma dag** (familjens tidszon) |
+| **Anteckning — låst** | Aldrig redigerbar |
+| **Skolaktiviteter** | CRUD inom **7 dagar** |
+| **Egna avbockningar** | Ångra/redigera inom **7 dagar** |
+| **Samarbetskommentar** | Egen kommentar inom **24h** (§4.4.7) |
+
+*Motivering:* Anteckningar är dagens dokumentation — lås vid midnatt. Skolaktiviteter och avbockningar behåller 7-dagarsfönster.
+
+**Midnatt & tidszoner (P0):**
+
+| Regel | Detalj |
+|-------|--------|
+| **Datumgräns** | Alltid familjens `family.timezone` — oavsett var pedagogen befinner sig |
+| **Cron-lås** | `note_status: published → locked` kl 23:59 **per anteckningens `date`** (inte "nu") |
+| **Utkast förbi midnatt** | Utkast för *igår* förblir `UTKAST` i historik — **inte** permanent `ÅTGÄRD KRÄVS` om < 7 dagar |
+| **Retroaktiv publicering** | Pedagog öppnar utkast via Historik (§4.4.13) och publicerar i efterhand → historikstatus uppdateras **retroaktivt** `UTKAST` → `KLAR` för det datumet |
+| **Låst utan publicering** | Utkast > 7 dagar utan publicering → read-only `UTKAST` i historik (inte `ÅTGÄRD KRÄVS`) |
+
+*Dashboard visar alltid status för **valt datum** i datumväljaren — inte "idag" i pedagogens enhetstidszon.*
+
+#### 4.4.6 Anteckningsflöde (`pedagoganteckningar`)
+
+**Route:** `/pedagog-dag?childId=&date=` sektion 2, eller `/pedagog-note?childId=&date=`
 
 | Fält | Typ | Syfte |
 |------|-----|-------|
@@ -345,27 +583,249 @@ Pedagog ser **aldrig** hela familjen — bara barn som primärföräldern explic
 | Måltider | text + `meals_structured` JSONB | Frukost, lunch, mellanmål |
 | Beteende | text | Observationer |
 | Fritext | `notes` | Övrigt |
-| Status | `is_draft` | Utkast (auto-spar) → **Klar** (publicerad) |
+
+**Statusflöde** (ersätter enkel `is_draft`):
+
+```
+Utkast → Publicerad → Låst
+```
+
+| Status | DB-värde | Synlig för förälder | Redigerbar av pedagog |
+|--------|----------|---------------------|----------------------|
+| **Utkast** | `draft` | Nej | Ja, inom 7 dagar |
+| **Publicerad** | `published` | Ja | Ja, **endast t.o.m. 23:59 samma dag** |
+| **Låst** | `locked` | Ja | **Nej — permanent** |
+
+**Migration:** `is_draft=true` → `note_status='draft'`; `is_draft=false` → `note_status='published'`. Ny kolumn `note_status TEXT NOT NULL DEFAULT 'draft'`.
+
+**Attribution (förälder ser):**
+
+```
+Skapad av: Anna Svensson · Klasslärare
+Publicerad: 17 juni 14:32
+Senast ändrad: 17 juni 14:40
+```
+
+Kolumner: `created_by_parent_id`, `published_at`, `updated_at` (befintlig), `note_status`.
 
 **Regler:**
 
-- Pedagog ser **endast** sina egna anteckningar — inte föräldrarnas `child_observation` eller andra pedagogers anteckningar *(v1.2: en pedagog per rad; flera pedagoger per barn = v1.3)*.
-- Publicerade anteckningar (`is_draft=false`) kan ingå i rapporter (`pedagog_notes` i delningslänkar).
-- Utkast syns för pedagog men **inte** för förälder förrän *Klar*.
+- Pedagog ser/redigerar **endast egna** anteckningar.
+- Förälder ser **alla publicerade/låsta** anteckningar från alla kopplade pedagoger — med attribution.
+- Publicerade anteckningar kan ingå i rapporter (`pedagog_notes` i delningslänkar).
+- Publicering triggar push till förälder (§4.4.15) + audit (§4.4.14).
 
-**API (befintlig):** `GET/POST /api/pedagog-notes`, `GET /api/pedagog-notes/overview`.
+**API:** `GET/POST /api/pedagog-notes`, `GET /api/pedagog-notes/overview`, `POST /api/pedagog-notes/:id/publish`.
 
-#### 4.4.5 Kryssa i uppgifter — daglogg i skola (`pedagog_daglogg`)
+#### 4.4.7 Samarbetskommentarer
 
-**Nytt i v1.2.** Pedagog ska kunna **markera aktiviteter som genomförda** under skoldagen — samma logik som förälder/barn hemma, men med tydlig **skolkontext**.
+**Inte chat.** En tråd per barn per dag — max **en kommentar från förälder** och **en från pedagog**.
+
+```
+Dag 17 juni · Ella
+
+Förälder (08:15):
+  "Sov dåligt inatt."
+
+Pedagog (08:45):
+  "Tack, vi håller extra koll idag."
+```
+
+| Regel | Detalj |
+|-------|--------|
+| **Scope** | `child_id` + `date` + `author_role` (`parent` \| `pedagog`) |
+| **Max** | 1 rad per roll per dag (upsert) |
+| **Längd** | Max 280 tecken |
+| **Synlighet** | Båda sidor + i Samarbete-fliken (§4.2) |
+| **Redigering** | Egen kommentar inom 24h; därefter låst |
+
+**Datamodell — `pedagog_day_comment`:**
+
+```sql
+CREATE TABLE IF NOT EXISTS pedagog_day_comment (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_id        UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  date            DATE NOT NULL,
+  author_parent_id UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  author_role     TEXT NOT NULL CHECK (author_role IN ('parent', 'pedagog')),
+  body            TEXT NOT NULL CHECK (char_length(body) <= 280),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (child_id, date, author_role)
+);
+```
+
+**API:** `GET/POST /api/pedagog/day-comments?childId=&date=`
+
+#### 4.4.8 Frånvaro
+
+Pedagog ska kunna markera **barn frånvarande** för en dag.
+
+| Konsekvens | Beteende |
+|------------|----------|
+| **Aktiviteter** | **Visas read-only** i pedagog dagvy — checkboxar inaktiverade |
+| **Banner** | *"Barn markerat som frånvarande"* högst upp i dagvy |
+| **Anteckning** | Valfri — inte obligatorisk |
+| **Status i översikt** | `FRÅNVARANDE` (inte "åtgärd krävs") |
+| **Förälder** | Ser frånvaromarkering i daglogg med etikett *"Frånvarande (rapporterat av [pedagog])"* |
+
+**Datamodell — `pedagog_day_absence`:**
+
+```sql
+CREATE TABLE IF NOT EXISTS pedagog_day_absence (
+  child_id        UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  date            DATE NOT NULL,
+  pedagog_id      UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  reason          TEXT,  -- valfri kort anteckning
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (child_id, date, pedagog_id)
+);
+```
+
+**API:** `PUT/DELETE /api/pedagog/absence?childId=&date=`
+
+#### 4.4.9 Pedagogöversikt (`pedagog_dashboard`)
+
+**Route:** `/pedagog-oversikt`
+
+Dashboard ska visa **inloggad pedagogs egen arbetsstatus** per delat barn — **inte** aggregerat över alla pedagoger.
+
+| Element | Funktion |
+|---------|----------|
+| Datumväljare | Välj dag (familjens tidszon) |
+| Barnlista | Alla delade barn med **egen** arbetsstatus |
+| Filter | Visa alla · åtgärd krävs · klara · frånvarande |
+| Progress | *(X av Y klara)* — räknar **denna pedagogs** rader |
+
+**P0-beslut — status är per pedagog, inte per barn:**
+
+| Scenario | Annas dashboard | Johans dashboard | Förälder (§4.2.3) |
+|----------|-----------------|------------------|-------------------|
+| Anna publicerat, Johan ej | Ella = **KLAR** | Ella = **ÅTGÄRD KRÄVS** | Två separata rader |
+| Båda publicerat | KLAR | KLAR | Båda anteckningar visas |
+| Frånvaro markerad av Anna | **FRÅNVARANDE** | (påverkas ej) | Frånvaro visas med attribution |
+
+**Status per barn (för inloggad pedagog):**
+
+| Status | Villkor |
+|--------|---------|
+| `ÅTGÄRD KRÄVS` | **Egen** anteckning saknas/utkast **eller** egna obligatoriska aktiviteter ej klara |
+| `KLAR` | **Egen** publicerad/låst anteckning + egna aktiviteter klara |
+| `FRÅNVARANDE` | **Egen** frånvaromarkering (§4.4.8) |
+| `UTKAST` | **Egen** anteckning påbörjad men ej publicerad |
+
+**Dashboard & datum (P0):**
+
+- Översikten beräknar status **endast för valt datum** (`date` i datumväljaren) — nollställs inte automatiskt vid midnatt i pedagogens tidszon.
+- Vid byte till *igår*: visar gårdagens status (t.ex. `UTKAST` eller `ÅTGÄRD KRÄVS`) — inte dagens.
+- **Retroaktiv uppdatering:** Om pedagog publicerar ett gammalt utkast (< 7 dagar) via Historik → raden för det datumet uppdateras till `KLAR` i både Historik och Översikt (om samma datum väljs).
+
+**Wireframe — pedagogöversikt:**
+
+```
+←  Pedagogöversikt                    [⚙️]
+(2 av 5 klara) · onsdag 17 juni
+
+[ Datum ▾ ]  [ Filter: Åtgärd krävs ▾ ]
+
+┌────────────────────────────────────────┐
+│ 👧 Andersson — Ella                    │
+│    Aktiviteter: 2/4                    │
+│    Anteckning: saknas                  │
+│    ○ ÅTGÄRD KRÄVS                      │
+├────────────────────────────────────────┤
+│ 👦 Lindqvist — Noah                    │
+│    Aktiviteter: 4/4                    │
+│    Anteckning: publicerad 14:32        │
+│    ✓ KLAR                              │
+├────────────────────────────────────────┤
+│ 👧 Svensson — Maja                     │
+│    FRÅNVARANDE                         │
+└────────────────────────────────────────┘
+```
+
+#### 4.4.10 Dagvy — tre sektioner (`pedagog_dag`)
+
+**Route:** `/pedagog-dag?childId=&date=`
+
+Pedagogen tänker i **tre steg** — inte en blandad lista.
+
+**Wireframe — pedagog dagvy:**
+
+```
+←  Andersson — Ella ▼ · onsdag 17 juni
+
+⚠️ Barn markerat som frånvarande          ← vid frånvaro (§4.4.8)
+
+[ Markera frånvarande ] / [ Ta bort frånvaro ]
+
+── 1. Dagens aktiviteter ─────────────────
+☑ Morgonsamling     ✓ Klar hemma 07:15    ← Modell A: ej dubbelkryss
+☐ Rast              ○
+☑ Lunch             ✓ 11:45  [i skolan]
+   Kommentar (valfri): "Hungrig idag"     ← expanderar vid avbockning
+☐ Vila              ○
+
+── 2. Dagens dokumentation ───────────────
+Humör    [ 😊 4/5 ]
+Sömn     [ Bra · 9h ]
+Måltider [ Lunch OK ]
+Beteende [ Lugn eftermiddag ]
+Status: UTKAST          [ Publicera ]
+
+── 3. Skolaktiviteter ───────────────────
++ Utflykt
++ Grupparbete
+[ + Lägg till skolaktivitet ]
+```
+
+**Sektion 1:** Familjens schemaaktiviteter + avbockning (§4.4.11).  
+**Sektion 2:** Inline anteckningsformulär (§4.4.6) — samma data som `pedagog-note`.  
+**Sektion 3:** Pedagogskapade aktiviteter (§4.4.12).
+
+#### 4.4.11 Daglogg i skola (`pedagog_daglogg`)
+
+**P0-beslut — Modell A (en avbockning per aktivitet):**
+
+En aktivitet kan bara vara **klar en gång**. Om barnet redan kryssat av hemma:
+
+```
+☑ Borsta tänder    ✓ Klar hemma av Ella 07:15
+```
+
+Pedagog **kan inte** kryssa igen. Ingen dubbel stjärnutdelning. Ingen separat skolkontext-completion för samma rad.
 
 | Aspekt | Spec |
 |--------|------|
-| **Vad visas** | Dagens aktiviteter för delat barn — från veckoschema + eventuella skolaktiviteter (§4.4.6) |
-| **Vad pedagog kan** | Kryssa av (complete) · ångra avbockning · lägga till kort kommentar |
-| **Vad pedagog inte kan** | Ändra stjärnvärde · radera familjens aktiviteter · redigera hemmaschema |
-| **Synlighet för förälder** | Avbockningar syns i familjens daglogg med märkning *"Avklarad i skolan av [pedagog]"* |
-| **Stjärnor** | Stjärnor delas ut enligt aktivitetens `star_value` — förälder ser källan `completed_by: 'pedagog'` |
+| **Vad visas** | Dagens schemaaktiviteter + skolaktiviteter (§4.4.12) — vid frånvaro: **read-only** + banner (§4.4.8) |
+| **Vad pedagog kan** | Kryssa av ej-klara aktiviteter · ångra **egen** avbockning · valfri kommentar |
+| **Vad pedagog inte kan** | Dubbelkryssa hemma-klara · ändra stjärnvärde · radera familjens aktiviteter |
+| **Synlighet för förälder** | *"Avklarad i skolan av [pedagog]"* eller *"Klar hemma av [barn]"* + kommentar om finns |
+| **Stjärnor** | En gång per aktivitet enligt `star_value` — diskret hint: *"Ella får 2 stjärnor"* |
+
+**UX — `completion_comment`:**
+
+Pedagog (vid/efter avbockning):
+
+```
+☑ Lunch
+Kommentar (valfri):
+[ Hungrig idag                    ]
+```
+
+Förälder (Idag / Samarbete, §4.2.3):
+
+```
+Lunch
+Avklarad i skolan av Anna · 11:45
+Kommentar: "Hungrig idag"
+```
+
+| Regel | Detalj |
+|-------|--------|
+| **Fält** | `completion_comment` på `daily_log_item`, max 280 tecken |
+| **Valfritt** | Visas endast om ifyllt |
+| **Redigering** | Inom 7-dagarsfönster (§4.4.5), samma transaktion som ångra avbockning |
 
 **Datamodell — utökning `daily_log_item`:**
 
@@ -373,172 +833,318 @@ Pedagog ser **aldrig** hela familjen — bara barn som primärföräldern explic
 {
   completed: true,
   completed_date: '2026-06-17',
-  completed_by: 'pedagog',      // 'child' | 'parent' | 'pedagog'
-  completed_by_parent_id: uuid, // pedagogens parent.id
-  completion_context: 'school'  // 'home' | 'school'
+  completed_by: 'child' | 'parent' | 'pedagog',
+  completed_by_parent_id: uuid | null,
+  completed_at: timestamptz,
+  completion_source: 'family' | 'educator',  // P0: attribution
+  completion_comment: string | null,         // max 280 tecken
 }
 ```
 
-**API (nytt):**
+**API:**
 
 | Metod | Endpoint | Beskrivning |
 |-------|----------|-------------|
-| GET | `/api/pedagog/daily-log?childId=&date=` | Dagens aktiviteter för delat barn |
-| PATCH | `/api/pedagog/daily-log/items/:id` | Markera av/ångra + valfri kommentar |
+| GET | `/api/pedagog/daily-log?childId=&date=` | Dagens aktiviteter + completion-status |
+| PATCH | `/api/pedagog/daily-log/items/:id` | Markera av/ångra + `completion_comment` |
 
-**Authz:** `requirePedagogAccess(childId)` — pedagog måste ha `parent_child.role=pedagog` för barnet. `requireComponent('pedagog')` på familjens sida (förälder måste ha paketet för att bjuda in — pedagogens write fungerar om länken finns).
+**Concurrency & felför hantering (Modell A, P0):**
 
-**Wireframe — pedagog dagvy:**
+| HTTP | Kod | När |
+|------|-----|-----|
+| **409** | `ACTIVITY_ALREADY_COMPLETED` | Pedagog försöker avbocka aktivitet som redan är klar (hemma eller skola) |
+| **409** | `ACTIVITY_ALREADY_COMPLETED` | Race: barn och pedagog klickar nästan samtidigt — första transaktion vinner |
+
+**Svar vid 409:**
+
+```json
+{
+  "error": "ACTIVITY_ALREADY_COMPLETED",
+  "message": "Aktiviteten är redan markerad som klar",
+  "completed_by": "child",
+  "completed_by_name": "Ella",
+  "completed_at": "2026-06-17T07:15:00Z"
+}
+```
+
+**Klient (obligatoriskt):**
+
+1. Rulla tillbaka checkbox i UI (ingen "flicker")
+2. Visa diskret toast: *"Aktiviteten uppdaterades precis av [namn]"*
+3. Uppdatera raden med serverns `completed_by` / `completed_at` (ersätt cache)
+
+*Offline v1.2: ingen write-queue — vid nätverksfel efter misslyckad PATCH, refetch dagvy.*
+
+#### 4.4.12 Skolaktiviteter (`pedagog_skolaktivitet`)
+
+**P0-beslut — merge-logik:**
 
 ```
-←  Andersson — Ella · onsdag 17 juni
-
-── Aktiviteter idag ──────────────────
-☑ Morgonsamling          ✓ 08:30  [i skolan]
-☐ Rast                   ○        [i skolan]
-☑ Lunch                  ✓ 11:45  [i skolan]
-☐ Sova                   ○        [i skolan]
-
-── Anteckning ───────────────────────
-[ Öppna daganteckning → ]  ○ UTKAST
-
-[ + Lägg till skolaktivitet ]
+POST /api/pedagog/school-activities
+        ↓
+skapar pedagog_school_activity (source='educator')
+        ↓
+skapar daily_log_item direkt (completed=false)
+        ↓
+visas i dagloggen omedelbart
 ```
 
-#### 4.4.6 Skolaktiviteter (`pedagog_skolaktivitet`)
-
-**Nytt i v1.2.** Pedagog ska kunna **lägga till aktiviteter som sker i förskola/skola** — utan att redigera familjens veckoschema.
+**Inte** "vid första avbockning" — alltid direkt koppling.
 
 | Aspekt | Spec |
 |--------|------|
-| **Syfte** | Dokumentera händelser som inte finns i hemmaschemat (rast, utflykt, grupparbete) |
-| **Scope** | Endast valt datum + delat barn — inte permanent veckoschema |
-| **Skapare** | `created_by: 'pedagog'`, `pedagog_id`, `context: 'school'` |
-| **Familjens schema** | Pedagog **kan inte** ändra `weekly_schedule` eller `activity_template` |
-| **Synlighet** | Syns i pedagog dagvy + familjens daglogg/Idag med etikett *"Skola"* |
-| **Bibliotek** | Pedagog väljer från **begränsat skol-bibliotek** (~20 fördefinierade: Rast, Lunch, Utflykt, …) eller fri text + emoji |
+| **Scope** | Endast valt datum + delat barn |
+| **Skapare** | `created_by_parent_id`, `source = 'educator'` |
+| **DELETE** | Endast egna, inom tidsfönster (§4.4.5); om redan avbockad → återkalla stjärnor i samma transaktion |
+| **Bibliotek** | ~20 fördefinierade + fri text + emoji |
 
-**Datamodell — `pedagog_school_activity` (ny tabell):**
+**Datamodell — `pedagog_school_activity`:**
 
 ```sql
 CREATE TABLE IF NOT EXISTS pedagog_school_activity (
-  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  child_id        UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
-  pedagog_id      UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
-  date            DATE NOT NULL,
-  name            TEXT NOT NULL,
-  emoji           TEXT,
-  section         TEXT DEFAULT 'school',  -- alltid 'school' i v1.2
-  sort_order      SMALLINT DEFAULT 0,
-  star_value      SMALLINT DEFAULT 0,     -- 0 = ingen stjärna (informationsaktivitet)
-  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (child_id, pedagog_id, date, name)  -- undvik dubletter samma dag
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_id              UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  created_by_parent_id  UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  date                  DATE NOT NULL,
+  name                  TEXT NOT NULL,
+  emoji                 TEXT,
+  star_value            SMALLINT DEFAULT 0,
+  daily_log_item_id     UUID REFERENCES daily_log_item(id) ON DELETE SET NULL,
+  source                TEXT NOT NULL DEFAULT 'educator',
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (child_id, created_by_parent_id, date, name)
 );
 ```
-
-Kopplas till `daily_log_item` vid första avbockning, eller skapas som fristående rad i daglogg-vyn.
-
-**API (nytt):**
-
-| Metod | Endpoint | Beskrivning |
-|-------|----------|-------------|
-| GET | `/api/pedagog/school-activities/library` | Fördefinierade skolaktiviteter |
-| POST | `/api/pedagog/school-activities` | Lägg till aktivitet för barn+datum |
-| DELETE | `/api/pedagog/school-activities/:id` | Ta bort *(endast egna, samma dag)* |
 
 **Wireframe — lägg till skolaktivitet:**
 
 ```
 ┌─────────────────────────────────────┐
 │ Lägg till skolaktivitet             │
-│                                     │
 │ [ 🏃 Rast ] [ 🍎 Lunch ] [ 🚌 Utflykt ] │
 │ [ + Egen aktivitet ]                │
-│                                     │
 │ Namn: [ Grupparbete        ]        │
 │ Stjärnor: [ 0 ▾ ]  (valfritt)       │
-│                                     │
 │ [ Avbryt ]  [ Lägg till ]           │
 └─────────────────────────────────────┘
 ```
 
-#### 4.4.7 Navigation — pedagogläge
+#### 4.4.13 Historik
 
-Pedagog får **egen nav** — inte förälderns fem flikar (§6). Max **3 flikar**:
+**Route:** `/pedagog-historik` (ny flik, §4.4.16)
+
+| Innehåll | Detalj |
+|----------|--------|
+| **Lista** | Senaste 30 dagar per valt barn |
+| **Rad** | Datum · **egen** anteckningsstatus · egna aktiviteter klara · frånvaro |
+| **Klick** | Öppna dagvy read-only om låst; redigerbar om inom tillåtet fönster (§4.4.5) |
+| **Sök barn** | Dropdown i header (samma som Idag-flik) |
+| **Filter månad** | Välj månad (default: innevarande) |
+| **Filter pedagog** | *(endast förälder i §4.2.4)* — pedagog ser alltid **egen** historik |
+
+**Wireframe — pedagog historik:**
+
+```
+Historik
+
+[ Barn: Ella ▼ ]  [ Månad: Juni ▾ ]
+
+17 juni   ✓ Publicerad · 4/4 aktiviteter
+16 juni   ○ Utkast · 3/4 aktiviteter
+15 juni   FRÅNVARANDE
+14 juni   ✓ Låst · 4/4 aktiviteter
+```
+
+Förälder har motsvarande historik i Samarbete-fliken (§4.2.4) med filter per pedagog.
+
+#### 4.4.14 Åtkomstlogg (GDPR)
+
+Föräldern ska kunna få svar på *"vem har tittat på mitt barn?"*
+
+**Tabell — `pedagog_audit_log`:**
+
+```sql
+CREATE TABLE IF NOT EXISTS pedagog_audit_log (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_id        UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  actor_parent_id UUID REFERENCES parent(id) ON DELETE SET NULL,
+  action          TEXT NOT NULL,
+  metadata        JSONB DEFAULT '{}',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pedagog_audit_child ON pedagog_audit_log (child_id, created_at DESC);
+```
+
+| `action` | När |
+|----------|-----|
+| `invite_sent` | Förälder skickar inbjudan |
+| `invite_accepted` | Pedagog accepterar |
+| `child_viewed` | Pedagog öppnar barnets dagvy |
+| `note_published` | Anteckning publiceras |
+| `activity_completed` | Avbockning i skola |
+| `school_activity_created` | Skolaktivitet tillagd |
+| `access_revoked` | Förälder återkallar |
+| `absence_marked` | Frånvaro rapporterad |
+
+**Retention:** 12 månader. Förälder ser sammanfattning i Samarbete → *"Senaste aktivitet"* per pedagog (§4.2.1).
+
+**GDPR-export (krav):** `pedagog_audit_log` **ska ingå** i familjens GDPR-export (`family-export.js` / `family-export-sql.js`) — samma scope som övriga barnrelaterade tabeller (`child_id IN family children`). Primärförälder kan begära full logg via befintlig exportfunktion.
+
+#### 4.4.15 Push-notiser
+
+| Mottagare | Händelse | Copy (exempel) |
+|-----------|----------|----------------|
+| **Pedagog** | Nytt barn delat | *"Du har fått åtkomst till Ella Andersson"* |
+| **Pedagog** | Åtkomst återkallad | *"Åtkomst till Ella har avslutats"* |
+| **Pedagog** | Påminnelse 15:00 | *"Anteckning saknas för Ella idag"* (endast om åtgärd krävs) |
+| **Förälder** | Anteckning publicerad | *"Anna Svensson publicerade en anteckning om Ella"* |
+| **Förälder** | Skolaktivitet tillagd | *"Ny skolaktivitet: Utflykt (Ella)"* |
+| **Förälder** | Samarbetskommentar | *"Ny kommentar från Anna om Ella"* |
+
+Respektera befintliga `push_preferences` per `parent`. Pedagog-påminnelse är opt-in (default på för pedagog-only-konton).
+
+#### 4.4.16 Navigation
+
+Pedagog får **egen nav** — inte förälderns fem flikar (§6). **4 flikar** i v1.2:
 
 | # | Flik | Route | Innehåll |
 |---|------|-------|----------|
-| 1 | **Översikt** | `/pedagog-oversikt` | Alla delade barn · status · datum |
-| 2 | **Idag** | `/pedagog-dag?id=lastChild` | Dagvy: aktiviteter + avbockning + genväg till anteckning |
-| 3 | **Inställningar** | top-right ⚙️ | Konto · byt till föräldarläge (dual-roll) · logga ut |
+| 1 | **Översikt** | `/pedagog-oversikt` | Arbetsstatus alla barn |
+| 2 | **Idag** | `/pedagog-dag?id=lastChild` | Tre-sektions dagvy |
+| 3 | **Historik** | `/pedagog-historik` | Senaste 30 dagar |
+| 4 | **Inställningar** | top-right ⚙️ | Profil · dual-roll · logga ut |
 
-**Regler:**
+```
+[ Översikt ]  [ Idag ]  [ Historik ]     (⚙️ top-right)
+```
 
 - Pedagog ser **aldrig** Utveckling, Rutiner (redigera), Barn/Stöd, Skattkammare, För dig, betalning.
-- Dual-roll: växla *Pedagogläge* ↔ *Föräldarläge* i inställningar (befintlig `preferred_view_mode`).
-- `rollout_mode=off` → befintlig pedagog-UI oförändrad (ingen ny nav förrän admin aktiverar v1.2-paketnav om applicerbart).
+- `rollout_mode=off` → befintlig pedagog-UI oförändrad.
 
-**Wireframe — bottom nav pedagog:**
+**Designsystem:** Migrera pedagog-UI till v1.2-palett (§13.7) — **Samarbete = lila** — vid implementation av `pedagog-nav.js`. Befintlig Syne/amber behålls tills v1.2-nav aktiveras.
+
+#### 4.4.17 Dagligt arbetsflöde
 
 ```
-[ Översikt ]  [ Idag ]     (⚙️ top-right)
+08:00  Pedagog öppnar Ella (Idag-flik)
+         ↓
+       Kryssar aktiviteter under dagen (Modell A — ej dubbel)
+         ↓
+       Lägger till skolhändelser vid behov
+         ↓
+       Fyller dokumentation (sektion 2)
+         ↓
+       Publicerar anteckning
+         ↓
+       Förälder får push-notis
+         ↓
+23:59  Anteckning låses automatiskt (familjens tidszon)
 ```
 
-#### 4.4.8 Begränsningar (pedagog får INTE)
+#### 4.4.18 Prenumeration upphör
+
+Se **§8.5 Arkivprincip** — gäller alla paket konsekvent. Pedagog-specifikt:
+
+| Vid arkiverad `pedagog`-komponent | Beteende |
+|-----------------------------------|----------|
+| **Blockera** | Nya inbjudningar · nya pedagogkopplingar · write |
+| **Behåll (läsbart)** | Befintliga länkar · anteckningar · skolaktiviteter · historik · audit-logg |
+| **Badge (förälder)** | *"Pedagog-funktion arkiverad. Dina anteckningar finns kvar i Arkiv."* |
+| **Återaktivering** | Full write återställs · *"Fortsätt där ni slutade"* |
+
+#### 4.4.19 Övrigt (offline, schema, stjärnor)
+
+| Ämne | Beslut v1.2 |
+|------|-------------|
+| **Offline** | Read: ja (cache). Write: nej — visa banner *"Ingen uppkoppling"*. Ingen sync-queue i v1.2. |
+| **Veckoschema read-only** | Idag-flik + Historik räcker; valfritt undermeny *Imorgon* / *Vecka* i dagvy-header (läs-only, familjens schema) |
+| **Stjärnor** | Diskret hint vid avbockning — pedagog ser inte Skattkammare |
+
+#### 4.4.20 Begränsningar (pedagog får INTE)
 
 | Förbjudet | Varför |
 |-----------|--------|
-| Se barn som inte delats | Integritet — föräldern styr |
+| Se barn som inte delats | Integritet |
 | Bjuda in andra pedagoger | Endast primärförälder |
-| Redigera veckoschema / aktivitetsbibliotek | Familjens struktur ägs av föräldern |
-| Belöningar / Skattkammare | Motivation hemma — inte pedagogens roll |
-| Rapporter / PDF-export | Paket Rapportering — förälder |
+| Redigera veckoschema / aktivitetsbibliotek | Familjens struktur |
+| Belöningar / Skattkammare | Hemma-motivation |
+| Rapporter / PDF-export | Paket Rapportering |
 | Familjeinställningar / betalning | Admin |
-| Extra stöd / sju frågor (barnvy) | Barnläge — pedagog dokumenterar, ser inte barn-UI |
-| Radera familjens `daily_log_item` | Endast markera egna skolaktiviteter |
+| Extra stöd / barn-UI | Barnläge |
+| Radera familjens `daily_log_item` | Endast egna educator-rader |
+| Dubbelkryssa hemma-klara aktiviteter | Modell A (§4.4.11) |
+| Se föräldrars kontaktuppgifter | GDPR |
 
-#### 4.4.9 API-sammanfattning & feature-slugs
+#### 4.4.21 Datakontrakt
+
+**Princip:** Allt pedagogskapat innehåll bär `source = 'educator'` och `created_by_parent_id`.
+
+| Entitet | Tabell | Nyckelfält |
+|---------|--------|------------|
+| Anteckningar | `pedagog_notes` | `pedagog_id`, `note_status`, `published_at` |
+| Skolaktiviteter | `pedagog_school_activity` | `created_by_parent_id`, `source`, `daily_log_item_id` |
+| Inbjudan | `pedagog_invite` | befintlig |
+| Profil | `pedagog_profile` | `parent_id`, `role_title`, `organization` |
+| Dagkommentar | `pedagog_day_comment` | `author_parent_id`, `author_role` |
+| Frånvaro | `pedagog_day_absence` | `pedagog_id` |
+| Audit | `pedagog_audit_log` | `actor_parent_id`, `action` |
+| Avbockning | `daily_log_item` | `completed_by`, `completion_source`, `completion_comment` |
+
+**Befintliga tabellnamn behålls** (`pedagog_*`) — `source='educator'` är attributionsfält, inte tabellprefix.
+
+#### 4.4.22 API-sammanfattning & feature-slugs
 
 | Feature slug | Komponent | Status |
 |--------------|-----------|--------|
 | `pedagog_invite` | `pedagog` | ✅ Live |
-| `pedagoganteckningar` | `pedagog` | ✅ Live |
-| `pedagog_dashboard` | `pedagog` | ⚙️ Delvis live → §4.4.3 v1.2 |
+| `pedagoganteckningar` | `pedagog` | ⚙️ Live → `note_status` v1.2 |
+| `pedagog_dashboard` | `pedagog` | ⚙️ Delvis → arbetsstatus v1.2 |
 | `pedagog_daglogg` | `pedagog` | 📋 v1.2 ny |
 | `pedagog_skolaktivitet` | `pedagog` | 📋 v1.2 ny |
-
-Uppdatera `config/component-feature-map.js`:
+| `pedagog_samarbete` | `pedagog` | 📋 v1.2 ny (dagkommentarer) |
+| `pedagog_audit` | `pedagog` | 📋 v1.2 ny |
 
 ```javascript
 pedagog: [
   'pedagog_invite', 'pedagoganteckningar', 'pedagog_dashboard',
-  'pedagog_daglogg', 'pedagog_skolaktivitet',
+  'pedagog_daglogg', 'pedagog_skolaktivitet', 'pedagog_samarbete', 'pedagog_audit',
 ],
 ```
 
-#### 4.4.10 Nuläge vs v1.2
+#### 4.4.23 Nuläge vs v1.2
 
 | Funktion | Idag | v1.2 mål |
 |----------|------|----------|
-| Inloggning + inbjudan | ✅ | Oförändrat |
-| Se delade barn | ✅ `pedagog-oversikt` | + aktivitetsstatus |
-| Skriva anteckningar | ✅ `pedagog-note` | Oförändrat |
-| Kryssa i uppgifter | ❌ | `pedagog_daglogg` |
-| Lägga till skolaktiviteter | ❌ | `pedagog_skolaktivitet` |
-| Pedagog-nav (3 flikar) | ❌ (enkelsida) | `pedagog-nav.js` |
-| Förälder Samarbete-flik | ⚙️ Delvis | Preview + hantera delning (§4.2) |
+| Inloggning + inbjudan | ✅ | + profil vid accept |
+| Flera pedagoger per barn | ⚙️ Delvis (DB stödjer) | Full UX + attribution |
+| Se delade barn | ✅ | + arbetsstatus-dashboard |
+| Anteckningar | ✅ `is_draft` | Utkast → Publicerad → Låst |
+| Samarbetskommentarer | ❌ | Per dag, max 1/sida |
+| Kryssa i uppgifter | ❌ | Modell A + `completion_comment` |
+| Skolaktiviteter | ❌ | Direkt `daily_log_item`-koppling |
+| Frånvaro | ❌ | `pedagog_day_absence` |
+| Historik-flik | ❌ | `/pedagog-historik` |
+| Audit-logg | ❌ | `pedagog_audit_log` |
+| Push | ❌ | §4.4.15 |
+| Pedagog-nav | ❌ (enkelsida) | 4 flikar + `pedagog-nav.js` |
+| Förälder Samarbete | ⚙️ Delvis | Full vy §4.2 (lista, dagvy, historik, kommentarer) |
 
 **Filer (implementation):**
 
 | Fil | Syfte |
 |-----|-------|
-| `public/pedagog-oversikt.html` | Befintlig — utöka med aktivitetskolumn |
-| `public/pedagog-dag.html` *(ny)* | Dagvy: avbockning + anteckningsgenväg |
-| `public/js/pedagog-nav.js` *(ny)* | 3-fliks bottom nav |
-| `src/routes/pedagog-daily-log.js` *(ny)* | Daglogg read/write för pedagog |
+| `public/pedagog-oversikt.html` | Arbetsstatus-dashboard |
+| `public/pedagog-dag.html` *(ny)* | Tre-sektions dagvy |
+| `public/pedagog-historik.html` *(ny)* | Historik-flik |
+| `public/js/pedagog-nav.js` *(ny)* | 4-fliks bottom nav |
+| `public/js/pedagog-dag.js` *(ny)* | Dagvy-logik |
+| `src/routes/pedagog-daily-log.js` *(ny)* | Daglogg read/write |
 | `src/routes/pedagog-school-activities.js` *(ny)* | Skolaktiviteter CRUD |
-| `db/pedagog-school-activity.js` *(ny)* | DB-lager |
-| `migrations/*_pedagog_school_activity.js` | Ny tabell |
+| `src/routes/pedagog-day-comments.js` *(ny)* | Samarbetskommentarer |
+| `src/routes/pedagog-absence.js` *(ny)* | Frånvaro |
+| `db/pedagog-*.js` | DB-lager per entitet |
+| `migrations/*_pedagog_v12.js` | Alla nya tabeller + kolumner |
 
 ---
 
@@ -767,14 +1373,33 @@ Barn / Stöd                   Inställningar (top-right)
 
 **Gäller endast när `rollout_mode` ≠ `off`** (§9.8). I `off`-läge: nuvarande nav och inga preview-ytor.
 
+**Konstitutionell regel — renderingsordning (P0):** All UI som beror på paket **måste** evalueras i denna ordning — en implementation, inte tre parallella:
+
+```
+1. access        — autentisering + roll (parent / child / pedagog)
+2. component     — hasComponent() + component_state (active / archived)
+3. rollout       — rollout_mode (off / interest / purchase)
+4. preview       — preview-shell endast om steg 2 = saknas komponent
+```
+
+| Steg | Beslutar | Exempel |
+|------|----------|---------|
+| **1. access** | Vem är användaren? | Barn-session → barnnav; pedagog-roll → pedagognav |
+| **2. component** | Har familjen paketet? Arkiverat? | `active` → full vy; `archived` → läs + Arkiv-banner (§8.5) |
+| **3. rollout** | Ska paket-UI synas alls? | `off` → ingen preview; `interest` → beta-CTA |
+| **4. preview** | Mock eller riktig data? | Endast om `hasComponent === false` **och** `rollout_mode ≠ off` |
+
+**Implementation:** `package-access.js` returnerar alla fyra dimensioner. `preview-shell.js` och `native-tab-bar.js` konsumerar **samma** objekt — aldrig separat rollout-logik per sida.
+
 **Princip (vid `interest` eller `purchase`):** Användaren ska kunna **se alla paket** (och alla huvudflikar) men **inte använda** dem förrän de betalats eller admin tilldelat komponent. Det som visas utan köp är **mockade exempel** — inte familjens riktiga data.
 
-**Avgörande villkor:** Tillståndet styrs av `hasComponent(familyId, component)`, **inte** av `rollout_mode` ensamt. `rollout_mode` styr bara CTA-copy och om preview-shellen monteras alls.
+**Avgörande villkor:** Tillståndet styrs av `hasComponent(familyId, component)` + `component_state`, **inte** av `rollout_mode` ensamt. `rollout_mode` styr bara CTA-copy och om preview-shellen monteras alls.
 
 | Tillstånd | Villkor | Vad användaren ser | CTA |
 |-----------|---------|-------------------|-----|
 | **`off`** | `rollout_mode = off` | Nuvarande app (Hem · Schema · …) | — |
-| **Har komponent** | `hasComponent = true` (köpt/grandfathered/admin) | Riktig data, full funktion | — |
+| **Aktiv komponent** | `hasComponent` + `state=active` | Riktig data, full funktion | — |
+| **Arkiverad komponent** | `hasComponent` + `state=archived` | Läs + export via Arkiv (§8.5) | **Aktivera paketet igen** |
 | **Saknar komponent** (`interest`) | `hasComponent = false` | Förhandsvisning med mock | **Anmäl intresse för beta** |
 | **Saknar komponent** (`purchase`) | `hasComponent = false` | Förhandsvisning med mock | **Köp nu** |
 | **Basic** | Alltid | Aktivt (eller ingår) | — |
@@ -841,8 +1466,25 @@ Bottom nav (förälder, alla paket):
   Barn/Stöd   → behov + barnläge
 
 Top-right:
-  Inställningar → meta (konto, familj, abonnemang)
+  Inställningar → meta (konto, familj, abonnemang, arkiv)
 ```
+
+### 6.9 Vy-prioritering & lägeskonflikt (P0)
+
+När flera lägen/komponenter kan gälla samtidigt — **en formell prioriteringsmatris**:
+
+| Prioritet | Villkor | Resultat |
+|-----------|---------|----------|
+| **1** | Inloggad som pedagog (`role=pedagog` **eller** `preferred_view_mode=pedagog`) | **Pedagogläge** (§4.4) — 4 flikar |
+| **2** | Barn-session **och** `hasComponent('teacch')` + aktiv NU | **Barn + Extra stöd** — sju frågor i NU-vy |
+| **3** | Barn-session (utan teacch eller utanför aktivitet) | **Barn standard** — Idag + Skatt |
+| **4** | Vuxen förälder (default) | **Föräldarläge** — 5 flikar |
+
+**Dual-roll:** Förälder med pedagog-länkar växlar explicit via ⚙️ (§4.4.1) — auto-prioritering gäller endast vid **första** inloggning (`preferred_view_mode`).
+
+**Exempel — barn med teacch + basic + reporting:** Barn-session öppnar **Idag/NU** (prioritet 2 om aktivitet pågår, annars 3). Rapportering och Pedagog är **föräldravyer** — barn ser dem aldrig.
+
+**Implementation:** `resolveViewMode(user, session)` i `package-access.js` — returnerar `{ mode: 'pedagog'|'child_teacch'|'child'|'parent', … }`. Alla redirects (dashboard.js, child-login) använder samma funktion.
 
 ---
 
@@ -959,8 +1601,10 @@ ALTER TABLE activity_template
 | Händelse | Beteende |
 |----------|----------|
 | Refererad mall finns | Ärv `name`, `emoji`, `icon_key`, `image_url` till NÄSTA-kort |
-| Mall raderas eller tillhör annan familj | Sätt `activity_template_id = null`; behåll `text` + manuella symboler om ifyllda |
+| Mall raderas eller tillhör annan familj | **Frys** `what_next`: sätt `activity_template_id = null` men **behåll** `text`, `emoji`, `icon_key`, `image_url` i JSONB (snapshot) |
 | API validering vid save | Avvisa `activity_template_id` som inte tillhör familjen |
+
+*Vid scrub får NÄSTA-kortet aldrig bli tomt — barnet ska alltid se fryst visuellt tillstånd (§14.8).*
 
 **Abstrakta svar (`why` m.m.) — visuellt stöd:**
 
@@ -1014,6 +1658,16 @@ const QUESTION_ORDER = [
 ```
 
 `normalizeSevenQuestions(input)` — trimma `text`, sätt `version: 1` om saknas, ta bort tomma fält, rensa `what` + alla `virtual: true`, validera `icon_key` mot bibliotek, `minutes` 1–120 för `how_long`, max 500 tecken per `text`, tillämpa **fältbaserad** auto emoji-fallback (§7.2) om inget visuellt finns.
+
+**Datagränser `what_need.items` (P0):**
+
+| Gräns | Värde |
+|-------|-------|
+| Max antal items | **5** |
+| Max tecken per item `text` | **30** |
+| Överskridande | Trunkera eller avvisa med `400 VALIDATION_ERROR` vid save |
+
+*Motivering:* Förhindrar att NU-kortet spricker i barnvyn.
 
 **Bakåtkompatibilitet:** Legacy-sträng (`"Badrummet"`) → `{ text: "Badrummet", emoji: "📍" }` (fältbaserad fallback, ej textmatchning). Aldrig text-only i barnvy.
 
@@ -1163,6 +1817,129 @@ Flera tilläggspaket-features är **redan live** utan komponentköp (`klinisk_ra
 
 **Efter migration:** nya familjer behöver komponent (köp, admin eller intresse-beta) för tillägg. Befintlig funktion = behållen åtkomst.
 
+### 8.5 Arkivprincip & komponentlivscykel (P0)
+
+**Konstitutionell regel:** Nedgradering, uppsägning eller borttagning av ett paket får **aldrig radera** användargenererat innehåll. Paket styr **åtkomstnivå** (läs/skriv/skapa), aldrig existensen av data.
+
+```
+Aktivt paket     → läs + skriv + skapa
+Arkiverat paket  → läs + export (skrivskyddat)
+Återaktiverat    → full åtkomst · historik laddas automatiskt
+```
+
+#### Komponenttillstånd
+
+Utöka `family_subscriptions.components` JSONB per komponent:
+
+```javascript
+{
+  component: 'reporting',
+  state: 'active',      // 'active' | 'archived' | 'disabled'
+  granted_at: '…',
+  expires_at: null,     // null = grandfathered/permanent
+  archived_at: null
+}
+```
+
+| `state` | Läs | Skapa | Redigera | Export |
+|---------|-----|-------|----------|--------|
+| **active** | ✅ | ✅ | ✅ | ✅ |
+| **archived** | ✅ | ❌ | ❌ | ✅ |
+| **disabled** | ❌ *(saknas helt — aldrig haft paketet)* | — | — | — |
+
+`hasComponent(familyId, c)` = `true` om `state ∈ { active, archived }`. Write-routes kräver `state === 'active'`.
+
+#### Per paket — vad arkiveras
+
+| Paket | Arkiverat innehåll (behålls) | Vid återaktivering |
+|-------|------------------------------|-------------------|
+| **Pedagog** | Anteckningar · skolaktiviteter · kommentarer · audit · relationer | *"Fortsätt där ni slutade"* |
+| **Rapportering** | Rapporter · PDF:er · delningslänkar · trenddata | Samma historik tillgänglig |
+| **Extra stöd** | `seven_questions` · pictogram · sessioner · anpassningar | Barn-NU återfår teacch-overlay |
+| **För dig** *(Basic)* | Sparade rekommendationer · favoriter · historik | Oförändrat (ingår i Basic) |
+
+**Banner (arkiverat):**
+
+```
+Detta innehåll tillhör paketet [Rapportering].
+Aktivera paketet igen för att fortsätta använda funktionen.
+[ Aktivera ]
+```
+
+#### Global Arkiv-vy
+
+**Route:** Inställningar → **Arkiv**
+
+```
+Arkiv
+
+Rapportering        124 rapporter
+Pedagog             43 anteckningar
+Extra stöd          12 scheman
+
+[ Exportera allt ]   ← GDPR + användarexport
+```
+
+Klick på rad → läs-only lista. CTA *Aktivera* om `state=archived`.
+
+#### GDPR & användarförväntan
+
+| Användaren tror | Verklighet (v1.2) |
+|-----------------|-------------------|
+| *"Jag slutade betala → data försvann"* | ❌ Förbjudet |
+| *"Data finns kvar → jag kan exportera → återaktivera senare"* | ✅ Korrekt |
+
+`pedagog_audit_log` och allt arkiverat innehåll ingår i `family-export` (§4.4.14).
+
+#### Ny inbjudan vs arkiv
+
+| Situation | Beteende |
+|-----------|----------|
+| Komponent **active** | Full funktion |
+| Komponent **archived** | Befintlig data läsbar; **blockera** nya inbjudningar/write tills återaktiverat |
+| Komponent **disabled** (aldrig haft) | Preview enligt `rollout_mode` (§6.6) |
+
+*Ersätter tidigare specialfall per paket — Pedagog, Rapportering och Extra stöd följer samma modell.*
+
+### 8.6 API-versionering & concurrency (P1)
+
+#### API-versionering
+
+v1.2 behåller befintliga routes utan `/v1`-prefix (bakåtkompatibilitet). **Nya** pedagog-routes namespacas:
+
+```
+/api/pedagog/*          — v1.2 pedagog-API (breaking changes → /api/pedagog/v2/*)
+/api/subscription/access — inkluderar component_state + view_mode
+```
+
+**Regel:** Breaking payload-ändring kräver ny path eller `Accept-Version` header — dokumenteras i §17.2.
+
+#### Concurrency
+
+| Scenario | Regel v1.2 |
+|----------|------------|
+| Två föräldrar redigerar samma aktivitet | **Last-write-wins** på `activity_template` |
+| Två pedagoger, samma barn, samma dag | **Separata rader** (`UNIQUE child_id, pedagog_id, date`) — ingen konflikt |
+| Pedagog + barn avbockar samma aktivitet | **Modell A** (§4.4.11) — första completion vinner; andra får **409 `ACTIVITY_ALREADY_COMPLETED`** |
+| Samarbetskommentar | Upsert per `(child, date, role)` — senaste vinner inom 24h |
+
+**Standardiserade felkoder (pedagog daglogg):**
+
+| Kod | HTTP | Klientåtgärd |
+|-----|------|--------------|
+| `ACTIVITY_ALREADY_COMPLETED` | 409 | Rollback UI + toast med `completed_by_name` (§4.4.11) |
+| `ACCESS_REVOKED` | 403 | Hård redirect till översikt (§4.4.1) |
+| `EDIT_WINDOW_EXPIRED` | 403 | Visa låst läge; redirect till read-only |
+
+**v1.3+:** Optimistic locking (`updated_at` / ETag) på `pedagog_notes` och `daily_log_item` om supportärenden kräver det.
+
+### 8.7 Datamodell — framtida överväganden (ej v1.2)
+
+| Postponerat | Motivering |
+|-------------|------------|
+| `activity_event` (global händelseström) | v1.3 — en källa för audit + historik + analytics + push |
+| `child_access` (ersätter `parent_child` för pedagog) | v1.3+ — renare när flera roller växer |
+
 ---
 
 ## 9. Uppgradering & förhandsvisning (Köp nu)
@@ -1270,7 +2047,8 @@ module.exports = {
 |-----------|-----------|--------|---------------|
 | **iOS-app** | Apple (App Store) | RevenueCat + StoreKit | Native köpdialog; Face ID / Apple Pay som betalmetod på Apples sida |
 | **Android-app** | Google (Play Store) | RevenueCat + Play Billing | Native köpdialog; Google Pay som betalmetod på Googles sida |
-| **Webb / PWA** | **Ingen** | — | Preview + Köp nu → *Öppna i appen*; **aldrig** Stripe-länk eller kortfält |
+| **Webb / PWA** | **Ingen köp-UI** | — | Preview + Köp nu → ladda ner-flöde; **aldrig** Stripe-länk eller kortfält |
+| **Webb / PWA (efter köp)** | **Full funktion** | Samma konto | Läs + skriv enligt `package-access` — **endast själva köptransaktionen** blockeras på webben |
 
 **Motivering:**
 - Apple App Store Review Guideline 3.1.1 — digitala abonnemang i iOS-app ska via IAP
@@ -1318,6 +2096,7 @@ Renodlade webb-/PWA-användare har **ingen native-app att hoppa till** — *"Öp
 
 - **QR-kod / store-knappar:** leder till appbutik (inte en död "öppna app"-länk)
 - **SMS-länk** *(valfritt v1.2)*: skicka nedladdningslänk till telefonen
+- **Efter köp i appen:** Användaren loggar in på webben/PWA med samma konto → `package-access.js` läser DB → **full läs/skriv** för köpta paket (samma som native). Preview försvinner automatiskt.
 - **Framtida webb-checkout:** om Apple/Google-policy tillåter extern betalning för webb-plattformen kan en webb-exklusiv Stripe-länk läggas till här — men **aldrig** i native-builden (§9.7 förbjudet)
 
 **Admin / livstidsgratis:** `lifetime_free` och manuell komponenttilldelning i admin kvarstår — utan IAP.
@@ -1489,10 +2268,7 @@ metadata: {
 
 #### Admin & beslut
 
-| Vy | Innehåll |
-|----|----------|
-| Admin → Paketintresse | Antal familjer per komponent · lista · export CSV |
-| Intern dashboard | Intresse-% av aktiva familjer · ranking per paket |
+Se **§9.10** — fullständig admin-yta under *Prenumeration* (rollout, statistik, paketintresse, familj-komponenter).
 
 **Beslut att gå köp-live:** När intresse + strategi motiverar → `PACKAGES_ROLLOUT_MODE=purchase`, IAP (§9.7), priser synliga, CTA = Köp nu. Väntelistefamiljer kan prioriteras till beta *(valfritt)*.
 
@@ -1544,6 +2320,298 @@ För att mäta intresse **utan** att bygga hela v1.2:
 
 **Byggordning full v1.2:** §16 oförändrad — intressefas är deploy-läge, inte kortare scope om ni väljer full build parallellt.
 
+### 9.9 Efter köp & tomma tillstånd (P1)
+
+#### Post-köp onboarding (första gången `state` → active)
+
+| Paket | Direkt efter köp | Copy |
+|-------|------------------|------|
+| **Pedagog** | Samarbete-flik → *"Bjud in din första pedagog"* wizard | *"Nu kan ni samarbeta med skola och pedagog."* |
+| **Rapportering** | Utveckling-flik → tom rapportvy + *"Skapa din första rapport"* | *"Följ utvecklingen över tid."* |
+| **Extra stöd** | Barn/Stöd → aktivitetsbibliotek med *"Lägg till visuellt stöd"* | *"Ge barnet mer förutsägbarhet i vardagen."* |
+| **Återaktiverat** | Arkiv → *"Välkommen tillbaka — din historik är tillgänglig"* | *"Fortsätt där ni slutade."* |
+
+**Analytics:** `package_activated` med `{ component, source: 'purchase'|'reactivation' }`.
+
+#### Tomma tillstånd per paket (0 data)
+
+| Paket / yta | Tomt tillstånd |
+|-------------|---------------|
+| **Pedagog (pedagog)** | *"Inga barn delade"* — §4.4.1 |
+| **Pedagog (förälder)** | *"Bjud in en pedagog för att komma igång"* — §4.2.2 |
+| **Rapportering** | *"Inga rapporter ännu — skapa din första"* |
+| **Extra stöd** | *"Inga aktiviteter med visuellt stöd — redigera i biblioteket"* |
+| **För dig** | *"Utforska rekommenderade rutiner"* — §2.1 |
+| **Arkiv** | *"Inget arkiverat innehåll"* (sällsynt — data behålls vid nedgradering) |
+
+Varje tomt tillstånd har **en primär CTA** — aldrig död ände.
+
+### 9.10 Admin → Prenumeration (P0)
+
+**Route:** `/admin` → sektion **💳 Prenumeration** (`#prenumeration`)  
+**Behörighet:** `requireAdmin` — samma som övriga admin-panelen.  
+**Syfte:** Pontus (admin) ska kunna **styra lansering**, **tilldela paket per familj**, **läsa statistik** och **exportera intressedata** — utan deploy eller env-ändringar.
+
+**Relation till befintlig kod:** Idag finns Basic-pris, trial, grundargräns, betalnings-toggle och legacy add-ons (`public/admin/admin-subscription-settings.js`). v1.2 **utökar** samma sektion — ersätter inte Familjer eller Analytics.
+
+#### 9.10.1 Informationsarkitektur — fem block
+
+```
+💳 Prenumerationsinställningar
+├── A. Rollout & lansering
+├── B. Paket & priser
+├── C. Statistik (dashboard)
+├── D. Paketintresse (lista + export)
+└── E. Familj-komponenter (länk + inline i Familjer)
+```
+
+| Block | Admin kan | Klient/app påverkas |
+|-------|-----------|---------------------|
+| **A** | Växla `off` / `interest` / `purchase` | Nav v1.2, preview-shell, CTA-copy, IAP |
+| **B** | Redigera metadata per komponent (pris, namn, aktiv) | `/upgrade`, preview-kort — **inte** App Store-pris (RevenueCat) |
+| **C** | Se KPI:er, trender, ranking | — (read-only) |
+| **D** | Lista, filtrera, exportera intresseanmälningar | — |
+| **E** | Tilldela/återkalla `active`/`archived` per familj | `hasComponent()`, preview vs riktig data |
+
+#### 9.10.2 A — Rollout & lansering
+
+**Wireframe:**
+
+```
+── Rollout & lansering ─────────────────────────────────────
+
+Nuvarande läge:  [ Av ▾ ]  [ Intressefas ]  [ Köp live ]
+
+Vid val av Intressefas:
+  ⚠ Alla familjer utan komponent ser mock-preview + beta-CTA.
+  Ingen IAP. Inga priser.
+
+Vid val av Köp live:
+  ⚠ Native IAP aktiveras. Priser synliga. CTA = Köp nu.
+
+Härledda värden (read-only):
+  Preview-shell:  AV / PÅ
+  IAP-köp:         AV / PÅ
+  Priser i UI:     AV / PÅ
+
+[ Spara rollout-läge ]
+```
+
+| Inställning | Lagring | API |
+|-------------|---------|-----|
+| `PACKAGES_ROLLOUT_MODE` | `app_config` | `PUT /api/admin/app-config/PACKAGES_ROLLOUT_MODE` |
+| `PACKAGES_SHOW_PRICES` | `app_config` *(härledd — skrivs automatiskt)* | Sätts till `true` endast vid `purchase` |
+
+**Env-fallback:** `process.env.PACKAGES_ROLLOUT_MODE` om `app_config` saknar nyckeln. Default = `off`.
+
+**Regler:**
+
+- **Inte** `feature_flag` (boolean) — enum kräver `app_config`.
+- Byte till `interest` eller `purchase` loggas i `admin_audit_log` med `action=rollout_mode_changed`.
+- Bekräftelsedialog vid byte från `off` — *"Detta påverkar alla familjer utan köpt komponent."*
+- `payment_enabled` (befintlig toggle) är **separat** — master för IAP i appen; ska vara synlig bredvid rollout med tydlig etikett *"IAP i appen (Apple/Google)"*.
+
+**Härledda värden** (returneras i `/api/subscription/access` — §9.8):
+
+| `rollout_mode` | `purchase_enabled` | `show_prices` | Nav v1.2 | Preview | Intresse-CTA |
+|----------------|---------------------|---------------|----------|---------|--------------|
+| `off` | `false` | `false` | Nej | Nej | Nej |
+| `interest` | `false` | `false` | Ja | Ja | Ja |
+| `purchase` | `true` | `true` | Ja | Ja | Nej — Köp nu |
+
+#### 9.10.3 B — Paket & priser
+
+Fyra komponenter enligt §0 — ersätter legacy *Add-ons*-listan i admin (behåll API tills migration rensar `subscription_addons`).
+
+| `component` | Visningsnamn | Standardpris (metadata) | RevenueCat-produkt |
+|-------------|--------------|-------------------------|-------------------|
+| `basic_app` | Basic | 59 kr/mån | `basic_monthly` *(exempel)* |
+| `reporting` | Rapportering | 19 kr/mån | `reporting_monthly` |
+| `pedagog` | Pedagog | 29 kr/mån | `pedagog_monthly` |
+| `teacch` | Extra stöd | 29 kr/mån | `teacch_monthly` |
+
+**Wireframe:**
+
+```
+── Paket & priser ──────────────────────────────────────────
+
+🟢 Basic (basic_app)          59 kr/mån   [ Redigera ]
+📊 Rapportering               19 kr/mån   [ Redigera ]
+👩‍🏫 Pedagog                    29 kr/mån   [ Redigera ]
+🧩 Extra stöd (teacch)         29 kr/mån   [ Redigera ]
+
+── Grundinställningar (befintligt) ───────────────────────
+Pris Basic · Trial · Grundargräns (lifetime free)
+```
+
+| Fält per paket | Redigerbart i admin | Synkas till App Store |
+|----------------|---------------------|------------------------|
+| `name`, `description` | ✅ | ❌ (manuellt i ASC/Play) |
+| `price_monthly_sek` (metadata) | ✅ | ❌ — visning i app endast |
+| `revenuecat_product_id` | ✅ (referens) | ✅ via RevenueCat |
+| `is_active` (säljbar) | ✅ | — |
+
+**API (nya eller utökade):**
+
+- `GET /api/admin/subscription-settings` — inkl. `components[]`, `rollout_mode`, `payment_enabled`
+- `PATCH /api/admin/subscription-settings/components/:slug` — metadata
+- Befintlig `PATCH /api/admin/subscription-settings` — Basic-pris, trial, `founder_family_limit`
+
+**Prisvisning:** I `off` och `interest` visas **inga** priser i preview/upgrade (§9.8). Admin kan redigera metadata i förväg — synligt först vid `purchase`.
+
+#### 9.10.4 C — Statistik (dashboard)
+
+**Wireframe:**
+
+```
+── Prenumerationsstatistik ─────────────────────────────────
+
+Period: [ 7 dagar ▾ ] [ 30 dagar ] [ 90 dagar ]
+
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│ Intresse    │ Aktiva      │ Preview →   │ IAP köp     │
+│ anmälningar │ familjer    │ intresse %  │ (30d)       │
+│ 47 totalt   │ per paket   │ 12.4 %      │ 8           │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+
+Per komponent (ranking):
+  pedagog      ████████████  23 intresse ·  4 aktiva
+  reporting    ████████      18 intresse · 12 aktiva
+  teacch       ██████        14 intresse ·  2 aktiva
+
+Källa: package_interest · family_subscriptions · analytics_events · iap_webhook_log
+```
+
+| KPI | Definition | Källa |
+|-----|------------|-------|
+| **Intresse totalt** | Unika familjer med ≥1 rad i `package_interest` | `package_interest` |
+| **Intresse per komponent** | `COUNT(DISTINCT family_id) GROUP BY component` | `package_interest` |
+| **Preview → intresse %** | `interest_registered` / `preview_viewed` per komponent | `analytics_events` (§15) |
+| **Aktiva familjer** | `state=active` i `family_subscriptions.components` | DB |
+| **Arkiverade** | `state=archived` | DB |
+| **Lifetime free** | `family.is_lifetime_free=true` | `family` |
+| **IAP köp / förnyelser** | Webhook-händelser senaste N dagar | `iap_webhook_log` |
+| **Churn** | `subscription_status=expired` senaste N dagar | `family` |
+
+**API:**
+
+- `GET /api/admin/subscription-stats?period=7d|30d|90d`
+- Returnerar: `summary`, `by_component[]`, `interest_trend[]`, `purchases_trend[]`
+
+**North Star under intressefas:** konvertering *preview → intresseanmälan* per paket (§15) — visas som primär KPI när `rollout_mode=interest`.
+
+#### 9.10.5 D — Paketintresse (lista + export)
+
+Bygger på `package_interest` (§9.8 schema).
+
+**Wireframe:**
+
+```
+── Paketintresse ───────────────────────────────────────────
+
+Filter: [ Komponent: Alla ▾ ] [ Källa ▾ ] [ Från–Till ]
+
+17 jun  Andersson    pedagog     bottom_nav_preview
+16 jun  Lindqvist    reporting   upgrade_page
+15 jun  Svensson     teacch      contextual_trigger
+
+[ Exportera CSV ]     Visar 47 av 47
+```
+
+| Kolumn | Fält |
+|--------|------|
+| Datum | `created_at` |
+| Familj | `family.name` (ej PII i export om anonymiserat läge) |
+| Komponent | `reporting` \| `pedagog` \| `teacch` |
+| Källa | `bottom_nav_preview` \| `upgrade_page` \| `contextual_trigger` |
+| Prioriterad beta | `is_priority` *(valfritt admin-flagga)* |
+
+**API:**
+
+- `GET /api/admin/package-interest?component=&source=&from=&to=&limit=&offset=`
+- `GET /api/admin/package-interest/export.csv` — samma filter
+- `PATCH /api/admin/package-interest/:id` — `{ is_priority: true }` *(valfritt)*
+
+#### 9.10.6 E — Familj-komponenter (per familj)
+
+**Primär ingång:** Admin → **Familjer** → familjekort → panel *Paket & åtkomst*.  
+**Sekundär:** Snabblänk från Prenumeration-statistik (*"Visa familjer med pedagog"*).
+
+**Wireframe (på familjekort):**
+
+```
+── Paket & åtkomst — Andersson ─────────────────────────────
+
+Lifetime free:  Nej
+Rollout:        Intressefas (familjen ser preview om ej köpt)
+
+Komponent        Status      Tilldelad        Åtgärd
+basic_app        ● Aktiv     grandfather      —
+reporting        ○ Saknas    —                [ Tilldela ]
+pedagog          ● Aktiv     admin 2026-06-01 [ Arkivera ]
+teacch           ○ Saknas    —                [ Tilldela ]
+
+[ Spara ]   Audit: alla ändringar loggas
+```
+
+| Åtgärd | Effekt |
+|--------|--------|
+| **Tilldela** | `grantComponent(familyId, slug)` → `state=active`, `granted_at=now`, `source=admin` |
+| **Arkivera** | `state=archived`, `archived_at=now` — data kvar (§8.5) |
+| **Återaktivera** | `state=active` — full write |
+| **Ta bort tilldelning** | Endast om `source=admin` och ingen IAP-historik — annars arkivera |
+
+**Regler (§8.4, §2122):**
+
+- Oberoende av `rollout_mode` kan admin ge valfri komponent → familjen ser **riktig data**, aldrig mock.
+- `lifetime_free` → endast `basic_app` automatiskt; tillägg kräver explicit admin-tilldelning eller köp.
+- Grandfathered familjer (migration) visas med `source=grandfather` — ej raderbar.
+
+**API:**
+
+- `GET /api/admin/families/:id/subscription` — komponenter + tier + `is_lifetime_free`
+- `PUT /api/admin/families/:id/components/:slug` — `{ action: 'grant'|'archive'|'reactivate' }`
+- Alla anrop → `admin_audit_log` (`action=component_granted|component_archived`, `metadata`)
+
+#### 9.10.7 Audit & säkerhet
+
+| Händelse | Logg |
+|----------|------|
+| Rollout-byte | `rollout_mode_changed` |
+| Komponent tilldelad/arkiverad | `component_granted`, `component_archived` |
+| Basic-pris/trial ändrat | `subscription_settings_updated` |
+| `payment_enabled` toggle | `payment_enabled_changed` |
+
+**Ingen** massändring av komponenter utan bekräftelse. Export CSV kräver admin — rate-limit enligt befintlig `globalLimiter` exempt för `/api/admin/*`.
+
+#### 9.10.8 Implementation — filer & epic
+
+| # | Leverans | Filer |
+|---|----------|-------|
+| 9.10.1 | Migration `package_interest` | `migrations/*_package_interest.js` |
+| 9.10.2 | Stats + intresse API | `src/routes/admin/subscription-stats.js`, `package-interest.js` |
+| 9.10.3 | Familj-komponent API | `src/routes/admin/family-components.js` |
+| 9.10.4 | Admin UI — rollout + stats + intresse | `public/admin/admin-subscription-settings.js` *(utökad)*, `index.html` `#prenumerationSection` |
+| 9.10.5 | Familj-panel komponenter | `public/admin/admin-families.js` |
+| 9.10.6 | `subscription-components.js` — alla fyra paket | `config/subscription-components.js` |
+
+**Epic:** **E10** (intresse + analytics) + **E13** *(ny)* Admin prenumeration full. Minimal smoke test (§9.8) kräver minst **A + D + C (grund)** innan `interest` sätts live.
+
+**Exit-kriterium:**
+
+- [ ] Admin kan sätta `rollout_mode` utan deploy
+- [ ] Statistik visar intresse per komponent + export CSV
+- [ ] Admin kan tilldela `pedagog` till testfamilj → familjen ser riktig Samarbete, inte mock
+- [ ] Alla admin-ändringar i audit-logg
+- [ ] Befintlig Basic/trial/grundargräns/betalnings-toggle fungerar oförändrat
+
+#### 9.10.9 Visuell referens — pedagogläge mockup
+
+**Definitiv 10/10 UX-referens:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (§13.10, v3.1 — 14 paneler)  
+**Utdatafil:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
+
+Kontaktkarta 14 paneler. Kärnflöde: **kö → steg 2 → publicera steg 3 → historik**. Panel 13 = Publicera (ersätter feed).
+
 ---
 
 ## 10. Rollout v1.2 (översikt)
@@ -1578,7 +2646,7 @@ För att mäta intresse **utan** att bygga hela v1.2:
 - [ ] Betalning endast via Apple (iOS) / Google (Android) IAP — ingen webb-checkout (§9.7)
 - [ ] TTS: dölj högtalare om ej tillgänglig (§7.5)
 - [ ] Nav-hierarki: en primär ingång per feature (§6.4)
-- [ ] AI-princip §14.12 dokumenterad — inga autonoma AI-skrivningar utan föräldragodkännande
+- [ ] AI-princip §14.14 dokumenterad — inga autonoma AI-skrivningar utan föräldragodkännande
 - [ ] Success metrics §15 — NSM + paket-KPI:er instrumenterade i `analytics_events`
 - [ ] Uppgradering & preview enligt §9 — CTA enligt `rollout_mode`; i `off` ingen förändring
 - [ ] Navigation: arbetsflödesflikar (§6); alla 5 flikar synliga; ej köpta = preview-läge
@@ -1586,17 +2654,30 @@ För att mäta intresse **utan** att bygga hela v1.2:
 - [ ] API/write blockerat via `requireComponent()` tills köp
 - [ ] Inställningar i top-right, inte bottom nav eller Idag-grid
 - [ ] Pedagogläge §4.4 — delade barn, anteckningar, daglogg i skola, skolaktiviteter
-- [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav, pedagog-nav 3 flikar
+- [ ] Design enligt §13: en nav-väg, Extra stöd som NU-overlay, minimal barn-nav, pedagog-nav **4 flikar**
 - [ ] `PACKAGES_ROLLOUT_MODE=off` som default — ingen synlig förändring vid deploy/review
+- [ ] **Admin → Prenumeration (§9.10)** — rollout, statistik, paketintresse, familj-komponenter
 - [ ] Grandfathering §8.4 — befintliga reporting/pedagog-familjer behåller åtkomst
 - [ ] **Preview endast om `hasComponent === false`** — grandfathered familjer ser riktig data, aldrig intresse-CTA (§6.6, §9.8)
 - [ ] `package_interest`-schema + canonical `source`-taxonomi (§9.8)
 - [ ] **Vuxen-gated nödutgång** ur dold barn-nav (§7.5)
-- [ ] **DELETE-route scrubbar `what_next.activity_template_id`** — inga ghost-länkar (§7.2, §16.6)
+- [ ] **DELETE-route scrubbar `what_next`** — fryser snapshot, inga tomma NÄSTA-kort (§7.2, §16.6)
 - [ ] **Fältbaserad** emoji-fallback — ingen textmatchning (§7.2)
 - [ ] **Webb/PWA köp** = ladda ner-flöde (QR/store), inte död "öppna app" (§9.7)
 - [ ] **Ett analytics-event per fas** — `interest_registered` vs `upgrade_from_preview` (§15.3)
 - [ ] Intressefas §9.8 — beta-väntelista, inga priser, Apple-säker copy, `interest_registered`
+- [ ] **Arkivprincip §8.5** — nedgradering raderar aldrig data; `component_state` active/archived/disabled
+- [ ] **Renderingsordning §6.6** — access → component → rollout → preview (en implementation)
+- [ ] **Vy-prioritet §6.9** — `resolveViewMode()` i package-access
+- [ ] **Post-köp onboarding §9.9** — wizard per paket + tomma tillstånd
+- [ ] **Inställningar → Arkiv** — läs-only + export + återaktivera-CTA
+- [ ] **GDPR-export** inkl. `pedagog_audit_log` (§8.5, §4.4.14)
+- [ ] **409 ACTIVITY_ALREADY_COMPLETED** + klient-rollback (§4.4.11)
+- [ ] **Revoke-session** — validera vid resume; 403 → hård redirect (§4.4.1)
+- [ ] **what_next scrub fryser snapshot** — inte tom NÄSTA-rad (§7.2, §16.6)
+- [ ] **what_need.items** max 5 × 30 tecken i `normalizeSevenQuestions()`
+- [ ] **PWA efter köp** — full läs/skriv, endast köp blockeras (§9.7)
+- [ ] **IAP idempotens** — `revenuecat_event_id` (§16.8)
 
 ---
 
@@ -1640,6 +2721,18 @@ För att mäta intresse **utan** att bygga hela v1.2:
 | AH | **Webb/PWA = ladda ner-flöde** vid köp — aldrig en död "öppna app"-länk (§9.7) |
 | AI | **Ett analytics-event per fas** — `interest_registered` (interest) vs `upgrade_from_preview` (purchase) (§15.3) |
 | AJ | **Pedagogläge §4.4** — delade barn, anteckningar, daglogg i skola, skolaktiviteter |
+| AK | **Arkivprincip** — paket styr åtkomst, aldrig radering av användardata (§8.5) |
+| AL | **Renderingsordning** — access → component → rollout → preview (§6.6) |
+| AM | **Vy-prioritet** — pedagog > barn+teacch > barn > förälder (§6.9) |
+| AN | **Anteckningslås Alternativ A** — publicerad → låst 23:59 permanent (§4.4.5) |
+| AO | **Dashboard per pedagog** — status aggregeras aldrig över flera pedagoger (§4.4.9) |
+| AP | **Pedagog-nav 4 flikar** — Översikt · Idag · Historik · ⚙️ (§4.4.16) |
+| AQ | **409 ACTIVITY_ALREADY_COMPLETED** — Modell A race + klient-rollback (§4.4.11) |
+| AR | **Revoke-session** — validera vid resume; 403 hård redirect (§4.4.1) |
+| AS | **what_next scrub fryser visuellt snapshot** vid mallradering (§7.2) |
+| AT | **PWA full funktion efter köp** — endast köptransaktion blockeras på webben (§9.7) |
+| AU | **IAP webhook idempotent** via `revenuecat_event_id` (§16.8) |
+| AV | **Pedagog UX v3** — prioriteringskö, stepper, puls-kort; IA > estetik (§13.10) |
 
 ---
 
@@ -1647,16 +2740,20 @@ För att mäta intresse **utan** att bygga hela v1.2:
 
 *Referens: treläges-mockup (Föräldarläge · Barnläge · Extra stöd-läge), 2026-06-17.*
 
-### 13.1 Tre lägen — rätt modell
+### 13.1 Lägen & vy-prioritet
 
 | Läge | Syfte | Målgrupp |
 |------|-------|----------|
-| **Föräldarläge** | Full översikt, alla arbetsflöden | Förälder |
-| **Barnläge** | Enkel vy — fokus på nuet | Barn (Basic-ton) |
-| **Extra stöd (barn)** | Lugn struktur — De sju frågorna | Barn med `teacch` |
 | **Pedagogläge** | Dokumentera skoldag för delade barn | Pedagog / terapeut (§4.4) |
+| **Barn + Extra stöd** | Lugn struktur — De sju frågorna i NU | Barn med aktiv `teacch` |
+| **Barnläge** | Enkel vy — fokus på nuet | Barn (Basic-ton) |
+| **Föräldarläge** | Full översikt, alla arbetsflöden | Förälder |
 
-**Viktigt:** Fyra lägen är *upplevelser*, inte fyra paket. Paket säljs kommersiellt; lägen styrs av roll + aktiva komponenter.
+**Viktigt:** Fyra upplevelser, inte fyra paket. Paket säljs kommersiellt; lägen styrs av roll + komponenter.
+
+**Vy-prioritet (P0):** Se §6.9 — pedagog > barn+teacch > barn > förälder.
+
+**Pedagog-nav (låst v1.2):** **4 flikar** — Översikt · Idag · Historik · ⚙️ (inte 3).
 
 ### 13.2 Designprinciper (gäller implementation)
 
@@ -1834,6 +2931,286 @@ Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl int
 | Extra stöd-innehåll | 7/10 → 9/10 | Integrera i NU **med pictogram + timer + Läs upp** |
 | Paketstrategi i UI | 7/10 | Lägg till preview-skärmar |
 | Tillgänglighet icke-läsande | — | §7.5 + §14.1 — pictogram, timer, TTS, familjefoto |
+| **Pedagog & Samarbete** | 8.5/10 iteration → **10/10 v3.1** | §13.10 + `pedagog-lage-v12-ux-v3-PROMPT.md` |
+
+### 13.10 Pedagog & Samarbete — UX 10/10 (målbild)
+
+*§4.2/§4.4 = **vad**. Denna sektion = **hur det ska kännas**. Implementation ska sikta hit — inte form-tunga wireframes eller snygga men felaktiga mockups.*
+
+**Konstitutionell UX-regel:** *IA > estetik.* En pedagog öppnar appen för att svara på tre frågor inom 2 sekunder:
+
+1. **Vad behöver jag göra nu?**
+2. **Vilket barn gäller det?**
+3. **Finns något som kräver åtgärd?**
+
+**Förbjudet i pedagog-UI:** kollegolistor, veckostatistik, notis-feeds, *"senaste kommentarer"*, återkommande schema i dagvy, `Hem`/`Mer`-nav.
+
+#### 13.10.1 Pedagogöversikt — prioriteringsmotor
+
+**Princip:** En **kö** sorterad på handling — inte dashboard med statistik.
+
+```
+Pedagogöversikt                              ⚙️
+Idag · 2 kräver åtgärd · onsdag 17 juni
+
+⚠️ 2 barn kräver åtgärd
+
+────────────────────────────────────────
+🟠 Ella Andersson
+   2 aktiviteter kvar · anteckning saknas
+   [ Fortsätt → ]
+────────────────────────────────────────
+🟢 Noah Lindqvist
+   Allt klart · publicerad 14:32
+   [ Visa → ]
+────────────────────────────────────────
+⚪ Maja Svensson
+   Frånvarande idag
+   [ Visa → ]
+────────────────────────────────────────
+
+[ Filter ▾ ]  Åtgärd krävs · Alla · Klara · Frånvarande
+```
+
+| UX-regel | Detalj |
+|----------|--------|
+| **Färgremsa vänster** | Orange = åtgärd · grön = klar · grå = frånvaro |
+| **Primär copy = handling** | *"Fortsätt dokumentation"* — inte skrikande `ÅTGÄRD KRÄVS` |
+| **Hela raden klickbar** | → Idag med rätt `childId` |
+| **Frånvaro egen grupp** | Längst ner — blockerar inte prioritetskö |
+| **Aldrig här** | Andra pedagoger · veckosammanfattning · *"12 skolaktiviteter"* |
+
+**Nav:** `Översikt · Idag · Historik` + ⚙️ — **aldrig** Hem/Mer.
+
+#### 13.10.2 Idag — guidat arbetsflöde (inte informationsvy)
+
+**Princip:** Skärmen ska svara *"vad är nästa sak jag ska göra?"* — inte *"här är dagens data"*.
+
+**Steg-modell (låst ordning):**
+
+```
+✓ Barn valt  →  ● Dokumentation  →  ○ Publicera
+```
+
+Panel 2 visar typiskt **steg 2** (dokumentation + aktiviteter). Panel 13 visar **steg 3** (publicera) — se §13.10.2b.
+
+```
+Andersson — Ella ▼     ons 17 jun  [ Frånvaro ▾ ]
+
+Steg 2 av 3
+
+✓ Barn valt
+● Dokumentation        ← aktiv
+○ Publicera
+
+── Aktiviteter (hopfällbar om klara) ──
+☑ Morgonsamling    ✓ Klar hemma 07:15
+☐ Rast
+☑ Lunch            ✓ 11:45 i skolan
+
+── Dokumentation ──
+Humör [😊 4/5]  Måltider  Beteende  (chips)
+
++ Lägg till skolaktivitet
+
+┌─────────────────────────────────────┐
+│  [ Fortsätt till publicering → ]    │  ← eller sticky preview av steg 3
+└─────────────────────────────────────┘
+```
+
+| UX-regel | Detalj |
+|----------|--------|
+| **Stepper alltid synlig** | Tre steg med check/active/pending — inte dold i sektioner |
+| **Känsla** | Arbetsflöde — inte formulär |
+| **Modell A** | Muted chips på redan klara aktiviteter |
+| **Frånvaro** | Ingen stepper — lavendel banner top, allt disabled (§13.10.2c) |
+
+#### 13.10.2b Publicera — steg 3 (egen panel i mockup)
+
+**Ersätter** alla *Samarbete-feed* / *notis-statistik*-paneler. Knýter ihop pedagog-flödet.
+
+```
+Andersson — Ella ▼     ons 17 jun
+
+Steg 3 av 3
+
+✓ Barn valt
+✓ Dokumentation
+● Publicera
+
+── Dagens sammanfattning ──────────────
+✓ Rast
+✓ Lunch · Hungrig idag
+✓ Grupparbete
+
+Humör 4/5 · Lunch OK · Lugn eftermiddag
+
+┌─────────────────────────────────────┐
+│  [ Publicera ]                      │  ← enda primära CTA
+└─────────────────────────────────────┘
+
+Efter publicering: toast *"Föräldern meddelas"* → tillbaka till Översikt
+```
+
+**Flöde:** Översikt → Idag (steg 2) → Lägg till aktivitet *(valfritt)* → **Publicera (steg 3)** → Historik.
+
+#### 13.10.2c Frånvaro — nästan tråkig (avsiktligt)
+
+Frånvaro ska **inte** kännas som fel eller varning.
+
+```
+💜 Barn markerat som frånvarande idag     ← lavendel, inte amber ⚠
+
+Aktiviteter (låsta)
+☑ Morgonsamling   (grå, disabled)
+☐ Rast            (grå)
+
+[ Ta bort frånvaro ]   ← enda handling
+```
+
+**Förbjudet:** `FRÅNVARO REGISTRERAD`, orange varningsbanner, lås-ikoner som "error state".
+
+#### 13.10.3 Lägg till skolaktivitet — en skärm, extremt snabb
+
+**Förbjudet:** starttid, återkommande, typ-dropdown, grupphantering.
+
+```
+Lägg till skolaktivitet
+
+[ 🏃 Rast ]  [ 🍎 Lunch ]  [ 🚌 Utflykt ]  [ 👥 Grupparbete ]
+
+Namn
+[ Grupparbete                    ]
+
+★ Stjärnor (valfritt)  [ 0 ▾ ]
+
+[ Avbryt ]              [ Lägg till ]
+```
+
+Bottom sheet eller modal — **max 5 interaktioner** till klar.
+
+#### 13.10.4 Samarbete (förälder) — arbetsyta, inte feed
+
+**Segmenterad vy** (underflikar i Samarbete — **inte** extra bottom-nav-flikar):
+
+```
+Samarbete                         [ + Bjud in pedagog ]
+
+[ Ella ▾ ]
+
+[ Idag ● | Pedagoger | Historik ]
+
+┌─ Dagens puls · 17 juni ─────────────────┐
+│ 📋 Anna · publicerad 14:32               │
+│ Humör bra · Lunch OK · Lugn eftermiddag   │
+│                                          │
+│ 💬 Förälder: "Sov dåligt inatt"          │
+│    Anna: "Vi håller extra koll"          │  ← max 2 rader
+└──────────────────────────────────────────┘
+
+┌─ Väntar ─────────────────────────────────┐
+│ Johan har inte antecknat idag            │
+└──────────────────────────────────────────┘
+
+[ Lägg till kommentar ]   ← endast om ej kommenterat idag
+```
+
+| Flik | Innehåll |
+|------|----------|
+| **Idag** | Puls-kort + väntar-status + kommentar-CTA |
+| **Pedagoger** | Profil, barn, senast aktiv, Återkalla, Visa historik |
+| **Historik** | §4.2.4 — filter månad/pedagog |
+
+**Förbjudet:** *"1 oläst"*, *"SENASTE KOMMENTARER"*, kronologisk chat, *"Svara"*.
+
+**Bottom nav (förälder):** `Idag · Rutiner · Utveckling · Samarbete · Barn/Stöd` — **alla 5 alltid**.
+
+#### 13.10.5 Övriga skärmar — polish från snygg mockup (behåll)
+
+| Skärm | Behåll från senaste iteration | Justera |
+|-------|------------------------------|---------|
+| Inbjudan | Stor check, tydlig CTA | — |
+| Tomt tillstånd | Illustration + en primär CTA | 3 numrerade steg, inte textvägg; *Uppdatera* sekundär |
+| Åtkomst borttagen | Empati + en knapp | *"Gå till Översikt"* |
+| Inställningar | KONTO / NOTISER / SUPPORT | Minimikrav §4.4.16: profil + logga ut |
+| Kommentar-input | *max 1 per dag* | Knapp *Spara* — inte *Skicka* |
+
+#### 13.10.6 Mikrointeraktioner
+
+| Moment | Beteende |
+|--------|----------|
+| Avbocka aktivitet | Check-animation + *"Ella får 2 stjärnor"* (diskret) |
+| Publicera | Toast + haptic · *"Föräldern meddelas"* |
+| Frånvaro | Mjuk övergång till disabled — lavendel banner **top** |
+| Revoke | Empati-copy — inte tekniskt 403 |
+
+#### 13.10.7 Visuell hierarki & designsystem
+
+| Nivå | Exempel |
+|------|---------|
+| 1 — Primär | Barnnamn, puls-rubrik |
+| 2 — Handling | Lila knappar: Fortsätt, Publicera, Lägg till |
+| 3 — Status | Muted: Klar hemma 07:15, publicerad 14:32 |
+| 4 — Meta | Filter, sekundära länkar |
+
+**Tokens:** bakgrund `#F5F4F0` · navy `#1B2340` · lila `#8B5CF6` · grön `#22C55E` · amber `#F5A623` · Outfit + Plus Jakarta Sans · kort 16px radius.
+
+#### 13.10.8 Mockup-versioner — vilken gäller?
+
+| Version | Betyg | Status |
+|---------|-------|--------|
+| v1 (11 panel) | 6/10 | Superseded |
+| v2 (12 panel, form-tung) | 7/10 | Minimikrav IA |
+| Snygg fel-IA (Hem/Mer) | 5/10 | Avvisa |
+| 14-panel iteration | 8.5/10 | Nära — arbetsflödesluckor kvar |
+| **v3.1 production (14 panel, §13.10)** | **10/10 mål** | **Definitiv referens** |
+
+**Granskningsmatris (senaste iteration → v3.1):**
+
+| Område | Före | Nu | Kvar till 10/10 |
+|--------|------|-----|-----------------|
+| Informationsarkitektur | 5/10 | 9/10 | — |
+| Navigering | 4/10 | 9/10 | — |
+| Prioritering av arbete | 6/10 | 8/10 | Panel 1: `[Fortsätt]`/`[Visa]` på varje kort |
+| Samarbete | 4/10 | 9/10 | Ta bort feed-panel (Panel 13) |
+| Dokumentationsflöde | 6/10 | 7/10 | Panel 2 stepper + Panel 13 Publicera |
+| Visuell polish | 7/10 | 8.5/10 | Frånvaro lavendel, historik ren |
+
+**Kontaktkarta v3.1 (14 paneler):**
+
+| # | Panel | Roll |
+|---|-------|------|
+| 1 | Översikt — arbetskö | Pedagog |
+| 2 | Idag — steg 2 Dokumentation | Pedagog |
+| 3 | Lägg till skolaktivitet | Pedagog |
+| 4 | Inbjudan accepterad | Onboarding |
+| 5 | Profil — Föräldraläge / Pedagogläge | Dual-roll |
+| 6 | Samarbete · Idag (puls) | Förälder |
+| 7 | Samarbete · Pedagoger | Förälder |
+| 8 | Historik månad — **endast datumlista** | Pedagog |
+| 9 | Historik dag (read-only) | Pedagog |
+| 10 | Frånvaro — lavendel, låst | Pedagog |
+| 11 | Åtkomst borttagen | System |
+| 12 | Förälder kommentar (max 1/dag) | Förälder |
+| 13 | **Publicera — steg 3** *(ersätter feed)* | Pedagog |
+| 14 | Inställningar | Pedagog |
+
+**End-to-end pedagog-flöde:**
+
+```
+Översikt (kö)
+    ↓ [Fortsätt]
+Idag steg 2 (dokumentation)
+    ↓ [+ Lägg till aktivitet] (valfritt)
+Publicera steg 3
+    ↓
+Historik
+```
+
+**Förbjudet:** Panel med *"Today 3 active · This week 5 active"* eller annan notis-/statistik-feed.
+
+**Prompt:** `docs/mockups/pedagog-lage-v12-ux-v3-PROMPT.md` (v3.1)  
+**Utdata:** `docs/mockups/pedagog-lage-v12-ux-v3.png`
 
 ---
 
@@ -1854,8 +3231,10 @@ Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl int
 | **14.9** | **Gating på två nivåer** — komponent (paket) + feature (rollout) (§8.2) |
 | **14.10** | **Samma preview-data överallt** — `preview-data.js`, aldrig familjens riktiga data (§9.6) |
 | **14.11** | **Betalning endast i appen** — Apple (iOS) eller Google (Android); webb visar preview och hänvisar till appen (§9.7) |
+| **14.12** | **Arkiv, inte radering** — paket styr åtkomst, aldrig existens av användardata (§8.5) |
+| **14.13** | **Renderingsordning** — access → component → rollout → preview (§6.6) |
 
-### 14.12 AI-princip (framtidssäkring)
+### 14.14 AI-princip (framtidssäkring)
 
 *Gäller all framtida AI-funktionalitet — byggs inte i v1.2, men beslutet tas nu för att undvika senare kaos.*
 
@@ -1868,7 +3247,7 @@ Samma mönster för Samarbete och Extra stöd (§9.3). I `interest`: *Anmäl int
 
 Exempel på framtida features som omfattas: AI-rutiner · AI-förslag i För dig · AI-sammanfattade rapporter · AI-observationer.
 
-### 14.13 Vägen till 10/10 — luckor täppta
+### 14.15 Vägen till 10/10 — luckor täppta
 
 | Dimension | Före | Nu |
 |-----------|------|-----|
@@ -1928,8 +3307,12 @@ Befintlig infrastruktur: `analytics_events` (anonymiserat, `family_id` UUID) + `
 | Rapport exporterad | `report_exported` | `{ format: 'pdf' }` | alla |
 | Pedagog kopplad | `pedagog_linked` | `{ invite_accepted: true }` | alla |
 | Pedagog anteckning klar | `pedagog_note_published` | `{ child_id_hash }` | alla |
-| Skolaktivitet avbockad | `pedagog_activity_completed` | `{ child_id_hash, context: 'school' }` | alla |
+| Pedagog anteckning låst | `pedagog_note_locked` | `{ child_id_hash }` | alla |
+| Skolaktivitet avbockad | `pedagog_activity_completed` | `{ child_id_hash, source: 'educator' }` | alla |
 | Skolaktivitet tillagd | `pedagog_school_activity_added` | `{ child_id_hash }` | alla |
+| Samarbetskommentar | `pedagog_day_comment_added` | `{ author_role }` | alla |
+| Frånvaro rapporterad | `pedagog_absence_marked` | `{ child_id_hash }` | alla |
+| Pedagog audit (agg) | `pedagog_child_viewed` | `{ child_id_hash }` | alla |
 | Sju frågor visad | `seven_questions_shown` | `{ fields_filled: 3 }` | alla |
 | Preview visad | `preview_shown` | `{ component: 'reporting', source: 'bottom_nav_preview' }` | `interest` + `purchase` |
 | **Intresse registrerat** | `interest_registered` | `{ component: 'reporting', source: 'bottom_nav_preview' }` | **endast `interest`** |
@@ -2009,6 +3392,7 @@ Config: subscription-components.js · component-feature-map.js
 |---|----------|-------|
 | 0.0 | Rollout-läge `off` som default i `app_config` | `app_config` seed, `src/lib/package-access.js` |
 | 0.0b | Grandfathering-migration | `migrations/*_grandfather_package_components.js` (§8.4) |
+| 0.0c | `component_state` på subscriptions | `migrations/*_component_state.js` (§8.5) |
 | 0.1 | `pedagog` + `teacch` i paketregister | `config/subscription-components.js` |
 | 0.2 | Feature → komponent-mapping | `config/component-feature-map.js` *(ny)* |
 | 0.3 | Enhetlig access-modul | `src/lib/package-access.js` *(ny)* |
@@ -2022,11 +3406,20 @@ Config: subscription-components.js · component-feature-map.js
   rollout_mode: 'off',   // 'off' | 'interest' | 'purchase' — default 'off'
   show_prices: false,
   purchase_enabled: false,
-  components: { basic_app: true, reporting: false, pedagog: false, teacch: false },
+  view_mode: 'parent',   // resolveViewMode() — §6.9
+  components: {
+    basic_app:  { has: true,  state: 'active' },
+    reporting:  { has: false, state: 'disabled' },
+    pedagog:    { has: false, state: 'disabled' },
+    teacch:     { has: false, state: 'disabled' },
+  },
   features:   { de_sju_fragorna: false, read_aloud: false, klinisk_rapportering: false, … },
-  preview:    { reporting: false, pedagog: false, teacch: false }  // true endast när rollout_mode !== 'off'
+  preview:    { reporting: false, pedagog: false, teacch: false },  // rollout !== 'off' && !has
+  archive:    { reporting: 0, pedagog: 0, teacch: 0 },              // antal arkiverade poster
 }
 ```
+
+**Rendering:** Klienten evaluerar `access → component.state → rollout_mode → preview` (§6.6) — inga undantag per sida.
 
 **Tester:** `test/package-access.test.js` — komponent + feature + lifetime_free.
 
@@ -2044,7 +3437,7 @@ Config: subscription-components.js · component-feature-map.js
 | 1.6 | **Köp-live:** Native Köp nu → RevenueCat | `public/js/iap-manager.js` |
 | 1.7 | Webb Köp nu → öppna appen (§9.7) | `preview-shell.js` |
 | 1.8 | Webhook → `family_subscriptions.components` | `src/routes/iap.js` |
-| 1.9 | Admin: paketintresse-vy | `public/admin/` |
+| 1.9 | Admin: paketintresse + rollout + statistik (§9.10) | `public/admin/admin-subscription-settings.js`, `admin-families.js` |
 
 **Exit-kriterium (intressefas):** Alla familjer ser mock för reporting/pedagog/teacch; klick loggas; ingen IAP; ingen write.
 
@@ -2078,7 +3471,7 @@ Config: subscription-components.js · component-feature-map.js
 
 **Filer:** `public/child-dashboard.html`, `public/js/child-dashboard.js`, `public/css/child-bottom-nav.css`.
 
-**Exit-kriterium:** 5 flikar förälder; För dig inte i nav; barn max 2 flikar; pedagog 3 flikar; gamla URL:er redirectar.
+**Exit-kriterium:** 5 flikar förälder; För dig inte i nav; barn max 2 flikar; pedagog **4 flikar** (Översikt · Idag · Historik · ⚙️); gamla URL:er redirectar.
 
 ### 16.5b Fas 2b — Pedagogläge (§4.4)
 
@@ -2086,19 +3479,21 @@ Bygg efter Fas 0 (gating) — kan parallellt med Fas 2 eller 3.
 
 | # | Leverans | Filer |
 |---|----------|-------|
-| 2b.1 | Migration `pedagog_school_activity` + `daily_log_item` completion-fält | `migrations/` |
-| 2b.2 | API: pedagog daglogg (läs + avbocka) | `src/routes/pedagog-daily-log.js` *(ny)* |
-| 2b.3 | API: skolaktiviteter CRUD + bibliotek | `src/routes/pedagog-school-activities.js`, `db/pedagog-school-activity.js` |
-| 2b.4 | Pedagog dagvy | `public/pedagog-dag.html`, `public/js/pedagog-dag.js` *(ny)* |
-| 2b.5 | Pedagog-nav (3 flikar) | `public/js/pedagog-nav.js`, `public/css/pedagog-bottom-nav.css` |
-| 2b.6 | Utöka pedagogöversikt med aktivitetsstatus | `public/pedagog-oversikt.html` |
-| 2b.7 | Förälder Samarbete: hantera delning + inbjudan | Samarbete-flik / befintlig invite-UI |
-| 2b.8 | Feature-seed: `pedagog_daglogg`, `pedagog_skolaktivitet` | `scripts/seed-features.js` |
-| 2b.9 | Analytics: `pedagog_note_published`, `pedagog_activity_completed`, `pedagog_school_activity_added` | §15.3 |
+| 2b.1 | Migration: `pedagog_school_activity`, `pedagog_profile`, `pedagog_day_comment`, `pedagog_day_absence`, `pedagog_audit_log`, `note_status` på `pedagog_notes`, completion-fält på `daily_log_item` | `migrations/*_pedagog_v12.js` |
+| 2b.2 | API: pedagog daglogg (Modell A + `completion_comment`) | `src/routes/pedagog-daily-log.js` *(ny)* |
+| 2b.3 | API: skolaktiviteter CRUD (direkt `daily_log_item`-koppling) | `src/routes/pedagog-school-activities.js`, `db/pedagog-school-activity.js` |
+| 2b.4 | API: samarbetskommentarer, frånvaro, audit-write | `src/routes/pedagog-day-comments.js`, `pedagog-absence.js`, `src/lib/pedagog-audit.js` |
+| 2b.5 | Pedagog dagvy (tre sektioner) | `public/pedagog-dag.html`, `public/js/pedagog-dag.js` *(ny)* |
+| 2b.6 | Pedagog-nav (**4 flikar**) + historik | `public/js/pedagog-nav.js`, `public/pedagog-historik.html` |
+| 2b.7 | Arbetsstatus-dashboard | `public/pedagog-oversikt.html` |
+| 2b.8 | Förälder Samarbete (§4.2): lista, dagvy, historik/sök, kommentarer | Samarbete-flik + `public/js/samarbete.js` *(ny)* |
+| 2b.9 | Push-notiser pedagog + förälder | befintlig push-infra + `pedagog-push.js` |
+| 2b.10 | Feature-seed + analytics | `scripts/seed-features.js`, §15.3 |
+| 2b.11 | GDPR-export inkl. `pedagog_audit_log` | `src/lib/family-export.js`, `family-export-sql.js` |
 
-**Gating:** `requireComponent('pedagog')` på familjens inbjudan; `requirePedagogAccess(childId)` på alla pedagog-write-routes.
+**Gating:** `requireComponent('pedagog')` på **nya** inbjudningar (§4.3); `requirePedagogAccess(childId)` på alla pedagog-write-routes.
 
-**Exit-kriterium:** Pedagog kan logga in · se delade barn · skriva anteckning · kryssa i skolaktiviteter · lägga till skolaktivitet · förälder ser avbockningar i daglogg med *"i skolan"*.
+**Exit-kriterium:** Pedagog arbetsflöde (§4.4.17) + förälder Samarbete (§4.2). Dashboard-status per pedagog (ej aggregerad). Anteckning låses 23:59 permanent. Frånvaro = read-only aktiviteter + banner. `completion_comment` i UI. GDPR-export inkluderar audit-logg.
 
 ### 16.6 Fas 3 — Extra stöd (teacch)
 
@@ -2119,18 +3514,34 @@ Bygg i denna ordning:
 
 **Gating:** `requireComponent('teacch')` på write; read i barnvy om komponent finns.
 
-**Referensintegritet (3.4b):** PostgreSQL kan **inte** sätta FK från ett JSONB-fält. När en aktivitet raderas måste `DELETE /api/activities/:id` därför **i applikationskoden** rensa alla `what_next.activity_template_id` som pekar på den raderade mallen — annars uppstår "ghost"-länkar:
+**Referensintegritet (3.4b):** PostgreSQL kan **inte** sätta FK från ett JSONB-fält. När en aktivitet raderas måste `DELETE /api/activities/:id` i **samma transaktion**:
+
+1. Hämta `name`, `emoji`, `icon_key`, `image_url` från mallen som ska raderas
+2. Skriv in dessa som **snapshot** i `what_next` på alla berörda rader (frys visuellt tillstånd)
+3. Sätt `activity_template_id = null`
+4. Radera mallen
 
 ```sql
+-- Pseudokod: applicera per träffande rad med värden från raderad mall ($name, $emoji, …)
 UPDATE activity_template
 SET seven_questions = jsonb_set(
-  seven_questions, '{what_next,activity_template_id}', 'null'
+  jsonb_set(
+    jsonb_set(
+      jsonb_set(
+        jsonb_set(seven_questions, '{what_next,activity_template_id}', 'null'),
+        '{what_next,text}', to_jsonb($name::text)
+      ),
+      '{what_next,emoji}', to_jsonb($emoji::text)
+    ),
+    '{what_next,icon_key}', to_jsonb($icon_key::text)
+  ),
+  '{what_next,image_url}', to_jsonb($image_url::text)
 )
 WHERE family_id = $1
   AND seven_questions->'what_next'->>'activity_template_id' = $2;
 ```
 
-Görs i samma transaktion som raderingen. `normalizeSevenQuestions()` vid läsning behåller `text` men droppar trasig `activity_template_id` som extra skyddsnät.
+`normalizeSevenQuestions()` vid läsning: om `activity_template_id` saknas men `text`/symbol finns → rendera fryst kort; droppa endast trasig referens utan snapshot.
 
 **Designreferens:** `docs/mockups/paket-v1.2-nav.png` panel 3 · `docs/mockups/barnvy.html` · §13.5.
 
@@ -2161,6 +3572,7 @@ Görs i samma transaktion som raderingen. `normalizeSevenQuestions()` vid läsni
 | 5.1 | Produkt-ID per paket i App Store Connect + Play Console |
 | 5.2 | RevenueCat offerings/packages mappade till `basic_app`, `reporting`, `pedagog`, `teacch` |
 | 5.3 | Webhook uppdaterar `family_subscriptions.components[]` med `component` + `expires_at` |
+| 5.3b | **Idempotent webhook** — `revenuecat_event_id` UNIQUE; duplicerade events ignoreras | `iap_webhook_log` eller kolumn på subscription |
 | 5.4 | Sandbox-test iOS + Android |
 | 5.5 | App Review — inga webb-betalningstexter i native |
 
@@ -2176,6 +3588,19 @@ Offering "v1.2"
 
 Kombinerbara köp = flera packages i samma offering (produktbeslut).
 
+**IAP idempotens (P0):**
+
+```sql
+CREATE TABLE IF NOT EXISTS iap_webhook_log (
+  revenuecat_event_id TEXT PRIMARY KEY,
+  event_type          TEXT NOT NULL,
+  family_id           UUID REFERENCES family(id),
+  processed_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Webhook-handler: `INSERT … ON CONFLICT (revenuecat_event_id) DO NOTHING` → returnera 200. Förhindrar dubbel `component_state=active` vid RevenueCat-retries.
+
 ### 16.9 Epics — PR-uppdelning
 
 | Epic | Fas | Beskrivning | Beror på |
@@ -2190,11 +3615,12 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | **E7** | 3 | library editor + pictograms | E6 |
 | **E8** | 3 | child-seven-questions UI | E6, E7 |
 | **E9** | 3 | read_aloud + timer teacch | E8 |
-| **E10** | 4 | analytics + triggers | E2, E3 |
+| **E10** | 4 | analytics + triggers + admin stats/intresse | E2, E3 |
 | **E11** | 5 | IAP produkter + webhook components | E3 |
-| **E12** | 2b | Pedagogläge: daglogg, skolaktiviteter, nav (§4.4) | E1 |
+| **E12** | 2b | Pedagogläge: arbetsflöde, audit, flera pedagoger, 4-fliks nav (§4.4) | E1 |
+| **E13** | 1/4 | Admin → Prenumeration full (§9.10): rollout, komponenter, familj-tilldelning | E1 |
 
-**Rekommenderad start:** E1 → E2 → E4 → E10 för **smoke test** (§9.8 minimal path). **E12** kan byggas parallellt efter E1 om Pedagog prioriteras. Full v1.2 enligt §16 parallellt eller efter intressedata.
+**Rekommenderad start:** E1 → **E13 (minimal)** → E2 → E4 → E10 för **smoke test** (§9.8 minimal path). **E12** kan byggas parallellt efter E1 om Pedagog prioriteras. Full v1.2 enligt §16 parallellt eller efter intressedata.
 
 ### 16.10 Visuell implementation
 
@@ -2204,6 +3630,7 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | Barn | Mörk `#0F1629`, gold NU, stjärnhimmel | `docs/mockups/barnvy.html` |
 | Extra stöd | Pictogram större än text, grön Klar, ingen nav under aktivitet | `docs/mockups/paket-v1.2-nav.png` |
 | Preview | Fade + vattenstämpel + CTA enligt `rollout_mode` | §9.3, panel 4 i mockup |
+| Pedagogläge | 12-panel UX 10/10: kö, stepper, puls | `pedagog-lage-v12-ux-v3-PROMPT.md` §13.10 |
 
 **Typsnitt:** Outfit (rubriker) · Plus Jakarta Sans (brödtext).  
 **Vid konflikt:** HTML-mockups > design-affisch > improvisation.
@@ -2225,8 +3652,11 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 | `child-dashboard.js` växer okontrollerat | All Extra stöd-UI i egna filer (§16.6) |
 | Nav bryts på Capacitor iOS/Android | Testa `native-tab-bar.js` på riktiga enheter |
 | App Review avvisar webb-betalningstext | §9.7 checklista före submit |
-| IAP webhook synkar fel komponent | Idempotent webhook + logg i `iap.js` |
+| IAP webhook synkar fel komponent | Idempotent webhook + `revenuecat_event_id` UNIQUE (§16.8) |
 | Analytics `source` inkonsekvent | Canonical enum §9.8 — samma i API, DB och events |
+| Nedgradering raderar data | Arkivprincip §8.5 — `component_state=archived`, aldrig DELETE |
+| Tre parallella preview-implementationer | Renderingsordning §6.6 — ett `package-access`-svar |
+| Vy-konflikt (pedagog+barn+teacch) | `resolveViewMode()` §6.9 |
 
 ### 16.12 Medvetet inte i v1.2
 
@@ -2234,9 +3664,78 @@ Kombinerbara köp = flera packages i samma offering (produktbeslut).
 |-------------|---------|
 | `minimal_ui` (helbild + en knapp) | v1.3 |
 | `transition_support`, `social_stories` | v1.3+ |
+| `activity_event` (global händelseström) | v1.3 (§8.7) |
+| `child_access` (ersätter `parent_child`) | v1.3+ (§8.7) |
+| Optimistic locking / ETag | v1.3 (§8.6) |
 | Stripe / webb-checkout | Aldrig (§9.7) |
-| AI-rutiner / AI-rapporter | Framtid (§14.12) |
+| AI-rutiner / AI-rapporter | Framtid (§14.14) |
+| Full API-kontrakt per endpoint (§17.2) | Iterativt under E1/E12 |
 
 ---
 
-*Spec v1.2 Paket — **implementationsklar**. Produktprinciper §14, success metrics §15 och implementationsplan §16 gäller oförändrat över versioner.*
+## 17. Bilagor — formella kontrakt (team-scale)
+
+*Dessa bilagor kompletterar huvudspecen. v1.2 kan starta utan fullständiga bilagor — men de ska fyllas i parallellt med E1/E12 för att undvika produktbeslut under implementation.*
+
+### 17.1 State machines
+
+| Entitet | Tillstånd | Spec-referens |
+|---------|-----------|---------------|
+| **Komponent** | `disabled` → `active` → `archived` → `active` | §8.5 |
+| **Pedagoginbjudan** | `pending` → `accepted` → `revoked` | §4.4.1, `pedagog_invite` |
+| **Pedagogrelation** | `active` (`revoked_at IS NULL`) → `revoked` | `parent_child` |
+| **Anteckning** | `draft` → `published` → `locked` | §4.4.5–6 |
+| **Aktivitet (completion)** | `open` → `completed` (Modell A, en gång) | §4.4.11 |
+
+### 17.2 API-kontrakt (index)
+
+| Namespace | Endpoints | Epic |
+|-----------|-----------|------|
+| `/api/subscription/access` | GET | E1 |
+| `/api/subscription/interest` | POST | E2 |
+| `/api/pedagog-notes` | GET, POST, publish | E12 (befintlig + utökad) |
+| `/api/pedagog/daily-log` | GET, PATCH (+ 409) | E12 |
+| `/api/pedagog/school-activities` | GET library, POST, DELETE | E12 |
+| `/api/pedagog/day-comments` | GET, POST | E12 |
+| `/api/pedagog/absence` | PUT, DELETE | E12 |
+| `/api/admin/subscription-stats` | GET | E13 |
+| `/api/admin/package-interest` | GET, export CSV | E13 |
+| `/api/admin/families/:id/subscription` | GET | E13 |
+| `/api/admin/families/:id/components/:slug` | PUT | E13 |
+| `/api/admin/app-config/PACKAGES_ROLLOUT_MODE` | PUT | E13 |
+
+Fullständiga request/response-schemas i `src/lib/schemas.js` vid implementation.
+
+### 17.3 Databas-ERD (referens)
+
+Kärnrelationer v1.2:
+
+```
+family ── child ── daily_log_item
+  │         │
+  │         ├── pedagog_notes (pedagog_id)
+  │         ├── pedagog_school_activity (created_by_parent_id)
+  │         ├── pedagog_day_comment
+  │         ├── pedagog_day_absence
+  │         └── pedagog_audit_log
+  │
+  ├── family_subscriptions.components[] (state per komponent)
+  └── parent ── parent_child (role: primary|shared|pedagog)
+```
+
+Visuellt ERD: lägg till `docs/diagrams/paket-v1.2-erd.png` vid implementation.
+
+### 17.4 Acceptance criteria — E12 (exempel)
+
+| # | Given | When | Then |
+|---|-------|------|------|
+| E12.1 | Pedagog med åtkomst till Ella | Öppnar Idag-flik | Ser tre sektioner + barnväljare |
+| E12.2 | Ella kryssat av "Lunch" hemma | Pedagog öppnar dagvy | Lunch visar *Klar hemma* — ej kryssbar |
+| E12.3 | Pedagog publicerar anteckning 14:32 | Klockan passerar 23:59 (familj TZ) | `note_status=locked` · förälder ser i Samarbete |
+| E12.4 | Familj saknar `pedagog`-komponent | Förälder öppnar Samarbete | Preview **eller** arkiv-läs (§8.5) — aldrig raderad data |
+| E12.6 | Ella kryssat av hemma | Pedagog PATCH samma rad | 409 + toast *"uppdaterades av Ella"* |
+| E12.7 | Förälder revokerar åtkomst | Pedagog klickar vidare | 403 → omedelbar redirect |
+
+---
+
+*Spec v1.2 Paket — **implementationsklar**. Produktprinciper §14, success metrics §15, implementationsplan §16 och bilagor §17.*
