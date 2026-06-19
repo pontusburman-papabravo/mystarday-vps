@@ -304,12 +304,17 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
     );
     const logDate = logDateResult.rows[0]?.date || new Date();
 
+    // Modell A (§4.4.11): only the first completion wins. Don't overwrite a
+    // school completion done by a pedagog; record 'parent' as the home source.
     const result = await db.query(
       `UPDATE daily_log_item
-       SET completed = true, completed_at = NOW(), completed_date = $2
+       SET completed = true, completed_at = NOW(), completed_date = $2,
+           completed_by = COALESCE(completed_by, 'parent'),
+           completed_by_parent_id = COALESCE(completed_by_parent_id, $3),
+           completion_source = COALESCE(completion_source, 'home')
        WHERE id = $1
        RETURNING id, completed, completed_at, completed_date`,
-      [req.params.itemId, logDate]
+      [req.params.itemId, logDate, req.user.id]
     );
     res.json(result.rows[0]);
     // Family layer: derived contribution event (fire-and-forget)
@@ -767,9 +772,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     );
     const logDate2 = logDateResult2.rows[0]?.date || new Date();
 
+    // Modell A (§4.4.11): record 'child' as home source; don't overwrite a
+    // pedagog/school completion that already happened first.
     const result = await db.query(
       `UPDATE daily_log_item
-       SET completed = true, completed_at = NOW(), completed_date = $2
+       SET completed = true, completed_at = NOW(), completed_date = $2,
+           completed_by = COALESCE(completed_by, 'child'),
+           completion_source = COALESCE(completion_source, 'home')
        WHERE id = $1
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]

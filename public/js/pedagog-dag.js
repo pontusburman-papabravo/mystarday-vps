@@ -114,11 +114,11 @@
 
   function renderLogItem(item) {
     const done = item.completed;
-    const parentDone = done && item.completed_by === 'parent';
     const schoolDone = done && item.completed_by === 'pedagog';
+    const homeDone = done && !schoolDone; // parent, child, or legacy NULL
     let status = '';
-    if (parentDone) status = '<span class="text-xs text-green-700">Klar hemma</span>';
-    else if (schoolDone) status = '<span class="text-xs text-blue-700">Klar i skola</span>';
+    if (schoolDone) status = '<span class="text-xs text-blue-700">Klar i skola</span>';
+    else if (homeDone) status = '<span class="text-xs text-green-700">Klar hemma</span>';
 
     const btn = !done && !absence
       ? `<button type="button" class="pedagog-check-item px-3 py-1 bg-mint rounded-lg text-xs font-semibold" data-id="${item.id}">Klar</button>`

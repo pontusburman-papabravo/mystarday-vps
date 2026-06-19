@@ -88,3 +88,35 @@ test('family-components rejects basic_app mutations', () => {
   const api = fs.readFileSync(path.join(ROOT, 'src/routes/admin/family-components.js'), 'utf8');
   assert.match(api, /basic_app kan inte ändras via admin/);
 });
+
+test('activity schemas accept seven_questions (not stripped by validation)', () => {
+  const { UpdateActivitySchema, CreateActivitySchema } = require(path.join(ROOT, 'src/lib/schemas'));
+  const u = UpdateActivitySchema.safeParse({ name: 'X', seven_questions: { where: { text: 'Hemma' } } });
+  assert.ok(u.success && u.data.seven_questions, 'update must keep seven_questions');
+  const c = CreateActivitySchema.safeParse({ name: 'Y', schema_type: 'skola', seven_questions: { why: { text: 'Kul' } } });
+  assert.ok(c.success && c.data.seven_questions, 'create must keep seven_questions');
+});
+
+test('buildFeatureAccess enables package feature when component active and feature row missing', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/lib/package-access.js'), 'utf8');
+  // missing feature row → enabled (component is the gate); 'off' → kill switch
+  assert.match(src, /if \(!feature\) \{\s*result\[slug\] = true;/);
+  assert.match(src, /feature\.status === 'off'/);
+});
+
+test('home completion routes set completed_by for Modell A', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/daily-logs.js'), 'utf8');
+  assert.match(src, /completed_by = COALESCE\(completed_by, 'parent'\)/);
+  assert.match(src, /completed_by = COALESCE\(completed_by, 'child'\)/);
+});
+
+test('pedagog daily-log 409 guard blocks any non-pedagog prior completion', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/pedagog-daily-log.js'), 'utf8');
+  assert.match(src, /item\.completed && item\.completed_by !== 'pedagog'/);
+});
+
+test('interest trigger modal does not render duplicate CTA', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/package-interest-triggers.js'), 'utf8');
+  assert.doesNotMatch(src, /pkgInterestCta/);
+  assert.match(src, /showCta: true/);
+});

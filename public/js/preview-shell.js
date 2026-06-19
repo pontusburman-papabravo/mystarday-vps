@@ -199,6 +199,7 @@
     const component = options.component;
     const source = options.source || 'contextual_trigger';
     const fullPage = options.fullPage !== false;
+    const showCta = options.showCta !== false;
 
     const [access, previewData] = await Promise.all([loadAccess(), loadPreviewData()]);
     if (!access.preview || !access.preview[component]) return false;
@@ -206,7 +207,7 @@
     const pkg = previewData[component];
     if (!pkg) return false;
 
-    const cta = getCtaConfig(access);
+    const cta = showCta ? getCtaConfig(access) : null;
     const alreadyInterested = !!(access.interest && access.interest[component]);
 
     trackEvent('preview_shown', { component, source });

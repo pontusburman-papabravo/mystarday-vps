@@ -206,7 +206,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v256';
+const CACHE_NAME = 'stjarndag-v257';
+// v257: Paket v1.2 QA — seven_questions persist (schema), teacch feature-gate
+//       resilience, Modell A completed_by, intresse-trigger CTA-dedup
 // v253: Apple Sign In iPad fix — vendored presentation patch + verify on cap:sync:ios
 // v252: Remove all subscription/payment UI text for App Review (Build 15)
 // v251: Build 14 — remove IAP/RevenueCat from client (free app for App Review)

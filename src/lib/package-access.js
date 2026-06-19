@@ -119,7 +119,19 @@ async function buildFeatureAccess(familyId, componentMap) {
       result[slug] = false;
       continue;
     }
-    result[slug] = await featuresDb.hasFeatureFlag(familyId, slug);
+    // The active component is the paywall. The feature row is a secondary
+    // operational gate: missing row → enabled (component suffices),
+    // status 'off' → kill switch, 'dev' → per-family assignment.
+    const feature = await featuresDb.getFeature(slug);
+    if (!feature) {
+      result[slug] = true;
+    } else if (feature.status === 'off') {
+      result[slug] = false;
+    } else if (feature.status === 'live') {
+      result[slug] = true;
+    } else {
+      result[slug] = await featuresDb.hasFeatureFlag(familyId, slug);
+    }
   }
   return result;
 }

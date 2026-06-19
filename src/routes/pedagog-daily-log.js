@@ -77,7 +77,9 @@ router.patch('/items/:id', async (req, res) => {
     const ok = await verifyPedagogChild(req.user.id, item.child_id);
     if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
 
-    if (item.completed && item.completed_by === 'parent') {
+    // Modell A (§4.4.11): first completion wins. Any prior completion that was
+    // not made by a pedagog (home: parent/child, or legacy NULL) blocks re-completion.
+    if (item.completed && item.completed_by !== 'pedagog') {
       return res.status(409).json({
         error: 'Aktiviteten är redan klar hemma',
         code: 'ACTIVITY_ALREADY_COMPLETED',
