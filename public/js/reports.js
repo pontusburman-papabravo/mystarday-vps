@@ -42,7 +42,7 @@ async function initReports() {
     try {
       const tookOver = await PreviewShell.takeOverPage({
         component: 'reporting',
-        source: 'contextual_trigger',
+        source: 'bottom_nav_preview',
         container: document.getElementById('reportsMain'),
       });
       if (tookOver) return;

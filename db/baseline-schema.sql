@@ -683,6 +683,20 @@ CREATE TABLE IF NOT EXISTS waitlist (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS package_interest (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id   UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+  parent_id   UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
+  component   TEXT NOT NULL CHECK (component IN ('reporting', 'pedagog', 'teacch')),
+  source      TEXT NOT NULL,
+  comment     TEXT CHECK (char_length(comment) <= 280),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (family_id, component)
+);
+
+CREATE INDEX IF NOT EXISTS idx_package_interest_component ON package_interest (component);
+CREATE INDEX IF NOT EXISTS idx_package_interest_created ON package_interest (created_at DESC);
+
 CREATE TABLE IF NOT EXISTS contact_message (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255),

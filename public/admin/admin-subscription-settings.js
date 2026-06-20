@@ -116,7 +116,13 @@ async function loadPackageInterest() {
   try {
     const data = await Auth.api('/api/admin/package-interest?' + params.toString());
     if (!data.rows.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-text-soft">Inga intresseanmälningar ännu</td></tr>';
+      const hint = packageRolloutMode !== 'interest'
+        ? '<p class="text-xs text-amber-700 mt-2">Aktivera <strong>Intressefas</strong> ovan — annars visas ingen «Jag är intresserad»-knapp och inget sparas här.</p>'
+        : '<p class="text-xs text-text-soft mt-2">Föräldrar måste klicka <strong>«Jag är intresserad»</strong> i preview. Ett klick på bottom nav eller en sida räknas inte som intresseanmälan.</p>';
+      tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-text-soft">
+        Inga intresseanmälningar ännu
+        ${hint}
+      </td></tr>`;
     } else {
       tbody.innerHTML = data.rows.map((row) => {
         const date = row.created_at ? new Date(row.created_at).toLocaleDateString('sv-SE') : '—';
