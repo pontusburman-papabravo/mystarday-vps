@@ -32,13 +32,20 @@ async function handleResendWebhook(req, res) {
   const occurredAt = event.created_at ? new Date(event.created_at) : new Date();
 
   try {
+    let updated = 0;
     if (type === 'email.delivered') {
-      await markDelivered(emailId, occurredAt);
+      updated = await markDelivered(emailId, occurredAt);
     } else if (type === 'email.opened') {
-      await markOpened(emailId, occurredAt);
+      updated = await markOpened(emailId, occurredAt);
     } else if (type === 'email.clicked') {
       const link = data.click?.link || null;
-      await markClicked(emailId, occurredAt, link);
+      updated = await markClicked(emailId, occurredAt, link);
+    } else {
+      return res.status(200).json({ received: true, ignored: type });
+    }
+
+    if (updated === 0) {
+      console.warn('[RESEND-WEBHOOK] No newsletter_email_send row for email_id=%s type=%s', emailId, type);
     }
   } catch (err) {
     console.error('[RESEND-WEBHOOK] DB error:', err.message);

@@ -31,6 +31,32 @@
     return text;
   }
 
+  function buildTrackingNote(stats) {
+    const tracking = stats.tracking || {};
+    const lines = [];
+
+    if (stats.no_tracking) {
+      lines.push('Ingen per-mottagare-spårning för detta utskick (skickat före spårning aktiverades). Antal mottagare från utskicksloggen.');
+      return lines.join(' ');
+    }
+
+    if (!tracking.webhook_configured) {
+      lines.push('Webhook saknas i servern (RESEND_WEBHOOK_SECRET). Öppningar och klick kan inte registreras förrän secret är satt och webhook är konfigurerad i Resend.');
+    } else if (stats.sent > 0 && (stats.delivered || 0) === 0) {
+      lines.push('Inga leveranshändelser mottagna från Resend ännu. Kontrollera att webhook i Resend Dashboard pekar på ' + (tracking.webhook_url || '/api/resend/webhook') + ' och lyssnar på email.delivered, email.opened och email.clicked.');
+    } else if (stats.sent > 0 && stats.opened_unique === 0 && stats.clicked_unique === 0) {
+      lines.push('Webhook verkar fungera (levererat registreras), men inga öppningar/klick ännu. Vissa mailklienter (t.ex. Apple Mail Privacy Protection) blockerar öppningsspårning. Klick på länkar i mailet ska dock registreras om tracking-subdomän är aktiv i Resend.');
+    } else {
+      lines.push('Öppningsfrekvens från Resend — kan vara lägre än verkligheten p.g.a. mailklienters integritetsskydd.');
+    }
+
+    if (tracking.webhook_url && !lines.some((l) => l.includes(tracking.webhook_url))) {
+      lines.push('Webhook-URL: ' + tracking.webhook_url);
+    }
+
+    return lines.join(' ');
+  }
+
   function statsButtonHtml(id, label) {
     return `<button type="button" id="${id}"
       class="text-xs text-sky-800 font-semibold px-2 py-0.5 rounded-lg bg-sky/40 hover:bg-sky border border-sky transition-colors"
@@ -50,6 +76,7 @@
         open_rate: 0,
         click_rate: 0,
         no_tracking: true,
+        tracking: {},
       };
     }
     await showDetailModal(title, stats, recipientsUrl);
@@ -91,7 +118,11 @@
     }).join('');
 
     const noTrackingNote = stats.no_tracking
-      ? '<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">Ingen per-mottagare-spårning för detta utskick (skickat före spårning aktiverades). Antal mottagare från utskicksloggen.</p>'
+      ? '<p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">' + esc(buildTrackingNote(stats)) + '</p>'
+      : '';
+
+    const trackingNote = !stats.no_tracking
+      ? '<p class="text-xs text-text-soft bg-sky/30 border border-sky rounded-lg px-3 py-2">' + esc(buildTrackingNote(stats)) + '</p>'
       : '';
 
     const modal = document.createElement('div');
@@ -108,8 +139,8 @@
           </div>
           <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 text-sm text-navy space-y-2">
             ${noTrackingNote}
-            <p><strong>Skickat:</strong> ${stats.sent} · <strong>Öppnat:</strong> ${stats.opened_unique} (${stats.open_rate}%) · <strong>Klick:</strong> ${stats.clicked_unique} (${stats.click_rate}%)</p>
-            <p class="text-xs text-text-soft">Öppningsfrekvens från Resend — kräver tracking-subdomän + webhook. Kan vara lägre än verkligheten.</p>
+            ${trackingNote}
+            <p><strong>Skickat:</strong> ${stats.sent} · <strong>Levererat:</strong> ${stats.delivered || 0} · <strong>Öppnat:</strong> ${stats.opened_unique} (${stats.open_rate}%) · <strong>Klick:</strong> ${stats.clicked_unique} (${stats.click_rate}%)</p>
           </div>
           <div class="flex-1 overflow-y-auto px-4 py-3">
             <table class="w-full text-sm">
