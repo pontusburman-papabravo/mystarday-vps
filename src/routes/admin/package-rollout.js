@@ -7,7 +7,7 @@ const { z } = require('zod');
 const appConfig = require('../../../db/app-config');
 const db = require('../../lib/db');
 const { validate } = require('../../middleware/validate');
-const { VALID_ROLLOUT_MODES, getRolloutFlags } = require('../../lib/package-access');
+const { VALID_ROLLOUT_MODES, getRolloutFlags, normalizeRolloutMode } = require('../../lib/package-access');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ const RolloutBodySchema = z.object({
 router.get('/rollout', async (req, res, next) => {
   try {
     const raw = await appConfig.get('PACKAGES_ROLLOUT_MODE');
-    const mode = VALID_ROLLOUT_MODES.includes(raw) ? raw : 'off';
+    const mode = normalizeRolloutMode(raw);
     res.json({
       rollout_mode: mode,
       ...getRolloutFlags(mode),
@@ -57,9 +57,11 @@ router.put('/rollout', validate(RolloutBodySchema), async (req, res, next) => {
        VALUES ($1, 'rollout_mode_changed', $2)`,
       [
         req.user.id,
-        JSON.stringify({ from: previous || 'off', to: mode }),
+        JSON.stringify({ from: normalizeRolloutMode(previous) || 'off', to: mode }),
       ]
-    );
+    ).catch((auditErr) => {
+      console.error('[ADMIN] rollout audit log failed:', auditErr.message);
+    });
 
     res.json({
       rollout_mode: mode,

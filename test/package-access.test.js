@@ -117,6 +117,15 @@ test('getFamilyAccess: rollout off hides preview', async () => {
   assert.equal(access.components.reporting.has, false);
 });
 
+test('normalizeRolloutMode trims and unwraps JSON values', () => {
+  const pa = loadPackageAccess();
+  assert.equal(pa.normalizeRolloutMode('interest'), 'interest');
+  assert.equal(pa.normalizeRolloutMode(' interest '), 'interest');
+  assert.equal(pa.normalizeRolloutMode('"interest"'), 'interest');
+  assert.equal(pa.normalizeRolloutMode('bogus'), 'off');
+  assert.equal(pa.normalizeRolloutMode(null), 'off');
+});
+
 test('getFamilyAccess: interest shows preview for unpurchased packages', async () => {
   appConfigValue = 'interest';
   pushRows([{

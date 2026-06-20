@@ -16,6 +16,12 @@ test('admin package-interest routes exist', () => {
   assert.match(stats, /by_component/);
 });
 
+test('admin subscription settings avoids duplicate rollout load on DOMContentLoaded', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'public/admin/admin-subscription-settings.js'), 'utf8');
+  assert.match(js, /loadSubscriptionSettingsSeq/);
+  assert.doesNotMatch(js, /DOMContentLoaded',\s*loadSubscriptionSettings/);
+});
+
 test('admin UI has package interest table', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/admin/index.html'), 'utf8');
   const js = fs.readFileSync(path.join(ROOT, 'public/admin/admin-subscription-settings.js'), 'utf8');

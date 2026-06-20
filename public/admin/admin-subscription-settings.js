@@ -3,6 +3,7 @@
 
 let subscriptionData = null;
 let packageRolloutMode = 'off';
+let loadSubscriptionSettingsSeq = 0;
 
 const PACKAGE_LABELS = {
   reporting: 'Rapportering',
@@ -17,17 +18,43 @@ const SOURCE_LABELS = {
 };
 
 async function loadSubscriptionSettings() {
+  const seq = ++loadSubscriptionSettingsSeq;
   try {
-    const [sub, rollout] = await Promise.all([
-      Auth.api('/api/admin/subscription-settings'),
-      Auth.api('/api/admin/package-rollout/rollout').catch(() => ({ rollout_mode: 'off' })),
-    ]);
+    const sub = await Auth.api('/api/admin/subscription-settings');
+    if (seq !== loadSubscriptionSettingsSeq) return;
+
     subscriptionData = sub;
-    packageRolloutMode = rollout.rollout_mode || 'off';
     renderSubscriptionSettings();
+
+    let rollout;
+    try {
+      rollout = await Auth.api('/api/admin/package-rollout/rollout');
+    } catch (err) {
+      console.error('[Admin:subscription] Rollout load failed:', err);
+      rollout = {
+        rollout_mode: packageRolloutMode,
+        load_error: err.message || String(err),
+      };
+    }
+    if (seq !== loadSubscriptionSettingsSeq) return;
+
+    packageRolloutMode = rollout.rollout_mode || 'off';
     renderRolloutUI(rollout);
+
+    const rolloutMsg = document.getElementById('rolloutMsg');
+    if (rolloutMsg) {
+      if (rollout.load_error) {
+        rolloutMsg.textContent = 'Kunde inte ladda rollout-läge: ' + rollout.load_error;
+        rolloutMsg.className = 'text-sm text-red-500';
+      } else {
+        rolloutMsg.textContent = '';
+        rolloutMsg.className = 'text-sm min-h-[1.4em]';
+      }
+    }
+
     await Promise.all([loadPackageStats(), loadPackageInterest()]);
   } catch (err) {
+    if (seq !== loadSubscriptionSettingsSeq) return;
     console.error('[Admin:subscription] Load failed:', err);
   }
 }
@@ -361,11 +388,5 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('interestFilterComponent')?.addEventListener('change', loadPackageInterest);
   document.getElementById('interestFilterSource')?.addEventListener('change', loadPackageInterest);
 
-  // Initialize on section show (called from admin-core.js showSection)
-  // We also need to ensure data is loaded on first navigation
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadSubscriptionSettings);
-  } else {
-    loadSubscriptionSettings();
-  }
+  // Loaded via admin-core.js showSection('prenumeration') — avoid duplicate fetch race on reload.
 });
