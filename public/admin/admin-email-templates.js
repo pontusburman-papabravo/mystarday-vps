@@ -13,6 +13,12 @@ let emailTemplatesData = {}; // type → { subject, body_text, ... }
 let emailActiveTab = 'undersokning';
 
 // ── Entry point ─────────────────────────────────────────────────────────────
+async function openEmailTemplatesTab(tab) {
+  emailActiveTab = tab || emailActiveTab || 'undersokning';
+  await loadEmailTemplates();
+  if (typeof switchEmailTab === 'function') switchEmailTab(emailActiveTab);
+}
+
 async function loadEmailTemplates() {
   const container = document.getElementById('emailTemplatesContainer');
   if (!container) return;

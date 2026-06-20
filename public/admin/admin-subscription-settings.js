@@ -116,7 +116,7 @@ async function loadPackageInterest() {
   try {
     const data = await Auth.api('/api/admin/package-interest?' + params.toString());
     if (!data.rows.length) {
-      tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-text-soft">Inga intresseanmälningar ännu</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-text-soft">Inga paketintressen ännu. De visas här när familjer uttrycker intresse via appen.</td></tr>';
     } else {
       tbody.innerHTML = data.rows.map((row) => {
         const date = row.created_at ? new Date(row.created_at).toLocaleDateString('sv-SE') : '—';

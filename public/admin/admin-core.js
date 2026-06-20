@@ -1,77 +1,118 @@
 // Admin Core: section navigation, stats, init
-    // ─── Section Navigation ──────────────────────────────────
-    const sectionTitles = {
-      overview: 'Översikt',
-      prenumeration: 'Prenumeration',
-      families: 'Familjer',
-      messages: 'Kontaktmeddelanden',
-      defaults: 'Bibliotek',
-      anvandning: 'Användning',
-      retention: 'Retention & Aktivitetsstatistik',
-      foraldaraktivering: 'Föräldraaktivering',
-      fordig: 'För dig',
-      dagensnyhet: 'Dagens nyhet',
-      nyhetsbrev: 'Nyhetsbrevsprenumeranter',
-      valkomstmail: 'Välkomstmail',
-      analytics: 'Analytics',
-      anvandarstatistik: 'Användarstatistik',
-      undersokningar: 'Undersökningar',
-      emailmallar: '📧 Email-mallar',
-      emaillog: '📤 Email-logg',
-      intresseanmalningar: '🎓 Intresseanmälningar',
-      waitlist: '📋 Waitlist',
-      password: 'Kontoinställningar',
-    };
+    // ─── Section refresh registry ─────────────────────────────
+    function refreshSection(section, route) {
+      const r = route || (typeof resolveRoute === 'function' ? resolveRoute(window.location.hash) : {});
 
-    function showSection(name) {
-      document.querySelectorAll('[id$="Section"]').forEach(s => {
+      if (section === 'overview') {
+        refreshAdminStats();
+        if (typeof loadOverviewStats === 'function') loadOverviewStats();
+      }
+      if (section === 'prenumeration' && typeof loadSubscriptionSettings === 'function') {
+        loadSubscriptionSettings();
+      }
+      if (section === 'families' && typeof loadFamilies === 'function') loadFamilies();
+      if (section === 'messages' && typeof loadMessages === 'function') loadMessages();
+      if (section === 'defaults' && typeof switchLibTab === 'function') switchLibTab('activities');
+      if (section === 'anvandning' && typeof loadLoginStats === 'function') loadLoginStats();
+      if (section === 'retention' && typeof loadRetentionData === 'function') loadRetentionData();
+      if (section === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
+        loadActivationProgramAdmin();
+      }
+      if (section === 'fordig' && typeof loadForDigAdmin === 'function') loadForDigAdmin();
+      if (section === 'dagensnyhet' && typeof loadNyheter === 'function') loadNyheter();
+      if (section === 'landning' && typeof loadLandingNews === 'function') loadLandingNews();
+      if (section === 'bildbank' && typeof loadAdminImages === 'function') loadAdminImages();
+      if (section === 'nyhetsbrev' && typeof loadNewsletterSubscribers === 'function') {
+        loadNewsletterSubscribers();
+      }
+      if (section === 'emailmallar') {
+        if (r.emailTab && typeof openEmailTemplatesTab === 'function') {
+          openEmailTemplatesTab(r.emailTab);
+        } else if (typeof loadEmailTemplates === 'function') {
+          loadEmailTemplates();
+        }
+      }
+      if (section === 'emaillog' && typeof loadEmailLog === 'function') loadEmailLog();
+      if (section === 'undersokningar' && typeof loadSurveys === 'function') loadSurveys();
+      if (section === 'intresseanmalningar' && typeof loadInterests === 'function') loadInterests();
+      if (section === 'waitlist' && typeof loadWaitlist === 'function') loadWaitlist();
+      if (section === 'analytics' && typeof loadAnalytics === 'function') loadAnalytics();
+      if (section === 'anvandarstatistik' && typeof loadUserStats === 'function') loadUserStats();
+      if (section === 'valkomstmail') {
+        if (typeof openEmailTemplatesTab === 'function') {
+          openEmailTemplatesTab('valkomstmail');
+        } else if (typeof loadWelcomeEmailTemplate === 'function') {
+          loadWelcomeEmailTemplate();
+        }
+      }
+    }
+
+    function applyRouteExtras(route) {
+      if (route.scrollTarget) {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            const el = document.querySelector(route.scrollTarget);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 150);
+        });
+      }
+    }
+
+    function showSection(name, route) {
+      document.querySelectorAll('[id$="Section"]').forEach((s) => {
         if (s.id !== 'accessDenied') s.classList.add('hidden');
       });
       const target = document.getElementById(name + 'Section');
       if (target) target.classList.remove('hidden');
 
-      // Update page title
+      const resolved = route || (typeof resolveRoute === 'function' ? resolveRoute(window.location.hash) : null);
+      const pageTitle = resolved?.pageTitle || name;
+
       const titleEl = document.getElementById('pageTitle');
-      if (titleEl && sectionTitles[name]) {
-        titleEl.textContent = sectionTitles[name];
+      if (titleEl) titleEl.textContent = pageTitle;
+
+      if (resolved && typeof renderBreadcrumb === 'function') {
+        renderBreadcrumb(resolved.breadcrumb);
       }
 
-      document.querySelectorAll('.nav-item').forEach(a => {
-        a.classList.remove('bg-gold', 'text-navy', 'font-semibold');
-        a.classList.add('text-white', 'hover:bg-navy-soft');
-      });
-      const active = document.querySelector(`.nav-item[data-section="${name}"]`);
-      if (active) {
-        active.classList.add('bg-gold', 'text-navy', 'font-semibold');
-        active.classList.remove('text-white', 'hover:bg-navy-soft');
+      if (resolved && typeof setActiveNavItem === 'function') {
+        setActiveNavItem(resolved.navId);
+      } else {
+        document.querySelectorAll('.nav-item').forEach((a) => {
+          a.classList.remove('bg-gold', 'text-navy', 'font-semibold');
+          a.classList.add('text-white', 'hover:bg-navy-soft');
+        });
+        const active = document.querySelector(`.nav-item[data-section="${name}"]`);
+        if (active) {
+          active.classList.add('bg-gold', 'text-navy', 'font-semibold');
+          active.classList.remove('text-white', 'hover:bg-navy-soft');
+        }
       }
 
-      // Refresh data when navigating to a section
-      if (name === 'overview') { refreshAdminStats(); loadOverviewStats(); }
-      if (name === 'prenumeration') loadSubscriptionSettings();
-      if (name === 'families') loadFamilies();
-      if (name === 'messages') loadMessages();
-      if (name === 'defaults') {
-        if (typeof switchLibTab === 'function') switchLibTab('activities');
+      refreshSection(name, resolved);
+      if (resolved) applyRouteExtras(resolved);
+    }
+
+    function navigateToHash(rawHash, options) {
+      const opts = options || {};
+      const route = typeof resolveRoute === 'function'
+        ? resolveRoute(rawHash || window.location.hash)
+        : { actualSection: 'overview', hash: '#overview', navId: 'start', pageTitle: 'Start', breadcrumb: ['Hem', 'Start'] };
+
+      if (route.external && route.href) {
+        window.location.href = route.href;
+        return route;
       }
-      if (name === 'anvandning') loadLoginStats();
-      if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
-        loadActivationProgramAdmin();
+
+      if (!opts.skipHashUpdate) {
+        const targetHash = route.hash || '#overview';
+        if (window.location.hash !== targetHash) {
+          window.location.hash = targetHash;
+        }
       }
-      if (name === 'emaillog' && typeof loadEmailLog === 'function') {
-        loadEmailLog();
-      }
-      if (name === 'fordig' && typeof loadForDigAdmin === 'function') {
-        loadForDigAdmin();
-      }
-      if (name === 'analytics' && typeof loadAnalytics === 'function') {
-        loadAnalytics();
-      }
-      if (name === 'valkomstmail') loadWelcomeEmailTemplate();
-      if (name === 'intresseanmalningar') loadInterests();
-      if (name === 'waitlist') loadWaitlist();
-      if (name === 'bildbank') loadAdminImages();
-      if (name === 'anvandarstatistik') loadUserStats();
+
+      showSection(route.actualSection, route);
+      return route;
     }
 
     // ─── Mobile Menu Toggle ────────────────────────────────────
@@ -79,11 +120,11 @@
       const links = document.getElementById('adminSidebarLinks');
       if (links) links.classList.remove('open');
     }
-    (function() {
+    (function () {
       const btn = document.getElementById('adminMenuToggle');
       const links = document.getElementById('adminSidebarLinks');
       if (btn && links) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
           links.classList.toggle('open');
         });
       }
@@ -105,7 +146,6 @@
       document.getElementById('unreadMessagesCount').textContent = unread;
       document.getElementById('unreadMessagesCount').style.color = unread > 0 ? '#E53E3E' : '#1B2340';
       updateMessagesBadge(unread);
-      // Also populate total messages count if available
       if (stats.totalMessages != null) {
         document.getElementById('totalMessagesCount').textContent = stats.totalMessages;
       }
@@ -116,16 +156,15 @@
         try {
           const stats = await Auth.api('/api/admin/stats');
           applyStats(stats);
-          return; // success — stop retrying
+          return;
         } catch (e) {
           console.error('[ADMIN] Stats load failed (attempt ' + (attempt + 1) + '):', e.message);
           if (attempt < (retries || 1) - 1) {
-            await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+            await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
           }
         }
       }
-      // All retries exhausted — show error state
-      ['familiesCount', 'parentsCount', 'childrenCount'].forEach(id => {
+      ['familiesCount', 'parentsCount', 'childrenCount'].forEach((id) => {
         const el = document.getElementById(id);
         if (el && el.textContent === '\u2014') el.textContent = '!';
       });
@@ -140,35 +179,35 @@
       try {
         Auth.requireAuth();
 
-        // Verify admin status
         const me = await Auth.api('/api/auth/me');
 
         if (!me.is_admin) {
           document.getElementById('accessDenied').classList.remove('hidden');
-          document.querySelectorAll('[id$="Section"]').forEach(s => {
+          document.querySelectorAll('[id$="Section"]').forEach((s) => {
             if (s.id !== 'accessDenied') s.classList.add('hidden');
           });
           setTimeout(() => { window.location.href = '/login'; }, 3000);
           return;
         }
 
-        // Show section from URL hash (e.g. #defaults, #anvandning) or overview
-        const initialHash = (window.location.hash || '').slice(1);
-        showSection(sectionTitles[initialHash] ? initialHash : 'overview');
+        if (typeof renderAdminSidebar === 'function') renderAdminSidebar();
 
-        // Load stats (retry up to 3 times on transient failures)
+        window.addEventListener('hashchange', () => {
+          navigateToHash(window.location.hash, { skipHashUpdate: true });
+        });
+
+        if (!window.location.hash) {
+          history.replaceState(null, '', '#overview');
+        }
+        navigateToHash(window.location.hash || '#overview', { skipHashUpdate: true });
+
         await loadAdminStats(3);
 
-        // Load overview period stats (default period: 7d, retry up to 3 times)
         if (typeof loadOverviewStats === 'function') loadOverviewStats(3);
 
-        // Load grouped families
         loadFamilies();
-
-        // Load contact messages
         loadMessages();
 
-        // Export family emails (CSV)
         document.getElementById('exportEmailsBtn').addEventListener('click', async () => {
           try {
             const res = await fetch('/api/admin/export-emails', {
@@ -187,7 +226,6 @@
           }
         });
 
-        // Password change
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const msg = document.getElementById('pwMsg');
@@ -215,7 +253,6 @@
           }
         });
 
-        // Create admin form
         document.getElementById('createAdminForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const msg = document.getElementById('createAdminMsg');
@@ -245,26 +282,19 @@
           }
         });
 
-        // Messages search
         document.getElementById('messagesSearch').addEventListener('input', (e) => {
           const query = e.target.value.toLowerCase().trim();
           renderMessages(filterMessages(query));
         });
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
 
-        // Auto-refresh stats and messages every 30 seconds
         setInterval(refreshAdminStats, 30000);
       } catch (error) {
         console.error('Admin init failed:', error);
-        // Only redirect to login on genuine auth failures (401/403).
-        // 429 (rate limit) and network errors should NOT redirect —
-        // the session is still valid, just temporarily blocked.
         if (error.status === 401 || error.status === 403) {
           window.location.href = '/login';
         }
-        // For other errors (429, 500, network): stay on page, user can retry
       }
     });
 
@@ -277,7 +307,7 @@
       }
     }
 
-    // ─── Welcome Email Template ─────────────────────────────
+    // ─── Welcome Email Template (legacy section; #valkomstmail routes to E-postmallar) ──
 
     let cachedWelcomeEmailTemplate = null;
 
@@ -343,7 +373,7 @@
     }
 
     function updateWelcomeEmailPreview() {
-      const subject = document.getElementById('welcomeEmailSubject').value || 'Välkommen till Min Stjärndag! 🌟';
+      const subject = document.getElementById('welcomeEmailSubject').value || 'Välkommen till [REDACTED]! 🌟';
       const body = document.getElementById('welcomeEmailBody').value || '';
       const previewEl = document.getElementById('welcomeEmailPreview');
 
@@ -354,14 +384,12 @@
         return;
       }
 
-      // Replace variables with example data (no leading \b — same reason as server-side welcome-mailer)
       let previewBody = body
         .replace(/{{foralderns_namn}}/g, 'Anna')
         .replace(/{{barnets_namn}}/g, 'Stjärndag');
 
-      // Format **bold** and newlines → HTML
       const paragraphs = previewBody.split(/\n\n+/);
-      const formatted = paragraphs.map(p => {
+      const formatted = paragraphs.map((p) => {
         const trimmed = p.trim();
         if (!trimmed) return '';
         const escaped = trimmed
@@ -376,17 +404,17 @@
       previewEl.innerHTML = `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;background:#fff;border-radius:10px;overflow:hidden;">
           <div style="background:linear-gradient(135deg,#F5A623,#e8952a);padding:20px 28px;">
-            <p style="margin:0;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Min Stjärndag</p>
+            <p style="margin:0;color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">[REDACTED]</p>
             <p style="margin:8px 0 0 0;color:#fff;font-size:20px;font-weight:700;">Välkommen! 🌟</p>
           </div>
           <div style="padding:24px 28px;font-size:15px;line-height:1.7;color:#374151;">
             ${formatted}
           </div>
           <div style="padding:0 28px 24px 28px;">
-            <a href="#" style="display:inline-block;background:#F5A623;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;font-size:14px;">Öppna Min Stjärndag ⭐</a>
+            <a href="#" style="display:inline-block;background:#F5A623;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;font-size:14px;">Öppna [REDACTED] ⭐</a>
           </div>
           <div style="border-top:1px solid #e5e7eb;padding:16px 28px;font-size:12px;color:#9ca3af;">
-            Du får detta mail för att du nyligen registrerade dig på Min Stjärndag.
+            Du får detta mail för att du nyligen registrerade dig på [REDACTED].
           </div>
         </div>
       `;
