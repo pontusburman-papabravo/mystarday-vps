@@ -4,6 +4,13 @@
 (function () {
   'use strict';
 
+  function getCsrfToken() {
+    const cached = localStorage.getItem('csrf_token');
+    if (cached) return cached;
+    const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
   window.addEventListener('DOMContentLoaded', async () => {
     if (!window.Auth || !Auth.isLoggedIn() || !window.PreviewShell) return;
 
@@ -54,7 +61,7 @@
             btn.disabled = true;
             try {
               const headers = { 'Content-Type': 'application/json' };
-              const csrf = localStorage.getItem('csrf_token');
+              const csrf = getCsrfToken();
               if (csrf) headers['X-CSRF-Token'] = csrf;
               const res = await fetch('/api/subscription/interest', {
                 method: 'POST',
@@ -62,12 +69,15 @@
                 credentials: 'include',
                 body: JSON.stringify({ component: slug, source: 'upgrade_page' }),
               });
-              const data = await res.json();
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                throw new Error(data.error || 'Kunde inte registrera intresse');
+              }
               btn.textContent = 'Intresse registrerat ✓';
               alert(data.message || 'Tack!');
             } catch (e) {
               btn.disabled = false;
-              alert('Något gick fel');
+              alert(e.message || 'Något gick fel');
             }
           });
           card.appendChild(btn);
