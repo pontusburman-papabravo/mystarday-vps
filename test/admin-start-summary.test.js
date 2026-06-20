@@ -119,6 +119,18 @@ test('start-summary route is mounted in admin router', () => {
   assert.match(adminJs, /start-summary/);
 });
 
+test('getMessageCounts query uses contact_message alias consistently', () => {
+  const cmSrc = fs.readFileSync(path.join(__dirname, '../db/contact-messages.js'), 'utf8');
+  assert.match(cmSrc, /FROM contact_message cm/);
+  assert.doesNotMatch(cmSrc, /FROM contact_message\n/);
+});
+
+test('fetchRecommendations lead count avoids mixed-type UNION on id', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
+  assert.match(src, /FROM package_interest WHERE lead_status = 'ny'/);
+});
+
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
   assert.match(html, /id="startGrowthBlock"/);

@@ -81,12 +81,12 @@ async function listMessages({ type, status, inbox, followup, limit = 100 } = {})
 async function getMessageCounts() {
   const { rows } = await db.query(`
     SELECT
-      COUNT(*) FILTER (WHERE status = 'new')::int AS unread_count,
-      COUNT(*) FILTER (WHERE ${needsFollowUpSql()})::int AS needs_follow_up_count,
-      COUNT(*) FILTER (WHERE status IN ('read', 'in_progress'))::int AS active_count,
-      COUNT(*) FILTER (WHERE status = 'answered')::int AS answered_count,
-      COUNT(*) FILTER (WHERE status = 'archived')::int AS archived_count
-    FROM contact_message
+      COUNT(*) FILTER (WHERE cm.status = 'new')::int AS unread_count,
+      COUNT(*) FILTER (WHERE ${needsFollowUpSql('cm')})::int AS needs_follow_up_count,
+      COUNT(*) FILTER (WHERE cm.status IN ('read', 'in_progress'))::int AS active_count,
+      COUNT(*) FILTER (WHERE cm.status = 'answered')::int AS answered_count,
+      COUNT(*) FILTER (WHERE cm.status = 'archived')::int AS archived_count
+    FROM contact_message cm
   `);
   return rows[0] || {};
 }
