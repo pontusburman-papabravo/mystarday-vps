@@ -45,7 +45,9 @@ async function loadSubscriptionSettings() {
     console.error('[Admin:subscription] Load failed:', err);
     const rolloutMsg = document.getElementById('rolloutMsg');
     if (rolloutMsg) {
-      rolloutMsg.textContent = 'Kunde inte ladda prenumerationsinställningar: ' + (err.message || err);
+      const detail = err.status ? ` (HTTP ${err.status})` : '';
+      const body = err.body?.error || err.message || err;
+      rolloutMsg.textContent = 'Kunde inte ladda prenumerationsinställningar: ' + body + detail;
       rolloutMsg.className = 'text-sm text-red-500';
     }
   }
