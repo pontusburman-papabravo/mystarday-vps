@@ -5,6 +5,8 @@ const db = require('../lib/db');
 const { sendEmail } = require('../lib/email');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
+const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
+const { getAllPreviewPackages } = require('../../config/preview-data');
 const shareLink = require('../../db/professional-share-link');
 
 const router = express.Router();
@@ -30,6 +32,17 @@ const waitlistLimiter = rateLimit({
   keyGenerator: (req) => `waitlist:${req.ip}`,
   handler: (req, res) => {
     res.status(429).json({ error: 'Too many attempts. Please try again in an hour.' });
+  },
+});
+
+const publicNewsletterLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: process.env.RATE_LIMIT_ENABLED === 'false' ? 0 : 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `pubnews:${req.ip}`,
+  handler: (req, res) => {
+    res.status(429).json({ error: 'För många försök. Försök igen om en timme.' });
   },
 });
 
@@ -318,6 +331,67 @@ router.post('/waitlist/skip', waitlistLimiter, async (req, res) => {
   } catch (err) {
     console.error('[WAITLIST-SKIP] Error:', err);
     res.status(500).json({ error: 'Something went wrong.' });
+  }
+});
+
+// ─── GET /api/public/preview-data ─────────────────────────
+// Static mock content for marketing previews (no auth).
+router.get('/public/preview-data', (req, res) => {
+  res.json(getAllPreviewPackages());
+});
+
+// ─── POST /api/public/newsletter-subscribe ────────────────
+// Guest newsletter + optional package interest (no account required).
+router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req, res) => {
+  try {
+    const { email, name, component, source } = req.body || {};
+
+    if (!email || typeof email !== 'string' || !email.includes('@') || !email.includes('.')) {
+      return res.status(400).json({ error: 'Ange en giltig e-postadress.' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim().slice(0, 255);
+    const normalizedName = name && typeof name === 'string' ? name.trim().slice(0, 255) : null;
+    const normalizedSource = typeof source === 'string' ? source.trim().slice(0, 64) : 'landing';
+    const normalizedComponent = typeof component === 'string' && VALID_COMPONENTS.includes(component)
+      ? component
+      : null;
+
+    const result = await subscribePublic({
+      email: normalizedEmail,
+      name: normalizedName,
+      source: normalizedSource,
+      component: normalizedComponent,
+      ipAddress: req.ip || null,
+    });
+
+    sendEmail({
+      to: normalizedEmail,
+      subject: 'Du är anmäld till nyhetsbrevet — My Starday',
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1C2340;">
+          <h2>Tack! ⭐</h2>
+          <p>${normalizedName ? `Hej ${normalizedName},` : 'Hej,'}</p>
+          <p>Du är nu på vår nyhetsbrevmailing med nyheter och uppdateringar om My Starday.</p>
+          ${normalizedComponent ? '<p>Vi har noterat ditt intresse och meddelar dig när paketet blir tillgängligt.</p>' : ''}
+          <p style="color:#5A6178;font-size:14px;">Vill du skapa konto kan du göra det när som helst via registreringssidan i appen.</p>
+        </div>
+      `,
+    }).catch(() => {});
+
+    let message = 'Tack! Du är anmäld till nyhetsbrevet.';
+    if (normalizedComponent) {
+      message = result.alreadyHadComponent
+        ? 'Du står redan på listan för det paketet. Vi hör av oss när det släpps.'
+        : 'Tack! Vi meddelar dig när paketet släpps.';
+    } else if (!result.isNew) {
+      message = 'Du är redan anmäld till nyhetsbrevet.';
+    }
+
+    res.json({ ok: true, message, already_registered: !result.isNew || result.alreadyHadComponent });
+  } catch (err) {
+    console.error('[PUBLIC-NEWSLETTER] Error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
 

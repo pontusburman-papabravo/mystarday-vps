@@ -22,14 +22,17 @@ test('landing route serves program catalog API', () => {
   assert.match(src, /getProgramCatalog/);
 });
 
-test('program catalog has four programs and comparison matrix', () => {
+test('program catalog has five programs with total and pedagog last', () => {
   const catalog = require('../config/program-catalog');
   const data = catalog.getProgramCatalog();
 
-  assert.equal(data.programs.length, 4);
+  assert.equal(data.programs.length, 5);
   assert.ok(data.programs.some((p) => p.component === 'basic_app'));
   assert.ok(data.programs.some((p) => p.component === 'reporting'));
+  assert.ok(data.programs.some((p) => p.component === 'total'));
+  assert.equal(data.programs[data.programs.length - 1].component, 'pedagog');
   assert.ok(data.comparison.rows.length >= 6);
+  assert.deepEqual(data.public_interest_components, ['reporting', 'pedagog', 'teacch', 'total']);
   assert.match(data.copy.intro, /Basic/);
   assert.doesNotMatch(data.copy.founder_note, /platser kvar/i);
 });
@@ -68,6 +71,32 @@ test('landing page has program matrix section', () => {
   assert.match(html, /landingMatrixBody/);
   assert.match(html, /landing-program-matrix\.js/);
   assert.match(html, /program-catalog-render\.js/);
+  assert.match(html, /landingNewsletterForm/);
+  assert.match(html, /landing-newsletter\.js/);
+});
+
+test('guest preview scripts and marketing back navigation', () => {
+  const reportsHtml = fs.readFileSync(path.join(ROOT, 'public/reports.html'), 'utf8');
+  const previewBack = fs.readFileSync(path.join(ROOT, 'public/js/preview-back.js'), 'utf8');
+  const previewGuest = fs.readFileSync(path.join(ROOT, 'public/js/preview-guest.js'), 'utf8');
+  const reportsJs = fs.readFileSync(path.join(ROOT, 'public/js/reports.js'), 'utf8');
+  const shellJs = fs.readFileSync(path.join(ROOT, 'public/js/preview-shell.js'), 'utf8');
+
+  assert.match(reportsHtml, /preview-back\.js/);
+  assert.match(reportsHtml, /preview-guest\.js/);
+  assert.match(reportsHtml, /previewBackLink/);
+  assert.match(previewBack, /isMarketingVisit/);
+  assert.match(previewGuest, /\/api\/public\/newsletter-subscribe/);
+  assert.match(reportsJs, /takeOverPublicPage/);
+  assert.match(shellJs, /mountPublicPreview/);
+  assert.match(shellJs, /takeOverPublicPage/);
+});
+
+test('program-catalog-render adds marketing preview links', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/program-catalog-render.js'), 'utf8');
+  assert.match(src, /marketingPreviewHref/);
+  assert.match(src, /from=landing/);
+  assert.match(src, /program-interest-form/);
 });
 
 test('program-catalog-render is shared module', () => {

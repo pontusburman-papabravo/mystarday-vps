@@ -2058,8 +2058,19 @@
         </div>
 
         <p class="landing-program-more">
-            <a href="/pricing-info">Läs mer om varje program och vad som ingår →</a>
+            <a href="/pricing-info?from=landing">Läs mer om varje program och vad som ingår →</a>
         </p>
+
+        <div class="landing-newsletter" id="landingNewsletter">
+            <h3 class="landing-newsletter-title">Få nyheter om nya paket</h3>
+            <p class="landing-newsletter-copy">Anmäl dig utan konto — vi meddelar när tilläggen släpps.</p>
+            <form id="landingNewsletterForm" class="landing-newsletter-form" novalidate>
+                <label class="sr-only" for="landingNewsletterEmail">E-post</label>
+                <input type="email" id="landingNewsletterEmail" name="email" placeholder="din@email.se" required autocomplete="email">
+                <button type="submit">Prenumerera</button>
+            </form>
+            <p id="landingNewsletterFeedback" class="landing-newsletter-feedback" hidden></p>
+        </div>
     </div>
 </section>
 
@@ -2564,7 +2575,9 @@
 <a href="#kontakt" class="landing-fab landing-fab-kontakt" title="Kontakta oss" aria-label="Kontakt">💬</a>
 
 <script src="/js/program-catalog-render.js?v=1.0.0"></script>
+<script src="/js/preview-guest.js?v=1.0.0"></script>
 <script src="/js/landing-program-matrix.js?v=1.0.0"></script>
+<script src="/js/landing-newsletter.js?v=1.0.0"></script>
 <!-- ===== SCRIPTS ===== -->
 <script>
 // Hamburger menu toggle

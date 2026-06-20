@@ -32,6 +32,37 @@
     return esc(String(name || '').replace('Familj ', ''));
   }
 
+  function marketingPreviewHref(path) {
+    if (!path) return '';
+    if (path.indexOf('/pricing-info') === 0) {
+      return path.indexOf('?') >= 0 ? path : path.replace('#', '?from=landing#');
+    }
+    var sep = path.indexOf('?') >= 0 ? '&' : '?';
+    return path + sep + 'from=landing';
+  }
+
+  function programLinkHref(program) {
+    if (program.preview_path && program.component !== 'total') {
+      return marketingPreviewHref(program.preview_path);
+    }
+    if (program.availability === 'live') return '/register';
+    return '/pricing-info?from=landing#' + program.id;
+  }
+
+  function renderProgramInterestCta(program) {
+    if (program.availability !== 'coming' || program.component === 'basic_app') return '';
+    return (
+      '<form class="program-interest-form" data-component="' + esc(program.component) + '">' +
+        '<p class="program-interest-label">Få e-post när paketet släpps — ingen inloggning krävs.</p>' +
+        '<div class="program-interest-row">' +
+          '<input type="email" name="email" placeholder="din@email.se" required autocomplete="email" class="program-interest-email">' +
+          '<button type="submit" class="program-interest-btn">Håll mig uppdaterad</button>' +
+        '</div>' +
+        '<p class="program-interest-feedback" hidden></p>' +
+      '</form>'
+    );
+  }
+
   function renderMatrix(comparison, programs, headEl, bodyEl) {
     if (!headEl || !bodyEl || !comparison) return;
 
@@ -59,16 +90,17 @@
     var statusClass = program.availability === 'live'
       ? 'program-status--live'
       : 'program-status--coming';
+    var href = programLinkHref(program);
 
     return (
-      '<article class="landing-program-pill" data-program="' + esc(program.id) + '">' +
+      '<a href="' + esc(href) + '" class="landing-program-pill landing-program-pill-link" data-program="' + esc(program.id) + '">' +
         '<span class="program-emoji" aria-hidden="true">' + esc(program.emoji || '•') + '</span>' +
         '<div>' +
           '<span class="program-status ' + statusClass + '">' + esc(program.availability_label) + '</span>' +
           '<h3 class="landing-program-pill-name">' + esc(program.name) + '</h3>' +
           '<p class="landing-program-pill-headline">' + esc(program.headline) + '</p>' +
         '</div>' +
-      '</article>'
+      '</a>'
     );
   }
 
@@ -78,11 +110,17 @@
       : 'program-status--coming';
 
     var previewLink = '';
-    if (program.preview_path) {
+    if (program.preview_path && program.component !== 'total') {
       previewLink =
-        '<a href="' + esc(program.preview_path) + '" class="program-preview-link">' +
+        '<a href="' + esc(marketingPreviewHref(program.preview_path)) + '" class="program-preview-link">' +
         'Se förhandsvisning →</a>';
+    } else if (program.component === 'total') {
+      previewLink =
+        '<a href="' + esc(marketingPreviewHref(program.preview_path)) + '" class="program-preview-link">' +
+        'Läs mer om Total-paketet →</a>';
     }
+
+    var interestCta = renderProgramInterestCta(program);
 
     return (
       '<article class="program-card" data-program="' + esc(program.id) + '">' +
@@ -110,14 +148,18 @@
           '</div>' +
         '</div>' +
         previewLink +
+        interestCta +
       '</article>'
     );
   }
 
   global.ProgramCatalogRender = {
     esc: esc,
+    marketingPreviewHref: marketingPreviewHref,
+    programLinkHref: programLinkHref,
     renderMatrix: renderMatrix,
     renderProgramCard: renderProgramCard,
     renderProgramSummary: renderProgramSummary,
+    renderProgramInterestCta: renderProgramInterestCta,
   };
 })(window);

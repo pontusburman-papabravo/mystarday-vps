@@ -2,8 +2,21 @@
  * Parent Samarbete view when pedagog package is active (E12 §4.2).
  */
 window.addEventListener('DOMContentLoaded', async () => {
+  const isMarketing = window.PreviewBack && PreviewBack.isMarketingVisit();
+
   if (!Auth.isLoggedIn()) {
-    window.location.href = '/login?next=' + encodeURIComponent('/samarbete');
+    if (isMarketing && window.PreviewShell) {
+      const tookOver = await PreviewShell.takeOverPublicPage({
+        component: 'pedagog',
+        source: 'landing_preview',
+        container: document.getElementById('samarbeteMain'),
+        injectBackLink: true,
+      });
+      if (tookOver) return;
+    }
+    window.location.href = '/login?next=' + encodeURIComponent(
+      '/samarbete' + window.location.search
+    );
     return;
   }
 

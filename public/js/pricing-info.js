@@ -38,11 +38,21 @@
     if (matrixTitle && data.comparison && data.comparison.title) {
       matrixTitle.textContent = data.comparison.title;
     }
+
+    if (window.LandingNewsletter && typeof LandingNewsletter.wireInterestForms === 'function') {
+      LandingNewsletter.wireInterestForms(cards);
+    }
   }
 
   function setBackLink() {
     var back = document.getElementById('backLink');
     if (!back) return;
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('from') === 'landing') {
+      back.href = '/#program';
+      back.textContent = '← Tillbaka till startsidan';
+      return;
+    }
     var referrer = document.referrer || '';
     if (referrer.indexOf('/upgrade') !== -1) {
       back.href = '/upgrade';
