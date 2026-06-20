@@ -128,11 +128,11 @@ router.delete('/default-templates/:id', async (req, res) => {
 router.get('/default-schedules', async (req, res) => {
   try {
     const schedules = await db.query(
-      `SELECT ds.id, ds.name, ds.description, ds.icon, ds.sort_order, ds.created_at,
+      `SELECT ds.id, ds.name, ds.description, ds.icon, ds.sort_order, ds.updated_at,
               COUNT(dsi.id) AS item_count
        FROM default_schedule ds
        LEFT JOIN default_schedule_item dsi ON dsi.default_schedule_id = ds.id
-       GROUP BY ds.id
+       GROUP BY ds.id, ds.name, ds.description, ds.icon, ds.sort_order, ds.updated_at
        ORDER BY ds.sort_order ASC`
     );
     res.json(schedules.rows);
