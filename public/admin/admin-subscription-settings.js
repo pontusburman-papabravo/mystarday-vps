@@ -147,7 +147,8 @@ async function loadPackageInterest() {
         ? '<p class="text-xs text-amber-700 mt-2">Aktivera <strong>Intressefas</strong> ovan — annars visas ingen «Jag är intresserad»-knapp och inget sparas här.</p>'
         : '<p class="text-xs text-text-soft mt-2">Föräldrar måste klicka <strong>«Jag är intresserad»</strong> i preview. Ett klick på bottom nav eller en sida räknas inte som intresseanmälan.</p>';
       tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-text-soft">
-        Inga intresseanmälningar ännu
+        <p class="font-semibold text-navy mb-1">Inga paketintressen ännu</p>
+        <p class="text-sm">När familjer klickar «Jag är intresserad» i appen visas de här.</p>
         ${hint}
       </td></tr>`;
     } else {

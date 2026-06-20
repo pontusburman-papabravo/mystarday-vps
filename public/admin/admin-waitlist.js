@@ -135,7 +135,7 @@ function renderWaitlistTable(entries) {
   const tbody = document.getElementById('waitlistTableBody');
   if (!tbody) return;
   if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-text-soft py-8">Inga resultat.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-text-soft py-8"><p class="font-semibold text-navy mb-1">Inga waitlist-anmälningar ännu</p><p class="text-sm">Nya anmälningar från engelska landningen kommer att visas här.</p></td></tr>';
     return;
   }
   tbody.innerHTML = entries

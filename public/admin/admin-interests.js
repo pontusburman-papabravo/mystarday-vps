@@ -35,7 +35,7 @@ function renderInterestsTable(entries) {
   const tbody = document.getElementById('interestsTableBody');
   if (!tbody) return;
   if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-text-soft py-8">Inga resultat.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-text-soft py-8"><p class="font-semibold text-navy mb-1">Inga pedagogintressen ännu</p><p class="text-sm">Nya intresseanmälningar från pedagogsidan visas här.</p></td></tr>';
     return;
   }
   tbody.innerHTML = entries.map((e, i) => {

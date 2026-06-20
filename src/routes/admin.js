@@ -42,6 +42,7 @@ const migrationExportRouter = require('./admin/migration-export');
 const databaseExportRouter = require('./admin/database-export');
 const activationProgramRouter = require('./admin/activation-program');
 const forDigRouter = require('./admin/for-dig');
+const startSummaryRouter = require('./admin/start-summary');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -57,6 +58,7 @@ router.use(childRouter);
 router.use(scheduleRouter);
 router.use(rewardRouter);
 router.use(systemRouter);
+router.use(startSummaryRouter);
 router.use(analyticsRouter);
 router.use(activationProgramRouter);
 router.use(forDigRouter);
