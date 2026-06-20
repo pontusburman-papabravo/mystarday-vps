@@ -127,7 +127,7 @@
         </div>
       </div>
       ${listHtml}
-      <p class="text-xs text-text-soft mt-4 border-t border-lavender/50 pt-3">${esc(messages.disclaimer || DISCLAIMER_DEFAULT)}</p>`;
+      ${messages.disclaimer ? `<p class="text-xs text-text-soft mt-4 border-t border-lavender/50 pt-3">${esc(messages.disclaimer)}</p>` : ''}`;
     setBlockState('startMessagesBlock', 'ready', html);
   }
 
@@ -195,6 +195,25 @@
     setBlockState('startShortcutsBlock', 'ready', html);
   }
 
+  function renderStartRecommendations(recommendations) {
+    const el = document.getElementById('startRecommendationsBlock');
+    if (!el) return;
+    const items = recommendations || [];
+    if (!items.length) {
+      el.innerHTML = '';
+      return;
+    }
+    el.innerHTML = `
+      <h3 class="text-lg font-heading font-bold text-navy mb-4">Prioritera nu</h3>
+      <div class="space-y-3">
+        ${items.map((card) => `
+          <a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block bg-white border-2 border-gold rounded-2xl p-4 hover:bg-gold-light transition-colors">
+            <p class="font-semibold text-navy">${esc(card.title)}</p>
+            <p class="text-sm text-text-soft mt-1">${esc(card.body)}</p>
+          </a>`).join('')}
+      </div>`;
+  }
+
   async function loadStartSummary() {
     renderGrowthLoading();
     renderMessagesLoading();
@@ -206,6 +225,7 @@
       renderStartMessages(data.messages);
       renderStartActivity(data.activity);
       renderStartShortcuts(data.quickActions);
+      renderStartRecommendations(data.recommendations);
     } catch (err) {
       console.error('[ADMIN] Start summary failed:', err);
       renderStartGrowthError();

@@ -38,10 +38,10 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     if (q.includes('FROM family') && q.includes('last7d')) {
       return { rows: [{ last7d: 3, prev7d: 3, total: 50 }] };
     }
-    if (q.includes('needs_follow_up_count')) {
-      return { rows: [{ unread_count: 2, needs_follow_up_count: 3 }] };
+    if (q.includes('needs_follow_up_count') || (q.includes('FROM contact_message') && q.includes("status = 'new'") && q.includes('FILTER'))) {
+      return { rows: [{ unread_count: 2, needs_follow_up_count: 3, active_count: 1, answered_count: 0, archived_count: 0 }] };
     }
-    if (q.includes('FROM contact_message cm') && q.includes('LEFT JOIN parent')) {
+    if (q.includes('FROM contact_message cm') && q.includes('in_progress')) {
       return {
         rows: [{
           id: 1,
@@ -50,11 +50,15 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
           message: 'Hej!',
           created_at: '2026-06-20T10:00:00Z',
           is_read: false,
+          status: 'new',
           internal_note: null,
           family_id: null,
           family_name: null,
         }],
       };
+    }
+    if (q.includes('lead_status = \'ny\'')) {
+      return { rows: [{ c: 0 }] };
     }
     if (q.includes("SELECT type, id, title, meta, created_at, route FROM")) {
       return {
@@ -73,6 +77,8 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
 
   const routePath = require.resolve('../src/routes/admin/start-summary');
   const dbModulePath = require.resolve('../db/start-summary');
+  const cmPath = require.resolve('../db/contact-messages');
+  delete require.cache[cmPath];
   delete require.cache[dbModulePath];
   delete require.cache[routePath];
   const startRouter = require('../src/routes/admin/start-summary');
@@ -98,7 +104,7 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(body.growth.packageInterest.last7d, 2);
     assert.equal(body.messages.unreadCount, 2);
     assert.equal(body.messages.needsFollowUpCount, 3);
-    assert.ok(body.messages.disclaimer.includes('förenklad'));
+    assert.equal(body.messages.disclaimer, null);
     assert.equal(body.activity.length, 1);
     assert.equal(body.activity[0].route, '#waitlist');
     assert.equal(body.quickActions.length, 6);

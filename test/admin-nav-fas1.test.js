@@ -113,6 +113,7 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
     'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
     'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
     'retention', 'foraldaraktivering', 'fordig', 'bibliotek', 'prenumeration', 'konto',
+    'tillvaxt-pipeline',
   ];
 
   for (const key of routes) {
@@ -220,7 +221,7 @@ describe('Fas 1 — sidebar render', () => {
     const html = renderNavHtml();
     const hrefs = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
     const { resolveRoute } = loadAdminNav();
-    assert.equal(hrefs.length, 22, 'expected 22 hash nav links (+ 1 external Funktioner)');
+    assert.equal(hrefs.length, 23, 'expected 23 hash nav links (+ 1 external Funktioner)');
     const dup = hrefs.filter((h, i) => hrefs.indexOf(h) !== i);
     assert.deepEqual(dup, [], 'duplicate nav hrefs: ' + dup.join(', '));
     for (const h of hrefs) {

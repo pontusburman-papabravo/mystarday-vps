@@ -65,10 +65,11 @@
         }
       }
       if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
-      if (name === 'messages' && typeof loadMessages === 'function') {
+      if (name === 'messages' && typeof loadMessagesInbox === 'function') {
         const hash = window.location.hash || '';
         window._messagesFollowupFilter = hash.includes('followup=1');
-        loadMessages();
+        if (hash.includes('inbox=unread') && typeof initMessagesInbox === 'function') initMessagesInbox();
+        loadMessagesInbox();
       }
       if (name === 'defaults' && typeof switchLibTab === 'function') switchLibTab('activities');
       if (name === 'retention' && typeof loadRetentionData === 'function') loadRetentionData();
@@ -110,6 +111,7 @@
       if (name === 'undersokningar' && typeof loadSurveys === 'function') loadSurveys();
       if (name === 'intresseanmalningar' && typeof loadInterests === 'function') loadInterests();
       if (name === 'waitlist' && typeof loadWaitlist === 'function') loadWaitlist();
+      if (name === 'growthPipeline' && typeof loadGrowthPipeline === 'function') loadGrowthPipeline();
       if (name === 'valkomstmail' && typeof loadWelcomeEmailTemplate === 'function') {
         loadWelcomeEmailTemplate();
       }
@@ -143,7 +145,9 @@
       const queryPart = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
       const route = resolveRoute(hash);
       let canonical = '#' + route.canonicalKey;
-      if (queryPart && route.canonicalKey === 'meddelanden') canonical += queryPart;
+      if (queryPart && (route.canonicalKey === 'meddelanden' || route.canonicalKey === 'start')) {
+        canonical += queryPart;
+      }
       const current = window.location.hash || '';
 
       if (!opts.skipHashWrite && current !== canonical) {
