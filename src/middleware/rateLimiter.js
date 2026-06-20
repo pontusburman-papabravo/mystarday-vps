@@ -61,6 +61,8 @@ const API_BOOTSTRAP_PREFIXES = [
   '/subscription/preview-data',
   '/features',
   '/app-config',
+  '/public/professional-interest',
+  '/waitlist',
 ];
 
 function isApiBootstrapPath(req) {
