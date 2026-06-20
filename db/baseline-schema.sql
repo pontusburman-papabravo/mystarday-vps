@@ -680,6 +680,11 @@ CREATE TABLE IF NOT EXISTS waitlist (
   email VARCHAR(255) NOT NULL UNIQUE,
   utm_source VARCHAR(255),
   ip_address VARCHAR(64),
+  pain_points TEXT[],
+  pain_points_other TEXT,
+  current_method VARCHAR(64),
+  survey_completed_at TIMESTAMPTZ,
+  survey_skipped_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
