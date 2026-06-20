@@ -27,9 +27,9 @@ module.exports = {
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS survey_popup_interactions (
-        id           SERIAL PRIMARY KEY,
-        survey_id    INTEGER NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
-        parent_id    INTEGER REFERENCES parent(id) ON DELETE SET NULL,
+        id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        survey_id    UUID NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+        parent_id    UUID REFERENCES parent(id) ON DELETE SET NULL,
         cookie_token VARCHAR(255),
         action       VARCHAR(32) NOT NULL,
         snooze_until TIMESTAMPTZ,
@@ -49,9 +49,9 @@ module.exports = {
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS survey_contest_entries (
-        id                SERIAL PRIMARY KEY,
-        survey_id         INTEGER NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
-        response_id       INTEGER NOT NULL UNIQUE REFERENCES survey_responses(id) ON DELETE CASCADE,
+        id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        survey_id         UUID NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+        response_id       UUID NOT NULL UNIQUE REFERENCES survey_responses(id) ON DELETE CASCADE,
         respondent_email  VARCHAR(255) NOT NULL,
         is_winner         BOOLEAN NOT NULL DEFAULT false,
         is_contacted      BOOLEAN NOT NULL DEFAULT false,

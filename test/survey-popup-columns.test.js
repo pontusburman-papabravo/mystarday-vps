@@ -13,6 +13,7 @@ test('migration adds survey popup + contest columns', () => {
   assert.match(mig, /popup_landing_enabled/);
   assert.match(mig, /popup_logged_in_enabled/);
   assert.match(mig, /popup_impression_count/);
-  assert.match(mig, /CREATE TABLE IF NOT EXISTS survey_popup_interactions/);
-  assert.match(mig, /CREATE TABLE IF NOT EXISTS survey_contest_entries/);
+  assert.match(mig, /survey_id\s+UUID NOT NULL REFERENCES surveys/);
+  assert.match(mig, /parent_id\s+UUID REFERENCES parent/);
+  assert.match(mig, /response_id\s+UUID NOT NULL UNIQUE REFERENCES survey_responses/);
 });
