@@ -1,18 +1,24 @@
 /**
- * /upgrade — fyra paket-kort vid rollout ≠ off (§9.1, intressefas).
+ * /upgrade — package cards with mini-preview + link to full preview (§9.1).
+ * Interest CTA lives on preview pages, not here.
  */
 (function () {
   'use strict';
 
-  function getCsrfToken() {
-    const cached = localStorage.getItem('csrf_token');
-    if (cached) return cached;
-    const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
-    return match ? decodeURIComponent(match[1]) : null;
-  }
+  const COMPONENTS = ['reporting', 'pedagog', 'teacch'];
 
   window.addEventListener('DOMContentLoaded', async () => {
     if (!window.Auth || !Auth.isLoggedIn() || !window.PreviewShell) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const deepLink = params.get('component');
+    if (deepLink && PreviewShell.getPreviewPagePath) {
+      const target = PreviewShell.getPreviewPagePath(deepLink);
+      if (target) {
+        window.location.replace(target);
+        return;
+      }
+    }
 
     const host = document.getElementById('upgradePackagesHost');
     if (!host) return;
@@ -26,61 +32,67 @@
       if (!access || access.rollout_mode === 'off') return;
 
       host.classList.remove('hidden');
-      const components = ['reporting', 'pedagog', 'teacch'];
-      host.innerHTML = '<h2 class="text-2xl font-heading font-bold text-navy mb-2 text-center">Kommande paket</h2>' +
-        '<p class="text-text-soft text-center mb-8">Förhandsvisning — anmäl intresse för beta. Inga priser i denna fas.</p>' +
+      host.innerHTML =
+        '<h2 class="text-2xl font-heading font-bold text-navy mb-2 text-center">Kommande paket</h2>' +
+        '<p class="text-text-soft text-center mb-2">Se förhandsvisning och anmäl intresse för beta.</p>' +
+        '<p class="text-text-soft text-center text-sm mb-6">' +
+          '<a href="/pricing-info" class="text-navy font-semibold underline hover:no-underline">Läs om programmen och vad som ingår →</a>' +
+        '</p>' +
         '<div class="grid gap-4" id="upgradePackageCards"></div>';
 
       const grid = document.getElementById('upgradePackageCards');
-      for (const slug of components) {
+
+      for (const slug of COMPONENTS) {
         const pkg = previewData[slug];
         if (!pkg) continue;
+
         const owned = access.components?.[slug]?.has;
         const interested = access.interest?.[slug];
-        const card = document.createElement('div');
+        const previewPath = PreviewShell.getPreviewPagePath
+          ? PreviewShell.getPreviewPagePath(slug)
+          : null;
+
+        const card = document.createElement('article');
         card.className = 'bg-white rounded-2xl border border-gray-100 p-6 shadow-sm text-left';
-        card.innerHTML = `
-          <span class="text-xs font-bold uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">${pkg.badge}</span>
-          <h3 class="text-xl font-bold text-navy mt-2">${pkg.name}</h3>
-          <p class="text-sm text-text-soft mt-1 mb-4">${pkg.tagline}</p>
-          <p class="text-xs text-text-soft italic">${pkg.watermark}</p>
-        `;
+
+        card.innerHTML =
+          '<span class="text-xs font-bold uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">' +
+            pkg.badge +
+          '</span>' +
+          '<h3 class="text-xl font-bold text-navy mt-2">' + pkg.name + '</h3>' +
+          '<p class="text-sm text-text-soft mt-1 mb-4">' + pkg.tagline + '</p>' +
+          '<div class="upgrade-package-preview-mount mb-4"></div>';
+
+        const mount = card.querySelector('.upgrade-package-preview-mount');
+        if (mount && access.preview?.[slug]) {
+          await PreviewShell.mountPreviewShell(mount, {
+            component: slug,
+            source: 'upgrade_page',
+            fullPage: false,
+            showCta: false,
+            showBanner: false,
+            compact: true,
+          });
+        }
 
         if (owned) {
           const badge = document.createElement('p');
-          badge.className = 'mt-4 text-sm font-semibold text-green-700';
+          badge.className = 'text-sm font-semibold text-green-700';
           badge.textContent = '✓ Aktivt för er familj';
           card.appendChild(badge);
-        } else if (access.rollout_mode === 'interest') {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'preview-cta-btn mt-4 w-full';
-          btn.textContent = interested ? 'Intresse registrerat ✓' : 'Jag är intresserad';
-          btn.disabled = !!interested;
-          btn.addEventListener('click', async () => {
-            btn.disabled = true;
-            try {
-              const headers = { 'Content-Type': 'application/json' };
-              const csrf = getCsrfToken();
-              if (csrf) headers['X-CSRF-Token'] = csrf;
-              const res = await fetch('/api/subscription/interest', {
-                method: 'POST',
-                headers,
-                credentials: 'include',
-                body: JSON.stringify({ component: slug, source: 'upgrade_page' }),
-              });
-              const data = await res.json().catch(() => ({}));
-              if (!res.ok) {
-                throw new Error(data.error || 'Kunde inte registrera intresse');
-              }
-              btn.textContent = 'Intresse registrerat ✓';
-              alert(data.message || 'Tack!');
-            } catch (e) {
-              btn.disabled = false;
-              alert(e.message || 'Något gick fel');
-            }
-          });
-          card.appendChild(btn);
+        } else if (previewPath) {
+          const link = document.createElement('a');
+          link.href = previewPath;
+          link.className = 'preview-cta-btn block w-full text-center no-underline mt-2';
+          link.textContent = interested ? 'Se förhandsvisning igen' : 'Se förhandsvisning';
+          card.appendChild(link);
+
+          if (interested) {
+            const note = document.createElement('p');
+            note.className = 'text-xs text-green-700 text-center mt-2 font-semibold';
+            note.textContent = 'Intresse registrerat ✓';
+            card.appendChild(note);
+          }
         }
 
         grid.appendChild(card);

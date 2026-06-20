@@ -9,6 +9,7 @@ const fs = require('fs');
 const { hasAccess } = require('../../db/features');
 const { getFounderCount } = require('../../db/family-stats');
 const { getFounderStatus } = require('../lib/payment-policy');
+const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
 
 const router = express.Router();
@@ -165,6 +166,10 @@ router.get('/api/public/pricing-info', async (req, res) => {
       payment_enabled: false, founder_program_active: true,
     });
   }
+});
+
+router.get('/api/public/program-catalog', (req, res) => {
+  res.json(getProgramCatalog());
 });
 
 module.exports = router;

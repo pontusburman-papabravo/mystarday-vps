@@ -8,6 +8,12 @@
   let accessCache = null;
   let previewDataCache = null;
 
+  const PREVIEW_PAGE_PATHS = {
+    reporting: '/reports',
+    pedagog: '/samarbete',
+    teacch: '/barn-stod',
+  };
+
   function getCsrfToken() {
     const cached = localStorage.getItem('csrf_token');
     if (cached) return cached;
@@ -201,11 +207,17 @@
     }
   }
 
+  function getPreviewPagePath(component) {
+    return PREVIEW_PAGE_PATHS[component] || null;
+  }
+
   async function mountPreviewShell(container, options) {
     const component = options.component;
     const source = options.source || 'contextual_trigger';
     const fullPage = options.fullPage !== false;
     const showCta = options.showCta !== false;
+    const showBanner = options.showBanner !== false;
+    const compact = !!options.compact;
 
     const [access, previewData] = await Promise.all([loadAccess(), loadPreviewData()]);
     if (!access.preview || !access.preview[component]) return false;
@@ -219,7 +231,9 @@
     trackEvent('preview_shown', { component, source });
 
     const shell = document.createElement('div');
-    shell.className = 'preview-shell' + (fullPage ? ' preview-shell--full' : '');
+    shell.className = 'preview-shell'
+      + (fullPage ? ' preview-shell--full' : '')
+      + (compact ? ' preview-shell--compact' : '');
     shell.setAttribute('data-preview-component', component);
 
     const ctaLabel = alreadyInterested && cta?.action === 'interest'
@@ -228,11 +242,13 @@
 
     shell.innerHTML = `
       <div class="preview-shell-inner">
+        ${showBanner ? `
         <div class="preview-banner">
           <span class="preview-badge">${escapeHtml(pkg.badge)}</span>
           <strong>${escapeHtml(pkg.name)}</strong>
           <p class="preview-tagline">${escapeHtml(pkg.tagline)}</p>
         </div>
+        ` : ''}
         <div class="preview-mock preview-mock--watermarked" data-watermark="${escapeHtml(pkg.watermark)}">
           ${renderBody(component, pkg)}
         </div>
@@ -283,6 +299,7 @@
   }
 
   global.PreviewShell = {
+    PREVIEW_PAGE_PATHS,
     loadAccess,
     loadPreviewData,
     clearCache,
@@ -290,5 +307,6 @@
     mountPreviewShell,
     takeOverPage,
     getCtaConfig,
+    getPreviewPagePath,
   };
 })(window);
