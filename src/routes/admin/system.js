@@ -23,7 +23,7 @@ router.get('/stats', async (req, res) => {
       db.query('SELECT COUNT(*) as count FROM family WHERE archived_at IS NULL'),
       db.query('SELECT COUNT(*) as count FROM parent'),
       db.query('SELECT COUNT(*) as count FROM child'),
-      db.query('SELECT COUNT(*) as count FROM contact_message WHERE is_read = false'),
+      db.query("SELECT COUNT(*) as count FROM contact_message WHERE status = 'new' OR is_read = false"),
       db.query('SELECT COUNT(*) as count FROM contact_message'),
     ]);
 
@@ -260,119 +260,6 @@ router.get('/export-emails', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Export emails error:', err);
     res.status(500).json({ error: 'Kunde inte exportera mailadresser' });
-  }
-});
-
-// ─── GET /api/admin/contact-messages ──────────────────────
-// Supports filtering by ?type=bug|feedback|contact (optional)
-router.get('/contact-messages', async (req, res) => {
-  try {
-    const typeFilter = req.query.type;
-    const validTypes = ['bug', 'feedback', 'contact'];
-    const whereClause = typeFilter && validTypes.includes(typeFilter)
-      ? 'WHERE message_type = $1'
-      : '';
-    const limit = 100;
-
-    let query;
-    let params;
-    if (typeFilter && validTypes.includes(typeFilter)) {
-      query = `
-        SELECT id, name, email, message, internal_note, noted_at, noted_by, created_at, is_read, message_type
-        FROM contact_message
-        ${whereClause}
-        ORDER BY created_at DESC
-        LIMIT $2
-      `;
-      params = [typeFilter, limit];
-    } else {
-      query = `
-        SELECT id, name, email, message, internal_note, noted_at, noted_by, created_at, is_read, message_type
-        FROM contact_message
-        ORDER BY created_at DESC
-        LIMIT ${limit}
-      `;
-      params = [];
-    }
-
-    const result = await db.query(query, params);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('[ADMIN] Contact messages error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta meddelanden' });
-  }
-});
-
-// ─── GET /api/admin/contact-messages/unread-count ───────
-router.get('/contact-messages/unread-count', async (req, res) => {
-  try {
-    const result = await db.query(
-      'SELECT COUNT(*) as count FROM contact_message WHERE is_read = false'
-    );
-    res.json({ unreadCount: parseInt(result.rows[0].count) });
-  } catch (err) {
-    console.error('[ADMIN] Unread count error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta oläst-antal' });
-  }
-});
-
-// ─── PUT /api/admin/contact-messages/:id/read ───────────
-// Toggle read/unread. Body: { is_read: true|false }
-router.put('/contact-messages/:id/read', async (req, res) => {
-  try {
-    const { is_read } = req.body;
-    if (typeof is_read !== 'boolean') {
-      return res.status(400).json({ error: 'is_read krävs (boolean)' });
-    }
-    const result = await db.query(
-      'UPDATE contact_message SET is_read = $1 WHERE id = $2 RETURNING id, is_read',
-      [is_read, req.params.id]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Meddelandet hittades inte' });
-    }
-    res.json({ message: is_read ? 'Markerat som läst' : 'Markerat som oläst', ...result.rows[0] });
-  } catch (err) {
-    console.error('[ADMIN] Toggle read status error:', err);
-    res.status(500).json({ error: 'Kunde inte uppdatera läsläge' });
-  }
-});
-
-// ─── PUT /api/admin/contact-messages/:id/note ────────────
-router.put('/contact-messages/:id/note', async (req, res) => {
-  try {
-    const { note } = req.body;
-    const result = await db.query(
-      `UPDATE contact_message
-       SET internal_note = $1, noted_at = NOW(), noted_by = $2
-       WHERE id = $3
-       RETURNING id, internal_note, noted_at`,
-      [note || null, req.user.id, req.params.id]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Meddelandet hittades inte' });
-    }
-    res.json({ message: 'Anteckning sparad', ...result.rows[0] });
-  } catch (err) {
-    console.error('[ADMIN] Note contact message error:', err);
-    res.status(500).json({ error: 'Kunde inte spara anteckning' });
-  }
-});
-
-// ─── DELETE /api/admin/contact-messages/:id ──────────────
-router.delete('/contact-messages/:id', async (req, res) => {
-  try {
-    const result = await db.query(
-      'DELETE FROM contact_message WHERE id = $1 RETURNING id',
-      [req.params.id]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Meddelandet hittades inte' });
-    }
-    res.json({ message: 'Meddelandet har tagits bort' });
-  } catch (err) {
-    console.error('[ADMIN] Delete contact message error:', err);
-    res.status(500).json({ error: 'Kunde inte ta bort meddelandet' });
   }
 });
 

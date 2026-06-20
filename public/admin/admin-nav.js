@@ -35,6 +35,7 @@
         { key: 'paketintresse', navId: 'paketintresse', label: 'Paketintresse', targetSection: 'prenumeration', subview: 'paketintresse', scrollTargetId: 'paketintresse-anchor', capability: 'ui-only' },
         { key: 'pedagogintresse', navId: 'pedagogintresse', label: 'Pedagogintresse', targetSection: 'intresseanmalningar', aliases: ['intresseanmalningar'], capability: 'stable' },
         { key: 'waitlist', navId: 'waitlist', label: 'Waitlist (EN)', targetSection: 'waitlist', capability: 'stable' },
+        { key: 'tillvaxt-pipeline', navId: 'tillvaxt-pipeline', label: 'Pipeline', targetSection: 'growthPipeline', capability: 'stable' },
         {
           key: 'landningssidor',
           navId: 'landningssidor',

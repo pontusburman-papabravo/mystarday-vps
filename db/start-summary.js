@@ -1,7 +1,8 @@
 /**
- * Composed queries for GET /api/admin/start-summary (Fas 2A).
+ * Composed queries for GET /api/admin/start-summary (Fas 2A + Fas 3).
  */
 const db = require('../src/lib/db');
+const contactMessages = require('./contact-messages');
 
 function buildPeriodMetric(row) {
   const last7d = parseInt(row.last7d, 10) || 0;
@@ -44,55 +45,25 @@ async function newFamiliesMetric() {
 }
 
 async function fetchMessageSummary() {
-  const [countsResult, latestResult] = await Promise.all([
-    db.query(`
-      SELECT
-        COUNT(*) FILTER (WHERE is_read = false)::int AS unread_count,
-        COUNT(*) FILTER (
-          WHERE is_read = false
-            OR (is_read = true AND (internal_note IS NULL OR TRIM(internal_note) = ''))
-        )::int AS needs_follow_up_count
-      FROM contact_message
-    `),
-    db.query(`
-      SELECT
-        cm.id,
-        cm.name,
-        cm.email,
-        cm.message,
-        cm.created_at,
-        cm.is_read,
-        cm.internal_note,
-        p.family_id,
-        f.name AS family_name
-      FROM contact_message cm
-      LEFT JOIN parent p ON LOWER(TRIM(p.email)) = LOWER(TRIM(cm.email))
-      LEFT JOIN family f ON f.id = p.family_id AND f.archived_at IS NULL
-      WHERE cm.is_read = false
-         OR (cm.is_read = true AND (cm.internal_note IS NULL OR TRIM(cm.internal_note) = ''))
-      ORDER BY cm.created_at DESC
-      LIMIT 5
-    `),
+  const [counts, latestRows] = await Promise.all([
+    contactMessages.getMessageCounts(),
+    contactMessages.getLatestFollowUpMessages(5),
   ]);
 
-  const counts = countsResult.rows[0] || {};
-  const disclaimer =
-    'Detta är en förenklad uppföljningsvy. Riktig inbox-status kommer i en senare version.';
-
-  const latest = latestResult.rows.map((row) => {
-    const isRead = row.is_read === true;
-    const followUpReason = !isRead ? 'unread' : 'read_without_note';
+  const latest = latestRows.map((row) => {
     const preview = String(row.message || '').replace(/\s+/g, ' ').trim().slice(0, 120);
     const linkedFamily = row.family_id
-      ? { type: 'email_match', familyId: row.family_id, familyName: row.family_name }
+      ? { type: 'explicit', familyId: row.family_id, familyName: row.family_name }
       : { type: 'none' };
+    const followUpReason = row.status === 'new' ? 'unread' : row.status === 'read' ? 'read_without_note' : 'in_progress';
     return {
       id: row.id,
       name: row.name,
       email: row.email,
       messagePreview: preview,
       createdAt: row.created_at,
-      isRead,
+      isRead: row.status !== 'new',
+      status: row.status,
       followUpReason,
       linkedFamily,
     };
@@ -102,8 +73,43 @@ async function fetchMessageSummary() {
     unreadCount: parseInt(counts.unread_count, 10) || 0,
     needsFollowUpCount: parseInt(counts.needs_follow_up_count, 10) || 0,
     latest,
-    disclaimer,
+    disclaimer: null,
   };
+}
+
+async function fetchRecommendations() {
+  const { rows } = await db.query(`
+    SELECT COUNT(*)::int AS c FROM contact_message WHERE status = 'new'
+  `);
+  const unread = rows[0]?.c || 0;
+  const cards = [];
+  if (unread > 0) {
+    cards.push({
+      type: 'unread_messages',
+      title: `${unread} olästa meddelanden`,
+      body: 'Öppna inboxen och markera det viktigaste först.',
+      route: '#meddelanden?inbox=unread',
+      priority: 1,
+    });
+  }
+  const { rows: leadRows } = await db.query(`
+    SELECT COUNT(*)::int AS c FROM (
+      SELECT id FROM package_interest WHERE lead_status = 'ny'
+      UNION ALL SELECT id FROM professional_interest WHERE lead_status = 'ny'
+      UNION ALL SELECT id FROM waitlist WHERE lead_status = 'ny'
+    ) x
+  `);
+  const newLeads = leadRows[0]?.c || 0;
+  if (newLeads > 0) {
+    cards.push({
+      type: 'new_leads',
+      title: `${newLeads} nya leads i pipeline`,
+      body: 'Granska paketintresse, pedagogintresse och waitlist.',
+      route: '#tillvaxt-pipeline',
+      priority: 2,
+    });
+  }
+  return cards.sort((a, b) => a.priority - b.priority);
 }
 
 async function fetchActivityFeed(limit = 20) {
@@ -211,6 +217,7 @@ async function buildStartSummary() {
     newFamilies,
     messages,
     activity,
+    recommendations,
   ] = await Promise.all([
     periodMetricFromTable('package_interest'),
     periodMetricFromTable('professional_interest'),
@@ -218,6 +225,7 @@ async function buildStartSummary() {
     newFamiliesMetric(),
     fetchMessageSummary(),
     fetchActivityFeed(20),
+    fetchRecommendations(),
   ]);
 
   return {
@@ -230,6 +238,7 @@ async function buildStartSummary() {
     },
     messages,
     activity,
+    recommendations,
     quickActions: QUICK_ACTIONS,
   };
 }
@@ -240,6 +249,7 @@ module.exports = {
   newFamiliesMetric,
   fetchMessageSummary,
   fetchActivityFeed,
+  fetchRecommendations,
   buildStartSummary,
   QUICK_ACTIONS,
 };

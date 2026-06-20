@@ -495,6 +495,11 @@
       }
     }
 
+    function reloadMessagesList() {
+      if (typeof loadMessagesInbox === 'function') loadMessagesInbox();
+      else loadMessages();
+    }
+
     async function saveNote(messageId) {
       const input = document.getElementById('note-' + messageId);
       if (!input) return;
@@ -503,7 +508,7 @@
           method: 'PUT',
           body: JSON.stringify({ note: input.value }),
         });
-        loadMessages();
+        reloadMessagesList();
       } catch (err) {
         alert(err.message || 'Kunde inte spara anteckning');
       }
@@ -515,7 +520,7 @@
           method: 'PUT',
           body: JSON.stringify({ is_read: newReadState }),
         });
-        loadMessages();
+        reloadMessagesList();
       } catch (err) {
         alert(err.message || 'Kunde inte uppdatera läsläge');
       }
@@ -525,7 +530,7 @@
       if (!confirm('Är du säker på att du vill ta bort detta meddelande?')) return;
       try {
         await Auth.api(`/api/admin/contact-messages/${id}`, { method: 'DELETE' });
-        loadMessages();
+        reloadMessagesList();
         // Clear search field on reload
         document.getElementById('messagesSearch').value = '';
       } catch (err) {

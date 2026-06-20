@@ -146,6 +146,7 @@
             <div id="startMessagesBlock" class="bg-white rounded-2xl border-2 border-lavender p-5"></div>
             <div id="startActivityBlock" class="bg-white rounded-2xl border-2 border-lavender p-5"></div>
             <div id="startShortcutsBlock" class="bg-mint/30 rounded-2xl border border-mint p-5"></div>
+            <div id="startRecommendationsBlock" class="bg-white rounded-2xl border-2 border-gold/40 p-5"></div>
           </div>
 
           <h3 class="text-2xl font-heading font-bold text-navy mb-6 pt-4 border-t border-lavender">Statistik</h3>
@@ -390,9 +391,10 @@
         <!-- CONTACT MESSAGES -->
         <div id="messagesSection" class="mb-8 hidden">
           <div class="flex items-center gap-3 mb-4">
-            <h3 class="text-2xl font-heading font-bold text-navy">Kontaktmeddelanden</h3>
+            <h3 class="text-2xl font-heading font-bold text-navy">Meddelanden</h3>
             <span id="sectionUnreadBadge" class="bg-gold text-navy text-sm font-bold rounded-full px-3 py-1 hidden" style="min-width: 28px; text-align: center;"></span>
           </div>
+          <div id="messagesInboxTabs" class="flex flex-wrap gap-2 border-b border-sky pb-3 mb-4"></div>
           <div class="mb-4 flex flex-col sm:flex-row gap-3">
             <input type="text" id="messagesSearch" placeholder="Sök meddelanden..." class="flex-1 sm:flex-none sm:w-64 px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             <select id="messagesTypeFilter" onchange="loadMessages()" class="px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white text-navy font-semibold">
@@ -1238,6 +1240,29 @@
           <div id="waitlistPagination" class="flex items-center justify-between mt-4 flex-wrap gap-3"></div>
         </div>
 
+        <div id="growthPipelineSection" class="mb-8 hidden">
+          <h3 class="text-2xl font-heading font-bold text-navy mb-4">Tillväxt pipeline</h3>
+          <p class="text-text-soft text-sm mb-4">Paketintresse, pedagogintresse och waitlist i en vy.</p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <select id="pipelineStatusFilter" onchange="loadGrowthPipeline()" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+              <option value="">Alla statusar</option>
+              <option value="ny">Ny</option>
+              <option value="kontaktad">Kontaktad</option>
+              <option value="kvalificerad">Kvalificerad</option>
+              <option value="konverterad">Konverterad</option>
+              <option value="avslutad">Avslutad</option>
+            </select>
+            <select id="pipelineTypeFilter" onchange="loadGrowthPipeline()" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+              <option value="">Alla typer</option>
+              <option value="package">Paket</option>
+              <option value="pedagog">Pedagog</option>
+              <option value="waitlist">Waitlist</option>
+            </select>
+            <button type="button" onclick="loadGrowthPipeline()" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-bold">Uppdatera</button>
+          </div>
+          <div id="growthPipelineContainer" class="bg-white rounded-2xl border-2 border-lavender p-4"></div>
+        </div>
+
         
         <div id="prenumerationSection" class="mb-8 hidden">
           <h3 class="text-2xl font-heading font-bold text-navy mb-2">Prenumeration &amp; IAP</h3>
@@ -1896,14 +1921,31 @@ Använd dubbla radbrytningar för nya stycken.
     </main>
   </div>
 
-  <script src="/admin/admin-nav.js?v=1.1.0"></script>
-  <script src="/admin/admin-core.js?v=2.3.0"></script>
-  <script src="/admin/admin-start.js?v=1.0.0"></script>
+  <div id="adminCommandPalette" class="hidden fixed inset-0 z-[100] bg-black/40 flex items-start justify-center pt-24 px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg border-2 border-lavender overflow-hidden">
+      <input id="adminCommandInput" type="text" placeholder="Sök sektioner, familjer, meddelanden… (Esc stäng)" class="w-full px-4 py-3 border-b border-lavender outline-none text-navy font-semibold">
+      <div id="adminCommandResults" class="max-h-80 overflow-y-auto p-2"></div>
+    </div>
+  </div>
+
+  <div id="familyHubModal" class="hidden fixed inset-0 z-[90] bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border-2 border-lavender p-6 max-h-[90vh] overflow-y-auto">
+      <div id="familyHubBody"></div>
+    </div>
+  </div>
+
+  <script src="/admin/admin-nav.js?v=1.2.0"></script>
+  <script src="/admin/admin-core.js?v=2.4.0"></script>
+  <script src="/admin/admin-start.js?v=1.1.0"></script>
   <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-prenumeration-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
-  <script src="/admin/admin-families.js?v=2.2.0"></script>
+  <script src="/admin/admin-families.js?v=2.3.0"></script>
+  <script src="/admin/admin-messages-inbox.js?v=1.0.0"></script>
+  <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
+  <script src="/admin/admin-family-hub.js?v=1.0.0"></script>
+  <script src="/admin/admin-command-palette.js?v=1.0.0"></script>
   <script src="/admin/admin-subscription-settings.js?v=1.0.2"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 
