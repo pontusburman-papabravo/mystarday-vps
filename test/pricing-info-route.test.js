@@ -39,6 +39,7 @@ test('pricing-info page uses program catalog (no scarcity counter)', () => {
   const js = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
 
   assert.match(html, /program-catalog\.css/);
+  assert.match(html, /program-catalog-render\.js/);
   assert.match(html, /comparisonMatrix/);
   assert.doesNotMatch(html, /counterMain/);
   assert.doesNotMatch(html, /founderLimitLabel/);
@@ -59,6 +60,23 @@ test('upgrade packages link to preview pages instead of direct interest', () => 
   assert.match(js, /Se förhandsvisning/);
   assert.match(js, /showCta:\s*false/);
   assert.doesNotMatch(js, /\/api\/subscription\/interest/);
+});
+
+test('landing page has program matrix section', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(html, /id="program"/);
+  assert.match(html, /landingMatrixBody/);
+  assert.match(html, /landing-program-matrix\.js/);
+  assert.match(html, /program-catalog-render\.js/);
+});
+
+test('program-catalog-render is shared module', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/program-catalog-render.js'), 'utf8');
+  const pricing = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
+  const landing = fs.readFileSync(path.join(ROOT, 'public/js/landing-program-matrix.js'), 'utf8');
+  assert.match(src, /ProgramCatalogRender/);
+  assert.match(pricing, /ProgramCatalogRender/);
+  assert.match(landing, /ProgramCatalogRender/);
 });
 
 test('preview-shell exports preview page paths', () => {

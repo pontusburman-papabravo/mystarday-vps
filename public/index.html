@@ -27,6 +27,7 @@
   <script src="/js/cookie-banner.js?v=2.13.1"></script>
   <!-- "Magisk natt" shared CSS (stars, clouds, glass) + landing overrides -->
   <link rel="stylesheet" href="/css/login-magic.css?v=136">
+  <link rel="stylesheet" href="/css/program-catalog.css?v=1.0.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1661,6 +1662,7 @@
     <div class="nav-links">
         <a href="#problemet" class="nav-link">Vardagen</a>
         <a href="#losning" class="nav-link">Funktioner</a>
+        <a href="#program" class="nav-link">Program</a>
         <a href="#malgrupp" class="nav-link">Om appen</a>
         <a href="/pedagoger-och-terapeuter" class="nav-link">För pedagoger &amp; terapeuter</a>
         <a href="#faq" class="nav-link">FAQ</a>
@@ -1685,6 +1687,7 @@
     <div class="mobile-menu-links">
         <a href="#problemet" onclick="closeMobileMenu()">Vardagen</a>
         <a href="#losning" onclick="closeMobileMenu()">Funktioner</a>
+        <a href="#program" onclick="closeMobileMenu()">Program</a>
         <a href="#malgrupp" onclick="closeMobileMenu()">Om appen</a>
         <a href="/pedagoger-och-terapeuter" onclick="closeMobileMenu()">För pedagoger &amp; terapeuter</a>
         <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
@@ -1797,7 +1800,7 @@
                     <strong style="font-family:'Fraunces',serif;font-size:1.05rem;color:#1C2340;line-height:1.2;">Grundarprogrammet</strong>
                 </div>
                 <p style="font-size:0.88rem;color:#1C2340;font-weight:600;margin-bottom:0.85rem;">De första <span id="founderLimitHero">200</span> familjerna får <strong style="color:#1C2340;">livstids tillgång utan kostnad</strong> — som grundarmedlemmar.</p>
-                <p style="font-size:0.8rem;color:#5A6178;margin:-0.4rem 0 0.85rem;"><a href="/pricing-info" style="color:#D4891A;font-weight:700;text-decoration:none;">Läs mer om grundarprogrammet →</a></p>
+                <p style="font-size:0.8rem;color:#5A6178;margin:-0.4rem 0 0.85rem;"><a href="/pricing-info" style="color:#D4891A;font-weight:700;text-decoration:none;">Läs om programmen och vad som ingår →</a></p>
                 <ul style="list-style:none;padding:0;margin:0 0 1rem 0;display:flex;flex-direction:column;gap:0.45rem;">
                     <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
                         <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
@@ -2026,6 +2029,37 @@
                 <p>Barnet kryssar i själv när en aktivitet är klar och tjänar stjärnor. Du får koll på distans via din egen vy.</p>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- ===== PROGRAM & PAKET ===== -->
+<section class="section landing-program-section" id="program">
+    <div class="section-inner">
+        <div class="section-header">
+            <span class="section-label">Program</span>
+            <h2 class="section-title">Vad ingår i <em>appen?</em></h2>
+            <p class="section-subtitle" id="landingProgramIntro">Laddar programinformation…</p>
+        </div>
+
+        <p id="landingProgramFounderNote" class="landing-program-founder-note"></p>
+
+        <div id="landingProgramPills" class="landing-program-grid" aria-label="Programöversikt"></div>
+
+        <div class="program-matrix-section landing-program-matrix" aria-labelledby="landingMatrixTitle">
+            <h3 id="landingMatrixTitle" class="landing-matrix-title">Vad ingår var?</h3>
+            <div class="program-matrix-scroll">
+                <table class="program-matrix w-full text-sm" aria-describedby="landingProgramIntro">
+                    <thead>
+                        <tr id="landingMatrixHeadRow"></tr>
+                    </thead>
+                    <tbody id="landingMatrixBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="landing-program-more">
+            <a href="/pricing-info">Läs mer om varje program och vad som ingår →</a>
+        </p>
     </div>
 </section>
 
@@ -2529,6 +2563,8 @@
 <a href="#faq" class="landing-fab landing-fab-hjalp" title="Hjälp / FAQ" aria-label="Hjälp">❓</a>
 <a href="#kontakt" class="landing-fab landing-fab-kontakt" title="Kontakta oss" aria-label="Kontakt">💬</a>
 
+<script src="/js/program-catalog-render.js?v=1.0.0"></script>
+<script src="/js/landing-program-matrix.js?v=1.0.0"></script>
 <!-- ===== SCRIPTS ===== -->
 <script>
 // Hamburger menu toggle

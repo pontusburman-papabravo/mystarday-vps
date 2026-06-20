@@ -181,3 +181,91 @@
 .program-matrix tbody tr:last-child td {
   border-bottom: none;
 }
+
+/* Landing page (#program section) */
+.landing-program-section .landing-program-founder-note {
+  max-width: 42rem;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  border-radius: 1rem;
+  padding: 0.85rem 1.1rem;
+}
+
+.landing-program-section .landing-program-founder-note:empty {
+  display: none;
+}
+
+.landing-program-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.landing-program-pill {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(27, 35, 64, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.landing-program-pill-name {
+  font-family: Outfit, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1b2340;
+  margin: 0.2rem 0 0;
+  line-height: 1.25;
+}
+
+.landing-program-pill-headline {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: #5a6178;
+  line-height: 1.4;
+}
+
+.landing-program-matrix {
+  margin-bottom: 1.25rem;
+}
+
+.landing-matrix-title {
+  font-family: Outfit, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1b2340;
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.landing-program-more {
+  text-align: center;
+  margin: 0;
+}
+
+.landing-program-more a {
+  color: #f5a623;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.landing-program-more a:hover {
+  text-decoration: underline;
+}
+
+.landing-magic-bg .landing-program-section .program-matrix-section {
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.landing-magic-bg .landing-program-section .landing-matrix-title {
+  color: #1b2340;
+}
