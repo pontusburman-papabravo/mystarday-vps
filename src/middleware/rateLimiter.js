@@ -55,6 +55,7 @@ const API_BOOTSTRAP_PREFIXES = [
   '/family/parent-pin-status-picker',
   '/family/verify-pin-picker',
   '/family/restore-parent-session',
+  '/family/invite/',
   // Paket v1.2 — called on every parent page load; must not compete with IP budget
   '/subscription/access',
   '/subscription/preview-data',

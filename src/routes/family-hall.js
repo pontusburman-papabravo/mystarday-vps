@@ -49,9 +49,8 @@ childRouter.get('/family', getHallHandler);
 // ─── Parent: GET /api/family/hall, POST /api/family/projects ─
 
 const parentRouter = express.Router();
-parentRouter.use(requireParent, requireFamilyContext);
-parentRouter.get('/hall', getHallHandler);
-parentRouter.post('/projects', validate(CreateProjectSchema), async (req, res, next) => {
+parentRouter.get('/hall', requireParent, requireFamilyContext, getHallHandler);
+parentRouter.post('/projects', requireParent, requireFamilyContext, validate(CreateProjectSchema), async (req, res, next) => {
   try {
     const project = await familyHallDb.createProject(req.familyId, {
       title: req.body.title,

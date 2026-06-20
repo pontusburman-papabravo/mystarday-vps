@@ -137,6 +137,11 @@ function registerRoutes(app) {
     });
   }
 
+  // Universal link /invite/{token} → accept-invite page (email uses ?token= query form)
+  app.get('/invite/:token', (req, res) => {
+    res.redirect(302, `/accept-invite?token=${encodeURIComponent(req.params.token)}`);
+  });
+
   // 3-layer child app routes (hash-scoped layers on child-dashboard)
   app.get('/today', (req, res) => res.redirect(302, '/child-dashboard#today'));
   app.get('/universe', (req, res) => res.redirect(302, '/child-dashboard#universe'));
