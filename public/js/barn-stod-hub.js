@@ -2,8 +2,21 @@
  * Barn/Stöd hub — preview (intressefas) or child shortcuts when teacch active.
  */
 window.addEventListener('DOMContentLoaded', async () => {
+  const isMarketing = window.PreviewBack && PreviewBack.isMarketingVisit();
+
   if (!Auth.isLoggedIn()) {
-    window.location.href = '/login?next=' + encodeURIComponent('/barn-stod');
+    if (isMarketing && window.PreviewShell) {
+      const tookOver = await PreviewShell.takeOverPublicPage({
+        component: 'teacch',
+        source: 'landing_preview',
+        container: document.getElementById('barnStodMain'),
+        injectBackLink: true,
+      });
+      if (tookOver) return;
+    }
+    window.location.href = '/login?next=' + encodeURIComponent(
+      '/barn-stod' + window.location.search
+    );
     return;
   }
 

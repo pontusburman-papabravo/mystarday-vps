@@ -26,10 +26,23 @@ let sharedLinksFilter = 'all'; // 'all' | 'active' | 'inactive'
 
 // ── Auth gate ──────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  // auth.js uses cookie-based auth; no isAuthReady/authReady events exist.
-  // Check auth status via Auth.isLoggedIn() + redirect if needed.
+  const isMarketing = window.PreviewBack && PreviewBack.isMarketingVisit();
+
   if (!Auth.isLoggedIn()) {
-    window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+    if (isMarketing && window.PreviewShell) {
+      const backLink = document.getElementById('previewBackLink');
+      const tookOver = await PreviewShell.takeOverPublicPage({
+        component: 'reporting',
+        source: 'landing_preview',
+        container: document.getElementById('reportsMain'),
+        backLinkEl: backLink,
+        hideSelectors: ['.sticky.top-0'],
+      });
+      if (tookOver) return;
+    }
+    window.location.href = '/login?next=' + encodeURIComponent(
+      window.location.pathname + window.location.search
+    );
     return;
   }
 

@@ -218,6 +218,137 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
+.landing-program-pill-link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.landing-program-pill-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.landing-newsletter {
+  margin-top: 2rem;
+  padding: 1.35rem 1.25rem;
+  background: linear-gradient(135deg, #fff8e6, #f3ecff);
+  border: 2px solid rgba(245, 166, 35, 0.35);
+  border-radius: 1.25rem;
+  text-align: center;
+}
+
+.landing-newsletter-title {
+  font-family: Outfit, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1b2340;
+  margin: 0 0 0.35rem;
+}
+
+.landing-newsletter-copy {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  color: #5a6178;
+  line-height: 1.5;
+}
+
+.landing-newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.landing-newsletter-form input[type="email"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(27, 35, 64, 0.12);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+.landing-newsletter-form button {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: #1c2340;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.landing-newsletter-form button:hover {
+  background: #2a3458;
+}
+
+.landing-newsletter-feedback {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: #1f6b3f;
+  font-weight: 600;
+}
+
+.program-interest-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+.program-interest-label {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  color: #5a6178;
+  line-height: 1.45;
+}
+
+.program-interest-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.program-interest-email {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 2px solid rgba(27, 35, 64, 0.12);
+  border-radius: 0.65rem;
+  font-size: 0.95rem;
+}
+
+.program-interest-btn {
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 0.65rem;
+  background: #1c2340;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.program-interest-feedback {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #1f6b3f;
+  font-weight: 600;
+}
+
+@media (min-width: 520px) {
+  .landing-newsletter-form,
+  .program-interest-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .landing-newsletter-form input[type="email"],
+  .program-interest-email {
+    flex: 1;
+  }
+}
+
 .landing-program-pill-name {
   font-family: Outfit, sans-serif;
   font-size: 1rem;

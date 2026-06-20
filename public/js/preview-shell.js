@@ -60,6 +60,14 @@
     return previewDataCache;
   }
 
+  async function loadPublicPreviewData(force) {
+    if (previewDataCache && !force) return previewDataCache;
+    const res = await fetch('/api/public/preview-data');
+    if (!res.ok) throw new Error('public_preview_data_fetch_failed');
+    previewDataCache = await res.json();
+    return previewDataCache;
+  }
+
   function clearCache() {
     accessCache = null;
     previewDataCache = null;
@@ -211,6 +219,97 @@
     return PREVIEW_PAGE_PATHS[component] || null;
   }
 
+  function renderGuestCtaArea(component, source) {
+    return `
+      <div class="preview-cta-area preview-guest-cta">
+        <p class="preview-cta-sublabel">Få e-post när paketet släpps — ingen inloggning krävs.</p>
+        <form class="preview-guest-form" data-component="${escapeHtml(component)}" data-source="${escapeHtml(source)}">
+          <label class="sr-only" for="previewGuestEmail">E-post</label>
+          <input type="email" id="previewGuestEmail" name="email" class="preview-guest-email" placeholder="din@email.se" required autocomplete="email">
+          <button type="submit" class="preview-cta-btn">Håll mig uppdaterad</button>
+        </form>
+        <p class="preview-cta-feedback" hidden></p>
+        <p class="preview-guest-login-hint">Har du redan konto? <a href="/login">Logga in</a> för att anmäla intresse i appen.</p>
+      </div>
+    `;
+  }
+
+  function wireGuestCtaForm(shell, component, source) {
+    const form = shell.querySelector('.preview-guest-form');
+    const feedbackEl = shell.querySelector('.preview-cta-feedback');
+    if (!form || !global.PreviewGuest) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = form.querySelector('.preview-guest-email');
+      const btn = form.querySelector('.preview-cta-btn');
+      const email = input ? input.value.trim() : '';
+      if (!global.PreviewGuest.isValidEmail(email)) {
+        if (feedbackEl) {
+          feedbackEl.textContent = 'Ange en giltig e-postadress.';
+          feedbackEl.hidden = false;
+        }
+        return;
+      }
+      if (btn) btn.disabled = true;
+      try {
+        const result = await global.PreviewGuest.subscribe(email, { component, source });
+        if (feedbackEl) {
+          feedbackEl.textContent = result.message || 'Tack!';
+          feedbackEl.hidden = false;
+        }
+        if (btn) btn.textContent = 'Tack! ✓';
+      } catch (err) {
+        if (btn) btn.disabled = false;
+        if (feedbackEl) {
+          feedbackEl.textContent = err.message || 'Något gick fel.';
+          feedbackEl.hidden = false;
+        }
+      }
+    });
+  }
+
+  async function mountPublicPreview(container, options) {
+    const component = options.component;
+    const source = options.source || 'landing_preview';
+    const fullPage = options.fullPage !== false;
+    const showBanner = options.showBanner !== false;
+    const compact = !!options.compact;
+
+    const previewData = await loadPublicPreviewData();
+    const pkg = previewData[component];
+    if (!pkg) return false;
+
+    const shell = document.createElement('div');
+    shell.className = 'preview-shell'
+      + (fullPage ? ' preview-shell--full' : '')
+      + (compact ? ' preview-shell--compact' : '');
+    shell.setAttribute('data-preview-component', component);
+
+    shell.innerHTML = `
+      <div class="preview-shell-inner">
+        ${showBanner ? `
+        <div class="preview-banner">
+          <span class="preview-badge">${escapeHtml(pkg.badge)}</span>
+          <strong>${escapeHtml(pkg.name)}</strong>
+          <p class="preview-tagline">${escapeHtml(pkg.tagline)}</p>
+        </div>
+        ` : ''}
+        <div class="preview-mock preview-mock--watermarked" data-watermark="${escapeHtml(pkg.watermark)}">
+          ${renderBody(component, pkg)}
+        </div>
+        ${renderGuestCtaArea(component, source)}
+      </div>
+    `;
+
+    if (fullPage) {
+      container.innerHTML = '';
+    }
+    container.appendChild(shell);
+    wireGuestCtaForm(shell, component, source);
+    return true;
+  }
+
   async function mountPreviewShell(container, options) {
     const component = options.component;
     const source = options.source || 'contextual_trigger';
@@ -298,14 +397,48 @@
     return ok;
   }
 
+  async function takeOverPublicPage(options) {
+    const target = options.container
+      || document.getElementById('previewShellRoot')
+      || document.querySelector('main')
+      || document.body;
+
+    const ok = await mountPublicPreview(target, options);
+    if (!ok) return false;
+
+    if (options.hideSelectors) {
+      options.hideSelectors.forEach((sel) => {
+        document.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
+      });
+    }
+
+    if (options.backLinkEl && global.PreviewBack) {
+      global.PreviewBack.apply(options.backLinkEl);
+    } else if (options.injectBackLink && global.PreviewBack) {
+      const bar = document.createElement('nav');
+      bar.className = 'preview-guest-nav';
+      const href = global.PreviewBack.resolveBackHref();
+      const label = global.PreviewBack.resolveBackLabel();
+      bar.innerHTML = '<a href="' + escapeHtml(href) + '" class="preview-guest-back">' + escapeHtml(label) + '</a>';
+      if (target.parentNode) {
+        target.parentNode.insertBefore(bar, target);
+      }
+    }
+
+    return true;
+  }
+
   global.PreviewShell = {
     PREVIEW_PAGE_PATHS,
     loadAccess,
     loadPreviewData,
+    loadPublicPreviewData,
     clearCache,
     shouldShowPreview,
     mountPreviewShell,
+    mountPublicPreview,
     takeOverPage,
+    takeOverPublicPage,
     getCtaConfig,
     getPreviewPagePath,
   };
