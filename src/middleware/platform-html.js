@@ -78,10 +78,10 @@ function injectPlatformHtml(body, reqPath) {
   const headMarker = '<head>';
   const tailMarker = '</body>';
 
-  const headParts = [
-    INJECT_MARKER,
-    '<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>',
-  ];
+  const headParts = [INJECT_MARKER];
+  if (!/\/js\/platform\.js/i.test(body)) {
+    headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
+  }
   headParts.push(
     '<script src="/js/package-access-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/features-cache.js?v=' + RELEASE_TAG + '"><\/script>',
