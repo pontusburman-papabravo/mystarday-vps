@@ -131,6 +131,50 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
   });
 });
 
+/** Render sidebar HTML in a minimal VM sandbox (same pattern as route tests). */
+function renderNavHtml() {
+  let html = '';
+  const doc = {
+    getElementById(id) {
+      if (id !== 'adminSidebarLinks') return null;
+      return {
+        set innerHTML(v) { html = v; },
+        get innerHTML() { return html; },
+      };
+    },
+  };
+  const sandbox = { window: { document: doc }, document: doc };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(NAV_PATH, 'utf8'), sandbox);
+  sandbox.renderAdminNav();
+  return html;
+}
+
+/** Canonical routes from A-admin-nav-spec.md §4 (hash router). */
+const SPEC_CANONICAL_ROUTES = [
+  'start', 'familjer', 'meddelanden', 'paketintresse', 'pedagogintresse', 'waitlist',
+  'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
+  'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
+  'retention', 'foraldaraktivering', 'fordig', 'bibliotek', 'prenumeration', 'konto',
+];
+
+describe('Fas 1 — spec route table completeness', () => {
+  const { resolveRoute } = loadAdminNav();
+  const sections = sectionIdsFromHtml();
+
+  for (const key of SPEC_CANONICAL_ROUTES) {
+    test(`spec route #${key} resolves with breadcrumb + DOM target`, () => {
+      const r = resolveRoute('#' + key);
+      assert.equal(r.canonicalKey, key, `expected canonical ${key}, got ${r.canonicalKey}`);
+      assert.ok(r.breadcrumb && r.breadcrumb.length >= 2, 'breadcrumb too short');
+      assert.equal(r.breadcrumb[r.breadcrumb.length - 1], r.label, 'last breadcrumb !== label');
+      assert.ok(sections.has(r.targetSection), `missing ${r.targetSection}Section`);
+      assert.ok(['stable', 'ui-only', 'proxy-data'].includes(r.capability), `bad capability: ${r.capability}`);
+    });
+  }
+});
+
 describe('Fas 1 — sidebar render', () => {
   test('renderAdminNav produces 6 groups and no emojis in labels', () => {
     let html = '';
@@ -171,6 +215,42 @@ describe('Fas 1 — sidebar render', () => {
     assert.doesNotMatch(html, />Välkomstmail</);
     assert.match(html, /id="messagesBadge"/);
   });
+
+  test('every sidebar href is canonical (no legacy aliases in menu)', () => {
+    const html = renderNavHtml();
+    const hrefs = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
+    const { resolveRoute } = loadAdminNav();
+    assert.equal(hrefs.length, 22, 'expected 22 hash nav links (+ 1 external Funktioner)');
+    const dup = hrefs.filter((h, i) => hrefs.indexOf(h) !== i);
+    assert.deepEqual(dup, [], 'duplicate nav hrefs: ' + dup.join(', '));
+    for (const h of hrefs) {
+      const r = resolveRoute('#' + h);
+      assert.equal(r.canonicalKey, h, `#${h} is not canonical (→ #${r.canonicalKey})`);
+    }
+  });
+
+  test('child routes have parentNavId for parent highlight', () => {
+    const { resolveRoute } = loadAdminNav();
+    const childCases = [
+      ['bildbank', 'landningssidor'],
+      ['anvandning', 'produktanalys'],
+      ['anvandarinsikter', 'produktanalys'],
+      ['foraldaraktivering', 'experiment'],
+      ['fordig', 'experiment'],
+      ['dagens-nyhet', 'kampanjer'],
+    ];
+    for (const [key, parent] of childCases) {
+      assert.equal(resolveRoute('#' + key).parentNavId, parent, `#${key} parent`);
+    }
+  });
+
+  test('Kampanjer/Experiment are label-only parents (no data-nav-id on group header)', () => {
+    const html = renderNavHtml();
+    assert.match(html, />Kampanjer</);
+    assert.match(html, />Experiment</);
+    assert.doesNotMatch(html, /data-nav-id="kampanjer"/);
+    assert.doesNotMatch(html, /data-nav-id="experiment"/);
+  });
 });
 
 describe('Fas 1 — admin-core wiring', () => {
@@ -199,5 +279,32 @@ describe('Fas 1 — admin-core wiring', () => {
     const html = fs.readFileSync(INDEX_PATH, 'utf8');
     assert.match(html, /id="adminBreadcrumb"/);
     assert.match(html, /id="pageTitle"/);
+  });
+
+  test('navigateToRoute writes canonical hash then applies on hashchange', () => {
+    const core = fs.readFileSync(CORE_PATH, 'utf8');
+    assert.match(core, /if \(!opts\.skipHashWrite && current !== canonical\)/);
+    assert.match(core, /window\.location\.hash = route\.canonicalKey/);
+    assert.match(core, /skipHashWrite: true/);
+  });
+
+  test('refreshSectionData covers all stable section loaders from spec', () => {
+    const core = fs.readFileSync(CORE_PATH, 'utf8');
+    const handlers = [
+      'loadFamilies', 'loadMessages', 'loadInterests', 'loadWaitlist', 'loadLandingNews',
+      'loadAdminImages', 'loadSurveys', 'loadNewsletterSubscribers', 'loadEmailTemplates',
+      'loadEmailLog', 'loadAnalytics', 'loadUserStats', 'loadRetentionData',
+      'loadActivationProgramAdmin', 'loadForDigAdmin', 'loadNyheter', 'loadSubscriptionSettings',
+    ];
+    for (const fn of handlers) {
+      assert.match(core, new RegExp(fn), `missing refresh handler ${fn}`);
+    }
+  });
+
+  test('overviewSection visible by default (Start fallback if hash write defers apply)', () => {
+    const html = fs.readFileSync(INDEX_PATH, 'utf8');
+    const m = html.match(/id="overviewSection"[^>]*>/);
+    assert.ok(m, 'overviewSection missing');
+    assert.doesNotMatch(m[0], /hidden/, 'overviewSection should not have hidden class');
   });
 });
