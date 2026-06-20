@@ -56,22 +56,35 @@
       if (name === 'overview') {
         refreshAdminStats();
         if (typeof loadOverviewStats === 'function') loadOverviewStats();
+        if (typeof loadStartSummary === 'function') loadStartSummary();
       }
       if (name === 'prenumeration' && typeof loadSubscriptionSettings === 'function') {
         loadSubscriptionSettings();
+        if (typeof syncPrenumerationWorkspace === 'function') {
+          syncPrenumerationWorkspace(route && route.canonicalKey);
+        }
       }
       if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
-      if (name === 'messages' && typeof loadMessages === 'function') loadMessages();
+      if (name === 'messages' && typeof loadMessages === 'function') {
+        const hash = window.location.hash || '';
+        window._messagesFollowupFilter = hash.includes('followup=1');
+        loadMessages();
+      }
       if (name === 'defaults' && typeof switchLibTab === 'function') switchLibTab('activities');
-      if (name === 'anvandning' && typeof loadLoginStats === 'function') loadLoginStats();
       if (name === 'retention' && typeof loadRetentionData === 'function') loadRetentionData();
       if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
         loadActivationProgramAdmin();
       }
       if (name === 'fordig' && typeof loadForDigAdmin === 'function') loadForDigAdmin();
       if (name === 'dagensnyhet' && typeof loadNyheter === 'function') loadNyheter();
-      if (name === 'landning' && typeof loadLandingNews === 'function') loadLandingNews();
-      if (name === 'bildbank' && typeof loadAdminImages === 'function') loadAdminImages();
+      if (name === 'landning' && typeof loadLandingNews === 'function') {
+        loadLandingNews();
+        if (typeof syncLandningWorkspace === 'function') syncLandningWorkspace('landningssidor');
+      }
+      if (name === 'bildbank' && typeof loadAdminImages === 'function') {
+        loadAdminImages();
+        if (typeof syncLandningWorkspace === 'function') syncLandningWorkspace('bildbank');
+      }
       if (name === 'nyhetsbrev' && typeof loadNewsletterSubscribers === 'function') {
         loadNewsletterSubscribers();
       }
@@ -82,8 +95,18 @@
         }).catch(() => {});
       }
       if (name === 'emaillog' && typeof loadEmailLog === 'function') loadEmailLog();
-      if (name === 'analytics' && typeof loadAnalytics === 'function') loadAnalytics();
-      if (name === 'anvandarstatistik' && typeof loadUserStats === 'function') loadUserStats();
+      if (name === 'analytics' && typeof loadAnalytics === 'function') {
+        loadAnalytics();
+        if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('produktanalys');
+      }
+      if (name === 'anvandning' && typeof loadLoginStats === 'function') {
+        loadLoginStats();
+        if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('anvandning');
+      }
+      if (name === 'anvandarstatistik' && typeof loadUserStats === 'function') {
+        loadUserStats();
+        if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('anvandarinsikter');
+      }
       if (name === 'undersokningar' && typeof loadSurveys === 'function') loadSurveys();
       if (name === 'intresseanmalningar' && typeof loadInterests === 'function') loadInterests();
       if (name === 'waitlist' && typeof loadWaitlist === 'function') loadWaitlist();
@@ -112,16 +135,19 @@
     function navigateToRoute(hash, opts) {
       opts = opts || {};
       if (typeof resolveRoute !== 'function') {
-        const fallback = (hash || '').replace(/^#/, '') || 'overview';
+        const fallback = (hash || '').replace(/^#/, '').split('?')[0] || 'overview';
         showSection(fallback);
         return;
       }
+      const raw = hash || window.location.hash || '';
+      const queryPart = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
       const route = resolveRoute(hash);
-      const canonical = '#' + route.canonicalKey;
+      let canonical = '#' + route.canonicalKey;
+      if (queryPart && route.canonicalKey === 'meddelanden') canonical += queryPart;
       const current = window.location.hash || '';
 
       if (!opts.skipHashWrite && current !== canonical) {
-        window.location.hash = route.canonicalKey;
+        window.location.hash = canonical.slice(1);
         return;
       }
 

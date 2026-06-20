@@ -180,7 +180,10 @@
 
   function normalizeHash(hash) {
     if (!hash) return '';
-    return String(hash).replace(/^#/, '').trim().toLowerCase();
+    let raw = String(hash).replace(/^#/, '').trim().toLowerCase();
+    const q = raw.indexOf('?');
+    if (q >= 0) raw = raw.slice(0, q);
+    return raw;
   }
 
   function resolveRoute(hash) {

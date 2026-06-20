@@ -284,8 +284,9 @@ describe('Fas 1 — admin-core wiring', () => {
   test('navigateToRoute writes canonical hash then applies on hashchange', () => {
     const core = fs.readFileSync(CORE_PATH, 'utf8');
     assert.match(core, /if \(!opts\.skipHashWrite && current !== canonical\)/);
-    assert.match(core, /window\.location\.hash = route\.canonicalKey/);
+    assert.match(core, /window\.location\.hash = canonical\.slice\(1\)/);
     assert.match(core, /skipHashWrite: true/);
+    assert.match(core, /followup=1/);
   });
 
   test('refreshSectionData covers all stable section loaders from spec', () => {

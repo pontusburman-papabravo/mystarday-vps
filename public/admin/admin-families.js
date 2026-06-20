@@ -393,6 +393,12 @@
         const messages = await Auth.api(url);
         clearTimeout(timeout);
         allMessages = messages;
+        let displayMessages = messages;
+        if (window._messagesFollowupFilter) {
+          displayMessages = messages.filter((m) =>
+            !m.is_read || !m.internal_note || String(m.internal_note).trim() === ''
+          );
+        }
         const unreadCount = messages.filter(m => !m.is_read).length;
         document.getElementById('unreadMessagesCount').textContent = unreadCount;
         document.getElementById('unreadMessagesCount').style.color = unreadCount > 0 ? '#E53E3E' : '#1B2340';
@@ -409,7 +415,7 @@
           }
         }
 
-        renderMessages(messages);
+        renderMessages(displayMessages);
       } catch (e) {
         clearTimeout(timeout);
         console.error('Failed to load contact messages:', e);
@@ -429,8 +435,11 @@
 
     function renderMessages(messages) {
       const container = document.getElementById('messagesContainer');
+      const followupBanner = window._messagesFollowupFilter
+        ? '<p class="text-sm text-navy bg-sky rounded-xl px-4 py-2 mb-4">Visar meddelanden att följa upp (olästa eller utan intern anteckning). <a href="#meddelanden" onclick="return adminNavClick(event)" class="font-semibold text-gold">Visa alla</a></p>'
+        : '';
       if (messages.length > 0) {
-        container.innerHTML = messages.map(m => {
+        container.innerHTML = followupBanner + messages.map(m => {
           const date = new Date(m.created_at).toLocaleDateString('sv-SE', {
             year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
           });
@@ -479,7 +488,10 @@
           </div>`;
         }).join('');
       } else {
-        container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga meddelanden att visa</div>';
+        const emptyMsg = window._messagesFollowupFilter
+          ? 'Inga meddelanden att följa upp just nu.'
+          : 'Inga meddelanden att visa';
+        container.innerHTML = followupBanner + `<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">${emptyMsg}</div>`;
       }
     }
 

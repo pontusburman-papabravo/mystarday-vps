@@ -141,7 +141,14 @@
 
         <!-- OVERVIEW -->
         <div id="overviewSection" class="mb-8">
-          <h3 class="text-2xl font-heading font-bold text-navy mb-6">Statistik</h3>
+          <div id="startDashboard" class="space-y-8 mb-10">
+            <div id="startGrowthBlock" class="bg-sky/40 rounded-2xl border border-lavender p-5"></div>
+            <div id="startMessagesBlock" class="bg-white rounded-2xl border-2 border-lavender p-5"></div>
+            <div id="startActivityBlock" class="bg-white rounded-2xl border-2 border-lavender p-5"></div>
+            <div id="startShortcutsBlock" class="bg-mint/30 rounded-2xl border border-mint p-5"></div>
+          </div>
+
+          <h3 class="text-2xl font-heading font-bold text-navy mb-6 pt-4 border-t border-lavender">Statistik</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="bg-sky rounded-2xl p-6 border-2 border-lavender">
               <div class="flex items-center justify-between">
@@ -633,6 +640,7 @@
 
         <!-- ANVÄNDNING — Login statistics per family/user (admin only) -->
         <div id="anvandningSection" class="mb-8 hidden">
+          <div id="anvandningWorkspaceTabs"></div>
           <h3 class="text-2xl font-heading font-bold text-navy mb-6">Inloggningsstatistik</h3>
 
           <!-- Overview totals -->
@@ -994,7 +1002,8 @@
 
         <!-- LANDNINGSSIDA -->
         <div id="landningSection" class="mb-8 hidden">
-          <h3 class="text-2xl font-heading font-bold text-navy mb-6">Landningssidor</h3>
+          <h3 class="text-2xl font-heading font-bold text-navy mb-2">Landningssidor</h3>
+          <div id="landningWorkspaceTabs"></div>
           <p class="text-sm text-text-soft mb-6 max-w-xl">Lägg till nyhets- eller funktions-sektioner som visas på landningssidan (mystarday.se). Dra i raderna för att ändra ordning.</p>
 
           <!-- Add new -->
@@ -1069,6 +1078,7 @@
 
         <!-- BILDBANK -->
         <div id="bildbankSection" class="mb-8 hidden">
+          <div id="bildbankWorkspaceTabs"></div>
           <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h3 class="text-2xl font-heading font-bold text-navy">Bildbank</h3>
@@ -1230,9 +1240,9 @@
 
         
         <div id="prenumerationSection" class="mb-8 hidden">
-          <h3 class="text-2xl font-heading font-bold text-navy mb-6">💳 Prenumerationsinställningar</h3>
-
-          <!-- Basic settings -->
+          <h3 class="text-2xl font-heading font-bold text-navy mb-2">Prenumeration &amp; IAP</h3>
+          <div id="prenumerationWorkspaceTabs"></div>
+          <div id="prenumerationSettingsPanels">
           <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl">
             <h4 class="text-lg font-heading font-bold text-navy mb-4">🟢 Basic (grundpaket)</h4>
 
@@ -1346,7 +1356,9 @@
             <div id="packageStatsSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm"></div>
             <div id="packageStatsBars" class="space-y-3"></div>
           </div>
+          </div>
 
+          <div id="prenumerationPaketintressePanel" class="hidden">
           <!-- v1.2 Paketintresse -->
           <div id="paketintresse-anchor" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl scroll-mt-24">
             <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
@@ -1384,6 +1396,7 @@
               </table>
             </div>
             <p id="packageInterestCount" class="text-xs text-text-soft mt-3"></p>
+          </div>
           </div>
         </div>
 
@@ -1535,8 +1548,8 @@ Använd dubbla radbrytningar för nya stycken.
           </div>
         </div>
 
-        <!-- VÄLKOMSTMAIL SECTION -->
-        <div id="valkomstmailSection" class="mb-8 hidden">
+        <!-- VÄLKOMSTMAIL SECTION (deprecated — use #valkomstmail → E-postmallar tab) -->
+        <div id="valkomstmailSection" class="mb-8 hidden admin-deprecated-section" hidden aria-hidden="true">
           <h3 class="text-2xl font-heading font-bold text-navy mb-6">Välkomstmail</h3>
 
           <!-- Editor -->
@@ -1611,6 +1624,7 @@ Använd dubbla radbrytningar för nya stycken.
 
         <!-- ANALYTICS SECTION -->
         <div id="analyticsSection" class="hidden mb-8">
+          <div id="produktanalysWorkspaceTabs"></div>
           <div class="flex items-center justify-between mb-6">
             <div>
               <h3 class="text-2xl font-heading font-bold text-navy">Analytics</h3>
@@ -1627,6 +1641,7 @@ Använd dubbla radbrytningar för nya stycken.
 
         <!-- ANVÄNDARSTATISTIK SECTION -->
         <div id="anvandarstatistikSection" class="hidden mb-8">
+          <div id="anvandarinsikterWorkspaceTabs"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-2xl font-heading font-bold text-navy">Användarstatistik</h3>
@@ -1881,8 +1896,12 @@ Använd dubbla radbrytningar för nya stycken.
     </main>
   </div>
 
-  <script src="/admin/admin-nav.js?v=1.0.0"></script>
-  <script src="/admin/admin-core.js?v=2.2.0"></script>
+  <script src="/admin/admin-nav.js?v=1.1.0"></script>
+  <script src="/admin/admin-core.js?v=2.3.0"></script>
+  <script src="/admin/admin-start.js?v=1.0.0"></script>
+  <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
+  <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
+  <script src="/admin/admin-prenumeration-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
   <script src="/admin/admin-families.js?v=2.2.0"></script>
   <script src="/admin/admin-subscription-settings.js"></script>
