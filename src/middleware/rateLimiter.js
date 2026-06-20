@@ -118,6 +118,7 @@ const globalLimiter = rateLimit({
     req.path.startsWith('/api/events') ||
     req.path.startsWith('/api/admin') ||
     req.path === '/api/auth/refresh' ||
+    req.path === '/api/resend/webhook' ||
     (req.user && req.user.id) ||
     STATIC_EXT_RE.test(req.path),
   handler: (req, res, next, options) => {
