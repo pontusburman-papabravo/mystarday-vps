@@ -76,11 +76,11 @@ describe('sendWelcomeEmail', () => {
       unsub: { unsubscribe_token: 'tok123' },
     });
 
-    await sendWelcomeEmail('anna@example.com', 'pid-1', { foralderns_namn: 'Anna' });
+    await sendWelcomeEmail('anna@acme.se', 'pid-1', { foralderns_namn: 'Anna' });
 
     const body = getRequestBody();
     assert.ok(body, 'Request was made to Resend');
-    assert.deepStrictEqual(body.to, ['anna@example.com']);
+    assert.deepStrictEqual(body.to, ['anna@acme.se']);
     assert.strictEqual(body.subject, 'Hej Anna');
     assert.ok(body.html && body.html.includes('Välkommen!'));
     assert.ok(body.from && body.from.includes('info@mystarday.se'));
@@ -93,15 +93,15 @@ describe('sendWelcomeEmail', () => {
       unsub: { unsubscribe_token: 'tok' },
     });
 
-    await sendWelcomeEmail('parent@test.com', 'pid', { foralderns_namn: 'Test' });
+    await sendWelcomeEmail('parent@acme.se', 'pid', { foralderns_namn: 'Test' });
 
-    assert.deepStrictEqual(capturedBody.to, ['parent@test.com'], 'Email was sent — welcome_email_template was found');
+    assert.deepStrictEqual(capturedBody.to, ['parent@acme.se'], 'Email was sent — welcome_email_template was found');
   });
 
   it('skips send gracefully when no active template exists', async () => {
     setMockRows({ template: null });
 
-    const result = await sendWelcomeEmail('parent@test.com', 'pid', { foralderns_namn: 'Test' });
+    const result = await sendWelcomeEmail('parent@acme.se', 'pid', { foralderns_namn: 'Test' });
 
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.error, 'No active template found');
@@ -115,7 +115,7 @@ describe('sendWelcomeEmail', () => {
       child: { name: 'Leo' },
     });
 
-    await sendWelcomeEmail('parent@test.com', 'pid-abc', { foralderns_namn: 'Anna' });
+    await sendWelcomeEmail('parent@acme.se', 'pid-abc', { foralderns_namn: 'Anna' });
 
     const body = getRequestBody();
     assert.ok(body, 'Email was sent');
@@ -129,7 +129,7 @@ describe('sendWelcomeEmail', () => {
       unsub: { unsubscribe_token: 'tok' },
     });
 
-    await sendWelcomeEmail('parent@test.com', 'pid', {
+    await sendWelcomeEmail('parent@acme.se', 'pid', {
       foralderns_namn: 'Anna',
       barnets_namn: 'Maja',
     });
@@ -147,7 +147,7 @@ describe('sendWelcomeEmail', () => {
       child: null,
     });
 
-    const result = await sendWelcomeEmail('parent@test.com', 'pid', { foralderns_namn: 'Anna' });
+    const result = await sendWelcomeEmail('parent@acme.se', 'pid', { foralderns_namn: 'Anna' });
 
     assert.strictEqual(result.success, true, 'Email must still send even with no child');
     const body = getRequestBody();
@@ -160,7 +160,7 @@ describe('sendWelcomeEmail', () => {
       unsub: { unsubscribe_token: 'tok' },
     });
 
-    await sendWelcomeEmail('parent@test.com', 'pid', { foralderns_namn: 'Karin' });
+    await sendWelcomeEmail('parent@acme.se', 'pid', { foralderns_namn: 'Karin' });
 
     const body = getRequestBody();
     assert.ok(body.subject.includes('Karin'), 'Subject must contain "Karin"');
@@ -180,7 +180,7 @@ describe('sendWelcomeEmail', () => {
       template: { subject: 'Test', body: 'Body' },
     });
 
-    const result = await sendWelcomeEmail('parent@test.com', 'pid', { foralderns_namn: 'Test' });
+    const result = await sendWelcomeEmail('parent@acme.se', 'pid', { foralderns_namn: 'Test' });
 
     assert.strictEqual(result.success, false);
     assert.ok(result.error, 'Error must be returned');
@@ -194,7 +194,7 @@ describe('sendWelcomeEmail', () => {
       unsub: { unsubscribe_token: 'tok-abc123' },
     });
 
-    await sendWelcomeEmail('test@example.com', 'pid', { foralderns_namn: 'Test' });
+    await sendWelcomeEmail('test@acme.se', 'pid', { foralderns_namn: 'Test' });
 
     const body = getRequestBody();
     assert.ok(

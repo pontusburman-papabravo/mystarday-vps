@@ -12,8 +12,25 @@ const FROM_ADDRESS = config.email.from;
 const FROM_HEADER = `${config.email.fromName} <${FROM_ADDRESS}>`;
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
+/** RFC 2606 / common test domains — never send to these in production. */
+const TEST_MAILBOX_SUFFIXES = [
+  '@example.com',
+  '@example.org',
+  '@example.net',
+  '@test.com',
+];
+
 function getResendApiKey() {
   return process.env.RESEND_API_KEY || null;
+}
+
+function isTestMailbox(email) {
+  const normalized = String(email || '').toLowerCase().trim();
+  return TEST_MAILBOX_SUFFIXES.some((suffix) => normalized.endsWith(suffix));
+}
+
+function normalizeRecipients(to) {
+  return (Array.isArray(to) ? to : [to]).filter(Boolean);
 }
 
 /**
@@ -28,6 +45,12 @@ async function registerContact(_email, _name, _source = 'signup') {
  * Send an email via Resend.
  */
 async function sendEmail({ to, subject, body: textBody, html, from, tags }) {
+  const recipients = normalizeRecipients(to);
+  if (recipients.length > 0 && recipients.every(isTestMailbox)) {
+    console.log(`[EMAIL] Suppressed (test mailbox): to=${recipients.join(',')}, subject="${subject}"`);
+    return { success: true, provider: 'suppressed_test_mailbox' };
+  }
+
   if (process.env.EMAIL_ENABLED === 'false') {
     console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${to}, subject="${subject}"`);
     return { success: true, provider: 'suppressed' };
@@ -43,7 +66,7 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags }) {
   }
 
   const plainText = textBody || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : subject);
-  const toList = Array.isArray(to) ? to : [to];
+  const toList = recipients;
 
   try {
     const res = await fetch(RESEND_API_URL, {
@@ -337,6 +360,7 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
 
 module.exports = {
   sendEmail,
+  isTestMailbox,
   registerContact,
   sendVerificationEmail,
   sendPasswordResetEmail,

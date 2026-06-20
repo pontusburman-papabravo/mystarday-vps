@@ -2,7 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 const db = require('../lib/db');
-const { sendEmail } = require('../lib/email');
+const { sendEmail, isTestMailbox } = require('../lib/email');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
 const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
@@ -69,8 +69,8 @@ router.post('/contact', async (req, res) => {
       [name.trim(), normalizedEmail, message.trim(), 'contact']
     );
 
-    // Send email to owner
-    await sendEmail({
+    if (!isTestMailbox(normalizedEmail)) {
+      await sendEmail({
       to: 'info@mystarday.se',
       subject: `Kontaktformulär — ${name.trim()}`,
       html: `
@@ -82,7 +82,10 @@ router.post('/contact', async (req, res) => {
           <p style="background: #f5f5f5; padding: 12px; border-radius: 8px;">${message.trim()}</p>
         </div>
       `,
-    });
+      });
+    } else {
+      console.log(`[CONTACT] Skipping owner email for test mailbox ${normalizedEmail}`);
+    }
 
     res.json({ message: 'Tack! Vi har tagit emot ditt meddelande.' });
   } catch (err) {
@@ -173,7 +176,7 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
       ipAddress,
     });
 
-    // Confirmation email to the person who submitted
+    if (!isTestMailbox(normalizedEmail)) {
     sendEmail({
       to: normalizedEmail,
       subject: 'Tack för ditt intresse — Min Stjärndag',
@@ -209,6 +212,9 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
         </div>
       `,
     }).catch(() => {});
+    } else {
+      console.log(`[PROFESSIONAL-INTEREST] Skipping emails for test mailbox ${normalizedEmail}`);
+    }
 
     res.json({ ok: true });
   } catch (err) {
@@ -238,7 +244,7 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
 
     const entry = await addWaitlistEntry(normalizedName, normalizedEmail, null, ipAddress);
 
-    // Send confirmation email (non-blocking)
+    if (!isTestMailbox(normalizedEmail)) {
     sendEmail({
       to: normalizedEmail,
       subject: "You're on the list! 🎉 — My Starday",
@@ -268,6 +274,9 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
         </div>
       `,
     }).catch(() => {});
+    } else {
+      console.log(`[WAITLIST] Skipping emails for test mailbox ${normalizedEmail}`);
+    }
 
     res.json({ ok: true, message: 'Welcome to the waitlist!' });
   } catch (err) {
@@ -365,10 +374,11 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
       ipAddress: req.ip || null,
     });
 
-    sendEmail({
-      to: normalizedEmail,
-      subject: 'Du är anmäld till nyhetsbrevet — My Starday',
-      html: `
+    if (!isTestMailbox(normalizedEmail)) {
+      sendEmail({
+        to: normalizedEmail,
+        subject: 'Du är anmäld till nyhetsbrevet — My Starday',
+        html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1C2340;">
           <h2>Tack! ⭐</h2>
           <p>${normalizedName ? `Hej ${normalizedName},` : 'Hej,'}</p>
@@ -377,7 +387,10 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
           <p style="color:#5A6178;font-size:14px;">Vill du skapa konto kan du göra det när som helst via registreringssidan i appen.</p>
         </div>
       `,
-    }).catch(() => {});
+      }).catch(() => {});
+    } else {
+      console.log(`[PUBLIC-NEWSLETTER] Skipping email for test mailbox ${normalizedEmail}`);
+    }
 
     let message = 'Tack! Du är anmäld till nyhetsbrevet.';
     if (normalizedComponent) {

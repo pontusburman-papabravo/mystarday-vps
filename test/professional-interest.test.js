@@ -76,6 +76,7 @@ test('POST /api/public/professional-interest saves submission without auth', asy
       'Specialpedagog',
       'Testskola',
     ]);
+    // anna@example.com is a test mailbox — no Resend calls (see email.js isTestMailbox)
   } finally {
     await new Promise((resolve) => server.close(resolve));
     mock.restore();
