@@ -1,77 +1,131 @@
 // Admin Core: section navigation, stats, init
-    // ─── Section Navigation ──────────────────────────────────
-    const sectionTitles = {
-      overview: 'Översikt',
-      prenumeration: 'Prenumeration',
-      families: 'Familjer',
-      messages: 'Kontaktmeddelanden',
-      defaults: 'Bibliotek',
-      anvandning: 'Användning',
-      retention: 'Retention & Aktivitetsstatistik',
-      foraldaraktivering: 'Föräldraaktivering',
-      fordig: 'För dig',
-      dagensnyhet: 'Dagens nyhet',
-      nyhetsbrev: 'Nyhetsbrevsprenumeranter',
-      valkomstmail: 'Välkomstmail',
-      analytics: 'Analytics',
-      anvandarstatistik: 'Användarstatistik',
-      undersokningar: 'Undersökningar',
-      emailmallar: '📧 Email-mallar',
-      emaillog: '📤 Email-logg',
-      intresseanmalningar: '🎓 Intresseanmälningar',
-      waitlist: '📋 Waitlist',
-      password: 'Kontoinställningar',
-    };
+    // ─── Section Navigation (Fas 1 — see admin-nav.js + docs/admin-v2/) ───
 
-    function showSection(name) {
-      document.querySelectorAll('[id$="Section"]').forEach(s => {
+    function updateBreadcrumb(parts) {
+      const el = document.getElementById('adminBreadcrumb');
+      if (!el || !parts || !parts.length) return;
+      el.innerHTML = parts.map((part, i) => {
+        const isLast = i === parts.length - 1;
+        const label = esc(part);
+        return isLast
+          ? `<span class="text-navy font-semibold">${label}</span>`
+          : `<span>${label}</span><span class="mx-2 text-text-soft" aria-hidden="true">→</span>`;
+      }).join('');
+    }
+
+    function setActiveNav(navId, parentNavId) {
+      document.querySelectorAll('.nav-item').forEach((a) => {
+        a.classList.remove('bg-gold', 'text-navy', 'font-semibold', 'admin-nav-parent-active');
+        a.classList.add('text-white', 'hover:bg-navy-soft');
+      });
+      const highlight = (id) => {
+        if (!id) return;
+        const el = document.querySelector(`.nav-item[data-nav-id="${id}"]`);
+        if (el) {
+          el.classList.add('bg-gold', 'text-navy', 'font-semibold');
+          el.classList.remove('text-white', 'hover:bg-navy-soft');
+        }
+      };
+      highlight(navId);
+      if (parentNavId && parentNavId !== navId) {
+        const parent = document.querySelector(`.nav-item[data-nav-id="${parentNavId}"]`);
+        if (parent) parent.classList.add('admin-nav-parent-active');
+      }
+    }
+
+    function applyRouteChrome(route) {
+      if (!route) return;
+      const titleEl = document.getElementById('pageTitle');
+      if (titleEl && route.label) titleEl.textContent = route.label;
+      updateBreadcrumb(route.breadcrumb);
+      setActiveNav(route.navId, route.parentNavId);
+    }
+
+    function runPostShowActions(route) {
+      if (!route) return;
+      if (route.scrollTargetId) {
+        const scroll = () => {
+          const anchor = document.querySelector(route.scrollTargetId);
+          if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        requestAnimationFrame(() => setTimeout(scroll, 150));
+      }
+    }
+
+    function refreshSectionData(name, route) {
+      if (name === 'overview') {
+        refreshAdminStats();
+        if (typeof loadOverviewStats === 'function') loadOverviewStats();
+      }
+      if (name === 'prenumeration' && typeof loadSubscriptionSettings === 'function') {
+        loadSubscriptionSettings();
+      }
+      if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
+      if (name === 'messages' && typeof loadMessages === 'function') loadMessages();
+      if (name === 'defaults' && typeof switchLibTab === 'function') switchLibTab('activities');
+      if (name === 'anvandning' && typeof loadLoginStats === 'function') loadLoginStats();
+      if (name === 'retention' && typeof loadRetentionData === 'function') loadRetentionData();
+      if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
+        loadActivationProgramAdmin();
+      }
+      if (name === 'fordig' && typeof loadForDigAdmin === 'function') loadForDigAdmin();
+      if (name === 'dagensnyhet' && typeof loadNyheter === 'function') loadNyheter();
+      if (name === 'landning' && typeof loadLandingNews === 'function') loadLandingNews();
+      if (name === 'bildbank' && typeof loadAdminImages === 'function') loadAdminImages();
+      if (name === 'nyhetsbrev' && typeof loadNewsletterSubscribers === 'function') {
+        loadNewsletterSubscribers();
+      }
+      if (name === 'emailmallar' && typeof loadEmailTemplates === 'function') {
+        const tab = route && route.emailTab;
+        loadEmailTemplates().then(() => {
+          if (tab && typeof switchEmailTab === 'function') switchEmailTab(tab);
+        }).catch(() => {});
+      }
+      if (name === 'emaillog' && typeof loadEmailLog === 'function') loadEmailLog();
+      if (name === 'analytics' && typeof loadAnalytics === 'function') loadAnalytics();
+      if (name === 'anvandarstatistik' && typeof loadUserStats === 'function') loadUserStats();
+      if (name === 'undersokningar' && typeof loadSurveys === 'function') loadSurveys();
+      if (name === 'intresseanmalningar' && typeof loadInterests === 'function') loadInterests();
+      if (name === 'waitlist' && typeof loadWaitlist === 'function') loadWaitlist();
+      if (name === 'valkomstmail' && typeof loadWelcomeEmailTemplate === 'function') {
+        loadWelcomeEmailTemplate();
+      }
+    }
+
+    function showSection(name, route) {
+      document.querySelectorAll('[id$="Section"]').forEach((s) => {
         if (s.id !== 'accessDenied') s.classList.add('hidden');
       });
       const target = document.getElementById(name + 'Section');
       if (target) target.classList.remove('hidden');
 
-      // Update page title
-      const titleEl = document.getElementById('pageTitle');
-      if (titleEl && sectionTitles[name]) {
-        titleEl.textContent = sectionTitles[name];
+      if (route) applyRouteChrome(route);
+
+      refreshSectionData(name, route);
+      runPostShowActions(route);
+    }
+
+    function applyRoute(route) {
+      showSection(route.targetSection, route);
+    }
+
+    function navigateToRoute(hash, opts) {
+      opts = opts || {};
+      if (typeof resolveRoute !== 'function') {
+        const fallback = (hash || '').replace(/^#/, '') || 'overview';
+        showSection(fallback);
+        return;
+      }
+      const route = resolveRoute(hash);
+      const canonical = '#' + route.canonicalKey;
+      const current = window.location.hash || '';
+
+      if (!opts.skipHashWrite && current !== canonical) {
+        window.location.hash = route.canonicalKey;
+        return;
       }
 
-      document.querySelectorAll('.nav-item').forEach(a => {
-        a.classList.remove('bg-gold', 'text-navy', 'font-semibold');
-        a.classList.add('text-white', 'hover:bg-navy-soft');
-      });
-      const active = document.querySelector(`.nav-item[data-section="${name}"]`);
-      if (active) {
-        active.classList.add('bg-gold', 'text-navy', 'font-semibold');
-        active.classList.remove('text-white', 'hover:bg-navy-soft');
-      }
-
-      // Refresh data when navigating to a section
-      if (name === 'overview') { refreshAdminStats(); loadOverviewStats(); }
-      if (name === 'prenumeration') loadSubscriptionSettings();
-      if (name === 'families') loadFamilies();
-      if (name === 'messages') loadMessages();
-      if (name === 'defaults') {
-        if (typeof switchLibTab === 'function') switchLibTab('activities');
-      }
-      if (name === 'anvandning') loadLoginStats();
-      if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
-        loadActivationProgramAdmin();
-      }
-      if (name === 'emaillog' && typeof loadEmailLog === 'function') {
-        loadEmailLog();
-      }
-      if (name === 'fordig' && typeof loadForDigAdmin === 'function') {
-        loadForDigAdmin();
-      }
-      if (name === 'analytics' && typeof loadAnalytics === 'function') {
-        loadAnalytics();
-      }
-      if (name === 'valkomstmail') loadWelcomeEmailTemplate();
-      if (name === 'intresseanmalningar') loadInterests();
-      if (name === 'waitlist') loadWaitlist();
-      if (name === 'bildbank') loadAdminImages();
-      if (name === 'anvandarstatistik') loadUserStats();
+      applyRoute(route);
     }
 
     // ─── Mobile Menu Toggle ────────────────────────────────────
@@ -152,9 +206,13 @@
           return;
         }
 
-        // Show section from URL hash (e.g. #defaults, #anvandning) or overview
-        const initialHash = (window.location.hash || '').slice(1);
-        showSection(sectionTitles[initialHash] ? initialHash : 'overview');
+        if (typeof renderAdminNav === 'function') renderAdminNav();
+
+        navigateToRoute(window.location.hash || '#start');
+
+        window.addEventListener('hashchange', () => {
+          navigateToRoute(window.location.hash, { skipHashWrite: true });
+        });
 
         // Load stats (retry up to 3 times on transient failures)
         await loadAdminStats(3);

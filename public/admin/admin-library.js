@@ -1014,8 +1014,8 @@
 
     // Load defaults when section is shown
     const origShowSection = showSection;
-    showSection = function(name) {
-      origShowSection(name);
+    showSection = function(name, route) {
+      origShowSection(name, route);
       if (name === 'defaults') {
         // Load the active library tab
         if (activeLibTab === 'rewards') {
