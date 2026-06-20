@@ -32,10 +32,14 @@ router.get('/pedagoger-och-terapeuter', async (req, res) => {
 // ── Additional public pages moved from server.js ──
 const { optionalAuth } = require('../middleware/auth');
 
-// Skattkammaren — optional auth for demo access
+// Skattkammaren — demo for visitors; parent app when logged in
 router.get('/skattkammaren', optionalAuth, (req, res) => {
-  if (req.user && req.user.type === 'child') {
+  const forceDemo = req.query.demo === '1';
+  if (req.user && req.user.type === 'child' && !forceDemo) {
     return res.redirect(302, '/child-dashboard#rewards');
+  }
+  if (forceDemo || !req.user) {
+    return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren.html'));
   }
   res.sendFile(path.join(__dirname, '../../public', 'skattkammaren-parent.html'));
 });
