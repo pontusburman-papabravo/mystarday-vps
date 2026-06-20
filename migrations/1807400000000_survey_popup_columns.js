@@ -2,10 +2,23 @@
  * Survey popup + contest columns (Del 4) — referenced in db/surveys.js but never migrated.
  * Fixes: column "popup_landing_enabled" does not exist (prod journal 2026-06-20).
  */
+async function tableExists(client, tableName) {
+  const res = await client.query(
+    `SELECT 1 FROM information_schema.tables
+     WHERE table_schema = 'public' AND table_name = $1`,
+    [tableName]
+  );
+  return res.rowCount > 0;
+}
+
 module.exports = {
   name: '1807400000000_survey_popup_columns',
 
   up: async (client) => {
+    if (!(await tableExists(client, 'surveys'))) {
+      return;
+    }
+
     await client.query(`
       ALTER TABLE surveys
         ADD COLUMN IF NOT EXISTS popup_logged_in_enabled BOOLEAN NOT NULL DEFAULT false,
@@ -47,22 +60,24 @@ module.exports = {
       ON survey_popup_interactions (survey_id, cookie_token)
     `);
 
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS survey_contest_entries (
-        id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        survey_id         UUID NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
-        response_id       UUID NOT NULL UNIQUE REFERENCES survey_responses(id) ON DELETE CASCADE,
-        respondent_email  VARCHAR(255) NOT NULL,
-        is_winner         BOOLEAN NOT NULL DEFAULT false,
-        is_contacted      BOOLEAN NOT NULL DEFAULT false,
-        created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `);
+    if (await tableExists(client, 'survey_responses')) {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS survey_contest_entries (
+          id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          survey_id         UUID NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+          response_id       UUID NOT NULL UNIQUE REFERENCES survey_responses(id) ON DELETE CASCADE,
+          respondent_email  VARCHAR(255) NOT NULL,
+          is_winner         BOOLEAN NOT NULL DEFAULT false,
+          is_contacted      BOOLEAN NOT NULL DEFAULT false,
+          created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `);
 
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_survey_contest_entries_survey
-      ON survey_contest_entries (survey_id)
-    `);
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_survey_contest_entries_survey
+        ON survey_contest_entries (survey_id)
+      `);
+    }
   },
 
   down: async (client) => {
