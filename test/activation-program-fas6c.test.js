@@ -96,9 +96,10 @@ describe('Fas 6C — wiring', () => {
 
   it('admin UI section and script wired', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
+    const nav = fs.readFileSync(path.join(__dirname, '../public/admin/admin-nav.js'), 'utf8');
     assert.ok(html.includes('foraldaraktiveringSection'));
     assert.ok(html.includes('admin-activation-program.js'));
-    assert.ok(html.includes('data-section="foraldaraktivering"'));
+    assert.ok(nav.includes("key: 'foraldaraktivering'"));
     assert.ok(html.includes('activationFunnelChart'));
   });
 
