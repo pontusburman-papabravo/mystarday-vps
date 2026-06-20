@@ -1,9 +1,11 @@
 # B. Start page spec v2 (Fas 2A — honest MVP)
 
+> **Leveransstatus (2026-06-20):** Fas 2A + Fas 3-uppgraderingar levererade (`start-summary`, inbox-status). Se `ADMIN-V2-DELIVERY.md`.
+
 **Start = operativ startsida, inte “sann CRM” i MVP.**
 
-Start helps the admin **prioritise** work using composed/proxy data. It is **not** a source of
-truth for inbox status or lead pipeline until Fas 3 migrations land.
+Start helps the admin **prioritise** work using composed/proxy data. After Fas 3, Block B uses
+real `status` / `family_id`; activity feed remains composed (no `admin_activity` table).
 
 ---
 
@@ -12,7 +14,7 @@ truth for inbox status or lead pipeline until Fas 3 migrations land.
 | Level | When | What |
 |-------|------|------|
 | **Nivå 1 — MVP (PR 3)** | Fas 2 | Aggregator + proxy heuristics + synthetic activity feed |
-| **Nivå 2 — Full** | After Fas 3A–3C | Real message status, family links, lead pipeline signals |
+| **Nivå 2 — Full** | Fas 3 (delivered) | Real message status, family links, lead pipeline signals on Start |
 
 ---
 

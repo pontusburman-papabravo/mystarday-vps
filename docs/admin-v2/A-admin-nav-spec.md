@@ -1,5 +1,7 @@
 # A. Admin navigation spec v2
 
+> **Leveransstatus (2026-06-20):** Implementerad i `admin-nav.js` + `admin-core.js`. Se `ADMIN-V2-DELIVERY.md`.
+
 Single source of truth for IA, canonical routes, legacy aliases, section mapping,
 breadcrumbs, subviews, refresh policy and route capability. Runtime target:
 `public/admin/admin-nav.js` + `public/admin/admin-core.js`.

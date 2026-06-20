@@ -1,6 +1,9 @@
 # C. Admin refactor tickets v2 (PR plan)
 
-Base: `main`. Feature branch: `cursor/admin-v2-all-phases-458a`.
+> **Leveransstatus (2026-06-20):** PR 1–10 levererade och mergade till `main`.  
+> Se `ADMIN-V2-DELIVERY.md` för deploy, migrationer och kvarvarande out-of-scope.
+
+Base: `main`. Ursprunglig feature branch: `cursor/admin-v2-all-phases-458a` (Fas 1–2, PR #184), Fas 3 (PR #192).
 
 **Fas 1** = green (IA + routing). **Fas 2** = honest MVP (Start + consolidation).
 **Fas 3** = split into **data migrations** then **UX** — do not mix UI-only inbox/pipeline
@@ -22,12 +25,12 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] 6 groups, max 2 levels, no emojis
-- [ ] Paketintresse + Pedagogintresse under Tillväxt
-- [ ] Bildbank under Landningssidor; Välkomstmail under E-postmallar (nav only)
-- [ ] Användning/Användarinsikter under Produktanalys; Experiment-children under Insikter
-- [ ] Login lands on Start; breadcrumb `Hem → Start`
-- [ ] Funktioner remains external link to `/admin/development`
+- [x] 6 groups, max 2 levels, no emojis
+- [x] Paketintresse + Pedagogintresse under Tillväxt
+- [x] Bildbank under Landningssidor; Välkomstmail under E-postmallar (nav only)
+- [x] Användning/Användarinsikter under Produktanalys; Experiment-children under Insikter
+- [x] Login lands on Start; breadcrumb `Hem → Start`
+- [x] Funktioner remains external link to `/admin/development`
 
 ---
 
@@ -41,10 +44,10 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] `#overview` → `#start`; `#families` → `#familjer`; `#analytics` → `#produktanalys`; `#intresseanmalningar` → `#pedagogintresse`
-- [ ] Title, breadcrumb, active nav from single `RouteResolution`
-- [ ] `hashchange` wired
-- [ ] Each route has `capability` in config (per A-spec §2)
+- [x] `#overview` → `#start`; `#families` → `#familjer`; `#analytics` → `#produktanalys`; `#intresseanmalningar` → `#pedagogintresse`
+- [x] Title, breadcrumb, active nav from single `RouteResolution`
+- [x] `hashchange` wired
+- [x] Each route has `capability` in config (per A-spec §2)
 
 ---
 
@@ -57,12 +60,12 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] `#paketintresse` → prenumeration + scroll `#paketintresse-anchor`
-- [ ] `#valkomstmail` → `emailmallar` + tab `valkomstmail` (not `valkomstmailSection`)
-- [ ] `#bildbank` opens Bildbank
-- [ ] Refresh fixed: `retention`, `dagensnyhet`, `landning`, `undersokningar`, `nyhetsbrev`
-- [ ] **`admin-library.js` `showSection` wrapper still works** (explicit QA)
-- [ ] `messagesBadge` survives nav re-render
+- [x] `#paketintresse` → prenumeration + scroll `#paketintresse-anchor`
+- [x] `#valkomstmail` → `emailmallar` + tab `valkomstmail` (not `valkomstmailSection`)
+- [x] `#bildbank` opens Bildbank
+- [x] Refresh fixed: `retention`, `dagensnyhet`, `landning`, `undersokningar`, `nyhetsbrev`
+- [x] **`admin-library.js` `showSection` wrapper still works** (explicit QA)
+- [x] `messagesBadge` survives nav re-render
 
 ---
 
@@ -87,11 +90,11 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] Growth cards with deltas for package / pedagog / waitlist
-- [ ] `needsFollowUpCount` uses heuristic from B-spec §2
-- [ ] Activity feed max ~20, typed events with canonical `route`
-- [ ] Loading / empty / error per block
-- [ ] Legacy overview KPI grid still below new blocks
+- [x] Growth cards with deltas for package / pedagog / waitlist
+- [x] `needsFollowUpCount` uses heuristic from B-spec §2 (ersatt av riktig status efter Fas 3A)
+- [x] Activity feed max ~20, typed events with canonical `route`
+- [x] Loading / empty / error per block
+- [x] Legacy overview KPI grid still below new blocks
 
 ---
 
@@ -104,9 +107,9 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] `#produktanalys` is default analytics view
-- [ ] `#anvandning` / `#anvandarinsikter` open correct tab/section
-- [ ] Breadcrumb always `Insikter → Produktanalys → …`
+- [x] `#produktanalys` is default analytics view
+- [x] `#anvandning` / `#anvandarinsikter` open correct tab/section
+- [x] Breadcrumb always `Insikter → Produktanalys → …`
 
 ---
 
@@ -119,9 +122,9 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] No ghost Välkomstmail top-level section visible
-- [ ] Bildbank reachable from Landningssidor workspace
-- [ ] Paketintresse is more than scroll-only (labelled panel/tab)
+- [x] No ghost Välkomstmail top-level section visible
+- [x] Bildbank reachable from Landningssidor workspace
+- [x] Paketintresse is more than scroll-only (labelled panel/tab)
 
 ---
 
@@ -137,9 +140,9 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] Admin can mark answered / set status
-- [ ] “Needs follow-up” computable without heuristic (or heuristic retired)
-- [ ] Start aggregator can use real fields
+- [x] Admin can mark answered / set status
+- [x] “Needs follow-up” computable without heuristic (or heuristic retired)
+- [x] Start aggregator can use real fields
 
 ---
 
@@ -154,10 +157,10 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] Filters by status work
-- [ ] Message shows family context when linked
-- [ ] Jump to family from message
-- [ ] Start Block B uses real status (remove disclaimer)
+- [x] Filters by status work
+- [x] Message shows family context when linked
+- [x] Jump to family from message
+- [x] Start Block B uses real status (remove disclaimer)
 
 ---
 
@@ -173,9 +176,9 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] Status editable per lead type
-- [ ] Filter by status / source
-- [ ] Pipeline view (or unified Tillväxt workspace) — not three isolated lists
+- [x] Status editable per lead type
+- [x] Filter by status / source
+- [x] Pipeline view (or unified Tillväxt workspace) — not three isolated lists
 
 ---
 
@@ -190,8 +193,8 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] One family view replaces 3–4 section hops for support triage
-- [ ] Links: family ↔ message ↔ package interest (where data exists)
+- [x] One family view replaces 3–4 section hops for support triage
+- [x] Links: family ↔ message ↔ package interest (where data exists)
 
 ---
 
@@ -206,9 +209,9 @@ Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECI
 
 **Acceptance**
 
-- [ ] ⌘K / Ctrl+K opens palette
-- [ ] Navigate to section, family, message from search
-- [ ] Start shows prioritisation hint (e.g. unread from paying families — if data allows)
+- [x] ⌘K / Ctrl+K opens palette
+- [x] Navigate to section, family, message from search
+- [x] Start shows prioritisation hint (e.g. unread from paying families — if data allows)
 
 ---
 
@@ -236,11 +239,11 @@ PR6,7,8 → PR9 → PR10
 
 ## QA checklist (every PR)
 
-- [ ] `npx eslint src/ server.js` — no new errors
-- [ ] `node --check public/admin/*.js` for touched admin files
-- [ ] `NODE_ENV=test npm test` — no new failures (1 known: `release-os.test.js`)
-- [ ] Manual: all nav groups; legacy hashes; mobile menu; section refresh on enter
-- [ ] PR 2B: verify library tab still loads after `defaults` navigation
+- [x] `npx eslint src/ server.js` — no new errors
+- [x] `node --check public/admin/*.js` for touched admin files
+- [x] `NODE_ENV=test npm test` — no new failures
+- [x] Manual: all nav groups; legacy hashes; mobile menu; section refresh on enter
+- [x] PR 2B: verify library tab still loads after `defaults` navigation
 
 ---
 
