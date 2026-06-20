@@ -17,13 +17,14 @@ const RolloutBodySchema = z.object({
 
 router.get('/rollout', async (req, res, next) => {
   try {
-    const raw = await appConfig.get('PACKAGES_ROLLOUT_MODE');
-    const mode = normalizeRolloutMode(raw);
+    const entry = await appConfig.getEntry('PACKAGES_ROLLOUT_MODE');
+    const mode = normalizeRolloutMode(entry?.value);
     res.json({
       rollout_mode: mode,
       ...getRolloutFlags(mode),
       preview_enabled: mode !== 'off',
       interest_cta_enabled: mode === 'interest',
+      updated_at: entry?.updated_at ?? null,
     });
   } catch (err) {
     next(err);
@@ -35,7 +36,7 @@ router.put('/rollout', validate(RolloutBodySchema), async (req, res, next) => {
     const { mode } = req.body;
     const previous = await appConfig.get('PACKAGES_ROLLOUT_MODE');
 
-    await appConfig.set('PACKAGES_ROLLOUT_MODE', mode, {
+    const row = await appConfig.set('PACKAGES_ROLLOUT_MODE', mode, {
       description: 'Paket rollout: off | interest | purchase (§9.8)',
       updatedBy: req.user.id,
     });
@@ -66,6 +67,7 @@ router.put('/rollout', validate(RolloutBodySchema), async (req, res, next) => {
     res.json({
       rollout_mode: mode,
       ...getRolloutFlags(mode),
+      updated_at: row?.updated_at ?? null,
       message: `Rollout-läge uppdaterat till ${mode}`,
     });
   } catch (err) {

@@ -4,8 +4,26 @@
 const express = require('express');
 const appSettings = require('../../../db/app-settings');
 const addons = require('../../../db/subscription-addons');
+const appConfig = require('../../../db/app-config');
+const { normalizeRolloutMode, getRolloutFlags } = require('../../lib/package-access');
 
 const router = express.Router();
+
+function buildRolloutPayload(entry) {
+  const rollout_mode = normalizeRolloutMode(
+    entry?.value ?? process.env.PACKAGES_ROLLOUT_MODE ?? 'off'
+  );
+  return {
+    rollout_mode,
+    rollout: {
+      rollout_mode,
+      ...getRolloutFlags(rollout_mode),
+      preview_enabled: rollout_mode !== 'off',
+      interest_cta_enabled: rollout_mode === 'interest',
+      updated_at: entry?.updated_at ?? null,
+    },
+  };
+}
 
 // GET /api/admin/subscription-settings
 router.get('/', async (req, res, next) => {
@@ -17,6 +35,7 @@ router.get('/', async (req, res, next) => {
       stripe_price_id,
       addonsResult,
       founder_family_limit,
+      rolloutEntry,
     ] = await Promise.all([
       appSettings.getPaymentEnabled(),
       appSettings.getBasicPrice(),
@@ -24,6 +43,10 @@ router.get('/', async (req, res, next) => {
       appSettings.getStripePriceId(),
       addons.getAllAddons(),
       appSettings.getFounderFamilyLimit(),
+      appConfig.getEntry('PACKAGES_ROLLOUT_MODE').catch((err) => {
+        console.error('[admin:subscription] rollout read error:', err.message);
+        return null;
+      }),
     ]);
     res.json({
       payment_enabled,
@@ -32,6 +55,7 @@ router.get('/', async (req, res, next) => {
       founder_family_limit,
       stripe_configured: !!stripe_price_id,
       addons: addonsResult.rows,
+      ...buildRolloutPayload(rolloutEntry),
     });
   } catch (err) { next(err); }
 });
