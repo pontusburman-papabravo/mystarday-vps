@@ -5,7 +5,7 @@
 const db = require('../src/lib/db');
 const packageInterest = require('./package-interest');
 const appConfig = require('./app-config');
-const { VALID_ROLLOUT_MODES, getRolloutFlags } = require('../src/lib/package-access');
+const { VALID_ROLLOUT_MODES, getRolloutFlags, normalizeRolloutMode } = require('../src/lib/package-access');
 
 const PERIOD_DAYS = { '7d': 7, '30d': 30, '90d': 90 };
 
@@ -17,11 +17,9 @@ async function getSubscriptionStats(period = '30d') {
   const interval = `${days} days`;
 
   const rolloutRaw = await appConfig.get('PACKAGES_ROLLOUT_MODE');
-  const rollout_mode = VALID_ROLLOUT_MODES.includes(rolloutRaw)
-    ? rolloutRaw
-    : (VALID_ROLLOUT_MODES.includes(process.env.PACKAGES_ROLLOUT_MODE)
-      ? process.env.PACKAGES_ROLLOUT_MODE
-      : 'off');
+  const rollout_mode = normalizeRolloutMode(
+    rolloutRaw ?? process.env.PACKAGES_ROLLOUT_MODE ?? 'off'
+  );
 
   const [
     interestByComponent,

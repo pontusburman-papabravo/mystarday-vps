@@ -18,13 +18,31 @@ const {
 const VALID_ROLLOUT_MODES = ['off', 'interest', 'purchase'];
 
 /**
+ * Normalize rollout mode from DB/env (trim, JSON quotes, invalid → off).
+ * @param {unknown} raw
+ * @returns {'off'|'interest'|'purchase'}
+ */
+function normalizeRolloutMode(raw) {
+  if (raw == null || raw === '') return 'off';
+  let value = String(raw).trim();
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    try {
+      value = String(JSON.parse(value)).trim();
+    } catch {
+      // keep trimmed literal
+    }
+  }
+  return VALID_ROLLOUT_MODES.includes(value) ? value : 'off';
+}
+
+/**
  * Rollout mode: app_config → env fallback → 'off'.
  * @returns {Promise<'off'|'interest'|'purchase'>}
  */
 async function getRolloutMode() {
   const fromDb = await appConfig.get('PACKAGES_ROLLOUT_MODE');
   const raw = fromDb ?? process.env.PACKAGES_ROLLOUT_MODE ?? 'off';
-  return VALID_ROLLOUT_MODES.includes(raw) ? raw : 'off';
+  return normalizeRolloutMode(raw);
 }
 
 /**
@@ -189,6 +207,7 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
 
 module.exports = {
   VALID_ROLLOUT_MODES,
+  normalizeRolloutMode,
   getRolloutMode,
   getRolloutFlags,
   resolveViewMode,

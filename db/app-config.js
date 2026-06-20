@@ -5,9 +5,23 @@
 
 const { query } = require('../src/lib/db');
 
+function normalizeStoredValue(value) {
+  if (value == null) return null;
+  const trimmed = String(value).trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed;
+}
+
 async function get(key) {
   const { rows } = await query('SELECT value FROM app_config WHERE key = $1', [key]);
-  return rows[0]?.value ?? null;
+  return normalizeStoredValue(rows[0]?.value ?? null);
 }
 
 async function set(key, value, { description, updatedBy } = {}) {
