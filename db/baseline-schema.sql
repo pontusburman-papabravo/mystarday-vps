@@ -680,6 +680,11 @@ CREATE TABLE IF NOT EXISTS waitlist (
   email VARCHAR(255) NOT NULL UNIQUE,
   utm_source VARCHAR(255),
   ip_address VARCHAR(64),
+  pain_points TEXT[],
+  pain_points_other TEXT,
+  current_method VARCHAR(64),
+  survey_completed_at TIMESTAMPTZ,
+  survey_skipped_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -696,6 +701,21 @@ CREATE TABLE IF NOT EXISTS package_interest (
 
 CREATE INDEX IF NOT EXISTS idx_package_interest_component ON package_interest (component);
 CREATE INDEX IF NOT EXISTS idx_package_interest_created ON package_interest (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS professional_interest (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(100) NOT NULL,
+  organization VARCHAR(255),
+  message TEXT,
+  gdpr_consent BOOLEAN NOT NULL DEFAULT false,
+  ip_address VARCHAR(64),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_professional_interest_created
+  ON professional_interest (created_at DESC);
 
 CREATE TABLE IF NOT EXISTS contact_message (
   id SERIAL PRIMARY KEY,

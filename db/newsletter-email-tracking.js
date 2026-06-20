@@ -24,29 +24,31 @@ async function recordSend({
 }
 
 async function markDelivered(resendEmailId, occurredAt) {
-  if (!resendEmailId) return;
-  await db.query(
+  if (!resendEmailId) return 0;
+  const result = await db.query(
     `UPDATE newsletter_email_send
      SET delivered_at = COALESCE(delivered_at, $2)
      WHERE resend_email_id = $1`,
     [resendEmailId, occurredAt || new Date()]
   );
+  return result.rowCount || 0;
 }
 
 async function markOpened(resendEmailId, occurredAt) {
-  if (!resendEmailId) return;
-  await db.query(
+  if (!resendEmailId) return 0;
+  const result = await db.query(
     `UPDATE newsletter_email_send
      SET first_opened_at = COALESCE(first_opened_at, $2),
          open_count = open_count + 1
      WHERE resend_email_id = $1`,
     [resendEmailId, occurredAt || new Date()]
   );
+  return result.rowCount || 0;
 }
 
 async function markClicked(resendEmailId, occurredAt, linkUrl) {
-  if (!resendEmailId) return;
-  await db.query(
+  if (!resendEmailId) return 0;
+  const result = await db.query(
     `UPDATE newsletter_email_send
      SET first_clicked_at = COALESCE(first_clicked_at, $2),
          click_count = click_count + 1,
@@ -54,6 +56,7 @@ async function markClicked(resendEmailId, occurredAt, linkUrl) {
      WHERE resend_email_id = $1`,
     [resendEmailId, occurredAt || new Date(), linkUrl || null]
   );
+  return result.rowCount || 0;
 }
 
 async function getCampaignStats(campaignType, campaignId) {
@@ -71,11 +74,12 @@ async function getCampaignStats(campaignType, campaignId) {
   );
   const row = result.rows[0] || {};
   const sent = row.sent || 0;
+  const delivered = row.delivered || 0;
   const opened = row.opened_unique || 0;
   const clicked = row.clicked_unique || 0;
-  return {
+  const stats = {
     sent,
-    delivered: row.delivered || 0,
+    delivered,
     opened_unique: opened,
     opened_total: row.opened_total || 0,
     clicked_unique: clicked,
@@ -83,6 +87,42 @@ async function getCampaignStats(campaignType, campaignId) {
     open_rate: sent > 0 ? Math.round((opened / sent) * 1000) / 10 : 0,
     click_rate: sent > 0 ? Math.round((clicked / sent) * 1000) / 10 : 0,
   };
+  return attachTrackingDiagnostics(stats);
+}
+
+/**
+ * Diagnostics for admin UI — explains why open/click stats may be zero.
+ */
+async function getTrackingDiagnostics() {
+  const webhookConfigured = Boolean(process.env.RESEND_WEBHOOK_SECRET);
+  const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
+  let recentSends = 0;
+  let recentDelivered = 0;
+  try {
+    const recent = await db.query(
+      `SELECT
+         COUNT(*)::int AS sent,
+         COUNT(*) FILTER (WHERE delivered_at IS NOT NULL)::int AS delivered
+       FROM newsletter_email_send
+       WHERE sent_at > NOW() - INTERVAL '30 days'`
+    );
+    recentSends = recent.rows[0]?.sent || 0;
+    recentDelivered = recent.rows[0]?.delivered || 0;
+  } catch {
+    // Table may not exist on very old DBs — degrade gracefully.
+  }
+  return {
+    webhook_configured: webhookConfigured,
+    webhook_url: baseUrl ? `${baseUrl}/api/resend/webhook` : null,
+    recent_sends_30d: recentSends,
+    recent_delivered_30d: recentDelivered,
+    webhook_receiving_events: recentSends > 0 && recentDelivered > 0,
+  };
+}
+
+async function attachTrackingDiagnostics(stats) {
+  const tracking = await getTrackingDiagnostics();
+  return { ...stats, tracking };
 }
 
 async function getCampaignRecipients(campaignType, campaignId) {
@@ -115,4 +155,6 @@ module.exports = {
   markClicked,
   getCampaignStats,
   getCampaignRecipients,
+  getTrackingDiagnostics,
+  attachTrackingDiagnostics,
 };

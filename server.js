@@ -184,6 +184,7 @@ app.use('/api', (req, res, next) => {
     p.startsWith('/resend/') ||
     p === '/health' ||
     p.startsWith('/landing') ||
+    p.startsWith('/public/') ||
     p === '/i18n' ||
     p === '/i18n/'
   ) return next();

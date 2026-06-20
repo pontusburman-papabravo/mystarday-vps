@@ -55,11 +55,14 @@ const API_BOOTSTRAP_PREFIXES = [
   '/family/parent-pin-status-picker',
   '/family/verify-pin-picker',
   '/family/restore-parent-session',
+  '/family/invite/',
   // Paket v1.2 — called on every parent page load; must not compete with IP budget
   '/subscription/access',
   '/subscription/preview-data',
   '/features',
   '/app-config',
+  '/public/professional-interest',
+  '/waitlist',
 ];
 
 function isApiBootstrapPath(req) {
@@ -115,6 +118,7 @@ const globalLimiter = rateLimit({
     req.path.startsWith('/api/events') ||
     req.path.startsWith('/api/admin') ||
     req.path === '/api/auth/refresh' ||
+    req.path === '/api/resend/webhook' ||
     (req.user && req.user.id) ||
     STATIC_EXT_RE.test(req.path),
   handler: (req, res, next, options) => {
