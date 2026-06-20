@@ -45,6 +45,11 @@ router.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'register.html'));
 });
 
+// Founder program info (linked from /upgrade, login, landing)
+router.get('/pricing-info', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'pricing-info.html'));
+});
+
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));
 
