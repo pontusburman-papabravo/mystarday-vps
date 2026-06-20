@@ -25,7 +25,9 @@
 
     if (path === '/invite' || path.indexOf('/invite/') === 0) {
       var inviteToken = path.split('/')[2] || new URLSearchParams(qs).get('token');
-      return inviteToken ? '/register?invite=' + encodeURIComponent(inviteToken) : '/register' + qs;
+      return inviteToken
+        ? '/accept-invite?token=' + encodeURIComponent(inviteToken)
+        : '/accept-invite' + qs;
     }
     if (path === '/accept-invite' || path.indexOf('/accept-invite/') === 0) {
       return '/accept-invite' + qs;

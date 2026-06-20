@@ -108,9 +108,8 @@ childRouter.post('/collectibles/buy', validate(BuyCollectibleSchema), async (req
 // ─── Parent router ────────────────────────────────────────
 
 const parentRouter = express.Router();
-parentRouter.use(requireParent);
 
-parentRouter.get('/museum', async (req, res, next) => {
+parentRouter.get('/museum', requireParent, async (req, res, next) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
     if (!familyId) return res.status(400).json({ error: 'Ingen familj' });
@@ -121,7 +120,7 @@ parentRouter.get('/museum', async (req, res, next) => {
   }
 });
 
-parentRouter.get('/museum/:childId/year-story', async (req, res, next) => {
+parentRouter.get('/museum/:childId/year-story', requireParent, async (req, res, next) => {
   try {
     const year = parseInt(req.query.year, 10) || new Date().getFullYear();
     const story = await universeDb.getYearStory(req.params.childId, year);
