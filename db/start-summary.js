@@ -93,11 +93,11 @@ async function fetchRecommendations() {
     });
   }
   const { rows: leadRows } = await db.query(`
-    SELECT COUNT(*)::int AS c FROM (
-      SELECT id FROM package_interest WHERE lead_status = 'ny'
-      UNION ALL SELECT id FROM professional_interest WHERE lead_status = 'ny'
-      UNION ALL SELECT id FROM waitlist WHERE lead_status = 'ny'
-    ) x
+    SELECT (
+      (SELECT COUNT(*)::int FROM package_interest WHERE lead_status = 'ny') +
+      (SELECT COUNT(*)::int FROM professional_interest WHERE lead_status = 'ny') +
+      (SELECT COUNT(*)::int FROM waitlist WHERE lead_status = 'ny')
+    ) AS c
   `);
   const newLeads = leadRows[0]?.c || 0;
   if (newLeads > 0) {
