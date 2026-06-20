@@ -5,6 +5,26 @@
 
 const { query } = require('../src/lib/db');
 
+let ensureTablePromise = null;
+
+function ensureTable() {
+  if (!ensureTablePromise) {
+    ensureTablePromise = query(`
+      CREATE TABLE IF NOT EXISTS app_config (
+        key VARCHAR(255) PRIMARY KEY,
+        value TEXT,
+        description TEXT,
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_by UUID REFERENCES parent(id) ON DELETE SET NULL
+      )
+    `).catch((err) => {
+      ensureTablePromise = null;
+      throw err;
+    });
+  }
+  return ensureTablePromise;
+}
+
 function normalizeStoredValue(value) {
   if (value == null) return null;
   const trimmed = String(value).trim();
@@ -20,11 +40,24 @@ function normalizeStoredValue(value) {
 }
 
 async function get(key) {
+  await ensureTable();
   const { rows } = await query('SELECT value FROM app_config WHERE key = $1', [key]);
   return normalizeStoredValue(rows[0]?.value ?? null);
 }
 
+async function getEntry(key) {
+  await ensureTable();
+  const { rows } = await query(
+    'SELECT key, value, description, updated_at, updated_by FROM app_config WHERE key = $1',
+    [key]
+  );
+  const row = rows[0];
+  if (!row) return null;
+  return { ...row, value: normalizeStoredValue(row.value) };
+}
+
 async function set(key, value, { description, updatedBy } = {}) {
+  await ensureTable();
   const { rows } = await query(
     `INSERT INTO app_config (key, value, description, updated_by, updated_at)
      VALUES ($1, $2, $3, $4, NOW())
@@ -40,10 +73,11 @@ async function set(key, value, { description, updatedBy } = {}) {
 }
 
 async function getAll() {
+  await ensureTable();
   const { rows } = await query(
     'SELECT key, value, description, updated_at FROM app_config ORDER BY key ASC'
   );
-  return rows;
+  return rows.map((row) => ({ ...row, value: normalizeStoredValue(row.value) }));
 }
 
-module.exports = { get, set, getAll };
+module.exports = { get, getEntry, set, getAll, ensureTable };

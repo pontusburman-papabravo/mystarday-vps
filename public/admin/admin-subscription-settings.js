@@ -24,38 +24,30 @@ async function loadSubscriptionSettings() {
     if (seq !== loadSubscriptionSettingsSeq) return;
 
     subscriptionData = sub;
-    renderSubscriptionSettings();
-
-    let rollout;
-    try {
-      rollout = await Auth.api('/api/admin/package-rollout/rollout');
-    } catch (err) {
-      console.error('[Admin:subscription] Rollout load failed:', err);
-      rollout = {
-        rollout_mode: packageRolloutMode,
-        load_error: err.message || String(err),
-      };
-    }
-    if (seq !== loadSubscriptionSettingsSeq) return;
-
+    const rollout = sub.rollout || { rollout_mode: sub.rollout_mode || 'off' };
     packageRolloutMode = rollout.rollout_mode || 'off';
+    renderSubscriptionSettings();
     renderRolloutUI(rollout);
 
     const rolloutMsg = document.getElementById('rolloutMsg');
     if (rolloutMsg) {
-      if (rollout.load_error) {
-        rolloutMsg.textContent = 'Kunde inte ladda rollout-läge: ' + rollout.load_error;
-        rolloutMsg.className = 'text-sm text-red-500';
-      } else {
-        rolloutMsg.textContent = '';
-        rolloutMsg.className = 'text-sm min-h-[1.4em]';
-      }
+      rolloutMsg.textContent = rollout.updated_at
+        ? `Sparat i databasen: ${packageRolloutMode} (${new Date(rollout.updated_at).toLocaleString('sv-SE')})`
+        : (packageRolloutMode === 'off' ? 'Läge: Av (standard)' : '');
+      rolloutMsg.className = packageRolloutMode === 'off' && !rollout.updated_at
+        ? 'text-sm text-text-soft'
+        : 'text-sm text-text-soft min-h-[1.4em]';
     }
 
     await Promise.all([loadPackageStats(), loadPackageInterest()]);
   } catch (err) {
     if (seq !== loadSubscriptionSettingsSeq) return;
     console.error('[Admin:subscription] Load failed:', err);
+    const rolloutMsg = document.getElementById('rolloutMsg');
+    if (rolloutMsg) {
+      rolloutMsg.textContent = 'Kunde inte ladda prenumerationsinställningar: ' + (err.message || err);
+      rolloutMsg.className = 'text-sm text-red-500';
+    }
   }
 }
 
@@ -63,16 +55,20 @@ function renderRolloutUI(rollout) {
   const mode = rollout.rollout_mode || 'off';
   document.querySelectorAll('.rollout-mode-btn').forEach((btn) => {
     const active = btn.dataset.rollout === mode;
-    btn.classList.toggle('bg-gold', active);
-    btn.classList.toggle('border-gold', active);
-    btn.classList.toggle('text-navy', active);
+    btn.classList.remove('bg-gold', 'border-gold', 'text-navy');
+    btn.classList.add('border-lavender');
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    if (active) {
+      btn.classList.add('bg-gold', 'border-gold', 'text-navy');
+      btn.classList.remove('border-lavender');
+    }
   });
   const derived = document.getElementById('rolloutDerived');
   if (derived) {
     derived.innerHTML = `
+      <span>Aktivt läge: <strong>${mode === 'interest' ? 'Intressefas' : mode === 'purchase' ? 'Köp live' : 'Av'}</strong></span>
       <span>Preview: <strong>${mode !== 'off' ? 'PÅ' : 'AV'}</strong></span>
       <span>Intresse-CTA: <strong>${mode === 'interest' ? 'PÅ' : 'AV'}</strong></span>
-      <span>IAP-köp: <strong>${mode === 'purchase' ? 'PÅ' : 'AV'}</strong></span>
       <span>Priser i UI: <strong>${rollout.show_prices ? 'PÅ' : 'AV'}</strong></span>
     `;
   }
@@ -81,6 +77,14 @@ function renderRolloutUI(rollout) {
 async function saveRolloutMode(mode) {
   if (mode === 'purchase') {
     alert('Köp-live (IAP) är inte aktiverat ännu. Använd Intressefas för att mäta efterfrågan.');
+    return;
+  }
+  if (mode === packageRolloutMode) {
+    const msg = document.getElementById('rolloutMsg');
+    if (msg) {
+      msg.textContent = 'Redan aktivt: ' + (mode === 'interest' ? 'Intressefas' : 'Av');
+      msg.className = 'text-sm text-text-soft';
+    }
     return;
   }
   if (mode !== 'off' && !confirm('Detta påverkar alla familjer utan köpt komponent. Fortsätta?')) return;
@@ -94,6 +98,9 @@ async function saveRolloutMode(mode) {
     renderRolloutUI(data);
     msg.textContent = '✓ ' + (data.message || 'Sparat');
     msg.className = 'text-sm text-green-600';
+    if (data.updated_at) {
+      msg.textContent += ' (' + new Date(data.updated_at).toLocaleString('sv-SE') + ')';
+    }
   } catch (err) {
     msg.textContent = 'Fel: ' + (err.message || err);
     msg.className = 'text-sm text-red-500';
