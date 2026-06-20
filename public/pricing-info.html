@@ -3,70 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Grundarprogrammet</title>
+  <title>Program och paket — My Starday</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
+  <link rel="stylesheet" href="/css/program-catalog.css?v=1.0.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <style>
-    body { background: linear-gradient(160deg, #1B2340 0%, #2A3458 45%, #1B2340 100%); min-height: 100vh; }
-  </style>
 </head>
-<body class="font-body text-white px-4 py-8 pb-16">
-  <div class="max-w-lg mx-auto">
-    <a href="/login" class="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm mb-6 no-underline">
+<body class="font-body text-navy program-catalog-page px-4 py-8 pb-16">
+  <div class="max-w-3xl mx-auto">
+    <a href="/login" id="backLink" class="inline-flex items-center gap-2 text-text-soft hover:text-navy text-sm mb-6 no-underline">
       ← Tillbaka
     </a>
 
-    <div class="text-center mb-8">
+    <header class="text-center mb-10">
       <div class="w-16 h-16 bg-gold rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">⭐</div>
-      <h1 class="font-heading font-bold text-2xl md:text-3xl leading-tight mb-3">
-        De första <span id="founderLimitLabel">200</span> familjerna får livstids tillgång
-      </h1>
-      <p class="text-white/75 text-base leading-relaxed">
-        Vi bygger appen tillsammans med våra första familjer.
-        Som tack får de första <span id="founderLimitLabel2">200</span> familjerna full tillgång utan kostnad – för alltid.
-      </p>
-    </div>
+      <h1 id="pageTitle" class="font-heading font-bold text-2xl md:text-3xl leading-tight mb-3">Program och paket</h1>
+      <p id="pageIntro" class="text-text-soft text-base leading-relaxed max-w-2xl mx-auto">Laddar…</p>
+    </header>
 
-    <div class="bg-white/10 border border-white/20 rounded-2xl p-6 mb-6 backdrop-blur-sm">
-      <p id="counterMain" class="text-center font-heading font-bold text-xl mb-2">Laddar…</p>
-      <div class="h-3 bg-white/15 rounded-full overflow-hidden mb-2">
-        <div id="counterBar" class="h-full bg-gold rounded-full transition-all duration-1000" style="width:0%"></div>
+    <p id="founderNote" class="program-founder-note mb-8"></p>
+
+    <div id="programCards" class="grid gap-5 mb-10"></div>
+
+    <section class="program-matrix-section mb-10" aria-labelledby="matrixTitle">
+      <h2 id="matrixTitle" class="font-heading font-bold text-xl mb-4 text-center">Vad ingår var?</h2>
+      <div class="program-matrix-scroll">
+        <table id="comparisonMatrix" class="program-matrix w-full text-sm">
+          <thead>
+            <tr id="matrixHeadRow"></tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
       </div>
-      <p id="counterSub" class="text-center text-white/65 text-sm"></p>
+    </section>
+
+    <p id="addonNote" class="text-text-soft text-sm text-center leading-relaxed mb-8"></p>
+
+    <div class="text-center">
+      <a href="/register" id="ctaRegister" class="inline-block w-full max-w-md py-4 px-6 bg-gold hover:bg-yellow-500 text-navy font-bold text-lg rounded-xl shadow-lg no-underline mb-3">
+        Skapa konto gratis
+      </a>
+      <a href="/login" class="block text-text-soft hover:text-navy text-sm no-underline">
+        Har du redan konto? Logga in
+      </a>
     </div>
-
-    <div id="founderOpenBlock" class="bg-gradient-to-br from-amber-400/20 to-yellow-500/10 border-2 border-gold/40 rounded-2xl p-5 mb-6">
-      <p class="font-heading font-bold text-lg mb-2">🎉 Bli grundarmedlem</p>
-      <p class="text-white/80 text-sm leading-relaxed">
-        Registrera dig nu och få märket <strong>Grundarmedlem</strong> – livstids tillgång utan kostnad.
-        Obegränsat antal barn, alla funktioner ingår.
-      </p>
-    </div>
-
-    <div id="founderClosedBlock" class="hidden bg-white/10 border border-white/20 rounded-2xl p-5 mb-6">
-      <p class="font-heading font-bold text-lg mb-2">Grundarplatserna är fulla</p>
-      <p class="text-white/80 text-sm leading-relaxed">
-        Alla platser i grundarprogrammet är tagna. Kontakta oss om du vill ställa dig på väntelista.
-      </p>
-    </div>
-
-    <p class="text-white/60 text-sm text-center leading-relaxed mb-8">
-      Appen är kostnadsfri under grundarprogrammet. Ingen betalning krävs.
-    </p>
-
-    <a href="/register" id="ctaRegister" class="block w-full text-center py-4 px-6 bg-gold hover:bg-yellow-500 text-navy font-bold text-lg rounded-xl shadow-lg no-underline mb-3">
-      Skapa konto gratis
-    </a>
-    <a href="/login" class="block w-full text-center py-3 text-white/80 hover:text-white text-sm no-underline">
-      Har du redan konto? Logga in
-    </a>
   </div>
 
   <script src="/js/platform.js"></script>
-  <script src="/js/pricing-info.js"></script>
+  <script src="/js/pricing-info.js?v=2.0.0"></script>
 </body>
 </html>

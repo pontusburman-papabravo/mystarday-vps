@@ -227,6 +227,42 @@
   font-weight: 600;
 }
 
+.preview-shell--compact .preview-mock {
+  margin-bottom: 0;
+  padding: 0.85rem;
+}
+
+.preview-shell--compact .preview-stats {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.preview-shell--compact .preview-stat {
+  padding: 0.5rem;
+}
+
+.preview-shell--compact .preview-stat-value {
+  font-size: 1rem;
+}
+
+.preview-shell--compact .preview-highlights {
+  font-size: 0.82rem;
+}
+
+.preview-shell--compact .preview-quote {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.preview-shell--compact .preview-chips {
+  margin-bottom: 0.5rem;
+}
+
+.preview-shell--compact .preview-question {
+  padding: 0.45rem 0.6rem;
+}
+
 @media (min-width: 768px) {
   .preview-cta-area {
     position: static;
