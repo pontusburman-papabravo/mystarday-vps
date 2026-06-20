@@ -37,12 +37,27 @@ router.get('/', async (req, res, next) => {
       founder_family_limit,
       rolloutEntry,
     ] = await Promise.all([
-      appSettings.getPaymentEnabled(),
-      appSettings.getBasicPrice(),
-      appSettings.getBasicTrialDays(),
-      appSettings.getStripePriceId(),
-      addons.getAllAddons(),
-      appSettings.getFounderFamilyLimit(),
+      appSettings.getPaymentEnabled().catch((err) => {
+        console.error('[admin:subscription] payment_enabled read error:', err.message);
+        return false;
+      }),
+      appSettings.getBasicPrice().catch((err) => {
+        console.error('[admin:subscription] basic_price read error:', err.message);
+        return 59;
+      }),
+      appSettings.getBasicTrialDays().catch((err) => {
+        console.error('[admin:subscription] trial_days read error:', err.message);
+        return 14;
+      }),
+      appSettings.getStripePriceId().catch(() => null),
+      addons.getAllAddons().catch((err) => {
+        console.error('[admin:subscription] addons read error:', err.message);
+        return { rows: [] };
+      }),
+      appSettings.getFounderFamilyLimit().catch((err) => {
+        console.error('[admin:subscription] founder_limit read error:', err.message);
+        return 200;
+      }),
       appConfig.getEntry('PACKAGES_ROLLOUT_MODE').catch((err) => {
         console.error('[admin:subscription] rollout read error:', err.message);
         return null;
