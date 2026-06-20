@@ -1,25 +1,94 @@
-# A. Admin navigation spec (implementation source of truth)
+# A. Admin navigation spec v2
 
-This is the canonical spec for the new admin information architecture (IA), routing,
-breadcrumbs, refresh policy and special routes. The runtime implementation lives in
-`public/admin/admin-nav.js` (config + render) and `public/admin/admin-core.js`
-(`resolveRoute` / `navigateToRoute`).
+Single source of truth for IA, canonical routes, legacy aliases, section mapping,
+breadcrumbs, subviews, refresh policy and route capability. Runtime target:
+`public/admin/admin-nav.js` + `public/admin/admin-core.js`.
 
-## 0. Core principles (locked)
+---
 
-1. **Canonical routes are the product.** IA is designed around them.
-2. **`targetSection` is implementation.** It may keep the legacy DOM id/section key in Fas 1.
-3. **Aliases always resolve to a canonical route first.** All downstream logic works on the
-   canonical route object, never on the raw alias.
-4. **Breadcrumb, active nav, page title and refresh derive from one route object.** Not from
-   four different places in the code.
-5. **Subview / tab / scroll is declarative in config.** No special cases hidden in
-   `if (hash === '#valkomstmail')`.
-6. **Hash-writing policy:** legacy aliases are preserved in the URL (we do NOT rewrite the
-   URL to canonical), but every internal consumer reads the resolved canonical route. This
-   keeps old bookmarks/links intact and avoids surprising the user with URL changes.
+## 0. Guardrails (read first)
 
-## 1. Groups (6) and items
+1. **Start is operational overview, not source of truth** — Fas 2 uses proxy/synthetic data.
+2. **Inbox requires a data model** — real “obesvarat” needs `status`/`answered_at` (Fas 3A).
+3. **Pipeline requires lead status** — shared pipeline UI waits for lead fields (Fas 3C).
+4. **Canonical route is the product URL; legacy hash is compatibility** — menu uses canonical;
+   legacy bookmarks resolve internally; navigation via menu **writes canonical hash** to the URL.
+
+---
+
+## 1. Core principles (locked)
+
+| # | Principle |
+|---|-----------|
+| 1 | **Canonical routes are the product.** IA is designed around them. |
+| 2 | **`targetSection` is implementation.** Legacy DOM keys stay in Fas 1–2. |
+| 3 | **Aliases resolve to canonical first.** All logic uses the canonical route object. |
+| 4 | **Title, breadcrumb, active nav, refresh derive from one route object.** |
+| 5 | **Subview / tab / scroll is declarative in config.** No scattered `if (hash === …)`. |
+| 6 | **A route is a navigation surface**, not necessarily its own DOM section. |
+| 7 | **Routes declare `capability`** so the spec does not promise more than the system can do. |
+
+### Canonical URL policy (Fas 1–2)
+
+| Situation | Behaviour |
+|-----------|-----------|
+| User opens legacy bookmark `#overview` | Resolve to `#start` internally; title/breadcrumb/active nav use `#start` |
+| User clicks menu item | `history` / `location.hash` set to **canonical** route (e.g. `#familjer`) |
+| Incoming legacy hash | Resolve to canonical; optional `replaceState` to canonical (recommended on first load) |
+| Render target | May remain `overviewSection`, `familiesSection`, etc. |
+
+---
+
+## 2. Route capability model
+
+```ts
+type RouteCapability =
+  | 'stable'              // full support in current admin
+  | 'ui-only'             // new IA/label, same underlying view
+  | 'proxy-data'          // composed/heuristic data (Start)
+  | 'requires-migration'; // must not ship full UX before DB/API exists
+
+type AdminRouteConfig = {
+  id: string;
+  canonicalRoute: string;       // e.g. '#start'
+  aliases?: string[];
+  targetSection: string;        // showSection key / DOM suffix
+  subview?: string;             // tab id, e.g. 'valkomstmail'
+  scrollTargetId?: string;      // e.g. '#paketintresse-anchor'
+
+  group: 'home' | 'growth' | 'communication' | 'insights' | 'content' | 'settings';
+  label: string;
+  parentId?: string;
+  breadcrumb: string[];
+
+  refreshOnEnter?: boolean;
+  refreshHandler?: string;      // registry key
+
+  capability: RouteCapability;
+  notes?: string[];
+};
+```
+
+### `RouteResolution` (output of `resolveRoute`)
+
+```ts
+type RouteResolution = {
+  canonicalRoute: string;
+  requestHash: string;          // raw incoming hash (for debugging)
+  targetSection: string;
+  subview?: string;
+  scrollTargetId?: string;
+  navId: string;
+  pageTitle: string;
+  breadcrumb: string[];
+  refreshKey: string;
+  capability: RouteCapability;
+};
+```
+
+---
+
+## 3. Groups (6) and menu structure
 
 ```
 HEM            Start · Familjer · Meddelanden
@@ -27,113 +96,154 @@ TILLVÄXT       Paketintresse · Pedagogintresse · Waitlist (EN) · Landningssi
 KOMMUNIKATION  Nyhetsbrev · E-postmallar · E-postlogg · Kampanjer (→ Dagens nyhet)
 INSIKTER       Produktanalys (→ Användning, Användarinsikter) · Retention · Experiment (→ Föräldraaktivering, För dig)
 INNEHÅLL       Bibliotek
-INSTÄLLNINGAR  Prenumeration & IAP · Funktioner · Konto
+INSTÄLLNINGAR  Prenumeration & IAP · Funktioner (extern) · Konto
 ```
 
-Rules: max 2 nav levels, no emojis in the menu, Swedish labels (except `Waitlist (EN)`),
+Rules: max 2 nav levels · no emojis in menu · Swedish labels (except `Waitlist (EN)`) ·
 menu label == page title == last breadcrumb segment.
 
-## 2. Table 1 — Route registry (canonical → implementation)
+Default after login: **`#start`**.
 
-| canonical | label | group | targetSection (DOM key) | subview | aliases | breadcrumb | refreshKey |
-|-----------|-------|-------|--------------------------|---------|---------|------------|------------|
-| `#start` | Start | home | `overview` | – | `#overview` | Hem → Start | `overview` |
-| `#familjer` | Familjer | home | `families` | – | `#families` | Hem → Familjer | `families` |
-| `#meddelanden` | Meddelanden | home | `messages` | – | `#messages` | Hem → Meddelanden | `messages` |
-| `#paketintresse` | Paketintresse | growth | `prenumeration` | `paketintresse` | – | Tillväxt → Paketintresse | `prenumeration` |
-| `#pedagogintresse` | Pedagogintresse | growth | `intresseanmalningar` | – | `#intresseanmalningar` | Tillväxt → Pedagogintresse | `intresseanmalningar` |
-| `#waitlist` | Waitlist (EN) | growth | `waitlist` | – | – | Tillväxt → Waitlist (EN) | `waitlist` |
-| `#landningssidor` | Landningssidor | growth | `landning` | – | `#landning` | Tillväxt → Landningssidor | `landning` |
-| `#bildbank` | Bildbank | growth | `bildbank` | – | – | Tillväxt → Landningssidor → Bildbank | `bildbank` |
-| `#undersokningar` | Undersökningar | growth | `undersokningar` | – | – | Tillväxt → Undersökningar | `undersokningar` |
-| `#nyhetsbrev` | Nyhetsbrev | communication | `nyhetsbrev` | – | – | Kommunikation → Nyhetsbrev | `nyhetsbrev` |
-| `#epostmallar` | E-postmallar | communication | `emailmallar` | – | `#emailmallar` | Kommunikation → E-postmallar | `emailmallar` |
-| `#valkomstmail` | Välkomstmail | communication | `emailmallar` | `valkomstmail` | – | Kommunikation → E-postmallar → Välkomstmail | `emailmallar` |
-| `#epostlogg` | E-postlogg | communication | `emaillog` | – | `#emaillog` | Kommunikation → E-postlogg | `emaillog` |
-| `#dagens-nyhet` | Dagens nyhet | communication | `dagensnyhet` | – | `#dagensnyhet` | Kommunikation → Kampanjer → Dagens nyhet | `dagensnyhet` |
-| `#produktanalys` | Produktanalys | insights | `analytics` | – | `#analytics` | Insikter → Produktanalys | `analytics` |
-| `#anvandning` | Användning | insights | `anvandning` | – | – | Insikter → Produktanalys → Användning | `anvandning` |
-| `#anvandarinsikter` | Användarinsikter | insights | `anvandarstatistik` | – | `#anvandarstatistik` | Insikter → Produktanalys → Användarinsikter | `anvandarstatistik` |
-| `#retention` | Retention | insights | `retention` | – | – | Insikter → Retention | `retention` |
-| `#foraldaraktivering` | Föräldraaktivering | insights | `foraldaraktivering` | – | – | Insikter → Experiment → Föräldraaktivering | `foraldaraktivering` |
-| `#fordig` | För dig | insights | `fordig` | – | – | Insikter → Experiment → För dig | `fordig` |
-| `#bibliotek` | Bibliotek | content | `defaults` | – | `#defaults` | Innehåll → Bibliotek | `defaults` |
-| `#prenumeration` | Prenumeration & IAP | settings | `prenumeration` | – | – | Inställningar → Prenumeration & IAP | `prenumeration` |
-| `#funktioner` | Funktioner | settings | (external `/admin/development`) | – | – | – | – |
-| `#konto` | Konto | settings | `password` | – | `#password` | Inställningar → Konto | `password` |
+---
 
-Default route after login: **`#start`** (legacy `#overview` resolves to it).
+## 4. Table 1 — Route registry
 
-## 3. Table 2 — Section registry (actual DOM + loaders today)
+| canonical | label | capability | targetSection | subview | aliases | breadcrumb | refreshKey |
+|-----------|-------|------------|---------------|---------|---------|------------|------------|
+| `#start` | Start | `proxy-data` | `overview` | – | `#overview` | Hem → Start | `overview` |
+| `#familjer` | Familjer | `stable` | `families` | – | `#families` | Hem → Familjer | `families` |
+| `#meddelanden` | Meddelanden | `stable` | `messages` | – | `#messages` | Hem → Meddelanden | `messages` |
+| `#paketintresse` | Paketintresse | `ui-only` | `prenumeration` | `paketintresse` | – | Tillväxt → Paketintresse | `prenumeration` |
+| `#pedagogintresse` | Pedagogintresse | `stable` | `intresseanmalningar` | – | `#intresseanmalningar` | Tillväxt → Pedagogintresse | `intresseanmalningar` |
+| `#waitlist` | Waitlist (EN) | `stable` | `waitlist` | – | – | Tillväxt → Waitlist (EN) | `waitlist` |
+| `#landningssidor` | Landningssidor | `stable` | `landning` | – | `#landning` | Tillväxt → Landningssidor | `landning` |
+| `#bildbank` | Bildbank | `ui-only` | `bildbank` | – | – | Tillväxt → Landningssidor → Bildbank | `bildbank` |
+| `#undersokningar` | Undersökningar | `stable` | `undersokningar` | – | – | Tillväxt → Undersökningar | `undersokningar` |
+| `#nyhetsbrev` | Nyhetsbrev | `stable` | `nyhetsbrev` | – | – | Kommunikation → Nyhetsbrev | `nyhetsbrev` |
+| `#epostmallar` | E-postmallar | `stable` | `emailmallar` | – | `#emailmallar` | Kommunikation → E-postmallar | `emailmallar` |
+| `#valkomstmail` | Välkomstmail | `ui-only` | `emailmallar` | `valkomstmail` | – | Kommunikation → E-postmallar → Välkomstmail | `emailmallar` |
+| `#epostlogg` | E-postlogg | `stable` | `emaillog` | – | `#emaillog` | Kommunikation → E-postlogg | `emaillog` |
+| `#dagens-nyhet` | Dagens nyhet | `stable` | `dagensnyhet` | – | `#dagensnyhet` | Kommunikation → Kampanjer → Dagens nyhet | `dagensnyhet` |
+| `#produktanalys` | Produktanalys | `ui-only` | `analytics` | – | `#analytics` | Insikter → Produktanalys | `analytics` |
+| `#anvandning` | Användning | `ui-only` | `anvandning` | – | – | Insikter → Produktanalys → Användning | `anvandning` |
+| `#anvandarinsikter` | Användarinsikter | `ui-only` | `anvandarstatistik` | – | `#anvandarstatistik` | Insikter → Produktanalys → Användarinsikter | `anvandarstatistik` |
+| `#retention` | Retention | `stable` | `retention` | – | – | Insikter → Retention | `retention` |
+| `#foraldaraktivering` | Föräldraaktivering | `stable` | `foraldaraktivering` | – | – | Insikter → Experiment → Föräldraaktivering | `foraldaraktivering` |
+| `#fordig` | För dig | `stable` | `fordig` | – | – | Insikter → Experiment → För dig | `fordig` |
+| `#bibliotek` | Bibliotek | `stable` | `defaults` | – | `#defaults` | Innehåll → Bibliotek | `defaults` |
+| `#prenumeration` | Prenumeration & IAP | `stable` | `prenumeration` | – | – | Inställningar → Prenumeration & IAP | `prenumeration` |
+| `#konto` | Konto | `stable` | `password` | – | `#password` | Inställningar → Konto | `password` |
 
-| sectionKey | domId | loader(s) called on enter | supportsSubviews |
-|------------|-------|----------------------------|------------------|
-| `overview` | `overviewSection` | `refreshAdminStats()` + `loadOverviewStats()` | no |
-| `families` | `familiesSection` | `loadFamilies()` | no |
-| `messages` | `messagesSection` | `loadMessages()` | no |
-| `defaults` | `defaultsSection` | `switchLibTab('activities')` | yes (tabs) |
-| `prenumeration` | `prenumerationSection` | `loadSubscriptionSettings()` (incl. `loadPackageInterest`) | yes (scroll anchor) |
-| `intresseanmalningar` | `intresseanmalningarSection` | `loadInterests()` | no |
-| `waitlist` | `waitlistSection` | `loadWaitlist()` | no |
-| `landning` | `landningSection` | `loadLandingNews()` | no |
-| `bildbank` | `bildbankSection` | `loadAdminImages()` | no |
-| `emailmallar` | `emailmallarSection` | `loadEmailTemplates()` (+ `switchEmailTab(subview)`) | yes (tabs) |
-| `valkomstmail` | `valkomstmailSection` | `loadWelcomeEmailTemplate()` (legacy; routed away from in Fas 1) | n/a |
-| `analytics` | `analyticsSection` | `loadAnalytics()` | yes (tabs) |
-| `anvandarstatistik` | `anvandarstatistikSection` | `loadUserStats()` | no |
-| `anvandning` | `anvandningSection` | `loadLoginStats()` | no |
-| `retention` | `retentionSection` | `loadRetentionData()` | no |
-| `foraldaraktivering` | `foraldaraktiveringSection` | `loadActivationProgramAdmin()` | no |
-| `fordig` | `fordigSection` | `loadForDigAdmin()` | no |
-| `dagensnyhet` | `dagensnyhetSection` | `loadNyheter()` | no |
-| `nyhetsbrev` | `nyhetsbrevSection` | `loadNewsletterSubscribers()` | no |
-| `emaillog` | `emaillogSection` | `loadEmailLog()` | no |
-| `undersokningar` | `undersokningarSection` | `loadSurveys()` | no |
-| `password` | `passwordSection` | (no loader; forms) | no |
+**Extern (not hash-routed):** `Funktioner` → `/admin/development` — normal `<a href>`, no breadcrumb
+in admin shell, no `capability` entry in hash router.
 
-Sections **previously NOT refreshed on menu enter** (fixed by the refresh registry):
-`retention`, `dagensnyhet`, `landning`, `undersokningar`, `nyhetsbrev`.
+### Planned routes (not activated until migration)
 
-## 4. `resolveRoute(hash)` — pseudocode
+| Route | Status | Blocked by |
+|-------|--------|------------|
+| `#meddelanden-inbox` | `requires-migration` | Fas 3A message model |
+| `#tillvaxt-pipeline` | `requires-migration` | Fas 3C lead model |
+| `#tillvaxt` (group overview) | planned | optional; not in Fas 1–2 |
+
+---
+
+## 5. Table 2 — Section registry (DOM + loaders today)
+
+| sectionKey | domId | refreshHandler | supportsSubviews | notes |
+|------------|-------|----------------|------------------|-------|
+| `overview` | `overviewSection` | `refreshOverview` | no | + Start blocks after PR 3 |
+| `families` | `familiesSection` | `loadFamilies` | no | |
+| `messages` | `messagesSection` | `loadMessages` | no | flat list, not threads |
+| `defaults` | `defaultsSection` | `loadDefaults` | yes | `switchLibTab` |
+| `prenumeration` | `prenumerationSection` | `loadSubscriptionSettings` | yes | scroll `#paketintresse-anchor` |
+| `intresseanmalningar` | `intresseanmalningarSection` | `loadInterests` | no | |
+| `waitlist` | `waitlistSection` | `loadWaitlist` | no | |
+| `landning` | `landningSection` | `loadLandingNews` | no | Fas 2C: tab host for bildbank |
+| `bildbank` | `bildbankSection` | `loadAdminImages` | no | Fas 2C: subview of landning |
+| `emailmallar` | `emailmallarSection` | `loadEmailTemplates` | yes | `switchEmailTab('valkomstmail')` |
+| `valkomstmail` | `valkomstmailSection` | — | — | **DEPRECATE in UI**; route to `emailmallar` |
+| `analytics` | `analyticsSection` | `loadAnalytics` | yes | internal tabs already exist |
+| `anvandarstatistik` | `anvandarstatistikSection` | `loadUserStats` | no | |
+| `anvandning` | `anvandningSection` | `loadLoginStats` | no | |
+| `retention` | `retentionSection` | `loadRetentionData` | no | was missing from refresh |
+| `foraldaraktivering` | `foraldaraktiveringSection` | `loadActivationProgramAdmin` | no | |
+| `fordig` | `fordigSection` | `loadForDigAdmin` | no | |
+| `dagensnyhet` | `dagensnyhetSection` | `loadNyheter` | no | was missing from refresh |
+| `nyhetsbrev` | `nyhetsbrevSection` | `loadNewsletterSubscribers` | no | was missing from refresh |
+| `emaillog` | `emaillogSection` | `loadEmailLog` | no | |
+| `undersokningar` | `undersokningarSection` | `loadSurveys` | no | was missing from refresh |
+| `password` | `passwordSection` | — | no | forms only |
+
+---
+
+## 6. Special / degradable routes
+
+These are **navigation surfaces** that may not map 1:1 to a dedicated section:
+
+| Route | Resolution |
+|-------|------------|
+| `#paketintresse` | `targetSection: prenumeration` + `scrollTargetId: #paketintresse-anchor` (Fas 1–2); real subview in Fas 2C |
+| `#valkomstmail` | `targetSection: emailmallar` + `subview: valkomstmail` — **never** `valkomstmailSection` |
+| `#bildbank` | Fas 1–2: own `bildbankSection`; Fas 2C: `landning` + `subview: bildbank` |
+
+Subview tab id for välkomstmail is **`valkomstmail`** (matches `switchEmailTab` in `admin-email-templates.js`).
+
+---
+
+## 7. `resolveRoute(hash)` — pseudocode
 
 ```
 function resolveRoute(hash):
-  raw = normalize(hash)                 # strip '#', lowercase, '' -> 'overview'/'start'
-  if raw in ALIAS_MAP: raw = ALIAS_MAP[raw]   # alias -> canonical key
-  route = ROUTE_MAP[raw] or ROUTE_MAP['start']
-  return {
-    canonical, section, navId, pageTitle,
-    breadcrumb[], subview|null, scrollTarget|null, requestHash: raw
+  raw = normalize(hash)                    // strip '#', lowercase; '' -> 'start'
+  canonicalKey = ALIAS_MAP[raw] ?? raw     // legacy -> canonical key
+  route = ROUTE_MAP[canonicalKey] ?? ROUTE_MAP['start']
+  return RouteResolution {
+    canonicalRoute: route.canonicalRoute,
+    requestHash: raw,
+    targetSection: route.targetSection,
+    subview, scrollTargetId, navId, pageTitle,
+    breadcrumb, refreshKey, capability: route.capability
   }
 ```
 
-## 5. `navigateToRoute(hash)` — ordered flow
+---
 
-1. `route = resolveRoute(hash)`
-2. set active nav item (and visually keep its group/parent highlighted)
-3. render page title
-4. render breadcrumb
-5. show the `targetSection` DOM (hide others)
-6. run refresh handler for `refreshKey`
-7. open subview/tab if `route.subview` (e.g. `switchEmailTab('valkomstmail')`)
-8. scroll to `route.scrollTarget` if present (e.g. `#paketintresse-anchor`)
-9. close mobile menu
+## 8. `navigateToRoute(hash, opts)` — ordered flow
 
-Bound to: nav clicks (`preventDefault` + `navigateToRoute`) and `window.hashchange`.
+1. `resolution = resolveRoute(hash)`
+2. If `!opts.preserveHash` and user navigated via menu → set `location.hash` to `resolution.canonicalRoute`
+3. Set active nav (`data-nav-id`) + parent highlight if child route
+4. Render `#pageTitle` and `#adminBreadcrumb`
+5. `showSection(resolution.targetSection, resolution)` — thin shim, see §9
+6. Run refresh registry for `resolution.refreshKey`
+7. Apply subview (`switchEmailTab`, landning tab, etc.)
+8. Scroll to `scrollTargetId` if set
+9. `closeMobileMenu()`
 
-## 6. Special routes
+Bind: nav clicks + `window.hashchange`.
 
-- `#paketintresse` → section `prenumeration`, scrolls to `#paketintresse-anchor` (a new anchor
-  added on the Paketintresse block). Fas 1 = anchor; Fas 2 = first-class subview.
-- `#valkomstmail` → section `emailmallar`, subview `valkomstmail` (tab), NOT the legacy
-  `valkomstmailSection`.
-- `#bildbank` → section `bildbank` (kept as own section; nav nests it under Landningssidor).
+---
 
-## 7. Known gaps / constraints (must read before coding)
+## 9. Compatibility constraints (codebase reality)
 
-- `admin-library.js` currently **monkey-patches `showSection`** (wraps the global). The new
-  `navigateToRoute`/`showSection` must remain compatible: keep a `showSection(sectionKey)`
-  shim, or move the library-tab refresh into the refresh registry. Chosen approach: keep
-  `showSection` as a thin wrapper that the registry calls, so the existing patch still works.
-- `#funktioner` is an external page (`/admin/development`); it is a normal link, not a route.
-- Page title element: `#pageTitle`. Breadcrumb container: `#adminBreadcrumb` (added in PR 1).
+| Constraint | Required handling |
+|------------|-------------------|
+| `admin-library.js` wraps `showSection` | Keep global `showSection(name, route?)` as shim; registry calls it; library wrapper must still run for `defaults` |
+| `valkomstmailSection` duplicate | Hide from nav; never route here after PR 2B; remove/deprecate DOM in PR 5 |
+| `#paketintresse-anchor` | Add in PR 2B HTML |
+| `messagesBadge` | Re-render on nav build; re-apply after `applyStats()` |
+| ESLint | Only `src/` + `server.js`; admin JS validated with `node --check` |
+| External Funktioner | Not in hash router; no breadcrumb in admin shell |
+
+---
+
+## 10. Refresh registry (PR 2B)
+
+Every `refreshOnEnter: true` route must call its handler on enter. Minimum set:
+
+`overview`, `families`, `messages`, `defaults`, `prenumeration`, `intresseanmalningar`,
+`waitlist`, `landning`, `bildbank`, `nyhetsbrev`, `emailmallar`, `emaillog`, `analytics`,
+`anvandarstatistik`, `anvandning`, `retention`, `foraldaraktivering`, `fordig`,
+`dagensnyhet`, `undersokningar`.
+
+Previously broken (must fix): `retention`, `dagensnyhet`, `landning`, `undersokningar`, `nyhetsbrev`.

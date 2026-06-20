@@ -1,120 +1,252 @@
-# C. Admin refactor tickets (PR plan + acceptance criteria)
+# C. Admin refactor tickets v2 (PR plan)
 
-Base branch: `main`. Implementation branch: `cursor/admin-v2-all-phases-458a`.
-All work ships as ordered commits mapping to the PRs below.
+Base: `main`. Feature branch: `cursor/admin-v2-all-phases-458a`.
+
+**Fas 1** = green (IA + routing). **Fas 2** = honest MVP (Start + consolidation).
+**Fas 3** = split into **data migrations** then **UX** — do not mix UI-only inbox/pipeline
+with schema work in one PR.
+
+Spec references: `A-admin-nav-spec.md`, `B-START_PAGE_SPEC.md`, `D-GAPS_AND_DECISIONS.md`.
 
 ---
 
 ## PR 1 — Fas 1A: grouped nav + renames + Start default
 
-**Goal:** turn the 23-item flat menu into 6 groups, rename labels, remove emojis, make Start the
-default landing. Pure UI/IA — no `resolveRoute` yet.
+**Capability:** UI-only routing (legacy `showSection` still drives sections).
 
-**Files:** `public/admin/admin-nav.js` (new, config + render), `public/admin/index.html`
-(sidebar markup → rendered container, breadcrumb container, page title), `public/admin/admin-core.js`
-(render nav on init, default to Start).
+| | |
+|---|---|
+| **Goal** | 23 flat items → 6 groups; labels; no emojis; Start default |
+| **Files** | `admin-nav.js` (render only), `index.html`, `admin-core.js` (render nav, default `#start`) |
+| **Out of scope** | `resolveRoute`, aliases, special scroll/tab, Start aggregator |
 
-**Out of scope:** alias resolution engine, special-route scroll/subview, Start dashboard.
+**Acceptance**
 
-**Acceptance:** 6 groups visible; max 2 levels; no emojis; Paketintresse + Pedagogintresse under
-Tillväxt; Bildbank under Landningssidor; Välkomstmail under E-postmallar; Användning/Användarinsikter
-under Produktanalys; Föräldraaktivering/För dig under Experiment; default after login is Start;
-breadcrumb shows "Hem → Start".
-
-## PR 2A — routing foundation
-
-**Goal:** central route registry + `resolveRoute()` + `navigateToRoute()` + alias resolution +
-breadcrumb derivation + active-nav state, driven by `hashchange`.
-
-**Files:** `admin-nav.js` (route map + aliases), `admin-core.js` (resolve/navigate, hashchange).
-
-**Acceptance:** `#overview`→Start, `#families`→Familjer, `#analytics`→Produktanalys,
-`#intresseanmalningar`→Pedagogintresse all work; breadcrumb/title/active-nav all derive from one
-route object; old bookmarks don't break.
-
-## PR 2B — special routes + refresh registry
-
-**Goal:** `#paketintresse` (scroll anchor), `#valkomstmail` (email tab), `#bildbank`; refresh
-registry so every section reloads on enter (incl. retention, dagensnyhet, landning, undersokningar,
-nyhetsbrev).
-
-**Files:** `admin-nav.js` (subview/scrollTarget), `admin-core.js` (refresh registry, post-show
-actions), `index.html` (add `#paketintresse-anchor`).
-
-**Acceptance:** `#paketintresse` opens Prenumeration and scrolls to the interest block;
-`#valkomstmail` opens E-postmallar on the welcome tab; `#bildbank` opens Bildbank; all listed
-sections refresh on enter.
-
-## PR 3 — Fas 2A: Start dashboard MVP
-
-**Goal:** Start aggregator endpoint + Start dashboard (Block A/B/C/D).
-
-**Files:** `src/routes/admin/start-summary.js` (new) + mount in `src/routes/admin.js`;
-`public/admin/admin-start.js` (new); `index.html` (Start blocks markup); refresh registry wiring;
-`test/admin-start-summary.test.js` (new).
-
-**Acceptance:** Start shows unread + to-handle, 4 growth KPIs with 7d deltas, activity feed,
-shortcuts; loading/empty/error states behave; aggregator returns the §B-7 contract.
-
-## PR 4 — Fas 2B: Produktanalys consolidation
-
-**Goal:** Produktanalys as a tabbed hub; Användning + Användarinsikter reachable as tabs while
-their routes still work.
-
-**Acceptance:** `#produktanalys` shows tabs; `#anvandning`/`#anvandarinsikter` open the right tab.
-
-## PR 5 — Fas 2C: communication/growth consolidation
-
-**Goal:** Välkomstmail lives inside E-postmallar (tab); Bildbank presented within Landningssidor;
-Paketintresse as a first-class subview of Prenumeration.
-
-**Acceptance:** no duplicate top-level Välkomstmail; Bildbank reachable from Landningssidor;
-Paketintresse is a labelled subview, not just an anchor.
-
-## PR 6 — Fas 3A: Familjer kontrollcenter
-
-**Goal:** a family detail view aggregating subscription + activity + audit-log + related messages
-(by email) + impersonation, without hopping sections.
-
-**Files:** `src/routes/admin/family.js` (new `GET /families/:id/overview`), admin family JS, modal/panel.
-
-**Acceptance:** opening a family shows support + subscription + activity in one view.
-
-## PR 7 — Fas 3B: Meddelanden inbox
-
-**Goal:** inbox filters (Olästa / Att hantera / Alla), mark handled, family context link.
-
-**Acceptance:** sortable/filterable by unread/handled; thread shows family context; jump to family.
-
-## PR 8 — Fas 3C: Tillväxt lead pipeline
-
-**Goal:** shared lead status (Ny/Kontaktad/Kvalificerad/Konverterad/Avslutad) for package interest,
-professional interest, waitlist.
-
-**Files:** migration adding `lead_status` + `lead_note` to `package_interest`,
-`professional_interest`, `waitlist`; admin endpoints to update status; UI status pills + filters.
-
-**Acceptance:** each lead can be moved through statuses and filtered; persists across reloads.
-
-## PR 9 — Fas 3D–G: command palette + object links + smart Start
-
-**Goal:** ⌘K/Ctrl+K palette (navigate to sections, families, messages); cross-object links;
-basic decision-support cards on Start.
-
-**Acceptance:** palette opens with ⌘K and can navigate to any section + jump to a family/message;
-object links connect family ↔ message ↔ interest; Start shows at least one recommendation card.
+- [ ] 6 groups, max 2 levels, no emojis
+- [ ] Paketintresse + Pedagogintresse under Tillväxt
+- [ ] Bildbank under Landningssidor; Välkomstmail under E-postmallar (nav only)
+- [ ] Användning/Användarinsikter under Produktanalys; Experiment-children under Insikter
+- [ ] Login lands on Start; breadcrumb `Hem → Start`
+- [ ] Funktioner remains external link to `/admin/development`
 
 ---
 
-## QA checklist (run per PR)
+## PR 2A — Routing foundation
 
-- `npx eslint src/ server.js` clean (no new errors).
-- `node --check` on each changed `public/admin/*.js`.
-- `NODE_ENV=test npm test` — no new failures vs baseline (1 pre-existing failure allowed:
-  `test/release-os.test.js`).
-- Manual: nav all groups; old hashes resolve; mobile menu works; sections refresh on enter.
+| | |
+|---|---|
+| **Goal** | Route registry, `resolveRoute`, `navigateToRoute`, canonical hash on menu nav, breadcrumb, active state |
+| **Files** | `admin-nav.js`, `admin-core.js` |
+| **Policy** | Menu writes **canonical** hash; legacy bookmarks resolve to canonical internally |
 
-## Dependencies
+**Acceptance**
 
-PR 2A depends on PR 1. PR 2B depends on PR 2A. PR 3 depends on PR 2B (refresh registry).
-PR 4/5 depend on PR 2B (subview/tab plumbing). PR 6–9 depend on PR 3 (Start + nav stable).
+- [ ] `#overview` → `#start`; `#families` → `#familjer`; `#analytics` → `#produktanalys`; `#intresseanmalningar` → `#pedagogintresse`
+- [ ] Title, breadcrumb, active nav from single `RouteResolution`
+- [ ] `hashchange` wired
+- [ ] Each route has `capability` in config (per A-spec §2)
+
+---
+
+## PR 2B — Special routes + refresh registry
+
+| | |
+|---|---|
+| **Goal** | Special routes + full refresh on enter + library wrapper compatibility |
+| **Files** | `admin-nav.js`, `admin-core.js`, `index.html` |
+
+**Acceptance**
+
+- [ ] `#paketintresse` → prenumeration + scroll `#paketintresse-anchor`
+- [ ] `#valkomstmail` → `emailmallar` + tab `valkomstmail` (not `valkomstmailSection`)
+- [ ] `#bildbank` opens Bildbank
+- [ ] Refresh fixed: `retention`, `dagensnyhet`, `landning`, `undersokningar`, `nyhetsbrev`
+- [ ] **`admin-library.js` `showSection` wrapper still works** (explicit QA)
+- [ ] `messagesBadge` survives nav re-render
+
+---
+
+## PR 3 — Fas 2A: Start MVP (proxy + aggregator)
+
+| | |
+|---|---|
+| **Goal** | Composed `GET /api/admin/start-summary` + Start UI per B-spec v2 |
+| **Files** | `src/routes/admin/start-summary.js`, `admin.js` mount, `admin-start.js`, `index.html`, tests |
+
+**In scope**
+
+- Block A growth (7d/prev7d)
+- Block B message follow-up **heuristic** (not “obesvarade”)
+- Block C synthetic activity
+- Block D shortcuts
+- Disclaimer in messages block
+
+**Out of scope**
+
+- Real inbox status, threads, pipeline
+
+**Acceptance**
+
+- [ ] Growth cards with deltas for package / pedagog / waitlist
+- [ ] `needsFollowUpCount` uses heuristic from B-spec §2
+- [ ] Activity feed max ~20, typed events with canonical `route`
+- [ ] Loading / empty / error per block
+- [ ] Legacy overview KPI grid still below new blocks
+
+---
+
+## PR 4 — Fas 2B: Produktanalys entry (low-risk)
+
+| | |
+|---|---|
+| **Goal** | `#produktanalys` as primary entry; tabs route to **existing sections** via shared tab-bar (option 2 — low risk) |
+| **Approach** | One shell with tab bar that calls `navigateToRoute` for `#anvandning`, `#anvandarinsikter`, internal analytics tabs — **not** one merged DOM section yet |
+
+**Acceptance**
+
+- [ ] `#produktanalys` is default analytics view
+- [ ] `#anvandning` / `#anvandarinsikter` open correct tab/section
+- [ ] Breadcrumb always `Insikter → Produktanalys → …`
+
+---
+
+## PR 5 — Fas 2C: Kommunikation + Tillväxt consolidation
+
+| Kommunikation | Tillväxt |
+|---------------|----------|
+| Hide/deprecate `valkomstmailSection` in UI | Paketintresse as labelled subview in Prenumeration |
+| `#landningssidor` canonical; `#bildbank` as subview/tab | IA only — not pipeline |
+
+**Acceptance**
+
+- [ ] No ghost Välkomstmail top-level section visible
+- [ ] Bildbank reachable from Landningssidor workspace
+- [ ] Paketintresse is more than scroll-only (labelled panel/tab)
+
+---
+
+## PR 6 — Fas 3A: Meddelandemodell (DATA)
+
+**Must land before real inbox.**
+
+| | |
+|---|---|
+| **Migration** | `contact_message`: `status`, `answered_at`, optional `assigned_to` |
+| **API** | PATCH status; list filters by status |
+| **Statuses** | `new`, `read`, `in_progress`, `answered`, `archived` |
+
+**Acceptance**
+
+- [ ] Admin can mark answered / set status
+- [ ] “Needs follow-up” computable without heuristic (or heuristic retired)
+- [ ] Start aggregator can use real fields
+
+---
+
+## PR 7 — Fas 3B: Meddelanden inbox (UX)
+
+**Depends on PR 6.**
+
+| | |
+|---|---|
+| **Goal** | Real inbox: Olästa / Pågående / Besvarade / Arkiverade |
+| **Family link** | Min: manual “koppla familj”; Better: `family_id` nullable + backfill where possible |
+
+**Acceptance**
+
+- [ ] Filters by status work
+- [ ] Message shows family context when linked
+- [ ] Jump to family from message
+- [ ] Start Block B uses real status (remove disclaimer)
+
+---
+
+## PR 8 — Fas 3C: Leadmodell + pipeline (DATA + UX)
+
+**Depends on PR 6 optional, not blocking.**
+
+| Tables | New fields |
+|--------|------------|
+| `package_interest`, `professional_interest`, `waitlist` | `lead_status`, `owner`, `last_contacted_at`, `notes`, optional `converted_at` |
+
+**Statuses:** Ny · Kontaktad · Kvalificerad · Konverterad · Avslutad
+
+**Acceptance**
+
+- [ ] Status editable per lead type
+- [ ] Filter by status / source
+- [ ] Pipeline view (or unified Tillväxt workspace) — not three isolated lists
+
+---
+
+## PR 9 — Fas 3D: Familjer kontrollcenter + objektlänkar
+
+**Depends on PR 6–8 for meaningful links.**
+
+| | |
+|---|---|
+| **Goal** | Family workspace: subscription, messages, audit, interests, impersonate in one view |
+| **API** | `GET /api/admin/families/:id/overview` |
+
+**Acceptance**
+
+- [ ] One family view replaces 3–4 section hops for support triage
+- [ ] Links: family ↔ message ↔ package interest (where data exists)
+
+---
+
+## PR 10 — Global sök / ⌘K + smart Start
+
+**Depends on PR 9.**
+
+| | |
+|---|---|
+| **Goal** | Command palette: sections, families, messages, leads |
+| **Start** | At least one recommendation card (Fas 3E light) |
+
+**Acceptance**
+
+- [ ] ⌘K / Ctrl+K opens palette
+- [ ] Navigate to section, family, message from search
+- [ ] Start shows prioritisation hint (e.g. unread from paying families — if data allows)
+
+---
+
+## Optional PR — Fas 3D-alt: Admin activity model
+
+Not blocking PR 3. Recommended before PR 10 if feed quality matters.
+
+- Light: keep composed aggregator, standardise event shape
+- Robust: `admin_activity` table written on create/update of key entities
+
+---
+
+## Dependency graph
+
+```
+PR1 → PR2A → PR2B → PR3
+              ↓
+         PR4, PR5 (parallel after PR2B)
+PR3 → PR6 → PR7
+PR2B → PR8 (can parallel PR6)
+PR6,7,8 → PR9 → PR10
+```
+
+---
+
+## QA checklist (every PR)
+
+- [ ] `npx eslint src/ server.js` — no new errors
+- [ ] `node --check public/admin/*.js` for touched admin files
+- [ ] `NODE_ENV=test npm test` — no new failures (1 known: `release-os.test.js`)
+- [ ] Manual: all nav groups; legacy hashes; mobile menu; section refresh on enter
+- [ ] PR 2B: verify library tab still loads after `defaults` navigation
+
+---
+
+## Out of scope (entire programme)
+
+- Rewriting Familjer list UX in Fas 1
+- Full CRM / campaign engine (Fas 3D kommunikationsmotor — future)
+- Renaming all DOM section ids to match canonical routes (deferred past Fas 2)
+- ESLint coverage for `public/admin/` (use `node --check` until separately scoped)

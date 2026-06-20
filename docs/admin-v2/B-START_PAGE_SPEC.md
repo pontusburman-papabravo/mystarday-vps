@@ -1,107 +1,236 @@
-# B. Start page spec (Fas 2A)
+# B. Start page spec v2 (Fas 2A — honest MVP)
 
-The Start page replaces the passive "Översikt" as the operational landing screen. It answers,
-in order: (1) what must I respond to? (2) has growth moved? (3) what happened recently?
-(4) what do I want to do next?
+**Start = operativ startsida, inte “sann CRM” i MVP.**
 
-## 1. Block order (top → bottom)
+Start helps the admin **prioritise** work using composed/proxy data. It is **not** a source of
+truth for inbox status or lead pipeline until Fas 3 migrations land.
 
-Per the north star ("first I want to see growth and whether messages came in"), Block A and
-Block B sit at the top.
+---
 
-- **Block A — Inkorg / kräver svar** (top)
-- **Block B — Tillväxt senaste 7 dagar**
-- **Block C — Senaste aktivitet**
-- **Block D — Genvägar** (right column on desktop, bottom on mobile)
+## 0. Two truth levels
 
-The legacy KPI/utveckling grid (families/parents/children, period filter) is kept lower on the
-page so no existing data is lost.
+| Level | When | What |
+|-------|------|------|
+| **Nivå 1 — MVP (PR 3)** | Fas 2 | Aggregator + proxy heuristics + synthetic activity feed |
+| **Nivå 2 — Full** | After Fas 3A–3C | Real message status, family links, lead pipeline signals |
 
-## 2. Block A — Inkorg
+---
 
-KPI cards: `Olästa meddelanden`, `Att hantera` (proxy for "obesvarade"; see §6 gap).
-List: latest 5 messages (name/email, snippet, relative time, read/unread dot).
-CTAs: `Öppna Meddelanden`, `Visa olästa`.
+## 1. North star at login
 
-## 3. Block B — Tillväxt (7 dagar)
+Primary question order (matches product priority):
 
-KPI cards, each with: value (last 7d), delta vs previous 7d (▲/▼/–), and a CTA to the section.
+1. **Har tillväxten rört sig?** → Block A (top)
+2. **Finns meddelanden att ta hand om?** → Block B
+3. **Vad har hänt sedan sist?** → Block C (synthetic feed)
+4. **Vad vill jag göra härnäst?** → Block D (shortcuts)
 
-- `Nya paketintressen` → `#paketintresse`
-- `Nya pedagogintressen` → `#pedagogintresse`
-- `Nya waitlist-signups` → `#waitlist`
-- `Nya familjer` → `#familjer`
+Legacy KPI grid (families/parents/children, period filter) stays **below** the new blocks so
+nothing is removed.
 
-## 4. Block C — Senaste aktivitet
+---
 
-A merged, reverse-chronological feed (max ~10 rows) built from available signals:
-new package interests, new professional interests, new waitlist signups, new families, new
-contact messages. Each row: icon-less label + relative timestamp. Read-only in MVP.
+## 2. Block layout
 
-## 5. Block D — Genvägar
+### Block A — Tillväxt idag (top)
 
-Buttons: Meddelanden, Paketintresse, Pedagogintresse, Waitlist, Nyhetsbrev, Skapa nyhet
-(`#dagens-nyhet`), Sök familj (`#familjer`).
+KPI cards (each: `last7d`, `prev7d`, `deltaAbs`, `deltaPct`, `total` where available):
 
-## 6. States
+| KPI | CTA route |
+|-----|-----------|
+| Nya paketintressen | `#paketintresse` |
+| Nya pedagogintressen | `#pedagogintresse` |
+| Nya waitlist-signups | `#waitlist` |
 
-- **loading**: skeleton text "Laddar…" per block (never indefinite — see error).
-- **empty**: Block A "Inga olästa meddelanden 🎉" (text only, no emoji in final per naming rule →
-  use "Inga olästa meddelanden just nu."). Block B shows `0` with `–` delta. Block C: "Inga
-  händelser de senaste dagarna."
-- **error**: each block shows "Kunde inte ladda. Försök igen." with a retry link; never a
-  perpetual "Laddar…".
+Optional fourth card: **Nya familjer** (`#familjer`) if cheap to query from existing
+`overview-stats` logic.
 
-## 7. API contract — `GET /api/admin/start-summary`
+**Requires new period queries** in the aggregator — today's `/package-interest/summary` is
+**totals only**, not 7d vs prev7d.
 
-Single aggregator (one round-trip) returning:
+### Block B — Meddelanden att följa upp
 
-```json
-{
-  "messages": {
-    "unread": 5,
-    "toHandle": 2,
-    "recent": [
-      { "id": 12, "name": "Anna", "email": "a@x.se", "snippet": "Hej, vi undrar…",
-        "isRead": false, "createdAt": "2026-06-20T10:00:00Z" }
-    ]
-  },
-  "growth": {
-    "packageInterest": { "current": 12, "previous": 8 },
-    "educatorInterest": { "current": 3, "previous": 1 },
-    "waitlist": { "current": 5, "previous": 2 },
-    "newFamilies": { "current": 7, "previous": 4 }
-  },
-  "activity": [
-    { "type": "package_interest", "label": "Nytt paketintresse: Familj X (Rapportering)",
-      "createdAt": "2026-06-20T09:00:00Z" }
-  ]
-}
+**Do not label:** “Obesvarade trådar” (no thread/answered model exists).
+
+**Do label:** “Meddelanden att följa upp” or “Nya / ej hanterade meddelanden”.
+
+#### MVP heuristic (transparent in UI)
+
+A message **needs follow-up** if:
+
+- `is_read = false` **OR**
+- `is_read = true AND internal_note IS NULL`
+
+Show KPIs: `unreadCount`, `needsFollowUpCount`.
+
+List: latest 5 messages with name, email preview, relative time, reason badge
+(`Oläst` / `Saknar anteckning`).
+
+CTAs: `Öppna Meddelanden` (`#meddelanden`), `Visa att följa upp` (filter query param or hash
+`#meddelanden?followup=1` — implementation choice in PR 3).
+
+> **Disclaimer (shown in block footer):**  
+> “Detta är en förenklad uppföljningsvy. Riktig inbox-status kommer i en senare version.”
+
+Replaced by real status after **Fas 3A** (`answered_at`, `status`).
+
+### Block C — Senaste aktivitet (synthetic)
+
+**Not** a central activity model in MVP. A **composed admin-feed** built server-side from:
+
+- `package_interest` created
+- `professional_interest` created
+- `waitlist` signup created
+- `contact_message` created
+- optional: `newsletters` sent, `dagens_nyhet` published (if easy)
+
+Rules:
+
+- max 10–20 items, reverse chronological
+- each item: `type`, `title`, `meta?`, `createdAt`, `route` (canonical)
+- best-effort — gaps are acceptable; document in API
+
+### Block D — Genvägar
+
+Stable links (no new data):
+
+- Familjer (`#familjer`)
+- Meddelanden (`#meddelanden`)
+- Paketintresse (`#paketintresse`)
+- Pedagogintresse (`#pedagogintresse`)
+- Produktanalys (`#produktanalys`)
+- Nyhetsbrev (`#nyhetsbrev`)
+
+### Block E — Hälsa / varningar (optional, post-MVP)
+
+Not in PR 3 scope: threshold alerts, webhook health, etc.
+
+---
+
+## 3. States
+
+| State | Behaviour |
+|-------|-----------|
+| **loading** | Per-block “Laddar…” — never indefinite |
+| **empty** | Growth: `0` + `–` delta. Messages: “Inga meddelanden att följa upp just nu.” Activity: “Inga händelser de senaste dagarna.” |
+| **error** | “Kunde inte ladda. Försök igen.” + retry per block |
+
+No emojis in copy (per naming standard).
+
+---
+
+## 4. API — composed summary endpoint
+
+**Not** a CRUD resource. A **composed aggregator**:
+
+```
+GET /api/admin/start-summary
 ```
 
-Windows: `current` = last 7 days, `previous` = the 7 days before that.
+### Response contract
 
-## 8. Component structure (vanilla, matches current admin)
+```ts
+type StartSummaryResponse = {
+  generatedAt: string;
 
-- `admin-start.js` (new): `loadStart()` → fetch aggregator → render the four blocks.
-- Renderers: `renderStartMessages`, `renderStartGrowth`, `renderStartActivity`, plus static
-  shortcuts already in HTML.
-- Wired into the refresh registry under `refreshKey: 'overview'` so the existing
-  families/parents/children KPI loaders keep running too.
+  growth: {
+    packageInterest: PeriodMetric;
+    professionalInterest: PeriodMetric;
+    waitlist: PeriodMetric;
+    newFamilies?: PeriodMetric;
+  };
 
-## 9. MVP vs later
+  messages: {
+    unreadCount: number;
+    needsFollowUpCount: number;
+    latest: Array<{
+      id: number;
+      name: string | null;
+      email: string | null;
+      messagePreview: string;
+      createdAt: string;
+      isRead: boolean;
+      followUpReason: 'unread' | 'read_without_note';
+      linkedFamily: {
+        type: 'none' | 'email_match';
+        familyId?: string;
+        familyName?: string;
+      };
+    }>;
+    disclaimer: string;
+  };
 
-- **MVP**: unread + toHandle, growth 4 KPIs with deltas, activity feed, shortcuts.
-- **Later (Fas 3E)**: trend recommendations ("paketintresse +38% efter landning X"),
-  "families needing follow-up", saved filters, risk cards.
+  activity: Array<{
+    type:
+      | 'package_interest_created'
+      | 'professional_interest_created'
+      | 'waitlist_created'
+      | 'contact_message_created'
+      | 'newsletter_sent'
+      | 'dagens_nyhet_published';
+    id: string;
+    title: string;
+    meta?: string;
+    createdAt: string;
+    route: string;           // canonical hash
+  }>;
 
-## 10. Gap: "obesvarade trådar"
+  quickActions: Array<{ label: string; route: string }>;
+};
 
-`contact_message` has no answered/thread concept and no `family_id`. Definitions used:
+type PeriodMetric = {
+  last7d: number;
+  prev7d: number;
+  deltaAbs: number;
+  deltaPct: number | null;  // null if prev7d === 0
+  total: number;
+};
+```
 
-- **toHandle** = `is_read = true AND internal_note IS NULL` (read but not yet noted/acted on).
-  Rationale: an internal note is the closest existing signal of "handled".
-- Message → family linking is best-effort by matching `contact_message.email` to a parent email
-  (used in Fas 3 object links, not required for Start).
+### Query windows
 
-A future migration could add `answered_at`/`status` to `contact_message` to make this exact.
+- `last7d`: `created_at >= NOW() - 7 days`
+- `prev7d`: `created_at >= NOW() - 14 days AND created_at < NOW() - 7 days`
+
+### Family linking (MVP)
+
+Best-effort `email_match` against `parent.email`. UI must show when link is inferred, not certain.
+Real `family_id` comes in **Fas 3B**.
+
+---
+
+## 5. Frontend components
+
+| File | Responsibility |
+|------|----------------|
+| `public/admin/admin-start.js` | `loadStartSummary()` → render blocks |
+| `index.html` | Markup for blocks A–D inside `overviewSection` |
+| Refresh registry | `refreshOverview` also calls `loadStartSummary()` |
+
+Renderers: `renderStartGrowth`, `renderStartMessages`, `renderStartActivity`; shortcuts can be
+static HTML.
+
+---
+
+## 6. MVP vs later
+
+| In PR 3 (MVP) | Later |
+|---------------|-------|
+| Growth 7d/prev7d for 3 lead types | Trend recommendations (Fas 3E) |
+| Message follow-up heuristic | Real `status` / `answered_at` (Fas 3A) |
+| Synthetic activity feed | `admin_activity` table (Fas 3D optional) |
+| Email-match family hint | Explicit `family_id` (Fas 3B) |
+| Static shortcuts | Personalised / saved filters |
+
+---
+
+## 7. Data gaps this spec acknowledges
+
+| Gap | MVP workaround | Proper fix |
+|-----|----------------|------------|
+| No `answered_at` / `status` on `contact_message` | follow-up heuristic | PR 6 (Fas 3A) |
+| No `family_id` on messages | email match | PR 7 (Fas 3B) |
+| No period deltas on package-interest API | new SQL in aggregator | PR 3 |
+| No unified activity table | composed feed query | PR optional 3D |
+| Flat messages, not threads | list latest N | PR 7 inbox |
+| No lead status columns | show counts only on Start | PR 8 (Fas 3C) |
