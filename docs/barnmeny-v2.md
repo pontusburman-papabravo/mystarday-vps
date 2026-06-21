@@ -350,14 +350,30 @@ System             header-knappar            moreView
 
 ---
 
+## Barnregel (kontrakt — gäller före allt annat)
+
+> **En ny funktion får aldrig skapa en ny primär värld.**
+
+Varje förslag måste först besvara tre frågor:
+
+1. **Vilken barnfråga hjälper detta?** — *Vad gör jag nu?* / *Det jag bygger* / *Vem hjälper mig?*
+2. **Vilken värld äger detta?** — `today` · `world` · `family` (**exakt en** owner, se §5 ownership-kontraktet)
+3. **Vilket placement passar?** — ett befintligt placement i den världen
+
+Om det enda ärliga svaret är *"egen flik"* krävs ett **produktbeslut** — inte en PR. Tre världar är låsta.
+
+Detta kontrakt skyddar modellen flera år framåt: barnappen blir stark genom **begränsning**, inte genom fler ytor. Det viktigaste i hela v2 är att **inte lägga till mer**.
+
+---
+
 ## 0. Non-goals (låst)
 
 > **V2 bygger inte om produktlogiken. Den flyttar ägarskap och presentation. Befintliga features, API:er och dataflöden återanvänds där möjligt.**
 
 | Gör | Gör inte |
 |-----|----------|
-| Ny primärnav med tre barnvärldar | Kopiera vuxenmodellen (jobb → domän → placement) rakt av |
-| `child-nav-config.js` som presentationslager | Ny backend för daily_log, rewards, family |
+| Tre primärvärldar (`CHILD_WORLDS`) | Kopiera vuxenmodellen (jobb → domän → placement) rakt av |
+| `child-worlds.js` som presentationslager | Ny backend för daily_log, rewards, family |
 | Routes `/child/today`, `/child/world`, `/child/family` | Ta bort `/child-dashboard` innan redirects + analytics OK |
 | Dela upp `child-dashboard.js` i moduler | Omskriva hela barn-SPA i ett svep |
 | Hash som fallback under migration | Kräva att barn "navigerar funktioner" |
@@ -442,12 +458,12 @@ CHILD APP
 |---|---------|------------|
 | 1 | **Trygg väg**, inte app-navigation | Tre världar. Ingen mode-switch. Ingen classic/magic. Ingen rollout-nav. |
 | 2 | **Idag = operativsystem** | ~80 % av användningen. Barnet ska alltid kunna svara: *"Vad ska jag göra?"* |
-| 3 | **Komplexitet bakom stöd** | Samma data (`activity → sub_steps → completion`), adaptiv rendering per barn |
+| 3 | **Komplexitet bakom stöd** | Samma data (`activity → sub_steps → completion`), adaptiv rendering per barn. **Stöd ändrar upplevelsen, aldrig informationsarkitekturen** (§6) |
 | 4 | **Skattkammaren borta från nav** | Implementation/internt namn. Barn-UI: *"Jag bygger min värld"* |
 | 5 | **Relation, inte funktion** | Flik = *Mina personer* — vem hjälper mig? vilka finns nära? |
 | 6 | **Coach-loop** | Idag → liten trygg guide efter aktivitet (inte chat-bot) |
 | 7 | **Personlig navigation** | Samma `id`, olika etiketter per ålder/stödnivå (`Uppdrag` vs `Idag`) |
-| 8 | **En enda sann källa** | `child-nav-config.js` → mobil, surfplatta, native — `presentationMode` styr utseende, inte antal flikar |
+| 8 | **En enda sann källa** | `child-worlds.js` → mobil, surfplatta, native — `presentationMode` styr utseende, inte antal flikar |
 | 9 | **Dela monoliten** | `child-shell.js` + världsmoduler + engines — utveckla utan regressioner |
 | 10 | **Minsta möjliga val** | Undvik menyer med Schema/Belöningar/Profil/Inställningar — *"Vad händer nu? [Starta]"* |
 
@@ -462,13 +478,15 @@ CHILD APP
 
 ---
 
-## 2. Primärnav (basic, idag)
+## 2. Primärvärldar (basic)
 
-**Tre flikar. Inte fyra. Inte fem.**
+**Tre världar. Inte fyra. Inte fem.**
 
 För många barn 3–12 med NPF är navigation i sig en belastning.
 
-| # | Flik (default) | Route | `id` | Barnets fråga |
+> **Internt språk (låst):** vi säger **världar**, inte "nav" eller "flikar", i barnkod och produktsamtal. Konstanten heter `CHILD_WORLDS`, inte `CHILD_PRIMARY_NAV`. Annars frågar framtida utvecklare *"vi behöver en ny nav-item för X"* — fel fråga. Rätt fråga: *"vilken värld gör X barnet tryggare i?"*
+
+| # | Värld (default) | Route | `id` | Barnets fråga |
 |---|----------------|-------|------|---------------|
 | 1 | ☀️ **Idag** | `/child/today` | `today` | *Vad gör jag nu?* |
 | 2 | 🏰 **Min värld** | `/child/world` | `world` | *Det jag bygger upp* |
@@ -476,9 +494,35 @@ För många barn 3–12 med NPF är navigation i sig en belastning.
 
 **Tre världar. Alltid samma.** Ingen Mer-flik. Ingen Hem-flik. Ingen Schema-flik.
 
+### Startflöde (låst) — Idag är alltid landningsplatsen
+
+`Idag` är inte en av tre likvärdiga ytor. Det är **operativsystemet** (~80 % av tiden), och hela produkten ska peka dit.
+
+```
+Barn väljs
+  ↓
+Trygg animation (MAX 2 sek)
+  ↓
+☀️ Idag
+  ↓
+"Vad händer nu?"
+```
+
+**Alltid.** Aldrig "Hem" först, aldrig Min värld först. Animationen efter login är en *övergång till Idag* — inte en egen startsida. Två startsidor (Hem + Skattkammaren) är just det problem v2 tar bort (§4).
+
+**Min värld får aldrig kännas som huvudsidan** även om den är visuellt rikast. Den ska kännas som:
+
+> *"När jag är klar kan jag bygga vidare."*
+
+inte:
+
+> *"Här är appens coolaste del."*
+
+Konkret: rewards/universum är en **belöning för handling**, inte en utforskningsdestination som konkurrerar med Idag. Visuell tyngd, default-flik, login-mål och coach-loop pekar alla mot Idag.
+
 ### Personliga etiketter (samma ID, olika språk)
 
-Nav-`id` är stabilt. Etikett kan anpassas per barn (ålder, stödnivå, föräldraval):
+Världs-`id` är stabilt. Etikett kan anpassas per barn (ålder, stödnivå, föräldraval):
 
 ```js
 {
@@ -493,7 +537,7 @@ Nav-`id` är stabilt. Etikett kan anpassas per barn (ålder, stödnivå, föräl
 }
 ```
 
-**Regel:** personalisering ändrar **språk**, inte struktur. Tre flikar förblir tre flikar.
+**Regel:** personalisering ändrar **språk**, inte struktur. Tre världar förblir tre världar.
 
 ### Terminologi (låst)
 
@@ -504,6 +548,7 @@ Nav-`id` är stabilt. Etikett kan anpassas per barn (ålder, stödnivå, föräl
 | Familjehallen, `family`-domän | **Mina personer** (❤️) |
 | Hem-hub, `homeView` | **Inte nav** — intro → Idag |
 | classic / magic / rollout-nav | **Bort** som produktbegrepp |
+| `CHILD_PRIMARY_NAV` / "nav" / "flik" (kod) | `CHILD_WORLDS` / **"värld"** — undvik "nav" i barnkod |
 
 ### `presentationMode` — inte två appar
 
@@ -512,11 +557,11 @@ v2 **avskaffar** classic/magic/rollout som separata nav-modeller.
 | Bort | Kvar |
 |------|------|
 | Toppnav vs bottennav som olika IA | `presentationMode`: `mobile` · `tablet` · `desktop` · `native` |
-| `child-package-nav.js` 2-flik | Samma `CHILD_PRIMARY_NAV` överallt |
+| `child-package-nav.js` 2-flik | Samma `CHILD_WORLDS` överallt |
 | `AppViewMode` styr antal flikar | `AppViewMode` / tema styr **utseende** (färger, animation, botten vs topp *placering*) |
 
 ```
-child-nav-config.js
+child-worlds.js
         |
         +-- mobile (bottennav)
         +-- tablet
@@ -671,38 +716,37 @@ Gamification behålls. Den blir **begripligare**.
 
 ### 3.5 ❤️ Mina personer — `/child/family`
 
-**Relation, inte funktion.** Inte socialt nätverk — **trygghet**.
+**Relation, inte funktion.** Inte ett socialt nätverk, inte en family-graph — **trygghet**. Det här är idag den svagaste världen (~5 %), så var försiktig: led med **människor**, inte mekanik.
 
-Barnets frågor:
+Den enda känsla barnet ska bära härifrån:
 
-- Vem hjälper mig?
-- Vilka finns nära?
-- Vad gör vi tillsammans?
+> **"Jag är inte ensam."**
+
+Världens underrubrik är barnets fråga, inte en systemetikett:
 
 ```
 ❤️ Mina personer
+   "De som hjälper mig"
 
-Mamma
-⭐ 120 familjestjärnor
-
-Pappa
-"Vi klarade kvällsrutinen"
-
-Syskon
-…
-
-Vi tillsammans ⭐
+👩 Mamma
+👨 Pappa
+🧑‍🏫 Min lärare
+🧒 Min kompis
 ```
 
-| Innehåll | Befintlig kod |
-|----------|---------------|
-| Familjehallen V0 | `child-family-hall.js`, `GET /api/me/family` |
-| Familjeskista, projekt, berättelse | Samma modul |
-| Pedagog (paket) | `family_hall` placement — inte egen flik |
+Barnet möter **personkort** — namn, ansikte/emoji, en varm rad ("Vi klarade kvällsrutinen"). Inte siffror, inte en feed.
 
-**Domän-id:** `family` (stabilt i kod). **Nav-etikett:** *Mina personer* (❤️).
+**Tona ned (inte bort):** "Familjeskista", "Familjeprojekt" och "event-feed" är vuxen-/systemspråk. De får finnas *bakom* personerna som en lugn "Vi tillsammans ⭐"-rad — men barnet ska **aldrig behöva förstå en social graph** för att känna trygghet.
 
-**Tab-nyckel idag:** `family` (klassisk / Mer i magic) → **primärflik** i v2.
+| Innehåll | Befintlig kod | Roll i barn-UI |
+|----------|---------------|----------------|
+| Personer (vuxna/syskon/pedagog) | `GET /api/me/family` | **Primärt** — personkort |
+| Familjehallen V0 (skista/projekt/berättelse) | `child-family-hall.js` | **Sekundärt** — tyst "Vi tillsammans" |
+| Pedagog (paket) | `family_hall` placement | Person bland personer — **inte** egen flik |
+
+**Domän-id:** `family` (stabilt i kod). **Barnetikett:** *Mina personer* (❤️) — aldrig "Familj".
+
+**Tab-nyckel idag:** `family` (klassisk / Mer i magic) → **primärvärld** i v2.
 
 ---
 
@@ -729,9 +773,22 @@ Vi tillsammans ⭐
 
 Systemgrejer ska **inte konkurrera** med barnets tre världar.
 
+### Gränsen barn ↔ vuxen (låst — escape hatch bara för vuxen)
+
+Två separata universum. Ingen funktion får korsa gränsen utan **Parental Gate** (jfr `app2.md` §5).
+
+| Barnvärlden (utan gate) | Vuxenvärlden (kräver gate) |
+|-------------------------|----------------------------|
+| ☀️ Idag | Inställningar |
+| 🏰 Min värld | Byt barn |
+| ❤️ Mina personer | Rapportering / utveckling |
+| | Konfiguration, logga ut, mörkt läge |
+
+**Regel:** `CHILD_SYSTEM_ACTIONS` (byt barn, mörkt läge, logga ut) bor bakom en liten **vuxenikon i header** — aldrig som en fjärde barnvärld. Nya vuxenfunktioner hamnar i vuxenvärlden, inte i barnmenyn.
+
 ### 4.2 System-ikon & Parental Gate (låst)
 
-`CHILD_SYSTEM_ACTIONS` (byt barn, mörkt läge, logga ut) ligger i header — **inte** i primärnav. På **delad barnenhet** (iPad, familjedator) får barnet **inte** nå dem utan föräldra-PIN.
+`CHILD_SYSTEM_ACTIONS` ligger i header — **inte** i primärvärldarna. På **delad barnenhet** (iPad, familjedator) får barnet **inte** nå dem utan föräldra-PIN.
 
 | Åtgärd | Krav |
 |--------|------|
@@ -752,6 +809,7 @@ function onSystemIconClick() {
 **Befintlig kod:** `public/js/parental-gate.js`, `device-mode.js`, `child-login.js` (PG vid nytt barn). v2 **utökar** PG till header-systemmenyn.
 
 **Inte PG:** barnets tre världar, coach-loop, aktivitetsbockning — barnets egna flöden.
+
 
 ---
 
@@ -799,14 +857,17 @@ export const CHILD_PLACEMENTS = {
 };
 ```
 
-### Obligatoriska fält i `CHILD_CAPABILITIES`
+### Obligatoriska fält i `CHILD_CAPABILITIES` (ownership-kontrakt)
+
+> **Varje capability bor i exakt EN värld.** Den får *synas* på flera platser, men *ägs* av en värld via `primaryPlacement`. Annars börjar funktioner flyta överallt igen — precis det vuxen- och barn-v2 är till för att stoppa.
 
 ```js
 {
-  id: 'teacch_now',           // required
-  feature: 'teacch',          // required — access gate
-  domain: 'today',            // required — barnvärld
-  placements: ['today_overlay', 'activity_support'], // required — minst en
+  id: 'teacch_now',                  // required — stabil nyckel
+  feature: 'teacch',                 // required — access gate (null = basic)
+  domain: 'today',                   // required — barnvärld (owner)
+  primaryPlacement: 'today_overlay', // required — EN owner-placement
+  secondaryPlacements: ['activity_support'], // valfritt — får synas, ägs ej
   label: 'NU-kort',
 }
 ```
@@ -814,20 +875,28 @@ export const CHILD_PLACEMENTS = {
 **Förbjudet:**
 
 ```js
-{ label: 'TEACCH', href: '/teacch' }  // ❌ saknar domain, placements
+// ❌ ingen owner — funktionen flyter över flera världar
+{ id: 'x', domain: 'today', placements: ['today_overlay', 'family_hall', 'world_history'] }
+
+// ❌ saknar domain + owner helt
+{ label: 'TEACCH', href: '/teacch' }
 ```
+
+**Regel:** `primaryPlacement` **måste** tillhöra capabilityns `domain`. `secondaryPlacements` får peka in i en annan värld endast för innehåll en användare *redan* ser där — de skapar aldrig en ny ägare. Code review / lint avvisar capabilities som saknar `primaryPlacement` eller som använder en platt `placements`-array.
 
 ---
 
 ## 6. Paket → placering (ingen navändring)
 
-| Paket | Feature | Domän | Placements | Synligt som |
-|-------|---------|-------|------------|-------------|
-| **Basic** | — | `today`, `world`, `family` | primärnav | Tre flikar |
-| **TEACCH** | `teacch` | `today` | `today_overlay`, `activity_support`, `world_tools` | NU-kort, adaptivt stöd — **inte** ny flik |
-| **Pedagog** | `pedagog` | `family` | `family_hall`, `family_persons` | Extra innehåll i Mina personer |
-| **Reporting** | `reporting` | `world` | `world_history` | Min historia — **inte** barnflik |
-| **Coach** | — (basic) | `today` | `today_coach_*` | Trygg guide efter aktivitet/sektion/dag |
+| Paket | Feature | Owner-värld (`domain`) | `primaryPlacement` | Får även synas (`secondary`) | Synligt som |
+|-------|---------|------------------------|--------------------|------------------------------|-------------|
+| **Basic** | — | `today` · `world` · `family` | tre världar | — | Tre världar |
+| **TEACCH** | `teacch` | `today` | `today_overlay` | `activity_support` | NU-kort, adaptivt stöd — **inte** ny värld |
+| **Pedagog** | `pedagog` | `family` | `family_hall` | `family_persons` | Extra innehåll i Mina personer |
+| **Reporting** | `reporting` | `world` | `world_history` | — | Min historia — **inte** barnvärld |
+| **Coach** | — (basic) | `today` | `today_coach_post_activity` | `today_coach_post_section`, `today_coach_day_done` | Trygg guide efter aktivitet/sektion/dag |
+
+Varje rad har **exakt en** owner-värld. Ett paket kan fördjupa en värld — det får aldrig bli en fjärde värld.
 
 ### Reporting — dubbel entré (samma princip som vuxen Framsteg)
 
@@ -838,17 +907,31 @@ export const CHILD_PLACEMENTS = {
 
 Barn ser **inte** rapporter som egen flik.
 
-### TEACCH — overlay, inte nav
+### Stöd ändrar upplevelsen, aldrig informationsarkitekturen
 
-Idag: `ChildPackageNav.setNavHidden(true)` under NU-overlay.  
-v2: behåll principen — nav döljs vid fullskärms-stöd, men **grundnav är fortfarande tre världar** när overlay stängs.
+> **Generell regel (större än TEACCH):** Stöd får ändra *hur* en värld känns och renderas — aldrig *vilka* världar som finns eller var något bor.
+
+Samma värld, samma aktivitet, olika stöd:
+
+```
+Barn A                     Barn B
+🪥 Borsta tänder           🪥 Borsta tänder
+[✓]                        1. Hämta tandborste
+                           2. Ta tandkräm
+                           3. Borsta
+                           4. Klar
+```
+
+Tre världar, samma routes, samma `daily_log_item` — bara olika trygghetsnivå i UI (`child-support-layer.js`, §3.3). Det är en av modellens starkaste idéer och gäller allt stöd, inte bara TEACCH.
+
+**TEACCH som specialfall:** idag döljer `ChildPackageNav.setNavHidden(true)` nav under NU-overlay. v2 behåller principen — världarna döljs visuellt vid fullskärms-stöd, men **grundstrukturen är fortfarande tre världar** när overlay stängs. Overlayn ändrar upplevelsen, inte IA:n.
 
 ---
 
 ## 7. Teknisk källa — tre filer, en IA
 
 ```
-child-nav-config.js      ← primärnav, etiketter, routes
+child-worlds.js      ← tre världar, etiketter, routes
         |
 child-capabilities.js    ← feature + domain + access/visibility
         |
@@ -880,7 +963,18 @@ child-activity-engine.js    ← daily_log + sub_steps
 child-rewards-engine.js     ← stjärnor, mål, inlösen
 ```
 
-**Mål:** utveckla utan regressioner. `child-dashboard.js` blir tunn orchestrator → ersätts av `child-shell.js`.
+**Mål:** utveckla utan regressioner. `child-dashboard.js` blir tunn orchestrator → ersätts av `child-shell.js` **så snabbt som möjligt**.
+
+> **Risk att undvika — två arkitekturer samtidigt:**
+>
+> ```
+> v2-UI
+>   └── child-dashboard.js   ← gammal orchestrator
+>         └── gamla showTab()
+>               └── gammal hash-router
+> ```
+>
+> Om `child-dashboard.js` lever kvar länge under det nya UI:t får ni i praktiken **två navigationsmodeller** som måste hållas i synk — samma fälla som classic/magic-spliten. Regel: `child-shell.js` ska ersätta orchestrator-rollen redan i Sprint 2 (inte Sprint 5), och `/child-dashboard` redirectas i Sprint 3. Gamla `showTab()`/hash får bara leva som **tunn shim som mappar till de nya routes:arna**, aldrig som en parallell källa.
 
 ### Konsumenter (ska läsa samma config)
 
@@ -890,15 +984,15 @@ child-rewards-engine.js     ← stjärnor, mål, inlösen
 | `child-package-nav.js` | 2-fliks rollout | **Avvecklas** |
 | `AppViewMode` classic/magic nav | Olika antal flikar | **`presentationMode`** — samma tre flikar |
 | `child-layer-router.js` | Hash → tab | Hash → route + tab fallback |
-| `native-tab-bar.js` (barnläge) | Om separat | `child-nav-config` → `primary` |
+| `native-tab-bar.js` (barnläge) | Om separat | `child-worlds` → `worlds` |
 | `session-gate.js` | `CHILD_PATHS` | Lägg till `/child/today`, `/child/world`, `/child/family` |
 
 ### Config-struktur (koncept)
 
 ```js
-// public/js/child-nav-config.js
+// public/js/child-worlds.js
 
-export const CHILD_PRIMARY_NAV = [
+export const CHILD_WORLDS = [
   {
     id: 'today',
     icon: '☀️',
@@ -923,7 +1017,7 @@ export const CHILD_PRIMARY_NAV = [
 ];
 
 /** Aktiv värld — samma mönster som vuxen `activeNavItem()` (nav-config.js §6) */
-export function activeChildNavItem(pathname, hash, nav = CHILD_PRIMARY_NAV) {
+export function activeChildNavItem(pathname, hash, nav = CHILD_WORLDS) {
   const p = (pathname || '/').replace(/\/$/, '') || '/';
   const h = (hash || '').replace(/^#/, '');
   // Hash-fallback under migration (child-layer-router.js)
@@ -956,28 +1050,39 @@ export const CHILD_CAPABILITIES = [
     id: 'today_coach',
     feature: null,  // basic
     domain: 'today',
-    placements: ['today_coach_post_activity', 'today_coach_post_section', 'today_coach_day_done'],
+    primaryPlacement: 'today_coach_post_activity',
+    secondaryPlacements: ['today_coach_post_section', 'today_coach_day_done'],
     label: 'Coach',
   },
   {
     id: 'teacch_now',
     feature: 'teacch',
     domain: 'today',
-    placements: ['today_overlay', 'activity_support'],
+    primaryPlacement: 'today_overlay',
+    secondaryPlacements: ['activity_support'],
     label: 'NU-kort',
   },
   {
     id: 'adaptive_substeps',
     feature: null,  // basic — driven by child_view_config
     domain: 'today',
-    placements: ['activity_support'],
+    primaryPlacement: 'activity_support',
+    secondaryPlacements: [],
     label: 'Adaptivt stöd',
   },
-  // … reporting, pedagog
+  {
+    id: 'reporting',
+    feature: 'reporting',
+    domain: 'world',
+    primaryPlacement: 'world_history',
+    secondaryPlacements: [],
+    label: 'Min historia',
+  },
+  // … pedagog (domain: 'family', primaryPlacement: 'family_hall')
 ];
 
 export const CHILD_SYSTEM_ACTIONS = [
-  // Kräver ParentalGate i barnläge (§4.2) — aldrig i primärnav
+  // Kräver ParentalGate i barnläge (§4.2) — aldrig en värld
   { id: 'switch_child', label: 'Byt barn',    action: 'switchChild', requiresParentalGate: true },
   { id: 'dark_mode',    label: 'Mörkt läge',  action: 'toggleDark', requiresParentalGate: true },
   { id: 'logout',       label: 'Logga ut',    action: 'logout', requiresParentalGate: true },
@@ -1018,7 +1123,7 @@ export const CHILD_SYSTEM_ACTIONS = [
 
 | Leverans | Detalj |
 |----------|--------|
-| `public/js/child-nav-config.js` | `CHILD_PRIMARY_NAV` med personliga `labels` |
+| `public/js/child-worlds.js` | `CHILD_WORLDS` med personliga `labels` |
 | `public/js/child-capabilities.js` | `CHILD_CAPABILITIES`, `CHILD_SYSTEM_ACTIONS`, access/visibility |
 | `public/js/child-placements.js` | `CHILD_PLACEMENTS` register |
 | Inga synliga ändringar | Config importeras men UI oförändrat |
@@ -1075,7 +1180,7 @@ export const CHILD_SYSTEM_ACTIONS = [
 ## 9. Sprint-plan (låst ordning)
 
 ### Sprint 0 — Config
-- [ ] `child-nav-config.js` (nav + personliga labels + **paths**)
+- [ ] `child-worlds.js` (världar + personliga labels + **paths** + `activeChildNavItem()`)
 - [ ] `child-capabilities.js` (access + visibility)
 - [ ] `child-placements.js` (placement-register)
 - [ ] Inga UI-ändringar
@@ -1118,7 +1223,30 @@ export const CHILD_SYSTEM_ACTIONS = [
 
 ---
 
-## 10. Redirects (sammanfattning)
+## 10. Mätning — rätt saker
+
+Mät om barnet **lyckas**, inte hur mycket det klickar. Vanity-metrics (klick, tid-i-skatt) lurar oss att tro att utforskning = värde.
+
+| ❌ Mät inte | ✅ Mät i stället |
+|------------|------------------|
+| Antal klick till feature | Kom barnet igång idag? |
+| Tid i Skattkammaren / Min värld | Klarades första aktiviteten? |
+| Sidvisningar per flik | Behövdes stöd — och hjälpte det? |
+
+### Per värld
+
+| Värld | Vad vi mäter |
+|-------|--------------|
+| ☀️ **Idag** | Kom barnet igång? Klarades första aktiviteten? Behövdes stöd? |
+| **Coach** | Hjälpte nästa-steg-loopen — ledde den vidare till NU/NÄSTA? |
+| ❤️ **Mina personer** | Sker faktisk interaktion med relationer (inte bara visning)? |
+| 🏰 **Min värld** | Finns motivation **efter** handling — inte i stället för? |
+
+Använd befintlig `analytics_events` (`event_type` + `metadata`, ingen PII). Lägg events vid route-migration (Sprint 3) och vid coach/stöd-trigger (Sprint 4). Inga nya tabeller krävs.
+
+---
+
+## 11. Redirects (sammanfattning)
 
 | Gammal | Ny |
 |--------|-----|
@@ -1133,15 +1261,15 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 
 ---
 
-## 11. Relation till vuxenmeny v2
+## 12. Relation till vuxenmeny v2
 
 | Vuxen | Barn | Gemensam princip |
 |-------|------|------------------|
 | Parent Intent (jobb) | Barnfråga (värld) | Flik = mental modell, inte feature |
-| `nav-config.js` | `child-nav-config.js` | En nav-källa |
+| `nav-config.js` | `child-worlds.js` | En källa (vuxen: "nav" · barn: "världar") |
 | `CAPABILITIES` + placements | `CHILD_CAPABILITIES` | Paket utökar djup, inte bredd |
 | Barnprofil → Framsteg | Min värld → Historik | Reporting dubbel entré |
-| Avatar → inställningar | Vuxenikon / förälder | System utanför primärnav |
+| Avatar → inställningar | Vuxenikon + gate / förälder | System utanför världarna/flikarna |
 | `informationsarkitektur-barnapp.md` tre lager | Tre världar | Idag → Min värld → Mina personer |
 | Hem → För dig (vuxen) | Idag → coach-loop (barn) | Coach-lager per målgrupp |
 | Förälder **Familj** (personer) | Barn **Mina personer** (relation) | Samma domän-id `family` i kod — **olika** barnspråk |
@@ -1151,29 +1279,32 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 
 ---
 
-## 12. Checklista innan merge (per sprint)
+## 13. Checklista innan merge (per sprint)
 
-- [ ] `CHILD_PRIMARY_NAV` har `paths` + `activeChildNavItem()` (inkl. hash-fallback)
-- [ ] Systemåtgärder bakom **Parental Gate** i barnläge (`parental-gate.js`)
+- [ ] Barnregeln respekterad: ingen ny funktion skapar en ny primärvärld (§Barnregel)
+- [ ] `CHILD_WORLDS` har `paths` + `activeChildNavItem()` (inkl. hash-fallback)
+- [ ] Alla barnvärld-konsumenter läser `child-worlds.js` (källan heter `CHILD_WORLDS`, inte `*_NAV`)
+- [ ] Systemåtgärder bakom **Parental Gate** i barnläge (`parental-gate.js`, §4.2)
 - [ ] a11y: `aria-current` på aktiv värld, coach `aria-live`, overlay-fokus
-- [ ] Alla barn-nav-konsumenter läser `child-nav-config.js`
 - [ ] `child-placements.js` + `child-capabilities.js` på plats
-- [ ] Varje `CHILD_CAPABILITY` har `id`, `feature`, `domain`, `placements`
-- [ ] Exakt **tre** primärflikar — inga Hem/Mer/Schema/Skattkammaren
-- [ ] Nav-etikett *Mina personer* (❤️), inte "Familj" eller "Skattkammaren"
+- [ ] Varje `CHILD_CAPABILITY` har `id`, `feature`, `domain`, `primaryPlacement` (**exakt en owner**) — inga platta `placements`-arrayer
+- [ ] Exakt **tre** primärvärldar — inga Hem/Mer/Schema/Skattkammaren-flikar
+- [ ] Startflöde: login → trygg animation (max 2 s) → **Idag**; aldrig Hem/Min värld som start (§Startflöde)
+- [ ] Barnetikett *Mina personer* (❤️) = "De som hjälper mig" — personer först, ingen synlig social graph
 - [ ] Ingen classic/magic/rollout **nav-split** — endast `presentationMode`
 - [ ] Coach-loop testad (ej chat-bot, leder till NU/NÄSTA)
-- [ ] Adaptivt stöd: samma data, två renderingslägen
+- [ ] Adaptivt stöd: samma data, två renderingslägen — stöd ändrar upplevelse, aldrig IA (§6)
+- [ ] System (byt barn, logga ut) bakom vuxenikon + **Parental Gate** (§4); barn kan inte korsa gränsen
 - [ ] `session-gate.js` inkluderar `/child/*` paths
 - [ ] Deep links / push uppdaterade vid behov
-- [ ] Analytics vid route-migration (Sprint 3+)
+- [ ] Mätning enligt §10 (lyckas-metrics, inte klick/tid-i-skatt) vid route-/coach-migration
 - [ ] `CACHE_NAME` i `public/sw.js` bumpad
 - [ ] Smoke: klassisk vy, magic vy, TEACCH overlay, native shell
 - [ ] Ingen omskrivning av rewards/daily-log API (non-goal §0)
 
 ---
 
-## 13. Ägarskap efter migration
+## 14. Ägarskap efter migration
 
 | Barnfråga | Äger |
 |-----------|------|
@@ -1182,11 +1313,46 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 | Mina personer / trygghet | **Mina personer** |
 | Coach efter handling | **Idag** → coach-loop |
 | Adaptivt stöd | **Idag** → `child-support-layer` |
-| System (byt barn, tema, logout) | Header vuxenikon + **Parental Gate** — **inte** flik |
+| System (byt barn, tema, logout) | Header vuxenikon + **Parental Gate** / förälder — **inte** värld (§4.2) |
 | Intro efter login | Animation → landar på Idag |
 | Paket (TEACCH, reporting, …) | Placements i befintliga världar |
 
 **Slutsats:** Navigationen växer inte när paket kommer — **djupet** i varje värld växer. Idag är operativsystemet. Min värld är motivation. Mina personer är trygghet. Appen guidar — barnet lyckas med nästa sak.
+
+### Slutbild (10/10)
+
+```
+LOGIN
+   ↓
+☀️ IDAG
+"Vad händer nu?"
+        |
+        + stöd
+        + coach
+        + nästa steg
+
+
+🏰 MIN VÄRLD
+"Det jag bygger"
+        |
+        + stjärnor
+        + mål
+        + avatar
+        + historia
+
+
+❤️ MINA PERSONER
+"De som hjälper mig"
+        |
+        + relation
+        + trygghet
+
+
+SYSTEM
+(vuxenikon + gate)
+```
+
+**Det viktigaste: lägg inte till mer.** Arkitekturen blir stark genom begränsning. Tre förändringar lyfter den från "snyggare meny" till **barnplattform med tydlig produktfilosofi**: (1) mentalt skifte nav → världar, (2) hårt capability-owner-kontrakt, (3) Idag ännu mer dominant visuellt och tekniskt.
 
 ---
 
