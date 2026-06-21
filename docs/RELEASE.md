@@ -38,7 +38,8 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `PAYMENT_ENABLED` | `false` | Stripe inaktiverat — IAP via RevenueCat |
 | `STRIPE_SECRET_KEY` | (sätts ändå för admin-fliken) | Backend Stripe-funktionalitet |
 | `STRIPE_WEBHOOK_SECRET` | (från Stripe Dashboard) | För Stripe-webhooks |
-| `RESEND_API_KEY` | (från Resend Dashboard) | All e-post (verifiering, nyhetsbrev, välkomst m.m.) |
+| `RESEND_API_KEY` | (från Resend Dashboard) | Transaktionsmail (verifiering, inbjudningar, nyhetsbrev, välkomst m.m.) |
+| `RESEND_API_KEY_WEEKLY` | (valfritt, separat Resend-nyckel) | Veckosammanfattning söndag 21:00. Fallback till `RESEND_API_KEY` om ej satt. Återkalla bara denna nyckel för att stoppa söndagsmail utan att påverka övrigt. |
 | `EMAIL_FROM` | `info@mystarday.se` | Avsändaradress (måste vara verifierad domän i Resend) |
 | `EMAIL_ENABLED` | `true` | Sätt `false` för att stänga av utskick |
 | `POLSIA_API_KEY` | (från Polsia Dashboard) | Bilduppladdning (R2-proxy) — **inte** e-post |
