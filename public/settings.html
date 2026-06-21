@@ -138,14 +138,10 @@
               <input type="checkbox" id="rewardRedemption" checked>
               <span>Belöningsinlösen</span>
             </label>
-            <div class="flex items-center justify-between mb-2" id="newsletterInline" data-feature="nyhetsbrev">
-              <label for="newsletterToggleInline" class="text-sm font-semibold text-navy">Nyhetsbrev via e-post</label>
-              <button id="newsletterToggleInline" type="button"
-                class="relative w-12 h-7 rounded-full transition-colors duration-200 bg-gray-300"
-                aria-label="Växla nyhetsbrev">
-                <span id="newsletterKnobInline" class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200"></span>
-              </button>
-            </div>
+            <label for="newsletterSubscribed" class="checkbox-touch text-sm text-navy" id="newsletterInline" data-feature="nyhetsbrev">
+              <input type="checkbox" id="newsletterSubscribed" checked>
+              <span>Nyhetsbrev via e-post</span>
+            </label>
             <label for="emailEnabled" class="checkbox-touch text-sm text-navy" id="emailEnabledLabel" style="display: none;">
               <input type="checkbox" id="emailEnabled" checked>
               <span>Alla mejl globalt</span>
@@ -614,6 +610,13 @@
         document.getElementById('rewardRedemption').checked = notif.reward_redemption !== false;
         document.getElementById('emailEnabled').checked = notif.email_enabled !== false;
 
+        try {
+          const newsletter = await Auth.api('/api/newsletter/subscription');
+          document.getElementById('newsletterSubscribed').checked = newsletter.subscribed !== false;
+        } catch (_) {
+          document.getElementById('newsletterSubscribed').checked = true;
+        }
+
         // Initialize push notification section
         initPushSection(familyChildren, currentUser);
 
@@ -838,56 +841,16 @@
             email_enabled: document.getElementById('emailEnabled').checked,
           }),
         });
+        await Auth.api('/api/newsletter/subscription', {
+          method: 'PUT',
+          body: JSON.stringify({
+            subscribed: document.getElementById('newsletterSubscribed').checked,
+          }),
+        });
         msg.textContent = data.message || 'Sparat!';
         msg.className = 'text-sm text-green-600';
       } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
     });
-
-    // ── Nyhetsbrevsprenumeration (moved to notification section) ────────────────────
-    async function initNewsletterToggleInline() {
-      const toggle = document.getElementById('newsletterToggleInline');
-      const knob   = document.getElementById('newsletterKnobInline');
-
-      let subscribed = true;
-
-      // Load current subscription status (default on — opt-out via toggle)
-      try {
-        const data = await Auth.api('/api/newsletter/subscription');
-        subscribed = data.subscribed !== false;
-      } catch (_) {}
-
-      function updateUI(on) {
-        if (on) {
-          toggle.classList.remove('bg-gray-300');
-          toggle.classList.add('bg-gold');
-          knob.style.transform = 'translateX(1.25rem)';
-        } else {
-          toggle.classList.remove('bg-gold');
-          toggle.classList.add('bg-gray-300');
-          knob.style.transform = 'translateX(0)';
-        }
-      }
-
-      updateUI(subscribed);
-
-      toggle.addEventListener('click', async () => {
-        const newState = !subscribed;
-        updateUI(newState);
-
-        try {
-          const data = await Auth.api('/api/newsletter/subscription', {
-            method: 'PUT',
-            body: JSON.stringify({ subscribed: newState }),
-          });
-          subscribed = newState;
-        } catch (err) {
-          // Revert UI on error
-          updateUI(subscribed);
-        }
-      });
-    }
-    initNewsletterToggleInline();
-
 
     // ── Påminnelser (Reminders) ─────────────────────────────────────────────────
     async function initReminderSection() {
