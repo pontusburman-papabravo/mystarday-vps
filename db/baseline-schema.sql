@@ -757,6 +757,7 @@ CREATE TABLE IF NOT EXISTS dagens_nyhet (
   email_failed_count INTEGER DEFAULT 0,
   email_sent_at TIMESTAMPTZ,
   email_failed BOOLEAN DEFAULT false,
+  dismissed_by_parent_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
