@@ -5,7 +5,7 @@
 > **Status:** Del 1 = nuläge · Del 2 = låst arkitektur · implementation pågår inkrementellt  
 > **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`component-feature-map.js`](../config/component-feature-map.js)
 >
-> **Senast uppdaterad:** 2026-06-21
+> **Senast uppdaterad:** 2026-06-21 (Del 2 låst; nit-fix: paths, PG, a11y)
 
 ---
 
@@ -302,13 +302,13 @@ System             header-knappar            moreView
 | **Ingen barnprofil-route** | Allt på en HTML-sida; svårt att deep-linka "Astrids framsteg" |
 | **Produkt vs barn-intent** | Namn som Schema, Skattkammaren, Mer är system/språk — inte barnets fråga |
 
-**Mognad (från IA-doc):**
+**Mognad (uppskattning, team 2026-06 — ingen automatisk mätning):**
 
 | Lager | Mognad | Nav-tydlighet |
 |-------|--------|----------------|
-| Skattkammaren | ~85% | Många rum — intern hub fungerar |
+| Skattkammaren / Min värld | ~85% | Många rum — intern hub fungerar |
 | Idag | ~60% | today-focus hjälper men veckonav/header kvar i klassisk |
-| Familj | ~5% | Live men svår att hitta i magic |
+| Familj / Mina personer | ~5% | Live men svår att hitta i magic |
 
 ---
 
@@ -723,11 +723,35 @@ Vi tillsammans ⭐
 | Funktion idag | Placering i v2 |
 |---------------|----------------|
 | 🏡 Familj | Primärflik **Mina personer** |
-| 👤 Byt barn | Förälder styr **eller** liten vuxenikon i header |
-| 🌙 Mörkt läge | Förälder styr / header (vuxenikon) |
-| 🚪 Logga ut | Header (vuxenikon) / förälder |
+| 👤 Byt barn | Header vuxenikon → **Parental Gate** (§4.2) |
+| 🌙 Mörkt läge | Header vuxenikon → **Parental Gate** (§4.2) |
+| 🚪 Logga ut | Header vuxenikon → **Parental Gate** (§4.2) |
 
 Systemgrejer ska **inte konkurrera** med barnets tre världar.
+
+### 4.2 System-ikon & Parental Gate (låst)
+
+`CHILD_SYSTEM_ACTIONS` (byt barn, mörkt läge, logga ut) ligger i header — **inte** i primärnav. På **delad barnenhet** (iPad, familjedator) får barnet **inte** nå dem utan föräldra-PIN.
+
+| Åtgärd | Krav |
+|--------|------|
+| Visa vuxenikon | Diskret ikon i header (inte textmeny) |
+| Öppna systemmeny | `ParentalGate.requireParentMode()` när `DeviceMode.isChildMode()` |
+| Efter godkänd PIN | `DeviceMode.enterParent()` → visa `CHILD_SYSTEM_ACTIONS` |
+| Feature flag | Respektera `parental_gate_enabled` från `/api/app-config` (`parental-gate.js`) |
+
+```js
+// child-shell.js — pseudokod
+function onSystemIconClick() {
+  ParentalGate.requireParentMode(() => openSystemMenu());
+}
+```
+
+**Utan gate (endast om flagga av + medveten risk):** systemåtgärder dolda helt i barnläge — säkrare default än exponerad logout.
+
+**Befintlig kod:** `public/js/parental-gate.js`, `device-mode.js`, `child-login.js` (PG vid nytt barn). v2 **utökar** PG till header-systemmenyn.
+
+**Inte PG:** barnets tre världar, coach-loop, aktivitetsbockning — barnets egna flöden.
 
 ---
 
@@ -880,20 +904,45 @@ export const CHILD_PRIMARY_NAV = [
     icon: '☀️',
     href: '/child/today',
     labels: { young: 'Uppdrag', default: 'Idag', personal: '{name}s dag' },
+    paths: ['/child/today', '/child-dashboard'], // hash → today under migration
   },
   {
     id: 'world',
     icon: '🏰',
     href: '/child/world',
     labels: { default: 'Min värld' },
+    paths: ['/child/world'],
   },
   {
     id: 'family',
     icon: '❤️',
     href: '/child/family',
     labels: { default: 'Mina personer' },
+    paths: ['/child/family'],
   },
 ];
+
+/** Aktiv värld — samma mönster som vuxen `activeNavItem()` (nav-config.js §6) */
+export function activeChildNavItem(pathname, hash, nav = CHILD_PRIMARY_NAV) {
+  const p = (pathname || '/').replace(/\/$/, '') || '/';
+  const h = (hash || '').replace(/^#/, '');
+  // Hash-fallback under migration (child-layer-router.js)
+  const hashToId = {
+    today: 'today', idag: 'today', schedule: 'today', home: 'today', hem: 'today',
+    universe: 'world', rewards: 'world', skattkammaren: 'world',
+    family: 'family', familj: 'family',
+  };
+  if (p === '/child-dashboard' && h && hashToId[h]) {
+    return nav.find((tab) => tab.id === hashToId[h]);
+  }
+  return nav.find((tab) =>
+    tab.paths.some((tp) => {
+      if (p === tp) return true;
+      if (tp !== '/' && p.startsWith(tp + '/')) return true;
+      return false;
+    })
+  );
+}
 
 // child-capabilities.js — se §5
 // child-placements.js — se §5
@@ -928,12 +977,26 @@ export const CHILD_CAPABILITIES = [
 ];
 
 export const CHILD_SYSTEM_ACTIONS = [
-  // Inte i primärnav — header vuxenikon eller förälderstyrt
-  { id: 'switch_child', label: 'Byt barn',    action: 'switchChild' },
-  { id: 'dark_mode',    label: 'Mörkt läge',  action: 'toggleDark' },
-  { id: 'logout',       label: 'Logga ut',    action: 'logout' },
+  // Kräver ParentalGate i barnläge (§4.2) — aldrig i primärnav
+  { id: 'switch_child', label: 'Byt barn',    action: 'switchChild', requiresParentalGate: true },
+  { id: 'dark_mode',    label: 'Mörkt läge',  action: 'toggleDark', requiresParentalGate: true },
+  { id: 'logout',       label: 'Logga ut',    action: 'logout', requiresParentalGate: true },
 ];
 ```
+
+### Tillgänglighet (a11y) — krav på nav-render
+
+| Krav | Detalj |
+|------|--------|
+| Aktiv värld | `aria-current="page"` på aktiv primärnav-länk |
+| Bottennav | `role="navigation"` + `aria-label="Barnnavigering"` |
+| NU/NÄSTA/SEN | Tydliga rubriker (`h2`/`h3`), inte bara färg |
+| Delsteg | Varje steg fokuserbart; progress (`1 av 4`) läsbar för skärmläsare |
+| Coach-loop | `aria-live="polite"` på bekräftelsetext |
+| System-ikon | `aria-label="Förälder"` / `aria-haspopup="menu"`; meny med fokusfälla |
+| TEACCH-overlay | Fokusfång i overlay; Escape → tillbaka till Idag |
+
+**Referens:** samma nivå som `vuxenmeny-v2.md` §6 a11y; `mobile-nav.js` `role="dialog"` ska föras vidare till barn-header-meny.
 
 ### Filer att **inte** omskriva (initialt)
 
@@ -1012,7 +1075,7 @@ export const CHILD_SYSTEM_ACTIONS = [
 ## 9. Sprint-plan (låst ordning)
 
 ### Sprint 0 — Config
-- [ ] `child-nav-config.js` (nav + personliga labels)
+- [ ] `child-nav-config.js` (nav + personliga labels + **paths**)
 - [ ] `child-capabilities.js` (access + visibility)
 - [ ] `child-placements.js` (placement-register)
 - [ ] Inga UI-ändringar
@@ -1023,7 +1086,7 @@ export const CHILD_SYSTEM_ACTIONS = [
 - [ ] Mina personer upp från Mer
 - [ ] Hem bort som flik; Mer bort; rollout-nav bort
 - [ ] `presentationMode` — samma IA på mobil/tablet/native
-- [ ] System i header (vuxenikon) eller förälderstyrt
+- [ ] System i header (vuxenikon) + **Parental Gate** i barnläge
 - [ ] `session-gate.js` uppdaterad
 - [ ] `public/sw.js` bump
 
@@ -1081,6 +1144,8 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 | Avatar → inställningar | Vuxenikon / förälder | System utanför primärnav |
 | `informationsarkitektur-barnapp.md` tre lager | Tre världar | Idag → Min värld → Mina personer |
 | Hem → För dig (vuxen) | Idag → coach-loop (barn) | Coach-lager per målgrupp |
+| Förälder **Familj** (personer) | Barn **Mina personer** (relation) | Samma domän-id `family` i kod — **olika** barnspråk |
+| `/skattkammaren` → `/rewards` (inloggad **förälder**) | Barn: `/child/world`; publik demo kvar | Redirect **aldrig** för barn eller `?demo=1` |
 
 **Slutsats:** För att nå 10/10 behöver ni inte lägga till mer — ni behöver göra barnmenyn **mer konsekvent med barnets faktiska behov**. Appen guidar barnet genom dagen; barnet navigerar inte funktioner.
 
@@ -1088,6 +1153,9 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 
 ## 12. Checklista innan merge (per sprint)
 
+- [ ] `CHILD_PRIMARY_NAV` har `paths` + `activeChildNavItem()` (inkl. hash-fallback)
+- [ ] Systemåtgärder bakom **Parental Gate** i barnläge (`parental-gate.js`)
+- [ ] a11y: `aria-current` på aktiv värld, coach `aria-live`, overlay-fokus
 - [ ] Alla barn-nav-konsumenter läser `child-nav-config.js`
 - [ ] `child-placements.js` + `child-capabilities.js` på plats
 - [ ] Varje `CHILD_CAPABILITY` har `id`, `feature`, `domain`, `placements`
@@ -1114,7 +1182,7 @@ Befintliga API:er (`/api/me/daily-log`, `/api/me/goal`, …) **oförändrade**.
 | Mina personer / trygghet | **Mina personer** |
 | Coach efter handling | **Idag** → coach-loop |
 | Adaptivt stöd | **Idag** → `child-support-layer` |
-| System (byt barn, tema, logout) | Header vuxenikon / förälder — **inte** flik |
+| System (byt barn, tema, logout) | Header vuxenikon + **Parental Gate** — **inte** flik |
 | Intro efter login | Animation → landar på Idag |
 | Paket (TEACCH, reporting, …) | Placements i befintliga världar |
 
