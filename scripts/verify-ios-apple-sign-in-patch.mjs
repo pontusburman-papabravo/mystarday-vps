@@ -46,5 +46,12 @@ if (/windowScene\.keyWindow/.test(content)) {
   console.error('❌ Apple Sign In patch uses windowScene.keyWindow (iOS 15+) on an iOS 14 target — this breaks the build. Remove it.');
   process.exit(1);
 }
+// Capacitor runs plugin methods off the main thread. ASAuthorizationController presentation
+// MUST be dispatched to the main thread or iPad fails with ASAuthorizationError 1000 (the
+// "works on iPhone, fails on iPad" App Review 2.1a rejection). Require the main-thread hop.
+if (!content.includes('DispatchQueue.main.async')) {
+  console.error('❌ Apple Sign In patch must present on the main thread (DispatchQueue.main.async) — iPad fails otherwise.');
+  process.exit(1);
+}
 
 console.log('✅ Apple Sign In iPad presentation patch present');

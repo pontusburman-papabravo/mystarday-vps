@@ -11,22 +11,29 @@ public class SignInWithApple: CAPPlugin, CAPBridgedPlugin {
     ]
 
     @objc func authorize(_ call: CAPPluginCall) {
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = getRequestedScopes(from: call)
-        request.state = call.getString("state")
-        request.nonce = call.getString("nonce")
+        // Capacitor dispatches plugin methods on a background queue. ASAuthorizationController
+        // presentation (and the presentationAnchor lookup, which touches UIKit) MUST run on the
+        // main thread. iPhone often tolerates being called off-main, but iPad strictly requires
+        // a main-thread presentation and otherwise fails with ASAuthorizationError 1000 and shows
+        // an error sheet — the exact "works on iPhone, fails on iPad" App Review 2.1a rejection.
+        DispatchQueue.main.async {
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = self.getRequestedScopes(from: call)
+            request.state = call.getString("state")
+            request.nonce = call.getString("nonce")
 
-        let defaults = UserDefaults()
-        defaults.setValue(call.callbackId, forKey: "callbackId")
+            let defaults = UserDefaults()
+            defaults.setValue(call.callbackId, forKey: "callbackId")
 
-        self.bridge?.saveCall(call)
+            self.bridge?.saveCall(call)
 
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        // Required on iPad — without this Apple shows an error sheet (App Review 2.1a).
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = self
+            // Required on iPad — without this Apple shows an error sheet (App Review 2.1a).
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+        }
     }
 
     func getRequestedScopes(from call: CAPPluginCall) -> [ASAuthorization.Scope]? {

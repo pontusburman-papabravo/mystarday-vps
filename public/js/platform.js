@@ -416,11 +416,14 @@ var Platform = (function () {
             scopes: 'email name',
           });
           var resp = result.response || result;
+          // The native plugin returns given/family name either at the response
+          // top level (our patched Plugin.swift) or nested under fullName.
+          var given = (resp.fullName && resp.fullName.givenName) || resp.givenName || '';
+          var family = (resp.fullName && resp.fullName.familyName) || resp.familyName || '';
+          var fullName = (given + ' ' + family).trim();
           return {
             idToken: resp.identityToken,
-            name: resp.fullName && resp.fullName.givenName
-              ? (resp.fullName.givenName + ' ' + (resp.fullName.familyName || '')).trim()
-              : null,
+            name: fullName || null,
           };
         } catch (err) {
           var msg = (err && (err.message || err.errorMessage)) || String(err || '');

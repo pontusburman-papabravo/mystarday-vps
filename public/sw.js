@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v263 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v266 // pragma: allowlist secret
+ * v266: Apple Sign In iPad — robust native name mapping (givenName/familyName)
  * v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate
  * v199: avatar_url sparas vid PUT + direktsparning efter uppladdning
  * v198: window.Auth + avatar upload auth check fix
@@ -206,7 +207,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v265';
+const CACHE_NAME = 'stjarndag-v266';
 // v265: bottom nav Extra tab (Hem·Schema·För dig·Skatt·Extra·Mer) + nav remount fix
 // v263: app-config — Services ID only for web Apple; redirect URI falls back to request origin
 // v252: Remove all subscription/payment UI text for App Review (Build 15)

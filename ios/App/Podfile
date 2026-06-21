@@ -31,8 +31,9 @@ def patch_apple_sign_in_presentation!
 
   patched_contents = File.read(patched)
   unless patched_contents.include?('ASAuthorizationControllerPresentationContextProviding') &&
-         patched_contents.include?('presentationContextProvider = self')
-    Pod::UI.warn '[apple-sign-in] Vendored patch is missing the presentation context provider; aborting patch.'
+         patched_contents.include?('presentationContextProvider = self') &&
+         patched_contents.include?('DispatchQueue.main.async')
+    Pod::UI.warn '[apple-sign-in] Vendored patch is missing the presentation context provider or main-thread dispatch; aborting patch.'
     return
   end
 
