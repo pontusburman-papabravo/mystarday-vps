@@ -249,6 +249,8 @@ async function runWeeklySummaryJob() {
           to: parent.email,
           subject: `Veckans sammanfattning ⭐ — ${weekLabel}`,
           html,
+          apiKeyProfile: 'weekly',
+          tags: [{ name: 'type', value: 'weekly_summary' }],
         });
 
         sentCount++;

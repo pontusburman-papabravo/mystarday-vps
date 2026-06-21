@@ -3,8 +3,8 @@
  * Owns: all outbound transactional email for Min Stjärndag.
  * Does NOT own: push notifications (push.js), in-app messages (system-messages).
  *
- * Env: RESEND_API_KEY (required for live sends), EMAIL_FROM (default info@mystarday.se),
- *      EMAIL_ENABLED=false kill switch for local dev.
+ * Env: RESEND_API_KEY (required for live sends), RESEND_API_KEY_WEEKLY (optional — weekly
+ *      summary only; falls back to RESEND_API_KEY), EMAIL_ENABLED=false kill switch.
  */
 const config = require('./config');
 
@@ -20,7 +20,10 @@ const TEST_MAILBOX_SUFFIXES = [
   '@test.com',
 ];
 
-function getResendApiKey() {
+function getResendApiKey(profile = 'default') {
+  if (profile === 'weekly') {
+    return process.env.RESEND_API_KEY_WEEKLY || process.env.RESEND_API_KEY || null;
+  }
   return process.env.RESEND_API_KEY || null;
 }
 
@@ -44,7 +47,7 @@ async function registerContact(_email, _name, _source = 'signup') {
 /**
  * Send an email via Resend.
  */
-async function sendEmail({ to, subject, body: textBody, html, from, tags }) {
+async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile }) {
   const recipients = normalizeRecipients(to);
   if (recipients.length > 0 && recipients.every(isTestMailbox)) {
     console.log(`[EMAIL] Suppressed (test mailbox): to=${recipients.join(',')}, subject="${subject}"`);
@@ -56,13 +59,19 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags }) {
     return { success: true, provider: 'suppressed' };
   }
 
-  const apiKey = getResendApiKey();
+  const keyProfile = apiKeyProfile === 'weekly' ? 'weekly' : 'default';
+  const apiKey = getResendApiKey(keyProfile);
+  const keyEnvName = keyProfile === 'weekly' && process.env.RESEND_API_KEY_WEEKLY
+    ? 'RESEND_API_KEY_WEEKLY'
+    : 'RESEND_API_KEY';
 
-  console.log(`[EMAIL] Sending email to=${to}, subject="${subject}", hasApiKey=${!!apiKey}`);
+  console.log(
+    `[EMAIL] Sending email to=${to}, subject="${subject}", keyProfile=${keyProfile}, hasApiKey=${!!apiKey}`
+  );
 
   if (!apiKey) {
-    console.error('[EMAIL] No RESEND_API_KEY — email not sent. Check env vars.');
-    return { success: false, provider: 'none', error: 'RESEND_API_KEY saknas' };
+    console.error(`[EMAIL] No ${keyEnvName} — email not sent. Check env vars.`);
+    return { success: false, provider: 'none', error: `${keyEnvName} saknas` };
   }
 
   const plainText = textBody || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : subject);
@@ -360,6 +369,7 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
 
 module.exports = {
   sendEmail,
+  getResendApiKey,
   isTestMailbox,
   registerContact,
   sendVerificationEmail,

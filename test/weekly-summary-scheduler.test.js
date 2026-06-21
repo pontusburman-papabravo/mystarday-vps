@@ -16,6 +16,7 @@ describe('weekly summary scheduler', () => {
     );
     assert.ok(src.includes('db.getClient()'), 'must acquire advisory lock on a dedicated connection');
     assert.ok(src.includes('weekly_summary_send_log'), 'must dedupe sends per parent/week');
+    assert.ok(src.includes("apiKeyProfile: 'weekly'"), 'must use dedicated weekly Resend key profile');
     assert.ok(src.includes('stockholm-time'), 'must use timezone-safe Stockholm conversion');
     assert.ok(!src.includes('Fail-open'), 'must not fail open on lock errors');
   });
