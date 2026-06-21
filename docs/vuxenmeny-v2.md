@@ -9,11 +9,28 @@
 
 ---
 
+## 0. Non-goals (låst)
+
+> **V2 bygger inte om produktlogiken. Den flyttar ägarskap och presentation. Befintliga features, routes och dataflöden återanvänds där möjligt.**
+
+Detta innebär konkret:
+
+| Gör | Gör inte |
+|-----|----------|
+| Nya hub-sidor som länkar till befintliga routes | Flytta eller omskriva `/schedule`, `/library`, `/reports` |
+| Ny barnprofil-sida som samlar befintlig UI | Duplicera affärslogik i nya filer |
+| Redirects från gamla entry points | Ta bort gamla routes innan analytics visar adoption |
+| `nav-config.js` som presentationslager | Ny backend för befintliga flows |
+
+Om någon föreslår "vi flyttar hela schedule-modulen till planning" — det är **utanför scope** för v2.
+
+---
+
 ## 1. Produktprincip (en rad som styr allt)
 
 | Fråga | Svar i v2 |
 |-------|-----------|
-| Vad navigerar föräldern efter? | **Föräldrajobb** — inte features eller paket |
+| Vad navigerar föräldern efter? | **Föräldrajobb** (*Parent Intent*) — inte features eller paket |
 | Vad gör ett paket? | **Utökar innehåll** i en befintlig domän |
 | Vad gör en feature? | **Läggs till** på rätt `placement` — skapar inte menyitem |
 
@@ -22,7 +39,12 @@
 Fel: `feature → skapa menyitem`  
 Rätt: `feature → lägg till innehåll i rätt domän`
 
+Fel: *"Var ska den nya TEACCH-sidan ligga?"*  
+Rätt: *"Vilket parent intent hjälper den?"* → Planering.
+
 Om en ny funktion kräver ny bottenflik har den troligen fel hemvist.
+
+**Terminologi:** *Föräldrajobb* internt · *Parent Intent* i produktteam och vid feature-review.
 
 ---
 
@@ -69,26 +91,57 @@ Framtida paketinnehåll syns i **hubbar** och **barnprofil** — inte som nya to
 
 ## 3. Domänmodell
 
-Tre begrepp styr all synlighet och placering:
+Fyra begrepp styr synlighet och placering:
 
 | Begrepp | Betydelse | Exempel |
 |---------|-----------|---------|
-| **`feature`** | Paket-/feature-slug som styr åtkomst | `reporting`, `pedagog`, `teacch`, `for_dig` |
-| **`domain`** | Föräldramental modell — *vilket jobb hjälper funktionen?* | `child_progress`, `planning`, `rewards`, `family` |
-| **`placement`** | Var i UI innehållet renderas | `primary`, `planning_hub`, `child_profile`, `home_card` |
+| **`feature`** | Paket-/feature-slug som styr **åtkomst** | `reporting`, `pedagog`, `teacch`, `for_dig` |
+| **`domain`** | Parent intent — *vilket jobb hjälper funktionen?* (**obligatoriskt**) | `child_progress`, `planning`, `rewards`, `family` |
+| **`placement`** | Var i UI innehållet **kan** renderas | `planning_hub`, `child_profile`, `home_card` |
+| **`visibility`** | Om innehållet **ska** visas just nu på en placement | Per placement, oberoende av köp |
 
 **Viktigt:** Navigationen *äger inte* funktionen. Samma feature kan ha flera placements.
 
+### Obligatoriska fält i `CAPABILITIES`
+
+Varje capability **måste** ha alla fyra — inga undantag:
+
 ```js
 {
-  id: 'reports',
+  id: 'reports',           // required — stabil nyckel
+  feature: 'reporting',    // required — access gate (null = basic, alltid tillgänglig)
+  domain: 'child_progress', // required — parent intent
+  placements: ['child_profile', 'rewards_hub', 'home_card'], // required — minst en
   label: 'Rapporter',
-  feature: 'reporting',
-  domain: 'child_progress',
-  placements: ['child_profile', 'rewards_hub', 'home_card'],
   href: '/reports',
 }
 ```
+
+**Förbjudet** (återinför gamla problemet):
+
+```js
+{ label: 'Ny grej', href: '/new-feature' }  // ❌ saknar id, feature, domain, placements
+```
+
+Code review / lint: avvisa capabilities utan `domain`.
+
+### Access vs visibility (separata lager)
+
+| Lager | Fråga | Källa |
+|-------|-------|-------|
+| **Access** | Har familjen rätt att använda funktionen? | `/api/subscription/access` → `components`, `features` |
+| **Visibility** | Ska vi visa den på denna placement nu? | `nav-config` + ev. rollout / aktiveringsstatus |
+
+Exempel: TEACCH kan vara **köpt** (`access.teacch: true`) men **inte aktiverat** av föräldern → dölj i `planning_hub` tills aktivering.
+
+```js
+function shouldShow(capability, access, visibility) {
+  if (!hasFeatureAccess(access, capability.feature)) return false;
+  return capability.placements.every((p) => visibility[p] !== false);
+}
+```
+
+Detta förhindrar att feature-flaggning och UI-beslut blandas i samma boolean.
 
 ### Domäner (låsta)
 
@@ -174,9 +227,20 @@ Lisa
 
 **Flytta bort från `/family`:** push, PWA-installation, föräldralås, GDPR, dataexport, radera konto → `/settings` eller avatar.
 
-### `/family/child/:slug` — Barnprofil
+### `/family/child/:slug` — Barnprofil (navets viktigaste objekt)
 
 Största UX-lyftet. Ersätter drawer + `/child-settings`.
+
+> **Regel:** Alla barnrelaterade funktioner ska kunna nås via barnprofilen — även om de också finns i andra domäner (hubbar, Hem, För dig).
+
+Samma funktion, olika entréer:
+
+| Funktion | Barnprofil | Annan entré |
+|----------|------------|-------------|
+| Rapporter | Framsteg → Rapporter | Hem: "Se utveckling →" |
+| Schema | Schema | Planering-hub |
+| Kvällsrutin | (via rekommendation) | För dig: "Bygg kvällsrutin för Astrid" |
+| PIN | PIN-kod | Hem: readiness-kort |
 
 ```
 🌟 Astrid · 7 år
@@ -306,17 +370,22 @@ export const AVATAR_ACTIONS = [
 ];
 ```
 
-### Filtrering
+### Filtrering (access + visibility)
 
 ```js
-function visiblePlacements(access, placement) {
-  return CAPABILITIES.filter(
-    (c) => c.placements.includes(placement) && hasFeature(access, c.feature)
-  );
+function visibleAtPlacement(capability, access, visibility, placement) {
+  if (!capability.placements.includes(placement)) return false;
+  if (!hasFeatureAccess(access, capability.feature)) return false;
+  if (visibility[placement] === false) return false;
+  return true;
+}
+
+function capabilitiesForPlacement(access, visibility, placement) {
+  return CAPABILITIES.filter((c) => visibleAtPlacement(c, access, visibility, placement));
 }
 ```
 
-`access` från befintlig `/api/subscription/access` — ingen ny backend krävs för fas 0–5.
+`access` från befintlig `/api/subscription/access`. `visibility` kan börja som `{}` (allt synligt om access finns) och utökas vid behov (t.ex. TEACCH aktivering).
 
 ### Filer att **inte** omskriva
 
@@ -403,7 +472,32 @@ Ingen affärslogik flyttas.
 | `/family/child/:slug` | Ny barnprofil-sida |
 | Rensa `/family` | Endast barn, vuxna, pedagoger |
 | Redirect | `/child-settings` → barnprofil |
-| Drawer | Avvecklas till förmån för barnprofil |
+| Drawer | Avvecklas till förmån för barnprofil (behåll fallback tills analytics OK) |
+
+#### Analytics (krav i fas 3)
+
+Stor UX-förändring — mät adoption, inte bara känsla.
+
+**Baseline före (2 veckor eller retrospektivt):**
+
+| Event | Syfte |
+|-------|-------|
+| `page_view` `/child-settings` | Gammal barninställningsväg |
+| `page_view` `/skattkammaren` | Gammal belöningsväg |
+| `family_drawer_open` | Drawer-användning |
+
+**Efter lansering:**
+
+| Event | Syfte |
+|-------|-------|
+| `page_view` `/family/child/:slug` | Barnprofil-adoption |
+| `nav_hub_click` `planning` / `rewards` | Hub-användning vs direktlänkar |
+| `readiness_action_click` | Hem-kort leder till handling |
+| `child_profile_section` `schema` / `framsteg` / `pin` | Vilka sektioner används |
+
+**Beslutskriterium:** drawer och `/child-settings` kan tas bort när barnprofil ≥ 80% av barnrelaterade sessioner i 14 dagar.
+
+Använd befintlig `analytics_events` (`event_type` + `metadata`) — inga nya tabeller krävs för v1-mätning.
 
 ### Fas 4 — Settings-sanering
 
@@ -434,32 +528,50 @@ Lägg till `CAPABILITIES`-rader när paket går live. Ingen nav-refaktor.
 
 ---
 
-## 9. Sprint-plan (rekommenderad)
+## 9. Sprint-plan (låst ordning)
 
-### Sprint 1
-- [ ] `nav-config.js`
-- [ ] Nytt primärnav (sidebar + bottennav + magic shell)
-- [ ] `/planning` hub
-- [ ] `/rewards` hub + redirect från `/skattkammaren`
+Varje sprint ska lämna appen **användbar** — inte halvfärdig nav med gamla sidor under.
+
+### Sprint 1 — Synlig v2
+- [ ] `nav-config.js` med obligatoriska capability-fält
+- [ ] Alla nav-konsumenter läser samma källa (`native-tab-bar`, `parent-magic-shell`, `mobile-nav`, sidebar)
+- [ ] Fem flikar live: Hem · Planering · Belöningar · För dig · Familj
 - [ ] `session-gate.js` uppdaterad
 - [ ] `public/sw.js` CACHE_NAME-bump
 
-### Sprint 2
-- [ ] `/family` rensad (personer only)
-- [ ] `/family/child/:slug` barnprofil
-- [ ] Redirect `/child-settings`
-- [ ] Avveckla drawer (eller behåll som fallback tills analytics OK)
+*Leverans:* användaren ser ny mental modell direkt. Gamla routes fungerar fortfarande.
 
-### Sprint 3
-- [ ] `/settings` minimal
-- [ ] Avatar-meny
-- [ ] Readiness-kort på Hem
+### Sprint 2 — Hubbar
+- [ ] `/planning` tunn hub
+- [ ] `/rewards` tunn hub
+- [ ] Redirect `/skattkammaren` → `/rewards`
+- [ ] `nav_hub_click` analytics
+
+*Leverans:* slut på route-navigation som huvudmodell.
+
+### Sprint 3 — Barnprofil (största kvalitetslyftet)
+- [ ] `/family/child/:slug`
+- [ ] `/family` rensad (barn, vuxna, pedagoger only)
+- [ ] Redirect `/child-settings` → barnprofil
+- [ ] Analytics baseline + post-launch events (§8 Fas 3)
+- [ ] Drawer kvar som fallback tills mätvärden OK
+
+### Sprint 4 — Settings & avatar
+- [ ] `/settings` minimal (konto, säkerhet, notiser, app, data)
+- [ ] Flytta operativt från `/family`
+- [ ] Avatar-meny (inställningar, logout, pedagog-förberedelse)
+- [ ] Språk: "PIN-kod" / "Säkerhet" — inte "föräldralås" i föräldratext
+
+### Sprint 5 — Readiness-lager
+- [ ] `home-readiness.js` (eller `/api/family/readiness`)
+- [ ] Hem-kort: saknas-status, nästa steg
 - [ ] För dig kopplat till samma intelligenslager
+- [ ] Entréer till barnprofil från Hem och För dig
 
-### Sprint 4
-- [ ] `CAPABILITIES` + feature placements
-- [ ] Paketstöd (reporting, pedagog, teacch) — dolda tills live
-- [ ] Fas 7-städning
+### Sprint 6+ — Paket-placements
+- [ ] `CAPABILITIES` för reporting, pedagog, teacch (dolda tills live)
+- [ ] Access + visibility separerat i nav-render
+- [ ] Fas 7-städning (Extra/Mer borta, permanenta redirects)
 
 ---
 
@@ -485,28 +597,33 @@ Befintliga sidor (`/schedule`, `/library`, `/calendar`, `/assign-schedule`, `/fo
 
 ---
 
-## 12. Checklista innan merge (per fas)
+## 12. Checklista innan merge (per sprint)
 
 - [ ] Alla nav-konsumenter läser `nav-config.js`
+- [ ] Varje `CAPABILITY` har `id`, `feature`, `domain`, `placements`
+- [ ] Access och visibility inte sammanslagna i en boolean
 - [ ] Inga tomma hub-ytor för basic-användare (gated items dolda, inte disabled)
+- [ ] Barnrelaterade flows nåbara via barnprofil
 - [ ] `session-gate.js` inkluderar nya parent-only paths
 - [ ] Deep links / push (`deep-link-router.js`) uppdaterade vid behov
+- [ ] Analytics-events tillagda vid UX-förändring (Sprint 3+)
 - [ ] `CACHE_NAME` i `public/sw.js` bumpad
 - [ ] Manuell smoke: desktop sidebar, mobil webb, native tab bar, magic view
+- [ ] Ingen omskrivning av `/schedule`, `/library`, `/reports` (non-goal §0)
 
 ---
 
 ## 13. Ägarskap efter migration
 
-| Föräldrajobb | Äger |
-|--------------|------|
+| Parent intent | Äger |
+|---------------|------|
 | Daglig överblick | Hem |
 | Planera vardag | Planering |
 | Stjärnor & belöningar | Belöningar |
 | Coach & rekommendationer | För dig |
 | Personer i hushållet | Familj |
-| Ett barns hela värld | Barnprofil |
-| Utveckling över tid | Framsteg (domän) |
+| **Ett barns hela värld** | **Barnprofil** (kanonisk väg för allt barnrelaterat) |
+| Utveckling över tid | Framsteg (domän under barnprofil) |
 | Konto & säkerhet | Inställningar / avatar |
 
-**Slutsats:** Navigationen växer inte när paket kommer — **djupet** i varje värld växer.
+**Slutsats:** Navigationen växer inte när paket kommer — **djupet** i varje värld växer. Barnprofilen är navets viktigaste objekt; hubbar och Hem är entréer, inte ägare.
