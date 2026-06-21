@@ -14,7 +14,7 @@
     calendar: { icon: '📆', title: 'Kalender', sub: 'Månadsvy över alla barn' },
     activities: { icon: '📋', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },
     'assign-schedule': { icon: '📅', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
-    'daily-log': { icon: '📝', title: 'Daglig logg', sub: 'Följ barnens dag' },
+    'daily-log': { icon: '📝', title: 'Daglig logg', sub: 'Följ barnens dag — fyll i stjärnor i efterhand' },
     skattkammaren: { icon: '🏆', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
     'child-settings': { icon: '⭐', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
     notifications: { icon: '🔔', title: 'Notiser', sub: 'Påminnelser och meddelanden' },

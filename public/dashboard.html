@@ -385,6 +385,8 @@
     /* Per-child mini weekly chart inside child cards */
     .mini-week-chart { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; padding: 0 4px; }
     .mini-week-day { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+    .mini-week-day--clickable { cursor: pointer; }
+    .mini-week-day--clickable:hover .mini-week-label { color: #F5A623; }
     .mini-week-bar-track { width: 100%; max-width: 32px; height: 48px; background: #F3F4F6; border-radius: 8px; position: relative; overflow: hidden; }
     .mini-week-bar-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 8px; transition: height 0.4s ease; min-height: 0; }
     .mini-week-label { font-size: 10px; font-weight: 700; margin-top: 4px; color: #5A6178; }
@@ -530,9 +532,9 @@
   <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
   <script src="/js/app-view-mode.js?v=3"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
-  <script src="/js/dashboard-home-hub.js?v=2"></script>
+  <script src="/js/dashboard-home-hub.js?v=3"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
-  <script src="/js/dashboard.js?v=2.36.0"></script>
+  <script src="/js/dashboard.js?v=2.37.0"></script>
 
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
@@ -1295,6 +1297,16 @@
             </button>
             <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
               I barnvyn kan barnet trycka på ⭐-ikonen för att se Skattkammaren — en lista med belöningar och hur många stjärnor som krävs. Barnet kan begära ut en belöning när det sparat tillräckligt.
+            </div>
+          </div>
+          <hr class="border-lavender">
+          <div class="help-faq-item">
+            <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
+              Hur fyller jag i stjärnor för dagar jag glömt?
+              <span class="text-text-soft text-lg flex-shrink-0">+</span>
+            </button>
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+              Gå till <strong>Daglig logg</strong> (☰-menyn → Daglig logg, eller knappen <strong>Fyll i i efterhand</strong> på startsidan). Välj barnet, bläddra till rätt dag med pilarna eller datumväljaren, och bocka av aktiviteterna som klara. Stjärnorna sparas med rätt datum.
             </div>
           </div>
           <hr class="border-lavender">
