@@ -1,0 +1,15 @@
+---
+description: Deploy paths SSH systemd health-check
+alwaysApply: true
+---
+
+# Production deploy ops
+
+| Local Mac | `/Users/pontusburman/mystarday-vps` |
+| VPS SSH | `deploy@server-188-66-60-93` |
+| VPS path | `/var/www/mystarday` |
+| systemd | `mystarday` |
+| URL | `https://mystarday.se` |
+
+After `sudo systemctl restart mystarday`: **sleep 3** then `curl -s http://127.0.0.1:3000/health`.
+Logs: `sudo journalctl -u mystarday -f` (not stjarndag).

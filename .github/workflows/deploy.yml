@@ -58,10 +58,11 @@ jobs:
             if [ -n "${VPS_RESTART_CMD:-}" ]; then
               eval "$VPS_RESTART_CMD"
             else
-              sudo systemctl restart stjarndag
+              sudo systemctl restart mystarday
             fi
 
             echo "→ health check (on server)"
+            sleep 3
             HEALTH_URL="${VPS_HEALTH_URL:-http://127.0.0.1:3000/health}"
             for i in 1 2 3 4 5; do
               if curl -fsS "$HEALTH_URL" >/dev/null; then

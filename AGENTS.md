@@ -37,3 +37,18 @@ All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, W
 - Admin v2 deploy checklist: `docs/admin-v2/ADMIN-V2-DELIVERY.md` (migrations `1807800000000`, `1807900000000`).
 - CI (`.github/workflows/ci.yml`) currently fails at the `npm ci` step because it does **not** pass `--legacy-peer-deps`; that is a pre-existing repo/CI issue, not an environment problem.
 - The **global standard library** (`default_schedule`, `default_activity_template`, `default_reward`) is empty in a fresh local DB — it is harvested from production via `npm run harvest:library` + `npm run import:library` (needs prod admin creds). Consequence: the onboarding wizard's "schedule template" step fails locally with *"Inga aktiviteter hittades för valt schema"*. Per-family activities ARE seeded at registration (the family gets ~56 activities), so the core activity/reward/star loop works without the global library; only the prebuilt template picker is affected.
+
+### Production deploy & ops (mystarday)
+
+Agents **must** use these values (also `.cursor/rules/mystarday-deploy.mdc`):
+
+| | |
+|--|--|
+| Local Mac | `/Users/pontusburman/mystarday-vps` |
+| VPS SSH | `deploy@server-188-66-60-93` |
+| VPS path | `/var/www/mystarday` |
+| systemd | `mystarday` |
+| URL | `https://mystarday.se` |
+
+After `sudo systemctl restart mystarday`: **`sleep 3`** then `curl -s http://127.0.0.1:3000/health`.
+Logs: `sudo journalctl -u mystarday -f` (not `stjarndag`).
