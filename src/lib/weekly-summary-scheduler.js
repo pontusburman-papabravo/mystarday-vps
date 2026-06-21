@@ -12,72 +12,40 @@
 const db = require('./db');
 const { sendEmail } = require('./email');
 const { WEEKLY_SUMMARY_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const {
+  getStockholmDateParts,
+  stockholmWallClockToUtcMs,
+  addDaysToStockholmDate,
+} = require('./stockholm-time');
 
-/**
- * Day of month of the last Sunday in a given month.
- * @param {number} year  - e.g. 2026
- * @param {number} month - 0-indexed (0=January, 11=December)
- */
-function lastSundayOfMonth(year, month) {
-  // Last day of this month (day=0 in next month = last day of this)
-  const lastDayOfMonth = new Date(year, month + 1, 0);
-  const dayOfWeek = lastDayOfMonth.getDay(); // 0=Sun
-  const sunday = new Date(lastDayOfMonth.getTime() - dayOfWeek * 86400 * 1000);
-  return sunday.getDate(); // 1–31
+function msUntilNextSunday2100Stockholm({ afterRun = false, now = new Date() } = {}) {
+  const parts = getStockholmDateParts(now);
+
+  let daysUntilSunday = (7 - parts.localDow) % 7;
+  let targetDate = { year: parts.year, month: parts.month, day: parts.day };
+  if (daysUntilSunday > 0) {
+    targetDate = addDaysToStockholmDate(parts.year, parts.month, parts.day, daysUntilSunday);
+  }
+
+  let utcMs = stockholmWallClockToUtcMs(targetDate.year, targetDate.month, targetDate.day, 21, 0);
+  let ms = utcMs - now.getTime();
+
+  if (ms <= 0 && !afterRun) {
+    return 0;
+  }
+
+  if (ms <= 0 && afterRun) {
+    targetDate = addDaysToStockholmDate(targetDate.year, targetDate.month, targetDate.day, 7);
+    utcMs = stockholmWallClockToUtcMs(targetDate.year, targetDate.month, targetDate.day, 21, 0);
+    ms = utcMs - now.getTime();
+  }
+
+  return Math.max(0, ms);
 }
 
-function msUntilNextSunday2100Stockholm() {
-  const now = new Date();
-
-  // Get current time parts in Stockholm timezone
-  const fmt = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Stockholm',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false,
-  });
-  const parts = Object.fromEntries(fmt.formatToParts(now).map(p => [p.type, p.value]));
-  const localDow = new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`).getDay(); // 0=Sun
-
-  // Days until next Sunday (same day if it's Sunday and before 21:00)
-  const currentHour = parseInt(parts.hour, 10);
-  const currentMinute = parseInt(parts.minute, 10);
-  let daysUntilSunday = (7 - localDow) % 7;
-  if (daysUntilSunday === 0 && (currentHour < 21 || (currentHour === 21 && currentMinute === 0))) {
-    daysUntilSunday = 0; // today is Sunday and we haven't fired yet
-  } else if (daysUntilSunday === 0) {
-    daysUntilSunday = 7; // Sunday but past 21:00 — wait until next week
-  }
-
-  // Build a Date representing next Sunday 21:00 in Stockholm local time
-  const nextSundayLocal = new Date(`${parts.year}-${parts.month}-${parts.day}T21:00:00`);
-  nextSundayLocal.setDate(nextSundayLocal.getDate() + daysUntilSunday);
-
-  // Determine which year the next Sunday falls in (may roll over to next year)
-  const stockholmYear = parseInt(
-    new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', year: 'numeric' }).format(nextSundayLocal),
-    10
-  );
-
-  // Sweden DST: last Sunday of March (02:00→03:00) to last Sunday of October (03:00→02:00)
-  const dstStart = lastSundayOfMonth(stockholmYear, 2); // March
-  const dstEnd = lastSundayOfMonth(stockholmYear, 9);   // October
-  const stockholmDay = nextSundayLocal.getDate();
-  const stockholmMonth = nextSundayLocal.getMonth() + 1; // 1-indexed
-
-  let offsetMs;
-  if (stockholmMonth > 3 && stockholmMonth < 10) {
-    offsetMs = 2 * 3600 * 1000; // definitely summer
-  } else if (stockholmMonth === 3 && stockholmDay >= dstStart) {
-    offsetMs = 2 * 3600 * 1000; // after DST start (last Sun of March)
-  } else if (stockholmMonth === 10 && stockholmDay < dstEnd) {
-    offsetMs = 2 * 3600 * 1000; // before DST end (last Sun of October)
-  } else {
-    offsetMs = 1 * 3600 * 1000; // winter
-  }
-
-  const utcMs = nextSundayLocal.getTime() - offsetMs;
-  return Math.max(0, utcMs - now.getTime());
+function getStockholmWeekKey(date = new Date()) {
+  const parts = getStockholmDateParts(date);
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 /**
@@ -181,42 +149,58 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children) {
   `;
 }
 
-// Unique integer lock ID for this scheduler (imported from scheduler-constants)
+async function claimWeeklySummarySend(parentId, weekEndDate) {
+  const { rows } = await db.query(
+    `INSERT INTO weekly_summary_send_log (parent_id, week_end_date)
+     VALUES ($1, $2)
+     ON CONFLICT (parent_id, week_end_date) DO NOTHING
+     RETURNING id`,
+    [parentId, weekEndDate]
+  );
+  return rows.length > 0;
+}
 
 /**
  * Send weekly summary emails to all opted-in parents.
  */
 async function runWeeklySummaryJob() {
-  // Advisory lock prevents duplicate emails if multiple instances fire at the same time
+  const client = await db.getClient();
   let lockAcquired = false;
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [WEEKLY_SUMMARY_SCHEDULER_LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[WEEKLY-SUMMARY] Failed to acquire advisory lock:', err.message);
-    // Fail-open: sending duplicate emails is less harmful than not sending any
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[WEEKLY-SUMMARY] Skipping — another instance holds the lock');
-    return;
-  }
-
-  const now = new Date();
-  const endDate = now.toISOString().slice(0, 10);
-  const startDateObj = new Date(now);
-  startDateObj.setDate(startDateObj.getDate() - 6);
-  const startDate = startDateObj.toISOString().slice(0, 10);
-
-  const weekLabel = `${startDate} – ${endDate}`;
-  console.log(`[WEEKLY-SUMMARY] Starting job for ${weekLabel}`);
-
   let sentCount = 0;
   let errorCount = 0;
 
   try {
-    // Fetch all parents with weekly_summary enabled and email_enabled
+    try {
+      const { rows } = await client.query(
+        'SELECT pg_try_advisory_lock($1) AS acquired',
+        [WEEKLY_SUMMARY_SCHEDULER_LOCK_ID]
+      );
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[WEEKLY-SUMMARY] Failed to acquire advisory lock:', err.message);
+      return;
+    }
+
+    if (!lockAcquired) {
+      console.log('[WEEKLY-SUMMARY] Skipping — another instance holds the lock');
+      return;
+    }
+
+    const weekKey = getStockholmWeekKey(new Date());
+    if (_lastRunWeekKey === weekKey) {
+      console.log('[WEEKLY-SUMMARY] Skipping — already ran this week in this process');
+      return;
+    }
+
+    const stockholmParts = getStockholmDateParts(new Date());
+    const endDate = `${stockholmParts.year}-${stockholmParts.month}-${stockholmParts.day}`;
+    const endDateObj = new Date(`${stockholmParts.year}-${stockholmParts.month}-${stockholmParts.day}T12:00:00`);
+    endDateObj.setDate(endDateObj.getDate() - 6);
+    const startDate = endDateObj.toISOString().slice(0, 10);
+
+    const weekLabel = `${startDate} – ${endDate}`;
+    console.log(`[WEEKLY-SUMMARY] Starting job for ${weekLabel}`);
+
     const parentsResult = await db.query(
       `SELECT p.id AS parent_id, p.email, p.name AS parent_name, p.family_id
        FROM parent p
@@ -230,7 +214,6 @@ async function runWeeklySummaryJob() {
 
     for (const parent of parentsResult.rows) {
       try {
-        // Get children linked to this parent
         const childrenResult = await db.query(
           `SELECT c.id, c.name, c.emoji
            FROM child c
@@ -242,18 +225,22 @@ async function runWeeklySummaryJob() {
 
         if (childrenResult.rows.length === 0) continue;
 
-        // Aggregate stats for each child
         const childData = [];
         for (const child of childrenResult.rows) {
           const stats = await aggregateChildWeek(child.id, startDate, endDate);
           childData.push({ child, stats });
         }
 
-        // Skip if all children have zero activity this week
         const totalStars = childData.reduce((sum, c) => sum + c.stats.starsEarned, 0);
         const totalRoutines = childData.reduce((sum, c) => sum + c.stats.routinesTotal, 0);
         if (totalStars === 0 && totalRoutines === 0) {
           console.log(`[WEEKLY-SUMMARY] Skipping ${parent.email} — no activity this week`);
+          continue;
+        }
+
+        const claimed = await claimWeeklySummarySend(parent.parent_id, endDate);
+        if (!claimed) {
+          console.log(`[WEEKLY-SUMMARY] Skipping ${parent.email} — already sent for ${endDate}`);
           continue;
         }
 
@@ -271,25 +258,28 @@ async function runWeeklySummaryJob() {
         console.error(`[WEEKLY-SUMMARY] Failed for parent ${parent.parent_id}:`, err.message);
       }
     }
+
+    _lastRunWeekKey = weekKey;
+    console.log(`[WEEKLY-SUMMARY] Done. Sent=${sentCount} Errors=${errorCount}`);
   } catch (err) {
     console.error('[WEEKLY-SUMMARY] Job failed:', err.message);
   } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [WEEKLY_SUMMARY_SCHEDULER_LOCK_ID]).catch(() => {});
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [WEEKLY_SUMMARY_SCHEDULER_LOCK_ID]).catch(() => {});
+    }
+    client.release();
+    scheduleNextRun(true);
   }
-
-  console.log(`[WEEKLY-SUMMARY] Done. Sent=${sentCount} Errors=${errorCount}`);
 }
 
 let _timer = null;
+let _lastRunWeekKey = null;
 
-function scheduleNextRun() {
-  const ms = msUntilNextSunday2100Stockholm();
+function scheduleNextRun(afterRun = false) {
+  const ms = msUntilNextSunday2100Stockholm({ afterRun });
   const minutes = Math.round(ms / 60000);
   console.log(`[WEEKLY-SUMMARY] Next run in ${minutes} minutes (next Sunday 21:00 Stockholm)`);
-  _timer = setTimeout(async () => {
-    await runWeeklySummaryJob();
-    scheduleNextRun(); // reschedule after each run
-  }, ms);
+  _timer = setTimeout(() => runWeeklySummaryJob(), ms);
   if (_timer.unref) _timer.unref();
 }
 
@@ -297,7 +287,7 @@ function scheduleNextRun() {
  * Start the weekly summary scheduler. Call once at server startup.
  */
 function startWeeklySummaryScheduler() {
-  scheduleNextRun();
+  scheduleNextRun(false);
   console.log('[WEEKLY-SUMMARY] Scheduler started');
 }
 
@@ -318,4 +308,10 @@ async function runWeeklySummaryNow() {
   return runWeeklySummaryJob();
 }
 
-module.exports = { startWeeklySummaryScheduler, stopWeeklySummaryScheduler, runWeeklySummaryNow };
+module.exports = {
+  startWeeklySummaryScheduler,
+  stopWeeklySummaryScheduler,
+  runWeeklySummaryNow,
+  msUntilNextSunday2100Stockholm,
+  getStockholmWeekKey,
+};
