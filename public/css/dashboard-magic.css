@@ -558,12 +558,25 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   margin: 0;
 }
 
-.parent-ready-scroll {
+.parent-ready-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(244, 244, 255, 0.55);
+}
+
+.parent-ready-head-links {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.parent-ready-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
+  overflow-x: visible;
+  padding-bottom: 0;
 }
 
 .parent-ready-scroll::-webkit-scrollbar {
@@ -572,7 +585,8 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
 
 .parent-ready-child {
   position: relative;
-  flex: 0 0 108px;
+  flex: none;
+  width: auto;
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);

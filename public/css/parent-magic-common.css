@@ -207,10 +207,110 @@ body.parent-magic-view .bg-sky\/60,
 body.parent-magic-view .bg-lavender,
 body.parent-magic-view .bg-mint,
 body.parent-magic-view .bg-gold-light,
-body.parent-magic-view .bg-cream {
+body.parent-magic-view .bg-cream,
+body.parent-magic-view .bg-yellow-50,
+body.parent-magic-view .bg-orange-50,
+body.parent-magic-view .bg-indigo-50,
+body.parent-magic-view .bg-amber-50,
+body.parent-magic-view .bg-gray-50 {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f4f4ff;
+}
+
+/* Schedule section cards — tinted panels with readable text */
+body.parent-magic-view .section-card.bg-yellow-50,
+body.parent-magic-view .section-card.border-yellow-200 {
+  background: rgba(252, 211, 77, 0.14) !important;
+  border-color: rgba(252, 211, 77, 0.35) !important;
+}
+
+body.parent-magic-view .section-card.bg-sky,
+body.parent-magic-view .section-card.border-blue-200 {
+  background: rgba(96, 165, 250, 0.14) !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+
+body.parent-magic-view .section-card.bg-orange-50,
+body.parent-magic-view .section-card.border-orange-200 {
+  background: rgba(251, 146, 60, 0.14) !important;
+  border-color: rgba(251, 146, 60, 0.35) !important;
+}
+
+body.parent-magic-view .section-card.bg-indigo-50,
+body.parent-magic-view .section-card.border-indigo-200 {
+  background: rgba(129, 140, 248, 0.14) !important;
+  border-color: rgba(129, 140, 248, 0.35) !important;
+}
+
+body.parent-magic-view .activity-item.bg-white {
+  background: rgba(12, 12, 36, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.parent-magic-view .activity-item .text-navy,
+body.parent-magic-view .section-card .text-navy,
+body.parent-magic-view .section-card h4 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .activity-item .text-text-soft,
+body.parent-magic-view .section-card .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view .child-tab.border-lavender {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .child-tab.bg-navy {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .day-tab.border-lavender {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .day-tab.bg-gold {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .insert-day-btn.bg-white {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffcc33 !important;
+  border-color: rgba(255, 204, 51, 0.35) !important;
+}
+
+/* Family week grid — readable in magic */
+body.parent-magic-view .fw-child-cell,
+body.parent-magic-view .fw-day-header,
+body.parent-magic-view .fw-corner {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .fw-day-cell {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.parent-magic-view .fw-pill {
+  background: rgba(12, 12, 36, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .fw-scroll {
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 body.parent-magic-view .text-navy,

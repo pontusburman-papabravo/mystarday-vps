@@ -398,6 +398,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (toggleMount) AppViewMode.mountToggle(toggleMount);
     }
     AppViewMode.onChange(function () {
+      if (AppViewMode.isClassic()) {
+        document.body.classList.remove('parent-magic-dashboard');
+        var hubMount = document.getElementById('parentHomeHubMount');
+        if (hubMount) {
+          hubMount.classList.add('hidden');
+          hubMount.innerHTML = '';
+        }
+        if (typeof renderDashboardCards === 'function') renderDashboardCards();
+      }
       if (window.DashboardHomeHub) {
         DashboardHomeHub.render(dashboardStats);
       }

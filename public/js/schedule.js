@@ -450,6 +450,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTouchDndBridge();
   bindRecurrenceAddHandlers();
   if (window.ParentMagicShell) await ParentMagicShell.init('schedule');
+  if (window.AppViewMode) {
+    AppViewMode.onChange(function () {
+      refreshScheduleOnViewModeChange();
+    });
+  }
   } catch (err) {
     console.error('[SCHEDULE] Init error:', err);
     const container = document.getElementById('childCardsContainer');
@@ -747,6 +752,34 @@ async function selectDay(d) {
 }
 
 // ── View mode ─────────────────────────────────────────────
+function refreshScheduleOnViewModeChange() {
+  document.body.classList.remove('parent-magic-dashboard');
+  const magicPage = document.getElementById('parentMagicPageMount');
+  if (magicPage && window.AppViewMode && AppViewMode.isClassic()) {
+    magicPage.classList.add('hidden');
+    magicPage.innerHTML = '';
+  }
+  const familyGrid = document.getElementById('familyGridView');
+  if (familyGrid && !familyGrid.classList.contains('hidden')) {
+    if (typeof fwRenderGrid === 'function') fwRenderGrid();
+    return;
+  }
+  const editor = document.getElementById('scheduleEditorView');
+  if (editor && !editor.classList.contains('hidden')) {
+    renderChildTabs();
+    renderDayTabs();
+    if (currentViewMode === 'normal') renderSchedule();
+    else if (currentViewMode === 'list') renderListView();
+    else if (currentViewMode === 'timeline') renderTimeline();
+    else if (currentViewMode === 'sbs') renderSbsView();
+    return;
+  }
+  const childrenList = document.getElementById('childrenListView');
+  if (childrenList && !childrenList.classList.contains('hidden')) {
+    renderChildrenOverview();
+  }
+}
+
 async function setViewMode(mode) {
   currentViewMode = mode;
   document.getElementById('btnNormalView').classList.toggle('active', mode==='normal');

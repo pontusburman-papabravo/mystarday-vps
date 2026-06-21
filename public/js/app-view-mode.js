@@ -62,7 +62,11 @@
   function applyBodyClasses() {
     var magic = _allowed && _mode === 'magic';
     document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
-    document.body.classList.toggle('parent-magic-dashboard', _role === 'parent' && magic);
+    // parent-magic-dashboard is owned by DashboardHomeHub on /dashboard only —
+    // do not set it globally or classic↔magic toggle breaks on other pages.
+    if (_role === 'parent' && !magic) {
+      document.body.classList.remove('parent-magic-dashboard');
+    }
     document.body.classList.toggle('child-magic-view', _role === 'child' && magic);
     document.body.classList.toggle('child-has-bottom-nav', _role === 'child' && magic);
   }

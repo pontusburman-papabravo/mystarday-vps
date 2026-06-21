@@ -231,9 +231,11 @@
       '</div>' +
       '<section class="parent-ready-section parent-glass-card">' +
       '<div class="parent-ready-head">' +
-      '<h2>Redo för nästa aktivitet</h2>' +
+      '<h2>Redo för nästa aktivitet' + (children.length > 1 ? ' <span class="parent-ready-count">(' + children.length + ' barn)</span>' : '') + '</h2>' +
+      '<div class="parent-ready-head-links">' +
+      '<a class="parent-schedule-link" href="/daily-log">Fyll i i efterhand →</a>' +
       '<a class="parent-schedule-link" href="' + scheduleHref + '">Visa schema →</a>' +
-      '</div>' +
+      '</div></div>' +
       '<div class="parent-ready-scroll">' + renderReadyRow(children, focusId) + '</div>' +
       '</section>' +
       '<div class="parent-action-grid">' + renderActionGrid() + '</div>' +

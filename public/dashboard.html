@@ -37,9 +37,9 @@
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/dashboard-polish.css?v=2026-05-29-release-os">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-09-warmth">
-  <link rel="stylesheet" href="/css/dashboard-magic.css?v=2">
+  <link rel="stylesheet" href="/css/dashboard-magic.css?v=3">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=2">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=3">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=3">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
@@ -530,11 +530,11 @@
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
-  <script src="/js/app-view-mode.js?v=3"></script>
+  <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
-  <script src="/js/dashboard-home-hub.js?v=3"></script>
+  <script src="/js/dashboard-home-hub.js?v=4"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
-  <script src="/js/dashboard.js?v=2.37.0"></script>
+  <script src="/js/dashboard.js?v=2.38.0"></script>
 
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
@@ -664,6 +664,7 @@
           <!-- Header -->
           <div class="mb-5 flex items-center justify-end flex-wrap gap-3 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
+              <a href="/daily-log" class="px-3 py-2 text-sm bg-white hover:bg-gold-light text-navy border-2 border-gold rounded-lg font-semibold transition-colors flex items-center gap-1 no-underline">📝 Fyll i i efterhand</a>
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
               <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">🏠 Ledig dag</button>
