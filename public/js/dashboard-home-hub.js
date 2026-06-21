@@ -180,6 +180,7 @@
   function renderActionGrid() {
     var actions = [
       { action: 'give-stars', icon: '⭐', label: 'Ge extra stjärnor' },
+      { action: 'backfill-log', icon: '📝', label: 'Fyll i i efterhand' },
       { action: 'once-task', icon: '📋', label: 'Engångsaktivitet' },
       { action: 'ledig-dag', icon: '🏠', label: 'Ledig dag' },
       { action: 'today-schedule', icon: '📅', label: 'Dagens schema' },
@@ -247,7 +248,10 @@
       '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">Logga ut</button>' +
       '</div></section>' +
       '<section class="parent-glass-card parent-week-section">' +
+      '<div class="parent-ready-head">' +
       '<h3>Veckans framsteg</h3>' +
+      '<a class="parent-schedule-link" href="/daily-log">Fyll i glömda dagar →</a>' +
+      '</div>' +
       renderWeekChart(weekSeries) +
       '<div class="parent-encourage-inline">' +
       '<span class="emoji" aria-hidden="true">' + enc.emoji + '</span>' +
@@ -267,6 +271,8 @@
 
       if (action === 'give-stars' && typeof window.openGiveStarsQuick === 'function') {
         window.openGiveStarsQuick();
+      } else if (action === 'backfill-log') {
+        window.location.href = '/daily-log';
       } else if (action === 'once-task' && typeof window.openOnceTaskModal === 'function') {
         window.openOnceTaskModal();
       } else if (action === 'ledig-dag' && typeof window.openLedigDagModal === 'function') {

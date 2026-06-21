@@ -1004,7 +1004,9 @@ function renderDashboardCards() {
       else { barHeight = 0; barBg = ''; }
       const labelColor = day.isToday ? 'color:#F5A623;font-weight:800;' : '';
       const todayDot = day.isToday ? '<div style="width:5px;height:5px;border-radius:50%;background:#F5A623;margin:2px auto 0;"></div>' : '';
-      return `<div class="mini-week-day">
+      const dayClass = day.isFuture ? 'mini-week-day' : 'mini-week-day mini-week-day--clickable';
+      const dayClick = day.isFuture ? '' : ` onclick="event.stopPropagation(); window.location.href='/daily-log?childId=${c.id}&date=${day.dateStr}'" title="Fyll i ${day.label}"`;
+      return `<div class="${dayClass}"${dayClick}>
         <div class="mini-week-bar-track">
           ${barHeight > 0 ? `<div class="mini-week-bar-fill" style="height:${barHeight}%;background:${barBg};" title="${dayPct}%${dayPaused ? ' (pausad)' : ''}"></div>` : ''}
         </div>
@@ -1100,7 +1102,10 @@ function renderDashboardCards() {
 
           <!-- Weekly mini chart -->
           <div class="mb-3 p-3 bg-gray-50 rounded-xl" onclick="event.stopPropagation()">
-            <div class="text-[10px] font-bold text-text-soft mb-2 uppercase tracking-wide">📊 Senaste 7 dagarna</div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-[10px] font-bold text-text-soft uppercase tracking-wide">📊 Senaste 7 dagarna</div>
+              <a href="/daily-log?childId=${c.id}" class="text-[10px] font-semibold text-gold hover:text-amber-600 transition-colors" onclick="event.stopPropagation()">Fyll i i efterhand →</a>
+            </div>
             <div class="mini-week-chart">${miniChartBars}</div>
           </div>
 

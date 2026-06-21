@@ -77,6 +77,12 @@
       document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
       // logoutBtn2 removed — logout only in sidebar/hamburger menu now
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramDate = urlParams.get('date');
+      if (paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate)) {
+        currentDateStr = paramDate;
+      }
+
       await loadChildren();
     });
 
