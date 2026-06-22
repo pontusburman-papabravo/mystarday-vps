@@ -64,24 +64,34 @@
     main.insertBefore(el, main.firstChild);
   }
 
-  function prepareDom() {
+  function syncTopChrome() {
     markLegacyChrome();
     ensureMount('appViewToggleMount', 'app-view-toggle-wrap');
     ensureMount('parentMagicPageMount', 'hidden');
     var hub = document.getElementById('parentMagicPageMount');
     if (hub) hub.setAttribute('aria-live', 'polite');
 
-    var navHeader = document.querySelector('[data-parent-nav-header]');
     var toggle = document.getElementById('appViewToggleMount');
-    if (navHeader && toggle && navHeader.parentNode === toggle.parentNode) {
-      toggle.parentNode.insertBefore(navHeader, toggle.nextElementSibling);
+    var navHeader = document.querySelector('[data-parent-nav-header]');
+    if (!toggle || !navHeader) return;
+
+    if (navHeader.parentNode !== toggle) {
+      toggle.appendChild(navHeader);
     }
+    toggle.classList.add('app-view-toggle-wrap--has-nav');
+  }
+
+  function prepareDom() {
+    syncTopChrome();
   }
 
   window.ParentMagicAuto = {
     resolvePage: resolvePage,
     isParentShellPage: isParentShellPage,
     prepareDom: prepareDom,
+    syncTopChrome: syncTopChrome,
     PATH_PAGES: PATH_PAGES,
   };
+
+  window.addEventListener('stjarndag-parent-nav-layout', syncTopChrome);
 })();

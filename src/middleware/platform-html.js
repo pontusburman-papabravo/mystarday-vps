@@ -85,18 +85,30 @@ function injectParentMagicRouter(body, reqPath) {
 
 function injectParentMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
-  if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
 
   const path = normalizeHtmlPath(reqPath);
   if (!PARENT_MAGIC_PATHS.has(path)) return body;
 
-  const cssBlock = [
-    MAGIC_INJECT_MARKER,
-    '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">',
-    '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">',
-    '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">',
-    '<link rel="stylesheet" href="/css/app-view-toggle.css?v=' + MAGIC_VERSION + '">',
-  ].join('\n');
+  const hasMagicCss = body.includes('parent-magic-common.css');
+  const hasMagicScripts = body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js');
+
+  if (!hasMagicCss) {
+    const cssBlock = [
+      MAGIC_INJECT_MARKER,
+      '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">',
+      '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">',
+      '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">',
+      '<link rel="stylesheet" href="/css/app-view-toggle.css?v=' + MAGIC_VERSION + '">',
+    ].join('\n');
+
+    const headMarker = '<head>';
+    const headIdx = body.indexOf(headMarker);
+    if (headIdx !== -1) {
+      body = body.slice(0, headIdx + headMarker.length) + '\n' + cssBlock + '\n' + body.slice(headIdx + headMarker.length);
+    }
+  }
+
+  if (hasMagicScripts) return body;
 
   const scriptBlock = [
     '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>',
@@ -108,12 +120,6 @@ function injectParentMagicHtml(body, reqPath) {
     '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>',
   ].join('\n');
-
-  const headMarker = '<head>';
-  const headIdx = body.indexOf(headMarker);
-  if (headIdx !== -1) {
-    body = body.slice(0, headIdx + headMarker.length) + '\n' + cssBlock + '\n' + body.slice(headIdx + headMarker.length);
-  }
 
   const tailMarker = '</body>';
   const tailIdx = body.lastIndexOf(tailMarker);

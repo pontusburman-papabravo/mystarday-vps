@@ -240,6 +240,11 @@
     wrap.appendChild(btn);
     wrap.appendChild(menu);
     bar.appendChild(wrap);
+
+    if (window.ParentMagicAuto && ParentMagicAuto.syncTopChrome) {
+      ParentMagicAuto.syncTopChrome();
+    }
+    window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
   }
 
   async function boot() {

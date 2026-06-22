@@ -78,9 +78,10 @@ body.parent-magic-view .parent-bottom-nav {
 }
 
 body.parent-magic-view .app-view-toggle-wrap {
-  padding: 8px 16px 0;
-  position: relative;
-  z-index: 2;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 16px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 /* Floating help + feedback above magic bottom dock (tablet + phone) */
@@ -628,6 +629,7 @@ body.parent-magic-view.parent-magic-page-rewards .parent-magic-hide-header {
 body.parent-magic-view.parent-magic-page-planning .magic-hub-content,
 body.parent-magic-view.parent-magic-page-rewards .magic-hub-content {
   padding-top: 0;
+  padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
 }
 
 body.parent-magic-view .magic-hub-links a {
@@ -691,30 +693,6 @@ body.parent-magic-view #deletionSection .bg-coral {
 
 body.parent-magic-view #deletionSection .bg-coral .text-navy {
   color: #fecaca !important;
-}
-
-/* Sub-pages: pin notis/avatar top-right (outside document flow) */
-body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top, 0px));
-  right: max(16px, env(safe-area-inset-right, 0px));
-  left: auto;
-  width: auto;
-  padding: 0;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  z-index: 250;
-  pointer-events: none;
-}
-
-body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions > * {
-  pointer-events: auto;
-}
-
-/* Leave room for fixed header icons beside the VY toggle */
-body.parent-magic-view:not(.parent-magic-dashboard) .app-view-toggle-wrap {
-  padding-right: 108px;
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .parent-magic-hide-header {

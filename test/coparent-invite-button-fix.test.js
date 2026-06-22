@@ -37,6 +37,6 @@ describe('co-parent invite button fix', () => {
 
   it('SW bumped to v293', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v293/);
+    assert.match(sw, /stjarndag-v294/);
   });
 });

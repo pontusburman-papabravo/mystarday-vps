@@ -32,6 +32,6 @@ describe('magic nav flash fix', () => {
 
   it('SW bumped to v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v293/);
+    assert.match(src, /stjarndag-v294/);
   });
 });

@@ -152,9 +152,53 @@ body.parent-magic-dashboard .parent-nav-header-actions {
   background: rgba(12, 12, 36, 0.92);
 }
 
-/* When header bar exists, view toggle should not double safe-area padding */
-main:has([data-parent-nav-header]) > .app-view-toggle-wrap {
-  padding-top: 10px;
+/* Unified top bar: VY toggle + notis/avatar on one row */
+.app-view-toggle-wrap--has-nav,
+.app-view-toggle-wrap:has([data-parent-nav-header]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-view-toggle-wrap--has-nav > .app-view-toggle,
+.app-view-toggle-wrap:has([data-parent-nav-header]) > .app-view-toggle {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+}
+
+.app-view-toggle-wrap--has-nav > .parent-nav-header-actions,
+.app-view-toggle-wrap:has([data-parent-nav-header]) > .parent-nav-header-actions {
+  position: static;
+  flex: 0 0 auto;
+  padding: 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none;
+  z-index: auto;
+  pointer-events: auto;
+  gap: 6px;
+  top: auto;
+}
+
+body.parent-magic-dashboard .app-view-toggle-wrap > .parent-nav-header-actions {
+  display: none !important;
+}
+
+@media (max-width: 380px) {
+  .app-view-toggle-wrap--has-nav .app-view-toggle-btn,
+  .app-view-toggle-wrap:has([data-parent-nav-header]) .app-view-toggle-btn {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 11px;
+  }
+
+  .app-view-toggle-wrap--has-nav .app-view-toggle-label,
+  .app-view-toggle-wrap:has([data-parent-nav-header]) .app-view-toggle-label {
+    display: none;
+  }
 }
 
 .parent-avatar-wrap {

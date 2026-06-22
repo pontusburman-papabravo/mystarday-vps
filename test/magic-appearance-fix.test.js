@@ -13,10 +13,28 @@ describe('magic appearance fixes', () => {
     assert.match(html, /parent-magic-hide-header/);
   });
 
-  it('parent-magic-auto reorders nav header after toggle', () => {
+  it('parent-magic-auto merges nav header into toggle wrap', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-auto.js'), 'utf8');
-    assert.match(src, /data-parent-nav-header/);
-    assert.match(src, /insertBefore\(navHeader/);
+    assert.match(src, /syncTopChrome/);
+    assert.match(src, /toggle\.appendChild\(navHeader\)/);
+  });
+
+  it('unified top bar flex CSS for magic header', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    assert.match(css, /app-view-toggle-wrap--has-nav/);
+    assert.match(css, /parent-magic-dashboard.*parent-nav-header-actions/);
+  });
+
+  it('planning hub page includes magic CSS and auto script', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/planning.html'), 'utf8');
+    assert.match(html, /parent-magic-common\.css/);
+    assert.match(html, /app-view-toggle\.css/);
+    assert.match(html, /parent-magic-auto\.js/);
+  });
+
+  it('SW bumped to v294', () => {
+    const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
+    assert.match(sw, /stjarndag-v294/);
   });
 
   it('assign-schedule magic contrast CSS', () => {
@@ -39,13 +57,9 @@ describe('magic appearance fixes', () => {
   });
 
   it('fixed nav header on magic sub-pages', () => {
-    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
-    assert.match(css, /parent-magic-view:not\(\.parent-magic-dashboard\).*parent-nav-header-actions/);
-    assert.match(css, /position:\s*fixed/);
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    assert.match(css, /app-view-toggle-wrap--has-nav/);
+    assert.match(css, /display:\s*flex/);
   });
 
-  it('SW bumped to v293', () => {
-    const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v293/);
-  });
 });

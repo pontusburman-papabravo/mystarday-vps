@@ -26,4 +26,9 @@
   } else {
     document.body.insertBefore(bar, document.body.firstChild);
   }
+
+  if (window.ParentMagicAuto && ParentMagicAuto.syncTopChrome) {
+    ParentMagicAuto.syncTopChrome();
+  }
+  window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
 })();
