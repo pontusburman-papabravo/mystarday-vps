@@ -48,6 +48,11 @@
     url.searchParams.set('tab', tab);
     window.history.replaceState({}, '', url.pathname + url.search);
     render();
+    window.requestAnimationFrame(function () {
+      var mount = document.getElementById('childProfileMount');
+      if (mount) mount.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   async function loadData() {
@@ -186,9 +191,9 @@
         '<div class="absolute bottom-0 left-0 right-0 bg-gold rounded-t-lg" style="height:' + h + '%"></div></div>' +
         '<span class="text-[10px] text-text-soft">' + esc(w.week_label || '') + '</span></div>';
     }).join('');
-    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4 overflow-hidden">' +
       '<p class="text-sm text-text-soft mb-3">Stjärnor per vecka (8 veckor)</p>' +
-      '<div class="flex gap-1 items-end overflow-x-auto pb-1">' + bars + '</div></div>' +
+      '<div class="max-w-full overflow-x-auto pb-1"><div class="flex gap-1 items-end">' + bars + '</div></div></div>' +
       '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Se utveckling i rapporter →</a>';
   }
 
@@ -232,7 +237,7 @@
     var tab = currentTab();
     var tabsHtml = TABS.map(function (t) {
       var active = t.id === tab ? ' bg-gold text-navy' : ' bg-white text-navy border border-lavender';
-      return '<button type="button" data-tab="' + t.id + '" class="px-3 py-2 rounded-xl text-sm font-semibold whitespace-nowrap' + active + '">' + t.label + '</button>';
+      return '<button type="button" data-tab="' + t.id + '" class="px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + active + '">' + t.label + '</button>';
     }).join('');
 
     mount.innerHTML =
@@ -241,7 +246,7 @@
       '<span class="text-4xl">' + esc(child.emoji || '⭐') + '</span>' +
       '<div><h1 class="text-2xl font-heading font-bold text-navy">' + esc(child.name) + '</h1>' +
       '<p class="text-sm text-text-soft">Barnprofil</p></div></div>' +
-      '<div class="flex gap-2 overflow-x-auto pb-2 mb-6">' + tabsHtml + '</div>' +
+      '<div id="childProfileTabBar" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6 sticky top-0 z-20 -mx-4 px-4 py-2 bg-sky/95 backdrop-blur-sm border-b border-lavender/40">' + tabsHtml + '</div>' +
       '<div id="childProfileTabBody">' + tabContent(tab) + '</div>';
 
     mount.querySelectorAll('[data-tab]').forEach(function (btn) {

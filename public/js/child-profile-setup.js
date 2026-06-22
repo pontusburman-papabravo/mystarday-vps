@@ -162,7 +162,7 @@
     if (photoBtn && window.Platform && Platform.camera) {
       photoBtn.addEventListener('click', async function () {
         try {
-          var result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
+          var result = await Platform.camera.pick({ quality: 'medium' });
           if (!result || result.error) {
             if (result && result.error) showToast(result.error, true);
             return;

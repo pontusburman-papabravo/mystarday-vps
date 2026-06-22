@@ -7,7 +7,7 @@
 
   var _page = null;
   var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
-    ? window.matchMedia('(max-width: 767px)')
+    ? window.matchMedia('(max-width: 767px), (pointer: coarse)')
     : null;
 
   function isNativeTabBarActive() {

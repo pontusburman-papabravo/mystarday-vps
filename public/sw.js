@@ -207,8 +207,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v279';
-// v278: meny v2 holistic + code review fixes (coach, XSS, readiness, billing gate)
+const CACHE_NAME = 'stjarndag-v280';
+// v280: barnprofil mobile — photo pick PROMPT, grid tabs, overflow clip, iPad safe-area header
+// v279: family UI fixes — familjekista, collapsed name, native photo permissions
 // v278: soft-nav boot fixes — schedule logoutBtn guard, dashboard hub re-init, skatt contrast
 // v277: magic soft navigation — no full page reload between bottom nav items
 // v276: iPad magic flash (inline early CSS), För dig contrast, preview back from Extra

@@ -112,8 +112,8 @@
   }
 }
 
-/* Desktop: sidebar only, no tab bar */
-@media (min-width: 768px) {
+/* Desktop with mouse: sidebar only, no tab bar */
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
   body.has-native-tab-bar .native-tab-bar {
     display: none !important;
   }

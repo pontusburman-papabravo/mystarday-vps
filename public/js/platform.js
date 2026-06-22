@@ -537,11 +537,15 @@ var Platform = (function () {
     if (!Camera || typeof Camera.checkPermissions !== 'function') return true;
     try {
       var status = await Camera.checkPermissions();
-      if (status.photos === 'granted' || status.photos === 'limited') return true;
-      if (status.photos === 'denied') return false;
+      var photosOk = status.photos === 'granted' || status.photos === 'limited';
+      var cameraOk = status.camera === 'granted';
+      if (photosOk && (cameraOk || status.camera === 'prompt')) return true;
+      if (status.photos === 'denied' && status.camera === 'denied') return false;
       if (typeof Camera.requestPermissions !== 'function') return true;
-      var requested = await Camera.requestPermissions({ permissions: ['photos'] });
-      return requested.photos === 'granted' || requested.photos === 'limited';
+      var requested = await Camera.requestPermissions({ permissions: ['photos', 'camera'] });
+      photosOk = requested.photos === 'granted' || requested.photos === 'limited';
+      cameraOk = requested.camera === 'granted';
+      return photosOk || cameraOk;
     } catch (err) {
       console.warn('[Platform.camera] permission check failed:', err);
       return true;
@@ -550,8 +554,62 @@ var Platform = (function () {
 
   function nativePhotoSource(opts) {
     if (opts && opts.source === 'camera') return 'CAMERA';
-    if (opts && opts.source === 'library') return 'PHOTOS';
+    /* PROMPT is more reliable than PHOTOS on iOS native WebView (iPad + iPhone). */
     return 'PROMPT';
+  }
+
+  function nativePhotoQuality(opts) {
+    return opts && opts.quality === 'high' ? 90 : opts && opts.quality === 'low' ? 25 : 50;
+  }
+
+  async function pickViaGallery(Camera, opts) {
+    if (!Camera || typeof Camera.pickImages !== 'function') return null;
+    try {
+      var gallery = await Camera.pickImages({
+        quality: nativePhotoQuality(opts),
+        limit: 1,
+      });
+      if (!gallery || !gallery.photos || !gallery.photos.length) return null;
+      var webPath = gallery.photos[0].webPath;
+      if (!webPath) return null;
+      var resp = await fetch(webPath);
+      if (!resp.ok) return null;
+      var blob = await resp.blob();
+      return await new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          resolve({
+            dataUrl: reader.result,
+            mimeType: blob.type || 'image/jpeg',
+            file: blob,
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.warn('[Platform.camera] pickImages fallback failed:', err);
+      return null;
+    }
+  }
+
+  async function nativeGetPhoto(Camera, opts, source) {
+    var result = await Camera.getPhoto({
+      quality: nativePhotoQuality(opts),
+      allowEditing: false,
+      resultType: 'base64',
+      source: source,
+      presentationStyle: 'fullscreen',
+      promptLabelHeader: 'Välj foto',
+      promptLabelPhoto: 'Från bilder',
+      promptLabelPicture: 'Ta foto',
+      promptLabelCancel: 'Avbryt',
+    });
+    if (!result || !result.base64String) return null;
+    return {
+      dataUrl: 'data:image/jpeg;base64,' + result.base64String,
+      mimeType: 'image/jpeg',
+    };
   }
 
   function dataUrlToBlob(dataUrl) {
@@ -598,42 +656,19 @@ var Platform = (function () {
             return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
           }
           var source = nativePhotoSource(opts);
-          var result = await Camera.getPhoto({
-            quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
-            allowEditing: false,
-            resultType: 'base64',
-            source: source,
-            presentationStyle: 'fullscreen',
-          });
-          if (!result || !result.base64String) return null;
-          return {
-            dataUrl: 'data:image/jpeg;base64,' + result.base64String,
-            mimeType: 'image/jpeg',
-          };
+          var picked = await nativeGetPhoto(Camera, opts, source);
+          if (picked) return picked;
+          return null;
         } catch (err) {
           var msg = (err && err.message) || '';
           if (msg.toLowerCase().includes('cancel') || msg.toLowerCase().includes('cancelled')) return null;
           if (err && (err.code === 'USER_DID_NOT_GRANT_PERMISSION' || err.code === 'permission-denied')) {
             return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
           }
-          if (opts && opts.source === 'library') {
-            try {
-              var retry = await Camera.getPhoto({
-                quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
-                allowEditing: false,
-                resultType: 'base64',
-                source: 'PROMPT',
-                presentationStyle: 'fullscreen',
-              });
-              if (!retry || !retry.base64String) return null;
-              return {
-                dataUrl: 'data:image/jpeg;base64,' + retry.base64String,
-                mimeType: 'image/jpeg',
-              };
-            } catch (retryErr) {
-              msg = (retryErr && retryErr.message) || msg;
-            }
-          }
+          try {
+            var galleryPick = await pickViaGallery(Camera, opts);
+            if (galleryPick) return galleryPick;
+          } catch (_) { /* fall through */ }
           console.error('[Platform.camera] Pick failed:', msg || err);
           return { error: 'Kunde inte öppna fotobiblioteket. Försök igen.' };
         }
