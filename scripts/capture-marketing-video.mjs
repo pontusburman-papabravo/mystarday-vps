@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Mobile marketing walkthrough — Playwright screen recording (9:16).
+ * Magic view, ~50/50 parent / child screen time.
  *
  * Usage:
- *   node scripts/capture-marketing-video.mjs
  *   BASE_URL=... REVIEW_EMAIL=... REVIEW_PASSWORD=... node scripts/capture-marketing-video.mjs
  */
 import { chromium } from 'playwright';
@@ -25,6 +25,11 @@ const REVIEW_EMAIL = process.env.REVIEW_EMAIL;
 const REVIEW_PASSWORD = process.env.REVIEW_PASSWORD;
 const CHILD_NAME = process.env.CHILD_NAME || 'Anna';
 const CHILD_PIN = process.env.CHILD_PIN || '4455';
+
+/** ~50/50 split: 4 parent hubs × 5s + 4 child beats × 5s */
+const PARENT_HUB_PAUSE_MS = Number(process.env.PARENT_HUB_PAUSE_MS || 5000);
+const CHILD_WORLD_PAUSE_MS = Number(process.env.CHILD_WORLD_PAUSE_MS || 5000);
+const INCLUDE_ENTRY = process.env.INCLUDE_ENTRY === '1';
 
 if (!REVIEW_EMAIL || !REVIEW_PASSWORD) {
   console.error('Set REVIEW_EMAIL and REVIEW_PASSWORD');
@@ -60,6 +65,10 @@ function nativeInitScript() {
     getPlatform: () => 'ios',
     Plugins: {},
   };
+  try {
+    localStorage.setItem('stjarndag_parent_ui_view', 'magic');
+    localStorage.setItem('dash_tour_v1_done', '1');
+  } catch (_) {}
 }
 
 async function tap(page, selector, opts = {}) {
@@ -72,6 +81,8 @@ async function tap(page, selector, opts = {}) {
 }
 
 async function loginParentApi(page) {
+  await page.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await acceptCookies(page);
   const status = await page.evaluate(
     async ({ email, password }) => {
       const res = await fetch('/api/auth/login', {
@@ -120,31 +131,119 @@ async function waitForParentShell(page) {
       { timeout: 20000 }
     )
     .catch(() => {});
-  await sleep(800);
+  await sleep(600);
+}
+
+async function ensureParentMagic(page) {
+  const ok = await page.evaluate(async () => {
+    try {
+      localStorage.setItem('stjarndag_parent_ui_view', 'magic');
+    } catch (_) {}
+    if (window.AppViewMode) {
+      if (typeof AppViewMode.initParent === 'function' && !AppViewMode.isReady()) {
+        await AppViewMode.initParent();
+      }
+      if (AppViewMode.isAllowed && AppViewMode.isAllowed()) {
+        AppViewMode.setMode('magic', { force: true });
+      }
+    }
+    if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
+      try {
+        ParentMagicShell.refresh();
+      } catch (_) {}
+    }
+    return document.body.classList.contains('parent-magic-view');
+  });
+  if (!ok) {
+    const magicBtn = page.locator('[data-app-view-toggle] [data-view="magic"]');
+    if (await magicBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await magicBtn.click();
+      await sleep(800);
+    }
+  }
+  await page
+    .waitForFunction(() => document.body.classList.contains('parent-magic-view'), {
+      timeout: 15000,
+    })
+    .catch(() => {});
+}
+
+async function dismissDashboardTour(page) {
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem('dash_tour_v1_done', '1');
+    } catch (_) {}
+    const overlay = document.getElementById('dashTourOverlay');
+    if (overlay) overlay.classList.add('hidden');
+  });
+  const skip = page.locator('#tourSkipBtn');
+  if (await skip.isVisible({ timeout: 1500 }).catch(() => false)) {
+    await skip.click();
+    await sleep(400);
+  }
+}
+
+async function csrfHeaders(page) {
+  return page.evaluate(async () => {
+    let csrf = '';
+    if (window.Auth) {
+      if (typeof Auth.ensureCsrfToken === 'function') await Auth.ensureCsrfToken();
+      if (typeof Auth.getCsrfToken === 'function') csrf = Auth.getCsrfToken() || '';
+    }
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrf) headers['X-CSRF-Token'] = csrf;
+    return headers;
+  });
+}
+
+async function prepareChildMagicInDb(page) {
+  const headers = await csrfHeaders(page);
+  const childId = await page.evaluate(
+    async ({ childName, headers: hdrs }) => {
+      const res = await fetch('/api/children', { credentials: 'include' });
+      if (!res.ok) return null;
+      const kids = await res.json();
+      const wanted = childName.toLowerCase();
+      const child =
+        kids.find((k) => (k.name || '').toLowerCase() === wanted) ||
+        kids.find((k) => (k.name || '').toLowerCase().includes(wanted)) ||
+        kids[0];
+      if (!child) return null;
+      await fetch('/api/children/' + child.id + '/view-config', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: hdrs,
+        body: JSON.stringify({ view_mode: 'new' }),
+      });
+      try {
+        localStorage.setItem('stjarndag_child_ui_view_' + child.id, 'magic');
+      } catch (_) {}
+      return child.id;
+    },
+    { childName: CHILD_NAME, headers }
+  );
+  if (!childId) throw new Error(`Could not find child ${CHILD_NAME} for magic view`);
+  return childId;
 }
 
 async function sceneEntryFlow(page) {
-  console.log('  → Entry welcome flow');
+  console.log('  → Entry welcome (short)');
   await page.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await acceptCookies(page);
   await page.waitForSelector('#entry-welcome', { state: 'visible', timeout: 20000 });
-  await sleep(2200);
-
-  await tap(page, '#entryWelcomeStartBtn', { postDelay: 900 });
+  await sleep(1800);
+  await tap(page, '#entryWelcomeStartBtn', { postDelay: 700 });
   await page.waitForSelector('#role-selection', { state: 'visible', timeout: 10000 });
-  await sleep(2200);
-
-  await tap(page, '#parent-role-card', { postDelay: 1200 });
-  await page.waitForSelector('#entry-adult-start', { state: 'visible', timeout: 10000 });
-  await sleep(2200);
+  await sleep(1500);
 }
 
-async function sceneParentNav(page) {
-  console.log('  → Parent menu tour');
-  await loginParentApi(page);
+async function sceneParentMagicNav(page) {
+  console.log('  → Parent magic nav (~50%)');
   await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await waitForParentShell(page);
-  await sleep(2000);
+  await ensureParentMagic(page);
+  await dismissDashboardTour(page);
+  await sleep(1200);
 
   const tabs = await page.evaluate(() => {
     if (!window.NavConfig) return [];
@@ -154,26 +253,23 @@ async function sceneParentNav(page) {
     }));
   });
 
-  const order = tabs.length
-    ? tabs
-    : [
+  const order = (tabs.length ? tabs : [
         { href: '/dashboard', label: 'Hem' },
         { href: '/planning', label: 'Planering' },
         { href: '/rewards', label: 'Belöningar' },
-        { href: '/for-dig', label: 'För dig' },
         { href: '/family', label: 'Familj' },
-      ];
+      ]).filter((t) => t.href !== '/for-dig');
 
   for (const tab of order) {
     const link = page.locator(`.native-tab-bar a.tab-item[data-tab-href="${tab.href}"]`);
     if (await link.isVisible({ timeout: 5000 }).catch(() => false)) {
       await link.click();
-      await sleep(2500);
     } else {
       await page.goto(`${BASE_URL}${tab.href}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await waitForParentShell(page);
-      await sleep(2500);
+      await ensureParentMagic(page);
     }
+    await sleep(PARENT_HUB_PAUSE_MS);
     console.log(`     · ${tab.label}`);
   }
 }
@@ -181,7 +277,7 @@ async function sceneParentNav(page) {
 async function enterChildPin(page) {
   await page.goto(`${BASE_URL}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await acceptCookies(page);
-  await sleep(1500);
+  await sleep(1200);
 
   if (!(await page.locator('#clKeypad').isVisible({ timeout: 3000 }).catch(() => false))) {
     const picked = await page.evaluate((childName) => {
@@ -197,30 +293,73 @@ async function enterChildPin(page) {
     }, CHILD_NAME);
     if (!picked) throw new Error(`No child card for ${CHILD_NAME}`);
     await page.waitForSelector('#clKeypad', { timeout: 15000 });
-    await sleep(800);
+    await sleep(600);
   }
 
   for (const digit of CHILD_PIN.split('')) {
-    const btn = page.locator(`#clKeypad button[data-action="${digit}"], #clKeypad button:has-text("${digit}")`).first();
+    const btn = page
+      .locator(`#clKeypad button[data-action="${digit}"], #clKeypad button:has-text("${digit}")`)
+      .first();
     await btn.click();
-    await sleep(140);
+    await sleep(120);
   }
-  await sleep(1200);
+  await sleep(1000);
 }
 
-async function sceneChildWorlds(page) {
-  console.log('  → Child login + worlds');
+async function ensureChildMagic(page, childId) {
+  await page.evaluate((id) => {
+    try {
+      if (id) localStorage.setItem('stjarndag_child_ui_view_' + id, 'magic');
+    } catch (_) {}
+  }, childId);
+
+  const magicBtn = page.locator('[data-app-view-toggle] [data-view="magic"]');
+  if (await magicBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+    const active = await magicBtn.getAttribute('class');
+    if (!active || !active.includes('is-active')) {
+      await magicBtn.click();
+      await sleep(1000);
+    }
+  }
+
+  await page.evaluate(() => {
+    if (window.AppViewMode && AppViewMode.isAllowed && AppViewMode.isAllowed()) {
+      AppViewMode.setMode('magic', { force: true });
+    }
+    if (typeof applyChildViewMode === 'function') applyChildViewMode();
+  });
+
+  await page
+    .waitForFunction(
+      () =>
+        document.body.classList.contains('child-magic-view') &&
+        document.getElementById('childBottomNav') &&
+        document.querySelector('[data-child-world]'),
+      { timeout: 25000 }
+    )
+    .catch(() => {});
+}
+
+async function sceneChildMagicWorlds(page, childId) {
+  console.log('  → Child magic worlds (~50%)');
   await enterChildPin(page);
   await page.waitForURL(/\/child(\/today|\/world|\/family|-dashboard)/, { timeout: 45000 });
-  await sleep(2500);
+  await sleep(1500);
+  await ensureChildMagic(page, childId);
 
   const worlds = ['today', 'world', 'family'];
   for (const world of worlds) {
     const btn = page.locator(`[data-child-world="${world}"]`).first();
-    if (await btn.isVisible({ timeout: 4000 }).catch(() => false)) {
+    if (await btn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await btn.click();
-      await sleep(2800);
+      await sleep(CHILD_WORLD_PAUSE_MS);
       console.log(`     · ${world}`);
+    } else {
+      const path = world === 'today' ? '/child/today' : `/child/${world}`;
+      await page.goto(`${BASE_URL}${path}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await ensureChildMagic(page, childId);
+      await sleep(CHILD_WORLD_PAUSE_MS);
+      console.log(`     · ${world} (goto)`);
     }
   }
 }
@@ -256,11 +395,12 @@ function ffmpegConvert(webmPath, mp4Path) {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const stamp = new Date().toISOString().slice(0, 10);
-  const webmOut = path.join(OUT_DIR, `app-mobile-walkthrough-${stamp}.webm`);
-  const mp4Out = path.join(OUT_DIR, `app-mobile-walkthrough-${stamp}.mp4`);
+  const suffix = process.env.VIDEO_SUFFIX || 'magic-50-50';
+  const webmOut = path.join(OUT_DIR, `app-mobile-walkthrough-${suffix}-${stamp}.webm`);
+  const mp4Out = path.join(OUT_DIR, `app-mobile-walkthrough-${suffix}-${stamp}.mp4`);
 
   console.log(`Recording marketing video from ${BASE_URL}`);
-  console.log(`Output: ${mp4Out}`);
+  console.log(`Magic view · ~50/50 parent/child · ${mp4Out}`);
 
   const browser = await chromium.launch({
     headless: true,
@@ -282,12 +422,15 @@ async function main() {
   await context.addInitScript(nativeInitScript);
 
   const page = await context.newPage();
+  let childId = null;
 
   try {
-    await sceneEntryFlow(page);
-    await sceneParentNav(page);
-    await sceneChildWorlds(page);
-    await sleep(1500);
+    if (INCLUDE_ENTRY) await sceneEntryFlow(page);
+    await loginParentApi(page);
+    childId = await prepareChildMagicInDb(page);
+    await sceneParentMagicNav(page);
+    await sceneChildMagicWorlds(page, childId);
+    await sleep(1200);
   } catch (err) {
     console.error('Recording error:', err.message);
     await page.screenshot({ path: path.join(OUT_DIR, 'error-frame.png'), fullPage: true });
