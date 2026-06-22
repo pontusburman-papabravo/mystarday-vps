@@ -10,7 +10,7 @@ Körs vid **push till `main`** och kan även startas manuellt under **Actions �
 
 | | |
 |--|--|
-| SSH | `deploy@server-188-66-60-93` |
+| SSH | `deploy@188.66.60.93` |
 | App path | `/var/www/mystarday` |
 | systemd | `mystarday` |
 | Mac clone | `/Users/pontusburman/mystarday-vps` |
@@ -21,7 +21,7 @@ Efter restart: **`sleep 3`** innan health check.
 
 | Variable | Värde |
 |----------|-------|
-| `VPS_HOST` | `server-188-66-60-93` |
+| `VPS_HOST` | `188.66.60.93` |
 | `VPS_USER` | `deploy` |
 | `VPS_APP_PATH` | `/var/www/mystarday` |
 | `VPS_RESTART_CMD` | `sudo systemctl restart mystarday` |
@@ -30,7 +30,7 @@ Efter restart: **`sleep 3`** innan health check.
 ## Manuell deploy på VPS
 
 ```bash
-ssh deploy@server-188-66-60-93
+ssh deploy@188.66.60.93
 cd /var/www/mystarday
 git fetch origin main && git reset --hard origin/main
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20

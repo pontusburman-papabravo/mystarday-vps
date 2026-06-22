@@ -27,7 +27,7 @@ Scriptet läser deploy-värden från deploy-regelfilen automatiskt.
 |---------|------------|-------------|
 | GitHub CLI | `brew install gh` | `gh auth login` |
 | SSH | ingår i macOS | `ssh -V` |
-| Åtkomst till VPS | se deploy-regelfilen | `ssh deploy@server-188-66-60-93` |
+| Åtkomst till VPS | se deploy-regelfilen | `ssh deploy@188.66.60.93` |
 
 ---
 
@@ -168,7 +168,7 @@ Aktivera **Merge when ready** eller label **Merge Queue** — PR:er landar på `
 Manuell fallback (samma som Actions gör) — värden från deploy-regelfilen:
 
 ```bash
-ssh deploy@server-188-66-60-93
+ssh deploy@188.66.60.93
 cd /var/www/<app>    # se *-deploy.mdc
 git fetch origin main && git reset --hard origin/main
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20
