@@ -38,7 +38,7 @@
         '<p class="text-text-soft text-center text-sm mb-6">' +
           '<a href="/pricing-info" class="text-navy font-semibold underline hover:no-underline">Läs om programmen och vad som ingår →</a>' +
         '</p>' +
-        '<div class="grid gap-4" id="upgradePackageCards"></div>';
+        '<div class="upgrade-package-grid" id="upgradePackageCards"></div>';
 
       const grid = document.getElementById('upgradePackageCards');
 

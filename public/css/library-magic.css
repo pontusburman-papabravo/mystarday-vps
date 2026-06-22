@@ -126,6 +126,8 @@ body.parent-magic-library.library-magic-in-section .tab-pane.active {
   font-family: inherit;
   cursor: pointer;
   transform-style: preserve-3d;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .library-magic-menu-icon {

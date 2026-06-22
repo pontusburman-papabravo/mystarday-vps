@@ -271,6 +271,28 @@
   }
 }
 
+/* Upgrade page — stack all package cards visibly on tablet */
+.upgrade-package-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.upgrade-package-grid > article {
+  position: relative;
+  isolation: isolate;
+}
+
+.upgrade-package-grid .preview-shell {
+  max-width: 100%;
+}
+
+.upgrade-package-grid .preview-shell--compact .preview-mock {
+  max-height: none;
+  overflow: visible;
+}
+
 .preview-guest-nav {
   padding: 0.75rem 1rem;
   background: #1c2340;
