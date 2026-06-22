@@ -1287,6 +1287,121 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
   }
 });
 
+// ─── GET /api/family/readiness — action items for Hem (vuxenmeny v2.1) ───
+router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
+  try {
+    const parentId = req.user.id;
+    const childrenResult = await db.query(
+      `SELECT c.id, c.name, c.emoji, (c.pin IS NOT NULL AND c.pin <> '') AS has_pin
+       FROM child c
+       JOIN parent_child pc ON pc.child_id = c.id
+       WHERE pc.parent_id = $1
+       ORDER BY c.created_at ASC`,
+      [parentId]
+    );
+    const children = childrenResult.rows;
+    if (!children.length) return res.json({ items: [] });
+
+    const childIds = children.map((c) => c.id);
+    const statsRes = await db.query(
+      `SELECT dl.child_id, dl.id AS log_id, dl.is_paused, dl.date::text,
+              COUNT(dli.id) AS total
+       FROM daily_log dl
+       LEFT JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+       WHERE dl.child_id = ANY($1) AND dl.date = CURRENT_DATE
+       GROUP BY dl.child_id, dl.id, dl.is_paused, dl.date`,
+      [childIds]
+    );
+    const todayByChild = {};
+    for (const row of statsRes.rows) {
+      todayByChild[row.child_id] = {
+        log_id: row.log_id,
+        is_paused: row.is_paused,
+        total: parseInt(row.total, 10),
+      };
+    }
+
+    const pendingRedemptions = await db.query(
+      `SELECT rr.child_id, COUNT(*)::int AS cnt
+       FROM reward_redemption rr
+       JOIN child c ON c.id = rr.child_id
+       JOIN parent_child pc ON pc.child_id = c.id AND pc.parent_id = $1
+       WHERE rr.status = 'pending'
+       GROUP BY rr.child_id`,
+      [parentId]
+    );
+    const pendingGoals = await db.query(
+      `SELECT crgcr.child_id, COUNT(*)::int AS cnt
+       FROM child_reward_goal_change_request crgcr
+       JOIN child c ON c.id = crgcr.child_id
+       JOIN parent_child pc ON pc.child_id = c.id AND pc.parent_id = $1
+       WHERE crgcr.status = 'pending'
+       GROUP BY crgcr.child_id`,
+      [parentId]
+    );
+    const pendRedMap = {};
+    const pendGoalMap = {};
+    pendingRedemptions.rows.forEach((r) => { pendRedMap[r.child_id] = r.cnt; });
+    pendingGoals.rows.forEach((r) => { pendGoalMap[r.child_id] = r.cnt; });
+
+    const items = [];
+    for (const c of children) {
+      if (!c.has_pin) {
+        items.push({
+          type: 'missing_pin',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' saknar PIN',
+          sub: 'Sätt PIN i barnprofilen',
+          href: '/family/child/' + encodeURIComponent(c.id) + '?tab=setup',
+          priority: 1,
+        });
+      }
+      const today = todayByChild[c.id];
+      if (today && today.is_paused) {
+        items.push({
+          type: 'paused_day',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' — pausad idag',
+          sub: 'Öppna daglig logg',
+          href: '/daily-log?childId=' + encodeURIComponent(c.id),
+          priority: 2,
+        });
+      }
+      const pending = (pendRedMap[c.id] || 0) + (pendGoalMap[c.id] || 0);
+      if (pending > 0) {
+        items.push({
+          type: 'pending_approval',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' — ' + pending + ' väntande förfrågan',
+          sub: 'Godkänn i Belöningar',
+          href: '/rewards',
+          priority: 0,
+        });
+      }
+      if (!today || today.total === 0) {
+        items.push({
+          type: 'no_schedule_today',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' — inget schema idag',
+          sub: 'Öppna veckoschema',
+          href: '/schedule?child=' + encodeURIComponent(c.id),
+          priority: 3,
+        });
+      }
+    }
+
+    items.sort((a, b) => a.priority - b.priority);
+    res.json({ items });
+  } catch (err) {
+    console.error('[FAMILY] Readiness error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 // ─── GET /api/family/star-history ────────────────────────
 // Returns per-child weekly star totals for the last 8 weeks
 router.get('/star-history', async (req, res) => {

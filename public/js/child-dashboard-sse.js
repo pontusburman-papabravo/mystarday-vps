@@ -47,5 +47,8 @@ window.addEventListener('sse:SCHEDULE_UPDATED', () => scheduleSSEReload());
 window.addEventListener('sse:STAR_GRANTED', () => {
   scheduleSSEReload();    // progress bar may change
   scheduleSSEStarReload(); // star balance definitely changes
+  if (window.ChildRewardsEngine && typeof ChildRewardsEngine.flashStarEconomy === 'function') {
+    ChildRewardsEngine.flashStarEconomy();
+  }
 });
 window.addEventListener('sse:GOAL_PROGRESS_UPDATE', () => scheduleSSEStarReload());

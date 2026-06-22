@@ -17,6 +17,14 @@
   var childId = null;
   var child = null;
   var dashRow = null;
+  var goalRow = null;
+  var pinBuffer = '';
+
+  function trackTab(tab) {
+    if (typeof window.analytics !== 'undefined' && analytics.track) {
+      analytics.track(null, 'child_profile_section', { tab: tab, child_id: childId });
+    }
+  }
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -54,6 +62,70 @@
     var childRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId));
     if (!childRes.ok) throw new Error('Barn hittades inte');
     child = await childRes.json();
+
+    var goalsRes = await window.apiFetch('/api/rewards/goals');
+    if (goalsRes.ok) {
+      var goalsData = await goalsRes.json();
+      goalRow = (goalsData.goals || []).find(function (g) { return g.child_id === childId; });
+    }
+  }
+
+  function pinSetupHtml() {
+    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+      '<p class="font-semibold text-navy mb-2">PIN-kod (4 siffror)</p>' +
+      '<div class="flex gap-2 justify-center mb-3" id="profilePinDots">' +
+      [0, 1, 2, 3].map(function () {
+        return '<span class="w-3 h-3 rounded-full bg-lavender inline-block profile-pin-dot"></span>';
+      }).join('') +
+      '</div>' +
+      '<div class="grid grid-cols-3 gap-2 max-w-xs mx-auto mb-3" id="profilePinPad">' +
+      ['1','2','3','4','5','6','7','8','9','','0','⌫'].map(function (d) {
+        if (d === '') return '<span></span>';
+        return '<button type="button" class="p-3 bg-sky rounded-xl font-bold text-navy min-h-[48px]" data-pin-digit="' + d + '">' + d + '</button>';
+      }).join('') +
+      '</div>' +
+      '<button type="button" id="profilePinSave" class="w-full p-3 bg-gold text-navy rounded-xl font-bold" disabled>Spara PIN</button>' +
+      '</div>' +
+      '<a href="/child-settings?id=' + encodeURIComponent(childId) + '" class="text-sm text-gold font-semibold">Avancerade inställningar →</a>';
+  }
+
+  function renderPinDots() {
+    var dots = document.querySelectorAll('.profile-pin-dot');
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle('bg-gold', i < pinBuffer.length);
+      dot.classList.toggle('bg-lavender', i >= pinBuffer.length);
+    });
+    var save = document.getElementById('profilePinSave');
+    if (save) save.disabled = pinBuffer.length !== 4;
+  }
+
+  async function rewardsTabHtml() {
+    var html = quickActionsHtml();
+    if (window.PendingApprovals) {
+      try {
+        var pending = await PendingApprovals.fetchPending();
+        var block = PendingApprovals.renderList(pending, {
+          childId: childId,
+          childName: child.name,
+          heading: 'Väntar på godkännande',
+        });
+        if (block.indexOf('Inga väntande') === -1) html += '<div class="mb-4">' + block + '</div>';
+      } catch (_) { /* silent */ }
+    }
+    if (goalRow && goalRow.reward_name) {
+      var pct = goalRow.progress_pct != null ? Math.min(100, goalRow.progress_pct) : 0;
+      html +=
+        '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+        '<p class="text-sm text-text-soft">Aktuellt mål</p>' +
+        '<p class="font-bold text-navy">' + esc(goalRow.reward_icon || '🎁') + ' ' + esc(goalRow.reward_name) + '</p>' +
+        '<div class="h-2 bg-lavender rounded-full mt-2 overflow-hidden"><div class="h-full bg-gold" style="width:' + pct + '%"></div></div>' +
+        '<p class="text-xs text-text-soft mt-1">' + (goalRow.stars_toward_goal || 0) + ' / ' + (goalRow.star_cost || '?') + ' ⭐</p>' +
+        '</div>';
+    } else {
+      html += '<p class="text-text-soft text-sm mb-3">Inget aktivt mål — välj i biblioteket.</p>';
+    }
+    html += '<a href="/library#rewards" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Hantera belöningar →</a>';
+    return html;
   }
 
   function quickActionsHtml() {
@@ -63,9 +135,29 @@
       '<button type="button" data-action="pause" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">' +
       (paused ? '▶ Återuppta dag' : '⏸ Pausa idag') + '</button>' +
       '<button type="button" data-action="stars" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">⭐ Extra stjärnor</button>' +
-      '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px] flex items-center justify-center">📝 Daglig logg</a>' +
+      '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '&date=' + encodeURIComponent(new Date().toISOString().slice(0, 10)) + '" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px] flex items-center justify-center col-span-2">📅 Fyll i i efterhand</a>' +
       '<button type="button" data-action="once" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">📋 Engångsaktivitet</button>' +
       '</div>';
+  }
+
+  function incompleteDaysCount() {
+    if (!dashRow || !dashRow.history) return 0;
+    var today = new Date().toISOString().slice(0, 10);
+    return dashRow.history.filter(function (d) {
+      return d.date < today && d.total > 0 && d.completed < d.total && !d.is_paused;
+    }).length;
+  }
+
+  function overviewAlertsHtml() {
+    var html = '';
+    var incomplete = incompleteDaysCount();
+    if (incomplete > 0) {
+      html +=
+        '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 mb-4 bg-coral/10 border border-coral rounded-2xl">' +
+        '<p class="font-semibold text-navy">📅 ' + incomplete + ' ofullständig' + (incomplete === 1 ? ' dag' : 'a dagar') + '</p>' +
+        '<p class="text-sm text-text-soft">Fyll i i efterhand i daglig logg</p></a>';
+    }
+    return html;
   }
 
   function tabContent(tab) {
@@ -73,6 +165,7 @@
       var stars = dashRow ? (dashRow.stars_today || 0) : '—';
       var paused = dashRow && dashRow.today_is_paused;
       return quickActionsHtml() +
+        overviewAlertsHtml() +
         '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
         '<p class="text-sm text-text-soft">Idag</p>' +
         '<p class="text-2xl font-heading font-bold text-navy">' + stars + ' ⭐</p>' +
@@ -87,16 +180,14 @@
         '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna veckoschema →</a>';
     }
     if (tab === 'rewards') {
-      return quickActionsHtml() +
-        '<a href="/library#rewards" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center mb-3">Hantera belöningar →</a>';
+      return '<div id="profileRewardsBody">Laddar…</div>';
     }
     if (tab === 'progress') {
       return '<p class="text-text-soft mb-4">Stjärnor och utveckling över tid.</p>' +
         '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna rapporter →</a>';
     }
     if (tab === 'setup') {
-      return '<p class="text-text-soft mb-4">PIN, vy och anpassning.</p>' +
-        '<a href="/child-settings?id=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Fullständiga barninställningar →</a>';
+      return pinSetupHtml();
     }
     if (tab === 'child-view') {
       return '<p class="text-text-soft mb-4">Låt barnet logga in på denna enhet.</p>' +
@@ -124,8 +215,49 @@
       '<div id="childProfileTabBody">' + tabContent(tab) + '</div>';
 
     mount.querySelectorAll('[data-tab]').forEach(function (btn) {
-      btn.addEventListener('click', function () { setTab(btn.getAttribute('data-tab')); });
+      btn.addEventListener('click', function () {
+        var t = btn.getAttribute('data-tab');
+        trackTab(t);
+        setTab(t);
+      });
     });
+
+    if (tab === 'rewards') {
+      rewardsTabHtml().then(function (html) {
+        var el = document.getElementById('profileRewardsBody');
+        if (el) el.innerHTML = html;
+        mount.querySelectorAll('[data-action]').forEach(function (btn) {
+          btn.addEventListener('click', onQuickAction);
+        });
+      });
+    }
+
+    if (tab === 'setup') {
+      pinBuffer = '';
+      mount.querySelectorAll('[data-pin-digit]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var d = btn.getAttribute('data-pin-digit');
+          if (d === '⌫') pinBuffer = pinBuffer.slice(0, -1);
+          else if (pinBuffer.length < 4) pinBuffer += d;
+          renderPinDots();
+        });
+      });
+      var pinSave = document.getElementById('profilePinSave');
+      if (pinSave) {
+        pinSave.addEventListener('click', async function () {
+          if (pinBuffer.length !== 4) return;
+          var res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/pin', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin: pinBuffer }),
+          });
+          if (!res.ok) { var e = await res.json(); showToast(e.error || 'Kunde inte spara PIN', true); return; }
+          showToast('PIN sparad!');
+          pinBuffer = '';
+          renderPinDots();
+        });
+      }
+    }
 
     mount.querySelectorAll('[data-action]').forEach(function (btn) {
       btn.addEventListener('click', onQuickAction);

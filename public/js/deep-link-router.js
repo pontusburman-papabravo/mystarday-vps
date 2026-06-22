@@ -51,6 +51,15 @@
     if (path === '/login' || path === '/dashboard' || path === '/settings') {
       return path + qs;
     }
+    if (path.indexOf('/family/child/') === 0) {
+      return path + qs;
+    }
+    if (path === '/family') {
+      return path + qs;
+    }
+    if (path === '/planning' || path === '/rewards') {
+      return path + qs;
+    }
     return null;
   }
 

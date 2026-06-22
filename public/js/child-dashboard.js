@@ -489,6 +489,10 @@ async function loadRewards() {
     _currentRewardsData = rewardsData;
     updateGoalBar(goalData);
     renderSkattkammaren(rewardsData, goalData, manualData);
+    if (window.ChildRewardsEngine) {
+      ChildRewardsEngine.setGoalData(goalData);
+      ChildRewardsEngine.mountGoalProgress();
+    }
   } catch (err) {
     // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
@@ -1962,6 +1966,10 @@ function renderSubStepList(itemId) {
   const steps = subStepCache[itemId] || [];
   const container = document.getElementById('substeps-' + itemId);
   if (!container) return;
+  if (window.ChildSupportLayer && typeof ChildSupportLayer.renderInteractiveSubsteps === 'function') {
+    ChildSupportLayer.renderInteractiveSubsteps(container, itemId, steps);
+    return;
+  }
   container.innerHTML = renderSubStepListHtml(itemId, steps);
 }
 
@@ -2225,6 +2233,8 @@ async function _refreshLoadDay() {
   return _pendingLoadDay;
 }
 
+window.coalescedLoadDay = _refreshLoadDay;
+
 // ── Listen for offline-queue sync events ─────────────────────────────────
 // When items synced in background arrive, refresh the day view so stars
 // and progress reflect the server state.
@@ -2464,6 +2474,14 @@ async function loadDay(dateStr, showLoader = true) {
     }
     renderActivities(data, rwdData?.starBalance);
     updateGoalBar(goalData);
+    if (window.ChildActivityEngine) {
+      ChildActivityEngine.setLastDayData(data);
+      ChildActivityEngine.mountPausedBannerIfNeeded();
+    }
+    if (window.ChildRewardsEngine && goalData) {
+      ChildRewardsEngine.setGoalData(goalData);
+      ChildRewardsEngine.mountGoalProgress();
+    }
   } catch (err) {
     if (skeletonTimer) skeletonTimer.stop();
     console.error('Load day error:', err);

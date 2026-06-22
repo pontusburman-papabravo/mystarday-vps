@@ -1,5 +1,5 @@
 /**
- * child-today-coach.js — Coach-loop placements after activity (barnmeny v2 Sprint 4).
+ * child-today-coach.js — Coach-loop placements after activity (barnmeny v2.1 Sprint 7).
  */
 (function () {
   'use strict';
@@ -19,6 +19,18 @@
     return mount;
   }
 
+  function peekNextActivity() {
+    var nowEl = document.querySelector('.now-card:not(.done) .now-title');
+    if (nowEl && nowEl.textContent.trim()) {
+      return 'Nästa uppdrag: ' + nowEl.textContent.trim();
+    }
+    var nextEl = document.querySelector('.next-card:not(.done) .nl-title');
+    if (nextEl && nextEl.textContent.trim()) {
+      return 'Sen: ' + nextEl.textContent.trim();
+    }
+    return 'Du är klar med allt för nu — bra jobbat!';
+  }
+
   function showCoach(message, placement) {
     if (!window.ChildCapabilities) return;
     var mount = ensureMount();
@@ -35,10 +47,11 @@
 
   function onActivityComplete(meta) {
     var placement = (meta && meta.placement) || 'today_coach_post_activity';
-    var msg =
+    var base =
       (meta && meta.message) ||
       'Du klarade uppdraget — fortsätt så här!';
-    showCoach(msg, placement);
+    var nextHint = peekNextActivity();
+    showCoach(base + (nextHint ? ' ' + nextHint : ''), placement);
   }
 
   function bindEventBus() {
@@ -57,5 +70,6 @@
   window.ChildTodayCoach = {
     showCoach: showCoach,
     onActivityComplete: onActivityComplete,
+    peekNextActivity: peekNextActivity,
   };
 })();

@@ -7,6 +7,12 @@
 
   if (!window.NavConfig || !window.Auth) return;
 
+  function isNativeShell() {
+    if (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) return true;
+    if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) return true;
+    return false;
+  }
+
   var path = NavConfig.normalizePath(window.location.pathname);
   if (path === '/login' || path === '/child-login' || path.indexOf('/admin') === 0) return;
   if (!NavConfig.isParentShellPath(path) && path !== '/settings') return;
@@ -62,6 +68,7 @@
         if (accountType !== 'dual' && accountType !== 'educator') continue;
         if (user.preferred_view_mode === 'pedagog') continue;
       }
+      if (action.id === 'subscription' && isNativeShell()) continue;
       if (action.feature && NavConfig.hasFeatureAccess) {
         var access = window._packageAccess;
         if (!NavConfig.hasFeatureAccess(access, action.feature)) continue;

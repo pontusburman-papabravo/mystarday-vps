@@ -42,18 +42,20 @@
     <div class="p-4 md:p-8">
       <h1 class="text-2xl font-heading font-bold text-navy mb-2">🎁 Belöningar</h1>
       <p class="text-text-soft mb-6">Stjärnor, belöningar och familjekista.</p>
+      <div id="rewardsPendingMount" class="mb-6 hidden" aria-live="polite"></div>
       <div id="rewardsHubMount"></div>
     </div>
   </main>
   <script src="/js/sw-register.js?v=2.12.0"></script>
-  <script src="/js/mobile-nav.js?v=2.13.0"></script>
   <script src="/js/nav-config.js?v=1"></script>
-  <script src="/js/rewards-hub.js?v=1"></script>
+  <script src="/js/parent-nav-sidebar.js?v=1"></script>
+  <script src="/js/mobile-nav.js?v=2.14.0"></script>
+  <script src="/js/pending-approvals.js?v=1"></script>
+  <script src="/js/rewards-hub.js?v=1.1.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/parent-magic-bootstrap.js?v=1"></script>
-  <script src="/js/parent-nav-sidebar.js?v=1"></script>
   <script>
     document.getElementById('logoutBtn')?.addEventListener('click', function () { Auth.logout(); });
     Auth.requireAuth();

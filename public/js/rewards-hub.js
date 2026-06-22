@@ -45,6 +45,11 @@
     var mount = document.getElementById('rewardsHubMount');
     if (!mount) return;
 
+    var pendingMount = document.getElementById('rewardsPendingMount');
+    if (pendingMount && window.PendingApprovals) {
+      await PendingApprovals.mountHub(pendingMount);
+    }
+
     var extra = await capabilityHtml();
     mount.innerHTML =
       baseHtml() +
@@ -58,6 +63,13 @@
       });
     });
   }
+
+  document.addEventListener('pending-approvals-changed', function () {
+    var pendingMount = document.getElementById('rewardsPendingMount');
+    if (pendingMount && window.PendingApprovals) {
+      PendingApprovals.mountHub(pendingMount);
+    }
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', render);

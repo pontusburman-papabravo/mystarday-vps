@@ -38,6 +38,15 @@
     var mount = document.getElementById('subscriptionMount');
     if (!mount) return;
 
+    var isNative =
+      (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) ||
+      (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+    if (isNative) {
+      mount.innerHTML =
+        '<p class="text-sm text-text-soft">Prenumeration hanteras via webbläsaren (inte i appen).</p>';
+      return;
+    }
+
     try {
       var status = await Auth.api('/api/subscription/status');
       var html =
