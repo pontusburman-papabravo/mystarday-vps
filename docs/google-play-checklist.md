@@ -177,7 +177,9 @@ export GOOGLE_WEB_CLIENT_ID="….apps.googleusercontent.com"
 npm run cap:sync:android
 ```
 
-`cap:sync:android` kör: `cap sync android` → manifest-patch (App Links, permissions) → strings-patch (`server_client_id`).
+`cap:sync:android` kör: `cap sync android` → **stjärnikon** (`install-android-icons.mjs`) → manifest-patch (App Links, permissions) → strings-patch (`server_client_id`).
+
+**Viktigt:** Utan `install-android-icons.mjs` får APK/AAB Capacitors standardikon (blå geometri) — det avvisas av Play som listing mismatch. Kör `npm run icons:install` om du bytt `assets/app-icon/source.png`.
 
 ### Release-keystore (engång)
 

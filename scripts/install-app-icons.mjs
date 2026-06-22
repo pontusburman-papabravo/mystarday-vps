@@ -73,4 +73,14 @@ if (fs.existsSync(path.dirname(iosSet))) {
   console.log('ios/ not present — run npm run cap:sync:ios on Mac, then re-run this script');
 }
 
+// Android launcher icons (after cap sync creates android/)
+const androidRes = path.join(ROOT, 'android/app/src/main/res');
+if (fs.existsSync(androidRes)) {
+  execSync(`node "${path.join(ROOT, 'scripts/install-android-icons.mjs')}" "${master}"`, {
+    stdio: 'inherit',
+  });
+} else {
+  console.log('android/ not present — run npm run cap:sync:android, then re-run this script');
+}
+
 console.log('Done.');

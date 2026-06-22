@@ -10,8 +10,9 @@ node scripts/install-app-icons.mjs
 ```
 
 Skapar:
-- `assets/app-icon/icon-1024.png` — App Store / Xcode
+- `assets/app-icon/icon-1024.png` — App Store / Xcode / Play Store
 - `public/icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, favicons — PWA
+- `android/app/src/main/res/mipmap-*/ic_launcher*.png` — Android launcher (efter `cap:sync:android`)
 
 ## iOS (på Mac)
 
