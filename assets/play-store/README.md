@@ -88,6 +88,8 @@ assets/play-store/out/min-stjarnadag-release.aab
 npm run android:aab
 ```
 
+Versionsnummer styrs i `assets/play-store/android-version.json` (patchas in i `build.gradle` vid varje build). Höj `versionCode` före varje ny Play-upload.
+
 Valfritt (Google Sign In i native):
 
 ```bash
