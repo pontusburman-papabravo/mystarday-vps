@@ -46,6 +46,17 @@ body.parent-magic-view .parent-magic-legacy-hide {
   display: none !important;
 }
 
+/* Notifications / legacy page headers hidden in magic (hero replaces them) */
+body.parent-magic-page-notifications main > .bg-sky.border-b.parent-magic-legacy-hide,
+body.parent-magic-page-notifications main > .bg-sky.border-b:first-of-type:not(.app-view-toggle-wrap) {
+  display: none !important;
+}
+
+/* Family child card — prominent settings CTA in magic view */
+body.parent-magic-view .family-child-settings-btn {
+  box-shadow: 0 4px 0 rgba(180, 120, 0, 0.35), 0 8px 20px rgba(255, 204, 51, 0.25);
+}
+
 /* Dashboard: hide classic header as soon as magic view is on (before hub mount). */
 body.parent-magic-view.parent-magic-page-dashboard .parent-magic-hide-header {
   display: none !important;

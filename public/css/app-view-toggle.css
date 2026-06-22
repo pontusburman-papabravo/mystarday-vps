@@ -135,7 +135,8 @@ body.child-magic-view .app-view-toggle-btn.is-active {
   padding: max(8px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
   position: sticky;
   top: 0;
-  z-index: 60;
+  z-index: 120;
+  overflow: visible;
   background: rgba(232, 240, 254, 0.92);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -154,4 +155,64 @@ body.parent-magic-dashboard .parent-nav-header-actions {
 /* When header bar exists, view toggle should not double safe-area padding */
 main:has([data-parent-nav-header]) > .app-view-toggle-wrap {
   padding-top: 10px;
+}
+
+.parent-avatar-wrap {
+  position: relative;
+  z-index: 130;
+  overflow: visible;
+}
+
+#parentAvatarMenu.parent-avatar-menu-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #ede7f6;
+  box-shadow: 0 14px 40px rgba(27, 35, 64, 0.22);
+  color: #1b2340;
+}
+
+.parent-avatar-menu-item {
+  color: #1b2340;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.parent-avatar-menu-item:hover,
+.parent-avatar-menu-item:focus-visible {
+  background: #e8f0fe;
+  outline: none;
+}
+
+.parent-avatar-menu-item--danger {
+  color: #dc2626 !important;
+}
+
+.parent-avatar-menu-item--danger:hover,
+.parent-avatar-menu-item--danger:focus-visible {
+  background: #fdeae7 !important;
+}
+
+body.parent-magic-view #parentAvatarMenu.parent-avatar-menu-dropdown {
+  background: #141432 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+  color: #f4f4ff;
+}
+
+body.parent-magic-view .parent-avatar-menu-item {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .parent-avatar-menu-item:hover,
+body.parent-magic-view .parent-avatar-menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.parent-magic-view .parent-avatar-menu-item--danger {
+  color: #fca5a5 !important;
+}
+
+body.parent-magic-view .parent-avatar-menu-item--danger:hover,
+body.parent-magic-view .parent-avatar-menu-item--danger:focus-visible {
+  background: rgba(220, 38, 38, 0.18) !important;
 }

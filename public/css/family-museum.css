@@ -1,0 +1,148 @@
+/* Familjemuseum — parent family page (classic + magic) */
+
+.fm-museum-card {
+  margin: 0 0 20px;
+  padding: 18px 16px 16px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fff8e7 0%, #f0f7ff 55%, #ede7f6 100%);
+  border: 2px solid rgba(245, 166, 35, 0.25);
+  box-shadow: 0 8px 28px rgba(27, 35, 64, 0.08);
+}
+
+.fm-museum-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fm-museum-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #f5a623, #fbbf24);
+  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.35);
+  flex-shrink: 0;
+}
+
+.fm-museum-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #1b2340;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.fm-museum-lead {
+  font-size: 0.8rem;
+  color: #5a6178;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.fm-museum-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fm-museum-stat {
+  text-align: center;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 14px;
+  border: 1px solid rgba(237, 231, 246, 0.9);
+}
+
+.fm-museum-stat strong {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #b45309;
+  line-height: 1.1;
+}
+
+.fm-museum-stat span {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #9aa0b8;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fm-museum-rewards {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(237, 231, 246, 0.9);
+}
+
+.fm-museum-rewards-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9aa0b8;
+  margin: 0 0 8px;
+}
+
+.fm-museum-reward-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fm-museum-reward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(237, 231, 246, 0.95);
+  font-size: 0.75rem;
+  color: #1b2340;
+  font-weight: 600;
+}
+
+.fm-museum-reward-chip em {
+  font-style: normal;
+  color: #b45309;
+  font-weight: 800;
+}
+
+/* Magic view */
+body.parent-magic-view .fm-museum-card {
+  background: linear-gradient(145deg, rgba(255, 204, 51, 0.14) 0%, rgba(88, 56, 180, 0.22) 55%, rgba(12, 12, 36, 0.9) 100%);
+  border-color: rgba(255, 204, 51, 0.28);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+}
+
+body.parent-magic-view .fm-museum-title,
+body.parent-magic-view .fm-museum-reward-chip {
+  color: #f4f4ff;
+}
+
+body.parent-magic-view .fm-museum-lead,
+body.parent-magic-view .fm-museum-stat span,
+body.parent-magic-view .fm-museum-rewards-label {
+  color: rgba(244, 244, 255, 0.72);
+}
+
+body.parent-magic-view .fm-museum-stat,
+body.parent-magic-view .fm-museum-reward-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.parent-magic-view .fm-museum-stat strong,
+body.parent-magic-view .fm-museum-reward-chip em {
+  color: #ffcc33;
+}

@@ -95,15 +95,38 @@
   function closeMenu() {
     var menu = document.getElementById(MENU_ID);
     var btn = document.getElementById(BTN_ID);
-    if (menu) menu.classList.add('hidden');
+    var wrap = document.getElementById('parentAvatarWrap');
+    if (menu) {
+      menu.classList.add('hidden');
+      if (wrap && menu.parentNode === document.body) {
+        wrap.appendChild(menu);
+      }
+    }
     if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+
+  function positionMenu() {
+    var menu = document.getElementById(MENU_ID);
+    var btn = document.getElementById(BTN_ID);
+    if (!menu || !btn) return;
+    var rect = btn.getBoundingClientRect();
+    menu.style.position = 'fixed';
+    menu.style.top = Math.round(rect.bottom + 8) + 'px';
+    menu.style.right = Math.round(window.innerWidth - rect.right) + 'px';
+    menu.style.left = 'auto';
+    menu.style.bottom = 'auto';
   }
 
   function openMenu() {
     var menu = document.getElementById(MENU_ID);
     var btn = document.getElementById(BTN_ID);
-    if (menu) menu.classList.remove('hidden');
-    if (btn) btn.setAttribute('aria-expanded', 'true');
+    if (!menu || !btn) return;
+    if (menu.parentNode !== document.body) {
+      document.body.appendChild(menu);
+    }
+    positionMenu();
+    menu.classList.remove('hidden');
+    btn.setAttribute('aria-expanded', 'true');
   }
 
   function toggleMenu() {
@@ -142,7 +165,8 @@
 
     var bar = ensureHeaderBar();
     var wrap = document.createElement('div');
-    wrap.className = 'relative';
+    wrap.className = 'relative parent-avatar-wrap';
+    wrap.id = 'parentAvatarWrap';
     wrap.style.position = 'relative';
 
     var btn = document.createElement('button');
@@ -157,7 +181,7 @@
 
     var menu = document.createElement('div');
     menu.id = MENU_ID;
-    menu.className = 'hidden absolute right-0 top-full mt-2 min-w-[200px] bg-white border border-lavender rounded-xl shadow-lg z-50 py-1';
+    menu.className = 'hidden parent-avatar-menu-dropdown absolute right-0 top-full mt-2 min-w-[220px] rounded-xl shadow-xl z-[9000] py-1';
     menu.setAttribute('role', 'menu');
 
     var items = buildMenuItems(user);
@@ -165,7 +189,7 @@
       .map(function (action) {
         if (action.action === 'logout') {
           return (
-            '<button type="button" class="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 hover:bg-coral/40 min-h-[44px]" role="menuitem" data-avatar-action="' +
+            '<button type="button" class="parent-avatar-menu-item parent-avatar-menu-item--danger w-full text-left px-4 py-3 text-sm font-semibold min-h-[44px]" role="menuitem" data-avatar-action="' +
             action.id +
             '">' +
             action.label +
@@ -173,7 +197,7 @@
           );
         }
         return (
-          '<button type="button" class="w-full text-left px-4 py-3 text-sm font-semibold text-navy hover:bg-sky min-h-[44px]" role="menuitem" data-avatar-action="' +
+          '<button type="button" class="parent-avatar-menu-item w-full text-left px-4 py-3 text-sm font-semibold min-h-[44px]" role="menuitem" data-avatar-action="' +
           action.id +
           '" data-avatar-href="' +
           (action.href || '') +
@@ -206,6 +230,12 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeMenu();
     });
+
+    window.addEventListener('resize', closeMenu);
+    window.addEventListener('scroll', function () {
+      var menu = document.getElementById(MENU_ID);
+      if (menu && !menu.classList.contains('hidden')) positionMenu();
+    }, true);
 
     wrap.appendChild(btn);
     wrap.appendChild(menu);

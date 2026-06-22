@@ -170,31 +170,21 @@
 
           ${badges.length > 0 ? `<div class="flex gap-1.5 flex-wrap mb-3">${badges.join('')}</div>` : ''}
 
-          <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <a href="/family/child/${child.id}"
-               class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">
-              🌟 Profil
-            </a>
+          <div class="pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
             <a href="/family/child/${child.id}?tab=setup"
-               class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-lavender hover:bg-purple-200 dark:bg-navy text-purple-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">
-              ⚙️
+               class="family-child-settings-btn flex w-full items-center justify-center gap-2 px-4 py-3.5 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl transition-colors min-h-[48px]">
+              ⚙️ Inställningar
             </a>
-            <a href="/schedule?child=${child.id}"
-               class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gold hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">
-              📅 Schema
-            </a>
-            <button onclick="openChildDrawer('${child.id}', 'rewards')"
-               class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-lavender hover:bg-purple-200 dark:bg-navy text-purple-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">
-              🏆
-            </button>
-          </div>
-
-          <!-- Delete child — same pattern as adult card -->
-          <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
-            <button onclick="confirmDeleteChild('${child.id}', '${(child.name || '').replace(/'/g, "\\'")}')"
-              class="w-full px-3 py-1.5 bg-coral hover:bg-red-100 text-red-600 text-xs rounded-lg font-medium transition-colors">
-              Ta bort barn
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="/family/child/${child.id}"
+                 class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white/80 dark:bg-navy border border-lavender dark:border-navy-soft text-navy dark:text-white text-xs font-semibold rounded-xl transition-colors min-h-[44px]">
+                🌟 Profil
+              </a>
+              <a href="/schedule?child=${child.id}"
+                 class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white dark:text-navy text-xs font-semibold rounded-xl transition-colors min-h-[44px]">
+                📅 Schema
+              </a>
+            </div>
           </div>
         </div>
       `;
