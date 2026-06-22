@@ -21,10 +21,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-info()  { printf '%b\n' "${GREEN}→${NC} $*"; }
-warn()  { printf '%b\n' "${YELLOW}!${NC} $*"; }
+info()  { printf '%b\n' "${GREEN}→${NC} $*" >&2; }
+warn()  { printf '%b\n' "${YELLOW}!${NC} $*" >&2; }
 err()   { printf '%b\n' "${RED}✗${NC} $*" >&2; }
-step()  { printf '\n%b\n' "${GREEN}== $* ==${NC}"; }
+step()  { printf '\n%b\n' "${GREEN}== $* ==${NC}" >&2; }
 
 read_deploy_rules() {
   if [ ! -f "$DEPLOY_RULES" ]; then
@@ -135,20 +135,18 @@ generate_deploy_key() {
 
   if [ -f "$KEY_PATH" ]; then
     warn "Nyckel finns redan: $KEY_PATH"
-    read -r -p "Använda den? [J/n] " ans
+    read -r -p "Använda den? [J/n] " ans >&2
     if [[ "${ans,,}" == "n" ]]; then
       err "Avbrutet. Sätt KEY_PATH till annan fil eller ta bort befintlig nyckel."
       exit 1
     fi
-    echo "$KEY_PATH"
-    return
+    return 0
   fi
 
   mkdir -p "$KEY_DIR"
   chmod 700 "$KEY_DIR"
   info "Skapar deploy-nyckel (ed25519, ingen passphrase): $KEY_PATH"
-  ssh-keygen -t ed25519 -f "$KEY_PATH" -N "" -C "github-actions-${VPS_SERVICE}-deploy"
-  echo "$KEY_PATH"
+  ssh-keygen -q -t ed25519 -f "$KEY_PATH" -N "" -C "github-actions-${VPS_SERVICE}-deploy" </dev/null
 }
 
 print_vps_key_instructions() {
@@ -288,13 +286,11 @@ cmd_full_setup() {
   info "  ${VPS_USER}@${VPS_HOST}  ${VPS_APP_PATH}  service=${VPS_SERVICE}"
 
   step "2/4 — Deploy-nyckel"
-  local key_file
-  key_file="$(generate_deploy_key)"
-  KEY_PATH="$key_file"
+  generate_deploy_key
 
   step "3/4 — VPS (manuellt steg)"
   print_vps_key_instructions
-  read -r -p "Har du lagt nyckeln på VPS och testat SSH? [j/N] " done
+  read -r -p "Har du lagt nyckeln på VPS och testat SSH? [j/N] " done >&2
   if [[ "${done,,}" != "j" && "${done,,}" != "y" ]]; then
     warn "Fortsätt när VPS-steget är klart. Kör sedan: $0 github"
     exit 0
@@ -303,9 +299,9 @@ cmd_full_setup() {
   test_ssh_deploy_key
 
   step "4/4 — GitHub environment"
-  set_github_vars_and_secret "$key_file"
+  set_github_vars_and_secret "$KEY_PATH"
 
-  read -r -p "Vill du köra en test-deploy nu (workflow_dispatch)? [j/N] " run_now
+  read -r -p "Vill du köra en test-deploy nu (workflow_dispatch)? [j/N] " run_now >&2
   if [[ "${run_now,,}" == "j" || "${run_now,,}" == "y" ]]; then
     trigger_deploy_workflow
   fi
