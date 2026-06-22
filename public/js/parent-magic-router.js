@@ -39,8 +39,11 @@
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/family.js?v=2.14.0',
     ],
-    planning: [],
-    rewards: [],
+    planning: ['/js/planning-hub.js?v=1.1.0'],
+    rewards: [
+      '/js/pending-approvals.js?v=1',
+      '/js/rewards-hub.js?v=1.2.0',
+    ],
     skattkammaren: ['/js/skattkammaren-parent-page.js?v=1'],
     upgrade: [
       '/js/preview-shell.js?v=1.0.0',

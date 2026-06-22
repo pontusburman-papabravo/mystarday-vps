@@ -544,6 +544,13 @@ if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('dashboard', window.bootDashboardMagicPage);
 }
 
+window.addEventListener('stjarndag-magic-navigated', function (e) {
+  if (!e.detail || e.detail.pageId !== 'dashboard') return;
+  if (typeof window.bootDashboardMagicPage === 'function') {
+    window.bootDashboardMagicPage();
+  }
+});
+
 // ── Helpers ──────────────────────────────────────────────
 // showToast is now in /js/toast.js
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js

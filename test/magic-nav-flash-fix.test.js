@@ -30,8 +30,8 @@ describe('magic nav flash fix', () => {
     assert.doesNotMatch(src, /function remount\(\) \{\s*unmount\(\)/);
   });
 
-  it('SW bumped to v289', () => {
+  it('SW bumped to v290', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v289/);
+    assert.match(src, /stjarndag-v290/);
   });
 });

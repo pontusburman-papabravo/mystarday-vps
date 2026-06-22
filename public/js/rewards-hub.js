@@ -12,7 +12,7 @@
 
   function baseHtml() {
     return (
-      '<div class="grid gap-3 max-w-lg">' +
+      '<div class="magic-hub-links grid gap-3 max-w-lg">' +
       '<a href="/library#rewards" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="Hantera belöningar">' +
       '<span class="text-2xl">🎁</span><span><span class="font-heading font-bold text-navy block">Hantera belöningar</span>' +
       '<span class="text-sm text-text-soft">Skapa och redigera i biblioteket</span></span></a>' +
@@ -63,6 +63,20 @@
       });
     });
   }
+
+  async function bootRewardsPage() {
+    await render();
+  }
+
+  window.RewardsHub = { render: render };
+
+  if (window.ParentMagicPageBoot) {
+    ParentMagicPageBoot.register('rewards', bootRewardsPage);
+  }
+
+  window.addEventListener('stjarndag-magic-navigated', function (e) {
+    if (e.detail && e.detail.pageId === 'rewards') render();
+  });
 
   document.addEventListener('pending-approvals-changed', function () {
     var pendingMount = document.getElementById('rewardsPendingMount');

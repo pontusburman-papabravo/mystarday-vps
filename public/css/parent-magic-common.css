@@ -618,3 +618,65 @@ body.parent-magic-view[data-magic-page="skattkammaren"] #childChips .text-text-s
 body.parent-magic-view[data-magic-page="skattkammaren"] #childChips .text-navy {
   color: rgba(244, 244, 255, 0.85) !important;
 }
+
+/* Planning / Rewards — hide classic page title (magic hero replaces it) */
+body.parent-magic-view.parent-magic-page-planning .parent-magic-hide-header,
+body.parent-magic-view.parent-magic-page-rewards .parent-magic-hide-header {
+  display: none !important;
+}
+
+body.parent-magic-view.parent-magic-page-planning .magic-hub-content,
+body.parent-magic-view.parent-magic-page-rewards .magic-hub-content {
+  padding-top: 0;
+}
+
+body.parent-magic-view .magic-hub-links a {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .magic-hub-links a:hover {
+  border-color: rgba(255, 204, 51, 0.45) !important;
+}
+
+body.parent-magic-view .magic-hub-links .text-navy {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view .magic-hub-links .text-text-soft {
+  color: rgba(244, 244, 255, 0.68) !important;
+}
+
+/* Dashboard invite/share CTAs — readable on dark magic shell */
+body.parent-magic-view #medforalderCtaBanner,
+body.parent-magic-view #delaAppenCtaBanner {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 204, 51, 0.35) !important;
+}
+
+body.parent-magic-view #delaAppenCtaBanner {
+  border-color: rgba(167, 139, 250, 0.45) !important;
+}
+
+body.parent-magic-view #medforalderCtaBanner .text-navy,
+body.parent-magic-view #delaAppenCtaBanner .text-navy,
+body.parent-magic-view #medforalderCtaBanner .font-semibold,
+body.parent-magic-view #delaAppenCtaBanner .font-semibold {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view #medforalderCtaBanner .text-text-soft,
+body.parent-magic-view #delaAppenCtaBanner .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+/* Settings — account deletion warning readable in magic view */
+body.parent-magic-view #deletionSection .bg-coral {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+body.parent-magic-view #deletionSection .bg-coral .text-navy {
+  color: #fecaca !important;
+}

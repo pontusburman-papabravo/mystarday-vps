@@ -67,7 +67,7 @@
     if (!mount) return;
 
     var links = await getLinks();
-    mount.innerHTML = '<div class="grid gap-3 max-w-lg">' + links.map(linkHtml).join('') + '</div>';
+    mount.innerHTML = '<div class="magic-hub-links grid gap-3 max-w-lg">' + links.map(linkHtml).join('') + '</div>';
 
     mount.querySelectorAll('[data-hub-link]').forEach(function (el) {
       el.addEventListener('click', function () {
@@ -75,6 +75,20 @@
       });
     });
   }
+
+  async function bootPlanningPage() {
+    await render();
+  }
+
+  window.PlanningHub = { render: render };
+
+  if (window.ParentMagicPageBoot) {
+    ParentMagicPageBoot.register('planning', bootPlanningPage);
+  }
+
+  window.addEventListener('stjarndag-magic-navigated', function (e) {
+    if (e.detail && e.detail.pageId === 'planning') render();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', render);

@@ -32,11 +32,26 @@ describe('magic soft navigation', () => {
       'public/js/upgrade-packages.js',
       'public/js/skattkammaren-parent-page.js',
       'public/js/family.js',
+      'public/js/planning-hub.js',
+      'public/js/rewards-hub.js',
     ];
     files.forEach((rel) => {
       const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
       assert.match(src, /ParentMagicPageBoot\.register/);
     });
+  });
+
+  it('router loads planning and rewards hub scripts on soft nav', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(router, /planning:\s*\[['"]\/js\/planning-hub\.js/);
+    assert.match(router, /rewards:\s*\[[\s\S]*rewards-hub\.js/);
+  });
+
+  it('planning and rewards hubs re-render on magic navigated event', () => {
+    const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    const rewards = fs.readFileSync(path.join(ROOT, 'public/js/rewards-hub.js'), 'utf8');
+    assert.match(planning, /stjarndag-magic-navigated/);
+    assert.match(rewards, /stjarndag-magic-navigated/);
   });
 
   it('schedule boot guards logoutBtn missing in magic view', () => {
@@ -52,6 +67,16 @@ describe('magic soft navigation', () => {
     assert.match(dashboard, /childrenListView/);
     assert.match(dashboard, /DashboardHomeHub\.render\(dashboardStats\)/);
     assert.match(dashboard, /showMedforalderCtaIfEligible/);
+    assert.match(dashboard, /stjarndag-magic-navigated/);
+  });
+
+  it('magic hub contrast CSS for planning, rewards, settings deletion', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /parent-magic-page-planning/);
+    assert.match(css, /parent-magic-page-rewards/);
+    assert.match(css, /#deletionSection/);
+    assert.match(css, /#medforalderCtaBanner/);
+    assert.match(css, /magic-hub-links/);
   });
 
   it('skattkammaren magic contrast CSS present', () => {
