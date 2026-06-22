@@ -46,6 +46,7 @@
   <script src="/js/auth.js?v=2.20.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-magic.js?v=155"></script>
+  <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22"></script>
   <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
   <style>
     /* WCAG 2.5.8: min 44×44px touch target */
@@ -127,13 +128,26 @@
           </div>
 
           <div id="roleAppleSection" class="hidden" style="width:100%;">
-            <button type="button" id="roleAppleBtn" class="apple-btn-magic" onclick="handleAppleLogin()">
+            <button type="button" id="roleAppleBtn" class="apple-btn-magic" onclick="handleAppleLogin(this)">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
               </svg>
               Logga in med Apple
             </button>
             <p class="ios-caption">Endast tillgängligt på iOS</p>
+            <div id="roleAppleError" class="magic-error-box" style="display:none;margin-top:12px;" role="alert"></div>
+            <div id="roleAppleLinkingPrompt" class="hidden" style="margin-top:14px;background:rgba(255,255,255,0.1);border:2px solid rgba(251,191,36,0.4);border-radius:14px;padding:16px;text-align:center;backdrop-filter:blur(12px);">
+              <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;">Ett konto med denna e-postadress finns redan.</p>
+              <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;">Vill du länka ditt Apple-konto till det befintliga kontot?</p>
+              <div style="display:flex;gap:10px;">
+                <button type="button" onclick="openAppleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;">
+                  Ja, länka
+                </button>
+                <button type="button" onclick="dismissAppleLinking()" class="ghost-btn" style="flex:1;">
+                  Avbryt
+                </button>
+              </div>
+            </div>
           </div>
 
           <div id="roleGoogleSection" class="hidden" style="width:100%;margin-top:10px;">
@@ -183,7 +197,7 @@
           <button
             type="button"
             id="appleLoginBtn"
-            onclick="handleAppleLogin()"
+            onclick="handleAppleLogin(this)"
             class="apple-btn-magic"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -559,25 +573,57 @@
     let _applePendingEmail = null;
     let _applePendingIdToken = null;
 
-    async function handleAppleLogin() {
-      if (!window.Platform) return;
-      hideErrorInline('appleLoginError');
-      document.getElementById('appleLinkingPrompt').classList.add('hidden');
-
-      // On iOS: only attempt if the native plugin is installed
-      if (Platform.isIOS() && !Platform.appleSignIn.isAvailable()) {
-        showErrorInline('appleLoginError', 'Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.');
+    async function handleAppleLogin(clickedBtn) {
+      var diag = window.AppleSignInDiagnostics;
+      if (!diag) {
+        console.error('[APPLE] diagnostics module missing');
         return;
       }
 
-      const btn = document.getElementById('appleLoginBtn');
-      const orig = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Apple…';
+      diag.log('step_1_button_pressed', {
+        parentVisible: diag.isParentLoginVisible(),
+        hasPlatform: !!window.Platform,
+      });
+
+      if (!window.Platform) {
+        diag.showError('Apple-inloggning är inte tillgänglig just nu. Försök igen eller logga in med e-post.');
+        return;
+      }
+
+      diag.hideErrors();
+      diag.hideLinkingPrompts();
+
+      if (Platform.isIOS() && !Platform.appleSignIn.isAvailable()) {
+        diag.log('step_1b_plugin_unavailable');
+        diag.showError('Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.');
+        return;
+      }
+
+      var btn = diag.getActiveAppleButton(clickedBtn);
+      var orig = btn ? btn.textContent : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Apple…';
+      }
 
       try {
+        diag.log('step_2_authorize_start');
         const result = await window.Platform.appleSignIn.signIn();
-        if (!result || !result.idToken) return;
+        diag.log('step_2_authorize_done', {
+          hasResult: !!result,
+          hasIdToken: !!(result && result.idToken),
+        });
+
+        if (!result) {
+          diag.showError('Apple-inloggningen avbröts.');
+          return;
+        }
+        if (!result.idToken) {
+          diag.showError('Apple-inloggningen slutfördes inte. Försök igen eller logga in med e-post och lösenord.');
+          return;
+        }
+
+        diag.log('step_3_token_received', { hasName: !!result.name });
 
         const res = await fetch('/api/auth/apple', {
           method: 'POST',
@@ -586,9 +632,11 @@
           body: JSON.stringify({ idToken: result.idToken, name: result.name }),
         });
         const data = await res.json().catch(() => ({}));
+        diag.log('step_4_backend_response', { status: res.status, error: data.error || null });
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+          diag.log('step_5_login_complete', { onboarding: data.user.onboarding_completed });
           if (data.user.onboarding_completed === false) {
             setTimeout(() => { window.location.href = '/onboarding'; }, 300);
           } else {
@@ -597,24 +645,31 @@
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
+          diag.log('step_5_login_complete', { scenario: 'created' });
           setTimeout(() => window.location.href = '/onboarding', 300);
         } else if (res.status === 409 && data.error === 'email_conflict') {
           _applePendingEmail = data.email;
           _applePendingIdToken = result.idToken;
-          document.getElementById('appleLinkingPrompt').classList.remove('hidden');
+          diag.log('step_4b_email_conflict');
+          diag.showLinkingPrompt();
+        } else if (res.status === 429) {
+          diag.showError(data.error || 'För många försök. Vänta en stund och försök igen.');
         } else {
-          showErrorInline('appleLoginError', data.error || 'Något gick fel med Apple-inloggningen.');
+          diag.showError(data.error || 'Något gick fel med Apple-inloggningen. Försök igen eller logga in med e-post och lösenord.');
         }
       } catch (err) {
         var appleMsg = (err && err.message) || '';
+        diag.log('step_error', { message: appleMsg });
         if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
-          showErrorInline('appleLoginError', 'Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.');
+          diag.showError('Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.');
         } else {
-          showErrorInline('appleLoginError', appleMsg || 'Apple Sign In misslyckades.');
+          diag.showError(appleMsg || 'Apple Sign In misslyckades.');
         }
       } finally {
-        btn.disabled = false;
-        btn.textContent = orig;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = orig;
+        }
       }
     }
 
@@ -693,7 +748,12 @@
     }
 
     function dismissAppleLinking() {
-      document.getElementById('appleLinkingPrompt').classList.add('hidden');
+      if (window.AppleSignInDiagnostics) {
+        AppleSignInDiagnostics.hideLinkingPrompts();
+      } else {
+        document.getElementById('appleLinkingPrompt')?.classList.add('hidden');
+        document.getElementById('roleAppleLinkingPrompt')?.classList.add('hidden');
+      }
       _applePendingEmail = null;
       _applePendingIdToken = null;
     }

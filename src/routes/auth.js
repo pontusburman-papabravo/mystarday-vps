@@ -1194,22 +1194,31 @@ router.post('/refresh', async (req, res) => {
 //   3. Existing password account (email found, no Apple link) → 409 + email_conflict
 router.post('/apple', appleLoginLimiter, async (req, res) => {
   try {
-    const { idToken, firstName, lastName } = req.body;
+    const { idToken, firstName, lastName, name } = req.body;
     if (!idToken || typeof idToken !== 'string') {
+      console.warn('[APPLE] auth rejected: missing idToken');
       return res.status(400).json({ error: 'idToken krävs' });
     }
+
+    console.log('[APPLE] auth request received', { ip: req.ip });
 
     // Verify the JWT using Apple's public JWKS — never trust name/email from request body
     const appleUser = await verifyAppleIdToken(idToken);
     if (!appleUser) {
+      console.warn('[APPLE] token verification failed — returning 401');
       return res.status(401).json({ error: 'Ogiltig Apple-identitetstoken' });
     }
 
     const { sub: appleUserId, email: appleEmail } = appleUser;
+    console.log('[APPLE] token verified', {
+      subPrefix: String(appleUserId).slice(0, 8),
+      hasEmail: !!appleEmail,
+    });
 
     // SCENARIO 1 — Existing Apple user: apple_user_id already linked → login directly
     const existingByApple = await parentDb.getParentByAppleUserId(appleUserId);
     if (existingByApple) {
+      console.log('[APPLE] existing user found', { parentId: existingByApple.id });
       return completeLogin(req, res, existingByApple, 'parent');
     }
 
@@ -1217,6 +1226,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
     if (appleEmail) {
       const existingByEmail = await parentDb.getParentByEmail(appleEmail);
       if (existingByEmail && existingByEmail.email && existingByEmail.has_password) {
+        console.log('[APPLE] email conflict', { parentId: existingByEmail.id });
         return res.status(409).json({
           error: 'email_conflict',
           email: appleEmail,
@@ -1227,8 +1237,9 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
     // SCENARIO 2 — New user: apple_user_id not linked and email not in DB
     const displayName = (firstName && lastName)
       ? `${firstName.trim()} ${lastName.trim()}`
-      : (firstName?.trim() || appleEmail?.split('@')[0] || 'Förälder');
+      : (firstName?.trim() || (typeof name === 'string' && name.trim()) || appleEmail?.split('@')[0] || 'Förälder');
 
+    console.log('[APPLE] creating new user');
     const newParent = await createParentWithApple({
       appleUserId,
       appleEmail,
@@ -1318,21 +1329,27 @@ async function verifyAppleIdToken(idToken) {
     process.env.APPLE_BUNDLE_ID || 'se.mystarday.app', // pragma: allowlist secret
   ].filter(Boolean);
   if (audiences.length === 0) {
-    console.error('[AUTH] Apple token verification: no APPLE_CLIENT_ID or APPLE_BUNDLE_ID configured');
+    console.error('[APPLE] token verification: no APPLE_CLIENT_ID or APPLE_BUNDLE_ID configured');
     return null;
   }
 
   try {
     const decoded = jwt.decode(idToken, { complete: true });
-    if (!decoded) return null;
+    if (!decoded) {
+      console.error('[APPLE] token decode failed');
+      return null;
+    }
 
     const { kid, alg } = decoded.header;
-    if (!kid || alg !== 'RS256') return null;
+    if (!kid || alg !== 'RS256') {
+      console.error('[APPLE] invalid token header', { kid: !!kid, alg });
+      return null;
+    }
 
     const keys = await _fetchAppleJwks();
     const jwk = keys.find(k => k.kid === kid);
     if (!jwk) {
-      console.error('[AUTH] Apple JWK kid not found:', kid);
+      console.error('[APPLE] JWK kid not found:', kid);
       return null;
     }
 
@@ -1347,7 +1364,20 @@ async function verifyAppleIdToken(idToken) {
 
     return payload;
   } catch (err) {
-    console.error('[AUTH] Apple token verification failed:', err.message);
+    const decodedAud = (() => {
+      try {
+        const d = jwt.decode(idToken);
+        return d && d.aud;
+      } catch { return undefined; }
+    })();
+    if (err.name === 'JsonWebTokenError' && /audience/i.test(err.message)) {
+      console.error('[APPLE] audience mismatch', {
+        expected: audiences,
+        got: decodedAud,
+      });
+    } else {
+      console.error('[APPLE] token verification failed:', err.message);
+    }
     return null;
   }
 }
@@ -1531,6 +1561,7 @@ async function completeLogin(req, res, parent, userType) {
   };
 
   const expiresAt = Date.now() + expiresInSecs * 1000;
+  console.log('[APPLE] login completed', { parentId: parent.id, userType });
   res.json({ csrfToken, user, expiresAt });
 }
 

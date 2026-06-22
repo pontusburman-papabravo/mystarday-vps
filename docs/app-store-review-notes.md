@@ -5,6 +5,46 @@
 
 ---
 
+## Build 20 — Apple Sign In visible errors + diagnostics (2026-06-22, after 2.1(a) rejection build 19)
+
+Apple rejected Build 19 with the same symptom: *remained on the login screen* when using Sign in with Apple on iPad.
+
+**Root cause (web layer):** On the native app’s first screen (role-selection), the Apple button was visible but error messages and the email-conflict linking prompt lived inside the hidden `parent-login-section`. Failed logins (401 JWT, 409 conflict, missing token) produced **no visible feedback** — identical symptom to a native plugin failure.
+
+**Fix (Build 20):**
+- `roleAppleError` + `roleAppleLinkingPrompt` on role-selection screen
+- No silent returns when Apple auth returns without `idToken`
+- Step logging → `POST /api/client-log` + `[APPLE]` server logs
+- iOS build number **20** (no Swift changes)
+
+**Paste into App Review Information → Notes:**
+```
+Build 20 fixes Sign in with Apple error handling on the login screen. All Apple Sign In outcomes now show a visible message on the screen where the user tapped the button.
+
+If Sign in with Apple still fails, please use the email/password review account below. We would appreciate knowing whether the Apple authentication sheet appears and whether any error message is shown after authentication.
+```
+
+**Reply to App Review (optional):**
+```
+Thank you for your feedback.
+
+We have identified an issue in our login flow where certain Sign in with Apple error states could leave the user on the login screen without displaying a visible error message. We have implemented additional handling and user feedback for all Apple Sign in outcomes and are submitting Build 20.
+
+To help us verify that we are addressing the same issue observed during review, could you please let us know:
+- Whether the Apple authentication sheet appears after tapping "Sign in with Apple"
+- Whether authentication completes and returns to the app
+- Whether any error message is displayed
+- At what point the app remains on the login screen
+
+If possible, a screen recording would be greatly appreciated.
+
+Thank you for your assistance.
+```
+
+**Server log grep after review attempt:** see `AGENTS.md` — `journalctl` on the app systemd unit, filter `[APPLE]` or `[CLIENT-LOG]`.
+
+---
+
 ## Build 16 — Apple Sign In iPad fix (2026-06-18, after 2.1(a) rejection)
 
 Apple rejected Build 15: Sign in with Apple error on iPad Air 11-inch (M3), iPadOS 26.5.

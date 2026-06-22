@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -459,8 +460,13 @@
 
     // ─── Apple Sign In handlers ───────────────────────────────
     async function handleAppleRegister() {
-      if (!window.Platform) return;
+      var diag = window.AppleSignInDiagnostics;
+      if (!window.Platform) {
+        showError('appleRegisterError', 'Apple-registrering är inte tillgänglig just nu.');
+        return;
+      }
       document.getElementById('appleRegisterError').classList.add('hidden');
+      if (diag) diag.log('register_step_1');
 
       const btn = document.getElementById('appleRegisterBtn');
       const orig = btn.textContent;
@@ -469,7 +475,15 @@
 
       try {
         const result = await window.Platform.appleSignIn.signIn();
-        if (!result || !result.idToken) return; // cancelled
+        if (diag) diag.log('register_step_2', { hasIdToken: !!(result && result.idToken) });
+        if (!result) {
+          showError('appleRegisterError', 'Apple-registreringen avbröts.');
+          return;
+        }
+        if (!result.idToken) {
+          showError('appleRegisterError', 'Apple-registreringen slutfördes inte. Försök igen.');
+          return;
+        }
 
         const res = await fetch('/api/auth/apple', {
           method: 'POST',

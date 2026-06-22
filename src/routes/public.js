@@ -138,6 +138,40 @@ router.get('/app-config', (req, res) => {
   });
 });
 
+// ─── POST /api/client-log ─────────────────────────────────
+// Lightweight client diagnostics (no PII). Used by Apple Sign In step logging.
+const clientLogLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: process.env.RATE_LIMIT_ENABLED === 'false' ? 0 : 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `clientlog:${req.ip}`,
+  handler: (req, res) => {
+    res.status(429).json({ ok: false });
+  },
+});
+
+const CLIENT_LOG_CHANNELS = new Set(['apple_sign_in']);
+
+router.post('/client-log', clientLogLimiter, (req, res) => {
+  const { channel, step, detail, ts, native, ios, applePlugin } = req.body || {};
+  if (!channel || !CLIENT_LOG_CHANNELS.has(channel) || !step) {
+    return res.status(400).json({ ok: false });
+  }
+  console.log('[CLIENT-LOG]', JSON.stringify({
+    channel,
+    step,
+    detail: detail || null,
+    ts: ts || Date.now(),
+    native: !!native,
+    ios: !!ios,
+    applePlugin: !!applePlugin,
+    ip: req.ip,
+    ua: (req.get('user-agent') || '').slice(0, 120),
+  }));
+  res.json({ ok: true });
+});
+
 // ─── POST /api/public/professional-interest ──────────────
 // Public form submission from /pedagoger-och-terapeuter — no auth required.
 const VALID_ROLES = ['Arbetsterapeut', 'Logoped', 'Specialpedagog', 'Psykolog', 'Annan'];

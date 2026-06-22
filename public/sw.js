@@ -207,8 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v269';
-// v268: magic view toggle fix + schedule section contrast + classic backfill CTA
+const CACHE_NAME = 'stjarndag-v270';
+// v270: Apple Sign In — visible errors on role-selection, client-log diagnostics, backend [APPLE] logs (build 20)
 // v267: retroactive star entry discoverability — daily-log date deep-link, home hub backfill CTA, FAQ
 // v265: bottom nav Extra tab (Hem·Schema·För dig·Skatt·Extra·Mer) + nav remount fix
 // v263: app-config — Services ID only for web Apple; redirect URI falls back to request origin
