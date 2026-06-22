@@ -197,7 +197,7 @@
         <section>
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
-            <button onclick="document.getElementById('addChildModal').classList.remove('hidden')"
+              <button onclick="openFamilyModal('addChildModal')"
               class="px-3 py-1.5 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">
               ➕ Lägg till ett barn
             </button>
@@ -214,7 +214,7 @@
             <p class="text-6xl mb-4">👶</p>
             <p class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Inga barn tillagda än</p>
             <p class="text-text-soft text-sm mb-6">Lägg till ditt första barn för att komma igång!</p>
-            <button onclick="document.getElementById('addChildModal').classList.remove('hidden')"
+              <button onclick="openFamilyModal('addChildModal')"
               class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
               ➕ Lägg till ett barn
             </button>
@@ -226,7 +226,7 @@
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Vuxna</h3>
             <div class="flex gap-2">
-              <button id="inviteBtn" onclick="document.getElementById('inviteModal').classList.remove('hidden')"
+              <button id="inviteBtn" onclick="openFamilyModal('inviteModal')"
                 class="hidden px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">
                 + Bjud in förälder
               </button>
@@ -234,7 +234,7 @@
                 class="px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">
                 Skanna QR
               </button>
-              <button onclick="document.getElementById('addAdultModal').classList.remove('hidden')"
+              <button onclick="openFamilyModal('addAdultModal')"
                 class="px-3 py-1.5 text-sm bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
                 + Lägg till vuxen
               </button>
@@ -249,7 +249,7 @@
             <p class="text-6xl mb-4">👨‍👩‍👧</p>
             <p class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Inga vuxna tillagda än</p>
             <p class="text-text-soft text-sm mb-6">Skapa ett konto åt en annan vuxen i din familj!</p>
-            <button onclick="document.getElementById('addAdultModal').classList.remove('hidden')"
+            <button onclick="openFamilyModal('addAdultModal')"
               class="px-6 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
               + Lägg till vuxen
             </button>
@@ -292,7 +292,7 @@
        Fixed right-panel on desktop, bottom-sheet on mobile.
        Opens when a child card is clicked.
   ═══════════════════════════════════════════════════════ -->
-  <div id="childDrawer" class="hidden fixed inset-0 z-40 flex">
+  <div id="childDrawer" class="hidden fixed inset-0 z-[9050] flex">
     <!-- Backdrop -->
     <div class="flex-1 bg-black/40" onclick="closeChildDrawer()"></div>
     <!-- Panel -->
@@ -673,7 +673,7 @@
   </div>
 
   <!-- ─── Add Child Modal ──────────────────────────────── -->
-  <div id="addChildModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-30 p-4">
+  <div id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Lägg till barn</h3>
@@ -735,7 +735,7 @@
   </div>
 
   <!-- ─── Delete Confirmation Modal ──────────────────── -->
-  <div id="deleteModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+  <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="text-center">
         <p class="text-5xl mb-4">⚠️</p>
@@ -756,8 +756,8 @@
   </div>
 
   <!-- ─── Lägg till vuxen Modal (invite flow) ─────────── -->
-  <div id="addAdultModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-30 p-4">
-    <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
+  <div id="addAdultModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
+    <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl relative z-[9101]">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Lägg till vuxen</h3>
         <button onclick="closeModal('addAdultModal')" class="text-text-soft hover:text-navy text-2xl leading-none">×</button>
@@ -803,7 +803,7 @@
   </div>
 
   <!-- ─── Invite Modal (admin only — regular parents use "Lägg till vuxen") -->
-  <div id="inviteModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-30 p-4">
+  <div id="inviteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Bjud in förälder</h3>
@@ -835,7 +835,7 @@
   <div id="toast" class="fixed bottom-4 right-4 bg-navy text-white px-5 py-3 rounded-xl shadow-lg font-body font-medium hidden z-50"></div>
 
   <!-- Manual Star Modal -->
-  <div id="manualStarModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
+  <div id="manualStarModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-heading font-bold text-navy dark:text-white">⭐ Ge en stjärna</h3>

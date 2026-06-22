@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v290';
+const CACHE_NAME = 'stjarndag-v291';
+// v291: magic appearance — assign-schedule contrast, fixed nav header, family modal z-index
 // v290: magic hub pages re-render after soft nav (planning/rewards/dashboard) + contrast fixes
 // v289: soft nav for native tab bar, no menu blink on tab switch
 // v284: Applandningssidan v2 — welcome/role/adult entry flow, app-entry.js state machine, child "Jag hittar inte mig själv"

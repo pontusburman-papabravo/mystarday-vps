@@ -70,6 +70,12 @@
     ensureMount('parentMagicPageMount', 'hidden');
     var hub = document.getElementById('parentMagicPageMount');
     if (hub) hub.setAttribute('aria-live', 'polite');
+
+    var navHeader = document.querySelector('[data-parent-nav-header]');
+    var toggle = document.getElementById('appViewToggleMount');
+    if (navHeader && toggle && navHeader.parentNode === toggle.parentNode) {
+      toggle.parentNode.insertBefore(navHeader, toggle.nextElementSibling);
+    }
   }
 
   window.ParentMagicAuto = {
