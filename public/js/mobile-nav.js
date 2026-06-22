@@ -12,7 +12,19 @@
   'use strict';
 
   // ── Find the sidebar nav ───────────────────────────────────────
-  var sidebar = document.getElementById('sidebar');
+  function findSidebarNav() {
+    var el = document.getElementById('sidebar');
+    if (el) return el;
+    var candidates = document.querySelectorAll('nav.bg-navy');
+    for (var ci = 0; ci < candidates.length; ci++) {
+      var nav = candidates[ci];
+      if (nav.hasAttribute('data-page-header')) continue;
+      if (nav.classList.contains('md:w-64') || nav.classList.contains('w-full')) return nav;
+    }
+    return null;
+  }
+
+  var sidebar = findSidebarNav();
   if (!sidebar) return; // Not a logged-in page with sidebar layout
 
   // Mark it so CSS can hide on mobile

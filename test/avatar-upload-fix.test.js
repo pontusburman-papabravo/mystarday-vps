@@ -8,11 +8,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('avatar upload fix v2', () => {
-  it('platform uses base64 JPEG pick and normalizes upload URLs', () => {
+  it('platform uses multi-strategy native pick and normalizes upload URLs', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/platform.js'), 'utf8');
     assert.match(src, /compressAvatarBlob/);
     assert.match(src, /photoResultToPick/);
-    assert.match(src, /resultType: 'base64'/);
+    assert.match(src, /nativePickWithFallbacks/);
     assert.match(src, /normalizePublicUrl/);
     assert.match(src, /postFormDataNative/);
     assert.match(src, /new File\(\[blob\]/);
@@ -39,8 +39,8 @@ describe('avatar upload fix v2', () => {
     assert.match(src, /LIMIT_FILE_SIZE/);
   });
 
-  it('SW bumped to v285', () => {
+  it('SW bumped to v287', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v28[45]/);
+    assert.match(src, /stjarndag-v28[67]/);
   });
 });

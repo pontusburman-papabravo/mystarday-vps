@@ -533,29 +533,29 @@ var Platform = (function () {
     return (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.Camera) || null;
   }
 
-  async function ensurePhotosPermission(Camera) {
+  async function ensurePhotosPermission(Camera, opts) {
     if (!Camera || typeof Camera.checkPermissions !== 'function') return true;
+    var needCamera = opts && opts.source === 'camera';
     try {
       var status = await Camera.checkPermissions();
       var photosOk = status.photos === 'granted' || status.photos === 'limited';
       var cameraOk = status.camera === 'granted';
-      if (photosOk && (cameraOk || status.camera === 'prompt')) return true;
-      if (status.photos === 'denied' && status.camera === 'denied') return false;
-      if (typeof Camera.requestPermissions !== 'function') return true;
-      var requested = await Camera.requestPermissions({ permissions: ['photos', 'camera'] });
-      photosOk = requested.photos === 'granted' || requested.photos === 'limited';
-      cameraOk = requested.camera === 'granted';
-      return photosOk || cameraOk;
+      if (!needCamera && photosOk) return true;
+      if (needCamera && cameraOk) return true;
+      if (!needCamera && photosOk) return true;
+      if (status.photos === 'denied' && (!needCamera || status.camera === 'denied')) {
+        if (typeof Camera.requestPermissions !== 'function') return false;
+      } else if (typeof Camera.requestPermissions === 'function') {
+        var requested = await Camera.requestPermissions({ permissions: needCamera ? ['camera', 'photos'] : ['photos'] });
+        photosOk = requested.photos === 'granted' || requested.photos === 'limited';
+        cameraOk = requested.camera === 'granted';
+      }
+      if (needCamera) return cameraOk || photosOk;
+      return photosOk;
     } catch (err) {
       console.warn('[Platform.camera] permission check failed:', err);
       return true;
     }
-  }
-
-  function nativePhotoSource(opts) {
-    if (opts && opts.source === 'camera') return 'CAMERA';
-    /* PROMPT is more reliable than PHOTOS on iOS native WebView (iPad + iPhone). */
-    return 'PROMPT';
   }
 
   function nativePhotoQuality(opts) {
@@ -568,39 +568,32 @@ var Platform = (function () {
       var gallery = await Camera.pickImages({
         quality: nativePhotoQuality(opts),
         limit: 1,
-        width: 1024,
-        height: 1024,
       });
       if (!gallery || !gallery.photos || !gallery.photos.length) return null;
-      var webPath = gallery.photos[0].webPath;
+      var photo = gallery.photos[0];
+      var webPath = photo.webPath || capacitorFileUrl(photo.path);
       if (!webPath) return null;
       var resp = await fetch(webPath);
       if (!resp.ok) return null;
       var blob = await resp.blob();
       return await blobToDataUrlPick(blob);
     } catch (err) {
-      console.warn('[Platform.camera] pickImages fallback failed:', err);
+      console.warn('[Platform.camera] pickImages failed:', err);
       return null;
     }
   }
 
-  function capacitorFileUrl(path) {
-    if (!path) return null;
-    if (typeof Capacitor !== 'undefined' && typeof Capacitor.convertFileSrc === 'function') {
-      return Capacitor.convertFileSrc(path);
-    }
-    return path;
+  function isPickCancelled(err) {
+    var msg = ((err && err.message) || String(err || '')).toLowerCase();
+    return msg.includes('cancel') || msg.includes('cancelled') || msg.includes('canceled');
   }
 
-  async function nativeGetPhoto(Camera, opts, source) {
-    // base64: iOS converts HEIC→JPEG; uri alone often leaves HEIC that canvas/server reject.
+  async function tryNativeGetPhoto(Camera, opts, source, resultType) {
     var result = await Camera.getPhoto({
       quality: nativePhotoQuality(opts),
       allowEditing: false,
-      resultType: 'base64',
+      resultType: resultType,
       source: source,
-      width: 800,
-      height: 800,
       correctOrientation: true,
       presentationStyle: 'fullscreen',
       promptLabelHeader: 'Välj foto',
@@ -609,6 +602,45 @@ var Platform = (function () {
       promptLabelCancel: 'Avbryt',
     });
     return await photoResultToPick(result);
+  }
+
+  async function nativePickWithFallbacks(Camera, opts) {
+    var wantCamera = opts && opts.source === 'camera';
+    var lastErr = null;
+
+    if (!wantCamera) {
+      var galleryPick = await pickViaGallery(Camera, opts);
+      if (galleryPick) return galleryPick;
+    }
+
+    var sources = wantCamera
+      ? ['CAMERA', 'PROMPT']
+      : ['PHOTOS', 'PROMPT', 'CAMERA'];
+    var resultTypes = ['uri', 'base64'];
+
+    for (var si = 0; si < sources.length; si++) {
+      for (var ri = 0; ri < resultTypes.length; ri++) {
+        try {
+          var picked = await tryNativeGetPhoto(Camera, opts, sources[si], resultTypes[ri]);
+          if (picked) return picked;
+        } catch (err) {
+          if (isPickCancelled(err)) return null;
+          lastErr = err;
+          console.warn('[Platform.camera] getPhoto failed:', sources[si], resultTypes[ri], err);
+        }
+      }
+    }
+
+    if (lastErr) throw lastErr;
+    return null;
+  }
+
+  function capacitorFileUrl(path) {
+    if (!path) return null;
+    if (typeof Capacitor !== 'undefined' && typeof Capacitor.convertFileSrc === 'function') {
+      return Capacitor.convertFileSrc(path);
+    }
+    return path;
   }
 
   async function photoResultToPick(result) {
@@ -775,25 +807,18 @@ var Platform = (function () {
           console.error('[Platform.camera] Camera plugin not registered — run cap sync ios');
           return { error: 'Kameran är inte tillgänglig i appen. Uppdatera till senaste versionen.' };
         }
-        try {
-          var photosOk = await ensurePhotosPermission(Camera);
+      try {
+          var photosOk = await ensurePhotosPermission(Camera, opts);
           if (!photosOk) {
             return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
           }
-          var source = nativePhotoSource(opts);
-          var picked = await nativeGetPhoto(Camera, opts, source);
-          if (picked) return picked;
-          return null;
+          return await nativePickWithFallbacks(Camera, opts);
         } catch (err) {
-          var msg = (err && err.message) || '';
-          if (msg.toLowerCase().includes('cancel') || msg.toLowerCase().includes('cancelled')) return null;
+          if (isPickCancelled(err)) return null;
           if (err && (err.code === 'USER_DID_NOT_GRANT_PERMISSION' || err.code === 'permission-denied')) {
             return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
           }
-          try {
-            var galleryPick = await pickViaGallery(Camera, opts);
-            if (galleryPick) return galleryPick;
-          } catch (_) { /* fall through */ }
+          var msg = (err && err.message) || '';
           console.error('[Platform.camera] Pick failed:', msg || err);
           return { error: 'Kunde inte öppna fotobiblioteket. Försök igen.' };
         }

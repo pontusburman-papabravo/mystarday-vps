@@ -207,8 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v286';
-// v286: entry welcome branding — Min Stjärndag (not Stjärndag) // pragma: allowlist secret
+const CACHE_NAME = 'stjarndag-v287';
+// v287: hide dashboard sidebar on mobile + native photo pick fallbacks (pickImages first)
 // v284: Applandningssidan v2 — welcome/role/adult entry flow, app-entry.js state machine, child "Jag hittar inte mig själv"
 // v283: avatar upload compress + reports mobile nav header fix (combined deploy)
 // v282: reports mobile — stop injecting sidebar nav into page header

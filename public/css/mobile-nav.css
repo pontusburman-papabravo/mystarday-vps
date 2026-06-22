@@ -8,6 +8,13 @@
   .app-sidebar {
     display: none !important;
   }
+
+  /* Dashboard + legacy pages without #sidebar — hide when magic/tab shell is active */
+  body.parent-magic-view nav.bg-navy.w-full,
+  body.has-native-tab-bar nav.bg-navy.w-full,
+  nav.bg-navy.parent-magic-legacy-hide {
+    display: none !important;
+  }
 }
 
 /* Mobile top bar */

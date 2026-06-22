@@ -531,6 +531,7 @@
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
+  <script src="/js/parent-magic-auto.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/dashboard-home-hub.js?v=4"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
@@ -540,7 +541,7 @@
 
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
-    <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+    <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
       <a href="/dashboard" class="flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
         <span class="text-2xl">⭐</span>
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
