@@ -1,0 +1,25 @@
+/**
+ * landing-dagens-nyhet.css — Fixed top chrome (nav + optional news banner) on marketing page.
+ */
+
+.landing-top-chrome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+}
+
+.landing-top-chrome nav {
+  position: relative;
+  top: auto;
+  width: 100%;
+}
+
+#dagensNyhetBanner {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: auto;
+}

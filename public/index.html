@@ -27,6 +27,7 @@
   <script src="/js/cookie-banner.js?v=2.13.1"></script>
   <!-- "Magisk natt" shared CSS (stars, clouds, glass) + landing overrides -->
   <link rel="stylesheet" href="/css/login-magic.css?v=136">
+  <link rel="stylesheet" href="/css/landing-dagens-nyhet.css?v=1">
   <link rel="stylesheet" href="/css/program-catalog.css?v=1.0.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -224,7 +225,7 @@
             min-height: 100vh;
             min-height: 100dvh;
             display: flex; align-items: center; justify-content: center;
-            padding: 8rem 2rem 5rem;
+            padding: 2.5rem 2rem 5rem;
             background: var(--cream);
             position: relative; overflow: hidden;
         }
@@ -1183,7 +1184,7 @@
             .nav-hamburger { display: flex; }
             .lang-switcher--centered { display: flex; }
             /* Tighter hero padding so headline+cards fit above fold */
-            .hero { padding: 5.5rem 1rem 2.5rem; align-items: flex-start; }
+            .hero { padding: 2.5rem 1rem 2.5rem; align-items: flex-start; }
             .hero-inner { gap: 2rem; }
             .hero h1 { font-size: 2rem; margin-bottom: 0.9rem; }
             .hero-ingress { font-size: 0.94rem; margin-bottom: 1.2rem; max-width: 100%; }
@@ -1653,7 +1654,8 @@
   <!-- Clouds (platform-web only) -->
   <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 
-<!-- ===== NAV ===== -->
+<!-- ===== NAV + DAGENS NYHET (fixed chrome; spacer below reserves height) ===== -->
+<div id="landingTopChrome" class="landing-top-chrome">
 <nav>
     <a href="/" class="logo">
         <div class="logo-star">⭐</div>
@@ -1681,6 +1683,19 @@
         <span></span><span></span><span></span>
     </button>
 </nav>
+
+<div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid var(--amber);padding:0.6rem 2rem;">
+    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+        <span style="font-size:1.1rem;flex-shrink:0;">📢</span>
+        <div style="flex:1;min-width:0;">
+            <span id="dagensNyhetTitle" style="font-family:'Fraunces',serif;font-weight:700;color:var(--navy);font-size:0.95rem;margin-right:0.5rem;"></span>
+            <span id="dagensNyhetBody" style="color:var(--text-2);font-size:0.88rem;"></span>
+        </div>
+        <span id="dagensNyhetDate" style="color:var(--text-3);font-size:0.78rem;flex-shrink:0;white-space:nowrap;"></span>
+        <button id="dagensNyhetClose" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:1.2rem;padding:0 0.2rem;flex-shrink:0;" title="Stäng">✕</button>
+    </div>
+</div>
+</div>
 
 <!-- Mobile dropdown menu -->
 <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobilmeny">
@@ -1712,72 +1727,9 @@
     </div>
 </div>
 
-<!-- ===== DAGENS NYHET BANNER ===== -->
-<!-- Banner is position:fixed so it always clears the sticky nav on all viewport sizes.
-     JS positions it below the nav by reading nav.offsetHeight at runtime.
-     When visible, a spacer div shifts the hero down so content isn't hidden. -->
-<div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid var(--amber);padding:0.6rem 2rem;position:fixed;left:0;right:0;z-index:195;">
-    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-        <span style="font-size:1.1rem;flex-shrink:0;">📢</span>
-        <div style="flex:1;min-width:0;">
-            <span id="dagensNyhetTitle" style="font-family:'Fraunces',serif;font-weight:700;color:var(--navy);font-size:0.95rem;margin-right:0.5rem;"></span>
-            <span id="dagensNyhetBody" style="color:var(--text-2);font-size:0.88rem;"></span>
-        </div>
-        <span id="dagensNyhetDate" style="color:var(--text-3);font-size:0.78rem;flex-shrink:0;white-space:nowrap;"></span>
-        <button id="dagensNyhetClose" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:1.2rem;padding:0 0.2rem;flex-shrink:0;" title="Stäng">✕</button>
-    </div>
-</div>
-<!-- Spacer that compensates for the fixed banner height so hero content isn't hidden -->
+<!-- Spacer reserves fixed top chrome height (nav ± dagens nyhet banner) -->
 <div id="dagensNyhetSpacer" style="height:0;"></div>
-<script>
-(function() {
-    function positionBanner() {
-        var nav = document.querySelector('nav');
-        var banner = document.getElementById('dagensNyhetBanner');
-        var spacer = document.getElementById('dagensNyhetSpacer');
-        if (!nav || !banner || banner.style.display === 'none') return;
-        var navH = nav.offsetHeight;
-        banner.style.top = navH + 'px';
-        spacer.style.height = banner.offsetHeight + 'px';
-    }
-
-    function showBanner(data) {
-        var banner = document.getElementById('dagensNyhetBanner');
-        document.getElementById('dagensNyhetTitle').textContent = data.title;
-        document.getElementById('dagensNyhetBody').textContent = data.body;
-        var dateEl = document.getElementById('dagensNyhetDate');
-        if (data.published_at) {
-            var d = new Date(data.published_at);
-            dateEl.textContent = isNaN(d.getTime())
-                ? ''
-                : d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-        } else {
-            dateEl.textContent = '';
-        }
-        banner.style.display = 'block';
-        // Position after making visible so offsetHeight is available
-        requestAnimationFrame(positionBanner);
-    }
-
-    document.getElementById('dagensNyhetClose').addEventListener('click', function() {
-        var banner = document.getElementById('dagensNyhetBanner');
-        var spacer = document.getElementById('dagensNyhetSpacer');
-        banner.style.display = 'none';
-        spacer.style.height = '0';
-    });
-
-    // Reposition on resize (e.g. font-size scaling changes nav height)
-    window.addEventListener('resize', positionBanner);
-
-    fetch('/api/dagens-nyhet/active')
-        .then(function(r) { return r.status === 204 ? null : r.json(); })
-        .then(function(data) {
-            if (!data) return;
-            showBanner(data);
-        })
-        .catch(function() { /* silent: banner is non-critical */ });
-})();
-</script>
+<script src="/js/landing-dagens-nyhet.js?v=1"></script>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="toppen">
