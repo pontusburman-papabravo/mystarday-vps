@@ -1,8 +1,10 @@
 /**
- * home-readiness.js — Hem readiness / action center (vuxenmeny v2.1 Sprint 6).
+ * home-readiness.js — Hem readiness / action center (vuxenmeny v2.2).
  */
 (function () {
   'use strict';
+
+  var FILTER_KEY = 'homeReadinessWarningsOnly';
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -18,10 +20,31 @@
     }
   }
 
+  function warningsOnlyEnabled() {
+    try {
+      return localStorage.getItem(FILTER_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
   function renderCard(item) {
     return '<a href="' + esc(item.href) + '" data-readiness-type="' + esc(item.type) + '" data-child-id="' + esc(item.child_id || '') + '" class="block p-4 mb-3 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors">' +
       '<p class="font-semibold text-navy">' + esc(item.title) + '</p>' +
       '<p class="text-sm text-text-soft">' + esc(item.sub) + '</p></a>';
+  }
+
+  function bindClicks(mount, items) {
+    mount.querySelectorAll('[data-readiness-type]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var type = el.getAttribute('data-readiness-type');
+        var childId = el.getAttribute('data-child-id');
+        var item = items.find(function (i) {
+          return i.type === type && (!childId || i.child_id === childId);
+        });
+        if (item) trackClick(item);
+      });
+    });
   }
 
   async function load() {
@@ -37,22 +60,37 @@
         return;
       }
       mount.classList.remove('hidden');
-      mount.innerHTML = '<h2 class="text-lg font-heading font-bold text-navy mb-3">Kräver åtgärd</h2>' +
+      var filterOn = warningsOnlyEnabled();
+      var html =
+        '<div class="flex items-center justify-between mb-3 gap-2">' +
+        '<h2 class="text-lg font-heading font-bold text-navy">Kräver åtgärd</h2>' +
+        '<label class="flex items-center gap-2 text-xs text-text-soft whitespace-nowrap cursor-pointer">' +
+        '<input type="checkbox" id="homeReadinessFilter" class="rounded border-lavender"' + (filterOn ? ' checked' : '') + ' />' +
+        'Bara varningar</label></div>' +
         items.map(renderCard).join('');
-      mount.querySelectorAll('[data-readiness-type]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var type = el.getAttribute('data-readiness-type');
-          var childId = el.getAttribute('data-child-id');
-          var item = items.find(function (i) {
-            return i.type === type && (!childId || i.child_id === childId);
-          });
-          if (item) trackClick(item);
+      mount.innerHTML = html;
+      bindClicks(mount, items);
+
+      var filterEl = document.getElementById('homeReadinessFilter');
+      if (filterEl) {
+        filterEl.addEventListener('change', function () {
+          try {
+            localStorage.setItem(FILTER_KEY, filterEl.checked ? '1' : '0');
+          } catch (_) { /* ignore */ }
+          if (typeof window.renderDashboardCards === 'function') {
+            window.renderDashboardCards();
+          }
         });
-      });
+      }
     } catch (_) {
       mount.classList.add('hidden');
     }
   }
+
+  window.HomeReadiness = {
+    warningsOnlyEnabled: warningsOnlyEnabled,
+    reload: load,
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', load);

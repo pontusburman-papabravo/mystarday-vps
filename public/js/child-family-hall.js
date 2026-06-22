@@ -84,12 +84,34 @@
     '</section>';
   }
 
+  function renderPersons(data) {
+    var persons = data.persons;
+    if (!persons) return '';
+    var cards = '';
+    (persons.parents || []).forEach(function (p) {
+      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(p.emoji || '👤') + '</span>' +
+        '<span class="cfh-person-name">' + esc(p.name) + '</span><span class="cfh-person-role">Vuxen</span></div>';
+    });
+    (persons.siblings || []).forEach(function (s) {
+      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(s.emoji || '⭐') + '</span>' +
+        '<span class="cfh-person-name">' + esc(s.name) + '</span><span class="cfh-person-role">Syskon</span></div>';
+    });
+    if (!cards) {
+      return '<p class="cfh-empty">Här visas familjen som hjälper dig varje dag.</p>';
+    }
+    return '<div class="cfh-person-grid">' + cards + '</div>';
+  }
+
   function render(data) {
     return '<div class="cfh-shell">' +
       '<div class="cfh-header">' +
         '<div class="cfh-title">🏡 Familjehallen</div>' +
         '<div class="cfh-subtitle">Vad bygger vi tillsammans?</div>' +
       '</div>' +
+      '<section class="cfh-section">' +
+        '<h2 class="cfh-section-title">❤️ Mina personer</h2>' +
+        renderPersons(data) +
+      '</section>' +
       '<section class="cfh-section">' +
         '<h2 class="cfh-section-title">🎯 Familjeprojekt</h2>' +
         renderProjects(data.projects) +

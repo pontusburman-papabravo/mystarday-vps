@@ -86,7 +86,7 @@
       '</div>' +
       '<button type="button" id="profilePinSave" class="w-full p-3 bg-gold text-navy rounded-xl font-bold" disabled>Spara PIN</button>' +
       '</div>' +
-      '<a href="/child-settings?id=' + encodeURIComponent(childId) + '" class="text-sm text-gold font-semibold">Avancerade inställningar →</a>';
+      '<a href="/child-settings?id=' + encodeURIComponent(childId) + '" class="block text-sm text-gold font-semibold mb-2">Foto, vy och avancerade inställningar →</a>';
   }
 
   function renderPinDots() {
@@ -160,6 +160,34 @@
     return html;
   }
 
+  async function progressTabHtml() {
+    var res = await window.apiFetch('/api/family/star-history');
+    if (!res.ok) {
+      return '<p class="text-text-soft">Kunde inte ladda stjärnhistorik.</p>';
+    }
+    var data = await res.json();
+    var weeks = data.weeks || [];
+    if (!weeks.length) {
+      return '<p class="text-text-soft mb-4">Ingen stjärnhistorik ännu.</p>' +
+        '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna rapporter →</a>';
+    }
+    var totals = weeks.map(function (w) { return (w.child_totals && w.child_totals[childId]) || 0; });
+    var max = Math.max.apply(null, totals.concat([1]));
+    var bars = weeks.map(function (w, i) {
+      var val = totals[i] || 0;
+      var h = Math.max(val > 0 ? 8 : 0, Math.round((val / max) * 100));
+      return '<div class="flex-1 flex flex-col items-center gap-1 min-w-[36px]">' +
+        '<span class="text-[10px] font-bold text-gold">' + val + '⭐</span>' +
+        '<div class="w-full bg-lavender rounded-t-lg relative" style="height:80px">' +
+        '<div class="absolute bottom-0 left-0 right-0 bg-gold rounded-t-lg" style="height:' + h + '%"></div></div>' +
+        '<span class="text-[10px] text-text-soft">' + esc(w.week_label || '') + '</span></div>';
+    }).join('');
+    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+      '<p class="text-sm text-text-soft mb-3">Stjärnor per vecka (8 veckor)</p>' +
+      '<div class="flex gap-1 items-end overflow-x-auto pb-1">' + bars + '</div></div>' +
+      '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Se utveckling i rapporter →</a>';
+  }
+
   function tabContent(tab) {
     if (tab === 'overview') {
       var stars = dashRow ? (dashRow.stars_today || 0) : '—';
@@ -183,8 +211,7 @@
       return '<div id="profileRewardsBody">Laddar…</div>';
     }
     if (tab === 'progress') {
-      return '<p class="text-text-soft mb-4">Stjärnor och utveckling över tid.</p>' +
-        '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna rapporter →</a>';
+      return '<div id="profileProgressBody">Laddar…</div>';
     }
     if (tab === 'setup') {
       return pinSetupHtml();
@@ -229,6 +256,13 @@
         mount.querySelectorAll('[data-action]').forEach(function (btn) {
           btn.addEventListener('click', onQuickAction);
         });
+      });
+    }
+
+    if (tab === 'progress') {
+      progressTabHtml().then(function (html) {
+        var el = document.getElementById('profileProgressBody');
+        if (el) el.innerHTML = html;
       });
     }
 

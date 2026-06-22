@@ -873,12 +873,37 @@ function renderDashboardCards() {
   }
 
   // Use stats for children that have data; fall back to children list
-  const childList = ch.length > 0 ? ch : children.map(c => ({
+  let childList = ch.length > 0 ? ch : children.map(c => ({
     id: c.id, name: c.name, emoji: c.emoji,
     today_total: 0, today_completed: 0, today_pct: null,
     today_log_id: null, today_is_paused: false,
     star_balance: 0, stars_today: 0, today_items: [], nearest_reward: null, history: [],
   }));
+
+  function childAttentionScore(c) {
+    const pending = (c.pending_redemptions || 0) + (c.pending_goal_changes || 0);
+    if (pending > 0) return 0;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const incomplete = (c.history || []).filter(function (d) {
+      return d.date < todayStr && d.total > 0 && d.completed < d.total && !d.is_paused;
+    }).length;
+    if (incomplete > 0) return 1;
+    if (c.today_is_paused) return 2;
+    const total = c.today_total || 0;
+    const done = c.today_completed || 0;
+    if (total > 0 && done < total) return 3;
+    if (total === 0) return 4;
+    return 5;
+  }
+
+  childList = childList.slice().sort(function (a, b) {
+    return childAttentionScore(a) - childAttentionScore(b);
+  });
+
+  const warningsOnly = window.HomeReadiness && HomeReadiness.warningsOnlyEnabled && HomeReadiness.warningsOnlyEnabled();
+  if (warningsOnly) {
+    childList = childList.filter(function (c) { return childAttentionScore(c) < 5; });
+  }
 
   // Build current week dates Mon→Sun (Swedish week)
   const today = new Date();
@@ -1072,7 +1097,9 @@ function renderDashboardCards() {
           <!-- Name + progress highlights -->
           <div class="flex-1 min-w-0" style="min-width:60px;">
             <div class="flex items-center gap-1.5 mb-0.5">
-              <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">🌟 ${escHtml(name)}</h4>
+              <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">
+                <a href="/family/child/${c.id}" class="hover:text-gold no-underline text-navy" onclick="event.stopPropagation()">🌟 ${escHtml(name)}</a>
+              </h4>
               ${allDone ? '<span class="text-base" title="Alla klara!">🌟</span>' : ''}
               ${isPaused ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-200">PAUSAD</span>' : ''}
             </div>

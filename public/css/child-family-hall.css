@@ -148,3 +148,36 @@
   text-align: center;
   padding: 40px 16px;
 }
+
+.cfh-person-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cfh-person-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: #fff;
+  border: 1px solid #EDE7F6;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.cfh-person-emoji {
+  font-size: 1.75rem;
+}
+
+.cfh-person-name {
+  font-weight: 700;
+  color: #1B2340;
+  font-size: 0.85rem;
+}
+
+.cfh-person-role {
+  font-size: 0.7rem;
+  color: #5A6178;
+}

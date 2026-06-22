@@ -43,7 +43,10 @@ function scheduleSSEStarReload() {
 }
 
 window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', () => scheduleSSEReload());
-window.addEventListener('sse:SCHEDULE_UPDATED', () => scheduleSSEReload());
+window.addEventListener('sse:SCHEDULE_UPDATED', () => {
+  if (typeof showToast === 'function') showToast('📅 Schema uppdaterat!');
+  scheduleSSEReload();
+});
 window.addEventListener('sse:STAR_GRANTED', () => {
   scheduleSSEReload();    // progress bar may change
   scheduleSSEStarReload(); // star balance definitely changes

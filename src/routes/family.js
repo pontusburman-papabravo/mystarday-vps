@@ -1344,31 +1344,55 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     pendingRedemptions.rows.forEach((r) => { pendRedMap[r.child_id] = r.cnt; });
     pendingGoals.rows.forEach((r) => { pendGoalMap[r.child_id] = r.cnt; });
 
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const fromStr = sevenDaysAgo.toISOString().slice(0, 10);
+    const incompleteRes = await db.query(
+      `SELECT child_id, COUNT(*)::int AS incomplete_days
+       FROM (
+         SELECT dl.child_id, dl.date
+         FROM daily_log dl
+         JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+         WHERE dl.child_id = ANY($1)
+           AND dl.date >= $2::date
+           AND dl.date < CURRENT_DATE
+           AND dl.is_paused = false
+         GROUP BY dl.child_id, dl.id, dl.date
+         HAVING COUNT(dli.id) > 0
+           AND COUNT(CASE WHEN dli.completed THEN 1 END) < COUNT(dli.id)
+       ) sub
+       GROUP BY child_id`,
+      [childIds, fromStr]
+    );
+    const incompleteMap = {};
+    for (const row of incompleteRes.rows) {
+      incompleteMap[row.child_id] = (incompleteMap[row.child_id] || 0) + 1;
+    }
+
+    let pendingInviteCount = 0;
+    if (req.user.familyId) {
+      const inviteRes = await db.query(
+        `SELECT COUNT(*)::int AS cnt FROM family_invite
+         WHERE family_id = $1 AND accepted = false AND expires_at > NOW()`,
+        [req.user.familyId]
+      );
+      pendingInviteCount = inviteRes.rows[0]?.cnt || 0;
+    }
+
     const items = [];
+    if (pendingInviteCount > 0) {
+      items.push({
+        type: 'pending_invite',
+        child_id: null,
+        child_name: null,
+        title: pendingInviteCount + ' väntande medförälder-inbjudan',
+        sub: 'Hantera under Familj',
+        href: '/family',
+        priority: 0,
+      });
+    }
     for (const c of children) {
-      if (!c.has_pin) {
-        items.push({
-          type: 'missing_pin',
-          child_id: c.id,
-          child_name: c.name,
-          title: c.name + ' saknar PIN',
-          sub: 'Sätt PIN i barnprofilen',
-          href: '/family/child/' + encodeURIComponent(c.id) + '?tab=setup',
-          priority: 1,
-        });
-      }
       const today = todayByChild[c.id];
-      if (today && today.is_paused) {
-        items.push({
-          type: 'paused_day',
-          child_id: c.id,
-          child_name: c.name,
-          title: c.name + ' — pausad idag',
-          sub: 'Öppna daglig logg',
-          href: '/daily-log?childId=' + encodeURIComponent(c.id),
-          priority: 2,
-        });
-      }
       const pending = (pendRedMap[c.id] || 0) + (pendGoalMap[c.id] || 0);
       if (pending > 0) {
         items.push({
@@ -1381,6 +1405,40 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           priority: 0,
         });
       }
+      const incompleteDays = incompleteMap[c.id] || 0;
+      if (incompleteDays > 0) {
+        items.push({
+          type: 'incomplete_past_days',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' — ' + incompleteDays + ' ofullständig' + (incompleteDays === 1 ? ' dag' : 'a dagar'),
+          sub: 'Fyll i i efterhand',
+          href: '/daily-log?childId=' + encodeURIComponent(c.id),
+          priority: 1,
+        });
+      }
+      if (!c.has_pin) {
+        items.push({
+          type: 'missing_pin',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' saknar PIN',
+          sub: 'Sätt PIN i barnprofilen',
+          href: '/family/child/' + encodeURIComponent(c.id) + '?tab=setup',
+          priority: 2,
+        });
+      }
+      if (today && today.is_paused) {
+        items.push({
+          type: 'paused_day',
+          child_id: c.id,
+          child_name: c.name,
+          title: c.name + ' — pausad idag',
+          sub: 'Öppna daglig logg',
+          href: '/daily-log?childId=' + encodeURIComponent(c.id),
+          priority: 3,
+        });
+      }
       if (!today || today.total === 0) {
         items.push({
           type: 'no_schedule_today',
@@ -1389,7 +1447,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           title: c.name + ' — inget schema idag',
           sub: 'Öppna veckoschema',
           href: '/schedule?child=' + encodeURIComponent(c.id),
-          priority: 3,
+          priority: 4,
         });
       }
     }

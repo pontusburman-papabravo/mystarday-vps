@@ -491,7 +491,9 @@ async function loadRewards() {
     renderSkattkammaren(rewardsData, goalData, manualData);
     if (window.ChildRewardsEngine) {
       ChildRewardsEngine.setGoalData(goalData);
+      ChildRewardsEngine.setRewardsData(rewardsData);
       ChildRewardsEngine.mountGoalProgress();
+      ChildRewardsEngine.mountPendingBannerIfNeeded();
     }
   } catch (err) {
     // Fallback to IndexedDB cache on API failure
@@ -517,6 +519,7 @@ async function loadRewards() {
 function renderSkattkammaren(rewardsData, goalData, manualData) {
   const { rewards, starBalance, redemptions } = rewardsData;
   const pending = redemptions.filter(r => r.status === 'pending');
+  const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
   const goal = goalData ? goalData.goal : null;
   const progressPct = goalData ? Math.min(100, goalData.progress_pct || 0) : 0;
   const pendingChangeReq = goalData ? goalData.pending_change_request : null;
@@ -698,6 +701,21 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
           <div style="flex:1;">
             <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
             <div style="font-size:0.7rem;color:#A855F7;">⏳ Föräldern godkänner snart</div>
+          </div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    if (deniedRecent.length > 0) {
+      html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(0,0,0,0.06);padding-top:12px;">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9AA0B8;margin-bottom:8px;font-family:'Outfit',sans-serif;">Inte den här gången</div>`;
+      for (const r of deniedRecent) {
+        html += `<div style="display:flex;align-items:center;gap:10px;background:#FEF2F2;border:1.5px solid rgba(239,68,68,0.2);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
+          <span style="font-size:1.5rem;">${r.reward_icon || '🎁'}</span>
+          <div style="flex:1;">
+            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
+            <div style="font-size:0.7rem;color:#EF4444;">En vuxen sa nej — fråga igen senare 💛</div>
           </div>
         </div>`;
       }

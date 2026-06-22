@@ -6,7 +6,8 @@ const { formatStoryEvent } = require('../src/lib/family-story-format');
 /**
  * Get family hall read model (projects, chest, story events).
  */
-async function getFamilyHall(familyId) {
+async function getFamilyHall(familyId, options) {
+  options = options || {};
   const [projectsRes, chestRes, eventsRes, familyRes] = await Promise.all([
     db.query(
       `SELECT id, title, emoji, target_value, current_value, status, created_at, updated_at
@@ -36,6 +37,29 @@ async function getFamilyHall(familyId) {
   ]);
 
   const chestEnabled = familyRes.rows[0]?.family_chest_enabled !== false;
+
+  let persons = null;
+  if (options.includePersons) {
+    const [parentsRes, siblingsRes] = await Promise.all([
+      db.query(
+        `SELECT DISTINCT p.name
+         FROM parent p
+         WHERE p.family_id = $1
+         ORDER BY p.created_at ASC`,
+        [familyId]
+      ),
+      db.query(
+        `SELECT id, name, emoji FROM child
+         WHERE family_id = $1${options.childId ? ' AND id != $2' : ''}
+         ORDER BY sort_order ASC, created_at ASC`,
+        options.childId ? [familyId, options.childId] : [familyId]
+      ),
+    ]);
+    persons = {
+      parents: parentsRes.rows.map((p) => ({ name: p.name, emoji: p.emoji || '👤' })),
+      siblings: siblingsRes.rows.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji || '⭐' })),
+    };
+  }
 
   const projectIds = projectsRes.rows.map((p) => p.id);
   let contributorsByProject = {};
@@ -76,6 +100,7 @@ async function getFamilyHall(familyId) {
     chest: chestEnabled ? (chestRes.rows[0]?.total_stars ?? 0) : null,
     chestUpdatedAt: chestEnabled ? (chestRes.rows[0]?.updated_at ?? null) : null,
     story: eventsRes.rows.map(formatStoryEvent),
+    persons,
   };
 }
 

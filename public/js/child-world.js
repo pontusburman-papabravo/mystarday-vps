@@ -6,7 +6,12 @@
 
   function onEnter() {
     if (typeof window.showTab === 'function') window.showTab('rewards');
-    if (window.ChildRewardsEngine) ChildRewardsEngine.ensureLoaded();
+    if (window.ChildRewardsEngine) {
+      ChildRewardsEngine.refreshRewards().then(function () {
+        ChildRewardsEngine.mountGoalProgress();
+        ChildRewardsEngine.mountPendingBannerIfNeeded();
+      });
+    }
     if (window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
       ChildSkattHouse.showHub();
     }

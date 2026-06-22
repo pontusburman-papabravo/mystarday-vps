@@ -160,7 +160,7 @@ function registerRoutes(app) {
     if (id) {
       return res.redirect(302, '/family/child/' + encodeURIComponent(id) + '?tab=setup');
     }
-    res.sendFile(join(__dirname, '../../public', 'child-settings.html'));
+    return res.redirect(302, '/family');
   });
 
   app.get('/family/child/:childId', (req, res) => {
