@@ -185,6 +185,26 @@
   background: rgba(251,191,36,0.15);
   border-color: rgba(251,191,36,0.7);
 }
+
+.cl-not-me-row {
+  width: 100%;
+  max-width: 340px;
+  margin: 14px auto 0;
+  text-align: center;
+}
+
+.cl-not-me-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+  padding: 10px 8px;
+  cursor: pointer;
+}
 .cl-add-child-btn:active { transform: scale(0.98); }
 .cl-add-child-icon {
   display: inline-flex;

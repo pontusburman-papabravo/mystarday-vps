@@ -125,19 +125,27 @@
         sessionStorage.removeItem('cl_add_child_pending');
         sessionStorage.removeItem('cl_add_child_next');
       } catch { /* ignore */ }
+      if (window.AppEntry && typeof AppEntry.goToChildLogin === 'function' && AppEntry.isFullEntryFlow()) {
+        AppEntry.goToChildLogin();
+        return;
+      }
       if (window.DeviceMode) DeviceMode.enterChild();
       window.location.href = '/child-login';
     });
 
     parentCard.addEventListener('click', function (e) {
       e.preventDefault();
-      // Barnläge + aktiv session → PIN-gate. Utloggad → visa e-post/lösenord direkt.
+      // Barnläge + aktiv session → PIN-gate. Utloggad → vuxenstart eller login.
       if (
         window.ParentalGate && window.DeviceMode && DeviceMode.isChildMode() &&
         window.Auth && Auth.isLoggedIn()
       ) {
         ParentalGate.requireParentMode(function () {
-          showParentLogin();
+          if (window.AppEntry && AppEntry.isFullEntryFlow()) {
+            AppEntry.goToAdultStart();
+          } else {
+            showParentLogin();
+          }
         });
         return;
       }
@@ -174,15 +182,27 @@
             });
           } else {
             Auth.clearAuth();
-            showParentLogin();
+            if (window.AppEntry && AppEntry.isFullEntryFlow()) {
+              AppEntry.goToAdultStart();
+            } else {
+              showParentLogin();
+            }
             parentCard.disabled = false;
             parentCard.style.opacity = '';
           }
         }).catch(function () {
-          showParentLogin();
+          if (window.AppEntry && AppEntry.isFullEntryFlow()) {
+            AppEntry.goToAdultStart();
+          } else {
+            showParentLogin();
+          }
           parentCard.disabled = false;
           parentCard.style.opacity = '';
         });
+        return;
+      }
+      if (window.AppEntry && typeof AppEntry.goToAdultStart === 'function' && AppEntry.isFullEntryFlow()) {
+        AppEntry.goToAdultStart();
         return;
       }
       showParentLogin();
@@ -303,6 +323,11 @@
 
   /* ── Show parent login form ─────────────────────────────────────────────── */
   function showParentLogin() {
+    if (window.AppEntry && typeof AppEntry.showScreen === 'function' && AppEntry.isFullEntryFlow()) {
+      AppEntry.showScreen('ENTRY_ADULT_LOGIN');
+      return;
+    }
+
     var roleSection = document.getElementById('role-selection');
     var parentSection = document.getElementById('parent-login-section');
 
@@ -316,6 +341,11 @@
 
   /* ── Back to role selection ─────────────────────────────────────────────── */
   function backToRoleSelection() {
+    if (window.AppEntry && typeof AppEntry.goBack === 'function' && AppEntry.isFullEntryFlow()) {
+      AppEntry.goBack();
+      return;
+    }
+
     var roleSection = document.getElementById('role-selection');
     var parentSection = document.getElementById('parent-login-section');
 
@@ -324,7 +354,7 @@
     parentSection.classList.remove('card-transition');
     parentSection.style.display = 'none';
     roleSection.classList.add('card-transition');
-    roleSection.style.display = '';
+    roleSection.style.display = 'flex';
   }
 
   /* ── Error helpers (called by inline login.html scripts) ───────────────── */

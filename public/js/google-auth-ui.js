@@ -27,6 +27,9 @@
     var btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
     var orig = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Google…'; }
+    if (window.AppEntry && typeof AppEntry.trackAuthMethod === 'function') {
+      AppEntry.trackAuthMethod('google');
+    }
 
     try {
       var result = await Platform.googleSignIn.signIn();
@@ -41,13 +44,25 @@
       var data = await res.json().catch(function () { return {}; });
 
       if (res.ok && data.user) {
+        if (window.AppEntry && typeof AppEntry.trackAuthSuccess === 'function') {
+          AppEntry.trackAuthSuccess('google');
+        }
         afterAuthSuccess(data);
       } else if (res.status === 404 && data.code === 'GOOGLE_ACCOUNT_NOT_FOUND') {
+        if (window.AppEntry && typeof AppEntry.trackAuthFailed === 'function') {
+          AppEntry.trackAuthFailed('google', 'account_not_found');
+        }
         showErr(errEl, 'Inget konto hittades. Registrera dig först med e-post.');
       } else {
+        if (window.AppEntry && typeof AppEntry.trackAuthFailed === 'function') {
+          AppEntry.trackAuthFailed('google', data.error || 'login_failed');
+        }
         showErr(errEl, data.error || 'Google-inloggning misslyckades.');
       }
     } catch (e) {
+      if (window.AppEntry && typeof AppEntry.trackAuthFailed === 'function') {
+        AppEntry.trackAuthFailed('google', e.message || 'exception');
+      }
       showErr(errEl, e.message || 'Google Sign In misslyckades.');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = orig; }

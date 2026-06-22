@@ -42,10 +42,13 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
+  <link rel="stylesheet" href="/css/app-entry.css?v=284">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.20.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
-  <script src="/js/login-magic.js?v=155"></script>
+  <script src="/js/app-entry-analytics.js?v=284"></script>
+  <script src="/js/app-entry.js?v=284"></script>
+  <script src="/js/login-magic.js?v=156"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
   <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
   <style>
@@ -79,8 +82,8 @@
 
     <div style="width:100%;max-width:400px;">
 
-      <!-- Logo -->
-      <div class="login-magic-logo" style="margin-bottom:32px;">
+      <!-- Logo (hidden on welcome screen — welcome has its own hero) -->
+      <div id="login-global-logo" class="login-magic-logo" style="margin-bottom:32px;">
         <img
           src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/6ca97eeb-88f6-46ad-88b1-23ad62b3bcea.jpg"
           alt="Stjärnmascot"
@@ -92,8 +95,49 @@
         </div>
       </div>
 
-      <!-- ── ROLE SELECTION (in installed app only — hidden in regular browser) -->
-      <div id="role-selection" style="display:flex;flex-direction:column;align-items:center;gap:0;" data-installed-only>
+      <!-- ── Skärm 1: ENTRY_WELCOME (native + PWA standalone) -->
+      <section id="entry-welcome" class="app-entry-screen" data-screen="ENTRY_WELCOME" style="display:none;" aria-label="Välkommen">
+        <div class="login-magic-logo" style="margin-bottom:24px;">
+          <img
+            src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/6ca97eeb-88f6-46ad-88b1-23ad62b3bcea.jpg"
+            alt="Stjärnmascot"
+            class="logo-mascot"
+          >
+          <div>
+            <h1>Stjärndag</h1>
+            <p>Tillsammans lyser vi</p>
+          </div>
+        </div>
+
+        <div class="entry-welcome-body">
+          <h2 class="entry-welcome-headline">En lugnare vardag med tydliga steg, scheman och stjärnor</h2>
+          <p class="entry-welcome-lead">
+            Stjärndag hjälper barn och familjer med vardagsrutiner genom visuella scheman, tydliga delsteg och belöningar som gör det lättare att klara dagen mer självständigt.
+          </p>
+          <div class="entry-highlight-row" aria-hidden="false">
+            <span class="entry-highlight-chip">Visuella scheman</span>
+            <span class="entry-highlight-chip">Stjärnor &amp; belöningar</span>
+            <span class="entry-highlight-chip">Flera barn och vuxna</span>
+          </div>
+        </div>
+
+        <div class="entry-cta-stack">
+          <button type="button" id="entryWelcomeStartBtn" class="magic-submit-btn touch-btn">Kom igång</button>
+          <button type="button" id="entryWelcomeExistingBtn" class="ghost-btn touch-btn">Jag har redan konto</button>
+          <button type="button" id="entryHowItWorksBtn" class="entry-tertiary-link">Så fungerar appen</button>
+        </div>
+      </section>
+
+      <!-- ── Skärm 2: ENTRY_ROLE_PICK -->
+      <div id="role-selection" class="app-entry-screen" style="display:none;flex-direction:column;align-items:center;gap:0;" data-installed-only>
+
+        <button type="button" id="entryRoleBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
+          ← Tillbaka
+        </button>
+
+        <div class="entry-role-heading">
+          <h2 id="entryRoleTitle" class="entry-screen-title">Vem ska använda appen nu?</h2>
+        </div>
 
         <div class="role-cards" style="width:100%;">
           <!-- Kid card -->
@@ -105,11 +149,11 @@
               style="width:60px;height:60px;"
             >
             <span class="card-label">Jag är barn</span>
-            <span class="card-sub">Logga in som barn</span>
+            <span class="card-sub">Jag vill se mitt schema</span>
           </a>
 
           <!-- Parent card -->
-          <button id="parent-role-card" class="role-card parent-card" style="background:rgba(251,191,36,0.18);border-color:rgba(251,191,36,0.35);" aria-label="Jag är vuxen">
+          <button type="button" id="parent-role-card" class="role-card parent-card" style="background:rgba(251,191,36,0.18);border-color:rgba(251,191,36,0.35);" aria-label="Jag är vuxen">
             <img
               src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/96526ace-9334-45b7-9592-a7cbb6cf0ef4.jpg"
               alt="Familj"
@@ -117,66 +161,52 @@
               style="width:60px;height:60px;"
             >
             <span class="card-label">Jag är vuxen</span>
-            <span class="card-sub">Logga in som vuxen</span>
+            <span class="card-sub">Jag vill logga in eller komma igång</span>
           </button>
-        </div>
-
-        <!-- Quick parent login (vuxen only — barn ser aldrig detta) -->
-        <div id="role-quick-login" style="width:100%;margin-top:8px;">
-          <div class="magic-divider" style="margin:20px 0 16px;">
-            <span>ELLER LOGGA IN</span>
-          </div>
-
-          <div id="roleAppleSection" class="hidden" style="width:100%;">
-            <button type="button" id="roleAppleBtn" class="apple-btn-magic" onclick="handleAppleLogin(this)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-              </svg>
-              Logga in med Apple
-            </button>
-            <p class="ios-caption">Endast tillgängligt på iOS</p>
-            <div id="roleAppleError" class="magic-error-box" style="display:none;margin-top:12px;" role="alert"></div>
-            <div id="roleAppleLinkingPrompt" class="hidden" style="margin-top:14px;background:rgba(255,255,255,0.1);border:2px solid rgba(251,191,36,0.4);border-radius:14px;padding:16px;text-align:center;backdrop-filter:blur(12px);">
-              <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;">Ett konto med denna e-postadress finns redan.</p>
-              <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;">Vill du länka ditt Apple-konto till det befintliga kontot?</p>
-              <div style="display:flex;gap:10px;">
-                <button type="button" onclick="openAppleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;">
-                  Ja, länka
-                </button>
-                <button type="button" onclick="dismissAppleLinking()" class="ghost-btn" style="flex:1;">
-                  Avbryt
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div id="roleGoogleSection" class="hidden" style="width:100%;margin-top:10px;">
-            <button type="button" id="roleGoogleBtn" class="apple-btn-magic" style="background:#fff;color:#1d1d1f;border:2px solid rgba(255,255,255,0.3);">
-              <span style="font-size:1.1rem;margin-right:8px;">G</span>
-              Logga in med Google
-            </button>
-          </div>
-
-          <button type="button" id="roleEmailBtn" class="ghost-btn" style="margin-top:10px;" onclick="LoginMagic.showParentLogin()">
-            ✉️ Logga in med e-post
-          </button>
-        </div>
-
-        <!-- Registration link below cards -->
-        <div id="registerBanner" class="magic-footer-link" style="margin-top:16px;display:none;">
-          Har du inget konto?
-          <a href="/register">Registrera dig här</a>
-        </div>
-        <div class="magic-footer-link" style="margin-top:10px;">
-          <a href="/pricing-info">Grundarprogrammet →</a>
         </div>
 
       </div>
       <!-- end role-selection -->
 
+      <!-- ── Skärm 4A: ENTRY_ADULT_START -->
+      <section id="entry-adult-start" class="app-entry-screen" data-screen="ENTRY_ADULT_START" style="display:none;" aria-label="Vuxenstart">
+        <button type="button" id="entryAdultStartBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
+          ← Tillbaka
+        </button>
+        <h2 class="entry-screen-title">Välkommen! Hur vill du fortsätta?</h2>
+        <div class="entry-choice-list">
+          <button type="button" id="entryAdultStartExistingBtn" class="entry-choice-btn">
+            <span class="entry-choice-label">Jag har redan konto</span>
+            <span class="entry-choice-sub">Logga in med Apple, Google eller e-post</span>
+          </button>
+          <button type="button" id="entryAdultStartNewBtn" class="entry-choice-btn">
+            <span class="entry-choice-label">Jag är ny här</span>
+            <span class="entry-choice-sub">Se hur appen fungerar och skapa konto kostnadsfritt</span>
+          </button>
+        </div>
+      </section>
 
-      <!-- ── PARENT LOGIN (shown when parent card clicked) ─────────────────── -->
-      <div id="parent-login-section" style="display:none;flex-direction:column;align-items:center;gap:0;width:100%;">
+      <!-- ── Skärm 5: ENTRY_ADULT_SIGNUP_INTRO -->
+      <section id="entry-signup-intro" class="app-entry-screen" data-screen="ENTRY_ADULT_SIGNUP_INTRO" style="display:none;" aria-label="Kom igång">
+        <button type="button" id="entrySignupBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
+          ← Tillbaka
+        </button>
+        <h2 class="entry-screen-title">Kom igång med Stjärndag</h2>
+        <p class="entry-screen-sub">Skapa ett kostnadsfritt konto och bygg barnets första schema med tydliga steg, stjärnor och mål.</p>
+        <ul class="entry-signup-points">
+          <li>Visuella scheman som barnet förstår</li>
+          <li>Stjärnor och belöningar som motiverar</li>
+          <li>Flera barn och vuxna i samma familj</li>
+        </ul>
+        <div class="entry-cta-stack">
+          <button type="button" id="entrySignupCreateBtn" class="magic-submit-btn touch-btn">Skapa konto kostnadsfritt</button>
+          <button type="button" id="entrySignupExistingBtn" class="ghost-btn touch-btn">Jag har redan konto</button>
+        </div>
+        <p class="entry-founder-note">Just nu ingår Basic kostnadsfritt för grundarmedlemmar.</p>
+      </section>
+
+      <!-- ── Skärm 4B: ENTRY_ADULT_LOGIN -->
+      <div id="parent-login-section" class="app-entry-screen" style="display:none;flex-direction:column;align-items:center;gap:0;width:100%;">
 
         <div id="addChildLoginBanner" class="hidden" style="width:100%;margin-bottom:16px;padding:12px 16px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.35);border-radius:14px;text-align:center;">
           <p style="color:#fff;font-size:0.9rem;font-weight:600;margin:0;line-height:1.5;">
@@ -188,9 +218,11 @@
         </div>
 
         <!-- Back button -->
-        <button onclick="LoginMagic.backToRoleSelection()" class="magic-back-btn" aria-label="Tillbaka">
+        <button type="button" id="parentLoginBackBtn" class="magic-back-btn" aria-label="Tillbaka">
           ← Tillbaka
         </button>
+
+        <h2 class="entry-screen-title" style="margin-bottom:16px;width:100%;">Logga in som vuxen</h2>
 
         <!-- Apple Sign In — iOS/native only -->
         <div id="appleLoginSection" class="hidden" style="width:100%;margin-bottom:0;">
@@ -203,7 +235,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
             </svg>
-            Logga in med Apple
+            Fortsätt med Apple
           </button>
           <p class="ios-caption" data-i18n="auth.login.apple_caption">Endast tillgängligt på iOS</p>
 
@@ -311,12 +343,32 @@
 
         <!-- Registration link -->
         <div id="registerLinkSection" class="magic-footer-link" style="display:none;margin-top:4px;">
-          Inget konto?
-          <a href="/register">Registrera dig</a>
+          Har du inget konto?
+          <a href="/register" id="entryLoginSignupLink">Skapa konto</a>
         </div>
 
       </div>
       <!-- end parent-login-section -->
+
+      <!-- How it works modal -->
+      <div id="entry-how-it-works-modal" class="entry-how-modal hidden" role="dialog" aria-modal="true" aria-labelledby="entryHowTitle">
+        <div class="entry-how-sheet">
+          <h2 id="entryHowTitle">Så fungerar appen</h2>
+          <div class="entry-how-card">
+            <strong>1. Barnet ser sitt schema steg för steg</strong>
+            <p>Visuella rutiner gör vardagen tydlig och förutsägbar.</p>
+          </div>
+          <div class="entry-how-card">
+            <strong>2. Barnet tjänar stjärnor när aktiviteter blir klara</strong>
+            <p>Små vinster bygger motivation och självständighet.</p>
+          </div>
+          <div class="entry-how-card">
+            <strong>3. Vuxna följer framsteg och bygger rutiner tillsammans</strong>
+            <p>Flera barn och vuxna kan dela samma familj i appen.</p>
+          </div>
+          <button type="button" id="entryHowItWorksClose" class="magic-submit-btn touch-btn" style="margin-top:6px;">Stäng</button>
+        </div>
+      </div>
 
     </div>
     <!-- end max-width container -->
@@ -367,20 +419,6 @@
     document.addEventListener('DOMContentLoaded', async () => {
       var loginNextUrl = getLoginNextUrl();
       var isAddChildReturn = loginNextUrl && loginNextUrl.indexOf('addChild') !== -1;
-      // Add-child requires vuxenlogin — never show "Jag är barn" choice for that flow.
-      if (!isInstalledApp() || isAddChildReturn) {
-        var roleSel = document.getElementById('role-selection');
-        if (roleSel) roleSel.style.display = 'none';
-        var parentSection = document.getElementById('parent-login-section');
-        if (parentSection) parentSection.style.display = 'flex';
-        var addBanner = document.getElementById('addChildLoginBanner');
-        if (addBanner) addBanner.classList.toggle('hidden', !isAddChildReturn);
-        var backBtn = parentSection && parentSection.querySelector('.magic-back-btn');
-        if (backBtn && isAddChildReturn) {
-          backBtn.textContent = '← Tillbarnväljaren';
-          backBtn.onclick = function () { window.location.href = '/child-login'; };
-        }
-      }
       if (window.LoginMagic && LoginMagic.setAddChildReturnMode) {
         LoginMagic.setAddChildReturnMode(isAddChildReturn);
       }
@@ -440,21 +478,28 @@
       if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
         const appleSection = document.getElementById('appleLoginSection');
         if (appleSection) appleSection.classList.remove('hidden');
-        const roleApple = document.getElementById('roleAppleSection');
-        if (roleApple) roleApple.classList.remove('hidden');
       }
 
-      // Google Sign In — Android native
+      // Google Sign In — Android native (google-auth-ui.js binds click handler)
       if (window.Platform && typeof Platform.isGoogleSignInAvailable === 'function' && Platform.isGoogleSignInAvailable()) {
-        const roleGoogle = document.getElementById('roleGoogleSection');
-        if (roleGoogle) roleGoogle.classList.remove('hidden');
-        const roleGoogleBtn = document.getElementById('roleGoogleBtn');
-        if (roleGoogleBtn && typeof handleGoogleLogin === 'function') {
-          roleGoogleBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            handleGoogleLogin({ buttonEl: roleGoogleBtn });
-          });
+        const googleSection = document.getElementById('googleLoginSection');
+        if (googleSection) googleSection.classList.remove('hidden');
+      }
+
+      if (isAddChildReturn) {
+        var parentSectionEarly = document.getElementById('parent-login-section');
+        var addBanner = document.getElementById('addChildLoginBanner');
+        if (addBanner) addBanner.classList.remove('hidden');
+        var backBtn = parentSectionEarly && parentSectionEarly.querySelector('.magic-back-btn');
+        if (backBtn) {
+          backBtn.id = 'addChildBackBtn';
+          backBtn.textContent = '← Tillbarnväljaren';
+          backBtn.onclick = function () { window.location.href = '/child-login'; };
         }
+      }
+
+      if (window.AppEntry && typeof AppEntry.init === 'function') {
+        AppEntry.init();
       }
 
       const form     = document.getElementById('loginForm');
@@ -486,13 +531,16 @@
 
           if (res.ok && data.user) {
             Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+            if (window.AppEntry) AppEntry.trackAuthSuccess('email');
             redirectAfterParentLogin();
           } else if (res.status === 403 && data.code === 'EMAIL_VERIFICATION_REQUIRED') {
             showVerificationRequired(data.email || email.value);
           } else {
+            if (window.AppEntry) AppEntry.trackAuthFailed('email', data.error || 'login_failed');
             showErrorInline('loginError', data.error || 'Något gick fel. Vänligen försök igen.');
           }
         } catch (error) {
+          if (window.AppEntry) AppEntry.trackAuthFailed('email', error.message || 'network');
           showErrorInline('loginError', error.message || 'Något gick fel. Vänligen försök igen.');
         } finally {
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Logga in'; }
@@ -517,7 +565,7 @@
       const section = document.getElementById('parent-login-section');
       if (!section) return;
       section.innerHTML = `
-        <button onclick="LoginMagic.backToRoleSelection()" class="magic-back-btn">← Tillbaka</button>
+        <button onclick="(window.AppEntry && AppEntry.goBack) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()" class="magic-back-btn">← Tillbaka</button>
         <div style="text-align:center;">
           <div style="font-size:3.5rem;margin-bottom:16px;">📧</div>
           <h2 style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:12px;">
@@ -594,6 +642,7 @@
         return;
       }
 
+      if (window.AppEntry) AppEntry.trackAuthMethod('apple');
       diag.hideErrors();
       diag.hideLinkingPrompts();
 
@@ -640,6 +689,7 @@
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+          if (window.AppEntry) AppEntry.trackAuthSuccess('apple');
           diag.startPostLoginTrace();
           diag.log('step_5_login_complete', { onboarding_completed: data.user.onboarding_completed });
           diag.logPost('step_5b_session_after_setAuth', {});
@@ -652,6 +702,10 @@
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
+          if (window.AppEntry) {
+            AppEntry.trackAuthSuccess('apple');
+            AppEntry.track('signup_completed', { method: 'apple' });
+          }
           diag.startPostLoginTrace();
           diag.log('step_5_login_complete', { scenario: 'created', onboarding_completed: data.user.onboarding_completed });
           diag.logPost('step_5b_session_after_setAuth', {});
@@ -663,13 +717,16 @@
           diag.log('step_4b_email_conflict');
           diag.showLinkingPrompt();
         } else if (res.status === 429) {
+          if (window.AppEntry) AppEntry.trackAuthFailed('apple', 'rate_limited');
           diag.showError(data.error || 'För många försök. Vänta en stund och försök igen.');
         } else {
+          if (window.AppEntry) AppEntry.trackAuthFailed('apple', data.error || 'login_failed');
           diag.showError(data.error || 'Något gick fel med Apple-inloggningen. Försök igen eller logga in med e-post och lösenord.');
         }
       } catch (err) {
         var appleMsg = (err && err.message) || '';
         diag.log('step_error', { message: appleMsg });
+        if (window.AppEntry) AppEntry.trackAuthFailed('apple', appleMsg || 'exception');
         if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
           diag.showError('Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.');
         } else {
@@ -762,7 +819,6 @@
         AppleSignInDiagnostics.hideLinkingPrompts();
       } else {
         document.getElementById('appleLinkingPrompt')?.classList.add('hidden');
-        document.getElementById('roleAppleLinkingPrompt')?.classList.add('hidden');
       }
       _applePendingEmail = null;
       _applePendingIdToken = null;
