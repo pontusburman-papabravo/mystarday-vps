@@ -21,10 +21,30 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-info()  { printf '%b\n' "${GREEN}→${NC} $*"; }
-warn()  { printf '%b\n' "${YELLOW}!${NC} $*"; }
+info()  { printf '%b\n' "${GREEN}→${NC} $*" >&2; }
+warn()  { printf '%b\n' "${YELLOW}!${NC} $*" >&2; }
 err()   { printf '%b\n' "${RED}✗${NC} $*" >&2; }
-step()  { printf '\n%b\n' "${GREEN}== $* ==${NC}"; }
+step()  { printf '\n%b\n' "${GREEN}== $* ==${NC}" >&2; }
+
+# macOS ships Bash 3.2 — no ${var,,}
+is_yes() {
+  case "$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')" in
+    y|j|ja|yes) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_no() {
+  case "$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')" in
+    n|nej|no) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+prompt_read() {
+  printf '%s' "$1" >&2
+  read -r "$2"
+}
 
 read_deploy_rules() {
   if [ ! -f "$DEPLOY_RULES" ]; then
@@ -101,11 +121,15 @@ ensure_github_environment() {
   repo="$(gh_repo)"
   owner="${repo%%/*}"
   name="${repo#*/}"
-  info "Skapar/uppdaterar GitHub environment: $GH_ENV_NAME"
-  gh api \
+  if gh api "repos/${owner}/${name}/environments/${GH_ENV_NAME}" >/dev/null 2>&1; then
+    info "GitHub environment finns: $GH_ENV_NAME"
+    return 0
+  fi
+  info "Skapar GitHub environment: $GH_ENV_NAME"
+  printf '%s' '{"wait_timer":0}' | gh api \
     -X PUT \
     "repos/${owner}/${name}/environments/${GH_ENV_NAME}" \
-    -f wait_timer=0 \
+    --input - \
     >/dev/null
 }
 
@@ -135,20 +159,18 @@ generate_deploy_key() {
 
   if [ -f "$KEY_PATH" ]; then
     warn "Nyckel finns redan: $KEY_PATH"
-    read -r -p "Använda den? [J/n] " ans
-    if [[ "${ans,,}" == "n" ]]; then
+    prompt_read "Använda den? [J/n] " ans
+    if is_no "$ans"; then
       err "Avbrutet. Sätt KEY_PATH till annan fil eller ta bort befintlig nyckel."
       exit 1
     fi
-    echo "$KEY_PATH"
-    return
+    return 0
   fi
 
   mkdir -p "$KEY_DIR"
   chmod 700 "$KEY_DIR"
   info "Skapar deploy-nyckel (ed25519, ingen passphrase): $KEY_PATH"
-  ssh-keygen -t ed25519 -f "$KEY_PATH" -N "" -C "github-actions-${VPS_SERVICE}-deploy"
-  echo "$KEY_PATH"
+  ssh-keygen -q -t ed25519 -f "$KEY_PATH" -N "" -C "github-actions-${VPS_SERVICE}-deploy" </dev/null
 }
 
 print_vps_key_instructions() {
@@ -288,14 +310,12 @@ cmd_full_setup() {
   info "  ${VPS_USER}@${VPS_HOST}  ${VPS_APP_PATH}  service=${VPS_SERVICE}"
 
   step "2/4 — Deploy-nyckel"
-  local key_file
-  key_file="$(generate_deploy_key)"
-  KEY_PATH="$key_file"
+  generate_deploy_key
 
   step "3/4 — VPS (manuellt steg)"
   print_vps_key_instructions
-  read -r -p "Har du lagt nyckeln på VPS och testat SSH? [j/N] " done
-  if [[ "${done,,}" != "j" && "${done,,}" != "y" ]]; then
+  prompt_read "Har du lagt nyckeln på VPS och testat SSH? [j/N] " done
+  if ! is_yes "$done"; then
     warn "Fortsätt när VPS-steget är klart. Kör sedan: $0 github"
     exit 0
   fi
@@ -303,10 +323,10 @@ cmd_full_setup() {
   test_ssh_deploy_key
 
   step "4/4 — GitHub environment"
-  set_github_vars_and_secret "$key_file"
+  set_github_vars_and_secret "$KEY_PATH"
 
-  read -r -p "Vill du köra en test-deploy nu (workflow_dispatch)? [j/N] " run_now
-  if [[ "${run_now,,}" == "j" || "${run_now,,}" == "y" ]]; then
+  prompt_read "Vill du köra en test-deploy nu (workflow_dispatch)? [j/N] " run_now
+  if is_yes "$run_now"; then
     trigger_deploy_workflow
   fi
 
