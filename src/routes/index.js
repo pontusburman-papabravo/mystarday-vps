@@ -126,11 +126,29 @@ function registerRoutes(app) {
     'login', 'child-login',
     'verify-email', 'forgot-password', 'reset-password', 'verify-email-change',
     'dashboard', 'child-dashboard',
-    'settings', 'accept-invite', 'pedagog-invite', 'upgrade',
+    'settings', 'accept-invite', 'pedagog-invite',
     'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
-    'family', 'calendar', 'onboarding', 'child-settings', 'child-wizard', 'notifications',
+    'family', 'calendar', 'onboarding', 'child-wizard', 'notifications',
+    'planning', 'rewards', 'family-child',
   ];
   const { join } = require('path');
+
+  app.get('/upgrade', (req, res) => {
+    res.redirect(302, '/settings#prenumeration');
+  });
+
+  app.get('/child-settings', (req, res) => {
+    const id = req.query.id;
+    if (id) {
+      return res.redirect(302, '/family/child/' + encodeURIComponent(id) + '?tab=setup');
+    }
+    res.sendFile(join(__dirname, '../../public', 'child-settings.html'));
+  });
+
+  app.get('/family/child/:childId', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'family-child.html'));
+  });
+
   for (const page of appPages) {
     app.get(`/${page}`, (req, res) => {
       res.sendFile(join(__dirname, '../../public', `${page}.html`));

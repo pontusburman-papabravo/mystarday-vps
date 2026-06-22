@@ -23,6 +23,8 @@
     '/pedagog-note',
     '/onboarding',
     '/admin',
+    '/planning',
+    '/rewards',
   ];
 
   function normalizePath(path) {

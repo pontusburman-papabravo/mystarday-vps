@@ -169,9 +169,13 @@
           ${badges.length > 0 ? `<div class="flex gap-1.5 flex-wrap mb-3">${badges.join('')}</div>` : ''}
 
           <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <a href="/child-settings?child=${child.id}"
+            <a href="/family/child/${child.id}"
                class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">
-              ⚙️ Inställningar
+              🌟 Profil
+            </a>
+            <a href="/family/child/${child.id}?tab=setup"
+               class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-lavender hover:bg-purple-200 dark:bg-navy text-purple-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">
+              ⚙️
             </a>
             <a href="/schedule?child=${child.id}"
                class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gold hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">

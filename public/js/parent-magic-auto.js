@@ -7,11 +7,13 @@
   var PATH_PAGES = {
     '/dashboard': 'dashboard',
     '/daily-log': 'daily-log',
+    '/planning': 'planning',
     '/schedule': 'schedule',
     '/calendar': 'calendar',
     '/activities': 'activities',
     '/assign-schedule': 'assign-schedule',
     '/for-dig': 'for-dig',
+    '/rewards': 'rewards',
     '/family': 'family',
     '/settings': 'settings',
     '/library': 'library',
