@@ -35,6 +35,13 @@
   var activeTabs = LEGACY_TABS;
   var tabsReady = false;
   var mountPending = false;
+  var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(max-width: 767px)')
+    : null;
+
+  function isMobileViewport() {
+    return MOBILE_NAV_MQ ? MOBILE_NAV_MQ.matches : false;
+  }
 
   function isActive(tab) {
     var p = path || '/';
@@ -118,6 +125,7 @@
 
   function mount() {
     if (!tabsReady) return false;
+    if (!isMobileViewport()) return false;
     if (!hasParentShell()) return false;
 
     var items = buildNavHtml();
@@ -193,11 +201,28 @@
       });
   }
 
+  function handleViewportChange() {
+    if (isMobileViewport()) {
+      tryMount();
+    } else {
+      unmount();
+    }
+    window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
+  }
+
   function boot() {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', start);
     } else {
       start();
+    }
+
+    if (MOBILE_NAV_MQ) {
+      if (typeof MOBILE_NAV_MQ.addEventListener === 'function') {
+        MOBILE_NAV_MQ.addEventListener('change', handleViewportChange);
+      } else if (typeof MOBILE_NAV_MQ.addListener === 'function') {
+        MOBILE_NAV_MQ.addListener(handleViewportChange);
+      }
     }
 
     window.addEventListener('platform-theme-applied', function () {

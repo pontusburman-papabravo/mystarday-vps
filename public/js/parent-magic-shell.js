@@ -24,6 +24,15 @@
   var NAV = LEGACY_NAV;
 
   var _page = null;
+  var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(max-width: 767px)')
+    : null;
+
+  function isNativeTabBarActive() {
+    if (!document.body.classList.contains('has-native-tab-bar')) return false;
+    if (!document.querySelector('.native-tab-bar')) return false;
+    return MOBILE_NAV_MQ ? MOBILE_NAV_MQ.matches : false;
+  }
 
   function isMagic() {
     return window.AppViewMode && AppViewMode.isAllowed() && AppViewMode.isMagic();
@@ -48,7 +57,7 @@
   }
 
   function renderBottomNav(activeId) {
-    if (document.body.classList.contains('has-native-tab-bar') || document.querySelector('.native-tab-bar')) {
+    if (isNativeTabBarActive()) {
       var hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
       return;
@@ -148,6 +157,16 @@
     applyNavFromAccess(e.detail);
     refresh();
   });
+
+  window.addEventListener('stjarndag-parent-nav-layout', refresh);
+  if (MOBILE_NAV_MQ) {
+    var onMqChange = function () { refresh(); };
+    if (typeof MOBILE_NAV_MQ.addEventListener === 'function') {
+      MOBILE_NAV_MQ.addEventListener('change', onMqChange);
+    } else if (typeof MOBILE_NAV_MQ.addListener === 'function') {
+      MOBILE_NAV_MQ.addListener(onMqChange);
+    }
+  }
 
   window.ParentMagicShell = {
     init: init,

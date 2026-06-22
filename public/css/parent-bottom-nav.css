@@ -44,6 +44,8 @@ body.has-native-tab-bar .parent-bottom-nav {
   font-family: inherit;
   cursor: pointer;
   min-width: 56px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .parent-bottom-nav-btn .parent-bottom-nav-icon {

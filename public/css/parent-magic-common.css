@@ -32,6 +32,40 @@ body.parent-magic-view .app-view-toggle-wrap {
   z-index: 2;
 }
 
+/* Floating help + feedback above magic bottom dock (tablet + phone) */
+body.parent-magic-view #globalFeedbackBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  top: auto !important;
+}
+
+body.parent-magic-view #helpBtn,
+body.parent-magic-view #hbBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 68px) !important;
+  top: auto !important;
+  right: max(16px, env(safe-area-inset-right, 0px)) !important;
+}
+
+body.parent-magic-dashboard #globalFeedbackBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  top: auto !important;
+}
+
+body.parent-magic-dashboard #helpBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 68px) !important;
+  top: auto !important;
+}
+
+body.parent-magic-library #globalFeedbackBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  top: auto !important;
+}
+
+body.parent-magic-library #helpBtn,
+body.parent-magic-library #hbBtn {
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 68px) !important;
+  top: auto !important;
+}
+
 /* ── Page hero ── */
 .magic-page-shell {
   padding: max(4px, env(safe-area-inset-top, 0px)) 16px 12px;
@@ -132,6 +166,8 @@ body.parent-magic-view .app-view-toggle-wrap {
   text-align: left;
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .magic-settings-group-icon {
