@@ -909,13 +909,13 @@
 
     async function scanAndAddAdult() {
       if (!window.FamilyInviteScan) {
-        document.getElementById('addAdultModal').classList.remove('hidden');
+        openFamilyModal('addAdultModal');
         return;
       }
       const raw = FamilyInviteScan.scanAdultQrInteractive();
       if (!raw) return;
       const parsed = FamilyInviteScan.parseQrPayload(raw);
-      document.getElementById('addAdultModal').classList.remove('hidden');
+      openFamilyModal('addAdultModal');
       const msg = document.getElementById('addAdultMsg');
       msg.textContent = '';
       msg.className = 'text-sm text-text-soft min-h-[1.2em]';
@@ -1108,6 +1108,14 @@
     function closeModal(id) {
       document.getElementById(id).classList.add('hidden');
     }
+
+    function openFamilyModal(id) {
+      const drawer = document.getElementById('childDrawer');
+      if (drawer && !drawer.classList.contains('hidden')) closeChildDrawer();
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+    window.openFamilyModal = openFamilyModal;
 
     // ─── Family Children Drag & Drop (sortablejs) ───────
     let familySortable = null;

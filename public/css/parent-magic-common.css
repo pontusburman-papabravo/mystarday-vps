@@ -680,3 +680,127 @@ body.parent-magic-view #deletionSection .bg-coral {
 body.parent-magic-view #deletionSection .bg-coral .text-navy {
   color: #fecaca !important;
 }
+
+/* Sub-pages: pin notis/avatar top-right (outside document flow) */
+body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  width: auto;
+  padding: 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 250;
+  pointer-events: none;
+}
+
+body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions > * {
+  pointer-events: auto;
+}
+
+/* Leave room for fixed header icons beside the VY toggle */
+body.parent-magic-view:not(.parent-magic-dashboard) .app-view-toggle-wrap {
+  padding-right: 108px;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .parent-magic-hide-header {
+  display: none !important;
+}
+
+/* Tilldela schema — dark magic contrast */
+body.parent-magic-view.parent-magic-page-assign-schedule .week-label,
+body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn,
+body.parent-magic-view.parent-magic-page-assign-schedule .today-btn {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn,
+body.parent-magic-view.parent-magic-page-assign-schedule .today-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn:hover,
+body.parent-magic-view.parent-magic-page-assign-schedule .today-btn:hover {
+  border-color: rgba(255, 204, 51, 0.45) !important;
+  color: #ffcc33 !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .day-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .day-btn.active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .day-btn.active .day-date {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .bg-sky.border-2.border-lavender {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .schema-card {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .schema-card.selected {
+  background: rgba(255, 204, 51, 0.14) !important;
+  border-color: rgba(255, 204, 51, 0.45) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .text-navy,
+body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .font-semibold {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .text-text-soft {
+  color: rgba(244, 244, 255, 0.68) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .save-btn {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .save-btn.saved {
+  background: #10b981 !important;
+  color: #fff !important;
+}
+
+/* Family modals — solid panel on dark magic shell */
+body.parent-magic-view #addAdultModal > div,
+body.parent-magic-view #addChildModal > div,
+body.parent-magic-view #inviteModal > div,
+body.parent-magic-view #deleteModal > div,
+body.parent-magic-view #manualStarModal > div {
+  background: #141432 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f4f4ff;
+}
+
+body.parent-magic-view #addAdultModal .text-navy,
+body.parent-magic-view #addChildModal .text-navy,
+body.parent-magic-view #inviteModal .text-navy,
+body.parent-magic-view #deleteModal .text-navy {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view #addAdultModal input,
+body.parent-magic-view #addAdultModal select,
+body.parent-magic-view #addChildModal input,
+body.parent-magic-view #inviteModal input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
