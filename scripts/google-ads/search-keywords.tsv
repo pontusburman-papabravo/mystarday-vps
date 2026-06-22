@@ -1,0 +1,34 @@
+Campaign	Ad group	Keyword	Match type	Max. CPC
+[APP_NAME] - Sök	Bildstöd & schema	visuellt schema barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	visuellt dagsschema barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	bildstöd app barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	bildstöd vardag barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	schema app barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	dagsschema app barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	veckoschema barn app	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	rutinschema barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	visuell planering barn	Phrase	8
+[APP_NAME] - Sök	Bildstöd & schema	visuellt schema barn	Exact	10
+[APP_NAME] - Sök	Bildstöd & schema	bildstöd app	Exact	10
+[APP_NAME] - Sök	Bildstöd & schema	dagsschema barn app	Exact	10
+[APP_NAME] - Sök	ADHD & autism	adhd rutin barn	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	adhd schema vardag	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	adhd app barn	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	autism schema barn	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	autism rutin vardag	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	exekutiv funktion barn app	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	app för barn med autism	Phrase	8
+[APP_NAME] - Sök	ADHD & autism	adhd schema barn	Exact	10
+[APP_NAME] - Sök	ADHD & autism	autism rutin app	Exact	10
+[APP_NAME] - Sök	ADHD & autism	bildstöd adhd	Exact	10
+[APP_NAME] - Sök	Belöning & rutin	belöningssystem barn	Phrase	8
+[APP_NAME] - Sök	Belöning & rutin	stjärnschema barn	Phrase	8
+[APP_NAME] - Sök	Belöning & rutin	belöningsapp barn	Phrase	8
+[APP_NAME] - Sök	Belöning & rutin	morgonrutin barn app	Phrase	8
+[APP_NAME] - Sök	Belöning & rutin	kvällsrutin barn	Phrase	8
+[APP_NAME] - Sök	Belöning & rutin	belöningssystem barn app	Exact	10
+[APP_NAME] - Sök	Varumärke	[brand-name-sv]	Exact	3
+[APP_NAME] - Sök	Varumärke	[brand-name-en]	Exact	3
+[APP_NAME] - Sök	Varumärke	[brand-name-sv] app	Exact	3
+[APP_NAME] - Sök	Varumärke	[brand-name-sv]	Phrase	3
+[APP_NAME] - Sök	Varumärke	[brand-name-en]	Phrase	3

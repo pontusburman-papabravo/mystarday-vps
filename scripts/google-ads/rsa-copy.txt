@@ -1,0 +1,38 @@
+=== RESPONSIVE SEARCH ADS — [APP_NAME] - Sök ===
+Final URL: https://[DOMAIN]/register
+Display path: [DOMAIN] / prova-gratis
+
+--- RUBRIKER (klistra in alla 15) ---
+Visuellt schema barn – utan tjat
+Bildstöd & stjärnbelöningar
+Schema barn med ADHD-stöd
+För barn med autism & rutiner
+Dagsschema barnet förstår
+Stjärnor mot belöningar
+Gratis för 200 familjer
+Prova [APP_NAME] gratis
+Barnet loggar in själv
+Färdiga scheman + egna
+Push när rutinen är klar
+Delat konto för föräldrar
+Skattkammaren motiverar
+Visuellt bildstöd i appen
+Struktur som faktiskt funkar
+
+--- BESKRIVNINGAR (klistra in alla 4) ---
+Visuella scheman, tydliga steg och belöningar som motiverar – utan att ni behöver tjata.
+Ett verktyg vid ADHD och autism. Bildstöd som barnet faktiskt förstår och vill använda.
+De första 200 familjerna får livstids tillgång som grundarmedlem. Obegränsat antal barn.
+Barnet bockar av aktiviteter, tjänar stjärnor och väljer belöningar i Skattkammaren.
+
+=== AD GROUP: Bildstöd & schema ===
+Final URL: https://[DOMAIN]/register
+
+=== AD GROUP: ADHD & autism ===
+Final URL: https://[DOMAIN]/register
+
+=== AD GROUP: Belöning & rutin ===
+Final URL: https://[DOMAIN]/register
+
+=== AD GROUP: Varumärke ===
+Final URL: https://[DOMAIN]/

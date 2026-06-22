@@ -1,0 +1,70 @@
+[APP_NAME] — Google Ads setup (ca 15 min)
+================================================
+
+Jag kan inte logga in i ert Google Ads-konto. Följ dessa steg i ordning.
+Filer i denna mapp: negative-keywords.tsv, search-keywords.tsv, rsa-copy.txt
+
+Ersätt platshållare vid import:
+  [APP_NAME]      → ert kampanjnamn-prefix (t.ex. produktnamnet)
+  [DOMAIN]        → er webbdomän
+  [brand-name-sv] → svenskt varumärke (exact keyword)
+  [brand-name-en] → engelskt varumärke (exact keyword)
+
+DEL 1 — KONVERTERING (5 min)
+-----------------------------
+1. Mål (trofé) → Konverteringar → + Skapa konverteringsåtgärd
+2. Webbplats → Sign-up → GA4-property (ID i Analytics Admin) ELLER manuell tagg
+3. Om GA4 visar "No events yet":
+   - Inkognito → [DOMAIN]/register → godkänn ANALYS → skapa testkonto
+   - GA4 → Realtime → bekräfta sign_up
+   - GA4 Admin → Key events → lägg till sign_up
+4. Mål → Konverteringar → Inställningar:
+   - Sign-up = PRIMÄR
+   - Page view = SEKUNDÄR eller INAKTIV (viktigt!)
+
+DEL 2 — PMAX (Campaign #1) (2 min)
+-----------------------------------
+1. Kampanjer → Campaign #1 → Inställningar → Budget
+   - Sänk till 30–50 kr/dag (eller Pausa tills Sign-up har data)
+2. Kampanj → Söktermer → markera irrelevanta → Lägg till som negativt
+
+DEL 3 — NEGATIVA SÖKORD (3 min)
+-------------------------------
+Alternativ A — Google Ads Editor (enklast för bulk):
+1. Ladda ner Google Ads Editor (gratis)
+2. Konto → Lägg till → Logga in (konto 558-411-8939)
+3. Konto → Importera → Från fil → negative-keywords.tsv
+4. Granska → Publicera
+
+Alternativ B — Manuellt i webben:
+1. Kampanjer → Campaign #1 → Sökord → Negativa sökord
+2. Klistra in från negative-keywords.tsv (en rad per ord)
+
+DEL 4 — NY SÖK-KAMPANJ (5 min)
+------------------------------
+1. + Ny kampanj → Sök → Försäljningsleads → Registreringar
+2. Geografiskt mål: Sverige
+3. Språk: Svenska
+4. Budstrategi: Maximera klick (tills 15+ signups) → sedan Maximera konverteringar
+5. Daglig budget: 80–120 kr/dag
+6. Kampanjnamn: [APP_NAME] - Sök
+7. Nätverk: ENDAST Google Sök (avmarkera sökpartners om osäker)
+8. Skapa 4 annonsgrupper (namn från search-keywords.tsv)
+9. Importera search-keywords.tsv via Ads Editor ELLER klistra in nyckelord manuellt
+10. RSA: klistra in rubriker/beskrivningar från rsa-copy.txt (ersätt [DOMAIN]/[APP_NAME])
+11. Final URL: https://[DOMAIN]/register
+
+DEL 5 — KAMPANJINSTÄLLNINGAR
+----------------------------
+[APP_NAME] - Sök → Inställningar → Konverteringar:
+  ☑ Sign-up (primär)
+  ☐ Page view
+
+DEL 6 — VERIFIERING (efter 24 h)
+--------------------------------
+- Konverteringar → Sign-up > 0
+- Söktermer → inga "skriva ut" / "förskola" med klick
+- Channel performance → Sök-kampanj får klick, PMax budget ner
+
+AW-ID (valfritt, om manuell tagg):
+  public/js/marketing-events.js → ADS_ACCOUNT_ID + ADS_SIGNUP_LABEL
