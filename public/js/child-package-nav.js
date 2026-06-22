@@ -38,6 +38,9 @@
   }
 
   async function init() {
+    if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+      return;
+    }
     try {
       const access = window.fetchPackageAccess
         ? await window.fetchPackageAccess()

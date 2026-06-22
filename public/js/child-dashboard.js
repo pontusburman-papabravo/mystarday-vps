@@ -323,6 +323,18 @@ let childUiMagic = false;
 function applyChildViewChrome() {
   childUiMagic = !!(window.AppViewMode && AppViewMode.isMagic());
 
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    const bottomNav = document.getElementById('childBottomNav');
+    if (bottomNav) bottomNav.style.display = '';
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.classList.add('hidden');
+      legacyNav.setAttribute('aria-hidden', 'true');
+    }
+    if (window.ChildWorldsNav) ChildWorldsNav.init();
+    return;
+  }
+
   const bottomNav = document.getElementById('childBottomNav');
   if (bottomNav) bottomNav.style.display = childUiMagic ? '' : 'none';
 
@@ -337,6 +349,12 @@ function applyChildViewChrome() {
 function applyChildViewMode() {
   applyChildViewChrome();
 
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    document.body.classList.remove('child-home-active');
+    showTab('schedule');
+    return;
+  }
+
   if (childUiMagic) {
     showTab('home');
     if (!rewardsLoaded) loadRewards();
@@ -347,7 +365,11 @@ function applyChildViewMode() {
 }
 
 function showTab(tab) {
-  if (tab === 'home' && !childUiMagic) tab = 'schedule';
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    if (tab === 'home' || tab === 'more') tab = 'schedule';
+  } else if (tab === 'home' && !childUiMagic) {
+    tab = 'schedule';
+  }
   const hv = document.getElementById('homeView');
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
@@ -384,19 +406,23 @@ function showTab(tab) {
   if ((isHome || isUniverse) && !rewardsLoaded) loadRewards();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 
-  const bottomTabs = {
-    home: 'tabHome',
-    schedule: 'tabSchedule',
-    rewards: 'tabRewards',
-    more: 'tabMore',
-    family: 'tabMore',
-  };
-  ['tabHome', 'tabSchedule', 'tabRewards', 'tabMore'].forEach(function (id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const active = id === bottomTabs[tab];
-    el.classList.toggle('is-active', active);
-  });
+  if (window.ChildWorldsNav) {
+    ChildWorldsNav.highlightActive(tab);
+  } else {
+    const bottomTabs = {
+      home: 'tabHome',
+      schedule: 'tabSchedule',
+      rewards: 'tabRewards',
+      more: 'tabMore',
+      family: 'tabMore',
+    };
+    ['tabHome', 'tabSchedule', 'tabRewards', 'tabMore'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const active = id === bottomTabs[tab];
+      el.classList.toggle('is-active', active);
+    });
+  }
 
   if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(isHome ? 'home' : tab);
 
