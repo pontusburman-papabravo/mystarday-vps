@@ -130,7 +130,7 @@
       gtag('event', 'page_view');
     }
 
-    // Meta Pixel
+    // Meta Pixel + Google Ads tag config
     if (marketingGranted) {
       fbq('consent', 'grant');
       fbq('track', 'PageView');
@@ -142,6 +142,7 @@
           if (typeof fbq === 'function') fbq('track', 'Purchase', { value: amount, currency: currency || 'SEK' });
         },
       };
+      if (window.MarketingEvents) MarketingEvents.configureGoogleAds();
     } else {
       fbq('consent', 'revoke');
       window.Pixel = { pageView: function(){}, lead: function(){}, purchase: function(){} };

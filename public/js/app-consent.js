@@ -92,6 +92,7 @@
     if (adGranted) {
       fbq('consent', 'grant');
       fbq('track', 'PageView');
+      if (window.MarketingEvents) MarketingEvents.configureGoogleAds();
     } else {
       fbq('consent', 'revoke');
     }
