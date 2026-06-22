@@ -394,6 +394,10 @@
         document.querySelectorAll(sel).forEach((el) => { el.style.display = 'none'; });
       });
     }
+    if (ok && global.PreviewBack) {
+      const backEl = options.backLinkEl || document.getElementById('previewBackLink');
+      global.PreviewBack.apply(backEl);
+    }
     return ok;
   }
 

@@ -65,6 +65,13 @@ describe('tablet magic navigation', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /injectEarlyMagicHtml/);
     assert.match(src, /parent-magic-early-boot/);
+    assert.match(src, /parent-magic-early-style/);
     assert.match(src, /stjarndag_parent_ui_view/);
+  });
+
+  it('parent-magic-common fixes För dig contrast on light panels', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /\.for-dig-most-installed/);
+    assert.match(css, /body\.parent-magic-view\.for-dig-page \.text-navy/);
   });
 });

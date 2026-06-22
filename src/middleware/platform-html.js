@@ -8,7 +8,7 @@ const path = require('path');
 const RELEASE_TAG = '2026-06-14-prevent-zoom';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '3';
+const MAGIC_VERSION = '4';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -36,11 +36,17 @@ function normalizeHtmlPath(path) {
 function buildEarlyMagicScriptTag() {
   const magicPathsJson = JSON.stringify([...PARENT_MAGIC_PATHS]);
   return (
+    '<style id="parent-magic-early-style">html.parent-magic-early,html.parent-magic-early body{background:#07071a!important;color:#f4f4ff!important}' +
+    'html.parent-magic-early body nav#sidebar,html.parent-magic-early body nav.w-full.md\\:w-64,' +
+    'html.parent-magic-early body .md\\:hidden.bg-navy.sticky,html.parent-magic-early body .mobile-topbar{display:none!important}' +
+    'html.parent-magic-early body .bg-sky,html.parent-magic-early body .bg-cream{background:transparent!important}</style>' +
     '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
     'var pages=' + magicPathsJson + ';' +
     'if(pages.indexOf(p)<0)return;' +
-    'if(localStorage.getItem("stjarndag_parent_ui_view")==="magic")' +
-    '{document.documentElement.classList.add("parent-magic-early");}}catch(e){}})();<\/script>'
+    'if(localStorage.getItem("stjarndag_parent_ui_view")==="magic"){' +
+    'document.documentElement.classList.add("parent-magic-early");' +
+    'var tc=document.querySelector(\'meta[name="theme-color"]\');' +
+    'if(tc)tc.setAttribute("content","#07071a");}}catch(e){}})();<\/script>'
   );
 }
 

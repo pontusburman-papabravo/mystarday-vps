@@ -3,9 +3,26 @@
  */
 
 /* Set in <head> before paint when localStorage prefers magic — prevents classic flash. */
+html.parent-magic-early,
 html.parent-magic-early body {
-  background: #07071a;
-  color: #f4f4ff;
+  background: #07071a !important;
+  color: #f4f4ff !important;
+}
+
+html.parent-magic-early body.bg-sky,
+html.parent-magic-early body.bg-cream,
+body.parent-magic-view.bg-sky,
+body.parent-magic-view.bg-cream {
+  background: #07071a !important;
+}
+
+html.parent-magic-early body .bg-sky,
+html.parent-magic-early body .bg-cream,
+body.parent-magic-view .bg-sky,
+body.parent-magic-view.parent-magic-page-for-dig main .bg-sky,
+body.parent-magic-view.for-dig-page .bg-sky {
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 html.parent-magic-early body nav#sidebar,
@@ -512,10 +529,37 @@ body.parent-magic-view .for-dig-focus {
 
 body.parent-magic-view .for-dig-goal-card,
 body.parent-magic-view .for-dig-favorites,
-body.parent-magic-view .for-dig-recommend {
+body.parent-magic-view .for-dig-recommend,
+body.parent-magic-view .for-dig-most-installed,
+body.parent-magic-view .for-dig-popular {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #f4f4ff;
+}
+
+body.parent-magic-view .for-dig-most-installed .text-navy,
+body.parent-magic-view .for-dig-most-installed .text-text-soft,
+body.parent-magic-view .for-dig-favorites .text-navy,
+body.parent-magic-view .for-dig-favorites .text-text-soft,
+body.parent-magic-view .for-dig-recommend .text-navy,
+body.parent-magic-view .for-dig-goal-card .text-navy,
+body.parent-magic-view .for-dig-goal-card .text-text-soft,
+body.parent-magic-view.for-dig-page .text-navy {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.for-dig-page .text-text-soft,
+body.parent-magic-view .for-dig-goal-card .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view .for-dig-suggestion-link {
+  color: rgba(255, 204, 51, 0.9) !important;
+}
+
+body.parent-magic-view .for-dig-badge.for-dig-popular-badge {
+  background: rgba(255, 204, 51, 0.2) !important;
+  color: #ffcc33 !important;
 }
 
 body.parent-magic-view .for-dig-modal {

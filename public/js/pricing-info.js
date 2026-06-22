@@ -53,6 +53,18 @@
       back.textContent = '← Tillbaka till startsidan';
       return;
     }
+    var loggedIn = window.Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn();
+    if (loggedIn) {
+      var ref = document.referrer || '';
+      if (ref.indexOf('/upgrade') !== -1 || params.get('from') === 'upgrade') {
+        back.href = '/upgrade';
+        back.textContent = '← Tillbaka till Extra';
+        return;
+      }
+      back.href = '/dashboard';
+      back.textContent = '← Tillbaka till dashboard';
+      return;
+    }
     var referrer = document.referrer || '';
     if (referrer.indexOf('/upgrade') !== -1) {
       back.href = '/upgrade';

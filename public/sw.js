@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v275';
+const CACHE_NAME = 'stjarndag-v276';
+// v276: iPad magic flash (inline early CSS), För dig contrast, preview back from Extra
 // v275: fix classic→magic flash on parent page navigation
 // v271: tablet magic view — bottom nav + help/feedback layout, upgrade package grid
 // v270: Apple Sign In — visible errors on role-selection, client-log diagnostics, backend [APPLE] logs (build 20)

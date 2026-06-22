@@ -40,6 +40,7 @@ test('program catalog has five programs with total and pedagog last', () => {
 test('pricing-info page uses program catalog (no scarcity counter)', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/pricing-info.html'), 'utf8');
   const js = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
+  assert.match(html, /auth\.js/);
 
   assert.match(html, /program-catalog\.css/);
   assert.match(html, /program-catalog-render\.js/);
@@ -95,8 +96,20 @@ test('guest preview scripts and marketing back navigation', () => {
 test('program-catalog-render adds marketing preview links', () => {
   const src = fs.readFileSync(path.join(ROOT, 'public/js/program-catalog-render.js'), 'utf8');
   assert.match(src, /marketingPreviewHref/);
-  assert.match(src, /from=landing/);
+  assert.match(src, /previewFromContext/);
+  assert.match(src, /\/pricing-info.*pricing/);
   assert.match(src, /program-interest-form/);
+});
+
+test('preview-back keeps logged-in users in app after marketing preview', () => {
+  const previewBack = fs.readFileSync(path.join(ROOT, 'public/js/preview-back.js'), 'utf8');
+  const shellJs = fs.readFileSync(path.join(ROOT, 'public/js/preview-shell.js'), 'utf8');
+  const pricing = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
+  assert.match(previewBack, /from === 'pricing'/);
+  assert.match(previewBack, /from === 'upgrade'/);
+  assert.match(previewBack, /isLoggedIn\(\)/);
+  assert.match(shellJs, /PreviewBack\.apply/);
+  assert.match(pricing, /Auth\.isLoggedIn/);
 });
 
 test('program-catalog-render is shared module', () => {

@@ -32,13 +32,27 @@
     return esc(String(name || '').replace('Familj ', ''));
   }
 
+  function previewFromContext() {
+    if (typeof window === 'undefined') return 'landing';
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('from') === 'landing') return 'landing';
+      var p = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+      if (p === '/pricing-info') return 'pricing';
+      if (p === '/upgrade') return 'upgrade';
+      if (params.get('from') === 'upgrade') return 'upgrade';
+    } catch (_) {}
+    return 'landing';
+  }
+
   function marketingPreviewHref(path) {
     if (!path) return '';
     if (path.indexOf('/pricing-info') === 0) {
       return path.indexOf('?') >= 0 ? path : path.replace('#', '?from=landing#');
     }
+    var from = previewFromContext();
     var sep = path.indexOf('?') >= 0 ? '&' : '?';
-    return path + sep + 'from=landing';
+    return path + sep + 'from=' + from;
   }
 
   function programLinkHref(program) {
