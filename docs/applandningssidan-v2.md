@@ -1,8 +1,8 @@
 <!-- pragma: allowlist secret -->
 # Applandningssidan v2.1 — App Entry Spec
 
-> **Status:** Design / Dev Ready  
-> **Version:** 2.1  
+> **Status:** Design / Dev Ready · låsta beslut 2026-06-22  
+> **Version:** 2.1.1  
 > **Plattform:** iOS / Android native (primärt); webbläsare sekundärt  
 > **Yta:** Entry, inloggning, första vägval, vuxen-/barnflöde före inloggat läge  
 > **Senast uppdaterad:** 2026-06-22
@@ -16,6 +16,16 @@
 > - [`public/child-login.html`](../public/child-login.html) — barninloggning
 > - [`public/js/onboarding.js`](../public/js/onboarding.js) — 6-stegs wizard efter signup
 > - [`public/index.html`](../public/index.html) — webbens marknadsföringssida
+
+---
+
+## Låsta beslut (2026-06-22)
+
+| Beslut | Val |
+|--------|-----|
+| **Skärm 3** | Hybrid: profilväljare → PIN; fallback namn + PIN via "Jag hittar inte mig själv" |
+| **Back från 4B** | → skärm 1 om entry via "Jag har redan konto"; → 4A om entry via rollval |
+| **Plattform** | Native + PWA standalone = full v2.1 · Vanlig webb = `index.html` + `/login` (4B-logik) |
 
 ---
 
@@ -60,7 +70,7 @@ Den nya entryn ska:
 
 1. **Välkomstskärm** — vad appen är · Kom igång · Jag har redan konto
 2. **Rollval** — Jag är barn · Jag är vuxen
-3. **Barninloggning** — namn + PIN
+3. **Barninloggning (hybrid)** — profilväljare + PIN, eller namn + PIN
 4. **Vuxenstart** — redan konto vs ny här → login / signup-intro
 
 ## 2.2 Huvudflöde (v2.1)
@@ -96,7 +106,9 @@ App open
 |----|-------|--------|
 | `ENTRY_WELCOME` | Välkommen | 1 |
 | `ENTRY_ROLE_PICK` | Vem är du? | 2 |
-| `ENTRY_CHILD_LOGIN` | Barnlogin | 3 |
+| `ENTRY_CHILD_LOGIN` | Barnlogin (hybrid) | 3 |
+| `CHILD_PROFILE_PICKER` | Profilväljare (variant A) | 3A |
+| `CHILD_NAME_PIN` | Namn + PIN (variant B) | 3B |
 | `ENTRY_ADULT_START` | Vuxenstart | 4A |
 | `ENTRY_ADULT_LOGIN` | Vuxenlogin | 4B |
 | `ENTRY_ADULT_SIGNUP_INTRO` | Ny vuxen / intro + skapa konto | 5 |
@@ -209,41 +221,135 @@ App open
 
 ---
 
-## 4.3 Skärm 3 — `ENTRY_CHILD_LOGIN`
+## 4.3 Skärm 3 — `ENTRY_CHILD_LOGIN` (hybrid) 🔒 LÅST
 
-**Syfte:** Barnets egen inloggning utan vuxenbrus.
+**Beslut (2026-06-22):** Hybrid — profilväljare först om kända profiler finns; namn + PIN som fallback. **Inte** ren namn+PIN.
+
+**Syfte:** Barnet får en enkel inloggning utan vuxenbrus. Kända barn loggar in snabbt via profil + PIN. Okända/enheter utan cache använder namn + PIN.
+
+### 4.3.1 Beslutslogik
+
+| Visa | Villkor |
+|------|---------|
+| **Variant A — profilväljare** (`CHILD_PROFILE_PICKER`) | Minst 1 barnprofil i `stjarndag_known_children` (localStorage) **eller** från `/api/auth/login-picker-children` |
+| **Variant B — namn + PIN** (`CHILD_NAME_PIN`) | Inga profiler tillgängliga **eller** användaren trycker **Jag hittar inte mig själv** |
+
+**Regler:**
+
+1. Profilväljare är **default** när data finns
+2. Namn + PIN ska **alltid** finnas som fallback
+3. Barn ska **aldrig** skickas till vuxenlogin från skärm 3
+
+**Befintlig kod:** `child-login.js` `loadKnownChildren()` · `renderChildList()` · `handleManualName()` · `clStepProfiles` / `clStepPin`
+
+---
+
+### 4.3.2 Variant A — Profilväljare
+
+| Element | Copy |
+|---------|------|
+| Rubrik | Vem är du? |
+| Brödtext | Välj din profil och skriv din PIN-kod. |
+| Profilgrid | Stora kort: avatar + barnets namn · tydlig touchyta · vald state |
+| PIN | Aktiveras efter profilval · 4 siffror · maskerad |
+| Primär CTA | **Logga in** |
+| Sekundär länk | **Jag hittar inte mig själv** → variant B |
+| Tillbaka | ← Tillbaka → `ENTRY_ROLE_PICK` |
+
+**Auto-select:** Om exakt 1 profil → hoppa direkt till PIN (befintligt `maybeAutoSelectOnlyChild()`).
+
+#### Wireframe 3A
+
+```text
+Vem är du?
+Välj din profil och skriv din PIN-kod.
+
+[ Lova ]   [ Noah ]
+[ Ella ]   [ Liam ]
+
+(vald profil →)
+PIN-kod  [ • • • • ]
+[ Logga in ]
+
+Jag hittar inte mig själv
+Tillbaka
+```
+
+---
+
+### 4.3.3 Variant B — Namn + PIN
 
 | Element | Copy |
 |---------|------|
 | Rubrik | Logga in som barn |
 | Brödtext | Skriv ditt namn och din hemliga PIN-kod. |
 | Fält | Namn · PIN-kod |
-| CTA | **Logga in** |
-| Tillbaka | ← Tillbaka |
+| Primär CTA | **Logga in** |
+| Tillbaka | ← Tillbaka → `ENTRY_ROLE_PICK` *(eller profilväljare om användaren kom via "Jag hittar inte mig själv")* |
 
-### Input-regler
+**Implementation:** Befintlig `handleManualName()` → PIN-steg kan behållas; alternativt ett kombinerat formulär enligt wireframe.
 
-| Fält | Regel |
-|------|-------|
-| Namn | Fri text · max enligt backend · autokapitalisering OK |
-| PIN | Numeriskt tangentbord · maskerad · 4 siffror |
+#### Wireframe 3B
 
-### Felcopy
+```text
+Logga in som barn
+Skriv ditt namn och din hemliga PIN-kod.
+
+Namn       [__________]
+PIN-kod    [ • • • • ]
+[ Logga in ]
+Tillbaka
+```
+
+---
+
+### 4.3.4 State machine (barnlogin)
+
+```text
+CHILD_LOGIN_ENTRY
+  ├─ hasKnownChildProfiles → CHILD_PROFILE_PICKER
+  └─ else                  → CHILD_NAME_PIN
+
+CHILD_PROFILE_PICKER
+  ├─ select_profile    → CHILD_PROFILE_PIN
+  ├─ click_not_me      → CHILD_NAME_PIN
+  └─ back              → ENTRY_ROLE_PICK
+
+CHILD_PROFILE_PIN
+  ├─ submit_success    → CHILD_HOME
+  ├─ submit_error      → stay (inline error)
+  ├─ change_profile    → CHILD_PROFILE_PICKER
+  ├─ click_not_me      → CHILD_NAME_PIN
+  └─ back              → CHILD_PROFILE_PICKER
+
+CHILD_NAME_PIN
+  ├─ submit_success    → CHILD_HOME
+  ├─ submit_error      → stay (inline error)
+  └─ back              → ENTRY_ROLE_PICK (eller CHILD_PROFILE_PICKER)
+```
+
+---
+
+### 4.3.5 Felcopy (båda varianter)
 
 | Fel | Copy |
 |-----|------|
 | Namn tomt | Skriv ditt namn först |
+| Profil ej vald | Välj din profil först |
 | PIN tom | Skriv din PIN-kod |
 | Ogiltigt format | PIN-koden ska vara 4 siffror |
 | Fel namn/PIN | Det gick inte att logga in. Kontrollera namn och PIN och försök igen. |
 | Tekniskt fel | Något gick fel just nu. Försök igen om en liten stund. |
 
-**Får inte innehålla:** Skapa konto · Apple · e-post · förälderkonto
+### 4.3.6 UX vid fel
+
+- Behåll vald profil eller ifyllt namn vid credentials-fel
+- Rensa PIN efter fel
+- **Får inte innehålla:** Skapa konto · Apple · e-post · förälderkonto
 
 | Action | Destination |
 |--------|-------------|
 | Lyckad login | `CHILD_HOME` (`/child/today`) |
-| Tillbaka | `ENTRY_ROLE_PICK` |
 
 ---
 
@@ -379,17 +485,29 @@ Full width · min-höjd 132–156 pt · glasig lila panel · radius 20–24 pt �
 
 # 7. Interaktionsregler, states och felhantering
 
-## 7.1 Back-navigation
+## 7.1 Back-navigation 🔒 LÅST
 
-| Från | Tillbaka till |
-|------|---------------|
-| Skärm 2 | Skärm 1 |
-| Skärm 3 | Skärm 2 |
-| Skärm 4A | Skärm 2 |
-| Skärm 4B | Skärm 4A *(eller Skärm 1 om entry via "Jag har redan konto")* |
-| Skärm 5 | Skärm 4A |
+Back ska gå till **den faktiska väg användaren tog** — spara `entry_path` i state.
 
-Back ska gå till **föregående logiska steg**, inte dumpa till annan auth-yta.
+| Från | Tillbaka till | Villkor |
+|------|---------------|---------|
+| Skärm 2 | Skärm 1 | alltid |
+| Skärm 3 (barn) | Skärm 2 | alltid |
+| Skärm 4A | Skärm 2 | alltid |
+| Skärm 4B | Skärm 1 | om entry via "Jag har redan konto" på skärm 1 |
+| Skärm 4B | Skärm 4A | om entry via skärm 2 → vuxen → "Jag har redan konto" |
+| Skärm 5 | Skärm 4A | alltid |
+| Barnlogin variant B | Skärm 2 eller profilväljare | beroende på hur användaren kom dit |
+
+**Implementation:** `sessionStorage.entry_back_target` eller motsvarande per navigation.
+
+## 7.1.1 Plattform 🔒 LÅST
+
+| Plattform | Entry-flöde |
+|-----------|---------------|
+| **Native (iOS/Android)** | Full v2.1 — `platform-theme.js` redirect till welcome |
+| **PWA standalone** | Som native (`matchMedia standalone`) |
+| **Vanlig webb** | `index.html` = marknadsförstavy · `/login` = samma vuxenloginlogik som 4B · rolllogik kan följa v2.1 över tid |
 
 ## 7.2 Auth avbruten
 
@@ -460,6 +578,9 @@ Alla events: `platform` · `entry_version: v2_1`
 | `child_login_submitted` | Logga in · props: `name_filled`, `pin_length` |
 | `child_login_success` | OK |
 | `child_login_failed` | props: `reason` |
+| `child_login_mode_viewed` | props: `mode` (profile_picker \| name_pin), `profiles_count` |
+| `child_profile_selected` | profil vald i variant A |
+| `child_profile_not_found_clicked` | "Jag hittar inte mig själv" |
 | `adult_start_viewed` | Skärm 4A |
 | `adult_existing_selected` | Jag har redan konto (4A) |
 | `adult_new_selected` | Jag är ny här |
@@ -505,11 +626,12 @@ Alla events: `platform` · `entry_version: v2_1`
 | AC-W5 | "Jag har redan konto" → skärm 4B **direkt** (1 tryck) |
 | AC-R1 | Skärm 2: exakt två rollkort, inga authknappar |
 | AC-R2 | Barn → skärm 3 · Vuxen → skärm 4A |
-| AC-CL1 | Skärm 3: namn + PIN · ingen vuxenfunktion |
-| AC-CL2 | Fel copy enligt §4.3 · namn behålls vid credentials-fel |
+| AC-CL1 | Skärm 3: hybrid — profilväljare om profiler finns, annars namn + PIN |
+| AC-CL2 | "Jag hittar inte mig själv" → variant B utan vuxenlogin |
+| AC-CL3 | Fel copy enligt §4.3.5 · profil/namn behålls vid credentials-fel |
 | AC-AS1 | Skärm 4A: konto vs ny — inga loginmetoder |
 | AC-AL1 | Skärm 4B: plattformsanpassade auth-metoder |
-| AC-AL2 | Back från 4B → 4A eller 1 beroende på entry path |
+| AC-AL2 | Back från 4B → 1 eller 4A beroende på `entry_path` |
 | AC-SI1 | Skärm 5: intro + "Skapa konto kostnadsfritt" |
 | AC-N1 | Alla skärmar utom 1 har back |
 | AC-NF1 | Touch 44×44 pt · WCAG AA · VoiceOver labels · loading/disabled på auth |
@@ -557,7 +679,7 @@ ADULT_AUTH:  success+onboard done→HOME | success+incomplete→ONBOARD | cancel
 |------------|---------------|------------|
 | Skärm 1 | Ny vy eller omstrukturera `login.html` | Ersätter `#role-selection` + `#role-quick-login` |
 | Skärm 2 | `login-magic.js` state | Rollkort finns — flytta auth bort |
-| Skärm 3 | `child-login.html` | Idag: profilväljare "Vem är du?" + PIN — se §12 |
+| Skärm 3 | `child-login.html` + `child-login.js` | **Hybrid låst** — återanvänd profilgrid + PIN + `handleManualName()`; lägg till "Jag hittar inte mig själv" |
 | Skärm 4A | Ny sektion | Finns inte idag |
 | Skärm 4B | `#parent-login-section` i `login.html` | Flytta hit, visa villkorligt |
 | Skärm 5 | Ny sektion eller `/register` intro | Kortare än v2.0:s 3-stegskort |
@@ -590,23 +712,23 @@ ADULT_AUTH:  success+onboard done→HOME | success+incomplete→ONBOARD | cancel
 
 **Rekommendation:** En HTML-fil (`login.html` eller `/app-welcome`) med **vyn per skärm-ID** (show/hide), inte 6 separata routes — mindre SW-cache-yta, enklare back-stack.
 
-## 12.3 Skärm 3 — största gapet mot spec
+## 12.3 Skärm 3 — 🔒 LÅST som hybrid
 
-Befintlig `child-login.html` är **inte** namn + PIN i ett formulär:
+**Beslut:** Profilväljare först · namn + PIN som fallback.
 
-1. **Steg 1:** "Vem är du?" — profilväljare (kända barn på enheten)
-2. **Steg 2:** PIN per valt barn
-3. **Fallback:** manuellt namn om inga profiler finns
+Koden stödjer detta redan i stort:
 
-v2.1 skärm 3 (fritext namn + PIN) är enklare UX men **kräver beslut**:
+| Befintligt | Spec-koppling |
+|------------|---------------|
+| `stjarndag_known_children` (localStorage) | Kvar efter vuxen logout — variant A |
+| `renderChildList()` + `paintChildListCards()` | Profilgrid |
+| `selectChild()` → `clStepPin` | Profil → PIN |
+| `maybeAutoSelectOnlyChild()` | 1 barn → direkt PIN |
+| `handleManualName()` + `clManualNameForm` | Variant B (utöka med "Jag hittar inte mig själv") |
 
-| Alternativ | För | Emot |
-|------------|-----|------|
-| **A)** Behåll profilväljare som skärm 3 | Snabbare för flerbarnsfamilj · redan byggt | Avviker från wireframe |
-| **B)** Fritext namn + PIN enligt spec | Enklare första gång · matchar mockup | Mer typing · duplicerar backend lookup |
-| **C)** Hybrid | Profil om finns, annars namn+fält | Bästa UX — något mer jobb |
+**Implementation delta:** Lägg till länken **Jag hittar inte mig själv** på profilväljaren. Säkerställ att variant B är nåbar även när profiler finns. Entry state machine ska routa skärm 2 → befintlig `/child-login` (eller inbäddad vy).
 
-**Rekommendation:** **C (hybrid)** — specens copy gäller när inga profiler finns; profilgrid när `Auth.persistKnownChildren` har data.
+**Inte göra:** Riv inte profilväljaren till förmån för rent namnfält.
 
 ## 12.4 Skärm 5 + onboarding — duplicera inte
 
@@ -629,15 +751,9 @@ v2.1 skärm 5 ("3 värdepunkter + Skapa konto") är **pre-signup intro** — bra
 
 **Leverans:** Ny liten `app-entry-analytics.js` som POST:ar till befintlig analytics-API (eller utökar den) — planera i sprint 1, inte sprint 4.
 
-## 12.6 Webbläsare vs native
+## 12.6 Webb vs native — 🔒 LÅST
 
-| Plattform | Rekommendation |
-|-----------|----------------|
-| **Native** | Full v2.1 — `platform-theme.js` redirect till welcome |
-| **Webbläsare (ej installerad)** | Behåll `index.html` som landning · `/login` kan förenklas eller följa v2.1 |
-| **PWA standalone** | Behandla som native (`matchMedia standalone`) |
-
-Idag: webbläsare **hoppar över** rollval helt (`isInstalledApp()` → direkt vuxenlogin). v2.1 bör explicit säga om webben följer samma flöde eller behåller marknadssida + enkel login-länk.
+Se §7.1.1. Native + PWA = full v2.1. Webb = marknadssida + `/login` med 4B-logik.
 
 ## 12.7 Grundarprogram-copy på skärm 5
 
@@ -662,7 +778,7 @@ Idag: webbläsare **hoppar över** rollval helt (`isInstalledApp()` → direkt v
 | **P2** | Skärm 5 intro · Skärm 3 hybrid (profil + namn/PIN) |
 | **P3** | "Så fungerar appen" modal · entry analytics · A/B |
 
-**Slutsats:** v2.1-specen är ** välgrundad, implementerbar och bättre anpassad till kodbasen än v2.0** — särskilt genvägen för återkommande vuxna. Största avstämningen är skärm 3 (child-login) och att skärm 5 + onboarding inte dupliceras.
+**Slutsats:** v2.1-specen är **implementerbar** — hybrid skärm 3 var rätt beslut och matchar ~90 % av befintlig `child-login.js`.
 
 ---
 
