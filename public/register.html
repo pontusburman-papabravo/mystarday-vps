@@ -55,8 +55,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <!-- Marketing events (GA4 sign_up + Google Ads) — before cookie-banner -->
+  <script src="/js/marketing-events.js?v=2.13.2"></script>
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
-  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
 </head>
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
   <div class="min-h-screen flex items-center justify-center px-4 py-8">
@@ -447,8 +449,9 @@
           });
           // Token is in httpOnly cookie (set by server). Pass null for token.
           Auth.setAuth(null, loginData.user, loginData.csrfToken, loginData.expiresAt);
-          // Fire Meta Pixel Lead event on successful signup
+          // Fire Meta Pixel Lead + GA4 sign_up + Google Ads conversion on successful signup
           if (window.Pixel) window.Pixel.lead();
+          if (window.MarketingEvents) MarketingEvents.trackSignup('email');
           Auth.redirectToDashboard(); // goes to /onboarding for new accounts
         } catch (error) {
           showError('registerError', error.message || 'Något gick fel. Vänligen försök igen.');
@@ -496,11 +499,13 @@
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
+          if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => Auth.redirectToDashboard(), 300);
         } else if (res.status === 201 && data.user) {
           // New account created via Apple
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
+          if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => window.location.href = '/onboarding', 300);
         } else if (res.status === 409 && (data.error === 'APPLE_EMAIL_EXISTS' || data.error === 'email_conflict')) {
           showError('appleRegisterError', 'Ett konto med denna e-postadress finns redan. ' +

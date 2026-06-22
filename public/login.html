@@ -66,7 +66,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
-  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/marketing-events.js?v=2.13.2"></script>
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
 </head>
 
 <!-- ── "Magisk natt" background ─────────────────────────────────────────────── -->
@@ -703,6 +704,7 @@
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
+          if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           if (window.AppEntry) {
             AppEntry.trackAuthSuccess('apple');
             AppEntry.track('signup_completed', { method: 'apple' });
