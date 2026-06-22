@@ -568,6 +568,8 @@ var Platform = (function () {
       var gallery = await Camera.pickImages({
         quality: nativePhotoQuality(opts),
         limit: 1,
+        width: 1024,
+        height: 1024,
       });
       if (!gallery || !gallery.photos || !gallery.photos.length) return null;
       var webPath = gallery.photos[0].webPath;
@@ -575,18 +577,7 @@ var Platform = (function () {
       var resp = await fetch(webPath);
       if (!resp.ok) return null;
       var blob = await resp.blob();
-      return await new Promise(function (resolve, reject) {
-        var reader = new FileReader();
-        reader.onload = function () {
-          resolve({
-            dataUrl: reader.result,
-            mimeType: blob.type || 'image/jpeg',
-            file: blob,
-          });
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+      return await blobToDataUrlPick(blob);
     } catch (err) {
       console.warn('[Platform.camera] pickImages fallback failed:', err);
       return null;
@@ -599,17 +590,103 @@ var Platform = (function () {
       allowEditing: false,
       resultType: 'base64',
       source: source,
+      width: 1024,
+      height: 1024,
+      correctOrientation: true,
       presentationStyle: 'fullscreen',
       promptLabelHeader: 'Välj foto',
       promptLabelPhoto: 'Från bilder',
       promptLabelPicture: 'Ta foto',
       promptLabelCancel: 'Avbryt',
     });
-    if (!result || !result.base64String) return null;
-    return {
-      dataUrl: 'data:image/jpeg;base64,' + result.base64String,
-      mimeType: 'image/jpeg',
-    };
+    return await photoResultToPick(result);
+  }
+
+  async function photoResultToPick(result) {
+    if (!result) return null;
+    if (result.base64String) {
+      return {
+        dataUrl: 'data:image/jpeg;base64,' + result.base64String,
+        mimeType: 'image/jpeg',
+      };
+    }
+    if (result.dataUrl) {
+      return {
+        dataUrl: result.dataUrl,
+        mimeType: 'image/jpeg',
+      };
+    }
+    if (result.webPath) {
+      var resp = await fetch(result.webPath);
+      if (!resp.ok) return null;
+      var blob = await resp.blob();
+      return blobToDataUrlPick(blob);
+    }
+    return null;
+  }
+
+  function blobToDataUrlPick(blob) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve({
+          dataUrl: reader.result,
+          mimeType: blob.type || 'image/jpeg',
+          file: blob,
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function loadImageFromBlob(blob) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('Kunde inte läsa bilden'));
+      };
+      img.src = url;
+    });
+  }
+
+  /** Resize + JPEG compress so avatar upload stays under 2 MB server limit. */
+  async function compressAvatarBlob(blob) {
+    var maxBytes = 1800000;
+    var maxDim = 1024;
+    if (!blob || !(blob instanceof Blob)) throw new Error('Ogiltig bild');
+    if (blob.size <= maxBytes && /^image\/jpe?g$/i.test(blob.type || '')) {
+      return blob;
+    }
+    var img = await loadImageFromBlob(blob);
+    var w = img.naturalWidth || img.width || 1;
+    var h = img.naturalHeight || img.height || 1;
+    var scale = Math.min(1, maxDim / Math.max(w, h));
+    var cw = Math.max(1, Math.round(w * scale));
+    var ch = Math.max(1, Math.round(h * scale));
+    var canvas = document.createElement('canvas');
+    canvas.width = cw;
+    canvas.height = ch;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Kunde inte bearbeta bilden');
+    ctx.drawImage(img, 0, 0, cw, ch);
+    var quality = 0.88;
+    var compressed = null;
+    while (quality >= 0.45) {
+      compressed = await new Promise(function (resolve) {
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      });
+      if (compressed && compressed.size <= maxBytes) return compressed;
+      quality -= 0.08;
+    }
+    if (compressed) return compressed;
+    throw new Error('Bilden är för stor — prova en mindre bild');
   }
 
   function dataUrlToBlob(dataUrl) {
@@ -738,6 +815,7 @@ var Platform = (function () {
         blob = dataUrlOrResult.file;
         var ext = (dataUrlOrResult.mimeType || '').split('/')[1] || 'jpg';
         if (ext === 'jpeg') ext = 'jpg';
+        if (ext === 'heic' || ext === 'heif') ext = 'jpg';
         filename = 'avatar.' + ext;
       } else if (dataUrlOrResult && dataUrlOrResult.dataUrl) {
         blob = dataUrlToBlob(dataUrlOrResult.dataUrl);
@@ -745,8 +823,11 @@ var Platform = (function () {
         throw new Error('Ingen bild att ladda upp');
       }
 
+      blob = await compressAvatarBlob(blob);
+      var file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+
       var fd = new FormData();
-      fd.append('image', blob, filename);
+      fd.append('image', file, 'avatar.jpg');
 
       async function postAvatar(retry) {
         var authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
@@ -775,7 +856,10 @@ var Platform = (function () {
       }
       if (!result.ok) {
         var err = await result.json().catch(function () { return {}; });
-        throw new Error(err.error || 'Upload misslyckades');
+        if (result.status === 413) {
+          throw new Error('Bilden är för stor (max 2 MB)');
+        }
+        throw new Error(err.error || 'Uppladdning misslyckades (' + result.status + ')');
       }
       var json = await result.json();
       return json.url;

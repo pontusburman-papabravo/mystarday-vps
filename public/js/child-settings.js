@@ -305,7 +305,7 @@ async function changeChildPhoto() {
   const orig = btn.textContent;
   btn.disabled = true; btn.textContent = 'Laddar…';
   try {
-    const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
+    const result = await Platform.camera.pick({ quality: 'medium' });
     if (!result) { btn.disabled = false; btn.textContent = orig; return; }
     if (result.error) {
       showToast(result.error, true);
