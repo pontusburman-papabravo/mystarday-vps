@@ -189,8 +189,10 @@
             }
           }
           showToast('Bild sparad!');
-        } catch (_) {
-          showToast('Kunde inte spara bild', true);
+        } catch (err) {
+          var msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
+          console.error('[child-profile-setup] photo save failed:', msg);
+          showToast(msg, true);
         } finally {
           photoBtn.disabled = false;
           photoBtn.textContent = 'Byt foto';
