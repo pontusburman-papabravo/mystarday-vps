@@ -137,6 +137,14 @@ function registerRoutes(app) {
     res.redirect(302, '/settings#prenumeration');
   });
 
+  app.get('/payment-success', (req, res) => {
+    res.redirect(302, '/settings#prenumeration');
+  });
+
+  app.get('/upgrade/success', (req, res) => {
+    res.redirect(302, '/settings#prenumeration');
+  });
+
   app.get('/child-settings', (req, res) => {
     const id = req.query.id;
     if (id) {

@@ -64,6 +64,78 @@
     { id: 'notifications', href: '/notifications', icon: '🔔', label: 'Notiser' },
   ];
 
+  /** Capability placements — feature-gated deep links (vuxenmeny v2 Sprint 6). */
+  var CAPABILITIES = [
+    {
+      id: 'subscription',
+      label: 'Prenumeration',
+      feature: null,
+      domain: 'billing',
+      href: '/settings#prenumeration',
+      placements: ['settings_subscription', 'home_card', 'avatar_action'],
+    },
+    {
+      id: 'reports',
+      label: 'Rapporter',
+      feature: 'reporting',
+      domain: 'child_progress',
+      href: '/reports',
+      placements: ['planning_hub', 'child_profile', 'rewards_hub', 'home_card'],
+    },
+    {
+      id: 'samarbete',
+      label: 'Pedagogsamarbete',
+      feature: 'pedagog',
+      domain: 'family',
+      href: '/samarbete',
+      placements: ['planning_hub', 'family_pedagog_interest', 'for_you_card'],
+    },
+    {
+      id: 'barn_stod',
+      label: 'Extra stöd',
+      feature: 'teacch',
+      domain: 'child_progress',
+      href: '/barn-stod',
+      placements: ['planning_hub'],
+    },
+  ];
+
+  var AVATAR_ACTIONS = [
+    {
+      id: 'switch_pedagog',
+      label: 'Byt till pedagogvy',
+      feature: 'pedagog',
+      role: 'dual_or_educator',
+    },
+    {
+      id: 'subscription',
+      label: 'Prenumeration',
+      href: '/settings#prenumeration',
+      placement: 'avatar_action',
+    },
+    { id: 'settings', href: '/settings', label: 'Inställningar' },
+    { id: 'logout', action: 'logout', label: 'Logga ut' },
+  ];
+
+  function hasFeatureAccess(access, featureSlug) {
+    if (!featureSlug) return true;
+    if (!access || !access.features) return false;
+    return access.features[featureSlug] === true;
+  }
+
+  function visibleAtPlacement(capability, access, visibility, placement) {
+    if (!capability.placements || capability.placements.indexOf(placement) === -1) return false;
+    if (!hasFeatureAccess(access, capability.feature)) return false;
+    if (visibility && visibility[placement] === false) return false;
+    return true;
+  }
+
+  function capabilitiesForPlacement(access, visibility, placement) {
+    return CAPABILITIES.filter(function (c) {
+      return visibleAtPlacement(c, access, visibility, placement);
+    });
+  }
+
   function normalizePath(pathname) {
     var p = (pathname || '/').replace(/\/$/, '') || '/';
     if (p.endsWith('.html')) p = p.slice(0, -5);
@@ -127,9 +199,14 @@
     PRIMARY_NAV: PRIMARY_NAV,
     SETTINGS_NAV: SETTINGS_NAV,
     HEADER_ACTIONS: HEADER_ACTIONS,
+    CAPABILITIES: CAPABILITIES,
+    AVATAR_ACTIONS: AVATAR_ACTIONS,
     activeNavItem: activeNavItem,
     normalizePath: normalizePath,
     isParentShellPath: isParentShellPath,
     primaryNavForTabs: primaryNavForTabs,
+    hasFeatureAccess: hasFeatureAccess,
+    visibleAtPlacement: visibleAtPlacement,
+    capabilitiesForPlacement: capabilitiesForPlacement,
   };
 })();

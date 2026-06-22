@@ -84,3 +84,66 @@ describe('vuxenmeny v2 — Sprint 3 barnprofil', () => {
     assert.match(src, /tab=setup/);
   });
 });
+
+describe('vuxenmeny v2 — Sprint 4 settings & avatar', () => {
+  it('family.html has no GDPR/delete/PWA/pin sections', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
+    assert.doesNotMatch(html, /familyPwaInstallGuide/);
+    assert.doesNotMatch(html, /parentPinSection/);
+    assert.doesNotMatch(html, /deleteAccountModal/);
+    assert.doesNotMatch(html, /openDeleteAccountModal/);
+    assert.doesNotMatch(html, /Ladda ner min data/);
+  });
+
+  it('settings has prenumeration section and subscription script', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    assert.match(html, /id="prenumeration"/);
+    assert.match(html, /settings-subscription\.js/);
+  });
+
+  it('parent-avatar-menu.js exists and platform-html injects it', () => {
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/js/parent-avatar-menu.js')));
+    const platform = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(platform, /parent-avatar-menu\.js/);
+  });
+
+  it('payment-success redirects to settings prenumeration', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+    assert.match(src, /\/payment-success.*\/settings#prenumeration/s);
+  });
+
+  it('settings-account uses PIN-kod not föräldralås in parent section', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/settings-account.js'), 'utf8');
+    const pinBlock = src.slice(src.indexOf('initParentPinSection'), src.indexOf('function buildParentPinSetForm'));
+    assert.match(pinBlock, /PIN-kod/);
+    assert.doesNotMatch(pinBlock, /Föräldralås/);
+  });
+});
+
+describe('vuxenmeny v2 — Sprint 6 capabilities', () => {
+  it('nav-config exports CAPABILITIES and helpers', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
+    assert.match(src, /CAPABILITIES/);
+    assert.match(src, /AVATAR_ACTIONS/);
+    assert.match(src, /capabilitiesForPlacement/);
+    assert.match(src, /hasFeatureAccess/);
+  });
+
+  it('planning-hub uses capabilitiesForPlacement', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    assert.match(src, /capabilitiesForPlacement/);
+    assert.match(src, /planning_hub/);
+  });
+
+  it('rewards-hub uses capabilitiesForPlacement', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/rewards-hub.js'), 'utf8');
+    assert.match(src, /capabilitiesForPlacement/);
+    assert.match(src, /rewards_hub/);
+  });
+
+  it('native-tab-bar has no Extra or Mer tabs', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
+    assert.doesNotMatch(src, /Extra/);
+    assert.doesNotMatch(src, /\bMer\b/);
+  });
+});
