@@ -57,6 +57,7 @@
     if (isNativeTabBarActive()) {
       var hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
+      if (window.ParentMagicRouter) ParentMagicRouter.bind();
       return;
     }
     var nav = document.getElementById('parentBottomNav');

@@ -37,9 +37,9 @@ body.parent-magic-view {
   color: #f4f4ff;
 }
 
+/* Soft nav: no opacity flash — content swaps instantly */
 body.parent-magic-nav-loading main {
-  opacity: 0.94;
-  transition: opacity 0.12s ease;
+  opacity: 1;
 }
 
 body.parent-magic-view .parent-magic-legacy-hide {

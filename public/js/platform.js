@@ -583,6 +583,70 @@ var Platform = (function () {
     }
   }
 
+  async function pickViaFileInput() {
+    return new Promise(function (resolve) {
+      var settled = false;
+      var picking = true;
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/jpeg,image/png,image/webp,image/*';
+      input.style.cssText = 'position:fixed;left:-9999px;opacity:0;width:1px;height:1px;';
+      document.body.appendChild(input);
+
+      function finish(val) {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timer);
+        window.removeEventListener('focus', onWindowFocus);
+        if (input.parentNode) input.parentNode.removeChild(input);
+        resolve(val);
+      }
+
+      function onWindowFocus() {
+        window.setTimeout(function () {
+          if (!settled && picking && (!input.files || !input.files.length)) finish(null);
+        }, 1000);
+      }
+
+      input.onchange = function () {
+        picking = false;
+        if (!input.files || !input.files[0]) { finish(null); return; }
+        var file = input.files[0];
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          finish({
+            dataUrl: e.target.result,
+            mimeType: file.type || 'image/jpeg',
+            file: file,
+          });
+        };
+        reader.onerror = function () { finish(null); };
+        reader.readAsDataURL(file);
+      };
+
+      var timer = window.setTimeout(function () { finish(null); }, 120000);
+      window.addEventListener('focus', onWindowFocus);
+      input.click();
+    });
+  }
+
+  async function tryCapacitorPick(opts) {
+    var Camera = getCameraPlugin();
+    if (!Camera) return null;
+    var photosOk = await ensurePhotosPermission(Camera, opts);
+    if (!photosOk) {
+      return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+    }
+    return await nativePickWithFallbacks(Camera, opts);
+  }
+
+  function pickErrorMessage(err, stage) {
+    var detail = (err && err.message) ? String(err.message).trim() : '';
+    if (detail && detail.length < 120) {
+      return (stage || 'Kunde inte välja bild') + ': ' + detail;
+    }
+    return stage || 'Kunde inte välja bild. Stäng appen helt och öppna igen.';
+  }
   function isPickCancelled(err) {
     var msg = ((err && err.message) || String(err || '')).toLowerCase();
     return msg.includes('cancel') || msg.includes('cancelled') || msg.includes('canceled');
@@ -802,76 +866,45 @@ var Platform = (function () {
     async pick(opts) {
       opts = opts || {};
       if (isNative()) {
-        var Camera = getCameraPlugin();
-        if (!Camera) {
-          console.error('[Platform.camera] Camera plugin not registered — run cap sync ios');
-          return { error: 'Kameran är inte tillgänglig i appen. Uppdatera till senaste versionen.' };
-        }
-      try {
-          var photosOk = await ensurePhotosPermission(Camera, opts);
-          if (!photosOk) {
-            return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+        var lastErr = null;
+
+        // iOS WKWebView: HTML file input is more reliable than @capacitor/camera.
+        if (isIOS()) {
+          try {
+            var iosFilePick = await pickViaFileInput();
+            if (iosFilePick && !iosFilePick.error) return iosFilePick;
+          } catch (fileErr) {
+            lastErr = fileErr;
+            console.warn('[Platform.camera] iOS file input failed:', fileErr);
           }
-          return await nativePickWithFallbacks(Camera, opts);
+        }
+
+        try {
+          var capacitorPick = await tryCapacitorPick(opts);
+          if (capacitorPick && capacitorPick.error) return capacitorPick;
+          if (capacitorPick) return capacitorPick;
         } catch (err) {
           if (isPickCancelled(err)) return null;
-          if (err && (err.code === 'USER_DID_NOT_GRANT_PERMISSION' || err.code === 'permission-denied')) {
-            return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
-          }
-          var msg = (err && err.message) || '';
-          console.error('[Platform.camera] Pick failed:', msg || err);
-          return { error: 'Kunde inte öppna fotobiblioteket. Försök igen.' };
+          lastErr = err;
+          console.warn('[Platform.camera] Capacitor pick failed:', err);
         }
+
+        if (!isIOS()) {
+          try {
+            var androidFilePick = await pickViaFileInput();
+            if (androidFilePick && !androidFilePick.error) return androidFilePick;
+          } catch (fileErr2) {
+            lastErr = fileErr2;
+          }
+        }
+
+        if (lastErr && (lastErr.code === 'USER_DID_NOT_GRANT_PERMISSION' || lastErr.code === 'permission-denied')) {
+          return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+        }
+        return { error: pickErrorMessage(lastErr, 'Kunde inte öppna fotobiblioteket') };
       }
-      // Web/PWA fallback — file input (iOS Safari: oncancel fires rarely; use focus timeout)
-      return new Promise(function (resolve) {
-        var settled = false;
-        var picking = true;
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/jpeg,image/png,image/webp,image/*';
-        input.style.cssText = 'position:fixed;left:-9999px;opacity:0;width:1px;height:1px;';
-        document.body.appendChild(input);
 
-        function finish(val) {
-          if (settled) return;
-          settled = true;
-          window.clearTimeout(timer);
-          window.removeEventListener('focus', onWindowFocus);
-          if (input.parentNode) input.parentNode.removeChild(input);
-          resolve(val);
-        }
-
-        function onWindowFocus() {
-          window.setTimeout(function () {
-            if (!settled && picking && (!input.files || !input.files.length)) finish(null);
-          }, 1000);
-        }
-
-        input.onchange = function () {
-          picking = false;
-          if (!input.files || !input.files[0]) { finish(null); return; }
-          var file = input.files[0];
-          if (file.size > 2 * 1024 * 1024) {
-            finish({ error: 'Bilden får max vara 2 MB' });
-            return;
-          }
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            finish({
-              dataUrl: e.target.result,
-              mimeType: file.type || 'image/jpeg',
-              file: file,
-            });
-          };
-          reader.onerror = function () { finish(null); };
-          reader.readAsDataURL(file);
-        };
-
-        var timer = window.setTimeout(function () { finish(null); }, 120000);
-        window.addEventListener('focus', onWindowFocus);
-        input.click();
-      });
+      return pickViaFileInput();
     },
 
     /**
@@ -912,16 +945,12 @@ var Platform = (function () {
         var csrf = authObj.getCsrfToken();
         if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
         var headers = { 'X-CSRF-Token': csrf };
-        var transport = isNative() ? postFormDataNative : fetch;
-        if (transport === fetch) {
-          return fetch('/api/upload/avatar', {
-            method: 'POST',
-            credentials: 'include',
-            headers: headers,
-            body: fd,
-          });
-        }
-        return postFormDataNative('/api/upload/avatar', fd, headers);
+        return fetch('/api/upload/avatar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: headers,
+          body: fd,
+        });
       }
 
       var result = await postAvatar(false);

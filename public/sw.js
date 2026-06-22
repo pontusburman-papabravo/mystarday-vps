@@ -207,8 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v288';
-// v288: avatar menu fixed dropdown, family museum polish, simplified child cards
+const CACHE_NAME = 'stjarndag-v289';
+// v289: soft nav for native tab bar, no menu blink on tab switch
 // v284: Applandningssidan v2 — welcome/role/adult entry flow, app-entry.js state machine, child "Jag hittar inte mig själv"
 // v283: avatar upload compress + reports mobile nav header fix (combined deploy)
 // v282: reports mobile — stop injecting sidebar nav into page header

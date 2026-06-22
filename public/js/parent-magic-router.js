@@ -6,6 +6,8 @@
 
   var SOFT_PATHS = {
     '/dashboard': 'dashboard',
+    '/planning': 'planning',
+    '/rewards': 'rewards',
     '/schedule': 'schedule',
     '/for-dig': 'for-dig',
     '/family': 'family',
@@ -33,10 +35,12 @@
     family: [
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',
-      '/js/family-museum.js?v=1.0.0',
+      '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/family.js?v=2.14.0',
     ],
+    planning: [],
+    rewards: [],
     skattkammaren: ['/js/skattkammaren-parent-page.js?v=1'],
     upgrade: [
       '/js/preview-shell.js?v=1.0.0',
@@ -73,11 +77,22 @@
     var newBody = doc.body;
     if (!newBody) return;
     var magic = global.AppViewMode && AppViewMode.isMagic();
-    var classes = Array.from(newBody.classList).filter(function (c) {
-      return c !== 'parent-magic-view' && c.indexOf('parent-magic-page-') !== 0;
+
+    Array.from(global.document.body.classList).forEach(function (c) {
+      if (c.indexOf('parent-magic-page-') === 0) {
+        global.document.body.classList.remove(c);
+      }
     });
-    global.document.body.className = classes.join(' ');
-    if (magic) global.document.body.classList.add('parent-magic-view');
+
+    Array.from(newBody.classList).forEach(function (c) {
+      if (c === 'parent-magic-view' || c.indexOf('parent-magic-page-') === 0) return;
+      global.document.body.classList.add(c);
+    });
+
+    global.document.body.classList.toggle('parent-magic-view', !!magic);
+    if (magic && pageId) {
+      global.document.body.classList.add('parent-magic-page-' + pageId);
+    }
     if (pageId) global.document.body.setAttribute('data-magic-page', pageId);
     else global.document.body.removeAttribute('data-magic-page');
     if (doc.title) global.document.title = doc.title;
@@ -87,8 +102,22 @@
     var newMain = doc.querySelector('main');
     var curMain = global.document.querySelector('main');
     if (!newMain || !curMain) return false;
+
+    var preserveIds = { appViewToggleMount: 1, parentMagicPageMount: 1 };
+
+    Array.from(curMain.children).forEach(function (child) {
+      if (child.id && preserveIds[child.id]) return;
+      if (child.matches && child.matches('[data-parent-nav-header]')) return;
+      child.remove();
+    });
+
+    Array.from(newMain.children).forEach(function (child) {
+      if (child.id && preserveIds[child.id]) return;
+      if (child.matches && child.matches('[data-parent-nav-header]')) return;
+      curMain.appendChild(child.cloneNode(true));
+    });
+
     curMain.className = newMain.className;
-    curMain.innerHTML = newMain.innerHTML;
     return true;
   }
 
@@ -142,7 +171,6 @@
     }
 
     _navigating = true;
-    global.document.body.classList.add('parent-magic-nav-loading');
 
     try {
       var res = await fetch(href, {
@@ -179,6 +207,9 @@
       global.dispatchEvent(new CustomEvent('stjarndag-magic-navigated', {
         detail: { pageId: pageId, path: path },
       }));
+      if (global.NativeTabBar && global.NativeTabBar.updateActiveTabs) {
+        global.NativeTabBar.updateActiveTabs();
+      }
       return true;
     } catch (err) {
       console.warn('[MAGIC-NAV] soft navigation failed, using full load:', err);
@@ -186,13 +217,12 @@
       return false;
     } finally {
       _navigating = false;
-      global.document.body.classList.remove('parent-magic-nav-loading');
     }
   }
 
-  function onLinkClick(e) {
+  function onNavLinkClick(e) {
     if (!shouldSoftNav()) return;
-    var link = e.target.closest('#parentBottomNav a[href]');
+    var link = e.target.closest('#parentBottomNav a[href], .native-tab-bar a.tab-item[href]');
     if (!link) return;
 
     var href = link.getAttribute('href');
@@ -208,7 +238,7 @@
   function bind() {
     if (_bound) return;
     _bound = true;
-    global.document.addEventListener('click', onLinkClick, true);
+    global.document.addEventListener('click', onNavLinkClick, true);
     global.addEventListener('popstate', function (e) {
       if (!shouldSoftNav()) return;
       var path = normalizePath(global.location.pathname);
@@ -226,4 +256,10 @@
     shouldSoftNav: shouldSoftNav,
     SOFT_PATHS: SOFT_PATHS,
   };
+
+  if (global.document.readyState === 'loading') {
+    global.document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
 })(window);
