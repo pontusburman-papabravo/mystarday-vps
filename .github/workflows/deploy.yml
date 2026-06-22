@@ -42,7 +42,8 @@ jobs:
 
             echo "→ Node 20"
             export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-            set +e
+            # nvm.sh is not nounset-safe — disable -e/-u while activating Node
+            set +eu
             if [ -s "$NVM_DIR/nvm.sh" ]; then
               # shellcheck disable=SC1091
               . "$NVM_DIR/nvm.sh"
@@ -56,7 +57,7 @@ jobs:
                 fi
               done
             fi
-            set -e
+            set -eo pipefail
             if ! command -v node >/dev/null 2>&1; then
               echo "node not found — kör: nvm install 20 (som deploy-användaren)"
               exit 1
