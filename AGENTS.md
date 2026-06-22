@@ -45,7 +45,7 @@ Agents **must** use these values (also `.cursor/rules/mystarday-deploy.mdc`):
 | | |
 |--|--|
 | Local Mac | `/Users/pontusburman/mystarday-vps` |
-| VPS SSH | `deploy@server-188-66-60-93` |
+| VPS SSH | `deploy@188.66.60.93` |
 | VPS path | `/var/www/mystarday` |
 | systemd | `mystarday` |
 | URL | `https://mystarday.se` |
