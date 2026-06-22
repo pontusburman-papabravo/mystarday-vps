@@ -36,7 +36,7 @@ const { optionalAuth } = require('../middleware/auth');
 router.get('/skattkammaren', optionalAuth, (req, res) => {
   const forceDemo = req.query.demo === '1';
   if (req.user && req.user.type === 'child' && !forceDemo) {
-    return res.redirect(302, '/child-dashboard#rewards');
+    return res.redirect(302, '/child/world');
   }
   if (forceDemo || !req.user) {
     return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren.html'));

@@ -902,7 +902,7 @@ async function submitLogin() {
       familyId: data.user.familyId || null,
     });
     showSuccess();
-    setTimeout(() => { window.location.href = '/child-dashboard'; }, 1200);
+    setTimeout(() => { window.location.href = '/child/today'; }, 1200);
 
   } catch (err) {
     hideLoading();

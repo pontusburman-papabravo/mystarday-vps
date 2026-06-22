@@ -2648,6 +2648,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       OfflineStore.clearStaleData(7).catch(() => {});
     }
     document.getElementById('childName').textContent = me.name || 'Mitt schema';
+    if (window.ChildWorldsNav && ChildWorlds.V2_ENABLED) ChildWorldsNav.renderBottomNav();
     document.getElementById('childEmoji').textContent = me.emoji || '⭐';
     if (window.ChildTodayFocus) ChildTodayFocus.init(me.name);
     const darkBtn = document.getElementById('childDarkBtn');
@@ -2717,6 +2718,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Init error:', err);
     Auth.clearAuth();
     const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
-    window.location.href = path === '/child-dashboard' ? '/child-login' : '/login';
+    window.location.href =
+      path === '/child-dashboard' || path.indexOf('/child/') === 0 ? '/child-login' : '/login';
   }
 });

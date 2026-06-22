@@ -12,7 +12,7 @@
   }
 
   var path = (window.location.pathname || '').replace(/\/$/, '');
-  if (path === '/child-dashboard' || path === '/child-login') return;
+  if (path === '/child-login' || path.indexOf('/child/') === 0) return;
 
   var LEGACY_TABS = [
     { href: '/dashboard', label: 'Hem', icon: '🏠', paths: ['/dashboard', '/daily-log', '/'] },

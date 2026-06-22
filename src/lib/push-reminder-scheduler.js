@@ -239,7 +239,7 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
           title: `${titlePrefix} om ${minsUntil} minuter! ⭐`,
           body: `Påminnelse för ${child.name}`,
           type: 'schedule_reminder',
-          url: '/child-dashboard',
+          url: '/child/today',
         });
         console.log(`[PUSH-REMINDER] Schedule reminder sent to parent ${parent_id} for child ${child.name}: ${item.activity_name}`);
       }

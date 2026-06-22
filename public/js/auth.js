@@ -188,6 +188,7 @@ const Auth = {
     const childContext =
       (user && user.type === 'child') ||
       path === '/child-dashboard' ||
+      path.indexOf('/child/') === 0 ||
       path === '/child-login';
     window.location.href = childContext ? '/child-login' : '/login';
   },
@@ -399,7 +400,7 @@ const Auth = {
       if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
         DeviceMode.enterChild();
       }
-      window.location.href = '/child-dashboard';
+      window.location.href = '/child/today';
     } else if (user.isAdmin || user.is_admin) {
       if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
         DeviceMode.enterParent();

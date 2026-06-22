@@ -64,3 +64,80 @@ describe('barnmeny v2 — Sprint 1 three-world nav', () => {
     assert.match(src, /ChildWorldsNav/);
   });
 });
+
+describe('barnmeny v2 — Sprint 2 modules', () => {
+  it('child-shell.js orchestrates worlds', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-shell.js'), 'utf8');
+    assert.match(src, /ChildToday/);
+    assert.match(src, /ChildWorld/);
+    assert.match(src, /ChildFamily/);
+    assert.match(src, /child_world_view/);
+  });
+
+  it('engine modules exist', () => {
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/js/child-activity-engine.js')));
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/js/child-rewards-engine.js')));
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/js/child-support-layer.js')));
+  });
+});
+
+describe('barnmeny v2 — Sprint 3 routes', () => {
+  it('index.js registers child world routes and redirect', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+    assert.match(src, /\/child\/today/);
+    assert.match(src, /\/child\/world/);
+    assert.match(src, /\/child\/family/);
+    assert.match(src, /\/child-dashboard.*\/child\/today/s);
+  });
+
+  it('auth redirects child to /child/today', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
+    assert.match(src, /\/child\/today/);
+  });
+});
+
+describe('barnmeny v2 — Sprint 4 coach & support', () => {
+  it('child-today-coach has aria-live', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-today-coach.js'), 'utf8');
+    assert.match(src, /aria-live/);
+    assert.match(src, /today_coach_post_activity/);
+  });
+
+  it('child-support-layer renders substeps', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-support-layer.js'), 'utf8');
+    assert.match(src, /renderSubsteps/);
+    assert.match(src, /Steg/);
+  });
+});
+
+describe('barnmeny v2 — Sprint 5 cleanup', () => {
+  it('child-package-nav deprecated for v2', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-package-nav.js'), 'utf8');
+    assert.match(src, /DEPRECATED/);
+    assert.match(src, /V2_ENABLED/);
+  });
+
+  it('child-layer-router uses ChildWorlds when v2', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-layer-router.js'), 'utf8');
+    assert.match(src, /ChildWorlds/);
+  });
+
+  it('index.js registers child world routes before static-routes', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+    const todayIdx = src.indexOf("app.get('/child/today'");
+    const staticIdx = src.indexOf("require('./static-routes')");
+    assert.ok(todayIdx > 0 && staticIdx > todayIdx, 'child/today must register before static-routes');
+  });
+
+  it('child-worlds labelForWorld supports personal name', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    assert.match(src, /labelForWorld/);
+    assert.match(src, /\{name\}/);
+  });
+
+  it('child-worlds-nav reads childName for labels', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
+    assert.match(src, /childName/);
+    assert.match(src, /labelForWorld/);
+  });
+});

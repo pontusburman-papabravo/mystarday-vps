@@ -44,7 +44,8 @@
     if (path === '/reset-password') {
       return '/reset-password' + qs;
     }
-    if (path === '/child-login' || path === '/child-dashboard') {
+    if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0) {
+      if (path === '/child-dashboard') return '/child/today' + qs;
       return path + qs;
     }
     if (path === '/login' || path === '/dashboard' || path === '/settings') {
