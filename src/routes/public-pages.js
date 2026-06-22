@@ -41,7 +41,10 @@ router.get('/skattkammaren', optionalAuth, (req, res) => {
   if (forceDemo || !req.user) {
     return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren.html'));
   }
-  res.sendFile(path.join(__dirname, '../../public', 'skattkammaren-parent.html'));
+  if (req.user.type !== 'child') {
+    return res.redirect(302, '/rewards');
+  }
+  return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren-parent.html'));
 });
 
 // Registration page

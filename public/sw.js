@@ -207,7 +207,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v273';
+const CACHE_NAME = 'stjarndag-v274';
 // v268: magic view toggle fix + schedule section contrast + classic backfill CTA
 // v267: retroactive star entry discoverability — daily-log date deep-link, home hub backfill CTA, FAQ
 // v265: bottom nav Extra tab (Hem·Schema·För dig·Skatt·Extra·Mer) + nav remount fix

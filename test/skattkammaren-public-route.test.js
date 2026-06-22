@@ -7,12 +7,11 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-test('skattkammaren route serves demo HTML for visitors and demo query', () => {
+test('skattkammaren route redirects logged-in parent to rewards', () => {
   const src = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
   assert.match(src, /forceDemo = req\.query\.demo === '1'/);
+  assert.match(src, /redirect\(302, '\/rewards'\)/);
   assert.match(src, /skattkammaren\.html/);
-  assert.match(src, /skattkammaren-parent\.html/);
-  assert.match(src, /forceDemo \|\| !req\.user/);
 });
 
 test('landing page links to skattkammaren demo', () => {

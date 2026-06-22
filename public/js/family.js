@@ -169,9 +169,13 @@
           ${badges.length > 0 ? `<div class="flex gap-1.5 flex-wrap mb-3">${badges.join('')}</div>` : ''}
 
           <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <a href="/child-settings?child=${child.id}"
+            <a href="/family/child/${child.id}"
                class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">
-              ⚙️ Inställningar
+              🌟 Profil
+            </a>
+            <a href="/family/child/${child.id}?tab=setup"
+               class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-lavender hover:bg-purple-200 dark:bg-navy text-purple-700 dark:text-white text-xs font-semibold rounded-xl transition-colors">
+              ⚙️
             </a>
             <a href="/schedule?child=${child.id}"
                class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-gold hover:bg-yellow-500 text-white text-xs font-semibold rounded-xl transition-colors">
@@ -1189,68 +1193,6 @@
       return years + ' år';
     }
 
-    // ─── GDPR: Delete Account ────────────────────────────
-    function openDeleteAccountModal() {
-      document.getElementById('deleteAccountModal').classList.remove('hidden');
-      document.getElementById('deleteAccountConfirmInput').value = '';
-      document.getElementById('deleteAccountPasswordInput').value = '';
-      document.getElementById('deleteAccountMsg').textContent = '';
-      document.getElementById('deleteAccountBtn').disabled = true;
-      document.getElementById('deleteAccountBtn').classList.add('opacity-50', 'cursor-not-allowed');
-    }
-
-    function closeDeleteAccountModal() {
-      document.getElementById('deleteAccountModal').classList.add('hidden');
-    }
-
-    // Enable button only when user types "RADERA"
-    document.addEventListener('DOMContentLoaded', () => {
-      const confirmInput = document.getElementById('deleteAccountConfirmInput');
-      if (confirmInput) {
-        confirmInput.addEventListener('input', () => {
-          const btn = document.getElementById('deleteAccountBtn');
-          if (confirmInput.value.trim() === 'RADERA') {
-            btn.disabled = false;
-            btn.classList.remove('opacity-50', 'cursor-not-allowed');
-          } else {
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-          }
-        });
-      }
-    });
-
-    async function confirmDeleteAccount() {
-      const confirmVal = document.getElementById('deleteAccountConfirmInput').value.trim();
-      const password = document.getElementById('deleteAccountPasswordInput').value;
-      const msg = document.getElementById('deleteAccountMsg');
-
-      if (confirmVal !== 'RADERA') {
-        msg.textContent = 'Skriv RADERA för att bekräfta.';
-        return;
-      }
-      if (!password) {
-        msg.textContent = 'Ange ditt lösenord.';
-        return;
-      }
-
-      msg.textContent = 'Raderar...';
-      msg.className = 'text-sm text-text-soft mb-3 min-h-[1.2em]';
-
-      try {
-        await Auth.api('/api/account/delete-immediate', {
-          method: 'POST',
-          body: JSON.stringify({ password }),
-        });
-        // Account deleted — clear auth and redirect to start page
-        Auth.clearAuth();
-        window.location.href = '/';
-      } catch (err) {
-        msg.textContent = err.message || 'Något gick fel. Försök igen.';
-        msg.className = 'text-sm text-red-500 mb-3 min-h-[1.2em]';
-      }
-    }
-
     // ─── Keyboard: Escape closes drawer ──────────────────
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeChildDrawer();
@@ -1270,8 +1212,4 @@
     const todayLabel = document.getElementById('todayLabel');
     if (todayLabel) todayLabel.textContent = today.charAt(0).toUpperCase() + today.slice(1);
 
-    // ─── PWA install guide ────────────────────────────────
-    if (window.PWAInstall) {
-      PWAInstall.render(document.getElementById('familyPwaInstallGuide'));
-    }
   
