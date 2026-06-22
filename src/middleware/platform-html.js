@@ -33,6 +33,30 @@ function normalizeHtmlPath(path) {
   return p;
 }
 
+function buildEarlyMagicScriptTag() {
+  const magicPathsJson = JSON.stringify([...PARENT_MAGIC_PATHS]);
+  return (
+    '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
+    'var pages=' + magicPathsJson + ';' +
+    'if(pages.indexOf(p)<0)return;' +
+    'if(localStorage.getItem("stjarndag_parent_ui_view")==="magic")' +
+    '{document.documentElement.classList.add("parent-magic-early");}}catch(e){}})();<\/script>'
+  );
+}
+
+/** Blocking head script — runs before first paint on all parent shell pages. */
+function injectEarlyMagicHtml(body, reqPath) {
+  if (typeof body !== 'string' || !body.includes('<html')) return body;
+  if (body.includes('parent-magic-early-boot')) return body;
+  const path = normalizeHtmlPath(reqPath);
+  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  const headMarker = '<head>';
+  const headIdx = body.indexOf(headMarker);
+  if (headIdx === -1) return body;
+  const script = buildEarlyMagicScriptTag();
+  return body.slice(0, headIdx + headMarker.length) + '\n' + script + '\n' + body.slice(headIdx + headMarker.length);
+}
+
 function injectParentMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
@@ -111,6 +135,7 @@ function injectPlatformHtml(body, reqPath) {
     body = body.slice(0, tailIdx) + bodyInject + body.slice(tailIdx);
   }
 
+  body = injectEarlyMagicHtml(body, reqPath);
   return injectParentMagicHtml(body, reqPath);
 }
 

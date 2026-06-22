@@ -12,6 +12,7 @@
   var _childId = null;
   var _mode = 'classic';
   var _allowed = false;
+  var _optimisticMagic = false;
   var _ready = false;
   var _listeners = [];
 
@@ -60,7 +61,7 @@
   }
 
   function applyBodyClasses() {
-    var magic = _allowed && _mode === 'magic';
+    var magic = _mode === 'magic' && (_allowed || _optimisticMagic);
     document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
     // parent-magic-dashboard is owned by DashboardHomeHub on /dashboard only —
     // do not set it globally or classic↔magic toggle breaks on other pages.
@@ -69,6 +70,27 @@
     }
     document.body.classList.toggle('child-magic-view', _role === 'child' && magic);
     document.body.classList.toggle('child-has-bottom-nav', _role === 'child' && magic);
+    if (_role === 'parent' && magic) {
+      document.documentElement.classList.add('parent-magic-early');
+    } else {
+      document.documentElement.classList.remove('parent-magic-early');
+    }
+  }
+
+  /** Apply stored parent mode before /api/auth/me — avoids classic flash on navigation. */
+  function applyStoredParentModeOptimistic() {
+    var stored = readStorage(PARENT_KEY);
+    if (stored !== 'magic' || !document.body) return false;
+    _role = 'parent';
+    _childId = null;
+    _mode = 'magic';
+    _optimisticMagic = true;
+    applyBodyClasses();
+    updateToggleUi();
+    if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
+      try { ParentMagicShell.refresh(); } catch (_) {}
+    }
+    return true;
   }
 
   function setToggleVisible(visible) {
@@ -101,6 +123,7 @@
   }
 
   function finishInit(modeFromStorage) {
+    _optimisticMagic = false;
     _mode = _allowed ? normalize(modeFromStorage || 'classic') : 'classic';
     _ready = true;
     applyBodyClasses();
@@ -113,8 +136,15 @@
   function initParent() {
     _role = 'parent';
     _childId = null;
+    var stored = readStorage(PARENT_KEY);
+    if (stored === 'magic') {
+      _mode = 'magic';
+      _optimisticMagic = true;
+      applyBodyClasses();
+      updateToggleUi();
+    }
     return fetchAccess().then(function () {
-      return finishInit(readStorage(PARENT_KEY));
+      return finishInit(stored);
     });
   }
 
@@ -143,11 +173,11 @@
   }
 
   function isMagic() {
-    return _allowed && _mode === 'magic';
+    return _mode === 'magic' && (_allowed || _optimisticMagic);
   }
 
   function isClassic() {
-    return !_allowed || _mode === 'classic';
+    return _mode !== 'magic' || (!_allowed && !_optimisticMagic);
   }
 
   function setMode(mode, options) {
@@ -218,7 +248,17 @@
     toggle: toggle,
     onChange: onChange,
     mountToggle: mountToggle,
+    applyStoredParentModeOptimistic: applyStoredParentModeOptimistic,
     uiModeToDb: uiModeToDb,
     dbModeToUi: dbModeToUi,
   };
+
+  // If scripts load after DOM ready, apply optimistic mode immediately.
+  if (document.body && readStorage(PARENT_KEY) === 'magic') {
+    applyStoredParentModeOptimistic();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (readStorage(PARENT_KEY) === 'magic') applyStoredParentModeOptimistic();
+    });
+  }
 })();

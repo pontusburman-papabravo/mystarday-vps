@@ -131,6 +131,9 @@
     if (window.ParentMagicAuto) {
       ParentMagicAuto.prepareDom();
     }
+    if (window.AppViewMode && AppViewMode.applyStoredParentModeOptimistic) {
+      AppViewMode.applyStoredParentModeOptimistic();
+    }
     if (!window.AppViewMode) {
       return loadNavConfig().then(function () {
         refresh();

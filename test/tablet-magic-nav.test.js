@@ -53,4 +53,18 @@ describe('tablet magic navigation', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /apple-sign-in-diagnostics\.js/);
   });
+
+  it('app-view-mode applies optimistic magic before auth/me fetch', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/app-view-mode.js'), 'utf8');
+    assert.match(src, /applyStoredParentModeOptimistic/);
+    assert.match(src, /_optimisticMagic/);
+    assert.match(src, /parent-magic-early/);
+  });
+
+  it('platform-html injects early magic class script in head', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /injectEarlyMagicHtml/);
+    assert.match(src, /parent-magic-early-boot/);
+    assert.match(src, /stjarndag_parent_ui_view/);
+  });
 });

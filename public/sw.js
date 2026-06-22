@@ -207,8 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v274';
-// v274: Apple trace on dashboard — inject diagnostics globally; step_8/9 + fix httpOnly cookie note
+const CACHE_NAME = 'stjarndag-v275';
+// v275: fix classic→magic flash on parent page navigation
 // v271: tablet magic view — bottom nav + help/feedback layout, upgrade package grid
 // v270: Apple Sign In — visible errors on role-selection, client-log diagnostics, backend [APPLE] logs (build 20)
 // v267: retroactive star entry discoverability — daily-log date deep-link, home hub backfill CTA, FAQ

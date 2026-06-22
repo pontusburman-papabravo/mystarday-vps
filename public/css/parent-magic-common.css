@@ -2,6 +2,19 @@
  * parent-magic-common.css — Shared shell for schedule / family / settings magic view.
  */
 
+/* Set in <head> before paint when localStorage prefers magic — prevents classic flash. */
+html.parent-magic-early body {
+  background: #07071a;
+  color: #f4f4ff;
+}
+
+html.parent-magic-early body nav#sidebar,
+html.parent-magic-early body nav.w-full.md\:w-64,
+html.parent-magic-early body .md\:hidden.bg-navy.sticky,
+html.parent-magic-early body .mobile-topbar {
+  display: none !important;
+}
+
 body.parent-magic-view {
   background: #07071a;
   color: #f4f4ff;
