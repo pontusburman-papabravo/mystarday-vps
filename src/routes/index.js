@@ -139,15 +139,24 @@ function registerRoutes(app) {
     'family', 'calendar', 'onboarding', 'child-wizard', 'notifications',
     'planning', 'rewards', 'family-child',
   ];
-  app.get('/upgrade', (req, res) => {
+  app.get('/upgrade', async (req, res) => {
+    const { isBillingUiEnabled } = require('../lib/billing-ui');
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');
   });
 
-  app.get('/payment-success', (req, res) => {
+  app.get('/payment-success', async (req, res) => {
+    const { isBillingUiEnabled } = require('../lib/billing-ui');
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');
   });
 
-  app.get('/upgrade/success', (req, res) => {
+  app.get('/upgrade/success', async (req, res) => {
+    const { isBillingUiEnabled } = require('../lib/billing-ui');
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');
   });
 

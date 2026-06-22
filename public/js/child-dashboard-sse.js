@@ -48,8 +48,11 @@ window.addEventListener('sse:SCHEDULE_UPDATED', () => {
   scheduleSSEReload();
 });
 window.addEventListener('sse:STAR_GRANTED', () => {
-  scheduleSSEReload();    // progress bar may change
-  scheduleSSEStarReload(); // star balance definitely changes
+  scheduleSSEReload();
+  scheduleSSEStarReload();
+  if (window.ChildStarFeedback && typeof ChildStarFeedback.onStarGranted === 'function') {
+    ChildStarFeedback.onStarGranted();
+  }
   if (window.ChildRewardsEngine && typeof ChildRewardsEngine.flashStarEconomy === 'function') {
     ChildRewardsEngine.flashStarEconomy();
   }

@@ -69,6 +69,7 @@
         if (user.preferred_view_mode === 'pedagog') continue;
       }
       if (action.id === 'subscription' && isNativeShell()) continue;
+      if (action.id === 'subscription' && window.BillingUi && !window.BillingUi.isEnabled()) continue;
       if (action.feature && NavConfig.hasFeatureAccess) {
         var access = window._packageAccess;
         if (!NavConfig.hasFeatureAccess(access, action.feature)) continue;
@@ -213,8 +214,11 @@
     bar.appendChild(wrap);
   }
 
-  function boot() {
+  async function boot() {
     if (!Auth.isLoggedIn()) return;
+    if (window.BillingUi && BillingUi.refresh) {
+      try { await BillingUi.refresh(); } catch (_) { /* ignore */ }
+    }
     var user = Auth.getUser();
     renderAvatar(user);
   }

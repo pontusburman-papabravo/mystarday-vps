@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const { hasAccess } = require('../../db/features');
+const { isBillingUiEnabled } = require('../lib/billing-ui');
 
 // Privacy policy
 router.get('/privacy', (req, res) => {
@@ -52,8 +53,10 @@ router.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'register.html'));
 });
 
-// Founder program info (linked from /upgrade, login, landing)
-router.get('/pricing-info', (req, res) => {
+// Founder program info — gated until billing UI enabled (Apple review freeze)
+router.get('/pricing-info', async (req, res) => {
+  const billingOk = await isBillingUiEnabled();
+  if (!billingOk) return res.redirect(302, '/dashboard');
   res.sendFile(path.join(__dirname, '../../public', 'pricing-info.html'));
 });
 

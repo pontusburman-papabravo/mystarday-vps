@@ -22,6 +22,12 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <style>
+    .toggle-track { position:relative;width:44px;height:24px;background:#EDE7F6;border-radius:12px;cursor:pointer;transition:background .2s; }
+    .toggle-track.on { background:#F5A623; }
+    .toggle-thumb { position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15); }
+    .toggle-track.on .toggle-thumb { transform:translateX(20px); }
+  </style>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
@@ -56,8 +62,10 @@
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
   <script src="/js/nav-config.js?v=1"></script>
+  <script src="/js/platform.js?v=2.13.0"></script>
   <script src="/js/pending-approvals.js?v=1"></script>
-  <script src="/js/child-profile.js?v=1.1.0"></script>
+  <script src="/js/child-profile-setup.js?v=1"></script>
+  <script src="/js/child-profile.js?v=1.2.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/parent-magic-bootstrap.js?v=1"></script>

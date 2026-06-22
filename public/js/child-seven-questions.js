@@ -80,7 +80,7 @@
       ? `<button type="button" class="teacch-read-btn" onclick="ChildReadAloud.speakNow('${item.id}')">🔊 Läs upp</button>`
       : '';
 
-    const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildPackageNav.setNavHidden(false);location.reload()">Avsluta aktivitet</button>`;
+    const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildSevenQuestions.exitNu()">Avsluta aktivitet</button>`;
 
     return `
       <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}">
@@ -96,5 +96,15 @@
       </div>`;
   }
 
-  global.ChildSevenQuestions = { tryRender, ready: () => readyPromise };
+  function exitNu() {
+    if (global.ChildPackageNav) ChildPackageNav.setNavHidden(false);
+    document.body.classList.remove('child-teacch-nu-active');
+    if (typeof global.loadDay === 'function' && global.currentDate) {
+      global.loadDay(global.currentDate, false);
+      return;
+    }
+    location.reload();
+  }
+
+  global.ChildSevenQuestions = { tryRender, ready: () => readyPromise, exitNu: exitNu };
 })(window);

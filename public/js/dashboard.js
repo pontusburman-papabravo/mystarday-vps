@@ -588,7 +588,6 @@ async function loadChildren() {
   }
 }
 
-// ── Dashboard cards (new layout) ─────────────────────────
 async function loadDashboardCards() {
   try {
     const res = await window.apiFetch('/api/family/dashboard-stats');
@@ -598,6 +597,9 @@ async function loadDashboardCards() {
     }
     dashboardStats = await res.json();
     renderDashboardCards();
+    if (window.HomeBumpTime && typeof HomeBumpTime.render === 'function') {
+      HomeBumpTime.render(dashboardStats);
+    }
   } catch (e) {
     console.error('[DASHBOARD] loadDashboardCards failed:', e);
   }
@@ -995,7 +997,7 @@ function renderDashboardCards() {
       activityListHtml = `
         <div class="text-xs text-text-soft text-center py-2 mb-2">Inget schema för idag</div>
         <div class="text-center mb-1">
-          <button onclick="event.stopPropagation(); openCreateActivityModal('')" class="text-xs text-gold hover:text-amber-600 font-semibold transition-colors">✨ Skapa ny aktivitet</button>
+          <a href="/schedule?child=${c.id}" onclick="event.stopPropagation()" class="text-xs text-gold hover:text-amber-600 font-semibold transition-colors">✨ Skapa aktivitet i schema →</a>
         </div>
         <p class="text-[10px] text-text-soft text-center leading-tight">${escHtml(name)} har inga aktiviteter ännu — skapa den första →</p>`;
     } else {
@@ -1154,9 +1156,9 @@ function renderDashboardCards() {
               <button class="text-xs text-gold hover:text-amber-600 font-semibold transition-colors" onclick="openDashboardAddForChild('${c.id}')">
                 + Aktivitet
               </button>
-              <button class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors" onclick="event.stopPropagation(); openCreateActivityModal('')">
-                ✨ Skapa ny
-              </button>
+              <a href="/schedule?child=${c.id}" onclick="event.stopPropagation()" class="text-xs text-purple-600 hover:text-purple-800 font-semibold transition-colors">
+                ✨ Skapa i schema →
+              </a>
               <button class="text-xs text-text-soft hover:text-navy font-semibold transition-colors" onclick="window.location.href='/schedule?child=${c.id}'">
                 Schema →
               </button>

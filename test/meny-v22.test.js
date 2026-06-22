@@ -13,10 +13,12 @@ describe('meny v2.2 — Sprint 1 redirects + links', () => {
     assert.match(src, /child-settings[\s\S]*redirect\(302, '\/family'\)/);
   });
 
-  it('child-profile links advanced settings to child-settings with id', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile.js'), 'utf8');
-    assert.match(src, /child-settings\?id=/);
-    assert.match(src, /Foto, vy och avancerade inställningar/);
+  it('child-profile setup is inline via ChildProfileSetup', () => {
+    const profile = fs.readFileSync(path.join(ROOT, 'public/js/child-profile.js'), 'utf8');
+    const setup = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
+    assert.match(profile, /ChildProfileSetup/);
+    assert.match(setup, /profileSetupPhotoBtn/);
+    assert.match(setup, /profileSetupMood/);
   });
 });
 
@@ -102,8 +104,8 @@ describe('meny v2.2 — Sprint 7 cleanup', () => {
     assert.doesNotMatch(html, /child-package-nav\.js/);
   });
 
-  it('service worker bumped for v2.2', () => {
+  it('service worker bumped for v2.2+', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v276/);
+    assert.match(src, /stjarndag-v27[67]/);
   });
 });

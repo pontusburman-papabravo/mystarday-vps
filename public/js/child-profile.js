@@ -63,6 +63,11 @@
     if (!childRes.ok) throw new Error('Barn hittades inte');
     child = await childRes.json();
 
+    try {
+      var vcRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/view-config');
+      if (vcRes.ok) child.child_view_config = await vcRes.json();
+    } catch (_) { /* optional */ }
+
     var goalsRes = await window.apiFetch('/api/rewards/goals');
     if (goalsRes.ok) {
       var goalsData = await goalsRes.json();
@@ -71,7 +76,7 @@
   }
 
   function pinSetupHtml() {
-    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4" id="profilePinBlock">' +
       '<p class="font-semibold text-navy mb-2">PIN-kod (4 siffror)</p>' +
       '<div class="flex gap-2 justify-center mb-3" id="profilePinDots">' +
       [0, 1, 2, 3].map(function () {
@@ -85,8 +90,7 @@
       }).join('') +
       '</div>' +
       '<button type="button" id="profilePinSave" class="w-full p-3 bg-gold text-navy rounded-xl font-bold" disabled>Spara PIN</button>' +
-      '</div>' +
-      '<a href="/child-settings?id=' + encodeURIComponent(childId) + '" class="block text-sm text-gold font-semibold mb-2">Foto, vy och avancerade inställningar →</a>';
+      '</div>';
   }
 
   function renderPinDots() {
@@ -204,8 +208,7 @@
       return '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 bg-gold text-white rounded-xl font-bold text-center">Öppna daglig logg →</a>';
     }
     if (tab === 'schema') {
-      return '<p class="text-text-soft mb-4">Redigera veckoschema för ' + esc(child.name) + '.</p>' +
-        '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna veckoschema →</a>';
+      return '<div id="profileSchemaBody">Laddar schema…</div>';
     }
     if (tab === 'rewards') {
       return '<div id="profileRewardsBody">Laddar…</div>';
@@ -214,7 +217,7 @@
       return '<div id="profileProgressBody">Laddar…</div>';
     }
     if (tab === 'setup') {
-      return pinSetupHtml();
+      return '<div id="childProfileSetupBody">Laddar…</div>';
     }
     if (tab === 'child-view') {
       return '<p class="text-text-soft mb-4">Låt barnet logga in på denna enhet.</p>' +
@@ -266,30 +269,48 @@
       });
     }
 
+    if (tab === 'schema') {
+      if (window.ChildProfileSetup) {
+        ChildProfileSetup.schemaSummaryHtml(childId, child.name).then(function (html) {
+          var el = document.getElementById('profileSchemaBody');
+          if (el) el.innerHTML = html;
+        });
+      }
+    }
+
     if (tab === 'setup') {
       pinBuffer = '';
-      mount.querySelectorAll('[data-pin-digit]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var d = btn.getAttribute('data-pin-digit');
-          if (d === '⌫') pinBuffer = pinBuffer.slice(0, -1);
-          else if (pinBuffer.length < 4) pinBuffer += d;
-          renderPinDots();
-        });
-      });
-      var pinSave = document.getElementById('profilePinSave');
-      if (pinSave) {
-        pinSave.addEventListener('click', async function () {
-          if (pinBuffer.length !== 4) return;
-          var res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/pin', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pin: pinBuffer }),
+      var viewConfig = child.child_view_config || child.view_config || {};
+      function wirePin() {
+        mount.querySelectorAll('[data-pin-digit]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var d = btn.getAttribute('data-pin-digit');
+            if (d === '⌫') pinBuffer = pinBuffer.slice(0, -1);
+            else if (pinBuffer.length < 4) pinBuffer += d;
+            renderPinDots();
           });
-          if (!res.ok) { var e = await res.json(); showToast(e.error || 'Kunde inte spara PIN', true); return; }
-          showToast('PIN sparad!');
-          pinBuffer = '';
-          renderPinDots();
         });
+        var pinSave = document.getElementById('profilePinSave');
+        if (pinSave) {
+          pinSave.addEventListener('click', async function () {
+            if (pinBuffer.length !== 4) return;
+            var res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/pin', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ pin: pinBuffer }),
+            });
+            if (!res.ok) { var e = await res.json(); showToast(e.error || 'Kunde inte spara PIN', true); return; }
+            showToast('PIN sparad!');
+            pinBuffer = '';
+            renderPinDots();
+          });
+        }
+      }
+      if (window.ChildProfileSetup) {
+        ChildProfileSetup.wireSetup(child, viewConfig, pinSetupHtml(), wirePin);
+      } else {
+        mount.innerHTML = pinSetupHtml();
+        wirePin();
       }
     }
 

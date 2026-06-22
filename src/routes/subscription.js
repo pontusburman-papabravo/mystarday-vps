@@ -11,6 +11,7 @@ const { validate } = require('../middleware/validate');
 const familySubscriptions = require('../../db/family-subscriptions');
 const packageInterest = require('../../db/package-interest');
 const appSettings = require('../../db/app-settings');
+const { isBillingUiEnabled } = require('../lib/billing-ui');
 const analytics = require('../../db/analytics');
 const { getFamilyAccess } = require('../lib/package-access');
 const { getAllPreviewPackages } = require('../../config/preview-data');
@@ -119,6 +120,7 @@ router.get('/status', requireParent, async (req, res) => {
     const familyId = req.user.familyId || req.user.family_id;
     const sub = await familySubscriptions.getByFamilyId(familyId);
     const payment_enabled = await appSettings.getPaymentEnabled();
+    const billing_ui_enabled = await isBillingUiEnabled();
     const price = await appSettings.getBasicPrice();
 
     if (!sub) {
@@ -128,9 +130,10 @@ router.get('/status', requireParent, async (req, res) => {
         trial_expired: false,
         components: [{ component: 'basic_app', expires_at: null }],
         payment_enabled,
+        billing_ui_enabled,
         iap_enabled: payment_enabled,
-        upgrade_url: '/upgrade',
-        price_monthly_sek: price || 59,
+        upgrade_url: billing_ui_enabled ? '/upgrade' : null,
+        price_monthly_sek: billing_ui_enabled ? (price || 59) : null,
       });
     }
 
@@ -149,9 +152,12 @@ router.get('/status', requireParent, async (req, res) => {
       trial_expires_at: sub.trial_expires_at || null,
       components: sub.components || [],
       payment_enabled,
+      billing_ui_enabled,
       iap_enabled: payment_enabled,
-      upgrade_url: '/upgrade',
-      price_monthly_sek: price || STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59,
+      upgrade_url: billing_ui_enabled ? '/upgrade' : null,
+      price_monthly_sek: billing_ui_enabled
+        ? (price || STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59)
+        : null,
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] status error:', err);

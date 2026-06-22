@@ -54,17 +54,17 @@
         '<p class="text-sm font-semibold text-navy mb-1">' + tierLabel(status.tier) + '</p>' +
         '<p class="text-sm text-text-soft mb-4">' + tierDescription(status) + '</p>';
 
-      if (status.tier === 'trial' && !status.trial_expired && status.payment_enabled) {
+      if (status.tier === 'trial' && !status.trial_expired && status.billing_ui_enabled) {
         html +=
           '<a href="/pricing-info" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">' +
           'Se paket och priser</a>';
-      } else if (status.tier !== 'lifetime_free' && status.payment_enabled) {
+      } else if (status.tier !== 'lifetime_free' && status.billing_ui_enabled) {
         html +=
           '<a href="/pricing-info" class="inline-flex items-center gap-2 px-5 py-2.5 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors">' +
           'Hantera prenumeration</a>';
       }
 
-      if (window.fetchPackageAccess) {
+      if (status.billing_ui_enabled && window.fetchPackageAccess) {
         try {
           var access = await window.fetchPackageAccess();
           if (access && access.rollout_mode && access.rollout_mode !== 'off') {
