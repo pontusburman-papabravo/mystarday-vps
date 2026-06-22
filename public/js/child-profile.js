@@ -256,9 +256,13 @@
       rewardsTabHtml().then(function (html) {
         var el = document.getElementById('profileRewardsBody');
         if (el) el.innerHTML = html;
+        if (window.PendingApprovals) PendingApprovals.bindRowActions(mount);
         mount.querySelectorAll('[data-action]').forEach(function (btn) {
           btn.addEventListener('click', onQuickAction);
         });
+      }).catch(function () {
+        var el = document.getElementById('profileRewardsBody');
+        if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda belöningar.</p>';
       });
     }
 
@@ -266,6 +270,9 @@
       progressTabHtml().then(function (html) {
         var el = document.getElementById('profileProgressBody');
         if (el) el.innerHTML = html;
+      }).catch(function () {
+        var el = document.getElementById('profileProgressBody');
+        if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda framsteg.</p>';
       });
     }
 
@@ -274,6 +281,9 @@
         ChildProfileSetup.schemaSummaryHtml(childId, child.name).then(function (html) {
           var el = document.getElementById('profileSchemaBody');
           if (el) el.innerHTML = html;
+        }).catch(function () {
+          var el = document.getElementById('profileSchemaBody');
+          if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda schema.</p>';
         });
       }
     }
@@ -299,7 +309,12 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ pin: pinBuffer }),
             });
-            if (!res.ok) { var e = await res.json(); showToast(e.error || 'Kunde inte spara PIN', true); return; }
+            if (!res.ok) {
+              var e = {};
+              try { e = await res.json(); } catch (_) { /* non-json */ }
+              showToast(e.error || 'Kunde inte spara PIN', true);
+              return;
+            }
             showToast('PIN sparad!');
             pinBuffer = '';
             renderPinDots();
@@ -359,6 +374,8 @@
     if (!res.ok) { showToast('Kunde inte ge stjärnor', true); return; }
     document.getElementById('manualStarModal').classList.add('hidden');
     showToast('Stjärnor givna!');
+    await loadData();
+    render();
   }
 
     async function boot() {

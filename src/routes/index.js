@@ -9,6 +9,7 @@
  * @param {import('express').Express} app
  */
 function registerRoutes(app) {
+  const { isBillingUiEnabled } = require('../lib/billing-ui');
   // ─── API Routes ───────────────────────────────────────────
 
   // Mount /api/me routes FIRST so child-self endpoints (daily-log, rewards, goals, ratings)
@@ -140,21 +141,18 @@ function registerRoutes(app) {
     'planning', 'rewards', 'family-child',
   ];
   app.get('/upgrade', async (req, res) => {
-    const { isBillingUiEnabled } = require('../lib/billing-ui');
     const billingOk = await isBillingUiEnabled();
     if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');
   });
 
   app.get('/payment-success', async (req, res) => {
-    const { isBillingUiEnabled } = require('../lib/billing-ui');
     const billingOk = await isBillingUiEnabled();
     if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');
   });
 
   app.get('/upgrade/success', async (req, res) => {
-    const { isBillingUiEnabled } = require('../lib/billing-ui');
     const billingOk = await isBillingUiEnabled();
     if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');

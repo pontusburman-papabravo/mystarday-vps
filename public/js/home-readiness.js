@@ -28,6 +28,20 @@
     }
   }
 
+  /** priority 0–1 = urgent/warning; 2+ informational */
+  function isWarningItem(item) {
+    return item.priority != null ? item.priority <= 1 : (
+      item.type === 'pending_invite' ||
+      item.type === 'pending_approval' ||
+      item.type === 'incomplete_past_days'
+    );
+  }
+
+  function filterItems(items) {
+    if (!warningsOnlyEnabled()) return items;
+    return items.filter(isWarningItem);
+  }
+
   function renderCard(item) {
     return '<a href="' + esc(item.href) + '" data-readiness-type="' + esc(item.type) + '" data-child-id="' + esc(item.child_id || '') + '" class="block p-4 mb-3 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors">' +
       '<p class="font-semibold text-navy">' + esc(item.title) + '</p>' +
@@ -55,6 +69,7 @@
       if (!res.ok) return;
       var data = await res.json();
       var items = data.items || [];
+      items = filterItems(items);
       if (!items.length) {
         mount.classList.add('hidden');
         return;
@@ -77,6 +92,7 @@
           try {
             localStorage.setItem(FILTER_KEY, filterEl.checked ? '1' : '0');
           } catch (_) { /* ignore */ }
+          load();
           if (typeof window.renderDashboardCards === 'function') {
             window.renderDashboardCards();
           }

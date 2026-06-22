@@ -102,11 +102,18 @@
     if (!world) return '';
     var ctx = context || {};
     var labels = world.labels || {};
-    if (ctx.ageBand === 'young' && labels.young) return labels.young;
-    if (ctx.childName && labels.personal) {
-      return labels.personal.replace('{name}', ctx.childName);
+    var raw;
+    if (ctx.ageBand === 'young' && labels.young) raw = labels.young;
+    else if (ctx.childName && labels.personal) {
+      raw = labels.personal.replace('{name}', ctx.childName);
+    } else {
+      raw = labels.default || world.id;
     }
-    return labels.default || world.id;
+    if (typeof window.escHtml === 'function') return window.escHtml(raw);
+    if (typeof window.escapeHtml === 'function') return window.escapeHtml(raw);
+    var d = document.createElement('div');
+    d.textContent = raw || '';
+    return d.innerHTML;
   }
 
   window.ChildWorlds = {

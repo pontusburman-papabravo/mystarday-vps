@@ -17,6 +17,7 @@
   }
 
   root.escapeHtml = escapeHtml;
+  root.escHtml = escapeHtml;
 
   // ── renderChildAvatar ─────────────────────────────────────────────────────────
   // Fallback chain: avatar_url → emoji → ⭐

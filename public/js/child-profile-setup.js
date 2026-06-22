@@ -6,9 +6,24 @@
 
   var DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
 
+  var _wiring = false;
+
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  }
+
+  function safeAvatarUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    var trimmed = url.trim();
+    if (!trimmed) return false;
+    if (trimmed.indexOf('/') === 0) return true;
+    try {
+      var parsed = new URL(trimmed, window.location.origin);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch (_) {
+      return false;
+    }
   }
 
   function toggleRow(id, label, sub, on) {
@@ -21,7 +36,7 @@
 
   function setupHtml(child, viewConfig) {
     var vm = viewConfig || {};
-    var avatar = child.avatar_url
+    var avatar = safeAvatarUrl(child.avatar_url)
       ? '<img src="' + esc(child.avatar_url) + '" alt="" class="w-16 h-16 rounded-full object-cover ring-2 ring-gold" id="profileSetupAvatar">'
       : '<span class="text-5xl" id="profileSetupEmoji">' + esc(child.emoji || '⭐') + '</span>';
     return '<div class="space-y-4">' +
@@ -133,8 +148,10 @@
   }
 
   async function wireSetup(child, viewConfig, pinSetupHtml, onPinWire) {
+    if (_wiring) return;
+    _wiring = true;
     var mount = document.getElementById('childProfileSetupBody');
-    if (!mount) return;
+    if (!mount) { _wiring = false; return; }
     mount.innerHTML = pinSetupHtml + setupHtml(child, viewConfig);
     if (onPinWire) onPinWire();
 
@@ -153,10 +170,12 @@
           photoBtn.disabled = true;
           photoBtn.textContent = 'Laddar upp…';
           var url = await Platform.camera.upload(result);
+          if (!safeAvatarUrl(url)) throw new Error('unsafe url');
           var res = await saveChildField(child.id, 'avatar_url', url);
           if (!res.ok) throw new Error('upload');
           var updated = await res.json();
           child.avatar_url = updated.avatar_url || url;
+          if (!safeAvatarUrl(child.avatar_url)) throw new Error('unsafe url');
           var img = document.getElementById('profileSetupAvatar');
           if (img) img.src = child.avatar_url;
           else {
@@ -215,6 +234,7 @@
         else { viewConfig.minimal_ui = on; showToast('Sparat'); }
       });
     }
+    _wiring = false;
   }
 
   async function schemaSummaryHtml(childId, childName) {

@@ -14,6 +14,11 @@ describe('meny v2.5 — KX4 star feedback', () => {
     assert.match(src, /onStarGranted/);
   });
 
+  it('child-star-feedback escapes reason text', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-star-feedback.js'), 'utf8');
+    assert.match(src, /escHtml/);
+  });
+
   it('SSE STAR_GRANTED triggers ChildStarFeedback', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-sse.js'), 'utf8');
     assert.match(src, /ChildStarFeedback\.onStarGranted/);
@@ -36,8 +41,8 @@ describe('meny v2.5 — TEACCH exit without child-package-nav reload hack', () =
 });
 
 describe('meny v2.5 — SW bump', () => {
-  it('service worker v277', () => {
+  it('service worker v278', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v277/);
+    assert.match(src, /stjarndag-v278/);
   });
 });

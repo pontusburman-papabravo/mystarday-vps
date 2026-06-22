@@ -8,6 +8,7 @@
 
   var NAV_BTN_CLASS = 'child-bottom-nav-btn';
   var LEGACY_BTN_CLASS = 'flex-1 py-3 text-sm font-semibold border-b-2';
+  var _initialized = false;
 
   function labelContext() {
     var nameEl = document.getElementById('childName');
@@ -144,9 +145,13 @@
   }
 
   function init() {
+    if (_initialized) {
+      renderBottomNav();
+      return;
+    }
+    _initialized = true;
     applyV2Chrome();
     renderBottomNav();
-    renderLegacyTopNav();
   }
 
   window.ChildWorldsNav = {

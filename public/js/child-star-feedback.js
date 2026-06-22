@@ -18,7 +18,7 @@
       '<div class="child-star-feedback-card">' +
       '<div class="child-star-feedback-burst" aria-hidden="true">✨</div>' +
       '<p class="child-star-feedback-count">+' + (starCount || 1) + ' ⭐</p>' +
-      '<p class="child-star-feedback-reason">' + String(reason || 'Bonus-stjärnor!').replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</p>' +
+      '<p class="child-star-feedback-reason">' + (typeof window.escHtml === 'function' ? window.escHtml(reason || 'Bonus-stjärnor!') : String(reason || 'Bonus-stjärnor!').replace(/&/g, '&amp;').replace(/</g, '&lt;')) + '</p>' +
       '</div>';
 
     document.body.appendChild(overlay);

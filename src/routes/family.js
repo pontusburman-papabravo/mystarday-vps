@@ -1366,7 +1366,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     );
     const incompleteMap = {};
     for (const row of incompleteRes.rows) {
-      incompleteMap[row.child_id] = (incompleteMap[row.child_id] || 0) + 1;
+      incompleteMap[row.child_id] = parseInt(row.incomplete_days, 10) || 0;
     }
 
     let pendingInviteCount = 0;

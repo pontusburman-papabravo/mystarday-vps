@@ -32,12 +32,13 @@
       '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
       '<p class="text-sm font-semibold text-navy mb-3">⏱ Justera tid idag</p>' +
       children.map(function (c) {
+        var hasUndo = !!snapshots[c.today_log_id];
         return '<div class="flex items-center justify-between gap-2 py-2 border-b border-lavender last:border-0" data-bump-child="' + esc(c.id) + '">' +
           '<span class="text-sm font-semibold text-navy truncate">' + esc(c.emoji || '⭐') + ' ' + esc(c.name) + '</span>' +
           '<div class="flex gap-1 flex-shrink-0">' +
           '<button type="button" class="px-3 py-2 bg-sky rounded-lg text-xs font-bold text-navy min-h-[40px]" data-bump-min="15" data-log-id="' + esc(c.today_log_id) + '">+15</button>' +
           '<button type="button" class="px-3 py-2 bg-sky rounded-lg text-xs font-bold text-navy min-h-[40px]" data-bump-min="30" data-log-id="' + esc(c.today_log_id) + '">+30</button>' +
-          '<button type="button" class="px-2 py-2 bg-lavender rounded-lg text-xs font-semibold text-text-soft min-h-[40px] opacity-60" data-bump-undo data-log-id="' + esc(c.today_log_id) + '" disabled>↩</button>' +
+          '<button type="button" class="px-2 py-2 bg-lavender rounded-lg text-xs font-semibold text-text-soft min-h-[40px]' + (hasUndo ? '' : ' opacity-60') + '" data-bump-undo data-log-id="' + esc(c.today_log_id) + '"' + (hasUndo ? '' : ' disabled') + '>↩</button>' +
           '</div></div>';
       }).join('') +
       '</div>';

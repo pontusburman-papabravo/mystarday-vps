@@ -331,7 +331,7 @@ function applyChildViewChrome() {
       legacyNav.classList.add('hidden');
       legacyNav.setAttribute('aria-hidden', 'true');
     }
-    if (window.ChildWorldsNav) ChildWorldsNav.init();
+    if (window.ChildWorldsNav) ChildWorldsNav.renderBottomNav();
     return;
   }
 

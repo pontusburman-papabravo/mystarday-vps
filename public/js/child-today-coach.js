@@ -31,17 +31,24 @@
     return 'Du är klar med allt för nu — bra jobbat!';
   }
 
+  function esc(s) {
+    if (typeof window.escHtml === 'function') return window.escHtml(s);
+    if (typeof window.escapeHtml === 'function') return window.escapeHtml(s);
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
   function showCoach(message, placement) {
-    if (!window.ChildCapabilities) return;
     var mount = ensureMount();
     if (!mount) return;
     mount.innerHTML =
       '<div class="mb-4 p-4 bg-mint border border-green-200 rounded-2xl" data-coach-placement="' +
-      (placement || 'today_coach_post_activity') +
+      esc(placement || 'today_coach_post_activity') +
       '">' +
       '<p class="font-heading font-bold text-navy mb-1">Bra jobbat!</p>' +
       '<p class="text-sm text-navy">' +
-      message +
+      esc(message) +
       '</p></div>';
   }
 
@@ -56,7 +63,7 @@
 
   function bindEventBus() {
     if (!window.ChildEventBus || !ChildEventBus.on) return;
-    ChildEventBus.on('activity:complete', function (payload) {
+    ChildEventBus.on('ActivityCompleted', function (payload) {
       onActivityComplete(payload || {});
     });
   }
