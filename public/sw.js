@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v277';
+const CACHE_NAME = 'stjarndag-v278';
+// v278: soft-nav boot fixes — schedule logoutBtn guard, dashboard hub re-init, skatt contrast
 // v277: magic soft navigation — no full page reload between bottom nav items
 // v276: iPad magic flash (inline early CSS), För dig contrast, preview back from Extra
 // v275: fix classic→magic flash on parent page navigation

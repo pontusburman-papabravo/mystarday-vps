@@ -14,6 +14,10 @@
     '/upgrade': 'upgrade',
   };
 
+  var PAGE_STYLES = {
+    dashboard: ['/css/dashboard-magic.css?v=4'],
+  };
+
   var PAGE_SCRIPTS = {
     dashboard: [
       '/js/dashboard-home-hub.js?v=4',
@@ -101,6 +105,19 @@
     });
   }
 
+  function ensurePageStyles(pageId) {
+    var head = global.document.head;
+    (PAGE_STYLES[pageId] || []).forEach(function (href) {
+      var exists = head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
+      if (!exists) {
+        var link = global.document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        head.appendChild(link);
+      }
+    });
+  }
+
   async function navigateTo(href, options) {
     options = options || {};
     if (_navigating) return false;
@@ -137,6 +154,7 @@
       var html = await res.text();
       var doc = parseHtml(html);
       ensureStyles(doc);
+      ensurePageStyles(pageId);
       if (!swapMain(doc)) throw new Error('swap_main_failed');
 
       applyBodyFromPage(doc, pageId);

@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     AppleSignInDiagnostics.endPostLoginTrace();
   }
-  document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
+  document.getElementById('logoutBtn')?.addEventListener('click', () => window.logout());
 
   // ── View-mode redirect: pedagog-only or pedagog-preferred → pedagog-oversikt
   const isPedagogRedirect =
@@ -505,8 +505,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 window.bootDashboardMagicPage = async function bootDashboardMagicPage() {
-  if (typeof loadChildren !== 'function' || typeof loadDashboardCards !== 'function') return;
-  await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+  if (typeof loadDashboardCards !== 'function') return;
+
+  currentChildId = null;
+  currentScheduleId = null;
+  const list = document.getElementById('childrenListView');
+  const editor = document.getElementById('scheduleEditorView');
+  if (list) list.classList.remove('hidden');
+  if (editor) editor.classList.add('hidden');
+  document.getElementById('backToChildrenBtn')?.classList.add('hidden');
+  document.getElementById('daySelectorWrap')?.classList.add('hidden');
+  document.getElementById('viewModeBar')?.classList.add('hidden');
+  document.getElementById('calNavBar')?.classList.add('hidden');
+  document.getElementById('sbsChildSelector')?.classList.add('hidden');
+
+  await Promise.all([
+    typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
+    typeof loadTemplates === 'function' ? loadTemplates() : Promise.resolve(),
+    loadDashboardCards(),
+    typeof loadStarHistory === 'function' ? loadStarHistory() : Promise.resolve(),
+  ]);
+
+  if (typeof showMedforalderCtaIfEligible === 'function') showMedforalderCtaIfEligible();
+  if (typeof initDelaAppenCta === 'function') initDelaAppenCta();
+  if (window.ActivationProgramBanner) ActivationProgramBanner.init();
+  if (window.DashboardChildHandoff) DashboardChildHandoff.init();
+  if (window.DashboardDailySummary && dashboardStats) {
+    DashboardDailySummary.update(dashboardStats);
+  }
+
   if (window.DashboardHomeHub && window.AppViewMode && AppViewMode.isMagic()) {
     DashboardHomeHub.render(dashboardStats);
   }

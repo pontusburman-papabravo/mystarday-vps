@@ -582,3 +582,28 @@ body.parent-magic-page-schedule main > .bg-sky {
   border: none !important;
   padding-top: 0 !important;
 }
+
+/* Skattkammaren — dark magic shell (placeholder + child chips) */
+body.parent-magic-view[data-magic-page="skattkammaren"] #mainContent {
+  background: linear-gradient(180deg, #0b0b2a 0%, #07071a 100%) !important;
+}
+
+body.parent-magic-view[data-magic-page="skattkammaren"] #placeholderState .text-navy,
+body.parent-magic-view[data-magic-page="skattkammaren"] #placeholderState .font-heading {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view[data-magic-page="skattkammaren"] #placeholderState .text-text-soft,
+body.parent-magic-view[data-magic-page="skattkammaren"] #loadingState {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view[data-magic-page="skattkammaren"] .bg-white.border-b.border-lavender {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.parent-magic-view[data-magic-page="skattkammaren"] #childChips .text-text-soft,
+body.parent-magic-view[data-magic-page="skattkammaren"] #childChips .text-navy {
+  color: rgba(244, 244, 255, 0.85) !important;
+}

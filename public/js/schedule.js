@@ -344,116 +344,122 @@ function calMonthDayClick(dow) {
 }
 
 // ── Init ─────────────────────────────────────────────────
+let _schedulePageBound = false;
+
 async function bootSchedulePage() {
   try {
-  const user = await window.authGuard();
-  if (!user) return;
-  document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
-  // logoutBtn2 removed — logout only in sidebar/hamburger menu now
-  await Promise.all([loadChildren(), loadTemplates()]);
-  pickSection('dag');
-  initBirthdayPicker('childBirthday');
+    const user = await window.authGuard();
+    if (!user) return;
 
-  // Auto-select child from query param (e.g. coming from /family or /family-week)
-  const urlParams = new URLSearchParams(window.location.search);
-  const preSelectView = urlParams.get('view');
-  const preSelectChild = urlParams.get('child');
-  const preSelectDay = urlParams.get('day'); // day-of-week override (0=Sun,1=Mon…6=Sat)
-  const preSelectTemplate = urlParams.get('template');
+    if (!_schedulePageBound) {
+      _schedulePageBound = true;
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', () => window.logout());
 
-  // If ?view=template → open template editor
-  if (preSelectView === 'template' && preSelectTemplate) {
-    await loadTemplate(preSelectTemplate);
-  } else if (preSelectView === 'family') {
-    setScheduleMode('family');
-  } else if (preSelectChild && children.some(c => c.id === preSelectChild)) {
-    await selectChild(preSelectChild);
-    // Override currentDay if ?day= param provided (navigate to specific day)
-    if (preSelectDay !== null) {
-      const dow = parseInt(preSelectDay, 10);
-      if (!isNaN(dow) && dow >= 0 && dow <= 6) {
-        currentDay = dow;
-        renderDayTabs();
-        await loadScheduleForDay();
+      function autoAdjustEndTime(startInput, endInput) {
+        startInput.addEventListener('change', () => {
+          const sv = startInput.value;
+          const ev = endInput.value;
+          if (sv && ev && ev <= sv) {
+            const [h, m] = sv.split(':').map(Number);
+            const totalMin = h * 60 + m + 30;
+            const nh = Math.min(Math.floor(totalMin / 60), 23);
+            const nm = totalMin % 60;
+            endInput.value = String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
+          }
+        });
+      }
+      const addStartTime = document.getElementById('addStartTime');
+      const addEndTime = document.getElementById('addEndTime');
+      const editStartTime = document.getElementById('editStartTime');
+      const editEndTime = document.getElementById('editEndTime');
+      if (addStartTime && addEndTime) autoAdjustEndTime(addStartTime, addEndTime);
+      if (editStartTime && editEndTime) autoAdjustEndTime(editStartTime, editEndTime);
+
+      let selectedChildEmoji = '';
+      document.querySelectorAll('.emoji-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('border-gold','bg-gold-light'));
+          btn.classList.add('border-gold','bg-gold-light');
+          selectedChildEmoji = btn.dataset.emoji;
+          const childEmoji = document.getElementById('childEmoji');
+          if (childEmoji) childEmoji.value = selectedChildEmoji;
+        });
+      });
+
+      const addChildForm = document.getElementById('addChildForm');
+      if (addChildForm) addChildForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = document.getElementById('addChildMsg');
+        const btn = document.getElementById('addChildSubmit');
+        if (!selectedChildEmoji) { msg.textContent = 'Välj en emoji'; msg.className = 'text-sm text-red-500'; return; }
+        btn.disabled = true; btn.textContent = 'Skapar...'; msg.textContent = '';
+        try {
+          const res = await window.apiFetch('/api/children', {
+            method: 'POST',
+            body: JSON.stringify({ name: document.getElementById('childName').value.trim(), emoji: selectedChildEmoji, birthday: document.getElementById('childBirthday').value, pin: document.getElementById('childPin').value.trim() || undefined }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            if (data.error && data.error.includes('föräldrabehörighet')) {
+              msg.textContent = 'Din session har löpt ut. Du loggas in igen…';
+              msg.className = 'text-sm text-red-500';
+              setTimeout(() => { Auth.clearAuth(); window.location.href = '/login'; }, 2000);
+              return;
+            }
+            msg.textContent = data.error || 'Nätverksfel'; msg.className = 'text-sm text-red-500';
+          } else {
+            if (data.wizard && data.id) {
+              window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
+            } else {
+              showToast(`${data.name} har lagts till! PIN: ${data.pin}`);
+              document.getElementById('addChildModal').classList.add('hidden');
+              document.getElementById('addChildForm').reset();
+              selectedChildEmoji = '';
+              document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('border-gold','bg-gold-light'));
+              await loadChildren();
+            }
+          }
+        } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
+        btn.disabled = false; btn.textContent = 'Lägg till';
+      });
+
+      initTouchDndBridge();
+      bindRecurrenceAddHandlers();
+      if (window.AppViewMode) {
+        AppViewMode.onChange(function () {
+          refreshScheduleOnViewModeChange();
+        });
       }
     }
-  } else if (children.length === 1 && preSelectView !== 'family') {
-    await selectChild(children[0].id);
-  }
 
-  // Auto-adjust end time when start time changes to after current end time
-  function autoAdjustEndTime(startInput, endInput) {
-    startInput.addEventListener('change', () => {
-      const sv = startInput.value;
-      const ev = endInput.value;
-      if (sv && ev && ev <= sv) {
-        // Shift end time to start + 30 min
-        const [h, m] = sv.split(':').map(Number);
-        const totalMin = h * 60 + m + 30;
-        const nh = Math.min(Math.floor(totalMin / 60), 23);
-        const nm = totalMin % 60;
-        endInput.value = String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
-      }
-    });
-  }
-  autoAdjustEndTime(document.getElementById('addStartTime'), document.getElementById('addEndTime'));
-  autoAdjustEndTime(document.getElementById('editStartTime'), document.getElementById('editEndTime'));
+    await Promise.all([loadChildren(), loadTemplates()]);
+    pickSection('dag');
+    initBirthdayPicker('childBirthday');
 
-  let selectedChildEmoji = '';
-  document.querySelectorAll('.emoji-opt').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('border-gold','bg-gold-light'));
-      btn.classList.add('border-gold','bg-gold-light');
-      selectedChildEmoji = btn.dataset.emoji;
-      document.getElementById('childEmoji').value = selectedChildEmoji;
-    });
-  });
+    const urlParams = new URLSearchParams(window.location.search);
+    const preSelectView = urlParams.get('view');
+    const preSelectChild = urlParams.get('child');
+    const preSelectDay = urlParams.get('day');
+    const preSelectTemplate = urlParams.get('template');
 
-  document.getElementById('addChildForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const msg = document.getElementById('addChildMsg');
-    const btn = document.getElementById('addChildSubmit');
-    if (!selectedChildEmoji) { msg.textContent = 'Välj en emoji'; msg.className = 'text-sm text-red-500'; return; }
-    btn.disabled = true; btn.textContent = 'Skapar...'; msg.textContent = '';
-    try {
-      const res = await window.apiFetch('/api/children', {
-        method: 'POST',
-        body: JSON.stringify({ name: document.getElementById('childName').value.trim(), emoji: selectedChildEmoji, birthday: document.getElementById('childBirthday').value, pin: document.getElementById('childPin').value.trim() || undefined }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        // Shared-device guard: redirect to login if session type is wrong
-        if (data.error && data.error.includes('föräldrabehörighet')) {
-          msg.textContent = 'Din session har löpt ut. Du loggas in igen…';
-          msg.className = 'text-sm text-red-500';
-          setTimeout(() => { Auth.clearAuth(); window.location.href = '/login'; }, 2000);
-          return;
-        }
-        msg.textContent = data.error || 'Nätverksfel'; msg.className = 'text-sm text-red-500';
-      } else {
-        // Redirect to wizard onboarding so parent can review the seeded schedule
-        if (data.wizard && data.id) {
-          window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
-        } else {
-          showToast(`${data.name} har lagts till! PIN: ${data.pin}`);
-          document.getElementById('addChildModal').classList.add('hidden');
-          document.getElementById('addChildForm').reset();
-          selectedChildEmoji = '';
-          document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('border-gold','bg-gold-light'));
-          await loadChildren();
+    if (preSelectView === 'template' && preSelectTemplate) {
+      await loadTemplate(preSelectTemplate);
+    } else if (preSelectView === 'family') {
+      setScheduleMode('family');
+    } else if (preSelectChild && children.some(c => c.id === preSelectChild)) {
+      await selectChild(preSelectChild);
+      if (preSelectDay !== null) {
+        const dow = parseInt(preSelectDay, 10);
+        if (!isNaN(dow) && dow >= 0 && dow <= 6) {
+          currentDay = dow;
+          renderDayTabs();
+          await loadScheduleForDay();
         }
       }
-    } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
-    btn.disabled = false; btn.textContent = 'Lägg till';
-  });
-
-  initTouchDndBridge();
-  bindRecurrenceAddHandlers();
-  if (window.AppViewMode) {
-    AppViewMode.onChange(function () {
-      refreshScheduleOnViewModeChange();
-    });
-  }
+    } else if (children.length === 1 && preSelectView !== 'family') {
+      await selectChild(children[0].id);
+    }
   } catch (err) {
     console.error('[SCHEDULE] Init error:', err);
     const container = document.getElementById('childCardsContainer');
@@ -518,6 +524,7 @@ async function loadChildren() {
 
 async function renderChildrenOverview() {
   const container = document.getElementById('childCardsContainer');
+  if (!container) return;
   if (children.length === 0) {
     container.innerHTML = `<div class="text-center py-16"><p class="text-5xl mb-4">👨‍👩‍👧</p><p class="font-semibold text-navy mb-1">Inga barn tillagda ännu</p><a href="/dashboard" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold inline-block mt-3">Gå till Min panel</a></div>`;
     return;

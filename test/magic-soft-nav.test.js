@@ -38,4 +38,25 @@ describe('magic soft navigation', () => {
       assert.match(src, /ParentMagicPageBoot\.register/);
     });
   });
+
+  it('schedule boot guards logoutBtn missing in magic view', () => {
+    const schedule = fs.readFileSync(path.join(ROOT, 'public/js/schedule.js'), 'utf8');
+    assert.match(schedule, /getElementById\('logoutBtn'\)/);
+    assert.match(schedule, /if \(logoutBtn\)/);
+    assert.match(schedule, /_schedulePageBound/);
+  });
+
+  it('dashboard soft-nav boot resets overview and renders hub', () => {
+    const dashboard = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    assert.match(dashboard, /bootDashboardMagicPage/);
+    assert.match(dashboard, /childrenListView/);
+    assert.match(dashboard, /DashboardHomeHub\.render\(dashboardStats\)/);
+    assert.match(dashboard, /showMedforalderCtaIfEligible/);
+  });
+
+  it('skattkammaren magic contrast CSS present', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /data-magic-page="skattkammaren"/);
+    assert.match(css, /#placeholderState/);
+  });
 });
