@@ -3,7 +3,7 @@
 > **Syfte:** Teamreferens för design, frontend och test. Styr var föräldrfunktioner *bor* i navigationen — inte bara var routes *finns*.
 >
 > **Status:** Låst arkitektur · implementation pågår inkrementellt  
-> **Relaterat:** [`for-dig-spec.md`](./for-dig-spec.md) · [`paket-v1.2-spec.md`](./paket-v1.2-spec.md) §6 · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`component-feature-map.js`](../config/component-feature-map.js)
+> **Relaterat:** [`vuxenmeny-v2-operations-checklist.md`](./vuxenmeny-v2-operations-checklist.md) (operations + acceptance) · [`for-dig-spec.md`](./for-dig-spec.md) · [`paket-v1.2-spec.md`](./paket-v1.2-spec.md) §6 · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`component-feature-map.js`](../config/component-feature-map.js)
 >
 > **Senast uppdaterad:** 2026-06-21 (granskningsrunda: kodbasavstämning)
 

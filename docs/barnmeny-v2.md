@@ -3,7 +3,7 @@
 > **Syfte:** Teamreferens för barnsidans navigation. Del 1 dokumenterar **hur det ser ut idag**. Del 2 är **låst målarkitektur** och inkrementell migration — parallellt med [`vuxenmeny-v2.md`](./vuxenmeny-v2.md).
 >
 > **Status:** Del 1 = nuläge · Del 2 = låst arkitektur · implementation pågår inkrementellt  
-> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`component-feature-map.js`](../config/component-feature-map.js)
+> **Relaterat:** [`vuxenmeny-v2-operations-checklist.md`](./vuxenmeny-v2-operations-checklist.md) (KX-rader, acceptance) · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`component-feature-map.js`](../config/component-feature-map.js)
 >
 > **Senast uppdaterad:** 2026-06-21 (Del 2 låst; nit-fix: paths, PG, a11y)
 
