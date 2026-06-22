@@ -77,6 +77,9 @@
         '<span>' + item.label + '</span></a>';
     }).join('');
     nav.style.display = isMagic() ? 'flex' : '';
+    if (isMagic() && window.ParentMagicRouter) {
+      ParentMagicRouter.bind();
+    }
   }
 
   function applyPageClasses(magic) {
@@ -124,6 +127,12 @@
         applyNavFromAccess(access);
       })
       .catch(function () { /* keep legacy */ });
+  }
+
+  function navigateToPage(page) {
+    _page = page || _page || 'dashboard';
+    refresh();
+    return Promise.resolve(isMagic());
   }
 
   function init(page) {
@@ -175,5 +184,6 @@
     init: init,
     refresh: refresh,
     isMagic: isMagic,
+    navigateToPage: navigateToPage,
   };
 })();

@@ -344,7 +344,7 @@ function calMonthDayClick(dow) {
 }
 
 // ── Init ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+async function bootSchedulePage() {
   try {
   const user = await window.authGuard();
   if (!user) return;
@@ -449,7 +449,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   initTouchDndBridge();
   bindRecurrenceAddHandlers();
-  if (window.ParentMagicShell) await ParentMagicShell.init('schedule');
   if (window.AppViewMode) {
     AppViewMode.onChange(function () {
       refreshScheduleOnViewModeChange();
@@ -460,7 +459,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('childCardsContainer');
     if (container) container.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</div>';
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootSchedulePage);
+}
+if (window.ParentMagicPageBoot) {
+  ParentMagicPageBoot.register('schedule', bootSchedulePage);
+}
 
 // showToast is now in /js/toast.js
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js

@@ -7,7 +7,12 @@
 
   const COMPONENTS = ['reporting', 'pedagog', 'teacch'];
 
-  window.addEventListener('DOMContentLoaded', async () => {
+  window.addEventListener('DOMContentLoaded', bootUpgradePackages);
+  if (window.ParentMagicPageBoot) {
+    ParentMagicPageBoot.register('upgrade', bootUpgradePackages);
+  }
+
+  async function bootUpgradePackages() {
     if (!window.Auth || !Auth.isLoggedIn() || !window.PreviewShell) return;
 
     const params = new URLSearchParams(window.location.search);
@@ -98,5 +103,5 @@
         grid.appendChild(card);
       }
     } catch (_) { /* keep founder page */ }
-  });
+  }
 })();

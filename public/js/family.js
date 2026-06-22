@@ -1274,4 +1274,7 @@
     if (window.PWAInstall) {
       PWAInstall.render(document.getElementById('familyPwaInstallGuide'));
     }
-  
+
+if (window.ParentMagicPageBoot) {
+  ParentMagicPageBoot.register('family', init);
+}

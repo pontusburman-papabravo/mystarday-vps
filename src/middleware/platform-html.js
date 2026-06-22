@@ -8,7 +8,7 @@ const path = require('path');
 const RELEASE_TAG = '2026-06-14-prevent-zoom';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '4';
+const MAGIC_VERSION = '5';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -63,6 +63,23 @@ function injectEarlyMagicHtml(body, reqPath) {
   return body.slice(0, headIdx + headMarker.length) + '\n' + script + '\n' + body.slice(headIdx + headMarker.length);
 }
 
+/** Inject soft-nav scripts even when shell scripts are already in the HTML file. */
+function injectParentMagicRouter(body, reqPath) {
+  if (typeof body !== 'string' || !body.includes('<html')) return body;
+  if (body.includes('parent-magic-router.js')) return body;
+  const path = normalizeHtmlPath(reqPath);
+  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+
+  const routerScripts =
+    '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>\n' +
+    '<script src="/js/parent-magic-router.js?v=' + MAGIC_VERSION + '"><\/script>\n';
+
+  const tailMarker = '</body>';
+  const tailIdx = body.lastIndexOf(tailMarker);
+  if (tailIdx === -1) return body;
+  return body.slice(0, tailIdx) + routerScripts + body.slice(tailIdx);
+}
+
 function injectParentMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
@@ -81,6 +98,8 @@ function injectParentMagicHtml(body, reqPath) {
   const scriptBlock = [
     '<script src="/js/app-view-mode.js?v=3"><\/script>',
     '<script src="/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/parent-magic-router.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-shell.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>',
@@ -142,6 +161,7 @@ function injectPlatformHtml(body, reqPath) {
   }
 
   body = injectEarlyMagicHtml(body, reqPath);
+  body = injectParentMagicRouter(body, reqPath);
   return injectParentMagicHtml(body, reqPath);
 }
 

@@ -504,6 +504,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+window.bootDashboardMagicPage = async function bootDashboardMagicPage() {
+  if (typeof loadChildren !== 'function' || typeof loadDashboardCards !== 'function') return;
+  await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+  if (window.DashboardHomeHub && window.AppViewMode && AppViewMode.isMagic()) {
+    DashboardHomeHub.render(dashboardStats);
+  }
+  if (typeof renderDashboardCards === 'function') renderDashboardCards();
+};
+
+if (window.ParentMagicPageBoot) {
+  ParentMagicPageBoot.register('dashboard', window.bootDashboardMagicPage);
+}
+
 // ── Helpers ──────────────────────────────────────────────
 // showToast is now in /js/toast.js
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js

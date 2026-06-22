@@ -37,6 +37,11 @@ body.parent-magic-view {
   color: #f4f4ff;
 }
 
+body.parent-magic-nav-loading main {
+  opacity: 0.94;
+  transition: opacity 0.12s ease;
+}
+
 body.parent-magic-view .parent-magic-legacy-hide {
   display: none !important;
 }

@@ -677,4 +677,8 @@
   } else {
     init();
   }
+
+  if (window.ParentMagicPageBoot) {
+    ParentMagicPageBoot.register('for-dig', init);
+  }
 })();
