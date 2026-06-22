@@ -95,6 +95,7 @@ function injectPlatformHtml(body, reqPath) {
   const headInject = headParts.join('\n') + '\n';
 
   const bodyInject =
+    '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +

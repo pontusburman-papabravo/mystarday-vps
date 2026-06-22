@@ -287,7 +287,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = await window.authGuard();
   if (!user) return;
   if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.logPost) {
-    AppleSignInDiagnostics.logPost('step_8_dashboard_loaded', { path: window.location.pathname });
+    AppleSignInDiagnostics.logPost('step_8_dashboard_loaded', {
+      path: window.location.pathname,
+      userId: user.id,
+    });
     AppleSignInDiagnostics.endPostLoginTrace();
   }
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());

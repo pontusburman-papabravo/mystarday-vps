@@ -48,4 +48,9 @@ describe('tablet magic navigation', () => {
     const onChangeIdx = src.indexOf('Always re-render dashboard layout');
     assert.ok(initIdx >= 0 && onChangeIdx > initIdx, 'view-mode handler should follow ParentMagicShell.init');
   });
+
+  it('platform-html injects apple-sign-in-diagnostics on all HTML pages', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /apple-sign-in-diagnostics\.js/);
+  });
 });

@@ -29,6 +29,8 @@
       }
     }
     snap.hasAccessCookie = typeof document !== 'undefined' && document.cookie.indexOf('access_token') !== -1;
+    // access_token is httpOnly — document.cookie is always false; cookies still sent via credentials:include
+    snap.accessTokenHttpOnly = true;
     return snap;
   }
 
@@ -79,7 +81,7 @@
   function traceLoginBounce(reason, extra) {
     if (!isPostLoginTraceActive()) return;
     var detail = extra ? Object.assign({ reason: reason }, extra) : { reason: reason };
-    logPost('step_8_login_bounce', detail);
+    logPost('step_9_auth_guard_redirect', detail);
     endPostLoginTrace();
   }
 

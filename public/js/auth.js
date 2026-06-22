@@ -866,6 +866,11 @@ window.apiFetch = async function(url, options = {}) {
 
   const res = await _doRequest();
 
+  const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
+  if (diag && diag.isPostLoginTraceActive && diag.isPostLoginTraceActive() && String(url).indexOf('/api/auth/me') !== -1) {
+    diag.logPost('step_8b_auth_me_response', { status: res.status, ok: res.ok });
+  }
+
   if (res.status === 403 && isMutation) {
     try {
       const data = await res.clone().json();
