@@ -22,7 +22,12 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "→ npm install"
-npm install --legacy-peer-deps
+export NPM_CONFIG_MIN_RELEASE_AGE=0
+if [ -f package-lock.json ]; then
+  npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+else
+  npm install --legacy-peer-deps
+fi
 
 echo "→ migrate"
 npm run migrate
