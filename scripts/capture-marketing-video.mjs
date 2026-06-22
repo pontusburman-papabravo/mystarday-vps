@@ -3,7 +3,8 @@
  * Mobile marketing walkthrough — Playwright screen recording (9:16).
  *
  * Modes (MARKETING_VIDEO_MODE):
- *   guided-short — ~25s, magic view, tap rings + Swedish captions (default)
+ *   watchable    — ~45s, slower pacing, intro/outro, fewer beats (recommended)
+ *   guided-short — ~30s, faster tour with tap hints
  *   full         — longer 50/50 tour without overlays
  *
  * Usage:
@@ -20,8 +21,9 @@ const ROOT = path.join(__dirname, '..');
 const OUT_DIR = process.env.OUT_DIR || path.join(ROOT, 'artifacts', 'marketing-video');
 
 const BASE_URL = (process.env.BASE_URL || '').replace(/\/$/, '');
-const MODE = process.env.MARKETING_VIDEO_MODE || 'guided-short';
-const GUIDED = MODE === 'guided-short';
+const MODE = process.env.MARKETING_VIDEO_MODE || 'watchable';
+const WATCHABLE = MODE === 'watchable';
+const GUIDED = MODE === 'guided-short' || WATCHABLE;
 
 if (!BASE_URL) {
   console.error('Set BASE_URL env var');
@@ -34,8 +36,23 @@ const CHILD_PIN = process.env.CHILD_PIN || '4455';
 
 const PARENT_HUB_PAUSE_MS = Number(process.env.PARENT_HUB_PAUSE_MS || 5000);
 const CHILD_WORLD_PAUSE_MS = Number(process.env.CHILD_WORLD_PAUSE_MS || 5000);
-const GUIDED_HOLD_MS = Number(process.env.GUIDED_HOLD_MS || 2000);
-const GUIDED_PRE_CLICK_MS = Number(process.env.GUIDED_PRE_CLICK_MS || 1000);
+const GUIDED_HOLD_MS = Number(
+  process.env.GUIDED_HOLD_MS || (WATCHABLE ? 4500 : 2000)
+);
+const GUIDED_PRE_CLICK_MS = Number(
+  process.env.GUIDED_PRE_CLICK_MS || (WATCHABLE ? 2800 : 1000)
+);
+const INTRO_CARD_MS = Number(process.env.INTRO_CARD_MS || (WATCHABLE ? 3500 : 0));
+const OUTRO_CARD_MS = Number(process.env.OUTRO_CARD_MS || (WATCHABLE ? 3500 : 0));
+const TRANSITION_MS = Number(process.env.TRANSITION_MS || (WATCHABLE ? 2800 : 1500));
+const MARKETING_APP_NAME = process.env.MARKETING_APP_NAME || 'Min app';
+const MARKETING_OUTRO_CTA = process.env.MARKETING_OUTRO_CTA || (() => {
+  try {
+    return new URL(BASE_URL).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return '';
+  }
+})();
 const INCLUDE_ENTRY = process.env.INCLUDE_ENTRY === '1';
 
 if (!REVIEW_EMAIL || !REVIEW_PASSWORD) {
@@ -90,6 +107,37 @@ const GUIDED_CHILD_WORLDS = [
   },
 ];
 
+/** Fewer beats = more time to read each caption (watchable mode). */
+const WATCHABLE_PARENT_STEPS = [
+  {
+    href: '/dashboard',
+    label: 'Hem',
+    title: '🏠 Föräldern',
+    why: 'Överblick över barnen, stjärnor och vad som händer idag.',
+    navigateOnly: true,
+  },
+  {
+    href: '/rewards',
+    label: 'Belöningar',
+    title: '🎁 Belöningar',
+    why: 'Stjärnor som barnen faktiskt vill jobba för.',
+  },
+];
+
+const WATCHABLE_CHILD_WORLDS = [
+  {
+    world: 'today',
+    title: '☀️ Barnets dag',
+    why: 'Uppdrag med delsteg — ett i taget, utan tjat.',
+    afterLogin: true,
+  },
+  {
+    world: 'world',
+    title: '🏰 Min värld',
+    why: 'Skattkammare och belöningar — barnets egna motivation.',
+  },
+];
+
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -122,8 +170,26 @@ function guideOverlayScript() {
       content: ''; position: absolute; inset: 14px; border-radius: 50%; background: rgba(245,166,35,0.35);
     }
     @keyframes mkt-pulse {
-      0% { transform: scale(0.85); opacity: 1; }
-      100% { transform: scale(1.35); opacity: 0; }
+      0% { transform: scale(0.9); opacity: 1; }
+      100% { transform: scale(1.25); opacity: 0.15; }
+    }
+    #mkt-guide-titlecard {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(165deg, rgba(15,26,61,0.97) 0%, rgba(74,44,106,0.95) 55%, rgba(168,85,199,0.92) 100%);
+      opacity: 0; transition: opacity 0.5s ease; padding: 28px; text-align: center;
+    }
+    #mkt-guide-titlecard.is-visible { opacity: 1; }
+    #mkt-guide-titlecard .mkt-card-title {
+      font-family: system-ui, -apple-system, sans-serif; font-weight: 800; font-size: 28px;
+      color: #fff; line-height: 1.15; margin-bottom: 12px;
+    }
+    #mkt-guide-titlecard .mkt-card-sub {
+      font-family: system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.45;
+      color: rgba(255,255,255,0.88); max-width: 300px; margin: 0 auto;
+    }
+    #mkt-guide-titlecard .mkt-card-cta {
+      margin-top: 20px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #F5A623; font-weight: 700;
     }
   `;
   document.documentElement.appendChild(style);
@@ -132,6 +198,8 @@ function guideOverlayScript() {
   root.id = 'mkt-guide-root';
   root.innerHTML =
     '<div id="mkt-guide-ripples"></div>' +
+    '<div id="mkt-guide-titlecard" aria-hidden="true">' +
+    '<div><div class="mkt-card-title"></div><div class="mkt-card-sub"></div><div class="mkt-card-cta"></div></div></div>' +
     '<div id="mkt-guide-caption" aria-live="polite">' +
     '<div class="mkt-title"></div><div class="mkt-why"></div><div class="mkt-hint">Tryck här →</div></div>';
   document.documentElement.appendChild(root);
@@ -142,6 +210,8 @@ function guideOverlayScript() {
 
   window.__mktGuide = {
     show(title, why, hint) {
+      const card = document.getElementById('mkt-guide-titlecard');
+      if (card) card.classList.remove('is-visible');
       const cap = document.getElementById('mkt-guide-caption');
       if (!cap) return;
       cap.querySelector('.mkt-title').textContent = title || '';
@@ -156,8 +226,26 @@ function guideOverlayScript() {
     hide() {
       const cap = document.getElementById('mkt-guide-caption');
       if (cap) cap.classList.remove('is-visible');
+      const card = document.getElementById('mkt-guide-titlecard');
+      if (card) card.classList.remove('is-visible');
       const r = ripples();
       if (r) r.innerHTML = '';
+    },
+    showCard(title, subtitle, cta) {
+      const cap = document.getElementById('mkt-guide-caption');
+      if (cap) cap.classList.remove('is-visible');
+      const r = ripples();
+      if (r) r.innerHTML = '';
+      const card = document.getElementById('mkt-guide-titlecard');
+      if (!card) return;
+      card.querySelector('.mkt-card-title').textContent = title || '';
+      card.querySelector('.mkt-card-sub').textContent = subtitle || '';
+      const ctaEl = card.querySelector('.mkt-card-cta');
+      if (ctaEl) {
+        ctaEl.textContent = cta || '';
+        ctaEl.style.display = cta ? '' : 'none';
+      }
+      card.classList.add('is-visible');
     },
     rippleAt(x, y) {
       const r = ripples();
@@ -235,6 +323,21 @@ async function guidedTap(page, locator, { title, why, hint, preMs, holdMs, force
   await sleep(preMs ?? GUIDED_PRE_CLICK_MS);
   await locator.click({ force: !!force });
   await sleep(holdMs ?? GUIDED_HOLD_MS);
+}
+
+async function showTitleCard(page, title, subtitle, cta) {
+  await ensureGuide(page);
+  await page.evaluate(
+    ({ title, subtitle, cta }) => window.__mktGuide.showCard(title, subtitle, cta),
+    { title, subtitle, cta: cta || '' }
+  );
+}
+
+async function titleBeat(page, title, subtitle, cta, ms) {
+  await showTitleCard(page, title, subtitle, cta);
+  await sleep(ms);
+  await hideGuide(page);
+  await sleep(400);
 }
 
 async function guidedPause(page, { title, why, hint, ms }) {
@@ -400,14 +503,26 @@ async function tapNavTab(page, href) {
 }
 
 async function sceneGuidedShort(page, childId) {
-  console.log('  → Guided short (magic + tap hints)');
+  const parentSteps = WATCHABLE ? WATCHABLE_PARENT_STEPS : GUIDED_PARENT_STEPS;
+  const childSteps = WATCHABLE ? WATCHABLE_CHILD_WORLDS : GUIDED_CHILD_WORLDS;
+  console.log(`  → Guided ${WATCHABLE ? 'watchable' : 'short'} (magic + tap hints)`);
 
   await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await waitForParentShell(page);
   await ensureParentMagic(page);
   await dismissDashboardTour(page);
 
-  for (const step of GUIDED_PARENT_STEPS) {
+  if (INTRO_CARD_MS > 0) {
+    await titleBeat(
+      page,
+      MARKETING_APP_NAME,
+      'Tydliga rutiner och stjärnor — för hela familjen.',
+      'Så funkar appen',
+      INTRO_CARD_MS
+    );
+  }
+
+  for (const step of parentSteps) {
     if (step.href !== '/dashboard') {
       const tab = await tapNavTab(page, step.href);
       await guidedTap(page, tab, {
@@ -426,10 +541,12 @@ async function sceneGuidedShort(page, childId) {
   }
 
   await guidedPause(page, {
-    title: '👧 Barnets tur',
-    why: 'Samma app — men enklare navigation för barn.',
+    title: WATCHABLE ? '👧 Nu barnet' : '👧 Barnets tur',
+    why: WATCHABLE
+      ? 'Samma app — men enkelt och tryggt för barn.'
+      : 'Samma app — men enklare navigation för barn.',
     hint: '',
-    ms: 1500,
+    ms: TRANSITION_MS,
   });
 
   await page.goto(`${BASE_URL}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -448,27 +565,31 @@ async function sceneGuidedShort(page, childId) {
   });
 
   await page.waitForSelector('#clKeypad', { timeout: 15000 });
-  const keypad = page.locator('#clKeypad');
-  await showGuide(page, '🔢 PIN', 'Enkel kod — barnet kommer in utan vuxeninloggning.', 'Skriv PIN');
-  await rippleOnLocator(page, keypad);
-  await sleep(1000);
+  await showGuide(
+    page,
+    '🔢 PIN',
+    WATCHABLE
+      ? 'Barnet loggar in själv — utan att se vuxeninloggning.'
+      : 'Enkel kod — barnet kommer in utan vuxeninloggning.',
+    WATCHABLE ? '' : 'Skriv PIN'
+  );
+  await sleep(WATCHABLE ? 2200 : 1000);
 
   for (const digit of CHILD_PIN.split('')) {
     const btn = page
       .locator(`#clKeypad button[data-action="${digit}"], #clKeypad button:has-text("${digit}")`)
       .first();
-    await rippleOnLocator(page, btn);
-    await sleep(200);
+    if (!WATCHABLE) await rippleOnLocator(page, btn);
     await btn.click();
-    await sleep(100);
+    await sleep(WATCHABLE ? 180 : 100);
   }
-  await sleep(800);
+  await sleep(WATCHABLE ? 1200 : 800);
 
   await page.waitForURL(/\/child(\/today|\/world|\/family|-dashboard)/, { timeout: 45000 });
   await ensureChildMagic(page, childId);
   await sleep(600);
 
-  for (const step of GUIDED_CHILD_WORLDS) {
+  for (const step of childSteps) {
     if (step.afterLogin) {
       await guidedPause(page, {
         title: step.title,
@@ -486,8 +607,18 @@ async function sceneGuidedShort(page, childId) {
     console.log(`     · child ${step.world}`);
   }
 
-  await hideGuide(page);
-  await sleep(600);
+  if (OUTRO_CARD_MS > 0) {
+    await titleBeat(
+      page,
+      'Kommer snart ✨',
+      'Följ oss för fler uppdateringar — eller skriv upp dig på väntelistan.',
+      MARKETING_OUTRO_CTA,
+      OUTRO_CARD_MS
+    );
+  } else {
+    await hideGuide(page);
+    await sleep(600);
+  }
 }
 
 async function ensureChildMagic(page, childId) {
@@ -665,7 +796,8 @@ async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const stamp = new Date().toISOString().slice(0, 10);
   const suffix =
-    process.env.VIDEO_SUFFIX || (GUIDED ? 'guided-short' : 'magic-50-50');
+    process.env.VIDEO_SUFFIX ||
+    (WATCHABLE ? 'watchable' : GUIDED ? 'guided-short' : 'magic-50-50');
   const webmOut = path.join(OUT_DIR, `app-mobile-walkthrough-${suffix}-${stamp}.webm`);
   const mp4Out = path.join(OUT_DIR, `app-mobile-walkthrough-${suffix}-${stamp}.mp4`);
 
