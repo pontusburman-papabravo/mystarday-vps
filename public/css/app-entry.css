@@ -1,0 +1,280 @@
+/**
+ * app-entry.css — Applandningssidan v2 entry screens (welcome, adult start, signup intro).
+ */
+
+.app-entry-screen {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.app-entry-screen.is-active {
+  display: flex;
+}
+
+.entry-welcome-body {
+  width: 100%;
+  text-align: center;
+}
+
+.entry-welcome-headline {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+  color: #fff;
+  line-height: 1.35;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+}
+
+.entry-welcome-lead {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+
+.entry-highlight-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.entry-highlight-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.entry-cta-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.entry-screen-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 4.5vw, 1.55rem);
+  color: #fff;
+  text-align: center;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.entry-screen-sub {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.88rem;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.45;
+}
+
+.entry-choice-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.entry-choice-btn {
+  width: 100%;
+  text-align: left;
+  padding: 18px 16px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.entry-choice-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.entry-choice-btn:active {
+  transform: translateY(0);
+}
+
+.entry-choice-btn .entry-choice-label {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.entry-choice-btn .entry-choice-sub {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.35;
+}
+
+.entry-signup-points {
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.entry-signup-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.entry-signup-points li::before {
+  content: '✓';
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.22);
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.entry-founder-note {
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.entry-tertiary-link {
+  display: inline-block;
+  min-height: 44px;
+  padding: 10px 8px;
+  margin-top: 4px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.entry-tertiary-link:hover {
+  color: #fff;
+}
+
+.entry-how-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.entry-how-modal.hidden {
+  display: none;
+}
+
+.entry-how-sheet {
+  width: 100%;
+  max-width: 400px;
+  max-height: min(85vh, 620px);
+  overflow-y: auto;
+  border-radius: 22px 22px 18px 18px;
+  background: linear-gradient(160deg, #1a1a2e 0%, #2a2458 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 22px 18px 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.entry-how-sheet h2 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #fff;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+.entry-how-card {
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 10px;
+}
+
+.entry-how-card strong {
+  display: block;
+  color: #fff;
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.entry-how-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.entry-role-heading {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+#role-quick-login {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .entry-how-modal {
+    align-items: center;
+  }
+
+  .entry-how-sheet {
+    border-radius: 22px;
+  }
+}

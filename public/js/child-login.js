@@ -71,12 +71,58 @@ function updateProfileStepCopy(childCount) {
   if (!title || !sub) return;
   if (childCount > 1) {
     title.textContent = 'Vem är du?';
-    sub.textContent = 'Tryck på barnet →';
+    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
   } else {
     title.textContent = 'Välj vem du är';
-    sub.textContent = 'Välj vilket barn du vill logga in som';
+    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
+  }
+  var notMeRow = document.getElementById('clNotMeRow');
+  if (notMeRow) notMeRow.classList.toggle('hidden', childCount === 0);
+}
+
+function trackChildEntry(eventName, props) {
+  if (window.EntryAnalytics && typeof EntryAnalytics.track === 'function') {
+    EntryAnalytics.track(eventName, props);
   }
 }
+
+function trackChildLoginModeViewed(profileCount) {
+  if (trackChildLoginModeViewed._sent) return;
+  trackChildLoginModeViewed._sent = true;
+  var mode = profileCount > 0 ? 'profile_picker' : 'name_pin';
+  try {
+    if (sessionStorage.getItem('child_login_mode') === 'name_pin') mode = 'name_pin';
+  } catch (_) { /* ignore */ }
+  trackChildEntry('child_login_mode_viewed', {
+    mode: mode,
+    profiles_count: profileCount,
+  });
+}
+
+window.handleChildLoginBack = function () {
+  try {
+    if (sessionStorage.getItem('entry_version') === 'v2_1') {
+      sessionStorage.setItem('entry_restore', 'ENTRY_ROLE_PICK');
+    }
+  } catch (_) { /* ignore */ }
+  window.location.href = '/login';
+};
+
+window.showNotMeProfile = function () {
+  var list = document.getElementById('clChildList');
+  if (list) list.innerHTML = '';
+  var addRow = document.getElementById('clAddChildRow');
+  if (addRow) addRow.classList.add('hidden');
+  var notMeRow = document.getElementById('clNotMeRow');
+  if (notMeRow) notMeRow.classList.add('hidden');
+  var title = document.getElementById('clSelectTitle');
+  var sub = document.getElementById('clSelectSub');
+  if (title) title.textContent = 'Logga in som barn';
+  if (sub) sub.textContent = 'Skriv ditt namn och din hemliga PIN-kod.';
+  showExistingChildForm();
+  try { sessionStorage.setItem('child_login_mode', 'name_pin'); } catch (_) { /* ignore */ }
+  trackChildEntry('child_profile_not_found_clicked');
+};
 
 function updatePinBackButtons() {
   var swapBtn = document.getElementById('clPinBackProfiles');
@@ -154,6 +200,7 @@ function renderChildList(initOpts) {
         if (empty) empty.classList.remove('hidden');
         if (addRow) addRow.classList.remove('hidden');
       }
+      trackChildLoginModeViewed(0);
       return;
     }
 
@@ -167,6 +214,7 @@ function renderChildList(initOpts) {
 
     paintChildListCards(merged);
     updateProfileStepCopy(merged.length);
+    trackChildLoginModeViewed(merged.length);
     maybeAutoSelectOnlyChild({
       forcePicker: !!initOpts.forcePicker,
       resumeAddChild: !!initOpts.resumeAddChild,
@@ -279,6 +327,7 @@ window.selectChild = function(username, opts) {
 
   selectedChild = child;
   sessionStorage.setItem('cl_selected_username', username);
+  trackChildEntry('child_profile_selected', { username: username });
 
   // Show PIN step
   document.getElementById('clStepProfiles').classList.remove('active');
@@ -304,7 +353,7 @@ window.selectChild = function(username, opts) {
 // ── Back to child selection ────────────────────────────────────────────────────
 window.clBackToProfiles = function () {
   if (directPinMode) {
-    window.location.href = '/login';
+    handleChildLoginBack();
     return;
   }
   selectedChild = null;
@@ -828,6 +877,7 @@ async function submitLogin() {
 
   hideError();
   showLoading();
+  trackChildEntry('child_login_submitted', { username: username });
 
   try {
     const res = await fetch('/api/auth/child-login', {
@@ -854,6 +904,7 @@ async function submitLogin() {
       }
       const icon = data.attempts_remaining === 1 ? '😬' : data.attempts_remaining === 0 ? '🔒' : '⚠️';
       showError(data.error || 'Något gick fel', icon);
+      trackChildEntry('child_login_failed', { reason: data.error || 'invalid_credentials' });
       pinDigits = [];
       renderPinDots();
       shakeDots();
@@ -901,12 +952,18 @@ async function submitLogin() {
       avatar_url: data.user.avatar_url || null,
       familyId: data.user.familyId || null,
     });
+    trackChildEntry('child_login_success', { username: data.user.username });
+    try {
+      sessionStorage.removeItem('entry_restore');
+      sessionStorage.removeItem('child_login_mode');
+    } catch (_) { /* ignore */ }
     showSuccess();
     setTimeout(() => { window.location.href = '/child/today'; }, 1200);
 
   } catch (err) {
     hideLoading();
     showError('Något gick fel. Försök igen.');
+    trackChildEntry('child_login_failed', { reason: 'network' });
     pinDigits = [];
     renderPinDots();
   }
@@ -1131,6 +1188,9 @@ function escapeJs(str) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
+  try { sessionStorage.removeItem('child_login_mode'); } catch (_) { /* ignore */ }
+
   // Build keypad buttons
   buildKeypad();
   bindPinInput();
