@@ -234,7 +234,7 @@
                 class="px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">
                 Skanna QR
               </button>
-              <button onclick="openFamilyModal('addAdultModal')"
+              <button type="button" onclick="openCoParentInviteModal()"
                 class="px-3 py-1.5 text-sm bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
                 + Lägg till vuxen
               </button>
@@ -249,7 +249,7 @@
             <p class="text-6xl mb-4">👨‍👩‍👧</p>
             <p class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Inga vuxna tillagda än</p>
             <p class="text-text-soft text-sm mb-6">Skapa ett konto åt en annan vuxen i din familj!</p>
-            <button onclick="openFamilyModal('addAdultModal')"
+            <button type="button" onclick="openCoParentInviteModal()"
               class="px-6 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
               + Lägg till vuxen
             </button>
@@ -884,6 +884,7 @@
   <script src="/js/family-museum.js?v=1.1.0"></script>
   <script src="/js/family-chest-setting.js?v=1.0.0"></script>
   <script src="/js/family.js?v=2.14.0"></script>
+  <script src="/js/coparent-invite-ui.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
 <script src="/js/feature-check.js?v=2.13.0"></script>

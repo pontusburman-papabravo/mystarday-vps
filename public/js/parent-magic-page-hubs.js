@@ -6,7 +6,7 @@
 
   var SETTINGS_GROUPS = [
     { id: 'profile', icon: '👤', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
-    { id: 'family', icon: '👨‍👩‍👧', iconClass: 'family', title: 'Familj', sub: 'Familjenamn, pedagoger och data' },
+    { id: 'family', icon: '👨‍👩‍👧', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
     { id: 'app', icon: '📱', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
   ];
 

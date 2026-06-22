@@ -9,8 +9,8 @@ describe('co-parent invite fix', () => {
   it('settings has co-parent invite section and init', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
     assert.match(html, /id="coParentInviteSection"/);
-    assert.match(html, /initCoParentInviteSection/);
-    assert.match(html, /\/api\/family\/invite/);
+    assert.match(html, /bootSettingsCoParent/);
+    assert.match(html, /coparent-invite-ui\.js/);
   });
 
   it('magic settings tags co-parent section under family group', () => {
@@ -33,8 +33,8 @@ describe('co-parent invite fix', () => {
     assert.match(css, /#medforalderCtaModal/);
   });
 
-  it('SW bumped to v292', () => {
+  it('SW bumped to v293', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v292/);
+    assert.match(sw, /stjarndag-v293/);
   });
 });

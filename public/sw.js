@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v292';
+const CACHE_NAME = 'stjarndag-v293';
+// v293: shared co-parent invite modal (body portal) + settings soft-nav boot
 // v292: co-parent invite in settings + hub; opaque invite modal in magic view
 // v291: magic appearance — assign-schedule contrast, fixed nav header, family modal z-index
 // v290: magic hub pages re-render after soft nav (planning/rewards/dashboard) + contrast fixes

@@ -354,35 +354,12 @@
         <!-- Medförälder / lägg till vuxen -->
         <section id="coParentInviteSection" class="hidden">
           <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Lägg till vuxen</h3>
-          <p class="text-sm text-text-soft mb-4">Bjud in en medförälder via e-post. Hen får en länk och skapar själv sitt lösenord — inget krångligt.</p>
-          <form id="coParentInviteForm" class="space-y-3">
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteName">Namn</label>
-              <input type="text" id="coParentInviteName" required placeholder="T.ex. Anna Svensson"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteEmail">E-postadress</label>
-              <input type="email" id="coParentInviteEmail" required placeholder="namn@exempel.se"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteRole">Roll i familjen (valfritt)</label>
-              <select id="coParentInviteRole"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-                <option value="">— Välj —</option>
-                <option value="mamma">Mamma</option>
-                <option value="pappa">Pappa</option>
-                <option value="bonusförälder">Bonusförälder</option>
-                <option value="annan">Annan</option>
-              </select>
-            </div>
-            <button type="submit" id="coParentInviteSubmit"
-              class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-              Skicka inbjudan
-            </button>
-            <div id="coParentInviteMsg" class="text-sm min-h-[1.4em]"></div>
-          </form>
+          <p class="text-sm text-text-soft mb-3">Bjud in en medförälder via e-post. Hen får en länk och skapar själv sitt lösenord.</p>
+          <p id="coParentInvitePendingHint" class="text-sm text-text-soft mb-3 hidden"></p>
+          <button type="button" id="coParentInviteOpenBtn"
+            class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            + Lägg till vuxen
+          </button>
         </section>
 
         <hr class="border-lavender hidden" id="coParentInviteHr">
@@ -612,7 +589,7 @@
 
         // Initialize pedagog invite section (primary parents only)
         initPedagogInviteSection();
-        initCoParentInviteSection(me, fam);
+        if (window.bootSettingsCoParent) bootSettingsCoParent();
 
         // View switch buttons for dual-role parents
         if (me && me.account_type === 'dual') {
@@ -1285,68 +1262,6 @@
       });
     }
 
-    // ── Medförälder / lägg till vuxen (settings) ───────────────────────
-    function initCoParentInviteSection(me, fam) {
-      const section = document.getElementById('coParentInviteSection');
-      const hr = document.getElementById('coParentInviteHr');
-      const form = document.getElementById('coParentInviteForm');
-      const msg = document.getElementById('coParentInviteMsg');
-      if (!section || !form) return;
-
-      if (!me || me.account_type === 'educator') return;
-      const parentCount = (fam && fam.parents) ? fam.parents.length : 0;
-      const pending = (fam && fam.pendingInvites) ? fam.pendingInvites.length : 0;
-      if (parentCount >= 2) return;
-
-      section.classList.remove('hidden');
-      if (hr) hr.classList.remove('hidden');
-
-      if (pending > 0) {
-        msg.textContent = pending === 1
-          ? '1 väntande inbjudan är redan skickad.'
-          : pending + ' väntande inbjudningar är redan skickade.';
-        msg.className = 'text-sm text-text-soft';
-      }
-
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const name = document.getElementById('coParentInviteName').value.trim();
-        const email = document.getElementById('coParentInviteEmail').value.trim();
-        const roleEl = document.getElementById('coParentInviteRole');
-        const family_role = roleEl && roleEl.value ? roleEl.value : null;
-        const btn = document.getElementById('coParentInviteSubmit');
-        btn.disabled = true;
-        btn.textContent = 'Skickar…';
-        msg.textContent = '';
-        try {
-          const check = await Auth.api('/api/family/check-member', {
-            method: 'POST',
-            body: JSON.stringify({ email }),
-          });
-          if (check.adult && check.adult.status !== 'available') {
-            msg.textContent = check.adult.error || 'Personen finns redan i familjen eller har en väntande inbjudan.';
-            msg.className = 'text-sm text-red-500 font-medium';
-            return;
-          }
-          await Auth.api('/api/family/invite', {
-            method: 'POST',
-            body: JSON.stringify({ name, email, family_role }),
-          });
-          msg.textContent = '✓ Inbjudan skickad till ' + email + '!';
-          msg.className = 'text-sm text-green-600 font-medium';
-          document.getElementById('coParentInviteName').value = '';
-          document.getElementById('coParentInviteEmail').value = '';
-          if (roleEl) roleEl.value = '';
-        } catch (err) {
-          msg.textContent = err.message || 'Något gick fel. Försök igen.';
-          msg.className = 'text-sm text-red-500 font-medium';
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Skicka inbjudan';
-        }
-      });
-    }
-
     // ── Pedagog invite section ──────────────────────────────────────────
     async function initPedagogInviteSection() {
       const section = document.getElementById('pedagogInviteSection');
@@ -1546,6 +1461,7 @@
   <script src="/js/preview-shell.js?v=1.0.0"></script>
   <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
+  <script src="/js/coparent-invite-ui.js?v=1"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->

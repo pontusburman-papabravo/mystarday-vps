@@ -44,8 +44,8 @@ describe('magic appearance fixes', () => {
     assert.match(css, /position:\s*fixed/);
   });
 
-  it('SW bumped to v292', () => {
+  it('SW bumped to v293', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v292/);
+    assert.match(sw, /stjarndag-v293/);
   });
 });

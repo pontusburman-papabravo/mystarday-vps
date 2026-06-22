@@ -26,6 +26,7 @@
       '/js/dashboard-daily-summary.js?v=2026-06-09-warmth',
       '/js/dashboard-child-handoff.js?v=2026-06-10-handoff',
       '/js/dashboard.js?v=2.38.0',
+      '/js/coparent-invite-ui.js?v=1',
     ],
     schedule: [
       '/js/schedule-views.js?v=1.3.0',
@@ -38,6 +39,7 @@
       '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/family.js?v=2.14.0',
+      '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-hub.js?v=1.1.0'],
     rewards: [
@@ -49,7 +51,7 @@
       '/js/preview-shell.js?v=1.0.0',
       '/js/upgrade-packages.js?v=2.0.0',
     ],
-    settings: [],
+    settings: ['/js/coparent-invite-ui.js?v=1'],
   };
 
   var _navigating = false;

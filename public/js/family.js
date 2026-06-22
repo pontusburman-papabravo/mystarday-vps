@@ -909,7 +909,7 @@
 
     async function scanAndAddAdult() {
       if (!window.FamilyInviteScan) {
-        openFamilyModal('addAdultModal');
+        openCoParentInviteModal();
         return;
       }
       const raw = FamilyInviteScan.scanAdultQrInteractive();

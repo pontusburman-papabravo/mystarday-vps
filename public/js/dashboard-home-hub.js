@@ -320,7 +320,9 @@
           window.location.href = '/child-login';
         }
       } else if (action === 'invite-coparent') {
-        if (typeof window.openMedforalderCtaInvite === 'function') {
+        if (typeof window.openCoParentInviteModal === 'function') {
+          window.openCoParentInviteModal();
+        } else if (typeof window.openMedforalderCtaInvite === 'function') {
           window.openMedforalderCtaInvite();
         }
       } else if (action === 'parent-logout') {

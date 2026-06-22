@@ -847,6 +847,26 @@ body.parent-magic-view #medforalderCtaModal {
 }
 
 body.parent-magic-view #coParentInviteSection .text-navy,
-body.parent-magic-view #coParentInviteSection label {
+body.parent-magic-view #coParentInviteSection label,
+body.parent-magic-view #coParentInviteOpenBtn {
   color: #f4f4ff !important;
+}
+
+body.parent-magic-view #coParentInviteOpenBtn {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+  font-weight: 800 !important;
+}
+
+body.parent-magic-view #coParentInviteModal .text-navy,
+body.parent-magic-view #coParentInviteModal label,
+body.parent-magic-view #coParentInviteModal h2 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view #coParentInviteModal input,
+body.parent-magic-view #coParentInviteModal select {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
 }
