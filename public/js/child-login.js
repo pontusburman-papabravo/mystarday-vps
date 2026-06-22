@@ -953,6 +953,10 @@ async function submitLogin() {
       familyId: data.user.familyId || null,
     });
     trackChildEntry('child_login_success', { username: data.user.username });
+    try {
+      sessionStorage.removeItem('entry_restore');
+      sessionStorage.removeItem('child_login_mode');
+    } catch (_) { /* ignore */ }
     showSuccess();
     setTimeout(() => { window.location.href = '/child/today'; }, 1200);
 
@@ -1184,6 +1188,9 @@ function escapeJs(str) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
+  try { sessionStorage.removeItem('child_login_mode'); } catch (_) { /* ignore */ }
+
   // Build keypad buttons
   buildKeypad();
   bindPinInput();

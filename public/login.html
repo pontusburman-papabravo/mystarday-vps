@@ -217,8 +217,9 @@
           </p>
         </div>
 
-        <!-- Back button -->
-        <button type="button" id="parentLoginBackBtn" class="magic-back-btn" aria-label="Tillbaka">
+        <!-- Back button (fullflow: AppEntry.goBack; web fallback: reveal role cards) -->
+        <button type="button" id="parentLoginBackBtn" class="magic-back-btn" aria-label="Tillbaka"
+          onclick="(window.AppEntry &amp;&amp; AppEntry.isFullEntryFlow()) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()">
           ← Tillbaka
         </button>
 
