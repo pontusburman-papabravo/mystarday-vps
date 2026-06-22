@@ -116,8 +116,29 @@
     }, 100);
   }
 
+  function updateActiveTabs() {
+    var nav = document.querySelector('.native-tab-bar');
+    if (!nav) return;
+    nav.querySelectorAll('a.tab-item').forEach(function (link) {
+      var href = link.getAttribute('href');
+      var tab = null;
+      for (var i = 0; i < activeTabs.length; i++) {
+        if (activeTabs[i].href === href) { tab = activeTabs[i]; break; }
+      }
+      var active = tab ? isActive(tab) : false;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
   function remount() {
-    unmount();
+    var existing = document.querySelector('.native-tab-bar');
+    if (existing) {
+      existing.innerHTML = buildNavHtml();
+      hideLegacyBottomNav();
+      return;
+    }
     tryMount();
   }
 
@@ -165,8 +186,13 @@
     remount();
   });
 
+  window.addEventListener('stjarndag-magic-navigated', function () {
+    updateActiveTabs();
+  });
+
   window.NativeTabBar = {
     remount: remount,
     mount: mount,
+    updateActiveTabs: updateActiveTabs,
   };
 })();
