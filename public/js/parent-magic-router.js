@@ -17,12 +17,12 @@
   };
 
   var PAGE_STYLES = {
-    dashboard: ['/css/dashboard-magic.css?v=4'],
+    dashboard: ['/css/dashboard-magic.css?v=5'],
   };
 
   var PAGE_SCRIPTS = {
     dashboard: [
-      '/js/dashboard-home-hub.js?v=4',
+      '/js/dashboard-home-hub.js?v=5',
       '/js/dashboard-daily-summary.js?v=2026-06-09-warmth',
       '/js/dashboard-child-handoff.js?v=2026-06-10-handoff',
       '/js/dashboard.js?v=2.38.0',

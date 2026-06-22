@@ -194,6 +194,27 @@
     }).join('');
   }
 
+  function renderCoParentCta(stats) {
+    if (!stats || stats.parent_count === undefined || stats.parent_count >= 2) return '';
+    if (window._stjarndagFeatures && !window._stjarndagFeatures.medforalder_cta) return '';
+    try {
+      var raw = localStorage.getItem('medforalder_cta_dismissed');
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Date.now() - parsed.ts < 7 * 24 * 60 * 60 * 1000) return '';
+      }
+    } catch (_) { /* show CTA */ }
+    return '<section class="parent-glass-card parent-coparent-cta">' +
+      '<div class="parent-coparent-cta-inner">' +
+      '<span class="parent-coparent-cta-icon" aria-hidden="true">👨‍👩‍👧</span>' +
+      '<div class="parent-coparent-cta-copy">' +
+      '<strong>Bjud in en medförälder</strong>' +
+      '<span>Så slipper ni fråga varandra om schemat</span>' +
+      '</div>' +
+      '<button type="button" class="parent-coparent-cta-btn" data-action="invite-coparent">Bjud in</button>' +
+      '</div></section>';
+  }
+
   function render(stats) {
     var mount = document.getElementById('parentHomeHubMount');
     if (!mount) return false;
@@ -229,6 +250,7 @@
       '<p class="parent-hub-sub">Här är en översikt av er familjs framsteg. ✨</p>' +
       '<div class="parent-hub-mascot" aria-hidden="true">⭐</div>' +
       '</div>' +
+      renderCoParentCta(stats) +
       '<section class="parent-ready-section parent-glass-card">' +
       '<div class="parent-ready-head">' +
       '<h2>Redo för nästa aktivitet' + (children.length > 1 ? ' <span class="parent-ready-count">(' + children.length + ' barn)</span>' : '') + '</h2>' +
@@ -296,6 +318,10 @@
           Auth.logout({ childFlow: true });
         } else {
           window.location.href = '/child-login';
+        }
+      } else if (action === 'invite-coparent') {
+        if (typeof window.openMedforalderCtaInvite === 'function') {
+          window.openMedforalderCtaInvite();
         }
       } else if (action === 'parent-logout') {
         if (window.DashboardChildHandoff && DashboardChildHandoff.parentLogout) {

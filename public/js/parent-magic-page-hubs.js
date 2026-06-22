@@ -166,6 +166,7 @@
     tagChild('legacyPasswordSection', 'profile');
     tagChild('familyName', 'family');
     tagChild('viewSwitchSection', 'family');
+    tagChild('coParentInviteSection', 'family');
     tagChild('pedagogInviteSection', 'family');
     tagChild('notifForm', 'app');
     tagChild('pushSection', 'app');

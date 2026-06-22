@@ -748,6 +748,59 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   margin-top: 2px;
 }
 
+/* ── Medförälder CTA (in hub) ── */
+.parent-coparent-cta {
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 204, 51, 0.45) !important;
+  background: linear-gradient(135deg, rgba(255, 204, 51, 0.16), rgba(255, 255, 255, 0.06)) !important;
+  box-shadow: 0 6px 24px rgba(255, 204, 51, 0.12);
+}
+
+.parent-coparent-cta-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.parent-coparent-cta-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.parent-coparent-cta-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.parent-coparent-cta-copy strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #f4f4ff;
+  margin-bottom: 2px;
+}
+
+.parent-coparent-cta-copy span {
+  display: block;
+  font-size: 12px;
+  color: rgba(244, 244, 255, 0.72);
+  line-height: 1.35;
+}
+
+.parent-coparent-cta-btn {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffcc33, #f5a623);
+  color: #1b2340;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255, 204, 51, 0.25);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .parent-action-tile:active,
   .parent-ready-child:active {

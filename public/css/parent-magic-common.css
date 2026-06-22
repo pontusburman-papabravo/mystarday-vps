@@ -651,8 +651,20 @@ body.parent-magic-view .magic-hub-links .text-text-soft {
 /* Dashboard invite/share CTAs — readable on dark magic shell */
 body.parent-magic-view #medforalderCtaBanner,
 body.parent-magic-view #delaAppenCtaBanner {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 204, 51, 0.35) !important;
+  background: rgba(255, 204, 51, 0.14) !important;
+  border: 2px solid rgba(255, 204, 51, 0.55) !important;
+  box-shadow: 0 4px 18px rgba(255, 204, 51, 0.12);
+}
+
+/* Magic home hub replaces the legacy banner row */
+body.parent-magic-dashboard #medforalderCtaBanner {
+  display: none !important;
+}
+
+body.parent-magic-view #medforalderCtaBtn {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+  font-weight: 800 !important;
 }
 
 body.parent-magic-view #delaAppenCtaBanner {
@@ -803,4 +815,38 @@ body.parent-magic-view #inviteModal input {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #fff !important;
+}
+
+/* Modal panels — opaque (global .bg-white dimming must not apply) */
+body.parent-magic-view .magic-modal-panel,
+body.parent-magic-view .fixed.inset-0 > .bg-white.rounded-2xl,
+body.parent-magic-view #medforalderCtaModal .bg-white {
+  background: #141432 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view #medforalderCtaModal .text-navy,
+body.parent-magic-view #medforalderCtaModal .font-heading,
+body.parent-magic-view #medforalderCtaModal label {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view #medforalderCtaModal .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view #medforalderCtaModal input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view #medforalderCtaModal {
+  z-index: 10050 !important;
+}
+
+body.parent-magic-view #coParentInviteSection .text-navy,
+body.parent-magic-view #coParentInviteSection label {
+  color: #f4f4ff !important;
 }
