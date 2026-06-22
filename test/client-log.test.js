@@ -31,4 +31,5 @@ test('login.html exposes roleAppleError for native role-selection', () => {
   assert.ok(html.includes('id="roleAppleLinkingPrompt"'), 'roleAppleLinkingPrompt missing');
   assert.ok(html.includes('apple-sign-in-diagnostics.js'), 'diagnostics script missing');
   assert.ok(!html.includes('if (!result || !result.idToken) return'), 'silent idToken return should be removed');
+  assert.ok(html.includes('onboarding_completed'), 'should log onboarding_completed explicitly');
 });

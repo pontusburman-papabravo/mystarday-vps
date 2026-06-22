@@ -286,6 +286,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
   const user = await window.authGuard();
   if (!user) return;
+  if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.logPost) {
+    AppleSignInDiagnostics.logPost('step_8_dashboard_loaded', { path: window.location.pathname });
+    AppleSignInDiagnostics.endPostLoginTrace();
+  }
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
 
   // ── View-mode redirect: pedagog-only or pedagog-preferred → pedagog-oversikt

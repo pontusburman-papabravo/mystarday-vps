@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v271';
+const CACHE_NAME = 'stjarndag-v272';
+// v272: Apple Sign In post-login trace — steps 6–8 (redirect, dashboard, login bounce)
 // v271: tablet magic view — bottom nav + help/feedback layout, upgrade package grid
 // v270: Apple Sign In — visible errors on role-selection, client-log diagnostics, backend [APPLE] logs (build 20)
 // v267: retroactive star entry discoverability — daily-log date deep-link, home hub backfill CTA, FAQ

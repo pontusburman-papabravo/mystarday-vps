@@ -394,28 +394,39 @@ const Auth = {
    */
   redirectToDashboard() {
     const user = this.getUser();
-    if (!user) return;
+    const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
+    if (!user) {
+      if (diag && diag.logPost) {
+        diag.logPost('step_7_redirect_aborted', { reason: 'no_user_in_localStorage' });
+      }
+      return;
+    }
+    let target = '/dashboard';
     if (user.type === 'child' || (!user.email && user.username)) {
       if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
         DeviceMode.enterChild();
       }
-      window.location.href = '/child-dashboard';
+      target = '/child-dashboard';
     } else if (user.isAdmin || user.is_admin) {
       if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
         DeviceMode.enterParent();
       }
-      window.location.href = '/admin';
+      target = '/admin';
     } else if (user.onboarding_completed === false) {
       if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
         DeviceMode.enterParent();
       }
-      window.location.href = '/onboarding';
+      target = '/onboarding';
     } else {
       if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
         DeviceMode.enterParent();
       }
-      window.location.href = '/dashboard';
+      target = '/dashboard';
     }
+    if (diag && diag.logPost) {
+      diag.logPost('step_7_dashboard_target', { target });
+    }
+    window.location.href = target;
   },
 
   requireAuth(type = null) {
@@ -873,17 +884,22 @@ window.apiFetch = async function(url, options = {}) {
  * Auth guard for parent-only pages.
  */
 window.authGuard = async function() {
-  // Always verify with API — localStorage may be cleared (privacy mode, mobile Safari)
-  // while httpOnly cookies are still valid. Do NOT redirect based on localStorage alone.
+  const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
   try {
     const res = await window.apiFetch('/api/auth/me');
     if (!res.ok) {
+      if (diag && diag.traceLoginBounce) {
+        diag.traceLoginBounce('auth_me_failed', { status: res.status, path: window.location.pathname });
+      }
       Auth.clearAuth();
       window.location.href = '/login';
       return null;
     }
     return await res.json();
-  } catch {
+  } catch (err) {
+    if (diag && diag.traceLoginBounce) {
+      diag.traceLoginBounce('auth_me_error', { message: err && err.message, path: window.location.pathname });
+    }
     Auth.clearAuth();
     window.location.href = '/login';
     return null;

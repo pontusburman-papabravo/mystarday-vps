@@ -46,7 +46,7 @@
   <script src="/js/auth.js?v=2.20.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-magic.js?v=155"></script>
-  <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22"></script>
+  <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
   <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
   <style>
     /* WCAG 2.5.8: min 44×44px touch target */
@@ -343,8 +343,10 @@
     }
 
     function redirectAfterParentLogin() {
+      var diag = window.AppleSignInDiagnostics;
       var pending = sessionStorage.getItem('cl_add_child_pending');
       if (pending === 'new') {
+        if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: '/onboarding?flow=add-child', via: 'add_child_pending' });
         sessionStorage.removeItem('cl_add_child_pending');
         sessionStorage.removeItem('cl_add_child_next');
         if (window.DeviceMode) DeviceMode.enterParent();
@@ -353,10 +355,12 @@
       }
       var nextUrl = getLoginNextUrl();
       if (nextUrl) {
+        if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: nextUrl, via: 'next_param' });
         if (window.DeviceMode) DeviceMode.enterParent();
         window.location.href = nextUrl;
         return;
       }
+      if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: '(via Auth.redirectToDashboard)', via: 'default' });
       setTimeout(function () { Auth.redirectToDashboard(); }, 300);
     }
 
@@ -636,8 +640,11 @@
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-          diag.log('step_5_login_complete', { onboarding: data.user.onboarding_completed });
+          diag.startPostLoginTrace();
+          diag.log('step_5_login_complete', { onboarding_completed: data.user.onboarding_completed });
+          diag.logPost('step_5b_session_after_setAuth', {});
           if (data.user.onboarding_completed === false) {
+            diag.logPost('step_6_redirect_start', { target: '/onboarding', via: 'onboarding_required' });
             setTimeout(() => { window.location.href = '/onboarding'; }, 300);
           } else {
             redirectAfterParentLogin();
@@ -645,7 +652,10 @@
         } else if (res.status === 201 && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.Pixel) window.Pixel.lead();
-          diag.log('step_5_login_complete', { scenario: 'created' });
+          diag.startPostLoginTrace();
+          diag.log('step_5_login_complete', { scenario: 'created', onboarding_completed: data.user.onboarding_completed });
+          diag.logPost('step_5b_session_after_setAuth', {});
+          diag.logPost('step_6_redirect_start', { target: '/onboarding', via: 'new_account' });
           setTimeout(() => window.location.href = '/onboarding', 300);
         } else if (res.status === 409 && data.error === 'email_conflict') {
           _applePendingEmail = data.email;

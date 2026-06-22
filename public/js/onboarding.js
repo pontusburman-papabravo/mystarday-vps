@@ -1124,6 +1124,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!Auth.isLoggedIn()) {
     if (!IS_ADD_CHILD) {
+      if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.traceLoginBounce) {
+        AppleSignInDiagnostics.traceLoginBounce('onboarding_not_logged_in', { path: window.location.pathname });
+      }
       window.location.href = '/login';
       return;
     }
@@ -1140,7 +1143,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     try {
       const res = await window.apiFetch('/api/auth/me');
-      if (!res.ok) { Auth.clearAuth(); window.location.href = '/login'; return; }
+      if (!res.ok) {
+        if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.traceLoginBounce) {
+          AppleSignInDiagnostics.traceLoginBounce('onboarding_auth_me_failed', { status: res.status });
+        }
+        Auth.clearAuth(); window.location.href = '/login'; return;
+      }
       me = await res.json();
       if (IS_ADD_CHILD && me.type === 'child' && (await Auth.hydrateUserFromLoginPicker())) {
         me = Auth.getUser();
@@ -1159,6 +1167,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   initIOSAvatarPicker();
   setupPinInputs();
   setupParentPinOnboardingInputs();
+  if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.logPost && AppleSignInDiagnostics.isPostLoginTraceActive()) {
+    AppleSignInDiagnostics.logPost('step_8_onboarding_loaded', { path: window.location.pathname });
+    AppleSignInDiagnostics.endPostLoginTrace();
+  }
   goToStep(1);
 
   // Show email verification banner if needed (after auth check)
