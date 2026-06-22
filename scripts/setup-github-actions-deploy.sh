@@ -79,6 +79,19 @@ EOF
 need_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     err "Saknar kommando: $1"
+    if [ "$1" = "gh" ]; then
+      cat <<'EOF' >&2
+
+Installera GitHub CLI på Mac:
+  brew install gh
+  gh auth login
+
+Utan Homebrew: https://cli.github.com/
+
+Kör sedan scriptet igen:
+  ./scripts/setup-github-actions-deploy.sh
+EOF
+    fi
     exit 1
   fi
 }

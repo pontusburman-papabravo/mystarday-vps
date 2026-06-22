@@ -25,7 +25,7 @@ Scriptet läser deploy-värden från deploy-regelfilen automatiskt.
 
 | Verktyg | Installera | Kontrollera |
 |---------|------------|-------------|
-| GitHub CLI | `brew install gh` | `gh auth login` |
+| GitHub CLI | `brew install gh` (**krävs**) | `gh auth login` |
 | SSH | ingår i macOS | `ssh -V` |
 | Åtkomst till VPS | se deploy-regelfilen | `ssh deploy@server-188-66-60-93` |
 
