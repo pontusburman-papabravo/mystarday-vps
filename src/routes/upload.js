@@ -45,7 +45,36 @@ function sanitizeFilename(name) {
 const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 const avatarMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
-router.post('/', requireParent, uploadMiddleware.single('image'), async (req, res) => {
+function handleMulterError(err, req, res, next) {
+  if (!err) return next();
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    const isAvatar = (req.path || '').includes('avatar');
+    return res.status(413).json({
+      error: isAvatar ? 'Bilden är för stor (max 2 MB)' : 'Bilden är för stor (max 5 MB)',
+    });
+  }
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return res.status(400).json({ error: 'Ogiltigt fältnamn för bilduppladdning' });
+  }
+  console.error('[UPLOAD] Multer error:', err.message);
+  return res.status(400).json({ error: 'Kunde inte ta emot bilden' });
+}
+
+function avatarUpload(req, res, next) {
+  avatarMiddleware.single('image')(req, res, function (err) {
+    if (err) return handleMulterError(err, req, res, next);
+    next();
+  });
+}
+
+function imageUpload(req, res, next) {
+  uploadMiddleware.single('image')(req, res, function (err) {
+    if (err) return handleMulterError(err, req, res, next);
+    next();
+  });
+}
+
+router.post('/', requireParent, imageUpload, async (req, res) => {
   try {
     if (!isObjectStorageConfigured()) {
       return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });
@@ -76,7 +105,7 @@ router.post('/', requireParent, uploadMiddleware.single('image'), async (req, re
   }
 });
 
-router.post('/avatar', requireParent, avatarMiddleware.single('image'), async (req, res) => {
+router.post('/avatar', requireParent, avatarUpload, async (req, res) => {
   try {
     if (!isObjectStorageConfigured()) {
       return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });

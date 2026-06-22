@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v284';
+const CACHE_NAME = 'stjarndag-v285';
+// v285: Byt foto v2 — HEIC→JPEG on iOS, readable save errors, centered error toast
 // v284: Applandningssidan v2 — welcome/role/adult entry flow, app-entry.js state machine, child "Jag hittar inte mig själv"
 // v283: avatar upload compress + reports mobile nav header fix (combined deploy)
 // v282: reports mobile — stop injecting sidebar nav into page header

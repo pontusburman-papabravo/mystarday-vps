@@ -584,14 +584,23 @@ var Platform = (function () {
     }
   }
 
+  function capacitorFileUrl(path) {
+    if (!path) return null;
+    if (typeof Capacitor !== 'undefined' && typeof Capacitor.convertFileSrc === 'function') {
+      return Capacitor.convertFileSrc(path);
+    }
+    return path;
+  }
+
   async function nativeGetPhoto(Camera, opts, source) {
+    // base64: iOS converts HEIC→JPEG; uri alone often leaves HEIC that canvas/server reject.
     var result = await Camera.getPhoto({
       quality: nativePhotoQuality(opts),
       allowEditing: false,
       resultType: 'base64',
       source: source,
-      width: 1024,
-      height: 1024,
+      width: 800,
+      height: 800,
       correctOrientation: true,
       presentationStyle: 'fullscreen',
       promptLabelHeader: 'Välj foto',
@@ -616,13 +625,24 @@ var Platform = (function () {
         mimeType: 'image/jpeg',
       };
     }
-    if (result.webPath) {
-      var resp = await fetch(result.webPath);
+    var fetchPath = result.webPath || capacitorFileUrl(result.path);
+    if (fetchPath) {
+      var resp = await fetch(fetchPath);
       if (!resp.ok) return null;
       var blob = await resp.blob();
-      return blobToDataUrlPick(blob);
+      return await blobToDataUrlPick(blob);
     }
     return null;
+  }
+
+  function normalizePublicUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    var trimmed = url.trim();
+    if (!trimmed) return trimmed;
+    if (trimmed.indexOf('/') === 0) {
+      return window.location.origin + trimmed;
+    }
+    return trimmed;
   }
 
   function blobToDataUrlPick(blob) {
@@ -659,34 +679,62 @@ var Platform = (function () {
   /** Resize + JPEG compress so avatar upload stays under 2 MB server limit. */
   async function compressAvatarBlob(blob) {
     var maxBytes = 1800000;
-    var maxDim = 1024;
+    var maxDim = 800;
     if (!blob || !(blob instanceof Blob)) throw new Error('Ogiltig bild');
-    if (blob.size <= maxBytes && /^image\/jpe?g$/i.test(blob.type || '')) {
-      return blob;
+    try {
+      var img = await loadImageFromBlob(blob);
+      var w = img.naturalWidth || img.width || 1;
+      var h = img.naturalHeight || img.height || 1;
+      var scale = Math.min(1, maxDim / Math.max(w, h));
+      var cw = Math.max(1, Math.round(w * scale));
+      var ch = Math.max(1, Math.round(h * scale));
+      var canvas = document.createElement('canvas');
+      canvas.width = cw;
+      canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Kunde inte bearbeta bilden');
+      ctx.drawImage(img, 0, 0, cw, ch);
+      var quality = 0.88;
+      var compressed = null;
+      while (quality >= 0.45) {
+        compressed = await new Promise(function (resolve) {
+          canvas.toBlob(resolve, 'image/jpeg', quality);
+        });
+        if (compressed && compressed.size <= maxBytes) return compressed;
+        quality -= 0.08;
+      }
+      if (compressed) return compressed;
+    } catch (compressErr) {
+      console.warn('[Platform.camera] compress fallback:', compressErr);
+      if (blob.size <= maxBytes) return blob;
     }
-    var img = await loadImageFromBlob(blob);
-    var w = img.naturalWidth || img.width || 1;
-    var h = img.naturalHeight || img.height || 1;
-    var scale = Math.min(1, maxDim / Math.max(w, h));
-    var cw = Math.max(1, Math.round(w * scale));
-    var ch = Math.max(1, Math.round(h * scale));
-    var canvas = document.createElement('canvas');
-    canvas.width = cw;
-    canvas.height = ch;
-    var ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Kunde inte bearbeta bilden');
-    ctx.drawImage(img, 0, 0, cw, ch);
-    var quality = 0.88;
-    var compressed = null;
-    while (quality >= 0.45) {
-      compressed = await new Promise(function (resolve) {
-        canvas.toBlob(resolve, 'image/jpeg', quality);
-      });
-      if (compressed && compressed.size <= maxBytes) return compressed;
-      quality -= 0.08;
-    }
-    if (compressed) return compressed;
     throw new Error('Bilden är för stor — prova en mindre bild');
+  }
+
+  function postFormDataNative(url, fd, headers) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.withCredentials = true;
+      if (headers) {
+        Object.keys(headers).forEach(function (key) {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+      }
+      xhr.onload = function () {
+        resolve({
+          ok: xhr.status >= 200 && xhr.status < 300,
+          status: xhr.status,
+          clone: function () { return this; },
+          json: function () {
+            try { return Promise.resolve(JSON.parse(xhr.responseText || '{}')); }
+            catch (_) { return Promise.resolve({}); }
+          },
+        });
+      };
+      xhr.onerror = function () { reject(new Error('Nätverksfel vid uppladdning')); };
+      xhr.send(fd);
+    });
   }
 
   function dataUrlToBlob(dataUrl) {
@@ -839,12 +887,16 @@ var Platform = (function () {
         var csrf = authObj.getCsrfToken();
         if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
         var headers = { 'X-CSRF-Token': csrf };
-        return fetch('/api/upload/avatar', {
-          method: 'POST',
-          credentials: 'include',
-          headers: headers,
-          body: fd,
-        });
+        var transport = isNative() ? postFormDataNative : fetch;
+        if (transport === fetch) {
+          return fetch('/api/upload/avatar', {
+            method: 'POST',
+            credentials: 'include',
+            headers: headers,
+            body: fd,
+          });
+        }
+        return postFormDataNative('/api/upload/avatar', fd, headers);
       }
 
       var result = await postAvatar(false);
@@ -862,7 +914,9 @@ var Platform = (function () {
         throw new Error(err.error || 'Uppladdning misslyckades (' + result.status + ')');
       }
       var json = await result.json();
-      return json.url;
+      var url = normalizePublicUrl(json.url);
+      if (!url) throw new Error('Servern returnerade ingen bild-URL');
+      return url;
     },
   };
 

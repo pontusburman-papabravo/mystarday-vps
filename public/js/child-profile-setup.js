@@ -26,6 +26,19 @@
     }
   }
 
+  async function formatApiError(res, fallback) {
+    try {
+      var data = await res.json();
+      if (data && data.error) {
+        if (data.details && data.details.length) {
+          return data.error + ' (' + data.details.join('; ') + ')';
+        }
+        return data.error;
+      }
+    } catch (_) { /* non-json */ }
+    return fallback + ' (felkod ' + res.status + ')';
+  }
+
   function toggleRow(id, label, sub, on) {
     return '<div class="flex items-center justify-between gap-3 py-3 border-b border-lavender last:border-0 child-profile-setup-row">' +
       '<div class="flex-1 min-w-0"><p class="text-sm font-semibold text-navy">' + esc(label) + '</p>' +
@@ -170,12 +183,18 @@
           photoBtn.disabled = true;
           photoBtn.textContent = 'Laddar upp…';
           var url = await Platform.camera.upload(result);
-          if (!safeAvatarUrl(url)) throw new Error('unsafe url');
+          if (!url || !safeAvatarUrl(url)) {
+            throw new Error('Uppladdningen gav en ogiltig bildadress — försök igen');
+          }
           var res = await saveChildField(child.id, 'avatar_url', url);
-          if (!res.ok) throw new Error('upload');
+          if (!res.ok) {
+            throw new Error(await formatApiError(res, 'Kunde inte spara profilbilden'));
+          }
           var updated = await res.json();
           child.avatar_url = updated.avatar_url || url;
-          if (!safeAvatarUrl(child.avatar_url)) throw new Error('unsafe url');
+          if (!safeAvatarUrl(child.avatar_url)) {
+            throw new Error('Profilbilden sparades men kunde inte visas — ladda om sidan');
+          }
           var img = document.getElementById('profileSetupAvatar');
           if (img) img.src = child.avatar_url;
           else {
@@ -192,7 +211,7 @@
         } catch (err) {
           var msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
           console.error('[child-profile-setup] photo save failed:', msg);
-          showToast(msg, true);
+          showToast(msg, 'error', 7000);
         } finally {
           photoBtn.disabled = false;
           photoBtn.textContent = 'Byt foto';
