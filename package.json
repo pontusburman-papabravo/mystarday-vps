@@ -42,6 +42,7 @@
     "cap:dev": "CAP_DEV=true npx cap sync",
     "play-store:assets": "node scripts/generate-play-store-assets.mjs",
     "marketing:video": "NODE_ENV=development node scripts/capture-marketing-video.mjs",
+    "marketing:video:guided": "NODE_ENV=development MARKETING_VIDEO_MODE=guided-short node scripts/capture-marketing-video.mjs",
     "android:aab": "node scripts/build-android-aab.mjs"
   },
   "dependencies": {
