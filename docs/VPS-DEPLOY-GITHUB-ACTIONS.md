@@ -1,5 +1,7 @@
 # Automatisk deploy till VPS (GitHub Actions)
 
+**Steg-för-steg + setup-script:** [`VPS-DEPLOY-SETUP.md`](VPS-DEPLOY-SETUP.md) — kör `./scripts/setup-github-actions-deploy.sh` på Mac.
+
 Workflow: [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml)
 
 Körs vid **push till `main`** och kan även startas manuellt under **Actions → Deploy to VPS → Run workflow**.
