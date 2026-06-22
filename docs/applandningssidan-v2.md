@@ -2,12 +2,12 @@
 # Applandningssidan v2.1 — App Entry Spec
 
 > **Status:** Design / Dev Ready · låsta beslut 2026-06-22  
-> **Version:** 2.1.1  
+> **Version:** 2.2  
 > **Plattform:** iOS / Android native (primärt); webbläsare sekundärt  
 > **Yta:** Entry, inloggning, första vägval, vuxen-/barnflöde före inloggat läge  
 > **Senast uppdaterad:** 2026-06-22
 >
-> **Copy-variabel:** `{{APP_NAME}}` = produktnamnet i UI (se varumärkesguide).
+> **Copy-variabel:** `{{APP_NAME}}` = fullständiga varumärket (**Min** + **Stjärndag**, två ord — aldrig enbart "Stjärndag").
 >
 > **Relaterat (nuvarande implementation):**
 > - [`public/login.html`](../public/login.html) — dagens appstart
@@ -444,370 +444,711 @@ Se §4 per skärm. All copy ovan är **godkänd för implementation**.
 
 ---
 
-# 6. Komponenter (design/dev)
 
-## 6.1 Global lista
+# 9. Design tokens & visuellt språk
 
-**Layout:** `EntryScreenContainer` · `GradientBackground` · `StarfieldDecoration` · `TopBackButtonRow` · `CenteredHeroBlock` · `ButtonStack` · `HighlightChips`
+> **Princip:** Entry-flödet ska visuellt matcha befintlig "Magisk natt"-stil i `login-magic.css` / `child-login-magic.css`. Mockup-tokens (Poppins, `#5B3D8B`) är **referens** — implementation följer befintliga fonts tills hela appen byter.
 
-**UI:** `BrandLogo` · `HeadlineText` · `BodyText` · `PrimaryButton` · `SecondaryButton` · `TextLink` · `RoleCard` · `StepCard` · `HighlightChip` · `AuthButtonApple` · `AuthButtonEmail` · `AuthButtonGoogle` · `TextInputField` · `PinInputField` · `InlineInfoBox` · `HowItWorksSheet` · `ErrorText` · `LoadingButtonState`
+## 9.1 Färgpalett
 
-## 6.2 Nyckelkomponenter
+| Token | Hex / värde | Användning |
+|-------|-------------|------------|
+| `entry-bg-gradient` | `#0f1a3d` → `#f5a2b8` (160deg, se CSS) | Fullskärmsbakgrund |
+| `entry-bg-glow-purple` | `rgba(147,112,219,0.35)` | Radial accent |
+| `entry-bg-glow-pink` | `rgba(255,105,180,0.30)` | Radial accent |
+| `entry-surface-glass` | `rgba(255,255,255,0.07)` | Kort, paneler |
+| `entry-surface-glass-hover` | `rgba(255,255,255,0.14)` | Kort hover |
+| `entry-border-subtle` | `rgba(255,255,255,0.15)` | Kortborder |
+| `entry-border-active` | `rgba(255,255,255,0.45)` | Fokus/hover |
+| `entry-text-primary` | `#ffffff` | Rubriker på mörk bg |
+| `entry-text-secondary` | `rgba(255,255,255,0.85)` | Brödtext |
+| `entry-text-muted` | `rgba(255,255,255,0.60)` | Hjälptext, labels |
+| `entry-cta-gold` | `#F5A623` | Primär CTA (befintlig `gold`) |
+| `entry-cta-gold-pressed` | `#D4891A` | Primär pressed |
+| `entry-role-kid-bg` | `rgba(147,112,219,0.22)` | Barn-rollkort |
+| `entry-role-adult-bg` | `rgba(251,191,36,0.18)` | Vuxen-rollkort |
+| `entry-auth-apple-bg` | `#ffffff` | Apple-knapp |
+| `entry-auth-apple-text` | `#1d1d1f` | Apple-knapp text |
+| `entry-error` | `#ef4444` | Feltext, error border |
+| `entry-success` | `#4CAF50` | Checkmarks (referens) |
+| `entry-input-bg` | `rgba(255,255,255,0.08)` | Input på mörk bg |
+| `entry-input-border-focus` | `rgba(255,255,255,0.55)` | Input focus |
 
-### `PrimaryButton`
+## 9.2 Gradient & bakgrund
 
-Full width · höjd 52–56 pt · radius 16–18 pt · accent-gul (`#FFC93D` eller befintlig `gold: #F5A623`) · states: default/pressed/disabled/loading
+- **Bas:** `.login-magic-bg` — lager av radial + linear gradient (behåll)
+- **Dekoration:** `#stars-container` + `#clouds-container` — animerade partiklar (behåll `login-magic.js` `generateStars()`)
+- **Regel:** Samma bakgrund på skärm 1–5 och child-login — visuell kontinuitet
+- **Kontrast:** Text och CTA ska hålla WCAG AA mot gradient (testa rubrik + gul knapp)
 
-### `RoleCard`
+## 9.3 Typografi
 
-Full width · min-höjd 132–156 pt · glasig lila panel · radius 20–24 pt · hela ytan tappable
+| Roll | Font (implementation) | Weight | Storlek (ref) |
+|------|----------------------|--------|---------------|
+| Display / logo | Outfit | 800 | 2.4rem (`login-magic-logo h1`) |
+| Rubrik H1 | Outfit | 700–800 | 1.5–1.75rem |
+| Rubrik H2 | Outfit | 700 | 1.15–1.25rem |
+| Brödtext | Plus Jakarta Sans | 400–500 | 0.95–1rem |
+| Knapp | Plus Jakarta Sans / system (Apple) | 600 | 1rem |
+| Hjälptext | Plus Jakarta Sans | 400 | 0.78–0.85rem |
+| Chip / label | Plus Jakarta Sans | 600 | 0.8rem |
+| Tagline | Plus Jakarta Sans | 500 | 0.95rem, uppercase, letter-spacing 0.06em |
 
-### `HighlightChip`
+**Varumärke i UI:** Skriv alltid **Min Stjärndag** i intro/welcome — inte enbart "Stjärndag" (undantag: barnlogin-frasen *"din Stjärndag"* som redan finns i copy). <!-- pragma: allowlist secret -->
 
-3 st på skärm 1 — ikon + kort label · låg profil, inte konkurrerande med CTA
+## 9.4 Spacing scale
 
-### `PinInputField`
+| Token | värde | Användning |
+|-------|-------|------------|
+| `space-xs` | 4px | Tät inline |
+| `space-sm` | 8px | Mellan chip/ikon |
+| `space-md` | 12px | Kort gap, divider |
+| `space-lg` | 16px | Sektionspadding |
+| `space-xl` | 20–24px | Mellan block |
+| `space-2xl` | 32px | Logo → rubrik |
+| `space-3xl` | 40–48px | Hero → CTA-stack |
+| `container-padding-x` | 16px | Sidomarginal mobil |
+| `container-max-width` | 400px | Entry-kolumn (matchar `login.html`) |
 
-**Rekommendation:** 4 separata siffror (barn) · MVP: ett maskat fält acceptabelt
+## 9.5 Corner radius & elevation
 
-## 6.3 Design tokens
+| Element | Radius | Shadow |
+|---------|--------|--------|
+| Primär knapp | 14–16px | `0 4px 16px rgba(245,166,35,0.35)` |
+| Sekundär knapp | 12px | none |
+| Rollkort | 22px | none (glass) |
+| Profilkort (barn) | 16–20px | `0 4px 20px rgba(0,0,0,0.25)` |
+| Input | 12–14px | none |
+| Logo mascot | 16px | `0 4px 20px rgba(0,0,0,0.3)` |
+| Bottom sheet | 20px top corners | `0 -8px 32px rgba(0,0,0,0.2)` |
+| Modal | 20px | `0 20px 60px rgba(0,0,0,0.35)` |
 
-| Token | Mockup | Befintlig kod |
-|-------|--------|---------------|
-| Primär lila | `#5B3D8B` | `login-magic.css` gradient |
-| Accent-gul | `#FFC93D` | `#F5A623` (theme gold) |
-| Typsnitt | Poppins | Outfit + Plus Jakarta Sans |
-| Touch target | min 44×44 pt | Redan i `login.html` |
+## 9.6 Ikoner & illustrationer
 
-**Beslut:** Behåll befintliga fonts om inte hela appen byter — mockup-Poppins är referens, inte krav.
+- **Logo:** befintlig stjärnmascot (`login-magic-logo .logo-mascot`, 56×56)
+- **Rollkort:** befintliga genererade illustrationer (barn / familj) — behåll
+- **Highlights (skärm 1):** emoji eller enkla line-icons — max 3, samma storlek
+- **Profilavatar:** emoji → `avatar_url` → ⭐-placeholder (befintlig kedja i child-login)
+- **Stil:** Varm, rund, inte corporate — inga hårda kantiga systemikoner i barnflödet
 
----
+## 9.7 Komponent-state-färger
 
-# 7. Interaktionsregler, states och felhantering
-
-## 7.1 Back-navigation 🔒 LÅST
-
-Back ska gå till **den faktiska väg användaren tog** — spara `entry_path` i state.
-
-| Från | Tillbaka till | Villkor |
-|------|---------------|---------|
-| Skärm 2 | Skärm 1 | alltid |
-| Skärm 3 (barn) | Skärm 2 | alltid |
-| Skärm 4A | Skärm 2 | alltid |
-| Skärm 4B | Skärm 1 | om entry via "Jag har redan konto" på skärm 1 |
-| Skärm 4B | Skärm 4A | om entry via skärm 2 → vuxen → "Jag har redan konto" |
-| Skärm 5 | Skärm 4A | alltid |
-| Barnlogin variant B | Skärm 2 eller profilväljare | beroende på hur användaren kom dit |
-
-**Implementation:** `sessionStorage.entry_back_target` eller motsvarande per navigation.
-
-## 7.1.1 Plattform 🔒 LÅST
-
-| Plattform | Entry-flöde |
-|-----------|---------------|
-| **Native (iOS/Android)** | Full v2.1 — `platform-theme.js` redirect till welcome |
-| **PWA standalone** | Som native (`matchMedia standalone`) |
-| **Vanlig webb** | `index.html` = marknadsförstavy · `/login` = samma vuxenloginlogik som 4B · rolllogik kan följa v2.1 över tid |
-
-## 7.2 Auth avbruten
-
-Om Apple/Google stängs: ingen hård error · tillbaka till login-yta · ev. diskret: *Inloggningen avbröts*
-
-## 7.3 Loading states
-
-- Disable dubbeltryck på primär CTA under nätverk/auth
-- Spinner i knapp
-- Disable parallella auth-försök
-
-## 7.4 Form states
-
-| State | Beteende |
-|-------|----------|
-| Default | Tomma fält · neutral border |
-| Focus | Tydligare border/accent |
-| Error | Röd markering · feltext under fält |
-| Disabled | Sparsamt — föredra aktiv knapp + fel efter tryck för barn |
-
-## 7.5 Barnlogin — UX vid fel
-
-- Rensa **inte** namn automatiskt vid fel credentials
-- Rensa PIN om säkrare/tydligare
-
-## 7.6 Session / återbesök
-
-| State | Beteende |
-|-------|----------|
-| Vuxen inloggad | Hoppa entry → `/dashboard` (befintlig logik i `login.html`) |
-| Barn inloggad | Hoppa entry → `/child/today` |
-| Add-child deep link | Hoppa welcome · tvinga vuxenlogin (`?next=addChild`) |
-
----
-
-# 8. Mätning, KPI:er och event tracking
-
-## 8.1 Syfte
-
-Svara på: Förstår fler? · Fler når konto/schema? · Färre barn i vuxenlogin? · Snabbare vuxenlogin? · Var faller de ur?
-
-## 8.2 KPI:er
-
-| KPI | Mätning |
-|-----|---------|
-| **KPI 1** Start rate till rätt väg | Barn vs vuxen från entry |
-| **KPI 2** Vuxen signup conversion | `app_open` → `signup_started` → `signup_completed` |
-| **KPI 3** Första värdeskapande | `signup_completed` → `first_schema_created` |
-| **KPI 4** Barnlogin success | Andel lyckade utan >1 fel |
-
-**Sekundärt:** CTR Kom igång · CTR Jag har redan konto · CTR Så fungerar appen · drop-off 4A→4B · drop-off 5→signup
-
-## 8.3 Eventlista
-
-Alla events: `platform` · `entry_version: v2_1`
-
-| Event | När |
-|-------|-----|
-| `app_opened` | App öppnas till entry |
-| `entry_welcome_viewed` | Skärm 1 |
-| `entry_cta_started` | "Kom igång" |
-| `entry_existing_account_tapped` | "Jag har redan konto" (skärm 1) |
-| `entry_how_it_works_opened` | "Så fungerar appen" |
-| `role_selection_viewed` | Skärm 2 |
-| `role_child_selected` | Jag är barn |
-| `role_adult_selected` | Jag är vuxen |
-| `child_login_viewed` | Skärm 3 |
-| `child_login_submitted` | Logga in · props: `name_filled`, `pin_length` |
-| `child_login_success` | OK |
-| `child_login_failed` | props: `reason` |
-| `child_login_mode_viewed` | props: `mode` (profile_picker \| name_pin), `profiles_count` |
-| `child_profile_selected` | profil vald i variant A |
-| `child_profile_not_found_clicked` | "Jag hittar inte mig själv" |
-| `adult_start_viewed` | Skärm 4A |
-| `adult_existing_selected` | Jag har redan konto (4A) |
-| `adult_new_selected` | Jag är ny här |
-| `adult_login_viewed` | Skärm 4B |
-| `adult_login_method_selected` | props: `method` (apple/google/email) |
-| `adult_login_success` | props: `method` |
-| `adult_login_failed` | props: `method`, `reason` |
-| `adult_signup_intro_viewed` | Skärm 5 |
-| `signup_started` | "Skapa konto kostnadsfritt" · `source: adult_intro` |
-| `signup_completed` | props: `method` |
-| `first_schema_created` | Aktivering |
-| `first_child_profile_ready` | Barn + PIN klart |
-
-## 8.4 Funnels
-
-**Funnel A — Ny vuxen:**
-`entry_welcome_viewed` → `entry_cta_started` → `role_adult_selected` → `adult_new_selected` → `signup_started` → `signup_completed` → `first_schema_created`
-
-**Funnel B — Återkommande vuxen:**
-`entry_welcome_viewed` → `entry_existing_account_tapped` → `adult_login_viewed` → `adult_login_method_selected` → `adult_login_success`
-
-**Funnel C — Barn:**
-`entry_welcome_viewed` → `entry_cta_started` → `role_child_selected` → `child_login_viewed` → `child_login_submitted` → `child_login_success`
-
-## 8.5 Success criteria (2–4 veckor post-release)
-
-- Högre CTR "Kom igång" vs nuvarande
-- Högre signup start-rate · lägre drop-off före signup
-- Färre vuxenlogin-exponeringar för barn
-- Hög barnlogin-success
-- Färre dead-end-sessioner (öppnar men inget steg)
+| State | Border | Background | Text |
+|-------|--------|------------|------|
+| Default | `entry-border-subtle` | glass | primary |
+| Hover/pressed | `entry-border-active` | glass-hover | primary |
+| Focus | vit/ljus border 2px | — | — |
+| Disabled | 40% opacity | — | muted |
+| Error | `entry-error` | `rgba(239,68,68,0.12)` | `entry-error` |
+| Loading | — | 70% opacity + spinner | — |
 
 ---
 
-# 9. Acceptanskriterier (v2.1)
+# 10. Komponentbibliotek (entry)
 
-| ID | Kriterium |
-|----|-----------|
-| AC-W1 | Kall start → `ENTRY_WELCOME` först (ej deep link) |
-| AC-W2 | Skärm 1: branding · rubrik · highlights · två CTA · hjälptext |
-| AC-W3 | **Ingen** vuxenauth på skärm 1 |
-| AC-W4 | "Kom igång" → skärm 2 |
-| AC-W5 | "Jag har redan konto" → skärm 4B **direkt** (1 tryck) |
-| AC-R1 | Skärm 2: exakt två rollkort, inga authknappar |
-| AC-R2 | Barn → skärm 3 · Vuxen → skärm 4A |
-| AC-CL1 | Skärm 3: hybrid — profilväljare om profiler finns, annars namn + PIN |
-| AC-CL2 | "Jag hittar inte mig själv" → variant B utan vuxenlogin |
-| AC-CL3 | Fel copy enligt §4.3.5 · profil/namn behålls vid credentials-fel |
-| AC-AS1 | Skärm 4A: konto vs ny — inga loginmetoder |
-| AC-AL1 | Skärm 4B: plattformsanpassade auth-metoder |
-| AC-AL2 | Back från 4B → 1 eller 4A beroende på `entry_path` |
-| AC-SI1 | Skärm 5: intro + "Skapa konto kostnadsfritt" |
-| AC-N1 | Alla skärmar utom 1 har back |
-| AC-NF1 | Touch 44×44 pt · WCAG AA · VoiceOver labels · loading/disabled på auth |
+## 10.1 Primary button (`PrimaryButton` / `.primary-btn-entry`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Full-width container · label centrerad · optional spinner |
+| **Min höjd** | 52px (44px touch + padding) |
+| **Padding** | 15px 20px |
+| **Radius** | 14–16px |
+| **BG** | `entry-cta-gold` gradient eller solid |
+| **Text** | `#1B2340` eller mörk navy — kontrast AA |
+| **States** | default · `:active` scale 0.98 · disabled 50% · loading spinner |
+| **Touch** | min 44×44 pt |
+| **Används på** | Skärm 1 Kom igång · Skärm 3 Logga in · Skärm 5 Skapa konto |
+
+## 10.2 Secondary / tertiary button
+
+| Variant | Stil | Används på |
+|---------|------|------------|
+| **Secondary** (`.ghost-btn`) | Transparent · 2px vit border 30% · vit text | Jag har redan konto |
+| **Tertiary** (`.text-link`) | Underline eller plain text · muted | Så fungerar appen · Tillbaka |
+
+## 10.3 Role card (`RoleCard` / `.role-card`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Illustration 58×58 · `.card-label` · `.card-sub` |
+| **Layout** | Grid 1×2 mobil · min-height 130px · padding 22×16 |
+| **Kid variant** | `.kid-card` — lila tint |
+| **Adult variant** | `.parent-card` — gul tint |
+| **States** | hover translateY(-4px) · active scale 0.98 |
+| **Används på** | Skärm 2 · ev. Skärm 4A (alternativ-layout) |
+
+## 10.4 Feature chip (`HighlightChip`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Ikon/emoji + kort label |
+| **Layout** | Rad eller wrap · max 3 · gap 8px |
+| **Stil** | `rgba(255,255,255,0.12)` bg · radius 999px eller 12px |
+| **Används på** | Skärm 1 only |
+
+## 10.5 Text input (`TextInputField`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Label · input · optional error |
+| **Höjd** | 52px |
+| **Radius** | 12px |
+| **Font** | Plus Jakarta Sans 1rem |
+| **States** | empty · focus · filled · error · disabled |
+| **Används på** | Skärm 3B namn · Skärm 4B e-post (subvy) |
+
+## 10.6 PIN input (`PinInputField`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Variant A (MVP)** | Maskat fält · numeriskt keyboard |
+| **Variant B (mål)** | 4 separata prickar/celler — befintlig keypad i `child-login.js` |
+| **Maskering** | ● ● ● ● |
+| **Används på** | Skärm 3A efter profilval · Skärm 3B |
+
+## 10.7 Child profile card
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Avatar 64–80px · namn under |
+| **Layout** | Grid 2×2 eller 2×N · gap 12–16px |
+| **Selected** | Border guld/vit · scale 1.02 |
+| **Används på** | Skärm 3A (`paintChildListCards`) |
+
+## 10.8 Inline error (`ErrorText` / `.magic-error-box`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Placering** | Direkt under fält eller ovanför CTA |
+| **Färg** | `entry-error` |
+| **Ton** | Lugn, hjälpsam — aldrig skällande |
+| **Används på** | Alla formulär + auth-fel |
+
+## 10.9 Bottom sheet — "Så fungerar appen" (`HowItWorksSheet`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Drag handle · 3 kort · stäng-knapp |
+| **Höjd** | max 70vh · scroll inuti |
+| **Bakgrund** | Vit eller mörk glass — kontrast mot gradient |
+| **Används på** | Skärm 1 |
+
+## 10.10 Hero block (`EntryHeroBlock`)
+
+| Egenskap | Värde |
+|----------|-------|
+| **Anatomy** | Logo · H1 · brödtext · chips |
+| **Vertikal ordning** | Logo → rubrik → brödtext → chips → (CTA i footer) |
+| **Används på** | Skärm 1 · delvis Skärm 5 |
+
+## 10.11 Auth buttons
+
+| Komponent | Klass | Plattform |
+|-----------|-------|-----------|
+| Apple | `.apple-btn-magic` | iOS (+ ev. web Safari) |
+| Google | `.apple-btn-magic` variant | Android |
+| E-post | `.ghost-btn` eller `.primary-btn-entry` | Alla |
+
+**Används på:** Skärm 4B only (v2.1-regel).
 
 ---
 
-# 10. Flödesdiagram
+# 11. Layout, responsivitet & native-beteende
 
-## 10.1 App open routing
+## 11.1 Viewport-regler
+
+| Regel | Värde |
+|-------|-------|
+| Min viewport | 320×568 (iPhone SE) |
+| Max content width | 400px centrerat |
+| Orientation | Portrait-first — landscape ska fungera men behöver inte optimeras v1 |
+| Min height | `100vh` / `100dvh` med safe areas |
+
+## 11.2 Safe areas
+
+- Använd befintliga klasser: `.safe-area-top` · `.safe-area-bottom` · `.safe-area-left` · `.safe-area-right`
+- Alla entry-skärmar: `body` med safe-area-klasser (som `login.html`)
+- CTA-stack: minst `env(safe-area-inset-bottom)` + 16px padding
+- Native: `platform-theme.js` sätter `maximum-scale=1, user-scalable=no`
+
+## 11.3 Scroll vs fixed CTA
+
+| Skärm | Scroll | CTA |
+|-------|--------|-----|
+| Skärm 1 | Hela skärmen scroll vid behov | CTA i nedre del — sticky om innehåll > viewport |
+| Skärm 2 | Sällan scroll | Kort centrerade |
+| Skärm 3 (profil) | Grid scroll om många barn | PIN + Logga in fixed längst ned |
+| Skärm 4B | Scroll OK | Auth-knappar stack |
+| Skärm 5 | Scroll OK | Primär CTA synlig utan scroll på standardmobil |
+
+**Regel:** Primär CTA ska vara synlig utan scroll på iPhone 14-storlek för skärm 1 (test).
+
+## 11.4 Små skärmar
+
+- Rollkort: behåll 2-kolumns grid tills <340px → överväg 1 kolumn
+- Profilgrid: 2 kolumner · vid 1 barn — stor central card eller auto-select PIN
+- Rubrik: min 1.35rem på små skärmar
+- Highlights: wrap till 2+1 eller vertikal stack
+
+## 11.5 Tangentbord
+
+| Yta | Beteende |
+|-----|----------|
+| Barn namn (3B) | `scrollIntoView` på focus · CTA ovanför keyboard |
+| PIN (3A/3B) | Egen keypad föredras (befintlig) — undvik OS-keyboard om möjligt |
+| E-post login | Native keyboard · scroll form into view |
+| iOS | `visualViewport` resize — padding-bottom på footer |
+
+## 11.6 Portrait-first
+
+- Illustrationer och kort optimerade för portrait
+- iPad: samma max-width 400px centrerat — inte full bleed formulär
+
+---
+
+# 12. Implementation mapping
+
+## 12.1 Delta-tabell: spec → kod
+
+| Del i spec | Nuvarande kod | Åtgärd |
+|------------|---------------|--------|
+| Skärm 1 Welcome | Saknas — native → `/login` | Ny entry-view i `login.html` eller `app-welcome.html` |
+| Skärm 2 Rollval | `login.html` `#role-selection` | Behåll kort · **ta bort** `#role-quick-login` från samma vy |
+| Skärm 3 Hybrid | `child-login.html` + `child-login.js` | Återanvänd · lägg till "Jag hittar inte mig själv" · entry analytics |
+| Skärm 4A Vuxenstart | Saknas | Ny state/view |
+| Skärm 4B Vuxenlogin | `#parent-login-section` + `#role-quick-login` | Flytta auth hit · villkorlig render |
+| Skärm 5 Signup intro | Delvis `/register` | Ny intro-state före register/auth |
+| Back-stack | Delvis (`clBackToProfiles`) | Inför `sessionStorage.entry_path` |
+| Session redirect | `login.html` DOMContentLoaded | **Behåll** |
+| Signup → onboarding | `onboarding.js` (6 steg) | **Återanvänd** — ingen parallell wizard |
+| Native redirect | `platform-theme.js` L53–65 | Ändra target till welcome |
+| Entry analytics | Saknas (whitelist i `analytics.js`) | Ny `app-entry-analytics.js` + utöka `ALLOWED_CLIENT_EVENTS` |
+
+## 12.2 Filer att återanvända
+
+| Fil | Roll |
+|-----|------|
+| `public/login.html` | Host för entry states 1, 2, 4A, 4B, 5 |
+| `public/js/login-magic.js` | Stars/clouds · refaktorera till entry state machine |
+| `public/css/login-magic.css` | Tokens, kort, knappar |
+| `public/child-login.html` | Skärm 3 (separat route eller embed) |
+| `public/js/child-login.js` | Hybrid login logik |
+| `public/css/child-login-magic.css` | Barnlogin-stil |
+| `public/js/auth.js` | Session, known children, redirect |
+| `public/js/platform-theme.js` | Native detect, redirect |
+| `public/js/apple-sign-in-diagnostics.js` | Apple auth |
+| `public/js/google-auth-ui.js` | Google auth (Android) |
+| `public/js/onboarding.js` | Post-signup — **orör** |
+| `public/index.html` | Webb marknadsförstavy |
+
+## 12.3 Nya filer / states
+
+| Nyhet | Förslag |
+|-------|---------|
+| Entry state machine | `public/js/app-entry.js` |
+| Entry analytics | `public/js/app-entry-analytics.js` |
+| How-it-works modal | `public/js/app-entry-how-it-works.js` (liten) |
+| CSS delta | Utöka `login-magic.css` eller `app-entry.css` |
+
+## 12.4 State machine (entry_path)
+
+```javascript
+// sessionStorage keys (förslag)
+entry_path: 'welcome_existing' | 'welcome_get_started' | 'role_adult' | 'role_child'
+entry_back_stack: JSON array of screen IDs
+entry_version: 'v2_1'
+```
+
+**Navigation helper:**
+
+```text
+navigateTo(screenId) → push current to back stack → show screen
+goBack() → pop back stack → show previous
+```
+
+## 12.5 Routing (implementation)
+
+| Action | Route / state |
+|--------|---------------|
+| Skärm 1–5 (vuxen entry) | `/login` med internal states (rekommenderat) |
+| Skärm 3 (barn) | `/child-login` (befintlig) · `entry_path=role_child` query eller session |
+| Efter vuxen auth | `Auth.redirectToDashboard()` (befintlig) |
+| Efter barn auth | `/child/today` (befintlig) |
+
+## 12.6 Får inte brytas i v2.1.1 🔒
+
+| Constraint | Var | Varför |
+|------------|-----|--------|
+| Auth/session-hantering | `auth.js` | JWT, refresh, CSRF |
+| `?next=addChild` / `cl_add_child_pending` | `login.html`, `login-magic.js`, `child-login.js` | Add-child-flöde |
+| Befintlig onboarding efter signup | `onboarding.js` | 6-stegs wizard — inte duplicera |
+| `stjarndag_known_children` | `auth.js`, `child-login.js` | Hybrid skärm 3 |
+| `maybeAutoSelectOnlyChild()` | `child-login.js` | 1-barn UX |
+| Apple Sign In iPad main-thread | iOS native patch | App Review |
+| Webb `index.html` som förstavy | `platform-theme.js` | SEO + konvertering |
+| `DeviceMode` / `SessionGate` | `auth.js`, child flows | Barn/vuxen-separation |
+| Parental gate / PIN overlay | `login-magic.js`, `parental-gate.js` | Barnsession → vuxen |
+
+---
+
+# 13. Tracking — implementation
+
+## 13.1 Arkitektur
+
+| Lager | Ansvar |
+|-------|--------|
+| **Client** | `app-entry-analytics.js` — `trackEntry(event, props)` |
+| **Transport** | `POST /api/analytics/event` (befintlig) |
+| **Server** | `src/routes/analytics.js` — whitelist + `db/analytics.track()` |
+| **Consent** | Respektera cookie/consent där GA4 gäller; produkt-events till `analytics_events` är separat |
+
+**Viktigt:** Alla entry-events måste läggas till i `ALLOWED_CLIENT_EVENTS` i `src/routes/analytics.js`.
+
+## 13.2 Client API (förslag)
+
+```javascript
+// public/js/app-entry-analytics.js
+window.EntryAnalytics = {
+  track: function (eventName, props) {
+    props = props || {};
+    props.entry_version = 'v2_1';
+    props.platform = detectPlatform(); // ios | android | web | pwa
+    props.entry_path = sessionStorage.getItem('entry_path') || null;
+    // session_id for unauthenticated (reuse existing nonce pattern)
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        event_type: eventName,
+        metadata: props,
+        session_id: getOrCreateSessionNonce(),
+      }),
+    }).catch(function () {});
+  },
+};
+```
+
+**Fallback:** Om `fetch` misslyckas — tyst (samma som `child-shell.js`). Inga blockers för UX.
+
+## 13.3 Event trigger map
+
+| Event | Triggas när | Fil / funktion |
+|-------|-------------|----------------|
+| `app_opened` | Entry init, cold start | `app-entry.js` init |
+| `entry_welcome_viewed` | Skärm 1 render | `showScreen('ENTRY_WELCOME')` |
+| `entry_cta_started` | Klick Kom igång | welcome CTA handler |
+| `entry_existing_account_tapped` | Klick Jag har redan konto | welcome CTA handler |
+| `entry_how_it_works_opened` | Öppna modal | how-it-works handler |
+| `role_selection_viewed` | Skärm 2 render | `showScreen('ENTRY_ROLE_PICK')` |
+| `role_child_selected` | Klick Jag är barn | role card handler |
+| `role_adult_selected` | Klick Jag är vuxen | role card handler |
+| `child_login_mode_viewed` | Skärm 3 / child-login init | `child-login.js` init · props: `mode`, `profiles_count` |
+| `child_profile_selected` | Profilval | `selectChild()` |
+| `child_profile_not_found_clicked` | Jag hittar inte mig själv | ny handler |
+| `child_login_submitted` | Logga in | PIN submit |
+| `child_login_success` | Auth OK | auth success callback |
+| `child_login_failed` | Auth fail | props: `reason` |
+| `adult_start_viewed` | Skärm 4A render | `showScreen('ENTRY_ADULT_START')` |
+| `adult_existing_selected` | 4A → redan konto | handler |
+| `adult_new_selected` | 4A → ny här | handler |
+| `adult_login_viewed` | Skärm 4B render | `showScreen('ENTRY_ADULT_LOGIN')` |
+| `adult_login_method_selected` | Apple/Google/email | auth button handler |
+| `adult_login_success` | Auth OK | auth callback |
+| `adult_login_failed` | Auth fail | props: `method`, `reason` |
+| `adult_signup_intro_viewed` | Skärm 5 render | handler |
+| `signup_started` | Skapa konto kostnadsfritt | handler |
+| `signup_completed` | Konto klart | auth/register callback |
+
+## 13.4 Required vs optional properties
+
+| Property | Required på | Värden |
+|----------|-------------|--------|
+| `entry_version` | Alla entry events | `v2_1` |
+| `platform` | Alla | `ios` \| `android` \| `web` \| `pwa` |
+| `entry_path` | Alla entry navigation | se §12.4 |
+| `mode` | `child_login_mode_viewed` | `profile_picker` \| `name_pin` |
+| `profiles_count` | `child_login_mode_viewed` | number |
+| `method` | adult auth events | `apple` \| `google` \| `email` |
+| `reason` | failed events | se §7.4–7.5 |
+
+## 13.5 Serverändring (krav)
+
+Lägg till i `ALLOWED_CLIENT_EVENTS`:
+
+```text
+app_opened, entry_welcome_viewed, entry_cta_started, entry_existing_account_tapped,
+entry_how_it_works_opened, role_selection_viewed, role_child_selected, role_adult_selected,
+child_login_mode_viewed, child_profile_selected, child_profile_not_found_clicked,
+child_login_submitted, child_login_success, child_login_failed,
+adult_start_viewed, adult_existing_selected, adult_new_selected,
+adult_login_viewed, adult_login_method_selected, adult_login_success, adult_login_failed,
+adult_signup_intro_viewed, signup_started, signup_completed
+```
+
+## 13.6 Versioning & rollout
+
+- `entry_version: v2_1` på alla events — möjliggör före/efter-jämförelse
+- Behåll befintliga `funnel_*` events i onboarding — entry events är **komplement**
+- Dashboard: bygg funnel A/B/C från §8.4
+
+---
+
+# 14. Leveransplan / Jira-uppdelning
+
+## 14.1 Epic
+
+**Epic: Min Stjärndag — App Entry v2.1.1** <!-- pragma: allowlist secret -->
+
+Mål: Ny welcome-first entry för native/PWA utan att bryta auth, child-login cache eller onboarding.
+
+## 14.2 Stories
+
+### Story 1 — Welcome screen (Skärm 1)
+
+**Scope:** Ny `ENTRY_WELCOME` · logo **Min Stjärndag** · highlights · CTA · "Så fungerar appen"-modal <!-- pragma: allowlist secret -->
+
+**Acceptance:** AC-W1–W5 (§15)
+
+**Filer:** `login.html`, `app-entry.js`, `login-magic.css`, `app-entry-analytics.js`
+
+**Beror på:** —
+
+---
+
+### Story 2 — Roll selection (Skärm 2)
+
+**Scope:** Separera rollval · dölj `#role-quick-login` på welcome/roll-vy
+
+**Acceptance:** AC-R1–R4
+
+**Filer:** `login.html`, `login-magic.js` → `app-entry.js`
+
+**Beror på:** Story 1
+
+---
+
+### Story 3 — Adult start + login split (4A + 4B)
+
+**Scope:** Ny 4A · flytta Apple/Google/e-post till 4B · `entry_path` back-stack
+
+**Acceptance:** AC-AS1, AC-AL1–AL2, back-regler §7.1
+
+**Filer:** `login.html`, `app-entry.js`, befintlig auth UI
+
+**Beror på:** Story 1–2
+
+---
+
+### Story 4 — Child login integration (Skärm 3 hybrid)
+
+**Scope:** Entry → `/child-login` · "Jag hittar inte mig själv" · hybrid analytics
+
+**Acceptance:** AC-CL1–CL3
+
+**Filer:** `child-login.html`, `child-login.js`, `app-entry.js`
+
+**Beror på:** Story 2
+
+---
+
+### Story 5 — Signup intro (Skärm 5)
+
+**Scope:** Kort intro före `/register` · dynamisk grundarprogram-copy
+
+**Acceptance:** AC-SI1
+
+**Filer:** `login.html` eller `/register`, `app-entry.js`
+
+**Beror på:** Story 3
+
+---
+
+### Story 6 — Native redirect
+
+**Scope:** `platform-theme.js` — `/` → welcome state, inte direkt mixed login
+
+**Acceptance:** Native öppnar Skärm 1
+
+**Filer:** `platform-theme.js`
+
+**Beror på:** Story 1
+
+---
+
+### Story 7 — Analytics whitelist + client
+
+**Scope:** `app-entry-analytics.js` · utöka `analytics.js` whitelist · alla §13.3 events
+
+**Acceptance:** Events syns i `analytics_events` med `entry_version`
+
+**Filer:** `app-entry-analytics.js`, `src/routes/analytics.js`
+
+**Beror på:** Story 1 (kan parallellas)
+
+---
+
+### Story 8 — Web/PWA behavior
+
+**Scope:** Webb behåller `index.html` · PWA standalone = v2.1 · `/login` 4B-logik
+
+**Acceptance:** §15.4 plattform
+
+**Filer:** `platform-theme.js`, `index.html`
+
+**Beror på:** Story 1, 6
+
+---
+
+## 14.3 Beroenden (graf)
+
+```text
+Story 1 (Welcome)
+  ├─→ Story 2 (Roll)
+  │     └─→ Story 4 (Child)
+  ├─→ Story 3 (Adult 4A/4B)
+  │     └─→ Story 5 (Signup intro)
+  ├─→ Story 6 (Native redirect)
+  └─→ Story 7 (Analytics) [parallell]
+
+Story 8 (Web/PWA) ← Story 1 + 6
+```
+
+## 14.4 Sprint-slicing (förslag)
+
+| Sprint | Stories | Leverans |
+|--------|---------|----------|
+| **S1** | 1, 2, 6, 7 (grund) | Welcome + roll + native redirect + events grund |
+| **S2** | 3, 4 | Vuxen 4A/4B + child hybrid |
+| **S3** | 5, 8 | Signup intro + web/PWA + analytics komplett |
+| **S4** | Polish | How-it-works modal · a11y · QA edge cases · SW bump |
+
+---
+
+# 15. QA & acceptanskriterier
+
+## 15.1 Skärm för skärm
+
+### Welcome (Skärm 1)
+
+- **G/W1** Given ej autentiserad native cold start → When app öppnas → Then Skärm 1 visas
+- **G/W2** Given Skärm 1 → Then ingen Apple/e-post/registrering syns
+- **G/W3** Given Skärm 1 → When "Kom igång" → Then Skärm 2
+- **G/W4** Given Skärm 1 → When "Jag har redan konto" → Then Skärm 4B direkt (1 tryck)
+- **G/W5** Given Skärm 1 → Then ordmärke **Min Stjärndag** och value prop syns <!-- pragma: allowlist secret -->
+
+### Rollval (Skärm 2)
+
+- **G/R1** Given Skärm 2 → Then exakt två rollkort, inga auth-knappar
+- **G/R2** When "Jag är barn" → Then `/child-login` (hybrid)
+- **G/R3** When "Jag är vuxen" → Then Skärm 4A
+- **G/R4** When Tillbaka → Then Skärm 1
+
+### Hybrid child login (Skärm 3)
+
+- **G/C1** Given ≥1 känd profil på enheten → Then profilväljare visas först
+- **G/C2** Given 0 profiler → Then namn + PIN (variant B)
+- **G/C3** Given profilväljare → When "Jag hittar inte mig själv" → Then variant B
+- **G/C4** Given barnflöde → Then Apple/Google/e-post syns aldrig
+- **G/C5** Given fel PIN → Then namn/profil behålls · PIN rensas · felcopy §4.3.5
+- **G/C6** Given 1 barn → Then auto-select till PIN (befintligt beteende)
+
+### Vuxenstart (Skärm 4A)
+
+- **G/A1** Given Skärm 4A → Then inga loginmetoder — bara "redan konto" vs "ny här"
+- **G/A2** When "Jag har redan konto" → Then 4B
+- **G/A3** When "Jag är ny här" → Then Skärm 5
+
+### Vuxenlogin (Skärm 4B)
+
+- **G/L1** Given Skärm 4B → Then plattformsanpassade auth-metoder
+- **G/L2** Given entry via Skärm 1 "Jag har redan konto" → When Tillbaka → Then Skärm 1
+- **G/L3** Given entry via 4A → When Tillbaka → Then Skärm 4A
+- **G/L4** When Apple avbruten → Then diskret meddelande, stanna på 4B
+
+### Signup intro (Skärm 5)
+
+- **G/S1** When "Skapa konto kostnadsfritt" → Then signup-flöde → onboarding (befintlig)
+
+## 15.2 Edge cases
+
+| Scenario | Förväntat |
+|----------|-----------|
+| Redan inloggad vuxen | Hoppa entry → dashboard |
+| Redan inloggat barn | Hoppa entry → `/child/today` |
+| `?next=addChild` | Hoppa welcome · vuxenlogin · banner |
+| Vuxen logout → barn login | Profiler kvar i localStorage |
+| Ny enhet, inga profiler | Namn + PIN fallback |
+| Nätverksfel vid auth | Retry-meddelande · ingen full reset |
+| Registration stängd | Dölj/gråa signup CTA dynamiskt |
+
+## 15.3 Regressionschecklista
+
+- [ ] Apple Sign In iOS + iPad
+- [ ] Google Sign In Android
+- [ ] E-post login/register
+- [ ] Add-child från child-login
+- [ ] Parental gate (barnsession → vuxen)
+- [ ] PWA standalone entry
+- [ ] Webb `index.html` opåverkad som landning
+- [ ] Onboarding 6 steg efter signup
+- [ ] SW cache bump (`public/sw.js`)
+- [ ] Touch targets ≥44px på alla entry-knappar
+
+## 15.4 Plattformsspecifik acceptance
+
+| Plattform | Kriterium |
+|-----------|-----------|
+| **iOS native** | Skärm 1 vid cold start · Apple på 4B · safe areas |
+| **Android native** | Skärm 1 vid cold start · Google på 4B |
+| **PWA standalone** | Samma som native |
+| **Webb (browser)** | `index.html` först · `/login` har vuxenlogin (4B-logik) |
+
+---
+
+# Bilaga A — Flödesdiagram (routing)
 
 ```text
 APP OPEN
 ├─ authenticated adult  → ADULT_HOME
 ├─ authenticated child  → CHILD_HOME
-├─ deep_link addChild     → vuxenlogin (skip welcome)
-├─ deep_link child_login  → ENTRY_CHILD_LOGIN
+├─ deep_link addChild     → ENTRY_ADULT_LOGIN (skip welcome)
 └─ else                   → ENTRY_WELCOME
-```
 
-## 10.2 Fullständigt entry-flöde
-
-```text
 ENTRY_WELCOME
 ├─ Kom igång → ENTRY_ROLE_PICK
-│   ├─ Barn  → ENTRY_CHILD_LOGIN → CHILD_HOME
-│   └─ Vuxen → ENTRY_ADULT_START
-│       ├─ Redan konto → ENTRY_ADULT_LOGIN → ADULT_HOME
-│       └─ Ny här → ENTRY_ADULT_SIGNUP_INTRO
-│           └─ Skapa konto → signup → ONBOARD → ADULT_HOME
-└─ Jag har redan konto → ENTRY_ADULT_LOGIN (direkt)
-```
-
-## 10.3 Error-handling
-
-```text
-CHILD_LOGIN: success→CHILD_HOME | invalid→inline error | network→retry message
-ADULT_AUTH:  success+onboard done→HOME | success+incomplete→ONBOARD | cancelled→stay
+│   ├─ Barn  → /child-login (hybrid)
+│   └─ Vuxen → ENTRY_ADULT_START → 4B or 5
+└─ Jag har redan konto → ENTRY_ADULT_LOGIN
 ```
 
 ---
 
-# 11. Mapping mot befintlig kod
+# Bilaga B — Kodinformerad bedömning (v2.1.1)
 
-| v2.1 skärm | Befintlig fil | Anteckning |
-|------------|---------------|------------|
-| Skärm 1 | Ny vy eller omstrukturera `login.html` | Ersätter `#role-selection` + `#role-quick-login` |
-| Skärm 2 | `login-magic.js` state | Rollkort finns — flytta auth bort |
-| Skärm 3 | `child-login.html` + `child-login.js` | **Hybrid låst** — återanvänd profilgrid + PIN + `handleManualName()`; lägg till "Jag hittar inte mig själv" |
-| Skärm 4A | Ny sektion | Finns inte idag |
-| Skärm 4B | `#parent-login-section` i `login.html` | Flytta hit, visa villkorligt |
-| Skärm 5 | Ny sektion eller `/register` intro | Kortare än v2.0:s 3-stegskort |
-| Post-signup | `onboarding.js` (6 steg) | Återanvänd — mappa mot ONBOARD_* |
-| Native redirect | `platform-theme.js` | `/` → welcome, inte `/login` |
-| Auth | `auth.js`, Apple/Google UI | Återanvänd oförändrat |
-| State machine | `login-magic.js` eller ny `app-entry.js` | Skärm-ID-baserad navigation |
+Kort sammanfattning — full analys fanns i v2.1.0:
+
+- **Hybrid skärm 3 låst** — matchar `child-login.js` (~90 % återanvändning)
+- **Min Stjärndag** som varumärke på welcome — inte bara "Stjärndag" <!-- pragma: allowlist secret -->
+- **Entry analytics** kräver whitelist-uppdatering i `src/routes/analytics.js`
+- **Onboarding** — 6 steg i `onboarding.js`, duplicera inte i entry
+- **P0:** Skärm 1 + dölj quick-login + 1-tryck till 4B
 
 ---
 
-# 12. Kodinformerad bedömning
+# Bilaga C — v2.0 → v2.1 ändringar
 
-> Denna sektion är teamets tekniska kommentar utifrån nuvarande repo — inte en del av designbriefen, men viktig för realistisk leverans.
-
-## 12.1 v2.1 är rätt — och bättre än v2.0 på ett avgörande ställe
-
-**"Jag har redan konto" → direkt till 4B** är den viktigaste förbättringen gentemot v2.0. Idag måste alla genom samma skärm. v2.1 matchar målgrupp B (återkommande vuxen) och kravet på max 1 tryck.
-
-**Förenklat barnflöde** (skärm 2 → 3 direkt, utan pedagogisk mellanskärm på happy path) är OK för återkommande barn. Behåll dock en **fallback** om login misslyckas eller inga barn finns: kort text "Be en vuxen skapa ditt konto" — inte dead-end.
-
-## 12.2 Det mesta kan byggas som omstrukturering — inte ny app
-
-| Tillgång | Bedömning |
-|----------|-----------|
-| `login-magic.css` | Stjärnbakgrund, kort, knappar — **återanvänd** |
-| `login-magic.js` | `showParentLogin()` / rollkort — **refaktorera** till state machine |
-| Apple/Google auth | `apple-sign-in-diagnostics.js`, `google-auth-ui.js` — **oförändrat** |
-| Session redirect | `login.html` DOMContentLoaded + `Auth.isLoggedIn()` — **behåll** |
-| Add-child | `?next=addChild`, `cl_add_child_pending` — **rör inte** |
-
-**Rekommendation:** En HTML-fil (`login.html` eller `/app-welcome`) med **vyn per skärm-ID** (show/hide), inte 6 separata routes — mindre SW-cache-yta, enklare back-stack.
-
-## 12.3 Skärm 3 — 🔒 LÅST som hybrid
-
-**Beslut:** Profilväljare först · namn + PIN som fallback.
-
-Koden stödjer detta redan i stort:
-
-| Befintligt | Spec-koppling |
-|------------|---------------|
-| `stjarndag_known_children` (localStorage) | Kvar efter vuxen logout — variant A |
-| `renderChildList()` + `paintChildListCards()` | Profilgrid |
-| `selectChild()` → `clStepPin` | Profil → PIN |
-| `maybeAutoSelectOnlyChild()` | 1 barn → direkt PIN |
-| `handleManualName()` + `clManualNameForm` | Variant B (utöka med "Jag hittar inte mig själv") |
-
-**Implementation delta:** Lägg till länken **Jag hittar inte mig själv** på profilväljaren. Säkerställ att variant B är nåbar även när profiler finns. Entry state machine ska routa skärm 2 → befintlig `/child-login` (eller inbäddad vy).
-
-**Inte göra:** Riv inte profilväljaren till förmån för rent namnfält.
-
-## 12.4 Skärm 5 + onboarding — duplicera inte
-
-Befintlig `onboarding.js` har redan **6 steg**:
-
-1. Barnets namn + emoji/avatar
-2. Välj mall (förskola/skola/morgon/kväll/…)
-3. Bekräfta schema
-4. Välj belöningar
-5. PIN + inloggningsinfo
-6. Bjud in / firande
-
-v2.1 skärm 5 ("3 värdepunkter + Skapa konto") är **pre-signup intro** — bra. Efter signup ska användaren in i **befintlig wizard**, inte en parallell 5-stegs ONBOARD_* i entry-specen.
-
-**Justera spec-språk:** Skärm 5 leder till `/register` eller inline signup → sedan `/onboarding` som idag.
-
-## 12.5 Event tracking — finns infrastruktur men inte entry-events
-
-`analytics_events`-tabellen finns (server-side). Entry-events i §8 **finns inte** i frontend idag — GA4/cookie-banner hanterar sidvisning, inte produktfunnel.
-
-**Leverans:** Ny liten `app-entry-analytics.js` som POST:ar till befintlig analytics-API (eller utökar den) — planera i sprint 1, inte sprint 4.
-
-## 12.6 Webb vs native — 🔒 LÅST
-
-Se §7.1.1. Native + PWA = full v2.1. Webb = marknadssida + `/login` med 4B-logik.
-
-## 12.7 Grundarprogram-copy på skärm 5
-
-`/api/registration-status` returnerar `registration_enabled: true`. Copy om grundarmedlemmar bör **hämtas dynamiskt** (som `registerBanner` i `login.html` idag) — inte hårdkodas om programmet stängs.
-
-## 12.8 Risker att planera för
-
-| Risk | Mitigering |
-|------|------------|
-| Back från 4B → 1 vs 4A | Spara `entry_path` i session/state vid navigation |
-| iPad barn ser welcome varje gång | OK enligt spec — överväg "kom ihåg senaste roll" senare |
-| Apple Sign In iPad (build 19-fix) | Auth oförändrad — entry-ombyggnad rör inte Swift |
-| SW cache | Bump `sw.js` vid varje frontend-deploy (repo-regel) |
-| Tom global library lokalt | Onboarding mall-steg failar i dev — prod OK |
-
-## 12.9 Sammanfattande rekommendation
-
-| Prioritet | Gör |
-|-----------|-----|
-| **P0** | Skärm 1 + dölj `#role-quick-login` + "Jag har redan konto" → 4B direkt |
-| **P1** | Skärm 2 rollval · Skärm 4A vuxenstart |
-| **P2** | Skärm 5 intro · Skärm 3 hybrid (profil + namn/PIN) |
-| **P3** | "Så fungerar appen" modal · entry analytics · A/B |
-
-**Slutsats:** v2.1-specen är **implementerbar** — hybrid skärm 3 var rätt beslut och matchar ~90 % av befintlig `child-login.js`.
-
----
-
-# 13. Leveransordning (referens)
-
-| Sprint | Innehåll |
-|--------|----------|
-| **1** | Skärm 1 · 2 · 4B direkt-länk · dölj quick-login · entry events grund |
-| **2** | Skärm 4A · 3 (hybrid child-login) · back-stack |
-| **3** | Skärm 5 · signup hooks · onboarding-koppling |
-| **4** | Så fungerar appen-modal · polish · a11y · edge cases |
-
----
-
-# Bilaga — v2.0 → v2.1 ändringar
-
-| v2.0 | v2.1 |
-|------|------|
+| v2.0 | v2.1 / v2.2 |
+|------|-------------|
 | "Kom igång gratis" | "Kom igång" |
-| "Jag har redan konto" → rollval först | → direkt 4B |
-| `ENTRY_CHILD_GET_STARTED` på barnväg | Borttagen från happy path — kvar som fel/fallback |
-| 3-stegskort på vuxen intro (B1) | Flyttat till skärm 5 (kortare) |
-| `ENTRY_LOGIN_CHOICE` med barn+vuxen | Split: 4B (vuxen) · skärm 3 (barn) |
-| Copy "Lugnare vardagar…" | "En lugnare vardag…" + 3 highlights |
+| "Jag har redan konto" → rollval | → direkt 4B |
+| Ren namn+PIN barnlogin | Hybrid låst |
+| Copy utan highlights | 3 feature chips på Skärm 1 |
+| Ingen §9–15 | Design tokens · komponenter · Jira · QA |
 
 ---
 
-# Nästa steg (v2.2 — ej inkluderat)
+# Bilaga D — Lokaliseringsnycklar (senare)
 
-- §9–§15 utökad leverans (UI tokens per pixel, PRD/tickets, Figma-manus)
-- A/B-testförslag
-- Lokaliseringsnycklar (`i18n.js`)
+Entry-copy bör eventually flyttas till `i18n.js`. Prefix-förslag: `entry.welcome.title`, `entry.role.child`, etc. **Ej blockerande för v2.1.1** — hårdkodad svensk copy OK i första iteration.
