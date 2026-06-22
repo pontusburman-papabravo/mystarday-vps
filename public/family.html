@@ -169,24 +169,9 @@
           </div>
         </details>
 
-        <!-- ─── Family Info Section ─────────────────────────── -->
-        <section id="familyInfoSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white mb-4">Familjeinställningar</h3>
-          <div class="flex flex-col md:flex-row gap-4 items-start md:items-end">
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-text-soft mb-1">Familjenamn</label>
-              <input id="familyNameInput" type="text"
-                class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body inline-edit"
-                placeholder="Familjenamn" />
-            </div>
-            <button onclick="saveFamily()"
-              class="px-5 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors whitespace-nowrap">
-              Spara
-            </button>
-          </div>
-          <p id="familySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
-
-          <div id="familyChestSetting" class="mt-5 pt-5 border-t border-lavender/60 dark:border-gray-600 hidden">
+        <!-- ─── Familjekista (synlig) ───────────────────────── -->
+        <section id="familyChestSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden">
+          <div id="familyChestSetting" class="hidden">
             <div class="flex items-start gap-3">
               <label class="relative inline-flex items-center cursor-pointer mt-0.5 flex-shrink-0">
                 <input type="checkbox" id="familyChestToggle" class="sr-only peer" checked>
@@ -275,6 +260,27 @@
             <div id="pendingInvitesList" class="space-y-2"></div>
           </div>
         </section>
+
+        <!-- ─── Familjenamn (sällan ändrat — längst ner) ─────── -->
+        <details id="familyNameSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden group">
+          <summary class="text-sm font-semibold text-text-soft cursor-pointer list-none flex items-center justify-between gap-2">
+            <span>Familjenamn</span>
+            <span class="text-xs text-text-soft group-open:hidden">Visa</span>
+          </summary>
+          <div class="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-text-soft mb-1" for="familyNameInput">Namn</label>
+              <input id="familyNameInput" type="text"
+                class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body inline-edit"
+                placeholder="Familjenamn" />
+            </div>
+            <button type="button" onclick="saveFamily()"
+              class="px-5 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors whitespace-nowrap min-h-[44px]">
+              Spara
+            </button>
+          </div>
+          <p id="familySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
+        </details>
 
       </div>
     </main>

@@ -28,8 +28,6 @@
     bar = document.createElement('div');
     bar.className = 'parent-nav-header-actions';
     bar.setAttribute('data-parent-nav-header', '1');
-    bar.style.cssText =
-      'display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:8px 16px 0;max-width:100%;';
 
     if (!document.querySelector('[data-parent-nav-notifications]')) {
       var notif = document.createElement('a');

@@ -22,11 +22,18 @@
   </script>
   <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=4">
   <style>
     .toggle-track { position:relative;width:44px;height:24px;background:#EDE7F6;border-radius:12px;cursor:pointer;transition:background .2s; }
     .toggle-track.on { background:#F5A623; }
     .toggle-thumb { position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15); }
     .toggle-track.on .toggle-thumb { transform:translateX(20px); }
+    body.parent-magic-view main,
+    main.flex-1 { padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px)); }
+    #childProfileMount { scroll-padding-bottom: 120px; }
+    #childProfileSetupBody .profile-setup-toggle,
+    #childProfileSetupBody .profile-reward-toggle { scroll-margin-bottom: 120px; }
+    #childProfileSetupBody > .space-y-4 > div { scroll-margin-bottom: 16px; }
   </style>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>

@@ -533,6 +533,27 @@ var Platform = (function () {
     return (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.Camera) || null;
   }
 
+  async function ensurePhotosPermission(Camera) {
+    if (!Camera || typeof Camera.checkPermissions !== 'function') return true;
+    try {
+      var status = await Camera.checkPermissions();
+      if (status.photos === 'granted' || status.photos === 'limited') return true;
+      if (status.photos === 'denied') return false;
+      if (typeof Camera.requestPermissions !== 'function') return true;
+      var requested = await Camera.requestPermissions({ permissions: ['photos'] });
+      return requested.photos === 'granted' || requested.photos === 'limited';
+    } catch (err) {
+      console.warn('[Platform.camera] permission check failed:', err);
+      return true;
+    }
+  }
+
+  function nativePhotoSource(opts) {
+    if (opts && opts.source === 'camera') return 'CAMERA';
+    if (opts && opts.source === 'library') return 'PHOTOS';
+    return 'PROMPT';
+  }
+
   function dataUrlToBlob(dataUrl) {
     var parts = dataUrl.split(',');
     if (parts.length < 2) throw new Error('Ogiltig bilddata');
@@ -572,11 +593,17 @@ var Platform = (function () {
           return { error: 'Kameran är inte tillgänglig i appen. Uppdatera till senaste versionen.' };
         }
         try {
+          var photosOk = await ensurePhotosPermission(Camera);
+          if (!photosOk) {
+            return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+          }
+          var source = nativePhotoSource(opts);
           var result = await Camera.getPhoto({
             quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
             allowEditing: false,
             resultType: 'base64',
-            source: opts.source === 'camera' ? 'CAMERA' : 'PHOTOS',
+            source: source,
+            presentationStyle: 'fullscreen',
           });
           if (!result || !result.base64String) return null;
           return {
@@ -587,7 +614,25 @@ var Platform = (function () {
           var msg = (err && err.message) || '';
           if (msg.toLowerCase().includes('cancel') || msg.toLowerCase().includes('cancelled')) return null;
           if (err && (err.code === 'USER_DID_NOT_GRANT_PERMISSION' || err.code === 'permission-denied')) {
-            return { error: 'Tillåt åtkomst till fotobiblioteket i Inställningar → Min Stjärndag.' };
+            return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+          }
+          if (opts && opts.source === 'library') {
+            try {
+              var retry = await Camera.getPhoto({
+                quality: opts.quality === 'high' ? 90 : opts.quality === 'low' ? 25 : 50,
+                allowEditing: false,
+                resultType: 'base64',
+                source: 'PROMPT',
+                presentationStyle: 'fullscreen',
+              });
+              if (!retry || !retry.base64String) return null;
+              return {
+                dataUrl: 'data:image/jpeg;base64,' + retry.base64String,
+                mimeType: 'image/jpeg',
+              };
+            } catch (retryErr) {
+              msg = (retryErr && retryErr.message) || msg;
+            }
           }
           console.error('[Platform.camera] Pick failed:', msg || err);
           return { error: 'Kunde inte öppna fotobiblioteket. Försök igen.' };

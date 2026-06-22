@@ -66,8 +66,10 @@
     if (window.ParentMagicShell) ParentMagicShell.init('family');
 
     function renderAll(data) {
-      const section = document.getElementById('familyInfoSection');
-      section.classList.remove('hidden');
+      var chestSection = document.getElementById('familyChestSection');
+      var nameSection = document.getElementById('familyNameSection');
+      if (chestSection) chestSection.classList.remove('hidden');
+      if (nameSection) nameSection.classList.remove('hidden');
       document.getElementById('familyNameInput').value = data.name || '';
       if (window.FamilyChestSetting) FamilyChestSetting.init(data);
 

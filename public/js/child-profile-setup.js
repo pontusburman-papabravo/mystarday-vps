@@ -27,7 +27,7 @@
   }
 
   function toggleRow(id, label, sub, on) {
-    return '<div class="flex items-center justify-between gap-3 py-3 border-b border-lavender last:border-0">' +
+    return '<div class="flex items-center justify-between gap-3 py-3 border-b border-lavender last:border-0 child-profile-setup-row">' +
       '<div class="flex-1 min-w-0"><p class="text-sm font-semibold text-navy">' + esc(label) + '</p>' +
       (sub ? '<p class="text-xs text-text-soft mt-0.5">' + esc(sub) + '</p>' : '') + '</div>' +
       '<div class="toggle-track profile-setup-toggle ' + (on ? 'on' : '') + '" id="' + id + '" data-field="' + id + '" style="min-width:44px;min-height:24px;flex-shrink:0">' +
@@ -215,7 +215,8 @@
 
     var moodToggle = document.getElementById('profileSetupMood');
     if (moodToggle) {
-      moodToggle.addEventListener('click', async function () {
+      moodToggle.addEventListener('click', async function (e) {
+        e.preventDefault();
         var on = !moodToggle.classList.contains('on');
         moodToggle.classList.toggle('on');
         var res = await saveChildField(child.id, 'show_mood_rating', on);
@@ -226,7 +227,8 @@
 
     var minimalToggle = document.getElementById('profileSetupMinimalUi');
     if (minimalToggle) {
-      minimalToggle.addEventListener('click', async function () {
+      minimalToggle.addEventListener('click', async function (e) {
+        e.preventDefault();
         var on = !minimalToggle.classList.contains('on');
         minimalToggle.classList.toggle('on');
         var res = await saveViewConfig(child.id, { minimal_ui: on });
