@@ -6,8 +6,10 @@
 
 ```bash
 # Ersätt source.png med din ikon, sedan:
-node scripts/install-app-icons.mjs
+npm run icons:install
 ```
+
+Kräver inget ffmpeg — använder `sharp` (npm devDependency).
 
 Skapar:
 - `assets/app-icon/icon-1024.png` — App Store / Xcode / Play Store
