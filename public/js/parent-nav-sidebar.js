@@ -6,11 +6,7 @@
 
   if (!window.NavConfig) return;
 
-  var sidebar =
-    document.getElementById('sidebar') ||
-    document.querySelector('nav.bg-navy.app-sidebar') ||
-    document.querySelector('nav.bg-navy');
-
+  var sidebar = document.getElementById('sidebar');
   if (!sidebar) return;
 
   var path = NavConfig.normalizePath(window.location.pathname);

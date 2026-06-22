@@ -31,8 +31,9 @@
   }
 
   function hasParentShell() {
-    if (document.getElementById('sidebar') || document.querySelector('nav.bg-navy')) return true;
-    return NavConfig.isParentShellPath(window.location.pathname);
+    if (document.getElementById('sidebar')) return true;
+    if (window.NavConfig && NavConfig.isParentShellPath(window.location.pathname)) return true;
+    return false;
   }
 
   function hideLegacyBottomNav() {

@@ -31,6 +31,11 @@
   <style>
     html, body { overflow-x: clip; max-width: 100%; }
     * { box-sizing: border-box; }
+    .reports-topbar { position: sticky; top: 0; z-index: 30; }
+    body.has-native-tab-bar .reports-topbar {
+      padding-top: max(12px, env(safe-area-inset-top, 0px));
+    }
+    body.has-native-tab-bar main { padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px)); }
     main { padding-bottom: max(80px, calc(env(safe-area-inset-bottom, 0px) + 80px)); }
 
     /* Tab underline */
@@ -105,13 +110,13 @@
 </head>
 <body class="bg-cream font-body text-navy min-h-screen">
 
-  <!-- Nav -->
-  <nav class="w-full bg-navy text-white p-4 flex items-center gap-3">
-    <a href="/" id="previewBackLink" class="text-white text-lg hover:text-gold transition-colors" title="Tillbaka">←</a>
-    <h1 class="text-xl font-heading font-bold flex items-center gap-2">
+  <!-- Page header (not sidebar — must not use nav.bg-navy or scripts inject menu links) -->
+  <header class="reports-topbar w-full bg-navy text-white p-4 flex items-center gap-3" data-page-header>
+    <a href="/" id="previewBackLink" class="text-white text-lg hover:text-gold transition-colors shrink-0" title="Tillbaka">←</a>
+    <h1 class="text-xl font-heading font-bold flex items-center gap-2 min-w-0 truncate">
       📊 Rapporter
     </h1>
-  </nav>
+  </header>
 
   <!-- Tab bar -->
   <div class="bg-white border-b border-lavender sticky top-0 z-10">

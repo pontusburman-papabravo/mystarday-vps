@@ -12,11 +12,8 @@
   'use strict';
 
   // ── Find the sidebar nav ───────────────────────────────────────
-  var sidebar =
-    document.getElementById('sidebar') ||
-    document.querySelector('nav.bg-navy');
-
-  if (!sidebar) return; // Not a logged-in page
+  var sidebar = document.getElementById('sidebar');
+  if (!sidebar) return; // Not a logged-in page with sidebar layout
 
   // Mark it so CSS can hide on mobile
   sidebar.classList.add('app-sidebar');

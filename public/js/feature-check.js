@@ -38,9 +38,7 @@
   function hideAllGatedElements() {
     // First: mark sidebar links that don't yet have data-feature with their slug
     // so they can be hidden alongside explicitly-marked elements.
-    var sidebar =
-      document.getElementById('sidebar') ||
-      document.querySelector('nav.bg-navy');
+    var sidebar = document.getElementById('sidebar');
     if (sidebar) {
       var links = sidebar.querySelectorAll('a');
       for (var i = 0; i < links.length; i++) {

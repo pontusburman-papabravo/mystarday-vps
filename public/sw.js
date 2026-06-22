@@ -207,7 +207,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v280';
+const CACHE_NAME = 'stjarndag-v282';
+// v282: reports mobile — stop injecting sidebar nav into page header
 // v280: barnprofil mobile — photo pick PROMPT, grid tabs, overflow clip, iPad safe-area header
 // v279: family UI fixes — familjekista, collapsed name, native photo permissions
 // v278: soft-nav boot fixes — schedule logoutBtn guard, dashboard hub re-init, skatt contrast
