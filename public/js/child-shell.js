@@ -31,7 +31,7 @@
   function bootstrapModules(worldId) {
     if (window.ChildToday && worldId === 'today') ChildToday.onEnter();
     if (window.ChildWorld && worldId === 'world') ChildWorld.onEnter();
-    if (window.ChildFamily && worldId === 'family') ChildFamily.onEnter();
+    if (window.ChildFamilyWorld && worldId === 'family') ChildFamilyWorld.onEnter();
   }
 
   function init() {

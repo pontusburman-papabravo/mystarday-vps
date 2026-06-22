@@ -9,5 +9,5 @@
     if (window.ChildFamilyHall && ChildFamilyHall.refresh) ChildFamilyHall.refresh();
   }
 
-  window.ChildFamily = { onEnter: onEnter };
+  window.ChildFamilyWorld = { onEnter: onEnter };
 })();
