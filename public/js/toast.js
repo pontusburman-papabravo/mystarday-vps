@@ -7,6 +7,24 @@
 (function () {
   let _timer = null;
 
+  function applyToastLayout(el, isError) {
+    var base = 'fixed z-[9999] px-5 py-4 rounded-2xl shadow-xl font-semibold leading-snug break-words ';
+    if (isError) {
+      el.className = base + 'bg-red-600 text-white text-base text-center max-w-[min(92vw,24rem)] left-1/2 -translate-x-1/2';
+      el.style.top = '';
+      el.style.right = '';
+      el.style.bottom = 'max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem))';
+      el.style.left = '50%';
+    } else {
+      el.className = base + 'text-sm max-w-xs bg-navy text-white';
+      el.style.bottom = '';
+      el.style.left = '';
+      el.style.top = 'max(1rem, env(safe-area-inset-top, 1rem))';
+      el.style.right = 'max(1rem, env(safe-area-inset-right, 1rem))';
+    }
+    el.classList.remove('hidden');
+  }
+
   /**
    * Show a toast notification.
    * Signature variations from across the codebase:
@@ -24,21 +42,22 @@
       if (typeof arg3 === 'number') duration = arg3;
     } else if (typeof arg2 === 'string') {
       isError = (arg2 === 'error');
+      if (typeof arg3 === 'number') duration = arg3;
     }
+
+    if (isError && duration === 3000) duration = 6000;
 
     var el = document.getElementById('toast');
     if (!el) {
       el = document.createElement('div');
       el.id = 'toast';
+      el.setAttribute('role', 'alert');
+      el.setAttribute('aria-live', 'assertive');
       document.body.appendChild(el);
     }
 
     el.textContent = msg;
-    var bg = isError ? 'bg-red-500 text-white' : 'bg-navy text-white';
-    // Use CSS custom property to respect safe-area-inset (notch/Dynamic Island/PWA)
-    el.className = 'fixed z-50 px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs ' + bg;
-    el.style.top = 'max(1rem, env(safe-area-inset-top, 1rem))';
-    el.style.right = 'max(1rem, env(safe-area-inset-right, 1rem))';
+    applyToastLayout(el, isError);
 
     if (_timer) clearTimeout(_timer);
     _timer = setTimeout(function () { el.classList.add('hidden'); }, duration);
@@ -59,9 +78,8 @@
     }
 
     el.textContent = msg;
-    el.className = 'fixed z-50 px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs bg-green-600 text-white';
-    el.style.top = 'max(1rem, env(safe-area-inset-top, 1rem))';
-    el.style.right = 'max(1rem, env(safe-area-inset-right, 1rem))';
+    applyToastLayout(el, false);
+    el.className = el.className.replace('bg-navy', 'bg-green-600');
 
     if (_timer) clearTimeout(_timer);
     _timer = setTimeout(function () { el.classList.add('hidden'); }, duration);
