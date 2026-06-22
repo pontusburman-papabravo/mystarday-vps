@@ -42,11 +42,26 @@ jobs:
 
             echo "→ Node 20"
             export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            set +e
             if [ -s "$NVM_DIR/nvm.sh" ]; then
               # shellcheck disable=SC1091
               . "$NVM_DIR/nvm.sh"
               nvm use 20 2>/dev/null || nvm use default 2>/dev/null || true
             fi
+            if ! command -v node >/dev/null 2>&1; then
+              for node_bin in "$NVM_DIR"/versions/node/v20*/bin; do
+                if [ -x "$node_bin/node" ]; then
+                  export PATH="$node_bin:$PATH"
+                  break
+                fi
+              done
+            fi
+            set -e
+            if ! command -v node >/dev/null 2>&1; then
+              echo "node not found — kör: nvm install 20 (som deploy-användaren)"
+              exit 1
+            fi
+            echo "node $(node -v) npm $(npm -v)"
 
             echo "→ npm install"
             npm install --legacy-peer-deps
