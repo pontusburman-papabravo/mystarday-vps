@@ -1,5 +1,5 @@
 <!-- pragma: allowlist secret -->
-# Applandningssidan v2.1 — App Entry Spec
+# Applandningssidan v2.2 — App Entry Spec
 
 > **Status:** Design / Dev Ready · låsta beslut 2026-06-22  
 > **Version:** 2.2  
@@ -444,6 +444,146 @@ Se §4 per skärm. All copy ovan är **godkänd för implementation**.
 
 ---
 
+# 6. Komponenter — översikt
+
+> Detaljerad komponentspec finns i **§9 (design tokens)** och **§10 (komponentbibliotek)**. Detta avsnitt är bara en snabböversikt så att §7–§8 kan refereras i rätt ordning.
+
+**Kärnkomponenter:** `PrimaryButton` · `SecondaryButton` · `RoleCard` · `HighlightChip` · `TextInputField` · `PinInputField` · `ChildProfileCard` · `ErrorText` · `HowItWorksSheet` · `EntryHeroBlock` · `AuthButton{Apple,Email,Google}`
+
+**Designbeslut:** Behåll befintliga fonts (Outfit + Plus Jakarta Sans) — mockup-Poppins är referens, inte krav. Se §9.3.
+
+---
+
+# 7. Interaktionsregler, states och felhantering
+
+## 7.1 Back-navigation 🔒 LÅST
+
+Back ska gå till **den faktiska väg användaren tog** — spara `entry_path` i state.
+
+| Från | Tillbaka till | Villkor |
+|------|---------------|---------|
+| Skärm 2 | Skärm 1 | alltid |
+| Skärm 3 (barn) | Skärm 2 | alltid |
+| Skärm 4A | Skärm 2 | alltid |
+| Skärm 4B | Skärm 1 | om entry via "Jag har redan konto" på skärm 1 |
+| Skärm 4B | Skärm 4A | om entry via skärm 2 → vuxen → "Jag har redan konto" |
+| Skärm 5 | Skärm 4A | alltid |
+| Barnlogin variant B | Skärm 2 eller profilväljare | beroende på hur användaren kom dit |
+
+**Implementation:** `sessionStorage.entry_back_target` eller motsvarande per navigation.
+
+## 7.1.1 Plattform 🔒 LÅST
+
+| Plattform | Entry-flöde |
+|-----------|---------------|
+| **Native (iOS/Android)** | Full v2.2 — `platform-theme.js` redirect till welcome |
+| **PWA standalone** | Som native (`matchMedia standalone`) |
+| **Vanlig webb** | `index.html` = marknadsförstavy · `/login` = samma vuxenloginlogik som 4B · rolllogik kan följa v2.2 över tid |
+
+## 7.2 Auth avbruten
+
+Om Apple/Google stängs: ingen hård error · tillbaka till login-yta · ev. diskret: *Inloggningen avbröts*
+
+## 7.3 Loading states
+
+- Disable dubbeltryck på primär CTA under nätverk/auth
+- Spinner i knapp
+- Disable parallella auth-försök
+
+## 7.4 Form states
+
+| State | Beteende |
+|-------|----------|
+| Default | Tomma fält · neutral border |
+| Focus | Tydligare border/accent |
+| Error | Röd markering · feltext under fält |
+| Disabled | Sparsamt — föredra aktiv knapp + fel efter tryck för barn |
+
+## 7.5 Barnlogin — UX vid fel
+
+- Rensa **inte** namn automatiskt vid fel credentials
+- Rensa PIN om säkrare/tydligare
+
+## 7.6 Session / återbesök
+
+| State | Beteende |
+|-------|----------|
+| Vuxen inloggad | Hoppa entry → `/dashboard` (befintlig logik i `login.html`) |
+| Barn inloggad | Hoppa entry → `/child/today` |
+| Add-child deep link | Hoppa welcome · tvinga vuxenlogin (`?next=addChild`) |
+
+---
+
+# 8. Mätning, KPI:er och event tracking
+
+## 8.1 Syfte
+
+Svara på: Förstår fler? · Fler når konto/schema? · Färre barn i vuxenlogin? · Snabbare vuxenlogin? · Var faller de ur?
+
+## 8.2 KPI:er
+
+| KPI | Mätning |
+|-----|---------|
+| **KPI 1** Start rate till rätt väg | Barn vs vuxen från entry |
+| **KPI 2** Vuxen signup conversion | `app_opened` → `signup_started` → `signup_completed` |
+| **KPI 3** Första värdeskapande | `signup_completed` → `first_schema_created` |
+| **KPI 4** Barnlogin success | Andel lyckade utan >1 fel |
+
+**Sekundärt:** CTR Kom igång · CTR Jag har redan konto · CTR Så fungerar appen · drop-off 4A→4B · drop-off 5→signup
+
+## 8.3 Eventlista
+
+Alla events bär `platform` + `entry_version`. Full triggermappning i §13.3, serverwhitelist i §13.5.
+
+| Event | När |
+|-------|-----|
+| `app_opened` | App öppnas till entry |
+| `entry_welcome_viewed` | Skärm 1 |
+| `entry_cta_started` | "Kom igång" |
+| `entry_existing_account_tapped` | "Jag har redan konto" (skärm 1) |
+| `entry_how_it_works_opened` | "Så fungerar appen" |
+| `role_selection_viewed` | Skärm 2 |
+| `role_child_selected` | Jag är barn |
+| `role_adult_selected` | Jag är vuxen |
+| `child_login_mode_viewed` | Skärm 3 render · props: `mode` (profile_picker \| name_pin), `profiles_count` |
+| `child_profile_selected` | Profil vald i variant A |
+| `child_profile_not_found_clicked` | "Jag hittar inte mig själv" |
+| `child_login_submitted` | Logga in · props: `name_filled`, `pin_length` |
+| `child_login_success` | OK |
+| `child_login_failed` | props: `reason` |
+| `adult_start_viewed` | Skärm 4A |
+| `adult_existing_selected` | Jag har redan konto (4A) |
+| `adult_new_selected` | Jag är ny här |
+| `adult_login_viewed` | Skärm 4B |
+| `adult_login_method_selected` | props: `method` (apple/google/email) |
+| `adult_login_success` | props: `method` |
+| `adult_login_failed` | props: `method`, `reason` |
+| `adult_signup_intro_viewed` | Skärm 5 |
+| `signup_started` | "Skapa konto kostnadsfritt" · `source: adult_intro` |
+| `signup_completed` | props: `method` |
+
+**Aktiveringsmått (återanvänder befintliga `funnel_*`):** `first_schema_created` / `first_child_profile_ready` mappas mot befintligt `funnel_first_child_created` i `onboarding.js` — skapa inte nya dubbletter.
+
+## 8.4 Funnels
+
+**Funnel A — Ny vuxen:**
+`entry_welcome_viewed` → `entry_cta_started` → `role_adult_selected` → `adult_new_selected` → `signup_started` → `signup_completed` → `first_schema_created`
+
+**Funnel B — Återkommande vuxen:**
+`entry_welcome_viewed` → `entry_existing_account_tapped` → `adult_login_viewed` → `adult_login_method_selected` → `adult_login_success`
+
+**Funnel C — Barn:**
+`entry_welcome_viewed` → `entry_cta_started` → `role_child_selected` → `child_login_mode_viewed` → `child_login_submitted` → `child_login_success`
+
+## 8.5 Success criteria (2–4 veckor post-release)
+
+- Högre CTR "Kom igång" vs nuvarande
+- Högre signup start-rate · lägre drop-off före signup
+- Färre vuxenlogin-exponeringar för barn
+- Hög barnlogin-success
+- Färre dead-end-sessioner (öppnar men inget steg)
+
+---
 
 # 9. Design tokens & visuellt språk
 
