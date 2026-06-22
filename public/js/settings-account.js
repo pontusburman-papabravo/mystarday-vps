@@ -403,7 +403,8 @@ async function initParentPinSection() {
     const hasPin = statusRes.has_pin;
 
     const html = `
-      <h3 class="text-xl font-heading font-bold text-navy mb-1">Föräldralås</h3>
+      <h3 class="text-xl font-heading font-bold text-navy mb-1">PIN-kod</h3>
+      <p class="text-sm text-text-soft mb-1 font-semibold">Säkerhet</p>
       <p class="text-sm text-text-soft mb-4">
         ${hasPin
           ? 'Din personliga PIN-kod skyddar föräldraläget — barn kan inte lämna barnläget utan din PIN.'

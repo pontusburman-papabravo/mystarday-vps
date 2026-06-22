@@ -276,45 +276,6 @@
           </div>
         </section>
 
-        <!-- ─── PWA Install Guide ─────────────────────────── -->
-        <div id="familyPwaInstallGuide"></div>
-
-        <!-- ─── Notifications / E-post ────────────────────── -->
-        <section class="bg-white dark:bg-navy-soft border border-lavender dark:border-gray-700 rounded-2xl p-4 md:p-6 mb-4">
-          <div id="parentPinSection">
-            <!-- Föräldralås — rendered by settings-account.js -->
-          </div>
-        </section>
-
-        <!-- ─── Notifications / E-post ────────────────────── -->
-        <section class="bg-white dark:bg-navy-soft border border-lavender dark:border-gray-700 rounded-2xl p-4 md:p-6 mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white mb-2">🔔 Notiser & e-post</h3>
-          <p class="text-sm text-text-soft mb-3">Hantera push-notiser och e-postinställningar — välj vad du vill bli påmind om.</p>
-          <a href="/settings"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
-            🔔 Ändra notis-inställningar
-          </a>
-        </section>
-
-        <!-- ─── Din profil / Data & konto (GDPR) ────────────── -->
-        <section class="bg-white dark:bg-navy-soft border border-lavender dark:border-gray-700 rounded-2xl p-4 md:p-6 mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white mb-2">📋 Min data</h3>
-          <p class="text-sm text-text-soft mb-3">Ladda ner en kopia av all din data (CSV/ZIP). Inkluderar profil, barn, scheman, belöningar och historik.</p>
-          <a href="/settings#dataExportSection"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors">
-            ⬇️ Ladda ner min data
-          </a>
-        </section>
-
-        <section class="bg-coral/30 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 md:p-6">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white mb-2">🔒 Radera konto</h3>
-          <p class="text-sm text-text-soft mb-4">Här kan du radera ditt konto permanent. All data tas bort och kan inte återställas.</p>
-          <button onclick="openDeleteAccountModal()"
-            class="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors">
-            🗑️ Radera mitt konto
-          </button>
-        </section>
-
       </div>
     </main>
   </div>
@@ -863,40 +824,6 @@
     </div>
   </div>
 
-  <!-- ─── GDPR Delete Account Modal ──────────────────── -->
-  <div id="deleteAccountModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
-      <div class="text-center">
-        <p class="text-5xl mb-3">⚠️</p>
-        <h3 class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Radera mitt konto permanent</h3>
-        <p class="text-sm text-text-soft mb-2">All data raderas permanent — ditt konto, alla barn, scheman, belöningar och hushållsdata.</p>
-        <p class="text-sm text-red-600 font-semibold mb-4">Detta går inte att ångra.</p>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-text-soft mb-1 text-left">Skriv <strong>RADERA</strong> för att bekräfta</label>
-          <input id="deleteAccountConfirmInput" type="text" placeholder="RADERA"
-            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy-soft dark:text-white font-body text-center text-lg tracking-widest"
-            autocomplete="off" />
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-text-soft mb-1 text-left">Bekräfta med ditt lösenord</label>
-          <input id="deleteAccountPasswordInput" type="password"
-            class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy-soft dark:text-white font-body" />
-        </div>
-        <p id="deleteAccountMsg" class="text-sm text-red-500 mb-3 min-h-[1.2em]"></p>
-        <div class="flex gap-3">
-          <button onclick="closeDeleteAccountModal()"
-            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            Avbryt
-          </button>
-          <button onclick="confirmDeleteAccount()" id="deleteAccountBtn"
-            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors opacity-50 cursor-not-allowed" disabled>
-            Radera allt
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast notification -->
   <div id="toast" class="fixed bottom-4 right-4 bg-navy text-white px-5 py-3 rounded-xl shadow-lg font-body font-medium hidden z-50"></div>
 
@@ -947,7 +874,6 @@
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/family-invite-scan.js?v=1"></script>
-  <script src="/js/settings-account.js?v=2.18.0"></script>
   <script src="/js/family-museum.js?v=1.0.0"></script>
   <script src="/js/family-chest-setting.js?v=1.0.0"></script>
   <script src="/js/family.js?v=2.14.0"></script>

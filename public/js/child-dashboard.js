@@ -323,6 +323,18 @@ let childUiMagic = false;
 function applyChildViewChrome() {
   childUiMagic = !!(window.AppViewMode && AppViewMode.isMagic());
 
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    const bottomNav = document.getElementById('childBottomNav');
+    if (bottomNav) bottomNav.style.display = '';
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.classList.add('hidden');
+      legacyNav.setAttribute('aria-hidden', 'true');
+    }
+    if (window.ChildWorldsNav) ChildWorldsNav.renderBottomNav();
+    return;
+  }
+
   const bottomNav = document.getElementById('childBottomNav');
   if (bottomNav) bottomNav.style.display = childUiMagic ? '' : 'none';
 
@@ -337,6 +349,12 @@ function applyChildViewChrome() {
 function applyChildViewMode() {
   applyChildViewChrome();
 
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    document.body.classList.remove('child-home-active');
+    showTab('schedule');
+    return;
+  }
+
   if (childUiMagic) {
     showTab('home');
     if (!rewardsLoaded) loadRewards();
@@ -347,7 +365,11 @@ function applyChildViewMode() {
 }
 
 function showTab(tab) {
-  if (tab === 'home' && !childUiMagic) tab = 'schedule';
+  if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+    if (tab === 'home' || tab === 'more') tab = 'schedule';
+  } else if (tab === 'home' && !childUiMagic) {
+    tab = 'schedule';
+  }
   const hv = document.getElementById('homeView');
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
@@ -384,19 +406,23 @@ function showTab(tab) {
   if ((isHome || isUniverse) && !rewardsLoaded) loadRewards();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 
-  const bottomTabs = {
-    home: 'tabHome',
-    schedule: 'tabSchedule',
-    rewards: 'tabRewards',
-    more: 'tabMore',
-    family: 'tabMore',
-  };
-  ['tabHome', 'tabSchedule', 'tabRewards', 'tabMore'].forEach(function (id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const active = id === bottomTabs[tab];
-    el.classList.toggle('is-active', active);
-  });
+  if (window.ChildWorldsNav) {
+    ChildWorldsNav.highlightActive(tab);
+  } else {
+    const bottomTabs = {
+      home: 'tabHome',
+      schedule: 'tabSchedule',
+      rewards: 'tabRewards',
+      more: 'tabMore',
+      family: 'tabMore',
+    };
+    ['tabHome', 'tabSchedule', 'tabRewards', 'tabMore'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const active = id === bottomTabs[tab];
+      el.classList.toggle('is-active', active);
+    });
+  }
 
   if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(isHome ? 'home' : tab);
 
@@ -463,6 +489,12 @@ async function loadRewards() {
     _currentRewardsData = rewardsData;
     updateGoalBar(goalData);
     renderSkattkammaren(rewardsData, goalData, manualData);
+    if (window.ChildRewardsEngine) {
+      ChildRewardsEngine.setGoalData(goalData);
+      ChildRewardsEngine.setRewardsData(rewardsData);
+      ChildRewardsEngine.mountGoalProgress();
+      ChildRewardsEngine.mountPendingBannerIfNeeded();
+    }
   } catch (err) {
     // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
@@ -487,6 +519,7 @@ async function loadRewards() {
 function renderSkattkammaren(rewardsData, goalData, manualData) {
   const { rewards, starBalance, redemptions } = rewardsData;
   const pending = redemptions.filter(r => r.status === 'pending');
+  const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
   const goal = goalData ? goalData.goal : null;
   const progressPct = goalData ? Math.min(100, goalData.progress_pct || 0) : 0;
   const pendingChangeReq = goalData ? goalData.pending_change_request : null;
@@ -668,6 +701,21 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
           <div style="flex:1;">
             <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
             <div style="font-size:0.7rem;color:#A855F7;">⏳ Föräldern godkänner snart</div>
+          </div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    if (deniedRecent.length > 0) {
+      html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(0,0,0,0.06);padding-top:12px;">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9AA0B8;margin-bottom:8px;font-family:'Outfit',sans-serif;">Inte den här gången</div>`;
+      for (const r of deniedRecent) {
+        html += `<div style="display:flex;align-items:center;gap:10px;background:#FEF2F2;border:1.5px solid rgba(239,68,68,0.2);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
+          <span style="font-size:1.5rem;">${r.reward_icon || '🎁'}</span>
+          <div style="flex:1;">
+            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
+            <div style="font-size:0.7rem;color:#EF4444;">En vuxen sa nej — fråga igen senare 💛</div>
           </div>
         </div>`;
       }
@@ -1936,6 +1984,10 @@ function renderSubStepList(itemId) {
   const steps = subStepCache[itemId] || [];
   const container = document.getElementById('substeps-' + itemId);
   if (!container) return;
+  if (window.ChildSupportLayer && typeof ChildSupportLayer.renderInteractiveSubsteps === 'function') {
+    ChildSupportLayer.renderInteractiveSubsteps(container, itemId, steps);
+    return;
+  }
   container.innerHTML = renderSubStepListHtml(itemId, steps);
 }
 
@@ -2199,6 +2251,8 @@ async function _refreshLoadDay() {
   return _pendingLoadDay;
 }
 
+window.coalescedLoadDay = _refreshLoadDay;
+
 // ── Listen for offline-queue sync events ─────────────────────────────────
 // When items synced in background arrive, refresh the day view so stars
 // and progress reflect the server state.
@@ -2438,6 +2492,14 @@ async function loadDay(dateStr, showLoader = true) {
     }
     renderActivities(data, rwdData?.starBalance);
     updateGoalBar(goalData);
+    if (window.ChildActivityEngine) {
+      ChildActivityEngine.setLastDayData(data);
+      ChildActivityEngine.mountPausedBannerIfNeeded();
+    }
+    if (window.ChildRewardsEngine && goalData) {
+      ChildRewardsEngine.setGoalData(goalData);
+      ChildRewardsEngine.mountGoalProgress();
+    }
   } catch (err) {
     if (skeletonTimer) skeletonTimer.stop();
     console.error('Load day error:', err);
@@ -2622,6 +2684,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       OfflineStore.clearStaleData(7).catch(() => {});
     }
     document.getElementById('childName').textContent = me.name || 'Mitt schema';
+    if (window.ChildWorldsNav && ChildWorlds.V2_ENABLED) ChildWorldsNav.renderBottomNav();
     document.getElementById('childEmoji').textContent = me.emoji || '⭐';
     if (window.ChildTodayFocus) ChildTodayFocus.init(me.name);
     const darkBtn = document.getElementById('childDarkBtn');
@@ -2691,6 +2754,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Init error:', err);
     Auth.clearAuth();
     const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
-    window.location.href = path === '/child-dashboard' ? '/child-login' : '/login';
+    window.location.href =
+      path === '/child-dashboard' || path.indexOf('/child/') === 0 ? '/child-login' : '/login';
   }
 });

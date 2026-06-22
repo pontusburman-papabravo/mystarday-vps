@@ -14,11 +14,11 @@ async function resolveChildViewPath({ viewMode, childId, familyId, hasMagicAcces
   if (viewMode === 'new') {
     const magic = await hasMagicAccess(familyId);
     if (magic) {
-      return `/child-dashboard?child=${childId}`;
+      return `/child/today?child=${childId}`;
     }
     return `/child-new/${childId}`;
   }
-  return `/child-dashboard?child=${childId}`;
+  return `/child/today?child=${childId}`;
 }
 
 module.exports = { resolveChildViewPath };

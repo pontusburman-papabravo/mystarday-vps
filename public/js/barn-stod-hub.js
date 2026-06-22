@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         <div class="py-8 space-y-4">
           <h1 class="text-2xl font-heading font-bold">Barn &amp; stöd</h1>
           <p class="text-text-soft text-sm">Extra stöd är aktivt för er familj.</p>
-          <a href="/child-dashboard" class="block p-4 bg-white rounded-2xl border border-lavender font-semibold">Öppna barnvy</a>
+          <a href="/child/today" class="block p-4 bg-white rounded-2xl border border-lavender font-semibold">Öppna barnvy</a>
           <a href="/library" class="block p-4 bg-white rounded-2xl border border-lavender font-semibold">Aktivitetsbibliotek</a>
           <a href="/skattkammaren" class="block p-4 bg-white rounded-2xl border border-lavender font-semibold">Skattkammaren</a>
         </div>`;

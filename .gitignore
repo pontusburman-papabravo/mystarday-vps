@@ -35,3 +35,4 @@ assets/play-store/signing/*.jks
 .tmp/
 projects/
 *.jsonl
+artifacts/

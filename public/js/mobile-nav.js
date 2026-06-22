@@ -79,9 +79,55 @@
       // fail-closed: leave accessibleFeatures as {} (hides gated links on error)
     });
 
-  // ── Extract nav links from sidebar ─────────────────────────────
+  // ── Build nav links: NavConfig first, else sidebar scrape ─────
   var sidebarLinks = sidebar.querySelectorAll('ul a');
   var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+
+  function pathMatches(href, path) {
+    if (!href) return false;
+    var linkPath = href.split('?')[0].replace(/\/$/, '') || '/';
+    if (linkPath === path) return true;
+    if (window.NavConfig && NavConfig.activeNavItem) {
+      var item = NavConfig.activeNavItem(path);
+      if (item && item.href === linkPath) return true;
+      if (item && item.paths && item.paths.indexOf(path) >= 0) return true;
+    }
+    return false;
+  }
+
+  function buildConfigLinks() {
+    if (!window.NavConfig || !NavConfig.PRIMARY_NAV) return null;
+    var items = NavConfig.PRIMARY_NAV.slice();
+    if (NavConfig.SETTINGS_NAV) items.push(NavConfig.SETTINGS_NAV);
+    var out = [];
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      out.push({
+        href: item.href,
+        label: item.icon + ' ' + item.label,
+        active: pathMatches(item.href, currentPath) ||
+          (item.paths && item.paths.some(function (p) { return p === currentPath; })),
+      });
+    }
+    return out;
+  }
+
+  var navLinks = buildConfigLinks();
+  if (!navLinks || !navLinks.length) {
+    navLinks = [];
+    for (var si = 0; si < sidebarLinks.length; si++) {
+      var sl = sidebarLinks[si];
+      var shref = sl.getAttribute('href');
+      var slPath = shref ? shref.replace(/\/$/, '') : '';
+      var slug = GATED_PATHS[slPath] || sl.getAttribute('data-feature');
+      if (slug && !accessibleFeatures[slug]) continue;
+      navLinks.push({
+        href: shref,
+        label: sl.textContent,
+        active: slPath === currentPath,
+      });
+    }
+  }
 
   // ── Build top bar ──────────────────────────────────────────────
   var topbar = document.createElement('div');
@@ -113,22 +159,12 @@
   dropdown.setAttribute('aria-label', 'Mobilmeny');
 
   var linksHtml = '<div class="mobile-dropdown-links">';
-  for (var i = 0; i < sidebarLinks.length; i++) {
-    var link = sidebarLinks[i];
-    var href = link.getAttribute('href');
-    var linkPath = href ? href.replace(/\/$/, '') : '';
-
-    // Skip gated paths — check path-based gate OR data-feature attribute
-    var slug = GATED_PATHS[linkPath] || link.getAttribute('data-feature');
-    if (slug && !accessibleFeatures[slug]) {
-      continue; // link not accessible — skip
-    }
-
-    var isActive = linkPath === currentPath;
+  for (var ni = 0; ni < navLinks.length; ni++) {
+    var nlink = navLinks[ni];
     linksHtml +=
-      '<a href="' + href + '"' +
-      (isActive ? ' class="active-link"' : '') +
-      '>' + link.textContent + '</a>';
+      '<a href="' + nlink.href + '"' +
+      (nlink.active ? ' class="active-link"' : '') +
+      '>' + nlink.label + '</a>';
   }
   linksHtml += '</div>';
 

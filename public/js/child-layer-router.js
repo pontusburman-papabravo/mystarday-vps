@@ -1,9 +1,10 @@
 /**
- * child-layer-router.js — 4-layer route isolation (Home / Today / Universe / Family+More).
- * Separation contract: no cross-layer UI on wrong route.
+ * child-layer-router.js — Hash/route → child world (barnmeny v2).
  */
 (function () {
   'use strict';
+
+  var useV2 = !!(window.ChildWorlds && ChildWorlds.V2_ENABLED);
 
   var LAYERS = {
     home: { tab: 'home', hash: 'home', label: '🏠 Hem' },
@@ -21,42 +22,64 @@
     more: 'more',
   };
 
-  var HASH_ALIASES = {
-    home: 'home',
-    hem: 'home',
-    today: 'today',
-    schedule: 'today',
-    idag: 'today',
-    universe: 'universe',
-    rewards: 'universe',
-    skattkammaren: 'universe',
-    family: 'family',
-    familj: 'family',
-    more: 'more',
-    mer: 'more',
-  };
+  var HASH_ALIASES = useV2 && window.ChildWorlds
+    ? ChildWorlds.HASH_TO_WORLD
+    : {
+        home: 'home',
+        hem: 'home',
+        today: 'today',
+        schedule: 'today',
+        idag: 'today',
+        universe: 'universe',
+        rewards: 'universe',
+        skattkammaren: 'universe',
+        family: 'family',
+        familj: 'family',
+        more: 'more',
+        mer: 'more',
+      };
 
-  var _currentLayer = 'home';
+  var _currentLayer = 'today';
   var _originalShowTab = null;
 
   function layerFromHash() {
     var raw = (window.location.hash || '').replace(/^#/, '').toLowerCase();
     if (!raw) return null;
+    if (useV2 && ChildWorlds.HASH_TO_WORLD[raw]) {
+      return ChildWorlds.HASH_TO_WORLD[raw];
+    }
     return HASH_ALIASES[raw] || null;
   }
 
-  function setHash(layer) {
-    var entry = LAYERS[layer];
+  function worldToTab(layerOrWorld) {
+    if (useV2 && ChildWorlds.worldIdToTabKey) {
+      return ChildWorlds.worldIdToTabKey(layerOrWorld);
+    }
+    var entry = LAYERS[layerOrWorld];
+    return entry ? entry.tab : 'schedule';
+  }
+
+  function setHash(layerOrWorld) {
+    if (useV2) {
+      var hashMap = { today: 'today', world: 'universe', family: 'family' };
+      var target = '#' + (hashMap[layerOrWorld] || 'today');
+      if (window.location.hash !== target) {
+        history.replaceState(null, '', target);
+      }
+      return;
+    }
+    var entry = LAYERS[layerOrWorld];
     if (!entry) return;
-    var target = '#' + entry.hash;
-    if (window.location.hash !== target) {
-      history.replaceState(null, '', target);
+    var targetLegacy = '#' + entry.hash;
+    if (window.location.hash !== targetLegacy) {
+      history.replaceState(null, '', targetLegacy);
     }
   }
 
-  function applyRouteGuards(layer) {
-    _currentLayer = layer;
-    document.documentElement.setAttribute('data-child-layer', layer);
+  function applyRouteGuards(layerOrWorld) {
+    _currentLayer = layerOrWorld;
+    document.documentElement.setAttribute('data-child-layer', layerOrWorld);
+    document.documentElement.setAttribute('data-child-world', layerOrWorld);
 
     var scheduleView = document.getElementById('scheduleView');
     var todayFocus = document.getElementById('todayFocusMount');
@@ -64,72 +87,64 @@
     var familyView = document.getElementById('familyView');
     var homeView = document.getElementById('homeView');
 
-    if (layer === 'today' && todayFocus && window.ChildTodayFocus) {
+    var isToday = layerOrWorld === 'today' || layerOrWorld === 'home';
+    var isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe';
+    var isFamily = layerOrWorld === 'family';
+
+    if (isToday && todayFocus && window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange('schedule');
     }
 
-    if (layer === 'universe' && scheduleView) {
+    if (isWorld && scheduleView) {
       scheduleView.setAttribute('data-layer-hidden', 'true');
     } else if (scheduleView) {
       scheduleView.removeAttribute('data-layer-hidden');
     }
 
     if (familyView) {
-      familyView.setAttribute('data-active', layer === 'family' ? 'true' : 'false');
+      familyView.setAttribute('data-active', isFamily ? 'true' : 'false');
     }
 
     if (homeView) {
-      homeView.setAttribute('data-active', layer === 'home' ? 'true' : 'false');
+      homeView.setAttribute('data-active', 'false');
     }
 
-    if (layer === 'family' && window.ChildFamilyHall) {
+    if (isFamily && window.ChildFamilyHall) {
       ChildFamilyHall.refresh();
     }
   }
 
-  function highlightTab(tab) {
-    var map = {
-      home: 'tabHome',
-      schedule: 'tabSchedule',
-      rewards: 'tabRewards',
-      more: 'tabMore',
-      family: 'tabMore',
-    };
-    Object.keys({ home: 1, schedule: 1, rewards: 1, more: 1 }).forEach(function (key) {
-      var el = document.getElementById(map[key] || key);
-      if (!el) return;
-      el.classList.toggle('is-active', map[tab] === map[key]);
-    });
-  }
-
   function onTabShown(tab) {
-    var layer = TAB_TO_LAYER[tab] || 'home';
+    var layer = useV2 ? ChildWorlds.tabKeyToWorldId(tab) : TAB_TO_LAYER[tab] || 'today';
     setHash(layer);
     applyRouteGuards(layer);
-    highlightTab(tab);
+
+    if (window.ChildWorldsNav) ChildWorldsNav.highlightActive(tab);
 
     if (tab === 'schedule' && window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange('schedule');
-    } else if (tab === 'home' && window.ChildTodayFocus) {
-      ChildTodayFocus.onTabChange('home');
     } else if (window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange(tab);
     }
   }
 
-  function navigateToLayer(layer) {
-    if (layer === 'home' && window.AppViewMode && !AppViewMode.isMagic()) {
-      layer = 'today';
+  function navigateToLayer(layerOrWorld) {
+    if (useV2 && layerOrWorld === 'home') layerOrWorld = 'today';
+    if (!useV2 && layerOrWorld === 'home' && window.AppViewMode && !AppViewMode.isMagic()) {
+      layerOrWorld = 'today';
     }
-    var entry = LAYERS[layer];
-    if (!entry || typeof window.showTab !== 'function') return;
-    window.showTab(entry.tab);
+    var tab = worldToTab(layerOrWorld);
+    if (typeof window.showTab !== 'function') return;
+    window.showTab(tab);
   }
 
   function init() {
     if (typeof window.showTab !== 'function') return;
     _originalShowTab = window.showTab;
     window.showTab = function (tab) {
+      if (useV2) {
+        if (tab === 'home' || tab === 'more') tab = 'schedule';
+      }
       _originalShowTab(tab);
       onTabShown(tab);
     };
@@ -139,9 +154,20 @@
       if (layer) navigateToLayer(layer);
     });
 
+    var pathWorld = useV2 && ChildWorlds.activeChildNavItem
+      ? ChildWorlds.activeChildNavItem(window.location.pathname, window.location.hash)
+      : null;
+
+    if (pathWorld && window.location.pathname.indexOf('/child/') === 0) {
+      navigateToLayer(pathWorld.id);
+      return;
+    }
+
     var initial = layerFromHash();
     if (initial) {
       navigateToLayer(initial);
+    } else if (useV2) {
+      window.showTab('schedule');
     } else if (window.AppViewMode && AppViewMode.isMagic()) {
       window.showTab('home');
     } else {
@@ -152,7 +178,9 @@
   window.ChildLayerRouter = {
     init: init,
     navigateToLayer: navigateToLayer,
-    getCurrentLayer: function () { return _currentLayer; },
+    getCurrentLayer: function () {
+      return _currentLayer;
+    },
     LAYERS: LAYERS,
   };
 })();

@@ -1,5 +1,5 @@
 /**
- * Child v1.2 nav — 2 tabs + hide during teacch NU (E5).
+ * Child v1.2 nav — DEPRECATED by barnmeny v2 (child-worlds.js). No-op when V2_ENABLED.
  */
 (function (global) {
   'use strict';
@@ -38,6 +38,9 @@
   }
 
   async function init() {
+    if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
+      return;
+    }
     try {
       const access = window.fetchPackageAccess
         ? await window.fetchPackageAccess()

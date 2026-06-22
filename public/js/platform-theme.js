@@ -37,7 +37,7 @@
       patchViewportNoZoom();
       root.classList.add('platform-native');
       var childPagePath = (window.location.pathname || '').replace(/\/$/, '');
-      var isChildPage = childPagePath === '/child-dashboard' || childPagePath === '/child-login';
+      var isChildPage = childPagePath === '/child-login' || childPagePath.indexOf('/child/') === 0;
       if (isChildPage) root.classList.add('platform-child-page');
       if (typeof window.Platform !== 'undefined' && typeof window.Platform.isIOS === 'function' && window.Platform.isIOS()) {
         root.classList.add('platform-ios');
@@ -53,7 +53,7 @@
         if (!sessionStorage.getItem('native_landing_redirected')) {
           var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
           var nonRedirectPaths = ['/login', '/register', '/child-login', '/dashboard',
-            '/child-dashboard', '/foralder', '/barn', '/settings', '/scheman',
+            '/child-dashboard', '/child/today', '/child/world', '/child/family', '/foralder', '/barn', '/settings', '/scheman',
             '/aktiviteter', '/beloningar', '/rapporter', '/pedagoger', '/faq',
             '/inkorg', '/nyheter', '/villkor', '/integritet', '/faq'];
           if (

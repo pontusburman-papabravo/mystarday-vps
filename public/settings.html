@@ -44,6 +44,8 @@
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/settings-account.js?v=2.18.0"></script>
+  <script src="/js/billing-ui.js?v=1"></script>
+  <script src="/js/settings-subscription.js?v=1.1.0"></script>
   <style>
     /* WCAG 2.5.8: minimum 44×44px touch target for all checkboxes */
     .checkbox-touch { display: flex; align-items: center; gap: 12px; cursor: pointer; }
@@ -125,6 +127,17 @@
             Logga ut
           </button>
         </section>
+
+        <hr class="border-lavender">
+
+        <!-- Prenumeration (billing) — rendered by settings-subscription.js -->
+        <section id="prenumeration">
+          <div id="subscriptionMount">
+            <p class="text-sm text-text-soft">Laddar prenumeration…</p>
+          </div>
+        </section>
+
+        <hr class="border-lavender">
 
         <!-- Notifications -->
         <section>
@@ -462,7 +475,7 @@
 
         <hr class="border-lavender">
 
-        <!-- Föräldralås (PIN-kod) — dynamic section rendered by settings-account.js -->
+        <!-- PIN-kod (säkerhet) — dynamic section rendered by settings-account.js -->
         <section id="parentPinSection">
           <!-- Loaded by /js/settings-account.js -->
         </section>

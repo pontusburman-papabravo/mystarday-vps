@@ -24,6 +24,9 @@ const PARENT_MAGIC_PATHS = new Set([
   '/skattkammaren',
   '/child-settings',
   '/notifications',
+  '/planning',
+  '/rewards',
+  '/family/child',
 ]);
 
 function normalizeHtmlPath(path) {
@@ -96,6 +99,7 @@ function injectParentMagicHtml(body, reqPath) {
   ].join('\n');
 
   const scriptBlock = [
+    '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/app-view-mode.js?v=3"><\/script>',
     '<script src="/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>',
@@ -148,7 +152,12 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
-    '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n';
+    '<script src="/js/nav-config.js?v=' + RELEASE_TAG + '"><\/script>\n' +
+    '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/parent-nav-sidebar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/parent-nav-header.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/billing-ui.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/parent-avatar-menu.js?v=' + RELEASE_TAG + '" defer><\/script>\n';
 
   const headIdx = body.indexOf(headMarker);
   if (headIdx !== -1) {

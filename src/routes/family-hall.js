@@ -33,7 +33,9 @@ async function requireFamilyContext(req, res, next) {
 
 async function getHallHandler(req, res, next) {
   try {
-    const hall = await familyHallDb.getFamilyHall(req.familyId);
+    const opts = { includePersons: req.user && req.user.type === 'child' };
+    if (opts.includePersons) opts.childId = req.user.id;
+    const hall = await familyHallDb.getFamilyHall(req.familyId, opts);
     res.json(hall);
   } catch (err) {
     next(err);

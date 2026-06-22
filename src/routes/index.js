@@ -9,6 +9,7 @@
  * @param {import('express').Express} app
  */
 function registerRoutes(app) {
+  const { isBillingUiEnabled } = require('../lib/billing-ui');
   // ─── API Routes ───────────────────────────────────────────
 
   // Mount /api/me routes FIRST so child-self endpoints (daily-log, rewards, goals, ratings)
@@ -110,6 +111,14 @@ function registerRoutes(app) {
   app.use('/api/surveys', surveys.publicRouter);
   app.use('/api/children/:childId', require('./calendar'));
 
+  const { join } = require('path');
+  const childDashboardHtml = join(__dirname, '../../public', 'child-dashboard.html');
+
+  // Barnmeny v2 — must register before /child/:childId A/B router in static-routes
+  app.get('/child/today', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/world', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/family', (req, res) => res.sendFile(childDashboardHtml));
+
   // ─── PWA + child view routes ─────────────────────────────────
   app.use('/', require('./static-routes'));
 
@@ -126,11 +135,45 @@ function registerRoutes(app) {
     'login', 'child-login',
     'verify-email', 'forgot-password', 'reset-password', 'verify-email-change',
     'dashboard', 'child-dashboard',
-    'settings', 'accept-invite', 'pedagog-invite', 'upgrade',
+    'settings', 'accept-invite', 'pedagog-invite',
     'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
-    'family', 'calendar', 'onboarding', 'child-settings', 'child-wizard', 'notifications',
+    'family', 'calendar', 'onboarding', 'child-wizard', 'notifications',
+    'planning', 'rewards', 'family-child',
   ];
-  const { join } = require('path');
+  app.get('/upgrade', async (req, res) => {
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
+    res.redirect(302, '/settings#prenumeration');
+  });
+
+  app.get('/payment-success', async (req, res) => {
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
+    res.redirect(302, '/settings#prenumeration');
+  });
+
+  app.get('/upgrade/success', async (req, res) => {
+    const billingOk = await isBillingUiEnabled();
+    if (!billingOk) return res.redirect(302, '/dashboard');
+    res.redirect(302, '/settings#prenumeration');
+  });
+
+  app.get('/child-dashboard', (req, res) => {
+    res.redirect(302, '/child/today');
+  });
+
+  app.get('/child-settings', (req, res) => {
+    const id = req.query.id;
+    if (id) {
+      return res.redirect(302, '/family/child/' + encodeURIComponent(id) + '?tab=setup');
+    }
+    return res.redirect(302, '/family');
+  });
+
+  app.get('/family/child/:childId', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'family-child.html'));
+  });
+
   for (const page of appPages) {
     app.get(`/${page}`, (req, res) => {
       res.sendFile(join(__dirname, '../../public', `${page}.html`));
@@ -142,10 +185,9 @@ function registerRoutes(app) {
     res.redirect(302, `/accept-invite?token=${encodeURIComponent(req.params.token)}`);
   });
 
-  // 3-layer child app routes (hash-scoped layers on child-dashboard)
-  app.get('/today', (req, res) => res.redirect(302, '/child-dashboard#today'));
-  app.get('/universe', (req, res) => res.redirect(302, '/child-dashboard#universe'));
-  app.get('/family', (req, res) => res.redirect(302, '/child-dashboard#family'));
+  // Legacy child short paths → barnmeny v2 routes
+  app.get('/today', (req, res) => res.redirect(302, '/child/today'));
+  app.get('/universe', (req, res) => res.redirect(302, '/child/world'));
   app.get('/family-week', (req, res) => res.redirect(301, '/schedule?view=family'));
 
   app.get('/admin', (req, res) => {

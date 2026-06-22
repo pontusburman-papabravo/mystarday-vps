@@ -534,6 +534,8 @@
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/dashboard-home-hub.js?v=4"></script>
   <script src="/js/dashboard-weekly-story.js?v=2026-06-09-warmth"></script>
+  <script src="/js/home-readiness.js?v=1"></script>
+  <script src="/js/home-bump-time.js?v=1"></script>
   <script src="/js/dashboard.js?v=2.38.0"></script>
 
   <div class="min-h-screen flex flex-col md:flex-row">
@@ -660,6 +662,8 @@
         <!-- Dashboard: child cards side-by-side + weekly overview -->
         <div id="childrenListView">
           <div id="parentHomeHubMount" class="hidden" aria-live="polite"></div>
+          <div id="homeReadinessMount" class="hidden mb-4" aria-live="polite"></div>
+          <div id="homeBumpMount" class="hidden mb-4" aria-live="polite"></div>
 
           <!-- Header -->
           <div class="mb-5 flex items-center justify-end flex-wrap gap-3 parent-magic-legacy-hide">
@@ -693,7 +697,7 @@
           </div>
 
           <!-- Star history chart (replaces weekly overview) -->
-          <div id="starHistorySection" class="hidden parent-magic-legacy-hide">
+          <div id="starHistorySection" class="hidden">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-lg font-heading font-bold text-navy">⭐ Veckans framsteg</h3>
               <span class="text-xs text-text-soft font-semibold">Senaste 8 veckorna</span>

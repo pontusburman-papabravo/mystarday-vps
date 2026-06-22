@@ -653,6 +653,33 @@
       font-size: 10px;
       animation: skattTwinkle var(--dur, 2s) var(--delay, 0s) ease-in-out infinite;
     }
+    .skatt-banner.child-star-flash {
+      animation: childStarFlash 1.2s ease-out;
+    }
+    @keyframes childStarFlash {
+      0%, 100% { box-shadow: 0 0 0 rgba(245,166,35,0); transform: scale(1); }
+      40% { box-shadow: 0 0 24px rgba(245,166,35,0.85); transform: scale(1.02); }
+    }
+    .child-star-feedback-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(27,35,64,0.55);
+      opacity: 0; transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .child-star-feedback-overlay.is-visible { opacity: 1; }
+    .child-star-feedback-card {
+      background: linear-gradient(145deg, #FFFBEB, #FFF3D6);
+      border: 3px solid #F5A623; border-radius: 24px;
+      padding: 28px 32px; text-align: center;
+      transform: scale(0.85); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 12px 40px rgba(245,166,35,0.35);
+    }
+    .child-star-feedback-overlay.is-visible .child-star-feedback-card { transform: scale(1); }
+    .child-star-feedback-burst { font-size: 3rem; margin-bottom: 8px; animation: childStarBurst 1.5s ease infinite; }
+    .child-star-feedback-count { font-family: 'Outfit',sans-serif; font-size: 2rem; font-weight: 800; color: #1B2340; margin: 0; }
+    .child-star-feedback-reason { font-size: 1rem; color: #5A6178; margin: 8px 0 0; line-height: 1.35; }
+    @keyframes childStarBurst { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
 
     /* ── Star chest ── */
     .skatt-chest {
@@ -1601,10 +1628,23 @@
   <script src="/js/child-today-tasks.js?v=1.0.0"></script>
   <script src="/js/child-family-client.js?v=1.0.0"></script>
   <script src="/js/child-family-hall.js?v=2.0.0"></script>
-  <script src="/js/child-layer-router.js?v=1.1.0"></script>
+  <script src="/js/child-worlds.js?v=1.0.0"></script>
+  <script src="/js/child-capabilities.js?v=1.0.0"></script>
+  <script src="/js/child-placements.js?v=1.0.0"></script>
+  <script src="/js/child-worlds-nav.js?v=1.0.0"></script>
+  <script src="/js/child-system-menu.js?v=1.0.0"></script>
+  <script src="/js/child-shell.js?v=1.0.0"></script>
+  <script src="/js/child-today.js?v=1.0.0"></script>
+  <script src="/js/child-world.js?v=1.0.0"></script>
+  <script src="/js/child-family.js?v=1.0.0"></script>
+  <script src="/js/child-activity-engine.js?v=1.0.0"></script>
+  <script src="/js/child-rewards-engine.js?v=1.1.0"></script>
+  <script src="/js/child-star-feedback.js?v=1"></script>
+  <script src="/js/child-support-layer.js?v=1.0.0"></script>
+  <script src="/js/child-today-coach.js?v=1.0.0"></script>
+  <script src="/js/child-layer-router.js?v=1.2.0"></script>
   <!-- Main child dashboard logic (schedule, activities, rewards, ratings) -->
   <script src="/js/child-dashboard-warmth.js?v=2026-06-10-child"></script>
-  <script src="/js/child-package-nav.js?v=1.0.0"></script>
   <script src="/js/child-read-aloud.js?v=1.0.0"></script>
   <script src="/js/child-seven-questions.js?v=1.0.0"></script>
   <script src="/js/child-dashboard.js?v=2.23.0"></script>

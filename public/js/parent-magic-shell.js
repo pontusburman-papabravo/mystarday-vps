@@ -1,27 +1,9 @@
 /**
  * parent-magic-shell.js — Shared magic init: toggle, 3D orbs, bottom nav, page class.
+ * Bottom nav reads NavConfig (vuxenmeny v2).
  */
 (function () {
   'use strict';
-
-  var LEGACY_NAV = [
-    { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Hem' },
-    { id: 'schedule', href: '/schedule', icon: '📅', label: 'Schema' },
-    { id: 'for-dig', href: '/for-dig', icon: '✨', label: 'För dig' },
-    { id: 'family', href: '/family', icon: '👨‍👩‍👧', label: 'Familj' },
-    { id: 'settings', href: '/settings', icon: '⚙️', label: 'Inställn.' },
-  ];
-
-  var ROLLOUT_NAV = [
-    { id: 'dashboard', href: '/dashboard', icon: '🏠', label: 'Hem' },
-    { id: 'schedule', href: '/schedule', icon: '📅', label: 'Schema' },
-    { id: 'for-dig', href: '/for-dig', icon: '✨', label: 'För dig' },
-    { id: 'skattkammaren', href: '/skattkammaren', icon: '🏆', label: 'Skatt' },
-    { id: 'upgrade', href: '/upgrade', icon: '💫', label: 'Extra' },
-    { id: 'family', href: '/family', icon: '⚙️', label: 'Mer' },
-  ];
-
-  var NAV = LEGACY_NAV;
 
   var _page = null;
   var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
@@ -32,6 +14,13 @@
     if (!document.body.classList.contains('has-native-tab-bar')) return false;
     if (!document.querySelector('.native-tab-bar')) return false;
     return MOBILE_NAV_MQ ? MOBILE_NAV_MQ.matches : false;
+  }
+
+  function getNavItems() {
+    if (window.NavConfig && NavConfig.PRIMARY_NAV) {
+      return NavConfig.PRIMARY_NAV;
+    }
+    return [];
   }
 
   function isMagic() {
@@ -56,7 +45,15 @@
     if (el) el.remove();
   }
 
-  function renderBottomNav(activeId) {
+  function activeNavId() {
+    if (window.NavConfig && NavConfig.activeNavItem) {
+      var item = NavConfig.activeNavItem(window.location.pathname);
+      if (item) return item.id;
+    }
+    return _page;
+  }
+
+  function renderBottomNav() {
     if (isNativeTabBarActive()) {
       var hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
@@ -67,12 +64,16 @@
       nav = document.createElement('nav');
       nav.id = 'parentBottomNav';
       nav.className = 'parent-bottom-nav';
+      nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', 'Huvudnavigering');
       document.body.appendChild(nav);
     }
-    nav.innerHTML = NAV.map(function (item) {
+    var activeId = activeNavId();
+    var items = getNavItems();
+    nav.innerHTML = items.map(function (item) {
       var active = item.id === activeId ? ' is-active' : '';
-      return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '">' +
+      var aria = item.id === activeId ? ' aria-current="page"' : '';
+      return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
         '<span class="parent-bottom-nav-icon" aria-hidden="true">' + item.icon + '</span>' +
         '<span>' + item.label + '</span></a>';
     }).join('');
@@ -83,7 +84,7 @@
   }
 
   function applyPageClasses(magic) {
-    NAV.forEach(function (item) {
+    getNavItems().forEach(function (item) {
       document.body.classList.remove('parent-magic-page-' + item.id);
     });
     document.body.classList.toggle('parent-magic-view', magic);
@@ -100,7 +101,7 @@
     applyPageClasses(magic);
     if (magic) {
       ensureOrbs();
-      renderBottomNav(_page);
+      renderBottomNav();
     } else {
       removeOrbs();
       if (!document.body.classList.contains('has-native-tab-bar')) {
@@ -114,19 +115,6 @@
     if (window.ParentMagicPageHub) {
       ParentMagicPageHub.refresh(_page, magic);
     }
-  }
-
-  function applyNavFromAccess(access) {
-    NAV = (access && access.rollout_mode && access.rollout_mode !== 'off') ? ROLLOUT_NAV : LEGACY_NAV;
-  }
-
-  function loadNavConfig() {
-    if (!window.fetchPackageAccess) return Promise.resolve();
-    return window.fetchPackageAccess()
-      .then(function (access) {
-        applyNavFromAccess(access);
-      })
-      .catch(function () { /* keep legacy */ });
   }
 
   function navigateToPage(page) {
@@ -144,31 +132,22 @@
       AppViewMode.applyStoredParentModeOptimistic();
     }
     if (!window.AppViewMode) {
-      return loadNavConfig().then(function () {
-        refresh();
-        return Promise.resolve(false);
-      });
+      refresh();
+      return Promise.resolve(false);
     }
 
-    return loadNavConfig().then(function () {
-      return AppViewMode.initParent().then(function () {
-        var toggleMount = document.getElementById('appViewToggleMount');
-        if (toggleMount && AppViewMode.isAllowed()) {
-          AppViewMode.mountToggle(toggleMount);
-        } else if (toggleMount) {
-          toggleMount.style.display = 'none';
-        }
-        AppViewMode.onChange(refresh);
-        refresh();
-        return isMagic();
-      });
+    return AppViewMode.initParent().then(function () {
+      var toggleMount = document.getElementById('appViewToggleMount');
+      if (toggleMount && AppViewMode.isAllowed()) {
+        AppViewMode.mountToggle(toggleMount);
+      } else if (toggleMount) {
+        toggleMount.style.display = 'none';
+      }
+      AppViewMode.onChange(refresh);
+      refresh();
+      return isMagic();
     });
   }
-
-  window.addEventListener('stjarndag-package-access-loaded', function (e) {
-    applyNavFromAccess(e.detail);
-    refresh();
-  });
 
   window.addEventListener('stjarndag-parent-nav-layout', refresh);
   if (MOBILE_NAV_MQ) {

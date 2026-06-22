@@ -23,6 +23,8 @@
     '/pedagog-note',
     '/onboarding',
     '/admin',
+    '/planning',
+    '/rewards',
   ];
 
   function normalizePath(path) {
@@ -44,7 +46,7 @@
   function resolveRedirect(pathname) {
     if (!window.DeviceMode || !DeviceMode.isChildMode()) return null;
     var path = normalizePath(pathname);
-    if (path === '/child-login' || path === '/child-dashboard' || path === '/login' || path === '/register') {
+    if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0 || path === '/login' || path === '/register') {
       return null;
     }
     if (isParentOnlyPath(path)) return '/child-login';

@@ -44,10 +44,20 @@
     if (path === '/reset-password') {
       return '/reset-password' + qs;
     }
-    if (path === '/child-login' || path === '/child-dashboard') {
+    if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0) {
+      if (path === '/child-dashboard') return '/child/today' + qs;
       return path + qs;
     }
     if (path === '/login' || path === '/dashboard' || path === '/settings') {
+      return path + qs;
+    }
+    if (path.indexOf('/family/child/') === 0) {
+      return path + qs;
+    }
+    if (path === '/family') {
+      return path + qs;
+    }
+    if (path === '/planning' || path === '/rewards') {
       return path + qs;
     }
     return null;

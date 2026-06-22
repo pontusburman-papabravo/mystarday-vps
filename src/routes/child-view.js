@@ -28,7 +28,7 @@ function isValidUuid(id) {
 // Reads child_view_config.view_mode, redirects to classic or new view.
 // Gates 'ny_barnvy' — if feature is off, all children go to classic view.
 // redirectIfNoAccess handles admin bypass automatically.
-router.get('/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child-dashboard'), async (req, res) => {
+router.get('/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child/today'), async (req, res) => {
   try {
     const { childId } = req.params;
     if (!isValidUuid(childId)) {
@@ -62,7 +62,7 @@ router.get('/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child-da
 // ─── GET /child/new/:childId — functional V2 child view ───
 // Gates 'ny_barnvy' — direct navigation to new view requires feature access.
 // redirectIfNoAccess handles admin bypass automatically.
-router.get('/new/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child-dashboard'), async (req, res) => {
+router.get('/new/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/child/today'), async (req, res) => {
   const { childId } = req.params;
   if (!isValidUuid(childId)) {
     return res.redirect('/child-login');
@@ -77,7 +77,7 @@ router.get('/new/:childId', optionalAuth, redirectIfNoAccess('ny_barnvy', '/chil
     }
     const hasMagicDashboard = await familyHasMagicViewAccess(result.rows[0].family_id);
     if (hasMagicDashboard) {
-      return res.redirect(`/child-dashboard?child=${childId}`);
+      return res.redirect(`/child/today?child=${childId}`);
     }
     res.redirect(`/child-new.html?child=${childId}`);
   } catch (err) {
