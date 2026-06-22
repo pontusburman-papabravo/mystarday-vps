@@ -27,7 +27,7 @@ jobs:
           script_stop: true
           envs: VPS_APP_PATH,VPS_RESTART_CMD,VPS_HEALTH_URL
           script: |
-            set -euo pipefail
+            set -eo pipefail
 
             if [ -z "${VPS_APP_PATH:-}" ]; then
               echo "VPS_APP_PATH variable is not set"
@@ -42,24 +42,17 @@ jobs:
 
             echo "→ Node 20"
             export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-            # nvm.sh is not nounset-safe — disable -e/-u while activating Node
-            set +eu
-            if [ -s "$NVM_DIR/nvm.sh" ]; then
-              # shellcheck disable=SC1091
-              . "$NVM_DIR/nvm.sh"
-              nvm use 20 2>/dev/null || nvm use default 2>/dev/null || true
-            fi
+            # Do not source nvm.sh over SSH — it may call exit 3 in non-interactive shells.
+            shopt -s nullglob
+            for node_bin in "$NVM_DIR"/versions/node/v20*/bin; do
+              if [ -x "$node_bin/node" ]; then
+                export PATH="$node_bin:$PATH"
+                break
+              fi
+            done
+            shopt -u nullglob
             if ! command -v node >/dev/null 2>&1; then
-              for node_bin in "$NVM_DIR"/versions/node/v20*/bin; do
-                if [ -x "$node_bin/node" ]; then
-                  export PATH="$node_bin:$PATH"
-                  break
-                fi
-              done
-            fi
-            set -eo pipefail
-            if ! command -v node >/dev/null 2>&1; then
-              echo "node not found — kör: nvm install 20 (som deploy-användaren)"
+              echo "node not found — på VPS som deploy: nvm install 20"
               exit 1
             fi
             echo "node $(node -v) npm $(npm -v)"
