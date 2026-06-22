@@ -401,6 +401,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       const toggleMount = document.getElementById('appViewToggleMount');
       if (toggleMount) AppViewMode.mountToggle(toggleMount);
     }
+  }
+
+  // Always re-render dashboard layout on classic↔magic toggle (ParentMagicShell only
+  // refreshes shell chrome — without this, magic view hides legacy cards but never
+  // mounts DashboardHomeHub until a full navigation e.g. tapping Hem).
+  if (window.AppViewMode) {
     AppViewMode.onChange(function () {
       if (AppViewMode.isClassic()) {
         document.body.classList.remove('parent-magic-dashboard');
@@ -410,8 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           hubMount.innerHTML = '';
         }
         if (typeof renderDashboardCards === 'function') renderDashboardCards();
-      }
-      if (window.DashboardHomeHub) {
+      } else if (window.DashboardHomeHub) {
         DashboardHomeHub.render(dashboardStats);
       }
     });

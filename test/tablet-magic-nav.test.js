@@ -38,4 +38,14 @@ describe('tablet magic navigation', () => {
     assert.match(js, /upgrade-package-grid/);
     assert.match(css, /\.upgrade-package-grid/);
   });
+
+  it('dashboard re-renders home hub when toggling classic to magic', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    assert.match(src, /ParentMagicShell\.init\('dashboard'\)/);
+    assert.match(src, /Always re-render dashboard layout on classic↔magic toggle/);
+    assert.match(src, /DashboardHomeHub\.render\(dashboardStats\)/);
+    const initIdx = src.indexOf("ParentMagicShell.init('dashboard')");
+    const onChangeIdx = src.indexOf('Always re-render dashboard layout');
+    assert.ok(initIdx >= 0 && onChangeIdx > initIdx, 'view-mode handler should follow ParentMagicShell.init');
+  });
 });

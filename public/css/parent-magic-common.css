@@ -11,6 +11,11 @@ body.parent-magic-view .parent-magic-legacy-hide {
   display: none !important;
 }
 
+/* Dashboard: hide classic header as soon as magic view is on (before hub mount). */
+body.parent-magic-view.parent-magic-page-dashboard .parent-magic-hide-header {
+  display: none !important;
+}
+
 body.parent-magic-view nav.w-full.md\:w-64,
 body.parent-magic-view nav#sidebar,
 body.parent-magic-view .md\:hidden.bg-navy.sticky,
