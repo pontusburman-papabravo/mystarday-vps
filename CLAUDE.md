@@ -81,6 +81,13 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E2 (complete) — login/session routes extracted to `src/routes/auth/login.js` (login, logout, me, me/preferences, login-picker-children); `index.js` is now a thin barrel mounting login/register/refresh/child-login/email/oauth-apple/oauth-google. `auth.js` (1770 r) fully split into `src/routes/auth/`.
+- 2026-06-23: Refactor Fas 7 E2 — registration route extracted to `src/routes/auth/register.js` (POST /register + default activity seeding); removed now-unused imports from index.js.
+- 2026-06-23: Refactor Fas 7 E2 — CSRF + refresh routes extracted to `src/routes/auth/refresh.js` (GET /csrf-token, POST /refresh); removed now-unused verifyRefreshToken/clearRefreshCookie imports from index.js.
+- 2026-06-23: Refactor Fas 7 E2 — child-login route extracted to `src/routes/auth/child-login.js` (POST /child-login, PIN lockout); removed now-unused imports (childLoginLimiter, ChildLoginSchema, pinLockout, sendPinWarningEmail, createSystemMessage, broadcast) from index.js.
+- 2026-06-23: Refactor Fas 7 E2 — email-flow routes extracted to `src/routes/auth/email.js` (verify-email, resend-verification, forgot-password, reset-password); removed now-unused imports from index.js.
+- 2026-06-23: Refactor Fas 7 E2 — Google Sign In route extracted to `src/routes/auth/oauth-google.js` (POST /google); removed now-unused appleLoginLimiter/parentDb/completeLogin imports from index.js.
+- 2026-06-23: Refactor Fas 7 E2 — Apple Sign In routes + helpers extracted to `src/routes/auth/oauth-apple.js` (POST /apple, /apple/link, verifyAppleIdToken, JWKS cache, createParentWithApple); test path updated.
 - 2026-06-23: Refactor Fas 7 E2 (fas 1) — shared auth session helpers extracted to `src/routes/auth/session.js` (parseDuration, completeLogin, clearAllSessionCookies); index.js imports them. No route move; removed now-unused clearAccessCookie import.
 - 2026-06-23: Refactor Fas 7 E2 (relocate) — `auth.js` moved to `src/routes/auth/index.js` (no route move; require paths fixed one level deeper). Prep for incremental auth split per `docs/refactor/e2-auth-endpoint-map.md`. Test path updated in `test/apple-signup-sql.test.js`.
 - 2026-06-23: Refactor Fas 7 E1 (complete) — core family routes extracted to `src/routes/family/core.js` (read/update, settings, dashboard-stats, readiness, star-history, subscription-status); `index.js` is now a thin barrel mounting invites-public (before gate) → requireParent → core/account/invites/members/pedagog/pin. `family.js` (2198 r) fully split into `src/routes/family/`.
