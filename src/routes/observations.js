@@ -9,6 +9,7 @@
  */
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
+const { getChildAccess } = require('../middleware/authz');
 const { upsertObservation, getObservationsForRange, getObservationById, deleteObservation } = require('../../db/child-observations');
 const db = require('../lib/db');
 
@@ -24,13 +25,7 @@ function isValidDate(s) {
 
 /** Verify parent has access to a child. */
 async function verifyChildAccess(parentId, childId) {
-  const result = await db.query(
-    `SELECT c.id FROM child c
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND c.id = $2`,
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
+  return getChildAccess(parentId, childId);
 }
 
 /** Verify parent owns an observation. */
