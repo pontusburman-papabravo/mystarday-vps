@@ -1908,14 +1908,14 @@ function activateParentSessionCookies(req, res) {
 
   res.cookie('access_token', session.access_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'lax',
     maxAge: 15 * 60 * 1000,
     path: '/',
   });
   res.cookie('refresh_token', session.refresh_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.cookieSecure,
     sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/api/auth',
@@ -2174,14 +2174,14 @@ router.post('/restore-parent-session', async (req, res) => {
 
     res.cookie('access_token', session.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: config.cookieSecure,
       sameSite: 'lax',
       maxAge: 15 * 60 * 1000,
       path: '/',
     });
     res.cookie('refresh_token', session.refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: config.cookieSecure,
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
