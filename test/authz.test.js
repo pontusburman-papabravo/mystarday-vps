@@ -114,6 +114,25 @@ test('returns child row when parent owns child', async () => {
   assert.strictEqual(result.id, 'child-1');
 });
 
+test('returns null when parent_child link is revoked', async () => {
+  setMockQuery(async (sql) => {
+    assert.match(sql, /revoked_at IS NULL/i, 'getChildAccess must filter revoked links');
+    return { rows: [] };
+  });
+  const result = await authz.getChildAccess('parent-revoked', 'child-1');
+  assert.strictEqual(result, null, 'Revoked parent_child should deny access');
+});
+
+test('getChildAccess SQL always includes revoked_at IS NULL filter', async () => {
+  let capturedSql = '';
+  setMockQuery(async (sql) => {
+    capturedSql = sql;
+    return { rows: [{ id: 'child-1', family_id: 'fam-1', name: 'Emma' }] };
+  });
+  await authz.getChildAccess('parent-1', 'child-1');
+  assert.match(capturedSql, /revoked_at IS NULL/i);
+});
+
 test('returns null when parent does not own child (IDOR scenario)', async () => {
   setMockRows([]); // parent_child JOIN returns no rows
   const result = await authz.getChildAccess('parent-attacker', 'child-victim');
