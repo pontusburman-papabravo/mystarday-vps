@@ -9,10 +9,10 @@ const fs = require('fs');
 const path = require('path');
 
 test('createParentWithApple family_subscriptions insert avoids reused $2 in CASE', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../src/routes/auth.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../src/routes/auth/index.js'), 'utf8');
   assert.ok(
     src.includes('createParentWithApple'),
-    'createParentWithApple helper expected in auth.js'
+    'createParentWithApple helper expected in auth/index.js'
   );
   assert.ok(
     !/CASE WHEN \$2 = 'trial'/.test(src),
