@@ -1,0 +1,149 @@
+'use strict';
+
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+
+const requestIdMiddleware = require('./src/middleware/requestId');
+const securityHeadersMiddleware = require('./src/middleware/securityHeaders');
+const { globalLimiter, apiLimiter } = require('./src/middleware/rateLimiter');
+const { optionalAuth, restoreParentSession } = require('./src/middleware/auth');
+const { loadLocales, getLocale, getAvailableLanguages } = require('./src/lib/i18n');
+const checkMaintenanceMode = require('./src/middleware/maintenance');
+const { blockImpersonationWrites } = require('./src/middleware/impersonation');
+const { csrfProtect } = require('./src/middleware/csrf');
+const { createDomainRedirect } = require('./src/lib/domain-redirect');
+const platformHtmlInject = require('./src/middleware/platform-html');
+const { buildAssetLinks, buildAppleAppSiteAssociation } = require('./src/lib/well-known');
+const { registerRoutes } = require('./src/routes/index');
+
+/**
+ * Build the Express app without binding a port or starting schedulers.
+ * Used by server.js and integration tests.
+ */
+function createApp() {
+  const app = express();
+
+  app.use((req, res, next) => {
+    req.setTimeout(30000, () => {
+      console.warn('[TIMEOUT] request exceeded 30s — path=%s method=%s ip=%s', req.path, req.method, req.ip);
+    });
+    next();
+  });
+
+  const { handleResendWebhook } = require('./src/routes/resend-webhook');
+  const { resendWebhookLimiter } = require('./src/middleware/rateLimiter');
+  app.post(
+    '/api/resend/webhook',
+    resendWebhookLimiter,
+    express.raw({ type: 'application/json' }),
+    handleResendWebhook
+  );
+
+  app.set('trust proxy', 1);
+  app.use(express.json());
+  app.use(cookieParser());
+  app.use(requestIdMiddleware());
+  app.use(optionalAuth);
+  app.use(globalLimiter);
+  app.use(platformHtmlInject);
+  app.use(securityHeadersMiddleware());
+  loadLocales();
+
+  app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', version: '2.3.1' });
+  });
+
+  function sendAssetLinks(_req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.json(buildAssetLinks());
+  }
+
+  function sendAppleAppSiteAssociation(_req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.json(buildAppleAppSiteAssociation());
+  }
+
+  app.get('/.well-known/assetlinks.json', sendAssetLinks);
+  app.get('/assetlinks.json', sendAssetLinks);
+  app.get('/.well-known/apple-app-site-association', sendAppleAppSiteAssociation);
+  app.get('/apple-app-site-association', sendAppleAppSiteAssociation);
+
+  app.use(createDomainRedirect());
+
+  app.get('/api/i18n/:lang', (req, res) => {
+    const locale = getLocale(req.params.lang);
+    res.json(locale);
+  });
+
+  app.get('/api/i18n', (req, res) => {
+    res.json({ languages: getAvailableLanguages(), default: 'sv' });
+  });
+
+  app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+  });
+  app.set('etag', false);
+
+  app.use('/api', csrfProtect);
+  app.use('/api', blockImpersonationWrites);
+
+  const { childParentApiBlock } = require('./src/middleware/child-parent-api-block');
+  app.use('/api', restoreParentSession, optionalAuth, childParentApiBlock, apiLimiter);
+
+  registerRoutes(app);
+
+  app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
+  const { getLocalUploadDir } = require('./src/lib/object-storage');
+  app.use('/uploads', express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
+  app.use('/V2.0', express.static(path.join(__dirname, 'public', 'v2'), { index: 'index.html' }));
+
+  app.use(checkMaintenanceMode);
+
+  const { requireActiveSubscription } = require('./src/middleware/subscription');
+  app.use('/api', (req, res, next) => {
+    const p = req.path;
+    if (
+      p.startsWith('/auth') ||
+      p.startsWith('/iap') ||
+      p.startsWith('/resend/') ||
+      p === '/health' ||
+      p.startsWith('/landing') ||
+      p.startsWith('/public/') ||
+      p === '/i18n' ||
+      p === '/i18n/'
+    ) return next();
+    requireActiveSubscription(req, res, next);
+  });
+
+  app.use(require('./src/routes/public-pages'));
+
+  app.use((req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'Endpoint hittades inte' });
+    }
+    if (req.path.startsWith('/.well-known/')) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    res.redirect('/');
+  });
+
+  app.use((err, req, res, _next) => {
+    const errPath = req.path.startsWith('/api/events') ? req.path : req.originalUrl;
+    req.log.error(
+      { msg: 'Unhandled error', operation: 'server.error', path: errPath, error: err.message || err },
+      err
+    );
+    res.status(500).json({ error: 'Internt serverfel' });
+  });
+
+  return app;
+}
+
+module.exports = { createApp };
