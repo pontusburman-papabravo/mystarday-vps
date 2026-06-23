@@ -17,7 +17,7 @@
 | `APNS_KEY_PATH` / secret | *(befintlig)* | 20 | |
 | `APNS_BUNDLE_ID` | `se.mystarday.app` | 20/22a | |
 
-**Redan satta (rör ej om de fungerar):** `DATABASE_URL`, `JWT_SECRET`, `POLSIA_API_KEY`, `STRIPE_*`, `VAPID_*`
+**Redan satta (rör ej om de fungerar):** `DATABASE_URL`, `JWT_SECRET`, `POLSIA_API_KEY`, `VAPID_*`
 
 ### Migration export (tillfälligt vid plattformsflytt)
 
