@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E3b — daily-logs child-self router moved to `src/routes/daily-logs/child-self.js`. Files: src/routes/daily-logs/child-self.js, src/routes/daily-logs.js, test/activation-program-fas2.test.js, test/package-admin.test.js.
 - 2026-06-23: Refactor Fas 7 E3b — daily-logs logs router moved to `src/routes/daily-logs/logs.js`. Files: src/routes/daily-logs/logs.js, src/routes/daily-logs.js.
 - 2026-06-23: Refactor Fas 7 E3b — daily-logs items router moved to `src/routes/daily-logs/items.js`. Files: src/routes/daily-logs/items.js, src/routes/daily-logs.js, test/three-layer-separation.test.js.
 - 2026-06-23: Refactor Fas 7 E3b — daily-logs parent router moved to `src/routes/daily-logs/parent.js` (childRouter, no path change). Files: src/routes/daily-logs/parent.js, src/routes/daily-logs.js.

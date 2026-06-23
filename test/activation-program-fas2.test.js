@@ -158,15 +158,19 @@ describe('Fas 2 — treatment gating (invariants #4/#6)', () => {
 describe('Fas 2 — child path only for child_first_completion (invariant #8)', () => {
   it('hooks child_first_completion only on child self complete route', () => {
     const src = fs.readFileSync(
-      path.join(__dirname, '../src/routes/daily-logs.js'),
+      path.join(__dirname, '../src/routes/daily-logs/child-self.js'),
       'utf8'
     );
 
     const childHookIdx = src.indexOf('child_first_completion');
     assert.ok(childHookIdx > -1, 'child_first_completion hook should exist');
 
-    const childRouterIdx = src.indexOf('childSelfRouter.put(\'/daily-log-items/:itemId/complete\'');
-    const parentRouterIdx = src.indexOf("itemRouter.put('/:itemId/complete'");
+    const childRouterIdx = src.indexOf("childSelfRouter.put('/daily-log-items/:itemId/complete'");
+    const itemsSrc = fs.readFileSync(
+      path.join(__dirname, '../src/routes/daily-logs/items.js'),
+      'utf8'
+    );
+    const parentRouterIdx = itemsSrc.indexOf("itemRouter.put('/:itemId/complete'");
 
     assert.ok(childRouterIdx > -1 && parentRouterIdx > -1);
     assert.ok(
@@ -174,7 +178,7 @@ describe('Fas 2 — child path only for child_first_completion (invariant #8)', 
       'hook should be inside child self complete handler'
     );
 
-    const parentBlock = src.slice(parentRouterIdx, childRouterIdx);
+    const parentBlock = itemsSrc.slice(parentRouterIdx);
     assert.equal(
       parentBlock.includes('child_first_completion'),
       false,
