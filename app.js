@@ -44,6 +44,9 @@ function createApp() {
   app.use(express.json());
   app.use(cookieParser());
   app.use(requestIdMiddleware());
+  // Restore parent session before JWT decode so optionalAuth sees the correct token.
+  // Global optionalAuth lets globalLimiter skip authenticated API traffic (200 req/min IP budget).
+  app.use(restoreParentSession);
   app.use(optionalAuth);
   app.use(globalLimiter);
   app.use(platformHtmlInject);
@@ -94,7 +97,10 @@ function createApp() {
   app.use('/api', blockImpersonationWrites);
 
   const { childParentApiBlock } = require('./src/middleware/child-parent-api-block');
-  app.use('/api', restoreParentSession, optionalAuth, childParentApiBlock, apiLimiter);
+  app.use('/api', childParentApiBlock, apiLimiter);
+
+  // Maintenance must run before routes so API traffic is blocked during downtime.
+  app.use(checkMaintenanceMode);
 
   registerRoutes(app);
 
@@ -103,8 +109,6 @@ function createApp() {
   const { getLocalUploadDir } = require('./src/lib/object-storage');
   app.use('/uploads', express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
   app.use('/V2.0', express.static(path.join(__dirname, 'public', 'v2'), { index: 'index.html' }));
-
-  app.use(checkMaintenanceMode);
 
   const { requireActiveSubscription } = require('./src/middleware/subscription');
   app.use('/api', (req, res, next) => {
