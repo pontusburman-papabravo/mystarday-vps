@@ -1,8 +1,15 @@
-# Refaktoreringsplan — Min Stjärndag (v4 master plan)
+# Refaktoreringsplan — Min Stjärndag (v4.1 master plan)
 
-> **Status:** Reviderad master-plan v4 (ingen kod ändrad ännu).
+> **Status:** Låst master-plan v4.1 (ingen kod ändrad ännu).
 > **Syfte:** Renodla och modularisera hela kodbasen. Stripe avvecklas till förmån för Apple/Google IAP (RevenueCat).
 > **Mål:** Exekverbar plan med tydliga go/no-go-gates, bättre riskisolering och färre onödiga blockerare.
+
+**Putsningar i v4.1 (vs v4):**
+- **G3c omdefinierad** från "första riktiga DB-integrationstest" till **schema/migrations-gate** (migrate + up/down-rollback mot tom + dev-liknande DB) inför A5c/B1 — rollen som "första integrationstest" fylls redan av G4a/G4b.
+- **E0 (baseline route-inventory/route-dump)** tillagd som obligatorisk förberedelse före backend-split, även inskriven i **Gate G**.
+- **C2b-beslutet normativt:** default = ta bort den globala mounten; global gate är ett undantag, inte ett jämställt alternativ.
+- **G2 framdragen i "första uppgifter"** (direkt efter G1) om deploy-loopen är aktiv; formellt kvar i Fas 10.
+- **"Fas 0-golv" → `Gate A`** i spårningstabellen och `E1`-beroendet gjort explicit.
 
 **Viktiga korrigeringar i v4 (vs v3):**
 - **Ingen cykel** mellan `C2b` och `G4d`: `G4d` är ett **kontraktstest som skrivs före** `C2b` (`G4d → C2a + G3b`; `C2b → C2a + G4d`).
@@ -108,7 +115,7 @@ Kör i ordning: **G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2
 ### G3a — PostgreSQL-service + migrate i CI
 - **Risk:** medel · **Beror på:** G1 · **Utförare:** Composer 2.5
 - **Fil:** `.github/workflows/ci.yml`.
-- **Steg:** lägg `services: postgres:` (Postgres 16) med healthcheck; sätt `DATABASE_URL` mot tjänsten; kör `npm run migrate` före `npm test`. Behåll mock-DB-värdet för mock-tester tills G3c finns.
+- **Steg:** lägg `services: postgres:` (Postgres 16) med healthcheck; sätt `DATABASE_URL` mot tjänsten; kör `npm run migrate` före `npm test`. Behåll mock-DB-värdet för mock-tester tills riktiga DB-tester finns (G4a/G4b via `setupTestDb()`).
 - **Acceptans:** `npm run migrate` grönt mot CI-Postgres; befintliga tester gröna.
 - **Commit:** `ci: add postgres service + run migrate in CI`
 
@@ -173,10 +180,10 @@ Kör i ordning: **G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2
 
 ## Fas 1 — Lågrisk Stripe-/legacy-rensning
 
-Kör i ordning: **A1 → A2 → A3 → A5a**. (A1–A3 beror **bara** på Fas 0-golvet, **inte** på C2b.)
+Kör i ordning: **A1 → A2 → A3 → A5a**. (A1–A3 beror **bara** på **Gate A** (Fas 0-golvet), **inte** på C2b.)
 
 ### A1 — Radera omonterade Stripe-routefiler
-- **Risk:** låg · **Beror på:** Fas 0-golv · **Utförare:** Composer 2.5
+- **Risk:** låg · **Beror på:** Gate A (Fas 0-golv) · **Utförare:** Composer 2.5
 - **Verifiera först:** `rg -n "stripe-checkout|stripe-webhook|stripe-setup|setup-stripe|upgrade-success" src/ server.js scripts/ docs/`.
 - **Radera:** `src/routes/stripe-checkout.js`, `src/routes/stripe-webhook.js`, `src/routes/stripe-setup.js`, `src/routes/admin/setup-stripe.js`, `src/routes/upgrade-success.js`.
 - **Acceptans:** grep ovan ger 0 träffar; lint+test grönt.
@@ -291,7 +298,7 @@ Kör i ordning: **G4d → C2b**. Acykliskt: C2a inventerar, G4d uttrycker målmo
 ### C2b — Ta bort/flytta global requireActiveSubscription-mount
 - **Risk:** hög · **Beror på:** C2a, G4d · **Utförare:** **Manuell review**
 - **Fil:** `server.js` (~rad 178–192).
-- **Beslutsregel:** om C2a visar full per-route-täckning via `require-component.js` → **ta bort** global mount (dokumentera i kodkommentar + `CLAUDE.md`). Annars: **flytta** global mount **före** `registerRoutes`.
+- **Beslutsregel (normativ):** **default = ta bort den globala mounten** — per-route gating via `require-component.js` är **kanonisk** modell. Global `requireActiveSubscription` får **endast** behållas/flyttas (före `registerRoutes`) om C2a-inventeringen visar en medveten uppsättning skyddade routes som inte rimligen kan uttryckas per-route. Global gate är alltså ett **undantag**, inte ett jämställt alternativ — två parallella modeller får inte leva kvar.
 - **Acceptans:** `G4d` blir grönt; lifetime-free + aktiva familjer når skyddade routes; `test/package-access.test.js` grönt.
 - **Commit:** `refactor: remove no-op global subscription paywall (per-route gating is canonical)`
 
@@ -336,12 +343,13 @@ Kör i ordning: **A4 → A5b → A6 → A7**. (Dessa rör **aktiv** subscription
 
 Kör i ordning: **G3c → A5c → B1**. Gate F gäller hela fasen (se nedan).
 
-### G3c — Första riktiga DB-integrationstestet
+### G3c — Schema/migration-gate inför destruktiva ändringar
 - **Risk:** medel · **Beror på:** G3b · **Utförare:** Composer 2.5
-- **Mål:** minst ett äkta integrationstest mot DB (migrate-bootstrap eller insert/select på `family`).
-- **Acceptans:** grönt mot test-DB i CI.
+- **Obs:** rollen "första riktiga DB-integrationstest" fylls redan av `G4a`/`G4b` (de kör mot `setupTestDb()`). G3c är därför **inte** ett nytt generellt integrationstest, utan en **migrations-gate** specifikt för A5c/B1.
+- **Mål:** verifiera att `npm run migrate` (inkl. up/down-rollback) fungerar mot (1) **tom DB** och (2) **dev-liknande DB**, som förberedelse för de destruktiva migrationerna.
+- **Acceptans:** migrate + rollback grönt mot båda DB-lägena i CI.
 - **Obs:** **blockerar A5c och B1.**
-- **Commit:** `test: add first real-DB integration test`
+- **Commit:** `test: add migration/rollback gate for destructive schema phase`
 
 ### A5c — DB-migration: droppa Stripe-kolumner
 - **Risk:** hög · **Beror på:** G3c, A5b · **Utförare:** **Manuell review**
@@ -364,7 +372,14 @@ Kör i ordning: **G3c → A5c → B1**. Gate F gäller hela fasen (se nedan).
 > **Mönster:** skapa katalog enligt `src/routes/schedules/`-modellen, flytta route-grupper oförändrat, behåll publika paths via en `index.js`. Verifiera identiska routes före/efter med en route-dump.
 > **Grundregel:** ingen E-uppgift får i samma commit både flytta routes **och** ändra authz/query-logik.
 
-Kör i ordning: **E3a → E3b → E3c → E4 → E1 → E2**.
+Kör i ordning: **E0 → E3a → E3b → E3c → E4 → E1 → E2**.
+
+### E0 — Baseline route inventory / route snapshot
+- **Risk:** låg · **Beror på:** Gate G · **Utförare:** Composer 2.5
+- **Mål:** dumpa alla Express-routes + mounts (path, metod, monterad router/prefix, middleware-kedja) **före** backend-split och spara i `docs/route-inventory-pre-split.md` (eller en test-fixture).
+- **Använd som:** obligatorisk före/efter-jämförelse efter varje `E3b`/`E1`/`E2`-steg — fångar borttappade routes, fel middleware, ändrad mount-order eller endpoints som hamnat i fel router.
+- **Acceptans:** route-dump sparad; reproducerbar (samma kommando ger samma output).
+- **Commit:** `docs: snapshot baseline Express route inventory pre-split`
 
 ### E3a — daily-logs: extrahera helpers
 - **Risk:** medel · **Beror på:** D1c · **Utförare:** Composer 2.5
@@ -392,8 +407,8 @@ Kör i ordning: **E3a → E3b → E3c → E4 → E1 → E2**.
 - **Commit:** `refactor: split account.js / surveys.js`
 
 ### E1 — Dela family.js (2198 r)
-- **Risk:** hög · **Beror på:** E3 klar · **Utförare:** **Manuell review**
-- **Förarbete (obligatoriskt):** **endpoint-karta** — member management, invites, PIN, settings; delade helpers; cookie/session-sidoeffekter; onboardingkopplingar.
+- **Risk:** hög · **Beror på:** E0 + E3a + E3b (E3c om relevant) · **Utförare:** **Manuell review**
+- **Förarbete (obligatoriskt):** **endpoint-karta** — member management, invites, PIN, settings; delade helpers; cookie/session-sidoeffekter; onboardingkopplingar. Jämför mot `E0`-route-snapshoten efter splittet.
 - **Mål:** `src/routes/family/index.js` + `members.js`, `invites.js`, `pin.js`, `settings.js`. Behåll `require('./family')` → katalogens `index.js`.
 - **Acceptans:** route-dump identisk; `test/family-*.test.js` grönt.
 - **Commit:** `refactor(family): split family.js into src/routes/family/`
@@ -515,29 +530,30 @@ Krav: `C2b` klart · inga öppna oklarheter i paywall-modellen · `/api/subscrip
 Krav: `G3c` grönt i CI · rollback-plan för varje migration · migrate testat på tom DB · migrate testat på dev-liknande DB för `B1`.
 
 ## Gate G — innan Fas 7 (backend split)
-Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schemaändringar klara eller uttryckligen uppskjutna.
+Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schemaändringar klara eller uttryckligen uppskjutna · **`E0` baseline route-inventory tagen** (route-dump sparad för före/efter-jämförelse).
 
 ---
 
-# Första 15 uppgifter (v4, exakt körordning)
+# Första 16 uppgifter (v4.1, exakt körordning)
 
 1. **G1** — Fixa CI `npm ci --legacy-peer-deps`
-2. **G3a** — PostgreSQL-service + `npm run migrate` i CI
-3. **G3b** — Implementera `setupTestDb()`
-4. **G4a** — Integrationstest för auth/login eller session-refresh
-5. **G4b** — Integrationstest för child-access eller daily-log-flöde
-6. **B2** — Ta bort dubbelmonterade routers
-7. **B3** — Ta bort redundant `optionalAuth`
-8. **C1** — Flytta `checkMaintenanceMode` före routes
-9. **C2a** — Dokumentera faktisk paywall-täckning
-10. **G4c** — Maintenance-order-test (admin/health/webhook-beteende)
-11. **A1** — Radera omonterade Stripe-routefiler
-12. **A2** — Radera legacy payment/Stripe-script
-13. **A3** — Avlägsna `stripe`-dependency
-14. **A5a** — Rensa Stripe-env ur `.env.example`
-15. **D1a** — Inför revoked-aware authz-helper
+2. **G2** — Gate deploy på grön CI *(dra fram hit i praktiken om deploy-loopen är aktiv; minskar risk att halvfärdiga steg deployas)*
+3. **G3a** — PostgreSQL-service + `npm run migrate` i CI
+4. **G3b** — Implementera `setupTestDb()`
+5. **G4a** — Integrationstest för auth/login eller session-refresh
+6. **G4b** — Integrationstest för child-access eller daily-log-flöde
+7. **B2** — Ta bort dubbelmonterade routers
+8. **B3** — Ta bort redundant `optionalAuth`
+9. **C1** — Flytta `checkMaintenanceMode` före routes
+10. **C2a** — Dokumentera faktisk paywall-täckning
+11. **G4c** — Maintenance-order-test (admin/health/webhook-beteende)
+12. **A1** — Radera omonterade Stripe-routefiler
+13. **A2** — Radera legacy payment/Stripe-script
+14. **A3** — Avlägsna `stripe`-dependency
+15. **A5a** — Rensa Stripe-env ur `.env.example`
+16. **D1a** — Inför revoked-aware authz-helper
 
-**Därefter:** D1b → D1c → D1d → D1e → D2 → D5 → G4e → D4 → G4d → C2b → A4 → A5b → A6 → A7 → G3c → A5c → B1 → (E3a → E3b → E3c → E4 → E1 → E2) → (F1 → F2/F3) → (F4a/b/c → F5) → (G2 → B4 → D3 → G5).
+**Därefter:** D1b → D1c → D1d → D1e → D2 → D5 → G4e → D4 → G4d → C2b → A4 → A5b → A6 → A7 → G3c → A5c → B1 → (E0 → E3a → E3b → E3c → E4 → E1 → E2) → (F1 → F2/F3) → (F4a/b/c → F5) → (B4 → D3 → G5).
 
 ---
 
@@ -555,7 +571,7 @@ Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schema�
 | C1 | 0 | medel | G4a, G4b | Composer | ☐ | |
 | C2a | 0 | låg | — | Composer | ☐ | |
 | G4c | 0 | medel | C1, G3b | Composer | ☐ | |
-| A1 | 1 | låg | Fas 0-golv | Composer | ☐ | |
+| A1 | 1 | låg | Gate A | Composer | ☐ | |
 | A2 | 1 | låg | A1 | Composer | ☐ | |
 | A3 | 1 | låg/medel | A1, A2 | Composer | ☐ | |
 | A5a | 1 | låg | A1 | Composer | ☐ | |
@@ -577,11 +593,12 @@ Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schema�
 | G3c | 6 | medel | G3b | Composer | ☐ | |
 | A5c | 6 | hög | G3c, A5b | Manuell | ☐ | |
 | B1 | 6 | hög | G3c, A5c | Manuell | ☐ | |
-| E3a | 7 | medel | D1c | Composer | ☐ | |
+| E0 | 7 | låg | Gate G | Composer | ☐ | |
+| E3a | 7 | medel | D1c, E0 | Composer | ☐ | |
 | E3b | 7 | hög | E3a | Composer | ☐ | |
 | E3c | 7 | låg/medel (ofta N/A) | E3b | Composer | ☐ | |
 | E4 | 7 | medel | E3b | Composer | ☐ | |
-| E1 | 7 | hög | E3 klar | Manuell | ☐ | |
+| E1 | 7 | hög | E0, E3a, E3b (E3c om relevant) | Manuell | ☐ | |
 | E2 | 7 | mycket hög | E1, D2 | Manuell | ☐ | |
 | F1 | 8 | medel | — | Composer | ☐ | |
 | F2 | 8 | hög | F1 | Composer | ☐ | |
