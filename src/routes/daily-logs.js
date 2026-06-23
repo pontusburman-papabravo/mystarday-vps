@@ -24,35 +24,20 @@ const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { getChildAccess, getLogAccess, getItemAccess } = require('../middleware/authz');
-const { getOrGenerateDailyLog, getSchoolVariant } = require('../lib/daily-log-generator');
+const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../lib/push');
-
-// ─── SSE helper: look up family_id for a child ───────────
-async function getChildFamilyId(childId) {
-  const r = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-  return r.rows[0]?.family_id || null;
-}
+const {
+  getChildFamilyId,
+  getSectionTimes,
+  parseLogDate,
+  groupItemsBySection,
+  attachSchoolVariantToItems,
+  getChildOwnedLogItem,
+} = require('./daily-logs/helpers');
 
 const router = express.Router();
 router.use(requireParent);
-
-// ─── Helpers ─────────────────────────────────────────────
-
-/**
- * Get section times from family settings for a child.
- */
-async function getSectionTimes(childId) {
-  const result = await db.query(
-    `SELECT f.morning_start, f.morning_end, f.day_start, f.day_end,
-            f.evening_start, f.evening_end, f.night_start, f.night_end
-     FROM family f
-     JOIN child c ON c.family_id = f.id
-     WHERE c.id = $1`,
-    [childId]
-  );
-  return result.rows[0] || {};
-}
 
 // ─── Routes ───────────────────────────────────────────────
 
@@ -66,35 +51,13 @@ router.get('/:childId/daily-log', async (req, res) => {
     const child = await getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
-    // Determine the date — accept both YYYY-MM-DD and ISO strings (2026-05-25T00:00:00.000Z)
-    let dateStr = req.query.date;
-    if (!dateStr) {
-      const tz = child.timezone || 'Europe/Stockholm';
-      dateStr = new Date().toLocaleDateString('sv-SE', { timeZone: tz });
-    } else {
-      const m = dateStr.match(/^(\d{4}-\d{2}-\d{2})/);
-      if (m) dateStr = m[1];
-    }
+    const dateStr = parseLogDate(req.query.date, child.timezone || 'Europe/Stockholm');
 
     const { log, items, generated } = await getOrGenerateDailyLog(req.params.childId, dateStr);
 
-    // Compute age-aware school variant for this child
-    const schoolVariant = getSchoolVariant(child.birthday);
+    const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(items, child.birthday);
 
-    // Add age_variant to each item for frontend display
-    const itemsWithVariant = items.map(item => ({
-      ...item,
-      age_variant: (item.name === 'Skola/Förskola' || item.name === 'Skola')
-        ? schoolVariant
-        : null,
-    }));
-
-    // Group items by section
-    const sections = {};
-    for (const item of itemsWithVariant) {
-      if (!sections[item.section]) sections[item.section] = [];
-      sections[item.section].push(item);
-    }
+    const sections = groupItemsBySection(itemsWithVariant);
 
     const sectionTimes = await getSectionTimes(req.params.childId);
 
@@ -525,22 +488,14 @@ childSelfRouter.get('/daily-log', async (req, res) => {
   try {
     const childId = req.user.id;
 
-    // Determine the date — accept both YYYY-MM-DD and ISO strings
-    let dateStr = req.query.date;
-    if (!dateStr) {
-      const tzResult = await db.query('SELECT timezone FROM child WHERE id = $1', [childId]);
-      const tz = (tzResult.rows[0] && tzResult.rows[0].timezone) || 'Europe/Stockholm';
-      dateStr = new Date().toLocaleDateString('sv-SE', { timeZone: tz });
-    } else {
-      const m = dateStr.match(/^(\d{4}-\d{2}-\d{2})/);
-      if (m) dateStr = m[1];
-    }
-
     // Get child's UI flags + timezone (for NOW/NEXT/LATER date comparison)
     const childResult = await db.query(
       'SELECT allow_child_reorder, show_now_next, show_mood_rating, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
       [childId]
     );
+    const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
+    const dateStr = parseLogDate(req.query.date, childTimezone);
+
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;
     const showNowNext = childResult.rows[0]?.show_now_next !== false; // default true
     const showMoodRating = childResult.rows[0]?.show_mood_rating !== false; // default true
@@ -549,7 +504,6 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const hideClock = childResult.rows[0]?.hide_clock || false; // default false
     const colorCoding = childResult.rows[0]?.color_coding !== false; // default true
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
-    const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
 
     const { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
 
@@ -912,15 +866,7 @@ childSelfRouter.put('/daily-log-items/:itemId/uncomplete', async (req, res) => {
  */
 childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
   try {
-    // Verify item belongs to this child
-    const itemResult = await db.query(
-      `SELECT dli.id, dli.activity_template_id, dl.child_id, dl.is_paused
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dli.id = $1 AND dl.child_id = $2`,
-      [req.params.itemId, req.user.id]
-    );
-    const item = itemResult.rows[0];
+    const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
     if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
 
     // Get sub-steps from template (with completion state if any)
@@ -953,15 +899,7 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
  */
 childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/complete', async (req, res) => {
   try {
-    // Verify item belongs to this child
-    const itemResult = await db.query(
-      `SELECT dli.id, dli.activity_template_id, dl.child_id, dl.is_paused
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dli.id = $1 AND dl.child_id = $2`,
-      [req.params.itemId, req.user.id]
-    );
-    const item = itemResult.rows[0];
+    const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
     if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     if (item.is_paused) return res.status(400).json({ error: 'Dagen är pausad' });
 
@@ -996,15 +934,7 @@ childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/complete', as
  */
 childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/uncomplete', async (req, res) => {
   try {
-    // Verify item belongs to this child
-    const itemResult = await db.query(
-      `SELECT dli.id, dli.activity_template_id, dl.child_id
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dli.id = $1 AND dl.child_id = $2`,
-      [req.params.itemId, req.user.id]
-    );
-    const item = itemResult.rows[0];
+    const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
     if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
 
     // Verify sub-step belongs to this item's template
