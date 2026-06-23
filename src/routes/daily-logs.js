@@ -26,6 +26,7 @@ const { requireParent, requireChild } = require('../middleware/auth');
 const { getLogAccess } = require('../middleware/authz');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
+const { notifyParentsChildCompleted } = require('../lib/push');
 const {
   getChildFamilyId,
   getSectionTimes,
