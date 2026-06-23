@@ -40,50 +40,6 @@ router.use(requireParent);
 // ─── Helpers ─────────────────────────────────────────────
 
 /**
- * Verify parent has access to child. Returns child row or null.
- */
-async function getChildAccess(parentId, childId) {
-  const result = await db.query(
-    'SELECT c.id, c.family_id, c.timezone, c.birthday FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL',
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
-}
-
-/**
- * Verify parent has access to a daily_log (via child ownership).
- * Returns { log, childId } or null.
- */
-async function getLogAccess(parentId, logId) {
-  const result = await db.query(
-    `SELECT dl.id, dl.child_id, dl.date, dl.is_paused, dl.generated_from, dl.created_at
-     FROM daily_log dl
-     JOIN child c ON c.id = dl.child_id
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dl.id = $2 AND pc.revoked_at IS NULL`,
-    [parentId, logId]
-  );
-  return result.rows[0] || null;
-}
-
-/**
- * Verify parent has access to a daily_log_item (via log → child → parent).
- * Returns the item row or null.
- */
-async function getItemAccess(parentId, itemId) {
-  const result = await db.query(
-    `SELECT dli.id, dli.daily_log_id, dli.completed, dli.completed_at, dl.child_id, dl.is_paused
-     FROM daily_log_item dli
-     JOIN daily_log dl ON dl.id = dli.daily_log_id
-     JOIN child c ON c.id = dl.child_id
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dli.id = $2 AND pc.revoked_at IS NULL`,
-    [parentId, itemId]
-  );
-  return result.rows[0] || null;
-}
-
-/**
  * Get section times from family settings for a child.
  */
 async function getSectionTimes(childId) {
