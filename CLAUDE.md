@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E1 (relocate) — `family.js` moved to `src/routes/family/index.js` (no route move; require paths fixed one level deeper). Prep for incremental family split per `docs/refactor/e1-family-endpoint-map.md`.
 - 2026-06-23: Refactor Fas 7 E4 — split `account.js` → `src/routes/account/` (export, password, notifications, lifecycle, identity); split `surveys.js` → `src/routes/surveys/` (admin, public, shortlink).
 - 2026-06-23: Refactor Fas 7 E3c — daily-logs authz confirmed N/A (D1c helpers already used); contract test `test/daily-logs-authz-contract.test.js`.
 - 2026-06-23: Refactor Fas 7 E3b — daily-logs logs router moved to `src/routes/daily-logs/logs.js`. Files: src/routes/daily-logs/logs.js, src/routes/daily-logs.js.
