@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E2 — CSRF + refresh routes extracted to `src/routes/auth/refresh.js` (GET /csrf-token, POST /refresh); removed now-unused verifyRefreshToken/clearRefreshCookie imports from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — child-login route extracted to `src/routes/auth/child-login.js` (POST /child-login, PIN lockout); removed now-unused imports (childLoginLimiter, ChildLoginSchema, pinLockout, sendPinWarningEmail, createSystemMessage, broadcast) from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — email-flow routes extracted to `src/routes/auth/email.js` (verify-email, resend-verification, forgot-password, reset-password); removed now-unused imports from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — Google Sign In route extracted to `src/routes/auth/oauth-google.js` (POST /google); removed now-unused appleLoginLimiter/parentDb/completeLogin imports from index.js.
