@@ -38,7 +38,7 @@ const ENABLED = process.env.AUTHZ_HARDENING_ENABLED !== 'false';
  */
 async function getChildAccess(parentId, childId) {
   const result = await db.query(
-    `SELECT c.id, c.family_id, c.timezone, c.birthday, c.name
+    `SELECT c.id, c.family_id, c.timezone, c.birthday, c.name, pc.role
      FROM child c
      JOIN parent_child pc ON pc.child_id = c.id
      WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL`,
