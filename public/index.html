@@ -127,6 +127,7 @@
         <a href="/register" class="btn-primary" data-track="hero_signup_click">Skapa konto gratis</a>
         <a href="#sa-fungerar-det" class="btn-secondary" data-track="hero_how_it_works_click">Se hur det fungerar</a>
       </div>
+      <p class="founder-spots-badge" id="founderHeroSpots" hidden aria-live="polite"></p>
       <div class="landing-hero__trust">
         <span class="trust-chip">Gratis för de första <span id="founderLimitText">200</span> familjerna</span>
         <span class="trust-chip">Barnets egen vy med PIN</span>
@@ -333,7 +334,7 @@
 <section class="landing-section--light" id="testimonials">
   <div class="landing-inner">
     <div class="section-header section-header--center">
-      <p class="stats-banner">Används redan av familjer i Sverige</p>
+      <p class="stats-banner" id="founderStatsBanner" data-base="Används redan av familjer i Sverige">Används redan av familjer i Sverige</p>
       <h2 class="section-title">"Vi behövde inte ens påminna."</h2>
       <p class="section-intro">Det här säger familjer som redan använder Min Stjärndag i sin vardag.</p>
     </div>
@@ -429,7 +430,7 @@
       <span class="section-eyebrow">Grundarprogrammet</span>
       <h2>Bli grundarmedlem – få Basic gratis för alltid</h2>
       <p class="founder-block__intro">De första <span id="founderLimitText2">200</span> familjerna får livstids tillgång till Basic utan kostnad. Ingen betalning krävs i den nuvarande versionen.</p>
-      <p class="founder-block__counter" id="founderLiveCounter" hidden></p>
+      <p class="founder-block__counter founder-spots-badge founder-spots-badge--block" id="founderLiveCounter" hidden aria-live="polite"></p>
       <ul class="founder-block__list">
         <li>Obegränsat antal barn</li>
         <li>Barnets egen vy med PIN</li>
@@ -493,7 +494,7 @@
 <footer class="landing-footer">
   <div class="landing-footer__cta">
     <h3>Skapa konto gratis</h3>
-    <p>Grundarprogrammet: Basic gratis för de första 200 familjerna</p>
+    <p id="founderFooterSpots">Grundarprogrammet: Basic gratis för de första <span id="founderFooterLimit">200</span> familjerna</p>
     <a href="/register" class="btn-primary" data-track="footer_signup_click">Skapa konto gratis</a>
   </div>
   <div class="landing-footer__grid">
@@ -584,7 +585,7 @@
 <script src="/js/landing-nav.js?v=1"></script>
 <script src="/js/landing-faq.js?v=1"></script>
 <script src="/js/landing-events.js?v=1"></script>
-<script src="/js/landing-founder.js?v=1"></script>
+<script src="/js/landing-founder.js?v=2"></script>
 <script src="/js/landing-magic-bg.js?v=1"></script>
 <script src="/js/sw-register.js?v=2.13.0"></script>
 </body>

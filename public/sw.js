@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v268 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v269 // pragma: allowlist secret
+ * v269: SEO /faq + /kontakt indexable; founder counter visible in hero
  * v268: Landing page v2 — conversion-focused homepage refactor
  * v267: Admin prenumeration — legacy web payment UI borttagen, IAP-status endast
  * v266: Apple Sign In iPad — robust native name mapping (givenName/familyName)

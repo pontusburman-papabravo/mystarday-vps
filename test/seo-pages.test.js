@@ -14,7 +14,7 @@ const {
 const ROOT = path.join(__dirname, '..');
 
 test('SEO indexable paths include public marketing pages', () => {
-  for (const p of ['/', '/register', '/skattkammaren', '/pricing-info', '/pedagoger-och-terapeuter']) {
+  for (const p of ['/', '/register', '/skattkammaren', '/pricing-info', '/pedagoger-och-terapeuter', '/faq', '/kontakt']) {
     assert.ok(SEO_INDEXABLE_PATHS.has(p), p);
     assert.equal(isSeoIndexable(p), true);
   }
@@ -62,9 +62,21 @@ test('register.html has unique meta description and hero copy', () => {
 test('sitemap reflects index strategy', () => {
   const xml = fs.readFileSync(path.join(ROOT, 'public/sitemap.xml'), 'utf8');
   assert.match(xml, /\/pricing-info<\/loc>/);
+  assert.match(xml, /\/faq<\/loc>/);
+  assert.match(xml, /\/kontakt<\/loc>/);
   assert.doesNotMatch(xml, /\/login<\/loc>/);
   assert.doesNotMatch(xml, /\/child-login<\/loc>/);
   assert.match(xml, /<lastmod>2026-06-22<\/lastmod>/);
+});
+
+test('faq and kontakt pages are indexable with canonical', () => {
+  const faq = fs.readFileSync(path.join(ROOT, 'public/faq.html'), 'utf8');
+  const kontakt = fs.readFileSync(path.join(ROOT, 'public/kontakt.html'), 'utf8');
+  assert.match(faq, /rel="canonical" href="\/faq"/);
+  assert.match(faq, /"@type": "FAQPage"/);
+  assert.match(kontakt, /rel="canonical" href="\/kontakt"/);
+  assert.equal(isSeoIndexable('/faq'), true);
+  assert.equal(isSeoIndexable('/kontakt'), true);
 });
 
 test('pricing-info is public access information page', () => {

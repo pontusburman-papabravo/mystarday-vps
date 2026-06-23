@@ -9,6 +9,8 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/pedagoger-och-terapeuter',
   '/skattkammaren',
   '/pricing-info',
+  '/faq',
+  '/kontakt',
   '/privacy',
   '/terms',
   '/en',
