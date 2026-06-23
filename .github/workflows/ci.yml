@@ -42,7 +42,7 @@ jobs:
         run: npm run migrate
 
       - name: Test
-        run: npm test
+        run: npm run test:gate
         env:
           REQUIRE_EMAIL_VERIFICATION: 'false'
           JWT_SECRET: test-secret-at-least-32-chars-long-for-ci

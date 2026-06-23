@@ -48,10 +48,10 @@ test('package-access-cache dedupes subscription access fetches', () => {
 });
 
 test('globalLimiter skips authenticated traffic after early optionalAuth', () => {
-  const server = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
+  const appSrc = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
   const limiter = fs.readFileSync(path.join(ROOT, 'src/middleware/rateLimiter.js'), 'utf8');
-  const authIdx = server.indexOf('app.use(optionalAuth)');
-  const limitIdx = server.indexOf('app.use(globalLimiter)');
+  const authIdx = appSrc.indexOf('app.use(optionalAuth)');
+  const limitIdx = appSrc.indexOf('app.use(globalLimiter)');
   assert.ok(authIdx !== -1 && limitIdx !== -1 && authIdx < limitIdx);
   assert.match(limiter, /\/subscription\/access/);
 });
