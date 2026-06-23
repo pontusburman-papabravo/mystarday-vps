@@ -82,3 +82,10 @@ test('skattkammaren has expanded SEO content sections', () => {
   assert.match(html, /Vad är Skattkammaren\?/);
   assert.match(html, /Schema \+ bildstöd \+ motivation/);
 });
+
+test('landing problem and solution sections mention routines and skattkammaren link', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(html, /morgonrutiner som havererar/);
+  assert.match(html, /Barnet ser vad som ska hända/);
+  assert.match(html, /href="\/skattkammaren"/);
+});
