@@ -21,7 +21,7 @@
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
-const { requireNotPedagogOnly } = require('../middleware/authz');
+const { requireNotPedagogOnly, getChildAccess } = require('../middleware/authz');
 const { broadcast } = require('../lib/sse-broadcast');
 const { notifyChildStarGranted } = require('../lib/push');
 const { validate, validateParams } = require('../middleware/validate');
@@ -98,7 +98,7 @@ parentRouter.get('/goals', async (req, res) => {
        JOIN child c ON c.id = crg.child_id
        JOIN parent_child pc ON pc.child_id = c.id
        LEFT JOIN reward r ON r.id = crg.reward_id
-       WHERE pc.parent_id = $1 AND crg.status = 'active'
+       WHERE pc.parent_id = $1 AND crg.status = 'active' AND pc.revoked_at IS NULL
        ORDER BY c.sort_order ASC, c.created_at ASC`,
       [req.user.id]
     );
@@ -110,7 +110,7 @@ parentRouter.get('/goals', async (req, res) => {
        FROM child_reward_goal_change_request crgcr
        JOIN reward r ON r.id = crgcr.to_reward_id
        JOIN parent_child pc ON pc.child_id = crgcr.child_id
-       WHERE pc.parent_id = $1 AND crgcr.status = 'pending'`,
+       WHERE pc.parent_id = $1 AND crgcr.status = 'pending' AND pc.revoked_at IS NULL`,
       [req.user.id]
     );
     const pendingByChild = {};
@@ -140,18 +140,13 @@ parentRouter.put('/goals/:childId', validate(SetGoalSchema), async (req, res) =>
     if (!reward_id) return res.status(400).json({ error: 'reward_id krävs' });
 
     // Verify child belongs to this parent's family
-    const childCheck = await db.query(
-      `SELECT c.id, c.family_id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, childId]
-    );
-    if (childCheck.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    const childCheck = await getChildAccess(req.user.id, childId);
+    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
 
     // Verify reward belongs to this family
     const rewardCheck = await db.query(
       'SELECT id, name FROM reward WHERE id = $1 AND family_id = $2 AND is_active = true',
-      [reward_id, childCheck.rows[0].family_id]
+      [reward_id, childCheck.family_id]
     );
     if (rewardCheck.rows.length === 0) return res.status(404).json({ error: 'Belöning hittades inte' });
 
@@ -197,12 +192,8 @@ parentRouter.put('/goals/:childId', validate(SetGoalSchema), async (req, res) =>
 parentRouter.get('/goals/:childId/pending', async (req, res) => {
   try {
     const { childId } = req.params;
-    const childCheck = await db.query(
-      `SELECT c.id FROM child c JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, childId]
-    );
-    if (childCheck.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    const childCheck = await getChildAccess(req.user.id, childId);
+    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
 
     const result = await db.query(
       `SELECT crgcr.id, crgcr.status, crgcr.created_at,
@@ -233,7 +224,7 @@ parentRouter.put('/goal-change-requests/:id/approve', async (req, res) => {
        FROM child_reward_goal_change_request crgcr
        JOIN child c ON c.id = crgcr.child_id
        JOIN parent_child pc ON pc.child_id = c.id
-       WHERE crgcr.id = $1 AND pc.parent_id = $2`,
+       WHERE crgcr.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [req.params.id, req.user.id]
     );
     if (cr.rows.length === 0) return res.status(404).json({ error: 'Begäran hittades inte' });
@@ -285,7 +276,7 @@ parentRouter.put('/goal-change-requests/:id/deny', async (req, res) => {
       `SELECT crgcr.id, crgcr.status FROM child_reward_goal_change_request crgcr
        JOIN child c ON c.id = crgcr.child_id
        JOIN parent_child pc ON pc.child_id = c.id
-       WHERE crgcr.id = $1 AND pc.parent_id = $2`,
+       WHERE crgcr.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [req.params.id, req.user.id]
     );
     if (cr.rows.length === 0) return res.status(404).json({ error: 'Begäran hittades inte' });
@@ -319,12 +310,8 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
     }
 
     // Verify child belongs to this parent
-    const childCheck = await db.query(
-      `SELECT c.id FROM child c JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, child_id]
-    );
-    if (childCheck.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    const childCheck = await getChildAccess(req.user.id, child_id);
+    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
 
     await db.query(
       `INSERT INTO manual_star_grant (child_id, granted_by, star_count, reason, image_url)
@@ -358,12 +345,8 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
  */
 parentRouter.get('/manual-stars/:childId', async (req, res) => {
   try {
-    const childCheck = await db.query(
-      `SELECT c.id FROM child c JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, req.params.childId]
-    );
-    if (childCheck.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    const childCheck = await getChildAccess(req.user.id, req.params.childId);
+    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
 
     const result = await db.query(
       `SELECT msg.id, msg.star_count, msg.reason, msg.image_url, msg.created_at,
@@ -396,7 +379,7 @@ parentRouter.get('/redemption-history', async (req, res) => {
        JOIN reward r ON r.id = rr.reward_id
        JOIN child c ON c.id = rr.child_id
        JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND rr.status IN ('approved', 'auto')
+       WHERE pc.parent_id = $1 AND rr.status IN ('approved', 'auto') AND pc.revoked_at IS NULL
        ORDER BY rr.created_at DESC LIMIT 100`,
       [req.user.id]
     );
@@ -423,7 +406,7 @@ parentRouter.get('/pending-requests', async (req, res) => {
          JOIN reward r ON r.id = rr.reward_id
          JOIN child c ON c.id = rr.child_id
          JOIN parent_child pc ON pc.child_id = c.id
-         WHERE pc.parent_id = $1 AND rr.status = 'pending'
+         WHERE pc.parent_id = $1 AND rr.status = 'pending' AND pc.revoked_at IS NULL
          ORDER BY rr.created_at ASC`,
         [req.user.id]
       ),
@@ -435,7 +418,7 @@ parentRouter.get('/pending-requests', async (req, res) => {
          JOIN child c ON c.id = crgcr.child_id
          JOIN parent_child pc ON pc.child_id = c.id
          JOIN reward rt ON rt.id = crgcr.to_reward_id
-         WHERE pc.parent_id = $1 AND crgcr.status = 'pending'
+         WHERE pc.parent_id = $1 AND crgcr.status = 'pending' AND pc.revoked_at IS NULL
          ORDER BY crgcr.created_at ASC`,
         [req.user.id]
       ),
