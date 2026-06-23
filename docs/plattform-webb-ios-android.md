@@ -11,8 +11,8 @@
 | [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) | Kravspec (detalj) — införlivad i app2.md |
 | [`docs/ios-städ.md`](ios-städ.md) | Teknisk städning efter native-steg 1–10 + webb-fixar |
 | [`app.md`](../app.md) | Native build-plan (Capacitor, TestFlight, 10 steg) |
-| [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | Föräldrakonto: Apple, e-post, byt mail |
-| [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) | Barnlogin 3 skärmar + selfie |
+| [`docs/archive/polsia/polsia-kontohantering-a-f.md`](archive/polsia/polsia-kontohantering-a-f.md) | Föräldrakonto: Apple, e-post, byt mail |
+| [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) | Barnlogin 3 skärmar + selfie |
 | [`docs/mockups/barnlogin-3-skarmar.png`](mockups/barnlogin-3-skarmar.png) | Designreferens barnlogin |
 
 **Grundregel:** All plattformslogik via `window.Platform` — webb-fixar får **aldrig** ta bort native-gates (`Platform.isNative()`).
@@ -142,7 +142,7 @@ Inställningar → Koppla bort Apple (kräver lösenord)
 | Koppla Apple | ✅ | ❌ UI | ✅ Safari |
 | Koppla bort Apple | ✅ | ✅ (med lösenord) | ✅ |
 
-**Full spec + Polsia-prompts:** [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) (A → F).
+**Full spec + Polsia-prompts:** [`docs/archive/polsia/polsia-kontohantering-a-f.md`](archive/polsia/polsia-kontohantering-a-f.md) (A → F).
 
 ### Acceptans
 
@@ -209,7 +209,7 @@ Inställningar → Koppla bort Apple (kräver lösenord)
 
 Full spec: [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) §2.2.
 
-**Koppling barnlogin-redesign:** [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) — skärm 2–3 + mockup.
+**Koppling barnlogin-redesign:** [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) — skärm 2–3 + mockup.
 
 ### Vad som INTE ska hända (idag — bugg)
 
@@ -299,7 +299,7 @@ Ny familj ska **alltid** genom dagens onboarding-wizard med **standardschema** f
 ### Polsia
 
 - **Rör inte** steg-logiken — endast mobil-CSS + `platform.js` + dölj PWA i native
-- Se [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) §3.2.1 för skillnad **ny familj** vs **lägg till barn**
+- Se [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) §3.2.1 för skillnad **ny familj** vs **lägg till barn**
 
 ---
 
@@ -351,7 +351,7 @@ if (me.onboarding_completed && !isAddChildFlow) {
 - [ ] Steg 6 (bjud in medförälder) kan hoppas över om `children.length > 0`
 - [ ] Mobilanpassat — samma CSS som §5
 
-**Spec:** [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) §3.2.1
+**Spec:** [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) §3.2.1
 
 ---
 
@@ -468,8 +468,8 @@ Fas D — Efter launch
 | **Full kravspec (auth, hushåll, PG, push)** | [`docs/kravspec-app-webb.md`](kravspec-app-webb.md) |
 | Frysa webb vs native tekniskt | [`docs/ios-städ.md`](ios-städ.md) |
 | Bygga iOS/Android wrapper | [`app.md`](../app.md) |
-| Föräldrakonto Apple/mail | [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) |
-| Barnlogin + selfie | [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) |
+| Föräldrakonto Apple/mail | [`docs/archive/polsia/polsia-kontohantering-a-f.md`](archive/polsia/polsia-kontohantering-a-f.md) |
+| Barnlogin + selfie | [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) |
 | Push-arkitektur | `src/lib/push-reminder-scheduler.js`, `docs/app-store-apns.md` |
 | Testa allt | `docs/native-app-test-checklist.md` |
 

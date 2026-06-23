@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
-const SRC = path.join(ROOT, 'docs/polsia-sprint-koordinering.md');
-const OUT = path.join(ROOT, 'docs/polsia-release-os');
+const SRC = path.join(ROOT, 'docs/archive/polsia/polsia-sprint-koordinering.md');
+const OUT = path.join(ROOT, 'docs/archive/polsia/release-os');
 
 const KORLISTA = [
   { pos: 1, sprint: '1.1', title: 'Backend auth', id: '2141408', p0: 'P0.2', h: 2, layer: 1, header: 'SPRINT 1.1' },

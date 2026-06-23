@@ -9,8 +9,8 @@
 |----------|----------|
 | **[`app2.md`](../app2.md)** | **Masterplan** |
 | [`docs/plattform-webb-ios-android.md`](plattform-webb-ios-android.md) | Plattformsmatris (kortversion) |
-| [`docs/polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md) | E-post, Apple, lösenord (A–F) |
-| [`docs/polsia-barnlogin-design.md`](polsia-barnlogin-design.md) | Barnlogin 3 skärmar |
+| [`docs/archive/polsia/polsia-kontohantering-a-f.md`](archive/polsia/polsia-kontohantering-a-f.md) | E-post, Apple, lösenord (A–F) |
+| [`docs/archive/polsia/polsia-barnlogin-design.md`](archive/polsia/polsia-barnlogin-design.md) | Barnlogin 3 skärmar |
 | [`app.md`](../app.md) | Capacitor-build, TestFlight, 10 steg |
 
 ---
@@ -84,7 +84,7 @@ Mamma och pappa delar **samma `family_id`** för Astrid men pappa ser **inte** O
 
 **Magic links (v1.1):** E-post med engångslänk → session, minskar lösenordsfriktion på webb. Kräver ny route + token-tabell + rate limit. **Ersätter inte** lösenord för konton som redan har det.
 
-**Social login:** Apple (iOS + Safari) enligt [`polsia-kontohantering-a-f.md`](polsia-kontohantering-a-f.md). Google = v2, Android-fokus.
+**Social login:** Apple (iOS + Safari) enligt [`archive/polsia/polsia-kontohantering-a-f.md`](archive/polsia/polsia-kontohantering-a-f.md). Google = v2, Android-fokus.
 
 ### 1.2 Profilhantering (självbetjäning)
 
