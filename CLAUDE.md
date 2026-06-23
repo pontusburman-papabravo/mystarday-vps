@@ -81,6 +81,8 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E1 — parent-invite routes extracted to `src/routes/family/invites.js` (check-member, invite, DELETE invite/:inviteId, add-parent, accept-invite); removed unused imports from index.js.
+- 2026-06-23: Refactor Fas 7 E1 — family member/child management routes extracted to `src/routes/family/members.js` (PUT/DELETE members, PUT members children, DELETE children).
 - 2026-06-23: Refactor Fas 7 E1 — pedagog invite/access routes extracted to `src/routes/family/pedagog.js` (invite-pedagog ×3, pedagog-access/revoke); mounted after the requireParent gate.
 - 2026-06-23: Refactor Fas 7 E1 — parent PIN + login-picker session routes extracted to `src/routes/family/pin.js` (parent-pin-status[-picker], verify-pin[-picker], set-pin, restore-parent-session + picker/cookie helpers); mounted after the requireParent gate (behavior preserved, endpoint-map R3).
 - 2026-06-23: Refactor Fas 7 E1 — public family-invite routes extracted to `src/routes/family/invites-public.js` (GET /invite/:token, POST /invite/accept-new); mounted before the requireParent gate in index.js.
