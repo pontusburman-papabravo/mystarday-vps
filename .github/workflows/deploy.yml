@@ -1,7 +1,9 @@
 name: Deploy to VPS
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -14,6 +16,10 @@ jobs:
     name: Deploy main to VPS
     runs-on: ubuntu-latest
     environment: vps
+    # Only deploy after green CI on main, or manual dispatch
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Deploy over SSH
