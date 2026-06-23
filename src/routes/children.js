@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const db = require('../lib/db');
 const { hashPassword, pinFingerprint } = require('../lib/hash');
 const { requireAuth, requireParent } = require('../middleware/auth');
-const { requireNotPedagogOnly } = require('../middleware/authz');
+const { requireNotPedagogOnly, getChildAccess } = require('../middleware/authz');
 const { validate, validateParams } = require('../middleware/validate');
 const {
   CreateChildSchema,
@@ -433,12 +433,8 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
 // ─── GET /api/children/:id ──────────────────────────────
 router.get('/:id', validateParams(UUIDParam), async (req, res) => {
   try {
-    // Verify parent has access to this child
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
+    const access = await getChildAccess(req.user.id, req.params.id);
+    if (!access) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
@@ -452,7 +448,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
       return res.status(404).json({ error: 'Barnet hittades inte' });
     }
 
-    res.json({ ...result.rows[0], role: access.rows[0].role });
+    res.json({ ...result.rows[0], role: access.role });
   } catch (err) {
     console.error('[CHILDREN] Get error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -497,12 +493,8 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
 // ─── PUT /api/children/:id ──────────────────────────────
 router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async (req, res) => {
   try {
-    // Verify parent has access
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
+    const access = await getChildAccess(req.user.id, req.params.id);
+    if (!access) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
