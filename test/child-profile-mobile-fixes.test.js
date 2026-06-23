@@ -8,12 +8,13 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('child profile mobile fixes', () => {
-  it('camera pick uses PROMPT not PHOTOS on native', () => {
+  it('native camera pick tries gallery then getPhoto fallbacks', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/platform.js'), 'utf8');
-    assert.match(src, /return 'PROMPT'/);
-    assert.doesNotMatch(src, /source === 'library'\) return 'PHOTOS'/);
+    assert.match(src, /pickViaGallery/);
+    assert.match(src, /nativePickWithFallbacks/);
     assert.match(src, /pickImages/);
-    assert.match(src, /permissions: \['photos', 'camera'\]/);
+    assert.match(src, /\['PHOTOS', 'PROMPT', 'CAMERA'\]/);
+    assert.match(src, /requestPermissions\(\{ permissions: needCamera \? \['camera', 'photos'\] : \['photos'\] \}\)/);
   });
 
   it('child profile setup does not force library source', () => {

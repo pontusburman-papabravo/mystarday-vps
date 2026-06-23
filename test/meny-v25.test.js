@@ -41,8 +41,8 @@ describe('meny v2.5 — TEACCH exit without child-package-nav reload hack', () =
 });
 
 describe('meny v2.5 — SW bump', () => {
-  it('service worker v280', () => {
+  it('service worker v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v28\d/);
+    assert.match(src, /stjarndag-v293/);
   });
 });

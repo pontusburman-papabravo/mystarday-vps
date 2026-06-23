@@ -30,13 +30,14 @@ test('admin UI has package interest table', () => {
   assert.match(js, /Intressefas/);
 });
 
-test('native-tab-bar has rollout Extra tab (6 tabs)', () => {
+test('native-tab-bar uses NavConfig primary tabs', () => {
   const src = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
-  assert.match(src, /ROLLOUT_TABS/);
-  assert.match(src, /label: 'Extra'/);
-  assert.match(src, /href: '\/upgrade'/);
-  assert.match(src, /tab-bar--many/);
-  assert.match(src, /fetchPackageAccess/);
+  const nav = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
+  assert.match(src, /NavConfig\.primaryNavForTabs/);
+  assert.match(src, /native-tab-bar/);
+  assert.match(src, /pointer: coarse/);
+  assert.match(nav, /primaryNavForTabs/);
+  assert.match(nav, /PRIMARY_NAV/);
 });
 
 test('package-access-cache dedupes subscription access fetches', () => {

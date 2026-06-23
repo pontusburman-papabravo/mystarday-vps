@@ -39,8 +39,8 @@ describe('avatar upload fix v2', () => {
     assert.match(src, /LIMIT_FILE_SIZE/);
   });
 
-  it('SW bumped to v287', () => {
+  it('SW bumped to v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v28[67]/);
+    assert.match(src, /stjarndag-v293/);
   });
 });
