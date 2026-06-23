@@ -46,7 +46,7 @@ test('injectPlatformHtml applies noindex on dashboard', () => {
 
 test('index.html has canonical and no hidden SEO text', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/"/); // pragma: allowlist secret
+  assert.match(html, /rel="canonical" href="\/"/);
   assert.doesNotMatch(html, /font-size:0;color:transparent/);
   assert.doesNotMatch(html, /Hidden SEO/);
 });
