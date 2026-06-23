@@ -35,9 +35,7 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `APNS_SANDBOX` | `false` | `true` endast vid testflight; `false` för produktion |
 | `VAPID_PUBLIC_KEY` | (web-push VAPID publik nyckel) | För PWA push-notiser |
 | `VAPID_PRIVATE_KEY` | (web-push VAPID hemlig nyckel) | Backend-användning |
-| `PAYMENT_ENABLED` | `false` | Stripe inaktiverat — IAP via RevenueCat |
-| `STRIPE_SECRET_KEY` | (sätts ändå för admin-fliken) | Backend Stripe-funktionalitet |
-| `STRIPE_WEBHOOK_SECRET` | (från Stripe Dashboard) | För Stripe-webhooks |
+| `PAYMENT_ENABLED` | `false` | IAP via RevenueCat (ingen web-Stripe) |
 | `RESEND_API_KEY` | (från Resend Dashboard) | Transaktionsmail (verifiering, inbjudningar, nyhetsbrev, välkomst m.m.) |
 | `RESEND_API_KEY_WEEKLY` | (valfritt, separat Resend-nyckel) | Veckosammanfattning söndag 21:00. Fallback till `RESEND_API_KEY` om ej satt. Återkalla bara denna nyckel för att stoppa söndagsmail utan att påverka övrigt. |
 | `EMAIL_FROM` | `info@mystarday.se` | Avsändaradress (måste vara verifierad domän i Resend) |
