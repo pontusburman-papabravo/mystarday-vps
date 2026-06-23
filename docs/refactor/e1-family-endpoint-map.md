@@ -1,8 +1,16 @@
 # E1 — `family.js` endpoint-karta (förarbete inför split)
 
-> **Syfte:** obligatoriskt förarbete enligt REFACTOR E1. Read-only analys, ingen kodändring.
-> Underlag för en Opus-driven split-plan. `src/routes/family.js` = **2198 rader, 29 routes**.
-> Mountas i `src/routes/index.js` rad 34: `app.use('/api/family', require('./family'))`.
+> **STATUS: ✅ Genomförd.** Splitten kördes i PR #282–#289 (2026-06-23). Detta dokument
+> är nu historiskt beslutsunderlag — det beskriver `family.js` **före** splitten och
+> motiverar mount-ordningen i `src/routes/family/index.js`. Använd som mall för E2 (`auth.js`).
+>
+> Resultat: `family.js` (2198 r) → `src/routes/family/` med `index.js` (barrel),
+> `invites-public.js`, `core.js`, `account.js`, `invites.js`, `members.js`, `pedagog.js`, `pin.js`.
+> Route-inventory oförändrad (601 routes) genom hela splitten.
+>
+> **Syfte (ursprungligt):** obligatoriskt förarbete enligt REFACTOR E1. Read-only analys.
+> `src/routes/family.js` = **2198 rader, 29 routes**.
+> Mountades i `src/routes/index.js`: `app.use('/api/family', require('./family'))`.
 
 ---
 
