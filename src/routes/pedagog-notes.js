@@ -18,6 +18,7 @@ const {
   verifyPedagogAccess,
   getOverview,
 } = require('../../db/pedagog-notes');
+const db = require('../lib/db');
 const router = express.Router();
 router.use(requireParent);
 router.use(requireFeature('pedagoganteckningar'));
@@ -144,7 +145,6 @@ router.post('/publish', async (req, res) => {
     const hasAccess = await verifyPedagogAccess(req.user.id, childId);
     if (!hasAccess) return res.status(403).json({ error: 'Åtkomst nekad' });
 
-    const db = require('../lib/db');
     const { rows } = await db.query(
       `UPDATE pedagog_notes
        SET is_draft = false,

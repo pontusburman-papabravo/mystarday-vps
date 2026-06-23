@@ -72,7 +72,6 @@ function registerRoutes(app) {
 
   // Ratings routes
   const ratings = require('./ratings');
-  app.use('/api/me', ratings.childRouter);
   app.use('/api/daily-log-items', ratings.parentRouter);
   app.use('/api/messages', require('./messages'));
   app.use('/api/notifications', require('./notification-log'));
@@ -200,8 +199,7 @@ function registerRoutes(app) {
   // Survey pages: /tyck/:slug → tyck.html, /tyck → SMS shortlink redirect
   app.use('/tyck', require('./surveys').shortlinkRouter);
 
-  // Public static pages (privacy policy, professional landing page)
-  app.use(require('./public-pages'));
+  // public-pages mounted once in app.js (after API routes + static)
 }
 
 module.exports = { registerRoutes };

@@ -43,7 +43,7 @@ router.use(requireParent);
  */
 async function getChildAccess(parentId, childId) {
   const result = await db.query(
-    'SELECT c.id, c.family_id, c.timezone, c.birthday FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
+    'SELECT c.id, c.family_id, c.timezone, c.birthday FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL',
     [parentId, childId]
   );
   return result.rows[0] || null;
@@ -59,7 +59,7 @@ async function getLogAccess(parentId, logId) {
      FROM daily_log dl
      JOIN child c ON c.id = dl.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dl.id = $2`,
+     WHERE pc.parent_id = $1 AND dl.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, logId]
   );
   return result.rows[0] || null;
@@ -76,7 +76,7 @@ async function getItemAccess(parentId, itemId) {
      JOIN daily_log dl ON dl.id = dli.daily_log_id
      JOIN child c ON c.id = dl.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dli.id = $2`,
+     WHERE pc.parent_id = $1 AND dli.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, itemId]
   );
   return result.rows[0] || null;

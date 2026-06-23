@@ -21,6 +21,9 @@ async function checkMaintenanceMode(req, res, next) {
   const allowedPaths = ['/login', '/admin', '/api/auth/login', '/api/auth/me', '/verify-email', '/api/auth/verify-email', '/reset-password', '/api/auth/reset-password', '/api/auth/forgot-password', '/forgot-password'];
   if (allowedPaths.includes(req.path)) return next();
 
+  // RevenueCat IAP webhook — must stay reachable during maintenance (entitlement sync).
+  if (req.path.startsWith('/api/iap')) return next();
+
   // Allow static assets needed for login/admin pages and PWA
   if (req.path.startsWith('/js/') || req.path.startsWith('/css/')) return next();
   if (req.path.match(/\.(png|svg|ico|json|js)$/) || req.path === '/sw.js' || req.path === '/manifest.json' || req.path === '/offline.html') return next();
