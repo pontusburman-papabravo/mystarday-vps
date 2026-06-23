@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generates docs/polsia-release-os/ from polsia-sprint-koordinering.md
+ * Generates docs/archive/polsia/release-os/ from polsia-sprint-koordinering.md
  */
 import fs from 'fs';
 import path from 'path';

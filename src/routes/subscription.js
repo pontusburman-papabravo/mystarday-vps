@@ -20,7 +20,7 @@ const {
   INTEREST_SOURCES,
   PACKAGE_LABELS,
 } = require('../lib/package-interest-constants');
-const { STRIPE_COMPONENT_MAP } = require('../../config/subscription-components');
+const { COMPONENT_PRICE_MAP } = require('../../config/subscription-components');
 
 const router = express.Router();
 
@@ -156,7 +156,7 @@ router.get('/status', requireParent, async (req, res) => {
       iap_enabled: payment_enabled,
       upgrade_url: billing_ui_enabled ? '/upgrade' : null,
       price_monthly_sek: billing_ui_enabled
-        ? (price || STRIPE_COMPONENT_MAP.basic_app?.price_monthly_sek || 59)
+        ? (price || COMPONENT_PRICE_MAP.basic_app?.price_monthly_sek || 59)
         : null,
     });
   } catch (err) {
