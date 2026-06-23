@@ -6,16 +6,16 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { hashPassword, comparePassword } = require('../lib/hash');
-const db = require('../lib/db');
-const config = require('../lib/config');
+const { hashPassword, comparePassword } = require('../../lib/hash');
+const db = require('../../lib/db');
+const config = require('../../lib/config');
 const crypto = require('crypto');
-const { loginLimiter, childLoginLimiter, registrationLimiter, forgotPasswordLimiter, resendVerificationLimiter, appleLoginLimiter } = require('../middleware/rateLimiter');
-const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../db/parent-access');
-const { recordLoginEvent } = require('../lib/login-event');
-const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../lib/magic-view-access');
-const { requireAuth } = require('../middleware/auth');
-const { generateCsrfToken } = require('../middleware/csrf');
+const { loginLimiter, childLoginLimiter, registrationLimiter, forgotPasswordLimiter, resendVerificationLimiter, appleLoginLimiter } = require('../../middleware/rateLimiter');
+const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
+const { recordLoginEvent } = require('../../lib/login-event');
+const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
+const { requireAuth } = require('../../middleware/auth');
+const { generateCsrfToken } = require('../../middleware/csrf');
 const {
   createRefreshToken,
   verifyRefreshToken,
@@ -25,22 +25,22 @@ const {
   clearRefreshCookie,
   setAccessCookie,
   clearAccessCookie,
-} = require('../lib/refresh-tokens');
-const parentPinDb = require('../../db/parent-pin');
+} = require('../../lib/refresh-tokens');
+const parentPinDb = require('../../../db/parent-pin');
 const {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendPinWarningEmail,
   registerContact,
-} = require('../lib/email');
-const { sendWelcomeEmail } = require('../lib/welcome-mailer');
-const { createNewsletterSubscription } = require('../lib/newsletter-subscribe');
-const pinLockout = require('../../db/pin-lockout');
-const { createSystemMessage } = require('../../db/system-messages');
-const familySubscriptions = require('../../db/family-subscriptions');
-const parentDb = require('../../db/parent');
-const { broadcast } = require('../lib/sse-broadcast');
-const { validate } = require('../middleware/validate');
+} = require('../../lib/email');
+const { sendWelcomeEmail } = require('../../lib/welcome-mailer');
+const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
+const pinLockout = require('../../../db/pin-lockout');
+const { createSystemMessage } = require('../../../db/system-messages');
+const familySubscriptions = require('../../../db/family-subscriptions');
+const parentDb = require('../../../db/parent');
+const { broadcast } = require('../../lib/sse-broadcast');
+const { validate } = require('../../middleware/validate');
 const {
   RegisterSchema,
   LoginSchema,
@@ -49,7 +49,7 @@ const {
   ResetPasswordSchema,
   VerifyEmailSchema,
   ResendVerificationSchema,
-} = require('../lib/schemas');
+} = require('../../lib/schemas');
 
 const router = express.Router();
 
@@ -127,7 +127,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Families beyond #200 require a paid subscription.
       const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
       const familyCount = countResult.rows[0].count;
-      const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../lib/payment-policy');
+      const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../../lib/payment-policy');
       const founderLimit = await getFounderFamilyLimitWithClient(client);
       const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
 
@@ -337,7 +337,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       await client.query('COMMIT');
 
       // Analytics: funnel step — signup_started (family just created)
-      require('../lib/analytics-tracker').trackSignupStarted(familyId);
+      require('../../lib/analytics-tracker').trackSignupStarted(familyId);
 
       // Register contact (no-op with Resend — kept for compatibility)
       try {
@@ -356,7 +356,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // Send welcome email (fire-and-forget — don't block registration response)
       // Gate 2J: valkomstmail — only send if feature is live/dev for this family
-      const { hasAccess } = require('../../db/features');
+      const { hasAccess } = require('../../../db/features');
       const welcomeEmailAllowed = await hasAccess(familyId, 'valkomstmail');
       if (welcomeEmailAllowed) {
         sendWelcomeEmail(normalizedEmail, parentId, {
@@ -519,7 +519,7 @@ router.post('/verify-email', validate(VerifyEmailSchema), async (req, res) => {
     // Analytics: funnel step — email_verified
     db.query('SELECT family_id FROM parent WHERE id = $1', [verification.parent_id])
       .then(r => {
-        if (r.rows[0]) require('../lib/analytics-tracker').trackEmailVerified(r.rows[0].family_id);
+        if (r.rows[0]) require('../../lib/analytics-tracker').trackEmailVerified(r.rows[0].family_id);
       })
       .catch(() => {});
 
@@ -1384,9 +1384,9 @@ async function verifyAppleIdToken(idToken) {
 
 // ─── Helper: create a new parent account from Apple Sign In ────────
 async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
-  const db = require('../lib/db');
-  const { sendWelcomeEmail } = require('../lib/welcome-mailer');
-  const { registerContact } = require('../lib/email');
+  const db = require('../../lib/db');
+  const { sendWelcomeEmail } = require('../../lib/welcome-mailer');
+  const { registerContact } = require('../../lib/email');
 
   const client = await db.getClient();
 
@@ -1397,7 +1397,7 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
 
     const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
     const familyCount = countResult.rows[0].count;
-    const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../lib/payment-policy');
+    const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../../lib/payment-policy');
     const founderLimit = await getFounderFamilyLimitWithClient(client);
     const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
 
@@ -1495,7 +1495,7 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
     await client.query('COMMIT');
 
     // Analytics: signup started
-    require('../lib/analytics-tracker').trackSignupStarted(familyId);
+    require('../../lib/analytics-tracker').trackSignupStarted(familyId);
 
     // Register contact FIRST so emails are accepted by the proxy (no cold outreach block)
     if (appleEmail) {
@@ -1503,7 +1503,7 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
         console.error('[AUTH] registerContact failed for', appleEmail, ':', err.message);
       });
       // Welcome email (fire-and-forget)
-      const { hasAccess } = require('../../db/features');
+      const { hasAccess } = require('../../../db/features');
       const welcomeEmailAllowed = await hasAccess(familyId, 'valkomstmail');
       if (welcomeEmailAllowed) {
         sendWelcomeEmail(appleEmail, parent.id, { foralderns_namn: displayName, barnets_namn: '' }).catch(err => {
@@ -1575,7 +1575,7 @@ async function completeLogin(req, res, parent, userType) {
 // Response: { hasSession, children[], parent? } — parent enables add-child onboarding without full re-login.
 router.get('/login-picker-children', async (req, res) => {
   try {
-    const { resolveParentIdForLoginPicker } = require('../middleware/auth');
+    const { resolveParentIdForLoginPicker } = require('../../middleware/auth');
     const parentId = resolveParentIdForLoginPicker(req);
     if (!parentId) {
       return res.json({ hasSession: false, children: [] });
@@ -1729,7 +1729,7 @@ router.post('/logout', async (req, res) => {
 
 // ─── POST /api/auth/google ───────────────────────────────
 // Sprint 17: verify Google idToken; login existing parent by verified email.
-const { verifyGoogleIdToken } = require('../lib/google-auth');
+const { verifyGoogleIdToken } = require('../../lib/google-auth');
 
 router.post('/google', appleLoginLimiter, async (req, res) => {
   try {

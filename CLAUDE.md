@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E2 (relocate) — `auth.js` moved to `src/routes/auth/index.js` (no route move; require paths fixed one level deeper). Prep for incremental auth split per `docs/refactor/e2-auth-endpoint-map.md`. Test path updated in `test/apple-signup-sql.test.js`.
 - 2026-06-23: Refactor Fas 7 E1 (complete) — core family routes extracted to `src/routes/family/core.js` (read/update, settings, dashboard-stats, readiness, star-history, subscription-status); `index.js` is now a thin barrel mounting invites-public (before gate) → requireParent → core/account/invites/members/pedagog/pin. `family.js` (2198 r) fully split into `src/routes/family/`.
 - 2026-06-23: Refactor Fas 7 E1 — family account-deletion route extracted to `src/routes/family/account.js` (DELETE /delete-account).
 - 2026-06-23: Refactor Fas 7 E1 — parent-invite routes extracted to `src/routes/family/invites.js` (check-member, invite, DELETE invite/:inviteId, add-parent, accept-invite); removed unused imports from index.js.
