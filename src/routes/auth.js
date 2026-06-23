@@ -1476,13 +1476,18 @@ async function createParentWithApple({ appleUserId, appleEmail, displayName }) {
     await createNewsletterSubscription(client, parent.id, parent.email);
 
     // Founder families: lifetime_free tier. Later families: trial then paid (when stores live).
+    // trial_expires_at computed in JS — PostgreSQL 42P08 if the same param is reused in CASE + column.
     const subTier = isLifetimeFree ? 'lifetime_free' : 'trial';
+    const trialExpiresAt = subTier === 'trial'
+      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      : null;
     await client.query(
       `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
-       VALUES ($1, $2, CASE WHEN $2 = 'trial' THEN NOW() + INTERVAL '14 days' ELSE NULL END, $3)`,
+       VALUES ($1, $2, $3, $4)`,
       [
         familyId,
         subTier,
+        trialExpiresAt,
         JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }]),
       ]
     );
