@@ -24,11 +24,11 @@ test('public router exposes POST /client-log', () => {
   assert.ok(src.includes("channel: 'apple_sign_in'") || src.includes("'apple_sign_in'"), 'apple_sign_in channel expected');
 });
 
-test('login.html exposes roleAppleError for native role-selection', () => {
+test('login.html exposes Apple Sign In diagnostics on parent login', () => {
   const fs = require('fs');
   const html = fs.readFileSync(path.join(__dirname, '../public/login.html'), 'utf8');
-  assert.ok(html.includes('id="roleAppleError"'), 'roleAppleError missing');
-  assert.ok(html.includes('id="roleAppleLinkingPrompt"'), 'roleAppleLinkingPrompt missing');
+  assert.ok(html.includes('id="appleLoginError"'), 'appleLoginError missing');
+  assert.ok(html.includes('id="appleLinkingPrompt"'), 'appleLinkingPrompt missing');
   assert.ok(html.includes('apple-sign-in-diagnostics.js'), 'diagnostics script missing');
   assert.ok(!html.includes('if (!result || !result.idToken) return'), 'silent idToken return should be removed');
   assert.ok(html.includes('onboarding_completed'), 'should log onboarding_completed explicitly');

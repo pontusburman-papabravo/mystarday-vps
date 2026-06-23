@@ -167,6 +167,6 @@ describe('meny v2.1 — Sprint 8 analytics, deep-links, cleanup', () => {
 
   it('service worker bumped for v2.1+', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v27[56789]|stjarndag-v28\d/);
+    assert.match(src, /stjarndag-v29\d/);
   });
 });

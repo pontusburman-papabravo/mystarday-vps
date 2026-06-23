@@ -30,8 +30,8 @@ describe('mobile sidebar + photo pick fix', () => {
     assert.match(src, /resultTypes = \['uri', 'base64'\]/);
   });
 
-  it('SW bumped to v287', () => {
+  it('SW bumped to v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v287/);
+    assert.match(src, /stjarndag-v293/);
   });
 });

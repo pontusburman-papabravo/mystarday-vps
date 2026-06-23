@@ -41,8 +41,8 @@ describe('family UI + avatar menu fix', () => {
     assert.match(css, /parent-magic-page-notifications/);
   });
 
-  it('SW bumped to v288', () => {
+  it('SW bumped to v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v288/);
+    assert.match(src, /stjarndag-v293/);
   });
 });
