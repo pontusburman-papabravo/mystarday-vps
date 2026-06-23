@@ -23,7 +23,6 @@
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
-const { getChildAccess, getLogAccess, getItemAccess } = require('../middleware/authz');
 const { getOrGenerateDailyLog, getSchoolVariant } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../lib/push');
