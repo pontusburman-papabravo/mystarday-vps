@@ -1,8 +1,17 @@
-# Refaktoreringsplan — Min Stjärndag (v4.1 master plan)
+# Refaktoreringsplan — Min Stjärndag (v4.2 master plan)
 
-> **Status:** Låst master-plan v4.1 (ingen kod ändrad ännu).
+> **Status:** Låst master-plan v4.2 (ingen kod ändrad ännu).
 > **Syfte:** Renodla och modularisera hela kodbasen. Stripe avvecklas till förmån för Apple/Google IAP (RevenueCat).
 > **Mål:** Exekverbar plan med tydliga go/no-go-gates, bättre riskisolering och färre onödiga blockerare.
+
+**Patch i v4.2 (vs v4.1) — sista hålen före exekvering:**
+- **G4b:** revoked-fallet är nu **obligatoriskt** (giltig access + nekad `revoked_at`-access), inte "helst" — D1-serien vilar på det.
+- **D2:** multi-audience normativt (web/android/ios client-ID:n via `verifyIdToken`, tomma filtreras) + test för web- och native-audience, så mobilinloggning inte havererar vid release.
+- **B1:** explicit FK/constraint/trigger/seed-förkontroll (`information_schema`/`pg_catalog`), inte bara grep; acceptans utökad till tom + dev-lik + fresh-reset-DB.
+- **E0:** route-snapshotens innehåll spikat (metod, path/prefix, ägande routerfil, middleware-kedja, global middleware-order för auth/maintenance/paywall/CSRF).
+- **G4c:** explicit maintenance-policy för `/api/iap`-webhooken (default: undantas från blockering).
+- **A6:** skarpare smoke-acceptans (paket/IAP-UI rätt, inga brutna billing-listeners, SW-bump).
+- **G3b:** app-export (`app.js` + `server.js`) tillåten vid behov så test/route-dump kan köras utan att binda port.
 
 **Putsningar i v4.1 (vs v4):**
 - **G3c omdefinierad** från "första riktiga DB-integrationstest" till **schema/migrations-gate** (migrate + up/down-rollback mot tom + dev-liknande DB) inför A5c/B1 — rollen som "första integrationstest" fylls redan av G4a/G4b.
@@ -123,6 +132,7 @@ Kör i ordning: **G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2
 - **Risk:** medel · **Beror på:** G3a · **Utförare:** Composer 2.5
 - **Fil:** `test/helpers/setup.js` (idag endast `injectMockDb`, `makeFakeRes`, `runMiddleware` — `setupTestDb()` saknas).
 - **Steg:** lägg `setupTestDb()` som ansluter mot riktig `DATABASE_URL`, kör migrering/truncation, returnerar städ-funktion med stabil cleanup. Bryt inte `injectMockDb`-användarna.
+- **App-export (vid behov):** om integrationstester eller route-dump (E0) kräver det, exportera Express-appen separat från server-start (t.ex. `app.js` + `server.js`) så att test/introspektion kan köras **utan att binda port**. Gör detta som ren flytt utan beteendeändring.
 - **Acceptans:** en triviell `SELECT 1`-integrationstest kan använda `setupTestDb()` lokalt + i CI.
 - **Commit:** `test: add setupTestDb() helper for real-DB integration tests`
 
@@ -135,10 +145,13 @@ Kör i ordning: **G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2
 
 ### G4b — Integrationstest child-access / daily-log
 - **Risk:** medel · **Beror på:** G3b · **Utförare:** Composer 2.5
-- **Mål:** integrationstest för ett child-access-/daily-log-flöde, helst med ett `revoked_at`-fall.
-- **Skyddar:** B2, C1, D1a–D1e, och E3.
-- **Acceptans:** grönt mot test-DB.
-- **Commit:** `test: add child-access/daily-log integration test`
+- **Mål:** integrationstest för ett child-access-/daily-log-flöde mot riktig test-DB.
+- **Måste täcka minst två fall (obligatoriskt, inte "helst"):**
+  1. parent med giltig access får 200/korrekt payload,
+  2. parent vars `parent_child.revoked_at IS NOT NULL` nekas enligt nuvarande kontrakt (403/404 beroende på befintligt beteende).
+- **Skyddar:** B2, C1, D1a–D1e, och E3 — hela D1-serien förutsätter att revoked-fallet är ett förstaklass-testfall här.
+- **Acceptans:** båda fallen gröna mot test-DB.
+- **Commit:** `test: add child-access/daily-log integration test (incl. revoked case)`
 
 ### B2 — Fixa dubbelmonterade routers
 - **Risk:** medel · **Beror på:** G4a, G4b · **Utförare:** Composer 2.5
@@ -173,7 +186,8 @@ Kör i ordning: **G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2
   2. admin-bypass fungerar,
   3. health endpoint påverkas enligt önskat beteende,
   4. webhook-route (`/api/iap`-RevenueCat) påverkas enligt önskat beteende.
-- **Acceptans:** alla fyra fall gröna.
+- **Beslut (dokumentera explicit):** under maintenance ska RevenueCat-webhooken `/api/iap` **undantas från maintenance-blockering** (default-rekommendation inför skarp prenumerationslansering — en entitlement/betal-webhook är dyr att råka blockera och kan tappa prenumerationshändelser). Om ni medvetet vill blockera den, skriv ner skälet. `health` + `admin` enligt plan.
+- **Acceptans:** alla fyra fall gröna; `/api/iap`-policyn dokumenterad i kodkommentar + `CLAUDE.md`.
 - **Commit:** `test: add maintenance/middleware-order regression test`
 
 ---
@@ -251,9 +265,21 @@ Kör i ordning: **D1a → D1b → D1c → D1d → D1e → D2 → D5**. (D1c ligg
 ### D2 — Validera Google aud
 - **Risk:** medel/hög · **Beror på:** G4a · **Utförare:** Composer 2.5
 - **Fil:** `src/routes/auth.js` (~rad 1731–1747, Google Sign In).
-- **Steg:** verifiera att `aud` matchar `process.env.GOOGLE_WEB_CLIENT_ID` (byt helst `tokeninfo` mot `google-auth-library` `verifyIdToken`). **Ta höjd för flera tillåtna audiences** (web/native) — lista, annars login-regression.
-- **Acceptans:** test — fel `aud` → 401; korrekt → ok.
-- **Commit:** `fix(auth): validate Google ID token audience`
+- **Steg:** byt `tokeninfo` mot `google-auth-library` `verifyIdToken`. **`audience` ska (normativt) vara en lista av flera tillåtna client-ID:n** — annars riskeras login-haveri på mobil vid release:
+  ```js
+  const { OAuth2Client } = require('google-auth-library');
+  const client = new OAuth2Client();
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: [
+      process.env.GOOGLE_WEB_CLIENT_ID,
+      process.env.GOOGLE_ANDROID_CLIENT_ID,
+      process.env.GOOGLE_IOS_CLIENT_ID,
+    ].filter(Boolean), // tomma env-vars filtreras bort
+  });
+  ```
+- **Acceptans:** test måste täcka: (1) fel audience → 401, (2) korrekt web audience → ok, (3) korrekt native/mobile audience → ok (om appen använder det flödet).
+- **Commit:** `fix(auth): validate Google ID token audience (multi-client)`
 
 ### D5 — Harmonisera secure-cookie
 - **Risk:** låg/medel · **Beror på:** — · **Utförare:** Composer 2.5
@@ -327,7 +353,12 @@ Kör i ordning: **A4 → A5b → A6 → A7**. (Dessa rör **aktiv** subscription
 - **Filer:** `public/admin/admin-subscription-settings.js`, `public/admin/index.html`, `public/css/platform-native.css`.
 - **Steg:** ta bort Stripe-knappar/setup-paneler/CSS; **behåll** RevenueCat/paket-UI. Var vaksam på delade conditionals, event listeners och CSS.
 - **Verifiera:** `rg -in stripe public/` = 0 (docs undantagna); grep efter orefererade funktioner.
-- **Acceptans:** smoke-test av admin-prenumerationssidan: laddar utan JS-fel; bumpa `sw.js`.
+- **Acceptans (smoke-mål):**
+  - admin-prenumerationssidan laddar utan JS-fel,
+  - visar nuvarande paket-/IAP-relaterad UI korrekt,
+  - inga brutna event listeners i billing/settings-panelen,
+  - `rg -in stripe public/` = 0,
+  - service worker-version (`public/sw.js`) bumpad.
 - **Commit:** `refactor(admin): remove Stripe payment UI`
 
 ### A7 — Uppdatera dokumentation
@@ -359,10 +390,17 @@ Kör i ordning: **G3c → A5c → B1**. Gate F gäller hela fasen (se nedan).
 
 ### B1 — Ta bort legacy users-tabell + Polsia core-migrationer
 - **Risk:** hög · **Beror på:** G3c, A5c · **Utförare:** **Manuell review**
-- **Verifiera först:** `rg -n "\busers\b" src/ db/ test/ scripts/ migrations/` — bekräfta att varken app, testfixtures, seed-scripts eller migrations använder `users`.
+- **Verifiera först (grep):** `rg -n "\busers\b" src/ db/ test/ scripts/ migrations/` — bekräfta att varken app, testfixtures, seed-scripts eller migrations använder `users`.
+- **FK/constraint/trigger-förkontroll (utöver grep):** inventera alla referenser mot `users` via:
+  - migrations-historiken,
+  - `information_schema` / `pg_catalog` i en dev-liknande DB (FK, constraints, index, triggers som pekar på `users`),
+  - testfixtures/seeds/bootstrapkod som implicit förutsätter tabellen eller en viss skapelseordning.
 - **Fil:** `migrate.js` (~rad 79–106, "core tables"/Polsia).
 - **Steg:** ta bort skapandet av `users` (behåll `schedule_date_exclusion` om den används — grep). **Egen rollback-plan krävs.**
-- **Acceptans:** `npm run migrate` testas i **två** lägen: (1) tom DB, (2) befintlig dev-liknande DB; schema utan `users`; lint+test grönt.
+- **Acceptans:**
+  - verifierat att inga aktiva FK/constraints/triggers eller seed/test-beroenden kräver `users`,
+  - `npm run migrate` grönt på (1) tom DB, (2) befintlig dev-liknande DB, (3) **fresh reset + seed/test-setup** om sådan finns,
+  - schema utan `users`; lint+test grönt.
 - **Commit:** `chore: drop legacy Polsia users table from migrate bootstrap`
 
 ---
@@ -376,9 +414,16 @@ Kör i ordning: **E0 → E3a → E3b → E3c → E4 → E1 → E2**.
 
 ### E0 — Baseline route inventory / route snapshot
 - **Risk:** låg · **Beror på:** Gate G · **Utförare:** Composer 2.5
-- **Mål:** dumpa alla Express-routes + mounts (path, metod, monterad router/prefix, middleware-kedja) **före** backend-split och spara i `docs/route-inventory-pre-split.md` (eller en test-fixture).
-- **Använd som:** obligatorisk före/efter-jämförelse efter varje `E3b`/`E1`/`E2`-steg — fångar borttappade routes, fel middleware, ändrad mount-order eller endpoints som hamnat i fel router.
-- **Acceptans:** route-dump sparad; reproducerbar (samma kommando ger samma output).
+- **Mål:** dumpa alla Express-routes + mounts **före** backend-split och spara i `docs/route-inventory-pre-split.md` (eller en test-fixture).
+- **Snapshoten måste innehålla (annars är den värdelös vid diff):**
+  1. **HTTP-metod**,
+  2. **full path / mount-prefix**,
+  3. **vilken routerfil som äger routen** (om det går att extrahera),
+  4. **middleware-kedja per route**,
+  5. **global middleware-order** runt känsliga routes: auth/session, maintenance, paywall, CSRF där relevant.
+- **Verktyg (exempel):** ett litet `scripts/dump-routes.js` som traverserar `app._router.stack` (kräver att appen kan laddas utan att binda port — se G3b app-export) och skriver en markdown-tabell.
+- **Använd som:** obligatorisk före/efter-jämförelse efter varje `E3b`/`E1`/`E2`-steg. Diffen måste fånga: borttappade endpoints, ändrade paths/metoder, ändrad middleware-kedja, **ändrad mount-order för auth/maintenance/paywall-känsliga routes**.
+- **Acceptans:** route-dump sparad; reproducerbar (samma kommando ger samma output); täcker punkterna 1–5 ovan.
 - **Commit:** `docs: snapshot baseline Express route inventory pre-split`
 
 ### E3a — daily-logs: extrahera helpers
