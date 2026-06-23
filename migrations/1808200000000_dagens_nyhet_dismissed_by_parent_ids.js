@@ -14,4 +14,11 @@ module.exports = {
       ADD COLUMN IF NOT EXISTS dismissed_by_parent_ids JSONB NOT NULL DEFAULT '[]'::jsonb
     `);
   },
+
+  down: async (client) => {
+    await client.query(`
+      ALTER TABLE dagens_nyhet
+      DROP COLUMN IF EXISTS dismissed_by_parent_ids
+    `);
+  },
 };

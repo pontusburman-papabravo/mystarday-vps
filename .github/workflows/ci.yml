@@ -23,6 +23,9 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
+      REQUIRE_EMAIL_VERIFICATION: 'false'
+      JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
+      NODE_ENV: test
 
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +46,6 @@ jobs:
 
       - name: Test
         run: npm run test:gate
-        env:
-          REQUIRE_EMAIL_VERIFICATION: 'false'
-          JWT_SECRET: test-secret-at-least-32-chars-long-for-ci
-          NODE_ENV: test
+
+      - name: Migration rollback gate (G3c)
+        run: node --test test/migration-rollback-gate.test.js
