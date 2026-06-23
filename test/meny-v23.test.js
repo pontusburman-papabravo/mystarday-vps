@@ -19,10 +19,10 @@ describe('meny v2.3 — billing UI gate', () => {
     assert.match(src, /billing_ui_enabled/);
   });
 
-  it('pricing-info route gated when billing disabled', () => {
+  it('pricing-info route is public access page (not billing-gated)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
-    assert.match(src, /isBillingUiEnabled/);
     assert.match(src, /pricing-info/);
+    assert.doesNotMatch(src, /isBillingUiEnabled/);
   });
 
   it('settings-subscription uses billing_ui_enabled not rollout alone', () => {

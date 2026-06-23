@@ -37,19 +37,15 @@ test('program catalog has five programs with total and pedagog last', () => {
   assert.doesNotMatch(data.copy.founder_note, /platser kvar/i);
 });
 
-test('pricing-info page uses program catalog (no scarcity counter)', () => {
+test('pricing-info page is public access information (not gated catalog)', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/pricing-info.html'), 'utf8');
-  const js = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
-  assert.match(html, /auth\.js/);
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
 
-  assert.match(html, /program-catalog\.css/);
-  assert.match(html, /program-catalog-render\.js/);
-  assert.match(html, /comparisonMatrix/);
-  assert.doesNotMatch(html, /counterMain/);
-  assert.doesNotMatch(html, /founderLimitLabel/);
-  assert.match(js, /\/api\/public\/program-catalog/);
-  assert.doesNotMatch(js, /spots_remaining/);
-  assert.doesNotMatch(js, /platser kvar/);
+  assert.match(route, /router\.get\('\/pricing-info'/);
+  assert.match(route, /pricing-info\.html/);
+  assert.doesNotMatch(route, /isBillingUiEnabled/);
+  assert.match(html, /Apple App Store och Google Play/);
+  assert.match(html, /href="\/register"/);
 });
 
 test('upgrade page links to program info', () => {

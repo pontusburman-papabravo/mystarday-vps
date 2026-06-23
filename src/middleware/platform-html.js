@@ -4,6 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { injectNoindexMeta } = require('../lib/seo-pages');
 
 const RELEASE_TAG = '2026-06-14-prevent-zoom';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
@@ -126,6 +127,7 @@ function injectParentMagicHtml(body, reqPath) {
 
 function injectPlatformHtml(body, reqPath) {
   if (typeof body !== 'string') return body;
+  body = injectNoindexMeta(body, reqPath);
   if (body.includes(INJECT_MARKER)) return body;
 
   const headMarker = '<head>';
