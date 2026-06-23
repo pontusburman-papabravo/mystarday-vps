@@ -91,7 +91,7 @@ describe('Phase 4 — Event pipe', () => {
   });
 
   it('daily-logs hooks family event engine', () => {
-    const src = read('src/routes/daily-logs.js');
+    const src = read('src/routes/daily-logs/items.js');
     assert.match(src, /handleActivityCompleted/);
   });
 });

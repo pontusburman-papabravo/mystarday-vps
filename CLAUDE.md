@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E3b — daily-logs items router moved to `src/routes/daily-logs/items.js`. Files: src/routes/daily-logs/items.js, src/routes/daily-logs.js, test/three-layer-separation.test.js.
 - 2026-06-23: Refactor Fas 7 E3b — daily-logs parent router moved to `src/routes/daily-logs/parent.js` (childRouter, no path change). Files: src/routes/daily-logs/parent.js, src/routes/daily-logs.js.
 - 2026-06-23: Refactor Fas 7 E3a — daily-logs shared helpers extracted to `src/routes/daily-logs/helpers.js` (no route move). Files: src/routes/daily-logs.js, src/routes/daily-logs/helpers.js.
 - 2026-06-23: Refactor Fas 7 E0 — baseline Express route inventory (`docs/route-inventory-pre-split.md`, `scripts/dump-routes.js`, `npm run dump:routes` / `check:routes`). Files: docs/route-inventory-pre-split.md, scripts/dump-routes.js, test/route-inventory.test.js, package.json.

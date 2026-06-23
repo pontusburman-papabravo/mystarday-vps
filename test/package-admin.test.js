@@ -130,9 +130,10 @@ test('buildFeatureAccess enables package feature when component active and featu
 });
 
 test('home completion routes set completed_by for Modell A', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'src/routes/daily-logs.js'), 'utf8');
-  assert.match(src, /completed_by = COALESCE\(completed_by, 'parent'\)/);
-  assert.match(src, /completed_by = COALESCE\(completed_by, 'child'\)/);
+  const items = fs.readFileSync(path.join(ROOT, 'src/routes/daily-logs/items.js'), 'utf8');
+  const dailyLogs = fs.readFileSync(path.join(ROOT, 'src/routes/daily-logs.js'), 'utf8');
+  assert.match(items, /completed_by = COALESCE\(completed_by, 'parent'\)/);
+  assert.match(dailyLogs, /completed_by = COALESCE\(completed_by, 'child'\)/);
 });
 
 test('pedagog daily-log 409 guard blocks any non-pedagog prior completion', () => {
