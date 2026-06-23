@@ -33,8 +33,9 @@ test('migration inventory: latest folder migration exposes down()', () => {
     .filter((f) => f.endsWith('.js'))
     .sort()
     .pop();
-  const latest = withDown.find((m) => m.file === latestFile);
-  assert.ok(latest, `latest migration ${latestFile} must define down() for G3c gate`);
+  const filePath = path.join(__dirname, '../migrations', latestFile);
+  const mod = require(filePath);
+  assert.equal(typeof mod.down, 'function', `latest migration ${latestFile} must define down() for G3c gate`);
 });
 
 test('G3c dev-like DB: migrate, rollback latest, re-migrate', async (t) => {

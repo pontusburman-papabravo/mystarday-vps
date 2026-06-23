@@ -69,25 +69,22 @@ async function tableExists(client, tableName) {
 }
 
 /**
- * Roll back the N most recently applied folder migrations (newest first).
- * Only migrations with a down() function are supported.
+ * Roll back the N most recently applied folder migrations that define down()
+ * (newest first; skips applied migrations without down()).
  */
 async function rollbackLastApplied(pool, count = 1) {
   const client = await pool.connect();
   try {
     const { rows } = await client.query(
-      'SELECT id, name FROM _migrations ORDER BY id DESC LIMIT $1',
-      [count]
+      'SELECT id, name FROM _migrations ORDER BY id DESC'
     );
-    if (rows.length === 0) {
-      throw new Error('No applied migrations to roll back');
-    }
 
     const rolled = [];
     for (const row of rows) {
+      if (rolled.length >= count) break;
       const { mod } = findMigrationByName(row.name);
       if (typeof mod.down !== 'function') {
-        throw new Error(`Migration ${row.name} has no down()`);
+        continue;
       }
       await client.query('BEGIN');
       try {
@@ -99,6 +96,10 @@ async function rollbackLastApplied(pool, count = 1) {
         await client.query('ROLLBACK');
         throw err;
       }
+    }
+
+    if (rolled.length < count) {
+      throw new Error(`Only rolled back ${rolled.length}/${count} migrations (not enough down() handlers)`);
     }
     return rolled;
   } finally {
