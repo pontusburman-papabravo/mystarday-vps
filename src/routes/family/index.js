@@ -1,18 +1,18 @@
 const express = require('express');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const db = require('../lib/db');
-const { requireParent, requireAuth, resolveParentIdForLoginPicker } = require('../middleware/auth');
-const { generateCsrfToken } = require('../middleware/csrf');
-const { requireNotPedagogOnly, requirePrimaryParent } = require('../middleware/authz');
-const { syncAccountType, getChildrenForParent } = require('../../db/parent-access');
-const { sendEmail, sendInviteEmail } = require('../lib/email');
-const { createNewsletterSubscription } = require('../lib/newsletter-subscribe');
-const { hashPassword } = require('../lib/hash');
-const config = require('../lib/config');
-const appSettings = require('../../db/app-settings');
-const { validate, validateParams } = require('../middleware/validate');
-const { inviteLimiter, parentPinLimiter } = require('../middleware/rateLimiter');
+const db = require('../../lib/db');
+const { requireParent, requireAuth, resolveParentIdForLoginPicker } = require('../../middleware/auth');
+const { generateCsrfToken } = require('../../middleware/csrf');
+const { requireNotPedagogOnly, requirePrimaryParent } = require('../../middleware/authz');
+const { syncAccountType, getChildrenForParent } = require('../../../db/parent-access');
+const { sendEmail, sendInviteEmail } = require('../../lib/email');
+const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
+const { hashPassword } = require('../../lib/hash');
+const config = require('../../lib/config');
+const appSettings = require('../../../db/app-settings');
+const { validate, validateParams } = require('../../middleware/validate');
+const { inviteLimiter, parentPinLimiter } = require('../../middleware/rateLimiter');
 const {
   UpdateFamilySchema,
   UpdateFamilyMemberSchema,
@@ -20,13 +20,13 @@ const {
   CheckFamilyMemberSchema,
   AcceptInviteSchema,
   UUIDParam,
-} = require('../lib/schemas');
+} = require('../../lib/schemas');
 const {
   checkAdultInviteEligibility,
   checkChildNameInFamily,
   VALID_FAMILY_ROLES,
-} = require('../lib/family-duplicates');
-const { getLocalDateStr, getOrGenerateDailyLog } = require('../lib/daily-log-generator');
+} = require('../../lib/family-duplicates');
+const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 
 const router = express.Router();
 
@@ -695,7 +695,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
       [req.user.familyId]
     );
     const inviterName = inviterResult.rows[0]?.name || req.user.email;
-    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag';
+    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
 
     // Create invite with crypto token (64 hex chars)
     const token = crypto.randomBytes(32).toString('hex');
@@ -1581,7 +1581,7 @@ router.get('/subscription-status', requireParent, async (req, res) => {
       const diff = new Date(trial_ends_at) - new Date();
       trial_days_remaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
-    const paymentPolicy = require('../lib/payment-policy');
+    const paymentPolicy = require('../../lib/payment-policy');
     const payment_enabled = await appSettings.getPaymentEnabled();
     res.json({
       subscription_status,
@@ -1724,7 +1724,7 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
       return res.status(400).json({ error: 'Ett eller flera barn hittades inte eller saknar behörighet' });
     }
 
-    const { createInvite } = require('../../db/pedagog-invite');
+    const { createInvite } = require('../../../db/pedagog-invite');
     const invite = await createInvite({
       familyId: req.user.familyId,
       inviterParentId: req.user.id,
@@ -1737,9 +1737,9 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
     const inviterResult = await db.query('SELECT name FROM parent WHERE id = $1', [req.user.id]);
     const familyResult = await db.query('SELECT name FROM family WHERE id = $1', [req.user.familyId]);
     const inviterName = inviterResult.rows[0]?.name || 'En förälder';
-    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag';
+    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
 
-    const emailResult = await require('../lib/email').sendPedagogInviteEmail({
+    const emailResult = await require('../../lib/email').sendPedagogInviteEmail({
       to: email,
       inviteeName: name || null,
       inviterName,
@@ -1767,7 +1767,7 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
 // Required by settings-UI pedagog invite section.
 router.get('/invite-pedagog', async (req, res) => {
   try {
-    const { listPedagogLinks, listPendingInvites } = require('../../db/pedagog-invite');
+    const { listPedagogLinks, listPendingInvites } = require('../../../db/pedagog-invite');
 
     const [links, pendingInvites] = await Promise.all([
       listPedagogLinks(req.user.familyId),
@@ -1810,7 +1810,7 @@ router.get('/invite-pedagog', async (req, res) => {
 // Revoke a pending (non-accepted) invite. Primary parent only.
 router.delete('/invite-pedagog/:id', requirePrimaryParent, async (req, res) => {
   try {
-    const { revokeInvite } = require('../../db/pedagog-invite');
+    const { revokeInvite } = require('../../../db/pedagog-invite');
     const deleted = await revokeInvite(req.params.id, req.user.familyId);
 
     if (!deleted) {
@@ -1835,7 +1835,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
       return res.status(400).json({ error: 'parentId och childId krävs' });
     }
 
-    const { revokePedagogLink } = require('../../db/pedagog-invite');
+    const { revokePedagogLink } = require('../../../db/pedagog-invite');
 
     // Verify the child belongs to this family
     const childCheck = await db.query(
@@ -1874,7 +1874,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
 });
 
 // ─── Parent PIN (F) — Föräldralås (unik PIN per vuxen) ────────────────────────
-const parentPinDb = require('../../db/parent-pin');
+const parentPinDb = require('../../../db/parent-pin');
 
 /** Resolve parent + family from barnväljare (active parent JWT or stjarndag_parent_session). */
 async function resolvePickerParentContext(req) {
@@ -2057,7 +2057,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
       }
 
       if (currentPin) {
-        const pinOk = await require('../lib/hash').comparePassword(currentPin, pinRow.parent_pin_hash);
+        const pinOk = await require('../../lib/hash').comparePassword(currentPin, pinRow.parent_pin_hash);
         if (!pinOk) {
           return res.status(401).json({ error: 'Felaktig nuvarande PIN-kod' });
         }
@@ -2069,7 +2069,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
         if (!parentResult.rows[0]?.password_hash) {
           return res.status(400).json({ error: 'Kontot saknar lösenord — ange nuvarande PIN-kod' });
         }
-        const pwOk = await require('../lib/hash').comparePassword(password, parentResult.rows[0].password_hash);
+        const pwOk = await require('../../lib/hash').comparePassword(password, parentResult.rows[0].password_hash);
         if (!pwOk) {
           return res.status(401).json({ error: 'Felaktigt lösenord' });
         }
@@ -2077,7 +2077,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
     }
     // First-time setup: no additional verification needed (requireParent already verified)
 
-    const newHash = await require('../lib/hash').hashPassword(pin);
+    const newHash = await require('../../lib/hash').hashPassword(pin);
     await parentPinDb.setParentPinHash(req.user.id, newHash);
 
     res.json({ success: true });
