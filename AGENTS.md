@@ -52,3 +52,14 @@ Agents **must** use these values (also `.cursor/rules/mystarday-deploy.mdc`):
 
 After `sudo systemctl restart mystarday`: **`sleep 3`** then `curl -s http://127.0.0.1:3000/health`.
 Logs: `sudo journalctl -u mystarday -f` (not `stjarndag`).
+
+### Direct VPS SSH (optional)
+
+When `VPS_SSH_KEY`, `VPS_HOST`, and `VPS_USER` are set as **Cursor Cloud Agent secrets**, the agent can SSH to prod for logs, health checks, and manual deploy fallback.
+
+- One-time setup (on your Mac): `./scripts/setup-cursor-agent-ssh.sh` — see [`docs/CURSOR-AGENT-VPS-SSH.md`](docs/CURSOR-AGENT-VPS-SSH.md)
+- Verify in a cloud agent run: `./scripts/vps-ssh.sh check`
+- Remote command: `./scripts/vps-ssh.sh 'sudo journalctl -u <service> -n 30 --no-pager'` (service from `*-deploy.mdc`)
+- Interactive shell: `./scripts/vps-ssh.sh`
+
+Use a **separate** ed25519 key from GitHub Actions (`VPS_SSH_KEY` in Cursor, not only in GitHub `vps` environment). Do **not** run `npm test` on prod VPS. Prefer merge-to-`main` → GitHub Actions for normal deploys.
