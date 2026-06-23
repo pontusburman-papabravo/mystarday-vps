@@ -69,7 +69,6 @@ function loadRouters() {
       getPaymentEnabled: async () => false,
       getBasicPrice: async () => 59,
       getBasicTrialDays: async () => 14,
-      getStripePriceId: async () => null,
       getFounderFamilyLimit: async () => 200,
     },
     children: [], parent: null, paths: [],

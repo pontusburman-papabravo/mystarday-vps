@@ -57,20 +57,6 @@ function getAllSettings() {
   return query('SELECT key, value FROM app_settings ORDER BY key');
 }
 
-// Stripe IDs — persisted after POST /api/stripe-setup/create
-function getStripePriceId() {
-  return getSetting('stripe_price_id');
-}
-function setStripePriceId(id) {
-  return upsertSetting('stripe_price_id', id);
-}
-function getStripeProductId() {
-  return getSetting('stripe_product_id');
-}
-function setStripeProductId(id) {
-  return upsertSetting('stripe_product_id', id);
-}
-
 module.exports = {
   getSetting, upsertSetting,
   getPaymentEnabled, setPaymentEnabled,
@@ -78,6 +64,4 @@ module.exports = {
   getBasicTrialDays, setBasicTrialDays,
   getFounderFamilyLimit, setFounderFamilyLimit,
   getAllSettings,
-  getStripePriceId, setStripePriceId,
-  getStripeProductId, setStripeProductId,
 };

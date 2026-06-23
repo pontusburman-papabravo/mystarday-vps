@@ -32,7 +32,6 @@ router.get('/', async (req, res, next) => {
       payment_enabled,
       basic_price_sek,
       basic_trial_days,
-      stripe_price_id,
       addonsResult,
       founder_family_limit,
       rolloutEntry,
@@ -49,7 +48,6 @@ router.get('/', async (req, res, next) => {
         console.error('[admin:subscription] trial_days read error:', err.message);
         return 14;
       }),
-      appSettings.getStripePriceId().catch(() => null),
       addons.getAllAddons().catch((err) => {
         console.error('[admin:subscription] addons read error:', err.message);
         return { rows: [] };
@@ -68,7 +66,6 @@ router.get('/', async (req, res, next) => {
       basic_price_sek,
       basic_trial_days,
       founder_family_limit,
-      stripe_configured: !!stripe_price_id,
       addons: addonsResult.rows,
       ...buildRolloutPayload(rolloutEntry),
     });
