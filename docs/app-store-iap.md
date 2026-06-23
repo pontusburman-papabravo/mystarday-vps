@@ -1,6 +1,8 @@
 # App Store IAP — RevenueCat + StoreKit Integration
 
-Min Stjärndag supports in-app purchases (IAP) on iOS via **RevenueCat** and **Apple StoreKit**. This document covers the full architecture: client SDK, webhook backend, lifetime-free model, and troubleshooting.
+[REDACTED] supports in-app purchases (IAP) on **iOS and Android** via **RevenueCat** and the platform stores (Apple StoreKit / Google Play Billing). This is the **sole active payment path** — there is no web checkout. This document covers the architecture: client SDK, webhook backend, lifetime-free model, and troubleshooting.
+
+> **Stripe removed (Fas 5, 2026-06):** historical web/Stripe integration is archived in [`ARKIVERAT-STRIPE.md`](ARKIVERAT-STRIPE.md).
 
 ---
 
@@ -8,7 +10,7 @@ Min Stjärndag supports in-app purchases (IAP) on iOS via **RevenueCat** and **A
 
 ### Varför RevenueCat?
 
-Apple kräver StoreKit för alla digitala köp inuti iOS-appar (App Store Review Guideline 3.1.1). En直接 StoreKit-integration kräver server-side receipt validation, vilket RevenueCat abstraherar bort med en enkel webhook-modell.
+Apple kräver StoreKit för alla digitala köp inuti iOS-appar (App Store Review Guideline 3.1.1). En direkt StoreKit-integration kräver server-side receipt validation, vilket RevenueCat abstraherar bort med en enkel webhook-modell. Samma mönster gäller Android via Play Billing.
 
 ### Produkt
 
@@ -19,14 +21,14 @@ Apple kräver StoreKit för alla digitala köp inuti iOS-appar (App Store Review
 | **Pris** | 59 SEK / månad |
 | **Entitlement** | `basic` (tillgång till betalfunktion) |
 
-### Separationsmodell
+### Plattformar och betalning
 
 | Plattform | Betalningsmetod | Status |
 |---|---|---|
-| **iOS / Android (native)** | RevenueCat + App Store IAP | Aktiv |
-| **Webb (PWA)** | Stripe | Inaktiv (`PAYMENT_ENABLED=false`) |
+| **iOS / Android (native)** | RevenueCat + App Store / Play Store IAP | **Enda aktiva betalväg** |
+| **Webb (PWA)** | Ingen köp-UI | Ingen checkout — preview/ladda ner-flöde endast |
 
-Webb-användare kan aldrig köpa via webbläsaren. Betalningsflöden på webben är blockerade på klient-sida (se sektion 4).
+Webb-användare kan aldrig köpa via webbläsaren. Betalningsflöden på webben är blockerade (`BILLING_UI_DISABLED`, `IAPManager.canShowPaymentUI() === false`). Se §9.7 i [`paket-v1.2-spec.md`](paket-v1.2-spec.md).
 
 ---
 
@@ -73,7 +75,7 @@ App-start (native)
 
 ## 3. Miljövariabler
 
-Alla variabler sätts i **Render → Environment** för produktion.
+Alla variabler sätts i **VPS `.env`** (eller Render om staging) för produktion.
 
 | Variabel | Krav | Var/vem |
 |---|---|---|
@@ -108,23 +110,25 @@ async function init() {
 }
 ```
 
-### Betalnings-UI-blockering
+### Webb-betalning blockerad
+
+Ingen webb-betalning finns i appen:
 
 ```javascript
 function canShowPaymentUI() {
-  return false; // Alltid false — ingen webb-betalning i denna app
+  return false; // Alltid false — ingen webb-betalning
 }
 
 function canPurchase() {
-  return isNative() && _initialized; // Endast native + SDK redo
+  return isNative() && _initialized; // Endast native + SDK redo (när IAP är aktiverat)
 }
 ```
 
-### Stripe-blockering i native
+- Klient: `canShowPaymentUI() === false` döljer alla köp-CTA på webb
+- Backend: endast `POST /api/iap/webhook` (RevenueCat) — inga checkout-routes
+- `/pricing-info` och `/upgrade` redirectas till dashboard när `BILLING_UI_DISABLED=true`
 
-All Stripe-referens (`PAYMENT_ENABLED`, `/api/stripe/*`) är inaktiverade på native:
-- Klient: `canShowPaymentUI() === false` döljer Stripe-länkar
-- Backend: `src/routes/iap.js` hanterar endast RevenueCat-webhooks, ingen Stripe-route påverkas
+> **App Review (2026):** `iap-manager.js` kan vara en stub (`canPurchase() === false`) tills IAP produkter är live i App Store Connect. Webhook-backend och `family.subscription_status` är redo oavsett.
 
 ---
 
@@ -220,7 +224,10 @@ BODY='{"event":{"type":"INITIAL_PURCHASE","data":{"attributes":{"app_user_id":"f
 SIGNATURE=$(echo -n "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
 
 # curl-exempel
-curl -X POST https://stjarndag.polsia.app/api/iap/webhook   -H "Content-Type: application/json"   -H "Authorization: Bearer your_api_key:$SIGNATURE"   -d "$BODY"
+curl -X POST "https://[REDACTED]/api/iap/webhook" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_api_key:$SIGNATURE" \
+  -d "$BODY"
 ```
 
 **Med testfamiljens UUID:**
@@ -230,16 +237,19 @@ BODY='{"event":{"type":"INITIAL_PURCHASE","data":{"attributes":{"app_user_id":"F
 
 SIGNATURE=$(echo -n "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
 
-curl -X POST https://stjarndag.polsia.app/api/iap/webhook   -H "Content-Type: application/json"   -H "Authorization: Bearer test_key:$SIGNATURE"   -d "$BODY"
+curl -X POST "https://[REDACTED]/api/iap/webhook" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer test_key:$SIGNATURE" \
+  -d "$BODY"
 ```
 
 ### Vanliga problem
 
 | Problem | Symptom | Åtgärd |
 |---|---|---|
-| SDK inte initierat | `RevenueCat is not configured` i konsol | Kontrollera att `REVENUECAT_API_KEY` är satt i Render och att `GET /api/iap/config` returnerar en nyckel |
+| SDK inte initierat | `RevenueCat is not configured` i konsol | Kontrollera att `REVENUECAT_API_KEY` är satt i VPS `.env` och att `GET /api/iap/config` returnerar en nyckel |
 | Fel appUserID | Ingen entitlement aktiveras | Verifiera att `familyId` från `window.Auth.getFamilyId()` matchar family UUID i databasen |
-| Webhook 401 | Loggen visar `Signature mismatch` | Kontrollera att `REVENUECAT_WEBHOOK_SECRET` i Render matchar värdet i RevenueCat Dashboard → Webhooks |
-| Webhook 500 | Loggen visar `REVENUECAT_WEBHOOK_SECRET not configured` | Sätt `REVENUECAT_WEBHOOK_SECRET` i Render Environment-variabler |
-| Lifetime-free避跳过 | Beta-användare kan inte köpa | Detta är avsiktligt — `is_lifetime_free = true` familjer har permanent gratis. Sätt `is_lifetime_free = false` i databasen för att testa köp: `UPDATE family SET is_lifetime_free = false WHERE id = 'familj_uuid';` |
+| Webhook 401 | Loggen visar `Signature mismatch` | Kontrollera att `REVENUECAT_WEBHOOK_SECRET` i VPS `.env` matchar värdet i RevenueCat Dashboard → Webhooks |
+| Webhook 500 | Loggen visar `REVENUECAT_WEBHOOK_SECRET not configured` | Sätt `REVENUECAT_WEBHOOK_SECRET` i VPS `.env` |
+| Lifetime-free hoppas över | Beta-användare kan inte köpa | Detta är avsiktligt — `is_lifetime_free = true` familjer har permanent gratis. Sätt `is_lifetime_free = false` i databasen för att testa köp: `UPDATE family SET is_lifetime_free = false WHERE id = 'familj_uuid';` |
 | App startar ej köpflöde | `canPurchase() === false` | Verifiera att `isNative() === true` och `_initialized === true` i konsolen |

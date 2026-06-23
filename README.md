@@ -8,7 +8,7 @@ Swedish family app for children's daily routines, star rewards, and schedule man
 
 ## Stack
 
-Express.js + Neon PostgreSQL + Tailwind CDN, deployed on VPS (Resend email, R2 or local uploads, Stripe — see [External Integrations](#external-integrations)).
+Express.js + Neon PostgreSQL + Tailwind CDN, deployed on VPS (Resend email, R2 or local uploads, RevenueCat IAP on native — see [External Integrations](#external-integrations)).
 
 ## Local Development
 
@@ -63,7 +63,7 @@ migrations/1750000000000_add_new_table.js
 
 - **Resend** — outbound email (verification, invites, newsletters)
 - **Cloudflare R2** or **local disk** — image uploads (`data/uploads` on VPS without R2)
-- **Stripe** — payment checkout (direct API on VPS)
+- **RevenueCat** — in-app purchases on iOS/Android (Apple/Google IAP); webhook syncs `subscription_status` via `POST /api/iap/webhook`. No web checkout — see [`docs/app-store-iap.md`](docs/app-store-iap.md).
 - **Web Push (VAPID)** — browser push notifications
 - **Apple APNs / FCM** — native push (iOS/Android)
 

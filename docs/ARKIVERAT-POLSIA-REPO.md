@@ -6,7 +6,7 @@
 |----------|-----|
 | `pontusburman-papabravo/MyStarday-Polsia` | Omdöpt till [`mystarday-vps`](https://github.com/pontusburman-papabravo/mystarday-vps) (samma repo, GitHub redirect) |
 | Deploy via Polsia / Render / `stjarndag.polsia.app` | Produktion på **egen VPS** → https://mystarday.se |
-| Polsia e-post-, R2- och Stripe-proxy | Resend, R2 (eller lokal disk) och Stripe direkt på servern |
+| Polsia e-post-, R2- och Stripe-proxy | Resend, R2 (eller lokal disk) på VPS; Stripe **borttaget** (se [`ARKIVERAT-STRIPE.md`](ARKIVERAT-STRIPE.md)) |
 
 ## Kanonisk källa
 
