@@ -875,6 +875,32 @@ body.platform-web.landing-magic-bg {
   margin-bottom: 1rem;
 }
 
+.founder-spots-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--amber-dk);
+  background: rgba(245, 166, 35, 0.14);
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  margin-top: 0.85rem;
+  line-height: 1.35;
+}
+
+.founder-spots-badge[hidden] {
+  display: none !important;
+}
+
+.founder-spots-badge--block {
+  display: inline-flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── FAQ accordion ───────────────────────────────────────── */
 .faq-list { max-width: 720px; margin: 0 auto; }
 

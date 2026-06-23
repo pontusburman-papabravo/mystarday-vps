@@ -3,13 +3,13 @@
 **Syfte:** Denna fil är till för nästa agent/utvecklare. Läs den innan du börjar jobba med SEO, landningssidor eller indexering.
 
 **Senast uppdaterad:** 2026-06-23  
-**Status:** Sprint 1–3 **implementerat, mergat till `main`, deployat och verifierat live** på produktion (`$APP_URL`)
+**Status:** Sprint 1–3 + landing v2 sidor (`/faq`, `/kontakt`) **implementerat**. Search Console (SEO-14) kvar.
 
 ---
 
 ## 1. Sammanfatta läget i en mening
 
-Den tekniska SEO-grunden och sidrollerna är på plats. **Bygg inte om från ticket 1.** Nästa arbete är uppföljning (Search Console, `/en`-beslut, copy-finjustering utifrån data).
+Den tekniska SEO-grunden och sidrollerna är på plats, inklusive `/faq` och `/kontakt` efter landing v2. **Bygg inte om från ticket 1.** Nästa arbete är uppföljning (Search Console, `/en`-beslut, copy-finjustering utifrån data).
 
 ---
 
@@ -22,6 +22,8 @@ Den tekniska SEO-grunden och sidrollerna är på plats. **Bygg inte om från tic
 | `/pedagoger-och-terapeuter` | B2B/professionell | Ja |
 | `/skattkammaren` | Innehåll om belöningssystem | Ja |
 | `/pricing-info` | Tillgång + framtida Apple/Google IAP (inte prissida) | Ja |
+| `/faq` | Fullständig FAQ (långsvans-SEO) | Ja |
+| `/kontakt` | Kontakt (branded/trust) | Ja (låg prioritet) |
 | `/privacy` | Juridik | Ja |
 | `/en` | Engelsk landning | Endast om feature flag är på |
 | `/login` + auth-routes | Funktion | **Nej** (`noindex`) |
@@ -48,6 +50,13 @@ Den tekniska SEO-grunden och sidrollerna är på plats. **Bygg inte om från tic
 | SEO-11 | `/skattkammaren` utökad | `public/skattkammaren.html` |
 | SEO-12 | Internlänkar mellan publika sidor | `public/index.html`, undersidor |
 | SEO-13 | Problem/lösnings-copy på `/` | `public/index.html` |
+| SEO-16 | `/faq` + `/kontakt` indexerbara (landing v2) | `seo-pages.js`, `sitemap.xml`, `faq.html`, `kontakt.html` |
+
+### Landing v2 (2026-06-23)
+
+- `/faq` — full FAQ flyttad från `/`, `FAQPage` JSON-LD, canonical
+- `/kontakt` — kontaktformulär flyttat från `/`, canonical
+- Kort FAQ + JSON-LD (6 frågor) kvar på `/`
 
 ### Tester
 
@@ -80,6 +89,11 @@ curl -s $APP_URL/sitemap.xml | grep login   # ska INTE finnas
 curl -s $APP_URL/ | grep 'morgonrutiner som havererar'
 curl -s $APP_URL/register | grep 'visuellt schema'
 curl -s $APP_URL/pricing-info | grep 'Apple App Store'
+curl -s $APP_URL/faq | grep 'rel="canonical"'
+curl -s $APP_URL/kontakt | grep 'rel="canonical"'
+curl -s $APP_URL/faq | grep -i noindex    # ska INTE finnas
+curl -s $APP_URL/kontakt | grep -i noindex # ska INTE finnas
+curl -s $APP_URL/sitemap.xml | grep faq
 ```
 
 **Deploy/ops:** Se `AGENTS.md` (deploy & ops). Cloud Agents har inte VPS-nyckel — deploy via GitHub Actions.

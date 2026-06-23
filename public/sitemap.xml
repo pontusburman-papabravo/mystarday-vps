@@ -44,6 +44,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mystarday.se/faq</loc> <!-- pragma: allowlist secret -->
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mystarday.se/kontakt</loc> <!-- pragma: allowlist secret -->
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://mystarday.se/privacy</loc> <!-- pragma: allowlist secret -->
     <lastmod>2026-06-22</lastmod>
     <changefreq>yearly</changefreq>
