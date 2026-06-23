@@ -7,6 +7,8 @@
     "dev": "node server.js",
     "build": "npm run migrate",
     "migrate": "node migrate.js",
+    "dump:routes": "node scripts/dump-routes.js --write",
+    "check:routes": "node scripts/dump-routes.js --check",
     "export:families": "node scripts/export-family-data.js",
     "export:families:sql": "node scripts/export-family-data-sql.js",
     "export:database:sql": "node scripts/export-full-database-sql.js",
