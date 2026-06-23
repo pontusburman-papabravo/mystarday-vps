@@ -1,2965 +1,591 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Min Stjärndag – visuellt schema och bildstöd för barn | Skattkammaren</title> <!-- pragma: allowlist secret -->
-    <meta name="description" content="Min Stjärndag är ett visuellt schema och digitalt bildstöd för barn som behöver tydligare rutiner, mer självständighet och mindre tjat i vardagen. Ett stöd för familjer vid ADHD, autism och andra behov av extra struktur."> <!-- pragma: allowlist secret -->
-    <meta property="og:title" content="Min Stjärndag — Skattkammaren, där motivationen bor">
-    <meta property="og:description" content="Visuella scheman, tydliga steg och en belöningsstruktur som faktiskt fungerar — utan tjat.">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://mystarday.se/og-image.png"> <!-- pragma: allowlist secret -->
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-    <link rel="canonical" href="/">
-    <!-- hreflang — indicate Swedish as default -->
-    <link rel="alternate" hreflang="sv" href="/">
-    <link rel="alternate" hreflang="en" href="https://mystarday.se/en/">
-    <link rel="alternate" hreflang="x-default" href="/">
-    <!-- Fonts: Fraunces for display, Satoshi for body -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-    <!-- Platform theme detection (web vs native) -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="canonical" href="/">
+  <title>Min Stjärndag — Visuellt schema-app för barn | Skattkammaren</title>
+  <meta name="description" content="Min Stjärndag — visuell schema-app för barn. Ger stöd i vardagen genom tydligt bildstöd och struktur. Ett värdefullt verktyg vid ADHD och autism. Prova gratis.">
+  <meta property="og:title" content="Min Stjärndag — Visuella scheman och stjärnor utan tjat">
+  <meta property="og:description" content="Visuella scheman, tydliga steg och stjärnor som hjälper barn att klara vardagen. Gratis för grundarmedlemmar.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://mystarday.se/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="sv" href="https://mystarday.se/">
+  <link rel="alternate" hreflang="en" href="https://mystarday.se/en/">
+  <link rel="alternate" hreflang="x-default" href="https://mystarday.se/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/login-magic.css?v=137">
+  <link rel="stylesheet" href="/css/landing.css?v=1">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
-  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
-  <script src="/js/cookie-banner.js?v=2.13.1"></script>
-  <!-- "Magisk natt" shared CSS (stars, clouds, glass) + landing overrides -->
-  <link rel="stylesheet" href="/css/login-magic.css?v=136">
-  <link rel="stylesheet" href="/css/program-catalog.css?v=1.0.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --amber:    #F5A623;
-            --amber-dk: #D4891A;
-            --amber-lt: #FFF3D6;
-            --amber-mid:#FDE9B0;
-            --navy:     #1C2340;
-            --navy-2:   #2A3355;
-            --cream:    #FDFAF4;
-            --cream-2:  #F7F3EA;
-            --sand:     #EDE8DC;
-            --text:     #1C2340;
-            --text-2:   #5A6178;
-            --text-3:   #8A92AA;
-            --white:    #FFFFFF;
-            --purple:   #6B3FA0;
-            --purple-lt:#EDE7F6;
-            --green:    #1DB97B;
-            --green-lt: #DFFAED;
-            --border:   rgba(28,35,64,0.09);
-            --radius-lg:20px;
-            --radius-xl:28px;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            overflow-x: clip;
-            max-width: 100%;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text);
-            background: var(--cream);
-            overflow-x: clip;
-            max-width: 100%;
-            line-height: 1.65;
-        }
-
-        /* Magisk natt gradient on web — applied immediately (no JS wait) */
-        body.platform-web {
-            background:
-                radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
-                radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
-                linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
-            min-height: 100vh;
-            min-height: 100dvh;
-        }
-        body.platform-web .hero {
-            background: transparent;
-        }
-        body.platform-web .hero::before,
-        body.platform-web .hero::after {
-            display: none;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Fraunces', serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* ===== NAV ===== */
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
-            padding: 1.1rem 2rem;
-            display: flex; align-items: center; justify-content: space-between;
-            z-index: 200;
-            background: rgba(253,250,244,0.9);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            display: flex; align-items: center; gap: 0.6rem;
-            text-decoration: none; flex-shrink: 0;
-        }
-        .logo-star {
-            width: 36px; height: 36px;
-            background: var(--amber);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 12px rgba(245,166,35,0.38);
-        }
-        .logo-text {
-            font-family: 'Fraunces', serif;
-            font-weight: 700; font-size: 1.25rem;
-            color: var(--navy);
-        }
-
-        .nav-links { display: flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap; }
-        .nav-link {
-            font-size: 0.88rem; font-weight: 500;
-            color: var(--navy); text-decoration: none;
-            padding: 0.45rem 0.9rem; border-radius: 10px;
-            transition: background 0.18s;
-            white-space: nowrap;
-        }
-        .nav-link:hover { background: var(--amber-lt); }
-        .nav-cta {
-            font-size: 0.85rem; font-weight: 700;
-            color: white; text-decoration: none;
-            background: var(--amber); padding: 0.5rem 1.2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(245,166,35,0.3);
-            transition: transform 0.18s, box-shadow 0.18s;
-            margin-left: 0.5rem; white-space: nowrap;
-        }
-        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(245,166,35,0.45); }
-
-        /* Language switcher */
-        .lang-switcher {
-            display: flex; align-items: center; gap: 0.3rem;
-            font-size: 0.85rem; font-weight: 600;
-            padding: 0.4rem 0.8rem; border-radius: 10px;
-            background: var(--cream-2); border: 1px solid var(--border);
-            color: var(--text-2); cursor: pointer; text-decoration: none;
-            transition: background 0.18s, border-color 0.18s;
-        }
-        .lang-switcher:hover { background: var(--amber-lt); border-color: rgba(245,166,35,0.3); }
-        /* Flag centered between logo and hamburger (mobile only — desktop sees it in nav-links) */
-        .lang-switcher--centered {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            padding: 0;
-            background: var(--cream-2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-2);
-            font-size: 1.1rem;
-            text-decoration: none;
-            flex-shrink: 0;
-            transition: background 0.18s;
-        }
-        .lang-switcher--centered:hover { background: var(--amber-lt); }
-
-        /* Hamburger */
-        .nav-hamburger {
-            display: none; background: none; border: none; cursor: pointer;
-            padding: 0.4rem; flex-direction: column; gap: 5px; z-index: 201;
-        }
-        .nav-hamburger span {
-            display: block; width: 24px; height: 2px;
-            background: var(--navy); border-radius: 2px;
-            transition: transform 0.28s ease, opacity 0.28s ease;
-        }
-        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-        .mobile-menu {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(253,250,244,0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 199; flex-direction: column;
-            padding: 0 1.2rem 1rem;
-            box-shadow: 0 8px 32px rgba(28,35,64,0.1);
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 18px;
-            transform: translateY(-100%); opacity: 0;
-            pointer-events: none;
-            transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
-            display: flex;
-        }
-        .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        .mobile-menu .mobile-menu-links {
-            display: flex; flex-direction: column; gap: 0.2rem; padding-top: 4.2rem;
-        }
-        .mobile-menu a {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.05rem; font-weight: 600;
-            color: var(--navy); text-decoration: none;
-            padding: 0.75rem 1rem; border-radius: 12px;
-            transition: background 0.18s; display: block;
-        }
-        .mobile-menu a:hover, .mobile-menu a:active { background: var(--amber-lt); }
-        .mobile-menu .mobile-cta {
-            background: var(--amber); color: white;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.4); margin-top: 0.4rem;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 8rem 2rem 5rem;
-            background: var(--cream);
-            position: relative; overflow: hidden;
-        }
-        /* Warm radial glow top-right */
-        .hero::before {
-            content: '';
-            position: absolute; top: -180px; right: -150px;
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(245,166,35,0.09) 0%, transparent 68%);
-            border-radius: 50%; pointer-events: none;
-        }
-        /* Soft sand bottom-left */
-        .hero::after {
-            content: '';
-            position: absolute; bottom: -60px; left: -140px;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(237,232,220,0.7) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none;
-        }
-
-        .hero-inner {
-            max-width: 1100px; margin: 0 auto; width: 100%;
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 4rem; align-items: center;
-            position: relative; z-index: 2;
-            min-width: 0;
-        }
-
-        .hero-text { min-width: 0; width: 100%; }
-
-        .hero-eyebrow {
-            display: inline-flex; align-items: center; gap: 0.45rem;
-            padding: 0.42rem 1rem;
-            background: var(--amber-lt);
-            border: 1px solid rgba(245,166,35,0.3);
-            border-radius: 50px;
-            font-size: 0.82rem; font-weight: 700;
-            color: var(--amber-dk);
-            margin-bottom: 1.4rem;
-            letter-spacing: 0.03em; text-transform: uppercase;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.4rem, 4.5vw, 3.8rem);
-            font-weight: 800; line-height: 1.08;
-            color: var(--navy);
-            margin-bottom: 1.4rem;
-        }
-        .hero h1 em {
-            font-style: italic; color: var(--amber-dk);
-        }
-
-        .hero-ingress {
-            font-size: clamp(1rem, 1.8vw, 1.1rem);
-            color: var(--text-2); max-width: 480px;
-            line-height: 1.8; margin-bottom: 2.2rem;
-        }
-
-        /* ===== MAGISK NATT — landing page ===================================== */
-        .landing-magic-bg {
-            background:
-                radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
-                radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
-                linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
-        }
-
-        /* Stars / clouds on the landing page */
-        #landing-stars-container,
-        #landing-clouds-container {
-            position: fixed; inset: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
-            overflow: hidden;
-        }
-
-        /* Nav on magical night — semi-transparent dark glass */
-        .landing-magic-bg nav {
-            background: rgba(15, 26, 61, 0.82) !important;
-            border-bottom-color: rgba(255,255,255,0.08) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-        .landing-magic-bg .logo-text { color: #fff !important; }
-        .landing-magic-bg .nav-link { color: rgba(255,255,255,0.75) !important; }
-        .landing-magic-bg .nav-link:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
-        .landing-magic-bg .nav-login-link { color: #fbbf24 !important; font-weight: 700 !important; }
-        .landing-magic-bg .nav-login-link:hover { background: rgba(255,255,255,0.08) !important; }
-        .landing-magic-bg .nav-tipsa-btn {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-            color: #1d1d1f !important;
-        }
-        .landing-magic-bg .nav-cta { background: var(--amber); color: #1d1d1f; }
-        .landing-magic-bg .lang-switcher { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
-        .landing-magic-bg .lang-switcher:hover { background: rgba(255,255,255,0.15); }
-        .landing-magic-bg .lang-switcher--centered { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); display: flex; }
-        .landing-magic-bg .nav-hamburger span { background: #fff; }
-        /* Nav Facebook icon text — make visible on dark bg */
-        .landing-magic-bg .nav-links a[style*="#1877F2"] { color: #93c5fd !important; }
-
-        /* Hero on magical night — stars overlay + gradient bg */
-        .landing-magic-bg .hero {
-            background: transparent;
-            position: relative;
-        }
-        .landing-magic-bg .hero::before,
-        .landing-magic-bg .hero::after { display: none; }
-        .landing-magic-bg .hero-inner { z-index: 2; }
-        .landing-magic-bg .hero-eyebrow {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.85);
-        }
-        .landing-magic-bg .hero h1 { color: #fff; }
-        .landing-magic-bg .hero-ingress { color: rgba(255,255,255,0.75); }
-
-        /* Founders CTA on dark bg */
-        .landing-magic-bg #founderCta {
-            background: rgba(255,255,255,0.08) !important;
-            border-color: rgba(251,191,36,0.4) !important;
-            box-shadow: 0 6px 24px rgba(0,0,0,0.3) !important;
-        }
-        .landing-magic-bg #founderCta strong,
-        .landing-magic-bg #founderCta p { color: rgba(255,255,255,0.85) !important; }
-        .landing-magic-bg #founderCta p { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg #founderCta li { color: rgba(255,255,255,0.6) !important; }
-
-        /* Secondary login link — hide on magical night (login cards are right there) */
-        .landing-magic-bg .hero-text > div[style*="margin-bottom:1.4rem;text-align:center;"] { display: none !important; }
-
-        /* ===== LOGIN CARDS SECTION — glass-morphism on dark bg ===== */
-        .login-cards-section {
-            width: 100%; max-width: 460px;
-            margin-bottom: 1.4rem;
-        }
-        .login-cards-tagline {
-            font-size: 0.75rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.12em;
-            color: rgba(255,255,255,0.55); margin-bottom: 0.9rem;
-        }
-        .login-cards-row {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;
-        }
-        .login-card {
-            display: flex; align-items: center; justify-content: flex-start;
-            text-decoration: none;
-            border-radius: 22px;
-            padding: 1.3rem 1.1rem;
-            min-height: 110px;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-            position: relative; overflow: hidden; cursor: pointer;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 2px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.07);
-            gap: 0.9rem;
-        }
-        .login-card:hover { transform: translateY(-4px); }
-        .login-card:active { transform: scale(0.97); }
-
-        .login-card-child {
-            background: rgba(147, 112, 219, 0.25);
-            border-color: rgba(167, 139, 250, 0.4);
-        }
-        .login-card-child:hover {
-            background: rgba(147, 112, 219, 0.38);
-            border-color: rgba(167, 139, 250, 0.65);
-            box-shadow: 0 8px 28px rgba(124, 58, 237, 0.35);
-        }
-
-        .login-card-parent {
-            background: rgba(251, 191, 36, 0.18);
-            border-color: rgba(251, 191, 36, 0.4);
-        }
-        .login-card-parent:hover {
-            background: rgba(251, 191, 36, 0.28);
-            border-color: rgba(251, 191, 36, 0.65);
-            box-shadow: 0 8px 28px rgba(245, 166, 35, 0.38);
-        }
-
-        .login-card-emoji { font-size: 2.2rem; line-height: 1; flex-shrink: 0; }
-        .login-card-text { display: flex; flex-direction: column; }
-        .login-card-label {
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem; font-weight: 700;
-            color: #fff; text-align: left;
-        }
-        .login-card-sub {
-            font-size: 0.72rem; font-weight: 500;
-            opacity: 0.65; margin-top: 0.2rem;
-            text-align: left; color: #fff; line-height: 1.3;
-        }
-        .login-card-text { display: contents; /* becomes flex column on mobile via override */ }
-
-        /* Testimonials on dark bg */
-        .landing-magic-bg .testimonials-section { max-width: 460px; }
-        .landing-magic-bg .testimonials-label { color: rgba(255,255,255,0.6); }
-        .landing-magic-bg .testimonial-card {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.1);
-            backdrop-filter: blur(8px);
-        }
-        .landing-magic-bg .testimonial-quote { color: rgba(255,255,255,0.7); }
-
-        /* ===== PWA CALLOUT — simplified to just text, no install steps ===== */
-        .landing-magic-bg .pwa-callout {
-            background: rgba(255,255,255,0.06) !important;
-            border-color: rgba(255,255,255,0.15) !important;
-            box-shadow: none !important;
-        }
-        .landing-magic-bg .pwa-callout-header { display: none; }
-        .landing-magic-bg .pwa-steps { display: none; }
-        .landing-magic-bg .pwa-callout-footer {
-            color: rgba(255,255,255,0.6) !important;
-            border-top-color: rgba(255,255,255,0.12) !important;
-            padding-top: 0.75rem;
-            font-size: 0.82rem;
-            text-align: center;
-        }
-        /* Show the simple text */
-        .landing-magic-bg .pwa-callout::after {
-            content: 'Snart tillgänglig som app på App Store och Google Play';
-            display: block;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.75);
-            padding: 0.5rem 0 0.2rem;
-        }
-
-        /* Mobile Facebook button on dark bg */
-        .landing-magic-bg #mobileFbBtn a { background: rgba(24,119,242,0.8) !important; }
-
-        /* Footer on magical night */
-        .landing-magic-bg .footer-cta-section { background: rgba(15,26,61,0.95) !important; }
-        .landing-magic-bg footer {
-            background: #0f1a3d !important;
-            border-top-color: rgba(255,255,255,0.06) !important;
-        }
-        .landing-magic-bg .footer-links a { color: rgba(255,255,255,0.45) !important; }
-        .landing-magic-bg .footer-links a:hover { color: rgba(255,255,255,0.8) !important; }
-        .landing-magic-bg .footer-copy { color: rgba(255,255,255,0.3) !important; }
-
-        /* Mobile FABs on dark bg */
-        .landing-magic-bg .landing-fab-hjalp { background: rgba(255,255,255,0.1); }
-        .landing-magic-bg .mobile-tipsa-fixed { background: linear-gradient(135deg,#fbbf24,#f59e0b); }
-
-        /* ===== LANDING NEWS CARDS — glass cards on dark bg ===== */
-        .landing-magic-bg #landingNewsGrid > div {
-            background: rgba(255,255,255,0.07) !important;
-            border-color: rgba(255,255,255,0.12) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
-        }
-        .landing-magic-bg #landingNewsGrid h3 { color: rgba(255,255,255,0.9) !important; }
-        .landing-magic-bg #landingNewsGrid p  { color: rgba(255,255,255,0.6) !important; }
-
-        /* ===== SECTIONS — dark glass overrides ===== */
-        .landing-magic-bg .section { background: rgba(15,26,61,0.6) !important; }
-        .landing-magic-bg .section-header { }
-        .landing-magic-bg .section-label { color: rgba(251,191,36,0.85) !important; }
-        .landing-magic-bg .section-title { color: #fff !important; }
-        .landing-magic-bg .section-subtitle { color: rgba(255,255,255,0.6) !important; }
-
-        .landing-magic-bg #problemet { background: rgba(15,26,61,0.7) !important; }
-        .landing-magic-bg .problem-lead {
-            background: rgba(255,255,255,0.06) !important;
-            border-left-color: rgba(251,191,36,0.5) !important;
-            color: rgba(255,255,255,0.8) !important;
-        }
-        .landing-magic-bg .problem-answer { color: rgba(255,255,255,0.6) !important; }
-
-        .landing-magic-bg #losning { background: rgba(15,26,61,0.5) !important; }
-        .landing-magic-bg .solution-card {
-            background: rgba(255,255,255,0.05) !important;
-            border-color: rgba(255,255,255,0.12) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
-        }
-        .landing-magic-bg .solution-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.35) !important; }
-        .landing-magic-bg .solution-card h3 { color: rgba(255,255,255,0.9) !important; }
-        .landing-magic-bg .solution-card p { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg .solution-icon { background: rgba(251,191,36,0.15) !important; }
-
-        .landing-magic-bg #screenshots { background: rgba(15,26,61,0.7) !important; }
-        .landing-magic-bg .screenshots-intro { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg .screenshots-subheader h3 { color: #fff !important; }
-        .landing-magic-bg .screenshots-subheader p { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg .screenshot-caption { color: rgba(255,255,255,0.6) !important; }
-
-        .landing-magic-bg #pedagogue-share { background: rgba(15,26,61,0.5) !important; }
-        .landing-magic-bg .pedagogue-share-content h2 { color: #fff !important; }
-        .landing-magic-bg .pedagogue-share-content > p { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg .pedagogue-bullets li strong { color: rgba(255,255,255,0.9) !important; }
-        .landing-magic-bg .pedagogue-bullets li span { color: rgba(255,255,255,0.55) !important; }
-        .landing-magic-bg .pedagogue-bullet-icon { background: rgba(251,191,36,0.15) !important; }
-        .landing-magic-bg .pedagogue-share-illustration-inner {
-            background: rgba(255,255,255,0.05) !important;
-            border-color: rgba(255,255,255,0.1) !important;
-        }
-        .landing-magic-bg .pedagogue-cta-secondary {
-            background: rgba(255,255,255,0.06) !important;
-            border-color: rgba(255,255,255,0.2) !important;
-            color: rgba(255,255,255,0.8) !important;
-        }
-        .landing-magic-bg .pedagogue-cta-secondary:hover { background: rgba(255,255,255,0.1) !important; border-color: rgba(251,191,36,0.5) !important; }
-
-        .landing-magic-bg #malgrupp { background: rgba(15,26,61,0.7) !important; }
-        .landing-magic-bg .target-body { color: rgba(255,255,255,0.6) !important; }
-        .landing-magic-bg .target-tag {
-            background: rgba(251,191,36,0.12) !important;
-            color: rgba(251,191,36,0.85) !important;
-            border-color: rgba(251,191,36,0.2) !important;
-        }
-        .landing-magic-bg .target-tag.purple {
-            background: rgba(147,112,219,0.12) !important;
-            color: rgba(167,139,250,0.85) !important;
-            border-color: rgba(147,112,219,0.2) !important;
-        }
-        .landing-magic-bg .faq-question {
-            background: rgba(255,255,255,0.05) !important;
-            border-color: rgba(255,255,255,0.1) !important;
-            color: rgba(255,255,255,0.85) !important;
-        }
-        .landing-magic-bg .faq-question:hover { background: rgba(251,191,36,0.08) !important; border-color: rgba(251,191,36,0.25) !important; }
-        .landing-magic-bg .faq-answer-inner {
-            background: rgba(255,255,255,0.03) !important;
-            border-color: rgba(251,191,36,0.15) !important;
-            color: rgba(255,255,255,0.65) !important;
-        }
-
-        .landing-magic-bg #faq { background: rgba(15,26,61,0.5) !important; }
-        .landing-magic-bg .faq-item.open .faq-question { border-color: rgba(251,191,36,0.3) !important; }
-
-        .landing-magic-bg #kontakt { background: rgba(15,26,61,0.6) !important; }
-        .landing-magic-bg .contact-form-card {
-            background: rgba(255,255,255,0.04) !important;
-            border-color: rgba(255,255,255,0.1) !important;
-        }
-        .landing-magic-bg .contact-form-card label { color: rgba(255,255,255,0.75) !important; }
-        .landing-magic-bg .contact-form-card input,
-        .landing-magic-bg .contact-form-card textarea {
-            background: rgba(255,255,255,0.06) !important;
-            border-color: rgba(255,255,255,0.12) !important;
-            color: #fff !important;
-        }
-        .landing-magic-bg .contact-form-card input::placeholder,
-        .landing-magic-bg .contact-form-card textarea::placeholder { color: rgba(255,255,255,0.35) !important; }
-        .landing-magic-bg .contact-form-card input:focus,
-        .landing-magic-bg .contact-form-card textarea:focus {
-            border-color: rgba(251,191,36,0.5) !important;
-            box-shadow: 0 0 0 3px rgba(251,191,36,0.08) !important;
-        }
-
-        /* Illustration on dark bg */
-        .landing-magic-bg .hero-illustration {
-            background: rgba(255,255,255,0.07) !important;
-            border-color: rgba(255,255,255,0.12) !important;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2) !important;
-        }
-        .landing-magic-bg .illus-logo { color: rgba(255,255,255,0.9) !important; }
-        .landing-magic-bg .illus-greeting { color: rgba(255,255,255,0.7) !important; }
-        .landing-magic-bg .illus-greeting strong { color: #fff !important; }
-        .landing-magic-bg .illus-card { background: rgba(255,255,255,0.06) !important; }
-        .landing-magic-bg .illus-progress { background: rgba(255,255,255,0.05) !important; }
-        .landing-magic-bg .illus-progress-label { color: rgba(255,255,255,0.65) !important; }
-
-        /* Dagens nyhet banner on dark bg */
-        .landing-magic-bg #dagensNyhetBanner {
-            background: rgba(28,35,64,0.9) !important;
-            border-bottom-color: rgba(251,191,36,0.4) !important;
-        }
-        .landing-magic-bg #dagensNyhetTitle { color: rgba(255,255,255,0.9) !important; }
-        .landing-magic-bg #dagensNyhetBody { color: rgba(255,255,255,0.6) !important; }
-
-        /* Mobile menu on dark bg */
-        .landing-magic-bg .mobile-menu { background: rgba(15,26,61,0.97) !important; }
-        .landing-magic-bg .mobile-menu a { color: rgba(255,255,255,0.8) !important; }
-        .landing-magic-bg .mobile-menu a:hover,
-        .landing-magic-bg .mobile-menu a:active { background: rgba(255,255,255,0.06) !important; }
-        .landing-magic-bg .mobile-menu .mobile-cta { background: rgba(251,191,36,0.8) !important; color: #1d1d1f !important; }
-
-        /* Hero illustration — hide child emoji on magic bg */
-        .landing-magic-bg .illus-child-figure { opacity: 0.6; }
-
-        /* Responsive: cards stack on mobile */
-        @media (max-width: 680px) {
-            .landing-magic-bg .login-cards-row { display: flex; flex-direction: column; }
-            .landing-magic-bg .login-card-child { order: 1; }
-            .landing-magic-bg .login-card-parent { order: 2; }
-            .landing-magic-bg .login-card { min-height: 88px; padding: 0.9rem 1rem; flex-direction: row; align-items: center; gap: 0.9rem; }
-            .landing-magic-bg .login-card-emoji { font-size: 1.9rem; margin-bottom: 0; }
-            .landing-magic-bg .login-card-text { display: flex; flex-direction: column; }
-            .landing-magic-bg .login-card-label { font-size: 0.92rem; text-align: left; }
-            .landing-magic-bg .login-card-sub { text-align: left; }
-        }
-
-        .hero-cta-hint {
-            font-size: 0.82rem; color: var(--text-3);
-            display: flex; align-items: center; gap: 0.4rem;
-        }
-        .hero-cta-hint a {
-            color: var(--amber-dk); font-weight: 600;
-            text-decoration: none; border-bottom: 1px solid var(--amber-mid);
-        }
-        .hero-cta-hint a:hover { color: var(--amber); }
-
-        /* ===== HERO ILLUSTRATION ===== */
-        .hero-visual {
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-        }
-
-        .hero-illustration {
-            width: 100%; max-width: 460px;
-            background: var(--white);
-            border-radius: 28px;
-            padding: 2.2rem 1.8rem;
-            box-shadow: 0 20px 60px rgba(28,35,64,0.1), 0 4px 16px rgba(28,35,64,0.05);
-            border: 1px solid var(--border);
-            position: relative;
-        }
-        .illus-example-badge {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            background: rgba(124, 58, 237, 0.12);
-            color: #7C3AED;
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            padding: 0.35rem 0.65rem;
-            border-radius: 999px;
-            border: 1px solid rgba(124, 58, 237, 0.22);
-        }
-
-        .illus-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 1.6rem;
-        }
-        .illus-logo {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-family: 'Fraunces', serif;
-            font-weight: 700; font-size: 0.95rem; color: var(--navy);
-        }
-        .illus-logo-dot {
-            width: 28px; height: 28px; background: var(--amber);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem;
-            box-shadow: 0 2px 8px rgba(245,166,35,0.4);
-        }
-        .illus-stars {
-            display: flex; align-items: center; gap: 0.3rem;
-            background: var(--amber-lt);
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.82rem; font-weight: 700; color: var(--amber-dk);
-        }
-
-        .illus-greeting {
-            font-size: 0.9rem; color: var(--text-2); margin-bottom: 1.4rem;
-        }
-        .illus-greeting strong { color: var(--navy); font-weight: 700; }
-
-        .illus-schedule {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem;
-            margin-bottom: 1.4rem;
-        }
-        .illus-card {
-            background: var(--cream-2);
-            border-radius: 14px; padding: 0.9rem 0.6rem;
-            text-align: center;
-            border: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-        .illus-card.active {
-            background: linear-gradient(135deg, #FFF8E6, var(--amber-lt));
-            border-color: var(--amber);
-        }
-        .illus-card-label {
-            font-size: 0.6rem; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            color: var(--text-3); margin-bottom: 0.4rem;
-        }
-        .illus-card-label.now { color: var(--amber-dk); }
-        .illus-card-icon { font-size: 1.7rem; margin-bottom: 0.3rem; line-height: 1; }
-        .illus-card-name {
-            font-family: 'Fraunces', serif;
-            font-size: 0.72rem; font-weight: 700; color: var(--navy);
-        }
-        .illus-card-badge {
-            display: inline-flex; align-items: center; gap: 0.2rem;
-            background: var(--amber); color: white;
-            font-size: 0.58rem; font-weight: 700;
-            padding: 0.18rem 0.5rem; border-radius: 20px;
-            margin-top: 0.3rem;
-        }
-
-        .illus-progress {
-            background: var(--cream-2); border-radius: 12px; padding: 0.9rem 1rem;
-        }
-        .illus-progress-label {
-            display: flex; justify-content: space-between;
-            font-size: 0.75rem; font-weight: 600; color: var(--text-2);
-            margin-bottom: 0.5rem;
-        }
-        .illus-progress-bar {
-            height: 8px; background: var(--sand);
-            border-radius: 10px; overflow: hidden;
-        }
-        .illus-progress-fill {
-            height: 100%; background: linear-gradient(90deg, var(--amber), #F5C842);
-            border-radius: 10px; width: 68%;
-            transition: width 1.5s ease;
-        }
-        .illus-progress-fill.green {
-            background: linear-gradient(90deg, var(--green), #34D399);
-            width: 42%;
-        }
-
-        .illus-child-figure {
-            position: absolute;
-            bottom: -10px; right: -16px;
-            font-size: 3.5rem;
-            filter: drop-shadow(0 4px 8px rgba(28,35,64,0.15));
-        }
-
-        /* ===== SECTIONS SHARED ===== */
-        .section { padding: 6rem 2rem; }
-        .section-inner { max-width: 1100px; margin: 0 auto; }
-        .section-header { text-align: center; margin-bottom: 3.5rem; }
-        .section-label {
-            display: inline-block;
-            font-size: 0.75rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.14em;
-            color: var(--amber-dk); margin-bottom: 0.8rem;
-        }
-        .section-title {
-            font-size: clamp(1.9rem, 3.8vw, 2.8rem);
-            font-weight: 800; color: var(--navy); line-height: 1.15;
-        }
-        .section-title em { font-style: italic; color: var(--amber-dk); }
-        .section-subtitle {
-            font-size: 1.05rem; color: var(--text-2); margin-top: 0.8rem;
-            max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.7;
-        }
-
-        /* ===== PROBLEM SECTION ===== */
-        #problemet { background: var(--cream-2); }
-
-        .problem-body { max-width: 760px; margin: 0 auto; }
-
-        .problem-lead {
-            font-size: clamp(1.1rem, 2vw, 1.25rem);
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            color: var(--navy); line-height: 1.7;
-            text-align: center; margin-bottom: 2.4rem;
-            padding: 1.8rem 2.4rem;
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            border-left: 4px solid var(--amber);
-            box-shadow: 0 4px 24px rgba(28,35,64,0.05);
-        }
-
-        .problem-answer {
-            font-size: 1rem; color: var(--text-2);
-            line-height: 1.8; text-align: center;
-        }
-
-        /* ===== SOLUTION SECTION ===== */
-        #losning { background: var(--cream); }
-
-        .solution-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-        }
-
-        .solution-card {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2rem 1.8rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(28,35,64,0.04);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            position: relative; overflow: hidden;
-        }
-        .solution-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, var(--amber), #F5C842);
-            opacity: 0; transition: opacity 0.2s;
-        }
-        .solution-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(28,35,64,0.09); }
-        .solution-card:hover::before { opacity: 1; }
-
-        .solution-icon {
-            width: 52px; height: 52px;
-            background: var(--amber-lt);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 1.2rem;
-        }
-        .solution-card h3 {
-            font-size: 1.08rem; font-weight: 700;
-            color: var(--navy); margin-bottom: 0.6rem;
-        }
-        .solution-card p {
-            font-size: 0.94rem; color: var(--text-2); line-height: 1.7;
-        }
-
-        /* ===== SCREENSHOTS SECTION ===== */
-        #screenshots { background: var(--white); }
-
-        .screenshots-intro {
-            text-align: center;
-            font-size: 1rem; color: var(--text-2); line-height: 1.75;
-            max-width: 680px; margin: 0 auto 3.5rem;
-        }
-
-        .screenshots-subheader { text-align: center; margin-bottom: 2.5rem; }
-        .screenshots-subheader h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 1.4rem; font-weight: 600; color: var(--navy); margin-bottom: 0.5rem;
-        }
-        .screenshots-subheader p {
-            font-size: 0.92rem; color: var(--text-2); line-height: 1.65;
-            max-width: 520px; margin: 0 auto;
-        }
-
-        .screenshots-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem; margin-bottom: 4rem;
-        }
-
-        .screenshot-card { display: flex; flex-direction: column; }
-
-        .screenshot-phone {
-            position: relative;
-            background: var(--navy);
-            border-radius: 36px;
-            padding: 10px;
-            box-shadow: 0 8px 32px rgba(28,35,64,0.12);
-            margin-bottom: 0.85rem;
-        }
-        .screenshot-phone img {
-            width: 100%; display: block; border-radius: 28px;
-            position: relative; z-index: 2;
-        }
-
-        .screenshot-caption {
-            text-align: center;
-            font-size: 0.85rem; color: var(--text-2); line-height: 1.55;
-        }
-
-        /* ===== PEDAGOGUE SHARING SECTION ===== */
-        #pedagogue-share { background: var(--cream); }
-
-        .pedagogue-share-layout {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 4rem; align-items: center;
-            max-width: 1100px; margin: 0 auto;
-        }
-
-        .pedagogue-share-content h2 {
-            font-size: clamp(1.6rem, 3vw, 2.2rem);
-            font-weight: 800; color: var(--navy); line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-        .pedagogue-share-content > p {
-            font-size: 1rem; color: var(--text-2); line-height: 1.75;
-            margin-bottom: 1.8rem;
-        }
-
-        .pedagogue-bullets { list-style: none; padding: 0; margin: 0 0 2rem; }
-        .pedagogue-bullets li {
-            display: flex; align-items: flex-start; gap: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        .pedagogue-bullet-icon {
-            flex-shrink: 0; width: 32px; height: 32px;
-            background: var(--amber-lt); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; margin-top: 0.1rem;
-        }
-        .pedagogue-bullets li strong {
-            display: block; font-size: 0.92rem; color: var(--navy); margin-bottom: 0.15rem;
-        }
-        .pedagogue-bullets li span {
-            display: block; font-size: 0.85rem; color: var(--text-2); line-height: 1.5;
-        }
-
-        .pedagogue-share-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-
-        .pedagogue-cta-primary {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.8rem 1.6rem; background: var(--amber);
-            color: white; font-weight: 700; font-size: 0.95rem;
-            border-radius: 12px; text-decoration: none;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .pedagogue-cta-primary:hover {
-            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.45);
-        }
-        .pedagogue-cta-secondary {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.8rem 1.6rem;
-            background: var(--white); color: var(--navy);
-            font-weight: 600; font-size: 0.95rem;
-            border-radius: 12px; text-decoration: none;
-            border: 1.5px solid var(--border);
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .pedagogue-cta-secondary:hover { border-color: var(--amber); background: var(--amber-lt); }
-
-        .pedagogue-share-illustration { text-align: center; }
-        .pedagogue-share-illustration-inner {
-            display: inline-block;
-            background: var(--white); border-radius: 20px;
-            padding: 1.5rem; box-shadow: 0 4px 24px rgba(28,35,64,0.07);
-            border: 1px solid var(--border);
-        }
-        .pedagogue-share-illustration-inner img {
-            max-width: 280px; height: auto;
-            border-radius: 14px;
-        }
-
-        @media (max-width: 900px) {
-            .screenshots-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
-            .screenshots-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 800px) {
-            .pedagogue-share-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-        }
-
-        /* ===== TARGET / FAQ ===== */
-        #malgrupp { background: var(--cream-2); }
-
-        .target-layout {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
-        }
-        .target-body {
-            font-size: 1rem; color: var(--text-2); line-height: 1.8;
-        }
-        .target-tags {
-            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.4rem;
-        }
-        .target-tag {
-            display: inline-flex;
-            padding: 0.38rem 0.9rem;
-            border-radius: 50px;
-            font-size: 0.8rem; font-weight: 600;
-            background: var(--amber-lt); color: var(--amber-dk);
-            border: 1px solid rgba(245,166,35,0.25);
-        }
-        .target-tag.purple {
-            background: var(--purple-lt); color: var(--purple);
-            border-color: rgba(107,63,160,0.2);
-        }
-
-        .faq-list { display: flex; flex-direction: column; gap: 0.8rem; }
-        .faq-item { }
-        .faq-question {
-            width: 100%; display: flex; align-items: center; justify-content: space-between;
-            gap: 1rem;
-            background: var(--white); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 1.1rem 1.4rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.96rem; font-weight: 600; color: var(--navy);
-            cursor: pointer; text-align: left;
-            transition: background 0.18s, border-color 0.18s;
-        }
-        .faq-question:hover { background: var(--amber-lt); border-color: rgba(245,166,35,0.3); }
-        .faq-icon {
-            font-size: 1.3rem; font-weight: 300; color: var(--amber);
-            flex-shrink: 0; transition: transform 0.25s ease;
-            line-height: 1;
-        }
-        .faq-answer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
-        }
-        .faq-item.open .faq-answer { max-height: 300px; }
-        .faq-item.open .faq-question { border-color: rgba(245,166,35,0.3); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        .faq-item.open .faq-icon { transform: rotate(45deg); }
-        .faq-answer-inner {
-            padding: 1rem 1.4rem 1.2rem;
-            background: var(--white);
-            border: 1px solid rgba(245,166,35,0.2);
-            border-top: none;
-            border-bottom-left-radius: var(--radius-lg);
-            border-bottom-right-radius: var(--radius-lg);
-            font-size: 0.93rem; color: var(--text-2); line-height: 1.75;
-        }
-
-        /* ===== CONTACT FORM ===== */
-        #kontakt { background: var(--cream); }
-
-        .contact-form-card {
-            max-width: 560px; margin: 0 auto;
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2.8rem 2.4rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 36px rgba(28,35,64,0.06);
-        }
-
-        .contact-form-card label {
-            display: block;
-            font-size: 0.85rem; font-weight: 600;
-            color: var(--navy); margin-bottom: 0.35rem;
-        }
-
-        .contact-form-card input,
-        .contact-form-card textarea {
-            width: 100%; padding: 0.75rem 1rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.95rem; color: var(--text);
-            background: var(--cream-2);
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            margin-bottom: 1.1rem;
-        }
-        .contact-form-card input:focus,
-        .contact-form-card textarea:focus {
-            border-color: var(--amber);
-            box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
-        }
-
-        .contact-form-card textarea {
-            resize: vertical; min-height: 120px;
-        }
-
-        .contact-submit-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            width: 100%; justify-content: center;
-            padding: 0.85rem 2rem;
-            background: var(--amber); color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem; font-weight: 700;
-            border: none; border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .contact-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,166,35,0.5); }
-        .contact-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .contact-success {
-            text-align: center; padding: 2rem 0;
-        }
-        .contact-success-icon { font-size: 2.8rem; margin-bottom: 0.8rem; }
-        .contact-success h3 {
-            font-size: 1.2rem; color: var(--navy); margin-bottom: 0.5rem;
-        }
-        .contact-success p {
-            font-size: 0.95rem; color: var(--text-2); line-height: 1.7;
-        }
-
-        .contact-error {
-            background: #FEF2F2; color: #B91C1C;
-            font-size: 0.88rem; font-weight: 500;
-            padding: 0.65rem 1rem; border-radius: 10px;
-            margin-bottom: 1rem; display: none;
-        }
-
-        /* ===== FOOTER CTA ===== */
-        .footer-cta-section {
-            background: var(--navy);
-            padding: 5rem 2rem;
-            text-align: center;
-        }
-        .footer-cta-section h2 {
-            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-            color: var(--white); margin-bottom: 1rem;
-        }
-        .footer-cta-section p {
-            color: rgba(255,255,255,0.65);
-            font-size: 1rem; margin-bottom: 2rem;
-        }
-        .btn-cta-scroll {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.95rem 2.2rem;
-            background: var(--amber); color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem; font-weight: 700;
-            text-decoration: none; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(245,166,35,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; border: none;
-        }
-        .btn-cta-scroll:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,166,35,0.55); }
-
-        /* ===== FOOTER ===== */
-        footer {
-            background: var(--navy);
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding: 2.5rem 2rem;
-            text-align: center;
-        }
-        .footer-links {
-            display: flex; align-items: center; justify-content: center; gap: 1.5rem;
-            margin-bottom: 0.8rem;
-        }
-        .footer-links a {
-            font-size: 0.85rem; color: rgba(255,255,255,0.45);
-            text-decoration: none; transition: color 0.18s;
-        }
-        .footer-links a:hover { color: rgba(255,255,255,0.8); }
-        .footer-copy {
-            font-size: 0.82rem; color: rgba(255,255,255,0.3);
-        }
-
-        /* ===== FOUNDER CTA BUTTON — ensure no overlap with text ===== */
-        #founderCtaBtn {
-            display: flex !important;
-            margin-top: 1rem !important;
-            clear: both;
-        }
-
-        /* ===== HIDDEN LEGACY SECTION ===== */
-        .child-login-section { display: none; }
-
-        /* ===== HIDDEN CTA ELEMENTS (mode-driven) ===== */
-
-        /* ===== SKATTKAMMAREN PROMO BADGE ===== */
-        .skatt-badge {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.5rem 1.2rem;
-            background: linear-gradient(135deg, #1DB97B, #16A366);
-            border-radius: 50px; color: white;
-            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em;
-            text-decoration: none;
-            box-shadow: 0 4px 16px rgba(29,185,123,0.35);
-            margin-bottom: 0.8rem;
-            transition: transform 0.18s, box-shadow 0.18s;
-        }
-        .skatt-badge:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(29,185,123,0.45); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 900px) {
-            .hero-inner { grid-template-columns: 1fr; gap: 3rem; }
-            .hero-illustration { max-width: 420px; }
-            .hero-ingress { max-width: 100%; }
-            .login-cards-section { max-width: 420px; }
-            .solution-grid { grid-template-columns: 1fr 1fr; }
-            .target-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-        }
-
-        @media (max-width: 680px) {
-            nav { padding: 1rem 1.2rem; }
-            .nav-links { display: none; }
-            .nav-hamburger { display: flex; }
-            .lang-switcher--centered { display: flex; }
-            /* Tighter hero padding so headline+cards fit above fold */
-            .hero { padding: 5.5rem 1rem 2.5rem; align-items: flex-start; }
-            .hero-inner { gap: 2rem; }
-            .hero h1 { font-size: 2rem; margin-bottom: 0.9rem; }
-            .hero-ingress { font-size: 0.94rem; margin-bottom: 1.2rem; max-width: 100%; }
-            .hero-eyebrow { margin-bottom: 0.9rem; }
-            /* Full-width hero blocks — prevents clipped CTA + empty right gutter */
-            .hero-text > #founderCta,
-            .hero-text > #landingNewsSection,
-            .login-cards-section,
-            .testimonials-section,
-            .pwa-callout { max-width: 100% !important; width: 100% !important; }
-            /* Mockup below fold on mobile — keeps focus on CTA, avoids overflow */
-            .hero-visual { display: none; }
-            /* Keep login cards large and prominent on mobile */
-            .login-cards-section { max-width: 100%; margin-bottom: 1rem; }
-            .login-cards-row { gap: 0.7rem; }
-            /* Mobile: stack cards vertically, child always first */
-            .login-cards-row { display: flex; flex-direction: column; }
-            .login-card-child { order: 1; }
-            .login-card-parent { order: 2; }
-            .login-card { min-height: 88px; padding: 1rem 1.2rem; flex-direction: row; align-items: center; justify-content: flex-start; gap: 1rem; }
-            .login-card-emoji { font-size: 2rem; margin-bottom: 0; flex-shrink: 0; }
-            .login-card-text { display: flex; flex-direction: column; align-items: flex-start; }
-            .login-card-label { font-size: 0.95rem; text-align: left; }
-            .login-card-sub { text-align: left; }
-            .solution-grid { grid-template-columns: 1fr; }
-            .section { padding: 4rem 1.4rem; }
-            .illus-schedule { gap: 0.5rem; }
-            .hero-illustration { padding: 1.6rem 1.2rem; }
-            /* Hide PWA callout on mobile to keep above-fold clean */
-            .pwa-callout { display: none; }
-            /* Hide Facebook button on mobile — it's in the hamburger menu */
-            #mobileFbBtn { display: none; }
-            /* Compact founder CTA on mobile — !important needed to override inline styles */
-            #founderCta { padding: 1rem 1rem !important; margin-bottom: 1rem !important; }
-            #founderCtaBtn { margin-top: 0.85rem !important; padding: 0.7rem 1rem !important; font-size: 0.85rem !important; }
-            #familyCounter { margin-top: 0.6rem !important; padding-top: 0.6rem !important; }
-            #counterLabel { font-size: 0.72rem !important; }
-            /* Footer + sticky Tipsa — safe area, inga FABs som skymmer innehåll */
-            .landing-fab-kontakt,
-            .landing-fab-hjalp { display: none !important; }
-            .mobile-tipsa-fixed {
-                bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-                left: 16px;
-                right: 16px;
-                width: auto;
-                max-width: none;
-                transform: none;
-                justify-content: center;
-            }
-            .mobile-tipsa-fixed:hover {
-                transform: translateY(-2px);
-            }
-            .footer-cta-section {
-                padding-bottom: calc(5rem + 4.5rem + env(safe-area-inset-bottom, 0px));
-            }
-            footer {
-                padding-bottom: calc(2.5rem + 4.5rem + env(safe-area-inset-bottom, 0px));
-            }
-            .footer-links {
-                flex-wrap: wrap;
-                gap: 0.75rem 1.25rem;
-            }
-            html { scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
-        }
-
-        @media (max-width: 400px) {
-            .login-card { min-height: 108px; padding: 1rem 0.7rem; }
-            .login-card-emoji { font-size: 1.75rem; }
-            .login-card-label { font-size: 0.8rem; }
-        }
-
-        /* ===== PWA INSTALL CALLOUT ===== */
-        .pwa-callout {
-            width: 100%; max-width: 460px;
-            margin: 1.2rem 0 0.6rem;
-            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-            border: 1.5px solid var(--amber-mid);
-            border-radius: var(--radius-lg);
-            padding: 1.25rem 1.3rem 1.1rem;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.12);
-        }
-        .pwa-callout-header {
-            display: flex; align-items: center; gap: 0.55rem;
-            margin-bottom: 0.75rem;
-        }
-        .pwa-callout-icon {
-            font-size: 1.4rem; line-height: 1; flex-shrink: 0;
-        }
-        .pwa-callout-title {
-            font-family: 'Fraunces', serif;
-            font-size: 0.97rem; font-weight: 700;
-            color: var(--navy); line-height: 1.2;
-        }
-        .pwa-callout-badge {
-            font-size: 0.67rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            background: var(--amber); color: white;
-            padding: 0.18rem 0.55rem; border-radius: 50px;
-            margin-left: auto; flex-shrink: 0;
-            white-space: nowrap;
-        }
-        .pwa-steps {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
-            margin-bottom: 0.85rem;
-        }
-        .pwa-step {
-            background: rgba(255,255,255,0.75);
-            border-radius: 12px; padding: 0.7rem 0.75rem;
-            border: 1px solid rgba(245,166,35,0.2);
-        }
-        .pwa-step-label {
-            font-size: 0.7rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.06em;
-            color: var(--amber-dk); margin-bottom: 0.35rem;
-            display: flex; align-items: center; gap: 0.3rem;
-        }
-        .pwa-step-items {
-            font-size: 0.75rem; color: var(--text-2); line-height: 1.6;
-        }
-        .pwa-step-items li { list-style: none; padding: 0; }
-        .pwa-step-items li::before {
-            content: '→ '; color: var(--amber-dk); font-weight: 600;
-        }
-        .pwa-callout-footer {
-            font-size: 0.73rem; color: var(--text-2); line-height: 1.55;
-            padding-top: 0.65rem; border-top: 1px solid var(--amber-mid);
-        }
-        .pwa-callout-footer strong { color: var(--navy); font-weight: 600; }
-
-        /* ===== TESTIMONIALS ===== */
-        .testimonials-section {
-            width: 100%;
-            max-width: 460px;
-            margin-top: 1.4rem;
-        }
-        .testimonials-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--amber-dk);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.8rem;
-            text-align: center;
-        }
-        .testimonials-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.7rem;
-        }
-        .testimonial-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.9rem 1.1rem;
-            box-shadow: 0 2px 8px rgba(28,35,64,0.04);
-        }
-        .testimonial-quote {
-            font-size: 0.88rem;
-            color: var(--text-2);
-            line-height: 1.65;
-            font-style: italic;
-        }
-        .testimonial-quote::before { content: '❝ '; }
-        .testimonial-quote::after { content: ''; }
-
-        @media (max-width: 500px) {
-            .pwa-steps { grid-template-columns: 1fr; }
-            .pwa-callout { padding: 1rem 1rem 0.9rem; }
-        }
-
-        /* ===== LOGIN LINK — visible on all screen sizes ===== */
-        .nav-login-link { color: var(--amber-dk) !important; font-weight: 700 !important; }
-        .nav-login-link:hover { background: var(--amber-lt) !important; }
-
-        /* ===== TIPSA NAV BUTTON — prominent CTA style ===== */
-        .nav-tipsa-btn {
-            color: white !important;
-            font-weight: 700 !important;
-            background: linear-gradient(135deg, #F5A623, #D4891A) !important;
-            padding: 0.5rem 1.1rem !important;
-            border-radius: 10px !important;
-            box-shadow: 0 2px 10px rgba(245,166,35,0.35);
-            animation: tipsa-glow 2s ease-in-out 3;
-            transition: transform 0.18s, box-shadow 0.18s;
-        }
-        .nav-tipsa-btn:hover {
-            background: linear-gradient(135deg, #D4891A, #B5730F) !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(245,166,35,0.5) !important;
-        }
-        @keyframes tipsa-glow {
-            0%, 100% { box-shadow: 0 2px 10px rgba(245,166,35,0.35); }
-            50% { box-shadow: 0 0 12px 4px rgba(245,166,35,0.55); }
-        }
-
-        /* ===== MOBILE TIPSA STICKY BUTTON (visible without hamburger) ===== */
-        .mobile-tipsa-fixed {
-            display: none;
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9998;
-            background: linear-gradient(135deg, #F5A623, #D4891A);
-            color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.92rem;
-            font-weight: 700;
-            padding: 0.75rem 1.6rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 6px 24px rgba(245,166,35,0.45);
-            text-decoration: none;
-            animation: tipsa-float 2.5s ease-in-out 3;
-            transition: transform 0.18s, box-shadow 0.18s;
-        }
-        .mobile-tipsa-fixed:hover {
-            transform: translateX(-50%) translateY(-2px);
-            box-shadow: 0 8px 30px rgba(245,166,35,0.6);
-        }
-        @keyframes tipsa-float {
-            0%, 100% { box-shadow: 0 6px 24px rgba(245,166,35,0.45); }
-            50% { box-shadow: 0 6px 28px rgba(245,166,35,0.7); }
-        }
-
-        @media (max-width: 680px) {
-            .mobile-tipsa-fixed { display: flex !important; align-items: center; gap: 0.4rem; }
-        }
-
-        /* ===== FLOATING BOTTOM-RIGHT BUTTONS ===== */
-        .landing-fab {
-            position: fixed;
-            right: 24px;
-            z-index: 9999;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 16px rgba(28,35,64,0.18);
-            text-decoration: none;
-            color: white;
-        }
-        .landing-fab:hover {
-            transform: scale(1.08);
-        }
-        .landing-fab:active {
-            transform: scale(0.95);
-        }
-        /* Kontakt button — bottom position */
-        .landing-fab-kontakt {
-            bottom: 24px;
-            background: linear-gradient(135deg, #F5A623, #e6951a);
-            box-shadow: 0 4px 16px rgba(245,166,35,0.4);
-        }
-        /* Hjälp button — stacked above Kontakt with 16px gap */
-        .landing-fab-hjalp {
-            bottom: 92px;
-            background: var(--navy);
-        }
-
-        /* ===== SHARE POPUP (desktop fallback) ===== */
-        .share-popup-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(28,35,64,0.45);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        .share-popup-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 1.8rem 1.6rem 1.4rem;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(28,35,64,0.2);
-            animation: sharePopupIn 0.25s ease-out;
-        }
-        @keyframes sharePopupIn {
-            from { opacity: 0; transform: translateY(12px) scale(0.96); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .share-popup-header {
-            display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem;
-        }
-        .share-popup-header strong { flex: 1; font-size: 1rem; color: var(--navy); }
-        .share-popup-close {
-            background: var(--cream-2); border: 1.5px solid var(--border); font-size: 1.5rem; color: var(--navy);
-            cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 10px; line-height: 1;
-            min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center;
-        }
-        .share-popup-close:hover { background: #FEE2E2; color: #DC2626; border-color: #FCA5A5; }
-        .share-popup-text {
-            font-size: 0.88rem; color: var(--text-2); line-height: 1.65;
-            margin-bottom: 1.2rem; padding: 0.8rem 1rem;
-            background: var(--cream); border-radius: 12px; border: 1px solid var(--border);
-        }
-        .share-popup-text a { color: var(--amber-dk); font-weight: 600; text-decoration: none; }
-        .share-popup-actions { display: flex; flex-direction: column; gap: 0.5rem; }
-        .share-popup-btn {
-            display: flex; align-items: center; gap: 0.6rem;
-            padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.92rem;
-            font-weight: 600; cursor: pointer; border: 1.5px solid var(--border);
-            background: #fff; color: var(--navy); text-decoration: none;
-            transition: background 0.15s, border-color 0.15s;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .share-popup-btn:hover { background: var(--amber-lt); border-color: var(--amber); }
-        .share-popup-btn span { font-size: 1.1rem; flex-shrink: 0; }
-
-    </style>
-
-    <!-- ===== SCHEMA.ORG JSON-LD ===== -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Min Stjärndag",
-      "url": "https://mystarday.se",
-      "applicationCategory": "LifestyleApplication",
-      "operatingSystem": "Web (PWA)",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "SEK"
-      },
-      "description": "Visuellt dagsschema för barn med stjärnbelöningar som gör rutiner lugna och motiverande.",
-      "inLanguage": "sv"
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Min Stjärndag",
-      "url": "https://mystarday.se"
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Vad är Min Stjärndag?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Ett visuellt dagsschema för barn med stjärnbelöningar som gör rutiner lugna och motiverande."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Kostar det något?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "De första 200 familjerna som registrerar sig får det kostnadsfritt — obegränsat antal barn, livstids tillgång som grundarmedlem."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Vilka åldrar passar det för?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Från förskola och uppåt."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Hur skapar jag ett schema åt mitt barn?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "En guide (wizard) leder dig igenom allt vid start. Det finns färdiga scheman, aktiviteter och belöningar att välja bland — men du kan enkelt skapa egna också."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Hur loggar barnet in?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Du skapar ett barnkonto i föräldrapanelen. Barnet får en egen vy med sitt schema."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Vad händer med stjärnorna om vi missar en dag?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Ingenting negativt! Stjärnorna finns kvar. Min Stjärndag bygger på motivation, inte bestraffning."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Hur installerar jag appen?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Min Stjärndag är en webapp (PWA) som du installerar direkt från webbläsaren. På iPhone: öppna i Safari → Dela → Lägg till på hemskärmen. På Android: Chrome visar en installationsruta automatiskt."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Varför finns den inte i App Store?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Min Stjärndag är en PWA (Progressive Web App) som fungerar precis som en vanlig app men installeras via webbläsaren. Ingen nedladdning behövs."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Fungerar det på min telefon?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Ja! Det fungerar på alla moderna webbläsare — iPhone, Android och dator."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Hur fungerar stjärnsystemet?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Barnet bockar av aktiviteter i sitt schema och tjänar stjärnor. Stjärnorna kan sedan bytas mot belöningar som ni bestämmer tillsammans."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Kan barnet använda appen själv?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Ja! Barnet har en egen inloggning med ett visuellt schema anpassat för barn. Föräldern styr alla inställningar."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Kan vi anpassa schemat?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Helt fritt! Skapa egna aktiviteter, sätt tider, lägg till belöningar. Det finns också färdiga mallar att utgå från."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Är det säkert för mitt barn?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Absolut. Ingen reklam, inga sociala funktioner, ingen spårning. Föräldern styr allt."
-          }
-        }
-      ]
-    }
-    </script>
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
+  <script src="/js/marketing-events.js?v=2.13.2"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Min Stjärndag",
+    "url": "https://mystarday.se",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web (PWA)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SEK" },
+    "description": "Visuellt dagsschema för barn med stjärnbelöningar som gör rutiner lugna och motiverande.",
+    "inLanguage": "sv"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Vad kostar Min Stjärndag?", "acceptedAnswer": { "@type": "Answer", "text": "De första 200 familjerna får Basic gratis som grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen." }},
+      { "@type": "Question", "name": "Är det här rätt för barn med ADHD eller autism?", "acceptedAnswer": { "@type": "Answer", "text": "Min Stjärndag är inte byggd kring en diagnos, men passar ofta bra för barn som behöver tydlig struktur, bildstöd, förutsägbarhet eller mer motivation i vardagen." }},
+      { "@type": "Question", "name": "Vad händer med stjärnorna om vi missar en dag?", "acceptedAnswer": { "@type": "Answer", "text": "Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld." }},
+      { "@type": "Question", "name": "Kan flera vuxna använda appen tillsammans?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur." }},
+      { "@type": "Question", "name": "Måste mitt barn kunna läsa?", "acceptedAnswer": { "@type": "Answer", "text": "Nej, tanken är att barnet ska kunna förstå så mycket som möjligt visuellt och steg för steg." }},
+      { "@type": "Question", "name": "Behöver jag ladda ner appen?", "acceptedAnswer": { "@type": "Answer", "text": "Nej. Min Stjärndag fungerar direkt i mobilen och kan läggas till på hemskärmen så att den känns som en app." }}
+    ]
+  }
+  </script>
 </head>
-<body class="platform-web landing-magic-bg" style="font-family:'Plus Jakarta Sans',sans-serif;overflow-x:clip;">
+<body class="platform-web">
 
-  <!-- Stars (platform-web only) -->
-  <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
-  <!-- Clouds (platform-web only) -->
-  <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+<div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+<div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 
-<!-- ===== NAV ===== -->
-<nav>
-    <a href="/" class="logo">
-        <div class="logo-star">⭐</div>
-        <span class="logo-text">Min Stjärndag</span>
-    </a>
-    <div class="nav-links">
-        <a href="#problemet" class="nav-link">Vardagen</a>
-        <a href="#losning" class="nav-link">Funktioner</a>
-        <a href="#program" class="nav-link">Program</a>
-        <a href="#malgrupp" class="nav-link">Om appen</a>
-        <a href="/pedagoger-och-terapeuter" class="nav-link">För pedagoger &amp; terapeuter</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="#kontakt" class="nav-link">Kontakt</a>
-        <a href="https://facebook.com/mystarday" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:#1877F2;font-weight:700;" title="Följ oss på Facebook">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2" style="display:inline;vertical-align:text-bottom;margin-right:3px;" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-            Facebook
-        </a>
-        <a href="/login" class="nav-link nav-login-link" style="font-weight:700;color:var(--amber-dk);">Logga in</a>
-        <a href="#" class="nav-link nav-tipsa-btn" onclick="event.preventDefault();handleLandingShare();" title="Tipsa en familj om Min Stjärndag!">🌟 Tipsa</a>
-        <a href="/skattkammaren" class="nav-cta">🏆 Skattkammaren</a>
+<!-- Dagens nyhet banner -->
+<div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid #F5A623;padding:0.6rem 1.5rem;position:fixed;left:0;right:0;z-index:195;top:0;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <div style="flex:1;min-width:0;">
+      <span id="dagensNyhetTitle" style="font-family:'Fraunces',serif;font-weight:700;color:#1C2340;font-size:0.95rem;margin-right:0.5rem;"></span>
+      <span id="dagensNyhetBody" style="color:#5A6178;font-size:0.88rem;"></span>
     </div>
-    <!-- Flag centered between logo and hamburger -->
-    <a href="/en" class="lang-switcher lang-switcher--centered" title="English version">🇬🇧</a>
-    <button class="nav-hamburger" id="navHamburger" aria-label="Öppna meny" aria-expanded="false">
-        <span></span><span></span><span></span>
+    <span id="dagensNyhetDate" style="color:#8A92AA;font-size:0.78rem;flex-shrink:0;"></span>
+    <button id="dagensNyhetClose" type="button" style="background:none;border:none;cursor:pointer;color:#8A92AA;font-size:1.2rem;" title="Stäng" aria-label="Stäng">✕</button>
+  </div>
+</div>
+<div id="dagensNyhetSpacer" style="height:0;"></div>
+
+<nav class="landing-nav" aria-label="Huvudnavigation">
+  <a href="/" class="landing-nav__logo">
+    <span class="landing-nav__star" aria-hidden="true">⭐</span>
+    <span class="landing-nav__name">Min Stjärndag</span>
+  </a>
+  <div class="landing-nav__links">
+    <a href="#sa-fungerar-det" class="landing-nav__link">Så fungerar det</a>
+    <a href="#for-vilka" class="landing-nav__link">För familjer som behöver struktur</a>
+    <a href="#skattkammaren" class="landing-nav__link">Skattkammaren</a>
+    <a href="/pedagoger-och-terapeuter" class="landing-nav__link">För pedagoger &amp; terapeuter</a>
+    <a href="#faq" class="landing-nav__link">FAQ</a>
+  </div>
+  <div class="landing-nav__actions">
+    <a href="/login" class="landing-nav__login" data-track="nav_login_click">Logga in</a>
+    <a href="/register" class="btn-primary" data-track="nav_signup_click">Skapa konto gratis</a>
+    <a href="/en" class="landing-nav__lang" title="English version" aria-label="English">🇬🇧</a>
+    <button type="button" class="landing-nav__hamburger" id="navHamburger" aria-label="Öppna meny" aria-expanded="false">
+      <span></span><span></span><span></span>
     </button>
+  </div>
 </nav>
 
-<!-- Mobile dropdown menu -->
-<div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobilmeny">
-    <div class="mobile-menu-links">
-        <a href="#problemet" onclick="closeMobileMenu()">Vardagen</a>
-        <a href="#losning" onclick="closeMobileMenu()">Funktioner</a>
-        <a href="#program" onclick="closeMobileMenu()">Program</a>
-        <a href="#malgrupp" onclick="closeMobileMenu()">Om appen</a>
-        <a href="/pedagoger-och-terapeuter" onclick="closeMobileMenu()">För pedagoger &amp; terapeuter</a>
-        <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
-        <a href="#kontakt" onclick="closeMobileMenu()">Kontakt</a>
-        <a href="/skattkammaren" class="mobile-cta" onclick="closeMobileMenu()">🏆 Skattkammaren</a>
-        <a href="/login" onclick="closeMobileMenu()" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin:0.5rem 0;padding:0.85rem 1.4rem;background:linear-gradient(135deg,#F5A623,#D4891A);color:white;font-weight:800;font-size:0.95rem;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(245,166,35,0.38);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="flex-shrink:0;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            Logga in
-        </a>
-        <a href="#" onclick="event.preventDefault();closeMobileMenu();handleLandingShare();" style="color:#F5A623;font-weight:700;">🌟 Tipsa en familj!</a>
-        <a href="/en" onclick="closeMobileMenu()" aria-label="English version">
-            <svg width="20" height="20" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="vertical-align:middle;">
-                <rect width="60" height="60" fill="#0052A4"/>
-                <rect x="0" y="22" width="60" height="16" fill="#F1B24B"/>
-                <rect x="22" y="0" width="16" height="60" fill="#F1B24B"/>
-            </svg>
-        </a>
-        <a href="https://facebook.com/mystarday" target="_blank" rel="noopener noreferrer" onclick="closeMobileMenu()" style="color:#1877F2;font-weight:700;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2" style="display:inline;vertical-align:text-bottom;margin-right:4px;" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-            Följ oss på Facebook
-        </a>
-    </div>
+<div class="landing-mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobilmeny">
+  <a href="#sa-fungerar-det">Så fungerar det</a>
+  <a href="#for-vilka">För familjer som behöver struktur</a>
+  <a href="#skattkammaren">Skattkammaren</a>
+  <a href="/pedagoger-och-terapeuter">För pedagoger &amp; terapeuter</a>
+  <a href="#faq">FAQ</a>
+  <a href="/login">Logga in</a>
+  <a href="/register" class="btn-primary" style="text-align:center;margin-top:0.5rem;" data-track="nav_signup_click">Skapa konto gratis</a>
+  <a href="/en">🇬🇧 English</a>
 </div>
 
-<!-- ===== DAGENS NYHET BANNER ===== -->
-<!-- Banner is position:fixed so it always clears the sticky nav on all viewport sizes.
-     JS positions it below the nav by reading nav.offsetHeight at runtime.
-     When visible, a spacer div shifts the hero down so content isn't hidden. -->
-<div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid var(--amber);padding:0.6rem 2rem;position:fixed;left:0;right:0;z-index:195;">
-    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-        <span style="font-size:1.1rem;flex-shrink:0;">📢</span>
-        <div style="flex:1;min-width:0;">
-            <span id="dagensNyhetTitle" style="font-family:'Fraunces',serif;font-weight:700;color:var(--navy);font-size:0.95rem;margin-right:0.5rem;"></span>
-            <span id="dagensNyhetBody" style="color:var(--text-2);font-size:0.88rem;"></span>
-        </div>
-        <span id="dagensNyhetDate" style="color:var(--text-3);font-size:0.78rem;flex-shrink:0;white-space:nowrap;"></span>
-        <button id="dagensNyhetClose" style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:1.2rem;padding:0 0.2rem;flex-shrink:0;" title="Stäng">✕</button>
-    </div>
+<!-- Admin landing news (server-injected) -->
+<div id="landingNewsSection" style="display:none;padding-top:5rem;">
+  <div id="landingNewsGrid" style="display:flex;flex-direction:column;gap:0.8rem;"></div>
 </div>
-<!-- Spacer that compensates for the fixed banner height so hero content isn't hidden -->
-<div id="dagensNyhetSpacer" style="height:0;"></div>
-<script>
-(function() {
-    function positionBanner() {
-        var nav = document.querySelector('nav');
-        var banner = document.getElementById('dagensNyhetBanner');
-        var spacer = document.getElementById('dagensNyhetSpacer');
-        if (!nav || !banner || banner.style.display === 'none') return;
-        var navH = nav.offsetHeight;
-        banner.style.top = navH + 'px';
-        spacer.style.height = banner.offsetHeight + 'px';
-    }
 
-    function showBanner(data) {
-        var banner = document.getElementById('dagensNyhetBanner');
-        document.getElementById('dagensNyhetTitle').textContent = data.title;
-        document.getElementById('dagensNyhetBody').textContent = data.body;
-        var dateEl = document.getElementById('dagensNyhetDate');
-        if (data.published_at) {
-            var d = new Date(data.published_at);
-            dateEl.textContent = isNaN(d.getTime())
-                ? ''
-                : d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-        } else {
-            dateEl.textContent = '';
-        }
-        banner.style.display = 'block';
-        // Position after making visible so offsetHeight is available
-        requestAnimationFrame(positionBanner);
-    }
+<!-- Legacy anchor aliases -->
+<span id="losning" class="anchor-alias" aria-hidden="true"></span>
+<span id="program" class="anchor-alias" aria-hidden="true"></span>
+<span id="malgrupp" class="anchor-alias" aria-hidden="true"></span>
+<span id="kontakt" class="anchor-alias" aria-hidden="true"></span>
+<span id="problemet" class="anchor-alias" aria-hidden="true"></span>
 
-    document.getElementById('dagensNyhetClose').addEventListener('click', function() {
-        var banner = document.getElementById('dagensNyhetBanner');
-        var spacer = document.getElementById('dagensNyhetSpacer');
-        banner.style.display = 'none';
-        spacer.style.height = '0';
-    });
-
-    // Reposition on resize (e.g. font-size scaling changes nav height)
-    window.addEventListener('resize', positionBanner);
-
-    fetch('/api/dagens-nyhet/active')
-        .then(function(r) { return r.status === 204 ? null : r.json(); })
-        .then(function(data) {
-            if (!data) return;
-            showBanner(data);
-        })
-        .catch(function() { /* silent: banner is non-critical */ });
-})();
-</script>
-
-<!-- ===== HERO ===== -->
-<section class="hero" id="toppen">
-    <div class="hero-inner">
-
-        <!-- Left: text + login cards -->
-        <div class="hero-text">
-            <span class="hero-eyebrow">⭐ Min Stjärndag</span>
-
-            <h1>Skattkammaren –<br><em>där motivationen bor</em></h1>
-
-            <p class="hero-ingress">
-                Ett visuellt schema och digitalt bildstöd som hjälper barn att förstå dagen, följa rutiner och bli mer självständiga – hemma, i skolan och i samarbetet mellan familj och pedagoger.
-            </p>
-
-            <!-- ===== Lanseringserbjudande ===== -->
-            <div id="founderCta" style="width:100%;max-width:460px;margin-bottom:1.4rem;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border:2px solid #F5A623;border-radius:18px;padding:1.2rem 1.4rem;box-shadow:0 6px 24px rgba(245,166,35,0.18);">
-                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.7rem;">
-                    <span style="font-size:1.4rem;">🎁</span>
-                    <strong style="font-family:'Fraunces',serif;font-size:1.05rem;color:#1C2340;line-height:1.2;">Grundarprogrammet</strong>
-                </div>
-                <p style="font-size:0.88rem;color:#1C2340;font-weight:600;margin-bottom:0.85rem;">De första <span id="founderLimitHero">200</span> familjerna får <strong style="color:#1C2340;">livstids tillgång utan kostnad</strong> — som grundarmedlemmar.</p>
-                <p style="font-size:0.8rem;color:#5A6178;margin:-0.4rem 0 0.85rem;"><a href="/pricing-info" style="color:#D4891A;font-weight:700;text-decoration:none;">Läs om tillgång och vad som ingår →</a></p>
-                <ul style="list-style:none;padding:0;margin:0 0 1rem 0;display:flex;flex-direction:column;gap:0.45rem;">
-                    <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
-                        <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
-                        <span><strong style="color:#1C2340;">Hela familjen:</strong> Gäller för ett obegränsat antal barn</span>
-                    </li>
-                    <li style="display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#5A6178;">
-                        <span style="color:#1DB97B;font-weight:700;flex-shrink:0;line-height:1.4;">✓</span>
-                        <span><strong style="color:#1C2340;">Alla funktioner:</strong> Scheman, stjärnor och belöningar ingår</span>
-                    </li>
-                </ul>
-                <a href="/register" id="founderCtaBtn" style="display:flex;align-items:center;justify-content:center;gap:0.45rem;margin-bottom:0.6rem;padding:0.85rem 1.6rem;background:linear-gradient(135deg,#F5A623,#D4891A);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;border-radius:14px;text-decoration:none;box-shadow:0 5px 18px rgba(245,166,35,0.48);transition:transform 0.18s,box-shadow 0.18s;position:relative;z-index:1;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(245,166,35,0.6)';" onmouseout="this.style.transform='';this.style.boxShadow='0 5px 18px rgba(245,166,35,0.48)';">
-                    Starta kostnadsfritt konto →
-                </a>
-                <p style="font-size:0.75rem;color:#5A6178;margin:0;">Kostnadsfritt för grundarmedlemmar · obegränsat antal barn</p>
-            </div>
-
-            <!-- ===== LANDING NEWS — inline between Lanseringserbjudande and login ===== -->
-            <div id="landingNewsSection" style="display:none;width:100%;max-width:460px;margin-bottom:1.4rem;">
-                <div id="landingNewsGrid" style="display:flex;flex-direction:column;gap:0.8rem;"></div>
-            </div>
-
-            <!-- Secondary login link — for returning parents -->
-            <div style="margin-bottom:1.4rem;text-align:center;">
-                <a href="/login" style="font-size:0.88rem;color:var(--text-2);font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;" onmouseover="this.style.color='var(--amber-dk)'" onmouseout="this.style.color='var(--text-2)'">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-                    Har du redan ett konto? Logga in
-                </a>
-            </div>
-
-            <!-- ===== Login Cards — above the fold ===== -->
-            <div class="login-cards-section">
-                <p class="login-cards-tagline">Logga in direkt</p>
-                <div class="login-cards-row">
-                    <!-- Child card — LEFT (always first on mobile) -->
-                    <a href="/child-login" class="login-card login-card-child" aria-label="Barnets inloggning">
-                        <span class="login-card-emoji">🌟</span>
-                        <span class="login-card-text">
-                            <span class="login-card-label">Logga in som barn</span>
-                            <span class="login-card-sub">Namn + PIN-kod</span>
-                        </span>
-                    </a>
-                    <!-- Parent card — RIGHT (second on mobile) -->
-                    <a href="/login" class="login-card login-card-parent" aria-label="Föräldrarnas inloggning">
-                        <span class="login-card-emoji" style="position:relative;display:inline-block;">
-                            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.18)"/>
-                                <!-- Gear -->
-                                <path d="M18 11.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z" fill="white" opacity="0.9"/>
-                                <path d="M16.5 9h3v2.5h-3zM16.5 24.5h3V27h-3zM9 16.5h2.5v3H9zM24.5 16.5H27v3h-2.5zM11.4 11.4l1.76 1.77-1.76 1.77-1.77-1.77zM22.83 22.83l1.77 1.77-1.77 1.77-1.77-1.77zM22.83 13.17l1.77-1.77 1.77 1.77-1.77 1.77zM11.4 24.6l1.77-1.77 1.77 1.77-1.77 1.77z" fill="white" opacity="0.7"/>
-                                <!-- Lock badge bottom-right -->
-                                <rect x="22" y="22" width="12" height="12" rx="6" fill="#D4891A"/>
-                                <path d="M26 26.5v-.8a2 2 0 1 1 4 0v.8M25.3 26.5h5.4a.7.7 0 0 1 .7.7v2.6a.7.7 0 0 1-.7.7h-5.4a.7.7 0 0 1-.7-.7v-2.6a.7.7 0 0 1 .7-.7z" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-                            </svg>
-                        </span>
-                        <span class="login-card-text">
-                            <span class="login-card-label">Logga in som förälder</span>
-                            <span class="login-card-sub">Härifrån styr du allt – inställningar, push-notiser och schema för alla barn.</span>
-                        </span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- ===== Testimonials ===== -->
-            <div class="testimonials-section" aria-label="Vad föräldrar säger">
-                <div class="testimonials-label">⭐ Föräldrar berättar</div>
-                <div class="testimonials-list">
-                    <div class="testimonial-card">
-                        <p class="testimonial-quote">Jag är lite i chock över hur bra appen har fungerat för vårt barn... kämpar med autistisk utmattning... Igår klarade hen av alla uppgifter på schemat och vi behövde inte ens påminna!</p>
-                    </div>
-                    <div class="testimonial-card">
-                        <p class="testimonial-quote">Vi laddade ner appen och redan första dagen har den varit otroligt positiv för vårt barn med autistisk utmattning!</p>
-                    </div>
-                    <div class="testimonial-card">
-                        <p class="testimonial-quote">Appen har varit jättepopulär idag och till och med tandborstningen på morgonen blev gjord. Den brukar ALDRIG bli av annars!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== PWA Install Callout ===== -->
-            <div class="pwa-callout" role="complementary" aria-label="Installera appen">
-                <div class="pwa-callout-header">
-                    <span class="pwa-callout-icon">📱</span>
-                    <span class="pwa-callout-title">Så här gör du appen till en riktig app</span>
-                    <span class="pwa-callout-badge">Pro tip</span>
-                </div>
-                <div class="pwa-steps">
-                    <div class="pwa-step">
-                        <div class="pwa-step-label">🍎 iOS (Safari)</div>
-                        <ul class="pwa-step-items">
-                            <li>Öppna i Safari</li>
-                            <li>Tryck på Dela <strong>⎵</strong></li>
-                            <li>Lägg till på hemskärmen</li>
-                        </ul>
-                    </div>
-                    <div class="pwa-step">
-                        <div class="pwa-step-label">🤖 Android (Chrome)</div>
-                        <ul class="pwa-step-items">
-                            <li>Öppna i Chrome</li>
-                            <li>Tryck på <strong>⋮</strong> (tre punkter)</li>
-                            <li>Lägg till på hemskärmen</li>
-                        </ul>
-                    </div>
-                </div>
-                <p class="pwa-callout-footer">
-                    Nu ligger den som en ikon på skärmen och kan <strong>hanteras med egna rättigheter</strong> i skärmtidsinställningarna.
-                </p>
-            </div>
-
-            <!-- Facebook follow link -->
-            <div id="mobileFbBtn" style="margin-bottom:0.9rem;">
-                <a href="https://facebook.com/mystarday" target="_blank" rel="noopener noreferrer"
-                   style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.1rem;background:#1877F2;color:#fff;font-size:0.88rem;font-weight:700;border-radius:10px;text-decoration:none;transition:background 0.18s;"
-                   onmouseover="this.style.background='#1565c0'" onmouseout="this.style.background='#1877F2'">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
-                    Följ oss på Facebook
-                </a>
-            </div>
-
-        <!-- Mode-driven CTA (single button in founderCta above) -->
-
-            <!-- Barnens inloggning (hidden — replaced by cards above) -->
-            <div class="child-login-section" id="childLoginSection" style="display:none;">
-                <a href="/child-login">Barnens inloggning</a>
-            </div>
-        </div>
-
-        <!-- Right: illustrated app mockup -->
-        <div class="hero-visual">
-            <div class="hero-illustration" aria-label="Exempel på appen — inte inloggad vy">
-                <span class="illus-example-badge">Exempel</span>
-                <div class="illus-header">
-                    <div class="illus-logo">
-                        <div class="illus-logo-dot">⭐</div>
-                        Min Stjärndag
-                    </div>
-                    <div class="illus-stars">⭐ 12 stjärnor</div>
-                </div>
-                <p class="illus-greeting">Exempel: God morgon, <strong>Lova!</strong> Dagens schema är redo.</p>
-                <div class="illus-schedule">
-                    <div class="illus-card active">
-                        <div class="illus-card-label now">NU</div>
-                        <div class="illus-card-icon">🥣</div>
-                        <div class="illus-card-name">Frukost</div>
-                        <div class="illus-card-badge">⭐ +1</div>
-                    </div>
-                    <div class="illus-card">
-                        <div class="illus-card-label">NÄSTA</div>
-                        <div class="illus-card-icon">🧥</div>
-                        <div class="illus-card-name">Klä på sig</div>
-                    </div>
-                    <div class="illus-card">
-                        <div class="illus-card-label">SENARE</div>
-                        <div class="illus-card-icon">🎒</div>
-                        <div class="illus-card-name">Skolan</div>
-                    </div>
-                </div>
-                <div class="illus-progress">
-                    <div class="illus-progress-label">
-                        <span>Morgonrunda</span><span>68%</span>
-                    </div>
-                    <div class="illus-progress-bar">
-                        <div class="illus-progress-fill"></div>
-                    </div>
-                    <div style="margin-top:0.7rem;">
-                        <div class="illus-progress-label">
-                            <span>🏆 Skattkammaren</span><span>42%</span>
-                        </div>
-                        <div class="illus-progress-bar">
-                            <div class="illus-progress-fill green"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="illus-child-figure" aria-hidden="true">👧</div>
-            </div>
-        </div>
-
+<!-- 1. HERO -->
+<section class="landing-hero landing-section--dark" id="toppen">
+  <div class="landing-hero__grid">
+    <div class="landing-hero__copy">
+      <span class="landing-hero__eyebrow">⭐ För familjer som vill ha en lugnare vardag</span>
+      <h1>Visuella scheman och stjärnor som hjälper barn att klara vardagen – utan tjat</h1>
+      <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p>
+      <div class="landing-hero__ctas">
+        <a href="/register" class="btn-primary" data-track="hero_signup_click">Skapa konto gratis</a>
+        <a href="#sa-fungerar-det" class="btn-secondary" data-track="hero_how_it_works_click">Se hur det fungerar</a>
+      </div>
+      <div class="landing-hero__trust">
+        <span class="trust-chip">Gratis för de första <span id="founderLimitText">200</span> familjerna</span>
+        <span class="trust-chip">Barnets egen vy med PIN</span>
+        <span class="trust-chip">Fungerar som app i mobilen</span>
+      </div>
+      <p class="landing-hero__micro">Ingen betalning krävs · Obegränsat antal barn för grundarmedlemmar</p>
     </div>
+    <div class="landing-hero__visual">
+      <div class="hero-mockup" aria-label="Exempel på barnets vy">
+        <div class="hero-mockup__badge">Exempel</div>
+        <div class="hero-mockup__header">
+          <div class="hero-mockup__logo"><span>⭐</span> Min Stjärndag</div>
+          <div class="hero-mockup__stars">⭐ 12 stjärnor</div>
+        </div>
+        <p class="hero-mockup__greeting">God morgon, <strong>Lova!</strong> Dagens schema är redo.</p>
+        <div class="hero-schedule">
+          <div class="hero-schedule__card is-active">
+            <span class="hero-schedule__label">NU</span>
+            <span class="hero-schedule__icon">🥣</span>
+            <span class="hero-schedule__name">Frukost</span>
+            <span class="hero-schedule__badge">⭐ +1</span>
+          </div>
+          <div class="hero-schedule__card">
+            <span class="hero-schedule__label">NÄSTA</span>
+            <span class="hero-schedule__icon">🧥</span>
+            <span class="hero-schedule__name">Klä på sig</span>
+          </div>
+          <div class="hero-schedule__card">
+            <span class="hero-schedule__label">SENARE</span>
+            <span class="hero-schedule__icon">🎒</span>
+            <span class="hero-schedule__name">Skolan</span>
+          </div>
+        </div>
+        <div class="hero-mockup__progress">
+          <div class="hero-mockup__progress-label"><span>Morgonrunda</span><span>68%</span></div>
+          <div class="hero-mockup__bar"><div class="hero-mockup__bar-fill" style="width:68%"></div></div>
+        </div>
+        <div class="hero-mockup__treasure">
+          <span>🏆 Skattkammaren</span>
+          <span>12 till nästa belöning</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-
-<!-- ===== PROBLEM ===== -->
-<section class="section" id="problemet">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Vardagen</span>
-            <h2 class="section-title">Sluta upprepa dig själv</h2>
-        </div>
-        <div class="problem-body">
-            <p class="problem-lead">
-                "Hur många gånger har du sagt 'nu är det dags att...' idag?"
-            </p>
-            <p class="problem-answer">
-                Barn som behöver bildstöd och tydliga strukturer får ofta höra samma sak om och om igen — morgonrutiner som havererar, läggning och kvällsrutiner, övergångar mellan aktiviteter, konflikter kring återkommande vardagsmoment. Det är inte motvilja. Barnet saknar bara en tydlig bild av vad som gäller nu och vad som händer härnäst.
-            </p>
-        </div>
+<!-- 2. PROBLEM -->
+<section class="landing-section--light" id="problem">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Vardagen</span>
+      <h2 class="section-title">Känns det som att du är familjens levande påminnelse?</h2>
+      <p class="section-intro">Många barn vill – men får inte ihop det själva. När morgonrutiner som havererar och vardagen fastnar i påminnelser blir det lätt trötthet för både barn och vuxna.</p>
     </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card__icon">🌅</div>
+        <h3>Morgonen fastnar</h3>
+        <p>Morgonrutiner som havererar i tandborstning, kläder, frukost och att komma iväg.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔁</div>
+        <h3>Du säger samma sak om och om igen</h3>
+        <p>Du påminner fem gånger, men barnet kommer ändå inte vidare till nästa steg.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">📉</div>
+        <h3>Belöningar tappar effekt</h3>
+        <p>Belöningssystem fungerar i två dagar – sen rinner allt ut i sanden eller skapar mer förhandling än motivation.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🧵</div>
+        <h3>Barnet vill, men tappar tråden</h3>
+        <p>Det handlar inte om ovilja. Många barn behöver en tydligare bild av vad som händer nu, vad som kommer sen och när något faktiskt är färdigt.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;color:var(--text-2);max-width:560px;margin-left:auto;margin-right:auto;">Min Stjärndag är byggd för just det: att göra vardagen tydligare, lugnare och mer motiverande – för barnet och för dig.</p>
+    <p style="text-align:center;margin-top:1.25rem;">
+      <a href="#sa-fungerar-det" class="btn-ghost-link" data-track="problem_how_it_works_click">Se hur det fungerar →</a>
+    </p>
+  </div>
 </section>
 
-<!-- ===== LÖSNING ===== -->
-<section class="section" id="losning">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Hur det fungerar</span>
-            <h2 class="section-title">Ett schema barnet <em>faktiskt förstår</em></h2>
-            <p class="section-subtitle">Tre enkla delar. En lugnare vardag.</p>
-        </div>
-        <div class="solution-grid">
-            <div class="solution-card">
-                <div class="solution-icon">📋</div>
-                <h3>Barnet ser vad som ska hända</h3>
-                <p>Visuellt schema med tydliga steg — barnet förstår dagen utan att du behöver upprepa samma instruktion om och om igen.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">⭐</div>
-                <h3>Stjärnor som motiverar</h3>
-                <p>Belöningar i <a href="/skattkammaren" style="color:var(--amber-dk);font-weight:600;text-decoration:none;">Skattkammaren</a> gör rutiner begripliga och motiverande — utan tjat.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">🤝</div>
-                <h3>Flera vuxna, samma stöd</h3>
-                <p>Partners, morföräldrar, barnvakter och <a href="/pedagoger-och-terapeuter" style="color:var(--amber-dk);font-weight:600;text-decoration:none;">pedagoger</a> kan följa samma schema och stjärnor.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">📲</div>
-                <h3>Koll på distans</h3>
-                <p>Push-notiser när barnet klarat en rutin — du slipper fråga "har du borstat tänderna?" för femte gången.</p>
-            </div>
-        </div>
+<!-- 3. SÅ FUNGERAR DET -->
+<section class="landing-section--white" id="sa-fungerar-det">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Hur det fungerar</span>
+      <h2 class="section-title">Så fungerar Min Stjärndag</h2>
+      <p class="section-intro">Tre enkla delar som hjälper barnet att förstå vardagen – och gör det lättare för dig att sluta tjata.</p>
     </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-card__num">1</div>
+        <h3>Du bygger barnets rutin</h3>
+        <p>Lägg in aktiviteter i rätt ordning, anpassa efter morgon, kväll eller veckodag och skapa rutiner som passar just ert barn.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__num">2</div>
+        <h3>Barnet ser vad som ska hända</h3>
+        <p>Barnet följer sitt schema i sin egen vy – ett steg i taget, vad som är klart, vad som kommer härnäst och hur långt det är kvar.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__num">3</div>
+        <h3>Klara steg ger stjärnor till Skattkammaren</h3>
+        <p>När aktiviteter blir klara samlar barnet stjärnor och jobbar mot belöningar ni själva väljer. Det gör framsteg synliga och hjälper motivationen att hålla längre.</p>
+      </div>
+    </div>
+    <div class="step-panels">
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e01fcef3-4b20-4b10-b0d7-1265440d66a8.png" alt="Föräldravy — skapa schema" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">Föräldravy: Skapa schema</p>
+      </div>
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/28ba72a2-78b5-4276-949d-26346771b3d3.png" alt="Barnvy — Nu, Nästa, Senare" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">Barnvy: Nu / Nästa / Senare</p>
+      </div>
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e65d70c4-fb07-4692-b145-ad29fba683c1.png" alt="Skattkammaren — stjärnor och belöningar" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">24 ⭐ – 12 till nästa belöning</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== PROGRAM & PAKET ===== -->
-<section class="section landing-program-section" id="program">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Program</span>
-            <h2 class="section-title">Vad ingår i <em>appen?</em></h2>
-            <p class="section-subtitle" id="landingProgramIntro">Laddar programinformation…</p>
-        </div>
-
-        <p id="landingProgramFounderNote" class="landing-program-founder-note"></p>
-
-        <div id="landingProgramPills" class="landing-program-grid" aria-label="Programöversikt"></div>
-
-        <div class="program-matrix-section landing-program-matrix" aria-labelledby="landingMatrixTitle">
-            <h3 id="landingMatrixTitle" class="landing-matrix-title">Vad ingår var?</h3>
-            <div class="program-matrix-scroll">
-                <table class="program-matrix w-full text-sm" aria-describedby="landingProgramIntro">
-                    <thead>
-                        <tr id="landingMatrixHeadRow"></tr>
-                    </thead>
-                    <tbody id="landingMatrixBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <p class="landing-program-more">
-            <a href="/pricing-info?from=landing">Läs mer om tillgång och vad som ingår →</a>
-        </p>
-
-        <div class="landing-newsletter" id="landingNewsletter">
-            <h3 class="landing-newsletter-title">Få nyheter om nya paket</h3>
-            <p class="landing-newsletter-copy">Anmäl dig utan konto — vi meddelar när tilläggen släpps.</p>
-            <form id="landingNewsletterForm" class="landing-newsletter-form" novalidate>
-                <label class="sr-only" for="landingNewsletterEmail">E-post</label>
-                <input type="email" id="landingNewsletterEmail" name="email" placeholder="din@email.se" required autocomplete="email">
-                <button type="submit">Prenumerera</button>
-            </form>
-            <p id="landingNewsletterFeedback" class="landing-newsletter-feedback" hidden></p>
-        </div>
+<!-- 4. BARNETS EGEN VY -->
+<section class="landing-section--light" id="barnvy">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div class="feature-split__visual feature-split__visual--stack">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/c25fd9c1-c2f3-4e88-835f-642f00e56c00.png" alt="Barninloggning med namn och PIN" loading="lazy" width="280" height="600">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b3a27bac-ebd0-4d80-8bf0-2ac73f36e3a7.png" alt="Välkomstskärm för barn" loading="lazy" width="280" height="600">
+      </div>
+      <div>
+        <span class="section-eyebrow">Barnets vy</span>
+        <h2 class="section-title">Byggd för att barnet ska kunna använda den själv</h2>
+        <p class="section-intro">Min Stjärndag är inte bara ett verktyg för vuxna. Barnet får en egen vy med sitt schema, sina stjärnor och sin Skattkammare – enkel nog att använda på egen hand, men tydlig nog att faktiskt hjälpa i stunden.</p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-list__icon">🔐</span>
+            <div><strong>Egen inloggning med PIN</strong><span>Barnet loggar in till sin egen vy med namn och PIN-kod.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">👣</span>
+            <div><strong>Ett steg i taget</strong><span>Barnet ser vad som händer nu, vad som kommer sen och vad som är klart.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">📊</span>
+            <div><strong>Tydlig framdrift</strong><span>Progress, stjärnor och nästa belöning gör det lättare att förstå varför det är värt att fortsätta.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">🤝</span>
+            <div><strong>Mindre vuxenstyrning i stunden</strong><span>När schemat är tydligt i barnets hand blir du mindre av en mellanhand mellan varje aktivitet.</span></div>
+          </li>
+        </ul>
+        <a href="#barnvy" class="btn-ghost-link" data-track="child_view_example_click">Se ett exempel på barnvyn ↑</a>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- ===== SCREENSHOTS: Så ser Min Stjärndag ut ===== -->
-<section class="section" id="screenshots">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Appen i praktiken</span>
-            <h2 class="section-title">Så ser Min Stjärndag ut</h2>
+<!-- 5. SKATTKAMMAREN -->
+<section class="landing-section--white" id="skattkammaren">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div>
+        <span class="section-eyebrow">Belöningssystem</span>
+        <h2 class="section-title">Skattkammaren – motivation barnet kan se</h2>
+        <p class="section-intro">För många barn räcker det inte att "bara veta" att något är bra. De behöver se att de kommer framåt. Skattkammaren gör framsteg synliga och hjälper barnet att jobba mot belöningar ni själva väljer.</p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-list__icon">⭐</span>
+            <div><strong>Stjärnor gör framsteg tydliga</strong><span>När aktiviteter blir klara tjänar barnet stjärnor. Det gör vardagen mer konkret.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">🎁</span>
+            <div><strong>Ni väljer belöningarna själva</strong><span>Små, vardagsnära belöningar – extra lästid, spelkvart, fredagsfilm eller något större att spara till.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">💚</span>
+            <div><strong>Ingen bestraffning om dagen inte blir perfekt</strong><span>Missade aktiviteter nollställer inte barnet. Fokus ligger på motivation över tid – inte skuld eller straff.</span></div>
+          </li>
+        </ul>
+        <div class="treasure-chips">
+          <span class="treasure-chip">🍦 Glass efter 30 stjärnor</span>
+          <span class="treasure-chip">🎬 Filmkväll efter 50 stjärnor</span>
+          <span class="treasure-chip">🛝 Lekplatsutflykt efter 80 stjärnor</span>
         </div>
-
-        <!-- BARNVY — 5 screenshots -->
-        <div class="screenshots-subheader">
-            <h3>👧 Barnets egen vy</h3>
-            <p>Barnet loggar in med sitt eget namn och en PIN-kod, bockar av aktiviteter och samlar stjärnor mot ett eget mål.</p>
-        </div>
-        <div class="screenshots-grid">
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/c25fd9c1-c2f3-4e88-835f-642f00e56c00.png" alt="Barnvänlig inloggning med namn och PIN-kod i Min Stjärndag — schemaapp för barn med ADHD" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Barnet loggar in själv med namn och hemlig PIN-kod</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b3a27bac-ebd0-4d80-8bf0-2ac73f36e3a7.png" alt="Positiv välkomstskärm för barn efter inloggning i Min Stjärndag" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">"Välkommen!" — barnet möts av positiv förstärkning</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b2c8b942-968d-407c-9223-05e30234cf3d.png" alt="Känsloregistrering i dagligt schema — barnet betygsätter hur aktiviteten gick med emoji" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Barnet reflekterar: "Hur gick det?" — känsloregistrering med emoji och slider</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/28ba72a2-78b5-4276-949d-26346771b3d3.png" alt="Barnvy med dagliga aktiviteter, expanderbara delsteg och stjärnprogress mot långsiktigt mål" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Barnets dag: morgonrutiner med delsteg, stjärnsaldo och mål att jobba mot</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e65d70c4-fb07-4692-b145-ad29fba683c1.png" alt="Skattkammaren i Min Stjärndag — belöningssystem med stjärnor, önskelista och troféer för barn" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Skattkammaren: samla stjärnor, välj belöning och vinn troféer</p>
-            </div>
-        </div>
-
-        <!-- FÖRÄLDRAMVY — 4 screenshots -->
-        <div class="screenshots-subheader">
-            <h3>👨‍👩‍👧 Förälderns kontrollpanel</h3>
-            <p>Föräldern skapar schemat, följer framsteg i realtid och kan använda färdiga mallar för snabb uppstart.</p>
-        </div>
-        <div class="screenshots-grid">
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e01fcef3-4b20-4b10-b0d7-1265440d66a8.png" alt="Föräldrapanel i Min Stjärndag — daglig översikt med barnets aktiviteter och stjärnframsteg" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Förälderns översikt: barnets framsteg, nästa aktivitet och snabbknappar</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Dagschema med färgkodade aktiviteter, betygsättning och tidshantering i Min Stjärndag" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Dagens schema: färgkodade aktiviteter med betyg — full kontroll för föräldern</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/297b0f38-78eb-4877-9aab-9e1d51e31487.png" alt="Visuellt veckoschema per barn med aktiviteter varje dag — familjeschemaläggning med bildstöd" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Hela veckans schema: överblick per dag för enkel planering</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/898d7083-3556-426f-a981-0e277a4f3fb5.png" alt="Bibliotek med färdiga dagscheman och aktivitetsmallar — kom igång snabbt med Min Stjärndag" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Färdiga mallar: "Förskola vardag", "Skola vardag" — kopiera med ett klick</p>
-            </div>
-        </div>
+        <a href="/skattkammaren?demo=1" class="btn-primary" data-track="treasure_demo_click">Se Skattkammaren i demo</a>
+      </div>
+      <div class="treasure-demo-card">
+        <div class="treasure-demo-card__emoji">🏆</div>
+        <h3>Skattkammaren</h3>
+        <p class="treasure-demo-card__sub">Där stjärnor blir riktiga belöningar</p>
+        <div class="treasure-demo-card__count">⭐ 24</div>
+        <p class="treasure-demo-card__sub">12 stjärnor till nästa belöning</p>
+        <div class="treasure-demo-card__bar"><div class="treasure-demo-card__bar-fill"></div></div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- PEDAGOGUE SHARING SECTION -->
-<section class="section" id="pedagogue-share">
-    <div class="section-inner">
-        <div class="pedagogue-share-layout">
-            <div class="pedagogue-share-content">
-                <h2>Dela barnets framsteg med pedagogen</h2>
-                <p>Dela en sammanställning av ditt barns framsteg med pedagogen eller terapeuten — direkt från appen. Helt datuminimerad och utan känslig information.</p>
-
-                <ul class="pedagogue-bullets">
-                    <li>
-                        <div class="pedagogue-bullet-icon">🔗</div>
-                        <div>
-                            <strong>Tidsbegränsad länk</strong>
-                            <span>Länken gäller i 7 dagar och slutar sedan fungera automatiskt</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pedagogue-bullet-icon">🔒</div>
-                        <div>
-                            <strong>Dataminimerad</strong>
-                            <span>Ingen personlig information — bara scheman, aktiviteter och stjärnor</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pedagogue-bullet-icon">👤</div>
-                        <div>
-                            <strong>Inget konto krävs</strong>
-                            <span>Pedagogen öppnar länken direkt i webbläsaren utan inloggning</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pedagogue-bullet-icon">🔐</div>
-                        <div>
-                            <strong>Valfri PIN-kod</strong>
-                            <span>Skydda länken med en fyrsiffrig PIN-kod om ni vill</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="pedagogue-bullet-icon">🖨️</div>
-                        <div>
-                            <strong>Kan skrivas ut som PDF</strong>
-                            <span>Pedagogen kan enkelt skriva ut sammanställningen för journalen</span>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="pedagogue-share-actions">
-                    <a href="/register" class="pedagogue-cta-primary">
-                        Kom igång — det är gratis
-                    </a>
-                    <a href="/pedagoger-och-terapeuter" class="pedagogue-cta-secondary">
-                        Läs mer för pedagoger →
-                    </a>
-                </div>
-            </div>
-            <div class="pedagogue-share-illustration">
-                <div class="pedagogue-share-illustration-inner">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png"
-                         alt="Sammanställning av barnets schema och framsteg i Min Stjärndag — redo att delas med pedagogen"
-                         loading="lazy" width="280" height="600">
-                </div>
-            </div>
-        </div>
+<!-- 6. TESTIMONIALS -->
+<section class="landing-section--light" id="testimonials">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <p class="stats-banner">Används redan av familjer i Sverige</p>
+      <h2 class="section-title">"Vi behövde inte ens påminna."</h2>
+      <p class="section-intro">Det här säger familjer som redan använder Min Stjärndag i sin vardag.</p>
     </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">Mindre tjat</p>
+        <blockquote>Jag är lite i chock över hur bra appen har fungerat för vårt barn… Igår klarade hen av alla uppgifter på schemat och vi behövde inte ens påminna!</blockquote>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">Positiv start direkt</p>
+        <blockquote>Vi laddade ner appen och redan första dagen har den varit otroligt positiv för vårt barn med autistisk utmattning.</blockquote>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">Fler saker blir gjorda</p>
+        <blockquote>Appen har varit jättepopulär idag och till och med tandborstningen på morgonen blev gjord. Den brukar ALDRIG bli av annars!</blockquote>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== MÅLGRUPP + FAQ ===== -->
-<section class="section" id="malgrupp">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Om appen</span>
-            <h2 class="section-title">Byggd för familjer som vill ha en <em>lugnare vardag</em></h2>
-        </div>
-        <div class="target-layout">
-            <div>
-                <p class="target-body">
-                    Min Stjärndag är till för alla barn som mår bra av tydlig struktur och visuellt stöd. Färre förhandlingar, fler "det fixar jag själv".
-                    <br><br>
-                    Appen är ett effektivt digitalt bildstöd som passar särskilt bra för barn med behov av tydlighet — inklusive barn med NPF, ADHD och autism, och familjer som vill minska tjat och skapa lugnare rutiner.
-                </p>
-                <div class="target-tags">
-                    <span class="target-tag purple">ADHD</span>
-                    <span class="target-tag purple">Autism</span>
-                    <span class="target-tag">Tydliggörande pedagogik</span>
-                    <span class="target-tag">Visuellt bildstöd</span>
-                    <span class="target-tag">Struktur &amp; rutiner</span>
-                    <span class="target-tag">Från 4 år</span>
-                </div>
-            </div>
-
-            <div>
-                <div class="faq-list">
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            För vilken ålder är appen?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Från 4 år och uppåt. Barn som behöver tydliga bilder och steg för att förstå sin dag fungerar särskilt bra med Min Stjärndag. Appen är även ett värdefullt stöd för barn med ADHD eller autism som mår bra av visuell struktur.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Hur fungerar belöningssystemet?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Barnet tjänar stjärnor som sparas i Skattkammaren och kan lösas in mot belöningar ni bestämt tillsammans. Det kan vara allt från extra skärmtid till en speciell aktivitet — ni sätter reglerna.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Kan flera vuxna använda appen?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Ja, ni kan dela schemat mellan flera föräldrar, hem eller pedagoger. Perfekt för delad vårdnad eller samarbete mellan hem och skola.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- 7. FÖR VILKA -->
+<section class="landing-section--white" id="for-vilka">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Målgrupp</span>
+      <h2 class="section-title">För familjer som behöver lite mer struktur i vardagen</h2>
+      <p class="section-intro">Min Stjärndag passar särskilt bra för barn som mår bra av tydliga steg, bildstöd, rutiner och positiv förstärkning — inklusive barn med ADHD, autism eller behov av visuellt bildstöd och tydliggörande pedagogik.</p>
     </div>
+    <div class="cards-grid">
+      <div class="card"><div class="card__icon">🎯</div><h3>ADHD / svårt att komma igång</h3><p>När barnet vill men har svårt att starta, hålla fokus eller komma vidare till nästa steg.</p></div>
+      <div class="card"><div class="card__icon">🧩</div><h3>Autism / behov av förutsägbarhet</h3><p>När övergångar, rutinförändringar eller otydlighet skapar stress.</p></div>
+      <div class="card"><div class="card__icon">🖼️</div><h3>Bildstöd och tydliggörande pedagogik</h3><p>När barnet förstår bättre med visuella steg än med upprepade muntliga påminnelser.</p></div>
+      <div class="card"><div class="card__icon">🌅</div><h3>Morgon- och kvällsrutiner</h3><p>När vardagen fastnar i samma moment om och om igen.</p></div>
+      <div class="card"><div class="card__icon">👨‍👩‍👧</div><h3>Flera vuxna kring barnet</h3><p>När ni behöver dela ansvar, se samma schema och jobba åt samma håll.</p></div>
+      <div class="card"><div class="card__icon">✨</div><h3>Barn som behöver mer motivation över tid</h3><p>När vanliga belöningssystem inte håller eller blir för svåra att följa upp.</p></div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;color:var(--text-2);max-width:640px;margin-left:auto;margin-right:auto;">Det betyder inte att allt måste vara svårt för att appen ska passa. Min Stjärndag är till för familjer som vill göra vardagen tydligare, lugnare och mer självständig – oavsett var ni börjar.</p>
+  </div>
 </section>
 
-<!-- ===== FAQ ===== -->
-<section class="section" id="faq" style="background:var(--cream);">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Vanliga frågor</span>
-            <h2 class="section-title">Allt du behöver veta om <em>Min Stjärndag</em></h2>
-            <p class="section-subtitle">Hittar du inte svaret? Kontakta oss via formuläret nedan.</p>
-        </div>
-
-        <div style="max-width:760px;margin:0 auto;">
-
-            <div class="faq-list" style="margin-bottom:2rem;">
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Vad är Min Stjärndag?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ett visuellt dagsschema för barn med stjärnbelöningar som gör rutiner lugna och motiverande.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Vad kostar det?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            De första 200 familjerna som registrerar sig får det <strong>kostnadsfritt</strong> — obegränsat antal barn och livstids tillgång som grundarmedlem.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Vilka åldrar passar det för?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Från förskola och uppåt.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kom igång -->
-            <div style="margin-bottom:0.4rem;">
-                <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;color:var(--amber-dk);margin-bottom:0.9rem;">Kom igång</p>
-            </div>
-            <div class="faq-list" style="margin-bottom:2rem;">
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Hur skapar jag ett schema åt mitt barn?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            En guide (wizard) leder dig igenom allt vid start. Det finns färdiga scheman, aktiviteter och belöningar att välja bland — men du kan enkelt skapa egna också.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Hur loggar barnet in?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Du skapar ett barnkonto i föräldrapanelen. Barnet får en egen vy med sitt schema.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Vad händer med stjärnorna om vi missar en dag?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ingenting negativt! Stjärnorna finns kvar. Min Stjärndag bygger på motivation, inte bestraffning.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Installation -->
-            <div style="margin-bottom:0.4rem;">
-                <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;color:var(--amber-dk);margin-bottom:0.9rem;">Installation</p>
-            </div>
-            <div class="faq-list" style="margin-bottom:2rem;">
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Hur installerar jag appen?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Min Stjärndag är en webapp (PWA) som du installerar direkt från webbläsaren. På iPhone: öppna i Safari → Dela → Lägg till på hemskärmen. På Android: Chrome visar en installationsruta automatiskt.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Varför finns den inte i App Store?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Min Stjärndag är en PWA (Progressive Web App) som fungerar precis som en vanlig app men installeras via webbläsaren. Ingen nedladdning behövs.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Fungerar det på min telefon?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ja! Det fungerar på alla moderna webbläsare — iPhone, Android och dator.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Funktioner -->
-            <div style="margin-bottom:0.4rem;">
-                <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;color:var(--amber-dk);margin-bottom:0.9rem;">Funktioner</p>
-            </div>
-            <div class="faq-list" style="margin-bottom:2rem;">
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Hur fungerar stjärnsystemet?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Barnet bockar av aktiviteter i sitt schema och tjänar stjärnor. Stjärnorna kan sedan bytas mot belöningar som ni bestämmer tillsammans.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Kan barnet använda appen själv?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ja! Barnet har en egen inloggning med ett visuellt schema anpassat för barn. Föräldern styr alla inställningar.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Kan vi anpassa schemat?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Helt fritt! Skapa egna aktiviteter, sätt tider, lägg till belöningar. Det finns också färdiga mallar att utgå från.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Kan vi använda appen för flera syskon?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ja, du kan enkelt lägga till flera barn under ditt föräldrakonto och ge dem helt individuella scheman anpassade efter deras ålder och behov.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Får jag reda på när barnet är klart med en aktivitet?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ja! Genom att aktivera push-notiser i appen får du en pling i din egen telefon så fort ditt barn checkar av en uppgift eller blir klar med en hel rutin.
-                        </div>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Kan både jag och min partner styra appen?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Självklart. Vardagen är ett lagarbete. Du kan bjuda in andra vuxna eller barnvakter till ditt föräldrakonto så att ni delar på administrationen.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trygghet -->
-            <div style="margin-bottom:0.4rem;">
-                <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;color:var(--amber-dk);margin-bottom:0.9rem;">Trygghet</p>
-            </div>
-            <div class="faq-list">
-                <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false">
-                        Är det säkert för mitt barn?
-                        <span class="faq-icon">+</span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Absolut. Ingen reklam, inga sociala funktioner, ingen spårning. Föräldern styr allt.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+<!-- 8. TRYGGHET -->
+<section class="landing-section--light" id="trygghet">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Trygghet</span>
+      <h2 class="section-title">Tryggt för barn. Enkelt för vuxna.</h2>
     </div>
+    <div class="cards-grid">
+      <div class="card"><div class="card__icon">🚫</div><h3>Ingen reklam</h3><p>Barnet möts inte av annonser, sociala flöden eller störande innehåll.</p></div>
+      <div class="card"><div class="card__icon">🔒</div><h3>Bara det som behövs</h3><p>Vi samlar inte in mer information än vad som behövs för att scheman, stjärnor och familjefunktioner ska fungera.</p></div>
+      <div class="card"><div class="card__icon">🔗</div><h3>Familjen styr delning</h3><p>Dela barnets framsteg med pedagog eller annan vuxen på dina villkor – tidsbegränsad länk och valfri PIN-kod.</p></div>
+      <div class="card"><div class="card__icon">🏠</div><h3>Byggd för verkliga vardagar</h3><p>Utvecklad för familjer som behöver struktur, lugn och motivation – inte mer skärmtid eller administration.</p></div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;font-size:0.88rem;color:var(--text-2);">
+      <a href="/privacy" class="btn-ghost-link">Integritetspolicy</a>
+      &nbsp;·&nbsp;
+      <a href="/terms" class="btn-ghost-link">Användarvillkor</a>
+      &nbsp;·&nbsp;
+      <a href="/pedagoger-och-terapeuter" class="btn-ghost-link">Läs mer för pedagoger</a>
+    </p>
+  </div>
 </section>
 
-<!-- ===== KONTAKTA OSS ===== -->
-<section class="section" id="kontakt">
-    <div class="section-inner">
-        <div class="section-header">
-            <span class="section-label">Kontakt</span>
-            <h2 class="section-title">Kontakta oss</h2>
-            <p class="section-subtitle">Har du frågor, feedback eller vill veta mer? Skriv till oss så återkommer vi.</p>
-        </div>
-        <div class="contact-form-card">
-            <div class="contact-error" id="contactError"></div>
-            <form id="contactForm" novalidate>
-                <label for="contactName">Namn</label>
-                <input type="text" id="contactName" name="name" placeholder="Ditt namn" required autocomplete="name">
-
-                <label for="contactEmail">Email</label>
-                <input type="email" id="contactEmail" name="email" placeholder="din@email.se" required autocomplete="email">
-
-                <label for="contactMessage">Meddelande</label>
-                <textarea id="contactMessage" name="message" placeholder="Skriv ditt meddelande här..." required></textarea>
-
-                <button type="submit" class="contact-submit-btn" id="contactSubmitBtn">Skicka</button>
-            </form>
-            <div class="contact-success" id="contactSuccess" style="display:none;">
-                <div class="contact-success-icon">✅</div>
-                <h3>Tack för ditt meddelande!</h3>
-                <p>Vi har tagit emot ditt meddelande och återkommer så snart vi kan.</p>
-            </div>
-        </div>
+<!-- 9. FÖRÄLDRAVY -->
+<section class="landing-section--white" id="foraldravy">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div>
+        <span class="section-eyebrow">Förälderns vy</span>
+        <h2 class="section-title">Allt du behöver för att bygga rutiner som håller</h2>
+        <p class="section-intro">Som vuxen bygger du schemat, följer barnets framsteg och anpassar vardagen efter det som faktiskt fungerar hemma hos er.</p>
+        <ul class="feature-list">
+          <li><span class="feature-list__icon">👨‍👩‍👧‍👦</span><div><strong>Flera barn och olika behov</strong><span>Skapa rutiner för ett eller flera barn och anpassa dem individuellt.</span></div></li>
+          <li><span class="feature-list__icon">📅</span><div><strong>Veckoschema och dagschema</strong><span>Planera återkommande rutiner, morgnar, kvällar och specifika dagar.</span></div></li>
+          <li><span class="feature-list__icon">📲</span><div><strong>Pushnotiser och koll på distans</strong><span>Få stöd även när du inte står bredvid barnet – perfekt när flera vuxna hjälps åt.</span></div></li>
+          <li><span class="feature-list__icon">📋</span><div><strong>Färdiga mallar</strong><span>Kom igång snabbare med exempelrutiner som går att anpassa efter ert barn.</span></div></li>
+          <li><span class="feature-list__icon">🤝</span><div><strong>Dela med pedagog eller annan vuxen</strong><span>Visa framsteg och rutiner när det behövs – utan att ge bort hela kontot.</span></div></li>
+        </ul>
+        <p style="font-size:0.85rem;color:var(--text-3);">Basic ingår gratis för grundarmedlemmar. <a href="/pricing-info" class="btn-ghost-link">Läs om program och kommande paket →</a></p>
+      </div>
+      <div class="feature-split__visual feature-split__visual--stack">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Förälderns dagschema" loading="lazy" width="280" height="600">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/297b0f38-78eb-4877-9aab-9e1d51e31487.png" alt="Veckoschema" loading="lazy" width="280" height="600">
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- ===== FOOTER CTA ===== -->
-<section class="footer-cta-section">
-    <div style="max-width:640px;margin:0 auto;">
-        <h2>Skapa konto — kostnadsfritt</h2>
-        <p>Grundarprogrammet · Livstids tillgång för de första 200 familjerna · Obegränsat antal barn</p>
-        <button class="btn-cta-scroll" onclick="document.getElementById('toppen').scrollIntoView({behavior:'smooth'})">
-            Starta kostnadsfritt konto
-        </button>
-        <div id="footerBetaCta"></div>
+<!-- 10. GRUNDARPROGRAM -->
+<section class="landing-section--light" id="grundarprogram">
+  <div class="landing-inner">
+    <div class="founder-block">
+      <span class="section-eyebrow">Grundarprogrammet</span>
+      <h2>Bli grundarmedlem – få Basic gratis för alltid</h2>
+      <p class="founder-block__intro">De första <span id="founderLimitText2">200</span> familjerna får livstids tillgång till Basic utan kostnad. Ingen betalning krävs i den nuvarande versionen.</p>
+      <p class="founder-block__counter" id="founderLiveCounter" hidden></p>
+      <ul class="founder-block__list">
+        <li>Obegränsat antal barn</li>
+        <li>Barnets egen vy med PIN</li>
+        <li>Vecko- och dagschema</li>
+        <li>Stjärnor och Skattkammaren</li>
+        <li>Pushnotiser</li>
+        <li>Familjeinbjudan</li>
+      </ul>
+      <a href="/register" class="btn-primary" data-track="founder_signup_click">Skapa konto gratis</a>
+      <p class="founder-block__note">Längre fram släpper vi fler tillägg för familjer som vill ha rapportering, extra stöd eller pedagogsamarbete. Grundarmedlemskapet ger fortsatt fri tillgång till Basic. <a href="/pricing-info" class="btn-ghost-link">Läs om program och kommande paket →</a></p>
     </div>
+  </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
-<footer>
-    <div class="footer-links">
-        <a href="/pedagoger-och-terapeuter">För pedagoger &amp; terapeuter</a>
-        <a href="/skattkammaren">Skattkammaren</a>
-        <a href="/pricing-info">Tillgång &amp; information</a>
-        <a href="/privacy">Integritetspolicy</a>
-        <a href="/terms">Användarvillkor</a>
-        <a href="#kontakt">Kontakta oss</a>
-        <a href="#" onclick="event.preventDefault();if(window.CookieBanner)CookieBanner.open();">Cookie-inställningar</a>
+<!-- 11. FAQ -->
+<section class="landing-section--white" id="faq">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Vanliga frågor</span>
+      <h2 class="section-title">Allt du behöver veta för att komma igång</h2>
     </div>
-    <p class="footer-copy">© 2026 Min Stjärndag</p>
+    <div class="faq-list">
+      <div class="faq-item" data-faq="kostnad">
+        <button type="button" class="faq-question" aria-expanded="false">Vad kostar Min Stjärndag?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">De första 200 familjerna får Basic gratis som grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen.</div></div>
+      </div>
+      <div class="faq-item" data-faq="adhd-autism">
+        <button type="button" class="faq-question" aria-expanded="false">Är det här rätt för barn med ADHD eller autism?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Min Stjärndag är inte byggd kring en diagnos, men passar ofta bra för barn som behöver tydlig struktur, bildstöd, förutsägbarhet eller mer motivation i vardagen.</div></div>
+      </div>
+      <div class="faq-item" data-faq="missad-dag">
+        <button type="button" class="faq-question" aria-expanded="false">Vad händer med stjärnorna om vi missar en dag?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld.</div></div>
+      </div>
+      <div class="faq-item" data-faq="flera-vuxna">
+        <button type="button" class="faq-question" aria-expanded="false">Kan flera vuxna använda appen tillsammans?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur.</div></div>
+      </div>
+      <div class="faq-item" data-faq="lasning">
+        <button type="button" class="faq-question" aria-expanded="false">Måste mitt barn kunna läsa?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Nej, tanken är att barnet ska kunna förstå så mycket som möjligt visuellt och steg för steg.</div></div>
+      </div>
+      <div class="faq-item" data-faq="ladda-ner">
+        <button type="button" class="faq-question" aria-expanded="false">Behöver jag ladda ner appen?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Nej. Min Stjärndag fungerar direkt i mobilen och kan läggas till på hemskärmen så att den känns som en app. På iPhone: Safari → Dela → Lägg till på hemskärmen.</div></div>
+      </div>
+    </div>
+    <p class="faq-more"><a href="/faq" class="btn-ghost-link">Se alla frågor och svar →</a></p>
+  </div>
+</section>
+
+<!-- 12. FINAL CTA -->
+<section class="final-cta landing-section--dark" id="kom-igang">
+  <h2>Redo för en lugnare vardag?</h2>
+  <p>Skapa ett konto gratis och bygg barnets första schema på några minuter. De första 200 familjerna får Basic utan kostnad som grundarmedlemmar.</p>
+  <a href="/register" class="btn-primary" data-track="final_signup_click">Skapa konto gratis</a>
+  <a href="/login" class="final-cta__login" data-track="nav_login_click">Har du redan konto? Logga in</a>
+</section>
+
+<!-- 13. FOOTER -->
+<footer class="landing-footer">
+  <div class="landing-footer__cta">
+    <h3>Skapa konto gratis</h3>
+    <p>Grundarprogrammet: Basic gratis för de första 200 familjerna</p>
+    <a href="/register" class="btn-primary" data-track="footer_signup_click">Skapa konto gratis</a>
+  </div>
+  <div class="landing-footer__grid">
+    <div class="landing-footer__brand">
+      <a href="/" class="landing-nav__logo" style="margin-bottom:0.5rem;">
+        <span class="landing-nav__star">⭐</span>
+        <span class="landing-nav__name" style="color:#fff;">Min Stjärndag</span>
+      </a>
+      <p>Visuella scheman och stjärnor för en lugnare vardag – utan tjat.</p>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Produkt</h4>
+      <a href="#sa-fungerar-det">Så fungerar det</a>
+      <a href="/skattkammaren">Skattkammaren</a>
+      <a href="/pricing-info">Program &amp; paket</a>
+      <a href="/pedagoger-och-terapeuter">För pedagoger &amp; terapeuter</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Hjälp</h4>
+      <a href="/faq">FAQ</a>
+      <a href="/kontakt">Kontakta oss</a>
+      <a href="/login">Logga in</a>
+      <a href="/forgot-password">Glömt lösenord</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Trygghet</h4>
+      <a href="/privacy">Integritetspolicy</a>
+      <a href="/terms">Användarvillkor</a>
+      <a href="#" onclick="event.preventDefault();if(window.CookieBanner)CookieBanner.open();">Cookie-inställningar</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Om</h4>
+      <a href="/">Om Min Stjärndag</a>
+      <a href="/en">English / My Starday</a>
+      <a href="https://facebook.com/mystarday" target="_blank" rel="noopener noreferrer">Facebook</a>
+    </div>
+  </div>
+  <p class="landing-footer__copy">© 2026 Min Stjärndag / Papa Bravo AB</p>
 </footer>
 
-<!-- ===== MOBILE TIPSA BUTTON (always visible on mobile, no hamburger needed) ===== -->
-<a href="#" class="mobile-tipsa-fixed" onclick="event.preventDefault();handleLandingShare();" aria-label="Tipsa en familj">🌟 Tipsa en familj!</a>
-
-<!-- ===== FLOATING BUTTONS: Hjälp + Kontakt (properly spaced) ===== -->
-<a href="#faq" class="landing-fab landing-fab-hjalp" title="Hjälp / FAQ" aria-label="Hjälp">❓</a>
-<a href="#kontakt" class="landing-fab landing-fab-kontakt" title="Kontakta oss" aria-label="Kontakt">💬</a>
-
-<script src="/js/program-catalog-render.js?v=1.0.0"></script>
-<script src="/js/preview-guest.js?v=1.0.0"></script>
-<script src="/js/landing-program-matrix.js?v=1.0.0"></script>
-<script src="/js/landing-newsletter.js?v=1.0.0"></script>
-<!-- ===== SCRIPTS ===== -->
 <script>
-// Hamburger menu toggle
 (function() {
-    var btn = document.getElementById('navHamburger');
-    var menu = document.getElementById('mobileMenu');
-    if (!btn || !menu) return;
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var isOpen = menu.classList.contains('open');
-        if (isOpen) {
-            menu.classList.remove('open');
-            btn.classList.remove('open');
-            btn.setAttribute('aria-expanded', 'false');
-        } else {
-            menu.classList.add('open');
-            btn.classList.add('open');
-            btn.setAttribute('aria-expanded', 'true');
-        }
-    });
-    document.addEventListener('click', function(e) {
-        if (!menu.classList.contains('open')) return;
-        if (!menu.contains(e.target) && !btn.contains(e.target)) { closeMobileMenu(); }
-    });
+  var LEGACY = {
+    losning: 'sa-fungerar-det',
+    program: 'grundarprogram',
+    malgrupp: 'for-vilka',
+    problemet: 'problem'
+  };
+  var hash = window.location.hash.replace('#', '');
+  if (hash === 'kontakt') {
+    window.location.replace('/kontakt');
+    return;
+  }
+  if (hash && LEGACY[hash]) {
+    var el = document.getElementById(LEGACY[hash]);
+    if (el) setTimeout(function() { el.scrollIntoView({ behavior: 'smooth' }); }, 100);
+  }
 })();
-
-function closeMobileMenu() {
-    var btn = document.getElementById('navHamburger');
-    var menu = document.getElementById('mobileMenu');
-    if (menu) menu.classList.remove('open');
-    if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-}
-
-// FAQ accordion
 (function() {
-    var items = document.querySelectorAll('.faq-item');
-    items.forEach(function(item) {
-        var btn = item.querySelector('.faq-question');
-        if (!btn) return;
-        btn.addEventListener('click', function() {
-            var isOpen = item.classList.contains('open');
-            items.forEach(function(i) {
-                i.classList.remove('open');
-                var b = i.querySelector('.faq-question');
-                if (b) b.setAttribute('aria-expanded', 'false');
-            });
-            if (!isOpen) {
-                item.classList.add('open');
-                btn.setAttribute('aria-expanded', 'true');
-            }
-        });
-    });
-})();
-
-// Contact form submission
-(function() {
-    var form = document.getElementById('contactForm');
-    if (!form) return;
-
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        var errorEl = document.getElementById('contactError');
-        var submitBtn = document.getElementById('contactSubmitBtn');
-        var successEl = document.getElementById('contactSuccess');
-
-        errorEl.style.display = 'none';
-        errorEl.textContent = '';
-
-        var name = document.getElementById('contactName').value.trim();
-        var email = document.getElementById('contactEmail').value.trim();
-        var message = document.getElementById('contactMessage').value.trim();
-
-        // Client validation
-        if (!name || !email || !message) {
-            errorEl.textContent = 'Alla fält är obligatoriska.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            errorEl.textContent = 'Ange en giltig e-postadress.';
-            errorEl.style.display = 'block';
-            return;
-        }
-        if (message.length < 5) {
-            errorEl.textContent = 'Meddelandet är för kort (minst 5 tecken).';
-            errorEl.style.display = 'block';
-            return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Skickar...';
-
-        try {
-            var res = await fetch('/api/contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, email: email, message: message })
-            });
-            var data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.error || 'Något gick fel.');
-            }
-            form.style.display = 'none';
-            successEl.style.display = '';
-        } catch (err) {
-            errorEl.textContent = err.message || 'Något gick fel. Försök igen.';
-            errorEl.style.display = 'block';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Skicka';
-        }
-    });
-})();
-
-// Founder CTA: load live family count + tick-up animation
-(function() {
-    var bar = document.getElementById('progressFill');
-    var label = document.getElementById('counterLabel');
-
-    function animateCounter(targetCount, limit) {
-        var cap = Math.min(targetCount, limit);
-        var targetPct = Math.round((cap / limit) * 100);
-        var remaining = Math.max(0, limit - targetCount);
-
-        // Animate counter text from 0 → target
-        var startTime = null;
-        var duration = 1400; // ms
-        function step(timestamp) {
-            if (!startTime) startTime = timestamp;
-            var elapsed = timestamp - startTime;
-            var progress = Math.min(elapsed / duration, 1);
-            var eased = 1 - Math.pow(1 - progress, 3);
-            var current = Math.round(eased * cap);
-            if (label) label.textContent = current + ' / ' + limit + ' familjer har redan gått med';
-            if (progress < 1) {
-                requestAnimationFrame(step);
-            }
-        }
-
-        requestAnimationFrame(function() {
-            if (bar) {
-                setTimeout(function() {
-                    bar.style.width = targetPct + '%';
-                }, 120);
-            }
-            requestAnimationFrame(step);
-        });
+  var banner = document.getElementById('dagensNyhetBanner');
+  var spacer = document.getElementById('dagensNyhetSpacer');
+  var nav = document.querySelector('.landing-nav');
+  function adjustLayout() {
+    var h = banner && banner.style.display !== 'none' ? banner.offsetHeight : 0;
+    if (spacer) spacer.style.height = h + 'px';
+    if (nav) nav.style.top = h + 'px';
+    if (banner && banner.style.display !== 'none') banner.style.top = '0';
+  }
+  fetch('/api/dagens-nyhet/active').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
+    if (!data || !data.title) return;
+    document.getElementById('dagensNyhetTitle').textContent = data.title;
+    document.getElementById('dagensNyhetBody').textContent = data.body || '';
+    var dateEl = document.getElementById('dagensNyhetDate');
+    if (dateEl && data.created_at) {
+      dateEl.textContent = new Date(data.created_at).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
     }
-
-    fetch('/api/landing/stats')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            var count = (d && typeof d.count === 'number') ? d.count : 93;
-            var limit = (d && typeof d.limit === 'number') ? d.limit : 200;
-            var heroLimit = document.getElementById('founderLimitHero');
-            if (heroLimit) heroLimit.textContent = String(limit);
-            var sub = document.getElementById('counterSub');
-            if (sub && typeof d.spots_remaining === 'number') {
-                sub.textContent = d.spots_remaining > 0
-                    ? (d.spots_remaining + (d.spots_remaining === 1 ? ' plats kvar' : ' platser kvar') + ' som grundarmedlem')
-                    : 'Grundarplatserna är fulla – kontakta oss om du vill ställa dig på väntelista';
-            }
-            animateCounter(count, limit);
-        })
-        .catch(function() { /* fail-silent: keep static HTML values */ });
-})();
-
-// ===== TIPSA / SHARE FUNCTIONALITY =====
-var SHARE_URL = 'https://mystarday.se';
-var SHARE_TEXT = 'Hej! Kolla in den här appen för barns vardagsrutiner — visuellt schema och belöningar. Just nu kostnadsfritt för de f00f6rsta 200 familjerna! Kolla h00e4r: ' + SHARE_URL; // pragma: allowlist secret
-
-function notifyLandingShare() {
-    // Fire-and-forget notification to info@mystarday.se (public, no auth needed)
-    try {
-        fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: 'Besökare (landing page)',
-                email: 'landing-share@mystarday.se',
-                message: '🌟 Delning från landningssidan — en besökare klickade Tipsa-knappen och delade Min Stjärndag!'
-            })
-        }).catch(function() { /* silent */ });
-    } catch(e) { /* silent */ }
-}
-
-function handleLandingShare() {
-    notifyLandingShare();
-    // Only use native Web Share API on actual mobile/tablet devices.
-    // Desktop Safari supports navigator.share but shows a useless OS-level popover
-    // (Notes, Copy, Edit Extensions) — not what we want.
-    var isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 768;
-    if (navigator.share && isMobile) {
-        navigator.share({ title: 'Min Stjärndag', text: SHARE_TEXT, url: SHARE_URL })
-            .catch(function() { /* user cancelled */ });
-    } else {
-        // Desktop: show custom share popup with copy / email / Facebook options
-        showLandingSharePopup();
-    }
-}
-
-function showLandingSharePopup() {
-    var existing = document.getElementById('landingSharePopup');
-    if (existing) existing.remove();
-
-    var mailSubject = encodeURIComponent('Tipsa: Min Stjärndag');
-    var mailBody = encodeURIComponent(SHARE_TEXT);
-    var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL);
-
-    var overlay = document.createElement('div');
-    overlay.id = 'landingSharePopup';
-    overlay.className = 'share-popup-overlay';
-    overlay.innerHTML =
-        '<div class="share-popup-card">' +
-            '<div class="share-popup-header">' +
-                '<span style="font-size:1.3rem;">🌟</span>' +
-                '<strong>Tipsa en familj om Min Stjärndag!</strong>' +
-                '<button class="share-popup-close" aria-label="Stäng">&times;</button>' +
-            '</div>' +
-            '<p class="share-popup-text">' + SHARE_TEXT.replace(SHARE_URL, '<a href="' + SHARE_URL + '" target="_blank" rel="noopener">' + SHARE_URL + '</a>') + '</p>' +
-            '<div class="share-popup-actions">' +
-                '<button class="share-popup-btn" type="button" id="sharePopupCopy">' +
-                    '<span>📋</span> Kopiera länk' +
-                '</button>' +
-                '<a href="mailto:?subject=' + mailSubject + '&body=' + mailBody + '" class="share-popup-btn">' +
-                    '<span>✉️</span> Skicka via mejl' +
-                '</a>' +
-                '<a href="' + fbUrl + '" target="_blank" rel="noopener noreferrer" class="share-popup-btn">' +
-                    '<span style="color:#1877F2;">f</span> Dela på Facebook' +
-                '</a>' +
-            '</div>' +
-        '</div>';
-
-    document.body.appendChild(overlay);
-
-    function closePopup() {
-      overlay.remove();
-      document.removeEventListener('keydown', escHandler);
-    }
-    // Close on X button click
-    overlay.querySelector('.share-popup-close').addEventListener('click', closePopup);
-    // Close on click outside the card (on overlay background)
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) closePopup(); });
-    // Close on Escape key
-    function escHandler(e) { if (e.key === 'Escape') closePopup(); }
-    document.addEventListener('keydown', escHandler);
-
-    document.getElementById('sharePopupCopy').addEventListener('click', function() {
-        var btn = this;
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(SHARE_URL).then(function() {
-                btn.innerHTML = '<span>✅</span> Kopierad!';
-                setTimeout(function() { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
-            });
-        } else {
-            var t = document.createElement('textarea');
-            t.value = SHARE_URL;
-            t.style.cssText = 'position:fixed;top:-9999px;';
-            document.body.appendChild(t); t.select();
-            try { document.execCommand('copy'); } catch(e) {}
-            document.body.removeChild(t);
-            btn.innerHTML = '<span>✅</span> Kopierad!';
-            setTimeout(function() { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
-        }
-    });
-}
-
-// Mode-driven CTA toggle (registration / maintenance)
-(function() {
-    function applyMode(mode) {
-        var founderBtn   = document.getElementById('founderCtaBtn');
-        var footerCta    = document.getElementById('footerBetaCta');
-        var childLogin   = document.getElementById('childLoginSection');
-        if (mode === 'maintenance') {
-            if (founderBtn)  founderBtn.style.display = 'none';
-            if (footerCta)   footerCta.style.display = 'none';
-            if (childLogin)  childLogin.style.display = '';
-        } else {
-            /* Bug fix: <a> defaults to display:inline when style.display=''
-               which strips the flex layout. Explicitly set display:flex. */
-            if (founderBtn)  founderBtn.style.display = 'flex';
-            if (footerCta) {
-                footerCta.style.display = '';
-                footerCta.textContent = 'Testa gratis';
-                footerCta.href = '/register';
-            }
-            if (childLogin) childLogin.style.display = '';
-        }
-    }
-    // __APP_MODE__ is always injected by the server (landing.js) with mode:'registration'
-    if (typeof window.__APP_MODE__ !== 'undefined' && window.__APP_MODE__) {
-        applyMode(window.__APP_MODE__.mode);
-    }
+    banner.style.display = 'block';
+    adjustLayout();
+  }).catch(function() {});
+  document.getElementById('dagensNyhetClose').addEventListener('click', function() {
+    banner.style.display = 'none';
+    adjustLayout();
+  });
+  window.addEventListener('resize', adjustLayout);
 })();
 </script>
-
-
-  <!-- Founder counter: fetch live family count and update UI -->
-  <script>
-  (function() {
-    function updateCounter(count, limit) {
-      limit = limit || 200;
-      count = Math.max(0, Math.min(count, limit));
-      var remaining = limit - count;
-      var label = document.getElementById('counterLabel');
-      var fill  = document.getElementById('progressFill');
-      var msg   = document.querySelector('#familyCounter p:last-child');
-      if (label) label.textContent = count + '/' + limit + ' familjer har redan gått med';
-      if (fill)  fill.style.width  = Math.round((count / limit) * 100) + '%';
-      if (msg && remaining > 0) {
-        msg.textContent = remaining + (remaining === 1 ? ' plats kvar' : ' platser kvar') + ' som grundarmedlem';
-      }
-      var section = document.getElementById('familyCounter');
-      if (section && count >= limit) section.style.display = 'none';
-    }
-    fetch('/api/landing/stats')
-      .then(function(r) { return r.json(); })
-      .then(function(data) { updateCounter(data.count || 0, data.limit || 200); })
-      .catch(function() { /* fail-safe: leave static HTML as-is */ });
-  })();
-  </script>
-
-  <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
-  <script src="/js/sw-register.js?v=2.13.0"></script>
-
-  <!-- Landing page: apply magisk natt bg + star/cloud particles (web only) -->
-  <script>
-  (function() {
-    // Only apply on .platform-web — platform.js handles .platform-native redirect
-    if (!document.body.classList.contains('platform-web')) return;
-
-    document.body.classList.add('landing-magic-bg');
-
-    // ── Star generation (reuses login-magic.css star-particle classes) ──────────
-    function genStars(count) {
-      var c = document.getElementById('landing-stars-container');
-      if (!c) return;
-      for (var i = 0; i < count; i++) {
-        var s = document.createElement('div');
-        s.className = 'star-particle';
-        var sz = Math.random() < 0.7 ? Math.floor(Math.random() * 4) + 2 : Math.floor(Math.random() * 7) + 6;
-        s.style.cssText = [
-          'width:' + sz + 'px', 'height:' + sz + 'px',
-          'background:rgba(255,255,255,' + (Math.random() * 0.55 + 0.2).toFixed(2) + ')',
-          'left:' + (Math.random() * 100).toFixed(1) + '%',
-          'top:'  + (Math.random() * 100).toFixed(1) + '%',
-          '--float-dur:'    + (Math.random() * 5 + 3).toFixed(1) + 's',
-          '--float-delay:'  + (Math.random() * 4).toFixed(1) + 's',
-          '--twinkle-dur:'  + (Math.random() * 3 + 1.5).toFixed(1) + 's',
-          '--twinkle-delay:'+ (Math.random() * 3).toFixed(1) + 's'
-        ].join(';');
-        if (Math.random() < 0.35) s.classList.add('lit');
-        if (Math.random() < 0.2)  s.classList.add('fast');
-        if (Math.random() < 0.15) s.classList.add('slow');
-        c.appendChild(s);
-      }
-    }
-
-    // ── Cloud generation ──────────────────────────────────────────────────────
-    function genClouds(count) {
-      var c = document.getElementById('landing-clouds-container');
-      if (!c) return;
-      for (var i = 0; i < count; i++) {
-        var cl = document.createElement('div');
-        cl.className = 'cloud';
-        var w = Math.floor(Math.random() * 180 + 80);
-        cl.style.cssText = [
-          'width:' + w + 'px', 'height:' + Math.floor(w * (0.4 + Math.random() * 0.3)) + 'px',
-          'left:' + (Math.random() * 100).toFixed(1) + '%',
-          'top:'  + (Math.random() * 70).toFixed(1) + '%',
-          '--drift-dur:'   + (Math.random() * 15 + 10).toFixed(0) + 's',
-          '--drift-delay:' + (Math.random() * 8).toFixed(1) + 's'
-        ].join(';');
-        c.appendChild(cl);
-      }
-    }
-
-    genStars(60);
-    genClouds(6);
-  })();
-  </script>
-
-  <!-- Landing news: server-side rendered by routes/landing.js (no client JS needed) -->
-  <!-- Landing page survey popup (Målgrupp C) -->
-  <script src="/js/landing-survey-popup.js?v=2.13.0"></script>
+<!-- ===== SCRIPTS ===== -->
+<script src="/js/landing-nav.js?v=1"></script>
+<script src="/js/landing-faq.js?v=1"></script>
+<script src="/js/landing-events.js?v=1"></script>
+<script src="/js/landing-founder.js?v=1"></script>
+<script src="/js/landing-magic-bg.js?v=1"></script>
+<script src="/js/sw-register.js?v=2.13.0"></script>
 </body>
 </html>

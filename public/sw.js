@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v267 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v268 // pragma: allowlist secret
+ * v268: Landing page v2 — conversion-focused homepage refactor
  * v267: Admin prenumeration — legacy web payment UI borttagen, IAP-status endast
  * v266: Apple Sign In iPad — robust native name mapping (givenName/familyName)
  * v242: for-dig bugfix — native-tab-bar För dig, sw-register + versioning, outcome-banner feature gate

@@ -1,0 +1,46 @@
+/**
+ * Landing page navigation — hamburger, scroll state, mobile menu.
+ */
+(function () {
+  'use strict';
+
+  var nav = document.querySelector('.landing-nav');
+  var hamburger = document.getElementById('navHamburger');
+  var mobileMenu = document.getElementById('mobileMenu');
+
+  function closeMobileMenu() {
+    if (mobileMenu) mobileMenu.classList.remove('is-open');
+    if (hamburger) {
+      hamburger.classList.remove('is-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  window.closeLandingMobileMenu = closeMobileMenu;
+
+  if (hamburger && mobileMenu) {
+    hamburger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = mobileMenu.classList.toggle('is-open');
+      hamburger.classList.toggle('is-open', open);
+      hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!mobileMenu.classList.contains('is-open')) return;
+      if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        closeMobileMenu();
+      }
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeMobileMenu);
+    });
+  }
+
+  if (nav) {
+    window.addEventListener('scroll', function () {
+      nav.classList.toggle('is-scrolled', window.scrollY > 24);
+    }, { passive: true });
+  }
+})();
