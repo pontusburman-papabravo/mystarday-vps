@@ -1,5 +1,5 @@
 /**
- * Daily log API routes — re-exports split routers from ./daily-logs/.
+ * Daily log API routes — re-exports split routers.
  *
  * GET  /api/children/:childId/daily-log?date=YYYY-MM-DD
  * GET  /api/children/:childId/daily-logs?from=YYYY-MM-DD&to=YYYY-MM-DD
@@ -8,9 +8,9 @@
  * GET/PUT /api/me/daily-log* (child self-access)
  */
 
-const childRouter = require('./daily-logs/parent');
-const itemRouter = require('./daily-logs/items');
-const logRouter = require('./daily-logs/logs');
-const childSelfRouter = require('./daily-logs/child-self');
+const childRouter = require('./parent');
+const itemRouter = require('./items');
+const logRouter = require('./logs');
+const childSelfRouter = require('./child-self');
 
 module.exports = { childRouter, itemRouter, logRouter, childSelfRouter };
