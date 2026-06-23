@@ -45,5 +45,5 @@ jobs:
         run: npm test
         env:
           REQUIRE_EMAIL_VERIFICATION: 'false'
-          JWT_SECRET: test-secret-for-ci
+          JWT_SECRET: test-secret-at-least-32-chars-long-for-ci
           NODE_ENV: test
