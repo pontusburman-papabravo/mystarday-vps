@@ -19,7 +19,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Database
 
-- `family` — household unit with timezone and section time settings; also holds is_lifetime_free BOOLEAN (all existing families = true), subscription_status ('none'|'active'|'expired'|'grace_period'|'cancelled'; defaults 'none' post-IAP migration), trial_ends_at, rc_customer_id VARCHAR(255) (RevenueCat linkage). Legacy `stripe_customer_id` / `stripe_subscription_id` columns remain until migration A5c drops them — not used by active code.
+- `family` — household unit with timezone and section time settings; also holds is_lifetime_free BOOLEAN (all existing families = true), subscription_status ('none'|'active'|'expired'|'grace_period'|'cancelled'; defaults 'none' post-IAP migration), trial_ends_at, rc_customer_id VARCHAR(255) (RevenueCat linkage)
 - `parent` — parent account (email auth, family role, account_type ('family'|'educator'|'dual'), preferred_view_mode ('parent'|'pedagog'), push_preferences JSONB, admin_push_enabled, apple_user_id/apple_email for Apple Sign In)
 - `child` — child profile (name, emoji, avatar_url, birthday, PIN, view_type, username, child_view_config JSONB with view_mode + element visibility flags); avatar_url enables profile photo upload with fallback chain: image → emoji → ⭐-placeholder
 - `parent_child` — parent-to-child link (primary/shared/pedagog roles); revoked_at/revoked_by for soft deletion; connected_at when pedagogen linked
@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 6 A5c — DB migration drops unused `family.stripe_customer_id` / `stripe_subscription_id` (Stripe removed in Fas 5). Files: migrations/1808300000000_drop_family_stripe_columns.js, CLAUDE.md.
 - 2026-06-23: Refactor Fas 5 A7 — docs: RevenueCat/IAP as sole payment path; Stripe removed from README/CLAUDE/app-store-iap; history archived in `docs/ARKIVERAT-STRIPE.md`. Files: README.md, CLAUDE.md, docs/app-store-iap.md, docs/ARKIVERAT-STRIPE.md.
 - 2026-06-23: Refactor Fas 5 A6 — admin prenumeration Stripe UI removed (SW v267): IAP status card only in admin subscription settings; Stripe CSS hooks removed from `platform-native.css`. Files: public/admin/index.html, public/admin/admin-subscription-settings.js, public/css/platform-native.css, public/sw.js.
 - 2026-06-23: Refactor Fas 0 (Gate A prep) — `checkMaintenanceMode` moved before `registerRoutes()` in `app.js` so API routes return 503 during maintenance; `/api/iap/*` exempt so RevenueCat webhooks keep flowing; regression test `test/maintenance-order.test.js`. Files: app.js, src/middleware/maintenance.js, test/maintenance-order.test.js.
