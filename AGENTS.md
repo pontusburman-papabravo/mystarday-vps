@@ -6,6 +6,17 @@ This repo is a Swedish family-routine app (Express.js + PostgreSQL, static front
 
 The startup update script already installs npm dependencies. The notes below are the non-obvious things needed to run/test the app here.
 
+### Git repository (canonical remote)
+
+- **Use:** `https://github.com/pontusburman-papabravo/mystarday-vps.git`
+- **Do not use:** `MyStarday-Polsia` — old name, archived/renamed (see `docs/ARKIVERAT-POLSIA-REPO.md`).
+- Cloud Agent VMs may clone with a stale `origin` URL. After clone, verify and fix:
+  ```bash
+  git remote -v
+  git remote set-url origin https://github.com/pontusburman-papabravo/mystarday-vps.git
+  ```
+- `git push` / PR links should always show `mystarday-vps`, not `MyStarday-Polsia`.
+
 ### Runtime versions
 - The project pins **Node 20** (`.nvmrc`). The VM default `node` (`/exec-daemon/node`) is Node 22 and takes priority on `PATH`, so prepend Node 20 explicitly in any shell that runs app/test commands:
   `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (install once with `nvm install 20` if missing).
