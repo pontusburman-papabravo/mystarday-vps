@@ -122,21 +122,14 @@ test('paywall contract: per-route component gating + core API access', async (t)
   }
 });
 
-test('paywall contract: global requireActiveSubscription not mounted after routes (C2b)', async (t) => {
+test('paywall contract: no global requireActiveSubscription mount in app.js (C2b)', () => {
   const appSrc = fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8');
-  const routesIdx = appSrc.indexOf('registerRoutes(app)');
-  const globalSubIdx = appSrc.indexOf('requireActiveSubscription');
-
-  if (routesIdx < 0 || globalSubIdx < 0) {
-    assert.fail('app.js should contain registerRoutes and requireActiveSubscription');
-  }
-
-  if (globalSubIdx > routesIdx) {
-    t.skip('Global subscription mount still after registerRoutes — remove in C2b');
-    return;
-  }
-
-  assert.ok(globalSubIdx < routesIdx, 'requireActiveSubscription should run before registerRoutes');
+  assert.ok(appSrc.includes('registerRoutes(app)'), 'app.js should call registerRoutes');
+  assert.equal(
+    appSrc.indexOf('requireActiveSubscription'),
+    -1,
+    'global requireActiveSubscription mount should be removed (per-route requireComponent is canonical)'
+  );
 });
 
 test('paywall inventory documents per-route canonical model', () => {

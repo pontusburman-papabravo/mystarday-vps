@@ -110,22 +110,6 @@ function createApp() {
   app.use('/uploads', express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
   app.use('/V2.0', express.static(path.join(__dirname, 'public', 'v2'), { index: 'index.html' }));
 
-  const { requireActiveSubscription } = require('./src/middleware/subscription');
-  app.use('/api', (req, res, next) => {
-    const p = req.path;
-    if (
-      p.startsWith('/auth') ||
-      p.startsWith('/iap') ||
-      p.startsWith('/resend/') ||
-      p === '/health' ||
-      p.startsWith('/landing') ||
-      p.startsWith('/public/') ||
-      p === '/i18n' ||
-      p === '/i18n/'
-    ) return next();
-    requireActiveSubscription(req, res, next);
-  });
-
   app.use(require('./src/routes/public-pages'));
 
   app.use((req, res) => {
