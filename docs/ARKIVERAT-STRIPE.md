@@ -18,10 +18,10 @@
 - Admin prenumerations-UI för Stripe (A6)
 - Webb-betalningslänkar och kortformulär — aldrig aktivt i produktion (`BILLING_UI_DISABLED`)
 
-## Kvarvarande legacy (tills A5c)
+## Kvarvarande legacy (tills B1 / manuell städ)
 
-- DB-kolumner: `family.stripe_customer_id`, `family.stripe_subscription_id` (ej lästa av aktiv kod)
 - Admin addon-API kan fortfarande acceptera `stripe_price_id` i request body (död parameter)
+- `users`-tabell skapas fortfarande av `migrate.js` core bootstrap (B1)
 
 ## Kanonisk betalningsdokumentation
 
