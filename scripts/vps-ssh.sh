@@ -44,6 +44,37 @@ fail() {
   exit 1
 }
 
+normalize_ssh_key() {
+  # Cursor secrets sometimes store the key on one line (spaces instead of newlines).
+  if [[ "$VPS_SSH_KEY" != *$'\n'* && "$VPS_SSH_KEY" == *'-----BEGIN OPENSSH PRIVATE KEY-----'* ]]; then
+    python3 - <<'PY'
+import os, re, sys
+
+raw = os.environ.get("VPS_SSH_KEY", "").strip()
+match = re.match(
+    r"-----BEGIN OPENSSH PRIVATE KEY-----\s*(.+?)\s*-----END OPENSSH PRIVATE KEY-----",
+    raw,
+    re.DOTALL,
+)
+if not match:
+    sys.stdout.write(raw)
+    if not raw.endswith("\n"):
+        sys.stdout.write("\n")
+    raise SystemExit(0)
+
+b64 = re.sub(r"\s+", "", match.group(1))
+lines = [b64[i : i + 70] for i in range(0, len(b64), 70)]
+sys.stdout.write(
+    "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+    + "\n".join(lines)
+    + "\n-----END OPENSSH PRIVATE KEY-----\n"
+)
+PY
+    return
+  fi
+  printf '%s\n' "$VPS_SSH_KEY"
+}
+
 prepare_key() {
   if [ -z "${VPS_SSH_KEY:-}" ]; then
     fail "VPS_SSH_KEY is not set. Run ./scripts/setup-cursor-agent-ssh.sh on your Mac, then add the secrets in Cursor → Cloud Agents → Secrets."
@@ -54,7 +85,7 @@ prepare_key() {
 
   KEY_FILE="$(mktemp)"
   chmod 600 "$KEY_FILE"
-  printf '%s\n' "$VPS_SSH_KEY" >"$KEY_FILE"
+  normalize_ssh_key >"$KEY_FILE"
 }
 
 ssh_base() {
