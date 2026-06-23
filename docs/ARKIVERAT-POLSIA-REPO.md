@@ -23,7 +23,7 @@ Deploy på VPS: se [`VPS-ANDROID-ENV.md`](VPS-ANDROID-ENV.md).
 
 ## Historiska Polsia-dokument
 
-Filer under `docs/polsia-*` och `docs/polsia-release-os/` är **arkiverad referens** från Polsia-eran. Använd dem inte för ny deploy eller handoff — de finns kvar för historik och diff.
+All Polsia-relaterad dokumentation ligger under **`docs/archive/polsia/`** (inkl. `release-os/`). Det är **arkiverad referens** från Polsia-eran — använd inte för ny deploy eller handoff.
 
 ## Git-remote
 

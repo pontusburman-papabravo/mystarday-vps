@@ -65,7 +65,7 @@ Hur tänker du kring "ljud" i appen? För målgruppen barn kan små ljudeffekter
 
 | Feedback (§ ovan) | `app2.md` | Mockup / kod |
 |-------------------|-----------|--------------|
-| 1 Haptik PIN | §7.2 Haptik PIN | §2.3, `docs/polsia-barnlogin-design.md` |
+| 1 Haptik PIN | §7.2 Haptik PIN | §2.3, `docs/archive/polsia/polsia-barnlogin-design.md` |
 | 1 Fullskärm immersive | §7.2 Fullskärm, §2.2 Rymd-tema | Capacitor status bar |
 | 2 Parallax belöningskort | §7.2 Parallax kort (v2) | `beloningar.html` |
 | 2 Mål-animation | §7.2 Mål-animation, §16.5 wow | `celebration.html` |
@@ -91,4 +91,4 @@ Hur tänker du kring "ljud" i appen? För målgruppen barn kan små ljudeffekter
 | Skattkammaren wow | Efter Gate 24 → barn-wow / §16.5 |
 | Offline banner barn | §9 gap |
 
-Se [`docs/polsia-release-os/README.md`](polsia-release-os/README.md) och [`polsia-sprint-koordinering.md`](../polsia-sprint-koordinering.md).
+Se [`docs/archive/polsia/release-os/README.md`](archive/polsia/release-os/README.md) och [`polsia-sprint-koordinering.md`](archive/polsia/polsia-sprint-koordinering.md).

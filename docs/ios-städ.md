@@ -528,8 +528,8 @@ Full launch-checklista: [`app2.md` §18](../app2.md#18-native--app-store--väg-6
 | [`app2.md`](../app2.md) v2.3 | Masterplan, P0, Fas A+, 10/10 |
 | [`app.md`](../app.md) | 10-stegs native-plan |
 | `docs/app-store-review-notes.md` | Review Notes |
-| `docs/polsia-kontohantering-a-f.md` | Kontohantering (efter Uppdrag A) |
-| `docs/polsia-barnlogin-design.md` | Barnlogin P1 (efter PG) |
+| `docs/archive/polsia/polsia-kontohantering-a-f.md` | Kontohantering (efter Uppdrag A) |
+| `docs/archive/polsia/polsia-barnlogin-design.md` | Barnlogin P1 (efter PG) |
 
 ---
 

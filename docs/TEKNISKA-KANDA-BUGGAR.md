@@ -40,4 +40,4 @@ curl -sS https://mystarday.se/api/app-config
 curl -sS https://mystarday.se/sw.js | head -3
 ```
 
-Se även `docs/POLSIA-DEPLOY-EFTER-MAIN.md`.
+Se [`docs/archive/polsia/POLSIA-DEPLOY-EFTER-MAIN.md`](archive/polsia/POLSIA-DEPLOY-EFTER-MAIN.md).

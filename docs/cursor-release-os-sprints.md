@@ -1,7 +1,7 @@
 # Release OS sprint 1–26 — agent-ägarskap (Cursor)
 
 **Uppdaterad:** 2026-05-28  
-**Beslut:** Cursor Cloud Agent tar **implementation i repo** för alla sprintar i [`polsia-release-os/01-korlista.md`](polsia-release-os/01-korlista.md) (inkl. nr 26 Dashboard). Polsia behövs inte för kod — endast om ni vill behålla separat deploy-kanal.
+**Beslut:** Cursor Cloud Agent tar **implementation i repo** för alla sprintar i [`archive/polsia/release-os/01-korlista.md`](archive/polsia/release-os/01-korlista.md) (inkl. nr 26 Dashboard). Polsia behövs inte för kod — endast om ni vill behålla separat deploy-kanal.
 
 **Du (Pontus) behöver fortfarande:** deploy till prod, env-nycklar (Sentry, Firebase, Apple, Google, RevenueCat), TestFlight/Play Internal, Gate 24/25 manuell signering på riktiga enheter.
 
@@ -51,9 +51,9 @@
 
 ## Körordning (agent)
 
-Samma som [`01-korlista.md`](polsia-release-os/01-korlista.md). Hoppa över rader markerade ✅ om verifiering grön.
+Samma som [`01-korlista.md`](archive/polsia/release-os/01-korlista.md). Hoppa över rader markerade ✅ om verifiering grön.
 
-**Nästa (agent/Polsia):** sprint 18 plugin · 16 Android smoke · 22 deep links · Gate 24 parity · deploy enligt `polsia-deploy-manifest.md`
+**Nästa (agent/Polsia):** sprint 18 plugin · 16 Android smoke · 22 deep links · Gate 24 parity · deploy enligt `archive/polsia/polsia-deploy-manifest.md`
 
 ---
 
@@ -65,7 +65,7 @@ npm run polsia:gate0
 # lint: befintliga fel — öka inte
 ```
 
-Uppdatera [`04-redan-klart-i-repo.md`](polsia-release-os/04-redan-klart-i-repo.md) när en sprint blir ✅.
+Uppdatera [`04-redan-klart-i-repo.md`](archive/polsia/release-os/04-redan-klart-i-repo.md) när en sprint blir ✅.
 
 ---
 
