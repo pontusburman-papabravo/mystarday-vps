@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 7 E2 — Google Sign In route extracted to `src/routes/auth/oauth-google.js` (POST /google); removed now-unused appleLoginLimiter/parentDb/completeLogin imports from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — Apple Sign In routes + helpers extracted to `src/routes/auth/oauth-apple.js` (POST /apple, /apple/link, verifyAppleIdToken, JWKS cache, createParentWithApple); test path updated.
 - 2026-06-23: Refactor Fas 7 E2 (fas 1) — shared auth session helpers extracted to `src/routes/auth/session.js` (parseDuration, completeLogin, clearAllSessionCookies); index.js imports them. No route move; removed now-unused clearAccessCookie import.
 - 2026-06-23: Refactor Fas 7 E2 (relocate) — `auth.js` moved to `src/routes/auth/index.js` (no route move; require paths fixed one level deeper). Prep for incremental auth split per `docs/refactor/e2-auth-endpoint-map.md`. Test path updated in `test/apple-signup-sql.test.js`.
