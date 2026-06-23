@@ -71,7 +71,6 @@ const CSRF_EXEMPT_PREFIXES = [
   '/surveys/s/',          // POST /surveys/s/:slug/start
   '/surveys/responses/',  // POST /surveys/responses/:rid/answers, /submit
   '/surveys/popup/',            // POST /surveys/popup/interaction — user-initiated from own session
-  '/messages/',           // PUT /messages/:id/read — authenticated via session cookie; CSRF redundant
   '/public/report/',      // PIN submission for public report; no parent session, CSRF not applicable
 ];
 
