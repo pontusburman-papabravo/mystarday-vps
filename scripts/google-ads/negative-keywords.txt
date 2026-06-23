@@ -1,0 +1,61 @@
+Campaign	Negative keyword	Match type
+Campaign #1	gratis spel	Negative phrase
+Campaign #1	barnspel	Negative phrase
+Campaign #1	spel app	Negative phrase
+Campaign #1	youtube	Negative phrase
+Campaign #1	tecknad	Negative phrase
+Campaign #1	läxor	Negative phrase
+Campaign #1	skolschema	Negative phrase
+Campaign #1	schema skola	Negative phrase
+Campaign #1	jobb schema	Negative phrase
+Campaign #1	kalender vuxen	Negative phrase
+Campaign #1	träningsschema	Negative phrase
+Campaign #1	kostschema	Negative phrase
+Campaign #1	förskola schema	Negative phrase
+Campaign #1	förskolepersonal	Negative phrase
+Campaign #1	lärare schema	Negative phrase
+Campaign #1	skriva ut	Negative phrase
+Campaign #1	utskrift	Negative phrase
+Campaign #1	pdf gratis	Negative phrase
+Campaign #1	mall gratis	Negative phrase
+Campaign #1	printable	Negative phrase
+Campaign #1	klistermärken	Negative phrase
+Campaign #1	stickers	Negative phrase
+Campaign #1	minecraft	Negative phrase
+Campaign #1	roblox	Negative phrase
+Campaign #1	tiktok	Negative phrase
+Campaign #1	autism cards	Negative phrase
+Campaign #1	communication cards	Negative phrase
+Campaign #1	pecs	Negative phrase
+Campaign #1	bildstöd barn skriva ut	Negative phrase
+Campaign #1	bildstöd förskola	Negative exact
+[APP_NAME] - Sök	gratis spel	Negative phrase
+[APP_NAME] - Sök	barnspel	Negative phrase
+[APP_NAME] - Sök	spel app	Negative phrase
+[APP_NAME] - Sök	youtube	Negative phrase
+[APP_NAME] - Sök	tecknad	Negative phrase
+[APP_NAME] - Sök	läxor	Negative phrase
+[APP_NAME] - Sök	skolschema	Negative phrase
+[APP_NAME] - Sök	schema skola	Negative phrase
+[APP_NAME] - Sök	jobb schema	Negative phrase
+[APP_NAME] - Sök	kalender vuxen	Negative phrase
+[APP_NAME] - Sök	träningsschema	Negative phrase
+[APP_NAME] - Sök	kostschema	Negative phrase
+[APP_NAME] - Sök	förskola schema	Negative phrase
+[APP_NAME] - Sök	förskolepersonal	Negative phrase
+[APP_NAME] - Sök	lärare schema	Negative phrase
+[APP_NAME] - Sök	skriva ut	Negative phrase
+[APP_NAME] - Sök	utskrift	Negative phrase
+[APP_NAME] - Sök	pdf gratis	Negative phrase
+[APP_NAME] - Sök	mall gratis	Negative phrase
+[APP_NAME] - Sök	printable	Negative phrase
+[APP_NAME] - Sök	klistermärken	Negative phrase
+[APP_NAME] - Sök	stickers	Negative phrase
+[APP_NAME] - Sök	minecraft	Negative phrase
+[APP_NAME] - Sök	roblox	Negative phrase
+[APP_NAME] - Sök	tiktok	Negative phrase
+[APP_NAME] - Sök	autism cards	Negative phrase
+[APP_NAME] - Sök	communication cards	Negative phrase
+[APP_NAME] - Sök	pecs	Negative phrase
+[APP_NAME] - Sök	bildstöd barn skriva ut	Negative phrase
+[APP_NAME] - Sök	bildstöd förskola	Negative exact
