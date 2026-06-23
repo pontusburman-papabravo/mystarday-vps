@@ -44,8 +44,6 @@ jobs:
       - name: Test
         run: npm test
         env:
-          # Mock DB for unit tests until G4a/G4b integration tests use setupTestDb()
-          DATABASE_URL: postgresql://localhost/mock_test
           REQUIRE_EMAIL_VERIFICATION: 'false'
           JWT_SECRET: test-secret-for-ci
           NODE_ENV: test
