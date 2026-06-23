@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 6 B1 — remove legacy Polsia `users` table from `migrate.js` core bootstrap (no app/db code referenced it). Existing prod rows remain until manual DROP. Files: migrate.js, test/migration-rollback-gate.test.js.
 - 2026-06-23: Refactor Fas 6 A5c — DB migration drops unused `family.stripe_customer_id` / `stripe_subscription_id` (Stripe removed in Fas 5). Files: migrations/1808300000000_drop_family_stripe_columns.js, CLAUDE.md.
 - 2026-06-23: Refactor Fas 5 A7 — docs: RevenueCat/IAP as sole payment path; Stripe removed from README/CLAUDE/app-store-iap; history archived in `docs/ARKIVERAT-STRIPE.md`. Files: README.md, CLAUDE.md, docs/app-store-iap.md, docs/ARKIVERAT-STRIPE.md.
 - 2026-06-23: Refactor Fas 5 A6 — admin prenumeration Stripe UI removed (SW v267): IAP status card only in admin subscription settings; Stripe CSS hooks removed from `platform-native.css`. Files: public/admin/index.html, public/admin/admin-subscription-settings.js, public/css/platform-native.css, public/sw.js.

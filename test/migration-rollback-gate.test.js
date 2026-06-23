@@ -87,12 +87,14 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
     const countBefore = await appliedMigrationCount(client);
     assert.ok(countBefore > 0, 'migrate on empty DB should apply folder migrations');
     assert.equal(await tableExists(client, CORE_TABLE), true);
+    assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
 
     await rollbackLastApplied(pool, 1);
     assert.equal(await appliedMigrationCount(client), countBefore - 1);
 
     runMigrate(url);
     assert.equal(await tableExists(client, CORE_TABLE), true);
+    assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
     assert.equal(await appliedMigrationCount(client), countBefore);
   } finally {
     client.release();
