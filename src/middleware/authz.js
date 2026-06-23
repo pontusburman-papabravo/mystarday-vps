@@ -57,7 +57,7 @@ async function getLogAccess(parentId, logId) {
      FROM daily_log dl
      JOIN child c ON c.id = dl.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dl.id = $2`,
+     WHERE pc.parent_id = $1 AND dl.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, logId]
   );
   return result.rows[0] || null;
@@ -74,7 +74,7 @@ async function getItemAccess(parentId, itemId) {
      JOIN daily_log dl ON dl.id = dli.daily_log_id
      JOIN child c ON c.id = dl.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND dli.id = $2`,
+     WHERE pc.parent_id = $1 AND dli.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, itemId]
   );
   return result.rows[0] || null;
@@ -93,7 +93,7 @@ async function getScheduleAccess(parentId, scheduleId) {
      FROM weekly_schedule ws
      JOIN child c ON c.id = ws.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND ws.id = $2`,
+     WHERE pc.parent_id = $1 AND ws.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, scheduleId]
   );
   if (childResult.rows.length > 0) return childResult.rows[0];
@@ -119,7 +119,7 @@ async function getSpecialDayAccess(parentId, scheduleId) {
      FROM special_day_schedule sds
      JOIN child c ON c.id = sds.child_id
      JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND sds.id = $2`,
+     WHERE pc.parent_id = $1 AND sds.id = $2 AND pc.revoked_at IS NULL`,
     [parentId, scheduleId]
   );
   return result.rows[0] || null;
