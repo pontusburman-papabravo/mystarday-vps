@@ -185,15 +185,15 @@ function renderSubscriptionSettings() {
   document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
   document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 200;
 
-  // IAP status — web Stripe removed; subscriptions via Apple/Google (RevenueCat)
-  const label = document.getElementById('stripeStatusLabel');
-  const hint = document.getElementById('stripeStatusHint');
+  // IAP billing path (RevenueCat / App Store / Play Store)
+  const label = document.getElementById('iapStatusLabel');
+  const hint = document.getElementById('iapStatusHint');
   if (label) {
     label.textContent = 'IAP: Apple / Google Play';
     label.className = 'text-sm font-semibold text-navy';
   }
   if (hint) {
-    hint.textContent = 'Webb-Stripe är borttagen. Prenumeration sköts via RevenueCat i mobilapparna.';
+    hint.textContent = 'Prenumeration sköts via RevenueCat i mobilapparna.';
     hint.className = 'text-xs text-text-soft mt-0.5';
   }
 
