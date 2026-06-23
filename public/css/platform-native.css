@@ -46,10 +46,8 @@ html.is-native body.has-native-tab-bar .mobile-topbar {
   display: none !important;
 }
 
-/* ── Hide web payment elements (not used in current free version) ───────── */
-.platform-native .web-payment-only,
-.platform-native .stripe-checkout-section,
-.platform-native .stripe-section {
+/* ── Hide web payment elements (not used in native apps) ───────── */
+.platform-native .web-payment-only {
   display: none !important;
 }
 
