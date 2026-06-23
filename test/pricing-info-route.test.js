@@ -7,13 +7,12 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-test('public route serves /pricing-info', () => {
-  const src = fs.readFileSync(
-    path.join(ROOT, 'src/routes/public-pages.js'),
-    'utf8'
-  );
-  assert.match(src, /router\.get\('\/pricing-info'/);
-  assert.match(src, /pricing-info\.html/);
+test('public route serves kontakt and faq pages', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(src, /router\.get\('\/kontakt'/);
+  assert.match(src, /kontakt\.html/);
+  assert.match(src, /router\.get\('\/faq'/);
+  assert.match(src, /faq\.html/);
 });
 
 test('landing route serves program catalog API', () => {
@@ -66,14 +65,15 @@ test('upgrade packages link to preview pages instead of direct interest', () => 
   assert.doesNotMatch(js, /\/api\/subscription\/interest/);
 });
 
-test('landing page has program matrix section', () => {
+test('landing page links to pricing-info and skattkammaren demo', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
-  assert.match(html, /id="program"/);
-  assert.match(html, /landingMatrixBody/);
-  assert.match(html, /landing-program-matrix\.js/);
-  assert.match(html, /program-catalog-render\.js/);
-  assert.match(html, /landingNewsletterForm/);
-  assert.match(html, /landing-newsletter\.js/);
+  assert.match(html, /href="\/skattkammaren\?demo=1"/);
+  assert.match(html, /href="\/pricing-info"/);
+  assert.doesNotMatch(html, /id="landingMatrixBody"/);
+  assert.doesNotMatch(html, /landing-program-matrix\.js/);
+  assert.match(html, /id="sa-fungerar-det"/);
+  assert.match(html, /id="grundarprogram"/);
+  assert.match(html, /data-track="hero_signup_click"/);
 });
 
 test('guest preview scripts and marketing back navigation', () => {

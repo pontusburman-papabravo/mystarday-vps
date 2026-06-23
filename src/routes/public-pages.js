@@ -10,6 +10,16 @@ router.get('/privacy', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'privacy.html'));
 });
 
+// Contact page
+router.get('/kontakt', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'kontakt.html'));
+});
+
+// Full FAQ page
+router.get('/faq', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'faq.html'));
+});
+
 // Terms of Service
 router.get('/terms', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'terms.html'));
@@ -62,8 +72,5 @@ router.get('/pricing-info', async (req, res) => {
 
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));
-
-// /faq → land on landing page scrolled to FAQ section
-router.get('/faq', (req, res) => res.redirect(301, '/#faq'));
 
 module.exports = router;
