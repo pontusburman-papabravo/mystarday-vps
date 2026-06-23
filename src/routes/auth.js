@@ -944,7 +944,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
         const maxAgeMs = 7 * 24 * 60 * 60 * 1000; // 7 days, same as refresh token
         res.cookie('stjarndag_parent_session', encoded, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: config.cookieSecure,
           sameSite: 'lax',
           maxAge: maxAgeMs,
           path: '/',
@@ -1724,7 +1724,7 @@ router.post('/logout', async (req, res) => {
 
 // ─── POST /api/auth/google ───────────────────────────────
 // Sprint 17: verify Google idToken; login existing parent by verified email.
-const fetch = require('node-fetch');
+const { verifyGoogleIdToken } = require('../lib/google-auth');
 
 router.post('/google', appleLoginLimiter, async (req, res) => {
   try {
@@ -1733,15 +1733,16 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
       return res.status(400).json({ error: 'idToken krävs' });
     }
 
-    const tokenRes = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
-    );
-    if (!tokenRes.ok) {
+    let payload;
+    try {
+      payload = await verifyGoogleIdToken(idToken);
+    } catch (verifyErr) {
+      console.error('[AUTH] Google token verification failed:', verifyErr.message);
       return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
     }
-    const tokenData = await tokenRes.json();
-    const email = (tokenData.email || '').toLowerCase().trim();
-    const emailOk = tokenData.email_verified === 'true' || tokenData.email_verified === true;
+
+    const email = (payload.email || '').toLowerCase().trim();
+    const emailOk = payload.email_verified === true || payload.email_verified === 'true';
     if (!email || !emailOk) {
       return res.status(401).json({ error: 'Google-kontot saknar verifierad e-post' });
     }
