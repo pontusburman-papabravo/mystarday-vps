@@ -81,7 +81,9 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
-- 2026-06-24: Bugfix — barnvy utloggning/byte barn: `parental-gate.js` använder `Auth._showParentPinGateOverlay` på barnsidor (saknade `login-magic.js`); header-knappar 🚪/👤 Byt barn döljs inte längre av `child-system-menu.js`; SW v313.
+- 2026-06-24: Fas 10 — `docs/dead-code-inventory.md`; onboarding XSS escape `childName`/`groupMeta.name`; `lint:public` + CI; deploy gate test; SW v314.
+- 2026-06-24: Bugfix — barnvy utloggning/byte barn: `parental-gate.js` använder `Auth._showParentPinGateOverlay` på barnsidor; header-knappar 🚪/👤 Byt barn döljs inte längre; SW v313.
+- 2026-06-24: Refactor Fas 9 — Tailwind CDN → `tailwind.build.css` på 41 sidor; SW v312.
 - 2026-06-24: Refactor Fas 8 finish — `dashboard-dnd.js`, `dashboard-activity-modal.js`, `schedule-special-days.js`, `schedule-template-mode.js`, `schedule-insert-fill.js`, `child-dashboard-rewards.js` extracted; `dashboard.js` ~1450 r; SW v311.
 - 2026-06-24: Refactor Fas 8 F2d — timeline + side-by-side views extracted from `dashboard.js` to `public/js/dashboard-views.js` (IIFE; 6 `window.*` handlers); loaded after `dashboard-approvals.js`; SW v310.
 - 2026-06-24: Refactor Fas 8 F2f — give-stars modal + request panel extracted from `dashboard.js` to `public/js/dashboard-approvals.js` (IIFE; 8 `window.*` handlers); loaded after `dashboard-card-actions.js`; SW v309.
