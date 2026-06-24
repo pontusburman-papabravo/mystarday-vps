@@ -111,6 +111,11 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'referral_signup',
   'referral_qualified',
   'activation_nudge_sent',
+  // FEAT-1 boendeschema
+  'custody_home_selected',
+  'custody_week_variant_changed',
+  'custody_view_filtered',
+  'custody_banner_seen',
 ]);
 
 /**

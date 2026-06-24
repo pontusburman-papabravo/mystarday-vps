@@ -75,6 +75,8 @@
 
       const children = data.children || [];
       familyChildren = children;
+      window.familyChildren = children;
+      if (window.CustodySettings) CustodySettings.reload();
 
       const summaryEl = document.getElementById('familySummary');
       if (summaryEl) {

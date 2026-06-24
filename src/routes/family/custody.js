@@ -1,0 +1,301 @@
+'use strict';
+
+/**
+ * FEAT-1 — Boendeschema API (flag: custody_schedule_beta).
+ * Mounted at /api/family/custody
+ */
+
+const express = require('express');
+const db = require('../../lib/db');
+const { requireNotPedagogOnly } = require('../../middleware/authz');
+const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
+const custodyDb = require('../../../db/custody');
+const {
+  getHomeForDate,
+  getWeekBannerContext,
+  isParentCustodyDay,
+} = require('../../lib/custody-resolver');
+const { migrateChildScheduleToCustody } = require('../../lib/custody-schedule-migrate');
+const { getWeekMondayIso } = require('../../lib/date-utils');
+const analytics = require('../../../db/analytics');
+
+const router = express.Router();
+
+const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
+
+async function requireCustodyFeature(req, res, next) {
+  try {
+    const enabled = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, req.user.familyId);
+    if (!enabled) {
+      return res.status(404).json({ error: 'Funktionen är inte tillgänglig' });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function verifyChildInFamily(childId, familyId) {
+  const result = await db.query(
+    'SELECT id FROM child WHERE id = $1 AND family_id = $2',
+    [childId, familyId]
+  );
+  return result.rows[0] || null;
+}
+
+function homesById(homes) {
+  const map = {};
+  for (const h of homes) map[h.id] = h;
+  return map;
+}
+
+// GET /api/family/custody
+router.get('/', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    const config = await custodyDb.getFamilyConfig(familyId);
+    const parents = await db.query(
+      `SELECT id, name, email FROM parent WHERE family_id = $1 AND is_admin = false ORDER BY created_at ASC`,
+      [familyId]
+    );
+    res.json({
+      featureEnabled: true,
+      homes: config.homes,
+      parentHomes: config.parentHomes,
+      patterns: config.patterns,
+      parents: parents.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/family/custody/context?childId=&date=
+router.get('/context', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const { childId, date } = req.query;
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'childId krävs' });
+    }
+    const child = await verifyChildInFamily(childId, req.user.familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const pattern = await custodyDb.getPattern(childId);
+    if (!pattern) {
+      return res.json({ active: false });
+    }
+
+    const homes = await custodyDb.listHomes(req.user.familyId);
+    const byId = homesById(homes);
+    const dateStr = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
+      ? date
+      : new Date().toISOString().slice(0, 10);
+
+    const dayContext = getHomeForDate(pattern, byId, dateStr);
+    const weekContext = getWeekBannerContext(pattern, byId, dateStr);
+    const parentHomeId = await custodyDb.getParentHomeId(req.user.id, req.user.familyId);
+
+    res.json({
+      active: true,
+      date: dateStr,
+      weekMonday: getWeekMondayIso(dateStr),
+      variant: dayContext.variant,
+      home: {
+        id: dayContext.homeId,
+        label: dayContext.label,
+        color: dayContext.color,
+      },
+      weekBanner: {
+        label: weekContext.label,
+        color: weekContext.color,
+        variant: weekContext.variant,
+      },
+      isMyDay: parentHomeId ? isParentCustodyDay(parentHomeId, pattern, dateStr) : null,
+      parentHomeId,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/family/custody/homes
+router.put('/homes', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    const { homes } = req.body || {};
+    if (!Array.isArray(homes) || homes.length < 1 || homes.length > 4) {
+      return res.status(400).json({ error: 'homes måste vara en array (1–4 hem)' });
+    }
+
+    const saved = [];
+    for (let i = 0; i < homes.length; i++) {
+      const h = homes[i];
+      const label = String(h.label || '').trim().slice(0, 64);
+      const color = HEX_COLOR.test(h.color || '') ? h.color : '#4F46E5';
+      if (!label) return res.status(400).json({ error: 'Varje hem behöver en etikett' });
+
+      const row = await custodyDb.upsertHome({
+        id: h.id || null,
+        family_id: familyId,
+        label,
+        color,
+        sort_order: i,
+      });
+      saved.push(row);
+    }
+
+    analytics.track(familyId, 'custody_home_selected', { count: saved.length });
+    res.json({ homes: saved });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/family/custody/parent-homes
+router.put('/parent-homes', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    const { mappings } = req.body || {};
+    if (!Array.isArray(mappings)) {
+      return res.status(400).json({ error: 'mappings krävs' });
+    }
+
+    for (const m of mappings) {
+      const parentCheck = await db.query(
+        'SELECT id FROM parent WHERE id = $1 AND family_id = $2',
+        [m.parentId, familyId]
+      );
+      if (!parentCheck.rows[0]) continue;
+      if (m.custodyHomeId) {
+        const home = await custodyDb.getHomeInFamily(m.custodyHomeId, familyId);
+        if (!home) return res.status(400).json({ error: 'Ogiltigt hem' });
+      }
+      await custodyDb.setParentHome(m.parentId, m.custodyHomeId || null);
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/family/custody/pattern/:childId
+router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  const client = await db.pool.connect();
+  try {
+    const familyId = req.user.familyId;
+    const { childId } = req.params;
+    const child = await verifyChildInFamily(childId, familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const {
+      anchor_date: anchorDate,
+      week_a_home_id: weekAHomeId,
+      week_b_home_id: weekBHomeId,
+      enabled,
+      clone_week_b: cloneWeekB,
+    } = req.body || {};
+
+    if (enabled === false) {
+      await custodyDb.deletePattern(childId, client);
+      return res.json({ ok: true, pattern: null });
+    }
+
+    if (!anchorDate || !weekAHomeId || !weekBHomeId) {
+      return res.status(400).json({ error: 'anchor_date, week_a_home_id och week_b_home_id krävs' });
+    }
+    if (weekAHomeId === weekBHomeId) {
+      return res.status(400).json({ error: 'Vecka A och B måste ha olika hem' });
+    }
+
+    const homeA = await custodyDb.getHomeInFamily(weekAHomeId, familyId, client);
+    const homeB = await custodyDb.getHomeInFamily(weekBHomeId, familyId, client);
+    if (!homeA || !homeB) {
+      return res.status(400).json({ error: 'Ogiltiga hem' });
+    }
+
+    await client.query('BEGIN');
+
+    const pattern = await custodyDb.upsertPattern({
+      child_id: childId,
+      anchor_date: anchorDate,
+      interval_weeks: 2,
+      week_a_home_id: weekAHomeId,
+      week_b_home_id: weekBHomeId,
+    }, client);
+
+    if (cloneWeekB !== false) {
+      await migrateChildScheduleToCustody(client, childId, weekAHomeId, weekBHomeId);
+    }
+
+    await client.query('COMMIT');
+
+    analytics.track(familyId, 'custody_week_variant_changed', {
+      child_id: childId,
+      anchor_date: anchorDate,
+    });
+
+    res.json({ pattern });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
+// POST /api/family/custody/setup — quick start with 2 default homes
+router.post('/setup', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  const client = await db.pool.connect();
+  try {
+    const familyId = req.user.familyId;
+    const existing = await custodyDb.listHomes(familyId, client);
+    if (existing.length >= 2) {
+      return res.json({ homes: existing, alreadySetup: true });
+    }
+
+    await client.query('BEGIN');
+
+    const parents = await client.query(
+      `SELECT id, name FROM parent WHERE family_id = $1 AND is_admin = false ORDER BY created_at ASC LIMIT 2`,
+      [familyId]
+    );
+
+    const home1 = await custodyDb.upsertHome({
+      family_id: familyId,
+      label: 'Hem 1',
+      color: '#4F46E5',
+      sort_order: 0,
+    }, client);
+    const home2 = await custodyDb.upsertHome({
+      family_id: familyId,
+      label: 'Hem 2',
+      color: '#22C55E',
+      sort_order: 1,
+    }, client);
+
+    if (parents.rows[0]) {
+      await custodyDb.setParentHome(parents.rows[0].id, home1.id, client);
+    }
+    if (parents.rows[1]) {
+      await custodyDb.setParentHome(parents.rows[1].id, home2.id, client);
+    }
+
+    await client.query('COMMIT');
+
+    res.json({
+      homes: [home1, home2],
+      parentHomes: parents.rows.map((p, i) => ({
+        parent_id: p.id,
+        custody_home_id: i === 0 ? home1.id : home2?.id,
+      })).filter((m) => m.custody_home_id),
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
+});
+
+module.exports = router;

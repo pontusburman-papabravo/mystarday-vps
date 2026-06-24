@@ -12,6 +12,14 @@ const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const { getLocalDateStr, getDayOfWeek } = require('../lib/daily-log-generator');
 const { addDaysIso, getWeekMondayIso } = require('../lib/date-utils');
+const custodyDb = require('../../db/custody');
+const {
+  getWeekVariantForDate,
+  getHomeForDate,
+  getWeekBannerContext,
+  isParentCustodyDay,
+} = require('../lib/custody-resolver');
+const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
 
 const router = express.Router({ mergeParams: true });
 
@@ -67,9 +75,26 @@ router.get('/calendar-week', async (req, res) => {
 
     const weekEnd = dates[6];
 
+    const myDaysOnly = req.query.myDays === '1' || req.query.myDays === 'true';
+
+    // Custody pattern (FEAT-1) — optional per child
+    let custodyPattern = null;
+    let custodyHomesById = {};
+    let parentHomeId = null;
+    const custodyFlag = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, child.family_id);
+    if (custodyFlag) {
+      custodyPattern = await custodyDb.getPattern(childId);
+      if (custodyPattern) {
+        const homes = await custodyDb.listHomes(child.family_id);
+        custodyHomesById = Object.fromEntries(homes.map((h) => [h.id, h]));
+        parentHomeId = await custodyDb.getParentHomeId(parentId, child.family_id);
+      }
+    }
+
     // Fetch all weekly schedule templates for this child
     const templatesResult = await db.query(
       `SELECT ws.day_of_week,
+              ws.week_variant,
               wsi.id AS item_id,
               at.name,
               at.icon,
@@ -77,19 +102,24 @@ router.get('/calendar-week', async (req, res) => {
               wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
        FROM weekly_schedule ws
        LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
-       JOIN activity_template at ON at.id = wsi.activity_template_id
+       LEFT JOIN activity_template at ON at.id = wsi.activity_template_id
        WHERE ws.child_id = $1
-       ORDER BY ws.day_of_week ASC, wsi.sort_order ASC`,
-      [childId]
+         AND (
+           ($2::boolean = false AND ws.week_variant IS NULL)
+           OR ($2::boolean = true AND ws.week_variant IN ('a', 'b'))
+         )
+       ORDER BY ws.day_of_week ASC, ws.week_variant ASC NULLS FIRST, wsi.sort_order ASC`,
+      [childId, Boolean(custodyPattern)]
     );
 
-    // Group templates by day_of_week (0=Sun, 1=Mon, ..., 6=Sat)
-    const templatesByDow = {};
+    // Group templates by day_of_week + week variant
+    const templatesByKey = {};
     for (const row of templatesResult.rows) {
-      const dow = row.day_of_week;
-      if (!templatesByDow[dow]) templatesByDow[dow] = [];
+      const variantKey = row.week_variant || 'legacy';
+      const key = `${row.day_of_week}_${variantKey}`;
+      if (!templatesByKey[key]) templatesByKey[key] = [];
       if (row.item_id && row.name) {
-        templatesByDow[dow].push({
+        templatesByKey[key].push({
           id: row.item_id,
           name: row.name,
           icon: row.icon || '',
@@ -217,7 +247,29 @@ router.get('/calendar-week', async (req, res) => {
         // Use special day items when no log generated yet
         activities = specialByDate[dateStr].items;
       } else {
-        activities = templatesByDow[dow] ? [...templatesByDow[dow]] : [];
+        const variantKey = custodyPattern
+          ? getWeekVariantForDate(custodyPattern, dateStr)
+          : 'legacy';
+        const tplKey = `${dow}_${variantKey}`;
+        activities = templatesByKey[tplKey] ? [...templatesByKey[tplKey]] : [];
+      }
+
+      let custody = null;
+      if (custodyPattern) {
+        const ctx = getHomeForDate(custodyPattern, custodyHomesById, dateStr);
+        const isMyDay = parentHomeId
+          ? isParentCustodyDay(parentHomeId, custodyPattern, dateStr)
+          : null;
+        custody = {
+          variant: ctx.variant,
+          homeId: ctx.homeId,
+          label: ctx.label,
+          color: ctx.color,
+          isMyDay,
+        };
+        if (myDaysOnly && parentHomeId && !isMyDay) {
+          activities = [];
+        }
       }
 
       const totalCount = activities.length;
@@ -236,14 +288,28 @@ router.get('/calendar-week', async (req, res) => {
         activities,
         completedCount,
         totalCount,
+        custody,
       };
     });
+
+    const weekBanner = custodyPattern
+      ? getWeekBannerContext(custodyPattern, custodyHomesById, todayStr)
+      : null;
 
     res.json({
       child: { id: child.id, name: child.name, emoji: child.emoji },
       weekStart,
       weekEnd,
       today: todayStr,
+      custody: custodyPattern
+        ? {
+            active: true,
+            weekBanner: weekBanner
+              ? { label: weekBanner.label, color: weekBanner.color, variant: weekBanner.variant }
+              : null,
+            myDaysFilter: myDaysOnly,
+          }
+        : { active: false },
       days,
     });
   } catch (err) {

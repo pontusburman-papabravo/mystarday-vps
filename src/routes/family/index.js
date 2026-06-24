@@ -40,4 +40,7 @@ router.use('/', require('./pedagog'));
 // ─── Parent PIN + login-picker session routes ────────────────────────────────
 router.use('/', require('./pin'));
 
+// ─── FEAT-1 boendeschema (custody_schedule_beta) ─────────────────────────────
+router.use('/custody', require('./custody'));
+
 module.exports = router;
