@@ -240,6 +240,9 @@
     wrap.appendChild(btn);
     wrap.appendChild(menu);
     bar.appendChild(wrap);
+    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+      ParentMagicAuto.ensureTopChrome();
+    }
   }
 
   async function boot() {

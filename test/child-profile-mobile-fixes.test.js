@@ -36,12 +36,12 @@ describe('child profile mobile fixes', () => {
     assert.match(html, /#childProfileSetupBody/);
   });
 
-  it('iPad keeps safe-area on header and touch tablets', () => {
+  it('iPad top chrome uses safe-area and tablet width', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
-    assert.match(css, /pointer: coarse/);
-    assert.match(css, /hover: hover\) and \(pointer: fine\)/);
+    assert.match(css, /\.parent-top-chrome/);
+    assert.match(css, /safe-area-inset-top/);
+    assert.match(css, /min-width: 768px/);
     assert.match(css, /html\.platform-native \.parent-nav-header-actions/);
-    assert.match(css, /position: sticky/);
   });
 
   it('native tab bar uses viewport width on tablet (not pointer coarse)', () => {

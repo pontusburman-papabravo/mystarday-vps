@@ -64,24 +64,41 @@
     main.insertBefore(el, main.firstChild);
   }
 
+  /** One flex row: view toggle + notis/avatar (reliable on iPhone + iPad). */
+  function ensureTopChrome() {
+    var toggle = document.getElementById('appViewToggleMount');
+    var navHeader = document.querySelector('[data-parent-nav-header]');
+    var main = document.querySelector('main') || document.body;
+
+    if (!toggle || !navHeader) return;
+
+    var chrome = document.getElementById('parentTopChrome');
+    if (!chrome) {
+      chrome = document.createElement('div');
+      chrome.id = 'parentTopChrome';
+      chrome.className = 'parent-top-chrome';
+      var anchor = toggle.parentNode === main ? toggle : navHeader;
+      main.insertBefore(chrome, anchor);
+    }
+
+    if (toggle.parentNode !== chrome) chrome.appendChild(toggle);
+    if (navHeader.parentNode !== chrome) chrome.appendChild(navHeader);
+  }
+
   function prepareDom() {
     markLegacyChrome();
     ensureMount('appViewToggleMount', 'app-view-toggle-wrap');
     ensureMount('parentMagicPageMount', 'hidden');
     var hub = document.getElementById('parentMagicPageMount');
     if (hub) hub.setAttribute('aria-live', 'polite');
-
-    var navHeader = document.querySelector('[data-parent-nav-header]');
-    var toggle = document.getElementById('appViewToggleMount');
-    if (navHeader && toggle && navHeader.parentNode === toggle.parentNode) {
-      toggle.parentNode.insertBefore(navHeader, toggle.nextElementSibling);
-    }
+    ensureTopChrome();
   }
 
   window.ParentMagicAuto = {
     resolvePage: resolvePage,
     isParentShellPage: isParentShellPage,
     prepareDom: prepareDom,
+    ensureTopChrome: ensureTopChrome,
     PATH_PAGES: PATH_PAGES,
   };
 })();

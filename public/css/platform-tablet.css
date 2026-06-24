@@ -104,28 +104,6 @@
     margin-right: auto;
     width: 100%;
   }
-
-  /* View toggle — compact centered pill; icons stay viewport top-right */
-  html.platform-tablet main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap {
-    justify-content: center;
-    max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-right: max(24px, env(safe-area-inset-right, 0px));
-    padding-left: max(24px, env(safe-area-inset-left, 0px));
-  }
-
-  html.platform-tablet main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap .app-view-toggle {
-    flex: 0 1 420px;
-    max-width: 420px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  html.platform-tablet main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions {
-    top: max(12px, env(safe-area-inset-top, 0px));
-    right: max(24px, env(safe-area-inset-right, 0px));
-  }
 }
 
 @media (min-width: 1024px) {

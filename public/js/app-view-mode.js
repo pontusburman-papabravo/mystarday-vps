@@ -234,6 +234,9 @@
       });
     });
     updateToggleUi();
+    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+      ParentMagicAuto.ensureTopChrome();
+    }
   }
 
   window.AppViewMode = {

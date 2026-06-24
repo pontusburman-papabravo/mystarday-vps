@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v336';
+const CACHE_NAME = 'stjarndag-v337';
+// stjarndag-v337: parent-top-chrome flex row for toggle+icons; cache bust CSS v10
 // stjarndag-v336: iPad — centered compact view toggle pill, tablet top row
 // stjarndag-v335: view toggle + header icons share one top row; magic toggle transparent bar
 // stjarndag-v334: single fixed notis+avatar header on magic dashboard; P contrast fix

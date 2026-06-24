@@ -41,41 +41,88 @@ body.child-magic-view .app-view-toggle-wrap {
   border: 1px solid rgba(27, 35, 64, 0.08);
 }
 
-/* Toggle + header icons share one top row when toggle is mounted */
-main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap {
+/* ── Unified top row: view toggle + notis/avatar (JS: parent-magic-auto.js) ── */
+.parent-top-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 120;
   display: flex;
   align-items: center;
-  min-height: 52px;
-  padding-top: max(10px, env(safe-area-inset-top, 0px));
-  padding-right: max(108px, calc(env(safe-area-inset-right, 0px) + 92px));
-  padding-bottom: 8px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: max(10px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
-main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap .app-view-toggle {
-  flex: 1;
+body.parent-magic-view .parent-top-chrome,
+body.parent-magic-dashboard .parent-top-chrome,
+body.child-magic-view .parent-top-chrome {
+  background: transparent !important;
+  border-bottom: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.parent-top-chrome:has(.app-view-toggle-wrap:empty) {
+  display: none !important;
+}
+
+.parent-top-chrome .app-view-toggle-wrap {
+  position: static;
+  flex: 1 1 auto;
   min-width: 0;
+  z-index: auto;
+  padding: 0 !important;
+  margin: 0;
+  min-height: 0;
+  background: transparent !important;
+  border: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.parent-top-chrome .app-view-toggle-wrap .app-view-toggle {
   max-width: none;
   width: 100%;
   margin: 0;
 }
 
-main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top, 0px));
-  right: max(16px, env(safe-area-inset-right, 0px));
-  left: auto;
-  width: auto;
-  padding: 0;
+.parent-top-chrome .parent-nav-header-actions {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  flex: 0 0 auto;
+  padding: 0 !important;
+  margin: 0;
   background: transparent !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  z-index: 120;
-  pointer-events: none;
+  pointer-events: auto !important;
+  z-index: auto;
 }
 
-main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions > * {
-  pointer-events: auto;
+@media (min-width: 768px) {
+  .parent-top-chrome {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  .parent-top-chrome .app-view-toggle-wrap {
+    flex: 1 1 420px;
+    max-width: 420px;
+  }
+
+  .parent-top-chrome .app-view-toggle-wrap .app-view-toggle {
+    max-width: 420px;
+  }
 }
 
 body.parent-magic-dashboard .app-view-toggle,
@@ -165,43 +212,11 @@ body.child-magic-view .app-view-toggle-btn.is-active {
 }
 
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  /* Desktop mouse — only relax sticky when toggle is not sharing the header row */
-  main:not(:has(> .app-view-toggle-wrap:not(:empty))) > .app-view-toggle-wrap,
-  .app-view-toggle-wrap:empty {
+  /* Desktop mouse — relax sticky when toggle sits outside top chrome */
+  main:not(:has(.parent-top-chrome)) > .app-view-toggle-wrap:not(:empty) {
     position: relative;
     top: auto;
     padding-top: 10px;
-  }
-}
-
-/* Touch tablets (iPad) — centered compact toggle; icons at viewport edge */
-@media (min-width: 768px) and (pointer: coarse) {
-  main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap {
-    justify-content: center;
-    max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-right: max(24px, env(safe-area-inset-right, 0px));
-    padding-left: max(24px, env(safe-area-inset-left, 0px));
-  }
-
-  main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap .app-view-toggle {
-    flex: 0 1 420px;
-    max-width: 420px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions {
-    top: max(12px, env(safe-area-inset-top, 0px));
-    right: max(24px, env(safe-area-inset-right, 0px));
-  }
-}
-
-/* Touch tablets (iPad native) — keep safe-area on sticky header bar */
-@media (min-width: 768px) and (pointer: coarse) {
-  .app-view-toggle-wrap {
-    padding-top: max(10px, env(safe-area-inset-top, 0px));
   }
 }
 

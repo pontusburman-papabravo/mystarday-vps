@@ -26,4 +26,8 @@
   } else {
     document.body.insertBefore(bar, document.body.firstChild);
   }
+
+  if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+    ParentMagicAuto.ensureTopChrome();
+  }
 })();

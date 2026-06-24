@@ -687,8 +687,8 @@ body.parent-magic-view #deletionSection .bg-coral .text-navy {
   color: #fecaca !important;
 }
 
-/* Magic pages: pin notis + avatar top-right (dashboard + sub-pages) */
-body.parent-magic-view .parent-nav-header-actions {
+/* Fallback: fixed icons when view toggle is not shown (non-allowlisted families) */
+body.parent-magic-view main:not(:has(.parent-top-chrome)) > .parent-nav-header-actions {
   position: fixed !important;
   top: max(10px, env(safe-area-inset-top, 0px));
   right: max(16px, env(safe-area-inset-right, 0px));
@@ -702,8 +702,15 @@ body.parent-magic-view .parent-nav-header-actions {
   pointer-events: none;
 }
 
-body.parent-magic-view .parent-nav-header-actions > * {
+body.parent-magic-view main:not(:has(.parent-top-chrome)) > .parent-nav-header-actions > * {
   pointer-events: auto;
+}
+
+body.parent-magic-view .parent-top-chrome .parent-nav-header-actions {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  pointer-events: auto !important;
 }
 
 body.parent-magic-view [data-parent-nav-notifications] {

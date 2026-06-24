@@ -109,7 +109,7 @@
     var curMain = global.document.querySelector('main');
     if (!newMain || !curMain) return false;
 
-    var preserveIds = { appViewToggleMount: 1, parentMagicPageMount: 1 };
+    var preserveIds = { appViewToggleMount: 1, parentMagicPageMount: 1, parentTopChrome: 1 };
 
     Array.from(curMain.children).forEach(function (child) {
       if (child.id && preserveIds[child.id]) return;

@@ -15,8 +15,8 @@ describe('magic appearance fixes', () => {
 
   it('parent-magic-auto reorders nav header after toggle', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-auto.js'), 'utf8');
-    assert.match(src, /data-parent-nav-header/);
-    assert.match(src, /insertBefore\(navHeader/);
+    assert.match(src, /ensureTopChrome/);
+    assert.match(src, /parentTopChrome/);
   });
 
   it('assign-schedule magic contrast CSS', () => {
@@ -38,27 +38,32 @@ describe('magic appearance fixes', () => {
     assert.match(src, /closeChildDrawer\(\)/);
   });
 
+  it('parent-magic-auto wraps toggle + header in top chrome row', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-auto.js'), 'utf8');
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    assert.match(src, /ensureTopChrome/);
+    assert.match(src, /parentTopChrome/);
+    assert.match(src, /parent-top-chrome/);
+    assert.match(css, /\.parent-top-chrome/);
+    assert.match(css, /position: static !important/);
+  });
+
   it('view toggle shares top row with header icons when mounted', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
-    const tablet = fs.readFileSync(path.join(ROOT, 'public/css/platform-tablet.css'), 'utf8');
-    assert.match(css, /main:has\(> \.app-view-toggle-wrap:not\(:empty\)\)/);
-    assert.match(css, /padding-right: max\(108px/);
-    assert.match(css, /background: transparent !important/);
-    assert.match(tablet, /html\.platform-tablet main:has\(> \.app-view-toggle-wrap:not\(:empty\)\)/);
-    assert.match(tablet, /max-width: 420px/);
+    assert.doesNotMatch(css, /main:has\(> \.app-view-toggle-wrap:not\(:empty\)\) > \.parent-nav-header-actions/);
+    assert.match(css, /\.parent-top-chrome \.parent-nav-header-actions/);
   });
 
   it('fixed nav header on all magic pages including dashboard', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
-    assert.match(css, /body\.parent-magic-view \.parent-nav-header-actions/);
-    assert.match(css, /position:\s*fixed/);
+    assert.match(css, /parent-top-chrome/);
     assert.match(css, /#parentAvatarBtn/);
     assert.doesNotMatch(hub, /parent-hub-header-actions/);
   });
 
-  it('SW bumped to v336', () => {
+  it('SW bumped to v337', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v(?:336|[3-9]\d\d|\d{4,})/);
+    assert.match(sw, /stjarndag-v(?:337|[3-9]\d\d|\d{4,})/);
   });
 });
