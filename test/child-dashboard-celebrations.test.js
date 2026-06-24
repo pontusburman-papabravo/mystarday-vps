@@ -35,9 +35,7 @@ describe('F3 child-dashboard-celebrations.js', () => {
     const src = read('public/js/child-dashboard.js');
     assert.match(src, /checkMilestones\(total, completed\)/);
     assert.match(src, /launchDopaminBurst\(checkEl\)/);
-    // launchMilestoneConfetti() is now called from child-dashboard-rewards.js (Skattkammaren)
-    // + showMilestoneCelebration (celebrations) — no longer directly in child-dashboard.js.
-    assert.match(read('public/js/child-dashboard-rewards.js'), /launchMilestoneConfetti\(\)/);
+    assert.match(src, /launchMilestoneConfetti\(\)/);
   });
 
   it('child-dashboard.html loads celebrations after child-dashboard.js', () => {

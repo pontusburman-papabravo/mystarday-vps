@@ -80,8 +80,7 @@ describe('meny v2.2 — Sprint 5 barn KX3/KX6/KX8', () => {
 
 describe('meny v2.2 — Sprint 6 barn KX7/KX11', () => {
   it('child-dashboard shows denied redemptions kindly', () => {
-    // Skattkammaren rendering moved to child-dashboard-rewards.js (Fas 8 F3d).
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
     assert.match(src, /deniedRecent/);
     assert.match(src, /Inte den här gången/);
   });

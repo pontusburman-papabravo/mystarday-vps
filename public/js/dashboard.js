@@ -1032,16 +1032,380 @@ function toggleCardExpand(childId) {
 
 
 // Toggle inline redemption panel for a child card
-// ── Card actions + quick header buttons ────────────────────
-// Extracted to /js/dashboard-card-actions.js (Fas 8 F2i).
+async function toggleInlineRedemption(childId, childName) {
+  const panel = document.getElementById(`inline-redemption-${childId}`);
+  if (!panel) return;
+
+  if (!panel.classList.contains('hidden')) {
+    panel.classList.add('hidden');
+    panel.innerHTML = '';
+    return;
+  }
+
+  panel.innerHTML = `<div class="dash-inline-redemption mt-2"><p class="text-center text-xs text-text-soft py-2">Laddar förfrågningar...</p></div>`;
+  panel.classList.remove('hidden');
+
+  try {
+    const res = await window.apiFetch('/api/rewards/pending-requests');
+    if (!res.ok) throw new Error('Failed');
+    const data = await res.json();
+
+    const childRedemptions = (data.pending_redemptions || []).filter(r => r.child_id === childId);
+    const childGoalChanges = (data.pending_goal_changes || []).filter(r => r.child_id === childId);
+
+    if (childRedemptions.length === 0 && childGoalChanges.length === 0) {
+      panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-text-soft py-2">Inga väntande förfrågningar 🎉</div>`;
+      return;
+    }
+
+    let html = '<div class="dash-inline-redemption mt-2 space-y-2">';
+    for (const req of childGoalChanges) {
+      html += `<div class="flex items-center gap-2">
+        <span class="flex-1 text-xs font-semibold text-navy">🎯 Vill byta mål till ${escHtml(req.to_reward_name || '')} ${req.to_reward_icon || ''}</span>
+        <button onclick="event.stopPropagation(); inlineApproveGoalChange('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-colors">✅</button>
+        <button onclick="event.stopPropagation(); inlineDenyGoalChange('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition-colors">❌</button>
+      </div>`;
+    }
+    for (const req of childRedemptions) {
+      html += `<div class="flex items-center gap-2">
+        <span class="flex-1 text-xs font-semibold text-navy">🎁 ${escHtml(req.reward_name || '')} (⭐ ${req.star_cost || 0})</span>
+        <button onclick="event.stopPropagation(); inlineApproveRedemption('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-colors">✅</button>
+        <button onclick="event.stopPropagation(); inlineDenyRedemption('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition-colors">❌</button>
+      </div>`;
+    }
+    html += '</div>';
+    panel.innerHTML = html;
+  } catch (err) {
+    panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-red-500 py-2">Kunde inte ladda förfrågningar.</div>`;
+  }
+}
+
+async function inlineApproveGoalChange(requestId, childId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/approve`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('🎯 Målbyte godkänt!');
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function inlineDenyGoalChange(requestId, childId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/deny`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('Målbyte nekat.');
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function inlineApproveRedemption(redemptionId, childId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/approve`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('🎉 Inlösen godkänd!');
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function inlineDenyRedemption(redemptionId, childId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/deny`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('Inlösen nekad.');
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+// ── Pause / unpause today ────────────────────────────────
+async function togglePauseDay(childId, logId, currentlyPaused) {
+  if (!logId) { showToast('Inget schema genererat för idag', true); return; }
+  const action = currentlyPaused ? 'unpause' : 'pause';
+  try {
+    const res = await window.apiFetch(`/api/daily-logs/${logId}/${action}`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast(currentlyPaused ? 'Dagen återupptagen!' : 'Dagen pausad!');
+    await loadDashboardCards();
+  } catch (err) {
+    showToast('Nätverksfel', true);
+  }
+}
+
+// ── Ge extra stjärnor quick button (header) ───────────────
+// If 1 child → open giveStarsModal directly.
+// If multiple → show child picker first.
+function openGiveStarsQuick() {
+  const ch = dashboardStats?.children || children || [];
+  if (ch.length === 0) { showToast('Inga barn hittade', true); return; }
+  if (ch.length === 1) {
+    const c = ch[0];
+    openGiveStarsModal(c.id, c.name, c.emoji || '⭐');
+    return;
+  }
+  // Render picker list
+  const list = document.getElementById('giveStarsPickerList');
+  list.innerHTML = ch.map(c => `
+    <button onclick="document.getElementById('giveStarsPickerModal').classList.add('hidden'); openGiveStarsModal('${c.id}', '${escHtml(c.name)}', '${c.emoji || '⭐'}')"
+      class="flex items-center gap-3 p-3 rounded-xl border-2 border-lavender hover:border-gold hover:bg-gold-light text-left transition-all w-full">
+      <span class="text-2xl">${c.emoji || '⭐'}</span>
+      <span class="font-semibold text-navy">${escHtml(c.name)}</span>
+    </button>`).join('');
+  document.getElementById('giveStarsPickerModal').classList.remove('hidden');
+}
+
+// ── Ledig dag quick button (header) ───────────────────────
+// Shows each child with their current pause state; click to toggle.
+async function openLedigDagModal() {
+  const ch = dashboardStats?.children || children || [];
+  if (ch.length === 0) { showToast('Inga barn hittade', true); return; }
+
+  const list = document.getElementById('ledigDagList');
+  list.innerHTML = ch.map(c => {
+    const isPaused = c.today_is_paused || false;
+    const logId = c.today_log_id || '';
+    const stateLabel = isPaused ? '⏸ Ledig idag' : '🟢 Aktivt schema';
+    const stateCls = isPaused
+      ? 'border-red-200 bg-red-50 text-red-700'
+      : 'border-lavender bg-white text-navy';
+    const btnLabel = isPaused ? '▶ Återuppta schema' : '🏠 Markera som ledig';
+    const btnCls = isPaused
+      ? 'bg-green-500 hover:bg-green-600 text-white'
+      : 'bg-coral hover:bg-red-200 text-red-800 border-red-200';
+    const disabled = !logId ? 'disabled title="Inget schema genererat för idag"' : '';
+    return `
+      <div class="p-3 rounded-xl border-2 ${stateCls}">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">${c.emoji || '⭐'}</span>
+            <div>
+              <div class="font-semibold text-sm">${escHtml(c.name)}</div>
+              <div class="text-xs opacity-70">${stateLabel}</div>
+            </div>
+          </div>
+          <button ${disabled}
+            onclick="ledigDagToggle('${c.id}', '${logId}', ${isPaused})"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-all ${btnCls} ${!logId ? 'opacity-40 cursor-not-allowed' : ''}">
+            ${btnLabel}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('ledigDagModal').classList.remove('hidden');
+}
+
+async function ledigDagToggle(childId, logId, currentlyPaused) {
+  if (!logId) { showToast('Inget schema genererat för idag', true); return; }
+  const action = currentlyPaused ? 'unpause' : 'pause';
+  try {
+    const res = await window.apiFetch(`/api/daily-logs/${logId}/${action}`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast(currentlyPaused ? 'Schema återupptaget!' : '🏠 Markerat som ledig dag!');
+    await loadDashboardCards();
+    // Refresh the modal with updated state
+    document.getElementById('ledigDagModal').classList.add('hidden');
+  } catch (err) {
+    showToast('Nätverksfel', true);
+  }
+}
+
+// ── Parent checkoff from dashboard panel ─────────────────
+async function dashToggleActivity(itemId, childId, currentlyCompleted) {
+  const action = currentlyCompleted ? 'uncomplete' : 'complete';
+  // Optimistic UI: update check button immediately
+  const btn = document.querySelector(`.dash-activity-check[onclick*="${itemId}"]`);
+  if (btn) {
+    btn.classList.add('checking');
+    btn.disabled = true;
+  }
+  try {
+    const res = await window.apiFetch(`/api/daily-log-items/${itemId}/${action}`, { method: 'PUT' });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      showToast(e.error || 'Fel vid uppdatering', true);
+      if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
+      return;
+    }
+    // Refresh dashboard cards to get updated state
+    await loadDashboardCards();
+    showToast(currentlyCompleted ? 'Avmarkerad!' : '✅ Klar!');
+  } catch (err) {
+    showToast('Nätverksfel', true);
+    if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
+  }
+}
 
 // ── Star history chart (weekly stars, 8 weeks) ────────────
 // Extracted to /js/dashboard-star-history.js (Fas 8 F2c).
 // Exposes window.loadStarHistory (called at init + after give-stars) + renderStarHistory.
 
 // ── Give Stars Modal ──────────────────────────────────────
-// ── Give-stars + approvals ─────────────────────────────────
-// Extracted to /js/dashboard-approvals.js (Fas 8 F2f).
+function openGiveStarsModal(childId, childName, childEmoji) {
+  document.getElementById('giveStarsChildId').value = childId;
+  document.getElementById('giveStarsChildName').textContent = `${childEmoji} ${childName}`;
+  document.getElementById('giveStarsCount').value = '5';
+  document.getElementById('giveStarsReason').value = '';
+  document.getElementById('giveStarsError').classList.add('hidden');
+  document.getElementById('giveStarsModal').classList.remove('hidden');
+}
+
+async function submitGiveStars() {
+  const childId = document.getElementById('giveStarsChildId').value;
+  const starCount = parseInt(document.getElementById('giveStarsCount').value, 10);
+  const reason = document.getElementById('giveStarsReason').value.trim();
+  const errEl = document.getElementById('giveStarsError');
+
+  errEl.classList.add('hidden');
+  if (isNaN(starCount) || starCount < 1 || starCount > 100) {
+    errEl.textContent = 'Ange 1–100 stjärnor';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (!reason) {
+    errEl.textContent = 'Anledning krävs';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  const btn = document.getElementById('giveStarsSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sparar…';
+
+  try {
+    const res = await window.apiFetch('/api/rewards/manual-stars', {
+      method: 'POST',
+      body: JSON.stringify({ child_id: childId, star_count: starCount, reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Fel';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Ge stjärnor';
+      return;
+    }
+    document.getElementById('giveStarsModal').classList.add('hidden');
+    showToast(`⭐ ${starCount} stjärnor givna!`);
+    await loadDashboardCards();
+    await loadStarHistory();
+  } catch (err) {
+    errEl.textContent = 'Nätverksfel';
+    errEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Ge stjärnor';
+  }
+}
+
+
+// ── Request Panel (pending approvals for a child) ─────────
+async function openRequestPanel(childId, childName) {
+  const modal = document.getElementById('requestPanelModal');
+  const nameEl = document.getElementById('requestPanelChildName');
+  const content = document.getElementById('requestPanelContent');
+  nameEl.textContent = childName;
+  content.innerHTML = '<p class="text-center text-text-soft py-6">Laddar förfrågningar...</p>';
+  modal.classList.remove('hidden');
+
+  try {
+    const res = await window.apiFetch('/api/rewards/pending-requests');
+    if (!res.ok) throw new Error('Failed');
+    const data = await res.json();
+
+    // Filter to this child
+    const childRedemptions = (data.pending_redemptions || []).filter(r => r.child_id === childId);
+    const childGoalChanges = (data.pending_goal_changes || []).filter(r => r.child_id === childId);
+
+    if (childRedemptions.length === 0 && childGoalChanges.length === 0) {
+      content.innerHTML = '<p class="text-center text-text-soft py-6">Inga väntande förfrågningar! 🎉</p>';
+      return;
+    }
+
+    let html = '';
+
+    // Goal change requests
+    for (const req of childGoalChanges) {
+      html += `
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl">🎯</span>
+            <div class="flex-1">
+              <div class="font-heading font-bold text-sm text-navy">Vill byta mål</div>
+              <div class="text-xs text-text-soft">Till: ${escHtml(req.to_reward_name || '')} ${req.to_reward_icon || ''}</div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="event.stopPropagation(); approveGoalChange('${req.id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors min-h-[44px]">✅ Godkänn</button>
+            <button onclick="event.stopPropagation(); denyGoalChange('${req.id}')" class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-semibold py-2.5 rounded-xl transition-colors min-h-[44px]">❌ Neka</button>
+          </div>
+        </div>`;
+    }
+
+    // Redemption requests
+    for (const req of childRedemptions) {
+      html += `
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl">${req.reward_icon || '🎁'}</span>
+            <div class="flex-1">
+              <div class="font-heading font-bold text-sm text-navy">Vill lösa in</div>
+              <div class="text-xs text-text-soft">${escHtml(req.reward_name || '')} (⭐ ${req.star_cost || 0})</div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="event.stopPropagation(); approveRedemption('${req.id}')" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors min-h-[44px]">✅ Godkänn</button>
+            <button onclick="event.stopPropagation(); denyRedemption('${req.id}')" class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-semibold py-2.5 rounded-xl transition-colors min-h-[44px]">❌ Neka</button>
+          </div>
+        </div>`;
+    }
+
+    content.innerHTML = html;
+  } catch (err) {
+    content.innerHTML = '<p class="text-center text-red-500 py-6">Kunde inte ladda förfrågningar.</p>';
+  }
+}
+
+function closeRequestPanel() {
+  document.getElementById('requestPanelModal').classList.add('hidden');
+}
+
+async function approveGoalChange(requestId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/approve`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('🎯 Målbyte godkänt!');
+    closeRequestPanel();
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function denyGoalChange(requestId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/deny`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('Målbyte nekat.');
+    closeRequestPanel();
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function approveRedemption(redemptionId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/approve`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('🎉 Inlösen godkänd!');
+    closeRequestPanel();
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
+
+async function denyRedemption(redemptionId) {
+  try {
+    const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/deny`, { method: 'PUT' });
+    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+    showToast('Inlösen nekad.');
+    closeRequestPanel();
+    await loadDashboardCards();
+  } catch { showToast('Nätverksfel', true); }
+}
 
 // ── Child tabs ────────────────────────────────────────────
 function renderChildTabs() {
@@ -1319,23 +1683,1280 @@ function renderItem(item) {
 }
 
 // ── Drag & Drop (sortablejs) ───────────────────────────────
-// ── Schedule drag & drop + reorder ─────────────────────────
-// Extracted to /js/dashboard-dnd.js (Fas 8 F2g).
+let scheduleSortables = {}; // section -> Sortable instance
+let scheduleDragSrc = null; // { id, section } from sortablejs evt.item
+let _pendingReorderSection = null; // section key from last drag
+let _pendingReorderOrder = null;   // [{id, sort_order, section}] snapshot
+
+function initDragDrop() {
+  if (typeof Sortable === 'undefined') return;
+
+  // Destroy previous instances before re-rendering
+  Object.values(scheduleSortables).forEach(s => s.destroy());
+  scheduleSortables = {};
+
+  // Prevent drag handle taps from toggling activity or propagating
+  document.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.addEventListener('click', e => e.stopPropagation());
+  });
+
+  SECTIONS.forEach(sec => {
+    const listEl = document.getElementById('items-' + sec.key);
+    if (!listEl) return;
+    const sortable = Sortable.create(listEl, {
+      // No shared group — drag ONLY within each section, never between
+      animation: 200,
+      handle: '.drag-handle',
+      draggable: '.activity-item',
+      filter: '.once-task-item',
+      preventOnFilter: true,
+      forceFallback: true,
+      fallbackTolerance: 3,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onStart: function(evt) {
+        scheduleDragSrc = { id: evt.item.dataset.id, section: evt.item.dataset.section };
+      },
+      onEnd: function(evt) {
+        if (evt.oldIndex === evt.newIndex) return;
+        const sectionEl = evt.from.closest('[data-section]');
+        const section = sectionEl ? sectionEl.dataset.section : null;
+        if (!section) return;
+        captureAndAskReorder(section);
+      },
+    });
+    scheduleSortables[sec.key] = sortable;
+  });
+}
+
+// Capture DOM order after drag and show confirmation dialog
+function captureAndAskReorder(section) {
+  if (!currentScheduleId) return;
+  const order = [];
+  SECTIONS.forEach(sec => {
+    const listEl = document.getElementById('items-' + sec.key);
+    if (!listEl) return;
+    listEl.querySelectorAll('.activity-item').forEach((el, idx) => {
+      order.push({ id: el.dataset.id, sort_order: idx, section: sec.key });
+    });
+  });
+  _pendingReorderSection = section;
+  _pendingReorderOrder = order;
+  showReorderDialog();
+}
+
+// "Bara idag / Alla [veckodagar]" confirmation dialog
+function showReorderDialog() {
+  const dayName = DAYS[currentDay] ? DAYS[currentDay].toLowerCase() : '';
+  const dayPlural = dayName ? `alla ${dayName}ar` : 'alla dagar';
+  const existing = document.getElementById('reorder-dialog-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'reorder-dialog-overlay';
+  overlay.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4';
+  overlay.innerHTML = `
+    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center">
+      <p class="text-2xl mb-2">↕️</p>
+      <h3 class="font-heading font-bold text-navy text-lg mb-1">Ändra ordning</h3>
+      <p class="text-sm text-text-soft mb-5">Ska ändringen gälla bara idag eller ${dayPlural}?</p>
+      <div class="flex flex-col gap-2">
+        <button id="reorder-today-btn" class="w-full py-3 px-4 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
+          📅 Ändra bara idag
+        </button>
+        <button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
+          🔁 Ändra ${dayPlural}
+        </button>
+        <button id="reorder-cancel-btn" class="w-full py-2 px-4 text-text-soft hover:text-navy text-sm transition-colors">
+          Avbryt
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) cancelReorderDialog(); });
+  document.getElementById('reorder-today-btn').addEventListener('click', () => confirmReorderTodayOnly());
+  document.getElementById('reorder-all-btn').addEventListener('click', () => confirmReorderAllDays());
+  document.getElementById('reorder-cancel-btn').addEventListener('click', () => cancelReorderDialog());
+}
+
+function cancelReorderDialog() {
+  const overlay = document.getElementById('reorder-dialog-overlay');
+  if (overlay) overlay.remove();
+  renderSchedule();
+  _pendingReorderOrder = null;
+  _pendingReorderSection = null;
+}
+
+// "Ändra alla [veckodagar]" — save to weekly_schedule_item template
+async function confirmReorderAllDays() {
+  const overlay = document.getElementById('reorder-dialog-overlay');
+  if (overlay) overlay.remove();
+  if (!_pendingReorderOrder || !currentScheduleId) return;
+
+  const order = _pendingReorderOrder;
+  const prevScheduleItems = scheduleItems.slice();
+  scheduleItems = order.map(({ id, sort_order, section }) => {
+    const existing = scheduleItems.find(i => i.id == id) || {};
+    return { ...existing, id, sort_order, section };
+  });
+
+  const res = await window.apiFetch(`/api/schedules/${currentScheduleId}/items/reorder`, {
+    method: 'PUT',
+    body: JSON.stringify({ order }),
+  });
+
+  if (!res.ok) {
+    scheduleItems = prevScheduleItems;
+    renderSchedule();
+    showToast('Fel vid sparning av ordning', true);
+  } else {
+    order.forEach(({ id, sort_order, section }) => {
+      const item = scheduleItems.find(i => i.id == id);
+      if (item) { item.sort_order = sort_order; item.section = section; }
+    });
+    showToast(`Ordning sparad för alla ${DAYS[currentDay] ? DAYS[currentDay].toLowerCase() + 'ar' : 'dagar'} ✅`);
+  }
+  _pendingReorderOrder = null;
+  _pendingReorderSection = null;
+}
+
+// "Bara idag" — reorder daily_log_items for today's date only
+async function confirmReorderTodayOnly() {
+  const overlay = document.getElementById('reorder-dialog-overlay');
+  if (overlay) overlay.remove();
+  if (!_pendingReorderOrder || !currentChildId) return;
+
+  const dateStr = getCurrentDateStr();
+  if (!dateStr) { showToast('Kunde inte bestämma datum', true); renderSchedule(); return; }
+
+  const newOrder = _pendingReorderOrder;
+
+  try {
+    const logRes = await window.apiFetch(`/api/children/${currentChildId}/daily-log?date=${dateStr}`);
+    if (!logRes.ok) throw new Error('Kunde inte hämta dagens schema');
+    const logData = await logRes.json();
+    const logItems = logData.items || [];
+
+    // Map new order: template IDs → matching daily_log_item IDs
+    const orderedDailyIds = [];
+    SECTIONS.forEach(sec => {
+      const sectionOrder = newOrder.filter(o => o.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
+      for (const entry of sectionOrder) {
+        const schedItem = scheduleItems.find(i => i.id == entry.id);
+        if (!schedItem) continue;
+        const templateId = schedItem.activity_template_id;
+        if (!templateId) continue;
+        const match = logItems.find(li =>
+          li.activity_template_id === templateId && li.section === sec.key &&
+          !orderedDailyIds.includes(li.id)
+        );
+        if (match) orderedDailyIds.push(match.id);
+      }
+      logItems.filter(li => li.section === sec.key && !orderedDailyIds.includes(li.id))
+        .forEach(li => orderedDailyIds.push(li.id));
+    });
+
+    if (orderedDailyIds.length === 0) throw new Error('Inga aktiviteter att sortera');
+
+    const res = await window.apiFetch('/api/daily-log-items/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ ordered_item_ids: orderedDailyIds }),
+    });
+    if (!res.ok) throw new Error('Sparning misslyckades');
+
+    showToast('Ordning sparad bara för idag ✅');
+  } catch (err) {
+    showToast(err.message || 'Fel vid sparning', true);
+  }
+
+  renderSchedule();
+  _pendingReorderOrder = null;
+  _pendingReorderSection = null;
+}
+
+async function moveItem(itemId, section, direction) {
+  const si = scheduleItems.filter(i=>i.section===section).sort((a,b)=>a.sort_order-b.sort_order);
+  const idx = si.findIndex(i=>i.id==itemId);
+  if (idx < 0) return;
+  const ni = idx + direction;
+  if (ni < 0 || ni >= si.length) return;
+  [si[idx], si[ni]] = [si[ni], si[idx]];
+  // Build pending order and show dialog (same flow as drag)
+  const order = si.map((item, i) => ({ id: item.id, sort_order: i, section }));
+  const otherItems = scheduleItems.filter(i => i.section !== section);
+  _pendingReorderOrder = [...order, ...otherItems.map(i => ({ id: i.id, sort_order: i.sort_order, section: i.section }))];
+  _pendingReorderSection = section;
+  renderSchedule();
+  showReorderDialog();
+}
+
+// ── Copy activity to another day (drop on day tab) ────────
+async function copyActivityToDay(itemId, toDay) {
+  if (!currentScheduleId || !currentChildId) return;
+  const item = scheduleItems.find(i => i.id == itemId);
+  const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-item-to-day`, {
+    method: 'POST', body: JSON.stringify({ item_id: itemId, from_schedule_id: currentScheduleId, to_day: toDay }),
+  });
+  const data = await res.json();
+  if (res.ok) showToast(data.skipped ? `Al finns redan på ${DAYS[toDay]}` : `📋 Kopierat till ${DAYS[toDay]}`);
+  else showToast(data.error || 'Fel uppstod', true);
+}
+
+// ── Day DnD Modal ─────────────────────────────────────────
+let dayDndSrc = null, dayDndDst = null;
+function openDayDndModal(s, d) {
+  dayDndSrc = s; dayDndDst = d;
+  document.getElementById('dayDndTitle').textContent = `${DAYS[s]} → ${DAYS[d]}`;
+  document.getElementById('dayDndDesc').textContent = `Vad vill du göra med ${DAYS[s]}s schema?`;
+  document.getElementById('dayDndCopyBtn').onclick = () => { closeDayDndModal(); doDayDndCopy(s,d); };
+  document.getElementById('dayDndSwapBtn').onclick = () => { closeDayDndModal(); doDayDndSwap(s,d); };
+  document.getElementById('dayDndModal').classList.remove('hidden');
+}
+function closeDayDndModal() { document.getElementById('dayDndModal').classList.add('hidden'); dayDndSrc=null; dayDndDst=null; }
+async function doDayDndCopy(src, dst) {
+  const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`, { method: 'POST', body: JSON.stringify({ from_day: src, to_days: [dst] }) });
+  const data = await res.json();
+  if (res.ok) { showToast(`📋 ${DAYS[src]} kopierat till ${DAYS[dst]}`); if(currentDay===dst) await loadScheduleForDay(); }
+  else showToast(data.error||'Fel uppstod', true);
+}
+async function doDayDndSwap(a, b) {
+  const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/swap-day`, { method: 'POST', body: JSON.stringify({ day_a: a, day_b: b }) });
+  const data = await res.json();
+  if (res.ok) { showToast(`🔄 ${DAYS[a]} och ${DAYS[b]} bytte plats`); if(currentDay===a||currentDay===b) await loadScheduleForDay(); }
+  else showToast(data.error||'Fel uppstod', true);
+}
 
 // ── Timeline View ─────────────────────────────────────────
-// ── Alternate schedule views (timeline + SBS) ─────────────
-// Extracted to /js/dashboard-views.js (Fas 8 F2d).
-// Exposes window.renderTimeline / renderSbsView / loadAllChildrenSchedules /
-// renderSbsChildSelector / loadSbsSchedule / selectSbsChild.
+function renderTimeline() {
+  if (!currentScheduleId) { renderEmptyDay(); return; }
+  const child = children.find(c => c.id === currentChildId);
+  const START_H = 6, END_H = 22;
+  const slots = [];
+  for (let h = START_H; h < END_H; h++) {
+    slots.push({ h, m: 0, label: `${String(h).padStart(2,'0')}:00`, timeStr: `${String(h).padStart(2,'0')}:00`, half: false });
+    slots.push({ h, m: 30, label: '', timeStr: `${String(h).padStart(2,'0')}:30`, half: true });
+  }
+  function timeToSlot(t) {
+    if (!t) return -1;
+    const [h,m] = t.split(':').map(Number);
+    const s = (h - START_H)*2 + (m>=30?1:0);
+    return (s>=0 && s<slots.length) ? s : -1;
+  }
+  const slotMap = {}; const unscheduled = [];
+  scheduleItems.forEach(item => {
+    const s = timeToSlot(item.start_time);
+    if (s>=0) { if(!slotMap[s]) slotMap[s]=[]; slotMap[s].push(item); }
+    else unscheduled.push(item);
+  });
+
+  const slotsHtml = slots.map((slot,idx) => {
+    const items = slotMap[idx]||[];
+    return `<div class="time-slot ${slot.half?'slot-half':''}" data-slot="${idx}" data-time="${slot.timeStr}">
+      <span class="time-slot-label">${slot.half?'':slot.label}</span>
+      ${items.map(item=>`<div class="timeline-activity${item.is_once_task ? ' once-task-item' : ''}" data-id="${item.id}" draggable="${item.is_once_task ? 'false' : 'true'}">
+        <span class="text-sm flex-shrink-0">${item.activity_icon||'📌'}</span>
+        ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+        <span class="font-semibold text-navy truncate flex-1 text-xs">${escHtml(item.activity_name_display||item.activity_name)}</span>
+        <button type="button" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0" title="Ta bort">✕</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  const unschHtml = unscheduled.length>0 ? `
+    <div class="tl-unscheduled-label">Utan tid</div>
+    ${unscheduled.map(item=>`<div class="time-slot" data-slot="-1" data-time="">
+      <span class="time-slot-label text-gray-300 text-xs">–</span>
+      <div class="timeline-activity${item.is_once_task ? ' once-task-item' : ''}" data-id="${item.id}" draggable="${item.is_once_task ? 'false' : 'true'}">
+        <span class="text-sm flex-shrink-0">${item.activity_icon||'📌'}</span>
+        ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+        <span class="font-semibold text-navy truncate flex-1 text-xs">${escHtml(item.activity_name_display||item.activity_name)}</span>
+        <button type="button" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0">✕</button>
+      </div>
+    </div>`).join('')}` : '';
+
+  const tlDateLabel = getDayDateLabel();
+  document.getElementById('scheduleContent').innerHTML = `
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ Tidsvy</h3>
+        <p class="text-xs text-text-soft">Dra aktiviteter upp/ner för att ändra starttid. 06:00–22:00.</p>
+      </div>
+      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ Aktivitet</button>
+    </div>
+    <div class="border-2 border-lavender rounded-2xl overflow-hidden bg-white" id="timelineWrap" style="max-height:65vh;overflow-y:auto">
+      ${slotsHtml}${unschHtml}
+    </div>`;
+  initTimelineDnd();
+}
+
+function initTimelineDnd() {
+  const wrap = document.getElementById('timelineWrap');
+  if (!wrap) return;
+  let tlSrcId = null;
+  wrap.querySelectorAll('.timeline-activity').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      tlSrcId = el.dataset.id; el.classList.add('tl-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', `tl:${tlSrcId}`);
+      dndType = 'timeline';
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('tl-dragging'); tlSrcId = null; dndType = null;
+      wrap.querySelectorAll('.slot-drop-target').forEach(s=>s.classList.remove('slot-drop-target'));
+    });
+  });
+  wrap.querySelectorAll('.time-slot').forEach(slot => {
+    slot.addEventListener('dragover', e => {
+      if (dndType !== 'timeline') return;
+      e.preventDefault();
+      wrap.querySelectorAll('.slot-drop-target').forEach(s=>s.classList.remove('slot-drop-target'));
+      slot.classList.add('slot-drop-target');
+    });
+    slot.addEventListener('dragleave', () => slot.classList.remove('slot-drop-target'));
+    slot.addEventListener('drop', async e => {
+      e.preventDefault(); e.stopPropagation();
+      slot.classList.remove('slot-drop-target');
+      if (!tlSrcId || !currentScheduleId) return;
+      const newTime = slot.dataset.time || null;
+      const res = await window.apiFetch(`/api/schedules/${currentScheduleId}/items/${tlSrcId}`, {
+        method: 'PUT', body: JSON.stringify({ start_time: newTime }),
+      });
+      if (res.ok) {
+        const item = scheduleItems.find(i=>i.id==tlSrcId);
+        if (item) item.start_time = newTime;
+        showToast(`⏱ Tid: ${newTime||'utan tid'}`);
+        renderTimeline();
+      } else showToast('Fel vid tidsändring', true);
+    });
+  });
+}
+
+// ── Side-by-Side View (All Children) ──────────────────────
+async function loadAllChildrenSchedules() {
+  sbsAllData = {};
+  const dateStr = getCurrentDateStr();
+  const promises = children.map(async (child) => {
+    const res = await window.apiFetch(`/api/children/${child.id}/schedules`);
+    if (!res.ok) { sbsAllData[child.id] = { items: [], scheduleId: null }; return; }
+    const schedules = await res.json();
+    const ds = schedules.find(s => s.day_of_week === currentDay);
+    if (!ds) { sbsAllData[child.id] = { items: [], scheduleId: null }; return; }
+    const ir = await window.apiFetch(`/api/schedules/${ds.id}/items?date=${encodeURIComponent(dateStr)}`);
+    if (ir.ok) {
+      const d = await ir.json();
+      sbsAllData[child.id] = { items: d.items || [], scheduleId: ds.id };
+    } else {
+      sbsAllData[child.id] = { items: [], scheduleId: ds.id };
+    }
+  });
+  await Promise.all(promises);
+  // Keep current child's schedule in sync
+  if (sbsAllData[currentChildId]) {
+    scheduleItems = sbsAllData[currentChildId].items;
+    currentScheduleId = sbsAllData[currentChildId].scheduleId;
+  }
+}
+
+function renderSbsView() {
+  const panelItems = (items, schedId, childId) => {
+    if (!items || items.length === 0) return `<p class="text-sm text-text-soft text-center py-6">Inget schema för ${DAYS[currentDay]}</p>`;
+    return SECTIONS.map(sec => {
+      const si = items.filter(i => i.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
+      if (!si.length) return '';
+      return `<div class="mb-2"><div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 px-1">${sec.emoji} ${sec.label}</div>
+        ${si.map(item => `<div class="activity-item flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-100 shadow-sm mb-1${item.is_once_task ? ' once-task-item' : ''} ${item.is_once_task ? '' : 'cursor-grab'}"
+          data-id="${item.id}" data-section="${item.section}"
+          data-schedule-id="${schedId || ''}" data-child-id="${childId}"
+          draggable="${item.is_once_task ? 'false' : 'true'}">
+          <span class="text-sm flex-shrink-0">${item.activity_icon || '📌'}</span>
+          ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+          <div class="flex-1 min-w-0"><div class="font-semibold text-xs text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</div>${item.start_time ? `<div class="text-xs text-text-soft">${fmtTime(item.start_time)}</div>` : ''}</div>
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+  };
+
+  const panels = children.map(child => {
+    const data = sbsAllData[child.id] || { items: [], scheduleId: null };
+    return `<div class="sbs-panel">
+      <div class="sbs-panel-header">
+        ${renderChildAvatar(child, 28)}
+        <span class="font-bold text-navy">${escHtml(child.name)}</span>
+        <span class="text-xs text-text-soft ml-auto">${data.items.length} st</span>
+      </div>
+      <div class="sbs-inner p-2" id="sbsInner_${child.id}">${panelItems(data.items, data.scheduleId, child.id)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('scheduleContent').innerHTML = `
+    <div class="mb-3"><h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]} — Jämför barn</h3>
+      <p class="text-xs text-text-soft">📋 Dra en aktivitet från ett barn till det andra för att kopiera den</p>
+    </div>
+    <div class="sbs-container">${panels}</div>`;
+
+  initSbsDnd();
+}
+
+function initSbsDnd() {
+  const allPanels = children.map(c => document.getElementById(`sbsInner_${c.id}`)).filter(Boolean);
+  if (allPanels.length < 2) return;
+  let sbsSrcItemId = null, sbsSrcScheduleId = null, sbsSrcChildId = null;
+
+  document.querySelectorAll('.sbs-inner [data-schedule-id]').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      sbsSrcItemId = el.dataset.id; sbsSrcScheduleId = el.dataset.scheduleId; sbsSrcChildId = el.dataset.childId;
+      el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', `sbs:${sbsSrcItemId}`);
+      dndType = 'sbs';
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging'); sbsSrcItemId = null; sbsSrcScheduleId = null; sbsSrcChildId = null;
+      dndType = null;
+      allPanels.forEach(p => p.classList.remove('sbs-drop-active'));
+    });
+  });
+
+  allPanels.forEach(panel => {
+    const panelChildId = panel.id.replace('sbsInner_', '');
+    panel.addEventListener('dragover', e => { if (dndType !== 'sbs') return; e.preventDefault(); panel.classList.add('sbs-drop-active'); });
+    panel.addEventListener('dragleave', () => panel.classList.remove('sbs-drop-active'));
+    panel.addEventListener('drop', async e => {
+      e.preventDefault(); e.stopPropagation();
+      panel.classList.remove('sbs-drop-active');
+      if (dndType !== 'sbs' || !sbsSrcItemId) return;
+      if (!panelChildId || sbsSrcChildId === panelChildId) { showToast('Aktiviteten är redan hos detta barn'); return; }
+      if (!sbsSrcScheduleId) { showToast('Källschema saknas', true); return; }
+      const res = await window.apiFetch(`/api/children/${sbsSrcChildId}/schedules/copy-item-to-child`, {
+        method: 'POST',
+        body: JSON.stringify({ item_id: sbsSrcItemId, from_schedule_id: sbsSrcScheduleId, to_child_id: panelChildId, to_day: currentDay }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const dstChild = children.find(c => c.id === panelChildId);
+        showToast(data.skipped ? `Finns redan hos ${dstChild ? dstChild.name : 'barnet'}` : `📋 Kopierat till ${dstChild ? dstChild.name : 'barnet'}`);
+        await loadAllChildrenSchedules(); renderSbsView();
+      } else showToast(data.error || 'Fel uppstod', true);
+    });
+  });
+}
+
+// Legacy compatibility (keep old functions for any callers)
+function renderSbsChildSelector() {}
+async function loadSbsSchedule() { await loadAllChildrenSchedules(); }
+async function selectSbsChild(id) { sbsChildId = id; }
 
 // ── Activity template modal ───────────────────────────────
-// ── Activity + template modal flow ─────────────────────────
-// Extracted to /js/dashboard-activity-modal.js (Fas 8 F2e).
-// Exposes add-activity/recurrence/create-edit-delete handlers on window.
+async function loadTemplates() {
+  try {
+    const res = await window.apiFetch('/api/activities');
+    if (res.ok) allTemplates = await res.json();
+  } catch (e) {
+    console.error('[DASHBOARD] loadTemplates failed:', e);
+  }
+}
+async function openDashboardAddForChild(childId) {
+  await selectChild(childId);
+  addSectionOverride = 'dag';
+  openAddModal('dag');
+}
+
+// Open addActivityModal in once-mode (replaces onceTaskModal)
+async function openOnceTaskModal() {
+  if (!children || children.length === 0) { await loadChildren(); }
+  _onceMode = true;
+  document.getElementById('addActivityOnceWrap').classList.remove('hidden');
+  const td = new Date();
+  const todayStr = `${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+  document.getElementById('addActivityOnceDate').value = todayStr;
+  document.getElementById('addActivityOnceDate').min = todayStr;
+  const list = document.getElementById('addActivityOnceChildList');
+  // Pre-seed _onceCreateContext so single-child families work even when _onceMode
+  // is set before openCreateActivityModal saves the snapshot (fixes "Välj minst ett barn"
+  // when user skips step 1 and selects children in the create-modal instead).
+  _onceCreateContext = {
+    childIds: (children || []).length === 1 ? [children[0].id] : [],
+    date: new Date().toISOString().slice(0, 10),
+    startTime: null,
+    endTime: null,
+    section: 'dag',
+  };
+  _pendingTargetChildIds = _onceCreateContext.childIds;
+  if ((children || []).length === 1) {
+    // Single-child family: show static label, no checkbox needed — the only child is pre-selected.
+    const c = children[0];
+    list.innerHTML = `<div class="flex items-center gap-2 p-2 rounded-xl bg-sky">
+      <span class="text-xl">${c.emoji || '⭐'}</span>
+      <span class="font-semibold text-sm text-navy">${escHtml(c.name)}</span>
+      <span class="ml-auto text-xs text-text-soft">Auto-vald</span>
+    </div>`;
+  } else {
+    // Multi-child family: render interactive checkboxes.
+    list.innerHTML = (children || []).map(c =>
+      `<label class="flex items-center gap-3 p-2 rounded-xl hover:bg-sky cursor-pointer">
+        <input type="checkbox" class="once-child-check w-4 h-4 accent-gold" value="${c.id}">
+        <span class="text-xl">${c.emoji || '⭐'}</span>
+        <span class="font-semibold text-sm text-navy">${escHtml(c.name)}</span>
+      </label>`
+    ).join('');
+  }
+  // Reset addActivityModal state and open
+  selectedTemplateId = null;
+  document.getElementById('addActivityError').classList.add('hidden');
+  document.getElementById('addStartTime').value = '';
+  document.getElementById('addEndTime').value = '';
+  // Show tip when both time fields are empty, hide when either is filled
+  const tipMsg = document.getElementById('timeTipMsg');
+  if (tipMsg) {
+    tipMsg.classList.remove('hidden');
+    const hideTip = () => { const s = document.getElementById('addStartTime'); const e = document.getElementById('addEndTime'); if (s?.value || e?.value) tipMsg.classList.add('hidden'); };
+    document.getElementById('addStartTime').removeEventListener('input', hideTip);
+    document.getElementById('addEndTime').removeEventListener('input', hideTip);
+    document.getElementById('addStartTime').addEventListener('input', hideTip);
+    document.getElementById('addEndTime').addEventListener('input', hideTip);
+  }
+  document.getElementById('selectedTemplateInfo').classList.add('hidden');
+  document.getElementById('templateSearch').value = '';
+  addSectionOverride = 'dag';
+  pickSection('dag');
+  renderTemplateList('');
+  document.getElementById('addActivityModal').classList.remove('hidden');
+  document.getElementById('addActivityModal').scrollTop = 0;
+  document.querySelector('#addActivityModal h3').textContent = '➕ Engångsaktivitet';
+  setTimeout(() => document.getElementById('templateSearch').focus(), 100);
+}
+
+// Opens the add-activity modal for a given schedule section (morgon/dag/kväll).
+// Was accidentally removed in the toggleCardExpand dedup fix (May 18 2026).
+function openAddModal(sectionKey) {
+  selectedTemplateId = null;
+  document.getElementById('addActivityError').classList.add('hidden');
+  document.getElementById('addStartTime').value = '';
+  document.getElementById('addEndTime').value = '';
+  const tipMsg = document.getElementById('timeTipMsg');
+  if (tipMsg) {
+    tipMsg.classList.remove('hidden');
+    const hideTip = () => {
+      const s = document.getElementById('addStartTime');
+      const e = document.getElementById('addEndTime');
+      if (s?.value || e?.value) tipMsg.classList.add('hidden');
+    };
+    document.getElementById('addStartTime').removeEventListener('input', hideTip);
+    document.getElementById('addEndTime').removeEventListener('input', hideTip);
+    document.getElementById('addStartTime').addEventListener('input', hideTip);
+    document.getElementById('addEndTime').addEventListener('input', hideTip);
+  }
+  document.getElementById('selectedTemplateInfo').classList.add('hidden');
+  document.getElementById('templateSearch').value = '';
+  addSectionOverride = sectionKey || 'dag';
+  pickSection(sectionKey || 'dag');
+  renderTemplateList('');
+  const addModal = document.getElementById('addActivityModal');
+  addModal.classList.remove('hidden');
+  addModal.scrollTop = 0;
+  setTimeout(() => {
+    addModal.scrollTop = 0;
+    document.getElementById('templateSearch').focus();
+  }, 100);
+}
+
+// NOTE: toggleCardExpand is defined once at the top of the file (accordion logic).
+// This duplicate was removed — it incorrectly opened the add-activity modal.
+function closeAddModal() {
+  document.getElementById('addActivityModal').classList.add('hidden');
+  if (_onceMode) {
+    _onceMode = false;
+    document.getElementById('addActivityOnceWrap').classList.add('hidden');
+    document.querySelector('#addActivityModal h3').textContent = 'Lägg till aktivitet';
+  }
+  _onceCreateContext = null;
+  _pendingTargetChildIds = [];
+}
+function filterTemplates() { renderTemplateList(document.getElementById('templateSearch').value); }
+function renderTemplateList(q) {
+  const list = document.getElementById('templateList');
+  let items = allTemplates;
+  if (q) items = items.filter(t=>t.name&&t.name.toLowerCase().includes(q.toLowerCase()));
+  const used = new Set(scheduleItems.filter(i=>i.section===addSectionOverride).map(i=>i.activity_template_id));
+  items = items.filter(t=>!used.has(t.id)).sort((a,b)=>(b.is_favorite?1:0)-(a.is_favorite?1:0));
+  if (!items.length) {
+    const qEsc = q ? escHtml(q) : '';
+    list.innerHTML=`<div class="text-center py-4">
+      <p class="text-text-soft text-sm mb-3">Inga aktiviteter hittades${q?' för "'+qEsc+'"':''}.</p>
+      <button type="button" onclick="openCreateActivityModal('${(q||'').replace(/'/g,"\\'")}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">✨ Skapa ny aktivitet</button>
+    </div>`;
+    return;
+  }
+  const grouped={}; const unc=[];
+  for (const t of items) { const cn=t.category_name||null; if(cn){if(!grouped[cn])grouped[cn]={sort:t.category_sort_order||999,items:[]};grouped[cn].items.push(t);}else unc.push(t); }
+  const sc=Object.entries(grouped).sort((a,b)=>a[1].sort-b[1].sort);
+  let html='';
+  for (const [cn,g] of sc) { html+=`<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">${escHtml(cn)}</div>`+g.items.map(t=>renderTemplateItem(t)).join(''); }
+  if (unc.length>0) { if(sc.length>0) html+=`<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">Övriga</div>`; html+=unc.map(t=>renderTemplateItem(t)).join(''); }
+  // Always show "Skapa ny" at the bottom
+  html += `<div class="border-t border-lavender mt-2 pt-2 text-center"><button type="button" onclick="openCreateActivityModal('')" class="text-sm text-gold font-semibold hover:underline">✨ Skapa ny aktivitet</button></div>`;
+  list.innerHTML = html;
+}
+function renderTemplateItem(t) {
+  return `<button type="button" onclick="selectTemplate('${t.id}')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-sky transition-colors text-left ${selectedTemplateId===t.id?'bg-sky border-2 border-gold':'border-2 border-transparent'}" data-tid="${t.id}">
+    <span class="text-2xl">${t.icon||'📌'}</span>
+    <div class="flex-1 min-w-0"><div class="font-semibold text-sm text-navy truncate">${escHtml(t.name)}</div><div class="text-xs text-text-soft">${'⭐'.repeat(t.star_value||0)}</div></div>
+  </button>`;
+}
+function selectTemplate(id) {
+  selectedTemplateId = id; const t=allTemplates.find(x=>x.id===id); if(!t)return;
+  document.getElementById('selTemplateIcon').textContent=t.icon||'📌';
+  document.getElementById('selTemplateName').textContent=t.name;
+  document.getElementById('selTemplateStars').textContent='⭐'.repeat(t.star_value||0);
+  document.getElementById('selectedTemplateInfo').classList.remove('hidden');
+  document.querySelectorAll('#templateList button').forEach(b=>{b.classList.toggle('border-gold',b.dataset.tid===id);b.classList.toggle('bg-sky',b.dataset.tid===id);});
+}
+function clearSelectedTemplate() { selectedTemplateId=null; document.getElementById('selectedTemplateInfo').classList.add('hidden'); renderTemplateList(document.getElementById('templateSearch').value); }
+function pickSection(sec) {
+  addSectionOverride=sec; document.getElementById('addSection').value=sec;
+  document.querySelectorAll('.section-pick-btn').forEach(btn=>{ const s=btn.dataset.sec===sec; btn.classList.toggle('bg-navy',s);btn.classList.toggle('text-white',s);btn.classList.toggle('border-navy',s); });
+  if(!document.getElementById('addActivityModal').classList.contains('hidden')) renderTemplateList(document.getElementById('templateSearch').value);
+}
+// Pending recurrence state
+let _pendingTemplateId = null;
+let _pendingTemplateName = '';
+let _pendingSection = 'dag';
+let _pendingStartTime = null;
+let _pendingEndTime = null;
+let _recurrenceSelectedDays = [];
+
+// ── Child picker helpers (multi-child feature) ─────────────
+function getActivityPickChildList() {
+  return children; // already loaded as global `children`
+}
+
+function renderActivityChildPick(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const family = getActivityPickChildList();
+  if (family.length < 2) { container.classList.add('hidden'); return; }
+  const selected = _pendingTargetChildIds.length ? _pendingTargetChildIds : [currentChildId];
+  container.innerHTML = family.map(c =>
+    `<label class="flex items-center gap-2 cursor-pointer py-1">
+      <input type="checkbox" value="${c.id}" class="child-pick-checkbox accent-gold w-4 h-4">
+      <span class="text-sm text-navy font-medium">${c.icon || '👤'} ${c.name}</span>
+    </label>`
+  ).join('');
+  // Set .checked property directly — do not rely on HTML attribute alone
+  container.querySelectorAll('.child-pick-checkbox').forEach(cb => {
+    if (selected.includes(cb.value)) cb.checked = true;
+  });
+  container.classList.remove('hidden');
+}
+
+function getSelectedActivityChildIds() {
+  return Array.from(document.querySelectorAll('.child-pick-checkbox:checked')).map(el => el.value);
+}
+
+async function submitAddActivity() {
+  // Once-mode: add directly to daily log for a specific date
+  if (_onceMode) {
+    if (!selectedTemplateId) {
+      document.getElementById('addActivityError').textContent = 'Välj en aktivitet';
+      document.getElementById('addActivityError').classList.remove('hidden');
+      return;
+    }
+    const date = document.getElementById('addActivityOnceDate').value;
+    if (!date) {
+      document.getElementById('addActivityError').textContent = 'Välj ett datum';
+      document.getElementById('addActivityError').classList.remove('hidden');
+      return;
+    }
+    let selectedIds = [...document.querySelectorAll('#addActivityOnceChildList .once-child-check:checked')].map(el => el.value);
+    // Fallback for single-child families where the child picker is hidden (static label, no checkboxes).
+    if (selectedIds.length === 0 && (children || []).length === 1) {
+      selectedIds = [children[0].id];
+    }
+    if (selectedIds.length === 0) {
+      document.getElementById('addActivityError').textContent = 'Välj minst ett barn';
+      document.getElementById('addActivityError').classList.remove('hidden');
+      return;
+    }
+    const tpl = allTemplates.find(t => t.id === selectedTemplateId);
+    const addBtn = document.getElementById('addActivityBtn');
+    addBtn.disabled = true; addBtn.textContent = 'Skapar…';
+    try {
+      const primaryChildId = selectedIds[0];
+      const res = await window.apiFetch(`/api/children/${primaryChildId}/schedules/once-tasks`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: tpl?.name || '',
+          icon: tpl?.icon || '📌',
+          section: addSectionOverride || 'dag',
+          date,
+          start_time: document.getElementById('addStartTime').value || null,
+          end_time: document.getElementById('addEndTime').value || null,
+          star_value: tpl?.star_value || 1,
+          child_ids: selectedIds,
+        })
+      });
+      if (res.ok) {
+        const d = new Date(date + 'T12:00:00');
+        const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+        closeAddModal();
+        showToast(`${tpl?.icon || ''} "${tpl?.name}" tillagd för ${dateFmt}!`);
+        await loadDashboardCards();
+      } else {
+        const err = await res.json();
+        document.getElementById('addActivityError').textContent = err.error || 'Fel uppstod';
+        document.getElementById('addActivityError').classList.remove('hidden');
+      }
+    } finally {
+      addBtn.disabled = false; addBtn.textContent = 'Lägg till';
+    }
+    return;
+  }
+
+  // Normal mode: store pending data and show recurrence choice
+  if (!selectedTemplateId) { document.getElementById('addActivityError').textContent='Välj en aktivitet'; document.getElementById('addActivityError').classList.remove('hidden'); return; }
+  const tpl = allTemplates.find(t=>t.id===selectedTemplateId);
+
+  // If _onceCreateContext exists, submit the once-task directly and skip recurrence modal
+  if (_onceCreateContext) {
+    await submitOnceTaskDirect(selectedTemplateId, tpl);
+    return;
+  }
+
+  _pendingTemplateId = selectedTemplateId;
+  _pendingTemplateName = tpl ? tpl.name : 'Aktiviteten';
+  _pendingSection = addSectionOverride;
+  _pendingStartTime = document.getElementById('addStartTime').value || null;
+  _pendingEndTime = document.getElementById('addEndTime').value || null;
+  _pendingTargetChildIds = [currentChildId];
+  closeAddModal();
+  openRecurrenceModal();
+}
+
+function bindRecurrenceAddHandlers() {
+  const onceBtn = document.getElementById('recurrenceOnceBtn');
+  const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  if (!onceBtn || !weeklyBtn) return;
+  onceBtn.removeAttribute('onclick');
+  weeklyBtn.removeAttribute('onclick');
+  onceBtn.disabled = false;
+  weeklyBtn.disabled = false;
+  onceBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    confirmRecurrence('once');
+  };
+  weeklyBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    showWeekdayPicker();
+  };
+}
+
+function bindRecurrenceDeleteHandlers(itemId) {
+  const onceBtn = document.getElementById('recurrenceOnceBtn');
+  const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  if (!onceBtn || !weeklyBtn) return;
+  onceBtn.removeAttribute('onclick');
+  weeklyBtn.removeAttribute('onclick');
+  onceBtn.disabled = false;
+  weeklyBtn.disabled = false;
+  onceBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteOnce(itemId);
+  };
+  weeklyBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteAll(itemId);
+  };
+}
+
+function openRecurrenceModal() {
+  resetRecurrenceModalTexts(); // must be first — resets handlers + texts before showing
+  document.getElementById('recurrenceActivityName').textContent = `"${_pendingTemplateName}"`;
+  document.getElementById('recurrenceError').classList.add('hidden');
+  document.getElementById('weekdayPickerSection').classList.add('hidden');
+  _recurrenceSelectedDays = [];
+  renderActivityChildPick('recurrenceChildrenWrap');
+  updateRecurrenceChildHint();
+  bindRecurrenceAddHandlers();
+  document.getElementById('recurrenceModal').classList.remove('hidden');
+}
+
+function updateRecurrenceChildHint() {
+  const hint = document.getElementById('recurrenceChildHint');
+  if (!hint) return;
+  const ids = getSelectedActivityChildIds();
+  if (!ids.length) return;
+  const names = ids.map(id => children.find(c => c.id === id)?.name).filter(Boolean);
+  if (names.length) {
+    hint.textContent = `Gäller: ${names.join(', ')}`;
+    hint.classList.remove('hidden');
+  } else {
+    hint.classList.add('hidden');
+  }
+}
+
+function closeRecurrenceModal() {
+  resetRecurrenceModalTexts(); // always reset texts + handlers, even when closing after delete flow
+  document.getElementById('recurrenceModal').classList.add('hidden');
+}
+
+function showWeekdayPicker() {
+  const picker = document.getElementById('weekdayPicker');
+  _recurrenceSelectedDays = [];
+  picker.innerHTML = [1,2,3,4,5,6,0].map(d =>
+    `<button type="button" onclick="toggleRecurrenceDay(${d},this)" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-gold text-navy">${DAYS_SHORT[d]}</button>`
+  ).join('');
+  document.getElementById('weekdayPickerSection').classList.remove('hidden');
+}
+
+function toggleRecurrenceDay(d, btn) {
+  const idx = _recurrenceSelectedDays.indexOf(d);
+  if (idx === -1) { _recurrenceSelectedDays.push(d); btn.classList.add('bg-navy','text-white','border-navy'); }
+  else { _recurrenceSelectedDays.splice(idx,1); btn.classList.remove('bg-navy','text-white','border-navy'); }
+}
+
+async function confirmRecurrence(choice) {
+  document.getElementById('recurrenceError').classList.add('hidden');
+  updateRecurrenceChildHint(); // capture latest checkbox state before processing
+  let targetChildIds = getSelectedActivityChildIds();
+  if (targetChildIds.length === 0) {
+    // Fallback for single-child families where the picker is hidden and no checkboxes exist.
+    // _pendingTargetChildIds is set to [currentChildId] in submitAddActivity() before this runs.
+    targetChildIds = (_pendingTargetChildIds || []).filter(Boolean);
+  }
+  // Last-resort fallback: if targetChildIds is still empty but family has exactly one child,
+  // use that child directly — mirrors submitOnceTaskDirect logic.
+  if (targetChildIds.length === 0 && (children || []).length === 1) {
+    targetChildIds = [children[0].id];
+  }
+  if (targetChildIds.length === 0) {
+    document.getElementById('recurrenceError').textContent = 'Välj minst ett barn';
+    document.getElementById('recurrenceError').classList.remove('hidden');
+    return;
+  }
+  if (choice === 'once') {
+    // Add to current day only (once-task — no weekly_schedule_item)
+    document.getElementById('recurrenceOnceBtn').disabled = true;
+    let successCount = 0;
+    for (const childId of targetChildIds) {
+      const ok = await addOnceTaskToDay(currentDay, childId);
+      if (ok) successCount++;
+    }
+    if (successCount > 0) {
+      closeRecurrenceModal();
+      showToast(`Aktiviteten har lagts till`);
+      await loadDashboardCards();
+    } else {
+      document.getElementById('recurrenceError').textContent = 'Kunde inte lägga till aktiviteten. Försök igen.';
+      document.getElementById('recurrenceError').classList.remove('hidden');
+      document.getElementById('recurrenceOnceBtn').disabled = false;
+    }
+  } else if (choice === 'weekly') {
+    if (_recurrenceSelectedDays.length === 0) {
+      document.getElementById('recurrenceError').textContent = 'Välj minst en dag';
+      document.getElementById('recurrenceError').classList.remove('hidden');
+      return;
+    }
+    // Add to all selected days for all selected children
+    let successCount = 0;
+    for (const childId of targetChildIds) {
+      for (const day of _recurrenceSelectedDays) {
+        const ok = await addActivityToDay(day, childId);
+        if (ok) successCount++;
+      }
+    }
+    if (successCount > 0) {
+      closeRecurrenceModal();
+      showToast(`Aktiviteten har lagts till i ${successCount} dag(ar)`);
+      await loadDashboardCards();
+    } else {
+      document.getElementById('recurrenceError').textContent = 'Kunde inte lägga till aktiviteten. Försök igen.';
+      document.getElementById('recurrenceError').classList.remove('hidden');
+    }
+  }
+}
+
+async function addOnceTaskToDay(dayOfWeek, childId) {
+  const targetChildId = childId || currentChildId;
+  const tpl = allTemplates.find(t => t.id === _pendingTemplateId);
+  if (!tpl) return false;
+  const dateStr = formatLocalDateStr(getDateForDayOfWeek(dayOfWeek));
+  if (!dateStr) return false;
+  const res = await window.apiFetch(`/api/children/${targetChildId}/schedules/once-tasks`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: tpl.name,
+      icon: tpl.icon || '📌',
+      section: _pendingSection || 'dag',
+      date: dateStr,
+      start_time: _pendingStartTime || null,
+      end_time: _pendingEndTime || null,
+      star_value: tpl.star_value || 1,
+    }),
+  });
+  if (!res.ok) {
+    try { const err = await res.json(); console.warn('[DASHBOARD] addOnceTaskToDay failed:', err); } catch (_) {}
+  }
+  return res.ok;
+}
+
+async function addActivityToDay(dayOfWeek, childId) {
+  const targetChildId = childId || currentChildId;
+  // Ensure schedule exists for this day
+  let schedId = (dayOfWeek === currentDay && targetChildId === currentChildId) ? currentScheduleId : null;
+  if (!schedId) {
+    const res = await window.apiFetch(`/api/children/${targetChildId}/schedules`, {method:'POST', body:JSON.stringify({day_of_week:dayOfWeek})});
+    const data = await res.json();
+    if (res.ok) schedId = data.id;
+    else if (res.status===409 && data.id) schedId = data.id;
+    else return false;
+    if (dayOfWeek === currentDay && targetChildId === currentChildId) currentScheduleId = schedId;
+  }
+  // Strip null time values — backend expects undefined (missing), not null
+  const itemBody = { activity_template_id: _pendingTemplateId, section: _pendingSection };
+  if (_pendingStartTime) itemBody.start_time = _pendingStartTime;
+  if (_pendingEndTime) itemBody.end_time = _pendingEndTime;
+  const res = await window.apiFetch(`/api/schedules/${schedId}/items`, {method:'POST', body:JSON.stringify(itemBody)});
+  if (!res.ok) {
+    try { const err = await res.json(); console.warn('[DASHBOARD] addActivityToDay failed:', err); } catch (_) {}
+  }
+  return res.ok;
+}
+
+// ── Create Activity Modal ─────────────────────────────────
+const EMOJI_QUICK_PICKS = ['🪥','🧹','📚','🎨','🏃','🍎','👕','🎵','✏️','🧩','🚿','🛏️','🎒','🚶','🍽️','💤'];
+
+function openCreateActivityModal(prefill) {
+  document.getElementById('newActName').value = prefill || '';
+  document.getElementById('newActEmojiInput').value = '';
+  document.getElementById('newActEmojiPreview').textContent = '📌';
+  document.getElementById('newActStarValue').value = '1';
+  document.getElementById('createActivityError').classList.add('hidden');
+  // Reset star buttons
+  document.querySelectorAll('.star-val-btn').forEach(b => {
+    const active = b.dataset.val === '1';
+    b.classList.toggle('bg-gold', active); b.classList.toggle('text-white', active); b.classList.toggle('border-gold', active);
+  });
+  // Fill emoji grid
+  document.getElementById('newActEmojiGrid').innerHTML = EMOJI_QUICK_PICKS.map(e =>
+    `<button type="button" onclick="document.getElementById('newActEmojiInput').value='${e}';previewNewActEmoji()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-sky transition-colors text-lg">${e}</button>`
+  ).join('');
+  // Snapshot once-flow context so submitCreateActivity() knows which child/date/times to use
+  if (_onceMode) {
+    _onceCreateContext = {
+      date: document.getElementById('addActivityOnceDate').value,
+      childIds: [...document.querySelectorAll('#addActivityOnceChildList .once-child-check:checked')].map(el => el.value),
+      startTime: document.getElementById('addStartTime').value || null,
+      endTime: document.getElementById('addEndTime').value || null,
+      section: addSectionOverride || 'dag',
+    };
+    _pendingTargetChildIds = _onceCreateContext.childIds;
+  } else {
+    _pendingTargetChildIds = [currentChildId];
+  }
+  renderActivityChildPick('createActivityChildrenWrap');
+  document.getElementById('createActivityModal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('newActName').focus(),100);
+}
+
+function closeCreateActivityModal() {
+  document.getElementById('createActivityModal').classList.add('hidden');
+}
+
+function previewNewActEmoji() {
+  const val = document.getElementById('newActEmojiInput').value.trim();
+  document.getElementById('newActEmojiPreview').textContent = val || '📌';
+}
+
+function pickStarVal(v) {
+  document.getElementById('newActStarValue').value = v;
+  document.querySelectorAll('.star-val-btn').forEach(b => {
+    const active = b.dataset.val === String(v);
+    b.classList.toggle('bg-gold', active); b.classList.toggle('text-white', active); b.classList.toggle('border-gold', active);
+  });
+}
+
+function resolveActivityTargetChildIds() {
+  // Only trust the snapshot if it has actual selections — an empty array means
+  // the user skipped step 1, so defer to the child checkboxes in the create-modal.
+  if (_onceCreateContext?.childIds?.length) return _onceCreateContext.childIds;
+  // Fallback: read checked .child-pick-checkbox checkboxes in the create-modal.
+  const fromModal = Array.from(document.querySelectorAll('.child-pick-checkbox:checked')).map(el => el.value);
+  if (fromModal.length) return fromModal;
+  if (_pendingTargetChildIds?.length) return _pendingTargetChildIds;
+  if (currentChildId) return [currentChildId];
+  if (children?.length) return [children[0].id];
+  return [];
+}
+
+// Submit a once-task directly (used by submitCreateActivity when _onceCreateContext exists)
+async function submitOnceTaskDirect(tplId, tpl) {
+  const ctx = _onceCreateContext;
+  let childIds = resolveActivityTargetChildIds();
+  // Fallback for single-child families where the child picker is hidden (static label, no checkboxes).
+  if (childIds.length === 0 && (children || []).length === 1) {
+    childIds = [children[0].id];
+  }
+  if (!childIds.length) {
+    document.getElementById('createActivityError').textContent = 'Välj minst ett barn';
+    document.getElementById('createActivityError').classList.remove('hidden');
+    return;
+  }
+  const addBtn = document.getElementById('addActivityBtn');
+  addBtn.disabled = true; addBtn.textContent = 'Skapar…';
+  try {
+    const primaryChildId = childIds[0];
+    const res = await window.apiFetch(`/api/children/${primaryChildId}/schedules/once-tasks`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: tpl?.name || '',
+        icon: tpl?.icon || '📌',
+        section: ctx.section || 'dag',
+        date: ctx.date,
+        start_time: ctx.startTime || null,
+        end_time: ctx.endTime || null,
+        star_value: tpl?.star_value || 1,
+        child_ids: childIds,
+      })
+    });
+    if (res.ok) {
+      const d = new Date(ctx.date + 'T12:00:00');
+      const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+      closeCreateActivityModal();
+      closeAddModal();
+      showToast(`${tpl?.icon || ''} "${tpl?.name || 'Aktiviteten'}" tillagd för ${dateFmt}!`);
+      await loadDashboardCards();
+    } else {
+      const err = await res.json();
+      document.getElementById('createActivityError').textContent = err.error || 'Fel uppstod';
+      document.getElementById('createActivityError').classList.remove('hidden');
+    }
+  } finally {
+    addBtn.disabled = false; addBtn.textContent = 'Lägg till';
+  }
+}
+
+async function submitCreateActivity() {
+  const name = document.getElementById('newActName').value.trim();
+  if (!name) { document.getElementById('createActivityError').textContent='Namn krävs'; document.getElementById('createActivityError').classList.remove('hidden'); return; }
+  const icon = document.getElementById('newActEmojiInput').value.trim() || '📌';
+  const starValue = parseInt(document.getElementById('newActStarValue').value) || 1;
+  const body = { name, icon, star_value: starValue };
+  try {
+    const res = await window.apiFetch('/api/activities', {method:'POST', body:JSON.stringify(body)});
+    const data = await res.json();
+    if (res.ok) {
+      if (_onceCreateContext) {
+        // Once-mode: create template + submit once-task directly (no recurrence modal)
+        const tpl = { name, icon, star_value: starValue };
+        await submitOnceTaskDirect(data.id, tpl);
+      } else {
+        // Normal mode: close modals, load templates, open recurrence modal
+        closeCreateActivityModal();
+        closeAddModal();
+        await loadTemplates();
+        _pendingTemplateId = data.id;
+        _pendingTemplateName = name;
+        _pendingSection = addSectionOverride;
+        _pendingTargetChildIds = [currentChildId];
+        openRecurrenceModal();
+      }
+    } else {
+      document.getElementById('createActivityError').textContent = data.error || 'Kunde inte skapa aktiviteten';
+      document.getElementById('createActivityError').classList.remove('hidden');
+    }
+  } catch (e) {
+    document.getElementById('createActivityError').textContent = 'Nätverksfel. Försök igen.';
+    document.getElementById('createActivityError').classList.remove('hidden');
+  }
+}
+
+// ── Edit/remove item ──────────────────────────────────────
+function openEditItem(itemId) {
+  const item=scheduleItems.find(i=>i.id==itemId); if(!item)return;
+  document.getElementById('editItemId').value=itemId;
+  document.getElementById('editStartTime').value=item.start_time?item.start_time.substring(0,5):'';
+  document.getElementById('editEndTime').value=item.end_time?item.end_time.substring(0,5):'';
+  setEditSection(item.section||'dag');
+  document.getElementById('editItemModal').classList.remove('hidden');
+}
+function closeEditItemModal(){document.getElementById('editItemModal').classList.add('hidden');}
+function setEditSection(sec){
+  editSectionVal=sec; document.getElementById('editSection').value=sec;
+  document.querySelectorAll('.edit-sec-btn').forEach(btn=>{const s=btn.dataset.sec===sec;btn.classList.toggle('bg-navy',s);btn.classList.toggle('text-white',s);btn.classList.toggle('border-navy',s);});
+}
+async function submitEditItem(){
+  const itemId=document.getElementById('editItemId').value;
+  const res=await window.apiFetch(`/api/schedules/${currentScheduleId}/items/${itemId}`,{method:'PUT',body:JSON.stringify({start_time:document.getElementById('editStartTime').value||null,end_time:document.getElementById('editEndTime').value||null,section:editSectionVal})});
+  if(res.ok){closeEditItemModal();showToast('Sparad');await loadScheduleForDay();}
+  else{const d=await res.json();showToast(d.error||'Fel uppstod',true);}
+}
+function removeItem(itemId){
+  // Use == (not ===) — itemId is a string from onclick, scheduleItems[].id is a number from API
+  const item = scheduleItems.find(i=>i.id==itemId);
+  // Once-task: show simple direct-confirm modal, call DELETE /api/daily-log-items/:id
+  if (item?.is_once_task) {
+    openConfirmModal(`Ta bort engångsaktiviteten "${item.activity_name}"?`, async () => {
+      const res = await window.apiFetch(`/api/daily-log-items/${itemId}`, { method: 'DELETE' });
+      if (res.ok) { showToast('Engångsaktiviteten borttagen'); await loadScheduleForDay(); }
+      else { const d = await res.json(); showToast(d.error || 'Fel uppstod', true); }
+    });
+    return;
+  }
+  // Repurpose the recurrence modal to offer "bara denna dag" vs "alla kommande"
+  _pendingDeleteItemId = itemId;
+  const modal = document.getElementById('recurrenceModal');
+  const titleEl = modal.querySelector('h3');
+  const iconEl = modal.querySelector('.text-3xl');
+  if (titleEl) titleEl.textContent = 'Ta bort aktivitet';
+  if (iconEl) iconEl.textContent = '🗑️';
+  document.getElementById('recurrenceActivityName').textContent = item ? `"${item.activity_name || 'aktiviteten'}"` : '';
+  document.getElementById('recurrenceOnceLbl').textContent = '📌 Bara denna dag';
+  document.getElementById('recurrenceOnceDesc').textContent = 'Aktiviteten försvinner bara från dagens schema';
+  document.getElementById('recurrenceWeeklyLbl').textContent = `🗑️ Alla kommande ${DAYS[currentDay]}ar`;
+  document.getElementById('recurrenceWeeklyDesc').textContent = 'Tar bort aktiviteten från schemat permanent';
+  document.getElementById('weekdayPickerSection').classList.add('hidden');
+  document.getElementById('recurrenceError').classList.add('hidden');
+  // Override button handlers for delete mode
+  bindRecurrenceDeleteHandlers(itemId);
+  modal.classList.remove('hidden');
+}
+
+async function deleteOnce(itemId) {
+  const onceBtn = document.getElementById('recurrenceOnceBtn');
+  const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  if (onceBtn) onceBtn.disabled = true;
+  if (weeklyBtn) weeklyBtn.disabled = true;
+  const dateStr = getCurrentDateStr();
+  try {
+    const res = await window.apiFetch(
+      `/api/schedules/${currentScheduleId}/items/${itemId}/exclude-date`,
+      { method: 'POST', body: JSON.stringify({ date: dateStr }) }
+    );
+    if (res.ok) {
+      document.getElementById('recurrenceModal').classList.add('hidden');
+      resetRecurrenceModalTexts();
+      showToast('Aktiviteten borttagen för idag');
+      await loadScheduleForDay();
+    } else {
+      const d = await res.json();
+      showToast(d.error || 'Fel uppstod', true);
+      bindRecurrenceDeleteHandlers(itemId);
+    }
+  } catch (_) {
+    showToast('Nätverksfel. Försök igen.', true);
+    bindRecurrenceDeleteHandlers(itemId);
+  }
+}
+
+async function deleteAll(itemId) {
+  const onceBtn = document.getElementById('recurrenceOnceBtn');
+  const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  if (onceBtn) onceBtn.disabled = true;
+  if (weeklyBtn) weeklyBtn.disabled = true;
+  try {
+    const res = await window.apiFetch(
+      `/api/schedules/${currentScheduleId}/items/${itemId}`,
+      { method: 'DELETE' }
+    );
+    if (res.ok) {
+      document.getElementById('recurrenceModal').classList.add('hidden');
+      resetRecurrenceModalTexts();
+      showToast('Aktiviteten har tagits bort');
+      await loadScheduleForDay();
+    } else {
+      const d = await res.json();
+      showToast(d.error || 'Fel uppstod', true);
+      bindRecurrenceDeleteHandlers(itemId);
+    }
+  } catch (_) {
+    showToast('Nätverksfel. Försök igen.', true);
+    bindRecurrenceDeleteHandlers(itemId);
+  }
+}
+
+// Reset recurrence modal back to its default add-activity texts
+function resetRecurrenceModalTexts() {
+  const modal = document.getElementById('recurrenceModal');
+  const titleEl = modal.querySelector('h3');
+  const iconEl = modal.querySelector('.text-3xl');
+  if (titleEl) titleEl.textContent = 'En gång eller flera gånger?';
+  if (iconEl) iconEl.textContent = '🗓️';
+  document.getElementById('recurrenceOnceLbl').textContent = '📌 Bara idag';
+  document.getElementById('recurrenceOnceDesc').textContent = 'Läggs till för dagens schema';
+  document.getElementById('recurrenceWeeklyLbl').textContent = '🔁 Flera gånger';
+  document.getElementById('recurrenceWeeklyDesc').textContent = 'Välj vilka veckodagar';
+  // Restore original onclick handlers
+  bindRecurrenceAddHandlers();
+}
 
 // ── Delete schedule ───────────────────────────────────────
-// ── Copy/delete/confirm modals ─────────────────────────────
-// Extracted to /js/dashboard-copy-modals.js (Fas 8 F2h).
+function confirmDeleteSchedule(){
+  openConfirmModal(`Ta bort hela schemat för ${DAYS[currentDay]}?`,async()=>{
+    const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/${currentScheduleId}`,{method:'DELETE'});
+    if(res.ok){showToast('Schemat har tagits bort');currentScheduleId=null;scheduleItems=[];renderEmptyDay();}
+    else{const d=await res.json();showToast(d.error||'Fel uppstod',true);}
+  });
+}
+
+// ── Copy day/child ────────────────────────────────────────
+function openCopyDayModal(){
+  if(!currentScheduleId){showToast('Inget schema att kopiera',true);return;}
+  copyDaySelections=[];
+  document.getElementById('copyFromLabel').innerHTML=`Kopiera schemat från <strong>${DAYS[currentDay]}</strong> till:`;
+  document.getElementById('copyDayPicker').innerHTML=[1,2,3,4,5,6,0].filter(d=>d!==currentDay).map(d=>`<button type="button" onclick="toggleCopyDay(${d},this)" class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy" data-day="${d}">${DAYS[d]}</button>`).join('');
+  document.getElementById('copyDayModal').classList.remove('hidden');
+}
+function toggleCopyDay(d,btn){const idx=copyDaySelections.indexOf(d);if(idx===-1){copyDaySelections.push(d);btn.classList.add('bg-navy','text-white','border-navy');}else{copyDaySelections.splice(idx,1);btn.classList.remove('bg-navy','text-white','border-navy');}}
+function closeCopyDayModal(){document.getElementById('copyDayModal').classList.add('hidden');}
+async function submitCopyDay(){
+  if(!copyDaySelections.length){showToast('Välj minst en dag',true);return;}
+  const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`,{method:'POST',body:JSON.stringify({from_day:currentDay,to_days:copyDaySelections})});
+  const data=await res.json();
+  if(res.ok){closeCopyDayModal();showToast(`Schema kopierat till ${data.copied_to_days.length} dag(ar)`);}
+  else showToast(data.error||'Fel uppstod',true);
+}
+function openCopyChildModal(){
+  if(!currentChildId)return;
+  copyTargetChildId=null;
+  const others=children.filter(c=>c.id!==currentChildId);
+  if(!others.length){showToast('Inga andra barn',true);return;}
+  document.getElementById('copyChildPicker').innerHTML=others.map(c=>`<button type="button" onclick="selectCopyChild('${c.id}',this)" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-lavender hover:border-gold transition-colors text-left" data-cid="${c.id}"><span class="text-2xl">${c.emoji||'👤'}</span><span class="font-semibold text-navy">${escHtml(c.name)}</span></button>`).join('');
+  document.getElementById('copyChildModal').classList.remove('hidden');
+}
+function selectCopyChild(id,btn){copyTargetChildId=id;document.querySelectorAll('#copyChildPicker button').forEach(b=>{b.classList.toggle('border-gold',b.dataset.cid===id);b.classList.toggle('bg-sky',b.dataset.cid===id);});}
+function closeCopyChildModal(){document.getElementById('copyChildModal').classList.add('hidden');}
+async function submitCopyChild(){
+  if(!copyTargetChildId){showToast('Välj ett barn',true);return;}
+  const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-to-child`,{method:'POST',body:JSON.stringify({target_child_id:copyTargetChildId})});
+  const data=await res.json();
+  if(res.ok){closeCopyChildModal();showToast('Veckoschemat har kopierats');}
+  else showToast(data.error||'Fel uppstod',true);
+}
+
+// ── Confirm modal ─────────────────────────────────────────
+function openConfirmModal(msg, cb) {
+  document.getElementById('confirmMsg').textContent = msg;
+  const okBtn = document.getElementById('confirmOkBtn');
+  okBtn.onclick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    okBtn.disabled = true;
+    try {
+      await cb();
+      closeConfirmModal();
+    } catch (_) {
+      showToast('Nätverksfel. Försök igen.', true);
+    } finally {
+      okBtn.disabled = false;
+    }
+  };
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function closeConfirmModal(){document.getElementById('confirmModal').classList.add('hidden');}
 
 // ── Touch DnD Bridge (converts touch to HTML5 drag events) ─
 function initTouchDndBridge() {
