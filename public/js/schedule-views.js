@@ -2,6 +2,7 @@
  * Schedule extra views — list, timeline, side-by-side (SBS), and copy-weeks logic.
  * Does not own: core schedule state, activity modals, day-tab rendering, or DnD for the normal week view.
  * Depends on: schedule.js globals (scheduleItems, children, currentChildId, currentDay, currentScheduleId, DAYS, SECTIONS, dndType, sbsAllData, sbsChildId, sbsItems, sbsScheduleId)
+ * Shared schedule constants/helpers: schedule-core.js → ScheduleCore (re-exported in schedule.js)
  */
 
 // ── Delegated delete handler (Sortable.js forceFallback blocks inline onclick on mobile) ──

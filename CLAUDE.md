@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 8 F1 — shared schedule helpers extracted to `public/js/schedule-core.js` (`DAYS`, `SECTIONS`, `updateBirthdayHidden`, `fmtTime`, `sectionTimeLabel`, `getDayDateLabel`, `buildSectionCardsHtml`); loaded before `dashboard.js` + `schedule.js`; SW v294.
 - 2026-06-23: Refactor Fas 7 E2 (complete) — login/session routes extracted to `src/routes/auth/login.js` (login, logout, me, me/preferences, login-picker-children); `index.js` is now a thin barrel mounting login/register/refresh/child-login/email/oauth-apple/oauth-google. `auth.js` (1770 r) fully split into `src/routes/auth/`.
 - 2026-06-23: Refactor Fas 7 E2 — registration route extracted to `src/routes/auth/register.js` (POST /register + default activity seeding); removed now-unused imports from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — CSRF + refresh routes extracted to `src/routes/auth/refresh.js` (GET /csrf-token, POST /refresh); removed now-unused verifyRefreshToken/clearRefreshCookie imports from index.js.

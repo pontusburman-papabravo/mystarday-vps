@@ -208,7 +208,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v293';
+const CACHE_NAME = 'stjarndag-v294';
+// v294: F1 schedule-core.js — shared DAYS/SECTIONS/rendering between dashboard + schedule
 // v293: shared co-parent invite modal (body portal) + settings soft-nav boot
 // v292: co-parent invite in settings + hub; opaque invite modal in magic view
 // v291: magic appearance — assign-schedule contrast, fixed nav header, family modal z-index
