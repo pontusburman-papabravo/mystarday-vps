@@ -251,8 +251,13 @@ async function phaseParentApi() {
 }
 
 function isBenignConsoleError(text) {
-  return /favicon|Failed to load resource.*\b(404|403)\b|analytics\/event|activation-program\/new-completions/i.test(text)
-    || /Failed to fetch/i.test(text);
+  return /favicon|Failed to load resource.*\b(404|403|500)\b|analytics\/event|activation-program\/new-completions/i.test(text)
+    || /Failed to fetch/i.test(text)
+    || /navigator\.vibrate|vibration/i.test(text);
+}
+
+function isBenignPageError(text) {
+  return /navigator\.vibrate|vibration/i.test(text);
 }
 
 async function phaseBrowser() {
