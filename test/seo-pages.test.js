@@ -99,5 +99,5 @@ test('landing problem and solution sections mention routines and skattkammaren l
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
   assert.match(html, /morgonrutiner som havererar/);
   assert.match(html, /Barnet ser vad som ska hända/);
-  assert.match(html, /href="\/skattkammaren"/);
+  assert.match(html, /href="\/skattkammaren\?demo=1"/);
 });

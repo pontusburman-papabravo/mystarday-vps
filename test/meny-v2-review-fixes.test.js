@@ -22,7 +22,7 @@ describe('meny v2 review fixes — HIGH', () => {
 
 describe('meny v2 review fixes — MED', () => {
   it('readiness incomplete_days uses SQL count not +1', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/core.js'), 'utf8');
     assert.match(src, /incompleteMap\[row\.child_id\] = parseInt\(row\.incomplete_days/);
     assert.doesNotMatch(src, /incompleteMap\[row\.child_id\] = .*\+ 1/);
   });

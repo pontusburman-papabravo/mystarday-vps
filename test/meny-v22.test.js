@@ -24,7 +24,7 @@ describe('meny v2.2 — Sprint 1 redirects + links', () => {
 
 describe('meny v2.2 — Sprint 2 readiness extensions + PX4', () => {
   it('readiness API includes backfill and invite types', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/core.js'), 'utf8');
     assert.match(src, /incomplete_past_days/);
     assert.match(src, /pending_invite/);
   });
@@ -80,7 +80,7 @@ describe('meny v2.2 — Sprint 5 barn KX3/KX6/KX8', () => {
 
 describe('meny v2.2 — Sprint 6 barn KX7/KX11', () => {
   it('child-dashboard shows denied redemptions kindly', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
     assert.match(src, /deniedRecent/);
     assert.match(src, /Inte den här gången/);
   });
