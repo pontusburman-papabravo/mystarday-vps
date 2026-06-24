@@ -10,7 +10,7 @@
   var BTN_ID = 'childSystemIconBtn';
 
   function hideLegacyHeaderActions() {
-    ['childDarkBtn', 'switchChildBtn', 'logoutBtn'].forEach(function (id) {
+    ['childDarkBtn', 'viewToggleBtn', 'printBtn'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -50,7 +50,7 @@
       openMenu();
     };
     if (window.ParentalGate && ParentalGate.requireParentMode) {
-      ParentalGate.requireParentMode(open);
+      ParentalGate.requireParentMode(open, closeMenu);
     } else {
       open();
     }

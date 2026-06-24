@@ -6,11 +6,18 @@
   'use strict';
 
   function showParentPinGate(onSuccess, onCancel) {
+    var cancel = onCancel || function () {};
+    var success = function () {
+      if (window.DeviceMode) DeviceMode.enterParent();
+      if (onSuccess) onSuccess(window._ppinGateToken);
+    };
+
     if (typeof showParentPinGateOverlay === 'function') {
-      showParentPinGateOverlay(function () {
-        if (window.DeviceMode) DeviceMode.enterParent();
-        if (onSuccess) onSuccess(window._ppinGateToken);
-      }, onCancel || function () {});
+      showParentPinGateOverlay(success, cancel);
+      return;
+    }
+    if (window.Auth && typeof Auth._showParentPinGateOverlay === 'function') {
+      Auth._showParentPinGateOverlay(success, cancel);
       return;
     }
     if (window.DeviceMode && DeviceMode.isChildMode()) DeviceMode.enterParent();
