@@ -11,7 +11,27 @@ let childId = null;
 let childName = '';
 let childUsername = '';
 let childPin = '';
-let childBirthdayValue = null;   // stored for schedule-preview age calc
+let childBirthdayValue = null;
+
+window.addEventListener('onboarding:child-created', (e) => {
+  const d = e.detail || {};
+  if (d.id) childId = d.id;
+  if (d.name) childName = d.name;
+  if (d.username) childUsername = d.username;
+  if (d.pin) childPin = d.pin;
+  if (d.birthday !== undefined) childBirthdayValue = d.birthday;
+  if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function' && d.id) {
+    OnboardingActivation.setChildId(d.id);
+  }
+  const s5Child = document.getElementById('s5ChildName');
+  if (s5Child && d.name) s5Child.textContent = d.name;
+  const s5Coach = document.getElementById('s5ChildNameCoach');
+  if (s5Coach && d.name) s5Coach.textContent = d.name;
+  const s5User = document.getElementById('s5Username');
+  if (s5User && d.username) s5User.textContent = d.username;
+  const s5Pin = document.getElementById('s5Pin');
+  if (s5Pin && d.pin) s5Pin.textContent = d.pin;
+});   // stored for schedule-preview age calc
 let selectedDayPref = null;      // template_group key (e.g. 'forskola', 'morgon', 'helg')
 let selectedViewType = 'day';    // 'day' | 'timeline' — default: Dagsvy
 let selectedRewards = [];        // array of { name, icon, star_cost }
@@ -1175,6 +1195,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     AppleSignInDiagnostics.endPostLoginTrace();
   }
   goToStep(1);
+
+  if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
+    OnboardingStarterPlan.init().catch(function () {});
+  }
 
   // Show email verification banner if needed (after auth check)
   showVerificationBanner(me);

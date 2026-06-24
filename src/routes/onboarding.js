@@ -883,5 +883,86 @@ router.post('/complete', async (req, res) => {
   }
 });
 
+// ─── ACT-1 starter plan (PR 3 — template-first, no AI) ───
+
+router.post('/starter-plan/suggest', async (req, res) => {
+  try {
+    const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
+    if (!await isActivationFlagEnabled(FLAG_KEYS.onboarding, req.user.familyId)) {
+      return res.status(403).json({ error: 'Aktiveringsflödet är inte aktiverat för er familj' });
+    }
+    const { parseStarterPlanAnswers, slugToTemplateGroup } = require('../lib/starter-plan/slug-to-template-group');
+    const { selectStarterTemplate } = require('../lib/starter-plan/select-template');
+    const { setActivationVariant } = require('../lib/activation-p0');
+    const analytics = require('../../db/analytics');
+
+    const input = parseStarterPlanAnswers(req.body);
+    const plan = selectStarterTemplate(input);
+    const template_group = slugToTemplateGroup(plan.slug);
+
+    await setActivationVariant(req.user.familyId, 'template_only');
+    analytics.track(req.user.familyId, 'starter_template_selected', {
+      slug: plan.slug,
+      schedule_name: plan.scheduleName,
+      template_group,
+      routine_type: input.routineType,
+      age_band: input.ageBand,
+      support_level: input.supportLevel,
+      desired_length: input.desiredLength,
+      used_ai: false,
+    });
+
+    res.json({ ...plan, template_group, used_ai: false });
+  } catch (err) {
+    console.error('[ONBOARDING] starter-plan/suggest error:', err);
+    res.status(500).json({ error: 'Kunde inte välja mall' });
+  }
+});
+
+router.get('/starter-plan/preview', async (req, res) => {
+  try {
+    const scheduleName = req.query.scheduleName;
+    const desiredLength = req.query.desiredLength || 'normal';
+    if (!scheduleName || typeof scheduleName !== 'string') {
+      return res.status(400).json({ error: 'scheduleName krävs' });
+    }
+
+    const sched = await db.query(
+      'SELECT id FROM default_schedule WHERE name = $1 LIMIT 1',
+      [scheduleName]
+    );
+    if (sched.rows.length === 0) {
+      return res.status(404).json({ error: 'Mall hittades inte' });
+    }
+
+    const items = await db.query(
+      `SELECT name, icon, section, star_value, sort_order, start_time, end_time
+       FROM default_schedule_item
+       WHERE default_schedule_id = $1
+       ORDER BY sort_order ASC`,
+      [sched.rows[0].id]
+    );
+
+    const { enforceActivityCount } = require('../lib/starter-plan/select-template');
+    const trimmed = enforceActivityCount(items.rows, desiredLength);
+
+    const analytics = require('../../db/analytics');
+    analytics.track(req.user.familyId, 'starter_plan_preview_viewed', {
+      schedule_name: scheduleName,
+      activity_count: trimmed.length,
+      desired_length: desiredLength,
+    });
+
+    res.json({
+      schedule_name: scheduleName,
+      items: trimmed,
+      activity_count: trimmed.length,
+    });
+  } catch (err) {
+    console.error('[ONBOARDING] starter-plan/preview error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta förhandsgranskning' });
+  }
+});
+
 module.exports = router;
 
