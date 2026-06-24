@@ -92,32 +92,13 @@ test('guest preview scripts and marketing back navigation', () => {
   assert.match(shellJs, /takeOverPublicPage/);
 });
 
-test('program-catalog-render adds marketing preview links', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'public/js/program-catalog-render.js'), 'utf8');
-  assert.match(src, /marketingPreviewHref/);
-  assert.match(src, /previewFromContext/);
-  assert.match(src, /\/pricing-info.*pricing/);
-  assert.match(src, /program-interest-form/);
-});
-
 test('preview-back keeps logged-in users in app after marketing preview', () => {
   const previewBack = fs.readFileSync(path.join(ROOT, 'public/js/preview-back.js'), 'utf8');
   const shellJs = fs.readFileSync(path.join(ROOT, 'public/js/preview-shell.js'), 'utf8');
-  const pricing = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
   assert.match(previewBack, /from === 'pricing'/);
   assert.match(previewBack, /from === 'upgrade'/);
   assert.match(previewBack, /isLoggedIn\(\)/);
   assert.match(shellJs, /PreviewBack\.apply/);
-  assert.match(pricing, /Auth\.isLoggedIn/);
-});
-
-test('program-catalog-render is shared module', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'public/js/program-catalog-render.js'), 'utf8');
-  const pricing = fs.readFileSync(path.join(ROOT, 'public/js/pricing-info.js'), 'utf8');
-  const landing = fs.readFileSync(path.join(ROOT, 'public/js/landing-program-matrix.js'), 'utf8');
-  assert.match(src, /ProgramCatalogRender/);
-  assert.match(pricing, /ProgramCatalogRender/);
-  assert.match(landing, /ProgramCatalogRender/);
 });
 
 test('preview-shell exports preview page paths', () => {

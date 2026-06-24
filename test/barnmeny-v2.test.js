@@ -48,9 +48,10 @@ describe('barnmeny v2 — Sprint 1 three-world nav', () => {
     assert.match(src, /CHILD_SYSTEM_ACTIONS/);
   });
 
-  it('child-package-nav skips when v2 enabled', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-package-nav.js'), 'utf8');
-    assert.match(src, /ChildWorlds\.V2_ENABLED/);
+  it('child-package-nav removed (barnmeny v2 uses child-worlds)', () => {
+    assert.ok(!fs.existsSync(path.join(ROOT, 'public/js/child-package-nav.js')));
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.doesNotMatch(html, /child-package-nav\.js/);
   });
 
   it('session-gate allows /child/* routes in child mode', () => {
@@ -111,10 +112,8 @@ describe('barnmeny v2 — Sprint 4 coach & support', () => {
 });
 
 describe('barnmeny v2 — Sprint 5 cleanup', () => {
-  it('child-package-nav deprecated for v2', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-package-nav.js'), 'utf8');
-    assert.match(src, /DEPRECATED/);
-    assert.match(src, /V2_ENABLED/);
+  it('child-package-nav removed after v2 rollout', () => {
+    assert.ok(!fs.existsSync(path.join(ROOT, 'public/js/child-package-nav.js')));
   });
 
   it('child-layer-router uses ChildWorlds when v2', () => {

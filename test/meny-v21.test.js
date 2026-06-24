@@ -159,14 +159,12 @@ describe('meny v2.1 — Sprint 8 analytics, deep-links, cleanup', () => {
     assert.match(src, /\/rewards/);
   });
 
-  it('child-package-nav no-ops when v2 enabled', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-package-nav.js'), 'utf8');
-    assert.match(src, /ChildWorlds\.V2_ENABLED/);
-    assert.match(src, /DEPRECATED/);
+  it('child-package-nav removed after barnmeny v2', () => {
+    assert.ok(!fs.existsSync(path.join(ROOT, 'public/js/child-package-nav.js')));
   });
 
   it('service worker bumped for v2.1+', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v29\d/);
+    assert.match(src, /stjarndag-v(?:29[3-9]|[3-9]\d\d|\d{4,})/);
   });
 });

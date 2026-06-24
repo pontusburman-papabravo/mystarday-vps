@@ -1,6 +1,6 @@
 # Refaktoreringsplan — Min Stjärndag (v4.2 master plan)
 
-> **Status:** ✅ **Exekverad** — master-plan v4.2 slutförd 2026-06-24 (Fas 0–10). Prod **SW v314**.
+> **Status:** ✅ **Exekverad** — master-plan v4.2 slutförd 2026-06-24 (Fas 0–10). **Fas 11** (dödkodsrensning) pågår/klar — prod **SW v315**.
 > **Syfte:** Renodla och modularisera hela kodbasen. Stripe avvecklas till förmån för Apple/Google IAP (RevenueCat).
 > **Mål:** Exekverbar plan med tydliga go/no-go-gates, bättre riskisolering och färre onödiga blockerare.
 
@@ -9,9 +9,9 @@
 | | |
 |--|--|
 | **Faser i planen** | 11 (Fas 0 → Fas 10) |
-| **Faser kvar** | **0** |
-| **Sista merge** | PR #328 (Fas 10) |
-| **Valfri uppföljning** | `docs/dead-code-inventory.md` — 9 kandidatfiler (B4 dokumenterade, inga raderingar) |
+| **Faser kvar** | **0** (v4.2) · **Fas 11** = valfri uppföljning efter B4 |
+| **Sista merge** | Fas 10 PR #328 · Fas 11 dödkod (Tier A) |
+| **Uppföljning** | `iap-manager.js` behållen (IAP-stub); ev. server-API `/api/public/program-catalog` kan rensas separat |
 
 **Patch i v4.2 (vs v4.1) — sista hålen före exekvering:**
 - **G4b:** revoked-fallet är nu **obligatoriskt** (giltig access + nekad `revoked_at`-access), inte "helst" — D1-serien vilar på det.
@@ -97,6 +97,9 @@
 | **Fas 8** | F1 → F2/F3 | Frontend-modularisering (utan Tailwind-bygget) | ✅ |
 | **Fas 9** | F4a → F4b → F4c → F5 | Tailwind build pipeline + cache | ✅ |
 | **Fas 10** | G2 → B4 → D3 → G5 | Övrigt CI/housekeeping (låg störning) | ✅ |
+| **Fas 11** | B4-Tier-A | Ta bort verifierad död klientkod (9 filer) | ✅ |
+
+> **Fas 11** fanns inte i v4.2-planen; definierad som uppföljning till B4-inventeringen (`docs/dead-code-inventory.md`). `iap-manager.js` behålls.
 
 > **Not om G2:** `G2` (gate deploy på grön CI) ligger formellt i Fas 10 eftersom den inte blockerar något. **Om ni har en aktiv deploy-loop, kör den direkt efter `G1`** — den minskar risken att någon deployar mitt i ett halvfärdigt refaktorsteg och rör ingen appkod.
 > **Not om D3:** `D3` (onboarding-XSS) är lågrisk och kan flyttas upp till Fas 3 om ni vill samla alla säkerhetsfixar i ett fönster.
@@ -561,6 +564,21 @@ Kör i ordning: **G2 → B4 → D3 → G5**. (Inget här blockerar tidigare kär
 
 ---
 
+## Fas 11 — Dödkodsrensning (uppföljning till B4)
+
+> Ej del av v4.2-masterplanen; definierad efter Fas 10 när B4-inventeringen var klar.
+
+Kör i ordning: **B4-Tier-A** (en PR, 9 filer).
+
+### B4-Tier-A — Ta bort verifierad död klientkod
+- **Risk:** låg · **Beror på:** B4-inventering · **Utförare:** Composer 2.5
+- **Filer:** se `docs/dead-code-inventory.md` Tier A (9 st); **behåll** `iap-manager.js`.
+- **Steg:** radera filer; uppdatera tester som läste källkod; `test/fas11-dead-code.test.js`; bumpa SW.
+- **Acceptans:** lint+test grönt; inga HTML `<script>`-taggar till borttagna moduler; `/pricing-info` HTML-sida oförändrad.
+- **Commit:** `chore: Fas 11 — remove Tier A dead client code (B4 follow-up)`
+
+---
+
 # Go/no-go-gates (obligatoriska kontrollpunkter)
 
 ## Gate A — innan Fas 1 (Stripe cleanup)
@@ -665,3 +683,4 @@ Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schema�
 | B4 | 10 | låg | — | Composer | ☑ | #328 |
 | D3 | 10 | låg | — | Composer | ☑ | #328 |
 | G5 | 10 | medel | F mestadels klar | Composer | ☑ | #328 |
+| B4-Tier-A | 11 | låg | B4 | Composer | ☑ | Fas 11 |
