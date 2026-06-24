@@ -106,6 +106,6 @@ describe('meny v2.2 — Sprint 7 cleanup', () => {
 
   it('service worker bumped for v2.2+', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v29\d/);
+    assert.match(src, /stjarndag-v(?:29[3-9]|[3-9]\d\d|\d{4,})/);
   });
 });
