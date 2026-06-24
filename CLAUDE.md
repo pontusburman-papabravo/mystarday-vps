@@ -81,6 +81,11 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 8 F2c — weekly star-history chart extracted from `dashboard.js` to `public/js/dashboard-star-history.js` (IIFE; `window.loadStarHistory`/`renderStarHistory`); loaded after `dashboard.js`; SW v298.
+- 2026-06-23: Refactor Fas 8 F2b — co-parent invite + dela-appen CTA banners extracted from `dashboard.js` to `public/js/dashboard-cta.js` (IIFE; entry points on `window`); loaded after `dashboard.js`; SW v297.
+- 2026-06-23: Refactor Fas 8 F3 — milestone/confetti/dopamin-burst celebration effects extracted from `child-dashboard.js` to `public/js/child-dashboard-celebrations.js` (IIFE; `window.checkMilestones`/`launchMilestoneConfetti`/`launchDopaminBurst`); loaded after + precached in SW; SW v296.
+- 2026-06-23: Refactor Fas 8 F2 — special-day calendar + edit modal extracted from `dashboard.js` to `public/js/dashboard-special-days.js` (IIFE; entry points on `window`: `renderSpecialDaysCalendar` + `sd*` onclick handlers); loaded after `dashboard.js`; SW v295.
+- 2026-06-23: Refactor Fas 8 F1 — shared schedule helpers extracted to `public/js/schedule-core.js` (`DAYS`, `SECTIONS`, `updateBirthdayHidden`, `fmtTime`, `sectionTimeLabel`, `getDayDateLabel`, `buildSectionCardsHtml`); loaded before `dashboard.js` + `schedule.js`; SW v294.
 - 2026-06-23: Refactor Fas 7 E2 (complete) — login/session routes extracted to `src/routes/auth/login.js` (login, logout, me, me/preferences, login-picker-children); `index.js` is now a thin barrel mounting login/register/refresh/child-login/email/oauth-apple/oauth-google. `auth.js` (1770 r) fully split into `src/routes/auth/`.
 - 2026-06-23: Refactor Fas 7 E2 — registration route extracted to `src/routes/auth/register.js` (POST /register + default activity seeding); removed now-unused imports from index.js.
 - 2026-06-23: Refactor Fas 7 E2 — CSRF + refresh routes extracted to `src/routes/auth/refresh.js` (GET /csrf-token, POST /refresh); removed now-unused verifyRefreshToken/clearRefreshCookie imports from index.js.

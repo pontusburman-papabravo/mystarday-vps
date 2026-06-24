@@ -210,7 +210,12 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v293';
+const CACHE_NAME = 'stjarndag-v298';
+// v298: F2c dashboard-star-history.js — weekly stars chart extracted from dashboard.js
+// v297: F2b dashboard-cta.js — co-parent invite + dela-appen CTA banners extracted from dashboard.js
+// v296: F3 child-dashboard-celebrations.js — milestone/confetti/dopamin burst extracted from child-dashboard.js
+// v295: F2 dashboard-special-days.js — special-day calendar/modal extracted from dashboard.js
+// v294: F1 schedule-core.js — shared DAYS/SECTIONS/rendering between dashboard + schedule
 // v293: shared co-parent invite modal (body portal) + settings soft-nav boot
 // v292: co-parent invite in settings + hub; opaque invite modal in magic view
 // v291: magic appearance — assign-schedule contrast, fixed nav header, family modal z-index
@@ -272,6 +277,7 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-dashboard.js',
+  '/js/child-dashboard-celebrations.js',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
