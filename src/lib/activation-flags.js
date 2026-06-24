@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../../db');
+const db = require('./db');
 
 const FLAG_KEYS = {
   onboarding: 'activation_onboarding_v1',

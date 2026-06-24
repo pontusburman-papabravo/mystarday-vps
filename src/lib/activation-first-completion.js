@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../lib/db');
+const db = require('./db');
 const { updateActivationState } = require('./activation-p0');
 
 /**

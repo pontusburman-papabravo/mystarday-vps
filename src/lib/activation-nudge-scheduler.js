@@ -57,7 +57,7 @@ async function runActivationNudgeJob() {
         [row.family_id]
       );
 
-      require('../db/analytics').track(row.family_id, 'activation_nudge_sent', {
+      require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {
         channel: 'email',
       });
 
