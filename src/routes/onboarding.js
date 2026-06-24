@@ -195,7 +195,7 @@ const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 // School/preschool groups → weekdays only. Other groups → all 7 days.
 router.post('/schedule', async (req, res) => {
   try {
-    const { child_id, template_group } = req.body;
+    const { child_id, template_group, custom_items } = req.body;
 
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
     if (!template_group || !VALID_TEMPLATE_GROUPS.includes(template_group)) {
@@ -247,6 +247,23 @@ router.post('/schedule', async (req, res) => {
       return res.status(400).json({ error: 'Inga aktiviteter hittades för valt schema.' });
     }
 
+    let seedItems = defaultItems.rows;
+    if (Array.isArray(custom_items) && custom_items.length > 0) {
+      seedItems = custom_items.map((item, idx) => {
+        const base = defaultItems.rows[idx] || defaultItems.rows[defaultItems.rows.length - 1];
+        return {
+          name: item.name || base.name,
+          icon: item.icon || base.icon,
+          section: item.section || base.section,
+          star_value: item.star_value ?? base.star_value ?? 1,
+          sort_order: item.sort_order ?? idx,
+          start_time: item.start_time ?? base.start_time,
+          end_time: item.end_time ?? base.end_time,
+          sub_steps: item.sub_steps || base.sub_steps || [],
+        };
+      });
+    }
+
     const client = await db.getClient();
     let schedulesCreated = 0;
     try {
@@ -267,7 +284,7 @@ router.post('/schedule', async (req, res) => {
       }
 
       // Create missing categories
-      const sectionsUsed = [...new Set(defaultItems.rows.map(r => r.section))];
+      const sectionsUsed = [...new Set(seedItems.map(r => r.section))];
       for (const sec of sectionsUsed) {
         const catName = sectionToCategoryName[sec] || 'Dag';
         if (!categoryMap[catName]) {
@@ -283,7 +300,7 @@ router.post('/schedule', async (req, res) => {
       // Ensure activity_template records exist (upsert by name+family)
       // Also create activity_sub_step records from default_schedule_item.sub_steps JSONB
       const templateMap = {}; // name → activity_template.id
-      for (const item of defaultItems.rows) {
+      for (const item of seedItems) {
         const catName = sectionToCategoryName[item.section] || 'Dag';
         const catId = categoryMap[catName];
 
@@ -361,7 +378,7 @@ router.post('/schedule', async (req, res) => {
         }
 
         let sortIdx = 0;
-        for (const item of defaultItems.rows) {
+        for (const item of seedItems) {
           const tplId = templateMap[item.name];
           if (!tplId) continue;
           await client.query(
@@ -961,6 +978,73 @@ router.get('/starter-plan/preview', async (req, res) => {
   } catch (err) {
     console.error('[ONBOARDING] starter-plan/preview error:', err);
     res.status(500).json({ error: 'Kunde inte hämta förhandsgranskning' });
+  }
+});
+
+router.post('/starter-plan/personalize', async (req, res) => {
+  try {
+    const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
+    const { parseStarterPlanAnswers } = require('../lib/starter-plan/slug-to-template-group');
+    const { generateStarterPlan, buildFallback } = require('../lib/starter-plan/generate-plan');
+    const { setActivationVariant } = require('../lib/activation-p0');
+    const analytics = require('../../db/analytics');
+
+    if (!await isActivationFlagEnabled(FLAG_KEYS.onboarding, req.user.familyId)) {
+      return res.status(403).json({ error: 'Aktiveringsflödet är inte aktiverat för er familj' });
+    }
+
+    const { child_name, schedule_name, base_items } = req.body;
+    const parsed = parseStarterPlanAnswers(req.body);
+    const aiEnabled = await isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, req.user.familyId);
+
+    analytics.track(req.user.familyId, 'starter_plan_generation_started', {
+      schedule_name: schedule_name,
+      ai_enabled: aiEnabled,
+    });
+
+    const baseItems = Array.isArray(base_items) ? base_items : [];
+    const genInput = {
+      childName: child_name,
+      ageBand: parsed.ageBand,
+      routineType: parsed.routineType,
+      mainChallenges: parsed.mainChallenges,
+      supportLevel: parsed.supportLevel,
+      desiredLength: parsed.desiredLength,
+      freeText: parsed.freeText,
+      baseItems,
+      scheduleName: schedule_name,
+    };
+
+    let result;
+    if (aiEnabled) {
+      result = await generateStarterPlan(genInput);
+    } else {
+      result = buildFallback(genInput, baseItems, 'AI_DISABLED');
+    }
+
+    if (result.used_ai) {
+      await setActivationVariant(req.user.familyId, 'template_plus_ai');
+      analytics.track(req.user.familyId, 'starter_plan_generation_succeeded', {
+        schedule_name: schedule_name,
+        activity_count: result.items.length,
+      });
+    } else if (aiEnabled) {
+      analytics.track(req.user.familyId, 'starter_plan_generation_failed', {
+        reason: result.fallback_reason || 'unknown',
+        schedule_name: schedule_name,
+      });
+    }
+
+    res.json({
+      plan_title: result.planTitle,
+      intro_text: result.introText,
+      items: result.items,
+      used_ai: result.used_ai,
+      fallback_reason: result.fallback_reason,
+    });
+  } catch (err) {
+    console.error('[ONBOARDING] starter-plan/personalize error:', err);
+    res.status(500).json({ error: 'Kunde inte anpassa schemat' });
   }
 });
 

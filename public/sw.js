@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v324';
+const CACHE_NAME = 'stjarndag-v325';
+// stjarndag-v325: ACT-1 PR4 — AI starter plan personalize + custom_items schedule save
 // stjarndag-v324: ACT-1 Deploy 1+3 — activation state, handoff, starter-plan wizard, dynamic sitemap, referral v0
 // stjarndag-v323: NPF-sida copy — validerat smärtspråk ("mindre tjat, färre konflikter, lugnare vardag") i /rutiner-npf-barn (h1, lead, meta, CTA) för bättre konvertering + SEO
 // stjarndag-v322: SEO — /bildschema-app + /alternativ-bildschema-tavla cornerstone-sidor; "Guider"-kolumn i startsidans footer (interna länkar till alla 5 artiklar)

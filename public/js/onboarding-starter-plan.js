@@ -61,11 +61,15 @@
 
   var state = {
     enabled: false,
+    flags: {},
     qIndex: 0,
     answers: {},
     plan: null,
     previewItems: [],
     planEdited: false,
+    planTitle: '',
+    introText: '',
+    usedAi: false,
     selectedEmoji: '🌟',
   };
 
@@ -259,6 +263,38 @@
       if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
 
       state.previewItems = previewData.items || [];
+
+      var personalizeBody = {
+        child_name: state.answers.child_name || '',
+        schedule_name: suggestData.scheduleName,
+        base_items: state.previewItems,
+        age_band: state.answers.age_band,
+        routine_type_ui: state.answers.routine_type_ui,
+        support_ui: state.answers.support_ui,
+        length_ui: state.answers.length_ui,
+        main_challenges: state.answers.main_challenge ? [state.answers.main_challenge] : [],
+        free_text: state.answers.free_text || '',
+      };
+
+      if (state.flags.activation_ai_starter_plan) {
+        if (btn) btn.textContent = 'Anpassar schema…';
+        var persRes = await api('/api/onboarding/starter-plan/personalize', {
+          method: 'POST',
+          body: JSON.stringify(personalizeBody),
+        });
+        var persData = await persRes.json();
+        if (!persRes.ok) throw new Error(persData.error || 'Kunde inte anpassa schema');
+        state.previewItems = persData.items || state.previewItems;
+        state.planTitle = persData.plan_title || suggestData.scheduleName;
+        state.introText = persData.intro_text || '';
+        state.usedAi = !!persData.used_ai;
+        state.plan.used_ai = state.usedAi;
+      } else {
+        state.planTitle = suggestData.scheduleName;
+        state.introText = '';
+        state.usedAi = false;
+      }
+
       renderPreview();
     } catch (err) {
       showError(err.message || 'Något gick fel');
@@ -274,14 +310,19 @@
     preview.classList.remove('hidden');
 
     var childName = state.answers.child_name || 'Barnet';
+    var title = state.planTitle || (state.plan && state.plan.scheduleName) || 'Ert schema';
     var html = [
       '<div class="text-center mb-4">',
       '  <div class="text-4xl mb-2">📋</div>',
-      '  <h2 class="text-xl font-heading font-bold text-navy">' + esc(state.plan.scheduleName) + '</h2>',
-      '  <p class="text-text-soft text-sm">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter</p>',
+      '  <h2 class="text-xl font-heading font-bold text-navy">' + esc(title) + '</h2>',
+      '  <p class="text-text-soft text-sm">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter' +
+        (state.usedAi ? ' · ✨ AI-anpassat' : '') + '</p>',
       '</div>',
-      '<ul id="spActivityList" class="space-y-2 mb-4">',
     ];
+    if (state.introText) {
+      html.push('<p class="text-sm text-navy bg-gold-light border border-gold rounded-xl p-3 mb-4">' + esc(state.introText) + '</p>');
+    }
+    html.push('<ul id="spActivityList" class="space-y-2 mb-4">');
 
     state.previewItems.forEach(function (item, idx) {
       html.push('<li class="flex items-center gap-2 bg-sky rounded-xl px-3 py-2" data-idx="' + idx + '">' +
@@ -340,6 +381,7 @@
         body: JSON.stringify({
           child_id: childData.id,
           template_group: state.plan.template_group,
+          custom_items: state.previewItems,
         }),
       });
       var schedData = await schedRes.json();
@@ -351,7 +393,7 @@
         template_group: state.plan.template_group,
         activity_count: state.previewItems.length,
         plan_edited_before_save: state.planEdited,
-        used_ai: false,
+        used_ai: state.usedAi,
       });
 
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
@@ -393,6 +435,7 @@
       if (!data.flags || !data.flags.activation_onboarding_v1) return;
 
       state.enabled = true;
+      state.flags = data.flags || {};
       hideLegacyStep1();
       ensureCard();
       renderQuestion();
