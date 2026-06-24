@@ -161,6 +161,13 @@ childRouter.post('/', async (req, res) => {
 
       await client.query('COMMIT');
 
+      // Sync daily log so empty special days clear weekly items; populated days match special schedule
+      try {
+        await syncDailyLogForSpecialDay(schedule.id, date, req.params.childId);
+      } catch (syncErr) {
+        console.error('[SPECIAL-DAYS] Sync error on create (non-fatal):', syncErr.message);
+      }
+
       // Fetch items to return
       const items = await db.query(
         `SELECT sdsi.id, sdsi.activity_template_id, sdsi.name, sdsi.icon,

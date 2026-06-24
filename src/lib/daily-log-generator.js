@@ -164,9 +164,11 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           );
           return { log, items: populatedItems.rows, generated: true, from_special_day: true };
         }
+        // Empty special day override — keep log empty; do not repopulate from weekly template
+        return { log, items: items.rows, generated: false, from_special_day: true, empty_special_day: true };
       }
 
-      // Fall back to weekly schedule
+      // Fall back to weekly schedule (no special day override for this date)
       const dayOfWeek = getDayOfWeek(dateStr, tz);
       const scheduleResult = await q.query(
         `SELECT ws.id FROM weekly_schedule ws WHERE ws.child_id = $1 AND ws.day_of_week = $2`,
@@ -269,7 +271,22 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
 
       return { log, items: items.rows, generated: true, from_special_day: true };
     }
-    // Empty special day row — fall through to weekly schedule below
+
+    // Empty special day override — create log with no items; weekly template must not apply
+    const emptyLogResult = await q.query(
+      `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
+       VALUES ($1, $2, false, NULL)
+       ON CONFLICT (child_id, date) DO UPDATE SET generated_from = NULL
+       RETURNING id, child_id, date, is_paused, generated_from, created_at`,
+      [childId, dateStr]
+    );
+    return {
+      log: emptyLogResult.rows[0],
+      items: [],
+      generated: true,
+      from_special_day: true,
+      empty_special_day: true,
+    };
   }
 
   // ── 4b. Find weekly schedule for that day_of_week ────────

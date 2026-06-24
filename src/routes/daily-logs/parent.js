@@ -15,6 +15,7 @@ const {
   parseLogDate,
   groupItemsBySection,
   attachSchoolVariantToItems,
+  enrichLogItemSubSteps,
 } = require('./helpers');
 
 const childRouter = express.Router();
@@ -32,7 +33,8 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 
     const { log, items, generated } = await getOrGenerateDailyLog(req.params.childId, dateStr);
 
-    const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(items, child.birthday);
+    const itemsWithSubSteps = await enrichLogItemSubSteps(items);
+    const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(itemsWithSubSteps, child.birthday);
 
     const sections = groupItemsBySection(itemsWithVariant);
 

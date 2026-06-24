@@ -133,6 +133,22 @@ function mergeItemsWithDailyLogOrder(weeklyItems, logItems) {
   return ordered;
 }
 
+/** Map special_day_schedule_item rows to the same shape as weekly schedule items. */
+function mapSpecialDayScheduleItems(rows, schoolVariant) {
+  return rows.map((item) => {
+    const activityName = item.activity_name;
+    const displayName = (activityName === 'Skola/Förskola' || activityName === 'Skola')
+      && activityName !== schoolVariant
+      ? schoolVariant
+      : activityName;
+    return {
+      ...item,
+      activity_name_display: displayName,
+      age_variant: activityName === 'Skola/Förskola' || activityName === 'Skola' ? schoolVariant : null,
+    };
+  });
+}
+
 /** Fill sub_steps for engångsaktiviteter linked to library templates (not in weekly schedule). */
 async function enrichOnceTaskSubSteps(items) {
   const templateIds = [...new Set(
@@ -226,7 +242,45 @@ router.get('/', async (req, res) => {
     // Filter out items excluded for this date (per-date "bara denna dag" deletes)
     const filterDate = req.query.date ? String(req.query.date).substring(0, 10) : null;
     if (filterDate && /^\d{4}-\d{2}-\d{2}$/.test(filterDate) && schedule.child_id) {
+      let specialDayOverride = false;
+      // Special day override replaces weekly template for this date (may be intentionally empty)
       try {
+        const specialRes = await db.query(
+          `SELECT sds.id FROM special_day_schedule sds
+           WHERE sds.child_id = $1 AND sds.date = $2`,
+          [schedule.child_id, filterDate]
+        );
+        if (specialRes.rows.length > 0) {
+          specialDayOverride = true;
+          const specialDayId = specialRes.rows[0].id;
+          const spItems = await db.query(
+            `SELECT sdsi.id, sdsi.activity_template_id, sdsi.start_time, sdsi.end_time, sdsi.sort_order, sdsi.section,
+                    COALESCE(sdsi.name, at.name) AS activity_name,
+                    COALESCE(sdsi.icon, at.icon) AS activity_icon,
+                    COALESCE(sdsi.star_value, at.star_value) AS star_value,
+                    COALESCE(sub.cnt, 0) AS sub_step_count,
+                    COALESCE(sub.steps, '[]'::json) AS sub_steps
+             FROM special_day_schedule_item sdsi
+             LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
+             LEFT JOIN (
+               SELECT activity_template_id,
+                      COUNT(*) AS cnt,
+                      json_agg(json_build_object('id', id, 'name', name, 'icon', icon, 'sort_order', sort_order)
+                        ORDER BY sort_order ASC, id ASC) AS steps
+               FROM activity_sub_step
+               GROUP BY activity_template_id
+             ) sub ON sub.activity_template_id = sdsi.activity_template_id
+             WHERE sdsi.special_day_schedule_id = $1
+             ORDER BY sdsi.section, sdsi.sort_order ASC`,
+            [specialDayId]
+          );
+          finalItems = mapSpecialDayScheduleItems(spItems.rows, schoolVariant);
+        }
+      } catch (spErr) {
+        console.error('[SCHEDULE-ITEMS] Special-day override error (non-fatal):', spErr.message);
+      }
+
+      if (!specialDayOverride) try {
         const exclRes = await db.query(
           `SELECT activity_template_id FROM schedule_date_exclusion
            WHERE child_id = $1 AND date = $2`,

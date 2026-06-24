@@ -1580,12 +1580,44 @@ async function loadScheduleForDay() {
   }
   const schedules = await res.json();
   const ds = schedules.find(s => s.day_of_week === currentDay);
+  const dateStr = getCurrentDateStr();
   if (!ds) {
     if (skeletonTimer) skeletonTimer.stop();
+    try {
+      const logRes = await window.apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateStr)}`);
+      if (logRes.ok) {
+        const logData = await logRes.json();
+        const dayItems = (logData.items || []).map(item => ({
+          id: item.id,
+          activity_template_id: item.activity_template_id,
+          activity_name: item.name,
+          activity_icon: item.icon,
+          activity_name_display: item.name,
+          section: item.section,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          star_value: item.star_value,
+          sort_order: item.sort_order,
+          is_once_task: !!item.is_once_task || !item.activity_template_id,
+          sub_steps: item.sub_steps || [],
+          sub_step_count: Array.isArray(item.sub_steps) ? item.sub_steps.length : 0,
+        }));
+        if (dayItems.length > 0) {
+          currentScheduleId = null;
+          scheduleItems = dayItems;
+          sectionTimes = logData.section_times || {};
+          if (currentViewMode === 'timeline') renderTimeline();
+          else if (currentViewMode === 'sbs') renderSbsView();
+          else renderSchedule();
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('[DASHBOARD] loadOnceTasksForDate failed:', e);
+    }
     currentScheduleId = null; scheduleItems = []; renderEmptyDay(); return;
   }
   currentScheduleId = ds.id;
-  const dateStr = getCurrentDateStr();
   const ir = await window.apiFetch(`/api/schedules/${currentScheduleId}/items?date=${encodeURIComponent(dateStr)}`);
   if (!ir.ok) {
     if (skeletonTimer) skeletonTimer.stop();
@@ -2754,8 +2786,8 @@ async function submitOnceTaskDirect(tplId, tpl) {
     document.getElementById('createActivityError').classList.remove('hidden');
     return;
   }
-  const addBtn = document.getElementById('addActivityBtn');
-  addBtn.disabled = true; addBtn.textContent = 'Skapar…';
+  const addBtn = document.getElementById('createActivitySubmitBtn') || document.getElementById('addActivityBtn');
+  if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Skapar…'; }
   try {
     const primaryChildId = childIds[0];
     const res = await window.apiFetch(`/api/children/${primaryChildId}/schedules/once-tasks`, {
@@ -2783,11 +2815,14 @@ async function submitOnceTaskDirect(tplId, tpl) {
       await refreshAfterOnceTaskChange();
     } else {
       const err = await res.json();
-      document.getElementById('createActivityError').textContent = err.error || 'Fel uppstod';
-      document.getElementById('createActivityError').classList.remove('hidden');
+      const errEl = document.getElementById('createActivityError') || document.getElementById('addActivityError');
+      if (errEl) {
+        errEl.textContent = err.error || 'Fel uppstod';
+        errEl.classList.remove('hidden');
+      }
     }
   } finally {
-    addBtn.disabled = false; addBtn.textContent = 'Lägg till';
+    if (addBtn) { addBtn.disabled = false; addBtn.textContent = addBtn.id === 'createActivitySubmitBtn' ? 'Skapa & lägg till' : 'Lägg till'; }
   }
 }
 
@@ -2796,39 +2831,28 @@ async function submitCreateActivity() {
   if (!name) { document.getElementById('createActivityError').textContent='Namn krävs'; document.getElementById('createActivityError').classList.remove('hidden'); return; }
   const icon = document.getElementById('newActEmojiInput').value.trim() || '📌';
   const starValue = parseInt(document.getElementById('newActStarValue').value) || 1;
+
+  // Once-mode: create engångsaktivitet directly (incl. inline delsteg via once-tasks API)
+  if (_onceCreateContext) {
+    const tpl = { name, icon, star_value: starValue };
+    await submitOnceTaskDirect(null, tpl);
+    return;
+  }
+
   const body = { name, icon, star_value: starValue };
   try {
     const res = await window.apiFetch('/api/activities', {method:'POST', body:JSON.stringify(body)});
     const data = await res.json();
     if (res.ok) {
-      if (_onceCreateContext) {
-        const tpl = { name, icon, star_value: starValue };
-        // Create sub-steps on library template when not in once-direct flow
-        if (_newActSubsteps.length > 0) {
-          let failedSteps = 0;
-          for (const step of _newActSubsteps) {
-            const stepRes = await window.apiFetch(`/api/activities/${data.id}/sub-steps`, {
-              method: 'POST',
-              body: JSON.stringify({ name: step.name, icon: step.icon }),
-            });
-            if (!stepRes.ok) failedSteps++;
-          }
-          if (failedSteps > 0) {
-            showToast(`Aktiviteten skapades men ${failedSteps} delsteg misslyckades`, true);
-          }
-        }
-        await submitOnceTaskDirect(data.id, tpl);
-      } else {
-        // Normal mode: close modals, load templates, open recurrence modal
-        closeCreateActivityModal();
-        closeAddModal();
-        await loadTemplates();
-        _pendingTemplateId = data.id;
-        _pendingTemplateName = name;
-        _pendingSection = addSectionOverride;
-        _pendingTargetChildIds = [currentChildId];
-        openRecurrenceModal();
-      }
+      // Normal mode: close modals, load templates, open recurrence modal
+      closeCreateActivityModal();
+      closeAddModal();
+      await loadTemplates();
+      _pendingTemplateId = data.id;
+      _pendingTemplateName = name;
+      _pendingSection = addSectionOverride;
+      _pendingTargetChildIds = [currentChildId];
+      openRecurrenceModal();
     } else {
       document.getElementById('createActivityError').textContent = data.error || 'Kunde inte skapa aktiviteten';
       document.getElementById('createActivityError').classList.remove('hidden');

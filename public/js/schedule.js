@@ -1204,9 +1204,47 @@ async function loadScheduleForDay() {
     return;
   }
   const ds = schedules.find(s => s.day_of_week === currentDay);
-  if (!ds) { currentScheduleId = null; scheduleItems = []; renderEmptyDay(); return; }
-  currentScheduleId = ds.id;
   const dateStr = getCurrentDayDateStr();
+  if (!ds) {
+    try {
+      if (dateStr) {
+        const logRes = await window.apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateStr)}`);
+        if (logRes.ok) {
+          const logData = await logRes.json();
+          const dayItems = (logData.items || []).map(item => ({
+            id: item.id,
+            activity_template_id: item.activity_template_id,
+            activity_name: item.name,
+            activity_icon: item.icon,
+            activity_name_display: item.name,
+            section: item.section,
+            start_time: item.start_time,
+            end_time: item.end_time,
+            star_value: item.star_value,
+            sort_order: item.sort_order,
+            is_once_task: !!item.is_once_task || !item.activity_template_id,
+            sub_steps: item.sub_steps || [],
+            sub_step_count: Array.isArray(item.sub_steps) ? item.sub_steps.length : 0,
+          }));
+          if (dayItems.length > 0) {
+            currentScheduleId = null;
+            scheduleItems = dayItems;
+            sectionTimes = logData.section_times || {};
+            if (currentViewMode === 'timeline') renderTimeline();
+            else if (currentViewMode === 'sbs') renderSbsView();
+            else if (currentViewMode === 'list') renderListView();
+            else renderSchedule();
+            checkIfDayPaused();
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[SCHEDULE] loadOnceTasksForDate failed:', e);
+    }
+    currentScheduleId = null; scheduleItems = []; renderEmptyDay(); return;
+  }
+  currentScheduleId = ds.id;
   const ir = await window.apiFetch(`/api/schedules/${currentScheduleId}/items${dateStr ? '?date=' + encodeURIComponent(dateStr) : ''}`);
   if (!ir.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">Fel vid laddning av aktiviteter</p>'; return; }
   const data = await ir.json();

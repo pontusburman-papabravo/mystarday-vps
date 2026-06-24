@@ -52,6 +52,32 @@ function attachSchoolVariantToItems(items, birthday) {
   return { schoolVariant, itemsWithVariant };
 }
 
+/** Attach sub_steps from activity_template for daily log items (engångsaktiviteter m.m.). */
+async function enrichLogItemSubSteps(items) {
+  const templateIds = [...new Set(
+    items.filter((i) => i.activity_template_id).map((i) => i.activity_template_id)
+  )];
+  if (templateIds.length === 0) return items;
+
+  const subRes = await db.query(
+    `SELECT activity_template_id,
+            json_agg(json_build_object('id', id, 'name', name, 'icon', icon, 'sort_order', sort_order)
+              ORDER BY sort_order ASC, id ASC) AS steps
+     FROM activity_sub_step
+     WHERE activity_template_id = ANY($1::uuid[])
+     GROUP BY activity_template_id`,
+    [templateIds]
+  );
+  const subMap = new Map(subRes.rows.map((r) => [r.activity_template_id, r.steps || []]));
+
+  return items.map((item) => {
+    if (!item.activity_template_id) return item;
+    const steps = subMap.get(item.activity_template_id);
+    if (!steps || steps.length === 0) return item;
+    return { ...item, sub_steps: steps, sub_step_count: steps.length };
+  });
+}
+
 async function getChildOwnedLogItem(itemId, childId) {
   const itemResult = await db.query(
     `SELECT dli.id, dli.activity_template_id, dl.child_id, dl.is_paused
@@ -69,5 +95,6 @@ module.exports = {
   parseLogDate,
   groupItemsBySection,
   attachSchoolVariantToItems,
+  enrichLogItemSubSteps,
   getChildOwnedLogItem,
 };
