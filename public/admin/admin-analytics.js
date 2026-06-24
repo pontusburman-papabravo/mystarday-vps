@@ -73,6 +73,7 @@ async function switchTab(tabName) {
   else if (tabName === 'retention') await loadRetention();
   else if (tabName === 'trends') await loadTrends();
   else if (tabName === 'newsletter') await loadNewsletter();
+  else if (tabName === 'activation') await loadActivationFunnel();
 }
 
 // ─── HTML skeleton ────────────────────────────────────────
@@ -89,6 +90,7 @@ function buildAnalyticsHTML() {
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">📈 Retention</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="trends">📉 Trender</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="newsletter">📧 Nyhetsbrev</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="activation">⭐ Aktivering</button>
       </div>
 
       <!-- ── OVERVIEW (Del 1) ──────────────────────────────── -->
@@ -356,6 +358,21 @@ function buildAnalyticsHTML() {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <div id="section-activation" class="analytics-section hidden space-y-8">
+        <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">⭐ Aktiveringstratt (P0)</h3>
+          <p class="text-text-soft text-sm mb-4">Veckokohort — 9 steg enligt ACT-1 (signup → P0 inom 48h)</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead id="activationFunnelHead">
+              <tr><th class="text-left pb-2">Laddar…</th></tr>
+            </thead>
+            <tbody id="activationFunnelBody"></tbody>
+          </table>
         </div>
       </div>
 
@@ -1038,6 +1055,36 @@ async function triggerSnapshot() {
 function showToast(msg, type) {
   if (typeof window.showToast === 'function') window.showToast(msg, type);
   else alert(msg);
+}
+
+async function loadActivationFunnel() {
+  const head = document.getElementById('activationFunnelHead');
+  const body = document.getElementById('activationFunnelBody');
+  if (!head || !body || body.dataset.loaded === 'true') return;
+  try {
+    const data = await Auth.api('/api/admin/analytics/activation-funnel?weeks=8');
+    const steps = data.steps || [];
+    head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
+      steps.map(function (s) { return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(s.label) + '</th>'; }).join('') +
+      '</tr>';
+    if (!data.cohorts || data.cohorts.length === 0) {
+      body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
+    } else {
+      body.innerHTML = data.cohorts.map(function (row) {
+        var week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+        var cells = steps.map(function (s) {
+          var n = (row.counts && row.counts[s.key]) || 0;
+          var pct = (row.rates && row.rates[s.key]) || 0;
+          return '<td class="text-right px-2 py-2 tabular-nums">' + n + '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
+        }).join('');
+        return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+      }).join('');
+    }
+    body.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadActivationFunnel error:', err);
+    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda aktiveringstratt</td></tr>';
+  }
 }
 
 // ─── Utility ──────────────────────────────────────────────

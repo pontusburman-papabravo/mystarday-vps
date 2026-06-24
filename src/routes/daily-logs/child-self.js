@@ -246,6 +246,12 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
       // Activation program: child_first_completion (Fas 2 — child path only)
       if (!item.completed) {
+        require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
+          child_id: req.user.id,
+          source: 'child_complete',
+        });
+      }
+      if (!item.completed) {
         try {
           const parentActivationProgram = require('../../../db/parent-activation-program');
           const { isActivationProgramEnabled } = require('../../lib/activation-program-enroll');

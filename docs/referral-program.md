@@ -1,10 +1,29 @@
-# Värvningsprogram (Referral) — förslag & specifikation
+# Värvningsprogram (Referral) — specifikation
 
-Status: **Förslag** (ej byggt). Skapad 2026-06-24.
+Status: **v0 låst** — spårning + admin, ingen belöning. Uppdaterad 2026-06-24.
 
-Mål: göra delning mätbar och belönad så att befintliga familjer driver ny tillväxt.
-Idag finns bara "dela appen" via `navigator.share` utan attribution — vi vet inte om
-någon registrerar sig via en delning.
+Mål: göra delning **mätbar** så att vi vet om någon registrerar sig via en delning.
+Idag finns bara "dela appen" via `navigator.share` utan attribution.
+
+---
+
+## 0. v0 — låst scope (bygg parallellt med ACT-1)
+
+**Produktägarens beslut:** Ingen belöning i v0 — bara statistik och admin-vy.
+
+| Ingår i v0 | Ingår **inte** i v0 |
+|------------|---------------------|
+| Personlig `?ref=`-kod per förälder | Trial-förlängning, premiumkomponent |
+| Fånga kod vid registrering | Midnight-belöningsjobb |
+| Spåra: delning → signup → qualified | Push/e-post “du fick belöning” |
+| Admin: lista värvare, antal signups/qualified | Kvartalstak (kan vänta) |
+| Analytics-events | Dubbelsidig belöning |
+
+**Kvalificerad värvning (mätvärde, ingen utbetalning):** ny familj via `?ref=` + P0-aktivering (`child_access_completed` + first completion inom 7 d).
+
+**Uppskattning v0:** ~2 dagar (migration, register-hook, delnings-UI, admin-lista, events).
+
+**Belöningar (v1):** Bygg när `activation_rate_48h` > 25 % och v0-data visar att någon faktiskt delar. Se §2 nedan.
 
 ---
 
@@ -19,7 +38,9 @@ konsumentappar och bygger på ömsesidighet.
 
 ---
 
-## 2. Belöning
+## 2. Belöning (v1 — ej v0)
+
+> **v0:** Ingen belöning. Detta avsnitt gäller först när spårning visar att delning sker.
 
 Vi har redan en komponentbaserad prenumerationsmodell (`family_subscriptions.components`
 JSONB + `has_component()`), vilket gör belöningar enkla att dela ut utan att röra betalning.
@@ -65,17 +86,17 @@ CREATE TABLE referral (
   referred_family_id UUID REFERENCES family(id) ON DELETE SET NULL,
   code            VARCHAR(12) NOT NULL,
   status          TEXT NOT NULL DEFAULT 'pending'
-                  CHECK (status IN ('pending','qualified','rewarded','rejected')),
+                  CHECK (status IN ('pending','qualified','rejected')),
   qualified_at    TIMESTAMPTZ,
-  rewarded_at     TIMESTAMPTZ,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_referral_referrer ON referral(referrer_parent_id);
 CREATE INDEX idx_referral_status ON referral(status);
 ```
 
-`status`-flöde: `pending` (registrerad via kod) → `qualified` (aktiveringskriteriet uppfyllt)
-→ `rewarded` (belöning utdelad) | `rejected` (misstänkt missbruk / självvärvning).
+`status`-flöde (v0): `pending` (registrerad via kod) → `qualified` (aktiveringskriteriet uppfyllt) | `rejected` (självvärvning m.m.).
+
+`rewarded` läggs till i v1 när belöningar byggs.
 
 ---
 
@@ -91,12 +112,14 @@ CREATE INDEX idx_referral_status ON referral(status);
 - `register.html`/`onboarding.js`: läs `?ref=` → spara i `localStorage` (överlever
   e-postverifiering) och skicka med i `POST /api/auth/register`.
 - `src/routes/auth/register.js`: om giltig kod (och inte egen) → skapa `referral`
-  (`status='pending'`), förläng nya familjens trial till 45 dagar.
+  (`status='pending'`). **v0:** ingen trial-förlängning.
 
-### 5c. Kvalificering
-- I midnight-schemaläggaren (`src/lib/midnight-scheduler.js`): hitta `pending`-värvningar
-  vars familj uppfyller aktiveringskriteriet → sätt `qualified`, dela ut värvarbelöning,
-  sätt `rewarded`. Skicka push/e-post: "Din vän kom igång — du fick 30 extra dagar! 🎉"
+### 5c. Kvalificering (v0)
+- I midnight-schemaläggaren eller vid completion: hitta `pending`-värvningar vars familj
+  uppfyller aktiveringskriteriet → sätt `qualified`. **v0:** ingen belöning, inget mejl.
+
+### 5c-v1. Belöning (senare)
+- Efter `qualified`: dela ut värvarbelöning, sätt `rewarded`, push/e-post.
 
 ### 5d. Anti-missbruk
 - Ingen självvärvning (samma e-postdomän + samma IP heuristik → `rejected`).
@@ -114,10 +137,9 @@ Lägg till event_types i whitelisten (`src/routes/analytics.js`) och spåra:
 | `referral_link_shared` | förälder delar sin kod |
 | `referral_signup` | ny familj registrerar via `?ref=` |
 | `referral_qualified` | aktiveringskriteriet uppfyllt |
-| `referral_rewarded` | belöning utdelad |
 
-KPI: **K-faktor** = (delningar × konvertering per delning). Mål >0,15 i v1.
-Admin-vy: lista per värvare (delningar → signups → qualified), i `src/routes/admin/`.
+KPI v0: **delningar → signups → qualified** (K-faktor när volym finns).
+Admin-vy (`GET /api/admin/referrals`): tabell per värvare — kod, delningar, signups, qualified, senaste signup.
 
 ---
 
@@ -129,22 +151,27 @@ Lägg `referral_program` i `scripts/seed-features.js` (status `dev`, taggar `gro
 
 ---
 
-## 8. Leveransordning (förslag)
+## 8. Leveransordning
+
+### v0 (låst — ~2 dagar)
 
 1. Migration + `db/referral.js` (kod-generering, CRUD)
-2. Register-hook (fånga `?ref=`, skapa `pending`, förläng trial)
+2. Register-hook (fånga `?ref=`, skapa `pending` — **ingen trial-ändring**)
 3. Dashboard-UI: visa kod + delning (utöka `dashboard-cta.js`)
-4. Kvalificerings-/belöningsjobb i midnight-scheduler
-5. Analytics-events + admin-vy
-6. Anti-missbruk-heuristik + kvartalstak
+4. Kvalificeringsjobb → `qualified` (utan belöning)
+5. Analytics-events + **admin-vy**
 
-Uppskattning: ~3–5 dagars arbete för v1 (utan admin-vy ~2–3 dagar).
+### v1 (senare)
+
+6. Belöningsjobb + `rewarded`
+7. Anti-missbruk-heuristik + kvartalstak
 
 ---
 
-## 9. Öppna beslut för produktägaren
+## 9. Öppna beslut (v1)
 
 1. Exakt belöning (trial-dagar vs komponent)?
 2. Tak per värvare/period?
-3. Kräver vi köp för belöning, eller räcker aktivering? (Förslag: aktivering, eftersom
-   de flesta familjer är `lifetime_free`.)
+3. Kräver vi köp för belöning, eller räcker aktivering? (Förslag: aktivering.)
+
+*v0-beslut är låsta — se §0.*

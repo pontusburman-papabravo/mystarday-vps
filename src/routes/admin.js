@@ -45,6 +45,7 @@ const forDigRouter = require('./admin/for-dig');
 const startSummaryRouter = require('./admin/start-summary');
 const contactMessagesRouter = require('./admin/contact-messages');
 const growthPipelineRouter = require('./admin/growth-pipeline');
+const referralsRouter = require('./admin/referrals');
 const familyOverviewRouter = require('./admin/family-overview');
 const adminSearchRouter = require('./admin/admin-search');
 
@@ -64,6 +65,7 @@ router.use(rewardRouter);
 router.use(systemRouter);
 router.use(contactMessagesRouter);
 router.use(growthPipelineRouter);
+router.use(referralsRouter);
 router.use(familyOverviewRouter);
 router.use(adminSearchRouter);
 router.use(startSummaryRouter);

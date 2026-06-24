@@ -102,6 +102,13 @@ function createApp() {
   // Maintenance must run before routes so API traffic is blocked during downtime.
   app.use(checkMaintenanceMode);
 
+  const { buildSitemapXml } = require('./src/lib/sitemap');
+  app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(buildSitemapXml());
+  });
+
   registerRoutes(app);
 
   app.use(express.static(path.join(__dirname, 'public'), { index: false }));

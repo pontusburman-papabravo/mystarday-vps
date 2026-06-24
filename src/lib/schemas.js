@@ -65,6 +65,8 @@ const RegisterSchema = z.object({
   name: z.string().min(1, 'Namn krävs').max(100),
   // invite_token is optional — used for multi-parent invite flow
   invite_token: z.string().max(128).optional(),
+  // referral v0 — ?ref= capture at signup
+  referral_code: z.string().max(12).optional(),
   // language is optional
   language: z.string().max(10).optional(),
 });

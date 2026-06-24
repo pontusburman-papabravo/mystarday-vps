@@ -876,6 +876,39 @@ router.get('/subscription-status', requireParent, async (req, res) => {
   }
 });
 
+// ─── GET /api/family/activation-config ───────────────────
+router.get('/activation-config', async (req, res) => {
+  try {
+    const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
+    const activationDb = require('../../../db/family-activation-state');
+    const { getActivationFunnelStep } = require('../../lib/activation-p0');
+    const familyId = req.user.familyId;
+    const [flags, state] = await Promise.all([
+      Promise.all([
+        isActivationFlagEnabled(FLAG_KEYS.onboarding, familyId),
+        isActivationFlagEnabled(FLAG_KEYS.childHandoff, familyId),
+        isActivationFlagEnabled(FLAG_KEYS.firstStarGuide, familyId),
+        isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, familyId),
+      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan]) => ({
+        activation_onboarding_v1: onboarding,
+        activation_child_handoff_v1: childHandoff,
+        activation_first_star_guide_v1: firstStarGuide,
+        activation_ai_starter_plan: aiStarterPlan,
+      })),
+      activationDb.getByFamilyId(familyId),
+    ]);
+    res.json({
+      flags,
+      funnel_step: getActivationFunnelStep(state),
+      activation_variant: state?.activation_variant || 'legacy',
+      p0_activated_within_48h: !!state?.p0_activated_within_48h,
+    });
+  } catch (err) {
+    console.error('[FAMILY] activation-config error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta aktiveringsinställningar' });
+  }
+});
+
 function getWeekNumber(d) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   const dayNum = date.getUTCDay() || 7;

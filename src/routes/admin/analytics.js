@@ -215,4 +215,17 @@ router.get('/analytics/overview', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/activation-funnel ───────────
+router.get('/analytics/activation-funnel', async (req, res) => {
+  try {
+    const weeks = Math.min(52, Math.max(1, parseInt(req.query.weeks, 10) || 8));
+    const { getActivationFunnelCohorts } = require('../../../db/activation-funnel');
+    const data = await getActivationFunnelCohorts(weeks);
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN analytics] activation-funnel error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta aktiveringstratt' });
+  }
+});
+
 module.exports = router;

@@ -1,0 +1,102 @@
+'use strict';
+
+const activationDb = require('../../db/family-activation-state');
+const analytics = require('../../db/analytics');
+const {
+  reconcileP0State,
+  isP0Activated,
+  getActivationFunnelStep,
+} = require('./activation-p0-core');
+
+/**
+ * Ensure activation state row exists (idempotent).
+ * @param {string} familyId
+ * @param {Date|string} [signupAt]
+ * @param {string} [activationVariant]
+ */
+async function ensureActivationState(familyId, signupAt = new Date(), activationVariant = 'legacy') {
+  const existing = await activationDb.getByFamilyId(familyId);
+  if (existing) return existing;
+  return activationDb.insertState(familyId, signupAt, activationVariant);
+}
+
+/**
+ * @typedef {'schema_saved'|'child_access'|'first_completion'} ActivationMilestone
+ */
+
+/**
+ * Update activation milestones (only sets timestamps when null).
+ * @param {string} familyId
+ * @param {ActivationMilestone} milestone
+ * @param {object} [options]
+ * @param {Date} [options.at]
+ * @param {object} [options.metadata] analytics metadata
+ */
+async function updateActivationState(familyId, milestone, options = {}) {
+  const at = options.at || new Date();
+  const state = await ensureActivationState(familyId, at);
+
+  const columnByMilestone = {
+    schema_saved: 'schema_saved_at',
+    child_access: 'child_access_completed_at',
+    first_completion: 'first_completion_at',
+  };
+  const column = columnByMilestone[milestone];
+  if (!column) return state;
+
+  const patch = {};
+  if (!state[column]) {
+    patch[column] = at;
+  }
+
+  let next = state;
+  if (Object.keys(patch).length > 0) {
+    next = await activationDb.patchState(familyId, patch);
+  }
+
+  const reconciled = reconcileP0State(next, at);
+  const wasP0 = Boolean(state.p0_activated_at);
+
+  if (reconciled.p0ActivatedAt && !wasP0) {
+    next = await activationDb.patchState(familyId, {
+      p0_activated_at: reconciled.p0ActivatedAt,
+      p0_activated_within_48h: reconciled.p0ActivatedWithin48h,
+    });
+    if (reconciled.p0ActivatedWithin48h) {
+      analytics.track(familyId, 'activation_achieved_48h', {
+        variant: next.activation_variant,
+        ...options.metadata,
+      });
+    }
+  }
+
+  const eventByMilestone = {
+    schema_saved: 'starter_plan_saved',
+    child_access: 'child_access_completed',
+    first_completion: 'first_completion_recorded',
+  };
+  const eventType = eventByMilestone[milestone];
+  if (eventType && Object.keys(patch).length > 0) {
+    analytics.track(familyId, eventType, {
+      variant: next.activation_variant,
+      ...options.metadata,
+    });
+  }
+
+  return next;
+}
+
+async function setActivationVariant(familyId, variant) {
+  await ensureActivationState(familyId);
+  return activationDb.patchState(familyId, { activation_variant: variant });
+}
+
+module.exports = {
+  ensureActivationState,
+  updateActivationState,
+  setActivationVariant,
+  isP0Activated,
+  getActivationFunnelStep,
+  // re-export pure helpers for tests
+  reconcileP0State,
+};

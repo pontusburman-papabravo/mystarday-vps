@@ -86,6 +86,32 @@ function trackParentAhaMomentDismissed(familyId, metadata = {}) {
   analytics.track(familyId, 'parent_aha_moment_dismissed', metadata);
 }
 
+// ─── ACT-1 activation funnel ──────────────────────────────
+
+function trackActivationOnboardingStarted(familyId, metadata = {}) {
+  analytics.track(familyId, 'activation_onboarding_started', metadata);
+}
+
+function trackStarterTemplateSelected(familyId, metadata = {}) {
+  analytics.track(familyId, 'starter_template_selected', metadata);
+}
+
+function trackStarterPlanSaved(familyId, metadata = {}) {
+  analytics.track(familyId, 'starter_plan_saved', metadata);
+}
+
+function trackChildAccessCompleted(familyId, metadata = {}) {
+  analytics.track(familyId, 'child_access_completed', metadata);
+}
+
+function trackFirstCompletionRecorded(familyId, metadata = {}) {
+  analytics.track(familyId, 'first_completion_recorded', metadata);
+}
+
+function trackActivationAchieved48h(familyId, metadata = {}) {
+  analytics.track(familyId, 'activation_achieved_48h', metadata);
+}
+
 module.exports = {
   trackLandingVisit,
   trackSignupStarted,
@@ -104,4 +130,10 @@ module.exports = {
   trackWinBackEmailSent,
   trackWinBackReturned,
   trackParentAhaMomentDismissed,
+  trackActivationOnboardingStarted,
+  trackStarterTemplateSelected,
+  trackStarterPlanSaved,
+  trackChildAccessCompleted,
+  trackFirstCompletionRecorded,
+  trackActivationAchieved48h,
 };

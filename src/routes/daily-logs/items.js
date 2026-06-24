@@ -105,6 +105,12 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
       if (!fid) return;
       require('../../lib/analytics-tracker').trackDailyLog(fid);
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: true });
+      if (!item.completed) {
+        require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
+          child_id: item.child_id,
+          source: 'parent_complete',
+        });
+      }
       try {
         const [childRow, activityRow] = await Promise.all([
           db.query('SELECT name FROM child WHERE id = $1', [item.child_id]),

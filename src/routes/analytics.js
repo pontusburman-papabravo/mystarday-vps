@@ -92,6 +92,24 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'child_profile_section',
   'child_world_view',
   'feature_minimal_ui_enabled',
+  // ACT-1 activation funnel (act-1-ai-startschema-spec.md §10)
+  'activation_onboarding_started',
+  'activation_question_answered',
+  'starter_template_selected',
+  'starter_plan_generation_started',
+  'starter_plan_generation_succeeded',
+  'starter_plan_generation_failed',
+  'starter_plan_preview_viewed',
+  'starter_plan_saved',
+  'child_access_completed',
+  'child_profile_created',
+  'child_pin_created',
+  'child_view_opened',
+  'child_handoff_skipped',
+  'first_completion_recorded',
+  'referral_link_shared',
+  'referral_signup',
+  'referral_qualified',
 ]);
 
 /**

@@ -33,7 +33,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       console.error('[AUTH] Feature flag check error:', flagErr);
     }
 
-    const { email, password, name, family_name } = req.body;
+    const { email, password, name, family_name, referral_code: referralCodeRaw } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -288,6 +288,33 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // Analytics: funnel step — signup_started (family just created)
       require('../../lib/analytics-tracker').trackSignupStarted(familyId);
+      require('../../lib/activation-p0').ensureActivationState(familyId, new Date()).catch((err) => {
+        console.error('[AUTH] ensureActivationState failed for', familyId, ':', err.message);
+      });
+
+      // Referral v0 — capture ?ref= at signup (no reward in v0)
+      if (referralCodeRaw) {
+        (async () => {
+          try {
+            const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
+            const enabled = await isActivationFlagEnabled(FLAG_KEYS.referral, familyId);
+            if (!enabled) return;
+            const referralDb = require('../../../db/referral');
+            const referrer = await referralDb.findReferrerByCode(referralCodeRaw);
+            if (!referrer || referrer.family_id === familyId) return;
+            await referralDb.createPendingReferral({
+              referrerParentId: referrer.parent_id,
+              referredFamilyId: familyId,
+              code: referralCodeRaw.trim().toUpperCase(),
+            });
+            require('../../../db/analytics').track(familyId, 'referral_signup', {
+              code: referralCodeRaw.trim().toUpperCase(),
+            });
+          } catch (refErr) {
+            console.error('[AUTH] referral capture failed:', refErr.message);
+          }
+        })();
+      }
 
       // Register contact (no-op with Resend — kept for compatibility)
       try {

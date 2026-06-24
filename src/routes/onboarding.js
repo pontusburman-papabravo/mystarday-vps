@@ -388,6 +388,13 @@ router.post('/schedule', async (req, res) => {
         console.error('[ONBOARDING] Daily log sync after schedule change failed:', dlErr.message);
       }
 
+      const { updateActivationState } = require('../lib/activation-p0');
+      updateActivationState(req.user.familyId, 'schema_saved', {
+        metadata: { template_group, source: 'onboarding_schedule' },
+      }).catch((err) => {
+        console.error('[ONBOARDING] activation schema_saved error:', err.message);
+      });
+
       res.json({
         success: true,
         schedules_created: schedulesCreated,
@@ -822,10 +829,39 @@ router.post('/update-pin', async (req, res) => {
       [pinHash, pinFp, child_id]
     );
 
+    const analytics = require('../../db/analytics');
+    analytics.track(req.user.familyId, 'child_pin_created', { child_id });
+    const { updateActivationState } = require('../lib/activation-p0');
+    updateActivationState(req.user.familyId, 'child_access', {
+      metadata: { child_id, source: 'onboarding_pin' },
+    }).catch((err) => {
+      console.error('[ONBOARDING] activation child_access error:', err.message);
+    });
+
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] update-pin error:', err);
     res.status(500).json({ error: 'Kunde inte uppdatera PIN-koden.' });
+  }
+});
+
+// ─── POST /api/onboarding/child-access-complete ──────────
+// Marks child handoff complete (PIN set, barnvy opened, or explicit handoff).
+router.post('/child-access-complete', async (req, res) => {
+  try {
+    const { child_id, source } = req.body || {};
+    const { updateActivationState } = require('../lib/activation-p0');
+    const analytics = require('../../db/analytics');
+    if (source === 'child_view') {
+      analytics.track(req.user.familyId, 'child_view_opened', { child_id, source: 'handoff' });
+    }
+    await updateActivationState(req.user.familyId, 'child_access', {
+      metadata: { child_id, source: source || 'handoff' },
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[ONBOARDING] child-access-complete error:', err);
+    res.status(500).json({ error: 'Kunde inte spara barnåtkomst.' });
   }
 });
 

@@ -330,6 +330,9 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
     if (!res.ok) throw new Error(data.error || 'Något gick fel');
 
     childId = data.id;
+    if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
+      OnboardingActivation.setChildId(childId);
+    }
     childName = data.name;
     childUsername = data.username;
     childPin = data.pin;
