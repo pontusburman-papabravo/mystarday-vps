@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v269 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v270 // pragma: allowlist secret
+ * v270: Landing login entry — parent + child login visible in hero and nav
  * v269: SEO /faq + /kontakt indexable; founder counter visible in hero
  * v268: Landing page v2 — conversion-focused homepage refactor
  * v267: Admin prenumeration — legacy web payment UI borttagen, IAP-status endast

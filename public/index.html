@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=1">
+  <link rel="stylesheet" href="/css/landing.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#F5A623">
@@ -84,6 +84,7 @@
     <a href="#faq" class="landing-nav__link">FAQ</a>
   </div>
   <div class="landing-nav__actions">
+    <a href="/child-login" class="landing-nav__child-login" data-track="nav_child_login_click" title="Barninloggning">🌟 Barn</a>
     <a href="/login" class="landing-nav__login" data-track="nav_login_click">Logga in</a>
     <a href="/register" class="btn-primary" data-track="nav_signup_click">Skapa konto gratis</a>
     <a href="/en" class="landing-nav__lang" title="English version" aria-label="English">🇬🇧</a>
@@ -94,13 +95,17 @@
 </nav>
 
 <div class="landing-mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobilmeny">
+  <p class="landing-mobile-menu__section">Logga in</p>
+  <a href="/login" class="landing-mobile-menu__login" data-track="nav_login_click">👨‍👩‍👧 Logga in som förälder</a>
+  <a href="/child-login" class="landing-mobile-menu__login landing-mobile-menu__login--child" data-track="nav_child_login_click">🌟 Logga in som barn</a>
+  <p class="landing-mobile-menu__section">Utforska</p>
   <a href="#sa-fungerar-det">Så fungerar det</a>
   <a href="#for-vilka">För familjer som behöver struktur</a>
   <a href="#skattkammaren">Skattkammaren</a>
   <a href="/pedagoger-och-terapeuter">För pedagoger &amp; terapeuter</a>
   <a href="#faq">FAQ</a>
-  <a href="/login">Logga in</a>
-  <a href="/register" class="btn-primary" style="text-align:center;margin-top:0.5rem;" data-track="nav_signup_click">Skapa konto gratis</a>
+  <p class="landing-mobile-menu__section">Ny användare?</p>
+  <a href="/register" class="btn-primary" style="text-align:center;margin-top:0.25rem;" data-track="nav_signup_click">Skapa konto gratis</a>
   <a href="/en">🇬🇧 English</a>
 </div>
 
@@ -128,6 +133,19 @@
         <a href="#sa-fungerar-det" class="btn-secondary" data-track="hero_how_it_works_click">Se hur det fungerar</a>
       </div>
       <p class="founder-spots-badge" id="founderHeroSpots" hidden aria-live="polite"></p>
+      <div class="landing-login-entry" aria-label="Inloggning för befintliga användare">
+        <p class="landing-login-entry__label">Har du redan konto?</p>
+        <div class="landing-login-entry__buttons">
+          <a href="/login" class="landing-login-entry__btn landing-login-entry__btn--parent" data-track="hero_parent_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">👨‍👩‍👧</span>
+            <span class="landing-login-entry__text"><strong>Logga in som förälder</strong><span>E-post och lösenord</span></span>
+          </a>
+          <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="hero_child_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+            <span class="landing-login-entry__text"><strong>Logga in som barn</strong><span>Namn och PIN-kod</span></span>
+          </a>
+        </div>
+      </div>
       <div class="landing-hero__trust">
         <span class="trust-chip">Gratis för de första <span id="founderLimitText">200</span> familjerna</span>
         <span class="trust-chip">Barnets egen vy med PIN</span>
@@ -283,6 +301,12 @@
             <div><strong>Mindre vuxenstyrning i stunden</strong><span>När schemat är tydligt i barnets hand blir du mindre av en mellanhand mellan varje aktivitet.</span></div>
           </li>
         </ul>
+        <div class="landing-login-entry landing-login-entry--compact" style="margin-top:1.5rem;">
+          <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="barnvy_child_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+            <span class="landing-login-entry__text"><strong>Barnet loggar in här</strong><span>Namn och PIN-kod</span></span>
+          </a>
+        </div>
         <a href="#barnvy" class="btn-ghost-link" data-track="child_view_example_click">Se ett exempel på barnvyn ↑</a>
       </div>
     </div>
@@ -487,7 +511,11 @@
   <h2>Redo för en lugnare vardag?</h2>
   <p>Skapa ett konto gratis och bygg barnets första schema på några minuter. De första 200 familjerna får Basic utan kostnad som grundarmedlemmar.</p>
   <a href="/register" class="btn-primary" data-track="final_signup_click">Skapa konto gratis</a>
-  <a href="/login" class="final-cta__login" data-track="nav_login_click">Har du redan konto? Logga in</a>
+  <div class="final-cta__login-row">
+    <a href="/login" class="final-cta__login" data-track="nav_login_click">Logga in som förälder</a>
+    <span class="final-cta__login-sep" aria-hidden="true">·</span>
+    <a href="/child-login" class="final-cta__login" data-track="nav_child_login_click">Logga in som barn</a>
+  </div>
 </section>
 
 <!-- 13. FOOTER -->
@@ -516,7 +544,8 @@
       <h4>Hjälp</h4>
       <a href="/faq">FAQ</a>
       <a href="/kontakt">Kontakta oss</a>
-      <a href="/login">Logga in</a>
+      <a href="/login">Logga in som förälder</a>
+      <a href="/child-login">Logga in som barn</a>
       <a href="/forgot-password">Glömt lösenord</a>
     </div>
     <div class="landing-footer__col">

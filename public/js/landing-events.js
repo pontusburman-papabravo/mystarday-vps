@@ -12,6 +12,10 @@
     founder_signup_click: true,
     final_signup_click: true,
     nav_login_click: true,
+    nav_child_login_click: true,
+    hero_parent_login_click: true,
+    hero_child_login_click: true,
+    barnvy_child_login_click: true,
     nav_signup_click: true,
     footer_signup_click: true,
     child_view_example_click: true,
@@ -53,6 +57,10 @@
     bindCta('[data-track="founder_signup_click"]', 'founder_signup_click');
     bindCta('[data-track="final_signup_click"]', 'final_signup_click');
     bindCta('[data-track="nav_login_click"]', 'nav_login_click');
+    bindCta('[data-track="nav_child_login_click"]', 'nav_child_login_click');
+    bindCta('[data-track="hero_parent_login_click"]', 'hero_parent_login_click');
+    bindCta('[data-track="hero_child_login_click"]', 'hero_child_login_click');
+    bindCta('[data-track="barnvy_child_login_click"]', 'barnvy_child_login_click');
     bindCta('[data-track="nav_signup_click"]', 'nav_signup_click');
     bindCta('[data-track="footer_signup_click"]', 'footer_signup_click');
     bindCta('[data-track="child_view_example_click"]', 'child_view_example_click');

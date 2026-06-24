@@ -70,6 +70,9 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.match(html, /id="sa-fungerar-det"/);
   assert.match(html, /id="grundarprogram"/);
   assert.match(html, /data-track="hero_signup_click"/);
+  assert.match(html, /href="\/child-login"/);
+  assert.match(html, /landing-login-entry/);
+  assert.match(html, /Logga in som barn/);
 });
 
 test('guest preview scripts and marketing back navigation', () => {
