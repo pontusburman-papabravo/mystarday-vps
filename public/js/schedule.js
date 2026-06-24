@@ -1814,7 +1814,7 @@ async function confirmReorderTodayOnly() {
 
         // Find matching daily_log_item by activity_template_id + section
         const match = logItems.find(li =>
-          li.activity_template_id === templateId && li.section === sec.key &&
+          li.activity_template_id == templateId && li.section === sec.key &&
           !orderedDailyIds.includes(li.id)
         );
         if (match) orderedDailyIds.push(match.id);
@@ -1833,12 +1833,12 @@ async function confirmReorderTodayOnly() {
     if (!res.ok) throw new Error('Sparning misslyckades');
 
     showToast('Ordning sparad bara för idag ✅');
+    await loadScheduleForDay();
   } catch (err) {
     showToast(err.message || 'Fel vid sparning', true);
+    renderSchedule();
   }
 
-  // Revert schedule view to template order (today-only changes don't affect template)
-  renderSchedule();
   _pendingReorderOrder = null;
   _pendingReorderSection = null;
 }

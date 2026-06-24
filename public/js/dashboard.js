@@ -1859,7 +1859,7 @@ async function confirmReorderTodayOnly() {
         const templateId = schedItem.activity_template_id;
         if (!templateId) continue;
         const match = logItems.find(li =>
-          li.activity_template_id === templateId && li.section === sec.key &&
+          li.activity_template_id == templateId && li.section === sec.key &&
           !orderedDailyIds.includes(li.id)
         );
         if (match) orderedDailyIds.push(match.id);
@@ -1877,11 +1877,12 @@ async function confirmReorderTodayOnly() {
     if (!res.ok) throw new Error('Sparning misslyckades');
 
     showToast('Ordning sparad bara för idag ✅');
+    await loadScheduleForDay();
   } catch (err) {
     showToast(err.message || 'Fel vid sparning', true);
+    renderSchedule();
   }
 
-  renderSchedule();
   _pendingReorderOrder = null;
   _pendingReorderSection = null;
 }
