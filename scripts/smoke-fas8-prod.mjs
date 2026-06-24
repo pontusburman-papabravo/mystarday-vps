@@ -23,20 +23,33 @@ fs.mkdirSync(ARTIFACTS, { recursive: true });
 
 const pageErrors = [];
 const consoleErrors = [];
+let activeLabel = '';
 
-function attachErrorListeners(page, label) {
+function attachErrorListeners(page) {
   page.on('pageerror', (err) => {
-    pageErrors.push({ label, type: 'pageerror', message: err.message });
-    console.error(`[${label}] pageerror:`, err.message);
+    if (!activeLabel) return;
+    pageErrors.push({ label: activeLabel, type: 'pageerror', message: err.message });
+    console.error(`[${activeLabel}] pageerror:`, err.message);
   });
   page.on('console', (msg) => {
-    if (msg.type() === 'error') {
-      const text = msg.text();
-      if (/favicon|Failed to load resource.*404/i.test(text)) return;
-      consoleErrors.push({ label, type: 'console.error', message: text });
-      console.error(`[${label}] console.error:`, text);
-    }
+    if (!activeLabel || msg.type() !== 'error') return;
+    const text = msg.text();
+    // Benign: missing favicons, blocked analytics, 403/404 on optional assets
+    if (/favicon|Failed to load resource.*\b(404|403)\b/i.test(text)) return;
+    // Navigation aborts in-flight fetches when leaving a page
+    if (/Failed to fetch|TypeError: Failed to fetch/i.test(text)) return;
+    consoleErrors.push({ label: activeLabel, type: 'console.error', message: text });
+    console.error(`[${activeLabel}] console.error:`, text);
   });
+}
+
+async function withSection(page, label, fn) {
+  activeLabel = label;
+  try {
+    return await fn();
+  } finally {
+    activeLabel = '';
+  }
 }
 
 async function shot(page, name) {
@@ -52,7 +65,7 @@ async function acceptCookies(page) {
 }
 
 function assertFunctions(present, required, context) {
-  const missing = required.filter((fn) => typeof present[fn] !== 'function');
+  const missing = required.filter((fn) => present[fn] !== 'function');
   if (missing.length) {
     throw new Error(`${context}: missing window.* functions: ${missing.join(', ')}`);
   }
@@ -70,9 +83,12 @@ async function parentLogin(page) {
 }
 
 async function checkDashboard(page) {
-  attachErrorListeners(page, 'dashboard');
-  await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle', timeout: 60000 });
-  await page.waitForTimeout(3000);
+  return withSection(page, 'dashboard', async () => {
+  await page.goto(`${BASE}/dashboard`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(
+    () => typeof window.initDragDrop === 'function' && typeof window.loadTemplates === 'function',
+    { timeout: 45000 },
+  );
 
   const fns = await page.evaluate(() => ({
     initDragDrop: typeof window.initDragDrop,
@@ -92,12 +108,16 @@ async function checkDashboard(page) {
   ], 'dashboard');
 
   await shot(page, 'dashboard');
+  });
 }
 
 async function checkSchedule(page) {
-  attachErrorListeners(page, 'schedule');
-  await page.goto(`${BASE}/schedule`, { waitUntil: 'networkidle', timeout: 60000 });
-  await page.waitForTimeout(3000);
+  return withSection(page, 'schedule', async () => {
+  await page.goto(`${BASE}/schedule`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(
+    () => typeof window.renderSpecialDaysCalendar === 'function',
+    { timeout: 30000 },
+  );
 
   const fns = await page.evaluate(() => ({
     renderSpecialDaysCalendar: typeof window.renderSpecialDaysCalendar,
@@ -111,10 +131,11 @@ async function checkSchedule(page) {
   ], 'schedule');
 
   await shot(page, 'schedule');
+  });
 }
 
 async function childLogin(page) {
-  attachErrorListeners(page, 'child-dashboard');
+  return withSection(page, 'child-dashboard', async () => {
   await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded' });
   await acceptCookies(page);
   await page.waitForTimeout(4000);
@@ -148,6 +169,11 @@ async function childLogin(page) {
   await page.waitForURL(/\/child(-dashboard|\/today|\/world)?/, { timeout: 20000 });
   console.log('✓ child login →', page.url());
 
+  await page.waitForFunction(
+    () => typeof window.loadRewards === 'function',
+    { timeout: 30000 },
+  );
+
   const fns = await page.evaluate(() => ({
     loadRewards: typeof window.loadRewards,
     renderSkattkammaren: typeof window.renderSkattkammaren,
@@ -156,12 +182,14 @@ async function childLogin(page) {
   assertFunctions(fns, ['loadRewards', 'renderSkattkammaren', 'openGoalPicker'], 'child-dashboard');
 
   await shot(page, 'child-dashboard');
+  });
 }
 
 async function main() {
   console.log('Fas 8 prod smoke:', BASE);
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'sv-SE' });
+  attachErrorListeners(page);
 
   await parentLogin(page);
   await checkDashboard(page);
