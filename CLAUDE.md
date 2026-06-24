@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-23: Refactor Fas 8 F2d–F2i — `dashboard.js` split into feature modules (3056→1435 r, under the ~1500 target): `dashboard-views.js` (timeline/SBS + DnD), `dashboard-activity-modal.js` (add-activity/recurrence/create-edit-delete), `dashboard-approvals.js` (give-stars + request panel), `dashboard-dnd.js` (sortable reorder + day DnD), `dashboard-copy-modals.js` (copy/delete/confirm), `dashboard-card-actions.js` (inline approvals + quick header buttons). All IIFE; shared state stays in `dashboard.js`; handlers on `window`; loaded after `dashboard.js`. SW v299.
 - 2026-06-23: Refactor Fas 8 F2c — weekly star-history chart extracted from `dashboard.js` to `public/js/dashboard-star-history.js` (IIFE; `window.loadStarHistory`/`renderStarHistory`); loaded after `dashboard.js`; SW v298.
 - 2026-06-23: Refactor Fas 8 F2b — co-parent invite + dela-appen CTA banners extracted from `dashboard.js` to `public/js/dashboard-cta.js` (IIFE; entry points on `window`); loaded after `dashboard.js`; SW v297.
 - 2026-06-23: Refactor Fas 8 F3 — milestone/confetti/dopamin-burst celebration effects extracted from `child-dashboard.js` to `public/js/child-dashboard-celebrations.js` (IIFE; `window.checkMilestones`/`launchMilestoneConfetti`/`launchDopaminBurst`); loaded after + precached in SW; SW v296.
