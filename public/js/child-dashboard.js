@@ -125,6 +125,13 @@ function getLocalDate(offset = 0) {
   return d.toLocaleDateString('sv-SE');
 }
 
+function resolveChildScheduleDate(dateStr) {
+  if (dateStr && dateStr !== 'null' && dateStr !== 'undefined') return dateStr;
+  return todayStr || getLocalDate();
+}
+
+window.resolveChildScheduleDate = resolveChildScheduleDate;
+
 function formatDateDisplay(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   const dow = d.getDay();
@@ -1487,7 +1494,8 @@ async function _refreshLoadDay() {
   if (_pendingLoadDay) {
     return _pendingLoadDay;
   }
-  _pendingLoadDay = loadDay(currentDate, false).finally(() => {
+  const dateStr = currentDate || todayStr || getLocalDate();
+  _pendingLoadDay = loadDay(dateStr, false).finally(() => {
     _pendingLoadDay = null;
   });
   return _pendingLoadDay;
@@ -1640,6 +1648,12 @@ async function submitRating() {
 // ── Load day ───────────────────────────────────────────
 
 async function loadDay(dateStr, showLoader = true) {
+  if (!dateStr || dateStr === 'null' || dateStr === 'undefined') {
+    dateStr = todayStr || getLocalDate();
+  }
+  // child-shell.js may call refreshToday on DOMContentLoaded before auth/me is ready.
+  if (!me) return;
+
   currentDate = dateStr;
   // Clear sub-step caches when loading a new day (expand state preserved via subStepExpanded)
   subStepCache = {};

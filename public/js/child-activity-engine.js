@@ -10,8 +10,8 @@
     if (typeof window.coalescedLoadDay === 'function') {
       return window.coalescedLoadDay();
     }
-    if (typeof window.loadDay === 'function' && typeof window.todayStr === 'string') {
-      return window.loadDay(window.todayStr || window.currentDate);
+    if (typeof window.loadDay === 'function' && typeof window.resolveChildScheduleDate === 'function') {
+      return window.loadDay(window.resolveChildScheduleDate());
     }
     return Promise.resolve();
   }
