@@ -5,13 +5,13 @@
 
 ---
 
-## Lifetime Free — Topp 200 Familjer
+## Lifetime Free — Topp 225 Familjer
 
-Familjer #1–200 får automatiskt `is_lifetime_free=true` vid registrering.
+Familjer #1–225 får automatiskt `is_lifetime_free=true` vid registrering.
 Ingen prenumeration krävs — RevenueCat-webhooks ignoreras för dessa konton.
 
 - **Logg:** Varje registrering loggar `Family #N created — lifetime_free: true/false`
-- **Från familj #201:** Normalt trial/subscription-flöde via RevenueCat (14 dagars trial, sedan betalvägg)
+- **Från familj #226:** Normalt trial/subscription-flöde via RevenueCat (14 dagars trial, sedan betalvägg)
 - **Verifiera:** Kör `SELECT id, name, is_lifetime_free FROM family ORDER BY created_at` i Neon-konsolen
 
 ### Så fungerar det
@@ -77,7 +77,7 @@ Pontus registrerar sig manuellt på https://mystarday.se:
 5. Lägg till barn: **Anna**, född 2018-09-08, PIN **4455**
 6. Skapa minst ett veckoschema med aktiviteter + en belöning i Skattkammaren
 
-> ⚠️ Kontot hamnar bland de <200 och får **lifetime free automatiskt** — bekräfta med:
+> ⚠️ Kontot hamnar bland de <225 och får **lifetime free automatiskt** — bekräfta med:
 > ```sql
 > SELECT is_lifetime_free FROM family WHERE id = (SELECT family_id FROM parent WHERE email = 'review@mystarday.se');
 > -- Förväntat: true

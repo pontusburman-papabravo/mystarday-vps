@@ -152,7 +152,7 @@ router.get('/api/landing/stats', async (req, res) => {
     });
   } catch (err) {
     console.error('[landing] stats error:', err.message);
-    res.status(200).json({ count: 93, limit: 200, spots_remaining: 107, price_sek: 59, founder_program_active: true });
+    res.status(200).json({ count: 93, limit: 225, spots_remaining: 132, price_sek: 59, founder_program_active: true });
   }
 });
 
@@ -162,7 +162,7 @@ router.get('/api/public/pricing-info', async (req, res) => {
   } catch (err) {
     console.error('[landing] pricing-info error:', err.message);
     res.status(200).json({
-      count: 0, limit: 200, spots_remaining: 200, price_sek: 59,
+      count: 0, limit: 225, spots_remaining: 225, price_sek: 59,
       payment_enabled: false, founder_program_active: true,
     });
   }

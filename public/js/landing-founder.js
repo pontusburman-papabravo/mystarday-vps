@@ -20,7 +20,7 @@
   }
 
   function render(limit, count, remaining) {
-    var limitStr = limit ? String(limit) : '200';
+    var limitStr = limit ? String(limit) : '225';
     if (limitEl) limitEl.textContent = limitStr;
     if (limitEl2) limitEl2.textContent = limitStr;
     if (footerLimit) footerLimit.textContent = limitStr;
@@ -47,7 +47,7 @@
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d) return;
-      render(d.limit || 200, d.count, d.spots_remaining);
+      render(d.limit || 225, d.count, d.spots_remaining);
     })
     .catch(function () { /* static copy remains */ });
 })();

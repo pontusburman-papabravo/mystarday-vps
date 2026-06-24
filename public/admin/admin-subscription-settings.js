@@ -183,7 +183,7 @@ function renderSubscriptionSettings() {
   // Basic
   document.getElementById('basicPriceInput').value = subscriptionData.basic_price_sek ?? 59;
   document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
-  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 200;
+  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 225;
 
   // IAP billing path (RevenueCat / App Store / Play Store)
   const label = document.getElementById('iapStatusLabel');
