@@ -1810,11 +1810,13 @@ async function switchChildMember() {
   }
   window.location.replace('/child-login?picker=1');
 }
+window.switchChildMember = switchChildMember;
 
 // ── Child logout ────────────────────────────────────────
 async function childLogout() {
   await Auth.logout({ childFlow: true });
 }
+window.childLogout = childLogout;
 
 // ── View type toggle (child can switch view in-session) ─
 function updateViewToggleButton() {
