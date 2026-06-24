@@ -33,7 +33,36 @@ async function maybeTrackWinBackReturn(parentId, familyId) {
 
   if (!result.rows.length) return;
 
-  const logId = result.rows[0].id;
+  await markWinBackReturned(result.rows[0].id, familyId);
+}
+
+/**
+ * Mark win-back returned when engagement is detected via analytics (link click, För dig visit).
+ */
+async function maybeMarkWinBackReturnedFromEngagement(familyId, eventType) {
+  if (!familyId) return;
+  const allowed = new Set(['win_back_landing', 'for_dig_page_view', 'app_opened']);
+  if (!allowed.has(eventType)) return;
+
+  const result = await db.query(
+    `SELECT w.id
+     FROM win_back_email_log w
+     WHERE w.family_id = $1
+       AND w.status = 'sent'
+       AND w.sent_at IS NOT NULL
+       AND w.returned_at IS NULL
+       AND w.sent_at > NOW() - ($2::text || ' days')::interval
+     ORDER BY w.sent_at DESC
+     LIMIT 1`,
+    [familyId, String(ATTRIBUTION_DAYS)]
+  );
+
+  if (!result.rows.length) return;
+
+  await markWinBackReturned(result.rows[0].id, familyId);
+}
+
+async function markWinBackReturned(logId, familyId) {
   const updated = await db.query(
     `UPDATE win_back_email_log
      SET returned_at = NOW()
@@ -47,4 +76,7 @@ async function maybeTrackWinBackReturn(parentId, familyId) {
   }
 }
 
-module.exports = { maybeTrackWinBackReturn };
+module.exports = {
+  maybeTrackWinBackReturn,
+  maybeMarkWinBackReturnedFromEngagement,
+};

@@ -56,12 +56,14 @@
 
     if (e.returned) {
       const days = e.days_to_return != null ? ` (${e.days_to_return}d)` : '';
-      parts.push(`<span class="text-green-700 font-semibold">✓ Inloggad${days}</span>`);
-      if (e.first_login_at) {
-        parts.push(`<span class="block text-xs text-text-soft">${esc(formatShortDate(e.first_login_at))}</span>`);
+      const source = e.return_source_label ? ` via ${esc(e.return_source_label)}` : '';
+      parts.push(`<span class="text-green-700 font-semibold">✓ Återkom${days}${source}</span>`);
+      const when = e.first_return_at || e.first_login_at;
+      if (when) {
+        parts.push(`<span class="block text-xs text-text-soft">${esc(formatShortDate(when))}</span>`);
       }
     } else {
-      parts.push('<span class="text-text-soft">Ej inloggad</span>');
+      parts.push('<span class="text-text-soft">Ingen aktivitet</span>');
     }
 
     if (e.for_dig_goal_slug) {
@@ -142,11 +144,11 @@
       <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
           <div class="text-xl font-bold text-green-700">${eng.returned_7d ?? 0}</div>
-          <div class="text-xs text-text-soft mt-1">Inloggade inom 7d</div>
+          <div class="text-xs text-text-soft mt-1">Återkom inom 7d</div>
         </div>
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
           <div class="text-xl font-bold text-green-700">${eng.returned_14d ?? 0}</div>
-          <div class="text-xs text-text-soft mt-1">Inloggade inom ${attrDays}d</div>
+          <div class="text-xs text-text-soft mt-1">Återkom inom ${attrDays}d</div>
         </div>
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
           <div class="text-xl font-bold text-navy">${eng.return_rate_14d ?? 0}%</div>
@@ -166,8 +168,8 @@
         </div>
       </div>
       <p class="text-xs text-text-soft mt-3">
-        Mäter mottagarens inloggning, mejllänk-klick (<code class="bg-white px-1 rounded">utm_source=winback</code>),
-        För dig-aktivering och barnets avbockningar efter <code class="bg-white px-1 rounded">sent_at</code>.
+        Mäter återkomst via inloggning, mejllänk (<code class="bg-white px-1 rounded">utm_source=winback</code>),
+        För dig-besök eller appöppning efter <code class="bg-white px-1 rounded">sent_at</code>.
         Väntande poster auto-avvisas efter <strong>${staleHours}h</strong> (<code class="bg-white px-1 rounded">WIN_BACK_STALE_HOURS</code>).
       </p>
     </div>

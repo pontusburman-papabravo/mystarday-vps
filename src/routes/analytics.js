@@ -10,6 +10,7 @@
 const express = require('express');
 const { optionalAuth } = require('../middleware/auth');
 const analytics = require('../../db/analytics');
+const { maybeMarkWinBackReturnedFromEngagement } = require('../lib/win-back-return-tracker');
 
 const router = express.Router();
 
@@ -85,6 +86,7 @@ router.post('/event', optionalAuth, async (req, res) => {
   if (!familyId) return;
 
   analytics.track(familyId, event_type, metadata);
+  maybeMarkWinBackReturnedFromEngagement(familyId, event_type).catch(() => {});
 });
 
 module.exports = router;

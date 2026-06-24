@@ -12,15 +12,43 @@ const ATTRIBUTION_DAYS = 14;
 const ENGAGEMENT_LATERALS = `
   LEFT JOIN LATERAL (
     SELECT
-      MIN(le.occurred_at) AS first_parent_login_at,
-      BOOL_OR(le.occurred_at <= wbel.sent_at + INTERVAL '7 days') AS parent_login_within_7d
-    FROM login_event le
-    WHERE wbel.parent_id IS NOT NULL
-      AND le.user_id = wbel.parent_id
-      AND le.role = 'parent'
-      AND le.occurred_at > wbel.sent_at
-      AND le.occurred_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
-  ) parent_login ON wbel.status = 'sent' AND wbel.sent_at IS NOT NULL
+      MIN(s.signal_at) AS first_return_at,
+      BOOL_OR(s.signal_at <= wbel.sent_at + INTERVAL '7 days') AS return_within_7d,
+      (ARRAY_AGG(s.signal_type ORDER BY s.signal_at ASC))[1] AS return_source
+    FROM (
+      SELECT le.occurred_at AS signal_at, 'login' AS signal_type
+      FROM login_event le
+      WHERE wbel.parent_id IS NOT NULL
+        AND le.user_id = wbel.parent_id
+        AND le.role IN ('parent', 'admin')
+        AND le.occurred_at > wbel.sent_at
+        AND le.occurred_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
+      UNION ALL
+      SELECT ae.created_at, 'email_link'
+      FROM analytics_events ae
+      WHERE wbel.family_id IS NOT NULL
+        AND ae.family_id = wbel.family_id
+        AND ae.event_type = 'win_back_landing'
+        AND ae.created_at > wbel.sent_at
+        AND ae.created_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
+      UNION ALL
+      SELECT ae.created_at, 'for_dig_visit'
+      FROM analytics_events ae
+      WHERE wbel.family_id IS NOT NULL
+        AND ae.family_id = wbel.family_id
+        AND ae.event_type = 'for_dig_page_view'
+        AND ae.created_at > wbel.sent_at
+        AND ae.created_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
+      UNION ALL
+      SELECT ae.created_at, 'app_open'
+      FROM analytics_events ae
+      WHERE wbel.family_id IS NOT NULL
+        AND ae.family_id = wbel.family_id
+        AND ae.event_type = 'app_opened'
+        AND ae.created_at > wbel.sent_at
+        AND ae.created_at <= wbel.sent_at + INTERVAL '${ATTRIBUTION_DAYS} days'
+    ) s
+  ) return_signal ON wbel.status = 'sent' AND wbel.sent_at IS NOT NULL
   LEFT JOIN LATERAL (
     SELECT i.goal_slug, i.installed_at
     FROM for_dig_goal_install i
@@ -53,18 +81,29 @@ const ENGAGEMENT_LATERALS = `
   ) landings ON wbel.status = 'sent' AND wbel.sent_at IS NOT NULL
 `;
 
+const RETURN_SOURCE_LABELS = {
+  login: 'inloggning',
+  email_link: 'mejllänk',
+  for_dig_visit: 'För dig-besök',
+  app_open: 'appöppning',
+};
+
 function mapEngagementRow(row) {
-  const firstLogin = row.first_parent_login_at || null;
+  const firstReturn = row.first_return_at || row.first_parent_login_at || null;
   const sentAt = row.sent_at ? new Date(row.sent_at) : null;
   let daysToReturn = null;
-  if (firstLogin && sentAt) {
-    daysToReturn = Math.round((new Date(firstLogin) - sentAt) / (1000 * 60 * 60 * 24));
+  if (firstReturn && sentAt) {
+    daysToReturn = Math.round((new Date(firstReturn) - sentAt) / (1000 * 60 * 60 * 24));
   }
+  const returnSource = row.return_source || (firstReturn ? 'login' : null);
 
   return {
-    returned: !!firstLogin,
-    returned_within_7d: !!row.parent_login_within_7d,
-    first_login_at: firstLogin,
+    returned: !!firstReturn,
+    returned_within_7d: !!(row.return_within_7d ?? row.parent_login_within_7d),
+    first_login_at: firstReturn,
+    first_return_at: firstReturn,
+    return_source: returnSource,
+    return_source_label: returnSource ? (RETURN_SOURCE_LABELS[returnSource] || returnSource) : null,
     days_to_return: daysToReturn,
     for_dig_goal_slug: row.for_dig_goal_slug || null,
     for_dig_installed_at: row.for_dig_installed_at || null,
@@ -87,8 +126,9 @@ async function getEngagementByLogIds(logIds) {
        wbel.id AS log_id,
        wbel.status,
        wbel.sent_at,
-       parent_login.first_parent_login_at,
-       parent_login.parent_login_within_7d,
+       return_signal.first_return_at,
+       return_signal.return_within_7d,
+       return_signal.return_source,
        for_dig.goal_slug AS for_dig_goal_slug,
        for_dig.installed_at AS for_dig_installed_at,
        COALESCE(completions.n, 0)::int AS completions_after_send,
@@ -123,8 +163,8 @@ async function attachEngagementToRecords(records) {
       ...r,
       engagement: byId[r.id] || mapEngagementRow({
         sent_at: r.sent_at,
-        first_parent_login_at: null,
-        parent_login_within_7d: false,
+        first_return_at: null,
+        return_within_7d: false,
         for_dig_goal_slug: null,
         for_dig_installed_at: null,
         completions_after_send: 0,
@@ -151,8 +191,8 @@ async function getEngagementSummary() {
        SELECT
          wbel.id,
          wbel.sent_at,
-         parent_login.first_parent_login_at,
-         parent_login.parent_login_within_7d,
+         return_signal.first_return_at,
+         return_signal.return_within_7d,
          for_dig.goal_slug AS for_dig_goal_slug,
          COALESCE(completions.n, 0)::int AS completions_after_send,
          COALESCE(landings.n, 0)::int AS win_back_landings,
@@ -164,10 +204,10 @@ async function getEngagementSummary() {
      SELECT
        COUNT(*)::int AS sent_tracked,
        COUNT(*) FILTER (WHERE sent_at > NOW() - INTERVAL '30 days')::int AS sent_tracked_30d,
-       COUNT(*) FILTER (WHERE first_parent_login_at IS NOT NULL)::int AS returned_14d,
-       COUNT(*) FILTER (WHERE parent_login_within_7d)::int AS returned_7d,
+       COUNT(*) FILTER (WHERE first_return_at IS NOT NULL)::int AS returned_14d,
+       COUNT(*) FILTER (WHERE return_within_7d)::int AS returned_7d,
        COUNT(*) FILTER (
-         WHERE first_parent_login_at IS NOT NULL
+         WHERE first_return_at IS NOT NULL
            AND sent_at > NOW() - INTERVAL '30 days'
        )::int AS returned_14d_recent,
        COUNT(*) FILTER (WHERE for_dig_goal_slug IS NOT NULL)::int AS for_dig_14d,
@@ -199,6 +239,7 @@ async function getEngagementSummary() {
 
 module.exports = {
   ATTRIBUTION_DAYS,
+  RETURN_SOURCE_LABELS,
   getEngagementByLogIds,
   attachEngagementToRecords,
   getEngagementSummary,
