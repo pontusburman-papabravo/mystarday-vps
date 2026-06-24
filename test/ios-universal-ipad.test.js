@@ -32,6 +32,7 @@ describe('iOS universal iPad support', () => {
     assert.match(css, /parent-home-hub/);
     assert.match(css, /min-width: 768px/);
     assert.match(css, /#dashTourCard/);
+    assert.match(css, /app-view-toggle-wrap/);
   });
 
   it('native tab bar uses viewport width only (not pointer coarse)', () => {

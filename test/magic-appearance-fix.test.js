@@ -40,9 +40,12 @@ describe('magic appearance fixes', () => {
 
   it('view toggle shares top row with header icons when mounted', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    const tablet = fs.readFileSync(path.join(ROOT, 'public/css/platform-tablet.css'), 'utf8');
     assert.match(css, /main:has\(> \.app-view-toggle-wrap:not\(:empty\)\)/);
     assert.match(css, /padding-right: max\(108px/);
     assert.match(css, /background: transparent !important/);
+    assert.match(tablet, /html\.platform-tablet main:has\(> \.app-view-toggle-wrap:not\(:empty\)\)/);
+    assert.match(tablet, /max-width: 420px/);
   });
 
   it('fixed nav header on all magic pages including dashboard', () => {
@@ -54,8 +57,8 @@ describe('magic appearance fixes', () => {
     assert.doesNotMatch(hub, /parent-hub-header-actions/);
   });
 
-  it('SW bumped to v335', () => {
+  it('SW bumped to v336', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v(?:335|[3-9]\d\d|\d{4,})/);
+    assert.match(sw, /stjarndag-v(?:336|[3-9]\d\d|\d{4,})/);
   });
 });
