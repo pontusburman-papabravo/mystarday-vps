@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-24: Refactor Fas 8 F2i — card actions (pause/give-stars/quick checkoff) extracted from `dashboard.js` to `public/js/dashboard-card-actions.js` (IIFE; 10 `window.*` handlers); loaded after `dashboard.js`; SW v308.
 - 2026-06-24: Refactor Fas 8 F2h — copy-day/copy-child/delete/confirm modals extracted from `dashboard.js` to `public/js/dashboard-copy-modals.js` (IIFE; 11 `window.*` handlers); loaded after `dashboard.js`; SW v307.
 - 2026-06-23: Refactor Fas 8 F2c — weekly star-history chart extracted from `dashboard.js` to `public/js/dashboard-star-history.js` (IIFE; `window.loadStarHistory`/`renderStarHistory`); loaded after `dashboard.js`; SW v298.
 - 2026-06-23: Refactor Fas 8 F2b — co-parent invite + dela-appen CTA banners extracted from `dashboard.js` to `public/js/dashboard-cta.js` (IIFE; entry points on `window`); loaded after `dashboard.js`; SW v297.
