@@ -62,8 +62,8 @@ describe('magic appearance fixes', () => {
     assert.doesNotMatch(hub, /parent-hub-header-actions/);
   });
 
-  it('SW bumped to v337', () => {
+  it('SW bumped to v338', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v(?:337|[3-9]\d\d|\d{4,})/);
+    assert.match(sw, /stjarndag-v(?:338|[3-9]\d\d|\d{4,})/);
   });
 });

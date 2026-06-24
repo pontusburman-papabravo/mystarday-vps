@@ -84,8 +84,20 @@ function injectParentMagicRouter(body, reqPath) {
   return body.slice(0, tailIdx) + routerScripts + body.slice(tailIdx);
 }
 
+function bumpMagicAssetVersions(body, reqPath) {
+  if (typeof body !== 'string' || !body.includes('<html')) return body;
+  const path = normalizeHtmlPath(reqPath);
+  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  return body
+    .replace(/\/css\/app-view-toggle\.css\?v=\d+/g, '/css/app-view-toggle.css?v=' + MAGIC_VERSION)
+    .replace(/\/css\/parent-magic-common\.css\?v=\d+/g, '/css/parent-magic-common.css?v=' + MAGIC_VERSION)
+    .replace(/\/js\/parent-magic-auto\.js\?v=[^"']+/g, '/js/parent-magic-auto.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/app-view-mode\.js\?v=[^"']+/g, '/js/app-view-mode.js?v=' + MAGIC_VERSION);
+}
+
 function injectParentMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
+  body = bumpMagicAssetVersions(body, reqPath);
   if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
 
   const path = normalizeHtmlPath(reqPath);
