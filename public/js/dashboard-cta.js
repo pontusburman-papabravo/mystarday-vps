@@ -142,6 +142,51 @@
   const DELA_APPEN_KEY = 'dela_appen_cta_dismissed';
   const DELA_APPEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+  var _referralShare = undefined;
+
+  async function loadReferralShare() {
+    if (_referralShare !== undefined) return _referralShare;
+    try {
+      var res = await window.apiFetch('/api/account/referral');
+      if (res.ok) {
+        _referralShare = await res.json();
+      } else {
+        _referralShare = null;
+      }
+    } catch (_) {
+      _referralShare = null;
+    }
+    return _referralShare;
+  }
+
+  function getSharePayload(ref) {
+    if (ref && ref.registerUrl) {
+      return {
+        url: ref.registerUrl,
+        text: 'Testa Min Stjärndag — visuella rutiner och stjärnor för barn! Min kod: ' + ref.code,
+        withReferral: true,
+      };
+    }
+    return {
+      url: 'https://mystarday.se',
+      text: 'Min Stjärndag — Hjälp ditt barn med vardagsrutiner och stjärnor!',
+      withReferral: false,
+    };
+  }
+
+  function trackReferralShare(ref) {
+    if (!ref || !ref.code) return;
+    trackEvent('referral_link_shared', { code: ref.code });
+  }
+
+  function showShareToast(message) {
+    var el = document.createElement('div');
+    el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 2500);
+  }
+
   function showDelaAppenCtaIfEligible() {
     var banner = document.getElementById('delaAppenCtaBanner');
     if (!banner) return;
@@ -181,34 +226,32 @@
   function openDelaAppenShare() {
     trackEvent('cta_share_app_clicked');
 
-    // Use Web Share API if available, otherwise open fallback modal
-    if (navigator.share) {
-      navigator.share({
-        title: 'Min Stjärndag',
-        text: 'Min Stjärndag — Hjälp ditt barn med vardagsrutiner och stjärnor!',
-        url: 'https://mystarday.se',
-      }).then(function () {
-        // Mark as shared, dismiss banner
-        sendShareNotify();
-        dismissDelaAppenCtaBanner();
-      }).catch(function (e) {
-        if (e.name !== 'AbortError') {
+    loadReferralShare().then(function (ref) {
+      var payload = getSharePayload(ref);
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'Min Stjärndag',
+          text: payload.text,
+          url: payload.url,
+        }).then(function () {
+          if (payload.withReferral) trackReferralShare(ref);
           sendShareNotify();
           dismissDelaAppenCtaBanner();
-        }
-      });
-    } else {
-      // Fallback: copy link to clipboard
-      var url = 'https://mystarday.se';
+        }).catch(function (e) {
+          if (e.name !== 'AbortError') {
+            if (payload.withReferral) trackReferralShare(ref);
+            sendShareNotify();
+            dismissDelaAppenCtaBanner();
+          }
+        });
+        return;
+      }
+
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () {
-          // Show brief toast
-          var toast = document.getElementById('toastContainer') || document.body;
-          var el = document.createElement('div');
-          el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
-          el.textContent = '📋 Länk kopierad!';
-          document.body.appendChild(el);
-          setTimeout(function () { el.remove(); }, 2500);
+        navigator.clipboard.writeText(payload.url).then(function () {
+          showShareToast(payload.withReferral ? '📋 Din värvningslänk kopierad!' : '📋 Länk kopierad!');
+          if (payload.withReferral) trackReferralShare(ref);
           sendShareNotify();
           dismissDelaAppenCtaBanner();
         }).catch(function () {
@@ -216,10 +259,11 @@
           dismissDelaAppenCtaBanner();
         });
       } else {
+        if (payload.withReferral) trackReferralShare(ref);
         sendShareNotify();
         dismissDelaAppenCtaBanner();
       }
-    }
+    });
   }
 
   function sendShareNotify() {
@@ -235,6 +279,13 @@
 
   function initDelaAppenCta() {
     showDelaAppenCtaIfEligible();
+    loadReferralShare().then(function (ref) {
+      if (!ref || !ref.code) return;
+      var sub = document.querySelector('#delaAppenCtaBanner .text-xs.text-text-soft');
+      if (sub) {
+        sub.textContent = 'Din kod: ' + ref.code + ' — dela länken så vi kan följa värvningar';
+      }
+    });
   }
 
   // Exposed for inline onclick (dashboard.html) + dashboard.js init calls

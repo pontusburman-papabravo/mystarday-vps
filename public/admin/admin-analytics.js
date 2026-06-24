@@ -73,7 +73,10 @@ async function switchTab(tabName) {
   else if (tabName === 'retention') await loadRetention();
   else if (tabName === 'trends') await loadTrends();
   else if (tabName === 'newsletter') await loadNewsletter();
-  else if (tabName === 'activation') await loadActivationFunnel();
+  else if (tabName === 'activation') {
+    await loadActivationFunnel();
+    await loadReferralsAdmin();
+  }
 }
 
 // ─── HTML skeleton ────────────────────────────────────────
@@ -372,6 +375,27 @@ function buildAnalyticsHTML() {
               <tr><th class="text-left pb-2">Laddar…</th></tr>
             </thead>
             <tbody id="activationFunnelBody"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">🔗 Värvningar (referral v0)</h3>
+          <p class="text-text-soft text-sm mb-4">Personliga koder — signups och kvalificerade värvningar (P0, ingen belöning i v0)</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr>
+                <th class="text-left pb-2 pr-4">Kod</th>
+                <th class="text-left pb-2 pr-4">Värvare</th>
+                <th class="text-right pb-2 pr-4">Signups</th>
+                <th class="text-right pb-2 pr-4">Kvalificerade</th>
+                <th class="text-right pb-2">Senaste signup</th>
+              </tr>
+            </thead>
+            <tbody id="referralsAdminBody">
+              <tr><td colspan="5" class="text-center text-text-soft py-8">Laddar...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -1084,6 +1108,35 @@ async function loadActivationFunnel() {
   } catch (err) {
     console.error('[Analytics] loadActivationFunnel error:', err);
     body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda aktiveringstratt</td></tr>';
+  }
+}
+
+async function loadReferralsAdmin() {
+  var body = document.getElementById('referralsAdminBody');
+  if (!body || body.dataset.loaded === 'true') return;
+  try {
+    var data = await Auth.api('/api/admin/referrals');
+    var rows = data.referrals || [];
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="text-center text-text-soft py-6">Inga värvningskoder ännu</td></tr>';
+    } else {
+      body.innerHTML = rows.map(function (row) {
+        var last = row.last_signup_at
+          ? new Date(row.last_signup_at).toLocaleDateString('sv-SE')
+          : '—';
+        return '<tr class="border-t border-sky">' +
+          '<td class="py-2 pr-4 font-mono font-semibold">' + esc(row.code) + '</td>' +
+          '<td class="py-2 pr-4">' + esc(row.referrer_name || row.referrer_email || '—') + '</td>' +
+          '<td class="text-right py-2 pr-4 tabular-nums">' + (row.signups || 0) + '</td>' +
+          '<td class="text-right py-2 pr-4 tabular-nums">' + (row.qualified || 0) + '</td>' +
+          '<td class="text-right py-2 tabular-nums">' + esc(last) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    body.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadReferralsAdmin error:', err);
+    body.innerHTML = '<tr><td colspan="5" class="text-red-500 py-4">Kunde inte ladda värvningsdata</td></tr>';
   }
 }
 

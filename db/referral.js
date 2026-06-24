@@ -79,9 +79,27 @@ async function listReferralStats() {
   return result.rows;
 }
 
+/**
+ * Mark pending referral as qualified when referred family reaches P0.
+ * @param {string} familyId
+ * @returns {Promise<object|null>}
+ */
+async function qualifyReferralForFamily(familyId) {
+  if (!familyId) return null;
+  const result = await db.query(
+    `UPDATE referral
+     SET status = 'qualified', qualified_at = NOW()
+     WHERE referred_family_id = $1 AND status = 'pending'
+     RETURNING id, referrer_parent_id, code`,
+    [familyId]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   getOrCreateReferralCode,
   findReferrerByCode,
   createPendingReferral,
   listReferralStats,
+  qualifyReferralForFamily,
 };

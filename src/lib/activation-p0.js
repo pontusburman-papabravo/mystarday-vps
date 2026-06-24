@@ -68,6 +68,19 @@ async function updateActivationState(familyId, milestone, options = {}) {
         ...options.metadata,
       });
     }
+    try {
+      const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
+      const referralEnabled = await isActivationFlagEnabled(FLAG_KEYS.referral, familyId);
+      if (referralEnabled) {
+        const referralDb = require('../../db/referral');
+        const qualified = await referralDb.qualifyReferralForFamily(familyId);
+        if (qualified) {
+          analytics.track(familyId, 'referral_qualified', { code: qualified.code });
+        }
+      }
+    } catch (refErr) {
+      console.error('[ACTIVATION-P0] referral qualify failed:', refErr.message);
+    }
   }
 
   const eventByMilestone = {
