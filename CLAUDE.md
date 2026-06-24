@@ -81,7 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
-- 2026-06-24: Fas 11 — Tier A dödkod borttagen (9 klientfiler från `docs/dead-code-inventory.md`); `iap-manager.js` behållen; `test/fas11-dead-code.test.js`; SW v315.
+- 2026-06-24: Code review fixes (docs/code-review-fas0-11.md §1) — stale test paths updated for E-/F-split; route inventory regenerated (`GET /kontakt`); landing footer Skattkammaren → demo link; SW v316.
 - 2026-06-24: Fas 10 — `docs/dead-code-inventory.md`; onboarding XSS escape `childName`/`groupMeta.name`; `lint:public` + CI; deploy gate test; SW v314.
 - 2026-06-24: Bugfix — barnvy utloggning/byte barn: `parental-gate.js` använder `Auth._showParentPinGateOverlay` på barnsidor; header-knappar 🚪/👤 Byt barn döljs inte längre; SW v313.
 - 2026-06-24: Refactor Fas 9 — Tailwind CDN → `tailwind.build.css` på 41 sidor; SW v312.

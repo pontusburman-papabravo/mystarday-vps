@@ -113,7 +113,7 @@ describe('meny v2.1 — Sprint 5 polish + star flash', () => {
 
 describe('meny v2.1 — Sprint 6 readiness API + Hem', () => {
   it('GET /api/family/readiness registered with correct goal table', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/core.js'), 'utf8');
     assert.match(src, /router\.get\('\/readiness'/);
     assert.match(src, /child_reward_goal_change_request/);
     assert.doesNotMatch(src, /FROM goal_change_request/);

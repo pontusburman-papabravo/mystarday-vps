@@ -35,7 +35,9 @@ describe('F3 child-dashboard-celebrations.js', () => {
     const src = read('public/js/child-dashboard.js');
     assert.match(src, /checkMilestones\(total, completed\)/);
     assert.match(src, /launchDopaminBurst\(checkEl\)/);
-    assert.match(src, /launchMilestoneConfetti\(\)/);
+    // launchMilestoneConfetti() anropas ur rewards-modulen efter F-split
+    const rewards = read('public/js/child-dashboard-rewards.js');
+    assert.match(rewards, /launchMilestoneConfetti\(\)/);
   });
 
   it('child-dashboard.html loads celebrations after child-dashboard.js', () => {
