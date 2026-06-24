@@ -208,7 +208,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v295';
+const CACHE_NAME = 'stjarndag-v296';
+// v296: F3 child-dashboard-celebrations.js — milestone/confetti/dopamin burst extracted from child-dashboard.js
 // v295: F2 dashboard-special-days.js — special-day calendar/modal extracted from dashboard.js
 // v294: F1 schedule-core.js — shared DAYS/SECTIONS/rendering between dashboard + schedule
 // v293: shared co-parent invite modal (body portal) + settings soft-nav boot
@@ -272,6 +273,7 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-dashboard.js',
+  '/js/child-dashboard-celebrations.js',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
