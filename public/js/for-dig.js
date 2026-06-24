@@ -625,30 +625,64 @@
     }
   }
 
-  function captureWinbackUtm() {
+  const WINBACK_STORAGE_KEY = 'stjarndag_winback_utm';
+
+  function captureWinbackUtmEarly() {
     const params = new URLSearchParams(window.location.search);
     const utmSource = params.get('utm_source');
-    const utmMedium = params.get('utm_medium');
     if (utmSource !== 'winback') return null;
     const payload = {
       utm_source: utmSource,
-      utm_medium: utmMedium || 'email',
+      utm_medium: params.get('utm_medium') || 'email',
+      captured_at: Date.now(),
     };
     try {
-      sessionStorage.setItem('stjarndag_winback_utm', JSON.stringify({
-        ...payload,
-        captured_at: Date.now(),
-      }));
+      sessionStorage.setItem(WINBACK_STORAGE_KEY, JSON.stringify(payload));
     } catch (_) { /* private mode */ }
-    track('win_back_landing', payload);
     return payload;
   }
 
-  async function init() {
-    if (typeof Auth !== 'undefined' && Auth.requireParent) {
-      const ok = await Auth.requireParent();
-      if (!ok) return;
+  function getStoredWinbackUtm() {
+    try {
+      const raw = sessionStorage.getItem(WINBACK_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed.utm_source !== 'winback') return null;
+      return parsed;
+    } catch (_) {
+      return null;
     }
+  }
+
+  function trackWinbackLanding() {
+    const utm = getStoredWinbackUtm() || captureWinbackUtmEarly();
+    if (!utm) return;
+    track('win_back_landing', {
+      utm_source: utm.utm_source,
+      utm_medium: utm.utm_medium,
+    });
+  }
+
+  async function ensureParentAuth() {
+    try {
+      const res = await window.apiFetch('/api/auth/me');
+      if (res.ok) {
+        const user = await res.json();
+        if (user && (user.type === 'parent' || user.isAdmin || user.is_admin)) {
+          return user;
+        }
+      }
+    } catch (_) { /* fall through to login */ }
+    const returnPath = window.location.pathname + window.location.search;
+    window.location.href = '/login?next=' + encodeURIComponent(returnPath);
+    return null;
+  }
+
+  async function init() {
+    captureWinbackUtmEarly();
+
+    const user = await ensureParentAuth();
+    if (!user) return;
 
     document.getElementById('forDigGreeting').textContent = `Hej ${parentFirstName()} 👋`;
 
@@ -659,7 +693,8 @@
       renderPopular();
       renderGoals();
       bindEvents();
-      const utm = captureWinbackUtm();
+      trackWinbackLanding();
+      const utm = getStoredWinbackUtm();
       track('for_dig_page_view', {
         child_count: children.length,
         ...(utm ? { utm_source: utm.utm_source, utm_medium: utm.utm_medium } : {}),
