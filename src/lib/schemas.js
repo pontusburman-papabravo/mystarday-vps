@@ -25,7 +25,7 @@ const shortText = z.string().min(1, 'Fältet får inte vara tomt').max(200, 'Tex
 const optionalText = z.string().max(500, 'Texten är för lång').optional();
 
 /** Emoji field — any short string (frontend picks from emoji picker, any unicode accepted) */
-const emoji = z.string().max(10, 'Emoji-värde för långt').optional();
+const emoji = z.string().max(10, 'Emoji-värde för långt').nullish();
 
 /** Star value 1–5 */
 const starValue = z.coerce.number().int().min(1).max(5);
