@@ -210,9 +210,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v301';
-// v301: Fas 8 split deploy-safety — bump ?v= on host files (dashboard/schedule/child-dashboard.js)
-//       so stale-while-revalidate can't serve a host without its new satellite modules (dead-onclick fix)
+const CACHE_NAME = 'stjarndag-v300';
 // v300: F3a–F3d — schedule.js split (special-days/template-mode/insert-fill) + child-dashboard rewards extracted
 // v299: F2d–F2i dashboard split — views/activity-modal/approvals/dnd/copy-modals/card-actions extracted from dashboard.js (now <1500 r)
 // v298: F2c dashboard-star-history.js — weekly stars chart extracted from dashboard.js
