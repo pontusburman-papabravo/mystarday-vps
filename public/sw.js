@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v322';
+const CACHE_NAME = 'stjarndag-v323';
+// stjarndag-v323: NPF-sida copy — validerat smärtspråk ("mindre tjat, färre konflikter, lugnare vardag") i /rutiner-npf-barn (h1, lead, meta, CTA) för bättre konvertering + SEO
 // stjarndag-v322: SEO — /bildschema-app + /alternativ-bildschema-tavla cornerstone-sidor; "Guider"-kolumn i startsidans footer (interna länkar till alla 5 artiklar)
 // stjarndag-v321: analytics-shim.js (global window.analytics) injiceras via platform-html — fixar döda nav_hub_click/readiness_action_click/child_profile_section
 // stjarndag-v320: Google Ads-tagg AW-7601142474 i marketing-events.js (GA4-importerad konvertering); ?v=2.13.3 på index/register/login
@@ -224,6 +225,7 @@ const CACHE_NAME = 'stjarndag-v322';
 // stjarndag-v313: Bugfix — barnvy logout/switch-child (parental-gate PIN overlay)
 // stjarndag-v312: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v316: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v323: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
