@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v316';
+const CACHE_NAME = 'stjarndag-v317';
+// stjarndag-v317: Barnvy header — 3 distinkta kontroller (🔄 Byt barn / ⚙️ Förälder / 🚪 Logga ut)
 // stjarndag-v315: Fas 11 — remove Tier A dead client code (B4 inventory)
 // stjarndag-v314: Fas 10 — onboarding XSS escape + lint:public
 // stjarndag-v313: Bugfix — barnvy logout/switch-child (parental-gate PIN overlay)

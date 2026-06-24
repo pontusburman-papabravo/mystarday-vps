@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-24: UX — barnvy-headern uppe till höger: tre tydligt olika kontroller (SW v317). Tidigare två identiska 👤 (legacy `switchChildBtn` + v2-systemmenyn) plus 🚪 var svårt att tolka. Varje kontroll fick distinkt ikon + alltid synlig etikett: 🔄 Byt barn (`switchChildBtn`), ⚙️ Förälder (v2-menyn `child-system-menu.js`, PIN-gate oförändrad), 🚪 Logga ut (`logoutBtn`). Ingen beteendeändring. Filer: public/child-dashboard.html, public/js/child-system-menu.js, public/sw.js, config/cache-version.json.
 - 2026-06-24: Code review fixes (docs/code-review-fas0-11.md §1) — stale test paths updated for E-/F-split; route inventory regenerated (`GET /kontakt`); landing footer Skattkammaren → demo link; SW v316.
 - 2026-06-24: Fas 10 — `docs/dead-code-inventory.md`; onboarding XSS escape `childName`/`groupMeta.name`; `lint:public` + CI; deploy gate test; SW v314.
 - 2026-06-24: Bugfix — barnvy utloggning/byte barn: `parental-gate.js` använder `Auth._showParentPinGateOverlay` på barnsidor; header-knappar 🚪/👤 Byt barn döljs inte längre; SW v313.

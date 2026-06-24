@@ -80,11 +80,11 @@
     btn.type = 'button';
     btn.id = BTN_ID;
     btn.className =
-      'min-w-[44px] min-h-[44px] flex items-center justify-center p-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-lg transition-colors';
+      'min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors';
     btn.setAttribute('aria-label', 'Förälder');
     btn.setAttribute('aria-haspopup', 'menu');
     btn.setAttribute('aria-expanded', 'false');
-    btn.textContent = '👤';
+    btn.innerHTML = '<span aria-hidden="true">⚙️</span><span>Förälder</span>';
 
     var menu = document.createElement('div');
     menu.id = MENU_ID;
