@@ -1,7 +1,98 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-06-10 | SW v224
+> Last updated: 2026-06-24 | iOS build 22
+
+---
+
+## Build 22 — iPhone-only target + business model reply (2026-06-24, after Guideline 4 + 2.1(b))
+
+Apple rejected Build 21 on **iPad Air 11-inch (M3)**:
+
+1. **Guideline 4 — Design:** App UI not optimized for iPad (narrow column with unused screen space).
+2. **Guideline 2.1(b) — Information Needed:** Questions about paid content / subscriptions.
+
+### Guideline 4 fix
+
+**Root cause:** Xcode had `TARGETED_DEVICE_FAMILY = "1,2"` (Universal) while the app is intentionally **phone-primary** (`app.md` F0). The web UI uses mobile-first layouts (~400–512px columns). On iPad this produced a centered phone-width column instead of a full tablet layout.
+
+**Fix (Build 22):**
+- `TARGETED_DEVICE_FAMILY = 1` (iPhone only) in `ios/App/App.xcodeproj/project.pbxproj`
+- `UIRequiresFullScreen = true` in `ios/App/App/Info.plist` (iPhone compatibility mode on iPad)
+- iOS build number **22**
+
+**App Store Connect before upload:** In the version’s **General → App Information**, ensure the app is listed as **iPhone only** (do not require iPad screenshots). iPad users may still install the iPhone app in compatibility mode; that is intentional for our phone-first product.
+
+**Paste into App Review Information → Notes:**
+```
+Build 22 is an iPhone-only app (TARGETED_DEVICE_FAMILY = 1). Our product is intentionally phone-first; iPad installation uses Apple's iPhone compatibility mode rather than a separate tablet layout.
+
+Please review on iPhone, or on iPad in iPhone compatibility mode. The previous universal target was incorrect for our launch scope.
+
+Review account (full free access):
+- Email: review@mystarday.se
+- Password: AppReview2026!
+- Child PIN: 4455
+```
+
+**Reply to Guideline 4 in App Store Connect:**
+```
+Thank you for your feedback.
+
+Min Stjärndag is intentionally designed as a phone-first app for parents managing daily routines on their phone. We had incorrectly configured the Xcode project as Universal (iPhone + iPad) while our UI is optimized for phone screen sizes.
+
+In Build 22 we have corrected this:
+- TARGETED_DEVICE_FAMILY is now iPhone only (1)
+- UIRequiresFullScreen is enabled for iPhone compatibility mode on iPad
+
+We do not claim iPad-optimized layout in this version. Families who use a shared iPad can install the iPhone app in compatibility mode.
+
+Thank you for your review.
+```
+
+### Guideline 2.1(b) — Business model answers
+
+**Paste as reply to Apple's 2.1(b) message:**
+
+```
+Hello App Review,
+
+Thank you for your questions about our business model. Please find detailed answers below.
+
+1. Who are the users that will use the paid content, subscriptions, and features in the app?
+
+Parents and guardians (family account holders). Children use PIN login only and cannot make purchases. Subscriptions, when offered in a future release, apply at the household (family) level — one subscription per family.
+
+2. Where can users purchase the content, subscriptions, and features that can be accessed in the app?
+
+This review build (1.1, Build 22) is completely free. No In-App Purchase products are configured in App Store Connect for this version, and all purchase UI is disabled in the app (iap-manager.js stub returns canPurchase: false).
+
+When we enable subscriptions in a future release, purchases will be available only through Apple In-App Purchase (RevenueCat + StoreKit) inside the native iOS app. We do not offer web checkout, Stripe, or any external payment link for digital content accessed in the app.
+
+3. What specific types of previously purchased content, subscriptions, and features can a user access in the app?
+
+In this build, there is nothing to purchase and no previously purchased digital content to restore.
+
+Planned for a future release (not active in this build):
+- Basic monthly subscription (product ID: se.mystarday.app.basic) — core app: schedules, daily routines, star rewards, co-parent access, child PIN login, push notifications.
+
+Complimentary access (no purchase):
+- Founding-member families (first 200 signups and all pre-launch families) receive lifetime free Basic access and are never charged.
+
+4. What paid content, subscriptions, or features are unlocked within the app that do not use In-App Purchase?
+
+None. There is no paid digital content unlocked without In-App Purchase.
+
+- All subscription/payment UI is disabled in this build.
+- No Stripe or web checkout exists (removed before App Store launch).
+- Admin manual grants are internal support only, not a user-facing purchase path.
+- The review account (review@mystarday.se) is a founding-member account with complimentary lifetime access for testing.
+
+Please evaluate this version as a free app using the review credentials above.
+
+Thank you,
+Pontus Burman
+```
 
 ---
 
