@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-24: Refactor Fas 8 finish — `dashboard-dnd.js`, `dashboard-activity-modal.js`, `schedule-special-days.js`, `schedule-template-mode.js`, `schedule-insert-fill.js`, `child-dashboard-rewards.js` extracted; `dashboard.js` ~1450 r; SW v311.
 - 2026-06-24: Refactor Fas 8 F2d — timeline + side-by-side views extracted from `dashboard.js` to `public/js/dashboard-views.js` (IIFE; 6 `window.*` handlers); loaded after `dashboard-approvals.js`; SW v310.
 - 2026-06-24: Refactor Fas 8 F2f — give-stars modal + request panel extracted from `dashboard.js` to `public/js/dashboard-approvals.js` (IIFE; 8 `window.*` handlers); loaded after `dashboard-card-actions.js`; SW v309.
 - 2026-06-24: Refactor Fas 8 F2i — card actions (pause/give-stars/quick checkoff) extracted from `dashboard.js` to `public/js/dashboard-card-actions.js` (IIFE; 10 `window.*` handlers); loaded after `dashboard.js`; SW v308.
