@@ -75,6 +75,7 @@ async function switchTab(tabName) {
   else if (tabName === 'newsletter') await loadNewsletter();
   else if (tabName === 'activation') {
     await loadActivationFunnel();
+    await loadActivationExperiment();
     await loadReferralsAdmin();
   }
 }
@@ -375,6 +376,20 @@ function buildAnalyticsHTML() {
               <tr><th class="text-left pb-2">Laddar…</th></tr>
             </thead>
             <tbody id="activationFunnelBody"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">🧪 Experiment — activation_rate_48h per variant</h3>
+          <p class="text-text-soft text-sm mb-4">Jämför legacy vs mall (A) vs mall+AI (B). Go/no-go: AI endast om B slår A med ≥5 pp absolut.</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto mb-4">
+          <table class="w-full text-sm" id="activationExperimentTable">
+            <thead id="activationExperimentHead">
+              <tr><th class="text-left pb-2">Laddar…</th></tr>
+            </thead>
+            <tbody id="activationExperimentBody"></tbody>
+            <tfoot id="activationExperimentFoot"></tfoot>
           </table>
         </div>
 
@@ -1108,6 +1123,51 @@ async function loadActivationFunnel() {
   } catch (err) {
     console.error('[Analytics] loadActivationFunnel error:', err);
     body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda aktiveringstratt</td></tr>';
+  }
+}
+
+async function loadActivationExperiment() {
+  var head = document.getElementById('activationExperimentHead');
+  var body = document.getElementById('activationExperimentBody');
+  var foot = document.getElementById('activationExperimentFoot');
+  if (!head || !body || body.dataset.loaded === 'true') return;
+  try {
+    var data = await Auth.api('/api/admin/analytics/activation-experiment?weeks=8');
+    var variants = data.variants || [];
+    head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
+      variants.map(function (v) {
+        return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(v.label) + '</th>';
+      }).join('') + '</tr>';
+
+    if (!data.cohorts || data.cohorts.length === 0) {
+      body.innerHTML = '<tr><td colspan="' + (variants.length + 1) + '" class="text-center text-text-soft py-6">Ingen variantdata ännu</td></tr>';
+    } else {
+      body.innerHTML = data.cohorts.map(function (row) {
+        var week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+        var cells = variants.map(function (v) {
+          var bucket = (row.variants && row.variants[v.key]) || { signups: 0, p0_48h: 0, rate_48h: 0 };
+          if (!bucket.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
+          return '<td class="text-right px-2 py-2 tabular-nums">' +
+            bucket.rate_48h + '%<span class="text-text-soft text-xs"> (' + bucket.p0_48h + '/' + bucket.signups + ')</span></td>';
+        }).join('');
+        return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+      }).join('');
+    }
+
+    if (foot && data.totals) {
+      var totalCells = variants.map(function (v) {
+        var t = data.totals[v.key] || { signups: 0, p0_48h: 0, rate_48h: 0 };
+        if (!t.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
+        return '<td class="text-right px-2 py-2 tabular-nums font-bold">' +
+          t.rate_48h + '%<span class="text-text-soft text-xs font-normal"> (' + t.p0_48h + '/' + t.signups + ')</span></td>';
+      }).join('');
+      foot.innerHTML = '<tr class="border-t-2 border-navy bg-sky/30"><td class="py-2 pr-4 font-bold">Totalt</td>' + totalCells + '</tr>';
+    }
+
+    body.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadActivationExperiment error:', err);
+    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda experimentdata</td></tr>';
   }
 }
 

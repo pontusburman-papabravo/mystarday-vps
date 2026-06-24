@@ -86,4 +86,76 @@ function buildRates(row, steps) {
   return rates;
 }
 
-module.exports = { getActivationFunnelCohorts };
+const VARIANT_META = [
+  { key: 'legacy', label: 'Legacy' },
+  { key: 'template_only', label: 'Mall (A)' },
+  { key: 'template_plus_ai', label: 'Mall + AI (B)' },
+];
+
+/**
+ * ACT-1 PR5 — activation_rate_48h per experiment variant, weekly + totals.
+ * @param {number} weeks
+ */
+async function getActivationExperimentCohorts(weeks = 8) {
+  const safeWeeks = Math.min(52, Math.max(1, weeks));
+  const result = await db.query(
+    `SELECT date_trunc('week', signup_at)::date AS cohort_week,
+            activation_variant,
+            COUNT(*)::int AS signups,
+            COUNT(*) FILTER (WHERE p0_activated_within_48h)::int AS p0_48h,
+            COUNT(*) FILTER (WHERE p0_activated_at IS NOT NULL)::int AS p0_any
+     FROM family_activation_state
+     WHERE signup_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
+     GROUP BY cohort_week, activation_variant
+     ORDER BY cohort_week DESC, activation_variant ASC`,
+    [safeWeeks]
+  );
+
+  const byWeekMap = new Map();
+  const totals = Object.fromEntries(
+    VARIANT_META.map((v) => [v.key, { signups: 0, p0_48h: 0, p0_any: 0, rate_48h: 0 }])
+  );
+
+  for (const row of result.rows) {
+    const key = row.activation_variant || 'legacy';
+    if (!byWeekMap.has(row.cohort_week)) {
+      byWeekMap.set(row.cohort_week, {
+        cohort_week: row.cohort_week,
+        variants: Object.fromEntries(
+          VARIANT_META.map((v) => [v.key, { signups: 0, p0_48h: 0, p0_any: 0, rate_48h: 0 }])
+        ),
+      });
+    }
+    const weekEntry = byWeekMap.get(row.cohort_week);
+    const signups = row.signups || 0;
+    const p0_48h = row.p0_48h || 0;
+    const p0_any = row.p0_any || 0;
+    const bucket = {
+      signups,
+      p0_48h,
+      p0_any,
+      rate_48h: signups > 0 ? Math.round((1000 * p0_48h) / signups) / 10 : 0,
+    };
+    if (weekEntry.variants[key]) {
+      weekEntry.variants[key] = bucket;
+    }
+    if (totals[key]) {
+      totals[key].signups += signups;
+      totals[key].p0_48h += p0_48h;
+      totals[key].p0_any += p0_any;
+    }
+  }
+
+  for (const v of VARIANT_META) {
+    const t = totals[v.key];
+    t.rate_48h = t.signups > 0 ? Math.round((1000 * t.p0_48h) / t.signups) / 10 : 0;
+  }
+
+  return {
+    variants: VARIANT_META,
+    cohorts: Array.from(byWeekMap.values()),
+    totals,
+  };
+}
+
+module.exports = { getActivationFunnelCohorts, getActivationExperimentCohorts };

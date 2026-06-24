@@ -228,4 +228,17 @@ router.get('/analytics/activation-funnel', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/activation-experiment ───────
+router.get('/analytics/activation-experiment', async (req, res) => {
+  try {
+    const weeks = Math.min(52, Math.max(1, parseInt(req.query.weeks, 10) || 8));
+    const { getActivationExperimentCohorts } = require('../../../db/activation-funnel');
+    const data = await getActivationExperimentCohorts(weeks);
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN analytics] activation-experiment error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta experimentdata' });
+  }
+});
+
 module.exports = router;
