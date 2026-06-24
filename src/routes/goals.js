@@ -117,9 +117,17 @@ parentRouter.get('/goals', async (req, res) => {
     for (const cr of changeReqs.rows) {
       pendingByChild[cr.child_id] = cr;
     }
-    const goals = result.rows.map(g => ({
-      ...g,
-      pending_change_request: pendingByChild[g.child_id] || null,
+    const goals = await Promise.all(result.rows.map(async (g) => {
+      const balance = await getFullStarBalance(g.child_id);
+      const progress = g.star_cost > 0
+        ? Math.min(100, Math.round((balance / g.star_cost) * 100))
+        : 0;
+      return {
+        ...g,
+        stars_toward_goal: balance,
+        progress_pct: progress,
+        pending_change_request: pendingByChild[g.child_id] || null,
+      };
     }));
     res.json({ goals });
   } catch (err) {
