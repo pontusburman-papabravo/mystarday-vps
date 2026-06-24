@@ -774,7 +774,8 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       const canAfford = starBalance >= r.star_cost;
       const isCurrentGoal = goal && goal.reward_id === r.id;
       const pct = Math.min(100, Math.round((starBalance / r.star_cost) * 100));
-      const isLocked = !canAfford && !isRedeemed && !hasPending;
+      const isLocked = !canAfford && !hasPending;
+      const canRequest = canAfford && !hasPending;
 
       // Determine badge
       let badge = '';
@@ -783,9 +784,9 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       else if (isCurrentGoal) badge = `<span class="skatt-rg-badge goal">🎯</span>`;
       else if (isLocked) badge = `<span class="skatt-rg-badge locked">🔒</span>`;
 
-      const cardClass = isRedeemed ? 'earned' : hasPending ? 'pending' : canAfford ? 'affordable' : 'locked';
+      const cardClass = (isRedeemed ? 'earned ' : '') + (hasPending ? 'pending' : canAfford ? 'affordable' : 'locked');
 
-      html += `<div class="skatt-rg-item ${cardClass}" ${!isLocked && !isRedeemed && !hasPending ? `onclick="requestRedeem('${r.id}')" style="cursor:pointer;"` : ''}>
+      html += `<div class="skatt-rg-item ${cardClass}" ${canRequest ? `onclick="requestRedeem('${r.id}')" style="cursor:pointer;"` : ''}>
         ${badge}
         <div class="skatt-rg-icon">${r.icon || '🎁'}</div>
         <div class="skatt-rg-name">${escHtml(r.name)}</div>
@@ -795,16 +796,15 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     }
     html += `</div>`;
 
-    // Affordables CTA strip — full-width redeem buttons for affordable rewards not yet redeemed
-    const affordableUnredeemed = rewards.filter(r => {
-      const isRedeemed = redemptions.some(rd => rd.reward_id === r.id && (rd.status === 'approved' || rd.status === 'auto'));
+    // Affordables CTA strip — full-width redeem buttons for affordable rewards (incl. repeat redemptions)
+    const affordableNow = rewards.filter(r => {
       const hasPending = redemptions.some(rd => rd.reward_id === r.id && rd.status === 'pending');
-      return starBalance >= r.star_cost && !isRedeemed && !hasPending;
+      return starBalance >= r.star_cost && !hasPending;
     });
-    if (affordableUnredeemed.length > 0) {
+    if (affordableNow.length > 0) {
       html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(245,166,35,0.3);padding-top:14px;">
         <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#B8860B;margin-bottom:8px;font-family:'Outfit',sans-serif;">✨ Du har råd nu!</div>`;
-      for (const r of affordableUnredeemed) {
+      for (const r of affordableNow) {
         html += `<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBEB,#FFF3D6);border:1.5px solid rgba(245,166,35,0.4);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
           <span style="font-size:1.5rem;">${r.icon || '🎁'}</span>
           <div style="flex:1;min-width:0;">
