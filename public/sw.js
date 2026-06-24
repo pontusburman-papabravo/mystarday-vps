@@ -211,7 +211,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v308';
+const CACHE_NAME = 'stjarndag-v309';
+// v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
 // v308: F2i dashboard-card-actions.js — pause/give-stars/quick actions extracted from dashboard.js
 // v307: F2h dashboard-copy-modals.js — copy-day/copy-child/delete/confirm modals extracted from dashboard.js
 // v302: cache-only refresh (no code change) — force a clean, consistent asset cache
