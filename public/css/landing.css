@@ -167,6 +167,23 @@ body.platform-web.landing-magic-bg {
 
 .landing-nav__login:hover { color: var(--navy); }
 
+.landing-nav__child-login {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--amber-dk);
+  text-decoration: none;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(245, 166, 35, 0.12);
+  border: 1px solid rgba(245, 166, 35, 0.28);
+  white-space: nowrap;
+}
+
+.landing-nav__child-login:hover {
+  background: rgba(245, 166, 35, 0.2);
+  color: var(--navy);
+}
+
 .landing-nav__lang {
   font-size: 1rem;
   text-decoration: none;
@@ -227,6 +244,107 @@ body.platform-web.landing-magic-bg {
 }
 
 .landing-mobile-menu a:hover { background: var(--amber-lt); }
+
+.landing-mobile-menu__section {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  margin: 0.75rem 0 0.35rem;
+  padding: 0 0.25rem;
+}
+
+.landing-mobile-menu__section:first-child {
+  margin-top: 0;
+}
+
+.landing-mobile-menu__login {
+  font-weight: 700 !important;
+  background: var(--cream);
+}
+
+.landing-mobile-menu__login--child {
+  color: var(--amber-dk) !important;
+}
+
+/* ── Login entry (hero + barnvy) ─────────────────────────── */
+.landing-login-entry {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(28, 35, 64, 0.08);
+  box-shadow: 0 4px 20px rgba(28, 35, 64, 0.05);
+}
+
+.landing-login-entry__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin: 0 0 0.75rem;
+  text-align: center;
+}
+
+.landing-login-entry__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.landing-login-entry--compact .landing-login-entry__buttons {
+  grid-template-columns: 1fr;
+  max-width: 320px;
+}
+
+.landing-login-entry__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  text-decoration: none;
+  border: 2px solid rgba(28, 35, 64, 0.08);
+  background: var(--white);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.landing-login-entry__btn:hover {
+  border-color: rgba(245, 166, 35, 0.45);
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.landing-login-entry__btn--child {
+  border-color: rgba(245, 166, 35, 0.25);
+  background: linear-gradient(135deg, #FFF8E6, #FFF3D6);
+}
+
+.landing-login-entry__icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.landing-login-entry__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.landing-login-entry__text strong {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+.landing-login-entry__text span {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  line-height: 1.3;
+}
 
 /* ── Buttons ─────────────────────────────────────────────── */
 .btn-primary {
@@ -975,14 +1093,26 @@ body.platform-web.landing-magic-bg {
 }
 
 .final-cta__login {
-  display: inline-block;
-  margin-top: 1rem;
   font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .final-cta__login:hover { color: rgba(255, 255, 255, 0.9); }
+
+.final-cta__login-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+
+.final-cta__login-sep {
+  color: rgba(255, 255, 255, 0.45);
+}
 
 /* ── Footer ──────────────────────────────────────────────── */
 .landing-footer {
@@ -1082,10 +1212,15 @@ body.platform-web.landing-magic-bg {
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .landing-nav__links,
-  .landing-nav__actions .landing-nav__login,
-  .landing-nav__actions .btn-primary { display: none; }
+  .landing-nav__actions .btn-primary,
+  .landing-nav__actions .landing-nav__lang { display: none; }
+
+  .landing-nav__login,
+  .landing-nav__child-login { display: inline-flex; align-items: center; }
 
   .landing-nav__hamburger { display: flex; }
+
+  .landing-login-entry__buttons { grid-template-columns: 1fr; }
 
   .landing-hero__grid,
   .feature-split,
@@ -1103,4 +1238,6 @@ body.platform-web.landing-magic-bg {
 @media (max-width: 560px) {
   .landing-footer__grid { grid-template-columns: 1fr; }
   .feature-split__visual--stack { grid-template-columns: 1fr; }
+  .landing-nav__child-login { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+  .landing-nav__login { font-size: 0.82rem; }
 }
