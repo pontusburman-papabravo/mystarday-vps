@@ -29,12 +29,7 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
   nvm use 20 2>/dev/null || true
 fi
 
-set -a
-# shellcheck disable=SC1091
-source "$ENV_FILE"
-set +a
-
-echo "→ preview (innan omstart)"
+echo "→ preview"
 node scripts/preview-activation-vag-b.js || true
 
 echo "→ restart $SYSTEMD_SERVICE"
