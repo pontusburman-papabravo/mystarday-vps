@@ -60,6 +60,55 @@ function determineSection(startTime, familySettings) {
   return 'natt';
 }
 
+/** Reorder weekly schedule items to match daily_log_item sort_order for a specific date. */
+function mergeItemsWithDailyLogOrder(weeklyItems, logItems) {
+  if (!logItems || logItems.length === 0) return weeklyItems;
+
+  const weeklyByKey = new Map();
+  for (const item of weeklyItems) {
+    weeklyByKey.set(`${item.section}:${item.activity_template_id}`, item);
+  }
+
+  const ordered = [];
+  const usedKeys = new Set();
+
+  for (const logItem of logItems) {
+    if (logItem.activity_template_id) {
+      const key = `${logItem.section}:${logItem.activity_template_id}`;
+      const weekly = weeklyByKey.get(key);
+      if (weekly && !usedKeys.has(key)) {
+        ordered.push({ ...weekly, sort_order: ordered.length });
+        usedKeys.add(key);
+      }
+      continue;
+    }
+    ordered.push({
+      id: logItem.id,
+      activity_template_id: null,
+      start_time: logItem.start_time,
+      end_time: logItem.end_time,
+      sort_order: ordered.length,
+      section: logItem.section,
+      activity_name: logItem.name,
+      activity_icon: logItem.icon,
+      activity_name_display: logItem.name,
+      star_value: logItem.star_value,
+      sub_step_count: 0,
+      sub_steps: [],
+      is_once_task: true,
+    });
+  }
+
+  for (const item of weeklyItems) {
+    const key = `${item.section}:${item.activity_template_id}`;
+    if (!usedKeys.has(key)) {
+      ordered.push({ ...item, sort_order: ordered.length });
+    }
+  }
+
+  return ordered;
+}
+
 // GET /api/schedules/:scheduleId/items — list items in schedule
 router.get('/', async (req, res) => {
   try {
@@ -135,42 +184,16 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Merge once-tasks from daily_log_item when a specific date is requested
+    // When a date is requested, merge daily_log order (incl. once-tasks + per-day reorder)
     const rawDate = req.query.date;
     if (rawDate) {
       const dateParam = String(rawDate).substring(0, 10);
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateParam) && schedule.child_id) {
         try {
-          const logResult = await db.query(
-            'SELECT id FROM daily_log WHERE child_id = $1 AND date = $2',
-            [schedule.child_id, dateParam]
-          );
-          if (logResult.rows.length > 0) {
-            const onceResult = await db.query(
-              `SELECT id, name, icon, start_time, end_time, star_value, sort_order, section
-               FROM daily_log_item
-               WHERE daily_log_id = $1 AND activity_template_id IS NULL
-               ORDER BY section, sort_order ASC, start_time ASC NULLS LAST`,
-              [logResult.rows[0].id]
-            );
-            finalItems = finalItems.concat(onceResult.rows.map(row => ({
-              id: row.id,
-              activity_template_id: null,
-              start_time: row.start_time,
-              end_time: row.end_time,
-              sort_order: row.sort_order,
-              section: row.section,
-              activity_name: row.name,
-              activity_icon: row.icon,
-              activity_name_display: row.name,
-              star_value: row.star_value,
-              sub_step_count: 0,
-              sub_steps: [],
-              is_once_task: true,
-            })));
-          }
+          const { items: logItems } = await getOrGenerateDailyLog(schedule.child_id, dateParam);
+          finalItems = mergeItemsWithDailyLogOrder(finalItems, logItems);
         } catch (mergeErr) {
-          console.error('[SCHEDULE-ITEMS] Once-task merge error (non-fatal):', mergeErr.message);
+          console.error('[SCHEDULE-ITEMS] Daily-log order merge error (non-fatal):', mergeErr.message);
         }
       }
     }
