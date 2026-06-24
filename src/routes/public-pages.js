@@ -77,6 +77,12 @@ router.get('/beloningssystem-barn', (req, res) => {
 router.get('/rutiner-npf-barn', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'rutiner-npf-barn.html'));
 });
+router.get('/bildschema-app', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'bildschema-app.html'));
+});
+router.get('/alternativ-bildschema-tavla', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'alternativ-bildschema-tavla.html'));
+});
 
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));

@@ -17,6 +17,8 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/morgonrutin-barn',
   '/beloningssystem-barn',
   '/rutiner-npf-barn',
+  '/bildschema-app',
+  '/alternativ-bildschema-tavla',
 ]);
 
 function normalizeSeoPath(path) {
