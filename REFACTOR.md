@@ -1,8 +1,17 @@
 # Refaktoreringsplan — Min Stjärndag (v4.2 master plan)
 
-> **Status:** Låst master-plan v4.2 (ingen kod ändrad ännu).
+> **Status:** ✅ **Exekverad** — master-plan v4.2 slutförd 2026-06-24 (Fas 0–10). Prod **SW v314**.
 > **Syfte:** Renodla och modularisera hela kodbasen. Stripe avvecklas till förmån för Apple/Google IAP (RevenueCat).
 > **Mål:** Exekverbar plan med tydliga go/no-go-gates, bättre riskisolering och färre onödiga blockerare.
+
+### Slutförande (2026-06-24)
+
+| | |
+|--|--|
+| **Faser i planen** | 11 (Fas 0 → Fas 10) |
+| **Faser kvar** | **0** |
+| **Sista merge** | PR #328 (Fas 10) |
+| **Valfri uppföljning** | `docs/dead-code-inventory.md` — 9 kandidatfiler (B4 dokumenterade, inga raderingar) |
 
 **Patch i v4.2 (vs v4.1) — sista hålen före exekvering:**
 - **G4b:** revoked-fallet är nu **obligatoriskt** (giltig access + nekad `revoked_at`-access), inte "helst" — D1-serien vilar på det.
@@ -75,19 +84,19 @@
 
 ## Fasindelning (v4)
 
-| Fas | Innehåll | Syfte |
-|-----|----------|-------|
-| **Fas 0** | G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2a → G4c | CI/test-DB + request-pipeline-bas |
-| **Fas 1** | A1 → A2 → A3 → A5a | Lågrisk Stripe-/legacy-rensning (ej aktiv betalväg) |
-| **Fas 2** | D1a → D1b → D1c → D1d → D1e → D2 → D5 | Authz-härdning + Google auth + cookie-konsistens |
-| **Fas 3** | G4e → D4 | Tidig säkerhetsfas för messages/CSRF |
-| **Fas 4** | G4d → C2b | Paywall-policy och subscription-gating |
-| **Fas 5** | A4 → A5b → A6 → A7 | Levande subscription-/billing-kod + admin-UI (ej schema) |
-| **Fas 6** | G3c → A5c → B1 | Destruktiv schemafas (reversibilitet krävs) |
-| **Fas 7** | E3a → E3b → E3c → E4 → E1 → E2 | Backend-monoliter |
-| **Fas 8** | F1 → F2/F3 | Frontend-modularisering (utan Tailwind-bygget) |
-| **Fas 9** | F4a → F4b → F4c → F5 | Tailwind build pipeline + cache |
-| **Fas 10** | G2 → B4 → D3 → G5 | Övrigt CI/housekeeping (låg störning) |
+| Fas | Innehåll | Syfte | Status |
+|-----|----------|-------|--------|
+| **Fas 0** | G1 → G3a → G3b → G4a → G4b → B2 → B3 → C1 → C2a → G4c | CI/test-DB + request-pipeline-bas | ✅ |
+| **Fas 1** | A1 → A2 → A3 → A5a | Lågrisk Stripe-/legacy-rensning (ej aktiv betalväg) | ✅ |
+| **Fas 2** | D1a → D1b → D1c → D1d → D1e → D2 → D5 | Authz-härdning + Google auth + cookie-konsistens | ✅ |
+| **Fas 3** | G4e → D4 | Tidig säkerhetsfas för messages/CSRF | ✅ |
+| **Fas 4** | G4d → C2b | Paywall-policy och subscription-gating | ✅ |
+| **Fas 5** | A4 → A5b → A6 → A7 | Levande subscription-/billing-kod + admin-UI (ej schema) | ✅ |
+| **Fas 6** | G3c → A5c → B1 | Destruktiv schemafas (reversibilitet krävs) | ✅ |
+| **Fas 7** | E3a → E3b → E3c → E4 → E1 → E2 | Backend-monoliter | ✅ |
+| **Fas 8** | F1 → F2/F3 | Frontend-modularisering (utan Tailwind-bygget) | ✅ |
+| **Fas 9** | F4a → F4b → F4c → F5 | Tailwind build pipeline + cache | ✅ |
+| **Fas 10** | G2 → B4 → D3 → G5 | Övrigt CI/housekeeping (låg störning) | ✅ |
 
 > **Not om G2:** `G2` (gate deploy på grön CI) ligger formellt i Fas 10 eftersom den inte blockerar något. **Om ni har en aktiv deploy-loop, kör den direkt efter `G1`** — den minskar risken att någon deployar mitt i ett halvfärdigt refaktorsteg och rör ingen appkod.
 > **Not om D3:** `D3` (onboarding-XSS) är lågrisk och kan flyttas upp till Fas 3 om ni vill samla alla säkerhetsfixar i ett fönster.
@@ -606,53 +615,53 @@ Krav: D1-serien klar · D4 klar · paywall-policyn spikad · destruktiva schema�
 
 | Uppgift | Fas | Risk | Beror på | Utförare | Status | PR/Commit |
 |---------|-----|------|----------|----------|--------|-----------|
-| G1 | 0 | låg | — | Composer | ☐ | |
-| G3a | 0 | medel | G1 | Composer | ☐ | |
-| G3b | 0 | medel | G3a | Composer | ☐ | |
-| G4a | 0 | medel | G3b | Composer | ☐ | |
-| G4b | 0 | medel | G3b | Composer | ☐ | |
-| B2 | 0 | medel | G4a, G4b | Composer | ☐ | |
-| B3 | 0 | medel | G4a | Composer | ☐ | |
-| C1 | 0 | medel | G4a, G4b | Composer | ☐ | |
-| C2a | 0 | låg | — | Composer | ☐ | |
-| G4c | 0 | medel | C1, G3b | Composer | ☐ | |
-| A1 | 1 | låg | Gate A | Composer | ☐ | |
-| A2 | 1 | låg | A1 | Composer | ☐ | |
-| A3 | 1 | låg/medel | A1, A2 | Composer | ☐ | |
-| A5a | 1 | låg | A1 | Composer | ☐ | |
-| D1a | 2 | medel | G4b | Composer | ☐ | |
-| D1b | 2 | medel | D1a | Composer | ☐ | |
-| D1c | 2 | medel | D1a | Composer | ☐ | |
-| D1d | 2 | medel | D1a | Composer | ☐ | |
-| D1e | 2 | medel | D1a | Composer | ☐ | |
-| D2 | 2 | medel/hög | G4a | Composer | ☐ | |
-| D5 | 2 | låg/medel | — | Composer | ☐ | |
-| G4e | 3 | medel | G3b | Composer | ☐ | |
-| D4 | 3 | hög | G4e | Manuell | ☐ | |
-| G4d | 4 | medel | C2a, G3b | Composer | ☐ | |
-| C2b | 4 | hög | C2a, G4d | Manuell | ☐ | |
-| A4 | 5 | medel | C2b, A3 | Composer | ☐ | |
-| A5b | 5 | medel | A4 | Composer | ☐ | |
-| A6 | 5 | medel/hög | A4, A5b | Manuell | ☐ | |
-| A7 | 5 | låg | A6 | Composer | ☐ | |
-| G3c | 6 | medel | G3b | Composer | ☐ | |
-| A5c | 6 | hög | G3c, A5b | Manuell | ☐ | |
-| B1 | 6 | hög | G3c, A5c | Manuell | ☐ | |
-| E0 | 7 | låg | Gate G | Composer | ☐ | |
-| E3a | 7 | medel | D1c, E0 | Composer | ☐ | |
-| E3b | 7 | hög | E3a | Composer | ☐ | |
-| E3c | 7 | låg/medel (ofta N/A) | E3b | Composer | ☐ | |
-| E4 | 7 | medel | E3b | Composer | ☐ | |
-| E1 | 7 | hög | E0, E3a, E3b (E3c om relevant) | Manuell | ☐ | |
-| E2 | 7 | mycket hög | E1, D2 | Manuell | ☐ | |
-| F1 | 8 | medel | — | Composer | ☐ | |
-| F2 | 8 | hög | F1 | Composer | ☐ | |
-| F3 | 8 | hög | F1 | Composer | ☐ | |
-| F4a | 9 | mycket hög | F1 | Manuell | ☐ | |
-| F4b | 9 | mycket hög | F4a | Manuell | ☐ | |
-| F4c | 9 | mycket hög | F4b | Manuell | ☐ | |
-| F5 | 9 | medel | F4 | Composer | ☐ | |
-| G2 | 10 | låg | G1 | Composer | ☐ | |
-| B4 | 10 | låg | — | Composer | ☐ | |
-| D3 | 10 | låg | — | Composer | ☐ | |
-| G5 | 10 | medel | F mestadels klar | Composer | ☐ | |
+| G1 | 0 | låg | — | Composer | ☑ | e51ebfc (Gate A) |
+| G3a | 0 | medel | G1 | Composer | ☑ | e51ebfc |
+| G3b | 0 | medel | G3a | Composer | ☑ | e51ebfc |
+| G4a | 0 | medel | G3b | Composer | ☑ | e51ebfc |
+| G4b | 0 | medel | G3b | Composer | ☑ | e51ebfc |
+| B2 | 0 | medel | G4a, G4b | Composer | ☑ | e51ebfc |
+| B3 | 0 | medel | G4a | Composer | ☑ | e51ebfc |
+| C1 | 0 | medel | G4a, G4b | Composer | ☑ | e51ebfc |
+| C2a | 0 | låg | — | Composer | ☑ | e51ebfc (`docs/paywall-inventory.md`) |
+| G4c | 0 | medel | C1, G3b | Composer | ☑ | #240 |
+| A1 | 1 | låg | Gate A | Composer | ☑ | #243 |
+| A2 | 1 | låg | A1 | Composer | ☑ | #245 |
+| A3 | 1 | låg/medel | A1, A2 | Composer | ☑ | #246 |
+| A5a | 1 | låg | A1 | Composer | ☑ | e51ebfc (`.env.example` utan Stripe) |
+| D1a | 2 | medel | G4b | Composer | ☑ | #250 |
+| D1b | 2 | medel | D1a | Composer | ☑ | #255 |
+| D1c | 2 | medel | D1a | Composer | ☑ | #256 |
+| D1d | 2 | medel | D1a | Composer | ☑ | #256 |
+| D1e | 2 | medel | D1a | Composer | ☑ | #256 |
+| D2 | 2 | medel/hög | G4a | Composer | ☑ | #256 |
+| D5 | 2 | låg/medel | — | Composer | ☑ | #256 |
+| G4e | 3 | medel | G3b | Composer | ☑ | #257 |
+| D4 | 3 | hög | G4e | Manuell | ☑ | #258 |
+| G4d | 4 | medel | C2a, G3b | Composer | ☑ | #261 |
+| C2b | 4 | hög | C2a, G4d | Manuell | ☑ | #262 |
+| A4 | 5 | medel | C2b, A3 | Composer | ☑ | #264 |
+| A5b | 5 | medel | A4 | Composer | ☑ | #265 |
+| A6 | 5 | medel/hög | A4, A5b | Manuell | ☑ | #266 |
+| A7 | 5 | låg | A6 | Composer | ☑ | #268 |
+| G3c | 6 | medel | G3b | Composer | ☑ | #269 |
+| A5c | 6 | hög | G3c, A5b | Manuell | ☑ | #270 |
+| B1 | 6 | hög | G3c, A5c | Manuell | ☑ | #271 |
+| E0 | 7 | låg | Gate G | Composer | ☑ | #272 |
+| E3a | 7 | medel | D1c, E0 | Composer | ☑ | #273 |
+| E3b | 7 | hög | E3a | Composer | ☑ | #274–278 |
+| E3c | 7 | låg/medel (ofta N/A) | E3b | Composer | ☑ N/A | #279 |
+| E4 | 7 | medel | E3b | Composer | ☑ | #280 |
+| E1 | 7 | hög | E0, E3a, E3b (E3c om relevant) | Manuell | ☑ | #282–289 |
+| E2 | 7 | mycket hög | E1, D2 | Manuell | ☑ | #291–300 |
+| F1 | 8 | medel | — | Composer | ☑ | ad9b9c2 / #309 |
+| F2 | 8 | hög | F1 | Composer | ☑ | #315–323 |
+| F3 | 8 | hög | F1 | Composer | ☑ | #309, #323 |
+| F4a | 9 | mycket hög | F1 | Manuell | ☑ | #326 |
+| F4b | 9 | mycket hög | F4a | Manuell | ☑ | #326 |
+| F4c | 9 | mycket hög | F4b | Manuell | ☑ | #326 |
+| F5 | 9 | medel | F4 | Composer | ☑ | #326 |
+| G2 | 10 | låg | G1 | Composer | ☑ | #328 |
+| B4 | 10 | låg | — | Composer | ☑ | #328 |
+| D3 | 10 | låg | — | Composer | ☑ | #328 |
+| G5 | 10 | medel | F mestadels klar | Composer | ☑ | #328 |
