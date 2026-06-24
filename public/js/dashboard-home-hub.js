@@ -231,7 +231,6 @@
 
     var children = (stats && stats.children) ? stats.children : [];
     var user = (window.Auth && Auth.getUser) ? Auth.getUser() : null;
-    var parentInitial = user && user.name ? user.name.charAt(0).toUpperCase() : '👤';
     var focusId = findFocusChild(children);
     var enc = encouragementCopy(children);
     var weekSeries = buildWeekSeries(children);
@@ -241,10 +240,7 @@
       '<div class="parent-home-hub magic-3d-scene">' +
       '<header class="parent-hub-top">' +
       '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
-      '<div class="parent-hub-header-actions">' +
-      '<a href="/notifications" class="parent-hub-icon-btn" aria-label="Notiser">🔔</a>' +
-      '<a href="/settings" class="parent-hub-icon-btn" aria-label="Profil">' + escHtml(parentInitial) + '</a>' +
-      '</div></header>' +
+      '</header>' +
       '<div class="parent-hub-greeting-block">' +
       '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +
       '<p class="parent-hub-sub">Här är en översikt av er familjs framsteg. ✨</p>' +

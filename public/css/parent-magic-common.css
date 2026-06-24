@@ -77,12 +77,6 @@ body.parent-magic-view .parent-bottom-nav {
   display: flex;
 }
 
-body.parent-magic-view .app-view-toggle-wrap {
-  padding: 8px 16px 0;
-  position: relative;
-  z-index: 2;
-}
-
 /* Floating help + feedback above magic bottom dock (tablet + phone) */
 body.parent-magic-view #globalFeedbackBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
@@ -693,9 +687,9 @@ body.parent-magic-view #deletionSection .bg-coral .text-navy {
   color: #fecaca !important;
 }
 
-/* Sub-pages: pin notis/avatar top-right (outside document flow) */
-body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions {
-  position: fixed;
+/* Magic pages: pin notis + avatar top-right (dashboard + sub-pages) */
+body.parent-magic-view .parent-nav-header-actions {
+  position: fixed !important;
   top: max(10px, env(safe-area-inset-top, 0px));
   right: max(16px, env(safe-area-inset-right, 0px));
   left: auto;
@@ -708,13 +702,22 @@ body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions {
   pointer-events: none;
 }
 
-body.parent-magic-view:not(.parent-magic-dashboard) .parent-nav-header-actions > * {
+body.parent-magic-view .parent-nav-header-actions > * {
   pointer-events: auto;
 }
 
-/* Leave room for fixed header icons beside the VY toggle */
-body.parent-magic-view:not(.parent-magic-dashboard) .app-view-toggle-wrap {
-  padding-right: 108px;
+body.parent-magic-view [data-parent-nav-notifications] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view #parentAvatarBtn {
+  background: #f5a623 !important;
+  color: #1b2340 !important;
+  border: 1px solid rgba(255, 204, 51, 0.55) !important;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .parent-magic-hide-header {

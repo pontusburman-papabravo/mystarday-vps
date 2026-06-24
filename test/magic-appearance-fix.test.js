@@ -38,14 +38,24 @@ describe('magic appearance fixes', () => {
     assert.match(src, /closeChildDrawer\(\)/);
   });
 
-  it('fixed nav header on magic sub-pages', () => {
-    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
-    assert.match(css, /parent-magic-view:not\(\.parent-magic-dashboard\).*parent-nav-header-actions/);
-    assert.match(css, /position:\s*fixed/);
+  it('view toggle shares top row with header icons when mounted', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    assert.match(css, /main:has\(> \.app-view-toggle-wrap:not\(:empty\)\)/);
+    assert.match(css, /padding-right: max\(108px/);
+    assert.match(css, /background: transparent !important/);
   });
 
-  it('SW bumped to v293', () => {
+  it('fixed nav header on all magic pages including dashboard', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
+    assert.match(css, /body\.parent-magic-view \.parent-nav-header-actions/);
+    assert.match(css, /position:\s*fixed/);
+    assert.match(css, /#parentAvatarBtn/);
+    assert.doesNotMatch(hub, /parent-hub-header-actions/);
+  });
+
+  it('SW bumped to v335', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v(?:29[3-9]|[3-9]\d\d|\d{4,})/);
+    assert.match(sw, /stjarndag-v(?:335|[3-9]\d\d|\d{4,})/);
   });
 });

@@ -23,8 +23,10 @@
 body.parent-magic-dashboard .app-view-toggle-wrap,
 body.parent-magic-view .app-view-toggle-wrap,
 body.child-magic-view .app-view-toggle-wrap {
-  background: rgba(12, 12, 36, 0.92);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  background: transparent !important;
+  border-bottom: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 .app-view-toggle {
@@ -37,6 +39,43 @@ body.child-magic-view .app-view-toggle-wrap {
   border-radius: 14px;
   background: rgba(27, 35, 64, 0.06);
   border: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+/* Toggle + header icons share one top row when toggle is mounted */
+main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding-top: max(10px, env(safe-area-inset-top, 0px));
+  padding-right: max(108px, calc(env(safe-area-inset-right, 0px) + 92px));
+  padding-bottom: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+}
+
+main:has(> .app-view-toggle-wrap:not(:empty)) > .app-view-toggle-wrap .app-view-toggle {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  width: auto;
+  padding: 0;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  z-index: 120;
+  pointer-events: none;
+}
+
+main:has(> .app-view-toggle-wrap:not(:empty)) > .parent-nav-header-actions > * {
+  pointer-events: auto;
 }
 
 body.parent-magic-dashboard .app-view-toggle,
@@ -67,9 +106,10 @@ body.child-magic-view .app-view-toggle-label {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   min-height: 40px;
-  padding: 8px 10px;
+  min-width: 0;
+  padding: 8px 8px;
   border: none;
   border-radius: 10px;
   background: transparent;
@@ -77,8 +117,22 @@ body.child-magic-view .app-view-toggle-label {
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+@media (max-width: 380px) {
+  .app-view-toggle-label {
+    display: none;
+  }
+
+  .app-view-toggle-btn {
+    font-size: 11px;
+    padding: 8px 6px;
+    gap: 3px;
+  }
 }
 
 body.parent-magic-dashboard .app-view-toggle-btn,
@@ -149,12 +203,19 @@ html.is-native .parent-nav-header-actions {
 
 body.parent-magic-view .parent-nav-header-actions,
 body.parent-magic-dashboard .parent-nav-header-actions {
-  background: rgba(12, 12, 36, 0.92);
+  padding-top: 0;
+  background: transparent;
 }
 
-/* When header bar exists, view toggle should not double safe-area padding */
-main:has([data-parent-nav-header]) > .app-view-toggle-wrap {
-  padding-top: 10px;
+body.parent-magic-view .app-view-toggle,
+body.parent-magic-dashboard .app-view-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.parent-magic-view .app-view-toggle-btn:not(.is-active),
+body.parent-magic-dashboard .app-view-toggle-btn:not(.is-active) {
+  color: rgba(244, 244, 255, 0.82);
 }
 
 .parent-avatar-wrap {
