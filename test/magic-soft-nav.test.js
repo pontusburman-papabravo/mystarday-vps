@@ -79,6 +79,14 @@ describe('magic soft navigation', () => {
     assert.match(css, /magic-hub-links/);
   });
 
+  it('for-dig boot skips auto-init when ParentMagicPageBoot handles soft nav', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
+    assert.match(src, /if \(!document\.getElementById\('forDigGoals'\)\) return/);
+    assert.match(src, /ParentMagicPageBoot\.register\('for-dig', init\)/);
+    assert.match(src, /_forDigClickBound/);
+    assert.doesNotMatch(src, /ParentMagicPageBoot\.register[\s\S]*DOMContentLoaded, init/);
+  });
+
   it('skattkammaren magic contrast CSS present', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /data-magic-page="skattkammaren"/);

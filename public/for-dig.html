@@ -26,25 +26,13 @@
   </style>
 </head>
 <body class="font-body bg-sky min-h-screen flex flex-col md:flex-row for-dig-page" data-magic-page="for-dig">
-  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
+  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
     <a href="/dashboard" class="hidden md:flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
       <span class="text-2xl">⭐</span>
       <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
     </a>
-    <ul class="space-y-2">
-      <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
-      <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-      <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-      <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">✨ För dig</a></li>
-      <li><a href="/reports" data-feature="klinisk_rapportering" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
-      <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80">📚 Bibliotek (avancerat)</a></li>
-      <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-      <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
-    </ul>
-    <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
-      <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
-        <span>🌙</span> Mörkt läge
-      </button>
+    <ul class="space-y-2"></ul>
+    <div class="mt-8 pt-4 border-t border-navy-soft">
       <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
     </div>
   </nav>
@@ -70,39 +58,18 @@
     </div>
   </main>
 
-  <nav id="parentBottomNav" class="parent-bottom-nav" aria-label="Huvudnavigering">
-    <a href="/dashboard" class="parent-bottom-nav-btn">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">🏠</span>
-      <span>Hem</span>
-    </a>
-    <a href="/schedule" class="parent-bottom-nav-btn">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">📅</span>
-      <span>Schema</span>
-    </a>
-    <a href="/for-dig" class="parent-bottom-nav-btn is-active" data-feature="for_dig">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">✨</span>
-      <span>För dig</span>
-    </a>
-    <a href="/family" class="parent-bottom-nav-btn">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">👨‍👩‍👧</span>
-      <span>Familj</span>
-    </a>
-    <a href="/settings" class="parent-bottom-nav-btn">
-      <span class="parent-bottom-nav-icon" aria-hidden="true">⚙️</span>
-      <span>Inställn.</span>
-    </a>
-  </nav>
-
   <script src="/js/sw-register.js?v=2.12.0"></script>
-  <script src="/js/feature-check.js?v=2.14.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
+  <script src="/js/nav-config.js?v=1"></script>
+  <script src="/js/for-dig.js?v=2.3"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/parent-magic-bootstrap.js?v=1"></script>
-  <script src="/js/for-dig.js?v=2.2"></script>
+  <script src="/js/parent-nav-sidebar.js?v=1"></script>
   <script>
     document.getElementById('logoutBtn')?.addEventListener('click', () => Auth.logout());
+    Auth.requireAuth();
   </script>
 </body>
 </html>

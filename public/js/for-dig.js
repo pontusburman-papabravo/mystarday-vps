@@ -20,6 +20,7 @@
   let goalFavoriteSlugs = new Set();
   let expandedSlug = null;
   let showAllFavorites = false;
+  let _forDigClickBound = false;
 
   const FAVORITES_VISIBLE_MAX = 12;
 
@@ -557,9 +558,14 @@
   }
 
   function bindEvents() {
-    const favMount = document.getElementById('forDigFavorites');
-    if (favMount) {
-      favMount.addEventListener('click', (ev) => {
+    if (_forDigClickBound) return;
+    _forDigClickBound = true;
+
+    document.addEventListener('click', (ev) => {
+      if (!document.getElementById('forDigGoals')) return;
+
+      const favMount = document.getElementById('forDigFavorites');
+      if (favMount && favMount.contains(ev.target)) {
         const showAll = ev.target.closest('[data-action="show-all-favorites"]');
         if (showAll) {
           showAllFavorites = true;
@@ -570,59 +576,58 @@
         if (activate) {
           activateGoal(activate.dataset.slug);
         }
-      });
-    }
+        return;
+      }
 
-    const recMount = document.getElementById('forDigRecommendations');
-    if (recMount) {
-      recMount.addEventListener('click', (ev) => {
+      const recMount = document.getElementById('forDigRecommendations');
+      if (recMount && recMount.contains(ev.target)) {
         const activate = ev.target.closest('[data-action="activate"]');
         if (activate) {
           activateGoal(activate.dataset.slug, activate.dataset.childId);
         }
-      });
-    }
+        return;
+      }
 
-    const mount = document.getElementById('forDigGoals');
-    if (!mount) return;
+      const mount = document.getElementById('forDigGoals');
+      if (mount && mount.contains(ev.target)) {
+        const lib = ev.target.closest('[data-action="library-link"]');
+        if (lib) {
+          track('for_dig_library_link', {});
+          return;
+        }
 
-    mount.addEventListener('click', (ev) => {
-      const lib = ev.target.closest('[data-action="library-link"]');
-      if (lib) {
+        const expand = ev.target.closest('[data-action="expand"]');
+        if (expand) {
+          expandedSlug = expand.dataset.slug;
+          track('for_dig_goal_expand', { goal_slug: expandedSlug });
+          renderGoals();
+          return;
+        }
+
+        const activate = ev.target.closest('[data-action="activate"]');
+        if (activate) {
+          activateGoal(activate.dataset.slug);
+          return;
+        }
+
+        const suggest = ev.target.closest('[data-action="suggest"]');
+        if (suggest) {
+          showSuggestionModal(suggest.dataset.slug);
+          return;
+        }
+
+        const fav = ev.target.closest('[data-action="toggle-favorite"]');
+        if (fav) {
+          toggleGoalFavorite(fav.dataset.slug);
+        }
+        return;
+      }
+
+      const libFooter = document.getElementById('forDigLibraryLink');
+      if (libFooter && (ev.target === libFooter || libFooter.contains(ev.target))) {
         track('for_dig_library_link', {});
-        return;
-      }
-
-      const expand = ev.target.closest('[data-action="expand"]');
-      if (expand) {
-        expandedSlug = expand.dataset.slug;
-        track('for_dig_goal_expand', { goal_slug: expandedSlug });
-        renderGoals();
-        return;
-      }
-
-      const activate = ev.target.closest('[data-action="activate"]');
-      if (activate) {
-        activateGoal(activate.dataset.slug);
-        return;
-      }
-
-      const suggest = ev.target.closest('[data-action="suggest"]');
-      if (suggest) {
-        showSuggestionModal(suggest.dataset.slug);
-        return;
-      }
-
-      const fav = ev.target.closest('[data-action="toggle-favorite"]');
-      if (fav) {
-        toggleGoalFavorite(fav.dataset.slug);
       }
     });
-
-    const libFooter = document.getElementById('forDigLibraryLink');
-    if (libFooter) {
-      libFooter.addEventListener('click', () => track('for_dig_library_link', {}));
-    }
   }
 
   const WINBACK_STORAGE_KEY = 'stjarndag_winback_utm';
@@ -679,12 +684,17 @@
   }
 
   async function init() {
+    if (!document.getElementById('forDigGoals')) return;
+
     captureWinbackUtmEarly();
 
     const user = await ensureParentAuth();
     if (!user) return;
 
-    document.getElementById('forDigGreeting').textContent = `Hej ${parentFirstName()} 👋`;
+    const greetingEl = document.getElementById('forDigGreeting');
+    if (greetingEl) {
+      greetingEl.textContent = `Hej ${parentFirstName()} 👋`;
+    }
 
     try {
       await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular(), loadFavorites()]);
@@ -707,13 +717,13 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
   if (window.ParentMagicPageBoot) {
     ParentMagicPageBoot.register('for-dig', init);
+  } else if (document.getElementById('forDigGoals')) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 })();

@@ -18,6 +18,7 @@
 
   var PAGE_STYLES = {
     dashboard: ['/css/dashboard-magic.css?v=5'],
+    'for-dig': ['/css/for-dig.css?v=2'],
   };
 
   var PAGE_SCRIPTS = {
@@ -32,7 +33,7 @@
       '/js/schedule-views.js?v=1.3.0',
       '/js/schedule.js?v=2.26.0',
     ],
-    'for-dig': ['/js/for-dig.js?v=2.1'],
+    'for-dig': ['/js/for-dig.js?v=2.3'],
     family: [
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',

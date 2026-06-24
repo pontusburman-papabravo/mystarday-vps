@@ -96,9 +96,13 @@
     margin-bottom: 0;
   }
 
-  /* Classic dashboard modals */
-  html.platform-native .modal-inner {
-    max-width: min(560px, calc(100vw - 48px));
+  /* ── För dig ── */
+  body.parent-magic-view.parent-magic-page-for-dig .flex-1.p-4,
+  body.parent-magic-view.for-dig-page .flex-1.p-4 {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
   }
 }
 

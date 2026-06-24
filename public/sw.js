@@ -212,8 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v332';
-// stjarndag-v332: fix [REDACTED] placeholder → Min Stjärndag in hub page sidebars
+const CACHE_NAME = 'stjarndag-v333';
+// stjarndag-v333: fix För dig soft-nav double init + stale sidebar/bottom nav
 // stjarndag-v330: ACT-1 PR5.2 activation experiment variant table in admin
 // stjarndag-v325: ACT-1 PR4 — AI starter plan personalize + custom_items schedule save
 // stjarndag-v324: ACT-1 Deploy 1+3 — activation state, handoff, starter-plan wizard, dynamic sitemap, referral v0
