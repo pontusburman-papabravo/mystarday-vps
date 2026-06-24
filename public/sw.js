@@ -208,7 +208,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v296';
+const CACHE_NAME = 'stjarndag-v297';
+// v297: F2b dashboard-cta.js — co-parent invite + dela-appen CTA banners extracted from dashboard.js
 // v296: F3 child-dashboard-celebrations.js — milestone/confetti/dopamin burst extracted from child-dashboard.js
 // v295: F2 dashboard-special-days.js — special-day calendar/modal extracted from dashboard.js
 // v294: F1 schedule-core.js — shared DAYS/SECTIONS/rendering between dashboard + schedule
