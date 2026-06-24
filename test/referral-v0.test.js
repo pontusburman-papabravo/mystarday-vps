@@ -40,12 +40,10 @@ describe('referral v0', () => {
     assert.doesNotMatch(src, /var SHARE_URL = 'https:\/\/mystarday\.se'/);
   });
 
-  it('dashboard-cta uses personal referral link when available', () => {
+  it('dashboard-cta uses ReferralShare for personal links', () => {
     const src = read('public/js/dashboard-cta.js');
-    assert.match(src, /loadReferralShare/);
-    assert.match(src, /\/api\/account\/referral/);
-    assert.match(src, /referral_link_shared/);
-    assert.match(src, /registerUrl/);
+    assert.match(src, /ReferralShare/);
+    assert.match(src, /getSharePayload/);
   });
 
   it('admin analytics loads referrals table', () => {
