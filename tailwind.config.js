@@ -1,0 +1,51 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./public/**/*.{html,js}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        gold: '#F5A623',
+        'gold-light': '#FFF3D6',
+        navy: '#1B2340',
+        'navy-soft': '#2A3458',
+        sky: '#E8F0FE',
+        lavender: '#EDE7F6',
+        mint: '#E0F5EC',
+        coral: '#FDEAE7',
+        'text-soft': '#5A6178',
+      },
+      fontFamily: {
+        heading: ['Outfit', 'sans-serif'],
+        body: ['Plus Jakarta Sans', 'sans-serif'],
+      },
+    },
+  },
+  safelist: [
+    // admin-analytics.js — bg-${color} / border-${color}
+    { pattern: /^bg-(lavender|mint|gold-light|coral|sky|navy|navy-soft|gold|white)$/ },
+    { pattern: /^border-(lavender|mint|gold-light|coral|sky|navy|navy-soft|gold|white|gray-100|gray-200|blue-200|blue-300|amber-400|yellow-200|orange-200|indigo-200|teal-200|green-200|red-200|red-300|transparent)$/ },
+    { pattern: /^text-(navy|white|gray-300|gray-400|blue-700|green-600|green-700|yellow-700|yellow-800|red-700|orange-700|orange-800|teal-700|emerald-700)$/ },
+    'hover:bg-sky',
+    'hover:bg-blue-100',
+    'hover:bg-amber-100',
+    'hover:bg-purple-200',
+    'hover:border-navy',
+    'hover:border-gold',
+    'md:grid-cols-1',
+    'md:grid-cols-2',
+    'md:grid-cols-3',
+    'dark:bg-navy-soft',
+    'dark:border-navy-soft',
+    'hidden',
+    'cursor-pointer',
+    'cursor-default',
+    'border',
+    'border-2',
+    'border-[#6B50F5]/30',
+    'bg-[#EDE9FF]',
+    'text-[#6B50F5]',
+    'bg-[#D1FAE5]',
+    'text-[#059669]',
+  ],
+};
