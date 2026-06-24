@@ -28,12 +28,28 @@
       '<p style="margin:0;font-weight:800;font-size:1rem;">🎉 Du är grundarmedlem</p>' +
       '<p style="margin:6px 0 0;font-weight:500;">Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!</p>';
 
-    var anchor = document.querySelector('main') ||
-      document.querySelector('.flex-1') ||
-      document.body.firstElementChild;
-    if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(banner, anchor);
+    var main = document.querySelector('main');
+    if (main) {
+      // Must stay inside <main> — inserting before main breaks md:flex-row (3-column crush).
+      var anchor =
+        document.getElementById('appViewToggleMount') ||
+        main.querySelector('.bg-sky.border-b') ||
+        main.firstChild;
+      if (anchor && anchor.parentNode === main) {
+        main.insertBefore(banner, anchor.nextSibling);
+      } else {
+        main.insertBefore(banner, main.firstChild);
+      }
+      return;
     }
+
+    var flexMain = document.querySelector('.flex-1');
+    if (flexMain) {
+      flexMain.insertBefore(banner, flexMain.firstChild);
+      return;
+    }
+
+    document.body.insertBefore(banner, document.body.firstChild);
   }
 
   function init() {

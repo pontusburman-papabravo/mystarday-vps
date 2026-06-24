@@ -212,8 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v326';
-// stjarndag-v326: ACT-1 PR5 activation nudge scheduler
+const CACHE_NAME = 'stjarndag-v327';
+// stjarndag-v327: fix founder banner desktop layout crush; onboarding md width
 // stjarndag-v325: ACT-1 PR4 — AI starter plan personalize + custom_items schedule save
 // stjarndag-v324: ACT-1 Deploy 1+3 — activation state, handoff, starter-plan wizard, dynamic sitemap, referral v0
 // stjarndag-v323: NPF-sida copy — validerat smärtspråk ("mindre tjat, färre konflikter, lugnare vardag") i /rutiner-npf-barn (h1, lead, meta, CTA) för bättre konvertering + SEO
