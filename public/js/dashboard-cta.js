@@ -142,30 +142,16 @@
   const DELA_APPEN_KEY = 'dela_appen_cta_dismissed';
   const DELA_APPEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-  var _referralShare = undefined;
-
-  async function loadReferralShare() {
-    if (_referralShare !== undefined) return _referralShare;
-    try {
-      var res = await window.apiFetch('/api/account/referral');
-      if (res.ok) {
-        _referralShare = await res.json();
-      } else {
-        _referralShare = null;
-      }
-    } catch (_) {
-      _referralShare = null;
+  function loadReferralShare() {
+    if (window.ReferralShare && window.ReferralShare.load) {
+      return window.ReferralShare.load();
     }
-    return _referralShare;
+    return Promise.resolve(null);
   }
 
   function getSharePayload(ref) {
-    if (ref && ref.registerUrl) {
-      return {
-        url: ref.registerUrl,
-        text: 'Testa Min Stjärndag — visuella rutiner och stjärnor för barn! Min kod: ' + ref.code,
-        withReferral: true,
-      };
+    if (window.ReferralShare && window.ReferralShare.buildPayload) {
+      return window.ReferralShare.buildPayload(ref);
     }
     return {
       url: 'https://mystarday.se',
@@ -175,8 +161,9 @@
   }
 
   function trackReferralShare(ref) {
-    if (!ref || !ref.code) return;
-    trackEvent('referral_link_shared', { code: ref.code });
+    if (window.ReferralShare && window.ReferralShare.trackShared) {
+      window.ReferralShare.trackShared(ref, trackEvent);
+    }
   }
 
   function showShareToast(message) {

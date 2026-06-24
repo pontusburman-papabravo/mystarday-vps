@@ -25,6 +25,19 @@ describe('referral v0', () => {
     const src = read('src/routes/account/lifecycle.js');
     assert.match(src, /router\.get\('\/referral'/);
     assert.match(src, /getOrCreateReferralCode/);
+    assert.doesNotMatch(src, /Referral ej tillgängligt/);
+  });
+
+  it('referral-share.js is shared module for share flows', () => {
+    const src = read('public/js/referral-share.js');
+    assert.match(src, /registerUrl/);
+    assert.match(src, /window\.ReferralShare/);
+  });
+
+  it('mobile-nav uses ReferralShare instead of hardcoded mystarday.se', () => {
+    const src = read('public/js/mobile-nav.js');
+    assert.match(src, /ReferralShare/);
+    assert.doesNotMatch(src, /var SHARE_URL = 'https:\/\/mystarday\.se'/);
   });
 
   it('dashboard-cta uses personal referral link when available', () => {

@@ -167,16 +167,9 @@ router.post('/share-notify', requireParent, async (req, res) => {
 });
 
 // ─── GET /api/account/referral ───────────────────────────
-// Lazy-create personal referral code (referral v0, flag-gated).
+// Lazy-create personal referral code for share flows (register capture still flag-gated).
 router.get('/referral', requireParent, async (req, res) => {
   try {
-    const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
-    const familyId = req.user.familyId || req.user.family_id;
-    const enabled = await isActivationFlagEnabled(FLAG_KEYS.referral, familyId);
-    if (!enabled) {
-      return res.status(404).json({ error: 'Referral ej tillgängligt' });
-    }
-
     const referralDb = require('../../../db/referral');
     const code = await referralDb.getOrCreateReferralCode(req.user.id);
     const baseUrl = (process.env.APP_URL || 'https://mystarday.se').replace(/\/$/, '');

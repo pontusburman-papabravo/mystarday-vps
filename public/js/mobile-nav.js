@@ -290,10 +290,6 @@
   }
 
   // ── Share helper — shared logic for both topbar and sidebar ────
-  var SHARE_URL = 'https://mystarday.se';
-  var SHARE_TEXT = 'Hej! Jag började precis använda My Starday för att slippa tjatet hemma. De ger bort 1 år gratis till de 100 första just nu, tänkte att det här skulle passa er! Kolla här: ' + SHARE_URL;
-
-  // Fire-and-forget email notification to info@mystarday.se
   function notifyShareBackend() {
     try {
       // Cookie-only auth: no Authorization header needed. Browser sends httpOnly cookie.
@@ -325,18 +321,20 @@
   }
 
   // Desktop share popup — shown when Web Share API is unavailable
-  function showSharePopup() {
+  function showSharePopup(payload) {
     // Remove existing popup if open
     var existing = document.getElementById('sharePopup');
     if (existing) existing.remove();
 
+    var shareUrl = payload.url;
+    var shareText = payload.text;
     var overlay = document.createElement('div');
     overlay.id = 'sharePopup';
     overlay.className = 'share-popup-overlay';
 
     var mailSubject = encodeURIComponent('Tipsa: Min Stjärndag');
-    var mailBody = encodeURIComponent(SHARE_TEXT);
-    var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL);
+    var mailBody = encodeURIComponent(shareText);
+    var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
 
     overlay.innerHTML =
       '<div class="share-popup-card">' +
@@ -345,7 +343,10 @@
           '<strong>Tipsa en familj om Stjärndag!</strong>' +
           '<button class="share-popup-close" aria-label="Stäng">&times;</button>' +
         '</div>' +
-        '<p class="share-popup-text">' + SHARE_TEXT.replace(SHARE_URL, '<a href="' + SHARE_URL + '" target="_blank" rel="noopener">' + SHARE_URL + '</a>') + '</p>' +
+        (payload.code
+          ? '<p class="share-popup-code" style="font-size:0.85rem;font-weight:700;margin:0 0 8px;">Din kod: ' + payload.code + '</p>'
+          : '') +
+        '<p class="share-popup-text">' + shareText.replace(shareUrl, '<a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>') + '</p>' +
         '<div class="share-popup-actions">' +
           '<button class="share-popup-btn share-popup-copy" type="button">' +
             '<span>📋</span> Kopiera länk' +
@@ -371,7 +372,7 @@
     // Wire up copy button
     overlay.querySelector('.share-popup-copy').addEventListener('click', function () {
       var btn = this;
-      copyToClipboard(SHARE_URL, function () {
+      copyToClipboard(shareUrl, function () {
         btn.innerHTML = '<span>✅</span> Kopierad!';
         setTimeout(function () { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
       });
@@ -390,17 +391,28 @@
   }
 
   function handleShare() {
-    notifyShareBackend();
+    var shareApi = window.ReferralShare;
+    var loadPromise = shareApi && shareApi.load ? shareApi.load() : Promise.resolve(null);
+    loadPromise.then(function (ref) {
+      var payload = shareApi && shareApi.buildPayload
+        ? shareApi.buildPayload(ref)
+        : { url: 'https://mystarday.se', text: 'https://mystarday.se', withReferral: false };
 
-    // Only use native Web Share API on actual mobile devices.
-    // Desktop Safari supports navigator.share but shows a useless OS-level popover.
-    if (navigator.share && isMobileDevice()) {
-      navigator.share({ title: 'Min Stjärndag', text: SHARE_TEXT, url: SHARE_URL })
-        .catch(function () { /* user cancelled — silent */ });
-    } else {
-      // Desktop (or mobile without Web Share): show popup with copy / email / Facebook options
-      showSharePopup();
-    }
+      notifyShareBackend();
+      if (payload.withReferral && shareApi) {
+        shareApi.trackShared(ref);
+      }
+
+      // Only use native Web Share API on actual mobile devices.
+      // Desktop Safari supports navigator.share but shows a useless OS-level popover.
+      if (navigator.share && isMobileDevice()) {
+        navigator.share({ title: 'Min Stjärndag', text: payload.text, url: payload.url })
+          .catch(function () { /* user cancelled — silent */ });
+      } else {
+        // Desktop (or mobile without Web Share): show popup with copy / email / Facebook options
+        showSharePopup(payload);
+      }
+    });
   }
 
   // ── Wire up share buttons (topbar + sidebar) ──────────────────
