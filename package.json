@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "npm run migrate",
+    "build": "npm run migrate && npm run css:build",
+    "css:build": "node scripts/css-build.mjs",
+    "check:css": "node scripts/css-build.mjs && git diff --exit-code public/css/tailwind.build.css public/sw.js",
     "migrate": "node migrate.js",
     "dump:routes": "node scripts/dump-routes.js --write",
     "check:routes": "node scripts/dump-routes.js --check",
@@ -75,10 +77,13 @@
     "@capacitor/ios": "^7.6.6",
     "@capacitor/push-notifications": "^7.0.6",
     "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
+    "autoprefixer": "^10.5.1",
     "eslint": "^9.0.0",
     "pino-pretty": "^10.3.0",
+    "postcss": "^8.5.15",
     "puppeteer": "^25.1.0",
     "sharp": "^0.35.0",
+    "tailwindcss": "^3.4.19",
     "typescript": "~5.7.0"
   }
 }

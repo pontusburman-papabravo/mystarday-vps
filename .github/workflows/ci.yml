@@ -38,6 +38,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Build Tailwind CSS
+        run: npm run css:build
+
+      - name: Verify committed CSS matches build
+        run: git diff --exit-code public/css/tailwind.build.css public/sw.js
+
       - name: Lint
         run: npm run lint
 
