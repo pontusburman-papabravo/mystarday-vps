@@ -210,7 +210,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v298';
+const CACHE_NAME = 'stjarndag-v302';
+// v302: cache-only refresh (no code change) — force a clean, consistent asset cache
+//       on all devices after the v298↔v300↔v301 deploy churn left some PWAs skewed.
 // v298: F2c dashboard-star-history.js — weekly stars chart extracted from dashboard.js
 // v297: F2b dashboard-cta.js — co-parent invite + dela-appen CTA banners extracted from dashboard.js
 // v296: F3 child-dashboard-celebrations.js — milestone/confetti/dopamin burst extracted from child-dashboard.js
