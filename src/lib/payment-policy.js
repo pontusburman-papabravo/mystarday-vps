@@ -7,7 +7,7 @@
 const appSettings = require('../../db/app-settings');
 const { getTotalFamilyCount } = require('../../db/family-stats');
 
-const DEFAULT_FOUNDER_LIMIT = 200;
+const DEFAULT_FOUNDER_LIMIT = 225;
 
 function parseLimit(value) {
   const n = parseInt(value, 10);
