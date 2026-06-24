@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v330';
+const CACHE_NAME = 'stjarndag-v331';
+// stjarndag-v331: iPad universal layout — platform-tablet.css, viewport-only mobile nav
 // stjarndag-v330: ACT-1 PR5.2 activation experiment variant table in admin
 // stjarndag-v325: ACT-1 PR4 — AI starter plan personalize + custom_items schedule save
 // stjarndag-v324: ACT-1 Deploy 1+3 — activation state, handoff, starter-plan wizard, dynamic sitemap, referral v0

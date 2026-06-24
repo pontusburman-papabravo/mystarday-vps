@@ -27,11 +27,24 @@
     return false;
   }
 
+  function applyTabletClass(isNative) {
+    var root = document.documentElement;
+    if (!isNative) {
+      root.classList.remove('platform-tablet');
+      return;
+    }
+    var tabletMq = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(min-width: 768px)')
+      : null;
+    if (tabletMq && tabletMq.matches) root.classList.add('platform-tablet');
+    else root.classList.remove('platform-tablet');
+  }
+
   function applyPlatformTheme() {
     var root = document.documentElement;
     var isNative = detectNative();
 
-    root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page');
+    root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page', 'platform-tablet');
 
     if (isNative) {
       patchViewportNoZoom();
@@ -49,6 +62,7 @@
       } else if (typeof Capacitor !== 'undefined' && Capacitor.getPlatform && Capacitor.getPlatform() === 'android') {
         root.classList.add('platform-android');
       }
+      applyTabletClass(true);
       try {
         if (!sessionStorage.getItem('native_landing_redirected')) {
           var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
@@ -94,6 +108,18 @@
       }
       if (attempts >= maxAttempts) clearInterval(timer);
     }, 50);
+  }
+
+  if (typeof window.matchMedia === 'function') {
+    var tabletLayoutMq = window.matchMedia('(min-width: 768px)');
+    var onTabletLayoutChange = function () {
+      if (detectNative()) applyTabletClass(true);
+    };
+    if (typeof tabletLayoutMq.addEventListener === 'function') {
+      tabletLayoutMq.addEventListener('change', onTabletLayoutChange);
+    } else if (typeof tabletLayoutMq.addListener === 'function') {
+      tabletLayoutMq.addListener(onTabletLayoutChange);
+    }
   }
 
   if (document.readyState === 'loading') {

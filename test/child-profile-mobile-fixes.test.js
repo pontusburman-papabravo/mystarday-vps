@@ -44,10 +44,11 @@ describe('child profile mobile fixes', () => {
     assert.match(css, /position: sticky/);
   });
 
-  it('native tab bar stays on touch tablets', () => {
+  it('native tab bar uses viewport width on tablet (not pointer coarse)', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-tab-bar.css'), 'utf8');
-    assert.match(js, /pointer: coarse/);
+    assert.match(js, /max-width: 767px/);
+    assert.doesNotMatch(js, /pointer: coarse/);
     assert.match(css, /hover: hover\) and \(pointer: fine\)/);
   });
 });

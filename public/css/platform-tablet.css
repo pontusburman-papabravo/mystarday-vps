@@ -1,0 +1,124 @@
+/**
+ * platform-tablet.css — iPad / tablet layout (768px+).
+ * Universal native app: full-bleed shell, widened content columns.
+ */
+
+@media (min-width: 768px) {
+  html.platform-native,
+  html.platform-native body {
+    width: 100%;
+    min-height: 100%;
+  }
+
+  html.platform-native body.parent-magic-view,
+  html.platform-native body.parent-magic-dashboard,
+  html.platform-native body.parent-magic-library {
+    background: #07071a;
+  }
+
+  /* ── Login / entry ── */
+  html.platform-native .app-entry-column {
+    max-width: 520px !important;
+  }
+
+  html.platform-native .entry-how-sheet {
+    max-width: 480px;
+  }
+
+  html.platform-native .child-login-layout {
+    max-width: 560px;
+  }
+
+  /* ── Parent magic hub ── */
+  .parent-home-hub {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .parent-hub-greeting {
+    font-size: 30px;
+  }
+
+  .parent-ready-scroll {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+  }
+
+  .parent-action-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 720px;
+  }
+
+  .parent-quick-grid {
+    max-width: 640px;
+  }
+
+  /* Bottom nav spans full tablet width */
+  body.parent-magic-view .parent-bottom-nav,
+  body.parent-magic-dashboard .parent-bottom-nav,
+  body.parent-magic-library .parent-bottom-nav {
+    left: 0;
+    right: 0;
+    max-width: none;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  body.parent-magic-view .parent-bottom-nav-btn,
+  body.parent-magic-dashboard .parent-bottom-nav-btn {
+    min-width: 72px;
+    font-size: 11px;
+  }
+
+  /* ── Child magic view ── */
+  html.platform-native.platform-child-page .child-bottom-nav {
+    max-width: none;
+    margin: 0;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  html.platform-native.platform-child-page .max-w-lg {
+    max-width: 48rem;
+  }
+
+  /* ── Dashboard tour (App Review screenshot) ── */
+  #dashTourOverlay {
+    align-items: center !important;
+    padding: 24px;
+  }
+
+  #dashTourCard {
+    max-width: 480px;
+    margin-bottom: 0;
+  }
+
+  /* Classic dashboard modals */
+  html.platform-native .modal-inner {
+    max-width: min(560px, calc(100vw - 48px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .parent-home-hub {
+    max-width: 1024px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .parent-hub-greeting {
+    font-size: 34px;
+  }
+
+  .parent-ready-scroll {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .parent-action-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 840px;
+  }
+}

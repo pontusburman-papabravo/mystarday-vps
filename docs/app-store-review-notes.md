@@ -1,7 +1,52 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-06-24 | iOS build 22
+> Last updated: 2026-06-24 | iOS build 23
+
+---
+
+## Build 23 — Universal iPad layout (2026-06-24, after Guideline 4 rejection)
+
+Apple rejected Build 21 on **iPad Air 11-inch (M3)** under **Guideline 4 — Design**: UI did not use the iPad screen (narrow column / unused space).
+
+**Fix (Build 23):**
+- `TARGETED_DEVICE_FAMILY = "1,2"` (Universal — iPhone + iPad)
+- Removed `UIRequiresFullScreen` (no iPhone-only compatibility window)
+- `platform-tablet.css` — widened parent magic hub, full-width bottom nav, centered tour modal
+- Mobile nav breakpoint fixed: `(max-width: 767px)` only — iPad uses parent magic bottom nav, not phone tab bar
+- iOS build number **23**
+
+**Paste into App Review Information → Notes:**
+```
+Build 23 is a Universal app optimized for iPad. The parent dashboard uses a full-width dark layout with widened content columns and bottom navigation on tablet screens.
+
+Please review on iPad Air (11-inch) in portrait — the dashboard welcome tour and home hub should fill the screen without unused black side bars.
+
+Review account (full free access):
+- Email: review@mystarday.se
+- Password: AppReview2026!
+- Child PIN: 4455
+```
+
+**Reply to Guideline 4 in App Store Connect:**
+```
+Thank you for your feedback on iPad layout.
+
+In Build 23 we have optimized the app for iPad as a Universal app:
+- Universal target (iPhone + iPad) restored
+- Tablet-specific CSS widens the dashboard hub, bottom navigation, and onboarding tour
+- Navigation uses tablet-appropriate layout above 768px width
+
+Please review on iPad Air 11-inch. The app should now use the full screen width.
+
+Thank you.
+```
+
+---
+
+## Build 22 — iPhone-only target (superseded by Build 23)
+
+Build 22 set iPhone-only targeting as a quick fix. Build 23 replaces it with proper Universal iPad layout.
 
 ---
 
