@@ -10,6 +10,7 @@ const FLAG_KEYS = {
   custodySchedule: 'custody_schedule_beta',
   printScan: 'print_scan_beta',
   referral: 'referral_program',
+  nudge: 'activation_nudge_v1',
 };
 
 function parseLaunchAt() {

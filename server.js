@@ -22,6 +22,10 @@ const {
   startActivationPushScheduler,
   stopActivationPushScheduler,
 } = require('./src/lib/activation-program-scheduler');
+const {
+  startActivationNudgeScheduler,
+  stopActivationNudgeScheduler,
+} = require('./src/lib/activation-nudge-scheduler');
 const { pool } = require('./src/lib/db');
 const { createApp } = require('./app');
 
@@ -39,11 +43,12 @@ const server = app.listen(port, () => {
   startWinBackScheduler();
   startActivationEmailScheduler();
   startActivationPushScheduler();
+  startActivationNudgeScheduler();
 });
 
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

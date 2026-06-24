@@ -367,6 +367,35 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
   });
 }
 
+async function sendActivationNudgeEmail({ to, parentName, ctaUrl }) {
+  const firstName = (parentName || '').split(' ')[0] || 'Förälder';
+  const url = ctaUrl || 'https://mystarday.se/onboarding';
+  return sendEmail({
+    to,
+    subject: 'Ditt schema väntar — ge första stjärnan på 2 min ⭐',
+    html: `
+      <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
+        <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
+        <p style="color:#5A6178;line-height:1.6;">
+          Ni är nästan igång med Min Stjärndag. Barnets schema finns redan — det som återstår är att
+          <strong>låta barnet logga in</strong> och tjäna den första stjärnan.
+        </p>
+        <p style="color:#5A6178;line-height:1.6;">
+          Det tar ungefär två minuter tillsammans.
+        </p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${url}"
+             style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
+                    border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
+            Fortsätt onboarding →
+          </a>
+        </div>
+        <p style="color:#9CA3AF;font-size:13px;">Min Stjärndag — mystarday.se</p>
+      </div>
+    `,
+  });
+}
+
 module.exports = {
   sendEmail,
   getResendApiKey,
@@ -380,6 +409,7 @@ module.exports = {
   sendAccountDeletionRequestedEmail,
   sendAccountDeletedEmail,
   sendWinBackEmail,
+  sendActivationNudgeEmail,
   sendActivationProgramInviteEmail,
   sendPedagogInviteEmail,
   sendNewsletterSubscriptionConfirmation,

@@ -110,6 +110,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'referral_link_shared',
   'referral_signup',
   'referral_qualified',
+  'activation_nudge_sent',
 ]);
 
 /**
