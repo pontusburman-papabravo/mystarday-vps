@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v270 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v271 // pragma: allowlist secret
+ * v271: Landing hamburger menu as primary mobile login path
  * v270: Landing login entry — parent + child login visible in hero and nav
  * v269: SEO /faq + /kontakt indexable; founder counter visible in hero
  * v268: Landing page v2 — conversion-focused homepage refactor

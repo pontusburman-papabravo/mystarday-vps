@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=2">
+  <link rel="stylesheet" href="/css/landing.css?v=3">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#F5A623">
@@ -88,16 +88,30 @@
     <a href="/login" class="landing-nav__login" data-track="nav_login_click">Logga in</a>
     <a href="/register" class="btn-primary" data-track="nav_signup_click">Skapa konto gratis</a>
     <a href="/en" class="landing-nav__lang" title="English version" aria-label="English">🇬🇧</a>
-    <button type="button" class="landing-nav__hamburger" id="navHamburger" aria-label="Öppna meny" aria-expanded="false">
-      <span></span><span></span><span></span>
+    <button type="button" class="landing-nav__hamburger" id="navHamburger" aria-label="Öppna meny och logga in" aria-expanded="false">
+      <span class="landing-nav__hamburger-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="landing-nav__hamburger-label" aria-hidden="true">
+        <span class="landing-nav__hamburger-title">Meny</span>
+        <span class="landing-nav__hamburger-sub">Logga in</span>
+      </span>
     </button>
   </div>
 </nav>
 
-<div class="landing-mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobilmeny">
-  <p class="landing-mobile-menu__section">Logga in</p>
-  <a href="/login" class="landing-mobile-menu__login" data-track="nav_login_click">👨‍👩‍👧 Logga in som förälder</a>
-  <a href="/child-login" class="landing-mobile-menu__login landing-mobile-menu__login--child" data-track="nav_child_login_click">🌟 Logga in som barn</a>
+<div class="landing-mobile-menu" id="mobileMenu" role="dialog" aria-label="Meny och inloggning">
+  <div class="landing-login-entry landing-login-entry--menu">
+    <p class="landing-login-entry__label">Har du redan konto?</p>
+    <div class="landing-login-entry__buttons">
+      <a href="/login" class="landing-login-entry__btn landing-login-entry__btn--parent" data-track="nav_login_click">
+        <span class="landing-login-entry__icon" aria-hidden="true">👨‍👩‍👧</span>
+        <span class="landing-login-entry__text"><strong>Logga in som förälder</strong><span>E-post och lösenord</span></span>
+      </a>
+      <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="nav_child_login_click">
+        <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+        <span class="landing-login-entry__text"><strong>Logga in som barn</strong><span>Namn och PIN-kod</span></span>
+      </a>
+    </div>
+  </div>
   <p class="landing-mobile-menu__section">Utforska</p>
   <a href="#sa-fungerar-det">Så fungerar det</a>
   <a href="#for-vilka">För familjer som behöver struktur</a>
@@ -133,7 +147,7 @@
         <a href="#sa-fungerar-det" class="btn-secondary" data-track="hero_how_it_works_click">Se hur det fungerar</a>
       </div>
       <p class="founder-spots-badge" id="founderHeroSpots" hidden aria-live="polite"></p>
-      <div class="landing-login-entry" aria-label="Inloggning för befintliga användare">
+      <div class="landing-login-entry landing-login-entry--hero" aria-label="Inloggning för befintliga användare">
         <p class="landing-login-entry__label">Har du redan konto?</p>
         <div class="landing-login-entry__buttons">
           <a href="/login" class="landing-login-entry__btn landing-login-entry__btn--parent" data-track="hero_parent_login_click">
