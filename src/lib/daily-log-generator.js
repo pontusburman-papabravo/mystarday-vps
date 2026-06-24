@@ -431,7 +431,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
 
   // Get current daily log items
   const dliResult = await q.query(
-    `SELECT id, activity_template_id, name, icon, start_time, end_time,
+    `SELECT id, activity_template_id, is_once_task, name, icon, start_time, end_time,
             star_value, completed, sort_order, section
      FROM daily_log_item
      WHERE daily_log_id = $1`,
@@ -443,7 +443,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
   let removed = 0, updated = 0;
 
   // REMOVE — daily log items whose template is no longer in the special day schedule
-  // Engångsaktiviteter (activity_template_id IS NULL) are always preserved — never delete them
+  // Engångsaktiviteter are always preserved — never delete them
   for (const di of dailyItems) {
     if (di.activity_template_id == null || di.is_once_task) continue; // behåll engångsaktiviteter
     if (!schedTemplateIds.has(di.activity_template_id) && !di.completed) {
@@ -456,6 +456,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
   for (const si of scheduleItems) {
     const matches = dailyItems.filter(di => di.activity_template_id === si.activity_template_id);
     for (const di of matches) {
+      if (di.is_once_task) continue;
       if (!di.completed) {
         await q.query(
           `UPDATE daily_log_item
@@ -564,7 +565,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   }
 
   const dliResult = await q.query(
-    `SELECT id, activity_template_id, name, icon, start_time, end_time,
+    `SELECT id, activity_template_id, is_once_task, name, icon, start_time, end_time,
             star_value, completed, sort_order, section
      FROM daily_log_item
      WHERE daily_log_id = $1`,
@@ -622,6 +623,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
     const existing = dailyByTemplate.get(si.activity_template_id);
     if (!existing || existing.length === 0) continue;
     for (const di of existing) {
+      if (di.is_once_task) continue;
       if (!di.completed) {
         await q.query(
           `UPDATE daily_log_item

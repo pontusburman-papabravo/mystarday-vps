@@ -1601,6 +1601,12 @@ async function loadScheduleForDay() {
   else renderSchedule();
 }
 
+/** Refresh dashboard + schedule view after engångsaktivitet create/delete. */
+async function refreshAfterOnceTaskChange() {
+  await loadDashboardCards();
+  if (currentChildId) await loadScheduleForDay();
+}
+
 function renderEmptyDay() {
   const child = children.find(c => c.id === currentChildId);
   const dl = getDayDateLabel();
@@ -2413,7 +2419,7 @@ async function submitAddActivity() {
         const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         closeAddModal();
         showToast(`${tpl?.icon || ''} "${tpl?.name}" tillagd för ${dateFmt}!`);
-        await loadDashboardCards();
+        await refreshAfterOnceTaskChange();
       } else {
         const err = await res.json();
         document.getElementById('addActivityError').textContent = err.error || 'Fel uppstod';
@@ -2561,7 +2567,7 @@ async function confirmRecurrence(choice) {
     if (successCount > 0) {
       closeRecurrenceModal();
       showToast(`Aktiviteten har lagts till`);
-      await loadDashboardCards();
+      await refreshAfterOnceTaskChange();
     } else {
       document.getElementById('recurrenceError').textContent = 'Kunde inte lägga till aktiviteten. Försök igen.';
       document.getElementById('recurrenceError').classList.remove('hidden');
@@ -2774,7 +2780,7 @@ async function submitOnceTaskDirect(tplId, tpl) {
       closeCreateActivityModal();
       closeAddModal();
       showToast(`${tpl?.icon || ''} "${tpl?.name || 'Aktiviteten'}" tillagd för ${dateFmt}!`);
-      await loadDashboardCards();
+      await refreshAfterOnceTaskChange();
     } else {
       const err = await res.json();
       document.getElementById('createActivityError').textContent = err.error || 'Fel uppstod';
