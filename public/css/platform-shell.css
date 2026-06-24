@@ -1,0 +1,88 @@
+/**
+ * platform-shell.css — PWA + native app shell UX (modals, accidental zoom).
+ * Injected on all HTML pages via platform-html.js.
+ *
+ * Zoom lock: viewport meta patched in platform-theme.js for .platform-pwa / .platform-native.
+ * Modal sizing: mobile viewports + shell classes.
+ */
+
+/* ── Prevent accidental pinch / double-tap zoom in installed shells ─────── */
+.platform-native,
+.platform-pwa {
+  touch-action: manipulation;
+}
+
+.platform-native body,
+.platform-pwa body {
+  touch-action: manipulation;
+}
+
+/* iOS: 16px+ inputs avoid focus-zoom even if viewport allows scale */
+@media (max-width: 639px) {
+  .platform-mobile-shell input:not([type="checkbox"]):not([type="radio"]),
+  .platform-mobile-shell select,
+  .platform-mobile-shell textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* ── Mobile modals: fit viewport, scroll inside panel ───────────────────── */
+@media (max-width: 639px) {
+  body .fixed.inset-0.flex.justify-center,
+  body .fixed.inset-0.flex.items-start,
+  body .fixed.inset-0.flex.items-end {
+    align-items: center !important;
+    justify-content: center !important;
+    padding:
+      max(8px, env(safe-area-inset-top, 0px))
+      12px
+      max(12px, env(safe-area-inset-bottom, 0px)) !important;
+    overscroll-behavior: contain;
+  }
+
+  body .fixed.inset-0 > .bg-white.rounded-2xl,
+  body .fixed.inset-0 > .bg-white.rounded-xl,
+  body .fixed.inset-0 > .bg-white.rounded-3xl,
+  body .fixed.inset-0 > div.max-w-md,
+  body .fixed.inset-0 > div.max-w-sm,
+  body .fixed.inset-0 > div.max-w-lg,
+  body .fixed.inset-0 > div.w-full.max-w-md,
+  body .fixed.inset-0 > div.w-full.max-w-sm {
+    width: 100% !important;
+    max-width: min(22rem, calc(100vw - 24px)) !important;
+    max-height: min(
+      88dvh,
+      calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 16px)
+    ) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Nested panel (overlay > wrapper > card) */
+  body .fixed.inset-0.overflow-y-auto > div > .bg-white.rounded-2xl,
+  body .fixed.inset-0.overflow-y-auto > div > .bg-white.rounded-xl {
+    max-width: min(22rem, calc(100vw - 24px)) !important;
+    max-height: min(85dvh, calc(100dvh - 32px)) !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* PWA / native: slightly tighter cap (installed app feel) */
+.platform-mobile-shell .fixed.inset-0 > .bg-white.rounded-2xl,
+.platform-mobile-shell .fixed.inset-0 > .bg-white.rounded-xl,
+.platform-mobile-shell .fixed.inset-0 > div.max-w-md,
+.platform-mobile-shell .fixed.inset-0 > div.w-full.max-w-md {
+  max-width: min(20rem, calc(100vw - 20px)) !important;
+  max-height: min(
+    86dvh,
+    calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 12px)
+  ) !important;
+}
+
+/* Magic view modals on dark shell */
+body.parent-magic-view.platform-mobile-shell .fixed.inset-0 > .bg-white.rounded-2xl,
+body.parent-magic-view.platform-mobile-shell .fixed.inset-0 > div.max-w-md {
+  max-width: min(20rem, calc(100vw - 20px)) !important;
+}

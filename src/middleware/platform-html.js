@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { injectNoindexMeta } = require('../lib/seo-pages');
 
-const RELEASE_TAG = '2026-06-14-prevent-zoom';
+const RELEASE_TAG = '2026-06-24-pwa-modal';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
 const MAGIC_VERSION = '8';
@@ -144,6 +144,7 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.4">',
+    '<link rel="stylesheet" href="/css/platform-shell.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'
   );

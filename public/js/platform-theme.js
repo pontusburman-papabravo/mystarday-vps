@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  /** Block pinch/double-tap zoom in native WebView (App Store–style shell). */
+  /** Block pinch/double-tap zoom in native WebView + installed PWA. */
   function patchViewportNoZoom() {
     var meta = document.querySelector('meta[name="viewport"]');
     if (!meta) return;
@@ -27,14 +27,33 @@
     return false;
   }
 
+  /** Installed PWA (Add to Home Screen) — not mobile Safari tab. */
+  function detectPWA() {
+    try {
+      if (window.navigator && window.navigator.standalone === true) return true;
+      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+      if (window.matchMedia && window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+    } catch (_) {}
+    return false;
+  }
+
   function applyPlatformTheme() {
     var root = document.documentElement;
     var isNative = detectNative();
+    var isPWA = !isNative && detectPWA();
+    var isMobileShell = isNative || isPWA;
 
-    root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page');
+    root.classList.remove(
+      'platform-native', 'platform-web', 'platform-ios', 'platform-android',
+      'platform-child-page', 'platform-pwa', 'platform-mobile-shell'
+    );
+
+    if (isMobileShell) {
+      patchViewportNoZoom();
+      root.classList.add('platform-mobile-shell');
+    }
 
     if (isNative) {
-      patchViewportNoZoom();
       root.classList.add('platform-native');
       var childPagePath = (window.location.pathname || '').replace(/\/$/, '');
       var isChildPage = childPagePath === '/child-login' || childPagePath.indexOf('/child/') === 0;
@@ -68,7 +87,12 @@
         }
       } catch (_) {}
       try {
-        window.dispatchEvent(new CustomEvent('platform-theme-applied', { detail: { native: true } }));
+        window.dispatchEvent(new CustomEvent('platform-theme-applied', { detail: { native: true, pwa: false } }));
+      } catch (_) {}
+    } else if (isPWA) {
+      root.classList.add('platform-pwa');
+      try {
+        window.dispatchEvent(new CustomEvent('platform-theme-applied', { detail: { native: false, pwa: true } }));
       } catch (_) {}
     } else {
       root.classList.add('platform-web');
