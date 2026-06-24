@@ -195,15 +195,23 @@ body.platform-web.landing-magic-bg {
 
 .landing-nav__hamburger {
   display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  border: none;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(245, 166, 35, 0.1);
+  border: 1px solid rgba(245, 166, 35, 0.28);
+  border-radius: 12px;
   cursor: pointer;
-  padding: 8px;
+  padding: 0.4rem 0.55rem 0.4rem 0.45rem;
 }
 
-.landing-nav__hamburger span {
+.landing-nav__hamburger-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 2px;
+}
+
+.landing-nav__hamburger-bars span {
   display: block;
   width: 22px;
   height: 2px;
@@ -212,9 +220,28 @@ body.platform-web.landing-magic-bg {
   transition: transform 0.2s, opacity 0.2s;
 }
 
-.landing-nav__hamburger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.landing-nav__hamburger.is-open span:nth-child(2) { opacity: 0; }
-.landing-nav__hamburger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.landing-nav__hamburger-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.landing-nav__hamburger-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.landing-nav__hamburger-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--amber-dk);
+}
+
+.landing-nav__hamburger.is-open .landing-nav__hamburger-bars span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.landing-nav__hamburger.is-open .landing-nav__hamburger-bars span:nth-child(2) { opacity: 0; }
+.landing-nav__hamburger.is-open .landing-nav__hamburger-bars span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 .landing-mobile-menu {
   display: none;
@@ -295,6 +322,16 @@ body.platform-web.landing-magic-bg {
 .landing-login-entry--compact .landing-login-entry__buttons {
   grid-template-columns: 1fr;
   max-width: 320px;
+}
+
+.landing-login-entry--menu {
+  margin-top: 0;
+  background: var(--white);
+  border-color: rgba(245, 166, 35, 0.22);
+}
+
+.landing-login-entry--menu .landing-login-entry__buttons {
+  grid-template-columns: 1fr;
 }
 
 .landing-login-entry__btn {
@@ -1213,12 +1250,13 @@ body.platform-web.landing-magic-bg {
 @media (max-width: 960px) {
   .landing-nav__links,
   .landing-nav__actions .btn-primary,
-  .landing-nav__actions .landing-nav__lang { display: none; }
+  .landing-nav__actions .landing-nav__lang,
+  .landing-nav__actions .landing-nav__login,
+  .landing-nav__actions .landing-nav__child-login { display: none; }
 
-  .landing-nav__login,
-  .landing-nav__child-login { display: inline-flex; align-items: center; }
+  .landing-nav__hamburger { display: inline-flex; }
 
-  .landing-nav__hamburger { display: flex; }
+  .landing-login-entry--hero { display: none; }
 
   .landing-login-entry__buttons { grid-template-columns: 1fr; }
 
