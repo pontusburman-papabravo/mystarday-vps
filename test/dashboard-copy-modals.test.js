@@ -45,8 +45,8 @@ describe('F2h dashboard-copy-modals.js', () => {
     }
   });
 
-  it('dashboard.js still calls openConfirmModal from removeItem (cross-file at runtime)', () => {
-    const src = read('public/js/dashboard.js');
+  it('activity-modal still calls openConfirmModal from removeItem (cross-file)', () => {
+    const src = read('public/js/dashboard-activity-modal.js');
     assert.match(src, /openConfirmModal\(/);
   });
 
@@ -60,6 +60,6 @@ describe('F2h dashboard-copy-modals.js', () => {
 
   it('sw.js cache version bumped for the split', () => {
     const src = read('public/sw.js');
-    assert.match(src, /stjarndag-v30[7-9]|stjarndag-v3[1-9]\d/);
+    assert.match(src, /stjarndag-v31[1-9]|stjarndag-v3[2-9]\d/);
   });
 });
