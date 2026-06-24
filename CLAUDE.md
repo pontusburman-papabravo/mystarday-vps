@@ -81,6 +81,7 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 
 ## Recent changes
 
+- 2026-06-24: Fas 10 — `docs/dead-code-inventory.md`; onboarding XSS escape `childName`/`groupMeta.name`; `lint:public` + CI; deploy gate test; SW v314.
 - 2026-06-24: Refactor Fas 9 — Tailwind CDN replaced with built `public/css/tailwind.build.css` on all 41 app/admin pages; `tailwind.config.js` + `npm run css:build`; CSP drops cdn.tailwindcss.com; SW v312 precaches built CSS.
 - 2026-06-24: Refactor Fas 8 finish — `dashboard-dnd.js`, `dashboard-activity-modal.js`, `schedule-special-days.js`, `schedule-template-mode.js`, `schedule-insert-fill.js`, `child-dashboard-rewards.js` extracted; `dashboard.js` ~1450 r; SW v311.
 - 2026-06-24: Refactor Fas 8 F2d — timeline + side-by-side views extracted from `dashboard.js` to `public/js/dashboard-views.js` (IIFE; 6 `window.*` handlers); loaded after `dashboard-approvals.js`; SW v310.

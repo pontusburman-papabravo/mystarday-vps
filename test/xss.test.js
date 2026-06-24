@@ -82,6 +82,20 @@ test('number input is coerced to string', () => {
   assert.equal(escaped, '42', 'Number should be coerced to string');
 });
 
+test('onboarding.js escapes childName and groupMeta.name before innerHTML', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'onboarding.js'), 'utf8');
+  assert.match(
+    src,
+    /introPara\.innerHTML[\s\S]*escapeHtml\(childName\)/,
+    'step 4 reward intro must escape childName',
+  );
+  assert.match(
+    src,
+    /subtitleEl\.innerHTML[\s\S]*escapeHtml\(groupMeta\.name\)[\s\S]*escapeHtml\(childName\)/,
+    'step 3 subtitle must escape groupMeta.name and childName',
+  );
+});
+
 test('child name with SVG injection attempt is escaped', () => {
   const maliciousName = '<svg onload=alert(1)>';
   const escaped = escapeHtml(maliciousName);

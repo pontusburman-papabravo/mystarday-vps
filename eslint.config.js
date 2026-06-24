@@ -1,9 +1,85 @@
 /**
  * ESLint flat config — mild rules to catch common bugs.
- * Runs on src/ and server.js only; excludes tests (they use globals like 'test').
+ * src/ + server.js (Node); public/** (browser client JS).
  */
 
 'use strict';
+
+const browserGlobals = {
+  window: 'readonly',
+  document: 'readonly',
+  navigator: 'readonly',
+  location: 'readonly',
+  localStorage: 'readonly',
+  sessionStorage: 'readonly',
+  fetch: 'readonly',
+  FormData: 'readonly',
+  Blob: 'readonly',
+  File: 'readonly',
+  FileReader: 'readonly',
+  URL: 'readonly',
+  URLSearchParams: 'readonly',
+  AbortController: 'readonly',
+  AbortSignal: 'readonly',
+  Event: 'readonly',
+  CustomEvent: 'readonly',
+  HTMLElement: 'readonly',
+  Element: 'readonly',
+  Node: 'readonly',
+  MutationObserver: 'readonly',
+  IntersectionObserver: 'readonly',
+  ResizeObserver: 'readonly',
+  requestAnimationFrame: 'readonly',
+  cancelAnimationFrame: 'readonly',
+  setTimeout: 'readonly',
+  setInterval: 'readonly',
+  clearTimeout: 'readonly',
+  clearInterval: 'readonly',
+  console: 'readonly',
+  alert: 'readonly',
+  confirm: 'readonly',
+  prompt: 'readonly',
+  atob: 'readonly',
+  btoa: 'readonly',
+  crypto: 'readonly',
+  performance: 'readonly',
+  getComputedStyle: 'readonly',
+  matchMedia: 'readonly',
+  TextEncoder: 'readonly',
+  TextDecoder: 'readonly',
+  Intl: 'readonly',
+  Map: 'readonly',
+  Set: 'readonly',
+  Promise: 'readonly',
+  Symbol: 'readonly',
+  WeakMap: 'readonly',
+  WeakSet: 'readonly',
+  Array: 'readonly',
+  Object: 'readonly',
+  JSON: 'readonly',
+  Math: 'readonly',
+  Date: 'readonly',
+  String: 'readonly',
+  Number: 'readonly',
+  Boolean: 'readonly',
+  RegExp: 'readonly',
+  Error: 'readonly',
+  TypeError: 'readonly',
+  parseInt: 'readonly',
+  parseFloat: 'readonly',
+  isNaN: 'readonly',
+  isFinite: 'readonly',
+  structuredClone: 'readonly',
+  queueMicrotask: 'readonly',
+  reportError: 'readonly',
+};
+
+const sharedRules = {
+  'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+  'no-var': 'error',
+  'prefer-const': ['warn', { destructuring: 'all' }],
+  'no-undef': 'error',
+};
 
 module.exports = [
   {
@@ -45,25 +121,30 @@ module.exports = [
         AbortSignal: 'readonly',
       },
     },
+    rules: sharedRules,
+  },
+  {
+    files: ['public/js/**/*.js', 'public/admin/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'script',
+      globals: browserGlobals,
+    },
     rules: {
-      // Catch typos and unused imports early
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      // var is discouraged; let/const are safer
-      'no-var': 'error',
-      // Prefer const for variables that are never reassigned
+      'no-var': 'warn',
       'prefer-const': ['warn', { destructuring: 'all' }],
-      // Catch accidental use of undeclared globals
-      'no-undef': 'error',
+      'no-undef': 'off',
     },
   },
   {
-    // Ignore generated/legacy files that are not being migrated
     ignores: [
       'node_modules/**',
-      'public/**',
       'migrations/**',
       'test/**',
       'tests/**',
+      'public/css/**',
+      'public/**/*.min.js',
     ],
   },
 ];

@@ -238,7 +238,7 @@ function buildRewardGrid(rewards) {
   // Update copy with actual count
   const introPara = document.querySelector('#step4 .bg-lavender p.text-xs');
   if (introPara) {
-    introPara.innerHTML = `Vi har fyllt på med <strong class="text-navy">${rewards.length}</strong> roliga belöningar. Välj de som <strong id="s4ChildName" class="text-navy">${childName || 'barnet'}</strong> ska få kämpa för!`;
+    introPara.innerHTML = `Vi har fyllt på med <strong class="text-navy">${rewards.length}</strong> roliga belöningar. Välj de som <strong id="s4ChildName" class="text-navy">${escapeHtml(childName) || 'barnet'}</strong> ska få kämpa för!`;
   }
   rewards.forEach((reward) => {
     const card = document.createElement('div');
@@ -465,7 +465,7 @@ async function populateStep3() {
   // Update the subtitle copy
   const subtitleEl = document.getElementById('s3Subtitle');
   if (subtitleEl) {
-    subtitleEl.innerHTML = `Vi har förberett schemat <strong class="text-navy">${groupMeta.name}</strong> för <strong class="text-navy">${childName}</strong>. Det innehåller de viktigaste stegen för att lyckas helt själv.`;
+    subtitleEl.innerHTML = `Vi har förberett schemat <strong class="text-navy">${escapeHtml(groupMeta.name)}</strong> för <strong class="text-navy">${escapeHtml(childName)}</strong>. Det innehåller de viktigaste stegen för att lyckas helt själv.`;
   }
 
   // Also update step 5 (login info)
