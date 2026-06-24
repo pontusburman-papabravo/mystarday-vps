@@ -210,7 +210,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v299';
+const CACHE_NAME = 'stjarndag-v300';
+// v300: F3a–F3d — schedule.js split (special-days/template-mode/insert-fill) + child-dashboard rewards extracted
 // v299: F2d–F2i dashboard split — views/activity-modal/approvals/dnd/copy-modals/card-actions extracted from dashboard.js (now <1500 r)
 // v298: F2c dashboard-star-history.js — weekly stars chart extracted from dashboard.js
 // v297: F2b dashboard-cta.js — co-parent invite + dela-appen CTA banners extracted from dashboard.js
@@ -279,6 +280,7 @@ const STATIC_ASSETS = [
   '/js/child-login.js',
   '/js/child-dashboard.js',
   '/js/child-dashboard-celebrations.js',
+  '/js/child-dashboard-rewards.js',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
