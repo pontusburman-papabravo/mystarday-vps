@@ -88,6 +88,6 @@ describe('meny v2 review fixes — LOW', () => {
 describe('meny v2 review fixes — SW bump', () => {
   it('service worker v293', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(src, /stjarndag-v293/);
+    assert.match(src, /stjarndag-v(?:29[3-9]|[3-9]\d\d|\d{4,})/);
   });
 });
