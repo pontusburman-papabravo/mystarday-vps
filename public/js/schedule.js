@@ -23,13 +23,23 @@ document.addEventListener('click', e => {
 });
 
 // ── Delegated delete handler (Sortable.js forceFallback blocks inline onclick on mobile) ──
+function _handleRemoveBtn(btn) {
+  const itemId = btn.dataset.id || btn.closest('[data-id]')?.dataset.id;
+  if (itemId && typeof removeItem === 'function') removeItem(itemId);
+}
 document.addEventListener('click', e => {
   const btn = e.target.closest('.action-btn-remove');
   if (!btn) return;
   e.stopPropagation();
-  const itemId = btn.dataset.id || btn.closest('[data-id]')?.dataset.id;
-  if (itemId && typeof removeItem === 'function') removeItem(itemId);
+  _handleRemoveBtn(btn);
 });
+document.addEventListener('touchstart', e => {
+  const btn = e.target.closest('.action-btn-remove');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  _handleRemoveBtn(btn);
+}, { passive: false });
 
 // ── Delegated ⋯ overflow-menu tap handler (fallback for SortableJS forceFallback touch) ──
 function _handleOverflowBtn(btn) {
@@ -1658,7 +1668,7 @@ function initDragDrop() {
       handle: '.drag-handle',
       draggable: '.activity-item',
       filter: '.once-task-item',
-      preventOnFilter: true,
+      preventOnFilter: false,
       forceFallback: true,
       fallbackTolerance: 3,
       ghostClass: 'sortable-ghost',

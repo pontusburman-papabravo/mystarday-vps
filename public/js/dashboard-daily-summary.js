@@ -36,7 +36,14 @@
         emoji: '🎁',
         headline: pName + ' vill lösa in en belöning',
         sub: totalPending === 1 ? 'En förfrågan väntar på dig' : totalPending + ' förfrågningar väntar på dig',
-        action: { label: 'Visa förfrågan', onclick: pendingChild ? "toggleCardExpand('" + pendingChild.id + "')" : null },
+        action: pendingChild ? {
+          label: 'Visa förfrågan',
+          handler: function () {
+            if (typeof window.openRequestPanel === 'function') {
+              window.openRequestPanel(pendingChild.id, pendingChild.name);
+            }
+          },
+        } : null,
         tone: 'reward',
       };
     }
@@ -145,8 +152,8 @@
     if (summary.action) {
       if (summary.action.href) {
         actionHtml = '<a href="' + summary.action.href + '" class="dash-summary-action">' + summary.action.label + ' →</a>';
-      } else if (summary.action.onclick) {
-        actionHtml = '<button type="button" class="dash-summary-action" onclick="' + summary.action.onclick + '">' + summary.action.label + ' →</button>';
+      } else if (summary.action.handler || summary.action.onclick) {
+        actionHtml = '<button type="button" class="dash-summary-action" data-summary-action="1">' + summary.action.label + ' →</button>';
       }
     }
 
@@ -159,6 +166,19 @@
       '</div>' +
       actionHtml;
     el.classList.remove('hidden');
+
+    var actionBtn = el.querySelector('[data-summary-action]');
+    if (actionBtn) {
+      if (summary.action.handler) {
+        actionBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          summary.action.handler();
+        });
+      } else if (summary.action.onclick) {
+        actionBtn.setAttribute('onclick', summary.action.onclick);
+      }
+    }
   }
 
   function getPageTitle(stats) {
