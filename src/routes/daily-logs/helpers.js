@@ -23,7 +23,7 @@ async function getSectionTimes(childId) {
 /** Normalize ?date= query to YYYY-MM-DD in child timezone when omitted. */
 function parseLogDate(queryDate, timezone = 'Europe/Stockholm') {
   let dateStr = queryDate;
-  if (!dateStr) {
+  if (!dateStr || dateStr === 'null' || dateStr === 'undefined') {
     dateStr = new Date().toLocaleDateString('sv-SE', { timeZone: timezone });
   } else {
     const m = dateStr.match(/^(\d{4}-\d{2}-\d{2})/);
