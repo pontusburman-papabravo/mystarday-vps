@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v309';
+const CACHE_NAME = 'stjarndag-v310';
+// v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
 // v308: F2i dashboard-card-actions.js — pause/give-stars/quick actions extracted from dashboard.js
 // v307: F2h dashboard-copy-modals.js — copy-day/copy-child/delete/confirm modals extracted from dashboard.js
