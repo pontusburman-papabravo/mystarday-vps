@@ -2405,6 +2405,7 @@ async function submitAddActivity() {
           end_time: document.getElementById('addEndTime').value || null,
           star_value: tpl?.star_value || 1,
           child_ids: selectedIds,
+          activity_template_id: selectedTemplateId,
         })
       });
       if (res.ok) {
@@ -2607,6 +2608,7 @@ async function addOnceTaskToDay(dayOfWeek, childId) {
       start_time: _pendingStartTime || null,
       end_time: _pendingEndTime || null,
       star_value: tpl.star_value || 1,
+      activity_template_id: _pendingTemplateId,
     }),
   });
   if (!res.ok) {
@@ -2640,12 +2642,41 @@ async function addActivityToDay(dayOfWeek, childId) {
 
 // ── Create Activity Modal ─────────────────────────────────
 const EMOJI_QUICK_PICKS = ['🪥','🧹','📚','🎨','🏃','🍎','👕','🎵','✏️','🧩','🚿','🛏️','🎒','🚶','🍽️','💤'];
+let _newActSubsteps = []; // { name, icon }
+
+function renderNewActSubsteps() {
+  const list = document.getElementById('newActSubstepList');
+  if (!list) return;
+  if (_newActSubsteps.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = _newActSubsteps.map((s, i) =>
+    `<div class="flex items-center gap-2 bg-sky/50 rounded-lg px-3 py-1.5">
+      <span class="text-sm flex-1">${escHtml(s.name)}</span>
+      <button type="button" onclick="removeNewActSubstep(${i})" class="text-text-soft hover:text-red-500 text-sm">✕</button>
+    </div>`
+  ).join('');
+}
+function addNewActSubstep() {
+  const input = document.getElementById('newActSubstepInput');
+  const name = input?.value.trim();
+  if (!name) return;
+  _newActSubsteps.push({ name, icon: null });
+  input.value = '';
+  renderNewActSubsteps();
+}
+function removeNewActSubstep(idx) {
+  _newActSubsteps.splice(idx, 1);
+  renderNewActSubsteps();
+}
 
 function openCreateActivityModal(prefill) {
+  _newActSubsteps = [];
   document.getElementById('newActName').value = prefill || '';
   document.getElementById('newActEmojiInput').value = '';
   document.getElementById('newActEmojiPreview').textContent = '📌';
   document.getElementById('newActStarValue').value = '1';
+  const subInput = document.getElementById('newActSubstepInput');
+  if (subInput) subInput.value = '';
+  renderNewActSubsteps();
   document.getElementById('createActivityError').classList.add('hidden');
   // Reset star buttons
   document.querySelectorAll('.star-val-btn').forEach(b => {
@@ -2732,11 +2763,14 @@ async function submitOnceTaskDirect(tplId, tpl) {
         end_time: ctx.endTime || null,
         star_value: tpl?.star_value || 1,
         child_ids: childIds,
+        activity_template_id: tplId || null,
+        sub_steps: _newActSubsteps.length ? _newActSubsteps : undefined,
       })
     });
     if (res.ok) {
       const d = new Date(ctx.date + 'T12:00:00');
       const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+      _newActSubsteps = [];
       closeCreateActivityModal();
       closeAddModal();
       showToast(`${tpl?.icon || ''} "${tpl?.name || 'Aktiviteten'}" tillagd för ${dateFmt}!`);
@@ -2762,8 +2796,21 @@ async function submitCreateActivity() {
     const data = await res.json();
     if (res.ok) {
       if (_onceCreateContext) {
-        // Once-mode: create template + submit once-task directly (no recurrence modal)
         const tpl = { name, icon, star_value: starValue };
+        // Create sub-steps on library template when not in once-direct flow
+        if (_newActSubsteps.length > 0) {
+          let failedSteps = 0;
+          for (const step of _newActSubsteps) {
+            const stepRes = await window.apiFetch(`/api/activities/${data.id}/sub-steps`, {
+              method: 'POST',
+              body: JSON.stringify({ name: step.name, icon: step.icon }),
+            });
+            if (!stepRes.ok) failedSteps++;
+          }
+          if (failedSteps > 0) {
+            showToast(`Aktiviteten skapades men ${failedSteps} delsteg misslyckades`, true);
+          }
+        }
         await submitOnceTaskDirect(data.id, tpl);
       } else {
         // Normal mode: close modals, load templates, open recurrence modal

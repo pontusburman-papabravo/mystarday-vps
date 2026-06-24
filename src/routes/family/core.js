@@ -433,7 +433,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         star_value: item.star_value,
         completed: item.completed,
         sort_order: item.sort_order,
-        is_once_task: !item.activity_template_id,
+        is_once_task: !!item.is_once_task || !item.activity_template_id,
       }));
     }
 

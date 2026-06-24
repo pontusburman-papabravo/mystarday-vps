@@ -55,10 +55,10 @@ itemRouter.delete('/:itemId', async (req, res) => {
     if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
 
     const meta = await db.query(
-      'SELECT activity_template_id FROM daily_log_item WHERE id = $1',
+      'SELECT activity_template_id, is_once_task FROM daily_log_item WHERE id = $1',
       [req.params.itemId]
     );
-    if (meta.rows[0]?.activity_template_id != null) {
+    if (meta.rows[0]?.activity_template_id != null && !meta.rows[0]?.is_once_task) {
       return res.status(400).json({ error: 'Schemalagda aktiviteter tas bort via veckoschemat' });
     }
 
