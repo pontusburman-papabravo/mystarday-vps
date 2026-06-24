@@ -94,10 +94,48 @@ function formatMood(score) {
 }
 
 /**
+ * Pick the single most "braggable" highlight across all children this week.
+ * Returns a short Swedish sentence the parent will want to share, or null.
+ */
+function buildWeekHighlight(children) {
+  let best = null;
+  for (const { child, stats } of children) {
+    const name = (child.name || '').trim() || 'Ditt barn';
+    if (stats.starsEarned > 0 && (!best || stats.starsEarned > best.stars)) {
+      best = {
+        stars: stats.starsEarned,
+        text: `${child.emoji || '⭐'} ${name} samlade ${stats.starsEarned} stjärnor den här veckan!`,
+      };
+    }
+  }
+  return best ? best.text : null;
+}
+
+/**
  * Build HTML email body for the weekly summary.
  */
 function buildWeeklySummaryHtml(parentName, weekLabel, children) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
+  const highlight = buildWeekHighlight(children);
+  const shareUrl = 'https://mystarday.se/?utm_source=weekly_summary&utm_medium=email&utm_campaign=share';
+  const shareText = highlight
+    ? `${highlight} Vi använder Min Stjärndag för barnens rutiner – kolla in den:`
+    : 'Vi använder Min Stjärndag för barnens dagliga rutiner – kolla in den:';
+  const waShareHref = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+
+  const highlightBanner = highlight
+    ? `
+      <div style="background:linear-gradient(135deg,#FFE9A8,#FFD56B);border-radius:12px;padding:18px 20px;margin-bottom:20px;text-align:center;">
+        <p style="margin:0;color:#7A4E00;font-size:17px;font-weight:700;">${highlight}</p>
+      </div>`
+    : '';
+
+  const shareBlock = `
+      <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #E8ECF4;">
+        <p style="margin:0 0 12px;color:#5A6178;font-size:14px;">Känner du någon förälder som skulle gilla det här?</p>
+        <a href="${waShareHref}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">Dela på WhatsApp</a>
+        <a href="${shareUrl}" style="display:inline-block;background:#1B2340;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">Tipsa en vän</a>
+      </div>`;
 
   const childSections = children.map(({ child, stats }) => {
     const completionPct = stats.routinesTotal > 0
@@ -134,6 +172,8 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children) {
       <h2 style="color:#1B2340;margin-bottom:4px;">Hej ${firstName}! 👋</h2>
       <p style="color:#5A6178;margin-top:0;">Här är veckans sammanfattning för <strong>${weekLabel}</strong>.</p>
 
+      ${highlightBanner}
+
       ${childSections}
 
       <div style="background:#FFF3D6;border-left:4px solid #F5A623;border-radius:8px;padding:14px 16px;margin-top:8px;">
@@ -141,6 +181,8 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children) {
           🌟 Fortsätt det fantastiska arbetet! Varje avklarad rutin bygger vanor för livet.
         </p>
       </div>
+
+      ${shareBlock}
 
       <p style="margin-top:24px;font-size:14px;color:#5A6178;">
         Du kan hantera e-postaviseringar under <strong>Inställningar → Aviseringar</strong> i appen.

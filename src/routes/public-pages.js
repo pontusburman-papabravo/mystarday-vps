@@ -67,6 +67,17 @@ router.get('/pricing-info', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'pricing-info.html'));
 });
 
+// SEO content articles (cornerstone content for organic acquisition)
+router.get('/morgonrutin-barn', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'morgonrutin-barn.html'));
+});
+router.get('/beloningssystem-barn', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'beloningssystem-barn.html'));
+});
+router.get('/rutiner-npf-barn', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'rutiner-npf-barn.html'));
+});
+
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));
 

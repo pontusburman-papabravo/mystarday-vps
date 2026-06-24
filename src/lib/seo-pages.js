@@ -14,6 +14,9 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/privacy',
   '/terms',
   '/en',
+  '/morgonrutin-barn',
+  '/beloningssystem-barn',
+  '/rutiner-npf-barn',
 ]);
 
 function normalizeSeoPath(path) {

@@ -19,10 +19,14 @@
 
   var GA4_ID = 'G-8PYNFJH1EQ';
 
-  /** Google Ads account ID — set after creating conversion action. */
-  var ADS_ACCOUNT_ID = '';
+  /** Google Ads account ID — loads the Ads tag (remarketing + enhanced conversions). */
+  var ADS_ACCOUNT_ID = 'AW-7601142474';
 
-  /** Full send_to label, e.g. 'AW-123456789/AbCdEfGh'. */
+  /**
+   * Full send_to label for a *manually* created Ads conversion, e.g. 'AW-123456789/AbCdEfGh'.
+   * Left empty on purpose: the signup conversion is imported from GA4 (key event 'sign_up'),
+   * so Google Ads counts it via the GA4 ↔ Ads link — there is no separate Ads conversion label.
+   */
   var ADS_SIGNUP_LABEL = '';
 
   function getCookieConsent() {

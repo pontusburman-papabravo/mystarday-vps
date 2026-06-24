@@ -9,6 +9,7 @@
   let emailLogActiveTab = 'all';
   let emailLogPendingCount = 0;
   let emailLogLoading = false;
+  let emailLogAutoApprove = true;
 
   const STATUS_LABELS = {
     pending_approval: { label: '⏳ Väntar godkännande', class: 'bg-yellow-100 text-yellow-800' },
@@ -90,15 +91,19 @@
     container.innerHTML = '<div class="text-center py-12 text-text-soft">Laddar logg…</div>';
 
     try {
-      const [data, pending] = await Promise.all([
+      const [data, pending, autoApprove] = await Promise.all([
         apiWithTimeout('/api/admin/email-log'),
         apiWithTimeout('/api/admin/email-log/pending'),
+        apiWithTimeout('/api/admin/email-log/auto-approve').catch(() => null),
       ]);
       emailLogData = {
         records: Array.isArray(data?.records) ? data.records : [],
         summary: data?.summary || {},
       };
       emailLogPendingCount = Array.isArray(pending) ? pending.length : 0;
+      if (autoApprove && typeof autoApprove.enabled === 'boolean') {
+        emailLogAutoApprove = autoApprove.enabled;
+      }
       renderEmailLogUI();
     } catch (err) {
       const detail = err.body?.detail;
@@ -174,6 +179,22 @@
       </p>
     </div>
 
+    <div class="bg-white border-2 border-lavender rounded-2xl p-4 mb-4 flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <div class="text-sm font-bold text-navy">Auto-godkännande av win-back</div>
+        <p class="text-xs text-text-soft mt-0.5 max-w-md">
+          ${emailLogAutoApprove
+    ? 'På — mejl skickas <strong>automatiskt</strong> till inaktiva familjer. Stäng av för att granska varje mejl manuellt.'
+    : 'Av — mejl hamnar i fliken <strong>Väntar</strong> och skickas först när du godkänner dem.'}
+        </p>
+      </div>
+      <button type="button" onclick="toggleWinBackAutoApprove()"
+        role="switch" aria-checked="${emailLogAutoApprove ? 'true' : 'false'}"
+        class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${emailLogAutoApprove ? 'bg-green-500' : 'bg-gray-300'}">
+        <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${emailLogAutoApprove ? 'translate-x-6' : 'translate-x-1'}"></span>
+      </button>
+    </div>
+
     <div class="flex flex-wrap gap-3 mb-8">
       <button type="button" onclick="triggerWinBackNow()"
         class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">
@@ -184,7 +205,8 @@
         ↺ Uppdatera
       </button>
       <p class="text-xs text-text-soft self-center max-w-xl">
-        Skapar <strong>väntande</strong> poster för familjer inaktiva &gt;18 dagar. Du godkänner och skickar under fliken Väntar.
+        Skapar win-back-poster för familjer inaktiva &gt;18 dagar.
+        ${emailLogAutoApprove ? 'Mejlen skickas <strong>automatiskt</strong> (auto-godkännande på).' : 'Du godkänner och skickar under fliken Väntar.'}
       </p>
     </div>
 
@@ -290,14 +312,34 @@
   }
 
   async function triggerWinBackNow() {
-    if (!confirm('Skapa win-back-poster för alla inaktiva familjer (>18 dagar)? Mejlen skickas inte förrän du godkänner dem.')) return;
+    const msg = emailLogAutoApprove
+      ? 'Auto-godkännande är PÅ — win-back-mejl skickas direkt till alla inaktiva familjer (>18 dagar). Fortsätta?'
+      : 'Skapa win-back-poster för alla inaktiva familjer (>18 dagar)? Mejlen skickas inte förrän du godkänner dem.';
+    if (!confirm(msg)) return;
     try {
       const data = await apiWithTimeout('/api/admin/email-log/trigger-winback', { method: 'POST' }, 120000);
-      alert(`Klart. ${data.pending_count ?? 0} poster väntar godkännande.`);
+      alert(emailLogAutoApprove
+        ? 'Klart — win-back-jobbet kördes och mejlen skickades automatiskt.'
+        : `Klart. ${data.pending_count ?? 0} poster väntar godkännande.`);
       await loadEmailLog(true);
-      switchEmailLogTab('pending_approval');
+      switchEmailLogTab(emailLogAutoApprove ? 'sent' : 'pending_approval');
     } catch (err) {
       alert(`Win-back: ${err.message}`);
+    }
+  }
+
+  async function toggleWinBackAutoApprove() {
+    const next = !emailLogAutoApprove;
+    if (next && !confirm('Slå PÅ auto-godkännande? Framtida win-back-mejl skickas då automatiskt utan manuell granskning.')) return;
+    try {
+      const data = await apiWithTimeout('/api/admin/email-log/auto-approve', {
+        method: 'PUT',
+        body: JSON.stringify({ enabled: next }),
+      });
+      emailLogAutoApprove = typeof data?.enabled === 'boolean' ? data.enabled : next;
+      renderEmailLogUI();
+    } catch (err) {
+      alert(`Kunde inte ändra auto-godkännande: ${err.message}`);
     }
   }
 
@@ -306,4 +348,5 @@
   window.approveEmailLogRow = approveEmailLogRow;
   window.rejectEmailLogRow = rejectEmailLogRow;
   window.triggerWinBackNow = triggerWinBackNow;
+  window.toggleWinBackAutoApprove = toggleWinBackAutoApprove;
 })();

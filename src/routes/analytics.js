@@ -65,6 +65,33 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'adult_signup_intro_viewed',
   'signup_started',
   'signup_completed',
+  // Landing-page CTA tracking (public/js/landing-events.js + landing-faq.js)
+  'hero_signup_click',
+  'hero_how_it_works_click',
+  'problem_how_it_works_click',
+  'treasure_demo_click',
+  'founder_signup_click',
+  'final_signup_click',
+  'nav_login_click',
+  'nav_child_login_click',
+  'hero_parent_login_click',
+  'hero_child_login_click',
+  'barnvy_child_login_click',
+  'nav_signup_click',
+  'footer_signup_click',
+  'child_view_example_click',
+  'landing_faq_expand',
+  // Dashboard viral CTAs (dashboard-cta.js + coparent-invite-ui.js)
+  'cta_invite_co_parent_shown',
+  'cta_invite_co_parent_clicked',
+  'cta_share_app_shown',
+  'cta_share_app_clicked',
+  // In-app navigation + engagement
+  'nav_hub_click',
+  'readiness_action_click',
+  'child_profile_section',
+  'child_world_view',
+  'feature_minimal_ui_enabled',
 ]);
 
 /**

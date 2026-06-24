@@ -2,8 +2,12 @@
  * Win-back email scheduler.
  *
  * Fires every Sunday at 10:00 Europe/Stockholm time.
- * Identifies families inactive for >18 days and creates pending_approval records.
- * Admin reviews and approves in the /admin Email-logg panel.
+ * Identifies families inactive for >18 days and creates win-back email records.
+ *
+ * Auto-approve (feature_flag win_back_auto_approve, default ON):
+ *   - ON  → each record is sent immediately (pending_approval → sent).
+ *   - OFF → records stay pending_approval; admin approves in /admin Email-logg.
+ *   Toggle the flag in the admin Email-logg panel.
  *
  * Conditions:
  *   - WIN_BACK_ENABLED=true (default false)
@@ -11,8 +15,8 @@
  *   - no win-back email (status=sent) sent to that parent in the last 30 days
  *   - parent has email_enabled = true
  *
- * Approval flow: pending_approval → (admin approves) → sent
- *                 pending_approval → (admin rejects OR 48h stale) → rejected
+ * Status flow: pending_approval → (auto-approve OR admin approves) → sent
+ *               pending_approval → (admin rejects OR stale) → rejected
  *
  * Feature flag slug: win_back_email (status: dev)
  */
@@ -20,6 +24,7 @@
 const db = require('./db');
 const winBackLog = require('../../db/win-back-email-log');
 const { WIN_BACK_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { isAutoApproveEnabled, approveAndSend } = require('./win-back-sender');
 
 /**
  * Days of inactivity to trigger a win-back email record.
@@ -187,9 +192,11 @@ async function runWinBackJob() {
     return;
   }
 
-  console.log('[WIN-BACK] Starting job — creating pending_approval records');
+  const autoApprove = await isAutoApproveEnabled();
+  console.log(`[WIN-BACK] Starting job — auto-approve ${autoApprove ? 'ON (sending automatically)' : 'OFF (queuing for manual approval)'}`);
 
   let createdCount = 0;
+  let sentCount = 0;
   let errorCount = 0;
 
   try {
@@ -210,7 +217,7 @@ async function runWinBackJob() {
         const childName = childResult.rows[0]?.name || row.child_name || 'barnet';
         const childId = childResult.rows[0]?.id || null;
 
-        await winBackLog.insertPending({
+        const record = await winBackLog.insertPending({
           familyId: row.family_id,
           parentId: row.parent_id,
           parentEmail: row.parent_email,
@@ -222,7 +229,19 @@ async function runWinBackJob() {
         });
 
         createdCount++;
-        console.log(`[WIN-BACK] Pending record created for ${row.parent_email} (child: ${childName})`);
+
+        if (autoApprove && record?.id) {
+          const result = await approveAndSend(record.id);
+          if (result.ok) {
+            sentCount++;
+            console.log(`[WIN-BACK] Auto-sent to ${row.parent_email} (child: ${childName})`);
+          } else {
+            errorCount++;
+            console.error(`[WIN-BACK] Auto-send failed for ${row.parent_email}:`, result.error || 'okänt fel');
+          }
+        } else {
+          console.log(`[WIN-BACK] Pending record created for ${row.parent_email} (child: ${childName})`);
+        }
       } catch (err) {
         errorCount++;
         console.error(`[WIN-BACK] Error for parent ${row.parent_id}:`, err.message);
@@ -234,7 +253,7 @@ async function runWinBackJob() {
     await db.query('SELECT pg_advisory_unlock($1)', [WIN_BACK_SCHEDULER_LOCK_ID]).catch(() => {});
   }
 
-  console.log(`[WIN-BACK] Done. Created=${createdCount} Errors=${errorCount}`);
+  console.log(`[WIN-BACK] Done. Created=${createdCount} Sent=${sentCount} Errors=${errorCount}`);
 }
 
 function startWinBackScheduler() {

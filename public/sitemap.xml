@@ -44,6 +44,24 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mystarday.se/morgonrutin-barn</loc> <!-- pragma: allowlist secret -->
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mystarday.se/beloningssystem-barn</loc> <!-- pragma: allowlist secret -->
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mystarday.se/rutiner-npf-barn</loc> <!-- pragma: allowlist secret -->
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://mystarday.se/faq</loc> <!-- pragma: allowlist secret -->
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>

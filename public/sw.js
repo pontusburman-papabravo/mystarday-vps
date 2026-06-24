@@ -212,7 +212,11 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v317';
+const CACHE_NAME = 'stjarndag-v321';
+// stjarndag-v321: analytics-shim.js (global window.analytics) injiceras via platform-html — fixar döda nav_hub_click/readiness_action_click/child_profile_section
+// stjarndag-v320: Google Ads-tagg AW-7601142474 i marketing-events.js (GA4-importerad konvertering); ?v=2.13.3 på index/register/login
+// stjarndag-v319: Win-back auto-godkännande (feature_flag win_back_auto_approve, default på) + admin-toggle i Email-logg
+// stjarndag-v318: Tillväxt — SEO-artiklar (morgonrutin/belöningssystem/NPF), analytics-whitelist CTA-events, veckomejl delningsblock
 // stjarndag-v317: Barnvy header — 3 distinkta kontroller (🔄 Byt barn / ⚙️ Förälder / 🚪 Logga ut)
 // stjarndag-v315: Fas 11 — remove Tier A dead client code (B4 inventory)
 // stjarndag-v314: Fas 10 — onboarding XSS escape + lint:public
