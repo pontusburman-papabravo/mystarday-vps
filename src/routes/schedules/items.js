@@ -73,30 +73,54 @@ function mergeItemsWithDailyLogOrder(weeklyItems, logItems) {
   const usedKeys = new Set();
 
   for (const logItem of logItems) {
-    if (logItem.activity_template_id) {
-      const key = `${logItem.section}:${logItem.activity_template_id}`;
-      const weekly = weeklyByKey.get(key);
-      if (weekly && !usedKeys.has(key)) {
-        ordered.push({ ...weekly, sort_order: ordered.length });
-        usedKeys.add(key);
+    const isOnce = logItem.is_once_task || logItem.activity_template_id == null;
+    if (isOnce) {
+      if (logItem.activity_template_id) {
+        const key = `${logItem.section}:${logItem.activity_template_id}`;
+        const weekly = weeklyByKey.get(key);
+        if (weekly) usedKeys.add(key);
+        ordered.push({
+          ...(weekly || {}),
+          id: logItem.id,
+          activity_template_id: logItem.activity_template_id,
+          start_time: logItem.start_time ?? weekly?.start_time,
+          end_time: logItem.end_time ?? weekly?.end_time,
+          sort_order: ordered.length,
+          section: logItem.section,
+          activity_name: logItem.name || weekly?.activity_name,
+          activity_icon: logItem.icon || weekly?.activity_icon,
+          activity_name_display: logItem.name || weekly?.activity_name_display || weekly?.activity_name,
+          star_value: logItem.star_value ?? weekly?.star_value,
+          sub_step_count: weekly?.sub_step_count ?? 0,
+          sub_steps: weekly?.sub_steps ?? [],
+          is_once_task: true,
+        });
+      } else {
+        ordered.push({
+          id: logItem.id,
+          activity_template_id: null,
+          start_time: logItem.start_time,
+          end_time: logItem.end_time,
+          sort_order: ordered.length,
+          section: logItem.section,
+          activity_name: logItem.name,
+          activity_icon: logItem.icon,
+          activity_name_display: logItem.name,
+          star_value: logItem.star_value,
+          sub_step_count: 0,
+          sub_steps: [],
+          is_once_task: true,
+        });
       }
       continue;
     }
-    ordered.push({
-      id: logItem.id,
-      activity_template_id: null,
-      start_time: logItem.start_time,
-      end_time: logItem.end_time,
-      sort_order: ordered.length,
-      section: logItem.section,
-      activity_name: logItem.name,
-      activity_icon: logItem.icon,
-      activity_name_display: logItem.name,
-      star_value: logItem.star_value,
-      sub_step_count: 0,
-      sub_steps: [],
-      is_once_task: true,
-    });
+
+    const key = `${logItem.section}:${logItem.activity_template_id}`;
+    const weekly = weeklyByKey.get(key);
+    if (weekly && !usedKeys.has(key)) {
+      ordered.push({ ...weekly, sort_order: ordered.length });
+      usedKeys.add(key);
+    }
   }
 
   for (const item of weeklyItems) {
@@ -107,6 +131,39 @@ function mergeItemsWithDailyLogOrder(weeklyItems, logItems) {
   }
 
   return ordered;
+}
+
+/** Fill sub_steps for engångsaktiviteter linked to library templates (not in weekly schedule). */
+async function enrichOnceTaskSubSteps(items) {
+  const templateIds = [...new Set(
+    items
+      .filter((i) => i.is_once_task && i.activity_template_id && !(i.sub_step_count > 0))
+      .map((i) => i.activity_template_id)
+  )];
+  if (templateIds.length === 0) return items;
+
+  const subRes = await db.query(
+    `SELECT activity_template_id,
+            COUNT(*) AS cnt,
+            json_agg(json_build_object('id', id, 'name', name, 'icon', icon, 'sort_order', sort_order)
+              ORDER BY sort_order ASC, id ASC) AS steps
+     FROM activity_sub_step
+     WHERE activity_template_id = ANY($1::uuid[])
+     GROUP BY activity_template_id`,
+    [templateIds]
+  );
+  const subMap = new Map(subRes.rows.map((r) => [r.activity_template_id, r]));
+
+  return items.map((item) => {
+    if (!item.is_once_task || !item.activity_template_id || item.sub_step_count > 0) return item;
+    const sub = subMap.get(item.activity_template_id);
+    if (!sub) return item;
+    return {
+      ...item,
+      sub_step_count: parseInt(sub.cnt, 10) || 0,
+      sub_steps: sub.steps || [],
+    };
+  });
 }
 
 // GET /api/schedules/:scheduleId/items — list items in schedule
@@ -192,6 +249,7 @@ router.get('/', async (req, res) => {
         try {
           const { items: logItems } = await getOrGenerateDailyLog(schedule.child_id, dateParam);
           finalItems = mergeItemsWithDailyLogOrder(finalItems, logItems);
+          finalItems = await enrichOnceTaskSubSteps(finalItems);
         } catch (mergeErr) {
           console.error('[SCHEDULE-ITEMS] Daily-log order merge error (non-fatal):', mergeErr.message);
         }

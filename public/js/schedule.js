@@ -1542,17 +1542,20 @@ function renderSchedule() {
 
 function renderItem(item) {
   const isOnce = !!item.is_once_task;
+  const onceTplId = item.activity_template_id;
+  const canEditTpl = !isOnce || !!onceTplId;
   const onceClass = isOnce ? ' once-task-item' : '';
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
   const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="Dra för att ändra ordning">⠿</button>';
   const oncePin = isOnce ? '<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>' : '';
   const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`;
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera tid">🕐</button>`;
-  // Template button only for scheduled items (not once-tasks)
-  const tplIcon = isOnce ? `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>` : `<button onclick="openEditTemplateModal('${item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="Redigera aktivitet">${item.activity_icon || '📌'}</button>`;
-  const nameBtn = isOnce
-    ? `<span class="font-semibold text-sm text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</span>`
-    : `<button onclick="openEditTemplateModal('${item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="Klicka för att redigera">${escHtml(item.activity_name_display || item.activity_name)}</button>`;
+  const tplIcon = canEditTpl
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="Redigera aktivitet">${item.activity_icon || '📌'}</button>`
+    : `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>`;
+  const nameBtn = canEditTpl
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="Klicka för att redigera">${escHtml(item.activity_name_display || item.activity_name)}</button>`
+    : `<span class="font-semibold text-sm text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</span>`;
   const timeStr = item.start_time ? fmtTime(item.start_time) + (item.end_time ? '–' + fmtTime(item.end_time) : '') : '';
   const steps = Array.isArray(item.sub_steps) ? item.sub_steps : [];
   const subCount = steps.length;
@@ -1563,7 +1566,7 @@ function renderItem(item) {
       <span class="text-xs text-navy">${escHtml(s.title || s.name || '')}</span>
     </div>`).join('');
   const subStepsHtml = hasSubSteps ? `
-    <div class="substep-list-schedule hidden mt-2 pl-2 border-l-2 border-lavender" id="sched-substeps-${item.activity_template_id}">
+    <div class="substep-list-schedule hidden mt-2 pl-2 border-l-2 border-lavender" id="sched-substeps-${onceTplId || item.activity_template_id}">
       <div class="text-[10px] text-text-soft font-semibold mb-1 flex items-center gap-1">
         <span class="inline-block w-1.5 h-1.5 rounded-full bg-lavender"></span>
         ${subCount} delsteg
@@ -1582,7 +1585,7 @@ function renderItem(item) {
           ${nameBtn}
           ${timeStr ? `<div class="text-xs text-text-soft">${timeStr}</div>` : ''}
         </div>
-        ${hasSubSteps ? `<button onclick="toggleScheduleSubSteps('${item.activity_template_id}', this)" class="text-[10px] bg-lavender text-navy px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 flex items-center gap-0.5 hover:bg-purple-200 transition-colors" title="Visa/dölj delsteg"><span>${subCount} delsteg</span><span class="chevron-icon ml-0.5">▸</span></button>` : ''}
+        ${hasSubSteps && (onceTplId || item.activity_template_id) ? `<button onclick="toggleScheduleSubSteps('${onceTplId || item.activity_template_id}', this)" class="text-[10px] bg-lavender text-navy px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 flex items-center gap-0.5 hover:bg-purple-200 transition-colors" title="Visa/dölj delsteg"><span>${subCount} delsteg</span><span class="chevron-icon ml-0.5">▸</span></button>` : ''}
         <div class="icon-btns-desktop flex gap-1 flex-shrink-0">
           ${editBtn}
           <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')"
@@ -1592,7 +1595,7 @@ function renderItem(item) {
         <div class="overflow-menu-wrap flex-shrink-0" style="margin-left:4px">
           <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-s-${item.id}')" aria-label="Fler alternativ">⋯</button>
           <div id="omenu-s-${item.id}" class="overflow-menu-popup">
-            ${!isOnce ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${item.activity_template_id}')">✏️ Redigera</button>` : ''}
+            ${canEditTpl ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${onceTplId || item.activity_template_id}')">✏️ Redigera</button>` : ''}
             ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 Redigera tid</button>` : ''}
             <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ Ta bort</button>
           </div>
@@ -2354,6 +2357,7 @@ async function addOnceToDay() {
       start_time: _pendingRecurrenceStart || null,
       end_time: _pendingRecurrenceEnd || null,
       star_value: tpl.star_value || 1,
+      activity_template_id: _pendingRecurrenceTemplateId,
     }),
   });
   if (!res.ok) {

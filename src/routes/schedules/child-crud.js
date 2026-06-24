@@ -23,6 +23,40 @@ async function getChildAccess(parentId, childId) {
   return result.rows[0] || null;
 }
 
+/** Resolve activity_template_id for an engångsaktivitet (library template or inline sub_steps). */
+async function resolveOnceTaskTemplateId(familyId, { name, icon, star_value, activity_template_id, sub_steps }) {
+  if (activity_template_id) {
+    const check = await db.query(
+      'SELECT id FROM activity_template WHERE id = $1 AND family_id = $2',
+      [activity_template_id, familyId]
+    );
+    if (check.rows.length === 0) return null;
+    return activity_template_id;
+  }
+
+  const steps = Array.isArray(sub_steps)
+    ? sub_steps.filter((s) => s && String(s.name || '').trim())
+    : [];
+  if (steps.length === 0) return null;
+
+  const tmpl = await db.query(
+    `INSERT INTO activity_template (family_id, name, icon, star_value, sort_order, source)
+     VALUES ($1, $2, $3, $4, 0, 'user')
+     RETURNING id`,
+    [familyId, name, icon || '📌', star_value || 1]
+  );
+  const templateId = tmpl.rows[0].id;
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    await db.query(
+      `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
+       VALUES ($1, $2, $3, $4)`,
+      [templateId, String(step.name).trim(), step.icon || null, i]
+    );
+  }
+  return templateId;
+}
+
 // GET /api/children/:childId/schedules — list all 7-day schedules for child
 router.get('/', async (req, res) => {
   try {
@@ -183,7 +217,10 @@ router.post('/once-tasks', async (req, res) => {
     const child = await getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
-    const { name, section, date: rawDate, start_time, end_time, star_value, icon, child_ids } = req.body;
+    const {
+      name, section, date: rawDate, start_time, end_time, star_value, icon, child_ids,
+      activity_template_id, sub_steps,
+    } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Namn krävs' });
 
     // Normalise date: accept YYYY-MM-DD, nullish, or ISO-8600 with time. Default to today.
@@ -213,6 +250,14 @@ router.post('/once-tasks', async (req, res) => {
       if (targetChildIds.length === 0) return res.status(400).json({ error: 'Inga giltiga barn valda' });
     }
 
+    const templateId = await resolveOnceTaskTemplateId(child.family_id, {
+      name: name.trim(),
+      icon: safeIcon,
+      star_value: safeStars,
+      activity_template_id: activity_template_id || null,
+      sub_steps,
+    });
+
     const created = [];
     for (const cid of targetChildIds) {
       const { log } = await getOrGenerateDailyLog(cid, date);
@@ -227,11 +272,11 @@ router.post('/once-tasks', async (req, res) => {
       const itemResult = await db.query(
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, start_time, end_time,
-            star_value, sort_order, child_sort_order, section)
-         VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $7, $8)
-         RETURNING id, daily_log_id, name, icon, start_time, end_time,
-                   star_value, completed, sort_order, section`,
-        [log.id, name.trim(), safeIcon, start_time || null, end_time || null,
+            star_value, sort_order, child_sort_order, section, is_once_task)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, true)
+         RETURNING id, daily_log_id, activity_template_id, name, icon, start_time, end_time,
+                   star_value, completed, sort_order, section, is_once_task`,
+        [log.id, templateId, name.trim(), safeIcon, start_time || null, end_time || null,
          safeStars, nextOrder, safeSection]
       );
       created.push(itemResult.rows[0]);

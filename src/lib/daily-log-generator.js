@@ -115,7 +115,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   if (existing.rows.length > 0) {
     const log = existing.rows[0];
     const items = await q.query(
-      `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+      `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
               dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
               dli.sort_order, dli.child_sort_order, dli.section,
               dli.parent_note, dli.child_note,
@@ -152,7 +152,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           // Batch insert all items in one query instead of N round-trips
           await batchInsertDailyLogItems(q, log.id, specialItems.rows);
           const populatedItems = await q.query(
-            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -190,7 +190,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           await q.query('UPDATE daily_log SET generated_from = $1 WHERE id = $2', [scheduleId, log.id]);
           // Re-fetch populated items
           const populatedItems = await q.query(
-            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -255,7 +255,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       await batchInsertDailyLogItems(q, log.id, specialItems.rows);
 
       const items = await q.query(
-        `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+        `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                 dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                 dli.sort_order, dli.child_sort_order, dli.section,
                 dli.parent_note, dli.child_note,
@@ -310,7 +310,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
 
   // ── 7. Return fresh log + items ───────────────────────────
   const items = await q.query(
-    `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.name, dli.icon,
+    `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
             dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
             dli.sort_order, dli.child_sort_order, dli.section,
             COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -445,7 +445,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
   // REMOVE — daily log items whose template is no longer in the special day schedule
   // Engångsaktiviteter (activity_template_id IS NULL) are always preserved — never delete them
   for (const di of dailyItems) {
-    if (di.activity_template_id == null) continue; // behåll engångsaktiviteter
+    if (di.activity_template_id == null || di.is_once_task) continue; // behåll engångsaktiviteter
     if (!schedTemplateIds.has(di.activity_template_id) && !di.completed) {
       await q.query('DELETE FROM daily_log_item WHERE id = $1', [di.id]);
       removed++;
@@ -611,7 +611,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   }
 
   for (const di of dailyItems) {
-    if (di.activity_template_id == null) continue; // behåll engångsaktiviteter
+    if (di.activity_template_id == null || di.is_once_task) continue; // behåll engångsaktiviteter
     if (!schedTemplateIds.has(di.activity_template_id) && !di.completed) {
       await q.query('DELETE FROM daily_log_item WHERE id = $1', [di.id]);
       removed++;
