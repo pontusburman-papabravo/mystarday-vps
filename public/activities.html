@@ -339,7 +339,6 @@ async function loadCategories() {
     categories = await res.json();
     renderCategories();
     buildCategoryOptions();
-    renderPresets();
     renderActivities();
   }
 }

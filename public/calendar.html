@@ -363,7 +363,7 @@
 
     // ─── Init ─────────────────────────────────────────────────
     async function init() {
-      await requireAuth();
+      if (!Auth.requireAuth()) return;
       await loadChildren();
     }
 
