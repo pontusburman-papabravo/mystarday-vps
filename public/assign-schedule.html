@@ -104,6 +104,27 @@
       background: white; border-radius: 20px; padding: 28px 24px;
       max-width: 380px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
+
+    .period-range-panel {
+      border: 2px solid #EDE7F6;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: #F0F9FF;
+    }
+    .period-range-panel label { cursor: pointer; }
+    .period-date-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #EDE7F6;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1B2340;
+    }
+    .period-date-input:focus {
+      outline: none;
+      border-color: #F5A623;
+    }
   </style>
 </head>
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="assign-schedule">
@@ -225,6 +246,27 @@
           <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-2">Förhandsgranskning</p>
           <div id="schemaPreviewContent"></div>
         </div>
+
+        <!-- Optional date range (e.g. lov / läslov) -->
+        <div id="periodRangePanel" class="hidden mt-4 period-range-panel fade-in">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="usePeriodRange" class="w-5 h-5 mt-0.5 accent-gold flex-shrink-0" onchange="togglePeriodRange()">
+            <span>
+              <span class="block text-sm font-semibold text-navy">Begränsa till period</span>
+              <span class="block text-xs text-text-soft mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan start och slutdatum.</span>
+            </span>
+          </label>
+          <div id="periodDateFields" class="hidden mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="periodStartDate" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
+              <input type="date" id="periodStartDate" class="period-date-input" onchange="syncPeriodRangeUi()">
+            </div>
+            <div>
+              <label for="periodEndDate" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
+              <input type="date" id="periodEndDate" class="period-date-input" onchange="syncPeriodRangeUi()">
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Empty state — child or day not yet selected -->
@@ -267,6 +309,74 @@ let selectedSchemaName = null;
 let selectedSchemaActivities = []; // preview activities
 let existingScheduleOnDay = null; // schedule row if this day already has one
 let pendingConfirm = null; // callback to run after confirmation
+let usePeriodRange = false;
+
+function formatDateInputValue(dateObj) {
+  if (!dateObj) return '';
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+function addDays(dateObj, days) {
+  const d = new Date(dateObj);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function defaultPeriodDates() {
+  const start = currentDayDate ? new Date(currentDayDate) : new Date();
+  start.setHours(12, 0, 0, 0);
+  const end = addDays(start, 6);
+  return { start: formatDateInputValue(start), end: formatDateInputValue(end) };
+}
+
+function isPeriodRangeEnabled() {
+  const cb = document.getElementById('usePeriodRange');
+  return !!(cb && cb.checked);
+}
+
+function togglePeriodRange() {
+  usePeriodRange = isPeriodRangeEnabled();
+  const fields = document.getElementById('periodDateFields');
+  if (!fields) return;
+  if (usePeriodRange) {
+    fields.classList.remove('hidden');
+    const defaults = defaultPeriodDates();
+    const startEl = document.getElementById('periodStartDate');
+    const endEl = document.getElementById('periodEndDate');
+    if (startEl && !startEl.value) startEl.value = defaults.start;
+    if (endEl && !endEl.value) endEl.value = defaults.end;
+  } else {
+    fields.classList.add('hidden');
+  }
+  syncPeriodRangeUi();
+}
+
+function syncPeriodRangeUi() {
+  const btn = document.getElementById('saveBtn');
+  if (!btn || btn.classList.contains('hidden')) return;
+  if (isPeriodRangeEnabled()) {
+    btn.textContent = 'Spara schema för perioden';
+  } else {
+    btn.textContent = 'Spara schema';
+  }
+}
+
+function resetPeriodRangeUi() {
+  usePeriodRange = false;
+  const panel = document.getElementById('periodRangePanel');
+  const cb = document.getElementById('usePeriodRange');
+  const fields = document.getElementById('periodDateFields');
+  const startEl = document.getElementById('periodStartDate');
+  const endEl = document.getElementById('periodEndDate');
+  if (panel) panel.classList.add('hidden');
+  if (cb) cb.checked = false;
+  if (fields) fields.classList.add('hidden');
+  if (startEl) startEl.value = '';
+  if (endEl) endEl.value = '';
+}
 
 // showToast is now in /js/toast.js
 
@@ -414,6 +524,7 @@ async function loadDayPanel() {
   document.getElementById('schemaPreview').classList.add('hidden');
   document.getElementById('saveBtn').classList.add('hidden');
   document.getElementById('currentSchemaLabel').classList.add('hidden');
+  resetPeriodRangeUi();
 
   // Set day title
   const dateStr = currentDayDate
@@ -527,6 +638,22 @@ function selectSchema(id, name, _unused) {
   document.getElementById('saveBtn').classList.remove('saved');
   document.getElementById('saveBtn').disabled = false;
 
+  const periodPanel = document.getElementById('periodRangePanel');
+  if (periodPanel) {
+    if (id === 'blank') {
+      periodPanel.classList.add('hidden');
+      resetPeriodRangeUi();
+    } else {
+      periodPanel.classList.remove('hidden');
+      const defaults = defaultPeriodDates();
+      const startEl = document.getElementById('periodStartDate');
+      const endEl = document.getElementById('periodEndDate');
+      if (startEl) startEl.value = defaults.start;
+      if (endEl) endEl.value = defaults.end;
+    }
+  }
+  syncPeriodRangeUi();
+
   // Load activities for preview (non-blank — synchronous from cache)
   if (id !== 'blank') {
     const acts = loadCategoryActivities(id);
@@ -575,6 +702,45 @@ function renderSchemaPreview(name, activities) {
 async function saveSelection() {
   if (!selectedSchemaId || !currentChildId || currentDay === null) return;
 
+  if (isPeriodRangeEnabled()) {
+    if (selectedSchemaId === 'blank') {
+      showToast('Välj ett schema från biblioteket för periodtilldelning', true);
+      return;
+    }
+    const start = document.getElementById('periodStartDate').value;
+    const end = document.getElementById('periodEndDate').value;
+    if (!start || !end) {
+      showToast('Ange start- och slutdatum', true);
+      return;
+    }
+    if (end < start) {
+      showToast('Slutdatum måste vara på eller efter startdatum', true);
+      return;
+    }
+
+    let hasExisting = false;
+    try {
+      const checkRes = await window.apiFetch(
+        `/api/children/${currentChildId}/special-days?from=${encodeURIComponent(start)}&to=${encodeURIComponent(end)}`
+      );
+      if (checkRes.ok) {
+        const rows = await checkRes.json();
+        hasExisting = rows.some(function (r) { return (r.item_count || 0) > 0; });
+      }
+    } catch (_) { /* proceed without pre-check */ }
+
+    if (hasExisting) {
+      document.getElementById('confirmMsg').textContent =
+        `Det finns redan anpassade scheman mellan ${start} och ${end}. Vill du ersätta dem med "${selectedSchemaName}"?`;
+      document.getElementById('confirmOverlay').classList.remove('hidden');
+      document.getElementById('confirmReplaceBtn').onclick = function () { closeConfirm(); doSave(); };
+      return;
+    }
+
+    await doSave();
+    return;
+  }
+
   // If day already has a schema → show replacement warning
   if (existingScheduleOnDay) {
     const dayName = currentDayDate
@@ -595,6 +761,44 @@ async function doSave() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
   btn.textContent = 'Sparar…';
+
+  if (isPeriodRangeEnabled()) {
+    try {
+      const start = document.getElementById('periodStartDate').value;
+      const end = document.getElementById('periodEndDate').value;
+      const res = await window.apiFetch(
+        `/api/children/${currentChildId}/schedules/apply-date-range`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            start_date: start,
+            end_date: end,
+            template_category_id: selectedSchemaId,
+            note: selectedSchemaName || null,
+            overwrite: true,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Fel vid tilldelning av schema');
+
+      btn.textContent = '✓ Sparat!';
+      btn.classList.add('saved');
+      btn.disabled = false;
+      setTimeout(function () {
+        btn.textContent = 'Spara schema för perioden';
+        btn.classList.remove('saved');
+      }, 2500);
+
+      showToast(data.message || `Schema sparat för perioden ${start} – ${end}!`);
+      renderWeekNav();
+    } catch (err) {
+      showToast(err.message || 'Något gick fel', true);
+      btn.disabled = false;
+      syncPeriodRangeUi();
+    }
+    return;
+  }
 
   try {
     // 1. If existing schedule → delete it first

@@ -7,9 +7,10 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
-const { syncDailyLogWithSchedule } = require('../../lib/daily-log-generator');
+const { syncDailyLogWithSchedule, syncDailyLogForSpecialDay } = require('../../lib/daily-log-generator');
+const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
-const { CopyDaySchema, CopyToChildSchema } = require('../../lib/schemas');
+const { CopyDaySchema, CopyToChildSchema, ApplyDateRangeSchema } = require('../../lib/schemas');
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
@@ -580,6 +581,153 @@ router.post('/swap-day', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] swap-day error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+const MAX_DATE_RANGE_DAYS = 93;
+
+function listDatesInclusive(startStr, endStr) {
+  const dates = [];
+  const cursor = new Date(startStr + 'T12:00:00');
+  const end = new Date(endStr + 'T12:00:00');
+  while (cursor <= end) {
+    dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
+}
+
+function sectionForTemplate(tpl, useSortOrderFallback, timeGroupToSection) {
+  if (!useSortOrderFallback && tpl.time_group && timeGroupToSection[tpl.time_group]) {
+    return timeGroupToSection[tpl.time_group];
+  }
+  const so = tpl.template_sort;
+  if (so === null || so === undefined) return 'dag';
+  if (so < 100) return 'morgon';
+  if (so < 300) return 'dag';
+  return 'kvall';
+}
+
+// POST /api/children/:childId/schedules/apply-date-range — library schema for each day in range
+router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res) => {
+  try {
+    const child = await getChildAccess(req.user.id, req.params.childId);
+    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+
+    const { start_date, end_date, template_category_id, overwrite, note } = req.body;
+    const dates = listDatesInclusive(start_date, end_date);
+    if (dates.length === 0) {
+      return res.status(400).json({ error: 'Ogiltigt datumintervall' });
+    }
+    if (dates.length > MAX_DATE_RANGE_DAYS) {
+      return res.status(400).json({ error: `Max ${MAX_DATE_RANGE_DAYS} dagar i taget` });
+    }
+
+    const templates = await db.query(
+      `SELECT at.id, at.name, at.icon, at.star_value,
+              at.time_group,
+              at.sort_order AS template_sort
+       FROM activity_template at
+       WHERE at.family_id = $1 AND at.category_id = $2
+       ORDER BY at.sort_order ASC, at.name ASC`,
+      [child.family_id, template_category_id]
+    );
+    if (templates.rows.length === 0) {
+      return res.status(400).json({ error: 'Inga aktiviteter hittades i valt schema' });
+    }
+
+    const timeGroupToSection = {
+      morgon: 'morgon',
+      formiddag: 'dag',
+      eftermiddag: 'dag',
+      kvall: 'kvall',
+    };
+    const uniqueTimeGroups = new Set(templates.rows.map((t) => t.time_group).filter(Boolean));
+    const useSortOrderFallback = uniqueTimeGroups.size <= 1;
+    const shouldOverwrite = overwrite !== false;
+
+    const client = await db.getClient();
+    let appliedCount = 0;
+    const syncedDates = [];
+    try {
+      await client.query('BEGIN');
+
+      for (const dateStr of dates) {
+        const existingSd = await client.query(
+          'SELECT id FROM special_day_schedule WHERE child_id = $1 AND date = $2',
+          [req.params.childId, dateStr]
+        );
+
+        let sdId;
+        if (existingSd.rows.length > 0) {
+          if (!shouldOverwrite) continue;
+          sdId = existingSd.rows[0].id;
+          await client.query(
+            'DELETE FROM special_day_schedule_item WHERE special_day_schedule_id = $1',
+            [sdId]
+          );
+          if (note) {
+            await client.query(
+              'UPDATE special_day_schedule SET note = $1, updated_at = NOW() WHERE id = $2',
+              [note, sdId]
+            );
+          }
+        } else {
+          const newSd = await client.query(
+            `INSERT INTO special_day_schedule (child_id, date, note, created_at)
+             VALUES ($1, $2, $3, NOW()) RETURNING id`,
+            [req.params.childId, dateStr, note || null]
+          );
+          sdId = newSd.rows[0].id;
+        }
+
+        const sectionCounters = {};
+        for (const tpl of templates.rows) {
+          const sec = sectionForTemplate(tpl, useSortOrderFallback, timeGroupToSection);
+          if (!(sec in sectionCounters)) sectionCounters[sec] = 0;
+          const sortOrder = sectionCounters[sec]++;
+          await client.query(
+            `INSERT INTO special_day_schedule_item
+               (special_day_schedule_id, activity_template_id, name, icon, start_time, end_time, star_value, sort_order, section)
+             VALUES ($1, $2, $3, $4, NULL, NULL, $5, $6, $7)`,
+            [sdId, tpl.id, tpl.name, tpl.icon, tpl.star_value || 1, sortOrder, sec]
+          );
+        }
+
+        appliedCount++;
+        syncedDates.push({ sdId, dateStr });
+      }
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    for (const row of syncedDates) {
+      try {
+        await syncDailyLogForSpecialDay(row.sdId, row.dateStr, req.params.childId);
+      } catch (syncErr) {
+        console.error('[SCHEDULES] apply-date-range sync error (non-fatal):', syncErr.message);
+      }
+    }
+
+    broadcast(child.family_id, 'SCHEDULE_UPDATED', {
+      childId: req.params.childId,
+      date_range: { start_date, end_date },
+    });
+
+    res.status(201).json({
+      message: `Schema tillämpat på ${appliedCount} dag${appliedCount === 1 ? '' : 'ar'}`,
+      applied_count: appliedCount,
+      start_date,
+      end_date,
+    });
+  } catch (err) {
+    console.error('[SCHEDULES] apply-date-range error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

@@ -289,6 +289,17 @@ const CopyToChildSchema = z.object({
   target_child_id: uuid,
 });
 
+const ApplyDateRangeSchema = z.object({
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ogiltigt startdatum'),
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ogiltigt slutdatum'),
+  template_category_id: uuid,
+  overwrite: z.boolean().optional(),
+  note: z.string().max(200).optional(),
+}).refine((data) => data.end_date >= data.start_date, {
+  message: 'Slutdatum måste vara på eller efter startdatum',
+  path: ['end_date'],
+});
+
 // ─── Special Day Schedules ────────────────────────────────
 
 const CreateSpecialDaySchema = z.object({
@@ -520,6 +531,7 @@ module.exports = {
   UpdateScheduleItemSchema,
   CopyDaySchema,
   CopyToChildSchema,
+  ApplyDateRangeSchema,
   // Special day schedules
   CreateSpecialDaySchema,
   // Daily logs

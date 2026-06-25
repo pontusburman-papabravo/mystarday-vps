@@ -5,7 +5,7 @@
  *
  * childRouter (/api/children/:childId/schedules)
  *   ├── child-crud.js    — list/create/delete schedules, once-tasks
- *   ├── child-bulk.js    — copy-day, copy-to-child, copy-to-weeks,
+ *   ├── child-bulk.js    — copy-day, copy-to-child, copy-to-weeks, apply-date-range,
  *   │                     copy-item-to-day, copy-item-to-child, swap-day
  *   └── fill-week.js     — fill-week (insert template into multiple days)
  *
