@@ -22,6 +22,8 @@ describe('magic appearance fixes', () => {
   it('assign-schedule magic contrast CSS', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /parent-magic-page-assign-schedule/);
+    assert.match(css, /parent-magic-page-assign-schedule:not\(\.parent-theme-light\)/);
+    assert.match(css, /parent-theme-light\.parent-magic-page-assign-schedule \.day-btn/);
     assert.match(css, /\.schema-card/);
     assert.match(css, /\.week-label/);
   });

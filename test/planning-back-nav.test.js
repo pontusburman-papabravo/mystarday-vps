@@ -19,6 +19,13 @@ test('planning-hub marks planFromPlanning on hub link click', () => {
   assert.match(src, /PlanningBackNav\.markFromPlanning/);
 });
 
+test('assign-schedule auto-selects day after child pick', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/assign-schedule.html'), 'utf8');
+  assert.match(html, /function updateEmptyState/);
+  assert.match(html, /await selectDay\(defaultDayOfWeek\(\)\)/);
+  assert.match(html, /id="emptyStateMsg"/);
+});
+
 test('assign-schedule confirm overlay above bottom nav', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/assign-schedule.html'), 'utf8');
   assert.match(html, /z-index:\s*10050/);

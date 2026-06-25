@@ -227,10 +227,10 @@
         </div>
       </div>
 
-      <!-- Empty state (no child selected) -->
+      <!-- Empty state — child or day not yet selected -->
       <div id="emptyState" class="text-center py-16 text-text-soft">
-        <p class="text-5xl mb-3">👆</p>
-        <p class="font-semibold text-navy">Välj ett barn ovan för att komma igång</p>
+        <p class="text-5xl mb-3" id="emptyStateIcon">👆</p>
+        <p class="font-semibold text-navy" id="emptyStateMsg">Välj ett barn ovan för att komma igång</p>
       </div>
       </div>
     </main>
@@ -304,11 +304,36 @@ function navWeek(delta) {
   }
 }
 
+function defaultDayOfWeek() {
+  const todayDow = new Date().getDay();
+  return todayDow === 0 ? 1 : todayDow;
+}
+
 function goToday() {
   weekOffset = 0;
-  const todayDow = new Date().getDay();
-  selectDay(todayDow === 0 ? 1 : todayDow); // default to Monday if today is Sunday
+  selectDay(defaultDayOfWeek());
   renderWeekNav();
+}
+
+function updateEmptyState() {
+  const empty = document.getElementById('emptyState');
+  const msg = document.getElementById('emptyStateMsg');
+  const icon = document.getElementById('emptyStateIcon');
+  if (!empty || !msg) return;
+
+  if (!currentChildId) {
+    empty.classList.remove('hidden');
+    if (icon) icon.textContent = '👆';
+    msg.textContent = 'Välj ett barn ovan för att komma igång';
+    return;
+  }
+  if (currentDay === null) {
+    empty.classList.remove('hidden');
+    if (icon) icon.textContent = '📅';
+    msg.textContent = 'Välj en dag i veckan ovan för att tilldela schema';
+    return;
+  }
+  empty.classList.add('hidden');
 }
 
 function computeDayDate(dow) {
@@ -382,7 +407,7 @@ async function loadDayPanel() {
   selectedSchemaActivities = [];
   existingScheduleOnDay = null;
 
-  document.getElementById('emptyState').classList.add('hidden');
+  updateEmptyState();
   document.getElementById('dayPanel').classList.remove('hidden');
   document.getElementById('dayLoading').classList.remove('hidden');
   document.getElementById('schemaPicker').classList.add('hidden');
@@ -707,9 +732,10 @@ async function selectChild(id) {
   currentDayDate = null;
   selectedSchemaId = null;
   document.getElementById('dayPanel').classList.add('hidden');
-  document.getElementById('emptyState').classList.remove('hidden');
-
+  updateEmptyState();
   renderWeekNav();
+  weekOffset = 0;
+  await selectDay(defaultDayOfWeek());
 }
 
 // ── Init ───────────────────────────────────────────────────

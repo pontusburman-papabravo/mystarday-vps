@@ -756,73 +756,138 @@ body.parent-magic-view.parent-magic-page-assign-schedule .parent-magic-hide-head
   display: none !important;
 }
 
-/* Tilldela schema — dark magic contrast */
-body.parent-magic-view.parent-magic-page-assign-schedule .week-label,
-body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn,
-body.parent-magic-view.parent-magic-page-assign-schedule .today-btn {
+/* Tilldela schema — dark magic contrast (dark theme only) */
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .week-label,
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .nav-btn,
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .today-btn {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn,
-body.parent-magic-view.parent-magic-page-assign-schedule .today-btn {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .nav-btn,
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .today-btn {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .nav-btn:hover,
-body.parent-magic-view.parent-magic-page-assign-schedule .today-btn:hover {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .nav-btn:hover,
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .today-btn:hover {
   border-color: rgba(255, 204, 51, 0.45) !important;
   color: #ffcc33 !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .day-btn {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .day-btn {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .day-btn.active {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .day-btn.active {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   border-color: transparent !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .day-btn.active .day-date {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .day-btn.active .day-date {
   color: #1b2340 !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .bg-sky.border-2.border-lavender {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .bg-sky.border-2.border-lavender {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .schema-card {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .schema-card {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .schema-card.selected {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .schema-card.selected {
   background: rgba(255, 204, 51, 0.14) !important;
   border-color: rgba(255, 204, 51, 0.45) !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .text-navy,
-body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .font-semibold {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .schema-card .text-navy,
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .schema-card .font-semibold {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .schema-card .text-text-soft {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .schema-card .text-text-soft {
   color: rgba(244, 244, 255, 0.68) !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .save-btn {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .save-btn {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view.parent-magic-page-assign-schedule .save-btn.saved {
+body.parent-magic-view.parent-magic-page-assign-schedule:not(.parent-theme-light) .save-btn.saved {
   background: #10b981 !important;
   color: #fff !important;
+}
+
+/* Tilldela schema — light theme readability */
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .week-label,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .nav-btn,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .today-btn,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .day-btn {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .nav-btn,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .today-btn,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .day-btn {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.14) !important;
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.06);
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .day-btn.active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+  box-shadow: 0 2px 8px rgba(245, 166, 35, 0.25);
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .day-btn.active .day-date {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .day-btn.today-dot .day-date {
+  color: #2563eb !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .bg-sky.border-2.border-lavender {
+  background: #f8f6ff !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .schema-card {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.06);
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .schema-card.selected {
+  background: #fff8e6 !important;
+  border-color: rgba(245, 166, 35, 0.55) !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .schema-card .text-navy,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .schema-card .font-semibold,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule #dayPanelTitle,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule #emptyState .font-semibold {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .schema-card .text-text-soft,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule #dayPanelSubtitle,
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule #emptyState {
+  color: rgba(26, 22, 51, 0.62) !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .save-btn {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay {

@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v370';
+const CACHE_NAME = 'stjarndag-v371';
+// stjarndag-v371: Tilldela schema ljus-tema kontrast + auto-välj dag vid barnval
 // stjarndag-v370: funnel_onboarding_started för legacy — ärligare aktiveringstratt steg 2
 // stjarndag-v367: Tilldela schema — bekräftelseruta .hidden blockerade inte overlay (klick döda)
 // stjarndag-v365: ACT-1 PR3 — starter-plan save → handoff steg 5, checkpoint scripts
