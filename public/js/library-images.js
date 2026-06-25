@@ -95,7 +95,7 @@
   }
 
   async function deleteImage(id) {
-    if (!confirm('Ta bort bilden från bildarkivet? Aktiviteter som redan använder den behåller bilden.')) return;
+    if (!confirm('Ta bort bilden från bildarkivet? Aktiviteter som använder den får emoji (⭐) istället.')) return;
     var res = await apiFetch('/api/family/images/' + id, { method: 'DELETE' });
     if (!res.ok) {
       showToast('Kunde inte ta bort bilden', true);
@@ -104,6 +104,9 @@
     images = images.filter(function (i) { return i.id !== id; });
     renderGrid();
     renderPickerGrid();
+    if (typeof window.loadActivities === 'function') {
+      await window.loadActivities();
+    }
     showToast('Bilden borttagen');
   }
 

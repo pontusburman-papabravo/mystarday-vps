@@ -1415,3 +1415,4 @@ window.openActivityModal = openActivityModal;
 window.openActivityModalById = openActivityModalById;
 window.openRewardModal = openRewardModal;
 window.selectSchemaTab = selectSchemaTab;
+window.loadActivities = loadActivities;

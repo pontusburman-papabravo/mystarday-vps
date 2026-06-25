@@ -11,7 +11,11 @@ const { validate, validateParams } = require('../middleware/validate');
 const { UUIDParam } = require('../lib/schemas');
 const { z } = require('zod');
 
+const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
+
 const router = express.Router();
+
+const DEFAULT_ACTIVITY_ICON = '⭐';
 
 const CreateFamilyImageSchema = z.object({
   label: z.string().max(120).optional().nullable(),
@@ -103,20 +107,64 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateFamilyImageSchema),
   }
 });
 
-/** DELETE /api/family/images/:id */
+/** DELETE /api/family/images/:id — removes archive row; activities fall back to emoji */
 router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
+  const client = await db.getClient();
   try {
-    const result = await db.query(
-      'DELETE FROM family_image WHERE id = $1 AND family_id = $2 RETURNING id',
+    await client.query('BEGIN');
+
+    const deleted = await client.query(
+      'DELETE FROM family_image WHERE id = $1 AND family_id = $2 RETURNING image_url',
       [req.params.id, req.user.familyId]
     );
-    if (result.rows.length === 0) {
+    if (deleted.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Bilden hittades inte' });
     }
-    res.json({ success: true });
+
+    const imageUrl = deleted.rows[0].image_url;
+
+    const clearedActivities = await client.query(
+      `UPDATE activity_template
+       SET image_url = NULL,
+           icon = COALESCE(NULLIF(TRIM(icon), ''), $3)
+       WHERE family_id = $1 AND image_url = $2
+       RETURNING id`,
+      [req.user.familyId, imageUrl, DEFAULT_ACTIVITY_ICON]
+    );
+
+    await client.query(
+      `UPDATE daily_log_item dli
+       SET image_url = NULL,
+           icon = COALESCE(NULLIF(TRIM(dli.icon), ''), $3)
+       FROM daily_log dl
+       JOIN child c ON c.id = dl.child_id
+       WHERE dli.daily_log_id = dl.id
+         AND c.family_id = $1
+         AND dli.image_url = $2`,
+      [req.user.familyId, imageUrl, DEFAULT_ACTIVITY_ICON]
+    );
+
+    await client.query('COMMIT');
+
+    for (const row of clearedActivities.rows) {
+      try {
+        await syncDailyLogsForTemplateChange(req.user.familyId, row.id);
+      } catch (syncErr) {
+        console.error('[FAMILY-IMAGES] Daily log sync error (non-fatal):', syncErr.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      activities_updated: clearedActivities.rows.length,
+    });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('[FAMILY-IMAGES] Delete error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
   }
 });
 

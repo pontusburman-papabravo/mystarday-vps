@@ -23,6 +23,9 @@ describe('family image library', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/family-images.js'), 'utf8');
     assert.match(src, /GET.*\/images/);
     assert.match(src, /family_image/);
+    assert.match(src, /activity_template/);
+    assert.match(src, /daily_log_item/);
+    assert.match(src, /DEFAULT_ACTIVITY_ICON/);
   });
 
   it('activities schema accepts image_url', () => {
