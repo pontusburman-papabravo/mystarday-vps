@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
     <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/parent-tab-bar.css?v=2">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
   <link rel="stylesheet" href="/css/library-magic.css?v=5">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
@@ -116,12 +117,16 @@
     .family-image-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 4px 6px; font-size: 11px; }
     .family-image-card__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1B2340; font-weight: 600; }
     .family-image-card__delete { flex-shrink: 0; color: #f87171; font-size: 12px; padding: 2px 4px; border: none; background: none; cursor: pointer; }
-    .activity-image-pick { border-radius: 12px; overflow: hidden; border: 2px solid #E8E4F8; padding: 0; background: #fff; cursor: pointer; }
-    .activity-image-pick img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+    .activity-image-pick { border-radius: 12px; overflow: hidden; border: 2px solid #E8E4F8; padding: 0; background: #fff; cursor: pointer; min-height: 44px; min-width: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .activity-image-pick img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+    .activity-image-pick.ring-2 { border-color: #F5A623; box-shadow: 0 0 0 2px #F5A623; }
     .activity-visual-img { width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: 10px; display: inline-block; vertical-align: middle; }
     .activity-visual-img--thumb { width: 1.75rem; height: 1.75rem; border-radius: 8px; }
     #activityImagePreview { width: 3rem; height: 3rem; object-fit: cover; border-radius: 12px; }
-    #activityImagePickerGrid { max-height: 9rem; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #activityImagePickerGrid { max-height: min(12rem, 28vh); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+    /* Above native tab bar (10200) on mobile */
+    .library-modal-overlay { z-index: 10050 !important; }
+    .library-modal-overlay.hidden { display: none !important; pointer-events: none !important; }
     .activity-visual-tab { flex: 1; py-2; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; transition: background 0.15s, color 0.15s; }
     .activity-visual-tab--active { background: #fff; color: #1B2340; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
     body.parent-magic-library .activity-visual-tab--active { background: linear-gradient(135deg, #ffcc33, #f5a623); color: #1b2340; box-shadow: none; }
@@ -440,7 +445,7 @@
                 class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm">
               <label class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer whitespace-nowrap text-center">
                 <span id="familyImageUploadBtn">📷 Ladda upp bild</span>
-                <input type="file" id="familyImageFile" accept="image/jpeg,image/png,image/webp" class="hidden">
+                <input type="file" id="familyImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
               </label>
             </div>
             <div id="familyImageGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 min-h-[4rem]">
@@ -616,8 +621,8 @@
   </div>
 
   <!-- ── Category Modal ──────────────────────────────────────── -->
-  <div id="categoryModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
+  <div id="categoryModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+    <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-6">
         <h3 id="categoryModalTitle" class="text-xl font-heading font-bold text-navy">Ny kategori</h3>
         <button onclick="closeCategoryModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -641,9 +646,9 @@
   </div>
 
   <!-- ── Activity Modal ─────────────────────────────────────── -->
-  <div id="activityModal" class="hidden fixed inset-0 bg-black/50 z-[100] p-4 overflow-y-auto">
+  <div id="activityModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 p-4 overflow-y-auto">
     <div class="flex min-h-full items-start justify-center py-2 sm:py-4 sm:items-center">
-    <div class="activity-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl">
+    <div class="activity-modal-panel magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl">
       <div class="flex justify-between items-center mb-6">
         <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
         <button onclick="closeActivityModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -684,7 +689,7 @@
               <div class="flex flex-wrap gap-2">
                 <label class="px-3 py-2 bg-navy text-white rounded-lg text-sm font-semibold cursor-pointer">
                   📷 Ny bild
-                  <input type="file" id="activityImageFile" accept="image/jpeg,image/png,image/webp" class="hidden">
+                  <input type="file" id="activityImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
                 </label>
                 <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold">Ta bort foto</button>
               </div>
@@ -762,8 +767,8 @@
 
         <div id="activityError" class="text-red-500 text-sm hidden"></div>
 
-        <div id="libActSubstepEditModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-          <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl">
+        <div id="libActSubstepEditModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <div class="magic-modal-panel bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl">
             <div class="flex justify-between items-center mb-4">
               <h4 class="text-base font-heading font-bold text-navy">Redigera delsteg</h4>
               <button onclick="closeLibActSubstepEdit()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -801,8 +806,8 @@
   </div>
 
   <!-- ── Reward Modal ───────────────────────────────────────── -->
-  <div id="rewardModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
+  <div id="rewardModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-6">
         <h3 id="rewardModalTitle" class="text-xl font-heading font-bold text-navy">Ny belöning</h3>
         <button onclick="closeRewardModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -861,8 +866,8 @@
   </div>
 
   <!-- ── Sub-step Modal ───────────────────────────────────── -->
-  <div id="subStepModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
+  <div id="subStepModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+    <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-5">
         <h3 id="subStepModalTitle" class="text-lg font-heading font-bold text-navy">Lägg till delsteg</h3>
         <button onclick="closeSubStepModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -895,8 +900,8 @@
   </div>
 
   <!-- ── Confirm Delete Modal ──────────────────────────────── -->
-  <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+  <div id="confirmModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+    <div class="magic-modal-panel bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <h3 class="text-lg font-heading font-bold text-navy mb-3">Bekräfta borttagning</h3>
       <p id="confirmMsg" class="text-text-soft mb-6">Är du säker?</p>
       <div class="flex gap-3">
@@ -907,7 +912,7 @@
   </div>
 
 <script src="/js/app-view-mode.js?v=4"></script>
-<script src="/js/library-schema.js?v=2.13.1"></script>
+<script src="/js/library-schema.js?v=2.13.2"></script>
 <script src="/js/library-standard.js?v=2.12.0"></script>
 <script src="/js/library-substeps.js?v=2.12.0"></script>
 <script src="/js/library-treasury.js?v=2.12.0"></script>
@@ -915,16 +920,16 @@
 <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
 <script src="/js/library-seven-questions.js?v=1.0.0"></script>
 <script src="/js/activity-visual.js?v=1"></script>
-<script src="/js/library-images.js?v=3"></script>
-<script src="/js/library.js?v=2.18.3"></script>
-<script src="/js/parent-magic-shell.js?v=1"></script>
-<script src="/js/library-magic-schedules.js?v=1"></script>
+<script src="/js/library-images.js?v=4"></script>
+<script src="/js/library.js?v=2.18.4"></script>
+<script src="/js/parent-magic-shell.js?v=2"></script>
+<script src="/js/library-magic-schedules.js?v=2"></script>
 <script src="/js/library-magic-mine.js?v=1"></script>
-<script src="/js/library-magic-hub.js?v=5"></script>
+<script src="/js/library-magic-hub.js?v=6"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
-<script src="/js/mobile-nav.js?v=2.14.0"></script>
+<script src="/js/mobile-nav.js?v=2.15.0"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.0"></script>
 

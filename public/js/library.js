@@ -1404,6 +1404,20 @@ function closeConfirmModal() {
   confirmCallback = null;
 }
 
+function closeAllLibraryModals() {
+  ['categoryModal', 'activityModal', 'rewardModal', 'subStepModal', 'confirmModal', 'libActSubstepEditModal']
+    .forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
+  ['createTemplateModal', 'scheduleCopyModal', 'copyFromModal'].forEach(function (id) {
+    var dyn = document.getElementById(id);
+    if (dyn) dyn.remove();
+  });
+  closeOverflowMenus();
+}
+window.closeAllLibraryModals = closeAllLibraryModals;
+
 // ─── Utilities ────────────────────────────────────────────
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js
 function escHtml(str) { return escapeHtml(str); }

@@ -334,6 +334,7 @@
     bind: bind,
     navigateTo: navigateTo,
     isSoftNavPath: isSoftNavPath,
+    isFullLoadPath: isFullLoadPath,
     shouldSoftNav: shouldSoftNav,
     SOFT_PATHS: SOFT_PATHS,
   };

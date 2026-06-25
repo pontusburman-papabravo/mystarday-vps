@@ -98,6 +98,21 @@
       if (isNativeShell() && Platform.haptics && Platform.haptics.light) {
         Platform.haptics.light();
       }
+      var href = link.getAttribute('href');
+      if (!href || href.charAt(0) !== '/') return;
+      if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
+      var router = window.ParentMagicRouter;
+      if (!router) return;
+      if (router.isFullLoadPath && router.isFullLoadPath(href)) {
+        e.preventDefault();
+        window.location.href = href;
+        return;
+      }
+      if (router.shouldSoftNav && router.shouldSoftNav()
+          && router.isSoftNavPath && router.isSoftNavPath(href)) {
+        e.preventDefault();
+        router.navigateTo(href);
+      }
     });
     return true;
   }

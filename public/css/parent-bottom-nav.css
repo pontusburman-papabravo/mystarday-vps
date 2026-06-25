@@ -6,7 +6,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9998;
+  z-index: 10200;
+  pointer-events: auto;
   display: none;
   justify-content: space-around;
   align-items: center;

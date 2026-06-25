@@ -19,7 +19,8 @@
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-top: 0.5px solid rgba(0, 0, 0, 0.12);
-    z-index: 9999;
+    z-index: 10200;
+    pointer-events: auto;
   }
 
   body.has-native-tab-bar .native-tab-bar .tab-item {

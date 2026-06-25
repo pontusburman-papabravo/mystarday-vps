@@ -31,6 +31,49 @@ function detectImageMime(buf) {
   return null;
 }
 
+/** ISO BMFF container used by iPhone HEIC/HEIF. */
+function isHeicBuffer(buf) {
+  if (!buf || buf.length < 12) return false;
+  if (buf.slice(4, 8).toString('ascii') !== 'ftyp') return false;
+  const brand = buf.slice(8, 12).toString('ascii').toLowerCase();
+  return (
+    brand.startsWith('heic') || brand.startsWith('heix') || brand.startsWith('heim')
+    || brand.startsWith('heis') || brand.startsWith('hevc') || brand.startsWith('hevx')
+    || brand === 'mif1' || brand === 'msf1'
+  );
+}
+
+function isDangerousDeclaredType(mime) {
+  const t = (mime || '').toLowerCase();
+  return t === 'image/svg+xml' || t.startsWith('text/');
+}
+
+/**
+ * Resolve buffer + content-type from upload bytes.
+ * Mobile cameras often send application/octet-stream — trust magic bytes, not declared MIME.
+ */
+async function normalizeUploadBuffer(buffer, declaredType) {
+  const detected = detectImageMime(buffer);
+  if (detected) return { buffer, contentType: detected };
+
+  const declared = (declaredType || '').toLowerCase();
+  const heicLike = isHeicBuffer(buffer)
+    || declared === 'image/heic' || declared === 'image/heif';
+
+  if (!heicLike) return null;
+
+  try {
+    const sharp = require('sharp');
+    const out = await sharp(buffer).rotate().jpeg({ quality: 88 }).toBuffer();
+    return { buffer: out, contentType: 'image/jpeg' };
+  } catch (err) {
+    console.error('[UPLOAD] HEIC conversion error:', err.message);
+    const convErr = new Error('HEIC_CONVERT_FAILED');
+    convErr.userMessage = 'iPhone-bilden (HEIC) kunde inte konverteras. Välj bilden från albumet eller spara som JPEG.';
+    throw convErr;
+  }
+}
+
 function sanitizeFilename(name) {
   if (!name) return 'upload.jpg';
   const cleaned = String(name)
@@ -82,20 +125,33 @@ async function handleImageUpload(req, res) {
     if (!req.file) return res.status(400).json({ error: 'Ingen bild skickad' });
 
     const declaredType = (req.file.mimetype || '').toLowerCase();
-    if (declaredType === 'image/svg+xml' || declaredType.startsWith('text/') || !declaredType.startsWith('image/')) {
+    if (isDangerousDeclaredType(declaredType)) {
       return res.status(400).json({ error: 'Filtypen är inte tillåten' });
     }
 
-    const detectedMime = detectImageMime(req.file.buffer);
-    if (!detectedMime) {
+    let normalized;
+    try {
+      normalized = await normalizeUploadBuffer(req.file.buffer, declaredType);
+    } catch (normErr) {
+      if (normErr.userMessage) {
+        return res.status(400).json({ error: normErr.userMessage });
+      }
+      throw normErr;
+    }
+    if (!normalized) {
       return res.status(400).json({ error: 'Filen verkar inte vara en giltig bild (JPEG, PNG eller WebP krävs)' });
     }
 
-    const safeFilename = sanitizeFilename(req.file.originalname);
+    let safeFilename = sanitizeFilename(req.file.originalname);
+    if (normalized.contentType === 'image/jpeg' && !/\.jpe?g$/i.test(safeFilename)) {
+      safeFilename = safeFilename.replace(/\.[^.]+$/, '') + '.jpg';
+      if (safeFilename === '.jpg') safeFilename = 'upload.jpg';
+    }
+
     const url = await uploadImage({
-      buffer: req.file.buffer,
+      buffer: normalized.buffer,
       filename: safeFilename,
-      contentType: detectedMime,
+      contentType: normalized.contentType,
       prefix: 'uploads',
     });
     res.json({ url });
@@ -116,20 +172,33 @@ router.post('/avatar', requireParent, avatarUpload, async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'Ingen bild skickad' });
 
     const declaredType = (req.file.mimetype || '').toLowerCase();
-    if (!declaredType.startsWith('image/') || declaredType === 'image/svg+xml' || declaredType.startsWith('text/')) {
+    if (isDangerousDeclaredType(declaredType)) {
       return res.status(400).json({ error: 'Filtypen är inte tillåten' });
     }
 
-    const detectedMime = detectImageMime(req.file.buffer);
-    if (!detectedMime) {
+    let normalized;
+    try {
+      normalized = await normalizeUploadBuffer(req.file.buffer, declaredType);
+    } catch (normErr) {
+      if (normErr.userMessage) {
+        return res.status(400).json({ error: normErr.userMessage });
+      }
+      throw normErr;
+    }
+    if (!normalized) {
       return res.status(400).json({ error: 'Endast JPEG, PNG eller WebP är tillåtna' });
     }
 
-    const safeFilename = sanitizeFilename(req.file.originalname || 'avatar.jpg');
+    let safeFilename = sanitizeFilename(req.file.originalname || 'avatar.jpg');
+    if (normalized.contentType === 'image/jpeg' && !/\.jpe?g$/i.test(safeFilename)) {
+      safeFilename = safeFilename.replace(/\.[^.]+$/, '') + '.jpg';
+      if (safeFilename === '.jpg') safeFilename = 'avatar.jpg';
+    }
+
     const url = await uploadImage({
-      buffer: req.file.buffer,
+      buffer: normalized.buffer,
       filename: safeFilename,
-      contentType: detectedMime,
+      contentType: normalized.contentType,
       prefix: 'avatars',
     });
     res.json({ url });
@@ -141,4 +210,6 @@ router.post('/avatar', requireParent, avatarUpload, async (req, res) => {
 
 module.exports = router;
 module.exports.detectImageMime = detectImageMime;
+module.exports.isHeicBuffer = isHeicBuffer;
+module.exports.normalizeUploadBuffer = normalizeUploadBuffer;
 module.exports.sanitizeFilename = sanitizeFilename;

@@ -78,6 +78,28 @@
         '<span class="parent-bottom-nav-icon" aria-hidden="true">' + item.icon + '</span>' +
         '<span>' + item.label + '</span></a>';
     }).join('');
+    if (!nav.dataset.magicNavBound) {
+      nav.dataset.magicNavBound = '1';
+      nav.addEventListener('click', function (e) {
+        var link = e.target.closest('a.parent-bottom-nav-btn');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.charAt(0) !== '/') return;
+        var router = window.ParentMagicRouter;
+        if (!router) return;
+        if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
+        if (router.isFullLoadPath && router.isFullLoadPath(href)) {
+          e.preventDefault();
+          window.location.href = href;
+          return;
+        }
+        if (router.shouldSoftNav && router.shouldSoftNav()
+            && router.isSoftNavPath && router.isSoftNavPath(href)) {
+          e.preventDefault();
+          router.navigateTo(href);
+        }
+      });
+    }
     nav.style.display = isMagic() ? 'flex' : '';
     if (isMagic() && window.ParentMagicRouter) {
       ParentMagicRouter.bind();

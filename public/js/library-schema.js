@@ -11,8 +11,27 @@ let standardSchedules = [];
 let familyTemplates = [];
 let _libIsAdmin = false;
 
+async function safeJson(res) {
+  try {
+    return await res.json();
+  } catch (err) {
+    console.warn('[library-schema] JSON parse failed:', res.url, err.message);
+    return null;
+  }
+}
+
+function schemaLoadErrorHtml() {
+  return '<p class="text-red-400 text-center py-6 text-sm">Kunde inte ladda scheman. <button type="button" class="underline font-semibold" onclick="reloadSchemaTab()">Försök igen</button></p>';
+}
+
 async function loadSchemaTab() {
   if (_schemaLoaded) return;
+  if (typeof window.apiFetch !== 'function') {
+    console.error('[library-schema] apiFetch saknas');
+    const el = document.getElementById('schemaChildrenList');
+    if (el) el.innerHTML = schemaLoadErrorHtml();
+    return;
+  }
   try {
     const [childrenRes, schedulesRes, templatesRes] = await Promise.all([
       window.apiFetch('/api/children'),
@@ -21,13 +40,22 @@ async function loadSchemaTab() {
     ]);
 
     if (childrenRes.ok) {
-      schemaChildren = await childrenRes.json();
+      const data = await safeJson(childrenRes);
+      if (Array.isArray(data)) schemaChildren = data;
+    } else {
+      console.warn('[library-schema] /api/children', childrenRes.status);
     }
     if (schedulesRes.ok) {
-      standardSchedules = await schedulesRes.json();
+      const data = await safeJson(schedulesRes);
+      if (Array.isArray(data)) standardSchedules = data;
+    } else {
+      console.warn('[library-schema] /api/standard-library/schedules', schedulesRes.status);
     }
     if (templatesRes.ok) {
-      familyTemplates = await templatesRes.json();
+      const data = await safeJson(templatesRes);
+      if (Array.isArray(data)) familyTemplates = data;
+    } else {
+      console.warn('[library-schema] /api/schedule-templates', templatesRes.status);
     }
     _schemaLoaded = true;
     renderSchemaChildren();
@@ -36,13 +64,29 @@ async function loadSchemaTab() {
     renderStdSchedulesSubTab();
     if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
     if (window.LibraryMagicMine) LibraryMagicMine.refresh();
-  } catch {
-    document.getElementById('schemaChildrenList').innerHTML = '<p class="text-red-500 text-center py-6">Kunde inte ladda scheman</p>';
+  } catch (err) {
+    console.error('[library-schema] loadSchemaTab failed:', err);
+    _schemaLoaded = false;
+    const errHtml = schemaLoadErrorHtml();
+    const childrenEl = document.getElementById('schemaChildrenList');
+    const templatesEl = document.getElementById('familyTemplatesList');
+    const stdEl = document.getElementById('standardScheduleCards');
+    if (childrenEl) childrenEl.innerHTML = errHtml;
+    if (templatesEl) templatesEl.innerHTML = errHtml;
+    if (stdEl) stdEl.innerHTML = errHtml;
   }
 }
 
+function reloadSchemaTab() {
+  _schemaLoaded = false;
+  return loadSchemaTab();
+}
+window.loadSchemaTab = loadSchemaTab;
+window.reloadSchemaTab = reloadSchemaTab;
+
 function renderSchemaChildren() {
   const container = document.getElementById('schemaChildrenList');
+  if (!container) return;
   if (schemaChildren.length === 0) {
     container.innerHTML = `
       <div class="text-center py-10 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
@@ -315,6 +359,7 @@ function openCopyFamilyTemplateDialog(templateId, templateName) {
 
 function renderStandardScheduleCards() {
   const container = document.getElementById('standardScheduleCards');
+  if (!container) return;
   if (standardSchedules.length === 0) {
     container.innerHTML = '<p class="text-text-soft text-center py-6 col-span-full">Inga standardscheman tillgängliga ännu.</p>';
     return;

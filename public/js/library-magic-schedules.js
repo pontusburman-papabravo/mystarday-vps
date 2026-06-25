@@ -285,11 +285,8 @@
   }
 
   function ensureData() {
-    if (typeof window.loadSchemaTab === 'function'
-      && (typeof schemaChildren === 'undefined' || schemaChildren.length === 0)) {
-      return window.loadSchemaTab();
-    }
-    return Promise.resolve();
+    if (typeof window.loadSchemaTab !== 'function') return Promise.resolve();
+    return window.loadSchemaTab();
   }
 
   function render() {

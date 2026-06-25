@@ -283,7 +283,14 @@
     }
   }
 
+  function closeLibraryModals() {
+    if (typeof window.closeAllLibraryModals === 'function') {
+      window.closeAllLibraryModals();
+    }
+  }
+
   function openSection(key, fromSearch) {
+    closeLibraryModals();
     var s = SECTIONS[key];
     if (!s || typeof window.switchTab !== 'function') {
       console.warn('[LibraryMagicHub] switchTab saknas — ladda om sidan');
@@ -327,6 +334,7 @@
   }
 
   function showHub() {
+    closeLibraryModals();
     if (_section === null && document.body.classList.contains('library-magic-on-hub')) {
       var existing = document.getElementById('libraryMagicHubMount');
       if (existing && existing.innerHTML) return;

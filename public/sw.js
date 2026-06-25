@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v358';
+const CACHE_NAME = 'stjarndag-v359';
+// stjarndag-v359: Bibliotek — schema load-fix, nav z-index, modal stängs vid navigering, bilduppladdning HEIC
 // stjarndag-v358: Ljus-tema — vit bakgrund, mörka glass-overrides av i light mode, mjukare 3D-orbs
 // stjarndag-v357: Planering — full load schema/bibliotek/kalender; kalender apiFetch-fix; tilldela schema dialog
 // stjarndag-v356: Tema-toggle fixar Hem (ljus bakgrund för home-hub) + soft-nav återställer tema (MAGIC_VERSION 16)

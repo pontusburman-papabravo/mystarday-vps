@@ -88,3 +88,16 @@ test('sanitizeFilename returns fallback for empty input', () => {
   assert.equal(sanitizeFilename(''), 'upload.jpg', 'Empty name should return fallback');
   assert.equal(sanitizeFilename(null), 'upload.jpg', 'Null should return fallback');
 });
+
+test('isHeicBuffer detects HEIC ftyp brand', () => {
+  const { isHeicBuffer } = require(path.join(__dirname, '../src/routes/upload'));
+  const buf = Buffer.alloc(16);
+  buf.write('????ftypheic', 0, 'ascii');
+  assert.equal(isHeicBuffer(buf), true);
+});
+
+test('isHeicBuffer returns false for JPEG', () => {
+  const { isHeicBuffer } = require(path.join(__dirname, '../src/routes/upload'));
+  const jpegBuffer = Buffer.from([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10]);
+  assert.equal(isHeicBuffer(jpegBuffer), false);
+});

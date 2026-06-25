@@ -21,24 +21,85 @@
       .replace(/"/g, '&quot;');
   }
 
-  async function uploadFile(file) {
-    if (!file) throw new Error('Ingen fil vald');
-    var fd = new FormData();
-    fd.append('image', file);
-    if (window.Auth && Auth.ensureCsrfToken) await Auth.ensureCsrfToken();
+  async function compressUploadFile(file) {
+    if (!file) return file;
+    var type = (file.type || '').toLowerCase();
+    if (type === 'image/heic' || type === 'image/heif' || /\.heic$/i.test(file.name || '') || /\.heif$/i.test(file.name || '')) {
+      return file;
+    }
+    if (!type.startsWith('image/') || type === 'image/svg+xml') return file;
+
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var maxDim = 1920;
+        var w = img.naturalWidth || img.width || 1;
+        var h = img.naturalHeight || img.height || 1;
+        var scale = Math.min(1, maxDim / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(file); return; }
+        ctx.drawImage(img, 0, 0, cw, ch);
+        canvas.toBlob(function (blob) {
+          if (!blob) { resolve(file); return; }
+          var base = (file.name || 'photo').replace(/\.[^.]+$/, '') || 'photo';
+          resolve(new File([blob], base + '.jpg', { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.88);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
+  }
+
+  async function postUpload(fd, retry) {
+    if (window.Auth && Auth.ensureCsrfToken) {
+      if (retry) localStorage.removeItem(Auth.CSRF_KEY);
+      await Auth.ensureCsrfToken();
+    }
     var headers = {};
     if (window.Auth && Auth.getCsrfToken) {
       var csrf = Auth.getCsrfToken();
       if (csrf) headers['X-CSRF-Token'] = csrf;
     }
-    var res = await fetch('/api/upload/image', {
+    return fetch('/api/upload/image', {
       method: 'POST',
       headers: headers,
       body: fd,
       credentials: 'include',
     });
-    var data = await res.json();
+  }
+
+  async function uploadFile(file) {
+    if (!file) throw new Error('Ingen fil vald');
+    file = await compressUploadFile(file);
+    var fd = new FormData();
+    fd.append('image', file, file.name || 'photo.jpg');
+
+    var res = await postUpload(fd, false);
+    if (res.status === 403) {
+      var errBody = await res.clone().json().catch(function () { return {}; });
+      if (errBody.code === 'CSRF_MISSING' || errBody.code === 'CSRF_INVALID') {
+        res = await postUpload(fd, true);
+      }
+    }
+
+    var data = {};
+    try {
+      data = await res.json();
+    } catch (_) {
+      throw new Error('Uppladdning misslyckades (servern svarade inte korrekt)');
+    }
     if (!res.ok) throw new Error(data.error || 'Uppladdning misslyckades');
+    if (!data.url) throw new Error('Servern returnerade ingen bild-URL');
     return data.url;
   }
 
