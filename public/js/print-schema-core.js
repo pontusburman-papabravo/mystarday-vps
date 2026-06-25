@@ -229,9 +229,9 @@
     return { styles: styles, body: body, title: titleSuffix + ' — ' + (child.name || 'Barn'), mode: mode };
   }
 
-  function openPrintWindow(doc, autoPrint) {
-    var win = window.open('', '_blank', 'width=1100,height=700');
-    if (!win) return null;
+  function writePrintDocument(win, doc) {
+    if (!win || win.closed) return false;
+    win.document.open();
     win.document.write(
       '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
       '<title>' + esc(doc.title) + '</title>' +
@@ -239,9 +239,38 @@
       '<style>' + doc.styles + '</style></head><body>' + doc.body + '</body></html>'
     );
     win.document.close();
+    return true;
+  }
+
+  /** Open a blank window synchronously (must run inside a user click) to avoid popup blockers. */
+  function openPrintPlaceholder() {
+    var win = window.open('about:blank', '_blank', 'width=1100,height=700');
+    if (!win) return null;
+    win.document.open();
+    win.document.write(
+      '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
+      '<title>Förbereder utskrift…</title>' +
+      '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
+      '</head><body><p>Förbereder utskrift…</p></body></html>'
+    );
+    win.document.close();
+    return win;
+  }
+
+  function openPrintWindow(doc, autoPrint, existingWin) {
+    var win = existingWin;
+    if (!win) {
+      win = window.open('about:blank', '_blank', 'width=1100,height=700');
+      if (!win) return null;
+    }
+    if (!writePrintDocument(win, doc)) return null;
     win.focus();
     if (autoPrint !== false) {
-      setTimeout(function () { win.print(); }, 600);
+      setTimeout(function () {
+        if (win && !win.closed) {
+          try { win.print(); } catch (_) {}
+        }
+      }, 600);
     }
     return win;
   }
@@ -279,6 +308,7 @@
     fetchWeeks: fetchWeeks,
     flattenWeekDays: flattenWeekDays,
     buildPrintHtml: buildPrintHtml,
+    openPrintPlaceholder: openPrintPlaceholder,
     openPrintWindow: openPrintWindow,
     loadAndBuild: loadAndBuild,
   };

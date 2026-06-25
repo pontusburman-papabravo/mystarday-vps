@@ -127,10 +127,18 @@
 
   async function runPrint() {
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+    var printWin = window.PrintSchemaCore.openPrintPlaceholder();
+    if (!printWin) {
+      showToast('Tillåt popup-fönster i webbläsaren för att skriva ut', 'error');
+      return;
+    }
     try {
       showToast('Förbereder utskrift…');
       var doc = await buildDoc('print');
-      window.PrintSchemaCore.openPrintWindow(doc, true);
+      if (!window.PrintSchemaCore.openPrintWindow(doc, true, printWin)) {
+        showToast('Utskriftsfönstret stängdes innan utskriften var klar', 'error');
+        return;
+      }
       trackExport({
         format: periodKey,
         scope: scope,
@@ -141,6 +149,7 @@
         window.analytics.track('custody_view_filtered', { source: 'print_schema', period: periodKey });
       }
     } catch (err) {
+      try { printWin.close(); } catch (_) {}
       if (err && err.message === 'no_my_days') {
         showToast('Inga av dina dagar i vald period', 'error');
       } else {
