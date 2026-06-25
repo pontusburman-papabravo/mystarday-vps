@@ -42,7 +42,7 @@
       escHtml(l.href) +
       '" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="' +
       escHtml(l.title) +
-      '">' +
+      '" data-full-load="1">' +
       '<span class="text-2xl" aria-hidden="true">' +
       l.icon +
       '</span>' +

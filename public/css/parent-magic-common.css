@@ -816,6 +816,37 @@ body.parent-magic-view.parent-magic-page-assign-schedule .save-btn.saved {
   color: #fff !important;
 }
 
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay {
+  z-index: 200;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box {
+  background: #141432 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box h3,
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box .text-navy {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box .text-text-soft,
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box p {
+  color: rgba(244, 244, 255, 0.78) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box button {
+  color: #f4f4ff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box #confirmReplaceBtn {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+  border-color: transparent !important;
+}
+
 /* Family modals — solid panel on dark magic shell */
 body.parent-magic-view #addAdultModal > div,
 body.parent-magic-view #addChildModal > div,

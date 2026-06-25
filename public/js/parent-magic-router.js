@@ -4,22 +4,27 @@
 (function (global) {
   'use strict';
 
-  // NOTE: /dashboard (Hem) is intentionally NOT soft-navigable. It is the only
-  // page that renders its content into #parentHomeHubMount inside <main> (every
-  // other shell page renders into #parentMagicPageMount via its page-boot hero),
-  // which makes it fragile across the swapMain/boot cycle — symptom: navigating
-  // back to Hem showed only the persistent system-message banner ("notiserna").
-  // A full page load always runs DOMContentLoaded → DashboardHomeHub.render,
-  // which is the same reliable path used right after login.
+  // NOTE: /dashboard (Hem) and /schedule are intentionally NOT soft-navigable.
+  // Dashboard renders into #parentHomeHubMount; schedule pulls in schedule-core +
+  // six satellite scripts + dozens of modals — soft swap leaves "Laddar…" / 0 barn.
+  // Full page load runs the HTML script order reliably.
   var SOFT_PATHS = {
     '/planning': 'planning',
     '/rewards': 'rewards',
-    '/schedule': 'schedule',
     '/for-dig': 'for-dig',
     '/family': 'family',
     '/settings': 'settings',
     '/skattkammaren': 'skattkammaren',
     '/upgrade': 'upgrade',
+  };
+
+  /** Heavy / multi-script pages — always hard-navigate (planering-hub deep links). */
+  var FULL_LOAD_PATHS = {
+    '/library': true,
+    '/schedule': true,
+    '/calendar': true,
+    '/assign-schedule': true,
+    '/daily-log': true,
   };
 
   var PAGE_STYLES = {
@@ -40,10 +45,6 @@
       '/js/dashboard.js?v=2.38.0',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    schedule: [
-      '/js/schedule-views.js?v=1.3.0',
-      '/js/schedule.js?v=2.26.0',
-    ],
     'for-dig': ['/js/for-dig.js?v=2.5'],
     family: [
       '/js/family-invite-scan.js?v=1',
@@ -53,7 +54,7 @@
       '/js/family.js?v=2.14.2',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    planning: ['/js/planning-hub.js?v=1.3.0'],
+    planning: ['/js/planning-hub.js?v=1.4.0'],
     rewards: [
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.0',
@@ -84,6 +85,11 @@
 
   function isSoftNavPath(path) {
     return !!SOFT_PATHS[normalizePath(path)];
+  }
+
+  function isFullLoadPath(href) {
+    var path = normalizePath((href || '').split('#')[0].split('?')[0]);
+    return !!FULL_LOAD_PATHS[path];
   }
 
   function parseHtml(html) {
@@ -300,6 +306,7 @@
 
     var href = link.getAttribute('href');
     if (!href || href.charAt(0) !== '/') return;
+    if (link.hasAttribute('data-full-load') || isFullLoadPath(href)) return;
     if (!isSoftNavPath(href)) return;
 
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === '_blank') return;

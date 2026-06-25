@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v356';
+const CACHE_NAME = 'stjarndag-v357';
+// stjarndag-v357: Planering — full load schema/bibliotek/kalender; kalender apiFetch-fix; tilldela schema dialog
 // stjarndag-v356: Tema-toggle fixar Hem (ljus bakgrund för home-hub) + soft-nav återställer tema (MAGIC_VERSION 16)
 // stjarndag-v355: Bildarkiv delete — aktiviteter faller tillbaka till emoji
 // stjarndag-v354: Planering↔Bibliotek tillbaka-nav + full load från library shell

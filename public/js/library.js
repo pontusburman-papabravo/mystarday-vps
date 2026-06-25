@@ -116,12 +116,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   selectStar(1);
   setApproval(true);
 
-  await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
-  if (window.LibraryImages) await LibraryImages.init();
-
   if (window.LibraryMagicHub) {
     await LibraryMagicHub.init();
-  } else {
+  }
+
+  try {
+    await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+    if (window.LibraryImages) await LibraryImages.init();
+  } catch (err) {
+    console.error('[LIBRARY] Data load error:', err);
+    showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
+  }
+
+  if (!window.LibraryMagicHub) {
     const hash = window.location.hash.replace('#', '');
     if (hash === 'schema') switchTab('schema');
     else if (hash === 'rewards') switchTab('rewards');

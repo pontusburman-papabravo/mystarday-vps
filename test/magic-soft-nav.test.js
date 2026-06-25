@@ -73,6 +73,27 @@ describe('magic soft navigation', () => {
     assert.match(schedule, /_schedulePageBound/);
   });
 
+  it('calendar page parses children via apiFetch response json', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
+    assert.match(html, /await res\.json\(\)/);
+    assert.match(html, /window\.apiFetch\('\/api\/children'\)/);
+  });
+
+  it('planning hub deep links force full page load', () => {
+    const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(planning, /data-full-load="1"/);
+    assert.match(router, /data-full-load/);
+    assert.match(router, /isFullLoadPath/);
+  });
+
+  it('schedule is not soft-navigated (full page load only)', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.doesNotMatch(router, /['"]\/schedule['"]:\s*'schedule'/);
+    assert.match(router, /FULL_LOAD_PATHS/);
+    assert.match(router, /['"]\/schedule['"]:\s*true/);
+  });
+
   it('dashboard soft-nav boot resets overview and renders hub', () => {
     const dashboard = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
     assert.match(dashboard, /bootDashboardMagicPage/);
