@@ -92,10 +92,42 @@
     return days;
   }
 
-  function scaleForPeriod(periodKey, numWeeks) {
-    if (periodKey === '1w') return { cell: 7.5, header: 8.5, sec: 6, title: 13, pad: 4 };
-    if (periodKey === '2w') return { cell: 6.5, header: 7.5, sec: 5.5, title: 12, pad: 3 };
-    return { cell: 5.5, header: 6.5, sec: 5, title: 11, pad: 2 };
+  function maxActivitiesInDays(days) {
+    var max = 0;
+    for (var i = 0; i < days.length; i++) {
+      if (days[i].skipContent) continue;
+      max = Math.max(max, (days[i].activities || []).length);
+    }
+    return max;
+  }
+
+  function scaleForPeriod(periodKey, maxActs, mode) {
+    var base;
+    if (periodKey === '1w') base = { cell: 7.5, header: 8.5, sec: 6, title: 13, pad: 4, target: 12 };
+    else if (periodKey === '2w') base = { cell: 6.5, header: 7.5, sec: 5.5, title: 12, pad: 3, target: 9 };
+    else base = { cell: 5.5, header: 6.5, sec: 5, title: 11, pad: 2, target: 6 };
+
+    if (mode === 'preview') {
+      return {
+        cell: Math.max(base.cell, 9),
+        header: Math.max(base.header, 10),
+        sec: Math.max(base.sec, 7),
+        title: 14,
+        pad: 5,
+      };
+    }
+
+    var factor = 1;
+    if (maxActs > base.target) {
+      factor = Math.max(0.52, base.target / maxActs);
+    }
+    return {
+      cell: Math.max(4.5, base.cell * factor),
+      header: Math.max(5.5, base.header * factor),
+      sec: Math.max(4, base.sec * factor),
+      title: base.title,
+      pad: Math.max(1, Math.round(base.pad * factor)),
+    };
   }
 
   function buildDayCell(day, sc, myDaysOnly) {
@@ -149,11 +181,14 @@
     var periodKey = opts.periodKey || '1w';
     var period = PERIODS[periodKey] || PERIODS['1w'];
     var myDaysOnly = Boolean(opts.myDaysOnly);
-    var sc = scaleForPeriod(periodKey, period.weeks);
+    var mode = opts.mode === 'preview' ? 'preview' : 'print';
+    var maxActs = maxActivitiesInDays(days);
+    var sc = scaleForPeriod(periodKey, maxActs, mode);
     var rows = period.weeks;
     var titleSuffix = myDaysOnly ? 'Mina dagar' : 'Schema';
     var rangeStart = days[0] ? days[0].dateObj : new Date();
     var rangeEnd = days[days.length - 1] ? days[days.length - 1].dateObj : rangeStart;
+    var rowSizing = 'auto';
 
     var cells = '';
     for (var i = 0; i < days.length; i++) {
@@ -163,28 +198,35 @@
     var styles = [
       '@page { size: A4 landscape; margin: 5mm; }',
       '* { box-sizing: border-box; }',
-      'html, body { margin: 0; padding: 0; height: 100%; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #1B2340; }',
-      '.sheet { display: flex; flex-direction: column; height: 100vh; max-height: 190mm; }',
+      'html, body { margin: 0; padding: 0; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #1B2340; }',
+      '.sheet { display: flex; flex-direction: column; }',
+      '.sheet-preview { height: auto; padding: 4px; }',
+      '.sheet-preview .grid { min-width: 640px; }',
+      '.sheet-print { height: auto; }',
       '.top { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; margin-bottom: 4px; border-bottom: 2px solid #1B2340; flex-shrink: 0; }',
       '.top h1 { font-family: Outfit, Arial, sans-serif; font-size: ' + sc.title + 'px; margin: 0; }',
       '.top p { margin: 2px 0 0; font-size: ' + (sc.title - 3) + 'px; color: #5A6178; }',
-      '.grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(' + rows + ', 1fr); gap: 2px; min-height: 0; }',
-      '.day-cell { border: 1px solid #ccc; border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }',
+      '.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(' + rows + ', ' + rowSizing + '); gap: 2px; }',
+      '.day-cell { border: 1px solid #ccc; border-radius: 3px; display: flex; flex-direction: column; min-width: 0; }',
       '.day-muted { opacity: 0.55; }',
       '.day-head { font-weight: 700; line-height: 1.15; flex-shrink: 0; }',
-      '.day-body { flex: 1; overflow: hidden; min-height: 0; }',
+      '.day-body { flex: 1; overflow: visible; min-height: 0; }',
       '.sec-label { color: #888; font-weight: 700; margin: 2px 0 1px; }',
       '.act-row { padding: 1px 0; border-bottom: 1px solid #f0f0f0; word-break: break-word; }',
+      '@media print {',
+      '  .sheet-print { height: auto; max-height: none; page-break-inside: avoid; }',
+      '  .day-cell { break-inside: avoid; }',
+      '}',
     ].join('\n');
 
-    var body = '<div class="sheet">' +
+    var body = '<div class="sheet sheet-' + mode + '">' +
       '<div class="top">' +
       '<span style="font-size:1.4em;">' + avatarHtml(child, 28) + '</span>' +
       '<div><h1>' + esc(child.name) + ' — ' + titleSuffix + '</h1>' +
       '<p>' + esc(period.label) + ' · ' + esc(fmtRangeLabel(rangeStart, rangeEnd)) + '</p></div></div>' +
       '<div class="grid">' + cells + '</div></div>';
 
-    return { styles: styles, body: body, title: titleSuffix + ' — ' + (child.name || 'Barn') };
+    return { styles: styles, body: body, title: titleSuffix + ' — ' + (child.name || 'Barn'), mode: mode };
   }
 
   function openPrintWindow(doc, autoPrint) {
@@ -224,6 +266,7 @@
       days: days,
       periodKey: periodKey,
       myDaysOnly: myDaysOnly,
+      mode: options.mode,
     });
   }
 

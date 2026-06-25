@@ -94,7 +94,7 @@
     selectChild(target ? target.id : children[0].id);
   }
 
-  async function buildDoc() {
+  async function buildDoc(mode) {
     var child = children.find(function (c) { return c.id === currentChildId; });
     if (!child) throw new Error('no_child');
     return window.PrintSchemaCore.loadAndBuild(child, {
@@ -102,6 +102,7 @@
       weekOffset: weekOffset,
       myDaysOnly: scope === 'my',
       apiFetch: apiFetch,
+      mode: mode,
     });
   }
 
@@ -109,12 +110,12 @@
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
     try {
       showToast('Laddar förhandsgranskning…');
-      var doc = await buildDoc();
-      var frame = document.getElementById('previewFrame');
+      var doc = await buildDoc('preview');
+      var mount = document.getElementById('previewMount');
       var wrap = document.getElementById('previewWrap');
       wrap.classList.remove('hidden');
-      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + doc.styles + '</style></head><body>' + doc.body + '</body></html>';
-      frame.srcdoc = html;
+      mount.innerHTML = '<style>' + doc.styles + '</style>' + doc.body;
+      mount.scrollTop = 0;
     } catch (err) {
       if (err && err.message === 'no_my_days') {
         showToast('Inga av dina dagar i vald period', 'error');
@@ -128,7 +129,7 @@
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
     try {
       showToast('Förbereder utskrift…');
-      var doc = await buildDoc();
+      var doc = await buildDoc('print');
       window.PrintSchemaCore.openPrintWindow(doc, true);
       trackExport({
         format: periodKey,

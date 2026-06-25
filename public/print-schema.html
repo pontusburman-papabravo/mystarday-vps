@@ -19,13 +19,14 @@
     .child-tab.active { background: #F5A623; color: #fff; border-color: #F5A623; }
     .period-btn.active { background: #1B2340; color: #fff; border-color: #1B2340; }
     .scope-btn.active { background: #EDE7F6; border-color: #1B2340; color: #1B2340; }
-    #previewFrame {
-      width: 100%;
-      aspect-ratio: 297 / 210;
-      max-height: 70vh;
+    #previewMount {
+      max-height: 75vh;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
       border: 2px solid #EDE7F6;
       border-radius: 12px;
-      background: #f8fafc;
+      background: #fff;
+      padding: 8px;
     }
     @media print {
       .no-print { display: none !important; }
@@ -37,7 +38,7 @@
     <a href="/planning" class="inline-flex items-center gap-1 text-sm text-text-soft hover:text-navy mb-4 no-underline">← Tillbaka till planering</a>
 
     <h1 class="text-2xl font-heading font-bold text-navy mb-1">🖨️ Skriv ut schema</h1>
-    <p class="text-text-soft text-sm mb-6">Välj barn och period. Utskriften är optimerad för ett A4-ark i liggande format.</p>
+    <p class="text-text-soft text-sm mb-6">Välj barn och period. Förhandsgranskningen visar hela schemat — utskriften skalas automatiskt för att rymmas på ett ark när det går.</p>
 
     <section class="mb-6">
       <h2 class="text-sm font-semibold text-navy mb-2">Barn</h2>
@@ -77,14 +78,15 @@
     </div>
 
     <div id="previewWrap" class="hidden mb-8">
-      <h2 class="text-sm font-semibold text-navy mb-2">Förhandsgranskning</h2>
-      <iframe id="previewFrame" title="Förhandsgranskning av utskrift"></iframe>
+      <h2 class="text-sm font-semibold text-navy mb-1">Förhandsgranskning</h2>
+      <p class="text-xs text-text-soft mb-2">Scrolla nedåt om en dag har många aktiviteter.</p>
+      <div id="previewMount"></div>
     </div>
   </div>
 
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
-  <script src="/js/print-schema-core.js?v=1"></script>
-  <script src="/js/print-schema.js?v=1"></script>
+  <script src="/js/print-schema-core.js?v=2"></script>
+  <script src="/js/print-schema.js?v=2"></script>
 </body>
 </html>
