@@ -44,7 +44,7 @@
       '/js/settings-account.js?v=2.18.0',
       '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
-      '/js/family.js?v=2.14.1',
+      '/js/family.js?v=2.14.2',
       '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-hub.js?v=1.1.0'],

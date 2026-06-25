@@ -212,8 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v348';
-// stjarndag-v348: FIX family soft-nav — load dom-utils.js before page scripts; family.js renderChildAvatar fallback
+const CACHE_NAME = 'stjarndag-v349';
+// stjarndag-v349: HOTFIX family.js — childAvatarHtml must not shadow window.renderChildAvatar (stack overflow)
 // stjarndag-v347: Bildarkiv i biblioteket — egna foton på aktiviteter (family_image + image_url)
 // stjarndag-v346: HOTFIX /api/auth/me 500 logout — ui_view_mode read defensively; authGuard keeps session on 5xx/network
 // stjarndag-v344: parent view mode synced server-side (menu/design follows account across devices); magic assets v13
