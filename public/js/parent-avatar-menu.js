@@ -156,6 +156,11 @@
       return;
     }
     if (action.href) {
+      var settingsPath = action.href.split('#')[0].split('?')[0];
+      if (settingsPath === '/settings' || settingsPath === '/settings.html') {
+        window.location.href = action.href;
+        return;
+      }
       if (
         window.ParentMagicRouter &&
         ParentMagicRouter.shouldSoftNav &&

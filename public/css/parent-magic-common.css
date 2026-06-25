@@ -270,6 +270,11 @@ body.parent-magic-view:not(.magic-settings-in-group) [data-magic-settings-conten
   display: none !important;
 }
 
+/* Settings: hide legacy scroll list until a magic group is opened */
+body.parent-magic-view.parent-magic-page-settings:not(.magic-settings-in-group) main > .flex-1.overflow-auto {
+  display: none !important;
+}
+
 body.parent-magic-view.magic-settings-in-group [data-magic-settings-content]:not(.hidden) {
   display: block !important;
 }

@@ -13,7 +13,6 @@
     '/rewards': 'rewards',
     '/for-dig': 'for-dig',
     '/family': 'family',
-    '/settings': 'settings',
     '/skattkammaren': 'skattkammaren',
     '/upgrade': 'upgrade',
   };
@@ -26,6 +25,7 @@
     '/assign-schedule': true,
     '/daily-log': true,
     '/print-schema': true,
+    '/settings': true,
   };
 
   var PAGE_STYLES = {
@@ -277,7 +277,15 @@
         await ParentMagicPageBoot.run(pageId);
       }
 
-      var url = path + (href.indexOf('?') >= 0 ? href.slice(href.indexOf('?')) : '');
+      var url = path;
+      var qIdx = href.indexOf('?');
+      var hIdx = href.indexOf('#');
+      if (qIdx >= 0) {
+        url += href.slice(qIdx, hIdx >= 0 ? hIdx : undefined);
+      }
+      if (hIdx >= 0) {
+        url += href.slice(hIdx);
+      }
       if (options.replace) {
         global.history.replaceState({ magicSoft: true, pageId: pageId }, '', url);
       } else {

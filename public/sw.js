@@ -212,8 +212,10 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v374';
+const CACHE_NAME = 'stjarndag-v375';
+// stjarndag-v375: Inställningar — magic gruppmeny döljer legacy-scroll; P-menyn full-load till /settings
 // stjarndag-v374: print-schema — hela dagen i förhandsgranskning + dynamisk utskriftsskalning
+// stjarndag-v373: dedikerad /print-schema — barn + period (1v/2v/1m), ett A4-ark
 // stjarndag-v372: Hem — dagssammanfattning i hub + läsbar medförälder-CTA i ljust tema
 // stjarndag-v367: Tilldela schema — bekräftelseruta .hidden blockerade inte overlay (klick döda)
 // stjarndag-v365: ACT-1 PR3 — starter-plan save → handoff steg 5, checkpoint scripts

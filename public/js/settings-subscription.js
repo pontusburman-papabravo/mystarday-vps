@@ -86,13 +86,17 @@
   }
 
   function scrollToHash() {
-    if (window.location.hash === '#prenumeration') {
-      var el = document.getElementById('prenumeration');
-      if (el) {
-        setTimeout(function () {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
+    if (window.location.hash !== '#prenumeration') return;
+    if (window.ParentMagicShell && ParentMagicShell.isMagic()
+        && window.ParentMagicPageHub && ParentMagicPageHub.openFromHash) {
+      ParentMagicPageHub.openFromHash();
+      return;
+    }
+    var el = document.getElementById('prenumeration');
+    if (el) {
+      setTimeout(function () {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   }
 

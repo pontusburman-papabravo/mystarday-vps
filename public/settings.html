@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=12">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=12">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=13">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -53,7 +53,7 @@
   <!-- Consent Manager (GA4 + Meta Pixel + GDPR) -->
   <script src="/js/app-consent.js?v=2.12.0"></script>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="settings">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -415,7 +415,7 @@
         <hr class="border-lavender">
 
         <!-- Privacy & Terms links in app -->
-        <section class="pb-8 flex flex-col gap-2">
+        <section id="settingsLegalSection" class="pb-8 flex flex-col gap-2">
           <a href="/privacy" class="text-sm text-text-soft hover:text-gold transition-colors flex items-center gap-2">
             <span>🔒</span> Integritetspolicy
           </a>

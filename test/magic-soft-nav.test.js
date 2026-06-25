@@ -139,6 +139,24 @@ describe('magic soft navigation', () => {
   it('settings group CSS respects .hidden when showing one group', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
+    assert.match(css, /parent-magic-page-settings:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/);
+  });
+
+  it('settings uses full page load (not soft-nav) due to inline init', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const avatar = fs.readFileSync(path.join(ROOT, 'public/js/parent-avatar-menu.js'), 'utf8');
+    assert.doesNotMatch(router, /['"]\/settings['"]:\s*'settings'/);
+    assert.match(router, /['"]\/settings['"]:\s*true/);
+    assert.match(avatar, /settingsPath === '\/settings'/);
+  });
+
+  it('magic settings tags prenumeration and handles hash', () => {
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    assert.match(hubs, /tagChild\('prenumeration', 'profile'\)/);
+    assert.match(hubs, /openFromHash/);
+    assert.match(html, /id="settingsLegalSection"/);
+    assert.match(html, /data-magic-page="settings"/);
   });
 
   it('theme picker uses document delegation for mobile + soft-nav', () => {

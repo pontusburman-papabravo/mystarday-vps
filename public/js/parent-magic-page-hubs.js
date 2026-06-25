@@ -273,6 +273,8 @@
     tagChild('accountSection', 'profile');
     tagChild('parentPinSection', 'profile');
     tagChild('legacyPasswordSection', 'profile');
+    tagChild('prenumeration', 'profile');
+    tagChild('settingsLegalSection', 'app');
     tagChild('familyName', 'family');
     tagChild('viewSwitchSection', 'family');
     tagChild('coParentInviteSection', 'family');
@@ -291,6 +293,19 @@
     document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
       el.classList.add('hidden');
     });
+  }
+
+  function openFromHash() {
+    var hash = (window.location.hash || '').replace('#', '');
+    if (hash === 'prenumeration') {
+      showSettingsGroup('profile');
+      setTimeout(function () {
+        var el = document.getElementById('prenumeration');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+      return true;
+    }
+    return false;
   }
 
   function refresh(page, magic) {
@@ -327,6 +342,7 @@
       bindSettingsEvents(el);
       var backBar = document.getElementById('magicSettingsBackBar');
       if (backBar) backBar.innerHTML = '';
+      openFromHash();
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
@@ -344,6 +360,8 @@
     },
     tagSettingsSections: tagSettingsSections,
     resetSettingsState: resetSettingsState,
+    openFromHash: openFromHash,
+    showSettingsGroup: showSettingsGroup,
   };
 
   bindThemePickerDelegation();
