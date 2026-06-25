@@ -3,241 +3,207 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bildstöd morgon — marknadsbild (mockup)</title>
+  <title>Bildstöd morgon — marknadsbild 1080×1080</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/mockups/mockup-social-base.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --gold: #F5A623;
-      --navy: #1B2340;
-      --navy-soft: #2A3458;
-      --text-soft: #5A6178;
-      --text-light: #9AA0B8;
-      --page-bg: #0f1428;
-    }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--page-bg);
-      color: #fff;
-      min-height: 100vh;
-      padding: 24px 16px 64px;
-    }
-    .toolbar {
-      max-width: 1100px;
-      margin: 0 auto 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toolbar h1 { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; }
-    .toolbar p { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
-    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn {
-      border: none; border-radius: 10px; padding: 8px 14px;
-      font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
-    }
-    .btn-gold { background: var(--gold); color: var(--navy); }
-    .btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
-
-    .export-wrap {
-      max-width: 1100px;
-      margin: 0 auto 40px;
-      display: flex;
-      justify-content: center;
-    }
     .social-canvas {
-      width: min(100%, 540px);
-      aspect-ratio: 1 / 1;
-      background: linear-gradient(150deg, #FFF9EE 0%, #FFF0D0 35%, #E8F0FE 100%);
-      border-radius: 20px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
-      color: var(--navy);
+      background: linear-gradient(160deg, #FFF9EE 0%, #FFF0D0 40%, #E8F0FE 100%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1B2340;
+      padding: 56px 52px 48px;
+      display: flex;
+      flex-direction: column;
     }
-    .canvas-inner {
-      height: 100%;
-      padding: 24px 22px 18px;
+    .canvas-content {
+      flex: 1;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      gap: 10px;
+      grid-template-columns: 1fr 400px;
+      gap: 36px;
+      height: 100%;
     }
-    .brand-row {
+    .top-bar {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: -8px;
     }
     .brand {
       font-family: 'Outfit', sans-serif;
+      font-size: 28px;
       font-weight: 800;
-      font-size: 0.76rem;
-      color: var(--navy);
+      color: #1B2340;
     }
     .pill {
-      font-size: 0.6rem;
+      font-size: 18px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      background: var(--navy);
+      letter-spacing: 0.08em;
+      background: #1B2340;
       color: #fff;
-      padding: 4px 10px;
+      padding: 10px 24px;
       border-radius: 50px;
     }
-    .headline-block h2 {
+    .copy-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 32px;
+      padding-right: 12px;
+    }
+    .copy-col h2 {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(1.3rem, 4.6vw, 1.7rem);
+      font-size: 58px;
       font-weight: 800;
-      line-height: 1.1;
-      color: var(--navy);
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      color: #1B2340;
     }
-    .headline-block p {
-      font-size: clamp(0.7rem, 2.5vw, 0.84rem);
-      color: var(--text-soft);
+    .copy-col .lead {
+      font-size: 26px;
       line-height: 1.45;
-      margin-top: 5px;
+      color: #5A6178;
     }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 0.95fr 1.05fr;
-      gap: 10px;
-      align-items: center;
-      min-height: 0;
+    .order-box {
+      background: rgba(255,255,255,0.75);
+      border: 2px solid rgba(27,35,64,0.08);
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 32px rgba(27,35,64,0.06);
     }
-    .order-note {
-      font-size: 0.66rem;
-      line-height: 1.45;
-      color: var(--text-soft);
-      background: rgba(255,255,255,0.65);
-      border-radius: 12px;
-      padding: 10px 12px;
-      border: 1px solid rgba(27,35,64,0.08);
+    .order-box strong {
+      display: block;
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      margin-bottom: 16px;
+      color: #1B2340;
     }
-    .order-note strong { color: var(--navy); display: block; margin-bottom: 6px; font-size: 0.72rem; }
-    .order-steps { list-style: none; counter-reset: step; }
+    .order-steps { list-style: none; counter-reset: s; }
     .order-steps li {
-      counter-increment: step;
+      counter-increment: s;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      gap: 14px;
+      font-size: 22px;
       font-weight: 600;
-      font-size: 0.62rem;
+      margin-bottom: 12px;
+      color: #5A6178;
     }
     .order-steps li::before {
-      content: counter(step);
-      width: 16px; height: 16px;
+      content: counter(s);
+      width: 36px; height: 36px;
       border-radius: 50%;
-      background: var(--gold);
+      background: #F5A623;
       color: #fff;
-      font-size: 0.55rem;
+      font-size: 18px;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
     }
     .order-steps li.done { opacity: 0.45; text-decoration: line-through; }
-    .order-steps li.now { color: var(--navy); }
-    .order-steps li.now::before { background: var(--navy); }
+    .order-steps li.now { color: #1B2340; font-weight: 800; }
+    .order-steps li.now::before { background: #1B2340; }
 
+    .phone-col { display: flex; align-items: center; justify-content: center; }
     .phone {
-      width: 100%;
-      max-width: 215px;
-      margin-left: auto;
-      background: var(--navy);
-      border-radius: 22px;
-      padding: 6px;
-      box-shadow: 0 12px 32px rgba(27,35,64,0.25);
+      width: 380px;
+      background: #1B2340;
+      border-radius: 44px;
+      padding: 14px;
+      box-shadow: 0 28px 72px rgba(27,35,64,0.28);
     }
     .screen {
       background: #F0F4FF;
-      border-radius: 17px;
+      border-radius: 34px;
       overflow: hidden;
     }
     .scr-hdr {
-      background: linear-gradient(135deg, var(--navy), var(--navy-soft));
-      padding: 16px 12px 12px;
+      background: linear-gradient(135deg, #1B2340, #2A3458);
+      padding: 36px 20px 18px;
       text-align: center;
       color: rgba(255,255,255,0.65);
-      font-size: 0.58rem;
+      font-size: 16px;
     }
     .scr-hdr .name {
-      color: var(--gold);
       font-family: 'Outfit', sans-serif;
+      font-size: 28px;
       font-weight: 800;
-      font-size: 0.88rem;
-      margin-top: 2px;
+      color: #F5A623;
+      margin: 4px 0 8px;
     }
     .scr-hdr .stars {
       display: inline-flex;
-      margin-top: 6px;
-      background: rgba(245,166,35,0.2);
+      background: rgba(245,166,35,0.22);
       border-radius: 50px;
-      padding: 3px 10px;
-      color: var(--gold);
+      padding: 6px 18px;
+      color: #F5A623;
       font-weight: 800;
-      font-size: 0.72rem;
+      font-size: 20px;
     }
-    .feed { padding: 8px; }
+    .feed { padding: 14px 14px 18px; }
 
     .photo-card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      margin-bottom: 6px;
-      box-shadow: 0 2px 8px rgba(27,35,64,0.08);
-      border: 2px solid transparent;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(27,35,64,0.08);
+      border: 3px solid transparent;
     }
     .photo-card.now {
-      border-color: var(--gold);
-      box-shadow: 0 4px 14px rgba(245,166,35,0.22);
+      border-color: #F5A623;
+      box-shadow: 0 6px 24px rgba(245,166,35,0.28);
     }
     .photo-card.done { opacity: 0.55; }
-    .badge-wrap { padding: 6px 8px 0; }
+    .badge-wrap { padding: 10px 14px 0; }
     .badge {
       display: inline-block;
-      font-size: 0.48rem;
+      font-size: 13px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      padding: 2px 7px;
+      padding: 4px 12px;
       border-radius: 50px;
       font-family: 'Outfit', sans-serif;
     }
-    .badge-now { background: var(--gold); color: #fff; }
+    .badge-now { background: #F5A623; color: #fff; }
     .badge-next { background: #EDE9FF; color: #6B50F5; }
     .badge-later { background: #D1FAE5; color: #059669; }
     .badge-done { background: #E5E7EB; color: #6B7280; }
     .photo-card img {
       width: 100%;
-      height: 58px;
+      height: 120px;
       object-fit: cover;
       display: block;
       background: #ececf2;
     }
     .card-foot {
-      padding: 6px 8px 7px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
     }
     .card-title {
       font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: 0.68rem;
-      color: var(--navy);
-      line-height: 1.2;
+      font-size: 20px;
+      color: #1B2340;
     }
-    .card-time { font-size: 0.52rem; color: var(--text-light); padding: 0 8px 6px; }
+    .card-time {
+      font-size: 15px;
+      color: #9AA0B8;
+      padding: 0 14px 12px;
+    }
     .check {
-      width: 22px; height: 22px;
+      width: 36px; height: 36px;
       border-radius: 50%;
-      border: 2px solid #ddd;
+      border: 3px solid #ddd;
       flex-shrink: 0;
     }
     .check.on {
@@ -248,7 +214,7 @@
     .check.on::after {
       content: '✓';
       color: #fff;
-      font-size: 0.62rem;
+      font-size: 18px;
       font-weight: 800;
       position: absolute;
       inset: 0;
@@ -256,249 +222,172 @@
       align-items: center;
       justify-content: center;
     }
-    .emoji-row {
+    .compact-row {
       background: #fff;
-      border-radius: 10px;
-      padding: 6px 8px;
+      border-radius: 14px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 5px;
-      box-shadow: 0 1px 6px rgba(27,35,64,0.06);
+      gap: 12px;
+      box-shadow: 0 2px 10px rgba(27,35,64,0.06);
     }
-    .emoji-box {
-      width: 28px; height: 28px;
-      background: #E0F5EC;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
+    .compact-row img {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      object-fit: cover;
       flex-shrink: 0;
     }
-    .cta-bar {
+    .footer-bar {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 6px;
-      border-top: 1px solid rgba(27,35,64,0.1);
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 2px solid rgba(27,35,64,0.1);
     }
-    .cta-bar strong { font-family: 'Outfit', sans-serif; font-size: 0.76rem; color: var(--navy); }
-    .cta-bar span { font-size: 0.6rem; color: var(--text-soft); }
-
-    .copy-section {
-      max-width: 720px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 20px;
-    }
-    .copy-section h3 {
+    .footer-bar .url {
       font-family: 'Outfit', sans-serif;
-      font-size: 1rem;
-      margin-bottom: 14px;
-      color: var(--gold);
+      font-size: 30px;
+      font-weight: 800;
+      color: #1B2340;
     }
-    .copy-block {
-      background: rgba(0,0,0,0.25);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 14px;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.9);
-      white-space: pre-wrap;
-    }
-    .copy-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.45);
-      margin-bottom: 6px;
-    }
-    .hide-ui .toolbar,
-    .hide-ui .copy-section,
-    .hide-ui .hint { display: none !important; }
-    .hide-ui body { padding: 0; background: #000; }
-    .hide-ui .export-wrap { margin: 0; max-width: none; }
-    .hide-ui .social-canvas { width: 1080px; max-width: none; border-radius: 0; }
-    .hint {
-      max-width: 720px;
-      margin: 16px auto 0;
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.45);
-      line-height: 1.5;
-      text-align: center;
-    }
-    @media (max-width: 520px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .phone { margin: 0 auto; }
-    }
+    .footer-bar .tagline { font-size: 20px; color: #5A6178; }
   </style>
 </head>
 <body>
 
   <div class="toolbar">
     <div>
-      <h1>Bildstöd morgon — marknadsbild</h1>
-      <p>Korrekt ordning: gå upp → frukost → tänder → väska → skola</p>
+      <h1>Bildstöd morgon — 1080×1080 px</h1>
+      <p>Korrekt ordning · alla bilder lokala (inga externa länkar)</p>
     </div>
     <div class="toolbar-actions">
-      <button type="button" class="btn btn-ghost" id="toggleUi">📷 Exportläge</button>
-      <button type="button" class="btn btn-gold" id="copyCaption">Kopiera Instagram-text</button>
+      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge (1080 px)</button>
+      <button type="button" class="btn btn-gold" id="copyCaption">Kopiera text</button>
     </div>
   </div>
 
-  <div class="export-wrap">
-    <div class="social-canvas" id="marknadsbild">
-      <div class="canvas-inner">
-        <div class="brand-row">
-          <div class="brand">⭐ Min Stjärndag</div>
-          <div class="pill">Bildstöd</div>
-        </div>
-
-        <div class="headline-block">
-          <h2>Egna foton — i rätt ordning</h2>
-          <p>Barnet ser sin riktiga säng, sitt kök och sin tandborste. Morgonrutinen steg för steg.</p>
-        </div>
-
-        <div class="hero-grid">
-          <div class="order-note">
-            <strong>Morgonrutin (07:00–08:15)</strong>
-            <ol class="order-steps">
-              <li class="done">Gå upp</li>
-              <li class="now">Äta frukost</li>
-              <li>Borsta tänderna</li>
-              <li>Packa väskan</li>
-              <li>Gå till skolan</li>
-            </ol>
+  <div class="preview-stage">
+    <div class="preview-scale">
+      <div class="social-canvas" id="marknadsbild">
+        <div class="canvas-content">
+          <div class="top-bar">
+            <div class="brand">⭐ Min Stjärndag</div>
+            <div class="pill">Bildstöd</div>
           </div>
 
-          <div class="phone">
-            <div class="screen">
-              <div class="scr-hdr">
-                <div>Hej,</div>
-                <div class="name">Ella ⭐</div>
-                <div class="stars">⭐ 12</div>
-              </div>
-              <div class="feed">
-                <!-- 1. Gå upp — KLAR -->
-                <div class="photo-card done">
-                  <div class="badge-wrap"><span class="badge badge-done">Klar ✓</span></div>
-                  <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&q=80&auto=format&fit=crop" alt="Morgonljus i sovrum">
-                  <div class="card-foot">
-                    <div class="card-title">Gå upp</div>
-                    <div class="check on"></div>
-                  </div>
-                  <div class="card-time">🕐 07:00</div>
-                </div>
+          <div class="copy-col">
+            <div>
+              <h2>Egna foton — i rätt ordning</h2>
+              <p class="lead">Barnet känner igen sin säng, sitt kök och sin tandborste. Morgonrutinen steg för steg.</p>
+            </div>
+            <div class="order-box">
+              <strong>Morgonrutin 07:00 → 08:15</strong>
+              <ol class="order-steps">
+                <li class="done">Gå upp</li>
+                <li class="now">Äta frukost</li>
+                <li>Borsta tänderna</li>
+                <li>Packa väskan</li>
+                <li>Gå till skolan</li>
+              </ol>
+            </div>
+          </div>
 
-                <!-- 2. Äta frukost — NU -->
-                <div class="photo-card now">
-                  <div class="badge-wrap"><span class="badge badge-now">● NU</span></div>
-                  <img src="https://images.unsplash.com/photo-1533089860890-a1d9608a6fad?w=600&q=80&auto=format&fit=crop" alt="Frukost">
-                  <div class="card-foot">
-                    <div class="card-title">Äta frukost</div>
-                    <div class="check"></div>
-                  </div>
-                  <div class="card-time">🕐 07:30</div>
+          <div class="phone-col">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-hdr">
+                  <div>Hej,</div>
+                  <div class="name">Ella ⭐</div>
+                  <div class="stars">⭐ 12</div>
                 </div>
-
-                <!-- 3. Borsta tänderna — NÄSTA -->
-                <div class="photo-card">
-                  <div class="badge-wrap"><span class="badge badge-next">Nästa</span></div>
-                  <img src="/mockups/assets/toothbrush.jpg" alt="Tandborste">
-                  <div class="card-foot">
-                    <div class="card-title">Borsta tänderna</div>
+                <div class="feed">
+                  <div class="photo-card done">
+                    <div class="badge-wrap"><span class="badge badge-done">Klar ✓</span></div>
+                    <img src="/mockups/assets/morning-room.svg" alt="Gå upp — sovrum">
+                    <div class="card-foot">
+                      <div class="card-title">Gå upp</div>
+                      <div class="check on"></div>
+                    </div>
+                    <div class="card-time">🕐 07:00</div>
                   </div>
-                  <div class="card-time">🕐 07:45</div>
-                </div>
 
-                <!-- 4. Packa väskan -->
-                <div class="photo-card">
-                  <div class="badge-wrap"><span class="badge badge-later">Sedan</span></div>
-                  <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80&auto=format&fit=crop" alt="Skolväska">
-                  <div class="card-foot">
-                    <div class="card-title">Packa väskan</div>
+                  <div class="photo-card now">
+                    <div class="badge-wrap"><span class="badge badge-now">● NU</span></div>
+                    <img src="/mockups/assets/breakfast.svg" alt="Äta frukost">
+                    <div class="card-foot">
+                      <div class="card-title">Äta frukost</div>
+                      <div class="check"></div>
+                    </div>
+                    <div class="card-time">🕐 07:30</div>
                   </div>
-                  <div class="card-time">🕐 08:00</div>
-                </div>
 
-                <!-- 5. Skola — emoji -->
-                <div class="emoji-row">
-                  <div class="emoji-box">🏫</div>
-                  <div>
-                    <div class="badge badge-later" style="margin-bottom:2px">Sedan</div>
-                    <div class="card-title">Gå till skolan</div>
-                    <div class="card-time">🕐 08:15</div>
+                  <div class="photo-card">
+                    <div class="badge-wrap"><span class="badge badge-next">Nästa</span></div>
+                    <img src="/mockups/assets/toothbrush.jpg" alt="Borsta tänderna">
+                    <div class="card-foot">
+                      <div class="card-title">Borsta tänderna</div>
+                    </div>
+                    <div class="card-time">🕐 07:45</div>
+                  </div>
+
+                  <div class="compact-row">
+                    <img src="/mockups/assets/backpack.svg" alt="Packa väskan">
+                    <div>
+                      <span class="badge badge-later">Sedan · 08:00</span>
+                      <div class="card-title" style="margin-top:4px">Packa väskan</div>
+                    </div>
+                  </div>
+                  <div class="compact-row">
+                    <img src="/mockups/assets/school.svg" alt="Skola">
+                    <div>
+                      <span class="badge badge-later">Sedan · 08:15</span>
+                      <div class="card-title" style="margin-top:4px">Gå till skolan</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="cta-bar">
-          <strong>mystarday.se</strong>
-          <span>Era bilder · Barnets vardag</span>
+          <div class="footer-bar">
+            <span class="url">mystarday.se</span>
+            <span class="tagline">Era bilder · Barnets vardag</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="hint">Morgonrutinen visas i kronologisk ordning — inte läggdags först. Exportläge → screenshot 1080×1080.</p>
+  <p class="hint"><strong>Export:</strong> Exportläge → skärmdump 1080×1080. Bilderna ligger i <code>/mockups/assets/</code> (inga Unsplash-länkar).</p>
 
-  <section class="copy-section" id="salljtext">
-    <h3>Säljande texter — kopiera till Facebook &amp; Instagram</h3>
-
-    <div class="copy-label">Instagram / Facebook (kort)</div>
+  <section class="copy-section">
+    <h3>Säljande text</h3>
+    <div class="copy-label">Instagram / Facebook</div>
     <div class="copy-block" id="captionShort">Visuellt stöd som barnet faktiskt känner igen. 📸
 
 I Min Stjärndag laddar ni upp egna foton:
-🛏️ Barnets säng
+🛏️ Barnets rum
 🥣 Köket där frukost äts
 🪥 Tandborsten hemma
 🎒 Den riktiga skolväskan
 
-Barnet ser morgonrutinen i rätt ordning — steg för steg, utan stress.
+Morgonrutinen i rätt ordning — steg för steg.
 
-Perfekt för NPF, autism & ADHD.
 👉 mystarday.se</div>
-
-    <div class="copy-label">Facebook (längre)</div>
-    <div class="copy-block">Generiska clipart-bilder säger inget till barnet. Men en bild på er egen köksbänk? Eller tandborsten i badrummet hemma? Det skapar igenkänning — och trygghet.
-
-Med bildstöd i Min Stjärndag bygger ni schemat med era egna foton:
-
-📷 Ladda upp bilder från er vardag
-☀️ Morgon, dag, kväll — tydligt uppdelat
-✅ Barnet bockar av och får stjärnor
-🧒 Enkelt nog att använda själv
-
-Rutinen visas i rätt ordning: gå upp → frukost → borsta tänderna → packa väskan → skola.
-
-Mindre "vad händer nu?". Mer lugn i vardagen.
-
-Testa gratis på mystarday.se ⭐</div>
-
-    <div class="copy-label">Hashtag-förslag</div>
-    <div class="copy-block">#bildstöd #visuellstöd #morgonrutin #npf #autism #adhd #barnrutiner #struktur #teacch #föräldrastöd #minstjärndag #specialpedagogik</div>
+    <div class="copy-label">Hashtags</div>
+    <div class="copy-block">#bildstöd #visuellstöd #morgonrutin #npf #autism #adhd #minstjärndag</div>
   </section>
 
   <script>
-    document.getElementById('toggleUi').addEventListener('click', function () {
-      document.body.classList.toggle('hide-ui');
-      this.textContent = document.body.classList.contains('hide-ui') ? '✕ Avsluta export' : '📷 Exportläge';
+    document.getElementById('toggleExport').addEventListener('click', function () {
+      document.body.classList.toggle('export-mode');
+      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng exportläge' : '📷 Exportläge (1080 px)';
     });
     document.getElementById('copyCaption').addEventListener('click', function () {
-      var text = document.getElementById('captionShort').textContent;
-      navigator.clipboard.writeText(text).then(function () {
-        alert('Instagram-text kopierad!');
-      }).catch(function () {
-        prompt('Kopiera manuellt:', text);
-      });
+      var t = document.getElementById('captionShort').textContent;
+      navigator.clipboard.writeText(t).then(function () { alert('Kopierat!'); }).catch(function () { prompt('Kopiera:', t); });
     });
   </script>
 </body>

@@ -3,396 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Boendeschema — marknadsbild (mockup)</title>
+  <title>Boendeschema — marknadsbild 1080×1080</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/mockups/mockup-social-base.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --gold: #F5A623;
-      --gold-light: #FFF3D6;
-      --navy: #1B2340;
-      --navy-soft: #2A3458;
-      --sky: #E8F0FE;
-      --lavender: #EDE7F6;
-      --text-soft: #5A6178;
-      --mamma: #4F46E5;
-      --pappa: #22C55E;
-      --page-bg: #0f1428;
-    }
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--page-bg);
-      color: #fff;
-      min-height: 100vh;
-      padding: 24px 16px 64px;
-    }
-    .toolbar {
-      max-width: 1100px;
-      margin: 0 auto 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .toolbar h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 800;
-    }
-    .toolbar p { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
-    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn {
-      border: none;
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .btn-gold { background: var(--gold); color: var(--navy); }
-    .btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
-
-    .export-wrap {
-      max-width: 1100px;
-      margin: 0 auto 40px;
-      display: flex;
-      justify-content: center;
-    }
-    /* 1080×1080 — Instagram / Facebook kvadrat */
     .social-canvas {
-      width: min(100%, 540px);
-      aspect-ratio: 1 / 1;
-      background: linear-gradient(145deg, #1B2340 0%, #2A3458 42%, #1a2744 100%);
-      border-radius: 20px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.45);
+      background: linear-gradient(155deg, #1B2340 0%, #243056 45%, #1a2744 100%);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #fff;
+      padding: 64px 56px 56px;
+      display: flex;
+      flex-direction: column;
     }
     .social-canvas::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 12% 18%, rgba(245,166,35,0.22) 0%, transparent 42%),
-        radial-gradient(circle at 88% 82%, rgba(79,70,229,0.18) 0%, transparent 38%);
+        radial-gradient(circle at 8% 12%, rgba(245,166,35,0.28) 0%, transparent 45%),
+        radial-gradient(circle at 92% 88%, rgba(79,70,229,0.2) 0%, transparent 40%);
       pointer-events: none;
     }
-    .canvas-inner {
+    .canvas-content {
       position: relative;
       z-index: 1;
-      height: 100%;
-      padding: 28px 24px 22px;
+      flex: 1;
       display: grid;
+      grid-template-columns: 1fr 420px;
       grid-template-rows: auto 1fr auto;
-      gap: 12px;
+      gap: 32px 40px;
+      height: 100%;
     }
-    .brand-row {
+    .top-bar {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
     }
     .brand {
       font-family: 'Outfit', sans-serif;
+      font-size: 28px;
       font-weight: 800;
-      font-size: 0.78rem;
-      letter-spacing: 0.04em;
-      color: var(--gold);
+      color: #F5A623;
+      letter-spacing: -0.02em;
     }
     .pill {
-      font-size: 0.62rem;
+      font-size: 18px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.14);
-      padding: 4px 10px;
+      letter-spacing: 0.1em;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.2);
+      padding: 10px 24px;
       border-radius: 50px;
-      color: rgba(255,255,255,0.85);
     }
-    .headline-block h2 {
+    .copy-col { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+    .copy-col h2 {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(1.35rem, 4.8vw, 1.75rem);
+      font-size: 62px;
       font-weight: 800;
-      line-height: 1.12;
-      margin-bottom: 6px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
     }
-    .headline-block p {
-      font-size: clamp(0.72rem, 2.6vw, 0.88rem);
-      color: rgba(255,255,255,0.72);
+    .copy-col .lead {
+      font-size: 26px;
       line-height: 1.45;
-      max-width: 92%;
+      color: rgba(255,255,255,0.78);
+      max-width: 520px;
     }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.05fr;
-      gap: 10px;
-      align-items: center;
-      min-height: 0;
-    }
-    .feature-list {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-    .feature {
+    .bullets { display: flex; flex-direction: column; gap: 18px; }
+    .bullet {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
-      font-size: 0.68rem;
+      gap: 16px;
+      font-size: 22px;
       line-height: 1.35;
-      color: rgba(255,255,255,0.88);
+      color: rgba(255,255,255,0.92);
     }
-    .feature span:first-child { font-size: 0.95rem; flex-shrink: 0; }
+    .bullet-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .bullet strong { color: #fff; }
+
+    .phone-col { display: flex; align-items: center; justify-content: center; }
     .phone {
-      width: 100%;
-      max-width: 210px;
-      margin-left: auto;
-      background: #0a0e1a;
-      border-radius: 22px;
-      padding: 6px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      width: 380px;
+      background: #080c18;
+      border-radius: 44px;
+      padding: 14px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.45);
     }
     .screen {
       background: #F0F4FF;
-      border-radius: 17px;
+      border-radius: 34px;
       overflow: hidden;
-      color: var(--navy);
+      color: #1B2340;
     }
     .scr-hdr {
-      background: linear-gradient(135deg, var(--navy), var(--navy-soft));
-      padding: 14px 10px 10px;
-      color: #fff;
+      background: linear-gradient(135deg, #1B2340, #2A3458);
+      padding: 36px 20px 20px;
       text-align: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 16px;
     }
     .scr-hdr strong {
       display: block;
       font-family: 'Outfit', sans-serif;
-      font-size: 0.72rem;
-      margin-top: 2px;
+      font-size: 26px;
+      color: #F5A623;
+      margin-top: 4px;
     }
-    .scr-hdr small { font-size: 0.58rem; opacity: 0.65; }
-    .scr-body { padding: 8px; }
+    .scr-body { padding: 20px; }
     .custody-banner {
-      border-radius: 8px;
-      border: 2px solid var(--mamma);
+      border-radius: 14px;
+      border: 3px solid #4F46E5;
       background: rgba(79,70,229,0.12);
-      padding: 5px 8px;
-      font-size: 0.58rem;
+      padding: 14px 18px;
+      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--navy);
+      margin-bottom: 16px;
+      color: #1B2340;
     }
     .var-row {
       display: flex;
-      gap: 4px;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
     }
-    .var-row span { font-size: 0.52rem; color: var(--text-soft); font-weight: 600; }
+    .var-row span { font-size: 15px; color: #5A6178; font-weight: 600; }
     .var-btn {
-      font-size: 0.52rem;
+      font-size: 16px;
       font-weight: 800;
-      padding: 3px 7px;
-      border-radius: 7px;
-      border: 1.5px solid var(--lavender);
+      padding: 8px 18px;
+      border-radius: 12px;
+      border: 2px solid #EDE7F6;
+      color: #1B2340;
     }
-    .var-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .var-btn.on { background: #1B2340; color: #fff; border-color: #1B2340; }
     .week-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
+      gap: 6px;
     }
     .day {
-      border-radius: 5px;
+      border-radius: 10px;
       overflow: hidden;
-      font-size: 0.46rem;
       text-align: center;
       border: 1px solid rgba(0,0,0,0.06);
+      font-size: 13px;
     }
     .day-hd {
       font-weight: 800;
-      padding: 3px 1px;
+      padding: 8px 4px;
       color: #fff;
-      line-height: 1.1;
+      font-size: 14px;
     }
     .day-bd {
       background: #fff;
-      padding: 3px 2px 4px;
-      min-height: 28px;
-      font-size: 0.42rem;
-      color: var(--text-soft);
-      line-height: 1.2;
+      padding: 8px 4px 10px;
+      min-height: 72px;
+      font-size: 12px;
+      color: #5A6178;
+      line-height: 1.35;
     }
-    .day.mamma .day-hd { background: var(--mamma); }
-    .day.pappa .day-hd { background: var(--pappa); }
-    .day.today { box-shadow: 0 0 0 2px var(--gold); }
+    .day.mamma .day-hd { background: #4F46E5; }
+    .day.pappa .day-hd { background: #22C55E; }
+    .day.today { box-shadow: 0 0 0 3px #F5A623; }
     .legend-row {
       display: flex;
-      gap: 8px;
-      margin-top: 5px;
-      font-size: 0.48rem;
-      color: var(--text-soft);
+      gap: 20px;
+      margin-top: 14px;
+      font-size: 15px;
+      color: #5A6178;
+      font-weight: 600;
     }
     .legend-row i {
       display: inline-block;
-      width: 8px; height: 8px;
-      border-radius: 2px;
-      margin-right: 2px;
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      margin-right: 6px;
       vertical-align: middle;
     }
-    .cta-bar {
+    .footer-bar {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      padding-top: 4px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      border-top: 2px solid rgba(255,255,255,0.12);
     }
-    .cta-bar strong {
+    .footer-bar .url {
       font-family: 'Outfit', sans-serif;
-      font-size: 0.78rem;
-      color: var(--gold);
+      font-size: 32px;
+      font-weight: 800;
+      color: #F5A623;
     }
-    .cta-bar span { font-size: 0.62rem; color: rgba(255,255,255,0.55); }
-
-    .copy-section {
-      max-width: 720px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 20px;
-    }
-    .copy-section h3 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1rem;
-      margin-bottom: 14px;
-      color: var(--gold);
-    }
-    .copy-block {
-      background: rgba(0,0,0,0.25);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 14px;
-      font-size: 0.88rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.9);
-      white-space: pre-wrap;
-    }
-    .copy-block:last-child { margin-bottom: 0; }
-    .copy-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.45);
-      margin-bottom: 6px;
-    }
-    .hide-ui .toolbar,
-    .hide-ui .copy-section,
-    .hide-ui .hint { display: none !important; }
-    .hide-ui body { padding: 0; background: #000; }
-    .hide-ui .export-wrap { margin: 0; max-width: none; }
-    .hide-ui .social-canvas { width: 1080px; max-width: none; border-radius: 0; }
-    .hint {
-      max-width: 720px;
-      margin: 16px auto 0;
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.45);
-      line-height: 1.5;
-      text-align: center;
-    }
-    @media (max-width: 520px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .phone { margin: 0 auto; }
-    }
+    .footer-bar .tagline { font-size: 22px; color: rgba(255,255,255,0.55); }
   </style>
 </head>
 <body>
 
   <div class="toolbar">
     <div>
-      <h1>Boendeschema — marknadsbild</h1>
-      <p>Screenshot av rutan nedan · 1080×1080 vid exportläge</p>
+      <h1>Boendeschema — 1080×1080 px</h1>
+      <p>Exakt storlek för Instagram &amp; Facebook. Alla bilder lokala.</p>
     </div>
     <div class="toolbar-actions">
-      <button type="button" class="btn btn-ghost" id="toggleUi">📷 Exportläge</button>
-      <button type="button" class="btn btn-gold" id="copyCaption">Kopiera Instagram-text</button>
+      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge (1080 px)</button>
+      <button type="button" class="btn btn-gold" id="copyCaption">Kopiera text</button>
     </div>
   </div>
 
-  <div class="export-wrap">
-    <div class="social-canvas" id="marknadsbild">
-      <div class="canvas-inner">
-        <div class="brand-row">
-          <div class="brand">⭐ Min Stjärndag</div>
-          <div class="pill">Boendeschema</div>
-        </div>
-
-        <div class="headline-block">
-          <h2>Växelvis boende — utan kaos i schemat</h2>
-          <p>Vecka A &amp; B, färgkodade dagar och filter för bara dina dagar. Allt synkat för båda hem.</p>
-        </div>
-
-        <div class="hero-grid">
-          <div class="feature-list">
-            <div class="feature"><span>🏠</span><span><strong>Vecka A / B</strong> — olika rutiner per hem, enkelt att växla</span></div>
-            <div class="feature"><span>🎨</span><span><strong>Färg per hem</strong> — barnet ser direkt var hen ska vara</span></div>
-            <div class="feature"><span>📅</span><span><strong>Denna vecka: hos …</strong> — tydlig banner i appen</span></div>
-            <div class="feature"><span>📄</span><span><strong>Skapa PDF</strong> — skriv ut bara dina dagar till medförälder</span></div>
+  <div class="preview-stage">
+    <div class="preview-scale">
+      <div class="social-canvas" id="marknadsbild">
+        <div class="canvas-content">
+          <div class="top-bar">
+            <div class="brand">⭐ Min Stjärndag</div>
+            <div class="pill">Boendeschema</div>
           </div>
 
-          <div class="phone">
-            <div class="screen">
-              <div class="scr-hdr">
-                <small>Veckoschema</small>
-                <strong>Ella ⭐</strong>
-              </div>
-              <div class="scr-body">
-                <div class="custody-banner">Denna vecka: hos Mamma</div>
-                <div class="var-row">
-                  <span>Redigera:</span>
-                  <div class="var-btn on">Vecka A</div>
-                  <div class="var-btn">Vecka B</div>
+          <div class="copy-col">
+            <div>
+              <h2>Växelvis boende — utan kaos</h2>
+              <p class="lead">Vecka A &amp; B, färgkodade dagar och filter för bara dina dagar.</p>
+            </div>
+            <div class="bullets">
+              <div class="bullet"><span class="bullet-icon">🏠</span><span><strong>Vecka A / B</strong> — olika rutiner per hem</span></div>
+              <div class="bullet"><span class="bullet-icon">🎨</span><span><strong>Färg per hem</strong> — barnet ser var hen ska vara</span></div>
+              <div class="bullet"><span class="bullet-icon">📄</span><span><strong>Skapa PDF</strong> — dela bara dina dagar</span></div>
+            </div>
+          </div>
+
+          <div class="phone-col">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-hdr">
+                  Veckoschema
+                  <strong>Ella ⭐</strong>
                 </div>
-                <div class="week-grid">
-                  <div class="day mamma"><div class="day-hd">Mån</div><div class="day-bd">☀️ Frukost<br>🪥 Tänder</div></div>
-                  <div class="day mamma"><div class="day-hd">Tis</div><div class="day-bd">🎒 Skola</div></div>
-                  <div class="day mamma today"><div class="day-hd">Ons</div><div class="day-bd">⭐ Nu här</div></div>
-                  <div class="day mamma"><div class="day-hd">Tor</div><div class="day-bd">⚽ Aktivitet</div></div>
-                  <div class="day pappa"><div class="day-hd">Fre</div><div class="day-bd">Hos pappa</div></div>
-                  <div class="day pappa"><div class="day-hd">Lör</div><div class="day-bd">Lekdag</div></div>
-                  <div class="day pappa"><div class="day-hd">Sön</div><div class="day-bd">Vila</div></div>
-                </div>
-                <div class="legend-row">
-                  <span><i style="background:var(--mamma)"></i>Mamma</span>
-                  <span><i style="background:var(--pappa)"></i>Pappa</span>
+                <div class="scr-body">
+                  <div class="custody-banner">Denna vecka: hos Mamma</div>
+                  <div class="var-row">
+                    <span>Redigera:</span>
+                    <div class="var-btn on">Vecka A</div>
+                    <div class="var-btn">Vecka B</div>
+                  </div>
+                  <div class="week-grid">
+                    <div class="day mamma"><div class="day-hd">Mån</div><div class="day-bd">🌅 Frukost<br>🪥 Tänder</div></div>
+                    <div class="day mamma"><div class="day-hd">Tis</div><div class="day-bd">🎒 Skola</div></div>
+                    <div class="day mamma today"><div class="day-hd">Ons</div><div class="day-bd">⭐ Idag</div></div>
+                    <div class="day mamma"><div class="day-hd">Tor</div><div class="day-bd">⚽ Aktivitet</div></div>
+                    <div class="day pappa"><div class="day-hd">Fre</div><div class="day-bd">Hos pappa</div></div>
+                    <div class="day pappa"><div class="day-hd">Lör</div><div class="day-bd">Lek</div></div>
+                    <div class="day pappa"><div class="day-hd">Sön</div><div class="day-bd">Vila</div></div>
+                  </div>
+                  <div class="legend-row">
+                    <span><i style="background:#4F46E5"></i>Mamma</span>
+                    <span><i style="background:#22C55E"></i>Pappa</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="cta-bar">
-          <strong>mystarday.se</strong>
-          <span>Gratis att testa · Perfekt för NPF-familjer</span>
+          <div class="footer-bar">
+            <span class="url">mystarday.se</span>
+            <span class="tagline">Gratis att testa · NPF-vänligt</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="hint">Tips: Klicka <strong>Exportläge</strong>, zooma till 200% (1080 px bredd) och ta screenshot. Eller använd devtools → Capture node screenshot på <code>#marknadsbild</code>.</p>
+  <p class="hint"><strong>Export:</strong> Klicka Exportläge → skärmdump eller DevTools → högerklicka på #marknadsbild → <em>Capture node screenshot</em>. Canvas är exakt 1080×1080 px.</p>
 
-  <section class="copy-section" id="salljtext">
-    <h3>Säljande texter — kopiera till Facebook &amp; Instagram</h3>
-
-    <div class="copy-label">Instagram / Facebook (kort)</div>
+  <section class="copy-section">
+    <h3>Säljande text</h3>
+    <div class="copy-label">Instagram / Facebook</div>
     <div class="copy-block" id="captionShort">Växelvis boende behöver inte betyda dubbelt jobb. 🏠
 
 Med boendeschema i Min Stjärndag får ni:
@@ -401,40 +299,19 @@ Med boendeschema i Min Stjärndag får ni:
 ✅ "Denna vecka: hos …" direkt i appen
 ✅ PDF med bara dina dagar till medförälder
 
-Mindre stress. Mer struktur. Båda hem på samma sida.
-
 👉 mystarday.se</div>
-
-    <div class="copy-label">Facebook (längre)</div>
-    <div class="copy-block" id="captionLong">Är ni två hem som delar vardagen? Då vet ni hur lätt det är att tappa bort vem som hämtar, vilken vecka som gäller och vad som ska hända när barnet byter hem.
-
-Min Stjärndag har nu boendeschema byggt för verkliga familjer:
-
-🏠 Vecka A och Vecka B — olika scheman per hem, enkelt att växla
-🎨 Färg per hem — tydligt för barnet (och för er)
-📅 Banner "Denna vecka: hos …" — ingen mer gissning
-📄 Skapa PDF med bara dina dagar — smidigt att dela
-
-Perfekt för barn med NPF, autism eller ADHD som behöver förutsägbarhet — men lika bra för alla familjer med växelvis boende.
-
-Testa gratis på mystarday.se ⭐</div>
-
-    <div class="copy-label">Hashtag-förslag</div>
-    <div class="copy-block">#växelvisboende #medförälder #boendeschema #npf #autism #adhd #barnrutiner #struktur #föräldrastöd #minstjärndag #visuellstöd #familjeliv</div>
+    <div class="copy-label">Hashtags</div>
+    <div class="copy-block">#växelvisboende #medförälder #boendeschema #npf #autism #adhd #minstjärndag</div>
   </section>
 
   <script>
-    document.getElementById('toggleUi').addEventListener('click', function () {
-      document.body.classList.toggle('hide-ui');
-      this.textContent = document.body.classList.contains('hide-ui') ? '✕ Avsluta export' : '📷 Exportläge';
+    document.getElementById('toggleExport').addEventListener('click', function () {
+      document.body.classList.toggle('export-mode');
+      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng exportläge' : '📷 Exportläge (1080 px)';
     });
     document.getElementById('copyCaption').addEventListener('click', function () {
-      var text = document.getElementById('captionShort').textContent;
-      navigator.clipboard.writeText(text).then(function () {
-        alert('Instagram-text kopierad!');
-      }).catch(function () {
-        prompt('Kopiera manuellt:', text);
-      });
+      var t = document.getElementById('captionShort').textContent;
+      navigator.clipboard.writeText(t).then(function () { alert('Kopierat!'); }).catch(function () { prompt('Kopiera:', t); });
     });
   </script>
 </body>

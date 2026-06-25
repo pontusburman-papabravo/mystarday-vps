@@ -1,0 +1,124 @@
+/* Shared base for 1080×1080 social mockups — design at full size, scale for preview */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #F5A623;
+  --navy: #1B2340;
+  --navy-soft: #2A3458;
+  --sky: #E8F0FE;
+  --lavender: #EDE7F6;
+  --text-soft: #5A6178;
+  --canvas: 1080;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #0c1020;
+  color: #fff;
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+}
+
+.toolbar {
+  max-width: 1120px;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.toolbar h1 {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+}
+.toolbar p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+
+.preview-stage {
+  max-width: 1120px;
+  margin: 0 auto 32px;
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}
+
+/* Scale 1080 canvas to fit screen — export mode uses scale 1 */
+.preview-scale {
+  transform-origin: top center;
+  transform: scale(var(--preview-scale, 0.5));
+}
+@media (max-width: 600px) {
+  .preview-scale { --preview-scale: 0.36; }
+}
+@media (min-width: 1100px) {
+  .preview-scale { --preview-scale: 0.55; }
+}
+
+.social-canvas {
+  width: 1080px;
+  height: 1080px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.copy-section {
+  max-width: 720px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 24px;
+}
+.copy-section h3 {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: var(--gold);
+}
+.copy-block {
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.92);
+  white-space: pre-wrap;
+}
+.copy-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 8px;
+}
+.hint {
+  max-width: 720px;
+  margin: 16px auto;
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.55;
+  text-align: center;
+}
+
+body.export-mode { padding: 0; background: #000; overflow: hidden; }
+body.export-mode .toolbar,
+body.export-mode .copy-section,
+body.export-mode .hint { display: none !important; }
+body.export-mode .preview-stage { margin: 0; max-width: none; }
+body.export-mode .preview-scale { transform: none; }
