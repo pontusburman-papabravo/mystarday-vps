@@ -1179,3 +1179,58 @@ body.parent-theme-light .magic-theme-option.is-active {
   border-color: #f5a623;
   box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT THEME — parent Home hub (Hem). The home hub is dark-first in
+   dashboard-magic.css (body.parent-magic-dashboard + .parent-home-hub).
+   These overrides flip it to light so the theme toggle also affects Hem.
+   ════════════════════════════════════════════════════════════════════ */
+body.parent-magic-view.parent-theme-light.parent-magic-dashboard {
+  background: #f4f1ff !important;
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-home-hub {
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(124, 58, 237, 0.10), transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(245, 166, 35, 0.08), transparent 35%),
+    linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-hub-greeting,
+body.parent-magic-view.parent-theme-light .parent-glass-card .parent-ready-head h2,
+body.parent-magic-view.parent-theme-light .parent-week-section h3,
+body.parent-magic-view.parent-theme-light .parent-handoff-card .parent-handoff-title,
+body.parent-magic-view.parent-theme-light .parent-ready-name,
+body.parent-magic-view.parent-theme-light .parent-action-label,
+body.parent-magic-view.parent-theme-light .parent-encourage-inline strong {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-hub-sub,
+body.parent-magic-view.parent-theme-light .parent-ready-task,
+body.parent-magic-view.parent-theme-light .parent-handoff-card .parent-handoff-sub,
+body.parent-magic-view.parent-theme-light .parent-week-labels span,
+body.parent-magic-view.parent-theme-light .parent-encourage-inline span {
+  color: rgba(26, 22, 51, 0.62) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-glass-card,
+body.parent-magic-view.parent-theme-light .parent-ready-child,
+body.parent-magic-view.parent-theme-light .parent-action-tile,
+body.parent-magic-view.parent-theme-light .parent-hub-family-avatar,
+body.parent-magic-view.parent-theme-light .parent-handoff-secondary {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.10) !important;
+  color: #1a1633 !important;
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.06) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-handoff-secondary {
+  box-shadow: none !important;
+}
+
+/* Gold accent buttons / links stay readable — only normalise neutral text */
+body.parent-magic-view.parent-theme-light .parent-schedule-link {
+  color: #b8860b !important;
+}

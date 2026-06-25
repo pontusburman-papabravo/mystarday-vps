@@ -358,4 +358,11 @@
       if (t2) { _theme = t2; applyThemeClass(); }
     });
   }
+
+  // Re-assert the theme (body/html classes + theme-color meta) after each magic
+  // soft-navigation. The router preserves the theme class on <body>, but the new
+  // page's <meta theme-color> would otherwise keep its static default.
+  window.addEventListener('stjarndag-magic-navigated', function () {
+    applyThemeClass();
+  });
 })();
