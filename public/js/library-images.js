@@ -21,6 +21,14 @@
       .replace(/"/g, '&quot;');
   }
 
+  async function cropBeforeUpload(file) {
+    if (!file) return null;
+    if (window.LibraryImageCrop && typeof LibraryImageCrop.open === 'function') {
+      return LibraryImageCrop.open(file);
+    }
+    return file;
+  }
+
   async function compressUploadFile(file) {
     if (!file) return file;
     var type = (file.type || '').toLowerCase();
@@ -193,19 +201,25 @@
     });
   }
 
-  function selectActivityImage(url) {
-    var hidden = document.getElementById('activityImageUrl');
-    var preview = document.getElementById('activityImagePreview');
-    if (hidden) hidden.value = url || '';
+  function updateBarnvyPreview(url) {
+    var wrap = document.getElementById('activityImagePreviewWrap');
+    var preview = document.getElementById('activityImageBarnvyPreview');
+    var recropBtn = document.getElementById('activityImageRecropBtn');
+    if (wrap) wrap.classList.toggle('hidden', !url);
     if (preview) {
       if (url) {
         preview.src = url;
-        preview.classList.remove('hidden');
       } else {
-        preview.classList.add('hidden');
         preview.removeAttribute('src');
       }
     }
+    if (recropBtn) recropBtn.classList.toggle('hidden', !url);
+  }
+
+  function selectActivityImage(url) {
+    var hidden = document.getElementById('activityImageUrl');
+    if (hidden) hidden.value = url || '';
+    updateBarnvyPreview(url);
     document.querySelectorAll('.activity-image-pick').forEach(function (btn) {
       btn.classList.toggle('ring-2', btn.getAttribute('data-pick-url') === url);
       btn.classList.toggle('ring-gold', btn.getAttribute('data-pick-url') === url);
@@ -215,6 +229,33 @@
 
   function clearActivityImage() {
     selectActivityImage('');
+  }
+
+  async function recropSelectedImage() {
+    var urlEl = document.getElementById('activityImageUrl');
+    var current = urlEl && urlEl.value ? urlEl.value : '';
+    if (!current || !window.LibraryImageCrop) return;
+    var cropped = await LibraryImageCrop.openFromUrl(current);
+    if (!cropped) return;
+    try {
+      var newUrl = await uploadFile(cropped);
+      var res = await apiFetch('/api/family/images', {
+        method: 'POST',
+        body: JSON.stringify({ label: null, image_url: newUrl }),
+      });
+      if (!res.ok) {
+        var err = await res.json().catch(function () { return {}; });
+        throw new Error(err.error || 'Kunde inte spara i bildarkivet');
+      }
+      var row = await res.json();
+      images.push(row);
+      renderGrid();
+      renderPickerGrid();
+      selectActivityImage(row.image_url);
+      showToast('Bilden uppdaterad');
+    } catch (err) {
+      showToast(err.message || 'Kunde inte spara beskärningen', true);
+    }
   }
 
   function setVisualMode(mode) {
@@ -232,9 +273,9 @@
 
   function initActivityImagePicker(act) {
     return loadImages().then(function () {
-      var url = act && act.image_url ? act.image_url : '';
+      var imageUrl = act && act.image_url ? act.image_url : '';
       var isNew = !act || !act.id;
-      if (url) {
+      if (imageUrl) {
         setVisualMode('photo');
       } else if (isNew && images.length > 0) {
         setVisualMode('photo');
@@ -242,7 +283,7 @@
       } else {
         setVisualMode('emoji');
       }
-      selectActivityImage(url);
+      selectActivityImage(imageUrl);
       renderPickerGrid();
     });
   }
@@ -255,6 +296,8 @@
     var btn = document.getElementById('familyImageUploadBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Laddar upp…'; }
     try {
+      file = await cropBeforeUpload(file);
+      if (!file) return;
       await addImage(file, label);
       if (labelEl) labelEl.value = '';
       showToast('Bild tillagd i bildarkivet');
@@ -270,6 +313,8 @@
     var file = input.files && input.files[0];
     if (!file) return;
     try {
+      file = await cropBeforeUpload(file);
+      if (!file) return;
       var row = await addImage(file, '');
       selectActivityImage(row.image_url);
       setVisualMode('photo');
@@ -282,6 +327,9 @@
   }
 
   async function init() {
+    if (window.LibraryImageCrop && typeof LibraryImageCrop.init === 'function') {
+      LibraryImageCrop.init();
+    }
     await loadImages();
     renderGrid();
 
@@ -295,6 +343,8 @@
     }
     var clearBtn = document.getElementById('activityImageClearBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearActivityImage);
+    var recropBtn = document.getElementById('activityImageRecropBtn');
+    if (recropBtn) recropBtn.addEventListener('click', recropSelectedImage);
     var emojiBtn = document.getElementById('activityVisualEmojiBtn');
     var photoBtn = document.getElementById('activityVisualPhotoBtn');
     if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); clearActivityImage(); });

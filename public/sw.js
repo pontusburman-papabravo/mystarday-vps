@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v384';
+const CACHE_NAME = 'stjarndag-v385';
+// stjarndag-v385: Bibliotek — beskär/zooma egna aktivitetsbilder med barnvy-förhandsgranskning
 // stjarndag-v384: fix familjehallen — ogiltig parents SQL (DISTINCT + ORDER BY)
 // stjarndag-v380: Barnvy variant C — bildschema-kort för aktiviteter med eget foto
 // stjarndag-v379: print-schema — iframe-fallback på mobil/PWA (popup blockeras)
