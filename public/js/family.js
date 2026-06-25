@@ -1237,3 +1237,8 @@
 if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('family', init);
 }
+
+window.addEventListener('stjarndag-magic-navigated', function (e) {
+  if (!e.detail || e.detail.pageId !== 'family') return;
+  init();
+});

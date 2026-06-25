@@ -1,13 +1,34 @@
 /**
- * Seed smoke-test family (parent + child) for local browser QA.
+ * Seed smoke-test family (parent + two children) for mobile QA.
  * Idempotent: skips register if login already works.
+ *
+ * Usage:
+ *   export SMOKE_PARENT_EMAIL="qa.mobil@test.stjarndag.local"
+ *   export SMOKE_PARENT_PASSWORD="QaMobilTest2026!Secure"
+ *   export SMOKE_CHILD_NAME="Astrid"
+ *   export SMOKE_CHILD_PIN="1112"
+ *   export SMOKE_CHILD2_NAME="Erik"
+ *   export SMOKE_CHILD2_PIN="2233"
+ *   node scripts/seed-smoke-family.mjs
  */
 const BASE = process.env.BASE || 'http://127.0.0.1:3000';
 const EMAIL = process.env.SMOKE_PARENT_EMAIL;
 const PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const PARENT_NAME = process.env.SMOKE_PARENT_NAME || 'Pontus';
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'Astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const PARENT_NAME = process.env.SMOKE_PARENT_NAME || 'QA Mobil';
+const CHILDREN = [
+  {
+    name: process.env.SMOKE_CHILD_NAME || 'Astrid',
+    pin: process.env.SMOKE_CHILD_PIN || '4829',
+    emoji: '⭐',
+    birthday: '2016-05-15',
+  },
+  {
+    name: process.env.SMOKE_CHILD2_NAME || 'Erik',
+    pin: process.env.SMOKE_CHILD2_PIN || '7391',
+    emoji: '🚀',
+    birthday: '2018-03-20',
+  },
+];
 
 if (!EMAIL || !PASSWORD) {
   console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
@@ -78,11 +99,11 @@ async function ensureParent() {
   if (!res.ok) throw new Error(`Login after register failed: ${body.error}`);
 }
 
-async function ensureChild() {
+async function ensureChild(spec) {
   const meRes = await fetch(`${BASE}/api/auth/me`, { headers: { cookie: cookieJar } });
   const me = await meRes.json();
   const existing = (me.children || []).find(
-    (c) => (c.name || '').toLowerCase() === CHILD_NAME.toLowerCase()
+    (c) => (c.name || '').toLowerCase() === spec.name.toLowerCase()
   );
   if (existing) {
     console.log('Child exists:', existing.name, existing.id);
@@ -94,31 +115,42 @@ async function ensureChild() {
     method: 'POST',
     headers: { 'X-CSRF-Token': csrf },
     body: JSON.stringify({
-      name: CHILD_NAME,
-      emoji: '⭐',
-      birthday: '2016-05-15',
-      pin: CHILD_PIN,
+      name: spec.name,
+      emoji: spec.emoji,
+      birthday: spec.birthday,
+      pin: spec.pin,
     }),
   });
-  if (!res.ok) throw new Error(`Create child failed: ${body.error || res.status}`);
-  console.log('Created child:', body.name || CHILD_NAME, 'PIN', CHILD_PIN);
+  if (!res.ok) throw new Error(`Create child ${spec.name} failed: ${body.error || res.status}`);
+  console.log('Created child:', body.name || spec.name, 'PIN', spec.pin);
   return body;
 }
 
-async function verifyChildLogin() {
+async function verifyChildLogin(spec) {
   const { res, body } = await jsonFetch('/api/auth/child-login', {
     method: 'POST',
-    body: JSON.stringify({ username: CHILD_NAME.toLowerCase(), pin: CHILD_PIN }),
+    body: JSON.stringify({ username: spec.name.toLowerCase(), pin: spec.pin }),
   });
-  if (!res.ok) throw new Error(`Child login failed: ${body.error || res.status}`);
-  console.log('Child login OK:', body.name || CHILD_NAME);
+  if (!res.ok) throw new Error(`Child login ${spec.name} failed: ${body.error || res.status}`);
+  console.log('Child login OK:', body.name || spec.name);
 }
 
 async function main() {
-  console.log('Seeding smoke family at', BASE);
+  console.log('Seeding smoke family (2 children) at', BASE);
   await ensureParent();
-  await ensureChild();
-  await verifyChildLogin();
+  const created = [];
+  for (const spec of CHILDREN) {
+    created.push(await ensureChild(spec));
+    await verifyChildLogin(spec);
+  }
+
+  console.log('\n--- QA credentials ---');
+  console.log('Parent email:', EMAIL);
+  console.log('Parent password:', PASSWORD);
+  for (const spec of CHILDREN) {
+    console.log(`Child ${spec.name}: PIN ${spec.pin}`);
+  }
+  console.log('Children IDs:', created.map((c) => `${c.name}=${c.id}`).join(', '));
   console.log('Seed complete.');
 }
 

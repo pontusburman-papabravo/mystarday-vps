@@ -62,8 +62,11 @@ describe('magic soft navigation', () => {
   it('planning and rewards hubs re-render on magic navigated event', () => {
     const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
     const rewards = fs.readFileSync(path.join(ROOT, 'public/js/rewards-hub.js'), 'utf8');
+    const family = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
     assert.match(planning, /stjarndag-magic-navigated/);
     assert.match(rewards, /stjarndag-magic-navigated/);
+    assert.match(family, /stjarndag-magic-navigated/);
+    assert.match(family, /pageId !== 'family'/);
   });
 
   it('schedule boot guards logoutBtn missing in magic view', () => {
