@@ -14,7 +14,7 @@ describe('magic soft navigation', () => {
 
     assert.match(router, /ParentMagicRouter/);
     assert.match(router, /navigateTo/);
-    assert.match(router, /#parentBottomNav/);
+    assert.match(router, /closest\('a\[href\^="\/"\]'\)/);
     assert.match(router, /pushState/);
     assert.match(router, /shouldSoftNav/);
     assert.match(router, /\/upgrade/);
@@ -105,7 +105,25 @@ describe('magic soft navigation', () => {
     assert.match(src, /if \(!document\.getElementById\('forDigGoals'\)\) return/);
     assert.match(src, /ParentMagicPageBoot\.register\('for-dig', init\)/);
     assert.match(src, /_forDigClickBound/);
-    assert.doesNotMatch(src, /ParentMagicPageBoot\.register[\s\S]*DOMContentLoaded, init/);
+    assert.match(src, /stjarndag-magic-navigated/);
+    assert.match(src, /registerPageBoot/);
+    assert.doesNotMatch(src, /DOMContentLoaded, init/);
+  });
+
+  it('for-dig auth guard only redirects on 401/403', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
+    assert.match(src, /res\.status === 401 \|\| res\.status === 403/);
+  });
+
+  it('soft nav follows server redirect for gated HTML pages', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(router, /finalPath !== path/);
+    assert.match(router, /res\.url/);
+  });
+
+  it('magic bootstrap runs page boot after shell init', () => {
+    const bootstrap = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-bootstrap.js'), 'utf8');
+    assert.match(bootstrap, /ParentMagicPageBoot\.run\(page\)/);
   });
 
   it('skattkammaren magic contrast CSS present', () => {

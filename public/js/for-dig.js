@@ -670,6 +670,7 @@
   }
 
   async function ensureParentAuth() {
+    if (typeof window.apiFetch !== 'function') return null;
     try {
       const res = await window.apiFetch('/api/auth/me');
       if (res.ok) {
@@ -678,10 +679,14 @@
           return user;
         }
       }
-    } catch (_) { /* fall through to login */ }
-    const returnPath = window.location.pathname + window.location.search;
-    window.location.href = '/login?next=' + encodeURIComponent(returnPath);
-    return null;
+      if (res.status === 401 || res.status === 403) {
+        const returnPath = window.location.pathname + window.location.search;
+        window.location.href = '/login?next=' + encodeURIComponent(returnPath);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
   }
 
   async function init() {
@@ -720,13 +725,23 @@
     }
   }
 
-  if (window.ParentMagicPageBoot) {
+  function registerPageBoot() {
+    if (!window.ParentMagicPageBoot) return false;
     ParentMagicPageBoot.register('for-dig', init);
-  } else if (document.getElementById('forDigGoals')) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+    return true;
   }
+
+  if (!registerPageBoot()) {
+    var bootAttempts = 0;
+    var bootTimer = setInterval(function () {
+      bootAttempts += 1;
+      if (registerPageBoot() || bootAttempts >= 40) {
+        clearInterval(bootTimer);
+      }
+    }, 50);
+  }
+
+  window.addEventListener('stjarndag-magic-navigated', function (e) {
+    if (e.detail && e.detail.pageId === 'for-dig') init();
+  });
 })();

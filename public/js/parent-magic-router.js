@@ -33,7 +33,7 @@
       '/js/schedule-views.js?v=1.3.0',
       '/js/schedule.js?v=2.26.0',
     ],
-    'for-dig': ['/js/for-dig.js?v=2.3'],
+    'for-dig': ['/js/for-dig.js?v=2.4'],
     family: [
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',
@@ -197,6 +197,15 @@
         headers: { Accept: 'text/html' },
       });
       if (!res.ok) throw new Error('fetch_failed');
+
+      var finalPath = normalizePath(new URL(res.url, global.location.origin).pathname);
+      if (finalPath !== path) {
+        if (SOFT_PATHS[finalPath]) {
+          return navigateTo(finalPath, { replace: true, force: true });
+        }
+        global.location.href = res.url;
+        return false;
+      }
 
       var html = await res.text();
       var doc = parseHtml(html);

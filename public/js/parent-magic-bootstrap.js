@@ -20,7 +20,11 @@
     }
 
     _started = true;
-    ParentMagicShell.init(page);
+    ParentMagicShell.init(page).then(function () {
+      if (window.ParentMagicPageBoot && ParentMagicPageBoot.run) {
+        ParentMagicPageBoot.run(page);
+      }
+    });
   }
 
   if (document.readyState === 'loading') {

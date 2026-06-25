@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
     <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
-  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=12">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=9">
-  <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=12">
+  <link rel="stylesheet" href="/css/app-view-toggle.css?v=12">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <link rel="stylesheet" href="/css/for-dig.css?v=2">
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -26,7 +26,7 @@
   </style>
 </head>
 <body class="font-body bg-sky min-h-screen flex flex-col md:flex-row for-dig-page" data-magic-page="for-dig">
-  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
+  <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
     <a href="/dashboard" class="hidden md:flex items-center gap-3 mb-8 no-underline text-white hover:text-white">
       <span class="text-2xl">⭐</span>
       <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
@@ -61,11 +61,12 @@
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
   <script src="/js/nav-config.js?v=1"></script>
-  <script src="/js/for-dig.js?v=2.3"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1"></script>
+  <script src="/js/parent-magic-auto.js?v=12"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
-  <script src="/js/parent-magic-bootstrap.js?v=1"></script>
+  <script src="/js/parent-magic-bootstrap.js?v=12"></script>
+  <script src="/js/for-dig.js?v=2.4"></script>
   <script src="/js/parent-nav-sidebar.js?v=1"></script>
   <script>
     document.getElementById('logoutBtn')?.addEventListener('click', () => Auth.logout());
