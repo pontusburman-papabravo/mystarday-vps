@@ -27,6 +27,11 @@
     if (!section || !body || !_config) return;
 
     section.classList.remove('hidden');
+    if (window.location.hash === '#custodyScheduleSection' || window.location.hash === '#boendeschema') {
+      setTimeout(function () {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
     var homes = _config.homes || [];
     var parents = _config.parents || [];
     var patterns = _config.patterns || [];

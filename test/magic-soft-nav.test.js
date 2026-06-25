@@ -41,6 +41,18 @@ describe('magic soft navigation', () => {
     });
   });
 
+  it('family soft nav loads custody-settings for boendeschema', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const familyBlock = router.match(/family:\s*\[([\s\S]*?)\]/);
+    assert.ok(familyBlock, 'family PAGE_SCRIPTS block');
+    assert.match(familyBlock[0], /custody-settings\.js/);
+    const custodyIdx = familyBlock[0].indexOf('custody-settings.js');
+    const familyJsIdx = familyBlock[0].indexOf('family.js');
+    assert.ok(custodyIdx >= 0 && familyJsIdx > custodyIdx, 'custody-settings must load before family.js');
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    assert.match(hubs, /#custodyScheduleSection/);
+  });
+
   it('router loads planning and rewards hub scripts on soft nav', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     assert.match(router, /planning:\s*\[[\s\S]*planning-hub\.js/);

@@ -212,8 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v381';
-// stjarndag-v381: print-schema — Skapa PDF (nedladdning) istället för utskrift/popup
+const CACHE_NAME = 'stjarndag-v382';
+// stjarndag-v382: Familj soft-nav — ladda custody-settings (boendeschema syns)
 // stjarndag-v380: Barnvy variant C — bildschema-kort för aktiviteter med eget foto
 // stjarndag-v379: print-schema — iframe-fallback på mobil/PWA (popup blockeras)
 // stjarndag-v378: Bibliotek — kopiera schema med start/slutdatum (LOV m.m.)

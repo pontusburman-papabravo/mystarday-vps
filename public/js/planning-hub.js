@@ -10,6 +10,7 @@
   ];
 
   var PLANNING_LINKS = [
+    { href: '/family#custodyScheduleSection', icon: '🏠', title: 'Boendeschema', sub: 'Växelvis boende — vecka A/B per barn' },
     { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
     { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Bocka av, backfill och skriv ut' },
     { href: '/print-schema', icon: '📄', title: 'Skapa PDF — schema', sub: 'Välj barn, 1–4 veckor — rymms på ett ark' },

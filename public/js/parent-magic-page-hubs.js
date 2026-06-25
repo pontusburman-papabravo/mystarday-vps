@@ -126,6 +126,12 @@
       '<div class="magic-page-stats">' +
       '<div class="magic-page-stat-card magic-3d-card"><strong>' + childN + '</strong><span>Barn</span></div>' +
       '<div class="magic-page-stat-card magic-3d-card"><strong>' + adultN + '</strong><span>Vuxna</span></div>' +
+      '</div>' +
+      '<div class="magic-hub-links grid gap-3 mt-3 max-w-lg">' +
+      '<a href="#custodyScheduleSection" class="flex items-center gap-3 p-4 bg-white/80 rounded-2xl border-2 border-lavender no-underline text-navy">' +
+      '<span class="text-2xl" aria-hidden="true">🏠</span>' +
+      '<span><strong class="block">Boendeschema</strong>' +
+      '<span class="text-text-soft text-sm">Växelvis boende — vecka A/B</span></span></a>' +
       '</div></div>';
   }
 
