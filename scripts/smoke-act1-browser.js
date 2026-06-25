@@ -2,13 +2,17 @@
 /**
  * ACT-1 full browser smoke — run after deploy when user says "testa nu".
  * Usage:
- *   SMOKE_EMAIL=pontus@burman.cc SMOKE_PASSWORD='…' node scripts/smoke-act1-browser.mjs
+ *   SMOKE_EMAIL=pontus@burman.cc SMOKE_PASSWORD='…' node scripts/smoke-act1-browser.js
+ *   SMOKE_HEADED=1 SMOKE_DEVICE=dator node scripts/smoke-act1-browser.js   # synlig webbläsare
  */
 const puppeteer = require('puppeteer');
 
 const base = process.env.APP_URL || 'https://mystarday.se';
 const email = process.env.SMOKE_EMAIL || process.env.PR2_EMAIL;
 const password = process.env.SMOKE_PASSWORD || process.env.PR2_PASSWORD;
+const headed = process.env.SMOKE_HEADED === '1' || process.env.SMOKE_HEADED === 'true';
+const slowMo = Number(process.env.SMOKE_SLOW_MS || (headed ? 120 : 0)) || 0;
+const pauseMs = Number(process.env.SMOKE_PAUSE_MS || (headed ? 1500 : 0)) || 0;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -29,18 +33,32 @@ async function login(page) {
   await page.waitForFunction(() => !location.pathname.includes('/login'), { timeout: 25000 });
 }
 
-async function runDevice(device) {
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+async function runDevice(device, { isLast = true } = {}) {
+  const browser = await puppeteer.launch({
+    headless: !headed,
+    slowMo,
+    args: headed ? ['--start-maximized', '--window-size=1280,900'] : ['--no-sandbox'],
+    defaultViewport: headed ? null : undefined,
+  });
+  if (headed) console.log(`\n👀 ${device.id} (${device.width}×${device.height}) — titta på Chrome-fönstret…\n`);
   const page = await browser.newPage();
-  await page.setViewport({ width: device.width, height: device.height, isMobile: device.isMobile, hasTouch: device.hasTouch });
+  if (!headed) {
+    await page.setViewport({ width: device.width, height: device.height, isMobile: device.isMobile, hasTouch: device.hasTouch });
+  } else {
+    await page.setViewport({ width: device.width, height: device.height, isMobile: device.isMobile, hasTouch: device.hasTouch });
+  }
   const checks = [];
 
   async function check(name, fn) {
     try {
-      checks.push({ name, ok: true, detail: await fn() });
+      const detail = await fn();
+      checks.push({ name, ok: true, detail });
+      if (headed) console.log(`  ✅ ${name}`);
     } catch (e) {
       checks.push({ name, ok: false, err: e.message });
+      if (headed) console.log(`  ❌ ${name}: ${e.message}`);
     }
+    if (pauseMs) await sleep(pauseMs);
   }
 
   await check('login', async () => {
@@ -105,6 +123,16 @@ async function runDevice(device) {
     }));
   });
 
+  await check('pr4_ai_personalize', async () => {
+    const has = await page.evaluate(async () => {
+      const r = await fetch('/js/onboarding-starter-plan.js', { cache: 'no-store' });
+      const t = await r.text();
+      return r.ok && t.includes('starter-plan/personalize') && t.includes('activation_ai_starter_plan');
+    });
+    if (!has) throw new Error('starter-plan JS missing PR4 AI personalize');
+    return 'ok';
+  });
+
   await check('pr3_starter_plan_asset', async () => {
     const has = await page.evaluate(async () => {
       const r = await fetch('/js/onboarding-starter-plan.js', { cache: 'no-store' });
@@ -125,7 +153,15 @@ async function runDevice(device) {
     return 'ok';
   });
 
+  if (headed) {
+    console.log(`\n✓ ${device.id} klar — stänger om 2 sek…`);
+    await sleep(2000);
+  }
   await browser.close();
+  if (headed && !isLast) {
+    console.log(`\n⏸  Nästa enhet om 3 sek…\n`);
+    await sleep(3000);
+  }
   return { device: device.id, checks, failed: checks.filter((c) => !c.ok).length };
 }
 
@@ -135,9 +171,19 @@ async function runDevice(device) {
     process.exit(2);
   }
 
+  const only = (process.env.SMOKE_DEVICE || '').trim();
+  const runList = only ? DEVICES.filter((d) => d.id === only) : DEVICES;
+  if (!runList.length) {
+    console.error(`Unknown SMOKE_DEVICE=${only}. Use: ${DEVICES.map((d) => d.id).join(', ')}`);
+    process.exit(2);
+  }
+  if (headed) {
+    console.log('👀 Synligt läge — stäng INTE Chrome-fönstret förrän testet är klart.\n');
+  }
+
   const devices = [];
-  for (const d of DEVICES) {
-    devices.push(await runDevice(d));
+  for (let i = 0; i < runList.length; i++) {
+    devices.push(await runDevice(runList[i], { isLast: i === runList.length - 1 }));
   }
 
   let sw = 'unknown';
