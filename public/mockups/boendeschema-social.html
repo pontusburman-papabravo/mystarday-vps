@@ -3,223 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Boendeschema — marknadsbild 1080×1080</title>
+  <title>Boendeschema — marknadsbild</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/mockups/mockup-social-base.css">
   <style>
     .social-canvas {
-      background: linear-gradient(155deg, #1B2340 0%, #243056 45%, #1a2744 100%);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: #fff;
-      padding: 64px 56px 56px;
+      background: linear-gradient(160deg, #1B2340 0%, #243056 50%, #1a2744 100%);
       display: flex;
       flex-direction: column;
+      align-items: center;
+      padding: 52px 48px 40px;
+      text-align: center;
+      color: #fff;
     }
     .social-canvas::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 8% 12%, rgba(245,166,35,0.28) 0%, transparent 45%),
-        radial-gradient(circle at 92% 88%, rgba(79,70,229,0.2) 0%, transparent 40%);
+        radial-gradient(circle at 15% 20%, rgba(245,166,35,0.25) 0%, transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(79,70,229,0.2) 0%, transparent 40%);
       pointer-events: none;
     }
-    .canvas-content {
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      grid-template-rows: auto 1fr auto;
-      gap: 32px 40px;
-      height: 100%;
-    }
-    .top-bar {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .brand {
+    .canvas-body { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; }
+    .brand-line {
       font-family: 'Outfit', sans-serif;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 800;
       color: #F5A623;
-      letter-spacing: -0.02em;
+      margin-bottom: 18px;
     }
-    .pill {
-      font-size: 18px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      background: rgba(255,255,255,0.12);
-      border: 2px solid rgba(255,255,255,0.2);
-      padding: 10px 24px;
-      border-radius: 50px;
-    }
-    .copy-col { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
-    .copy-col h2 {
+    .headline {
       font-family: 'Outfit', sans-serif;
-      font-size: 62px;
+      font-size: 56px;
       font-weight: 800;
-      line-height: 1.05;
+      line-height: 1.06;
       letter-spacing: -0.03em;
+      max-width: 920px;
+      margin-bottom: 14px;
     }
-    .copy-col .lead {
-      font-size: 26px;
-      line-height: 1.45;
-      color: rgba(255,255,255,0.78);
-      max-width: 520px;
+    .subline {
+      font-size: 24px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.4;
+      max-width: 800px;
+      margin-bottom: 32px;
     }
-    .bullets { display: flex; flex-direction: column; gap: 18px; }
-    .bullet {
+    .features {
       display: flex;
-      align-items: flex-start;
+      justify-content: center;
       gap: 16px;
-      font-size: 22px;
-      line-height: 1.35;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      max-width: 960px;
+    }
+    .feat {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 600;
       color: rgba(255,255,255,0.92);
     }
-    .bullet-icon {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-    .bullet strong { color: #fff; }
+    .feat span { margin-right: 6px; }
 
-    .phone-col { display: flex; align-items: center; justify-content: center; }
-    .phone {
-      width: 380px;
-      background: #080c18;
-      border-radius: 44px;
-      padding: 14px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.45);
-    }
-    .screen {
-      background: #F0F4FF;
-      border-radius: 34px;
-      overflow: hidden;
-      color: #1B2340;
-    }
-    .scr-hdr {
-      background: linear-gradient(135deg, #1B2340, #2A3458);
-      padding: 36px 20px 20px;
-      text-align: center;
-      color: rgba(255,255,255,0.7);
-      font-size: 16px;
-    }
-    .scr-hdr strong {
-      display: block;
-      font-family: 'Outfit', sans-serif;
-      font-size: 26px;
-      color: #F5A623;
-      margin-top: 4px;
-    }
-    .scr-body { padding: 20px; }
-    .custody-banner {
-      border-radius: 14px;
+    .phone-wrap { flex: 1; display: flex; align-items: flex-end; justify-content: center; width: 100%; }
+    .m-phone { width: 520px; }
+    .m-feed { padding: 20px 22px 28px; }
+
+  .custody-banner {
+      border-radius: 16px;
       border: 3px solid #4F46E5;
-      background: rgba(79,70,229,0.12);
-      padding: 14px 18px;
-      font-size: 20px;
+      background: rgba(79,70,229,0.15);
+      padding: 18px 22px;
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 16px;
       color: #1B2340;
+      margin-bottom: 20px;
+      text-align: left;
     }
     .var-row {
       display: flex;
-      gap: 10px;
       align-items: center;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 24px;
       flex-wrap: wrap;
     }
-    .var-row span { font-size: 15px; color: #5A6178; font-weight: 600; }
+    .var-label { font-size: 18px; color: #5A6178; font-weight: 600; }
     .var-btn {
-      font-size: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
       font-weight: 800;
-      padding: 8px 18px;
-      border-radius: 12px;
+      padding: 10px 24px;
+      border-radius: 14px;
       border: 2px solid #EDE7F6;
       color: #1B2340;
+      background: #fff;
     }
     .var-btn.on { background: #1B2340; color: #fff; border-color: #1B2340; }
-    .week-grid {
+
+    .week-strip {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-    .day {
-      border-radius: 10px;
+    .day-pill {
+      border-radius: 16px;
       overflow: hidden;
       text-align: center;
-      border: 1px solid rgba(0,0,0,0.06);
-      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(27,35,64,0.08);
     }
-    .day-hd {
+    .day-pill.today { box-shadow: 0 0 0 4px #F5A623; }
+    .day-pill-hd {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
       font-weight: 800;
-      padding: 8px 4px;
+      padding: 10px 4px;
       color: #fff;
-      font-size: 14px;
     }
-    .day-bd {
+    .day-pill-bd {
       background: #fff;
-      padding: 8px 4px 10px;
-      min-height: 72px;
-      font-size: 12px;
-      color: #5A6178;
-      line-height: 1.35;
-    }
-    .day.mamma .day-hd { background: #4F46E5; }
-    .day.pappa .day-hd { background: #22C55E; }
-    .day.today { box-shadow: 0 0 0 3px #F5A623; }
-    .legend-row {
-      display: flex;
-      gap: 20px;
-      margin-top: 14px;
-      font-size: 15px;
+      padding: 12px 6px;
+      font-size: 13px;
       color: #5A6178;
       font-weight: 600;
+      line-height: 1.3;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .legend-row i {
+    .day-pill.mamma .day-pill-hd { background: #4F46E5; }
+    .day-pill.pappa .day-pill-hd { background: #22C55E; }
+    .legend {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: #5A6178;
+    }
+    .legend i {
       display: inline-block;
       width: 14px; height: 14px;
       border-radius: 4px;
-      margin-right: 6px;
+      margin-right: 8px;
       vertical-align: middle;
     }
-    .footer-bar {
-      grid-column: 1 / -1;
+
+    .footer {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: 28px;
       padding-top: 20px;
       border-top: 2px solid rgba(255,255,255,0.12);
     }
-    .footer-bar .url {
+    .footer .url {
       font-family: 'Outfit', sans-serif;
-      font-size: 32px;
+      font-size: 34px;
       font-weight: 800;
       color: #F5A623;
     }
-    .footer-bar .tagline { font-size: 22px; color: rgba(255,255,255,0.55); }
+    .footer .tag { font-size: 20px; color: rgba(255,255,255,0.55); font-weight: 600; }
   </style>
 </head>
 <body>
 
   <div class="toolbar">
     <div>
-      <h1>Boendeschema — 1080×1080 px</h1>
-      <p>Exakt storlek för Instagram &amp; Facebook. Alla bilder lokala.</p>
+      <h1>Boendeschema — marknadsbild</h1>
+      <p>1080×1080 · vecka A/B · färg per hem</p>
     </div>
     <div class="toolbar-actions">
-      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge (1080 px)</button>
+      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge</button>
       <button type="button" class="btn btn-gold" id="copyCaption">Kopiera text</button>
     </div>
   </div>
@@ -227,48 +189,41 @@
   <div class="preview-stage">
     <div class="preview-scale">
       <div class="social-canvas" id="marknadsbild">
-        <div class="canvas-content">
-          <div class="top-bar">
-            <div class="brand">⭐ Min Stjärndag</div>
-            <div class="pill">Boendeschema</div>
+        <div class="canvas-body">
+          <div class="brand-line">⭐ Min Stjärndag</div>
+          <h2 class="headline">Boendeschema för växelvis boende</h2>
+          <p class="subline">Vecka A &amp; B, färgkodade dagar och PDF med bara dina dagar.</p>
+          <div class="features">
+            <div class="feat"><span>🏠</span> Vecka A / B</div>
+            <div class="feat"><span>🎨</span> Färg per hem</div>
+            <div class="feat"><span>📄</span> Skapa PDF</div>
           </div>
 
-          <div class="copy-col">
-            <div>
-              <h2>Växelvis boende — utan kaos</h2>
-              <p class="lead">Vecka A &amp; B, färgkodade dagar och filter för bara dina dagar.</p>
-            </div>
-            <div class="bullets">
-              <div class="bullet"><span class="bullet-icon">🏠</span><span><strong>Vecka A / B</strong> — olika rutiner per hem</span></div>
-              <div class="bullet"><span class="bullet-icon">🎨</span><span><strong>Färg per hem</strong> — barnet ser var hen ska vara</span></div>
-              <div class="bullet"><span class="bullet-icon">📄</span><span><strong>Skapa PDF</strong> — dela bara dina dagar</span></div>
-            </div>
-          </div>
-
-          <div class="phone-col">
-            <div class="phone">
-              <div class="screen">
-                <div class="scr-hdr">
-                  Veckoschema
-                  <strong>Ella ⭐</strong>
+          <div class="phone-wrap">
+            <div class="m-phone">
+              <div class="m-screen">
+                <div class="m-notch"></div>
+                <div class="m-app-hdr">
+                  <div class="m-greeting">Veckoschema</div>
+                  <div class="m-child-name">Ella ⭐</div>
                 </div>
-                <div class="scr-body">
-                  <div class="custody-banner">Denna vecka: hos Mamma</div>
+                <div class="m-feed">
+                  <div class="custody-banner">📍 Denna vecka: hos Mamma</div>
                   <div class="var-row">
-                    <span>Redigera:</span>
+                    <span class="var-label">Redigera:</span>
                     <div class="var-btn on">Vecka A</div>
                     <div class="var-btn">Vecka B</div>
                   </div>
-                  <div class="week-grid">
-                    <div class="day mamma"><div class="day-hd">Mån</div><div class="day-bd">🌅 Frukost<br>🪥 Tänder</div></div>
-                    <div class="day mamma"><div class="day-hd">Tis</div><div class="day-bd">🎒 Skola</div></div>
-                    <div class="day mamma today"><div class="day-hd">Ons</div><div class="day-bd">⭐ Idag</div></div>
-                    <div class="day mamma"><div class="day-hd">Tor</div><div class="day-bd">⚽ Aktivitet</div></div>
-                    <div class="day pappa"><div class="day-hd">Fre</div><div class="day-bd">Hos pappa</div></div>
-                    <div class="day pappa"><div class="day-hd">Lör</div><div class="day-bd">Lek</div></div>
-                    <div class="day pappa"><div class="day-hd">Sön</div><div class="day-bd">Vila</div></div>
+                  <div class="week-strip">
+                    <div class="day-pill mamma"><div class="day-pill-hd">Mån</div><div class="day-pill-bd">🌅<br>Morgon</div></div>
+                    <div class="day-pill mamma"><div class="day-pill-hd">Tis</div><div class="day-pill-bd">🎒<br>Skola</div></div>
+                    <div class="day-pill mamma today"><div class="day-pill-hd">Ons</div><div class="day-pill-bd">⭐<br>Idag</div></div>
+                    <div class="day-pill mamma"><div class="day-pill-hd">Tor</div><div class="day-pill-bd">⚽<br>Lek</div></div>
+                    <div class="day-pill pappa"><div class="day-pill-hd">Fre</div><div class="day-pill-bd">🏠<br>Pappa</div></div>
+                    <div class="day-pill pappa"><div class="day-pill-hd">Lör</div><div class="day-pill-bd">🎮<br>Lek</div></div>
+                    <div class="day-pill pappa"><div class="day-pill-hd">Sön</div><div class="day-pill-bd">😴<br>Vila</div></div>
                   </div>
-                  <div class="legend-row">
+                  <div class="legend">
                     <span><i style="background:#4F46E5"></i>Mamma</span>
                     <span><i style="background:#22C55E"></i>Pappa</span>
                   </div>
@@ -277,37 +232,34 @@
             </div>
           </div>
 
-          <div class="footer-bar">
+          <div class="footer">
             <span class="url">mystarday.se</span>
-            <span class="tagline">Gratis att testa · NPF-vänligt</span>
+            <span class="tag">Gratis att testa</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="hint"><strong>Export:</strong> Klicka Exportläge → skärmdump eller DevTools → högerklicka på #marknadsbild → <em>Capture node screenshot</em>. Canvas är exakt 1080×1080 px.</p>
+  <p class="hint">Exportläge → skärmdump 1080×1080. Veckovy som i appens boendeschema.</p>
 
   <section class="copy-section">
     <h3>Säljande text</h3>
     <div class="copy-label">Instagram / Facebook</div>
-    <div class="copy-block" id="captionShort">Växelvis boende behöver inte betyda dubbelt jobb. 🏠
+    <div class="copy-block" id="captionShort">Växelvis boende — utan kaos i schemat. 🏠
 
-Med boendeschema i Min Stjärndag får ni:
-✅ Vecka A & B — olika rutiner per hem
-✅ Färgkodade dagar så barnet ser var hen ska vara
-✅ "Denna vecka: hos …" direkt i appen
-✅ PDF med bara dina dagar till medförälder
+✅ Vecka A & B per hem
+✅ Färgkodade dagar
+✅ "Denna vecka: hos …"
+✅ PDF med bara dina dagar
 
 👉 mystarday.se</div>
-    <div class="copy-label">Hashtags</div>
-    <div class="copy-block">#växelvisboende #medförälder #boendeschema #npf #autism #adhd #minstjärndag</div>
   </section>
 
   <script>
     document.getElementById('toggleExport').addEventListener('click', function () {
       document.body.classList.toggle('export-mode');
-      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng exportläge' : '📷 Exportläge (1080 px)';
+      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng' : '📷 Exportläge';
     });
     document.getElementById('copyCaption').addEventListener('click', function () {
       var t = document.getElementById('captionShort').textContent;

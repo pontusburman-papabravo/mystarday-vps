@@ -1,124 +1,158 @@
-/* Shared base for 1080×1080 social mockups — design at full size, scale for preview */
+/* Social mockup base — 1080×1080 canvas, scales to fit viewport */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --gold: #F5A623;
-  --navy: #1B2340;
-  --navy-soft: #2A3458;
-  --sky: #E8F0FE;
-  --lavender: #EDE7F6;
-  --text-soft: #5A6178;
-  --canvas: 1080;
-}
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background: #0c1020;
+  background: #0a0d18;
   color: #fff;
   min-height: 100vh;
-  padding: 24px 16px 48px;
+  padding: 20px 16px 48px;
 }
 
 .toolbar {
-  max-width: 1120px;
-  margin: 0 auto 20px;
+  max-width: 1100px;
+  margin: 0 auto 16px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
 }
-.toolbar h1 {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-}
-.toolbar p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.toolbar h1 { font-family: 'Outfit', system-ui, sans-serif; font-size: 17px; font-weight: 800; }
+.toolbar p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn {
-  border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
+  border: none; border-radius: 10px; padding: 10px 16px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
 }
-.btn-gold { background: var(--gold); color: var(--navy); }
-.btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+.btn-gold { background: #F5A623; color: #1B2340; }
+.btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.14); }
 
 .preview-stage {
-  max-width: 1120px;
-  margin: 0 auto 32px;
-  display: flex;
-  justify-content: center;
-  overflow: auto;
+  width: min(calc(100vw - 32px), 1080px);
+  margin: 0 auto 28px;
+  aspect-ratio: 1 / 1;
+  position: relative;
 }
-
-/* Scale 1080 canvas to fit screen — export mode uses scale 1 */
 .preview-scale {
-  transform-origin: top center;
-  transform: scale(var(--preview-scale, 0.5));
-}
-@media (max-width: 600px) {
-  .preview-scale { --preview-scale: 0.36; }
-}
-@media (min-width: 1100px) {
-  .preview-scale { --preview-scale: 0.55; }
+  position: absolute;
+  inset: 0;
+  width: 1080px;
+  height: 1080px;
+  transform-origin: top left;
+  transform: scale(calc(min(calc(100vw - 32px), 1080px) / 1080));
 }
 
 .social-canvas {
   width: 1080px;
   height: 1080px;
-  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── Phone shell (shared) ── */
+.m-phone {
+  background: #0d1224;
+  border-radius: 52px;
+  padding: 16px;
+  box-shadow:
+    0 40px 100px rgba(0,0,0,0.5),
+    inset 0 0 0 2px rgba(255,255,255,0.06);
+}
+.m-screen {
+  background: #F0F4FF;
+  border-radius: 40px;
   overflow: hidden;
   position: relative;
 }
+.m-notch {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 30px;
+  background: #0d1224;
+  border-radius: 0 0 18px 18px;
+  z-index: 5;
+}
+.m-app-hdr {
+  background: linear-gradient(145deg, #1B2340 0%, #2A3458 100%);
+  padding: 48px 24px 22px;
+  text-align: center;
+  position: relative;
+}
+.m-app-hdr::after {
+  content: '';
+  position: absolute;
+  top: -30px; right: -20px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(245,166,35,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.m-greeting { color: rgba(255,255,255,0.6); font-size: 20px; }
+.m-child-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: #F5A623;
+  margin-top: 4px;
+}
+.m-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  background: rgba(245,166,35,0.2);
+  border-radius: 50px;
+  padding: 8px 22px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #F5A623;
+}
+.m-feed { padding: 20px; }
 
 .copy-section {
-  max-width: 720px;
+  max-width: 680px;
   margin: 0 auto;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
-  padding: 24px;
+  padding: 22px;
 }
-.copy-section h3 {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-size: 16px;
-  margin-bottom: 16px;
-  color: var(--gold);
-}
+.copy-section h3 { font-family: 'Outfit', sans-serif; font-size: 15px; margin-bottom: 14px; color: #F5A623; }
 .copy-block {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.28);
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
   font-size: 14px;
   line-height: 1.65;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255,255,255,0.9);
   white-space: pre-wrap;
 }
 .copy-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 8px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: rgba(255,255,255,0.4); margin-bottom: 6px;
 }
 .hint {
-  max-width: 720px;
-  margin: 16px auto;
-  font-size: 13px;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.55;
-  text-align: center;
+  max-width: 680px; margin: 12px auto;
+  font-size: 13px; color: rgba(255,255,255,0.42);
+  line-height: 1.5; text-align: center;
 }
 
-body.export-mode { padding: 0; background: #000; overflow: hidden; }
+body.export-mode { padding: 0; background: #000; overflow: auto; }
 body.export-mode .toolbar,
 body.export-mode .copy-section,
 body.export-mode .hint { display: none !important; }
-body.export-mode .preview-stage { margin: 0; max-width: none; }
-body.export-mode .preview-scale { transform: none; }
+body.export-mode .preview-stage {
+  width: 1080px; height: 1080px; margin: 0;
+}
+body.export-mode .preview-scale {
+  transform: none;
+  position: static;
+  width: 1080px; height: 1080px;
+}

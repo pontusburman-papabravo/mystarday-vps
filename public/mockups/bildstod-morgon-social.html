@@ -3,267 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bildstöd morgon — marknadsbild 1080×1080</title>
+  <title>Bildstöd morgon — marknadsbild</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/mockups/mockup-social-base.css">
   <style>
     .social-canvas {
-      background: linear-gradient(160deg, #FFF9EE 0%, #FFF0D0 40%, #E8F0FE 100%);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      color: #1B2340;
-      padding: 56px 52px 48px;
+      background: linear-gradient(165deg, #FFF9EE 0%, #FFE8B8 35%, #E8F0FE 100%);
       display: flex;
       flex-direction: column;
-    }
-    .canvas-content {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 36px;
-      height: 100%;
-    }
-    .top-bar {
-      grid-column: 1 / -1;
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: -8px;
-    }
-    .brand {
-      font-family: 'Outfit', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      color: #1B2340;
-    }
-    .pill {
-      font-size: 18px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      background: #1B2340;
-      color: #fff;
-      padding: 10px 24px;
-      border-radius: 50px;
-    }
-    .copy-col {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 32px;
-      padding-right: 12px;
-    }
-    .copy-col h2 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 58px;
-      font-weight: 800;
-      line-height: 1.06;
-      letter-spacing: -0.03em;
-      color: #1B2340;
-    }
-    .copy-col .lead {
-      font-size: 26px;
-      line-height: 1.45;
-      color: #5A6178;
-    }
-    .order-box {
-      background: rgba(255,255,255,0.75);
-      border: 2px solid rgba(27,35,64,0.08);
-      border-radius: 20px;
-      padding: 24px 28px;
-      box-shadow: 0 8px 32px rgba(27,35,64,0.06);
-    }
-    .order-box strong {
-      display: block;
-      font-family: 'Outfit', sans-serif;
-      font-size: 22px;
-      margin-bottom: 16px;
-      color: #1B2340;
-    }
-    .order-steps { list-style: none; counter-reset: s; }
-    .order-steps li {
-      counter-increment: s;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #5A6178;
-    }
-    .order-steps li::before {
-      content: counter(s);
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: #F5A623;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-    .order-steps li.done { opacity: 0.45; text-decoration: line-through; }
-    .order-steps li.now { color: #1B2340; font-weight: 800; }
-    .order-steps li.now::before { background: #1B2340; }
-
-    .phone-col { display: flex; align-items: center; justify-content: center; }
-    .phone {
-      width: 380px;
-      background: #1B2340;
-      border-radius: 44px;
-      padding: 14px;
-      box-shadow: 0 28px 72px rgba(27,35,64,0.28);
-    }
-    .screen {
-      background: #F0F4FF;
-      border-radius: 34px;
-      overflow: hidden;
-    }
-    .scr-hdr {
-      background: linear-gradient(135deg, #1B2340, #2A3458);
-      padding: 36px 20px 18px;
+      padding: 52px 48px 40px;
       text-align: center;
-      color: rgba(255,255,255,0.65);
-      font-size: 16px;
+      color: #1B2340;
     }
-    .scr-hdr .name {
+    .brand-line {
       font-family: 'Outfit', sans-serif;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 800;
-      color: #F5A623;
-      margin: 4px 0 8px;
+      color: #1B2340;
+      margin-bottom: 20px;
     }
-    .scr-hdr .stars {
-      display: inline-flex;
-      background: rgba(245,166,35,0.22);
+    .headline {
+      font-family: 'Outfit', sans-serif;
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 900px;
+      margin-bottom: 14px;
+    }
+    .subline {
+      font-size: 24px;
+      color: #5A6178;
+      line-height: 1.4;
+      max-width: 820px;
+      margin-bottom: 28px;
+    }
+    .steps-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      max-width: 920px;
+    }
+    .step-pill {
+      font-size: 17px;
+      font-weight: 700;
+      padding: 8px 16px;
       border-radius: 50px;
-      padding: 6px 18px;
-      color: #F5A623;
-      font-weight: 800;
-      font-size: 20px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid rgba(27,35,64,0.08);
+      color: #5A6178;
     }
-    .feed { padding: 14px 14px 18px; }
+    .step-pill.done { opacity: 0.5; text-decoration: line-through; }
+    .step-pill.now {
+      background: #1B2340;
+      color: #fff;
+      border-color: #1B2340;
+      box-shadow: 0 4px 16px rgba(27,35,64,0.2);
+    }
 
-    .photo-card {
+    .phone-wrap { flex: 1; display: flex; align-items: flex-end; justify-content: center; width: 100%; }
+    .m-phone { width: 520px; }
+    .m-feed { padding: 16px 18px 22px; }
+
+    /* Variant C — bildschema-kort (som i appen) */
+    .p-card {
       background: #fff;
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
-      margin-bottom: 10px;
-      box-shadow: 0 4px 14px rgba(27,35,64,0.08);
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(27,35,64,0.1);
       border: 3px solid transparent;
     }
-    .photo-card.now {
+    .p-card.now {
       border-color: #F5A623;
-      box-shadow: 0 6px 24px rgba(245,166,35,0.28);
+      box-shadow: 0 8px 32px rgba(245,166,35,0.3);
     }
-    .photo-card.done { opacity: 0.55; }
-    .badge-wrap { padding: 10px 14px 0; }
-    .badge {
+    .p-card.done { opacity: 0.5; }
+    .p-badge-wrap { padding: 12px 16px 0; text-align: left; }
+    .p-badge {
       display: inline-block;
+      font-family: 'Outfit', sans-serif;
       font-size: 13px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 4px 12px;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
       border-radius: 50px;
-      font-family: 'Outfit', sans-serif;
     }
-    .badge-now { background: #F5A623; color: #fff; }
-    .badge-next { background: #EDE9FF; color: #6B50F5; }
-    .badge-later { background: #D1FAE5; color: #059669; }
-    .badge-done { background: #E5E7EB; color: #6B7280; }
-    .photo-card img {
+    .p-badge-now { background: #F5A623; color: #fff; }
+    .p-badge-next { background: #EDE9FF; color: #6B50F5; }
+    .p-badge-done { background: #E5E7EB; color: #6B7280; }
+    .p-card img {
       width: 100%;
-      height: 120px;
+      height: 150px;
       object-fit: cover;
       display: block;
-      background: #ececf2;
+      background: #e8ecf8;
     }
-    .card-foot {
-      padding: 12px 14px;
+    .p-card-foot {
+      padding: 14px 18px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .card-title {
+    .p-card-title {
       font-family: 'Outfit', sans-serif;
+      font-size: 26px;
       font-weight: 700;
-      font-size: 20px;
       color: #1B2340;
     }
-    .card-time {
-      font-size: 15px;
-      color: #9AA0B8;
-      padding: 0 14px 12px;
-    }
-    .check {
-      width: 36px; height: 36px;
+    .p-card-time { font-size: 17px; color: #9AA0B8; padding: 0 18px 14px; text-align: left; }
+    .p-check {
+      width: 44px; height: 44px;
       border-radius: 50%;
       border: 3px solid #ddd;
       flex-shrink: 0;
     }
-    .check.on {
-      background: #22C55E;
-      border-color: #22C55E;
-      position: relative;
+    .p-check.on { background: #22C55E; border-color: #22C55E; position: relative; }
+    .p-check.on::after {
+      content: '✓'; color: #fff; font-size: 22px; font-weight: 800;
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
     }
-    .check.on::after {
-      content: '✓';
-      color: #fff;
-      font-size: 18px;
-      font-weight: 800;
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .compact-row {
+    .p-row {
       background: #fff;
-      border-radius: 14px;
-      padding: 12px 14px;
+      border-radius: 16px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 10px rgba(27,35,64,0.06);
+      gap: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 10px rgba(27,35,64,0.07);
     }
-    .compact-row img {
-      width: 52px; height: 52px;
-      border-radius: 12px;
+    .p-row img {
+      width: 64px; height: 64px;
+      border-radius: 14px;
       object-fit: cover;
       flex-shrink: 0;
     }
-    .footer-bar {
-      grid-column: 1 / -1;
+    .p-row-title { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: #1B2340; }
+    .p-row-time { font-size: 15px; color: #9AA0B8; margin-top: 2px; }
+    .done-chip {
+      background: rgba(34,197,94,0.12);
+      border: 2px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #16A34A;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .footer {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: auto;
-      padding-top: 16px;
+      margin-top: 28px;
+      padding-top: 20px;
       border-top: 2px solid rgba(27,35,64,0.1);
     }
-    .footer-bar .url {
+    .footer .url {
       font-family: 'Outfit', sans-serif;
-      font-size: 30px;
+      font-size: 34px;
       font-weight: 800;
       color: #1B2340;
     }
-    .footer-bar .tagline { font-size: 20px; color: #5A6178; }
+    .footer .tag { font-size: 20px; color: #5A6178; font-weight: 600; }
   </style>
 </head>
 <body>
 
   <div class="toolbar">
     <div>
-      <h1>Bildstöd morgon — 1080×1080 px</h1>
-      <p>Korrekt ordning · alla bilder lokala (inga externa länkar)</p>
+      <h1>Bildstöd morgon — marknadsbild</h1>
+      <p>1080×1080 · app-lik barnvy · morgon i rätt ordning</p>
     </div>
     <div class="toolbar-actions">
-      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge (1080 px)</button>
+      <button type="button" class="btn btn-ghost" id="toggleExport">📷 Exportläge</button>
       <button type="button" class="btn btn-gold" id="copyCaption">Kopiera text</button>
     </div>
   </div>
@@ -271,119 +194,84 @@
   <div class="preview-stage">
     <div class="preview-scale">
       <div class="social-canvas" id="marknadsbild">
-        <div class="canvas-content">
-          <div class="top-bar">
-            <div class="brand">⭐ Min Stjärndag</div>
-            <div class="pill">Bildstöd</div>
-          </div>
+        <div class="brand-line">⭐ Min Stjärndag</div>
+        <h2 class="headline">Bildstöd med egna foton</h2>
+        <p class="subline">Barnet känner igen sin säng, sitt kök och sin tandborste — morgonrutinen steg för steg.</p>
+        <div class="steps-row">
+          <span class="step-pill done">① Gå upp</span>
+          <span class="step-pill now">② Äta frukost</span>
+          <span class="step-pill">③ Borsta tänderna</span>
+          <span class="step-pill">④ Packa väskan</span>
+          <span class="step-pill">⑤ Skola</span>
+        </div>
 
-          <div class="copy-col">
-            <div>
-              <h2>Egna foton — i rätt ordning</h2>
-              <p class="lead">Barnet känner igen sin säng, sitt kök och sin tandborste. Morgonrutinen steg för steg.</p>
-            </div>
-            <div class="order-box">
-              <strong>Morgonrutin 07:00 → 08:15</strong>
-              <ol class="order-steps">
-                <li class="done">Gå upp</li>
-                <li class="now">Äta frukost</li>
-                <li>Borsta tänderna</li>
-                <li>Packa väskan</li>
-                <li>Gå till skolan</li>
-              </ol>
-            </div>
-          </div>
-
-          <div class="phone-col">
-            <div class="phone">
-              <div class="screen">
-                <div class="scr-hdr">
-                  <div>Hej,</div>
-                  <div class="name">Ella ⭐</div>
-                  <div class="stars">⭐ 12</div>
+        <div class="phone-wrap">
+          <div class="m-phone">
+            <div class="m-screen">
+              <div class="m-notch"></div>
+              <div class="m-app-hdr">
+                <div class="m-greeting">Hej,</div>
+                <div class="m-child-name">Ella ⭐</div>
+                <div class="m-stars">⭐ 12 stjärnor</div>
+              </div>
+              <div class="m-feed">
+                <div class="done-chip">✓ Gå upp · 07:00</div>
+                <div class="p-card now">
+                  <div class="p-badge-wrap"><span class="p-badge p-badge-now">● NU</span></div>
+                  <img src="/mockups/assets/breakfast.jpg" alt="Äta frukost">
+                  <div class="p-card-foot">
+                    <div class="p-card-title">Äta frukost</div>
+                    <div class="p-check"></div>
+                  </div>
+                  <div class="p-card-time">🕐 07:30</div>
                 </div>
-                <div class="feed">
-                  <div class="photo-card done">
-                    <div class="badge-wrap"><span class="badge badge-done">Klar ✓</span></div>
-                    <img src="/mockups/assets/morning-room.svg" alt="Gå upp — sovrum">
-                    <div class="card-foot">
-                      <div class="card-title">Gå upp</div>
-                      <div class="check on"></div>
-                    </div>
-                    <div class="card-time">🕐 07:00</div>
+                <div class="p-row">
+                  <img src="/mockups/assets/toothbrush.jpg" alt="Borsta tänderna">
+                  <div>
+                    <span class="p-badge p-badge-next">Nästa</span>
+                    <div class="p-row-title">Borsta tänderna</div>
+                    <div class="p-row-time">🕐 07:45</div>
                   </div>
-
-                  <div class="photo-card now">
-                    <div class="badge-wrap"><span class="badge badge-now">● NU</span></div>
-                    <img src="/mockups/assets/breakfast.svg" alt="Äta frukost">
-                    <div class="card-foot">
-                      <div class="card-title">Äta frukost</div>
-                      <div class="check"></div>
-                    </div>
-                    <div class="card-time">🕐 07:30</div>
-                  </div>
-
-                  <div class="photo-card">
-                    <div class="badge-wrap"><span class="badge badge-next">Nästa</span></div>
-                    <img src="/mockups/assets/toothbrush.jpg" alt="Borsta tänderna">
-                    <div class="card-foot">
-                      <div class="card-title">Borsta tänderna</div>
-                    </div>
-                    <div class="card-time">🕐 07:45</div>
-                  </div>
-
-                  <div class="compact-row">
-                    <img src="/mockups/assets/backpack.svg" alt="Packa väskan">
-                    <div>
-                      <span class="badge badge-later">Sedan · 08:00</span>
-                      <div class="card-title" style="margin-top:4px">Packa väskan</div>
-                    </div>
-                  </div>
-                  <div class="compact-row">
-                    <img src="/mockups/assets/school.svg" alt="Skola">
-                    <div>
-                      <span class="badge badge-later">Sedan · 08:15</span>
-                      <div class="card-title" style="margin-top:4px">Gå till skolan</div>
-                    </div>
+                </div>
+                <div class="p-row">
+                  <img src="/mockups/assets/backpack.jpg" alt="Packa väskan">
+                  <div>
+                    <span class="p-badge p-badge-next" style="background:#D1FAE5;color:#059669">Sedan</span>
+                    <div class="p-row-title">Packa väskan</div>
+                    <div class="p-row-time">🕐 08:00</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="footer-bar">
-            <span class="url">mystarday.se</span>
-            <span class="tagline">Era bilder · Barnets vardag</span>
-          </div>
+        <div class="footer">
+          <span class="url">mystarday.se</span>
+          <span class="tag">NPF-vänligt · Gratis att testa</span>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="hint"><strong>Export:</strong> Exportläge → skärmdump 1080×1080. Bilderna ligger i <code>/mockups/assets/</code> (inga Unsplash-länkar).</p>
+  <p class="hint">Exportläge → skärmdump exakt 1080×1080 px. Telefonen visar samma bildschema-kort som i barnvyn.</p>
 
   <section class="copy-section">
     <h3>Säljande text</h3>
     <div class="copy-label">Instagram / Facebook</div>
     <div class="copy-block" id="captionShort">Visuellt stöd som barnet faktiskt känner igen. 📸
 
-I Min Stjärndag laddar ni upp egna foton:
-🛏️ Barnets rum
-🥣 Köket där frukost äts
-🪥 Tandborsten hemma
-🎒 Den riktiga skolväskan
+Ladda upp egna foton — säng, kök, tandborste, skolväska.
+Morgonrutinen i rätt ordning, steg för steg.
 
-Morgonrutinen i rätt ordning — steg för steg.
-
+Perfekt för NPF, autism & ADHD.
 👉 mystarday.se</div>
-    <div class="copy-label">Hashtags</div>
-    <div class="copy-block">#bildstöd #visuellstöd #morgonrutin #npf #autism #adhd #minstjärndag</div>
   </section>
 
   <script>
     document.getElementById('toggleExport').addEventListener('click', function () {
       document.body.classList.toggle('export-mode');
-      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng exportläge' : '📷 Exportläge (1080 px)';
+      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng' : '📷 Exportläge';
     });
     document.getElementById('copyCaption').addEventListener('click', function () {
       var t = document.getElementById('captionShort').textContent;
