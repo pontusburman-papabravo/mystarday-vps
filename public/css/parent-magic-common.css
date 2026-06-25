@@ -282,6 +282,9 @@ body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
 
 /* ── Dark content overrides ── */
 body.parent-magic-view .bg-white,
+body.parent-magic-view .bg-white\/80,
+body.parent-magic-view .bg-white\/70,
+body.parent-magic-view .bg-white\/60,
 body.parent-magic-view .bg-sky,
 body.parent-magic-view .bg-sky\/40,
 body.parent-magic-view .bg-sky\/60,
