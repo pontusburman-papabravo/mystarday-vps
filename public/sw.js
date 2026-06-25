@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v344';
+const CACHE_NAME = 'stjarndag-v345';
+// stjarndag-v345: HOTFIX /api/auth/me 500 logout — ui_view_mode read defensively; authGuard keeps session on 5xx/network
 // stjarndag-v344: parent view mode synced server-side (menu/design follows account across devices); magic assets v13
 // stjarndag-v343: För dig hard-load init fallback (page boots without magic chain / on SW static HTML)
 // stjarndag-v342: FEAT-1C schedule custody UI (vecka A/B, dagsfärger, mina dagar)

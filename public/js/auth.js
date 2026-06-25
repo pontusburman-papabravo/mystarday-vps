@@ -897,18 +897,24 @@ window.authGuard = async function() {
       if (diag && diag.traceLoginBounce) {
         diag.traceLoginBounce('auth_me_failed', { status: res.status, path: window.location.pathname });
       }
-      Auth.clearAuth();
-      window.location.href = '/login';
-      return null;
+      // Only a genuine auth failure (401/403) should end the session. A
+      // transient backend error (500/503) or a deploy restart must NOT log the
+      // user out — otherwise a single hiccup bounces everyone to /login.
+      if (res.status === 401 || res.status === 403) {
+        Auth.clearAuth();
+        window.location.href = '/login';
+        return null;
+      }
+      return Auth.getUser();
     }
     return await res.json();
   } catch (err) {
     if (diag && diag.traceLoginBounce) {
       diag.traceLoginBounce('auth_me_error', { message: err && err.message, path: window.location.pathname });
     }
-    Auth.clearAuth();
-    window.location.href = '/login';
-    return null;
+    // Network error (offline, app resuming, server restarting) — keep the
+    // session and let the page retry rather than forcing a logout.
+    return Auth.getUser();
   }
 };
 

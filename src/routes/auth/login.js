@@ -199,7 +199,6 @@ router.get('/me', requireAuth, async (req, res) => {
                 COALESCE(p.onboarding_completed, true) as onboarding_completed,
                 COALESCE(p.account_type, 'family') as account_type,
                 COALESCE(p.preferred_view_mode, 'parent') as preferred_view_mode,
-                COALESCE(p.ui_view_mode, 'classic') as ui_view_mode,
                 f.is_lifetime_free,
                 p.password_hash IS NOT NULL AS has_password,
                 p.apple_user_id IS NOT NULL AS has_apple_linked,
@@ -214,6 +213,23 @@ router.get('/me', requireAuth, async (req, res) => {
       }
 
       const parent = parentResult.rows[0];
+
+      // Read the parent's stored UI view mode defensively: the ui_view_mode
+      // column is added by a migration that may not yet have run in every
+      // environment. A missing column must NOT 500 /api/auth/me (that logs
+      // every parent out via authGuard). Default to 'classic'.
+      let uiViewMode = 'classic';
+      try {
+        const vmResult = await db.query(
+          `SELECT ui_view_mode FROM parent WHERE id = $1`,
+          [req.user.id]
+        );
+        if (vmResult.rows[0] && vmResult.rows[0].ui_view_mode) {
+          uiViewMode = vmResult.rows[0].ui_view_mode;
+        }
+      } catch (_) {
+        // Column not present yet — keep default 'classic'.
+      }
 
       // Get parent roles (primary/shared vs pedagog-only)
       const roles = await getParentRoles(req.user.id);
@@ -244,6 +260,7 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.json({
         ...parent,
         type: 'parent',
+        ui_view_mode: uiViewMode,
         isAdmin: !!parent.is_admin,
         magic_view_enabled: isEmailAllowlisted(parent.email),
         account_type: parent.account_type,
