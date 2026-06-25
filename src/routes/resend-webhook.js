@@ -7,6 +7,7 @@ const {
   markOpened,
   markClicked,
 } = require('../../db/newsletter-email-tracking');
+const { logEvent } = require('../../db/resend-webhook-events');
 const { verifyResendWebhook } = require('../lib/resend-webhook-verify');
 
 async function handleResendWebhook(req, res) {
@@ -30,6 +31,8 @@ async function handleResendWebhook(req, res) {
   }
 
   const occurredAt = event.created_at ? new Date(event.created_at) : new Date();
+
+  await logEvent(type, emailId);
 
   try {
     let updated = 0;

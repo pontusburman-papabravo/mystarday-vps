@@ -20,6 +20,9 @@ test('Resend webhook marks opened on matching newsletter_email_send row', async 
   let openUpdates = 0;
 
   mock.setQuery(async (sql, params) => {
+    if (String(sql).includes('INSERT INTO resend_webhook_event')) {
+      return { rowCount: 1, rows: [] };
+    }
     if (String(sql).includes('UPDATE newsletter_email_send') && String(sql).includes('first_opened_at')) {
       openUpdates++;
       assert.equal(params[0], emailId);
@@ -81,7 +84,7 @@ test('getCampaignStats includes tracking diagnostics', async () => {
       return {
         rows: [{
           sent: 10,
-          delivered: 0,
+          delivered: 8,
           opened_unique: 0,
           opened_total: 0,
           clicked_unique: 0,
@@ -89,21 +92,32 @@ test('getCampaignStats includes tracking diagnostics', async () => {
         }],
       };
     }
-    if (String(sql).includes('INTERVAL \'30 days\'')) {
-      return { rows: [{ sent: 10, delivered: 0 }] };
+    if (String(sql).includes('FROM newsletter_email_send') && String(sql).includes('INTERVAL')) {
+      return { rows: [{ sent: 10, delivered: 8 }] };
+    }
+    if (String(sql).includes('FROM resend_webhook_event')) {
+      return {
+        rows: [
+          { event_type: 'email.delivered', count: 5 },
+        ],
+      };
     }
     return { rows: [] };
   });
 
   const trackingPath = require.resolve('../db/newsletter-email-tracking');
+  const eventsPath = require.resolve('../db/resend-webhook-events');
   delete require.cache[trackingPath];
+  delete require.cache[eventsPath];
   const { getCampaignStats } = require('../db/newsletter-email-tracking');
 
   const stats = await getCampaignStats('dagens_nyhet', '00000000-0000-4000-8000-000000000001');
   assert.equal(stats.sent, 10);
   assert.equal(stats.tracking.webhook_configured, true);
   assert.equal(stats.tracking.webhook_url, 'https://example.test/api/resend/webhook');
-  assert.equal(stats.tracking.webhook_receiving_events, false);
+  assert.equal(stats.tracking.webhook_receiving_events, true);
+  assert.equal(stats.tracking.webhook_events_30d['email.delivered'], 5);
+  assert.equal(stats.tracking.webhook_events_30d['email.opened'], 0);
 
   mock.restore();
   delete process.env.RESEND_WEBHOOK_SECRET;

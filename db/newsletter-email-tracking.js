@@ -90,6 +90,9 @@ async function getCampaignStats(campaignType, campaignId) {
   return attachTrackingDiagnostics(stats);
 }
 
+const { getRecentEventCounts } = require('./resend-webhook-events');
+const { getDomainTrackingStatus } = require('../src/lib/resend-domain-status');
+
 /**
  * Diagnostics for admin UI — explains why open/click stats may be zero.
  */
@@ -111,12 +114,27 @@ async function getTrackingDiagnostics() {
   } catch {
     // Table may not exist on very old DBs — degrade gracefully.
   }
+
+  const [webhookEvents, domainTracking] = await Promise.all([
+    getRecentEventCounts(30),
+    getDomainTrackingStatus(),
+  ]);
+
+  const webhookReceivingDelivered = webhookEvents['email.delivered'] > 0
+    || (recentSends > 0 && recentDelivered > 0);
+  const webhookReceivingOpens = webhookEvents['email.opened'] > 0;
+  const webhookReceivingClicks = webhookEvents['email.clicked'] > 0;
+
   return {
     webhook_configured: webhookConfigured,
     webhook_url: baseUrl ? `${baseUrl}/api/resend/webhook` : null,
     recent_sends_30d: recentSends,
     recent_delivered_30d: recentDelivered,
-    webhook_receiving_events: recentSends > 0 && recentDelivered > 0,
+    webhook_receiving_events: webhookReceivingDelivered,
+    webhook_events_30d: webhookEvents,
+    domain_tracking: domainTracking,
+    tracking_likely_disabled: domainTracking.available === true
+      && !domainTracking.tracking_active,
   };
 }
 

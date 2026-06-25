@@ -34,6 +34,8 @@
   function buildTrackingNote(stats) {
     const tracking = stats.tracking || {};
     const lines = [];
+    const domain = tracking.domain_tracking || {};
+    const events = tracking.webhook_events_30d || {};
 
     if (stats.no_tracking) {
       lines.push('Ingen per-mottagare-spårning för detta utskick (skickat före spårning aktiverades). Antal mottagare från utskicksloggen.');
@@ -44,10 +46,28 @@
       lines.push('Webhook saknas i servern (RESEND_WEBHOOK_SECRET). Öppningar och klick kan inte registreras förrän secret är satt och webhook är konfigurerad i Resend.');
     } else if (stats.sent > 0 && (stats.delivered || 0) === 0) {
       lines.push('Inga leveranshändelser mottagna från Resend ännu. Kontrollera att webhook i Resend Dashboard pekar på ' + (tracking.webhook_url || '/api/resend/webhook') + ' och lyssnar på email.delivered, email.opened och email.clicked.');
+    } else if (tracking.tracking_likely_disabled) {
+      const domainName = domain.domain || 'avsändardomänen';
+      lines.push('Öppning/klick-spårning verkar vara avstängd i Resend för ' + domainName + '. Gå till Resend → Domains → Configuration: aktivera Open tracking och Click tracking, lägg till tracking-subdomän (t.ex. links) och verifiera CNAME-posten.');
+    } else if (stats.sent > 0 && stats.opened_unique === 0 && stats.clicked_unique === 0
+      && (events['email.delivered'] || 0) > 0
+      && (events['email.opened'] || 0) === 0
+      && (events['email.clicked'] || 0) === 0) {
+      lines.push('Webhook tar emot leveranser men inga email.opened/email.clicked från Resend. Kontrollera att webhook lyssnar på dessa händelser och att spårning är aktiv för domänen.');
     } else if (stats.sent > 0 && stats.opened_unique === 0 && stats.clicked_unique === 0) {
       lines.push('Webhook verkar fungera (levererat registreras), men inga öppningar/klick ännu. Vissa mailklienter (t.ex. Apple Mail Privacy Protection) blockerar öppningsspårning. Klick på länkar i mailet ska dock registreras om tracking-subdomän är aktiv i Resend.');
     } else {
       lines.push('Öppningsfrekvens från Resend — kan vara lägre än verkligheten p.g.a. mailklienters integritetsskydd.');
+    }
+
+    if ((events['email.opened'] || 0) > 0 && stats.opened_unique === 0) {
+      lines.push('Varning: webhook har mottagit öppningshändelser som inte matchar detta utskick — kontakta support om siffrorna verkar fel.');
+    }
+
+    if (domain.available && domain.tracking_active) {
+      lines.push('Resend-spårning aktiv för ' + domain.domain + (domain.tracking_subdomain ? ' (' + domain.tracking_subdomain + ').' : '.'));
+    } else if (domain.available === false && domain.reason) {
+      lines.push('Kunde inte läsa Resend-domänstatus: ' + domain.reason);
     }
 
     if (tracking.webhook_url && !lines.some((l) => l.includes(tracking.webhook_url))) {
