@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="900" viewBox="0 0 1180 900" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#475569"/></marker>
+    <style>
+      .title{font-size:24px;font-weight:700;fill:#0f172a}
+      .sub{font-size:12px;fill:#64748b}
+      .n{font-size:13px;font-weight:600;fill:#0f172a}
+      .d{font-size:11px;fill:#475569}
+      .e{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#a)}
+      .api{font-size:10px;fill:#15803d;font-style:italic}
+      .lbl{font-size:11px;fill:#1e3a8a;font-weight:700}
+      .ph{font-size:12px;font-weight:700;fill:#334155;letter-spacing:1px}
+    </style>
+  </defs>
+  <rect width="1180" height="900" fill="#ffffff"/>
+  <text x="40" y="40" class="title">Logiskt flödesschema — Vuxen / Förälder</text>
+  <text x="40" y="60" class="sub">Blå = sida/vy · grön kursiv = API · romber = beslut. Magic-vyn (hub-navigation) är standard för föräldrar.</text>
+
+  <text x="40" y="96" class="ph">1 · ÅTKOMST</text>
+  <rect x="40" y="106" width="180" height="56" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="55" y="129" class="n">Landning /register</text>
+  <text x="55" y="147" class="d">eller /login (Apple/Google)</text>
+
+  <polygon points="270,134 330,108 390,134 330,160" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="330" y="138" text-anchor="middle" class="n">Nytt konto?</text>
+
+  <rect x="430" y="106" width="210" height="56" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="445" y="129" class="n">POST /api/auth/register</text>
+  <text x="445" y="147" class="d">skapar family + parent + ~56 aktiviteter</text>
+
+  <line x1="220" y1="134" x2="268" y2="134" class="e"/>
+  <line x1="390" y1="134" x2="428" y2="134" class="e"/>
+  <text x="400" y="126" class="lbl">ja</text>
+  <text x="330" y="180" text-anchor="middle" class="lbl">nej -&gt; /login</text>
+
+  <line x1="535" y1="162" x2="535" y2="196" class="e"/>
+
+  <text x="40" y="222" class="ph">2 · ONBOARDING (6 steg, requireParent)</text>
+  <rect x="40" y="232" width="1100" height="120" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.4"/>
+  <g>
+    <rect x="58" y="252" width="160" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="70" y="273" class="n">1 Barn + schema</text>
+    <text x="70" y="290" class="d">namn, emoji, mall</text>
+    <text x="70" y="305" class="api">POST /onboarding/child</text>
+    <text x="70" y="320" class="api">+ /schedule</text>
+  </g>
+  <g>
+    <rect x="238" y="252" width="150" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="250" y="273" class="n">2 Barnvy</text>
+    <text x="250" y="290" class="d">day / timeline /</text>
+    <text x="250" y="305" class="d">side-by-side</text>
+    <text x="250" y="324" class="api">/child-view</text>
+  </g>
+  <g>
+    <rect x="408" y="252" width="150" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="420" y="273" class="n">3 Bekräfta</text>
+    <text x="420" y="290" class="d">förhandsvisa</text>
+    <text x="420" y="305" class="d">schemat</text>
+  </g>
+  <g>
+    <rect x="578" y="252" width="150" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="590" y="273" class="n">4 Belöningar</text>
+    <text x="590" y="290" class="d">minst 1</text>
+    <text x="590" y="309" class="api">POST /reward</text>
+  </g>
+  <g>
+    <rect x="748" y="252" width="170" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="760" y="273" class="n">5 Barn-inloggning</text>
+    <text x="760" y="290" class="d">visa PIN, kopiera</text>
+    <text x="760" y="305" class="d">login, PWA-tips</text>
+  </g>
+  <g>
+    <rect x="938" y="252" width="184" height="84" rx="8" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="950" y="273" class="n">6 Avsluta</text>
+    <text x="950" y="290" class="d">bjud in medförälder,</text>
+    <text x="950" y="305" class="d">förälder-PIN</text>
+    <text x="950" y="324" class="api">POST /complete</text>
+  </g>
+
+  <line x1="590" y1="352" x2="590" y2="386" class="e"/>
+
+  <text x="40" y="412" class="ph">3 · DAGLIG ANVÄNDNING — Parent Magic (bottom-nav / hub)</text>
+  <rect x="455" y="422" width="270" height="48" rx="24" fill="#1e293b"/>
+  <text x="590" y="451" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">/dashboard — Hem-hub</text>
+
+  <line x1="590" y1="470" x2="590" y2="498" class="e"/>
+  <line x1="120" y1="498" x2="1060" y2="498" stroke="#cbd5e1" stroke-width="1.4"/>
+  <line x1="120" y1="498" x2="120" y2="520" class="e"/>
+  <line x1="360" y1="498" x2="360" y2="520" class="e"/>
+  <line x1="590" y1="498" x2="590" y2="520" class="e"/>
+  <line x1="820" y1="498" x2="820" y2="520" class="e"/>
+  <line x1="1060" y1="498" x2="1060" y2="520" class="e"/>
+
+  <g>
+    <rect x="40" y="522" width="180" height="92" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="54" y="544" class="n">Hem</text>
+    <text x="54" y="562" class="d">ge stjärnor, godkänn,</text>
+    <text x="54" y="578" class="d">ledig dag, fyll i efterhand</text>
+    <text x="54" y="596" class="api">/family/dashboard-stats</text>
+    <text x="54" y="610" class="api">/family/readiness</text>
+  </g>
+  <g>
+    <rect x="270" y="522" width="180" height="92" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="284" y="544" class="n">Planering</text>
+    <text x="284" y="562" class="d">/schedule (vecka)</text>
+    <text x="284" y="578" class="d">/daily-log, /calendar</text>
+    <text x="284" y="594" class="d">/library, /print-schema</text>
+    <text x="284" y="610" class="api">/schedules/* /daily-logs/*</text>
+  </g>
+  <g>
+    <rect x="500" y="522" width="180" height="92" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="514" y="544" class="n">Belöningar</text>
+    <text x="514" y="562" class="d">godkänn inlösen,</text>
+    <text x="514" y="578" class="d">mål-byten, skattkammare</text>
+    <text x="514" y="596" class="api">/api/rewards/*</text>
+    <text x="514" y="610" class="api">/api/goals/*</text>
+  </g>
+  <g>
+    <rect x="730" y="522" width="180" height="92" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="744" y="544" class="n">Familj</text>
+    <text x="744" y="562" class="d">co-parent + pedagog,</text>
+    <text x="744" y="578" class="d">barnprofiler, boendeschema</text>
+    <text x="744" y="596" class="api">/family/invite[-pedagog]</text>
+    <text x="744" y="610" class="api">/api/custody/*</text>
+  </g>
+  <g>
+    <rect x="960" y="522" width="180" height="92" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+    <text x="974" y="544" class="n">För dig / Inställn.</text>
+    <text x="974" y="562" class="d">mål-mallar (feature-gate)</text>
+    <text x="974" y="578" class="d">prenumeration / IAP</text>
+    <text x="974" y="596" class="api">/subscription/* /iap/*</text>
+    <text x="974" y="610" class="api">/for-dig/*</text>
+  </g>
+
+  <line x1="820" y1="614" x2="820" y2="648" class="e"/>
+  <text x="40" y="672" class="ph">4 · SAMARBETE &amp; UPPFÖLJNING</text>
+  <g>
+    <rect x="40" y="684" width="250" height="84" rx="9" fill="#fef9c3" stroke="#ca8a04"/>
+    <text x="54" y="706" class="n">Bjud in medförälder</text>
+    <text x="54" y="724" class="d">POST /family/invite -&gt; token (7d)</text>
+    <text x="54" y="740" class="d">/family/invite/accept-new (publik)</text>
+    <text x="54" y="757" class="d">eller add-parent (manuellt)</text>
+  </g>
+  <g>
+    <rect x="312" y="684" width="250" height="84" rx="9" fill="#fef9c3" stroke="#ca8a04"/>
+    <text x="326" y="706" class="n">Bjud in pedagog</text>
+    <text x="326" y="724" class="d">endast primary parent</text>
+    <text x="326" y="740" class="d">POST /family/invite-pedagog</text>
+    <text x="326" y="757" class="d">pedagog-only blockas från dashboard</text>
+  </g>
+  <g>
+    <rect x="584" y="684" width="250" height="84" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="598" y="706" class="n">Rapporter (feature-gate)</text>
+    <text x="598" y="724" class="d">/reports — välj barn, period, fält</text>
+    <text x="598" y="740" class="d">PIN-skyddad delningslänk /r/:id</text>
+    <text x="598" y="757" class="d">FK professional_share_link</text>
+  </g>
+  <g>
+    <rect x="856" y="684" width="284" height="84" rx="9" fill="#fae8ff" stroke="#a21caf"/>
+    <text x="870" y="706" class="n">Notiser &amp; realtid</text>
+    <text x="870" y="724" class="d">SSE-uppdateringar (barn bockar av)</text>
+    <text x="870" y="740" class="d">push (web/APNs/FCM), e-post (Resend)</text>
+    <text x="870" y="757" class="d">veckosammanfattning, win-back</text>
+  </g>
+
+  <text x="40" y="812" class="ph">NOTERAT</text>
+  <rect x="40" y="822" width="1100" height="60" rx="8" fill="#fef2f2" stroke="#fca5a5"/>
+  <text x="56" y="844" class="d">• Onboarding-tips refererar klassiska barnkort som magic-vyn döljer.  • Co-parent-invite returnerar 502 vid mejlfel medan pedagog-invite bara loggar — inkonsekvent.</text>
+  <text x="56" y="864" class="d">• Soft-nav gäller bara vissa hubbar (/dashboard &amp; /schedule kräver full reload).  • Prenumeration sägs "hanteras i webbläsaren" i appen — risk för död ände.</text>
+</svg>

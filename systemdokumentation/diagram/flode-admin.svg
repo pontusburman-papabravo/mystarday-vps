@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="880" viewBox="0 0 1180 880" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#475569"/></marker>
+    <style>
+      .title{font-size:24px;font-weight:700;fill:#0f172a}
+      .sub{font-size:12px;fill:#64748b}
+      .n{font-size:13px;font-weight:600;fill:#0f172a}
+      .d{font-size:11px;fill:#475569}
+      .e{stroke:#475569;stroke-width:1.6;fill:none;marker-end:url(#a)}
+      .api{font-size:10px;fill:#15803d;font-style:italic}
+      .lbl{font-size:11px;fill:#1e3a8a;font-weight:700}
+      .ph{font-size:12px;font-weight:700;fill:#334155;letter-spacing:1px}
+    </style>
+  </defs>
+  <rect width="1180" height="880" fill="#ffffff"/>
+  <text x="40" y="40" class="title">Logiskt flödesschema — Admin</text>
+  <text x="40" y="60" class="sub">Behörighet = parent.is_admin (JWT isAdmin). API skyddas av requireAdmin; admin-HTML gateas i klienten. Impersonation är read-only.</text>
+
+  <text x="40" y="96" class="ph">1 · INLOGGNING &amp; BEHÖRIGHET</text>
+  <rect x="40" y="106" width="190" height="52" rx="10" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="55" y="128" class="n">POST /api/auth/login</text>
+  <text x="55" y="146" class="d">JWT med isAdmin (från DB)</text>
+  <polygon points="280,132 345,106 410,132 345,158" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="345" y="136" text-anchor="middle" class="n">is_admin?</text>
+  <line x1="230" y1="132" x2="278" y2="132" class="e"/>
+  <text x="345" y="178" text-anchor="middle" class="lbl">nej -&gt; /dashboard</text>
+  <rect x="460" y="106" width="200" height="52" rx="10" fill="#bbf7d0" stroke="#15803d" stroke-width="1.6"/>
+  <text x="475" y="128" class="n">/admin (statisk HTML)</text>
+  <text x="475" y="146" class="d">klient-gate: GET /auth/me</text>
+  <line x1="410" y1="132" x2="458" y2="132" class="e"/><text x="425" y="124" class="lbl">ja</text>
+  <rect x="700" y="106" width="200" height="52" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="715" y="128" class="n">requireAdmin (alla /api/admin)</text>
+  <text x="715" y="146" class="d">type=parent &amp;&amp; isAdmin annars 403</text>
+  <line x1="660" y1="132" x2="698" y2="132" class="e"/>
+
+  <line x1="560" y1="158" x2="560" y2="190" class="e"/>
+
+  <text x="40" y="216" class="ph">2 · ADMIN-PANEL (6 navgrupper, hash-routing)</text>
+  <g>
+    <rect x="40" y="228" width="178" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="54" y="250" class="n">Hem</text>
+    <text x="54" y="270" class="d">Start (KPI:er)</text>
+    <text x="54" y="287" class="d">Familjer (hub)</text>
+    <text x="54" y="304" class="d">Meddelanden (inbox)</text>
+    <text x="54" y="324" class="api">/admin/families</text>
+    <text x="54" y="340" class="api">/admin/start-summary</text>
+  </g>
+  <g>
+    <rect x="232" y="228" width="178" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="246" y="250" class="n">Tillväxt</text>
+    <text x="246" y="270" class="d">Pipeline, leads</text>
+    <text x="246" y="287" class="d">Paket-/pedagogintresse</text>
+    <text x="246" y="304" class="d">Waitlist, landning</text>
+    <text x="246" y="321" class="d">Undersökningar</text>
+    <text x="246" y="340" class="api">/admin/growth-pipeline</text>
+  </g>
+  <g>
+    <rect x="424" y="228" width="178" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="438" y="250" class="n">Kommunikation</text>
+    <text x="438" y="270" class="d">Nyhetsbrev</text>
+    <text x="438" y="287" class="d">E-postmallar</text>
+    <text x="438" y="304" class="d">Dagens nyhet (push/FB)</text>
+    <text x="438" y="321" class="d">Win-back-logg</text>
+    <text x="438" y="340" class="api">/api/newsletter /dagens-nyhet</text>
+  </g>
+  <g>
+    <rect x="616" y="228" width="178" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="630" y="250" class="n">Insikter</text>
+    <text x="630" y="270" class="d">Produktanalys, funnel</text>
+    <text x="630" y="287" class="d">Retention, kohorter</text>
+    <text x="630" y="304" class="d">Föräldraaktivering</text>
+    <text x="630" y="321" class="d">Användarstatistik</text>
+    <text x="630" y="340" class="api">/admin/analytics/*</text>
+  </g>
+  <g>
+    <rect x="808" y="228" width="160" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="822" y="250" class="n">Innehåll</text>
+    <text x="822" y="270" class="d">Bibliotek:</text>
+    <text x="822" y="287" class="d">default_activity_template</text>
+    <text x="822" y="304" class="d">default_reward</text>
+    <text x="822" y="321" class="d">default_schedule</text>
+    <text x="822" y="340" class="api">/admin/default-*</text>
+  </g>
+  <g>
+    <rect x="982" y="228" width="158" height="120" rx="9" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="996" y="250" class="n">Inställningar</text>
+    <text x="996" y="270" class="d">Prenumeration &amp; IAP</text>
+    <text x="996" y="287" class="d">Funktioner (features)</text>
+    <text x="996" y="304" class="d">Rollout-läge</text>
+    <text x="996" y="321" class="d">Konto/lösenord</text>
+    <text x="996" y="340" class="api">/admin/subscription-settings</text>
+  </g>
+
+  <line x1="129" y1="348" x2="129" y2="396" class="e"/>
+
+  <text x="40" y="422" class="ph">3 · IMPERSONATION (support, read-only)</text>
+  <rect x="40" y="434" width="230" height="74" rx="9" fill="#bbf7d0" stroke="#15803d"/>
+  <text x="54" y="456" class="n">POST /admin/impersonate/:familyId</text>
+  <text x="54" y="474" class="d">JWT 15 min, isImpersonation=true</text>
+  <text x="54" y="490" class="d">utan isAdmin · audit: impersonate_start</text>
+  <text x="54" y="504" class="d">FK admin_audit_log</text>
+  <line x1="270" y1="471" x2="318" y2="471" class="e"/>
+  <rect x="320" y="434" width="230" height="74" rx="9" fill="#e0f2fe" stroke="#0284c7"/>
+  <text x="334" y="456" class="n">Ny flik /dashboard</text>
+  <text x="334" y="474" class="d">token i sessionStorage (flik-scoped)</text>
+  <text x="334" y="490" class="d">banner + countdown</text>
+  <text x="334" y="506" class="d">overrider Auth.getToken()</text>
+  <line x1="550" y1="471" x2="598" y2="471" class="e"/>
+  <polygon points="600,471 660,440 720,471 660,502" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="660" y="468" text-anchor="middle" class="n">HTTP-metod?</text>
+  <text x="660" y="485" text-anchor="middle" class="d">i blockImpersonationWrites</text>
+  <line x1="720" y1="456" x2="770" y2="446" class="e"/>
+  <rect x="772" y="426" width="180" height="40" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="786" y="451" class="n">GET -&gt; tillåtet</text>
+  <line x1="720" y1="486" x2="770" y2="496" class="e"/>
+  <rect x="772" y="476" width="180" height="48" rx="8" fill="#fee2e2" stroke="#dc2626"/>
+  <text x="786" y="498" class="n">skriv -&gt; 403</text>
+  <text x="786" y="514" class="d">audit: write_blocked</text>
+
+  <text x="40" y="566" class="ph">4 · INNEHÅLL, FEATURES &amp; PRENUMERATION</text>
+  <g>
+    <rect x="40" y="578" width="350" height="86" rx="9" fill="#f1f5f9" stroke="#64748b"/>
+    <text x="54" y="600" class="n">Två feature-system</text>
+    <text x="54" y="620" class="d">1) feature_flag (enkel on/off) — /admin/feature-flags/:key</text>
+    <text x="54" y="638" class="d">2) features + family_features — /admin/development</text>
+    <text x="54" y="656" class="d">runtime: db/features.hasAccess(family, slug)</text>
+  </g>
+  <g>
+    <rect x="410" y="578" width="350" height="86" rx="9" fill="#f1f5f9" stroke="#64748b"/>
+    <text x="424" y="600" class="n">Prenumeration</text>
+    <text x="424" y="620" class="d">globalt: pris, trial, payment_enabled, addons</text>
+    <text x="424" y="638" class="d">rollout-läge: off / interest / purchase (app_config)</text>
+    <text x="424" y="656" class="d">per familj: grant/revoke komponenter (audit)</text>
+  </g>
+  <g>
+    <rect x="780" y="578" width="360" height="86" rx="9" fill="#f1f5f9" stroke="#64748b"/>
+    <text x="794" y="600" class="n">Känsliga exporter (extra skydd)</text>
+    <text x="794" y="620" class="d">migration-export: env-flagga + X-Migration-Export-Secret</text>
+    <text x="794" y="638" class="d">database-export (full SQL): env-flagga + audit-log</text>
+    <text x="794" y="656" class="d">command palette: /admin/search</text>
+  </g>
+
+  <text x="40" y="700" class="ph">NOTERAT (säkerhet)</text>
+  <rect x="40" y="710" width="1100" height="120" rx="8" fill="#fef2f2" stroke="#fca5a5"/>
+  <text x="56" y="732" class="d">• /admin &amp; /admin/development serveras utan server-side auth — API skyddas men UI-koden exponeras (gate endast i JS).</text>
+  <text x="56" y="752" class="d">• Impersonation-token skickas kortvarigt som query-param innan history.replaceState — risk i browser-historik/loggar.</text>
+  <text x="56" y="772" class="d">• Familj utan icke-admin-förälder -&gt; adminens id används i impersonation-JWT (förvirrande authz).</text>
+  <text x="56" y="792" class="d">• dagens_nyhet save_as_draft saknar admin-bypass i feature-check (till skillnad från requireFeature).</text>
+  <text x="56" y="812" class="d">• Vem som helst med admin kan skapa nya admins (ingen superadmin-roll / 2FA). is_admin vs isAdmin-inkonsistens i klient vs JWT.</text>
+</svg>
