@@ -73,8 +73,10 @@
 Alla bilder är **CSS-mockups** (inga externa bildfiler):
 
 1. Öppna [`reels-storyboard.html`](./reels-storyboard.html) i webbläsaren  
-2. Eller via dev-server: `http://localhost:3000/mockups/reels-annons-morgonrutin.html`  
-3. Screenshot varje ruta (9:16) eller spela in skärmen med auto-play
+2. Eller index med alla varianter: `/mockups/reels-annonser.html`  
+3. Lokalt på Mac: `open /Users/pontusburman/mystarday-vps/public/mockups/reels-annonser.html`  
+4. Via dev-server: `http://localhost:3000/mockups/reels-annonser.html`  
+5. Screenshot varje ruta (9:16) eller spela in skärmen med auto-play
 
 Rutor:
 

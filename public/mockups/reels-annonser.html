@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reels-annonser — Min Stjärndag</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #0F1629;
+      color: #E2E8F0;
+      line-height: 1.55;
+      padding: 2rem 1.25rem 3rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; color: #F5A623; margin-bottom: 0.35rem; }
+    .lead { color: #94A3B8; margin-bottom: 1.75rem; font-size: 0.95rem; }
+    h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748B;
+      margin: 1.75rem 0 0.75rem;
+    }
+    .card {
+      display: block;
+      background: #1B2340;
+      border: 1px solid #2A3458;
+      border-radius: 14px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 0.65rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover {
+      border-color: #F5A623;
+      transform: translateY(-1px);
+    }
+    .card strong { display: block; font-size: 1.05rem; color: #fff; margin-bottom: 0.2rem; }
+    .card span { font-size: 0.85rem; color: #94A3B8; }
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: rgba(245,166,35,0.2);
+      color: #F5A623;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+    .local-box {
+      background: #1B2340;
+      border: 1px solid #2A3458;
+      border-radius: 14px;
+      padding: 1rem 1.15rem;
+      margin-top: 0.5rem;
+    }
+    .local-box p { font-size: 0.88rem; color: #94A3B8; margin-bottom: 0.65rem; }
+    code, .path {
+      display: block;
+      background: #0F1629;
+      border: 1px solid #2A3458;
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.78rem;
+      color: #F5A623;
+      word-break: break-all;
+      margin: 0.4rem 0;
+      font-family: ui-monospace, monospace;
+    }
+    a.path { text-decoration: none; }
+    a.path:hover { border-color: #F5A623; }
+    ol { padding-left: 1.25rem; font-size: 0.88rem; color: #94A3B8; }
+    ol li { margin: 0.35rem 0; }
+    .note { font-size: 0.8rem; color: #64748B; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Reels-annonser</h1>
+  <p class="lead">CSS-mockups i 9:16 — inga externa bilder. Klicka en variant, sedan <strong>Spela in Reels</strong> för auto-play.</p>
+
+  <h2>Varianter</h2>
+  <a class="card" href="reels-annons-morgonrutin.html">
+    <strong>☀️ Morgonrutin <span class="tag">9:16</span></strong>
+    <span>Tandborstning, kläder, frukost — "kom igen nu"</span>
+  </a>
+  <a class="card" href="reels-annons-kvallrutin.html">
+    <strong>🌙 Kvällsrutin <span class="tag">9:16</span></strong>
+    <span>Dusch, pyjamas, läggdags — lugnare kvällar</span>
+  </a>
+  <a class="card" href="reels-annons-npf.html">
+    <strong>🧩 Bildstöd &amp; NPF <span class="tag">9:16</span></strong>
+    <span>ADHD, autism, visuella steg — mindre stress</span>
+  </a>
+
+  <h2>Öppna lokalt på din Mac</h2>
+  <div class="local-box">
+    <p><strong style="color:#fff">Snabbast — dubbelklicka HTML-filen:</strong></p>
+    <a class="path" href="reels-annonser.html">file:///Users/pontusburman/mystarday-vps/public/mockups/reels-annonser.html</a>
+    <p style="margin-top:0.75rem">Eller i Terminal:</p>
+    <code>open /Users/pontusburman/mystarday-vps/public/mockups/reels-annonser.html</code>
+  </div>
+
+  <h2>Via lokal dev-server</h2>
+  <div class="local-box">
+    <ol>
+      <li><code>cd /Users/pontusburman/mystarday-vps</code></li>
+      <li>Sätt <code>DATABASE_URL</code> och <code>JWT_SECRET</code> (se AGENTS.md)</li>
+      <li><code>npm run dev</code></li>
+      <li>Öppna i webbläsaren:</li>
+    </ol>
+    <a class="path" href="http://localhost:3000/mockups/reels-annonser.html">http://localhost:3000/mockups/reels-annonser.html</a>
+  </div>
+
+  <h2>Direktlänkar (dev-server)</h2>
+  <a class="path" href="http://localhost:3000/mockups/reels-annons-morgonrutin.html">http://localhost:3000/mockups/reels-annons-morgonrutin.html</a>
+  <a class="path" href="http://localhost:3000/mockups/reels-annons-kvallrutin.html">http://localhost:3000/mockups/reels-annons-kvallrutin.html</a>
+  <a class="path" href="http://localhost:3000/mockups/reels-annons-npf.html">http://localhost:3000/mockups/reels-annons-npf.html</a>
+
+  <p class="note">Annonstext &amp; röstscript finns i <code>docs/marketing/reels-annons-*/ANNONS-KOPI.md</code></p>
+</body>
+</html>
