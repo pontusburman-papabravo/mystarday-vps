@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { injectNoindexMeta } = require('../lib/seo-pages');
 
-const RELEASE_TAG = '2026-06-14-prevent-zoom';
+const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
 const MAGIC_VERSION = '11';
@@ -146,6 +146,9 @@ function injectPlatformHtml(body, reqPath) {
   const tailMarker = '</body>';
 
   const headParts = [INJECT_MARKER];
+  headParts.push(
+    '<script>(function(){try{if(typeof Capacitor!=="undefined"&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())window.WEBVIEW_SERVER_URL=location.origin}catch(e){}})();<\/script>'
+  );
   if (!/\/js\/platform\.js/i.test(body)) {
     headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
   }
