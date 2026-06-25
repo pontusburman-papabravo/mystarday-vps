@@ -609,13 +609,162 @@ function sectionForTemplate(tpl, useSortOrderFallback, timeGroupToSection) {
   return 'kvall';
 }
 
+const TIME_GROUP_TO_SECTION = {
+  morgon: 'morgon',
+  formiddag: 'dag',
+  eftermiddag: 'dag',
+  kvall: 'kvall',
+};
+
+async function resolveCategoryDateRangeItems(client, familyId, categoryId) {
+  const templates = await client.query(
+    `SELECT at.id, at.name, at.icon, at.star_value,
+            at.time_group,
+            at.sort_order AS template_sort
+     FROM activity_template at
+     WHERE at.family_id = $1 AND at.category_id = $2
+     ORDER BY at.sort_order ASC, at.name ASC`,
+    [familyId, categoryId]
+  );
+  if (!templates.rows.length) return null;
+
+  const uniqueTimeGroups = new Set(templates.rows.map((t) => t.time_group).filter(Boolean));
+  const useSortOrderFallback = uniqueTimeGroups.size <= 1;
+  const sectionCounters = {};
+  return templates.rows.map((tpl) => {
+    const sec = sectionForTemplate(tpl, useSortOrderFallback, TIME_GROUP_TO_SECTION);
+    if (!(sec in sectionCounters)) sectionCounters[sec] = 0;
+    const sortOrder = sectionCounters[sec]++;
+    return {
+      activity_template_id: tpl.id,
+      name: tpl.name,
+      icon: tpl.icon,
+      star_value: tpl.star_value || 1,
+      start_time: null,
+      end_time: null,
+      sort_order: sortOrder,
+      section: sec,
+    };
+  });
+}
+
+async function resolveStandardScheduleDateRangeItems(client, familyId, standardScheduleId) {
+  const scheduleResult = await client.query(
+    'SELECT id, name FROM default_schedule WHERE id = $1',
+    [standardScheduleId]
+  );
+  if (!scheduleResult.rows.length) return null;
+
+  const items = await client.query(
+    `SELECT dsi.name, dsi.icon, dsi.section, dsi.star_value, dsi.start_time, dsi.end_time, dsi.sort_order, dsi.sub_steps
+     FROM default_schedule_item dsi
+     WHERE dsi.default_schedule_id = $1
+     ORDER BY CASE dsi.section WHEN 'morgon' THEN 0 WHEN 'dag' THEN 1 WHEN 'kvall' THEN 2 ELSE 3 END, dsi.sort_order ASC`,
+    [standardScheduleId]
+  );
+  if (!items.rows.length) return null;
+
+  const resolved = [];
+  for (const item of items.rows) {
+    const existing = await client.query(
+      `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
+      [familyId, item.name]
+    );
+
+    let templateId;
+    if (existing.rows.length > 0) {
+      templateId = existing.rows[0].id;
+    } else {
+      const newTemplate = await client.query(
+        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
+         VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
+        [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
+      );
+      templateId = newTemplate.rows[0].id;
+      const subSteps = item.sub_steps || [];
+      if (Array.isArray(subSteps)) {
+        for (let i = 0; i < subSteps.length; i++) {
+          await client.query(
+            `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
+             VALUES ($1, $2, $3, $4)`,
+            [templateId, subSteps[i].name, subSteps[i].icon || null, i]
+          );
+        }
+      }
+    }
+
+    resolved.push({
+      activity_template_id: templateId,
+      name: item.name,
+      icon: item.icon,
+      star_value: item.star_value || 1,
+      start_time: item.start_time || null,
+      end_time: item.end_time || null,
+      sort_order: item.sort_order || 0,
+      section: item.section || 'dag',
+    });
+  }
+  return resolved;
+}
+
+async function resolveFamilyTemplateDateRangeItems(client, familyId, templateId) {
+  const template = await client.query(
+    `SELECT id, name FROM weekly_schedule WHERE id = $1 AND family_id = $2 AND child_id IS NULL`,
+    [templateId, familyId]
+  );
+  if (!template.rows.length) return null;
+
+  const items = await client.query(
+    `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
+            at.name, at.icon, at.star_value
+     FROM weekly_schedule_item wsi
+     LEFT JOIN activity_template at ON at.id = wsi.activity_template_id
+     WHERE wsi.weekly_schedule_id = $1
+     ORDER BY wsi.sort_order ASC`,
+    [templateId]
+  );
+  if (!items.rows.length) return null;
+
+  return items.rows.map((item) => ({
+    activity_template_id: item.activity_template_id,
+    name: item.name,
+    icon: item.icon,
+    star_value: item.star_value || 1,
+    start_time: item.start_time || null,
+    end_time: item.end_time || null,
+    sort_order: item.sort_order || 0,
+    section: item.section || 'dag',
+  }));
+}
+
+async function resolveDateRangeItems(client, familyId, body) {
+  if (body.template_category_id) {
+    return resolveCategoryDateRangeItems(client, familyId, body.template_category_id);
+  }
+  if (body.standard_schedule_id) {
+    return resolveStandardScheduleDateRangeItems(client, familyId, body.standard_schedule_id);
+  }
+  if (body.schedule_template_id) {
+    return resolveFamilyTemplateDateRangeItems(client, familyId, body.schedule_template_id);
+  }
+  return null;
+}
+
 // POST /api/children/:childId/schedules/apply-date-range — library schema for each day in range
 router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
-    const { start_date, end_date, template_category_id, overwrite, note } = req.body;
+    const {
+      start_date,
+      end_date,
+      template_category_id,
+      standard_schedule_id,
+      schedule_template_id,
+      overwrite,
+      note,
+    } = req.body;
     const dates = listDatesInclusive(start_date, end_date);
     if (dates.length === 0) {
       return res.status(400).json({ error: 'Ogiltigt datumintervall' });
@@ -624,37 +773,32 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
       return res.status(400).json({ error: `Max ${MAX_DATE_RANGE_DAYS} dagar i taget` });
     }
 
-    const templates = await db.query(
-      `SELECT at.id, at.name, at.icon, at.star_value,
-              at.time_group,
-              at.sort_order AS template_sort
-       FROM activity_template at
-       WHERE at.family_id = $1 AND at.category_id = $2
-       ORDER BY at.sort_order ASC, at.name ASC`,
-      [child.family_id, template_category_id]
-    );
-    if (templates.rows.length === 0) {
+    const client = await db.getClient();
+    let scheduleItems;
+    try {
+      scheduleItems = await resolveDateRangeItems(client, child.family_id, {
+        template_category_id,
+        standard_schedule_id,
+        schedule_template_id,
+      });
+    } finally {
+      client.release();
+    }
+
+    if (!scheduleItems || !scheduleItems.length) {
       return res.status(400).json({ error: 'Inga aktiviteter hittades i valt schema' });
     }
 
-    const timeGroupToSection = {
-      morgon: 'morgon',
-      formiddag: 'dag',
-      eftermiddag: 'dag',
-      kvall: 'kvall',
-    };
-    const uniqueTimeGroups = new Set(templates.rows.map((t) => t.time_group).filter(Boolean));
-    const useSortOrderFallback = uniqueTimeGroups.size <= 1;
     const shouldOverwrite = overwrite !== false;
 
-    const client = await db.getClient();
+    const txClient = await db.getClient();
     let appliedCount = 0;
     const syncedDates = [];
     try {
-      await client.query('BEGIN');
+      await txClient.query('BEGIN');
 
       for (const dateStr of dates) {
-        const existingSd = await client.query(
+        const existingSd = await txClient.query(
           'SELECT id FROM special_day_schedule WHERE child_id = $1 AND date = $2',
           [req.params.childId, dateStr]
         );
@@ -663,18 +807,18 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
         if (existingSd.rows.length > 0) {
           if (!shouldOverwrite) continue;
           sdId = existingSd.rows[0].id;
-          await client.query(
+          await txClient.query(
             'DELETE FROM special_day_schedule_item WHERE special_day_schedule_id = $1',
             [sdId]
           );
           if (note) {
-            await client.query(
+            await txClient.query(
               'UPDATE special_day_schedule SET note = $1, updated_at = NOW() WHERE id = $2',
               [note, sdId]
             );
           }
         } else {
-          const newSd = await client.query(
+          const newSd = await txClient.query(
             `INSERT INTO special_day_schedule (child_id, date, note, created_at)
              VALUES ($1, $2, $3, NOW()) RETURNING id`,
             [req.params.childId, dateStr, note || null]
@@ -682,16 +826,22 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
           sdId = newSd.rows[0].id;
         }
 
-        const sectionCounters = {};
-        for (const tpl of templates.rows) {
-          const sec = sectionForTemplate(tpl, useSortOrderFallback, timeGroupToSection);
-          if (!(sec in sectionCounters)) sectionCounters[sec] = 0;
-          const sortOrder = sectionCounters[sec]++;
-          await client.query(
+        for (const item of scheduleItems) {
+          await txClient.query(
             `INSERT INTO special_day_schedule_item
                (special_day_schedule_id, activity_template_id, name, icon, start_time, end_time, star_value, sort_order, section)
-             VALUES ($1, $2, $3, $4, NULL, NULL, $5, $6, $7)`,
-            [sdId, tpl.id, tpl.name, tpl.icon, tpl.star_value || 1, sortOrder, sec]
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            [
+              sdId,
+              item.activity_template_id,
+              item.name,
+              item.icon,
+              item.start_time,
+              item.end_time,
+              item.star_value || 1,
+              item.sort_order || 0,
+              item.section || 'dag',
+            ]
           );
         }
 
@@ -699,12 +849,12 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
         syncedDates.push({ sdId, dateStr });
       }
 
-      await client.query('COMMIT');
+      await txClient.query('COMMIT');
     } catch (err) {
-      await client.query('ROLLBACK');
+      await txClient.query('ROLLBACK');
       throw err;
     } finally {
-      client.release();
+      txClient.release();
     }
 
     for (const row of syncedDates) {

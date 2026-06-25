@@ -467,6 +467,35 @@ function renderStdSchedulesSubTab() {
 
 // ─── Copy schedule dialog ────────────────────────────────
 // source: 'standard' (default) or 'family' — determines which API endpoint to use
+
+function todayIsoDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function defaultPeriodEndIso(startIso) {
+  const d = new Date(startIso + 'T12:00:00');
+  d.setDate(d.getDate() + 6);
+  return d.toISOString().slice(0, 10);
+}
+
+function toggleScheduleCopyPeriod() {
+  const cb = document.getElementById('copySchedUsePeriod');
+  const fields = document.getElementById('copySchedPeriodFields');
+  const dayPicker = document.getElementById('copySchedDayPicker');
+  const btn = document.getElementById('scheduleCopyBtn');
+  if (!cb) return;
+  const on = cb.checked;
+  if (fields) fields.classList.toggle('hidden', !on);
+  if (dayPicker) dayPicker.classList.toggle('hidden', on);
+  if (btn) btn.textContent = on ? 'Kopiera för perioden' : 'Kopiera';
+  if (on) {
+    const startEl = document.getElementById('copySchedPeriodStart');
+    const endEl = document.getElementById('copySchedPeriodEnd');
+    if (startEl && !startEl.value) startEl.value = todayIsoDate();
+    if (endEl && !endEl.value) endEl.value = defaultPeriodEndIso(startEl.value || todayIsoDate());
+  }
+}
+
 function openScheduleCopyDialog(scheduleId, scheduleName, source) {
   const _copySource = source || 'standard';
   if (schemaChildren.length === 0) {
@@ -501,7 +530,26 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
             <p class="text-sm font-semibold text-navy mb-2">Välj barn:</p>
             <div class="space-y-1">${childOptions}</div>
           </div>
-          <div>
+          <div class="rounded-xl border-2 border-lavender bg-sky/40 p-3">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="copySchedUsePeriod" class="w-5 h-5 mt-0.5 accent-gold flex-shrink-0" onchange="toggleScheduleCopyPeriod()">
+              <span>
+                <span class="block text-sm font-semibold text-navy">Begränsa till period</span>
+                <span class="block text-xs text-text-soft mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan datumen.</span>
+              </span>
+            </label>
+            <div id="copySchedPeriodFields" class="hidden mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
+                <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm">
+              </div>
+              <div>
+                <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
+                <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm">
+              </div>
+            </div>
+          </div>
+          <div id="copySchedDayPicker">
             <p class="text-sm font-semibold text-navy mb-2">Vilka dagar?</p>
             <div class="flex flex-wrap gap-3">${dayCheckboxes}</div>
           </div>
@@ -521,6 +569,12 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
   // Remove any existing modal
   closeScheduleCopyModal();
   document.body.insertAdjacentHTML('beforeend', modalHtml);
+  const modal = document.getElementById('scheduleCopyModal');
+  if (modal) {
+    modal.dataset.scheduleId = scheduleId;
+    modal.dataset.scheduleName = scheduleName;
+    modal.dataset.copySource = _copySource;
+  }
   // Set .checked property directly — do not rely on HTML attribute alone (Mon–Fre pre-selected)
   document.querySelectorAll('#scheduleCopyModal .copy-sched-day').forEach(cb => {
     if (cb.value >= 1 && cb.value <= 5) cb.checked = true;
@@ -533,6 +587,11 @@ function closeScheduleCopyModal() {
 }
 
 async function executeScheduleCopy(scheduleId, source) {
+  const modal = document.getElementById('scheduleCopyModal');
+  const resolvedId = scheduleId || (modal && modal.dataset.scheduleId);
+  const resolvedSource = source || (modal && modal.dataset.copySource) || 'standard';
+  const scheduleName = (modal && modal.dataset.scheduleName) || '';
+
   const childRadio = document.querySelector('input[name="copySchedChild"]:checked');
   if (!childRadio) {
     document.getElementById('scheduleCopyError').textContent = 'Välj ett barn';
@@ -540,22 +599,81 @@ async function executeScheduleCopy(scheduleId, source) {
     return;
   }
 
-  const days = Array.from(document.querySelectorAll('.copy-sched-day:checked')).map(cb => parseInt(cb.value));
-  if (days.length === 0) {
-    document.getElementById('scheduleCopyError').textContent = 'Välj minst en dag';
-    document.getElementById('scheduleCopyError').classList.remove('hidden');
-    return;
-  }
+  const usePeriod = document.getElementById('copySchedUsePeriod')?.checked;
+  const errEl = document.getElementById('scheduleCopyError');
+  errEl.classList.add('hidden');
 
   const btn = document.getElementById('scheduleCopyBtn');
   btn.disabled = true;
   btn.textContent = 'Kopierar…';
 
+  if (usePeriod) {
+    const start = document.getElementById('copySchedPeriodStart')?.value;
+    const end = document.getElementById('copySchedPeriodEnd')?.value;
+    if (!start || !end) {
+      errEl.textContent = 'Ange start- och slutdatum';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      toggleScheduleCopyPeriod();
+      return;
+    }
+    if (end < start) {
+      errEl.textContent = 'Slutdatum måste vara på eller efter startdatum';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      toggleScheduleCopyPeriod();
+      return;
+    }
+
+    const body = {
+      start_date: start,
+      end_date: end,
+      overwrite: document.getElementById('copySchedOverwrite')?.checked ?? true,
+      note: scheduleName || null,
+    };
+    if (resolvedSource === 'family') {
+      body.schedule_template_id = resolvedId;
+    } else {
+      body.standard_schedule_id = resolvedId;
+    }
+
+    try {
+      const res = await window.apiFetch(
+        `/api/children/${childRadio.value}/schedules/apply-date-range`,
+        { method: 'POST', body: JSON.stringify(body) }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || 'Schemat har kopierats för perioden!');
+        closeScheduleCopyModal();
+      } else {
+        errEl.textContent = data.error || 'Kunde inte kopiera';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        toggleScheduleCopyPeriod();
+      }
+    } catch {
+      showToast('Något gick fel', true);
+      btn.disabled = false;
+      toggleScheduleCopyPeriod();
+    }
+    return;
+  }
+
+  const days = Array.from(document.querySelectorAll('.copy-sched-day:checked')).map(cb => parseInt(cb.value));
+  if (days.length === 0) {
+    errEl.textContent = 'Välj minst en dag';
+    errEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Kopiera';
+    return;
+  }
+
   try {
     // Use correct endpoint based on source type
-    const endpoint = source === 'family'
-      ? `/api/schedule-templates/${scheduleId}/apply`
-      : `/api/standard-library/schedules/${scheduleId}/copy`;
+    const endpoint = resolvedSource === 'family'
+      ? `/api/schedule-templates/${resolvedId}/apply`
+      : `/api/standard-library/schedules/${resolvedId}/copy`;
     const res = await window.apiFetch(endpoint, {
       method: 'POST',
       body: JSON.stringify({
@@ -569,8 +687,8 @@ async function executeScheduleCopy(scheduleId, source) {
       showToast(data.message || 'Schemat har kopierats!');
       closeScheduleCopyModal();
     } else {
-      document.getElementById('scheduleCopyError').textContent = data.error || 'Kunde inte kopiera';
-      document.getElementById('scheduleCopyError').classList.remove('hidden');
+      errEl.textContent = data.error || 'Kunde inte kopiera';
+      errEl.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = 'Kopiera';
     }
@@ -727,5 +845,6 @@ async function executeCopyFrom(targetChildId) {
 window.loadSchemaTab = loadSchemaTab;
 window.openCreateTemplateModal = openCreateTemplateModal;
 window.openScheduleCopyDialog = openScheduleCopyDialog;
+window.toggleScheduleCopyPeriod = toggleScheduleCopyPeriod;
 window.renderStdScheduleItem = renderStdScheduleItem;
 window.toggleStdSubSteps = toggleStdSubSteps;

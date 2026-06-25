@@ -292,12 +292,19 @@ const CopyToChildSchema = z.object({
 const ApplyDateRangeSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ogiltigt startdatum'),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ogiltigt slutdatum'),
-  template_category_id: uuid,
+  template_category_id: uuid.optional(),
+  standard_schedule_id: uuid.optional(),
+  schedule_template_id: uuid.optional(),
   overwrite: z.boolean().optional(),
   note: z.string().max(200).optional(),
 }).refine((data) => data.end_date >= data.start_date, {
   message: 'Slutdatum måste vara på eller efter startdatum',
   path: ['end_date'],
+}).refine((data) => {
+  const sources = [data.template_category_id, data.standard_schedule_id, data.schedule_template_id].filter(Boolean);
+  return sources.length === 1;
+}, {
+  message: 'Ange exakt en schema-källa',
 });
 
 // ─── Special Day Schedules ────────────────────────────────

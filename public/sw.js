@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v377';
+const CACHE_NAME = 'stjarndag-v378';
+// stjarndag-v378: Bibliotek — kopiera schema med start/slutdatum (LOV m.m.)
 // stjarndag-v377: print-schema — öppna utskriftsfönster synkront (popup-blocker efter await)
 // stjarndag-v376: Tilldela schema — start/slutdatum för period (t.ex. lov)
 // stjarndag-v374: print-schema — hela dagen i förhandsgranskning + dynamisk utskriftsskalning
