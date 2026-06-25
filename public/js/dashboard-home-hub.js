@@ -238,6 +238,7 @@
 
     mount.innerHTML =
       '<div class="parent-home-hub magic-3d-scene">' +
+      '<div id="parentHubDailySummaryMount" class="parent-hub-daily-summary" aria-live="polite"></div>' +
       '<header class="parent-hub-top">' +
       '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
       '</header>' +

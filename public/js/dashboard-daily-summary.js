@@ -140,11 +140,22 @@
     };
   }
 
+  function getBannerMount() {
+    var useHub = window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function' && DashboardHomeHub.shouldUse();
+    if (useHub) {
+      return document.getElementById('parentHubDailySummaryMount') || document.getElementById('dashboardDailySummary');
+    }
+    return document.getElementById('dashboardDailySummary');
+  }
+
   function renderBanner(summary) {
-    var el = document.getElementById('dashboardDailySummary');
+    var el = getBannerMount();
+    var legacy = document.getElementById('dashboardDailySummary');
     if (!el) return;
     if (!summary) {
       el.classList.add('hidden');
+      el.innerHTML = '';
+      if (legacy && legacy !== el) legacy.classList.add('hidden');
       return;
     }
 
@@ -157,7 +168,7 @@
       }
     }
 
-    el.className = 'dash-daily-summary dash-summary-' + summary.tone;
+    el.className = (el.id === 'parentHubDailySummaryMount' ? 'parent-hub-daily-summary ' : '') + 'dash-daily-summary dash-summary-' + summary.tone;
     el.innerHTML =
       '<span class="dash-summary-emoji" aria-hidden="true">' + summary.emoji + '</span>' +
       '<div class="dash-summary-text">' +
@@ -166,6 +177,11 @@
       '</div>' +
       actionHtml;
     el.classList.remove('hidden');
+
+    if (legacy && legacy !== el) {
+      legacy.classList.add('hidden');
+      legacy.innerHTML = '';
+    }
 
     var actionBtn = el.querySelector('[data-summary-action]');
     if (actionBtn) {

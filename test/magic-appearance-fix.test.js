@@ -56,6 +56,21 @@ describe('magic appearance fixes', () => {
     assert.match(css, /\.parent-top-chrome \.parent-nav-header-actions/);
   });
 
+  it('home hub mounts daily summary banner inside magic shell', () => {
+    const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
+    const summary = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-daily-summary.js'), 'utf8');
+    const dash = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    assert.match(hub, /parentHubDailySummaryMount/);
+    assert.match(summary, /getBannerMount/);
+    assert.match(summary, /parentHubDailySummaryMount/);
+    assert.match(dash, /DashboardHomeHub\.render\(dashboardStats\);[\s\S]*DashboardDailySummary\.update\(dashboardStats\)/);
+  });
+
+  it('coparent CTA readable in light magic home', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/dashboard-magic.css'), 'utf8');
+    assert.match(css, /parent-theme-light \.parent-coparent-cta-copy strong/);
+  });
+
   it('fixed nav header on all magic pages including dashboard', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');

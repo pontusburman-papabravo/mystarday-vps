@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v371';
+const CACHE_NAME = 'stjarndag-v372';
+// stjarndag-v372: Hem — dagssammanfattning i hub + läsbar medförälder-CTA i ljust tema
 // stjarndag-v371: Tilldela schema ljus-tema kontrast + auto-välj dag vid barnval
 // stjarndag-v370: funnel_onboarding_started för legacy — ärligare aktiveringstratt steg 2
 // stjarndag-v367: Tilldela schema — bekräftelseruta .hidden blockerade inte overlay (klick döda)

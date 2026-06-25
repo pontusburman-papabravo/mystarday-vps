@@ -1409,6 +1409,24 @@ body.parent-magic-view.parent-theme-light .parent-handoff-secondary {
   box-shadow: none !important;
 }
 
+body.parent-magic-view.parent-theme-light .parent-hub-daily-summary .dash-daily-summary {
+  border-color: rgba(20, 16, 45, 0.12) !important;
+  box-shadow: 0 1px 4px rgba(20, 16, 45, 0.06);
+}
+
+body.parent-magic-view.parent-theme-light .parent-coparent-cta {
+  background: linear-gradient(135deg, #fff8e6, #ffffff) !important;
+  border-color: rgba(245, 166, 35, 0.45) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-coparent-cta-copy strong {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-coparent-cta-copy span {
+  color: rgba(26, 22, 51, 0.62) !important;
+}
+
 /* Gold accent buttons / links stay readable — only normalise neutral text */
 body.parent-magic-view.parent-theme-light .parent-schedule-link {
   color: #b8860b !important;

@@ -425,6 +425,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof renderDashboardCards === 'function') renderDashboardCards();
       } else if (window.DashboardHomeHub) {
         DashboardHomeHub.render(dashboardStats);
+        if (window.DashboardDailySummary && dashboardStats) {
+          DashboardDailySummary.update(dashboardStats);
+        }
       }
     });
   }
@@ -540,6 +543,9 @@ window.bootDashboardMagicPage = async function bootDashboardMagicPage() {
 
   if (window.DashboardHomeHub && window.AppViewMode && AppViewMode.isMagic()) {
     DashboardHomeHub.render(dashboardStats);
+    if (window.DashboardDailySummary && dashboardStats) {
+      DashboardDailySummary.update(dashboardStats);
+    }
   }
   if (typeof renderDashboardCards === 'function') renderDashboardCards();
 };
@@ -1005,12 +1011,12 @@ function renderDashboardCards() {
     DashboardCustody.apply(childList.map(function (c) { return c.id; }));
   }
 
-  if (window.DashboardDailySummary && dashboardStats) {
-    window.DashboardDailySummary.update(dashboardStats);
-  }
-
   if (window.DashboardHomeHub) {
     DashboardHomeHub.render(dashboardStats);
+  }
+
+  if (window.DashboardDailySummary && dashboardStats) {
+    window.DashboardDailySummary.update(dashboardStats);
   }
 }
 

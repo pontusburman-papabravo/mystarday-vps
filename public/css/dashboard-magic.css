@@ -47,6 +47,19 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
     linear-gradient(180deg, #0b0b2a 0%, #07071a 100%);
 }
 
+.parent-hub-daily-summary {
+  margin: 0 0 14px;
+}
+
+.parent-hub-daily-summary.dash-daily-summary,
+.parent-hub-daily-summary .dash-daily-summary {
+  margin: 0;
+}
+
+.parent-hub-daily-summary:empty {
+  display: none;
+}
+
 /* ── Header ── */
 .parent-hub-header {
   display: flex;
@@ -785,6 +798,29 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   font-size: 12px;
   color: rgba(244, 244, 255, 0.72);
   line-height: 1.35;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-coparent-cta {
+  background: linear-gradient(135deg, #fff8e6, #ffffff) !important;
+  border-color: rgba(245, 166, 35, 0.45) !important;
+  box-shadow: 0 2px 10px rgba(245, 166, 35, 0.12) !important;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-coparent-cta-copy strong {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-coparent-cta-copy span {
+  color: rgba(26, 22, 51, 0.62) !important;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-ready-count {
+  color: rgba(26, 22, 51, 0.55) !important;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-encourage-inline span,
+body.parent-magic-dashboard.parent-theme-light .parent-encourage-card p {
+  color: rgba(26, 22, 51, 0.62) !important;
 }
 
 .parent-coparent-cta-btn {
