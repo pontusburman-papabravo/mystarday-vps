@@ -27,6 +27,8 @@
 |-----|-------------|
 | [`foraldra.html`](foraldra.html) | Föräldra-dashboard (ljus) |
 | [`barnvy.html`](barnvy.html) | Barnvy / schema |
+| [`barnvy-foto-abc.html`](barnvy-foto-abc.html) | Barnvy: egna foton A/B/C (källa) |
+| **Webb:** [`/mockups/barnvy-foto-abc.html`](../../public/mockups/barnvy-foto-abc.html) | Samma mock — öppnas via appen efter deploy |
 | [`beloningar.html`](beloningar.html) | Skattkammaren |
 | [`celebration.html`](celebration.html) | Celebration / wow |
 | [`dashboard-index.html`](dashboard-index.html) | Index — länkar till alla |
