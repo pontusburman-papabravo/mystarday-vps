@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barnvy A B C — egna foton (mockup)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #F5A623;
+      --navy: #1B2340;
+      --text-soft: #5A6178;
+      --text-light: #9AA0B8;
+      --bg: #EEF2FC;
+      --white: #fff;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .page-header { max-width: 1200px; margin: 0 auto 28px; }
+    .page-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      max-width: 720px;
+      line-height: 1.55;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      max-width: 1200px;
+      margin: 20px auto 32px;
+    }
+    .legend-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 10px rgba(27,35,64,0.06);
+    }
+    .legend-card strong {
+      font-family: 'Outfit', sans-serif;
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+    .legend-card span { font-size: 0.82rem; color: var(--text-soft); line-height: 1.45; }
+    .legend-card.a { border-color: #60A5FA; }
+    .legend-card.b { border-color: #A78BFA; }
+    .legend-card.c { border-color: #34D399; }
+    .compare-row {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .variant-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .variant-label {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .variant-sub {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      text-align: center;
+      max-width: 300px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .phone {
+      width: 300px;
+      background: var(--navy);
+      border-radius: 40px;
+      padding: 10px;
+      box-shadow: 0 12px 40px rgba(27,35,64,0.18);
+    }
+    .screen {
+      background: #F0F4FF;
+      border-radius: 32px;
+      overflow: hidden;
+      min-height: 580px;
+    }
+    .hdr {
+      background: linear-gradient(135deg, #1B2340, #2A3458);
+      padding: 36px 16px 14px;
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.72rem;
+    }
+    .hdr .name {
+      color: var(--gold);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      background: rgba(245,166,35,0.18);
+      border-radius: 50px;
+      padding: 6px 14px;
+      color: var(--gold);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .feed { padding: 14px; }
+    .now-card {
+      background: linear-gradient(135deg, #FFF9EE, #FFF0D0);
+      border-radius: 18px;
+      padding: 16px;
+      border: 2.5px solid var(--gold);
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(245,166,35,0.18);
+    }
+    .now-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--gold);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 50px;
+      margin-bottom: 10px;
+    }
+    .now-badge .dot { width: 5px; height: 5px; background: white; border-radius: 50%; }
+    .nl-card {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(27,35,64,0.07);
+    }
+    .nl-chip {
+      font-size: 0.58rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 50px;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+    .chip-next { background: #EDE9FF; color: #6B50F5; }
+    .chip-later { background: #D1FAE5; color: #059669; }
+    .nl-info { flex: 1; min-width: 0; }
+    .nl-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nl-time { font-size: 0.7rem; color: var(--text-light); margin-top: 1px; }
+    .check {
+      width: 40px; height: 40px;
+      background: white;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.8);
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .emoji-box {
+      width: 40px; height: 40px; min-width: 40px;
+      background: #E8F0FE;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .emoji-box.later { background: #E0F5EC; }
+    .a .now-row { display: flex; align-items: center; gap: 12px; }
+    .a .photo-now {
+      width: 80px; height: 80px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: white;
+      border: 1.5px solid rgba(245,166,35,0.25);
+      flex-shrink: 0;
+    }
+    .a .photo-list {
+      width: 52px; height: 52px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: #f8f9ff;
+      flex-shrink: 0;
+    }
+    .a .now-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .a .now-time { font-size: 0.78rem; color: var(--text-soft); margin-top: 3px; }
+    .b .now-hero {
+      width: 100%;
+      height: 130px;
+      border-radius: 14px;
+      object-fit: cover;
+      object-position: center 60%;
+      background: #e8e8ee;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .b .now-footer { display: flex; align-items: center; gap: 10px; }
+    .b .now-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      flex: 1;
+    }
+    .b .photo-list {
+      width: 48px; height: 48px;
+      border-radius: 11px;
+      object-fit: contain;
+      background: #f8f9ff;
+      flex-shrink: 0;
+    }
+    .c .photo-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 10px rgba(27,35,64,0.08);
+      border: 2px solid transparent;
+    }
+    .c .photo-card.now {
+      border-color: var(--gold);
+      box-shadow: 0 4px 16px rgba(245,166,35,0.2);
+    }
+    .c .photo-card .badge-wrap { padding: 10px 12px 0; }
+    .c .photo-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      background: #ececf2;
+    }
+    .c .photo-card .card-foot {
+      padding: 10px 12px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .c .photo-card .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex: 1;
+      text-align: center;
+    }
+    .c .photo-card .card-time {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      text-align: center;
+      margin-top: -6px;
+      padding-bottom: 8px;
+    }
+    .note-bar {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      padding: 14px 18px;
+      background: rgba(27,35,64,0.06);
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+    .note-bar strong { color: var(--navy); }
+    @media (max-width: 700px) {
+      .compare-row { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>Barnvy — egna foton (A / B / C)</h1>
+    <p>
+      Samma schema i alla tre: <strong>Gå och lägg dig</strong> (rumsfoto av säng),
+      <strong>Borsta tänderna</strong> (närbild), plus två emoji-aktiviteter.
+    </p>
+  </header>
+
+  <div class="legend">
+    <div class="legend-card a">
+      <strong>A — Större tumnagel</strong>
+      <span>Oförändrad rad-layout. Foto 80×80 px (NU) / 52×52 (lista), <code>object-fit: contain</code>.</span>
+    </div>
+    <div class="legend-card b">
+      <strong>B — Foto-hero på NU</strong>
+      <span>NU-kortet får bred bild överst (130 px). Namn under. Listkort behåller liten tumnagel.</span>
+    </div>
+    <div class="legend-card c">
+      <strong>C — Bildschema-kort</strong>
+      <span>Foto-aktiviteter = vertikala kort med stor bild + namn under. Emoji = kompakt rad.</span>
+    </div>
+  </div>
+
+  <div class="compare-row">
+
+    <div class="variant-col a">
+      <div class="variant-label">A</div>
+      <div class="variant-sub">Större tumnagel · samma layout</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="hdr">
+            <div>Hej,</div>
+            <div class="name">Ella ⭐</div>
+            <div class="stars">⭐ 12</div>
+          </div>
+          <div class="feed">
+            <div class="now-card">
+              <div class="now-badge"><span class="dot"></span> NU</div>
+              <div class="now-row">
+                <img class="photo-now" src="/mockups/assets/bed-room.jpg" alt="Säng i rum">
+                <div>
+                  <div class="now-title">Gå och lägg dig</div>
+                  <div class="now-time">🕐 20:00</div>
+                </div>
+                <div class="check"></div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-next">Nästa</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <img class="photo-list" src="/mockups/assets/toothbrush.jpg" alt="Tandborste">
+                  <div class="nl-info">
+                    <div class="nl-title">Borsta tänderna</div>
+                    <div class="nl-time">🕐 20:15</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🥣</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Äta frukost</div>
+                    <div class="nl-time">🕐 imorgon 07:30</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🎒</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Packa väskan</div>
+                    <div class="nl-time">🕐 imorgon 07:45</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variant-col b">
+      <div class="variant-label">B</div>
+      <div class="variant-sub">Foto-hero på NU-kortet</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="hdr">
+            <div>Hej,</div>
+            <div class="name">Ella ⭐</div>
+            <div class="stars">⭐ 12</div>
+          </div>
+          <div class="feed">
+            <div class="now-card" style="padding:12px">
+              <div class="now-badge"><span class="dot"></span> NU</div>
+              <img class="now-hero" src="/mockups/assets/bed-room.jpg" alt="Säng i rum">
+              <div class="now-footer">
+                <div>
+                  <div class="now-title">Gå och lägg dig</div>
+                  <div class="nl-time">🕐 20:00</div>
+                </div>
+                <div class="check"></div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-next">Nästa</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <img class="photo-list" src="/mockups/assets/toothbrush.jpg" alt="Tandborste">
+                  <div class="nl-info">
+                    <div class="nl-title">Borsta tänderna</div>
+                    <div class="nl-time">🕐 20:15</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🥣</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Äta frukost</div>
+                    <div class="nl-time">🕐 imorgon 07:30</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🎒</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Packa väskan</div>
+                    <div class="nl-time">🕐 imorgon 07:45</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="variant-col c">
+      <div class="variant-label">C</div>
+      <div class="variant-sub">Bildschema-kort för foto</div>
+      <div class="phone">
+        <div class="screen">
+          <div class="hdr">
+            <div>Hej,</div>
+            <div class="name">Ella ⭐</div>
+            <div class="stars">⭐ 12</div>
+          </div>
+          <div class="feed">
+            <div class="photo-card now">
+              <div class="badge-wrap">
+                <div class="now-badge"><span class="dot"></span> NU</div>
+              </div>
+              <img src="/mockups/assets/bed-room.jpg" alt="Säng i rum">
+              <div class="card-foot">
+                <div class="card-title">Gå och lägg dig</div>
+                <div class="check"></div>
+              </div>
+              <div class="card-time">🕐 20:00</div>
+            </div>
+            <div class="photo-card">
+              <div class="badge-wrap">
+                <div class="nl-chip chip-next">Nästa</div>
+              </div>
+              <img src="/mockups/assets/toothbrush.jpg" alt="Tandborste">
+              <div class="card-foot">
+                <div class="card-title">Borsta tänderna</div>
+              </div>
+              <div class="card-time">🕐 20:15</div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🥣</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Äta frukost</div>
+                    <div class="nl-time">🕐 imorgon 07:30</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nl-card">
+              <div style="flex:1;min-width:0">
+                <div class="nl-chip chip-later">Sedan</div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="emoji-box later">🎒</div>
+                  <div class="nl-info">
+                    <div class="nl-title">Packa väskan</div>
+                    <div class="nl-time">🕐 imorgon 07:45</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note-bar">
+    <strong>URL:</strong> <code>/mockups/barnvy-foto-abc.html</code> —
+    t.ex. <a href="https://mystarday.se/mockups/barnvy-foto-abc.html">mystarday.se/mockups/barnvy-foto-abc.html</a> efter deploy.
+  </div>
+
+</body>
+</html>
