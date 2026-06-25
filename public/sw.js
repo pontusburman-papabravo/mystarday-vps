@@ -212,7 +212,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v361';
+const CACHE_NAME = 'stjarndag-v363';
+// stjarndag-v363: Tilldela schema — bekräftelsedialog z-index + stäng på bakgrund/Escape
+// stjarndag-v362: Ljus tema — Familjemuseum, bibliotek, familjekort, inställningar utseende
 // stjarndag-v361: Mobil tema-toggle — delegation, dölj legacy toggle, fix settings-grupp :not(.hidden)
 // stjarndag-v360: Bibliotek/planering — modal-CSS, standardbibliotek load, tillbaka från planering, schema-hero
 // stjarndag-v359: Bibliotek — schema load-fix, nav z-index, modal stängs vid navigering, bilduppladdning HEIC

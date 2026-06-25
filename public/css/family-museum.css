@@ -118,31 +118,31 @@
   font-weight: 800;
 }
 
-/* Magic view */
-body.parent-magic-view .fm-museum-card {
+/* Magic view (dark theme only — light uses classic .fm-museum-* colors above) */
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-card {
   background: linear-gradient(145deg, rgba(255, 204, 51, 0.14) 0%, rgba(88, 56, 180, 0.22) 55%, rgba(12, 12, 36, 0.9) 100%);
   border-color: rgba(255, 204, 51, 0.28);
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
 }
 
-body.parent-magic-view .fm-museum-title,
-body.parent-magic-view .fm-museum-reward-chip {
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-title,
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-reward-chip {
   color: #f4f4ff;
 }
 
-body.parent-magic-view .fm-museum-lead,
-body.parent-magic-view .fm-museum-stat span,
-body.parent-magic-view .fm-museum-rewards-label {
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-lead,
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-stat span,
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-rewards-label {
   color: rgba(244, 244, 255, 0.72);
 }
 
-body.parent-magic-view .fm-museum-stat,
-body.parent-magic-view .fm-museum-reward-chip {
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-stat,
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-reward-chip {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-body.parent-magic-view .fm-museum-stat strong,
-body.parent-magic-view .fm-museum-reward-chip em {
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-stat strong,
+body.parent-magic-view:not(.parent-theme-light) .fm-museum-reward-chip em {
   color: #ffcc33;
 }

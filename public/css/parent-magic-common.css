@@ -18,9 +18,9 @@ body.parent-magic-view.bg-cream {
 
 html.parent-magic-early body .bg-sky,
 html.parent-magic-early body .bg-cream,
-body.parent-magic-view .bg-sky,
-body.parent-magic-view.parent-magic-page-for-dig main .bg-sky,
-body.parent-magic-view.for-dig-page .bg-sky {
+body.parent-magic-view:not(.parent-theme-light) .bg-sky,
+body.parent-magic-view.parent-magic-page-for-dig:not(.parent-theme-light) main .bg-sky,
+body.parent-magic-view.for-dig-page:not(.parent-theme-light) .bg-sky {
   background: transparent !important;
   border-color: transparent !important;
 }
@@ -276,6 +276,12 @@ body.parent-magic-view.magic-settings-in-group [data-magic-settings-content]:not
 
 body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
   display: block;
+}
+
+/* Hide legacy settings blocks (prenumeration etc.) when a magic group is open */
+body.parent-magic-view.magic-settings-in-group .flex-1.overflow-auto > section:not([data-magic-settings-content]),
+body.parent-magic-view.magic-settings-in-group .flex-1.overflow-auto > hr {
+  display: none !important;
 }
 
 .magic-settings-back-bar {
@@ -820,7 +826,8 @@ body.parent-magic-view.parent-magic-page-assign-schedule .save-btn.saved {
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay {
-  z-index: 200;
+  z-index: 10300 !important;
+  pointer-events: auto;
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box {
@@ -1019,6 +1026,18 @@ body.parent-magic-view.parent-theme-light .magic-page-hero p,
 body.parent-magic-view.parent-theme-light .magic-page-stat-card span,
 body.parent-magic-view.parent-theme-light .magic-settings-group-text span {
   color: rgba(26, 22, 51, 0.6) !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-page-stat-card strong {
+  color: #b8860b !important;
+}
+
+/* Family member cards — visible edges on white page */
+body.parent-magic-view.parent-theme-light .child-card-wrap.bg-sky,
+body.parent-magic-view.parent-theme-light .child-card-wrap .bg-sky,
+body.parent-magic-view.parent-theme-light #adultsGrid > div.bg-sky {
+  border: 1px solid rgba(20, 16, 45, 0.10) !important;
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.06) !important;
 }
 
 /* Generic surfaces / cards */

@@ -638,6 +638,18 @@ function closeConfirm() {
   pendingConfirm = null;
 }
 
+function bindConfirmOverlay() {
+  const overlay = document.getElementById('confirmOverlay');
+  if (!overlay || overlay.dataset.bound) return;
+  overlay.dataset.bound = '1';
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeConfirm();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeConfirm();
+  });
+}
+
 // ── Children ───────────────────────────────────────────────
 async function loadChildren() {
   const res = await window.apiFetch('/api/children');
@@ -671,6 +683,7 @@ function renderChildTabs() {
 }
 
 async function selectChild(id) {
+  closeConfirm();
   currentChildId = id;
   categories = []; // reset so we reload per child's family
 
@@ -701,6 +714,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
 
+  bindConfirmOverlay();
   renderWeekNav();
   await loadChildren();
 });

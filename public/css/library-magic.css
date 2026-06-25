@@ -3,13 +3,13 @@
  * Scoped to body.parent-magic-library
  */
 
-body.parent-magic-library {
+body.parent-magic-library:not(.parent-theme-light) {
   background: #07071a;
   color: #f4f4ff;
 }
 
-body.parent-magic-library,
-body.parent-magic-library.parent-magic-view {
+body.parent-magic-library:not(.parent-theme-light),
+body.parent-magic-library.parent-magic-view:not(.parent-theme-light) {
   background: #07071a;
 }
 
@@ -239,60 +239,60 @@ body.parent-magic-library .tab-pane.active {
   padding-top: 8px;
 }
 
-body.parent-magic-library .tab-pane.active .text-navy,
-body.parent-magic-library .tab-pane.active h3,
-body.parent-magic-library .tab-pane.active h4 {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .text-navy,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active h3,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active h4 {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-library .tab-pane.active .text-text-soft {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .text-text-soft {
   color: rgba(244, 244, 255, 0.62) !important;
 }
 
-body.parent-magic-library .tab-pane.active .bg-white,
-body.parent-magic-library .tab-pane.active .bg-sky,
-body.parent-magic-library .tab-pane.active .bg-sky\/60 {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .bg-white,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .bg-sky,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .bg-sky\/60 {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f4f4ff;
 }
 
-body.parent-magic-library .tab-pane.active .border-lavender,
-body.parent-magic-library .tab-pane.active .border-2 {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .border-lavender,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .border-2 {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.parent-magic-library .tab-pane.active input[type="text"],
-body.parent-magic-library .tab-pane.active input[type="search"] {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active input[type="text"],
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active input[type="search"] {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
-body.parent-magic-library .tab-pane.active .schema-tab.active {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .schema-tab.active {
   background: linear-gradient(135deg, #ffcc33, #f5a623);
   color: #1b2340;
 }
 
-body.parent-magic-library .tab-pane.active .schema-tab:not(.active) {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .schema-tab:not(.active) {
   background: rgba(255, 255, 255, 0.06);
   color: rgba(244, 244, 255, 0.85);
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-body.parent-magic-library .tab-pane.active .std-sub-btn.bg-white {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active .std-sub-btn.bg-white {
   background: rgba(255, 204, 51, 0.2) !important;
   color: #ffcc33 !important;
 }
 
-body.parent-magic-library .tab-pane.active button.bg-navy,
-body.parent-magic-library .tab-pane.active a.bg-navy {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active button.bg-navy,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active a.bg-navy {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #fff !important;
 }
 
-body.parent-magic-library .tab-pane.active button.bg-gold,
-body.parent-magic-library .tab-pane.active a.bg-gold {
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active button.bg-gold,
+body.parent-magic-library:not(.parent-theme-light) .tab-pane.active a.bg-gold {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
 }
@@ -558,7 +558,7 @@ body.parent-magic-library.library-magic-section-mine #libraryMagicMineSegments:n
 }
 
 /* ── Substeps in magic mode (activities + schedule items) ── */
-body.parent-magic-library .substeps-panel {
+body.parent-magic-library:not(.parent-theme-light) .substeps-panel {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
@@ -566,17 +566,17 @@ body.parent-magic-library .substeps-panel.open {
   display: block;
 }
 
-body.parent-magic-library .substep-item {
+body.parent-magic-library:not(.parent-theme-light) .substep-item {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-body.parent-magic-library .library-magic-substeps {
+body.parent-magic-library:not(.parent-theme-light) .library-magic-substeps {
   border-left-color: rgba(255, 204, 51, 0.35) !important;
 }
 
-body.parent-magic-library .library-magic-timeline-content .text-navy,
-body.parent-magic-library .library-magic-timeline-content .text-text-soft {
+body.parent-magic-library:not(.parent-theme-light) .library-magic-timeline-content .text-navy,
+body.parent-magic-library:not(.parent-theme-light) .library-magic-timeline-content .text-text-soft {
   color: rgba(244, 244, 255, 0.85) !important;
 }
 
@@ -622,3 +622,85 @@ body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktivite
   overflow: visible;
 }
 
+/* ── Light theme (Bibliotek / Belöningar) ── */
+body.parent-magic-library.parent-theme-light {
+  background: #ffffff;
+  color: #1a1633;
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-hub {
+  background:
+    radial-gradient(ellipse 120% 50% at 50% -5%, rgba(124, 58, 237, 0.06), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f8f6ff 100%);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-hub-head h1,
+body.parent-magic-library.parent-theme-light .library-magic-chrome-title h2,
+body.parent-magic-library.parent-theme-light .library-magic-menu-card,
+body.parent-magic-library.parent-theme-light .library-magic-schedule-card,
+body.parent-magic-library.parent-theme-light .library-magic-detail-head h3,
+body.parent-magic-library.parent-theme-light .library-magic-timeline-content {
+  color: #1a1633;
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-hub-head p,
+body.parent-magic-library.parent-theme-light .library-magic-menu-text span,
+body.parent-magic-library.parent-theme-light .library-magic-chrome-title p,
+body.parent-magic-library.parent-theme-light .library-magic-schedule-card-body > span:not(.library-magic-schedule-meta),
+body.parent-magic-library.parent-theme-light .library-magic-schedule-meta,
+body.parent-magic-library.parent-theme-light .library-magic-detail-head p,
+body.parent-magic-library.parent-theme-light .library-magic-empty,
+body.parent-magic-library.parent-theme-light .library-magic-std-hint {
+  color: rgba(26, 22, 51, 0.62);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-planning-back,
+body.parent-magic-library.parent-theme-light .library-magic-menu-card,
+body.parent-magic-library.parent-theme-light .library-magic-schedule-card,
+body.parent-magic-library.parent-theme-light .library-magic-filter,
+body.parent-magic-library.parent-theme-light .library-magic-segments,
+body.parent-magic-library.parent-theme-light .library-magic-timeline-content,
+body.parent-magic-library.parent-theme-light .library-magic-chrome,
+body.parent-magic-library.parent-theme-light .library-magic-back {
+  background: #ffffff;
+  border-color: rgba(20, 16, 45, 0.10);
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.05);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-search {
+  background: #ffffff;
+  border-color: rgba(20, 16, 45, 0.14);
+  color: #1a1633;
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-search::placeholder {
+  color: rgba(26, 22, 51, 0.45);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-segment {
+  color: rgba(26, 22, 51, 0.65);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-segment.is-active {
+  background: rgba(245, 166, 35, 0.15);
+  color: #b8860b;
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-menu-arrow {
+  color: rgba(26, 22, 51, 0.35);
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-back {
+  color: #1a1633;
+}
+
+body.parent-magic-library.parent-theme-light .library-magic-btn-secondary {
+  background: #ffffff;
+  color: #1a1633;
+  border: 1px solid rgba(20, 16, 45, 0.12);
+}
+
+body.parent-magic-library.parent-theme-light .native-tab-bar .tab-item.active,
+body.parent-magic-library.parent-theme-light .parent-bottom-nav-btn.is-active {
+  color: #b8860b !important;
+}
