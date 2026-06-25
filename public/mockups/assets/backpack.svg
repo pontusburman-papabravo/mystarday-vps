@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <defs>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8E4DF"/>
+      <stop offset="100%" stop-color="#D4CFC8"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3B4A6B"/>
+      <stop offset="100%" stop-color="#1B2340"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#floor)"/>
+  <!-- vägg -->
+  <rect x="0" y="0" width="800" height="220" fill="#F5F0EB"/>
+  <rect x="580" y="60" width="140" height="160" rx="6" fill="#87CEEB" opacity="0.35"/>
+  <!-- skolväska -->
+  <ellipse cx="380" cy="420" rx="140" ry="25" fill="#000" opacity="0.1"/>
+  <path d="M260 180 L260 380 Q260 410 320 410 L440 410 Q500 410 500 380 L500 180 Q500 150 440 150 L320 150 Q260 150 260 180Z" fill="url(#bag)"/>
+  <rect x="300" y="120" width="160" height="50" rx="20" fill="none" stroke="#1B2340" stroke-width="14"/>
+  <rect x="340" y="200" width="80" height="100" rx="8" fill="#F5A623" opacity="0.9"/>
+  <rect x="355" y="215" width="50" height="35" rx="4" fill="#FFF" opacity="0.9"/>
+  <!-- reflex -->
+  <rect x="270" y="250" width="24" height="24" rx="4" fill="#F5A623"/>
+  <rect x="466" y="250" width="24" height="24" rx="4" fill="#F5A623"/>
+  <!-- flaska i sidoficka -->
+  <rect x="490" y="280" width="28" height="80" rx="8" fill="#22C55E" opacity="0.8"/>
+</svg>

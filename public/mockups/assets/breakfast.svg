@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF8EE"/>
+      <stop offset="100%" stop-color="#F0E4D0"/>
+    </linearGradient>
+    <linearGradient id="table" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D4B896"/>
+      <stop offset="100%" stop-color="#B8956A"/>
+    </linearGradient>
+    <radialGradient id="bowl" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FFFDF8"/>
+      <stop offset="100%" stop-color="#E8E0D4"/>
+    </radialGradient>
+    <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <!-- köksbänk -->
+  <rect x="0" y="280" width="800" height="220" fill="url(#table)"/>
+  <rect x="0" y="275" width="800" height="12" fill="#C9A97A"/>
+  <!-- fönsterljus -->
+  <rect x="520" y="40" width="220" height="200" rx="8" fill="#C8E6FF" opacity="0.55"/>
+  <rect x="540" y="60" width="180" height="160" rx="4" fill="#E8F4FF" opacity="0.8"/>
+  <!-- tallrik med frukost -->
+  <ellipse cx="320" cy="330" rx="130" ry="28" fill="#000" opacity="0.08" filter="url(#soft)"/>
+  <ellipse cx="320" cy="310" rx="120" ry="22" fill="#F5F0E8" stroke="#D4C4B0" stroke-width="3"/>
+  <ellipse cx="320" cy="295" rx="100" ry="70" fill="url(#bowl)" stroke="#D4C4B0" stroke-width="2"/>
+  <!-- flingor -->
+  <ellipse cx="290" cy="285" rx="22" ry="10" fill="#F59E0B" opacity="0.85"/>
+  <ellipse cx="330" cy="278" rx="28" ry="12" fill="#D97706" opacity="0.8"/>
+  <ellipse cx="360" cy="292" rx="20" ry="9" fill="#FBBF24"/>
+  <!-- banan -->
+  <path d="M400 270 Q430 250 455 275 Q440 300 410 295 Q395 285 400 270Z" fill="#FDE047" stroke="#EAB308" stroke-width="2"/>
+  <!-- juice -->
+  <rect x="480" y="250" width="55" height="80" rx="6" fill="#FFF" stroke="#DDD" stroke-width="2"/>
+  <rect x="486" y="270" width="43" height="52" rx="4" fill="#FB923C" opacity="0.75"/>
+  <rect x="492" y="240" width="32" height="18" rx="4" fill="#FFF" stroke="#DDD" stroke-width="2"/>
+  <!-- sked -->
+  <rect x="250" y="265" width="8" height="70" rx="3" fill="#C0C0C0"/>
+  <ellipse cx="254" cy="258" rx="14" ry="10" fill="#D4D4D4"/>
+</svg>
