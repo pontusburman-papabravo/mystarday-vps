@@ -84,12 +84,14 @@
         currentDateStr = paramDate;
       }
 
+      if (urlParams.get('print') === '1') {
+        var cid = urlParams.get('childId');
+        window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
+        return;
+      }
+
       await loadChildren();
       await loadCustodyPrintOption();
-
-      if (urlParams.get('print') === '1') {
-        setTimeout(openPrintMenuHint, 400);
-      }
     });
 
     function openPrintMenuHint() {

@@ -25,6 +25,7 @@
     '/calendar': true,
     '/assign-schedule': true,
     '/daily-log': true,
+    '/print-schema': true,
   };
 
   var PAGE_STYLES = {

@@ -609,7 +609,7 @@ function updateSchedulePrintLink() {
     link.classList.add('hidden');
     return;
   }
-  link.href = '/daily-log?childId=' + encodeURIComponent(currentChildId) + '&print=1';
+  link.href = '/print-schema?childId=' + encodeURIComponent(currentChildId);
   link.classList.remove('hidden');
 }
 

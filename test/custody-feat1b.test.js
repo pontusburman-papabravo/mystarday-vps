@@ -47,7 +47,16 @@ describe('FEAT-1B boendeschema', () => {
   it('BC-11 print discoverability from planning and schedule', () => {
     const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
     const schedule = fs.readFileSync(path.join(ROOT, 'public/schedule.html'), 'utf8');
+    const printPage = fs.readFileSync(path.join(ROOT, 'public/print-schema.html'), 'utf8');
+    const printJs = fs.readFileSync(path.join(ROOT, 'public/js/print-schema.js'), 'utf8');
+    const core = fs.readFileSync(path.join(ROOT, 'public/js/print-schema-core.js'), 'utf8');
     assert.match(planning, /Skriv ut schema/);
+    assert.match(planning, /\/print-schema/);
     assert.match(schedule, /schedulePrintLink/);
+    assert.match(printPage, /1 vecka/);
+    assert.match(printPage, /1 månad/);
+    assert.match(printJs, /print_schema_exported/);
+    assert.match(core, /PERIODS/);
+    assert.match(core, /A4 landscape/);
   });
 });

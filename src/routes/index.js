@@ -137,7 +137,7 @@ function registerRoutes(app) {
     'settings', 'accept-invite', 'pedagog-invite',
     'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
     'family', 'calendar', 'onboarding', 'child-wizard', 'notifications',
-    'planning', 'rewards', 'family-child',
+    'planning', 'rewards', 'family-child', 'print-schema',
   ];
   app.get('/upgrade', async (req, res) => {
     const billingOk = await isBillingUiEnabled();

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Skriv ut schema — Min Stjärndag</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <script src="/js/theme.js?v=2.13.0"></script>
+  <script src="/js/dom-utils.js?v=2.13.0"></script>
+  <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/toast.js?v=2.12.0"></script>
+  <style>
+    html, body { overflow-x: clip; max-width: 100%; }
+    .child-tab.active { background: #F5A623; color: #fff; border-color: #F5A623; }
+    .period-btn.active { background: #1B2340; color: #fff; border-color: #1B2340; }
+    .scope-btn.active { background: #EDE7F6; border-color: #1B2340; color: #1B2340; }
+    #previewFrame {
+      width: 100%;
+      aspect-ratio: 297 / 210;
+      max-height: 70vh;
+      border: 2px solid #EDE7F6;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    @media print {
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="font-body bg-sky min-h-screen">
+  <div class="no-print p-4 md:p-8 max-w-3xl mx-auto">
+    <a href="/planning" class="inline-flex items-center gap-1 text-sm text-text-soft hover:text-navy mb-4 no-underline">← Tillbaka till planering</a>
+
+    <h1 class="text-2xl font-heading font-bold text-navy mb-1">🖨️ Skriv ut schema</h1>
+    <p class="text-text-soft text-sm mb-6">Välj barn och period. Utskriften är optimerad för ett A4-ark i liggande format.</p>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold text-navy mb-2">Barn</h2>
+      <div id="childTabs" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold text-navy mb-2">Period</h2>
+      <div class="flex flex-wrap gap-2" id="periodBtns">
+        <button type="button" class="period-btn active px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm" data-period="1w">1 vecka</button>
+        <button type="button" class="period-btn px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm" data-period="2w">2 veckor</button>
+        <button type="button" class="period-btn px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm" data-period="1m">1 månad</button>
+      </div>
+    </section>
+
+    <section class="mb-6" id="scopeSection">
+      <h2 class="text-sm font-semibold text-navy mb-2">Vad ska skrivas ut?</h2>
+      <div class="flex flex-wrap gap-2" id="scopeBtns">
+        <button type="button" class="scope-btn active px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm" data-scope="all">Hela schemat</button>
+        <button type="button" class="scope-btn px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm hidden" data-scope="my" id="myDaysScopeBtn">Bara mina dagar</button>
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold text-navy mb-2">Startvecka</h2>
+      <div class="flex items-center gap-3">
+        <button type="button" id="weekPrev" class="px-3 py-2 rounded-xl border-2 border-lavender font-bold text-navy" aria-label="Föregående vecka">‹</button>
+        <span id="weekLabel" class="text-sm font-semibold text-navy flex-1 text-center">–</span>
+        <button type="button" id="weekNext" class="px-3 py-2 rounded-xl border-2 border-lavender font-bold text-navy" aria-label="Nästa vecka">›</button>
+        <button type="button" id="weekToday" class="px-3 py-2 rounded-xl text-sm font-semibold text-gold hover:underline">Denna vecka</button>
+      </div>
+    </section>
+
+    <div class="flex flex-wrap gap-3 mb-6">
+      <button type="button" id="previewBtn" class="px-5 py-3 rounded-xl border-2 border-navy text-navy font-heading font-bold">Förhandsgranska</button>
+      <button type="button" id="printBtn" class="px-5 py-3 rounded-xl bg-gold text-white font-heading font-bold hover:bg-yellow-500">Skriv ut</button>
+    </div>
+
+    <div id="previewWrap" class="hidden mb-8">
+      <h2 class="text-sm font-semibold text-navy mb-2">Förhandsgranskning</h2>
+      <iframe id="previewFrame" title="Förhandsgranskning av utskrift"></iframe>
+    </div>
+  </div>
+
+  <script src="/js/sw-register.js?v=2.12.0"></script>
+  <script src="/js/mobile-nav.js?v=2.13.0"></script>
+  <script src="/js/print-schema-core.js?v=1"></script>
+  <script src="/js/print-schema.js?v=1"></script>
+</body>
+</html>
