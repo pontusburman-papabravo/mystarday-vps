@@ -154,6 +154,10 @@
     #imageCropBarnvyPreview { width: 100%; height: auto; border-radius: 10px; display: block; border: 2px solid #F5A623; }
     /* Above native tab bar (z-index 10200) */
     .library-modal-overlay { z-index: 10350 !important; }
+    #imageCropModal.library-modal-overlay { z-index: 10450 !important; }
+    body.image-crop-open #activityModal.library-modal-overlay {
+      pointer-events: none;
+    }
     .image-crop-panel {
       display: flex;
       flex-direction: column;
@@ -1000,8 +1004,8 @@
 <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
 <script src="/js/library-seven-questions.js?v=1.0.0"></script>
 <script src="/js/activity-visual.js?v=1"></script>
-<script src="/js/library-image-crop.js?v=1"></script>
-<script src="/js/library-images.js?v=5"></script>
+<script src="/js/library-image-crop.js?v=2"></script>
+<script src="/js/library-images.js?v=6"></script>
 <script src="/js/library.js?v=2.18.4"></script>
 <script src="/js/planning-back-nav.js?v=1"></script>
 <script src="/js/parent-magic-shell.js?v=2"></script>

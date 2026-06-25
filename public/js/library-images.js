@@ -235,7 +235,23 @@
     var urlEl = document.getElementById('activityImageUrl');
     var current = urlEl && urlEl.value ? urlEl.value : '';
     if (!current || !window.LibraryImageCrop) return;
-    var cropped = await LibraryImageCrop.openFromUrl(current);
+    var recropBtn = document.getElementById('activityImageRecropBtn');
+    if (recropBtn) {
+      recropBtn.disabled = true;
+      recropBtn.textContent = 'Öppnar…';
+    }
+    var cropped;
+    try {
+      cropped = await LibraryImageCrop.openFromUrl(current);
+    } catch (err) {
+      showToast(err.message || 'Kunde inte öppna beskärningen', true);
+      cropped = null;
+    } finally {
+      if (recropBtn) {
+        recropBtn.disabled = false;
+        recropBtn.textContent = '✂️ Beskär om';
+      }
+    }
     if (!cropped) return;
     try {
       var newUrl = await uploadFile(cropped);
@@ -344,7 +360,13 @@
     var clearBtn = document.getElementById('activityImageClearBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearActivityImage);
     var recropBtn = document.getElementById('activityImageRecropBtn');
-    if (recropBtn) recropBtn.addEventListener('click', recropSelectedImage);
+    if (recropBtn) {
+      recropBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        recropSelectedImage();
+      });
+    }
     var emojiBtn = document.getElementById('activityVisualEmojiBtn');
     var photoBtn = document.getElementById('activityVisualPhotoBtn');
     if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); clearActivityImage(); });

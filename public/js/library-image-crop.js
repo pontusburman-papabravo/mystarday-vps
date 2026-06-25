@@ -142,6 +142,7 @@
   function closeModal(result) {
     var modal = $('imageCropModal');
     if (modal) modal.classList.add('hidden');
+    document.body.classList.remove('image-crop-open');
     var resolver = state.resolve;
     cleanup();
     if (typeof resolver === 'function') resolver(result);
@@ -149,7 +150,10 @@
 
   function showModal() {
     var modal = $('imageCropModal');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.classList.add('image-crop-open');
+    }
   }
 
   function loadImageFromFile(file) {
@@ -168,15 +172,38 @@
   }
 
   function loadImageFromUrl(url) {
-    return fetch(url, { credentials: 'include' })
+    if (!url) return Promise.reject(new Error('Ingen bild-URL'));
+
+    function blobToImage(blob) {
+      return loadImageFromFile(new File([blob], 'recrop.jpg', { type: blob.type || 'image/jpeg' }));
+    }
+
+    var absolute = url;
+    try {
+      absolute = new URL(url, window.location.origin).href;
+    } catch (_) {
+      return Promise.reject(new Error('Ogiltig bild-URL'));
+    }
+
+    var sameOrigin = absolute.indexOf(window.location.origin) === 0;
+
+    if (sameOrigin) {
+      return fetch(absolute, { credentials: 'include' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Kunde inte hämta bilden');
+          return res.blob();
+        })
+        .then(blobToImage);
+    }
+
+    var fetchFn = window.apiFetch || fetch;
+    var proxyPath = '/api/family/images/source?url=' + encodeURIComponent(url);
+    return fetchFn(proxyPath, { credentials: 'include' })
       .then(function (res) {
         if (!res.ok) throw new Error('Kunde inte hämta bilden');
         return res.blob();
       })
-      .then(function (blob) {
-        var name = 'recrop.jpg';
-        return loadImageFromFile(new File([blob], name, { type: blob.type || 'image/jpeg' }));
-      });
+      .then(blobToImage);
   }
 
   function openEditor(img) {

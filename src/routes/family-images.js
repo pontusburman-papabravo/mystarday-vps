@@ -6,16 +6,71 @@
  */
 
 const express = require('express');
+const fs = require('fs/promises');
+const path = require('path');
 const db = require('../lib/db');
 const { validate, validateParams } = require('../middleware/validate');
 const { UUIDParam } = require('../lib/schemas');
 const { z } = require('zod');
+const { getLocalUploadDir } = require('../lib/object-storage');
 
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
 
 const router = express.Router();
 
 const DEFAULT_ACTIVITY_ICON = '⭐';
+
+/** Normalize image URL for comparison (trim, no fragment). */
+function normalizeImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  try {
+    const u = new URL(url);
+    return u.origin + u.pathname;
+  } catch {
+    return url.trim();
+  }
+}
+
+/** True if this family may re-fetch the image for cropping. */
+async function isImageUrlAllowedForFamily(familyId, imageUrl) {
+  const normalized = normalizeImageUrl(imageUrl);
+  if (!normalized) return false;
+
+  const inArchive = await db.query(
+    'SELECT 1 FROM family_image WHERE family_id = $1 AND image_url = $2 LIMIT 1',
+    [familyId, imageUrl]
+  );
+  if (inArchive.rows.length > 0) return true;
+
+  const onActivity = await db.query(
+    'SELECT 1 FROM activity_template WHERE family_id = $1 AND image_url = $2 LIMIT 1',
+    [familyId, imageUrl]
+  );
+  if (onActivity.rows.length > 0) return true;
+
+  // Same-origin /uploads/ paths
+  if (imageUrl.startsWith('/uploads/')) return true;
+  const appBase = (process.env.APP_URL || '').replace(/\/$/, '');
+  if (appBase && imageUrl.startsWith(appBase + '/uploads/')) return true;
+
+  return false;
+}
+
+function resolveLocalUploadPath(imageUrl) {
+  const appBase = (process.env.APP_URL || 'http://localhost').replace(/\/$/, '');
+  let pathname;
+  try {
+    pathname = new URL(imageUrl, appBase).pathname;
+  } catch {
+    return null;
+  }
+  if (!pathname.startsWith('/uploads/')) return null;
+  const rel = pathname.slice('/uploads/'.length);
+  const root = path.resolve(getLocalUploadDir());
+  const fullPath = path.resolve(path.join(root, rel));
+  if (fullPath !== root && !fullPath.startsWith(root + path.sep)) return null;
+  return fullPath;
+}
 
 const CreateFamilyImageSchema = z.object({
   label: z.string().max(120).optional().nullable(),
@@ -63,6 +118,49 @@ router.post('/', validate(CreateFamilyImageSchema), async (req, res) => {
   } catch (err) {
     console.error('[FAMILY-IMAGES] Create error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+/** GET /api/family/images/source?url=… — proxy image bytes for client-side recrop (avoids R2 CORS). */
+router.get('/source', async (req, res) => {
+  try {
+    const imageUrl = typeof req.query.url === 'string' ? req.query.url.trim() : '';
+    if (!imageUrl) {
+      return res.status(400).json({ error: 'url krävs' });
+    }
+
+    const allowed = await isImageUrlAllowedForFamily(req.user.familyId, imageUrl);
+    if (!allowed) {
+      return res.status(403).json({ error: 'Bilden tillhör inte familjen' });
+    }
+
+    const localPath = resolveLocalUploadPath(imageUrl);
+    if (localPath) {
+      try {
+        const buffer = await fs.readFile(localPath);
+        res.set('Content-Type', 'image/jpeg');
+        res.set('Cache-Control', 'private, no-store');
+        return res.send(buffer);
+      } catch (readErr) {
+        if (readErr.code !== 'ENOENT') {
+          console.error('[FAMILY-IMAGES] Local read error:', readErr.message);
+        }
+        // fall through to remote fetch
+      }
+    }
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      return res.status(502).json({ error: 'Kunde inte hämta bilden' });
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'private, no-store');
+    res.send(buffer);
+  } catch (err) {
+    console.error('[FAMILY-IMAGES] Source proxy error:', err.message);
+    res.status(500).json({ error: 'Kunde inte hämta bilden' });
   }
 });
 
