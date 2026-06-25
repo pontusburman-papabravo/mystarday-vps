@@ -6,11 +6,13 @@
 
 const express = require('express');
 const db = require('../../lib/db');
+const custodyDb = require('../../../db/custody');
 const { requireParent } = require('../../middleware/auth');
 const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { CreateScheduleSchema } = require('../../lib/schemas');
+const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
@@ -57,21 +59,44 @@ async function resolveOnceTaskTemplateId(familyId, { name, icon, star_value, act
   return templateId;
 }
 
+async function resolveCustodyVariantFilter(child, childId, rawVariant) {
+  const custodyFlag = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, child.family_id);
+  if (!custodyFlag) return { pattern: null, variantFilter: null };
+
+  const pattern = await custodyDb.getPattern(childId);
+  if (!pattern) return { pattern: null, variantFilter: null };
+
+  if (rawVariant === 'a' || rawVariant === 'b') {
+    return { pattern, variantFilter: rawVariant };
+  }
+  return { pattern, variantFilter: 'a' };
+}
+
 // GET /api/children/:childId/schedules — list all 7-day schedules for child
 router.get('/', async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
+    const { variantFilter } = await resolveCustodyVariantFilter(
+      child,
+      req.params.childId,
+      req.query.week_variant
+    );
+
     const schedules = await db.query(
-      `SELECT ws.id, ws.day_of_week, ws.sort_order,
+      `SELECT ws.id, ws.day_of_week, ws.sort_order, ws.week_variant,
               COUNT(wsi.id) AS item_count
        FROM weekly_schedule ws
        LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
        WHERE ws.child_id = $1
+         AND (
+           ($2::text IS NULL AND ws.week_variant IS NULL)
+           OR ($2::text IS NOT NULL AND ws.week_variant = $2)
+         )
        GROUP BY ws.id
        ORDER BY ws.day_of_week ASC`,
-      [req.params.childId]
+      [req.params.childId, variantFilter]
     );
     res.json(schedules.rows);
   } catch (err) {
@@ -95,9 +120,33 @@ router.post('/', validate(CreateScheduleSchema), async (req, res) => {
       return res.status(400).json({ error: 'Veckodag måste vara ett tal 0–6' });
     }
 
+    const { pattern } = await resolveCustodyVariantFilter(
+      child,
+      req.params.childId,
+      req.body.week_variant
+    );
+
+    let weekVariant = null;
+    let custodyHomeId = null;
+    if (pattern) {
+      const v = req.body.week_variant;
+      if (v !== 'a' && v !== 'b') {
+        return res.status(400).json({ error: 'week_variant krävs (a eller b) när boendeschema är aktivt' });
+      }
+      weekVariant = v;
+      custodyHomeId = v === 'a' ? pattern.week_a_home_id : pattern.week_b_home_id;
+    } else if (req.body.week_variant) {
+      return res.status(400).json({ error: 'week_variant stöds bara när boendeschema är aktivt' });
+    }
+
     const existing = await db.query(
-      'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
-      [req.params.childId, dow]
+      `SELECT id FROM weekly_schedule
+       WHERE child_id = $1 AND day_of_week = $2
+         AND (
+           ($3::text IS NULL AND week_variant IS NULL)
+           OR ($3::text IS NOT NULL AND week_variant = $3)
+         )`,
+      [req.params.childId, dow, weekVariant]
     );
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Det finns redan ett schema för den veckodagen', id: existing.rows[0].id });
@@ -108,10 +157,10 @@ router.post('/', validate(CreateScheduleSchema), async (req, res) => {
       await client.query('BEGIN');
 
       const result = await client.query(
-        `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order)
-         VALUES ($1, $2, $3)
-         RETURNING id, child_id, day_of_week, sort_order`,
-        [req.params.childId, dow, dow]
+        `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, week_variant, custody_home_id)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id, child_id, day_of_week, sort_order, week_variant`,
+        [req.params.childId, dow, dow, weekVariant, custodyHomeId]
       );
       const schedule = result.rows[0];
 

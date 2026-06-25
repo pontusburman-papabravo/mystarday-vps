@@ -255,6 +255,8 @@ const CreateScheduleSchema = z.object({
   name: z.string().max(100).optional(),
   // template_group for creating from a library template
   template_group: z.string().max(50).optional(),
+  template_category_id: z.string().uuid().optional(),
+  week_variant: z.enum(['a', 'b']).optional(),
 });
 
 const CreateScheduleItemSchema = z.object({

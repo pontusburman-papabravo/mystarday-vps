@@ -221,7 +221,7 @@ function setCalView(view) {
 }
 
 function calNavPrev() {
-  if (calView === 'week') { weekOffset--; updateCalNavLabel(); renderDayTabs(); loadScheduleForDay(); }
+  if (calView === 'week') { weekOffset--; updateCalNavLabel(); renderDayTabs(); if (window.ScheduleCustody && currentChildId) ScheduleCustody.refresh(currentChildId, weekOffset); loadScheduleForDay(); }
   else if (calView === 'day') {
     dayOffset--;
     const d = getDayFromOffset(dayOffset);
@@ -232,7 +232,7 @@ function calNavPrev() {
 }
 
 function calNavNext() {
-  if (calView === 'week') { weekOffset++; updateCalNavLabel(); renderDayTabs(); loadScheduleForDay(); }
+  if (calView === 'week') { weekOffset++; updateCalNavLabel(); renderDayTabs(); if (window.ScheduleCustody && currentChildId) ScheduleCustody.refresh(currentChildId, weekOffset); loadScheduleForDay(); }
   else if (calView === 'day') {
     dayOffset++;
     const d = getDayFromOffset(dayOffset);
@@ -249,7 +249,7 @@ function calNavToday() {
   if (calView === 'day') currentDay = new Date().getDay();
   updateCalNavLabel();
   if (calView === 'month') renderMonthView();
-  else { renderDayTabs(); if (currentChildId) loadScheduleForDay(); }
+  else { renderDayTabs(); if (window.ScheduleCustody && currentChildId) ScheduleCustody.refresh(currentChildId, weekOffset); if (currentChildId) loadScheduleForDay(); }
 }
 
 function refreshCalView() {
@@ -632,6 +632,7 @@ async function selectChild(id) {
     calView = 'week'; weekOffset = 0; dayOffset = 0;
     setCalView('week');
     renderChildTabs(); renderDayTabs();
+    if (window.ScheduleCustody) await ScheduleCustody.refresh(id, weekOffset);
     await loadScheduleForDay();
     renderSbsChildSelector();
   } catch (err) {
@@ -733,6 +734,7 @@ function renderDayTabs() {
       else if (dndType === 'activity-to-day' && dragSrcItem) copyActivityToDay(dragSrcItem, day);
     });
   });
+  if (window.ScheduleCustody) ScheduleCustody.styleDayTabs();
 }
 
 function clearDayTabHighlights() {
@@ -813,7 +815,19 @@ async function setViewMode(mode) {
 async function loadScheduleForDay() {
   if (!currentChildId) return;
   document.getElementById('scheduleContent').innerHTML = '<div class="text-center py-10 text-text-soft">Laddar…</div>';
-  const res = await window.apiFetch(`/api/children/${currentChildId}/schedules`);
+  if (window.ScheduleCustody && ScheduleCustody.isDayHidden(currentDay)) {
+    const dl = getDayDateLabel();
+    const variant = ScheduleCustody.getEditVariantLabel();
+    document.getElementById('scheduleContent').innerHTML = `
+      <div class="text-center py-16">
+        <p class="text-5xl mb-4">🏠</p>
+        <p class="font-semibold text-navy mb-2">Barnet är hos den andra föräldern ${dl ? '(' + dl + ')' : ''}</p>
+        <p class="text-sm text-text-soft">"Mina dagar" är på — avmarkera filtret ovan för att se ${variant}-schemat.</p>
+      </div>`;
+    return;
+  }
+  const q = window.ScheduleCustody ? ScheduleCustody.scheduleQuery() : '';
+  const res = await window.apiFetch(`/api/children/${currentChildId}/schedules${q}`);
   if (!res.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">Fel vid laddning</p>'; return; }
   const schedules = await res.json();
   // Check if schedules array is empty and child might be paused

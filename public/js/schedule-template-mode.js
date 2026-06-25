@@ -258,6 +258,7 @@ async function createScheduleWithTemplate(categoryId) {
   closeTemplateModal();
   const body = { day_of_week: currentDay };
   if (categoryId) body.template_category_id = categoryId;
+  if (window.ScheduleCustody) Object.assign(body, ScheduleCustody.getCreateExtras());
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules`, { method: 'POST', body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) { currentScheduleId = data.id; await loadScheduleForDay(); }
