@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reels-annons — Kvällsrutin (storyboard)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #F5A623;
+      --gold-light: #FFF3D6;
+      --navy: #1B2340;
+      --navy-soft: #2A3458;
+      --green: #22C55E;
+      --purple: #8B5CF6;
+      --orange: #F97316;
+      --text-soft: #94A3B8;
+      --white: #FFFFFF;
+      --bg-space: linear-gradient(165deg, #0F1629 0%, #1B2340 45%, #243056 100%);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #0a0e1a;
+      color: var(--white);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .page-header {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      text-align: center;
+    }
+    .page-header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .page-header p { font-size: 0.85rem; color: var(--text-soft); }
+    .page-header code {
+      background: var(--navy-soft);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .controls {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+    }
+    .controls button {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .controls button:hover { filter: brightness(1.08); }
+    .controls button.secondary {
+      background: var(--navy-soft);
+      color: var(--white);
+    }
+    .controls label { font-size: 0.85rem; color: var(--text-soft); display: flex; align-items: center; gap: 0.4rem; }
+
+    /* ── Storyboard grid ── */
+    .storyboard {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .frame-wrap { text-align: center; }
+    .frame-label {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    /* 9:16 frame — 270×480 scaled */
+    .frame {
+      width: 100%;
+      max-width: 270px;
+      aspect-ratio: 9 / 16;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1.25rem 1rem;
+      text-align: center;
+    }
+
+    /* Stars decoration (CSS only) */
+    .stars-bg::before,
+    .stars-bg::after {
+      content: '✦';
+      position: absolute;
+      color: rgba(245,166,35,0.35);
+      font-size: 0.65rem;
+    }
+    .stars-bg::before { top: 12%; left: 8%; }
+    .stars-bg::after { top: 22%; right: 12%; font-size: 0.5rem; }
+
+    /* ── Frame 1: Hook ── */
+    .frame--hook {
+      background: linear-gradient(160deg, #2d1f3d 0%, #1a1528 100%);
+    }
+    .frame--hook .emoji-big { font-size: 3rem; margin-bottom: 0.75rem; }
+    .frame--hook h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+    .frame--hook p { font-size: 0.8rem; color: #c4b5d0; line-height: 1.4; }
+
+    /* ── Frame 2: Problem ── */
+    .frame--problem {
+      background: linear-gradient(160deg, #3d2020 0%, #1f1218 100%);
+      justify-content: flex-start;
+      padding-top: 2rem;
+    }
+    .frame--problem h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: #fca5a5;
+    }
+    .problem-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .problem-item {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      text-align: left;
+      border-left: 3px solid #ef4444;
+    }
+    .problem-item span:first-child { font-size: 1.2rem; flex-shrink: 0; }
+
+    /* ── Frame 3: App schema ── */
+    .frame--app {
+      background: var(--bg-space);
+      justify-content: flex-start;
+      padding: 0.75rem 0.65rem;
+    }
+    .app-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.7rem;
+    }
+    .app-logo { font-weight: 700; color: var(--gold); }
+    .app-stars { background: rgba(245,166,35,0.2); padding: 0.2rem 0.45rem; border-radius: 999px; font-size: 0.65rem; }
+    .app-greeting {
+      width: 100%;
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      text-align: left;
+      margin-bottom: 0.6rem;
+    }
+    .app-greeting strong { color: var(--white); }
+    .activity {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 0.55rem 0.6rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+      font-size: 0.68rem;
+      border: 1px solid transparent;
+    }
+    .activity--now {
+      border-color: var(--orange);
+      background: rgba(249,115,22,0.15);
+      box-shadow: 0 0 12px rgba(249,115,22,0.25);
+    }
+    .activity--next { opacity: 0.65; }
+    .activity--done { opacity: 0.45; }
+    .activity-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .activity-body { flex: 1; }
+    .activity-body strong { display: block; font-size: 0.72rem; margin-bottom: 0.1rem; }
+    .tag {
+      display: inline-block;
+      font-size: 0.55rem;
+      font-weight: 700;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag--nu { background: var(--orange); color: #fff; }
+    .tag--nasta { background: var(--purple); color: #fff; }
+    .tag--klar { background: var(--green); color: #fff; }
+    .frame-caption {
+      margin-top: auto;
+      width: 100%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      padding-top: 0.5rem;
+    }
+
+    /* ── Frame 4: Star reward ── */
+    .frame--star {
+      background: var(--bg-space);
+    }
+    .star-burst {
+      font-size: 4rem;
+      animation: pulse 1.2s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(245,166,35,0.6));
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    .frame--star h2 { font-size: 1.2rem; font-weight: 800; margin: 0.5rem 0; }
+    .frame--star p { font-size: 0.78rem; color: var(--text-soft); }
+    .check-card {
+      margin-top: 1rem;
+      background: rgba(34,197,94,0.15);
+      border: 2px solid var(--green);
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      width: 100%;
+    }
+    .check-card .row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 600; }
+
+    /* ── Frame 5: Skattkammaren ── */
+    .frame--treasure {
+      background: linear-gradient(165deg, #1a1030 0%, #2d1a4a 50%, #1B2340 100%);
+    }
+    .treasure-title { font-size: 2rem; margin-bottom: 0.25rem; }
+    .frame--treasure h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.35rem; }
+    .frame--treasure .sub { font-size: 0.75rem; color: var(--text-soft); margin-bottom: 1rem; }
+    .treasure-bar-wrap { width: 100%; margin-bottom: 0.75rem; }
+    .treasure-bar-label { font-size: 0.7rem; display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+    .treasure-bar {
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .treasure-bar-fill {
+      height: 100%;
+      width: 60%;
+      background: linear-gradient(90deg, var(--gold), #fbbf24);
+      border-radius: 999px;
+    }
+    .reward-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
+    .reward-chip {
+      font-size: 0.62rem;
+      background: rgba(245,166,35,0.2);
+      border: 1px solid rgba(245,166,35,0.4);
+      padding: 0.3rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    /* ── Frame 6: CTA ── */
+    .frame--cta {
+      background: linear-gradient(165deg, #1B2340 0%, #0F1629 100%);
+    }
+    .cta-logo { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .frame--cta h2 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.35rem; }
+    .frame--cta .tagline { font-size: 0.8rem; color: var(--text-soft); margin-bottom: 1.25rem; line-height: 1.4; }
+    .cta-btn {
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+    .cta-url { font-size: 0.75rem; color: var(--gold); font-weight: 600; }
+    .cta-free { font-size: 0.65rem; color: var(--text-soft); margin-top: 0.5rem; }
+
+    /* ── Fullscreen player (for screen recording) ── */
+    .player-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .player-overlay.active { display: flex; }
+    .player-frame {
+      width: min(100vw, calc(100vh * 9 / 16));
+      height: min(100vh, calc(100vw * 16 / 9));
+      max-width: 405px;
+      max-height: 720px;
+      border-radius: 0;
+    }
+    .player-close {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 101;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .player-progress {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+      z-index: 101;
+    }
+    .player-progress-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <h1>Reels-annons — Kvällsrutin</h1>
+    <p>CSS-mockups i 9:16. Screenshot enskilda rutor eller klicka <strong>Spela in Reels</strong> för auto-play.</p>
+    <p style="margin-top:0.5rem">Annonstext &amp; script: <code>ANNONS-KOPI.md</code></p>
+  </header>
+
+  <div class="controls">
+    <button type="button" id="playBtn">▶ Spela in Reels (auto-play)</button>
+    <button type="button" class="secondary" id="stopBtn" style="display:none">⏹ Stoppa</button>
+    <label><input type="checkbox" id="loopCheck" checked> Loopa</label>
+    <label>
+      Sek/ruta:
+      <select id="durationSelect">
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="storyboard" id="storyboard">
+    <div class="frame-wrap">
+      <div class="frame-label">1 · Hook (0:00)</div>
+      <div class="frame frame--hook stars-bg" data-slide="0">
+        <div class="emoji-big">🌙</div>
+        <h2>Kvällsrutinen igen?</h2>
+        <p>Dusch. Pyjamas. Tandborstning.<br>"Det är läggdags nu" — om och om igen.</p>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">2 · Problem (0:03)</div>
+      <div class="frame frame--problem" data-slide="1">
+        <h2>Kvällen fastnar här</h2>
+        <div class="problem-list">
+          <div class="problem-item"><span>🍽️</span> Äta middag</div>
+          <div class="problem-item"><span>🛁</span> Duscha / bada</div>
+          <div class="problem-item"><span>🪥</span> Borsta tänderna</div>
+          <div class="problem-item"><span>📖</span> Läggdags</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">3 · Schema (0:06)</div>
+      <div class="frame frame--app stars-bg" data-slide="2">
+        <div class="app-header">
+          <span class="app-logo">⭐ Min Stjärndag</span>
+          <span class="app-stars">⭐ 14</span>
+        </div>
+        <p class="app-greeting">God kväll, <strong>Lova!</strong></p>
+        <div class="activity activity--done">
+          <div class="activity-icon">🍽️</div>
+          <div class="activity-body">
+            <span class="tag tag--klar">Klar</span>
+            <strong>Äta middag</strong>
+          </div>
+        </div>
+        <div class="activity activity--now">
+          <div class="activity-icon">🛁</div>
+          <div class="activity-body">
+            <span class="tag tag--nu">Nu</span>
+            <strong>Duscha</strong>
+          </div>
+        </div>
+        <div class="activity activity--next">
+          <div class="activity-icon">👕</div>
+          <div class="activity-body">
+            <span class="tag tag--nasta">Nästa</span>
+            <strong>Pyjamas</strong>
+          </div>
+        </div>
+        <div class="activity activity--next">
+          <div class="activity-icon">📖</div>
+          <div class="activity-body">
+            <span class="tag tag--nasta">Nästa</span>
+            <strong>Läggdags</strong>
+          </div>
+        </div>
+        <p class="frame-caption">Tydliga steg mot en lugn kväll</p>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">4 · Stjärna (0:12)</div>
+      <div class="frame frame--star stars-bg" data-slide="3">
+        <div class="star-burst">⭐</div>
+        <h2>+1 stjärna!</h2>
+        <p>Varje klart steg belönas</p>
+        <div class="check-card">
+          <div class="row"><span>✅</span> Duscha — klar!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">5 · Skattkammaren (0:18)</div>
+      <div class="frame frame--treasure stars-bg" data-slide="4">
+        <div class="treasure-title">💎</div>
+        <h2>Skattkammaren</h2>
+        <p class="sub">Stjärnor blir riktiga belöningar</p>
+        <div class="treasure-bar-wrap">
+          <div class="treasure-bar-label"><span>14 stjärnor</span><span>6 till sagostund 📖</span></div>
+          <div class="treasure-bar"><div class="treasure-bar-fill"></div></div>
+        </div>
+        <div class="reward-chips">
+          <span class="reward-chip">📖 Extra sagostund</span>
+          <span class="reward-chip">🎬 Filmkväll</span>
+          <span class="reward-chip">🛏️ Sov hos mamma/pappa</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="frame-label">6 · CTA (0:24)</div>
+      <div class="frame frame--cta stars-bg" data-slide="5">
+        <div class="cta-logo">⭐</div>
+        <h2>Min Stjärndag</h2>
+        <p class="tagline">Kvällsrutiner med bilder och stjärnor<br>som gör läggdags lugnare</p>
+        <div class="cta-btn">Börja gratis</div>
+        <div class="cta-url">mystarday.se</div>
+        <p class="cta-free">Gratis för grundarmedlemmar</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen player for screen recording -->
+  <div class="player-overlay" id="player">
+    <button type="button" class="player-close" id="closePlayer" aria-label="Stäng">✕</button>
+    <div class="frame player-frame" id="playerFrame"></div>
+    <div class="player-progress"><div class="player-progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <script>
+    (function () {
+      var slides = document.querySelectorAll('[data-slide]');
+      var player = document.getElementById('player');
+      var playerFrame = document.getElementById('playerFrame');
+      var progressFill = document.getElementById('progressFill');
+      var playBtn = document.getElementById('playBtn');
+      var stopBtn = document.getElementById('stopBtn');
+      var closePlayer = document.getElementById('closePlayer');
+      var loopCheck = document.getElementById('loopCheck');
+      var durationSelect = document.getElementById('durationSelect');
+      var timer = null;
+      var current = 0;
+      var total = slides.length;
+
+      function getDuration() {
+        return parseInt(durationSelect.value, 10) * 1000;
+      }
+
+      function showSlide(index) {
+        current = index % total;
+        var source = slides[current];
+        playerFrame.className = 'frame player-frame ' + Array.from(source.classList)
+          .filter(function (c) { return c !== 'frame'; }).join(' ');
+        playerFrame.innerHTML = source.innerHTML;
+        var pct = ((current + 1) / total) * 100;
+        progressFill.style.width = pct + '%';
+      }
+
+      function play() {
+        player.classList.add('active');
+        playBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        showSlide(0);
+        scheduleNext();
+      }
+
+      function scheduleNext() {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          var next = current + 1;
+          if (next >= total) {
+            if (loopCheck.checked) {
+              showSlide(0);
+              scheduleNext();
+            } else {
+              stop();
+            }
+            return;
+          }
+          showSlide(next);
+          scheduleNext();
+        }, getDuration());
+      }
+
+      function stop() {
+        clearTimeout(timer);
+        player.classList.remove('active');
+        playBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+        progressFill.style.width = '0%';
+      }
+
+      playBtn.addEventListener('click', play);
+      stopBtn.addEventListener('click', stop);
+      closePlayer.addEventListener('click', stop);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') stop();
+      });
+    })();
+  </script>
+</body>
+</html>

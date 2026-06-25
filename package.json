@@ -49,6 +49,7 @@
     "cap:android": "npx cap open android",
     "cap:dev": "CAP_DEV=true npx cap sync",
     "play-store:assets": "node scripts/generate-play-store-assets.mjs",
+    "reels:export": "node scripts/export-reels-assets.mjs",
     "android:aab": "node scripts/build-android-aab.mjs",
     "qa:mobile-gate": "QA_MODE=gate node scripts/smoke-mobile-full-qa.mjs",
     "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs"
