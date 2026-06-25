@@ -13,6 +13,11 @@ const FLAG_KEYS = {
   nudge: 'activation_nudge_v1',
 };
 
+/** Global rollout — not limited to families created after ACTIVATION_ONBOARDING_LAUNCH_AT */
+const COHORT_EXEMPT_FLAG_KEYS = new Set([
+  FLAG_KEYS.custodySchedule,
+]);
+
 function parseLaunchAt() {
   const raw = process.env.ACTIVATION_ONBOARDING_LAUNCH_AT;
   if (!raw) return null;
@@ -30,6 +35,8 @@ async function isActivationFlagEnabled(key, familyId) {
     [key]
   );
   if (!result.rows[0]?.enabled) return false;
+
+  if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;
 
   const launchAt = parseLaunchAt();
   if (!launchAt || !familyId) return true;

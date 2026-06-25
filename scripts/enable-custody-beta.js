@@ -1,7 +1,8 @@
 'use strict';
 
 /**
- * Enable FEAT-1 boendeschema beta flag globally.
+ * Enable FEAT-1 boendeschema globally (idempotent).
+ * Prefer: migrate deploys 1808720000000_enable_custody_schedule.js automatically.
  * Usage on VPS: node scripts/enable-custody-beta.js
  */
 const { loadEnvFile, diagnoseDatabaseUrl } = require('../src/lib/load-env');

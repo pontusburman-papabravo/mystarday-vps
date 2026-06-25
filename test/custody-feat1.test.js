@@ -42,4 +42,19 @@ describe('FEAT-1 boendeschema', () => {
     assert.match(src, /custody_banner_seen/);
     assert.match(src, /custody_view_filtered/);
   });
+
+  it('custody schedule enabled globally via migration', () => {
+    const mig = fs.readFileSync(
+      path.join(ROOT, 'migrations/1808720000000_enable_custody_schedule.js'),
+      'utf8'
+    );
+    assert.match(mig, /custody_schedule_beta/);
+    assert.match(mig, /enabled = true/);
+  });
+
+  it('custody flag exempt from onboarding launch cohort', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/lib/activation-flags.js'), 'utf8');
+    assert.match(src, /COHORT_EXEMPT_FLAG_KEYS/);
+    assert.match(src, /custody_schedule_beta/);
+  });
 });
