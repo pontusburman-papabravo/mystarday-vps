@@ -8,6 +8,24 @@
  * WHAT NOT: does NOT load @capacitor/core — that happens only after native init
  * via the Capacitor bundler. On web, this file works without any dependencies.
  */
+
+/** Native WebView: drop any PWA service worker before sw-register.js runs (prevents reload loop). */
+(function earlyNativeServiceWorkerGuard() {
+  function capNative() {
+    return typeof Capacitor !== 'undefined' &&
+      typeof Capacitor.isNativePlatform === 'function' &&
+      Capacitor.isNativePlatform();
+  }
+  if (!capNative()) return;
+  try {
+    window.WEBVIEW_SERVER_URL = window.location.origin;
+  } catch (_) {}
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.getRegistrations().then(function (regs) {
+    regs.forEach(function (r) { r.unregister(); });
+  }).catch(function () {});
+})();
+
 var Platform = (function () {
   function noop() {}
 

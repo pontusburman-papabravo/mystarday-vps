@@ -91,9 +91,11 @@
   }
 
   function initNativeAppListener() {
+    if (window.__deepLinkRouterInited) return;
     if (typeof Platform === 'undefined' || !Platform.isNative || !Platform.isNative()) return;
     var App = getAppPlugin();
     if (!App) return;
+    window.__deepLinkRouterInited = true;
     if (typeof App.addListener === 'function') {
       try {
         App.addListener('appUrlOpen', function (event) {
