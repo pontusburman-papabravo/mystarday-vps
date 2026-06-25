@@ -163,6 +163,7 @@
     });
     var backBar = document.getElementById('magicSettingsBackBar');
     if (backBar) backBar.innerHTML = renderSettingsBackBar();
+    if (groupId === 'appearance') updateThemePickerUi();
   }
 
   function hideSettingsGroup() {
@@ -215,6 +216,25 @@
     });
   }
 
+  function handleThemePickerActivate(e) {
+    var btn = e.target.closest('.magic-theme-option[data-theme]');
+    if (!btn || !btn.closest('#magicAppearanceSection')) return;
+    if (!window.AppViewMode || !AppViewMode.setTheme) return;
+    AppViewMode.setTheme(btn.getAttribute('data-theme'));
+    updateThemePickerUi();
+  }
+
+  // Document-level delegation — survives soft-nav DOM swaps and works on mobile
+  // (per-section listeners were lost when swapMain replaced <main> children).
+  function bindThemePickerDelegation() {
+    if (window._magicThemePickerBound) return;
+    window._magicThemePickerBound = true;
+    document.addEventListener('click', handleThemePickerActivate, true);
+    if (window.AppViewMode && AppViewMode.onThemeChange) {
+      AppViewMode.onThemeChange(updateThemePickerUi);
+    }
+  }
+
   // Appearance has no legacy DOM section — inject one so the group system
   // (show/hide by data-magic-settings-content) works like the others.
   function ensureAppearanceSection() {
@@ -234,18 +254,11 @@
       renderThemePicker() +
       '</div>';
     container.appendChild(sec);
-    sec.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-theme]');
-      if (!btn || !window.AppViewMode || !AppViewMode.setTheme) return;
-      AppViewMode.setTheme(btn.getAttribute('data-theme'));
-      updateThemePickerUi();
-    });
-    if (window.AppViewMode && AppViewMode.onThemeChange) {
-      AppViewMode.onThemeChange(updateThemePickerUi);
-    }
+    bindThemePickerDelegation();
   }
 
   function tagSettingsSections() {
+    bindThemePickerDelegation();
     ensureAppearanceSection();
     function tagChild(childId, groupId) {
       var child = document.getElementById(childId);
@@ -332,4 +345,6 @@
     tagSettingsSections: tagSettingsSections,
     resetSettingsState: resetSettingsState,
   };
+
+  bindThemePickerDelegation();
 })();

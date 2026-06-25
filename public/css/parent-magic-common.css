@@ -270,7 +270,7 @@ body.parent-magic-view:not(.magic-settings-in-group) [data-magic-settings-conten
   display: none !important;
 }
 
-body.parent-magic-view.magic-settings-in-group [data-magic-settings-content] {
+body.parent-magic-view.magic-settings-in-group [data-magic-settings-content]:not(.hidden) {
   display: block !important;
 }
 
@@ -1214,6 +1214,7 @@ body.parent-magic-view.parent-theme-light[data-magic-page="skattkammaren"] #plac
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  min-height: 48px;
   padding: 14px 10px;
   border-radius: 16px;
   border: 2px solid rgba(255, 255, 255, 0.14);
@@ -1225,6 +1226,8 @@ body.parent-magic-view.parent-theme-light[data-magic-page="skattkammaren"] #plac
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .magic-theme-option .magic-theme-swatch {

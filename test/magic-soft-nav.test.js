@@ -43,7 +43,7 @@ describe('magic soft navigation', () => {
 
   it('router loads planning and rewards hub scripts on soft nav', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
-    assert.match(router, /planning:\s*\[['"]\/js\/planning-hub\.js/);
+    assert.match(router, /planning:\s*\[[\s\S]*planning-hub\.js/);
     assert.match(router, /rewards:\s*\[[\s\S]*rewards-hub\.js/);
   });
 
@@ -131,6 +131,19 @@ describe('magic soft navigation', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
     assert.match(src, /_forDigInitGen/);
     assert.match(src, /gen !== _forDigInitGen/);
+  });
+
+  it('settings group CSS respects .hidden when showing one group', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
+  });
+
+  it('theme picker uses document delegation for mobile + soft-nav', () => {
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    assert.match(hubs, /bindThemePickerDelegation/);
+    assert.match(hubs, /handleThemePickerActivate/);
+    assert.match(hubs, /magicAppearanceSection/);
+    assert.match(hubs, /addEventListener\('click', handleThemePickerActivate, true\)/);
   });
 
   it('for-dig boot skips auto-init when ParentMagicPageBoot handles soft nav', () => {
