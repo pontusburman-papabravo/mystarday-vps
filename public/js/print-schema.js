@@ -125,37 +125,45 @@
     }
   }
 
-  async function runPrint() {
+  async function runCreatePdf() {
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
-    var placeholder = window.PrintSchemaCore.openPrintPlaceholder();
-    if (!placeholder) {
-      showToast('Kunde inte starta utskrift', 'error');
-      return;
-    }
+    var btn = document.getElementById('printBtn');
+    if (btn) btn.disabled = true;
     try {
-      showToast('Förbereder utskrift…');
+      showToast('Skapar PDF…');
+      var child = children.find(function (c) { return c.id === currentChildId; });
       var doc = await buildDoc('print');
-      if (!window.PrintSchemaCore.openPrintWindow(doc, true, placeholder)) {
-        window.PrintSchemaCore.closePrintPlaceholder(placeholder);
-        showToast('Kunde inte skapa utskriften', 'error');
-        return;
-      }
+      await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
       trackExport({
         format: periodKey,
         scope: scope,
         child_id: currentChildId,
         week_offset: weekOffset,
+        delivery: 'pdf_download',
       });
       if (scope === 'my' && window.analytics) {
         window.analytics.track('custody_view_filtered', { source: 'print_schema', period: periodKey });
       }
+      showToast('PDF laddas ner', 'success');
     } catch (err) {
-      window.PrintSchemaCore.closePrintPlaceholder(placeholder);
       if (err && err.message === 'no_my_days') {
         showToast('Inga av dina dagar i vald period', 'error');
+      } else if (err && err.message === 'pdf_libs_missing') {
+        showToast('PDF-verktyg saknas — ladda om sidan och försök igen', 'error');
       } else {
-        showToast('Kunde inte skapa utskriften', 'error');
+        showToast('Kunde inte skapa PDF:en', 'error');
       }
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function applyUrlParams() {
+    var params = new URLSearchParams(window.location.search);
+    var paramScope = params.get('scope');
+    if (paramScope === 'my' && custodyEnabled) {
+      scope = 'my';
+      setActiveBtns(document.getElementById('scopeBtns'), 'data-scope', 'my');
     }
   }
 
@@ -191,10 +199,11 @@
     });
 
     document.getElementById('previewBtn').addEventListener('click', runPreview);
-    document.getElementById('printBtn').addEventListener('click', runPrint);
+    document.getElementById('printBtn').addEventListener('click', runCreatePdf);
 
     await loadChildren();
     await loadCustody();
+    applyUrlParams();
     updateWeekLabel();
   });
 })();

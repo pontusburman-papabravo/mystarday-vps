@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Skriv ut schema — Min Stjärndag</title>
+  <title>Skapa PDF — schema — Min Stjärndag</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -37,8 +39,8 @@
   <div class="no-print p-4 md:p-8 max-w-3xl mx-auto">
     <a href="/planning" class="inline-flex items-center gap-1 text-sm text-text-soft hover:text-navy mb-4 no-underline">← Tillbaka till planering</a>
 
-    <h1 class="text-2xl font-heading font-bold text-navy mb-1">🖨️ Skriv ut schema</h1>
-    <p class="text-text-soft text-sm mb-6">Välj barn och period. Förhandsgranskningen visar hela schemat — utskriften skalas automatiskt för att rymmas på ett ark när det går.</p>
+    <h1 class="text-2xl font-heading font-bold text-navy mb-1">📄 Skapa PDF — schema</h1>
+    <p class="text-text-soft text-sm mb-6">Välj barn och period. Förhandsgranskningen visar hela schemat — PDF:en skalas automatiskt för att rymmas på ett A4-ark i liggande format.</p>
 
     <section class="mb-6">
       <h2 class="text-sm font-semibold text-navy mb-2">Barn</h2>
@@ -55,7 +57,7 @@
     </section>
 
     <section class="mb-6" id="scopeSection">
-      <h2 class="text-sm font-semibold text-navy mb-2">Vad ska skrivas ut?</h2>
+      <h2 class="text-sm font-semibold text-navy mb-2">Vad ska ingå i PDF:en?</h2>
       <div class="flex flex-wrap gap-2" id="scopeBtns">
         <button type="button" class="scope-btn active px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm" data-scope="all">Hela schemat</button>
         <button type="button" class="scope-btn px-4 py-2 rounded-xl border-2 border-lavender font-semibold text-sm hidden" data-scope="my" id="myDaysScopeBtn">Bara mina dagar</button>
@@ -74,7 +76,7 @@
 
     <div class="flex flex-wrap gap-3 mb-6">
       <button type="button" id="previewBtn" class="px-5 py-3 rounded-xl border-2 border-navy text-navy font-heading font-bold">Förhandsgranska</button>
-      <button type="button" id="printBtn" class="px-5 py-3 rounded-xl bg-gold text-white font-heading font-bold hover:bg-yellow-500">Skriv ut</button>
+      <button type="button" id="printBtn" class="px-5 py-3 rounded-xl bg-gold text-white font-heading font-bold hover:bg-yellow-500">Skapa PDF</button>
     </div>
 
     <div id="previewWrap" class="hidden mb-8">

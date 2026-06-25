@@ -80,8 +80,8 @@
     body.innerHTML =
       '<p class="text-sm text-text-soft">Etikett och färg per hem. Varannan vecka växlar barnet mellan vecka A och B.</p>' +
       '<p class="text-xs text-text-soft mt-2 rounded-lg bg-sky/50 border border-lavender px-3 py-2">' +
-      '💡 <strong>Skriv ut dina dagar:</strong> gå till ' +
-      '<a href="/print-schema" class="text-gold font-semibold hover:underline">Skriv ut schema → Bara mina dagar</a> ' +
+      '💡 <strong>Skapa PDF av dina dagar:</strong> gå till ' +
+      '<a href="/print-schema?scope=my" class="text-gold font-semibold hover:underline">Skapa PDF — schema → Bara mina dagar</a> ' +
       '(kräver att boendeschema är sparat).</p>' +
       '<div class="space-y-3 mt-3" id="custodyHomesEditor">' +
       homes.map(function (h, i) {

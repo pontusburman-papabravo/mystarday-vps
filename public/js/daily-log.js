@@ -971,6 +971,14 @@
       if (dd && !dd.contains(e.target)) closePrintMenu();
     });
 
+    function goPrintSchemaPdf(scope) {
+      if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+      var url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
+      if (scope === 'my') url += '&scope=my';
+      trackPrintExport(scope === 'my' ? 'my_days' : 'week');
+      window.location.href = url;
+    }
+
     function printDay() {
       trackPrintExport('day');
       window.print();

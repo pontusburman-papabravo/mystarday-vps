@@ -12,7 +12,7 @@
   var PLANNING_LINKS = [
     { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
     { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Bocka av, backfill och skriv ut' },
-    { href: '/print-schema', icon: '🖨️', title: 'Skriv ut schema', sub: 'Välj barn, 1–4 veckor — rymms på ett ark' },
+    { href: '/print-schema', icon: '📄', title: 'Skapa PDF — schema', sub: 'Välj barn, 1–4 veckor — rymms på ett ark' },
     { href: '/calendar', icon: '🗓️', title: 'Kalender', sub: 'Månad och specialdagar' },
     { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera mall till barn' },
   ];
