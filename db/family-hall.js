@@ -42,7 +42,7 @@ async function getFamilyHall(familyId, options) {
   if (options.includePersons) {
     const [parentsRes, siblingsRes] = await Promise.all([
       db.query(
-        `SELECT DISTINCT p.name
+        `SELECT p.name
          FROM parent p
          WHERE p.family_id = $1
          ORDER BY p.created_at ASC`,

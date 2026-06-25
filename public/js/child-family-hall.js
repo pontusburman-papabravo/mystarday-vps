@@ -70,6 +70,7 @@
       '<p class="text-4xl mb-3">😴</p>' +
       '<p class="text-navy font-semibold">Kunde inte ladda familjehallen</p>' +
       '<p class="text-text-soft text-sm mt-2">Försök igen om en stund.</p>' +
+      '<button type="button" id="cfhRetryBtn" class="mt-4 px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm">Försök igen</button>' +
     '</div>';
   }
 
@@ -136,6 +137,8 @@
       })
       .catch(function () {
         root.innerHTML = renderError();
+        var retry = document.getElementById('cfhRetryBtn');
+        if (retry) retry.addEventListener('click', refresh);
       });
   }
 
