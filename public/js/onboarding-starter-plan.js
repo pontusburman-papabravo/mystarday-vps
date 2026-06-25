@@ -412,7 +412,8 @@
 
       document.getElementById('stepStarterPlan').classList.remove('active');
       if (typeof window.goToStep === 'function') {
-        window.goToStep(4);
+        // PR3: schema sparat → handoff (steg 5). Belöningar seedas vid registrering.
+        window.goToStep(5);
       }
     } catch (err) {
       showError(err.message || 'Något gick fel');
