@@ -601,6 +601,18 @@ async function renderChildrenOverview() {
   }).join('');
 }
 
+// ── Print link (BC-11) ────────────────────────────────────
+function updateSchedulePrintLink() {
+  const link = document.getElementById('schedulePrintLink');
+  if (!link) return;
+  if (!currentChildId) {
+    link.classList.add('hidden');
+    return;
+  }
+  link.href = '/daily-log?childId=' + encodeURIComponent(currentChildId) + '&print=1';
+  link.classList.remove('hidden');
+}
+
 // ── Child tabs ────────────────────────────────────────────
 function renderChildTabs() {
   document.getElementById('childTabs').innerHTML = children.map(c => `
@@ -636,6 +648,7 @@ async function selectChild(id) {
     setCalView('week');
     renderChildTabs(); renderDayTabs();
     if (window.ScheduleCustody) await ScheduleCustody.refresh(id, weekOffset);
+    updateSchedulePrintLink();
     await loadScheduleForDay();
     renderSbsChildSelector();
   } catch (err) {
@@ -656,6 +669,7 @@ function backToChildrenList() {
   document.getElementById('sbsChildSelector').classList.add('hidden');
   const fwBtn = document.getElementById('fillWeekBtn');
   if (fwBtn) fwBtn.classList.add('hidden');
+  updateSchedulePrintLink();
   const editorRewardsBtn = document.getElementById('editorRewardsBtn');
   if (editorRewardsBtn) editorRewardsBtn.classList.add('hidden');
   // Reset mode toggle button to generic label

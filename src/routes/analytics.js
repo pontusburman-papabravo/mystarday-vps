@@ -117,6 +117,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'custody_week_variant_changed',
   'custody_view_filtered',
   'custody_banner_seen',
+  'print_schema_exported',
 ]);
 
 /**

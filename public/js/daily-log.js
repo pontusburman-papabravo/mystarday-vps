@@ -86,7 +86,34 @@
 
       await loadChildren();
       await loadCustodyPrintOption();
+
+      if (urlParams.get('print') === '1') {
+        setTimeout(openPrintMenuHint, 400);
+      }
     });
+
+    function openPrintMenuHint() {
+      var menu = document.getElementById('printMenu');
+      var btn = document.getElementById('printBtn');
+      if (menu && menu.classList.contains('hidden')) togglePrintMenu();
+      if (btn) {
+        btn.classList.add('ring-2', 'ring-gold', 'ring-offset-2');
+        setTimeout(function () { btn.classList.remove('ring-2', 'ring-gold', 'ring-offset-2'); }, 4000);
+      }
+    }
+
+    function trackPrintExport(format) {
+      var meta = { format: format, source: 'daily_log' };
+      if (currentChildId) meta.child_id = currentChildId;
+      if (window.analytics && typeof window.analytics.track === 'function') {
+        window.analytics.track('print_schema_exported', meta);
+      } else {
+        apiFetch('/api/analytics/event', {
+          method: 'POST',
+          body: JSON.stringify({ event_type: 'print_schema_exported', metadata: meta }),
+        }).catch(function () {});
+      }
+    }
 
     async function loadCustodyPrintOption() {
       try {
@@ -943,6 +970,7 @@
     });
 
     function printDay() {
+      trackPrintExport('day');
       window.print();
     }
 
@@ -1058,6 +1086,7 @@
       printWin.document.close();
       printWin.focus();
       setTimeout(() => printWin.print(), 800);
+      trackPrintExport('week');
     }
 
     async function printMyDaysWeek() {
@@ -1133,9 +1162,8 @@
       printWin.document.close();
       printWin.focus();
       setTimeout(() => printWin.print(), 800);
+      trackPrintExport('my_days');
     }
-
-    window.printMyDaysWeek = printMyDaysWeek;
 
     // ── Parent Ratings ────────────────────────────────────
 

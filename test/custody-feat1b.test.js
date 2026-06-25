@@ -41,5 +41,13 @@ describe('FEAT-1B boendeschema', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
     assert.match(html, /printMyDaysBtn/);
     assert.match(js, /printMyDaysWeek/);
+    assert.match(js, /print_schema_exported/);
+  });
+
+  it('BC-11 print discoverability from planning and schedule', () => {
+    const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    const schedule = fs.readFileSync(path.join(ROOT, 'public/schedule.html'), 'utf8');
+    assert.match(planning, /Skriv ut schema/);
+    assert.match(schedule, /schedulePrintLink/);
   });
 });
