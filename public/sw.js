@@ -212,8 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v369';
-// stjarndag-v369: BC-11 print polish — synlighet från planering/schema + analytics
+const CACHE_NAME = 'stjarndag-v370';
+// stjarndag-v370: funnel_onboarding_started för legacy — ärligare aktiveringstratt steg 2
 // stjarndag-v367: Tilldela schema — bekräftelseruta .hidden blockerade inte overlay (klick döda)
 // stjarndag-v365: ACT-1 PR3 — starter-plan save → handoff steg 5, checkpoint scripts
 // stjarndag-v364: ACT-1 PR2 — first star på step6Btn, PIN→child_access, handoff soft gate copy

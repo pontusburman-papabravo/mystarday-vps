@@ -18,6 +18,7 @@ const router = express.Router();
 const ALLOWED_CLIENT_EVENTS = new Set([
   'funnel_landing_visit',
   'funnel_onboarding_abandoned',
+  'funnel_onboarding_started',
   'pwa_installed',
   'pwa_browser',
   'feature_child_view',

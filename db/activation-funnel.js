@@ -20,7 +20,7 @@ async function getActivationFunnelCohorts(weeks = 8) {
      event_counts AS (
        SELECT c.cohort_week,
               COUNT(DISTINCT c.family_id)::int AS signup,
-              COUNT(DISTINCT CASE WHEN ae.event_type = 'activation_onboarding_started' THEN c.family_id END)::int AS onboarding_started,
+              COUNT(DISTINCT CASE WHEN ae.event_type IN ('activation_onboarding_started', 'funnel_onboarding_started') THEN c.family_id END)::int AS onboarding_started,
               COUNT(DISTINCT CASE WHEN ae.event_type = 'starter_template_selected' THEN c.family_id END)::int AS template_selected,
               COUNT(DISTINCT CASE WHEN s.schema_saved_at IS NOT NULL THEN c.family_id END)::int AS schema_saved,
               COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access,
@@ -31,7 +31,9 @@ async function getActivationFunnelCohorts(weeks = 8) {
        FROM cohort c
        LEFT JOIN family_activation_state s ON s.family_id = c.family_id
        LEFT JOIN analytics_events ae ON ae.family_id = c.family_id
-         AND ae.event_type IN ('activation_onboarding_started', 'starter_template_selected')
+         AND ae.event_type IN (
+           'activation_onboarding_started', 'funnel_onboarding_started', 'starter_template_selected'
+         )
        LEFT JOIN LATERAL (
          SELECT 1 AS family_id
          FROM analytics_events ae2
@@ -57,7 +59,7 @@ async function getActivationFunnelCohorts(weeks = 8) {
 
   const steps = [
     { key: 'signup', label: 'Signup' },
-    { key: 'onboarding_started', label: 'Onboarding started' },
+    { key: 'onboarding_started', label: 'Onboarding öppnad' },
     { key: 'template_selected', label: 'Template selected' },
     { key: 'schema_saved', label: 'Schema saved' },
     { key: 'child_access', label: 'Child access' },

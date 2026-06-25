@@ -1145,6 +1145,27 @@ function initIOSAvatarPicker() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+let _funnelOnboardingStartedSent = false;
+
+function trackLegacyOnboardingIfNeeded() {
+  if (_funnelOnboardingStartedSent) return;
+  if (typeof IS_ADD_CHILD !== 'undefined' && IS_ADD_CHILD) return;
+  if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isEnabled === 'function' &&
+      OnboardingStarterPlan.isEnabled()) {
+    return;
+  }
+  _funnelOnboardingStartedSent = true;
+  const meta = { source: 'legacy_wizard' };
+  if (window.analytics && typeof window.analytics.track === 'function') {
+    window.analytics.track(null, 'funnel_onboarding_started', meta);
+    return;
+  }
+  window.apiFetch('/api/analytics/event', {
+    method: 'POST',
+    body: JSON.stringify({ event_type: 'funnel_onboarding_started', metadata: meta }),
+  }).catch(() => {});
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const addChildReturnUrl = window.location.pathname + window.location.search;
 
@@ -1197,11 +1218,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     AppleSignInDiagnostics.logPost('step_8_onboarding_loaded', { path: window.location.pathname });
     AppleSignInDiagnostics.endPostLoginTrace();
   }
-  goToStep(1);
 
   if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
-    OnboardingStarterPlan.init().catch(function () {});
+    await OnboardingStarterPlan.init().catch(() => {});
   }
+  trackLegacyOnboardingIfNeeded();
+  goToStep(1);
 
   // Show email verification banner if needed (after auth check)
   showVerificationBanner(me);

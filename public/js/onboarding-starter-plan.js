@@ -426,6 +426,10 @@
     if (step1) step1.classList.add('hidden');
   }
 
+  function isEnabled() {
+    return state.enabled === true;
+  }
+
   async function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
 
@@ -445,5 +449,5 @@
     } catch (_) {}
   }
 
-  window.OnboardingStarterPlan = { init: init };
+  window.OnboardingStarterPlan = { init: init, isEnabled: isEnabled };
 })();

@@ -368,7 +368,7 @@ function buildAnalyticsHTML() {
       <div id="section-activation" class="analytics-section hidden space-y-8">
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">⭐ Aktiveringstratt (P0)</h3>
-          <p class="text-text-soft text-sm mb-4">Veckokohort — 9 steg enligt ACT-1 (signup → P0 inom 48h)</p>
+          <p class="text-text-soft text-sm mb-4">Veckokohort — 9 steg enligt ACT-1 (signup → P0 inom 48h). Steg 2 räknar ACT-1-wizard + legacy-onboarding.</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
           <table class="w-full text-sm">

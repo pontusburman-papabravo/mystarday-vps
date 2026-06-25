@@ -78,3 +78,15 @@ describe('computeAiGoNoGoVerdict', () => {
     assert.equal(v.status, 'keep_template_only');
   });
 });
+
+describe('legacy onboarding funnel', () => {
+  it('funnel counts legacy onboarding start', () => {
+    const db = fs.readFileSync(path.join(ROOT, 'db/activation-funnel.js'), 'utf8');
+    assert.match(db, /funnel_onboarding_started/);
+    const onboarding = fs.readFileSync(path.join(ROOT, 'public/js/onboarding.js'), 'utf8');
+    assert.match(onboarding, /trackLegacyOnboardingIfNeeded/);
+    assert.match(onboarding, /funnel_onboarding_started/);
+    const analytics = fs.readFileSync(path.join(ROOT, 'src/routes/analytics.js'), 'utf8');
+    assert.match(analytics, /funnel_onboarding_started/);
+  });
+});

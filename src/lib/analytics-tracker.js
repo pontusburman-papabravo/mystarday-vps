@@ -28,6 +28,10 @@ function trackOnboardingCompleted(familyId) {
   analytics.track(familyId, 'funnel_onboarding_completed');
 }
 
+function trackFunnelOnboardingStarted(familyId, metadata = {}) {
+  analytics.track(familyId, 'funnel_onboarding_started', metadata);
+}
+
 function trackOnboardingAbandoned(familyId, step) {
   analytics.track(familyId, 'funnel_onboarding_abandoned', { step });
 }
@@ -118,6 +122,7 @@ module.exports = {
   trackEmailVerified,
   trackFirstChildCreated,
   trackOnboardingCompleted,
+  trackFunnelOnboardingStarted,
   trackOnboardingAbandoned,
   trackChildView,
   trackTreasureChest,
