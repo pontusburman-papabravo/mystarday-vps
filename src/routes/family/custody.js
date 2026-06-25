@@ -194,6 +194,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       week_b_home_id: weekBHomeId,
       enabled,
       clone_week_b: cloneWeekB,
+      pack_luggage_reminder: packLuggage,
     } = req.body || {};
 
     if (enabled === false) {
@@ -223,6 +224,13 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       week_a_home_id: weekAHomeId,
       week_b_home_id: weekBHomeId,
     }, client);
+
+    if (typeof packLuggage === 'boolean') {
+      await client.query(
+        'UPDATE custody_pattern SET pack_luggage_reminder = $2 WHERE child_id = $1',
+        [childId, packLuggage]
+      );
+    }
 
     if (cloneWeekB !== false) {
       await migrateChildScheduleToCustody(client, childId, weekAHomeId, weekBHomeId);

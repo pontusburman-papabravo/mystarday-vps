@@ -26,6 +26,9 @@ const LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID = 1005;
 /** Push reminder scheduler — sends contextual notifications every 5 minutes */
 const PUSH_REMINDER_SCHEDULER_LOCK_ID = 1006;
 
+/** Custody handoff eve reminders — ~18:00 Europe/Stockholm */
+const CUSTODY_HANDOFF_SCHEDULER_LOCK_ID = 1008;
+
 /** Win-back email scheduler — sends re-engagement emails to inactive families, Sundays 10:00 Stockholm */
 const WIN_BACK_SCHEDULER_LOCK_ID = 1007;
 
@@ -37,4 +40,5 @@ module.exports = {
   LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID,
   PUSH_REMINDER_SCHEDULER_LOCK_ID,
   WIN_BACK_SCHEDULER_LOCK_ID,
+  CUSTODY_HANDOFF_SCHEDULER_LOCK_ID,
 };

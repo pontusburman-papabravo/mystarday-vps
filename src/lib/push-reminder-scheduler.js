@@ -19,6 +19,8 @@ const { sendPushNotification } = require('./push-notifications');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { getDayOfWeek } = require('./daily-log-generator');
 const { shouldSendScheduleReminder } = require('./push-reminder-timing');
+const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
+const { getNotifyParentIdsForChildDate } = require('./custody-notify');
 
 const LOCK_ID = PUSH_REMINDER_SCHEDULER_LOCK_ID; // 1006
 
@@ -140,6 +142,11 @@ async function runPushReminderJob() {
       await sendBackfillReminders();
     }
 
+    // ── 5. Custody morning reminder (08:00 only, FEAT-1 BC-10) ───────────
+    if (hour === 8 && minute < 5) {
+      await sendCustodyMorningReminders(dateStr);
+    }
+
   } catch (err) {
     console.error('[PUSH-REMINDER] Job error:', err);
   } finally {
@@ -194,28 +201,30 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
       const childPrefs = prefs.per_child?.[child.id];
       if (childPrefs?.schedule_reminder === false) continue;
 
-      // Find scheduled items for today's weekly schedule that aren't already
-      // completed in today's daily log. The activity name comes from
-      // activity_template; the time is weekly_schedule_item.start_time.
+      const notifyParents = await getNotifyParentIdsForChildDate(child.id, dateStr);
+      if (!notifyParents.includes(parent_id)) continue;
+
+      const scheduleId = await resolveWeeklyScheduleId(db, child.id, dateStr, 'Europe/Stockholm');
+      if (!scheduleId) continue;
+
       const itemsResult = await db.query(
         `SELECT wsi.id, at.name AS activity_name, wsi.start_time AS scheduled_time, ws.child_id
          FROM weekly_schedule_item wsi
          JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
          JOIN activity_template at ON at.id = wsi.activity_template_id
-         WHERE ws.child_id = $1
-           AND ws.day_of_week = $2
+         WHERE wsi.weekly_schedule_id = $1
            AND wsi.start_time IS NOT NULL
            AND NOT EXISTS (
              SELECT 1
              FROM daily_log dl
              JOIN daily_log_item dli ON dli.daily_log_id = dl.id
              WHERE dl.child_id = ws.child_id
-               AND dl.date = $3::date
+               AND dl.date = $2::date
                AND dli.activity_template_id = wsi.activity_template_id
                AND dli.completed = true
            )
          LIMIT 3`,
-        [child.id, dayOfWeek, dateStr]
+        [scheduleId, dateStr]
       );
 
       for (const item of itemsResult.rows) {
@@ -281,6 +290,9 @@ async function sendInactivityNudges() {
     for (const child of childrenResult.rows) {
       const childPrefs = prefs.per_child?.[child.id];
       if (childPrefs?.inactivity_nudge === false) continue;
+
+      const notifyParents = await getNotifyParentIdsForChildDate(child.id, todayStr);
+      if (!notifyParents.includes(parent_id)) continue;
 
       const logResult = await db.query(
         `SELECT 1 FROM daily_log WHERE child_id = $1 AND date = $2 LIMIT 1`,
@@ -411,6 +423,9 @@ async function sendBackfillReminders() {
       const childPrefs = prefs.per_child?.[child.id];
       if (childPrefs?.backfill_reminder === false) continue;
 
+      const notifyParents = await getNotifyParentIdsForChildDate(child.id, yesterdayStr);
+      if (!notifyParents.includes(parent_id)) continue;
+
       // Check if yesterday has any daily_log entry
       const logResult = await db.query(
         `SELECT id FROM daily_log WHERE child_id = $1 AND date = $2 LIMIT 1`,
@@ -426,6 +441,39 @@ async function sendBackfillReminders() {
         });
         console.log(`[PUSH-REMINDER] Backfill reminder sent for ${child.name} to parent ${parent_id}`);
       }
+    }
+  }
+}
+
+/**
+ * FEAT-1 BC-10 — morning reminder to the parent who has the child today.
+ */
+async function sendCustodyMorningReminders(dateStr) {
+  const patterns = await db.query(
+    `SELECT cp.child_id, c.name AS child_name, c.family_id
+     FROM custody_pattern cp
+     JOIN child c ON c.id = cp.child_id`
+  );
+
+  for (const row of patterns.rows) {
+    const notifyParents = await getNotifyParentIdsForChildDate(row.child_id, dateStr);
+    for (const parentId of notifyParents) {
+      const dup = await db.query(
+        `SELECT 1 FROM notification_log
+         WHERE parent_id = $1 AND type = 'custody_morning_reminder'
+           AND created_at::date = $2::date
+           AND title LIKE $3
+         LIMIT 1`,
+        [parentId, dateStr, `Idag: ${row.child_name}%`]
+      );
+      if (dup.rows.length) continue;
+
+      await sendPushNotification(parentId, {
+        title: `Idag: ${row.child_name} hos dig`,
+        body: 'Schemat för dagen väntar i appen.',
+        type: 'custody_morning_reminder',
+        url: '/dashboard',
+      });
     }
   }
 }

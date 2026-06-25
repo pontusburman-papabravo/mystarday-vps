@@ -6,6 +6,7 @@
     let currentItems = [];
     let currentSectionTimes = {};
     let children = [];
+    let custodyPrintEnabled = false;
     let itemRatings = {}; // itemId -> { child_score, child_comment, parent_score, parent_comment }
 
     // Per-child feature flags (read from children array on child select)
@@ -84,7 +85,23 @@
       }
 
       await loadChildren();
+      await loadCustodyPrintOption();
     });
+
+    async function loadCustodyPrintOption() {
+      try {
+        const data = await apiFetch('/api/family/custody').then((r) => {
+          if (r.status === 404) return null;
+          if (!r.ok) throw new Error('custody');
+          return r.json();
+        });
+        custodyPrintEnabled = Boolean(data && data.patterns && data.patterns.length > 0);
+        const btn = document.getElementById('printMyDaysBtn');
+        if (btn) btn.classList.toggle('hidden', !custodyPrintEnabled);
+      } catch (_) {
+        custodyPrintEnabled = false;
+      }
+    }
 
     async function loadChildren() {
       try {
@@ -1042,6 +1059,83 @@
       printWin.focus();
       setTimeout(() => printWin.print(), 800);
     }
+
+    async function printMyDaysWeek() {
+      if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+      if (!custodyPrintEnabled) { showToast('Boendeschema är inte aktiverat', 'error'); return; }
+
+      const child = children.find(c => c.id === currentChildId);
+      const childName = child ? child.name : 'Barn';
+      const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
+
+      showToast('Förbereder mina dagar…');
+      const calRes = await apiFetch(
+        `/api/children/${currentChildId}/calendar-week?weekOffset=0&myDays=1`
+      );
+      if (!calRes.ok) { showToast('Kunde inte ladda veckan', 'error'); return; }
+      const cal = await calRes.json();
+
+      const myDays = (cal.days || []).filter((d) => d.activities && d.activities.length > 0);
+      if (!myDays.length) {
+        showToast('Inga av dina dagar denna vecka', 'error');
+        return;
+      }
+
+      if (window.analytics && typeof window.analytics.track === 'function') {
+        window.analytics.track('custody_view_filtered', { source: 'print_my_days', days: myDays.length });
+      }
+
+      const DAY_NAMES_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+      const SECTION_LABELS = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌆 Kväll', natt: '🌙 Natt' };
+      const SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
+
+      const dayColumns = myDays.map((day) => {
+        const d = new Date(day.date + 'T12:00:00');
+        const dayFull = DAY_NAMES_FULL[day.dayOfWeek] || day.dayName;
+        const borderColor = day.custody?.color || '#1B2340';
+        let colHtml = `<div style="border:2px solid ${borderColor};border-radius:4px;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="background:${borderColor};color:white;padding:4px 6px;font-size:9px;font-weight:700;line-height:1.2;">
+            ${escHtml(dayFull)}<br><span style="font-size:8px;opacity:0.9;">${escHtml(day.date)}</span>
+          </div><div style="padding:4px;flex:1;">`;
+
+        const grouped = {};
+        for (const item of day.activities) {
+          const sec = item.section || 'dag';
+          if (!grouped[sec]) grouped[sec] = [];
+          grouped[sec].push(item);
+        }
+        for (const sec of SECTION_ORDER) {
+          if (!grouped[sec]) continue;
+          colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;">${SECTION_LABELS[sec]}</div>`;
+          for (const item of grouped[sec]) {
+            const check = item.completed ? '☑' : '☐';
+            colHtml += `<div style="font-size:7.5px;padding:1.5px 0;border-bottom:1px solid #f0f0f0;">
+              ${check} ${item.icon || ''} ${escHtml(item.name)}
+            </div>`;
+          }
+        }
+        colHtml += '</div></div>';
+        return colHtml;
+      }).join('');
+
+      const weekHtml = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;border-bottom:2px solid #1B2340;padding-bottom:6px;">
+          <span style="font-size:1.6em;">${childAvatarHtml}</span>
+          <div>
+            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(childName)} — Mina dagar</h1>
+            <p style="font-size:9px;color:#5A6178;margin:2px 0 0;">${escHtml(cal.weekStart)} – ${escHtml(cal.weekEnd)}</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(${myDays.length},1fr);gap:5px;">${dayColumns}</div>`;
+
+      const printWin = window.open('', '_blank', 'width=1100,height=700');
+      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mina dagar</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => printWin.print(), 800);
+    }
+
+    window.printMyDaysWeek = printMyDaysWeek;
 
     // ── Parent Ratings ────────────────────────────────────
 

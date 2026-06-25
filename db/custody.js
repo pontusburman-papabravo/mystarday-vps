@@ -36,7 +36,9 @@ async function listParentHomes(familyId, client = db) {
 async function getPattern(childId, client = db) {
   const result = await client.query(
     `SELECT child_id, anchor_date::text AS anchor_date, interval_weeks,
-            week_a_home_id, week_b_home_id, created_at, updated_at
+            week_a_home_id, week_b_home_id,
+            COALESCE(pack_luggage_reminder, true) AS pack_luggage_reminder,
+            created_at, updated_at
      FROM custody_pattern
      WHERE child_id = $1`,
     [childId]

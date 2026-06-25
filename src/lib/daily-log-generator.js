@@ -11,6 +11,7 @@
  */
 
 const db = require('./db');
+const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 
 /**
  * Calculate child's age in years from a birthday string (YYYY-MM-DD).
@@ -167,13 +168,8 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       }
 
       // Fall back to weekly schedule
-      const dayOfWeek = getDayOfWeek(dateStr, tz);
-      const scheduleResult = await q.query(
-        `SELECT ws.id FROM weekly_schedule ws WHERE ws.child_id = $1 AND ws.day_of_week = $2`,
-        [childId, dayOfWeek]
-      );
-      if (scheduleResult.rows.length > 0) {
-        const scheduleId = scheduleResult.rows[0].id;
+      const scheduleId = await resolveWeeklyScheduleId(q, childId, dateStr, tz);
+      if (scheduleId) {
         const scheduleItems = await q.query(
           `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
                   at.name, at.icon, at.star_value
@@ -272,16 +268,10 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
     // Empty special day row — fall through to weekly schedule below
   }
 
-  // ── 4b. Find weekly schedule for that day_of_week ────────
-  const scheduleResult = await q.query(
-    `SELECT ws.id
-     FROM weekly_schedule ws
-     WHERE ws.child_id = $1 AND ws.day_of_week = $2`,
-    [childId, dayOfWeek]
-  );
+  // ── 4b. Find weekly schedule for that day_of_week (custody-aware) ─
+  const scheduleId = await resolveWeeklyScheduleId(q, childId, dateStr, timezone);
 
   // ── 5. Create the daily_log record ───────────────────────
-  const scheduleId = scheduleResult.rows[0]?.id || null;
 
   const logResult = await q.query(
     `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
@@ -544,14 +534,11 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   if (logResult.rows.length === 0) return { synced: false, reason: 'no_log' };
   const logId = logResult.rows[0].id;
 
-  // Get weekly schedule items for the day of week
-  const schedResult = await q.query(
-    'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
-    [childId, dayOfWeek]
-  );
+  // Get weekly schedule items for the day of week (custody-aware)
+  const scheduleId = await resolveWeeklyScheduleId(q, childId, syncDate, tz);
 
   let scheduleItems = [];
-  if (schedResult.rows.length > 0) {
+  if (scheduleId) {
     const siResult = await q.query(
       `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
               at.name, at.icon, at.star_value
@@ -559,7 +546,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
        JOIN activity_template at ON at.id = wsi.activity_template_id
        WHERE wsi.weekly_schedule_id = $1
        ORDER BY CASE wsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, wsi.sort_order ASC`,
-      [schedResult.rows[0].id]
+      [scheduleId]
     );
     scheduleItems = siResult.rows;
   }
