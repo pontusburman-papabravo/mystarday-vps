@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v363';
+const CACHE_NAME = 'stjarndag-v364';
+// stjarndag-v364: ACT-1 PR2 — first star på step6Btn, PIN→child_access, handoff soft gate copy
 // stjarndag-v363: Tilldela schema — bekräftelsedialog z-index + stäng på bakgrund/Escape
 // stjarndag-v362: Ljus tema — Familjemuseum, bibliotek, familjekort, inställningar utseende
 // stjarndag-v361: Mobil tema-toggle — delegation, dölj legacy toggle, fix settings-grupp :not(.hidden)

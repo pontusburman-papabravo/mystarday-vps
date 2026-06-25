@@ -660,6 +660,9 @@ window.saveCustomPin = async function() {
     childPin = newPin;
     document.getElementById('s5Pin').textContent = newPin;
     cancelPinEdit();
+    if (window.OnboardingActivation && typeof OnboardingActivation.notifyPinSet === 'function') {
+      OnboardingActivation.notifyPinSet();
+    }
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel');
   } finally {

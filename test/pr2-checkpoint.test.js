@@ -1,0 +1,55 @@
+'use strict';
+
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const ROOT = path.join(__dirname, '..');
+
+function read(rel) {
+  return fs.readFileSync(path.join(ROOT, rel), 'utf8');
+}
+
+describe('ACT-1 PR2 checkpoint', () => {
+  it('onboarding-activation patches skipInvite, step6Btn, and exports notifyPinSet', () => {
+    const src = read('public/js/onboarding-activation.js');
+    assert.match(src, /patchSkipInvite/);
+    assert.match(src, /patchStep6Btn/);
+    assert.match(src, /firstStarDone/);
+    assert.match(src, /notifyPinSet/);
+    assert.match(src, /child-access-complete/);
+    assert.match(src, /child_handoff_skipped/);
+    assert.match(src, /child_view_opened/);
+  });
+
+  it('onboarding.js calls notifyPinSet after custom PIN save', () => {
+    const src = read('public/js/onboarding.js');
+    assert.match(src, /OnboardingActivation\.notifyPinSet/);
+  });
+
+  it('child-access-complete route updates activation state', () => {
+    const src = read('src/routes/onboarding.js');
+    assert.match(src, /child-access-complete/);
+    assert.match(src, /updateActivationState\(req\.user\.familyId, 'child_access'/);
+  });
+
+  it('admin activation funnel API + UI (9 steps)', () => {
+    const db = read('db/activation-funnel.js');
+    const admin = read('src/routes/admin/analytics.js');
+    const ui = read('public/admin/admin-analytics.js');
+    assert.match(db, /p0_activated_48h/);
+    assert.match(db, /child_access/);
+    assert.match(db, /active_day_14/);
+    assert.match(admin, /activation-funnel/);
+    assert.match(ui, /loadActivationFunnel/);
+    assert.match(ui, /Aktiveringstratt/);
+  });
+
+  it('onboarding.html loads activation script after onboarding.js', () => {
+    const html = read('public/onboarding.html');
+    const oIdx = html.indexOf('onboarding.js');
+    const aIdx = html.indexOf('onboarding-activation.js');
+    assert.ok(oIdx >= 0 && aIdx > oIdx);
+  });
+});

@@ -69,8 +69,12 @@
       var skipBtn = document.createElement('button');
       skipBtn.type = 'button';
       skipBtn.className = 'px-4 py-3 text-text-soft text-sm font-semibold hover:text-navy';
-      skipBtn.textContent = 'Hoppa över barnkod';
+      skipBtn.textContent = 'Hoppa över för nu';
       skipBtn.addEventListener('click', function () {
+        var ok = window.confirm(
+          'Barnet kommer igång snabbare om ni testar inloggningen nu. Vi påminner er om 24 timmar om ni hoppar över.'
+        );
+        if (!ok) return;
         trackEvent('child_handoff_skipped', { child_id: childId });
         window.goToStep(6);
       });
@@ -139,10 +143,34 @@
     window.skipInvite.__activationPatched = true;
   }
 
+  /** Capture-phase hook so step6Btn also shows first star guide (not only skipInvite). */
+  function patchStep6Btn() {
+    var btn = document.getElementById('step6Btn');
+    if (!btn || btn.dataset.firstStarPatched) return;
+    btn.dataset.firstStarPatched = '1';
+    btn.addEventListener('click', function (e) {
+      if (!config || !config.flags.activation_first_star_guide_v1) return;
+      if (btn.dataset.firstStarDone === '1') return;
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      showFirstStarGuide(function () {
+        btn.dataset.firstStarDone = '1';
+        btn.click();
+      });
+    }, true);
+  }
+
+  function notifyPinSet() {
+    if (!config || !config.flags.activation_child_handoff_v1) return;
+    recordChildAccess('pin_set');
+    trackEvent('child_pin_created', { child_id: childId, source: 'onboarding_step5' });
+  }
+
   function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
     loadConfig().then(function () {
       patchSkipInvite();
+      patchStep6Btn();
       var obs = new MutationObserver(function () {
         if (document.getElementById('step5') && document.getElementById('step5').classList.contains('active')) {
           enhanceStep5();
@@ -161,6 +189,8 @@
   window.OnboardingActivation = {
     init: init,
     setChildId: function (id) { childId = id; },
+    recordChildAccess: recordChildAccess,
+    notifyPinSet: notifyPinSet,
   };
 
   document.addEventListener('DOMContentLoaded', init);
