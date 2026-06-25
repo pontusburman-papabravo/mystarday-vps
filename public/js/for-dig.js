@@ -21,6 +21,7 @@
   let expandedSlug = null;
   let showAllFavorites = false;
   let _forDigClickBound = false;
+  let _forDigInitGen = 0;
 
   const FAVORITES_VISIBLE_MAX = 12;
 
@@ -686,10 +687,11 @@
   async function init() {
     if (!document.getElementById('forDigGoals')) return;
 
+    const gen = ++_forDigInitGen;
     captureWinbackUtmEarly();
 
     const user = await ensureParentAuth();
-    if (!user) return;
+    if (!user || gen !== _forDigInitGen) return;
 
     const greetingEl = document.getElementById('forDigGreeting');
     if (greetingEl) {
@@ -698,6 +700,7 @@
 
     try {
       await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular(), loadFavorites()]);
+      if (gen !== _forDigInitGen) return;
       renderFavorites();
       renderRecommendations();
       renderPopular();

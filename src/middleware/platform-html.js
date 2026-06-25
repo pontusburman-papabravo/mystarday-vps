@@ -9,7 +9,7 @@ const { injectNoindexMeta } = require('../lib/seo-pages');
 const RELEASE_TAG = '2026-06-14-prevent-zoom';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '10';
+const MAGIC_VERSION = '11';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',

@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v340';
+const CACHE_NAME = 'stjarndag-v341';
+// stjarndag-v341: soft-nav flash fix + top-chrome icons when toggle loading
 // stjarndag-v340: FEAT-1B — custody handoff, parent push filter, print my days, child log A/B
 // stjarndag-v339: bump magic JS cache + platform-html version rewrite on serve
 // stjarndag-v338: FEAT-1A boendeschema — custody API, family settings, dashboard banner

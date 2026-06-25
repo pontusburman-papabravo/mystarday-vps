@@ -79,6 +79,27 @@ describe('magic soft navigation', () => {
     assert.match(css, /magic-hub-links/);
   });
 
+  it('soft nav applies body classes before swap and clears stale hub', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const idxApply = router.indexOf('applyBodyFromPage(doc, pageId)');
+    const idxSwap = router.indexOf('swapMain(doc)');
+    assert.ok(idxApply >= 0 && idxSwap > idxApply, 'applyBodyFromPage must run before swapMain');
+    assert.match(router, /parentMagicPageMount/);
+    assert.match(router, /hubMount\.innerHTML = ''/);
+  });
+
+  it('top chrome keeps icons visible when toggle is empty', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
+    assert.doesNotMatch(css, /parent-top-chrome:has\(\.app-view-toggle-wrap:empty\) \{\s*display: none/);
+    assert.match(css, /justify-content: flex-end/);
+  });
+
+  it('for-dig init ignores stale soft-nav runs', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
+    assert.match(src, /_forDigInitGen/);
+    assert.match(src, /gen !== _forDigInitGen/);
+  });
+
   it('for-dig boot skips auto-init when ParentMagicPageBoot handles soft nav', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
     assert.match(src, /if \(!document\.getElementById\('forDigGoals'\)\) return/);

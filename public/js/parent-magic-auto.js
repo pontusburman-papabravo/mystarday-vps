@@ -70,18 +70,18 @@
     var navHeader = document.querySelector('[data-parent-nav-header]');
     var main = document.querySelector('main') || document.body;
 
-    if (!toggle || !navHeader) return;
+    if (!navHeader) return;
 
     var chrome = document.getElementById('parentTopChrome');
     if (!chrome) {
       chrome = document.createElement('div');
       chrome.id = 'parentTopChrome';
       chrome.className = 'parent-top-chrome';
-      var anchor = toggle.parentNode === main ? toggle : navHeader;
+      var anchor = toggle && toggle.parentNode === main ? toggle : navHeader;
       main.insertBefore(chrome, anchor);
     }
 
-    if (toggle.parentNode !== chrome) chrome.appendChild(toggle);
+    if (toggle && toggle.parentNode !== chrome) chrome.appendChild(toggle);
     if (navHeader.parentNode !== chrome) chrome.appendChild(navHeader);
   }
 

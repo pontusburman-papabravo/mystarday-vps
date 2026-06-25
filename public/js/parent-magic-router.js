@@ -189,18 +189,26 @@
       var doc = parseHtml(html);
       ensureStyles(doc);
       ensurePageStyles(pageId);
-      if (!swapMain(doc)) throw new Error('swap_main_failed');
 
       applyBodyFromPage(doc, pageId);
+
+      var hubMount = global.document.getElementById('parentMagicPageMount');
+      if (hubMount) {
+        hubMount.innerHTML = '';
+        hubMount.classList.add('hidden');
+      }
+
+      if (!swapMain(doc)) throw new Error('swap_main_failed');
+
       if (global.ParentMagicAuto) ParentMagicAuto.prepareDom();
+
+      if (global.ParentMagicShell && ParentMagicShell.navigateToPage) {
+        ParentMagicShell.navigateToPage(pageId);
+      }
 
       if (global.ParentMagicPageBoot) {
         await ParentMagicPageBoot.ensureScripts(PAGE_SCRIPTS[pageId] || []);
         await ParentMagicPageBoot.run(pageId);
-      }
-
-      if (global.ParentMagicShell && ParentMagicShell.navigateToPage) {
-        ParentMagicShell.navigateToPage(pageId);
       }
 
       var url = path + (href.indexOf('?') >= 0 ? href.slice(href.indexOf('?')) : '');

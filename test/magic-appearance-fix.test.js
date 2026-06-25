@@ -16,7 +16,7 @@ describe('magic appearance fixes', () => {
   it('parent-magic-auto reorders nav header after toggle', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-auto.js'), 'utf8');
     assert.match(src, /ensureTopChrome/);
-    assert.match(src, /parentTopChrome/);
+    assert.match(src, /if \(!navHeader\) return/);
   });
 
   it('assign-schedule magic contrast CSS', () => {
