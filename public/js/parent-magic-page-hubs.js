@@ -121,11 +121,7 @@
   }
 
   function hideSettingsGroup() {
-    _activeSettingsGroup = null;
-    document.body.classList.remove('magic-settings-in-group');
-    document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
-      el.classList.add('hidden');
-    });
+    resetSettingsState();
   }
 
   function bindSettingsEvents(root) {
@@ -176,6 +172,14 @@
     tagChild('deletionSection', 'app');
   }
 
+  function resetSettingsState() {
+    _activeSettingsGroup = null;
+    document.body.classList.remove('magic-settings-in-group');
+    document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
+      el.classList.add('hidden');
+    });
+  }
+
   function refresh(page, magic) {
     var el = mount();
     if (!el) return;
@@ -183,11 +187,15 @@
     if (!magic || !(window.ParentMagicShell && ParentMagicShell.isMagic())) {
       el.innerHTML = '';
       el.classList.add('hidden');
-      document.body.classList.remove('magic-settings-in-group');
+      resetSettingsState();
       document.querySelectorAll('[data-magic-settings-content]').forEach(function (sec) {
         sec.classList.remove('hidden');
       });
       return;
+    }
+
+    if (page !== 'settings') {
+      resetSettingsState();
     }
 
     el.classList.remove('hidden');
@@ -198,13 +206,12 @@
     } else if (page === 'family') {
       el.innerHTML = renderFamilyHero();
     } else if (page === 'settings') {
-      if (!_activeSettingsGroup) {
-        tagSettingsSections();
-        el.innerHTML = renderSettingsMenu();
-        bindSettingsEvents(el);
-        var backBar = document.getElementById('magicSettingsBackBar');
-        if (backBar) backBar.innerHTML = '';
-      }
+      resetSettingsState();
+      tagSettingsSections();
+      el.innerHTML = renderSettingsMenu();
+      bindSettingsEvents(el);
+      var backBar = document.getElementById('magicSettingsBackBar');
+      if (backBar) backBar.innerHTML = '';
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
     } else {
@@ -216,5 +223,6 @@
   window.ParentMagicPageHub = {
     refresh: refresh,
     tagSettingsSections: tagSettingsSections,
+    resetSettingsState: resetSettingsState,
   };
 })();

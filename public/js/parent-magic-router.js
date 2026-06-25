@@ -140,6 +140,19 @@
     });
   }
 
+  function syncLegacyNavHide() {
+    global.document.querySelectorAll('body > nav').forEach(function (nav) {
+      if (nav.classList.contains('native-tab-bar') || nav.id === 'parentBottomNav') return;
+      nav.classList.add('parent-magic-legacy-hide');
+    });
+  }
+
+  function resetPageState(pageId) {
+    if (pageId !== 'settings' && global.ParentMagicPageHub && global.ParentMagicPageHub.resetSettingsState) {
+      global.ParentMagicPageHub.resetSettingsState();
+    }
+  }
+
   function ensurePageStyles(pageId) {
     var head = global.document.head;
     (PAGE_STYLES[pageId] || []).forEach(function (href) {
@@ -191,6 +204,7 @@
       ensurePageStyles(pageId);
 
       applyBodyFromPage(doc, pageId);
+      resetPageState(pageId);
 
       var hubMount = global.document.getElementById('parentMagicPageMount');
       if (hubMount) {
@@ -201,6 +215,10 @@
       if (!swapMain(doc)) throw new Error('swap_main_failed');
 
       if (global.ParentMagicAuto) ParentMagicAuto.prepareDom();
+      syncLegacyNavHide();
+      if (global.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+        ParentMagicAuto.ensureTopChrome();
+      }
 
       if (global.ParentMagicShell && ParentMagicShell.navigateToPage) {
         ParentMagicShell.navigateToPage(pageId);
@@ -236,7 +254,7 @@
 
   function onNavLinkClick(e) {
     if (!shouldSoftNav()) return;
-    var link = e.target.closest('#parentBottomNav a[href], .native-tab-bar a.tab-item[href]');
+    var link = e.target.closest('a[href^="/"]');
     if (!link) return;
 
     var href = link.getAttribute('href');
@@ -244,6 +262,7 @@
     if (!isSoftNavPath(href)) return;
 
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || link.target === '_blank') return;
+    if (link.hasAttribute('download')) return;
 
     e.preventDefault();
     navigateTo(href);
