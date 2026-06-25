@@ -152,10 +152,32 @@
     }
     #imageCropBarnvyPreviewWrap { max-width: 200px; margin: 0 auto; }
     #imageCropBarnvyPreview { width: 100%; height: auto; border-radius: 10px; display: block; border: 2px solid #F5A623; }
-    #activityImagePickerGrid { max-height: min(12rem, 28vh); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
-    /* Above native tab bar (10200) on mobile */
-    .library-modal-overlay { z-index: 10050 !important; }
+    /* Above native tab bar (z-index 10200) */
+    .library-modal-overlay { z-index: 10350 !important; }
+    .image-crop-panel {
+      display: flex;
+      flex-direction: column;
+      max-height: min(88dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
+      width: 100%;
+      max-width: 28rem;
+    }
+    .image-crop-panel__scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 1.25rem 1.25rem 0.5rem;
+    }
+    .image-crop-panel__actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid rgba(237, 231, 246, 0.9);
+      background: #fff;
+    }
     .library-modal-overlay.hidden { display: none !important; pointer-events: none !important; }
+    #activityImagePickerGrid { max-height: min(12rem, 28vh); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
     .activity-visual-tab { flex: 1; py-2; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; transition: background 0.15s, color 0.15s; }
     .activity-visual-tab--active { background: #fff; color: #1B2340; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
     body.parent-magic-library .activity-visual-tab--active { background: linear-gradient(135deg, #ffcc33, #f5a623); color: #1b2340; box-shadow: none; }
@@ -932,25 +954,27 @@
   </div>
 
   <!-- ── Image crop modal (barnvy aspect) ───────────────── -->
-  <div id="imageCropModal" class="hidden library-modal-overlay fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4" style="z-index: 10060;">
-    <div class="magic-modal-panel bg-white rounded-t-2xl sm:rounded-2xl p-5 w-full max-w-md shadow-xl max-h-[92dvh] overflow-y-auto">
-      <h3 class="text-lg font-heading font-bold text-navy mb-1">Beskär bilden</h3>
-      <p class="text-sm text-text-soft mb-4">Dra bilden och zooma så motivet syns i barnvyn.</p>
-      <div id="imageCropViewport" class="image-crop-viewport mb-3">
-        <img id="imageCropImg" alt="">
-        <div class="image-crop-frame-outline" aria-hidden="true"></div>
-      </div>
-      <label class="block text-xs font-semibold text-navy mb-1" for="imageCropZoom">Zooma</label>
-      <input type="range" id="imageCropZoom" min="1" max="3" step="0.02" value="1" class="w-full mb-4 accent-gold">
-      <div class="mb-4">
-        <p class="text-xs font-semibold text-navy mb-2 text-center">Så här ser barnet bilden</p>
-        <div id="imageCropBarnvyPreviewWrap">
-          <canvas id="imageCropBarnvyPreview" aria-hidden="true"></canvas>
+  <div id="imageCropModal" class="hidden library-modal-overlay fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="image-crop-panel magic-modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-xl">
+      <div class="image-crop-panel__scroll">
+        <h3 class="text-lg font-heading font-bold text-navy mb-1">Beskär bilden</h3>
+        <p class="text-sm text-text-soft mb-4">Dra bilden och zooma så motivet syns i barnvyn.</p>
+        <div id="imageCropViewport" class="image-crop-viewport mb-3">
+          <img id="imageCropImg" alt="">
+          <div class="image-crop-frame-outline" aria-hidden="true"></div>
+        </div>
+        <label class="block text-xs font-semibold text-navy mb-1" for="imageCropZoom">Zooma</label>
+        <input type="range" id="imageCropZoom" min="1" max="3" step="0.02" value="1" class="w-full mb-4 accent-gold">
+        <div class="mb-2">
+          <p class="text-xs font-semibold text-navy mb-2 text-center">Så här ser barnet bilden</p>
+          <div id="imageCropBarnvyPreviewWrap">
+            <canvas id="imageCropBarnvyPreview" aria-hidden="true"></canvas>
+          </div>
         </div>
       </div>
-      <div class="flex gap-3">
-        <button type="button" id="imageCropCancelBtn" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button type="button" id="imageCropConfirmBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Använd bild</button>
+      <div class="image-crop-panel__actions">
+        <button type="button" id="imageCropCancelBtn" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold min-h-[48px]">Avbryt</button>
+        <button type="button" id="imageCropConfirmBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold min-h-[48px]">Spara bild</button>
       </div>
     </div>
   </div>
