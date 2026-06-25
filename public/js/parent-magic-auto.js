@@ -101,4 +101,8 @@
     ensureTopChrome: ensureTopChrome,
     PATH_PAGES: PATH_PAGES,
   };
+
+  window.addEventListener('stjarndag-magic-navigated', function () {
+    ensureTopChrome();
+  });
 })();

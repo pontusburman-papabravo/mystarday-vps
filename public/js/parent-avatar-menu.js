@@ -156,6 +156,16 @@
       return;
     }
     if (action.href) {
+      if (
+        window.ParentMagicRouter &&
+        ParentMagicRouter.shouldSoftNav &&
+        ParentMagicRouter.shouldSoftNav() &&
+        ParentMagicRouter.isSoftNavPath &&
+        ParentMagicRouter.isSoftNavPath(action.href)
+      ) {
+        ParentMagicRouter.navigateTo(action.href);
+        return;
+      }
       window.location.href = action.href;
     }
   }

@@ -9,7 +9,7 @@ const { injectNoindexMeta } = require('../lib/seo-pages');
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '11';
+const MAGIC_VERSION = '12';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -95,9 +95,58 @@ function bumpMagicAssetVersions(body, reqPath) {
     .replace(/\/js\/app-view-mode\.js\?v=[^"']+/g, '/js/app-view-mode.js?v=' + MAGIC_VERSION);
 }
 
+/** Ensure magic CSS/JS even when HTML already embeds parent-magic-shell.js (planning, rewards, …). */
+function ensureMagicShellAssets(body, reqPath) {
+  if (typeof body !== 'string' || !body.includes('<html')) return body;
+  const path = normalizeHtmlPath(reqPath);
+  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  body = bumpMagicAssetVersions(body, reqPath);
+
+  const cssToEnsure = [
+    { needle: 'parent-bottom-nav.css', tag: '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">' },
+    { needle: 'parent-magic-3d.css', tag: '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">' },
+    { needle: 'parent-magic-common.css', tag: '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">' },
+    { needle: 'app-view-toggle.css', tag: '<link rel="stylesheet" href="/css/app-view-toggle.css?v=' + MAGIC_VERSION + '">' },
+  ];
+
+  const headClose = body.indexOf('</head>');
+  if (headClose !== -1) {
+    let cssInject = '';
+    cssToEnsure.forEach(function (item) {
+      if (!body.includes(item.needle)) cssInject += item.tag + '\n';
+    });
+    if (cssInject) {
+      body = body.slice(0, headClose) + cssInject + body.slice(headClose);
+    }
+  }
+
+  const scriptsToEnsure = [
+    { needle: 'parent-magic-auto.js', tag: '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
+    { needle: 'parent-magic-bootstrap.js', tag: '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
+  ];
+
+  scriptsToEnsure.forEach(function (item) {
+    if (body.includes(item.needle)) return;
+    const shellIdx = body.indexOf('parent-magic-shell.js');
+    if (shellIdx !== -1) {
+      const lineStart = body.lastIndexOf('<script', shellIdx);
+      if (lineStart !== -1) {
+        body = body.slice(0, lineStart) + item.tag + body.slice(lineStart);
+        return;
+      }
+    }
+    const bodyClose = body.lastIndexOf('</body>');
+    if (bodyClose !== -1) {
+      body = body.slice(0, bodyClose) + item.tag + body.slice(bodyClose);
+    }
+  });
+
+  return body;
+}
+
 function injectParentMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
-  body = bumpMagicAssetVersions(body, reqPath);
+  body = ensureMagicShellAssets(body, reqPath);
   if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
 
   const path = normalizeHtmlPath(reqPath);
@@ -191,7 +240,8 @@ function injectPlatformHtml(body, reqPath) {
 
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
-  return injectParentMagicHtml(body, reqPath);
+  body = injectParentMagicHtml(body, reqPath);
+  return ensureMagicShellAssets(body, reqPath);
 }
 
 function platformHtmlInject(req, res, next) {
