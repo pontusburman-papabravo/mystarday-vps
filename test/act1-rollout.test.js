@@ -28,4 +28,18 @@ describe('ACT-1 full rollout scripts', () => {
     assert.match(src, /enable-act1-flags\.js/);
     assert.match(src, /systemctl restart/);
   });
+
+  it('GitHub deploy workflow enables ACT-1 flags after migrate', () => {
+    const wf = fs.readFileSync(path.join(ROOT, '.github/workflows/deploy.yml'), 'utf8');
+    assert.match(wf, /enable-act1-flags\.js/);
+    const migrateIdx = wf.indexOf('npm run migrate');
+    const flagsIdx = wf.indexOf('enable-act1-flags');
+    assert.ok(migrateIdx >= 0 && flagsIdx > migrateIdx, 'enable-act1-flags must run after migrate');
+  });
+
+  it('vps-after-pull.sh is manual deploy helper', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'scripts/vps-after-pull.sh'), 'utf8');
+    assert.match(src, /enable-act1-flags\.js/);
+    assert.match(src, /systemctl restart/);
+  });
 });

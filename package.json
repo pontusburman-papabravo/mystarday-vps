@@ -9,6 +9,8 @@
     "css:build": "node scripts/css-build.mjs",
     "check:css": "node scripts/css-build.mjs && git diff --exit-code public/css/tailwind.build.css public/sw.js",
     "migrate": "node migrate.js",
+    "vps:after-pull": "bash scripts/vps-after-pull.sh",
+    "rollout:growth": "bash scripts/rollout-growth-plan-prod.sh",
     "dump:routes": "node scripts/dump-routes.js --write",
     "check:routes": "node scripts/dump-routes.js --check",
     "export:families": "node scripts/export-family-data.js",
