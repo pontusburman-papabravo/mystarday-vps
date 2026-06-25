@@ -42,6 +42,20 @@
     let drawerChildData = null;
     let drawerEmojiSelected = '';
 
+    function renderChildAvatar(child, size) {
+      if (typeof window.renderChildAvatar === 'function') {
+        return window.renderChildAvatar(child, size || 32);
+      }
+      size = size || 32;
+      var emoji = (child && child.emoji) || '⭐';
+      var safe = String(emoji)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return '<span style="display:inline-flex;align-items:center;font-size:' +
+        Math.round(size * 0.8) + 'px;line-height:1;">' + safe + '</span>';
+    }
+
     // ─── Init ────────────────────────────────────────────
     async function init() {
       try {

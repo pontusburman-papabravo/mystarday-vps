@@ -21,6 +21,11 @@
     'for-dig': ['/css/for-dig.css?v=2'],
   };
 
+  // Loaded before every soft-nav page — dom-utils defines window.renderChildAvatar + escapeHtml.
+  var SHARED_SCRIPTS = [
+    '/js/dom-utils.js?v=2.13.0',
+  ];
+
   var PAGE_SCRIPTS = {
     dashboard: [
       '/js/dashboard-home-hub.js?v=5',
@@ -39,7 +44,7 @@
       '/js/settings-account.js?v=2.18.0',
       '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
-      '/js/family.js?v=2.14.0',
+      '/js/family.js?v=2.14.1',
       '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-hub.js?v=1.1.0'],
@@ -234,6 +239,7 @@
       }
 
       if (global.ParentMagicPageBoot) {
+        await ParentMagicPageBoot.ensureScripts(SHARED_SCRIPTS);
         await ParentMagicPageBoot.ensureScripts(PAGE_SCRIPTS[pageId] || []);
         await ParentMagicPageBoot.run(pageId);
       }
