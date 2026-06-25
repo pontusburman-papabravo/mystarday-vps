@@ -54,8 +54,9 @@ describe('magic soft navigation', () => {
     const pageIdx = router.indexOf('ensureScripts(PAGE_SCRIPTS[pageId]');
     assert.ok(sharedIdx >= 0 && pageIdx > sharedIdx, 'SHARED_SCRIPTS must load before PAGE_SCRIPTS');
     const family = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
-    assert.match(family, /function renderChildAvatar\(child, size\)/);
-    assert.match(family, /window\.renderChildAvatar/);
+    assert.match(family, /function childAvatarHtml\(child, size\)/);
+    assert.match(family, /_domRenderChildAvatar/);
+    assert.doesNotMatch(family, /function renderChildAvatar\(child, size\)/);
   });
 
   it('planning and rewards hubs re-render on magic navigated event', () => {
