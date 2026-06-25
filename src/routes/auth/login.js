@@ -190,6 +190,34 @@ router.post('/me/view-mode', requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/auth/me/theme ─────────────────────────────
+// Persist the parent's background theme ('dark' | 'light') so the choice
+// follows the account across devices.
+router.post('/me/theme', requireAuth, async (req, res) => {
+  try {
+    if (req.user.type !== 'parent') {
+      return res.status(400).json({ error: 'Endast föräldrar kan uppdatera tema' });
+    }
+    const { theme } = req.body || {};
+    if (!theme || !['dark', 'light'].includes(theme)) {
+      return res.status(400).json({ error: 'theme must be "dark" or "light"' });
+    }
+    try {
+      await db.query(
+        'UPDATE parent SET theme_preference = $2 WHERE id = $1',
+        [req.user.id, theme]
+      );
+    } catch (_) {
+      // Column may not exist yet (migration pending) — accept silently so the
+      // client's localStorage choice still applies; it will persist post-migration.
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[AUTH] me/theme error:', err);
+    res.status(500).json({ error: 'Kunde inte spara tema' });
+  }
+});
+
 // ─── GET /api/auth/me ─────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
   try {
@@ -214,21 +242,24 @@ router.get('/me', requireAuth, async (req, res) => {
 
       const parent = parentResult.rows[0];
 
-      // Read the parent's stored UI view mode defensively: the ui_view_mode
-      // column is added by a migration that may not yet have run in every
+      // Read the parent's stored UI view mode + theme defensively: these
+      // columns are added by migrations that may not yet have run in every
       // environment. A missing column must NOT 500 /api/auth/me (that logs
-      // every parent out via authGuard). Default to 'classic'.
+      // every parent out via authGuard). Defaults: view 'classic', theme 'dark'.
       let uiViewMode = 'classic';
+      let themePreference = 'dark';
       try {
-        const vmResult = await db.query(
-          `SELECT ui_view_mode FROM parent WHERE id = $1`,
+        const prefResult = await db.query(
+          `SELECT ui_view_mode, theme_preference FROM parent WHERE id = $1`,
           [req.user.id]
         );
-        if (vmResult.rows[0] && vmResult.rows[0].ui_view_mode) {
-          uiViewMode = vmResult.rows[0].ui_view_mode;
+        const prefs = prefResult.rows[0];
+        if (prefs) {
+          if (prefs.ui_view_mode) uiViewMode = prefs.ui_view_mode;
+          if (prefs.theme_preference) themePreference = prefs.theme_preference;
         }
       } catch (_) {
-        // Column not present yet — keep default 'classic'.
+        // Columns not present yet — keep defaults.
       }
 
       // Get parent roles (primary/shared vs pedagog-only)
@@ -261,6 +292,7 @@ router.get('/me', requireAuth, async (req, res) => {
         ...parent,
         type: 'parent',
         ui_view_mode: uiViewMode,
+        theme_preference: themePreference,
         isAdmin: !!parent.is_admin,
         magic_view_enabled: isEmailAllowlisted(parent.email),
         account_type: parent.account_type,

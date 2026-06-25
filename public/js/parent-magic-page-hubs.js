@@ -7,6 +7,7 @@
   var SETTINGS_GROUPS = [
     { id: 'profile', icon: '👤', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
     { id: 'family', icon: '👨‍👩‍👧', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
+    { id: 'appearance', icon: '🎨', iconClass: 'app', title: 'Utseende', sub: 'Mörkt eller ljust tema' },
     { id: 'app', icon: '📱', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
   ];
 
@@ -147,7 +148,61 @@
     }
   }
 
+  function renderThemePicker() {
+    var current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
+    function opt(value, label, swatch) {
+      var active = current === value ? ' is-active' : '';
+      return '<button type="button" class="magic-theme-option' + active + '" data-theme="' + value + '" ' +
+        'aria-pressed="' + (current === value) + '">' +
+        '<span class="magic-theme-swatch ' + swatch + '" aria-hidden="true"></span>' + escHtml(label) + '</button>';
+    }
+    return '<div class="magic-theme-picker" id="magicThemePicker">' +
+      opt('dark', 'Mörkt', 'dark') +
+      opt('light', 'Ljust', 'light') +
+      '</div>';
+  }
+
+  function updateThemePickerUi() {
+    var current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
+    document.querySelectorAll('#magicThemePicker .magic-theme-option').forEach(function (btn) {
+      var on = btn.getAttribute('data-theme') === current;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on);
+    });
+  }
+
+  // Appearance has no legacy DOM section — inject one so the group system
+  // (show/hide by data-magic-settings-content) works like the others.
+  function ensureAppearanceSection() {
+    if (document.getElementById('magicAppearanceSection')) return;
+    // Anchor next to an existing settings section so it lives in the same column.
+    var anchor = document.getElementById('notifForm');
+    var refSec = anchor ? anchor.closest('section') : null;
+    var container = refSec ? refSec.parentNode : null;
+    if (!container) return;
+    var sec = document.createElement('section');
+    sec.id = 'magicAppearanceSection';
+    sec.className = 'hidden';
+    sec.innerHTML =
+      '<div class="bg-white rounded-2xl border border-lavender p-5">' +
+      '<h2 class="font-heading text-navy text-lg mb-1">Utseende</h2>' +
+      '<p class="text-text-soft text-sm mb-3">Välj mörk eller ljus bakgrund. Valet följer ditt konto på alla enheter.</p>' +
+      renderThemePicker() +
+      '</div>';
+    container.appendChild(sec);
+    sec.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-theme]');
+      if (!btn || !window.AppViewMode || !AppViewMode.setTheme) return;
+      AppViewMode.setTheme(btn.getAttribute('data-theme'));
+      updateThemePickerUi();
+    });
+    if (window.AppViewMode && AppViewMode.onThemeChange) {
+      AppViewMode.onThemeChange(updateThemePickerUi);
+    }
+  }
+
   function tagSettingsSections() {
+    ensureAppearanceSection();
     function tagChild(childId, groupId) {
       var child = document.getElementById(childId);
       if (!child) return;
@@ -156,6 +211,7 @@
       sec.setAttribute('data-magic-settings-content', groupId);
       sec.classList.add('hidden');
     }
+    tagChild('magicAppearanceSection', 'appearance');
     tagChild('nativeAccountActions', 'profile');
     tagChild('accountSection', 'profile');
     tagChild('parentPinSection', 'profile');

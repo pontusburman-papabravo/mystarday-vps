@@ -880,3 +880,286 @@ body.parent-magic-view #coParentInviteModal select {
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #fff !important;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT THEME — additive overrides (body.parent-theme-light)
+   The magic design is dark-first; these rules flip the recurring tokens
+   to a light palette. Higher specificity (extra .parent-theme-light on
+   body) + !important means they win over the dark rules above without
+   touching them. Default (no class / .parent-theme-dark) stays dark.
+   Light tokens:
+     page bg     #f4f1ff
+     text        #1a1633
+     text soft   rgba(26,22,51,.62)
+     surface     #ffffff
+     border      rgba(20,16,45,.10)
+   Gold accents (#ffcc33 / gradients with dark text) are readable on
+   light too and are intentionally left unchanged.
+   ════════════════════════════════════════════════════════════════════ */
+
+html.parent-magic-early.parent-theme-light,
+html.parent-magic-early.parent-theme-light body,
+body.parent-magic-view.parent-theme-light,
+body.parent-magic-view.parent-theme-light.bg-sky,
+body.parent-magic-view.parent-theme-light.bg-cream {
+  background: #f4f1ff !important;
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-page-shell {
+  background:
+    radial-gradient(ellipse 120% 55% at 50% -8%, rgba(124, 58, 237, 0.12), transparent 60%),
+    radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.10), transparent 42%),
+    linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%) !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-page-hero-icon {
+  background: linear-gradient(145deg, rgba(124, 58, 237, 0.16), rgba(167, 139, 250, 0.10)) !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-page-hero p,
+body.parent-magic-view.parent-theme-light .magic-page-stat-card span,
+body.parent-magic-view.parent-theme-light .magic-settings-group-text span {
+  color: rgba(26, 22, 51, 0.6) !important;
+}
+
+/* Generic surfaces / cards */
+body.parent-magic-view.parent-theme-light .magic-page-stat-card,
+body.parent-magic-view.parent-theme-light .magic-settings-group-card,
+body.parent-magic-view.parent-theme-light .magic-settings-back,
+body.parent-magic-view.parent-theme-light .magic-hub-links a,
+body.parent-magic-view.parent-theme-light .for-dig-goal-card,
+body.parent-magic-view.parent-theme-light .for-dig-favorites,
+body.parent-magic-view.parent-theme-light .for-dig-recommend,
+body.parent-magic-view.parent-theme-light .for-dig-most-installed,
+body.parent-magic-view.parent-theme-light .for-dig-popular,
+body.parent-magic-view.parent-theme-light .for-dig-intent-option,
+body.parent-magic-view.parent-theme-light .for-dig-cta-secondary {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.10) !important;
+  color: #1a1633 !important;
+  box-shadow: 0 1px 3px rgba(20, 16, 45, 0.06) !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-settings-group-card,
+body.parent-magic-view.parent-theme-light .magic-settings-back {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .magic-settings-group-icon {
+  background: rgba(20, 16, 45, 0.05) !important;
+}
+
+/* Generic Tailwind tint backgrounds → light surfaces */
+body.parent-magic-view.parent-theme-light .bg-white,
+body.parent-magic-view.parent-theme-light .bg-sky,
+body.parent-magic-view.parent-theme-light .bg-sky\/40,
+body.parent-magic-view.parent-theme-light .bg-sky\/60,
+body.parent-magic-view.parent-theme-light .bg-lavender,
+body.parent-magic-view.parent-theme-light .bg-mint,
+body.parent-magic-view.parent-theme-light .bg-gold-light,
+body.parent-magic-view.parent-theme-light .bg-cream,
+body.parent-magic-view.parent-theme-light .bg-yellow-50,
+body.parent-magic-view.parent-theme-light .bg-orange-50,
+body.parent-magic-view.parent-theme-light .bg-indigo-50,
+body.parent-magic-view.parent-theme-light .bg-amber-50,
+body.parent-magic-view.parent-theme-light .bg-gray-50,
+body.parent-magic-view.parent-theme-light .fw-child-cell,
+body.parent-magic-view.parent-theme-light .fw-day-header,
+body.parent-magic-view.parent-theme-light .fw-corner,
+body.parent-magic-view.parent-theme-light .fw-day-cell {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.10) !important;
+  color: #1a1633 !important;
+}
+
+/* Text colors */
+body.parent-magic-view.parent-theme-light .text-navy,
+body.parent-magic-view.parent-theme-light h1,
+body.parent-magic-view.parent-theme-light h2,
+body.parent-magic-view.parent-theme-light h3,
+body.parent-magic-view.parent-theme-light h4,
+body.parent-magic-view.parent-theme-light .magic-hub-links .text-navy,
+body.parent-magic-view.parent-theme-light .for-dig-greeting,
+body.parent-magic-view.parent-theme-light .for-dig-focus,
+body.parent-magic-view.parent-theme-light.for-dig-page .text-navy,
+body.parent-magic-view.parent-theme-light .section-card .text-navy,
+body.parent-magic-view.parent-theme-light .section-card h4,
+body.parent-magic-view.parent-theme-light .activity-item .text-navy {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light .text-text-soft,
+body.parent-magic-view.parent-theme-light .magic-hub-links .text-text-soft,
+body.parent-magic-view.parent-theme-light .for-dig-goal-card .text-text-soft,
+body.parent-magic-view.parent-theme-light.for-dig-page .text-text-soft,
+body.parent-magic-view.parent-theme-light .section-card .text-text-soft,
+body.parent-magic-view.parent-theme-light .activity-item .text-text-soft {
+  color: rgba(26, 22, 51, 0.62) !important;
+}
+
+/* Inputs */
+body.parent-magic-view.parent-theme-light input[type="text"],
+body.parent-magic-view.parent-theme-light input[type="email"],
+body.parent-magic-view.parent-theme-light input[type="password"],
+body.parent-magic-view.parent-theme-light input[type="search"],
+body.parent-magic-view.parent-theme-light input[type="number"],
+body.parent-magic-view.parent-theme-light input[type="date"],
+body.parent-magic-view.parent-theme-light select,
+body.parent-magic-view.parent-theme-light textarea {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.16) !important;
+  color: #1a1633 !important;
+}
+
+/* Secondary / neutral buttons */
+body.parent-magic-view.parent-theme-light button.bg-lavender,
+body.parent-magic-view.parent-theme-light a.bg-lavender,
+body.parent-magic-view.parent-theme-light button.bg-sky,
+body.parent-magic-view.parent-theme-light a.bg-sky,
+body.parent-magic-view.parent-theme-light button.bg-white,
+body.parent-magic-view.parent-theme-light a.bg-white,
+body.parent-magic-view.parent-theme-light .view-btn,
+body.parent-magic-view.parent-theme-light .schedule-mode-toggle,
+body.parent-magic-view.parent-theme-light .magic-hub-links a {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+  color: #1a1633 !important;
+}
+
+/* Borders */
+body.parent-magic-view.parent-theme-light .border-lavender,
+body.parent-magic-view.parent-theme-light hr.border-lavender {
+  border-color: rgba(20, 16, 45, 0.12) !important;
+}
+
+/* Top chrome controls */
+body.parent-magic-view.parent-theme-light [data-parent-nav-notifications] {
+  background: rgba(20, 16, 45, 0.06) !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+  color: #1a1633 !important;
+}
+
+/* Modals / panels → solid white */
+body.parent-magic-view.parent-theme-light .magic-modal-panel,
+body.parent-magic-view.parent-theme-light .for-dig-modal,
+body.parent-magic-view.parent-theme-light #addAdultModal > div,
+body.parent-magic-view.parent-theme-light #addChildModal > div,
+body.parent-magic-view.parent-theme-light #inviteModal > div,
+body.parent-magic-view.parent-theme-light #deleteModal > div,
+body.parent-magic-view.parent-theme-light #manualStarModal > div,
+body.parent-magic-view.parent-theme-light .fixed.inset-0 > .bg-white.rounded-2xl,
+body.parent-magic-view.parent-theme-light #medforalderCtaModal .bg-white {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.12) !important;
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light #addAdultModal .text-navy,
+body.parent-magic-view.parent-theme-light #addChildModal .text-navy,
+body.parent-magic-view.parent-theme-light #inviteModal .text-navy,
+body.parent-magic-view.parent-theme-light #deleteModal .text-navy,
+body.parent-magic-view.parent-theme-light #medforalderCtaModal .text-navy,
+body.parent-magic-view.parent-theme-light #medforalderCtaModal label,
+body.parent-magic-view.parent-theme-light #coParentInviteModal .text-navy,
+body.parent-magic-view.parent-theme-light #coParentInviteModal label,
+body.parent-magic-view.parent-theme-light #coParentInviteModal h2 {
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light #addAdultModal input,
+body.parent-magic-view.parent-theme-light #addAdultModal select,
+body.parent-magic-view.parent-theme-light #addChildModal input,
+body.parent-magic-view.parent-theme-light #inviteModal input,
+body.parent-magic-view.parent-theme-light #medforalderCtaModal input,
+body.parent-magic-view.parent-theme-light #coParentInviteModal input,
+body.parent-magic-view.parent-theme-light #coParentInviteModal select {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.16) !important;
+  color: #1a1633 !important;
+}
+
+/* Bottom nav */
+body.parent-magic-view.parent-theme-light .parent-bottom-nav {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-top-color: rgba(20, 16, 45, 0.10) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-bottom-nav-btn {
+  color: rgba(26, 22, 51, 0.55) !important;
+}
+
+body.parent-magic-view.parent-theme-light .parent-bottom-nav-btn.is-active {
+  color: #b8860b !important;
+}
+
+/* Skattkammaren shell */
+body.parent-magic-view.parent-theme-light[data-magic-page="skattkammaren"] #mainContent {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%) !important;
+}
+
+body.parent-magic-view.parent-theme-light[data-magic-page="skattkammaren"] #placeholderState .text-navy,
+body.parent-magic-view.parent-theme-light[data-magic-page="skattkammaren"] #placeholderState .font-heading {
+  color: #1a1633 !important;
+}
+
+/* Theme picker control (Settings → Utseende) */
+.magic-theme-picker {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0 4px;
+}
+
+.magic-theme-option {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.magic-theme-option .magic-theme-swatch {
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.magic-theme-option .magic-theme-swatch.dark {
+  background: linear-gradient(180deg, #0b0b2a 0%, #07071a 100%);
+}
+
+.magic-theme-option .magic-theme-swatch.light {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%);
+}
+
+.magic-theme-option.is-active {
+  border-color: #ffcc33;
+  box-shadow: 0 0 0 3px rgba(255, 204, 51, 0.2);
+}
+
+body.parent-theme-light .magic-theme-option {
+  border-color: rgba(20, 16, 45, 0.12);
+  background: #ffffff;
+}
+
+body.parent-theme-light .magic-theme-option .magic-theme-swatch {
+  border-color: rgba(20, 16, 45, 0.12);
+}
+
+body.parent-theme-light .magic-theme-option.is-active {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+}

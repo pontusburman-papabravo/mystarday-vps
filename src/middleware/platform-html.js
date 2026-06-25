@@ -9,7 +9,7 @@ const { injectNoindexMeta } = require('../lib/seo-pages');
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '13';
+const MAGIC_VERSION = '14';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -43,14 +43,17 @@ function buildEarlyMagicScriptTag() {
     '<style id="parent-magic-early-style">html.parent-magic-early,html.parent-magic-early body{background:#07071a!important;color:#f4f4ff!important}' +
     'html.parent-magic-early body nav#sidebar,html.parent-magic-early body nav.w-full.md\\:w-64,' +
     'html.parent-magic-early body .md\\:hidden.bg-navy.sticky,html.parent-magic-early body .mobile-topbar{display:none!important}' +
-    'html.parent-magic-early body .bg-sky,html.parent-magic-early body .bg-cream{background:transparent!important}</style>' +
+    'html.parent-magic-early body .bg-sky,html.parent-magic-early body .bg-cream{background:transparent!important}' +
+    'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#f4f1ff!important;color:#1a1633!important}</style>' +
     '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
     'var pages=' + magicPathsJson + ';' +
     'if(pages.indexOf(p)<0)return;' +
-    'if(localStorage.getItem("stjarndag_parent_ui_view")==="magic"){' +
+    // Magic is now the only parent view — always apply it on magic paths.
     'document.documentElement.classList.add("parent-magic-early");' +
+    'var light=localStorage.getItem("stjarndag_parent_theme")==="light";' +
+    'document.documentElement.classList.add(light?"parent-theme-light":"parent-theme-dark");' +
     'var tc=document.querySelector(\'meta[name="theme-color"]\');' +
-    'if(tc)tc.setAttribute("content","#07071a");}}catch(e){}})();<\/script>'
+    'if(tc)tc.setAttribute("content",light?"#f4f1ff":"#07071a");}catch(e){}})();<\/script>'
   );
 }
 
@@ -162,7 +165,7 @@ function injectParentMagicHtml(body, reqPath) {
 
   const scriptBlock = [
     '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>',
-    '<script src="/js/app-view-mode.js?v=3"><\/script>',
+    '<script src="/js/app-view-mode.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-router.js?v=' + MAGIC_VERSION + '"><\/script>',

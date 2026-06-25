@@ -66,7 +66,10 @@ describe('tablet magic navigation', () => {
     assert.match(src, /injectEarlyMagicHtml/);
     assert.match(src, /parent-magic-early-boot/);
     assert.match(src, /parent-magic-early-style/);
-    assert.match(src, /stjarndag_parent_ui_view/);
+    // Magic is now the only parent view: early-boot always applies it on magic
+    // paths and reads the dark/light theme preference (no view-mode gating).
+    assert.match(src, /stjarndag_parent_theme/);
+    assert.match(src, /parent-theme-light/);
   });
 
   it('parent-magic-common fixes För dig contrast on light panels', () => {

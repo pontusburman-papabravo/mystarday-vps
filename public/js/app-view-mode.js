@@ -1,11 +1,16 @@
 /**
- * app-view-mode.js — Växla mellan klassisk vy och mockup/redesign (magic).
- * Tillgång styrs server-side via /api/auth/me → magic_view_enabled.
+ * app-view-mode.js — Magic är numera den enda förälder-vyn (ingen klassisk vy).
+ * Den här modulen sköter därför två saker:
+ *   1. Tvingar magic-vyn för föräldrar (ingen vyväxlare längre).
+ *   2. Hanterar tema: mörk eller ljus bakgrund (server-synkat per konto).
+ *
+ * Barnvyn behåller sin egen per-barn-konfiguration (child_view_config).
  */
 (function () {
   'use strict';
 
   var PARENT_KEY = 'stjarndag_parent_ui_view';
+  var THEME_KEY = 'stjarndag_parent_theme';
   var childKey = function (id) { return 'stjarndag_child_ui_view_' + id; };
 
   var _role = null;
@@ -15,19 +20,9 @@
   var _optimisticMagic = false;
   var _ready = false;
   var _listeners = [];
-  // Parent view mode persisted server-side (so the chosen menu/design follows
-  // the account across devices). null until /api/auth/me resolves.
-  var _serverParentMode = null;
-
-  function persistParentDbMode(mode) {
-    if (_role !== 'parent' || !_allowed) return;
-    fetch('/api/auth/me/view-mode', {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uiViewMode: normalize(mode) }),
-    }).catch(function () {});
-  }
+  var _themeListeners = [];
+  // 'dark' | 'light' — parent background theme, persisted server-side.
+  var _theme = 'dark';
 
   function persistChildDbMode(mode) {
     if (_role !== 'child' || !_childId || !_allowed) return;
@@ -39,8 +34,32 @@
     }).catch(function () {});
   }
 
+  function persistThemePreference(theme) {
+    // Uses apiFetch when available (adds CSRF + credentials); falls back to a
+    // plain fetch. Failure is non-blocking — localStorage keeps the choice.
+    var body = JSON.stringify({ theme: normalizeTheme(theme) });
+    if (typeof window.apiFetch === 'function') {
+      window.apiFetch('/api/auth/me/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body,
+      }).catch(function () {});
+      return;
+    }
+    fetch('/api/auth/me/theme', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: body,
+    }).catch(function () {});
+  }
+
   function normalize(mode) {
     return mode === 'magic' ? 'magic' : 'classic';
+  }
+
+  function normalizeTheme(theme) {
+    return theme === 'light' ? 'light' : 'dark';
   }
 
   function dbModeToUi(viewMode) {
@@ -60,9 +79,22 @@
   }
 
   function writeStorage(key, mode) {
-    if (!_allowed) return;
     try {
       localStorage.setItem(key, normalize(mode));
+    } catch (_) {}
+  }
+
+  function readStoredTheme() {
+    try {
+      var v = localStorage.getItem(THEME_KEY);
+      if (v === 'light' || v === 'dark') return v;
+    } catch (_) {}
+    return null;
+  }
+
+  function writeStoredTheme(theme) {
+    try {
+      localStorage.setItem(THEME_KEY, normalizeTheme(theme));
     } catch (_) {}
   }
 
@@ -73,11 +105,27 @@
     window.dispatchEvent(new CustomEvent('stjarndag-view-mode', { detail: { mode: _mode, role: _role, allowed: _allowed } }));
   }
 
+  function notifyTheme() {
+    for (var i = 0; i < _themeListeners.length; i++) {
+      try { _themeListeners[i](_theme); } catch (_) {}
+    }
+    window.dispatchEvent(new CustomEvent('stjarndag-theme', { detail: { theme: _theme } }));
+  }
+
+  function applyThemeClass() {
+    if (!document.body) return;
+    var light = _theme === 'light';
+    document.body.classList.toggle('parent-theme-light', light);
+    document.body.classList.toggle('parent-theme-dark', !light);
+    document.documentElement.classList.toggle('parent-theme-light', light);
+    document.documentElement.classList.toggle('parent-theme-dark', !light);
+    var tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute('content', light ? '#f4f1ff' : '#07071a');
+  }
+
   function applyBodyClasses() {
     var magic = _mode === 'magic' && (_allowed || _optimisticMagic);
     document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
-    // parent-magic-dashboard is owned by DashboardHomeHub on /dashboard only —
-    // do not set it globally or classic↔magic toggle breaks on other pages.
     if (_role === 'parent' && !magic) {
       document.body.classList.remove('parent-magic-dashboard');
     }
@@ -90,60 +138,70 @@
     }
   }
 
-  /** Apply stored parent mode before /api/auth/me — avoids classic flash on navigation. */
+  /** Apply magic + stored theme before /api/auth/me — avoids flash on navigation. */
   function applyStoredParentModeOptimistic() {
-    var stored = readStorage(PARENT_KEY);
-    if (stored !== 'magic' || !document.body) return false;
+    if (!document.body) return false;
     _role = 'parent';
     _childId = null;
     _mode = 'magic';
     _optimisticMagic = true;
+    var storedTheme = readStoredTheme();
+    if (storedTheme) _theme = storedTheme;
+    applyThemeClass();
     applyBodyClasses();
-    updateToggleUi();
     if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
       try { ParentMagicShell.refresh(); } catch (_) {}
     }
     return true;
   }
 
-  function setToggleVisible(visible) {
+  function setToggleVisible() {
+    // The classic/magic view toggle has been removed — always hide its wrap.
     document.querySelectorAll('.app-view-toggle-wrap').forEach(function (el) {
-      el.style.display = visible ? '' : 'none';
+      el.style.display = 'none';
     });
   }
 
   function updateToggleUi() {
-    document.querySelectorAll('[data-app-view-toggle]').forEach(function (wrap) {
-      var classicBtn = wrap.querySelector('[data-view="classic"]');
-      var magicBtn = wrap.querySelector('[data-view="magic"]');
-      if (classicBtn) classicBtn.classList.toggle('is-active', _mode === 'classic');
-      if (magicBtn) magicBtn.classList.toggle('is-active', _mode === 'magic');
-      wrap.setAttribute('data-active-view', _mode);
-    });
+    // No-op: the view toggle no longer exists. Kept for call-site compatibility.
   }
 
   function fetchAccess() {
     return fetch('/api/auth/me', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
+        // Magic is the only parent view now, but children still honour the
+        // server allowlist for their own magic view.
         _allowed = !!(data && data.magic_view_enabled);
-        _serverParentMode = data && data.ui_view_mode === 'magic' ? 'magic'
-          : (data && data.ui_view_mode === 'classic' ? 'classic' : null);
+        if (data && (data.theme_preference === 'light' || data.theme_preference === 'dark')) {
+          _theme = data.theme_preference;
+        }
         return _allowed;
       })
       .catch(function () {
-        _allowed = false;
-        return false;
+        return _allowed;
       });
   }
 
-  function finishInit(modeFromStorage) {
+  function finishInitParent() {
     _optimisticMagic = false;
-    _mode = _allowed ? normalize(modeFromStorage || 'classic') : 'classic';
+    _allowed = true;
+    _mode = 'magic';
+    _ready = true;
+    applyThemeClass();
+    applyBodyClasses();
+    setToggleVisible();
+    notify();
+    notifyTheme();
+    return true;
+  }
+
+  function finishInitChild(dbUi) {
+    _optimisticMagic = false;
+    _mode = _allowed ? normalize(dbUi || 'classic') : 'classic';
     _ready = true;
     applyBodyClasses();
-    updateToggleUi();
-    setToggleVisible(_allowed);
+    setToggleVisible();
     notify();
     return _allowed;
   }
@@ -151,22 +209,20 @@
   function initParent() {
     _role = 'parent';
     _childId = null;
-    var stored = readStorage(PARENT_KEY);
-    if (stored === 'magic') {
-      _mode = 'magic';
-      _optimisticMagic = true;
-      applyBodyClasses();
-      updateToggleUi();
-    }
+    _allowed = true;
+    _mode = 'magic';
+    _optimisticMagic = true;
+    var storedTheme = readStoredTheme();
+    if (storedTheme) _theme = storedTheme;
+    applyThemeClass();
+    applyBodyClasses();
     return fetchAccess().then(function () {
-      // Server-stored mode is the source of truth so the menu/design follows
-      // the account across devices; fall back to the device's localStorage
-      // value only while the server hasn't returned one.
-      var resolved = _serverParentMode || stored;
-      var result = finishInit(resolved);
-      // Mirror the resolved mode into localStorage so the next load's
-      // optimistic pre-paint matches what the server will return.
-      if (_allowed) writeStorage(PARENT_KEY, _mode);
+      _allowed = true; // magic-only for parents regardless of allowlist
+      var result = finishInitParent();
+      // Mirror the resolved theme into localStorage so the next load's
+      // pre-paint matches what the server returns (no flash).
+      writeStoredTheme(_theme);
+      writeStorage(PARENT_KEY, 'magic');
       return result;
     });
   }
@@ -179,7 +235,7 @@
       if (_allowed && childId) {
         writeStorage(childKey(childId), dbUi);
       }
-      return finishInit(dbUi);
+      return finishInitChild(dbUi);
     });
   }
 
@@ -196,39 +252,67 @@
   }
 
   function isMagic() {
+    if (_role === 'parent') return true;
     return _mode === 'magic' && (_allowed || _optimisticMagic);
   }
 
   function isClassic() {
-    return _mode !== 'magic' || (!_allowed && !_optimisticMagic);
+    return !isMagic();
   }
 
-  function setMode(mode, options) {
-    options = options || {};
+  // ── Theme (dark / light background) ──
+  function getTheme() {
+    return _theme;
+  }
+
+  function setTheme(theme) {
+    theme = normalizeTheme(theme);
+    if (theme === _theme) {
+      applyThemeClass();
+      return _theme;
+    }
+    _theme = theme;
+    writeStoredTheme(theme);
+    applyThemeClass();
+    persistThemePreference(theme);
+    notifyTheme();
+    return _theme;
+  }
+
+  function toggleTheme() {
+    return setTheme(_theme === 'light' ? 'dark' : 'light');
+  }
+
+  function onThemeChange(fn) {
+    if (typeof fn === 'function') _themeListeners.push(fn);
+  }
+
+  function setMode(mode) {
+    // Parents are magic-only; ignore attempts to switch to classic.
+    if (_role === 'parent') {
+      _mode = 'magic';
+      applyBodyClasses();
+      return _mode;
+    }
     if (!_allowed) {
       _mode = 'classic';
       applyBodyClasses();
       return _mode;
     }
     mode = normalize(mode);
-    if (mode === _mode && !options.force) return _mode;
-
     _mode = mode;
-    if (_role === 'parent') {
-      writeStorage(PARENT_KEY, mode);
-      persistParentDbMode(mode);
-    } else if (_role === 'child' && _childId) {
+    if (_role === 'child' && _childId) {
       writeStorage(childKey(_childId), mode);
       persistChildDbMode(mode);
     }
-
     applyBodyClasses();
-    updateToggleUi();
     notify();
     return _mode;
   }
 
   function toggle() {
+    // View toggle removed for parents. For children, keep legacy behaviour.
+    if (_role === 'parent') return 'magic';
     if (!_allowed) return 'classic';
     return setMode(_mode === 'magic' ? 'classic' : 'magic');
   }
@@ -238,29 +322,8 @@
   }
 
   function mountToggle(container) {
-    if (!container || !_allowed) {
-      if (container) container.innerHTML = '';
-      return;
-    }
-    container.innerHTML =
-      '<div class="app-view-toggle" data-app-view-toggle role="group" aria-label="Välj vy">' +
-      '<span class="app-view-toggle-label">Vy</span>' +
-      '<button type="button" class="app-view-toggle-btn" data-view="classic" aria-pressed="false">' +
-      '<span class="app-view-toggle-icon" aria-hidden="true">📋</span>Klassisk</button>' +
-      '<button type="button" class="app-view-toggle-btn" data-view="magic" aria-pressed="false">' +
-      '<span class="app-view-toggle-icon" aria-hidden="true">✨</span>Ny design</button>' +
-      '</div>';
-
-    container.querySelectorAll('.app-view-toggle-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var target = btn.getAttribute('data-view');
-        if (target && target !== _mode) setMode(target);
-      });
-    });
-    updateToggleUi();
-    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
-      ParentMagicAuto.ensureTopChrome();
-    }
+    // The classic/magic view toggle has been removed entirely.
+    if (container) container.innerHTML = '';
   }
 
   window.AppViewMode = {
@@ -278,14 +341,21 @@
     applyStoredParentModeOptimistic: applyStoredParentModeOptimistic,
     uiModeToDb: uiModeToDb,
     dbModeToUi: dbModeToUi,
+    // Theme API
+    getTheme: getTheme,
+    setTheme: setTheme,
+    toggleTheme: toggleTheme,
+    onThemeChange: onThemeChange,
   };
 
-  // If scripts load after DOM ready, apply optimistic mode immediately.
-  if (document.body && readStorage(PARENT_KEY) === 'magic') {
-    applyStoredParentModeOptimistic();
+  // Apply stored theme as early as possible to avoid a flash.
+  if (document.body) {
+    var t = readStoredTheme();
+    if (t) { _theme = t; applyThemeClass(); }
   } else {
     document.addEventListener('DOMContentLoaded', function () {
-      if (readStorage(PARENT_KEY) === 'magic') applyStoredParentModeOptimistic();
+      var t2 = readStoredTheme();
+      if (t2) { _theme = t2; applyThemeClass(); }
     });
   }
 })();
