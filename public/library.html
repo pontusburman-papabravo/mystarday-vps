@@ -121,6 +121,11 @@
     .activity-visual-img { width: 2.5rem; height: 2.5rem; object-fit: cover; border-radius: 10px; display: inline-block; vertical-align: middle; }
     .activity-visual-img--thumb { width: 1.75rem; height: 1.75rem; border-radius: 8px; }
     #activityImagePreview { width: 3rem; height: 3rem; object-fit: cover; border-radius: 12px; }
+    #activityImagePickerGrid { max-height: 9rem; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .activity-visual-tab { flex: 1; py-2; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; transition: background 0.15s, color 0.15s; }
+    .activity-visual-tab--active { background: #fff; color: #1B2340; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    body.parent-magic-library .activity-visual-tab--active { background: linear-gradient(135deg, #ffcc33, #f5a623); color: #1b2340; box-shadow: none; }
+    .activity-modal-panel { max-height: min(90dvh, calc(100vh - 2rem)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
     /* ── Overflow menu (⋯) for activity/reward row actions on mobile ── */
     .overflow-menu-wrap { position: relative; }
@@ -636,8 +641,9 @@
   </div>
 
   <!-- ── Activity Modal ─────────────────────────────────────── -->
-  <div id="activityModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
+  <div id="activityModal" class="hidden fixed inset-0 bg-black/50 z-[100] p-4 overflow-y-auto">
+    <div class="flex min-h-full items-start justify-center py-2 sm:py-4 sm:items-center">
+    <div class="activity-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl">
       <div class="flex justify-between items-center mb-6">
         <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
         <button onclick="closeActivityModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
@@ -655,8 +661,8 @@
         <div>
           <label class="block text-sm font-semibold text-navy mb-2">Visuellt stöd</label>
           <div class="flex gap-1 p-1 bg-sky rounded-xl mb-3">
-            <button type="button" id="activityVisualEmojiBtn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">😀 Emoji</button>
-            <button type="button" id="activityVisualPhotoBtn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">📷 Eget foto</button>
+            <button type="button" id="activityVisualPhotoBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">📷 Bild</button>
+            <button type="button" id="activityVisualEmojiBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">😀 Emoji</button>
           </div>
           <input type="hidden" id="activityImageUrl">
 
@@ -683,8 +689,8 @@
                 <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold">Ta bort foto</button>
               </div>
             </div>
-            <p class="text-xs text-text-soft">Välj från bildarkivet eller ladda upp ny:</p>
-            <div id="activityImagePickerGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
+            <p class="text-xs text-text-soft">Tryck på en bild i arkivet:</p>
+            <div id="activityImagePickerGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2"></div>
           </div>
         </div>
 
@@ -790,6 +796,7 @@
           <button type="submit" id="activitySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
         </div>
       </form>
+    </div>
     </div>
   </div>
 
@@ -908,8 +915,8 @@
 <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
 <script src="/js/library-seven-questions.js?v=1.0.0"></script>
 <script src="/js/activity-visual.js?v=1"></script>
-<script src="/js/library-images.js?v=1"></script>
-<script src="/js/library.js?v=2.18.1"></script>
+<script src="/js/library-images.js?v=2"></script>
+<script src="/js/library.js?v=2.18.2"></script>
 <script src="/js/parent-magic-shell.js?v=1"></script>
 <script src="/js/library-magic-schedules.js?v=1"></script>
 <script src="/js/library-magic-mine.js?v=1"></script>

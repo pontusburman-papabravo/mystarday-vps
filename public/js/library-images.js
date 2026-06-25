@@ -6,6 +6,11 @@
 
   var images = [];
   var pickerCallback = null;
+  var _visualMode = 'emoji';
+
+  function isPhotoMode() {
+    return _visualMode === 'photo';
+  }
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -149,28 +154,33 @@
   }
 
   function setVisualMode(mode) {
+    _visualMode = mode === 'photo' ? 'photo' : 'emoji';
     var emojiBlock = document.getElementById('activityEmojiBlock');
     var photoBlock = document.getElementById('activityPhotoBlock');
     var btnEmoji = document.getElementById('activityVisualEmojiBtn');
     var btnPhoto = document.getElementById('activityVisualPhotoBtn');
-    var isPhoto = mode === 'photo';
+    var isPhoto = _visualMode === 'photo';
     if (emojiBlock) emojiBlock.classList.toggle('hidden', isPhoto);
     if (photoBlock) photoBlock.classList.toggle('hidden', !isPhoto);
-    if (btnEmoji) {
-      btnEmoji.classList.toggle('bg-white', !isPhoto);
-      btnEmoji.classList.toggle('shadow', !isPhoto);
-    }
-    if (btnPhoto) {
-      btnPhoto.classList.toggle('bg-white', isPhoto);
-      btnPhoto.classList.toggle('shadow', isPhoto);
-    }
+    if (btnEmoji) btnEmoji.classList.toggle('activity-visual-tab--active', !isPhoto);
+    if (btnPhoto) btnPhoto.classList.toggle('activity-visual-tab--active', isPhoto);
   }
 
   function initActivityImagePicker(act) {
-    var url = act && act.image_url ? act.image_url : '';
-    setVisualMode(url ? 'photo' : 'emoji');
-    selectActivityImage(url);
-    renderPickerGrid();
+    return loadImages().then(function () {
+      var url = act && act.image_url ? act.image_url : '';
+      var isNew = !act || !act.id;
+      if (url) {
+        setVisualMode('photo');
+      } else if (isNew && images.length > 0) {
+        setVisualMode('photo');
+        if (images.length === 1) selectActivityImage(images[0].image_url);
+      } else {
+        setVisualMode('emoji');
+      }
+      selectActivityImage(url);
+      renderPickerGrid();
+    });
   }
 
   async function handleArchiveUpload(input) {
@@ -232,10 +242,12 @@
     loadImages: loadImages,
     renderGrid: renderGrid,
     initActivityImagePicker: initActivityImagePicker,
+    isPhotoMode: isPhotoMode,
     getSelectedUrl: function () {
       var el = document.getElementById('activityImageUrl');
       return el && el.value ? el.value : null;
     },
     clearActivityImage: clearActivityImage,
+    setVisualMode: setVisualMode,
   };
 })();

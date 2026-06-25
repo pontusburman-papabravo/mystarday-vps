@@ -33,6 +33,34 @@ document.addEventListener('click', e => {
   closeOverflowMenus();
 });
 
+function _handleLibraryOverflowBtn(btn) {
+  const menuId = btn.getAttribute('data-overflow-menu');
+  const menu = menuId ? document.getElementById(menuId) : btn.nextElementSibling;
+  if (!menu || !menu.classList.contains('overflow-menu-popup')) return;
+  const wasOpen = menu.classList.contains('open');
+  closeOverflowMenus();
+  if (!wasOpen) {
+    menu.classList.add('open');
+    const row = btn.closest('[data-id]');
+    if (row) row.classList.add('overflow-menu-row-active');
+  }
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.overflow-menu-btn');
+  if (btn && btn.hasAttribute('data-overflow-menu')) {
+    e.stopPropagation();
+    _handleLibraryOverflowBtn(btn);
+  }
+});
+
+document.addEventListener('touchstart', e => {
+  const btn = e.target.closest('.overflow-menu-btn[data-overflow-menu]');
+  if (!btn) return;
+  e.preventDefault();
+  _handleLibraryOverflowBtn(btn);
+}, { passive: false });
+
 // ─── Shared state ─────────────────────────────────────────
 let categories = [];
 let activities = [];
@@ -349,17 +377,17 @@ function renderActivityItem(a) {
             id="substep-btn-${a.id}"
             title="Delsteg"
             class="icon-btn px-2 py-1 bg-mint hover:bg-green-100 rounded-lg text-xs font-semibold transition-colors text-green-700">📋</button>
-          <button onclick='openActivityModal(${JSON.stringify(a).replace(/'/g, "\\'")})'
+          <button onclick="openActivityModalById('${a.id}')"
             class="icon-btn px-2 py-1 bg-lavender hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors text-text-soft">✏️</button>
           <button onclick="deleteActivity('${a.id}', '${escHtml(a.name)}')"
             class="icon-btn px-2 py-1 border border-coral/40 hover:border-red-400 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors text-red-400">✕</button>
         </div>
         <!-- Mobile: ⋯ overflow menu (hidden on desktop via CSS) -->
         <div class="overflow-menu-wrap flex-shrink-0">
-          <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-a-${a.id}')" aria-label="Fler alternativ">⋯</button>
+          <button class="overflow-menu-btn" data-overflow-menu="omenu-a-${a.id}" aria-label="Fler alternativ">⋯</button>
           <div id="omenu-a-${a.id}" class="overflow-menu-popup">
             <button onclick="closeOverflowMenus();toggleSubSteps('${a.id}')">📋 Delsteg</button>
-            <button onclick="closeOverflowMenus();openActivityModal(${JSON.stringify(a).replace(/'/g, "\\'")})">✏️ Redigera</button>
+            <button onclick="closeOverflowMenus();openActivityModalById('${a.id}')">✏️ Redigera</button>
             <button class="danger" onclick="closeOverflowMenus();deleteActivity('${a.id}', '${escHtml(a.name)}')">✕ Ta bort</button>
           </div>
         </div>
@@ -754,6 +782,11 @@ async function syncLibActSubsteps(activityId) {
 }
 
 // ─── Activity modal ───────────────────────────────────────
+function openActivityModalById(id) {
+  const act = activities.find(a => String(a.id) === String(id));
+  if (act) openActivityModal(act);
+}
+
 async function openActivityModal(act) {
   document.getElementById('activityId').value = act ? act.id : '';
   document.getElementById('activityName').value = act ? act.name : '';
@@ -805,7 +838,7 @@ async function openActivityModal(act) {
     else LibrarySevenQuestions.reset();
   }
 
-  if (window.LibraryImages) LibraryImages.initActivityImagePicker(act);
+  if (window.LibraryImages) await LibraryImages.initActivityImagePicker(act);
 
   document.getElementById('activityModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('activityName').focus(), 100);
@@ -830,11 +863,27 @@ async function submitActivity(e) {
   const btn = document.getElementById('activitySubmitBtn');
   const errEl = document.getElementById('activityError');
   errEl.classList.add('hidden');
+
+  const isPhoto = window.LibraryImages && LibraryImages.isPhotoMode();
+  const image_url = isPhoto && LibraryImages ? LibraryImages.getSelectedUrl() : null;
+  if (isPhoto && !image_url) {
+    errEl.textContent = 'Välj en bild från bildarkivet (eller ladda upp en ny).';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
   btn.disabled = true; btn.textContent = 'Sparar…';
   const url = id ? `/api/activities/${id}` : '/api/activities';
   const method = id ? 'PUT' : 'POST';
-  const image_url = window.LibraryImages ? LibraryImages.getSelectedUrl() : null;
-  const body = { name, icon, image_url, category_id, star_value, is_favorite, feedback_for };
+  const body = {
+    name,
+    icon: isPhoto ? null : icon,
+    image_url: isPhoto ? image_url : null,
+    category_id,
+    star_value,
+    is_favorite,
+    feedback_for,
+  };
   if (seven_questions !== undefined) body.seven_questions = seven_questions;
   const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
   const data = await res.json();
@@ -935,13 +984,13 @@ async function onActivitySearch(query) {
     html += ownMatches.map(a => `
       <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 border border-lavender hover:border-gold transition-colors gap-2">
         <div class="flex items-center gap-2 min-w-0 flex-1">
-          <span class="text-xl flex-shrink-0">${a.icon || '📌'}</span>
+          <span class="text-xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.thumb(a) : (a.icon || '📌')}</span>
           <div class="min-w-0">
             <div class="font-semibold text-sm text-navy">${escHtml(a.name)}</div>
             <div class="text-xs text-text-soft">${'⭐'.repeat(a.star_value || 1)}</div>
           </div>
         </div>
-        <button onclick='openActivityModal(${JSON.stringify(a).replace(/'/g, "\\'")})'
+        <button onclick="openActivityModalById('${a.id}')"
           class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ Redigera</button>
       </div>
     `).join('');
@@ -1363,5 +1412,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Magic hub modules resolve these on window (Capacitor WebView-safe).
 window.openActivityModal = openActivityModal;
+window.openActivityModalById = openActivityModalById;
 window.openRewardModal = openRewardModal;
 window.selectSchemaTab = selectSchemaTab;

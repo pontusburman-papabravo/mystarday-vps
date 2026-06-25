@@ -46,8 +46,11 @@ describe('family image library', () => {
   it('library magic hub exports switchTab on window', () => {
     const lib = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
+    const imgs = fs.readFileSync(path.join(ROOT, 'public/js/library-images.js'), 'utf8');
     assert.match(lib, /window\.switchTab\s*=\s*switchTab/);
-    assert.match(hub, /data-library-section.*bilder|menuCard\('bilder'\)/);
+    assert.match(lib, /openActivityModalById/);
+    assert.match(hub, /menuCard\('bilder'\)/);
+    assert.match(imgs, /isPhotoMode/);
   });
 
   it('daily log generator snapshots image_url', () => {
