@@ -72,40 +72,42 @@ async function runActivationEmailJob() {
     return;
   }
 
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [SCHEDULER_LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[ACTIVATION-EMAIL] Lock error:', err.message);
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[ACTIVATION-EMAIL] Skipping — lock held');
-    return;
-  }
-
-  const parents = await fetchEligibleParents();
-  let sent = 0;
-  for (const row of parents) {
     try {
-      await sendInviteToParent(row);
-      sent += 1;
+      const { rows } = await client.query(
+        'SELECT pg_try_advisory_lock($1) AS acquired',
+        [SCHEDULER_LOCK_ID]
+      );
+      lockAcquired = rows[0].acquired;
     } catch (err) {
-      console.error('[ACTIVATION-EMAIL] Send failed for', row.parent_id, err.message);
+      console.error('[ACTIVATION-EMAIL] Lock error:', err.message);
+      return;
     }
-  }
 
-  console.log(`[ACTIVATION-EMAIL] Sent ${sent} invite(s)`);
+    if (!lockAcquired) {
+      console.log('[ACTIVATION-EMAIL] Skipping — lock held');
+      return;
+    }
 
-  try {
-    if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]);
-  } catch (_) {
-    // ignore
+    const parents = await fetchEligibleParents();
+    let sent = 0;
+    for (const row of parents) {
+      try {
+        await sendInviteToParent(row);
+        sent += 1;
+      } catch (err) {
+        console.error('[ACTIVATION-EMAIL] Send failed for', row.parent_id, err.message);
+      }
+    }
+
+    console.log(`[ACTIVATION-EMAIL] Sent ${sent} invite(s)`);
+  } finally {
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]).catch(() => {});
+    }
+    client.release();
   }
 }
 

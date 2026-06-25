@@ -178,28 +178,29 @@ async function runWinBackJob() {
     return;
   }
 
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [WIN_BACK_SCHEDULER_LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[WIN-BACK] Failed to acquire advisory lock:', err.message);
-    lockAcquired = true;
-  }
+    try {
+      const { rows } = await client.query('SELECT pg_try_advisory_lock($1) AS acquired', [WIN_BACK_SCHEDULER_LOCK_ID]);
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[WIN-BACK] Failed to acquire advisory lock:', err.message);
+      return;
+    }
 
-  if (!lockAcquired) {
-    console.log('[WIN-BACK] Skipping — another instance holds the lock');
-    return;
-  }
+    if (!lockAcquired) {
+      console.log('[WIN-BACK] Skipping — another instance holds the lock');
+      return;
+    }
 
-  const autoApprove = await isAutoApproveEnabled();
-  console.log(`[WIN-BACK] Starting job — auto-approve ${autoApprove ? 'ON (sending automatically)' : 'OFF (queuing for manual approval)'}`);
+    const autoApprove = await isAutoApproveEnabled();
+    console.log(`[WIN-BACK] Starting job — auto-approve ${autoApprove ? 'ON (sending automatically)' : 'OFF (queuing for manual approval)'}`);
 
-  let createdCount = 0;
-  let sentCount = 0;
-  let errorCount = 0;
+    let createdCount = 0;
+    let sentCount = 0;
+    let errorCount = 0;
 
-  try {
     const eligible = await fetchEligibleFamilies();
     console.log(`[WIN-BACK] Found ${eligible.rows.length} eligible families`);
 
@@ -247,13 +248,16 @@ async function runWinBackJob() {
         console.error(`[WIN-BACK] Error for parent ${row.parent_id}:`, err.message);
       }
     }
+
+    console.log(`[WIN-BACK] Done. Created=${createdCount} Sent=${sentCount} Errors=${errorCount}`);
   } catch (err) {
     console.error('[WIN-BACK] Job failed:', err.message);
   } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [WIN_BACK_SCHEDULER_LOCK_ID]).catch(() => {});
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [WIN_BACK_SCHEDULER_LOCK_ID]).catch(() => {});
+    }
+    client.release();
   }
-
-  console.log(`[WIN-BACK] Done. Created=${createdCount} Sent=${sentCount} Errors=${errorCount}`);
 }
 
 function startWinBackScheduler() {

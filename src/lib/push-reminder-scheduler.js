@@ -93,24 +93,25 @@ function isChildNotificationEnabled(prefs, childId, type) {
  * Main job — called every 5 minutes.
  */
 async function runPushReminderJob() {
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[PUSH-REMINDER] Lock acquisition failed:', err.message);
-    lockAcquired = true; // fail-open
-  }
+    try {
+      const { rows } = await client.query(
+        'SELECT pg_try_advisory_lock($1) AS acquired',
+        [LOCK_ID]
+      );
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[PUSH-REMINDER] Lock acquisition failed:', err.message);
+      return;
+    }
 
-  if (!lockAcquired) {
-    console.log('[PUSH-REMINDER] Skipping — another instance holds lock');
-    return;
-  }
+    if (!lockAcquired) {
+      console.log('[PUSH-REMINDER] Skipping — another instance holds lock');
+      return;
+    }
 
-  try {
     const now = new Date();
     const stockholmNow = new Intl.DateTimeFormat('sv-SE', {
       timeZone: 'Europe/Stockholm',
@@ -150,7 +151,10 @@ async function runPushReminderJob() {
   } catch (err) {
     console.error('[PUSH-REMINDER] Job error:', err);
   } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]).catch(() => {});
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]).catch(() => {});
+    }
+    client.release();
   }
 }
 

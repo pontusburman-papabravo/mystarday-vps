@@ -110,27 +110,27 @@ async function runActivationPushJob({ force = false } = {}) {
     return { sent: 0, skipped: 'disabled' };
   }
 
+  const client = await db.getClient();
   let lockAcquired = false;
-  try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [SCHEDULER_LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[ACTIVATION-PUSH] Lock error:', err.message);
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[ACTIVATION-PUSH] Skipping — lock held');
-    return { sent: 0, skipped: 'lock' };
-  }
-
   let totalSent = 0;
   let eligible = 0;
-
   try {
+    try {
+      const { rows } = await client.query(
+        'SELECT pg_try_advisory_lock($1) AS acquired',
+        [SCHEDULER_LOCK_ID]
+      );
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[ACTIVATION-PUSH] Lock error:', err.message);
+      return { sent: 0, skipped: 'lock_error' };
+    }
+
+    if (!lockAcquired) {
+      console.log('[ACTIVATION-PUSH] Skipping — lock held');
+      return { sent: 0, skipped: 'lock' };
+    }
+
     const programs = await parentActivationProgram.listActiveTreatmentPrograms();
 
     for (const program of programs) {
@@ -149,11 +149,10 @@ async function runActivationPushJob({ force = false } = {}) {
 
     console.log(`[ACTIVATION-PUSH] Sent ${totalSent} push(es) for ${eligible} program(s)`);
   } finally {
-    try {
-      if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]);
-    } catch (_) {
-      // ignore
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]).catch(() => {});
     }
+    client.release();
   }
 
   return { sent: totalSent, eligible };

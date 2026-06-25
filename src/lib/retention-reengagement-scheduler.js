@@ -93,20 +93,22 @@ async function findEligibleParents(milestoneDay) {
 async function runJob() {
   if (!(await isFlagEnabled())) return { skipped: 'flag_off' };
 
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [
-      RETENTION_REENGAGEMENT_LOCK_ID,
-    ]);
-    lockAcquired = rows[0]?.acquired;
-  } catch (err) {
-    console.error('[RETENTION-PUSH] Lock error:', err.message);
-    lockAcquired = true;
-  }
-  if (!lockAcquired) return { skipped: 'lock' };
+    try {
+      const { rows } = await client.query('SELECT pg_try_advisory_lock($1) AS acquired', [
+        RETENTION_REENGAGEMENT_LOCK_ID,
+      ]);
+      lockAcquired = rows[0]?.acquired;
+    } catch (err) {
+      console.error('[RETENTION-PUSH] Lock error:', err.message);
+      return { skipped: 'lock_error' };
+    }
 
-  let sent = 0;
-  try {
+    if (!lockAcquired) return { skipped: 'lock' };
+
+    let sent = 0;
     for (const day of MILESTONES) {
       const parents = await findEligibleParents(day);
       const copy = COPY[day];
@@ -138,8 +140,9 @@ async function runJob() {
     return { sent };
   } finally {
     if (lockAcquired) {
-      await db.query('SELECT pg_advisory_unlock($1)', [RETENTION_REENGAGEMENT_LOCK_ID]).catch(() => {});
+      await client.query('SELECT pg_advisory_unlock($1)', [RETENTION_REENGAGEMENT_LOCK_ID]).catch(() => {});
     }
+    client.release();
   }
 }
 

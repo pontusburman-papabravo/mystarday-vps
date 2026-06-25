@@ -32,12 +32,20 @@ function createApp() {
   });
 
   const { handleResendWebhook } = require('./src/routes/resend-webhook');
-  const { resendWebhookLimiter } = require('./src/middleware/rateLimiter');
+  const { resendWebhookLimiter, iapWebhookLimiter } = require('./src/middleware/rateLimiter');
   app.post(
     '/api/resend/webhook',
     resendWebhookLimiter,
     express.raw({ type: 'application/json' }),
     handleResendWebhook
+  );
+
+  const { handleIapWebhook } = require('./src/routes/iap');
+  app.post(
+    '/api/iap/webhook',
+    iapWebhookLimiter,
+    express.raw({ type: 'application/json' }),
+    handleIapWebhook
   );
 
   app.set('trust proxy', 1);

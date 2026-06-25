@@ -23,24 +23,26 @@ const GRACE_PERIOD_DAYS = 30;
 async function runDeletionJob() {
   // Advisory lock prevents two instances from deleting the same families concurrently.
   // Partial family deletion on crash = data loss — this lock is safety-critical.
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [DELETION_SCHEDULER_LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[DELETION-SCHEDULER] Failed to acquire advisory lock:', err.message);
-    // Fail-closed: skip this run rather than risk a partial double-delete
-    return;
-  }
+    try {
+      const { rows } = await client.query(
+        'SELECT pg_try_advisory_lock($1) AS acquired',
+        [DELETION_SCHEDULER_LOCK_ID]
+      );
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[DELETION-SCHEDULER] Failed to acquire advisory lock:', err.message);
+      return;
+    }
 
-  if (!lockAcquired) {
-    console.log('[DELETION-SCHEDULER] Skipping — another instance holds the lock');
-    return;
-  }
+    if (!lockAcquired) {
+      console.log('[DELETION-SCHEDULER] Skipping — another instance holds the lock');
+      return;
+    }
 
-  console.log('[DELETION-SCHEDULER] Checking for due deletions...');
-
-  try {
+    console.log('[DELETION-SCHEDULER] Checking for due deletions...');
     // Find all parents past their 30-day grace period with pending deletion
     const due = await db.query(`
       SELECT p.id, p.email, p.family_id, p.deletion_requested_at
@@ -75,7 +77,10 @@ async function runDeletionJob() {
   } catch (err) {
     console.error('[DELETION-SCHEDULER] Job error:', err.message);
   } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [DELETION_SCHEDULER_LOCK_ID]).catch(() => {});
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [DELETION_SCHEDULER_LOCK_ID]).catch(() => {});
+    }
+    client.release();
   }
 }
 

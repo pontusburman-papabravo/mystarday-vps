@@ -56,17 +56,20 @@ async function runCustodyHandoffJob(now = new Date()) {
   const { dateStr, hour, minute } = stockholmParts(now);
   if (hour !== 18 || minute >= 10) return;
 
+  const client = await db.getClient();
   let lockAcquired = false;
   try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[CUSTODY-HANDOFF] Lock error:', err.message);
-    lockAcquired = true;
-  }
-  if (!lockAcquired) return;
+    try {
+      const { rows } = await client.query('SELECT pg_try_advisory_lock($1) AS acquired', [LOCK_ID]);
+      lockAcquired = rows[0].acquired;
+    } catch (err) {
+      console.error('[CUSTODY-HANDOFF] Lock error:', err.message);
+      return;
+    }
 
-  const patterns = await db.query(
+    if (!lockAcquired) return;
+
+    const patterns = await db.query(
     `SELECT cp.*, c.name AS child_name, c.family_id, c.emoji
      FROM custody_pattern cp
      JOIN child c ON c.id = cp.child_id`
@@ -131,11 +134,11 @@ async function runCustodyHandoffJob(now = new Date()) {
   if (sent > 0) {
     console.log(`[CUSTODY-HANDOFF] Sent ${sent} reminder(s) for ${dateStr}`);
   }
-
-  try {
-    if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]);
-  } catch (_) {
-    // ignore
+  } finally {
+    if (lockAcquired) {
+      await client.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]).catch(() => {});
+    }
+    client.release();
   }
 }
 

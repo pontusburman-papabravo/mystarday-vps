@@ -12,7 +12,6 @@ const express = require('express');
 const crypto = require('crypto');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { iapWebhookLimiter } = require('../middleware/rateLimiter');
 const db = require('../lib/db');
 
 // ── GET /api/iap/config ──────────────────────────────────────────────────────
@@ -26,12 +25,10 @@ router.get('/config', requireAuth, (req, res) => {
 });
 
 // ── POST /api/iap/webhook ───────────────────────────────────────────────────
-// RevenueCat webhook — updates subscription_status on family.
-// CSRF: exempt (external API, not a browser form).
-// Rate limit: 100 req/min via iapWebhookLimiter.
-router.post('/webhook', express.raw({ type: 'application/json' }), iapWebhookLimiter, handleWebhook);
+// Mounted in app.js BEFORE express.json() (raw body for HMAC verification).
+// CSRF: bypassed — registered before csrfProtect (external API, not a browser form).
 
-async function handleWebhook(req, res) {
+async function handleIapWebhook(req, res) {
   // ── 1. Verify Authorization header ──────────────────────────────────────
   const authHeader = req.headers['authorization'] || '';
   const webhookSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
@@ -156,3 +153,4 @@ async function handleWebhook(req, res) {
 }
 
 module.exports = router;
+module.exports.handleIapWebhook = handleIapWebhook;
