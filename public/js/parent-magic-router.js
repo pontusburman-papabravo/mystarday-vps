@@ -4,8 +4,14 @@
 (function (global) {
   'use strict';
 
+  // NOTE: /dashboard (Hem) is intentionally NOT soft-navigable. It is the only
+  // page that renders its content into #parentHomeHubMount inside <main> (every
+  // other shell page renders into #parentMagicPageMount via its page-boot hero),
+  // which makes it fragile across the swapMain/boot cycle — symptom: navigating
+  // back to Hem showed only the persistent system-message banner ("notiserna").
+  // A full page load always runs DOMContentLoaded → DashboardHomeHub.render,
+  // which is the same reliable path used right after login.
   var SOFT_PATHS = {
-    '/dashboard': 'dashboard',
     '/planning': 'planning',
     '/rewards': 'rewards',
     '/schedule': 'schedule',
@@ -47,7 +53,7 @@
       '/js/family.js?v=2.14.2',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    planning: ['/js/planning-hub.js?v=1.2.0'],
+    planning: ['/js/planning-hub.js?v=1.3.0'],
     rewards: [
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.0',
@@ -84,6 +90,19 @@
     return new DOMParser().parseFromString(html, 'text/html');
   }
 
+  function isLibraryShellDocument() {
+    return global.document.body.classList.contains('parent-magic-library');
+  }
+
+  function stripLibraryShellClasses() {
+    var cls = Array.from(global.document.body.classList);
+    cls.forEach(function (c) {
+      if (c === 'parent-magic-library' || c.indexOf('library-magic-') === 0) {
+        global.document.body.classList.remove(c);
+      }
+    });
+  }
+
   function applyBodyFromPage(doc, pageId) {
     var newBody = doc.body;
     if (!newBody) return;
@@ -107,6 +126,7 @@
     if (pageId) global.document.body.setAttribute('data-magic-page', pageId);
     else global.document.body.removeAttribute('data-magic-page');
     if (doc.title) global.document.title = doc.title;
+    if (pageId !== 'library') stripLibraryShellClasses();
   }
 
   function swapMain(doc) {
@@ -183,6 +203,12 @@
     }
 
     if (!shouldSoftNav()) {
+      global.location.href = href;
+      return false;
+    }
+
+    // library.html is a full page shell — never soft-swap its body into other tabs
+    if (isLibraryShellDocument()) {
       global.location.href = href;
       return false;
     }

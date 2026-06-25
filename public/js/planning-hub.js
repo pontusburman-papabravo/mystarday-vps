@@ -100,6 +100,17 @@
     mount.querySelectorAll('[data-hub-link]').forEach(function (el) {
       el.addEventListener('click', function () {
         trackClick(el.getAttribute('data-hub-link'));
+        try {
+          var href = el.getAttribute('href') || '';
+          if (href.indexOf('/library') === 0) {
+            sessionStorage.setItem('libFromPlanning', '1');
+            if (href.indexOf('#magic-') >= 0) {
+              sessionStorage.setItem('libDirectSection', '1');
+            } else {
+              sessionStorage.removeItem('libDirectSection');
+            }
+          }
+        } catch (_) {}
       });
     });
   }

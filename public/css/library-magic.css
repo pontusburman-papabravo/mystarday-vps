@@ -48,6 +48,22 @@ body.parent-magic-library.library-magic-in-section .tab-pane.active {
 }
 
 /* ── Hub shell ── */
+.library-magic-planning-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 244, 255, 0.85);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .library-magic-hub {
   padding: max(8px, env(safe-area-inset-top, 0px)) 16px 20px;
   background:

@@ -212,7 +212,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v352';
+const CACHE_NAME = 'stjarndag-v354';
+// stjarndag-v354: Planering↔Bibliotek tillbaka-nav + full load från library shell
+// stjarndag-v353: Tema-toggle fixar Hem (ljus bakgrund för home-hub) + Hem (dashboard) full-load istället för soft-nav (fix "bara notiserna")
 // stjarndag-v352: Aktivitetsmodal — bildval först, scrollbar modal, mobil redigera
 // stjarndag-v351: Planering hub — Bibliotek + Bildarkiv överst (bygg innehåll)
 // stjarndag-v350: Bibliotek magic hub — window.switchTab + Bildarkiv-menyval

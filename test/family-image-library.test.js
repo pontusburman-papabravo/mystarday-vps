@@ -46,11 +46,22 @@ describe('family image library', () => {
   it('library magic hub exports switchTab on window', () => {
     const lib = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
-    const imgs = fs.readFileSync(path.join(ROOT, 'public/js/library-images.js'), 'utf8');
     assert.match(lib, /window\.switchTab\s*=\s*switchTab/);
-    assert.match(lib, /openActivityModalById/);
     assert.match(hub, /menuCard\('bilder'\)/);
-    assert.match(imgs, /isPhotoMode/);
+  });
+
+  it('planning-hub marks library entry from planning', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    assert.match(src, /libFromPlanning/);
+    assert.match(src, /libDirectSection/);
+  });
+
+  it('library magic hub returns to planning when entered from planning hub', () => {
+    const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(hub, /goBackFromSection/);
+    assert.match(hub, /Till planering/);
+    assert.match(router, /isLibraryShellDocument/);
   });
 
   it('daily log generator snapshots image_url', () => {

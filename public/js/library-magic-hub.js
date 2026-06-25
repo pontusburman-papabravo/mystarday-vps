@@ -49,6 +49,49 @@
   var _navLock = false;
   var _hubClicksBound = false;
 
+  function markPlanningEntry(directSection) {
+    try {
+      sessionStorage.setItem('libFromPlanning', '1');
+      if (directSection) sessionStorage.setItem('libDirectSection', '1');
+      else sessionStorage.removeItem('libDirectSection');
+    } catch (_) {}
+  }
+
+  function clearPlanningEntry() {
+    try {
+      sessionStorage.removeItem('libFromPlanning');
+      sessionStorage.removeItem('libDirectSection');
+    } catch (_) {}
+  }
+
+  function isFromPlanning() {
+    try { return sessionStorage.getItem('libFromPlanning') === '1'; } catch (_) { return false; }
+  }
+
+  function isDirectSectionEntry() {
+    try { return sessionStorage.getItem('libDirectSection') === '1'; } catch (_) { return false; }
+  }
+
+  function goBackFromSection() {
+    if (isDirectSectionEntry() || (_section === 'bilder' && isFromPlanning())) {
+      clearPlanningEntry();
+      window.location.href = '/planning';
+      return;
+    }
+    showHub();
+  }
+
+  function goBackFromHub() {
+    if (isFromPlanning()) {
+      clearPlanningEntry();
+      window.location.href = '/planning';
+      return;
+    }
+    if (window.history.length > 1) {
+      window.history.back();
+    }
+  }
+
   function bindHubClicks() {
     if (_hubClicksBound) return;
     _hubClicksBound = true;
@@ -122,6 +165,9 @@
     mount.classList.remove('hidden');
     mount.innerHTML =
       '<div class="library-magic-hub magic-3d-scene">' +
+      (isFromPlanning()
+        ? '<button type="button" class="library-magic-planning-back" data-library-planning-back="1">← Till planering</button>'
+        : '') +
       '<div class="library-magic-hub-head">' +
       '<div><h1>📚 Biblioteket</h1><p>Scheman, aktiviteter och belöningar för er familj</p></div>' +
       '<div class="library-magic-mascot" aria-hidden="true">⭐</div></div>' +
@@ -141,6 +187,13 @@
           _hubSearch = search.value.trim();
           openSection('activities', true);
         }
+      });
+    }
+
+    var planningBack = mount.querySelector('[data-library-planning-back]');
+    if (planningBack) {
+      planningBack.addEventListener('click', function () {
+        goBackFromHub();
       });
     }
   }
@@ -185,7 +238,7 @@
       if (!btn) return;
       var action = btn.getAttribute('data-library-action');
       if (action === 'back') {
-        showHub();
+        goBackFromSection();
       } else if (action === 'new-activity') {
         window.openActivityModal();
       } else if (action === 'new-reward') {
@@ -244,6 +297,7 @@
     }
 
     _section = key;
+    try { sessionStorage.removeItem('libDirectSection'); } catch (_) {}
     document.body.classList.remove('library-magic-on-hub');
     document.body.classList.add('library-magic-in-section');
     clearSectionClasses();
@@ -318,6 +372,9 @@
     if (hash.indexOf('magic-') === 0) {
       var key = hash.slice(6);
       if (SECTIONS[key]) {
+        if (isFromPlanning() && (key === 'bilder' || key === 'activities')) {
+          try { sessionStorage.setItem('libDirectSection', '1'); } catch (_) {}
+        }
         openSection(key, false);
         return;
       }
@@ -364,5 +421,7 @@
     openSection: openSection,
     isMagic: isMagic,
     getSection: function () { return _section; },
+    markPlanningEntry: markPlanningEntry,
+    clearPlanningEntry: clearPlanningEntry,
   };
 })();
