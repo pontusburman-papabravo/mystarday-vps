@@ -120,7 +120,7 @@
     document.documentElement.classList.toggle('parent-theme-light', light);
     document.documentElement.classList.toggle('parent-theme-dark', !light);
     var tc = document.querySelector('meta[name="theme-color"]');
-    if (tc) tc.setAttribute('content', light ? '#f4f1ff' : '#07071a');
+    if (tc) tc.setAttribute('content', light ? '#ffffff' : '#07071a');
   }
 
   function applyBodyClasses() {

@@ -263,3 +263,19 @@ body.parent-magic-view .schedule-mode-btn.active {
     transform: none;
   }
 }
+
+/* Light theme — soften ambient orbs so the page reads bright white, not purple-blue */
+body.parent-magic-view.parent-theme-light .magic-3d-orb {
+  opacity: 0.14;
+  filter: blur(56px);
+}
+
+body.parent-magic-view.parent-theme-light .magic-3d-orb.orb-purple,
+body.parent-magic-view.parent-theme-light .magic-3d-orb.orb-blue,
+body.parent-magic-view.parent-theme-light .magic-3d-orb.orb-floor {
+  opacity: 0.08;
+}
+
+body.parent-magic-view.parent-theme-light .magic-3d-orb.orb-gold {
+  opacity: 0.12;
+}

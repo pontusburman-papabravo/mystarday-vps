@@ -32,7 +32,7 @@ html.parent-magic-early body .mobile-topbar {
   display: none !important;
 }
 
-body.parent-magic-view {
+body.parent-magic-view:not(.parent-theme-light) {
   background: #07071a;
   color: #f4f4ff;
 }
@@ -111,13 +111,16 @@ body.parent-magic-library #hbBtn {
   top: auto !important;
 }
 
-/* ── Page hero ── */
-.magic-page-shell {
+body.parent-magic-view:not(.parent-theme-light) .magic-page-shell {
   padding: max(4px, env(safe-area-inset-top, 0px)) 16px 12px;
   background:
     radial-gradient(ellipse 120% 55% at 50% -8%, rgba(88, 56, 180, 0.45), transparent 58%),
     radial-gradient(circle at 90% 20%, rgba(255, 204, 51, 0.1), transparent 40%),
     linear-gradient(180deg, #0b0b2a 0%, #07071a 100%);
+}
+
+.magic-page-shell {
+  padding: max(4px, env(safe-area-inset-top, 0px)) 16px 12px;
 }
 
 .magic-page-hero {
@@ -280,302 +283,302 @@ body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
   padding: 8px 16px 0;
 }
 
-/* ── Dark content overrides ── */
-body.parent-magic-view .bg-white,
-body.parent-magic-view .bg-white\/80,
-body.parent-magic-view .bg-white\/70,
-body.parent-magic-view .bg-white\/60,
-body.parent-magic-view .bg-sky,
-body.parent-magic-view .bg-sky\/40,
-body.parent-magic-view .bg-sky\/60,
-body.parent-magic-view .bg-lavender,
-body.parent-magic-view .bg-mint,
-body.parent-magic-view .bg-gold-light,
-body.parent-magic-view .bg-cream,
-body.parent-magic-view .bg-yellow-50,
-body.parent-magic-view .bg-orange-50,
-body.parent-magic-view .bg-indigo-50,
-body.parent-magic-view .bg-amber-50,
-body.parent-magic-view .bg-gray-50 {
+/* ── Dark content overrides (dark theme only) ── */
+body.parent-magic-view:not(.parent-theme-light) .bg-white,
+body.parent-magic-view:not(.parent-theme-light) .bg-white\/80,
+body.parent-magic-view:not(.parent-theme-light) .bg-white\/70,
+body.parent-magic-view:not(.parent-theme-light) .bg-white\/60,
+body.parent-magic-view:not(.parent-theme-light) .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) .bg-sky\/40,
+body.parent-magic-view:not(.parent-theme-light) .bg-sky\/60,
+body.parent-magic-view:not(.parent-theme-light) .bg-lavender,
+body.parent-magic-view:not(.parent-theme-light) .bg-mint,
+body.parent-magic-view:not(.parent-theme-light) .bg-gold-light,
+body.parent-magic-view:not(.parent-theme-light) .bg-cream,
+body.parent-magic-view:not(.parent-theme-light) .bg-yellow-50,
+body.parent-magic-view:not(.parent-theme-light) .bg-orange-50,
+body.parent-magic-view:not(.parent-theme-light) .bg-indigo-50,
+body.parent-magic-view:not(.parent-theme-light) .bg-amber-50,
+body.parent-magic-view:not(.parent-theme-light) .bg-gray-50 {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #f4f4ff;
 }
 
 /* Schedule section cards — tinted panels with readable text */
-body.parent-magic-view .section-card.bg-yellow-50,
-body.parent-magic-view .section-card.border-yellow-200 {
+body.parent-magic-view:not(.parent-theme-light) .section-card.bg-yellow-50,
+body.parent-magic-view:not(.parent-theme-light) .section-card.border-yellow-200 {
   background: rgba(252, 211, 77, 0.14) !important;
   border-color: rgba(252, 211, 77, 0.35) !important;
 }
 
-body.parent-magic-view .section-card.bg-sky,
-body.parent-magic-view .section-card.border-blue-200 {
+body.parent-magic-view:not(.parent-theme-light) .section-card.bg-sky,
+body.parent-magic-view:not(.parent-theme-light) .section-card.border-blue-200 {
   background: rgba(96, 165, 250, 0.14) !important;
   border-color: rgba(96, 165, 250, 0.35) !important;
 }
 
-body.parent-magic-view .section-card.bg-orange-50,
-body.parent-magic-view .section-card.border-orange-200 {
+body.parent-magic-view:not(.parent-theme-light) .section-card.bg-orange-50,
+body.parent-magic-view:not(.parent-theme-light) .section-card.border-orange-200 {
   background: rgba(251, 146, 60, 0.14) !important;
   border-color: rgba(251, 146, 60, 0.35) !important;
 }
 
-body.parent-magic-view .section-card.bg-indigo-50,
-body.parent-magic-view .section-card.border-indigo-200 {
+body.parent-magic-view:not(.parent-theme-light) .section-card.bg-indigo-50,
+body.parent-magic-view:not(.parent-theme-light) .section-card.border-indigo-200 {
   background: rgba(129, 140, 248, 0.14) !important;
   border-color: rgba(129, 140, 248, 0.35) !important;
 }
 
-body.parent-magic-view .activity-item.bg-white {
+body.parent-magic-view:not(.parent-theme-light) .activity-item.bg-white {
   background: rgba(12, 12, 36, 0.72) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-body.parent-magic-view .activity-item .text-navy,
-body.parent-magic-view .section-card .text-navy,
-body.parent-magic-view .section-card h4 {
+body.parent-magic-view:not(.parent-theme-light) .activity-item .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .section-card .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .section-card h4 {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .activity-item .text-text-soft,
-body.parent-magic-view .section-card .text-text-soft {
+body.parent-magic-view:not(.parent-theme-light) .activity-item .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .section-card .text-text-soft {
   color: rgba(244, 244, 255, 0.72) !important;
 }
 
-body.parent-magic-view .child-tab.border-lavender {
+body.parent-magic-view:not(.parent-theme-light) .child-tab.border-lavender {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .child-tab.bg-navy {
+body.parent-magic-view:not(.parent-theme-light) .child-tab.bg-navy {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   border-color: transparent !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view .day-tab.border-lavender {
+body.parent-magic-view:not(.parent-theme-light) .day-tab.border-lavender {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .day-tab.bg-gold {
+body.parent-magic-view:not(.parent-theme-light) .day-tab.bg-gold {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   border-color: transparent !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view .insert-day-btn.bg-white {
+body.parent-magic-view:not(.parent-theme-light) .insert-day-btn.bg-white {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #ffcc33 !important;
   border-color: rgba(255, 204, 51, 0.35) !important;
 }
 
 /* Family week grid — readable in magic */
-body.parent-magic-view .fw-child-cell,
-body.parent-magic-view .fw-day-header,
-body.parent-magic-view .fw-corner {
+body.parent-magic-view:not(.parent-theme-light) .fw-child-cell,
+body.parent-magic-view:not(.parent-theme-light) .fw-day-header,
+body.parent-magic-view:not(.parent-theme-light) .fw-corner {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .fw-day-cell {
+body.parent-magic-view:not(.parent-theme-light) .fw-day-cell {
   background: rgba(255, 255, 255, 0.04) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body.parent-magic-view .fw-pill {
+body.parent-magic-view:not(.parent-theme-light) .fw-pill {
   background: rgba(12, 12, 36, 0.65) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .fw-scroll {
+body.parent-magic-view:not(.parent-theme-light) .fw-scroll {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.parent-magic-view .text-navy,
-body.parent-magic-view h2,
-body.parent-magic-view h3,
-body.parent-magic-view h4 {
+body.parent-magic-view:not(.parent-theme-light) .text-navy,
+body.parent-magic-view:not(.parent-theme-light) h2,
+body.parent-magic-view:not(.parent-theme-light) h3,
+body.parent-magic-view:not(.parent-theme-light) h4 {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .text-text-soft {
+body.parent-magic-view:not(.parent-theme-light) .text-text-soft {
   color: rgba(244, 244, 255, 0.62) !important;
 }
 
-body.parent-magic-view input[type="text"],
-body.parent-magic-view input[type="email"],
-body.parent-magic-view input[type="password"],
-body.parent-magic-view input[type="search"],
-body.parent-magic-view select,
-body.parent-magic-view textarea {
+body.parent-magic-view:not(.parent-theme-light) input[type="text"],
+body.parent-magic-view:not(.parent-theme-light) input[type="email"],
+body.parent-magic-view:not(.parent-theme-light) input[type="password"],
+body.parent-magic-view:not(.parent-theme-light) input[type="search"],
+body.parent-magic-view:not(.parent-theme-light) select,
+body.parent-magic-view:not(.parent-theme-light) textarea {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #fff !important;
 }
 
-body.parent-magic-view .border-lavender,
-body.parent-magic-view hr.border-lavender {
+body.parent-magic-view:not(.parent-theme-light) .border-lavender,
+body.parent-magic-view:not(.parent-theme-light) hr.border-lavender {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 /* ── Buttons — readable on dark magic shell ── */
-body.parent-magic-view button.bg-gold,
-body.parent-magic-view a.bg-gold,
-body.parent-magic-view button.bg-yellow-500,
-body.parent-magic-view a.bg-yellow-500 {
+body.parent-magic-view:not(.parent-theme-light) button.bg-gold,
+body.parent-magic-view:not(.parent-theme-light) a.bg-gold,
+body.parent-magic-view:not(.parent-theme-light) button.bg-yellow-500,
+body.parent-magic-view:not(.parent-theme-light) a.bg-yellow-500 {
   background: linear-gradient(180deg, #ffd966 0%, #f5a623 100%) !important;
   color: #1b2340 !important;
   border: none;
 }
 
-body.parent-magic-view button.bg-lavender,
-body.parent-magic-view a.bg-lavender,
-body.parent-magic-view button.bg-sky,
-body.parent-magic-view a.bg-sky,
-body.parent-magic-view button.bg-white,
-body.parent-magic-view a.bg-white {
+body.parent-magic-view:not(.parent-theme-light) button.bg-lavender,
+body.parent-magic-view:not(.parent-theme-light) a.bg-lavender,
+body.parent-magic-view:not(.parent-theme-light) button.bg-sky,
+body.parent-magic-view:not(.parent-theme-light) a.bg-sky,
+body.parent-magic-view:not(.parent-theme-light) button.bg-white,
+body.parent-magic-view:not(.parent-theme-light) a.bg-white {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view button.bg-navy,
-body.parent-magic-view a.bg-navy {
+body.parent-magic-view:not(.parent-theme-light) button.bg-navy,
+body.parent-magic-view:not(.parent-theme-light) a.bg-navy {
   background: rgba(255, 255, 255, 0.14) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   color: #fff !important;
 }
 
-body.parent-magic-view button.bg-coral,
-body.parent-magic-view a.bg-coral {
+body.parent-magic-view:not(.parent-theme-light) button.bg-coral,
+body.parent-magic-view:not(.parent-theme-light) a.bg-coral {
   background: rgba(239, 68, 68, 0.22) !important;
   border-color: rgba(248, 113, 113, 0.45) !important;
   color: #fecaca !important;
 }
 
-body.parent-magic-view .view-btn {
+body.parent-magic-view:not(.parent-theme-light) .view-btn {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: rgba(244, 244, 255, 0.78) !important;
 }
 
-body.parent-magic-view .view-btn:hover {
+body.parent-magic-view:not(.parent-theme-light) .view-btn:hover {
   border-color: rgba(255, 204, 51, 0.45) !important;
   color: #ffcc33 !important;
 }
 
-body.parent-magic-view .view-btn.active {
+body.parent-magic-view:not(.parent-theme-light) .view-btn.active {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
   border-color: transparent !important;
 }
 
-body.parent-magic-view .schedule-mode-toggle {
+body.parent-magic-view:not(.parent-theme-light) .schedule-mode-toggle {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.parent-magic-view .schedule-mode-btn {
+body.parent-magic-view:not(.parent-theme-light) .schedule-mode-btn {
   background: transparent !important;
   color: rgba(244, 244, 255, 0.75) !important;
 }
 
-body.parent-magic-view .schedule-mode-btn:hover {
+body.parent-magic-view:not(.parent-theme-light) .schedule-mode-btn:hover {
   background: rgba(255, 255, 255, 0.06) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .schedule-mode-btn.active {
+body.parent-magic-view:not(.parent-theme-light) .schedule-mode-btn.active {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view .cal-view-btn.bg-white {
+body.parent-magic-view:not(.parent-theme-light) .cal-view-btn.bg-white {
   background: rgba(255, 255, 255, 0.08) !important;
   color: rgba(244, 244, 255, 0.82) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-body.parent-magic-view .cal-view-btn.bg-navy {
+body.parent-magic-view:not(.parent-theme-light) .cal-view-btn.bg-navy {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view .for-dig-cta-primary {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-cta-primary {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   color: #1b2340 !important;
 }
 
-body.parent-magic-view .for-dig-cta-secondary {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-cta-secondary {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .for-dig-intent-option {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-intent-option {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .for-dig-intent-option:hover {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-intent-option:hover {
   background: rgba(255, 204, 51, 0.12) !important;
   border-color: rgba(255, 204, 51, 0.4) !important;
 }
 
-body.parent-magic-view .for-dig-recommend-activate {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend-activate {
   background: rgba(255, 204, 51, 0.12) !important;
   border-color: rgba(255, 204, 51, 0.45) !important;
   color: #ffcc33 !important;
 }
 
-body.parent-magic-view .for-dig-greeting,
-body.parent-magic-view .for-dig-focus {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-greeting,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-focus {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .for-dig-goal-card,
-body.parent-magic-view .for-dig-favorites,
-body.parent-magic-view .for-dig-recommend,
-body.parent-magic-view .for-dig-most-installed,
-body.parent-magic-view .for-dig-popular {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-favorites,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-most-installed,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-popular {
   background: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #f4f4ff;
 }
 
-body.parent-magic-view .for-dig-most-installed .text-navy,
-body.parent-magic-view .for-dig-most-installed .text-text-soft,
-body.parent-magic-view .for-dig-favorites .text-navy,
-body.parent-magic-view .for-dig-favorites .text-text-soft,
-body.parent-magic-view .for-dig-recommend .text-navy,
-body.parent-magic-view .for-dig-goal-card .text-navy,
-body.parent-magic-view .for-dig-goal-card .text-text-soft,
-body.parent-magic-view.for-dig-page .text-navy {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-most-installed .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-most-installed .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-favorites .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-favorites .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light).for-dig-page .text-navy {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.for-dig-page .text-text-soft,
-body.parent-magic-view .for-dig-goal-card .text-text-soft {
+body.parent-magic-view:not(.parent-theme-light).for-dig-page .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card .text-text-soft {
   color: rgba(244, 244, 255, 0.72) !important;
 }
 
-body.parent-magic-view .for-dig-suggestion-link {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-suggestion-link {
   color: rgba(255, 204, 51, 0.9) !important;
 }
 
-body.parent-magic-view .for-dig-badge.for-dig-popular-badge {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-badge.for-dig-popular-badge {
   background: rgba(255, 204, 51, 0.2) !important;
   color: #ffcc33 !important;
 }
 
-body.parent-magic-view .for-dig-modal {
+body.parent-magic-view:not(.parent-theme-light) .for-dig-modal {
   background: #12122e !important;
   color: #f4f4ff !important;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -627,21 +630,21 @@ body.parent-magic-view.parent-magic-page-rewards .magic-hub-content {
   padding-top: 0;
 }
 
-body.parent-magic-view .magic-hub-links a {
+body.parent-magic-view:not(.parent-theme-light) .magic-hub-links a {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .magic-hub-links a:hover {
+body.parent-magic-view:not(.parent-theme-light) .magic-hub-links a:hover {
   border-color: rgba(255, 204, 51, 0.45) !important;
 }
 
-body.parent-magic-view .magic-hub-links .text-navy {
+body.parent-magic-view:not(.parent-theme-light) .magic-hub-links .text-navy {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view .magic-hub-links .text-text-soft {
+body.parent-magic-view:not(.parent-theme-light) .magic-hub-links .text-text-soft {
   color: rgba(244, 244, 255, 0.68) !important;
 }
 
@@ -948,16 +951,18 @@ html.parent-magic-early.parent-theme-light,
 html.parent-magic-early.parent-theme-light body,
 body.parent-magic-view.parent-theme-light,
 body.parent-magic-view.parent-theme-light.bg-sky,
-body.parent-magic-view.parent-theme-light.bg-cream {
-  background: #f4f1ff !important;
+body.parent-magic-view.parent-theme-light.bg-cream,
+body.parent-magic-view.parent-theme-light main,
+body.parent-magic-view.parent-theme-light .flex-1.overflow-auto {
+  background: #ffffff !important;
   color: #1a1633 !important;
 }
 
 body.parent-magic-view.parent-theme-light .magic-page-shell {
   background:
-    radial-gradient(ellipse 120% 55% at 50% -8%, rgba(124, 58, 237, 0.12), transparent 60%),
-    radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.10), transparent 42%),
-    linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%) !important;
+    radial-gradient(ellipse 120% 55% at 50% -8%, rgba(124, 58, 237, 0.06), transparent 58%),
+    radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.05), transparent 40%),
+    linear-gradient(180deg, #ffffff 0%, #f8f6ff 100%) !important;
 }
 
 body.parent-magic-view.parent-theme-light .magic-page-hero-icon {
@@ -1217,15 +1222,21 @@ body.parent-theme-light .magic-theme-option.is-active {
    These overrides flip it to light so the theme toggle also affects Hem.
    ════════════════════════════════════════════════════════════════════ */
 body.parent-magic-view.parent-theme-light.parent-magic-dashboard {
-  background: #f4f1ff !important;
+  background: #ffffff !important;
   color: #1a1633 !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-dashboard .parent-bottom-nav,
+body.parent-magic-view.parent-theme-light.parent-magic-dashboard .native-tab-bar {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-top-color: rgba(20, 16, 45, 0.08) !important;
 }
 
 body.parent-magic-view.parent-theme-light .parent-home-hub {
   background:
-    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(124, 58, 237, 0.10), transparent 55%),
-    radial-gradient(circle at 85% 15%, rgba(245, 166, 35, 0.08), transparent 35%),
-    linear-gradient(180deg, #ffffff 0%, #f4f1ff 100%) !important;
+    radial-gradient(ellipse 120% 60% at 50% -10%, rgba(124, 58, 237, 0.05), transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(245, 166, 35, 0.04), transparent 35%),
+    linear-gradient(180deg, #ffffff 0%, #f8f6ff 100%) !important;
 }
 
 body.parent-magic-view.parent-theme-light .parent-hub-greeting,

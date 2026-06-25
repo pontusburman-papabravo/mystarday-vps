@@ -9,7 +9,7 @@ const { injectNoindexMeta } = require('../lib/seo-pages');
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '16';
+const MAGIC_VERSION = '17';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -50,7 +50,7 @@ function buildEarlyMagicScriptTag() {
     'html.parent-magic-early body nav#sidebar,html.parent-magic-early body nav.w-full.md\\:w-64,' +
     'html.parent-magic-early body .md\\:hidden.bg-navy.sticky,html.parent-magic-early body .mobile-topbar{display:none!important}' +
     'html.parent-magic-early body .bg-sky,html.parent-magic-early body .bg-cream{background:transparent!important}' +
-    'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#f4f1ff!important;color:#1a1633!important}</style>' +
+    'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#ffffff!important;color:#1a1633!important}</style>' +
     '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
     'var pages=' + magicPathsJson + ';' +
     'if(pages.indexOf(p)<0&&p.indexOf("/family/child/")!==0)return;' +

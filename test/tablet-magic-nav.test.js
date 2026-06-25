@@ -75,6 +75,6 @@ describe('tablet magic navigation', () => {
   it('parent-magic-common fixes För dig contrast on light panels', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /\.for-dig-most-installed/);
-    assert.match(css, /body\.parent-magic-view\.for-dig-page \.text-navy/);
+    assert.match(css, /body\.parent-magic-view:not\(\.parent-theme-light\)\.for-dig-page \.text-navy/);
   });
 });
