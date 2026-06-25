@@ -212,9 +212,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v378';
+const CACHE_NAME = 'stjarndag-v379';
+// stjarndag-v379: print-schema — iframe-fallback på mobil/PWA (popup blockeras)
 // stjarndag-v378: Bibliotek — kopiera schema med start/slutdatum (LOV m.m.)
-// stjarndag-v377: print-schema — öppna utskriftsfönster synkront (popup-blocker efter await)
 // stjarndag-v376: Tilldela schema — start/slutdatum för period (t.ex. lov)
 // stjarndag-v374: print-schema — hela dagen i förhandsgranskning + dynamisk utskriftsskalning
 // stjarndag-v373: dedikerad /print-schema — barn + period (1v/2v/1m), ett A4-ark

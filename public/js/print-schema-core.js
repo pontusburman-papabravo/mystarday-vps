@@ -242,37 +242,98 @@
     return true;
   }
 
-  /** Open a blank window synchronously (must run inside a user click) to avoid popup blockers. */
-  function openPrintPlaceholder() {
-    var win = window.open('about:blank', '_blank', 'width=1100,height=700');
-    if (!win) return null;
+  var LOADING_HTML =
+    '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
+    '<title>Förbereder utskrift…</title>' +
+    '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
+    '</head><body><p>Förbereder utskrift…</p></body></html>';
+
+  function writeLoadingDocument(win) {
+    if (!win || win.closed) return false;
     win.document.open();
-    win.document.write(
-      '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
-      '<title>Förbereder utskrift…</title>' +
-      '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
-      '</head><body><p>Förbereder utskrift…</p></body></html>'
-    );
+    win.document.write(LOADING_HTML);
     win.document.close();
-    return win;
+    return true;
   }
 
-  function openPrintWindow(doc, autoPrint, existingWin) {
-    var win = existingWin;
+  function createPrintIframe() {
+    var iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.setAttribute('title', 'Utskrift');
+    iframe.style.cssText = 'position:fixed;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden;';
+    iframe.setAttribute('data-print-schema-frame', '1');
+    document.body.appendChild(iframe);
+    var win = iframe.contentWindow;
+    if (!win || !writeLoadingDocument(win)) {
+      try { iframe.remove(); } catch (_) {}
+      return null;
+    }
+    return iframe;
+  }
+
+  function resolvePrintWindow(placeholder) {
+    if (!placeholder) return null;
+    if (placeholder.type === 'window') return placeholder.target;
+    if (placeholder.type === 'iframe' && placeholder.target) {
+      return placeholder.target.contentWindow || null;
+    }
+    return placeholder;
+  }
+
+  /** Open print target synchronously (must run inside a user click). Falls back to hidden iframe on mobile/PWA. */
+  function openPrintPlaceholder() {
+    var win = window.open('about:blank', '_blank', 'width=1100,height=700');
+    if (win && writeLoadingDocument(win)) {
+      return { type: 'window', target: win };
+    }
+    var iframe = createPrintIframe();
+    if (iframe) return { type: 'iframe', target: iframe };
+    return null;
+  }
+
+  function closePrintPlaceholder(placeholder) {
+    if (!placeholder) return;
+    if (placeholder.type === 'window' && placeholder.target) {
+      try { placeholder.target.close(); } catch (_) {}
+    }
+    if (placeholder.type === 'iframe' && placeholder.target) {
+      try { placeholder.target.remove(); } catch (_) {}
+    }
+  }
+
+  function openPrintWindow(doc, autoPrint, placeholder) {
+    var active = placeholder;
+    var win = resolvePrintWindow(active);
     if (!win) {
       win = window.open('about:blank', '_blank', 'width=1100,height=700');
-      if (!win) return null;
+      if (win) {
+        active = { type: 'window', target: win };
+      } else {
+        var iframe = createPrintIframe();
+        if (!iframe) return null;
+        active = { type: 'iframe', target: iframe };
+        win = iframe.contentWindow;
+      }
     }
-    if (!writePrintDocument(win, doc)) return null;
-    win.focus();
+    if (!win || !writePrintDocument(win, doc)) return null;
+    var isIframe = active && active.type === 'iframe';
+    try { win.focus(); } catch (_) {}
     if (autoPrint !== false) {
       setTimeout(function () {
-        if (win && !win.closed) {
-          try { win.print(); } catch (_) {}
+        if (isIframe) {
+          if (!active.target.parentNode) return;
+        } else if (!win || win.closed) {
+          return;
+        }
+        try { win.print(); } catch (_) {}
+        if (isIframe) {
+          setTimeout(function () {
+            try { active.target.remove(); } catch (_) {}
+          }, 1500);
         }
       }, 600);
     }
-    return win;
+    return active;
   }
 
   async function loadAndBuild(child, options) {
@@ -309,6 +370,7 @@
     flattenWeekDays: flattenWeekDays,
     buildPrintHtml: buildPrintHtml,
     openPrintPlaceholder: openPrintPlaceholder,
+    closePrintPlaceholder: closePrintPlaceholder,
     openPrintWindow: openPrintWindow,
     loadAndBuild: loadAndBuild,
   };
