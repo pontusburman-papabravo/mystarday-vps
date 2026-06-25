@@ -30,6 +30,10 @@ const {
   startCustodyHandoffScheduler,
   stopCustodyHandoffScheduler,
 } = require('./src/lib/custody-handoff-scheduler');
+const {
+  startRetentionReengagementScheduler,
+  stopRetentionReengagementScheduler,
+} = require('./src/lib/retention-reengagement-scheduler');
 const { pool } = require('./src/lib/db');
 const { createApp } = require('./app');
 
@@ -49,11 +53,12 @@ const server = app.listen(port, () => {
   startActivationPushScheduler();
   startActivationNudgeScheduler();
   startCustodyHandoffScheduler();
+  startRetentionReengagementScheduler();
 });
 
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopCustodyHandoffScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

@@ -111,6 +111,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'referral_signup',
   'referral_qualified',
   'activation_nudge_sent',
+  'retention_reengagement_push_sent',
   // FEAT-1 boendeschema
   'custody_home_selected',
   'custody_week_variant_changed',

@@ -32,6 +32,9 @@ const CUSTODY_HANDOFF_SCHEDULER_LOCK_ID = 1008;
 /** Win-back email scheduler — sends re-engagement emails to inactive families, Sundays 10:00 Stockholm */
 const WIN_BACK_SCHEDULER_LOCK_ID = 1007;
 
+/** RET-3 retention re-engagement push — day 3/7/14 for activated families */
+const RETENTION_REENGAGEMENT_LOCK_ID = 1009;
+
 module.exports = {
   MIDNIGHT_SCHEDULER_LOCK_ID,
   DELETION_SCHEDULER_LOCK_ID,
@@ -41,4 +44,5 @@ module.exports = {
   PUSH_REMINDER_SCHEDULER_LOCK_ID,
   WIN_BACK_SCHEDULER_LOCK_ID,
   CUSTODY_HANDOFF_SCHEDULER_LOCK_ID,
+  RETENTION_REENGAGEMENT_LOCK_ID,
 };
