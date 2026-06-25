@@ -22,6 +22,8 @@ test('planning-hub marks planFromPlanning on hub link click', () => {
 test('assign-schedule confirm overlay above bottom nav', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/assign-schedule.html'), 'utf8');
   assert.match(html, /z-index:\s*10050/);
+  assert.match(html, /\.confirm-overlay\.hidden[\s\S]*?display:\s*none\s*!important/);
   const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
   assert.match(css, /parent-magic-page-assign-schedule \.confirm-overlay[\s\S]*?z-index:\s*10300/);
+  assert.match(css, /parent-magic-page-assign-schedule \.confirm-overlay\.hidden[\s\S]*?display:\s*none\s*!important/);
 });

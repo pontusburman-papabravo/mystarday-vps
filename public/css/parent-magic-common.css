@@ -830,6 +830,11 @@ body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay {
   pointer-events: auto;
 }
 
+body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 body.parent-magic-view.parent-magic-page-assign-schedule .confirm-box {
   background: #141432 !important;
   border: 1px solid rgba(255, 255, 255, 0.14);
