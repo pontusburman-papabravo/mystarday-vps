@@ -317,9 +317,23 @@
 
     var dateStr = new Date().toISOString().slice(0, 10);
     var filename = 'schema-' + safePdfFilename(opts.childName || doc.title) + '-' + dateStr + '.pdf';
+    var blob = pdf.output('blob');
+
+    if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
+      try {
+        var shareFile = new File([blob], filename, { type: 'application/pdf' });
+        if (navigator.canShare({ files: [shareFile] })) {
+          await navigator.share({ files: [shareFile], title: filename });
+          return { method: 'share', filename: filename };
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          return { method: 'cancelled', filename: filename };
+        }
+      }
+    }
 
     try {
-      var blob = pdf.output('blob');
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
@@ -329,8 +343,10 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      return { method: 'download', filename: filename };
     } catch (_) {
       pdf.save(filename);
+      return { method: 'save', filename: filename };
     }
   }
 

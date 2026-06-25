@@ -27,6 +27,43 @@
     }
   }
 
+  function isMobileDevice() {
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+    return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
+  }
+
+  function setupPdfSaveHelp() {
+    var mobile = isMobileDevice();
+    document.getElementById('pdfSaveHelpMobile').classList.toggle('hidden', !mobile);
+    document.getElementById('pdfSaveHelpDesktop').classList.toggle('hidden', mobile);
+  }
+
+  function openPdfHelpModal(mode, filename) {
+    document.getElementById('pdfHelpStepsShare').classList.add('hidden');
+    document.getElementById('pdfHelpStepsPreview').classList.add('hidden');
+    document.getElementById('pdfHelpStepsDesktop').classList.add('hidden');
+
+    if (mode === 'share') {
+      document.getElementById('pdfHelpIntro').textContent =
+        'Delningsmenyn är öppen. Välj Spara i Filer för att spara PDF:en.';
+      document.getElementById('pdfHelpStepsShare').classList.remove('hidden');
+    } else if (mode === 'preview') {
+      document.getElementById('pdfHelpIntro').textContent =
+        'PDF:en öppnades i webbläsaren' + (filename ? ' (' + filename + ').' : '.');
+      document.getElementById('pdfHelpStepsPreview').classList.remove('hidden');
+    } else {
+      document.getElementById('pdfHelpIntro').textContent =
+        'PDF:en laddades ner' + (filename ? ' som ' + filename + '.' : '.');
+      document.getElementById('pdfHelpStepsDesktop').classList.remove('hidden');
+    }
+
+    document.getElementById('pdfHelpModal').classList.remove('hidden');
+  }
+
+  function closePdfHelpModal() {
+    document.getElementById('pdfHelpModal').classList.add('hidden');
+  }
+
   function updateWeekLabel() {
     var core = window.PrintSchemaCore;
     var monday = core.mondayOf(new Date());
@@ -133,18 +170,37 @@
       showToast('Skapar PDF…');
       var child = children.find(function (c) { return c.id === currentChildId; });
       var doc = await buildDoc('print');
-      await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
+      var result = await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
+      if (result && result.method === 'cancelled') {
+        showToast('PDF-sparning avbruten');
+        return;
+      }
+      var delivery = result && result.method ? result.method : 'pdf_download';
       trackExport({
         format: periodKey,
         scope: scope,
         child_id: currentChildId,
         week_offset: weekOffset,
-        delivery: 'pdf_download',
+        delivery: delivery,
       });
       if (scope === 'my' && window.analytics) {
         window.analytics.track('custody_view_filtered', { source: 'print_schema', period: periodKey });
       }
-      showToast('PDF laddas ner', 'success');
+      if (delivery === 'share') {
+        if (typeof window.showSuccessToast === 'function') {
+          window.showSuccessToast('Välj Spara i Filer i delningsmenyn', 8000);
+        }
+      } else if (isMobileDevice()) {
+        if (typeof window.showSuccessToast === 'function') {
+          window.showSuccessToast('PDF klar — spara den i Filer', 5000);
+        }
+        openPdfHelpModal('preview', result && result.filename);
+      } else {
+        if (typeof window.showSuccessToast === 'function') {
+          window.showSuccessToast('PDF sparad i Nedladdningar');
+        }
+        openPdfHelpModal('desktop', result && result.filename);
+      }
     } catch (err) {
       if (err && err.message === 'no_my_days') {
         showToast('Inga av dina dagar i vald period', 'error');
@@ -200,7 +256,13 @@
 
     document.getElementById('previewBtn').addEventListener('click', runPreview);
     document.getElementById('printBtn').addEventListener('click', runCreatePdf);
+    document.getElementById('pdfHelpCloseBtn').addEventListener('click', closePdfHelpModal);
+    document.getElementById('pdfHelpOkBtn').addEventListener('click', closePdfHelpModal);
+    document.getElementById('pdfHelpModal').addEventListener('click', function (e) {
+      if (e.target.id === 'pdfHelpModal') closePdfHelpModal();
+    });
 
+    setupPdfSaveHelp();
     await loadChildren();
     await loadCustody();
     applyUrlParams();

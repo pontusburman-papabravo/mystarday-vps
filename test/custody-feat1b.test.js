@@ -56,12 +56,16 @@ describe('FEAT-1B boendeschema', () => {
     assert.match(printPage, /1 vecka/);
     assert.match(printPage, /1 månad/);
     assert.match(printPage, /Skapa PDF/);
+    assert.match(printPage, /pdfSaveHelp/);
+    assert.match(printPage, /pdfHelpModal/);
     assert.match(printPage, /html2canvas/);
     assert.match(printJs, /print_schema_exported/);
     assert.match(printJs, /runCreatePdf/);
+    assert.match(printJs, /openPdfHelpModal/);
     assert.match(core, /PERIODS/);
     assert.match(core, /A4 landscape/);
     assert.match(core, /downloadPdf/);
+    assert.match(core, /navigator\.canShare/);
     assert.match(core, /openPrintPlaceholder/);
   });
 });
