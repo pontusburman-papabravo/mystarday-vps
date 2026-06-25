@@ -872,6 +872,9 @@ function renderNowCard(item, canToggle) {
       return teacchHtml;
     }
   }
+  if (window.ChildPhotoCards && ChildPhotoCards.hasPhoto(item)) {
+    return ChildPhotoCards.renderNowCard(item, canToggle);
+  }
   if (window.ChildPackageNav) ChildPackageNav.setNavHidden(false);
 
   const isDone = item.completed;
@@ -941,6 +944,9 @@ function renderNowCard(item, canToggle) {
 // ── DONE history card (compact, dimmed, non-interactive) ───
 
 function renderDoneHistoryCard(item) {
+  if (window.ChildPhotoCards && ChildPhotoCards.hasPhoto(item)) {
+    return ChildPhotoCards.renderDoneHistoryCard(item);
+  }
   const timeStr = item.start_time || '';
   return `
     <div class="nl-card done" style="opacity:0.55; background:#F0FDF4; border-color:#BBF7D0; pointer-events:none;" id="card-${item.id}"
@@ -990,6 +996,9 @@ function renderNLCard(item, view, canToggle) {
 }
 
 function renderActivityCard(item, isToday, timeStatus) {
+  if (window.ChildPhotoCards && ChildPhotoCards.hasPhoto(item)) {
+    return ChildPhotoCards.renderActivityCard(item, isToday, timeStatus);
+  }
   const isDone = item.completed;
   // In filtered NOW/NEXT/LATER view, only NOW cards (and section-grouped cards where timeStatus is null) are toggleable.
   // NEXT and LATER cards should NOT be clickable or show a checkbox.

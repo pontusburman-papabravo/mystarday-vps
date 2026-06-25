@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v379';
+const CACHE_NAME = 'stjarndag-v380';
+// stjarndag-v380: Barnvy variant C — bildschema-kort för aktiviteter med eget foto
 // stjarndag-v379: print-schema — iframe-fallback på mobil/PWA (popup blockeras)
 // stjarndag-v378: Bibliotek — kopiera schema med start/slutdatum (LOV m.m.)
 // stjarndag-v376: Tilldela schema — start/slutdatum för period (t.ex. lov)
@@ -340,6 +341,7 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-dashboard.js',
+  '/js/child-dashboard-photo-cards.js',
   '/js/child-dashboard-celebrations.js',
   '/js/child-dashboard-rewards.js',
   // Pedagog pages
