@@ -30,7 +30,16 @@ async function main() {
   console.log('[custody-beta] Klar — testa i Familj → Boendeschema.');
 }
 
-main().catch((err) => {
-  console.error('[custody-beta]', err);
-  process.exit(1);
-});
+async function shutdown(code) {
+  try {
+    await db.pool.end();
+  } catch (_) { /* ignore */ }
+  process.exit(code);
+}
+
+main()
+  .then(() => shutdown(0))
+  .catch((err) => {
+    console.error('[custody-beta]', err);
+    return shutdown(1);
+  });

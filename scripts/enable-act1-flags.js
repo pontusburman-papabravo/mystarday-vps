@@ -71,7 +71,16 @@ async function main() {
   console.log('[act1-flags] Klar.');
 }
 
-main().catch((err) => {
-  console.error('[act1-flags]', err);
-  process.exit(1);
-});
+async function shutdown(code) {
+  try {
+    await db.pool.end();
+  } catch (_) { /* ignore */ }
+  process.exit(code);
+}
+
+main()
+  .then(() => shutdown(0))
+  .catch((err) => {
+    console.error('[act1-flags]', err);
+    return shutdown(1);
+  });
