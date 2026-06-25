@@ -122,6 +122,7 @@ function switchTab(tab) {
   if (tab === 'standard' && !_standardLoaded) loadStandardLibrary();
   if (tab === 'schema' && !_schemaLoaded) loadSchemaTab();
 }
+window.switchTab = switchTab;
 
 // ─── Standard sub-tab switching ──────────────────────────
 let _activeStdSubTab = 'schedules';
@@ -140,6 +141,7 @@ function switchStdSubTab(sub) {
     }
   });
 }
+window.switchStdSubTab = switchStdSubTab;
 
 // ─── Categories (= schema tabs) ──────────────────────────
 async function loadCategories() {
@@ -1358,3 +1360,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirmModal(); });
   document.getElementById('subStepModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubStepModal(); });
 });
+
+// Magic hub modules resolve these on window (Capacitor WebView-safe).
+window.openActivityModal = openActivityModal;
+window.openRewardModal = openRewardModal;
+window.selectSchemaTab = selectSchemaTab;

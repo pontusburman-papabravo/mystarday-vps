@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v349';
+const CACHE_NAME = 'stjarndag-v350';
+// stjarndag-v350: Bibliotek magic hub — window.switchTab + Bildarkiv-menyval
 // stjarndag-v349: HOTFIX family.js — childAvatarHtml must not shadow window.renderChildAvatar (stack overflow)
 // stjarndag-v347: Bildarkiv i biblioteket — egna foton på aktiviteter (family_image + image_url)
 // stjarndag-v346: HOTFIX /api/auth/me 500 logout — ui_view_mode read defensively; authGuard keeps session on 5xx/network

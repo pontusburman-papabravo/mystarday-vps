@@ -144,6 +144,7 @@ body.parent-magic-library.library-magic-in-section .tab-pane.active {
 
 .library-magic-menu-icon.schedules { background: rgba(239, 68, 68, 0.15); }
 .library-magic-menu-icon.activities { background: rgba(59, 130, 246, 0.15); }
+.library-magic-menu-icon.images { background: rgba(34, 197, 94, 0.15); }
 .library-magic-menu-icon.rewards { background: rgba(255, 204, 51, 0.15); }
 .library-magic-menu-icon.mine { background: rgba(168, 85, 247, 0.15); }
 
@@ -594,11 +595,13 @@ body.parent-magic-library.library-magic-section-mine.library-magic-mine-beloning
 }
 
 body.parent-magic-library.library-magic-section-activities .library-magic-activities-toolbar,
+body.parent-magic-library.library-magic-section-bilder .library-magic-activities-toolbar,
 body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter .library-magic-activities-toolbar {
   display: flex !important;
 }
 
 body.parent-magic-library.library-magic-section-activities #activitiesContainer [data-id],
+body.parent-magic-library.library-magic-section-bilder #activitiesContainer [data-id],
 body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter #activitiesContainer [data-id] {
   overflow: visible;
 }

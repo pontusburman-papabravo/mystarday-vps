@@ -17,9 +17,16 @@
     activities: {
       tab: 'activities',
       title: 'Aktiviteter',
-      subtitle: 'Dina och kopierade aktiviteter',
+      subtitle: 'Dina aktiviteter — emoji eller eget foto',
       icon: '📋',
       iconClass: 'activities',
+    },
+    bilder: {
+      tab: 'activities',
+      title: 'Bildarkiv',
+      subtitle: 'Egna foton — tandborste, säng, skola',
+      icon: '📷',
+      iconClass: 'images',
     },
     rewards: {
       tab: 'rewards',
@@ -40,6 +47,21 @@
   var _section = null;
   var _hubSearch = '';
   var _navLock = false;
+  var _hubClicksBound = false;
+
+  function bindHubClicks() {
+    if (_hubClicksBound) return;
+    _hubClicksBound = true;
+    document.addEventListener('click', function (e) {
+      if (!isMagic()) return;
+      var hub = document.getElementById('libraryMagicHubMount');
+      if (!hub || hub.classList.contains('hidden')) return;
+      var card = e.target.closest('[data-library-section]');
+      if (!card || !hub.contains(card)) return;
+      e.preventDefault();
+      openSection(card.getAttribute('data-library-section'), false);
+    });
+  }
 
   function setMagicHash(hash) {
     var current = (window.location.hash || '').replace('#', '');
@@ -66,6 +88,7 @@
     document.body.classList.remove(
       'library-magic-section-standard',
       'library-magic-section-activities',
+      'library-magic-section-bilder',
       'library-magic-section-rewards',
       'library-magic-section-mine',
       'library-magic-has-section-mount'
@@ -106,6 +129,7 @@
       '<div class="library-magic-menu">' +
       menuCard('standard') +
       menuCard('activities') +
+      menuCard('bilder') +
       menuCard('rewards') +
       menuCard('mine') +
       '</div></div>';
@@ -119,12 +143,6 @@
         }
       });
     }
-
-    mount.onclick = function (e) {
-      var card = e.target.closest('[data-library-section]');
-      if (!card) return;
-      openSection(card.getAttribute('data-library-section'), false);
-    };
   }
 
   function menuCard(key) {
@@ -203,11 +221,21 @@
         }
       }, 100);
     }
+
+    if (key === 'bilder') {
+      setTimeout(function () {
+        var archive = document.getElementById('familyImageArchive');
+        if (archive) archive.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
   }
 
   function openSection(key, fromSearch) {
     var s = SECTIONS[key];
-    if (!s || typeof window.switchTab !== 'function') return;
+    if (!s || typeof window.switchTab !== 'function') {
+      console.warn('[LibraryMagicHub] switchTab saknas — ladda om sidan');
+      return;
+    }
 
     var targetHash = 'magic-' + key;
     if (_section === key && !fromSearch &&
@@ -303,6 +331,7 @@
   }
 
   function init() {
+    bindHubClicks();
     if (!window.AppViewMode) {
       applyLayout();
       return Promise.resolve(false);

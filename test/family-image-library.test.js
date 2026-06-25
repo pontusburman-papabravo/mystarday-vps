@@ -38,8 +38,16 @@ describe('family image library', () => {
   it('library has bildarkiv UI and scripts', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/library.html'), 'utf8');
     assert.match(html, /familyImageGrid/);
+    assert.match(html, /familyImageArchive/);
     assert.match(html, /library-images\.js/);
     assert.match(html, /activity-visual\.js/);
+  });
+
+  it('library magic hub exports switchTab on window', () => {
+    const lib = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
+    assert.match(lib, /window\.switchTab\s*=\s*switchTab/);
+    assert.match(hub, /data-library-section.*bilder|menuCard\('bilder'\)/);
   });
 
   it('daily log generator snapshots image_url', () => {

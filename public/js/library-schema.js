@@ -678,3 +678,9 @@ async function executeCopyFrom(targetChildId) {
     btn.textContent = 'Kopiera';
   }
 }
+
+window.loadSchemaTab = loadSchemaTab;
+window.openCreateTemplateModal = openCreateTemplateModal;
+window.openScheduleCopyDialog = openScheduleCopyDialog;
+window.renderStdScheduleItem = renderStdScheduleItem;
+window.toggleStdSubSteps = toggleStdSubSteps;
