@@ -219,6 +219,7 @@ router.get('/me', requireAuth, async (req, res) => {
 
       return res.json({
         ...parent,
+        type: 'parent',
         isAdmin: !!parent.is_admin,
         magic_view_enabled: isEmailAllowlisted(parent.email),
         account_type: parent.account_type,
