@@ -167,6 +167,29 @@ router.post('/me/preferences', requireAuth, async (req, res) => {
   }
 });
 
+// ─── POST /api/auth/me/view-mode ─────────────────────────
+// Persist the parent's UI view mode ('classic' | 'magic') so the chosen
+// menu/design follows the account across devices (was localStorage-only).
+router.post('/me/view-mode', requireAuth, async (req, res) => {
+  try {
+    if (req.user.type !== 'parent') {
+      return res.status(400).json({ error: 'Endast föräldrar kan uppdatera vyläge' });
+    }
+    const { uiViewMode } = req.body || {};
+    if (!uiViewMode || !['classic', 'magic'].includes(uiViewMode)) {
+      return res.status(400).json({ error: 'uiViewMode must be "classic" or "magic"' });
+    }
+    await db.query(
+      'UPDATE parent SET ui_view_mode = $2 WHERE id = $1',
+      [req.user.id, uiViewMode]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[AUTH] me/view-mode error:', err);
+    res.status(500).json({ error: 'Kunde inte spara vyläge' });
+  }
+});
+
 // ─── GET /api/auth/me ─────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
   try {
@@ -176,6 +199,7 @@ router.get('/me', requireAuth, async (req, res) => {
                 COALESCE(p.onboarding_completed, true) as onboarding_completed,
                 COALESCE(p.account_type, 'family') as account_type,
                 COALESCE(p.preferred_view_mode, 'parent') as preferred_view_mode,
+                COALESCE(p.ui_view_mode, 'classic') as ui_view_mode,
                 f.is_lifetime_free,
                 p.password_hash IS NOT NULL AS has_password,
                 p.apple_user_id IS NOT NULL AS has_apple_linked,

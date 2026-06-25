@@ -15,6 +15,19 @@
   var _optimisticMagic = false;
   var _ready = false;
   var _listeners = [];
+  // Parent view mode persisted server-side (so the chosen menu/design follows
+  // the account across devices). null until /api/auth/me resolves.
+  var _serverParentMode = null;
+
+  function persistParentDbMode(mode) {
+    if (_role !== 'parent' || !_allowed) return;
+    fetch('/api/auth/me/view-mode', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uiViewMode: normalize(mode) }),
+    }).catch(function () {});
+  }
 
   function persistChildDbMode(mode) {
     if (_role !== 'child' || !_childId || !_allowed) return;
@@ -114,6 +127,8 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         _allowed = !!(data && data.magic_view_enabled);
+        _serverParentMode = data && data.ui_view_mode === 'magic' ? 'magic'
+          : (data && data.ui_view_mode === 'classic' ? 'classic' : null);
         return _allowed;
       })
       .catch(function () {
@@ -144,7 +159,15 @@
       updateToggleUi();
     }
     return fetchAccess().then(function () {
-      return finishInit(stored);
+      // Server-stored mode is the source of truth so the menu/design follows
+      // the account across devices; fall back to the device's localStorage
+      // value only while the server hasn't returned one.
+      var resolved = _serverParentMode || stored;
+      var result = finishInit(resolved);
+      // Mirror the resolved mode into localStorage so the next load's
+      // optimistic pre-paint matches what the server will return.
+      if (_allowed) writeStorage(PARENT_KEY, _mode);
+      return result;
     });
   }
 
@@ -193,6 +216,7 @@
     _mode = mode;
     if (_role === 'parent') {
       writeStorage(PARENT_KEY, mode);
+      persistParentDbMode(mode);
     } else if (_role === 'child' && _childId) {
       writeStorage(childKey(_childId), mode);
       persistChildDbMode(mode);
