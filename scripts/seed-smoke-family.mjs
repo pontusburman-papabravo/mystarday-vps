@@ -6,9 +6,9 @@
  *   export SMOKE_PARENT_EMAIL="qa.mobil@test.stjarndag.local"
  *   export SMOKE_PARENT_PASSWORD="QaMobilTest2026!Secure"
  *   export SMOKE_CHILD_NAME="Astrid"
- *   export SMOKE_CHILD_PIN="1112"
+ *   export SMOKE_CHILD_PIN="4829"
  *   export SMOKE_CHILD2_NAME="Erik"
- *   export SMOKE_CHILD2_PIN="2233"
+ *   export SMOKE_CHILD2_PIN="7391"
  *   node scripts/seed-smoke-family.mjs
  */
 const BASE = process.env.BASE || 'http://127.0.0.1:3000';
@@ -100,9 +100,9 @@ async function ensureParent() {
 }
 
 async function ensureChild(spec) {
-  const meRes = await fetch(`${BASE}/api/auth/me`, { headers: { cookie: cookieJar } });
-  const me = await meRes.json();
-  const existing = (me.children || []).find(
+  const { body: children } = await jsonFetch('/api/children');
+  const list = Array.isArray(children) ? children : [];
+  const existing = list.find(
     (c) => (c.name || '').toLowerCase() === spec.name.toLowerCase()
   );
   if (existing) {
@@ -126,11 +126,60 @@ async function ensureChild(spec) {
   return body;
 }
 
+async function ensureSchedule(child, activityIndex = 0) {
+  const { res, body } = await jsonFetch(`/api/children/${child.id}/schedules`);
+  if (!res.ok) throw new Error(`schedules list failed for ${child.name}: ${body.error || res.status}`);
+  if (Array.isArray(body) && body.length > 0) {
+    console.log('Schedule OK:', child.name, `${body.length} day(s)`);
+    return;
+  }
+
+  const { body: actList } = await jsonFetch('/api/activities');
+  const activities = Array.isArray(actList) ? actList : [];
+  if (activities.length === 0) {
+    console.warn('No activities — skip schedule seed for', child.name);
+    return;
+  }
+  const activity = activities[activityIndex % activities.length];
+  const csrf = await ensureCsrf();
+
+  for (const dow of [1, 2, 3, 4, 5]) {
+    let { res: sRes, body: schedule } = await jsonFetch(`/api/children/${child.id}/schedules`, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrf },
+      body: JSON.stringify({ day_of_week: dow }),
+    });
+    if (sRes.status === 409 && schedule?.id) {
+      /* existing day */
+    } else if (!sRes.ok) {
+      console.warn(`Schedule dow=${dow} ${child.name}:`, schedule.error || sRes.status);
+      continue;
+    }
+    const scheduleId = schedule.id;
+    const { res: iRes, body: itemBody } = await jsonFetch(`/api/schedules/${scheduleId}/items`, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrf },
+      body: JSON.stringify({
+        activity_template_id: activity.id,
+        start_time: '08:00',
+        end_time: '08:15',
+        section: 'morgon',
+        sort_order: 0,
+      }),
+    });
+    if (!iRes.ok) console.warn(`Schedule item ${child.name} dow=${dow}:`, itemBody.error || iRes.status);
+  }
+  console.log('Seeded weekday schedule:', child.name, '→', activity.name || activity.id);
+}
+
 async function verifyChildLogin(spec) {
+  const saved = cookieJar;
+  cookieJar = '';
   const { res, body } = await jsonFetch('/api/auth/child-login', {
     method: 'POST',
     body: JSON.stringify({ username: spec.name.toLowerCase(), pin: spec.pin }),
   });
+  cookieJar = saved;
   if (!res.ok) throw new Error(`Child login ${spec.name} failed: ${body.error || res.status}`);
   console.log('Child login OK:', body.name || spec.name);
 }
@@ -139,9 +188,11 @@ async function main() {
   console.log('Seeding smoke family (2 children) at', BASE);
   await ensureParent();
   const created = [];
-  for (const spec of CHILDREN) {
-    created.push(await ensureChild(spec));
+  for (const [i, spec] of CHILDREN.entries()) {
+    const child = await ensureChild(spec);
+    await ensureSchedule(child, i);
     await verifyChildLogin(spec);
+    created.push(child);
   }
 
   console.log('\n--- QA credentials ---');

@@ -1,34 +1,20 @@
 /**
  * Checkpoint definitions for scripts/smoke-mobile-full-qa.mjs
- * Maps to docs/QA-mobil-fullstandig-protokoll.md (200 test points)
+ * Maps to docs/QA-mobil-fullstandig-protokoll.md v1.2
  */
+
+import {
+  FULL_AUTO_IDS,
+  GATE_PARENT_ROUTES,
+  Z14_BUNDLES,
+} from './qa-gate-ids.mjs';
+
+export { GATE_PARENT_ROUTES, Z14_BUNDLES, FULL_AUTO_IDS };
 
 export const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
-/** Automated checkpoint IDs from the QA protocol */
-export const AUTO_IDS = [
-  'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08',
-  'B01', 'B02', 'B03', 'B04', 'B05',
-  'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C09', 'C10',
-  'D01', 'D02', 'D04', 'D05', 'D08', 'D11', 'D14', 'D15',
-  'E01', 'E02', 'E03', 'E04', 'E05', 'E06', 'E07', 'E10',
-  'F01', 'F14', 'F15',
-  'G01', 'G10', 'G11',
-  'H01', 'H10', 'H12',
-  'I01', 'I02', 'I11', 'I13',
-  'J01', 'J08',
-  'K01', 'K02', 'K11',
-  'L01', 'L02', 'L14',
-  'M01',
-  'N01', 'N09', 'N12', 'N14',
-  'O01', 'O08', 'O09', 'O10',
-  'P01', 'P11', 'P12',
-  'Q01', 'Q11',
-  'R01', 'R06',
-  'S08', 'S09', 'S10',
-  'T09',
-  'U01', 'U02', 'U03', 'U04', 'U05', 'U09',
-];
+/** @deprecated use FULL_AUTO_IDS */
+export const AUTO_IDS = FULL_AUTO_IDS;
 
 export const REDIRECT_CHECKS = [
   { id: 'U03', from: '/today', locationIncludes: '/child/today' },

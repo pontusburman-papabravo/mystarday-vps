@@ -61,10 +61,10 @@ async function batchInsertDailyLogItems(q, logId, items) {
   const params = [];
   let pi = 1;
   for (const item of items) {
-    valueClauses.push(`($${pi}, $${pi+1}, $${pi+2}, $${pi+3}, $${pi+4}, $${pi+5}, $${pi+6}, $${pi+7}, $${pi+8}, $${pi+8}, $${pi+9}, $${pi+10})`);
+    valueClauses.push(`($${pi}, $${pi + 1}, $${pi + 2}, $${pi + 3}, $${pi + 4}, $${pi + 5}, $${pi + 6}, $${pi + 7}, $${pi + 8}, $${pi + 8}, $${pi + 9})`);
     params.push(logId, item.activity_template_id, item.name, item.icon, item.image_url || null,
       item.start_time, item.end_time, item.star_value, item.sort_order, item.section);
-    pi += 11;
+    pi += 10;
   }
   await q.query(
     `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}`,
