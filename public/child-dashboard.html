@@ -398,7 +398,13 @@
       font-size: 1.8rem;
       box-shadow: 0 2px 8px rgba(27,35,64,0.08);
       border: 1.5px solid rgba(245,166,35,0.2);
-      flex-shrink: 0;
+    }
+    .now-emoji .activity-visual-img,
+    .nl-emoji .activity-visual-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      object-fit: cover;
     }
     .now-details { flex: 1; min-width: 0; }
     .now-title {
@@ -1636,7 +1642,8 @@
   <script src="/js/child-dashboard-warmth.js?v=2026-06-10-child"></script>
   <script src="/js/child-read-aloud.js?v=1.0.0"></script>
   <script src="/js/child-seven-questions.js?v=1.0.0"></script>
-  <script src="/js/child-dashboard.js?v=2.23.0"></script>
+  <script src="/js/activity-visual.js?v=1"></script>
+  <script src="/js/child-dashboard.js?v=2.24.0"></script>
   <script src="/js/child-dashboard-rewards.js?v=1"></script>
   <script src="/js/child-dashboard-celebrations.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->

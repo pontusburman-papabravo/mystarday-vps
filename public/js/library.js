@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setApproval(true);
 
   await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+  if (window.LibraryImages) await LibraryImages.init();
 
   if (window.LibraryMagicHub) {
     await LibraryMagicHub.init();
@@ -327,7 +328,7 @@ function renderActivityItem(a) {
       <div class="flex items-center justify-between px-3 py-2 gap-2">
         <div class="flex items-center gap-2 min-w-0 flex-1">
           <span class="drag-handle text-text-soft text-sm select-none px-1">☰</span>
-          <span class="text-xl flex-shrink-0">${a.icon || '📌'}</span>
+          <span class="text-xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.thumb(a) : (a.icon || '📌')}</span>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="font-semibold text-sm text-navy" style="word-break:break-word">${escHtml(a.name)}</span>
@@ -802,6 +803,8 @@ async function openActivityModal(act) {
     else LibrarySevenQuestions.reset();
   }
 
+  if (window.LibraryImages) LibraryImages.initActivityImagePicker(act);
+
   document.getElementById('activityModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('activityName').focus(), 100);
 }
@@ -828,7 +831,8 @@ async function submitActivity(e) {
   btn.disabled = true; btn.textContent = 'Sparar…';
   const url = id ? `/api/activities/${id}` : '/api/activities';
   const method = id ? 'PUT' : 'POST';
-  const body = { name, icon, category_id, star_value, is_favorite, feedback_for };
+  const image_url = window.LibraryImages ? LibraryImages.getSelectedUrl() : null;
+  const body = { name, icon, image_url, category_id, star_value, is_favorite, feedback_for };
   if (seven_questions !== undefined) body.seven_questions = seven_questions;
   const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
   const data = await res.json();

@@ -30,6 +30,8 @@
 
   function resolvePage(pathname) {
     var p = normalizePath(pathname || window.location.pathname);
+    // Per-child settings page carries an id segment (/family/child/<id>).
+    if (p.indexOf('/family/child/') === 0) return 'family-child';
     return PATH_PAGES[p] || null;
   }
 

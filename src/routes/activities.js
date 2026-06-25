@@ -28,7 +28,7 @@ router.use(requireParent);
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT at.id, at.name, at.icon, at.category_id, at.star_value, at.is_favorite,
+      `SELECT at.id, at.name, at.icon, at.image_url, at.category_id, at.star_value, at.is_favorite,
               at.feedback_for, at.sort_order, at.schema_type,
               COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
@@ -86,7 +86,7 @@ const VALID_FEEDBACK_FOR = new Set(['both', 'child', 'parent', 'none']);
 // ─── POST /api/activities ───────────────────────────────
 router.post('/', validate(CreateActivitySchema), async (req, res) => {
   try {
-    const { name, icon, category_id, star_value, is_favorite, feedback_for, time_group, schema_type } = req.body;
+    const { name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type } = req.body;
 
     if (!name || name.trim().length < 1) {
       return res.status(400).json({ error: 'Aktivitetsnamn krävs' });
@@ -124,10 +124,10 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     }
 
     const result = await db.query(
-      `INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING id, name, icon, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order`,
-      [req.user.familyId, name.trim(), icon || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder]
+      `INSERT INTO activity_template (family_id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order`,
+      [req.user.familyId, name.trim(), icon || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -169,7 +169,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    const { name, icon, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
+    const { name, icon, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -182,6 +182,10 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     if (icon !== undefined) {
       updates.push(`icon = $${idx++}`);
       values.push(icon || null);
+    }
+    if (image_url !== undefined) {
+      updates.push(`image_url = $${idx++}`);
+      values.push(image_url || null);
     }
     if (category_id !== undefined) {
       if (category_id !== null) {
@@ -229,12 +233,12 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE activity_template SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, category_id, star_value, is_favorite, feedback_for, time_group, schema_type`,
+       RETURNING id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type`,
       values
     );
 
-    // If name, icon, or star_value changed, sync daily logs for all affected children
-    if (name !== undefined || icon !== undefined || star_value !== undefined) {
+    // If name, icon, image_url, or star_value changed, sync daily logs for all affected children
+    if (name !== undefined || icon !== undefined || image_url !== undefined || star_value !== undefined) {
       try {
         await syncDailyLogsForTemplateChange(req.user.familyId, req.params.id);
       } catch (syncErr) {

@@ -20,6 +20,7 @@
     'daily-log': { icon: '📝', title: 'Daglig logg', sub: 'Följ barnens dag — fyll i stjärnor i efterhand' },
     skattkammaren: { icon: '🏆', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
     'child-settings': { icon: '⭐', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
+    'family-child': { icon: '⚙️', title: 'Barnets inställningar', sub: 'Schema, vy, PIN och anpassning' },
     notifications: { icon: '🔔', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
   };
 

@@ -53,7 +53,7 @@ function getSchoolVariant(birthday) {
  *
  * @param {object} q  - db or pg client
  * @param {string} logId - daily_log UUID
- * @param {Array}  items - rows with { activity_template_id, name, icon, start_time, end_time, star_value, sort_order, section }
+ * @param {Array}  items - rows with { activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, section }
  */
 async function batchInsertDailyLogItems(q, logId, items) {
   if (!items || items.length === 0) return;
@@ -61,13 +61,13 @@ async function batchInsertDailyLogItems(q, logId, items) {
   const params = [];
   let pi = 1;
   for (const item of items) {
-    valueClauses.push(`($${pi}, $${pi+1}, $${pi+2}, $${pi+3}, $${pi+4}, $${pi+5}, $${pi+6}, $${pi+7}, $${pi+7}, $${pi+8})`);
-    params.push(logId, item.activity_template_id, item.name, item.icon,
+    valueClauses.push(`($${pi}, $${pi+1}, $${pi+2}, $${pi+3}, $${pi+4}, $${pi+5}, $${pi+6}, $${pi+7}, $${pi+8}, $${pi+8}, $${pi+9}, $${pi+10})`);
+    params.push(logId, item.activity_template_id, item.name, item.icon, item.image_url || null,
       item.start_time, item.end_time, item.star_value, item.sort_order, item.section);
-    pi += 9;
+    pi += 11;
   }
   await q.query(
-    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}`,
+    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}`,
     params
   );
 }
@@ -117,6 +117,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
     const log = existing.rows[0];
     const items = await q.query(
       `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+              COALESCE(dli.image_url, at.image_url) AS image_url,
               dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
               dli.sort_order, dli.child_sort_order, dli.section,
               dli.parent_note, dli.child_note,
@@ -143,8 +144,10 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
         const specialDayId = specialResult.rows[0].id;
         const specialItems = await q.query(
           `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
-                  sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section
+                  sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section,
+                  at.image_url
            FROM special_day_schedule_item sdsi
+           LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
            WHERE sdsi.special_day_schedule_id = $1
            ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
           [specialDayId]
@@ -154,6 +157,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           await batchInsertDailyLogItems(q, log.id, specialItems.rows);
           const populatedItems = await q.query(
             `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+                    COALESCE(dli.image_url, at.image_url) AS image_url,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -172,7 +176,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       if (scheduleId) {
         const scheduleItems = await q.query(
           `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-                  at.name, at.icon, at.star_value
+                  at.name, at.icon, at.image_url, at.star_value
            FROM weekly_schedule_item wsi
            JOIN activity_template at ON at.id = wsi.activity_template_id
            WHERE wsi.weekly_schedule_id = $1
@@ -187,6 +191,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           // Re-fetch populated items
           const populatedItems = await q.query(
             `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+                    COALESCE(dli.image_url, at.image_url) AS image_url,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -230,8 +235,10 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
 
     const specialItems = await q.query(
       `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
-              sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section
+              sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section,
+              at.image_url
        FROM special_day_schedule_item sdsi
+       LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
        WHERE sdsi.special_day_schedule_id = $1
        ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
       [specialDayId]
@@ -252,6 +259,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
 
       const items = await q.query(
         `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+                COALESCE(dli.image_url, at.image_url) AS image_url,
                 dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                 dli.sort_order, dli.child_sort_order, dli.section,
                 dli.parent_note, dli.child_note,
@@ -286,7 +294,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   if (scheduleId) {
     const scheduleItems = await q.query(
       `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name, at.icon, at.star_value
+              at.name, at.icon, at.image_url, at.star_value
        FROM weekly_schedule_item wsi
        JOIN activity_template at ON at.id = wsi.activity_template_id
        WHERE wsi.weekly_schedule_id = $1
@@ -301,6 +309,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   // ── 7. Return fresh log + items ───────────────────────────
   const items = await q.query(
     `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+            COALESCE(dli.image_url, at.image_url) AS image_url,
             dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
             dli.sort_order, dli.child_sort_order, dli.section,
             COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -411,8 +420,10 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
   // Get current special day schedule items (the desired state)
   const sdsiResult = await q.query(
     `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
-            sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section
+            sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section,
+            at.image_url
      FROM special_day_schedule_item sdsi
+     LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
      WHERE sdsi.special_day_schedule_id = $1
      ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
     [scheduleId]
@@ -450,20 +461,20 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
       if (!di.completed) {
         await q.query(
           `UPDATE daily_log_item
-           SET name = $1, icon = $2, start_time = $3, end_time = $4,
-               star_value = $5, sort_order = $6, section = $7
-           WHERE id = $8`,
-          [si.name, si.icon, si.start_time, si.end_time,
+           SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
+               star_value = $6, sort_order = $7, section = $8
+           WHERE id = $9`,
+          [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.star_value, si.sort_order, si.section, di.id]
         );
         updated++;
       } else {
         await q.query(
           `UPDATE daily_log_item
-           SET name = $1, icon = $2, start_time = $3, end_time = $4,
-               sort_order = $5, section = $6
-           WHERE id = $7`,
-          [si.name, si.icon, si.start_time, si.end_time,
+           SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
+               sort_order = $6, section = $7
+           WHERE id = $8`,
+          [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.sort_order, si.section, di.id]
         );
         updated++;
@@ -484,10 +495,10 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
       const nextOrder = maxResult.rows[0].next_order;
       await q.query(
         `INSERT INTO daily_log_item
-           (daily_log_id, activity_template_id, name, icon, start_time, end_time,
+           (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9)`,
-        [logId, si.activity_template_id, si.name, si.icon,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+        [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, nextOrder, si.section]
       );
       added++;
@@ -541,7 +552,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   if (scheduleId) {
     const siResult = await q.query(
       `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name, at.icon, at.star_value
+              at.name, at.icon, at.image_url, at.star_value
        FROM weekly_schedule_item wsi
        JOIN activity_template at ON at.id = wsi.activity_template_id
        WHERE wsi.weekly_schedule_id = $1
@@ -588,10 +599,10 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
     if (!existing || existing.length === 0) {
       await q.query(
         `INSERT INTO daily_log_item
-           (daily_log_id, activity_template_id, name, icon, start_time, end_time,
+           (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9)`,
-        [logId, si.activity_template_id, si.name, si.icon,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+        [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, si.sort_order, si.section]
       );
       added++;
@@ -614,20 +625,20 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
       if (!di.completed) {
         await q.query(
           `UPDATE daily_log_item
-           SET name = $1, icon = $2, start_time = $3, end_time = $4,
-               star_value = $5, sort_order = $6, section = $7
-           WHERE id = $8`,
-          [si.name, si.icon, si.start_time, si.end_time,
+           SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
+               star_value = $6, sort_order = $7, section = $8
+           WHERE id = $9`,
+          [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.star_value, si.sort_order, si.section, di.id]
         );
         updated++;
       } else {
         await q.query(
           `UPDATE daily_log_item
-           SET name = $1, icon = $2, start_time = $3, end_time = $4,
-               sort_order = $5, section = $6
-           WHERE id = $7`,
-          [si.name, si.icon, si.start_time, si.end_time,
+           SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
+               sort_order = $6, section = $7
+           WHERE id = $8`,
+          [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.sort_order, si.section, di.id]
         );
         updated++;

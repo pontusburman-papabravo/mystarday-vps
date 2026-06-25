@@ -37,6 +37,12 @@ function normalizeHtmlPath(path) {
   return p;
 }
 
+// Magic paths include the static set plus the dynamic per-child settings page
+// (/family/child/:id), which carries an id segment and so needs prefix matching.
+function isMagicPath(p) {
+  return PARENT_MAGIC_PATHS.has(p) || p.indexOf('/family/child/') === 0;
+}
+
 function buildEarlyMagicScriptTag() {
   const magicPathsJson = JSON.stringify([...PARENT_MAGIC_PATHS]);
   return (
@@ -47,7 +53,7 @@ function buildEarlyMagicScriptTag() {
     'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#f4f1ff!important;color:#1a1633!important}</style>' +
     '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
     'var pages=' + magicPathsJson + ';' +
-    'if(pages.indexOf(p)<0)return;' +
+    'if(pages.indexOf(p)<0&&p.indexOf("/family/child/")!==0)return;' +
     // Magic is now the only parent view — always apply it on magic paths.
     'document.documentElement.classList.add("parent-magic-early");' +
     'var light=localStorage.getItem("stjarndag_parent_theme")==="light";' +
@@ -62,7 +68,7 @@ function injectEarlyMagicHtml(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   if (body.includes('parent-magic-early-boot')) return body;
   const path = normalizeHtmlPath(reqPath);
-  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  if (!isMagicPath(path)) return body;
   const headMarker = '<head>';
   const headIdx = body.indexOf(headMarker);
   if (headIdx === -1) return body;
@@ -75,7 +81,7 @@ function injectParentMagicRouter(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   if (body.includes('parent-magic-router.js')) return body;
   const path = normalizeHtmlPath(reqPath);
-  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  if (!isMagicPath(path)) return body;
 
   const routerScripts =
     '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>\n' +
@@ -90,7 +96,7 @@ function injectParentMagicRouter(body, reqPath) {
 function bumpMagicAssetVersions(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   const path = normalizeHtmlPath(reqPath);
-  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  if (!isMagicPath(path)) return body;
   return body
     .replace(/\/css\/app-view-toggle\.css\?v=\d+/g, '/css/app-view-toggle.css?v=' + MAGIC_VERSION)
     .replace(/\/css\/parent-magic-common\.css\?v=\d+/g, '/css/parent-magic-common.css?v=' + MAGIC_VERSION)
@@ -102,7 +108,7 @@ function bumpMagicAssetVersions(body, reqPath) {
 function ensureMagicShellAssets(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   const path = normalizeHtmlPath(reqPath);
-  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  if (!isMagicPath(path)) return body;
   body = bumpMagicAssetVersions(body, reqPath);
 
   const cssToEnsure = [
@@ -153,7 +159,7 @@ function injectParentMagicHtml(body, reqPath) {
   if (body.includes(MAGIC_INJECT_MARKER) || body.includes('parent-magic-shell.js')) return body;
 
   const path = normalizeHtmlPath(reqPath);
-  if (!PARENT_MAGIC_PATHS.has(path)) return body;
+  if (!isMagicPath(path)) return body;
 
   const cssBlock = [
     MAGIC_INJECT_MARKER,

@@ -43,4 +43,7 @@ router.use('/', require('./pin'));
 // ─── FEAT-1 boendeschema (custody_schedule_beta) ─────────────────────────────
 router.use('/custody', require('./custody'));
 
+// ─── Family image library (activity photos) ─────────────────────────────────
+router.use('/images', require('../family-images'));
+
 module.exports = router;

@@ -74,7 +74,7 @@ function imageUpload(req, res, next) {
   });
 }
 
-router.post('/', requireParent, imageUpload, async (req, res) => {
+async function handleImageUpload(req, res) {
   try {
     if (!isObjectStorageConfigured()) {
       return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });
@@ -103,7 +103,10 @@ router.post('/', requireParent, imageUpload, async (req, res) => {
     console.error('[UPLOAD] Image error:', err.message);
     res.status(500).json({ error: 'Uppladdning misslyckades' });
   }
-});
+}
+
+router.post('/', requireParent, imageUpload, handleImageUpload);
+router.post('/image', requireParent, imageUpload, handleImageUpload);
 
 router.post('/avatar', requireParent, avatarUpload, async (req, res) => {
   try {

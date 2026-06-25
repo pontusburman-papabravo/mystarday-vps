@@ -907,7 +907,7 @@ function renderNowCard(item, canToggle) {
          data-sub-step-count="${subStepCount}">
       <div class="now-badge"><div class="pulse-dot"></div> NU</div>
       <div class="now-activity">
-        <div class="now-emoji">${item.icon || '⭐'}</div>
+        <div class="now-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="now-details">
           <div class="now-title ${isDone ? 'line-through text-text-soft' : ''}">${escHtml(item.name)}</div>
           <div class="flex items-center gap-2 mt-0.5">
@@ -948,7 +948,7 @@ function renderDoneHistoryCard(item) {
       <div style="width:32px;height:32px;background:#22C55E;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
       </div>
-      <div class="nl-emoji" style="background:#E0F5EC;">${item.icon || '⭐'}</div>
+      <div class="nl-emoji" style="background:#E0F5EC;">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
       <div class="nl-info">
         <div class="nl-title" style="text-decoration:line-through; color:#6B7280;">${escHtml(item.name)}</div>
         ${timeStr && !hideClock ? `<div class="nl-time"><span>🕐</span> ${timeStr}</div>` : ''}
@@ -977,7 +977,7 @@ function renderNLCard(item, view, canToggle) {
          ${clickAttr}>
       ${isPast ? '' : `<div class="nl-chip ${chipClass}">${chipLabel}</div>`}
       ${isPast ? `<div class="nl-chip chip-redan">Redan</div>` : ''}
-      <div class="nl-emoji">${item.icon || '⭐'}</div>
+      <div class="nl-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
       <div class="nl-info">
         <div class="nl-title ${isDone ? 'line-through' : ''}">${escHtml(item.name)}</div>
         ${timeStr && !hideClock ? `<div class="nl-time"><span>🕐</span> ${timeStr}</div>` : ''}
@@ -1050,7 +1050,7 @@ function renderActivityCard(item, isToday, timeStatus) {
         ${!isNextOrLater || isDone ? `<div class="card-check w-12 h-12 rounded-full border-2 ${isDone ? 'bg-green-500 border-green-500' : 'border-lavender'} flex items-center justify-center flex-shrink-0">
           ${isDone ? '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' : ''}
         </div>` : ''}
-        <div class="text-3xl flex-shrink-0">${item.icon || '⭐'}</div>
+        <div class="text-3xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="flex-1 min-w-0">
           <h4 class="font-heading font-bold text-base ${isDone ? 'line-through text-text-soft' : 'text-navy'} truncate">${escHtml(item.name)}</h4>
           <div class="flex items-center flex-wrap gap-1 mt-0.5">
