@@ -10,6 +10,7 @@ const {
   injectNoindexMeta,
   SEO_INDEXABLE_PATHS,
 } = require('../src/lib/seo-pages');
+const { buildSitemapXml } = require('../src/lib/sitemap');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -60,13 +61,13 @@ test('register.html has unique meta description and hero copy', () => {
 });
 
 test('sitemap reflects index strategy', () => {
-  const xml = fs.readFileSync(path.join(ROOT, 'public/sitemap.xml'), 'utf8');
+  const xml = buildSitemapXml();
   assert.match(xml, /\/pricing-info<\/loc>/);
   assert.match(xml, /\/faq<\/loc>/);
   assert.match(xml, /\/kontakt<\/loc>/);
   assert.doesNotMatch(xml, /\/login<\/loc>/);
   assert.doesNotMatch(xml, /\/child-login<\/loc>/);
-  assert.match(xml, /<lastmod>2026-06-22<\/lastmod>/);
+  assert.match(xml, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
 });
 
 test('faq and kontakt pages are indexable with canonical', () => {

@@ -212,9 +212,9 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v367';
+const CACHE_NAME = 'stjarndag-v368';
+// stjarndag-v368: ACT-1 growth gaps — handoff reminder, admin sub-metrics, dashboard custody
 // stjarndag-v367: Tilldela schema — bekräftelseruta .hidden blockerade inte overlay (klick döda)
-// stjarndag-v366: Familj soft-nav reload + mobil full QA smoke (seed 2 barn)
 // stjarndag-v365: ACT-1 PR3 — starter-plan save → handoff steg 5, checkpoint scripts
 // stjarndag-v364: ACT-1 PR2 — first star på step6Btn, PIN→child_access, handoff soft gate copy
 // stjarndag-v363: Tilldela schema — bekräftelsedialog z-index + stäng på bakgrund/Escape

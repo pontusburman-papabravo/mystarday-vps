@@ -67,13 +67,21 @@ async function listReferralStats() {
     `SELECT rc.code,
             p.email AS referrer_email,
             p.name AS referrer_name,
+            p.family_id,
             COUNT(r.id)::int AS signups,
             COUNT(r.id) FILTER (WHERE r.status = 'qualified')::int AS qualified,
-            MAX(r.created_at) AS last_signup_at
+            MAX(r.created_at) AS last_signup_at,
+            (
+              SELECT COUNT(*)::int
+              FROM analytics_events ae
+              WHERE ae.family_id = p.family_id
+                AND ae.event_type = 'referral_link_shared'
+                AND (ae.metadata->>'code' IS NULL OR UPPER(ae.metadata->>'code') = UPPER(rc.code))
+            ) AS shares
      FROM referral_code rc
      JOIN parent p ON p.id = rc.parent_id
      LEFT JOIN referral r ON r.referrer_parent_id = rc.parent_id
-     GROUP BY rc.code, p.email, p.name
+     GROUP BY rc.code, p.email, p.name, p.family_id
      ORDER BY signups DESC, rc.code ASC`
   );
   return result.rows;

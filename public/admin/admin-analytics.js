@@ -377,6 +377,7 @@ function buildAnalyticsHTML() {
             </thead>
             <tbody id="activationFunnelBody"></tbody>
           </table>
+          <div id="activationChildAccessDiag" class="mt-4 pt-4 border-t border-sky text-sm hidden"></div>
         </div>
 
         <div>
@@ -391,6 +392,7 @@ function buildAnalyticsHTML() {
             <tbody id="activationExperimentBody"></tbody>
             <tfoot id="activationExperimentFoot"></tfoot>
           </table>
+          <p id="activationExperimentVerdict" class="mt-4 text-sm font-medium hidden"></p>
         </div>
 
         <div>
@@ -403,6 +405,7 @@ function buildAnalyticsHTML() {
               <tr>
                 <th class="text-left pb-2 pr-4">Kod</th>
                 <th class="text-left pb-2 pr-4">Värvare</th>
+                <th class="text-right pb-2 pr-4">Delningar</th>
                 <th class="text-right pb-2 pr-4">Signups</th>
                 <th class="text-right pb-2 pr-4">Kvalificerade</th>
                 <th class="text-right pb-2">Senaste signup</th>
@@ -1119,6 +1122,19 @@ async function loadActivationFunnel() {
         return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
       }).join('');
     }
+
+    var diagEl = document.getElementById('activationChildAccessDiag');
+    if (diagEl && data.childAccessDiagnostics) {
+      var diag = data.childAccessDiagnostics;
+      var items = (diag.metrics || []).map(function (m) {
+        var n = (diag.counts && diag.counts[m.key]) || 0;
+        return '<span class="inline-flex items-center gap-1 mr-4 mb-1"><span class="text-text-soft">' +
+          esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
+      }).join('');
+      diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-2">Child access — diagnostik (sub-metrics)</p>' + items;
+      diagEl.classList.remove('hidden');
+    }
+
     body.dataset.loaded = 'true';
   } catch (err) {
     console.error('[Analytics] loadActivationFunnel error:', err);
@@ -1164,6 +1180,16 @@ async function loadActivationExperiment() {
       foot.innerHTML = '<tr class="border-t-2 border-navy bg-sky/30"><td class="py-2 pr-4 font-bold">Totalt</td>' + totalCells + '</tr>';
     }
 
+    var verdictEl = document.getElementById('activationExperimentVerdict');
+    if (verdictEl && data.verdict) {
+      var v = data.verdict;
+      var color = v.status === 'promote_ai' ? 'text-green-700' :
+        v.status === 'keep_template_only' ? 'text-navy' : 'text-text-soft';
+      verdictEl.className = 'mt-4 text-sm font-medium ' + color;
+      verdictEl.textContent = 'Go/no-go: ' + v.message;
+      verdictEl.classList.remove('hidden');
+    }
+
     body.dataset.loaded = 'true';
   } catch (err) {
     console.error('[Analytics] loadActivationExperiment error:', err);
@@ -1178,7 +1204,7 @@ async function loadReferralsAdmin() {
     var data = await Auth.api('/api/admin/referrals');
     var rows = data.referrals || [];
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="5" class="text-center text-text-soft py-6">Inga värvningskoder ännu</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" class="text-center text-text-soft py-6">Inga värvningskoder ännu</td></tr>';
     } else {
       body.innerHTML = rows.map(function (row) {
         var last = row.last_signup_at
@@ -1187,6 +1213,7 @@ async function loadReferralsAdmin() {
         return '<tr class="border-t border-sky">' +
           '<td class="py-2 pr-4 font-mono font-semibold">' + esc(row.code) + '</td>' +
           '<td class="py-2 pr-4">' + esc(row.referrer_name || row.referrer_email || '—') + '</td>' +
+          '<td class="text-right py-2 pr-4 tabular-nums">' + (row.shares || 0) + '</td>' +
           '<td class="text-right py-2 pr-4 tabular-nums">' + (row.signups || 0) + '</td>' +
           '<td class="text-right py-2 pr-4 tabular-nums">' + (row.qualified || 0) + '</td>' +
           '<td class="text-right py-2 tabular-nums">' + esc(last) + '</td>' +
@@ -1196,7 +1223,7 @@ async function loadReferralsAdmin() {
     body.dataset.loaded = 'true';
   } catch (err) {
     console.error('[Analytics] loadReferralsAdmin error:', err);
-    body.innerHTML = '<tr><td colspan="5" class="text-red-500 py-4">Kunde inte ladda värvningsdata</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="text-red-500 py-4">Kunde inte ladda värvningsdata</td></tr>';
   }
 }
 

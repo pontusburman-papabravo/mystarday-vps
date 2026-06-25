@@ -39,6 +39,37 @@
     });
   }
 
+  function buildLoginInfoText() {
+    var nameEl = document.getElementById('s5ChildName');
+    var pinEl = document.getElementById('s5Pin');
+    var childName = nameEl ? nameEl.textContent.trim() : 'Barnet';
+    var pin = pinEl ? pinEl.textContent.trim() : '';
+    return [
+      'Inloggning till Min Stjärndag för ' + childName + ':',
+      '',
+      '1. Gå till https://mystarday.se/child-login',
+      '2. Välj barnet och ange PIN: ' + pin,
+    ].join('\n');
+  }
+
+  function copyLoginInfo() {
+    var text = buildLoginInfoText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        if (typeof window.showToast === 'function') window.showToast('Inloggningsinfo kopierad', 'success');
+      }).catch(function () { window.prompt('Kopiera:', text); });
+    } else {
+      window.prompt('Kopiera inloggningsinfo:', text);
+    }
+  }
+
+  function emailLoginInfo() {
+    var text = buildLoginInfoText();
+    var subject = encodeURIComponent('Inloggning till Min Stjärndag');
+    var body = encodeURIComponent(text);
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  }
+
   function enhanceStep5() {
     if (!config || !config.flags.activation_child_handoff_v1) return;
     var step5 = document.getElementById('step5');
@@ -47,6 +78,20 @@
 
     var actions = step5.querySelector('.flex.flex-wrap.gap-3.mt-4');
     if (actions) {
+      var copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
+      copyBtn.textContent = '📋 Kopiera inloggningsinfo';
+      copyBtn.addEventListener('click', copyLoginInfo);
+      actions.appendChild(copyBtn);
+
+      var mailBtn = document.createElement('button');
+      mailBtn.type = 'button';
+      mailBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
+      mailBtn.textContent = '✉️ Skicka via e-post';
+      mailBtn.addEventListener('click', emailLoginInfo);
+      actions.appendChild(mailBtn);
+
       var openBtn = document.createElement('button');
       openBtn.type = 'button';
       openBtn.className = 'px-4 py-2.5 bg-gold hover:bg-gold-dark text-white rounded-lg font-semibold text-sm transition-colors';

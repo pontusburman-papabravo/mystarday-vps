@@ -1001,6 +1001,10 @@ function renderDashboardCards() {
     </div>`;
   }).join('');
 
+  if (window.DashboardCustody && typeof DashboardCustody.apply === 'function') {
+    DashboardCustody.apply(childList.map(function (c) { return c.id; }));
+  }
+
   if (window.DashboardDailySummary && dashboardStats) {
     window.DashboardDailySummary.update(dashboardStats);
   }

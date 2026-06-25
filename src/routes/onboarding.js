@@ -161,7 +161,11 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
       await client.query('COMMIT');
 
       // Analytics: funnel step — first child created during onboarding
-      require('../lib/analytics-tracker').trackFirstChildCreated(req.user.familyId);
+      const tracker = require('../lib/analytics-tracker');
+      tracker.trackFirstChildCreated(req.user.familyId);
+      require('../../db/analytics').track(req.user.familyId, 'child_profile_created', {
+        child_id: child.id,
+      });
 
       res.status(201).json({
         id: child.id,

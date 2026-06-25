@@ -74,6 +74,48 @@ async function getActivationFunnelCohorts(weeks = 8) {
       counts: Object.fromEntries(steps.map((s) => [s.key, row[s.key] || 0])),
       rates: buildRates(row, steps),
     })),
+    childAccessDiagnostics: await getActivationChildAccessDiagnostics(safeWeeks),
+  };
+}
+
+/**
+ * Sub-metrics under child access (ACT-1 §10 — diagnostik, ej huvudtratt).
+ * @param {number} weeks
+ */
+async function getActivationChildAccessDiagnostics(weeks = 8) {
+  const safeWeeks = Math.min(52, Math.max(1, weeks));
+  const result = await db.query(
+    `WITH cohort AS (
+       SELECT f.id AS family_id
+       FROM family f
+       WHERE f.archived_at IS NULL
+         AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
+     )
+     SELECT
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_profile_created' THEN c.family_id END)::int AS child_profile_created,
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_pin_created' THEN c.family_id END)::int AS child_pin_created,
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_view_opened' THEN c.family_id END)::int AS child_view_opened,
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_handoff_skipped' THEN c.family_id END)::int AS child_handoff_skipped,
+       COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access_completed
+     FROM cohort c
+     LEFT JOIN family_activation_state s ON s.family_id = c.family_id
+     LEFT JOIN analytics_events ae ON ae.family_id = c.family_id
+       AND ae.event_type IN (
+         'child_profile_created', 'child_pin_created', 'child_view_opened', 'child_handoff_skipped'
+       )`,
+    [safeWeeks]
+  );
+  const row = result.rows[0] || {};
+  const metrics = [
+    { key: 'child_profile_created', label: 'Profil skapad' },
+    { key: 'child_pin_created', label: 'PIN satt' },
+    { key: 'child_view_opened', label: 'Barnvy öppnad' },
+    { key: 'child_handoff_skipped', label: 'Handoff hoppad över' },
+    { key: 'child_access_completed', label: 'Child access klar' },
+  ];
+  return {
+    metrics,
+    counts: Object.fromEntries(metrics.map((m) => [m.key, row[m.key] || 0])),
   };
 }
 
@@ -155,7 +197,54 @@ async function getActivationExperimentCohorts(weeks = 8) {
     variants: VARIANT_META,
     cohorts: Array.from(byWeekMap.values()),
     totals,
+    verdict: computeAiGoNoGoVerdict(totals),
   };
 }
 
-module.exports = { getActivationFunnelCohorts, getActivationExperimentCohorts };
+const MIN_VARIANT_SIGNUPS = 10;
+const AI_PROMOTE_DELTA_PP = 5;
+
+/**
+ * ACT-1 PR5 go/no-go: AI only if B beats A by ≥5 pp on activation_rate_48h.
+ * @param {Record<string, { signups: number, rate_48h: number }>} totals
+ */
+function computeAiGoNoGoVerdict(totals) {
+  const a = totals.template_only || { signups: 0, rate_48h: 0 };
+  const b = totals.template_plus_ai || { signups: 0, rate_48h: 0 };
+  const delta = Math.round((b.rate_48h - a.rate_48h) * 10) / 10;
+
+  if (a.signups < MIN_VARIANT_SIGNUPS || b.signups < MIN_VARIANT_SIGNUPS) {
+    return {
+      status: 'insufficient_data',
+      message: `Behöver minst ${MIN_VARIANT_SIGNUPS} signups per variant (A: ${a.signups}, B: ${b.signups})`,
+      delta_pp: delta,
+      a_rate_48h: a.rate_48h,
+      b_rate_48h: b.rate_48h,
+    };
+  }
+
+  if (delta >= AI_PROMOTE_DELTA_PP) {
+    return {
+      status: 'promote_ai',
+      message: `Variant B slår A med +${delta} pp — överväg att aktivera AI som standard`,
+      delta_pp: delta,
+      a_rate_48h: a.rate_48h,
+      b_rate_48h: b.rate_48h,
+    };
+  }
+
+  return {
+    status: 'keep_template_only',
+    message: `Variant B når inte +${AI_PROMOTE_DELTA_PP} pp mot A (Δ ${delta} pp) — behåll mall utan AI`,
+    delta_pp: delta,
+    a_rate_48h: a.rate_48h,
+    b_rate_48h: b.rate_48h,
+  };
+}
+
+module.exports = {
+  getActivationFunnelCohorts,
+  getActivationExperimentCohorts,
+  getActivationChildAccessDiagnostics,
+  computeAiGoNoGoVerdict,
+};
