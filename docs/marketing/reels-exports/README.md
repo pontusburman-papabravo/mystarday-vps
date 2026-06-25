@@ -16,16 +16,15 @@ Annonstext: `docs/marketing/reels-annons-*/ANNONS-KOPI.md`
 
 ---
 
-## Hämta till din Mac (utan branch-byte)
+## Hämta till din Mac
 
 ```bash
 cd /Users/pontusburman/mystarday-vps
-git fetch origin cursor/reels-annons-mockup-defe
-git checkout origin/cursor/reels-annons-mockup-defe -- docs/marketing/reels-exports/
+git pull origin main
 open docs/marketing/reels-exports/morgonrutin/
 ```
 
-Finder öppnar mappen med PNG + MP4.
+Finder öppnar mappen med PNG + MP4. (Fungerar på `main` — ingen branch-byte behövs.)
 
 ---
 
