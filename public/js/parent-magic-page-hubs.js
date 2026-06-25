@@ -12,7 +12,7 @@
   ];
 
   var PAGE_HEROES = {
-    planning: { icon: '📅', title: 'Planering', sub: 'Schema, logg och bibliotek — välj var du vill gå.' },
+    planning: { icon: '📅', title: 'Planering', sub: 'Bygg innehåll eller planera barnens vecka.' },
     rewards: { icon: '🎁', title: 'Belöningar', sub: 'Stjärnor, belöningar och familjekista.' },
     calendar: { icon: '📆', title: 'Kalender', sub: 'Månadsvy över alla barn' },
     activities: { icon: '📋', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },

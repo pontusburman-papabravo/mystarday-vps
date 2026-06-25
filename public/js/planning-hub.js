@@ -4,13 +4,16 @@
 (function () {
   'use strict';
 
-  var BASE_LINKS = [
+  var CONTENT_LINKS = [
+    { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Scheman, aktiviteter och belöningar' },
+    { href: '/library#magic-bilder', icon: '📷', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
+  ];
+
+  var PLANNING_LINKS = [
     { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
     { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Bocka av och backfill' },
     { href: '/calendar', icon: '🗓️', title: 'Kalender', sub: 'Månad och specialdagar' },
-    { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Aktiviteter och scheman' },
     { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera mall till barn' },
-    { href: '/activities', icon: '➕', title: 'Aktiviteter', sub: 'Hantera aktivitetsbibliotek' },
   ];
 
   var CAPABILITY_LINKS = {
@@ -18,6 +21,14 @@
     samarbete: { href: '/samarbete', icon: '🤝', title: 'Pedagogsamarbete', sub: 'Samarbeta med pedagog' },
     barn_stod: { href: '/barn-stod', icon: '🧩', title: 'Extra stöd', sub: 'Visuellt stöd och TEACCH' },
   };
+
+  function escHtml(str) {
+    if (typeof window.escHtml === 'function') return window.escHtml(str);
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
   function trackClick(label) {
     if (typeof window.analytics !== 'undefined' && analytics.track) {
@@ -28,46 +39,63 @@
   function linkHtml(l) {
     return (
       '<a href="' +
-      l.href +
+      escHtml(l.href) +
       '" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="' +
-      l.title +
+      escHtml(l.title) +
       '">' +
       '<span class="text-2xl" aria-hidden="true">' +
       l.icon +
       '</span>' +
       '<span><span class="font-heading font-bold text-navy block">' +
-      l.title +
+      escHtml(l.title) +
       '</span>' +
       '<span class="text-sm text-text-soft">' +
-      l.sub +
+      escHtml(l.sub) +
       '</span></span></a>'
     );
   }
 
-  async function getLinks() {
-    var links = BASE_LINKS.slice();
-    if (!window.NavConfig || !window.fetchPackageAccess) return links;
+  function sectionHtml(label, links) {
+    if (!links.length) return '';
+    return (
+      '<section class="magic-hub-section">' +
+      '<h2 class="magic-hub-section-label">' + escHtml(label) + '</h2>' +
+      '<div class="magic-hub-links grid gap-3">' + links.map(linkHtml).join('') + '</div>' +
+      '</section>'
+    );
+  }
 
-    try {
-      var access = await window.fetchPackageAccess();
-      var caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
-      for (var i = 0; i < caps.length; i++) {
-        var cap = caps[i];
-        var extra = CAPABILITY_LINKS[cap.id];
-        if (extra) links.push(extra);
+  async function getSections() {
+    var planning = PLANNING_LINKS.slice();
+    if (window.NavConfig && window.fetchPackageAccess) {
+      try {
+        var access = await window.fetchPackageAccess();
+        var caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
+        for (var i = 0; i < caps.length; i++) {
+          var cap = caps[i];
+          var extra = CAPABILITY_LINKS[cap.id];
+          if (extra) planning.push(extra);
+        }
+      } catch (_) {
+        /* basic links only */
       }
-    } catch (_) {
-      /* basic links only */
     }
-    return links;
+    return {
+      content: CONTENT_LINKS.slice(),
+      planning: planning,
+    };
   }
 
   async function render() {
     var mount = document.getElementById('planningHubMount');
     if (!mount) return;
 
-    var links = await getLinks();
-    mount.innerHTML = '<div class="magic-hub-links grid gap-3 max-w-lg">' + links.map(linkHtml).join('') + '</div>';
+    var sections = await getSections();
+    mount.innerHTML =
+      '<div class="magic-hub-sections max-w-lg space-y-6">' +
+      sectionHtml('Bygg innehåll', sections.content) +
+      sectionHtml('Planera vardagen', sections.planning) +
+      '</div>';
 
     mount.querySelectorAll('[data-hub-link]').forEach(function (el) {
       el.addEventListener('click', function () {

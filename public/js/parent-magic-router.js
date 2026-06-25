@@ -47,7 +47,7 @@
       '/js/family.js?v=2.14.2',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    planning: ['/js/planning-hub.js?v=1.1.0'],
+    planning: ['/js/planning-hub.js?v=1.2.0'],
     rewards: [
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.0',

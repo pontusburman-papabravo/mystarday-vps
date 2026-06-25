@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v350';
+const CACHE_NAME = 'stjarndag-v351';
+// stjarndag-v351: Planering hub — Bibliotek + Bildarkiv överst (bygg innehåll)
 // stjarndag-v350: Bibliotek magic hub — window.switchTab + Bildarkiv-menyval
 // stjarndag-v349: HOTFIX family.js — childAvatarHtml must not shadow window.renderChildAvatar (stack overflow)
 // stjarndag-v347: Bildarkiv i biblioteket — egna foton på aktiviteter (family_image + image_url)
