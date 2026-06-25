@@ -33,7 +33,7 @@
       '/js/schedule-views.js?v=1.3.0',
       '/js/schedule.js?v=2.26.0',
     ],
-    'for-dig': ['/js/for-dig.js?v=2.4'],
+    'for-dig': ['/js/for-dig.js?v=2.5'],
     family: [
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',

@@ -731,6 +731,9 @@
     return true;
   }
 
+  // Register for soft navigation. page-boot.js is injected near </body> by the
+  // server, so it may load *after* this script — poll briefly to register once
+  // it appears.
   if (!registerPageBoot()) {
     var bootAttempts = 0;
     var bootTimer = setInterval(function () {
@@ -739,6 +742,23 @@
         clearInterval(bootTimer);
       }
     }, 50);
+  }
+
+  // Hard-load boot: run init() directly once the DOM is ready. init() is
+  // idempotent (guarded by _forDigInitGen), so this is safe even if the magic
+  // shell's bootstrap also triggers it via ParentMagicPageBoot.run. This
+  // guarantees the page boots even when the magic boot chain is unavailable
+  // (e.g. SW-served static HTML on the native app / PWA, where page-boot.js is
+  // never injected). The earlier reload loop came from ensureParentAuth
+  // redirecting on transient errors — already fixed there, so a direct init is
+  // safe again.
+  function hardLoadInit() {
+    if (document.getElementById('forDigGoals')) init();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hardLoadInit);
+  } else {
+    hardLoadInit();
   }
 
   window.addEventListener('stjarndag-magic-navigated', function (e) {
