@@ -14,6 +14,7 @@ let selectedRewardIds = new Set();
 async function loadStandardLibrary() {
   if (_standardLoaded) return;
   const container = document.getElementById('standardLibraryContainer');
+  if (!container) return;
   try {
     const [templatesRes, rewardsRes, schedulesRes] = await Promise.all([
       window.apiFetch('/api/standard-library'),
@@ -337,3 +338,5 @@ async function copyDefaultReward(rewardId) {
     btn.textContent = '📥 Kopiera';
   }
 }
+
+window.loadStandardLibrary = loadStandardLibrary;

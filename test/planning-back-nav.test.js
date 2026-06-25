@@ -1,0 +1,25 @@
+'use strict';
+
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+
+test('planning-back-nav.js exports PlanningBackNav helpers', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/planning-back-nav.js'), 'utf8');
+  assert.match(src, /PlanningBackNav/);
+  assert.match(src, /markFromPlanning/);
+  assert.match(src, /planFromPlanning/);
+});
+
+test('planning-hub marks planFromPlanning on hub link click', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+  assert.match(src, /PlanningBackNav\.markFromPlanning/);
+});
+
+test('assign-schedule confirm overlay above bottom nav', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/assign-schedule.html'), 'utf8');
+  assert.match(html, /z-index:\s*10050/);
+});

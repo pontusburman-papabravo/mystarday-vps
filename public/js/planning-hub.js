@@ -102,6 +102,7 @@
         trackClick(el.getAttribute('data-hub-link'));
         try {
           var href = el.getAttribute('href') || '';
+          if (window.PlanningBackNav) PlanningBackNav.markFromPlanning();
           if (href.indexOf('/library') === 0) {
             sessionStorage.setItem('libFromPlanning', '1');
             if (href.indexOf('#magic-') >= 0) {

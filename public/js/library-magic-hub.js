@@ -96,9 +96,9 @@
     if (_hubClicksBound) return;
     _hubClicksBound = true;
     document.addEventListener('click', function (e) {
-      if (!isMagic()) return;
       var hub = document.getElementById('libraryMagicHubMount');
       if (!hub || hub.classList.contains('hidden')) return;
+      if (!document.body.classList.contains('parent-magic-library')) return;
       var card = e.target.closest('[data-library-section]');
       if (!card || !hub.contains(card)) return;
       e.preventDefault();
@@ -189,6 +189,13 @@
         }
       });
     }
+
+    mount.querySelectorAll('[data-library-section]').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        e.preventDefault();
+        openSection(card.getAttribute('data-library-section'), false);
+      });
+    });
 
     var planningBack = mount.querySelector('[data-library-planning-back]');
     if (planningBack) {

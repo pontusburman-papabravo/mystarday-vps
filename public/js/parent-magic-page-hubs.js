@@ -38,8 +38,49 @@
     return document.getElementById('parentMagicPageMount');
   }
 
+  function planningBackButton() {
+    if (window.PlanningBackNav && PlanningBackNav.isFromPlanning()) {
+      return '<button type="button" class="library-magic-planning-back planning-magic-back" data-planning-back="1">← Till planering</button>';
+    }
+    return '';
+  }
+
+  function bindPlanningBack(root) {
+    if (!root) return;
+    var btn = root.querySelector('[data-planning-back]');
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', function () {
+      if (window.PlanningBackNav) PlanningBackNav.goBack();
+      else window.location.href = '/planning';
+    });
+  }
+
+  function renderScheduleModeBar() {
+    return '<div class="schedule-mode-toggle schedule-magic-mode-bar" role="group" aria-label="Schemavy">' +
+      '<button type="button" class="schedule-mode-btn active" data-schedule-mode="single">👤 Mitt barn</button>' +
+      '<button type="button" class="schedule-mode-btn" data-schedule-mode="family">👨‍👩‍👧 Alla barn</button>' +
+      '</div>';
+  }
+
+  function bindScheduleModeBar(root) {
+    if (!root || typeof window.setScheduleMode !== 'function') return;
+    root.querySelectorAll('[data-schedule-mode]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        var mode = btn.getAttribute('data-schedule-mode');
+        window.setScheduleMode(mode);
+        root.querySelectorAll('.schedule-magic-mode-bar .schedule-mode-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-schedule-mode') === mode);
+        });
+      });
+    });
+  }
+
   function renderGenericHero(cfg) {
     return '<div class="magic-page-shell magic-3d-scene">' +
+      planningBackButton() +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + cfg.icon + '</div>' +
       '<div><h1>' + escHtml(cfg.title) + '</h1><p>' + escHtml(cfg.sub) + '</p></div>' +
@@ -52,10 +93,12 @@
       childCount = children.length;
     }
     return '<div class="magic-page-shell magic-3d-scene">' +
+      planningBackButton() +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">📅</div>' +
       '<div><h1>Veckoschema</h1><p>Planera och anpassa barnens dagar</p></div>' +
       '</div>' +
+      renderScheduleModeBar() +
       '<div class="magic-page-stats">' +
       '<div class="magic-page-stat-card magic-3d-card"><strong>' + childCount + '</strong><span>Barn</span></div>' +
       '<div class="magic-page-stat-card magic-3d-card"><strong>7</strong><span>Dagar</span></div>' +
@@ -258,6 +301,8 @@
     el.classList.remove('hidden');
     if (page === 'schedule') {
       el.innerHTML = renderScheduleHero();
+      bindPlanningBack(el);
+      bindScheduleModeBar(el);
     } else if (page === 'for-dig') {
       el.innerHTML = renderForDigHero();
     } else if (page === 'family') {
@@ -271,6 +316,7 @@
       if (backBar) backBar.innerHTML = '';
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
+      bindPlanningBack(el);
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -279,6 +325,10 @@
 
   window.ParentMagicPageHub = {
     refresh: refresh,
+    refreshScheduleHero: function () {
+      var magic = window.ParentMagicShell && ParentMagicShell.isMagic();
+      if (magic) refresh('schedule', true);
+    },
     tagSettingsSections: tagSettingsSections,
     resetSettingsState: resetSettingsState,
   };

@@ -880,10 +880,55 @@ body.parent-magic-view #inviteModal input {
 /* Modal panels — opaque (global .bg-white dimming must not apply) */
 body.parent-magic-view .magic-modal-panel,
 body.parent-magic-view .fixed.inset-0 > .bg-white.rounded-2xl,
-body.parent-magic-view #medforalderCtaModal .bg-white {
+body.parent-magic-view #medforalderCtaModal .bg-white,
+body.parent-magic-library .library-modal-overlay .magic-modal-panel,
+body.parent-magic-library #activityModal .activity-modal-panel {
   background: #141432 !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   color: #f4f4ff !important;
+}
+
+body.parent-magic-library .magic-modal-panel .text-navy,
+body.parent-magic-library .magic-modal-panel .font-heading,
+body.parent-magic-library .magic-modal-panel label,
+body.parent-magic-library .magic-modal-panel h3,
+body.parent-magic-library .magic-modal-panel h4 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-library .magic-modal-panel .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-library .magic-modal-panel input[type="text"],
+body.parent-magic-library .magic-modal-panel input[type="search"],
+body.parent-magic-library .magic-modal-panel textarea,
+body.parent-magic-library .magic-modal-panel select {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-library .magic-modal-panel .bg-sky,
+body.parent-magic-library #activityPhotoBlock,
+body.parent-magic-library #activityEmojiBlock .bg-sky {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-library .activity-image-pick {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.parent-magic-view .schedule-magic-mode-bar {
+  display: flex !important;
+  margin: 0 16px 12px;
+  max-width: 360px;
+}
+
+body.parent-magic-view .planning-magic-back {
+  margin: 12px 16px 0;
 }
 
 body.parent-magic-view #medforalderCtaModal .text-navy,

@@ -212,7 +212,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v359';
+const CACHE_NAME = 'stjarndag-v360';
+// stjarndag-v360: Bibliotek/planering — modal-CSS, standardbibliotek load, tillbaka från planering, schema-hero
 // stjarndag-v359: Bibliotek — schema load-fix, nav z-index, modal stängs vid navigering, bilduppladdning HEIC
 // stjarndag-v358: Ljus-tema — vit bakgrund, mörka glass-overrides av i light mode, mjukare 3D-orbs
 // stjarndag-v357: Planering — full load schema/bibliotek/kalender; kalender apiFetch-fix; tilldela schema dialog

@@ -9,7 +9,7 @@ const { injectNoindexMeta } = require('../lib/seo-pages');
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '17';
+const MAGIC_VERSION = '18';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -172,6 +172,7 @@ function injectParentMagicHtml(body, reqPath) {
   const scriptBlock = [
     '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/app-view-mode.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/planning-back-nav.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-page-boot.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-magic-router.js?v=' + MAGIC_VERSION + '"><\/script>',

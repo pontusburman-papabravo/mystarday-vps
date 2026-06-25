@@ -149,7 +149,7 @@
         : '<p class="library-magic-empty">Inga scheman matchar filtret.</p>')
       + '</div>'
       + '<div class="library-magic-std-pane hidden" data-std-pane="activities">'
-      + '<p class="library-magic-std-hint">Kopiera standardaktiviteter — inklusive delsteg — till ert bibliotek.</p>'
+      + '<p class="library-magic-std-hint">Kopiera standardaktiviteter — inklusive delsteg — till ert bibliotek. <strong>Egna foton</strong> lägger du till under Mina bibliotek → Aktiviteter eller Bildarkiv (standardmallar använder emoji).</p>'
       + '<div id="libraryMagicStdActivitiesMount"></div>'
       + '</div>'
       + '<div class="library-magic-std-pane hidden" data-std-pane="rewards">'
@@ -328,7 +328,10 @@
   }
 
   function show() {
-    return ensureData().then(function () {
+    var loads = [];
+    if (typeof window.loadSchemaTab === 'function') loads.push(window.loadSchemaTab());
+    if (typeof window.loadStandardLibrary === 'function') loads.push(window.loadStandardLibrary());
+    return Promise.all(loads).then(function () {
       if (typeof window.switchStdSubTab === 'function') {
         window.switchStdSubTab(_stdSegment);
       }

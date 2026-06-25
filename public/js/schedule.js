@@ -514,6 +514,9 @@ async function loadChildren() {
       const c = document.getElementById('childCardsContainer');
       if (c) c.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Kunde inte ladda schema. Ladda om sidan.</div>';
     });
+    if (window.ParentMagicPageHub && ParentMagicPageHub.refreshScheduleHero) {
+      ParentMagicPageHub.refreshScheduleHero();
+    }
   }
 }
 
