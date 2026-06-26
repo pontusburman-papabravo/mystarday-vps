@@ -40,9 +40,9 @@ async function renderSpecialDaysCalendar() {
   for (const sd of sdSpecialDays) specialDateSet[sd.date] = sd;
 
   // Calendar grid: start from Monday of the week containing the 1st
-  let startDow = firstDay.getDay(); // 0=Sun
+  const startDow = firstDay.getDay(); // 0=Sun
   // Adjust to Monday-first: shift so Mon=0
-  let offset = (startDow + 6) % 7; // days to go back to Monday
+  const offset = (startDow + 6) % 7; // days to go back to Monday
 
   const cells = [];
   const startDate = new Date(firstDay);

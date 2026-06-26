@@ -216,8 +216,8 @@
     }
 
     // ─── Stored data for search/filter ────────────────────────
-    let allMessages = [];
-    let allFamilies = [];
+    const allMessages = [];
+    const allFamilies = [];
 
     // ─── Init ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -443,7 +443,7 @@
       }
 
       // Replace variables with example data (no leading \b — same reason as server-side welcome-mailer)
-      let previewBody = body
+      const previewBody = body
         .replace(/{{foralderns_namn}}/g, 'Anna')
         .replace(/{{barnets_namn}}/g, 'Stjärndag');
 

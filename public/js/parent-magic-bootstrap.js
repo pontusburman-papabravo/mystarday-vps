@@ -4,12 +4,12 @@
 (function () {
   'use strict';
 
-  var _started = false;
+  let _started = false;
 
   function boot() {
     if (_started || !window.ParentMagicShell) return;
 
-    var page = document.body && document.body.getAttribute('data-magic-page');
+    let page = document.body && document.body.getAttribute('data-magic-page');
     if (!page && window.ParentMagicAuto) {
       page = ParentMagicAuto.resolvePage();
     }

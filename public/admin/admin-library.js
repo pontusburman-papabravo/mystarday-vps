@@ -303,7 +303,7 @@
     }
 
     // ─── Schedule item modal operations ────────────────────
-    let _scheduleItemsCache = {}; // scheduleId -> items[]
+    const _scheduleItemsCache = {}; // scheduleId -> items[]
 
     function closeScheduleItemModal() {
       document.getElementById('scheduleItemModal').classList.add('hidden');

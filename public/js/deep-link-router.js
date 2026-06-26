@@ -7,7 +7,7 @@
   function normalizeIncomingUrl(raw) {
     if (!raw) return null;
     try {
-      var u = new URL(raw, window.location.origin);
+      const u = new URL(raw, window.location.origin);
       return u.pathname + (u.search || '');
     } catch (_) {
       if (raw.charAt(0) === '/') return raw;
@@ -20,11 +20,11 @@
    */
   function mapDeepPath(pathAndQuery) {
     if (!pathAndQuery) return null;
-    var path = pathAndQuery.split('?')[0].replace(/\/$/, '') || '/';
-    var qs = pathAndQuery.indexOf('?') >= 0 ? pathAndQuery.slice(pathAndQuery.indexOf('?')) : '';
+    const path = pathAndQuery.split('?')[0].replace(/\/$/, '') || '/';
+    const qs = pathAndQuery.indexOf('?') >= 0 ? pathAndQuery.slice(pathAndQuery.indexOf('?')) : '';
 
     if (path === '/invite' || path.indexOf('/invite/') === 0) {
-      var inviteToken = path.split('/')[2] || new URLSearchParams(qs).get('token');
+      const inviteToken = path.split('/')[2] || new URLSearchParams(qs).get('token');
       return inviteToken
         ? '/accept-invite?token=' + encodeURIComponent(inviteToken)
         : '/accept-invite' + qs;
@@ -64,7 +64,7 @@
   }
 
   function navigate(pathAndQuery) {
-    var target = mapDeepPath(pathAndQuery);
+    const target = mapDeepPath(pathAndQuery);
     if (!target) return false;
     if (window.location.pathname + (window.location.search || '') === target) return true;
     window.location.href = target;
@@ -72,7 +72,7 @@
   }
 
   function handleUrl(raw) {
-    var normalized = normalizeIncomingUrl(raw);
+    const normalized = normalizeIncomingUrl(raw);
     if (!normalized) return false;
     return navigate(normalized);
   }
@@ -93,7 +93,7 @@
   function initNativeAppListener() {
     if (window.__deepLinkRouterInited) return;
     if (typeof Platform === 'undefined' || !Platform.isNative || !Platform.isNative()) return;
-    var App = getAppPlugin();
+    const App = getAppPlugin();
     if (!App) return;
     window.__deepLinkRouterInited = true;
     if (typeof App.addListener === 'function') {
@@ -113,7 +113,7 @@
   /** Push notification tap — call from push-manager / native bridge. */
   function handlePushPayload(data) {
     if (!data) return;
-    var url = data.url || data.path;
+    const url = data.url || data.path;
     if (url && handleUrl(url)) return;
     if (data.type === 'schedule_reminder') {
       window.location.href = '/schedule';

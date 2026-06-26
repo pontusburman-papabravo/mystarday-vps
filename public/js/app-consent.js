@@ -14,8 +14,8 @@
 (function () {
   'use strict';
 
-  var GA4_ID = 'G-8PYNFJH1EQ';
-  var PIXEL_ID = '2130511090854218';
+  const GA4_ID = 'G-8PYNFJH1EQ';
+  const PIXEL_ID = '2130511090854218';
 
   // ─── GA4 Setup ──────────────────────────────────────────────────────────────
   // Default consent: denied for EVERYTHING before we know the user's choices.
@@ -34,7 +34,7 @@
 
   // Load gtag.js async
   (function loadGtag() {
-    var s = document.createElement('script');
+    const s = document.createElement('script');
     s.async = true;
     s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
     document.head.appendChild(s);
@@ -61,7 +61,7 @@
   }
 
   // ─── Internal state ─────────────────────────────────────────────────────────
-  var _consent = null; // null = not loaded yet
+  let _consent = null; // null = not loaded yet
 
   /**
    * Apply consent choices to gtag + fbq.
@@ -71,10 +71,10 @@
     _consent = c;
 
     // Google Consent Mode v2
-    var analyticsGranted = c.analytics_storage === 'granted';
-    var adGranted        = c.ad_storage        === 'granted';
-    var dataGranted      = c.ad_user_data      === 'granted';
-    var personGranted    = c.ad_personalization=== 'granted';
+    const analyticsGranted = c.analytics_storage === 'granted';
+    const adGranted        = c.ad_storage        === 'granted';
+    const dataGranted      = c.ad_user_data      === 'granted';
+    const personGranted    = c.ad_personalization=== 'granted';
 
     gtag('consent', 'update', {
       'analytics_storage':  analyticsGranted ? 'granted' : 'denied',
@@ -132,14 +132,14 @@
    * state: 'pending' | 'granted' | 'denied'
    */
   function createToggle(id, label, description, state) {
-    var stateData = {
+    const stateData = {
       pending: { icon: '—', cls: 'msj-toggle--neutral', next: 'granted' },
       granted: { icon: '✓', cls: 'msj-toggle--granted', next: 'denied' },
       denied:  { icon: '✗', cls: 'msj-toggle--denied',  next: 'pending' },
     };
-    var cur = stateData[state] || stateData.pending;
+    const cur = stateData[state] || stateData.pending;
 
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.className = 'msj-consent-row';
     wrap.innerHTML =
       '<div class="msj-consent-row-text">' +
@@ -150,10 +150,10 @@
         cur.icon +
       '</button>';
 
-    var btn = wrap.querySelector('.msj-toggle');
+    const btn = wrap.querySelector('.msj-toggle');
     btn.addEventListener('click', function () {
-      var curState = btn.dataset.state;
-      var next = stateData[curState].next;
+      const curState = btn.dataset.state;
+      const next = stateData[curState].next;
       btn.dataset.state = next;
       btn.className = 'msj-toggle ' + stateData[next].cls;
       btn.textContent = stateData[next].icon;
@@ -164,26 +164,26 @@
   }
 
   function checkSaveEnabled() {
-    var modal = document.getElementById('msj-consent-modal');
+    const modal = document.getElementById('msj-consent-modal');
     if (!modal) return;
-    var btns = modal.querySelectorAll('.msj-toggle');
-    var anyActive = false;
+    const btns = modal.querySelectorAll('.msj-toggle');
+    let anyActive = false;
     btns.forEach(function (b) {
       if (b.dataset.state === 'granted' || b.dataset.state === 'denied') anyActive = true;
     });
-    var saveBtn = document.getElementById('msj-consent-save');
+    const saveBtn = document.getElementById('msj-consent-save');
     if (saveBtn) saveBtn.disabled = !anyActive;
   }
 
   function getToggleValues(modal) {
-    var result = {};
+    const result = {};
     modal.querySelectorAll('.msj-toggle').forEach(function (b) {
       result[b.dataset.id] = b.dataset.state;
     });
     return result;
   }
 
-  var TOGGLES = [
+  const TOGGLES = [
     {
       id: 'analytics_storage',
       label: 'Analys & Förbättring',
@@ -212,11 +212,11 @@
   ];
 
   function buildModal(currentConsent) {
-    var existing = currentConsent || {};
+    const existing = currentConsent || {};
 
     // Inject styles
     if (!document.getElementById('msj-consent-styles')) {
-      var style = document.createElement('style');
+      const style = document.createElement('style');
       style.id = 'msj-consent-styles';
       style.textContent = [
         '#msj-consent-overlay{position:fixed;inset:0;z-index:9999;background:rgba(27,35,64,0.6);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}',
@@ -244,58 +244,58 @@
       document.head.appendChild(style);
     }
 
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'msj-consent-overlay';
 
-    var modal = document.createElement('div');
+    const modal = document.createElement('div');
     modal.id = 'msj-consent-modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-label', 'Samtyckesinställningar');
 
     // Header
-    var header = document.createElement('div');
+    const header = document.createElement('div');
     header.className = 'msj-consent-header';
     header.innerHTML = '<span style="font-size:24px">⭐</span><h2>Samtycke & Integritet</h2>';
 
     // Body
-    var body = document.createElement('div');
+    const body = document.createElement('div');
     body.className = 'msj-consent-body';
 
-    var intro = document.createElement('p');
+    const intro = document.createElement('p');
     intro.className = 'msj-consent-intro';
     intro.textContent = 'Hjälp oss att göra Min Stjärndag ännu bättre. Vi använder cookies för att förstå hur appen används och för att nå ut till fler familjer. Klicka på varje kategori för att växla ✓ Ja / ✗ Nej / — Neutral.';
     body.appendChild(intro);
 
     // Toggles
     TOGGLES.forEach(function (t) {
-      var curState = existing[t.id] || 'pending';
+      const curState = existing[t.id] || 'pending';
       body.appendChild(createToggle(t.id, t.label, t.desc, curState));
     });
 
     // Footer
-    var footer = document.createElement('div');
+    const footer = document.createElement('div');
     footer.className = 'msj-consent-footer';
 
-    var saveBtn = document.createElement('button');
+    const saveBtn = document.createElement('button');
     saveBtn.id = 'msj-consent-save';
     saveBtn.className = 'msj-consent-save';
     saveBtn.textContent = 'Spara val';
     saveBtn.disabled = true; // enabled when user makes at least one active choice
     saveBtn.addEventListener('click', async function () {
-      var values = getToggleValues(modal);
+      const values = getToggleValues(modal);
       saveBtn.disabled = true;
       saveBtn.textContent = 'Sparar…';
       await saveConsent(values);
       removeModal();
     });
 
-    var skipBtn = document.createElement('button');
+    const skipBtn = document.createElement('button');
     skipBtn.className = 'msj-consent-skip';
     skipBtn.textContent = 'Hoppa över';
     skipBtn.addEventListener('click', async function () {
       // Save all as 'pending' — neutral, modal won't show again
-      var allPending = {};
+      const allPending = {};
       TOGGLES.forEach(function (t) { allPending[t.id] = 'pending'; });
       skipBtn.disabled = true;
       skipBtn.textContent = 'Stänger…';
@@ -317,7 +317,7 @@
   }
 
   function removeModal() {
-    var overlay = document.getElementById('msj-consent-overlay');
+    const overlay = document.getElementById('msj-consent-overlay');
     if (overlay) {
       overlay.style.opacity = '0';
       overlay.style.transition = 'opacity 0.25s';
@@ -330,11 +330,11 @@
   async function init() {
     // Only runs when user is a logged-in parent
     if (!Auth.isLoggedIn()) return;
-    var user = Auth.getUser();
+    const user = Auth.getUser();
     if (!user || user.type === 'child') return;
 
     try {
-      var data = await Auth.api('/api/consent');
+      const data = await Auth.api('/api/consent');
       if (data.consent === null) {
         // No record in DB — show modal
         buildModal(null);
@@ -354,7 +354,7 @@
      * Open the consent modal programmatically (e.g. from Settings page).
      */
     open: function () {
-      var existing = document.getElementById('msj-consent-overlay');
+      const existing = document.getElementById('msj-consent-overlay');
       if (existing) return; // already open
       buildModal(_consent || {});
       checkSaveEnabled();

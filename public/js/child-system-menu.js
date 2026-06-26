@@ -6,12 +6,12 @@
 
   if (!window.ChildWorlds || !ChildWorlds.V2_ENABLED || !window.ChildCapabilities) return;
 
-  var MENU_ID = 'childSystemMenu';
-  var BTN_ID = 'childSystemIconBtn';
+  const MENU_ID = 'childSystemMenu';
+  const BTN_ID = 'childSystemIconBtn';
 
   function hideLegacyHeaderActions() {
     ['childDarkBtn', 'viewToggleBtn', 'printBtn'].forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
   }
@@ -32,21 +32,21 @@
   }
 
   function openMenu() {
-    var menu = document.getElementById(MENU_ID);
-    var btn = document.getElementById(BTN_ID);
+    const menu = document.getElementById(MENU_ID);
+    const btn = document.getElementById(BTN_ID);
     if (menu) menu.classList.remove('hidden');
     if (btn) btn.setAttribute('aria-expanded', 'true');
   }
 
   function closeMenu() {
-    var menu = document.getElementById(MENU_ID);
-    var btn = document.getElementById(BTN_ID);
+    const menu = document.getElementById(MENU_ID);
+    const btn = document.getElementById(BTN_ID);
     if (menu) menu.classList.add('hidden');
     if (btn) btn.setAttribute('aria-expanded', 'false');
   }
 
   function onSystemIconClick() {
-    var open = function () {
+    const open = function () {
       openMenu();
     };
     if (window.ParentalGate && ParentalGate.requireParentMode) {
@@ -59,11 +59,11 @@
   function mount() {
     if (document.getElementById(BTN_ID)) return;
 
-    var header = document.querySelector('#childMainHeader .flex.items-center.gap-1\\.5');
+    let header = document.querySelector('#childMainHeader .flex.items-center.gap-1\\.5');
     if (!header) {
       header = document.querySelector('#childMainHeader .flex.items-center.justify-between');
       if (header) {
-        var actions = document.createElement('div');
+        const actions = document.createElement('div');
         actions.className = 'flex items-center gap-1.5';
         header.appendChild(actions);
         header = actions;
@@ -73,10 +73,10 @@
 
     hideLegacyHeaderActions();
 
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.className = 'relative';
 
-    var btn = document.createElement('button');
+    const btn = document.createElement('button');
     btn.type = 'button';
     btn.id = BTN_ID;
     btn.className =
@@ -86,7 +86,7 @@
     btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<span aria-hidden="true">⚙️</span><span>Förälder</span>';
 
-    var menu = document.createElement('div');
+    const menu = document.createElement('div');
     menu.id = MENU_ID;
     menu.className =
       'hidden absolute right-0 top-full mt-2 min-w-[200px] bg-white text-navy border border-lavender rounded-xl shadow-lg z-50 py-1';
@@ -108,7 +108,7 @@
     });
 
     menu.addEventListener('click', function (e) {
-      var item = e.target.closest('[data-system-action]');
+      const item = e.target.closest('[data-system-action]');
       if (!item) return;
       runAction(item.getAttribute('data-system-action'));
     });

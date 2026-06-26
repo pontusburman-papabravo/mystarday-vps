@@ -92,8 +92,8 @@ function setBirthdayPicker(prefix, dateStr) {
 
 // ── State ────────────────────────────────────────────────
 let children = [];
-let activities = [];
-let childSchedules = {};
+const activities = [];
+const childSchedules = {};
 let currentChildId = null;
 let currentDay = 1;
 let currentScheduleId = null;
@@ -105,7 +105,7 @@ let addSectionsMulti = new Set(['dag']); // multi-section selection state
 let editSectionVal = 'dag';
 let copyDaySelections = [];
 let copyTargetChildId = null;
-let allExpanded = true;
+const allExpanded = true;
 
 // Recurrence dialog state — set when submitAddActivity succeeds, before showing the prompt
 let _pendingRecurrenceTemplateId = null;
@@ -119,19 +119,19 @@ let _pendingRecurrenceEnd = null;
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
 let dndSrcDay = null;
 let currentViewMode = 'normal';
-let sbsChildId = null;
-let sbsItems = [];
-let sbsScheduleId = null;
-let sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
+const sbsChildId = null;
+const sbsItems = [];
+const sbsScheduleId = null;
+const sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
 let allTemplates = [];
 
 // ── Template editing mode ──────────────────────────────
 // Templates are family-level schedules (child_id IS NULL) editable via the library page.
 // When ?view=template&template=<id> is in the URL, schedule.js enters template mode.
-let templateMode = false;
-let currentTemplateId = null;
+const templateMode = false;
+const currentTemplateId = null;
 let templateItems = [];  // items for the currently loaded template
-let templateName = '';
+const templateName = '';
 
 // ── Calendar navigation state ─────────────────────────────
 let calView = 'week'; // 'day' | 'week' | 'month'
@@ -282,8 +282,8 @@ async function renderMonthView() {
   const headerDays = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 
   // Build calendar grid (Mon-first)
-  let startDow = firstDay.getDay();
-  let offset = (startDow + 6) % 7;
+  const startDow = firstDay.getDay();
+  const offset = (startDow + 6) % 7;
   const cells = [];
   const startDate = new Date(firstDay);
   startDate.setDate(startDate.getDate() - offset);
@@ -2301,23 +2301,23 @@ async function submitCopyChild(){
 }
 
 // ── Insert Day (+ button per day tab) ────────────────────
-let insertDayTarget = null; // dow 0-6
-let familyScheduleTemplates = []; // cached family-level templates
-let standardLibrarySchedules = []; // admin-created standard schedules
+const insertDayTarget = null; // dow 0-6
+const familyScheduleTemplates = []; // cached family-level templates
+const standardLibrarySchedules = []; // admin-created standard schedules
 
 // Apply a family schedule template to insertDayTarget
 // Apply a standard library schedule (admin-created default) to insertDayTarget
 // Insert empty schedule (no template)
 // ── New Schedule Template ─────────────────────────────────
 // ── Delete Schedule Template ──────────────────────────────
-let _deleteScheduleTemplateId = null;
+const _deleteScheduleTemplateId = null;
 
 // ── Fill Week ─────────────────────────────────────────────
-let fillWeekSelectedCatId = null;
-let fillWeekSelectedCatName = null;
-let fillWeekDaySelections = [];
+const fillWeekSelectedCatId = null;
+const fillWeekSelectedCatName = null;
+const fillWeekDaySelections = [];
 
-let allCategories = []; // { id, name, template_count }
+const allCategories = []; // { id, name, template_count }
 
 // ── Confirm modal ─────────────────────────────────────────
 function openConfirmModal(msg,cb){document.getElementById('confirmMsg').textContent=msg;document.getElementById('confirmOkBtn').onclick=async()=>{closeConfirmModal();await cb();};document.getElementById('confirmModal').classList.remove('hidden');}

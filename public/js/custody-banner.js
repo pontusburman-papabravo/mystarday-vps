@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var BANNER_ID = 'custodyWeekBanner';
-  var _lastChildId = null;
-  var _seenForChild = {};
+  const BANNER_ID = 'custodyWeekBanner';
+  let _lastChildId = null;
+  const _seenForChild = {};
 
   function track(event, meta) {
     if (window.analytics && typeof window.analytics.track === 'function') {
@@ -15,50 +15,50 @@
   }
 
   function getActiveChildId() {
-    var tab = document.querySelector('.child-tab.bg-navy, .child-tab.border-navy');
+    const tab = document.querySelector('.child-tab.bg-navy, .child-tab.border-navy');
     if (tab && tab.getAttribute('data-id')) return tab.getAttribute('data-id');
-    var card = document.querySelector('.dash-child-card.is-expanded');
+    const card = document.querySelector('.dash-child-card.is-expanded');
     if (card) return card.getAttribute('data-child-id');
-    var first = document.querySelector('.dash-child-card[data-child-id]');
+    const first = document.querySelector('.dash-child-card[data-child-id]');
     if (first) return first.getAttribute('data-child-id');
     return null;
   }
 
   function ensureBanner() {
-    var existing = document.getElementById(BANNER_ID);
+    const existing = document.getElementById(BANNER_ID);
     if (existing) return existing;
-    var anchor = document.getElementById('childCardsGrid');
-    var banner = document.createElement('div');
+    const anchor = document.getElementById('childCardsGrid');
+    const banner = document.createElement('div');
     banner.id = BANNER_ID;
     banner.className = 'hidden mb-3 mx-0 rounded-xl border-2 px-4 py-3 text-sm font-semibold text-navy flex flex-wrap items-center gap-2';
     banner.setAttribute('role', 'status');
     if (anchor && anchor.parentNode) {
       anchor.parentNode.insertBefore(banner, anchor);
     } else {
-      var main = document.querySelector('main') || document.body;
+      const main = document.querySelector('main') || document.body;
       main.insertBefore(banner, main.firstChild);
     }
     return banner;
   }
 
   async function refresh() {
-    var childId = getActiveChildId();
+    const childId = getActiveChildId();
     if (!childId) {
-      var b = document.getElementById(BANNER_ID);
+      const b = document.getElementById(BANNER_ID);
       if (b) b.classList.add('hidden');
       return;
     }
 
     try {
-      var res = await window.apiFetch(
+      const res = await window.apiFetch(
         '/api/family/custody/context?childId=' + encodeURIComponent(childId)
       );
       if (!res.ok) {
         if (res.status === 404) return;
         return;
       }
-      var data = await res.json();
-      var banner = ensureBanner();
+      const data = await res.json();
+      const banner = ensureBanner();
 
       if (!data.active || !data.weekBanner) {
         banner.classList.add('hidden');
@@ -74,10 +74,10 @@
         }
       }
 
-      var wb = data.weekBanner;
+      const wb = data.weekBanner;
       banner.style.borderColor = wb.color;
       banner.style.backgroundColor = wb.color + '18';
-      var textSpan = banner.querySelector('[data-custody-banner-text]');
+      let textSpan = banner.querySelector('[data-custody-banner-text]');
       if (!textSpan) {
         textSpan = document.createElement('span');
         textSpan.setAttribute('data-custody-banner-text', '1');
@@ -91,7 +91,7 @@
           DashboardCustody.ensureMyDaysToggle();
         }
         if (typeof DashboardCustody.apply === 'function') {
-          var ids = Array.from(document.querySelectorAll('.dash-child-card[data-child-id]'))
+          const ids = Array.from(document.querySelectorAll('.dash-child-card[data-child-id]'))
             .map(function (el) { return el.getAttribute('data-child-id'); })
             .filter(Boolean);
           DashboardCustody.apply(ids.length ? ids : [childId]);

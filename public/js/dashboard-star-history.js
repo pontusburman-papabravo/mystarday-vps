@@ -41,7 +41,7 @@
     }
     if (maxStars === 0) maxStars = 1;
 
-    let html = `
+    const html = `
       <div class="flex items-center gap-3 mb-4 flex-wrap">
         ${ch.map((c, i) => `<span class="flex items-center gap-1 text-xs font-semibold text-navy"><span class="w-3 h-3 rounded-full inline-block" style="background:${childColors[i % childColors.length]}"></span>${c.emoji || ''} ${escHtml(c.name)}</span>`).join('')}
       </div>

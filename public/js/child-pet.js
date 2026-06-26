@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var SPECIES = [
+  const SPECIES = [
     { id: 'dog', emoji: '🐶', label: 'Hund' },
     { id: 'cat', emoji: '🐱', label: 'Katt' },
     { id: 'rabbit', emoji: '🐰', label: 'Kanin' },
@@ -12,7 +12,7 @@
   ];
 
   function speciesEmoji(id) {
-    var s = SPECIES.find(function (x) { return x.id === id; });
+    const s = SPECIES.find(function (x) { return x.id === id; });
     return s ? s.emoji : '🐶';
   }
 
@@ -24,7 +24,7 @@
   }
 
   function renderRoom(universe) {
-    var pet = universe.pet;
+    const pet = universe.pet;
     if (pet) {
       return '<div class="skatt-section cu-pet-room">' +
         '<div class="skatt-section-body" style="text-align:center;padding:28px 16px;">' +
@@ -34,7 +34,7 @@
         '</div></div>';
     }
 
-    var picks = SPECIES.map(function (s) {
+    const picks = SPECIES.map(function (s) {
       return '<button type="button" class="cu-pet-pick" data-species="' + s.id + '">' +
         '<span>' + s.emoji + '</span><span>' + s.label + '</span></button>';
     }).join('');
@@ -53,7 +53,7 @@
   }
 
   function bindRoom(universe, onAdopted) {
-    var selected = 'dog';
+    let selected = 'dog';
     document.querySelectorAll('.cu-pet-pick').forEach(function (btn) {
       btn.addEventListener('click', function () {
         selected = btn.getAttribute('data-species');
@@ -61,14 +61,14 @@
         btn.classList.add('is-active');
       });
     });
-    var first = document.querySelector('.cu-pet-pick');
+    const first = document.querySelector('.cu-pet-pick');
     if (first) first.classList.add('is-active');
 
-    var adoptBtn = document.getElementById('cuPetAdopt');
+    const adoptBtn = document.getElementById('cuPetAdopt');
     if (!adoptBtn) return;
     adoptBtn.addEventListener('click', function () {
-      var nameEl = document.getElementById('cuPetName');
-      var name = nameEl ? nameEl.value.trim() : '';
+      const nameEl = document.getElementById('cuPetName');
+      const name = nameEl ? nameEl.value.trim() : '';
       ChildUniverse.adoptPet({ species: selected, name: name || undefined }).then(function () {
         if (onAdopted) onAdopted();
       });

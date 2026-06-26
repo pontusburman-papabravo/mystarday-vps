@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var _cache = null;
+  let _cache = null;
 
   function api(path, opts) {
     return Auth.api('/api/me' + path, opts || {});

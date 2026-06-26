@@ -19,39 +19,39 @@
   }
 
   function computeStory(data) {
-    var ch = data.children || [];
-    var weeks = data.weeks || [];
+    const ch = data.children || [];
+    const weeks = data.weeks || [];
     if (!ch.length || !weeks.length) return null;
 
-    var current = weeks[weeks.length - 1];
-    var previous = weeks.length > 1 ? weeks[weeks.length - 2] : null;
+    const current = weeks[weeks.length - 1];
+    const previous = weeks.length > 1 ? weeks[weeks.length - 2] : null;
 
-    var thisWeekTotal = ch.reduce(function (sum, c) {
+    const thisWeekTotal = ch.reduce(function (sum, c) {
       return sum + (current.child_totals[c.id] || 0);
     }, 0);
 
-    var lastWeekTotal = previous ? ch.reduce(function (sum, c) {
+    const lastWeekTotal = previous ? ch.reduce(function (sum, c) {
       return sum + (previous.child_totals[c.id] || 0);
     }, 0) : 0;
 
-    var diff = thisWeekTotal - lastWeekTotal;
-    var diffHtml = '';
+    const diff = thisWeekTotal - lastWeekTotal;
+    let diffHtml = '';
     if (previous && diff !== 0) {
-      var sign = diff > 0 ? '+' : '';
-      var diffClass = diff > 0 ? 'text-emerald-700' : 'text-text-soft';
+      const sign = diff > 0 ? '+' : '';
+      const diffClass = diff > 0 ? 'text-emerald-700' : 'text-text-soft';
       diffHtml = '<span class="dash-week-diff ' + diffClass + '">' + sign + diff + ' jämfört med förra veckan</span>';
     } else if (previous && diff === 0 && thisWeekTotal > 0) {
       diffHtml = '<span class="dash-week-diff text-text-soft">Samma som förra veckan</span>';
     }
 
     // Best week per child (for single-child families or highlight top performer)
-    var bestChild = null;
+    let bestChild = null;
     if (ch.length === 1) {
-      var child = ch[0];
-      var childThisWeek = current.child_totals[child.id] || 0;
-      var childBest = 0;
-      for (var i = 0; i < weeks.length - 1; i++) {
-        var wk = weeks[i].child_totals[child.id] || 0;
+      const child = ch[0];
+      const childThisWeek = current.child_totals[child.id] || 0;
+      let childBest = 0;
+      for (let i = 0; i < weeks.length - 1; i++) {
+        const wk = weeks[i].child_totals[child.id] || 0;
         if (wk > childBest) childBest = wk;
       }
       if (childThisWeek > 0 && childThisWeek > childBest) {
@@ -67,17 +67,17 @@
   }
 
   function render(data) {
-    var storyEl = document.getElementById('starHistoryStory');
+    const storyEl = document.getElementById('starHistoryStory');
     if (!storyEl) return;
 
-    var story = computeStory(data);
+    const story = computeStory(data);
     if (!story) {
       storyEl.classList.add('hidden');
       storyEl.innerHTML = '';
       return;
     }
 
-    var bestHtml = story.bestChild
+    const bestHtml = story.bestChild
       ? '<p class="dash-week-best">🎉 ' + escHtml(story.bestChild.name) + 's bästa vecka hittills!</p>'
       : '';
 

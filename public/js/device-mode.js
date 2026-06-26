@@ -5,11 +5,11 @@
 (function () {
   'use strict';
 
-  var KEY = 'stjarndag_device_mode';
+  const KEY = 'stjarndag_device_mode';
 
   function get() {
     try {
-      var v = localStorage.getItem(KEY);
+      const v = localStorage.getItem(KEY);
       return v === 'child' ? 'child' : 'parent';
     } catch (_) {
       return 'parent';

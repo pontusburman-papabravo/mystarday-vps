@@ -5,12 +5,12 @@
   'use strict';
 
   function markReady() {
-    var grid = document.getElementById('childCardsGrid');
+    const grid = document.getElementById('childCardsGrid');
     if (grid) grid.classList.add('dash-grid-ready');
   }
 
   function observeGrid() {
-    var grid = document.getElementById('childCardsGrid');
+    const grid = document.getElementById('childCardsGrid');
     if (!grid || typeof MutationObserver === 'undefined') {
       setTimeout(markReady, 400);
       return;

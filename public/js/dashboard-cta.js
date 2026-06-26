@@ -167,7 +167,7 @@
   }
 
   function showShareToast(message) {
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
     el.textContent = message;
     document.body.appendChild(el);
@@ -175,7 +175,7 @@
   }
 
   function showDelaAppenCtaIfEligible() {
-    var banner = document.getElementById('delaAppenCtaBanner');
+    const banner = document.getElementById('delaAppenCtaBanner');
     if (!banner) return;
 
     // Feature gate
@@ -186,9 +186,9 @@
 
     // Check localStorage dismissal
     try {
-      var stored = localStorage.getItem(DELA_APPEN_KEY);
+      const stored = localStorage.getItem(DELA_APPEN_KEY);
       if (stored) {
-        var parsed = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
         if (Date.now() - parsed.ts < DELA_APPEN_TTL) {
           banner.style.display = 'none';
           return;
@@ -202,7 +202,7 @@
   }
 
   function dismissDelaAppenCtaBanner() {
-    var banner = document.getElementById('delaAppenCtaBanner');
+    const banner = document.getElementById('delaAppenCtaBanner');
     if (!banner) return;
     banner.style.display = 'none';
     try {
@@ -214,7 +214,7 @@
     trackEvent('cta_share_app_clicked');
 
     loadReferralShare().then(function (ref) {
-      var payload = getSharePayload(ref);
+      const payload = getSharePayload(ref);
 
       if (navigator.share) {
         navigator.share({
@@ -254,8 +254,8 @@
   }
 
   function sendShareNotify() {
-    var csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
-    var headers = { 'Content-Type': 'application/json' };
+    const csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
     if (csrf) headers['X-CSRF-Token'] = csrf;
     fetch('/api/account/share-notify', {
       method: 'POST',
@@ -268,7 +268,7 @@
     showDelaAppenCtaIfEligible();
     loadReferralShare().then(function (ref) {
       if (!ref || !ref.code) return;
-      var sub = document.querySelector('#delaAppenCtaBanner .text-xs.text-text-soft');
+      const sub = document.querySelector('#delaAppenCtaBanner .text-xs.text-text-soft');
       if (sub) {
         sub.textContent = 'Din kod: ' + ref.code + ' — dela länken så vi kan följa värvningar';
       }

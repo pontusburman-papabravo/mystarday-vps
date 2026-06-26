@@ -21,7 +21,7 @@
 
   function detectWorldFromPath() {
     if (!window.ChildWorlds) return 'today';
-    var active = ChildWorlds.activeChildNavItem(
+    const active = ChildWorlds.activeChildNavItem(
       window.location.pathname,
       window.location.hash
     );
@@ -37,7 +37,7 @@
   function init() {
     if (!window.ChildWorlds || !ChildWorlds.V2_ENABLED) return;
 
-    var worldId = detectWorldFromPath();
+    const worldId = detectWorldFromPath();
     document.documentElement.setAttribute('data-child-world-active', worldId);
 
     if (window.ChildWorldsNav) ChildWorldsNav.renderBottomNav();

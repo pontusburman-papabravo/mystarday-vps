@@ -5,13 +5,13 @@
 (function () {
   'use strict';
 
-  var limitEl = document.getElementById('founderLimitText');
-  var limitEl2 = document.getElementById('founderLimitText2');
-  var counterEl = document.getElementById('founderLiveCounter');
-  var heroSpots = document.getElementById('founderHeroSpots');
-  var statsBanner = document.getElementById('founderStatsBanner');
-  var footerSpots = document.getElementById('founderFooterSpots');
-  var footerLimit = document.getElementById('founderFooterLimit');
+  const limitEl = document.getElementById('founderLimitText');
+  const limitEl2 = document.getElementById('founderLimitText2');
+  const counterEl = document.getElementById('founderLiveCounter');
+  const heroSpots = document.getElementById('founderHeroSpots');
+  const statsBanner = document.getElementById('founderStatsBanner');
+  const footerSpots = document.getElementById('founderFooterSpots');
+  const footerLimit = document.getElementById('founderFooterLimit');
 
   function show(el, text) {
     if (!el || !text) return;
@@ -20,13 +20,13 @@
   }
 
   function render(limit, count, remaining) {
-    var limitStr = limit ? String(limit) : '225';
+    const limitStr = limit ? String(limit) : '225';
     if (limitEl) limitEl.textContent = limitStr;
     if (limitEl2) limitEl2.textContent = limitStr;
     if (footerLimit) footerLimit.textContent = limitStr;
 
     if (typeof remaining === 'number' && remaining > 0) {
-      var spotsLabel = remaining + (remaining === 1 ? ' plats kvar' : ' platser kvar') + ' i grundarprogrammet';
+      const spotsLabel = remaining + (remaining === 1 ? ' plats kvar' : ' platser kvar') + ' i grundarprogrammet';
       show(heroSpots, '🎁 ' + spotsLabel);
       show(counterEl, spotsLabel);
       show(footerSpots, 'Grundarprogrammet: ' + spotsLabel + ' · Basic gratis');
@@ -38,7 +38,7 @@
     }
 
     if (statsBanner && typeof count === 'number' && count > 0) {
-      var base = statsBanner.getAttribute('data-base') || 'Används redan av familjer i Sverige';
+      const base = statsBanner.getAttribute('data-base') || 'Används redan av familjer i Sverige';
       statsBanner.textContent = base + ' · ' + count + ' familjer har gått med';
     }
   }

@@ -6,7 +6,7 @@
   'use strict';
 
   /** Primärnav: not feature-gated (for_dig is basic_app — always visible). */
-  var PRIMARY_NAV = [
+  const PRIMARY_NAV = [
     {
       id: 'home',
       href: '/dashboard',
@@ -52,7 +52,7 @@
     },
   ];
 
-  var SETTINGS_NAV = {
+  const SETTINGS_NAV = {
     id: 'settings',
     href: '/settings',
     label: 'Inställningar',
@@ -60,12 +60,12 @@
     paths: ['/settings', '/upgrade', '/payment-success', '/child-settings'],
   };
 
-  var HEADER_ACTIONS = [
+  const HEADER_ACTIONS = [
     { id: 'notifications', href: '/notifications', icon: '🔔', label: 'Notiser' },
   ];
 
   /** Capability placements — feature-gated deep links (vuxenmeny v2 Sprint 6). */
-  var CAPABILITIES = [
+  const CAPABILITIES = [
     {
       id: 'subscription',
       label: 'Prenumeration',
@@ -100,7 +100,7 @@
     },
   ];
 
-  var AVATAR_ACTIONS = [
+  const AVATAR_ACTIONS = [
     {
       id: 'switch_pedagog',
       label: 'Byt till pedagogvy',
@@ -137,20 +137,20 @@
   }
 
   function normalizePath(pathname) {
-    var p = (pathname || '/').replace(/\/$/, '') || '/';
+    let p = (pathname || '/').replace(/\/$/, '') || '/';
     if (p.endsWith('.html')) p = p.slice(0, -5);
     return p;
   }
 
   /** Active primary tab — same logic for bottom nav, magic shell, sidebar. */
   function activeNavItem(pathname, nav) {
-    var list = nav || PRIMARY_NAV;
-    var p = normalizePath(pathname);
-    for (var i = 0; i < list.length; i++) {
-      var tab = list[i];
+    const list = nav || PRIMARY_NAV;
+    const p = normalizePath(pathname);
+    for (let i = 0; i < list.length; i++) {
+      const tab = list[i];
       if (!tab.paths) continue;
-      for (var j = 0; j < tab.paths.length; j++) {
-        var tp = tab.paths[j];
+      for (let j = 0; j < tab.paths.length; j++) {
+        const tp = tab.paths[j];
         if (p === tp) return tab;
         if (tp === '/dashboard' && p.indexOf('/daily') === 0) return tab;
         if (tp === '/family/child' && p.indexOf('/family/child/') === 0) return tab;
@@ -161,7 +161,7 @@
   }
 
   /** Capability / deep-link pages that keep parent shell but are not primary tabs. */
-  var PARENT_SHELL_PATHS = [
+  const PARENT_SHELL_PATHS = [
     '/reports',
     '/samarbete',
     '/pedagog-note',
@@ -173,10 +173,10 @@
   ];
 
   function isParentShellPath(pathname) {
-    var p = normalizePath(pathname);
+    const p = normalizePath(pathname);
     if (activeNavItem(p)) return true;
-    for (var i = 0; i < PARENT_SHELL_PATHS.length; i++) {
-      var hp = PARENT_SHELL_PATHS[i];
+    for (let i = 0; i < PARENT_SHELL_PATHS.length; i++) {
+      const hp = PARENT_SHELL_PATHS[i];
       if (p === hp || p.indexOf(hp + '/') === 0) return true;
     }
     if (p.indexOf('/family/child/') === 0) return true;

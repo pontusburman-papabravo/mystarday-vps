@@ -4,8 +4,8 @@
 (function () {
   'use strict';
 
-  var _goalData = null;
-  var _rewardsData = null;
+  let _goalData = null;
+  let _rewardsData = null;
 
   function refreshRewards() {
     if (typeof window.loadRewards === 'function') return window.loadRewards();
@@ -22,7 +22,7 @@
 
   function pendingBannerHtml() {
     if (!_rewardsData || !_rewardsData.redemptions) return '';
-    var pending = _rewardsData.redemptions.filter(function (r) { return r.status === 'pending'; });
+    const pending = _rewardsData.redemptions.filter(function (r) { return r.status === 'pending'; });
     if (!pending.length) return '';
     return '<div id="childPendingRedemptionMount" class="mx-4 mb-4 p-4 bg-purple-50 border border-purple-200 rounded-2xl" role="status">' +
       '<p class="font-heading font-bold text-navy mb-1">⏳ Väntar på godkännande</p>' +
@@ -30,10 +30,10 @@
   }
 
   function mountPendingBannerIfNeeded() {
-    var view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
+    const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view) return;
-    var existing = document.getElementById('childPendingRedemptionMount');
-    var html = pendingBannerHtml();
+    const existing = document.getElementById('childPendingRedemptionMount');
+    const html = pendingBannerHtml();
     if (!html) {
       if (existing) existing.remove();
       return;
@@ -42,9 +42,9 @@
       existing.outerHTML = html;
       return;
     }
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.innerHTML = html;
-    var goalMount = document.getElementById('childGoalProgressMount');
+    const goalMount = document.getElementById('childGoalProgressMount');
     if (goalMount && goalMount.parentNode) {
       goalMount.parentNode.insertBefore(wrap.firstChild, goalMount.nextSibling);
     } else {
@@ -54,10 +54,10 @@
 
   function goalProgressHtml() {
     if (!_goalData || !_goalData.goal) return '';
-    var goal = _goalData.goal;
-    var pct = Math.min(100, _goalData.progress_pct || 0);
-    var current = _goalData.stars_toward_goal != null ? _goalData.stars_toward_goal : (_goalData.current_stars || 0);
-    var target = goal.star_cost || _goalData.target_stars || '?';
+    const goal = _goalData.goal;
+    const pct = Math.min(100, _goalData.progress_pct || 0);
+    const current = _goalData.stars_toward_goal != null ? _goalData.stars_toward_goal : (_goalData.current_stars || 0);
+    const target = goal.star_cost || _goalData.target_stars || '?';
     return '<div id="childGoalProgressMount" class="mx-4 mb-4 p-4 bg-white border border-lavender rounded-2xl" aria-live="polite">' +
       '<p class="text-xs text-text-soft mb-1">Mål</p>' +
       '<p class="font-bold text-navy mb-2">' + (goal.icon || '🎁') + ' ' + (goal.name || '') + '</p>' +
@@ -66,17 +66,17 @@
   }
 
   function mountGoalProgress() {
-    var view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
+    const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view || !_goalData || !_goalData.goal) return;
-    var existing = document.getElementById('childGoalProgressMount');
+    const existing = document.getElementById('childGoalProgressMount');
     if (existing) existing.remove();
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.innerHTML = goalProgressHtml();
     view.insertBefore(wrap.firstChild, view.firstChild);
   }
 
   function flashStarEconomy() {
-    var banner = document.querySelector('.skatt-banner');
+    const banner = document.querySelector('.skatt-banner');
     if (banner) {
       banner.classList.add('child-star-flash');
       setTimeout(function () { banner.classList.remove('child-star-flash'); }, 1200);

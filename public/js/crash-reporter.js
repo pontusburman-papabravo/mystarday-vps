@@ -5,11 +5,11 @@
 (function () {
   'use strict';
 
-  var _inited = false;
+  let _inited = false;
 
   function sanitize(value) {
     if (value == null) return value;
-    var s = String(value);
+    const s = String(value);
     if (s.indexOf('@') !== -1) return '[redacted-email]';
     if (/^[0-9a-f-]{36}$/i.test(s)) return '[redacted-uuid]';
     return s.length > 120 ? s.slice(0, 120) + '…' : s;
@@ -17,7 +17,7 @@
 
   function loadSentry(dsn, release) {
     if (_inited || !dsn) return;
-    var script = document.createElement('script');
+    const script = document.createElement('script');
     script.src = 'https://browser.sentry-cdn.com/8.55.0/bundle.min.js';
     script.crossOrigin = 'anonymous';
     script.onload = function () {

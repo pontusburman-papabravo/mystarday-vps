@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  const DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -22,8 +22,8 @@
   }
 
   function isOverviewVisible() {
-    var editor = document.getElementById('scheduleEditorView');
-    var list = document.getElementById('childrenListView');
+    const editor = document.getElementById('scheduleEditorView');
+    const list = document.getElementById('childrenListView');
     if (editor && !editor.classList.contains('hidden')) return false;
     if (list && list.classList.contains('hidden')) return false;
     return true;
@@ -41,7 +41,7 @@
     if (window.DashboardDailySummary && typeof window.DashboardDailySummary.timeGreeting === 'function') {
       return window.DashboardDailySummary.timeGreeting();
     }
-    var h = new Date().getHours();
+    const h = new Date().getHours();
     if (h >= 5 && h < 11) return 'God morgon!';
     if (h >= 11 && h < 17) return 'Hej!';
     if (h >= 17 && h < 22) return 'God kväll!';
@@ -50,22 +50,22 @@
 
   function getChildStatus(c) {
     if (c.today_is_paused) return { text: 'Ledig idag', icon: '🏠' };
-    var items = c.today_items || [];
-    var total = c.today_total || 0;
-    var done = c.today_completed || 0;
+    const items = c.today_items || [];
+    const total = c.today_total || 0;
+    const done = c.today_completed || 0;
     if (total > 0 && done === total) return { text: 'Allt klart!', icon: '✅' };
     if (total === 0) return { text: 'Inget schema', icon: '📋' };
-    var next = items.find(function (item) { return !item.completed; });
+    const next = items.find(function (item) { return !item.completed; });
     if (next) return { text: next.name, icon: next.icon || '📋' };
     return { text: done + '/' + total + ' klara', icon: '⭐' };
   }
 
   function findFocusChild(children) {
-    for (var i = 0; i < children.length; i++) {
-      var c = children[i];
+    for (let i = 0; i < children.length; i++) {
+      const c = children[i];
       if (c.today_is_paused) continue;
-      var items = c.today_items || [];
-      for (var j = 0; j < items.length; j++) {
+      const items = c.today_items || [];
+      for (let j = 0; j < items.length; j++) {
         if (!items[j].completed) return c.id;
       }
     }
@@ -73,19 +73,19 @@
   }
 
   function buildWeekSeries(children) {
-    var today = new Date();
-    var dow = today.getDay();
-    var mondayOffset = dow === 0 ? -6 : 1 - dow;
-    var series = [];
+    const today = new Date();
+    const dow = today.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const series = [];
 
-    for (var i = 0; i < 7; i++) {
-      var d = new Date(today);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
       d.setDate(today.getDate() + mondayOffset + i);
       var dateStr = d.toLocaleDateString('sv-SE');
       var totalCompleted = 0;
       children.forEach(function (c) {
-        var hist = c.history || [];
-        var row = hist.find(function (h) { return h.date === dateStr; });
+        const hist = c.history || [];
+        const row = hist.find(function (h) { return h.date === dateStr; });
         if (row) totalCompleted += row.completed || 0;
         else if (dateStr === today.toLocaleDateString('sv-SE')) {
           totalCompleted += c.today_completed || 0;
@@ -103,25 +103,25 @@
 
   function renderWeekChart(series) {
     if (!series.length) return '';
-    var max = 1;
+    let max = 1;
     series.forEach(function (p) { if (p.value > max) max = p.value; });
 
-    var w = 280;
-    var h = 80;
-    var padX = 12;
-    var padY = 10;
-    var step = (w - padX * 2) / (series.length - 1 || 1);
+    const w = 280;
+    const h = 80;
+    const padX = 12;
+    const padY = 10;
+    const step = (w - padX * 2) / (series.length - 1 || 1);
 
-    var points = series.map(function (p, i) {
-      var x = padX + i * step;
-      var y = h - padY - (p.isFuture ? 0 : (p.value / max) * (h - padY * 2));
+    const points = series.map(function (p, i) {
+      const x = padX + i * step;
+      const y = h - padY - (p.isFuture ? 0 : (p.value / max) * (h - padY * 2));
       return { x: x, y: y, p: p };
     });
 
-    var polyline = points.map(function (pt) { return pt.x + ',' + pt.y; }).join(' ');
-    var area = polyline + ' ' + (padX + (series.length - 1) * step) + ',' + h + ' ' + padX + ',' + h;
+    const polyline = points.map(function (pt) { return pt.x + ',' + pt.y; }).join(' ');
+    const area = polyline + ' ' + (padX + (series.length - 1) * step) + ',' + h + ' ' + padX + ',' + h;
 
-    var labels = series.map(function (p) {
+    const labels = series.map(function (p) {
       return '<span class="' + (p.isToday ? 'is-today' : '') + '">' + escHtml(p.label) + '</span>';
     }).join('');
 
@@ -140,14 +140,14 @@
   }
 
   function encouragementCopy(children) {
-    var allDone = children.length > 0 && children.every(function (c) {
-      var t = c.today_total || 0;
+    const allDone = children.length > 0 && children.every(function (c) {
+      const t = c.today_total || 0;
       return t > 0 && (c.today_completed || 0) === t;
     });
     if (allDone) {
       return { emoji: '🌟', title: 'Bra jobbat!', sub: 'Alla barn har klarat dagens schema' };
     }
-    var stars = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
+    const stars = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
     if (stars >= 5) {
       return { emoji: '✨', title: 'Stjärnig dag!', sub: stars + ' stjärnor samlade idag' };
     }
@@ -166,8 +166,8 @@
       return '<p class="parent-ready-empty">Lägg till barn under Familj för att se status här.</p>';
     }
     return children.map(function (c) {
-      var status = getChildStatus(c);
-      var active = c.id === focusId ? ' is-active' : '';
+      const status = getChildStatus(c);
+      const active = c.id === focusId ? ' is-active' : '';
       return '<button type="button" class="parent-ready-child magic-3d-card' + active + '" data-action="open-schedule" data-child-id="' + escHtml(c.id) + '">' +
         (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
         '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
@@ -178,7 +178,7 @@
   }
 
   function renderActionGrid() {
-    var actions = [
+    const actions = [
       { action: 'give-stars', icon: '⭐', label: 'Ge extra stjärnor' },
       { action: 'backfill-log', icon: '📝', label: 'Fyll i i efterhand' },
       { action: 'once-task', icon: '📋', label: 'Engångsaktivitet' },
@@ -198,9 +198,9 @@
     if (!stats || stats.parent_count === undefined || stats.parent_count >= 2) return '';
     if (window._stjarndagFeatures && !window._stjarndagFeatures.medforalder_cta) return '';
     try {
-      var raw = localStorage.getItem('medforalder_cta_dismissed');
+      const raw = localStorage.getItem('medforalder_cta_dismissed');
       if (raw) {
-        var parsed = JSON.parse(raw);
+        const parsed = JSON.parse(raw);
         if (Date.now() - parsed.ts < 7 * 24 * 60 * 60 * 1000) return '';
       }
     } catch (_) { /* show CTA */ }
@@ -216,7 +216,7 @@
   }
 
   function render(stats) {
-    var mount = document.getElementById('parentHomeHubMount');
+    const mount = document.getElementById('parentHomeHubMount');
     if (!mount) return false;
 
     if (!shouldUse()) {
@@ -229,12 +229,12 @@
     document.body.classList.add('parent-magic-dashboard');
     mount.classList.remove('hidden');
 
-    var children = (stats && stats.children) ? stats.children : [];
-    var user = (window.Auth && Auth.getUser) ? Auth.getUser() : null;
-    var focusId = findFocusChild(children);
-    var enc = encouragementCopy(children);
-    var weekSeries = buildWeekSeries(children);
-    var scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
+    const children = (stats && stats.children) ? stats.children : [];
+    const user = (window.Auth && Auth.getUser) ? Auth.getUser() : null;
+    const focusId = findFocusChild(children);
+    const enc = encouragementCopy(children);
+    const weekSeries = buildWeekSeries(children);
+    const scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
 
     mount.innerHTML =
       '<div class="parent-home-hub magic-3d-scene">' +
@@ -329,12 +329,12 @@
         return;
       }
       if (action === 'stats') {
-        var starHist = document.getElementById('starHistorySection');
+        const starHist = document.getElementById('starHistorySection');
         if (starHist && !starHist.classList.contains('hidden')) {
           starHist.scrollIntoView({ behavior: 'smooth', block: 'start' });
           return;
         }
-        var week = mount.querySelector('.parent-week-section');
+        const week = mount.querySelector('.parent-week-section');
         if (week) {
           week.scrollIntoView({ behavior: 'smooth', block: 'start' });
           week.classList.add('parent-week-highlight');
@@ -345,7 +345,7 @@
         return;
       }
       if (action === 'open-schedule') {
-        var cid = btn.getAttribute('data-child-id');
+        const cid = btn.getAttribute('data-child-id');
         window.location.href = cid ? '/schedule?child=' + encodeURIComponent(cid) : '/schedule';
         return;
       }

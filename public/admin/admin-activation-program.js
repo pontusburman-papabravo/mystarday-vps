@@ -6,7 +6,7 @@
 
   let loaded = false;
   let currentWindow = 14;
-  let chartInstances = {};
+  const chartInstances = {};
 
   function esc(str) {
     return String(str || '')

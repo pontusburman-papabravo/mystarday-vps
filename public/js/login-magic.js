@@ -9,12 +9,12 @@
 
   /* ── Star generation ────────────────────────────────────────────────────── */
   function generateStars(count) {
-    var container = document.getElementById('stars-container');
+    const container = document.getElementById('stars-container');
     if (!container) return;
-    for (var i = 0; i < count; i++) {
-      var star = document.createElement('div');
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement('div');
       star.className = 'star-particle';
-      var size = Math.random() < 0.7 ? Math.floor(Math.random() * 4) + 2 : Math.floor(Math.random() * 7) + 6;
+      const size = Math.random() < 0.7 ? Math.floor(Math.random() * 4) + 2 : Math.floor(Math.random() * 7) + 6;
       star.style.cssText = [
         'width:' + size + 'px',
         'height:' + size + 'px',
@@ -37,13 +37,13 @@
 
   /* ── Cloud generation ────────────────────────────────────────────────────── */
   function generateClouds(count) {
-    var container = document.getElementById('clouds-container');
+    const container = document.getElementById('clouds-container');
     if (!container) return;
-    for (var i = 0; i < count; i++) {
-      var cloud = document.createElement('div');
+    for (let i = 0; i < count; i++) {
+      const cloud = document.createElement('div');
       cloud.className = 'cloud';
-      var w = Math.floor(Math.random() * 180 + 80);
-      var h = Math.floor(w * (0.4 + Math.random() * 0.3));
+      const w = Math.floor(Math.random() * 180 + 80);
+      const h = Math.floor(w * (0.4 + Math.random() * 0.3));
       cloud.style.cssText = [
         'width:' + w + 'px',
         'height:' + h + 'px',
@@ -57,11 +57,11 @@
   }
 
   /* ── Add-child return mode (?next=…addChild…) ───────────────────────────── */
-  var _addChildReturnMode = false;
+  let _addChildReturnMode = false;
 
   function isAddChildLoginReturn() {
     try {
-      var next = new URLSearchParams(window.location.search).get('next') || '';
+      const next = new URLSearchParams(window.location.search).get('next') || '';
       return next.indexOf('addChild') !== -1;
     } catch {
       return false;
@@ -70,7 +70,7 @@
 
   function setAddChildReturnMode(on) {
     _addChildReturnMode = !!on;
-    var kidCard = document.getElementById('kid-role-card');
+    const kidCard = document.getElementById('kid-role-card');
     if (kidCard && _addChildReturnMode) {
       kidCard.style.opacity = '0.45';
       kidCard.style.pointerEvents = 'none';
@@ -80,7 +80,7 @@
 
   function redirectAfterParentCardLogin() {
     try {
-      var pending = sessionStorage.getItem('cl_add_child_pending');
+      const pending = sessionStorage.getItem('cl_add_child_pending');
       if (pending === 'new') {
         sessionStorage.removeItem('cl_add_child_pending');
         sessionStorage.removeItem('cl_add_child_next');
@@ -91,7 +91,7 @@
     } catch { /* fall through */ }
     if (isAddChildLoginReturn()) {
       try {
-        var next = new URLSearchParams(window.location.search).get('next');
+        const next = new URLSearchParams(window.location.search).get('next');
         if (next && next.startsWith('/') && !next.startsWith('//')) {
           if (window.DeviceMode) DeviceMode.enterParent();
           window.location.href = next;
@@ -105,8 +105,8 @@
 
   /* ── Role card interaction ──────────────────────────────────────────────── */
   function initRoleCards() {
-    var kidCard   = document.getElementById('kid-role-card');
-    var parentCard = document.getElementById('parent-role-card');
+    const kidCard   = document.getElementById('kid-role-card');
+    const parentCard = document.getElementById('parent-role-card');
 
     if (!kidCard || !parentCard) return;
 
@@ -116,7 +116,7 @@
       e.preventDefault();
       if (_addChildReturnMode || isAddChildLoginReturn()) {
         showParentLogin();
-        var banner = document.getElementById('addChildLoginBanner');
+        const banner = document.getElementById('addChildLoginBanner');
         if (banner) banner.classList.remove('hidden');
         return;
       }
@@ -211,7 +211,7 @@
 
   /* ── Parent PIN gate overlay (global for parental-gate.js on /login) ─ */
   function showParentPinGateOverlay(onSuccess, onCancel) {
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'ppin-overlay';
     overlay.style.cssText = [
       'position:fixed;inset:0;z-index:9999;background:rgba(27,35,64,0.85);',
@@ -219,7 +219,7 @@
       'backdrop-filter:blur(4px);',
     ].join('');
 
-    var card = document.createElement('div');
+    const card = document.createElement('div');
     card.style.cssText = [
       'background:#fff;border-radius:24px;padding:32px 24px;max-width:320px;width:100%;',
       'margin:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;',
@@ -243,9 +243,9 @@
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 
-    var entered = '';
-    var msgEl = document.getElementById('ppin-err');
-    var dots = document.querySelectorAll('.ppin-dot');
+    let entered = '';
+    const msgEl = document.getElementById('ppin-err');
+    const dots = document.querySelectorAll('.ppin-dot');
 
     function updateDots() {
       dots.forEach(function (d, i) {
@@ -254,11 +254,11 @@
     }
 
     function buildKeypad() {
-      var kbd = document.getElementById('ppin-keypad');
+      const kbd = document.getElementById('ppin-keypad');
       kbd.innerHTML = '';
-      var digits = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+      const digits = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
       digits.forEach(function (d) {
-        var btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.type = 'button';
         btn.textContent = d;
         btn.style.cssText = [
@@ -286,8 +286,8 @@
     }
 
     function submitPin() {
-      var pin = entered;
-      var csrf = window.Auth ? Auth.getCsrfToken() : '';
+      const pin = entered;
+      const csrf = window.Auth ? Auth.getCsrfToken() : '';
       fetch('/api/family/verify-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
@@ -328,8 +328,8 @@
       return;
     }
 
-    var roleSection = document.getElementById('role-selection');
-    var parentSection = document.getElementById('parent-login-section');
+    const roleSection = document.getElementById('role-selection');
+    const parentSection = document.getElementById('parent-login-section');
 
     if (!roleSection || !parentSection) return;
 
@@ -346,8 +346,8 @@
       return;
     }
 
-    var roleSection = document.getElementById('role-selection');
-    var parentSection = document.getElementById('parent-login-section');
+    const roleSection = document.getElementById('role-selection');
+    const parentSection = document.getElementById('parent-login-section');
 
     if (!roleSection || !parentSection) return;
 
@@ -360,7 +360,7 @@
   /* ── Error helpers (called by inline login.html scripts) ───────────────── */
   window.LoginMagic = {
     showError: function (msg) {
-      var el = document.getElementById('magic-login-error');
+      const el = document.getElementById('magic-login-error');
       if (el) {
         el.textContent = msg;
         el.style.display = '';
@@ -368,7 +368,7 @@
       }
     },
     hideError: function () {
-      var el = document.getElementById('magic-login-error');
+      const el = document.getElementById('magic-login-error');
       if (el) {
         el.style.display = 'none';
         el.classList.remove('magic-error-box');

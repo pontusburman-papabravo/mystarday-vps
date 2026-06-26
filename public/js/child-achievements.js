@@ -5,16 +5,16 @@
   'use strict';
 
   function renderRoom(universe) {
-    var achievements = (universe && universe.achievements) || [];
+    const achievements = (universe && universe.achievements) || [];
     if (!achievements.length) {
       return '<div class="skatt-section"><div class="skatt-section-body" style="text-align:center;padding:28px 16px;">' +
         '<div style="font-size:2.5rem;opacity:0.4;margin-bottom:8px;">🏆</div>' +
         '<p style="font-size:0.85rem;color:#9AA0B8;">Klara aktiviteter och samla stjärnor — dina trofeer hamnar här!</p></div></div>';
     }
 
-    var shelves = achievements.map(function (a, i) {
-      var d = new Date(a.unlocked_at);
-      var ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const shelves = achievements.map(function (a, i) {
+      const d = new Date(a.unlocked_at);
+      const ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
       return '<div class="skatt-trophy-item cu-ach-item" style="animation-delay:' + (i * 60) + 'ms;">' +
         '<span class="skatt-trophy-emoji">' + (a.emoji || '🏆') + '</span>' +
         '<span class="skatt-trophy-name">' + (a.name || '') + '</span>' +

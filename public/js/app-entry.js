@@ -6,8 +6,8 @@
 (function () {
   'use strict';
 
-  var ENTRY_VERSION = 'v2_1';
-  var SCREENS = {
+  const ENTRY_VERSION = 'v2_1';
+  const SCREENS = {
     ENTRY_WELCOME: 'entry-welcome',
     ENTRY_ROLE_PICK: 'role-selection',
     ENTRY_ADULT_START: 'entry-adult-start',
@@ -15,7 +15,7 @@
     ENTRY_ADULT_SIGNUP_INTRO: 'entry-signup-intro',
   };
 
-  var VIEW_EVENTS = {
+  const VIEW_EVENTS = {
     ENTRY_WELCOME: 'entry_welcome_viewed',
     ENTRY_ROLE_PICK: 'role_selection_viewed',
     ENTRY_ADULT_START: 'adult_start_viewed',
@@ -23,8 +23,8 @@
     ENTRY_ADULT_SIGNUP_INTRO: 'adult_signup_intro_viewed',
   };
 
-  var _currentScreen = null;
-  var _fullFlow = false;
+  let _currentScreen = null;
+  let _fullFlow = false;
 
   function track(eventName, props) {
     if (window.EntryAnalytics && typeof EntryAnalytics.track === 'function') {
@@ -41,8 +41,8 @@
 
   function getLoginNextUrl() {
     try {
-      var params = new URLSearchParams(window.location.search);
-      var next = params.get('next');
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next');
       if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
       return next;
     } catch (_) {
@@ -51,7 +51,7 @@
   }
 
   function isAddChildReturn() {
-    var next = getLoginNextUrl();
+    const next = getLoginNextUrl();
     return !!(next && next.indexOf('addChild') !== -1);
   }
 
@@ -76,18 +76,18 @@
   }
 
   function getScreenEl(screenId) {
-    var domId = SCREENS[screenId];
+    const domId = SCREENS[screenId];
     return domId ? document.getElementById(domId) : null;
   }
 
   function hideGlobalLogo(hide) {
-    var logo = document.getElementById('login-global-logo');
+    const logo = document.getElementById('login-global-logo');
     if (logo) logo.style.display = hide ? 'none' : '';
   }
 
   function hideAllScreens() {
     Object.keys(SCREENS).forEach(function (key) {
-      var el = getScreenEl(key);
+      const el = getScreenEl(key);
       if (!el) return;
       el.classList.remove('is-active', 'card-transition');
       if (key === 'ENTRY_ADULT_LOGIN') {
@@ -104,7 +104,7 @@
     opts = opts || {};
     hideAllScreens();
 
-    var el = getScreenEl(screenId);
+    const el = getScreenEl(screenId);
     if (!el) return;
 
     _currentScreen = screenId;
@@ -128,9 +128,9 @@
   }
 
   function updateParentLoginBackButton() {
-    var section = document.getElementById('parent-login-section');
+    const section = document.getElementById('parent-login-section');
     if (!section) return;
-    var backBtn = section.querySelector('.magic-back-btn');
+    const backBtn = section.querySelector('.magic-back-btn');
     if (!backBtn || backBtn.id === 'addChildBackBtn') return;
     backBtn.onclick = function () {
       goBack();
@@ -138,7 +138,7 @@
   }
 
   function updateSignupIntroLinks() {
-    var createBtn = document.getElementById('entrySignupCreateBtn');
+    const createBtn = document.getElementById('entrySignupCreateBtn');
     if (createBtn && !createBtn.dataset.bound) {
       createBtn.dataset.bound = '1';
       createBtn.addEventListener('click', function () {
@@ -157,7 +157,7 @@
     }
 
     if (_currentScreen === 'ENTRY_ADULT_LOGIN') {
-      var path = getEntryPath();
+      const path = getEntryPath();
       if (path === 'welcome_existing') {
         showScreen('ENTRY_WELCOME');
         return;
@@ -213,11 +213,11 @@
   }
 
   function bindWelcomeActions() {
-    var startBtn = document.getElementById('entryWelcomeStartBtn');
-    var existingBtn = document.getElementById('entryWelcomeExistingBtn');
-    var howBtn = document.getElementById('entryHowItWorksBtn');
-    var howClose = document.getElementById('entryHowItWorksClose');
-    var howModal = document.getElementById('entry-how-it-works-modal');
+    const startBtn = document.getElementById('entryWelcomeStartBtn');
+    const existingBtn = document.getElementById('entryWelcomeExistingBtn');
+    const howBtn = document.getElementById('entryHowItWorksBtn');
+    const howClose = document.getElementById('entryHowItWorksClose');
+    const howModal = document.getElementById('entry-how-it-works-modal');
 
     if (startBtn && !startBtn.dataset.bound) {
       startBtn.dataset.bound = '1';
@@ -255,7 +255,7 @@
   }
 
   function bindRolePickActions() {
-    var backBtn = document.getElementById('entryRoleBackBtn');
+    const backBtn = document.getElementById('entryRoleBackBtn');
     if (backBtn && !backBtn.dataset.bound) {
       backBtn.dataset.bound = '1';
       backBtn.addEventListener('click', function () {
@@ -263,20 +263,20 @@
       });
     }
 
-    var title = document.getElementById('entryRoleTitle');
+    const title = document.getElementById('entryRoleTitle');
     if (title) title.textContent = 'Vem ska använda appen nu?';
 
-    var kidSub = document.querySelector('#kid-role-card .card-sub');
+    const kidSub = document.querySelector('#kid-role-card .card-sub');
     if (kidSub) kidSub.textContent = 'Jag vill se mitt schema';
 
-    var parentSub = document.querySelector('#parent-role-card .card-sub');
+    const parentSub = document.querySelector('#parent-role-card .card-sub');
     if (parentSub) parentSub.textContent = 'Jag vill logga in eller komma igång';
   }
 
   function bindAdultStartActions() {
-    var backBtn = document.getElementById('entryAdultStartBackBtn');
-    var existingBtn = document.getElementById('entryAdultStartExistingBtn');
-    var newBtn = document.getElementById('entryAdultStartNewBtn');
+    const backBtn = document.getElementById('entryAdultStartBackBtn');
+    const existingBtn = document.getElementById('entryAdultStartExistingBtn');
+    const newBtn = document.getElementById('entryAdultStartNewBtn');
 
     if (backBtn && !backBtn.dataset.bound) {
       backBtn.dataset.bound = '1';
@@ -298,8 +298,8 @@
   }
 
   function bindSignupIntroActions() {
-    var backBtn = document.getElementById('entrySignupBackBtn');
-    var existingBtn = document.getElementById('entrySignupExistingBtn');
+    const backBtn = document.getElementById('entrySignupBackBtn');
+    const existingBtn = document.getElementById('entrySignupExistingBtn');
 
     if (backBtn && !backBtn.dataset.bound) {
       backBtn.dataset.bound = '1';
@@ -315,7 +315,7 @@
   }
 
   function bindLoginSectionLinks() {
-    var signupLink = document.getElementById('entryLoginSignupLink');
+    const signupLink = document.getElementById('entryLoginSignupLink');
     if (signupLink && !signupLink.dataset.bound) {
       signupLink.dataset.bound = '1';
       signupLink.addEventListener('click', function (e) {
@@ -328,7 +328,7 @@
 
   function restoreScreenIfNeeded() {
     try {
-      var restore = sessionStorage.getItem('entry_restore');
+      const restore = sessionStorage.getItem('entry_restore');
       if (restore && SCREENS[restore]) {
         sessionStorage.removeItem('entry_restore');
         showScreen(restore, { silent: true });
@@ -349,14 +349,14 @@
 
     if (!_fullFlow || isAddChildReturn()) {
       _fullFlow = false;
-      var parentSection = document.getElementById('parent-login-section');
-      var roleSel = document.getElementById('role-selection');
+      const parentSection = document.getElementById('parent-login-section');
+      const roleSel = document.getElementById('role-selection');
       if (roleSel) roleSel.style.display = 'none';
       if (parentSection) {
         parentSection.style.display = 'flex';
         _currentScreen = 'ENTRY_ADULT_LOGIN';
       }
-      var addBanner = document.getElementById('addChildLoginBanner');
+      const addBanner = document.getElementById('addChildLoginBanner');
       if (addBanner) addBanner.classList.toggle('hidden', !isAddChildReturn());
       return;
     }

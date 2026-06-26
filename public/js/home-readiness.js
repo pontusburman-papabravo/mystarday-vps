@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var FILTER_KEY = 'homeReadinessWarningsOnly';
+  const FILTER_KEY = 'homeReadinessWarningsOnly';
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -51,9 +51,9 @@
   function bindClicks(mount, items) {
     mount.querySelectorAll('[data-readiness-type]').forEach(function (el) {
       el.addEventListener('click', function () {
-        var type = el.getAttribute('data-readiness-type');
-        var childId = el.getAttribute('data-child-id');
-        var item = items.find(function (i) {
+        const type = el.getAttribute('data-readiness-type');
+        const childId = el.getAttribute('data-child-id');
+        const item = items.find(function (i) {
           return i.type === type && (!childId || i.child_id === childId);
         });
         if (item) trackClick(item);
@@ -62,21 +62,21 @@
   }
 
   async function load() {
-    var mount = document.getElementById('homeReadinessMount');
+    const mount = document.getElementById('homeReadinessMount');
     if (!mount) return;
     try {
-      var res = await window.apiFetch('/api/family/readiness');
+      const res = await window.apiFetch('/api/family/readiness');
       if (!res.ok) return;
-      var data = await res.json();
-      var items = data.items || [];
+      const data = await res.json();
+      let items = data.items || [];
       items = filterItems(items);
       if (!items.length) {
         mount.classList.add('hidden');
         return;
       }
       mount.classList.remove('hidden');
-      var filterOn = warningsOnlyEnabled();
-      var html =
+      const filterOn = warningsOnlyEnabled();
+      const html =
         '<div class="flex items-center justify-between mb-3 gap-2">' +
         '<h2 class="text-lg font-heading font-bold text-navy">Kräver åtgärd</h2>' +
         '<label class="flex items-center gap-2 text-xs text-text-soft whitespace-nowrap cursor-pointer">' +
@@ -86,7 +86,7 @@
       mount.innerHTML = html;
       bindClicks(mount, items);
 
-      var filterEl = document.getElementById('homeReadinessFilter');
+      const filterEl = document.getElementById('homeReadinessFilter');
       if (filterEl) {
         filterEl.addEventListener('change', function () {
           try {

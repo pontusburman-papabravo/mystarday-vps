@@ -4,16 +4,16 @@
 (function () {
   'use strict';
 
-  var RARITY_LABEL = { common: 'Vanlig', rare: 'Sällsynt', legendary: 'Legendarisk' };
-  var RARITY_CLASS = { common: 'cu-r-common', rare: 'cu-r-rare', legendary: 'cu-r-legend' };
+  const RARITY_LABEL = { common: 'Vanlig', rare: 'Sällsynt', legendary: 'Legendarisk' };
+  const RARITY_CLASS = { common: 'cu-r-common', rare: 'cu-r-rare', legendary: 'cu-r-legend' };
 
   function renderRoom(universe) {
-    var owned = (universe.collectibles || []).map(function (c) { return c.slug; });
-    var catalog = universe.catalog || [];
+    const owned = (universe.collectibles || []).map(function (c) { return c.slug; });
+    const catalog = universe.catalog || [];
 
-    var items = catalog.map(function (item) {
-      var has = owned.indexOf(item.slug) >= 0;
-      var cls = RARITY_CLASS[item.rarity] || 'cu-r-common';
+    let items = catalog.map(function (item) {
+      const has = owned.indexOf(item.slug) >= 0;
+      const cls = RARITY_CLASS[item.rarity] || 'cu-r-common';
       return '<div class="cu-col-item ' + cls + (has ? ' is-owned' : ' is-locked') + '">' +
         '<span class="cu-col-emoji">' + item.emoji + '</span>' +
         '<span class="cu-col-name">' + item.name + '</span>' +

@@ -61,7 +61,7 @@ var Platform = (function () {
     return isNative() && isAndroid();
   }
 
-  var _googleClientId = null;
+  let _googleClientId = null;
 
   function loadGoogleClientId() {
     if (_googleClientId) return Promise.resolve(_googleClientId);
@@ -74,13 +74,13 @@ var Platform = (function () {
       .catch(function () { return ''; });
   }
 
-  var googleSignIn = {
+  const googleSignIn = {
     isAvailable: isGoogleSignInAvailable,
     async signIn() {
       if (!isGoogleSignInAvailable()) {
         throw new Error('Google Sign In är endast tillgängligt i Android-appen');
       }
-      var clientId = await loadGoogleClientId();
+      const clientId = await loadGoogleClientId();
       if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth) {
         if (clientId && typeof Capacitor.Plugins.GoogleAuth.initialize === 'function') {
           try {
@@ -92,7 +92,7 @@ var Platform = (function () {
           } catch (_) {}
         }
         const result = await Capacitor.Plugins.GoogleAuth.signIn();
-        var idToken =
+        const idToken =
           (result && result.authentication && result.authentication.idToken) ||
           (result && result.idToken);
         return { idToken: idToken };
@@ -129,7 +129,7 @@ var Platform = (function () {
   }
 
   // Haptics — uses @capacitor/haptics on native, navigator.vibrate on web.
-  var haptics = {
+  const haptics = {
     async light() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
@@ -190,7 +190,7 @@ var Platform = (function () {
   };
 
   // Share — @capacitor/share on native, Web Share API on web, clipboard fallback.
-  var share = async function (opts) {
+  const share = async function (opts) {
     if (isNative()) {
       try {
         const { Share } = await import('@capacitor/share');
@@ -223,14 +223,14 @@ var Platform = (function () {
   };
 
   // Native push token cache (for unregister + bridge listener).
-  var _lastNativePushToken = null;
-  var _nativePushListenersReady = false;
+  let _lastNativePushToken = null;
+  let _nativePushListenersReady = false;
 
   function pushAuthHeaders() {
-    var headers = { 'Content-Type': 'application/json' };
-    var csrf = (window.Auth && window.Auth.getCsrfToken && window.Auth.getCsrfToken()) ||
+    const headers = { 'Content-Type': 'application/json' };
+    const csrf = (window.Auth && window.Auth.getCsrfToken && window.Auth.getCsrfToken()) ||
       (function () {
-        var m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+        const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
         return m ? decodeURIComponent(m[1]) : null;
       })();
     if (csrf) headers['X-CSRF-Token'] = csrf;
@@ -247,9 +247,9 @@ var Platform = (function () {
     _nativePushListenersReady = true;
     await PushNotifications.addListener('registration', async function (tokenEvt) {
       _lastNativePushToken = tokenEvt.value;
-      var platform = isIOS() ? 'ios' : 'android';
+      const platform = isIOS() ? 'ios' : 'android';
       try {
-        var res = await fetch('/api/push/register-native', {
+        const res = await fetch('/api/push/register-native', {
           method: 'POST',
           headers: pushAuthHeaders(),
           body: JSON.stringify({ token: tokenEvt.value, platform: platform }),
@@ -268,7 +268,7 @@ var Platform = (function () {
   }
 
   // Push — Web Push on web, Capacitor PushNotifications on native.
-  var push = {
+  const push = {
     /**
      * Request push notification permission and register the device token.
      * On web: registers with the backend's VAPID subscription endpoint.
@@ -278,13 +278,13 @@ var Platform = (function () {
     async register() {
       if (isNative()) {
         try {
-          var PushNotifications = getPushNotificationsPlugin();
+          const PushNotifications = getPushNotificationsPlugin();
           if (!PushNotifications) {
             console.warn('[Platform.push] PushNotifications plugin not available — run npx cap sync ios');
             return { success: false, reason: 'push_plugin_unavailable' };
           }
           await ensureNativePushListeners(PushNotifications);
-          var permResult = await PushNotifications.requestPermissions();
+          const permResult = await PushNotifications.requestPermissions();
           if (permResult.receive !== 'granted') {
             console.warn('[Platform.push] Permission denied:', permResult);
             return { success: false, reason: 'permission_denied' };
@@ -332,11 +332,11 @@ var Platform = (function () {
     async unregister() {
       if (isNative()) {
         try {
-          var PushNotifications = getPushNotificationsPlugin();
+          const PushNotifications = getPushNotificationsPlugin();
           if (PushNotifications && typeof PushNotifications.unregister === 'function') {
             await PushNotifications.unregister();
           }
-          var platform = isIOS() ? 'ios' : 'android';
+          const platform = isIOS() ? 'ios' : 'android';
           await fetch('/api/push/unregister-native', {
             method: 'POST',
             headers: pushAuthHeaders(),
@@ -383,15 +383,15 @@ var Platform = (function () {
     return outputArray;
   }
 
-  var _appleWebConfig = null;
+  let _appleWebConfig = null;
 
   function loadAppleWebConfig() {
     if (_appleWebConfig) return Promise.resolve(_appleWebConfig);
     return fetch('/api/app-config', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (cfg) {
-        var clientId = (cfg && cfg.appleClientId) || '';
-        var redirectUri = (cfg && cfg.appleWebRedirectUri) || window.location.origin;
+        const clientId = (cfg && cfg.appleClientId) || '';
+        const redirectUri = (cfg && cfg.appleWebRedirectUri) || window.location.origin;
         _appleWebConfig = { clientId: clientId, redirectUri: redirectUri };
         return _appleWebConfig;
       })
@@ -406,10 +406,10 @@ var Platform = (function () {
   //   On Capacitor 4+ the plugin registers directly on the bridge.
   // Web: falls back to Sign in with Apple JS (Apple CDN).
   // Requires the site origin registered as Return URL in Apple Developer.
-  var APPLE_AUTH_JS_URL =
+  const APPLE_AUTH_JS_URL =
     'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
 
-  var appleSignIn = {
+  const appleSignIn = {
     /** Returns true if the native Capacitor plugin is registered. */
     isAvailable() {
       return isNative() && !!(Capacitor && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple);
@@ -426,26 +426,26 @@ var Platform = (function () {
         try {
           // Access via Capacitor bridge — bare-specifier imports don't resolve
           // in a remote-URL WebView without a bundler.
-          var plugin = Capacitor && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple;
+          const plugin = Capacitor && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple;
           if (!plugin) throw new Error('SIGN_IN_UNAVAILABLE');
-          var result = await plugin.authorize({
+          const result = await plugin.authorize({
             clientId: 'se.mystarday.app',
             redirectURI: 'se.mystarday.app://oauth-callback',
             scopes: 'email name',
           });
-          var resp = result.response || result;
+          const resp = result.response || result;
           // The native plugin returns given/family name either at the response
           // top level (our patched Plugin.swift) or nested under fullName.
-          var given = (resp.fullName && resp.fullName.givenName) || resp.givenName || '';
-          var family = (resp.fullName && resp.fullName.familyName) || resp.familyName || '';
-          var fullName = (given + ' ' + family).trim();
+          const given = (resp.fullName && resp.fullName.givenName) || resp.givenName || '';
+          const family = (resp.fullName && resp.fullName.familyName) || resp.familyName || '';
+          const fullName = (given + ' ' + family).trim();
           return {
             idToken: resp.identityToken,
             name: fullName || null,
           };
         } catch (err) {
-          var msg = (err && (err.message || err.errorMessage)) || String(err || '');
-          var code = err && (err.code || err.errorCode);
+          const msg = (err && (err.message || err.errorMessage)) || String(err || '');
+          const code = err && (err.code || err.errorCode);
           if (
             msg === 'cancel' ||
             msg === 'SIGN_IN_UNAVAILABLE' ||
@@ -489,7 +489,7 @@ var Platform = (function () {
   function loadAppleAuthJs() {
     if (window.AppleID && window.AppleID.auth) return Promise.resolve();
 
-    var existing = document.getElementById('apple-id-auth');
+    const existing = document.getElementById('apple-id-auth');
     if (existing) {
       if (existing.dataset.loadState === 'error') {
         existing.remove();
@@ -501,7 +501,7 @@ var Platform = (function () {
     }
 
     return new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
+      const script = document.createElement('script');
       script.id = 'apple-id-auth';
       script.src = APPLE_AUTH_JS_URL;
       script.async = true;
@@ -518,7 +518,7 @@ var Platform = (function () {
   }
 
   function attemptWebSignIn(clientId, redirectUri) {
-    var apple = window.AppleID;
+    const apple = window.AppleID;
     if (!apple || !apple.auth) {
       return Promise.reject(new Error('Apple Sign In JS inte tillgänglig'));
     }
@@ -553,18 +553,18 @@ var Platform = (function () {
 
   async function ensurePhotosPermission(Camera, opts) {
     if (!Camera || typeof Camera.checkPermissions !== 'function') return true;
-    var needCamera = opts && opts.source === 'camera';
+    const needCamera = opts && opts.source === 'camera';
     try {
-      var status = await Camera.checkPermissions();
-      var photosOk = status.photos === 'granted' || status.photos === 'limited';
-      var cameraOk = status.camera === 'granted';
+      const status = await Camera.checkPermissions();
+      let photosOk = status.photos === 'granted' || status.photos === 'limited';
+      let cameraOk = status.camera === 'granted';
       if (!needCamera && photosOk) return true;
       if (needCamera && cameraOk) return true;
       if (!needCamera && photosOk) return true;
       if (status.photos === 'denied' && (!needCamera || status.camera === 'denied')) {
         if (typeof Camera.requestPermissions !== 'function') return false;
       } else if (typeof Camera.requestPermissions === 'function') {
-        var requested = await Camera.requestPermissions({ permissions: needCamera ? ['camera', 'photos'] : ['photos'] });
+        const requested = await Camera.requestPermissions({ permissions: needCamera ? ['camera', 'photos'] : ['photos'] });
         photosOk = requested.photos === 'granted' || requested.photos === 'limited';
         cameraOk = requested.camera === 'granted';
       }
@@ -583,17 +583,17 @@ var Platform = (function () {
   async function pickViaGallery(Camera, opts) {
     if (!Camera || typeof Camera.pickImages !== 'function') return null;
     try {
-      var gallery = await Camera.pickImages({
+      const gallery = await Camera.pickImages({
         quality: nativePhotoQuality(opts),
         limit: 1,
       });
       if (!gallery || !gallery.photos || !gallery.photos.length) return null;
-      var photo = gallery.photos[0];
-      var webPath = photo.webPath || capacitorFileUrl(photo.path);
+      const photo = gallery.photos[0];
+      const webPath = photo.webPath || capacitorFileUrl(photo.path);
       if (!webPath) return null;
-      var resp = await fetch(webPath);
+      const resp = await fetch(webPath);
       if (!resp.ok) return null;
-      var blob = await resp.blob();
+      const blob = await resp.blob();
       return await blobToDataUrlPick(blob);
     } catch (err) {
       console.warn('[Platform.camera] pickImages failed:', err);
@@ -603,9 +603,9 @@ var Platform = (function () {
 
   async function pickViaFileInput() {
     return new Promise(function (resolve) {
-      var settled = false;
-      var picking = true;
-      var input = document.createElement('input');
+      let settled = false;
+      let picking = true;
+      const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/jpeg,image/png,image/webp,image/*';
       input.style.cssText = 'position:fixed;left:-9999px;opacity:0;width:1px;height:1px;';
@@ -629,8 +629,8 @@ var Platform = (function () {
       input.onchange = function () {
         picking = false;
         if (!input.files || !input.files[0]) { finish(null); return; }
-        var file = input.files[0];
-        var reader = new FileReader();
+        const file = input.files[0];
+        const reader = new FileReader();
         reader.onload = function (e) {
           finish({
             dataUrl: e.target.result,
@@ -649,9 +649,9 @@ var Platform = (function () {
   }
 
   async function tryCapacitorPick(opts) {
-    var Camera = getCameraPlugin();
+    const Camera = getCameraPlugin();
     if (!Camera) return null;
-    var photosOk = await ensurePhotosPermission(Camera, opts);
+    const photosOk = await ensurePhotosPermission(Camera, opts);
     if (!photosOk) {
       return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
     }
@@ -659,19 +659,19 @@ var Platform = (function () {
   }
 
   function pickErrorMessage(err, stage) {
-    var detail = (err && err.message) ? String(err.message).trim() : '';
+    const detail = (err && err.message) ? String(err.message).trim() : '';
     if (detail && detail.length < 120) {
       return (stage || 'Kunde inte välja bild') + ': ' + detail;
     }
     return stage || 'Kunde inte välja bild. Stäng appen helt och öppna igen.';
   }
   function isPickCancelled(err) {
-    var msg = ((err && err.message) || String(err || '')).toLowerCase();
+    const msg = ((err && err.message) || String(err || '')).toLowerCase();
     return msg.includes('cancel') || msg.includes('cancelled') || msg.includes('canceled');
   }
 
   async function tryNativeGetPhoto(Camera, opts, source, resultType) {
-    var result = await Camera.getPhoto({
+    const result = await Camera.getPhoto({
       quality: nativePhotoQuality(opts),
       allowEditing: false,
       resultType: resultType,
@@ -687,23 +687,23 @@ var Platform = (function () {
   }
 
   async function nativePickWithFallbacks(Camera, opts) {
-    var wantCamera = opts && opts.source === 'camera';
-    var lastErr = null;
+    const wantCamera = opts && opts.source === 'camera';
+    let lastErr = null;
 
     if (!wantCamera) {
-      var galleryPick = await pickViaGallery(Camera, opts);
+      const galleryPick = await pickViaGallery(Camera, opts);
       if (galleryPick) return galleryPick;
     }
 
-    var sources = wantCamera
+    const sources = wantCamera
       ? ['CAMERA', 'PROMPT']
       : ['PHOTOS', 'PROMPT', 'CAMERA'];
-    var resultTypes = ['uri', 'base64'];
+    const resultTypes = ['uri', 'base64'];
 
-    for (var si = 0; si < sources.length; si++) {
-      for (var ri = 0; ri < resultTypes.length; ri++) {
+    for (let si = 0; si < sources.length; si++) {
+      for (let ri = 0; ri < resultTypes.length; ri++) {
         try {
-          var picked = await tryNativeGetPhoto(Camera, opts, sources[si], resultTypes[ri]);
+          const picked = await tryNativeGetPhoto(Camera, opts, sources[si], resultTypes[ri]);
           if (picked) return picked;
         } catch (err) {
           if (isPickCancelled(err)) return null;
@@ -739,11 +739,11 @@ var Platform = (function () {
         mimeType: 'image/jpeg',
       };
     }
-    var fetchPath = result.webPath || capacitorFileUrl(result.path);
+    const fetchPath = result.webPath || capacitorFileUrl(result.path);
     if (fetchPath) {
-      var resp = await fetch(fetchPath);
+      const resp = await fetch(fetchPath);
       if (!resp.ok) return null;
-      var blob = await resp.blob();
+      const blob = await resp.blob();
       return await blobToDataUrlPick(blob);
     }
     return null;
@@ -751,7 +751,7 @@ var Platform = (function () {
 
   function normalizePublicUrl(url) {
     if (!url || typeof url !== 'string') return url;
-    var trimmed = url.trim();
+    const trimmed = url.trim();
     if (!trimmed) return trimmed;
     if (trimmed.indexOf('/') === 0) {
       return window.location.origin + trimmed;
@@ -761,7 +761,7 @@ var Platform = (function () {
 
   function blobToDataUrlPick(blob) {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = function () {
         resolve({
           dataUrl: reader.result,
@@ -776,8 +776,8 @@ var Platform = (function () {
 
   function loadImageFromBlob(blob) {
     return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(blob);
-      var img = new Image();
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
         resolve(img);
@@ -792,24 +792,24 @@ var Platform = (function () {
 
   /** Resize + JPEG compress so avatar upload stays under 2 MB server limit. */
   async function compressAvatarBlob(blob) {
-    var maxBytes = 1800000;
-    var maxDim = 800;
+    const maxBytes = 1800000;
+    const maxDim = 800;
     if (!blob || !(blob instanceof Blob)) throw new Error('Ogiltig bild');
     try {
-      var img = await loadImageFromBlob(blob);
-      var w = img.naturalWidth || img.width || 1;
-      var h = img.naturalHeight || img.height || 1;
-      var scale = Math.min(1, maxDim / Math.max(w, h));
-      var cw = Math.max(1, Math.round(w * scale));
-      var ch = Math.max(1, Math.round(h * scale));
-      var canvas = document.createElement('canvas');
+      const img = await loadImageFromBlob(blob);
+      const w = img.naturalWidth || img.width || 1;
+      const h = img.naturalHeight || img.height || 1;
+      const scale = Math.min(1, maxDim / Math.max(w, h));
+      const cw = Math.max(1, Math.round(w * scale));
+      const ch = Math.max(1, Math.round(h * scale));
+      const canvas = document.createElement('canvas');
       canvas.width = cw;
       canvas.height = ch;
-      var ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Kunde inte bearbeta bilden');
       ctx.drawImage(img, 0, 0, cw, ch);
-      var quality = 0.88;
-      var compressed = null;
+      let quality = 0.88;
+      let compressed = null;
       while (quality >= 0.45) {
         compressed = await new Promise(function (resolve) {
           canvas.toBlob(resolve, 'image/jpeg', quality);
@@ -827,7 +827,7 @@ var Platform = (function () {
 
   function postFormDataNative(url, fd, headers) {
     return new Promise(function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open('POST', url, true);
       xhr.withCredentials = true;
       if (headers) {
@@ -852,14 +852,14 @@ var Platform = (function () {
   }
 
   function dataUrlToBlob(dataUrl) {
-    var parts = dataUrl.split(',');
+    const parts = dataUrl.split(',');
     if (parts.length < 2) throw new Error('Ogiltig bilddata');
-    var mimeMatch = parts[0].match(/:(.*?);/);
-    var mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    var binary = atob(parts[1]);
-    var len = binary.length;
-    var arr = new Uint8Array(len);
-    for (var i = 0; i < len; i++) arr[i] = binary.charCodeAt(i);
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const binary = atob(parts[1]);
+    const len = binary.length;
+    const arr = new Uint8Array(len);
+    for (let i = 0; i < len; i++) arr[i] = binary.charCodeAt(i);
     return new Blob([arr], { type: mime });
   }
 
@@ -869,7 +869,7 @@ var Platform = (function () {
     throw new Error('Ingen bild vald');
   }
 
-  var camera = {
+  const camera = {
     /**
      * Pick a photo from the library or camera (iOS native only).
      * Web: shows a standard file input picker.
@@ -884,12 +884,12 @@ var Platform = (function () {
     async pick(opts) {
       opts = opts || {};
       if (isNative()) {
-        var lastErr = null;
+        let lastErr = null;
 
         // iOS WKWebView: HTML file input is more reliable than @capacitor/camera.
         if (isIOS()) {
           try {
-            var iosFilePick = await pickViaFileInput();
+            const iosFilePick = await pickViaFileInput();
             if (iosFilePick && !iosFilePick.error) return iosFilePick;
           } catch (fileErr) {
             lastErr = fileErr;
@@ -898,7 +898,7 @@ var Platform = (function () {
         }
 
         try {
-          var capacitorPick = await tryCapacitorPick(opts);
+          const capacitorPick = await tryCapacitorPick(opts);
           if (capacitorPick && capacitorPick.error) return capacitorPick;
           if (capacitorPick) return capacitorPick;
         } catch (err) {
@@ -909,7 +909,7 @@ var Platform = (function () {
 
         if (!isIOS()) {
           try {
-            var androidFilePick = await pickViaFileInput();
+            const androidFilePick = await pickViaFileInput();
             if (androidFilePick && !androidFilePick.error) return androidFilePick;
           } catch (fileErr2) {
             lastErr = fileErr2;
@@ -931,13 +931,13 @@ var Platform = (function () {
      * Uses the dedicated avatar endpoint (2MB, jpeg/png/webp).
      */
     async upload(dataUrlOrResult) {
-      var blob;
-      var filename = 'avatar.jpg';
+      let blob;
+      let filename = 'avatar.jpg';
       if (typeof dataUrlOrResult === 'string') {
         blob = dataUrlToBlob(dataUrlOrResult);
       } else if (dataUrlOrResult && dataUrlOrResult.file) {
         blob = dataUrlOrResult.file;
-        var ext = (dataUrlOrResult.mimeType || '').split('/')[1] || 'jpg';
+        let ext = (dataUrlOrResult.mimeType || '').split('/')[1] || 'jpg';
         if (ext === 'jpeg') ext = 'jpg';
         if (ext === 'heic' || ext === 'heif') ext = 'jpg';
         filename = 'avatar.' + ext;
@@ -948,21 +948,21 @@ var Platform = (function () {
       }
 
       blob = await compressAvatarBlob(blob);
-      var file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+      const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
 
-      var fd = new FormData();
+      const fd = new FormData();
       fd.append('image', file, 'avatar.jpg');
 
       async function postAvatar(retry) {
-        var authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
+        const authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
         if (!authObj || typeof authObj.ensureCsrfToken !== 'function') {
           throw new Error('Ej inloggad');
         }
         if (retry) localStorage.removeItem(authObj.CSRF_KEY);
         await authObj.ensureCsrfToken();
-        var csrf = authObj.getCsrfToken();
+        const csrf = authObj.getCsrfToken();
         if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
-        var headers = { 'X-CSRF-Token': csrf };
+        const headers = { 'X-CSRF-Token': csrf };
         return fetch('/api/upload/avatar', {
           method: 'POST',
           credentials: 'include',
@@ -971,22 +971,22 @@ var Platform = (function () {
         });
       }
 
-      var result = await postAvatar(false);
+      let result = await postAvatar(false);
       if (result.status === 403) {
-        var errBody = await result.clone().json().catch(function () { return {}; });
+        const errBody = await result.clone().json().catch(function () { return {}; });
         if (errBody.code === 'CSRF_MISSING' || errBody.code === 'CSRF_INVALID') {
           result = await postAvatar(true);
         }
       }
       if (!result.ok) {
-        var err = await result.json().catch(function () { return {}; });
+        const err = await result.json().catch(function () { return {}; });
         if (result.status === 413) {
           throw new Error('Bilden är för stor (max 2 MB)');
         }
         throw new Error(err.error || 'Uppladdning misslyckades (' + result.status + ')');
       }
-      var json = await result.json();
-      var url = normalizePublicUrl(json.url);
+      const json = await result.json();
+      const url = normalizePublicUrl(json.url);
       if (!url) throw new Error('Servern returnerade ingen bild-URL');
       return url;
     },
@@ -1016,8 +1016,8 @@ window.Platform = Platform;
 
 (function applyPlatformDomClasses() {
   function run() {
-    var html = document.documentElement;
-    var body = document.body;
+    const html = document.documentElement;
+    const body = document.body;
     if (!Platform.isNative()) return;
     html.classList.add('is-native');
     if (body) body.classList.add('is-native');

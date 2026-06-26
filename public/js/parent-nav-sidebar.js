@@ -6,38 +6,38 @@
 
   if (!window.NavConfig) return;
 
-  var sidebar = document.getElementById('sidebar');
+  const sidebar = document.getElementById('sidebar');
   if (!sidebar) return;
 
-  var path = NavConfig.normalizePath(window.location.pathname);
-  var active = NavConfig.activeNavItem(path);
-  var activeId = active ? active.id : '';
+  const path = NavConfig.normalizePath(window.location.pathname);
+  const active = NavConfig.activeNavItem(path);
+  const activeId = active ? active.id : '';
 
   function linkClass(id) {
-    var base = 'sidebar-nav block px-4 py-3 rounded-lg transition-colors min-h-[44px]';
+    const base = 'sidebar-nav block px-4 py-3 rounded-lg transition-colors min-h-[44px]';
     if (id === activeId) {
       return base + ' bg-gold text-navy font-semibold';
     }
     return base + ' text-white hover:bg-navy-soft';
   }
 
-  var primaryHtml = NavConfig.PRIMARY_NAV.map(function (item) {
+  const primaryHtml = NavConfig.PRIMARY_NAV.map(function (item) {
     return '<li><a href="' + item.href + '" class="' + linkClass(item.id) + '">' +
       item.icon + ' ' + item.label + '</a></li>';
   }).join('');
 
-  var settings = NavConfig.SETTINGS_NAV;
-  var settingsHtml =
+  const settings = NavConfig.SETTINGS_NAV;
+  const settingsHtml =
     '<li class="mt-4 pt-4 border-t border-navy-soft"><a href="' + settings.href + '" class="' +
     linkClass('settings') + '">' + settings.icon + ' ' + settings.label + '</a></li>';
 
-  var list = sidebar.querySelector('ul');
+  const list = sidebar.querySelector('ul');
   if (list) {
     list.innerHTML = primaryHtml + settingsHtml;
     return;
   }
 
-  var navList = document.createElement('ul');
+  const navList = document.createElement('ul');
   navList.className = 'space-y-1 flex-1';
   navList.innerHTML = primaryHtml + settingsHtml;
   sidebar.appendChild(navList);

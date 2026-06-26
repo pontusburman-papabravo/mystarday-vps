@@ -49,33 +49,33 @@ function calculateAge(birthday) {
 
 // ── State ────────────────────────────────────────────────
 let children = [];
-let activities = [];
-let childSchedules = {};
+const activities = [];
+const childSchedules = {};
 let currentChildId = null;
 let currentDay = new Date().getDay();
 let currentScheduleId = null;
 let scheduleItems = [];
 let sectionTimes = {};
-let selectedTemplateId = null;
-let addSectionOverride = 'dag';
-let editSectionVal = 'dag';
-let copyDaySelections = [];
-let _pendingDeleteItemId = null;
-let _pendingTargetChildIds = [];
-let copyTargetChildId = null;
-let allExpanded = true;
-let _onceMode = false; // true when addActivityModal is opened for a one-time task
-let _onceCreateContext = null; // snapshot of once-flow context when "Skapa ny" is opened from once mode
+const selectedTemplateId = null;
+const addSectionOverride = 'dag';
+const editSectionVal = 'dag';
+const copyDaySelections = [];
+const _pendingDeleteItemId = null;
+const _pendingTargetChildIds = [];
+const copyTargetChildId = null;
+const allExpanded = true;
+const _onceMode = false; // true when addActivityModal is opened for a one-time task
+const _onceCreateContext = null; // snapshot of once-flow context when "Skapa ny" is opened from once mode
 
 // DnD state
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
 let dndSrcDay = null;
 let currentViewMode = 'normal';
-let sbsChildId = null;
-let sbsItems = [];
-let sbsScheduleId = null;
-let sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
-let allTemplates = [];
+const sbsChildId = null;
+const sbsItems = [];
+const sbsScheduleId = null;
+const sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
+const allTemplates = [];
 
 // ── Calendar navigation state ─────────────────────────────
 let calView = 'week'; // 'day' | 'week' | 'month'
@@ -221,8 +221,8 @@ async function renderMonthView() {
   const headerDays = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
 
   // Build calendar grid (Mon-first)
-  let startDow = firstDay.getDay();
-  let offset = (startDow + 6) % 7;
+  const startDow = firstDay.getDay();
+  const offset = (startDow + 6) % 7;
   const cells = [];
   const startDate = new Date(firstDay);
   startDate.setDate(startDate.getDate() - offset);
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     AppViewMode.onChange(function () {
       if (AppViewMode.isClassic()) {
         document.body.classList.remove('parent-magic-dashboard');
-        var hubMount = document.getElementById('parentHomeHubMount');
+        const hubMount = document.getElementById('parentHomeHubMount');
         if (hubMount) {
           hubMount.classList.add('hidden');
           hubMount.innerHTML = '';

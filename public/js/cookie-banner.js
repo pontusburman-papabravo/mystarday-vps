@@ -20,10 +20,10 @@
     return;
   }
 
-  var GA4_ID   = 'G-8PYNFJH1EQ';
-  var PIXEL_ID = '2130511090854218';
-  var LS_KEY   = 'cookie_consent';      // localStorage-nyckel
-  var CC_COOKIE = 'cc_consent';         // cookie-namn (1 år)
+  const GA4_ID   = 'G-8PYNFJH1EQ';
+  const PIXEL_ID = '2130511090854218';
+  const LS_KEY   = 'cookie_consent';      // localStorage-nyckel
+  const CC_COOKIE = 'cc_consent';         // cookie-namn (1 år)
 
   // ─── Google Consent Mode v2 — default (allt nekat) ────────────────────────
   window.dataLayer = window.dataLayer || [];
@@ -43,7 +43,7 @@
 
   // Ladda gtag.js async
   (function () {
-    var s = document.createElement('script');
+    const s = document.createElement('script');
     s.async = true;
     s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
     document.head.appendChild(s);
@@ -80,14 +80,14 @@
   /** @returns {{ analytics: boolean, marketing: boolean, personalization: boolean, timestamp: string } | null} */
   function loadConsent() {
     try {
-      var raw = localStorage.getItem(LS_KEY);
+      const raw = localStorage.getItem(LS_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
 
   /** Sparar val + sätter cc_consent cookie (1 år) */
   function saveConsent(choices) {
-    var data = {
+    const data = {
       analytics:       choices.analytics,
       marketing:       choices.marketing,
       personalization: choices.personalization,
@@ -95,7 +95,7 @@
     };
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) {}
     // Sätt cookie 1 år
-    var expires = new Date();
+    const expires = new Date();
     expires.setFullYear(expires.getFullYear() + 1);
     document.cookie = CC_COOKIE + '=1; expires=' + expires.toUTCString() + '; path=/; SameSite=Lax';
   }
@@ -110,9 +110,9 @@
   // ─── Tillämpa samtycke på gtag + fbq ──────────────────────────────────────
 
   function applyConsent(choices) {
-    var analyticsGranted      = !!choices.analytics;
-    var marketingGranted      = !!choices.marketing;
-    var personalizationGranted= !!choices.personalization;
+    const analyticsGranted      = !!choices.analytics;
+    const marketingGranted      = !!choices.marketing;
+    const personalizationGranted= !!choices.personalization;
 
     // Google Consent Mode v2 — alla 7 parametrar
     gtag('consent', 'update', {
@@ -151,12 +151,12 @@
 
   // ─── Banner-UI ────────────────────────────────────────────────────────────
 
-  var BANNER_ID   = 'cb-banner';
-  var SETTINGS_ID = 'cb-settings';
+  const BANNER_ID   = 'cb-banner';
+  const SETTINGS_ID = 'cb-settings';
 
   function injectStyles() {
     if (document.getElementById('cb-styles')) return;
-    var style = document.createElement('style');
+    const style = document.createElement('style');
     style.id = 'cb-styles';
     style.textContent = [
       // Banner (fast längst ner)
@@ -229,37 +229,37 @@
   function buildBanner(existingConsent) {
     injectStyles();
 
-    var existing = existingConsent || {};
+    const existing = existingConsent || {};
 
-    var banner = document.createElement('div');
+    const banner = document.createElement('div');
     banner.id = BANNER_ID;
     banner.setAttribute('role', 'dialog');
     banner.setAttribute('aria-label', 'Cookie-inställningar');
 
-    var inner = document.createElement('div');
+    const inner = document.createElement('div');
     inner.className = 'cb-inner';
 
     // Text
-    var text = document.createElement('p');
+    const text = document.createElement('p');
     text.className = 'cb-text';
     text.textContent = 'Vi använder cookies för analys, marknadsföring och personalisering på vår webbplats.';
     inner.appendChild(text);
 
     // Knapprad
-    var btnRow = document.createElement('div');
+    const btnRow = document.createElement('div');
     btnRow.className = 'cb-btn-row';
 
-    var manageBtn = document.createElement('button');
+    const manageBtn = document.createElement('button');
     manageBtn.className = 'cb-btn cb-btn-manage';
     manageBtn.textContent = 'Hantera inställningar';
     manageBtn.type = 'button';
 
-    var denyBtn = document.createElement('button');
+    const denyBtn = document.createElement('button');
     denyBtn.className = 'cb-btn cb-btn-deny';
     denyBtn.textContent = 'Avvisa alla';
     denyBtn.type = 'button';
 
-    var acceptBtn = document.createElement('button');
+    const acceptBtn = document.createElement('button');
     acceptBtn.className = 'cb-btn cb-btn-accept';
     acceptBtn.textContent = 'Godkänn alla';
     acceptBtn.type = 'button';
@@ -270,10 +270,10 @@
     inner.appendChild(btnRow);
 
     // Expanderade inställningar
-    var settings = document.createElement('div');
+    const settings = document.createElement('div');
     settings.id = SETTINGS_ID;
 
-    var categories = [
+    const categories = [
       {
         id:    'necessary',
         icon:  '🔒',
@@ -309,24 +309,24 @@
     ];
 
     categories.forEach(function (cat) {
-      var row = document.createElement('div');
+      const row = document.createElement('div');
       row.className = 'cb-category';
 
-      var left = document.createElement('div');
+      const left = document.createElement('div');
       left.className = 'cb-cat-left';
 
-      var icon = document.createElement('span');
+      const icon = document.createElement('span');
       icon.className = 'cb-cat-icon';
       icon.textContent = cat.icon;
 
-      var body = document.createElement('div');
+      const body = document.createElement('div');
       body.className = 'cb-cat-body';
 
-      var label = document.createElement('span');
+      const label = document.createElement('span');
       label.className = 'cb-cat-label';
       label.textContent = cat.label;
 
-      var desc = document.createElement('span');
+      const desc = document.createElement('span');
       desc.className = 'cb-cat-desc';
       desc.textContent = cat.desc;
 
@@ -335,20 +335,20 @@
       left.appendChild(icon);
       left.appendChild(body);
 
-      var toggleWrap = document.createElement('div');
+      const toggleWrap = document.createElement('div');
       toggleWrap.className = 'cb-toggle-wrap';
 
-      var toggleLabel = document.createElement('label');
+      const toggleLabel = document.createElement('label');
       toggleLabel.className = 'cb-toggle';
       toggleLabel.setAttribute('aria-label', cat.label);
 
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'checkbox';
       if (!cat.locked) input.id = 'cb-toggle-' + cat.id;
       input.checked = cat.checked;
       input.disabled = cat.locked;
 
-      var slider = document.createElement('span');
+      const slider = document.createElement('span');
       slider.className = 'cb-toggle-slider';
 
       toggleLabel.appendChild(input);
@@ -361,9 +361,9 @@
     });
 
     // Spara mina val
-    var saveRow = document.createElement('div');
+    const saveRow = document.createElement('div');
     saveRow.className = 'cb-save-row';
-    var saveBtn = document.createElement('button');
+    const saveBtn = document.createElement('button');
     saveBtn.className = 'cb-btn-save';
     saveBtn.type = 'button';
     saveBtn.textContent = 'Spara mina val';
@@ -384,21 +384,21 @@
     });
 
     denyBtn.addEventListener('click', function () {
-      var choices = { analytics: false, marketing: false, personalization: false };
+      const choices = { analytics: false, marketing: false, personalization: false };
       saveConsent(choices);
       applyConsent(choices);
       removeBanner();
     });
 
     acceptBtn.addEventListener('click', function () {
-      var choices = { analytics: true, marketing: true, personalization: true };
+      const choices = { analytics: true, marketing: true, personalization: true };
       saveConsent(choices);
       applyConsent(choices);
       removeBanner();
     });
 
     saveBtn.addEventListener('click', function () {
-      var choices = getSettingsValues();
+      const choices = getSettingsValues();
       saveConsent(choices);
       applyConsent(choices);
       removeBanner();
@@ -406,7 +406,7 @@
   }
 
   function removeBanner() {
-    var banner = document.getElementById(BANNER_ID);
+    const banner = document.getElementById(BANNER_ID);
     if (!banner) return;
     banner.style.opacity = '0';
     banner.style.transition = 'opacity 0.25s';
@@ -416,7 +416,7 @@
   // ─── Init ─────────────────────────────────────────────────────────────────
 
   function init() {
-    var existing = loadConsent();
+    const existing = loadConsent();
 
     if (existing && hasCookie()) {
       // Redan valt — tillämpa direkt utan banner
@@ -441,7 +441,7 @@
      */
     open: function () {
       removeBanner();
-      var existing = loadConsent();
+      const existing = loadConsent();
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () { buildBanner(existing); });
       } else {

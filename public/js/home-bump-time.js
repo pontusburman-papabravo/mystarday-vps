@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var snapshots = {};
+  const snapshots = {};
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -19,9 +19,9 @@
   }
 
   function render(stats) {
-    var mount = document.getElementById('homeBumpMount');
+    const mount = document.getElementById('homeBumpMount');
     if (!mount) return;
-    var children = eligibleChildren(stats);
+    const children = eligibleChildren(stats);
     if (!children.length) {
       mount.classList.add('hidden');
       mount.innerHTML = '';
@@ -32,7 +32,7 @@
       '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
       '<p class="text-sm font-semibold text-navy mb-3">⏱ Justera tid idag</p>' +
       children.map(function (c) {
-        var hasUndo = !!snapshots[c.today_log_id];
+        const hasUndo = !!snapshots[c.today_log_id];
         return '<div class="flex items-center justify-between gap-2 py-2 border-b border-lavender last:border-0" data-bump-child="' + esc(c.id) + '">' +
           '<span class="text-sm font-semibold text-navy truncate">' + esc(c.emoji || '⭐') + ' ' + esc(c.name) + '</span>' +
           '<div class="flex gap-1 flex-shrink-0">' +
@@ -52,20 +52,20 @@
   }
 
   async function bump(btn) {
-    var logId = btn.getAttribute('data-log-id');
-    var minutes = parseInt(btn.getAttribute('data-bump-min'), 10);
+    const logId = btn.getAttribute('data-log-id');
+    const minutes = parseInt(btn.getAttribute('data-bump-min'), 10);
     if (!logId || !minutes) return;
     btn.disabled = true;
     try {
-      var res = await window.apiFetch('/api/daily-logs/' + encodeURIComponent(logId) + '/bump-time', {
+      const res = await window.apiFetch('/api/daily-logs/' + encodeURIComponent(logId) + '/bump-time', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ minutes: minutes }),
       });
       if (!res.ok) throw new Error('bump failed');
-      var data = await res.json();
+      const data = await res.json();
       snapshots[logId] = data.snapshot;
-      var undoBtn = btn.parentElement.querySelector('[data-bump-undo]');
+      const undoBtn = btn.parentElement.querySelector('[data-bump-undo]');
       if (undoBtn) { undoBtn.disabled = false; undoBtn.classList.remove('opacity-60'); }
       showToast('+' + minutes + ' min');
       if (typeof window.loadDashboardCards === 'function') await window.loadDashboardCards();
@@ -77,12 +77,12 @@
   }
 
   async function undo(btn) {
-    var logId = btn.getAttribute('data-log-id');
-    var snapshot = snapshots[logId];
+    const logId = btn.getAttribute('data-log-id');
+    const snapshot = snapshots[logId];
     if (!logId || !snapshot) return;
     btn.disabled = true;
     try {
-      var res = await window.apiFetch('/api/daily-logs/' + encodeURIComponent(logId) + '/bump-time-undo', {
+      const res = await window.apiFetch('/api/daily-logs/' + encodeURIComponent(logId) + '/bump-time-undo', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ snapshot: snapshot }),

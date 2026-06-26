@@ -4,11 +4,11 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'mystarday_referral_code';
+  const STORAGE_KEY = 'mystarday_referral_code'; // pragma: allowlist secret
 
   function readFromUrl() {
     try {
-      var params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(window.location.search);
       return params.get('ref');
     } catch (_) {
       return null;
@@ -16,7 +16,7 @@
   }
 
   function capture() {
-    var ref = readFromUrl();
+    const ref = readFromUrl();
     if (!ref) return;
     try {
       localStorage.setItem(STORAGE_KEY, ref.trim().toUpperCase());

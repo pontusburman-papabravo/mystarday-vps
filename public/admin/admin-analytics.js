@@ -7,9 +7,9 @@
 
 /* global Chart */
 
-let chartInstances = {};
+const chartInstances = {};
 let activeTab = 'overview';
-let trendChart = null;
+const trendChart = null;
 
 // ─── Entry point ──────────────────────────────────────────
 
@@ -1113,21 +1113,21 @@ async function loadActivationFunnel() {
       body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
     } else {
       body.innerHTML = data.cohorts.map(function (row) {
-        var week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
-        var cells = steps.map(function (s) {
-          var n = (row.counts && row.counts[s.key]) || 0;
-          var pct = (row.rates && row.rates[s.key]) || 0;
+        const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+        const cells = steps.map(function (s) {
+          const n = (row.counts && row.counts[s.key]) || 0;
+          const pct = (row.rates && row.rates[s.key]) || 0;
           return '<td class="text-right px-2 py-2 tabular-nums">' + n + '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
         }).join('');
         return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
       }).join('');
     }
 
-    var diagEl = document.getElementById('activationChildAccessDiag');
+    const diagEl = document.getElementById('activationChildAccessDiag');
     if (diagEl && data.childAccessDiagnostics) {
-      var diag = data.childAccessDiagnostics;
-      var items = (diag.metrics || []).map(function (m) {
-        var n = (diag.counts && diag.counts[m.key]) || 0;
+      const diag = data.childAccessDiagnostics;
+      const items = (diag.metrics || []).map(function (m) {
+        const n = (diag.counts && diag.counts[m.key]) || 0;
         return '<span class="inline-flex items-center gap-1 mr-4 mb-1"><span class="text-text-soft">' +
           esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
       }).join('');
@@ -1143,13 +1143,13 @@ async function loadActivationFunnel() {
 }
 
 async function loadActivationExperiment() {
-  var head = document.getElementById('activationExperimentHead');
-  var body = document.getElementById('activationExperimentBody');
-  var foot = document.getElementById('activationExperimentFoot');
+  const head = document.getElementById('activationExperimentHead');
+  const body = document.getElementById('activationExperimentBody');
+  const foot = document.getElementById('activationExperimentFoot');
   if (!head || !body || body.dataset.loaded === 'true') return;
   try {
-    var data = await Auth.api('/api/admin/analytics/activation-experiment?weeks=8');
-    var variants = data.variants || [];
+    const data = await Auth.api('/api/admin/analytics/activation-experiment?weeks=8');
+    const variants = data.variants || [];
     head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
       variants.map(function (v) {
         return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(v.label) + '</th>';
@@ -1159,9 +1159,9 @@ async function loadActivationExperiment() {
       body.innerHTML = '<tr><td colspan="' + (variants.length + 1) + '" class="text-center text-text-soft py-6">Ingen variantdata ännu</td></tr>';
     } else {
       body.innerHTML = data.cohorts.map(function (row) {
-        var week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
-        var cells = variants.map(function (v) {
-          var bucket = (row.variants && row.variants[v.key]) || { signups: 0, p0_48h: 0, rate_48h: 0 };
+        const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+        const cells = variants.map(function (v) {
+          const bucket = (row.variants && row.variants[v.key]) || { signups: 0, p0_48h: 0, rate_48h: 0 };
           if (!bucket.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
           return '<td class="text-right px-2 py-2 tabular-nums">' +
             bucket.rate_48h + '%<span class="text-text-soft text-xs"> (' + bucket.p0_48h + '/' + bucket.signups + ')</span></td>';
@@ -1171,8 +1171,8 @@ async function loadActivationExperiment() {
     }
 
     if (foot && data.totals) {
-      var totalCells = variants.map(function (v) {
-        var t = data.totals[v.key] || { signups: 0, p0_48h: 0, rate_48h: 0 };
+      const totalCells = variants.map(function (v) {
+        const t = data.totals[v.key] || { signups: 0, p0_48h: 0, rate_48h: 0 };
         if (!t.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
         return '<td class="text-right px-2 py-2 tabular-nums font-bold">' +
           t.rate_48h + '%<span class="text-text-soft text-xs font-normal"> (' + t.p0_48h + '/' + t.signups + ')</span></td>';
@@ -1180,10 +1180,10 @@ async function loadActivationExperiment() {
       foot.innerHTML = '<tr class="border-t-2 border-navy bg-sky/30"><td class="py-2 pr-4 font-bold">Totalt</td>' + totalCells + '</tr>';
     }
 
-    var verdictEl = document.getElementById('activationExperimentVerdict');
+    const verdictEl = document.getElementById('activationExperimentVerdict');
     if (verdictEl && data.verdict) {
-      var v = data.verdict;
-      var color = v.status === 'promote_ai' ? 'text-green-700' :
+      const v = data.verdict;
+      const color = v.status === 'promote_ai' ? 'text-green-700' :
         v.status === 'keep_template_only' ? 'text-navy' : 'text-text-soft';
       verdictEl.className = 'mt-4 text-sm font-medium ' + color;
       verdictEl.textContent = 'Go/no-go: ' + v.message;
@@ -1198,16 +1198,16 @@ async function loadActivationExperiment() {
 }
 
 async function loadReferralsAdmin() {
-  var body = document.getElementById('referralsAdminBody');
+  const body = document.getElementById('referralsAdminBody');
   if (!body || body.dataset.loaded === 'true') return;
   try {
-    var data = await Auth.api('/api/admin/referrals');
-    var rows = data.referrals || [];
+    const data = await Auth.api('/api/admin/referrals');
+    const rows = data.referrals || [];
     if (!rows.length) {
       body.innerHTML = '<tr><td colspan="6" class="text-center text-text-soft py-6">Inga värvningskoder ännu</td></tr>';
     } else {
       body.innerHTML = rows.map(function (row) {
-        var last = row.last_signup_at
+        const last = row.last_signup_at
           ? new Date(row.last_signup_at).toLocaleDateString('sv-SE')
           : '—';
         return '<tr class="border-t border-sky">' +

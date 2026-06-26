@@ -29,12 +29,12 @@
   // @returns {string}       - HTML string safe for innerHTML
   function renderChildAvatar(child, size) {
     size = size || 32;
-    var url = child && child.avatar_url;
+    const url = child && child.avatar_url;
     if (url) {
       return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(child.name || '') + '" ' +
         'style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle;" />';
     }
-    var emoji = (child && child.emoji) || '';
+    const emoji = (child && child.emoji) || '';
     if (emoji) {
       return '<span style="display:inline-flex;align-items:center;font-size:' +
         Math.round(size * 0.8) + 'px;line-height:1;">' + escapeHtml(emoji) + '</span>';
@@ -55,7 +55,7 @@
   // @param {Function} [onDone] - optional post-render callback
   // @returns {boolean}          - true if element was found and updated
   function refreshSection(sectionId, html, onDone) {
-    var el = document.getElementById(sectionId);
+    const el = document.getElementById(sectionId);
     if (!el) return false;
     el.innerHTML = html;
     if (typeof onDone === 'function') onDone();

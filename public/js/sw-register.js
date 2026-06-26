@@ -41,7 +41,7 @@
   function showUpdateBanner(waitingWorker) {
     if (document.getElementById('sw-update-banner')) return;
 
-    var banner = document.createElement('div');
+    const banner = document.createElement('div');
     banner.id = 'sw-update-banner';
     banner.setAttribute('role', 'status');
     banner.setAttribute('aria-live', 'polite');
@@ -64,14 +64,14 @@
       'flex-wrap:wrap',
     ].join(';');
 
-    var text = document.createElement('span');
+    const text = document.createElement('span');
     text.textContent = '✨ En ny version av appen är redo!';
     text.style.cssText = 'flex:1;min-width:0;';
 
-    var btnRow = document.createElement('div');
+    const btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:8px;flex-shrink:0;';
 
-    var reloadBtn = document.createElement('button');
+    const reloadBtn = document.createElement('button');
     reloadBtn.textContent = 'Ladda om nu';
     reloadBtn.style.cssText = [
       'background:#6366f1',
@@ -96,7 +96,7 @@
       }
     });
 
-    var dismissBtn = document.createElement('button');
+    const dismissBtn = document.createElement('button');
     dismissBtn.textContent = 'Senare';
     dismissBtn.setAttribute('aria-label', 'Stäng uppdateringsbanner');
     dismissBtn.style.cssText = [
@@ -116,7 +116,7 @@
     banner.appendChild(text);
     banner.appendChild(btnRow);
 
-    var attach = function () { document.body.appendChild(banner); };
+    const attach = function () { document.body.appendChild(banner); };
     if (document.body) {
       attach();
     } else {
@@ -126,7 +126,7 @@
 
   function watchRegistration(reg) {
     reg.addEventListener('updatefound', function () {
-      var newWorker = reg.installing;
+      const newWorker = reg.installing;
       if (!newWorker) return;
       newWorker.addEventListener('statechange', function () {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -222,7 +222,7 @@
     return;
   }
 
-  var nativeRechecks = 0;
+  let nativeRechecks = 0;
   var nativeTimer = setInterval(function () {
     nativeRechecks += 1;
     if (isNativeShell()) {

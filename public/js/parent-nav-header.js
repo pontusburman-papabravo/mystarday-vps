@@ -6,7 +6,7 @@
   'use strict';
 
   if (!window.NavConfig) return;
-  var path = NavConfig.normalizePath(window.location.pathname);
+  const path = NavConfig.normalizePath(window.location.pathname);
   if (path === '/login' || path === '/child-login' || path.indexOf('/admin') === 0) return;
   if (!NavConfig.isParentShellPath(path) && path !== '/settings') return;
 
@@ -14,8 +14,8 @@
     return;
   }
 
-  var main = document.querySelector('main') || document.querySelector('.flex-1') || document.body;
-  var bar = document.createElement('div');
+  const main = document.querySelector('main') || document.querySelector('.flex-1') || document.body;
+  const bar = document.createElement('div');
   bar.className = 'parent-nav-header-actions';
   bar.setAttribute('data-parent-nav-header', '1');
   bar.innerHTML =

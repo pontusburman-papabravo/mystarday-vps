@@ -4,13 +4,13 @@
 (function () {
   'use strict';
 
-  var _lastGrantId = null;
+  let _lastGrantId = null;
 
   function showOverlay(starCount, reason) {
-    var existing = document.getElementById('childStarFeedbackOverlay');
+    const existing = document.getElementById('childStarFeedbackOverlay');
     if (existing) existing.remove();
 
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'childStarFeedbackOverlay';
     overlay.className = 'child-star-feedback-overlay';
     overlay.setAttribute('role', 'status');
@@ -33,10 +33,10 @@
 
   async function onStarGranted() {
     try {
-      var data = await Auth.api('/api/me/manual-stars');
-      var grants = (data && data.grants) ? data.grants : [];
+      const data = await Auth.api('/api/me/manual-stars');
+      const grants = (data && data.grants) ? data.grants : [];
       if (!grants.length) return;
-      var latest = grants[0];
+      const latest = grants[0];
       if (latest.id && latest.id === _lastGrantId) return;
       _lastGrantId = latest.id || latest.created_at;
       showOverlay(latest.star_count, latest.reason);

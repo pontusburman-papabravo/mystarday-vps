@@ -253,7 +253,7 @@ function initEmojiPicker(currentEmoji) {
 function setHeaderAvatarPreview(url) {
   const card = document.querySelector('.section-card .flex.items-center.gap-4');
   if (!card || !url) return;
-  let hdrImg = document.getElementById('headerAvatarImg');
+  const hdrImg = document.getElementById('headerAvatarImg');
   if (hdrImg) {
     hdrImg.src = url;
     hdrImg.classList.add('ring-2', 'ring-gold');

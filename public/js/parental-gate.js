@@ -6,8 +6,8 @@
   'use strict';
 
   function showParentPinGate(onSuccess, onCancel) {
-    var cancel = onCancel || function () {};
-    var success = function () {
+    const cancel = onCancel || function () {};
+    const success = function () {
       if (window.DeviceMode) DeviceMode.enterParent();
       if (onSuccess) onSuccess(window._ppinGateToken);
     };

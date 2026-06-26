@@ -5,12 +5,12 @@
   'use strict';
 
   function showBanner() {
-    var user = window.Auth && Auth.getUser ? Auth.getUser() : null;
+    const user = window.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!user || user.is_lifetime_free !== true) return;
 
     if (document.getElementById('founderMemberBanner')) return;
 
-    var banner = document.createElement('div');
+    const banner = document.createElement('div');
     banner.id = 'founderMemberBanner';
     banner.setAttribute('role', 'status');
     banner.style.cssText = [
@@ -28,10 +28,10 @@
       '<p style="margin:0;font-weight:800;font-size:1rem;">🎉 Du är grundarmedlem</p>' +
       '<p style="margin:6px 0 0;font-weight:500;">Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!</p>';
 
-    var main = document.querySelector('main');
+    const main = document.querySelector('main');
     if (main) {
       // Must stay inside <main> — inserting before main breaks md:flex-row (3-column crush).
-      var anchor =
+      const anchor =
         document.getElementById('appViewToggleMount') ||
         main.querySelector('.bg-sky.border-b') ||
         main.firstChild;
@@ -43,7 +43,7 @@
       return;
     }
 
-    var flexMain = document.querySelector('.flex-1');
+    const flexMain = document.querySelector('.flex-1');
     if (flexMain) {
       flexMain.insertBefore(banner, flexMain.firstChild);
       return;

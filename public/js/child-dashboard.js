@@ -10,7 +10,7 @@ const SCORE_LABELS = ['', 'Jättesvårt 😢', 'Svårt 😞', 'Lite svårt 😕'
 let currentDate = null;
 let todayStr = null;
 let me = null;
-let itemRatings = {}; // itemId -> { child_score, child_comment, parent_score, parent_comment }
+const itemRatings = {}; // itemId -> { child_score, child_comment, parent_score, parent_comment }
 let weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
 let allowChildReorder = false; // toggled by parent in child profile settings
 let showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
@@ -18,11 +18,11 @@ let viewType = 'day_sections'; // 'day_sections' (default) | 'now_next_later'
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off
 // Check-off queue: serializes rapid toggles to prevent race conditions on loadDay
-let _checkOffQueue = [];
+const _checkOffQueue = [];
 let _checkOffRunning = false;
 let _pendingLoadDay = null; // dedup: coalesce concurrent loadDay calls
 let dopaminAnimation = true; // toggled by parent — star burst on check-off
-let minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
+const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
 let visualTimer = true; // toggled by parent — Time Timer in now-card
 let hideClock = false; // toggled by parent — hides digital time labels on cards
 let colorCoding = true; // toggled by parent — color-codes cards by activity type
@@ -30,7 +30,7 @@ let colorCoding = true; // toggled by parent — color-codes cards by activity t
 // ── Offline helpers ─────────────────────────────────────────────────────────
 
 let _offlineBanner = null;
-let _offlineTimer = null;
+const _offlineTimer = null;
 
 function getOfflineBanner() {
   if (!_offlineBanner) {
@@ -107,7 +107,7 @@ function getChildColorClass(name) {
 
 // ── Sub-step state ─────────────────────────────────────────
 let subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
-let subStepExpanded = {}; // itemId -> bool (expanded state)
+const subStepExpanded = {}; // itemId -> bool (expanded state)
 // Track whether child has seen the substep intro tooltip (persisted in localStorage)
 let _substepIntroSeen = localStorage.getItem('substepIntroSeen') === '1';
 
@@ -324,7 +324,7 @@ function updateDateLine() {
 
 // ── Tabs ───────────────────────────────────────────────
 
-let rewardsLoaded = false;
+const rewardsLoaded = false;
 let childUiMagic = false;
 
 function applyChildViewChrome() {
@@ -440,8 +440,8 @@ function showTab(tab) {
 
 // ── Rewards & Goals ────────────────────────────────────
 
-let _currentGoalData = null; // cache for goal-picker
-let _currentRewardsData = null;
+const _currentGoalData = null; // cache for goal-picker
+const _currentRewardsData = null;
 
 // ══════════════════════════════════════════════════════════
 // SKATTKAMMAREN — renderSkattkammaren()
@@ -467,7 +467,7 @@ let _currentRewardsData = null;
 // We update every 5 seconds for smoothness without battery drain.
 
 let _timerInterval = null;
-let _timerDoneFired = new Map(); // itemId → true (haptic already fired for this timer completion)
+const _timerDoneFired = new Map(); // itemId → true (haptic already fired for this timer completion)
 
 function initTimeTimers() {
   // Clear any previous ticker
@@ -716,7 +716,7 @@ function renderActivities(data, trueStarBalance) {
     // Determine NOW/NEXT/LATER status for each item.
     // If backend already filtered (now_next_filtered=true), use _nnl_status from API.
     // Otherwise, fall back to client-side classification.
-    let timeStatusMap = {};
+    const timeStatusMap = {};
     if (backendFiltered) {
       // Backend tagged all items: done/now/next/later
       for (const item of items) {
@@ -1150,7 +1150,7 @@ function initChildSortable() {
  * Stops click from bubbling up to toggleItem.
  * Loading lock prevents repeated taps from piling up rate-limited requests.
  */
-let _expandLoading = {}; // itemId -> true while a fetch is in-flight
+const _expandLoading = {}; // itemId -> true while a fetch is in-flight
 async function expandSubSteps(event, itemId) {
   event.stopPropagation();
   event.preventDefault();

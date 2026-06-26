@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var state = {
+  const state = {
     active: false,
     editVariant: 'a',
     myDaysOnly: false,
@@ -24,7 +24,7 @@
   }
 
   function dayMap() {
-    var map = {};
+    const map = {};
     if (!state.weekData || !state.weekData.days) return map;
     state.weekData.days.forEach(function (d) {
       map[d.dayOfWeek] = d;
@@ -33,9 +33,9 @@
   }
 
   function ensureMount() {
-    var wrap = document.getElementById('daySelectorWrap');
+    const wrap = document.getElementById('daySelectorWrap');
     if (!wrap) return null;
-    var mount = document.getElementById('custodyScheduleChrome');
+    let mount = document.getElementById('custodyScheduleChrome');
     if (!mount) {
       mount = document.createElement('div');
       mount.id = 'custodyScheduleChrome';
@@ -46,7 +46,7 @@
   }
 
   function renderChrome() {
-    var mount = ensureMount();
+    const mount = ensureMount();
     if (!mount) return;
 
     if (!state.active || !state.weekData) {
@@ -56,8 +56,8 @@
     }
 
     mount.classList.remove('hidden');
-    var wb = state.weekData.custody && state.weekData.custody.weekBanner;
-    var bannerHtml = wb
+    const wb = state.weekData.custody && state.weekData.custody.weekBanner;
+    const bannerHtml = wb
       ? '<div class="rounded-xl border-2 px-4 py-2.5 mb-3 text-sm font-semibold text-navy" role="status" style="border-color:' + esc(wb.color) + ';background:' + esc(wb.color) + '18">Denna vecka: hos ' + esc(wb.label) + '</div>'
       : '';
 
@@ -73,8 +73,8 @@
     ].join('');
 
     mount.querySelectorAll('.custody-var-btn').forEach(function (btn) {
-      var v = btn.getAttribute('data-custody-var');
-      var selected = v === state.editVariant;
+      const v = btn.getAttribute('data-custody-var');
+      const selected = v === state.editVariant;
       btn.classList.toggle('bg-navy', selected);
       btn.classList.toggle('text-white', selected);
       btn.classList.toggle('border-navy', selected);
@@ -90,7 +90,7 @@
       };
     });
 
-    var chk = document.getElementById('custodyMyDaysChk');
+    const chk = document.getElementById('custodyMyDaysChk');
     if (chk) {
       chk.checked = state.myDaysOnly;
       chk.onchange = function () {
@@ -104,11 +104,11 @@
 
   function styleDayTabs() {
     if (!state.active) return;
-    var map = dayMap();
+    const map = dayMap();
     document.querySelectorAll('.day-tab').forEach(function (btn) {
-      var d = parseInt(btn.getAttribute('data-day'), 10);
-      var day = map[d];
-      var isSelected = btn.classList.contains('bg-gold');
+      const d = parseInt(btn.getAttribute('data-day'), 10);
+      const day = map[d];
+      const isSelected = btn.classList.contains('bg-gold');
       btn.style.opacity = '';
       btn.style.borderColor = '';
       if (!day || !day.custody) return;
@@ -132,7 +132,7 @@
     }
 
     try {
-      var res = await window.apiFetch(
+      const res = await window.apiFetch(
         '/api/children/' + encodeURIComponent(childId) + '/calendar-week?weekOffset=' + encodeURIComponent(state.weekOffset)
       );
       if (!res.ok) {
@@ -167,7 +167,7 @@
 
   function isDayHidden(dayOfWeek) {
     if (!state.active || !state.myDaysOnly) return false;
-    var day = dayMap()[dayOfWeek];
+    const day = dayMap()[dayOfWeek];
     return Boolean(day && day.custody && day.custody.isMyDay === false);
   }
 

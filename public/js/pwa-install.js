@@ -38,7 +38,7 @@
   }
 
   // localStorage key for dismissed state
-  var DISMISS_KEY = 'pwa_guide_dismissed';
+  const DISMISS_KEY = 'pwa_guide_dismissed';
 
   // Installation is needed when not yet in standalone mode and not dismissed.
   // NEVER prompt to "add to homescreen" from inside the native app shell
@@ -52,7 +52,7 @@
 
   // ─── Android install prompt ──────────────────────────────
   // Capture beforeinstallprompt early so it's available when render() is called
-  var _deferredPrompt = null;
+  let _deferredPrompt = null;
 
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
@@ -73,8 +73,8 @@
 
   // ─── HTML templates ──────────────────────────────────────
 
-  var SHARE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block w-4 h-4 align-middle" style="display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>';
-  var PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block w-4 h-4 align-middle" style="display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>';
+  const SHARE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block w-4 h-4 align-middle" style="display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>';
+  const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block w-4 h-4 align-middle" style="display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>';
 
   function iOSGuideHTML() {
     return [
@@ -174,9 +174,9 @@
       }
       _deferredPrompt = null;
       // Update button to fallback text
-      var guide = btn.closest('[data-pwa-guide]');
+      const guide = btn.closest('[data-pwa-guide]');
       if (guide) {
-        var fallback = guide.querySelector('[data-pwa-android-fallback]');
+        const fallback = guide.querySelector('[data-pwa-android-fallback]');
         if (fallback) fallback.classList.remove('hidden');
         btn.classList.add('hidden');
       }
@@ -187,7 +187,7 @@
 
   function injectStyles() {
     if (document.getElementById('pwa-install-styles')) return;
-    var style = document.createElement('style');
+    const style = document.createElement('style');
     style.id = 'pwa-install-styles';
     style.textContent = [
       '@keyframes pwaArrowBounce {',
@@ -202,7 +202,7 @@
 
   function _dismiss(btn) {
     localStorage.setItem(DISMISS_KEY, '1');
-    var guide = btn ? btn.closest('[data-pwa-guide]') : null;
+    const guide = btn ? btn.closest('[data-pwa-guide]') : null;
     if (guide) guide.classList.add('hidden');
   }
 
@@ -236,7 +236,7 @@
 
     injectStyles();
 
-    var html = '';
+    let html = '';
     if (isIOS()) {
       html = iOSGuideHTML();
     } else if (isAndroid()) {

@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  const DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
 
-  var _wiring = false;
+  let _wiring = false;
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -15,11 +15,11 @@
 
   function safeAvatarUrl(url) {
     if (!url || typeof url !== 'string') return false;
-    var trimmed = url.trim();
+    const trimmed = url.trim();
     if (!trimmed) return false;
     if (trimmed.indexOf('/') === 0) return true;
     try {
-      var parsed = new URL(trimmed, window.location.origin);
+      const parsed = new URL(trimmed, window.location.origin);
       return parsed.protocol === 'http:' || parsed.protocol === 'https:';
     } catch (_) {
       return false;
@@ -28,7 +28,7 @@
 
   async function formatApiError(res, fallback) {
     try {
-      var data = await res.json();
+      const data = await res.json();
       if (data && data.error) {
         if (data.details && data.details.length) {
           return data.error + ' (' + data.details.join('; ') + ')';
@@ -48,8 +48,8 @@
   }
 
   function setupHtml(child, viewConfig) {
-    var vm = viewConfig || {};
-    var avatar = safeAvatarUrl(child.avatar_url)
+    const vm = viewConfig || {};
+    const avatar = safeAvatarUrl(child.avatar_url)
       ? '<img src="' + esc(child.avatar_url) + '" alt="" class="w-16 h-16 rounded-full object-cover ring-2 ring-gold" id="profileSetupAvatar">'
       : '<span class="text-5xl" id="profileSetupEmoji">' + esc(child.emoji || '⭐') + '</span>';
     return '<div class="space-y-4">' +
@@ -96,16 +96,16 @@
 
   async function loadRewardsList(childId, mount) {
     try {
-      var resp = await window.apiFetch('/api/rewards');
-      var data = resp.ok ? await resp.json() : {};
-      var rewards = Array.isArray(data) ? data : (data.rewards || []);
+      const resp = await window.apiFetch('/api/rewards');
+      const data = resp.ok ? await resp.json() : {};
+      const rewards = Array.isArray(data) ? data : (data.rewards || []);
       if (!rewards.length) {
         mount.innerHTML = '<p class="text-sm text-text-soft">Inga belöningar ännu.</p>';
         return;
       }
       mount.innerHTML = rewards.map(function (r) {
-        var vtc = r.visible_to_children;
-        var visible = vtc === null || vtc === undefined || (Array.isArray(vtc) && vtc.indexOf(childId) >= 0);
+        const vtc = r.visible_to_children;
+        const visible = vtc === null || vtc === undefined || (Array.isArray(vtc) && vtc.indexOf(childId) >= 0);
         return '<div class="flex items-center justify-between gap-2 py-2 border-b border-lavender last:border-0">' +
           '<div class="flex items-center gap-2 min-w-0"><span>' + esc(r.icon || '🏆') + '</span>' +
           '<span class="text-sm font-semibold text-navy truncate">' + esc(r.name) + '</span></div>' +
@@ -124,18 +124,18 @@
   }
 
   async function toggleRewardVisibility(childId, track, rewards) {
-    var rewardId = track.getAttribute('data-reward-id');
-    var r = rewards.find(function (x) { return x.id === rewardId; });
+    const rewardId = track.getAttribute('data-reward-id');
+    const r = rewards.find(function (x) { return x.id === rewardId; });
     if (!r) return;
-    var wasOn = track.classList.contains('on');
+    const wasOn = track.classList.contains('on');
     track.classList.toggle('on');
     try {
-      var vtcCurrent = r.visible_to_children;
-      var newVtc;
+      const vtcCurrent = r.visible_to_children;
+      let newVtc;
       if (wasOn) {
         if (vtcCurrent === null || vtcCurrent === undefined) {
-          var childrenRes = await window.apiFetch('/api/children');
-          var allChildren = childrenRes.ok ? await childrenRes.json() : [];
+          const childrenRes = await window.apiFetch('/api/children');
+          const allChildren = childrenRes.ok ? await childrenRes.json() : [];
           newVtc = allChildren.map(function (c) { return c.id; }).filter(function (id) { return id !== childId; });
         } else {
           newVtc = (Array.isArray(vtcCurrent) ? vtcCurrent : []).filter(function (id) { return id !== childId; });
@@ -145,13 +145,13 @@
       } else {
         newVtc = Array.from(new Set((vtcCurrent || []).concat([childId])));
       }
-      var res = await window.apiFetch('/api/rewards/' + encodeURIComponent(rewardId), {
+      const res = await window.apiFetch('/api/rewards/' + encodeURIComponent(rewardId), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visible_to_children: newVtc }),
       });
       if (!res.ok) throw new Error('save failed');
-      var updated = await res.json();
+      const updated = await res.json();
       r.visible_to_children = updated.visible_to_children;
       showToast(wasOn ? 'Dold för barnet' : 'Synlig för barnet');
     } catch (_) {
@@ -163,44 +163,44 @@
   async function wireSetup(child, viewConfig, pinSetupHtml, onPinWire) {
     if (_wiring) return;
     _wiring = true;
-    var mount = document.getElementById('childProfileSetupBody');
+    const mount = document.getElementById('childProfileSetupBody');
     if (!mount) { _wiring = false; return; }
     mount.innerHTML = pinSetupHtml + setupHtml(child, viewConfig);
     if (onPinWire) onPinWire();
 
-    var rewardsMount = document.getElementById('profileSetupRewards');
+    const rewardsMount = document.getElementById('profileSetupRewards');
     if (rewardsMount) loadRewardsList(child.id, rewardsMount);
 
-    var photoBtn = document.getElementById('profileSetupPhotoBtn');
+    const photoBtn = document.getElementById('profileSetupPhotoBtn');
     if (photoBtn && window.Platform && Platform.camera) {
       photoBtn.addEventListener('click', async function () {
         try {
-          var result = await Platform.camera.pick({ quality: 'medium' });
+          const result = await Platform.camera.pick({ quality: 'medium' });
           if (!result || result.error) {
             if (result && result.error) showToast(result.error, true);
             return;
           }
           photoBtn.disabled = true;
           photoBtn.textContent = 'Laddar upp…';
-          var url = await Platform.camera.upload(result);
+          const url = await Platform.camera.upload(result);
           if (!url || !safeAvatarUrl(url)) {
             throw new Error('Uppladdningen gav en ogiltig bildadress — försök igen');
           }
-          var res = await saveChildField(child.id, 'avatar_url', url);
+          const res = await saveChildField(child.id, 'avatar_url', url);
           if (!res.ok) {
             throw new Error(await formatApiError(res, 'Kunde inte spara profilbilden'));
           }
-          var updated = await res.json();
+          const updated = await res.json();
           child.avatar_url = updated.avatar_url || url;
           if (!safeAvatarUrl(child.avatar_url)) {
             throw new Error('Profilbilden sparades men kunde inte visas — ladda om sidan');
           }
-          var img = document.getElementById('profileSetupAvatar');
+          const img = document.getElementById('profileSetupAvatar');
           if (img) img.src = child.avatar_url;
           else {
-            var emoji = document.getElementById('profileSetupEmoji');
+            const emoji = document.getElementById('profileSetupEmoji');
             if (emoji) {
-              var newImg = document.createElement('img');
+              const newImg = document.createElement('img');
               newImg.id = 'profileSetupAvatar';
               newImg.src = child.avatar_url;
               newImg.className = 'w-16 h-16 rounded-full object-cover ring-2 ring-gold';
@@ -209,7 +209,7 @@
           }
           showToast('Bild sparad!');
         } catch (err) {
-          var msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
+          const msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
           console.error('[child-profile-setup] photo save failed:', msg);
           showToast(msg, 'error', 7000);
         } finally {
@@ -221,38 +221,38 @@
       photoBtn.classList.add('hidden');
     }
 
-    var classicBtn = document.getElementById('profileViewClassic');
-    var newBtn = document.getElementById('profileViewNew');
+    const classicBtn = document.getElementById('profileViewClassic');
+    const newBtn = document.getElementById('profileViewNew');
     if (classicBtn && newBtn) {
       classicBtn.addEventListener('click', async function () {
-        var res = await saveViewConfig(child.id, { view_mode: 'classic' });
+        const res = await saveViewConfig(child.id, { view_mode: 'classic' });
         if (res.ok) { viewConfig.view_mode = 'classic'; showToast('Klassisk vy'); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
       });
       newBtn.addEventListener('click', async function () {
-        var res = await saveViewConfig(child.id, { view_mode: 'new' });
+        const res = await saveViewConfig(child.id, { view_mode: 'new' });
         if (res.ok) { viewConfig.view_mode = 'new'; showToast('Ny vy'); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
       });
     }
 
-    var moodToggle = document.getElementById('profileSetupMood');
+    const moodToggle = document.getElementById('profileSetupMood');
     if (moodToggle) {
       moodToggle.addEventListener('click', async function (e) {
         e.preventDefault();
-        var on = !moodToggle.classList.contains('on');
+        const on = !moodToggle.classList.contains('on');
         moodToggle.classList.toggle('on');
-        var res = await saveChildField(child.id, 'show_mood_rating', on);
+        const res = await saveChildField(child.id, 'show_mood_rating', on);
         if (!res.ok) { moodToggle.classList.toggle('on'); showToast('Kunde inte spara', true); }
         else { child.show_mood_rating = on; showToast('Sparat'); }
       });
     }
 
-    var minimalToggle = document.getElementById('profileSetupMinimalUi');
+    const minimalToggle = document.getElementById('profileSetupMinimalUi');
     if (minimalToggle) {
       minimalToggle.addEventListener('click', async function (e) {
         e.preventDefault();
-        var on = !minimalToggle.classList.contains('on');
+        const on = !minimalToggle.classList.contains('on');
         minimalToggle.classList.toggle('on');
-        var res = await saveViewConfig(child.id, { minimal_ui: on });
+        const res = await saveViewConfig(child.id, { minimal_ui: on });
         if (!res.ok) { minimalToggle.classList.toggle('on'); showToast('Kunde inte spara', true); }
         else { viewConfig.minimal_ui = on; showToast('Sparat'); }
       });
@@ -262,21 +262,21 @@
 
   async function schemaSummaryHtml(childId, childName) {
     try {
-      var res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/schedules');
+      const res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/schedules');
       if (!res.ok) {
         return '<p class="text-text-soft mb-4">Kunde inte ladda schema.</p>' +
           '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna veckoschema →</a>';
       }
-      var schedules = await res.json();
-      var byDay = {};
+      const schedules = await res.json();
+      const byDay = {};
       (schedules || []).forEach(function (s) {
-        var dow = parseInt(s.day_of_week, 10);
-        var idx = dow === 0 ? 6 : dow - 1;
+        const dow = parseInt(s.day_of_week, 10);
+        const idx = dow === 0 ? 6 : dow - 1;
         byDay[idx] = parseInt(s.item_count, 10) || 0;
       });
-      var dots = DAY_LABELS.map(function (_label, i) {
-        var count = byDay[i] || 0;
-        var cls = count > 0 ? 'bg-gold' : 'bg-lavender';
+      const dots = DAY_LABELS.map(function (_label, i) {
+        const count = byDay[i] || 0;
+        const cls = count > 0 ? 'bg-gold' : 'bg-lavender';
         return '<div class="flex flex-col items-center gap-1 flex-1"><span class="w-3 h-3 rounded-full ' + cls + '"></span>' +
           '<span class="text-[10px] text-text-soft">' + DAY_LABELS[i] + '</span>' +
           (count > 0 ? '<span class="text-[10px] font-bold text-navy">' + count + '</span>' : '') + '</div>';

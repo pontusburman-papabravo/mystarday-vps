@@ -4,12 +4,12 @@
 (function (global) {
   'use strict';
 
-  var _handlers = {};
-  var _loadedScripts = {};
+  const _handlers = {};
+  const _loadedScripts = {};
 
   function scriptPath(src) {
     try {
-      var u = new URL(src, global.location.origin);
+      const u = new URL(src, global.location.origin);
       return u.pathname;
     } catch (_) {
       return String(src || '').split('?')[0];
@@ -17,20 +17,20 @@
   }
 
   function isScriptLoaded(src) {
-    var path = scriptPath(src);
+    const path = scriptPath(src);
     if (_loadedScripts[path]) return true;
-    var scripts = global.document.scripts;
-    for (var i = 0; i < scripts.length; i++) {
+    const scripts = global.document.scripts;
+    for (let i = 0; i < scripts.length; i++) {
       if (scripts[i].src && scriptPath(scripts[i].src) === path) return true;
     }
     return false;
   }
 
   function loadScript(src) {
-    var path = scriptPath(src);
+    const path = scriptPath(src);
     if (isScriptLoaded(src)) return Promise.resolve();
     return new Promise(function (resolve, reject) {
-      var el = global.document.createElement('script');
+      const el = global.document.createElement('script');
       el.src = src;
       el.async = false;
       el.onload = function () {
@@ -43,7 +43,7 @@
   }
 
   function ensureScripts(list) {
-    var chain = Promise.resolve();
+    let chain = Promise.resolve();
     (list || []).forEach(function (src) {
       chain = chain.then(function () { return loadScript(src); });
     });
@@ -56,7 +56,7 @@
   }
 
   function run(pageId) {
-    var fn = _handlers[pageId];
+    const fn = _handlers[pageId];
     if (!fn) return Promise.resolve();
     try {
       return Promise.resolve(fn());

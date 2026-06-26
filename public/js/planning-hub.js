@@ -4,12 +4,12 @@
 (function () {
   'use strict';
 
-  var CONTENT_LINKS = [
+  const CONTENT_LINKS = [
     { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Scheman, aktiviteter och belöningar' },
     { href: '/library#magic-bilder', icon: '📷', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
   ];
 
-  var PLANNING_LINKS = [
+  const PLANNING_LINKS = [
     { href: '/family#custodyScheduleSection', icon: '🏠', title: 'Boendeschema', sub: 'Växelvis boende — vecka A/B per barn' },
     { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
     { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Bocka av, backfill och skriv ut' },
@@ -18,7 +18,7 @@
     { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera mall till barn' },
   ];
 
-  var CAPABILITY_LINKS = {
+  const CAPABILITY_LINKS = {
     reports: { href: '/reports', icon: '📊', title: 'Rapporter', sub: 'Utveckling och delning' },
     samarbete: { href: '/samarbete', icon: '🤝', title: 'Pedagogsamarbete', sub: 'Samarbeta med pedagog' },
     barn_stod: { href: '/barn-stod', icon: '🧩', title: 'Extra stöd', sub: 'Visuellt stöd och TEACCH' },
@@ -68,14 +68,14 @@
   }
 
   async function getSections() {
-    var planning = PLANNING_LINKS.slice();
+    const planning = PLANNING_LINKS.slice();
     if (window.NavConfig && window.fetchPackageAccess) {
       try {
-        var access = await window.fetchPackageAccess();
-        var caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
-        for (var i = 0; i < caps.length; i++) {
-          var cap = caps[i];
-          var extra = CAPABILITY_LINKS[cap.id];
+        const access = await window.fetchPackageAccess();
+        const caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
+        for (let i = 0; i < caps.length; i++) {
+          const cap = caps[i];
+          const extra = CAPABILITY_LINKS[cap.id];
           if (extra) planning.push(extra);
         }
       } catch (_) {
@@ -89,10 +89,10 @@
   }
 
   async function render() {
-    var mount = document.getElementById('planningHubMount');
+    const mount = document.getElementById('planningHubMount');
     if (!mount) return;
 
-    var sections = await getSections();
+    const sections = await getSections();
     mount.innerHTML =
       '<div class="magic-hub-sections max-w-lg space-y-6">' +
       sectionHtml('Bygg innehåll', sections.content) +
@@ -103,7 +103,7 @@
       el.addEventListener('click', function () {
         trackClick(el.getAttribute('data-hub-link'));
         try {
-          var href = el.getAttribute('href') || '';
+          const href = el.getAttribute('href') || '';
           if (window.PlanningBackNav) PlanningBackNav.markFromPlanning();
           if (href.indexOf('/library') === 0) {
             sessionStorage.setItem('libFromPlanning', '1');

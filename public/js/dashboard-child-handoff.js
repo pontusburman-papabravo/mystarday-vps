@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  var DISMISS_KEY = 'dashboard_child_handoff_dismissed';
-  var DISMISS_TTL = 3 * 24 * 60 * 60 * 1000; // 3 days (mobile web only)
+  const DISMISS_KEY = 'dashboard_child_handoff_dismissed';
+  const DISMISS_TTL = 3 * 24 * 60 * 60 * 1000; // 3 days (mobile web only)
 
   function isNativeShell() {
     return (window.Platform && Platform.isNative && Platform.isNative()) ||
@@ -21,9 +21,9 @@
   function isDismissed() {
     if (isNativeShell()) return false;
     try {
-      var raw = localStorage.getItem(DISMISS_KEY);
+      const raw = localStorage.getItem(DISMISS_KEY);
       if (!raw) return false;
-      var parsed = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
       return Date.now() - parsed.ts < DISMISS_TTL;
     } catch (_) {
       return false;
@@ -35,7 +35,7 @@
     try {
       localStorage.setItem(DISMISS_KEY, JSON.stringify({ ts: Date.now() }));
     } catch (_) {}
-    var el = document.getElementById('dashboardChildHandoff');
+    const el = document.getElementById('dashboardChildHandoff');
     if (el) el.classList.add('hidden');
   }
 
@@ -58,7 +58,7 @@
   }
 
   function init() {
-    var el = document.getElementById('dashboardChildHandoff');
+    const el = document.getElementById('dashboardChildHandoff');
     if (!el) return;
 
     if (!isNativeShell() && !isMobileWeb()) {
@@ -72,9 +72,9 @@
 
     el.classList.remove('hidden');
 
-    var childBtn = document.getElementById('dashboardChildLoginBtn');
-    var logoutBtn = document.getElementById('dashboardParentLogoutBtn');
-    var dismissBtn = document.getElementById('dashboardChildHandoffDismiss');
+    const childBtn = document.getElementById('dashboardChildLoginBtn');
+    const logoutBtn = document.getElementById('dashboardParentLogoutBtn');
+    const dismissBtn = document.getElementById('dashboardChildHandoffDismiss');
 
     if (childBtn) childBtn.addEventListener('click', startChildLogin);
     if (logoutBtn) logoutBtn.addEventListener('click', parentLogout);

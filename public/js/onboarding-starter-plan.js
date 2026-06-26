@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var QUESTIONS = [
+  const QUESTIONS = [
     { id: 'child_name', type: 'text', label: 'Barnets namn', placeholder: 't.ex. Ella' },
     {
       id: 'age_band', type: 'choice', label: 'Hur gammalt är barnet?',
@@ -59,7 +59,7 @@
     },
   ];
 
-  var state = {
+  const state = {
     enabled: false,
     flags: {},
     qIndex: 0,
@@ -93,9 +93,9 @@
   }
 
   function ensureCard() {
-    var card = document.getElementById('stepStarterPlan');
+    let card = document.getElementById('stepStarterPlan');
     if (card) return card;
-    var main = document.querySelector('.max-w-lg.mx-auto.px-4');
+    const main = document.querySelector('.max-w-lg.mx-auto.px-4');
     if (!main) return null;
     card = document.createElement('div');
     card.className = 'step-card hidden';
@@ -105,7 +105,7 @@
       '<div id="starterPlanPreview" class="hidden"></div>',
       '<div id="starterPlanError" class="hidden error-box mb-4"></div>',
     ].join('');
-    var step1 = document.getElementById('step1');
+    const step1 = document.getElementById('step1');
     if (step1 && step1.parentNode) {
       step1.parentNode.insertBefore(card, step1);
     } else {
@@ -115,36 +115,36 @@
   }
 
   function showError(msg) {
-    var el = document.getElementById('starterPlanError');
+    const el = document.getElementById('starterPlanError');
     if (!el) return;
     el.textContent = msg;
     el.classList.remove('hidden');
   }
 
   function hideError() {
-    var el = document.getElementById('starterPlanError');
+    const el = document.getElementById('starterPlanError');
     if (el) el.classList.add('hidden');
   }
 
   function showStarterStep() {
     document.querySelectorAll('.step-card').forEach(function (c) { c.classList.remove('active'); });
-    var card = ensureCard();
+    const card = ensureCard();
     if (!card) return;
     card.classList.remove('hidden');
     card.classList.add('active');
-    var label = document.getElementById('stepLabel');
+    const label = document.getElementById('stepLabel');
     if (label) label.textContent = 'Skapa schema ' + (state.qIndex + 1) + ' av ' + QUESTIONS.length;
   }
 
   function renderQuestion() {
-    var container = document.getElementById('starterPlanQuestions');
-    var preview = document.getElementById('starterPlanPreview');
+    const container = document.getElementById('starterPlanQuestions');
+    const preview = document.getElementById('starterPlanPreview');
     if (!container) return;
     if (preview) preview.classList.add('hidden');
     container.classList.remove('hidden');
 
-    var q = QUESTIONS[state.qIndex];
-    var html = [
+    const q = QUESTIONS[state.qIndex];
+    const html = [
       '<div class="text-center mb-6">',
       '  <div class="text-5xl mb-3">✨</div>',
       '  <h1 class="text-2xl font-heading font-bold text-navy mb-2">Skapa ert första schema</h1>',
@@ -160,7 +160,7 @@
     } else if (q.type === 'choice') {
       html.push('<div class="grid grid-cols-1 gap-2 mb-4">');
       q.options.forEach(function (opt) {
-        var sel = state.answers[q.id] === opt.value ? ' border-gold bg-gold-light' : ' border-lavender';
+        const sel = state.answers[q.id] === opt.value ? ' border-gold bg-gold-light' : ' border-lavender';
         html.push('<button type="button" class="sp-choice text-left px-4 py-3 rounded-xl border-2' + sel + '" data-value="' + esc(opt.value) + '">' + esc(opt.label) + '</button>');
       });
       html.push('</div>');
@@ -188,7 +188,7 @@
       });
     });
 
-    var back = document.getElementById('spBack');
+    const back = document.getElementById('spBack');
     if (back) back.addEventListener('click', function () {
       state.qIndex--;
       renderQuestion();
@@ -199,16 +199,16 @@
   }
 
   function readCurrentAnswer() {
-    var q = QUESTIONS[state.qIndex];
+    const q = QUESTIONS[state.qIndex];
     if (q.type === 'choice') return state.answers[q.id];
-    var input = document.getElementById('spAnswer');
+    const input = document.getElementById('spAnswer');
     return input ? input.value.trim() : '';
   }
 
   async function onQuestionNext() {
     hideError();
-    var q = QUESTIONS[state.qIndex];
-    var val = readCurrentAnswer();
+    const q = QUESTIONS[state.qIndex];
+    const val = readCurrentAnswer();
     if (!val && !q.optional) {
       showError('Välj eller fyll i ett svar');
       return;
@@ -229,13 +229,13 @@
   }
 
   async function loadPreview() {
-    var btn = document.getElementById('spNext');
+    const btn = document.getElementById('spNext');
     if (btn) { btn.disabled = true; btn.textContent = 'Laddar…'; }
 
     try {
       track('activation_onboarding_started', { source: 'starter_plan_wizard' });
 
-      var suggestBody = {
+      const suggestBody = {
         age_band: state.answers.age_band,
         routine_type_ui: state.answers.routine_type_ui,
         support_ui: state.answers.support_ui,
@@ -244,27 +244,27 @@
         free_text: state.answers.free_text || '',
       };
 
-      var suggestRes = await api('/api/onboarding/starter-plan/suggest', {
+      const suggestRes = await api('/api/onboarding/starter-plan/suggest', {
         method: 'POST',
         body: JSON.stringify(suggestBody),
       });
-      var suggestData = await suggestRes.json();
+      const suggestData = await suggestRes.json();
       if (!suggestRes.ok) throw new Error(suggestData.error || 'Kunde inte välja mall');
       state.plan = suggestData;
 
-      var lengthMap = { kort: 'short', normal: 'normal', detaljerad: 'detailed' };
-      var desiredLength = lengthMap[state.answers.length_ui] || 'normal';
+      const lengthMap = { kort: 'short', normal: 'normal', detaljerad: 'detailed' };
+      const desiredLength = lengthMap[state.answers.length_ui] || 'normal';
 
-      var previewRes = await api(
+      const previewRes = await api(
         '/api/onboarding/starter-plan/preview?scheduleName=' + encodeURIComponent(suggestData.scheduleName) +
         '&desiredLength=' + encodeURIComponent(desiredLength)
       );
-      var previewData = await previewRes.json();
+      const previewData = await previewRes.json();
       if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
 
       state.previewItems = previewData.items || [];
 
-      var personalizeBody = {
+      const personalizeBody = {
         child_name: state.answers.child_name || '',
         schedule_name: suggestData.scheduleName,
         base_items: state.previewItems,
@@ -278,11 +278,11 @@
 
       if (state.flags.activation_ai_starter_plan) {
         if (btn) btn.textContent = 'Anpassar schema…';
-        var persRes = await api('/api/onboarding/starter-plan/personalize', {
+        const persRes = await api('/api/onboarding/starter-plan/personalize', {
           method: 'POST',
           body: JSON.stringify(personalizeBody),
         });
-        var persData = await persRes.json();
+        const persData = await persRes.json();
         if (!persRes.ok) throw new Error(persData.error || 'Kunde inte anpassa schema');
         state.previewItems = persData.items || state.previewItems;
         state.planTitle = persData.plan_title || suggestData.scheduleName;
@@ -303,15 +303,15 @@
   }
 
   function renderPreview() {
-    var container = document.getElementById('starterPlanQuestions');
-    var preview = document.getElementById('starterPlanPreview');
+    const container = document.getElementById('starterPlanQuestions');
+    const preview = document.getElementById('starterPlanPreview');
     if (!container || !preview) return;
     container.classList.add('hidden');
     preview.classList.remove('hidden');
 
-    var childName = state.answers.child_name || 'Barnet';
-    var title = state.planTitle || (state.plan && state.plan.scheduleName) || 'Ert schema';
-    var html = [
+    const childName = state.answers.child_name || 'Barnet';
+    const title = state.planTitle || (state.plan && state.plan.scheduleName) || 'Ert schema';
+    const html = [
       '<div class="text-center mb-4">',
       '  <div class="text-4xl mb-2">📋</div>',
       '  <h2 class="text-xl font-heading font-bold text-navy">' + esc(title) + '</h2>',
@@ -340,7 +340,7 @@
 
     preview.querySelectorAll('.sp-remove').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var idx = parseInt(btn.getAttribute('data-idx'), 10);
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
         state.previewItems.splice(idx, 1);
         state.planEdited = true;
         renderPreview();
@@ -358,10 +358,10 @@
 
   async function savePlan() {
     hideError();
-    var btn = document.getElementById('spSavePlan');
+    const btn = document.getElementById('spSavePlan');
     if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
 
-    var name = (state.answers.child_name || '').trim();
+    const name = (state.answers.child_name || '').trim();
     if (!name) {
       showError('Ange barnets namn');
       if (btn) { btn.disabled = false; btn.textContent = 'Använd detta schema →'; }
@@ -369,14 +369,14 @@
     }
 
     try {
-      var childRes = await api('/api/onboarding/child', {
+      const childRes = await api('/api/onboarding/child', {
         method: 'POST',
         body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
       });
-      var childData = await childRes.json();
+      const childData = await childRes.json();
       if (!childRes.ok) throw new Error(childData.error || 'Kunde inte skapa barn');
 
-      var schedRes = await api('/api/onboarding/schedule', {
+      const schedRes = await api('/api/onboarding/schedule', {
         method: 'POST',
         body: JSON.stringify({
           child_id: childData.id,
@@ -384,7 +384,7 @@
           custom_items: state.previewItems,
         }),
       });
-      var schedData = await schedRes.json();
+      const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
 
       track('starter_plan_saved', {
@@ -422,7 +422,7 @@
   }
 
   function hideLegacyStep1() {
-    var step1 = document.getElementById('step1');
+    const step1 = document.getElementById('step1');
     if (step1) step1.classList.add('hidden');
   }
 
@@ -434,9 +434,9 @@
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
 
     try {
-      var res = await api('/api/family/activation-config');
+      const res = await api('/api/family/activation-config');
       if (!res.ok) return;
-      var data = await res.json();
+      const data = await res.json();
       if (!data.flags || !data.flags.activation_onboarding_v1) return;
 
       state.enabled = true;

@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var TABS = [
+  const TABS = [
     { id: 'overview', label: 'Översikt' },
     { id: 'log', label: 'Daglig logg' },
     { id: 'schema', label: 'Schema' },
@@ -14,11 +14,11 @@
     { id: 'child-view', label: 'Barnvy' },
   ];
 
-  var childId = null;
-  var child = null;
-  var dashRow = null;
-  var goalRow = null;
-  var pinBuffer = '';
+  let childId = null;
+  let child = null;
+  let dashRow = null;
+  let goalRow = null;
+  let pinBuffer = '';
 
   function trackTab(tab) {
     if (typeof window.analytics !== 'undefined' && analytics.track) {
@@ -32,24 +32,24 @@
   }
 
   function parseChildId() {
-    var parts = (window.location.pathname || '').split('/').filter(Boolean);
-    var idx = parts.indexOf('child');
+    const parts = (window.location.pathname || '').split('/').filter(Boolean);
+    const idx = parts.indexOf('child');
     if (idx >= 0 && parts[idx + 1]) return parts[idx + 1];
     return null;
   }
 
   function currentTab() {
-    var p = new URLSearchParams(window.location.search);
+    const p = new URLSearchParams(window.location.search);
     return p.get('tab') || 'overview';
   }
 
   function setTab(tab) {
-    var url = new URL(window.location.href);
+    const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
     window.history.replaceState({}, '', url.pathname + url.search);
     render();
     window.requestAnimationFrame(function () {
-      var mount = document.getElementById('childProfileMount');
+      const mount = document.getElementById('childProfileMount');
       if (mount) mount.scrollIntoView({ block: 'start', behavior: 'smooth' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -59,23 +59,23 @@
     childId = parseChildId();
     if (!childId) throw new Error('Saknar barn-id');
 
-    var statsRes = await window.apiFetch('/api/family/dashboard-stats');
+    const statsRes = await window.apiFetch('/api/family/dashboard-stats');
     if (!statsRes.ok) throw new Error('Kunde inte ladda status');
-    var stats = await statsRes.json();
+    const stats = await statsRes.json();
     dashRow = (stats.children || []).find(function (c) { return c.id === childId; });
 
-    var childRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId));
+    const childRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId));
     if (!childRes.ok) throw new Error('Barn hittades inte');
     child = await childRes.json();
 
     try {
-      var vcRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/view-config');
+      const vcRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/view-config');
       if (vcRes.ok) child.child_view_config = await vcRes.json();
     } catch (_) { /* optional */ }
 
-    var goalsRes = await window.apiFetch('/api/rewards/goals');
+    const goalsRes = await window.apiFetch('/api/rewards/goals');
     if (goalsRes.ok) {
-      var goalsData = await goalsRes.json();
+      const goalsData = await goalsRes.json();
       goalRow = (goalsData.goals || []).find(function (g) { return g.child_id === childId; });
     }
   }
@@ -99,21 +99,21 @@
   }
 
   function renderPinDots() {
-    var dots = document.querySelectorAll('.profile-pin-dot');
+    const dots = document.querySelectorAll('.profile-pin-dot');
     dots.forEach(function (dot, i) {
       dot.classList.toggle('bg-gold', i < pinBuffer.length);
       dot.classList.toggle('bg-lavender', i >= pinBuffer.length);
     });
-    var save = document.getElementById('profilePinSave');
+    const save = document.getElementById('profilePinSave');
     if (save) save.disabled = pinBuffer.length !== 4;
   }
 
   async function rewardsTabHtml() {
-    var html = quickActionsHtml();
+    let html = quickActionsHtml();
     if (window.PendingApprovals) {
       try {
-        var pending = await PendingApprovals.fetchPending();
-        var block = PendingApprovals.renderList(pending, {
+        const pending = await PendingApprovals.fetchPending();
+        const block = PendingApprovals.renderList(pending, {
           childId: childId,
           childName: child.name,
           heading: 'Väntar på godkännande',
@@ -122,7 +122,7 @@
       } catch (_) { /* silent */ }
     }
     if (goalRow && goalRow.reward_name) {
-      var pct = goalRow.progress_pct != null ? Math.min(100, goalRow.progress_pct) : 0;
+      const pct = goalRow.progress_pct != null ? Math.min(100, goalRow.progress_pct) : 0;
       html +=
         '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
         '<p class="text-sm text-text-soft">Aktuellt mål</p>' +
@@ -138,8 +138,8 @@
   }
 
   function quickActionsHtml() {
-    var paused = dashRow && dashRow.today_is_paused;
-    var logId = dashRow && dashRow.today_log_id;
+    const paused = dashRow && dashRow.today_is_paused;
+    const logId = dashRow && dashRow.today_log_id;
     return '<div class="grid grid-cols-2 gap-2 mb-6">' +
       '<button type="button" data-action="pause" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">' +
       (paused ? '▶ Återuppta dag' : '⏸ Pausa idag') + '</button>' +
@@ -151,15 +151,15 @@
 
   function incompleteDaysCount() {
     if (!dashRow || !dashRow.history) return 0;
-    var today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
     return dashRow.history.filter(function (d) {
       return d.date < today && d.total > 0 && d.completed < d.total && !d.is_paused;
     }).length;
   }
 
   function overviewAlertsHtml() {
-    var html = '';
-    var incomplete = incompleteDaysCount();
+    let html = '';
+    const incomplete = incompleteDaysCount();
     if (incomplete > 0) {
       html +=
         '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 mb-4 bg-coral/10 border border-coral rounded-2xl">' +
@@ -170,21 +170,21 @@
   }
 
   async function progressTabHtml() {
-    var res = await window.apiFetch('/api/family/star-history');
+    const res = await window.apiFetch('/api/family/star-history');
     if (!res.ok) {
       return '<p class="text-text-soft">Kunde inte ladda stjärnhistorik.</p>';
     }
-    var data = await res.json();
-    var weeks = data.weeks || [];
+    const data = await res.json();
+    const weeks = data.weeks || [];
     if (!weeks.length) {
       return '<p class="text-text-soft mb-4">Ingen stjärnhistorik ännu.</p>' +
         '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna rapporter →</a>';
     }
-    var totals = weeks.map(function (w) { return (w.child_totals && w.child_totals[childId]) || 0; });
-    var max = Math.max.apply(null, totals.concat([1]));
-    var bars = weeks.map(function (w, i) {
-      var val = totals[i] || 0;
-      var h = Math.max(val > 0 ? 8 : 0, Math.round((val / max) * 100));
+    const totals = weeks.map(function (w) { return (w.child_totals && w.child_totals[childId]) || 0; });
+    const max = Math.max.apply(null, totals.concat([1]));
+    const bars = weeks.map(function (w, i) {
+      const val = totals[i] || 0;
+      const h = Math.max(val > 0 ? 8 : 0, Math.round((val / max) * 100));
       return '<div class="flex-1 flex flex-col items-center gap-1 min-w-[36px]">' +
         '<span class="text-[10px] font-bold text-gold">' + val + '⭐</span>' +
         '<div class="w-full bg-lavender rounded-t-lg relative" style="height:80px">' +
@@ -199,8 +199,8 @@
 
   function tabContent(tab) {
     if (tab === 'overview') {
-      var stars = dashRow ? (dashRow.stars_today || 0) : '—';
-      var paused = dashRow && dashRow.today_is_paused;
+      const stars = dashRow ? (dashRow.stars_today || 0) : '—';
+      const paused = dashRow && dashRow.today_is_paused;
       return quickActionsHtml() +
         overviewAlertsHtml() +
         '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
@@ -232,11 +232,11 @@
   }
 
   function render() {
-    var mount = document.getElementById('childProfileMount');
+    const mount = document.getElementById('childProfileMount');
     if (!mount || !child) return;
-    var tab = currentTab();
-    var tabsHtml = TABS.map(function (t) {
-      var active = t.id === tab ? ' bg-gold text-navy' : ' bg-white text-navy border border-lavender';
+    const tab = currentTab();
+    const tabsHtml = TABS.map(function (t) {
+      const active = t.id === tab ? ' bg-gold text-navy' : ' bg-white text-navy border border-lavender';
       return '<button type="button" data-tab="' + t.id + '" class="px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + active + '">' + t.label + '</button>';
     }).join('');
 
@@ -251,7 +251,7 @@
 
     mount.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var t = btn.getAttribute('data-tab');
+        const t = btn.getAttribute('data-tab');
         trackTab(t);
         setTab(t);
       });
@@ -259,24 +259,24 @@
 
     if (tab === 'rewards') {
       rewardsTabHtml().then(function (html) {
-        var el = document.getElementById('profileRewardsBody');
+        const el = document.getElementById('profileRewardsBody');
         if (el) el.innerHTML = html;
         if (window.PendingApprovals) PendingApprovals.bindRowActions(mount);
         mount.querySelectorAll('[data-action]').forEach(function (btn) {
           btn.addEventListener('click', onQuickAction);
         });
       }).catch(function () {
-        var el = document.getElementById('profileRewardsBody');
+        const el = document.getElementById('profileRewardsBody');
         if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda belöningar.</p>';
       });
     }
 
     if (tab === 'progress') {
       progressTabHtml().then(function (html) {
-        var el = document.getElementById('profileProgressBody');
+        const el = document.getElementById('profileProgressBody');
         if (el) el.innerHTML = html;
       }).catch(function () {
-        var el = document.getElementById('profileProgressBody');
+        const el = document.getElementById('profileProgressBody');
         if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda framsteg.</p>';
       });
     }
@@ -284,10 +284,10 @@
     if (tab === 'schema') {
       if (window.ChildProfileSetup) {
         ChildProfileSetup.schemaSummaryHtml(childId, child.name).then(function (html) {
-          var el = document.getElementById('profileSchemaBody');
+          const el = document.getElementById('profileSchemaBody');
           if (el) el.innerHTML = html;
         }).catch(function () {
-          var el = document.getElementById('profileSchemaBody');
+          const el = document.getElementById('profileSchemaBody');
           if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda schema.</p>';
         });
       }
@@ -295,27 +295,27 @@
 
     if (tab === 'setup') {
       pinBuffer = '';
-      var viewConfig = child.child_view_config || child.view_config || {};
+      const viewConfig = child.child_view_config || child.view_config || {};
       function wirePin() {
         mount.querySelectorAll('[data-pin-digit]').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            var d = btn.getAttribute('data-pin-digit');
+            const d = btn.getAttribute('data-pin-digit');
             if (d === '⌫') pinBuffer = pinBuffer.slice(0, -1);
             else if (pinBuffer.length < 4) pinBuffer += d;
             renderPinDots();
           });
         });
-        var pinSave = document.getElementById('profilePinSave');
+        const pinSave = document.getElementById('profilePinSave');
         if (pinSave) {
           pinSave.addEventListener('click', async function () {
             if (pinBuffer.length !== 4) return;
-            var res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/pin', {
+            const res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/pin', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ pin: pinBuffer }),
             });
             if (!res.ok) {
-              var e = {};
+              let e = {};
               try { e = await res.json(); } catch (_) { /* non-json */ }
               showToast(e.error || 'Kunde inte spara PIN', true);
               return;
@@ -338,7 +338,7 @@
       btn.addEventListener('click', onQuickAction);
     });
 
-    var handoff = document.getElementById('childHandoffBtn');
+    const handoff = document.getElementById('childHandoffBtn');
     if (handoff) {
       handoff.addEventListener('click', function () {
         if (window.Auth && Auth.logout) Auth.logout({ childFlow: true });
@@ -347,13 +347,13 @@
   }
 
   async function onQuickAction(e) {
-    var action = e.currentTarget.getAttribute('data-action');
+    const action = e.currentTarget.getAttribute('data-action');
     if (action === 'pause') {
-      var logId = dashRow && dashRow.today_log_id;
+      const logId = dashRow && dashRow.today_log_id;
       if (!logId) { showToast('Inget schema idag', true); return; }
-      var paused = dashRow.today_is_paused;
-      var ep = paused ? 'unpause' : 'pause';
-      var res = await window.apiFetch('/api/daily-logs/' + logId + '/' + ep, { method: 'PUT' });
+      const paused = dashRow.today_is_paused;
+      const ep = paused ? 'unpause' : 'pause';
+      const res = await window.apiFetch('/api/daily-logs/' + logId + '/' + ep, { method: 'PUT' });
       if (!res.ok) { showToast('Kunde inte uppdatera', true); return; }
       showToast(paused ? 'Dagen återupptagen' : 'Dagen pausad');
       await loadData();
@@ -368,10 +368,10 @@
   }
 
   async function submitManualStar() {
-    var count = parseInt(document.getElementById('manualStarCount').value, 10) || 1;
-    var reason = document.getElementById('manualStarReason').value.trim();
+    const count = parseInt(document.getElementById('manualStarCount').value, 10) || 1;
+    const reason = document.getElementById('manualStarReason').value.trim();
     if (!reason) { showToast('Skriv en anledning', true); return; }
-    var res = await window.apiFetch('/api/rewards/manual-stars', {
+    const res = await window.apiFetch('/api/rewards/manual-stars', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ child_id: childId, star_count: count, reason: reason }),
@@ -393,7 +393,7 @@
       });
       document.getElementById('manualStarSubmit')?.addEventListener('click', submitManualStar);
     } catch (err) {
-      var mount = document.getElementById('childProfileMount');
+      const mount = document.getElementById('childProfileMount');
       if (mount) mount.innerHTML = '<p class="text-coral text-center py-8">' + esc(err.message) + '</p>';
     }
   }

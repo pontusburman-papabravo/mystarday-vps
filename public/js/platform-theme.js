@@ -3,9 +3,9 @@
 
   /** Block pinch/double-tap zoom in native WebView (App Store–style shell). */
   function patchViewportNoZoom() {
-    var meta = document.querySelector('meta[name="viewport"]');
+    const meta = document.querySelector('meta[name="viewport"]');
     if (!meta) return;
-    var c = meta.getAttribute('content') || '';
+    let c = meta.getAttribute('content') || '';
     if (/\bmaximum-scale\s*=\s*1\b/i.test(c) && /\buser-scalable\s*=\s*no\b/i.test(c)) return;
     c = c.replace(/,?\s*maximum-scale\s*=[^,]*/gi, '');
     c = c.replace(/,?\s*user-scalable\s*=[^,]*/gi, '');
@@ -28,12 +28,12 @@
   }
 
   function applyTabletClass(isNative) {
-    var root = document.documentElement;
+    const root = document.documentElement;
     if (!isNative) {
       root.classList.remove('platform-tablet');
       return;
     }
-    var tabletMq = typeof window.matchMedia === 'function'
+    const tabletMq = typeof window.matchMedia === 'function'
       ? window.matchMedia('(min-width: 768px)')
       : null;
     if (tabletMq && tabletMq.matches) root.classList.add('platform-tablet');
@@ -41,16 +41,16 @@
   }
 
   function applyPlatformTheme() {
-    var root = document.documentElement;
-    var isNative = detectNative();
+    const root = document.documentElement;
+    const isNative = detectNative();
 
     root.classList.remove('platform-native', 'platform-web', 'platform-ios', 'platform-android', 'platform-child-page', 'platform-tablet');
 
     if (isNative) {
       patchViewportNoZoom();
       root.classList.add('platform-native');
-      var childPagePath = (window.location.pathname || '').replace(/\/$/, '');
-      var isChildPage = childPagePath === '/child-login' || childPagePath.indexOf('/child/') === 0;
+      const childPagePath = (window.location.pathname || '').replace(/\/$/, '');
+      const isChildPage = childPagePath === '/child-login' || childPagePath.indexOf('/child/') === 0;
       if (isChildPage) root.classList.add('platform-child-page');
       if (typeof window.Platform !== 'undefined' && typeof window.Platform.isIOS === 'function' && window.Platform.isIOS()) {
         root.classList.add('platform-ios');
@@ -65,8 +65,8 @@
       applyTabletClass(true);
       try {
         if (!sessionStorage.getItem('native_landing_redirected')) {
-          var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
-          var nonRedirectPaths = ['/login', '/register', '/child-login', '/dashboard',
+          const path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+          const nonRedirectPaths = ['/login', '/register', '/child-login', '/dashboard',
             '/child-dashboard', '/child/today', '/child/world', '/child/family', '/foralder', '/barn', '/settings', '/scheman',
             '/aktiviteter', '/beloningar', '/rapporter', '/pedagoger', '/faq',
             '/inkorg', '/nyheter', '/villkor', '/integritet', '/faq'];
@@ -97,8 +97,8 @@
     if (detectNative()) return;
 
     // Capacitor bridge can appear slightly after DOMContentLoaded in remote-URL WebView.
-    var attempts = 0;
-    var maxAttempts = 40;
+    let attempts = 0;
+    const maxAttempts = 40;
     var timer = setInterval(function () {
       attempts += 1;
       if (detectNative()) {
@@ -111,8 +111,8 @@
   }
 
   if (typeof window.matchMedia === 'function') {
-    var tabletLayoutMq = window.matchMedia('(min-width: 768px)');
-    var onTabletLayoutChange = function () {
+    const tabletLayoutMq = window.matchMedia('(min-width: 768px)');
+    const onTabletLayoutChange = function () {
       if (detectNative()) applyTabletClass(true);
     };
     if (typeof tabletLayoutMq.addEventListener === 'function') {

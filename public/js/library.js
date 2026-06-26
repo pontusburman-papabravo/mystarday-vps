@@ -70,8 +70,8 @@ let confirmCallback = null;
 let favValue = false;
 let approvalValue = true;
 let activeSchemaTab = null; // category id of active schema tab
-let subStepsCache = {};
-let openSubStepPanels = new Set();
+const subStepsCache = {};
+const openSubStepPanels = new Set();
 
 
 const ICONS = [
@@ -1407,11 +1407,11 @@ function closeConfirmModal() {
 function closeAllLibraryModals() {
   ['categoryModal', 'activityModal', 'rewardModal', 'subStepModal', 'confirmModal', 'libActSubstepEditModal']
     .forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) el.classList.add('hidden');
     });
   ['createTemplateModal', 'scheduleCopyModal', 'copyFromModal'].forEach(function (id) {
-    var dyn = document.getElementById(id);
+    const dyn = document.getElementById(id);
     if (dyn) dyn.remove();
   });
   closeOverflowMenus();

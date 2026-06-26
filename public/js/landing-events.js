@@ -4,7 +4,7 @@
 (function (global) {
   'use strict';
 
-  var ALLOWED = {
+  const ALLOWED = {
     hero_signup_click: true,
     hero_how_it_works_click: true,
     problem_how_it_works_click: true,

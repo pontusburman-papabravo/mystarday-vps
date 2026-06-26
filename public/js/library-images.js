@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var images = [];
-  var pickerCallback = null;
-  var _visualMode = 'emoji';
+  let images = [];
+  const pickerCallback = null;
+  let _visualMode = 'emoji';
 
   function isPhotoMode() {
     return _visualMode === 'photo';
@@ -31,32 +31,32 @@
 
   async function compressUploadFile(file) {
     if (!file) return file;
-    var type = (file.type || '').toLowerCase();
+    const type = (file.type || '').toLowerCase();
     if (type === 'image/heic' || type === 'image/heif' || /\.heic$/i.test(file.name || '') || /\.heif$/i.test(file.name || '')) {
       return file;
     }
     if (!type.startsWith('image/') || type === 'image/svg+xml') return file;
 
     return new Promise(function (resolve) {
-      var url = URL.createObjectURL(file);
-      var img = new Image();
+      const url = URL.createObjectURL(file);
+      const img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
-        var maxDim = 1920;
-        var w = img.naturalWidth || img.width || 1;
-        var h = img.naturalHeight || img.height || 1;
-        var scale = Math.min(1, maxDim / Math.max(w, h));
-        var cw = Math.max(1, Math.round(w * scale));
-        var ch = Math.max(1, Math.round(h * scale));
-        var canvas = document.createElement('canvas');
+        const maxDim = 1920;
+        const w = img.naturalWidth || img.width || 1;
+        const h = img.naturalHeight || img.height || 1;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        const cw = Math.max(1, Math.round(w * scale));
+        const ch = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement('canvas');
         canvas.width = cw;
         canvas.height = ch;
-        var ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
         if (!ctx) { resolve(file); return; }
         ctx.drawImage(img, 0, 0, cw, ch);
         canvas.toBlob(function (blob) {
           if (!blob) { resolve(file); return; }
-          var base = (file.name || 'photo').replace(/\.[^.]+$/, '') || 'photo';
+          const base = (file.name || 'photo').replace(/\.[^.]+$/, '') || 'photo';
           resolve(new File([blob], base + '.jpg', { type: 'image/jpeg' }));
         }, 'image/jpeg', 0.88);
       };
@@ -73,9 +73,9 @@
       if (retry) localStorage.removeItem(Auth.CSRF_KEY);
       await Auth.ensureCsrfToken();
     }
-    var headers = {};
+    const headers = {};
     if (window.Auth && Auth.getCsrfToken) {
-      var csrf = Auth.getCsrfToken();
+      const csrf = Auth.getCsrfToken();
       if (csrf) headers['X-CSRF-Token'] = csrf;
     }
     return fetch('/api/upload/image', {
@@ -89,18 +89,18 @@
   async function uploadFile(file) {
     if (!file) throw new Error('Ingen fil vald');
     file = await compressUploadFile(file);
-    var fd = new FormData();
+    const fd = new FormData();
     fd.append('image', file, file.name || 'photo.jpg');
 
-    var res = await postUpload(fd, false);
+    let res = await postUpload(fd, false);
     if (res.status === 403) {
-      var errBody = await res.clone().json().catch(function () { return {}; });
+      const errBody = await res.clone().json().catch(function () { return {}; });
       if (errBody.code === 'CSRF_MISSING' || errBody.code === 'CSRF_INVALID') {
         res = await postUpload(fd, true);
       }
     }
 
-    var data = {};
+    let data = {};
     try {
       data = await res.json();
     } catch (_) {
@@ -113,21 +113,21 @@
 
   async function loadImages() {
     if (!window.apiFetch) return [];
-    var res = await apiFetch('/api/family/images');
+    const res = await apiFetch('/api/family/images');
     if (!res.ok) return [];
     images = await res.json();
     return images;
   }
 
   function renderGrid() {
-    var grid = document.getElementById('familyImageGrid');
+    const grid = document.getElementById('familyImageGrid');
     if (!grid) return;
     if (!images.length) {
       grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4 text-center">Inga bilder ännu — ladda upp t.ex. tandborste, säng eller skolbyggnad.</p>';
       return;
     }
     grid.innerHTML = images.map(function (img) {
-      var label = img.label ? esc(img.label) : 'Bild';
+      const label = img.label ? esc(img.label) : 'Bild';
       return (
         '<div class="family-image-card" data-image-id="' + img.id + '">' +
           '<img src="' + esc(img.image_url) + '" alt="' + label + '" class="family-image-card__img" loading="lazy">' +
@@ -147,16 +147,16 @@
   }
 
   async function addImage(file, label) {
-    var url = await uploadFile(file);
-    var res = await apiFetch('/api/family/images', {
+    const url = await uploadFile(file);
+    const res = await apiFetch('/api/family/images', {
       method: 'POST',
       body: JSON.stringify({ label: label || null, image_url: url }),
     });
     if (!res.ok) {
-      var err = await res.json().catch(function () { return {}; });
+      const err = await res.json().catch(function () { return {}; });
       throw new Error(err.error || 'Kunde inte spara i bildarkivet');
     }
-    var row = await res.json();
+    const row = await res.json();
     images.push(row);
     renderGrid();
     renderPickerGrid();
@@ -165,7 +165,7 @@
 
   async function deleteImage(id) {
     if (!confirm('Ta bort bilden från bildarkivet? Aktiviteter som använder den får emoji (⭐) istället.')) return;
-    var res = await apiFetch('/api/family/images/' + id, { method: 'DELETE' });
+    const res = await apiFetch('/api/family/images/' + id, { method: 'DELETE' });
     if (!res.ok) {
       showToast('Kunde inte ta bort bilden', true);
       return;
@@ -180,7 +180,7 @@
   }
 
   function renderPickerGrid() {
-    var grid = document.getElementById('activityImagePickerGrid');
+    const grid = document.getElementById('activityImagePickerGrid');
     if (!grid) return;
     if (!images.length) {
       grid.innerHTML = '<p class="text-xs text-text-soft col-span-full">Ladda upp bilder i bildarkivet nedan, eller välj en fil här.</p>';
@@ -202,9 +202,9 @@
   }
 
   function updateBarnvyPreview(url) {
-    var wrap = document.getElementById('activityImagePreviewWrap');
-    var preview = document.getElementById('activityImageBarnvyPreview');
-    var recropBtn = document.getElementById('activityImageRecropBtn');
+    const wrap = document.getElementById('activityImagePreviewWrap');
+    const preview = document.getElementById('activityImageBarnvyPreview');
+    const recropBtn = document.getElementById('activityImageRecropBtn');
     if (wrap) wrap.classList.toggle('hidden', !url);
     if (preview) {
       if (url) {
@@ -217,7 +217,7 @@
   }
 
   function selectActivityImage(url) {
-    var hidden = document.getElementById('activityImageUrl');
+    const hidden = document.getElementById('activityImageUrl');
     if (hidden) hidden.value = url || '';
     updateBarnvyPreview(url);
     document.querySelectorAll('.activity-image-pick').forEach(function (btn) {
@@ -232,15 +232,15 @@
   }
 
   async function recropSelectedImage() {
-    var urlEl = document.getElementById('activityImageUrl');
-    var current = urlEl && urlEl.value ? urlEl.value : '';
+    const urlEl = document.getElementById('activityImageUrl');
+    const current = urlEl && urlEl.value ? urlEl.value : '';
     if (!current || !window.LibraryImageCrop) return;
-    var recropBtn = document.getElementById('activityImageRecropBtn');
+    const recropBtn = document.getElementById('activityImageRecropBtn');
     if (recropBtn) {
       recropBtn.disabled = true;
       recropBtn.textContent = 'Öppnar…';
     }
-    var cropped;
+    let cropped;
     try {
       cropped = await LibraryImageCrop.openFromUrl(current);
     } catch (err) {
@@ -254,16 +254,16 @@
     }
     if (!cropped) return;
     try {
-      var newUrl = await uploadFile(cropped);
-      var res = await apiFetch('/api/family/images', {
+      const newUrl = await uploadFile(cropped);
+      const res = await apiFetch('/api/family/images', {
         method: 'POST',
         body: JSON.stringify({ label: null, image_url: newUrl }),
       });
       if (!res.ok) {
-        var err = await res.json().catch(function () { return {}; });
+        const err = await res.json().catch(function () { return {}; });
         throw new Error(err.error || 'Kunde inte spara i bildarkivet');
       }
-      var row = await res.json();
+      const row = await res.json();
       images.push(row);
       renderGrid();
       renderPickerGrid();
@@ -276,11 +276,11 @@
 
   function setVisualMode(mode) {
     _visualMode = mode === 'photo' ? 'photo' : 'emoji';
-    var emojiBlock = document.getElementById('activityEmojiBlock');
-    var photoBlock = document.getElementById('activityPhotoBlock');
-    var btnEmoji = document.getElementById('activityVisualEmojiBtn');
-    var btnPhoto = document.getElementById('activityVisualPhotoBtn');
-    var isPhoto = _visualMode === 'photo';
+    const emojiBlock = document.getElementById('activityEmojiBlock');
+    const photoBlock = document.getElementById('activityPhotoBlock');
+    const btnEmoji = document.getElementById('activityVisualEmojiBtn');
+    const btnPhoto = document.getElementById('activityVisualPhotoBtn');
+    const isPhoto = _visualMode === 'photo';
     if (emojiBlock) emojiBlock.classList.toggle('hidden', isPhoto);
     if (photoBlock) photoBlock.classList.toggle('hidden', !isPhoto);
     if (btnEmoji) btnEmoji.classList.toggle('activity-visual-tab--active', !isPhoto);
@@ -289,8 +289,8 @@
 
   function initActivityImagePicker(act) {
     return loadImages().then(function () {
-      var imageUrl = act && act.image_url ? act.image_url : '';
-      var isNew = !act || !act.id;
+      const imageUrl = act && act.image_url ? act.image_url : '';
+      const isNew = !act || !act.id;
       if (imageUrl) {
         setVisualMode('photo');
       } else if (isNew && images.length > 0) {
@@ -305,11 +305,11 @@
   }
 
   async function handleArchiveUpload(input) {
-    var file = input.files && input.files[0];
+    let file = input.files && input.files[0];
     if (!file) return;
-    var labelEl = document.getElementById('familyImageLabel');
-    var label = labelEl && labelEl.value ? labelEl.value.trim() : '';
-    var btn = document.getElementById('familyImageUploadBtn');
+    const labelEl = document.getElementById('familyImageLabel');
+    const label = labelEl && labelEl.value ? labelEl.value.trim() : '';
+    const btn = document.getElementById('familyImageUploadBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Laddar upp…'; }
     try {
       file = await cropBeforeUpload(file);
@@ -326,12 +326,12 @@
   }
 
   async function handlePickerUpload(input) {
-    var file = input.files && input.files[0];
+    let file = input.files && input.files[0];
     if (!file) return;
     try {
       file = await cropBeforeUpload(file);
       if (!file) return;
-      var row = await addImage(file, '');
+      const row = await addImage(file, '');
       selectActivityImage(row.image_url);
       setVisualMode('photo');
       showToast('Bild uppladdad');
@@ -349,17 +349,17 @@
     await loadImages();
     renderGrid();
 
-    var uploadInput = document.getElementById('familyImageFile');
+    const uploadInput = document.getElementById('familyImageFile');
     if (uploadInput) {
       uploadInput.addEventListener('change', function () { handleArchiveUpload(uploadInput); });
     }
-    var pickerInput = document.getElementById('activityImageFile');
+    const pickerInput = document.getElementById('activityImageFile');
     if (pickerInput) {
       pickerInput.addEventListener('change', function () { handlePickerUpload(pickerInput); });
     }
-    var clearBtn = document.getElementById('activityImageClearBtn');
+    const clearBtn = document.getElementById('activityImageClearBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearActivityImage);
-    var recropBtn = document.getElementById('activityImageRecropBtn');
+    const recropBtn = document.getElementById('activityImageRecropBtn');
     if (recropBtn) {
       recropBtn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -367,8 +367,8 @@
         recropSelectedImage();
       });
     }
-    var emojiBtn = document.getElementById('activityVisualEmojiBtn');
-    var photoBtn = document.getElementById('activityVisualPhotoBtn');
+    const emojiBtn = document.getElementById('activityVisualEmojiBtn');
+    const photoBtn = document.getElementById('activityVisualPhotoBtn');
     if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); clearActivityImage(); });
     if (photoBtn) photoBtn.addEventListener('click', function () { setVisualMode('photo'); });
   }
@@ -380,7 +380,7 @@
     initActivityImagePicker: initActivityImagePicker,
     isPhotoMode: isPhotoMode,
     getSelectedUrl: function () {
-      var el = document.getElementById('activityImageUrl');
+      const el = document.getElementById('activityImageUrl');
       return el && el.value ? el.value : null;
     },
     clearActivityImage: clearActivityImage,

@@ -11,7 +11,7 @@
 
   function renderCard(data) {
     if (!data) return '';
-    var rewards = (data.top_rewards || []).map(function (r) {
+    const rewards = (data.top_rewards || []).map(function (r) {
       return '<span class="fm-museum-reward-chip">' + esc(r.icon || '🎁') + ' ' + esc(r.name) +
         ' <em>' + esc(String(r.cnt)) + '×</em></span>';
     }).join('');
@@ -38,10 +38,10 @@
   }
 
   function mount(containerId) {
-    var el = document.getElementById(containerId);
+    const el = document.getElementById(containerId);
     if (!el || !window.Auth) return;
     Auth.api('/api/family/museum').then(function (data) {
-      var existing = document.getElementById('familyMuseumCard');
+      const existing = document.getElementById('familyMuseumCard');
       if (existing) existing.remove();
       el.insertAdjacentHTML('afterbegin', renderCard(data));
     }).catch(function () {});

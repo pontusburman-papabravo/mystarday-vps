@@ -5,11 +5,11 @@
 (function () {
   'use strict';
 
-  var _enabled = null;
+  let _enabled = null;
 
   async function refresh() {
     try {
-      var status = await Auth.api('/api/subscription/status');
+      const status = await Auth.api('/api/subscription/status');
       _enabled = status.billing_ui_enabled === true;
     } catch (_) {
       _enabled = false;

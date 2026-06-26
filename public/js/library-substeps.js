@@ -62,7 +62,7 @@ function renderSubStepsList(templateId, steps) {
   initSubStepDnD(templateId);
 }
 
-let _subStepSortables = {};
+const _subStepSortables = {};
 function initSubStepDnD(templateId) {
   if (_subStepSortables[templateId]) { _subStepSortables[templateId].destroy(); }
   if (typeof Sortable === 'undefined') return;

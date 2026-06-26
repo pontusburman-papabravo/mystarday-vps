@@ -14,9 +14,9 @@
 
   /** Narrative line for Historikboken (wins only). */
   function buildHistoryNarrative(r) {
-    var icon = r.reward_icon || '🎁';
-    var name = r.reward_name || 'belöning';
-    var lower = name.toLowerCase();
+    const icon = r.reward_icon || '🎁';
+    const name = r.reward_name || 'belöning';
+    const lower = name.toLowerCase();
 
     if (/film|tv|skärm|bio/.test(lower)) return 'Du fick välja film ' + icon + ' 🍿';
     if (/saga|bok|läsa|bibliotek/.test(lower)) return 'Du låste upp extra saga ' + icon + ' ⭐';
@@ -29,8 +29,8 @@
 
   /** HTML for one history story card. */
   function renderHistoryStoryHtml(r) {
-    var d = new Date(r.created_at);
-    var dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const d = new Date(r.created_at);
+    const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
     return (
       '<div class="skatt-history-story">' +
         '<span style="font-size:1.6rem;line-height:1;">' + esc(r.reward_icon || '🎁') + '</span>' +
@@ -44,7 +44,7 @@
 
   /** Economy explainer under star balance in Skattkammaren banner. */
   function renderEconomyHintHtml(starBalance, totalEarned) {
-    var parts = '<p class="skatt-economy-hint">Dina sparade stjärnor — de går åt när du låser upp en belöning 🎁</p>';
+    let parts = '<p class="skatt-economy-hint">Dina sparade stjärnor — de går åt när du låser upp en belöning 🎁</p>';
     if (totalEarned > starBalance) {
       parts += '<p class="skatt-economy-hint" style="margin-top:4px;">Totalt har du tjänat ⭐ ' + totalEarned + '</p>';
     }
@@ -53,12 +53,12 @@
 
   /** Update compact goal teaser on schedule tab. */
   function updateGoalTeaser(goalData) {
-    var btn = document.getElementById('goalTeaserBtn');
+    const btn = document.getElementById('goalTeaserBtn');
     if (!btn) return;
 
-    var nameEl = document.getElementById('goalTeaserName');
-    var subEl = document.getElementById('goalTeaserSub');
-    var iconEl = document.getElementById('goalTeaserIcon');
+    const nameEl = document.getElementById('goalTeaserName');
+    const subEl = document.getElementById('goalTeaserSub');
+    const iconEl = document.getElementById('goalTeaserIcon');
 
     if (!goalData || !goalData.goal || !goalData.goal.reward_id) {
       if (iconEl) iconEl.textContent = '🎯';
@@ -67,11 +67,11 @@
       return;
     }
 
-    var balance = goalData.star_balance || 0;
-    var cost = goalData.goal.star_cost || 1;
-    var toGo = Math.max(0, cost - balance);
-    var icon = goalData.goal.reward_icon || '🎯';
-    var name = goalData.goal.reward_name || '';
+    const balance = goalData.star_balance || 0;
+    const cost = goalData.goal.star_cost || 1;
+    const toGo = Math.max(0, cost - balance);
+    const icon = goalData.goal.reward_icon || '🎯';
+    const name = goalData.goal.reward_name || '';
 
     if (iconEl) iconEl.textContent = icon;
     if (nameEl) nameEl.textContent = name;
@@ -84,13 +84,13 @@
 
   /** Sync today's earned stars row. */
   function updateTodayStars(earned) {
-    var el = document.getElementById('todayStarsEarned');
+    const el = document.getElementById('todayStarsEarned');
     if (el) el.textContent = earned === 1 ? '1 stjärna' : earned + ' stjärnor';
   }
 
   function init() {
     // Week nav starts collapsed — details element handles this
-    var details = document.getElementById('weekNavDetails');
+    const details = document.getElementById('weekNavDetails');
     if (details) details.removeAttribute('open');
   }
 

@@ -9,20 +9,20 @@
 (function () {
   'use strict';
 
-  var PARENT_KEY = 'stjarndag_parent_ui_view';
-  var THEME_KEY = 'stjarndag_parent_theme';
-  var childKey = function (id) { return 'stjarndag_child_ui_view_' + id; };
+  const PARENT_KEY = 'stjarndag_parent_ui_view';
+  const THEME_KEY = 'stjarndag_parent_theme';
+  const childKey = function (id) { return 'stjarndag_child_ui_view_' + id; };
 
-  var _role = null;
-  var _childId = null;
-  var _mode = 'classic';
-  var _allowed = false;
-  var _optimisticMagic = false;
-  var _ready = false;
-  var _listeners = [];
-  var _themeListeners = [];
+  let _role = null;
+  let _childId = null;
+  let _mode = 'classic';
+  let _allowed = false;
+  let _optimisticMagic = false;
+  let _ready = false;
+  const _listeners = [];
+  const _themeListeners = [];
   // 'dark' | 'light' — parent background theme, persisted server-side.
-  var _theme = 'dark';
+  let _theme = 'dark';
 
   function persistChildDbMode(mode) {
     if (_role !== 'child' || !_childId || !_allowed) return;
@@ -37,7 +37,7 @@
   function persistThemePreference(theme) {
     // Uses apiFetch when available (adds CSRF + credentials); falls back to a
     // plain fetch. Failure is non-blocking — localStorage keeps the choice.
-    var body = JSON.stringify({ theme: normalizeTheme(theme) });
+    const body = JSON.stringify({ theme: normalizeTheme(theme) });
     if (typeof window.apiFetch === 'function') {
       window.apiFetch('/api/auth/me/theme', {
         method: 'POST',
@@ -72,7 +72,7 @@
 
   function readStorage(key) {
     try {
-      var v = localStorage.getItem(key);
+      const v = localStorage.getItem(key);
       if (v === 'magic' || v === 'classic') return v;
     } catch (_) {}
     return null;
@@ -86,7 +86,7 @@
 
   function readStoredTheme() {
     try {
-      var v = localStorage.getItem(THEME_KEY);
+      const v = localStorage.getItem(THEME_KEY);
       if (v === 'light' || v === 'dark') return v;
     } catch (_) {}
     return null;
@@ -99,14 +99,14 @@
   }
 
   function notify() {
-    for (var i = 0; i < _listeners.length; i++) {
+    for (let i = 0; i < _listeners.length; i++) {
       try { _listeners[i](_mode, _role); } catch (_) {}
     }
     window.dispatchEvent(new CustomEvent('stjarndag-view-mode', { detail: { mode: _mode, role: _role, allowed: _allowed } }));
   }
 
   function notifyTheme() {
-    for (var i = 0; i < _themeListeners.length; i++) {
+    for (let i = 0; i < _themeListeners.length; i++) {
       try { _themeListeners[i](_theme); } catch (_) {}
     }
     window.dispatchEvent(new CustomEvent('stjarndag-theme', { detail: { theme: _theme } }));
@@ -114,17 +114,17 @@
 
   function applyThemeClass() {
     if (!document.body) return;
-    var light = _theme === 'light';
+    const light = _theme === 'light';
     document.body.classList.toggle('parent-theme-light', light);
     document.body.classList.toggle('parent-theme-dark', !light);
     document.documentElement.classList.toggle('parent-theme-light', light);
     document.documentElement.classList.toggle('parent-theme-dark', !light);
-    var tc = document.querySelector('meta[name="theme-color"]');
+    const tc = document.querySelector('meta[name="theme-color"]');
     if (tc) tc.setAttribute('content', light ? '#ffffff' : '#07071a');
   }
 
   function applyBodyClasses() {
-    var magic = _mode === 'magic' && (_allowed || _optimisticMagic);
+    const magic = _mode === 'magic' && (_allowed || _optimisticMagic);
     document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
     if (_role === 'parent' && !magic) {
       document.body.classList.remove('parent-magic-dashboard');
@@ -145,7 +145,7 @@
     _childId = null;
     _mode = 'magic';
     _optimisticMagic = true;
-    var storedTheme = readStoredTheme();
+    const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
     applyBodyClasses();
@@ -212,13 +212,13 @@
     _allowed = true;
     _mode = 'magic';
     _optimisticMagic = true;
-    var storedTheme = readStoredTheme();
+    const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
     applyBodyClasses();
     return fetchAccess().then(function () {
       _allowed = true; // magic-only for parents regardless of allowlist
-      var result = finishInitParent();
+      const result = finishInitParent();
       // Mirror the resolved theme into localStorage so the next load's
       // pre-paint matches what the server returns (no flash).
       writeStoredTheme(_theme);
@@ -230,7 +230,7 @@
   function initChild(childId, dbViewMode) {
     _role = 'child';
     _childId = childId;
-    var dbUi = dbModeToUi(dbViewMode || 'classic');
+    const dbUi = dbModeToUi(dbViewMode || 'classic');
     return fetchAccess().then(function () {
       if (_allowed && childId) {
         writeStorage(childKey(childId), dbUi);
@@ -350,11 +350,11 @@
 
   // Apply stored theme as early as possible to avoid a flash.
   if (document.body) {
-    var t = readStoredTheme();
+    const t = readStoredTheme();
     if (t) { _theme = t; applyThemeClass(); }
   } else {
     document.addEventListener('DOMContentLoaded', function () {
-      var t2 = readStoredTheme();
+      const t2 = readStoredTheme();
       if (t2) { _theme = t2; applyThemeClass(); }
     });
   }
