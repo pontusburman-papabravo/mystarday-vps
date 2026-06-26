@@ -17,6 +17,8 @@ body {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  z-index: 20;
 }
 .toolbar h1 { font-family: 'Outfit', system-ui, sans-serif; font-size: 17px; font-weight: 800; }
 .toolbar p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 3px; }
@@ -33,14 +35,19 @@ body {
   margin: 0 auto 28px;
   aspect-ratio: 1 / 1;
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
 .preview-scale {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 1080px;
   height: 1080px;
   transform-origin: top left;
-  transform: scale(calc(min(calc(100vw - 32px), 1080px) / 1080));
+  transform: scale(var(--preview-scale, 1));
+  pointer-events: none;
+  user-select: none;
 }
 
 .social-canvas {
@@ -149,10 +156,35 @@ body.export-mode .toolbar,
 body.export-mode .copy-section,
 body.export-mode .hint { display: none !important; }
 body.export-mode .preview-stage {
-  width: 1080px; height: 1080px; margin: 0;
+  width: 1080px;
+  height: 1080px;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
 }
 body.export-mode .preview-scale {
   transform: none;
   position: static;
-  width: 1080px; height: 1080px;
+  width: 1080px;
+  height: 1080px;
 }
+
+.export-exit {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+.export-exit:hover { background: rgba(0, 0, 0, 0.9); }

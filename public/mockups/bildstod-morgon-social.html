@@ -180,6 +180,8 @@
 </head>
 <body>
 
+  <button type="button" class="export-exit" id="exitExport" hidden>✕ Stäng exportläge</button>
+
   <div class="toolbar">
     <div>
       <h1>Bildstöd morgon — marknadsbild</h1>
@@ -268,15 +270,6 @@ Perfekt för NPF, autism & ADHD.
 👉 mystarday.se</div>
   </section>
 
-  <script>
-    document.getElementById('toggleExport').addEventListener('click', function () {
-      document.body.classList.toggle('export-mode');
-      this.textContent = document.body.classList.contains('export-mode') ? '✕ Stäng' : '📷 Exportläge';
-    });
-    document.getElementById('copyCaption').addEventListener('click', function () {
-      var t = document.getElementById('captionShort').textContent;
-      navigator.clipboard.writeText(t).then(function () { alert('Kopierat!'); }).catch(function () { prompt('Kopiera:', t); });
-    });
-  </script>
+  <script src="/mockups/mockup-social.js"></script>
 </body>
 </html>
