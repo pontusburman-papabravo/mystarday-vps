@@ -35,13 +35,8 @@ Sätt dessa i Cursor → Cloud Agents → Secrets (miljö `mystarday-vps`, scope
 | `VPS_SSH_KEY` | Secret | privat SSH-nyckel |
 | `VPS_HOST` / `VPS_USER` / `VPS_APP_PATH` / `VPS_SERVICE` | Env Variable | se mystarday-deploy.mdc |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Secret | prod admin (harvest) |
-| `PROD_*` | Env Variable | smoke-test (valfritt) |
 
-**Ta bort** övriga Personal-secrets (APNS, R2, VAPID, ACTIVATION_*, NODE_ENV, PAYMENT_ENABLED m.m.) — de behövs inte i Cloud Agent-VM. Lista:
-
-```bash
-./scripts/setup-cursor-agent-ssh.sh secrets-minimal
-```
+**Rensa** onödiga secrets stegvis — se `./scripts/setup-cursor-agent-ssh.sh secrets-minimal` (nivå 1 = säkert att ta bort, nivå 2–3 = valfritt).
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 

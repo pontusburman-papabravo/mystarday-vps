@@ -1,76 +1,79 @@
 #!/usr/bin/env bash
-# Minimal Cursor Cloud secrets — behåll vs ta bort.
+# Cursor Cloud secrets — tre nivåer: kärna / tveksam / behåll om du använder.
 # Kör: ./scripts/print-cursor-cloud-secrets-minimal.sh
 set -euo pipefail
 
 cat <<'EOF'
 ================================================================================
-Cursor Cloud — MINIMAL secrets (mystarday-vps)
+Cursor Cloud secrets — ärlig guide (mystarday-vps)
 ================================================================================
 
-Dashboard: Secrets → ta bort alla under "TA BORT", behåll "BEHÅLL".
-Scope: Environment (inte Personal) om du vill isolera till detta repo.
+Extra secrets SKADAR inte — de är mest rörigt med "Personal" överallt.
+Ta bara bort det du är säker på; börja med nivå 1.
 
 --------------------------------------------------------------------------------
-BEHÅLL (14 st)
+NIVÅ 0 — MÅSTE finnas (9 st)
 --------------------------------------------------------------------------------
-| Namn                         | Typ                  | Värde |
-|------------------------------|----------------------|-------|
-| DATABASE_URL                 | Runtime Secret       | postgresql://stjarndag:stjarndag@localhost:5432/stjarndag |
-| JWT_SECRET                   | Runtime Secret       | minst 32 tecken |
-| REQUIRE_EMAIL_VERIFICATION   | Environment Variable | false |
-| VPS_SSH_KEY                  | Runtime Secret       | privat ed25519-nyckel |
-| VPS_HOST                     | Environment Variable | 188.66.60.93 |
-| VPS_USER                     | Environment Variable | deploy |
-| VPS_APP_PATH                 | Environment Variable | /var/www/mystarday |
-| VPS_SERVICE                  | Environment Variable | mystarday |
-| ADMIN_EMAIL                  | Runtime Secret       | prod admin (harvest) |
-| ADMIN_PASSWORD               | Runtime Secret       | prod admin (harvest) |
-| PROD_EMAIL                   | Environment Variable | smoke-test förälder |
-| PROD_PASSWORD                | Environment Variable | smoke-test lösenord |
-| PROD_USER_CHILD              | Environment Variable | smoke-test barnnamn |
-| PROD_USER_CHILD_PASSWORD     | Environment Variable | smoke-test barn-PIN |
+DATABASE_URL                 Runtime Secret
+JWT_SECRET                   Runtime Secret
+REQUIRE_EMAIL_VERIFICATION   Environment Variable → false
+VPS_SSH_KEY                  Runtime Secret
+VPS_HOST                     Environment Variable → 188.66.60.93
+VPS_USER                     Environment Variable → deploy
+VPS_APP_PATH                 Environment Variable → /var/www/mystarday
+VPS_SERVICE                  Environment Variable → mystarday
+ADMIN_EMAIL                  Runtime Secret   (harvest från prod)
+ADMIN_PASSWORD               Runtime Secret
 
 --------------------------------------------------------------------------------
-TA BORT (32 st) — onödiga i Cloud Agent-VM
+NIVÅ 1 — SÄKERT att ta bort (skadar inte dev/test/VPS)
 --------------------------------------------------------------------------------
+NODE_ENV                     # farlig om "production" — ta bort
+PAYMENT_ENABLED              # Stripe borttaget
+APNS_KEY_PATH                  # sökväg på VPS, finns inte i cloud-VM
+APNS_BUNDLE_ID
+APNS_KEY_ID
+APNS_SANDBOX
+APNS_TEAM_ID
+IN_PROCESS_CRONS_ENABLED       # prod-cron i cloud-VM
+
+--------------------------------------------------------------------------------
+NIVÅ 2 — TROLIGEN onödiga (npm test mockar / kod har defaults)
+--------------------------------------------------------------------------------
+APP_URL                        # default mystarday.se
+EMAIL_FROM / EMAIL_FROM_NAME   # defaults i kod
+NATIVE_TABBAR_ENABLED
+PARENTAL_GATE_ENABLED
 ACTIVATION_PROGRAM_ENABLED
 ACTIVATION_PROGRAM_EXPIRY_DAY
 ACTIVATION_PROGRAM_LAUNCH_AT
-APNS_BUNDLE_ID
-APNS_KEY_ID
-APNS_KEY_PATH
-APNS_SANDBOX
-APNS_TEAM_ID
-APP_URL                  # default: https://mystarday.se
-EMAIL_ENABLED            # risk: false bryter tester
-EMAIL_FROM                 # default i kod
-EMAIL_FROM_NAME            # default i kod
-HARVEST_IMPORT_PASSWORD    # bara vid import:harvest med lösenord
-IN_PROCESS_CRONS_ENABLED   # prod-cron, irrelevant i cloud-VM
-NATIVE_TABBAR_ENABLED      # default i kod
-NODE_ENV                   # sätt bara NODE_ENV=test vid npm test
-PARENTAL_GATE_ENABLED      # default i kod
-PAYMENT_ENABLED            # legacy Stripe — borttaget
-QA_MODE
-QA_SECRET
-R2_ACCESS_KEY_ID           # lokal disk-fallback utan R2
-R2_ACCOUNT_ID
-R2_BUCKET_NAME
+VAPID_SUBJECT                  # default mailto:info@mystarday.se
 R2_JURISDICTION
-R2_PUBLIC_BASE_URL
-R2_S3_ENDPOINT
-R2_SECRET_ACCESS_KEY
-RESEND_API_KEY             # tester mockar egen nyckel
-RESEND_WEBHOOK_SECRET
-UPLOAD_STORAGE
-VAPID_PRIVATE_KEY          # push testas på prod/VPS
-VAPID_PUBLIC_KEY
-VAPID_SUBJECT
 
-Lägg till senare BARA om du behöver testa funktionen:
-  RESEND_API_KEY, R2_*, VAPID_*, REVENUECAT_*, QA_MODE/QA_SECRET
+OBS: EMAIL_ENABLED — ta bort BARA om värdet är "false".
+     Om "true" eller saknas: ofarligt att behålla.
 
-Full lista: ./scripts/print-cursor-cloud-secrets.sh --full
+--------------------------------------------------------------------------------
+NIVÅ 3 — BEHÅLL om du faktiskt använder funktionen
+--------------------------------------------------------------------------------
+RESEND_API_KEY                 # riktiga mejl från dev-server (tester mockar)
+RESEND_WEBHOOK_SECRET          # webhook-test
+R2_* + UPLOAD_STORAGE          # bilduppladdning mot R2 (annars lokal disk)
+VAPID_PUBLIC_KEY / PRIVATE_KEY # push-test lokalt
+HARVEST_IMPORT_PASSWORD        # eget lösenord vid import:harvest (annars default i kod)
+QA_MODE                        # npm run qa:mobile-gate / qa:mobile-full
+QA_SECRET                      # finns INTE i repot — okänd källa, behåll om du vet vad den gör
+
+PROD_EMAIL / PROD_PASSWORD / PROD_USER_CHILD / PROD_USER_CHILD_PASSWORD
+  → används INTE av smoke-skript (de vill ha SMOKE_PARENT_EMAIL m.fl.)
+  → behåll om DU manuellt använder dem; annars ta bort
+
+--------------------------------------------------------------------------------
+Personal vs Environment
+--------------------------------------------------------------------------------
+Personal = alla dina repos. Environment = bara mystarday-vps.
+Funktionellt OK med Personal — städa scope när du vill isolera.
+
+Full referens: ./scripts/print-cursor-cloud-secrets.sh --full
 ================================================================================
 EOF
