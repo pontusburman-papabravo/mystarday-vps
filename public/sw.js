@@ -1,5 +1,6 @@
 /**
- * Min Stjärndag — Service Worker v390 // pragma: allowlist secret
+ * Min Stjärndag — Service Worker v391 // pragma: allowlist secret
+ * v391: App Store-länk i footer + mobilmeny
  * v390: App Store launch banner på startsidan
  * v271: Landing hamburger menu as primary mobile login path
  * v270: Landing login entry — parent + child login visible in hero and nav
@@ -213,8 +214,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v390';
-// stjarndag-v390: App Store launch banner på startsidan + app-store-badge-sv.svg
+const CACHE_NAME = 'stjarndag-v391';
+// stjarndag-v391: App Store-länk i footer + mobilmeny
 // stjarndag-v386: Beskär-modal — z-index över tab bar, sticky Spara-knapp
 // stjarndag-v385: Bibliotek — beskär/zooma egna aktivitetsbilder med barnvy-förhandsgranskning
 // stjarndag-v384: fix familjehallen — ogiltig parents SQL (DISTINCT + ORDER BY)

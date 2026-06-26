@@ -272,6 +272,36 @@ body.platform-web.landing-magic-bg {
 
 .landing-mobile-menu a:hover { background: var(--amber-lt); }
 
+.landing-mobile-menu__app-store {
+  display: inline-flex;
+  padding: 0.35rem 0.5rem !important;
+  background: transparent !important;
+}
+
+.landing-mobile-menu__app-store img {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+
+.landing-footer__app-store {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  line-height: 0;
+}
+
+.landing-footer__app-store img {
+  display: block;
+  width: auto;
+  height: 44px;
+  opacity: 0.95;
+  transition: opacity 0.15s ease;
+}
+
+.landing-footer__app-store:hover img {
+  opacity: 1;
+}
+
 .landing-mobile-menu__section {
   font-size: 0.68rem;
   font-weight: 700;
