@@ -1,8 +1,8 @@
 # App v2 — Kravspecifikation
 
 **Skapad:** 2026-06-26  
-**Version:** 0.2 (utkast)  
-**Status:** Samlat kravdokument — grund för v2-planering och sprintprioritering  
+**Version:** 0.3 (utkast)  
+**Status:** Platform v1 leveranskrav — nav och presentation för Generation 1, med plattformsgrund för Gen 2–4  
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
@@ -14,6 +14,8 @@
 
 | Dokument | Roll i v2 |
 |----------|-----------|
+| [`architecture-platform.md`](./architecture-platform.md) | **Core Platform** — engines, Presentation Profiles, domänspråk |
+| [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
 | [`barnmeny-v2.md`](./barnmeny-v2.md) | Barnsidans IA, tre världar, migration |
 | [`vuxenmeny-v2.md`](./vuxenmeny-v2.md) | Föräldrasidans IA, hubbar, domänmodell |
 | [`vuxenmeny-v2-operations-checklist.md`](./vuxenmeny-v2-operations-checklist.md) | Acceptance + KX-rader (förälder) |
@@ -33,7 +35,9 @@
 
 ## 0. Sammanfattning (TL;DR)
 
-**App v2** är inte en ny produkt — det är en **konsekvent omorganisering** av samma kärnmotor (schema → aktiviteter → avbockning → stjärnor → belöningar) kring användarens faktiska mentala modell.
+**App v2 = Platform v1** — inte en ny produkt, utan **konsekvent omorganisering** av kärnmotorn (planera → utföra → bekräfta → belöna) plus presentationslager som klarar framtida målgrupper.
+
+**Beslutsgate (varje större ändring):** *Kan samma motor presenteras för en 24-åring med ADHD utan arkitekturomskrivning?* Se [`architecture-platform.md`](./architecture-platform.md).
 
 | Dimension | v1 (idag) | v2 (mål) |
 |-----------|-----------|----------|
@@ -666,12 +670,13 @@ v2 anses **produktionsklar** när alla punkter är uppfyllda:
 |---------|-------|---------|
 | 0.1 | 2026-06-26 | Första samlade kravdokument. Syntes av barnmeny-v2, vuxenmeny-v2, IA, paket, tillväxt. |
 | 0.2 | 2026-06-26 | För dig markerat som redan levererat; utanför scope för v2-bygge och nästa målgrupp. |
+| 0.3 | 2026-06-26 | Platform v1-ramning; länk till `architecture-platform.md` + `VISION-2030.md`. |
 
 ---
 
 ## 15. Nästa steg (team)
 
-1. **Granska utkast 0.2** — produkt + teknik: bekräfta scope, öppna beslut (§13).
+1. **Granska utkast 0.3** — produkt + teknik: bekräfta scope, öppna beslut (§13).
 2. **Lås D1–D4** — särskilt barnprofil-URL före Sprint 3.
 3. **Skapa tickets** från Fas 0/Sprint 0 i befintliga sprint-planer.
 4. **Baslinje analytics** — starta `page_view` för `/child-settings`, `/skattkammaren` innan nav-byte.

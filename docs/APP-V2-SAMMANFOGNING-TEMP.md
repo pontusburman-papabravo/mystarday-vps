@@ -1,41 +1,487 @@
-# App v2 — Temporärt samlingsdokument (kopiera/klistra)
+# Platform v1 — Temporärt samlingsdokument (kopiera/klistra)
 
-> **TEMP — radera eller arkivera när v2 är levererat.**  
+> **TEMP — radera eller arkivera när Platform v1 är levererat.**  
 > **Genererat:** 2026-06-26  
-> **Syfte:** En fil med all v2-relaterad spec för enkel kopiering till Notion, Linear, ChatGPT, m.m.
+> **Syfte:** En fil med plattforms- och v2-spec för enkel kopiering.
 
 ## Så använder du filen
 
 1. Sök på `══════` för att hoppa mellan källfiler.
 2. Varje sektion börjar med `KÄLLA:` + originalfilnamn.
-3. Innehållet är **oförändrade kopior** — uppdatera källfilerna, generera om vid behov.
+3. **Börja med** `architecture-platform.md` för helhetsbilden.
 
 ## Innehållsförteckning
 
 | # | Källfil | Beskrivning |
 |---|---------|-------------|
-| 1 | `APP-V2-KRAVSPEC.md` | App v2 — Kravspecifikation (takdokument) (~678 rader) |
-| 2 | `barnmeny-v2.md` | Barnmeny v2 (~1414 rader) |
-| 3 | `vuxenmeny-v2.md` | Vuxenmeny v2 (~858 rader) |
-| 4 | `vuxenmeny-v2-operations-checklist.md` | Vuxenmeny v2 — operations & acceptance (~416 rader) |
-| 5 | `informationsarkitektur-barnapp.md` | Informationsarkitektur — barnapp (~352 rader) |
-| 6 | `separation-contract-barnapp.md` | Separation contract — Today / Universe / Family (~285 rader) |
-| 7 | `engineering-architecture-barnapp.md` | Engineering architecture — barnapp (~517 rader) |
-| 8 | `implementation-plan-3-layers.md` | Implementation plan — 3 layers (~131 rader) |
-| 9 | `magic-view-rollout.md` | Magic view — rollout (~69 rader) |
+| 1 | `VISION-2030.md` | Vision 2030 — executive summary (~68 rader) |
+| 2 | `architecture-platform.md` | Core Platform — arkitektur & presentationslager (~368 rader) |
+| 3 | `APP-V2-KRAVSPEC.md` | Platform v1 — leveranskrav (tidigare App v2) (~684 rader) |
+| 4 | `barnmeny-v2.md` | Barnmeny v2 (~1414 rader) |
+| 5 | `vuxenmeny-v2.md` | Vuxenmeny v2 (~858 rader) |
+| 6 | `vuxenmeny-v2-operations-checklist.md` | Vuxenmeny v2 — operations & acceptance (~416 rader) |
+| 7 | `informationsarkitektur-barnapp.md` | Informationsarkitektur — barnapp (Gen 1) (~352 rader) |
+| 8 | `separation-contract-barnapp.md` | Separation contract — Execution / Progress / Relationship (~285 rader) |
+| 9 | `engineering-architecture-barnapp.md` | Engineering architecture — barnapp (Gen 1) (~517 rader) |
+| 10 | `implementation-plan-3-layers.md` | Implementation plan — 3 layers (~131 rader) |
+| 11 | `magic-view-rollout.md` | Magic view — rollout (~69 rader) |
 
-## Ej inkluderade (för stora / parallella spår / redan levererat)
+## Ej inkluderade
 
-| Fil | Varför ej här |
-|-----|---------------|
-| `for-dig-spec.md` | **Redan levererat** — ej v2-bygge; ej planerat för nästa målgrupp (13+) |
-| `paket-v1.2-spec.md` | Paketdetaljer (~3700 rader) — refereras från kravspec |
-| `kravspec-app-webb.md` | Plattform & säkerhet (v1) |
-| `tillvaxt-retention-krav.md` | Tillväxt/KPI |
-| `admin-v2/ADMIN-V2-DELIVERY.md` | Redan levererat |
+| Fil | Varför |
+|-----|--------|
+| `for-dig-spec.md` | Redan levererat (Gen 1 förälder) |
+| `paket-v1.2-spec.md` | ~3700 rader |
+| `kravspec-app-webb.md` | Plattform & säkerhet v1 |
 
 ---
 
+
+
+========================================================================
+KÄLLA: VISION-2030.md
+========================================================================
+
+# Vision 2030 — Executive summary
+
+**Skapad:** 2026-06-26  
+**Status:** Strategisk riktning — kompletterar [`architecture-platform.md`](./architecture-platform.md)
+
+---
+
+## En mening
+
+Vi bygger en **motor för exekutiv funktion** — inte en barnapp. Generation 1 (barn 4–12 + föräldrar) är första kunden, inte slutprodukten.
+
+---
+
+## Arkitektur i tre rader
+
+1. **Core Platform** — tasks, goals, rewards, progress, relationships, coach, permissions (delad logik).
+2. **Presentation Profiles** — Child, Teen, Young Adult, Adult (samma data, annan nav/språk/design).
+3. **Produkter** — olika upplevelser på samma motor.
+
+Full spec: **[`architecture-platform.md`](./architecture-platform.md)**
+
+---
+
+## Beslutsgate
+
+Innan varje större v2-beslut:
+
+> *Kan samma motor presenteras för en 24-åring med ADHD utan arkitekturomskrivning?*
+
+---
+
+## Generationer
+
+| Gen | Målgrupp | Status |
+|-----|----------|--------|
+| 1 | Barn 4–12, föräldrar, pedagoger | Live |
+| 2 | Ungdomar 13–17 | Spec |
+| 3 | Unga vuxna 18–30 | Horisont |
+| 4 | Vuxna | Horisont |
+
+**App v2 = Platform v1** — nav, domänmodell och config som gör Gen 2–4 möjliga.
+
+---
+
+## Tre engines (plattformsneutralt)
+
+| Engine | Barn (Gen 1) | Tonåring | Vuxen |
+|--------|--------------|----------|-------|
+| Execution | Idag | Idag | Tasks / Idag |
+| Progress | Min värld | Mitt space | Mål / Growth |
+| Relationship | Mina personer | Mina personer | Network |
+
+---
+
+## Vad vi säljer (egentligen)
+
+Inte *bildschema* — utan **mindre stress, bättre rutiner, fungerande vardag**. Gäller barn, studenter och vuxna med NPF/ADHD.
+
+---
+
+## Nästa dokument att läsa
+
+| Dokument | Innehåll |
+|----------|----------|
+| [`architecture-platform.md`](./architecture-platform.md) | Full plattformsspec |
+| [`APP-V2-KRAVSPEC.md`](./APP-V2-KRAVSPEC.md) | Platform v1 leveranskrav |
+| [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) | Gen 1 implementation idag |
+
+
+========================================================================
+KÄLLA: architecture-platform.md
+========================================================================
+
+# Core Platform — Arkitektur & presentationslager
+
+**Skapad:** 2026-06-26  
+**Version:** 0.1 (utkast)  
+**Status:** Strategisk arkitekturspec — styr långsiktiga beslut, **ingen omedelbar implementation**  
+**Ägare:** Produkt + teknik
+
+> **Relaterat (Generation 1 — barn):** [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`APP-V2-KRAVSPEC.md`](./APP-V2-KRAVSPEC.md)
+
+---
+
+## 0. En rad som styr allt
+
+> **Samma motor, olika upplevelser.**
+
+Produkten är inte en barnapp. Den är **Generation 1** av en motor för **exekutiv funktion** — planera, utföra, bekräfta, belöna, bygga vanor. Den råkar idag användas av familjer med barn 4–12.
+
+**Beslutsgate för varje v2-ändring:**
+
+> *Kan samma motor presenteras för en 24-åring med ADHD utan att vi skriver om arkitekturen?*
+
+| Svar | Betydelse |
+|------|-----------|
+| **Ja** | Plattform — bygg vidare |
+| **Nej** | Barnapp-skuld — ompröva |
+
+---
+
+## 1. Vad kunderna faktiskt köper
+
+Idag marknadsför vi *visuella scheman*. Det kunderna köper är:
+
+| Värde | Gäller även 22-åring med ADHD? |
+|-------|-------------------------------|
+| Mindre stress | ✅ |
+| Mindre tjat / självövertygelse | ✅ ("Jag säger till mig själv att jag ska börja") |
+| Mer självständighet | ✅ |
+| Bättre rutiner | ✅ |
+| Lugnare vardag | ✅ |
+| Fungerande exekutiva funktioner | ✅ |
+
+**Kärnloopen (åldersneutral):**
+
+```
+Planera → Utföra → Bekräfta → Belöna → Bygga vanor
+```
+
+---
+
+## 2. Produktgenerationer
+
+```
+Generation 1 (nu)     Barn 4–12 + föräldrar + pedagoger
+        ↓
+Generation 2          Ungdomar 13–17
+        ↓
+Generation 3          Unga vuxna 18–30
+        ↓
+Generation 4          Vuxna
+```
+
+**Vad förändras per generation:** nästan bara **presentation** (nav, språk, illustrationer, gamification-nivå, coach-ton).
+
+**Vad förändras inte:** core engines, datamodell, API-kontrakt.
+
+App v2 / nav v2 är **Platform v1** — grunden som gör Generation 2–4 möjliga utan omskrivning.
+
+---
+
+## 3. Två lager (övergripande)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CORE PLATFORM (Layer 1)                   │
+│         Domänlogik — förändras sällan, delas av alla         │
+│                                                              │
+│  Identity · Tasks · Goals · Rewards · Progress · Habits     │
+│  Relationships · Timeline · Coach (AI) · Permissions          │
+│  Notifications · Analytics                                   │
+│                                                              │
+│              Gemensam datamodell & API                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│              PRESENTATION LAYER (Layer 2)                      │
+│    Navigation · språk · färger · animation · gamification    │
+│                                                              │
+│   CHILD    TEEN    YOUNG_ADULT    ADULT    (+ Parent, Educator) │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Regel:** Presentation får **aldrig** äga affärslogik. Paket, capabilities och permissions lever i Layer 1.
+
+---
+
+## 4. Layer 1 — Core Platform
+
+### 4.1 Engines (domänlogik)
+
+Dessa är produkten — inte barn-UI:t.
+
+| Engine | Ansvar | Befintlig kod / data (Generation 1) |
+|--------|--------|-------------------------------------|
+| **Task** | Skapa, planera, schemalägga, slutföra uppgifter | `activity_template`, `weekly_schedule`, `daily_log_item`, `sub_steps` |
+| **Goal** | Kort- och långsiktiga mål | `reward` (stjärnkost), streak, familjeprojekt |
+| **Reward** | Poäng, inlösen, unlocks | `daily_log_item.star_value`, `reward_redemption`, universe |
+| **Progress** | Streaks, nivåer, historik, statistik | `streak`, museum, star history |
+| **Habit** | Återkommande mönster, vanor | weekly schedule, completion patterns |
+| **Relationship** | Grupper, roller, inbjudan, stödpersoner | `family`, `parent_child`, `pedagog_invite` |
+| **Timeline** | NU / NÄSTA / SEN, tidslinje, kalender | `view_type`, `now_next_later`, calendar |
+| **Coach (AI)** | Personliga förslag, nästa steg | För dig (förälder, Gen 1), framtida per profil |
+| **Notification** | Push, påminnelser, systemmeddelanden | `push_subscriptions`, `notification_log` |
+| **Permission** | Roller, integritet, åtkomst | `parent_child.role`, authz, PIN/parental gate |
+| **Identity** | Person, konto, session | `parent`, `child` (→ `member`), JWT |
+
+### 4.2 Tre motorer — generiska namn
+
+Dagens barn-specifika namn mappas till **plattformsneutrala** engines. Barn-IA är en *presentation* av dem.
+
+| Plattform (Layer 1) | Generation 1 (barn-UI) | Mental modell |
+|---------------------|------------------------|---------------|
+| **Execution Engine** | Today / Idag | *Vad ska jag göra nu?* |
+| **Progress Engine** | Universe / Min värld | *Vad har jag byggt upp?* |
+| **Relationship Engine** | Family / Mina personer | *Vem finns i mitt liv?* |
+
+```
+Execution Engine     →  tasks → complete → emit event
+Progress Engine      →  points → unlocks → collections
+Relationship Engine  →  groups → shared story → support network
+```
+
+**Viktigt:** Vi **ersätter inte** Today/Universe/Family i Generation 1-koden över natten. Vi **namnger dem konceptuellt** i nya specs och ser till att v2-implementationen inte låser oss till barnord i *ny* kod.
+
+### 4.3 Domänspråk (mål)
+
+| Idag (Generation 1) | Plattform (mål) | Barn ser | Vuxen ser |
+|---------------------|-----------------|----------|-----------|
+| `child` | `member` / `person` | "Astrid" | "Jag" |
+| `family` | `group` | "Familjen" | "Mitt team" / "Hushållet" |
+| `reward` + stars | `reward` + `progress_unit` | ⭐ Stjärnor | Progress / XP |
+| Skattkammaren | `progress_surface` | 🏰 Min värld | Mål / Achievements |
+| `parent` | `guardian` / `account` | Förälder | Stödperson / Själv |
+
+**Migreringsprincip:** Tabellnamn `child` / `family` **behålls** tills explicit migration. Ny kod och nya API-fält använder neutrala begrepp där det är billigt (`member_id` i events, `presentation_profile` i config).
+
+---
+
+## 5. Layer 2 — Presentation Profiles
+
+### 5.1 `PresentationProfile`
+
+```ts
+type PresentationProfile =
+  | 'CHILD'        // 4–12
+  | 'TEEN'         // 13–17
+  | 'YOUNG_ADULT'  // 18–30
+  | 'ADULT'        // 30+
+  | 'PARENT'       // vårdnadshavare (Gen 1)
+  | 'EDUCATOR'     // pedagog (finns)
+  | 'THERAPIST'    // horisont
+```
+
+Varje profil styr **endast presentation:**
+
+| Dimension | Styrs av profil |
+|-----------|----------------|
+| Navigation (etiketter, antal flikar) | ✅ |
+| Färger, illustrationer, animation | ✅ |
+| Språk och metaforer | ✅ |
+| Gamification-nivå (stjärnor vs XP vs %) | ✅ |
+| Coach-ton | ✅ |
+| Ikoner | ✅ |
+| Affärslogik, API, permissions | ❌ Layer 1 |
+
+**Teknisk början (v2, ingen ny tabell nödvändig):**
+
+```js
+// Utöka befintlig config — inte ny backend
+child_view_config.presentation_profile  // 'CHILD' | 'TEEN' | …
+child_view_config.age_band              // härledd från birthday
+```
+
+### 5.2 Navigation per profil
+
+Samma tre **engine-slots** — olika etiketter och visuell tyngd.
+
+| Engine slot | CHILD (4–12) | TEEN (13–17) | YOUNG_ADULT | ADULT |
+|-------------|--------------|--------------|-------------|-------|
+| Execution | ☀️ Idag | Idag | Idag / Tasks | Idag / Tasks |
+| Progress | 🏰 Min värld | Mitt space | Mål / Progress | Mål / Growth |
+| Relationship | ❤️ Mina personer | Mina personer | Mitt nätverk | Network / People |
+
+**v2 gör redan rätt:** Idag · Min värld · Mina personer är **översättningsbara** etiketter — inte hårdkodade barnbegrepp i motorerna.
+
+### 5.3 Gamification per profil
+
+Samma API-anrop — olika presentation:
+
+| Händelse | CHILD | TEEN | YOUNG_ADULT / ADULT |
+|----------|-------|------|---------------------|
+| Slutför uppgift | +1 ⭐ → glass | +25 XP → achievement | Progress 73 % → månadsmål |
+| API | `POST …/complete` → `{ progress_delta, unit: 'stars' }` | samma | samma — `unit` + profil styr UI |
+| Progress-yta | Skattkammaren, hus, rum | Avatar, streak, stats | Grafer, mål, vanor |
+
+### 5.4 Coach per profil
+
+| Profil | Coach-roll | Generation 1-status |
+|--------|------------|---------------------|
+| PARENT | Lösningslager för vårdnadshavare | För dig — **levererat** |
+| CHILD | Kort loop efter aktivitet | v2 coach-loop |
+| TEEN | Självständighet + integritet | Ej byggt |
+| YOUNG_ADULT / ADULT | AI-stöd, dagssammanfattning | Ej byggt |
+
+Samma **Coach engine** — olika `tone` + `placement` per `PresentationProfile`.
+
+---
+
+## 6. Produkter & roller (horisont)
+
+```
+Product (byggda på Core Platform)
+
+├── Child          Generation 1 — live
+├── Parent         Generation 1 — live
+├── Educator       Generation 1 — live (pedagog)
+├── Teen           Generation 2
+├── Young Adult    Generation 3
+├── Adult          Generation 4
+├── Therapist      Horisont
+└── Organization   Horisont (skola, BUP, arbetsplats)
+```
+
+Paket (`basic_app`, `reporting`, `pedagog`, `teacch`) är **capabilities** ovanpå Core — inte separata produkter.
+
+---
+
+## 7. Relation till befintlig barnarkitektur
+
+**Gör inte:** Slänga Today / Universe / Family — de fungerar för Generation 1.
+
+**Gör:** Lyfta dem ett konceptuellt lager och behandla dem som **första presentation** av Execution / Progress / Relationship.
+
+```
+                    CORE PLATFORM
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+   Execution         Progress         Relationship
+        │                 │                 │
+        ▼                 ▼                 ▼
+   CHILD preset      CHILD preset      CHILD preset
+   "Idag"            "Min värld"       "Mina personer"
+        │                 │                 │
+        ▼                 ▼                 ▼
+   TEEN preset       TEEN preset       TEEN preset
+   "Idag"            "Mitt space"      "Mina personer"
+```
+
+| Befintligt dokument | Roll efter denna spec |
+|--------------------|------------------------|
+| `engineering-architecture-barnapp.md` | **Generation 1 implementation** av Core |
+| `separation-contract-barnapp.md` | **Execution ⊥ Progress ⊥ Relationship** — fortfarande giltigt |
+| `informationsarkitektur-barnapp.md` | CHILD presentation IA |
+| `barnmeny-v2.md` / `vuxenmeny-v2.md` | Platform v1 nav-migration |
+| `APP-V2-KRAVSPEC.md` | Platform v1 leveranskrav |
+
+---
+
+## 8. Vad v2 / Platform v1 ska förbereda (utan att bygga Gen 2)
+
+| Åtgärd | Kostnad | Varför |
+|--------|---------|--------|
+| Åldersneutrala nav-etiketter (Idag, Min värld, Mina personer) | Pågår | Översättningsbar till teen/adult |
+| `presentation_profile` / `age_band` i view-config | Låg | En källa för framtida UI |
+| Capabilities med `domain` + `placement` (ej barnord i ny kod) | Pågår | `nav-config.js`, `child-worlds.js` |
+| Events med neutrala namn (`activity_completed`, `progress_delta`) | Låg | `analytics_events` redan neutral |
+| **Inte** byta tabell `child` → `member` nu | — | För tidigt; dokumentera mappning |
+| **Inte** bygga teen/adult UI nu | — | Presentation Profiles är spec, inte sprint |
+
+---
+
+## 9. API-exempel (samma motor)
+
+**Barn:**
+
+```
+POST /api/me/daily-log/items/:id/complete
+→ { progress_delta: 1, unit: 'stars', unlocks: [...] }
+
+UI: "Bra jobbat! +1 ⭐" → glass i Skattkammaren
+```
+
+**Ung vuxen (samma endpoint, annan profil):**
+
+```
+POST /api/me/daily-log/items/:id/complete
+→ { progress_delta: 25, unit: 'xp', unlocks: [...] }
+
+UI: "Uppgift klar. +25 XP" → veckomål 80 %
+```
+
+Backend returnerar **data** — `PresentationProfile` styr **hur** det renderas.
+
+---
+
+## 10. AI-lager (horisont)
+
+```
+Coach Engine (Layer 1)
+├── Inputs: tasks, progress, goals, calendar, member context
+├── Outputs: suggestion, next_step, activation_package
+└── Presentation: tone + length per profile
+
+PARENT  → "Prova kvällsrutinen för Astrid"     (För dig, Gen 1)
+CHILD   → "Bra jobbat! Nästa: frukost"           (coach-loop, v2)
+TEEN    → "Du har 2 kvar idag. Vill du se dem?"
+ADULT   → "Morgonblock klart. Dags för fokuspass."
+```
+
+---
+
+## 11. Plugin / capabilities (befintligt → plattform)
+
+Nuvarande `component-feature-map.js` och `CAPABILITIES` är redan rätt modell:
+
+```
+Capability → feature gate → placement → visibility
+```
+
+Det skalar till nya produkter utan ny nav per paket. Se `paket-v1.2-spec.md`.
+
+---
+
+## 12. Öppna arkitekturbeslut
+
+| # | Fråga | Rekommendation |
+|---|-------|----------------|
+| A1 | När byta `child` → `member` i API? | Generation 2 — alias i Gen 1 |
+| A2 | En app eller flera App Store-listningar? | En motor; ev. separat branding senare |
+| A3 | `PresentationProfile` i DB eller härledd? | `birthday` + `account_type` + override i config |
+| A4 | Ersätta engine-namn i kod nu? | Nej — konceptuellt i docs; kod vid React-migration |
+| A5 | För dig för teen/adult? | Nej — ny coach-yta, samma engine |
+
+---
+
+## 13. Dokumentstruktur (mål)
+
+```
+docs/
+├── architecture-platform.md          ← detta dokument (plattform)
+├── APP-V2-KRAVSPEC.md              ← Platform v1 leverans
+├── engineering-architecture-barnapp.md  ← Gen 1 implementation
+├── informationsarkitektur-barnapp.md
+├── separation-contract-barnapp.md
+├── barnmeny-v2.md
+├── vuxenmeny-v2.md
+└── VISION-2030.md                  ← kort executive summary (valfritt)
+```
+
+---
+
+## 14. Versionshistorik
+
+| Version | Datum | Ändring |
+|---------|-------|---------|
+| 0.1 | 2026-06-26 | Första utkast. Core Platform + Presentation Profiles. v2 = Platform v1. |
 
 
 ========================================================================
@@ -45,8 +491,8 @@ KÄLLA: APP-V2-KRAVSPEC.md
 # App v2 — Kravspecifikation
 
 **Skapad:** 2026-06-26  
-**Version:** 0.2 (utkast)  
-**Status:** Samlat kravdokument — grund för v2-planering och sprintprioritering  
+**Version:** 0.3 (utkast)  
+**Status:** Platform v1 leveranskrav — nav och presentation för Generation 1, med plattformsgrund för Gen 2–4  
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
@@ -58,6 +504,8 @@ KÄLLA: APP-V2-KRAVSPEC.md
 
 | Dokument | Roll i v2 |
 |----------|-----------|
+| [`architecture-platform.md`](./architecture-platform.md) | **Core Platform** — engines, Presentation Profiles, domänspråk |
+| [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
 | [`barnmeny-v2.md`](./barnmeny-v2.md) | Barnsidans IA, tre världar, migration |
 | [`vuxenmeny-v2.md`](./vuxenmeny-v2.md) | Föräldrasidans IA, hubbar, domänmodell |
 | [`vuxenmeny-v2-operations-checklist.md`](./vuxenmeny-v2-operations-checklist.md) | Acceptance + KX-rader (förälder) |
@@ -77,7 +525,9 @@ KÄLLA: APP-V2-KRAVSPEC.md
 
 ## 0. Sammanfattning (TL;DR)
 
-**App v2** är inte en ny produkt — det är en **konsekvent omorganisering** av samma kärnmotor (schema → aktiviteter → avbockning → stjärnor → belöningar) kring användarens faktiska mentala modell.
+**App v2 = Platform v1** — inte en ny produkt, utan **konsekvent omorganisering** av kärnmotorn (planera → utföra → bekräfta → belöna) plus presentationslager som klarar framtida målgrupper.
+
+**Beslutsgate (varje större ändring):** *Kan samma motor presenteras för en 24-åring med ADHD utan arkitekturomskrivning?* Se [`architecture-platform.md`](./architecture-platform.md).
 
 | Dimension | v1 (idag) | v2 (mål) |
 |-----------|-----------|----------|
@@ -547,7 +997,8 @@ Nya endpoints tillåtna för v2-stöd (tunna):
 | Förälder | Ljus, professionell, lugn |
 | Barn Idag | Tydlig, låg kognitiv belastning |
 | Barn Min värld | Rikare, belönande — sekundär |
-| För dig / coach | Varm, handlingsorienterad |
+| För dig (befintlig) | Varm, handlingsorienterad — underhåll, ej v2-utveckling |
+| Hem / barn coach | Tydlig, låg friktion |
 
 ### 9.3 Mockups & referenser
 
@@ -709,12 +1160,13 @@ v2 anses **produktionsklar** när alla punkter är uppfyllda:
 |---------|-------|---------|
 | 0.1 | 2026-06-26 | Första samlade kravdokument. Syntes av barnmeny-v2, vuxenmeny-v2, IA, paket, tillväxt. |
 | 0.2 | 2026-06-26 | För dig markerat som redan levererat; utanför scope för v2-bygge och nästa målgrupp. |
+| 0.3 | 2026-06-26 | Platform v1-ramning; länk till `architecture-platform.md` + `VISION-2030.md`. |
 
 ---
 
 ## 15. Nästa steg (team)
 
-1. **Granska utkast 0.2** — produkt + teknik: bekräfta scope, öppna beslut (§13).
+1. **Granska utkast 0.3** — produkt + teknik: bekräfta scope, öppna beslut (§13).
 2. **Lås D1–D4** — särskilt barnprofil-URL före Sprint 3.
 3. **Skapa tickets** från Fas 0/Sprint 0 i befintliga sprint-planer.
 4. **Baslinje analytics** — starta `page_view` för `/child-settings`, `/skattkammaren` innan nav-byte.
@@ -4079,7 +4531,7 @@ KÄLLA: engineering-architecture-barnapp.md
 
 > **Syfte:** Implementation-grade system design. Styr frontend ownership, API-gränser, dataflöde och migration.
 >
-> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) (hårda gränser) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) (fasplan)
+> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) (hårda gränser) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) (fasplan) · **[`architecture-platform.md`](./architecture-platform.md)** (Core Platform — övergripande)
 >
 > **Senast uppdaterad:** 2026-06-10
 

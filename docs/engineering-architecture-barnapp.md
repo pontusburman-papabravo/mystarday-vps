@@ -2,7 +2,7 @@
 
 > **Syfte:** Implementation-grade system design. Styr frontend ownership, API-gränser, dataflöde och migration.
 >
-> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) (hårda gränser) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) (fasplan)
+> **Relaterat:** [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) (produkt) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) (hårda gränser) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) (fasplan) · **[`architecture-platform.md`](./architecture-platform.md)** (Core Platform — övergripande)
 >
 > **Senast uppdaterad:** 2026-06-10
 
