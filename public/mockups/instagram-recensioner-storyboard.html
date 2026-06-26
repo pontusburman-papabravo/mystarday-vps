@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram — Recensioner (storyboard)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9A227;
+      --gold-bright: #F5A623;
+      --navy: #1B2340;
+      --navy-soft: #2A3458;
+      --text-soft: #5A6178;
+      --white: #FFFFFF;
+      --bg-light: #F4F6FA;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #0a0e1a;
+      color: var(--white);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .page-header { max-width: 1200px; margin: 0 auto 1rem; text-align: center; }
+    .page-header h1 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .page-header p { font-size: 0.8rem; color: #94A3B8; }
+
+    .storyboard {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .frame-wrap { text-align: center; }
+    .frame-label { font-size: 0.7rem; color: #94A3B8; margin-bottom: 0.35rem; }
+
+    .frame {
+      width: 100%;
+      max-width: 270px;
+      aspect-ratio: 9 / 16;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      background: var(--bg-light);
+    }
+
+    /* Hook overlay — burned into export */
+    .hook-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      padding: 1.1rem 0.85rem 1.25rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,22,41,0.82) 35%, rgba(15,22,41,0.95) 100%);
+    }
+    .hook-bar p {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.28;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.45);
+    }
+
+    /* ── Slide 1: Testimonials ── */
+    .slide-testimonials {
+      background: linear-gradient(180deg, #F8F9FC 0%, #EEF1F7 100%);
+      padding: 1.1rem 0.75rem 4.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .testi-header {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 0.15rem;
+    }
+    .quote-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 0.7rem 0.75rem;
+      box-shadow: 0 4px 18px rgba(27,35,64,0.08);
+      border: 1px solid rgba(27,35,64,0.05);
+    }
+    .quote-card p {
+      font-size: 0.58rem;
+      line-height: 1.45;
+      color: #3D455C;
+      font-style: italic;
+    }
+    .quote-card p::before { content: '\201C'; color: #C9A227; font-size: 1rem; line-height: 0; }
+
+    /* ── Slide 2: PDF schema Anna ── */
+    .slide-schema {
+      background: #E8EEF8;
+      padding: 0.55rem 0.5rem 4.5rem;
+    }
+    .schema-toolbar {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.4rem;
+    }
+    .schema-tab {
+      font-size: 0.45rem;
+      font-weight: 700;
+      padding: 0.25rem 0.4rem;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--navy);
+    }
+    .schema-tab.active { background: var(--navy); color: #fff; }
+    .schema-actions {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+    .schema-btn {
+      flex: 1;
+      font-size: 0.42rem;
+      font-weight: 700;
+      padding: 0.35rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .schema-btn.outline { border: 1.5px solid var(--navy); color: var(--navy); background: #fff; }
+    .schema-btn.solid { background: #F97316; color: #fff; }
+    .schema-preview {
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.45rem;
+      box-shadow: 0 4px 16px rgba(27,35,64,0.1);
+    }
+    .schema-preview h3 {
+      font-size: 0.5rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 0.15rem;
+    }
+    .schema-preview .sub { font-size: 0.38rem; color: var(--text-soft); margin-bottom: 0.35rem; }
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.2rem;
+    }
+    .day-col {
+      background: #F8FAFF;
+      border-radius: 6px;
+      padding: 0.2rem;
+      font-size: 0.3rem;
+    }
+    .day-col strong {
+      display: block;
+      font-size: 0.32rem;
+      color: var(--navy);
+      margin-bottom: 0.15rem;
+      text-align: center;
+    }
+    .act-row {
+      display: flex;
+      align-items: center;
+      gap: 0.12rem;
+      margin-bottom: 0.1rem;
+      color: #4B5563;
+    }
+    .act-check {
+      width: 0.35rem;
+      height: 0.35rem;
+      border-radius: 2px;
+      border: 1px solid #CBD5E1;
+      flex-shrink: 0;
+      font-size: 0.22rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    .act-check.done { background: #22C55E; border-color: #22C55E; color: #fff; }
+
+    /* ── Slide 3: Split library + routines ── */
+    .slide-split { display: flex; flex-direction: column; height: 100%; padding-bottom: 4.5rem; }
+    .split-top {
+      flex: 1;
+      background: linear-gradient(180deg, #E8F0FE 0%, #DDE8FF 100%);
+      padding: 0.55rem 0.5rem 0.35rem;
+      border-bottom: 2px solid rgba(27,35,64,0.08);
+    }
+    .split-bottom {
+      flex: 1;
+      background: linear-gradient(165deg, #1B2340 0%, #2A3458 100%);
+      padding: 0.45rem 0.5rem;
+    }
+    .lib-title {
+      font-size: 0.55rem;
+      font-weight: 800;
+      color: var(--navy);
+      text-align: center;
+      margin-bottom: 0.1rem;
+    }
+    .lib-sub { font-size: 0.38rem; color: var(--text-soft); text-align: center; margin-bottom: 0.35rem; }
+    .lib-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.35rem;
+      box-shadow: 0 4px 14px rgba(27,35,64,0.1);
+    }
+    .lib-tabs {
+      display: flex;
+      gap: 0.15rem;
+      margin-bottom: 0.3rem;
+      font-size: 0.3rem;
+    }
+    .lib-tab { padding: 0.15rem 0.25rem; border-radius: 4px; color: var(--text-soft); }
+    .lib-tab.on { background: #FFF3D6; color: var(--navy); font-weight: 700; }
+    .sched-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.2rem;
+    }
+    .sched-item {
+      background: #F8FAFF;
+      border-radius: 8px;
+      padding: 0.25rem;
+      text-align: center;
+      font-size: 0.32rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .sched-item span { display: block; font-size: 0.9rem; margin-bottom: 0.05rem; }
+    .sched-item small { font-size: 0.28rem; color: var(--text-soft); font-weight: 500; }
+    .routine-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.35rem 0.4rem;
+      margin-bottom: 0.25rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .routine-card h4 {
+      font-size: 0.42rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      margin-bottom: 0.08rem;
+    }
+    .routine-card p { font-size: 0.32rem; color: rgba(255,255,255,0.75); }
+    .routine-card .tag {
+      display: inline-block;
+      font-size: 0.26rem;
+      font-weight: 700;
+      padding: 0.08rem 0.2rem;
+      border-radius: 999px;
+      background: rgba(245,166,35,0.25);
+      color: var(--gold-bright);
+      margin-top: 0.12rem;
+    }
+
+    /* ── Slide 4: Landing hero ── */
+    .slide-landing {
+      background: linear-gradient(180deg, #FAFBFE 0%, #F0F4FF 100%);
+      padding: 0.75rem 0.65rem 4.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .browser-bar {
+      background: #E5E7EB;
+      border-radius: 8px 8px 0 0;
+      padding: 0.25rem 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      margin-bottom: 0;
+    }
+    .browser-dot { width: 0.28rem; height: 0.28rem; border-radius: 50%; }
+    .browser-dot.r { background: #EF4444; }
+    .browser-dot.y { background: #F59E0B; }
+    .browser-dot.g { background: #22C55E; }
+    .browser-url {
+      flex: 1;
+      background: #fff;
+      border-radius: 4px;
+      font-size: 0.32rem;
+      color: #6B7280;
+      padding: 0.12rem 0.25rem;
+      text-align: center;
+    }
+    .landing-inner {
+      background: #fff;
+      border-radius: 0 0 10px 10px;
+      padding: 0.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(27,35,64,0.08);
+    }
+    .landing-logo {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 0.5rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 0.35rem;
+    }
+    .landing-icons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.2rem;
+      margin-bottom: 0.35rem;
+    }
+    .icon-tile {
+      background: #F8FAFF;
+      border-radius: 8px;
+      padding: 0.25rem;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+    .landing-h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.15;
+      margin-bottom: 0.2rem;
+    }
+    .landing-p { font-size: 0.38rem; color: var(--text-soft); line-height: 1.4; margin-bottom: 0.35rem; }
+    .landing-cta {
+      display: inline-block;
+      background: #F97316;
+      color: #fff;
+      font-size: 0.42rem;
+      font-weight: 800;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      align-self: flex-start;
+    }
+
+    #player { display: none; position: fixed; inset: 0; background: #000; z-index: 100; align-items: center; justify-content: center; }
+    #player.active { display: flex; }
+    .player-frame { width: 270px; height: 480px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header storyboard">
+  <h1>Instagram — Recensioner (4×3 sek)</h1>
+  <p>Exporteras till 1080×1920 MP4 via <code>npm run instagram:recensioner</code></p>
+</div>
+
+<div class="storyboard">
+  <div class="frame-wrap">
+    <div class="frame-label">1 · Recensioner (0–3s)</div>
+    <div class="frame" data-slide>
+      <div class="slide-testimonials" style="height:100%;">
+        <div class="testi-header">⭐ Föräldrar berättar</div>
+        <div class="quote-card">
+          <p>Jag är lite i chock över hur bra appen har fungerat för vårt barn… kämpar med autistisk utmattning… Igår klarade hen av alla uppgifter på schemat och vi behövde inte ens påminna!</p>
+        </div>
+        <div class="quote-card">
+          <p>Vi laddade ner appen och redan första dagen har den varit otroligt positiv för vårt barn med autistisk utmattning!</p>
+        </div>
+        <div class="quote-card">
+          <p>Appen har varit jättepopulär idag och till och med tandborstningen på morgonen blev gjord. Den brukar ALDRIG bli av annars!</p>
+        </div>
+      </div>
+      <div class="hook-bar"><p>När inkorgen får en att gråta av lättnad... 🥹</p></div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="frame-label">2 · Schema Anna (3–6s)</div>
+    <div class="frame" data-slide>
+      <div class="slide-schema" style="height:100%;">
+        <div class="schema-toolbar">
+          <div class="schema-tab active">1 vecka</div>
+          <div class="schema-tab">2 veckor</div>
+          <div class="schema-tab">1 månad</div>
+        </div>
+        <div class="schema-actions">
+          <div class="schema-btn outline">Förhandsgranska</div>
+          <div class="schema-btn solid">Skapa PDF</div>
+        </div>
+        <div class="schema-preview">
+          <h3>🦄 Anna — Schema</h3>
+          <div class="sub">1 vecka · 22 juni – 28 juni 2026</div>
+          <div class="schema-grid">
+            <div class="day-col">
+              <strong>Mån 22/6</strong>
+              <div class="act-row"><span class="act-check"></span>🪥 Borsta tänder</div>
+              <div class="act-row"><span class="act-check done">✓</span>🍎 Frukost</div>
+              <div class="act-row"><span class="act-check"></span>🎒 Skola</div>
+              <div class="act-row"><span class="act-check"></span>🛏️ Sova</div>
+            </div>
+            <div class="day-col">
+              <strong>Tis 23/6</strong>
+              <div class="act-row"><span class="act-check done">✓</span>🛏️ Bädda säng</div>
+              <div class="act-row"><span class="act-check done">✓</span>🪥 Borsta tänder</div>
+              <div class="act-row"><span class="act-check"></span>📚 Läxor</div>
+              <div class="act-row"><span class="act-check"></span>🛏️ Sova</div>
+            </div>
+            <div class="day-col">
+              <strong>Ons 24/6</strong>
+              <div class="act-row"><span class="act-check done">✓</span>🛏️ Bädda säng</div>
+              <div class="act-row"><span class="act-check done">✓</span>🪥 Borsta tänder</div>
+              <div class="act-row"><span class="act-check done">✓</span>🍎 Frukost</div>
+              <div class="act-row"><span class="act-check"></span>🛏️ Sova</div>
+            </div>
+            <div class="day-col">
+              <strong>Tor 25/6</strong>
+              <div class="act-row"><span class="act-check done">✓</span>🛏️ Bädda säng</div>
+              <div class="act-row"><span class="act-check done">✓</span>🪥 Borsta tänder</div>
+              <div class="act-row"><span class="act-check"></span>🍎 Frukost</div>
+              <div class="act-row"><span class="act-check"></span>🛏️ Sova</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hook-bar"><p>Från konstant tjat till att barnen bockar av själva! ✨</p></div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="frame-label">3 · Scheman + rutiner (6–9s)</div>
+    <div class="frame" data-slide>
+      <div class="slide-split">
+        <div class="split-top">
+          <div class="lib-title">⭐ Färdiga scheman &amp; belöningar</div>
+          <div class="lib-sub">Kopiera med ett klick — anpassa efter er familj</div>
+          <div class="lib-card">
+            <div class="lib-tabs">
+              <span class="lib-tab">Schema</span>
+              <span class="lib-tab">Aktiviteter</span>
+              <span class="lib-tab">Belöningar</span>
+              <span class="lib-tab on">Bibliotek</span>
+            </div>
+            <div class="sched-grid">
+              <div class="sched-item"><span>☀️</span>Sommarlov<small>12 aktiviteter</small></div>
+              <div class="sched-item"><span>🎄</span>Jullov<small>12 aktiviteter</small></div>
+              <div class="sched-item"><span>🏠</span>Lov<small>12 aktiviteter</small></div>
+              <div class="sched-item"><span>🎉</span>Helg<small>10 aktiviteter</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="split-bottom">
+          <div class="routine-card">
+            <h4>🌙 Trygga kvällar</h4>
+            <p>Mindre stress vid läggdags · 3–5 år</p>
+            <span class="tag">Populärt</span>
+          </div>
+          <div class="routine-card">
+            <h4>☀️ Bra morgonar</h4>
+            <p>Kom iväg utan tjat · 3–6 år</p>
+            <span class="tag">Aktivera</span>
+          </div>
+          <div class="routine-card">
+            <h4>⭐ Självständighet</h4>
+            <p>Hjälp barnet göra mer själv · 3–7 år</p>
+          </div>
+        </div>
+      </div>
+      <div class="hook-bar"><p>Färdiga rutiner för morgon, kväll och lov – klara med ett klick. 🧠💡</p></div>
+    </div>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="frame-label">4 · Landningssida CTA (9–12s)</div>
+    <div class="frame" data-slide>
+      <div class="slide-landing" style="height:100%;">
+        <div class="browser-bar">
+          <span class="browser-dot r"></span>
+          <span class="browser-dot y"></span>
+          <span class="browser-dot g"></span>
+          <span class="browser-url">mystarday.se</span>
+        </div>
+        <div class="landing-inner">
+          <div class="landing-logo">⭐ Min Stjärndag</div>
+          <div class="landing-icons">
+            <div class="icon-tile">🪥</div>
+            <div class="icon-tile">🏫</div>
+            <div class="icon-tile">🛝</div>
+            <div class="icon-tile">🍱</div>
+            <div class="icon-tile">🍽️</div>
+            <div class="icon-tile">⭐</div>
+          </div>
+          <h2 class="landing-h1">Förenkla vardagen för hela familjen</h2>
+          <p class="landing-p">Skapa och följ dagliga scheman, aktiviteter och belöningar</p>
+          <span class="landing-cta">KOM IGÅNG</span>
+        </div>
+      </div>
+      <div class="hook-bar"><p>Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="player"><div class="frame player-frame" id="playerFrame"></div></div>
+
+</body>
+</html>
