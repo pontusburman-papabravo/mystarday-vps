@@ -1,6 +1,7 @@
 # App Store Connect — Metadata
 
 > Säljtext redo att klistras in i App Store Connect.
+> Business-konto (avtal, bank, skatt, compliance): [`app-store-connect-business.md`](app-store-connect-business.md).
 > Fyll i eventuella varianter (ditt land/reglering) vid behov.
 > Svensk text — översätt till engelska vid sidan av Apple Store Review.
 
