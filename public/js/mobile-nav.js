@@ -13,25 +13,25 @@
 
   // ── Find the sidebar nav ───────────────────────────────────────
   function findSidebarNav() {
-    var el = document.getElementById('sidebar');
+    const el = document.getElementById('sidebar');
     if (el) return el;
-    var candidates = document.querySelectorAll('nav.bg-navy');
-    for (var ci = 0; ci < candidates.length; ci++) {
-      var nav = candidates[ci];
+    const candidates = document.querySelectorAll('nav.bg-navy');
+    for (let ci = 0; ci < candidates.length; ci++) {
+      const nav = candidates[ci];
       if (nav.hasAttribute('data-page-header')) continue;
       if (nav.classList.contains('md:w-64') || nav.classList.contains('w-full')) return nav;
     }
     return null;
   }
 
-  var sidebar = findSidebarNav();
+  const sidebar = findSidebarNav();
   if (!sidebar) return; // Not a logged-in page with sidebar layout
 
   // Mark it so CSS can hide on mobile
   sidebar.classList.add('app-sidebar');
 
   // ── Remove old mobile top bar if present (Type B pages) ────────
-  var oldTopbar = sidebar.previousElementSibling;
+  const oldTopbar = sidebar.previousElementSibling;
   if (
     oldTopbar &&
     oldTopbar.tagName === 'DIV' &&
@@ -42,11 +42,11 @@
   }
 
   // ── Remove old sidebar overlay if present (calendar.html) ─────
-  var oldOverlay = document.getElementById('sidebarOverlay');
+  const oldOverlay = document.getElementById('sidebarOverlay');
   if (oldOverlay) oldOverlay.remove();
 
   // ── Detect dark-mode function ──────────────────────────────────
-  var darkToggleFn =
+  const darkToggleFn =
     typeof Theme !== 'undefined' && Theme.toggleDark
       ? function () { Theme.toggleDark(); }
       : typeof toggleDarkMode === 'function'
@@ -56,31 +56,31 @@
   // ── Detect if current user is a parent (hide share from children) ──
   // All pages that load mobile-nav.js are parent-only pages, so default to true.
   // Only set false if we can explicitly confirm this is a child user.
-  var isParentUser = true;
+  let isParentUser = true;
   try {
-    var currentUser = typeof Auth !== 'undefined' && Auth.getUser ? Auth.getUser() : null;
+    const currentUser = typeof Auth !== 'undefined' && Auth.getUser ? Auth.getUser() : null;
     if (currentUser && (currentUser.type === 'child' || (!currentUser.email && currentUser.username))) {
       isParentUser = false;
     }
   } catch (e) { /* silent — keep default true */ }
 
   // ── Gated feature paths ───────────────────────────────────────
-  var GATED_PATHS = {
+  const GATED_PATHS = {
     '/reports':      'klinisk_rapportering',
     '/pedagog-note': 'pedagoganteckningar',
     '/for-dig':      'for_dig',
   };
   // Populated async after features load. Default to {} (fail-closed = hide gated links until confirmed)
-  var accessibleFeatures = {};
+  let accessibleFeatures = {};
 
   // Fetch accessible features (for dropdown gate filtering) — shared cache
-  var featuresFetch = window.fetchStjarndagFeatures
+  const featuresFetch = window.fetchStjarndagFeatures
     ? window.fetchStjarndagFeatures()
     : fetch('/api/features', { credentials: 'include' }).then(function (res) { return res.ok ? res.json() : []; });
   featuresFetch
     .then(function (features) {
       accessibleFeatures = {};
-      for (var fi = 0; fi < features.length; fi++) {
+      for (let fi = 0; fi < features.length; fi++) {
         accessibleFeatures[features[fi].slug] = true;
       }
     })
@@ -89,15 +89,15 @@
     });
 
   // ── Build nav links: NavConfig first, else sidebar scrape ─────
-  var sidebarLinks = sidebar.querySelectorAll('ul a');
-  var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+  const sidebarLinks = sidebar.querySelectorAll('ul a');
+  const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
 
   function pathMatches(href, path) {
     if (!href) return false;
-    var linkPath = href.split('?')[0].replace(/\/$/, '') || '/';
+    const linkPath = href.split('?')[0].replace(/\/$/, '') || '/';
     if (linkPath === path) return true;
     if (window.NavConfig && NavConfig.activeNavItem) {
-      var item = NavConfig.activeNavItem(path);
+      const item = NavConfig.activeNavItem(path);
       if (item && item.href === linkPath) return true;
       if (item && item.paths && item.paths.indexOf(path) >= 0) return true;
     }
@@ -106,11 +106,11 @@
 
   function buildConfigLinks() {
     if (!window.NavConfig || !NavConfig.PRIMARY_NAV) return null;
-    var items = NavConfig.PRIMARY_NAV.slice();
+    const items = NavConfig.PRIMARY_NAV.slice();
     if (NavConfig.SETTINGS_NAV) items.push(NavConfig.SETTINGS_NAV);
-    var out = [];
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
+    const out = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       out.push({
         href: item.href,
         label: item.icon + ' ' + item.label,
@@ -121,14 +121,14 @@
     return out;
   }
 
-  var navLinks = buildConfigLinks();
+  let navLinks = buildConfigLinks();
   if (!navLinks || !navLinks.length) {
     navLinks = [];
-    for (var si = 0; si < sidebarLinks.length; si++) {
-      var sl = sidebarLinks[si];
-      var shref = sl.getAttribute('href');
-      var slPath = shref ? shref.replace(/\/$/, '') : '';
-      var slug = GATED_PATHS[slPath] || sl.getAttribute('data-feature');
+    for (let si = 0; si < sidebarLinks.length; si++) {
+      const sl = sidebarLinks[si];
+      const shref = sl.getAttribute('href');
+      const slPath = shref ? shref.replace(/\/$/, '') : '';
+      const slug = GATED_PATHS[slPath] || sl.getAttribute('data-feature');
       if (slug && !accessibleFeatures[slug]) continue;
       navLinks.push({
         href: shref,
@@ -139,7 +139,7 @@
   }
 
   // ── Build top bar ──────────────────────────────────────────────
-  var topbar = document.createElement('div');
+  const topbar = document.createElement('div');
   topbar.className = 'mobile-topbar';
   topbar.innerHTML =
     '<a href="/dashboard" class="topbar-brand">' +
@@ -162,14 +162,14 @@
   sidebar.parentNode.insertBefore(topbar, sidebar);
 
   // ── Build dropdown ─────────────────────────────────────────────
-  var dropdown = document.createElement('div');
+  const dropdown = document.createElement('div');
   dropdown.className = 'mobile-dropdown';
   dropdown.setAttribute('role', 'dialog');
   dropdown.setAttribute('aria-label', 'Mobilmeny');
 
-  var linksHtml = '<div class="mobile-dropdown-links">';
-  for (var ni = 0; ni < navLinks.length; ni++) {
-    var nlink = navLinks[ni];
+  let linksHtml = '<div class="mobile-dropdown-links">';
+  for (let ni = 0; ni < navLinks.length; ni++) {
+    const nlink = navLinks[ni];
     linksHtml +=
       '<a href="' + nlink.href + '"' +
       (nlink.active ? ' class="active-link"' : '') +
@@ -209,7 +209,7 @@
   topbar.parentNode.insertBefore(dropdown, topbar.nextSibling);
 
   // ── Wire up hamburger ──────────────────────────────────────────
-  var hamburger = topbar.querySelector('.mobile-hamburger');
+  const hamburger = topbar.querySelector('.mobile-hamburger');
 
   function openMenu() {
     dropdown.classList.add('open');
@@ -252,14 +252,14 @@
   });
 
   // ── Dropdown link clicks close the menu ────────────────────────
-  var dropdownLinks = dropdown.querySelectorAll('a');
-  for (var j = 0; j < dropdownLinks.length; j++) {
+  const dropdownLinks = dropdown.querySelectorAll('a');
+  for (let j = 0; j < dropdownLinks.length; j++) {
     dropdownLinks[j].addEventListener('click', closeMenu);
   }
 
   // ── Dark mode toggle in dropdown ───────────────────────────────
   if (darkToggleFn) {
-    var topbarDarkBtn = topbar.querySelector('.topbar-dark-toggle');
+    const topbarDarkBtn = topbar.querySelector('.topbar-dark-toggle');
     if (topbarDarkBtn) {
       topbarDarkBtn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -267,7 +267,7 @@
       });
     }
 
-    var dropdownDarkBtn = dropdown.querySelector('.btn-dark-toggle');
+    const dropdownDarkBtn = dropdown.querySelector('.btn-dark-toggle');
     if (dropdownDarkBtn) {
       dropdownDarkBtn.addEventListener('click', function () {
         darkToggleFn();
@@ -278,7 +278,7 @@
 
   // ── Inject share button into desktop sidebar (for parent users) ─
   if (isParentUser) {
-    var sidebarFooter = sidebar.querySelector('.border-t');
+    const sidebarFooter = sidebar.querySelector('.border-t');
     if (sidebarFooter) {
       var sidebarShareBtn = document.createElement('button');
       sidebarShareBtn.className = 'sidebar-share-btn w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2';
@@ -293,8 +293,8 @@
   function notifyShareBackend() {
     try {
       // Cookie-only auth: no Authorization header needed. Browser sends httpOnly cookie.
-      var headers = { 'Content-Type': 'application/json' };
-      var csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
+      const headers = { 'Content-Type': 'application/json' };
+      const csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
       if (csrf) headers['X-CSRF-Token'] = csrf;
       fetch('/api/account/share-notify', {
         method: 'POST',
@@ -309,7 +309,7 @@
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(callback).catch(function () { callback(); });
     } else {
-      var tempEl = document.createElement('textarea');
+      const tempEl = document.createElement('textarea');
       tempEl.value = text;
       tempEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
       document.body.appendChild(tempEl);
@@ -323,18 +323,18 @@
   // Desktop share popup — shown when Web Share API is unavailable
   function showSharePopup(payload) {
     // Remove existing popup if open
-    var existing = document.getElementById('sharePopup');
+    const existing = document.getElementById('sharePopup');
     if (existing) existing.remove();
 
-    var shareUrl = payload.url;
-    var shareText = payload.text;
-    var overlay = document.createElement('div');
+    const shareUrl = payload.url;
+    const shareText = payload.text;
+    const overlay = document.createElement('div');
     overlay.id = 'sharePopup';
     overlay.className = 'share-popup-overlay';
 
-    var mailSubject = encodeURIComponent('Tipsa: Min Stjärndag');
-    var mailBody = encodeURIComponent(shareText);
-    var fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
+    const mailSubject = encodeURIComponent('Tipsa: Min Stjärndag'); // pragma: allowlist secret
+    const mailBody = encodeURIComponent(shareText);
+    const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
 
     overlay.innerHTML =
       '<div class="share-popup-card">' +
@@ -371,7 +371,7 @@
 
     // Wire up copy button
     overlay.querySelector('.share-popup-copy').addEventListener('click', function () {
-      var btn = this;
+      const btn = this;
       copyToClipboard(shareUrl, function () {
         btn.innerHTML = '<span>✅</span> Kopierad!';
         setTimeout(function () { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
@@ -379,9 +379,9 @@
     });
 
     // Track email and facebook clicks as shares too
-    var emailLink = overlay.querySelector('.share-popup-email');
+    const emailLink = overlay.querySelector('.share-popup-email');
     if (emailLink) emailLink.addEventListener('click', function () { notifyShareBackend(); });
-    var fbLink = overlay.querySelector('.share-popup-facebook');
+    const fbLink = overlay.querySelector('.share-popup-facebook');
     if (fbLink) fbLink.addEventListener('click', function () { notifyShareBackend(); });
   }
 
@@ -391,10 +391,10 @@
   }
 
   function handleShare() {
-    var shareApi = window.ReferralShare;
-    var loadPromise = shareApi && shareApi.load ? shareApi.load() : Promise.resolve(null);
+    const shareApi = window.ReferralShare;
+    const loadPromise = shareApi && shareApi.load ? shareApi.load() : Promise.resolve(null);
     loadPromise.then(function (ref) {
-      var payload = shareApi && shareApi.buildPayload
+      const payload = shareApi && shareApi.buildPayload
         ? shareApi.buildPayload(ref)
         : { url: 'https://mystarday.se', text: 'https://mystarday.se', withReferral: false };
 
@@ -416,7 +416,7 @@
   }
 
   // ── Wire up share buttons (topbar + sidebar) ──────────────────
-  var inviteBtn = topbar.querySelector('.topbar-share-btn');
+  const inviteBtn = topbar.querySelector('.topbar-share-btn');
   if (inviteBtn) {
     inviteBtn.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -433,7 +433,7 @@
   }
 
   // Wire up dropdown share button (mobile menu Tipsa link)
-  var dropdownShareBtn = dropdown.querySelector('.btn-dropdown-share');
+  const dropdownShareBtn = dropdown.querySelector('.btn-dropdown-share');
   if (dropdownShareBtn) {
     dropdownShareBtn.addEventListener('click', function () {
       closeMenu();
@@ -442,11 +442,11 @@
   }
 
   // ── Logout button in dropdown ──────────────────────────────────
-  var dropdownLogout = dropdown.querySelector('.btn-logout');
+  const dropdownLogout = dropdown.querySelector('.btn-logout');
   if (dropdownLogout) {
     dropdownLogout.addEventListener('click', function () {
       // Trigger the same logout as auth.js
-      var sidebarLogout = document.getElementById('logoutBtn');
+      const sidebarLogout = document.getElementById('logoutBtn');
       if (sidebarLogout) {
         sidebarLogout.click();
       } else if (typeof Auth !== 'undefined' && Auth.logout) {

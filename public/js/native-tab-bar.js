@@ -10,14 +10,14 @@
     return false;
   }
 
-  var path = (window.location.pathname || '').replace(/\/$/, '');
+  const path = (window.location.pathname || '').replace(/\/$/, '');
   if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0) return;
   if (!window.NavConfig) return;
 
-  var activeTabs = NavConfig.primaryNavForTabs();
-  var tabsReady = true;
-  var mountPending = false;
-  var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
+  let activeTabs = NavConfig.primaryNavForTabs();
+  let tabsReady = true;
+  let mountPending = false;
+  const MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(max-width: 767px)')
     : null;
 
@@ -26,7 +26,7 @@
   }
 
   function isActive(tab) {
-    var active = NavConfig.activeNavItem(window.location.pathname);
+    const active = NavConfig.activeNavItem(window.location.pathname);
     return active && (active.id === tab.id || active.href === tab.href);
   }
 
@@ -37,15 +37,15 @@
   }
 
   function hideLegacyBottomNav() {
-    var legacy = document.getElementById('parentBottomNav');
+    const legacy = document.getElementById('parentBottomNav');
     if (legacy) legacy.style.display = 'none';
   }
 
   function buildNavHtml() {
-    var items = '';
-    for (var j = 0; j < activeTabs.length; j++) {
-      var tab = activeTabs[j];
-      var active = isActive(tab);
+    let items = '';
+    for (let j = 0; j < activeTabs.length; j++) {
+      const tab = activeTabs[j];
+      const active = isActive(tab);
       items +=
         '<a href="' + tab.href + '" class="tab-item' + (active ? ' active' : '') + '"' +
         ' data-tab-href="' + tab.href + '"' +
@@ -57,7 +57,7 @@
   }
 
   function unmount() {
-    var existing = document.querySelector('.native-tab-bar');
+    const existing = document.querySelector('.native-tab-bar');
     if (existing) existing.remove();
     document.body.classList.remove('has-native-tab-bar');
   }
@@ -67,10 +67,10 @@
     if (!isMobileViewport()) return false;
     if (!hasParentShell()) return false;
 
-    var items = buildNavHtml();
+    const items = buildNavHtml();
     if (!items) return false;
 
-    var existing = document.querySelector('.native-tab-bar');
+    const existing = document.querySelector('.native-tab-bar');
     if (existing) {
       existing.innerHTML = items;
       hideLegacyBottomNav();
@@ -79,12 +79,12 @@
 
     document.body.classList.add('has-native-tab-bar');
 
-    var mobileTopbar = document.querySelector('.mobile-topbar');
+    const mobileTopbar = document.querySelector('.mobile-topbar');
     if (mobileTopbar) mobileTopbar.remove();
-    var mobileDropdown = document.querySelector('.mobile-dropdown');
+    const mobileDropdown = document.querySelector('.mobile-dropdown');
     if (mobileDropdown) mobileDropdown.remove();
 
-    var nav = document.createElement('nav');
+    const nav = document.createElement('nav');
     nav.className = 'native-tab-bar';
     nav.setAttribute('role', 'navigation');
     nav.setAttribute('aria-label', 'Huvudnavigering');
@@ -93,15 +93,15 @@
     hideLegacyBottomNav();
 
     nav.addEventListener('click', function (e) {
-      var link = e.target.closest('a.tab-item');
+      const link = e.target.closest('a.tab-item');
       if (!link) return;
       if (isNativeShell() && Platform.haptics && Platform.haptics.light) {
         Platform.haptics.light();
       }
-      var href = link.getAttribute('href');
+      const href = link.getAttribute('href');
       if (!href || href.charAt(0) !== '/') return;
       if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
-      var router = window.ParentMagicRouter;
+      const router = window.ParentMagicRouter;
       if (!router) return;
       if (router.isFullLoadPath && router.isFullLoadPath(href)) {
         e.preventDefault();
@@ -121,7 +121,7 @@
     if (mount()) return;
     if (!tabsReady || mountPending) return;
     mountPending = true;
-    var retries = 0;
+    let retries = 0;
     var timer = setInterval(function () {
       retries += 1;
       if (mount() || retries >= 30) {
@@ -132,15 +132,15 @@
   }
 
   function updateActiveTabs() {
-    var nav = document.querySelector('.native-tab-bar');
+    const nav = document.querySelector('.native-tab-bar');
     if (!nav) return;
     nav.querySelectorAll('a.tab-item').forEach(function (link) {
-      var href = link.getAttribute('href');
-      var tab = null;
-      for (var i = 0; i < activeTabs.length; i++) {
+      const href = link.getAttribute('href');
+      let tab = null;
+      for (let i = 0; i < activeTabs.length; i++) {
         if (activeTabs[i].href === href) { tab = activeTabs[i]; break; }
       }
-      var active = tab ? isActive(tab) : false;
+      const active = tab ? isActive(tab) : false;
       link.classList.toggle('active', active);
       if (active) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -148,7 +148,7 @@
   }
 
   function remount() {
-    var existing = document.querySelector('.native-tab-bar');
+    const existing = document.querySelector('.native-tab-bar');
     if (existing) {
       existing.innerHTML = buildNavHtml();
       hideLegacyBottomNav();

@@ -11,7 +11,7 @@
   }
 
   function timeGreeting() {
-    var h = new Date().getHours();
+    const h = new Date().getHours();
     if (h >= 5 && h < 11) return 'God morgon!';
     if (h >= 11 && h < 17) return 'Hej!';
     if (h >= 17 && h < 22) return 'God kväll!';
@@ -19,19 +19,19 @@
   }
 
   function pickSummary(stats) {
-    var children = stats && stats.children ? stats.children : [];
+    const children = stats && stats.children ? stats.children : [];
     if (!children.length) return null;
 
-    var totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
-    var totalPending = stats.total_pending_redemptions || 0;
-    var totalDoneToday = children.reduce(function (s, c) { return s + (c.today_completed || 0); }, 0);
+    const totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
+    const totalPending = stats.total_pending_redemptions || 0;
+    const totalDoneToday = children.reduce(function (s, c) { return s + (c.today_completed || 0); }, 0);
 
     // Pending reward requests — actionable
     if (totalPending > 0) {
-      var pendingChild = children.find(function (c) {
+      const pendingChild = children.find(function (c) {
         return (c.pending_redemptions || 0) + (c.pending_goal_changes || 0) > 0;
       });
-      var pName = pendingChild ? capName(pendingChild.name) : 'Barnet';
+      const pName = pendingChild ? capName(pendingChild.name) : 'Barnet';
       return {
         emoji: '🎁',
         headline: pName + ' vill lösa in en belöning',
@@ -49,20 +49,20 @@
     }
 
     // Close to next reward
-    var closeReward = null;
-    var closestGap = Infinity;
-    for (var i = 0; i < children.length; i++) {
-      var c = children[i];
+    let closeReward = null;
+    let closestGap = Infinity;
+    for (let i = 0; i < children.length; i++) {
+      const c = children[i];
       if (!c.nearest_reward) continue;
-      var gap = c.nearest_reward.star_cost - (c.star_balance || 0);
+      const gap = c.nearest_reward.star_cost - (c.star_balance || 0);
       if (gap > 0 && gap <= 5 && gap < closestGap) {
         closestGap = gap;
         closeReward = { child: c, gap: gap };
       }
     }
     if (closeReward) {
-      var crName = capName(closeReward.child.name);
-      var gapLabel = closeReward.gap === 1 ? '1 stjärna' : closeReward.gap + ' stjärnor';
+      const crName = capName(closeReward.child.name);
+      const gapLabel = closeReward.gap === 1 ? '1 stjärna' : closeReward.gap + ' stjärnor';
       return {
         emoji: '🌟',
         headline: crName + ' är bara ' + gapLabel + ' från nästa belöning',
@@ -74,9 +74,9 @@
 
     // Stars earned today (family)
     if (totalStarsToday > 0) {
-      var starLabel = totalStarsToday === 1 ? '1 stjärna' : totalStarsToday + ' stjärnor';
-      var childCount = children.filter(function (c) { return (c.stars_today || 0) > 0; }).length;
-      var sub = childCount === 1
+      const starLabel = totalStarsToday === 1 ? '1 stjärna' : totalStarsToday + ' stjärnor';
+      const childCount = children.filter(function (c) { return (c.stars_today || 0) > 0; }).length;
+      const sub = childCount === 1
         ? capName(children.find(function (c) { return c.stars_today > 0; }).name) + ' har tjänat dem idag'
         : 'Barnen har tjänat dem idag';
       return {
@@ -89,13 +89,13 @@
     }
 
     // Tasks completed today
-    var activeChild = children
+    const activeChild = children
       .filter(function (c) { return (c.today_completed || 0) > 0 && !c.today_is_paused; })
       .sort(function (a, b) { return (b.today_completed || 0) - (a.today_completed || 0); })[0];
 
     if (activeChild) {
-      var done = activeChild.today_completed || 0;
-      var taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
+      const done = activeChild.today_completed || 0;
+      const taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
       return {
         emoji: '🔥',
         headline: capName(activeChild.name) + ' har redan klarat ' + taskLabel + ' idag',
@@ -108,11 +108,11 @@
     }
 
     // Next activity ready
-    var readyChild = null;
-    for (var j = 0; j < children.length; j++) {
-      var ch = children[j];
+    let readyChild = null;
+    for (let j = 0; j < children.length; j++) {
+      const ch = children[j];
       if (ch.today_is_paused || !(ch.today_items || []).length) continue;
-      var nu = ch.today_items.find(function (it) { return it.status === 'NU' && !it.completed; });
+      const nu = ch.today_items.find(function (it) { return it.status === 'NU' && !it.completed; });
       if (nu) {
         readyChild = { child: ch, item: nu };
         break;
@@ -141,7 +141,7 @@
   }
 
   function getBannerMount() {
-    var useHub = window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function' && DashboardHomeHub.shouldUse();
+    const useHub = window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function' && DashboardHomeHub.shouldUse();
     if (useHub) {
       return document.getElementById('parentHubDailySummaryMount') || document.getElementById('dashboardDailySummary');
     }
@@ -149,8 +149,8 @@
   }
 
   function renderBanner(summary) {
-    var el = getBannerMount();
-    var legacy = document.getElementById('dashboardDailySummary');
+    const el = getBannerMount();
+    const legacy = document.getElementById('dashboardDailySummary');
     if (!el) return;
     if (!summary) {
       el.classList.add('hidden');
@@ -159,7 +159,7 @@
       return;
     }
 
-    var actionHtml = '';
+    let actionHtml = '';
     if (summary.action) {
       if (summary.action.href) {
         actionHtml = '<a href="' + summary.action.href + '" class="dash-summary-action">' + summary.action.label + ' →</a>';
@@ -183,7 +183,7 @@
       legacy.innerHTML = '';
     }
 
-    var actionBtn = el.querySelector('[data-summary-action]');
+    const actionBtn = el.querySelector('[data-summary-action]');
     if (actionBtn) {
       if (summary.action.handler) {
         actionBtn.addEventListener('click', function (e) {
@@ -198,22 +198,22 @@
   }
 
   function getPageTitle(stats) {
-    var children = stats && stats.children ? stats.children : [];
-    var totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
+    const children = stats && stats.children ? stats.children : [];
+    const totalStarsToday = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
     if (totalStarsToday > 0) return '🌟 Dagens stjärnor';
-    var h = new Date().getHours();
+    const h = new Date().getHours();
     if (h >= 5 && h < 12) return '👋 Välkommen tillbaka';
     return '🌟 Familjens framsteg idag';
   }
 
   function updatePageTitles(stats) {
-    var pageTitle = document.getElementById('dashboardPageTitle');
+    const pageTitle = document.getElementById('dashboardPageTitle');
     if (pageTitle) pageTitle.textContent = getPageTitle(stats);
 
-    var sectionTitle = document.getElementById('dashboardSectionTitle');
+    const sectionTitle = document.getElementById('dashboardSectionTitle');
     if (sectionTitle) sectionTitle.classList.add('hidden');
 
-    var sectionSub = document.getElementById('dashboardSectionSub');
+    const sectionSub = document.getElementById('dashboardSectionSub');
     if (sectionSub) sectionSub.classList.add('hidden');
   }
 
@@ -222,18 +222,18 @@
    * @returns {{ primaryHtml: string, secondaryHtml: string, cardClass: string }}
    */
   function buildChildStats(c) {
-    var name = capName(c.name);
-    var done = c.today_completed || 0;
-    var total = c.today_total || 0;
-    var stars = c.star_balance || 0;
-    var starsToday = c.stars_today || 0;
-    var nearest = c.nearest_reward || null;
-    var isPaused = c.today_is_paused || false;
-    var allDone = total > 0 && done === total;
-    var cardClass = '';
+    const name = capName(c.name);
+    const done = c.today_completed || 0;
+    const total = c.today_total || 0;
+    const stars = c.star_balance || 0;
+    const starsToday = c.stars_today || 0;
+    const nearest = c.nearest_reward || null;
+    const isPaused = c.today_is_paused || false;
+    const allDone = total > 0 && done === total;
+    let cardClass = '';
 
-    var primaryHtml = '';
-    var secondaryHtml = '';
+    let primaryHtml = '';
+    let secondaryHtml = '';
 
     if (isPaused) {
       primaryHtml = '<div class="dash-stat-primary text-text-soft">⏸ Pausad idag</div>';
@@ -244,7 +244,7 @@
       secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';
     } else if (done > 0) {
       cardClass = 'has-today-progress';
-      var taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
+      const taskLabel = done === 1 ? '1 uppgift' : done + ' uppgifter';
       primaryHtml = '<div class="dash-stat-primary dash-stat-hot">🔥 ' + taskLabel + ' klara idag</div>';
       if (total > done) {
         secondaryHtml = '<div class="dash-stat-secondary">' + (total - done) + ' kvar · ' + done + '/' + total + '</div>';
@@ -259,15 +259,15 @@
     }
 
     if (starsToday > 0 && !isPaused) {
-      var stLabel = starsToday === 1 ? '+1 stjärna' : '+' + starsToday + ' stjärnor';
+      const stLabel = starsToday === 1 ? '+1 stjärna' : '+' + starsToday + ' stjärnor';
       secondaryHtml = '<div class="dash-stat-today-stars">' + stLabel + ' idag</div>' + secondaryHtml;
     }
 
     if (nearest && !isPaused) {
-      var gap = nearest.star_cost - stars;
+      const gap = nearest.star_cost - stars;
       if (gap > 0 && gap <= 8) {
-        var gapLabel = gap === 1 ? '1 stjärna' : gap + ' stjärnor';
-        var rewardHint = '🎁 Bara ' + gapLabel + ' kvar till nästa belöning';
+        const gapLabel = gap === 1 ? '1 stjärna' : gap + ' stjärnor';
+        const rewardHint = '🎁 Bara ' + gapLabel + ' kvar till nästa belöning';
         if (done === 0 && gap <= 5) {
           primaryHtml = '<div class="dash-stat-primary dash-stat-reward-primary">' + rewardHint + '</div>';
           secondaryHtml = '<div class="dash-stat-stars">⭐ <span class="dash-stars-num">' + stars + '</span> totalt</div>';

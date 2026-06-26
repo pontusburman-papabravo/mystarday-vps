@@ -17,21 +17,21 @@
 (function () {
   'use strict';
 
-  var GA4_ID = 'G-8PYNFJH1EQ';
+  const GA4_ID = 'G-8PYNFJH1EQ';
 
   /** Google Ads account ID — loads the Ads tag (remarketing + enhanced conversions). */
-  var ADS_ACCOUNT_ID = 'AW-7601142474';
+  const ADS_ACCOUNT_ID = 'AW-7601142474';
 
   /**
    * Full send_to label for a *manually* created Ads conversion, e.g. 'AW-123456789/AbCdEfGh'.
    * Left empty on purpose: the signup conversion is imported from GA4 (key event 'sign_up'),
    * so Google Ads counts it via the GA4 ↔ Ads link — there is no separate Ads conversion label.
    */
-  var ADS_SIGNUP_LABEL = '';
+  const ADS_SIGNUP_LABEL = '';
 
   function getCookieConsent() {
     try {
-      var raw = localStorage.getItem('cookie_consent');
+      const raw = localStorage.getItem('cookie_consent');
       return raw ? JSON.parse(raw) : null;
     } catch (_) {
       return null;
@@ -39,17 +39,17 @@
   }
 
   function hasAnalyticsConsent() {
-    var cc = getCookieConsent();
+    const cc = getCookieConsent();
     if (cc) return !!cc.analytics;
-    var ac = window.AppConsent && AppConsent.get();
+    const ac = window.AppConsent && AppConsent.get();
     if (ac) return ac.analytics_storage === 'granted';
     return false;
   }
 
   function hasMarketingConsent() {
-    var cc = getCookieConsent();
+    const cc = getCookieConsent();
     if (cc) return !!cc.marketing;
-    var ac = window.AppConsent && AppConsent.get();
+    const ac = window.AppConsent && AppConsent.get();
     if (ac) return ac.ad_storage === 'granted';
     return false;
   }
@@ -59,7 +59,7 @@
   }
 
   function configureGoogleAds() {
-    var gtag = gtagFn();
+    const gtag = gtagFn();
     if (!gtag || !ADS_ACCOUNT_ID || !hasMarketingConsent()) return;
     gtag('config', ADS_ACCOUNT_ID);
   }
@@ -69,7 +69,7 @@
    * @param {string} [method] email | apple | google
    */
   function trackSignup(method) {
-    var gtag = gtagFn();
+    const gtag = gtagFn();
     if (!gtag) return;
 
     if (hasAnalyticsConsent()) {

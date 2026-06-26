@@ -8,7 +8,7 @@
   let _timer = null;
 
   function applyToastLayout(el, isError) {
-    var base = 'fixed z-[9999] px-5 py-4 rounded-2xl shadow-xl font-semibold leading-snug break-words ';
+    const base = 'fixed z-[9999] px-5 py-4 rounded-2xl shadow-xl font-semibold leading-snug break-words ';
     if (isError) {
       el.className = base + 'bg-red-600 text-white text-base text-center max-w-[min(92vw,24rem)] left-1/2 -translate-x-1/2';
       el.style.top = '';
@@ -34,8 +34,8 @@
    *   showToast(msg, isError, duration)     — bool + custom duration
    */
   function showToast(msg, arg2, arg3) {
-    var isError = false;
-    var duration = 3000;
+    let isError = false;
+    let duration = 3000;
 
     if (typeof arg2 === 'boolean') {
       isError = arg2;
@@ -47,7 +47,7 @@
 
     if (isError && duration === 3000) duration = 6000;
 
-    var el = document.getElementById('toast');
+    let el = document.getElementById('toast');
     if (!el) {
       el = document.createElement('div');
       el.id = 'toast';
@@ -68,9 +68,9 @@
    * Signature: showSuccessToast(msg, duration)
    */
   function showSuccessToast(msg, arg2) {
-    var duration = (typeof arg2 === 'number') ? arg2 : 3000;
+    const duration = (typeof arg2 === 'number') ? arg2 : 3000;
 
-    var el = document.getElementById('toast');
+    let el = document.getElementById('toast');
     if (!el) {
       el = document.createElement('div');
       el.id = 'toast';

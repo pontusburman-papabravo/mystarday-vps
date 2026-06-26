@@ -8,14 +8,14 @@
 
   document.body.classList.add('landing-magic-bg');
 
-  var sc = document.getElementById('landing-stars-container');
-  var cc = document.getElementById('landing-clouds-container');
+  const sc = document.getElementById('landing-stars-container');
+  const cc = document.getElementById('landing-clouds-container');
   if (!sc) return;
 
-  var STAR_COUNT = 24;
-  var chars = ['✦', '✧', '⋆', '✶'];
-  for (var i = 0; i < STAR_COUNT; i++) {
-    var s = document.createElement('div');
+  const STAR_COUNT = 24;
+  const chars = ['✦', '✧', '⋆', '✶'];
+  for (let i = 0; i < STAR_COUNT; i++) {
+    const s = document.createElement('div');
     s.className = 'star-particle' + (Math.random() > 0.4 ? ' lit' : '');
     s.style.cssText = [
       'position:absolute',
@@ -31,9 +31,9 @@
   }
 
   if (!cc) return;
-  var sizes = [160, 200, 140, 180];
-  for (var j = 0; j < 4; j++) {
-    var c = document.createElement('div');
+  const sizes = [160, 200, 140, 180];
+  for (let j = 0; j < 4; j++) {
+    const c = document.createElement('div');
     c.className = 'cloud';
     c.style.cssText = [
       'position:absolute',

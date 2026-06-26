@@ -7,19 +7,19 @@
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     if (typeof window.escapeHtml === 'function') return window.escapeHtml(s);
-    var d = document.createElement('div');
+    const d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
     return d.innerHTML;
   }
 
   async function fetchPending() {
-    var res = await window.apiFetch('/api/rewards/pending-requests');
+    const res = await window.apiFetch('/api/rewards/pending-requests');
     if (!res.ok) throw new Error('Kunde inte ladda förfrågningar');
     return res.json();
   }
 
   function rowHtml(req, type) {
-    var label =
+    const label =
       type === 'goal'
         ? '🎯 Vill byta mål till ' + esc(req.to_reward_name || '') + ' ' + esc(req.to_reward_icon || '')
         : '🎁 ' + esc(req.reward_name || '') + ' (⭐ ' + (req.star_cost || 0) + ')';
@@ -34,10 +34,10 @@
 
   function renderList(data, opts) {
     opts = opts || {};
-    var childId = opts.childId || null;
-    var childName = opts.childName || '';
-    var redemptions = data.pending_redemptions || [];
-    var goals = data.pending_goal_changes || [];
+    const childId = opts.childId || null;
+    const childName = opts.childName || '';
+    let redemptions = data.pending_redemptions || [];
+    let goals = data.pending_goal_changes || [];
     if (childId) {
       redemptions = redemptions.filter(function (r) { return r.child_id === childId; });
       goals = goals.filter(function (r) { return r.child_id === childId; });
@@ -47,17 +47,17 @@
       return opts.emptyHtml || '<p class="text-sm text-text-soft text-center py-4">Inga väntande förfrågningar 🎉</p>';
     }
 
-    var html = '<div class="space-y-2 pending-approvals-list">';
+    let html = '<div class="space-y-2 pending-approvals-list">';
     if (opts.heading) {
       html += '<h2 class="text-lg font-heading font-bold text-navy mb-2">' + esc(opts.heading) + '</h2>';
     }
     goals.forEach(function (req) {
-      var name = childName || req.child_name || '';
+      const name = childName || req.child_name || '';
       html += rowHtml(req, 'goal') +
         (name && !childId ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
     });
     redemptions.forEach(function (req) {
-      var name = childName || req.child_name || '';
+      const name = childName || req.child_name || '';
       html += rowHtml(req, 'redemption') +
         (name && !childId ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
     });
@@ -69,14 +69,14 @@
     if (!container || container._pendingBound) return;
     container._pendingBound = true;
     container.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-pending-action]');
+      const btn = e.target.closest('[data-pending-action]');
       if (!btn) return;
-      var action = btn.getAttribute('data-pending-action');
-      var type = btn.getAttribute('data-pending-type');
-      var id = btn.getAttribute('data-pending-id');
+      const action = btn.getAttribute('data-pending-action');
+      const type = btn.getAttribute('data-pending-type');
+      const id = btn.getAttribute('data-pending-id');
       if (!id || !type) return;
       btn.disabled = true;
-      var fn;
+      let fn;
       if (action === 'approve') {
         fn = type === 'goal' ? approveGoal : approveRedemption;
       } else {
@@ -100,23 +100,23 @@
   }
 
   async function approveGoal(requestId) {
-    var res = await window.apiFetch('/api/rewards/goal-change-requests/' + encodeURIComponent(requestId) + '/approve', { method: 'PUT' });
-    if (!res.ok) { var e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
+    const res = await window.apiFetch('/api/rewards/goal-change-requests/' + encodeURIComponent(requestId) + '/approve', { method: 'PUT' });
+    if (!res.ok) { const e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
   }
 
   async function denyGoal(requestId) {
-    var res = await window.apiFetch('/api/rewards/goal-change-requests/' + encodeURIComponent(requestId) + '/deny', { method: 'PUT' });
-    if (!res.ok) { var e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
+    const res = await window.apiFetch('/api/rewards/goal-change-requests/' + encodeURIComponent(requestId) + '/deny', { method: 'PUT' });
+    if (!res.ok) { const e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
   }
 
   async function approveRedemption(redemptionId) {
-    var res = await window.apiFetch('/api/rewards/redemptions/' + encodeURIComponent(redemptionId) + '/approve', { method: 'PUT' });
-    if (!res.ok) { var e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
+    const res = await window.apiFetch('/api/rewards/redemptions/' + encodeURIComponent(redemptionId) + '/approve', { method: 'PUT' });
+    if (!res.ok) { const e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
   }
 
   async function denyRedemption(redemptionId) {
-    var res = await window.apiFetch('/api/rewards/redemptions/' + encodeURIComponent(redemptionId) + '/deny', { method: 'PUT' });
-    if (!res.ok) { var e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
+    const res = await window.apiFetch('/api/rewards/redemptions/' + encodeURIComponent(redemptionId) + '/deny', { method: 'PUT' });
+    if (!res.ok) { const e = await res.json().catch(function () { return {}; }); throw new Error(e.error || 'Fel'); }
   }
 
   window.PendingApprovals = {
@@ -131,8 +131,8 @@
       if (!mountEl) return;
       mountEl.innerHTML = '<p class="text-sm text-text-soft py-2">Laddar förfrågningar…</p>';
       try {
-        var data = await fetchPending();
-        var total = (data.pending_redemptions || []).length + (data.pending_goal_changes || []).length;
+        const data = await fetchPending();
+        const total = (data.pending_redemptions || []).length + (data.pending_goal_changes || []).length;
         if (!total) {
           mountEl.innerHTML = '';
           mountEl.classList.add('hidden');

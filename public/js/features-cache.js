@@ -14,8 +14,8 @@
         return res.ok ? res.json() : [];
       })
       .then(function (features) {
-        var accessible = {};
-        for (var i = 0; i < features.length; i++) {
+        const accessible = {};
+        for (let i = 0; i < features.length; i++) {
           accessible[features[i].slug] = true;
         }
         window._stjarndagFeatures = accessible;

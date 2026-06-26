@@ -102,7 +102,7 @@
       }
 
       if (urlParams.get('print') === '1') {
-        var cid = urlParams.get('childId');
+        const cid = urlParams.get('childId');
         window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
         return;
       }
@@ -112,8 +112,8 @@
     });
 
     function openPrintMenuHint() {
-      var menu = document.getElementById('printMenu');
-      var btn = document.getElementById('printBtn');
+      const menu = document.getElementById('printMenu');
+      const btn = document.getElementById('printBtn');
       if (menu && menu.classList.contains('hidden')) togglePrintMenu();
       if (btn) {
         btn.classList.add('ring-2', 'ring-gold', 'ring-offset-2');
@@ -122,7 +122,7 @@
     }
 
     function trackPrintExport(format) {
-      var meta = { format: format, source: 'daily_log' };
+      const meta = { format: format, source: 'daily_log' };
       if (currentChildId) meta.child_id = currentChildId;
       if (window.analytics && typeof window.analytics.track === 'function') {
         window.analytics.track('print_schema_exported', meta);
@@ -1008,7 +1008,7 @@
 
     function goPrintSchemaPdf(scope) {
       if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
-      var url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
+      let url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
       if (scope === 'my') url += '&scope=my';
       trackPrintExport(scope === 'my' ? 'my_days' : 'week');
       window.location.href = url;

@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var SECTIONS = {
+  const SECTIONS = {
     standard: {
       tab: 'standard',
       title: 'Standardscheman',
@@ -44,10 +44,10 @@
     },
   };
 
-  var _section = null;
-  var _hubSearch = '';
-  var _navLock = false;
-  var _hubClicksBound = false;
+  let _section = null;
+  let _hubSearch = '';
+  let _navLock = false;
+  let _hubClicksBound = false;
 
   function markPlanningEntry(directSection) {
     try {
@@ -96,10 +96,10 @@
     if (_hubClicksBound) return;
     _hubClicksBound = true;
     document.addEventListener('click', function (e) {
-      var hub = document.getElementById('libraryMagicHubMount');
+      const hub = document.getElementById('libraryMagicHubMount');
       if (!hub || hub.classList.contains('hidden')) return;
       if (!document.body.classList.contains('parent-magic-library')) return;
-      var card = e.target.closest('[data-library-section]');
+      const card = e.target.closest('[data-library-section]');
       if (!card || !hub.contains(card)) return;
       e.preventDefault();
       openSection(card.getAttribute('data-library-section'), false);
@@ -107,7 +107,7 @@
   }
 
   function setMagicHash(hash) {
-    var current = (window.location.hash || '').replace('#', '');
+    const current = (window.location.hash || '').replace('#', '');
     if (current === hash) return;
     _navLock = true;
     window.location.hash = hash;
@@ -139,15 +139,15 @@
   }
 
   function applyLayout() {
-    var magic = isMagic();
+    const magic = isMagic();
     document.body.classList.toggle('parent-magic-library', magic);
     if (!magic) {
       document.body.classList.remove('library-magic-on-hub', 'library-magic-in-section');
       clearSectionClasses();
-      var hub = document.getElementById('libraryMagicHubMount');
-      var chrome = document.getElementById('libraryMagicChrome');
-      var sectionMount = document.getElementById('libraryMagicSectionMount');
-      var mineSeg = document.getElementById('libraryMagicMineSegments');
+      const hub = document.getElementById('libraryMagicHubMount');
+      const chrome = document.getElementById('libraryMagicChrome');
+      const sectionMount = document.getElementById('libraryMagicSectionMount');
+      const mineSeg = document.getElementById('libraryMagicMineSegments');
       if (hub) { hub.innerHTML = ''; hub.classList.add('hidden'); }
       if (chrome) { chrome.classList.add('hidden'); chrome.innerHTML = ''; }
       if (sectionMount) { sectionMount.innerHTML = ''; sectionMount.classList.add('hidden'); }
@@ -160,7 +160,7 @@
   }
 
   function renderHub() {
-    var mount = document.getElementById('libraryMagicHubMount');
+    const mount = document.getElementById('libraryMagicHubMount');
     if (!mount) return;
     mount.classList.remove('hidden');
     mount.innerHTML =
@@ -180,7 +180,7 @@
       menuCard('mine') +
       '</div></div>';
 
-    var search = mount.querySelector('#libraryMagicSearch');
+    const search = mount.querySelector('#libraryMagicSearch');
     if (search) {
       search.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
@@ -197,7 +197,7 @@
       });
     });
 
-    var planningBack = mount.querySelector('[data-library-planning-back]');
+    const planningBack = mount.querySelector('[data-library-planning-back]');
     if (planningBack) {
       planningBack.addEventListener('click', function () {
         goBackFromHub();
@@ -206,7 +206,7 @@
   }
 
   function menuCard(key) {
-    var s = SECTIONS[key];
+    const s = SECTIONS[key];
     return '<button type="button" class="library-magic-menu-card magic-3d-card" data-library-section="' + key + '">' +
       '<span class="library-magic-menu-icon ' + s.iconClass + '" aria-hidden="true">' + s.icon + '</span>' +
       '<span class="library-magic-menu-text"><strong>' + escHtml(s.title) + '</strong><span>' + escHtml(s.subtitle) + '</span></span>' +
@@ -214,16 +214,16 @@
   }
 
   function renderChrome(sectionKey) {
-    var chrome = document.getElementById('libraryMagicChrome');
+    const chrome = document.getElementById('libraryMagicChrome');
     if (!chrome) return;
-    var s = SECTIONS[sectionKey];
+    const s = SECTIONS[sectionKey];
     if (!s) {
       chrome.classList.add('hidden');
       chrome.innerHTML = '';
       return;
     }
 
-    var actionHtml = '';
+    let actionHtml = '';
     if (sectionKey === 'activities' && typeof window.openActivityModal === 'function') {
       actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-activity">+ Ny</button>';
     } else if (sectionKey === 'rewards' && typeof window.openRewardModal === 'function') {
@@ -241,9 +241,9 @@
       '</div>';
 
     chrome.onclick = function (e) {
-      var btn = e.target.closest('[data-library-action]');
+      const btn = e.target.closest('[data-library-action]');
       if (!btn) return;
-      var action = btn.getAttribute('data-library-action');
+      const action = btn.getAttribute('data-library-action');
       if (action === 'back') {
         goBackFromSection();
       } else if (action === 'new-activity') {
@@ -262,7 +262,7 @@
     } else if (key === 'mine' && window.LibraryMagicMine) {
       LibraryMagicMine.show();
     } else {
-      var sectionMount = document.getElementById('libraryMagicSectionMount');
+      const sectionMount = document.getElementById('libraryMagicSectionMount');
       if (sectionMount) {
         sectionMount.classList.add('hidden');
         sectionMount.innerHTML = '';
@@ -273,7 +273,7 @@
 
     if (fromSearch && _hubSearch) {
       setTimeout(function () {
-        var input = document.getElementById(key === 'rewards' ? 'rewardSearchInput' : 'activitySearchInput');
+        const input = document.getElementById(key === 'rewards' ? 'rewardSearchInput' : 'activitySearchInput');
         if (input) {
           input.value = _hubSearch;
           input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -284,7 +284,7 @@
 
     if (key === 'bilder') {
       setTimeout(function () {
-        var archive = document.getElementById('familyImageArchive');
+        const archive = document.getElementById('familyImageArchive');
         if (archive) archive.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 120);
     }
@@ -298,13 +298,13 @@
 
   function openSection(key, fromSearch) {
     closeLibraryModals();
-    var s = SECTIONS[key];
+    const s = SECTIONS[key];
     if (!s || typeof window.switchTab !== 'function') {
       console.warn('[LibraryMagicHub] switchTab saknas — ladda om sidan');
       return;
     }
 
-    var targetHash = 'magic-' + key;
+    const targetHash = 'magic-' + key;
     if (_section === key && !fromSearch &&
         (window.location.hash || '').replace('#', '') === targetHash) {
       return;
@@ -317,7 +317,7 @@
     clearSectionClasses();
     document.body.classList.add('library-magic-section-' + key);
 
-    var hub = document.getElementById('libraryMagicHubMount');
+    const hub = document.getElementById('libraryMagicHubMount');
     if (hub) {
       hub.classList.add('hidden');
       hub.innerHTML = '';
@@ -343,7 +343,7 @@
   function showHub() {
     closeLibraryModals();
     if (_section === null && document.body.classList.contains('library-magic-on-hub')) {
-      var existing = document.getElementById('libraryMagicHubMount');
+      const existing = document.getElementById('libraryMagicHubMount');
       if (existing && existing.innerHTML) return;
     }
 
@@ -352,26 +352,26 @@
     document.body.classList.remove('library-magic-in-section');
     clearSectionClasses();
 
-    var chrome = document.getElementById('libraryMagicChrome');
+    const chrome = document.getElementById('libraryMagicChrome');
     if (chrome) {
       chrome.classList.add('hidden');
       chrome.innerHTML = '';
     }
 
-    var sectionMount = document.getElementById('libraryMagicSectionMount');
+    const sectionMount = document.getElementById('libraryMagicSectionMount');
     if (sectionMount) {
       sectionMount.classList.add('hidden');
       sectionMount.innerHTML = '';
     }
 
-    var mineSeg = document.getElementById('libraryMagicMineSegments');
+    const mineSeg = document.getElementById('libraryMagicMineSegments');
     if (mineSeg) mineSeg.innerHTML = '';
 
     if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
     if (window.LibraryMagicMine) LibraryMagicMine.refresh();
 
     ['schema', 'activities', 'standard', 'rewards'].forEach(function (t) {
-      var pane = document.getElementById('tab-' + t);
+      const pane = document.getElementById('tab-' + t);
       if (pane) pane.classList.remove('active');
     });
 
@@ -383,9 +383,9 @@
     if (_navLock) return;
     if (!isMagic()) return;
 
-    var hash = (window.location.hash || '').replace('#', '');
+    const hash = (window.location.hash || '').replace('#', '');
     if (hash.indexOf('magic-') === 0) {
-      var key = hash.slice(6);
+      const key = hash.slice(6);
       if (SECTIONS[key]) {
         if (isFromPlanning() && (key === 'bilder' || key === 'activities')) {
           try { sessionStorage.setItem('libDirectSection', '1'); } catch (_) {}
@@ -395,7 +395,7 @@
       }
     }
     if (hash === 'standard' || hash === 'activities' || hash === 'rewards' || hash === 'schema') {
-      var map = { standard: 'standard', activities: 'activities', rewards: 'rewards', schema: 'mine' };
+      const map = { standard: 'standard', activities: 'activities', rewards: 'rewards', schema: 'mine' };
       openSection(map[hash], false);
       return;
     }
@@ -410,7 +410,7 @@
     }
 
     return AppViewMode.initParent().then(function () {
-      var toggleMount = document.getElementById('appViewToggleMount');
+      const toggleMount = document.getElementById('appViewToggleMount');
       if (toggleMount && AppViewMode.isAllowed()) {
         AppViewMode.mountToggle(toggleMount);
       } else if (toggleMount) {

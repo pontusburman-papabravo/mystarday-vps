@@ -5,13 +5,13 @@
 (function () {
   'use strict';
 
-  var SEGMENTS = [
+  const SEGMENTS = [
     { id: 'scheman', label: '📅 Scheman', tab: 'schema' },
     { id: 'aktiviteter', label: '📋 Aktiviteter', tab: 'activities' },
     { id: 'beloningar', label: '🏆 Belöningar', tab: 'rewards' },
   ];
 
-  var _segment = 'scheman';
+  let _segment = 'scheman';
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -46,14 +46,14 @@
     );
     document.body.classList.add('library-magic-mine-' + _segment);
 
-    var stdBlock = document.getElementById('libraryMineStdSection');
+    const stdBlock = document.getElementById('libraryMineStdSection');
     if (stdBlock) {
       stdBlock.classList.toggle('hidden', _segment !== 'scheman');
     }
   }
 
   function switchSegment(segmentId) {
-    var seg = SEGMENTS.find(function (s) { return s.id === segmentId; });
+    const seg = SEGMENTS.find(function (s) { return s.id === segmentId; });
     if (!seg) return;
 
     _segment = segmentId;
@@ -66,14 +66,14 @@
 
   function bindEvents(mount) {
     mount.onclick = function (e) {
-      var btn = e.target.closest('[data-mine-segment]');
+      const btn = e.target.closest('[data-mine-segment]');
       if (!btn) return;
       switchSegment(btn.getAttribute('data-mine-segment'));
     };
   }
 
   function render() {
-    var mount = document.getElementById('libraryMagicMineSegments');
+    const mount = document.getElementById('libraryMagicMineSegments');
     if (!mount) return;
     if (!isActive()) {
       mount.classList.add('hidden');
@@ -88,7 +88,7 @@
 
   function refresh() {
     if (!isActive()) {
-      var mount = document.getElementById('libraryMagicMineSegments');
+      const mount = document.getElementById('libraryMagicMineSegments');
       if (mount) mount.innerHTML = '';
       document.body.classList.remove(
         'library-magic-mine-scheman',

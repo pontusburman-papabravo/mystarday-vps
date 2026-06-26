@@ -1,7 +1,7 @@
 // Admin: Waitlist — English landing page signups + survey responses
 // ─── State ───────────────────────────────────────────────────────────
 let wlOffset = 0;
-let wlLimit = 50;
+const wlLimit = 50;
 let wlTotal = 0;
 let wlSearch = '';
 let wlEntries = [];

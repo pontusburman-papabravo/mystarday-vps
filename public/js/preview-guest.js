@@ -9,8 +9,8 @@
   }
 
   async function subscribe(email, options) {
-    var opts = options || {};
-    var res = await fetch('/api/public/newsletter-subscribe', {
+    const opts = options || {};
+    const res = await fetch('/api/public/newsletter-subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -20,7 +20,7 @@
         source: opts.source || 'landing_preview',
       }),
     });
-    var data = await res.json().catch(function () { return {}; });
+    const data = await res.json().catch(function () { return {}; });
     if (!res.ok) {
       throw new Error(data.error || 'Kunde inte spara din e-post.');
     }

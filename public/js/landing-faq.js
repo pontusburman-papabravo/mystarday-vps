@@ -11,15 +11,15 @@
   }
 
   document.querySelectorAll('.faq-item').forEach(function (item) {
-    var btn = item.querySelector('.faq-question');
+    const btn = item.querySelector('.faq-question');
     if (!btn) return;
-    var slug = item.getAttribute('data-faq') || 'unknown';
+    const slug = item.getAttribute('data-faq') || 'unknown';
 
     btn.addEventListener('click', function () {
-      var wasOpen = item.classList.contains('is-open');
+      const wasOpen = item.classList.contains('is-open');
       document.querySelectorAll('.faq-item.is-open').forEach(function (openItem) {
         openItem.classList.remove('is-open');
-        var b = openItem.querySelector('.faq-question');
+        const b = openItem.querySelector('.faq-question');
         if (b) b.setAttribute('aria-expanded', 'false');
       });
       if (!wasOpen) {

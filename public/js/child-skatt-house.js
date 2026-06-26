@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var BASE_ROOMS = [
+  const BASE_ROOMS = [
     { id: 'chest', emoji: '💰', label: 'Stjärnkistan', hint: 'Dina stjärnor', wide: true },
     { id: 'dreams', emoji: '🎯', label: 'Drömvägg', hint: 'Mina mål' },
     { id: 'trophy', emoji: '🏆', label: 'Troférum', hint: 'Prestationer' },
@@ -17,10 +17,10 @@
     { id: 'shop', emoji: '🛍️', label: 'Butiken', hint: 'Välj belöning' },
   ];
 
-  var THEME_LABELS = { castle: '🏰 Slott', treehouse: '🌳 Trädkoja', space: '🚀 Rymden' };
+  const THEME_LABELS = { castle: '🏰 Slott', treehouse: '🌳 Trädkoja', space: '🚀 Rymden' };
 
   /** Themed art emoji per room (mockup-style cards) */
-  var THEME_ROOM_ART = {
+  const THEME_ROOM_ART = {
     castle: {
       chest: '💰', dreams: '🎯', trophy: '🏆', shelf: '🎁', collections: '🗂️',
       story: '📖', avatar: '👧', pet: '🐕', shop: '🛍️', museum: '🏛️',
@@ -35,16 +35,16 @@
     },
   };
 
-  var FOOT_ICONS = {
+  const FOOT_ICONS = {
     chest: '💰', dreams: '🎯', trophy: '🏆', shelf: '🎁', collections: '🗂️',
     story: '📖', avatar: '🧑', pet: '🐾', shop: '🛍️', museum: '🏛️',
   };
 
-  var _view = null;
-  var _sections = {};
-  var _meta = {};
-  var _universe = null;
-  var _entered = false;
+  let _view = null;
+  let _sections = {};
+  let _meta = {};
+  let _universe = null;
+  const _entered = false;
 
   function chestTier(balance) {
     if (balance >= 100) return 3;
@@ -63,25 +63,25 @@
   }
 
   function themeClass() {
-    var t = (_universe && _universe.house && _universe.house.theme) || 'castle';
+    const t = (_universe && _universe.house && _universe.house.theme) || 'castle';
     return 'skatt-theme-' + t;
   }
 
   function buildStoryAlbum(storyHtml) {
     if (!storyHtml) return '';
-    var temp = document.createElement('div');
+    const temp = document.createElement('div');
     temp.innerHTML = storyHtml;
-    var items = temp.querySelectorAll('.skatt-history-item');
+    const items = temp.querySelectorAll('.skatt-history-item');
     if (!items.length) return storyHtml;
 
-    var stories = '';
+    let stories = '';
     items.forEach(function (el) {
-      var nameEl = el.querySelector('[style*="font-weight:700"]');
-      var dateEl = el.querySelector('[style*="color:#9AA0B8"]');
-      var approved = !el.textContent.includes('❌');
-      var name = nameEl ? nameEl.textContent.trim() : '';
-      var dateStr = dateEl ? dateEl.textContent.trim() : '';
-      var line = approved
+      const nameEl = el.querySelector('[style*="font-weight:700"]');
+      const dateEl = el.querySelector('[style*="color:#9AA0B8"]');
+      const approved = !el.textContent.includes('❌');
+      const name = nameEl ? nameEl.textContent.trim() : '';
+      const dateStr = dateEl ? dateEl.textContent.trim() : '';
+      const line = approved
         ? 'Du låste upp <strong>' + name + '</strong>!'
         : 'Du frågade om <strong>' + name + '</strong>.';
       stories += '<div class="skatt-story-card"><div class="skatt-story-date">📅 ' + dateStr + '</div>' +
@@ -95,11 +95,11 @@
   }
 
   function parseSections(container) {
-    var map = {};
+    const map = {};
     container.querySelectorAll('.skatt-section').forEach(function (el) {
-      var header = el.querySelector('.skatt-section-title');
+      const header = el.querySelector('.skatt-section-title');
       if (!header) return;
-      var title = (header.textContent || '').toLowerCase();
+      const title = (header.textContent || '').toLowerCase();
       if (title.indexOf('önskelistan') >= 0 || title.indexOf('dröm') >= 0) {
         _sections.dreams = el.outerHTML;
       } else if (title.indexOf('trofé') >= 0) {
@@ -121,9 +121,9 @@
         '<div style="font-size:2.5rem;margin-bottom:8px;opacity:0.5;">🎁</div>' +
         '<p style="font-size:0.85rem;color:#9AA0B8;">Här hamnar belöningar du låst upp!</p></div></div>';
     }
-    var items = trophies.map(function (r) {
-      var d = new Date(r.created_at);
-      var dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const items = trophies.map(function (r) {
+      const d = new Date(r.created_at);
+      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
       return '<div class="skatt-trophy-item"><span class="skatt-trophy-emoji">' + (r.reward_icon || '🎁') + '</span>' +
         '<span class="skatt-trophy-name">' + (r.reward_name || '') + '</span>' +
         '<span style="font-size:0.6rem;color:#9AA0B8;">' + dateStr + '</span></div>';
@@ -148,8 +148,8 @@
   }
 
   function roomArtEmoji(roomId) {
-    var theme = currentTheme();
-    var map = THEME_ROOM_ART[theme] || THEME_ROOM_ART.castle;
+    const theme = currentTheme();
+    const map = THEME_ROOM_ART[theme] || THEME_ROOM_ART.castle;
     return map[roomId] || FOOT_ICONS[roomId] || '⭐';
   }
 
@@ -157,16 +157,16 @@
     if (_meta.avatarUrl) {
       return '<img src="' + esc(_meta.avatarUrl) + '" alt="" class="skatt-hub-avatar-img" />';
     }
-    var emoji = _meta.childEmoji || (_universe && _universe.avatar && _universe.avatar.emoji) || '⭐';
+    const emoji = _meta.childEmoji || (_universe && _universe.avatar && _universe.avatar.emoji) || '⭐';
     return '<span class="skatt-hub-avatar-emoji">' + emoji + '</span>';
   }
 
   function renderThemePicker() {
     if (!_universe || !_universe.house) return '';
-    var themes = _universe.house.unlocked_themes || ['castle'];
-    var current = _universe.house.theme || 'castle';
-    var btns = themes.map(function (t) {
-      var active = t === current ? ' is-active' : '';
+    const themes = _universe.house.unlocked_themes || ['castle'];
+    const current = _universe.house.theme || 'castle';
+    const btns = themes.map(function (t) {
+      const active = t === current ? ' is-active' : '';
       return '<button type="button" class="skatt-theme-btn' + active + '" data-theme="' + t + '">' +
         (THEME_LABELS[t] || t) + '</button>';
     }).join('');
@@ -174,14 +174,14 @@
   }
 
   function renderHub() {
-    var theme = currentTheme();
-    var rooms = unlockedRooms();
-    var name = _meta.childName || (_universe && _universe.avatar && _universe.avatar.name) || 'du';
-    var balance = _meta.starBalance || 0;
+    const theme = currentTheme();
+    const rooms = unlockedRooms();
+    const name = _meta.childName || (_universe && _universe.avatar && _universe.avatar.name) || 'du';
+    const balance = _meta.starBalance || 0;
 
-    var cards = BASE_ROOMS.map(function (room) {
-      var unlocked = rooms.indexOf(room.id) >= 0;
-      var badge = '';
+    const cards = BASE_ROOMS.map(function (room) {
+      const unlocked = rooms.indexOf(room.id) >= 0;
+      let badge = '';
       if (unlocked && room.id === 'chest' && balance > 0) {
         badge = '<span class="skatt-hub-card-badge">' + balance + '</span>';
       } else if (unlocked && room.id === 'trophy' && _universe && _universe.achievements && _universe.achievements.length) {
@@ -190,9 +190,9 @@
         badge = '<span class="skatt-hub-card-badge">' + _universe.collectibles.length + '</span>';
       }
 
-      var lockCls = unlocked ? '' : ' is-locked';
-      var hint = unlocked ? room.hint : '🔒 Samla stjärnor';
-      var artEmoji = roomArtEmoji(room.id);
+      const lockCls = unlocked ? '' : ' is-locked';
+      const hint = unlocked ? room.hint : '🔒 Samla stjärnor';
+      const artEmoji = roomArtEmoji(room.id);
 
       return '<button type="button" class="skatt-hub-card' + lockCls + '" data-room="' + room.id + '" aria-label="' + esc(room.label) + '"' +
         (unlocked ? '' : ' disabled') + '>' +
@@ -231,7 +231,7 @@
   }
 
   function renderChestRoom() {
-    var tier = chestTier(_meta.starBalance || 0);
+    const tier = chestTier(_meta.starBalance || 0);
     return '<div class="skatt-room-view skatt-room-immersive ' + themeClass() + '">' +
       '<button type="button" class="skatt-room-back" data-back="1">← Ut till huset</button>' +
       '<div class="skatt-room-title">💰 Stjärnkistan</div>' +
@@ -279,7 +279,7 @@
     if (!_view) return;
     if (unlockedRooms().indexOf(roomId) < 0) return;
 
-    var inner = roomId === 'chest' ? renderChestRoom() :
+    const inner = roomId === 'chest' ? renderChestRoom() :
       '<div class="skatt-room-view skatt-room-immersive ' + themeClass() + '">' +
         '<button type="button" class="skatt-room-back" data-back="1">← Ut till huset</button>' +
         roomContent(roomId) +
@@ -315,7 +315,7 @@
     });
     _view.querySelectorAll('.skatt-theme-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var theme = btn.getAttribute('data-theme');
+        const theme = btn.getAttribute('data-theme');
         if (!window.ChildUniverse) return;
         ChildUniverse.patchHouse({ theme: theme }).then(function () {
           return ChildUniverse.load(true);
@@ -329,12 +329,12 @@
 
   function bindRoomEvents() {
     if (!_view) return;
-    var back = _view.querySelector('[data-back]');
+    const back = _view.querySelector('[data-back]');
     if (back) back.addEventListener('click', showHub);
   }
 
   function bindChestTap() {
-    var chest = document.getElementById('skattChestIcon');
+    const chest = document.getElementById('skattChestIcon');
     if (!chest) return;
     function pop() {
       chest.classList.add('is-open');
@@ -351,7 +351,7 @@
     _meta = meta || {};
     _sections = { shelf: buildShelfFromTrophies(_meta.trophies || []) };
 
-    var temp = document.createElement('div');
+    const temp = document.createElement('div');
     temp.innerHTML = legacyHtml;
     parseSections(temp);
     if (_sections.bonus) _sections.story = (_sections.story || '') + _sections.bonus;
@@ -359,7 +359,7 @@
   }
 
   function loadUniverseAndShowHub() {
-    var loadPromise = (window.ChildUniverse)
+    const loadPromise = (window.ChildUniverse)
       ? ChildUniverse.load(true)
       : Promise.resolve(null);
 
@@ -376,7 +376,7 @@
   }
 
   function mountHome(homeViewEl, legacyHtml, meta) {
-    var mount = homeViewEl.querySelector('#homeHubMount') || homeViewEl;
+    const mount = homeViewEl.querySelector('#homeHubMount') || homeViewEl;
     _view = mount;
     prepareLegacy(legacyHtml, meta);
     return loadUniverseAndShowHub();

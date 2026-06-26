@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var _listeners = {};
+  const _listeners = {};
 
   function on(eventType, handler) {
     if (!_listeners[eventType]) _listeners[eventType] = [];
@@ -16,7 +16,7 @@
   }
 
   function emit(eventType, payload) {
-    var handlers = (_listeners[eventType] || []).slice();
+    const handlers = (_listeners[eventType] || []).slice();
     handlers.forEach(function (handler) {
       try {
         handler(payload);

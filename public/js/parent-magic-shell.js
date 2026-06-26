@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  var _page = null;
-  var MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
+  let _page = null;
+  const MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(max-width: 767px)')
     : null;
 
@@ -29,7 +29,7 @@
 
   function ensureOrbs() {
     if (document.querySelector('.magic-3d-orbs')) return;
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.className = 'magic-3d-orbs';
     wrap.setAttribute('aria-hidden', 'true');
     wrap.innerHTML =
@@ -41,13 +41,13 @@
   }
 
   function removeOrbs() {
-    var el = document.querySelector('.magic-3d-orbs');
+    const el = document.querySelector('.magic-3d-orbs');
     if (el) el.remove();
   }
 
   function activeNavId() {
     if (window.NavConfig && NavConfig.activeNavItem) {
-      var item = NavConfig.activeNavItem(window.location.pathname);
+      const item = NavConfig.activeNavItem(window.location.pathname);
       if (item) return item.id;
     }
     return _page;
@@ -55,12 +55,12 @@
 
   function renderBottomNav() {
     if (isNativeTabBarActive()) {
-      var hidden = document.getElementById('parentBottomNav');
+      const hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
       if (window.ParentMagicRouter) ParentMagicRouter.bind();
       return;
     }
-    var nav = document.getElementById('parentBottomNav');
+    let nav = document.getElementById('parentBottomNav');
     if (!nav) {
       nav = document.createElement('nav');
       nav.id = 'parentBottomNav';
@@ -69,11 +69,11 @@
       nav.setAttribute('aria-label', 'Huvudnavigering');
       document.body.appendChild(nav);
     }
-    var activeId = activeNavId();
-    var items = getNavItems();
+    const activeId = activeNavId();
+    const items = getNavItems();
     nav.innerHTML = items.map(function (item) {
-      var active = item.id === activeId ? ' is-active' : '';
-      var aria = item.id === activeId ? ' aria-current="page"' : '';
+      const active = item.id === activeId ? ' is-active' : '';
+      const aria = item.id === activeId ? ' aria-current="page"' : '';
       return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
         '<span class="parent-bottom-nav-icon" aria-hidden="true">' + item.icon + '</span>' +
         '<span>' + item.label + '</span></a>';
@@ -81,11 +81,11 @@
     if (!nav.dataset.magicNavBound) {
       nav.dataset.magicNavBound = '1';
       nav.addEventListener('click', function (e) {
-        var link = e.target.closest('a.parent-bottom-nav-btn');
+        const link = e.target.closest('a.parent-bottom-nav-btn');
         if (!link) return;
-        var href = link.getAttribute('href');
+        const href = link.getAttribute('href');
         if (!href || href.charAt(0) !== '/') return;
-        var router = window.ParentMagicRouter;
+        const router = window.ParentMagicRouter;
         if (!router) return;
         if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
         if (router.isFullLoadPath && router.isFullLoadPath(href)) {
@@ -120,7 +120,7 @@
   }
 
   function refresh() {
-    var magic = isMagic();
+    const magic = isMagic();
     applyPageClasses(magic);
     if (magic) {
       ensureOrbs();
@@ -128,7 +128,7 @@
     } else {
       removeOrbs();
       if (!document.body.classList.contains('has-native-tab-bar')) {
-        var nav = document.getElementById('parentBottomNav');
+        const nav = document.getElementById('parentBottomNav');
         if (nav && !document.body.classList.contains('parent-magic-dashboard') &&
             !document.body.classList.contains('parent-magic-library')) {
           nav.style.display = '';
@@ -160,7 +160,7 @@
     }
 
     return AppViewMode.initParent().then(function () {
-      var toggleMount = document.getElementById('appViewToggleMount');
+      const toggleMount = document.getElementById('appViewToggleMount');
       if (toggleMount && AppViewMode.isAllowed()) {
         AppViewMode.mountToggle(toggleMount);
       } else if (toggleMount) {
@@ -174,7 +174,7 @@
 
   window.addEventListener('stjarndag-parent-nav-layout', refresh);
   if (MOBILE_NAV_MQ) {
-    var onMqChange = function () { refresh(); };
+    const onMqChange = function () { refresh(); };
     if (typeof MOBILE_NAV_MQ.addEventListener === 'function') {
       MOBILE_NAV_MQ.addEventListener('change', onMqChange);
     } else if (typeof MOBILE_NAV_MQ.addListener === 'function') {

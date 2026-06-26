@@ -9,7 +9,7 @@
 let _standardLoaded = false;
 let standardActivities = [];
 let standardDefaultRewards = [];
-let selectedRewardIds = new Set();
+const selectedRewardIds = new Set();
 
 async function loadStandardLibrary() {
   if (_standardLoaded) return;

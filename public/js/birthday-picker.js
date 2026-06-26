@@ -7,7 +7,7 @@
  */
 
 (function () {
-  var MONTH_NAMES_SV = [
+  const MONTH_NAMES_SV = [
     'Januari','Februari','Mars','April','Maj','Juni',
     'Juli','Augusti','September','Oktober','November','December'
   ];
@@ -19,7 +19,7 @@
    *   If provided, looks for: prefix+'Year', prefix+'Month', prefix+'Day'.
    */
   function initBirthdayPicker(prefix) {
-    var yearSel, monthSel, daySel, daySelId;
+    let yearSel, monthSel, daySel, daySelId;
 
     if (prefix) {
       yearSel  = document.getElementById(prefix + 'Year');
@@ -34,12 +34,12 @@
 
     if (!yearSel) return;
 
-    var now = new Date();
-    var curYear = now.getFullYear();
+    const now = new Date();
+    const curYear = now.getFullYear();
 
     // Years: current year down to 30 years ago
-    for (var y = curYear; y >= curYear - 30; y--) {
-      var opt = document.createElement('option');
+    for (let y = curYear; y >= curYear - 30; y--) {
+      const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
       yearSel.appendChild(opt);
@@ -47,7 +47,7 @@
 
     // Months (full Swedish names)
     MONTH_NAMES_SV.forEach(function (name, i) {
-      var opt = document.createElement('option');
+      const opt = document.createElement('option');
       opt.value = String(i + 1).padStart(2, '0');
       opt.textContent = name;
       monthSel.appendChild(opt);
@@ -61,7 +61,7 @@
    * Handles both prefix-based (dashboard/schedule) and fixed-ID (onboarding) modes.
    */
   function updateBirthdayDays(prefix) {
-    var yearSel, monthSel, daySel;
+    let yearSel, monthSel, daySel;
 
     if (prefix) {
       yearSel  = document.getElementById(prefix + 'Year');
@@ -75,14 +75,14 @@
 
     if (!daySel) return;
 
-    var prevDay = daySel.value;
-    var y = parseInt(yearSel.value) || new Date().getFullYear();
-    var m = parseInt(monthSel.value) || 1;
-    var daysInMonth = new Date(y, m, 0).getDate();
+    const prevDay = daySel.value;
+    const y = parseInt(yearSel.value) || new Date().getFullYear();
+    const m = parseInt(monthSel.value) || 1;
+    const daysInMonth = new Date(y, m, 0).getDate();
 
     daySel.innerHTML = '<option value="">Dag</option>';
-    for (var d = 1; d <= daysInMonth; d++) {
-      var opt = document.createElement('option');
+    for (let d = 1; d <= daysInMonth; d++) {
+      const opt = document.createElement('option');
       opt.value = String(d).padStart(2, '0');
       opt.textContent = d;
       daySel.appendChild(opt);
@@ -96,10 +96,10 @@
    */
   function parseBirthdayParts(birthday) {
     if (!birthday) return null;
-    var dateOnly = String(birthday).split('T')[0];
-    var parts = dateOnly.split('-');
+    const dateOnly = String(birthday).split('T')[0];
+    const parts = dateOnly.split('-');
     if (parts.length !== 3) return null;
-    var dayNum = parseInt(parts[2], 10);
+    const dayNum = parseInt(parts[2], 10);
     if (!dayNum || dayNum < 1 || dayNum > 31) return null;
     return {
       year: parts[0],
@@ -115,12 +115,12 @@
    * @param {string} [prefix] - ID prefix (default: 'bd')
    */
   function setBirthdayValue(birthday, prefix) {
-    var parsed = parseBirthdayParts(birthday);
+    const parsed = parseBirthdayParts(birthday);
     if (!parsed) return;
-    var pre = prefix || 'bd';
-    var yearEl = document.getElementById(pre + 'Year');
-    var monthEl = document.getElementById(pre + 'Month');
-    var dayEl = document.getElementById(pre + 'Day');
+    const pre = prefix || 'bd';
+    const yearEl = document.getElementById(pre + 'Year');
+    const monthEl = document.getElementById(pre + 'Month');
+    const dayEl = document.getElementById(pre + 'Day');
     if (yearEl) yearEl.value = parsed.year;
     if (monthEl) monthEl.value = parsed.month;
     // Repopulate days for the selected year+month before setting day value.

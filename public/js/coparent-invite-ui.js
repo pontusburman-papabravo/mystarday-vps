@@ -5,9 +5,9 @@
 (function (global) {
   'use strict';
 
-  var MODAL_ID = 'coParentInviteModal';
-  var _modalBound = false;
-  var _settingsBound = false;
+  const MODAL_ID = 'coParentInviteModal';
+  let _modalBound = false;
+  let _settingsBound = false;
 
   function escHtml(str) {
     return String(str || '')
@@ -19,7 +19,7 @@
   function ensureModal() {
     if (global.document.getElementById(MODAL_ID)) return;
 
-    var wrap = global.document.createElement('div');
+    const wrap = global.document.createElement('div');
     wrap.id = MODAL_ID;
     wrap.className = 'hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[10050] p-4';
     wrap.setAttribute('role', 'dialog');
@@ -69,7 +69,7 @@
     if (msgEl) msgEl.textContent = '';
 
     try {
-      var check = await global.Auth.api('/api/family/check-member', {
+      const check = await global.Auth.api('/api/family/check-member', {
         method: 'POST',
         body: JSON.stringify({ email: email }),
       });
@@ -113,18 +113,18 @@
       }
     });
 
-    var form = global.document.getElementById('coParentInviteModalForm');
+    const form = global.document.getElementById('coParentInviteModalForm');
     if (!form) return;
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      var name = global.document.getElementById('coParentInviteModalName').value.trim();
-      var email = global.document.getElementById('coParentInviteModalEmail').value.trim();
-      var roleEl = global.document.getElementById('coParentInviteModalRole');
-      var familyRole = roleEl && roleEl.value ? roleEl.value : null;
-      var msg = global.document.getElementById('coParentInviteModalMsg');
-      var btn = global.document.getElementById('coParentInviteModalSubmit');
-      var ok = await sendInvite(name, email, familyRole, msg, btn);
+      const name = global.document.getElementById('coParentInviteModalName').value.trim();
+      const email = global.document.getElementById('coParentInviteModalEmail').value.trim();
+      const roleEl = global.document.getElementById('coParentInviteModalRole');
+      const familyRole = roleEl && roleEl.value ? roleEl.value : null;
+      const msg = global.document.getElementById('coParentInviteModalMsg');
+      const btn = global.document.getElementById('coParentInviteModalSubmit');
+      const ok = await sendInvite(name, email, familyRole, msg, btn);
       if (ok) {
         global.document.getElementById('coParentInviteModalName').value = '';
         global.document.getElementById('coParentInviteModalEmail').value = '';
@@ -139,20 +139,20 @@
 
   function openCoParentInviteModal(prefillEmail) {
     ensureModal();
-    var modal = global.document.getElementById(MODAL_ID);
+    const modal = global.document.getElementById(MODAL_ID);
     if (!modal) return;
 
-    var drawer = global.document.getElementById('childDrawer');
+    const drawer = global.document.getElementById('childDrawer');
     if (drawer && !drawer.classList.contains('hidden') && typeof global.closeChildDrawer === 'function') {
       global.closeChildDrawer();
     }
 
-    var msg = global.document.getElementById('coParentInviteModalMsg');
+    const msg = global.document.getElementById('coParentInviteModalMsg');
     if (msg) {
       msg.textContent = '';
       msg.className = 'text-sm min-h-[1.4em]';
     }
-    var emailInput = global.document.getElementById('coParentInviteModalEmail');
+    const emailInput = global.document.getElementById('coParentInviteModalEmail');
     if (emailInput) emailInput.value = prefillEmail || '';
 
     modal.classList.remove('hidden');
@@ -160,20 +160,20 @@
   }
 
   function closeCoParentInviteModal() {
-    var modal = global.document.getElementById(MODAL_ID);
+    const modal = global.document.getElementById(MODAL_ID);
     if (modal) modal.classList.add('hidden');
   }
 
   function shouldShowInvite(me, fam) {
     if (!me || me.account_type === 'educator') return false;
-    var parentCount = (fam && fam.parents) ? fam.parents.length : 0;
+    const parentCount = (fam && fam.parents) ? fam.parents.length : 0;
     return parentCount < 2;
   }
 
   function initSettingsSection(me, fam) {
-    var section = global.document.getElementById('coParentInviteSection');
-    var hr = global.document.getElementById('coParentInviteHr');
-    var openBtn = global.document.getElementById('coParentInviteOpenBtn');
+    const section = global.document.getElementById('coParentInviteSection');
+    const hr = global.document.getElementById('coParentInviteHr');
+    const openBtn = global.document.getElementById('coParentInviteOpenBtn');
     if (!section) return;
 
     if (!shouldShowInvite(me, fam)) return;
@@ -181,8 +181,8 @@
     section.classList.remove('hidden');
     if (hr) hr.classList.remove('hidden');
 
-    var pending = (fam && fam.pendingInvites) ? fam.pendingInvites.length : 0;
-    var hint = global.document.getElementById('coParentInvitePendingHint');
+    const pending = (fam && fam.pendingInvites) ? fam.pendingInvites.length : 0;
+    const hint = global.document.getElementById('coParentInvitePendingHint');
     if (hint && pending > 0) {
       hint.textContent = pending === 1
         ? '1 väntande inbjudan är redan skickad.'
@@ -201,8 +201,8 @@
   async function bootSettingsCoParent() {
     if (!global.Auth || !global.Auth.api) return;
     try {
-      var me = await global.Auth.api('/api/auth/me');
-      var fam = await global.Auth.api('/api/family');
+      const me = await global.Auth.api('/api/auth/me');
+      const fam = await global.Auth.api('/api/family');
       initSettingsSection(me, fam);
       if (global.ParentMagicPageHub && global.ParentMagicPageHub.tagSettingsSections) {
         global.ParentMagicPageHub.tagSettingsSections();
@@ -220,14 +220,14 @@
   }
 
   function patchFamilyModal() {
-    var previous = global.openFamilyModal;
+    const previous = global.openFamilyModal;
     global.openFamilyModal = function (id) {
       if (id === 'addAdultModal') {
         openCoParentInviteModal();
         return;
       }
       if (typeof previous === 'function') return previous(id);
-      var el = global.document.getElementById(id);
+      const el = global.document.getElementById(id);
       if (el) el.classList.remove('hidden');
     };
   }

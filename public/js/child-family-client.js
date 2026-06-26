@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  var _cache = null;
-  var _loading = null;
+  let _cache = null;
+  let _loading = null;
 
   function invalidate() {
     _cache = null;

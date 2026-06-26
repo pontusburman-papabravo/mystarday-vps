@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var _contextByChild = {};
-  var _weekByChild = {};
-  var myDaysOnly = false;
+  const _contextByChild = {};
+  const _weekByChild = {};
+  let myDaysOnly = false;
 
   function track(event, meta) {
     if (window.analytics && typeof window.analytics.track === 'function') {
@@ -20,7 +20,7 @@
 
   async function fetchContext(childId) {
     try {
-      var res = await window.apiFetch(
+      const res = await window.apiFetch(
         '/api/family/custody/context?childId=' + encodeURIComponent(childId) + '&date=' + encodeURIComponent(todayIso())
       );
       if (!res.ok) return null;
@@ -32,7 +32,7 @@
 
   async function fetchWeek(childId) {
     try {
-      var res = await window.apiFetch(
+      const res = await window.apiFetch(
         '/api/children/' + encodeURIComponent(childId) + '/calendar-week?weekOffset=0'
       );
       if (!res.ok) return null;
@@ -43,10 +43,10 @@
   }
 
   function applyCardStyles(childId) {
-    var card = document.querySelector('.dash-child-card[data-child-id="' + childId + '"]');
+    const card = document.querySelector('.dash-child-card[data-child-id="' + childId + '"]');
     if (!card) return;
 
-    var ctx = _contextByChild[childId];
+    const ctx = _contextByChild[childId];
     card.style.borderLeftWidth = '';
     card.style.borderLeftStyle = '';
     card.style.borderLeftColor = '';
@@ -66,19 +66,19 @@
   }
 
   function applyWeekDayColors(childId) {
-    var week = _weekByChild[childId];
+    const week = _weekByChild[childId];
     if (!week || !week.custody || !week.custody.active || !week.days) return;
 
-    var card = document.querySelector('.dash-child-card[data-child-id="' + childId + '"]');
+    const card = document.querySelector('.dash-child-card[data-child-id="' + childId + '"]');
     if (!card) return;
 
-    var dayMap = {};
+    const dayMap = {};
     week.days.forEach(function (d) { dayMap[d.dayOfWeek] = d; });
 
-    var dowForIndex = [1, 2, 3, 4, 5, 6, 0];
+    const dowForIndex = [1, 2, 3, 4, 5, 6, 0];
     card.querySelectorAll('.mini-week-day').forEach(function (el, idx) {
-      var dow = dowForIndex[idx];
-      var day = dayMap[dow];
+      const dow = dowForIndex[idx];
+      const day = dayMap[dow];
       el.style.opacity = '';
       el.style.borderColor = '';
       if (!day || !day.custody) return;
@@ -94,7 +94,7 @@
     if (!Array.isArray(childIds) || !childIds.length) return;
 
     await Promise.all(childIds.map(async function (id) {
-      var ctx = await fetchContext(id);
+      const ctx = await fetchContext(id);
       _contextByChild[id] = ctx;
       if (ctx && ctx.active) {
         _weekByChild[id] = await fetchWeek(id);
@@ -118,16 +118,16 @@
   }
 
   function ensureMyDaysToggle() {
-    var banner = document.getElementById('custodyWeekBanner');
+    const banner = document.getElementById('custodyWeekBanner');
     if (!banner || document.getElementById('custodyDashboardMyDaysChk')) return;
 
-    var label = document.createElement('label');
+    const label = document.createElement('label');
     label.id = 'custodyDashboardMyDays';
     label.className = 'ml-auto flex items-center gap-2 text-xs font-semibold cursor-pointer whitespace-nowrap';
     label.innerHTML = '<input type="checkbox" class="rounded" id="custodyDashboardMyDaysChk" /> Mina dagar';
     banner.appendChild(label);
 
-    var chk = document.getElementById('custodyDashboardMyDaysChk');
+    const chk = document.getElementById('custodyDashboardMyDaysChk');
     if (chk) {
       chk.checked = myDaysOnly;
       chk.onchange = function () { setMyDaysOnly(chk.checked); };

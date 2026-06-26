@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var useV2 = !!(window.ChildWorlds && ChildWorlds.V2_ENABLED);
+  const useV2 = !!(window.ChildWorlds && ChildWorlds.V2_ENABLED);
 
-  var LAYERS = {
+  const LAYERS = {
     home: { tab: 'home', hash: 'home', label: '🏠 Hem' },
     today: { tab: 'schedule', hash: 'today', label: '📅 Schema' },
     universe: { tab: 'rewards', hash: 'universe', label: '💎 Skattkammaren' },
@@ -14,7 +14,7 @@
     more: { tab: 'more', hash: 'more', label: '⋯ Mer' },
   };
 
-  var TAB_TO_LAYER = {
+  const TAB_TO_LAYER = {
     home: 'home',
     schedule: 'today',
     rewards: 'universe',
@@ -22,7 +22,7 @@
     more: 'more',
   };
 
-  var HASH_ALIASES = useV2 && window.ChildWorlds
+  const HASH_ALIASES = useV2 && window.ChildWorlds
     ? ChildWorlds.HASH_TO_WORLD
     : {
         home: 'home',
@@ -39,11 +39,11 @@
         mer: 'more',
       };
 
-  var _currentLayer = 'today';
-  var _originalShowTab = null;
+  let _currentLayer = 'today';
+  let _originalShowTab = null;
 
   function layerFromHash() {
-    var raw = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+    const raw = (window.location.hash || '').replace(/^#/, '').toLowerCase();
     if (!raw) return null;
     if (useV2 && ChildWorlds.HASH_TO_WORLD[raw]) {
       return ChildWorlds.HASH_TO_WORLD[raw];
@@ -55,22 +55,22 @@
     if (useV2 && ChildWorlds.worldIdToTabKey) {
       return ChildWorlds.worldIdToTabKey(layerOrWorld);
     }
-    var entry = LAYERS[layerOrWorld];
+    const entry = LAYERS[layerOrWorld];
     return entry ? entry.tab : 'schedule';
   }
 
   function setHash(layerOrWorld) {
     if (useV2) {
-      var hashMap = { today: 'today', world: 'universe', family: 'family' };
-      var target = '#' + (hashMap[layerOrWorld] || 'today');
+      const hashMap = { today: 'today', world: 'universe', family: 'family' };
+      const target = '#' + (hashMap[layerOrWorld] || 'today');
       if (window.location.hash !== target) {
         history.replaceState(null, '', target);
       }
       return;
     }
-    var entry = LAYERS[layerOrWorld];
+    const entry = LAYERS[layerOrWorld];
     if (!entry) return;
-    var targetLegacy = '#' + entry.hash;
+    const targetLegacy = '#' + entry.hash;
     if (window.location.hash !== targetLegacy) {
       history.replaceState(null, '', targetLegacy);
     }
@@ -81,15 +81,15 @@
     document.documentElement.setAttribute('data-child-layer', layerOrWorld);
     document.documentElement.setAttribute('data-child-world', layerOrWorld);
 
-    var scheduleView = document.getElementById('scheduleView');
-    var todayFocus = document.getElementById('todayFocusMount');
-    var rewardsView = document.getElementById('rewardsView');
-    var familyView = document.getElementById('familyView');
-    var homeView = document.getElementById('homeView');
+    const scheduleView = document.getElementById('scheduleView');
+    const todayFocus = document.getElementById('todayFocusMount');
+    const rewardsView = document.getElementById('rewardsView');
+    const familyView = document.getElementById('familyView');
+    const homeView = document.getElementById('homeView');
 
-    var isToday = layerOrWorld === 'today' || layerOrWorld === 'home';
-    var isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe';
-    var isFamily = layerOrWorld === 'family';
+    const isToday = layerOrWorld === 'today' || layerOrWorld === 'home';
+    const isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe';
+    const isFamily = layerOrWorld === 'family';
 
     if (isToday && todayFocus && window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange('schedule');
@@ -115,7 +115,7 @@
   }
 
   function onTabShown(tab) {
-    var layer = useV2 ? ChildWorlds.tabKeyToWorldId(tab) : TAB_TO_LAYER[tab] || 'today';
+    const layer = useV2 ? ChildWorlds.tabKeyToWorldId(tab) : TAB_TO_LAYER[tab] || 'today';
     setHash(layer);
     applyRouteGuards(layer);
 
@@ -133,7 +133,7 @@
     if (!useV2 && layerOrWorld === 'home' && window.AppViewMode && !AppViewMode.isMagic()) {
       layerOrWorld = 'today';
     }
-    var tab = worldToTab(layerOrWorld);
+    const tab = worldToTab(layerOrWorld);
     if (typeof window.showTab !== 'function') return;
     window.showTab(tab);
   }
@@ -150,11 +150,11 @@
     };
 
     window.addEventListener('hashchange', function () {
-      var layer = layerFromHash();
+      const layer = layerFromHash();
       if (layer) navigateToLayer(layer);
     });
 
-    var pathWorld = useV2 && ChildWorlds.activeChildNavItem
+    const pathWorld = useV2 && ChildWorlds.activeChildNavItem
       ? ChildWorlds.activeChildNavItem(window.location.pathname, window.location.hash)
       : null;
 
@@ -163,7 +163,7 @@
       return;
     }
 
-    var initial = layerFromHash();
+    const initial = layerFromHash();
     if (initial) {
       navigateToLayer(initial);
     } else if (useV2) {

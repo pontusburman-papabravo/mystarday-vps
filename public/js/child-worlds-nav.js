@@ -6,29 +6,29 @@
 
   if (!window.ChildWorlds || !ChildWorlds.V2_ENABLED) return;
 
-  var NAV_BTN_CLASS = 'child-bottom-nav-btn';
-  var LEGACY_BTN_CLASS = 'flex-1 py-3 text-sm font-semibold border-b-2';
-  var _initialized = false;
+  const NAV_BTN_CLASS = 'child-bottom-nav-btn';
+  const LEGACY_BTN_CLASS = 'flex-1 py-3 text-sm font-semibold border-b-2';
+  let _initialized = false;
 
   function labelContext() {
-    var nameEl = document.getElementById('childName');
+    const nameEl = document.getElementById('childName');
     return { childName: nameEl ? nameEl.textContent : '' };
   }
 
   function renderBottomNav() {
-    var nav = document.getElementById('childBottomNav');
+    const nav = document.getElementById('childBottomNav');
     if (!nav) return;
 
-    var active = ChildWorlds.activeChildNavItem(
+    const active = ChildWorlds.activeChildNavItem(
       window.location.pathname,
       window.location.hash
     );
-    var activeId = active ? active.id : 'today';
-    var ctx = labelContext();
+    const activeId = active ? active.id : 'today';
+    const ctx = labelContext();
 
-    var html = '';
+    let html = '';
     ChildWorlds.CHILD_WORLDS.forEach(function (world) {
-      var isActive = world.id === activeId;
+      const isActive = world.id === activeId;
       html +=
         '<button type="button" class="' +
         NAV_BTN_CLASS +
@@ -55,27 +55,27 @@
 
     nav.querySelectorAll('[data-child-world]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var worldId = btn.getAttribute('data-child-world');
+        const worldId = btn.getAttribute('data-child-world');
         navigateWorld(worldId);
       });
     });
   }
 
   function renderLegacyTopNav() {
-    var legacy = document.getElementById('childLayerNav');
+    const legacy = document.getElementById('childLayerNav');
     if (!legacy) return;
 
-    var active = ChildWorlds.activeChildNavItem(
+    const active = ChildWorlds.activeChildNavItem(
       window.location.pathname,
       window.location.hash
     );
-    var activeId = active ? active.id : 'today';
-    var ctx = labelContext();
+    const activeId = active ? active.id : 'today';
+    const ctx = labelContext();
 
-    var inner =
+    let inner =
       '<div class="flex max-w-lg mx-auto" role="navigation" aria-label="Barnnavigering">';
     ChildWorlds.CHILD_WORLDS.forEach(function (world) {
-      var isActive = world.id === activeId;
+      const isActive = world.id === activeId;
       inner +=
         '<button type="button" class="' +
         LEGACY_BTN_CLASS +
@@ -104,8 +104,8 @@
   }
 
   function navigateWorld(worldId) {
-    var tabKey = ChildWorlds.worldIdToTabKey(worldId);
-    var world = ChildWorlds.worldById(worldId);
+    const tabKey = ChildWorlds.worldIdToTabKey(worldId);
+    const world = ChildWorlds.worldById(worldId);
     if (world && world.href && window.location.pathname.indexOf('/child/') === 0) {
       if (window.location.pathname !== world.href.replace(/\/$/, '')) {
         window.location.href = world.href;
@@ -118,13 +118,13 @@
   }
 
   function applyV2Chrome() {
-    var home = document.getElementById('tabHome');
-    var more = document.getElementById('tabMore');
+    const home = document.getElementById('tabHome');
+    const more = document.getElementById('tabMore');
     if (home) home.style.display = 'none';
     if (more) more.style.display = 'none';
 
-    var homeView = document.getElementById('homeView');
-    var moreView = document.getElementById('moreView');
+    const homeView = document.getElementById('homeView');
+    const moreView = document.getElementById('moreView');
     if (homeView) homeView.classList.add('hidden');
     if (moreView) moreView.classList.add('hidden');
 
@@ -133,11 +133,11 @@
   }
 
   function highlightActive(tabKey) {
-    var worldId = ChildWorlds.tabKeyToWorldId(tabKey);
-    var nav = document.getElementById('childBottomNav');
+    const worldId = ChildWorlds.tabKeyToWorldId(tabKey);
+    const nav = document.getElementById('childBottomNav');
     if (!nav) return;
     nav.querySelectorAll('[data-child-world]').forEach(function (btn) {
-      var active = btn.getAttribute('data-child-world') === worldId;
+      const active = btn.getAttribute('data-child-world') === worldId;
       btn.classList.toggle('is-active', active);
       if (active) btn.setAttribute('aria-current', 'page');
       else btn.removeAttribute('aria-current');

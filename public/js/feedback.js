@@ -104,11 +104,11 @@
   }
 
   function bindEvents() {
-    var btn = document.getElementById('globalFeedbackBtn');
-    var modal = document.getElementById('globalFeedbackModal');
-    var closeBtn = document.getElementById('globalFeedbackClose');
-    var cancelBtn = document.getElementById('globalFeedbackCancel');
-    var form = document.getElementById('globalFeedbackForm');
+    const btn = document.getElementById('globalFeedbackBtn');
+    const modal = document.getElementById('globalFeedbackModal');
+    const closeBtn = document.getElementById('globalFeedbackClose');
+    const cancelBtn = document.getElementById('globalFeedbackCancel');
+    const form = document.getElementById('globalFeedbackForm');
 
     if (!btn || !modal || !form) return;
 
@@ -130,11 +130,11 @@
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      var submitBtn = document.getElementById('globalFeedbackSubmit');
-      var msgEl = document.getElementById('globalFeedbackMsg');
-      var type = (document.querySelector('input[name="globalFeedbackType"]:checked') || {}).value || 'bug';
-      var title = document.getElementById('globalFeedbackTitle').value.trim();
-      var message = document.getElementById('globalFeedbackMessage').value.trim();
+      const submitBtn = document.getElementById('globalFeedbackSubmit');
+      const msgEl = document.getElementById('globalFeedbackMsg');
+      const type = (document.querySelector('input[name="globalFeedbackType"]:checked') || {}).value || 'bug';
+      const title = document.getElementById('globalFeedbackTitle').value.trim();
+      const message = document.getElementById('globalFeedbackMessage').value.trim();
 
       if (!title || !message) {
         msgEl.textContent = 'Fyll i alla fält.';
@@ -147,7 +147,7 @@
       submitBtn.style.opacity = '0.7';
 
       try {
-        var data = await Auth.api('/api/feedback', {
+        const data = await Auth.api('/api/feedback', {
           method: 'POST',
           body: JSON.stringify({ type: type, title: title, message: message })
         });
@@ -165,7 +165,7 @@
   }
 
   function openModal() {
-    var modal = document.getElementById('globalFeedbackModal');
+    const modal = document.getElementById('globalFeedbackModal');
     if (!modal) return;
     modal.classList.remove('hidden');
     document.getElementById('globalFeedbackMsg').textContent = '';
@@ -173,7 +173,7 @@
     document.getElementById('globalFeedbackTitle').value = '';
     document.getElementById('globalFeedbackMessage').value = '';
     // Reset radio to bug
-    var bugRadio = document.querySelector('input[name="globalFeedbackType"][value="bug"]');
+    const bugRadio = document.querySelector('input[name="globalFeedbackType"][value="bug"]');
     if (bugRadio) bugRadio.checked = true;
     // Focus the title field
     setTimeout(function() {
@@ -182,7 +182,7 @@
   }
 
   function closeModal() {
-    var modal = document.getElementById('globalFeedbackModal');
+    const modal = document.getElementById('globalFeedbackModal');
     if (modal) modal.classList.add('hidden');
   }
 

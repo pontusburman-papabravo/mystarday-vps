@@ -6,13 +6,13 @@
 (function () {
   'use strict';
 
-  var SESSION_KEY = 'analytics_session_nonce';
+  const SESSION_KEY = 'analytics_session_nonce';
 
   function getOrCreateSessionNonce() {
     try {
-      var existing = localStorage.getItem(SESSION_KEY);
+      const existing = localStorage.getItem(SESSION_KEY);
       if (existing) return existing;
-      var nonce = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      const nonce = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
       localStorage.setItem(SESSION_KEY, nonce);
       return nonce;
     } catch (_) {
@@ -36,7 +36,7 @@
 
   function track(eventName, props) {
     if (!eventName) return;
-    var metadata = props && typeof props === 'object' ? Object.assign({}, props) : {};
+    const metadata = props && typeof props === 'object' ? Object.assign({}, props) : {};
     metadata.entry_version = metadata.entry_version || 'v2_1';
     metadata.platform = metadata.platform || detectPlatform();
     try {

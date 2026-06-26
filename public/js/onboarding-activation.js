@@ -4,8 +4,8 @@
 (function () {
   'use strict';
 
-  var config = null;
-  var childId = null;
+  let config = null;
+  let childId = null;
 
   function api(path, opts) {
     if (!window.apiFetch) return Promise.reject(new Error('no api'));
@@ -40,10 +40,10 @@
   }
 
   function buildLoginInfoText() {
-    var nameEl = document.getElementById('s5ChildName');
-    var pinEl = document.getElementById('s5Pin');
-    var childName = nameEl ? nameEl.textContent.trim() : 'Barnet';
-    var pin = pinEl ? pinEl.textContent.trim() : '';
+    const nameEl = document.getElementById('s5ChildName');
+    const pinEl = document.getElementById('s5Pin');
+    const childName = nameEl ? nameEl.textContent.trim() : 'Barnet';
+    const pin = pinEl ? pinEl.textContent.trim() : '';
     return [
       'Inloggning till Min Stjärndag för ' + childName + ':',
       '',
@@ -53,7 +53,7 @@
   }
 
   function copyLoginInfo() {
-    var text = buildLoginInfoText();
+    const text = buildLoginInfoText();
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
         if (typeof window.showToast === 'function') window.showToast('Inloggningsinfo kopierad', 'success');
@@ -64,35 +64,35 @@
   }
 
   function emailLoginInfo() {
-    var text = buildLoginInfoText();
-    var subject = encodeURIComponent('Inloggning till Min Stjärndag');
-    var body = encodeURIComponent(text);
+    const text = buildLoginInfoText();
+    const subject = encodeURIComponent('Inloggning till Min Stjärndag'); // pragma: allowlist secret
+    const body = encodeURIComponent(text);
     window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
   }
 
   function enhanceStep5() {
     if (!config || !config.flags.activation_child_handoff_v1) return;
-    var step5 = document.getElementById('step5');
+    const step5 = document.getElementById('step5');
     if (!step5 || step5.dataset.handoffEnhanced) return;
     step5.dataset.handoffEnhanced = '1';
 
-    var actions = step5.querySelector('.flex.flex-wrap.gap-3.mt-4');
+    const actions = step5.querySelector('.flex.flex-wrap.gap-3.mt-4');
     if (actions) {
-      var copyBtn = document.createElement('button');
+      const copyBtn = document.createElement('button');
       copyBtn.type = 'button';
       copyBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
       copyBtn.textContent = '📋 Kopiera inloggningsinfo';
       copyBtn.addEventListener('click', copyLoginInfo);
       actions.appendChild(copyBtn);
 
-      var mailBtn = document.createElement('button');
+      const mailBtn = document.createElement('button');
       mailBtn.type = 'button';
       mailBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
       mailBtn.textContent = '✉️ Skicka via e-post';
       mailBtn.addEventListener('click', emailLoginInfo);
       actions.appendChild(mailBtn);
 
-      var openBtn = document.createElement('button');
+      const openBtn = document.createElement('button');
       openBtn.type = 'button';
       openBtn.className = 'px-4 py-2.5 bg-gold hover:bg-gold-dark text-white rounded-lg font-semibold text-sm transition-colors';
       openBtn.textContent = '👶 Öppna barninloggning';
@@ -109,14 +109,14 @@
       actions.appendChild(openBtn);
     }
 
-    var nav = step5.querySelector('.flex.gap-3:last-of-type');
+    const nav = step5.querySelector('.flex.gap-3:last-of-type');
     if (nav) {
-      var skipBtn = document.createElement('button');
+      const skipBtn = document.createElement('button');
       skipBtn.type = 'button';
       skipBtn.className = 'px-4 py-3 text-text-soft text-sm font-semibold hover:text-navy';
       skipBtn.textContent = 'Hoppa över för nu';
       skipBtn.addEventListener('click', function () {
-        var ok = window.confirm(
+        const ok = window.confirm(
           'Barnet kommer igång snabbare om ni testar inloggningen nu. Vi påminner er om 24 timmar om ni hoppar över.'
         );
         if (!ok) return;
@@ -126,7 +126,7 @@
       nav.insertBefore(skipBtn, nav.firstChild);
     }
 
-    var nextBtn = step5.querySelector('button[onclick="goToStep(6)"]');
+    const nextBtn = step5.querySelector('button[onclick="goToStep(6)"]');
     if (nextBtn) {
       nextBtn.addEventListener('click', function () {
         recordChildAccess('step5_continue');
@@ -140,7 +140,7 @@
       return;
     }
 
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'firstStarGuideOverlay';
     overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4';
     overlay.innerHTML = [
@@ -174,12 +174,12 @@
 
   function patchSkipInvite() {
     if (!window.skipInvite || window.skipInvite.__activationPatched) return;
-    var original = window.skipInvite;
+    const original = window.skipInvite;
     window.skipInvite = async function () {
       if (!config || !config.flags.activation_first_star_guide_v1) {
         return original.apply(this, arguments);
       }
-      var errorEl = document.getElementById('step6Error');
+      const errorEl = document.getElementById('step6Error');
       if (errorEl) errorEl.classList.add('hidden');
       showFirstStarGuide(function () {
         original.apply(window, arguments);
@@ -190,7 +190,7 @@
 
   /** Capture-phase hook so step6Btn also shows first star guide (not only skipInvite). */
   function patchStep6Btn() {
-    var btn = document.getElementById('step6Btn');
+    const btn = document.getElementById('step6Btn');
     if (!btn || btn.dataset.firstStarPatched) return;
     btn.dataset.firstStarPatched = '1';
     btn.addEventListener('click', function (e) {
@@ -216,12 +216,12 @@
     loadConfig().then(function () {
       patchSkipInvite();
       patchStep6Btn();
-      var obs = new MutationObserver(function () {
+      const obs = new MutationObserver(function () {
         if (document.getElementById('step5') && document.getElementById('step5').classList.contains('active')) {
           enhanceStep5();
         }
       });
-      var root = document.getElementById('onboardingRoot') || document.body;
+      const root = document.getElementById('onboardingRoot') || document.body;
       obs.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
       enhanceStep5();
     });
@@ -240,7 +240,7 @@
 
   document.addEventListener('DOMContentLoaded', init);
 
-  var origGoToStep = window.goToStep;
+  const origGoToStep = window.goToStep;
   if (typeof origGoToStep === 'function') {
     window.goToStep = function (n) {
       origGoToStep(n);

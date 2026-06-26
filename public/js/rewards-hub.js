@@ -25,9 +25,9 @@
   async function capabilityHtml() {
     if (!window.NavConfig || !window.fetchPackageAccess) return '';
     try {
-      var access = await window.fetchPackageAccess();
-      var caps = NavConfig.capabilitiesForPlacement(access, null, 'rewards_hub');
-      var reports = caps.find(function (c) {
+      const access = await window.fetchPackageAccess();
+      const caps = NavConfig.capabilitiesForPlacement(access, null, 'rewards_hub');
+      const reports = caps.find(function (c) {
         return c.id === 'reports';
       });
       if (!reports) return '';
@@ -42,15 +42,15 @@
   }
 
   async function render() {
-    var mount = document.getElementById('rewardsHubMount');
+    const mount = document.getElementById('rewardsHubMount');
     if (!mount) return;
 
-    var pendingMount = document.getElementById('rewardsPendingMount');
+    const pendingMount = document.getElementById('rewardsPendingMount');
     if (pendingMount && window.PendingApprovals) {
       await PendingApprovals.mountHub(pendingMount);
     }
 
-    var extra = await capabilityHtml();
+    const extra = await capabilityHtml();
     mount.innerHTML =
       baseHtml() +
       extra +
@@ -79,7 +79,7 @@
   });
 
   document.addEventListener('pending-approvals-changed', function () {
-    var pendingMount = document.getElementById('rewardsPendingMount');
+    const pendingMount = document.getElementById('rewardsPendingMount');
     if (pendingMount && window.PendingApprovals) {
       PendingApprovals.mountHub(pendingMount);
     }

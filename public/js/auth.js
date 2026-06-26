@@ -24,8 +24,8 @@
 // This cleanup runs once on page load and removes the stale token permanently.
 (function _purgeStaleLocalStorageAuth() {
   try {
-    var staleKeys = ['stjarndag_token', 'token', 'authToken'];
-    for (var i = 0; i < staleKeys.length; i++) {
+    const staleKeys = ['stjarndag_token', 'token', 'authToken'];
+    for (let i = 0; i < staleKeys.length; i++) {
       localStorage.removeItem(staleKeys[i]);
     }
   } catch (e) { /* localStorage unavailable — not a problem */ }
@@ -515,7 +515,7 @@ const Auth = {
 
   async logout(options) {
     options = options || {};
-    var childFlow = options.childFlow === true;
+    const childFlow = options.childFlow === true;
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
@@ -592,12 +592,12 @@ const Auth = {
   persistKnownChildrenFromSession(children, familyId) {
     if (!children || !children.length) return;
     try {
-      var raw = localStorage.getItem(this.KNOWN_CHILDREN_KEY);
-      var known = raw ? JSON.parse(raw) : [];
+      const raw = localStorage.getItem(this.KNOWN_CHILDREN_KEY);
+      let known = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(known)) known = [];
 
-      for (var i = 0; i < children.length; i++) {
-        var c = children[i];
+      for (let i = 0; i < children.length; i++) {
+        const c = children[i];
         if (!c || !c.username) continue;
         var entry = {
           username: c.username,
@@ -606,7 +606,7 @@ const Auth = {
           avatar_url: c.avatar_url || null,
           familyId: c.familyId || c.family_id || familyId || null,
         };
-        var idx = known.findIndex(function (k) { return k.username === entry.username; });
+        const idx = known.findIndex(function (k) { return k.username === entry.username; });
         if (idx >= 0) {
           entry.lastLoginAt = known[idx].lastLoginAt || null;
           known[idx] = Object.assign({}, known[idx], entry);
@@ -622,14 +622,14 @@ const Auth = {
   /** Before vuxen logout: save barnlistan so barnväljare works without session. */
   async snapshotKnownChildrenBeforeLogout() {
     try {
-      var user = this.getUser();
+      const user = this.getUser();
       if (user && user.type === 'parent' && user.children && user.children.length) {
         this.persistKnownChildrenFromSession(user.children, user.familyId);
         return;
       }
-      var res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
       if (!res.ok) return;
-      var me = await res.json();
+      const me = await res.json();
       if (me.type === 'parent' && me.children && me.children.length) {
         this.persistKnownChildrenFromSession(me.children, me.familyId || me.family_id);
       }
@@ -664,11 +664,11 @@ const Auth = {
    * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
    */
   _showParentPinGateOverlay: function (onSuccess, onCancel) {
-    var old = document.getElementById('ppin-gate-overlay');
+    const old = document.getElementById('ppin-gate-overlay');
     if (old) document.body.removeChild(old);
     window._ppinGateToken = null;
 
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'ppin-gate-overlay';
     overlay.style.cssText = [
       'position:fixed;inset:0;z-index:9999;background:rgba(27,35,64,0.85);',
@@ -676,7 +676,7 @@ const Auth = {
       'backdrop-filter:blur(4px);',
     ].join('');
 
-    var card = document.createElement('div');
+    const card = document.createElement('div');
     card.style.cssText = [
       'background:#fff;border-radius:24px;padding:32px 24px;max-width:320px;width:100%;',
       'margin:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;',
@@ -700,9 +700,9 @@ const Auth = {
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 
-    var entered = '';
-    var msgEl = document.getElementById('ppgo-err');
-    var dots = document.querySelectorAll('.ppgo-dot');
+    let entered = '';
+    const msgEl = document.getElementById('ppgo-err');
+    const dots = document.querySelectorAll('.ppgo-dot');
 
     function updateDots() {
       dots.forEach(function (d, i) {
@@ -711,11 +711,11 @@ const Auth = {
     }
 
     function buildKeypad() {
-      var kbd = document.getElementById('ppgo-keypad');
+      const kbd = document.getElementById('ppgo-keypad');
       kbd.innerHTML = '';
-      var digits = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+      const digits = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
       digits.forEach(function (d) {
-        var btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.type = 'button';
         btn.textContent = d;
         btn.style.cssText = [
@@ -743,8 +743,8 @@ const Auth = {
     }
 
     function submitPin() {
-      var pin = entered;
-      var csrf = Auth.getCsrfToken() || '';
+      const pin = entered;
+      const csrf = Auth.getCsrfToken() || '';
       fetch('/api/family/verify-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },

@@ -4,10 +4,10 @@
 (function () {
   'use strict';
 
-  var path = (window.location.pathname || '').replace(/\/$/, '');
+  const path = (window.location.pathname || '').replace(/\/$/, '');
   if (!path.match(/^\/(pedagog-oversikt|pedagog-note|pedagog-dag|pedagog-historik|samarbete)/)) return;
 
-  var TABS = [
+  const TABS = [
     { href: '/pedagog-oversikt', label: 'Översikt', icon: '📋' },
     { href: '/pedagog-dag', label: 'Idag', icon: '☀️' },
     { href: '/pedagog-historik', label: 'Historik', icon: '📅' },
@@ -20,11 +20,11 @@
 
   function mount() {
     if (document.querySelector('.pedagog-tab-bar')) return;
-    var items = TABS.map(function (tab) {
+    const items = TABS.map(function (tab) {
       return '<a href="' + tab.href + '" class="pedagog-tab-item' + (isActive(tab) ? ' active' : '') + '">' +
         '<span>' + tab.icon + '</span><span>' + tab.label + '</span></a>';
     }).join('');
-    var nav = document.createElement('nav');
+    const nav = document.createElement('nav');
     nav.className = 'pedagog-tab-bar native-tab-bar';
     nav.setAttribute('aria-label', 'Pedagogmeny');
     nav.innerHTML = items;

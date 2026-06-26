@@ -39,7 +39,7 @@
     const headers = { 'Content-Type': 'application/json' };
     // Include CSRF token for POST/PUT requests (required since auth hardening)
     const csrf = (window.Auth && window.Auth.getCsrfToken()) ||
-                 (function() { var m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; })();
+                 (function() { const m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; })();
     if (csrf) headers['X-CSRF-Token'] = csrf;
     return headers;
   }

@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var nav = document.querySelector('.landing-nav');
-  var hamburger = document.getElementById('navHamburger');
-  var mobileMenu = document.getElementById('mobileMenu');
+  const nav = document.querySelector('.landing-nav');
+  const hamburger = document.getElementById('navHamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
 
   function closeMobileMenu() {
     if (mobileMenu) mobileMenu.classList.remove('is-open');
@@ -21,7 +21,7 @@
   if (hamburger && mobileMenu) {
     hamburger.addEventListener('click', function (e) {
       e.stopPropagation();
-      var open = mobileMenu.classList.toggle('is-open');
+      const open = mobileMenu.classList.toggle('is-open');
       hamburger.classList.toggle('is-open', open);
       hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });

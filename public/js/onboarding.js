@@ -34,7 +34,7 @@ window.addEventListener('onboarding:child-created', (e) => {
 });   // stored for schedule-preview age calc
 let selectedDayPref = null;      // template_group key (e.g. 'forskola', 'morgon', 'helg')
 let selectedViewType = 'day';    // 'day' | 'timeline' — default: Dagsvy
-let selectedRewards = [];        // array of { name, icon, star_cost }
+const selectedRewards = [];        // array of { name, icon, star_cost }
 let selectedEmojiValue = null;
 let selectedAvatarUrl = null;    // uploaded avatar URL (iOS native camera) — null = use emoji
 let weekendScheduleAdded = false; // true if parent opted in to helg schedule for Sat+Sun
@@ -104,13 +104,13 @@ function selectEmojiButton(btn, emoji) {
     btn.classList.add('selected');
   }
   selectedEmojiValue = emoji;
-  var custom = document.getElementById('customEmoji');
+  const custom = document.getElementById('customEmoji');
   if (custom) custom.value = '';
 }
 
 function ensureDefaultEmoji() {
   if (selectedEmojiValue) return selectedEmojiValue;
-  var starBtn = Array.prototype.find.call(
+  const starBtn = Array.prototype.find.call(
     document.querySelectorAll('.emoji-btn'),
     function (b) { return b.textContent === '🌟'; }
   );

@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var _lastDayData = null;
+  let _lastDayData = null;
 
   function refreshToday() {
     if (typeof window.coalescedLoadDay === 'function') {
@@ -41,14 +41,14 @@
   }
 
   function mountPausedBannerIfNeeded() {
-    var schedule = document.getElementById('scheduleView');
+    const schedule = document.getElementById('scheduleView');
     if (!schedule || !isPausedDay()) {
-      var existing = document.getElementById('childPausedBanner');
+      const existing = document.getElementById('childPausedBanner');
       if (existing) existing.remove();
       return;
     }
     if (document.getElementById('childPausedBanner')) return;
-    var mount = document.createElement('div');
+    const mount = document.createElement('div');
     mount.innerHTML = pausedBannerHtml();
     schedule.insertBefore(mount.firstChild, schedule.firstChild);
   }

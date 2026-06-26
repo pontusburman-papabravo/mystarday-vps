@@ -7,14 +7,14 @@
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     if (typeof window.escapeHtml === 'function') return window.escapeHtml(s);
-    var d = document.createElement('div');
+    const d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
     return d.innerHTML;
   }
 
   function renderSubsteps(container, substeps, mode) {
     if (!container || !substeps || !substeps.length) return;
-    var renderMode = mode || 'compact';
+    const renderMode = mode || 'compact';
     container.setAttribute('data-support-mode', renderMode);
     container.innerHTML = substeps
       .map(function (step, idx) {
@@ -39,28 +39,28 @@
     if (!container || container._substepBound) return;
     container._substepBound = true;
     container.addEventListener('click', function (e) {
-      var row = e.target.closest('[data-substep-item]');
+      const row = e.target.closest('[data-substep-item]');
       if (!row || typeof window.toggleSubStep !== 'function') return;
-      var itemId = row.getAttribute('data-substep-item');
-      var stepId = row.getAttribute('data-substep-id');
-      var isDone = row.getAttribute('data-substep-done') === '1';
+      const itemId = row.getAttribute('data-substep-item');
+      const stepId = row.getAttribute('data-substep-id');
+      const isDone = row.getAttribute('data-substep-done') === '1';
       window.toggleSubStep(e, itemId, stepId, isDone);
     });
   }
 
   function renderInteractiveSubsteps(container, itemId, steps) {
     if (!container || !steps) return;
-    var done = steps.filter(function (s) { return s.completed; }).length;
-    var total = steps.length;
-    var allDone = done === total && total > 0;
-    var html = '<div style="padding: 6px 8px 2px 8px;">';
+    const done = steps.filter(function (s) { return s.completed; }).length;
+    const total = steps.length;
+    const allDone = done === total && total > 0;
+    let html = '<div style="padding: 6px 8px 2px 8px;">';
     if (total > 0) {
       html += '<div class="substep-progress ' + (allDone ? 'all-done' : '') + '" style="display:inline-block;margin-bottom:6px;">' +
         (allDone ? '✅' : '📋') + ' ' + done + '/' + total + ' klara</div>';
     }
-    for (var i = 0; i < steps.length; i++) {
-      var step = steps[i];
-      var isChecked = !!step.completed;
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      const isChecked = !!step.completed;
       html +=
         '<div class="substep-row" data-substep-item="' + esc(itemId) + '" data-substep-id="' + esc(step.id) + '" data-substep-done="' + (isChecked ? '1' : '0') + '" id="substep-row-' + esc(step.id) + '">' +
         '<div class="substep-check ' + (isChecked ? 'checked' : '') + '" id="substep-check-' + esc(step.id) + '">' +

@@ -5,9 +5,9 @@
 (function () {
   'use strict';
 
-  var _goalData = null;
-  var _childName = '';
-  var _progress = { completed: 0, total: 0 };
+  let _goalData = null;
+  let _childName = '';
+  let _progress = { completed: 0, total: 0 };
 
   function firstName(name) {
     if (!name) return 'du';
@@ -15,16 +15,16 @@
   }
 
   function renderFocusBar() {
-    var goal = _goalData && _goalData.goal;
-    var hasGoal = goal && goal.reward_id;
-    var balance = (_goalData && _goalData.star_balance) || 0;
-    var cost = hasGoal ? (goal.star_cost || 1) : 0;
-    var icon = hasGoal ? (goal.reward_icon || '🎯') : '🎯';
-    var goalName = hasGoal ? goal.reward_name : 'Välj mål i Skattkammaren';
-    var goalLine = hasGoal
+    const goal = _goalData && _goalData.goal;
+    const hasGoal = goal && goal.reward_id;
+    const balance = (_goalData && _goalData.star_balance) || 0;
+    const cost = hasGoal ? (goal.star_cost || 1) : 0;
+    const icon = hasGoal ? (goal.reward_icon || '🎯') : '🎯';
+    const goalName = hasGoal ? goal.reward_name : 'Välj mål i Skattkammaren';
+    const goalLine = hasGoal
       ? icon + ' ' + goalName
       : '🎯 Välj ett sparmål';
-    var starsLine = hasGoal
+    const starsLine = hasGoal
       ? '⭐ ' + balance + ' / ' + cost
       : '';
 
@@ -41,32 +41,32 @@
   }
 
   function mount() {
-    var existing = document.getElementById('todayFocusMount');
+    const existing = document.getElementById('todayFocusMount');
     if (!existing) return;
     existing.innerHTML = renderFocusBar();
   }
 
   function hideLegacyChrome() {
     ['weekNavSection', 'progressSection', 'weekNavDetails'].forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) {
         el.classList.add('ctf-hidden');
         el.setAttribute('aria-hidden', 'true');
       }
     });
-    var ringWrap = document.getElementById('childHeaderRing');
+    const ringWrap = document.getElementById('childHeaderRing');
     if (ringWrap) {
       ringWrap.classList.add('ctf-hidden');
       ringWrap.setAttribute('aria-hidden', 'true');
     }
     ['viewToggleBtn', 'printBtn'].forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) el.classList.add('ctf-hidden');
     });
   }
 
   function renameTab() {
-    var tab = document.getElementById('tabSchedule');
+    const tab = document.getElementById('tabSchedule');
     if (tab) tab.textContent = '☀️ Idag';
   }
 
@@ -89,7 +89,7 @@
   }
 
   function onTabChange(tab) {
-    var mountEl = document.getElementById('todayFocusMount');
+    const mountEl = document.getElementById('todayFocusMount');
     if (!mountEl) return;
     if (tab === 'schedule') {
       mountEl.classList.remove('hidden');

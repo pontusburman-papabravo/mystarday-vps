@@ -4,8 +4,8 @@
 (function () {
   'use strict';
 
-  var COLORS = ['#4F46E5', '#22C55E', '#F59E0B', '#EC4899', '#0EA5E9', '#8B5CF6'];
-  var _config = null;
+  const COLORS = ['#4F46E5', '#22C55E', '#F59E0B', '#EC4899', '#0EA5E9', '#8B5CF6'];
+  let _config = null;
 
   function track(event, meta) {
     if (window.analytics && typeof window.analytics.track === 'function') {
@@ -22,8 +22,8 @@
   }
 
   function render() {
-    var section = el('custodyScheduleSection');
-    var body = el('custodyScheduleBody');
+    const section = el('custodyScheduleSection');
+    const body = el('custodyScheduleBody');
     if (!section || !body || !_config) return;
 
     section.classList.remove('hidden');
@@ -32,10 +32,10 @@
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 120);
     }
-    var homes = _config.homes || [];
-    var parents = _config.parents || [];
-    var patterns = _config.patterns || [];
-    var children = (window.familyChildren || []);
+    const homes = _config.homes || [];
+    const parents = _config.parents || [];
+    const patterns = _config.patterns || [];
+    const children = (window.familyChildren || []);
 
     if (homes.length < 2) {
       body.innerHTML =
@@ -45,13 +45,13 @@
       return;
     }
 
-    var homeOptions = homes.map(function (h) {
+    const homeOptions = homes.map(function (h) {
       return '<option value="' + h.id + '">' + escapeHtml(h.label) + '</option>';
     }).join('');
 
-    var parentRows = parents.map(function (p) {
-      var mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
-      var selected = mapped ? mapped.custody_home_id : '';
+    const parentRows = parents.map(function (p) {
+      const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
+      const selected = mapped ? mapped.custody_home_id : '';
       return (
         '<div class="flex flex-wrap items-center gap-2 text-sm">' +
         '<span class="min-w-[8rem] text-navy dark:text-white">' + escapeHtml(p.name || p.email) + '</span>' +
@@ -61,9 +61,9 @@
       );
     }).join('');
 
-    var childBlocks = children.map(function (c) {
-      var pat = patterns.find(function (p) { return p.child_id === c.id; });
-      var enabled = Boolean(pat);
+    const childBlocks = children.map(function (c) {
+      const pat = patterns.find(function (p) { return p.child_id === c.id; });
+      const enabled = Boolean(pat);
       return (
         '<div class="border border-lavender rounded-xl p-3 space-y-2 custody-child-block" data-child-id="' + c.id + '">' +
         '<label class="flex items-center gap-2 font-semibold text-sm text-navy dark:text-white">' +
@@ -104,28 +104,28 @@
       '<p id="custodySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>';
 
     parents.forEach(function (p) {
-      var mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
-      var sel = document.querySelector('.custody-parent-home[data-parent-id="' + p.id + '"]');
+      const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
+      const sel = document.querySelector('.custody-parent-home[data-parent-id="' + p.id + '"]');
       if (sel && mapped) sel.value = mapped.custody_home_id;
     });
 
     patterns.forEach(function (pat) {
-      var block = document.querySelector('[data-child-id="' + pat.child_id + '"]');
+      const block = document.querySelector('[data-child-id="' + pat.child_id + '"]');
       if (!block) return;
-      var wa = block.querySelector('.custody-week-a');
-      var wb = block.querySelector('.custody-week-b');
+      const wa = block.querySelector('.custody-week-a');
+      const wb = block.querySelector('.custody-week-b');
       if (wa) wa.value = pat.week_a_home_id;
       if (wb) wb.value = pat.week_b_home_id;
     });
 
     body.querySelectorAll('.custody-child-enable').forEach(function (cb) {
       cb.addEventListener('change', function () {
-        var fields = cb.closest('[data-child-id]').querySelector('.custody-child-fields');
+        const fields = cb.closest('[data-child-id]').querySelector('.custody-child-fields');
         if (fields) fields.classList.toggle('hidden', !cb.checked);
       });
     });
 
-    var saveBtn = el('custodySaveBtn');
+    const saveBtn = el('custodySaveBtn');
     if (saveBtn) saveBtn.onclick = saveAll;
   }
 
@@ -143,12 +143,12 @@
   }
 
   async function saveAll() {
-    var msg = el('custodySaveMsg');
+    const msg = el('custodySaveMsg');
     if (msg) { msg.textContent = 'Sparar…'; msg.classList.remove('hidden'); }
 
     try {
-      var homeRows = document.querySelectorAll('.custody-home-row');
-      var homes = [];
+      const homeRows = document.querySelectorAll('.custody-home-row');
+      const homes = [];
       homeRows.forEach(function (row, i) {
         homes.push({
           id: row.getAttribute('data-home-id'),
@@ -162,7 +162,7 @@
         body: JSON.stringify({ homes: homes }),
       });
 
-      var mappings = [];
+      const mappings = [];
       document.querySelectorAll('.custody-parent-home').forEach(function (sel) {
         mappings.push({
           parentId: sel.getAttribute('data-parent-id'),
@@ -174,11 +174,11 @@
         body: JSON.stringify({ mappings: mappings }),
       });
 
-      var childBlocks = document.querySelectorAll('.custody-child-block');
-      for (var i = 0; i < childBlocks.length; i++) {
-        var block = childBlocks[i];
-        var childId = block.getAttribute('data-child-id');
-        var enabled = block.querySelector('.custody-child-enable').checked;
+      const childBlocks = document.querySelectorAll('.custody-child-block');
+      for (let i = 0; i < childBlocks.length; i++) {
+        const block = childBlocks[i];
+        const childId = block.getAttribute('data-child-id');
+        const enabled = block.querySelector('.custody-child-enable').checked;
         if (!enabled) {
           await Auth.api('/api/family/custody/pattern/' + childId, {
             method: 'PUT',

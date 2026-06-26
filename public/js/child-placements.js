@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var CHILD_PLACEMENTS = {
+  const CHILD_PLACEMENTS = {
     today_overlay: { domain: 'today', description: 'TEACCH NU-kort, fullskärmsstöd' },
     today_coach_post_activity: { domain: 'today', description: 'Coach efter aktivitet' },
     today_coach_post_section: { domain: 'today', description: 'Coach efter FM/EM/kväll' },
@@ -17,7 +17,7 @@
   };
 
   function placementDomain(placementId) {
-    var p = CHILD_PLACEMENTS[placementId];
+    const p = CHILD_PLACEMENTS[placementId];
     return p ? p.domain : null;
   }
 

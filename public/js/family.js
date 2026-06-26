@@ -39,7 +39,7 @@
     let familyData = null;
     let familyChildren = [];
     let drawerChildId = null;
-    let drawerChildData = null;
+    const drawerChildData = null;
     let drawerEmojiSelected = '';
 
     var _domRenderChildAvatar = window.renderChildAvatar;
@@ -48,8 +48,8 @@
         return _domRenderChildAvatar(child, size || 32);
       }
       size = size || 32;
-      var emoji = (child && child.emoji) || '⭐';
-      var safe = String(emoji)
+      const emoji = (child && child.emoji) || '⭐';
+      const safe = String(emoji)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
@@ -81,8 +81,8 @@
     if (window.ParentMagicShell) ParentMagicShell.init('family');
 
     function renderAll(data) {
-      var chestSection = document.getElementById('familyChestSection');
-      var nameSection = document.getElementById('familyNameSection');
+      const chestSection = document.getElementById('familyChestSection');
+      const nameSection = document.getElementById('familyNameSection');
       if (chestSection) chestSection.classList.remove('hidden');
       if (nameSection) nameSection.classList.remove('hidden');
       document.getElementById('familyNameInput').value = data.name || '';

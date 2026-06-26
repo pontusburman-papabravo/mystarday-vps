@@ -5,9 +5,9 @@
 (function () {
   'use strict';
 
-  var V2_ENABLED = true;
+  const V2_ENABLED = true;
 
-  var CHILD_WORLDS = [
+  const CHILD_WORLDS = [
     {
       id: 'today',
       icon: '☀️',
@@ -34,7 +34,7 @@
     },
   ];
 
-  var HASH_TO_WORLD = {
+  const HASH_TO_WORLD = {
     today: 'today',
     idag: 'today',
     schedule: 'today',
@@ -51,13 +51,13 @@
   };
 
   function normalizePath(pathname) {
-    var p = (pathname || '/').replace(/\/$/, '') || '/';
+    let p = (pathname || '/').replace(/\/$/, '') || '/';
     if (p.endsWith('.html')) p = p.slice(0, -5);
     return p;
   }
 
   function worldById(id) {
-    for (var i = 0; i < CHILD_WORLDS.length; i++) {
+    for (let i = 0; i < CHILD_WORLDS.length; i++) {
       if (CHILD_WORLDS[i].id === id) return CHILD_WORLDS[i];
     }
     return null;
@@ -65,31 +65,31 @@
 
   function tabKeyToWorldId(tabKey) {
     if (tabKey === 'home' || tabKey === 'more') return 'today';
-    for (var i = 0; i < CHILD_WORLDS.length; i++) {
+    for (let i = 0; i < CHILD_WORLDS.length; i++) {
       if (CHILD_WORLDS[i].tabKey === tabKey) return CHILD_WORLDS[i].id;
     }
     return 'today';
   }
 
   function worldIdToTabKey(worldId) {
-    var w = worldById(worldId);
+    const w = worldById(worldId);
     return w ? w.tabKey : 'schedule';
   }
 
   function activeChildNavItem(pathname, hash, nav) {
-    var list = nav || CHILD_WORLDS;
-    var p = normalizePath(pathname);
-    var h = (hash || '').replace(/^#/, '').toLowerCase();
+    const list = nav || CHILD_WORLDS;
+    const p = normalizePath(pathname);
+    const h = (hash || '').replace(/^#/, '').toLowerCase();
 
     if ((p === '/child-dashboard' || p.indexOf('/child/today') === 0) && h && HASH_TO_WORLD[h]) {
       return worldById(HASH_TO_WORLD[h]);
     }
 
-    for (var i = 0; i < list.length; i++) {
-      var tab = list[i];
+    for (let i = 0; i < list.length; i++) {
+      const tab = list[i];
       if (!tab.paths) continue;
-      for (var j = 0; j < tab.paths.length; j++) {
-        var tp = tab.paths[j];
+      for (let j = 0; j < tab.paths.length; j++) {
+        const tp = tab.paths[j];
         if (p === tp) return tab;
         if (tp === '/child-dashboard' && p.indexOf('/child-dashboard') === 0) return tab;
         if (tp !== '/' && p.indexOf(tp + '/') === 0) return tab;
@@ -100,9 +100,9 @@
 
   function labelForWorld(world, context) {
     if (!world) return '';
-    var ctx = context || {};
-    var labels = world.labels || {};
-    var raw;
+    const ctx = context || {};
+    const labels = world.labels || {};
+    let raw;
     if (ctx.ageBand === 'young' && labels.young) raw = labels.young;
     else if (ctx.childName && labels.personal) {
       raw = labels.personal.replace('{name}', ctx.childName);
@@ -111,7 +111,7 @@
     }
     if (typeof window.escHtml === 'function') return window.escHtml(raw);
     if (typeof window.escapeHtml === 'function') return window.escapeHtml(raw);
-    var d = document.createElement('div');
+    const d = document.createElement('div');
     d.textContent = raw || '';
     return d.innerHTML;
   }

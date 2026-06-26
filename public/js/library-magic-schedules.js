@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var FILTERS = [
+  const FILTERS = [
     { id: 'all', label: 'Alla' },
     { id: 'forskola', label: 'Förskola', test: /förskola/i },
     { id: 'skola', label: 'Skola', test: /skola/i, exclude: /förskola/i },
@@ -14,15 +14,15 @@
     { id: 'kvall', label: 'Kväll', test: /kväll|kvall|night/i },
   ];
 
-  var STD_SEGMENTS = [
+  const STD_SEGMENTS = [
     { id: 'schedules', label: '📅 Scheman' },
     { id: 'activities', label: '📋 Aktiviteter' },
     { id: 'rewards', label: '🏆 Belöningar' },
   ];
 
-  var _filter = 'all';
-  var _detailId = null;
-  var _stdSegment = 'schedules';
+  let _filter = 'all';
+  let _detailId = null;
+  let _stdSegment = 'schedules';
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -51,9 +51,9 @@
 
   function matchesFilter(s) {
     if (_filter === 'all') return true;
-    var def = FILTERS.find(function (f) { return f.id === _filter; });
+    const def = FILTERS.find(function (f) { return f.id === _filter; });
     if (!def || !def.test) return true;
-    var text = scheduleText(s);
+    const text = scheduleText(s);
     if (def.exclude && def.exclude.test(text)) return false;
     return def.test.test(text);
   }
@@ -65,14 +65,14 @@
   }
 
   function matchesFilterForTag(s, def) {
-    var text = scheduleText(s);
+    const text = scheduleText(s);
     if (def.exclude && def.exclude.test(text)) return false;
     return def.test && def.test.test(text);
   }
 
   function formatTime(t) {
     if (!t) return '';
-    var str = String(t);
+    const str = String(t);
     if (str.length >= 5) return str.slice(0, 5);
     return str;
   }
@@ -81,10 +81,10 @@
     if (typeof window.renderStdScheduleItem === 'function') {
       return window.renderStdScheduleItem(item, 'magic-' + scheduleId);
     }
-    var subSteps = item.sub_steps || [];
-    var hasSubSteps = Array.isArray(subSteps) && subSteps.length > 0;
-    var itemUid = 'magic-item-' + scheduleId + '-' + (item.id || item.name.replace(/\s/g, ''));
-    var subHtml = hasSubSteps
+    const subSteps = item.sub_steps || [];
+    const hasSubSteps = Array.isArray(subSteps) && subSteps.length > 0;
+    const itemUid = 'magic-item-' + scheduleId + '-' + (item.id || item.name.replace(/\s/g, ''));
+    const subHtml = hasSubSteps
       ? '<div id="' + itemUid + '-subs" class="substeps-panel library-magic-substeps ml-7 mt-1 mb-1 pl-3 border-l-2 border-lavender">'
         + subSteps.map(function (ss) {
           return '<div class="flex items-center gap-1.5 text-xs py-0.5 text-text-soft">'
@@ -121,10 +121,10 @@
   }
 
   function renderListView() {
-    var list = schedules().filter(matchesFilter);
-    var cards = list.map(function (s) {
-      var tags = inferTags(s);
-      var tagHtml = tags.length
+    const list = schedules().filter(matchesFilter);
+    const cards = list.map(function (s) {
+      const tags = inferTags(s);
+      const tagHtml = tags.length
         ? '<div class="library-magic-schedule-tags">' + tags.map(function (t) {
           return '<span class="library-magic-tag">' + escHtml(t) + '</span>';
         }).join('') + '</div>'
@@ -159,26 +159,26 @@
   }
 
   function renderDetailView(schedule) {
-    var items = (schedule.items || []).slice().sort(function (a, b) {
-      var secOrder = { morgon: 0, dag: 1, kvall: 2 };
-      var sa = secOrder[a.section] != null ? secOrder[a.section] : 1;
-      var sb = secOrder[b.section] != null ? secOrder[b.section] : 1;
+    const items = (schedule.items || []).slice().sort(function (a, b) {
+      const secOrder = { morgon: 0, dag: 1, kvall: 2 };
+      const sa = secOrder[a.section] != null ? secOrder[a.section] : 1;
+      const sb = secOrder[b.section] != null ? secOrder[b.section] : 1;
       if (sa !== sb) return sa - sb;
       return (a.sort_order || 0) - (b.sort_order || 0);
     });
 
-    var timeline = items.map(function (item) {
-      var time = formatTime(item.start_time);
-      var end = formatTime(item.end_time);
-      var timeLabel = time ? (end ? time + '–' + end : time) : '';
+    const timeline = items.map(function (item) {
+      const time = formatTime(item.start_time);
+      const end = formatTime(item.end_time);
+      const timeLabel = time ? (end ? time + '–' + end : time) : '';
       return '<div class="library-magic-timeline-item">'
         + (timeLabel ? '<div class="library-magic-timeline-time">' + escHtml(timeLabel) + '</div>' : '')
         + '<div class="library-magic-timeline-content">' + renderScheduleItemHtml(item, schedule.id) + '</div>'
         + '</div>';
     }).join('');
 
-    var tags = inferTags(schedule);
-    var tagHtml = tags.length
+    const tags = inferTags(schedule);
+    const tagHtml = tags.length
       ? '<div class="library-magic-schedule-tags">' + tags.map(function (t) {
         return '<span class="library-magic-tag">' + escHtml(t) + '</span>';
       }).join('') + '</div>'
@@ -198,11 +198,11 @@
   }
 
   function restoreLegacyStdContent() {
-    var actSrc = document.getElementById('standardLibraryContainer');
-    var rewSrc = document.getElementById('standardRewardsContainer');
-    var copyBtn = document.getElementById('copySelectedRewardsBtn');
-    var actPane = document.getElementById('std-sub-activities');
-    var rewPane = document.getElementById('std-sub-rewards');
+    const actSrc = document.getElementById('standardLibraryContainer');
+    const rewSrc = document.getElementById('standardRewardsContainer');
+    const copyBtn = document.getElementById('copySelectedRewardsBtn');
+    const actPane = document.getElementById('std-sub-activities');
+    const rewPane = document.getElementById('std-sub-rewards');
 
     if (actSrc && actPane && actSrc.parentElement !== actPane) {
       actPane.appendChild(actSrc);
@@ -216,11 +216,11 @@
   }
 
   function mountLegacyStdContent() {
-    var actMount = document.getElementById('libraryMagicStdActivitiesMount');
-    var rewMount = document.getElementById('libraryMagicStdRewardsMount');
-    var actSrc = document.getElementById('standardLibraryContainer');
-    var rewSrc = document.getElementById('standardRewardsContainer');
-    var copyBtn = document.getElementById('copySelectedRewardsBtn');
+    const actMount = document.getElementById('libraryMagicStdActivitiesMount');
+    const rewMount = document.getElementById('libraryMagicStdRewardsMount');
+    const actSrc = document.getElementById('standardLibraryContainer');
+    const rewSrc = document.getElementById('standardRewardsContainer');
+    const copyBtn = document.getElementById('copySelectedRewardsBtn');
 
     if (actMount && actSrc && _stdSegment === 'activities') {
       actMount.innerHTML = '';
@@ -237,7 +237,7 @@
 
   function bindEvents(mount) {
     mount.onclick = function (e) {
-      var filterBtn = e.target.closest('[data-schedule-filter]');
+      const filterBtn = e.target.closest('[data-schedule-filter]');
       if (filterBtn) {
         _filter = filterBtn.getAttribute('data-schedule-filter');
         _detailId = null;
@@ -245,7 +245,7 @@
         return;
       }
 
-      var segBtn = e.target.closest('[data-std-segment]');
+      const segBtn = e.target.closest('[data-std-segment]');
       if (segBtn) {
         _stdSegment = segBtn.getAttribute('data-std-segment');
         _detailId = null;
@@ -256,22 +256,22 @@
         return;
       }
 
-      var card = e.target.closest('[data-schedule-id]');
+      const card = e.target.closest('[data-schedule-id]');
       if (card && card.classList.contains('library-magic-schedule-card')) {
         _detailId = card.getAttribute('data-schedule-id');
         render();
         return;
       }
 
-      var row = e.target.closest('[data-std-subs]');
+      const row = e.target.closest('[data-std-subs]');
       if (row && typeof window.toggleStdSubSteps === 'function') {
         window.toggleStdSubSteps(row.getAttribute('data-std-subs'));
         return;
       }
 
-      var actionBtn = e.target.closest('[data-schedule-action]');
+      const actionBtn = e.target.closest('[data-schedule-action]');
       if (!actionBtn) return;
-      var action = actionBtn.getAttribute('data-schedule-action');
+      const action = actionBtn.getAttribute('data-schedule-action');
       if (action === 'preview-back') {
         _detailId = null;
         render();
@@ -290,14 +290,14 @@
   }
 
   function render() {
-    var mount = document.getElementById('libraryMagicSectionMount');
+    const mount = document.getElementById('libraryMagicSectionMount');
     if (!mount || !isActive()) return;
 
     mount.classList.remove('hidden');
     document.body.classList.add('library-magic-has-section-mount');
 
     if (_detailId && _stdSegment === 'schedules') {
-      var schedule = schedules().find(function (s) { return String(s.id) === String(_detailId); });
+      const schedule = schedules().find(function (s) { return String(s.id) === String(_detailId); });
       mount.innerHTML = schedule ? renderDetailView(schedule) : renderListView();
     } else {
       mount.innerHTML = renderListView();
@@ -310,7 +310,7 @@
   function refresh() {
     if (!isActive()) {
       restoreLegacyStdContent();
-      var mount = document.getElementById('libraryMagicSectionMount');
+      const mount = document.getElementById('libraryMagicSectionMount');
       if (mount) {
         mount.classList.add('hidden');
         mount.innerHTML = '';
@@ -328,7 +328,7 @@
   }
 
   function show() {
-    var loads = [];
+    const loads = [];
     if (typeof window.loadSchemaTab === 'function') loads.push(window.loadSchemaTab());
     if (typeof window.loadStandardLibrary === 'function') loads.push(window.loadStandardLibrary());
     return Promise.all(loads).then(function () {

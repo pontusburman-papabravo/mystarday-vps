@@ -259,9 +259,9 @@
     successEl.style.display = 'none';
     errorEl.style.display = 'none';
 
-    var name = document.getElementById('sbName').value.trim();
-    var email = document.getElementById('sbEmail').value.trim();
-    var message = document.getElementById('sbMessage').value.trim();
+    const name = document.getElementById('sbName').value.trim();
+    const email = document.getElementById('sbEmail').value.trim();
+    const message = document.getElementById('sbMessage').value.trim();
 
     if (!name || !email || !message) {
       errorEl.textContent = 'Fyll i alla fält';
@@ -278,13 +278,13 @@
     submitBtn.textContent = 'Skickar...';
 
     try {
-      var res = await fetch('/api/contact', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, email: email, message: message }),
       });
 
-      var data = await res.json();
+      const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || 'Något gick fel');

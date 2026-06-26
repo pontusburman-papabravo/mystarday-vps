@@ -19,7 +19,7 @@
       if (status.trial_expired) {
         return 'Provperioden har gått ut. Välj ett paket för att fortsätta.';
       }
-      var days = status.trial_days_remaining;
+      const days = status.trial_days_remaining;
       if (days != null && days <= 7) {
         return 'Provperioden slutar om ' + days + ' dag' + (days === 1 ? '' : 'ar') + '.';
       }
@@ -35,10 +35,10 @@
   }
 
   async function renderSubscription() {
-    var mount = document.getElementById('subscriptionMount');
+    const mount = document.getElementById('subscriptionMount');
     if (!mount) return;
 
-    var isNative =
+    const isNative =
       (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) ||
       (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
     if (isNative) {
@@ -48,8 +48,8 @@
     }
 
     try {
-      var status = await Auth.api('/api/subscription/status');
-      var html =
+      const status = await Auth.api('/api/subscription/status');
+      let html =
         '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
         '<p class="text-sm font-semibold text-navy mb-1">' + tierLabel(status.tier) + '</p>' +
         '<p class="text-sm text-text-soft mb-4">' + tierDescription(status) + '</p>';
@@ -66,7 +66,7 @@
 
       if (status.billing_ui_enabled && window.fetchPackageAccess) {
         try {
-          var access = await window.fetchPackageAccess();
+          const access = await window.fetchPackageAccess();
           if (access && access.rollout_mode && access.rollout_mode !== 'off') {
             html +=
               '<p class="text-sm text-text-soft mt-4">' +
@@ -92,7 +92,7 @@
       ParentMagicPageHub.openFromHash();
       return;
     }
-    var el = document.getElementById('prenumeration');
+    const el = document.getElementById('prenumeration');
     if (el) {
       setTimeout(function () {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });

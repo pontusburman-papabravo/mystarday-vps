@@ -27,10 +27,10 @@
       return '<p class="cfh-empty">Inga familjeprojekt ännu — föräldern kan lägga till ett gemensamt mål.</p>';
     }
     return projects.map(function (p) {
-      var pct = p.targetValue > 0
+      const pct = p.targetValue > 0
         ? Math.min(100, Math.round((p.currentValue / p.targetValue) * 100))
         : 0;
-      var contrib = (p.contributors || []).map(function (c) {
+      const contrib = (p.contributors || []).map(function (c) {
         return esc(c.name);
       }).join(', ');
       return '<div class="cfh-card">' +
@@ -86,9 +86,9 @@
   }
 
   function renderPersons(data) {
-    var persons = data.persons;
+    const persons = data.persons;
     if (!persons) return '';
-    var cards = '';
+    let cards = '';
     (persons.parents || []).forEach(function (p) {
       cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(p.emoji || '👤') + '</span>' +
         '<span class="cfh-person-name">' + esc(p.name) + '</span><span class="cfh-person-role">Vuxen</span></div>';
@@ -126,7 +126,7 @@
   }
 
   function mount() {
-    var root = document.getElementById('familyHallMount');
+    const root = document.getElementById('familyHallMount');
     if (!root || !window.ChildFamily) return;
 
     root.innerHTML = renderLoading();
@@ -137,7 +137,7 @@
       })
       .catch(function () {
         root.innerHTML = renderError();
-        var retry = document.getElementById('cfhRetryBtn');
+        const retry = document.getElementById('cfhRetryBtn');
         if (retry) retry.addEventListener('click', refresh);
       });
   }

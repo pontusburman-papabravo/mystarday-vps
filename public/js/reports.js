@@ -790,7 +790,7 @@ async function loadGeneralObs() {
   renderGeneralObservationsSection(_generalObsActive, _generalObsArchived);
 }
 
-let _obsModalState = {
+const _obsModalState = {
   editingId: null,
 };
 

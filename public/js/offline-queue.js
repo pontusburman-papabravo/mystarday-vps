@@ -254,7 +254,7 @@
   async function sendAction(entry) {
     const csrf = (window.Auth && window.Auth.getCsrfToken()) ||
       (function () {
-        var m = document.cookie.match(/(?:^|;\\s*)csrf_token=([^;]+)/);
+        const m = document.cookie.match(/(?:^|;\\s*)csrf_token=([^;]+)/);
         return m ? decodeURIComponent(m[1]) : null;
       })();
 

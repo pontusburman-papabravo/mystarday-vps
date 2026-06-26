@@ -5,12 +5,12 @@
 (function () {
   'use strict';
 
-  var _wired = false;
+  let _wired = false;
 
   function init(familyData) {
-    var section = document.getElementById('familyChestSetting');
-    var toggle = document.getElementById('familyChestToggle');
-    var msg = document.getElementById('familyChestSaveMsg');
+    const section = document.getElementById('familyChestSetting');
+    const toggle = document.getElementById('familyChestToggle');
+    const msg = document.getElementById('familyChestSaveMsg');
     if (!section || !toggle) return;
 
     section.classList.remove('hidden');
@@ -20,7 +20,7 @@
     _wired = true;
 
     toggle.addEventListener('change', function () {
-      var next = toggle.checked;
+      const next = toggle.checked;
       if (msg) {
         msg.textContent = 'Sparar...';
         msg.classList.remove('hidden');

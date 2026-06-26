@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var KEY = 'planFromPlanning';
+  const KEY = 'planFromPlanning';
 
   function markFromPlanning() {
     try { sessionStorage.setItem(KEY, '1'); } catch (_) {}

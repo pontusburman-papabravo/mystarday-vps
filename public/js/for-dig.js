@@ -735,7 +735,7 @@
   // server, so it may load *after* this script — poll briefly to register once
   // it appears.
   if (!registerPageBoot()) {
-    var bootAttempts = 0;
+    let bootAttempts = 0;
     var bootTimer = setInterval(function () {
       bootAttempts += 1;
       if (registerPageBoot() || bootAttempts >= 40) {

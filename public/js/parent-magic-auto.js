@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var PATH_PAGES = {
+  const PATH_PAGES = {
     '/dashboard': 'dashboard',
     '/daily-log': 'daily-log',
     '/planning': 'planning',
@@ -23,13 +23,13 @@
   };
 
   function normalizePath(path) {
-    var p = (path || '/').replace(/\/$/, '') || '/';
+    let p = (path || '/').replace(/\/$/, '') || '/';
     if (p.endsWith('.html')) p = p.slice(0, -5);
     return p;
   }
 
   function resolvePage(pathname) {
-    var p = normalizePath(pathname || window.location.pathname);
+    const p = normalizePath(pathname || window.location.pathname);
     // Per-child settings page carries an id segment (/family/child/<id>).
     if (p.indexOf('/family/child/') === 0) return 'family-child';
     return PATH_PAGES[p] || null;
@@ -40,7 +40,7 @@
   }
 
   function markLegacyChrome() {
-    var selectors = [
+    const selectors = [
       '#sidebar',
       'nav#sidebar',
       'nav.bg-navy',
@@ -59,27 +59,27 @@
 
   function ensureMount(id, className) {
     if (document.getElementById(id)) return;
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.id = id;
     if (className) el.className = className;
-    var main = document.querySelector('main') || document.body;
+    const main = document.querySelector('main') || document.body;
     main.insertBefore(el, main.firstChild);
   }
 
   /** One flex row: view toggle + notis/avatar (reliable on iPhone + iPad). */
   function ensureTopChrome() {
-    var toggle = document.getElementById('appViewToggleMount');
-    var navHeader = document.querySelector('[data-parent-nav-header]');
-    var main = document.querySelector('main') || document.body;
+    const toggle = document.getElementById('appViewToggleMount');
+    const navHeader = document.querySelector('[data-parent-nav-header]');
+    const main = document.querySelector('main') || document.body;
 
     if (!navHeader) return;
 
-    var chrome = document.getElementById('parentTopChrome');
+    let chrome = document.getElementById('parentTopChrome');
     if (!chrome) {
       chrome = document.createElement('div');
       chrome.id = 'parentTopChrome';
       chrome.className = 'parent-top-chrome';
-      var anchor = toggle && toggle.parentNode === main ? toggle : navHeader;
+      const anchor = toggle && toggle.parentNode === main ? toggle : navHeader;
       main.insertBefore(chrome, anchor);
     }
 
@@ -91,7 +91,7 @@
     markLegacyChrome();
     ensureMount('appViewToggleMount', 'app-view-toggle-wrap');
     ensureMount('parentMagicPageMount', 'hidden');
-    var hub = document.getElementById('parentMagicPageMount');
+    const hub = document.getElementById('parentMagicPageMount');
     if (hub) hub.setAttribute('aria-live', 'polite');
     ensureTopChrome();
   }

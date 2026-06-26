@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var CHILD_CAPABILITIES = [
+  const CHILD_CAPABILITIES = [
     {
       id: 'today_coach',
       feature: null,
@@ -47,7 +47,7 @@
     },
   ];
 
-  var CHILD_SYSTEM_ACTIONS = [
+  const CHILD_SYSTEM_ACTIONS = [
     { id: 'switch_child', label: 'Byt barn', action: 'switchChild', requiresParentalGate: true },
     { id: 'dark_mode', label: 'Mörkt läge', action: 'toggleDark', requiresParentalGate: true },
     { id: 'logout', label: 'Logga ut', action: 'logout', requiresParentalGate: true },

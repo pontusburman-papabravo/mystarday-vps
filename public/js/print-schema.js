@@ -4,12 +4,12 @@
 (function () {
   'use strict';
 
-  var children = [];
-  var currentChildId = null;
-  var periodKey = '1w';
-  var scope = 'all';
-  var weekOffset = 0;
-  var custodyEnabled = false;
+  let children = [];
+  let currentChildId = null;
+  let periodKey = '1w';
+  let scope = 'all';
+  let weekOffset = 0;
+  let custodyEnabled = false;
 
   function showToast(msg, type) {
     if (typeof window.showToast === 'function') window.showToast(msg, type);
@@ -33,7 +33,7 @@
   }
 
   function setupPdfSaveHelp() {
-    var mobile = isMobileDevice();
+    const mobile = isMobileDevice();
     document.getElementById('pdfSaveHelpMobile').classList.toggle('hidden', !mobile);
     document.getElementById('pdfSaveHelpDesktop').classList.toggle('hidden', mobile);
   }
@@ -65,11 +65,11 @@
   }
 
   function updateWeekLabel() {
-    var core = window.PrintSchemaCore;
-    var monday = core.mondayOf(new Date());
+    const core = window.PrintSchemaCore;
+    let monday = core.mondayOf(new Date());
     monday = core.addDays(monday, weekOffset * 7);
-    var period = core.PERIODS[periodKey];
-    var end = core.addDays(monday, period.days - 1);
+    const period = core.PERIODS[periodKey];
+    const end = core.addDays(monday, period.days - 1);
     document.getElementById('weekLabel').textContent = core.fmtRangeLabel(monday, end);
   }
 
@@ -86,10 +86,10 @@
 
   async function loadCustody() {
     try {
-      var res = await apiFetch('/api/family/custody');
+      const res = await apiFetch('/api/family/custody');
       if (res.status === 404) return;
       if (!res.ok) return;
-      var data = await res.json();
+      const data = await res.json();
       custodyEnabled = Boolean(data && data.patterns && data.patterns.length > 0);
       document.getElementById('myDaysScopeBtn').classList.toggle('hidden', !custodyEnabled);
       if (!custodyEnabled && scope === 'my') {
@@ -102,13 +102,13 @@
   }
 
   async function loadChildren() {
-    var res = await apiFetch('/api/children');
+    const res = await apiFetch('/api/children');
     if (!res.ok) {
       showToast('Kunde inte ladda barn', 'error');
       return;
     }
     children = await res.json();
-    var tabs = document.getElementById('childTabs');
+    const tabs = document.getElementById('childTabs');
     if (!children.length) {
       tabs.innerHTML = '<p class="text-text-soft text-sm">Inga barn tillagda ännu. <a href="/dashboard" class="text-gold font-semibold">Gå till Min panel</a></p>';
       document.getElementById('printBtn').disabled = true;
@@ -125,14 +125,14 @@
       btn.addEventListener('click', function () { selectChild(btn.dataset.id); });
     });
 
-    var params = new URLSearchParams(window.location.search);
-    var paramId = params.get('childId');
-    var target = paramId && children.find(function (c) { return c.id === paramId; });
+    const params = new URLSearchParams(window.location.search);
+    const paramId = params.get('childId');
+    const target = paramId && children.find(function (c) { return c.id === paramId; });
     selectChild(target ? target.id : children[0].id);
   }
 
   async function buildDoc(mode) {
-    var child = children.find(function (c) { return c.id === currentChildId; });
+    const child = children.find(function (c) { return c.id === currentChildId; });
     if (!child) throw new Error('no_child');
     return window.PrintSchemaCore.loadAndBuild(child, {
       periodKey: periodKey,
@@ -147,9 +147,9 @@
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
     try {
       showToast('Laddar förhandsgranskning…');
-      var doc = await buildDoc('preview');
-      var mount = document.getElementById('previewMount');
-      var wrap = document.getElementById('previewWrap');
+      const doc = await buildDoc('preview');
+      const mount = document.getElementById('previewMount');
+      const wrap = document.getElementById('previewWrap');
       wrap.classList.remove('hidden');
       mount.innerHTML = '<style>' + doc.styles + '</style>' + doc.body;
       mount.scrollTop = 0;
@@ -164,18 +164,18 @@
 
   async function runCreatePdf() {
     if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
-    var btn = document.getElementById('printBtn');
+    const btn = document.getElementById('printBtn');
     if (btn) btn.disabled = true;
     try {
       showToast('Skapar PDF…');
-      var child = children.find(function (c) { return c.id === currentChildId; });
-      var doc = await buildDoc('print');
-      var result = await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
+      const child = children.find(function (c) { return c.id === currentChildId; });
+      const doc = await buildDoc('print');
+      const result = await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
       if (result && result.method === 'cancelled') {
         showToast('PDF-sparning avbruten');
         return;
       }
-      var delivery = result && result.method ? result.method : 'pdf_download';
+      const delivery = result && result.method ? result.method : 'pdf_download';
       trackExport({
         format: periodKey,
         scope: scope,
@@ -215,8 +215,8 @@
   }
 
   function applyUrlParams() {
-    var params = new URLSearchParams(window.location.search);
-    var paramScope = params.get('scope');
+    const params = new URLSearchParams(window.location.search);
+    const paramScope = params.get('scope');
     if (paramScope === 'my' && custodyEnabled) {
       scope = 'my';
       setActiveBtns(document.getElementById('scopeBtns'), 'data-scope', 'my');
@@ -227,7 +227,7 @@
     if (!Auth.requireAuth()) return;
 
     document.getElementById('periodBtns').addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-period]');
+      const btn = e.target.closest('[data-period]');
       if (!btn) return;
       periodKey = btn.dataset.period;
       setActiveBtns(document.getElementById('periodBtns'), 'data-period', periodKey);
@@ -235,7 +235,7 @@
     });
 
     document.getElementById('scopeBtns').addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-scope]');
+      const btn = e.target.closest('[data-scope]');
       if (!btn || btn.classList.contains('hidden')) return;
       scope = btn.dataset.scope;
       setActiveBtns(document.getElementById('scopeBtns'), 'data-scope', scope);

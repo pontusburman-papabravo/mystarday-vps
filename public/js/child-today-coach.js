@@ -4,14 +4,14 @@
 (function () {
   'use strict';
 
-  var COACH_MOUNT_ID = 'childCoachMount';
+  const COACH_MOUNT_ID = 'childCoachMount';
 
   function ensureMount() {
-    var existing = document.getElementById(COACH_MOUNT_ID);
+    const existing = document.getElementById(COACH_MOUNT_ID);
     if (existing) return existing;
-    var scheduleView = document.getElementById('scheduleView');
+    const scheduleView = document.getElementById('scheduleView');
     if (!scheduleView) return null;
-    var mount = document.createElement('div');
+    const mount = document.createElement('div');
     mount.id = COACH_MOUNT_ID;
     mount.className = 'px-4 max-w-lg mx-auto';
     mount.setAttribute('aria-live', 'polite');
@@ -20,11 +20,11 @@
   }
 
   function peekNextActivity() {
-    var nowEl = document.querySelector('.now-card:not(.done) .now-title');
+    const nowEl = document.querySelector('.now-card:not(.done) .now-title');
     if (nowEl && nowEl.textContent.trim()) {
       return 'Nästa uppdrag: ' + nowEl.textContent.trim();
     }
-    var nextEl = document.querySelector('.next-card:not(.done) .nl-title');
+    const nextEl = document.querySelector('.next-card:not(.done) .nl-title');
     if (nextEl && nextEl.textContent.trim()) {
       return 'Sen: ' + nextEl.textContent.trim();
     }
@@ -34,13 +34,13 @@
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     if (typeof window.escapeHtml === 'function') return window.escapeHtml(s);
-    var d = document.createElement('div');
+    const d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
     return d.innerHTML;
   }
 
   function showCoach(message, placement) {
-    var mount = ensureMount();
+    const mount = ensureMount();
     if (!mount) return;
     mount.innerHTML =
       '<div class="mb-4 p-4 bg-mint border border-green-200 rounded-2xl" data-coach-placement="' +
@@ -53,11 +53,11 @@
   }
 
   function onActivityComplete(meta) {
-    var placement = (meta && meta.placement) || 'today_coach_post_activity';
-    var base =
+    const placement = (meta && meta.placement) || 'today_coach_post_activity';
+    const base =
       (meta && meta.message) ||
       'Du klarade uppdraget — fortsätt så här!';
-    var nextHint = peekNextActivity();
+    const nextHint = peekNextActivity();
     showCoach(base + (nextHint ? ' ' + nextHint : ''), placement);
   }
 

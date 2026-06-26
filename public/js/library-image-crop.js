@@ -5,11 +5,11 @@
   'use strict';
 
   /** Match barnvy photo-activity-card (~12:5). */
-  var ASPECT = 12 / 5;
-  var EXPORT_W = 960;
-  var EXPORT_H = Math.round(EXPORT_W / ASPECT);
+  const ASPECT = 12 / 5;
+  const EXPORT_W = 960;
+  const EXPORT_H = Math.round(EXPORT_W / ASPECT);
 
-  var state = {
+  const state = {
     img: null,
     resolve: null,
     baseScale: 1,
@@ -29,16 +29,16 @@
   function viewportEl() { return $('imageCropViewport'); }
 
   function clampPan() {
-    var vp = viewportEl();
+    const vp = viewportEl();
     if (!vp || !state.img) return;
-    var vw = vp.clientWidth;
-    var vh = vp.clientHeight;
+    const vw = vp.clientWidth;
+    const vh = vp.clientHeight;
     state.panX = Math.min(0, Math.max(vw - dispW(), state.panX));
     state.panY = Math.min(0, Math.max(vh - dispH(), state.panY));
   }
 
   function centerImage() {
-    var vp = viewportEl();
+    const vp = viewportEl();
     if (!vp || !state.img) return;
     state.panX = (vp.clientWidth - dispW()) / 2;
     state.panY = (vp.clientHeight - dispH()) / 2;
@@ -46,9 +46,9 @@
   }
 
   function layoutImage() {
-    var el = $('imageCropImg');
+    const el = $('imageCropImg');
     if (!el || !state.img) return;
-    var s = getScale();
+    const s = getScale();
     el.style.width = (state.img.naturalWidth * s) + 'px';
     el.style.height = (state.img.naturalHeight * s) + 'px';
     el.style.left = state.panX + 'px';
@@ -57,8 +57,8 @@
   }
 
   function cropSourceRect() {
-    var vp = viewportEl();
-    var scale = getScale();
+    const vp = viewportEl();
+    const scale = getScale();
     return {
       sx: -state.panX / scale,
       sy: -state.panY / scale,
@@ -69,54 +69,54 @@
 
   function drawToCanvas(canvas) {
     if (!state.img || !canvas) return;
-    var r = cropSourceRect();
+    const r = cropSourceRect();
     canvas.width = EXPORT_W;
     canvas.height = EXPORT_H;
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.drawImage(state.img, r.sx, r.sy, r.sw, r.sh, 0, 0, EXPORT_W, EXPORT_H);
   }
 
   function drawPreview() {
-    var canvas = $('imageCropBarnvyPreview');
+    const canvas = $('imageCropBarnvyPreview');
     if (!canvas || !state.img) return;
-    var mini = $('imageCropBarnvyPreviewWrap');
-    var w = mini ? Math.min(mini.clientWidth, 280) : 200;
-    var h = Math.round(w / ASPECT);
+    const mini = $('imageCropBarnvyPreviewWrap');
+    const w = mini ? Math.min(mini.clientWidth, 280) : 200;
+    const h = Math.round(w / ASPECT);
     canvas.width = w;
     canvas.height = h;
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    var r = cropSourceRect();
+    const r = cropSourceRect();
     ctx.drawImage(state.img, r.sx, r.sy, r.sw, r.sh, 0, 0, w, h);
   }
 
   function setZoom(zoom) {
     if (!state.img) return;
-    var vp = viewportEl();
-    var cx = vp.clientWidth / 2;
-    var cy = vp.clientHeight / 2;
-    var oldScale = getScale();
-    var ix = (cx - state.panX) / oldScale;
-    var iy = (cy - state.panY) / oldScale;
+    const vp = viewportEl();
+    const cx = vp.clientWidth / 2;
+    const cy = vp.clientHeight / 2;
+    const oldScale = getScale();
+    const ix = (cx - state.panX) / oldScale;
+    const iy = (cy - state.panY) / oldScale;
     state.zoom = zoom;
     state.panX = cx - ix * getScale();
     state.panY = cy - iy * getScale();
     clampPan();
     layoutImage();
-    var slider = $('imageCropZoom');
+    const slider = $('imageCropZoom');
     if (slider) slider.value = String(zoom);
   }
 
   function resetEditor() {
     if (!state.img) return;
-    var vp = viewportEl();
+    const vp = viewportEl();
     state.baseScale = Math.max(
       vp.clientWidth / state.img.naturalWidth,
       vp.clientHeight / state.img.naturalHeight
     );
     state.zoom = 1;
-    var slider = $('imageCropZoom');
+    const slider = $('imageCropZoom');
     if (slider) slider.value = '1';
     centerImage();
     layoutImage();
@@ -129,7 +129,7 @@
     }
     state.img = null;
     state.resolve = null;
-    var el = $('imageCropImg');
+    const el = $('imageCropImg');
     if (el) {
       el.removeAttribute('src');
       el.style.width = '';
@@ -140,16 +140,16 @@
   }
 
   function closeModal(result) {
-    var modal = $('imageCropModal');
+    const modal = $('imageCropModal');
     if (modal) modal.classList.add('hidden');
     document.body.classList.remove('image-crop-open');
-    var resolver = state.resolve;
+    const resolver = state.resolve;
     cleanup();
     if (typeof resolver === 'function') resolver(result);
   }
 
   function showModal() {
-    var modal = $('imageCropModal');
+    const modal = $('imageCropModal');
     if (modal) {
       modal.classList.remove('hidden');
       document.body.classList.add('image-crop-open');
@@ -158,9 +158,9 @@
 
   function loadImageFromFile(file) {
     return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(file);
       state.objectUrl = url;
-      var img = new Image();
+      const img = new Image();
       img.onload = function () { resolve(img); };
       img.onerror = function () {
         URL.revokeObjectURL(url);
@@ -178,14 +178,14 @@
       return loadImageFromFile(new File([blob], 'recrop.jpg', { type: blob.type || 'image/jpeg' }));
     }
 
-    var absolute = url;
+    let absolute = url;
     try {
       absolute = new URL(url, window.location.origin).href;
     } catch (_) {
       return Promise.reject(new Error('Ogiltig bild-URL'));
     }
 
-    var sameOrigin = absolute.indexOf(window.location.origin) === 0;
+    const sameOrigin = absolute.indexOf(window.location.origin) === 0;
 
     if (sameOrigin) {
       return fetch(absolute, { credentials: 'include' })
@@ -196,8 +196,8 @@
         .then(blobToImage);
     }
 
-    var fetchFn = window.apiFetch || fetch;
-    var proxyPath = '/api/family/images/source?url=' + encodeURIComponent(url);
+    const fetchFn = window.apiFetch || fetch;
+    const proxyPath = '/api/family/images/source?url=' + encodeURIComponent(url);
     return fetchFn(proxyPath, { credentials: 'include' })
       .then(function (res) {
         if (!res.ok) throw new Error('Kunde inte hämta bilden');
@@ -210,7 +210,7 @@
     return new Promise(function (resolve) {
       state.resolve = resolve;
       state.img = img;
-      var el = $('imageCropImg');
+      const el = $('imageCropImg');
       if (el) el.src = img.src;
       showModal();
       requestAnimationFrame(function () {
@@ -241,7 +241,7 @@
 
   function exportFile() {
     return new Promise(function (resolve, reject) {
-      var canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
       try {
         drawToCanvas(canvas);
         canvas.toBlob(function (blob) {
@@ -259,7 +259,7 @@
 
   function onPointerDown(e) {
     if (!state.img) return;
-    var vp = viewportEl();
+    const vp = viewportEl();
     if (!vp) return;
     state.drag = {
       x: e.clientX,
@@ -281,7 +281,7 @@
 
   function onPointerUp(e) {
     if (!state.drag) return;
-    var vp = viewportEl();
+    const vp = viewportEl();
     if (vp) {
       try { vp.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
     }
@@ -289,22 +289,22 @@
   }
 
   function bindUi() {
-    var vp = viewportEl();
+    const vp = viewportEl();
     if (vp) {
       vp.addEventListener('pointerdown', onPointerDown);
       vp.addEventListener('pointermove', onPointerMove);
       vp.addEventListener('pointerup', onPointerUp);
       vp.addEventListener('pointercancel', onPointerUp);
     }
-    var slider = $('imageCropZoom');
+    const slider = $('imageCropZoom');
     if (slider) {
       slider.addEventListener('input', function () {
         setZoom(parseFloat(slider.value, 10) || 1);
       });
     }
-    var cancelBtn = $('imageCropCancelBtn');
+    const cancelBtn = $('imageCropCancelBtn');
     if (cancelBtn) cancelBtn.addEventListener('click', function () { closeModal(null); });
-    var confirmBtn = $('imageCropConfirmBtn');
+    const confirmBtn = $('imageCropConfirmBtn');
     if (confirmBtn) {
       confirmBtn.addEventListener('click', function () {
         confirmBtn.disabled = true;
@@ -317,7 +317,7 @@
         });
       });
     }
-    var modal = $('imageCropModal');
+    const modal = $('imageCropModal');
     if (modal) {
       modal.addEventListener('click', function (e) {
         if (e.target === modal) closeModal(null);

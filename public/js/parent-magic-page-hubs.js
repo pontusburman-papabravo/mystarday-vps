@@ -4,14 +4,14 @@
 (function () {
   'use strict';
 
-  var SETTINGS_GROUPS = [
+  const SETTINGS_GROUPS = [
     { id: 'profile', icon: '👤', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
     { id: 'family', icon: '👨‍👩‍👧', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
     { id: 'appearance', icon: '🎨', iconClass: 'app', title: 'Utseende', sub: 'Mörkt eller ljust tema' },
     { id: 'app', icon: '📱', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
   ];
 
-  var PAGE_HEROES = {
+  const PAGE_HEROES = {
     planning: { icon: '📅', title: 'Planering', sub: 'Bygg innehåll eller planera barnens vecka.' },
     rewards: { icon: '🎁', title: 'Belöningar', sub: 'Stjärnor, belöningar och familjekista.' },
     calendar: { icon: '📆', title: 'Kalender', sub: 'Månadsvy över alla barn' },
@@ -24,7 +24,7 @@
     notifications: { icon: '🔔', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
   };
 
-  var _activeSettingsGroup = null;
+  let _activeSettingsGroup = null;
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -47,7 +47,7 @@
 
   function bindPlanningBack(root) {
     if (!root) return;
-    var btn = root.querySelector('[data-planning-back]');
+    const btn = root.querySelector('[data-planning-back]');
     if (!btn || btn.dataset.bound) return;
     btn.dataset.bound = '1';
     btn.addEventListener('click', function () {
@@ -69,7 +69,7 @@
       if (btn.dataset.bound) return;
       btn.dataset.bound = '1';
       btn.addEventListener('click', function () {
-        var mode = btn.getAttribute('data-schedule-mode');
+        const mode = btn.getAttribute('data-schedule-mode');
         window.setScheduleMode(mode);
         root.querySelectorAll('.schedule-magic-mode-bar .schedule-mode-btn').forEach(function (b) {
           b.classList.toggle('active', b.getAttribute('data-schedule-mode') === mode);
@@ -88,7 +88,7 @@
   }
 
   function renderScheduleHero() {
-    var childCount = 0;
+    let childCount = 0;
     if (typeof children !== 'undefined' && Array.isArray(children)) {
       childCount = children.length;
     }
@@ -114,10 +114,10 @@
   }
 
   function renderFamilyHero() {
-    var summary = document.getElementById('familySummary');
-    var sub = summary && summary.textContent ? summary.textContent : 'Er familj på ett ställe';
-    var childN = document.querySelectorAll('#childrenGrid > *').length;
-    var adultN = document.querySelectorAll('#adultsGrid > *').length;
+    const summary = document.getElementById('familySummary');
+    const sub = summary && summary.textContent ? summary.textContent : 'Er familj på ett ställe';
+    const childN = document.querySelectorAll('#childrenGrid > *').length;
+    const adultN = document.querySelectorAll('#adultsGrid > *').length;
     return '<div class="magic-page-shell magic-3d-scene">' +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">👨‍👩‍👧</div>' +
@@ -153,8 +153,8 @@
   }
 
   function renderSettingsBackBar() {
-    var g = SETTINGS_GROUPS.find(function (x) { return x.id === _activeSettingsGroup; });
-    var title = g ? g.title : 'Tillbaka';
+    const g = SETTINGS_GROUPS.find(function (x) { return x.id === _activeSettingsGroup; });
+    const title = g ? g.title : 'Tillbaka';
     return '<div class="magic-settings-back-bar">' +
       '<button type="button" class="magic-settings-back" data-settings-back="1">← ' + escHtml(title) + '</button>' +
       '</div>';
@@ -164,10 +164,10 @@
     _activeSettingsGroup = groupId;
     document.body.classList.add('magic-settings-in-group');
     document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
-      var show = el.getAttribute('data-magic-settings-content') === groupId;
+      const show = el.getAttribute('data-magic-settings-content') === groupId;
       el.classList.toggle('hidden', !show);
     });
-    var backBar = document.getElementById('magicSettingsBackBar');
+    const backBar = document.getElementById('magicSettingsBackBar');
     if (backBar) backBar.innerHTML = renderSettingsBackBar();
     if (groupId === 'appearance') updateThemePickerUi();
   }
@@ -178,7 +178,7 @@
 
   function bindSettingsEvents(root) {
     root.onclick = function (e) {
-      var groupBtn = e.target.closest('[data-settings-group]');
+      const groupBtn = e.target.closest('[data-settings-group]');
       if (groupBtn) {
         showSettingsGroup(groupBtn.getAttribute('data-settings-group'));
         return;
@@ -188,7 +188,7 @@
         refresh('settings', true);
       }
     };
-    var backMount = document.getElementById('magicSettingsBackBar');
+    const backMount = document.getElementById('magicSettingsBackBar');
     if (backMount) {
       backMount.onclick = function (e) {
         if (e.target.closest('[data-settings-back]')) {
@@ -200,9 +200,9 @@
   }
 
   function renderThemePicker() {
-    var current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
+    const current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
     function opt(value, label, swatch) {
-      var active = current === value ? ' is-active' : '';
+      const active = current === value ? ' is-active' : '';
       return '<button type="button" class="magic-theme-option' + active + '" data-theme="' + value + '" ' +
         'aria-pressed="' + (current === value) + '">' +
         '<span class="magic-theme-swatch ' + swatch + '" aria-hidden="true"></span>' + escHtml(label) + '</button>';
@@ -214,16 +214,16 @@
   }
 
   function updateThemePickerUi() {
-    var current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
+    const current = (window.AppViewMode && AppViewMode.getTheme) ? AppViewMode.getTheme() : 'dark';
     document.querySelectorAll('#magicThemePicker .magic-theme-option').forEach(function (btn) {
-      var on = btn.getAttribute('data-theme') === current;
+      const on = btn.getAttribute('data-theme') === current;
       btn.classList.toggle('is-active', on);
       btn.setAttribute('aria-pressed', on);
     });
   }
 
   function handleThemePickerActivate(e) {
-    var btn = e.target.closest('.magic-theme-option[data-theme]');
+    const btn = e.target.closest('.magic-theme-option[data-theme]');
     if (!btn || !btn.closest('#magicAppearanceSection')) return;
     if (!window.AppViewMode || !AppViewMode.setTheme) return;
     AppViewMode.setTheme(btn.getAttribute('data-theme'));
@@ -246,11 +246,11 @@
   function ensureAppearanceSection() {
     if (document.getElementById('magicAppearanceSection')) return;
     // Anchor next to an existing settings section so it lives in the same column.
-    var anchor = document.getElementById('notifForm');
-    var refSec = anchor ? anchor.closest('section') : null;
-    var container = refSec ? refSec.parentNode : null;
+    const anchor = document.getElementById('notifForm');
+    const refSec = anchor ? anchor.closest('section') : null;
+    const container = refSec ? refSec.parentNode : null;
     if (!container) return;
-    var sec = document.createElement('section');
+    const sec = document.createElement('section');
     sec.id = 'magicAppearanceSection';
     sec.className = 'hidden';
     sec.innerHTML =
@@ -267,9 +267,9 @@
     bindThemePickerDelegation();
     ensureAppearanceSection();
     function tagChild(childId, groupId) {
-      var child = document.getElementById(childId);
+      const child = document.getElementById(childId);
       if (!child) return;
-      var sec = child.closest('section');
+      const sec = child.closest('section');
       if (!sec) return;
       sec.setAttribute('data-magic-settings-content', groupId);
       sec.classList.add('hidden');
@@ -302,11 +302,11 @@
   }
 
   function openFromHash() {
-    var hash = (window.location.hash || '').replace('#', '');
+    const hash = (window.location.hash || '').replace('#', '');
     if (hash === 'prenumeration') {
       showSettingsGroup('profile');
       setTimeout(function () {
-        var el = document.getElementById('prenumeration');
+        const el = document.getElementById('prenumeration');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 120);
       return true;
@@ -315,7 +315,7 @@
   }
 
   function refresh(page, magic) {
-    var el = mount();
+    const el = mount();
     if (!el) return;
 
     if (!magic || !(window.ParentMagicShell && ParentMagicShell.isMagic())) {
@@ -346,7 +346,7 @@
       tagSettingsSections();
       el.innerHTML = renderSettingsMenu();
       bindSettingsEvents(el);
-      var backBar = document.getElementById('magicSettingsBackBar');
+      const backBar = document.getElementById('magicSettingsBackBar');
       if (backBar) backBar.innerHTML = '';
       openFromHash();
     } else if (PAGE_HEROES[page]) {
@@ -361,7 +361,7 @@
   window.ParentMagicPageHub = {
     refresh: refresh,
     refreshScheduleHero: function () {
-      var magic = window.ParentMagicShell && ParentMagicShell.isMagic();
+      const magic = window.ParentMagicShell && ParentMagicShell.isMagic();
       if (magic) refresh('schedule', true);
     },
     tagSettingsSections: tagSettingsSections,

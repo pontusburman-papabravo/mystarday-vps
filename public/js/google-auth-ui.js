@@ -17,31 +17,31 @@
   async function handleGoogleLogin(opts) {
     if (!window.Platform || !Platform.googleSignIn) return;
     opts = opts || {};
-    var errEl = opts.errorEl || document.getElementById('googleLoginError') || document.getElementById('googleRegisterError');
+    const errEl = opts.errorEl || document.getElementById('googleLoginError') || document.getElementById('googleRegisterError');
     if (errEl) {
       errEl.style.display = 'none';
       errEl.textContent = '';
       if (errEl.classList) errEl.classList.add('hidden');
     }
 
-    var btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
-    var orig = btn ? btn.textContent : '';
+    const btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
+    const orig = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Google…'; }
     if (window.AppEntry && typeof AppEntry.trackAuthMethod === 'function') {
       AppEntry.trackAuthMethod('google');
     }
 
     try {
-      var result = await Platform.googleSignIn.signIn();
+      const result = await Platform.googleSignIn.signIn();
       if (!result || !result.idToken) return;
 
-      var res = await fetch('/api/auth/google', {
+      const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ idToken: result.idToken }),
       });
-      var data = await res.json().catch(function () { return {}; });
+      const data = await res.json().catch(function () { return {}; });
 
       if (res.ok && data.user) {
         if (window.AppEntry && typeof AppEntry.trackAuthSuccess === 'function') {
@@ -81,11 +81,11 @@
     if (!Platform.isGoogleSignInAvailable()) return;
 
     ['googleLoginSection', 'googleRegisterSection'].forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) el.classList.remove('hidden');
     });
 
-    var loginBtn = document.getElementById('googleLoginBtn');
+    const loginBtn = document.getElementById('googleLoginBtn');
     if (loginBtn && !loginBtn.dataset.bound) {
       loginBtn.dataset.bound = '1';
       loginBtn.addEventListener('click', function (e) {
@@ -93,7 +93,7 @@
         handleGoogleLogin({ buttonEl: loginBtn, errorEl: document.getElementById('googleLoginError') });
       });
     }
-    var regBtn = document.getElementById('googleRegisterBtn');
+    const regBtn = document.getElementById('googleRegisterBtn');
     if (regBtn && !regBtn.dataset.bound) {
       regBtn.dataset.bound = '1';
       regBtn.addEventListener('click', function (e) {

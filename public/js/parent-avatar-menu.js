@@ -13,24 +13,24 @@
     return false;
   }
 
-  var path = NavConfig.normalizePath(window.location.pathname);
+  const path = NavConfig.normalizePath(window.location.pathname);
   if (path === '/login' || path === '/child-login' || path.indexOf('/admin') === 0) return;
   if (!NavConfig.isParentShellPath(path) && path !== '/settings') return;
 
-  var MENU_ID = 'parentAvatarMenu';
-  var BTN_ID = 'parentAvatarBtn';
+  const MENU_ID = 'parentAvatarMenu';
+  const BTN_ID = 'parentAvatarBtn';
 
   function ensureHeaderBar() {
-    var bar = document.querySelector('[data-parent-nav-header]');
+    let bar = document.querySelector('[data-parent-nav-header]');
     if (bar) return bar;
 
-    var main = document.querySelector('main') || document.querySelector('.flex-1') || document.body;
+    const main = document.querySelector('main') || document.querySelector('.flex-1') || document.body;
     bar = document.createElement('div');
     bar.className = 'parent-nav-header-actions';
     bar.setAttribute('data-parent-nav-header', '1');
 
     if (!document.querySelector('[data-parent-nav-notifications]')) {
-      var notif = document.createElement('a');
+      const notif = document.createElement('a');
       notif.href = '/notifications';
       notif.className =
         'parent-hub-icon-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/80 border border-lavender text-lg';
@@ -56,24 +56,24 @@
   }
 
   function buildMenuItems(user) {
-    var items = [];
-    var avatarActions = NavConfig.AVATAR_ACTIONS || [];
+    let items = [];
+    const avatarActions = NavConfig.AVATAR_ACTIONS || [];
 
-    for (var i = 0; i < avatarActions.length; i++) {
-      var action = avatarActions[i];
+    for (let i = 0; i < avatarActions.length; i++) {
+      const action = avatarActions[i];
       if (action.role === 'dual_or_educator') {
-        var accountType = user && user.account_type;
+        const accountType = user && user.account_type;
         if (accountType !== 'dual' && accountType !== 'educator') continue;
         if (user.preferred_view_mode === 'pedagog') continue;
       }
       if (action.id === 'subscription' && isNativeShell()) continue;
       if (action.id === 'subscription' && window.BillingUi && !window.BillingUi.isEnabled()) continue;
       if (action.feature && NavConfig.hasFeatureAccess) {
-        var access = window._packageAccess;
+        const access = window._packageAccess;
         if (!NavConfig.hasFeatureAccess(access, action.feature)) continue;
       }
       if (action.id === 'subscription' && user) {
-        var showSub = action.showWhenTrialUnder7 !== false;
+        const showSub = action.showWhenTrialUnder7 !== false;
         if (showSub && window._packageAccess) {
           /* always show subscription link in avatar */
         }
@@ -93,9 +93,9 @@
   }
 
   function closeMenu() {
-    var menu = document.getElementById(MENU_ID);
-    var btn = document.getElementById(BTN_ID);
-    var wrap = document.getElementById('parentAvatarWrap');
+    const menu = document.getElementById(MENU_ID);
+    const btn = document.getElementById(BTN_ID);
+    const wrap = document.getElementById('parentAvatarWrap');
     if (menu) {
       menu.classList.add('hidden');
       if (wrap && menu.parentNode === document.body) {
@@ -106,10 +106,10 @@
   }
 
   function positionMenu() {
-    var menu = document.getElementById(MENU_ID);
-    var btn = document.getElementById(BTN_ID);
+    const menu = document.getElementById(MENU_ID);
+    const btn = document.getElementById(BTN_ID);
     if (!menu || !btn) return;
-    var rect = btn.getBoundingClientRect();
+    const rect = btn.getBoundingClientRect();
     menu.style.position = 'fixed';
     menu.style.top = Math.round(rect.bottom + 8) + 'px';
     menu.style.right = Math.round(window.innerWidth - rect.right) + 'px';
@@ -118,8 +118,8 @@
   }
 
   function openMenu() {
-    var menu = document.getElementById(MENU_ID);
-    var btn = document.getElementById(BTN_ID);
+    const menu = document.getElementById(MENU_ID);
+    const btn = document.getElementById(BTN_ID);
     if (!menu || !btn) return;
     if (menu.parentNode !== document.body) {
       document.body.appendChild(menu);
@@ -130,7 +130,7 @@
   }
 
   function toggleMenu() {
-    var menu = document.getElementById(MENU_ID);
+    const menu = document.getElementById(MENU_ID);
     if (!menu) return;
     if (menu.classList.contains('hidden')) openMenu();
     else closeMenu();
@@ -156,7 +156,7 @@
       return;
     }
     if (action.href) {
-      var settingsPath = action.href.split('#')[0].split('?')[0];
+      const settingsPath = action.href.split('#')[0].split('?')[0];
       if (settingsPath === '/settings' || settingsPath === '/settings.html') {
         window.location.href = action.href;
         return;
@@ -178,13 +178,13 @@
   function renderAvatar(user) {
     if (document.getElementById(BTN_ID)) return;
 
-    var bar = ensureHeaderBar();
-    var wrap = document.createElement('div');
+    const bar = ensureHeaderBar();
+    const wrap = document.createElement('div');
     wrap.className = 'relative parent-avatar-wrap';
     wrap.id = 'parentAvatarWrap';
     wrap.style.position = 'relative';
 
-    var btn = document.createElement('button');
+    const btn = document.createElement('button');
     btn.type = 'button';
     btn.id = BTN_ID;
     btn.className =
@@ -194,12 +194,12 @@
     btn.setAttribute('aria-expanded', 'false');
     btn.textContent = userInitial(user);
 
-    var menu = document.createElement('div');
+    const menu = document.createElement('div');
     menu.id = MENU_ID;
     menu.className = 'hidden parent-avatar-menu-dropdown absolute right-0 top-full mt-2 min-w-[220px] rounded-xl shadow-xl z-[9000] py-1';
     menu.setAttribute('role', 'menu');
 
-    var items = buildMenuItems(user);
+    const items = buildMenuItems(user);
     menu.innerHTML = items
       .map(function (action) {
         if (action.action === 'logout') {
@@ -229,10 +229,10 @@
     });
 
     menu.addEventListener('click', function (e) {
-      var item = e.target.closest('[data-avatar-action]');
+      const item = e.target.closest('[data-avatar-action]');
       if (!item) return;
-      var id = item.getAttribute('data-avatar-action');
-      var found = items.find(function (a) {
+      const id = item.getAttribute('data-avatar-action');
+      const found = items.find(function (a) {
         return a.id === id;
       });
       if (found) handleAction(found);
@@ -248,7 +248,7 @@
 
     window.addEventListener('resize', closeMenu);
     window.addEventListener('scroll', function () {
-      var menu = document.getElementById(MENU_ID);
+      const menu = document.getElementById(MENU_ID);
       if (menu && !menu.classList.contains('hidden')) positionMenu();
     }, true);
 
@@ -265,7 +265,7 @@
     if (window.BillingUi && BillingUi.refresh) {
       try { await BillingUi.refresh(); } catch (_) { /* ignore */ }
     }
-    var user = Auth.getUser();
+    const user = Auth.getUser();
     renderAvatar(user);
   }
 

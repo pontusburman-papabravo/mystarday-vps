@@ -6,19 +6,19 @@
 
   function renderYearStory(story) {
     if (!story) return '';
-    var lines = [];
+    const lines = [];
     lines.push('<div class="cu-museum-stat"><span class="cu-museum-num">' + story.completions + '</span><span class="cu-museum-lbl">aktiviteter ' + story.year + '</span></div>');
 
     (story.redemptions || []).forEach(function (r) {
-      var d = new Date(r.created_at);
-      var ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      const d = new Date(r.created_at);
+      const ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
       lines.push('<div class="skatt-story-card"><div class="skatt-story-date">📅 ' + ds + '</div>' +
         '<div class="skatt-story-text">' + (r.icon || '🎁') + ' Du låste upp <strong>' + (r.name || '') + '</strong>!</div></div>');
     });
 
     (story.achievements || []).forEach(function (a) {
-      var d = new Date(a.unlocked_at);
-      var ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      const d = new Date(a.unlocked_at);
+      const ds = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
       lines.push('<div class="skatt-story-card"><div class="skatt-story-date">📅 ' + ds + '</div>' +
         '<div class="skatt-story-text">' + (a.emoji || '🏆') + ' <strong>' + (a.name || '') + '</strong></div></div>');
     });
@@ -27,9 +27,9 @@
   }
 
   function renderRoom(universe) {
-    var stats = universe.stats || {};
-    var story = universe.year_story || {};
-    var topRewards = '';
+    const stats = universe.stats || {};
+    const story = universe.year_story || {};
+    const topRewards = '';
 
     return '<div class="skatt-section cu-museum-room">' +
       '<div class="skatt-section-header">' +

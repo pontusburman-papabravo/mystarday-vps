@@ -8,7 +8,7 @@
   // Dashboard renders into #parentHomeHubMount; schedule pulls in schedule-core +
   // six satellite scripts + dozens of modals — soft swap leaves "Laddar…" / 0 barn.
   // Full page load runs the HTML script order reliably.
-  var SOFT_PATHS = {
+  const SOFT_PATHS = {
     '/planning': 'planning',
     '/rewards': 'rewards',
     '/for-dig': 'for-dig',
@@ -18,7 +18,7 @@
   };
 
   /** Heavy / multi-script pages — always hard-navigate (planering-hub deep links). */
-  var FULL_LOAD_PATHS = {
+  const FULL_LOAD_PATHS = {
     '/library': true,
     '/schedule': true,
     '/calendar': true,
@@ -28,17 +28,17 @@
     '/settings': true,
   };
 
-  var PAGE_STYLES = {
+  const PAGE_STYLES = {
     dashboard: ['/css/dashboard-magic.css?v=5'],
     'for-dig': ['/css/for-dig.css?v=2'],
   };
 
   // Loaded before every soft-nav page — dom-utils defines window.renderChildAvatar + escapeHtml.
-  var SHARED_SCRIPTS = [
+  const SHARED_SCRIPTS = [
     '/js/dom-utils.js?v=2.13.0',
   ];
 
-  var PAGE_SCRIPTS = {
+  const PAGE_SCRIPTS = {
     dashboard: [
       '/js/dashboard-home-hub.js?v=5',
       '/js/dashboard-daily-summary.js?v=2026-06-09-warmth',
@@ -69,11 +69,11 @@
     settings: ['/js/coparent-invite-ui.js?v=1'],
   };
 
-  var _navigating = false;
-  var _bound = false;
+  let _navigating = false;
+  let _bound = false;
 
   function normalizePath(path) {
-    var p = (path || '/').split('?')[0].replace(/\/$/, '') || '/';
+    let p = (path || '/').split('?')[0].replace(/\/$/, '') || '/';
     if (p.endsWith('.html')) p = p.slice(0, -5);
     return p;
   }
@@ -90,7 +90,7 @@
   }
 
   function isFullLoadPath(href) {
-    var path = normalizePath((href || '').split('#')[0].split('?')[0]);
+    const path = normalizePath((href || '').split('#')[0].split('?')[0]);
     return !!FULL_LOAD_PATHS[path];
   }
 
@@ -103,7 +103,7 @@
   }
 
   function stripLibraryShellClasses() {
-    var cls = Array.from(global.document.body.classList);
+    const cls = Array.from(global.document.body.classList);
     cls.forEach(function (c) {
       if (c === 'parent-magic-library' || c.indexOf('library-magic-') === 0) {
         global.document.body.classList.remove(c);
@@ -112,9 +112,9 @@
   }
 
   function applyBodyFromPage(doc, pageId) {
-    var newBody = doc.body;
+    const newBody = doc.body;
     if (!newBody) return;
-    var magic = global.AppViewMode && AppViewMode.isMagic();
+    const magic = global.AppViewMode && AppViewMode.isMagic();
 
     Array.from(global.document.body.classList).forEach(function (c) {
       if (c.indexOf('parent-magic-page-') === 0) {
@@ -138,11 +138,11 @@
   }
 
   function swapMain(doc) {
-    var newMain = doc.querySelector('main');
-    var curMain = global.document.querySelector('main');
+    const newMain = doc.querySelector('main');
+    const curMain = global.document.querySelector('main');
     if (!newMain || !curMain) return false;
 
-    var preserveIds = { appViewToggleMount: 1, parentMagicPageMount: 1, parentTopChrome: 1 };
+    const preserveIds = { appViewToggleMount: 1, parentMagicPageMount: 1, parentTopChrome: 1 };
 
     Array.from(curMain.children).forEach(function (child) {
       if (child.id && preserveIds[child.id]) return;
@@ -161,13 +161,13 @@
   }
 
   function ensureStyles(doc) {
-    var head = global.document.head;
+    const head = global.document.head;
     doc.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
-      var href = link.getAttribute('href');
+      const href = link.getAttribute('href');
       if (!href || href.indexOf('parent-magic') !== -1) return;
-      var exists = head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
+      const exists = head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
       if (!exists) {
-        var copy = link.cloneNode(true);
+        const copy = link.cloneNode(true);
         head.appendChild(copy);
       }
     });
@@ -187,11 +187,11 @@
   }
 
   function ensurePageStyles(pageId) {
-    var head = global.document.head;
+    const head = global.document.head;
     (PAGE_STYLES[pageId] || []).forEach(function (href) {
-      var exists = head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
+      const exists = head.querySelector('link[rel="stylesheet"][href="' + href + '"]');
       if (!exists) {
-        var link = global.document.createElement('link');
+        const link = global.document.createElement('link');
         link.rel = 'stylesheet';
         link.href = href;
         head.appendChild(link);
@@ -203,8 +203,8 @@
     options = options || {};
     if (_navigating) return false;
 
-    var path = normalizePath(href);
-    var pageId = SOFT_PATHS[path];
+    const path = normalizePath(href);
+    const pageId = SOFT_PATHS[path];
     if (!pageId) {
       global.location.href = href;
       return false;
@@ -231,13 +231,13 @@
     _navigating = true;
 
     try {
-      var res = await fetch(href, {
+      const res = await fetch(href, {
         credentials: 'include',
         headers: { Accept: 'text/html' },
       });
       if (!res.ok) throw new Error('fetch_failed');
 
-      var finalPath = normalizePath(new URL(res.url, global.location.origin).pathname);
+      const finalPath = normalizePath(new URL(res.url, global.location.origin).pathname);
       if (finalPath !== path) {
         if (SOFT_PATHS[finalPath]) {
           return navigateTo(finalPath, { replace: true, force: true });
@@ -246,15 +246,15 @@
         return false;
       }
 
-      var html = await res.text();
-      var doc = parseHtml(html);
+      const html = await res.text();
+      const doc = parseHtml(html);
       ensureStyles(doc);
       ensurePageStyles(pageId);
 
       applyBodyFromPage(doc, pageId);
       resetPageState(pageId);
 
-      var hubMount = global.document.getElementById('parentMagicPageMount');
+      const hubMount = global.document.getElementById('parentMagicPageMount');
       if (hubMount) {
         hubMount.innerHTML = '';
         hubMount.classList.add('hidden');
@@ -278,9 +278,9 @@
         await ParentMagicPageBoot.run(pageId);
       }
 
-      var url = path;
-      var qIdx = href.indexOf('?');
-      var hIdx = href.indexOf('#');
+      let url = path;
+      const qIdx = href.indexOf('?');
+      const hIdx = href.indexOf('#');
       if (qIdx >= 0) {
         url += href.slice(qIdx, hIdx >= 0 ? hIdx : undefined);
       }
@@ -311,10 +311,10 @@
 
   function onNavLinkClick(e) {
     if (!shouldSoftNav()) return;
-    var link = e.target.closest('a[href^="/"]');
+    const link = e.target.closest('a[href^="/"]');
     if (!link) return;
 
-    var href = link.getAttribute('href');
+    const href = link.getAttribute('href');
     if (!href || href.charAt(0) !== '/') return;
     if (link.hasAttribute('data-full-load') || isFullLoadPath(href)) return;
     if (!isSoftNavPath(href)) return;
@@ -332,7 +332,7 @@
     global.document.addEventListener('click', onNavLinkClick, true);
     global.addEventListener('popstate', function (e) {
       if (!shouldSoftNav()) return;
-      var path = normalizePath(global.location.pathname);
+      const path = normalizePath(global.location.pathname);
       if (!SOFT_PATHS[path]) return;
       if (e.state && e.state.magicSoft) {
         navigateTo(global.location.pathname + global.location.search, { replace: true, force: true });

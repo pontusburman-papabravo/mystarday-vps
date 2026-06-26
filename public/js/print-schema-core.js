@@ -4,11 +4,11 @@
 (function (root) {
   'use strict';
 
-  var DAY_NAMES_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-  var SECTION_LABELS = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
-  var SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
+  const DAY_NAMES_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+  const SECTION_LABELS = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
+  const SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
 
-  var PERIODS = {
+  const PERIODS = {
     '1w': { days: 7, weeks: 1, label: '1 vecka' },
     '2w': { days: 14, weeks: 2, label: '2 veckor' },
     '1m': { days: 28, weeks: 4, label: '1 månad' },
@@ -23,15 +23,15 @@
   }
 
   function mondayOf(dateInput) {
-    var d = dateInput instanceof Date ? new Date(dateInput) : new Date(String(dateInput) + 'T12:00:00');
-    var dow = d.getDay();
-    var offset = dow === 0 ? -6 : 1 - dow;
+    const d = dateInput instanceof Date ? new Date(dateInput) : new Date(String(dateInput) + 'T12:00:00');
+    const dow = d.getDay();
+    const offset = dow === 0 ? -6 : 1 - dow;
     d.setDate(d.getDate() + offset);
     return d;
   }
 
   function addDays(date, n) {
-    var d = new Date(date);
+    const d = new Date(date);
     d.setDate(d.getDate() + n);
     return d;
   }
@@ -41,8 +41,8 @@
   }
 
   function fmtRangeLabel(start, end) {
-    var opts = { day: 'numeric', month: 'short' };
-    var y = { day: 'numeric', month: 'short', year: 'numeric' };
+    const opts = { day: 'numeric', month: 'short' };
+    const y = { day: 'numeric', month: 'short', year: 'numeric' };
     if (start.getFullYear() === end.getFullYear()) {
       return start.toLocaleDateString('sv-SE', opts) + ' – ' + end.toLocaleDateString('sv-SE', y);
     }
@@ -50,12 +50,12 @@
   }
 
   async function fetchWeeks(childId, weekOffsetStart, numWeeks, myDaysOnly, apiFetch) {
-    var weeks = [];
-    for (var w = 0; w < numWeeks; w++) {
-      var weekOffset = weekOffsetStart + w;
-      var qs = 'weekOffset=' + encodeURIComponent(weekOffset);
+    const weeks = [];
+    for (let w = 0; w < numWeeks; w++) {
+      const weekOffset = weekOffsetStart + w;
+      let qs = 'weekOffset=' + encodeURIComponent(weekOffset);
       if (myDaysOnly) qs += '&myDays=1';
-      var res = await apiFetch('/api/children/' + childId + '/calendar-week?' + qs);
+      const res = await apiFetch('/api/children/' + childId + '/calendar-week?' + qs);
       if (!res.ok) throw new Error('calendar-week');
       weeks.push(await res.json());
     }
@@ -63,13 +63,13 @@
   }
 
   function flattenWeekDays(weeks, myDaysOnly) {
-    var days = [];
-    for (var i = 0; i < weeks.length; i++) {
-      var cal = weeks[i];
-      var list = cal.days || [];
-      for (var j = 0; j < list.length; j++) {
-        var day = list[j];
-        var isMy = !day.custody || day.custody.isMyDay !== false;
+    const days = [];
+    for (let i = 0; i < weeks.length; i++) {
+      const cal = weeks[i];
+      const list = cal.days || [];
+      for (let j = 0; j < list.length; j++) {
+        const day = list[j];
+        const isMy = !day.custody || day.custody.isMyDay !== false;
         if (myDaysOnly && day.custody && day.custody.isMyDay === false) {
           days.push({
             date: day.date,
@@ -93,8 +93,8 @@
   }
 
   function maxActivitiesInDays(days) {
-    var max = 0;
-    for (var i = 0; i < days.length; i++) {
+    let max = 0;
+    for (let i = 0; i < days.length; i++) {
       if (days[i].skipContent) continue;
       max = Math.max(max, (days[i].activities || []).length);
     }
@@ -102,7 +102,7 @@
   }
 
   function scaleForPeriod(periodKey, maxActs, mode) {
-    var base;
+    let base;
     if (periodKey === '1w') base = { cell: 7.5, header: 8.5, sec: 6, title: 13, pad: 4, target: 12 };
     else if (periodKey === '2w') base = { cell: 6.5, header: 7.5, sec: 5.5, title: 12, pad: 3, target: 9 };
     else base = { cell: 5.5, header: 6.5, sec: 5, title: 11, pad: 2, target: 6 };
@@ -117,7 +117,7 @@
       };
     }
 
-    var factor = 1;
+    let factor = 1;
     if (maxActs > base.target) {
       factor = Math.max(0.52, base.target / maxActs);
     }
@@ -131,16 +131,16 @@
   }
 
   function buildDayCell(day, sc, myDaysOnly) {
-    var d = day.dateObj;
-    var dayFull = DAY_NAMES_FULL[d.getDay()];
-    var dayNum = d.getDate();
-    var monthNum = d.getMonth() + 1;
-    var borderColor = (day.custody && day.custody.color) || '#1B2340';
-    var muted = day.skipContent;
-    var headBg = muted ? '#E5E7EB' : borderColor;
-    var headColor = muted ? '#6B7280' : '#fff';
+    const d = day.dateObj;
+    const dayFull = DAY_NAMES_FULL[d.getDay()];
+    const dayNum = d.getDate();
+    const monthNum = d.getMonth() + 1;
+    const borderColor = (day.custody && day.custody.color) || '#1B2340';
+    const muted = day.skipContent;
+    const headBg = muted ? '#E5E7EB' : borderColor;
+    const headColor = muted ? '#6B7280' : '#fff';
 
-    var html = '<div class="day-cell' + (muted ? ' day-muted' : '') + '" style="border-color:' + esc(borderColor) + ';">' +
+    let html = '<div class="day-cell' + (muted ? ' day-muted' : '') + '" style="border-color:' + esc(borderColor) + ';">' +
       '<div class="day-head" style="background:' + headBg + ';color:' + headColor + ';font-size:' + sc.header + 'px;padding:' + sc.pad + 'px ' + (sc.pad + 2) + 'px;">' +
       esc(dayFull) + '<br><span style="font-size:' + (sc.header - 1) + 'px;opacity:0.85;">' + dayNum + '/' + monthNum + '</span></div>' +
       '<div class="day-body" style="padding:' + sc.pad + 'px;font-size:' + sc.cell + 'px;">';
@@ -150,21 +150,21 @@
     } else if (!day.activities.length) {
       html += '<div style="color:#aaa;font-style:italic;">–</div>';
     } else {
-      var grouped = {};
-      for (var i = 0; i < day.activities.length; i++) {
-        var item = day.activities[i];
-        var sec = item.section || 'dag';
+      const grouped = {};
+      for (let i = 0; i < day.activities.length; i++) {
+        const item = day.activities[i];
+        const sec = item.section || 'dag';
         if (!grouped[sec]) grouped[sec] = [];
         grouped[sec].push(item);
       }
-      for (var s = 0; s < SECTION_ORDER.length; s++) {
-        var key = SECTION_ORDER[s];
+      for (let s = 0; s < SECTION_ORDER.length; s++) {
+        const key = SECTION_ORDER[s];
         if (!grouped[key]) continue;
         html += '<div class="sec-label" style="font-size:' + sc.sec + 'px;">' + SECTION_LABELS[key] + '</div>';
-        for (var k = 0; k < grouped[key].length; k++) {
-          var act = grouped[key][k];
-          var check = act.completed ? '☑' : '☐';
-          var timeStr = act.start_time ? ' <span style="color:#888;">' + esc(act.start_time) + '</span>' : '';
+        for (let k = 0; k < grouped[key].length; k++) {
+          const act = grouped[key][k];
+          const check = act.completed ? '☑' : '☐';
+          const timeStr = act.start_time ? ' <span style="color:#888;">' + esc(act.start_time) + '</span>' : '';
           html += '<div class="act-row" style="font-size:' + sc.cell + 'px;line-height:1.25;">' +
             check + ' ' + (act.icon || '') + ' ' + esc(act.name) + timeStr + '</div>';
         }
@@ -176,26 +176,26 @@
   }
 
   function buildPrintHtml(opts) {
-    var child = opts.child;
-    var days = opts.days;
-    var periodKey = opts.periodKey || '1w';
-    var period = PERIODS[periodKey] || PERIODS['1w'];
-    var myDaysOnly = Boolean(opts.myDaysOnly);
-    var mode = opts.mode === 'preview' ? 'preview' : 'print';
-    var maxActs = maxActivitiesInDays(days);
-    var sc = scaleForPeriod(periodKey, maxActs, mode);
-    var rows = period.weeks;
-    var titleSuffix = myDaysOnly ? 'Mina dagar' : 'Schema';
-    var rangeStart = days[0] ? days[0].dateObj : new Date();
-    var rangeEnd = days[days.length - 1] ? days[days.length - 1].dateObj : rangeStart;
-    var rowSizing = 'auto';
+    const child = opts.child;
+    const days = opts.days;
+    const periodKey = opts.periodKey || '1w';
+    const period = PERIODS[periodKey] || PERIODS['1w'];
+    const myDaysOnly = Boolean(opts.myDaysOnly);
+    const mode = opts.mode === 'preview' ? 'preview' : 'print';
+    const maxActs = maxActivitiesInDays(days);
+    const sc = scaleForPeriod(periodKey, maxActs, mode);
+    const rows = period.weeks;
+    const titleSuffix = myDaysOnly ? 'Mina dagar' : 'Schema';
+    const rangeStart = days[0] ? days[0].dateObj : new Date();
+    const rangeEnd = days[days.length - 1] ? days[days.length - 1].dateObj : rangeStart;
+    const rowSizing = 'auto';
 
-    var cells = '';
-    for (var i = 0; i < days.length; i++) {
+    let cells = '';
+    for (let i = 0; i < days.length; i++) {
       cells += buildDayCell(days[i], sc, myDaysOnly);
     }
 
-    var styles = [
+    const styles = [
       '@page { size: A4 landscape; margin: 5mm; }',
       '* { box-sizing: border-box; }',
       'html, body { margin: 0; padding: 0; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #1B2340; }',
@@ -219,7 +219,7 @@
       '}',
     ].join('\n');
 
-    var body = '<div class="sheet sheet-' + mode + '">' +
+    const body = '<div class="sheet sheet-' + mode + '">' +
       '<div class="top">' +
       '<span style="font-size:1.4em;">' + avatarHtml(child, 28) + '</span>' +
       '<div><h1>' + esc(child.name) + ' — ' + titleSuffix + '</h1>' +
@@ -242,7 +242,7 @@
     return true;
   }
 
-  var LOADING_HTML =
+  const LOADING_HTML =
     '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
     '<title>Förbereder utskrift…</title>' +
     '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
@@ -266,13 +266,13 @@
       throw new Error('pdf_libs_missing');
     }
 
-    var container = document.createElement('div');
+    const container = document.createElement('div');
     container.setAttribute('aria-hidden', 'true');
     container.style.cssText = 'position:fixed;left:-10000px;top:0;width:1123px;padding:8px;background:#fff;z-index:-1;overflow:visible;';
     container.innerHTML = '<style>' + doc.styles + '</style>' + doc.body;
     document.body.appendChild(container);
 
-    var sheet = container.querySelector('.sheet');
+    const sheet = container.querySelector('.sheet');
     if (!sheet) {
       document.body.removeChild(container);
       throw new Error('no_sheet');
@@ -283,7 +283,7 @@
     }
     await new Promise(function (r) { setTimeout(r, 400); });
 
-    var canvas = await html2canvas(sheet, {
+    const canvas = await html2canvas(sheet, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
@@ -294,16 +294,16 @@
 
     document.body.removeChild(container);
 
-    var pdf = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    var imgData = canvas.toDataURL('image/png', 0.92);
-    var pageWidth = pdf.internal.pageSize.getWidth();
-    var pageHeight = pdf.internal.pageSize.getHeight();
-    var margin = 5;
-    var maxW = pageWidth - margin * 2;
-    var maxH = pageHeight - margin * 2;
-    var imgRatio = canvas.width / canvas.height;
-    var renderW;
-    var renderH;
+    const pdf = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const imgData = canvas.toDataURL('image/png', 0.92);
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 5;
+    const maxW = pageWidth - margin * 2;
+    const maxH = pageHeight - margin * 2;
+    const imgRatio = canvas.width / canvas.height;
+    let renderW;
+    let renderH;
     if (imgRatio > maxW / maxH) {
       renderW = maxW;
       renderH = maxW / imgRatio;
@@ -311,17 +311,17 @@
       renderH = maxH;
       renderW = maxH * imgRatio;
     }
-    var offsetX = (pageWidth - renderW) / 2;
-    var offsetY = (pageHeight - renderH) / 2;
+    const offsetX = (pageWidth - renderW) / 2;
+    const offsetY = (pageHeight - renderH) / 2;
     pdf.addImage(imgData, 'PNG', offsetX, offsetY, renderW, renderH);
 
-    var dateStr = new Date().toISOString().slice(0, 10);
-    var filename = 'schema-' + safePdfFilename(opts.childName || doc.title) + '-' + dateStr + '.pdf';
-    var blob = pdf.output('blob');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = 'schema-' + safePdfFilename(opts.childName || doc.title) + '-' + dateStr + '.pdf';
+    const blob = pdf.output('blob');
 
     if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
       try {
-        var shareFile = new File([blob], filename, { type: 'application/pdf' });
+        const shareFile = new File([blob], filename, { type: 'application/pdf' });
         if (navigator.canShare({ files: [shareFile] })) {
           await navigator.share({ files: [shareFile], title: filename });
           return { method: 'share', filename: filename };
@@ -334,8 +334,8 @@
     }
 
     try {
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       a.style.display = 'none';
@@ -351,13 +351,13 @@
   }
 
   function createPrintIframe() {
-    var iframe = document.createElement('iframe');
+    const iframe = document.createElement('iframe');
     iframe.setAttribute('aria-hidden', 'true');
     iframe.setAttribute('title', 'Utskrift');
     iframe.style.cssText = 'position:fixed;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden;';
     iframe.setAttribute('data-print-schema-frame', '1');
     document.body.appendChild(iframe);
-    var win = iframe.contentWindow;
+    const win = iframe.contentWindow;
     if (!win || !writeLoadingDocument(win)) {
       try { iframe.remove(); } catch (_) {}
       return null;
@@ -376,11 +376,11 @@
 
   /** Open print target synchronously (must run inside a user click). Falls back to hidden iframe on mobile/PWA. */
   function openPrintPlaceholder() {
-    var win = window.open('about:blank', '_blank', 'width=1100,height=700');
+    const win = window.open('about:blank', '_blank', 'width=1100,height=700');
     if (win && writeLoadingDocument(win)) {
       return { type: 'window', target: win };
     }
-    var iframe = createPrintIframe();
+    const iframe = createPrintIframe();
     if (iframe) return { type: 'iframe', target: iframe };
     return null;
   }
@@ -396,21 +396,21 @@
   }
 
   function openPrintWindow(doc, autoPrint, placeholder) {
-    var active = placeholder;
-    var win = resolvePrintWindow(active);
+    let active = placeholder;
+    let win = resolvePrintWindow(active);
     if (!win) {
       win = window.open('about:blank', '_blank', 'width=1100,height=700');
       if (win) {
         active = { type: 'window', target: win };
       } else {
-        var iframe = createPrintIframe();
+        const iframe = createPrintIframe();
         if (!iframe) return null;
         active = { type: 'iframe', target: iframe };
         win = iframe.contentWindow;
       }
     }
     if (!win || !writePrintDocument(win, doc)) return null;
-    var isIframe = active && active.type === 'iframe';
+    const isIframe = active && active.type === 'iframe';
     try { win.focus(); } catch (_) {}
     if (autoPrint !== false) {
       setTimeout(function () {
@@ -431,17 +431,17 @@
   }
 
   async function loadAndBuild(child, options) {
-    var apiFetch = options.apiFetch || root.apiFetch;
-    var periodKey = options.periodKey || '1w';
-    var period = PERIODS[periodKey] || PERIODS['1w'];
-    var weekOffset = options.weekOffset || 0;
-    var myDaysOnly = Boolean(options.myDaysOnly);
+    const apiFetch = options.apiFetch || root.apiFetch;
+    const periodKey = options.periodKey || '1w';
+    const period = PERIODS[periodKey] || PERIODS['1w'];
+    const weekOffset = options.weekOffset || 0;
+    const myDaysOnly = Boolean(options.myDaysOnly);
 
-    var weeks = await fetchWeeks(child.id, weekOffset, period.weeks, myDaysOnly, apiFetch);
-    var days = flattenWeekDays(weeks, myDaysOnly);
+    const weeks = await fetchWeeks(child.id, weekOffset, period.weeks, myDaysOnly, apiFetch);
+    const days = flattenWeekDays(weeks, myDaysOnly);
 
     if (myDaysOnly) {
-      var hasAny = days.some(function (d) { return !d.skipContent && d.activities.length > 0; });
+      const hasAny = days.some(function (d) { return !d.skipContent && d.activities.length > 0; });
       if (!hasAny) throw new Error('no_my_days');
     }
 

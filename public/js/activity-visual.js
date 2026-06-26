@@ -15,16 +15,16 @@
 
   function pick(item) {
     if (!item) return { url: null, icon: '⭐' };
-    var url = item.image_url || null;
-    var icon = item.icon || '⭐';
+    const url = item.image_url || null;
+    const icon = item.icon || '⭐';
     return { url: url, icon: icon };
   }
 
   /** Inline HTML for list/card slots (emoji text or img). */
   function inline(item, imgClass) {
-    var p = pick(item);
+    const p = pick(item);
     if (p.url) {
-      var cls = 'activity-visual-img' + (imgClass ? ' ' + imgClass : '');
+      const cls = 'activity-visual-img' + (imgClass ? ' ' + imgClass : '');
       return '<img src="' + esc(p.url) + '" alt="" class="' + cls + '" loading="lazy">';
     }
     return p.icon;

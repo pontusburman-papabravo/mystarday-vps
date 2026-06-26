@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  var _cache = undefined;
-  var DEFAULT_URL = 'https://mystarday.se';
+  let _cache = undefined;
+  const DEFAULT_URL = 'https://mystarday.se'; // pragma: allowlist secret
 
   function load() {
     if (_cache !== undefined) return Promise.resolve(_cache);
