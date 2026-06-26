@@ -278,9 +278,7 @@ body.platform-web.landing-magic-bg {
   background: transparent !important;
 }
 
-.landing-mobile-menu__app-store img {
-  display: block;
-  width: auto;
+.landing-mobile-menu__app-store .app-store-badge {
   height: 44px;
 }
 
@@ -290,15 +288,13 @@ body.platform-web.landing-magic-bg {
   line-height: 0;
 }
 
-.landing-footer__app-store img {
-  display: block;
-  width: auto;
+.landing-footer__app-store .app-store-badge {
   height: 44px;
   opacity: 0.95;
   transition: opacity 0.15s ease;
 }
 
-.landing-footer__app-store:hover img {
+.landing-footer__app-store:hover .app-store-badge {
   opacity: 1;
 }
 
@@ -667,9 +663,13 @@ body.platform-web.landing-magic-bg {
   opacity: 0.92;
 }
 
-.hero-launch-card__store img {
+.app-store-badge {
   display: block;
   width: auto;
+  height: 44px;
+}
+
+.hero-launch-card__store .app-store-badge {
   height: 44px;
 }
 
@@ -701,7 +701,7 @@ body.platform-web.landing-magic-bg {
     justify-self: start;
   }
 
-  .hero-launch-card__store img {
+  .hero-launch-card__store .app-store-badge {
     height: 40px;
   }
 }
