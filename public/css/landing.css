@@ -272,6 +272,32 @@ body.platform-web.landing-magic-bg {
 
 .landing-mobile-menu a:hover { background: var(--amber-lt); }
 
+.landing-mobile-menu__app-store {
+  display: inline-flex;
+  padding: 0.35rem 0.5rem !important;
+  background: transparent !important;
+}
+
+.landing-mobile-menu__app-store .app-store-badge {
+  height: 44px;
+}
+
+.landing-footer__app-store {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  line-height: 0;
+}
+
+.landing-footer__app-store .app-store-badge {
+  height: 44px;
+  opacity: 0.95;
+  transition: opacity 0.15s ease;
+}
+
+.landing-footer__app-store:hover .app-store-badge {
+  opacity: 1;
+}
+
 .landing-mobile-menu__section {
   font-size: 0.68rem;
   font-weight: 700;
@@ -560,6 +586,124 @@ body.platform-web.landing-magic-bg {
 .landing-hero__micro {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.5);
+}
+
+
+/* Hero launch card (App Store) */
+.hero-launch-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem 1.15rem;
+  align-items: center;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hero-launch-card__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hero-launch-card__text {
+  min-width: 0;
+}
+
+.hero-launch-card__tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.25rem;
+}
+
+.hero-launch-card__title {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 0.15rem;
+}
+
+.hero-launch-card__hook {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.35rem;
+}
+
+.hero-launch-card__body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+}
+
+.hero-launch-card__store {
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.hero-launch-card__store:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.app-store-badge {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+
+.hero-launch-card__store .app-store-badge {
+  height: 44px;
+}
+
+.hero-cta-app-store {
+  background: #000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.btn-secondary--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .hero-launch-card {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .hero-launch-card__store {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .hero-launch-card__store .app-store-badge {
+    height: 40px;
+  }
 }
 
 /* Hero mockup */

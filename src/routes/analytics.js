@@ -82,6 +82,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'footer_signup_click',
   'child_view_example_click',
   'landing_faq_expand',
+  'app_store_click',
   // Dashboard viral CTAs (dashboard-cta.js + coparent-invite-ui.js)
   'cta_invite_co_parent_shown',
   'cta_invite_co_parent_clicked',
