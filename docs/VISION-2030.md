@@ -17,7 +17,7 @@ Vi bygger en **motor för exekutiv funktion** — inte en barnapp. Generation 1 
 2. **Presentation Profiles** — Child, Teen, Young Adult, Adult (samma data, annan nav/språk/design).
 3. **Produkter** — olika upplevelser på samma motor.
 
-**Product Behavior Spec:** [`pbs/README.md`](./pbs/README.md) (volymserie v1.0)
+**Product Behavior Spec:** [`product-bible/README.md`](./product-bible/README.md) (15 kapitel + use-cases v1.0)
 
 ---
 

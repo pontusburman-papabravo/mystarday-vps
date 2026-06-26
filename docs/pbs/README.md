@@ -1,11 +1,23 @@
-# Product Behavior Specification (PBS)
+# Product Behavior Specification (PBS) — arkiv
 
 ## Produktplattformen — Version 1.0
 
-**Typ:** Product Requirements Bible / Behavior Specification  
-**Målstorlek (komplett):** ≈300–400 sidor  
-**Status:** Volymserie påbörjad — v1.0 grund  
+**Typ:** Arkiv — femvolymsserie  
+**Kanoniskt bibliotek:** [`../product-bible/README.md`](../product-bible/README.md) + [`../use-cases/`](../use-cases/)  
+**Status:** Innehåll migrerat till Product Bible (15 kapitel)  
 **Ägare:** Produkt
+
+> **Ny läsning börjar i [`product-bible/`](../product-bible/).** Denna mapp behålls som referens tills full migrering är verifierad.
+
+## Mappning volym → Product Bible
+
+| Arkiv (pbs/) | Product Bible |
+|--------------|---------------|
+| VOL-01 | Kap. 01–02, del av 06–08 |
+| VOL-02 | Kap. 04–05 |
+| VOL-03 | [`use-cases/`](../use-cases/) |
+| VOL-04 | Kap. 10 |
+| VOL-05 | Kap. 03, 08–09, 12, 15 |
 
 > PBS beskriver **hur produkten ska bete sig** — inte hur koden är implementerad.  
 > Vid konflikt om beteende, ton, ansvar eller användarupplevelse **vinner PBS** över kravspec och teknisk arkitektur.

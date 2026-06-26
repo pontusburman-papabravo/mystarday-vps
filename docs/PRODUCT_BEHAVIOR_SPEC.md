@@ -2,11 +2,13 @@
 
 ## Produktplattformen — Version 1.0
 
-**Status:** Primär produktspec — **volymserie** i [`pbs/`](./pbs/)  
-**Mål (komplett):** ≈300–400 sidor  
+**Status:** Primär produktspec  
+**Kanoniskt bibliotek:** [`product-bible/`](./product-bible/) + [`use-cases/`](./use-cases/)  
+**Mål (komplett):** ≈400–600 sidor (15 kapitel + 100–120 use cases)  
 **Ägare:** Produkt
 
-> Det här är **indexet**. Den fullständiga beteendebibeln ligger i **`docs/pbs/`** — fem versionerade volymer som skrivs ut kapitel för kapitel, inte ett enda dokument som ska färdigställas på en gång.
+> PBS beskriver **hur produkten ska bete sig** — inte hur koden är implementerad.  
+> Vid konflikt om beteende, ton, ansvar eller känsla **vinner PBS** över kravspec och teknisk arkitektur.
 
 ---
 
@@ -14,35 +16,47 @@
 
 | Jag är… | Börja här |
 |---------|-----------|
-| Ny på teamet | [pbs/README.md](./pbs/README.md) → [Vol 1 Vision](./pbs/VOL-01-VISION.md) |
-| UX-designer | [Vol 2 Roller](./pbs/VOL-02-ROLLER-DOMAN.md) + [Vol 3 UC](./pbs/VOL-03-USE-CASES.md) |
-| Utvecklare | [Vol 3 UC](./pbs/VOL-03-USE-CASES.md) + [architecture-platform.md](./architecture-platform.md) |
-| QA / test | [Vol 3 UC-mall](./pbs/VOL-03-USE-CASES.md) + [Vol 5 Konstitution](./pbs/VOL-05-MOTIVATION-EMOTION-KONSTITUTION.md) |
-| AI / Coach-team | [Vol 4 Coach Bible](./pbs/VOL-04-COACH-BIBLE.md) |
-| Produktägare / investerare (utdrag) | [Vol 1](./pbs/VOL-01-VISION.md) + [Vol 5 konstitution](./pbs/VOL-05-MOTIVATION-EMOTION-KONSTITUTION.md) |
+| Ny på teamet | [product-bible/README.md](./product-bible/README.md) → [01 Vision](./product-bible/01-PRODUCT-VISION.md) |
+| UX-designer | Kap. 06–08 + [use-cases/](./use-cases/) |
+| Utvecklare | Kap. 04, 11 + [architecture-platform.md](./architecture-platform.md) |
+| QA / test | Kap. 03, 12 + UC acceptance criteria |
+| AI / Coach-team | [10 Coach Bible](./product-bible/10-COACH-BIBLE.md) |
+| Produktägare / investerare | 01, 03, 15 |
 
 ---
 
-## Volymserie
+## Product Bible — 15 kapitel
 
-| # | Dokument | Innehåll |
-|---|----------|----------|
-| — | [**pbs/README.md**](./pbs/README.md) | Master-index, läsarguide, roadmap |
-| 1 | [VOL-01-VISION.md](./pbs/VOL-01-VISION.md) | Vision, filosofi, principer |
-| 2 | [VOL-02-ROLLER-DOMAN.md](./pbs/VOL-02-ROLLER-DOMAN.md) | Domänmodell + alla roller |
-| 3 | [VOL-03-USE-CASES.md](./pbs/VOL-03-USE-CASES.md) | 80–120 UC (mål); 8 fulla i v1.0 |
-| 4 | [VOL-04-COACH-BIBLE.md](./pbs/VOL-04-COACH-BIBLE.md) | AI-coachens beteende |
-| 5 | [VOL-05-MOTIVATION-EMOTION-KONSTITUTION.md](./pbs/VOL-05-MOTIVATION-EMOTION-KONSTITUTION.md) | Motivation, emotion, failure, livsresa, regler |
+| # | Dokument |
+|---|----------|
+| — | [**product-bible/README.md**](./product-bible/README.md) |
+| 01 | [Product Vision](./product-bible/01-PRODUCT-VISION.md) |
+| 02 | [Product Philosophy](./product-bible/02-PRODUCT-PHILOSOPHY.md) |
+| 03 | [Product Constitution](./product-bible/03-PRODUCT-CONSTITUTION.md) |
+| 04 | [Domain Model](./product-bible/04-DOMAIN-MODEL.md) |
+| 05 | [User Roles](./product-bible/05-USER-ROLES.md) |
+| 06 | [Experience Principles](./product-bible/06-EXPERIENCE-PRINCIPLES.md) |
+| 07 | [Navigation](./product-bible/07-NAVIGATION.md) |
+| 08 | [Design Language](./product-bible/08-DESIGN-LANGUAGE.md) |
+| 09 | [Motivation Engine](./product-bible/09-MOTIVATION-ENGINE.md) |
+| 10 | [Coach Bible](./product-bible/10-COACH-BIBLE.md) |
+| 11 | [Core Platform](./product-bible/11-CORE-PLATFORM.md) |
+| 12 | [Product Behavior Spec](./product-bible/12-PRODUCT-BEHAVIOR-SPEC.md) |
+| 13 | [Analytics](./product-bible/13-ANALYTICS.md) |
+| 14 | [Accessibility](./product-bible/14-ACCESSIBILITY.md) |
+| 15 | [Future Products](./product-bible/15-FUTURE-PRODUCTS.md) |
+
+**Use cases:** [use-cases/README.md](./use-cases/README.md) — 8 fulla i v1.0, mål 100–120.
 
 ---
 
 ## Hierarki
 
 ```text
-PBS (beteende)  >  architecture-platform  >  APP-V2-KRAVSPEC (leverans)
+Product Bible + use-cases (beteende)
+  > architecture-platform.md (motorer)
+    > APP-V2-KRAVSPEC.md (Platform v1 leverans)
 ```
-
-**Vid konflikt vinner PBS** om beteende, tonalitet, ansvar eller känsla.
 
 ---
 
@@ -50,15 +64,15 @@ PBS (beteende)  >  architecture-platform  >  APP-V2-KRAVSPEC (leverans)
 
 > **Produkten får aldrig få användaren att känna sig misslyckad som människa.** Den ska alltid hjälpa användaren att lyckas med nästa lilla steg.
 
-Fullständig konstitution (30 regler): [Vol 5, Del 10](./pbs/VOL-05-MOTIVATION-EMOTION-KONSTITUTION.md).
+Fullständig konstitution (30 regler): [03 — Product Constitution](./product-bible/03-PRODUCT-CONSTITUTION.md).
 
 ---
 
 ## Roadmap
 
-| PBS-version | Leverans |
-|-------------|----------|
-| **1.0** (nu) | Vol 1–5 grund · UC001–UC008 fulla · katalog UC001–UC060 |
+| Version | Leverans |
+|---------|----------|
+| **1.0** (nu) | 15 kapitel grund · 8 fulla UC · katalog UC001–UC060 |
 | 1.1 | UC009–UC030 fulla |
 | 1.2 | UC031–UC060 fulla |
 | 2.0 | UC061–UC120 · coach copy library · QA checklist |
@@ -66,10 +80,11 @@ Fullständig konstitution (30 regler): [Vol 5, Del 10](./pbs/VOL-05-MOTIVATION-E
 
 ---
 
-## Monolit (arkiv)
+## Arkiv
 
-Den tidigare enfiliga PBS (~3400 rader) ersattes av volymserien. Git-historik: `7641946` och tidigare.
+- [`pbs/`](./pbs/) — tidigare femvolymsserie (innehåll migrerat till `product-bible/`)
+- Git-historik monolit: commit `7641946` och tidigare
 
 ---
 
-*Senast uppdaterad: 2026-06-26 · PBS 1.0 volymserie*
+*Senast uppdaterad: 2026-06-26 · PBS 1.0 Product Bible*

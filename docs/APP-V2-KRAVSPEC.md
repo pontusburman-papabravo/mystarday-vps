@@ -6,7 +6,7 @@
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
-> Det här dokumentet är **leveranskrav** för Platform v1. **Beteende** styrs av [`pbs/README.md`](./pbs/README.md) (PBS volymserie) — vid konflikt vinner PBS.
+> Det här dokumentet är **leveranskrav** för Platform v1. **Beteende** styrs av [`product-bible/README.md`](./product-bible/README.md) (Product Bible / PBS) — vid konflikt vinner PBS.
 
 ---
 
@@ -14,8 +14,10 @@
 
 | Dokument | Roll |
 |----------|------|
-| [`pbs/README.md`](./pbs/README.md) | **PBS volymserie** — produktens beteendebibel |
-| [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) | PBS kort index |
+| [`product-bible/README.md`](./product-bible/README.md) | **Product Bible** — 15 kapitel beteendespec |
+| [`use-cases/README.md`](./use-cases/README.md) | Use cases (mål 100–120) |
+| [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) | PBS toppindex |
+| [`pbs/README.md`](./pbs/README.md) | Arkiv — tidigare femvolymsserie |
 | [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | Arkiv |
 | [`architecture-platform.md`](./architecture-platform.md) | Core Platform — engines, Presentation Profiles |
 | [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
