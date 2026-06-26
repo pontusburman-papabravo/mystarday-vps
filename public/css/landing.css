@@ -592,9 +592,118 @@ body.platform-web.landing-magic-bg {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.landing-hero--with-launch {
-  padding-top: 3.5rem;
-  min-height: auto;
+
+/* Hero launch card (App Store) */
+.hero-launch-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem 1.15rem;
+  align-items: center;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hero-launch-card__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hero-launch-card__text {
+  min-width: 0;
+}
+
+.hero-launch-card__tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.25rem;
+}
+
+.hero-launch-card__title {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 0.15rem;
+}
+
+.hero-launch-card__hook {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.35rem;
+}
+
+.hero-launch-card__body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+}
+
+.hero-launch-card__store {
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.hero-launch-card__store:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.hero-launch-card__store img {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+
+.hero-cta-app-store {
+  background: #000 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.btn-secondary--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .hero-launch-card {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .hero-launch-card__store {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .hero-launch-card__store img {
+    height: 40px;
+  }
 }
 
 /* Hero mockup */
@@ -1258,161 +1367,6 @@ body.platform-web.landing-magic-bg {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ── App Store launch banner ─────────────────────────────── */
-.app-launch-banner {
-  position: relative;
-  margin-top: 4.5rem;
-  padding: 2.5rem 1.5rem 2.75rem;
-  background: linear-gradient(160deg, #f4f5f7 0%, #eef1f6 45%, #e8edf5 100%);
-  border-bottom: 1px solid rgba(28, 35, 64, 0.08);
-  overflow: hidden;
-}
-
-.app-launch-banner__confetti {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.app-launch-banner__confetti span {
-  position: absolute;
-  display: block;
-  border-radius: 2px;
-  opacity: 0.55;
-  animation: launch-confetti-float 9s ease-in-out infinite;
-}
-
-.app-launch-banner__confetti span:nth-child(1) { width: 14px; height: 8px; top: 12%; left: 6%; background: #4a9fd4; transform: rotate(24deg); animation-delay: 0s; }
-.app-launch-banner__confetti span:nth-child(2) { width: 10px; height: 14px; top: 22%; left: 18%; background: #2d7eb8; transform: rotate(-18deg); animation-delay: 1.2s; }
-.app-launch-banner__confetti span:nth-child(3) { width: 12px; height: 7px; top: 8%; right: 14%; background: #6ec4e8; transform: rotate(42deg); animation-delay: 0.6s; }
-.app-launch-banner__confetti span:nth-child(4) { width: 9px; height: 12px; top: 68%; left: 10%; background: #3b8fc9; transform: rotate(-32deg); animation-delay: 2s; }
-.app-launch-banner__confetti span:nth-child(5) { width: 11px; height: 6px; top: 74%; right: 8%; background: #5ab0dc; transform: rotate(15deg); animation-delay: 1.5s; }
-.app-launch-banner__confetti span:nth-child(6) { width: 8px; height: 11px; top: 40%; right: 22%; background: #7dd3f0; transform: rotate(-8deg); animation-delay: 0.3s; }
-.app-launch-banner__confetti span:nth-child(7) { width: 13px; height: 7px; top: 55%; left: 4%; background: #4a9fd4; transform: rotate(55deg); animation-delay: 2.4s; }
-.app-launch-banner__confetti span:nth-child(8) { width: 7px; height: 10px; top: 30%; right: 5%; background: #2d7eb8; transform: rotate(-25deg); animation-delay: 1.8s; }
-
-@keyframes launch-confetti-float {
-  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
-  50% { transform: translateY(-6px) rotate(calc(var(--r, 0deg) + 8deg)); }
-}
-
-.app-launch-banner__inner {
-  position: relative;
-  z-index: 1;
-  max-width: var(--max-w);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2rem;
-  align-items: center;
-}
-
-.app-launch-banner__tagline {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #2d7eb8;
-  margin-bottom: 0.45rem;
-}
-
-.app-launch-banner__headline {
-  font-family: 'Fraunces', serif;
-  font-size: clamp(1.65rem, 3.5vw, 2.35rem);
-  font-weight: 800;
-  color: var(--navy);
-  line-height: 1.15;
-  margin-bottom: 0.35rem;
-}
-
-.app-launch-banner__hook {
-  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 0.85rem;
-}
-
-.app-launch-banner__body {
-  font-size: 1rem;
-  line-height: 1.65;
-  color: #4a5168;
-  max-width: 520px;
-  margin-bottom: 1.25rem;
-}
-
-.app-launch-banner__store-link {
-  display: inline-block;
-  line-height: 0;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.app-launch-banner__store-link:hover {
-  transform: translateY(-2px);
-  opacity: 0.92;
-}
-
-.app-launch-banner__store-link img {
-  display: block;
-  width: auto;
-  height: 52px;
-}
-
-.app-launch-banner__cta-text {
-  margin-top: 0.75rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #5a6178;
-}
-
-.app-launch-banner__visual {
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.app-launch-banner__icon {
-  display: block;
-  width: clamp(120px, 18vw, 168px);
-  height: clamp(120px, 18vw, 168px);
-  margin: 0 auto;
-  border-radius: 28%;
-  box-shadow: 0 16px 40px rgba(28, 35, 64, 0.18), 0 4px 12px rgba(28, 35, 64, 0.1);
-}
-
-.app-launch-banner__app-name {
-  margin-top: 0.85rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--navy);
-}
-
-@media (max-width: 760px) {
-  .app-launch-banner {
-    margin-top: 4rem;
-    padding: 2rem 1.25rem 2.25rem;
-  }
-
-  .app-launch-banner__inner {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    text-align: center;
-  }
-
-  .app-launch-banner__body {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .app-launch-banner__visual {
-    order: -1;
-  }
-
-  .app-launch-banner__icon {
-    width: 112px;
-    height: 112px;
-  }
-}
-
 /* ── News banner + admin news ────────────────────────────── */
 #dagensNyhetBanner {
   position: fixed;
@@ -1456,9 +1410,7 @@ body.platform-web.landing-magic-bg {
   .step-panels,
   .testimonials-grid { grid-template-columns: 1fr; }
 
-  .landing-hero { padding-top: 3rem; min-height: auto; }
-
-  .landing-hero--with-launch { padding-top: 2.5rem; }
+  .landing-hero { padding-top: 6.5rem; min-height: auto; }
 
   .landing-hero__visual { order: -1; }
 
