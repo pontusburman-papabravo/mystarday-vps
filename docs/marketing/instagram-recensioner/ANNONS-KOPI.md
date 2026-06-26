@@ -10,7 +10,7 @@ npm run instagram:recensioner
 
 Eller: `bash scripts/instagram-recensioner-mac.sh`
 
-**Output:** `instagram-recensioner.mp4` (1080×1920, 6×5 sek = 30 sek)
+**Output:** `instagram-recensioner.mp4` (**1080×1920, 9:16**, 6×5 sek = 30 sek)
 
 ## Sekvens
 

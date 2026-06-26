@@ -112,23 +112,23 @@ function checkSources() {
   return resolved;
 }
 
-function buildCompositorHtml(imagePaths, hook, split) {
+function buildCompositorHtml(imagePaths, hook) {
   const toSrc = (p) => 'file://' + p.split(path.sep).join('/');
 
-  function imgTag(p) {
-    const cls = isLandscape(p) ? ' class="contain"' : '';
-    return `<img src="${toSrc(p)}" alt=""${cls}>`;
+  function slideBg(p) {
+    const src = toSrc(p);
+    if (isLandscape(p)) {
+      return (
+        '<div class="bg bg-landscape">' +
+        `<img class="bg-blur" src="${src}" alt="">` +
+        `<img class="bg-fg" src="${src}" alt="">` +
+        '</div>'
+      );
+    }
+    return `<div class="bg bg-portrait"><img src="${src}" alt=""></div>`;
   }
 
-  let bgHtml;
-  if (split && imagePaths.length >= 2) {
-    bgHtml =
-      '<div class="bg bg-split">' +
-      imagePaths.map((p) => imgTag(p)).join('') +
-      '</div>';
-  } else {
-    bgHtml = `<div class="bg">${imgTag(imagePaths[0])}</div>`;
-  }
+  const bgHtml = slideBg(imagePaths[0]);
 
   const hookEsc = hook
     .replace(/&/g, '&amp;')
@@ -143,10 +143,20 @@ function buildCompositorHtml(imagePaths, hook, split) {
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #0f1629; }
     .bg { position: absolute; inset: 0; }
-    .bg img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-    .bg img.contain { object-fit: contain; object-position: center center; background: #eef1f7; }
-    .bg-split { display: flex; flex-direction: column; height: 100%; }
-    .bg-split img { width: 100%; height: 50%; object-fit: cover; object-position: center center; flex-shrink: 0; }
+    .bg-portrait img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block;
+    }
+    .bg-landscape { background: #1b2340; overflow: hidden; }
+    .bg-landscape .bg-blur {
+      position: absolute; inset: -48px;
+      width: calc(100% + 96px); height: calc(100% + 96px);
+      object-fit: cover; filter: blur(36px) brightness(0.42) saturate(1.15);
+    }
+    .bg-landscape .bg-fg {
+      position: absolute; left: 28px; right: 28px; top: 48px; bottom: 290px;
+      width: calc(100% - 56px); height: calc(100% - 338px);
+      object-fit: contain; object-position: center center;
+    }
     .hook {
       position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
       padding: 72px 48px 80px;
@@ -170,7 +180,7 @@ function buildCompositorHtml(imagePaths, hook, split) {
 
 async function renderSlide(browser, slide, resolved) {
   const imagePaths = slide.images.map((key) => resolved[key]);
-  const html = buildCompositorHtml(imagePaths, slide.hook, slide.split);
+  const html = buildCompositorHtml(imagePaths, slide.hook);
   const tmpHtml = path.join(OUT_DIR, `.tmp-${slide.name}.html`);
   fs.writeFileSync(tmpHtml, html);
 
@@ -215,12 +225,12 @@ async function main() {
   const concat = paths.map((_, i) => `[v${i}]`).join('') + `concat=n=${paths.length}:v=1:a=0[out]`;
 
   execSync(
-    `ffmpeg -y ${inputs} -filter_complex "${scales};${concat}" -map "[out]" -c:v libx264 -pix_fmt yuv420p -r 30 "${mp4Path}"`,
+    `ffmpeg -y ${inputs} -filter_complex "${scales};${concat}" -map "[out]" -c:v libx264 -pix_fmt yuv420p -r 30 -aspect 9:16 -movflags +faststart "${mp4Path}"`,
     { stdio: 'inherit' }
   );
 
   console.log(`\n✓ ${mp4Path}`);
-  console.log(`  ${paths.length} slides × ${SEC_PER_SLIDE}s = ${paths.length * SEC_PER_SLIDE}s`);
+  console.log(`  ${paths.length} slides × ${SEC_PER_SLIDE}s = ${paths.length * SEC_PER_SLIDE}s (${W}×${H}, 9:16)`);
 }
 
 main().catch((err) => {
