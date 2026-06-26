@@ -144,7 +144,7 @@ async function runPushReminderJob() {
 
     // ── 5. Custody morning reminder (08:00 only, FEAT-1 BC-10) ───────────
     if (hour === 8 && minute < 5) {
-      await sendCustodyMorningReminders(dateStr);
+      await sendCustodyMorningReminders(sDate);
     }
 
   } catch (err) {
