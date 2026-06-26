@@ -3,6 +3,7 @@
  */
 const db = require('../src/lib/db');
 const contactMessages = require('./contact-messages');
+const adminOperationalAlerts = require('./admin-operational-alerts');
 
 function buildPeriodMetric(row) {
   const last7d = parseInt(row.last7d, 10) || 0;
@@ -78,35 +79,38 @@ async function fetchMessageSummary() {
 }
 
 async function fetchRecommendations() {
-  const { rows } = await db.query(`
-    SELECT COUNT(*)::int AS c FROM contact_message WHERE status = 'new'
-  `);
-  const unread = rows[0]?.c || 0;
-  const cards = [];
+  const [unreadRow, leadRows, operationalRows] = await Promise.all([
+    db.query(`SELECT COUNT(*)::int AS c FROM contact_message WHERE status = 'new'`),
+    db.query(`
+      SELECT (
+        (SELECT COUNT(*)::int FROM package_interest WHERE lead_status = 'ny') +
+        (SELECT COUNT(*)::int FROM professional_interest WHERE lead_status = 'ny') +
+        (SELECT COUNT(*)::int FROM waitlist WHERE lead_status = 'ny')
+      ) AS c
+    `),
+    adminOperationalAlerts.listActive(10),
+  ]);
+
+  const unread = unreadRow.rows[0]?.c || 0;
+  const newLeads = leadRows.rows[0]?.c || 0;
+  const cards = adminOperationalAlerts.toRecommendationCards(operationalRows);
+
   if (unread > 0) {
     cards.push({
       type: 'unread_messages',
       title: `${unread} olästa meddelanden`,
       body: 'Öppna inboxen och markera det viktigaste först.',
       route: '#meddelanden?inbox=unread',
-      priority: 1,
+      priority: 3,
     });
   }
-  const { rows: leadRows } = await db.query(`
-    SELECT (
-      (SELECT COUNT(*)::int FROM package_interest WHERE lead_status = 'ny') +
-      (SELECT COUNT(*)::int FROM professional_interest WHERE lead_status = 'ny') +
-      (SELECT COUNT(*)::int FROM waitlist WHERE lead_status = 'ny')
-    ) AS c
-  `);
-  const newLeads = leadRows[0]?.c || 0;
   if (newLeads > 0) {
     cards.push({
       type: 'new_leads',
       title: `${newLeads} nya leads i pipeline`,
       body: 'Granska paketintresse, pedagogintresse och waitlist.',
       route: '#tillvaxt-pipeline',
-      priority: 2,
+      priority: 4,
     });
   }
   return cards.sort((a, b) => a.priority - b.priority);

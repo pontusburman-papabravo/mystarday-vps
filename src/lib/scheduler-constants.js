@@ -35,6 +35,9 @@ const WIN_BACK_SCHEDULER_LOCK_ID = 1007;
 /** RET-3 retention re-engagement push — day 3/7/14 for activated families */
 const RETENTION_REENGAGEMENT_LOCK_ID = 1009;
 
+/** Activation advisor — daily ops recommendations for admin Start page */
+const ACTIVATION_ADVISOR_LOCK_ID = 1010;
+
 module.exports = {
   MIDNIGHT_SCHEDULER_LOCK_ID,
   DELETION_SCHEDULER_LOCK_ID,
@@ -45,4 +48,5 @@ module.exports = {
   WIN_BACK_SCHEDULER_LOCK_ID,
   CUSTODY_HANDOFF_SCHEDULER_LOCK_ID,
   RETENTION_REENGAGEMENT_LOCK_ID,
+  ACTIVATION_ADVISOR_LOCK_ID,
 };

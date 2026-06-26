@@ -195,6 +195,49 @@
     setBlockState('startShortcutsBlock', 'ready', html);
   }
 
+  function severityStyles(severity) {
+    if (severity === 'critical') {
+      return {
+        border: 'border-coral',
+        bg: 'bg-coral/20',
+        badge: 'bg-coral text-navy',
+        label: 'Kritisk',
+      };
+    }
+    if (severity === 'warning') {
+      return {
+        border: 'border-gold',
+        bg: 'bg-gold-light',
+        badge: 'bg-gold text-navy',
+        label: 'Varning',
+      };
+    }
+    return {
+      border: 'border-lavender',
+      bg: 'bg-white',
+      badge: 'bg-sky text-navy',
+      label: 'Info',
+    };
+  }
+
+  async function dismissOperationalAlert(alertId, buttonEl) {
+    if (!alertId || !buttonEl) return;
+    buttonEl.disabled = true;
+    try {
+      await Auth.api(`/api/admin/operational-alerts/${alertId}/dismiss`, { method: 'POST' });
+      const card = buttonEl.closest('[data-alert-id]');
+      if (card) card.remove();
+      const block = document.getElementById('startRecommendationsBlock');
+      if (block && !block.querySelector('[data-alert-id]')) {
+        block.innerHTML = '';
+      }
+    } catch (err) {
+      console.error('[ADMIN] Dismiss alert failed:', err);
+      buttonEl.disabled = false;
+      if (typeof showToast === 'function') showToast('Kunde inte avfärda meddelandet', 'error');
+    }
+  }
+
   function renderStartRecommendations(recommendations) {
     const el = document.getElementById('startRecommendationsBlock');
     if (!el) return;
@@ -206,11 +249,29 @@
     el.innerHTML = `
       <h3 class="text-lg font-heading font-bold text-navy mb-4">Prioritera nu</h3>
       <div class="space-y-3">
-        ${items.map((card) => `
-          <a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block bg-white border-2 border-gold rounded-2xl p-4 hover:bg-gold-light transition-colors">
-            <p class="font-semibold text-navy">${esc(card.title)}</p>
-            <p class="text-sm text-text-soft mt-1">${esc(card.body)}</p>
-          </a>`).join('')}
+        ${items.map((card) => {
+          const styles = severityStyles(card.severity);
+          const dismissBtn = card.dismissible && card.id
+            ? `<button type="button" onclick="dismissOperationalAlert('${esc(card.id)}', this)" class="text-xs font-semibold text-text-soft hover:text-navy px-2 py-1 rounded-lg hover:bg-white/60">Avfärda</button>`
+            : '';
+          const linkInner = `
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  ${card.severity ? `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${styles.badge}">${esc(styles.label)}</span>` : ''}
+                  <p class="font-semibold text-navy">${esc(card.title)}</p>
+                </div>
+                <p class="text-sm text-text-soft">${esc(card.body)}</p>
+              </div>
+              ${dismissBtn}
+            </div>`;
+          if (card.dismissible && card.id) {
+            return `<div data-alert-id="${esc(card.id)}" class="block ${styles.bg} border-2 ${styles.border} rounded-2xl p-4">
+              <a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block hover:opacity-90 transition-opacity">${linkInner}</a>
+            </div>`;
+          }
+          return `<a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block ${styles.bg} border-2 ${styles.border} rounded-2xl p-4 hover:border-gold transition-colors">${linkInner}</a>`;
+        }).join('')}
       </div>`;
   }
 
@@ -236,4 +297,5 @@
   }
 
   window.loadStartSummary = loadStartSummary;
+  window.dismissOperationalAlert = dismissOperationalAlert;
 })();

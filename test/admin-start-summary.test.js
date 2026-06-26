@@ -60,6 +60,21 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     if (q.includes('lead_status = \'ny\'')) {
       return { rows: [{ c: 0 }] };
     }
+    if (q.includes('FROM admin_operational_alert')) {
+      return {
+        rows: [{
+          id: 'alert-1',
+          slug: 'activation-low-p0-2026-06-26',
+          category: 'activation',
+          severity: 'warning',
+          title: 'Låg P0-aktivering',
+          body: 'Test alert',
+          action_route: '#analytics',
+          metrics: {},
+          created_at: '2026-06-26T07:30:00Z',
+        }],
+      };
+    }
     if (q.includes("SELECT type, id, title, meta, created_at, route FROM")) {
       return {
         rows: [{
@@ -78,7 +93,9 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
   const routePath = require.resolve('../src/routes/admin/start-summary');
   const dbModulePath = require.resolve('../db/start-summary');
   const cmPath = require.resolve('../db/contact-messages');
+  const alertsPath = require.resolve('../db/admin-operational-alerts');
   delete require.cache[cmPath];
+  delete require.cache[alertsPath];
   delete require.cache[dbModulePath];
   delete require.cache[routePath];
   const startRouter = require('../src/routes/admin/start-summary');
@@ -108,6 +125,9 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(body.activity.length, 1);
     assert.equal(body.activity[0].route, '#waitlist');
     assert.equal(body.quickActions.length, 6);
+    assert.equal(body.recommendations.length, 1);
+    assert.equal(body.recommendations[0].type, 'operational_activation');
+    assert.equal(body.recommendations[0].dismissible, true);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     mock.restore();
