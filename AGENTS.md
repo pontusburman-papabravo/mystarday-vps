@@ -10,7 +10,9 @@ The startup update script already installs npm dependencies. The notes below are
 - The project pins **Node 20** (`.nvmrc`). The VM default `node` (`/exec-daemon/node`) is Node 22 and takes priority on `PATH`, so prepend Node 20 explicitly in any shell that runs app/test commands:
   `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (install once with `nvm install 20` if missing).
 - `npm install`/`npm ci` requires `--legacy-peer-deps`: a native-only Capacitor plugin (`@codetrix-studio/capacitor-google-auth`) peer-depends on Capacitor 6 while the project uses Capacitor 7. These are iOS/Android-only deps and irrelevant to the web app.
-- **eslint is not in the lockfile** — install it separately before linting: `npm install --no-save eslint@^9.0.0 --legacy-peer-deps` (CI does the same).
+- **`NODE_ENV` is injected as a Cursor secret** into every shell, set to the deploy-mode value (the one npm treats as a prod build). This is the single most important gotcha here, with two consequences:
+  1. **Installs omit devDependencies** (eslint, tailwindcss, puppeteer, …) → the startup update script and any manual install MUST use `npm install --include=dev --legacy-peer-deps`. (`eslint` *is* in the lockfile/`devDependencies`; it only goes missing because of that omission — there is no separate eslint install step.)
+  2. **Running the app / tests requires overriding `NODE_ENV` per command** (see below), because the app expects a dev value and CI uses `test`. Don't try to unset the secret globally; just prefix the commands.
 
 ### Database
 - A local **PostgreSQL 16** is used for dev. Start it with `sudo pg_ctlcluster 16 main start`.
@@ -23,14 +25,20 @@ export DATABASE_URL="postgresql://<user>:<pass>@localhost:5432/stjarndag"
 export JWT_SECRET="<any-dev-string-at-least-32-chars-long>"
 export REQUIRE_EMAIL_VERIFICATION="false"   # lets new accounts log in without email verification
 ```
-Leave `NODE_ENV` unset (or any non-`production` value) for local dev — `JWT_SECRET` is only length-enforced (>=32) when `NODE_ENV` is the production value.
+On Cursor Cloud, `DATABASE_URL` and `JWT_SECRET` are already injected as secrets — you do **not** set them manually. You only need to add `REQUIRE_EMAIL_VERIFICATION=false`. `NODE_ENV` is unfortunately injected at the deploy-mode value (see the gotcha above), so for **local dev you must override it explicitly** — run the dev server with `NODE_ENV=development …` and the test suite with `NODE_ENV=test …`. Do not rely on it being unset.
+
+The injected `DATABASE_URL` points at `localhost:5432` but uses a specific role/db name (not literally `stjarndag`). The local Postgres role + database must match whatever that secret contains. If a fresh VM is missing them, recreate from the secret without printing it, e.g.:
+```
+node -e 'const u=new URL(process.env.DATABASE_URL),{execFileSync:e}=require("child_process");const us=u.username,pw=decodeURIComponent(u.password),db=u.pathname.slice(1);e("sudo",["-u","postgres","psql","-v","ON_ERROR_STOP=1","-c",`DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='"'"'${us}'"'"') THEN CREATE ROLE "${us}" LOGIN PASSWORD '"'"'${pw}'"'"' SUPERUSER; END IF; END $$;`],{stdio:"inherit"});try{e("sudo",["-u","postgres","createdb","-O",us,db],{stdio:"inherit"})}catch(_){}'
+```
+then `npm run migrate`.
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 
 ### Run / lint / test
-- Run dev server: `npm run dev` (= `node server.js`, listens on `PORT` or 3000). Health check: `GET /health`. There is no hot-reload/watcher — restart the process after server-side changes.
-- Lint: `npm run lint` (after installing eslint as above). Currently clean: 0 errors, ~74 pre-existing warnings.
-- Test: `NODE_ENV=test npm test` (Node's built-in runner over `test/*.test.js`). Match CI's env (`DATABASE_URL`, `JWT_SECRET`, `REQUIRE_EMAIL_VERIFICATION=false`, `NODE_ENV=test`).
+- Run dev server: `NODE_ENV=development REQUIRE_EMAIL_VERIFICATION=false npm run dev` (= `node server.js`, listens on `PORT` or 3000). Health check: `GET /health`. There is no hot-reload/watcher — restart the process after server-side changes. For manual UI testing, also add `EMAIL_ENABLED=false` so registrations don't trigger real Resend emails.
+- Lint: `npm run lint`. As of this writing it reports **2 pre-existing errors** (`no-undef` in two `src/` files) + ~78 warnings on `main` — unrelated to environment setup.
+- Test: run the curated CI gate with `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate` (this is all CI runs). To avoid any real outbound email, **unset `RESEND_API_KEY`** for the run (`env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY …`); `@example.com` recipients are auto-suppressed regardless. The full `npm test` (~1000 tests) mostly passes but has ~12 pre-existing failures from DB test-isolation races (parallel files resetting the shared schema) and committed-artifact drift checks (`dump-routes`, Tailwind build) — which is exactly why CI only runs `test:gate`.
 
 ### Known caveats
 - **Do not run `npm test` on the production VPS** with a live `RESEND_API_KEY` — integration tests POST to public routes and can send admin emails (e.g. `anna@example.com` pedagogintresse). Run tests only in dev/CI.
