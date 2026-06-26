@@ -19,6 +19,7 @@
   ];
 
   let activeInbox = 'unread';
+  let lastLoadedMessages = [];
 
   function esc(str) {
     const d = document.createElement('div');
@@ -61,38 +62,19 @@
     return `<p class="text-xs text-text-soft mt-1">Familj: <button type="button" onclick="openFamilyHub('${fam.familyId}')" class="font-semibold text-gold hover:underline">${esc(label)}</button>${fam.type === 'email_match' ? ' (e-postmatch)' : ''}</p>`;
   }
 
-  async function loadMessagesInbox() {
+  function renderMessagesList(messages) {
     const container = document.getElementById('messagesContainer');
     if (!container) return;
-    container.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
 
-    try {
-      const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
-      const params = new URLSearchParams();
-      if (typeFilter) params.set('type', typeFilter);
-      if (window._messagesFollowupFilter) params.set('followup', '1');
-      else if (activeInbox !== 'all') params.set('inbox', activeInbox);
+    if (!messages.length) {
+      container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga meddelanden i denna vy</div>';
+      return;
+    }
 
-      const messages = await Auth.api('/api/admin/contact-messages?' + params.toString());
-      if (typeof allMessages !== 'undefined') allMessages = messages;
-
-      const unreadCount = messages.filter((m) => m.status === 'new' || !m.is_read).length;
-      const unreadEl = document.getElementById('unreadMessagesCount');
-      if (unreadEl) {
-        unreadEl.textContent = unreadCount;
-        unreadEl.style.color = unreadCount > 0 ? '#E53E3E' : '#1B2340';
-      }
-      if (typeof updateMessagesBadge === 'function') updateMessagesBadge(unreadCount);
-
-      if (!messages.length) {
-        container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga meddelanden i denna vy</div>';
-        return;
-      }
-
-      container.innerHTML = messages.map((m) => {
-        const date = new Date(m.created_at).toLocaleString('sv-SE');
-        const isUnread = m.status === 'new';
-        return `<div class="bg-white rounded-2xl border-2 ${isUnread ? 'border-red-300' : 'border-lavender'} p-6">
+    container.innerHTML = messages.map((m) => {
+      const date = new Date(m.created_at).toLocaleString('sv-SE');
+      const isUnread = m.status === 'new';
+      return `<div class="bg-white rounded-2xl border-2 ${isUnread ? 'border-red-300' : 'border-lavender'} p-6">
           <div class="flex flex-wrap justify-between gap-2 mb-2">
             <div>
               <div class="flex flex-wrap items-center gap-2">
@@ -116,10 +98,58 @@
             <button type="button" onclick="deleteMessage('${m.id}')" class="px-3 py-1.5 bg-coral text-xs font-bold rounded">Ta bort</button>
           </div>
         </div>`;
-      }).join('');
+    }).join('');
+  }
+
+  function filterMessagesInbox(query) {
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+      renderMessagesList(lastLoadedMessages);
+      return;
+    }
+    const filtered = lastLoadedMessages.filter((m) => {
+      const name = (m.name || '').toLowerCase();
+      const email = (m.email || '').toLowerCase();
+      const message = (m.message || '').toLowerCase();
+      return name.includes(q) || email.includes(q) || message.includes(q);
+    });
+    renderMessagesList(filtered);
+  }
+
+  async function loadMessagesInbox() {
+    const container = document.getElementById('messagesContainer');
+    if (!container) return;
+    container.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
+
+    try {
+      const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
+      const params = new URLSearchParams();
+      if (typeFilter) params.set('type', typeFilter);
+      if (window._messagesFollowupFilter) params.set('followup', '1');
+      else if (activeInbox !== 'all') params.set('inbox', activeInbox);
+
+      const messages = await Auth.api('/api/admin/contact-messages?' + params.toString());
+      if (!Array.isArray(messages)) {
+        throw new Error(typeof messages?.error === 'string' ? messages.error : 'Ogiltigt svar från servern');
+      }
+      lastLoadedMessages = messages;
+      window.allMessages = messages;
+
+      const unreadCount = messages.filter((m) => m.status === 'new' || !m.is_read).length;
+      const unreadEl = document.getElementById('unreadMessagesCount');
+      if (unreadEl) {
+        unreadEl.textContent = unreadCount;
+        unreadEl.style.color = unreadCount > 0 ? '#E53E3E' : '#1B2340';
+      }
+      if (typeof updateMessagesBadge === 'function') updateMessagesBadge(unreadCount);
+
+      const searchVal = document.getElementById('messagesSearch')?.value?.trim() || '';
+      if (searchVal) filterMessagesInbox(searchVal);
+      else renderMessagesList(messages);
     } catch (e) {
       console.error('[INBOX]', e);
-      container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden</div>';
+      const detail = e?.message ? ': ' + e.message : '';
+      container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden' + detail + '</div>';
     }
   }
 
@@ -151,6 +181,7 @@
   }
 
   window.loadMessagesInbox = loadMessagesInbox;
+  window.filterMessagesInbox = filterMessagesInbox;
   window.setMessageStatus = setMessageStatus;
   window.linkMessageFamily = linkMessageFamily;
   window.initMessagesInbox = initMessagesInbox;

@@ -357,6 +357,22 @@ body.parent-magic-view:not(.parent-theme-light) .section-card .text-text-soft {
   color: rgba(244, 244, 255, 0.72) !important;
 }
 
+/* White cards that keep a light surface in dark magic — force readable dark text */
+body.parent-magic-view:not(.parent-theme-light) .day-col,
+body.parent-magic-view:not(.parent-theme-light) .day-col .act-name,
+body.parent-magic-view:not(.parent-theme-light) .day-col .section-label,
+body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white,
+body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .activity-name,
+body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-text-soft {
+  color: #1B2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .day-col .section-label {
+  color: #5A6178 !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) .child-tab.border-lavender {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
@@ -984,6 +1000,7 @@ body.parent-magic-library .magic-modal-panel .text-text-soft {
 
 body.parent-magic-library .magic-modal-panel input[type="text"],
 body.parent-magic-library .magic-modal-panel input[type="search"],
+body.parent-magic-library .magic-modal-panel input[type="date"],
 body.parent-magic-library .magic-modal-panel textarea,
 body.parent-magic-library .magic-modal-panel select {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -1003,7 +1020,19 @@ body.parent-magic-library .activity-image-pick {
   background: rgba(255, 255, 255, 0.06) !important;
 }
 
-body.parent-magic-view .schedule-magic-mode-bar {
+/* Copy-schedule modal (library) — white panel keeps dark readable inputs in magic dark */
+body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal input[type="date"],
+body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal input[type="text"] {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.16) !important;
+  color: #1a1633 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal label,
+body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal h3 {
+  color: #1B2340 !important;
+}
   display: flex !important;
   margin: 0 16px 12px;
   max-width: 360px;

@@ -3,13 +3,14 @@
 
     async function loadFamilies() {
       const container = document.getElementById('familiesContainer');
+      if (!container) return;
       container.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         const families = await Auth.api('/api/admin/families-grouped');
-        clearTimeout(timeout);
-        allFamilies = families || [];
+        if (!Array.isArray(families)) {
+          throw new Error(typeof families?.error === 'string' ? families.error : 'Ogiltigt svar från servern');
+        }
+        window.allFamilies = families;
         const searchVal = document.getElementById('familySearch')?.value?.trim() || '';
         if (searchVal) {
           filterFamilies(searchVal);
@@ -17,14 +18,15 @@
           renderFamilyCards(families, container);
         }
       } catch (e) {
-        clearTimeout(timeout);
         console.error('Failed to load families:', e);
-        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjer' + (e.name === 'AbortError' ? ' (timeout — servern är upptagen)' : '') + '</div>';
+        const detail = e?.message ? ': ' + e.message : '';
+        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda familjer' + detail + '</div>';
       }
     }
 
     function filterFamilies(query) {
       const container = document.getElementById('familiesContainer');
+      const allFamilies = window.allFamilies || [];
       if (!query || !query.trim()) {
         renderFamilyCards(allFamilies, container);
         return;
@@ -383,16 +385,17 @@
 
     async function loadMessages() {
       const container = document.getElementById('messagesContainer');
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
+      if (!container) return;
       try {
         const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
         const url = typeFilter
           ? `/api/admin/contact-messages?type=${encodeURIComponent(typeFilter)}`
           : '/api/admin/contact-messages';
         const messages = await Auth.api(url);
-        clearTimeout(timeout);
-        allMessages = messages;
+        if (!Array.isArray(messages)) {
+          throw new Error(typeof messages?.error === 'string' ? messages.error : 'Ogiltigt svar från servern');
+        }
+        window.allMessages = messages;
         let displayMessages = messages;
         if (window._messagesFollowupFilter) {
           displayMessages = messages.filter((m) =>
@@ -417,13 +420,14 @@
 
         renderMessages(displayMessages);
       } catch (e) {
-        clearTimeout(timeout);
         console.error('Failed to load contact messages:', e);
-        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden' + (e.name === 'AbortError' ? ' (timeout)' : '') + '</div>';
+        const detail = e?.message ? ': ' + e.message : '';
+        container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden' + detail + '</div>';
       }
     }
 
     function filterMessages(query) {
+      const allMessages = window.allMessages || [];
       if (!query) return allMessages;
       return allMessages.filter(m => {
         const name = (m.name || '').toLowerCase();
@@ -591,7 +595,7 @@
     async function resetParentPassword(parentId, email) {
       // Find auth info for this parent
       let parentData = null;
-      for (const family of allFamilies || []) {
+      for (const family of window.allFamilies || []) {
         const p = (family.parents || []).find(p => p.id === parentId);
         if (p) { parentData = p; break; }
       }

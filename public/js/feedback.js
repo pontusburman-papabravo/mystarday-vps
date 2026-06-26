@@ -38,12 +38,8 @@
     btn.setAttribute('aria-label', 'Ge feedback');
     btn.title = 'Ge feedback';
     btn.innerHTML = '💬';
-    btn.className = 'fixed z-40 flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
-    // Style: gold circle, fixed bottom-right with safe-area-inset for notch/PWA
+    btn.className = 'global-feedback-fab fixed z-40 flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
     Object.assign(btn.style, {
-      bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px))',
-      top: 'auto',
-      right: 'max(20px, calc(env(safe-area-inset-right, 0px) + 12px))',
       width: '48px',
       height: '48px',
       borderRadius: '50%',
@@ -53,7 +49,6 @@
       border: 'none',
       cursor: 'pointer',
       lineHeight: '1',
-      zIndex: '9000',
     });
     document.body.appendChild(btn);
   }

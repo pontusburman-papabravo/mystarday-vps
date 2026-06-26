@@ -107,9 +107,29 @@
     z-index: 10001 !important;
   }
 
-  body.has-native-tab-bar #globalFeedbackBtn {
+  body.has-native-tab-bar #globalFeedbackBtn,
+  body.has-native-tab-bar .global-feedback-fab {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
+    right: max(16px, env(safe-area-inset-right, 0px)) !important;
     z-index: 10001 !important;
+  }
+
+  /* Mobile FAB defaults (before tab bar mounts) */
+  #globalFeedbackBtn,
+  .global-feedback-fab {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px);
+    right: max(16px, env(safe-area-inset-right, 0px));
+    z-index: 10001;
+  }
+
+  body:not(.has-native-tab-bar) #globalFeedbackBtn,
+  body:not(.has-native-tab-bar) .global-feedback-fab {
+    bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+  }
+
+  #hbBtn {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px);
+    z-index: 10001;
   }
 }
 

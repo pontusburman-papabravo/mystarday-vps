@@ -541,11 +541,11 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
             <div id="copySchedPeriodFields" class="hidden mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
-                <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm">
+                <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm text-navy">
               </div>
               <div>
                 <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
-                <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm">
+                <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm text-navy">
               </div>
             </div>
           </div>
