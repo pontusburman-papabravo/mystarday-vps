@@ -62,7 +62,7 @@ const SLIDES = [
   {
     name: '06-cta-landing',
     images: ['03-landing'],
-    hook: 'Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀',
+    hook: 'Gör som hundratals andra familjer. Testa gratis på mystarday.se 🚀',
   },
 ];
 

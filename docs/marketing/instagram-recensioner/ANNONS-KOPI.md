@@ -21,7 +21,7 @@ Eller: `bash scripts/instagram-recensioner-mac.sh`
 | 10–15s | Färdiga scheman | Färdiga mallar för morgon, kväll och lov – kopiera med ett klick. 📋 |
 | 15–20s | Rutiner (För dig) | Aktivera morgon- eller kvällsrutin direkt från För dig. ☀️🌙 |
 | 20–25s | Hem (föräldrapanel) | Allt samlat för föräldern – schema, stjärnor och översikt. 📊 |
-| 25–30s | Landningssida | Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀 |
+| 25–30s | Landningssida | Gör som hundratals andra familjer. Testa gratis på mystarday.se 🚀 |
 
 Ändra längd: `SEC_PER_SLIDE=4 npm run instagram:recensioner` (måste köras från repo-roten, inte denna undermapp)
 
