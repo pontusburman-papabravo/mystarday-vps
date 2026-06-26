@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=3">
+  <link rel="stylesheet" href="/css/landing.css?v=4">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#F5A623">
@@ -32,7 +32,7 @@
     "name": "Min Stjärndag",
     "url": "https://mystarday.se",
     "applicationCategory": "LifestyleApplication",
-    "operatingSystem": "Web (PWA)",
+    "operatingSystem": "iOS, Web (PWA)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SEK" },
     "description": "Visuellt dagsschema för barn med stjärnbelöningar som gör rutiner lugna och motiverande.",
     "inLanguage": "sv"
@@ -48,7 +48,7 @@
       { "@type": "Question", "name": "Vad händer med stjärnorna om vi missar en dag?", "acceptedAnswer": { "@type": "Answer", "text": "Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld." }},
       { "@type": "Question", "name": "Kan flera vuxna använda appen tillsammans?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur." }},
       { "@type": "Question", "name": "Måste mitt barn kunna läsa?", "acceptedAnswer": { "@type": "Answer", "text": "Nej, tanken är att barnet ska kunna förstå så mycket som möjligt visuellt och steg för steg." }},
-      { "@type": "Question", "name": "Behöver jag ladda ner appen?", "acceptedAnswer": { "@type": "Answer", "text": "Nej. Min Stjärndag fungerar direkt i mobilen och kan läggas till på hemskärmen så att den känns som en app." }}
+      { "@type": "Question", "name": "Behöver jag ladda ner appen?", "acceptedAnswer": { "@type": "Answer", "text": "På iPhone kan du ladda ner appen direkt från App Store. Du kan också använda appen i webbläsaren och lägga till den på hemskärmen som en PWA."" }}
     ]
   }
   </script>
@@ -135,11 +135,35 @@
 <span id="kontakt" class="anchor-alias" aria-hidden="true"></span>
 <span id="problemet" class="anchor-alias" aria-hidden="true"></span>
 
+<!-- App Store launch -->
+<section class="app-launch-banner" id="app-store" aria-label="App Store-lansering">
+  <div class="app-launch-banner__confetti" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="app-launch-banner__inner">
+    <div class="app-launch-banner__copy">
+      <p class="app-launch-banner__tagline">Ny lansering</p>
+      <h2 class="app-launch-banner__headline">Vi är äntligen live! 🎉🚀</h2>
+      <p class="app-launch-banner__hook">Klara. Färdiga. Hämta.</p>
+      <p class="app-launch-banner__body">Min Stjärndag hjälper barn <!-- pragma: allowlist secret --> att förstå sin vardag med tydliga scheman och stjärnor som skapar motivation – och mindre tjat hemma.</p>
+      <a href="https://apple.co/4v2ESuH" class="app-launch-banner__store-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click">
+        <img src="/img/app-store-badge-sv.svg" alt="Hämta i App Store" width="156" height="52" loading="eager">
+      </a>
+      <p class="app-launch-banner__cta-text">Ladda ner på App Store och kom igång idag.</p>
+    </div>
+    <div class="app-launch-banner__visual">
+      <img src="/apple-touch-icon.png" alt="Min Stjärndag appikon" <!-- pragma: allowlist secret --> class="app-launch-banner__icon" width="168" height="168" loading="eager">
+      <p class="app-launch-banner__app-name">Min Stjärndag</p> <!-- pragma: allowlist secret -->
+    </div>
+  </div>
+</section>
+
 <!-- 1. HERO -->
-<section class="landing-hero landing-section--dark" id="toppen">
+<section class="landing-hero landing-section--dark landing-hero--with-launch" id="toppen">
   <div class="landing-hero__grid">
     <div class="landing-hero__copy">
-      <span class="landing-hero__eyebrow">⭐ För familjer som vill ha en lugnare vardag</span>
+      <span class="landing-hero__eyebrow">🎉 Nu live på App Store</span>
       <h1>Visuella scheman och stjärnor som hjälper barn att klara vardagen – utan tjat</h1>
       <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p>
       <div class="landing-hero__ctas">
@@ -163,6 +187,7 @@
       <div class="landing-hero__trust">
         <span class="trust-chip">Gratis för de första <span id="founderLimitText">225</span> familjerna</span>
         <span class="trust-chip">Barnets egen vy med PIN</span>
+        <span class="trust-chip">Finns på App Store</span>
         <span class="trust-chip">Fungerar som app i mobilen</span>
       </div>
       <p class="landing-hero__micro">Ingen betalning krävs · Obegränsat antal barn för grundarmedlemmar</p>
@@ -513,7 +538,7 @@
       </div>
       <div class="faq-item" data-faq="ladda-ner">
         <button type="button" class="faq-question" aria-expanded="false">Behöver jag ladda ner appen?<span class="faq-icon">+</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Nej. Min Stjärndag fungerar direkt i mobilen och kan läggas till på hemskärmen så att den känns som en app. På iPhone: Safari → Dela → Lägg till på hemskärmen.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">På iPhone kan du ladda ner Min Stjärndag direkt från <a href="https://apple.co/4v2ESuH" <!-- pragma: allowlist secret --> target="_blank" rel="noopener noreferrer">App Store</a>. Du kan också använda appen i webbläsaren och lägga till den på hemskärmen som en PWA. På iPhone i Safari: Dela → Lägg till på hemskärmen.</div></div>
       </div>
     </div>
     <p class="faq-more"><a href="/faq" class="btn-ghost-link">Se alla frågor och svar →</a></p>
