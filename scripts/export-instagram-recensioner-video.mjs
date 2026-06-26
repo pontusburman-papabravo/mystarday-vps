@@ -66,6 +66,19 @@ function resolveSource(baseName) {
   return null;
 }
 
+function isLandscape(imagePath) {
+  try {
+    const out = execSync(
+      `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${imagePath}"`,
+      { encoding: 'utf8' }
+    ).trim();
+    const [w, h] = out.split(',').map(Number);
+    return w > h;
+  } catch {
+    return false;
+  }
+}
+
 function checkSources() {
   const required = new Set(['01-recensioner', '02-fardiga-scheman', '03-landing', '05-schema-anna', '06-rutiner']);
   const missing = [];
@@ -92,14 +105,19 @@ function checkSources() {
 function buildCompositorHtml(imagePaths, hook, split) {
   const toSrc = (p) => 'file://' + p.split(path.sep).join('/');
 
+  function imgTag(p) {
+    const cls = isLandscape(p) ? ' class="contain"' : '';
+    return `<img src="${toSrc(p)}" alt=""${cls}>`;
+  }
+
   let bgHtml;
   if (split && imagePaths.length >= 2) {
     bgHtml =
       '<div class="bg bg-split">' +
-      imagePaths.map((p) => `<img src="${toSrc(p)}" alt="">`).join('') +
+      imagePaths.map((p) => imgTag(p)).join('') +
       '</div>';
   } else {
-    bgHtml = `<div class="bg"><img src="${toSrc(imagePaths[0])}" alt=""></div>`;
+    bgHtml = `<div class="bg">${imgTag(imagePaths[0])}</div>`;
   }
 
   const hookEsc = hook
@@ -116,6 +134,7 @@ function buildCompositorHtml(imagePaths, hook, split) {
     html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #0f1629; }
     .bg { position: absolute; inset: 0; }
     .bg img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .bg img.contain { object-fit: contain; object-position: center center; background: #eef1f7; }
     .bg-split { display: flex; flex-direction: column; height: 100%; }
     .bg-split img { width: 100%; height: 50%; object-fit: cover; object-position: center center; flex-shrink: 0; }
     .hook {
