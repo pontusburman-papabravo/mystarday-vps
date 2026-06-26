@@ -12,12 +12,13 @@ echo "Förväntade filnamn:"
 echo "   01-recensioner.png"
 echo "   02-fardiga-scheman.png"
 echo "   03-landing.png"
+echo "   04-hem.png"
 echo "   05-schema-anna.png"
 echo "   06-rutiner.png"
 echo ""
 
 missing=0
-for f in 01-recensioner 02-fardiga-scheman 03-landing 05-schema-anna 06-rutiner; do
+for f in 01-recensioner 02-fardiga-scheman 03-landing 04-hem 05-schema-anna 06-rutiner; do
   found=0
   for ext in png jpg jpeg webp PNG JPG JPEG WEBP; do
     if [[ -f "$SRC/$f.$ext" ]]; then found=1; break; fi

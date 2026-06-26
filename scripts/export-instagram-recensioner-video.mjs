@@ -21,7 +21,7 @@ const OUT_DIR = path.join(ROOT, 'docs', 'marketing', 'instagram-recensioner');
 
 const W = 1080;
 const H = 1920;
-const SEC_PER_SLIDE = Number(process.env.SEC_PER_SLIDE || 3);
+const SEC_PER_SLIDE = Number(process.env.SEC_PER_SLIDE || 6);
 
 const SOURCE_KEYS = [
   '01-recensioner',
@@ -32,6 +32,7 @@ const SOURCE_KEYS = [
   '06-rutiner',
 ];
 
+/** 6 bilder, en per slide — berättande ordning */
 const SLIDES = [
   {
     name: '01-recensioner',
@@ -44,13 +45,22 @@ const SLIDES = [
     hook: 'Från konstant tjat till att barnen bockar av själva! ✨',
   },
   {
-    name: '03-scheman-rutiner',
-    images: ['02-fardiga-scheman', '06-rutiner'],
-    split: true,
-    hook: 'Färdiga rutiner för morgon, kväll och lov – klara med ett klick. 🧠💡',
+    name: '03-fardiga-scheman',
+    images: ['02-fardiga-scheman'],
+    hook: 'Färdiga mallar för morgon, kväll och lov – kopiera med ett klick. 📋',
   },
   {
-    name: '04-cta-landing',
+    name: '04-rutiner',
+    images: ['06-rutiner'],
+    hook: 'Aktivera morgon- eller kvällsrutin direkt från För dig. ☀️🌙',
+  },
+  {
+    name: '05-hem',
+    images: ['04-hem'],
+    hook: 'Allt samlat för föräldern – schema, stjärnor och översikt. 📊',
+  },
+  {
+    name: '06-cta-landing',
     images: ['03-landing'],
     hook: 'Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀',
   },
@@ -80,7 +90,7 @@ function isLandscape(imagePath) {
 }
 
 function checkSources() {
-  const required = new Set(['01-recensioner', '02-fardiga-scheman', '03-landing', '05-schema-anna', '06-rutiner']);
+  const required = new Set(SOURCE_KEYS);
   const missing = [];
   const resolved = {};
 
@@ -139,14 +149,15 @@ function buildCompositorHtml(imagePaths, hook, split) {
     .bg-split img { width: 100%; height: 50%; object-fit: cover; object-position: center center; flex-shrink: 0; }
     .hook {
       position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
-      padding: 56px 44px 64px;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,22,41,0.82) 32%, rgba(15,22,41,0.96) 100%);
+      padding: 72px 48px 80px;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,22,41,0.88) 28%, rgba(15,22,41,0.97) 100%);
     }
     .hook p {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 46px; font-weight: 700; line-height: 1.22;
+      font-size: 44px; font-weight: 700; line-height: 1.32;
       color: #fff; text-align: center;
-      text-shadow: 0 3px 16px rgba(0,0,0,0.55);
+      text-shadow: 0 3px 20px rgba(0,0,0,0.6);
+      max-width: 960px; margin: 0 auto;
     }
   </style>
 </head>
