@@ -1,8 +1,12 @@
 # Instagram — Recensioner (12 sek)
 
-**Fil:** `docs/marketing/instagram-recensioner/instagram-recensioner.mp4`  
-**Format:** 1080×1920 (9:16), 4×3 sek  
-**Generera om:** `npm run instagram:recensioner`
+**Krav:** Lägg dina **originalbilder** i `source/` (se `source/README.md`).  
+**Generera:** `npm run instagram:recensioner` eller `bash scripts/instagram-recensioner-mac.sh` (Mac)
+
+**Output:** `instagram-recensioner.mp4` (1080×1920, 4×3 sek)
+
+> Tidigare versioner använde HTML-mockups — nu krävs dina riktiga källbilder.
+
 
 ## Sekvens
 
