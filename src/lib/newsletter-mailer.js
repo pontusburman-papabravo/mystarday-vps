@@ -26,7 +26,7 @@ const APP_URL = process.env.APP_URL || 'https://mystarday.se';
 const BATCH_SIZE = 50;
 const BATCH_DELAY_MS = 1000;
 
-async function sendTrackedNewsletterEmail({ to, subject, html, campaignType, campaignId, parentId }) {
+async function sendTrackedNewsletterEmail({ to, subject, html, campaignType, campaignId, parentId, unsubscribeUrl }) {
   const tags = [
     { name: 'campaign_type', value: campaignType },
     { name: 'campaign_id', value: String(campaignId) },
@@ -35,7 +35,7 @@ async function sendTrackedNewsletterEmail({ to, subject, html, campaignType, cam
     tags.push({ name: 'parent_id', value: String(parentId) });
   }
 
-  const result = await sendEmail({ to, subject, html, tags });
+  const result = await sendEmail({ to, subject, html, tags, unsubscribeUrl });
   if (!result.success) {
     throw new Error(result.error || 'Email send failed');
   }
@@ -106,6 +106,7 @@ async function sendNewsletterForNyhet(nyhet) {
           campaignType: 'dagens_nyhet',
           campaignId: nyhet.id,
           parentId: sub.parent_id,
+          unsubscribeUrl,
         });
         totalSent++;
       } catch (err) {
@@ -264,6 +265,7 @@ async function sendNewsletterToRecipients(nyhet, recipientIds) {
           campaignType: 'dagens_nyhet',
           campaignId: nyhet.id,
           parentId: sub.parent_id,
+          unsubscribeUrl,
         });
         totalSent++;
       } catch (err) {
@@ -364,6 +366,7 @@ async function sendStandaloneNewsletter(newsletter, recipientIds) {
           campaignType: 'standalone',
           campaignId: newsletter.id,
           parentId: sub.parent_id,
+          unsubscribeUrl,
         });
         totalSent++;
       } catch (err) {

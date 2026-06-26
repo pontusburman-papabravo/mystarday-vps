@@ -9,6 +9,8 @@ const { requireParent, requireAdmin } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
 const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
+const { unsubscribeByToken } = require('../lib/newsletter-unsubscribe');
+const { renderUnsubscribePage, renderUnsubscribeErrorPage } = require('../lib/newsletter-unsubscribe-pages');
 const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
 const {
   getCampaignStats,
@@ -266,64 +268,48 @@ router.get('/unsubscribe', async (req, res) => {
   const { token } = req.query;
 
   if (!token || typeof token !== 'string' || !/^[0-9a-f-]{36}$/i.test(token)) {
-    return res.status(400).send(`
-      <!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>Avprenumerera</title></head>
-      <body style="font-family:sans-serif;text-align:center;padding:48px;color:#374151;">
-        <h1>Ogiltig länk</h1>
-        <p>Länken är ogiltig eller har redan använts.</p>
-      </body></html>
-    `);
+    return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har redan använts.'));
   }
 
   try {
-    const result = await db.query(
-      `UPDATE email_subscriptions
-       SET subscribed = false,
-           unsubscribed_at = NOW(),
-           updated_at = NOW()
-       WHERE unsubscribe_token = $1
-         AND subscribed = true
-       RETURNING email`,
-      [token]
-    );
+    const result = await unsubscribeByToken(token);
 
-    if (result.rows.length === 0) {
-      // Either already unsubscribed or token not found — show neutral message
-      return res.send(`
-        <!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>Avprenumerera</title>
-        <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center;padding:64px 24px;color:#374151;background:#f9fafb;}</style>
-        </head><body>
-          <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;padding:48px;box-shadow:0 1px 3px rgba(0,0,0,.1);">
-            <p style="font-size:48px;margin:0 0 16px;">⭐</p>
-            <h1 style="margin:0 0 12px;font-size:22px;">Du är redan avprenumererad</h1>
-            <p style="color:#6b7280;">Din e-postadress finns inte i nyhetsbrevet.</p>
-            <a href="/" style="display:inline-block;margin-top:24px;background:#F5A623;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;">Till Min Stjärndag</a>
-          </div>
-        </body></html>
-      `);
+    if (result.alreadyUnsubscribed) {
+      return res.send(renderUnsubscribePage({
+        title: 'Avprenumerera',
+        heading: 'Du är redan avprenumererad',
+        message: 'Din e-postadress finns inte i nyhetsbrevet.',
+      }));
     }
 
-    res.send(`
-      <!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>Avprenumererad</title>
-      <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center;padding:64px 24px;color:#374151;background:#f9fafb;}</style>
-      </head><body>
-        <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;padding:48px;box-shadow:0 1px 3px rgba(0,0,0,.1);">
-          <p style="font-size:48px;margin:0 0 16px;">✅</p>
-          <h1 style="margin:0 0 12px;font-size:22px;">Du är avprenumererad</h1>
-          <p style="color:#6b7280;">Du kommer inte längre få nyheter från Min Stjärndag via e-post.</p>
-          <a href="/" style="display:inline-block;margin-top:24px;background:#F5A623;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-weight:600;">Till Min Stjärndag</a>
-        </div>
-      </body></html>
-    `);
+    if (!result.ok) {
+      return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har redan använts.'));
+    }
+
+    res.send(renderUnsubscribePage({
+      title: 'Avprenumererad',
+      heading: 'Du är avprenumererad',
+      message: 'Du kommer inte längre få nyheter via e-post.',
+    }));
   } catch (err) {
     console.error('[NEWSLETTER] Unsubscribe error:', err);
-    res.status(500).send(`
-      <!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>Fel</title></head>
-      <body style="font-family:sans-serif;text-align:center;padding:48px;color:#374151;">
-        <h1>Något gick fel</h1>
-        <p>Försök igen eller kontakta oss på info@mystarday.se.</p>
-      </body></html>
-    `);
+    res.status(500).send(renderUnsubscribeErrorPage('Fel', 'Försök igen eller kontakta support.'));
+  }
+});
+
+router.post('/unsubscribe', async (req, res) => {
+  const token = req.query.token || req.body?.token;
+
+  if (!token || typeof token !== 'string' || !/^[0-9a-f-]{36}$/i.test(token)) {
+    return res.status(400).end();
+  }
+
+  try {
+    await unsubscribeByToken(token);
+    return res.status(200).end();
+  } catch (err) {
+    console.error('[NEWSLETTER] One-click unsubscribe error:', err);
+    return res.status(500).end();
   }
 });
 

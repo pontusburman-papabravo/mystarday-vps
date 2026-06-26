@@ -9,6 +9,7 @@ const {
 } = require('../../db/newsletter-email-tracking');
 const { logEvent } = require('../../db/resend-webhook-events');
 const { verifyResendWebhook } = require('../lib/resend-webhook-verify');
+const { autoUnsubscribeFromDeliveryEvent } = require('../lib/newsletter-unsubscribe');
 
 async function handleResendWebhook(req, res) {
   const secret = process.env.RESEND_WEBHOOK_SECRET;
@@ -43,6 +44,24 @@ async function handleResendWebhook(req, res) {
     } else if (type === 'email.clicked') {
       const link = data.click?.link || null;
       updated = await markClicked(emailId, occurredAt, link);
+    } else if (type === 'email.bounced') {
+      const to = Array.isArray(data.to) ? data.to[0] : data.to;
+      const bounceType = data.bounce?.type || data.bounce?.bounce_type || null;
+      await autoUnsubscribeFromDeliveryEvent({
+        resendEmailId: emailId,
+        recipientEmail: to,
+        reason: 'bounce',
+        bounceType,
+      });
+      return res.status(200).json({ received: true, action: 'bounce_processed' });
+    } else if (type === 'email.complained') {
+      const to = Array.isArray(data.to) ? data.to[0] : data.to;
+      await autoUnsubscribeFromDeliveryEvent({
+        resendEmailId: emailId,
+        recipientEmail: to,
+        reason: 'complaint',
+      });
+      return res.status(200).json({ received: true, action: 'complaint_processed' });
     } else {
       return res.status(200).json({ received: true, ignored: type });
     }

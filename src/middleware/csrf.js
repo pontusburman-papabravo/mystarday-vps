@@ -63,6 +63,8 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/family/restore-parent-session',
   // Email change confirm: user is not logged in when clicking the link
   '/account/change-email/confirm',
+  // RFC 8058 one-click unsubscribe POST from Gmail/Yahoo (no CSRF cookie)
+  '/newsletter/unsubscribe',
 ]);
 
 // Prefix-based exemptions for public endpoints with dynamic segments.

@@ -7,6 +7,7 @@
  *      summary only; falls back to RESEND_API_KEY), EMAIL_ENABLED=false kill switch.
  */
 const config = require('./config');
+const { buildListUnsubscribeHeaders } = require('./list-unsubscribe-headers');
 
 const FROM_ADDRESS = config.email.from;
 const FROM_HEADER = `${config.email.fromName} <${FROM_ADDRESS}>`;
@@ -47,7 +48,7 @@ async function registerContact(_email, _name, _source = 'signup') {
 /**
  * Send an email via Resend.
  */
-async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile }) {
+async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile, unsubscribeUrl, headers: extraHeaders }) {
   const recipients = normalizeRecipients(to);
   if (recipients.length > 0 && recipients.every(isTestMailbox)) {
     console.log(`[EMAIL] Suppressed (test mailbox): to=${recipients.join(',')}, subject="${subject}"`);
@@ -77,6 +78,9 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
   const plainText = textBody || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : subject);
   const toList = recipients;
 
+  const listHeaders = buildListUnsubscribeHeaders(unsubscribeUrl);
+  const headers = { ...(extraHeaders || {}), ...(listHeaders || {}) };
+
   try {
     const res = await fetch(RESEND_API_URL, {
       method: 'POST',
@@ -92,6 +96,7 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
         text: plainText,
         reply_to: FROM_ADDRESS,
         tags: Array.isArray(tags) && tags.length > 0 ? tags : undefined,
+        headers: Object.keys(headers).length > 0 ? headers : undefined,
       }),
       signal: AbortSignal.timeout(10000),
     });
