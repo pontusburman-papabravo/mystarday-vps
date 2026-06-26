@@ -17,7 +17,8 @@ Vi bygger en **motor för exekutiv funktion** — inte en barnapp. Generation 1 
 2. **Presentation Profiles** — Child, Teen, Young Adult, Adult (samma data, annan nav/språk/design).
 3. **Produkter** — olika upplevelser på samma motor.
 
-Full spec: **[`architecture-platform.md`](./architecture-platform.md)**
+Full spec: **[`architecture-platform.md`](./architecture-platform.md)**  
+Use cases (människans resa): **[`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md)**
 
 ---
 

@@ -14,6 +14,7 @@
 
 | Dokument | Roll i v2 |
 |----------|-----------|
+| [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | **Universella use cases** — människans resa (UC01–UC12) |
 | [`architecture-platform.md`](./architecture-platform.md) | **Core Platform** — engines, Presentation Profiles, domänspråk |
 | [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
 | [`barnmeny-v2.md`](./barnmeny-v2.md) | Barnsidans IA, tre världar, migration |

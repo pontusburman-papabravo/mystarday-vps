@@ -5,7 +5,7 @@
 **Status:** Strategisk arkitekturspec — styr långsiktiga beslut, **ingen omedelbar implementation**  
 **Ägare:** Produkt + teknik
 
-> **Relaterat (Generation 1 — barn):** [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`APP-V2-KRAVSPEC.md`](./APP-V2-KRAVSPEC.md)
+> **Relaterat (Generation 1 — barn):** [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) · [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`informationsarkitektur-barnapp.md`](./informationsarkitektur-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`APP-V2-KRAVSPEC.md`](./APP-V2-KRAVSPEC.md)
 
 ---
 
@@ -348,7 +348,8 @@ Det skalar till nya produkter utan ny nav per paket. Se `paket-v1.2-spec.md`.
 
 ```
 docs/
-├── architecture-platform.md          ← detta dokument (plattform)
+├── USE_CASES_PLATFORM.md             ← människans resa (UC01–UC12)
+├── architecture-platform.md          ← Core Platform (engines, profiles)
 ├── APP-V2-KRAVSPEC.md              ← Platform v1 leverans
 ├── engineering-architecture-barnapp.md  ← Gen 1 implementation
 ├── informationsarkitektur-barnapp.md
