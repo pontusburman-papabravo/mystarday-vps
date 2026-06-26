@@ -6,16 +6,17 @@
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
-> Det här dokumentet är **taket** över v2. Detaljer per yta finns i länkade underspecar — de ska inte dupliceras här utan refereras.
+> Det här dokumentet är **leveranskrav** för Platform v1. **Beteende** styrs av [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) — vid konflikt vinner PBS.
 
 ---
 
 ## Relaterade dokument
 
-| Dokument | Roll i v2 |
-|----------|-----------|
-| [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | **Universella use cases** — människans resa (UC01–UC12) |
-| [`architecture-platform.md`](./architecture-platform.md) | **Core Platform** — engines, Presentation Profiles, domänspråk |
+| Dokument | Roll |
+|----------|------|
+| [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) | **Primär produktspec** — hur produkten beter sig (PBS) |
+| [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | Arkiv — UC01–UC12 för volym 2 (PBS06–12) |
+| [`architecture-platform.md`](./architecture-platform.md) | Core Platform — engines, Presentation Profiles |
 | [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
 | [`barnmeny-v2.md`](./barnmeny-v2.md) | Barnsidans IA, tre världar, migration |
 | [`vuxenmeny-v2.md`](./vuxenmeny-v2.md) | Föräldrasidans IA, hubbar, domänmodell |

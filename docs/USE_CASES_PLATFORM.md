@@ -1,11 +1,9 @@
-# Plattform — Use cases (människans resa)
+# Plattform — Use cases (arkiv / volym 2-referens)
 
-**Skapad:** 2026-06-26  
-**Version:** 0.1 (utkast)  
-**Status:** Universella use cases — styr UX, utveckling, test och produktstrategi  
-**Ägare:** Produkt
+> **⚠️ Primär spec:** [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) (PBS)  
+> Det här dokumentet = äldre UC01–UC12-utkast för PBS06–PBS12. Se mapping i PBS bilaga A.
 
-> **Relaterat:** [`architecture-platform.md`](./architecture-platform.md) · [`VISION-2030.md`](./VISION-2030.md) · [`APP-V2-KRAVSPEC.md`](./APP-V2-KRAVSPEC.md)
+---
 
 ---
 
