@@ -31,7 +31,8 @@ describe('family UI + avatar menu fix', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/family-museum.css'), 'utf8');
     assert.match(html, /family-museum\.css/);
     assert.match(museum, /fm-museum-reward-chip/);
-    assert.match(css, /parent-magic-view \.fm-museum-card/);
+    assert.match(css, /\.fm-museum-card/);
+    assert.match(css, /parent-magic-view.*\.fm-museum-card|body\.parent-magic-view.*\.fm-museum-card/);
   });
 
   it('notifications legacy header hidden in magic', () => {

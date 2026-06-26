@@ -18,6 +18,7 @@ const {
   tableExists,
   rollbackLastApplied,
 } = require('./helpers/migration-gate.js');
+const { acquireDbTestLock } = require('./helpers/db-test-lock.js');
 
 const CORE_TABLE = 'family';
 
@@ -45,6 +46,7 @@ test('G3c dev-like DB: migrate, rollback latest, re-migrate', async (t) => {
     return;
   }
 
+  const releaseLock = await acquireDbTestLock();
   const pool = makePool(url);
   const client = await pool.connect();
   try {
@@ -68,6 +70,7 @@ test('G3c dev-like DB: migrate, rollback latest, re-migrate', async (t) => {
   } finally {
     client.release();
     await pool.end();
+    await releaseLock();
   }
 });
 
@@ -78,6 +81,7 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
     return;
   }
 
+  const releaseLock = await acquireDbTestLock();
   const pool = makePool(url);
   const client = await pool.connect();
   try {
@@ -99,5 +103,6 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
   } finally {
     client.release();
     await pool.end();
+    await releaseLock();
   }
 });
