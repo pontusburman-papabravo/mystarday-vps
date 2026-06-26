@@ -19,11 +19,19 @@ The startup update script already installs npm dependencies. The notes below are
 
 ### Required env to run the server / tests
 ```
-export DATABASE_URL="postgresql://<user>:<pass>@localhost:5432/stjarndag"
+export DATABASE_URL="postgresql://stjarndag:stjarndag@localhost:5432/stjarndag"
 export JWT_SECRET="<any-dev-string-at-least-32-chars-long>"
 export REQUIRE_EMAIL_VERIFICATION="false"   # lets new accounts log in without email verification
 ```
 Leave `NODE_ENV` unset (or any non-`production` value) for local dev — `JWT_SECRET` is only length-enforced (>=32) when `NODE_ENV` is the production value.
+
+Sätt dessa som **Environment Variables** i Cursor → Cloud Agents → Secrets (miljö `mystarday-vps`). Fullständig lista inkl. VPS SSH, admin/harvest, Resend, R2, push m.m.:
+
+```bash
+./scripts/setup-cursor-agent-ssh.sh secrets-all
+```
+
+Vid sammanslagning från `mystarday-polsia`: kopiera **alla** secrets till `mystarday-vps` innan du tar bort den gamla miljön.
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 

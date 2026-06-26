@@ -8,6 +8,27 @@ Kanoniska prod-värden: `.cursor/rules/*-deploy.mdc`, `AGENTS.md`.
 
 ---
 
+## Slå ihop mystarday-polsia + mystarday-vps
+
+Cursor har **ingen merge-knapp** — `mystarday-polsia` och `mystarday-vps` är samma GitHub-repo (redirect). Gör så här:
+
+1. **Behåll** miljön `pontusburman-papabravo/mystarday-vps`.
+2. **Kopiera alla secrets** från `mystarday-polsia` till `mystarday-vps` (samma namn + värde).
+3. Kör checklistan för att se att inget saknas:
+
+```bash
+./scripts/setup-cursor-agent-ssh.sh secrets-all
+# eller
+./scripts/print-cursor-cloud-secrets.sh
+```
+
+4. **Ta bort** `mystarday-polsia` i Environments (eller ignorera posten).
+5. **New Setup Run** på `mystarday-vps` — läser `.cursor/environment.json` i repot.
+
+Repot har `.cursor/environment.json` (högre prioritet än dashboard-saves) för Node 20, `npm install --legacy-peer-deps` och lokal Postgres.
+
+---
+
 ## Steg 1 — Kör setup på din Mac
 
 ```bash

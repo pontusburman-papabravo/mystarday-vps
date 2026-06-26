@@ -75,7 +75,8 @@ Användning: ./scripts/setup-cursor-agent-ssh.sh [kommando]
 Kommandon:
   (ingen)        Interaktiv setup (nyckel + instruktioner för Cursor Secrets)
   vps-key        Visa publik nyckel + kommando för authorized_keys på VPS
-  secrets        Visa exakt vilka secrets som ska in i Cursor dashboard
+  secrets        Visa VPS SSH-secrets (minimal lista)
+  secrets-all    Visa ALLA secrets att kopiera vid miljösammanslagning
   test           Testa SSH med lokal nyckel (samma som agenten får via secret)
 
 Efter setup: lägg secrets i Cursor → Cloud Agents → Secrets (Runtime Secret för nyckeln).
@@ -145,7 +146,7 @@ print_cursor_secrets_instructions() {
   cat <<EOF
 
 Öppna: https://cursor.com/dashboard → Cloud Agents → Secrets
-(Lägg dem i samma environment som repot använder, om du har flera.)
+(Lägg dem i miljön **mystarday-vps** — se `secrets-all` för full lista vid sammanslagning från mystarday-polsia.)
 
 | Secret / env | Typ | Värde |
 |--------------|-----|-------|
@@ -213,8 +214,9 @@ main() {
   case "$cmd" in
     -h|--help|help) usage ;;
     vps-key) print_vps_key_instructions ;;
-    secrets) print_cursor_secrets_instructions ;;
-    test) test_local_key ;;
+  secrets) print_cursor_secrets_instructions ;;
+  secrets-all) bash "$REPO_ROOT/scripts/print-cursor-cloud-secrets.sh" ;;
+  test) test_local_key ;;
     "") cmd_full_setup ;;
     *)
       err "Okänt kommando: $cmd"
