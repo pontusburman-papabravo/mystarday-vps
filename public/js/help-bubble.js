@@ -13,6 +13,8 @@
   if (document.getElementById('helpBubbleRoot')) return;
   // Skip if the page already has its own help button (e.g. dashboard.html)
   if (document.getElementById('helpBtn')) return;
+  // Admin panel has its own layout — no floating help bubble
+  if ((window.location.pathname || '').startsWith('/admin')) return;
 
   // ─── Page-specific content ─────────────────────────────────────────────────
   const PAGE_CONTENT = {
@@ -426,12 +428,12 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Trigger button */
+    /* Trigger button — mobile: stack above native tab bar when present */
     #hbBtn {
       position: fixed;
-      bottom: 80px;
-      right: 16px;
-      z-index: 900;
+      bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px);
+      right: max(16px, env(safe-area-inset-right, 0px));
+      z-index: 10001;
       width: 44px;
       height: 44px;
       background: #1B2340;
@@ -458,6 +460,15 @@
       #hbBtn {
         bottom: 24px;
         right: 80px;  /* offset right of support bubble at right:24px */
+        z-index: 900;
+      }
+    }
+
+    /* PWA/mobile without native tab bar */
+    @media (max-width: 767px) {
+      body:not(.has-native-tab-bar) #hbBtn {
+        bottom: 80px;
+        z-index: 900;
       }
     }
 

@@ -215,9 +215,9 @@
       });
     }
 
-    // ─── Stored data for search/filter ────────────────────────
-    const allMessages = [];
-    const allFamilies = [];
+    // ─── Stored data for search/filter (shared across admin-*.js scripts) ───
+    window.allMessages = window.allMessages || [];
+    window.allFamilies = window.allFamilies || [];
 
     // ─── Init ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
@@ -227,7 +227,7 @@
         // Verify admin status
         const me = await Auth.api('/api/auth/me');
 
-        if (!me.is_admin) {
+        if (!me.is_admin && !me.isAdmin) {
           document.getElementById('accessDenied').classList.remove('hidden');
           document.querySelectorAll('[id$="Section"]').forEach(s => {
             if (s.id !== 'accessDenied') s.classList.add('hidden');
@@ -251,10 +251,11 @@
         if (typeof loadOverviewStats === 'function') loadOverviewStats(3);
 
         // Load grouped families
-        loadFamilies();
+        if (typeof loadFamilies === 'function') loadFamilies();
 
-        // Load contact messages
-        loadMessages();
+        // Load contact messages (prefer inbox v2 loader)
+        if (typeof loadMessagesInbox === 'function') loadMessagesInbox();
+        else if (typeof loadMessages === 'function') loadMessages();
 
         // Export family emails (CSV)
         document.getElementById('exportEmailsBtn').addEventListener('click', async () => {
@@ -333,10 +334,13 @@
           }
         });
 
-        // Messages search
+        // Messages search (inbox v2 filters client-side; legacy falls back to renderMessages)
         document.getElementById('messagesSearch').addEventListener('input', (e) => {
           const query = e.target.value.toLowerCase().trim();
-          renderMessages(filterMessages(query));
+          if (typeof filterMessagesInbox === 'function') filterMessagesInbox(query);
+          else if (typeof filterMessages === 'function' && typeof renderMessages === 'function') {
+            renderMessages(filterMessages(query));
+          }
         });
 
         // Logout
