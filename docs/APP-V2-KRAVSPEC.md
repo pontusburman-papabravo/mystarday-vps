@@ -6,7 +6,7 @@
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
-> Det här dokumentet är **leveranskrav** för Platform v1. **Beteende** styrs av [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) — vid konflikt vinner PBS.
+> Det här dokumentet är **leveranskrav** för Platform v1. **Beteende** styrs av [`pbs/README.md`](./pbs/README.md) (PBS volymserie) — vid konflikt vinner PBS.
 
 ---
 
@@ -14,8 +14,9 @@
 
 | Dokument | Roll |
 |----------|------|
-| [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) | **Primär produktspec** — hur produkten beter sig (PBS) |
-| [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | Arkiv — UC01–UC12 för volym 2 (PBS06–12) |
+| [`pbs/README.md`](./pbs/README.md) | **PBS volymserie** — produktens beteendebibel |
+| [`PRODUCT_BEHAVIOR_SPEC.md`](./PRODUCT_BEHAVIOR_SPEC.md) | PBS kort index |
+| [`USE_CASES_PLATFORM.md`](./USE_CASES_PLATFORM.md) | Arkiv |
 | [`architecture-platform.md`](./architecture-platform.md) | Core Platform — engines, Presentation Profiles |
 | [`VISION-2030.md`](./VISION-2030.md) | Kort executive summary |
 | [`barnmeny-v2.md`](./barnmeny-v2.md) | Barnsidans IA, tre världar, migration |
