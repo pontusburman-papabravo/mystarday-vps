@@ -35,7 +35,7 @@ test('native-tab-bar uses NavConfig primary tabs', () => {
   const nav = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
   assert.match(src, /NavConfig\.primaryNavForTabs/);
   assert.match(src, /native-tab-bar/);
-  assert.match(src, /pointer: coarse/);
+  assert.match(src, /max-width: 767px/);
   assert.match(nav, /primaryNavForTabs/);
   assert.match(nav, /PRIMARY_NAV/);
 });

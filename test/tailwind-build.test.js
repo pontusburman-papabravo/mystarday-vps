@@ -51,8 +51,16 @@ describe('Fas 9 Tailwind build pipeline', () => {
   });
 
   it('npm run css:build produces deterministic output', () => {
+    const tailwindBin = path.join(ROOT, 'node_modules', '.bin', 'tailwindcss');
+    if (!fs.existsSync(tailwindBin)) {
+      return; // devDependency not installed — CI installs it via npm ci
+    }
     const before = read('public/css/tailwind.build.css');
-    execSync('node scripts/css-build.mjs', { cwd: ROOT, stdio: 'pipe' });
+    execSync('node scripts/css-build.mjs', {
+      cwd: ROOT,
+      stdio: 'pipe',
+      env: { ...process.env, PATH: `${path.dirname(tailwindBin)}:${process.env.PATH || ''}` },
+    });
     const after = read('public/css/tailwind.build.css');
     assert.equal(before, after, 'committed tailwind.build.css must match fresh build');
   });

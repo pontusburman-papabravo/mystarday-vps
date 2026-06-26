@@ -8,12 +8,14 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('magic nav flash fix', () => {
-  it('soft nav binds native tab bar links', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
-    assert.match(src, /\.native-tab-bar a\.tab-item\[href\]/);
-    assert.match(src, /\/planning': 'planning'/);
-    assert.match(src, /\/rewards': 'rewards'/);
-    assert.doesNotMatch(src, /classList\.add\('parent-magic-nav-loading'\)/);
+  it('native tab bar binds tab links for soft navigation', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const tabBar = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
+    assert.match(tabBar, /a\.tab-item/);
+    assert.match(tabBar, /router\.navigateTo\(href\)/);
+    assert.match(router, /\/planning': 'planning'/);
+    assert.match(router, /\/rewards': 'rewards'/);
+    assert.doesNotMatch(router, /classList\.add\('parent-magic-nav-loading'\)/);
   });
 
   it('swapMain preserves magic chrome', () => {

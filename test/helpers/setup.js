@@ -9,13 +9,10 @@
 const path = require('path');
 const { execSync } = require('child_process');
 const { Pool } = require('pg');
+const { acquireDbTestLock, isMockDatabaseUrl } = require('./db-test-lock.js');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 let migrationsAppliedForUrl = null;
-
-function isMockDatabaseUrl(url) {
-  return !url || /mock_test/i.test(url);
-}
 
 /**
  * Connect to a real DATABASE_URL, run migrations once per URL, optionally
@@ -23,6 +20,9 @@ function isMockDatabaseUrl(url) {
  *
  * Returns { skip: true } when DATABASE_URL is missing or mock — integration
  * tests should call t.skip() in that case.
+ *
+ * Holds a PostgreSQL advisory lock for the test lifetime so parallel test
+ * files cannot migrate/truncate/wipe the shared schema concurrently.
  */
 async function setupTestDb(options = {}) {
   const url = process.env.DATABASE_URL;
@@ -36,45 +36,53 @@ async function setupTestDb(options = {}) {
     };
   }
 
-  if (migrationsAppliedForUrl !== url) {
-    execSync('npm run migrate', {
-      cwd: REPO_ROOT,
-      env: { ...process.env, DATABASE_URL: url },
-      stdio: 'pipe',
+  const releaseLock = await acquireDbTestLock();
+
+  try {
+    if (migrationsAppliedForUrl !== url) {
+      execSync('npm run migrate', {
+        cwd: REPO_ROOT,
+        env: { ...process.env, DATABASE_URL: url },
+        stdio: 'pipe',
+      });
+      migrationsAppliedForUrl = url;
+    }
+
+    const pool = new Pool({
+      connectionString: url,
+      ssl: url.includes('localhost') ? false : { rejectUnauthorized: false },
     });
-    migrationsAppliedForUrl = url;
+
+    async function truncatePublicTables() {
+      const { rows } = await pool.query(`
+        SELECT tablename
+        FROM pg_tables
+        WHERE schemaname = 'public'
+          AND tablename NOT IN ('_migrations')
+      `);
+      if (rows.length === 0) return;
+      const tables = rows.map((r) => `"${r.tablename}"`).join(', ');
+      await pool.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
+    }
+
+    if (options.truncate !== false) {
+      await truncatePublicTables();
+    }
+
+    return {
+      skip: false,
+      pool,
+      query: (text, params) => pool.query(text, params),
+      truncate: truncatePublicTables,
+      cleanup: async () => {
+        await pool.end();
+        await releaseLock();
+      },
+    };
+  } catch (err) {
+    await releaseLock();
+    throw err;
   }
-
-  const pool = new Pool({
-    connectionString: url,
-    ssl: url.includes('localhost') ? false : { rejectUnauthorized: false },
-  });
-
-  async function truncatePublicTables() {
-    const { rows } = await pool.query(`
-      SELECT tablename
-      FROM pg_tables
-      WHERE schemaname = 'public'
-        AND tablename NOT IN ('_migrations')
-    `);
-    if (rows.length === 0) return;
-    const tables = rows.map((r) => `"${r.tablename}"`).join(', ');
-    await pool.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
-  }
-
-  if (options.truncate !== false) {
-    await truncatePublicTables();
-  }
-
-  return {
-    skip: false,
-    pool,
-    query: (text, params) => pool.query(text, params),
-    truncate: truncatePublicTables,
-    cleanup: async () => {
-      await pool.end();
-    },
-  };
 }
 
 /**

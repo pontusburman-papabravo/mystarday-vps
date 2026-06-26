@@ -19,10 +19,12 @@ describe('parent magic platform inject', () => {
     assert.equal(out, minimalHtml);
   });
 
-  it('skips when parent-magic-shell already present', () => {
+  it('ensures magic assets when parent-magic-shell already present', () => {
     const wired = minimalHtml.replace('</body>', '<script src="/js/parent-magic-shell.js"><\/script></body>');
     const out = injectParentMagicHtml(wired, '/calendar');
-    assert.equal(out, wired);
+    assert.match(out, /parent-magic-common\.css/);
+    assert.match(out, /parent-magic-shell\.js/);
+    assert.doesNotMatch(out, /parent-magic-router\.js/);
   });
 
   it('injectPlatformHtml still adds platform scripts', () => {
