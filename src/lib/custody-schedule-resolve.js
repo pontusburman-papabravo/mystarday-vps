@@ -2,7 +2,7 @@
 
 const custodyDb = require('../../db/custody');
 const { getWeekVariantForDate } = require('./custody-resolver');
-const { getDayOfWeek } = require('./daily-log-generator');
+const { getDayOfWeek } = require('./schedule-date-utils');
 
 /**
  * Resolve weekly_schedule.id for a child on a calendar date (custody-aware).
@@ -13,7 +13,12 @@ const { getDayOfWeek } = require('./daily-log-generator');
  */
 async function resolveWeeklyScheduleId(client, childId, dateStr, timezone = 'Europe/Stockholm') {
   const dayOfWeek = getDayOfWeek(dateStr, timezone);
-  const pattern = await custodyDb.getPattern(childId, client);
+  let pattern = null;
+  try {
+    pattern = await custodyDb.getPattern(childId, client);
+  } catch (err) {
+    console.warn('[custody] getPattern failed — falling back to legacy schedule:', err.message);
+  }
 
   if (!pattern) {
     const legacy = await client.query(

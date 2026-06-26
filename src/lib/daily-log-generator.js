@@ -12,6 +12,7 @@
 
 const db = require('./db');
 const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
+const { getDayOfWeek } = require('./schedule-date-utils');
 
 /**
  * Calculate child's age in years from a birthday string (YYYY-MM-DD).
@@ -80,18 +81,6 @@ function getLocalDateStr(dateInput, timezone) {
   const tz = timezone || 'Europe/Stockholm';
   const d = dateInput ? new Date(dateInput) : new Date();
   return d.toLocaleDateString('sv-SE', { timeZone: tz }); // sv-SE produces YYYY-MM-DD
-}
-
-/**
- * Get JS day-of-week (0=Sun, 1=Mon, … 6=Sat) for a date string in a timezone.
- */
-function getDayOfWeek(dateStr, timezone) {
-  const tz = timezone || 'Europe/Stockholm';
-  const d = new Date(`${dateStr}T12:00:00Z`); // midday UTC avoids DST edge cases
-  const formatter = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' });
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const name = formatter.format(d);
-  return dayNames.indexOf(name.substring(0, 3));
 }
 
 /**

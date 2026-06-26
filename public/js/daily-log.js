@@ -48,18 +48,35 @@
 
     // ── Date helpers ──────────────────────────────────────
 
+    function toIsoDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function normalizeIsoDate(dateStr) {
+      if (!dateStr) return toIsoDate(new Date());
+      const iso = String(dateStr).match(/^(\d{4}-\d{2}-\d{2})/);
+      if (iso) return iso[1];
+      const parsed = new Date(dateStr);
+      if (!Number.isNaN(parsed.getTime())) return toIsoDate(parsed);
+      return toIsoDate(new Date());
+    }
+
     function getTodayStr() {
-      return new Date().toLocaleDateString('sv-SE');
+      return toIsoDate(new Date());
     }
 
     function offsetDate(dateStr, days) {
-      const d = new Date(dateStr + 'T12:00:00');
+      const d = new Date(normalizeIsoDate(dateStr) + 'T12:00:00');
       d.setDate(d.getDate() + days);
-      return d.toLocaleDateString('sv-SE');
+      return toIsoDate(d);
     }
 
     function formatDateDisplay(dateStr) {
-      const d = new Date(dateStr + 'T12:00:00');
+      const safeDate = normalizeIsoDate(dateStr);
+      const d = new Date(safeDate + 'T12:00:00');
       const today = getTodayStr();
       const yesterday = offsetDate(today, -1);
       const tomorrow = offsetDate(today, 1);
@@ -206,12 +223,21 @@
       renderLogLoading();
 
       try {
-        const res = await apiFetch(`/api/children/${currentChildId}/daily-log?date=${currentDateStr}`);
-        if (!res.ok) throw new Error();
+        const dateParam = normalizeIsoDate(currentDateStr);
+        currentDateStr = dateParam;
+        const res = await apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        if (!res.ok) {
+          let msg = 'Kunde inte ladda loggen';
+          try {
+            const err = await res.json();
+            if (err?.error) msg = err.error;
+          } catch (_) { /* ignore */ }
+          throw new Error(msg + ' (status ' + res.status + ')');
+        }
         const data = await res.json();
 
         currentLog = data.log;
-        currentItems = data.items;
+        currentItems = data.items || [];
         currentSectionTimes = data.section_times || {};
 
         // Load ratings for all items in parallel
@@ -233,8 +259,9 @@
         }
 
         renderLog(data);
-      } catch {
-        renderLogError();
+      } catch (err) {
+        console.error('[daily-log] loadLog error:', err);
+        renderLogError(err);
       }
     }
 
@@ -248,17 +275,21 @@
         </div>`;
     }
 
-    function renderLogError() {
+    function renderLogError(err) {
+      const detail = err && err.message ? `<p class="text-sm mt-2 opacity-70">${escHtml(err.message)}</p>` : '';
       document.getElementById('logContent').innerHTML = `
         <div class="text-center py-16 text-text-soft">
           <p class="text-4xl mb-3">❌</p>
           <p class="font-semibold">Kunde inte ladda loggen. Försök igen.</p>
-          <button onclick="loadLog()" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">Försök igen</button>
+          ${detail}
+          <button type="button" id="retryLoadLogBtn" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">Försök igen</button>
         </div>`;
+      const retry = document.getElementById('retryLoadLogBtn');
+      if (retry) retry.addEventListener('click', loadLog);
     }
 
     function renderLog(data) {
-      const { log, items, section_times } = data;
+      const { log, items = [], section_times } = data;
       const total = items.length;
       const completed = items.filter(i => i.completed).length;
       const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -654,9 +685,6 @@
         showToast('Kunde inte spara ordningen', 'error');
       }
     }
-    // Expose so onclick= attributes can call it
-    window.moveItemInSection = moveItemInSection;
-
     // ── Navigation ─────────────────────────────────────────
 
     function navigateDate(offset) {
@@ -671,6 +699,13 @@
       bumpTimeSnapshot = null;
       loadLog();
     }
+
+    // Expose for inline handlers and magic shell
+    window.selectChild = selectChild;
+    window.loadLog = loadLog;
+    window.navigateDate = navigateDate;
+    window.navigateToDate = navigateToDate;
+    window.moveItemInSection = moveItemInSection;
 
     // ── Complete all in section ────────────────────────────
 

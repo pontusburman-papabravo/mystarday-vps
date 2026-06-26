@@ -212,7 +212,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v387';
+const CACHE_NAME = 'stjarndag-v388';
 // stjarndag-v387: Beskär om — proxy hämtar R2-bild, crop-modal ovanför aktivitetsmodal
 // stjarndag-v386: Beskär-modal — z-index över tab bar, sticky Spara-knapp
 // stjarndag-v385: Bibliotek — beskär/zooma egna aktivitetsbilder med barnvy-förhandsgranskning
@@ -429,6 +429,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests (CDN fonts, Tailwind, etc.)
   if (url.origin !== self.location.origin) return;
+
+  // Mockups: always fresh (marketing screenshots — no stale toolbar/JS)
+  if (url.pathname.startsWith('/mockups/')) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
+    return;
+  }
 
   // API calls: Network-only, bypass HTTP cache entirely.
   // Why cache:'no-store': prevents the browser from sending If-None-Match headers
