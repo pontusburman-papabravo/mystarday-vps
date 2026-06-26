@@ -33,12 +33,15 @@ const {
   listNyheter,
   markPushSent,
   markFacebookPosted,
-  markEmailSent,
   unpublishNyhet,
   getNyhetById,
   updateNyhet,
 } = require('../../db/dagens-nyhet');
-const { sendNewsletterForNyhet, sendNewsletterToRecipients } = require('../lib/newsletter-mailer');
+const { sendNewsletterForNyhet } = require('../lib/newsletter-mailer');
+const {
+  startNyhetEmailSend,
+  getNyhetEmailSendStatus,
+} = require('../lib/dagens-nyhet-email-send');
 const { sendPushBroadcast } = require('../lib/push-notifications');
 const { isFacebookConfigured, getFacebookPageToken, postNyhetToFacebook } = require('../lib/facebook');
 
@@ -506,7 +509,7 @@ function buildMessage(nyhet, pushResult, facebookResult = {}) {
 // ─── POST /api/dagens-nyhet/:id/send-newsletter ─────────────
 // Admin sends newsletter to selected recipients for a specific nyhet.
 // Body: { recipientIds: string[] } (array of parent_id UUIDs)
-// Returns: { sent, failed, email_sent_count, email_sent_at, email_failed }
+// Returns 202 immediately; send continues in background (poll email-send-status).
 // Gate 2D: nyhetsbrev feature must be available
 router.post('/:id/send-newsletter', requireAdmin, requireFeature('nyhetsbrev'), async (req, res) => {
   try {
@@ -543,27 +546,46 @@ router.post('/:id/send-newsletter', requireAdmin, requireFeature('nyhetsbrev'), 
       });
     }
 
-    // Send to selected recipients only
-    const result = await sendNewsletterToRecipients(nyhet, validIds);
+    const startResult = await startNyhetEmailSend(nyhet, validIds);
+    if (startResult.alreadyRunning) {
+      const status = await getNyhetEmailSendStatus(nyhet.id);
+      return res.status(409).json({
+        error: 'E-postutskick pågår redan',
+        ...status,
+      });
+    }
 
-    // Record results on the nyhet
-    // Pass result.failed (count) so email_failed_count reflects partial failures accurately.
-    // The boolean email_failed is set to (result.failed > 0) for compatibility.
-    await markEmailSent(nyhet.id, result.sent, result.failed, result.failed > 0);
-
-    res.json({
-      sent: result.sent,
-      failed: result.failed,
-      email_sent_count: result.sent,
-      email_sent_at: result.sent > 0 ? new Date().toISOString() : null,
-      email_failed: result.failed > 0,
-      message: result.sent > 0
-        ? `Nyhetsbrev skickat till ${result.sent} mottagare`
-        : 'Inga e-postmeddelanden skickades (inga aktiva prenumeranter bland de valda)',
+    res.status(202).json({
+      accepted: true,
+      status: 'sending',
+      expected: validIds.length,
+      progress: 0,
+      sent: 0,
+      failed: 0,
+      message: `E-postutskick startat för ${validIds.length} mottagare. Det kan ta 1–2 minuter.`,
     });
   } catch (err) {
     console.error('[DAGENS-NYHET] Send newsletter error:', err);
     res.status(500).json({ error: 'Kunde inte skicka nyhetsbrevet' });
+  }
+});
+
+// ─── GET /api/dagens-nyhet/:id/email-send-status ───────────
+// Poll-friendly status while background send is running.
+router.get('/:id/email-send-status', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+      return res.status(400).json({ error: 'Ogiltigt id' });
+    }
+    const status = await getNyhetEmailSendStatus(id);
+    if (status.status === 'not_found') {
+      return res.status(404).json({ error: 'Nyhet hittades inte' });
+    }
+    res.json(status);
+  } catch (err) {
+    console.error('[DAGENS-NYHET] Email send status error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta utskicksstatus' });
   }
 });
 

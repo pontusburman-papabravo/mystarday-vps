@@ -610,7 +610,7 @@
       }
     };
 
-    window.sendEmailNewsletter = function(nyhetId) {
+    window.sendEmailNewsletter = async function(nyhetId) {
       const checks = Array.from(document.querySelectorAll('.email-recipient-check:checked'));
       if (checks.length === 0) {
         alert('Välj minst en mottagare.');
@@ -618,35 +618,138 @@
       }
       const recipientIds = checks.map(cb => cb.value);
       const btn = document.getElementById('emailSendBtn');
-      const sendCountEl = document.getElementById('emailSendCount');
 
       btn.disabled = true;
-      btn.innerHTML = '⏳ Skickar...';
+      btn.innerHTML = '⏳ Startar...';
+      showEmailSendProgress(recipientIds.length);
 
-      fetch(`/api/dagens-nyhet/${nyhetId}/send-newsletter`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': getCsrfToken(),
-        },
-        body: JSON.stringify({ recipientIds }),
-      })
-        .then(r => r.json())
-        .then(data => {
+      let shouldPoll = false;
+
+      try {
+        const res = await fetch(`/api/dagens-nyhet/${nyhetId}/send-newsletter`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCsrfToken(),
+          },
+          body: JSON.stringify({ recipientIds }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 202 || res.status === 409) {
+          shouldPoll = true;
+        } else if (!res.ok) {
+          closeEmailModal();
+          alert(data.error || 'Kunde inte starta e-postutskick.');
+          return;
+        } else if (typeof data.sent === 'number') {
           closeEmailModal();
           if (data.sent > 0) {
             alert(`✅ Nyhetsbrev skickat till ${data.sent} mottagare!`);
           } else {
-            alert('Inga e-postmeddelanden skickades (inga aktiva prenumeranter).');
+            alert(data.message || 'Inga e-postmeddelanden skickades.');
           }
-          // Refresh history to show updated email badge
           nyhetHistoryLoaded = false;
           loadNyheter();
-        })
-        .catch(err => {
-          btn.disabled = false;
-          btn.innerHTML = `Skicka nyhetsbrev till <span id="emailSendCount">${checks.length}</span> mottagare`;
-          alert('Nätverksfel vid e-postutskick. Försök igen.');
-        });
+          return;
+        } else {
+          shouldPoll = true;
+        }
+      } catch (_) {
+        // Connection may drop while server keeps sending — poll for completion.
+        shouldPoll = true;
+      }
+
+      if (!shouldPoll) return;
+
+      const result = await pollEmailSendStatus(nyhetId, recipientIds.length);
+      closeEmailModal();
+
+      if (result.ok) {
+        if (result.sent > 0 && result.failed > 0) {
+          alert(`✅ Skickat till ${result.sent} mottagare (${result.failed} misslyckades).`);
+        } else if (result.sent > 0) {
+          alert(`✅ Nyhetsbrev skickat till ${result.sent} mottagare!`);
+        } else {
+          alert('Inga e-postmeddelanden skickades (inga aktiva prenumeranter).');
+        }
+      } else {
+        alert(`⚠️ ${result.error}`);
+      }
+
+      nyhetHistoryLoaded = false;
+      loadNyheter();
+    };
+
+    function showEmailSendProgress(expected) {
+      const list = document.getElementById('emailRecipientsList');
+      const footer = document.querySelector('#emailRecipientModal .border-t');
+      if (list) list.classList.add('hidden');
+      const headerBar = document.querySelector('#emailRecipientModal .border-b');
+      if (headerBar) headerBar.classList.add('hidden');
+
+      let progressEl = document.getElementById('emailSendProgress');
+      if (!progressEl) {
+        progressEl = document.createElement('div');
+        progressEl.id = 'emailSendProgress';
+        progressEl.className = 'px-6 py-8';
+        const modalBody = document.querySelector('#emailRecipientModal .max-h-\\[85vh\\]');
+        if (modalBody && footer) {
+          modalBody.insertBefore(progressEl, footer);
+        }
+      }
+
+      progressEl.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">📧</div>
+          <p class="font-semibold text-navy mb-1">Skickar nyhetsbrev…</p>
+          <p id="emailSendProgressText" class="text-sm text-text-soft mb-4">0 av ${expected} mottagare — det kan ta 1–2 minuter.</p>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden mx-auto max-w-sm">
+            <div id="emailSendProgressBar" class="bg-gold h-2.5 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+          <p class="text-xs text-text-soft mt-4">Stäng inte fliken medan utskicket pågår.</p>
+        </div>`;
+      progressEl.classList.remove('hidden');
+      if (footer) footer.classList.add('hidden');
+    }
+
+    function updateEmailSendProgress(sent, expected) {
+      const text = document.getElementById('emailSendProgressText');
+      const bar = document.getElementById('emailSendProgressBar');
+      const safeExpected = expected > 0 ? expected : 1;
+      const pct = Math.min(100, Math.round((sent / safeExpected) * 100));
+      if (text) {
+        text.textContent = `${sent} av ${expected} mottagare — det kan ta 1–2 minuter.`;
+      }
+      if (bar) bar.style.width = `${pct}%`;
+    }
+
+    async function pollEmailSendStatus(nyhetId, expected) {
+      const maxAttempts = 150;
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        try {
+          const res = await fetch(`/api/dagens-nyhet/${nyhetId}/email-send-status`, {
+            credentials: 'include',
+          });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const progress = data.progress != null ? data.progress : (data.sent || 0);
+          updateEmailSendProgress(progress, data.expected || expected);
+
+          if (data.status === 'done') {
+            return { ok: true, sent: data.sent || 0, failed: data.failed || 0 };
+          }
+          if (data.status === 'failed') {
+            return { ok: false, error: data.error || 'E-postutskick misslyckades.' };
+          }
+        } catch (_) {
+          // Keep polling through transient network errors.
+        }
+      }
+      return {
+        ok: false,
+        error: 'Utskick tog för lång tid. Kontrollera historiken innan du skickar igen.',
+      };
     };
