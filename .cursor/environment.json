@@ -1,0 +1,4 @@
+{
+  "$schema": "https://www.cursor.com/schemas/environment.schema.json",
+  "install": "export PATH=\"$HOME/.nvm/versions/node/v20.20.2/bin:$PATH\" && (test -x \"$HOME/.nvm/versions/node/v20.20.2/bin/node\" || (nvm install 20 && export PATH=\"$HOME/.nvm/versions/node/v20.20.2/bin:$PATH\")) && npm install --legacy-peer-deps && sudo pg_ctlcluster 16 main start 2>/dev/null || true"
+}
