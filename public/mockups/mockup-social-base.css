@@ -22,7 +22,12 @@ body {
 }
 .toolbar h1 { font-family: 'Outfit', system-ui, sans-serif; font-size: 17px; font-weight: 800; }
 .toolbar p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 3px; }
-.toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.toolbar-actions .btn {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
 .btn {
   border: none; border-radius: 10px; padding: 10px 16px;
   font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;

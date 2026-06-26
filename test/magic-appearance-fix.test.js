@@ -71,12 +71,13 @@ describe('magic appearance fixes', () => {
     assert.match(css, /parent-theme-light \.parent-coparent-cta-copy strong/);
   });
 
-  it('fixed nav header on all magic pages including dashboard', () => {
-    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+  it('home hub binds click handlers directly on action tiles', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
-    assert.match(css, /parent-top-chrome/);
-    assert.match(css, /#parentAvatarBtn/);
-    assert.doesNotMatch(hub, /parent-hub-header-actions/);
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/dashboard-magic.css'), 'utf8');
+    assert.match(hub, /btn\.addEventListener\('click'/);
+    assert.match(hub, /dataset\.hubBound/);
+    assert.match(css, /parent-action-grid[\s\S]*pointer-events: auto/);
+    assert.match(css, /parent-home-hub\.magic-3d-scene[\s\S]*transform-style: flat/);
   });
 
   it('SW bumped to v339', () => {

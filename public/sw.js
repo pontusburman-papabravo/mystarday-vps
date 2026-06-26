@@ -212,7 +212,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v388';
+const CACHE_NAME = 'stjarndag-v389';
 // stjarndag-v387: Beskär om — proxy hämtar R2-bild, crop-modal ovanför aktivitetsmodal
 // stjarndag-v386: Beskär-modal — z-index över tab bar, sticky Spara-knapp
 // stjarndag-v385: Bibliotek — beskär/zooma egna aktivitetsbilder med barnvy-förhandsgranskning

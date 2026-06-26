@@ -662,6 +662,9 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 14px;
+  position: relative;
+  z-index: 6;
+  isolation: isolate;
 }
 
 .parent-action-tile {
@@ -679,6 +682,12 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  transform: none;
+  transform-style: flat;
+  touch-action: manipulation;
 }
 
 .parent-action-tile:active {
@@ -695,6 +704,29 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   font-size: 10px;
   font-weight: 700;
   line-height: 1.25;
+  pointer-events: none;
+}
+
+.parent-week-highlight {
+  outline: 2px solid rgba(255, 204, 51, 0.75);
+  outline-offset: 4px;
+  transition: outline-color 0.3s ease;
+}
+
+/* Dashboard home — flat hit targets (3D polish broke desktop clicks) */
+body.parent-magic-dashboard .parent-home-hub.magic-3d-scene {
+  transform-style: flat;
+  perspective: none;
+}
+
+body.parent-magic-dashboard .parent-action-tile,
+body.parent-magic-dashboard .parent-handoff-primary,
+body.parent-magic-dashboard .parent-handoff-secondary,
+body.parent-magic-dashboard .parent-coparent-cta-btn,
+body.parent-magic-dashboard .parent-ready-child {
+  transform: none !important;
+  transform-style: flat;
+  pointer-events: auto;
 }
 
 /* ── Handoff card (bottom) ── */

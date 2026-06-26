@@ -74,6 +74,30 @@
       }
     }
 
+    document.addEventListener('click', function (e) {
+      var toggle = e.target.closest('#toggleExport');
+      if (toggle) {
+        e.preventDefault();
+        e.stopPropagation();
+        setExportMode(!document.body.classList.contains('export-mode'));
+        return;
+      }
+      var copyBtn = e.target.closest('#copyCaption');
+      if (copyBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        var caption = document.getElementById('captionShort');
+        if (caption) copyText(caption.textContent.trim(), copyBtn);
+        return;
+      }
+      var exitBtn = e.target.closest('#exitExport');
+      if (exitBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        setExportMode(false);
+      }
+    }, true);
+
     var toggle = document.getElementById('toggleExport');
     if (toggle) {
       toggle.addEventListener('click', function (e) {

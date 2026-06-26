@@ -285,30 +285,71 @@
   }
 
   function bindActions(mount) {
-    mount.onclick = function (e) {
-      var btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      var action = btn.getAttribute('data-action');
-
-      if (action === 'give-stars' && typeof window.openGiveStarsQuick === 'function') {
-        window.openGiveStarsQuick();
-      } else if (action === 'backfill-log') {
+    function handleAction(action, btn) {
+      if (action === 'give-stars') {
+        if (typeof window.openGiveStarsQuick === 'function') {
+          window.openGiveStarsQuick();
+          return;
+        }
+        if (typeof window.showToast === 'function') {
+          showToast('Kunde inte öppna stjärnor — ladda om sidan', 'error');
+        }
+        return;
+      }
+      if (action === 'backfill-log') {
         window.location.href = '/daily-log';
-      } else if (action === 'once-task' && typeof window.openOnceTaskModal === 'function') {
-        window.openOnceTaskModal();
-      } else if (action === 'ledig-dag' && typeof window.openLedigDagModal === 'function') {
-        window.openLedigDagModal();
-      } else if (action === 'today-schedule') {
+        return;
+      }
+      if (action === 'once-task') {
+        if (typeof window.openOnceTaskModal === 'function') {
+          window.openOnceTaskModal();
+          return;
+        }
+        if (typeof window.showToast === 'function') {
+          showToast('Kunde inte öppna engångsaktivitet — ladda om sidan', 'error');
+        }
+        return;
+      }
+      if (action === 'ledig-dag') {
+        if (typeof window.openLedigDagModal === 'function') {
+          window.openLedigDagModal();
+          return;
+        }
+        if (typeof window.showToast === 'function') {
+          showToast('Kunde inte öppna ledig dag — ladda om sidan', 'error');
+        }
+        return;
+      }
+      if (action === 'today-schedule') {
         window.location.href = '/schedule';
-      } else if (action === 'messages') {
+        return;
+      }
+      if (action === 'messages') {
         window.location.href = '/notifications';
-      } else if (action === 'stats') {
+        return;
+      }
+      if (action === 'stats') {
+        var starHist = document.getElementById('starHistorySection');
+        if (starHist && !starHist.classList.contains('hidden')) {
+          starHist.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
         var week = mount.querySelector('.parent-week-section');
-        if (week) week.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else if (action === 'open-schedule') {
+        if (week) {
+          week.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          week.classList.add('parent-week-highlight');
+          window.setTimeout(function () { week.classList.remove('parent-week-highlight'); }, 1800);
+          return;
+        }
+        window.location.href = '/reports';
+        return;
+      }
+      if (action === 'open-schedule') {
         var cid = btn.getAttribute('data-child-id');
         window.location.href = cid ? '/schedule?child=' + encodeURIComponent(cid) : '/schedule';
-      } else if (action === 'child-login') {
+        return;
+      }
+      if (action === 'child-login') {
         if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
           DashboardChildHandoff.startChildLogin();
         } else if (window.Auth && Auth.logout) {
@@ -316,20 +357,36 @@
         } else {
           window.location.href = '/child-login';
         }
-      } else if (action === 'invite-coparent') {
+        return;
+      }
+      if (action === 'invite-coparent') {
         if (typeof window.openCoParentInviteModal === 'function') {
-          window.openCoParentInviteModal();
+          openCoParentInviteModal();
         } else if (typeof window.openMedforalderCtaInvite === 'function') {
-          window.openMedforalderCtaInvite();
+          openMedforalderCtaInvite();
+        } else if (typeof window.showToast === 'function') {
+          showToast('Kunde inte öppna inbjudan — gå till Familj', 'error');
         }
-      } else if (action === 'parent-logout') {
+        return;
+      }
+      if (action === 'parent-logout') {
         if (window.DashboardChildHandoff && DashboardChildHandoff.parentLogout) {
           DashboardChildHandoff.parentLogout();
         } else if (typeof window.logout === 'function') {
           window.logout();
         }
       }
-    };
+    }
+
+    mount.querySelectorAll('[data-action]').forEach(function (btn) {
+      if (btn.dataset.hubBound === '1') return;
+      btn.dataset.hubBound = '1';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleAction(btn.getAttribute('data-action'), btn);
+      });
+    });
   }
 
   window.DashboardHomeHub = {
