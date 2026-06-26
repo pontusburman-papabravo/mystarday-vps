@@ -1,22 +1,29 @@
-# Instagram — Recensioner (36 sek)
+# Instagram — Recensioner (30 sek)
 
 **Krav:** Originalbilder i `source/` (se `source/README.md`).  
-**Generera:** `npm run instagram:recensioner` eller `bash scripts/instagram-recensioner-mac.sh`
+**Generera:** från **repo-roten** (`mystarday-vps/`):
 
-**Output:** `instagram-recensioner.mp4` (1080×1920, 6×6 sek)
+```bash
+cd /Users/pontusburman/mystarday-vps
+npm run instagram:recensioner
+```
+
+Eller: `bash scripts/instagram-recensioner-mac.sh`
+
+**Output:** `instagram-recensioner.mp4` (1080×1920, 6×5 sek = 30 sek)
 
 ## Sekvens
 
 | Tid | Bild | Text på skärmen |
 |-----|------|-----------------|
-| 0–6s | Recensioner | När inkorgen får en att gråta av lättnad... 🥹 |
-| 6–12s | Schema Anna | Från konstant tjat till att barnen bockar av själva! ✨ |
-| 12–18s | Färdiga scheman | Färdiga mallar för morgon, kväll och lov – kopiera med ett klick. 📋 |
-| 18–24s | Rutiner (För dig) | Aktivera morgon- eller kvällsrutin direkt från För dig. ☀️🌙 |
-| 24–30s | Hem (föräldrapanel) | Allt samlat för föräldern – schema, stjärnor och översikt. 📊 |
-| 30–36s | Landningssida | Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀 |
+| 0–5s | Recensioner | När inkorgen får en att gråta av lättnad... 🥹 |
+| 5–10s | Schema Anna | Från konstant tjat till att barnen bockar av själva! ✨ |
+| 10–15s | Färdiga scheman | Färdiga mallar för morgon, kväll och lov – kopiera med ett klick. 📋 |
+| 15–20s | Rutiner (För dig) | Aktivera morgon- eller kvällsrutin direkt från För dig. ☀️🌙 |
+| 20–25s | Hem (föräldrapanel) | Allt samlat för föräldern – schema, stjärnor och översikt. 📊 |
+| 25–30s | Landningssida | Gör som tusentals andra familjer. Testa gratis på mystarday.se 🚀 |
 
-Ändra längd per bild: `SEC_PER_SLIDE=7 npm run instagram:recensioner`
+Ändra längd: `SEC_PER_SLIDE=4 npm run instagram:recensioner` (måste köras från repo-roten, inte denna undermapp)
 
 ## Caption (text under videon)
 

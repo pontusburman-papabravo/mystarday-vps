@@ -21,7 +21,7 @@ const OUT_DIR = path.join(ROOT, 'docs', 'marketing', 'instagram-recensioner');
 
 const W = 1080;
 const H = 1920;
-const SEC_PER_SLIDE = Number(process.env.SEC_PER_SLIDE || 6);
+const SEC_PER_SLIDE = Number(process.env.SEC_PER_SLIDE || 5);
 
 const SOURCE_KEYS = [
   '01-recensioner',
