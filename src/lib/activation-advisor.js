@@ -295,7 +295,7 @@ async function buildRecommendations(metrics) {
  * Run analysis and persist alerts to admin_operational_alert.
  */
 async function runActivationAdvisor({ pruneDays = 30 } = {}) {
-  const adminAlerts = require('../db/admin-operational-alerts');
+  const adminAlerts = require('../../db/admin-operational-alerts');
   const metrics = await collectMetrics();
   const recommendations = await buildRecommendations(metrics);
   const saved = [];
