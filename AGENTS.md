@@ -8,9 +8,10 @@ The startup update script already installs npm dependencies. The notes below are
 
 ### Runtime versions
 - The project pins **Node 20** (`.nvmrc`). The VM default `node` (`/exec-daemon/node`) is Node 22 and takes priority on `PATH`, so prepend Node 20 explicitly in any shell that runs app/test commands:
-  `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (install once with `nvm install 20` if missing).
+ `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (install once with `nvm install 20` if missing).
+- **`NODE_ENV` is preset to the prod value in this VM** (it shows up redacted in env dumps because the value is a configured secret). This is a gotcha: in that mode npm sets `omit=dev`, so `npm install` silently **skips devDependencies** (eslint, tailwindcss, puppeteer, etc.) and lint/build/tests then fail with "command not found". It also flips on prod-only code paths (e.g. `JWT_SECRET` length is enforced). **Always `unset NODE_ENV`** in any dev/lint/build shell (use `NODE_ENV=test` only for the test suite). The update script installs deps with `--include=dev` so dev deps land regardless of the preset.
 - `npm install`/`npm ci` requires `--legacy-peer-deps`: a native-only Capacitor plugin (`@codetrix-studio/capacitor-google-auth`) peer-depends on Capacitor 6 while the project uses Capacitor 7. These are iOS/Android-only deps and irrelevant to the web app.
-- **eslint is not in the lockfile** — install it separately before linting: `npm install --no-save eslint@^9.0.0 --legacy-peer-deps` (CI does the same).
+- eslint **is** in the lockfile (devDependency `eslint@9.39.4`); a normal dev install (`npm install --legacy-peer-deps --include=dev`, or with `NODE_ENV` unset) installs it. No separate `--no-save` install is needed anymore.
 
 ### Database
 - A local **PostgreSQL 16** is used for dev. Start it with `sudo pg_ctlcluster 16 main start`.
@@ -29,8 +30,8 @@ All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, W
 
 ### Run / lint / test
 - Run dev server: `npm run dev` (= `node server.js`, listens on `PORT` or 3000). Health check: `GET /health`. There is no hot-reload/watcher — restart the process after server-side changes.
-- Lint: `npm run lint` (after installing eslint as above). Currently clean: 0 errors, ~74 pre-existing warnings.
-- Test: `NODE_ENV=test npm test` (Node's built-in runner over `test/*.test.js`). Match CI's env (`DATABASE_URL`, `JWT_SECRET`, `REQUIRE_EMAIL_VERIFICATION=false`, `NODE_ENV=test`).
+- Lint: `npm run lint`. As of this writing it reports a handful of **pre-existing** issues on a clean tree (2 `no-undef` errors — `dateStr`, `AbortController` — plus ~78 warnings); these are not environment problems.
+- Test: `NODE_ENV=test npm test` (Node's built-in runner over `test/*.test.js`). Match CI's env (`DATABASE_URL`, `JWT_SECRET`, `REQUIRE_EMAIL_VERIFICATION=false`, `NODE_ENV=test`). The vast majority pass (~1014/1026). A small number of failures are pre-existing and not env-related: some DB integration tests are flaky under the parallel runner (they pass when run in isolation, e.g. `node --test test/messages-read-csrf-integration.test.js`), and a few assert against committed artifacts/workflows (`route-inventory`, `act1-rollout`).
 
 ### Known caveats
 - **Do not run `npm test` on the production VPS** with a live `RESEND_API_KEY` — integration tests POST to public routes and can send admin emails (e.g. `anna@example.com` pedagogintresse). Run tests only in dev/CI.
