@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Fullständig checklista: alla Cursor Cloud Agent-secrets för mystarday-vps.
-# Kör: ./scripts/print-cursor-cloud-secrets.sh
-# Eller: ./scripts/setup-cursor-agent-ssh.sh secrets-all
-#
-# Vid sammanslagning mystarday-polsia → mystarday-vps: kopiera ALLA rader nedan
-# från gamla miljön till mystarday-vps (Cloud Agents → Secrets → Environment).
+# Cursor Cloud Agent secrets-checklista för mystarday-vps.
+# Kör: ./scripts/print-cursor-cloud-secrets.sh          (minimal — rekommenderat)
+#      ./scripts/print-cursor-cloud-secrets.sh --full   (alla möjliga nycklar)
 set -euo pipefail
+
+if [ "${1:-}" != "--full" ]; then
+  exec bash "$(dirname "$0")/print-cursor-cloud-secrets-minimal.sh"
+fi
+
+# --full: komplett referens vid sammanslagning eller specialfall
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DEPLOY_RULES="${DEPLOY_RULES:-$(find "$REPO_ROOT/.cursor/rules" -maxdepth 1 -name '*-deploy.mdc' -print -quit 2>/dev/null || true)}"

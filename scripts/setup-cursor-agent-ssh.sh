@@ -76,7 +76,8 @@ Kommandon:
   (ingen)        Interaktiv setup (nyckel + instruktioner för Cursor Secrets)
   vps-key        Visa publik nyckel + kommando för authorized_keys på VPS
   secrets        Visa VPS SSH-secrets (minimal lista)
-  secrets-all    Visa ALLA secrets att kopiera vid miljösammanslagning
+  secrets-all    Visa minimal secrets-lista (rekommenderat)
+  secrets-minimal  Samma som secrets-all
   test           Testa SSH med lokal nyckel (samma som agenten får via secret)
 
 Efter setup: lägg secrets i Cursor → Cloud Agents → Secrets (Runtime Secret för nyckeln).
@@ -216,6 +217,7 @@ main() {
     vps-key) print_vps_key_instructions ;;
   secrets) print_cursor_secrets_instructions ;;
   secrets-all) bash "$REPO_ROOT/scripts/print-cursor-cloud-secrets.sh" ;;
+  secrets-minimal) bash "$REPO_ROOT/scripts/print-cursor-cloud-secrets-minimal.sh" ;;
   test) test_local_key ;;
     "") cmd_full_setup ;;
     *)

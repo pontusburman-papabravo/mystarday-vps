@@ -25,13 +25,23 @@ export REQUIRE_EMAIL_VERIFICATION="false"   # lets new accounts log in without e
 ```
 Leave `NODE_ENV` unset (or any non-`production` value) for local dev — `JWT_SECRET` is only length-enforced (>=32) when `NODE_ENV` is the production value.
 
-Sätt dessa som **Environment Variables** i Cursor → Cloud Agents → Secrets (miljö `mystarday-vps`). Fullständig lista inkl. VPS SSH, admin/harvest, Resend, R2, push m.m.:
+Sätt dessa i Cursor → Cloud Agents → Secrets (miljö `mystarday-vps`, scope **Environment**):
+
+| Namn | Typ | Värde |
+|------|-----|-------|
+| `DATABASE_URL` | Secret | `postgresql://stjarndag:stjarndag@localhost:5432/stjarndag` |
+| `JWT_SECRET` | Secret | minst 32 tecken |
+| `REQUIRE_EMAIL_VERIFICATION` | Env Variable | `false` |
+| `VPS_SSH_KEY` | Secret | privat SSH-nyckel |
+| `VPS_HOST` / `VPS_USER` / `VPS_APP_PATH` / `VPS_SERVICE` | Env Variable | se mystarday-deploy.mdc |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Secret | prod admin (harvest) |
+| `PROD_*` | Env Variable | smoke-test (valfritt) |
+
+**Ta bort** övriga Personal-secrets (APNS, R2, VAPID, ACTIVATION_*, NODE_ENV, PAYMENT_ENABLED m.m.) — de behövs inte i Cloud Agent-VM. Lista:
 
 ```bash
-./scripts/setup-cursor-agent-ssh.sh secrets-all
+./scripts/setup-cursor-agent-ssh.sh secrets-minimal
 ```
-
-Vid sammanslagning från `mystarday-polsia`: kopiera **alla** secrets till `mystarday-vps` innan du tar bort den gamla miljön.
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 
