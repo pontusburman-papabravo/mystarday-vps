@@ -1,8 +1,8 @@
 # App v2 — Kravspecifikation
 
 **Skapad:** 2026-06-26  
-**Version:** 0.1 (utkast)  
-**Status:** Första samlade kravdokument — grund för v2-planering och sprintprioritering  
+**Version:** 0.2 (utkast)  
+**Status:** Samlat kravdokument — grund för v2-planering och sprintprioritering  
 **Ägare:** Produkt  
 **Målgrupp v2:** Barn 4–12 år och deras vårdnadshavare (pedagoger som tillägg)
 
@@ -22,7 +22,7 @@
 | [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) | Implementation-grade systemdesign |
 | [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md) | Fasplan tre-lager-refaktor |
 | [`paket-v1.2-spec.md`](./paket-v1.2-spec.md) | Paket, komponenter, pedagog, TEACCH |
-| [`for-dig-spec.md`](./for-dig-spec.md) | Coach-lager för föräldrar |
+| [`for-dig-spec.md`](./for-dig-spec.md) | För dig — **redan levererat** (underhåll; ej v2-bygge) |
 | [`kravspec-app-webb.md`](./kravspec-app-webb.md) | Auth, roller, säkerhet, plattform |
 | [`tillvaxt-retention-krav.md`](./tillvaxt-retention-krav.md) | KPI:er, aktivering, North Star |
 | [`admin-v2/ADMIN-V2-DELIVERY.md`](./admin-v2/ADMIN-V2-DELIVERY.md) | Admin v2 (levererat) |
@@ -63,7 +63,7 @@ Produktens **kärnvärde** fungerar för aktiva familjer (särskilt NPF 4–12).
 | Barninställningar i drawer + `/child-settings` | Fragmenterad barnadministration |
 | Paket synliga som menypunkter | Säljbarhet och UX konkurrerar |
 
-Rotorsak i aktiveringsdata (2026-06): **43 % av familjer har aldrig någon aktivitetssignal** — produkten känns som "tom canvas" innan värdet syns. v2 adresserar detta genom tydligare coach-lager (Hem, För dig, barnets coach-loop) utan att bygga om backend.
+Rotorsak i aktiveringsdata (2026-06): **43 % av familjer har aldrig någon aktivitetssignal** — produkten känns som "tom canvas" innan värdet syns. v2 adresserar detta genom tydligare **Hem** (readiness) och barnets **coach-loop** — inte genom nytt För dig-arbete (redan på plats).
 
 ### 1.2 Vad v2 inte är
 
@@ -88,14 +88,14 @@ Rotorsak i aktiveringsdata (2026-06): **43 % av familjer har aldrig någon aktiv
 3. **Tre lager, tre mentala modeller** — Idag (göra) · Min värld (bli) · Mina personer (höra till). Blanda aldrig på samma skärm. Se [`separation-contract-barnapp.md`](./separation-contract-barnapp.md).
 4. **Paket utökar djup** — TEACCH, rapporter och pedagog läggs som placements i befintliga domäner, inte som nya toppflikar.
 5. **Samma data, adaptiv presentation** — stödnivå och ålder ändrar *hur* saker visas, inte *var* de bor.
-6. **Coach, inte verktyg** — För dig (vuxen) och coach-loop (barn) guidar till handling.
+6. **Coach, inte verktyg** — Hem (läge + nästa steg) och barnets coach-loop guidar till handling. För dig finns redan för 4–12-föräldrar; v2 bygger inte ut den.
 7. **Backend-first stabilitet** — befintliga API:er och tabeller återanvänds; v2 är primärt frontend-IA.
 
 ### 2.2 Framgångsmått
 
 | KPI | Baslinje | v2-mål (indikatorer) |
 |-----|----------|----------------------|
-| Aktivering (första stjärnan) | 17 % | ↑ via tydligare Hem/För dig/onboarding |
+| Aktivering (första stjärnan) | 17 % | ↑ via tydligare Hem/onboarding/barn-inloggning |
 | Day 14-retention | ~26 % av aktiverade | ↑ via Idag-fokus + coach |
 | Barn: tid till första avbockning | Ej mätt konsekvent | `child_today_first_complete` < 60 s efter login |
 | Förälder: hub-adoption | — | `nav_hub_click` planning/rewards > direktlänkar |
@@ -116,7 +116,7 @@ Detaljerad KPI-plan: [`tillvaxt-retention-krav.md`](./tillvaxt-retention-krav.md
 | **Barnnav v2** | `child-worlds.js`, tre världar, routes `/child/today` · `/child/world` · `/child/family` |
 | **Barnprofil** | `/family/child/:id` samlar schema, framsteg, PIN, inställningar |
 | **Settings-sanering** | Konto, GDPR, prenumeration i `/settings` — inte i Familj-fliken |
-| **Hem som coach** | Readiness-kort, delad intelligens med För dig |
+| **Hem som coach** | Readiness-kort med tydliga nästa steg (nytt v2-arbete) |
 | **Barn coach-loop** | Kort bekräftelse efter aktivitet → pekar till NÄSTA |
 | **Avveckla** | Classic/magic-nav-split, Mer/Extra-flikar, dubbla LEGACY/ROLLOUT-källor |
 | **Redirects** | Permanent redirect-tabell (§11) |
@@ -133,6 +133,7 @@ Detaljerad KPI-plan: [`tillvaxt-retention-krav.md`](./tillvaxt-retention-krav.md
 | AI-startschema (ACT-1) | Parallellt aktiveringsarbete | `act-1-ai-startschema-spec.md` |
 | Referral, SEO-artiklar | Tillväxt, ej IA | `tillvaxt-retention-krav.md` |
 | Admin v2 | **Redan levererat** | `admin-v2/ADMIN-V2-DELIVERY.md` |
+| **För dig (ny funktionalitet)** | **Redan levererat** för nuvarande målgrupp | `for-dig-spec.md` — v2 behåller fliken, bygger inte ut |
 | Stripe / webb-betalning | Borttaget; IAP only | `docs/app-store-iap.md` |
 
 ### 3.3 Horisont (ej v2 — framtida utvärdering)
@@ -144,6 +145,8 @@ Följande diskuterades som produktutvidgning men **ingår inte i v2-krav**:
 | Tonåringar 13–17 | Eget konto, integritetsnivåer, dämpad gamification |
 | Unga vuxna 18–25 | Självregistrering, NPF/ADHD-positionering, ingen "barnprofil"-UX |
 | Vuxna 25+ | Hushållsläge, professionellt stöd (bygg på pedagog-mönstret) |
+
+**För dig och nästa målgrupp:** För dig är utformat för vårdnadshavare till barn 4–12 (problemorienterade familjemål, åldersfiltrering via `child.birthday`). Det **ingår inte** i planen för ungdom/vuxen — där behövs annan coachning (egna mål, integritet, självstyrd planering), inte en vidareutveckling av För dig-fliken.
 
 Teknisk förberedelse i v2 (låg kostnad): `child.birthday` + `child_view_config` kan senare utökas med `age_band` utan nav-refaktor.
 
@@ -193,7 +196,7 @@ Säkerhetskrav oförändrade: [`kravspec-app-webb.md`](./kravspec-app-webb.md) �
 | `home` | *Här är läget* | Hem |
 | `planning` | *Jag vill planera* | Planering (hub) |
 | `rewards` | *Stjärnor och belöningar* | Belöningar (hub) |
-| `for_you` | *Vad rekommenderar ni?* | För dig |
+| `for_you` | *Vad rekommenderar ni?* | För dig *(befintlig flik — behåll i nav, ej v2-bygge)* |
 | `family` | *Vilka är med?* | Familj |
 | `child_profile` | *Allt om ett barn* | `/family/child/:id` |
 | `settings` | *Mitt konto* | Avatar → Inställningar |
@@ -275,13 +278,15 @@ Barn motsvarighet: `CHILD_CAPABILITIES` med exakt **en** `primaryPlacement` per 
 | FR-P-04.2 | Kort leder till **handling** (inte bara info) | `readiness_action_click` event |
 | FR-P-04.3 | Distinkt från För dig: Hem = läge, För dig = rekommendation | Produktcopy granskad |
 
-#### FR-P-05 För dig
+#### FR-P-05 För dig (redan levererat — regressionskrav)
+
+För dig är **på plats** för målgruppen 4–12. v2 ska **inte** planera ny funktionalitet här — bara behålla fliken i `PRIMARY_NAV` och säkerställa att nav-migrationen inte bryter befintlig route.
 
 | ID | Krav | Acceptans |
 |----|------|-----------|
-| FR-P-05.1 | Ingår i Basic — egen flik, inte paket | `for_dig` → `basic_app` |
-| FR-P-05.2 | Problemorienterade mål med Aktivera-flöde | Se `for-dig-spec.md` V1–V2 |
-| FR-P-05.3 | Åldersfiltrering via `child.birthday` | Mål utanför spann döljs |
+| FR-P-05.1 | Fliken kvar i femfliks-nav | `/for-dig` nåbar från alla plattformar |
+| FR-P-05.2 | Ingen v2-scope för nya mål, Aktivera-flöden eller V3–V5 i `for-dig-spec.md` | Underhåll vid behov, separat spår |
+| FR-P-05.3 | Ej relevant för nästa målgrupp (13+) | Horisont §3.3 — ersätts av annan modell, inte För dig v2 |
 
 #### FR-P-06 Familj & barnprofil
 
@@ -498,7 +503,8 @@ Nya endpoints tillåtna för v2-stöd (tunna):
 | Förälder | Ljus, professionell, lugn |
 | Barn Idag | Tydlig, låg kognitiv belastning |
 | Barn Min värld | Rikare, belönande — sekundär |
-| För dig / coach | Varm, handlingsorienterad |
+| För dig (befintlig) | Varm, handlingsorienterad — underhåll, ej v2-utveckling |
+| Hem / barn coach | Tydlig, låg friktion |
 
 ### 9.3 Mockups & referenser
 
@@ -550,7 +556,7 @@ v2 levereras **inkrementellt**. Förälder och barn kan vara i olika faser kortv
 
 | Leverans | Förälder | Barn |
 |----------|----------|------|
-| Coach | `home-readiness.js` + För dig-koppling | Coach-loop på Idag |
+| Coach | `home-readiness.js` (förälder) | Coach-loop på Idag (barn) |
 | Settings | Sanering | — |
 | Adaptivt stöd | — | `child-support-layer` |
 
@@ -612,7 +618,7 @@ v2 anses **produktionsklar** när alla punkter är uppfyllda:
 - [ ] Ny familj: registrera → onboarding → Hem med nästa steg → barn login → Idag → avbocka → stjärna
 - [ ] Förälder: Planeringshub → schema → ändring syns på barns Idag
 - [ ] Förälder: Belöningshub → belöning → barn ser i Min värld
-- [ ] Förälder: För dig → Aktivera mål → schema uppdaterat
+- [ ] Förälder: För dig fungerar oförändrat (regression — ej v2-leverans)
 - [ ] Barn: Parental Gate blockerar vuxenåtgärder
 - [ ] Pedagog: oförändrat flöde fungerar
 - [ ] Native iOS/Android: tab bar + safe-area
@@ -641,7 +647,7 @@ v2 anses **produktionsklar** när alla punkter är uppfyllda:
 | `/skattkammaren`-redirect bryter bokmärken/marknadsföring | Medel | 301 + uppdatera SEO/demo-länkar |
 | Barnprofil URL: `slug` vs `id` | Medel | **Beslut krävs Sprint 3** — rekommendation: stabilt `child_id` i URL |
 | Analytics otillräcklig för beslut | Medel | Baseline 2 veckor **före** fas 3 |
-| Paket-kunder missar nya placements | Låg | Synliggör i hub + För dig, inte ny flik |
+| Paket-kunder missar nya placements | Låg | Synliggör i hub + Hem, inte ny flik |
 
 ### Öppna beslut (kräver produktbeslut)
 
@@ -659,12 +665,13 @@ v2 anses **produktionsklar** när alla punkter är uppfyllda:
 | Version | Datum | Ändring |
 |---------|-------|---------|
 | 0.1 | 2026-06-26 | Första samlade kravdokument. Syntes av barnmeny-v2, vuxenmeny-v2, IA, paket, tillväxt. |
+| 0.2 | 2026-06-26 | För dig markerat som redan levererat; utanför scope för v2-bygge och nästa målgrupp. |
 
 ---
 
 ## 15. Nästa steg (team)
 
-1. **Granska utkast 0.1** — produkt + teknik: bekräfta scope, öppna beslut (§13).
+1. **Granska utkast 0.2** — produkt + teknik: bekräfta scope, öppna beslut (§13).
 2. **Lås D1–D4** — särskilt barnprofil-URL före Sprint 3.
 3. **Skapa tickets** från Fas 0/Sprint 0 i befintliga sprint-planer.
 4. **Baslinje analytics** — starta `page_view` för `/child-settings`, `/skattkammaren` innan nav-byte.
