@@ -444,6 +444,8 @@ const Auth = {
       // Has access_token cookie — let the next API call succeed or redirect
       return true;
     }
+    const user = this.getUser();
+    if (redirectIncompleteOnboarding(user)) return false;
     return true;
   },
 
@@ -889,6 +891,21 @@ window.apiFetch = async function(url, options = {}) {
 /**
  * Auth guard for parent-only pages.
  */
+function isOnboardingExemptPath() {
+  const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
+  if (path === '/onboarding' || path === '/login' || path === '/register') return true;
+  if (path.startsWith('/child/') || path === '/child-login' || path === '/child-dashboard') return true;
+  return false;
+}
+
+function redirectIncompleteOnboarding(user) {
+  if (!user || user.is_admin || user.isAdmin) return false;
+  if (user.onboarding_completed !== false) return false;
+  if (isOnboardingExemptPath()) return false;
+  window.location.href = '/onboarding';
+  return true;
+}
+
 window.authGuard = async function() {
   const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
   try {
@@ -907,7 +924,9 @@ window.authGuard = async function() {
       }
       return Auth.getUser();
     }
-    return await res.json();
+    const user = await res.json();
+    if (redirectIncompleteOnboarding(user)) return null;
+    return user;
   } catch (err) {
     if (diag && diag.traceLoginBounce) {
       diag.traceLoginBounce('auth_me_error', { message: err && err.message, path: window.location.pathname });

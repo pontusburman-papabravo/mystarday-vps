@@ -387,15 +387,6 @@
       const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
 
-      track('starter_plan_saved', {
-        slug: state.plan.slug,
-        schedule_name: state.plan.scheduleName,
-        template_group: state.plan.template_group,
-        activity_count: state.previewItems.length,
-        plan_edited_before_save: state.planEdited,
-        used_ai: state.usedAi,
-      });
-
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
         detail: {
           id: childData.id,

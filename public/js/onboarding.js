@@ -1222,8 +1222,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
     await OnboardingStarterPlan.init().catch(() => {});
   }
-  trackLegacyOnboardingIfNeeded();
-  goToStep(1);
+  const act1Active = window.OnboardingStarterPlan &&
+    typeof OnboardingStarterPlan.isEnabled === 'function' &&
+    OnboardingStarterPlan.isEnabled();
+  if (!act1Active) {
+    trackLegacyOnboardingIfNeeded();
+    goToStep(1);
+  }
 
   // Show email verification banner if needed (after auth check)
   showVerificationBanner(me);

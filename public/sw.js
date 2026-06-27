@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v394: Admin familjer/meddelanden load fix; FAB positioning; magic contrast on white cards
+ * v395: ACT-1 onboarding blank-screen fix; redirect incomplete onboarding to wizard
  * v393: App Store-badge inline SVG (fix trasig bild)
  * v392: Fix App Store-lansering — hero-kort istället för trasig banner
  * v390: App Store launch banner på startsidan
@@ -216,7 +216,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v394';
+const CACHE_NAME = 'stjarndag-v395';
+// stjarndag-v395: ACT-1 onboarding blank-screen fix; redirect incomplete onboarding to wizard
 // stjarndag-v394: Admin familjer/meddelanden load fix; FAB positioning; magic contrast on white cards
 // stjarndag-v393: App Store-badge inline SVG (fix trasig bild)
 // stjarndag-v386: Beskär-modal — z-index över tab bar, sticky Spara-knapp

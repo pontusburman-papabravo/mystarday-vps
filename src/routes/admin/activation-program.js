@@ -12,6 +12,7 @@ const {
   formatReportAsCsv,
 } = require('../../lib/activation-program-cohort-analytics');
 const { RETENTION_WINDOWS } = require('../../lib/activation-program-retention');
+const stuckFamiliesDb = require('../../../db/activation-stuck-families');
 
 const router = express.Router();
 
@@ -93,6 +94,31 @@ router.get('/activation-program/retention/export', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN activation-program] export error:', err);
     res.status(500).json({ error: 'Kunde inte exportera aktiverings-data' });
+  }
+});
+
+/**
+ * GET /api/admin/activation-program/stuck-families?maxAgeDays=14&minAgeHours=48&limit=100
+ */
+router.get('/activation-program/stuck-families', async (req, res) => {
+  try {
+    const maxAgeDays = Math.min(Math.max(parseInt(req.query.maxAgeDays, 10) || 14, 1), 90);
+    const minAgeHours = Math.min(Math.max(parseInt(req.query.minAgeHours, 10) || 48, 1), 168);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
+    const families = await stuckFamiliesDb.listStuckFamilies({ maxAgeDays, minAgeHours, limit });
+    res.json({
+      generatedAt: new Date().toISOString(),
+      maxAgeDays,
+      minAgeHours,
+      count: families.length,
+      families,
+    });
+  } catch (err) {
+    console.error('[ADMIN activation-program] stuck-families error:', err);
+    res.status(500).json({
+      error: 'Kunde inte hämta fastnade familjer',
+      detail: err.message,
+    });
   }
 });
 
