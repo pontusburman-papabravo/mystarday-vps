@@ -228,6 +228,9 @@
         '<span class="flex-1 min-w-0">' +
         '<span class="block text-sm font-semibold text-navy">' + esc(item.label) + '</span>' +
         '<span class="block text-xs text-text-soft mt-0.5">Mål: ' + due + checkedAt + '</span>' +
+        (item.verify_how
+          ? '<span class="block text-xs text-navy mt-2 leading-relaxed"><span class="font-bold">Så bockar du:</span> ' + esc(item.verify_how) + '</span>'
+          : '') +
         (hint ? '<span class="block text-xs text-indigo-700 mt-1">Hint: ' + esc(hint) + '</span>' : '') +
         '</span></label>'
       );

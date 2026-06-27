@@ -7,51 +7,83 @@ const GO_LIVE_ITEMS = [
     key: 'engine_readonly',
     label: 'Engine körs read-only i prod (ingen state write, bara rekommendationer)',
     due_offset_days: 0,
+    verify_how:
+      'Logga in som förälder på Hem (/dashboard). Coach-rutan ska visa ett förslag (text + ev. knapp). ' +
+      'Bekräfta i DevTools → Network att endast GET /api/family/first-success anropas från coach — inga skrivande anrop från engine-modulen. ' +
+      'Schema, stjärnor och readiness ska inte ändras av sig själva när sidan laddas.',
   },
   {
     key: 'first_success_payload',
     label: '/first-success returnerar stabil payload (intent + policy + release_id)',
     due_offset_days: 0,
+    verify_how:
+      'Inloggad på /dashboard: DevTools → Network → first-success → Response 200. ' +
+      'JSON ska innehålla policy (id, name), milestone och trace (evaluatedNeed, policySet). ' +
+      'Coach på sidan ska rendera utan fel i konsolen. release_id coach_primary_v1 syns i coach-intro vid ny release.',
   },
   {
     key: 'l1_admin_ui',
     label: 'L1 admin UI aktivt (ja/nej + beslutstyp + override)',
     due_offset_days: 0,
+    verify_how:
+      'Du är på denna sida. Klicka Ja/Nej på minst en fråga — rekommendation uppdateras. ' +
+      'Välj valfritt override i listan — förhandslogg ändras. Kryssa i godkännande och testa Spara beslut (kan vara HOLD).',
   },
   {
     key: 'decision_logging',
     label: 'Beslut loggas (decision_type, override, release_id, timestamp)',
     due_offset_days: 0,
+    verify_how:
+      'Spara ett beslut (t.ex. HOLD). Scrolla till Beslutslogg: ny rad med datum, decision_type och loggrad som innehåller coach_primary_v1. ' +
+      'Om du använde override ska det synas i loggraden / answers (used_override).',
   },
   {
     key: 'coach_mount_only',
     label: '#engineCoachMount är enda A-yta (ingen parallell coach i frontend)',
     due_offset_days: 0,
+    verify_how:
+      'På /dashboard: coach ska ligga i elementet #engineCoachMount (högerklick → Inspektera). ' +
+      'Det ska inte finnas en second coach-ruta med annan copy som uppdateras parallellt av annat script.',
   },
   {
     key: 'bcd_unchanged',
     label: 'B/C fortsätter men skriver inte coach-slotten',
     due_offset_days: 0,
+    verify_how:
+      'På /dashboard: readiness-sektionen finns kvar under coach. Klicka en readiness-åtgärd — coach-texten i #engineCoachMount ska vara oförändrad efteråt. ' +
+      'Bara engine-coach.js skriver i coach-mount.',
   },
   {
     key: 'no_auto_act',
     label: 'Engine auto-agerar inte (ingen ACT/INVESTIGATE automation)',
     due_offset_days: 0,
+    verify_how:
+      'Bekräfta frysperiod: inget beslut skrivs i L1-loggen utan att du klickat Spara. ' +
+      'Ingen deploy/scheduler ska auto-ändra L1 state eller skicka ACT/INVESTIGATE utan människa. Bocka när du accepterat detta till dag 14.',
   },
   {
     key: 'observability_axes',
     label: '3 observability-axlar aktiva (competition, ambiguity, non-adoption)',
     due_offset_days: 0,
+    verify_how:
+      'På denna sida: raden med Coach klick 7d, Conflict 7d, Readiness klick 7d m.fl. ska laddas (siffror kan vara 0 i början). ' +
+      'Det visar att event-strukturen finns — inte att trafiken är hög.',
   },
   {
     key: 'accept_unknown_active',
     label: 'ACCEPT-UNKNOWN kan registreras som aktivt beslut',
     due_offset_days: 7,
+    verify_how:
+      'Först dag 7+. I L1-panelen: svara Ja på intent + non-adoption, Nej på drift — rekommendation blir ACCEPT-UNKNOWN. ' +
+      'Spara med godkännande (eller override ACCEPT-UNKNOWN). Verifiera i beslutslogg — inte bara HOLD som default.',
   },
   {
     key: 'l1_owners_scheduled',
     label: 'L1-ägare + backup + dag 7/14 review bokad',
     due_offset_days: 0,
+    verify_how:
+      'Primär + backup ifyllda nedan och sparade. Dag 7 och dag 14 satta. ' +
+      'Boka båda i kalender (gul påminnelse) och kryssa i “Jag har bokat dag 7 och dag 14”.',
   },
 ];
 
@@ -69,6 +101,7 @@ function buildDefaultChecklist(startedAt) {
     items: GO_LIVE_ITEMS.map((item, idx) => ({
       key: item.key,
       label: item.label,
+      verify_how: item.verify_how,
       sort: idx + 1,
       checked: false,
       checked_at: null,
