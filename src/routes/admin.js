@@ -49,6 +49,7 @@ const growthPipelineRouter = require('./admin/growth-pipeline');
 const referralsRouter = require('./admin/referrals');
 const familyOverviewRouter = require('./admin/family-overview');
 const adminSearchRouter = require('./admin/admin-search');
+const l1GovernanceRouter = require('./admin/l1-governance');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -69,6 +70,7 @@ router.use(growthPipelineRouter);
 router.use(referralsRouter);
 router.use(familyOverviewRouter);
 router.use(adminSearchRouter);
+router.use(l1GovernanceRouter);
 router.use(startSummaryRouter);
 router.use(operationalAlertsRouter);
 router.use(analyticsRouter);

@@ -60,10 +60,4 @@ De försöker förklara hela produkten innan användaren upplevt den.
 
 ## Framtid (ej v1)
 
-Product Brain kan senare styra landnings-personalisering (`moment` för återbesökare) — inte i första implementationen.
-
----
-
-## Filer
-
-Primärt `public/index.html` + SEO-sidor. Ändra inte app-backend för landning utan tydlig anledning.
+Coach kan senare personalisera landning för återbesökare (baserat på Brain facts) — inte i första implementationen. Brain läser inte landning; landning läser inte experiment direkt från Brain.

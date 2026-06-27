@@ -1,0 +1,29 @@
+{
+  "name": "first_success_flow",
+  "facts": {
+    "familyId": "fam-first-003",
+    "signupAt": "2026-06-01T10:00:00.000Z",
+    "childrenIds": ["child-a1"],
+    "totalCompletions": 1,
+    "firstCompletionAt": "2026-06-01T10:05:00.000Z",
+    "lastCompletionAt": "2026-06-01T10:05:00.000Z",
+    "firstDayCompletedAt": null,
+    "currentStreakDays": 1,
+    "hasSeenChildView": true,
+    "hasRoutine": true,
+    "hasEveningRoutine": false,
+    "rewardsClaimedCount": 0,
+    "coParentCount": 1,
+    "openedCustomize": false
+  },
+  "context": {
+    "activePolicySet": "v2_first_success_control",
+    "currentDeviceTime": "2026-06-02T18:00:00.000Z"
+  },
+  "expected": {
+    "coreState": "FIRST_ACTIVITY",
+    "evaluatedNeed": "NEEDS_CONSISTENCY",
+    "policyName": "ADD_EVENING",
+    "milestone": "first_success"
+  }
+}

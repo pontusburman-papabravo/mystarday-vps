@@ -90,6 +90,7 @@
           label: 'Experiment',
           children: [
             { key: 'foraldaraktivering', navId: 'foraldaraktivering', label: 'Föräldraaktivering', targetSection: 'foraldaraktivering', parentNavId: 'experiment', capability: 'stable' },
+            { key: 'l1-beslut', navId: 'l1beslut', label: 'L1 beslut (coach)', targetSection: 'l1Governance', parentNavId: 'experiment', capability: 'stable' },
             { key: 'fordig', navId: 'fordig', label: 'För dig', targetSection: 'fordig', parentNavId: 'experiment', capability: 'stable' },
           ],
         },

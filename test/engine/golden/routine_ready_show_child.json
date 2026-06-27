@@ -1,0 +1,29 @@
+{
+  "name": "routine_ready_show_child",
+  "facts": {
+    "familyId": "fam-routine-002",
+    "signupAt": "2026-06-25T08:00:00.000Z",
+    "childrenIds": ["child-a1"],
+    "totalCompletions": 0,
+    "firstCompletionAt": null,
+    "lastCompletionAt": null,
+    "firstDayCompletedAt": null,
+    "currentStreakDays": 0,
+    "hasSeenChildView": false,
+    "hasRoutine": true,
+    "hasEveningRoutine": false,
+    "rewardsClaimedCount": 0,
+    "coParentCount": 1,
+    "openedCustomize": false
+  },
+  "context": {
+    "activePolicySet": "v2_first_success_control",
+    "currentDeviceTime": "2026-06-25T09:00:00.000Z"
+  },
+  "expected": {
+    "coreState": "ROUTINE_READY",
+    "evaluatedNeed": "NEEDS_CLARITY",
+    "policyName": "SHOW_CHILD",
+    "milestone": "routine_ready"
+  }
+}

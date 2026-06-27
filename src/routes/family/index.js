@@ -25,6 +25,9 @@ router.use(requireParent);
 // ─── Core family routes (read/update, settings, stats, readiness, …) ──────────
 router.use('/', require('./core'));
 
+// ─── Product Engine API (single source of truth) ─────────────────────────────
+router.use('/', require('./first-success'));
+
 // ─── Account-deletion route ───────────────────────────────────────────────────
 router.use('/', require('./account'));
 

@@ -76,6 +76,9 @@
       if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
         loadActivationProgramAdmin();
       }
+      if (name === 'l1Governance' && typeof loadL1GovernanceAdmin === 'function') {
+        loadL1GovernanceAdmin();
+      }
       if (name === 'fordig' && typeof loadForDigAdmin === 'function') loadForDigAdmin();
       if (name === 'dagensnyhet' && typeof loadNyheter === 'function') loadNyheter();
       if (name === 'landning' && typeof loadLandingNews === 'function') {

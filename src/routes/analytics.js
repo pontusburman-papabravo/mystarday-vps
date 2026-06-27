@@ -120,6 +120,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'custody_view_filtered',
   'custody_banner_seen',
   'print_schema_exported',
+  // Engine coach governance (engine-coach.js, engine-client.js)
+  'engine_coach_cta_click',
+  'engine_authority_conflict',
 ]);
 
 /**

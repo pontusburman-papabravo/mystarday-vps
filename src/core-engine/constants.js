@@ -1,0 +1,53 @@
+'use strict';
+
+/** @typedef {'REGISTERED'|'ROUTINE_READY'|'CHILD_SEEN'|'FIRST_ACTIVITY'|'FIRST_DAY_COMPLETE'|'STREAK_3'|'WEEK_1'|'CUSTOMIZING'|'UNCERTAINTY_FALLBACK'} CoreState */
+
+/** @typedef {'NEEDS_CLARITY'|'NEEDS_MOMENTUM'|'NEEDS_CONSISTENCY'|'NEEDS_CUSTOMIZATION'|'NEEDS_WINBACK'} PrimaryNeed */
+
+/** @typedef {'SHOW_CHILD'|'ADD_EVENING'|'INVITE_CO_PARENT'|'SIMPLIFY_ROUTINE'|'TRIGGER_CELEBRATION'|'CUSTOMIZE_ROUTINE'} PolicyName */
+
+/** @typedef {'v2_first_success_control'|'v2_fast_path_experiment'} PolicySetId */
+
+/** @typedef {'DEFAULT'|'CELEBRATION'|'ENCOURAGEMENT'|'CALM'} UiTheme */
+
+/** @typedef {'LOW'|'HIGH'} UiIntensity */
+
+/** @typedef {'ENGAGED'|'IGNORED'|'DISMISSED'} OutcomeAction */
+
+const CORE_STATES = Object.freeze([
+  'REGISTERED',
+  'ROUTINE_READY',
+  'CHILD_SEEN',
+  'FIRST_ACTIVITY',
+  'FIRST_DAY_COMPLETE',
+  'STREAK_3',
+  'WEEK_1',
+  'CUSTOMIZING',
+  'UNCERTAINTY_FALLBACK',
+]);
+
+const PRIMARY_NEEDS = Object.freeze([
+  'NEEDS_CLARITY',
+  'NEEDS_MOMENTUM',
+  'NEEDS_CONSISTENCY',
+  'NEEDS_CUSTOMIZATION',
+  'NEEDS_WINBACK',
+]);
+
+const POLICY_NAMES = Object.freeze([
+  'SHOW_CHILD',
+  'ADD_EVENING',
+  'INVITE_CO_PARENT',
+  'SIMPLIFY_ROUTINE',
+  'TRIGGER_CELEBRATION',
+  'CUSTOMIZE_ROUTINE',
+]);
+
+const ENGINE_MODE = process.env.ENGINE_MODE || 'DEVELOPMENT';
+
+module.exports = {
+  CORE_STATES,
+  PRIMARY_NEEDS,
+  POLICY_NAMES,
+  ENGINE_MODE,
+};
