@@ -3,7 +3,8 @@
 > **Systemet:** visar vad som händer, utan att tro på sig självt.  
 > **Du:** bestämmer vad som är sant nog att agera på.
 
-Full kontext: [L1-GOVERNANCE.md](L1-GOVERNANCE.md) · [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md)
+Full kontext: [L1-GOVERNANCE.md](L1-GOVERNANCE.md) · [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md)  
+**Admin:** `#l1beslut` → Experiment → L1 beslut (coach)
 
 ---
 

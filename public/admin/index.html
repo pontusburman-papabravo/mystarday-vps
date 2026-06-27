@@ -741,6 +741,85 @@
           </div>
         </div>
 
+        <!-- L1 COACH BESLUT -->
+        <div id="l1GovernanceSection" class="mb-8 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-2xl font-heading font-bold text-navy">L1 beslut — Coach</h3>
+              <p class="text-text-soft text-sm mt-1">Ja/nej med rekommendation · sparar loggrad (se L1-OPERATOR-CARD.md)</p>
+            </div>
+            <button type="button" id="l1GovernanceRefreshBtn" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">↺ Uppdatera</button>
+          </div>
+
+          <div id="l1GovernanceStatus" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div class="bg-white rounded-xl border border-lavender p-4">
+              <p class="text-xs text-text-soft uppercase font-bold">Release</p>
+              <p id="l1ReleaseId" class="text-sm font-semibold text-navy mt-1">—</p>
+            </div>
+            <div class="bg-white rounded-xl border border-lavender p-4">
+              <p class="text-xs text-text-soft uppercase font-bold">LEARNING dag</p>
+              <p id="l1LearningDay" class="text-2xl font-heading font-bold text-navy mt-1">—</p>
+            </div>
+            <div class="bg-white rounded-xl border border-lavender p-4">
+              <p class="text-xs text-text-soft uppercase font-bold">State</p>
+              <p id="l1State" class="text-lg font-bold text-navy mt-1">—</p>
+            </div>
+            <div class="bg-white rounded-xl border border-lavender p-4">
+              <p class="text-xs text-text-soft uppercase font-bold">SLA</p>
+              <p id="l1SlaHint" class="text-sm font-semibold text-navy mt-1">—</p>
+            </div>
+          </div>
+
+          <div id="l1MetricsRow" class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6 text-center text-sm"></div>
+
+          <div class="bg-white rounded-2xl border border-lavender p-5 mb-6">
+            <h4 class="font-heading font-bold text-navy mb-4">Frågor (klicka Ja/Nej — rekommendation markerad)</h4>
+            <div id="l1QuestionsList" class="space-y-4"></div>
+            <label class="flex items-center gap-2 mt-4 text-sm">
+              <input type="checkbox" id="l1EdgeCase" class="rounded border-lavender" />
+              <span>Edge case — passar inte i låda (edge-HOLD)</span>
+            </label>
+          </div>
+
+          <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-5 mb-6">
+            <p class="text-xs font-bold uppercase text-indigo-700 mb-1">Rekommenderat nästa steg</p>
+            <p id="l1RecommendationType" class="text-xl font-heading font-bold text-navy mb-2">—</p>
+            <p id="l1RecommendationReason" class="text-sm text-text-soft mb-3">—</p>
+            <pre id="l1LogPreview" class="text-xs bg-white rounded-lg p-3 border border-indigo-100 overflow-x-auto whitespace-pre-wrap">—</pre>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-lavender p-5 mb-6">
+            <div class="flex flex-wrap gap-4 items-end mb-4">
+              <div class="flex-1 min-w-[200px]">
+                <label class="block text-xs font-bold text-text-soft mb-1" for="l1OwnerLabel">Ägare (logg)</label>
+                <input type="text" id="l1OwnerLabel" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm" placeholder="namn" />
+              </div>
+              <div class="flex-1 min-w-[200px]">
+                <label class="block text-xs font-bold text-text-soft mb-1" for="l1Override">Override (valfritt)</label>
+                <select id="l1Override" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm">
+                  <option value="">Följ rekommendation</option>
+                  <option value="HOLD">HOLD</option>
+                  <option value="ACCEPT-UNKNOWN">ACCEPT-UNKNOWN</option>
+                  <option value="INVESTIGATE">INVESTIGATE</option>
+                  <option value="ACT-SURFACE">ACT-SURFACE</option>
+                  <option value="edge-HOLD">edge-HOLD</option>
+                </select>
+              </div>
+            </div>
+            <label class="flex items-center gap-2 text-sm font-semibold text-navy mb-4">
+              <input type="checkbox" id="l1ConfirmRecommendation" class="rounded border-lavender" />
+              Jag godkänner nästa steg (rekommendation eller override)
+            </label>
+            <button type="button" id="l1SaveDecisionBtn" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white font-bold rounded-xl transition-colors">Spara beslut</button>
+            <p id="l1SaveStatus" class="text-sm mt-3 text-text-soft"></p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-lavender p-5">
+            <h4 class="font-heading font-bold text-navy mb-3">Beslutslogg</h4>
+            <div id="l1DecisionLog" class="text-sm space-y-2"></div>
+          </div>
+        </div>
+
         <!-- FÖRÄLDRAAKTIVERING (7-dagars experiment) -->
         <div id="foraldaraktiveringSection" class="mb-8 hidden">
           <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -1934,6 +2013,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-retention.js"></script>
   <script src="/admin/admin-activation-program.js"></script>
+  <script src="/admin/admin-l1-governance.js"></script>
   <script src="/admin/admin-for-dig.js?v=2.3.0"></script>
   <script src="/admin/admin-email-stats.js"></script>
   <script src="/admin/admin-dagensnyhet.js?v=2.1.0"></script>
