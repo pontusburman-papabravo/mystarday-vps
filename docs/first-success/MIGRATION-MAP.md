@@ -3,7 +3,8 @@
 > Baserad på faktiska entrypoints och anrop i repo — inte antagen fillista.  
 > Uppdatera när nya kedjor hittas.
 
-Se [ENGINE_SPEC.md](ENGINE_SPEC.md) för målarkitektur.
+Se [ENGINE_SPEC.md](ENGINE_SPEC.md) för målarkitektur.  
+**Per-skärm beslutsgränser:** [DECISION-BOUNDARIES.md](DECISION-BOUNDARIES.md).
 
 ---
 
