@@ -7,30 +7,165 @@ Relaterat: [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [CHANGE-SUR
 
 ---
 
-## Vad som är stabilt (tre lager)
+## Decision observability stack (fyra lager)
 
-| Lager | Innehåll | Status |
-|-------|----------|--------|
-| **Architecture** | A/B/C/D separation, monopol-yta, kill switch | ✔ |
-| **UX governance** | Change contract, funktionsspråk, release_id | ✔ |
-| **Narrative injection** | Coach-slotten, transient intro, dismissal | ✔ |
+| # | Lager | Dokument / kod |
+|---|-------|----------------|
+| 1 | **Authority** | A/B/C/D, `#engineCoachMount`, `AUTHORITY-PRECEDENCE.md` |
+| 2 | **Contract** | `CHANGE-SURFACE-CONTRACT.md`, `engine-coach-change.js` |
+| 3 | **Operational envelope** | Kill switches, `PROD-OPERATING-ENVELOPE.md` |
+| 4 | **Stability** | Detta dokument — LEARNING / STABLE / DRIFT |
 
-Det som **inte** är automatiskt stabilt: att *berättelsen* ("ett tydligt nästa steg") matchar *beteendet* (flera klickbara paths till samma intent).
+Det som **inte** är automatiskt stabilt: kalibrering mellan **systembeteende** och **upplevd singularitet**.
+
+---
+
+## Två sanningar (måste hållas isär)
+
+| | System truth | Perceived truth (PDS) |
+|---|--------------|------------------------|
+| **Fråga** | Överlappar beslutsmotorer tekniskt? | Känns det som *ett* beslut eller flera? |
+| **Källor idag** | `engine_authority_conflict`, click paths, CTA splits | Indirekt approximerad |
+| **Risk** | Falskt lugn — conflict ↓ men UX splittrad | Falskt alarm — hög conflict, användaren upplever ingen förvirring |
+
+**Regel:** STABLE får **inte** deklareras enbart på system truth. Varje state-transition kräver minst en korsvaliderad perceptions-proxy (se nedan).
+
+---
+
+## Decision event vs decision perception signal
+
+### Decision event (system truth)
+
+Något **hände** i UI — mätbart, entydigt:
+
+| Typ | Exempel |
+|-----|---------|
+| Exposure | Coach impression, readiness render, CTA shown |
+| Resolution | `engine_coach_cta_click`, `readiness_action_click`, `cta_invite_co_parent_clicked` |
+| Conflict | `engine_authority_conflict` |
+
+Decision events beskriver **reaktion på UI**, inte kognitiv klarhet.
+
+### Decision perception signal (PDS)
+
+Indikator att användarens **mental modell** divergerar från singular narrativ:
+
+| Signal | Betydelse | Hur det approximeras idag |
+|--------|-----------|---------------------------|
+| **Ambiguity window** | A exponerar "ett nästa steg" men B/C erbjuder alternativ inom kort tid | Exposure + resolution på *olika* authorities inom 5–10s |
+| **Path oscillation** | Användaren byter beslutskälla utan att resolva | Coach click → tillbaka → readiness click (samma session) |
+| **Authority bypass** | Intent som coach uttrycker löses via annan auktoritet | `missing_pin` click när policy = `SHOW_CHILD` |
+| **Narrative rejection** | Intro/coach ignoreras systematiskt | Impression utan resolution, readiness-only flow |
+| **Qualitative PDS** | Uttryckt förvirring | Support, feedback, enkät |
+
+**Kritisk punkt (proxy-collapse):** Klick, invite och CTA-interaktion är **resolution events** — de bevisar att *något* valdes, inte att användaren upplevde *ett* val.
+
+---
+
+## Decision exposure vs decision resolution
+
+| Fas | Vad som händer | Mät |
+|-----|----------------|-----|
+| **Exposure** | Användaren *ser* beslutsmaterial | Coach impression, readiness visible, CTA shown |
+| **Resolution** | Användaren *väljer* en path | Clicks, navigering |
+
+**PDS-relevant drift** uppstår i gapet:
+
+```
+Exposure (A: "nästa steg") + Exposure (B/C: alternativ)
+        ↓
+Resolution på B/C inom ambiguity window
+        = perceived multi-authority (även om conflict redan loggats)
+```
+
+Singular narrativ reducerar perceived conflict **först** när exposure → resolution konvergerar på samma auktoritet (coach) eller när B/C är uppenbart operativa (inte coach-semantik).
+
+---
+
+## Ambiguity detection window
+
+**Definition:** Tidsfönster efter coach exposure där alternativa beslutspaths fortfarande är synliga och klickbara.
+
+| Parameter | Värde (start) | Justeras efter LEARNING |
+|-----------|---------------|-------------------------|
+| Window | **5–10 sekunder** efter coach impression | L1 |
+| Trigger | Coach synlig + `policy.name` satt | — |
+| Ambiguity event | Resolution på B eller C med coach-semantik intent inom window | — |
+
+### Ambiguity event (konceptuell)
+
+```
+coach_impression_at = T
+readiness_click (missing_pin) at T+7s  →  ambiguity: SHOW_CHILD vs missing_pin
+cta_invite_click at T+4s               →  ambiguity: INVITE_CO_PARENT vs C banner
+```
+
+Idag: approximera via session-timestamp på befintliga events (samma `family_id`, samma dag, Δt < 10s). Framtida: explicit `session_id` på coach events (valfritt, ej krav för modellen).
+
+---
+
+## Ambiguity heatmap — Hem (A vs B/C)
+
+Var **perception** och **system truth** sannolikt divergerar mest:
+
+| Zon | DOM | A intent | B/C alternativ | Ambiguity-risk |
+|-----|-----|----------|----------------|----------------|
+| **Z1 Child access** | Coach + readiness `missing_pin` | `SHOW_CHILD` | "Sätt PIN" | 🔴 Hög |
+| **Z2 Invite** | Coach + `#medforalderCtaBanner` + magic hub coparent | `INVITE_CO_PARENT` | CTA ×2–3 | 🔴 Hög |
+| **Z3 Narrative** | Coach + `encouragementCopy` | Coach tone | "Fortsätt så!" / "Bra jobbat!" | 🟡 Medium (ton, inte CTA) |
+| **Z4 Operativ** | Coach + `pending_approval` | Valfri policy | Godkänn belöning | 🟢 Låg (olika fråga) |
+| **Z5 Celebration** | Coach milestone + `#activationAhaModal` | `TRIGGER_CELEBRATION` | D modal | 🟡 Medium |
+
+**LEARNING-fas:** prioritera Z1 + Z2 i veckoreview. De driver semantisk drift även när conflict-rate är acceptabel.
+
+---
+
+## PDS: proxy vs true signal
+
+### Proxies (fas 1 — nu)
+
+Beteendebaserade indikatorer. **Tillräckliga för DRIFT-alarm, otillräckliga för STABLE-bekräftelse ensamma.**
+
+| Proxy | Typ | Mäter |
+|-------|-----|-------|
+| Intent bypass | Resolution | Bypass av coach intent |
+| Invite split | Resolution | C vs A invite |
+| Dual-path 60s | Resolution | Flera resolutions nära varandra |
+| Coach ignore | Exposure→∅ | Narrative rejection |
+| Conflict rate | Exposure | System truth only |
+
+### True PDS signal (fas 2 — definition, ej implementerad)
+
+En perception signal är **sann** PDS endast om den uppfyller **proxy validation rule**:
+
+> **Varje PDS-slutsats måste korsvalideras med minst två oberoende beteende-paths som pekar samma håll.**
+
+| Slutsats | Path 1 | Path 2 | Kvalitativ (path 3, valfri) |
+|----------|--------|--------|----------------------------|
+| "Ambiguity i Z1" | `missing_pin` click, coach synlig | Ambiguity window < 10s | Feedback nämner PIN vs barn |
+| "Invite split" | `engine_invite_vs_cta_banner` | `cta_invite` click, policy = invite | — |
+| "STABLE" | Bypass flat 2v | Conflict flat 2v | Ingen qualitative drift |
+| "DRIFT" | Bypass ↑ 2v | Ambiguity events ↑ | Feedback om förvirring |
+
+**STABLE utan dubbel path = proxy-collapse risk** — systemet kan se grönt medan mental modell fortfarande är splittrad.
+
+### Kognitiv convergence (fas 3 — framtida, ej scope nu)
+
+Direkta perception events — t.ex. enkel mikro-enkät i coach-slotten efter dismiss ("Var det tydligt vad du skulle göra?"), eller strukturerad support-taggning. **Kräver produktbeslut** — inte del av nuvarande kod.
 
 ---
 
 ## Kärnmetrik: perceived decision singularity (PDS)
 
-**Definition:** Andelen sessioner på Hem där användaren **inte** uppvisar beteende som tyder på att de söker alternativa "beslutsmotorer" för samma intent som coachen uttrycker.
+**Definition (reviderad):** Andelen Hem-sessioner där användaren **inte** uppvisar korsvaliderade tecken på att flera beslutsmotorer upplevs som jämbördiga för samma intent.
 
 PDS är **inte** samma sak som `engine_authority_conflict`:
 
-| Signal | Mäter | Synlig för användare? |
-|--------|--------|------------------------|
-| `engine_authority_conflict` | Teknisk samexistens (A synlig + B/C/D synlig) | Nej (instrumentering) |
-| **PDS drift** | Beteende som tyder på förvirrad intent | Ja (upplevd) |
-
-Konfliktlogg säger *"systemen överlappar"*. PDS säger *"användaren verkar inte lita på singulariteten"*.
+| Signal | Mäter | Typ |
+|--------|--------|-----|
+| `engine_authority_conflict` | Teknisk samexistens | System truth |
+| **PDS proxy** | Beteendeindikator | Perception (indirekt) |
+| **PDS validated** | Proxy + korsvalidering | Perception (operativt) |
 
 ---
 
@@ -61,32 +196,46 @@ Berättelsen och beteendet divergerar:
 - Change contract inte uppdaterad vid beteendeändring
 - B/C copy börjar låta som "nästa steg" (coach-semantik i operativa lager)
 
-Detekteras: manuell L1 + heuristiker nedan — **inte** auto-ändring av copy från metrics.
+Detekteras: manuell L1 + heuristiker — **inte** auto-ändring av copy från metrics.
+
+### 4. Proxy-collapse (metodrisk)
+
+Scenario: system truth ser bra ut, perceived truth är dålig.
+
+| Symptom | Orsak |
+|---------|--------|
+| STABLE deklarerad | Endast conflict ↓ och CTR ↑ mätta |
+| Användare fortfarande förvirrade | Proxies mäter behavioral convergence, inte cognitive convergence |
+| Missad DRIFT | Ensam proxy utan korsvalidering |
+
+**Motgift:** proxy validation rule + ambiguity window + qualitative path vid state-transition.
 
 ---
 
-## Proxy-metrics (ingen ny kod krävs dag 1)
+## Proxy-metrics (fas 1)
 
-Alla events finns redan eller kan approximeras i `analytics_events`.
+Alla events finns redan. **Använd aldrig en proxy ensam för STABLE.**
 
 ### Primära (veckovis)
 
-| Metric | Formel / query-intent | Tröskel (start) |
-|--------|----------------------|-----------------|
-| **Coach adoption** | `engine_coach_cta_click` / coach impressions | Baseline första 2 veckor |
-| **Intent bypass** | `readiness_action_click` (coach-semantik typer) när coach synlig samma dag | >30% av coach impressions → L1 |
-| **Invite split** | `cta_invite_co_parent_clicked` vs coach `INVITE_CO_PARENT` clicks | Trend, inte absolut |
-| **Conflict rate** | `engine_authority_conflict` / Hem sessions (approx) | Stigande 2 veckor → L1 |
-| **Coach ignore** | Impressions utan click inom 7d (familj) | Segment, inte alarm |
+| Metric | Typ | Formel / intent | Korsvalidera med |
+|--------|-----|-----------------|------------------|
+| **Ambiguity rate** | Perception-proxy | Resolution B/C inom 10s efter coach exposure, coach-semantik | Intent bypass |
+| **Intent bypass** | Resolution | `readiness_action_click` (missing_pin) när coach synlig | Ambiguity rate |
+| **Invite split** | Resolution | CTA click vs coach `INVITE_CO_PARENT` | `engine_invite_vs_cta_banner` |
+| **Dual-path** | Resolution | Coach + readiness click samma session, Δt < 60s | Ambiguity rate |
+| **Coach adoption** | Resolution | `engine_coach_cta_click` / impressions | Coach ignore (inverse) |
+| **Conflict rate** | Exposure (system) | `engine_authority_conflict` / sessions | — (system truth only) |
+| **Coach ignore** | Exposure→∅ | Impressions utan click 7d | Coach adoption |
 
-### Coach-semantik readiness-typer (för bypass-metric)
+### Coach-semantik readiness-typer
 
 ```
-missing_pin          → överlappar SHOW_CHILD
-(no_schedule_today   → gråzon — operativ men kan kännas som "nästa steg")
+missing_pin          → Z1, överlappar SHOW_CHILD
+(no_schedule_today   → gråzon)
 ```
 
-### Sekundära (kvalitativ)
+### Sekundära (kvalitativ — perception path 3)
 
 - Support/feedback: "vem bestämmer", "förvirrande hem", "två knappar"
 - App Store / enkät (om tillgängligt)
@@ -112,20 +261,24 @@ missing_pin          → överlappar SHOW_CHILD
 
 | State | Kriterier | Tillåtna åtgärder |
 |-------|-----------|-------------------|
-| **LEARNING** | Första 14d efter ny `release_id` | Mät only; inga B/C-ändringar |
-| **STABLE** | Coach adoption etablerad; bypass flat eller sjunker | Fortsätt mät; ev. ny release copy |
-| **DRIFT** | Bypass ↑ 2v; conflict ↑; kvalitativ feedback | L1 → L2 minimal B/C; **aldrig** auto från logg; kill switch redo |
+| **LEARNING** | Första 14d efter ny `release_id` | Mät **ambiguity + bypass** (inte bara conflict/CTR); etablera baseline; inga B/C-ändringar |
+| **STABLE** | ≥2 proxies flat 2v **plus** ingen qualitative drift | Fortsätt mät; ev. copy-justering via ny `release_id` |
+| **DRIFT** | Korsvaliderad ambiguity/bypass ↑ 2v **eller** qualitative drift | L1 → L2 minimal B/C (Z1/Z2 först); kill switch redo |
+
+**LEARNING mäter fel om den bara tittar på system friction.** Den ska kalibrera ambiguity heatmap (Z1–Z5) och proxy validation thresholds.
 
 ---
 
 ## Veckovis stability review (15 min)
 
-1. **Conflict top-3** — vilka typer, trend?
-2. **Intent bypass** — readiness coach-semantik vs coach CTR?
-3. **Invite split** — C vs A när `INVITE_CO_PARENT`?
-4. **Narrativ check** — stämmer `why_it_matters` med det som syns på skärmen?
-5. **State** — LEARNING / STABLE / DRIFT?
-6. **Beslut** — inget | dokumentera | L2 (specific surface) | kill switch
+1. **Ambiguity heatmap** — Z1/Z2 events, trend?
+2. **Proxy pairs** — ambiguity rate **och** intent bypass — samma riktning?
+3. **Conflict top-3** — system truth, divergerar den från perception?
+4. **Invite split** — C vs A när `INVITE_CO_PARENT`?
+5. **Narrativ check** — stämmer `why_it_matters` med exponerade paths?
+6. **Qualitative** — någon perception path 3?
+7. **State** — LEARNING / STABLE / DRIFT (kräv dubbel proxy för STABLE)
+8. **Beslut** — inget | dokumentera | L2 (specific zone) | kill switch
 
 Mall sparas i review-anteckningar — inte i kod.
 
@@ -157,8 +310,9 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 ## Acceptance (modellen i bruk)
 
 - [ ] Veckovis review schemalagd (ägare: produkt/eng)
-- [ ] Baseline coach adoption mätt första 2 veckor efter prod
-- [ ] Intent bypass-query dokumenterad (admin SQL eller script — valfritt senare)
+- [ ] LEARNING baseline: ambiguity rate + bypass (inte enbart conflict/CTR)
+- [ ] Proxy validation rule tillämpas vid STABLE/DRIFT-beslut
+- [ ] Ambiguity heatmap Z1–Z2 prioriterad i första 14d
 - [ ] DRIFT eskaleringsväg inkl. kill switch testad
 - [ ] Ingen automatisk governance från metrics
 
@@ -166,4 +320,4 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 
 ## En mening att hålla sann i drift
 
-> **Teknisk konflikt får finnas och loggas. Upplevd konflikt ska minska genom singular narrativ + mätning — inte genom fler system som förklarar sig själva.**
+> **System truth får loggas i tysthet. Perceived truth kräver korsvaliderade proxies — annars tror vi att singular narrativ fungerar för att klick samlas på ett ställe, medan användaren fortfarande upplever flera beslutsmotorer.**
