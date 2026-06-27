@@ -1,0 +1,30 @@
+{
+  "name": "broken_partial_facts",
+  "facts": {
+    "familyId": "fam-broken-006",
+    "signupAt": "2026-06-25T10:00:00.000Z",
+    "childrenIds": [],
+    "totalCompletions": 0,
+    "firstCompletionAt": null,
+    "lastCompletionAt": null,
+    "firstDayCompletedAt": null,
+    "currentStreakDays": 0,
+    "hasSeenChildView": false,
+    "hasRoutine": false,
+    "hasEveningRoutine": false,
+    "rewardsClaimedCount": 0,
+    "coParentCount": 1,
+    "openedCustomize": false,
+    "_incomplete": true
+  },
+  "context": {
+    "activePolicySet": "v2_first_success_control",
+    "currentDeviceTime": "2026-06-25T11:00:00.000Z"
+  },
+  "expected": {
+    "coreState": "UNCERTAINTY_FALLBACK",
+    "evaluatedNeed": "NEEDS_CLARITY",
+    "policyName": "SHOW_CHILD",
+    "milestone": null
+  }
+}

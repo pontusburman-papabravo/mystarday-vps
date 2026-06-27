@@ -10,8 +10,9 @@ Instant activation är en taktik. First Success är målet.
 | Dokument | Innehåll |
 |----------|----------|
 | [PRODUCT-CONSTITUTION.md](PRODUCT-CONSTITUTION.md) | Fem regler alla PR:s testas mot |
-| [first-success/brain.md](first-success/brain.md) | Domänarkitektur (facts → state → needs) |
-| [first-success/coach.md](first-success/coach.md) | Produktlogik (need → action → copy) |
+| [first-success/ENGINE_SPEC.md](first-success/ENGINE_SPEC.md) | **Product Engine** — full teknisk spec + implementation |
+| [first-success/brain.md](first-success/brain.md) | Domänöversikt (facts → needs) |
+| [first-success/coach.md](first-success/coach.md) | Presentation + voice-katalog |
 | [first-success/day0.md](first-success/day0.md) | Dag 0-flöde |
 | [first-success/landing.md](first-success/landing.md) | Landningssida (eget spår) |
 
@@ -128,27 +129,24 @@ Se [day0.md](first-success/day0.md) för dag 0.
 
 ## 6. Arkitektur (översikt)
 
-Produkten har fyra lager. Varje lager har ett tydligt ansvar:
-
 ```
-Facts        — vad vi vet om familjen (data)
-     ↓
-Brain        — var familjen befinner sig + vad de behöver (domän)
-     ↓
-Coach        — hur vi möter behovet (produktstrategi, experiment)
-     ↓
-Presentation — copy, tone, CTA, push, celebration (UI)
+Facts → Inference → State → Needs → Policy → Presentation
+                              ↑
+                    Outcome Feedback Loop
 ```
 
-**Brain beskriver användaren. Coach beskriver produkten.**
+**Engine** (`src/core-engine/`) är den deterministiska beslutsmotorn. Se [ENGINE_SPEC.md](first-success/ENGINE_SPEC.md).
 
-Brain uttrycker `primaryNeed` (t.ex. `INCREASE_CONSISTENCY`). Coach översätter till action (t.ex. `ADD_EVENING` eller `ADD_REWARD` beroende på experiment). Voice-katalogen äger text och `tone`.
+| Lager | Ansvar |
+|-------|--------|
+| Facts / Inference / State / Needs | Beskriver familjen (domän) |
+| Policy | Strategi + experiment (need → action) |
+| Presentation | Coach, push, UI, voice (dumma renderare) |
+| Outcome | Vad som hände efter action (lärande) |
 
-Brain är deterministisk: facts in, state + needs out. Ingen UI, inga feature flags, inget språk. Se [brain.md](first-success/brain.md) och [coach.md](first-success/coach.md).
+**Brain beskriver användaren. Policy beskriver produkten. UI projicerar.**
 
-### Learning Loop
-
-Regler är inte eviga. När data visar vad som fungerar uppdateras **Coach** (actions, copy, A/B). Brain uppdateras när vi **förstår familjen bättre** (nya facts, bättre needs). Se Learning Loop i [brain.md](first-success/brain.md).
+Golden contracts: `npm run test:engine`. Shadow-logic guard: `npm run check:engine-shadow`.
 
 ---
 

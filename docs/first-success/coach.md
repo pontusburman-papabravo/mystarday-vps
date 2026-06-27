@@ -1,8 +1,8 @@
-# Coach & voice
+# Coach & voice (presentation)
 
-Hem visar **en** rekommenderad handling. Inga parallella CTAs.
+> **Engine-spec:** [ENGINE_SPEC.md](ENGINE_SPEC.md). **Policy-lager:** `src/core-engine/5-policy/`.
 
-**Brain** uttrycker `primaryNeed` (domän). **Coach** översätter need → action → copy. **Voice-katalog** äger text och tone.
+Hem visar **en** rekommenderad handling. Presentation är **dum** — den konsumerar Engine-output.
 
 ```
 Brain → primaryNeed + milestone + reason

@@ -1,9 +1,8 @@
-# Product Brain
+# Product Brain (domänöversikt)
 
-Det viktigaste tekniska beslutet i First Success v2.
+> **Full implementation:** [ENGINE_SPEC.md](ENGINE_SPEC.md) och `src/core-engine/`.
 
-Idag: coach, push, nudge, milestones och voice har **egna regler**.  
-Mål: **ett lager** som beskriver familjen — inte produktstrategin.
+Brain är domänlagret i Product Engine — facts genom needs. Policy och presentation lever i separata lager.
 
 ```
 Family facts (DB + events)
