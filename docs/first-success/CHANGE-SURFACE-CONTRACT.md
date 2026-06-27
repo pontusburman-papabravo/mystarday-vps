@@ -2,7 +2,7 @@
 
 > **Regel:** Ingen produktionsändring i multi-authority-systemet är giltig utan en **mänskligt läsbar intent-sats** kopplad till den yta som faktiskt förändras.
 
-Relaterat: [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
+Relaterat: [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
 
 ---
 

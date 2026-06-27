@@ -2,7 +2,7 @@
 
 > **Fas:** *live multi-authority system stabilization* — inte "migration till Engine".
 
-Relaterat: [CHANGE-SURFACE-CONTRACT.md](CHANGE-SURFACE-CONTRACT.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
+Relaterat: [CHANGE-SURFACE-CONTRACT.md](CHANGE-SURFACE-CONTRACT.md), [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
 
 ---
 
