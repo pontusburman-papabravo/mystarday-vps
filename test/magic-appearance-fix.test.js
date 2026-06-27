@@ -28,6 +28,13 @@ describe('magic appearance fixes', () => {
     assert.match(css, /\.week-label/);
   });
 
+  it('daily-log activity cards use light text on dark magic panels (not day-col dark text)', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.doesNotMatch(css, /\.activity-card\.bg-white \.text-navy/);
+    assert.match(css, /\[data-magic-page="daily-log"\] #logContent \.activity-card \.text-navy/);
+    assert.match(css, /\[data-magic-page="daily-log"\] #logContent \.activity-card \.activity-name/);
+  });
+
   it('family modals use high z-index', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
     assert.match(html, /id="addAdultModal"[^>]*z-\[9100\]/);

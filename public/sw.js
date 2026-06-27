@@ -216,7 +216,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v397';
+const CACHE_NAME = 'stjarndag-v398';
+// stjarndag-v398: Daily log — light text on dark magic activity cards (contrast fix)
 // stjarndag-v397: Engine coach change notice — prod user contract in #engineCoachMount
 // stjarndag-v394: Admin familjer/meddelanden load fix; FAB positioning; magic contrast on white cards
 // stjarndag-v393: App Store-badge inline SVG (fix trasig bild)
