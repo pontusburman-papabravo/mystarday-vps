@@ -30,7 +30,7 @@
       headline: 'Börja med ett litet steg',
       body: 'Er rutin finns kvar — ta en aktivitet i taget idag.',
       cta: 'Öppna schema',
-      route: '/dashboard',
+      route: '/schedule',
       tone: 'calm',
     },
     CUSTOMIZE_ROUTINE: {
