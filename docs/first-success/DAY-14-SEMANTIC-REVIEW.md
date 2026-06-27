@@ -309,6 +309,8 @@ Fem frågor i admin. Svara OK / 🟡 / 🔴.
 
 Shortcut ersätter inte full script — det är stress-test på 120 sekunder.
 
+**Vecka 2+:** [OBSERVER-WEEKLY-DASHBOARD.md](OBSERVER-WEEKLY-DASHBOARD.md) — fem dimensions-signaler, ingen action.
+
 ---
 
 ## ⚡ Superkort (30 sekunder)

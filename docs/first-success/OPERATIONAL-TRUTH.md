@@ -15,7 +15,7 @@
 
 **Invariant:** Rekommendationer får aldrig bli beslut — bara komprimerad osäkerhet.
 
-Relaterat: [L1-OPERATOR-CARD.md](L1-OPERATOR-CARD.md), [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md).
+Relaterat: [L1-OPERATOR-CARD.md](L1-OPERATOR-CARD.md), [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md), [OBSERVER-WEEKLY-DASHBOARD.md](OBSERVER-WEEKLY-DASHBOARD.md).
 
 ---
 
