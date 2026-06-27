@@ -5,13 +5,14 @@
 Internt projektnamn: **First Success** (inte "Instant Activation").  
 Instant activation är en taktik. First Success är målet.
 
-**Detaljdokument:**
+**Relaterade dokument:**
 
 | Dokument | Innehåll |
 |----------|----------|
-| [first-success/brain.md](first-success/brain.md) | State machine, facts, API (utan UI) |
-| [first-success/day0.md](first-success/day0.md) | Registrering, auto-rutin, success screen |
-| [first-success/coach.md](first-success/coach.md) | Coach, intent, voice-katalog |
+| [PRODUCT-CONSTITUTION.md](PRODUCT-CONSTITUTION.md) | Fem regler alla PR:s testas mot |
+| [first-success/brain.md](first-success/brain.md) | Domänarkitektur (facts → state → needs) |
+| [first-success/coach.md](first-success/coach.md) | Produktlogik (need → action → copy) |
+| [first-success/day0.md](first-success/day0.md) | Dag 0-flöde |
 | [first-success/landing.md](first-success/landing.md) | Landningssida (eget spår) |
 
 ---
@@ -42,7 +43,7 @@ Det går inte att mäta "lättnad" direkt. Vi använder **proxies**. Proxyn är 
 | Första kompletta rutinen (alla steg en dag) | Rutinen fungerade i praktiken |
 | Första morgon/kväll utan avbrott (föräldrarapporterat eller infererat) | Lättnad i vardagen |
 
-**Stjärnan är en proxy — inte helig.** Product Brain ska inte hårdkoda att endast `first_completion_at` räknas som First Success om andra bevis finns. Implementationen kan variera; målet är lättnad.
+**Stjärnan är en proxy — inte helig.** Målet är lättnad, inte en specifik knapptryckning.
 
 ### Mätning
 
@@ -94,6 +95,8 @@ Om användaren undrar "gör jag rätt?" har produkten inte gjort sitt jobb. Det 
 
 **Lag 7** — Produkten ska alltid minska osäkerhet. Om användaren undrar "gör jag rätt?" har produkten inte gjort sitt jobb.
 
+Se även [PRODUCT-CONSTITUTION.md](PRODUCT-CONSTITUTION.md) — fem övergripande regler för alla produktbeslut.
+
 ---
 
 ## 4. Definition of Done
@@ -106,6 +109,7 @@ En förändring är klar när:
 - Den känns färdig första gången.
 - Den ökar sannolikheten för **första lättnaden** (inte bara en teknisk proxy).
 - Den minskar osäkerhet ("jag gör rätt").
+- Den kan motiveras mot minst en punkt i Product Constitution.
 
 ---
 
@@ -124,17 +128,27 @@ Se [day0.md](first-success/day0.md) för dag 0.
 
 ## 6. Arkitektur (översikt)
 
+Produkten har fyra lager. Varje lager har ett tydligt ansvar:
+
 ```
-Family facts (DB)
-        ↓
-Product Brain (state machine)
-        ↓
-Outputs: moment + reason + recommendedAction + milestone?
-        ↓
-Kanaler: coach, voice-katalog, push, email, celebration
+Facts        — vad vi vet om familjen (data)
+     ↓
+Brain        — var familjen befinner sig + vad de behöver (domän)
+     ↓
+Coach        — hur vi möter behovet (produktstrategi, experiment)
+     ↓
+Presentation — copy, tone, CTA, push, celebration (UI)
 ```
 
-**Brain känner inte UI.** Ingen headline/cta/route i Brain-API. Se [brain.md](first-success/brain.md) och [coach.md](first-success/coach.md).
+**Brain beskriver användaren. Coach beskriver produkten.**
+
+Brain uttrycker `primaryNeed` (t.ex. `INCREASE_CONSISTENCY`). Coach översätter till action (t.ex. `ADD_EVENING` eller `ADD_REWARD` beroende på experiment). Voice-katalogen äger text och `tone`.
+
+Brain är deterministisk: facts in, state + needs out. Ingen UI, inga feature flags, inget språk. Se [brain.md](first-success/brain.md) och [coach.md](first-success/coach.md).
+
+### Learning Loop
+
+Regler är inte eviga. När data visar vad som fungerar uppdateras **Coach** (actions, copy, A/B). Brain uppdateras när vi **förstår familjen bättre** (nya facts, bättre needs). Se Learning Loop i [brain.md](first-success/brain.md).
 
 ---
 
@@ -162,13 +176,13 @@ Milestones = vad vi åstadkommit. Coach = vad vi gör nu. Inte på samma skärm.
 
 ### Aha-ögonblicket
 
-Kort celebration när First Success-bevis inträffar (ofta första aktiviteten). Konfetti. Sedan coach. Det är där föräldern känner: *"Det här kanske faktiskt fungerar."*
+Kort celebration när First Success-bevis inträffar. Konfetti med `tone: celebration`. Sedan coach. Det är där föräldern känner: *"Det här kanske faktiskt fungerar."*
 
 ---
 
 ## 8. Anpassa familjen
 
-Wizard + ACT-1 flyttas hit. Blockerar inte dag 0. Triggas av coach eller Planering.
+Wizard + ACT-1 flyttas hit. Blockerar inte dag 0. Triggas av coach (`PERSONALIZE`) eller Planering.
 
 ---
 
@@ -177,42 +191,18 @@ Wizard + ACT-1 flyttas hit. Blockerar inte dag 0. Triggas av coach eller Planeri
 Undvik: konfigurera, skapa schema, sätt upp, bygg.  
 Använd: börja, visa barnet, första rutin, nästa steg, klart, fortsätt.
 
----
-
-## 10. Byggordning
-
-```
-1. Dokumentation (denna mapp)
-2. Facts + Product Brain state machine + API
-3. Dag 0 backend (se day0.md)
-4. Success screen + handoff
-5. Coach + voice-katalog (se coach.md)
-6. Celebration vid First Success
-7. Push/nudge kopplade till moment (samma brain)
-8. Landning (se landing.md — parallellt spår)
-9. Flytta wizard → Anpassa familjen
-10. A/B first_success_v2
-```
+Voice-katalogen äger all användarcopy. Varje post har `tone` — se [coach.md](first-success/coach.md).
 
 ---
 
-## 11. Mappning mot befintlig kod
+## 10. Vad vi inte gör i v2
 
-| Befintligt | First Success |
-|------------|---------------|
-| `family_activation_state` | Del av facts |
-| `GET /api/family/readiness` | Ersätts av `first-success` |
-| `onboarding.js` + wizard | Bypass dag 0 |
-| Schedulers (nudge, push, win-back) | Konsumera `moment` från Brain |
+Leaderboards, föräldra-XP, fler beslut vid registrering, optimera för stjärnor utan verklig rutin, optimera för "onboarding klar" utan First Success, produktstrategi i Brain-lagret.
 
 ---
 
-## 12. Vad vi inte gör i v2
-
-Leaderboards, föräldra-XP, fler beslut vid registrering, optimera för stjärnor utan verklig rutin, optimera för "onboarding klar" utan First Success.
-
----
-
-## 13. Sammanfattning
+## 11. Sammanfattning
 
 **Vi bygger en produkt som hjälper en familj att lyckas med nästa lilla steg — mäter framgång genom om vardagen blev lättare, med tydliga proxies tills vi kan fråga dem direkt.**
+
+Arkitekturen separerar domän (Brain) från strategi (Coach) från presentation (voice). Det gör systemet hållbart när produkten växer — och experiment kan köras utan att skriva om kärnlogiken.

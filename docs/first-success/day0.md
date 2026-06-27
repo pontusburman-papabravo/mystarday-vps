@@ -15,17 +15,17 @@ Endast:
 - Lösenord
 - Barnets namn
 
+Inga mallar. Inga val. Inga extra steg.
+
 ---
 
-## Backend direkt efter register
+## Direkt efter registrering
 
-Atomiskt i samma flöde:
+Familjen ska ha:
 
-- Barn (emoji, PIN)
-- Morgon- eller kvällsrutin (tid-på-dygn, se nedan)
-- Standardbelöningar (redan seedade)
-- Skattkammare ifylld
-- Facts: `routine_created_at`, state → `ROUTINE_READY`
+- Ett barn (med PIN för barninloggning)
+- En färdig morgon- eller kvällsrutin
+- Standardbelöningar och ifylld Skattkammare
 
 Ingen wizard. Ingen AI. Ingen mallväljare.
 
@@ -39,6 +39,8 @@ Vakna → Toalett → Klä på dig → Frukost → Borsta tänderna
 |--------------|-------|------|
 | Före kl. 15 | Morgon | "Imorgon bitti är rutinen redo" |
 | Efter kl. 15 | Kväll | "Ikväll kan barnet följa sin första rutin" |
+
+Brain efter detta: core state `ONBOARDING` → `ACTIVE` när rutin finns; capability `has_routine`; need `SHOW_CHILD`.
 
 ---
 
@@ -54,7 +56,9 @@ Första rutinen är skapad.
 Ändra rutinen       ← sekundär
 ```
 
-Primär CTA sätter `child_seen_at` (eller motsvarande) när handoff slutförts.
+Primär CTA leder till handoff — barnet ser sin rutin. Det sätter `child_seen_at` och uppfyller need `SHOW_CHILD`.
+
+Voice: `tone: coach`. `reducesUncertainty`: "Eras första rutin är redo."
 
 ---
 
@@ -66,7 +70,7 @@ NÄSTA     Klä på dig
 SENARE    Frukost
 ```
 
-Ingen barn-onboarding. Första aktivitet kan bockas av direkt.
+Ingen barn-onboarding. Första aktivitet kan bockas av direkt → First Success-bevis (`kind: star`).
 
 ---
 
@@ -77,22 +81,15 @@ Ingen barn-onboarding. Första aktivitet kan bockas av direkt.
 | Ny familj v2 | Dag 0 instant |
 | Lägg till barn | Befintligt add-child |
 | Pedagog | Utanför scope |
-| Fastnade familjer | Coach "fortsätt" (befintligt barn + schema) |
+| Fastnade familjer | Coach `RESUME_ROUTINE` / fortsätt (befintligt barn + schema) |
 
 ---
 
 ## Experiment
 
 ```
-feature_flag: first_success_v2
 A/B: legacy wizard vs dag 0 instant
 KPI: first_success_within_48h
 ```
 
----
-
-## Tekniskt
-
-- Ny: `POST` register utökar med `instantStart()` eller `POST /api/onboarding/instant-start` efter login
-- Återanvänd: child create, schedule seed, reward seed från onboarding/register
-- Brain: efter register `collectFamilyFacts` → `ROUTINE_READY`
+Experimentflagga hör till Coach/deploy — inte Brain.
