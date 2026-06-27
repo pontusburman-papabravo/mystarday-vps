@@ -3,7 +3,7 @@
 > **Inte teknik. Inte fler signaler.**  
 > Hur organisationen fattar beslut när modellen medvetet **inte** förklarar varför.
 
-Relaterat: [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md), [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md).
+Relaterat: [PROD-STABILITY-MODEL.md](PROD-STABILITY-MODEL.md), [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md).
 
 ---
 

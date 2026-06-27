@@ -496,7 +496,7 @@ Det räcker för säker drift — under förutsättning att L1 håller tempo och
 | 1 | Multi-authority UX (A/B/C/D) |
 | 2 | Observability (3 axlar + epistemik) |
 | 3 | UX governance (change contract) |
-| 4 | Human decision (L1 — latency SLA, ACCEPT-UNKNOWN-disciplin) |
+| 4 | Human decision (L1 — latency SLA, ACCEPT-UNDER-PRESSURE) | [L1-GOVERNANCE.md](L1-GOVERNANCE.md), [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md) |
 
 ---
 
