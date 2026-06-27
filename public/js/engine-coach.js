@@ -134,11 +134,14 @@
     MOUNT_ID: MOUNT_ID,
   };
 
-  if (document.getElementById(MOUNT_ID)) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () { load(); });
-    } else {
-      load();
-    }
+  function init() {
+    if (!document.getElementById(MOUNT_ID)) return;
+    load().catch(function () {});
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();

@@ -59,6 +59,13 @@ describe('Engine coach change contract (prod)', () => {
     assert.doesNotMatch(src, /Engine uppdatering/i);
   });
 
+  it('engine-coach registers DOMContentLoaded init (mount is in body, script in head)', () => {
+    const src = read('public/js/engine-coach.js');
+    assert.match(src, /DOMContentLoaded/);
+    assert.match(src, /function init\(\)/);
+    assert.doesNotMatch(src, /if \(document\.getElementById\(MOUNT_ID\)\) \{\s*if \(document\.readyState/);
+  });
+
   it('engine-coach renders change notice inside monopoly mount only', () => {
     const src = read('public/js/engine-coach.js');
     assert.match(src, /EngineCoachChange/);

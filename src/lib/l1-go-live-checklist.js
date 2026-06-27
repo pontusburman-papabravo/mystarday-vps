@@ -8,9 +8,10 @@ const GO_LIVE_ITEMS = [
     label: 'Engine körs read-only i prod (ingen state write, bara rekommendationer)',
     due_offset_days: 0,
     verify_how:
-      'Logga in som förälder på Hem (/dashboard). Coach-rutan ska visa ett förslag (text + ev. knapp). ' +
-      'Bekräfta i DevTools → Network att endast GET /api/family/first-success anropas från coach — inga skrivande anrop från engine-modulen. ' +
-      'Schema, stjärnor och readiness ska inte ändras av sig själva när sidan laddas.',
+      'På Hem (/dashboard): leta efter kortet med rubriken NÄSTA STEG (inte dagens sammanfattning med t.ex. "Astrid är redo för nästa aktivitet"). ' +
+      'Engine-coachen har en gul fullbredds-knapp (t.ex. "Visa barnet" / "Öppna schema"). ' +
+      'Desktop: DevTools → Network → GET /api/family/first-success (200). Inget skrivande anrop från engine vid sidladdning. ' +
+      'Mobil: räcker att NÄSTA STEG-kortet syns efter omladdning.',
   },
   {
     key: 'first_success_payload',
