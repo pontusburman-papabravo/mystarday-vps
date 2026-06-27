@@ -34,8 +34,9 @@ async function main() {
     process.exit(1);
   }
 
-  let rows = buildFollowupEmails().filter((r) => r.send);
+  let rows = buildFollowupEmails();
   if (opts.key) rows = rows.filter((r) => r.key === opts.key);
+  else rows = rows.filter((r) => r.send);
   if (opts.to) rows = rows.filter((r) => r.to === opts.to);
 
   if (rows.length === 0) {

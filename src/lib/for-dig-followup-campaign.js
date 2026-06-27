@@ -47,7 +47,7 @@ function buildFollowupSurveys() {
       thank_you_message: 'Tack! Ditt svar hjälper oss förstå vad som fungerar hemma.',
       thank_you_cta_text: openAppCta,
       thank_you_cta_url: '/for-dig',
-      questions: buildQuestions('Hur har morgonrutinen gått för Sed?'),
+      questions: buildQuestions('Hur har morgonrutinen känts för Sed?'),
     },
     {
       slug: 'utfall-jimmy-kvall',
@@ -57,7 +57,7 @@ function buildFollowupSurveys() {
       thank_you_message: 'Tack! Ditt svar hjälper oss förstå vad som fungerar hemma.',
       thank_you_cta_text: openAppCta,
       thank_you_cta_url: '/for-dig',
-      questions: buildQuestions('Hur har kvällar och morgnar gått för Otto och Elma?'),
+      questions: buildQuestions('Vad har blivit enklare för Otto och Elma?'),
     },
     {
       slug: 'utfall-kim-loke',
@@ -67,7 +67,7 @@ function buildFollowupSurveys() {
       thank_you_message: 'Tack! Ditt svar hjälper oss förstå vad som fungerar hemma.',
       thank_you_cta_text: openAppCta,
       thank_you_cta_url: '/for-dig',
-      questions: buildQuestions('Hur har det gått hemma för Loke?'),
+      questions: buildQuestions('Vad märkte ni först hemma för Loke?'),
     },
     {
       slug: 'utfall-sandra-rutiner',
@@ -77,7 +77,7 @@ function buildFollowupSurveys() {
       thank_you_message: 'Tack! Ditt svar hjälper oss förstå vad som fungerar hemma.',
       thank_you_cta_text: openAppCta,
       thank_you_cta_url: '/for-dig',
-      questions: buildQuestions('Vad har varit mest märkbart hemma — om något?'),
+      questions: buildQuestions('Vad har förändrats hemma för Cornelia och Benjamin?'),
     },
     {
       slug: 'utfall-alexander-vardag',
@@ -87,7 +87,7 @@ function buildFollowupSurveys() {
       thank_you_message: 'Tack! Ditt svar hjälper oss förstå vad som fungerar hemma.',
       thank_you_cta_text: openAppCta,
       thank_you_cta_url: '/for-dig',
-      questions: buildQuestions('Hur har det gått med rutinerna för Jamie och Penny?'),
+      questions: buildQuestions('Hur känns det jämfört med innan för Jamie och Penny?'),
     },
   ];
 }
@@ -106,7 +106,7 @@ function buildFollowupEmails() {
       greeting: 'Hej!',
       body: `${intro}
 
-För drygt en vecka sedan aktiverade ni Bra morgnar för Sed via För dig. Vi är nyfikna: hur har det gått? Har morgnarna känts lite lättare, ungefär likadana, eller har ni inte hunnit testa ordentligt än?`,
+Ni aktiverade Bra morgnar för Sed för drygt en vecka sedan. Vi är nyfikna: hur har morgonrutinen känts — lite lättare, ungefär likadana, eller har ni inte hunnit testa ordentligt än?`,
       send: true,
     },
     {
@@ -117,7 +117,7 @@ För drygt en vecka sedan aktiverade ni Bra morgnar för Sed via För dig. Vi ä
       greeting: 'Hej Jimmy!',
       body: `${intro}
 
-För drygt en vecka sedan aktiverade ni flera rutiner för Otto och Elma — bland annat kvällar, morgnar och samarbete hemma. Vi är nyfikna: vad har varit lättare, om något? Eller känns det ungefär som innan?`,
+Ni aktiverade flera rutiner för Otto och Elma för drygt en vecka sedan — bland annat kvällar, morgnar och samarbete hemma. Vi är nyfikna: vad har blivit enklare, om något?`,
       send: true,
     },
     {
@@ -128,7 +128,7 @@ För drygt en vecka sedan aktiverade ni flera rutiner för Otto och Elma — bla
       greeting: 'Hej Kim!',
       body: `${intro}
 
-För drygt en vecka sedan aktiverade ni Motivation och Samarbete hemma för Loke. Vi är nyfikna: om något har ändrats — vad märkte ni först?`,
+Ni aktiverade Motivation och Samarbete hemma för Loke för drygt en vecka sedan. Vi är nyfikna: vad märkte ni först, om något har ändrats?`,
       send: true,
     },
     {
@@ -139,7 +139,7 @@ För drygt en vecka sedan aktiverade ni Motivation och Samarbete hemma för Loke
       greeting: 'Hej Sandra!',
       body: `${intro}
 
-För drygt en vecka sedan testade ni flera utvecklingsmål för Cornelia och Benjamin. Vi är nyfikna: vad har varit mest märkbart hemma — om något?`,
+Ni testade flera utvecklingsmål för Cornelia och Benjamin för drygt en vecka sedan. Vi är nyfikna: vad har förändrats hemma, om något?`,
       send: true,
     },
     {
@@ -148,7 +148,11 @@ För drygt en vecka sedan testade ni flera utvecklingsmål för Cornelia och Ben
       surveySlug: 'utfall-sed-morgon',
       subject: '[TEST] Hur har morgonrutinen gått? ☀️',
       greeting: 'Hej Pontus!',
-      body: 'Det här är ett testmejl — samma struktur som skickas till riktiga föräldrar.',
+      body: `${intro}
+
+Ni aktiverade Bra morgnar för Sed för drygt en vecka sedan. Vi är nyfikna: hur har morgonrutinen känts — lite lättare, ungefär likadana, eller har ni inte hunnit testa ordentligt än?
+
+(DET HÄR ÄR ETT TESTMEJL — samma struktur som skickas till riktiga föräldrar.)`,
       send: false,
     },
     {
@@ -159,7 +163,7 @@ För drygt en vecka sedan testade ni flera utvecklingsmål för Cornelia och Ben
       greeting: 'Hej Alexander!',
       body: `${intro}
 
-För drygt en vecka sedan testade ni flera olika delar av vardagen för Jamie och Penny via För dig. Vi är nyfikna: hur har det gått hemma? Har något känts lite enklare, eller ungefär som innan?`,
+Ni har testat flera delar av vardagen för Jamie och Penny via För dig för drygt en vecka sedan. Vi är nyfikna: hur känns det jämfört med innan?`,
       send: true,
     },
   ];
@@ -173,7 +177,7 @@ ${body}
 Svara här (tar ~10 sekunder):
 ${surveyUrl}
 
-Eller svara på det här mejlet om du vill skriva mer — ett kort svar räcker.
+Eller svara på det här mejlet om du vill skriva mer.
 
 Tack för att ni testar!
 
