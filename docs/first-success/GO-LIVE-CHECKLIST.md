@@ -23,5 +23,5 @@ När alla 10 är gröna är systemet redo att testas mot verkligt användarbetee
 
 ## Efter release (operativt)
 
-- **Dag 7:** sanity — beteende, inte fler features (`OPERATIONAL-TRUTH.md`)
-- **Dag 14:** första riktiga L1-beslut; titta på override-mönster och recommendation gravity
+- **Dag 7:** semantiska signaler — [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md)
+- **Dag 14:** Go/No-Go + 2-min shortcut i samma doc

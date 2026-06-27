@@ -5,7 +5,7 @@
 
 Full kontext: [L1-GOVERNANCE.md](L1-GOVERNANCE.md) · [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md)  
 **Admin:** `#l1beslut` → Experiment → L1 beslut (coach)  
-**Dag 7/14:** se [OPERATIONAL-TRUTH.md](OPERATIONAL-TRUTH.md)
+**Dag 7/14:** [OPERATIONAL-TRUTH.md](OPERATIONAL-TRUTH.md) · [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) (rubric + 2-min shortcut)
 
 ---
 

@@ -24,8 +24,8 @@ Relaterat: [L1-OPERATOR-CARD.md](L1-OPERATOR-CARD.md), [PROD-STABILITY-MODEL.md]
 | Dag | Gör | Gör inte |
 |-----|-----|----------|
 | 1 | Första loggrad i admin (`#l1beslut`) | Justera modell/regler |
-| 7 | Sanity check (nedan) | STABLE / ACT |
-| 14 | Beslut: ACCEPT-UNKNOWN, INVESTIGATE eller ACT | Förlänga LEARNING utan motivering |
+| 7 | **Semantisk sanity** — tre signaler (se [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md)) | STABLE / ACT |
+| 14 | Beslut: GO / CONDITIONAL GO / NO-GO + L1-typ (script i samma doc) | Förlänga LEARNING utan motivering |
 
 Under hela perioden: låt rekommendationer finnas, men **inga produktändringar** baserat på tidiga signaler.
 
@@ -33,9 +33,11 @@ Under hela perioden: låt rekommendationer finnas, men **inga produktändringar*
 
 ## Dag 7 — sanity check (övertolka inte)
 
-Syfte: se om **processen** fungerar — inte om coachen "vinner".
+Syfte: se om **processen och semantisk separation** fungerar — inte om coachen "vinner".
 
-### Titta på (ja/nej)
+**Full guide:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) (dag 7: tre signaler · dag 14: rubric + script + 2-min shortcut)
+
+### Process (ja/nej)
 
 | # | Fråga | Grönt | Gul | Rött (process, inte produkt) |
 |---|--------|-------|-----|------------------------------|
@@ -65,6 +67,8 @@ Syfte: se om **processen** fungerar — inte om coachen "vinner".
 ---
 
 ## Dag 14 — första riktiga L1-beslut
+
+**Operativt:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) — Go/No-Go rubric, decision script, 2-min sanity shortcut.
 
 ### Mät tre saker (inte fler)
 
