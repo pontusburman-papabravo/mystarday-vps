@@ -14,7 +14,7 @@ Instant activation är en taktik. First Success är målet.
 | [first-success/brain.md](first-success/brain.md) | Domänöversikt (facts → needs) |
 | [first-success/coach.md](first-success/coach.md) | Presentation + voice-katalog |
 | [first-success/day0.md](first-success/day0.md) | Dag 0-flöde |
-| [first-success/landing.md](first-success/landing.md) | Landningssida (eget spår) |
+| [first-success/MIGRATION-MAP.md](first-success/MIGRATION-MAP.md) | Verifierad runtime-kedja + filklassificering |
 
 ---
 
