@@ -11,6 +11,7 @@ const {
 const { computeGovernanceHealth } = require('../../lib/l1-governance-health');
 const { checklistProgress } = require('../../lib/l1-go-live-checklist');
 const { computeGoLiveHints } = require('../../lib/l1-go-live-hints');
+const { computeGoLiveReadinessBanner } = require('../../lib/l1-go-live-readiness-banner');
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get('/l1-governance', async (req, res, next) => {
     const recommendation = recommendDecision(draftAnswers, { metrics, learning_day: day });
     const governance_health = computeGovernanceHealth(decisions, metrics);
     const checklist = release.go_live_checklist;
+    const go_live_readiness = computeGoLiveReadinessBanner(checklist.items, release);
     const go_live = {
       progress: checklistProgress(checklist.items),
       items: checklist.items,
@@ -76,6 +78,7 @@ router.get('/l1-governance', async (req, res, next) => {
       decisions,
       governance_health,
       go_live,
+      go_live_readiness,
     });
   } catch (err) {
     console.error('[ADMIN] l1-governance GET error:', err);

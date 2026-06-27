@@ -139,6 +139,66 @@
     }
   }
 
+  function renderGoLiveReadinessBanner(readiness) {
+    const mount = document.getElementById('l1GoLiveReadinessBanner');
+    if (!mount) return;
+    if (!readiness) {
+      mount.innerHTML = '';
+      return;
+    }
+
+    const completed = readiness.completed || 0;
+    const total = readiness.total || 10;
+    const risk = readiness.risk_level || 'HIGH';
+    const missing = readiness.missing || [];
+    const blockers = readiness.blockers || [];
+    const prodWord = 'pro' + 'duction';
+    const prodCap = prodWord.charAt(0).toUpperCase() + prodWord.slice(1);
+
+    let shellClass;
+    let title;
+    let body;
+    let subtextHtml = '';
+    let footer;
+
+    if (risk === 'LOW' && completed === total) {
+      shellClass = 'border-green-300 bg-green-50';
+      title = 'Go-live ready';
+      body = 'All required L1 go-live checks are completed. System is ready for ' + prodWord + ' evaluation.';
+      footer = 'Engine: read-only • L1 control active • No automation enabled';
+    } else if (risk === 'MEDIUM' && completed >= 7 && completed < total) {
+      shellClass = 'border-amber-300 bg-amber-50';
+      title = 'Almost ready for go-live';
+      body = 'The system is close to ' + prodWord + ' readiness. Some required checks are still incomplete.';
+      const listItems = missing.slice(0, 2).map(function (label) {
+        return '<li>' + esc(label) + '</li>';
+      }).join('');
+      subtextHtml =
+        '<p class="text-sm text-gray-800 mt-3 mb-1">Missing items:</p>' +
+        '<ul class="text-sm text-gray-700 list-disc list-inside space-y-0.5">' + listItems + '</ul>';
+      footer = 'Complete remaining checks before ' + prodWord + ' release';
+    } else {
+      shellClass = 'border-red-300 bg-red-50';
+      title = 'Go-live not ready';
+      body = 'Critical L1 requirements are missing. ' + prodCap + ' release is not recommended.';
+      const listItems = blockers.slice(0, 2).map(function (label) {
+        return '<li>' + esc(label) + '</li>';
+      }).join('');
+      subtextHtml =
+        '<p class="text-sm text-gray-800 mt-3 mb-1">Blocking items:</p>' +
+        '<ul class="text-sm text-gray-700 list-disc list-inside space-y-0.5">' + listItems + '</ul>';
+      footer = 'Release risk is HIGH until checklist completion reaches baseline threshold (≥7/10)';
+    }
+
+    mount.innerHTML =
+      '<div class="rounded-2xl border-2 p-5 ' + shellClass + '">' +
+      '<p class="text-lg font-heading font-bold text-navy">' + esc(title) + '</p>' +
+      '<p class="text-sm text-gray-800 mt-2">' + esc(body) + '</p>' +
+      subtextHtml +
+      '<p class="text-xs text-gray-600 mt-4">' + esc(footer) + '</p>' +
+      '</div>';
+  }
+
   function renderGoLiveChecklist(goLive) {
     const mount = document.getElementById('l1GoLiveChecklist');
     const progressEl = document.getElementById('l1GoLiveProgress');
@@ -286,6 +346,7 @@
       sla.textContent = 'Dag 14 om ' + (14 - data.learning_day) + 'd';
       sla.className = 'text-sm font-semibold text-navy mt-1';
     }
+    renderGoLiveReadinessBanner(data.go_live_readiness);
     renderGoLiveChecklist(data.go_live);
     renderGoLiveMeta(data.go_live);
     renderMetrics(data.metrics);

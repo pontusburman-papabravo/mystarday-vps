@@ -99,3 +99,42 @@ describe('l1-go-live-checklist', () => {
     assert.equal(p.all_complete, false);
   });
 });
+
+describe('l1-go-live-readiness-banner', () => {
+  const { computeGoLiveReadinessBanner } = require('../src/lib/l1-go-live-readiness-banner');
+  const { buildDefaultChecklist } = require('../src/lib/l1-go-live-checklist');
+
+  it('returns LOW when all items checked', () => {
+    const cl = buildDefaultChecklist('2026-06-01T00:00:00.000Z');
+    cl.items.forEach((i) => { i.checked = true; });
+    const r = computeGoLiveReadinessBanner(cl.items, {
+      l1_primary_owner: 'Alice',
+      l1_backup_owner: 'Bob',
+      review_day_7_at: '2026-06-08T09:00:00.000Z',
+      review_day_14_at: '2026-06-15T09:00:00.000Z',
+    });
+    assert.equal(r.completed, 10);
+    assert.equal(r.risk_level, 'LOW');
+    assert.equal(r.missing.length, 0);
+    assert.equal(r.owner, 'Alice');
+    assert.equal(r.review_dates.day7, '2026-06-08T09:00:00.000Z');
+  });
+
+  it('returns MEDIUM when 7-9 items checked', () => {
+    const cl = buildDefaultChecklist('2026-06-01T00:00:00.000Z');
+    cl.items.slice(0, 8).forEach((i) => { i.checked = true; });
+    const r = computeGoLiveReadinessBanner(cl.items, {});
+    assert.equal(r.completed, 8);
+    assert.equal(r.risk_level, 'MEDIUM');
+    assert.equal(r.missing.length, 2);
+  });
+
+  it('returns HIGH when fewer than 7 checked', () => {
+    const cl = buildDefaultChecklist('2026-06-01T00:00:00.000Z');
+    cl.items.slice(0, 3).forEach((i) => { i.checked = true; });
+    const r = computeGoLiveReadinessBanner(cl.items, {});
+    assert.equal(r.completed, 3);
+    assert.equal(r.risk_level, 'HIGH');
+    assert.equal(r.blockers.length, 7);
+  });
+});
