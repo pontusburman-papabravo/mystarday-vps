@@ -4,7 +4,8 @@
 > Uppdatera när nya kedjor hittas.
 
 Se [ENGINE_SPEC.md](ENGINE_SPEC.md) för målarkitektur.  
-**Per-skärm beslutsgränser:** [DECISION-BOUNDARIES.md](DECISION-BOUNDARIES.md).
+**Per-skärm beslutsgränser:** [DECISION-BOUNDARIES.md](DECISION-BOUNDARIES.md).  
+**Hem — vem styr vilken yta:** [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
 
 ---
 
