@@ -165,6 +165,143 @@ STABLE är **epistemiskt villkorat**, inte **orsakssäkert**.
 
 ---
 
+## Meta-risk: decision accountability concentration
+
+Tolkning, stabilitetsklassificering och unknown cause-hantering sitter på L1. Det är **avsiktligt** — men skapar en flaskhals:
+
+| Systemstyrka | Organisatorisk risk |
+|--------------|---------------------|
+| Undviker fel auto-beslut | L1 latency sänker systemtempo |
+| Epistemik kontrollerad | Felaktig ACCEPT-UNKNOWN-disciplin |
+| STABLE som beslutstillstånd | STABLE inflation (trygghetsmarkör) |
+
+**Designkonsekvens:** systemets dynamik begränsas av L1:s **beslutstakt och beslutskvalitet** — inte av data eller signaler.
+
+---
+
+## L1 latency — tempo under osäkerhet
+
+Precision är sekundär. **Tid till beslut** är primär.
+
+### SLA (hårda)
+
+| Händelse | Max latency | Eskalering om miss |
+|----------|-------------|-------------------|
+| LEARNING dag 14 | Beslut samma dag | Backup L1 ägare beslutar inom 48h |
+| Veckovis review | 15 min, varje vecka | Saknad review = HOLD + flag i logg |
+| INVESTIGATE | 7 kalenderdagar | Tvinga ACT-SURFACE, ACCEPT-UNKNOWN eller HOLD |
+| DRIFT signal (korsvaliderad) | Beslut inom 5 arbetsdagar | ACT-KILL övervägs om user harm |
+
+### L1 latency mäts (governance, inte produkt)
+
+| Metric | Hur | Mål |
+|--------|-----|-----|
+| **Decision lag** | Dagar från LEARNING d14 till dokumenterat beslut | ≤2 |
+| **Review cadence** | Veckor med L1-rad i logg / veckor i LEARNING+ | 100% |
+| **INVESTIGATE overrun** | Antal INVESTIGATE >7d utan uppföljning | 0 |
+| **Open unknown** | Unknown cause utan beslutstyp + deadline | 0 |
+
+Dessa metrics **får inte** mata tillbaka till Engine eller auto-dölj B/C.
+
+### Minska latency utan att bryta epistemik
+
+| Tillåtet | Förbjudet |
+|----------|-----------|
+| Förifylld beslutsmall (checkbox intent uppfyllt ja/nej) | Auto-STABLE från metrics |
+| Backup L1-ägare namngiven i advance | "Default ACCEPT-UNKNOWN" utan review |
+| Async beslut i logg (en rad räcker) | Kräva orsaksanalys före dag 14 |
+| 15-min tidsbox med timer | Utöka review till rapport |
+
+---
+
+## ACCEPT-UNKNOWN — disciplin (inte default exit)
+
+ACCEPT-UNKNOWN är **aktivt val**, inte "vi orkar inte analysera".
+
+### Tillåtet endast om alla fyra
+
+| # | Kriterium | Måste explicit i loggrad |
+|---|-----------|--------------------------|
+| 1 | Intent outcome uppfyllt (eller ej relevant för release) | `intent:ok` / `intent:n/a` |
+| 2 | Non-adoption inom LEARNING-baseline | `non-adoption:baseline` |
+| 3 | Ingen qualitative drift | `qual:none` |
+| 4 | Competition/ambiguity inte i DRIFT | `drift:no` |
+
+**Loggmall (obligatorisk):**
+
+```
+ACCEPT-UNKNOWN | release_id | intent:ok | non-adoption:baseline | qual:none | drift:no | @owner
+```
+
+Saknas ett fält → ACCEPT-UNKNOWN **ogiltigt** — välj HOLD eller INVESTIGATE.
+
+### Förbjudna ACCEPT-UNKNOWN-mönster
+
+| Mönster | Varför |
+|---------|--------|
+| "Vi vet inte" utan intent-check | Lazy default |
+| Dag 14 utan att ha tittat på metrics | Formalism |
+| >50% av releases ACCEPT-UNKNOWN i rad | Disciplinbrott — granska STABLE inflation |
+| ACCEPT-UNKNOWN med pågående qualitative klagomål | Epistemikbrott |
+
+### När ACCEPT-UNKNOWN är fel val
+
+- Intent ej uppfyllt + non-adoption ↑ → **INVESTIGATE** eller **ACT-SURFACE**
+- Korsvaliderad DRIFT → **ACT-SURFACE** (ACCEPT-UNKNOWN utesluter inte L2 om drift finns)
+- User-visible harm → **ACT-KILL**
+
+---
+
+## STABLE inflation — skydd
+
+STABLE ska vara **beslut**, inte **trygghetsmarkör**.
+
+### Röda flaggor (governance review varje kvartal)
+
+| Signal | Tolkning |
+|--------|----------|
+| STABLE deklarerad utan L1-rad | Processbrott |
+| STABLE samma vecka som `release_id` | För tidigt (utom ACT-KILL rollback) |
+| STABLE + senare qualitative drift-spike | Beslut för tidigt |
+| 100% ACCEPT-UNKNOWN → STABLE | Inflation — inget lärande sker |
+
+### Grön STABLE (exempel)
+
+```
+2026-07-10 | coach_primary_v1 | LEARNING d14 | ambiguity flat | bypass flat |
+non-adoption baseline | intent:ok | ACCEPT-UNKNOWN | STABLE | @product
+```
+
+En rad. Inga bilagor. Beslutet är spårbart.
+
+---
+
+## Beslut under tryck — snabbreferens
+
+| Situation | Fel reflex | Rätt beslut |
+|-----------|------------|-------------|
+| Osäker, metrics flat | Vänta | ACCEPT-UNKNOWN eller STABLE om kriterier uppfyllda |
+| Osäker, metrics stigande | ACCEPT-UNKNOWN | INVESTIGATE eller DRIFT |
+| "Ingen tid för review" | Skippa | 15 min HOLD + nästa datum |
+| Ledning vill "mer data" efter d21 | Förläng LEARNING | STABLE eller INVESTIGATE med deadline |
+| Support nämner förvirring | Ignorera p.g.a. låg conflict | DRIFT → qualitative path 3 |
+
+---
+
+## Governance health (kvartalsvis, 30 min)
+
+Utöver veckovis L1 — granska **hur** beslut fattas:
+
+1. Andel releases med beslut ≤2d efter LEARNING d14
+2. Andel ACCEPT-UNKNOWN med komplett loggmall
+3. Antal INVESTIGATE overrun
+4. Korrelation: STABLE → senare DRIFT inom 30d (inflation?)
+5. En sak att förenkla i mallen (minska latency utan att mjuka epistemik)
+
+---
+
 ## En mening för L1
 
 > **När orsaken är okänd: dokumentera, klassificera intent, välj beslutstyp — vänta inte på att telemetrin ska berätta en historia den medvetet inte kan berätta.**
+
+> **Tempo är också governance: ett aktivt ACCEPT-UNKNOWN på dag 14 slår evig LEARNING. Ett STABLE utan loggrad är inte STABLE.**

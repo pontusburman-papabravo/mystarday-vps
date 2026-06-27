@@ -487,7 +487,16 @@ Modellen kan **inte** säkert svara på:
 - när ignorering är **önskvärd** vs **skadlig**
 - när användaren **lämnat hela beslutsparadigmet**
 
-Det räcker för säker drift — under förutsättning att L1 inte fyller luckorna med antaganden. **Operativ manual:** [L1-GOVERNANCE.md](L1-GOVERNANCE.md).
+Det räcker för säker drift — under förutsättning att L1 håller tempo och disciplin. **Operativ manual:** [L1-GOVERNANCE.md](L1-GOVERNANCE.md).
+
+**Full stack:**
+
+| # | Lager |
+|---|--------|
+| 1 | Multi-authority UX (A/B/C/D) |
+| 2 | Observability (3 axlar + epistemik) |
+| 3 | UX governance (change contract) |
+| 4 | Human decision (L1 — latency SLA, ACCEPT-UNKNOWN-disciplin) |
 
 ---
 
