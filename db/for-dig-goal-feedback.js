@@ -51,6 +51,66 @@ async function insertFeedback({
   return result.rows[0].id;
 }
 
+async function upsertOutcomeFeedback({
+  familyId,
+  parentId,
+  childId,
+  goalSlug,
+  outcomeScore,
+  freeText,
+}) {
+  const existing = await db.query(
+    `SELECT id FROM for_dig_goal_feedback
+     WHERE family_id = $1 AND child_id = $2 AND goal_slug = $3 AND phase = 'outcome'`,
+    [familyId, childId, goalSlug]
+  );
+  if (existing.rows.length > 0) {
+    await db.query(
+      `UPDATE for_dig_goal_feedback
+       SET outcome_score = COALESCE($1, outcome_score),
+           free_text = COALESCE($2, free_text),
+           parent_id = COALESCE(parent_id, $4)
+       WHERE id = $3`,
+      [outcomeScore, freeText || null, existing.rows[0].id, parentId || null]
+    );
+    return { id: existing.rows[0].id, action: 'updated' };
+  }
+
+  const result = await db.query(
+    `INSERT INTO for_dig_goal_feedback
+       (family_id, parent_id, child_id, goal_slug, phase, outcome_score, free_text)
+     VALUES ($1, $2, $3, $4, 'outcome', $5, $6)
+     RETURNING id`,
+    [familyId, parentId, childId, goalSlug, outcomeScore, freeText || null]
+  );
+  return { id: result.rows[0].id, action: 'created' };
+}
+
+async function listPendingOutcomesForFamily(familyId) {
+  const result = await db.query(
+    `SELECT i.goal_slug, i.child_id, i.family_id,
+            COALESCE(i.parent_id, fi.parent_id) AS parent_id
+     FROM for_dig_goal_install i
+     JOIN for_dig_goal_feedback fi
+       ON fi.family_id = i.family_id
+      AND fi.child_id = i.child_id
+      AND fi.goal_slug = i.goal_slug
+      AND fi.phase = 'intent'
+     WHERE i.family_id = $1
+       AND i.installed_at <= NOW() - INTERVAL '7 days'
+       AND NOT EXISTS (
+         SELECT 1 FROM for_dig_goal_feedback fo
+         WHERE fo.family_id = i.family_id
+           AND fo.child_id = i.child_id
+           AND fo.goal_slug = i.goal_slug
+           AND fo.phase = 'outcome'
+       )
+     ORDER BY i.installed_at ASC`,
+    [familyId]
+  );
+  return result.rows;
+}
+
 async function clearFeedbackForReactivation(familyId, childId, goalSlug) {
   await db.query(
     `DELETE FROM for_dig_goal_feedback
@@ -469,6 +529,8 @@ async function listInstallLog({ goalSlug, days = 90, limit = 100, offset = 0 } =
 
 module.exports = {
   insertFeedback,
+  upsertOutcomeFeedback,
+  listPendingOutcomesForFamily,
   clearFeedbackForReactivation,
   logInstall,
   getInstallsForFamily,

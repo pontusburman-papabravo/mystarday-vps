@@ -223,12 +223,13 @@ async function getResponse(id) {
   return result.rows[0] || null;
 }
 
-async function submitResponse(id, { gdpr_consent, respondent_email }) {
+async function submitResponse(id, { gdpr_consent, respondent_email, campaign_ref }) {
   const result = await db.query(
     `UPDATE survey_responses
-     SET status = 'submitted', submitted_at = NOW(), gdpr_consent = $2, respondent_email = $3, updated_at = NOW()
+     SET status = 'submitted', submitted_at = NOW(), gdpr_consent = $2, respondent_email = $3,
+         campaign_ref = COALESCE($4, campaign_ref), updated_at = NOW()
      WHERE id = $1 RETURNING *`,
-    [id, gdpr_consent ?? false, respondent_email ?? null]
+    [id, gdpr_consent ?? false, respondent_email ?? null, campaign_ref ?? null]
   );
   return result.rows[0] || null;
 }

@@ -151,6 +151,7 @@
     let currentQuestionIndex = 0;
     let answers = {}; // questionId → { answer_text, selected_option_ids, freetext_value, scale_value }
     let cookieToken = null;
+    let campaignRef = '';
     let allVisibleQuestions = []; // filtered by conditional logic
 
     // ── Init ────────────────────────────────────────────────────────────────
@@ -160,6 +161,8 @@
       // Get slug from URL: /tyck/[slug]
       const slug = location.pathname.replace(/^\/tyck\//, '').replace(/\/+$/, '');
       if (!slug) return showError('Ingen enkät angiven', '');
+
+      campaignRef = new URLSearchParams(location.search).get('ref') || '';
 
       // Cookie token for duplicate detection
       cookieToken = getCookieToken();
@@ -531,6 +534,7 @@
             gdpr_consent: gdprConsent,
             respondent_email: email || contestEmail, // contest email doubles as respondent email
             contest_gdpr_consent: contestGdpr,
+            campaign_ref: campaignRef || undefined,
           }),
         });
         const data = await res.json();

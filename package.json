@@ -13,6 +13,7 @@
     "rollout:growth": "bash scripts/rollout-growth-plan-prod.sh",
     "seed:for-dig-followup": "node scripts/seed-for-dig-followup-surveys.js",
     "send:for-dig-followup": "node scripts/send-for-dig-followup-emails.js",
+    "backfill:for-dig-survey-outcomes": "node scripts/backfill-for-dig-survey-outcomes.js",
     "dump:routes": "node scripts/dump-routes.js --write",
     "check:routes": "node scripts/dump-routes.js --check",
     "export:families": "node scripts/export-family-data.js",

@@ -201,14 +201,32 @@ publicRouter.post('/responses/:rid/submit', async (req, res) => {
     if (!allowed) {
       return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
     }
-    const { gdpr_consent, respondent_email, contest_gdpr_consent } = req.body;
+    const { gdpr_consent, respondent_email, contest_gdpr_consent, campaign_ref } = req.body;
     const response = await db.getResponse(req.params.rid);
     if (!response) return res.status(404).json({ error: 'Session hittades inte' });
     if (response.status === 'submitted') return res.status(409).json({ error: 'Enkäten är redan inskickad' });
-    const submitted = await db.submitResponse(req.params.rid, { gdpr_consent, respondent_email });
+    const submitted = await db.submitResponse(req.params.rid, {
+      gdpr_consent,
+      respondent_email,
+      campaign_ref: campaign_ref || null,
+    });
 
     // Get survey for thank-you config + contest
     const survey = await db.getSurveyById(response.survey_id);
+
+    // För dig follow-up: sync PU1 → for_dig_goal_feedback outcome rows
+    try {
+      const { syncSurveyResponseToForDigOutcomes } = require('../../lib/for-dig-survey-outcome-runner');
+      const syncResult = await syncSurveyResponseToForDigOutcomes({
+        responseId: req.params.rid,
+        campaignRef: campaign_ref || null,
+      });
+      if (syncResult.synced > 0) {
+        console.log('[SURVEYS] for-dig outcome sync:', syncResult);
+      }
+    } catch (syncErr) {
+      console.error('[SURVEYS] for-dig outcome sync error:', syncErr.message);
+    }
 
     // Del 4: record contest entry if contest is enabled and respondent consented with email
     let contestEntered = false;

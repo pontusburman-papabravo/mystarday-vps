@@ -15,6 +15,7 @@ loadEnvFile();
 const config = require('../src/lib/config');
 const { sendEmail } = require('../src/lib/email');
 const { buildFollowupEmails, buildEmailBody } = require('../src/lib/for-dig-followup-campaign');
+const { buildSurveyUrl } = require('../src/lib/for-dig-survey-outcome-sync');
 
 function parseArgs(argv) {
   const opts = { send: false, to: null, key: null };
@@ -48,7 +49,7 @@ async function main() {
   console.log(`Från: ${config.email.fromName} <${config.email.from}>\n`);
 
   for (const row of rows) {
-    const surveyUrl = `${baseUrl}/tyck/${row.surveySlug}`;
+    const surveyUrl = buildSurveyUrl(baseUrl, row.surveySlug, row.key);
     const body = buildEmailBody({
       greeting: row.greeting,
       body: row.body,
