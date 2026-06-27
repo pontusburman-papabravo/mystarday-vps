@@ -1,9 +1,9 @@
 'use strict';
 
 const db = require('./db');
-const surveyDb = require('../db/surveys');
-const feedbackDb = require('../db/for-dig-goal-feedback');
-const analytics = require('../db/analytics');
+const surveyDb = require('../../db/surveys');
+const feedbackDb = require('../../db/for-dig-goal-feedback');
+const analytics = require('../../db/analytics');
 const {
   isForDigFollowupSurvey,
   resolveCampaignRecipientEmail,
