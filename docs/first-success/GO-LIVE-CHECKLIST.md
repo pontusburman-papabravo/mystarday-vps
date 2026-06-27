@@ -23,5 +23,5 @@ När alla 10 är gröna är systemet redo att testas mot verkligt användarbetee
 
 ## Efter release (operativt)
 
-- **Dag 7:** semantiska signaler — [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md)
-- **Dag 14:** Go/No-Go + 2-min shortcut i samma doc
+- **Dag 7:** 30 min agenda — [DAY-7-14-REVIEW-AGENDA.md](DAY-7-14-REVIEW-AGENDA.md)
+- **Dag 14:** 45 min + GO/NO-GO — samma doc

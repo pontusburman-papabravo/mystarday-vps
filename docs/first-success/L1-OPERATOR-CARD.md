@@ -5,7 +5,7 @@
 
 Full kontext: [L1-GOVERNANCE.md](L1-GOVERNANCE.md) · [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md)  
 **Admin:** `#l1beslut` → Experiment → L1 beslut (coach)  
-**Dag 7/14:** [OPERATIONAL-TRUTH.md](OPERATIONAL-TRUTH.md) · [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md)  
+**Dag 7/14:** [DAY-7-14-REVIEW-AGENDA.md](DAY-7-14-REVIEW-AGENDA.md) (30+45 min) · [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md)  
 **Veckovis (observer only):** [OBSERVER-WEEKLY-DASHBOARD.md](OBSERVER-WEEKLY-DASHBOARD.md)
 
 ---

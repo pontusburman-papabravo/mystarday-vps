@@ -35,7 +35,7 @@ Under hela perioden: låt rekommendationer finnas, men **inga produktändringar*
 
 Syfte: se om **processen och semantisk separation** fungerar — inte om coachen "vinner".
 
-**Full guide:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) (dag 7: tre signaler · dag 14: rubric + script + 2-min shortcut)
+**Full guide:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) · **Exakt agenda:** [DAY-7-14-REVIEW-AGENDA.md](DAY-7-14-REVIEW-AGENDA.md)
 
 ### Process (ja/nej)
 
@@ -68,7 +68,8 @@ Syfte: se om **processen och semantisk separation** fungerar — inte om coachen
 
 ## Dag 14 — första riktiga L1-beslut
 
-**Operativt:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) — Go/No-Go rubric, decision script, 2-min sanity shortcut.
+**Operativt:** [DAY-14-SEMANTIC-REVIEW.md](DAY-14-SEMANTIC-REVIEW.md) — Go/No-Go rubric, decision script, 2-min sanity shortcut.  
+**Exakt agenda:** [DAY-7-14-REVIEW-AGENDA.md](DAY-7-14-REVIEW-AGENDA.md) — 30 min dag 7 · 45 min dag 14.
 
 ### Mät tre saker (inte fler)
 
