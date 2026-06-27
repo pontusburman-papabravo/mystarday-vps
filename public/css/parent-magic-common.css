@@ -357,20 +357,31 @@ body.parent-magic-view:not(.parent-theme-light) .section-card .text-text-soft {
   color: rgba(244, 244, 255, 0.72) !important;
 }
 
-/* White cards that keep a light surface in dark magic — force readable dark text */
+/* Calendar day columns keep a light surface in dark magic — force readable dark text.
+   Daily-log activity cards use bg-white but are re-tinted dark via the rule above;
+   they must NOT be listed here or text becomes invisible (#1B2340 on dark bg). */
 body.parent-magic-view:not(.parent-theme-light) .day-col,
 body.parent-magic-view:not(.parent-theme-light) .day-col .act-name,
-body.parent-magic-view:not(.parent-theme-light) .day-col .section-label,
-body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white,
-body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-navy,
-body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .activity-name,
-body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-text-soft {
+body.parent-magic-view:not(.parent-theme-light) .day-col .section-label {
   color: #1B2340 !important;
 }
 
-body.parent-magic-view:not(.parent-theme-light) .activity-card.bg-white .text-text-soft,
 body.parent-magic-view:not(.parent-theme-light) .day-col .section-label {
   color: #5A6178 !important;
+}
+
+/* Daily log — activity cards inherit dark magic panel bg; keep light text */
+body.parent-magic-view:not(.parent-theme-light)[data-magic-page="daily-log"] #logContent .activity-card .text-navy,
+body.parent-magic-view:not(.parent-theme-light)[data-magic-page="daily-log"] #logContent .activity-card .activity-name {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light)[data-magic-page="daily-log"] #logContent .activity-card .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light)[data-magic-page="daily-log"] #logContent .activity-card.completed .activity-name {
+  color: rgba(244, 244, 255, 0.55) !important;
 }
 
 body.parent-magic-view:not(.parent-theme-light) .child-tab.border-lavender {
