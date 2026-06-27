@@ -494,16 +494,60 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const refresh = document.getElementById('l1GovernanceRefreshBtn');
-    const save = document.getElementById('l1SaveDecisionBtn');
-    const override = document.getElementById('l1Override');
-    const edge = document.getElementById('l1EdgeCase');
-    if (refresh) refresh.addEventListener('click', function () { loadL1GovernanceAdmin(true); });
-    if (save) save.addEventListener('click', saveL1Decision);
-    if (override) override.addEventListener('change', updatePreview);
-    if (edge) edge.addEventListener('change', updatePreview);
-  });
+  async function onRefreshClick() {
+    const btn = document.getElementById('l1GovernanceRefreshBtn');
+    const status = document.getElementById('l1SaveStatus');
+    const label = btn ? btn.textContent : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Uppdaterar…';
+    }
+    if (status) status.textContent = 'Hämtar L1-data…';
+    try {
+      await loadL1GovernanceAdmin(true);
+      if (status) {
+        status.textContent = 'Uppdaterad ' + new Date().toLocaleTimeString('sv-SE');
+        status.className = 'text-sm mt-3 text-green-700';
+      }
+    } catch (err) {
+      if (status) {
+        status.textContent = err.message || 'Kunde inte uppdatera.';
+        status.className = 'text-sm mt-3 text-red-600';
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label || '↺ Uppdatera';
+      }
+    }
+  }
+
+  /** Delegation on section — survives re-render; direct bind missed refresh on some loads. */
+  function bindSectionControls() {
+    const section = document.getElementById('l1GovernanceSection');
+    if (!section || section.dataset.l1ControlsBound === '1') return;
+    section.dataset.l1ControlsBound = '1';
+    section.addEventListener('click', function (e) {
+      if (e.target.closest('#l1GovernanceRefreshBtn')) {
+        e.preventDefault();
+        onRefreshClick();
+        return;
+      }
+      if (e.target.closest('#l1SaveDecisionBtn')) {
+        e.preventDefault();
+        saveL1Decision();
+      }
+    });
+    section.addEventListener('change', function (e) {
+      if (e.target.id === 'l1Override' || e.target.id === 'l1EdgeCase') updatePreview();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindSectionControls);
+  } else {
+    bindSectionControls();
+  }
 
   window.loadL1GovernanceAdmin = loadL1GovernanceAdmin;
 })();
