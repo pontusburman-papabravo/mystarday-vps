@@ -3,7 +3,7 @@
 > **Inte en PR. Inte migration.**  
 > Operativ modell för att hålla *upplevd beslutssingularitet* stabil i drift.
 
-Relaterat: [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [CHANGE-SURFACE-CONTRACT.md](CHANGE-SURFACE-CONTRACT.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
+Relaterat: [PROD-OPERATING-ENVELOPE.md](PROD-OPERATING-ENVELOPE.md), [CHANGE-SURFACE-CONTRACT.md](CHANGE-SURFACE-CONTRACT.md), [L1-GOVERNANCE.md](L1-GOVERNANCE.md), [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
 
 ---
 
@@ -487,7 +487,7 @@ Modellen kan **inte** säkert svara på:
 - när ignorering är **önskvärd** vs **skadlig**
 - när användaren **lämnat hela beslutsparadigmet**
 
-Det räcker för säker drift — under förutsättning att L1 inte fyller luckorna med antaganden.
+Det räcker för säker drift — under förutsättning att L1 inte fyller luckorna med antaganden. **Operativ manual:** [L1-GOVERNANCE.md](L1-GOVERNANCE.md).
 
 ---
 
@@ -512,7 +512,7 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 - [ ] STABLE ej deklarerad vid hög non-adoption + intent-gap
 - [ ] Ambiguity heatmap Z1–Z2 prioriterad i första 14d
 - [ ] DRIFT eskaleringsväg inkl. kill switch testad
-- [ ] Ingen automatisk governance från metrics
+- [ ] L1 governance: beslutstyper + LEARNING exit (max 21d) — se [L1-GOVERNANCE.md](L1-GOVERNANCE.md)
 
 ---
 
