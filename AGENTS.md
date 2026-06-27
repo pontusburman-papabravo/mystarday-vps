@@ -6,6 +6,22 @@ This repo is a Swedish family-routine app (Express.js + PostgreSQL, static front
 
 The startup update script already installs npm dependencies. The notes below are the non-obvious things needed to run/test the app here.
 
+### Recommended Update Script (Cursor → Cloud Agents → Environment)
+
+Paste this into the environment **Update Script** field. It pins Node 20, installs dev deps, starts Postgres, bootstraps the local role/database from `DATABASE_URL`, then migrates:
+
+```bash
+set -euo pipefail
+export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
+nvm install 20 2>/dev/null || true
+npm install --include=dev --legacy-peer-deps
+sudo pg_ctlcluster 16 main start || true
+./scripts/cloud-agent-bootstrap.sh
+npm run migrate
+```
+
+Without `./scripts/cloud-agent-bootstrap.sh`, `npm run migrate` fails on fresh VMs with `password authentication failed` because the Postgres role from `DATABASE_URL` does not exist yet.
+
 ### Runtime versions
 - The project pins **Node 20** (`.nvmrc`). The VM default `node` (`/exec-daemon/node`) is Node 22 and takes priority on `PATH`, so prepend Node 20 explicitly in any shell that runs app/test commands:
   `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (install once with `nvm install 20` if missing).
@@ -27,11 +43,7 @@ export REQUIRE_EMAIL_VERIFICATION="false"   # lets new accounts log in without e
 ```
 On Cursor Cloud, `DATABASE_URL` and `JWT_SECRET` are already injected as secrets — you do **not** set them manually. You only need to add `REQUIRE_EMAIL_VERIFICATION=false`. `NODE_ENV` is unfortunately injected at the deploy-mode value (see the gotcha above), so for **local dev you must override it explicitly** — run the dev server with `NODE_ENV=development …` and the test suite with `NODE_ENV=test …`. Do not rely on it being unset.
 
-The injected `DATABASE_URL` points at `localhost:5432` but uses a specific role/db name (not literally `stjarndag`). The local Postgres role + database must match whatever that secret contains. If a fresh VM is missing them, recreate from the secret without printing it, e.g.:
-```
-node -e 'const u=new URL(process.env.DATABASE_URL),{execFileSync:e}=require("child_process");const us=u.username,pw=decodeURIComponent(u.password),db=u.pathname.slice(1);e("sudo",["-u","postgres","psql","-v","ON_ERROR_STOP=1","-c",`DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='"'"'${us}'"'"') THEN CREATE ROLE "${us}" LOGIN PASSWORD '"'"'${pw}'"'"' SUPERUSER; END IF; END $$;`],{stdio:"inherit"});try{e("sudo",["-u","postgres","createdb","-O",us,db],{stdio:"inherit"})}catch(_){}'
-```
-then `npm run migrate`.
+The injected `DATABASE_URL` points at `localhost:5432` but uses a specific role/db name (not literally `stjarndag`). The local Postgres role + database must match whatever that secret contains. If a fresh VM is missing them, run `./scripts/cloud-agent-bootstrap.sh` (also included in the recommended Update Script above), then `npm run migrate`.
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 
