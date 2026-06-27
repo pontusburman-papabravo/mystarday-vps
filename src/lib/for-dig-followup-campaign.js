@@ -193,13 +193,18 @@ async function seedFollowupSurveys() {
   for (const surveyData of surveys) {
     const existing = await surveyDb.getSurveyBySlug(surveyData.slug);
     if (existing) {
-      if (existing.status !== 'active') {
+      const full = await surveyDb.getSurveyFull(existing.id);
+      const hasQuestions = full && Array.isArray(full.questions) && full.questions.length > 0;
+      if (!hasQuestions) {
+        await surveyDb.deleteSurvey(existing.id);
+      } else if (existing.status !== 'active') {
         await surveyDb.updateSurvey(existing.id, { status: 'active' });
         seeded.push({ slug: surveyData.slug, action: 'activated', id: existing.id });
+        continue;
       } else {
         seeded.push({ slug: surveyData.slug, action: 'skipped', id: existing.id });
+        continue;
       }
-      continue;
     }
 
     const survey = await surveyDb.createSurvey({
