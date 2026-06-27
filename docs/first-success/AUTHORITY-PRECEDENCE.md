@@ -40,16 +40,32 @@ Relaterat: [DECISION-BOUNDARIES.md](DECISION-BOUNDARIES.md), [ENGINE_SPEC.md](EN
 
 ## PR1-hård regel (anti dual-system drift)
 
-> **A får bara påverka UI där B/C/D inte redan tar samma beslut.**
+> **A får bara påverka UI där B/C/D inte redan tar samma beslut** — *utom* den **exklusiva monopol-ytan**.
 
-I PR1 betyder det:
+### Exklusiv A-monopol-yta (PR1 wedge)
+
+| Egenskap | Värde |
+|----------|--------|
+| DOM | `#engineCoachMount` |
+| Semantik | **Enda** “nästa bästa handling” (primary intent) på Hem |
+| Auktoritet | **Endast A** får skriva `innerHTML` / visa primär CTA här |
+| B/C/D | **Förbjudna** att mounta, injicera eller duplicera coach i denna nod |
+
+**Kontrakt (kod + docs):**
+
+- `home-readiness.js`, `dashboard-cta.js`, `activation-program-*` får **aldrig** referera `#engineCoachMount`.
+- Readiness får finnas **under** (operativ kö) — inte samma semantik som monopol-kortet.
+- CTA-banners (medförälder, dela appen) lever i **egna** banners — inte i coach-slottet.
+
+Detta gör PR1 till **första riktiga auktoritetsskiftet** (en yta), inte bara instrumentation.
+
+### Övriga ytor (oförändrade i PR1)
 
 | Tillåtet | Förbjudet |
 |----------|-----------|
-| Ny mount `#engineCoachMount` med **ett** kort | Ersätta/redigera `#homeReadinessMount` |
-| Visa Engine policy som **observation** (dev/flag) | Dölja readiness när Engine har annan policy |
-| Logga `engine_authority_conflict` vid överlapp | Låta två “nästa steg”-CTAs synas utan logg |
-| CTA som **endast** kommer från `policy.name` + voice | `if (stars)` / `parent_count` i engine-coach |
+| Monopol-kort i `#engineCoachMount` | Ersätta/redigera `#homeReadinessMount` |
+| Konfliktlogg när B/C **duplicerar samma intent** utanför monopol-ytan | Dölja readiness/CTAs |
+| Flag av → tom `#engineCoachMount` | Auth/onboarding-ändringar |
 
 ---
 

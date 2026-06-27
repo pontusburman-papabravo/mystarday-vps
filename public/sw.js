@@ -216,8 +216,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v395';
-// stjarndag-v395: ACT-1 onboarding blank-screen fix; redirect incomplete onboarding to wizard
+const CACHE_NAME = 'stjarndag-v396';
+// stjarndag-v396: Product Engine coach — exclusive #engineCoachMount on Hem
 // stjarndag-v394: Admin familjer/meddelanden load fix; FAB positioning; magic contrast on white cards
 // stjarndag-v393: App Store-badge inline SVG (fix trasig bild)
 // stjarndag-v386: Beskär-modal — z-index över tab bar, sticky Spara-knapp
