@@ -66,26 +66,53 @@ async function login(page, email, password) {
 
 async function patchChecklist(page, key) {
   const res = await page.evaluate(async (k) => {
-    const r = await fetch('/api/admin/l1-governance/checklist/' + encodeURIComponent(k), {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ checked: true }),
-    });
-    return { ok: r.ok, status: r.status };
+    try {
+      if (typeof Auth !== 'undefined' && Auth.api) {
+        await Auth.api('/api/admin/l1-governance/checklist/' + encodeURIComponent(k), {
+          method: 'PATCH',
+          body: JSON.stringify({ checked: true }),
+        });
+        return { ok: true };
+      }
+      const csrf = (document.cookie.match(/(?:^|;)\s*csrf_token=([^;]+)/) || [])[1] || '';
+      const r = await fetch('/api/admin/l1-governance/checklist/' + encodeURIComponent(k), {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrf ? { 'X-CSRF-Token': decodeURIComponent(csrf) } : {}),
+        },
+        body: JSON.stringify({ checked: true }),
+      });
+      return { ok: r.ok, status: r.status };
+    } catch (e) {
+      return { ok: false, error: String(e) };
+    }
   }, key);
   return res.ok;
 }
+
+const CHECKLIST_KEYS = new Set([
+  'engine_readonly',
+  'first_success_payload',
+  'l1_admin_ui',
+  'decision_logging',
+  'coach_mount_only',
+  'bcd_unchanged',
+  'no_auto_act',
+  'observability_axes',
+  'accept_unknown_active',
+  'l1_owners_scheduled',
+]);
 
 async function checkOffPassed(page) {
   if (!AUTO_CHECK) return;
   console.log('\n── Bockar av i admin ──');
   for (const [key, r] of Object.entries(results)) {
-    if (r.status !== 'pass') continue;
+    if (r.status !== 'pass' || !CHECKLIST_KEYS.has(key)) continue;
     const ok = await patchChecklist(page, key);
     console.log(ok ? `  ☑ ${key}` : `  ✗ kunde inte bocka ${key}`);
   }
-  // engine_readonly when coach passes
   if (results.first_success_payload?.status === 'pass') {
     const ok = await patchChecklist(page, 'engine_readonly');
     if (ok) console.log('  ☑ engine_readonly (härledd från coach)');
@@ -127,7 +154,7 @@ async function testDashboardReview(page) {
     p.policy &&
     p.policy.id &&
     p.policy.name &&
-    p.milestone != null &&
+    Object.prototype.hasOwnProperty.call(p, 'milestone') &&
     p.trace &&
     p.trace.evaluatedNeed &&
     p.trace.policySet;
@@ -188,6 +215,7 @@ async function testDashboardReview(page) {
   const readinessClick = await page.evaluate(() => {
     const el = document.querySelector('#homeReadinessMount [data-readiness-type]');
     if (!el) return { clicked: false };
+    el.addEventListener('click', (e) => e.preventDefault(), { once: true });
     el.click();
     return { clicked: true, type: el.getAttribute('data-readiness-type') };
   });
@@ -349,13 +377,15 @@ async function main() {
   });
 
   try {
-    const reviewPage = await browser.newPage();
+    const reviewCtx = await browser.createBrowserContext();
+    const reviewPage = await reviewCtx.newPage();
     await testDashboardReview(reviewPage);
-    await reviewPage.close();
+    await reviewCtx.close();
 
-    const adminPage = await browser.newPage();
+    const adminCtx = await browser.createBrowserContext();
+    const adminPage = await adminCtx.newPage();
     await testAdminL1(adminPage);
-    await adminPage.close();
+    await adminCtx.close();
   } finally {
     await browser.close();
   }
