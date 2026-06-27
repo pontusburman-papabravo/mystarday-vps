@@ -375,7 +375,7 @@ missing_pin          → Z1, överlappar SHOW_CHILD
 ## Veckovis stability review (15 min)
 
 1. **Ambiguity heatmap** — Z1/Z2 events, trend?
-2. **Non-adoption** — structural ignore, outcome without A?
+2. **Non-adoption** — structural ignore, outcome without A? **Tolkning: unknown cause — ej auto-success/failure**
 3. **Proxy pairs** — ambiguity rate **och** intent bypass — samma riktning?
 4. **Conflict top-3** — system truth, divergerar den från perception?
 5. **Invite split** — C vs A när `INVITE_CO_PARENT`?
@@ -395,17 +395,99 @@ Mall sparas i review-anteckningar — inte i kod.
 3. **Ny A-yta för att "fixa" drift** — utökar problemet
 4. **Systemspråk i UI** — bryter narrative injection layer
 5. **Change utan `release_id`** — bryter UX governance layer
-6. **"Allt mätt = allt förstått"** — non-adoption kräver egen axel i review
+6. **"Allt mätt = allt förstått"** — non-adoption är unknown cause; signal closure fallacy
+7. **Unknown cause** — om non-adoption ↑ utan qualitative → förläng LEARNING, ej STABLE
 
 ---
 
 ## Modellens blinda fläck (medvetet)
 
-| Fråga modellen svarar på | Fråga modellen approximerar | Fråga utan direkt signal |
-|--------------------------|----------------------------|--------------------------|
-| När konkurrerar auktoriteter? | När är vi irrelevanta? | När bygger användaren helt egen strategi offline? |
+| Fråga modellen svarar på | Fråga modellen approximerar | Utanför modellen |
+|--------------------------|----------------------------|------------------|
+| När konkurrerar auktoriteter? | När är A irrelevant i grafen? | **Varför** A ignoreras |
+| När deltar A inte? | Latent substitution? | Off-platform / egen rutin utanför UI |
 
 Fas 3 (produktbeslut): direkta perception events — mikro-enkät, taggad support. **Ej scope för kod nu.**
+
+---
+
+## Epistemiska gränser — när modellen är "klar" men inte orsakssäker
+
+Modellen är **strukturellt komplett** för internt UX-beteende (competition + ambiguity + non-adoption partitionerar engagement space). Den är **inte kausalt komplett** — tystnad är inte insikt.
+
+### Signal closure fallacy (sista metodrisken)
+
+När alla beteendemönster har en kategori känns modellen uttömmande. Risken:
+
+> man börjar tolka **tystnad som insikt**
+
+Non-adoption är **inte en mätbar slutpunkt**. Det är en observation utan inbyggd orsak.
+
+### Non-adoption = unknown cause state
+
+| Tolkning | Betydelse | Ser likadant ut i proxies? |
+|----------|-----------|------------------------------|
+| **Designframgång** | Stabil mental modell; coach behövs inte | Ja |
+| **Total irrelevans** | Decision layer förstås/inte syns; workaround | Ja |
+| **Latent substitution** | Intent löses via off-graph system (vanor, andra föräldern, papper, egen rutin) | Delvis (outcome without A) |
+
+**Regler (analytiska, inte kod):**
+
+- 🟡 **non-adoption ≠ success signal**
+- 🟡 **non-adoption ≠ failure signal**
+- 🟡 **non-adoption = unknown cause state** tills qualitative eller intent-gap bryter dödläget
+
+STABLE med acceptabel non-adoption betyder: *"inom baseline, ingen eskalering"* — **inte** *"coachen fungerar"* eller *"coachen behövs inte"*.
+
+### Latent substitution behavior
+
+Användaren löser samma problem via ett system som **inte mappar till decision graph**:
+
+- förälder A gör allt i sidomenyn medan förälder B ignorerar Hem
+- familjen har extern rutin (kalender, papper) och appen är logg, inte beslut
+- barnet når intent utan att föräldern följer någon auktoritet i UI
+
+Detta är gränsen mellan **produktobservabilitet** och **beteendevetenskap**. Modellen flaggar *outcome without A*; den kan inte skilja substitution från framgång utan qualitative L1.
+
+### Från analytisk modell → styrbar produktmodell i drift
+
+| Analytisk modell (nu) | Styrbar i drift (kräver) |
+|-----------------------|--------------------------|
+| Ser competition / ambiguity / non-adoption | L1 tolkar **orsak** vid non-adoption |
+| Flaggar falsk STABLE | Intent-gap eskalerar även vid låg conflict |
+| Proxies korsvaliderade | Qualitative path obligatorisk vid state-transition |
+| Tystnad dokumenterad | "Unknown cause" antecknas — ingen auto-slutsats |
+
+**Driftregel:** Om non-adoption ↑ och qualitative är tyst → **fortsätt LEARNING**, deklarera inte STABLE. Okänd orsak är inte stabil.
+
+### Valfri framtida gräns (ej scope)
+
+*External decision substitution detection* — inferens om off-platform resolution (enkät, support-taggar, cohort-jämförelse). Utanför nuvarande instrumentation; produktbeslut om det behövs.
+
+---
+
+## Modellstatus
+
+**Decision observability i prod — komplett för intern UX-beteenderymd:**
+
+```
+Competition  │  aktivt val mellan auktoriteter
+Ambiguity    │  simultan perceptuell överlappning
+Non-adoption │  frånvaro i authority graph (unknown cause)
+```
+
+Modellen kan svara på:
+
+- när systemet **används**
+- när det **konkurrerar**
+- när det **ignoreras**
+
+Modellen kan **inte** säkert svara på:
+
+- när ignorering är **önskvärd** vs **skadlig**
+- när användaren **lämnat hela beslutsparadigmet**
+
+Det räcker för säker drift — under förutsättning att L1 inte fyller luckorna med antaganden.
 
 ---
 
@@ -436,4 +518,4 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 
 ## En mening att hålla sann i drift
 
-> **Modellen mäter när beslutsmotorer konkurrerar — och när A inte ens deltar i beslutet. STABLE kräver att båda axlarna är inom baseline; annars har vi mätt oss till falsk trygghet.**
+> **Modellen mäter när beslutsmotorer konkurrerar, när de överlappar i tid, och när A inte deltar — men inte varför. Non-adoption är unknown cause state: tolka den aldrig som framgång eller misslyckande utan L1.**
