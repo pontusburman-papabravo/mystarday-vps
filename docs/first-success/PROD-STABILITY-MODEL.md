@@ -56,9 +56,101 @@ Indikator att användarens **mental modell** divergerar från singular narrativ:
 | **Path oscillation** | Användaren byter beslutskälla utan att resolva | Coach click → tillbaka → readiness click (samma session) |
 | **Authority bypass** | Intent som coach uttrycker löses via annan auktoritet | `missing_pin` click när policy = `SHOW_CHILD` |
 | **Narrative rejection** | Intro/coach ignoreras systematiskt | Impression utan resolution, readiness-only flow |
-| **Qualitative PDS** | Uttryckt förvirring | Support, feedback, enkät |
+| **Authority non-adoption** | A exponerad men deltar inte i beslutsgrafen | Se avsnitt nedan — inte conflict, inte ambiguity |
+| **Qualitative PDS** | Uttryckt förvirring eller devalvering | Support, feedback, enkät |
 
 **Kritisk punkt (proxy-collapse):** Klick, invite och CTA-interaktion är **resolution events** — de bevisar att *något* valdes, inte att användaren upplevde *ett* val.
+
+**Kritisk punkt (model completeness illusion):** Heatmaps, windows och proxy-regler gör modellen **körbar** — inte **uttömmande**. Om allt är mätt betyder det inte att allt är förstått. Modellen svarar primärt på *"när konkurrerar beslutsmotorer?"* — inte fullt ut på *"när är vi inte ens med i beslutet?"*
+
+---
+
+## Tre lägen i beslutsgrafen
+
+Användaren kan reagera på multi-authority Hem på tre sätt — endast två fångas väl av ambiguity/bypass:
+
+| Läge | Vad som händer | Signaltyp | Fångas av |
+|------|----------------|-----------|-----------|
+| **Competition** | Användaren väljer aktivt mellan A och B/C | Resolution på fel auktoritet | Ambiguity, bypass |
+| **Ambiguity** | Flera paths känns jämbördiga i samma ögonblick | Temporal overlap | Ambiguity window |
+| **Non-adoption** | A exponerad men **strukturellt ignorerad** — beslut sker utanför A:s graf | Non-participation | Delvis (se nedan) |
+
+```
+Competition:   A ──exposure──► användaren ──resolution──► B/C
+Ambiguity:     A + B/C synliga ──► resolution B/C inom 10s
+Non-adoption:  A ──exposure──► användaren ──► (ingen resolution via A eller konkurrens)
+                              └── egen väg: quick actions, hub, vanemässig navigering
+```
+
+Non-adoption är **inte** låg CTR. Låg CTR kan betyda "tydligt val" eller "irrelevant coach". Skillnaden avgörs av om intent ändå löses **utan** A och **utan** synlig konkurrens med B/C.
+
+---
+
+## Authority salience vs authority absence
+
+| | Salience | Absence |
+|---|----------|---------|
+| **Fråga** | Märker användaren att A föreslår något? | Är A del av beslutsytan alls? |
+| **Proxies** | Impressions, intro dismiss, scroll past | Non-adoption signal (nedan) |
+| **Risk** | Ambiguity / competition | **Silent drift** — systemet ser lugnt ut, A är dekor |
+
+**Authority absence** = användaren devalverar hela beslutsarkitekturen till bakgrundsinfo och bygger egen strategi (vanor, sidomeny, quick actions, magic hub).
+
+Det syns inte i:
+
+- clicks på coach (inga)
+- conflicts (inga — B/C är inte "mot" A i systemets ögon)
+- resolution windows (ingen resolution i A:s graf)
+
+Det kan synas i:
+
+- readiness/hub/quick-action resolution **utan** föregående coach-engagemang
+- upprepad coach exposure, noll coach resolution, intent ändå uppfyllt (server-side milestone)
+- qualitative: "jag använder inte det där kortet"
+
+---
+
+## Authority non-adoption signal
+
+**Definition:** A är exponerad (`coach` impression, policy satt), men användaren går **inte** in i konkurrens med B/C — A ignoreras strukturellt och beslutet löses via annan väg eller uteblir.
+
+| Egenskap | Authority bypass | Authority non-adoption |
+|----------|------------------|------------------------|
+| A deltar i grafen? | Ja — coach intent erkänd, annan auktoritet vald | Nej — A behandlas som bakgrund |
+| Konflikt loggas? | Ofta ja | Ofta **nej** |
+| Ambiguity window? | Ofta ja | Ofta **nej** (ingen temporal konkurrens) |
+| STABLE-fälla | Missad om endast conflict mäts | Missad om endast CTR/ambiguity mäts |
+
+### Non-action perception drift
+
+När användaren **inte** klickar och **inte** resolverar inom window, men mental modellen ändå flyttas:
+
+- ignorerar coach, följer readiness som vanemässig checklista
+- använder quick actions / `#parentHomeHubMount` / sidomeny
+- bygger egen rutin utan att tolka "nästa steg"-kortet som beslut
+
+Detta är **non-action perception drift** — osynlig i click/conflict/window, synlig i adoption + outcome-gap.
+
+### Proxies för non-adoption (fas 1, befintliga events)
+
+| Proxy | Indikator | Tolkning |
+|-------|-----------|----------|
+| **Structural ignore** | ≥2 coach impressions/7d, 0 coach clicks, ≥1 `readiness_action_click` eller `nav_hub_click` | B/hub ersätter A utan konkurrens |
+| **Outcome without A** | `child_access_completed` / milestone utan `engine_coach_cta_click` i samma familj-period | A irrelevant för faktiskt beteende |
+| **Intro dismiss + no follow** | Change notice dismissed, ingen coach click inom session | Narrativ accepterat, A devalverat |
+| **Hub-only path** | Session med magic hub interaction, coach synlig, ingen coach click | Architecture bypass |
+
+**Validering:** structural ignore **+** (outcome without A **eller** qualitative) → non-adoption bekräftad. Ensam låg CTR räcker inte.
+
+### Vad non-adoption betyder för STABLE
+
+| Mönster | Tolkning |
+|---------|----------|
+| Låg ambiguity + låg bypass + **hög non-adoption** | A är inte farlig — den är **irrelevant**. STABLE på competition-metrics är missvisande. |
+| Hög non-adoption + intent uppfyllt | Användaren klarar sig utan A — fråga är copy/salience, inte conflict |
+| Hög non-adoption + intent ej uppfyllt | A misslyckas tyst — värre än DRIFT (ingen synlig friktion) |
+
+**LEARNING ska mäta non-adoption parallellt med ambiguity** — annars fångar den konkurrens men inte frånvaro av konkurrens där A borde ha haft effekt.
 
 ---
 
@@ -208,7 +300,17 @@ Scenario: system truth ser bra ut, perceived truth är dålig.
 | Användare fortfarande förvirrade | Proxies mäter behavioral convergence, inte cognitive convergence |
 | Missad DRIFT | Ensam proxy utan korsvalidering |
 
-**Motgift:** proxy validation rule + ambiguity window + qualitative path vid state-transition.
+### 5. Model completeness illusion (metodrisk)
+
+När heatmap, windows och proxy-regler finns känns modellen "klar".
+
+| Symptom | Orsak |
+|---------|--------|
+| "Allt är mätt → allt är förstått" | Non-adoption och non-action drift utanför decision graph |
+| STABLE + låg conflict | A kan vara irrelevant, inte framgångsrik |
+| Ingen eskalering | Tyst devalvering av hela beslutsarkitekturen |
+
+**Motgift:** authority non-adoption som tredje axel vid LEARNING och state-review — inte ny instrumentation dag 1.
 
 ---
 
@@ -225,8 +327,9 @@ Alla events finns redan. **Använd aldrig en proxy ensam för STABLE.**
 | **Invite split** | Resolution | CTA click vs coach `INVITE_CO_PARENT` | `engine_invite_vs_cta_banner` |
 | **Dual-path** | Resolution | Coach + readiness click samma session, Δt < 60s | Ambiguity rate |
 | **Coach adoption** | Resolution | `engine_coach_cta_click` / impressions | Coach ignore (inverse) |
+| **Non-adoption** | Absence | Structural ignore + outcome without A | Qualitative |
 | **Conflict rate** | Exposure (system) | `engine_authority_conflict` / sessions | — (system truth only) |
-| **Coach ignore** | Exposure→∅ | Impressions utan click 7d | Coach adoption |
+| **Coach ignore** | Exposure→∅ | Impressions utan click 7d | Non-adoption |
 
 ### Coach-semantik readiness-typer
 
@@ -261,24 +364,25 @@ missing_pin          → Z1, överlappar SHOW_CHILD
 
 | State | Kriterier | Tillåtna åtgärder |
 |-------|-----------|-------------------|
-| **LEARNING** | Första 14d efter ny `release_id` | Mät **ambiguity + bypass** (inte bara conflict/CTR); etablera baseline; inga B/C-ändringar |
-| **STABLE** | ≥2 proxies flat 2v **plus** ingen qualitative drift | Fortsätt mät; ev. copy-justering via ny `release_id` |
-| **DRIFT** | Korsvaliderad ambiguity/bypass ↑ 2v **eller** qualitative drift | L1 → L2 minimal B/C (Z1/Z2 först); kill switch redo |
+| **LEARNING** | Första 14d efter ny `release_id` | Mät **ambiguity + bypass + non-adoption**; etablera baseline; inga B/C-ändringar |
+| **STABLE** | ≥2 competition-proxies flat 2v **plus** non-adoption inom acceptabel baseline **plus** ingen qualitative drift | Fortsätt mät; ev. copy/salience via ny `release_id` |
+| **DRIFT** | Korsvaliderad ambiguity/bypass ↑ 2v **eller** non-adoption ↑ med intent-gap **eller** qualitative drift | L1 → L2 (Z1/Z2) eller salience/copy; kill switch redo |
 
-**LEARNING mäter fel om den bara tittar på system friction.** Den ska kalibrera ambiguity heatmap (Z1–Z5) och proxy validation thresholds.
+**LEARNING mäter fel om den bara tittar på system friction eller competition.** Den ska kalibrera ambiguity heatmap (Z1–Z5), proxy thresholds **och** non-adoption baseline.
 
 ---
 
 ## Veckovis stability review (15 min)
 
 1. **Ambiguity heatmap** — Z1/Z2 events, trend?
-2. **Proxy pairs** — ambiguity rate **och** intent bypass — samma riktning?
-3. **Conflict top-3** — system truth, divergerar den från perception?
-4. **Invite split** — C vs A när `INVITE_CO_PARENT`?
-5. **Narrativ check** — stämmer `why_it_matters` med exponerade paths?
-6. **Qualitative** — någon perception path 3?
-7. **State** — LEARNING / STABLE / DRIFT (kräv dubbel proxy för STABLE)
-8. **Beslut** — inget | dokumentera | L2 (specific zone) | kill switch
+2. **Non-adoption** — structural ignore, outcome without A?
+3. **Proxy pairs** — ambiguity rate **och** intent bypass — samma riktning?
+4. **Conflict top-3** — system truth, divergerar den från perception?
+5. **Invite split** — C vs A när `INVITE_CO_PARENT`?
+6. **Narrativ check** — stämmer `why_it_matters` med exponerade paths?
+7. **Qualitative** — förvirring **eller** "använder inte kortet"?
+8. **State** — LEARNING / STABLE / DRIFT (kräv dubbel proxy; STABLE ej vid hög non-adoption + intent-gap)
+9. **Beslut** — inget | dokumentera | L2 (zone) | salience/copy | kill switch
 
 Mall sparas i review-anteckningar — inte i kod.
 
@@ -291,6 +395,17 @@ Mall sparas i review-anteckningar — inte i kod.
 3. **Ny A-yta för att "fixa" drift** — utökar problemet
 4. **Systemspråk i UI** — bryter narrative injection layer
 5. **Change utan `release_id`** — bryter UX governance layer
+6. **"Allt mätt = allt förstått"** — non-adoption kräver egen axel i review
+
+---
+
+## Modellens blinda fläck (medvetet)
+
+| Fråga modellen svarar på | Fråga modellen approximerar | Fråga utan direkt signal |
+|--------------------------|----------------------------|--------------------------|
+| När konkurrerar auktoriteter? | När är vi irrelevanta? | När bygger användaren helt egen strategi offline? |
+
+Fas 3 (produktbeslut): direkta perception events — mikro-enkät, taggad support. **Ej scope för kod nu.**
 
 ---
 
@@ -310,8 +425,9 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 ## Acceptance (modellen i bruk)
 
 - [ ] Veckovis review schemalagd (ägare: produkt/eng)
-- [ ] LEARNING baseline: ambiguity rate + bypass (inte enbart conflict/CTR)
+- [ ] LEARNING baseline: ambiguity + bypass + **non-adoption**
 - [ ] Proxy validation rule tillämpas vid STABLE/DRIFT-beslut
+- [ ] STABLE ej deklarerad vid hög non-adoption + intent-gap
 - [ ] Ambiguity heatmap Z1–Z2 prioriterad i första 14d
 - [ ] DRIFT eskaleringsväg inkl. kill switch testad
 - [ ] Ingen automatisk governance från metrics
@@ -320,4 +436,4 @@ Det finns inget "PR2 feature" — bara **stability loop**.
 
 ## En mening att hålla sann i drift
 
-> **System truth får loggas i tysthet. Perceived truth kräver korsvaliderade proxies — annars tror vi att singular narrativ fungerar för att klick samlas på ett ställe, medan användaren fortfarande upplever flera beslutsmotorer.**
+> **Modellen mäter när beslutsmotorer konkurrerar — och när A inte ens deltar i beslutet. STABLE kräver att båda axlarna är inom baseline; annars har vi mätt oss till falsk trygghet.**
