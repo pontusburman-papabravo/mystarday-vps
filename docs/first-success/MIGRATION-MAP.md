@@ -5,7 +5,8 @@
 
 Se [ENGINE_SPEC.md](ENGINE_SPEC.md) för målarkitektur.  
 **Per-skärm beslutsgränser:** [DECISION-BOUNDARIES.md](DECISION-BOUNDARIES.md).  
-**Hem — vem styr vilken yta:** [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).
+**Hem — vem styr vilken yta:** [AUTHORITY-PRECEDENCE.md](AUTHORITY-PRECEDENCE.md).  
+**PR2 — influence radius & drift:** [AUTHORITY-PROPAGATION.md](AUTHORITY-PROPAGATION.md).
 
 ---
 
