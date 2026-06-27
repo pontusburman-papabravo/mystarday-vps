@@ -8,12 +8,44 @@ const {
   buildLogLine,
   questionPayload,
 } = require('../../lib/l1-governance-decide');
+const { computeGovernanceHealth } = require('../../lib/l1-governance-health');
 
 const router = express.Router();
 
 function learningDay(startedAt) {
   const ms = Date.now() - new Date(startedAt).getTime();
   return Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+}
+
+function computeGovernanceHealth(decisions, metrics) {
+  const n = decisions.length;
+  const overrides = decisions.filter((d) => d.answers?.used_override).length;
+  const acceptUnknown = decisions.filter((d) => d.decision_type === 'ACCEPT-UNKNOWN').length;
+  const followed = decisions.filter((d) => d.answers?.followed_recommendation).length;
+  const overrideRate = n ? Math.round((overrides / n) * 100) : null;
+  const acceptUnknownRate = n ? Math.round((acceptUnknown / n) * 100) : null;
+  const followRate = n ? Math.round((followed / n) * 100) : null;
+  const nonAdoptionMismatch =
+    metrics.coach_clicks_7d === 0 &&
+    metrics.child_access_completed_7d > 0 &&
+    metrics.readiness_clicks_7d > 0;
+
+  let gravityWarning = null;
+  if (followRate != null && followRate >= 85 && n >= 2) {
+    gravityWarning = 'recommendation_gravity';
+  }
+  if (acceptUnknownRate != null && acceptUnknownRate >= 70 && n >= 2) {
+    gravityWarning = gravityWarning || 'accept_unknown_heavy';
+  }
+
+  return {
+    decision_count: n,
+    override_rate_pct: overrideRate,
+    accept_unknown_rate_pct: acceptUnknownRate,
+    follow_recommendation_rate_pct: followRate,
+    non_adoption_mismatch_hint: nonAdoptionMismatch,
+    gravity_warning: gravityWarning,
+  };
 }
 
 // GET /api/admin/l1-governance
@@ -30,6 +62,7 @@ router.get('/l1-governance', async (req, res, next) => {
       draftAnswers[q.id] = q.recommended === 'yes';
     }
     const recommendation = recommendDecision(draftAnswers, { metrics, learning_day: day });
+    const governance_health = computeGovernanceHealth(decisions, metrics);
 
     res.json({
       release_id: ACTIVE_RELEASE_ID,
@@ -54,6 +87,7 @@ router.get('/l1-governance', async (req, res, next) => {
         ),
       },
       decisions,
+      governance_health,
     });
   } catch (err) {
     console.error('[ADMIN] l1-governance GET error:', err);
@@ -75,6 +109,8 @@ router.post('/l1-governance/decision', async (req, res, next) => {
       qualitative_drift: Boolean(answers.qualitative_drift),
       competition_drift: Boolean(answers.competition_drift),
       edge_case: Boolean(answers.edge_case),
+      used_override: Boolean(override_decision),
+      followed_recommendation: !override_decision && Boolean(confirm_recommendation),
     };
 
     let rec = recommendDecision(normalized, { metrics, learning_day: day });

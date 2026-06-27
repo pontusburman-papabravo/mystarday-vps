@@ -4,7 +4,8 @@
 > **Du:** bestämmer vad som är sant nog att agera på.
 
 Full kontext: [L1-GOVERNANCE.md](L1-GOVERNANCE.md) · [L1-UNDER-PRESSURE.md](L1-UNDER-PRESSURE.md)  
-**Admin:** `#l1beslut` → Experiment → L1 beslut (coach)
+**Admin:** `#l1beslut` → Experiment → L1 beslut (coach)  
+**Dag 7/14:** se [OPERATIONAL-TRUTH.md](OPERATIONAL-TRUTH.md)
 
 ---
 

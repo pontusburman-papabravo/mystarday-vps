@@ -166,6 +166,29 @@
       sla.className = 'text-sm font-semibold text-navy mt-1';
     }
     renderMetrics(data.metrics);
+    const gh = data.governance_health;
+    const healthEl = document.getElementById('l1GovernanceHealth');
+    if (gh && healthEl) {
+      healthEl.classList.toggle('hidden', !gh.decision_count);
+      document.getElementById('l1FollowRate').textContent =
+        gh.follow_recommendation_rate_pct != null ? gh.follow_recommendation_rate_pct + '%' : '—';
+      document.getElementById('l1OverrideRate').textContent =
+        gh.override_rate_pct != null ? gh.override_rate_pct + '%' : '—';
+      document.getElementById('l1AcceptUnknownRate').textContent =
+        gh.accept_unknown_rate_pct != null ? gh.accept_unknown_rate_pct + '%' : '—';
+      document.getElementById('l1MismatchHint').textContent =
+        gh.non_adoption_mismatch_hint ? 'Ja (coach tyst, intent ändå)' : 'Nej';
+      const warn = document.getElementById('l1GravityWarning');
+      if (gh.gravity_warning === 'recommendation_gravity') {
+        warn.textContent = 'Varning: hög recommendation gravity — överväg blind review (dölj ★ en vecka).';
+        warn.classList.remove('hidden');
+      } else if (gh.gravity_warning === 'accept_unknown_heavy') {
+        warn.textContent = 'Varning: ACCEPT-UNKNOWN dominerar — är det aktivt val eller escape hatch?';
+        warn.classList.remove('hidden');
+      } else if (warn) {
+        warn.classList.add('hidden');
+      }
+    }
     renderQuestions(data.questions || []);
     document.getElementById('l1RecommendationType').textContent = data.recommendation?.decision_type || '—';
     document.getElementById('l1RecommendationReason').textContent = data.recommendation?.reason || '';

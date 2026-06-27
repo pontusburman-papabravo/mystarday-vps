@@ -54,3 +54,15 @@ describe('l1-governance-decide', () => {
     assert.equal(a.qualitative_drift, false);
   });
 });
+
+describe('l1-governance-health', () => {
+  const { computeGovernanceHealth } = require('../src/lib/l1-governance-health');
+
+  it('flags recommendation gravity when follow rate high', () => {
+    const h = computeGovernanceHealth([
+      { decision_type: 'HOLD', answers: { followed_recommendation: true } },
+      { decision_type: 'ACCEPT-UNKNOWN', answers: { followed_recommendation: true } },
+    ], { coach_clicks_7d: 1, child_access_completed_7d: 0, readiness_clicks_7d: 0 });
+    assert.equal(h.gravity_warning, 'recommendation_gravity');
+  });
+});
