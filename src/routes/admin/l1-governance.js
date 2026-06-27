@@ -9,43 +9,14 @@ const {
   questionPayload,
 } = require('../../lib/l1-governance-decide');
 const { computeGovernanceHealth } = require('../../lib/l1-governance-health');
+const { checklistProgress } = require('../../lib/l1-go-live-checklist');
+const { computeGoLiveHints } = require('../../lib/l1-go-live-hints');
 
 const router = express.Router();
 
 function learningDay(startedAt) {
   const ms = Date.now() - new Date(startedAt).getTime();
   return Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
-}
-
-function computeGovernanceHealth(decisions, metrics) {
-  const n = decisions.length;
-  const overrides = decisions.filter((d) => d.answers?.used_override).length;
-  const acceptUnknown = decisions.filter((d) => d.decision_type === 'ACCEPT-UNKNOWN').length;
-  const followed = decisions.filter((d) => d.answers?.followed_recommendation).length;
-  const overrideRate = n ? Math.round((overrides / n) * 100) : null;
-  const acceptUnknownRate = n ? Math.round((acceptUnknown / n) * 100) : null;
-  const followRate = n ? Math.round((followed / n) * 100) : null;
-  const nonAdoptionMismatch =
-    metrics.coach_clicks_7d === 0 &&
-    metrics.child_access_completed_7d > 0 &&
-    metrics.readiness_clicks_7d > 0;
-
-  let gravityWarning = null;
-  if (followRate != null && followRate >= 85 && n >= 2) {
-    gravityWarning = 'recommendation_gravity';
-  }
-  if (acceptUnknownRate != null && acceptUnknownRate >= 70 && n >= 2) {
-    gravityWarning = gravityWarning || 'accept_unknown_heavy';
-  }
-
-  return {
-    decision_count: n,
-    override_rate_pct: overrideRate,
-    accept_unknown_rate_pct: acceptUnknownRate,
-    follow_recommendation_rate_pct: followRate,
-    non_adoption_mismatch_hint: nonAdoptionMismatch,
-    gravity_warning: gravityWarning,
-  };
 }
 
 // GET /api/admin/l1-governance
@@ -63,6 +34,22 @@ router.get('/l1-governance', async (req, res, next) => {
     }
     const recommendation = recommendDecision(draftAnswers, { metrics, learning_day: day });
     const governance_health = computeGovernanceHealth(decisions, metrics);
+    const checklist = release.go_live_checklist;
+    const go_live = {
+      progress: checklistProgress(checklist.items),
+      items: checklist.items,
+      hints: computeGoLiveHints({ decisions, metrics, release }),
+      owners: {
+        primary: release.l1_primary_owner || '',
+        backup: release.l1_backup_owner || '',
+      },
+      milestones: {
+        started_at: release.started_at,
+        review_day_7_at: release.review_day_7_at,
+        review_day_14_at: release.review_day_14_at,
+        learning_day: day,
+      },
+    };
 
     res.json({
       release_id: ACTIVE_RELEASE_ID,
@@ -88,6 +75,7 @@ router.get('/l1-governance', async (req, res, next) => {
       },
       decisions,
       governance_health,
+      go_live,
     });
   } catch (err) {
     console.error('[ADMIN] l1-governance GET error:', err);
@@ -147,6 +135,56 @@ router.post('/l1-governance/decision', async (req, res, next) => {
     });
   } catch (err) {
     console.error('[ADMIN] l1-governance POST error:', err);
+    next(err);
+  }
+});
+
+// PATCH /api/admin/l1-governance/checklist/:key
+router.patch('/l1-governance/checklist/:key', async (req, res, next) => {
+  try {
+    const { checked, note } = req.body || {};
+    const release = await l1Db.updateChecklistItem(
+      ACTIVE_RELEASE_ID,
+      req.params.key,
+      { checked, note },
+      req.user?.id
+    );
+    if (!release) return res.status(404).json({ error: 'Checklistpunkt hittades inte' });
+    const checklist = release.go_live_checklist;
+    res.json({
+      ok: true,
+      progress: checklistProgress(checklist.items),
+      items: checklist.items,
+    });
+  } catch (err) {
+    console.error('[ADMIN] l1-governance checklist PATCH error:', err);
+    next(err);
+  }
+});
+
+// PATCH /api/admin/l1-governance/meta
+router.patch('/l1-governance/meta', async (req, res, next) => {
+  try {
+    const { l1_primary_owner, l1_backup_owner, review_day_7_at, review_day_14_at } = req.body || {};
+    const release = await l1Db.updateReleaseMeta(ACTIVE_RELEASE_ID, {
+      l1_primary_owner,
+      l1_backup_owner,
+      review_day_7_at,
+      review_day_14_at,
+    });
+    res.json({
+      ok: true,
+      owners: {
+        primary: release.l1_primary_owner || '',
+        backup: release.l1_backup_owner || '',
+      },
+      milestones: {
+        review_day_7_at: release.review_day_7_at,
+        review_day_14_at: release.review_day_14_at,
+      },
+    });
+  } catch (err) {
+    console.error('[ADMIN] l1-governance meta PATCH error:', err);
     next(err);
   }
 });

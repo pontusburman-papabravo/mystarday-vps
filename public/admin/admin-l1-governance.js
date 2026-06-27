@@ -121,6 +121,127 @@
     });
   }
 
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleDateString('sv-SE', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (_) {
+      return iso;
+    }
+  }
+
+  function toDateInput(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toISOString().slice(0, 10);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function renderGoLiveChecklist(goLive) {
+    const mount = document.getElementById('l1GoLiveChecklist');
+    const progressEl = document.getElementById('l1GoLiveProgress');
+    if (!mount || !goLive) return;
+
+    const items = goLive.items || [];
+    const progress = goLive.progress || { done: 0, total: items.length, all_complete: false };
+    const hints = goLive.hints || {};
+    const allDone = !!progress.all_complete;
+
+    if (progressEl) {
+      progressEl.textContent = progress.done + '/' + progress.total + ' klara';
+      progressEl.className = 'text-sm font-semibold ' + (allDone ? 'text-green-800' : 'text-amber-800');
+    }
+
+    mount.innerHTML = items.map(function (item) {
+      const checked = !!item.checked;
+      const due = item.due_at ? formatDate(item.due_at) : '—';
+      const checkedAt = item.checked_at ? (' · bockad ' + formatDate(item.checked_at)) : '';
+      const hint = hints[item.key];
+      return (
+        '<label class="flex items-start gap-3 p-3 rounded-xl border ' +
+        (checked ? 'border-green-200 bg-green-50/50' : 'border-lavender bg-sky/20') +
+        ' cursor-pointer hover:border-gold transition-colors">' +
+        '<input type="checkbox" class="l1-checklist-cb mt-1 rounded border-lavender" data-key="' + esc(item.key) + '" ' +
+        (checked ? 'checked' : '') + ' />' +
+        '<span class="flex-1 min-w-0">' +
+        '<span class="block text-sm font-semibold text-navy">' + esc(item.label) + '</span>' +
+        '<span class="block text-xs text-text-soft mt-0.5">Mål: ' + due + checkedAt + '</span>' +
+        (hint ? '<span class="block text-xs text-indigo-700 mt-1">Hint: ' + esc(hint) + '</span>' : '') +
+        '</span></label>'
+      );
+    }).join('');
+
+    mount.querySelectorAll('.l1-checklist-cb').forEach(function (cb) {
+      cb.addEventListener('change', async function () {
+        const key = cb.getAttribute('data-key');
+        try {
+          await Auth.api('/api/admin/l1-governance/checklist/' + encodeURIComponent(key), {
+            method: 'PATCH',
+            body: JSON.stringify({ checked: cb.checked }),
+          });
+          await loadL1GovernanceAdmin(true);
+        } catch (e) {
+          cb.checked = !cb.checked;
+          alert('Kunde inte spara: ' + (e.message || 'okänt fel'));
+        }
+      });
+    });
+  }
+
+  function renderGoLiveMeta(goLive) {
+    const mount = document.getElementById('l1GoLiveMeta');
+    if (!mount || !goLive) return;
+
+    const owners = goLive.owners || {};
+    const milestones = goLive.milestones || {};
+
+    mount.innerHTML =
+      '<div class="bg-sky/30 rounded-2xl border border-lavender p-5">' +
+      '<h4 class="font-heading font-bold text-navy mb-4">Ägare &amp; review-datum</h4>' +
+      '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">' +
+      '<div><label class="block text-xs font-bold text-text-soft mb-1" for="l1PrimaryOwner">L1 primär ägare</label>' +
+      '<input type="text" id="l1PrimaryOwner" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm" value="' +
+      esc(owners.primary || '') + '" placeholder="namn / e-post" /></div>' +
+      '<div><label class="block text-xs font-bold text-text-soft mb-1" for="l1BackupOwner">L1 backup</label>' +
+      '<input type="text" id="l1BackupOwner" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm" value="' +
+      esc(owners.backup || '') + '" placeholder="namn / e-post" /></div>' +
+      '<div><label class="block text-xs font-bold text-text-soft mb-1" for="l1ReviewDay7">Dag 7 sanity (kalender)</label>' +
+      '<input type="date" id="l1ReviewDay7" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm" value="' +
+      esc(toDateInput(milestones.review_day_7_at)) + '" /></div>' +
+      '<div><label class="block text-xs font-bold text-text-soft mb-1" for="l1ReviewDay14">Dag 14 första L1-beslut</label>' +
+      '<input type="date" id="l1ReviewDay14" class="w-full border border-lavender rounded-lg px-3 py-2 text-sm" value="' +
+      esc(toDateInput(milestones.review_day_14_at)) + '" /></div>' +
+      '</div>' +
+      '<p class="text-xs text-text-soft mt-3">Release start: ' + esc(formatDate(milestones.started_at)) +
+      ' · LEARNING dag ' + esc(String(milestones.learning_day || '—')) + '</p>' +
+      '<button type="button" id="l1SaveMetaBtn" class="mt-4 px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">' +
+      'Spara ägare &amp; datum</button>' +
+      '<p id="l1MetaSaveStatus" class="text-sm mt-2 text-text-soft"></p>' +
+      '</div>';
+
+    document.getElementById('l1SaveMetaBtn').addEventListener('click', async function () {
+      const status = document.getElementById('l1MetaSaveStatus');
+      status.textContent = 'Sparar…';
+      try {
+        await Auth.api('/api/admin/l1-governance/meta', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            l1_primary_owner: document.getElementById('l1PrimaryOwner').value.trim() || null,
+            l1_backup_owner: document.getElementById('l1BackupOwner').value.trim() || null,
+            review_day_7_at: document.getElementById('l1ReviewDay7').value || null,
+            review_day_14_at: document.getElementById('l1ReviewDay14').value || null,
+          }),
+        });
+        status.textContent = 'Sparat.';
+        await loadL1GovernanceAdmin(true);
+      } catch (e) {
+        status.textContent = e.message || 'Kunde inte spara.';
+      }
+    });
+  }
+
   function renderMetrics(m) {
     const mount = document.getElementById('l1MetricsRow');
     if (!mount || !m) return;
@@ -165,6 +286,8 @@
       sla.textContent = 'Dag 14 om ' + (14 - data.learning_day) + 'd';
       sla.className = 'text-sm font-semibold text-navy mt-1';
     }
+    renderGoLiveChecklist(data.go_live);
+    renderGoLiveMeta(data.go_live);
     renderMetrics(data.metrics);
     const gh = data.governance_health;
     const healthEl = document.getElementById('l1GovernanceHealth');
