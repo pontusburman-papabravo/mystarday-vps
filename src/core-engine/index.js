@@ -111,5 +111,6 @@ module.exports = {
   ProductEngine,
   collectFamilyFacts: require('./1-facts/collector').collectFamilyFacts,
   normalizeFamilyFacts: require('./1-facts/collector').normalizeFamilyFacts,
+  serializeEngineOutput: require('./serialize').serializeEngineOutput,
   recordOutcome: require('./outcome/record-outcome').recordOutcome,
 };

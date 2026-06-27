@@ -220,6 +220,47 @@ API (framtida): `GET /api/family/first-success` anropar `collectFamilyFacts` →
 
 ---
 
+## 14. HTTP API
+
+### `GET /api/family/first-success`
+
+Parent auth required (`requireParent` + `requireNotPedagogOnly`).
+
+**Adapter only** — no business logic in route:
+
+1. `collectFamilyFacts(familyId)`
+2. `ProductEngine.evaluate(facts, context)`
+3. `serializeEngineOutput(output)` — ISO dates only
+4. `queueEngineTrace` — async, off request path
+
+Kill switch: feature flag `first_success_engine_api` (default ON). When OFF → `503` + `{ legacyEndpoint: '/api/family/readiness' }`.
+
+Response shape (serialized `EngineOutput`):
+
+```json
+{
+  "timestamp": "2026-06-02T18:00:00.000Z",
+  "policy": {
+    "id": "control_fam-123_NEEDS_CONSISTENCY",
+    "name": "ADD_EVENING",
+    "validityWindow": { "startHour": 17, "endHour": 21, "expiresAt": "..." },
+    "uiTokens": { "theme": "ENCOURAGEMENT", "intensity": "HIGH", "tags": ["BUILD_ROUTINE"] }
+  },
+  "milestone": "first_success",
+  "trace": {
+    "coreState": "FIRST_ACTIVITY",
+    "evaluatedNeed": "NEEDS_CONSISTENCY",
+    "activePolicy": "ADD_EVENING",
+    "rulesTriggered": ["first_activity_exists", "no_evening_routine"],
+    "policySet": "v2_first_success_control"
+  }
+}
+```
+
+Client reads `trace.coreState` as state, `trace.evaluatedNeed` as need. API never adds copy, routes, or policy overrides.
+
+---
+
 ## 12. Relation till Brain/Coach-dokument
 
 | Dokument | Motsvarar |
