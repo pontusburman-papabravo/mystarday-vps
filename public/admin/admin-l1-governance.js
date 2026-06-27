@@ -250,6 +250,73 @@
     });
   }
 
+  function calendarReminderStorageKey(releaseId) {
+    return 'l1_calendar_booked_' + (releaseId || 'coach_primary_v1');
+  }
+
+  function isCalendarBooked(goLive, releaseId) {
+    if (localStorage.getItem(calendarReminderStorageKey(releaseId)) === '1') return true;
+    const items = goLive?.items || [];
+    const ownersItem = items.find(function (i) { return i.key === 'l1_owners_scheduled'; });
+    return !!(ownersItem && ownersItem.checked);
+  }
+
+  function renderCalendarReminder(goLive, releaseId) {
+    const mount = document.getElementById('l1CalendarReminder');
+    if (!mount) return;
+
+    if (!goLive || isCalendarBooked(goLive, releaseId)) {
+      mount.innerHTML = '';
+      mount.className = 'mb-4 hidden';
+      return;
+    }
+
+    const milestones = goLive.milestones || {};
+    const d7 = milestones.review_day_7_at;
+    const d14 = milestones.review_day_14_at;
+    const d7Label = d7 ? formatDate(d7) : 'sätt datum ovan och spara';
+    const d14Label = d14 ? formatDate(d14) : 'sätt datum ovan och spara';
+
+    mount.className = 'mb-4';
+    mount.innerHTML =
+      '<div class="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">' +
+      '<p class="text-xs font-bold uppercase text-amber-800 mb-1">Påminnelse — driftstart punkt 3</p>' +
+      '<h4 class="font-heading font-bold text-navy mb-2">Boka review i kalendern</h4>' +
+      '<p class="text-sm text-gray-800 mb-3">Efter ägare + datum (punkt 2): boka två fasta pass. Inget annat behövs idag.</p>' +
+      '<ul class="text-sm text-navy space-y-2 mb-4 list-none">' +
+      '<li><strong>Dag 7</strong> · ' + esc(d7Label) + ' · <span class="text-text-soft">30 min</span><br>' +
+      '<span class="text-xs font-mono bg-white/80 px-2 py-0.5 rounded">L1 sanity (observation only)</span></li>' +
+      '<li class="pt-1"><strong>Dag 14</strong> · ' + esc(d14Label) + ' · <span class="text-text-soft">45 min</span><br>' +
+      '<span class="text-xs font-mono bg-white/80 px-2 py-0.5 rounded">L1 GO/NO-GO + beslut</span></li>' +
+      '</ul>' +
+      '<label class="flex items-start gap-3 cursor-pointer">' +
+      '<input type="checkbox" id="l1CalendarBookedCb" class="mt-1 rounded border-lavender" />' +
+      '<span class="text-sm font-semibold text-navy">Jag har bokat dag 7 och dag 14 i kalendern</span>' +
+      '</label>' +
+      '<p id="l1CalendarReminderStatus" class="text-xs text-text-soft mt-2"></p>' +
+      '</div>';
+
+    document.getElementById('l1CalendarBookedCb').addEventListener('change', async function (cbEv) {
+      const cb = cbEv.target;
+      const status = document.getElementById('l1CalendarReminderStatus');
+      if (!cb.checked) return;
+      status.textContent = 'Sparar…';
+      try {
+        localStorage.setItem(calendarReminderStorageKey(releaseId), '1');
+        await Auth.api('/api/admin/l1-governance/checklist/' + encodeURIComponent('l1_owners_scheduled'), {
+          method: 'PATCH',
+          body: JSON.stringify({ checked: true }),
+        });
+        status.textContent = 'Klart — påminnelsen döljs.';
+        await loadL1GovernanceAdmin(true);
+      } catch (e) {
+        cb.checked = false;
+        localStorage.removeItem(calendarReminderStorageKey(releaseId));
+        status.textContent = e.message || 'Kunde inte spara.';
+      }
+    });
+  }
+
   function renderGoLiveMeta(goLive) {
     const mount = document.getElementById('l1GoLiveMeta');
     if (!mount || !goLive) return;
@@ -349,6 +416,7 @@
     renderGoLiveReadinessBanner(data.go_live_readiness);
     renderGoLiveChecklist(data.go_live);
     renderGoLiveMeta(data.go_live);
+    renderCalendarReminder(data.go_live, data.release_id);
     renderMetrics(data.metrics);
     const gh = data.governance_health;
     const healthEl = document.getElementById('l1GovernanceHealth');
