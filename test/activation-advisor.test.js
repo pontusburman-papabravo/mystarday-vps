@@ -97,6 +97,12 @@ describe('admin-operational-alerts helpers', () => {
     assert.equal(cards[0].priority, 1);
     assert.equal(cards[0].route, '#analytics');
   });
+
+  it('upsertAlert SQL does not reset dismissed_at on conflict', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../db/admin-operational-alerts.js'), 'utf8');
+    assert.doesNotMatch(src, /dismissed_at = NULL/);
+    assert.doesNotMatch(src, /dismissed_by = NULL/);
+  });
 });
 
 describe('activation-advisor wiring', () => {
@@ -111,10 +117,11 @@ describe('activation-advisor wiring', () => {
     assert.match(src, /operational-alerts/);
   });
 
-  it('admin-start.js exposes dismiss handler', () => {
+  it('admin-start.js exposes dismiss handler outside nav link', () => {
     const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-start.js'), 'utf8');
     assert.match(src, /dismissOperationalAlert/);
-    assert.match(src, /severityStyles/);
+    assert.match(src, /renderDismissButton/);
+    assert.match(src, /dismissEphemeralCard/);
   });
 });
 

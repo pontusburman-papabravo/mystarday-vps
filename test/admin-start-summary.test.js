@@ -180,6 +180,20 @@ test('fetchRecommendations lead count avoids mixed-type UNION on id', () => {
   assert.match(src, /FROM package_interest WHERE lead_status = 'ny'/);
 });
 
+test('admin-start.js dismiss button is outside recommendation link', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-start.js'), 'utf8');
+  assert.match(src, /renderDismissButton/);
+  assert.match(src, /dismissOperationalAlert\('.*', this, event\)/);
+  assert.doesNotMatch(src, /<a href="\$\{esc\(card\.route\)\}"[^>]*>\$\{linkInner\}<\/a>/);
+});
+
+test('admin-core navigateToRoute applies section before hash write', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-core.js'), 'utf8');
+  const fn = src.slice(src.indexOf('function navigateToRoute'), src.indexOf('function closeMobileMenu'));
+  assert.match(fn, /applyRoute\(route\)/);
+  assert.doesNotMatch(fn, /window\.location\.hash = canonical\.slice\(1\);\s*return;/);
+});
+
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
   assert.match(html, /id="startKpiBlock"/);

@@ -153,12 +153,11 @@
       }
       const current = window.location.hash || '';
 
+      applyRoute(route);
+
       if (!opts.skipHashWrite && current !== canonical) {
         window.location.hash = canonical.slice(1);
-        return;
       }
-
-      applyRoute(route);
     }
 
     // ─── Mobile Menu Toggle ────────────────────────────────────

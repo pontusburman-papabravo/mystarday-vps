@@ -24,8 +24,6 @@ async function upsertAlert(alert) {
        body = EXCLUDED.body,
        action_route = EXCLUDED.action_route,
        metrics = EXCLUDED.metrics,
-       dismissed_at = NULL,
-       dismissed_by = NULL,
        created_at = NOW()
      RETURNING id, slug, category, severity, title, body, action_route, metrics, created_at`,
     [

@@ -5,6 +5,8 @@
 (function () {
   const DISCLAIMER_DEFAULT =
     'Detta är en förenklad uppföljningsvy. Riktig inbox-status kommer i en senare version.';
+  const EPHEMERAL_DISMISS_KEY = 'admin_start_ephemeral_dismiss';
+  const EPHEMERAL_DISMISS_TTL_MS = 24 * 60 * 60 * 1000;
 
   function esc(str) {
     const d = document.createElement('div');
@@ -310,7 +312,44 @@
     };
   }
 
-  async function dismissOperationalAlert(alertId, buttonEl) {
+  function loadEphemeralDismissed() {
+    try {
+      return JSON.parse(sessionStorage.getItem(EPHEMERAL_DISMISS_KEY) || '{}');
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function filterEphemeralRecommendations(recommendations) {
+    const dismissed = loadEphemeralDismissed();
+    const now = Date.now();
+    return (recommendations || []).filter((card) => {
+      if (!card.type || card.id) return true;
+      const ts = dismissed[card.type];
+      return !ts || now - ts > EPHEMERAL_DISMISS_TTL_MS;
+    });
+  }
+
+  function dismissEphemeralCard(type, buttonEl) {
+    if (!type || !buttonEl) return;
+    const dismissed = loadEphemeralDismissed();
+    dismissed[type] = Date.now();
+    try {
+      sessionStorage.setItem(EPHEMERAL_DISMISS_KEY, JSON.stringify(dismissed));
+    } catch (_) { /* ignore quota */ }
+    const card = buttonEl.closest('[data-rec-type]');
+    if (card) card.remove();
+    const block = document.getElementById('startRecommendationsBlock');
+    if (block && !block.querySelector('[data-alert-id], [data-rec-type]')) {
+      block.innerHTML = '';
+    }
+  }
+
+  async function dismissOperationalAlert(alertId, buttonEl, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (!alertId || !buttonEl) return;
     buttonEl.disabled = true;
     try {
@@ -328,10 +367,31 @@
     }
   }
 
+  function recommendationCardBody(card, styles) {
+    return `
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          ${card.severity ? `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${styles.badge}">${esc(styles.label)}</span>` : ''}
+          <p class="font-semibold text-navy">${esc(card.title)}</p>
+        </div>
+        <p class="text-sm text-text-soft">${esc(card.body)}</p>
+      </div>`;
+  }
+
+  function renderDismissButton(card) {
+    if (card.dismissible && card.id) {
+      return `<button type="button" onclick="dismissOperationalAlert('${esc(card.id)}', this, event)" class="shrink-0 text-xs font-semibold text-text-soft hover:text-navy px-2 py-1 rounded-lg hover:bg-white/60">Avfärda</button>`;
+    }
+    if (card.type && !card.id) {
+      return `<button type="button" onclick="dismissEphemeralCard('${esc(card.type)}', this)" class="shrink-0 text-xs font-semibold text-text-soft hover:text-navy px-2 py-1 rounded-lg hover:bg-white/60">Avfärda</button>`;
+    }
+    return '';
+  }
+
   function renderStartRecommendations(recommendations) {
     const el = document.getElementById('startRecommendationsBlock');
     if (!el) return;
-    const items = recommendations || [];
+    const items = filterEphemeralRecommendations(recommendations);
     if (!items.length) {
       el.innerHTML = '';
       return;
@@ -341,26 +401,19 @@
       <div class="space-y-3">
         ${items.map((card) => {
           const styles = severityStyles(card.severity);
-          const dismissBtn = card.dismissible && card.id
-            ? `<button type="button" onclick="dismissOperationalAlert('${esc(card.id)}', this)" class="text-xs font-semibold text-text-soft hover:text-navy px-2 py-1 rounded-lg hover:bg-white/60">Avfärda</button>`
-            : '';
-          const linkInner = `
-            <div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-2 mb-1">
-                  ${card.severity ? `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${styles.badge}">${esc(styles.label)}</span>` : ''}
-                  <p class="font-semibold text-navy">${esc(card.title)}</p>
-                </div>
-                <p class="text-sm text-text-soft">${esc(card.body)}</p>
-              </div>
-              ${dismissBtn}
-            </div>`;
-          if (card.dismissible && card.id) {
-            return `<div data-alert-id="${esc(card.id)}" class="block ${styles.bg} border-2 ${styles.border} rounded-2xl p-4">
-              <a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block hover:opacity-90 transition-opacity">${linkInner}</a>
-            </div>`;
-          }
-          return `<a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block ${styles.bg} border-2 ${styles.border} rounded-2xl p-4 hover:border-gold transition-colors">${linkInner}</a>`;
+          const dismissBtn = renderDismissButton(card);
+          const linkHtml = card.route
+            ? `<a href="${esc(card.route)}" onclick="return adminNavClick(event)" class="block min-w-0 flex-1 hover:opacity-90 transition-opacity">${recommendationCardBody(card, styles)}</a>`
+            : `<div class="min-w-0 flex-1">${recommendationCardBody(card, styles)}</div>`;
+          const attrs = card.id
+            ? `data-alert-id="${esc(card.id)}"`
+            : card.type
+              ? `data-rec-type="${esc(card.type)}"`
+              : '';
+          return `<div ${attrs} class="flex flex-wrap items-start justify-between gap-3 ${styles.bg} border-2 ${styles.border} rounded-2xl p-4">
+            ${linkHtml}
+            ${dismissBtn}
+          </div>`;
         }).join('')}
       </div>`;
   }
@@ -376,7 +429,7 @@
         throw new Error('Saknar keyMetrics i API-svar — ladda om sidan (hård refresh)');
       }
       renderStartKpis(data.keyMetrics);
-      renderStartRecommendations(data.recommendations);
+      renderStartRecommendations(filterEphemeralRecommendations(data.recommendations));
       renderStartMessages(data.messages);
       renderStartActivity(data.activity);
       renderStartShortcuts(data.quickActions);
@@ -391,4 +444,5 @@
 
   window.loadStartSummary = loadStartSummary;
   window.dismissOperationalAlert = dismissOperationalAlert;
+  window.dismissEphemeralCard = dismissEphemeralCard;
 })();
