@@ -1,5 +1,7 @@
 'use strict';
 
+const { SECTION_ORDER_SQL } = require('./default-schedule-order');
+
 function getDb() {
   return require('./db');
 }
@@ -47,7 +49,7 @@ async function seedChildDefaultSchedule({ childId, familyId, birthday }) {
     `SELECT name, icon, section, star_value, sort_order, start_time, end_time, sub_steps
      FROM default_schedule_item
      WHERE default_schedule_id = $1
-     ORDER BY sort_order ASC`,
+     ORDER BY ${SECTION_ORDER_SQL}`,
     [defaultSchedId]
   );
   if (defaultItems.rows.length === 0) {

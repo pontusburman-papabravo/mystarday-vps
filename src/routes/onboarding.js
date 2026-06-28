@@ -23,6 +23,7 @@ const {
 } = require('../lib/schemas');
 const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
+const { SECTION_ORDER_SQL, sectionOrderClause } = require('../lib/default-schedule-order');
 
 const router = express.Router();
 router.use(requireParent);
@@ -244,7 +245,7 @@ router.post('/schedule', async (req, res) => {
       `SELECT name, icon, section, star_value, sort_order, start_time, end_time, sub_steps
        FROM default_schedule_item
        WHERE default_schedule_id = $1
-       ORDER BY sort_order ASC`,
+       ORDER BY ${SECTION_ORDER_SQL}`,
       [defaultSchedId]
     );
     if (defaultItems.rows.length === 0) {
@@ -469,7 +470,7 @@ router.post('/weekend-schedule', async (req, res) => {
       `SELECT name, icon, section, star_value, sort_order, start_time, end_time, sub_steps
        FROM default_schedule_item
        WHERE default_schedule_id = $1
-       ORDER BY sort_order ASC`,
+       ORDER BY ${SECTION_ORDER_SQL}`,
       [helgSchedId]
     );
     if (helgItems.rows.length === 0) {
@@ -750,7 +751,7 @@ router.get('/schedule-preview', async (req, res) => {
        FROM default_schedule_item dsi
        JOIN default_schedule ds ON ds.id = dsi.default_schedule_id
        WHERE ds.name = $1
-       ORDER BY dsi.sort_order ASC`,
+       ORDER BY ${sectionOrderClause('dsi')}`,
       [schedName]
     );
 
@@ -960,7 +961,7 @@ router.get('/starter-plan/preview', async (req, res) => {
       `SELECT name, icon, section, star_value, sort_order, start_time, end_time
        FROM default_schedule_item
        WHERE default_schedule_id = $1
-       ORDER BY sort_order ASC`,
+       ORDER BY ${SECTION_ORDER_SQL}`,
       [sched.rows[0].id]
     );
 
