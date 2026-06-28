@@ -20,7 +20,8 @@
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=9">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=10">
+  <link rel="stylesheet" href="/css/skattkammaren-parent.css?v=1">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
@@ -30,144 +31,6 @@
   <style>
     html, body { overflow-x: clip; max-width: 100%; }
     * { box-sizing: border-box; }
-
-    /* ── Skattkammaren animations ── */
-    @keyframes skattFloat {
-      0%, 100% { transform: translateY(0px) rotate(-1deg); }
-      50%       { transform: translateY(-5px) rotate(1deg); }
-    }
-    @keyframes skattTwinkle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.35; transform: scale(0.65); }
-    }
-    @keyframes skattEntrance {
-      0%   { opacity: 0; transform: translateY(16px) scale(0.97); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Festive hero banner ── */
-    .skatt-hero {
-      position: relative;
-      background: linear-gradient(135deg, #1a0533 0%, #2d0a5e 40%, #1a0533 100%);
-      overflow: hidden;
-      padding: 28px 20px 24px;
-    }
-    .skatt-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 30% 0%, rgba(255,200,50,0.25) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 100%, rgba(180,50,255,0.2) 0%, transparent 60%);
-    }
-    .hero-star {
-      position: absolute;
-      color: #FFD700;
-      font-size: 10px;
-      animation: skattTwinkle var(--dur, 2s) ease-in-out var(--delay, 0s) infinite;
-    }
-
-    /* ── Child selector chips ── */
-    .child-chip {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 18px; border-radius: 14px;
-      border: 2px solid #EDE7F6; background: white;
-      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.9rem;
-      color: #1B2340; cursor: pointer; transition: all 0.15s;
-      min-height: 44px;
-    }
-    .child-chip:hover { border-color: #F5A623; }
-    .child-chip.active {
-      border-color: #F5A623;
-      background: #FFF3D6;
-      box-shadow: 0 2px 10px rgba(245,166,35,0.25);
-    }
-
-    /* ── Trophy grid items ── */
-    .trg-item {
-      position: relative;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 5px; padding: 14px 8px 12px;
-      border-radius: 18px; text-align: center;
-      background: #f8f9ff;
-      border: 1.5px solid transparent;
-      overflow: hidden;
-      transition: transform 0.15s, box-shadow 0.15s;
-      animation: skattEntrance 0.35s ease forwards;
-    }
-    .trg-item:hover { transform: translateY(-3px); }
-    .trg-item.earned {
-      background: linear-gradient(135deg, #fffbf0, #fff3cc);
-      border-color: rgba(245,166,35,0.45);
-      box-shadow: 0 3px 14px rgba(245,166,35,0.18);
-    }
-    .trg-item.affordable {
-      background: linear-gradient(135deg, #f0fff6, #e6ffed);
-      border-color: rgba(34,197,94,0.45);
-      box-shadow: 0 3px 14px rgba(34,197,94,0.15);
-    }
-    .trg-item.pending {
-      background: linear-gradient(135deg, #faf0ff, #f3e8ff);
-      border-color: rgba(168,85,247,0.35);
-    }
-    .trg-item.locked {
-      opacity: 0.52;
-      filter: grayscale(0.55);
-      background: #f0f0f5;
-      border-color: rgba(0,0,0,0.05);
-    }
-    .trg-icon {
-      font-size: 2.1rem; line-height: 1;
-      width: 56px; height: 56px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.85);
-    }
-    .trg-name {
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.7rem; font-weight: 700; color: #1B2340;
-      line-height: 1.2;
-      overflow: hidden; display: -webkit-box;
-      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    }
-    .trg-cost {
-      font-size: 0.65rem; font-weight: 700; color: #B8860B;
-      background: rgba(245,166,35,0.13);
-      border-radius: 50px; padding: 2px 7px;
-    }
-    .trg-item.locked .trg-cost { color: #9AA0B8; background: rgba(0,0,0,0.05); }
-    .trg-badge {
-      position: absolute; top: 5px; right: 6px;
-      font-size: 0.78rem; line-height: 1;
-    }
-    .trg-bar {
-      width: 100%; height: 3px;
-      background: rgba(0,0,0,0.08);
-      border-radius: 50px; overflow: hidden; margin-top: 2px;
-    }
-    .trg-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #F5A623, #22C55E);
-      border-radius: 50px;
-    }
-    .trg-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    @media (min-width: 768px) { .trg-grid { grid-template-columns: repeat(4, 1fr); } }
-
-    /* ── Section headers ── */
-    .section-label {
-      display: flex; align-items: center; gap: 8px;
-      font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 800;
-      text-transform: uppercase; letter-spacing: 0.1em; color: #9AA0B8;
-      margin-bottom: 10px;
-    }
-    .section-label::after {
-      content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.06);
-    }
   </style>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -300,7 +163,7 @@
   <!-- Toast -->
   <div id="toast" class="hidden fixed top-4 right-4 z-50 bg-navy text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs"></div>
 
-  <script src="/js/skattkammaren-parent-page.js?v=1"></script>
+  <script src="/js/skattkammaren-parent-page.js?v=2"></script>
 
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/feature-check.js?v=2.13.0"></script>

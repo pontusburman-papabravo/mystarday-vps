@@ -210,4 +210,10 @@ describe('magic soft navigation', () => {
     assert.match(css, /data-magic-page="skattkammaren"/);
     assert.match(css, /#placeholderState/);
   });
+
+  it('skattkammaren treasury CSS loaded on soft-nav', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(router, /skattkammaren:\s*\[['"]\/css\/skattkammaren-parent\.css/);
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/css/skattkammaren-parent.css')));
+  });
 });

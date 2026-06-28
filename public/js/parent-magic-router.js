@@ -31,6 +31,7 @@
   const PAGE_STYLES = {
     dashboard: ['/css/dashboard-magic.css?v=5'],
     'for-dig': ['/css/for-dig.css?v=2'],
+    skattkammaren: ['/css/skattkammaren-parent.css?v=1'],
   };
 
   // Loaded before every soft-nav page — dom-utils defines window.renderChildAvatar + escapeHtml.
@@ -61,7 +62,7 @@
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.1',
     ],
-    skattkammaren: ['/js/skattkammaren-parent-page.js?v=1'],
+    skattkammaren: ['/js/skattkammaren-parent-page.js?v=2'],
     upgrade: [
       '/js/preview-shell.js?v=1.0.0',
       '/js/upgrade-packages.js?v=2.0.0',

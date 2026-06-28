@@ -216,7 +216,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v400';
+const CACHE_NAME = 'stjarndag-v401';
+// stjarndag-v401: Skattkammaren parent UI — external CSS for soft-nav + list card layout
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
 // stjarndag-v398: Daily log — light text on dark magic activity cards (contrast fix)

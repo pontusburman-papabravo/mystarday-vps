@@ -101,21 +101,39 @@
       if (emptyState) emptyState.classList.remove('hidden');
     } else {
       if (emptyState) emptyState.classList.add('hidden');
-      rewardsGrid.innerHTML = rewards.map(function (r, i) {
-        const isRedeemed = earned.some(function (rd) { return rd.reward_id === r.id; });
-        const hasPending = pending.some(function (rd) { return rd.reward_id === r.id; });
-        const canAfford = starBalance >= r.star_cost;
-        const cardClass = isRedeemed ? 'earned' : hasPending ? 'pending' : canAfford ? 'affordable' : 'locked';
-        const pct = Math.min(100, Math.round((starBalance / r.star_cost) * 100));
-        return '<div class="trg-item ' + cardClass + '" style="animation-delay:' + (i * 35) + 'ms;">' +
-          '<div class="trg-icon">' + (r.icon || '🎁') + '</div>' +
-          '<div class="trg-name">' + escHtml(r.name) + '</div>' +
-          '<div class="trg-cost">⭐ ' + r.star_cost + '</div>' +
-          (!isRedeemed && !hasPending ? '<div class="trg-bar"><div class="trg-bar-fill" style="width:' + pct + '%"></div></div>' : '') +
-          '</div>';
-      }).join('');
-      rewardsSection.classList.remove('hidden');
+      const activeRewards = rewards.filter(function (r) {
+        return !earned.some(function (rd) { return rd.reward_id === r.id; });
+      });
+      if (activeRewards.length === 0) {
+        rewardsSection.classList.add('hidden');
+      } else {
+        rewardsGrid.innerHTML = activeRewards.map(function (r, i) {
+          return renderRewardCard(r, i, starBalance, pending);
+        }).join('');
+        rewardsSection.classList.remove('hidden');
+      }
     }
+  }
+
+  function renderRewardCard(r, i, starBalance, pending) {
+    const hasPending = pending.some(function (rd) { return rd.reward_id === r.id; });
+    const canAfford = starBalance >= r.star_cost;
+    const cardClass = hasPending ? 'pending' : canAfford ? 'affordable' : 'locked';
+    const pct = Math.min(100, Math.round((starBalance / r.star_cost) * 100));
+    const starsLeft = Math.max(0, r.star_cost - starBalance);
+    const progressHtml = hasPending
+      ? '<p class="trg-progress-text">⏳ Väntar på godkännande</p>'
+      : canAfford
+        ? '<p class="trg-progress-text">🌟 Redo att lösa in!</p>'
+        : '<div class="trg-bar"><div class="trg-bar-fill" style="width:' + pct + '%"></div></div>' +
+          '<p class="trg-progress-text">' + starBalance + ' / ' + r.star_cost + ' ⭐ · ' + starsLeft + ' kvar</p>';
+    return '<div class="trg-item ' + cardClass + '" style="animation-delay:' + (i * 35) + 'ms;">' +
+      (hasPending ? '<span class="trg-badge">⏳</span>' : canAfford ? '<span class="trg-badge">🌟</span>' : '') +
+      '<div class="trg-icon">' + (r.icon || '🎁') + '</div>' +
+      '<div class="trg-name">' + escHtml(r.name) + '</div>' +
+      '<div class="trg-cost">⭐ ' + r.star_cost + '</div>' +
+      progressHtml +
+      '</div>';
   }
 
   async function selectChild(childId) {
