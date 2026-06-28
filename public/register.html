@@ -34,7 +34,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag"> <!-- pragma: allowlist secret -->
   <!-- Marketing events (GA4 sign_up + Google Ads) — before cookie-banner -->
-  <script src="/js/marketing-events.js?v=2.13.3"></script>
+  <script src="/js/marketing-events.js?v=2.13.4"></script>
+  <script src="/js/utm-capture.js?v=1.0.0"></script>
   <script src="/js/referral-capture.js?v=1.0.0"></script>
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
@@ -410,6 +411,7 @@
         setLoading(submitBtn, true);
 
         try {
+          const utm = (window.UtmCapture && UtmCapture.get()) || {};
           await Auth.api('/api/auth/register', {
             method: 'POST',
             body: JSON.stringify({
@@ -418,6 +420,12 @@
               family_name: familyName.value.trim(),
               password: password.value,
               referral_code: (window.ReferralCapture && ReferralCapture.getCode()) || undefined,
+              utm_source: utm.utm_source,
+              utm_medium: utm.utm_medium,
+              utm_campaign: utm.utm_campaign,
+              utm_content: utm.utm_content,
+              utm_term: utm.utm_term,
+              fbclid: utm.fbclid,
             }),
           });
           if (window.ReferralCapture) ReferralCapture.clear();
@@ -432,8 +440,6 @@
           });
           // Token is in httpOnly cookie (set by server). Pass null for token.
           Auth.setAuth(null, loginData.user, loginData.csrfToken, loginData.expiresAt);
-          // Fire Meta Pixel Lead + GA4 sign_up + Google Ads conversion on successful signup
-          if (window.Pixel) window.Pixel.lead();
           if (window.MarketingEvents) MarketingEvents.trackSignup('email');
           Auth.redirectToDashboard(); // goes to /onboarding for new accounts
         } catch (error) {
@@ -481,13 +487,11 @@
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-          if (window.Pixel) window.Pixel.lead();
           if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => Auth.redirectToDashboard(), 300);
         } else if (res.status === 201 && data.user) {
           // New account created via Apple
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
-          if (window.Pixel) window.Pixel.lead();
           if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => window.location.href = '/onboarding', 300);
         } else if (res.status === 409 && (data.error === 'APPLE_EMAIL_EXISTS' || data.error === 'email_conflict')) {

@@ -16,6 +16,10 @@ function trackSignupStarted(familyId) {
   analytics.track(familyId, 'funnel_signup_started');
 }
 
+function trackSignupAttribution(familyId, metadata = {}) {
+  analytics.track(familyId, 'signup_attribution', metadata);
+}
+
 function trackEmailVerified(familyId) {
   analytics.track(familyId, 'funnel_email_verified');
 }
@@ -119,6 +123,7 @@ function trackActivationAchieved48h(familyId, metadata = {}) {
 module.exports = {
   trackLandingVisit,
   trackSignupStarted,
+  trackSignupAttribution,
   trackEmailVerified,
   trackFirstChildCreated,
   trackOnboardingCompleted,

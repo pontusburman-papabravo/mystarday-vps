@@ -64,27 +64,52 @@
     gtag('config', ADS_ACCOUNT_ID);
   }
 
+  function getAttribution() {
+    if (window.UtmCapture && typeof UtmCapture.get === 'function') {
+      return UtmCapture.get() || {};
+    }
+    return {};
+  }
+
+  function trackMetaSignup(method) {
+    if (!hasMarketingConsent() || typeof window.fbq !== 'function') return;
+    const payload = { content_name: method || 'email' };
+    const utm = getAttribution();
+    if (utm.utm_source) payload.source = utm.utm_source;
+    if (utm.utm_campaign) payload.campaign = utm.utm_campaign;
+    fbq('track', 'CompleteRegistration', payload);
+    fbq('track', 'Lead');
+    if (window.Pixel && typeof window.Pixel.lead === 'function') window.Pixel.lead();
+  }
+
   /**
-   * Fire GA4 sign_up (analytics consent) and Google Ads conversion (marketing consent).
+   * Fire GA4 sign_up (analytics consent) and Meta/Google Ads (marketing consent).
    * @param {string} [method] email | apple | google
    */
   function trackSignup(method) {
     const gtag = gtagFn();
-    if (!gtag) return;
+    const utm = getAttribution();
+    const signupMethod = method || 'email';
 
-    if (hasAnalyticsConsent()) {
-      gtag('event', 'sign_up', {
-        method: method || 'email',
+    if (gtag && hasAnalyticsConsent()) {
+      gtag('event', 'sign_up', Object.assign({
+        method: signupMethod,
         send_to: GA4_ID,
-      });
+      }, utm));
     }
 
-    if (hasMarketingConsent() && ADS_SIGNUP_LABEL) {
+    if (hasMarketingConsent() && ADS_SIGNUP_LABEL && gtag) {
       gtag('event', 'conversion', {
         send_to: ADS_SIGNUP_LABEL,
         value: 0,
         currency: 'SEK',
       });
+    }
+
+    trackMetaSignup(signupMethod);
+
+    if (window.UtmCapture && typeof UtmCapture.clear === 'function') {
+      UtmCapture.clear();
     }
   }
 
