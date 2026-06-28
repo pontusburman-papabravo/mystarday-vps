@@ -33,7 +33,19 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       console.error('[AUTH] Feature flag check error:', flagErr);
     }
 
-    const { email, password, name, family_name, referral_code: referralCodeRaw } = req.body;
+    const {
+      email,
+      password,
+      name,
+      family_name,
+      referral_code: referralCodeRaw,
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+      utm_content: utmContent,
+      utm_term: utmTerm,
+      fbclid,
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -287,7 +299,18 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       await client.query('COMMIT');
 
       // Analytics: funnel step — signup_started (family just created)
-      require('../../lib/analytics-tracker').trackSignupStarted(familyId);
+      const tracker = require('../../lib/analytics-tracker');
+      tracker.trackSignupStarted(familyId);
+      const attribution = {};
+      if (utmSource) attribution.utm_source = utmSource;
+      if (utmMedium) attribution.utm_medium = utmMedium;
+      if (utmCampaign) attribution.utm_campaign = utmCampaign;
+      if (utmContent) attribution.utm_content = utmContent;
+      if (utmTerm) attribution.utm_term = utmTerm;
+      if (fbclid) attribution.fbclid = fbclid;
+      if (Object.keys(attribution).length > 0) {
+        tracker.trackSignupAttribution(familyId, attribution);
+      }
       require('../../lib/activation-p0').ensureActivationState(familyId, new Date()).catch((err) => {
         console.error('[AUTH] ensureActivationState failed for', familyId, ':', err.message);
       });

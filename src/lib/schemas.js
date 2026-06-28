@@ -67,6 +67,13 @@ const RegisterSchema = z.object({
   invite_token: z.string().max(128).optional(),
   // referral v0 — ?ref= capture at signup
   referral_code: z.string().max(12).optional(),
+  // ad attribution — persisted from ?utm_* / fbclid via utm-capture.js
+  utm_source: z.string().max(255).optional(),
+  utm_medium: z.string().max(255).optional(),
+  utm_campaign: z.string().max(255).optional(),
+  utm_content: z.string().max(255).optional(),
+  utm_term: z.string().max(255).optional(),
+  fbclid: z.string().max(255).optional(),
   // language is optional
   language: z.string().max(10).optional(),
 });
