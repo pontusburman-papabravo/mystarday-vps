@@ -314,6 +314,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       require('../../lib/activation-p0').ensureActivationState(familyId, new Date()).catch((err) => {
         console.error('[AUTH] ensureActivationState failed for', familyId, ':', err.message);
       });
+      require('../../lib/journey/ingest').ingestMilestoneAsync({
+        familyId,
+        milestone: 'account_created',
+        source: 'system',
+      });
 
       // Referral v0 — capture ?ref= at signup (no reward in v0)
       if (referralCodeRaw) {

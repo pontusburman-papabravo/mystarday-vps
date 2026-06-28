@@ -32,6 +32,9 @@
 
   function dismiss() {
     if (isNativeShell()) return;
+    if (window.JourneyContextClient) {
+      JourneyContextClient.postEvent('handoff_deferred').catch(function () {});
+    }
     try {
       localStorage.setItem(DISMISS_KEY, JSON.stringify({ ts: Date.now() }));
     } catch (_) {}
@@ -40,6 +43,9 @@
   }
 
   function startChildLogin() {
+    if (window.JourneyContextClient) {
+      JourneyContextClient.postEvent('handoff_started').catch(function () {});
+    }
     if (window.Auth && typeof Auth.logout === 'function') {
       Auth.logout({ childFlow: true });
     } else {

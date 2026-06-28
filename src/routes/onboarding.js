@@ -167,6 +167,11 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
       require('../../db/analytics').track(req.user.familyId, 'child_profile_created', {
         child_id: child.id,
       });
+      require('../lib/journey/ingest').ingestMilestoneAsync({
+        familyId: req.user.familyId,
+        milestone: 'child_created',
+        childId: child.id,
+      });
 
       res.status(201).json({
         id: child.id,
@@ -416,6 +421,10 @@ router.post('/schedule', async (req, res) => {
       }).catch((err) => {
         console.error('[ONBOARDING] activation schema_saved error:', err.message);
       });
+      require('../lib/journey/ingest').ingestMilestoneAsync({
+        familyId,
+        milestone: 'routine_ready',
+      });
 
       res.json({
         success: true,
@@ -647,6 +656,11 @@ router.post('/reward', validate(OnboardingRewardSchema), async (req, res) => {
        RETURNING id, name, icon, star_cost`,
       [req.user.familyId, name.trim(), icon || '🎁', cost]
     );
+
+    require('../lib/journey/ingest').ingestMilestoneAsync({
+      familyId: req.user.familyId,
+      milestone: 'rewards_ready',
+    });
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -888,8 +902,8 @@ router.post('/child-access-complete', async (req, res) => {
 });
 
 // ─── POST /api/onboarding/complete ───────────────────────
-// Marks the parent's onboarding as done.
-// Tracks funnel_onboarding_completed analytics event.
+// Marks the parent's onboarding as done (auth/routing only).
+// DO NOT USE onboarding_completed FOR PRODUCT LOGIC — use journey_phase / milestones
 router.post('/complete', async (req, res) => {
   try {
     await db.query(
@@ -898,6 +912,8 @@ router.post('/complete', async (req, res) => {
     );
     // Analytics: funnel step — onboarding completed
     require('../lib/analytics-tracker').trackOnboardingCompleted(req.user.familyId);
+    const { recomputePhase } = require('../lib/journey/ingest');
+    await recomputePhase(req.user.familyId);
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);

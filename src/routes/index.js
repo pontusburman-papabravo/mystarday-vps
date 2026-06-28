@@ -21,6 +21,7 @@ function registerRoutes(app) {
   app.use('/api/me', require('./goals').childRouter);
   app.use('/api/me', require('./ratings').childRouter);
   app.use('/api/me/activation-program', require('./activation-program'));
+  app.use('/api/me', require('./journey-context'));
   const childUniverse = require('./child-universe');
   app.use('/api/me', childUniverse.childRouter);
   app.use('/api/family', childUniverse.parentRouter);

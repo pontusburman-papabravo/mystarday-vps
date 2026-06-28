@@ -273,6 +273,13 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     const expiresInSecs = parseDuration(config.jwt.childExpiresIn);
     setAccessCookie(res, accessToken, expiresInSecs);
 
+    const { ingestMilestoneAsync } = require('../../lib/journey/ingest');
+    ingestMilestoneAsync({
+      familyId: child.family_id,
+      milestone: 'child_logged_in',
+      childId: child.id,
+    });
+
     const csrfToken = generateCsrfToken(res);
     const user = {
       id: child.id,

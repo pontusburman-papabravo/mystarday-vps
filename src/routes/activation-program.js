@@ -623,6 +623,11 @@ router.post('/aha-dismiss', async (req, res) => {
     }
 
     await parentSeenCompletion.markSeen(parentId, dailyLogItemId);
+    require('../lib/journey/ingest').ingestMilestoneAsync({
+      familyId,
+      milestone: 'parent_saw_completion',
+      metadata: { daily_log_item_id: String(dailyLogItemId) },
+    });
     analyticsTracker.trackParentAhaMomentDismissed(familyId, {
       daily_log_item_id: String(dailyLogItemId),
       program_id: String(program.id),
