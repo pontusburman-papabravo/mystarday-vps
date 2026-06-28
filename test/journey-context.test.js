@@ -80,6 +80,19 @@ describe('journey evaluator — deriveContext', () => {
     });
     assert.ok(codes.includes(ReasonCode.WAITING_FOR_PARENT_ACK));
   });
+
+  it('child_first_completion without parent ack → parent_ack_completion blocking', () => {
+    const ctx = deriveContext({
+      phase: 'FIRST_USE',
+      milestones: {
+        routine_ready: 'a',
+        rewards_ready: 'b',
+        child_logged_in: 'c',
+        child_first_completion: 'd',
+      },
+    });
+    assert.equal(ctx.blocking_experience, 'parent_ack_completion');
+  });
 });
 
 describe('journey ingest — idempotency (mock DB)', () => {
@@ -92,6 +105,12 @@ describe('journey ingest — idempotency (mock DB)', () => {
       const q = String(sql);
       if (q.includes('feature_flag')) {
         return { rows: [{ enabled: true }] };
+      }
+      if (q.includes('ON CONFLICT') && params?.[1] === 'handoff_started') {
+        const dup = rows.some((r) => r.milestone === 'handoff_started');
+        if (dup) return { rows: [] };
+        rows.push({ milestone: 'handoff_started', family_id: familyId });
+        return { rows: [rows[rows.length - 1]] };
       }
       if (q.includes('SELECT 1 FROM family_milestones') && params?.[1] === 'handoff_started') {
         return { rows: rows.length ? [{ n: 1 }] : [] };
@@ -106,6 +125,8 @@ describe('journey ingest — idempotency (mock DB)', () => {
             milestone: r.milestone,
             occurred_at: new Date(),
             metadata: {},
+            child_id: null,
+            scope_key: '',
           })),
         };
       }

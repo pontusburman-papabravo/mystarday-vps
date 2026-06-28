@@ -1,6 +1,7 @@
 /**
  * dashboard-child-handoff.js — tydlig "barnet loggar in" / logout på föräldraöversikten.
  * Viktigt i native app där sidomeny och logout saknas på Hem.
+ * Fas 2: när handoff_v2 är aktiv styrs synlighet av Journey Context.
  */
 (function () {
   'use strict';
@@ -63,21 +64,15 @@
     }
   }
 
-  function init() {
-    const el = document.getElementById('dashboardChildHandoff');
-    if (!el) return;
+  function contextWantsHandoff(ctx) {
+    if (!ctx) return false;
+    if (ctx.blocking_experience === 'handoff_to_child') return true;
+    return ctx.priority === 'handoff'
+      && Array.isArray(ctx.recommended_experiences)
+      && ctx.recommended_experiences.includes('handoff_to_child');
+  }
 
-    if (!isNativeShell() && !isMobileWeb()) {
-      el.classList.add('hidden');
-      return;
-    }
-    if (isDismissed()) {
-      el.classList.add('hidden');
-      return;
-    }
-
-    el.classList.remove('hidden');
-
+  function bindEvents(el) {
     const childBtn = document.getElementById('dashboardChildLoginBtn');
     const logoutBtn = document.getElementById('dashboardParentLogoutBtn');
     const dismissBtn = document.getElementById('dashboardChildHandoffDismiss');
@@ -90,10 +85,49 @@
     }
   }
 
+  async function resolveVisibility(el) {
+    if (!el) return;
+
+    if (!isNativeShell() && !isMobileWeb()) {
+      el.classList.add('hidden');
+      return;
+    }
+
+    if (window.JourneyContextClient) {
+      try {
+        const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
+        if (journeyOn) {
+          const ctx = await JourneyContextClient.fetchContext();
+          if (ctx?.capabilities?.handoff_v2) {
+            el.classList.toggle('hidden', !contextWantsHandoff(ctx));
+            if (!contextWantsHandoff(ctx)) return;
+            bindEvents(el);
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (isDismissed()) {
+      el.classList.add('hidden');
+      return;
+    }
+
+    el.classList.remove('hidden');
+    bindEvents(el);
+  }
+
+  function init() {
+    const el = document.getElementById('dashboardChildHandoff');
+    if (!el) return;
+    resolveVisibility(el);
+  }
+
   window.DashboardChildHandoff = {
     init: init,
     dismiss: dismiss,
     startChildLogin: startChildLogin,
     parentLogout: parentLogout,
+    resolveVisibility: resolveVisibility,
   };
 })();

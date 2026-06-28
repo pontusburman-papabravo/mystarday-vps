@@ -1,27 +1,17 @@
 'use strict';
 
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const { requireParent } = require('../middleware/auth');
 const familyMilestones = require('../../db/family-milestones');
-const { deriveContext, getContextDerivation, getPhaseDerivation } = require('../lib/journey/evaluator');
+const { getContextDerivation, getPhaseDerivation } = require('../lib/journey/evaluator');
 const { ingestClientIntent } = require('../lib/journey/ingest');
+const { buildContextForFamily } = require('../lib/journey/context-builder');
+const { loadRegistry } = require('../lib/journey/registry');
 const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags');
+const { listUnseenCompletions, mapCompletionRow } = require('../lib/activation-program-aha');
 
 const router = express.Router();
 router.use(requireParent);
-
-const REGISTRY_PATH = path.join(__dirname, '../../config/journey-experience-registry.json');
-
-function loadRegistry() {
-  try {
-    return JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
-  } catch (err) {
-    console.error('[journey-context] registry load failed:', err.message);
-    return { version: '2026-06-28-v1', phases: {} };
-  }
-}
 
 async function requireContextApi(req, res, next) {
   const enabled = await isFlagEnabled(FLAG_KEYS.contextApi);
@@ -31,39 +21,14 @@ async function requireContextApi(req, res, next) {
   next();
 }
 
-async function buildContextForFamily(familyId) {
-  const evaluatorOn = await isFlagEnabled(FLAG_KEYS.evaluatorEnabled);
-  const phase = await familyMilestones.getJourneyPhase(familyId);
-  const milestones = await familyMilestones.getMilestoneMap(familyId);
-
-  if (!evaluatorOn) {
-    return {
-      phase,
-      milestones,
-      recommended_experiences: [],
-      blocking_experience: null,
-      celebration: null,
-      priority: 'none',
-      reason: [],
-      registry_version: loadRegistry().version,
-    };
-  }
-
-  return deriveContext({ phase, milestones });
-}
-
 router.use(requireContextApi);
 
-/**
- * GET /api/me/journey-context
- */
 router.get('/journey-context', async (req, res) => {
   try {
     const familyId = req.user.familyId;
-    if (!familyId) {
-      return res.status(400).json({ error: 'Ingen familj kopplad' });
-    }
-    const context = await buildContextForFamily(familyId);
+    if (!familyId) return res.status(400).json({ error: 'Ingen familj kopplad' });
+    const pedagogSkip = req.user.accountType === 'educator' && req.user.preferredViewMode === 'pedagog';
+    const context = await buildContextForFamily(familyId, { pedagogSkip });
     res.json(context);
   } catch (err) {
     console.error('[journey-context] GET error:', err);
@@ -71,9 +36,6 @@ router.get('/journey-context', async (req, res) => {
   }
 });
 
-/**
- * GET /api/me/journey-debug
- */
 router.get('/journey-debug', async (req, res) => {
   try {
     const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
@@ -81,28 +43,21 @@ router.get('/journey-debug', async (req, res) => {
     if (!isDev && !debugFlag && !req.user.isAdmin) {
       return res.status(403).json({ error: 'Ej behörig' });
     }
-
     const familyId = req.user.familyId;
-    if (!familyId) {
-      return res.status(400).json({ error: 'Ingen familj kopplad' });
-    }
+    if (!familyId) return res.status(400).json({ error: 'Ingen familj kopplad' });
 
     const milestones = await familyMilestones.getMilestoneMap(familyId);
     const phase = await familyMilestones.getJourneyPhase(familyId);
     const context = await buildContextForFamily(familyId);
     const flags = await getFlagState();
+    const phaseOpts = await require('../lib/journey/ingest').getPhaseOpts();
 
     res.json({
       phase: context.phase,
-      phase_derivation: getPhaseDerivation(milestones),
+      phase_derivation: getPhaseDerivation(milestones, phaseOpts),
       context_derivation: getContextDerivation(context),
       milestones_raw: await familyMilestones.listRaw(familyId),
-      flags: {
-        context_api: flags.contextApi,
-        ingest_enabled: flags.ingestEnabled,
-        evaluator_enabled: flags.evaluatorEnabled,
-        debug_api: flags.debugApi,
-      },
+      flags,
       stored_phase: phase,
     });
   } catch (err) {
@@ -111,23 +66,21 @@ router.get('/journey-debug', async (req, res) => {
   }
 });
 
-/**
- * POST /api/me/journey-context/events
- * Body: { intent: 'handoff_started' | 'handoff_deferred' | 'celebration_dismissed', child_id? }
- */
 router.post('/journey-context/events', async (req, res) => {
   try {
     const familyId = req.user.familyId;
-    const { intent, child_id: childId } = req.body || {};
+    const { intent, child_id: childId, daily_log_item_id: dailyLogItemId } = req.body || {};
+    if (!familyId || !intent) return res.status(400).json({ error: 'intent krävs' });
 
-    if (!familyId || !intent) {
-      return res.status(400).json({ error: 'intent krävs' });
-    }
+    const metadata = {};
+    if (dailyLogItemId) metadata.daily_log_item_id = dailyLogItemId;
+    if (intent === 'parent_ack_dismissed') metadata.parent_id = req.user.id;
 
     const result = await ingestClientIntent({
       familyId,
       intent,
       childId: childId || null,
+      metadata,
     });
 
     if (!result.ok) {
@@ -135,19 +88,46 @@ router.post('/journey-context/events', async (req, res) => {
       return res.status(status).json({ error: result.error || 'Kunde inte registrera händelse' });
     }
 
-    const context = await buildContextForFamily(familyId);
-    res.json({ ok: true, context });
+    res.json({ ok: true, context: await buildContextForFamily(familyId) });
   } catch (err) {
     console.error('[journey-context] events error:', err);
     res.status(500).json({ error: 'Något gick fel' });
   }
 });
 
+router.get('/journey-context/registry', async (req, res) => {
+  try {
+    const registry = await loadRegistry({
+      useDb: await isFlagEnabled(FLAG_KEYS.registryV2),
+    });
+    res.json(registry);
+  } catch (err) {
+    res.status(500).json({ error: 'Något gick fel' });
+  }
+});
+
 /**
- * GET /api/me/journey-context/registry
+ * Pending completions for parent-ack modal (Fas 2 — no activation program required).
  */
-router.get('/journey-context/registry', (_req, res) => {
-  res.json(loadRegistry());
+router.get('/journey-context/pending-completions', async (req, res) => {
+  try {
+    const ackOn = await isFlagEnabled(FLAG_KEYS.parentAckV1);
+    if (!ackOn) return res.json({ completions: [] });
+
+    const familyId = req.user.familyId;
+    const parentId = req.user.id;
+    if (!familyId) return res.json({ completions: [] });
+
+    const rows = await listUnseenCompletions(parentId, familyId);
+    const now = new Date();
+    res.json({
+      completions: rows.map((row) => mapCompletionRow(row, now)),
+    });
+  } catch (err) {
+    console.error('[journey-context] pending-completions error:', err);
+    res.status(500).json({ error: 'Något gick fel' });
+  }
 });
 
 module.exports = router;
+module.exports.buildContextForFamily = buildContextForFamily;

@@ -1,53 +1,44 @@
 'use strict';
 
 const { ReasonCode } = require('./reason-codes');
-const { derivePhase, getPhaseDerivation } = require('./phases');
+const { derivePhase, getPhaseDerivation, needsHandoff } = require('./phases');
 
-const REGISTRY_VERSION = '2026-06-28-v1';
+const DEFAULT_REGISTRY_VERSION = '2026-06-28-v1';
 
 /**
- * Pure evaluator — no DB access.
- * Fail-safe: always returns valid context; blocking_experience null on inconsistency.
- * @param {{ phase?: string, milestones?: Record<string, unknown> }} input
+ * @param {{ phase?: string, milestones?: Record<string, unknown>, opts?: object, registryVersion?: string }} input
  */
 function deriveContext(input = {}) {
   const milestones = input.milestones && typeof input.milestones === 'object'
     ? { ...input.milestones }
     : {};
+  const opts = input.opts || {};
+  const registryVersion = input.registryVersion || DEFAULT_REGISTRY_VERSION;
+
+  if (opts.pedagogSkip) {
+    return emptyContext('SETTING_UP', milestones, registryVersion, [ReasonCode.PEDAGOG_SKIP]);
+  }
 
   const celebrationShown = Boolean(milestones._celebration_shown);
   delete milestones._celebration_shown;
 
-  let phase = input.phase || derivePhase(milestones);
+  let phase = input.phase || derivePhase(milestones, opts);
 
-  // Fail-safe: inconsistent combos → SETTING_UP, no blocking
-  const inconsistent = isInconsistent(milestones);
-  if (inconsistent) {
-    phase = 'SETTING_UP';
-    return {
-      phase,
-      milestones,
-      recommended_experiences: [],
-      blocking_experience: null,
-      celebration: null,
-      priority: 'none',
-      reason: [ReasonCode.INCONSISTENT_STATE],
-      registry_version: REGISTRY_VERSION,
-    };
+  if (isInconsistent(milestones)) {
+    return emptyContext('SETTING_UP', milestones, registryVersion, [ReasonCode.INCONSISTENT_STATE]);
   }
 
-  const reason = deriveReasonCodes(phase, milestones);
-
-  if (phase === 'FIRST_USE' && !milestones.child_logged_in) {
+  // Parent ack blocking (Fas 2+)
+  if (milestones.child_first_completion && !milestones.parent_saw_completion && !milestones.first_success) {
     return {
       phase,
       milestones,
-      recommended_experiences: ['handoff_to_child'],
-      blocking_experience: 'handoff_to_child',
+      recommended_experiences: ['parent_ack_completion'],
+      blocking_experience: 'parent_ack_completion',
       celebration: null,
-      priority: 'handoff',
-      reason,
-      registry_version: REGISTRY_VERSION,
+      priority: 'coach',
+      reason: [ReasonCode.WAITING_FOR_PARENT_ACK],
+      registry_version: registryVersion,
     };
   }
 
@@ -60,22 +51,78 @@ function deriveContext(input = {}) {
       celebration: 'celebrate_first_success',
       priority: 'celebration',
       reason: [ReasonCode.FIRST_SUCCESS_COMPLETED],
-      registry_version: REGISTRY_VERSION,
+      registry_version: registryVersion,
     };
   }
 
-  if (phase === 'BUILDING_ROUTINE' || milestones.first_success) {
+  if (needsHandoff(milestones, phase)) {
+    const reason = phase === 'EXPANDING'
+      ? [ReasonCode.EXPANDING_HANDOFF, ReasonCode.NO_CHILD_LOGIN]
+      : [ReasonCode.NO_CHILD_LOGIN, ReasonCode.READY_FOR_HANDOFF];
     return {
-      phase: 'BUILDING_ROUTINE',
+      phase,
+      milestones,
+      recommended_experiences: ['handoff_to_child'],
+      blocking_experience: 'handoff_to_child',
+      celebration: null,
+      priority: 'handoff',
+      reason,
+      registry_version: registryVersion,
+      handoff_child_id: milestones._pending_handoff_child_id || null,
+    };
+  }
+
+  if (phase === 'INDEPENDENCE') {
+    return {
+      phase,
       milestones,
       recommended_experiences: [],
       blocking_experience: null,
       celebration: null,
       priority: 'none',
-      reason: milestones.first_success
-        ? [ReasonCode.FIRST_SUCCESS_COMPLETED]
-        : reason,
-      registry_version: REGISTRY_VERSION,
+      reason: [ReasonCode.INDEPENDENCE_ACHIEVED],
+      registry_version: registryVersion,
+    };
+  }
+
+  if (phase === 'ESTABLISHED_ROUTINE') {
+    return {
+      phase,
+      milestones,
+      recommended_experiences: opts.coachEnabled ? ['coach_expand'] : [],
+      blocking_experience: null,
+      celebration: null,
+      priority: opts.coachEnabled ? 'coach' : 'none',
+      reason: [ReasonCode.ESTABLISHED_ROUTINE],
+      registry_version: registryVersion,
+    };
+  }
+
+  if (phase === 'BUILDING_ROUTINE' && opts.coachEnabled && !milestones.established_routine) {
+    const experiences = ['coach_consistency'];
+    if (!milestones.evening_routine_added) experiences.push('coach_evening');
+    return {
+      phase,
+      milestones,
+      recommended_experiences: experiences,
+      blocking_experience: null,
+      celebration: null,
+      priority: 'coach',
+      reason: [ReasonCode.COACH_CONSISTENCY],
+      registry_version: registryVersion,
+    };
+  }
+
+  if (phase === 'FIRST_USE' && milestones.child_logged_in) {
+    return {
+      phase,
+      milestones,
+      recommended_experiences: [],
+      blocking_experience: null,
+      celebration: null,
+      priority: 'coach',
+      reason: deriveReasonCodes(phase, milestones),
+      registry_version: registryVersion,
     };
   }
 
@@ -86,43 +133,38 @@ function deriveContext(input = {}) {
       recommended_experiences: ['handoff_to_child'],
       blocking_experience: null,
       celebration: null,
-      priority: 'coach',
-      reason,
-      registry_version: REGISTRY_VERSION,
+      priority: 'handoff',
+      reason: deriveReasonCodes(phase, milestones),
+      registry_version: registryVersion,
     };
   }
 
+  return emptyContext(phase, milestones, registryVersion, deriveReasonCodes(phase, milestones));
+}
+
+function emptyContext(phase, milestones, registryVersion, reason) {
   return {
-    phase: 'SETTING_UP',
+    phase: phase === 'SETTING_UP' ? 'SETTING_UP' : phase,
     milestones,
     recommended_experiences: [],
     blocking_experience: null,
     celebration: null,
     priority: 'none',
-    reason: [ReasonCode.PHASE_SETTING_UP],
-    registry_version: REGISTRY_VERSION,
+    reason,
+    registry_version: registryVersion,
   };
 }
 
 function isInconsistent(milestones) {
-  // child_logged_in without setup milestones
   if (milestones.child_logged_in && (!milestones.routine_ready || !milestones.rewards_ready)) {
-    return true;
+    if (!milestones._children_logged_in?.length) return true;
   }
-  // first_success without both prerequisites
   if (milestones.first_success) {
-    if (!milestones.child_first_completion || !milestones.parent_saw_completion) {
-      return true;
-    }
+    if (!milestones.child_first_completion || !milestones.parent_saw_completion) return true;
   }
   return false;
 }
 
-/**
- * @param {string} phase
- * @param {Record<string, unknown>} milestones
- * @returns {string[]}
- */
 function deriveReasonCodes(phase, milestones) {
   const codes = [];
   if (phase === 'FIRST_USE' && !milestones.child_logged_in) {
@@ -135,42 +177,32 @@ function deriveReasonCodes(phase, milestones) {
   if (phase === 'FIRST_USE' && milestones.child_logged_in && !milestones.child_first_completion) {
     codes.push(ReasonCode.AWAITING_FIRST_COMPLETION);
   }
-  if (milestones.first_success) {
-    codes.push(ReasonCode.FIRST_SUCCESS_COMPLETED);
-  }
-  if (codes.length === 0 && phase === 'SETTING_UP') {
-    codes.push(ReasonCode.PHASE_SETTING_UP);
-  }
+  if (milestones.first_success) codes.push(ReasonCode.FIRST_SUCCESS_COMPLETED);
+  if (!codes.length && phase === 'SETTING_UP') codes.push(ReasonCode.PHASE_SETTING_UP);
   return codes;
 }
 
 function getContextDerivation(context) {
   if (context.reason?.includes(ReasonCode.INCONSISTENT_STATE)) {
-    return {
-      rule: 'inconsistent milestones → SETTING_UP, blocking_experience null',
-      reason: context.reason,
-    };
+    return { rule: 'inconsistent → SETTING_UP', reason: context.reason };
+  }
+  if (context.blocking_experience === 'parent_ack_completion') {
+    return { rule: 'child_first_completion && !parent_saw_completion', reason: context.reason };
   }
   if (context.blocking_experience === 'handoff_to_child') {
-    return {
-      rule: 'FIRST_USE && !child_logged_in → handoff_to_child',
-      reason: context.reason,
-    };
+    return { rule: 'needsHandoff(phase)', reason: context.reason };
   }
-  if (context.celebration === 'celebrate_first_success') {
-    return {
-      rule: 'first_success && !celebration_shown → celebrate_first_success',
-      reason: context.reason,
-    };
+  if (context.celebration) {
+    return { rule: 'first_success && !celebration_shown', reason: context.reason };
   }
-  return {
-    rule: 'no blocking or celebration',
-    reason: context.reason,
-  };
+  if (context.priority === 'coach') {
+    return { rule: 'coach projection', reason: context.reason };
+  }
+  return { rule: 'default', reason: context.reason };
 }
 
 module.exports = {
-  REGISTRY_VERSION,
+  DEFAULT_REGISTRY_VERSION,
   deriveContext,
   deriveReasonCodes,
   getContextDerivation,

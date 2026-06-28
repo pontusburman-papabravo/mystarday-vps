@@ -39,9 +39,20 @@ const {
   getFamilyTimezone,
 } = require('../lib/activation-program-aha');
 const analyticsTracker = require('../lib/analytics-tracker');
+const { FLAG_KEYS, isFlagEnabled } = require('../lib/journey/flags');
 
 const router = express.Router();
 router.use(requireParent);
+
+router.use(async (req, res, next) => {
+  if (await isFlagEnabled(FLAG_KEYS.activationApiDeprecated)) {
+    return res.status(410).json({
+      error: 'Activation-programmet är avvecklat. Använd Family Journey Context.',
+      migration: '/api/me/journey-context',
+    });
+  }
+  next();
+});
 
 function isFeatureActive() {
   return isActivationProgramEnabled();
@@ -221,6 +232,9 @@ const ENROLL_CHOICE_COPY = {
  */
 router.get('/enroll-choice', async (req, res) => {
   try {
+    if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
+      return res.json({ show: false, sunset: true });
+    }
     if (!isProgramFeatureLive()) {
       return res.json({ show: false });
     }
@@ -257,6 +271,12 @@ router.get('/enroll-choice', async (req, res) => {
  */
 router.post('/enroll-choice', async (req, res) => {
   try {
+    if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
+      return res.status(410).json({
+        error: 'Nya aktiveringsprogram stängs av. Använd Family Journey.',
+        migration: '/api/me/journey-context',
+      });
+    }
     if (!isProgramFeatureLive()) {
       return res.status(404).json({ error: 'Inte tillgängligt' });
     }

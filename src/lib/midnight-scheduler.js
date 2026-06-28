@@ -115,6 +115,13 @@ async function runMidnightJob() {
     } catch (err) {
       console.error('[MIDNIGHT-SCHEDULER] Win-back auto-reject failed:', err.message);
     }
+
+    try {
+      const { runJourneyPhaseEvaluationJob } = require('./journey/established-routine');
+      await runJourneyPhaseEvaluationJob();
+    } catch (err) {
+      console.error('[MIDNIGHT-SCHEDULER] Journey phase evaluation failed:', err.message);
+    }
   } finally {
     if (lockAcquired) {
       await client.query('SELECT pg_advisory_unlock($1)', [MIDNIGHT_SCHEDULER_LOCK_ID]).catch(() => {});

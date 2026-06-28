@@ -136,7 +136,21 @@
 
   function init() {
     if (!document.getElementById(MOUNT_ID)) return;
-    load().catch(function () {});
+    (async function () {
+      if (window.JourneyContextClient) {
+        try {
+          const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
+          if (journeyOn) {
+            const ctx = await JourneyContextClient.fetchContext();
+            if (ctx?.capabilities?.coach_v1) {
+              clear();
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+      load().catch(function () {});
+    })();
   }
 
   if (document.readyState === 'loading') {

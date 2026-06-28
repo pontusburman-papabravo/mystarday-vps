@@ -39,10 +39,11 @@
     }
   }
 
-  async function postEvent(intent, childId) {
+  async function postEvent(intent, childId, dailyLogItemId) {
     try {
       const body = { intent };
       if (childId) body.child_id = childId;
+      if (dailyLogItemId) body.daily_log_item_id = dailyLogItemId;
       const res = await window.apiFetch('/api/me/journey-context/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

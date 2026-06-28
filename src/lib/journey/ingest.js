@@ -4,7 +4,6 @@ const familyMilestones = require('../../../db/family-milestones');
 const { derivePhase, resolvePhaseTransition } = require('./phases');
 const { FLAG_KEYS, isFlagEnabled } = require('./flags');
 
-/** Milestones that may be written via ingest (not first_success — derived only). */
 const WRITABLE_MILESTONES = new Set([
   'account_created',
   'child_created',
@@ -15,34 +14,42 @@ const WRITABLE_MILESTONES = new Set([
   'child_logged_in',
   'child_first_completion',
   'parent_saw_completion',
+  'established_routine',
+  'child_self_sufficient_week',
+  'second_child_created',
+  'coparent_joined',
+  'evening_routine_added',
 ]);
 
 const CLIENT_INTENTS = {
   handoff_started: 'handoff_started',
   handoff_deferred: 'handoff_deferred',
   celebration_dismissed: 'celebration_dismissed',
+  parent_ack_dismissed: 'parent_saw_completion',
 };
 
-/**
- * Record a milestone and recompute phase. Idempotent.
- * @returns {Promise<{ ok: boolean, inserted: boolean, phase: string }>}
- */
+async function getPhaseOpts() {
+  return {
+    establishedEnabled: await isFlagEnabled(FLAG_KEYS.establishedPhase),
+    expandingEnabled: await isFlagEnabled(FLAG_KEYS.expandingPhase),
+    independenceEnabled: await isFlagEnabled(FLAG_KEYS.independencePhase),
+  };
+}
+
 async function ingestMilestone({
   familyId,
   milestone,
   childId = null,
+  scopeKey = '',
   metadata = {},
   source = 'system',
 }, client) {
   if (!familyId || !milestone) {
     return { ok: false, inserted: false, phase: 'SETTING_UP' };
   }
-
   if (milestone === 'first_success') {
-    console.warn('[journey/ingest] first_success is derived only — ignoring direct insert');
     return { ok: false, inserted: false, phase: 'SETTING_UP' };
   }
-
   if (!WRITABLE_MILESTONES.has(milestone)) {
     return { ok: false, inserted: false, phase: 'SETTING_UP' };
   }
@@ -52,60 +59,65 @@ async function ingestMilestone({
     return { ok: true, inserted: false, phase: await familyMilestones.getJourneyPhase(familyId, client) };
   }
 
+  const sk = scopeKey || (childId ? familyMilestones.scopeKeyForChild(childId) : '');
   const { inserted } = await familyMilestones.insertMilestone({
     familyId,
     milestone,
     childId,
+    scopeKey: sk,
     metadata,
     source,
   }, client);
 
   await maybeDeriveFirstSuccess(familyId, client);
   const phase = await recomputePhase(familyId, client);
-
   return { ok: true, inserted, phase };
 }
 
-/**
- * Handle client intent from POST /journey-context/events.
- */
 async function ingestClientIntent({ familyId, intent, childId = null, metadata = {} }, client) {
-  const milestone = CLIENT_INTENTS[intent];
-  if (!milestone) {
-    return { ok: false, error: 'unknown_intent' };
-  }
-
   if (intent === 'celebration_dismissed') {
     const ingestOn = await isFlagEnabled(FLAG_KEYS.ingestEnabled);
-    if (ingestOn) {
-      await familyMilestones.markCelebrationShown(familyId, client);
-    }
+    if (ingestOn) await familyMilestones.markCelebrationShown(familyId, client);
     return { ok: true, inserted: false };
   }
 
-  // handoff intents only valid in FIRST_USE
-  const currentPhase = await familyMilestones.getJourneyPhase(familyId, client);
-  const milestones = await familyMilestones.getMilestoneMap(familyId, client);
-  const derivedPhase = derivePhase(milestones);
-
-  if (intent === 'handoff_started' || intent === 'handoff_deferred') {
-    if (derivedPhase !== 'FIRST_USE' && currentPhase !== 'FIRST_USE') {
-      return { ok: false, error: 'invalid_phase' };
+  if (intent === 'parent_ack_dismissed') {
+    const dailyLogItemId = metadata?.daily_log_item_id;
+    if (dailyLogItemId) {
+      const parentSeenCompletion = require('../../../db/parent-seen-completion');
+      const parentId = metadata.parent_id;
+      if (parentId) {
+        await parentSeenCompletion.markSeen(parentId, dailyLogItemId, client);
+      }
     }
+    return ingestMilestone({
+      familyId,
+      milestone: 'parent_saw_completion',
+      metadata,
+      source: 'system',
+    }, client);
+  }
+
+  const milestone = CLIENT_INTENTS[intent];
+  if (!milestone) return { ok: false, error: 'unknown_intent' };
+
+  const milestones = await familyMilestones.getMilestoneMap(familyId, client);
+  const derivedPhase = derivePhase(milestones, await getPhaseOpts());
+  if ((intent === 'handoff_started' || intent === 'handoff_deferred')
+    && !['FIRST_USE', 'EXPANDING'].includes(derivedPhase)) {
+    return { ok: false, error: 'invalid_phase' };
   }
 
   return ingestMilestone({
     familyId,
     milestone,
     childId,
+    scopeKey: childId ? familyMilestones.scopeKeyForChild(childId) : '',
     metadata,
     source: 'system',
   }, client);
 }
 
-/**
- * Derive first_success when both prerequisites exist.
- */
 async function maybeDeriveFirstSuccess(familyId, client) {
   const milestones = await familyMilestones.getMilestoneMap(familyId, client);
   if (milestones.first_success) return false;
@@ -123,15 +135,14 @@ async function maybeDeriveFirstSuccess(familyId, client) {
     occurredAt,
   }, client);
 
-  if (inserted) {
-    await familyMilestones.setJourneyPhase(familyId, 'BUILDING_ROUTINE', client);
-  }
+  if (inserted) await familyMilestones.setJourneyPhase(familyId, 'BUILDING_ROUTINE', client);
   return inserted;
 }
 
 async function recomputePhase(familyId, client) {
+  const opts = await getPhaseOpts();
   const milestones = await familyMilestones.getMilestoneMap(familyId, client);
-  const targetPhase = derivePhase(milestones);
+  const targetPhase = derivePhase(milestones, opts);
   const currentPhase = await familyMilestones.getJourneyPhase(familyId, client);
   const nextPhase = resolvePhaseTransition(currentPhase, targetPhase);
   if (nextPhase !== currentPhase) {
@@ -140,9 +151,6 @@ async function recomputePhase(familyId, client) {
   return nextPhase;
 }
 
-/**
- * Fire-and-forget wrapper for route hooks.
- */
 function ingestMilestoneAsync(params) {
   ingestMilestone(params).catch((err) => {
     console.error('[journey/ingest] async error:', err.message);
@@ -152,6 +160,7 @@ function ingestMilestoneAsync(params) {
 module.exports = {
   WRITABLE_MILESTONES,
   CLIENT_INTENTS,
+  getPhaseOpts,
   ingestMilestone,
   ingestClientIntent,
   maybeDeriveFirstSuccess,

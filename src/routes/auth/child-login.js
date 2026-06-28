@@ -278,6 +278,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
       familyId: child.family_id,
       milestone: 'child_logged_in',
       childId: child.id,
+      scopeKey: require('../../../db/family-milestones').scopeKeyForChild(child.id),
     });
 
     const csrfToken = generateCsrfToken(res);

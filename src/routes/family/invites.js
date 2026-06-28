@@ -334,6 +334,12 @@ router.post('/accept-invite', async (req, res) => {
 
       await client.query('COMMIT');
 
+      require('../../lib/journey/ingest').ingestMilestoneAsync({
+        familyId: invite.family_id,
+        milestone: 'coparent_joined',
+        metadata: { parent_id: req.user.id },
+      });
+
       res.json({ message: 'Du har gått med i familjen!' });
     } catch (err) {
       await client.query('ROLLBACK');

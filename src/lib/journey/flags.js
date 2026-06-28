@@ -8,6 +8,19 @@ const FLAG_KEYS = {
   ingestEnabled: 'family_journey_ingest_enabled',
   evaluatorEnabled: 'family_journey_evaluator_enabled',
   debugApi: 'family_journey_debug_api',
+  registryV2: 'family_journey_registry_v2',
+  handoffV2: 'family_journey_handoff_v2',
+  parentAckV1: 'family_journey_parent_ack_v1',
+  activationNewEnrollments: 'activation_program_new_enrollments',
+  coachV1: 'family_journey_coach_v1',
+  establishedPhase: 'family_journey_established_phase',
+  engineShadow: 'family_journey_engine_shadow',
+  activationApiDeprecated: 'activation_program_api_deprecated',
+  activationUiRemoved: 'activation_program_ui_removed',
+  expandingPhase: 'family_journey_expanding_phase',
+  independencePhase: 'family_journey_independence_phase',
+  pushV1: 'family_journey_push_v1',
+  addChildV1: 'family_journey_add_child_v1',
 };
 
 async function isFlagEnabled(key) {

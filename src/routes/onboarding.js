@@ -172,6 +172,17 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
         milestone: 'child_created',
         childId: child.id,
       });
+      const countResult = await db.query(
+        'SELECT COUNT(*)::int AS n FROM child WHERE family_id = $1',
+        [req.user.familyId]
+      );
+      if ((countResult.rows[0]?.n || 0) > 1) {
+        require('../lib/journey/ingest').ingestMilestoneAsync({
+          familyId: req.user.familyId,
+          milestone: 'second_child_created',
+          childId: child.id,
+        });
+      }
 
       res.status(201).json({
         id: child.id,
