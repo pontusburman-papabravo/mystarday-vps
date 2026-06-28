@@ -1,6 +1,7 @@
 # Family Journey — Implementation Contract
 
 **Appendix till:** [Family Journey Model RFC](./family-journey-model-rfc.md)  
+**Fortsättning:** [Fas 2–5 roadmap](./family-journey-fas2-5-roadmap.md)  
 **Version:** 1.0-rc  
 **Status:** Väntar på RFC workshop-beslut (§7)
 

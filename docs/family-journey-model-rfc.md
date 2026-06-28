@@ -2,7 +2,7 @@
 
 **Status:** Utkast — workshop-underlag  
 **Version:** 1.0-rc  
-**Appendix (efter godkännande):** [Implementation contract](./family-journey-implementation-contract.md)
+**Appendix (efter godkännande):** [Implementation contract](./family-journey-implementation-contract.md) · [Fas 2–5 roadmap](./family-journey-fas2-5-roadmap.md)
 
 ---
 
@@ -347,9 +347,8 @@ Dessa måste besvaras JA/NEJ innan implementation. Övrigt kan justeras i contra
 
 # Nästa steg
 
-1. **Halvdags workshop** — beslut §7 (blockers) + öppna frågor.
-2. **Godkänn RFC** → v1.0.
-3. **Finalisera implementation contract** (appendix).
-4. **Fas 1-kod** — feature flags av tills produktägare aktiverar.
+1. **Fas 1 go-live** — feature flags aktiveras av produktägare (se [implementation contract](./family-journey-implementation-contract.md)).
+2. **Fas 2–5** — låst roadmap med DoD per fas: [family-journey-fas2-5-roadmap.md](./family-journey-fas2-5-roadmap.md).
+3. **Pre-requisites §P1–P4** i roadmap — beslutas innan Fas 2 kod startar.
 
-**Ingen ny journey-logik innan workshop-beslut §7 är tagna. Buggfixar och orelaterade förändringar påverkas inte.**
+**Ingen ny journey-logik utöver godkänd fas-scope. Buggfixar och orelaterade förändringar påverkas inte.**
