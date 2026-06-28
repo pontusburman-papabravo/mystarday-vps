@@ -1,12 +1,12 @@
 # Family Journey — Implementation Contract
 
-**Version:** 1.0  
+**Version:** 0.9  
 **Status:** Utkast — väntar på godkännande  
 **Föregås av:** [Family Journey Model RFC](./family-journey-model-rfc.md)
 
 Syfte: teknisk sanning för implementation. Om RFC och detta dokument motsäger varandra — RFC vinner på domän, detta dokument vinner på tekniska detaljer.
 
-**Regel:** Ingen produktkod förrän detta contract är godkänt.
+**Regel:** Ingen ny journey-logik implementeras innan detta contract är godkänt. Buggfixar och orelaterade förändringar påverkas inte.
 
 ---
 
@@ -147,13 +147,13 @@ Familjer med aktivt `parent_activation_program` behåller fas enligt tabell ovan
 
 ## 1.5 Relation till `family_activation_state`
 
-| Tabell | Roll efter Fas 1 |
-|--------|------------------|
-| `family_activation_state` | Kvar som **fakta-snapshot** (P0-metrics, schedulers) — skrivs inte av nya features |
+| Idag | Blir |
+|------|------|
+| `family_activation_state` | Ersätts gradvis av `journey_phase`; historik och analys bygger på `family_milestones` |
 | `family_milestones` | **Primär historik** för Journey Model |
 | `family.journey_phase` | **Primär fas** |
 
-Domänlagret läser båda under övergång; nya features skriver endast milstolpar.
+Under övergången (Fas 1): befintliga schedulers och P0-metrics kan läsa `family_activation_state` tills de migreras. Nya features skriver endast milstolpar och uppdaterar `journey_phase` — inte `family_activation_state`.
 
 ## 1.6 `onboarding_completed` (oförändrad semantik)
 
@@ -499,6 +499,7 @@ Framtida: Registry i DB/admin — utanför Fas 1.
 - [ ] Fas 1 scope accepterat
 - [ ] Coexistens med activation-program OK
 - [ ] Copy "Låt barnet börja" godkänd
+- [ ] Journey Context ägs av central domäntjänst (inga klient-side journey-regler)
 
 **Efter godkännande:** implementera enligt §5 — en PR, feature flags av tills produktägare aktiverar.
 
@@ -513,5 +514,5 @@ Framtida: Registry i DB/admin — utanför Fas 1.
 | Aha / completion | `src/lib/activation-program-aha.js`, `public/js/activation-program-aha-card.js` |
 | Events | `public/js/child-login.js`, `db/analytics.js` |
 | Activation (coexist) | `src/lib/activation-program.js`, `db/parent-activation-program.js` |
-| Fakta-snapshot | `db/family-activation-state.js`, `family_activation_state` |
+| Legacy (ersätts gradvis) | `db/family-activation-state.js`, `family_activation_state` |
 | Parallell motor | `src/routes/family/first-success.js`, `src/core-engine/` |

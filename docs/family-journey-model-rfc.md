@@ -1,7 +1,7 @@
 # Family Journey Model — RFC
 
-**Status:** Godkänd domänmodell (arkitektur-RFC)  
-**Version:** 1.0  
+**Status:** Utkast — under teamgranskning  
+**Version:** 0.9  
 **Relaterat:** [Implementation contract](./family-journey-implementation-contract.md)
 
 ---
@@ -310,6 +310,7 @@ Kanaler (onboarding, dashboard, push, …)
 - Deterministiskt: samma fakta → samma Context
 - Domänlagret läser inte UI, locale eller copy
 - En enda skrivväg för milstolpar (event-ingestion)
+- Journey Context ägs av en central domäntjänst — inga klienter implementerar egen journey-logik
 - Kanaler får **inte** skriva fas eller milstolpar (utom via definierade events)
 
 Relation till befintlig **Product Engine** (`/api/family/first-success`): parallell under övergång. Journey Model blir **primär sanning för livsfas och upplevelser**; Engine facts kan konsumeras som input tills de slås ihop.
@@ -337,8 +338,8 @@ Relation till befintlig **Product Engine** (`/api/family/first-success`): parall
 | `parent_activation_program` | Innehåll i `BUILDING_ROUTINE` via Registry |
 | `home-readiness` coach-del | Ersätts av Context + Registry |
 | `activation-program-aha-card` | Firande via `celebration` i Context |
-| `family_activation_state` | Fakta källas in; milstolpar blir primär historik |
-| Frontend `if (stars >= 5)` | Förbjudet för produktbeslut |
+| `family_activation_state` | Ersätts gradvis av Journey Phase; historik och analys bygger på milstolpar |
+| Frontend `if (stars >= 5)` | Produktbeslut ska baseras på Journey Context, inte direkt på feature-specifika variabler som `stars >= 5` (rent visuella UI-effekter undantagna) |
 
 Avveckling sker **inkrementellt** — se implementation contract.
 
@@ -351,6 +352,7 @@ Avveckling sker **inkrementellt** — se implementation contract.
 | `first_success_within_48h` | `first_success` inom 48h från `account_created` |
 | `handoff_completion_rate` | `handoff_started` → `child_logged_in` |
 | `phase_distribution` | Andel familjer per livsfas |
+| `phase_transition_latency` | Median tid mellan två livsfaser (visar var familjer fastnar) |
 | `milestone_funnel` | Sekvens account → routine → handoff → first_success |
 
 Befintliga analytics-events (`child_login_success`, `child_first_completion`, `parent_first_completion_seen`) **behålls** och matar milstolpar.
@@ -367,6 +369,7 @@ Befintliga analytics-events (`child_login_success`, `child_first_completion`, `p
 | 4 | Fas 1 scope | SETTING_UP → FIRST_USE → first_success |
 | 5 | 7-dagarsprogram | Avvecklas till BUILDING_ROUTINE-innehåll (ej i Fas 1) |
 | 6 | `onboarding_completed` | Kvar för auth; inte produkt-KPI |
+| 7 | Äger Journey Context | En central domäntjänst — inga klienter får implementera egen journey-logik |
 
 ---
 
@@ -376,4 +379,4 @@ Befintliga analytics-events (`child_login_success`, `child_first_completion`, `p
 2. Implementera enligt [family-journey-implementation-contract.md](./family-journey-implementation-contract.md)
 3. Fas 1 kod: onboarding 5–6, handoff-milstolpar, first_success-firande
 
-**Ingen produktkod förrän RFC + contract är godkända.**
+**Ingen ny journey-logik implementeras innan RFC och Implementation Contract är godkända. Buggfixar och orelaterade förändringar påverkas inte.**
