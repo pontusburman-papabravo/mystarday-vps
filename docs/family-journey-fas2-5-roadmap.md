@@ -1,7 +1,7 @@
 # Family Journey — Fas 2–5 Roadmap (låst spec)
 
+**Övergripande:** [System spec (Fas 1–5)](./family-journey-system-spec.md) — autonom build-spec + governance  
 **Appendix till:** [Family Journey Model RFC](./family-journey-model-rfc.md)  
-**Bygger på:** [Fas 1 implementation contract](./family-journey-implementation-contract.md)  
 **Version:** 1.0-rc  
 **Status:** Låst för implementation efter Fas 1 go-live + PO-beslut §Pre-requisites
 

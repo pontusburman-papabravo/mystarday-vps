@@ -2,7 +2,7 @@
 
 **Status:** Utkast — workshop-underlag  
 **Version:** 1.0-rc  
-**Appendix (efter godkännande):** [Implementation contract](./family-journey-implementation-contract.md) · [Fas 2–5 roadmap](./family-journey-fas2-5-roadmap.md)
+**Appendix (efter godkännande):** [Implementation contract](./family-journey-implementation-contract.md) · [Fas 2–5 roadmap](./family-journey-fas2-5-roadmap.md) · [**System spec (Fas 1–5)**](./family-journey-system-spec.md)
 
 ---
 
