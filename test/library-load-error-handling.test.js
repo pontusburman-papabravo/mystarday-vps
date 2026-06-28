@@ -25,6 +25,25 @@ describe('library load error handling', () => {
     assert.match(src, /initHash === 'treasury'/);
     assert.match(src, /window\.location\.href = '\/skattkammaren'/);
   });
+
+  it('loads library data in parallel with magic hub init', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    assert.match(src, /const dataLoadPromise/);
+    assert.match(src, /await dataLoadPromise/);
+    assert.doesNotMatch(src, /await LibraryMagicHub\.init\(\)[\s\S]{0,120}await Promise\.all\(\[loadCategories/);
+  });
+
+  it('classic mode hash routing works when LibraryMagicHub is present', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    assert.match(src, /function routeLibraryHash/);
+    assert.match(src, /LibraryMagicHub\.isMagic\(\)\) return/);
+  });
+
+  it('switchTab retries rewards/activities load if still on Laddar', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    assert.match(src, /isContainerLoading\('rewardsContainer'\)/);
+    assert.match(src, /isContainerLoading\('activitiesContainer'\)/);
+  });
 });
 
 describe('rewards hub treasury link', () => {

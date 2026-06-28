@@ -66,6 +66,9 @@ let categories = [];
 let activities = [];
 let rewards = [];
 let rewardChildren = [];
+let _rewardsLoaded = false;
+let _activitiesLoaded = false;
+let _categoriesLoaded = false;
 let confirmCallback = null;
 let favValue = false;
 let approvalValue = true;
@@ -100,7 +103,28 @@ const REWARD_ICONS = [
 function showLibraryLoadError(containerId, message) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = `<div class="text-center py-8 text-text-soft"><p class="text-sm">${escHtml(message)}</p></div>`;
+  const safe = typeof escHtml === 'function' ? escHtml(message) : String(message || '');
+  el.innerHTML = `<div class="text-center py-8 text-text-soft"><p class="text-sm">${safe}</p></div>`;
+}
+
+function isContainerLoading(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return false;
+  return /Laddar/i.test(el.textContent || '');
+}
+
+function routeLibraryHash() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'treasury') {
+    window.location.href = '/skattkammaren';
+    return;
+  }
+  if (window.LibraryMagicHub && LibraryMagicHub.isMagic()) return;
+  if (hash === 'schema') switchTab('schema');
+  else if (hash === 'rewards') switchTab('rewards');
+  else if (hash === 'standard') switchTab('standard');
+  else if (hash === 'activities') switchTab('activities');
+  else switchTab('schema');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -114,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return;
   _libIsAdmin = !!user.is_admin;
 
-  document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
+  document.getElementById('logoutBtn')?.addEventListener('click', () => window.logout());
   // logoutBtn2 removed — logout only in sidebar/hamburger menu now
 
   const menuToggle = document.getElementById('menuToggle');
@@ -123,32 +147,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     menuToggle.addEventListener('click', () => sidebar.classList.toggle('hidden'));
   }
 
-  buildIconPicker();
-  buildRewardIconPicker();
-  selectStar(1);
-  setApproval(true);
+  try {
+    buildIconPicker();
+    buildRewardIconPicker();
+    selectStar(1);
+    setApproval(true);
+  } catch (err) {
+    console.warn('[LIBRARY] Picker init skipped:', err.message);
+  }
+
+  // Load library data in parallel with magic hub — never block on AppViewMode.initParent()
+  const dataLoadPromise = (async () => {
+    try {
+      await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+      if (window.LibraryImages) await LibraryImages.init();
+    } catch (err) {
+      console.error('[LIBRARY] Data load error:', err);
+      showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
+    }
+  })();
 
   if (window.LibraryMagicHub) {
     await LibraryMagicHub.init();
   }
 
-  try {
-    await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
-    if (window.LibraryImages) await LibraryImages.init();
-  } catch (err) {
-    console.error('[LIBRARY] Data load error:', err);
-    showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
-  }
+  await dataLoadPromise;
+  routeLibraryHash();
 
-  if (!window.LibraryMagicHub) {
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'schema') switchTab('schema');
-    else if (hash === 'rewards') switchTab('rewards');
-    else if (hash === 'standard') switchTab('standard');
-    else if (hash === 'activities') switchTab('activities');
-    else if (hash === 'treasury') window.location.href = '/skattkammaren';
-    else switchTab('schema');
-  }
   if (window.ParentMagicShell) await ParentMagicShell.init('library');
 });
 
@@ -168,6 +193,12 @@ function switchTab(tab) {
   }
   if (tab === 'standard' && !_standardLoaded) loadStandardLibrary();
   if (tab === 'schema' && !_schemaLoaded) loadSchemaTab();
+  if (tab === 'rewards' && (!_rewardsLoaded || isContainerLoading('rewardsContainer'))) {
+    loadRewards().catch(() => {});
+  }
+  if (tab === 'activities' && (!_activitiesLoaded || isContainerLoading('activitiesContainer'))) {
+    loadActivities().catch(() => {});
+  }
 }
 window.switchTab = switchTab;
 
@@ -192,15 +223,21 @@ window.switchStdSubTab = switchStdSubTab;
 
 // ─── Categories (= schema tabs) ──────────────────────────
 async function loadCategories() {
-  const res = await window.apiFetch('/api/categories');
-  if (res.ok) {
-    categories = await res.json();
-    buildCategoryOptions();
-    renderSchemaTabs();
-    renderActivities();
-    return;
+  try {
+    const res = await window.apiFetch('/api/categories');
+    if (res.ok) {
+      categories = await res.json();
+      _categoriesLoaded = true;
+      buildCategoryOptions();
+      renderSchemaTabs();
+      renderActivities();
+      return;
+    }
+    showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
+  } catch (err) {
+    console.error('[LIBRARY] loadCategories failed:', err);
+    showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
   }
-  showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
 }
 
 function buildCategoryOptions() {
@@ -274,17 +311,24 @@ function updateSchemaTabTitle() {
 
 // ─── Activities ───────────────────────────────────────────
 async function loadActivities() {
-  const res = await window.apiFetch('/api/activities');
-  if (res.ok) {
-    activities = await res.json();
-    renderActivities();
-    return;
+  try {
+    const res = await window.apiFetch('/api/activities');
+    if (res.ok) {
+      activities = await res.json();
+      _activitiesLoaded = true;
+      renderActivities();
+      return;
+    }
+    showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
+  } catch (err) {
+    console.error('[LIBRARY] loadActivities failed:', err);
+    showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
   }
-  showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
 }
 
 function renderActivities() {
   const container = document.getElementById('activitiesContainer');
+  if (!container) return;
 
   if (activities.length === 0 && categories.length === 0) {
     container.innerHTML = `
@@ -461,6 +505,7 @@ function openActivityModalInCategory(catId) {
 // ─── Icon picker ──────────────────────────────────────────
 function buildIconPicker() {
   const container = document.getElementById('iconPicker');
+  if (!container) return;
   container.innerHTML = ICONS.map(icon => `
     <button type="button" class="icon-opt text-2xl rounded-xl hover:bg-white border-2 border-transparent hover:border-gold transition-all flex items-center justify-center" onclick="selectIcon('${icon}')">${icon}</button>
   `).join('');
@@ -468,6 +513,7 @@ function buildIconPicker() {
 
 function buildRewardIconPicker() {
   const container = document.getElementById('rewardIconPicker');
+  if (!container) return;
   container.innerHTML = REWARD_ICONS.map(icon => `
     <button type="button" class="icon-opt text-2xl rounded-xl hover:bg-white border-2 border-transparent hover:border-gold transition-all flex items-center justify-center" onclick="selectRewardIcon('${icon}')">${icon}</button>
   `).join('');
@@ -1194,19 +1240,26 @@ async function copyStandardRewardToLibrary(stdReward) {
 
 // ─── Rewards ──────────────────────────────────────────────
 async function loadRewards() {
-  const res = await window.apiFetch('/api/rewards');
-  if (res.ok) {
-    const data = await res.json();
-    rewards = data.rewards || [];
-    rewardChildren = data.children || [];
-    renderRewards();
-    return;
+  try {
+    const res = await window.apiFetch('/api/rewards');
+    if (res.ok) {
+      const data = await res.json();
+      rewards = data.rewards || [];
+      rewardChildren = data.children || [];
+      _rewardsLoaded = true;
+      renderRewards();
+      return;
+    }
+    showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
+  } catch (err) {
+    console.error('[LIBRARY] loadRewards failed:', err);
+    showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
   }
-  showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
 }
 
 function renderRewards() {
   const container = document.getElementById('rewardsContainer');
+  if (!container) return;
   if (rewards.length === 0) {
     container.innerHTML = `
       <div class="text-center py-12 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">

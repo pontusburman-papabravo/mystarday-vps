@@ -216,7 +216,8 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v399';
+const CACHE_NAME = 'stjarndag-v400';
+// stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
 // stjarndag-v398: Daily log — light text on dark magic activity cards (contrast fix)
 // stjarndag-v397: Engine coach change notice — prod user contract in #engineCoachMount
