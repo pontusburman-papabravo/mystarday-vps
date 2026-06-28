@@ -58,9 +58,10 @@ describe('vuxenmeny v2 — Sprint 2 hubs & redirects', () => {
     assert.match(src, /'family-child'/);
   });
 
-  it('logged-in parent skattkammaren redirects to rewards', () => {
+  it('logged-in parent skattkammaren serves parent treasury page', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
-    assert.match(src, /redirect\(302, '\/rewards'\)/);
+    assert.match(src, /skattkammaren-parent\.html/);
+    assert.doesNotMatch(src, /redirect\(302, '\/rewards'\)/);
   });
 
   it('upgrade redirects to settings prenumeration', () => {

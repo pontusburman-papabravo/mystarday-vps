@@ -384,6 +384,10 @@
     if (!isMagic()) return;
 
     const hash = (window.location.hash || '').replace('#', '');
+    if (hash === 'treasury') {
+      window.location.href = '/skattkammaren';
+      return;
+    }
     if (hash.indexOf('magic-') === 0) {
       const key = hash.slice(6);
       if (SECTIONS[key]) {

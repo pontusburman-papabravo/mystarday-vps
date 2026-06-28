@@ -51,9 +51,7 @@ router.get('/skattkammaren', optionalAuth, (req, res) => {
   if (forceDemo || !req.user) {
     return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren.html'));
   }
-  if (req.user.type !== 'child') {
-    return res.redirect(302, '/rewards');
-  }
+  // Logged-in parent — per-child treasury (child chips + star balance)
   return res.sendFile(path.join(__dirname, '../../public', 'skattkammaren-parent.html'));
 });
 

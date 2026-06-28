@@ -16,7 +16,7 @@
       '<a href="/library#rewards" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="Hantera belöningar">' +
       '<span class="text-2xl">🎁</span><span><span class="font-heading font-bold text-navy block">Hantera belöningar</span>' +
       '<span class="text-sm text-text-soft">Skapa och redigera i biblioteket</span></span></a>' +
-      '<a href="/library#treasury" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="Föräldervy">' +
+      '<a href="/skattkammaren" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="Föräldervy">' +
       '<span class="text-2xl">⭐</span><span><span class="font-heading font-bold text-navy block">Stjärnor &amp; kista</span>' +
       '<span class="text-sm text-text-soft">Överblick per barn</span></span></a>'
     );

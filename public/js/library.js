@@ -97,7 +97,19 @@ const REWARD_ICONS = [
 ];
 
 // ─── Auth & Init ──────────────────────────────────────────
+function showLibraryLoadError(containerId, message) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<div class="text-center py-8 text-text-soft"><p class="text-sm">${escHtml(message)}</p></div>`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  const initHash = window.location.hash.replace('#', '');
+  if (initHash === 'treasury') {
+    window.location.href = '/skattkammaren';
+    return;
+  }
+
   const user = await window.authGuard();
   if (!user) return;
   _libIsAdmin = !!user.is_admin;
@@ -186,7 +198,9 @@ async function loadCategories() {
     buildCategoryOptions();
     renderSchemaTabs();
     renderActivities();
+    return;
   }
+  showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
 }
 
 function buildCategoryOptions() {
@@ -264,7 +278,9 @@ async function loadActivities() {
   if (res.ok) {
     activities = await res.json();
     renderActivities();
+    return;
   }
+  showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
 }
 
 function renderActivities() {
@@ -1184,7 +1200,9 @@ async function loadRewards() {
     rewards = data.rewards || [];
     rewardChildren = data.children || [];
     renderRewards();
+    return;
   }
+  showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
 }
 
 function renderRewards() {

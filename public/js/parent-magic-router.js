@@ -59,7 +59,7 @@
     planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.5.0'],
     rewards: [
       '/js/pending-approvals.js?v=1',
-      '/js/rewards-hub.js?v=1.2.0',
+      '/js/rewards-hub.js?v=1.2.1',
     ],
     skattkammaren: ['/js/skattkammaren-parent-page.js?v=1'],
     upgrade: [
