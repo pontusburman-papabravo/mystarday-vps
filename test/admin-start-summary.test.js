@@ -26,6 +26,31 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
 
   mock.setQuery(async (sql) => {
     const q = String(sql);
+    if (q.includes('signups_7d') && q.includes('family_activation_state')) {
+      return {
+        rows: [{
+          signups_7d: 8,
+          signups_prev_7d: 5,
+          signups_today: 2,
+          schema_saved: 6,
+          child_access: 4,
+          first_completion: 2,
+          p0_48h: 1,
+        }],
+      };
+    }
+    if (q.includes('signup_attribution') && q.includes('utm_source')) {
+      return { rows: [{ meta_7d: 3, meta_today: 1 }] };
+    }
+    if (q.includes('stuck_families')) {
+      return { rows: [{ stuck: 4 }] };
+    }
+    if (q.includes('FROM family WHERE archived_at IS NULL') && q.includes('COUNT(*)::int AS total')) {
+      return { rows: [{ total: 201 }] };
+    }
+    if (q.includes("key = 'founder_family_limit'")) {
+      return { rows: [{ value: 225 }] };
+    }
     if (q.includes('FROM package_interest') && q.includes('last7d')) {
       return { rows: [{ last7d: 2, prev7d: 1, total: 10 }] };
     }
@@ -78,12 +103,12 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     if (q.includes("SELECT type, id, title, meta, created_at, route FROM")) {
       return {
         rows: [{
-          type: 'waitlist_created',
-          id: '1',
-          title: 'Jane',
-          meta: 'jane@example.com',
+          type: 'family_created',
+          id: 'fam-1',
+          title: 'Ny familj: Testfamilj',
+          meta: null,
           created_at: '2026-06-20T09:00:00Z',
-          route: '#waitlist',
+          route: '#familjer',
         }],
       };
     }
@@ -118,12 +143,16 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.ok(body.generatedAt);
-    assert.equal(body.growth.packageInterest.last7d, 2);
+    assert.equal(body.keyMetrics.signups7d, 8);
+    assert.equal(body.keyMetrics.metaSignups7d, 3);
+    assert.equal(body.keyMetrics.p0_48h, 1);
+    assert.equal(body.keyMetrics.stuckOnboarding, 4);
+    assert.equal(body.keyMetrics.founderSlotsLeft, 24);
     assert.equal(body.messages.unreadCount, 2);
     assert.equal(body.messages.needsFollowUpCount, 3);
     assert.equal(body.messages.disclaimer, null);
     assert.equal(body.activity.length, 1);
-    assert.equal(body.activity[0].route, '#waitlist');
+    assert.equal(body.activity[0].route, '#familjer');
     assert.equal(body.quickActions.length, 6);
     assert.equal(body.recommendations.length, 1);
     assert.equal(body.recommendations[0].type, 'operational_activation');
@@ -153,7 +182,8 @@ test('fetchRecommendations lead count avoids mixed-type UNION on id', () => {
 
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
-  assert.match(html, /id="startGrowthBlock"/);
+  assert.match(html, /id="startKpiBlock"/);
+  assert.doesNotMatch(html, /id="startGrowthBlock"/);
   assert.match(html, /admin-start\.js/);
   assert.match(html, /admin-produktanalys-shell\.js/);
   assert.match(html, /prenumerationWorkspaceTabs/);

@@ -5,6 +5,8 @@ const db = require('../src/lib/db');
 const contactMessages = require('./contact-messages');
 const adminOperationalAlerts = require('./admin-operational-alerts');
 
+const DEFAULT_FOUNDER_LIMIT = 225;
+
 function buildPeriodMetric(row) {
   const last7d = parseInt(row.last7d, 10) || 0;
   const prev7d = parseInt(row.prev7d, 10) || 0;
@@ -26,6 +28,102 @@ async function periodMetricFromTable(table) {
      FROM ${table}`
   );
   return buildPeriodMetric(rows[0] || {});
+}
+
+async function fetchKeyMetrics() {
+  const [weekRow, metaRow, stuckRow, totalFamiliesRow, founderLimitRow] = await Promise.all([
+    db.query(
+      `SELECT
+         COUNT(*)::int AS signups_7d,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '14 days'
+             AND f.created_at < NOW() - INTERVAL '7 days'
+         )::int AS signups_prev_7d,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+         )::int AS signups_today,
+         COUNT(*) FILTER (WHERE s.schema_saved_at IS NOT NULL)::int AS schema_saved,
+         COUNT(*) FILTER (WHERE s.child_access_completed_at IS NOT NULL)::int AS child_access,
+         COUNT(*) FILTER (WHERE s.first_completion_at IS NOT NULL)::int AS first_completion,
+         COUNT(*) FILTER (WHERE s.p0_activated_within_48h)::int AS p0_48h
+       FROM family f
+       LEFT JOIN family_activation_state s ON s.family_id = f.id
+       WHERE f.archived_at IS NULL
+         AND f.created_at >= NOW() - INTERVAL '7 days'`
+    ),
+    db.query(
+      `SELECT
+         COUNT(DISTINCT ae.family_id) FILTER (
+           WHERE ae.created_at >= NOW() - INTERVAL '7 days'
+         )::int AS meta_7d,
+         COUNT(DISTINCT ae.family_id) FILTER (
+           WHERE ae.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+         )::int AS meta_today
+       FROM analytics_events ae
+       WHERE ae.event_type = 'signup_attribution'
+         AND LOWER(COALESCE(ae.metadata->>'utm_source', '')) = 'meta'`
+    ),
+    db.query(
+      `SELECT COUNT(*)::int AS stuck
+       FROM (
+         SELECT f.id
+         FROM family f
+         JOIN parent p ON p.family_id = f.id
+         WHERE f.archived_at IS NULL
+           AND f.created_at >= NOW() - INTERVAL '14 days'
+           AND f.created_at <= NOW() - INTERVAL '48 hours'
+         GROUP BY f.id
+         HAVING NOT BOOL_OR(p.onboarding_completed)
+       ) stuck_families`
+    ),
+    db.query(
+      `SELECT COUNT(*)::int AS total FROM family WHERE archived_at IS NULL`
+    ),
+    db.query(
+      `SELECT value FROM app_settings WHERE key = 'founder_family_limit' LIMIT 1`
+    ),
+  ]);
+
+  const week = weekRow.rows[0] || {};
+  const meta = metaRow.rows[0] || {};
+  const signups7d = week.signups_7d || 0;
+  const signupsPrev7d = week.signups_prev_7d || 0;
+  const p0_48h = week.p0_48h || 0;
+  const childAccess = week.child_access || 0;
+  const firstCompletion = week.first_completion || 0;
+  const totalFamilies = totalFamiliesRow.rows[0]?.total || 0;
+  const founderRaw = founderLimitRow.rows[0]?.value;
+  const founderParsed = parseInt(founderRaw, 10);
+  const founderLimit = Number.isFinite(founderParsed) && founderParsed > 0
+    ? founderParsed
+    : DEFAULT_FOUNDER_LIMIT;
+
+  function rate(n, d) {
+    if (!d) return null;
+    return Math.round((n / d) * 1000) / 10;
+  }
+
+  return {
+    signupsToday: week.signups_today || 0,
+    signups7d,
+    signupsDelta: signups7d - signupsPrev7d,
+    metaSignups7d: meta.meta_7d || 0,
+    metaSignupsToday: meta.meta_today || 0,
+    p0_48h,
+    p0RatePct: rate(p0_48h, signups7d),
+    p0TargetPct: 25,
+    schemaSaved7d: week.schema_saved || 0,
+    schemaRatePct: rate(week.schema_saved || 0, signups7d),
+    childAccess7d: childAccess,
+    childAccessRatePct: rate(childAccess, signups7d),
+    firstCompletion7d: firstCompletion,
+    firstCompletionRatePct: rate(firstCompletion, signups7d),
+    starAfterAccessRatePct: rate(firstCompletion, childAccess || null),
+    stuckOnboarding: stuckRow.rows[0]?.stuck || 0,
+    totalFamilies,
+    founderSlotsLeft: Math.max(0, founderLimit - totalFamilies),
+    founderLimit,
+  };
 }
 
 async function newFamiliesMetric() {
@@ -121,36 +219,14 @@ async function fetchActivityFeed(limit = 20) {
     `
     SELECT type, id, title, meta, created_at, route FROM (
       SELECT
-        'package_interest_created'::text AS type,
-        pi.id::text AS id,
-        COALESCE(f.name, 'Okänd familj') || ' — paketintresse' AS title,
-        pi.component AS meta,
-        pi.created_at,
-        '#paketintresse'::text AS route
-      FROM package_interest pi
-      JOIN family f ON f.id = pi.family_id
-
-      UNION ALL
-
-      SELECT
-        'professional_interest_created',
-        pr.id::text,
-        COALESCE(pr.name, pr.email, 'Pedagogintresse'),
-        pr.role,
-        pr.created_at,
-        '#pedagogintresse'
-      FROM professional_interest pr
-
-      UNION ALL
-
-      SELECT
-        'waitlist_created',
-        w.id::text,
-        COALESCE(w.name, w.email, 'Waitlist'),
-        w.email,
-        w.created_at,
-        '#waitlist'
-      FROM waitlist w
+        'family_created'::text AS type,
+        f.id::text AS id,
+        'Ny familj: ' || COALESCE(f.name, 'Namnlös') AS title,
+        NULL::text AS meta,
+        f.created_at,
+        '#familjer'::text AS route
+      FROM family f
+      WHERE f.archived_at IS NULL
 
       UNION ALL
 
@@ -215,18 +291,12 @@ const QUICK_ACTIONS = [
 
 async function buildStartSummary() {
   const [
-    packageInterest,
-    professionalInterest,
-    waitlist,
-    newFamilies,
+    keyMetrics,
     messages,
     activity,
     recommendations,
   ] = await Promise.all([
-    periodMetricFromTable('package_interest'),
-    periodMetricFromTable('professional_interest'),
-    periodMetricFromTable('waitlist'),
-    newFamiliesMetric(),
+    fetchKeyMetrics(),
     fetchMessageSummary(),
     fetchActivityFeed(20),
     fetchRecommendations(),
@@ -234,12 +304,7 @@ async function buildStartSummary() {
 
   return {
     generatedAt: new Date().toISOString(),
-    growth: {
-      packageInterest,
-      professionalInterest,
-      waitlist,
-      newFamilies,
-    },
+    keyMetrics,
     messages,
     activity,
     recommendations,
@@ -251,6 +316,7 @@ module.exports = {
   buildPeriodMetric,
   periodMetricFromTable,
   newFamiliesMetric,
+  fetchKeyMetrics,
   fetchMessageSummary,
   fetchActivityFeed,
   fetchRecommendations,

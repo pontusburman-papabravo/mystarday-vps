@@ -38,8 +38,134 @@
     el.innerHTML = html;
   }
 
-  function renderGrowthLoading() {
-    setBlockState('startGrowthBlock', 'loading', '<p class="text-text-soft text-sm">Laddar...</p>');
+  function formatPct(value) {
+    if (value == null) return '–';
+    return `${value}%`;
+  }
+
+  function deltaLabel(delta) {
+    if (delta > 0) return `+${delta} vs förra veckan`;
+    if (delta < 0) return `${delta} vs förra veckan`;
+    return 'oförändrat vs förra veckan';
+  }
+
+  function rateTone(pct, target) {
+    if (pct == null) return 'text-text-soft';
+    if (pct >= target) return 'text-green-700';
+    if (pct >= target * 0.4) return 'text-gold-dark';
+    return 'text-red-600';
+  }
+
+  function kpiCard(label, value, sub, toneCls, route) {
+    const inner = `
+      <p class="text-xs font-heading font-bold uppercase tracking-wider text-text-soft mb-1">${esc(label)}</p>
+      <p class="text-3xl font-heading font-bold text-navy">${esc(value)}</p>
+      ${sub ? `<p class="text-sm mt-1 ${toneCls || 'text-text-soft'}">${esc(sub)}</p>` : ''}`;
+    if (route) {
+      return `<a href="${esc(route)}" onclick="return adminNavClick(event)" class="block bg-white rounded-2xl border-2 border-lavender p-5 hover:border-gold transition-colors">${inner}</a>`;
+    }
+    return `<div class="bg-white rounded-2xl border-2 border-lavender p-5">${inner}</div>`;
+  }
+
+  function renderStartKpis(metrics) {
+    const m = metrics || {};
+    const signupDeltaCls = m.signupsDelta > 0 ? 'text-green-700' : m.signupsDelta < 0 ? 'text-red-600' : 'text-text-soft';
+    const p0Tone = rateTone(m.p0RatePct, m.p0TargetPct || 25);
+    const starTone = rateTone(m.starAfterAccessRatePct, 50);
+
+    const funnelHtml = `
+      <div class="mt-5 pt-4 border-t border-lavender/60">
+        <p class="text-xs font-bold uppercase text-text-soft mb-2">Tratt senaste 7 dagar (av ${m.signups7d || 0} registreringar)</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-sm">
+          <div class="bg-sky/50 rounded-xl p-3 border border-lavender">
+            <p class="text-2xl font-heading font-bold text-navy">${m.schemaSaved7d || 0}</p>
+            <p class="text-xs text-text-soft">Schema sparat</p>
+            <p class="text-xs font-semibold">${formatPct(m.schemaRatePct)}</p>
+          </div>
+          <div class="bg-sky/50 rounded-xl p-3 border border-lavender">
+            <p class="text-2xl font-heading font-bold text-navy">${m.childAccess7d || 0}</p>
+            <p class="text-xs text-text-soft">Barnåtkomst</p>
+            <p class="text-xs font-semibold">${formatPct(m.childAccessRatePct)}</p>
+          </div>
+          <div class="bg-sky/50 rounded-xl p-3 border border-lavender">
+            <p class="text-2xl font-heading font-bold text-navy">${m.firstCompletion7d || 0}</p>
+            <p class="text-xs text-text-soft">Första stjärnan</p>
+            <p class="text-xs font-semibold">${formatPct(m.firstCompletionRatePct)}</p>
+          </div>
+          <div class="bg-mint/40 rounded-xl p-3 border border-mint">
+            <p class="text-2xl font-heading font-bold text-navy">${m.p0_48h || 0}</p>
+            <p class="text-xs text-text-soft">P0 inom 48h</p>
+            <p class="text-xs font-semibold ${p0Tone}">${formatPct(m.p0RatePct)} · mål ${m.p0TargetPct || 25}%</p>
+          </div>
+        </div>
+      </div>`;
+
+    const html = `
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-xl font-heading font-bold text-navy">Nyckeltal</h2>
+          <p class="text-sm text-text-soft">Registrering, Meta-annons och aktivering — senaste 7 dagar</p>
+        </div>
+        <a href="#analytics" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Öppna Analytics →</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        ${kpiCard(
+          'Nya familjer',
+          m.signups7d ?? '–',
+          `${m.signupsToday || 0} idag · ${deltaLabel(m.signupsDelta || 0)}`,
+          signupDeltaCls,
+          '#familjer'
+        )}
+        ${kpiCard(
+          'Från Meta-annons',
+          m.metaSignups7d ?? '–',
+          `${m.metaSignupsToday || 0} idag · utm_source=meta`,
+          m.metaSignups7d > 0 ? 'text-green-700' : 'text-text-soft',
+          '#analytics'
+        )}
+        ${kpiCard(
+          'P0 inom 48h',
+          m.p0_48h ?? '–',
+          `${formatPct(m.p0RatePct)} av nya · mål ${m.p0TargetPct || 25}%`,
+          p0Tone
+        )}
+        ${kpiCard(
+          'Stjärna efter barnåtkomst',
+          formatPct(m.starAfterAccessRatePct),
+          `${m.firstCompletion7d || 0}/${m.childAccess7d || 0} nådde första stjärnan`,
+          starTone
+        )}
+        ${kpiCard(
+          'Fast i onboarding',
+          m.stuckOnboarding ?? '–',
+          '48h–14d utan klar onboarding',
+          (m.stuckOnboarding || 0) > 0 ? 'text-red-600' : 'text-green-700',
+          '#analytics'
+        )}
+        ${kpiCard(
+          'Grundarmedlemmar kvar',
+          m.founderSlotsLeft ?? '–',
+          `${m.totalFamilies || 0} / ${m.founderLimit || 225} familjer totalt`,
+          (m.founderSlotsLeft || 0) < 30 ? 'text-gold-dark' : 'text-text-soft'
+        )}
+      </div>
+      ${funnelHtml}`;
+    setBlockState('startKpiBlock', 'ready', html);
+  }
+
+  function renderStartKpisError() {
+    setBlockState(
+      'startKpiBlock',
+      'error',
+      `<div class="bg-coral/30 border border-coral rounded-2xl p-4">
+        <p class="text-navy font-semibold mb-2">Kunde inte ladda nyckeltal.</p>
+        <button type="button" onclick="loadStartSummary()" class="text-sm font-bold text-gold hover:underline">Försök igen</button>
+      </div>`
+    );
+  }
+
+  function renderStartKpisLoading() {
+    setBlockState('startKpiBlock', 'loading', '<p class="text-text-soft text-sm">Laddar nyckeltal...</p>');
   }
 
   function renderMessagesLoading() {
@@ -48,40 +174,6 @@
 
   function renderActivityLoading() {
     setBlockState('startActivityBlock', 'loading', '<p class="text-text-soft text-sm">Laddar...</p>');
-  }
-
-  function growthCard(label, metric, route) {
-    const deltaCls = metric.deltaAbs > 0 ? 'text-green-700' : metric.deltaAbs < 0 ? 'text-red-600' : 'text-text-soft';
-    return `
-      <a href="${esc(route)}" onclick="return adminNavClick(event)" class="block bg-white rounded-2xl border-2 border-lavender p-5 hover:border-gold transition-colors">
-        <p class="text-xs font-heading font-bold uppercase tracking-wider text-text-soft mb-1">${esc(label)}</p>
-        <p class="text-3xl font-heading font-bold text-navy">${metric.last7d}</p>
-        <p class="text-sm text-text-soft mt-1">7 dagar · totalt ${metric.total}</p>
-        <p class="text-sm font-semibold mt-2 ${deltaCls}">${esc(formatDelta(metric))} vs förra veckan</p>
-      </a>`;
-  }
-
-  function renderStartGrowth(growth) {
-    const html = `
-      <h3 class="text-lg font-heading font-bold text-navy mb-4">Tillväxt idag</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        ${growthCard('Nya paketintressen', growth.packageInterest, '#paketintresse')}
-        ${growthCard('Nya pedagogintressen', growth.professionalInterest, '#pedagogintresse')}
-        ${growthCard('Nya waitlist-signups', growth.waitlist, '#waitlist')}
-        ${growthCard('Nya familjer', growth.newFamilies, '#familjer')}
-      </div>`;
-    setBlockState('startGrowthBlock', 'ready', html);
-  }
-
-  function renderStartGrowthError() {
-    setBlockState(
-      'startGrowthBlock',
-      'error',
-      `<div class="bg-coral/30 border border-coral rounded-2xl p-4">
-        <p class="text-navy font-semibold mb-2">Kunde inte ladda tillväxtdata.</p>
-        <button type="button" onclick="loadStartSummary()" class="text-sm font-bold text-gold hover:underline">Försök igen</button>
-      </div>`
-    );
   }
 
   function renderStartMessages(messages) {
@@ -144,9 +236,7 @@
 
   function activityTitle(type) {
     const map = {
-      package_interest_created: 'Paketintresse',
-      professional_interest_created: 'Pedagogintresse',
-      waitlist_created: 'Waitlist',
+      family_created: 'Ny familj',
       contact_message_created: 'Meddelande',
       newsletter_sent: 'Nyhetsbrev',
       dagens_nyhet_published: 'Dagens nyhet',
@@ -276,20 +366,20 @@
   }
 
   async function loadStartSummary() {
-    renderGrowthLoading();
+    renderStartKpisLoading();
     renderMessagesLoading();
     renderActivityLoading();
 
     try {
       const data = await Auth.api('/api/admin/start-summary');
-      renderStartGrowth(data.growth);
+      renderStartKpis(data.keyMetrics);
+      renderStartRecommendations(data.recommendations);
       renderStartMessages(data.messages);
       renderStartActivity(data.activity);
       renderStartShortcuts(data.quickActions);
-      renderStartRecommendations(data.recommendations);
     } catch (err) {
       console.error('[ADMIN] Start summary failed:', err);
-      renderStartGrowthError();
+      renderStartKpisError();
       renderStartMessagesError();
       renderStartActivityError();
       renderStartShortcuts([]);
