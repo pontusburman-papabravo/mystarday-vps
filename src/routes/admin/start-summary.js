@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/start-summary', async (req, res, next) => {
   try {
+    res.set('Cache-Control', 'no-store');
     const data = await startSummary.buildStartSummary();
     res.json(data);
   } catch (err) {

@@ -371,7 +371,10 @@
     renderActivityLoading();
 
     try {
-      const data = await Auth.api('/api/admin/start-summary');
+      const data = await Auth.api('/api/admin/start-summary?_=' + Date.now());
+      if (!data || !data.keyMetrics) {
+        throw new Error('Saknar keyMetrics i API-svar — ladda om sidan (hård refresh)');
+      }
       renderStartKpis(data.keyMetrics);
       renderStartRecommendations(data.recommendations);
       renderStartMessages(data.messages);
