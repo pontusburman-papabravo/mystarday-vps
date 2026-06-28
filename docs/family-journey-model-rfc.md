@@ -1,8 +1,8 @@
 # Family Journey Model — RFC
 
-**Status:** Utkast — under teamgranskning  
-**Version:** 0.9  
-**Relaterat:** [Implementation contract](./family-journey-implementation-contract.md)
+**Status:** Utkast — workshop-underlag  
+**Version:** 1.0-rc  
+**Appendix (efter godkännande):** [Implementation contract](./family-journey-implementation-contract.md)
 
 ---
 
@@ -24,7 +24,7 @@ Dashboard tror...           → readiness, CTAs och handoff-banner avgör "näst
 7-dagarsprogrammet tror...  → dag 1–7, aha-modal, cohort
 Analytics tror...           → skärmflöden och funnel-events
 Notiser tror...             → egna schedulers med egna trösklar
-Product Engine tror...      → coreState, needs, policy (parallell sanning)
+Produktlogik (Engine) tror... → parallella behov, policy och milstolpar
 ```
 
 Alla försöker besvara samma fråga:
@@ -39,20 +39,20 @@ Konsekvensen är att varje ny funktion lägger till ännu ett beslutssystem — 
 
 # 2. Observationerna
 
-Konkreta symptom i dagens kodbas och produktbeteende:
+Konkreta symptom i dagens produkt och kod:
 
 | Symptom | Var det syns | Varför det skadar |
 |---------|--------------|-------------------|
-| Onboarding avslutas innan barnet använt produkten | `onboarding.js` sätter `onboarding_completed = true` → redirect till `/dashboard` | Familjen "är klar" utan att North Star inträffat |
-| Handoff ligger utanför onboardingens klimax | `dashboard-child-handoff.js` på Hem; `onboarding-activation.js` flag-gated på steg 5 | Barnet ska logga in *efter* onboarding, inte som sidospår på dashboard |
-| Dashboard innehåller specialfall | `home-readiness.js`, `dashboard-cta.js`, `dashboard-home-hub.js` `encouragementCopy()` | Tre parallella beslut på samma skärm |
-| 7-dagarsprogrammet är ett separat system | `parent_activation_program`, `/api/me/activation-program/*` | Egen enrollment, daglogik, aha — kopplat till program, inte familjens resa |
-| Analytics mäter skärmflöden | `funnel_onboarding_completed`, `activation_program_*` | Svårt att se familjens utveckling över tid |
-| `onboarding_completed` ≠ värde | JWT-fält vs `child_first_completion` + `parent_first_completion_seen` | Fel KPI som "framgång" |
-| Firande kopplat till program, inte till familjen | `activation-program-aha-card.js` kräver aktivt program | Aha-moment missas utanför experiment |
-| Flera "sanningar" om aktivering | `family_activation_state`, Product Engine facts, activation-program analytics | Samma familj, olika svar |
+| Onboarding avslutas innan barnet använt produkten | `onboarding.js` → `onboarding_completed = true` → `/dashboard` | Familjen "är klar" utan North Star |
+| Handoff ligger utanför onboardingens klimax | `dashboard-child-handoff.js` på Hem; `onboarding-activation.js` flag-gated | Barnet ska börja *i* onboarding, inte som sidospår |
+| Dashboard innehåller specialfall | `home-readiness.js`, `dashboard-cta.js`, `encouragementCopy()` | Flera parallella beslut på samma skärm |
+| 7-dagarsprogrammet är ett separat system | `parent_activation_program`, `/api/me/activation-program/*` | Egen motor — kopplad till program, inte resan |
+| Analytics mäter skärmflöden | `funnel_onboarding_completed`, `activation_program_*` | Svårt att se familjens utveckling |
+| Fel framgångsmått | `onboarding_completed` vs `child_first_completion` + `parent_first_completion_seen` | Fel KPI som "lyckades" |
+| Firande kopplat till program | `activation-program-aha-card.js` kräver aktivt program | Aha missas utanför experiment |
+| Flera sanningar om "aktivering" | `family_activation_state`, Engine facts, program-analytics | Samma familj, olika svar |
 
-**North Star (låst):** `first_success` = barnet har slutfört minst en aktivitet **och** föräldern har sett resultatet. Det är inte `onboarding_completed`.
+**North Star (förslag):** `first_success` = barnet har slutfört minst en aktivitet **och** föräldern har sett resultatet. Det är inte `onboarding_completed`.
 
 ---
 
@@ -68,23 +68,23 @@ Alla klienter frågar samma sak: *vad bör vi göra nu?* De läser inte rå DB o
 
 ## 3. Livsfas beskriver var familjen befinner sig
 
-En familj har exakt **en** livsfas (Phase) åt gången. Fasen är grov — den strukturerar hela produktupplevelsen.
+En familj har exakt **en** livsfas (Phase) åt gången. Fasen svarar på: *var är vi i resan?* — inte *vad ska vi göra härnäst?*
 
 ## 4. Milstolpar är historik
 
 Milstolpar (Milestones) är **append-only**: vad som hänt. De försvinner inte när fasen ändras. De är bevis, inte navigation.
 
-## 5. Journey Context är det tunna kontraktet
+## 5. Journey Context beskriver vad som behövs härnäst
 
-Context säger **vad** produkten bör göra — inte **hur** det ska se ut. Copy, rubriker och CTA-text hämtas från **Experience Registry** (versionerbar innehållskatalog).
+Context svarar på: *vad bör produkten göra nu?* — rekommenderade upplevelser, blockering, firande, prioritet. Det är **inte** samma sak som livsfas.
 
-## 6. Kanaler renderar, domänen avgör
+## 6. Context är tunt — copy lever separat
+
+Context innehåller nycklar till upplevelser, inte rubriker och brödtext. Copy och presentation hämtas från **Experience Registry** (versionerbar innehållskatalog).
+
+## 7. Kanaler renderar, domänen avgör
 
 Dashboard, onboarding, push och modaler **projicerar** Context. De ska inte härleda fas, prioritera upplevelser eller välja firande själva.
-
-## 7. Experiment är innehåll, inte parallella motorer
-
-Tidsbegränsade program (t.ex. dagligt stöd vecka 1) ska uttryckas som **innehållsregler** kopplade till en livsfas — inte som separat programmotor med egen livscykel.
 
 ## 8. Livscykeln beskriver vad familjen behöver härnäst — inte bara vad de gjort
 
@@ -92,126 +92,42 @@ Historik: *skapat barn, lagt schema, loggat in.*
 
 Rekommendation: *nästa viktigaste sak är att barnet provar.*
 
-Produkten ska uttrycka **nästa meningsfulla steg**, inte bara summera klick. Det skiljer Journey Context från en ren eventlogg.
+Det är den princip som förklarar varför **livsfas**, **milstolpe** och **Journey Context** är tre olika begrepp.
 
 ---
 
-# 4. Domänmodellen
+# 4. Journey Context — huvudidén
 
-## 4.1 Översikt
+Journey Context är det gemensamma kontrakt som förenar alla ytor.
 
-Tre begrepp — inget fjärde "state"-lager:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Journey Context                          │
-│  (vad produkten bör göra nu — tunt API-kontrakt)            │
-│                                                             │
-│  phase + milestones + recommended_experiences +             │
-│  blocking_experience + celebration + priority               │
-└─────────────────────────────────────────────────────────────┘
-         ▲                              │
-         │ härleds från                  │ copy via
-         │                              ▼
-┌─────────────────┐            ┌──────────────────────┐
-│  Livsfas        │            │ Experience Registry   │
-│  (var de är)    │            │ (hur det ska kännas)  │
-└─────────────────┘            └──────────────────────┘
-         ▲
-         │ påverkas av
-         │
-┌─────────────────┐
-│  Milstolpe      │
-│  (vad hänt)     │
-└─────────────────┘
-```
-
-**Terminologi (låst i domändokument):**
-
-| Använd | Inte i domändokument |
-|--------|----------------------|
-| Livsfas (Phase) | state, status, coreState |
-| Milstolpe (Milestone) | event (som domänbegrepp), achievement |
-| Journey Context | readiness, activation state |
-| Family Journey Model | Journey Engine, activation program (som domän) |
-
-Internt i kod får moduler heta `journey-context.js`, `JourneyEvaluator` osv. — RFC:n beskriver **domänen**.
-
----
-
-## 4.2 Livsfaser (Phase)
-
-Var familjen befinner sig i sin relation till produkten. **Exakt en** fas åt gången.
-
-| Fas | Betydelse | Typisk familj |
-|-----|-----------|---------------|
-| `DISCOVERING` | Känner till produkten, inget konto | Landning, väntelista |
-| `SETTING_UP` | Konto + konfiguration pågår | Onboarding-wizard, schema/belöningar |
-| `FIRST_USE` | Rutin finns; barnet ska börja använda | Efter setup, före first_success |
-| `BUILDING_ROUTINE` | first_success uppnått; vanor etableras | Vecka 1–2, daglig användning |
-| `ESTABLISHED_ROUTINE` | Stabil vardagsloop | Streak, regelbunden completion |
-| `EXPANDING` | Utökar (syskon, kväll, medförälder, pedagog) | Tillväxt inom familjen |
-| `INDEPENDENCE` | Barnet driver själv; förälder följer lätt | Låg friktion, sällan coach |
-
-Fasövergångar är **deterministiska** — samma milstolpar + regler → samma fas. Ingen slump i domänlagret.
-
-### Fas 1 i implementation (scope)
-
-Första kodleveransen täcker endast:
-
-```
-SETTING_UP  →  FIRST_USE  →  (first_success milstolpe)  →  BUILDING_ROUTINE
-```
-
-Övriga faser definieras här för helhetsbild; de implementeras i senare faser.
-
----
-
-## 4.3 Milstolpar (Milestone)
-
-**Append-only historik** — vad familjen har uppnått. Varje rad skrivs en gång.
-
-| Milstolpe | Trigger (domän) | Fas 1 |
-|-----------|-----------------|-------|
-| `account_created` | Registrering klar | ✓ |
-| `child_created` | Barnprofil skapad | ✓ |
-| `routine_ready` | Schema sparat | ✓ |
-| `rewards_ready` | Minst en belöning | ✓ |
-| `handoff_started` | Förälder initierade barninloggning | ✓ ny |
-| `handoff_deferred` | Förälder valde "senare" | ✓ ny |
-| `child_logged_in` | Barn autentiserat (`child_login_success`) | ✓ ny |
-| `child_first_completion` | Barn checkade av första aktivitet | ✓ befintlig event |
-| `parent_saw_completion` | Förälder såg resultat (`parent_first_completion_seen`) | ✓ befintlig event |
-| `first_success` | `child_first_completion` ∧ `parent_saw_completion` | ✓ **North Star** |
-| `co_parent_invited` | Inbjudan skickad | Senare |
-| `streak_3` | 3 dagars streak | Senare |
-
-**Viktigt:** `first_success` är en **milstolpe**, inte en livsfas. När den inträffar flyttas familjen till `BUILDING_ROUTINE`.
-
-`onboarding_completed` är **inte** en milstolpe i denna modell. Det är infrastruktur (auth/routing) — se implementation contract.
-
----
-
-## 4.4 Journey Context — huvudidén
-
-Journey Context är det **enda kontrakt** alla kanaler konsumerar.
-
-> Alla klienter frågar samma sak.  
+> **Alla klienter frågar samma sak.**  
 > Inte: alla klienter läser samma tabell.
 
-### Kontrakt (tunt — ingen copy)
+Dashboard, onboarding, push, e-post och barnvy ska alla kunna säga: *"Vad säger Context just nu?"* — och rendera svaret via Registry.
+
+## Tre begrepp — håll isär dem
+
+| Begrepp | Fråga det besvarar | Exempel |
+|---------|-------------------|---------|
+| **Livsfas (Phase)** | Var befinner sig familjen i resan? | `FIRST_USE` |
+| **Milstolpe (Milestone)** | Vad har familjen uppnått? | `routine_ready`, `first_success` |
+| **Journey Context** | Vad bör produkten göra nu? | `blocking_experience: handoff_to_child` |
+
+`FIRST_USE` beskriver *var* familjen är. Context beskriver att *handoff* är det som behöver hända härnäst. Blanda inte ihop dem.
+
+## Kontrakt (tunt — ingen copy)
 
 ```ts
 interface JourneyContext {
   phase: Phase;
 
-  /** Milstolpar som inträffat (nycklar + timestamps) */
-  milestones: Record<MilestoneKey, string /* ISO-8601 */>;
+  /** Milstolpar som inträffat (nyckel → ISO-8601) */
+  milestones: Record<MilestoneKey, string>;
 
-  /** Prioriterade upplevelser just nu (nycklar till Experience Registry) */
+  /** Prioriterade upplevelser (nycklar till Experience Registry) */
   recommended_experiences: ExperienceKey[];
 
-  /** Om satt: inget annat får blockera denna upplevelse */
+  /** Det som måste hända innan resten (t.ex. handoff) */
   blocking_experience: ExperienceKey | null;
 
   /** Firande att visa (nyckel till Registry), eller null */
@@ -222,32 +138,15 @@ interface JourneyContext {
 }
 ```
 
-**Medvetet utelämnat från Context:**
+**Medvetet utelämnat:** `headline`, `body`, `cta`, `route`, `theme` — dessa kommer från Experience Registry.
 
-- `headline`, `body`, `cta`, `coach_mark` — dessa kommer från Experience Registry
-- `route`, `theme`, `intensity` — presentation adapters
-- Experimentvarianter — Registry + feature flags på innehållsnivå
+## Experience Registry
 
-### Experience Registry
+Versionerbar katalog: nyckel → copy + presentationshints. Copy kan ändras utan att domänkontraktet ändras.
 
-Versionerbar katalog som mappar nycklar → copy + presentation hints:
+## Exempel: `FIRST_USE` — handoff behövs
 
-```ts
-interface ExperienceEntry {
-  key: ExperienceKey;
-  tone: 'coach' | 'celebration' | 'calm' | 'encouragement';
-  headline: string;
-  body: string;
-  cta: string;
-  route?: string;
-  /** Valfria UI-hints — inte produktbeslut */
-  presentation?: { theme?: string; modal?: boolean };
-}
-```
-
-Copy kan ändras **utan deploy av domänlager** — bara Registry-uppdatering.
-
-### Exempel: FIRST_USE före handoff
+Familjen har schema och belöningar men barnet har inte loggat in.
 
 ```json
 {
@@ -263,9 +162,9 @@ Copy kan ändras **utan deploy av domänlager** — bara Registry-uppdatering.
 }
 ```
 
-Klienten slår upp `handoff_to_child` i Registry och renderar onboarding steg 5–6 / handoff-CTA.
+Klienten slår upp `handoff_to_child` i Registry → "Låt barnet börja".
 
-### Exempel: first_success
+## Exempel: `first_success` — firande som klimax
 
 ```json
 {
@@ -282,101 +181,158 @@ Klienten slår upp `handoff_to_child` i Registry och renderar onboarding steg 5�
 }
 ```
 
-Firandet är **klimax** — inte redirect till dashboard.
+Firandet är klimax — inte redirect till dashboard.
+
+## Ägarskap
+
+Journey Context ägs av **en central domäntjänst**. Inga klienter implementerar egen journey-logik.
 
 ---
 
-## 4.5 Family Journey Model (domänlager)
+# 5. Domänmodellen
 
-Domänlagret som härleder Context från fakta:
+Först här — som svar på problemet, inte som utgångspunkt.
+
+## 5.1 Livsfaser (Phase)
+
+Var familjen befinner sig i sin relation till produkten. **Exakt en** fas åt gången.
+
+| Fas | Betydelse |
+|-----|-----------|
+| `DISCOVERING` | Känner till produkten, inget konto |
+| `SETTING_UP` | Konto och konfiguration pågår |
+| `FIRST_USE` | Rutin finns; barnet ska börja använda |
+| `BUILDING_ROUTINE` | `first_success` uppnått; vanor etableras |
+| `ESTABLISHED_ROUTINE` | Stabil vardagsloop |
+| `EXPANDING` | Utökar: syskon, kväll, medförälder, pedagog |
+| `INDEPENDENCE` | Barnet driver själv; förälder följer lätt |
+
+Fasövergångar är deterministiska: samma milstolpar + regler → samma fas.
+
+### Första leverans (förslag)
 
 ```
-Fakta (DB + milstolpar + events)
-        ↓
-Family Journey Model
-  · läs milstolpar
-  · härled livsfas
-  · välj recommended_experiences + priority
-        ↓
-Journey Context (tunt kontrakt)
-        ↓
-Experience Registry (copy)
-        ↓
-Kanaler (onboarding, dashboard, push, …)
+SETTING_UP  →  FIRST_USE  →  first_success  →  BUILDING_ROUTINE
 ```
 
-**Regler:**
+Övriga faser definieras för helhetsbild; detaljer i implementation contract efter godkännande.
 
-- Deterministiskt: samma fakta → samma Context
-- Domänlagret läser inte UI, locale eller copy
-- En enda skrivväg för milstolpar (event-ingestion)
-- Journey Context ägs av en central domäntjänst — inga klienter implementerar egen journey-logik
-- Kanaler får **inte** skriva fas eller milstolpar (utom via definierade events)
+## 5.2 Milstolpar (Milestone)
 
-Relation till befintlig **Product Engine** (`/api/family/first-success`): parallell under övergång. Journey Model blir **primär sanning för livsfas och upplevelser**; Engine facts kan konsumeras som input tills de slås ihop.
+Append-only historik — vad familjen har uppnått.
 
----
+| Milstolpe | Betydelse |
+|-----------|-----------|
+| `account_created` | Konto registrerat |
+| `child_created` | Barnprofil skapad |
+| `routine_ready` | Schema sparat |
+| `rewards_ready` | Belöningar sparade |
+| `handoff_started` | Förälder initierade barninloggning |
+| `handoff_deferred` | Förälder valde senare |
+| `child_logged_in` | Barn autentiserat |
+| `child_first_completion` | Barn checkade av första aktivitet |
+| `parent_saw_completion` | Förälder såg resultat |
+| `first_success` | `child_first_completion` ∧ `parent_saw_completion` — **North Star** |
+| `co_parent_invited` | Inbjudan skickad |
+| `streak_3` | Tre dagars streak |
 
-## 4.6 Kanaler (konsekvenser, inte beslutsägare)
+`first_success` är en milstolpe, inte en livsfas. När den inträffar → fas blir `BUILDING_ROUTINE`.
 
-| Kanal | Roll |
-|-------|------|
-| Onboarding steg 5–6 | Renderar `blocking_experience` under `FIRST_USE` |
-| Dashboard | Renderar Context; inga egna trösklar för handoff/coach |
-| Barnvy | Data-driven rutin; firande triggas av server/milstolpe |
-| Push / e-post | Registry-copy + `validityWindow` från Context-regler |
-| 7-dagarsinnehåll | Innehållsregler i `BUILDING_ROUTINE` — inte separat motor (målbild) |
-| Admin | Läser fas + milstolpar för rådgivning |
+## 5.3 Fasövergångar (förslag)
 
----
+```
+account_created                              → DISCOVERING / SETTING_UP
+routine_ready ∧ rewards_ready                → FIRST_USE
+first_success                                → BUILDING_ROUTINE
+(stabil streak + regelbunden användning)     → ESTABLISHED_ROUTINE  (senare)
+```
 
-## 4.7 Avveckling av parallella modeller (målbild)
-
-| Dagens system | Mål |
-|---------------|-----|
-| `onboarding_completed` som framgång | Infrastruktur kvar; produktframgång = `first_success` |
-| `parent_activation_program` | Innehåll i `BUILDING_ROUTINE` via Registry |
-| `home-readiness` coach-del | Ersätts av Context + Registry |
-| `activation-program-aha-card` | Firande via `celebration` i Context |
-| `family_activation_state` | Ersätts gradvis av Journey Phase; historik och analys bygger på milstolpar |
-| Frontend `if (stars >= 5)` | Produktbeslut ska baseras på Journey Context, inte direkt på feature-specifika variabler som `stars >= 5` (rent visuella UI-effekter undantagna) |
-
-Avveckling sker **inkrementellt** — se implementation contract.
-
----
-
-## 4.8 Metrics (familjens resa, inte skärmar)
+## 5.4 Metrics — familjens resa, inte skärmar
 
 | Metric | Definition |
 |--------|------------|
 | `first_success_within_48h` | `first_success` inom 48h från `account_created` |
 | `handoff_completion_rate` | `handoff_started` → `child_logged_in` |
 | `phase_distribution` | Andel familjer per livsfas |
-| `phase_transition_latency` | Median tid mellan två livsfaser (visar var familjer fastnar) |
-| `milestone_funnel` | Sekvens account → routine → handoff → first_success |
+| `phase_transition_latency` | Median tid mellan två livsfaser |
+| `milestone_funnel` | account → routine → handoff → first_success |
 
-Befintliga analytics-events (`child_login_success`, `child_first_completion`, `parent_first_completion_seen`) **behålls** och matar milstolpar.
+Befintliga analytics-events (`child_login_success`, `child_first_completion`, `parent_first_completion_seen`) behålls och kan mata milstolpar.
+
+## 5.5 Terminologi
+
+| Använd i domändokument | Undvik i domändokument |
+|------------------------|------------------------|
+| Livsfas (Phase) | state, status, coreState |
+| Milstolpe (Milestone) | achievement (som domänbegrepp) |
+| Journey Context | readiness, activation (som domän) |
+| Family Journey Model | Journey Engine (i RFC) |
+
+Implementation får ha egna modulnamn internt. RFC:n beskriver **domänen**.
 
 ---
 
-# 5. Beslut som kräver teamets godkännande
+# 6. Mapping från dagens kod
+
+Hur befintliga system hör hemma i modellen.
+
+| Dagens system | Roll i ny modell |
+|---------------|------------------|
+| `parent.onboarding_completed` | **Infrastruktur** (auth/routing) — inte produktframgång |
+| `onboarding.js` steg 1–4 | `SETTING_UP` — skapar milstolpar |
+| `onboarding.js` steg 5–6 | Ska rendera Context under `FIRST_USE` |
+| `dashboard-child-handoff.js` | Handoff-**action** — triggas av Context, inte egen gate |
+| `activation-program-aha-card.js` | Firande via `celebration` i Context |
+| `parent_activation_program` | Avvecklas → innehållsregler i `BUILDING_ROUTINE` |
+| `home-readiness` (coach-del) | Ersätts av Context + Registry |
+| `family_activation_state` | Ersätts gradvis av livsfas + milstolpar |
+| `GET /api/family/first-success` (Engine) | Parallell under övergång; facts kan mata domänen |
+| `dashboard-home-hub.js` `encouragementCopy()` | Produktbeslut ska via Context, inte `stars >= 5` (visuella effekter undantagna) |
+
+### Kanaler blir projektorer
+
+| Kanal | Gör |
+|-------|-----|
+| Onboarding 5–6 | Renderar `blocking_experience` |
+| Dashboard | Renderar Context |
+| Barnvy | Rutin från data; firande från milstolpe/Context |
+| Push / e-post | Registry-copy utifrån Context |
+| 7-dagarsinnehåll (mål) | `recommended_experiences` i `BUILDING_ROUTINE` |
+| Admin | Läser fas + milstolpar |
+
+---
+
+# 7. Öppna frågor och beslut
+
+## Öppna frågor
+
+| # | Fråga |
+|---|-------|
+| 1 | Per-barn eller per-familj för `FIRST_USE` / handoff när flera barn? |
+| 2 | Add-child-flöde: vilken fas och vilka milstolpar? |
+| 3 | Befintliga enrollees i 7-dagarsprogram — tvångsmigrera eller låta löpa ut? |
+| 4 | Hur slås Product Engine och Journey Model ihop på sikt? |
+| 5 | Pedagog-only föräldrar — egen fas eller undantag? |
+
+## Beslut som behövs (workshop)
 
 | # | Beslut | Förslag |
 |---|--------|---------|
 | 1 | North Star | `first_success` = completion ∧ parent saw |
 | 2 | Onboarding-klimax | "Låt barnet börja" — inte "Gå till dashboarden" |
 | 3 | Context utan copy | Registry som separat lager |
-| 4 | Fas 1 scope | SETTING_UP → FIRST_USE → first_success |
-| 5 | 7-dagarsprogram | Avvecklas till BUILDING_ROUTINE-innehåll (ej i Fas 1) |
+| 4 | Första leverans | SETTING_UP → FIRST_USE → first_success |
+| 5 | 7-dagarsprogram | Avvecklas till BUILDING_ROUTINE-innehåll |
 | 6 | `onboarding_completed` | Kvar för auth; inte produkt-KPI |
-| 7 | Äger Journey Context | En central domäntjänst — inga klienter får implementera egen journey-logik |
+| 7 | Äger Journey Context | Central domäntjänst — inga klienter med egen journey-logik |
 
 ---
 
-# 6. Nästa steg
+# Nästa steg
 
-1. Godkänn denna RFC
-2. Implementera enligt [family-journey-implementation-contract.md](./family-journey-implementation-contract.md)
-3. Fas 1 kod: onboarding 5–6, handoff-milstolpar, first_success-firande
+1. **Halvdags workshop** — enas om: problembilden (§1–2), principerna (§3), livsfaserna (§5.1), Journey Context (§4).
+2. **Godkänn RFC** — bump till v1.0.
+3. **Skriv/finalisera implementation contract** — tabeller, API, teknisk arkitektur (appendix).
+4. **Först därefter:** Fas 1-kod (onboarding 5–6, handoff-milstolpar, first_success-firande).
 
-**Ingen ny journey-logik implementeras innan RFC och Implementation Contract är godkända. Buggfixar och orelaterade förändringar påverkas inte.**
+**Ingen ny journey-logik implementeras innan workshop och RFC är godkända. Buggfixar och orelaterade förändringar påverkas inte.**

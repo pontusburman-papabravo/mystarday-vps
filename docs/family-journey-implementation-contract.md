@@ -1,12 +1,14 @@
 # Family Journey — Implementation Contract
 
-**Version:** 0.9  
-**Status:** Utkast — väntar på godkännande  
-**Föregås av:** [Family Journey Model RFC](./family-journey-model-rfc.md)
+**Appendix till:** [Family Journey Model RFC](./family-journey-model-rfc.md)  
+**Version:** 0.9 (utkast)  
+**Status:** Väntar på RFC-godkännande efter workshop
 
-Syfte: teknisk sanning för implementation. Om RFC och detta dokument motsäger varandra — RFC vinner på domän, detta dokument vinner på tekniska detaljer.
+Syfte: teknisk sanning för implementation — tabeller, API, kodmapping. **Hör inte hemma i RFC-kroppen.**
 
-**Regel:** Ingen ny journey-logik implementeras innan detta contract är godkänt. Buggfixar och orelaterade förändringar påverkas inte.
+Om RFC och detta dokument motsäger varandra: RFC vinner på domän, detta dokument vinner på tekniska detaljer.
+
+**Regel:** Ingen ny journey-logik implementeras innan RFC (§1–5, §7) är godkänd i workshop. Detta contract finaliseras därefter. Buggfixar och orelaterade förändringar påverkas inte.
 
 ---
 
