@@ -226,18 +226,14 @@
     }
 
     const wrap = $('carWrap');
-    if (wrap) wrap.setAttribute('data-wheel', c.wheels || 'standard');
-
-    const decalEl = $('carDecal');
-    const decalOpt = (state.options.decals || []).find(function (d) { return d.id === c.decal; });
-    if (decalEl) {
-      if (c.decal && c.decal !== 'none' && decalOpt && decalOpt.icon) {
-        decalEl.textContent = decalOpt.icon;
-        decalEl.hidden = false;
-      } else {
-        decalEl.hidden = true;
-      }
+    if (wrap) {
+      wrap.setAttribute('data-wheel', c.wheels || 'standard');
+      wrap.setAttribute('data-decal', c.decal || 'none');
     }
+
+    document.querySelectorAll('.garage-tire').forEach(function (tire) {
+      tire.setAttribute('data-tire-type', c.wheels || 'standard');
+    });
 
     if ($('statClean')) $('statClean').textContent = '✨ Ren ' + Math.round(c.cleanliness) + '%';
     if ($('statTune')) $('statTune').textContent = '🔧 Motor ' + (c.tune_level || 0) + '/5';
@@ -264,7 +260,7 @@
     }).join('');
 
     $('wheelRow').innerHTML = (state.options.wheels || []).map(function (w) {
-      return '<button type="button" class="garage-chip" data-kind="wheels" data-val="' + w.id + '">' +
+      return '<button type="button" class="garage-chip is-workshop" data-kind="wheels" data-val="' + w.id + '">' +
         w.icon + ' ' + w.label + '</button>';
     }).join('');
 
@@ -282,6 +278,57 @@
     }).join('');
 
     bindPanelEvents();
+  }
+
+  function onWorkshopComplete(result) {
+    if (!result) return;
+    if (result.mode === 'wheel' && result.wheels) {
+      patchCustomization({ wheels: result.wheels });
+      showToast('Nytt däck monterat! 🛞');
+      playActionFx('race');
+    } else if (result.mode === 'wash') {
+      if (state.preview) {
+        state.project.customization = normalizeLocalCustomization(
+          Object.assign({}, state.project.customization, { cleanliness: 100 })
+        );
+        applyCustomization(state.project.customization);
+      } else {
+        runActionAfterWorkshop('wash');
+      }
+      showToast('Bilen är skinande ren! 🫧');
+      playActionFx('wash');
+    }
+    hapticHeavy();
+  }
+
+  function openWheelWorkshop(wheelId) {
+    if (!window.GarageWorkshop) return;
+    GarageWorkshop.open({
+      mode: 'wheel',
+      desiredWheel: wheelId,
+      onComplete: onWorkshopComplete,
+    });
+  }
+
+  function openWashWorkshop() {
+    if (!window.GarageWorkshop) return;
+    GarageWorkshop.open({
+      mode: 'wash',
+      onComplete: onWorkshopComplete,
+    });
+  }
+
+  async function runActionAfterWorkshop(actionId) {
+    try {
+      const res = await Auth.api('/api/me/build/garage/action', {
+        method: 'POST',
+        body: JSON.stringify({ action: actionId }),
+      });
+      state.project.customization = res.customization;
+      applyCustomization(res.customization);
+    } catch (err) {
+      showToast(err.message || 'Kunde inte spara');
+    }
   }
 
   function normalizeLocalCustomization(c) {
@@ -360,6 +407,13 @@
   }
 
   async function runAction(actionId) {
+    if (window.GarageWorkshop && GarageWorkshop.isOpen()) return;
+
+    if (actionId === 'wash') {
+      openWashWorkshop();
+      return;
+    }
+
     if (state.preview) {
       runPreviewAction(actionId);
       return;
@@ -393,7 +447,7 @@
     });
     document.querySelectorAll('.garage-chip[data-kind="wheels"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        patchCustomization({ wheels: btn.getAttribute('data-val') });
+        openWheelWorkshop(btn.getAttribute('data-val'));
       });
     });
     document.querySelectorAll('.garage-chip[data-kind="decal"]').forEach(function (btn) {

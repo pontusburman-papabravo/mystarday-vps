@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/build-garage.css?v=3">
+  <link rel="stylesheet" href="/css/build-garage.css?v=4">
   <script src="/js/auth.js?v=2.22.0"></script>
 </head>
 <body class="build-garage-page">
@@ -48,7 +48,7 @@
     </div>
 
     <div class="garage-stage">
-      <div class="garage-car-wrap" id="carWrap" data-wheel="standard">
+      <div class="garage-car-wrap" id="carWrap" data-wheel="standard" data-decal="none">
         <div class="garage-fx-layer" id="carFx" aria-hidden="true"></div>
         <div class="garage-shine-sweep" aria-hidden="true"></div>
         <div class="garage-wrench-fx" aria-hidden="true">🔧</div>
@@ -61,8 +61,16 @@
           <span></span><span></span><span></span><span></span>
         </div>
         <div class="garage-sparkles" aria-hidden="true"></div>
-        <img id="carImg" class="garage-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="Din bil">
-        <span id="carDecal" class="garage-decal" hidden></span>
+        <div class="garage-car-body">
+          <img id="carImg" class="garage-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="Din bil">
+          <div class="garage-decal-layer" aria-hidden="true">
+            <span class="garage-decal-stars"></span>
+            <span class="garage-decal-flame">🔥</span>
+            <span class="garage-decal-stripe"></span>
+          </div>
+        </div>
+        <div class="garage-tire garage-tire--front" data-tire-pos="front" aria-hidden="true"></div>
+        <div class="garage-tire garage-tire--rear" data-tire-pos="rear" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -73,16 +81,59 @@
       <div class="garage-colors" id="colorRow"></div>
 
       <h2>🛞 Däck</h2>
+      <p class="garage-panel-hint">Tryck för att byta i verkstaden med verktyg</p>
       <div class="garage-chip-row garage-chip-row--wheels" id="wheelRow"></div>
 
       <h2>✨ Dekaler</h2>
       <div class="garage-chip-row garage-chip-row--decals" id="decalRow"></div>
 
       <h2>🔧 Mecka</h2>
+      <p class="garage-panel-hint">Öppnar verkstaden — välj verktyg på väggen</p>
       <div class="garage-actions" id="actionRow"></div>
     </section>
   </div>
 
-  <script src="/js/build-garage.js?v=3"></script>
+  <!-- Verkstad: verktygsvägg + steg-för-steg -->
+  <div id="garageWorkshop" class="garage-workshop" hidden>
+    <header class="gw-header">
+      <button type="button" id="gwClose" class="gw-close">← Tillbaka</button>
+      <h2 id="gwTitle" class="gw-title">🛞 Verkstaden</h2>
+      <div class="gw-progress" id="gwProgress"></div>
+    </header>
+    <p id="gwHint" class="gw-hint">Välj verktyg på väggen</p>
+    <div id="gwBurst" class="gw-burst"></div>
+
+    <div class="gw-layout">
+      <aside class="gw-tool-wall" id="gwToolWall" aria-label="Verktygsvägg"></aside>
+
+      <div class="gw-main">
+        <div class="gw-meter-row">
+          <div class="gw-meter gw-meter--spray" id="gwSprayMeter" hidden>
+            <span>Vatten</span>
+            <div class="gw-meter-track"><div id="gwSprayFill" class="gw-meter-fill"></div></div>
+          </div>
+          <div class="gw-meter gw-meter--scrub" id="gwScrubMeter" hidden>
+            <span>Skrubb</span>
+            <div class="gw-meter-track"><div id="gwScrubFill" class="gw-meter-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="gw-arena" id="gwArena">
+          <div class="gw-car-lift">
+            <img class="gw-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="">
+            <div class="gw-wheel-zone" id="gwWheelZone">
+              <div class="gw-bolts" id="gwBolts"><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="gw-wheel" id="gwWheel" data-tire-type="standard"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gw-tire-rack" id="gwTireRack" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/build-garage-workshop.js?v=1"></script>
+  <script src="/js/build-garage.js?v=4"></script>
 </body>
 </html>

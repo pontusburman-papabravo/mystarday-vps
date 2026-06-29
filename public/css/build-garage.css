@@ -182,12 +182,15 @@ body.build-garage-page {
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.garage-car-wrap[data-wheel="sport"] .garage-car-img {
-  transform: scale(1.03);
-}
-
-.garage-car-wrap[data-wheel="offroad"] .garage-car-img {
-  transform: scale(1.07);
+.garage-car-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
+  transition: filter 0.35s ease;
+  /* Dölj inbakade hjul — egna däcklager ovanpå */
+  clip-path: polygon(0 0, 100% 0, 100% 68%, 72% 68%, 72% 100%, 28% 100%, 28% 68%, 0 68%);
 }
 
 .garage-car-wrap.is-racing,
@@ -283,27 +286,8 @@ body.build-garage-page {
   50% { transform: scale(1.04); }
 }
 
-.garage-car-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
-  transition: filter 0.35s ease, transform 0.3s ease;
-}
-
 .garage-car-img.is-dirty {
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35)) brightness(0.92) saturate(0.85);
-}
-
-.garage-decal {
-  position: absolute;
-  top: 40%;
-  left: 63%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(0.9rem, 4.5vw, 1.35rem);
-  line-height: 1;
-  pointer-events: none;
 }
 
 .garage-sparkles {
@@ -630,4 +614,511 @@ body.build-garage-page {
   font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
+}
+
+.garage-panel-hint {
+  margin: -6px 0 10px;
+  font-size: 0.68rem;
+  color: var(--text-soft);
+  line-height: 1.35;
+}
+
+/* ── Car body, tires, decals ── */
+.garage-car-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.garage-car-wrap[data-wheel="sport"] .garage-tire--front,
+.garage-car-wrap[data-wheel="sport"] .garage-tire--rear {
+  width: 14.5%;
+}
+
+.garage-car-wrap[data-wheel="offroad"] .garage-tire--front,
+.garage-car-wrap[data-wheel="offroad"] .garage-tire--rear {
+  width: 20%;
+  bottom: 11%;
+}
+
+.garage-car-wrap[data-wheel="sport"] .garage-tire {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.35), 0 4px 10px rgba(0,0,0,0.35);
+}
+
+.garage-tire {
+  position: absolute;
+  width: 17%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 38% 32%, #4a5568 0%, #1B2340 48%, #0a1020 88%);
+  border: 3px solid #2a3458;
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.08), 0 4px 10px rgba(0,0,0,0.35);
+  transition: width 0.35s ease, bottom 0.35s ease;
+}
+
+.garage-tire::after {
+  content: '';
+  position: absolute;
+  inset: 24%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffcc55, var(--gold) 55%, var(--gold-dark) 100%);
+  border: 2px solid rgba(255,255,255,0.25);
+}
+
+.garage-tire--front { left: 18.5%; bottom: 13%; }
+.garage-tire--rear { right: 18.5%; bottom: 13%; }
+
+.garage-decal-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.garage-decal-stars,
+.garage-decal-flame,
+.garage-decal-stripe {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.garage-car-wrap[data-decal="stars"] .garage-decal-stars { opacity: 1; }
+.garage-car-wrap[data-decal="flame"] .garage-decal-flame { opacity: 1; }
+.garage-car-wrap[data-decal="stripe"] .garage-decal-stripe { opacity: 1; }
+
+.garage-decal-stars::before,
+.garage-decal-stars::after {
+  content: '⭐';
+  position: absolute;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.garage-decal-stars::before { top: 38%; left: 58%; }
+.garage-decal-stars::after { content: '✨'; top: 32%; left: 72%; font-size: 0.65rem; }
+
+.garage-decal-flame {
+  top: 22%;
+  right: 6%;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 4px rgba(255,100,0,0.5));
+  animation: flameFlicker 0.8s ease-in-out infinite alternate;
+}
+
+.garage-decal-stripe {
+  top: 28%;
+  left: 22%;
+  width: 38%;
+  height: 42%;
+  background: repeating-linear-gradient(
+    -14deg,
+    transparent,
+    transparent 7px,
+    rgba(255,255,255,0.88) 7px,
+    rgba(255,255,255,0.88) 12px
+  );
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 30%, transparent 75%);
+}
+
+@keyframes flameFlicker {
+  from { transform: scale(1) rotate(-5deg); }
+  to { transform: scale(1.12) rotate(5deg); }
+}
+
+/* ── Workshop overlay ── */
+.garage-workshop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #0f1629 0%, #1a2340 45%, #243050 100%);
+  padding: env(safe-area-inset-top, 10px) 12px env(safe-area-inset-bottom, 16px);
+  overflow: hidden;
+}
+
+.garage-workshop.is-open { animation: gwSlideIn 0.35s ease-out; }
+
+@keyframes gwSlideIn {
+  from { transform: translateY(8%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.gw-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.gw-close {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gw-title {
+  flex: 1;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+}
+
+.gw-progress {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.gw-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+}
+
+.gw-progress-dot.is-active {
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(245,166,35,0.6);
+}
+
+.gw-progress-dot.is-done { background: #4ade80; }
+
+.gw-hint {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.gw-burst {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 220;
+  padding: 16px 22px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--gold-light), #fff);
+  border: 2px solid var(--gold);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--navy);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.gw-burst.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.gw-burst-emoji { display: block; font-size: 2rem; margin-bottom: 4px; }
+
+.gw-layout {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  min-height: 0;
+}
+
+.gw-tool-wall {
+  flex: 0 0 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 6px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, #8b7355 0%, #6b5344 100%);
+  border: 3px solid #5c4033;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08), 4px 0 20px rgba(0,0,0,0.25);
+  overflow-y: auto;
+}
+
+.gw-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f5f0e8, #e8dfd0);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s;
+}
+
+.gw-tool-icon { font-size: 1.5rem; line-height: 1; }
+
+.gw-tool-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.gw-tool.is-needed {
+  animation: toolPulse 1s ease infinite;
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(245,166,35,0.5);
+}
+
+.gw-tool.is-selected {
+  transform: scale(1.06);
+  border-color: var(--navy);
+  box-shadow: 0 4px 12px rgba(27,35,64,0.25);
+  background: linear-gradient(180deg, #fff, var(--gold-light));
+}
+
+.gw-tool.is-dim { opacity: 0.45; }
+
+@keyframes toolPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(245,166,35,0.4); }
+  50% { box-shadow: 0 0 16px rgba(245,166,35,0.8); }
+}
+
+.gw-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 8px;
+}
+
+.gw-meter-row { display: flex; gap: 8px; }
+
+.gw-meter {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.gw-meter-track {
+  margin-top: 4px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+
+.gw-meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #60a5fa, #93c5fd);
+  transition: width 0.2s ease;
+}
+
+.gw-meter--scrub .gw-meter-fill {
+  background: linear-gradient(90deg, var(--gold), #4ade80);
+}
+
+.gw-arena {
+  flex: 1;
+  position: relative;
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(245,166,35,0.12), transparent 55%),
+    linear-gradient(180deg, #2a3458, #1a2340);
+  border: 2px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.gw-car-lift {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+.gw-arena.is-lifted .gw-car-lift {
+  transform: translateY(-18px);
+}
+
+.gw-car-img {
+  width: 78%;
+  max-height: 55%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,0.4));
+  pointer-events: none;
+}
+
+.gw-wheel-zone {
+  position: absolute;
+  left: 14%;
+  bottom: 22%;
+  width: 22%;
+  aspect-ratio: 1;
+}
+
+.gw-bolts {
+  position: absolute;
+  inset: -8%;
+  --bolt-turn: 0deg;
+  transition: opacity 0.3s;
+}
+
+.gw-bolts i {
+  position: absolute;
+  width: 14%;
+  height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ccc, #666);
+  border: 1px solid #444;
+  transform: rotate(var(--bolt-turn));
+}
+
+.gw-bolts i:nth-child(1) { top: 5%; left: 42%; }
+.gw-bolts i:nth-child(2) { top: 38%; right: 2%; }
+.gw-bolts i:nth-child(3) { bottom: 5%; left: 42%; }
+.gw-bolts i:nth-child(4) { top: 38%; left: 2%; }
+.gw-bolts i:nth-child(5) { top: 38%; left: 42%; opacity: 0; }
+
+.gw-bolts.is-turning i { animation: boltSpin 0.18s ease; }
+.gw-bolts.is-loose { opacity: 0.35; }
+
+@keyframes boltSpin {
+  to { transform: rotate(calc(var(--bolt-turn) + 60deg)); }
+}
+
+.gw-wheel {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #4a5568, #1B2340 50%, #0a1020 90%);
+  border: 4px solid #2a3458;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  cursor: grab;
+  transition: transform 0.1s ease, width 0.3s, inset 0.3s;
+}
+
+.gw-wheel::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffcc55, var(--gold-dark));
+}
+
+.gw-wheel[data-tire-type="sport"] { border-color: var(--gold); inset: 12%; }
+.gw-wheel[data-tire-type="offroad"] { inset: 0; border-width: 5px; }
+
+.gw-arena.is-wheel-off .gw-wheel {
+  cursor: grab;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+}
+
+.gw-arena.is-wheel-off .gw-wheel.is-dragging { cursor: grabbing; opacity: 0.9; }
+
+.gw-float-particle {
+  position: absolute;
+  font-size: 1.2rem;
+  pointer-events: none;
+  animation: gwFloatUp 0.9s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes gwFloatUp {
+  from { transform: translateY(0) scale(0.6); opacity: 1; }
+  to { transform: translateY(-50px) scale(1); opacity: 0; }
+}
+
+.gw-tire-rack {
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.08);
+  border: 2px dashed rgba(245,166,35,0.45);
+}
+
+.gw-rack-title {
+  margin: 0 0 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+
+.gw-rack-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.gw-rack-tire {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gw-rack-tire.is-picked {
+  border-color: var(--gold);
+  background: rgba(245,166,35,0.15);
+}
+
+.gw-rack-tire-visual {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #4a5568, #1B2340 55%, #0a1020);
+  border: 3px solid #333;
+}
+
+.gw-rack-tire-visual[data-tire-type="sport"] { width: 32px; height: 32px; border-color: var(--gold); }
+.gw-rack-tire-visual[data-tire-type="offroad"] { width: 42px; height: 42px; border-width: 4px; }
+
+.garage-chip.is-workshop {
+  border-style: dashed;
+}
+
+.garage-chip.is-workshop::after {
+  content: ' 🔧';
+  font-size: 0.65rem;
 }
