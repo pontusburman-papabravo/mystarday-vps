@@ -91,6 +91,13 @@ describe('meny v2.1 — Sprint 4 engine split', () => {
     assert.match(src, /coalescedLoadDay/);
   });
 
+  it('rewardsLoaded is let (mutated by child-dashboard-rewards.js)', () => {
+    const dash = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const rewards = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
+    assert.match(dash, /let rewardsLoaded = false/);
+    assert.match(rewards, /rewardsLoaded = true/);
+  });
+
   it('child-today shell mounts paused banner on enter', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-today.js'), 'utf8');
     assert.match(src, /ChildActivityEngine/);

@@ -72,6 +72,7 @@ async function loadRewards() {
       ChildRewardsEngine.mountPendingBannerIfNeeded();
     }
   } catch (err) {
+    console.error('[SKATT] loadRewards failed:', err);
     // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
       ? OfflineStore.getRewards(me?.id)
@@ -83,7 +84,8 @@ async function loadRewards() {
       renderSkattkammaren(cached, _currentGoalData, { grants: [] });
       showOfflineBanner('📶 Offline — visar sparat data');
     } else if (loader) {
-      loader.innerHTML = '<div class="text-center py-12"><p class="text-4xl mb-3">😕</p><p class="text-text-soft">Kunde inte ladda belöningar.</p></div>';
+      const hint = (err && err.message) ? '<p class="text-xs text-text-soft mt-2 opacity-75">' + String(err.message).replace(/</g, '&lt;') + '</p>' : '';
+      loader.innerHTML = '<div class="text-center py-12"><p class="text-4xl mb-3">😕</p><p class="text-text-soft">Kunde inte ladda belöningar.</p>' + hint + '</div>';
     }
   }
 }

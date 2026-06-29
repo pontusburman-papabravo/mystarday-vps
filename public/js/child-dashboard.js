@@ -324,7 +324,7 @@ function updateDateLine() {
 
 // ── Tabs ───────────────────────────────────────────────
 
-const rewardsLoaded = false;
+let rewardsLoaded = false;
 let childUiMagic = false;
 
 function applyChildViewChrome() {
