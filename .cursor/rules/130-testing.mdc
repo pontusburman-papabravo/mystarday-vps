@@ -14,7 +14,7 @@ export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
 ```
 
-Unset email API keys for tests: `env -u RESEND_API_KEY ...` when needed.
+Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
 
 ## Layers
 
