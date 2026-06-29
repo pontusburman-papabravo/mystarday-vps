@@ -37,7 +37,7 @@
     "test": "node --test test/*.test.js",
     "check:engine-shadow": "node scripts/check-engine-shadow-logic.mjs",
     "test:engine": "node --test test/engine-golden.test.js test/engine-shadow-logic.test.js test/first-success-api.test.js test/engine-coach-authority.test.js",
-    "test:gate": "node --test test/setup-test-db.test.js test/auth-integration.test.js test/child-access-integration.test.js test/maintenance-order.test.js test/app-links-routes.test.js test/engine-golden.test.js test/engine-shadow-logic.test.js test/first-success-api.test.js test/engine-coach-authority.test.js test/journey-context.test.js test/journey-route-scope.test.js test/journey-fas2.test.js test/journey-fas3.test.js test/journey-fas4.test.js test/journey-fas5.test.js test/journey-golden-path.test.js test/journey-daily-analysis.test.js",
+    "test:gate": "node --test test/setup-test-db.test.js test/auth-integration.test.js test/child-access-integration.test.js test/maintenance-order.test.js test/app-links-routes.test.js test/engine-golden.test.js test/engine-shadow-logic.test.js test/first-success-api.test.js test/engine-coach-authority.test.js test/journey-context.test.js test/journey-route-scope.test.js test/journey-fas2.test.js test/journey-fas3.test.js test/journey-fas4.test.js test/journey-fas5.test.js test/journey-golden-path.test.js test/journey-daily-analysis.test.js test/route-inventory.test.js",
     "journey-rollout:status": "node scripts/journey-rollout-advance.js",
     "journey-rollout:advance": "node scripts/journey-rollout-advance.js",
     "polsia:gate0": "node scripts/polsia-gate0-audit.mjs",
