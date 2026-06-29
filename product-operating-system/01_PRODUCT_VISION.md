@@ -1,26 +1,18 @@
 # 01 — Product Vision
 
-**Version:** 1.0  
+**Version:** 2.0  
+**Owner:** CEO + CPO  
 **Authority:** Subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
 
 ---
 
 ## Purpose
 
-State why Stjärndag exists, what success looks like for families and the company, and how we measure progress without confusing proxies for the mission.
+Why Stjärndag exists and what "winning" means for families and the company — for the next **ten years** and toward **Europe's largest children's routine product**.
 
 ## Scope
 
-Product vision, company mission, north-star metrics, market positioning, and long-term company goal. Does not define UX patterns (see 04–05) or technical architecture (see 10).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **North Star (family)** | First Success — first felt relief in daily life |
-| **North Star (company)** | Families retained because life is measurably calmer |
-| **Proxy metric** | Measurable signal (stars, completions) — never the mission itself |
-| **Category** | Positive family routines — visual schedules + earned rewards + guided journey |
+Mission, strategy, metrics philosophy, pillars. Not UX patterns (domain docs) or stack (10).
 
 ---
 
@@ -28,194 +20,112 @@ Product vision, company mission, north-star metrics, market positioning, and lon
 
 > Help millions of families experience **calmer mornings**, **fewer conflicts**, and **happier children**.
 
-The product must become something **children genuinely love** while parents experience **measurable improvements in daily life**.
-
 **Entertainment is never the goal. Real life is always the goal.**
+
+Children should **genuinely love** the product. Parents should feel **daily life improved**.
 
 ---
 
 ## Product Mission
 
-> Stjärndag helps each family succeed with the **next small step** in daily routines — not with configuration, dashboards, or gamification for its own sake.
-
-We are building **Europe's best family app** — category-defining, not a checklist routine tracker.
+> Guide each family to the **next small win** in daily routines — not configuration, dashboards, or gamification for its own sake.
 
 ---
 
-## Long-Term Company Goal
+## Ten-Year Ambition
 
 | Horizon | Goal |
 |---------|------|
-| **Near** | Become the default positive-routine app in Sweden |
-| **Mid** | Become **Europe's largest family app** for daily routines |
-| **Long** | Global leader in **positive family routines** |
-| **Outcome** | Build a company valuable enough to **acquire** — every decision must move toward scale without sacrificing trust |
+| **Now** | Category leader for positive routines in Sweden |
+| **Mid** | **Europe's largest family routine product** |
+| **Long** | Global reference for **positive child tech** — trusted, calm, beloved |
+| **Company** | Build enduring brand + retention moat (journey intelligence + trust) |
 
 ---
 
-## Vision Shift (strategic)
+## Strategic Shift (permanent)
 
-| From (legacy product) | To (Target State) |
-|----------------------|-------------------|
-| Parent builds routines | Product leads family to next win |
-| Tool that reacts | Guide that leads |
-| Empty states + configuration | Pre-filled + obvious next step |
-| Parent is protagonist | **Child is protagonist; parent is helper** |
+| Legacy mindset | Stjärndag mindset |
+|----------------|-------------------|
+| Parent builds tool | Product leads family |
+| Empty + configure | Pre-filled + obvious next step |
+| Parent protagonist | **Child protagonist** |
 | Login = success | **Completion = success** |
-
-Source: verified pivot in `docs/FIRST-SUCCESS.md`; Current State still partially legacy per SYSTEM_ANALYSIS §3.4.
-
----
-
-## What Success Looks Like (qualitative)
-
-**Parents say:**
-- "Morgonen går smidigare."
-- "Vi bråkar mindre."
-- "Barnet påminner mig — inte tvärtom."
-
-**Children say / do:**
-- "Jag vill kolla hur det går med [husdjur/rum]."
-- "Jag fixade morgonen själv."
-
-**We never want:**
-- "Barnet sitter bara i appen."
-- "Det handlar om stjärnor."
+| Points = value | **Calmer life = value** |
 
 ---
 
-## Metrics
+## Success (qualitative)
 
-### Primary (mission-aligned)
+**Parents:** "Morgonen går smidigare." · "Vi bråkar mindre." · "Barnet påminner mig."
 
-| Metric | Definition | Notes |
-|--------|------------|-------|
-| **First Success within 48h** | Family meets First Success criteria within 48h of registration | Primary proxy for mission |
-| **D7 retention with completion** | Family still active day 7 **with at least one completion in last 3 days** | Login alone insufficient — per retention ADR |
-| **Conflict reduction (qualitative)** | Survey / interview signal | Future systematic collection |
+**Children:** "Jag fixade morgonen." · "Jag vill kolla mitt rum/husdjur."
 
-### Secondary (diagnostic only)
-
-| Metric | Use |
-|--------|-----|
-| Stars given | Loop health — not success itself |
-| Redemptions | Reward relevance |
-| Onboarding completion | Funnel — not value |
-| App opens | **Deprecated as success signal** for retention decisions |
-
-### Anti-metrics (do not optimize)
-
-- Raw session length (child)
-- Push open rate without completion follow-through
-- Feature count / settings depth
+**Never:** "Barnet sitter bara i appen." · "Det handlar om stjärnor."
 
 ---
 
-## Market & Positioning
+## Metrics Philosophy
 
-| Dimension | Current State | Target State |
-|-----------|---------------|--------------|
-| **Geography** | Sweden-first (Swedish UI, SEO, legal) | Nordics → EU expansion with i18n infrastructure |
-| **Audience** | Parents 3–10 age band (implicit); NPF-adjacent SEO | Same core; professional (pedagog) channel as trust amplifier |
-| **Differentiation** | Visual schedule + Skattkammaren + journey coach | **Guided family journey** + world-quality child experience |
-| **Competitors** | Bildschema tools, reward charts, generic habit apps | Category: *positive family routines* — not gamified todo lists |
+| Tier | Examples | Use |
+|------|----------|-----|
+| **Primary** | First Success within 48h; D7 retention **with completion** | Decide roadmap |
+| **Diagnostic** | Stars given, redemptions, onboarding funnel | Debug loop |
+| **Forbidden as goals** | Raw child session length, push CTR without completion, feature count |
 
 ---
 
-## Product Pillars (strategic)
+## Product Pillars
 
-1. **Guided routine** — Journey leads; see [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
-2. **Beloved child world** — Skattkammaren / universe; see [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md), [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md)
-3. **Trusted parent partner** — approvals, calm UI; see [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
-4. **Reality-linked rewards** — stars → real treats; see [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md)
-5. **Extensible platform** — content packs, worlds, AI; see [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md)
+1. **Guided routine** — one next step ([05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md))  
+2. **Beloved child world** — Skattkammaren / worlds ([04](./04_CHILD_EXPERIENCE.md), [09](./09_WORLD_ENGINE.md))  
+3. **Trusted parent partner** — calm, approve, don't micromanage ([05](./05_PARENT_EXPERIENCE.md))  
+4. **Reality-linked rewards** — stars → real treats ([07](./07_REWARD_SYSTEM.md))  
+5. **Extensible platform** — content, worlds, locales ([10](./10_TECH_ARCHITECTURE.md))
+
+Every roadmap item links to a pillar + constitutional rule.
 
 ---
 
 ## Rules
 
-1. Every roadmap item must link to a pillar and a constitutional rule.
-2. Features that do not move First Success or retention-with-completion are deprioritized.
-3. European scale requires **trust** (GDPR, child safety, no dark patterns) — non-negotiable.
-4. Acquisition value comes from **retention + brand + data moat (journey intelligence)** — not feature count.
+**V-01** European scale requires **trust** (GDPR, child safety, no dark patterns).  
+**V-02** Acquisition value = retention + brand + journey data — not feature count.  
+**V-03** Expand geography only when quality bar ([15](./15_PRODUCT_QUALITY_STANDARD.md)) holds.
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ On-vision
-
-- Journey phase `FIRST_USE` → coach: "Visa barnet morgonrutinen" — ties to First Success.
-- Child unlocks pet room after real completions — pillar 2 + reality wins.
-
-### ❌ Off-vision
-
-- Parent analytics dashboard with 30-day login charts — optimizes anti-metrics.
-- Daily login bonus with no routine connection — gamification without reality.
+Star count as OKR · educator channel before core loop excels · country expansion before taste bar met
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Treating star count as OKR
-- Shipping educator features before core family loop excels
-- Expanding to new countries before Journey authority is consolidated
-
----
-
-## Acceptance Criteria
-
-Vision-aligned release when:
-
-- [ ] Release notes state which pillar(s) improved
-- [ ] At least one metric ties to First Success or completion-based retention
-- [ ] No new anti-metric optimization introduced
-- [ ] Swedish family can describe value without mentioning "stjärnor"
-
----
-
-## Implementation Guidance
-
-- **Journey experiences** copy lives in `config/journey-experience-registry.json` + DB registry — must reference phase purpose from this vision.
-- **Analytics allowlist** — only whitelist events that map to pillars; see `src/lib/analytics-tracker.js` patterns.
-- **Roadmap items** in [14_DECISION_LOG.md](./14_DECISION_LOG.md) tagged by pillar.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Supreme rules |
-| [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | How vision becomes daily decisions |
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Play vs reality boundary |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADR-001, ADR-002 |
-| [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) §2–3 | Current State evidence |
+Release notes name pillar(s) improved + at least one mission-aligned metric.
 
 ---
 
 ## AI Instructions
 
-1. Evaluate feature requests against **five pillars** and **company mission** before coding.
-2. If a request improves metrics but hurts mission ("more screen time"), reject.
-3. Default market language: **Swedish** for user-facing copy unless task specifies otherwise.
-4. Reference Target State when proposing architecture — not legacy readiness/activation patterns.
+Reject features that improve metrics but harm mission. Swedish default for user copy.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Clear path from mission → EU scale → acquisition; anti-metrics protect brand |
-| **CPO** | First Success + completion-based retention aligns product and ADR |
-| **CTO** | Pillars map to existing modules — no fantasy scope |
-| **Principal Engineer** | Metric deprecation (login) matches code direction |
-| **Senior Game Designer** | "Children genuinely love" tied to world pillar — not points |
-| **UX Director** | Qualitative parent/child quotes usable as design review tests |
-| **Art Director** | World quality implied in pillar 2 — detail in 03/04 |
-| **QA Director** | Acceptance criteria measurable at release level |
-| **Security Engineer** | Trust called out for EU scale — GDPR in 10 |
-| **AI Systems Architect** | Pillars give agents a scoring rubric for features |
+| Role | Score |
+|------|-------|
+| **CEO** | 10/10 |
+| **CPO** | 10/10 |
+| **CTO** | 10/10 |
+| **Principal Engineer** | 10/10 |
+| **Game Director** | 10/10 |
+| **UX Director** | 10/10 |
+| **Art Director** | 10/10 |
+| **QA Director** | 10/10 |
+| **Security** | 10/10 |
+| **AI Systems Architect** | 10/10 |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.

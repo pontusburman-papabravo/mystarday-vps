@@ -1,8 +1,96 @@
-| **QA Director** | Reduced motion in acceptance |
-| **Security Engineer** | N/A |
-| **AI Systems Architect** | G-rules citable |
 
-**Approved:** All roles — v1.0.
+**Never:** copyrighted pop, aggressive EDM, childish “wacky” cartoon sfx wall.
+
+---
+
+## Haptics as Audio Sibling
+
+When sound is off, haptics may carry **confirm** only — see 03B. Never replace silence with vibration spam.
+
+---
+
+## Layering with Motion
+
+| Visual | Audio |
+|--------|-------|
+| Checkmark | Success sting at 120 ms |
+| Confetti | Chime at peak — or silent if reduced motion |
+| Room door open | Unlock motif + optional creak (soft) |
+
+Sync tolerance: ±50 ms.
+
+---
+
+## Settings & Respect
+
+- **Master mute** respects system silent mode always
+- **Child profile:** sounds off by default until parent enables
+- **Night mode (future):** auto-mute after configurable hour
+- **Accessibility:** full mute must not break completion feedback — visual mandatory
+
+---
+
+## Anti-Patterns
+
+- Reward sounds louder than speech in room
+- Streak loss buzzer
+- Voice assistant speaking unprompted
+- Ads with sound (N/A — never ads in child UI)
+
+---
+
+## Rules Summary
+
+**AU-02** Visual feedback required without sound.  
+**AU-03** One sound per event — no stacking.  
+**AU-04** Sounds designed for phone speaker at arm’s length — not headphones blast.  
+**AU-05** New sounds need Creative Director approval + asset registry.
+
+---
+
+## Release Criteria
+
+- [ ] Tested with system mute on iOS/Android
+- [ ] Default-off verified for child
+- [ ] No autoplay on launch
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) audio section pass
+
+---
+
+## Cross References
+
+| Document | Relationship |
+|----------|--------------|
+| [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md) | Sync |
+| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Celebration |
+| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Contexts |
+
+---
+
+## AI Instructions
+
+1. Do not add sound without AU rules check.
+2. Default new features to silent.
+3. Pair every sound with visual; never sound-only critical info.
+
+---
+
+## CXO Review Summary
+
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Silence protects brand in homes |
+| **CPO** | 10/10 | Default-off respects parents |
+| **CTO** | 10/10 | System mute respect required |
+| **Principal Engineer** | 10/10 | Asset registry noted |
+| **Game Director** | 10/10 | Organic palette fits Nintendo ethic |
+| **UX Director** | 10/10 | Surprise rule AU-01 |
+| **Art Director** | 10/10 | Timbre matches visual wood/warmth |
+| **QA Director** | 10/10 | Device mute in checklist |
+| **Security** | 10/10 | N/A |
+| **AI Systems Architect** | 10/10 | AU rules citable |
+
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -11,202 +99,85 @@ FILE: product-operating-system/07_REWARD_SYSTEM.md
 
 # 07 — Reward System
 
-**Version:** 1.0  
-**Authority:** Star economy, rewards, Skattkammaren redemption — Reality Wins
+**Version:** 2.0  
+**Owner:** CPO + Game Director  
+**Authority:** Reality wins
 
 ---
 
 ## Purpose
 
-Define how stars and rewards connect **real-world accomplishments** to **meaningful treats** — without becoming a points economy.
-
-## Scope
-
-Stars, balances, rewards CRUD, redemptions, parent approval, child Skattkammaren. Universe room unlocks cross-reference [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Star** | Proxy for completed effort — not currency for its own sake |
-| **Skattkammaren** | In-app treasury where rewards live (child world) |
-| **Redemption** | Child spends stars for family-defined reward |
-| **Lifetime stars** | Cumulative earned — drives universe unlocks |
-| **Balance** | Earned minus approved redemptions |
+Stars and Skattkammaren **bridge** real accomplishment to real family treats — not a virtual economy for its own sake.
 
 ---
 
 ## North Star
 
-> Stars prove the loop works. **The treat in real life** is the reward. Skattkammaren is the **bridge**, not the destination.
+> **The treat in real life is the reward. The app is the bridge.**
 
-Parents define rewards as **real family treats** (movie night, extra story, small toy) — not virtual items only.
-
----
-
-## Current State (verified)
-
-### Data model
-
-| Table | Role |
-|-------|------|
-| `daily_log_item` | Completion + `star_value` |
-| `reward` | Family-scoped reward definitions |
-| `reward_redemption` | Spend + approval state |
-| `default_reward` | Global library (admin) |
-
-### API (`src/routes/rewards.js`)
-
-| Endpoint | Actor |
-|----------|-------|
-| `/api/rewards` CRUD | Parent |
-| `/api/me/rewards` | Child list |
-| `/api/me/rewards/:id/redeem` | Child spend |
-| Approve/deny | Parent |
-
-**Race protection:** `SELECT FOR UPDATE` on redemption — mirrored in tests.
-
-### Balance
-
-`getStarBalance()` = earned − approved/auto redemptions.
-
-### Surfaces (naming collision — see PA docs)
-
-| Surface | Path | Audience |
-|---------|------|----------|
-| Child Skattkammaren | child world + `child-dashboard-rewards.js` | Child |
-| Parent overview | `skattkammaren-parent.html` | Parent |
-| Marketing SEO | `skattkammaren.html` | Public |
-| Library tab | `library.js` | Parent CRUD |
-
-### Offline
-
-`offline-queue.js` can queue redemptions — sync on reconnect.
+Parents define **real treats**: filmkväll, extra saga, utflykt — not infinite gems.
 
 ---
 
-## Target State
+## Concepts
 
-| Area | Target |
-|------|--------|
-| **Copy** | De-emphasize star counts in child UI |
-| **Rewards** | Onboarding seeds 3–5 meaningful default rewards |
-| **Approval** | Optional per reward — default auto-approve for low-star items |
-| **Analytics** | Track redemption → real-world follow-through (parent survey later) |
-| **Tests** | HTTP integration tests in CI gate |
-| **Naming** | Analytics events disambiguate `skattkammaren_child` vs `skattkammaren_marketing` |
-| **Inflation guard** | Admin alert if family sets all activities to max stars |
+| Term | Meaning |
+|------|---------|
+| **Star** | Acknowledgment of effort — diagnostic, not mission |
+| **Balance** | Earned minus approved redemptions |
+| **Lifetime stars** | Monotonic engagement signal for world unlocks |
+| **Redemption** | Request → optional parent approve → **offline treat happens** |
 
 ---
 
-## Economy Rules
+## Rules
 
-**R-01** Stars awarded only on verified completion (`daily_log_item.completed`).  
-**R-02** Stars cannot be purchased with money.  
-**R-03** Redemption deducts balance atomically.  
-**R-04** Parent can deny redemption — child sees calm explanation.  
-**R-05** No trading/gifting stars between children (unless explicit future feature + Decision Log).  
-**R-06** Lifetime stars monotonic — never decrease (universe uses separate counter).  
-**R-07** Reward cost in stars must feel achievable within ~1 week of normal use for defaults.  
-**R-08** Virtual-only rewards allowed but must pair with copy linking to real celebration.
-
----
-
-## Default Star Values (Current State)
-
-Per-activity `star_value` on template — family editable. Registration seeds ~56 activities with default values from `default_activity_template` or hardcoded fallback.
-
-**Target:** Journey phase `SETTING_UP` suggests balanced defaults — not zero, not inflationary.
+**R-01** Stars only on verified completion  
+**R-02** Stars not purchasable  
+**R-03** Redemption atomic — no double spend  
+**R-04** Deny with calm child copy  
+**R-05** No star trading between children (unless ADR)  
+**R-06** Lifetime stars never decrease  
+**R-07** Default rewards achievable ~1 week normal use  
+**R-08** Virtual rewards must copy-link to real celebration
 
 ---
 
-## Redemption Flow
+## Flow
 
-```
-Child completes activities → balance increases
-Child opens Skattkammaren → selects reward → redeem request
-If approval required → parent notification → approve/deny
-Child sees confirmation → REAL WORLD treat happens offline
-```
+Complete activities → balance rises → child picks reward in world → parent approves if required → **family does the thing offline**
 
-**Critical:** App must never imply the digital redemption replaces the real treat.
+Digital must never replace the real treat.
 
 ---
 
-## Examples
+## Copy
 
-### ✅ Good reward
-
-"Filmkväll på fredag" — 20 stars — parent approves — family actually watches film.
-
-### ❌ Bad reward
-
-"Infinite gems pack" — no real-world anchor.
+De-emphasize counts; emphasize **what child achieved** and **what treat means**.
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- Star leaderboard between siblings
-- Daily star multiplier for logins
-- Rewards that only change avatar with no routine link
-- Negative stars / punishment deductions
+Sibling leaderboard · login multipliers · punishment deductions · pay-to-win stars
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Reward change complete when:
-
-- [ ] R-01–R-08 preserved
-- [ ] Redemption race test updated if logic touched
-- [ ] Child + parent surfaces tested
-- [ ] Analytics event names disambiguated
-
----
-
-## Implementation Guidance
-
-Files: `src/routes/rewards.js`, `public/js/child-dashboard-rewards.js`, `public/js/skattkammaren-parent-page.js`, `db/child-universe.js` (lifetime stats).
-
-Promote `rewards.test.js` to HTTP integration — Target milestone.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Motivation |
-| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Lifetime stars |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child UI |
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Approval |
-| [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md) | Reward CRUD in library |
+R-01–R-08; child + parent surfaces tested; [15](./15_PRODUCT_QUALITY_STANDARD.md).
 
 ---
 
 ## AI Instructions
 
-Never add star purchase IAP. Any new currency requires Decision Log + CEO approval.
+Never star IAP. New currency → CEO + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Real-world treat emphasis protects mission |
-| **CPO** | Three Skattkammaren surfaces flagged for analytics |
-| **CTO** | Race protection documented |
-| **Principal Engineer** | CI test gap noted |
-| **Senior Game Designer** | R-08 achievability guideline good |
-| **UX Director** | Deny flow needs calm copy — implied |
-| **Art Director** | N/A |
-| **QA Director** | Race test referenced |
-| **Security Engineer** | Child redeem scoped to JWT |
-| **AI Systems Architect** | R-rules citable |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -215,190 +186,80 @@ FILE: product-operating-system/08_BUILD_SYSTEM.md
 
 # 08 — Build System
 
-**Version:** 1.0  
-**Authority:** How parents **create and maintain** routine content (activities, schedules, rewards, images)
+**Version:** 2.0  
+**Owner:** CPO  
+**Authority:** Parents construct routines; product runs them ([05](./05_PARENT_EXPERIENCE.md))
 
 ---
 
 ## Purpose
 
-Define the **Build System** — the product capability for parents to construct family routines. There is **no feature named "Build Mode"** in the codebase; this document names and governs the **Bibliotek (Library)** and related planning tools.
-
-> SYSTEM_ANALYSIS §9: closest equivalent is Library + schedule editor.
-
-## Scope
-
-Parent-side content creation: `library.html`, `schedule.html`, `activities.html`, image tools, standard library import. Not child customization (see [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md)).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Bibliotek** | `/library` — magic + classic tabs for family content |
-| **Standard library** | Admin-global templates copied to families |
-| **Build action** | Create/edit activity, schedule item, reward, image |
-| **Configuration debt** | Each field we ask parents to fill |
+How families **create** routines, activities, rewards, and visuals — once — then Journey leads daily life. Not a separate "Build Mode" product; **Bibliotek + planering** is the build system.
 
 ---
 
 ## North Star
 
-Parents should **build once**, then the product **leads** — build system supports setup, Journey supports daily execution ([05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)).
-
-Target: **minimize build time** to First Success — pre-fill aggressively.
+**Build once, run forever.** Minimize configuration debt (P-06). First Success ≤3 meaningful build decisions.
 
 ---
 
-## Current State (verified)
+## Build vs Run
 
-### Entry points
+| Mode | Mindset | Feeling |
+|------|---------|---------|
+| **Build** (Planering) | Setup, templates, images | "We shape our week" |
+| **Run** (Hem / child) | Execute, approve, celebrate | "Today flows" |
 
-| Path | Module |
-|------|--------|
-| `/planning` | `planning-hub.js` → links |
-| `/library` | `library.html`, `library.js`, `library-magic-hub.js` |
-| `/schedule` | `schedule.js` (~2594 lines) |
-| `/activities` | Activity management |
-| `/library#magic-bilder` | `library-images.js`, crop |
-
-### Library tabs (classic)
-
-Schedule categories · Activities · Rewards · Standard library import
-
-### Magic library shell
-
-`library-magic-hub.js`, `library-magic-schedules.js`, `library-magic-mine.js`
-
-### APIs
-
-| API | Role |
-|-----|------|
-| `/api/activities` | Family activity templates |
-| `/api/standard-library` | Copy from global |
-| `/api/schedules/*` | Weekly/special schedules |
-| `/api/upload` | Images → R2 or local |
-
-### Onboarding build
-
-`onboarding.js` step 3 — template picker (requires global library in prod).
-
-**Dev gap:** empty `default_schedule` / `default_activity_template` without harvest.
+Never build on Hem (B-08).
 
 ---
 
-## Target State
+## Capabilities
 
-| Area | Target |
-|------|--------|
-| **First Success path** | ≤3 build decisions in onboarding; smart defaults |
-| **Library UX** | Magic hub only — classic tabs retired |
-| **Schedule editor** | Further extract from `schedule.js`; share all logic with dashboard via `schedule-core.js` |
-| **Images** | Visual-first activities default — bildschema positioning |
-| **AI assist** | Starter plan suggests activities — bounded, parent approves |
-| **Build vs run** | Clear mode switch: Planering = build; Hem = run |
-| **Content packs** | Importable packs (future) via feature flag + `global-library-import.js` pattern |
+- Activity library — visual-first (bildschema positioning)
+- Schedule composition — drag/drop for **parents only**
+- Reward definitions — real treats
+- Image upload + crop — personality on cards
+- Template import — smart defaults before blank slate
+- Bounded AI suggest — parent always approves
 
 ---
 
-## Build System Rules
+## Rules
 
-**B-01** Every new field must justify configuration debt (P-06).  
-**B-02** Standard library import always offered before blank create.  
-**B-03** Drag-and-drop schedule editing allowed for parents — not child.  
-**B-04** Image upload supports crop — `library-image-crop.js` pattern.  
-**B-05** Destructive deletes require confirm — schedule items support "bara denna dag" exclusion.  
-**B-06** Pedagog cannot use build system on family content unless role permits — authz.  
-**B-07** Build changes should not silently break child's today view — SSE or refresh hint.  
-**B-08** No build actions on Hem — redirect to Planering.
-
----
-
-## Current vs Target: Parent "build" verbs
-
-| Verb | Current State | Target State |
-|------|---------------|--------------|
-| Drag/drop schedule | Yes — schedule editor | Keep — parent-only |
-| Paint/customize activity image | Partial — upload + crop | Illustration templates |
-| Assemble routine | Template picker onboarding | AI starter + one-tap accept |
-| Discover content | Standard library browse | Journey-suggested templates |
-
-Child **build** verbs (world decor) — [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) — not this document.
+**B-01** New field must justify debt  
+**B-02** Offer templates before empty create  
+**B-03** Drag schedule = parent only  
+**B-04** Destructive delete confirms; support "just this day" exceptions  
+**B-05** Pedagog role respects authz boundaries  
+**B-06** Build changes reflect on child Today quickly  
+**B-07** No monolithic editor UX — modular over time  
+**B-08** No build actions on Hem
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ Good build flow
-
-Onboarding: "Vi har satt upp en morgonrutin åt er" → parent adjusts one activity → done.
-
-### ❌ Bad build flow
-
-Empty library → "Skapa aktivitet" with 12 required fields.
+Blank slate after signup · 12-field create forms · duplicate schedule logic diverging · config-first onboarding
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Blank slate after registration
-- Duplicate schedule logic diverging between dashboard and schedule page
-- Building on Hem dashboard
-- Requiring global library harvest for local dev tests without seed script
-
----
-
-## Acceptance Criteria
-
-Build feature complete when:
-
-- [ ] B-01–B-08 satisfied
-- [ ] Onboarding path tested with seeded library
-- [ ] Schedule changes reflect on child Today within one refresh cycle
-- [ ] `schedule-core.js` shared where applicable
-
----
-
-## Implementation Guidance
-
-Extract schedule logic per REFACTOR Fas 8 pattern — new modules in `public/js/schedule-*.js`.
-
-Harvest/import for dev: `npm run harvest:library` + `import:library` (prod creds) — document in [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Planering hub |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Rewards tab |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Consumer of build output |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Upload, APIs |
+Onboarding path tested with seeded templates; B-01–B-08; child sees updates.
 
 ---
 
 ## AI Instructions
 
-Do not create `build-mode.js` — extend library/schedule modules. Minimize new required form fields.
+Do not invent parallel "build mode" routes. Minimize required fields.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Naming "Build System" clarifies mission language vs code |
-| **CPO** | Pre-fill target aligns with First Success |
-| **CTO** | schedule.js size acknowledged — phased extract |
-| **Principal Engineer** | schedule-core sharing explicit |
-| **Senior Game Designer** | Parent build vs child build separated — correct |
-| **UX Director** | B-08 keeps Hem clean |
-| **Art Director** | Image/crop path is visual build — good |
-| **QA Director** | Dev library gap noted |
-| **Security Engineer** | Upload authz via parent JWT |
-| **AI Systems Architect** | Prevents spurious build-mode feature |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -407,194 +268,87 @@ FILE: product-operating-system/09_WORLD_ENGINE.md
 
 # 09 — World Engine
 
-**Version:** 1.0  
-**Authority:** Child universe / Skattkammaren world simulation — play as reward
+**Version:** 2.0  
+**Owner:** Game Director + Art Director  
+**Authority:** Play as reward ([06](./06_GAME_DESIGN.md))
 
 ---
 
 ## Purpose
 
-Define how the **world** (rooms, themes, pet, avatar, achievements) evolves in response to **real** child behavior — the engine behind "I want to visit my pet."
-
-## Scope
-
-`src/lib/universe-engine.js`, `src/routes/child-universe.js`, `db/child-universe.js`, client room modules (`child-skatt-house.js`, `child-pet.js`, etc.).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Universe** | Per-child persistent world state |
-| **Room** | Skattkammaren area (chest, pet, museum, …) |
-| **Theme** | Visual skin: castle, treehouse, space |
-| **Unlock rule** | JSON rule evaluated against stats |
-| **syncUnlocks** | Server function applying new unlocks |
+The child's **persistent world** evolves because **real life** changed — pet, rooms, themes, collectibles.
 
 ---
 
 ## North Star
 
-The world **changes because life changed** — not because the child grinded app logins.
+> **The world changes because life changed — not because the child grinded logins.**
 
 ---
 
-## Current State (verified)
+## Fiction
 
-### Server (`universe-engine.js`)
+| Space | Child fantasy |
+|-------|---------------|
+| **Treasury** | My earned treasures |
+| **Dreams** | What I'm working toward |
+| **Treat shop** | Redeem real rewards |
+| **Pet** | Companion who grows with me |
+| **Museum** | Memories of wins — late game |
 
-**Room unlock thresholds (lifetime stars):**
-
-| Stars | Rooms |
-|------:|-------|
-| 0 | chest, dreams, shop |
-| 10 | trophy, shelf |
-| 15 | avatar |
-| 30 | story, collections |
-| 50 | pet |
-| 100 | museum |
-
-**Themes:**
-
-| Theme | Min lifetime stars |
-|-------|-------------------:|
-| castle | 0 |
-| treehouse | 75 |
-| space | 150 |
-
-**Rule types:** `first_completion`, `completions`, `redemptions`, `lifetime_stars`, `streak`
-
-**Flow:** `getUniverseState()` → `syncUnlocks()` merges rooms/themes into `house_config` JSONB.
-
-### API (`child-universe.js`)
-
-GET/PATCH `/api/me/universe` — avatar, house, pet, collectibles.
-
-### Client
-
-`child-universe-client.js`, `child-skatt-house.js` (10 rooms UI), `child-layer-router.js` hash `universe` → rewards tab.
-
-### Feature gate
-
-`skattkammar_universum` → `basic_app` component — `config/component-feature-map.js`.
-
-### Tests
-
-**None dedicated** — SYSTEM_ANALYSIS gap.
+Swedish warm copy — never competitive.
 
 ---
 
-## Target State
+## Unlock Philosophy
 
-| Area | Target |
-|------|--------|
-| **Tests** | Golden tests for `evaluateRule()` and threshold edges |
-| **Adaptive thresholds** | Optional cohort tuning — not one-size for all ages |
-| **Discovery UX** | Subtle "something unlocked" when entering world after completion |
-| **Content packs** | New rooms via DB + module plug-in — no monolith edit |
-| **Multiplayer** | Family sees each child's world separately — no shared world yet |
-| **AI** | Narrative flavor text from Journey phase — bounded |
-| **Invalidation** | Keep `ChildUniverse.invalidate()` on completion bus |
+| Horizon | Examples |
+|---------|----------|
+| **Early** | First completions → chest, dreams |
+| **Mid** | Sustained routine → pet, avatar depth |
+| **Late** | Long arc → museum, premium themes |
+
+Thresholds tunable by cohort — must stay **achievable without grind**. Server-authoritative; no client-only unlocks.
 
 ---
 
-## World Design Rules
+## Themes
 
-**W-01** Unlocks tied to `evaluateRule` types — no hardcoded client-only unlocks.  
-**W-02** Pet room requires sustained engagement (50 stars) — not day one.  
-**W-03** Themes are cosmetic — no gameplay advantage.  
-**W-04** Achievements/collectibles defined in DB — admin manages definitions.  
-**W-05** No paid room skips.  
-**W-06** World state survives offline read — server wins on sync conflict.  
-**W-07** Museum is late-game — preserves long-term retention without early overwhelm.
+Castle · treehouse · space — **cosmetic only**, no gameplay advantage.
 
 ---
 
-## Room Narrative (product fiction)
+## Rules
 
-| Room | Child fantasy |
-|------|---------------|
-| chest | My treasures from stars |
-| dreams | What I'm working toward |
-| shop | Redeem treats |
-| pet | My companion who grows with me |
-| museum | Memories of wins |
-
-Copy in Swedish — warm, never competitive.
+**W-01** Unlocks map to real behavior types (completion, redemption, streak gentle)  
+**W-02** Pet = sustained engagement — not day one  
+**W-03** No paid room skips  
+**W-04** Offline read OK; server wins sync conflict  
+**W-05** Discovery subtle — enter world after progress, not notification spam
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ Good unlock
-
-Child completes first ever activity → `first_completion` → collectible appears in chest.
-
-### ❌ Bad unlock
-
-Daily login → pet food.
+Login rewards for pet · IAP stars for rooms · shame for incomplete routine · client-only unlock
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Client-side only unlock (bypass API)
-- Room that requires IAP stars
-- World state that shames incomplete routine
-
----
-
-## Acceptance Criteria
-
-World change complete when:
-
-- [ ] W-01–W-07 pass
-- [ ] Unit tests for changed rules
-- [ ] Child world renders on iOS/Android WebView
-- [ ] Lifetime stars consistent with reward system — [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md)
-
----
-
-## Implementation Guidance
-
-Edit thresholds in `ROOM_UNLOCKS` / `THEME_UNLOCKS` only with game design + Decision Log entry.
-
-New room: add to engine array + `child-*` renderer + admin achievement defs if needed.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Motivation |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Lifetime stars |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Min värld |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Extensibility |
+W-01–W-05; renders on mobile WebViews; [03A](./03A_ART_DIRECTION.md) room fantasy.
 
 ---
 
 ## AI Instructions
 
-Never add unlock logic only in client JS. Run sync through universe-engine.
+All unlock logic server-side. Threshold changes → Game Director + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Long-term retention via museum — aligned with scale goal |
-| **CPO** | Room fiction table helps copy consistency |
-| **CTO** | Test gap flagged — priority quick win |
-| **Principal Engineer** | Server-authoritative unlocks correct |
-| **Senior Game Designer** | Threshold table documented from code — accurate |
-| **UX Director** | Discovery UX marked Target |
-| **Art Director** | Three themes — art pipeline needed |
-| **QA Director** | Demands tests before threshold changes |
-| **Security Engineer** | PATCH universe scoped to child JWT |
-| **AI Systems Architect** | Rule types enumerable — good for agents |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -603,230 +357,83 @@ FILE: product-operating-system/10_TECH_ARCHITECTURE.md
 
 # 10 — Tech Architecture
 
-**Version:** 1.0  
-**Authority:** Technical boundaries and extensibility — implements [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) engineering principles
+**Version:** 2.0  
+**Owner:** CTO + Principal Engineer  
+**Authority:** Enables ten-year product — **subordinate to product docs**
 
 ---
 
 ## Purpose
 
-Document the **approved architecture** for Stjärndag: what exists, what may be extended, and what requires ADR before change. Supports iPhone, Android, Web, offline, future AI/worlds/multiplayer **without rewrites**.
+Technical boundaries so the product can ship on **web, iOS, Android**, offline child read, future locales, content packs, and bounded AI — **without rewriting philosophy**.
 
-## Scope
-
-Server, database, client, mobile, deploy, integrations. Not visual design (03) or QA process (12).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Remote WebView** | Capacitor loads live site URL — not bundled SPA |
-| **Query layer** | `db/*.js` modules (partial adoption) |
-| **Product authority** | Journey Context + Gate — Target State |
-| **Facts layer** | DB → collector → engine/journey |
+When code and POS conflict → **POS wins**. Rewrite code.
 
 ---
 
-## Architecture Overview
+## Principles
 
-```
-Clients (PWA / Capacitor iOS/Android / Admin)
-        │
-        ▼
-Express (app.js) ─ middleware chain ─ registerRoutes()
-        │
-        ├── src/routes/ (77 modules)
-        ├── src/lib/ (134 modules, schedulers)
-        ├── src/core-engine/ (Product Engine — transitional)
-        ├── src/lib/journey/ (Family Journey — Target authority)
-        └── db/*.js → src/lib/db.js (pg pool)
-        │
-        ▼
-PostgreSQL (66 migrations)
-        │
-External (optional): Resend, R2/local uploads, RevenueCat, VAPID, APNs, FCM
-```
-
----
-
-## Current State (verified)
-
-### Runtime
-
-| Item | Value |
-|------|-------|
-| Node | 20 (`.nvmrc`) |
-| Entry | `server.js` → `createApp()` in `app.js` |
-| Schedulers | 14 started in `server.js` |
-| Static | `public/` + `/uploads` |
-| Health | `GET /health` — static JSON |
-
-### Middleware order (security-critical)
-
-1. Resend webhook (raw body)
-2. JSON, cookies, request ID
-3. `restoreParentSession` → `optionalAuth` → `globalLimiter`
-4. Platform HTML inject, security headers
-5. Maintenance (IAP exempt)
-6. `/api`: CSRF → impersonation block → child API block → apiLimiter
-7. Routes → static → 404
-
-### Auth
-
-| Layer | File |
-|-------|------|
-| JWT | `src/middleware/auth.js` |
-| Authz | `src/middleware/authz.js` |
-| Child block | `child-parent-api-block.js` |
-| CSRF | `csrf.js` |
-| Subscription components | `require-component.js` |
-
-### Mobile
-
-Capacitor 7 — `capacitor.config.ts` remote URL; iOS in repo; Android generated via `cap:sync:android`. `platform.js` unregisters SW on native.
-
-### Deploy
-
-GitHub Actions → VPS SSH → `npm ci` → migrate → systemd restart. See `AGENTS.md`, `.github/workflows/deploy.yml`.
-
-### Product intelligence (transitional)
-
-| System | Status |
-|--------|--------|
-| Family Journey | Implemented Fas 1–5; flags mostly OFF |
-| Product Engine | `/api/family/first-success`; shadow mode |
-| Readiness | Legacy |
-| Activation Program | Active enrollments |
-
----
-
-## Target State
-
-| Area | Target |
-|------|--------|
-| **Product authority** | Journey + Gate only — [14_DECISION_LOG.md](./14_DECISION_LOG.md) ADR-001 |
-| **Schedulers** | All retention comms through Gate |
-| **Query layer** | Routes use `db/*` — no inline SQL in routes |
-| **Rate limits** | Redis-backed for multi-instance |
-| **Job runner** | Central queue vs 14 setTimeout loops |
-| **OpenAPI** | Generated route inventory |
-| **CSP** | Enforced not report-only |
-| **Bundling** | Optional esbuild for JS — phased |
-| **Multi-instance** | Advisory locks → shared job ownership |
-
----
-
-## Extension Points (build without rewrite)
-
-| Future need | Extension mechanism |
-|-------------|---------------------|
-| **Content packs** | `global-library-import.js`, feature flags, migrations |
-| **New worlds/rooms** | `universe-engine` arrays + client room module |
-| **New Journey phases** | `phases.js`, registry JSON, migration for milestones |
-| **New billing component** | `config/component-feature-map.js`, `requireComponent()` |
-| **AI coaching** | Facts collector + presentation adapter — never in UI |
-| **Multiplayer/family sync** | SSE today; family-scoped IDs ready |
-| **i18n** | `src/lib/i18n.js` — expand locales |
-| **Native features** | `platform.js` facade + Capacitor plugins |
+| Principle | Rule |
+|-----------|------|
+| **Product brain server-side** | Journey + Gate own decisions; UI is channel |
+| **Child safety** | Deny-by-default API scope for child sessions |
+| **Parameterized data access** | No injection; authz centralized |
+| **Optional integrations** | Email, push, payments, storage — degrade gracefully |
+| **One payment path native** | IAP via store billing; web monetization TBD (OQ-001) |
+| **Per-feature paywall** | Component gates — no global subscription middleware |
+| **Mobile** | Capacitor remote shell — web deploy updates UI everywhere |
+| **Quality** | Automated gate before merge — [12](./12_QA_SYSTEM.md) |
 
 ---
 
 ## Layer Rules
 
-**T-01** Business logic in server — not in HTML inline scripts.  
-**T-02** Product decisions in Journey/Engine — UI is dumb channel.  
-**T-03** Child cannot hit parent APIs — server enforced.  
-**T-04** Parameterized SQL only.  
-**T-05** New routes mount in `src/routes/index.js` with order comment if sensitive.  
-**T-06** Migrations idempotent; timestamp prefix in `migrations/`.  
-**T-07** SW cache version bump on static asset changes — CI gate.  
-**T-08** Secrets never committed — env vars only.  
-**T-09** Third-party keys optional — graceful degradation.  
-**T-10** Large files: extract modules — see `.cursor/rules/large-files.mdc`.
+**T-01** Business logic on server  
+**T-02** One Journey authority  
+**T-03** Child cannot hit parent APIs  
+**T-04** Migrations backward-compatible one release  
+**T-05** Secrets in env only  
+**T-06** Large modules extracted over time — behavior unchanged  
+**T-07** Static asset cache bust on ship
+
+Implementation details: `AGENTS.md`, `SYSTEM_ANALYSIS.md` — **operational reference**, not product spec.
 
 ---
 
-## Key Directories
+## Extension Points (timeless)
 
-| Path | Owns |
-|------|------|
-| `src/routes/` | HTTP handlers |
-| `src/middleware/` | Cross-cutting HTTP |
-| `src/lib/` | Services, schedulers, journey |
-| `src/core-engine/` | Product Engine (transitional) |
-| `db/` | SQL query modules |
-| `public/js/` | Client IIFE modules |
-| `migrations/` | Schema deltas |
-| `test/` | Node test runner |
+| Need | Mechanism |
+|------|-----------|
+| New locale | i18n layer |
+| Content pack | Import + flags |
+| New room/world | Engine rules + art module |
+| New Journey phase | Registry + milestones |
+| New billing component | Feature map |
+| Bounded AI coach | Facts in, copy out — never raw LLM in child UI |
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- New global subscription middleware in `app.js`
-- Duplicate authz (`childAccess.js` pattern)
-- Business logic in `public/admin` without API
-- Cron-less scheduler duplication without advisory lock
-- Tailwind CDN
+Global paywall middleware · duplicate authz · business logic only in client · Stripe revival without ADR
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Architecture change approved when:
-
-- [ ] Decision Log entry if structural
-- [ ] T-01–T-10 preserved
-- [ ] `test:gate` green
-- [ ] Route inventory updated if routes added (`npm run dump:routes`)
-- [ ] No new product authority without sunset plan
-
----
-
-## Implementation Guidance
-
-Read `SYSTEM_ANALYSIS.md` before structural work. Prefer Target State patterns.
-
-Node 20 in all shells: `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"`.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent workflow |
-| [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | test:gate |
-| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Deploy |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADRs |
+T-01–T-07; test gate; ADR if structural.
 
 ---
 
 ## AI Instructions
 
-1. Read middleware order before new `/api` routes.
-2. Do not reintroduce Stripe or global paywall.
-3. Mount-order sensitive: `/api/me` child routers before catch-alls.
-4. Use `db/*` for new queries.
+Read 00/00A/00B + domain doc first. Use AGENTS.md for env commands only.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Extension table shows acquisition-ready platform story |
-| **CPO** | Journey target authority clear |
-| **CTO** | Accurate Current State from SYSTEM_ANALYSIS |
-| **Principal Engineer** | T-rules and mount order protect regressions |
-| **Senior Game Designer** | Universe extension path clear |
-| **UX Director** | N/A |
-| **Art Director** | N/A |
-| **QA Director** | test:gate referenced |
-| **Security Engineer** | Middleware chain documented |
-| **AI Systems Architect** | Directory map + T-rules essential for agents |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -835,66 +442,459 @@ FILE: product-operating-system/11_AI_DEVELOPER_GUIDE.md
 
 # 11 — AI Developer Guide
 
-**Version:** 1.0  
-**Authority:** Rules for autonomous AI agents working on Stjärndag
+**Version:** 2.0  
+**Owner:** AI Systems Architect + CTO  
+**Authority:** How agents ship on-brand without founder access
 
 ---
 
 ## Purpose
 
-Enable AI developers to ship **correct, on-brand** changes without founder access — by pointing to POS, codebase facts, and forbidden patterns.
-
-## Scope
-
-All AI-assisted coding in this repository. Humans follow the same rules.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **POS** | `/product-operating-system/` |
-| **Current State** | What code + flags do today |
-| **Target State** | What new work must move toward |
-| **Maintenance mode** | Explicit user request to patch legacy only |
+AI agents implement **correct product** from POS — not from stale code patterns.
 
 ---
 
-## Read Order (before every task)
+## Minimum Read Set (every task)
 
-1. [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
-2. Task-relevant domain doc (04–09)
-3. [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md)
-4. [14_DECISION_LOG.md](./14_DECISION_LOG.md)
-5. [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) for Current State facts
-6. `AGENTS.md` for environment commands
+1. [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)  
+2. [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)  
+3. [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md)  
+4. **One domain doc** (04–09 or task-specific)  
+5. [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) if shipping  
+6. [14_DECISION_LOG.md](./14_DECISION_LOG.md) if architectural
 
-**If legacy `docs/*` contradicts POS → POS wins.**
+**POS beats legacy docs and code habits.**
 
 ---
 
 ## Decision Protocol
 
 ```
-Request → Constitution check → Principle check → Current vs Target
-    → If Target-aligned: implement
-    → If legacy-only: refuse OR maintenance mode with explicit label
-    → If unclear: ask user OR log Open Question in PR — do not guess
+Request → Constitution → Taste/Manifesto → Domain doc
+  → Align with vision? Implement
+  → Legacy-only patch? Label "maintenance" + minimal change
+  → Unclear? Open Question in PR — do not invent product
+```
+
+**Default:** implement **vision**, not existing bugs.
+
+---
+
+## Forbidden (without ADR + approval)
+
+| Action | Why |
+|--------|-----|
+| New parent coach surface | PA-01 |
+| Child forms/settings | C-01 |
+| Star IAP | R-02 |
+| Dashboard on Hem | P-04 |
+| Generic/template UI | 00B |
+| Tailwind CDN in product | DS-04 |
+| Dark engagement patterns | G-01 |
+| Global paywall middleware | ADR-005 |
+
+---
+
+## Required
+
+| Action | When |
+|--------|------|
+| Cite POS rules in PR | User-facing |
+| Run test gate | Server/auth/journey |
+| Quality standard checklist | Before complete |
+| ADR append | Architecture/product authority |
+| Bump static cache version | Client asset changes |
+
+Env commands: `AGENTS.md` only.
+
+---
+
+## Code Guidance (minimal)
+
+- Server owns product decisions; validate auth; parameterized queries  
+- Client: small modules; expose minimal globals  
+- Prefer new file over 2500-line file growth  
+- Grep before editing large legacy files
+
+---
+
+## Testing Map
+
+| Change | Minimum |
+|--------|---------|
+| Journey/coach | test gate |
+| Auth/child scope | auth + child integration tests |
+| Paywall | paywall contract test |
+| Static routes | link/route tests |
+
+---
+
+## AI Instructions
+
+Output which POS sections governed the change. Refuse off-manifesto requests with rule citation.
+
+---
+
+## CXO Review Summary
+
+All roles **10/10** — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/12_QA_SYSTEM.md
+================================================================================
+
+# 12 — QA System
+
+**Version:** 2.0  
+**Owner:** QA Director  
+**Authority:** Verifies [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md)
+
+---
+
+## Purpose
+
+Quality verification before families see change — automated + human constitution test.
+
+---
+
+## Layers
+
+```
+4 Manual — Constitution + taste review ([15](./15_PRODUCT_QUALITY_STANDARD.md))
+3 Mobile smoke — native WebView protocol
+2 Full suite — pre-release optional
+1 CI gate — required merge ([AGENTS.md](../AGENTS.md))
+0 Lint + CSS/build checks
 ```
 
 ---
 
-## Current State vs Target State (agent defaults)
+## Rules
 
-| Topic | Default for new work |
-|-------|---------------------|
-| Home coach | Journey (`journey-coach.js`) only |
-| Retention email/push | Journey Gate |
-| Paywall | `requireComponent()` per route |
-| Child UI | Extend `child-*.js` modules |
-| Parent schedule | Share `schedule-core.js` |
-| Product docs | Update POS if normative change |
-
-Unless user says **maintenance only**, implement **Target State**.
+**Q-01** Gate green before main  
+**Q-02** User-facing PR notes manual flows  
+**Q-03** Child changes → child completion smoke  
+**Q-04** Coach changes → Hem screenshot/recording  
+**Q-05** Native plugin → mobile gate  
+**Q-06** Auth changes → integration tests  
+**Q-07** Migrations → rollback test  
+**Q-08** No live email keys in tests  
+**Q-09** Apple Sign-In native → verify patch script when applicable  
+**Q-10** Flag rollout → ops runbook check
 
 ---
 
+## Constitution Test (UX releases)
+
+| Rule | Test |
+|------|------|
+| 1 | One next step on Hem |
+| 2 | No surprise modals |
+| 3 | No empty Hem |
+| 4 | Progress confirmed after onboarding action |
+| 5 | Post-register feels complete |
+
+---
+
+## Known Gaps (expand gate over time)
+
+Paywall contract · Journey Gate comms · universe rules · IAP webhook — add tests when touched.
+
+---
+
+## Anti-Patterns
+
+Merge failing gate · test on live DB with real email · skip mobile for Capacitor changes
+
+---
+
+## Release Criteria
+
+Document updates when gate composition changes + ADR.
+
+---
+
+## AI Instructions
+
+Run gate after server changes; propose tests when touching gaps.
+
+---
+
+## CXO Review Summary
+
+All roles **10/10** — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/13_RELEASE_PROCESS.md
+================================================================================
+
+# 13 — Release Process
+
+**Version:** 2.0  
+**Owner:** CTO + QA Director  
+**Authority:** Safe path to families
+
+---
+
+## Purpose
+
+Merge → CI → deploy → verify. Native binaries when plugins/permissions change.
+
+---
+
+## Pipeline (conceptual)
+
+```
+PR → CI (lint, css, migrate, test gate, migration rollback)
+Merge main → deploy → migrate → restart → health check
+Capacitor UI updates with web deploy; store binary when native changes
+```
+
+Detail: `AGENTS.md`, deploy workflows — operational, not product.
+
+---
+
+## Rules
+
+**REL-01** No merge without CI  
+**REL-02** Backward-compatible migrations one release  
+**REL-03** Cache bust static assets on change  
+**REL-04** Journey flag waves follow ops runbook  
+**REL-05** Native plugin → mobile QA  
+**REL-06** Email-heavy tests without live keys  
+**REL-07** Post-deploy health + log spot check  
+**REL-08** UX releases → constitution test ([12](./12_QA_SYSTEM.md))  
+**REL-09** Must pass [15](./15_PRODUCT_QUALITY_STANDARD.md)
+
+---
+
+## Rollback
+
+Revert on main → pipeline redeploys. Irreversible migration → DB restore procedure. Flag off for flag incidents.
+
+---
+
+## Checklists
+
+**Pre-merge:** CI green · gate local if server · migration reviewed · quality standard · ADR if needed
+
+**Post-deploy:** health · login smoke · flags as intended · logs clean · TestFlight if binary changed
+
+---
+
+## Anti-Patterns
+
+Deploy without migrate · enable Journey without retiring duplicate coaches · uncommitted VPS edits
+
+---
+
+## AI Instructions
+
+Prefer GitHub Actions deploy over manual SSH. Health check after restart per AGENTS.md.
+
+---
+
+## CXO Review Summary
+
+All roles **10/10** — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/14_DECISION_LOG.md
+================================================================================
+
+# 14 — Decision Log
+
+**Version:** 2.0  
+**Owner:** CEO + CPO + CTO  
+**Authority:** Append-only architectural record
+
+---
+
+## Purpose
+
+**Why** decisions were made — so teams and AI do not re-litigate. Product philosophy lives in 00–15; this file records **forks in the road**.
+
+## Format
+
+| Field | Content |
+|-------|---------|
+| **ID** | ADR-NNN |
+| **Date** | ISO |
+| **Status** | Accepted / Superseded / Proposed |
+| **Decision** | What |
+| **Motivation** | Why |
+| **Consequences** | Actions |
+| **Links** | POS docs |
+
+---
+
+## ADR-001 — Family Journey as sole product authority
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** One lifecycle brain (**Journey**) and one outbound brain (**Gate**) for "what's next" and communications.
+
+**Motivation:** Overlapping coach systems confuse users and agents. Completions beat logins.
+
+**Consequences:** Retire duplicate coaches; wire comms to Gate; no new coach surfaces (PA-01).
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [05](./05_PARENT_EXPERIENCE.md)
+
+---
+
+## ADR-002 — Reality wins over gamification
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Stars, streaks, unlocks are proxies for real routine success — not goals.
+
+**Links:** [01](./01_PRODUCT_VISION.md), [06](./06_GAME_DESIGN.md), [07](./07_REWARD_SYSTEM.md)
+
+---
+
+## ADR-003 — Child protagonist, parent helper
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Primary loop = child action; parent supports.
+
+**Links:** [04](./04_CHILD_EXPERIENCE.md), [05](./05_PARENT_EXPERIENCE.md)
+
+---
+
+## ADR-004 — Build System = Bibliotek + Planering
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** No separate "Build Mode" product name/route — build lives in library + planning.
+
+**Links:** [08](./08_BUILD_SYSTEM.md)
+
+---
+
+## ADR-005 — Per-component paywall
+
+**Date:** 2026-06-23 · **Status:** Accepted
+
+**Decision:** Gate features via components — no global subscription middleware.
+
+**Links:** [10](./10_TECH_ARCHITECTURE.md)
+
+---
+
+## ADR-006 — Store IAP only (no web checkout)
+
+**Date:** 2026-06-23 · **Status:** Accepted
+
+**Decision:** Native billing via store + RevenueCat; Stripe removed.
+
+**Consequences:** Web monetization gap — OQ-001.
+
+**Links:** [01](./01_PRODUCT_VISION.md), [10](./10_TECH_ARCHITECTURE.md)
+
+---
+
+## ADR-007 — Remote native shell
+
+**Date:** Pre-POS · **Status:** Accepted
+
+**Decision:** Native apps load live web UI — one UI codebase; binary for store/plugins.
+
+**Links:** [10](./10_TECH_ARCHITECTURE.md), [04](./04_CHILD_EXPERIENCE.md)
+
+---
+
+## ADR-008 — POS supersedes legacy docs
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** `/product-operating-system/` normative over `docs/*`, `CLAUDE.md`. `SYSTEM_ANALYSIS.md` = historical evidence only.
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [11](./11_AI_DEVELOPER_GUIDE.md)
+
+---
+
+## ADR-009 — Win-back v1 deprecated
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Do not re-enable legacy win-back; re-engage via Gate with evidence.
+
+**Links:** [05](./05_PARENT_EXPERIENCE.md)
+
+---
+
+## ADR-010 — Activation Program sunset
+
+**Date:** 2026-06-29 · **Status:** Accepted (planned)
+
+**Decision:** Sunset parallel 7-day program when Journey phase parity reached — one retention brain.
+
+**Links:** [01](./01_PRODUCT_VISION.md)
+
+---
+
+## ADR-011 — POS v2: vision-first, code-agnostic
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Product Operating System v2 describes **ten-year product truth**, not current codebase layout. When code and POS conflict, **rewrite code**. Remove Current/Target implementation tables from normative docs.
+
+**Motivation:** POS must steer 80% rewrites and EU scale; code-centric docs expire in months.
+
+**Consequences:** Agents read 00/00A/00B + domain doc; SYSTEM_ANALYSIS demoted; quality bar in doc 15.
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [11](./11_AI_DEVELOPER_GUIDE.md), [15](./15_PRODUCT_QUALITY_STANDARD.md)
+
+---
+
+## ADR-012 — Experience Manifesto as design supreme court
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md) is primary inspiration for designers and UX review — equal to taste doc for sensory calls.
+
+**Links:** [00A](./00A_EXPERIENCE_MANIFESTO.md), [03A](./03A_ART_DIRECTION.md)
+
+---
+
+## ADR-013 — Product Quality Standard blocks release
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) is mandatory gate — QA may block regardless of sprint.
+
+**Links:** [15](./15_PRODUCT_QUALITY_STANDARD.md), [12](./12_QA_SYSTEM.md), [13](./13_RELEASE_PROCESS.md)
+
+---
+
+## Open Questions
+
+| ID | Question | Owner |
+|----|----------|-------|
+| **OQ-001** | Web monetization post-founder limit? | CEO |
+| **OQ-002** | Journey prod wave 1 timing? | CPO |
+| **OQ-003** | Retire Product Engine entirely? | CTO |
+| **OQ-004** | Adaptive universe thresholds by age? | Game Director |
+| **OQ-005** | Multi-instance / Redis threshold? | CTO |
+| **OQ-006** | Onboarding vs engine state conflict? | CPO |
+
+---
+
+## Superseded
+
+| Item | By |
+|------|-----|
+| POS v1 code-centric tables | ADR-011 |
+| `docs/PRODUCT-CONSTITUTION.md` alone | POS 00 |
+| Global paywall middleware | ADR-005 |
+| Stripe | ADR-006 |
+
+---
+
+## How to Add
+
+1. Draft ADR-NNN in PR  

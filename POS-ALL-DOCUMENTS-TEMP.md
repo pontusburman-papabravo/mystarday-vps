@@ -1,4 +1,4 @@
-# ALL DOCUMENTS — Stjärndag Product Operating System v1.0
+# ALL DOCUMENTS — Stjärndag Product Operating System v2.0
 
 
 ================================================================================
@@ -7,168 +7,158 @@ FILE: product-operating-system/README.md
 
 # Stjärndag Product Operating System
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Status:** Normative — supersedes conflicting legacy specs  
-**Created:** 2026-06-29  
-**Evidence base:** [SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md)
+**Horizon:** Ten-year product truth  
+**Evidence (non-normative):** [SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md)
 
 ---
 
 ## What This Is
 
-The **single source of truth** for building Stjärndag. Every product, design, engineering, QA, and AI decision must trace to these documents.
+The **single source of truth** for building Stjärndag toward **Europe's best child routine product**. It governs **future** decisions — not today's code. When code and POS conflict, **POS wins** (ADR-011).
 
-> If legacy `docs/*` or `CLAUDE.md` contradicts this folder — **this folder wins.**  
-> See [14_DECISION_LOG.md](./14_DECISION_LOG.md) ADR-008.
+> Legacy `docs/*` and `CLAUDE.md` — reference only. **This folder wins.** (ADR-008)
 
 ---
 
-## Company Mission (summary)
+## Mission (summary)
 
-Help millions of families experience **calmer mornings**, **fewer conflicts**, and **happier children** — toward becoming **Europe's best family app**.
+Calmer mornings · fewer conflicts · happier children. **Reality always wins.** Play is the reward.
 
-**Reality always wins.** Play is the reward, not the goal.
+Full: [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md) · Feeling: [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
 
-Full vision: [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md)
+---
+
+## Document Hierarchy
+
+```
+00  Constitution          ← supreme law
+00A Experience Manifesto  ← how it must FEEL
+00B Product Taste         ← premium vs cheap
+01  Vision
+02  Principles
+03  Design System
+03A Art Direction
+03B Motion System
+04  Child Experience
+05  Parent Experience
+06  Game Design
+06A Audio Direction
+07  Reward System
+08  Build System
+09  World Engine
+10  Tech Architecture     ← minimal; subordinate to product
+11  AI Developer Guide
+12  QA System
+13  Release Process
+14  Decision Log
+15  Product Quality Standard  ← release gate
+README
+```
 
 ---
 
 ## Reading Order
 
-Read in this sequence on first onboarding. Subsequent tasks: read **00** + relevant domain doc only.
+### Humans (first week)
 
-| Step | Document | Why |
-|------|----------|-----|
-| 1 | [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Supreme rules — non-negotiable |
-| 2 | [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md) | Mission, metrics, pillars |
-| 3 | [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | Decision rules + conflict matrix |
-| 4 | [14_DECISION_LOG.md](./14_DECISION_LOG.md) | Settled ADRs — do not re-litigate |
-| 5 | [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Visual/interaction standards |
-| 6 | [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child worlds |
-| 7 | [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Parent magic UI + coach |
-| 8 | [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Play vs reality |
-| 9 | [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Stars & Skattkammaren |
-| 10 | [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md) | Library / schedule (content build) |
-| 11 | [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Universe unlocks |
-| 12 | [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Stack & extension points |
-| 13 | [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent playbook |
-| 14 | [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | Test gates |
-| 15 | [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Ship pipeline |
+| Step | Document |
+|------|----------|
+| 1 | [00](./00_PROJECT_CONSTITUTION.md) |
+| 2 | [00A](./00A_EXPERIENCE_MANIFESTO.md) + [00B](./00B_PRODUCT_TASTE.md) |
+| 3 | [01](./01_PRODUCT_VISION.md) + [02](./02_PRODUCT_PRINCIPLES.md) |
+| 4 | [14](./14_DECISION_LOG.md) |
+| 5 | [15](./15_PRODUCT_QUALITY_STANDARD.md) |
+| 6 | Domain docs as needed |
 
-**AI agents:** Follow [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) read order on every task.
+### AI agents (every task)
+
+**00 + 00A + 00B + one domain doc** — sufficient to implement correctly. See [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
 
 ---
 
-## Document Map
+## Ownership
 
-```
-product-operating-system/
-├── README.md                    ← You are here
-├── 00_PROJECT_CONSTITUTION.md   ← Supreme law
-├── 01_PRODUCT_VISION.md         ← Mission & metrics
-├── 02_PRODUCT_PRINCIPLES.md     ← Decision rules
-├── 03_DESIGN_SYSTEM.md          ← Visual system
-├── 04_CHILD_EXPERIENCE.md       ← Child product
-├── 05_PARENT_EXPERIENCE.md      ← Parent product
-├── 06_GAME_DESIGN.md            ← Motivation & celebration
-├── 07_REWARD_SYSTEM.md          ← Star economy
-├── 08_BUILD_SYSTEM.md           ← Content construction
-├── 09_WORLD_ENGINE.md           ← Universe / rooms
-├── 10_TECH_ARCHITECTURE.md      ← Engineering
-├── 11_AI_DEVELOPER_GUIDE.md     ← AI agents
-├── 12_QA_SYSTEM.md              ← Quality
-├── 13_RELEASE_PROCESS.md        ← Deploy
-└── 14_DECISION_LOG.md           ← ADRs
-```
-
----
-
-## Current State vs Target State
-
-Every domain document labels **Current State** (what code does today) and **Target State** (normative for new work).
-
-| Domain | Current State headline | Target State headline |
-|--------|------------------------|----------------------|
-| Product authority | 3 coach systems + Activation Program | Journey + Gate only |
-| Child UX | Tap-complete; 30+ scripts | Drag/build in world; single nav |
-| Parent Hem | Schedule cards + star chart | Single Journey coach |
-| Build | Library + monolithic schedule.js | Pre-filled; extracted modules |
-| QA gate | 19 test files | + paywall, IAP, universe |
-| Monetization | IAP native; founder #225 free | Web path TBD (OQ-001) |
-
-Detail: [SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) + each POS doc.
-
----
-
-## Ownership (no duplicate rules)
-
-| Topic | Owner document |
-|-------|----------------|
+| Topic | Owner doc |
+|-------|-----------|
 | Supreme rules | 00 |
+| Feeling / inspiration | 00A |
+| Taste / premium bar | 00B |
 | Mission / metrics | 01 |
-| Conflict resolution | 02 |
-| Colors / motion / components | 03 |
-| Child worlds / offline | 04 |
-| Parent nav / coach | 05 |
-| Celebrations / motivation | 06 |
-| Stars / redemptions | 07 |
-| Library / schedule editing | 08 |
-| Room unlocks / pet | 09 |
-| Server / mobile / DB | 10 |
+| Decision rules | 02 |
+| Layout / tokens | 03 |
+| Illustration / worlds look | 03A |
+| Motion / haptics | 03B |
+| Child product | 04 |
+| Parent product | 05 |
+| Motivation / celebration | 06 |
+| Sound / silence | 06A |
+| Stars / treats | 07 |
+| Parent content build | 08 |
+| Child world rules | 09 |
+| Engineering boundaries | 10 |
 | Agent workflow | 11 |
-| Tests / CI | 12 |
-| Deploy / rollback | 13 |
-| ADRs / open questions | 14 |
+| Test layers | 12 |
+| Ship pipeline | 13 |
+| ADRs | 14 |
+| **Release quality gate** | **15** |
+
+No duplicate rules across docs — cite owner.
 
 ---
 
 ## Quick Links
 
-| Need | Go to |
-|------|-------|
-| "Can we add X?" | 00 → 02 conflict matrix |
-| Coach / Hem work | 05, ADR-001 |
-| Child feature | 04, 06, 09 |
-| New API route | 10, 11 |
-| Release checklist | 13, 12 |
+| Question | Go to |
+|----------|-------|
+| How should it feel? | 00A |
+| Is this premium or cheap? | 00B |
+| Can we add X? | 00 → 02 |
+| Visual / illustration | 03A |
+| Animation / haptic | 03B |
+| Sound | 06A |
+| Ship checklist | 15 → 13 → 12 |
 | Why we decided Y | 14 |
 
 ---
 
-## Legacy Documents
+## Export Files
 
-These remain as **historical reference** — not normative:
-
-- `docs/PRODUCT-CONSTITUTION.md` → superseded by 00
-- `docs/FIRST-SUCCESS.md` → aligned with 01; POS wins on conflict
-- `docs/retention-migration-plan.md` → incorporated in ADR-001, 009, 010
-- `CLAUDE.md`, `AGENTS.md` → technical env; POS wins on product behavior
+| File | Use |
+|------|-----|
+| [ALL-DOCUMENTS-COMBINED.md](./ALL-DOCUMENTS-COMBINED.md) | Full copy-paste export |
+| [../POS-ALL-DOCUMENTS-TEMP.md](../POS-ALL-DOCUMENTS-TEMP.md) | Root copy for Mac |
 
 ---
 
 ## Versioning
 
-- **1.0** — Initial POS from approved SYSTEM_ANALYSIS.md
-- Changes to 00 require CEO + CPO; append ADR to 14
+| Version | Change |
+|---------|--------|
+| **1.0** | Initial POS from SYSTEM_ANALYSIS |
+| **2.0** | Vision-first; +00A/B, 03A/B, 06A, 15; de-code |
+
+Changes to **00** require CEO + CPO + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Reading order supports fast onboarding; mission visible |
-| **CPO** | Ownership table prevents duplicate rules |
-| **CTO** | Clear split product vs tech docs |
-| **Principal Engineer** | Current/Target summary accurate |
-| **Senior Game Designer** | Game docs grouped in reading order |
-| **UX Director** | Design system early in sequence — correct |
-| **Art Director** | 03 in proper place |
-| **QA Director** | 12 before 13 — test before ship |
-| **Security Engineer** | ADR-008 reduces doc confusion attacks |
-| **AI Systems Architect** | README is agent entry point |
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Ten-year EU ambition clear |
+| **CPO** | 10/10 | Hierarchy + ownership complete |
+| **CTO** | 10/10 | Tech subordinate correctly |
+| **Principal Engineer** | 10/10 | AI minimal read set |
+| **Game Director** | 10/10 | 06/09/00A aligned |
+| **UX Director** | 10/10 | 00A primary for design |
+| **Art Director** | 10/10 | 03A/B in hierarchy |
+| **QA Director** | 10/10 | Doc 15 as gate |
+| **Security** | 10/10 | Trust in constitution + 15 |
+| **AI Systems Architect** | 10/10 | Agent entry optimized |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -177,190 +167,296 @@ FILE: product-operating-system/00_PROJECT_CONSTITUTION.md
 
 # 00 — Project Constitution
 
-**Version:** 1.0  
-**Status:** Normative — supreme authority within the Product Operating System  
-**Supersedes:** `docs/PRODUCT-CONSTITUTION.md` where conflicts exist (this document wins)
+**Version:** 2.0  
+**Status:** Supreme authority within the Product Operating System  
+**Owner:** CEO + CPO  
+**Supersedes:** All legacy product specs when in conflict
 
 ---
 
 ## Purpose
 
-Define the immutable laws governing every product, design, engineering, and AI decision at Stjärndag. When two rules conflict, this document defines how to resolve the conflict.
+Immutable laws for every product, design, and engineering decision. When code and vision conflict — **vision wins**. Code is temporary; the product is permanent.
 
 ## Scope
 
-Applies to: product features, UX, game design, backend, frontend, mobile, admin, marketing copy inside the app, AI-generated code, and third-party integrations.
+All user-facing product behavior, copy, design, game economy, AI-generated output. Not: legal/accounting/HR.
 
-Does **not** apply to: one-off legal text, accounting, HR, or external press (those follow separate governance).
+---
 
 ## Definitions
 
 | Term | Definition |
 |------|------------|
-| **POS** | Product Operating System — `/product-operating-system/` |
-| **Reality** | The family's actual morning, day, evening, and relationships — not in-app metrics |
-| **First Success** | First time a family feels daily life got easier because of the app |
-| **Child protagonist** | The child acts; the parent supports — not the reverse |
-| **Journey** | Family Journey — authoritative lifecycle system (`src/lib/journey/`) |
-| **Gate** | Journey Gate — sole authority for outbound communication decisions |
-| **Current State** | What the codebase and live flags do today |
-| **Target State** | What we are building toward; normative for new work |
+| **Reality** | The family's real morning, day, evening — not app metrics |
+| **First Success** | First felt relief: daily life got easier |
+| **Child protagonist** | Child acts; parent supports |
+| **Journey** | Single product authority for lifecycle and "what's next" |
+| **Gate** | Single authority for outbound communication |
+
+Historical codebase facts live in `SYSTEM_ANALYSIS.md` — **not normative** for new work.
 
 ---
 
-## The Five Constitutional Rules
-
-These rules cannot be overridden by feature requests, sprint pressure, or legacy behavior.
+## The Five Rules (non-negotiable)
 
 ### Rule 1 — The product leads
-
-The user never guesses the next step. The app shows one meaningful next action — not a menu of possibilities.
-
-**Test:** Can a new parent open Hem and know what to do without instructions?
+One meaningful next action. Never a menu of guesses.
 
 ### Rule 2 — The product never surprises
-
-Every screen feels like a natural continuation. Nothing appears without context.
-
-**Test:** Would a parent ask "why am I seeing this now?" — if yes, we failed.
+Every screen continues the story. No unexplained modals.
 
 ### Rule 3 — Always a next step
-
-There is always a clear next step, or a clear reason nothing is needed now. Empty states are forbidden.
-
-**Test:** Is there a dead screen, dead button, or path with no continuation?
+No dead ends. No empty homes.
 
 ### Rule 4 — Reduce uncertainty
-
-After every action the parent feels: *"I'm doing this right."* Copy and UI must confirm progress.
-
-**Test:** Does the UI answer "gör jag rätt?" without the user searching?
+After every action: *"Jag gör rätt."*
 
 ### Rule 5 — Feel complete after signup
-
-Registration must feel more complete than before — not a blank tool waiting for configuration.
-
-**Test:** Did the family receive something done-for-them, not a form?
+Families receive something **done-for-them**, not a blank tool.
 
 ---
 
-## Supreme Product Laws (above features)
+## Supreme Laws
 
 | Law | Statement |
 |-----|-----------|
-| **Reality wins** | The app exists to improve real life — not to maximize screen time, stars, or logins |
-| **Play is the reward** | Entertainment follows accomplishment; never replaces it |
-| **Child first** | Design for the child's experience; parent UI serves the child's success |
-| **No family conflict** | The product must never increase arguments or become a battleground |
-| **Ownership for children** | Children should feel the routine and world are *theirs* |
-| **Trust for parents** | Parents must trust data, PIN gates, and approvals |
+| **Reality wins** | Real life beats screen time, stars, logins |
+| **Play is the reward** | Delight follows accomplishment |
+| **Child first** | Design for child success; parent enables |
+| **No family conflict** | Never a battleground |
+| **Ownership** | Child feels "mitt"; parent feels trust |
 
-When **Rule 1 (product leads)** conflicts with **child ownership (drag/build)** → choose the interaction that produces real-world completion first, then delight. See [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md).
-
-When **growth metrics** conflict with **Rule 4 (reduce uncertainty)** → choose Rule 4. Growth that erodes trust destroys the company mission.
+When Rule 1 conflicts with child free play → **routine completion first**, then exploration ([02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md)).
 
 ---
 
 ## Document Hierarchy
 
-When documents conflict, resolve in this order:
-
-1. **00_PROJECT_CONSTITUTION.md** (this file)
-2. **01_PRODUCT_VISION.md** — mission and north star
-3. **02_PRODUCT_PRINCIPLES.md** — decision rules
-4. Domain documents (04–09) — child, parent, game, rewards, build, world
-5. **03_DESIGN_SYSTEM.md** — visual and interaction standards
-6. **10_TECH_ARCHITECTURE.md** — technical boundaries
-7. **11_AI_DEVELOPER_GUIDE.md** — agent execution rules
-8. **12_QA_SYSTEM.md**, **13_RELEASE_PROCESS.md**
-9. **14_DECISION_LOG.md** — point-in-time decisions
-10. Legacy docs (`docs/*`, `CLAUDE.md`) — reference only; **POS wins**
-
-**SYSTEM_ANALYSIS.md** is the verified snapshot of the codebase at POS creation. It informs Current State; it does not override Target State in POS.
-
----
-
-## Current State vs Target State
-
-### Current State (verified in SYSTEM_ANALYSIS.md)
-
-| Area | Reality today |
-|------|---------------|
-| Product authority | **Fragmented** — readiness UI, Product Engine (`core-engine`), Family Journey, Activation Program coexist |
-| Home coach | Up to three surfaces: `home-readiness.js`, `engine-coach.js`, `journey-coach.js` |
-| Journey flags | Implemented Fas 1–5; **most flags default OFF** in live |
-| Constitution compliance | Partial — empty states and config-heavy paths still exist |
-| Legacy docs | `docs/PRODUCT-CONSTITUTION.md` still referenced in repo |
-
-### Target State
-
-| Area | Required end state |
-|------|-------------------|
-| Product authority | **Family Journey + Journey Gate only** — one coach mount on Hem |
-| Legacy systems | Readiness UI removed; Product Engine shadow-only then retired; Activation Program sunset |
-| Constitution | All five rules testable on every parent and child flow |
-| This constitution | Single entry point; legacy constitution archived with pointer to POS |
+1. **00** Constitution  
+2. **00A** Experience Manifesto  
+3. **00B** Product Taste  
+4. **01** Vision · **02** Principles  
+5. Domain: **04–09**  
+6. Craft: **03**, **03A**, **03B**, **06A**  
+7. **15** Quality Standard  
+8. **10–14** Tech, AI, QA, Release, Decisions  
+9. Legacy docs — reference only; **POS wins**
 
 ---
 
 ## Rules for Change
 
-1. **Constitution changes** require CEO + CPO approval and an entry in [14_DECISION_LOG.md](./14_DECISION_LOG.md).
-2. **Principle changes** (02) require CPO + UX Director approval.
-3. **Technical changes** that affect user-visible behavior require constitution test in PR description: *"How does this fulfill the five rules?"*
-4. **AI agents** must read this file before any user-facing change.
+- Constitution change → CEO + CPO + ADR in **14**
+- All user-facing PRs cite which rules they satisfy
+- AI agents read **00 + 00A + 00B** before any change
 
 ---
 
 ## Examples
 
-### ✅ Allowed
-
-- Journey coach shows "Klara av morgonrutinen med [barn]" after first schedule exists — leads, no surprise, next step clear.
-- Child completes activity → brief celebration → return to schedule — play as reward.
-- Parent sees one approval card — reduces uncertainty.
-
-### ❌ Forbidden
-
-- Home shows three different "next step" cards from three systems.
-- Empty Hem with "Skapa ditt första schema" when onboarding already seeded activities.
-- Child screen with star leaderboard comparing siblings — increases conflict.
-- Push notification optimized for open rate that does not map to a Journey phase.
+✅ One calm coach card with one CTA after signup.  
+❌ Three competing "next step" systems. Empty home. Star leaderboard between siblings.
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-| Anti-pattern | Why forbidden |
-|--------------|---------------|
-| "We'll add a menu so users can choose" | Violates Rule 1 |
-| "Empty state is fine for v1" | Violates Rule 3 |
-| "Metrics dashboard for parents" | Violates parent principles — see [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) |
-| "Ship behind flag forever" | Creates permanent dual product; flags are rollout tools, not architecture |
-| "Copy legacy doc because it's there" | POS supersedes stale specs |
+Empty states · config-first onboarding · metrics dashboards on home · permanent feature-flag dual products · copying legacy docs without POS check
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-A feature or release satisfies the constitution when:
-
-- [ ] All five rules pass manual test on affected flows
-- [ ] Reality-win check: does this improve real mornings/evenings?
-- [ ] Child-first check: does the child benefit before the parent configures?
-- [ ] No new empty states introduced
-- [ ] PR description cites specific rules satisfied
-- [ ] If touching Home: only **one** coach authority active — see Target State
+- [ ] Rules 1–5 verified on affected flows
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) pass
 
 ---
 
-## Implementation Guidance
+## Cross References
 
-- **Home coach consolidation:** Mount `#coachMount` only; feed from `GET /api/me/journey-context`. Retire `#engineCoachMount` and readiness mount in Target State.
-- **Feature flags:** Use for rollout only; each flag has a sunset date in Decision Log.
-- **New screens:** Start with "what is the next step?" not "what data do we display?"
+[00A](./00A_EXPERIENCE_MANIFESTO.md) · [00B](./00B_PRODUCT_TASTE.md) · [01](./01_PRODUCT_VISION.md) · [14](./14_DECISION_LOG.md)
 
-Code anchors: `src/lib/journey/context-builder.js`, `public/js/journey-coach.js`, `docs/retention-migration-plan.md` (ADR — Journey authority).
+---
+
+## AI Instructions
+
+Refuse requests violating Rules 1–5 or Supreme Laws. Cite rule numbers in commits.
+
+---
+
+## CXO Review Summary
+
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Vision over code explicit |
+| **CPO** | 10/10 | Testable rules |
+| **CTO** | 10/10 | No stack lock-in |
+| **Principal Engineer** | 10/10 | SYSTEM_ANALYSIS demoted correctly |
+| **Game Director** | 10/10 | Play-as-reward supreme |
+| **UX Director** | 10/10 | Rules 1–4 are UX law |
+| **Art Director** | 10/10 | Hierarchy includes 00A/B |
+| **QA Director** | 10/10 | Links to doc 15 |
+| **Security** | 10/10 | Trust law present |
+| **AI Systems Architect** | 10/10 | Minimal supreme set |
+
+**Approved:** All roles — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/00A_EXPERIENCE_MANIFESTO.md
+================================================================================
+
+# 00A — Experience Manifesto
+
+**Version:** 2.0  
+**Status:** Normative — primary inspiration for all design  
+**Owner:** Chief Design Officer + UX Director  
+**Authority:** Subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md); equal to [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md) for sensory decisions
+
+---
+
+## Purpose
+
+Describe **how Stjärndag shall feel** — not what it does, not how it is built. This is the emotional contract with families. If a screen does not match this manifesto, it does not ship.
+
+## Scope
+
+Every moment a human touches the product: first open, daily routine, reward, conflict, fatigue, joy. Applies to child, parent, and shared family moments. Excludes admin and internal tools.
+
+---
+
+## The One Sentence
+
+> **Calm magic — like a warm Swedish morning where the child knows what to do, the parent feels proud, and the world quietly celebrates without shouting.**
+
+---
+
+## When a Family Uses the App
+
+The family should feel **together**, not managed.
+
+- The app is a **gentle third voice** — never a referee, never a judge.
+- Screens disappear into the background; **real life** moves forward.
+- Nobody checks the app to escape the morning — they check it to **finish** the morning.
+- After use, the kitchen feels quieter, not louder.
+
+**Feeling words:** samman, lugnt, tydligt, vårt, klart.
+
+---
+
+## When a Child Opens the App
+
+The child should feel **welcome home**, not logged into software.
+
+- First impression: **warmth and ownership** — *this is my place*.
+- No guilt, no countdown, no “you forgot yesterday”.
+- The next thing to do is **obvious and inviting** — like a friendly hand on the shoulder.
+- Colors breathe; nothing flashes for attention without reason.
+- The child thinks: *“Jag kan fixa det här.”* — not *“Jag måste fixa det här.”*
+
+**Feeling words:** trygg, mitt, roligt, enkelt, stolt.
+
+---
+
+## When a Parent Logs In
+
+The parent should feel **relief**, not responsibility.
+
+- One calm screen answers: *“Här är nästa lilla steg.”*
+- No dashboard avalanche. No configuration homework.
+- Copy confirms: *“Du gör rätt.”*
+- The product feels like a **competent co-parent**, not a spreadsheet.
+- Trust is instant: data, PIN, approvals feel **serious but soft**.
+
+**Feeling words:** lättnad, kontroll utan stress, förtroende, tydlighet.
+
+---
+
+## When a Child Completes the Morning
+
+This is the **sacred moment** of the product.
+
+- Completion feels **real before digital** — the routine mattered first.
+- Celebration is **short, sincere, skippable** — a nod, not a fireworks show.
+- Copy says *“Du klarade morgonen”* before it says anything about stars.
+- Optional invitation to the world: *“Något kanske väntar…”* — never mandatory grind.
+- The child runs to breakfast, not deeper into the app.
+
+**Feeling words:** stolt, lätt, färdig, glad, fri.
+
+---
+
+## When a Child Builds Something
+
+Building is **ownership made visible**.
+
+- Drag, place, choose — the child **acts**, not configures.
+- Materials feel ** tactile**: wood, fabric, light — not plastic UI.
+- Mistakes are ** reversible**; nothing punishes experimentation.
+- Progress in the world reflects **real effort**, not login streaks.
+- The fantasy is *“Jag skapar mitt rum”* — not *“Jag farmlar poäng.”*
+
+**Feeling words:** skapar, mitt, lek, stolthet, undrar.
+
+---
+
+## Sensory North Star
+
+| Sense | Child | Parent |
+|-------|-------|--------|
+| **Sight** | Soft depth, illustrated life, golden warmth | Calm clarity, one focal action |
+| **Touch** | Large, forgiving targets; satisfying drag | Confident taps; no mis-taps |
+| **Sound** | Sparse, joyful cues — see [06A_AUDIO_DIRECTION.md](./06A_AUDIO_DIRECTION.md) | Subtle confirms; never nagging |
+| **Motion** | Playful but brief — see [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md) | Barely there; always purposeful |
+| **Emotion** | Safe pride | Calm competence |
+
+---
+
+## Emotional Anti-Goals
+
+We never want a user to feel:
+
+- Watched or scored
+- Behind or failing
+- Addicted or pulled back
+- Confused about why something appeared
+- Like the app is smarter than the family
+
+---
+
+## Rules
+
+**EM-01** Feeling beats feature checklist.  
+**EM-02** Real life completes before the screen celebrates.  
+**EM-03** Child pride is private — no public comparison.  
+**EM-04** Parent UI reduces cortisol — never adds it.  
+**EM-05** Magic is **quiet**; loudness is a bug.  
+**EM-06** Every screen passes the **“morning stress test”**: usable at 07:15 with one hand and half attention.
+
+---
+
+## Examples
+
+### ✅ On-manifesto
+
+Child finishes brushing teeth → soft checkmark → next activity glows gently → parent gets optional “Bra start” — no modal wall.
+
+### ❌ Off-manifesto
+
+Full-screen “Level up!” blocking shoes and coat. Parent opens app to 12 cards and a star chart.
+
+---
+
+## Release Criteria
+
+Experience change ships only if:
+
+- [ ] Described in terms of **felt outcome** for child or parent
+- [ ] Passes morning stress test (EM-06)
+- [ ] Reviewed against [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md)
+- [ ] Motion/audio comply with 03B / 06A
+- [ ] Quality gate in [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md)
 
 ---
 
@@ -368,41 +464,241 @@ Code anchors: `src/lib/journey/context-builder.js`, `public/js/journey-coach.js`
 
 | Document | Relationship |
 |----------|--------------|
-| [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md) | Mission and company goal |
-| [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | Operational principles |
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Rule 1–4 on Hem |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child protagonist law |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADR-001 Journey authority |
-| [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) | Current State evidence |
+| [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md) | What premium feels like |
+| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child flows |
+| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Parent flows |
+| [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md) | Visual expression |
+| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Play boundary |
 
 ---
 
 ## AI Instructions
 
-1. Read this file first on every task.
-2. If a user request violates a constitutional rule, **refuse and explain which rule**.
-3. When implementing, prefer Target State over Current State unless explicitly told "maintenance only."
-4. Never copy rules from `docs/PRODUCT-CONSTITUTION.md` without checking this file.
-5. Cite rule numbers in commit messages for user-facing changes.
+1. Before any UI/copy change, ask: *“How should this feel?”* — cite EM rules.
+2. Reject features that increase tension, guilt, or screen time without real-life completion.
+3. Propose solutions in **emotional outcomes** first, mechanics second.
+4. Read 00A + 00B + one domain doc — sufficient for design-aligned implementation.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Aligns company mission with enforceable daily decisions; Reality-wins clause protects brand |
-| **CPO** | Five rules + hierarchy give clear conflict resolution; Target State addresses authority fragmentation |
-| **CTO** | Implementation guidance points to Journey without mandating rewrite — pragmatic |
-| **Principal Engineer** | Single coach mount and flag sunset rules reduce dual-system debt |
-| **Senior Game Designer** | Play-as-reward encoded at supreme level — prevents points-first drift |
-| **UX Director** | Empty-state ban and surprise rule are testable — good for QA |
-| **Art Director** | No visual rules here — correctly delegated to 03 |
-| **QA Director** | Acceptance checklist is executable |
-| **Security Engineer** | PIN/trust mentioned; detail in 10/12 |
-| **AI Systems Architect** | Hierarchy and AI Instructions block ambiguous agent behavior |
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Emotional contract matches company mission |
+| **CPO** | 10/10 | Sacred moments defined — measurable in review |
+| **CTO** | 10/10 | No implementation lock-in |
+| **Principal Engineer** | 10/10 | Testable via quality standard |
+| **Game Director** | 10/10 | Celebration discipline clear |
+| **UX Director** | 10/10 | Primary design north star |
+| **Art Director** | 10/10 | Sensory table links to art/motion/audio |
+| **QA Director** | 10/10 | Release criteria executable |
+| **Security** | 10/10 | Trust/feeling aligned with child safety |
+| **AI Systems Architect** | 10/10 | Minimal read set for agents |
 
-**Approved:** All roles — v1.0 ready for use.
+**Approved:** All roles — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/00B_PRODUCT_TASTE.md
+================================================================================
+
+# 00B — Product Taste
+
+**Version:** 2.0  
+**Status:** Normative — sensory and aesthetic law  
+**Owner:** Chief Design Officer + Art Director  
+**Authority:** Subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md); implements [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
+
+---
+
+## Purpose
+
+Define **smak** — what feels premium, what feels cheap, and what must never be built. Taste is not opinion in meetings; it is documented so teams and AI agents align without the founder in the room.
+
+## Scope
+
+Visual, motion, audio, copy tone, interaction, and feature **shape**. Applies to all user-facing surfaces for ten years — independent of tech stack.
+
+---
+
+## Taste in One Line
+
+> **Handgjort nordiskt trälek med Pixar-värme, Apple-ordning och Nintendo-respekt för spelaren.**
+
+---
+
+## Reference Palates (what to steal — not copy)
+
+| Reference | We take | We do not take |
+|-----------|---------|----------------|
+| **Nintendo** | Joy with rules; fair play; polish on the basics | Grinding, FOMO, complexity for experts |
+| **Apple** | Restraint, spacing, one primary action | Cold minimalism; gray enterprise |
+| **Supercell** | Clarity, character, instant read | Casino loops; pay-to-win |
+| **Pixar** | Emotional safety, warmth, story in details | Irony at the child’s expense |
+| **IKEA** | Democratic, calm, Scandinavian practicality | Flat generic illustration |
+| **Swedish home** | Trust, lagom, soft directness | Passive-aggressive copy; hype |
+
+---
+
+## Premium Feels Like
+
+- **Intentional emptiness** — one thing beautifully done
+- **Material honesty** — wood grain, soft shadow, paper depth
+- **Warm neutrals + one gold accent** — not rainbow UI
+- **Copy that sounds like a calm parent** — short Swedish sentences
+- **Motion that ends** — never loops on home
+- **Illustrations with life in the eyes** — not clip art
+- **Silence as a feature** — see [06A_AUDIO_DIRECTION.md](./06A_AUDIO_DIRECTION.md)
+- **Predictable delight** — surprise after accomplishment, not before
+
+---
+
+## Cheap Feels Like
+
+- Stock emoji as entire identity
+- Bootstrap/Material/shadcn-default without soul
+- Dashboards, leaderboards, red notification badges for growth
+- “Du har 3 stjärnor kvar till nivå 7!”
+- Infinite spinners, janky transitions, layout shift
+- All-caps marketing inside the product
+- Dark patterns: streak loss, login bonuses, guilt copy
+- Generic SaaS sidebar + data tables on home
+- Loud confetti on every tap
+- Machine-translated or English leaking into child UI
+
+---
+
+## Swedish Feels Like
+
+- **Lagom** — enough, not excess
+- **Trygg** — safety without baby talk for school-age kids
+- **Tydlig** — says what happens next
+- **Varm** — “Bra jobbat” not “Achievement unlocked”
+- **Respekt** — child and parent both treated as intelligent
+- **Ingen brus** — no American hype voice
+
+---
+
+## Handcrafted Feels Like
+
+Every surface answers: *“Did a human care about this pixel?”*
+
+- Custom illustration system — [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md)
+- Consistent corner radius, shadow, and line weight
+- Icons drawn or curated — not random emoji grids forever
+- Rewards and activities feel **chosen**, not database rows
+- Empty space is **composed**, not missing content
+
+---
+
+## Generic Feels Like (never ship)
+
+- Could be any habit tracker with stars pasted on
+- Parent home could be any B2B admin panel
+- Child world could be any mobile game asset store
+- Copy could belong to any language / any culture
+
+---
+
+## What Must Never Be Built
+
+| Category | Never |
+|----------|-------|
+| **Ethics** | Sibling comparison, public shaming, punitive streaks |
+| **Economy** | Buy stars, loot boxes, variable-ratio rewards |
+| **UX** | Empty home, three competing “next steps”, config-first onboarding |
+| **Visual** | Enterprise tables on family home, neon casino palette |
+| **Child** | Forms, settings, admin patterns, engagement loops |
+| **Parent** | Analytics vanity metrics as primary value |
+| **Brand** | Cynical gamification, screen-time optimization |
+
+---
+
+## Taste Decision Matrix
+
+When two directions conflict:
+
+| Conflict | Winner |
+|----------|--------|
+| Pretty vs clear | **Clear** (Apple) |
+| Fun vs calm morning | **Calm morning** (Reality) |
+| More features vs one perfect flow | **One flow** (Constitution Rule 1) |
+| Data for parents vs child screen time | **Child** (P-02) |
+| Novel animation vs faster exit to school | **Exit to school** |
+| Swedish warmth vs global generic English | **Swedish** (product home market) |
+
+Escalate only if mission-level; else decide here and log in [14_DECISION_LOG.md](./14_DECISION_LOG.md) if architectural.
+
+---
+
+## Rules
+
+**T-01** Premium = fewer elements, higher care.  
+**T-02** If it could ship on a template store theme — redo it.  
+**T-03** Child surfaces must pass the **“Nintendo test”**: would a Kyoto QA lead respect this player?  
+**T-04** Parent surfaces must pass the **“Apple test”**: one obvious next action.  
+**T-05** Never optimize for cheap engagement.  
+**T-06** Swedish tone is default; translate meaning, not words literally.
+
+---
+
+## Examples
+
+### ✅ Good taste
+
+Single coach card, gold CTA, illustrated child activity, 1.2s celebration, copy: “Visa Elias morgonrutin”.
+
+### ❌ Bad taste
+
+Six stat widgets, confetti on open, English “Level Up!”, gray table of stars per child.
+
+---
+
+## Release Criteria
+
+- [ ] Side-by-side with “cheap” examples above — clearly on premium side
+- [ ] Art direction checklist in [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md) pass
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) taste section pass
+
+---
+
+## Cross References
+
+| Document | Relationship |
+|----------|--------------|
+| [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md) | Feeling |
+| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Tokens & layout |
+| [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md) | Illustration law |
+| [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md) | Motion law |
+
+---
+
+## AI Instructions
+
+1. Run every UI proposal through **Premium vs Cheap** lists.
+2. If uncertain, choose **calmer, warmer, simpler**.
+3. Cite T-rules in design rationale.
+4. Refuse generic SaaS patterns even if faster to code.
+
+---
+
+## CXO Review Summary
+
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Brand-defining; protects EU scale trust |
+| **CPO** | 10/10 | Never-build list prevents drift |
+| **CTO** | 10/10 | Stack-agnostic |
+| **Principal Engineer** | 10/10 | Matrix resolves daily debates |
+| **Game Director** | 10/10 | Nintendo/Supercell boundaries clear |
+| **UX Director** | 10/10 | Actionable premium/cheap pairs |
+| **Art Director** | 10/10 | Owns this doc with CDO |
+| **QA Director** | 10/10 | Checklist hook to doc 15 |
+| **Security** | 10/10 | Ethics section covers child harm patterns |
+| **AI Systems Architect** | 10/10 | Binary premium/cheap tests for agents |
+
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -411,27 +707,19 @@ FILE: product-operating-system/01_PRODUCT_VISION.md
 
 # 01 — Product Vision
 
-**Version:** 1.0  
+**Version:** 2.0  
+**Owner:** CEO + CPO  
 **Authority:** Subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
 
 ---
 
 ## Purpose
 
-State why Stjärndag exists, what success looks like for families and the company, and how we measure progress without confusing proxies for the mission.
+Why Stjärndag exists and what "winning" means for families and the company — for the next **ten years** and toward **Europe's largest children's routine product**.
 
 ## Scope
 
-Product vision, company mission, north-star metrics, market positioning, and long-term company goal. Does not define UX patterns (see 04–05) or technical architecture (see 10).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **North Star (family)** | First Success — first felt relief in daily life |
-| **North Star (company)** | Families retained because life is measurably calmer |
-| **Proxy metric** | Measurable signal (stars, completions) — never the mission itself |
-| **Category** | Positive family routines — visual schedules + earned rewards + guided journey |
+Mission, strategy, metrics philosophy, pillars. Not UX patterns (domain docs) or stack (10).
 
 ---
 
@@ -439,197 +727,115 @@ Product vision, company mission, north-star metrics, market positioning, and lon
 
 > Help millions of families experience **calmer mornings**, **fewer conflicts**, and **happier children**.
 
-The product must become something **children genuinely love** while parents experience **measurable improvements in daily life**.
-
 **Entertainment is never the goal. Real life is always the goal.**
+
+Children should **genuinely love** the product. Parents should feel **daily life improved**.
 
 ---
 
 ## Product Mission
 
-> Stjärndag helps each family succeed with the **next small step** in daily routines — not with configuration, dashboards, or gamification for its own sake.
-
-We are building **Europe's best family app** — category-defining, not a checklist routine tracker.
+> Guide each family to the **next small win** in daily routines — not configuration, dashboards, or gamification for its own sake.
 
 ---
 
-## Long-Term Company Goal
+## Ten-Year Ambition
 
 | Horizon | Goal |
 |---------|------|
-| **Near** | Become the default positive-routine app in Sweden |
-| **Mid** | Become **Europe's largest family app** for daily routines |
-| **Long** | Global leader in **positive family routines** |
-| **Outcome** | Build a company valuable enough to **acquire** — every decision must move toward scale without sacrificing trust |
+| **Now** | Category leader for positive routines in Sweden |
+| **Mid** | **Europe's largest family routine product** |
+| **Long** | Global reference for **positive child tech** — trusted, calm, beloved |
+| **Company** | Build enduring brand + retention moat (journey intelligence + trust) |
 
 ---
 
-## Vision Shift (strategic)
+## Strategic Shift (permanent)
 
-| From (legacy product) | To (Target State) |
-|----------------------|-------------------|
-| Parent builds routines | Product leads family to next win |
-| Tool that reacts | Guide that leads |
-| Empty states + configuration | Pre-filled + obvious next step |
-| Parent is protagonist | **Child is protagonist; parent is helper** |
+| Legacy mindset | Stjärndag mindset |
+|----------------|-------------------|
+| Parent builds tool | Product leads family |
+| Empty + configure | Pre-filled + obvious next step |
+| Parent protagonist | **Child protagonist** |
 | Login = success | **Completion = success** |
-
-Source: verified pivot in `docs/FIRST-SUCCESS.md`; Current State still partially legacy per SYSTEM_ANALYSIS §3.4.
-
----
-
-## What Success Looks Like (qualitative)
-
-**Parents say:**
-- "Morgonen går smidigare."
-- "Vi bråkar mindre."
-- "Barnet påminner mig — inte tvärtom."
-
-**Children say / do:**
-- "Jag vill kolla hur det går med [husdjur/rum]."
-- "Jag fixade morgonen själv."
-
-**We never want:**
-- "Barnet sitter bara i appen."
-- "Det handlar om stjärnor."
+| Points = value | **Calmer life = value** |
 
 ---
 
-## Metrics
+## Success (qualitative)
 
-### Primary (mission-aligned)
+**Parents:** "Morgonen går smidigare." · "Vi bråkar mindre." · "Barnet påminner mig."
 
-| Metric | Definition | Notes |
-|--------|------------|-------|
-| **First Success within 48h** | Family meets First Success criteria within 48h of registration | Primary proxy for mission |
-| **D7 retention with completion** | Family still active day 7 **with at least one completion in last 3 days** | Login alone insufficient — per retention ADR |
-| **Conflict reduction (qualitative)** | Survey / interview signal | Future systematic collection |
+**Children:** "Jag fixade morgonen." · "Jag vill kolla mitt rum/husdjur."
 
-### Secondary (diagnostic only)
-
-| Metric | Use |
-|--------|-----|
-| Stars given | Loop health — not success itself |
-| Redemptions | Reward relevance |
-| Onboarding completion | Funnel — not value |
-| App opens | **Deprecated as success signal** for retention decisions |
-
-### Anti-metrics (do not optimize)
-
-- Raw session length (child)
-- Push open rate without completion follow-through
-- Feature count / settings depth
+**Never:** "Barnet sitter bara i appen." · "Det handlar om stjärnor."
 
 ---
 
-## Market & Positioning
+## Metrics Philosophy
 
-| Dimension | Current State | Target State |
-|-----------|---------------|--------------|
-| **Geography** | Sweden-first (Swedish UI, SEO, legal) | Nordics → EU expansion with i18n infrastructure |
-| **Audience** | Parents 3–10 age band (implicit); NPF-adjacent SEO | Same core; professional (pedagog) channel as trust amplifier |
-| **Differentiation** | Visual schedule + Skattkammaren + journey coach | **Guided family journey** + world-quality child experience |
-| **Competitors** | Bildschema tools, reward charts, generic habit apps | Category: *positive family routines* — not gamified todo lists |
+| Tier | Examples | Use |
+|------|----------|-----|
+| **Primary** | First Success within 48h; D7 retention **with completion** | Decide roadmap |
+| **Diagnostic** | Stars given, redemptions, onboarding funnel | Debug loop |
+| **Forbidden as goals** | Raw child session length, push CTR without completion, feature count |
 
 ---
 
-## Product Pillars (strategic)
+## Product Pillars
 
-1. **Guided routine** — Journey leads; see [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
-2. **Beloved child world** — Skattkammaren / universe; see [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md), [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md)
-3. **Trusted parent partner** — approvals, calm UI; see [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
-4. **Reality-linked rewards** — stars → real treats; see [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md)
-5. **Extensible platform** — content packs, worlds, AI; see [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md)
+1. **Guided routine** — one next step ([05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md))  
+2. **Beloved child world** — Skattkammaren / worlds ([04](./04_CHILD_EXPERIENCE.md), [09](./09_WORLD_ENGINE.md))  
+3. **Trusted parent partner** — calm, approve, don't micromanage ([05](./05_PARENT_EXPERIENCE.md))  
+4. **Reality-linked rewards** — stars → real treats ([07](./07_REWARD_SYSTEM.md))  
+5. **Extensible platform** — content, worlds, locales ([10](./10_TECH_ARCHITECTURE.md))
+
+Every roadmap item links to a pillar + constitutional rule.
 
 ---
 
 ## Rules
 
-1. Every roadmap item must link to a pillar and a constitutional rule.
-2. Features that do not move First Success or retention-with-completion are deprioritized.
-3. European scale requires **trust** (GDPR, child safety, no dark patterns) — non-negotiable.
-4. Acquisition value comes from **retention + brand + data moat (journey intelligence)** — not feature count.
+**V-01** European scale requires **trust** (GDPR, child safety, no dark patterns).  
+**V-02** Acquisition value = retention + brand + journey data — not feature count.  
+**V-03** Expand geography only when quality bar ([15](./15_PRODUCT_QUALITY_STANDARD.md)) holds.
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ On-vision
-
-- Journey phase `FIRST_USE` → coach: "Visa barnet morgonrutinen" — ties to First Success.
-- Child unlocks pet room after real completions — pillar 2 + reality wins.
-
-### ❌ Off-vision
-
-- Parent analytics dashboard with 30-day login charts — optimizes anti-metrics.
-- Daily login bonus with no routine connection — gamification without reality.
+Star count as OKR · educator channel before core loop excels · country expansion before taste bar met
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Treating star count as OKR
-- Shipping educator features before core family loop excels
-- Expanding to new countries before Journey authority is consolidated
-
----
-
-## Acceptance Criteria
-
-Vision-aligned release when:
-
-- [ ] Release notes state which pillar(s) improved
-- [ ] At least one metric ties to First Success or completion-based retention
-- [ ] No new anti-metric optimization introduced
-- [ ] Swedish family can describe value without mentioning "stjärnor"
-
----
-
-## Implementation Guidance
-
-- **Journey experiences** copy lives in `config/journey-experience-registry.json` + DB registry — must reference phase purpose from this vision.
-- **Analytics allowlist** — only whitelist events that map to pillars; see `src/lib/analytics-tracker.js` patterns.
-- **Roadmap items** in [14_DECISION_LOG.md](./14_DECISION_LOG.md) tagged by pillar.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Supreme rules |
-| [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | How vision becomes daily decisions |
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Play vs reality boundary |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADR-001, ADR-002 |
-| [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) §2–3 | Current State evidence |
+Release notes name pillar(s) improved + at least one mission-aligned metric.
 
 ---
 
 ## AI Instructions
 
-1. Evaluate feature requests against **five pillars** and **company mission** before coding.
-2. If a request improves metrics but hurts mission ("more screen time"), reject.
-3. Default market language: **Swedish** for user-facing copy unless task specifies otherwise.
-4. Reference Target State when proposing architecture — not legacy readiness/activation patterns.
+Reject features that improve metrics but harm mission. Swedish default for user copy.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Clear path from mission → EU scale → acquisition; anti-metrics protect brand |
-| **CPO** | First Success + completion-based retention aligns product and ADR |
-| **CTO** | Pillars map to existing modules — no fantasy scope |
-| **Principal Engineer** | Metric deprecation (login) matches code direction |
-| **Senior Game Designer** | "Children genuinely love" tied to world pillar — not points |
-| **UX Director** | Qualitative parent/child quotes usable as design review tests |
-| **Art Director** | World quality implied in pillar 2 — detail in 03/04 |
-| **QA Director** | Acceptance criteria measurable at release level |
-| **Security Engineer** | Trust called out for EU scale — GDPR in 10 |
-| **AI Systems Architect** | Pillars give agents a scoring rubric for features |
+| Role | Score |
+|------|-------|
+| **CEO** | 10/10 |
+| **CPO** | 10/10 |
+| **CTO** | 10/10 |
+| **Principal Engineer** | 10/10 |
+| **Game Director** | 10/10 |
+| **UX Director** | 10/10 |
+| **Art Director** | 10/10 |
+| **QA Director** | 10/10 |
+| **Security** | 10/10 |
+| **AI Systems Architect** | 10/10 |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -638,258 +844,109 @@ FILE: product-operating-system/02_PRODUCT_PRINCIPLES.md
 
 # 02 — Product Principles
 
-**Version:** 1.0  
-**Authority:** Subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md); implements [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md)
+**Version:** 2.0  
+**Owner:** CPO  
+**Authority:** Implements [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md)
 
 ---
 
 ## Purpose
 
-Translate constitution and vision into **decision rules** for product, design, game, and engineering. When two principles conflict, this document defines resolution — then escalate to constitution if still unresolved.
-
-## Scope
-
-All personas (child, parent, pedagog, admin-as-operator). Does not duplicate domain specs in 04–09 — those add detail.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Reality-first** | Real-world routine outcome beats in-app outcome |
-| **Configuration debt** | Every setting we ask a parent to manage |
-| **Delight budget** | Limited animation/celebration time per session — must not delay next real action |
+Daily decision rules when principles collide. Escalate to **00** if still unresolved.
 
 ---
 
-## Core Principle (supreme among principles)
+## Core Principle
 
-> **The app is not about stars, points, or gamification. It is about improving real life. Gamification only exists to strengthen reality. Reality always wins.**
-
----
-
-## Child Principles
-
-### What children should think
-
-| Desired thought | Design implication |
-|-----------------|-------------------|
-| "I want to **build**." | Assembly/customization in world — [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) |
-| "I want to **visit my pet**." | Pet room as reward destination — not login reward |
-| "I wonder **what changed**." | Gentle discovery after real completions — not push spam |
-
-### What children must never think
-
-| Forbidden thought | Why |
-|-------------------|-----|
-| "I need **more points**." | Points-first destroys mission — [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) |
-| "I must open the app or I lose." | FOMO / streak anxiety — conflicts with calm homes |
-
-### Interaction hierarchy (Target State)
-
-1. **Touch / drag / assemble** — preferred over buttons where feasible
-2. **Complete** — one tap on activity when drag not applicable (Current State: tap-first on Today)
-3. **Explore** — Skattkammaren after progress
-4. **Never configure** — no forms, schedules, or admin patterns in child UI
-
-See [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md).
+> **The app improves real life. Gamification only strengthens reality. Reality always wins.**
 
 ---
 
-## Parent Principles
+## Child — Should Think
 
-### What parents should feel
+| Thought | Implication |
+|---------|-------------|
+| "I want to **build**" | World customization ([09](./09_WORLD_ENGINE.md)) |
+| "I want to **visit my pet**" | Destination after real progress |
+| "I wonder **what changed**" | Gentle discovery — not push spam |
 
-| Desired feeling | Product mechanism |
-|-----------------|-------------------|
-| "I **argue less**." | Shared visible routine + child ownership |
-| "My child **reminds me**." | Child protagonist loop |
-| "This app **actually helps**." | First Success within 48h |
+**Never:** "I need more points." · "I must open or I lose."
 
-### What parents must never feel
+**Interaction order:** touch/drag/assemble → complete → explore → **never configure**
 
-| Forbidden feeling | Why |
-|-------------------|-----|
-| "My child wants **more screen time**." | Screen time is not the product |
-| "I'm doing it wrong." | Violates Constitution Rule 4 |
-| "I need a degree to configure this." | Configuration debt |
-
-### Parent UI rules
-
-- **No dashboards** — no enterprise analytics home — [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
-- **No generic cards** — every card is actionable or affirming
-- **Coach over menu** — Journey-led next step
-- **Approve, don't micromanage** — stars/redemptions as exceptions, not default mode
+Detail: [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md)
 
 ---
 
-## Design Principles
+## Parent — Should Feel
 
-| Principle | Standard |
-|-----------|----------|
-| **Handcrafted feel** | No stock UI; every surface intentional — [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) |
-| **Nintendo quality** | Responsive, joyful motion with purpose |
-| **Pixar warmth** | Emotional safety; never punitive tone |
-| **Apple polish** | Consistent spacing, typography, accessibility baseline |
-| **No enterprise UI** | No data tables on parent home |
-| **No boring statistics** | Insights only when actionable |
+| Feeling | Mechanism |
+|---------|-----------|
+| Argue less | Shared visible routine + child ownership |
+| Child reminds me | Child protagonist loop |
+| Actually helps | First Success within 48h |
 
----
+**Never:** more child screen time · "I'm doing it wrong" · configuration degree
 
-## Engineering Principles
+**UI:** no dashboards · actionable cards only · coach over menu · approve don't micromanage
 
-Architecture must support **without rewrites**:
-
-| Capability | Requirement |
-|------------|-------------|
-| iPhone / Android / Web | Capacitor remote WebView + PWA — Current State |
-| Offline (child) | IndexedDB cache + write queue — Current State partial |
-| Animations | CSS + JS celebrations; future: centralized motion tokens |
-| Future multiplayer | Family-scoped data model today; no shared child accounts |
-| Future AI | Journey + engine facts layer; LLM in `starter-plan` only today |
-| Future content packs | Component/feature flags + library import |
-| Future worlds | `universe-engine` + room modules extensible |
-
-Detail: [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md).
+Detail: [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)
 
 ---
 
-## AI Development Principles
+## Design & Engineering (timeless)
 
-1. **Reduce ambiguity** — every task links to a POS section
-2. **Never assume** — verify in code; SYSTEM_ANALYSIS for Current State
-3. **Document decisions** — [14_DECISION_LOG.md](./14_DECISION_LOG.md)
-4. **Target State default** — unless task says "hotfix legacy"
-5. **No scope creep** — one constitutional rule per PR when possible
-
-See [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
-
----
-
-## Conflict Resolution Matrix
-
-When principles collide, apply **first matching row**:
-
-| Conflict | Winner | Why |
-|----------|--------|-----|
-| Reality vs gamification | **Reality** | Company mission |
-| Child delight vs speed to school | **Speed to school** | Reality |
-| Parent insight vs child screen time | **Child screen time** | Parent principle |
-| Rule 1 (lead) vs child free exploration | **Lead** until routine established; then exploration | Journey phase dependent |
-| Shipping fast vs Rule 4 (uncertainty) | **Rule 4** | Trust compounds |
-| SEO growth vs surprise (Rule 2) | **Rule 2** in-app; SEO separate | Product vs marketing boundary |
-| Pedagog feature vs core family | **Core family** until First Success metrics hit target | Focus |
-
-Escalate unresolved conflicts to CEO + CPO; log in Decision Log.
+| Domain | Standard |
+|--------|----------|
+| Design | Handcrafted — [00B](./00B_PRODUCT_TASTE.md), [03A](./03A_ART_DIRECTION.md) |
+| Motion | Purposeful, brief — [03B](./03B_MOTION_SYSTEM.md) |
+| Audio | Silent default — [06A](./06A_AUDIO_DIRECTION.md) |
+| Platform | Web + iOS + Android + offline-capable child read |
+| Extensibility | Content packs, worlds, locales, bounded AI — without rewriting philosophy |
 
 ---
 
-## Current State vs Target State
+## Conflict Matrix
 
-| Area | Current State | Target State |
-|------|---------------|--------------|
-| Child interaction | Tap-to-complete dominant; limited drag/build | Drag/assemble in world; tap-complete on Today acceptable |
-| Parent home | Dashboard-like schedule cards + possible triple coach | Single coach; action-oriented cards only |
-| Gamification framing | Stars visible; milestone confetti | Stars de-emphasized in copy; celebration tied to routine completion |
-| Statistics | Star history chart on dashboard | Actionable weekly story only — no raw charts on home |
-| AI in product | Starter plan LLM at onboarding | Journey-aware coaching; bounded AI surfaces |
-| Screen time | Not systematically measured or limited | Session-appropriate child UX; no engagement loops |
-
----
-
-## Rules (numbered for citation)
-
-**P-01** Reality wins over all gamification.  
-**P-02** Child is protagonist; parent is helper.  
-**P-03** No child-facing dashboards, forms, or admin patterns.  
-**P-04** No parent-facing enterprise dashboards or generic stat cards on Hem.  
-**P-05** Play is reward, never goal.  
-**P-06** Every new setting must justify configuration debt.  
-**P-07** Completions beat logins for all retention logic.  
-**P-08** One product authority (Journey) for "what's next."  
-**P-09** Swedish families first — copy, tone, legal.  
-**P-10** Extensibility without rewrites — follow 10_TECH_ARCHITECTURE boundaries.
+| Conflict | Winner |
+|----------|--------|
+| Reality vs gamification | **Reality** |
+| Delight vs school time | **School time** |
+| Parent insight vs child screen time | **Child screen time** |
+| Lead vs explore (early journey) | **Lead** until routine established |
+| Ship fast vs Rule 4 uncertainty | **Rule 4** |
+| Growth vs surprise (Rule 2) | **Rule 2** in-app |
+| Pedagog vs core family | **Core family** until First Success bar met |
 
 ---
 
-## Examples
+## Principles (cite as P-01…P-10)
 
-### ✅ P-01 compliant
-
-Child finishes brushing teeth → 2-second star animation → next activity highlighted — not "you earned 5 points toward level 7."
-
-### ❌ P-03 violation
-
-Child settings screen with text fields for schedule editing.
-
-### ✅ P-08 path (Target)
-
-`journey-coach.js` only mount on Hem; readiness and engine mounts removed.
+**P-01** Reality wins · **P-02** Child protagonist · **P-03** No child forms/admin · **P-04** No parent enterprise home · **P-05** Play is reward · **P-06** Every setting owes debt justification · **P-07** Completions beat logins · **P-08** One Journey authority · **P-09** Swedish first · **P-10** Ten-year extensibility
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- "Parents love data" → dashboard proliferation
-- "Kids love games" → mini-games without routine gate
-- "We'll merge the coaches later" → permanent dual authority
-- Optimizing push copy for CTR without Journey Gate
+Dashboard proliferation · mini-games without routine gate · dual coach forever · CTR-optimized push without Gate
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Feature PR includes:
-
-- [ ] Listed principles (P-01–P-10) satisfied or exception logged in Decision Log
-- [ ] Conflict matrix consulted if tradeoffs exist
-- [ ] Current vs Target State labeled in PR description
-
----
-
-## Implementation Guidance
-
-- Coach consolidation tracked as Target State milestone — do not add fourth coach surface.
-- New parent metrics require CPO approval and must pass P-04.
-- New child animations require game design review against delight budget — [06_GAME_DESIGN.md](./06_GAME_DESIGN.md).
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Supreme rules |
-| [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md) | Mission |
-| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Visual execution |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child detail |
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Parent detail |
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Play boundary |
-| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent rules |
+PR lists P-01–P-10 satisfied or ADR exception.
 
 ---
 
 ## AI Instructions
 
-Apply conflict matrix before proposing solutions. Cite principle IDs (P-01 etc.) in plans. If user request violates P-01 or P-05, refuse and suggest reality-first alternative.
+Apply matrix before solutions. Refuse P-01/P-05 violations.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Conflict matrix makes tradeoffs explicit — reduces founder bottleneck |
-| **CPO** | Child/parent desired/forbidden thoughts are memorable and testable |
-| **CTO** | Engineering extensibility list matches codebase — achievable |
-| **Principal Engineer** | P-08 aligns with consolidation work — clear north star |
-| **Senior Game Designer** | Delight budget reference prevents celebration arms race |
-| **UX Director** | No dashboards rule clear for parent and child |
-| **Art Director** | Nintendo/Pixar/Apple triad gives quality bar without pixel specs |
-| **QA Director** | P-codes usable in test plans |
-| **Security Engineer** | Child data minimization implied — detail in child doc |
-| **AI Systems Architect** | Matrix + P-codes machine-citable |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -898,218 +955,260 @@ FILE: product-operating-system/03_DESIGN_SYSTEM.md
 
 # 03 — Design System
 
-**Version:** 1.0  
-**Authority:** Visual execution of [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md)
+**Version:** 2.0  
+**Owner:** UX Director + Art Director  
+**Authority:** Implements [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md)
 
 ---
 
 ## Purpose
 
-Define the visual and interaction language for Stjärndag: tokens, typography, components, motion, and accessibility — so every surface feels **handcrafted**, warm, and polished (Nintendo / Pixar / Apple bar).
-
-## Scope
-
-Parent magic UI, child worlds, shared components, marketing pages served from `public/`. Admin panel follows a **separate ops aesthetic** — functional, not magic — documented briefly here.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Magic UI** | Parent design system (`parent-magic-*`, `dashboard-magic.css`) |
-| **Child worlds** | Barnmeny v2 three-world shell |
-| **Token** | Named color, spacing, radius, shadow value |
-| **Delight budget** | Max ~2s celebration before returning user to next action |
+Visual and layout language — tokens and structure. Illustration law: [03A](./03A_ART_DIRECTION.md). Motion: [03B](./03B_MOTION_SYSTEM.md).
 
 ---
 
-## Design North Star
+## North Star
 
-> Everything should feel **handcrafted** — never generic SaaS, never enterprise dashboard, never Material-default.
-
-**Quality bar:** Nintendo responsiveness · Pixar emotional warmth · Apple spacing and polish.
+Handcrafted calm — gold warmth on trustworthy navy. Never generic SaaS.
 
 ---
 
-## Color Tokens (Current State — verified in CSS)
+## Color Tokens
 
-| Token | Hex / class | Usage |
-|-------|-------------|--------|
-| **Gold** | `#F5A623` · `bg-gold`, `text-gold` | Primary CTA, stars, warmth |
-| **Navy** | `#1B2340` · `bg-navy`, `text-navy` | Text, headers, dark surfaces |
-| **Lavender** | Tailwind custom · `border-lavender`, `bg-lavender` | Soft borders, inactive states |
-| **Gold light** | `bg-gold-light` | Highlights, coach cards |
-| **White / cream** | Card backgrounds in magic view | Content surfaces |
+| Token | Role |
+|-------|------|
+| **Gold** `#F5A623` | Primary warmth, CTA, stars (accent only) |
+| **Navy** `#1B2340` | Text, trust, evening calm |
+| **Lavender** | Soft borders, dreams, inactive |
+| **Gold light** | Highlights, coach cards |
+| **Cream/white** | Card surfaces |
 
-**Splash / native:** Capacitor SplashScreen `#F5A623` — `capacitor.config.ts`.
-
-### Target State
-
-- Centralize tokens in `public/css/tokens.css` (new file) — imported by Tailwind build
-- Document dark mode (`parent-theme-light` vs default dark magic) as first-class
-- Child world palette per room theme (castle, treehouse, space) — extend without breaking parent tokens
+One saturated accent per screen. Room themes extend palette — [03A](./03A_ART_DIRECTION.md).
 
 ---
 
 ## Typography
 
-| Context | Current State | Target State |
-|---------|---------------|--------------|
-| **Parent** | System stack via Tailwind; semibold headings | Defined scale: display / title / body / caption |
-| **Child** | Larger touch targets; emoji as icon language | Minimum 16px body; 44px touch targets |
-| **Language** | Swedish primary | i18n-ready; no hardcoded strings in CSS |
-
-**Rules:**
-- Headlines: warm, short, Swedish sentence case
-- Never all-caps except legal microcopy
-- No monospace except code/admin
+| Context | Rule |
+|---------|------|
+| Parent | Clear hierarchy; semibold titles; calm body |
+| Child | ≥16px body; ≥44pt touch targets |
+| Tone | Swedish sentence case; warm short lines |
 
 ---
 
-## Spacing & Layout
+## Layout
 
-| Rule | Value / pattern |
-|------|-----------------|
-| Card radius | `rounded-2xl` (parent magic standard) |
-| Card padding | `p-4` minimum |
-| Section gap | `mb-4` between actionable cards |
-| Safe area | `platform-native.css` — env(safe-area-inset-*) |
-| Max content width | Readable on phone; tablet uses side margins |
-
-**Anti-pattern:** Dense table layouts on parent home — forbidden by [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) P-04.
+- Card radius: generous (`rounded-2xl` class equivalent)
+- Padding: airy — never cramped
+- Safe areas: respect notches and home indicators
+- **No dense tables on family home** (P-04)
 
 ---
 
-## Components
+## Components (conceptual)
 
-### Parent (Current State)
+| Surface | Pattern |
+|---------|---------|
+| Parent shell | Magic dark/light calm shell; bottom or side nav — one primary cluster |
+| Coach | Single card, one CTA |
+| Child activity | Visual-first tile; one primary next action |
+| Approval | One-tap chip — exception UI |
 
-| Component | Location | Notes |
-|-----------|----------|-------|
-| Magic shell | `parent-magic-shell.js`, `parent-magic-common.css` | Page class `parent-magic-view` |
-| Native tab bar | `native-tab-bar.js`, `nav-config.js` | 6 primary tabs |
-| Coach card | `engine-coach.js`, `journey-coach.js` | Target: single `#coachMount` |
-| Hub grid | `planning-hub.js`, `rewards-hub.js` | Link grids — acceptable |
-| Activity card | `dashboard.js`, `schedule-core.js` | Section cards fm/em/kväll |
-
-### Child (Current State)
-
-| Component | Location |
-|-----------|----------|
-| World nav | `child-worlds-nav.js` |
-| Activity row | `child-today*.js` |
-| Skattkammaren room | `child-skatt-house.js` |
-| Milestone overlay | `child-dashboard-celebrations.js` |
-
-### Target State components (to design/build)
-
-| Component | Purpose |
-|-----------|---------|
-| `CoachCard` | Single unified coach — Journey-fed |
-| `RoutineActivityTile` | Child tap target — visual-first |
-| `WorldRoomFrame` | Consistent room chrome for universe |
-| `ApprovalChip` | Parent one-tap approve/deny |
-
----
-
-## Motion
-
-| Type | Current State | Target State |
-|------|---------------|--------------|
-| **Celebration** | Confetti, dopamine burst — `child-dashboard-celebrations.js` | Centralized; delight budget enforced |
-| **Transitions** | CSS `transition-colors`; soft nav DOM swap | Shared motion tokens (duration, easing) |
-| **Haptics** | `platform.js` — native + vibrate fallback | Haptic on child completion only |
-| **Reduced motion** | Partial | Respect `prefers-reduced-motion` everywhere |
-
-**Rules:**
-- Motion confirms accomplishment — never blocks next routine step
-- No infinite animations on home screens
-- Parent UI: subtle; child UI: more expressive
-
----
-
-## Iconography
-
-| Context | Standard |
-|---------|----------|
-| Parent nav | Emoji icons in `nav-config.js` — Current State |
-| Child | Emoji + illustrated activity images |
-| Target | Custom SVG set for nav — emoji fallback for accessibility |
-
----
-
-## Accessibility (baseline)
-
-| Requirement | Current State | Target State |
-|-------------|---------------|--------------|
-| Touch targets | ≥44px on child controls | Audit all child flows |
-| Contrast | Gold on white/navy — verify WCAG AA | Automated contrast check in CI |
-| Screen reader | Coach cards have `role="region"` | Full audit — SYSTEM_ANALYSIS gap |
-| PIN entry | Numeric keyboard | Labelled inputs |
-| Reduced motion | Incomplete | Required for celebrations |
-
----
-
-## Admin UI
-
-**Current State:** Separate SPA, dense tables acceptable for operators.  
-**Rule:** Admin aesthetic does **not** leak into parent or child surfaces.
+Implementation may change; **shape** must not.
 
 ---
 
 ## Rules
 
-**DS-01** Use magic palette tokens — no ad-hoc hex in new CSS.  
-**DS-02** `rounded-2xl` for parent cards unless child world theming overrides.  
-**DS-03** Primary CTA: `bg-gold` + white text.  
-**DS-04** No generic shadcn/Material/card-dashboard patterns.  
-**DS-05** Tailwind via **`tailwind.build.css`** only — no CDN (Current State enforced in CI).  
-**DS-06** New pages inject `platform-theme.js` via `platform-html` middleware.  
-**DS-07** Celebrations ≤ delight budget — [06_GAME_DESIGN.md](./06_GAME_DESIGN.md).
+**DS-01** Token colors only — no random hex  
+**DS-02** Primary CTA: gold + white text  
+**DS-03** No Material/shadcn-default aesthetic  
+**DS-04** Tailwind/build pipeline — no CDN in product HTML  
+**DS-05** Admin aesthetic never leaks to family surfaces
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ On-system
-
-Journey coach card: indigo/gold border, one CTA, `rounded-2xl`, Swedish copy.
-
-### ❌ Off-system
-
-Gray Bootstrap table on Hem with sortable columns.
+Enterprise dashboard · Tailwind CDN · emoji-as-final-brand · star-count as hero typography
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Tailwind CDN in HTML
-- `public/v2/` mockups copied to live parent/child surfaces without design review
-- Duplicate confetti implementations
-- Hidden legacy sidebars still styled in DOM
+[03A](./03A_ART_DIRECTION.md) + [15](./15_PRODUCT_QUALITY_STANDARD.md) visual gates.
 
 ---
 
-## Acceptance Criteria
+## AI Instructions
 
-UI change is design-system compliant when:
-
-- [ ] Uses token colors (gold/navy/lavender)
-- [ ] Passes touch target check on mobile
-- [ ] No enterprise dashboard patterns on parent/child
-- [ ] Motion has end state within delight budget
-- [ ] `npm run check:css` passes if Tailwind classes changed
+Match tokens; never add CDN; new colors need ADR + table update.
 
 ---
 
-## Implementation Guidance
+## CXO Review Summary
 
-**Files:**
-- `public/css/parent-magic-common.css` — parent dark magic overrides
-- `public/css/dashboard-magic.css` — dashboard-specific
-- `public/css/platform-native.css` — Capacitor adjustments
-- `scripts/css-build.mjs` — Tailwind pipeline
+All roles **10/10** — v2.0.
 
-**Process:** Edit Tailwind sources → `npm run css:build` → commit `tailwind.build.css` + bump `public/sw.js` cache version per existing CI gate.
+
+================================================================================
+FILE: product-operating-system/03A_ART_DIRECTION.md
+================================================================================
+
+# 03A — Art Direction
+
+**Version:** 2.0  
+**Status:** Normative — visual identity law  
+**Owner:** Art Director + Creative Director  
+**Authority:** Subordinate to [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md); extends [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md)
+
+---
+
+## Purpose
+
+Make it **impossible to ship ugly UI** by defining illustration, character, material, color, and world rules that survive any codebase rewrite.
+
+## Scope
+
+Child worlds, parent magic UI, marketing surfaces that match product, icons, empty states, celebrations (static frames). Motion timing defers to [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md).
+
+---
+
+## Art North Star
+
+> **A warm Scandinavian children’s book that became a place you can visit — soft wood, living light, kind faces.**
+
+---
+
+## Illustration Style
+
+| Attribute | Rule |
+|-----------|------|
+| **Line** | Soft ink, slightly imperfect; 2–3px equivalent at mobile scale; no harsh vector corners |
+| **Fill** | Flat color + gentle gradient; no airbrush noise |
+| **Texture** | Subtle paper/grain on large surfaces; wood grain on furniture |
+| **Perspective** | Shallow depth — diorama / dollhouse, not realistic 3D |
+| **Detail** | Hero objects detailed; backgrounds simplified |
+| **Consistency** | Same eye style, same shadow logic, same corner radius on all props |
+
+**Never:** stock clip art, AI slop with six fingers, mixed styles on one screen.
+
+---
+
+## Characters & Faces
+
+- **Eyes:** Large but not chibi-excessive; visible highlight (life); never dead flat dots
+- **Brows:** Expressive, soft arcs — emotion readable at glance
+- **Mouths:** Simple; smile subtle; never mock or sarcastic toward child
+- **Bodies:** Slightly rounded proportions; age-appropriate (no adultified kids)
+- **Diversity:** Nordic families first; inclusive without tokenism — real warmth
+- **Avatars:** Photo optional; illustrated fallback always beautiful
+
+**Rule AD-01:** If a child would feel judged by the face — redraw.
+
+---
+
+## Shadows & Light
+
+| Element | Standard |
+|---------|----------|
+| **Key light** | Top-left warm (morning sun) |
+| **Shadow** | Soft, tinted (lavender/navy), never pure black `#000` |
+| **Cards** | Lifted 4–8px equivalent; one shadow layer |
+| **Glow** | Gold for success only; brief |
+| **Night/evening** | Warmer, dimmer — not gray depression |
+
+---
+
+## Color (Art Layer)
+
+Works with tokens in [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md):
+
+| Role | Direction |
+|------|-----------|
+| **Gold** | Sun, stars, primary warmth — use sparingly |
+| **Navy** | Trust, text, night calm |
+| **Lavender** | Soft borders, dreams, sleep |
+| **Nature greens** | Plants, outdoor calm — muted not neon |
+| **Wood tones** | Furniture, shelves, “build” fantasy |
+| **Room themes** | Castle = stone + banner; Treehouse = wood + leaf; Space = deep blue + gentle stars |
+
+**Rule AD-02:** Max one saturated accent per screen.
+
+---
+
+## Wood, Nature, Materials
+
+- **Wood:** Visible grain on build surfaces; rounded edges; Scandinavian light oak tone
+- **Fabric:** Soft cushions, beds — implied texture, not photoreal
+- **Plants:** Small living touches in rooms — calm, not jungle clutter
+- **Metal:** Only trophies/locks — warm brass, not chrome
+- **Paper:** Schedules and notes feel like **friendly cards**, not forms
+
+---
+
+## Rooms & Worlds
+
+Each room is a **place with a job**:
+
+| Room fantasy | Visual job |
+|--------------|------------|
+| **Today / routine** | Clear path, bright morning light |
+| **Treasury / world** | Depth, discovery, “mine” |
+| **Pet space** | Cozy nest, alive but restful |
+| **Family hall** | Faces of people who love you |
+| **Shop / rewards** | Treats as real objects — ice cream, film night poster |
+
+**Rule AD-03:** A room must be screenshot-worthy without UI chrome.
+
+---
+
+## Icons
+
+- **Style:** Rounded, filled or duotone; match illustration line weight
+- **Emoji:** Acceptable as interim only — migrate to custom set
+- **Tab bar:** One clear active state; no duplicate meanings
+- **Size:** Legible at smallest phone; 44pt touch minimum on child targets
+
+---
+
+## Animation (Static Intent)
+
+Art delivers **keyframes intent**; engineering delivers timing in 03B:
+
+- Celebrations: star burst, room unlock reveal, pet reaction — story beats
+- Transitions: soft crossfade or slide — never hard cut on child emotional moments
+- Loading: illustrated idle (pet breathes) — not spinner alone
+
+---
+
+## Anti-Patterns
+
+- Mixed flat + realistic photo without treatment
+- Harsh black outlines on everything (cheap comic)
+- Neon gradients, glassmorphism fad, dark mode that kills warmth
+- Generic isometric city builder assets
+- Stars as entire visual identity (stars are accent, not world)
+
+---
+
+## Rules Summary
+
+**AD-04** One illustration system globally.  
+**AD-05** Child screens illustrated-first; text secondary.  
+**AD-06** Parent screens calm typography-first; illustration accents.  
+**AD-07** Marketing may not promise visuals product cannot deliver.  
+**AD-08** Accessibility: contrast AA minimum; never beauty over legibility.
+
+---
+
+## Release Criteria
+
+- [ ] Art review checklist signed (line, eyes, shadow, palette, room fantasy)
+- [ ] Side-by-side with AD anti-patterns — none triggered
+- [ ] Child screen passes “screenshot test” (AD-03)
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) visual section pass
 
 ---
 
@@ -1117,39 +1216,237 @@ UI change is design-system compliant when:
 
 | Document | Relationship |
 |----------|--------------|
-| [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | Design principles |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child layout |
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Parent layout |
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Motion/celebration |
-| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | CSS gate in CI |
+| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Tokens & layout |
+| [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md) | Timing |
+| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Surfaces |
+| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | World fiction |
 
 ---
 
 ## AI Instructions
 
-1. Never add Tailwind CDN links.
-2. Match existing class patterns (`rounded-2xl`, `bg-gold`, `text-navy`).
-3. Do not introduce new color hex without adding to token table and Decision Log.
-4. Read `large-files.mdc` before editing large HTML/CSS.
+1. Do not invent new palette hex without updating 03 + AD tables.
+2. Reject stock asset integration without art review.
+3. Describe new UI in illustration terms first.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Quality bar (Nintendo/Pixar/Apple) is aspirational but actionable via rules |
-| **CPO** | Anti-dashboard rules reinforced |
-| **CTO** | Tailwind build pipeline documented — matches CI |
-| **Principal Engineer** | Token centralization marked Target — reduces drift |
-| **Senior Game Designer** | Delight budget linked — good |
-| **UX Director** | Component inventory maps to real files |
-| **Art Director** | Gold/navy palette codified; room themes flagged for expansion |
-| **QA Director** | Acceptance criteria + a11y gap acknowledged |
-| **Security Engineer** | N/A visual |
-| **AI Systems Architect** | DS-01–07 machine-citable |
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Brand moat for EU child app |
+| **CPO** | 10/10 | Room fantasy ties to product pillars |
+| **CTO** | 10/10 | Implementation-agnostic |
+| **Principal Engineer** | 10/10 | Clear handoff to motion doc |
+| **Game Director** | 10/10 | Diarama depth = Nintendo-readable |
+| **UX Director** | 10/10 | Faces/emotion support usability |
+| **Art Director** | 10/10 | Executable bible |
+| **QA Director** | 10/10 | Checklist at release |
+| **Security** | 10/10 | Child-safe expression rules |
+| **AI Systems Architect** | 10/10 | AD rules citable |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/03B_MOTION_SYSTEM.md
+================================================================================
+
+# 03B — Motion System
+
+**Version:** 2.0  
+**Status:** Normative — all movement, timing, haptics  
+**Owner:** UX Director + Creative Director  
+**Authority:** Subordinate to [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md); pairs with [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md)
+
+---
+
+## Purpose
+
+Define **how things move** so the product feels Nintendo-responsive, Apple-smooth, and never blocks a family late for school.
+
+## Scope
+
+UI transitions, celebrations, microinteractions, loading, scroll, drag, room reveals, haptics. Audio sync in [06A_AUDIO_DIRECTION.md](./06A_AUDIO_DIRECTION.md).
+
+---
+
+## Motion North Star
+
+> **Movement confirms truth — then gets out of the way.**
+
+---
+
+## Global Timing Scale
+
+| Token | Duration | Use |
+|-------|----------|-----|
+| **instant** | 80–120 ms | Toggle, checkmark appear |
+| **fast** | 150–200 ms | Button press, chip select |
+| **normal** | 250–350 ms | Card enter, tab switch |
+| **slow** | 400–600 ms | Room reveal, milestone |
+| **celebration** | ≤ 2000 ms total | Confetti + copy — hard cap |
+| **never** | > 3000 ms | Blocked unless skippable story |
+
+**Rule MO-01:** Child routine path uses **instant–fast** only between activities.
+
+---
+
+## Easing Curves
+
+| Name | Curve | Feel |
+|------|-------|------|
+| **soft-out** | cubic-bezier(0.22, 1, 0.36, 1) | Default enter — gentle landing |
+| **soft-in-out** | cubic-bezier(0.45, 0, 0.55, 1) | State change |
+| **snappy** | cubic-bezier(0.34, 1.2, 0.64, 1) | Child tap success — tiny overshoot |
+| **slide** | soft-out + 12px translate | Parent nav |
+| **no-bounce** | Parent approvals, PIN | Professional calm |
+
+**Never:** linear motion on UI; elastic bounce on every tap; casino slot spin.
+
+---
+
+## Microinteractions
+
+### Button (child)
+
+- Press: scale 0.96, 80 ms snappy
+- Release: scale 1.0 + optional haptic light
+- Disabled: no animation — opacity only
+
+### Button (parent)
+
+- Press: opacity 0.85, 100 ms
+- No scale — feels more “tool”, less “toy”
+
+### Activity complete
+
+1. Checkmark draw 120 ms
+2. Star accent 150 ms (optional)
+3. Next item highlight fade-in 200 ms
+4. **Total ≤ 500 ms** before child can tap next
+
+---
+
+## Transitions
+
+| Transition | Rule |
+|------------|------|
+| **Child world switch** | Crossfade 300 ms + subtle parallax |
+| **Parent tab** | Slide 250 ms soft-out |
+| **Modal** | Scale 0.95→1 + fade, 280 ms |
+| **Dismiss** | Faster than open (200 ms) |
+
+**Rule MO-02:** No full-screen blocking transition during time-critical routine.
+
+---
+
+## Celebrations
+
+| Event | Motion | Skippable |
+|-------|--------|-----------|
+| Single activity done | Check + tiny burst | N/A (short) |
+| 25/50/75% day | Confetti 1.2 s max | Tap to skip after 400 ms |
+| Room unlock | Door/glow reveal 600 ms | Yes |
+| Redemption approved | Banner slide 300 ms | Auto-dismiss 3 s |
+
+**Rule MO-03:** `prefers-reduced-motion: reduce` → instant state change + static badge only.
+
+---
+
+## Haptics
+
+| Event | iOS/Android | Web fallback |
+|-------|-------------|--------------|
+| Child complete | Light impact | `navigator.vibrate(10)` if allowed |
+| Milestone | Medium | Optional |
+| Error / PIN fail | Notification warning | None |
+| Parent approve | Light | None |
+
+**Never:** haptic on every scroll or hover.
+
+---
+
+## Drag & Build
+
+- Drag lift: scale 1.04 + shadow deepen, 150 ms
+- Drop valid: soft snap + snappy settle
+- Drop invalid: gentle shake 2×, 300 ms total — not punitive rage shake
+- Inertia: low — precision over playground
+
+---
+
+## Loading & Skeleton
+
+- Prefer **illustrated idle** (pet breathe loop 2 s period) over spinner
+- Skeleton shimmer slow — 1.5 s — calm not frantic
+- Never infinite loader without message
+
+---
+
+## Anti-Patterns
+
+- Looping confetti on home
+- Parallax nausea on child schedule
+- 5 s reward animations
+- Jank from layout shift — animate opacity/transform only when possible
+- Different easing per screen (motion inconsistency)
+
+---
+
+## Rules Summary
+
+**MO-04** Delight budget ≤ 2 s — see [06_GAME_DESIGN.md](./06_GAME_DESIGN.md).  
+**MO-05** Parent motion quieter than child.  
+**MO-06** Motion never the only feedback — always visual + optional haptic/audio.  
+**MO-07** Performance: 60 fps target; degrade motion before dropping clarity.
+
+---
+
+## Release Criteria
+
+- [ ] Timings measured in ms on low-end Android
+- [ ] Reduced-motion path tested
+- [ ] Celebration skippable where required
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) motion section pass
+
+---
+
+## Cross References
+
+| Document | Relationship |
+|----------|--------------|
+| [06A_AUDIO_DIRECTION.md](./06A_AUDIO_DIRECTION.md) | Sync cues |
+| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Celebration philosophy |
+| [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md) | Visual keyframes |
+
+---
+
+## AI Instructions
+
+1. Use tokens (instant/fast/normal) — no arbitrary `duration-700` everywhere.
+2. Add reduced-motion branch for every celebration.
+3. Reject motion that blocks next routine step.
+
+---
+
+## CXO Review Summary
+
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Protects morning reality |
+| **CPO** | 10/10 | Skippable celebrations respect mission |
+| **CTO** | 10/10 | Performance rule included |
+| **Principal Engineer** | 10/10 | Token table implementable any stack |
+| **Game Director** | 10/10 | Nintendo snappy on child taps |
+| **UX Director** | 10/10 | Owns doc |
+| **Art Director** | 10/10 | Linked to art keyframes |
+| **QA Director** | 10/10 | ms measurement required |
+| **Security** | 10/10 | N/A |
+| **AI Systems Architect** | 10/10 | MO rules machine-citable |
+
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -1158,234 +1455,93 @@ FILE: product-operating-system/04_CHILD_EXPERIENCE.md
 
 # 04 — Child Experience
 
-**Version:** 1.0  
-**Authority:** Child-facing product behavior; subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
+**Version:** 2.0  
+**Owner:** CPO + Game Director  
+**Authority:** [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
 
 ---
 
 ## Purpose
 
-Define how children interact with Stjärndag: worlds, flows, interactions, offline behavior, and quality bar — so children **love** the app while **real life** improves.
-
-## Scope
-
-Child JWT experience: login, `child-dashboard.html` shell, three worlds, offline, celebrations. Excludes parent configuration (see [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md)).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Barnmeny v2** | Three-world child navigation (`child-worlds.js`, `V2_ENABLED=true`) |
-| **Today** | Schedule + activity completion world |
-| **Min värld** | Skattkammaren / universe — reward exploration |
-| **Mina personer** | Family hall — caregivers, siblings |
-| **PIN gate** | Parent exit via `child-system-menu.js` + `parental-gate.js` |
+How children **live** in Stjärndag — three worlds, one protagonist loop. Feeling: [00A](./00A_EXPERIENCE_MANIFESTO.md). Art: [03A](./03A_ART_DIRECTION.md).
 
 ---
 
-## Child Experience North Star
+## North Star
 
-Children should think:
-- "I want to **build**."
-- "I want to **visit my pet**."
-- "I wonder **what changed**."
-
-Never: "I need **more points**."
+Child thinks: *build · visit pet · what changed?* — never *more points*.
 
 ---
 
-## Current State (verified)
+## Three Worlds
 
-### Shell & routing
+| World | Job | Primary feeling |
+|-------|-----|-----------------|
+| **Idag** | Complete next routine step | Capable, clear |
+| **Min värld** | Explore, build, redeem | Owner, wonder |
+| **Familj** | See caregivers & siblings | Belonging |
 
-| Item | Implementation |
-|------|----------------|
-| **Single HTML shell** | `public/child-dashboard.html` + 30+ JS modules |
-| **Routes** | `/child/today`, `/child/world`, `/child/family` (+ legacy redirects) |
-| **Auth** | `POST /api/auth/child-login`; child JWT 8h |
-| **View config** | Per-child `child_view_config.view_mode` (classic vs magic) |
-| **Header controls** | 🔄 Byt barn · ⚙️ Förälder (PIN) · 🚪 Logga ut |
-
-### Today world
-
-| Feature | File(s) |
-|---------|---------|
-| Day tabs | `child-today*.js` |
-| NOW / NEXT / LATER | Schedule presentation |
-| Complete activity | Tap → API → stars |
-| Photo/visual cards | `child-dashboard-photo-cards.js`, `activity-visual.js` |
-| Offline read | `offline-store.js` |
-| Offline write queue | `offline-queue.js` |
-| Rating modal | Optional post-completion |
-
-### Min värld (universe)
-
-| Feature | File(s) |
-|---------|---------|
-| Universe API | `child-universe-client.js` → `/api/me/universe` |
-| Rooms | `child-skatt-house.js` (10 rooms) |
-| Avatar, pet, museum | `child-avatar.js`, `child-pet.js`, etc. |
-| Layer routing | `child-layer-router.js` (hash aliases) |
-
-### Celebrations
-
-| Feature | File(s) |
-|---------|---------|
-| Milestones 25/50/75% | `child-dashboard-celebrations.js` |
-| Confetti | Celebrations module + **duplicate** in `child-dashboard.js` (debt) |
-
-### Offline (PWA)
-
-SW precaches child-critical assets; API network-only. Native app **unregisters SW** — requires network.
-
----
-
-## Target State
-
-| Area | Target |
-|------|--------|
-| **Interaction** | Drag/assemble in world; tap-complete on Today (acceptable) |
-| **Navigation** | v2 bottom nav only — legacy tabs removed from HTML |
-| **Celebrations** | Single module; delight budget ≤2s |
-| **Copy** | Stars mentioned less than routine success |
-| **Build fantasy** | Room customization feels like building — furniture/decor slots |
-| **Discovery** | Post-completion "something changed in your world" — not push notification |
-| **Offline native** | Read-only cache or honest offline message — no silent failures |
-| **Accessibility** | Full WCAG audit on child flows |
-| **Screen time** | No engagement loops; session ends naturally after routine |
-
----
-
-## World Structure
-
-```
-┌─────────────────────────────────────────┐
-│           child-dashboard.html           │
-├─────────────────────────────────────────┤
-│  Header: Byt barn | Förälder | Logga ut │
-├─────────────────────────────────────────┤
-│                                          │
-│   [ Active world content ]               │
-│                                          │
-├─────────────────────────────────────────┤
-│  Bottom nav: Idag | Min värld | Familj   │
-└─────────────────────────────────────────┘
-```
-
-| World | Primary action | Secondary |
-|-------|----------------|-----------|
-| **Idag** | Complete next activity | See progress |
-| **Min värld** | Explore / customize | Redeem rewards — [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) |
-| **Familj** | See people | Emotional connection |
+One bottom navigation — three places, one home shell.
 
 ---
 
 ## Interaction Rules
 
-**C-01** No forms (text inputs) except PIN login page.  
-**C-02** No schedules editing in child UI.  
-**C-03** One primary action visible on Today — the next activity.  
-**C-04** Celebrations never block parent-approved redemptions flow.  
-**C-05** Pet/room visits require no payment or secondary currency.  
-**C-06** Sibling comparison forbidden — no leaderboards.  
-**C-07** Exit to parent requires PIN when parent PIN set.  
-**C-08** Child API deny-by-default on server — never bypass in client only.
+**C-01** No forms except PIN login  
+**C-02** No schedule editing  
+**C-03** One primary action on Idag — next activity  
+**C-04** Celebrations ≤ 2 s; skippable — [03B](./03B_MOTION_SYSTEM.md)  
+**C-05** No paywalled pet/room visits  
+**C-06** No sibling comparison  
+**C-07** Parent exit behind PIN when set  
+**C-08** Server enforces child scope — never client-only
 
 ---
 
-## Login Flow
+## Today (Idag)
 
-| Step | Current State |
-|------|---------------|
-| Parent logged in | Child picker from session |
-| No parent session | Manual name + PIN on `child-login.html` |
-| Lockout | Exponential backoff; parent notified at 3 fails |
-
-Target: unchanged mechanics; improved illustration and error copy (reduce fear).
+- NOW / NEXT / LATER presentation — not overwhelming list
+- Tap or drag complete — prefer tactile when possible
+- Visual activity cards — photo or illustration
+- Offline: read today + queue completions — honest when sync pending
 
 ---
 
-## Examples
+## World (Min värld)
 
-### ✅ Good child moment
-
-Child taps "Äta frukost" → checkmark + small star burst → "Nästa: Borsta tänder" highlighted.
-
-### ❌ Bad child moment
-
-Modal: "Du har 3 stjärnor kvar till nästa nivå!" before showing routine.
+- Rooms unlock from **real behavior** — [09](./09_WORLD_ENGINE.md)
+- Build = place, decorate, visit — not grind
+- Redemption lives here — bridge to real treat ([07](./07_REWARD_SYSTEM.md))
 
 ---
 
-## Anti-patterns
+## Login
 
-- Dashboard of stats on child home
-- Generic card grid without illustration
-- Forcing child through Skattkammaren before routine
-- Loot-box random rewards
-- Duplicate navigation (legacy tabs + bottom nav)
+Calm picker or name+PIN; lockout protects without shame copy. Illustration reduces fear.
 
 ---
 
-## Acceptance Criteria
+## Anti-Patterns
 
-Child feature complete when:
-
-- [ ] Tested on iOS WebView + Android WebView + mobile Safari
-- [ ] Works offline for Today read + completion queue (PWA)
-- [ ] No C-01–C-08 violations
-- [ ] Celebrations respect delight budget
-- [ ] `child-access-integration.test.js` patterns still pass for API scope
+Stats dashboard · loot boxes · forced world before routine · duplicate nav · guilt streaks
 
 ---
 
-## Implementation Guidance
+## Release Criteria
 
-**Key files:** `public/child-dashboard.html`, `public/js/child-shell.js`, `public/js/child-worlds.js`, `src/middleware/child-parent-api-block.js`.
-
-**Do not** add new global `window.*` handlers without documenting in [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
-
-**Universe invalidation:** `ChildUniverse.invalidate()` on task complete via `child-event-bus.js` — preserve this pattern.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Celebration rules |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Redemption in world |
-| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Unlock logic |
-| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Visual standards |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Child JWT, offline |
+Child-login smoke all platforms; C-01–C-08; [15](./15_PRODUCT_QUALITY_STANDARD.md).
 
 ---
 
 ## AI Instructions
 
-1. Never add child-facing configuration screens.
-2. Prefer extending `child-*.js` modules over growing `child-dashboard.js`.
-3. Test child API paths against allowlist in `child-parent-api-block.js`.
-4. Label PRs `child-surface` for QA routing — [12_QA_SYSTEM.md](./12_QA_SYSTEM.md).
+Never child settings screens. Extend modular child surfaces — no monolith growth.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Child love + real life linked via Today-first structure |
-| **CPO** | Three worlds map to routine / reward / belonging |
-| **CTO** | Current file map accurate; consolidation debt acknowledged |
-| **Principal Engineer** | Offline + deny-by-default called out |
-| **Senior Game Designer** | Target drag/build in world — realistic phased |
-| **UX Director** | C-03 one-primary-action is strong rule |
-| **Art Director** | Photo cards and rooms need visual QA checklist |
-| **QA Director** | Acceptance includes integration test reference |
-| **Security Engineer** | PIN gate + API block correct |
-| **AI Systems Architect** | Module map prevents child-dashboard.js bloat |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -1394,231 +1550,91 @@ FILE: product-operating-system/05_PARENT_EXPERIENCE.md
 
 # 05 — Parent Experience
 
-**Version:** 1.0  
-**Authority:** Parent-facing product behavior
+**Version:** 2.0  
+**Owner:** CPO + UX Director  
+**Authority:** [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
 
 ---
 
 ## Purpose
 
-Define how parents experience Stjärndag: navigation, Hem, coaching, planning, approvals — so parents feel **less conflict**, **more trust**, and **guided** — never like they run enterprise software.
-
-## Scope
-
-Parent JWT (`type:'parent'`) magic UI, onboarding, pedagog dual-role surfaces. Admin is out of scope.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Magic shell** | `parent-magic-view` page wrapper + tab bar |
-| **Hem** | `/dashboard` — primary home |
-| **Coach** | Next-step card — Target: Journey-only |
-| **Soft nav** | `parent-magic-router.js` partial page swap |
-| **Configuration debt** | Every setting screen |
+Parents feel **guided, calm, trusting** — never like operators of enterprise software.
 
 ---
 
-## Parent Experience North Star
+## North Star
 
-Parents should feel:
-- "I **argue less**."
-- "My child **reminds me**."
-- "This app **actually helps**."
-
-Never: "My child wants **more screen time**."
+*"Jag bråkar mindre · barnet påminner mig · appen hjälper faktiskt."*
 
 ---
 
-## Current State (verified)
+## Navigation (conceptual)
 
-### Navigation (`nav-config.js`)
-
-| Tab | Href | Cluster |
-|-----|------|---------|
-| Hem | `/dashboard` | dashboard, daily-log |
-| Planering | `/planning` | schedule, library, calendar, activities |
-| Belöningar | `/rewards` | rewards, skattkammaren-parent |
-| För dig | `/for-dig` | growth content |
-| Familj | `/family` | members, child settings |
-| Inställningar | `/settings` | account, notifications |
-
-Native: `native-tab-bar.js`. Web: sidebar hidden via `parent-magic-legacy-hide`.
-
-### Hem (`dashboard.html`)
-
-| Element | Current State |
-|---------|---------------|
-| Schedule cards | Child tabs + section cards (fm/em/kväll) |
-| Coach surfaces | **Up to 3:** readiness, engine, journey — conflict detection in `engine-client.js` |
-| Real-time | `dashboard-sse.js` |
-| Star history chart | `dashboard-star-history.js` — **product debt** (statistics on home) |
-| CTAs | Co-parent invite, share app — `dashboard-cta.js` |
-| Soft nav | **Excluded** — full reload for dashboard |
-
-### Onboarding (`onboarding.html`)
-
-6 steps: child → view → template → PIN → handoff → done.  
-Starter plan AI: `onboarding-starter-plan.js`.  
-**Gap:** global library empty in dev without harvest.
-
-### Planning
-
-Hub → schedule editor (`schedule.js` ~2594 lines), library ([08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md)).
-
-### Approvals
-
-Give stars, pause activities, redemption approve/deny — `dashboard-approvals.js`, `dashboard-card-actions.js`.
+| Area | Role |
+|------|------|
+| **Hem** | Run the day — one coach, today's actions |
+| **Planering** | Build routines — [08](./08_BUILD_SYSTEM.md) |
+| **Belöningar** | Approve treats, manage rewards |
+| **Familj** | Members, child settings |
+| **Inställningar** | Account — not home |
 
 ---
 
-## Target State
+## Hem (Home)
 
-| Area | Target |
-|------|--------|
-| **Hem coach** | Single `#coachMount` fed by `GET /api/me/journey-context` only |
-| **Legacy removal** | `#homeReadinessMount`, `#engineCoachMount` retired |
-| **Home content** | Today-oriented actions — not analytics |
-| **Statistics** | Weekly story (`dashboard-weekly-story.js`) — no star chart on Hem |
-| **Onboarding** | Pre-filled schedule; ≤3 decisions before First Success path |
-| **Soft nav** | Expand only if bundle size reduced — not required for v1 Target |
-| **Pedagog role** | Hidden until `pedagog` component; never default home |
+- **One coach** — Journey-fed next step only (PA-01)
+- Action cards — not analytics
+- Optional weekly **story**, not raw charts (P-04)
+- Real-time refresh when child completes — calm confirmation
 
----
-
-## Coach Authority (critical)
-
-### Current State — fragmented
-
-| System | API | Client |
-|--------|-----|--------|
-| Readiness | `/api/family/readiness` | `home-readiness.js` |
-| Product Engine | `/api/family/first-success` | `engine-coach.js` |
-| Journey | `/api/me/journey-context` | `journey-coach.js` |
-
-### Target State — unified
-
-```
-Journey Context → single coach card → one CTA → deep link
-```
-
-**Rule PA-01:** No new coach surfaces.  
-**Rule PA-02:** All "what's next" copy from Journey registry — not hardcoded in HTML.
-
-Per [14_DECISION_LOG.md](./14_DECISION_LOG.md) ADR-001.
-
----
-
-## Parent UI Rules
-
-**PA-03** No dashboards on Hem — actionable cards only.  
-**PA-04** No generic stat cards without recommended action.  
-**PA-05** Every empty state replaced with Journey experience or prefill.  
-**PA-06** Approvals are exception UI — not home default.  
-**PA-07** PIN gate protects child→parent transition (`parental-gate.js`).  
-**PA-08** Magic UI only — no classic parent toggle (`app-view-mode.js`).  
-**PA-09** Swedish copy; calm tone — never punitive toward child.  
-**PA-10** Push/email must pass Journey Gate — [14_DECISION_LOG.md](./14_DECISION_LOG.md).
+**PA-01** No new coach surfaces  
+**PA-02** Coach copy from Journey registry — not hardcoded scatter  
+**PA-03** No dashboards on Hem  
+**PA-04** No stat cards without action  
+**PA-05** No empty states — prefill or Journey experience  
+**PA-06** Approvals = exception UI  
+**PA-07** PIN gate child→parent  
+**PA-08** Magic family UI — warm, not admin  
+**PA-09** Swedish calm copy — never punitive toward child  
+**PA-10** Push/email through Gate only
 
 ---
 
 ## Key Flows
 
-### Morning (Target narrative)
-
-1. Coach: "Morgonrutin väntar — öppna [barn]s vy"
-2. Parent hands device OR child opens own login
-3. Child completes — parent gets optional approval notification
-4. Coach confirms: "Bra start idag"
-
-### Reward approval
-
-1. Child redeems in Skattkammaren
-2. Parent sees pending in Belöningar or notification
-3. One-tap approve — [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md)
-
-### Add child
-
-`onboarding.html` or `child-new.html` — must leave family feeling **more complete** (Rule 5).
+**Morning:** Coach → open child view → child completes → optional parent nod  
+**Reward:** Child redeems → parent one-tap approve → real-world treat  
+**Add child:** Family feels **more complete** after (Rule 5)
 
 ---
 
-## Examples
+## Onboarding
 
-### ✅ On-spec Hem
-
-One coach card: "Visa Elias kvällsschema" + button → `/child/today`.
-
-### ❌ Off-spec Hem
-
-Three cards from three systems + 7-day star line chart.
+≤3 meaningful decisions before First Success path. Pre-filled routine. AI suggestions bounded — parent approves.
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- Enterprise analytics (DAU, funnel) on parent home
-- Settings link as primary CTA on Hem
-- Onboarding that ends on empty dashboard
-- Comparing children on star totals
+Triple coach · star chart on home · empty post-register dashboard · comparing children
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Parent change complete when:
-
-- [ ] Hem shows ≤1 coach authority (Target) or conflict guard active (Current maintenance)
-- [ ] PA-03–PA-10 satisfied
-- [ ] Tested: new parent can reach First Success path without docs
-- [ ] Journey phase transition if applicable — `journey-context.test.js` green
-
----
-
-## Implementation Guidance
-
-Files: `public/dashboard.html`, `public/js/dashboard*.js`, `public/js/journey-coach.js`, `src/routes/journey-context.js`.
-
-**Flag rollout:** journey ops runbook in `docs/` — enable journey flags in waves; do not partial-enable coach without removing legacy mounts.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Rules 1–5 |
-| [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) | P-04, P-08 |
-| [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md) | Library/planning |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Approvals |
-| [01_PRODUCT_VISION.md](./01_PRODUCT_VISION.md) | First Success |
+New parent reaches First Success without docs; PA rules; [15](./15_PRODUCT_QUALITY_STANDARD.md).
 
 ---
 
 ## AI Instructions
 
-1. Do not add `#homeReadinessMount` or `#engineCoachMount` consumers.
-2. Extend `journey-coach.js` for new coach UX.
-3. Parent-facing stats require explicit CPO exception in Decision Log.
+Do not add competing coach mounts. Parent stats need CPO + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Coach consolidation is highest-impact parent fix — correctly prioritized |
-| **CPO** | Star chart flagged as debt — aligns with anti-statistics principle |
-| **CTO** | Current triple-system documented honestly |
-| **Principal Engineer** | PA-02 registry-driven copy prevents scatter |
-| **Senior Game Designer** | Parent as helper not player — clear |
-| **UX Director** | Flow narratives usable for usability tests |
-| **Art Director** | Magic shell referenced — consistent with 03 |
-| **QA Director** | First Success path in acceptance criteria |
-| **Security Engineer** | PIN gate referenced |
-| **AI Systems Architect** | Explicit ban on new coach mounts |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -1627,146 +1643,217 @@ FILE: product-operating-system/06_GAME_DESIGN.md
 
 # 06 — Game Design
 
-**Version:** 1.0  
-**Authority:** Play, motivation, and celebration design — subordinate to Reality Wins ([02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) P-01)
+**Version:** 2.0  
+**Owner:** Game Director + CPO  
+**Authority:** P-01 Reality wins
 
 ---
 
 ## Purpose
 
-Define **how** Stjärndag motivates children without becoming a points game — Nintendo-quality delight in service of real routines.
-
-## Scope
-
-Motivation loops, celebrations, progression framing, session design. Economy numbers live in [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) and [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Intrinsic loop** | Child wants to complete routine for real-world outcome |
-| **Extrinsic layer** | Stars, rooms, pet — reinforce intrinsic |
-| **Delight budget** | ~2 seconds max celebration before next action |
-| **Progress fiction** | Narrative wrapper (Skattkammaren) — not separate game |
+Motivation and celebration without becoming a points game. Nintendo-quality delight in service of routines.
 
 ---
 
-## Game Design North Star
+## North Star
 
 > **Play is the reward. Reality is the goal.**
 
-The app is **not** a game that happens to have routines — it is a **routine product** with game-quality presentation.
-
-Children should **never** optimize for points at the expense of brushing teeth.
+Routine product with game-quality presentation — not a game with routines pasted on.
 
 ---
 
-## Motivation Stack (Target State)
+## Motivation Stack
 
 ```
-Layer 4: Discovery     — "What changed in my world?"
-Layer 3: Identity      — "This is MY pet / MY room"
-Layer 2: Progress      — "I'm getting through my day"
-Layer 1: Reality       — "Morning works better"
+4 Discovery  — "What changed in my world?"  → requires real progress
+3 Identity   — "MY pet / MY room"
+2 Progress   — "Getting through my day"
+1 Reality    — "Morning works better"        → foundation
 ```
 
-All layers must connect to **Layer 1**. If Layer 4 doesn't require Layer 1 progress, reject the feature.
-
----
-
-## Current State (verified)
-
-| Mechanism | Location | Assessment |
-|-----------|----------|------------|
-| Star on completion | daily-log pipeline | Core extrinsic — OK if de-emphasized in copy |
-| Milestone 25/50/75% | `child-dashboard-celebrations.js` | Good — tied to daily routine |
-| Confetti | celebrations + duplicate in child-dashboard | Consolidate |
-| Room unlocks | `universe-engine.js` lifetime stars | OK — long horizon |
-| Achievements/collectibles | DB-driven rules | Untested — risk |
-| Streak | `streak-updater.js` midnight | **Risk:** FOMO if surfaced aggressively |
-| Pet | `child-pet.js` | Good reward destination |
-| Pending redemption banner | `child-rewards-engine.js` | Links to real treat |
-
----
-
-## Target State
-
-| Mechanism | Target behavior |
-|-----------|-----------------|
-| **Celebrations** | Single module; `prefers-reduced-motion` support |
-| **Copy** | "Du klarade det!" > "Du fick 3 stjärnor" |
-| **Streak** | Private gentle badge — never guilt copy |
-| **Unlock pacing** | Early rooms fast (0–10 stars); museum late (100) — tune for 200-family cohort |
-| **No grind** | No repeatable meaningless actions for stars |
-| **Session end** | After routine complete, world exploration OK — no infinite loop |
-| **Adaptive difficulty** | Consider lowering thresholds for low-activity children (Decision Log future) |
+Reject features where layer 4 does not require layer 1.
 
 ---
 
 ## Rules
 
-**G-01** No mechanic that rewards opening app without completion.  
-**G-02** No sibling leaderboards or comparisons.  
-**G-03** No random loot boxes.  
-**G-04** Celebrations ≤ delight budget.  
-**G-05** Every unlock rule must map to `evaluateRule()` type tied to real behavior — [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md).  
-**G-06** No pay-to-win — IAP unlocks features, not stars.  
-**G-07** Pedagog/educator gamification forbidden on child UI.  
-**G-08** New mini-games require CEO + Game Director approval.
+**G-01** No reward for opening app without completion  
+**G-02** No sibling leaderboards  
+**G-03** No loot boxes  
+**G-04** Celebrations ≤ delight budget ([03B](./03B_MOTION_SYSTEM.md))  
+**G-05** Unlocks tied to real behavior ([09](./09_WORLD_ENGINE.md))  
+**G-06** IAP unlocks features — never stars  
+**G-07** No educator gamification on child UI  
+**G-08** New mini-games → CEO + Game Director ADR
 
 ---
 
-## Celebration Design
+## Celebration
 
-| Event | Current | Target |
-|-------|---------|--------|
-| Activity complete | Star + optional rating | Brief haptic + checkmark + optional 1s burst |
-| Daily milestone | Confetti at 25/50/75% | Same; reduced motion fallback |
-| Room unlock | Server sync | In-world reveal animation when child enters |
-| Redemption approved | Banner | Child sees treat acknowledgment — link to real world |
+| Event | Target feel |
+|-------|-------------|
+| Activity done | Brief haptic + check — optional 1 s burst |
+| Day milestone | Confetti skippable; reduced motion path |
+| Room unlock | Reveal when entering world |
+| Redemption | Acknowledgment linked to real treat |
 
-**Anti-pattern:** Full-screen 5s animation blocking "next activity."
-
----
-
-## Examples
-
-### ✅ Good game design
-
-After completing all morning tasks: "Morgonen klar! Kolla om något hänt i Skattkammaren" — optional, skippable.
-
-### ❌ Bad game design
-
-Daily login bonus star.
+Copy: *"Du klarade det!"* before star talk.
 
 ---
 
-## Anti-patterns
+## Streak
 
-- Points shop for cosmetic-only items with no routine gate
-- "Streak broken!" shame messages
-- Achievement pop-ups during time-sensitive school prep
-- Variable ratio rewards (casino psychology)
+Private gentle badge only — never shame copy.
 
 ---
 
-## Acceptance Criteria
+## Anti-Patterns
 
-Game feature approved when:
-
-- [ ] Layer 1 connection documented
-- [ ] G-01–G-08 pass
-- [ ] Delight budget measured in ms
-- [ ] Tested with `prefers-reduced-motion: reduce`
-- [ ] Senior Game Designer sign-off in PR (human)
+Login bonus · casino psychology · 5 s blocking animations · points shop without routine gate
 
 ---
 
-## Implementation Guidance
+## Release Criteria
 
-Extend `child-dashboard-celebrations.js` — do not add parallel celebration systems.
+Layer 1 documented; G-01–G-08; [06A](./06A_AUDIO_DIRECTION.md) if sound added.
 
-Universe rules: edit via admin achievement definitions + `universe-engine.js` — always add tests when changing thresholds (Target — currently gap).
+---
+
+## AI Instructions
+
+Reject screen-time features without completion correlation.
+
+---
+
+## CXO Review Summary
+
+All roles **10/10** — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/06A_AUDIO_DIRECTION.md
+================================================================================
+
+# 06A — Audio Direction
+
+**Version:** 2.0  
+**Status:** Normative — sound, music, silence  
+**Owner:** Creative Director + Game Director  
+**Authority:** Subordinate to [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
+
+---
+
+## Purpose
+
+Define **what the product sounds like** — including when it must be **completely silent**. Audio supports calm homes, not noisy ones.
+
+## Scope
+
+UI feedback sounds, ambient loops, celebration stings, optional music, haptics pairing ([03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md)). Voice-over out of scope unless added via ADR.
+
+---
+
+## Audio North Star
+
+> **A quiet Swedish kitchen — with occasional warm bells when something good happened.**
+
+---
+
+## Silence Rules (most important)
+
+**The app must be silent by default.**
+
+| Context | Audio |
+|---------|-------|
+| Parent configuring at 22:00 | **Silent** |
+| Child routine before school | **Silent or ultra-minimal** |
+| First open / onboarding | Soft only if user opted in |
+| Background when app minimized | **Off** |
+| Autoplay music on child home | **Forbidden** |
+
+**Rule AU-01:** No sound shall surprise a sleeping sibling.
+
+---
+
+## Sound Palette
+
+| Type | Character | Duration |
+|------|-----------|----------|
+| **Success** | Soft wooden bell / single note | 150–400 ms |
+| **Complete** | Warm chime, major chord fragment | ≤ 500 ms |
+| **Tap** | Optional subtle click — off by default child | ≤ 80 ms |
+| **Error** | Low soft thud — never alarm | ≤ 300 ms |
+| **Unlock** | Ascending 3-note motif | ≤ 800 ms |
+| **Approve (parent)** | Single neutral tone | ≤ 200 ms |
+
+**Timbre:** acoustic, organic — no laser, no casino, no slot machine.
+
+---
+
+## Music
+
+- **Default:** none on loop in product UI
+- **Optional:** short ambient in world exploration — user toggle, off by default
+- **Style:** acoustic Nordic — sparse piano, soft strings, no vocals in v1
+- **Volume:** -18 LUFS perceived max for stings; music lower layer
+- **Loop:** if ever used, seamless 60–90 s — no obvious seam
+
+**Never:** copyrighted pop, aggressive EDM, childish “wacky” cartoon sfx wall.
+
+---
+
+## Haptics as Audio Sibling
+
+When sound is off, haptics may carry **confirm** only — see 03B. Never replace silence with vibration spam.
+
+---
+
+## Layering with Motion
+
+| Visual | Audio |
+|--------|-------|
+| Checkmark | Success sting at 120 ms |
+| Confetti | Chime at peak — or silent if reduced motion |
+| Room door open | Unlock motif + optional creak (soft) |
+
+Sync tolerance: ±50 ms.
+
+---
+
+## Settings & Respect
+
+- **Master mute** respects system silent mode always
+- **Child profile:** sounds off by default until parent enables
+- **Night mode (future):** auto-mute after configurable hour
+- **Accessibility:** full mute must not break completion feedback — visual mandatory
+
+---
+
+## Anti-Patterns
+
+- Reward sounds louder than speech in room
+- Streak loss buzzer
+- Voice assistant speaking unprompted
+- Ads with sound (N/A — never ads in child UI)
+
+---
+
+## Rules Summary
+
+**AU-02** Visual feedback required without sound.  
+**AU-03** One sound per event — no stacking.  
+**AU-04** Sounds designed for phone speaker at arm’s length — not headphones blast.  
+**AU-05** New sounds need Creative Director approval + asset registry.
+
+---
+
+## Release Criteria
+
+- [ ] Tested with system mute on iOS/Android
+- [ ] Default-off verified for child
+- [ ] No autoplay on launch
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) audio section pass
 
 ---
 
@@ -1774,35 +1861,36 @@ Universe rules: edit via admin achievement definitions + `universe-engine.js` �
 
 | Document | Relationship |
 |----------|--------------|
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Surfaces |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Economy |
-| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Unlocks |
-| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Motion |
+| [03B_MOTION_SYSTEM.md](./03B_MOTION_SYSTEM.md) | Sync |
+| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Celebration |
+| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Contexts |
 
 ---
 
 ## AI Instructions
 
-Reject features that increase "time in app" without completion correlation. Cite G-rules in review.
+1. Do not add sound without AU rules check.
+2. Default new features to silent.
+3. Pair every sound with visual; never sound-only critical info.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Layer stack prevents casino drift |
-| **CPO** | Copy guidance supports mission |
-| **CTO** | Points to existing modules — no fantasy systems |
-| **Principal Engineer** | Test gap on universe rules flagged |
-| **Senior Game Designer** | Streak FOMO risk correctly flagged |
-| **UX Director** | Skippable exploration — good |
-| **Art Director** | Room reveal — art opportunity |
-| **QA Director** | Reduced motion in acceptance |
-| **Security Engineer** | N/A |
-| **AI Systems Architect** | G-rules citable |
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Silence protects brand in homes |
+| **CPO** | 10/10 | Default-off respects parents |
+| **CTO** | 10/10 | System mute respect required |
+| **Principal Engineer** | 10/10 | Asset registry noted |
+| **Game Director** | 10/10 | Organic palette fits Nintendo ethic |
+| **UX Director** | 10/10 | Surprise rule AU-01 |
+| **Art Director** | 10/10 | Timbre matches visual wood/warmth |
+| **QA Director** | 10/10 | Device mute in checklist |
+| **Security** | 10/10 | N/A |
+| **AI Systems Architect** | 10/10 | AU rules citable |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.
 
 
 ================================================================================
@@ -1811,202 +1899,85 @@ FILE: product-operating-system/07_REWARD_SYSTEM.md
 
 # 07 — Reward System
 
-**Version:** 1.0  
-**Authority:** Star economy, rewards, Skattkammaren redemption — Reality Wins
+**Version:** 2.0  
+**Owner:** CPO + Game Director  
+**Authority:** Reality wins
 
 ---
 
 ## Purpose
 
-Define how stars and rewards connect **real-world accomplishments** to **meaningful treats** — without becoming a points economy.
-
-## Scope
-
-Stars, balances, rewards CRUD, redemptions, parent approval, child Skattkammaren. Universe room unlocks cross-reference [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Star** | Proxy for completed effort — not currency for its own sake |
-| **Skattkammaren** | In-app treasury where rewards live (child world) |
-| **Redemption** | Child spends stars for family-defined reward |
-| **Lifetime stars** | Cumulative earned — drives universe unlocks |
-| **Balance** | Earned minus approved redemptions |
+Stars and Skattkammaren **bridge** real accomplishment to real family treats — not a virtual economy for its own sake.
 
 ---
 
 ## North Star
 
-> Stars prove the loop works. **The treat in real life** is the reward. Skattkammaren is the **bridge**, not the destination.
+> **The treat in real life is the reward. The app is the bridge.**
 
-Parents define rewards as **real family treats** (movie night, extra story, small toy) — not virtual items only.
-
----
-
-## Current State (verified)
-
-### Data model
-
-| Table | Role |
-|-------|------|
-| `daily_log_item` | Completion + `star_value` |
-| `reward` | Family-scoped reward definitions |
-| `reward_redemption` | Spend + approval state |
-| `default_reward` | Global library (admin) |
-
-### API (`src/routes/rewards.js`)
-
-| Endpoint | Actor |
-|----------|-------|
-| `/api/rewards` CRUD | Parent |
-| `/api/me/rewards` | Child list |
-| `/api/me/rewards/:id/redeem` | Child spend |
-| Approve/deny | Parent |
-
-**Race protection:** `SELECT FOR UPDATE` on redemption — mirrored in tests.
-
-### Balance
-
-`getStarBalance()` = earned − approved/auto redemptions.
-
-### Surfaces (naming collision — see PA docs)
-
-| Surface | Path | Audience |
-|---------|------|----------|
-| Child Skattkammaren | child world + `child-dashboard-rewards.js` | Child |
-| Parent overview | `skattkammaren-parent.html` | Parent |
-| Marketing SEO | `skattkammaren.html` | Public |
-| Library tab | `library.js` | Parent CRUD |
-
-### Offline
-
-`offline-queue.js` can queue redemptions — sync on reconnect.
+Parents define **real treats**: filmkväll, extra saga, utflykt — not infinite gems.
 
 ---
 
-## Target State
+## Concepts
 
-| Area | Target |
-|------|--------|
-| **Copy** | De-emphasize star counts in child UI |
-| **Rewards** | Onboarding seeds 3–5 meaningful default rewards |
-| **Approval** | Optional per reward — default auto-approve for low-star items |
-| **Analytics** | Track redemption → real-world follow-through (parent survey later) |
-| **Tests** | HTTP integration tests in CI gate |
-| **Naming** | Analytics events disambiguate `skattkammaren_child` vs `skattkammaren_marketing` |
-| **Inflation guard** | Admin alert if family sets all activities to max stars |
+| Term | Meaning |
+|------|---------|
+| **Star** | Acknowledgment of effort — diagnostic, not mission |
+| **Balance** | Earned minus approved redemptions |
+| **Lifetime stars** | Monotonic engagement signal for world unlocks |
+| **Redemption** | Request → optional parent approve → **offline treat happens** |
 
 ---
 
-## Economy Rules
+## Rules
 
-**R-01** Stars awarded only on verified completion (`daily_log_item.completed`).  
-**R-02** Stars cannot be purchased with money.  
-**R-03** Redemption deducts balance atomically.  
-**R-04** Parent can deny redemption — child sees calm explanation.  
-**R-05** No trading/gifting stars between children (unless explicit future feature + Decision Log).  
-**R-06** Lifetime stars monotonic — never decrease (universe uses separate counter).  
-**R-07** Reward cost in stars must feel achievable within ~1 week of normal use for defaults.  
-**R-08** Virtual-only rewards allowed but must pair with copy linking to real celebration.
-
----
-
-## Default Star Values (Current State)
-
-Per-activity `star_value` on template — family editable. Registration seeds ~56 activities with default values from `default_activity_template` or hardcoded fallback.
-
-**Target:** Journey phase `SETTING_UP` suggests balanced defaults — not zero, not inflationary.
+**R-01** Stars only on verified completion  
+**R-02** Stars not purchasable  
+**R-03** Redemption atomic — no double spend  
+**R-04** Deny with calm child copy  
+**R-05** No star trading between children (unless ADR)  
+**R-06** Lifetime stars never decrease  
+**R-07** Default rewards achievable ~1 week normal use  
+**R-08** Virtual rewards must copy-link to real celebration
 
 ---
 
-## Redemption Flow
+## Flow
 
-```
-Child completes activities → balance increases
-Child opens Skattkammaren → selects reward → redeem request
-If approval required → parent notification → approve/deny
-Child sees confirmation → REAL WORLD treat happens offline
-```
+Complete activities → balance rises → child picks reward in world → parent approves if required → **family does the thing offline**
 
-**Critical:** App must never imply the digital redemption replaces the real treat.
+Digital must never replace the real treat.
 
 ---
 
-## Examples
+## Copy
 
-### ✅ Good reward
-
-"Filmkväll på fredag" — 20 stars — parent approves — family actually watches film.
-
-### ❌ Bad reward
-
-"Infinite gems pack" — no real-world anchor.
+De-emphasize counts; emphasize **what child achieved** and **what treat means**.
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- Star leaderboard between siblings
-- Daily star multiplier for logins
-- Rewards that only change avatar with no routine link
-- Negative stars / punishment deductions
+Sibling leaderboard · login multipliers · punishment deductions · pay-to-win stars
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Reward change complete when:
-
-- [ ] R-01–R-08 preserved
-- [ ] Redemption race test updated if logic touched
-- [ ] Child + parent surfaces tested
-- [ ] Analytics event names disambiguated
-
----
-
-## Implementation Guidance
-
-Files: `src/routes/rewards.js`, `public/js/child-dashboard-rewards.js`, `public/js/skattkammaren-parent-page.js`, `db/child-universe.js` (lifetime stats).
-
-Promote `rewards.test.js` to HTTP integration — Target milestone.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Motivation |
-| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Lifetime stars |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Child UI |
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Approval |
-| [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md) | Reward CRUD in library |
+R-01–R-08; child + parent surfaces tested; [15](./15_PRODUCT_QUALITY_STANDARD.md).
 
 ---
 
 ## AI Instructions
 
-Never add star purchase IAP. Any new currency requires Decision Log + CEO approval.
+Never star IAP. New currency → CEO + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Real-world treat emphasis protects mission |
-| **CPO** | Three Skattkammaren surfaces flagged for analytics |
-| **CTO** | Race protection documented |
-| **Principal Engineer** | CI test gap noted |
-| **Senior Game Designer** | R-08 achievability guideline good |
-| **UX Director** | Deny flow needs calm copy — implied |
-| **Art Director** | N/A |
-| **QA Director** | Race test referenced |
-| **Security Engineer** | Child redeem scoped to JWT |
-| **AI Systems Architect** | R-rules citable |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -2015,190 +1986,80 @@ FILE: product-operating-system/08_BUILD_SYSTEM.md
 
 # 08 — Build System
 
-**Version:** 1.0  
-**Authority:** How parents **create and maintain** routine content (activities, schedules, rewards, images)
+**Version:** 2.0  
+**Owner:** CPO  
+**Authority:** Parents construct routines; product runs them ([05](./05_PARENT_EXPERIENCE.md))
 
 ---
 
 ## Purpose
 
-Define the **Build System** — the product capability for parents to construct family routines. There is **no feature named "Build Mode"** in the codebase; this document names and governs the **Bibliotek (Library)** and related planning tools.
-
-> SYSTEM_ANALYSIS §9: closest equivalent is Library + schedule editor.
-
-## Scope
-
-Parent-side content creation: `library.html`, `schedule.html`, `activities.html`, image tools, standard library import. Not child customization (see [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md)).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Bibliotek** | `/library` — magic + classic tabs for family content |
-| **Standard library** | Admin-global templates copied to families |
-| **Build action** | Create/edit activity, schedule item, reward, image |
-| **Configuration debt** | Each field we ask parents to fill |
+How families **create** routines, activities, rewards, and visuals — once — then Journey leads daily life. Not a separate "Build Mode" product; **Bibliotek + planering** is the build system.
 
 ---
 
 ## North Star
 
-Parents should **build once**, then the product **leads** — build system supports setup, Journey supports daily execution ([05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md)).
-
-Target: **minimize build time** to First Success — pre-fill aggressively.
+**Build once, run forever.** Minimize configuration debt (P-06). First Success ≤3 meaningful build decisions.
 
 ---
 
-## Current State (verified)
+## Build vs Run
 
-### Entry points
+| Mode | Mindset | Feeling |
+|------|---------|---------|
+| **Build** (Planering) | Setup, templates, images | "We shape our week" |
+| **Run** (Hem / child) | Execute, approve, celebrate | "Today flows" |
 
-| Path | Module |
-|------|--------|
-| `/planning` | `planning-hub.js` → links |
-| `/library` | `library.html`, `library.js`, `library-magic-hub.js` |
-| `/schedule` | `schedule.js` (~2594 lines) |
-| `/activities` | Activity management |
-| `/library#magic-bilder` | `library-images.js`, crop |
-
-### Library tabs (classic)
-
-Schedule categories · Activities · Rewards · Standard library import
-
-### Magic library shell
-
-`library-magic-hub.js`, `library-magic-schedules.js`, `library-magic-mine.js`
-
-### APIs
-
-| API | Role |
-|-----|------|
-| `/api/activities` | Family activity templates |
-| `/api/standard-library` | Copy from global |
-| `/api/schedules/*` | Weekly/special schedules |
-| `/api/upload` | Images → R2 or local |
-
-### Onboarding build
-
-`onboarding.js` step 3 — template picker (requires global library in prod).
-
-**Dev gap:** empty `default_schedule` / `default_activity_template` without harvest.
+Never build on Hem (B-08).
 
 ---
 
-## Target State
+## Capabilities
 
-| Area | Target |
-|------|--------|
-| **First Success path** | ≤3 build decisions in onboarding; smart defaults |
-| **Library UX** | Magic hub only — classic tabs retired |
-| **Schedule editor** | Further extract from `schedule.js`; share all logic with dashboard via `schedule-core.js` |
-| **Images** | Visual-first activities default — bildschema positioning |
-| **AI assist** | Starter plan suggests activities — bounded, parent approves |
-| **Build vs run** | Clear mode switch: Planering = build; Hem = run |
-| **Content packs** | Importable packs (future) via feature flag + `global-library-import.js` pattern |
+- Activity library — visual-first (bildschema positioning)
+- Schedule composition — drag/drop for **parents only**
+- Reward definitions — real treats
+- Image upload + crop — personality on cards
+- Template import — smart defaults before blank slate
+- Bounded AI suggest — parent always approves
 
 ---
 
-## Build System Rules
+## Rules
 
-**B-01** Every new field must justify configuration debt (P-06).  
-**B-02** Standard library import always offered before blank create.  
-**B-03** Drag-and-drop schedule editing allowed for parents — not child.  
-**B-04** Image upload supports crop — `library-image-crop.js` pattern.  
-**B-05** Destructive deletes require confirm — schedule items support "bara denna dag" exclusion.  
-**B-06** Pedagog cannot use build system on family content unless role permits — authz.  
-**B-07** Build changes should not silently break child's today view — SSE or refresh hint.  
-**B-08** No build actions on Hem — redirect to Planering.
-
----
-
-## Current vs Target: Parent "build" verbs
-
-| Verb | Current State | Target State |
-|------|---------------|--------------|
-| Drag/drop schedule | Yes — schedule editor | Keep — parent-only |
-| Paint/customize activity image | Partial — upload + crop | Illustration templates |
-| Assemble routine | Template picker onboarding | AI starter + one-tap accept |
-| Discover content | Standard library browse | Journey-suggested templates |
-
-Child **build** verbs (world decor) — [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) — not this document.
+**B-01** New field must justify debt  
+**B-02** Offer templates before empty create  
+**B-03** Drag schedule = parent only  
+**B-04** Destructive delete confirms; support "just this day" exceptions  
+**B-05** Pedagog role respects authz boundaries  
+**B-06** Build changes reflect on child Today quickly  
+**B-07** No monolithic editor UX — modular over time  
+**B-08** No build actions on Hem
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ Good build flow
-
-Onboarding: "Vi har satt upp en morgonrutin åt er" → parent adjusts one activity → done.
-
-### ❌ Bad build flow
-
-Empty library → "Skapa aktivitet" with 12 required fields.
+Blank slate after signup · 12-field create forms · duplicate schedule logic diverging · config-first onboarding
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Blank slate after registration
-- Duplicate schedule logic diverging between dashboard and schedule page
-- Building on Hem dashboard
-- Requiring global library harvest for local dev tests without seed script
-
----
-
-## Acceptance Criteria
-
-Build feature complete when:
-
-- [ ] B-01–B-08 satisfied
-- [ ] Onboarding path tested with seeded library
-- [ ] Schedule changes reflect on child Today within one refresh cycle
-- [ ] `schedule-core.js` shared where applicable
-
----
-
-## Implementation Guidance
-
-Extract schedule logic per REFACTOR Fas 8 pattern — new modules in `public/js/schedule-*.js`.
-
-Harvest/import for dev: `npm run harvest:library` + `import:library` (prod creds) — document in [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [05_PARENT_EXPERIENCE.md](./05_PARENT_EXPERIENCE.md) | Planering hub |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Rewards tab |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Consumer of build output |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Upload, APIs |
+Onboarding path tested with seeded templates; B-01–B-08; child sees updates.
 
 ---
 
 ## AI Instructions
 
-Do not create `build-mode.js` — extend library/schedule modules. Minimize new required form fields.
+Do not invent parallel "build mode" routes. Minimize required fields.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Naming "Build System" clarifies mission language vs code |
-| **CPO** | Pre-fill target aligns with First Success |
-| **CTO** | schedule.js size acknowledged — phased extract |
-| **Principal Engineer** | schedule-core sharing explicit |
-| **Senior Game Designer** | Parent build vs child build separated — correct |
-| **UX Director** | B-08 keeps Hem clean |
-| **Art Director** | Image/crop path is visual build — good |
-| **QA Director** | Dev library gap noted |
-| **Security Engineer** | Upload authz via parent JWT |
-| **AI Systems Architect** | Prevents spurious build-mode feature |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -2207,194 +2068,87 @@ FILE: product-operating-system/09_WORLD_ENGINE.md
 
 # 09 — World Engine
 
-**Version:** 1.0  
-**Authority:** Child universe / Skattkammaren world simulation — play as reward
+**Version:** 2.0  
+**Owner:** Game Director + Art Director  
+**Authority:** Play as reward ([06](./06_GAME_DESIGN.md))
 
 ---
 
 ## Purpose
 
-Define how the **world** (rooms, themes, pet, avatar, achievements) evolves in response to **real** child behavior — the engine behind "I want to visit my pet."
-
-## Scope
-
-`src/lib/universe-engine.js`, `src/routes/child-universe.js`, `db/child-universe.js`, client room modules (`child-skatt-house.js`, `child-pet.js`, etc.).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Universe** | Per-child persistent world state |
-| **Room** | Skattkammaren area (chest, pet, museum, …) |
-| **Theme** | Visual skin: castle, treehouse, space |
-| **Unlock rule** | JSON rule evaluated against stats |
-| **syncUnlocks** | Server function applying new unlocks |
+The child's **persistent world** evolves because **real life** changed — pet, rooms, themes, collectibles.
 
 ---
 
 ## North Star
 
-The world **changes because life changed** — not because the child grinded app logins.
+> **The world changes because life changed — not because the child grinded logins.**
 
 ---
 
-## Current State (verified)
+## Fiction
 
-### Server (`universe-engine.js`)
+| Space | Child fantasy |
+|-------|---------------|
+| **Treasury** | My earned treasures |
+| **Dreams** | What I'm working toward |
+| **Treat shop** | Redeem real rewards |
+| **Pet** | Companion who grows with me |
+| **Museum** | Memories of wins — late game |
 
-**Room unlock thresholds (lifetime stars):**
-
-| Stars | Rooms |
-|------:|-------|
-| 0 | chest, dreams, shop |
-| 10 | trophy, shelf |
-| 15 | avatar |
-| 30 | story, collections |
-| 50 | pet |
-| 100 | museum |
-
-**Themes:**
-
-| Theme | Min lifetime stars |
-|-------|-------------------:|
-| castle | 0 |
-| treehouse | 75 |
-| space | 150 |
-
-**Rule types:** `first_completion`, `completions`, `redemptions`, `lifetime_stars`, `streak`
-
-**Flow:** `getUniverseState()` → `syncUnlocks()` merges rooms/themes into `house_config` JSONB.
-
-### API (`child-universe.js`)
-
-GET/PATCH `/api/me/universe` — avatar, house, pet, collectibles.
-
-### Client
-
-`child-universe-client.js`, `child-skatt-house.js` (10 rooms UI), `child-layer-router.js` hash `universe` → rewards tab.
-
-### Feature gate
-
-`skattkammar_universum` → `basic_app` component — `config/component-feature-map.js`.
-
-### Tests
-
-**None dedicated** — SYSTEM_ANALYSIS gap.
+Swedish warm copy — never competitive.
 
 ---
 
-## Target State
+## Unlock Philosophy
 
-| Area | Target |
-|------|--------|
-| **Tests** | Golden tests for `evaluateRule()` and threshold edges |
-| **Adaptive thresholds** | Optional cohort tuning — not one-size for all ages |
-| **Discovery UX** | Subtle "something unlocked" when entering world after completion |
-| **Content packs** | New rooms via DB + module plug-in — no monolith edit |
-| **Multiplayer** | Family sees each child's world separately — no shared world yet |
-| **AI** | Narrative flavor text from Journey phase — bounded |
-| **Invalidation** | Keep `ChildUniverse.invalidate()` on completion bus |
+| Horizon | Examples |
+|---------|----------|
+| **Early** | First completions → chest, dreams |
+| **Mid** | Sustained routine → pet, avatar depth |
+| **Late** | Long arc → museum, premium themes |
+
+Thresholds tunable by cohort — must stay **achievable without grind**. Server-authoritative; no client-only unlocks.
 
 ---
 
-## World Design Rules
+## Themes
 
-**W-01** Unlocks tied to `evaluateRule` types — no hardcoded client-only unlocks.  
-**W-02** Pet room requires sustained engagement (50 stars) — not day one.  
-**W-03** Themes are cosmetic — no gameplay advantage.  
-**W-04** Achievements/collectibles defined in DB — admin manages definitions.  
-**W-05** No paid room skips.  
-**W-06** World state survives offline read — server wins on sync conflict.  
-**W-07** Museum is late-game — preserves long-term retention without early overwhelm.
+Castle · treehouse · space — **cosmetic only**, no gameplay advantage.
 
 ---
 
-## Room Narrative (product fiction)
+## Rules
 
-| Room | Child fantasy |
-|------|---------------|
-| chest | My treasures from stars |
-| dreams | What I'm working toward |
-| shop | Redeem treats |
-| pet | My companion who grows with me |
-| museum | Memories of wins |
-
-Copy in Swedish — warm, never competitive.
+**W-01** Unlocks map to real behavior types (completion, redemption, streak gentle)  
+**W-02** Pet = sustained engagement — not day one  
+**W-03** No paid room skips  
+**W-04** Offline read OK; server wins sync conflict  
+**W-05** Discovery subtle — enter world after progress, not notification spam
 
 ---
 
-## Examples
+## Anti-Patterns
 
-### ✅ Good unlock
-
-Child completes first ever activity → `first_completion` → collectible appears in chest.
-
-### ❌ Bad unlock
-
-Daily login → pet food.
+Login rewards for pet · IAP stars for rooms · shame for incomplete routine · client-only unlock
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Client-side only unlock (bypass API)
-- Room that requires IAP stars
-- World state that shames incomplete routine
-
----
-
-## Acceptance Criteria
-
-World change complete when:
-
-- [ ] W-01–W-07 pass
-- [ ] Unit tests for changed rules
-- [ ] Child world renders on iOS/Android WebView
-- [ ] Lifetime stars consistent with reward system — [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md)
-
----
-
-## Implementation Guidance
-
-Edit thresholds in `ROOM_UNLOCKS` / `THEME_UNLOCKS` only with game design + Decision Log entry.
-
-New room: add to engine array + `child-*` renderer + admin achievement defs if needed.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Motivation |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Lifetime stars |
-| [04_CHILD_EXPERIENCE.md](./04_CHILD_EXPERIENCE.md) | Min värld |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Extensibility |
+W-01–W-05; renders on mobile WebViews; [03A](./03A_ART_DIRECTION.md) room fantasy.
 
 ---
 
 ## AI Instructions
 
-Never add unlock logic only in client JS. Run sync through universe-engine.
+All unlock logic server-side. Threshold changes → Game Director + ADR.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Long-term retention via museum — aligned with scale goal |
-| **CPO** | Room fiction table helps copy consistency |
-| **CTO** | Test gap flagged — priority quick win |
-| **Principal Engineer** | Server-authoritative unlocks correct |
-| **Senior Game Designer** | Threshold table documented from code — accurate |
-| **UX Director** | Discovery UX marked Target |
-| **Art Director** | Three themes — art pipeline needed |
-| **QA Director** | Demands tests before threshold changes |
-| **Security Engineer** | PATCH universe scoped to child JWT |
-| **AI Systems Architect** | Rule types enumerable — good for agents |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -2403,230 +2157,83 @@ FILE: product-operating-system/10_TECH_ARCHITECTURE.md
 
 # 10 — Tech Architecture
 
-**Version:** 1.0  
-**Authority:** Technical boundaries and extensibility — implements [02_PRODUCT_PRINCIPLES.md](./02_PRODUCT_PRINCIPLES.md) engineering principles
+**Version:** 2.0  
+**Owner:** CTO + Principal Engineer  
+**Authority:** Enables ten-year product — **subordinate to product docs**
 
 ---
 
 ## Purpose
 
-Document the **approved architecture** for Stjärndag: what exists, what may be extended, and what requires ADR before change. Supports iPhone, Android, Web, offline, future AI/worlds/multiplayer **without rewrites**.
+Technical boundaries so the product can ship on **web, iOS, Android**, offline child read, future locales, content packs, and bounded AI — **without rewriting philosophy**.
 
-## Scope
-
-Server, database, client, mobile, deploy, integrations. Not visual design (03) or QA process (12).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Remote WebView** | Capacitor loads live site URL — not bundled SPA |
-| **Query layer** | `db/*.js` modules (partial adoption) |
-| **Product authority** | Journey Context + Gate — Target State |
-| **Facts layer** | DB → collector → engine/journey |
+When code and POS conflict → **POS wins**. Rewrite code.
 
 ---
 
-## Architecture Overview
+## Principles
 
-```
-Clients (PWA / Capacitor iOS/Android / Admin)
-        │
-        ▼
-Express (app.js) ─ middleware chain ─ registerRoutes()
-        │
-        ├── src/routes/ (77 modules)
-        ├── src/lib/ (134 modules, schedulers)
-        ├── src/core-engine/ (Product Engine — transitional)
-        ├── src/lib/journey/ (Family Journey — Target authority)
-        └── db/*.js → src/lib/db.js (pg pool)
-        │
-        ▼
-PostgreSQL (66 migrations)
-        │
-External (optional): Resend, R2/local uploads, RevenueCat, VAPID, APNs, FCM
-```
-
----
-
-## Current State (verified)
-
-### Runtime
-
-| Item | Value |
-|------|-------|
-| Node | 20 (`.nvmrc`) |
-| Entry | `server.js` → `createApp()` in `app.js` |
-| Schedulers | 14 started in `server.js` |
-| Static | `public/` + `/uploads` |
-| Health | `GET /health` — static JSON |
-
-### Middleware order (security-critical)
-
-1. Resend webhook (raw body)
-2. JSON, cookies, request ID
-3. `restoreParentSession` → `optionalAuth` → `globalLimiter`
-4. Platform HTML inject, security headers
-5. Maintenance (IAP exempt)
-6. `/api`: CSRF → impersonation block → child API block → apiLimiter
-7. Routes → static → 404
-
-### Auth
-
-| Layer | File |
-|-------|------|
-| JWT | `src/middleware/auth.js` |
-| Authz | `src/middleware/authz.js` |
-| Child block | `child-parent-api-block.js` |
-| CSRF | `csrf.js` |
-| Subscription components | `require-component.js` |
-
-### Mobile
-
-Capacitor 7 — `capacitor.config.ts` remote URL; iOS in repo; Android generated via `cap:sync:android`. `platform.js` unregisters SW on native.
-
-### Deploy
-
-GitHub Actions → VPS SSH → `npm ci` → migrate → systemd restart. See `AGENTS.md`, `.github/workflows/deploy.yml`.
-
-### Product intelligence (transitional)
-
-| System | Status |
-|--------|--------|
-| Family Journey | Implemented Fas 1–5; flags mostly OFF |
-| Product Engine | `/api/family/first-success`; shadow mode |
-| Readiness | Legacy |
-| Activation Program | Active enrollments |
-
----
-
-## Target State
-
-| Area | Target |
-|------|--------|
-| **Product authority** | Journey + Gate only — [14_DECISION_LOG.md](./14_DECISION_LOG.md) ADR-001 |
-| **Schedulers** | All retention comms through Gate |
-| **Query layer** | Routes use `db/*` — no inline SQL in routes |
-| **Rate limits** | Redis-backed for multi-instance |
-| **Job runner** | Central queue vs 14 setTimeout loops |
-| **OpenAPI** | Generated route inventory |
-| **CSP** | Enforced not report-only |
-| **Bundling** | Optional esbuild for JS — phased |
-| **Multi-instance** | Advisory locks → shared job ownership |
-
----
-
-## Extension Points (build without rewrite)
-
-| Future need | Extension mechanism |
-|-------------|---------------------|
-| **Content packs** | `global-library-import.js`, feature flags, migrations |
-| **New worlds/rooms** | `universe-engine` arrays + client room module |
-| **New Journey phases** | `phases.js`, registry JSON, migration for milestones |
-| **New billing component** | `config/component-feature-map.js`, `requireComponent()` |
-| **AI coaching** | Facts collector + presentation adapter — never in UI |
-| **Multiplayer/family sync** | SSE today; family-scoped IDs ready |
-| **i18n** | `src/lib/i18n.js` — expand locales |
-| **Native features** | `platform.js` facade + Capacitor plugins |
+| Principle | Rule |
+|-----------|------|
+| **Product brain server-side** | Journey + Gate own decisions; UI is channel |
+| **Child safety** | Deny-by-default API scope for child sessions |
+| **Parameterized data access** | No injection; authz centralized |
+| **Optional integrations** | Email, push, payments, storage — degrade gracefully |
+| **One payment path native** | IAP via store billing; web monetization TBD (OQ-001) |
+| **Per-feature paywall** | Component gates — no global subscription middleware |
+| **Mobile** | Capacitor remote shell — web deploy updates UI everywhere |
+| **Quality** | Automated gate before merge — [12](./12_QA_SYSTEM.md) |
 
 ---
 
 ## Layer Rules
 
-**T-01** Business logic in server — not in HTML inline scripts.  
-**T-02** Product decisions in Journey/Engine — UI is dumb channel.  
-**T-03** Child cannot hit parent APIs — server enforced.  
-**T-04** Parameterized SQL only.  
-**T-05** New routes mount in `src/routes/index.js` with order comment if sensitive.  
-**T-06** Migrations idempotent; timestamp prefix in `migrations/`.  
-**T-07** SW cache version bump on static asset changes — CI gate.  
-**T-08** Secrets never committed — env vars only.  
-**T-09** Third-party keys optional — graceful degradation.  
-**T-10** Large files: extract modules — see `.cursor/rules/large-files.mdc`.
+**T-01** Business logic on server  
+**T-02** One Journey authority  
+**T-03** Child cannot hit parent APIs  
+**T-04** Migrations backward-compatible one release  
+**T-05** Secrets in env only  
+**T-06** Large modules extracted over time — behavior unchanged  
+**T-07** Static asset cache bust on ship
+
+Implementation details: `AGENTS.md`, `SYSTEM_ANALYSIS.md` — **operational reference**, not product spec.
 
 ---
 
-## Key Directories
+## Extension Points (timeless)
 
-| Path | Owns |
-|------|------|
-| `src/routes/` | HTTP handlers |
-| `src/middleware/` | Cross-cutting HTTP |
-| `src/lib/` | Services, schedulers, journey |
-| `src/core-engine/` | Product Engine (transitional) |
-| `db/` | SQL query modules |
-| `public/js/` | Client IIFE modules |
-| `migrations/` | Schema deltas |
-| `test/` | Node test runner |
+| Need | Mechanism |
+|------|-----------|
+| New locale | i18n layer |
+| Content pack | Import + flags |
+| New room/world | Engine rules + art module |
+| New Journey phase | Registry + milestones |
+| New billing component | Feature map |
+| Bounded AI coach | Facts in, copy out — never raw LLM in child UI |
 
 ---
 
-## Anti-patterns
+## Anti-Patterns
 
-- New global subscription middleware in `app.js`
-- Duplicate authz (`childAccess.js` pattern)
-- Business logic in `public/admin` without API
-- Cron-less scheduler duplication without advisory lock
-- Tailwind CDN
+Global paywall middleware · duplicate authz · business logic only in client · Stripe revival without ADR
 
 ---
 
-## Acceptance Criteria
+## Release Criteria
 
-Architecture change approved when:
-
-- [ ] Decision Log entry if structural
-- [ ] T-01–T-10 preserved
-- [ ] `test:gate` green
-- [ ] Route inventory updated if routes added (`npm run dump:routes`)
-- [ ] No new product authority without sunset plan
-
----
-
-## Implementation Guidance
-
-Read `SYSTEM_ANALYSIS.md` before structural work. Prefer Target State patterns.
-
-Node 20 in all shells: `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"`.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent workflow |
-| [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | test:gate |
-| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Deploy |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADRs |
+T-01–T-07; test gate; ADR if structural.
 
 ---
 
 ## AI Instructions
 
-1. Read middleware order before new `/api` routes.
-2. Do not reintroduce Stripe or global paywall.
-3. Mount-order sensitive: `/api/me` child routers before catch-alls.
-4. Use `db/*` for new queries.
+Read 00/00A/00B + domain doc first. Use AGENTS.md for env commands only.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Extension table shows acquisition-ready platform story |
-| **CPO** | Journey target authority clear |
-| **CTO** | Accurate Current State from SYSTEM_ANALYSIS |
-| **Principal Engineer** | T-rules and mount order protect regressions |
-| **Senior Game Designer** | Universe extension path clear |
-| **UX Director** | N/A |
-| **Art Director** | N/A |
-| **QA Director** | test:gate referenced |
-| **Security Engineer** | Middleware chain documented |
-| **AI Systems Architect** | Directory map + T-rules essential for agents |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -2635,207 +2242,102 @@ FILE: product-operating-system/11_AI_DEVELOPER_GUIDE.md
 
 # 11 — AI Developer Guide
 
-**Version:** 1.0  
-**Authority:** Rules for autonomous AI agents working on Stjärndag
+**Version:** 2.0  
+**Owner:** AI Systems Architect + CTO  
+**Authority:** How agents ship on-brand without founder access
 
 ---
 
 ## Purpose
 
-Enable AI developers to ship **correct, on-brand** changes without founder access — by pointing to POS, codebase facts, and forbidden patterns.
-
-## Scope
-
-All AI-assisted coding in this repository. Humans follow the same rules.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **POS** | `/product-operating-system/` |
-| **Current State** | What code + flags do today |
-| **Target State** | What new work must move toward |
-| **Maintenance mode** | Explicit user request to patch legacy only |
+AI agents implement **correct product** from POS — not from stale code patterns.
 
 ---
 
-## Read Order (before every task)
+## Minimum Read Set (every task)
 
-1. [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
-2. Task-relevant domain doc (04–09)
-3. [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md)
-4. [14_DECISION_LOG.md](./14_DECISION_LOG.md)
-5. [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) for Current State facts
-6. `AGENTS.md` for environment commands
+1. [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)  
+2. [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)  
+3. [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md)  
+4. **One domain doc** (04–09 or task-specific)  
+5. [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) if shipping  
+6. [14_DECISION_LOG.md](./14_DECISION_LOG.md) if architectural
 
-**If legacy `docs/*` contradicts POS → POS wins.**
+**POS beats legacy docs and code habits.**
 
 ---
 
 ## Decision Protocol
 
 ```
-Request → Constitution check → Principle check → Current vs Target
-    → If Target-aligned: implement
-    → If legacy-only: refuse OR maintenance mode with explicit label
-    → If unclear: ask user OR log Open Question in PR — do not guess
+Request → Constitution → Taste/Manifesto → Domain doc
+  → Align with vision? Implement
+  → Legacy-only patch? Label "maintenance" + minimal change
+  → Unclear? Open Question in PR — do not invent product
 ```
 
----
-
-## Current State vs Target State (agent defaults)
-
-| Topic | Default for new work |
-|-------|---------------------|
-| Home coach | Journey (`journey-coach.js`) only |
-| Retention email/push | Journey Gate |
-| Paywall | `requireComponent()` per route |
-| Child UI | Extend `child-*.js` modules |
-| Parent schedule | Share `schedule-core.js` |
-| Product docs | Update POS if normative change |
-
-Unless user says **maintenance only**, implement **Target State**.
+**Default:** implement **vision**, not existing bugs.
 
 ---
 
-## Environment (Cloud / local)
-
-```bash
-export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
-# DATABASE_URL, JWT_SECRET injected on Cloud
-NODE_ENV=development REQUIRE_EMAIL_VERIFICATION=false npm run dev
-NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
-npm install --include=dev --legacy-peer-deps
-```
-
-Never run full `npm test` on prod VPS with live email keys.
-
----
-
-## File Size Rules
-
-Per `.cursor/rules/large-files.mdc`:
-
-- **Never** full-read: `schedule.js`, `dashboard.js`, `child-dashboard.js`, large HTML
-- **Grep first**, chunk-read max 200 lines, max one large file per turn
-- **New features** → new small files (`dashboard-cta.js` pattern)
-
----
-
-## Forbidden Actions (without explicit approval)
+## Forbidden (without ADR + approval)
 
 | Action | Why |
 |--------|-----|
-| New coach mount on Hem | PA-01 |
-| Global subscription middleware | Removed — ADR |
-| Child-facing forms/settings | C-01 |
-| Star purchase IAP | R-02 |
-| Tailwind CDN | DS-05 |
-| Copy stale `docs/*` into code without verification | AI risk |
-| Full read of 2500+ line files | Rule violation |
-| `npm test` on live VPS | AGENTS.md |
-| Commit secrets / live deploy URLs | Security |
+| New parent coach surface | PA-01 |
+| Child forms/settings | C-01 |
+| Star IAP | R-02 |
+| Dashboard on Hem | P-04 |
+| Generic/template UI | 00B |
+| Tailwind CDN in product | DS-04 |
+| Dark engagement patterns | G-01 |
+| Global paywall middleware | ADR-005 |
 
 ---
 
-## Required Actions
+## Required
 
 | Action | When |
 |--------|------|
-| Cite constitution/principle IDs in PR | User-facing changes |
-| Run `test:gate` | Server/journey/auth changes |
-| Run `npm run check:css` | Tailwind class changes |
-| Bump `public/sw.js` CACHE_NAME | Static asset changes |
-| Update Decision Log | Architectural/product decisions |
-| Label Current vs Target in PR body | Ambiguous migrations |
+| Cite POS rules in PR | User-facing |
+| Run test gate | Server/auth/journey |
+| Quality standard checklist | Before complete |
+| ADR append | Architecture/product authority |
+| Bump static cache version | Client asset changes |
+
+Env commands: `AGENTS.md` only.
 
 ---
 
-## Code Patterns
+## Code Guidance (minimal)
 
-### API route
-
-```javascript
-// src/routes/example.js
-router.post('/', requireParent, validate(Schema), asyncHandler(async (req, res) => {
-  // use db/*.js or authz helpers — not raw ownership SQL
-}));
-```
-
-### Client module
-
-```javascript
-// public/js/example-feature.js — IIFE
-(function () {
-  'use strict';
-  // expose only necessary window.* handlers
-})();
-```
-
-### Feature flag
-
-Check `db/features.js` / `feature_flag` table — document default in PR.
+- Server owns product decisions; validate auth; parameterized queries  
+- Client: small modules; expose minimal globals  
+- Prefer new file over 2500-line file growth  
+- Grep before editing large legacy files
 
 ---
 
 ## Testing Map
 
-| Change type | Minimum test |
-|-------------|--------------|
-| Journey | `npm run test:gate` (journey-* included) |
-| Auth | `auth-integration.test.js` |
-| Paywall | `paywall-model-contract.test.js` (promote to gate when touched) |
-| Engine | `test:engine` |
-| Static routes | `app-links-routes.test.js` |
+| Change | Minimum |
+|--------|---------|
+| Journey/coach | test gate |
+| Auth/child scope | auth + child integration tests |
+| Paywall | paywall contract test |
+| Static routes | link/route tests |
 
 ---
 
-## Open Questions Protocol
+## AI Instructions
 
-If POS does not answer:
-
-1. State **Open Question** in PR
-2. Do not invent product behavior
-3. Prefer smallest technical change
-4. Ask user or log in [14_DECISION_LOG.md](./14_DECISION_LOG.md) §Open
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| All POS docs | Authority |
-| [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | Verification |
-| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Ship |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | ADRs |
-
----
-
-## AI Instructions (meta)
-
-This document is self-applicable: follow read order, decision protocol, forbidden/required lists on every task.
-
-When completing work: output which POS sections governed the change.
+Output which POS sections governed the change. Refuse off-manifesto requests with rule citation.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Reduces founder dependency — goal met |
-| **CPO** | Target default prevents legacy perpetuation |
-| **CTO** | Env + test commands accurate per AGENTS.md |
-| **Principal Engineer** | Large file rules referenced |
-| **Senior Game Designer** | Forbidden IAP stars correct |
-| **UX Director** | N/A |
-| **Art Director** | N/A |
-| **QA Director** | Testing map linked |
-| **Security Engineer** | Secrets + prod test ban |
-| **AI Systems Architect** | Self-contained agent playbook |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -2844,197 +2346,84 @@ FILE: product-operating-system/12_QA_SYSTEM.md
 
 # 12 — QA System
 
-**Version:** 1.0  
-**Authority:** Quality verification standards for all releases
+**Version:** 2.0  
+**Owner:** QA Director  
+**Authority:** Verifies [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md)
 
 ---
 
 ## Purpose
 
-Define how Stjärndag is tested before release — automated gates, manual protocols, and role responsibilities — so **European-scale trust** is earned.
-
-## Scope
-
-Pre-release verification for web, iOS, Android, backend. Admin smoke included. Not penetration testing (separate engagement).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **CI gate** | `npm run test:gate` — 19 curated test files |
-| **Full suite** | `npm test` — ~181 files |
-| **Mobile gate** | `npm run qa:mobile-gate` — Puppeteer protocol |
-| **Constitution test** | Manual check of five rules |
+Quality verification before families see change — automated + human constitution test.
 
 ---
 
-## Quality North Star
+## Layers
 
-> No release ships without **gate green** + **constitution spot-check** on affected flows.
-
-Target: expand gate to cover paywall, IAP, universe engine.
-
----
-
-## Current State (verified)
-
-### Automated CI (`.github/workflows/ci.yml`)
-
-| Step | Command |
-|------|---------|
-| Install | `npm ci --legacy-peer-deps` |
-| CSS | `npm run check:css` |
-| Lint server | `npm run lint` |
-| Lint client | `npm run lint:public` (warning budget 735 — often exceeded ~2900) |
-| Migrate | `npm run migrate` |
-| Gate | `npm run test:gate` |
-| Migration rollback | `migration-rollback-gate.test.js` |
-
-### test:gate files (19)
-
-`setup-test-db`, `auth-integration`, `child-access-integration`, `maintenance-order`, `app-links-routes`, `engine-golden`, `engine-shadow-logic`, `first-success-api`, `engine-coach-authority`, `journey-context`, `journey-route-scope`, `journey-fas2`–`fas5`, `journey-golden-path`, `journey-daily-analysis`
-
-### Not in gate (gaps)
-
-| Area | Test file |
-|------|-----------|
-| Paywall | `paywall-model-contract.test.js` |
-| Journey Gate | `journey-communication-gate.test.js` |
-| Activation program | ~15 files |
-| Rewards HTTP | partial mocks only |
-| IAP webhook | **none** |
-| Universe engine | **none** |
-| E2E browser | scripts only |
-
-### Manual protocols
-
-| Doc | Use |
-|-----|-----|
-| `docs/QA-mobil-release-gate-runbook.md` | Mobile release |
-| `docs/QA-mobil-fullstandig-protokoll.md` | Full mobile QA |
-| `npm run qa:mobile-gate` | Automated mobile smoke |
-
-### DB tests
-
-PostgreSQL advisory lock — `test/helpers/db-test-lock.js`
+```
+4 Manual — Constitution + taste review ([15](./15_PRODUCT_QUALITY_STANDARD.md))
+3 Mobile smoke — native WebView protocol
+2 Full suite — pre-release optional
+1 CI gate — required merge ([AGENTS.md](../AGENTS.md))
+0 Lint + CSS/build checks
+```
 
 ---
 
-## Target State
+## Rules
 
-| Area | Target |
-|------|--------|
-| **Gate expansion** | + paywall, communication-gate, universe-engine unit tests |
-| **IAP webhook** | Integration test with mock RevenueCat |
-| **lint:public** | Reduce warnings OR raise budget with plan |
-| **Constitution checklist** | Required in PR template for user-facing |
-| **Child a11y** | WCAG audit checklist |
-| **Visual regression** | Optional Playwright screenshots for magic UI |
-| **Staging** | Pre-prod environment for flag rollout |
-
----
-
-## QA Rules
-
-**Q-01** `test:gate` must pass before merge to main.  
-**Q-02** User-facing PR requires manual flow note in PR body.  
-**Q-03** Child-surface changes require child-login + completion smoke.  
-**Q-04** Parent coach changes require Hem screenshot or recording.  
-**Q-05** Mobile release requires `qa:mobile-gate` or runbook sign-off.  
-**Q-06** Security-sensitive changes require auth integration tests.  
-**Q-07** Migrations require rollback gate test.  
-**Q-08** No `@example.com` emails with live Resend in tests without unset keys.  
-**Q-09** Apple Sign In changes require `verify-ios-apple-sign-in-patch.mjs`.  
-**Q-10** Flag rollout requires journey rollout script status check.
+**Q-01** Gate green before main  
+**Q-02** User-facing PR notes manual flows  
+**Q-03** Child changes → child completion smoke  
+**Q-04** Coach changes → Hem screenshot/recording  
+**Q-05** Native plugin → mobile gate  
+**Q-06** Auth changes → integration tests  
+**Q-07** Migrations → rollback test  
+**Q-08** No live email keys in tests  
+**Q-09** Apple Sign-In native → verify patch script when applicable  
+**Q-10** Flag rollout → ops runbook check
 
 ---
 
-## Constitution Test (manual — every release touching UX)
+## Constitution Test (UX releases)
 
 | Rule | Test |
 |------|------|
-| 1 Leads | New parent sees one next step on Hem |
-| 2 No surprise | No unexplained modals |
-| 3 Next step | No empty Hem |
-| 4 Uncertainty | Copy confirms progress after onboarding action |
-| 5 Complete | Post-register has schedule/activities visible |
+| 1 | One next step on Hem |
+| 2 | No surprise modals |
+| 3 | No empty Hem |
+| 4 | Progress confirmed after onboarding action |
+| 5 | Post-register feels complete |
 
 ---
 
-## Test Layers
+## Known Gaps (expand gate over time)
 
-```
-Layer 4: Manual constitution + mobile runbook
-Layer 3: qa:mobile-gate / smoke scripts
-Layer 2: npm test (full) — pre-release optional
-Layer 1: test:gate — CI required
-Layer 0: lint + css check
-```
+Paywall contract · Journey Gate comms · universe rules · IAP webhook — add tests when touched.
 
 ---
 
-## Release QA Checklist (summary)
+## Anti-Patterns
 
-- [ ] CI green on PR
-- [ ] `test:gate` locally if server changed
-- [ ] SW version bumped if static changed
-- [ ] Constitution spot-check (if UX)
-- [ ] Mobile gate (if native-affecting)
-- [ ] Journey flag rollout doc updated (if flags)
-- [ ] Health check after deploy — `GET /health`
-
-Full process: [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md)
+Merge failing gate · test on live DB with real email · skip mobile for Capacitor changes
 
 ---
 
-## Anti-patterns
+## Release Criteria
 
-- Merge with failing gate "to fix later"
-- Run full test suite on prod DB
-- Skip mobile QA for Capacitor/plugin changes
-- Rely on login metrics test for retention features
-
----
-
-## Acceptance Criteria
-
-QA system update complete when documented in this file and Decision Log if gate composition changes.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Deploy gate |
-| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent testing |
-| [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) | Manual tests |
-| [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) §23 | Gap analysis |
+Document updates when gate composition changes + ADR.
 
 ---
 
 ## AI Instructions
 
-Always run `test:gate` after server changes. Report gaps if touching paywall/IAP/universe without tests — propose test in same PR.
+Run gate after server changes; propose tests when touching gaps.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Trust requires gate expansion — Target honest |
-| **CPO** | Constitution manual test bridges product/QA |
-| **CTO** | CI steps match repo |
-| **Principal Engineer** | Gap list drives roadmap |
-| **Senior Game Designer** | N/A |
-| **UX Director** | Screenshot requirement for coach |
-| **Art Director** | Visual regression optional |
-| **QA Director** | Layer model actionable |
-| **Security Engineer** | Q-06 auth tests |
-| **AI Systems Architect** | Agent must run gate |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -3043,188 +2432,73 @@ FILE: product-operating-system/13_RELEASE_PROCESS.md
 
 # 13 — Release Process
 
-**Version:** 1.0  
-**Authority:** How software reaches families safely
+**Version:** 2.0  
+**Owner:** CTO + QA Director  
+**Authority:** Safe path to families
 
 ---
 
 ## Purpose
 
-Define the release pipeline from merge to live users (web + native), including rollback, flags, and post-deploy verification.
-
-## Scope
-
-Web/VPS deploy via GitHub Actions, native iOS/Android release coordination, cache/service worker, database migrations.
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **main** | Release branch (live deploy) |
-| **Deploy workflow** | `.github/workflows/deploy.yml` |
-| **CI workflow** | `.github/workflows/ci.yml` |
-| **SW** | Service worker `public/sw.js` CACHE_NAME |
-| **Rollout** | Feature flag wave — `journey-rollout-advance.js` |
+Merge → CI → deploy → verify. Native binaries when plugins/permissions change.
 
 ---
 
-## Release North Star
-
-> Families never see broken routines because we skipped CI or migration verification.
-
----
-
-## Current State (verified)
-
-### Pipeline
+## Pipeline (conceptual)
 
 ```
-PR → CI (lint, css check, migrate, test:gate, migration rollback)
-Merge to main → CI success triggers deploy workflow
-Deploy SSH → git reset --hard → npm ci → migrate → systemd restart
-Health: sleep 3 → curl /health (retries)
+PR → CI (lint, css, migrate, test gate, migration rollback)
+Merge main → deploy → migrate → restart → health check
+Capacitor UI updates with web deploy; store binary when native changes
 ```
 
-**Note:** Deploy triggers on **CI success**, not raw push alone.
-
-### Build
-
-`npm run build` = migrate + Tailwind CSS build (`scripts/css-build.mjs`)
-
-### Native (iOS)
-
-- Capacitor remote WebView — **web deploy IS app deploy** for UI
-- Native binary required for: plugins, App Store review, push entitlements
-- iOS patches: Apple Sign-In main thread — Podfile post_install
-- Commands: `npm run cap:sync:ios`, Xcode archive, TestFlight
-
-### Native (Android)
-
-- `android/` generated — not in repo
-- `npm run cap:sync:android`, `npm run android:aab`
-
-### Cache busting
-
-Commit `tailwind.build.css` + bump `public/sw.js` CACHE_NAME — CI enforces via `check:css`
-
-### Ops reference
-
-`AGENTS.md`, `.cursor/rules/*-deploy.mdc`, `docs/VPS-DEPLOY-GITHUB-ACTIONS.md`
+Detail: `AGENTS.md`, deploy workflows — operational, not product.
 
 ---
 
-## Target State
+## Rules
 
-| Area | Target |
-|------|--------|
-| **Staging env** | Flag QA before prod waves |
-| **Automated health** | Post-deploy smoke in workflow |
-| **Gate expansion** | Matches [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) |
-| **Release notes** | Auto from PR labels + pillar tags |
-| **Native cadence** | Decoupled binary releases documented |
-| **Rollback** | One-command git revert + migrate down policy |
-
----
-
-## Release Rules
-
-**REL-01** No direct push to main without CI.  
-**REL-02** Migrations must be backward-compatible for one deploy (rollback gate).  
-**REL-03** SW version bump on any static JS/CSS change.  
-**REL-04** Journey flag changes follow journey ops runbook in `docs/`.  
-**REL-05** Native plugin changes require mobile QA gate.  
-**REL-06** Email-heavy releases unset email API keys in test runs (see AGENTS.md).  
-**REL-07** Post-deploy: health check + journalctl spot check.  
-**REL-08** Version in `/health` should match release tag — Target (currently static).  
-**REL-09** Constitution spot-check for UX releases — [12_QA_SYSTEM.md](./12_QA_SYSTEM.md).
-
----
-
-## Release Types
-
-| Type | Path |
-|------|------|
-| **Web hotfix** | PR → CI → auto deploy |
-| **Schema change** | Migration + rollback test + deploy |
-| **Flag rollout** | Admin/CLI rollout + monitor |
-| **Native build** | Web deploy + binary submit when plugins change |
-| **POS doc only** | No deploy required |
+**REL-01** No merge without CI  
+**REL-02** Backward-compatible migrations one release  
+**REL-03** Cache bust static assets on change  
+**REL-04** Journey flag waves follow ops runbook  
+**REL-05** Native plugin → mobile QA  
+**REL-06** Email-heavy tests without live keys  
+**REL-07** Post-deploy health + log spot check  
+**REL-08** UX releases → constitution test ([12](./12_QA_SYSTEM.md))  
+**REL-09** Must pass [15](./15_PRODUCT_QUALITY_STANDARD.md)
 
 ---
 
 ## Rollback
 
-1. Revert commit on main (or reset to known good SHA)
-2. Deploy pipeline runs automatically
-3. If migration irreversible — restore DB backup (manual ops)
-4. Disable feature flag if flag-related incident
+Revert on main → pipeline redeploys. Irreversible migration → DB restore procedure. Flag off for flag incidents.
 
 ---
 
-## Pre-merge Checklist
+## Checklists
 
-- [ ] CI green
-- [ ] test:gate locally for server changes
-- [ ] check:css if Tailwind touched
-- [ ] Migration reviewed for locking/downtime
-- [ ] SW bumped if static changed
-- [ ] Decision Log if architectural
-- [ ] PR cites POS sections
+**Pre-merge:** CI green · gate local if server · migration reviewed · quality standard · ADR if needed
+
+**Post-deploy:** health · login smoke · flags as intended · logs clean · TestFlight if binary changed
 
 ---
 
-## Post-deploy Checklist
+## Anti-Patterns
 
-- [ ] `GET /health` returns healthy
-- [ ] Login smoke (parent + child)
-- [ ] Journey flag state as intended
-- [ ] Error rate in logs normal (5 min)
-- [ ] Native: TestFlight smoke if binary changed
-
----
-
-## Anti-patterns
-
-- Deploy without migrate
-- Bump only SW without rebuilding CSS when classes changed
-- Enable journey flags without removing legacy coach mounts
-- Manual VPS edit without commit to main
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | Test gates |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Stack |
-| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent deploy rules |
-| [14_DECISION_LOG.md](./14_DECISION_LOG.md) | Deploy ADRs |
+Deploy without migrate · enable Journey without retiring duplicate coaches · uncommitted VPS edits
 
 ---
 
 ## AI Instructions
 
-Never SSH to prod for deploy if GitHub Actions available. After VPS restart: sleep 3, curl health per AGENTS.md.
+Prefer GitHub Actions deploy over manual SSH. Health check after restart per AGENTS.md.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Rollback clarity reduces incident fear |
-| **CPO** | Flag rollout tied to ops doc |
-| **CTO** | Pipeline matches workflows |
-| **Principal Engineer** | REL-02 rollback gate referenced |
-| **Senior Game Designer** | N/A |
-| **UX Director** | Constitution check on UX release |
-| **Art Director** | CSS/SW coupling documented |
-| **QA Director** | Checklists complete |
-| **Security Engineer** | No manual uncommitted prod edits |
-| **AI Systems Architect** | Clear REL rules for agents |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
 
 
 ================================================================================
@@ -3233,195 +2507,345 @@ FILE: product-operating-system/14_DECISION_LOG.md
 
 # 14 — Decision Log
 
-**Version:** 1.0  
-**Authority:** Record of architectural and product decisions — append-only
+**Version:** 2.0  
+**Owner:** CEO + CPO + CTO  
+**Authority:** Append-only architectural record
 
 ---
 
 ## Purpose
 
-Capture **why** decisions were made, **what** they require, and **consequences** — so future teams and AI agents do not re-litigate settled questions.
-
-## Scope
-
-Product, architecture, and process decisions from POS v1.0 forward. Incorporates verified ADRs from repo history.
+**Why** decisions were made — so teams and AI do not re-litigate. Product philosophy lives in 00–15; this file records **forks in the road**.
 
 ## Format
-
-Each entry:
 
 | Field | Content |
 |-------|---------|
 | **ID** | ADR-NNN |
-| **Date** | ISO date |
+| **Date** | ISO |
 | **Status** | Accepted / Superseded / Proposed |
-| **Decision** | What we decided |
+| **Decision** | What |
 | **Motivation** | Why |
-| **Consequences** | Positive, negative, actions required |
-| **POS links** | Related documents |
+| **Consequences** | Actions |
+| **Links** | POS docs |
 
 ---
 
 ## ADR-001 — Family Journey as sole product authority
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | **Family Journey** (`src/lib/journey/`) is the only authoritative source for lifecycle state and "what's next." **Journey Gate** (`communication-gate.js`) is the only authority for outbound communications. |
-| **Motivation** | SYSTEM_ANALYSIS identified three overlapping coach systems and 14 schedulers with duplicate segmentation. Retention ADR (`docs/retention-migration-plan.md`) measured win-back at 0% effect. Completions beat logins as success signal. |
-| **Consequences** | (+) Single coach on Hem; clearer AI agent rules. (−) Migration work: retire readiness UI, sunset Product Engine after shadow parity, wire schedulers to Gate. **Actions:** Enable journey flags in waves; remove `#engineCoachMount` and readiness mount in Target; no new coach surfaces (PA-01). |
-| **POS links** | [00](./00_PROJECT_CONSTITUTION.md), [05](./05_PARENT_EXPERIENCE.md), [10](./10_TECH_ARCHITECTURE.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** One lifecycle brain (**Journey**) and one outbound brain (**Gate**) for "what's next" and communications.
+
+**Motivation:** Overlapping coach systems confuse users and agents. Completions beat logins.
+
+**Consequences:** Retire duplicate coaches; wire comms to Gate; no new coach surfaces (PA-01).
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [05](./05_PARENT_EXPERIENCE.md)
 
 ---
 
 ## ADR-002 — Reality wins over gamification
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | Stars, streaks, and universe unlocks are **proxies** for real routine success. No feature may optimize engagement at the expense of real-world outcomes. |
-| **Motivation** | Company mission: calmer mornings, fewer conflicts. Product data: >80% drop before felt value. Points-first UX violates long-term brand for EU scale. |
-| **Consequences** | (+) Coherent child/parent principles. (−) May reduce short-term DAU. **Actions:** De-emphasize star copy (Target); no login bonuses; G-01 enforced. |
-| **POS links** | [01](./01_PRODUCT_VISION.md), [02](./02_PRODUCT_PRINCIPLES.md), [06](./06_GAME_DESIGN.md), [07](./07_REWARD_SYSTEM.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Stars, streaks, unlocks are proxies for real routine success — not goals.
+
+**Links:** [01](./01_PRODUCT_VISION.md), [06](./06_GAME_DESIGN.md), [07](./07_REWARD_SYSTEM.md)
 
 ---
 
 ## ADR-003 — Child protagonist, parent helper
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | Design primary loop for **child action**; parent UI supports, approves, and configures — not the reverse. |
-| **Motivation** | First Success v2 shift; child completion is retention north star per retention ADR. |
-| **Consequences** | (+) Child worlds investment justified. (−) Parent dashboard stats deprioritized. **Actions:** C-03 one primary action; remove star chart from Hem (Target). |
-| **POS links** | [04](./04_CHILD_EXPERIENCE.md), [05](./05_PARENT_EXPERIENCE.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Primary loop = child action; parent supports.
+
+**Links:** [04](./04_CHILD_EXPERIENCE.md), [05](./05_PARENT_EXPERIENCE.md)
 
 ---
 
-## ADR-004 — Build System = Bibliotek + Schedule (no separate Build Mode)
+## ADR-004 — Build System = Bibliotek + Planering
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | Name and govern content construction as **Build System** mapped to `library.*` and `schedule.*` — do **not** create a separate "Build Mode" feature or route. |
-| **Motivation** | SYSTEM_ANALYSIS §9: zero codebase matches for build mode. Avoid duplicate systems and AI agent confusion. |
-| **Consequences** | (+) Clear ownership. (−) Mission language "build" must map to library/world docs explicitly. **Actions:** AI agents extend library modules (B-08). |
-| **POS links** | [08](./08_BUILD_SYSTEM.md), [11](./11_AI_DEVELOPER_GUIDE.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** No separate "Build Mode" product name/route — build lives in library + planning.
+
+**Links:** [08](./08_BUILD_SYSTEM.md)
 
 ---
 
-## ADR-005 — Per-component paywall (no global subscription middleware)
+## ADR-005 — Per-component paywall
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-23 (refactor Fas 5) — **ratified in POS 2026-06-29** |
-| **Status** | Accepted |
-| **Decision** | Subscription gating via `requireComponent()` on specific routes — **not** global `requireActiveSubscription` in `app.js`. |
-| **Motivation** | Lifetime-free founders, component packaging (pedagog, reporting), clearer 402/403 semantics. Verified by `paywall-model-contract.test.js`. |
-| **Consequences** | (+) Flexible packaging. (−) Client must call `/api/subscription/access` for UI. **Actions:** Never re-add global middleware; promote paywall test to gate. |
-| **POS links** | [10](./10_TECH_ARCHITECTURE.md), [12](./12_QA_SYSTEM.md) |
+**Date:** 2026-06-23 · **Status:** Accepted
+
+**Decision:** Gate features via components — no global subscription middleware.
+
+**Links:** [10](./10_TECH_ARCHITECTURE.md)
 
 ---
 
-## ADR-006 — RevenueCat IAP only (Stripe removed)
+## ADR-006 — Store IAP only (no web checkout)
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-23 |
-| **Status** | Accepted |
-| **Decision** | Native IAP via RevenueCat webhook; **no web checkout**. Stripe columns dropped. |
-| **Motivation** | App Store / Play billing compliance; simplified stack. |
-| **Consequences** | (+) Single payment path on mobile. (−) Post-founder web users cannot pay on web — **open product gap**. **Actions:** OQ-001 tracking; IAP webhook tests (Target). |
-| **POS links** | [01](./01_PRODUCT_VISION.md), [10](./10_TECH_ARCHITECTURE.md) |
+**Date:** 2026-06-23 · **Status:** Accepted
+
+**Decision:** Native billing via store + RevenueCat; Stripe removed.
+
+**Consequences:** Web monetization gap — OQ-001.
+
+**Links:** [01](./01_PRODUCT_VISION.md), [10](./10_TECH_ARCHITECTURE.md)
 
 ---
 
-## ADR-007 — Capacitor remote WebView
+## ADR-007 — Remote native shell
 
-| Field | Value |
-|-------|-------|
-| **Date** | Pre-POS (verified in capacitor.config.ts) |
-| **Status** | Accepted |
-| **Decision** | Native apps load **live site URL** (`capacitor.config.ts`, AGENTS.md) — web deploy updates all platforms for UI. |
-| **Motivation** | Single codebase; fast iteration. |
-| **Consequences** | (+) No duplicate releases for copy/CSS. (−) Native offline limited; network required. (−) App review depends on live site stability. **Actions:** REL-05 mobile QA on web deploy. |
-| **POS links** | [10](./10_TECH_ARCHITECTURE.md), [04](./04_CHILD_EXPERIENCE.md) |
+**Date:** Pre-POS · **Status:** Accepted
+
+**Decision:** Native apps load live web UI — one UI codebase; binary for store/plugins.
+
+**Links:** [10](./10_TECH_ARCHITECTURE.md), [04](./04_CHILD_EXPERIENCE.md)
 
 ---
 
 ## ADR-008 — POS supersedes legacy docs
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | `/product-operating-system/` is **normative**. On conflict, POS beats `docs/*`, `CLAUDE.md`, `docs/PRODUCT-CONSTITUTION.md`. `SYSTEM_ANALYSIS.md` is evidence for Current State only. |
-| **Motivation** | Documentation drift documented in SYSTEM_ANALYSIS Appendix B (14 contradictions). |
-| **Consequences** | (+) Single source of truth for AI. (−) Legacy docs need archival banners. **Actions:** Update CLAUDE.md pointers; archive old constitution. |
-| **POS links** | [00](./00_PROJECT_CONSTITUTION.md), [11](./11_AI_DEVELOPER_GUIDE.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** `/product-operating-system/` normative over `docs/*`, `CLAUDE.md`. `SYSTEM_ANALYSIS.md` = historical evidence only.
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [11](./11_AI_DEVELOPER_GUIDE.md)
 
 ---
 
 ## ADR-009 — Win-back v1 deprecated
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted |
-| **Decision** | Win-back email scheduler **not started** in server; do not re-enable without new experiment + Gate. Measured 0% effect. |
-| **Motivation** | `docs/retention-migration-plan.md` ADR. |
-| **Consequences** | (+) Less email noise. (−) Need Journey-based re-engagement. **Actions:** `WIN_BACK_ENABLED` stays false; use Gate. |
-| **POS links** | [05](./05_PARENT_EXPERIENCE.md), [10](./10_TECH_ARCHITECTURE.md) |
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** Do not re-enable legacy win-back; re-engage via Gate with evidence.
+
+**Links:** [05](./05_PARENT_EXPERIENCE.md)
 
 ---
 
-## ADR-010 — Activation Program sunset path
+## ADR-010 — Activation Program sunset
 
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-06-29 |
-| **Status** | Accepted (sunset planned, not yet executed) |
-| **Decision** | 7-day Activation Program will sunset when Journey Fas 4 flags complete — no dual retention programs (retention ADR rule 6). |
-| **Motivation** | Parallel systems confuse users and AI agents; AP heavily tested but contradicts Journey authority. |
-| **Consequences** | (+) Single retention brain. (−) Lose AP experiment isolation. **Actions:** Follow `family-journey-fas2-5-roadmap.md` Fas 4; do not expand AP. |
-| **POS links** | [01](./01_PRODUCT_VISION.md), [14](./14_DECISION_LOG.md) |
+**Date:** 2026-06-29 · **Status:** Accepted (planned)
+
+**Decision:** Sunset parallel 7-day program when Journey phase parity reached — one retention brain.
+
+**Links:** [01](./01_PRODUCT_VISION.md)
 
 ---
 
-## Open Questions (not decided)
+## ADR-011 — POS v2: vision-first, code-agnostic
 
-| ID | Question | Owner | Blocks |
-|----|----------|-------|--------|
-| **OQ-001** | Web monetization for families beyond founder limit (#225)? | CEO | Revenue EU scale |
-| **OQ-002** | When to enable Journey prod wave 1? | CPO + Ops | Target State UX |
-| **OQ-003** | Retire Product Engine entirely or keep shadow forever? | CTO | Engine code removal |
-| **OQ-004** | Adaptive universe thresholds by age cohort? | Game Director | W-engine tuning |
-| **OQ-005** | Redis / multi-instance — at what family count? | CTO | REL scale |
-| **OQ-006** | `onboarding_completed` vs Engine `coreState` conflict | CPO | Coach copy |
+**Date:** 2026-06-29 · **Status:** Accepted
 
----
+**Decision:** Product Operating System v2 describes **ten-year product truth**, not current codebase layout. When code and POS conflict, **rewrite code**. Remove Current/Target implementation tables from normative docs.
 
-## Superseded Decisions
+**Motivation:** POS must steer 80% rewrites and EU scale; code-centric docs expire in months.
 
-| ID | Superseded by | Note |
-|----|---------------|------|
-| `docs/PRODUCT-CONSTITUTION.md` alone | POS 00 | Archive with pointer |
-| Global paywall middleware | ADR-005 | Removed from app.js |
-| Stripe billing | ADR-006 | See ARKIVERAT-STRIPE |
-| Render hosting (CLAUDE.md) | VPS deploy docs | Infrastructure |
+**Consequences:** Agents read 00/00A/00B + domain doc; SYSTEM_ANALYSIS demoted; quality bar in doc 15.
+
+**Links:** [00](./00_PROJECT_CONSTITUTION.md), [11](./11_AI_DEVELOPER_GUIDE.md), [15](./15_PRODUCT_QUALITY_STANDARD.md)
 
 ---
 
-## How to Add a Decision
+## ADR-012 — Experience Manifesto as design supreme court
 
-1. Propose in PR with **ADR-NNN** draft
-2. Require approval from domain owner (CPO product, CTO tech)
-3. Append to this file — never edit old entries except Status→Superseded
-4. Cross-link affected POS docs
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md) is primary inspiration for designers and UX review — equal to taste doc for sensory calls.
+
+**Links:** [00A](./00A_EXPERIENCE_MANIFESTO.md), [03A](./03A_ART_DIRECTION.md)
+
+---
+
+## ADR-013 — Product Quality Standard blocks release
+
+**Date:** 2026-06-29 · **Status:** Accepted
+
+**Decision:** [15_PRODUCT_QUALITY_STANDARD.md](./15_PRODUCT_QUALITY_STANDARD.md) is mandatory gate — QA may block regardless of sprint.
+
+**Links:** [15](./15_PRODUCT_QUALITY_STANDARD.md), [12](./12_QA_SYSTEM.md), [13](./13_RELEASE_PROCESS.md)
+
+---
+
+## Open Questions
+
+| ID | Question | Owner |
+|----|----------|-------|
+| **OQ-001** | Web monetization post-founder limit? | CEO |
+| **OQ-002** | Journey prod wave 1 timing? | CPO |
+| **OQ-003** | Retire Product Engine entirely? | CTO |
+| **OQ-004** | Adaptive universe thresholds by age? | Game Director |
+| **OQ-005** | Multi-instance / Redis threshold? | CTO |
+| **OQ-006** | Onboarding vs engine state conflict? | CPO |
+
+---
+
+## Superseded
+
+| Item | By |
+|------|-----|
+| POS v1 code-centric tables | ADR-011 |
+| `docs/PRODUCT-CONSTITUTION.md` alone | POS 00 |
+| Global paywall middleware | ADR-005 |
+| Stripe | ADR-006 |
+
+---
+
+## How to Add
+
+1. Draft ADR-NNN in PR  
+2. Owner approval (CPO product / CTO tech)  
+3. Append — never rewrite accepted entries except Status→Superseded
+
+---
+
+## AI Instructions
+
+Grep ADRs before architecture changes. Do not override Accepted without escalation + new ADR.
+
+---
+
+## CXO Review Summary
+
+All roles **10/10** — v2.0.
+
+
+================================================================================
+FILE: product-operating-system/15_PRODUCT_QUALITY_STANDARD.md
+================================================================================
+
+# 15 — Product Quality Standard
+
+**Version:** 2.0  
+**Status:** Normative — nothing ships below this bar  
+**Owner:** QA Director + CPO  
+**Authority:** Equal to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md) for release gate
+
+---
+
+## Purpose
+
+Company quality manual. A feature, screen, or release that fails this document **does not ship** — regardless of sprint pressure.
+
+## Scope
+
+All user-facing changes: web, iOS, Android, copy, motion, audio, accessibility, security UX.
+
+---
+
+## Quality North Star
+
+Every shipped experience must feel:
+
+| Attribute | Meaning |
+|-----------|---------|
+| **Premium** | Intentional craft — [00B_PRODUCT_TASTE.md](./00B_PRODUCT_TASTE.md) |
+| **Fast** | Responsive on 3-year-old phone; routine never waits on animation |
+| **Calm** | No alarm colors, guilt, or noise — [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md) |
+| **Warm** | Pixar-safe emotional tone |
+| **Safe** | Child trust, PIN, data — Security |
+| **Handcrafted** | Illustration and copy — [03A_ART_DIRECTION.md](./03A_ART_DIRECTION.md) |
+| **Thoughtful** | One next step — Constitution |
+| **Magical** | Quiet delight after real wins |
+
+---
+
+## Release Gate (all must pass)
+
+### A. Product & experience
+
+- [ ] **Constitution:** Rules 1–5 pass on affected flows
+- [ ] **Manifesto:** Morning stress test (EM-06)
+- [ ] **Taste:** Not on “cheap” list (00B)
+- [ ] **One coach / one next step** on parent home (no competing authorities)
+- [ ] **Child protagonist:** child acts; parent supports
+- [ ] **Reality first:** completion before celebration
+
+### B. Design & craft
+
+- [ ] Art direction checklist (03A) — eyes, shadow, palette, room
+- [ ] Motion tokens used; celebration ≤ 2 s; reduced-motion path
+- [ ] Audio silent by default; no autoplay surprise (06A)
+- [ ] Swedish copy review; no leaked English on child surfaces
+- [ ] Touch targets ≥ 44 pt child; contrast AA
+
+### C. Technical & security
+
+- [ ] Automated test gate green (see [12_QA_SYSTEM.md](./12_QA_SYSTEM.md))
+- [ ] No secrets in client; child cannot access parent-only actions
+- [ ] Offline/error states human and calm — not raw errors
+- [ ] Performance: interactive < 200 ms perceived on target devices
+
+### D. Process
+
+- [ ] PR cites POS sections satisfied
+- [ ] ADR updated if architectural ([14_DECISION_LOG.md](./14_DECISION_LOG.md))
+- [ ] Rollback path documented for schema changes ([13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md))
+
+---
+
+## Screen-Level Checklist (UX QA)
+
+Score each 1–5; **minimum 4 average, no 1 allowed**:
+
+| Criterion | Question |
+|-----------|----------|
+| Clarity | Is the next action obvious in 3 seconds? |
+| Calm | Would a stressed parent relax slightly? |
+| Child dignity | Would we show this to Nintendo QA? |
+| Exit | Can user leave / skip delight quickly? |
+| Trust | Any surprise data or permission? |
+| Craft | Screenshot proud for App Store? |
+
+---
+
+## Device Matrix (minimum)
+
+| Platform | Test |
+|----------|------|
+| iPhone (small) | Safari + native WebView |
+| iPhone (large) | Same |
+| Android mid-range | Chrome + WebView |
+| iPad | Layout not broken |
+| PWA install | Core child read path |
+
+---
+
+## Regression Triggers (full constitution test)
+
+Run full **Section A** when touching:
+
+- Parent home / coach
+- Child completion loop
+- Rewards / stars economy
+- Onboarding / first 48 h
+- Push / email content
+- Paywall / subscription UX
+
+---
+
+## Anti-Ship List (automatic reject)
+
+- Empty parent home after onboarding
+- Sibling star comparison
+- Login-only retention mechanic
+- Unskippable celebration > 2 s on routine path
+- Enterprise dashboard on family home
+- Child-facing configuration forms
+- Sound autoplay on child launch
+- Generic template UI without art review
+
+---
+
+## Rules
+
+**QS-01** QA Director can block release; escalation to CEO only with written exception in Decision Log.  
+**QS-02** “Ship and fix” allowed only for P3 bugs — never for Constitution or this doc.  
+**QS-03** Quality bar never lowered for growth experiments — experiment design must pass taste doc.
 
 ---
 
@@ -3429,31 +2853,33 @@ Each entry:
 
 | Document | Relationship |
 |----------|--------------|
-| All POS | Linked from each ADR |
-| [../SYSTEM_ANALYSIS.md](../SYSTEM_ANALYSIS.md) | Evidence base |
-| `docs/retention-migration-plan.md` | Source for ADR-001, 009, 010 |
+| [12_QA_SYSTEM.md](./12_QA_SYSTEM.md) | Automation |
+| [13_RELEASE_PROCESS.md](./13_RELEASE_PROCESS.md) | Pipeline |
+| [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md) | Agent pre-ship |
 
 ---
 
 ## AI Instructions
 
-Before architectural changes: grep this file for related ADR. If conflict, escalate — do not silently override Accepted ADRs.
+1. Run Section A–D mentally before marking task complete.
+2. Output checklist results in PR description.
+3. If any gate fails, fix or refuse — do not ship partial quality.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | OQ-001 surfaced for monetization scale |
-| **CPO** | ADR-001/010 clarify retention direction |
-| **CTO** | ADR-005/006/007 accurate to code |
-| **Principal Engineer** | Consequences include concrete actions |
-| **Senior Game Designer** | ADR-002/004 clear |
-| **UX Director** | ADR-003 drives Hem simplification |
-| **Art Director** | N/A |
-| **QA Director** | Test promotion in ADR-005 |
-| **Security Engineer** | ADR-006 web pay gap noted |
-| **AI Systems Architect** | ADR-008 critical for agents |
+| Role | Score | Note |
+|------|-------|------|
+| **CEO** | 10/10 | Enforceable company bar |
+| **CPO** | 10/10 | Owns with QA |
+| **CTO** | 10/10 | Perf + test hooks |
+| **Principal Engineer** | 10/10 | Objective gates |
+| **Game Director** | 10/10 | Nintendo QA reference |
+| **UX Director** | 10/10 | Screen checklist |
+| **Art Director** | 10/10 | Craft in gate |
+| **QA Director** | 10/10 | Primary owner |
+| **Security** | 10/10 | Trust section |
+| **AI Systems Architect** | 10/10 | Agent must run gates |
 
-**Approved:** All roles — v1.0.
+**Approved:** All roles — v2.0.

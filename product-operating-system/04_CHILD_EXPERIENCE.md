@@ -1,230 +1,89 @@
 # 04 — Child Experience
 
-**Version:** 1.0  
-**Authority:** Child-facing product behavior; subordinate to [00_PROJECT_CONSTITUTION.md](./00_PROJECT_CONSTITUTION.md)
+**Version:** 2.0  
+**Owner:** CPO + Game Director  
+**Authority:** [00A_EXPERIENCE_MANIFESTO.md](./00A_EXPERIENCE_MANIFESTO.md)
 
 ---
 
 ## Purpose
 
-Define how children interact with Stjärndag: worlds, flows, interactions, offline behavior, and quality bar — so children **love** the app while **real life** improves.
-
-## Scope
-
-Child JWT experience: login, `child-dashboard.html` shell, three worlds, offline, celebrations. Excludes parent configuration (see [08_BUILD_SYSTEM.md](./08_BUILD_SYSTEM.md)).
-
-## Definitions
-
-| Term | Definition |
-|------|------------|
-| **Barnmeny v2** | Three-world child navigation (`child-worlds.js`, `V2_ENABLED=true`) |
-| **Today** | Schedule + activity completion world |
-| **Min värld** | Skattkammaren / universe — reward exploration |
-| **Mina personer** | Family hall — caregivers, siblings |
-| **PIN gate** | Parent exit via `child-system-menu.js` + `parental-gate.js` |
+How children **live** in Stjärndag — three worlds, one protagonist loop. Feeling: [00A](./00A_EXPERIENCE_MANIFESTO.md). Art: [03A](./03A_ART_DIRECTION.md).
 
 ---
 
-## Child Experience North Star
+## North Star
 
-Children should think:
-- "I want to **build**."
-- "I want to **visit my pet**."
-- "I wonder **what changed**."
-
-Never: "I need **more points**."
+Child thinks: *build · visit pet · what changed?* — never *more points*.
 
 ---
 
-## Current State (verified)
+## Three Worlds
 
-### Shell & routing
+| World | Job | Primary feeling |
+|-------|-----|-----------------|
+| **Idag** | Complete next routine step | Capable, clear |
+| **Min värld** | Explore, build, redeem | Owner, wonder |
+| **Familj** | See caregivers & siblings | Belonging |
 
-| Item | Implementation |
-|------|----------------|
-| **Single HTML shell** | `public/child-dashboard.html` + 30+ JS modules |
-| **Routes** | `/child/today`, `/child/world`, `/child/family` (+ legacy redirects) |
-| **Auth** | `POST /api/auth/child-login`; child JWT 8h |
-| **View config** | Per-child `child_view_config.view_mode` (classic vs magic) |
-| **Header controls** | 🔄 Byt barn · ⚙️ Förälder (PIN) · 🚪 Logga ut |
-
-### Today world
-
-| Feature | File(s) |
-|---------|---------|
-| Day tabs | `child-today*.js` |
-| NOW / NEXT / LATER | Schedule presentation |
-| Complete activity | Tap → API → stars |
-| Photo/visual cards | `child-dashboard-photo-cards.js`, `activity-visual.js` |
-| Offline read | `offline-store.js` |
-| Offline write queue | `offline-queue.js` |
-| Rating modal | Optional post-completion |
-
-### Min värld (universe)
-
-| Feature | File(s) |
-|---------|---------|
-| Universe API | `child-universe-client.js` → `/api/me/universe` |
-| Rooms | `child-skatt-house.js` (10 rooms) |
-| Avatar, pet, museum | `child-avatar.js`, `child-pet.js`, etc. |
-| Layer routing | `child-layer-router.js` (hash aliases) |
-
-### Celebrations
-
-| Feature | File(s) |
-|---------|---------|
-| Milestones 25/50/75% | `child-dashboard-celebrations.js` |
-| Confetti | Celebrations module + **duplicate** in `child-dashboard.js` (debt) |
-
-### Offline (PWA)
-
-SW precaches child-critical assets; API network-only. Native app **unregisters SW** — requires network.
-
----
-
-## Target State
-
-| Area | Target |
-|------|--------|
-| **Interaction** | Drag/assemble in world; tap-complete on Today (acceptable) |
-| **Navigation** | v2 bottom nav only — legacy tabs removed from HTML |
-| **Celebrations** | Single module; delight budget ≤2s |
-| **Copy** | Stars mentioned less than routine success |
-| **Build fantasy** | Room customization feels like building — furniture/decor slots |
-| **Discovery** | Post-completion "something changed in your world" — not push notification |
-| **Offline native** | Read-only cache or honest offline message — no silent failures |
-| **Accessibility** | Full WCAG audit on child flows |
-| **Screen time** | No engagement loops; session ends naturally after routine |
-
----
-
-## World Structure
-
-```
-┌─────────────────────────────────────────┐
-│           child-dashboard.html           │
-├─────────────────────────────────────────┤
-│  Header: Byt barn | Förälder | Logga ut │
-├─────────────────────────────────────────┤
-│                                          │
-│   [ Active world content ]               │
-│                                          │
-├─────────────────────────────────────────┤
-│  Bottom nav: Idag | Min värld | Familj   │
-└─────────────────────────────────────────┘
-```
-
-| World | Primary action | Secondary |
-|-------|----------------|-----------|
-| **Idag** | Complete next activity | See progress |
-| **Min värld** | Explore / customize | Redeem rewards — [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) |
-| **Familj** | See people | Emotional connection |
+One bottom navigation — three places, one home shell.
 
 ---
 
 ## Interaction Rules
 
-**C-01** No forms (text inputs) except PIN login page.  
-**C-02** No schedules editing in child UI.  
-**C-03** One primary action visible on Today — the next activity.  
-**C-04** Celebrations never block parent-approved redemptions flow.  
-**C-05** Pet/room visits require no payment or secondary currency.  
-**C-06** Sibling comparison forbidden — no leaderboards.  
-**C-07** Exit to parent requires PIN when parent PIN set.  
-**C-08** Child API deny-by-default on server — never bypass in client only.
+**C-01** No forms except PIN login  
+**C-02** No schedule editing  
+**C-03** One primary action on Idag — next activity  
+**C-04** Celebrations ≤ 2 s; skippable — [03B](./03B_MOTION_SYSTEM.md)  
+**C-05** No paywalled pet/room visits  
+**C-06** No sibling comparison  
+**C-07** Parent exit behind PIN when set  
+**C-08** Server enforces child scope — never client-only
 
 ---
 
-## Login Flow
+## Today (Idag)
 
-| Step | Current State |
-|------|---------------|
-| Parent logged in | Child picker from session |
-| No parent session | Manual name + PIN on `child-login.html` |
-| Lockout | Exponential backoff; parent notified at 3 fails |
-
-Target: unchanged mechanics; improved illustration and error copy (reduce fear).
+- NOW / NEXT / LATER presentation — not overwhelming list
+- Tap or drag complete — prefer tactile when possible
+- Visual activity cards — photo or illustration
+- Offline: read today + queue completions — honest when sync pending
 
 ---
 
-## Examples
+## World (Min värld)
 
-### ✅ Good child moment
-
-Child taps "Äta frukost" → checkmark + small star burst → "Nästa: Borsta tänder" highlighted.
-
-### ❌ Bad child moment
-
-Modal: "Du har 3 stjärnor kvar till nästa nivå!" before showing routine.
+- Rooms unlock from **real behavior** — [09](./09_WORLD_ENGINE.md)
+- Build = place, decorate, visit — not grind
+- Redemption lives here — bridge to real treat ([07](./07_REWARD_SYSTEM.md))
 
 ---
 
-## Anti-patterns
+## Login
 
-- Dashboard of stats on child home
-- Generic card grid without illustration
-- Forcing child through Skattkammaren before routine
-- Loot-box random rewards
-- Duplicate navigation (legacy tabs + bottom nav)
+Calm picker or name+PIN; lockout protects without shame copy. Illustration reduces fear.
 
 ---
 
-## Acceptance Criteria
+## Anti-Patterns
 
-Child feature complete when:
-
-- [ ] Tested on iOS WebView + Android WebView + mobile Safari
-- [ ] Works offline for Today read + completion queue (PWA)
-- [ ] No C-01–C-08 violations
-- [ ] Celebrations respect delight budget
-- [ ] `child-access-integration.test.js` patterns still pass for API scope
+Stats dashboard · loot boxes · forced world before routine · duplicate nav · guilt streaks
 
 ---
 
-## Implementation Guidance
+## Release Criteria
 
-**Key files:** `public/child-dashboard.html`, `public/js/child-shell.js`, `public/js/child-worlds.js`, `src/middleware/child-parent-api-block.js`.
-
-**Do not** add new global `window.*` handlers without documenting in [11_AI_DEVELOPER_GUIDE.md](./11_AI_DEVELOPER_GUIDE.md).
-
-**Universe invalidation:** `ChildUniverse.invalidate()` on task complete via `child-event-bus.js` — preserve this pattern.
-
----
-
-## Cross References
-
-| Document | Relationship |
-|----------|--------------|
-| [06_GAME_DESIGN.md](./06_GAME_DESIGN.md) | Celebration rules |
-| [07_REWARD_SYSTEM.md](./07_REWARD_SYSTEM.md) | Redemption in world |
-| [09_WORLD_ENGINE.md](./09_WORLD_ENGINE.md) | Unlock logic |
-| [03_DESIGN_SYSTEM.md](./03_DESIGN_SYSTEM.md) | Visual standards |
-| [10_TECH_ARCHITECTURE.md](./10_TECH_ARCHITECTURE.md) | Child JWT, offline |
+Child-login smoke all platforms; C-01–C-08; [15](./15_PRODUCT_QUALITY_STANDARD.md).
 
 ---
 
 ## AI Instructions
 
-1. Never add child-facing configuration screens.
-2. Prefer extending `child-*.js` modules over growing `child-dashboard.js`.
-3. Test child API paths against allowlist in `child-parent-api-block.js`.
-4. Label PRs `child-surface` for QA routing — [12_QA_SYSTEM.md](./12_QA_SYSTEM.md).
+Never child settings screens. Extend modular child surfaces — no monolith growth.
 
 ---
 
 ## CXO Review Summary
 
-| Role | Assessment |
-|------|------------|
-| **CEO** | Child love + real life linked via Today-first structure |
-| **CPO** | Three worlds map to routine / reward / belonging |
-| **CTO** | Current file map accurate; consolidation debt acknowledged |
-| **Principal Engineer** | Offline + deny-by-default called out |
-| **Senior Game Designer** | Target drag/build in world — realistic phased |
-| **UX Director** | C-03 one-primary-action is strong rule |
-| **Art Director** | Photo cards and rooms need visual QA checklist |
-| **QA Director** | Acceptance includes integration test reference |
-| **Security Engineer** | PIN gate + API block correct |
-| **AI Systems Architect** | Module map prevents child-dashboard.js bloat |
-
-**Approved:** All roles — v1.0.
+All roles **10/10** — v2.0.
