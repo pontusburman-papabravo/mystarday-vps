@@ -1,7 +1,7 @@
-# AI Team Operating System v1.0 (final) — Combined Export (TEMP)
+# AI Team Operating System v1.0 (Frozen) — Combined Export (TEMP)
 
 **Generated:** 2026-06-29  
-**Purpose:** Single-file export of all Team OS v1.0 documents for review/sharing.  
+**Status:** Frozen — changes require PR + Executive Review + Human approval  
 **Canonical source:** `.ai/` tree — this file is a snapshot, not authoritative.
 
 ---
@@ -13,11 +13,12 @@
 
 # AI Team Operating System
 
-**Version:** 1.0 (final)  
-**Status:** Normative for all AI agents in this repository  
-**Audience:** Any AI agent — model-agnostic, session-agnostic, multi-agent safe
+**Version:** 1.0  
+**Status:** **Frozen**  
+**Changes require:** PR + Executive Review + Human approval  
+**Governance:** [GOVERNANCE.md](GOVERNANCE.md)
 
-> **Start here:** [AGENTS.md](AGENTS.md) is the single entry point. This file is a brief index.
+> **Start here:** [AGENTS.md](AGENTS.md) · **Constitution for Team OS:** [GOVERNANCE.md](GOVERNANCE.md)
 
 ---
 
@@ -31,45 +32,29 @@ The **AI Team Operating System** governs **how** autonomous agents work in this 
 | Product OS | `product-operating-system/` |
 | ADR | `product-operating-system/14_DECISION_LOG.md` |
 | **Team OS** | `.ai/` (this tree) |
+| **Team OS governance** | [GOVERNANCE.md](GOVERNANCE.md) |
 | Runtime env | Root `AGENTS.md` |
 
-**Supremacy:** Constitution → POS → ADR → Team OS → Code. Details: [AGENTS.md](AGENTS.md#authority-stack).
+**Authority:** [GOVERNANCE.md §2](GOVERNANCE.md#2-authority)
 
 ---
 
-## Core Systems (v1.0)
+## Core Systems (v1.0 frozen)
 
 | System | Document |
 |--------|----------|
-| Entry & orchestration | [AGENTS.md](AGENTS.md) |
-| Night / day shifts | [NIGHT_SHIFT.md](NIGHT_SHIFT.md) · [DAY_SHIFT.md](DAY_SHIFT.md) |
-| Decisions & escalation | [DECISION_MODEL.md](DECISION_MODEL.md) · [HUMAN_ESCALATION.md](HUMAN_ESCALATION.md) |
+| Governance | [GOVERNANCE.md](GOVERNANCE.md) |
+| Entry | [AGENTS.md](AGENTS.md) |
+| Night / day | [NIGHT_SHIFT.md](NIGHT_SHIFT.md) · [DAY_SHIFT.md](DAY_SHIFT.md) |
+| Decisions | [DECISION_MODEL.md](DECISION_MODEL.md) · [HUMAN_ESCALATION.md](HUMAN_ESCALATION.md) |
 | Reporting | [MORNING_REPORT.md](MORNING_REPORT.md) |
-| **Knowledge** | [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md) |
-| **Multi-agent** | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) |
-| **Metrics** | [AI_METRICS.md](AI_METRICS.md) |
-| **Improvement** | [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md) |
+| Knowledge | [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md) |
+| Multi-agent | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) |
+| Metrics | [AI_METRICS.md](AI_METRICS.md) |
+| Improvement | [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md) |
+| Changelog | [CHANGELOG.md](CHANGELOG.md) |
 
----
-
-## Structure
-
-```
-.ai/
-├── AGENTS.md                    ← Entry point
-├── KNOWLEDGE_MANAGEMENT.md      ← Truth classes & validation
-├── MULTI_AGENT_COORDINATION.md  ← Parallel agents
-├── AI_METRICS.md                ← Quality measurement
-├── CONTINUOUS_IMPROVEMENT.md    ← Weekly improvement loop
-├── NIGHT_SHIFT.md · DAY_SHIFT.md · MORNING_REPORT.md
-├── DECISION_MODEL.md · HUMAN_ESCALATION.md
-├── roles/ · workflows/ · standards/
-├── improvements/                ← Lessons, retros, metrics (proposals)
-├── reports/                     ← Multi-agent daily rollups
-├── company/ · agents/ · runtime/ · brain/ · product/  ← deep refs
-```
-
-Full map: [AGENTS.md#directory-map](AGENTS.md#directory-map).
+Structure map: [AGENTS.md#directory-map](AGENTS.md#directory-map)
 
 ---
 
@@ -78,17 +63,288 @@ Full map: [AGENTS.md#directory-map](AGENTS.md#directory-map).
 | Conflict | Winner |
 |----------|--------|
 | Quality vs speed | Quality |
-| Architecture vs shortcut | Architecture |
 | POS vs implementation | POS |
 | Agent guess vs undefined POS | Escalate |
+
+Full charter: [GOVERNANCE.md §10](GOVERNANCE.md#10-ai-team-charter)
 
 ---
 
 ## Legacy
 
-`company/`, `agents/`, `runtime/`, `brain/` remain valid deep references. **Routing** uses v1.0 structure above.
+`company/`, `agents/`, `runtime/`, `brain/` — deep reference only. **Routing:** v1.0 `roles/` · `workflows/` · `standards/`.
 
-Changes to decision authority → ADR in POS 14. Team OS changes → PR with human merge.
+**Changes:** [GOVERNANCE.md §5](GOVERNANCE.md#5-change-process) only.
+
+================================================================================
+# FILE: .ai/GOVERNANCE.md
+================================================================================
+
+# AI Team Operating System — Governance
+
+**Version:** 1.0  
+**Status:** **Frozen**  
+**Changes require:** PR + Executive Review + Human approval
+
+This document is the **constitution for Team OS**. It defines how the AI Team Operating System is governed, versioned, and changed. No agent may bypass it.
+
+**Entry point for daily work:** [AGENTS.md](AGENTS.md)
+
+---
+
+## 1. Purpose
+
+### Why Team OS exists
+
+The AI Team Operating System answers **how** autonomous agents work in this repository — safely, consistently, and at scale — without inventing product behavior.
+
+Team OS is **operational governance**. It is not product truth.
+
+### Layer distinction
+
+| Layer | Question it answers | Location |
+|-------|---------------------|----------|
+| **Constitution** | What principles are immutable? | `docs/PRODUCT-CONSTITUTION.md` |
+| **Product OS** | What to build · why · how it should feel? | `product-operating-system/` |
+| **ADR** | What architectural/product decisions are accepted? | `product-operating-system/14_DECISION_LOG.md` |
+| **AI Team OS** | How do agents decide, ship, review, coordinate? | `.ai/` (this tree) |
+| **Runtime** | How to run Node, DB, CI, deploy? | Root `AGENTS.md` |
+| **Implementation** | What exists in code today? | `src/`, `public/` |
+
+**Rule:** Each layer has a distinct job. Team OS never replaces Constitution, POS, or ADR.
+
+---
+
+## 2. Authority
+
+No lower layer may contradict a higher layer.
+
+```
+Constitution
+    ↓
+Product Operating System
+    ↓
+ADR
+    ↓
+AI Team Operating System
+    ↓
+Runtime
+    ↓
+Implementation
+```
+
+| If conflict between… | Winner |
+|----------------------|--------|
+| POS vs code | **POS** — fix code |
+| ADR vs code | **ADR** — fix code |
+| Team OS vs code style/process | **Team OS** for process; **POS** for product behavior |
+| Team OS vs POS | **POS** |
+| Constitution vs anything | **Constitution** |
+| `SYSTEM_ANALYSIS.md` vs POS | **POS** — analysis is context only |
+
+**Canonical authority definition:** this section. Other docs must **link here**, not restate.
+
+---
+
+## 3. Ownership
+
+| Asset | Owner | Propose | Approve |
+|-------|-------|---------|---------|
+| **Constitution** | Human founder | Human only | Human founder |
+| **Product OS** | CPO / human | CPO + human | Human |
+| **ADR** | Architect + human | Agent draft (Level 3) | Human accepts in POS 14 |
+| **Team OS** | AI Operations + human | Agent PR | Executive Review + **human** |
+| **Runtime** (`/AGENTS.md`) | Documentation + human | Agent PR | Human |
+| **Code** | Engineering roles | Agent PR | Human merge + gates |
+
+**Agents:** read all · propose Team OS and code changes via PR · **never** merge Team OS or Constitution without human.
+
+---
+
+## 4. Versioning
+
+Team OS uses **semantic versioning**: `MAJOR.MINOR.PATCH`
+
+| Bump | When | Examples |
+|------|------|----------|
+| **PATCH** | Clarification, typos, link fixes, non-behavioral edits | Fix broken link · typo in workflow |
+| **MINOR** | Additive process: new workflow, role detail, metric, backward-compatible rule | New `workflows/` doc · new checklist item |
+| **MAJOR** | Authority change, breaking agent behavior, decision-model change, removed/replaced rule | New decision level · invert authority stack · remove frozen workflow |
+
+**Current release:** `1.0.0` (documented as **1.0**, frozen)
+
+Version history: [CHANGELOG.md](CHANGELOG.md) (create on first post-freeze release)
+
+---
+
+## 5. Change Process
+
+**No direct edits to frozen Team OS.** All changes follow:
+
+```
+Proposal (PR or issue)
+    ↓
+Review (peer agent + affected role hats)
+    ↓
+Executive Review (CEO · CPO · CTO · QA · AI Operations minimum)
+    ↓
+Human Approval (explicit merge authority)
+    ↓
+Merge
+    ↓
+Release Notes (CHANGELOG.md + version bump in GOVERNANCE.md header)
+```
+
+### Proposal requirements
+
+Every Team OS change PR must include:
+
+- [ ] What changed and **why**
+- [ ] Version bump type (PATCH / MINOR / MAJOR)
+- [ ] Executive Review section (hats consulted + verdict)
+- [ ] Link validation (no broken internal links)
+- [ ] Duplication check (one canonical source per rule)
+- [ ] Constitution / POS / ADR conflict check: **none**
+
+**Night shift:** may open **draft** Team OS PRs — human merges after Executive Review.
+
+**Forbidden:** silent edits · drive-by rule changes in feature PRs · agent self-merge.
+
+---
+
+## 6. Compatibility
+
+Team OS **must** remain:
+
+| Property | Requirement |
+|----------|-------------|
+| **Model-agnostic** | Works for any LLM agent session — no model-specific instructions in core docs |
+| **Vendor-agnostic** | No hard dependency on Cursor, Copilot, or a single IDE |
+| **Repository-agnostic** | Patterns portable; repo-specific paths isolated in Runtime (`/AGENTS.md`) |
+
+**Adapter layer:** `.cursor/rules/*.mdc` is an optional Cursor integration — **not** part of Team OS core. Team OS references it where useful; agents without Cursor follow `.ai/standards/` and workflows directly.
+
+---
+
+## 7. Deprecation Policy
+
+No rule is removed without replacement or documented rationale.
+
+| Stage | Meaning | Action |
+|-------|---------|--------|
+| **Deprecated** | Still valid but superseded | Mark with `> **Deprecated:** use [link]` |
+| **Replacement** | New canonical doc/section | Link from deprecated to replacement |
+| **Migration** | How agents should transition | One paragraph minimum in PR or CHANGELOG |
+| **Removal** | Only in **MAJOR** version | Requires Executive Review + human approval |
+
+Log deprecations in `CHANGELOG.md` and `.ai/improvements/deprecations/` when applicable.
+
+**Legacy trees** (`company/`, `agents/`, `runtime/`, `brain/`): deprecated for **routing** — v1.0 `roles/` · `workflows/` · `standards/` supersede. Deep content remains readable until explicitly removed in a MAJOR bump.
+
+---
+
+## 8. Quality Gates
+
+No Team OS change merges without:
+
+- [ ] **Executive Review** completed (written in PR)
+- [ ] **Internal link validation** — all `.ai/` relative links resolve
+- [ ] **No duplication** — rule exists in one canonical place
+- [ ] **No Constitution conflict**
+- [ ] **No Product OS conflict**
+- [ ] **No ADR conflict**
+- [ ] **Governance Review checklist** (§9) for MINOR/MAJOR bumps
+
+---
+
+## 9. Governance Review
+
+Recurring governance test — run **before every MINOR/MAJOR Team OS release** and **quarterly** at minimum.
+
+| Check | Pass criteria |
+|-------|---------------|
+| Duplication | No rule duplicated across AGENTS, standards, workflows without link-only reference |
+| Conflicting rules | Night/Day/DECISION_MODEL/HUMAN_ESCALATION aligned |
+| Stale rules | No doc references removed files or pre-v1.0 routing as primary |
+| Broken links | All internal `.ai/` links valid |
+| Stale roles | Each role links to correct workflow(s) or states N/A |
+| Stale workflows | Each workflow links to DECISION_MODEL + applicable standards |
+| Multi-agent | MULTI_AGENT_COORDINATION consistent with change process (no bypass merge) |
+| Frozen status | GOVERNANCE.md header matches AGENTS.md + README.md |
+
+**Owner:** AI Operations Lead · [roles/ai-operations.md](roles/ai-operations.md)
+
+Output: `.ai/improvements/governance-reviews/YYYY-Qn.md` or PR appendix.
+
+---
+
+## 10. AI Team Charter
+
+Ten principles — summary of Team OS:
+
+1. **Truth over convenience** — cite canonical sources; never invent product behavior  
+2. **POS over code** — fix implementation when it violates product truth  
+3. **Quality over speed** — gate green beats deadline  
+4. **Never invent product behavior** — undefined in POS → Level 4 escalate  
+5. **Escalate instead of guessing** — [HUMAN_ESCALATION.md](HUMAN_ESCALATION.md)  
+6. **One canonical source** — [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md)  
+7. **Review before merge** — workflows + Executive Review for Team OS  
+8. **Measure quality, not output** — [AI_METRICS.md](AI_METRICS.md)  
+9. **Protect child trust** — child safety triggers always Level 4 / emergency  
+10. **Improve continuously** — [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md) — propose, never silently change frozen OS  
+
+---
+
+## Frozen Status (v1.0)
+
+```
+AI Team Operating System
+Version: 1.0
+Status: Frozen
+Changes require: PR + Executive Review + Human approval
+```
+
+This status applies from merge of the governance freeze PR until a **MAJOR** version is approved through §5.
+
+---
+
+## References
+
+| Topic | Document |
+|-------|----------|
+| Daily entry | [AGENTS.md](AGENTS.md) |
+| Decisions | [DECISION_MODEL.md](DECISION_MODEL.md) |
+| Changes loop | [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md) |
+| Multi-agent | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) |
+
+================================================================================
+# FILE: .ai/CHANGELOG.md
+================================================================================
+
+# AI Team Operating System — Changelog
+
+All notable Team OS changes are documented here. Format follows [GOVERNANCE.md](GOVERNANCE.md) semantic versioning.
+
+## [1.0.0] — 2026-06-29 — Frozen
+
+**Status:** Frozen. Changes require PR + Executive Review + Human approval.
+
+### Added
+- Complete Team OS v1.0: shifts, decisions, roles, workflows, standards
+- Core systems: Knowledge Management, Multi-Agent Coordination, AI Metrics, Continuous Improvement
+- [GOVERNANCE.md](GOVERNANCE.md) — Team OS constitution
+- AI Operations Lead role
+
+### Governance
+- Authority stack, ownership, change process, deprecation policy
+- Governance Review checklist
+- AI Team Charter (10 principles)
+
+---
+
+## [Unreleased]
+
+_Post-freeze changes appear here before version bump._
 
 ================================================================================
 # FILE: .ai/AGENTS.md
@@ -96,8 +352,10 @@ Changes to decision authority → ADR in POS 14. Team OS changes → PR with hum
 
 # AI Team Operating System
 
-**Version:** 1.0 (final)  
-**Status:** Normative for all AI agents in this repository  
+**Version:** 1.0  
+**Status:** **Frozen**  
+**Changes require:** PR + Executive Review + Human approval  
+**Governance:** [GOVERNANCE.md](GOVERNANCE.md)  
 **Audience:** Any AI agent — model-agnostic, session-agnostic, multi-agent safe
 
 ---
@@ -119,18 +377,13 @@ This is **operational governance** — not product documentation. Product truth 
 
 ## Authority Stack
 
-Higher layers win. Never invert this order.
+**Canonical definition:** [GOVERNANCE.md §2](GOVERNANCE.md#2-authority)
 
-| Priority | Source | Location | Governs |
-|----------|--------|----------|---------|
-| 1 | **Constitution** | `docs/PRODUCT-CONSTITUTION.md` · `product-operating-system/00_PROJECT_CONSTITUTION.md` | Immutable product rules |
-| 2 | **Product OS (POS)** | `product-operating-system/` | What to build · why · how it should feel |
-| 3 | **ADR** | `product-operating-system/14_DECISION_LOG.md` | Accepted architectural & product decisions |
-| 4 | **AI Team OS** | `.ai/` (this tree) | How agents work · shifts · workflows |
-| 5 | **Runtime env** | Root `/AGENTS.md` | Node, Postgres, CI, deploy ops |
-| 6 | **Codebase** | `src/`, `public/` | Implementation — fix when it violates POS |
+```
+Constitution → Product OS → ADR → AI Team OS → Runtime → Implementation
+```
 
-> When POS and code conflict → **POS is correct.** Rewrite code, not product docs (unless ADR-worthy contradiction).
+No lower layer may contradict a higher layer. When POS and code conflict → fix code.
 
 ---
 
@@ -199,6 +452,7 @@ Agents **stop and wait** when any trigger in [HUMAN_ESCALATION.md](HUMAN_ESCALAT
 
 | System | Document | Purpose |
 |--------|----------|---------|
+| **Governance** | [GOVERNANCE.md](GOVERNANCE.md) | Constitution for Team OS · versioning · change process |
 | Knowledge | [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md) | Canonical vs working knowledge — never invent product truth |
 | Multi-agent | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) | Branch locks, handoffs, parallel rules |
 | Metrics | [AI_METRICS.md](AI_METRICS.md) | Quality trend measurement |
@@ -253,17 +507,18 @@ Night-shift agents produce a [MORNING_REPORT.md](MORNING_REPORT.md) at end of se
 
 ```
 1. Read this file (.ai/AGENTS.md)
-2. Read KNOWLEDGE_MANAGEMENT.md — classify sources before acting
-3. Read docs/PRODUCT-CONSTITUTION.md (or POS 00)
-4. Read product-operating-system/00A + 00B
-5. Identify shift: DAY_SHIFT.md or NIGHT_SHIFT.md
-6. If other agents active: MULTI_AGENT_COORDINATION.md
-7. Read task-domain POS doc (04–09, 03A/B, 06A as relevant)
-8. Read assigned role: .ai/roles/<role>.md
-9. Follow workflow: .ai/workflows/<type>.md
-10. Enforce standards: .ai/standards/
-11. Root AGENTS.md for runtime (Node, DB, test commands)
-12. .cursor/rules/000-core.mdc → 180-self-review → 190-definition-of-done
+2. Read GOVERNANCE.md — frozen status · authority · change rules
+3. Read KNOWLEDGE_MANAGEMENT.md — classify sources before acting
+4. Read docs/PRODUCT-CONSTITUTION.md (or POS 00)
+5. Read product-operating-system/00A + 00B
+6. Identify shift: DAY_SHIFT.md or NIGHT_SHIFT.md
+7. If other agents active: MULTI_AGENT_COORDINATION.md
+8. Read task-domain POS doc (04–09, 03A/B, 06A as relevant)
+9. Read assigned role: .ai/roles/<role>.md
+10. Follow workflow: .ai/workflows/<type>.md
+11. Enforce standards: .ai/standards/
+12. Root AGENTS.md for runtime (Node, DB, test commands)
+13. Optional Cursor adapter: .cursor/rules/000-core.mdc → 180 → 190
 ```
 
 ---
@@ -280,29 +535,25 @@ Night-shift agents produce a [MORNING_REPORT.md](MORNING_REPORT.md) at end of se
 
 ```
 .ai/
-├── AGENTS.md                    ← You are here (Team OS v1.0 final)
-├── KNOWLEDGE_MANAGEMENT.md      ← Truth classes · validation
-├── MULTI_AGENT_COORDINATION.md  ← Parallel agents · locks · handoffs
-├── AI_METRICS.md                ← Quality metrics
-├── CONTINUOUS_IMPROVEMENT.md    ← Weekly improvement loop
+├── GOVERNANCE.md                ← Team OS constitution (frozen v1.0)
+├── AGENTS.md                    ← You are here (entry point)
+├── CHANGELOG.md                 ← Version history
+├── KNOWLEDGE_MANAGEMENT.md · MULTI_AGENT_COORDINATION.md
+├── AI_METRICS.md · CONTINUOUS_IMPROVEMENT.md
 ├── NIGHT_SHIFT.md · DAY_SHIFT.md · MORNING_REPORT.md
 ├── DECISION_MODEL.md · HUMAN_ESCALATION.md
 ├── roles/ · workflows/ · standards/
-├── improvements/                ← Lessons · retros · metrics files
-├── reports/                     ← Multi-agent daily rollups
-├── company/ · agents/ · runtime/ · brain/ · product/
+├── improvements/ · reports/
+├── company/ · agents/ · runtime/ · brain/ · product/  ← legacy deep refs
 ```
 
 ---
 
-## Versioning
+## Versioning & Changes
 
-| Version | Change |
-|---------|--------|
-| **1.0** | AI Team Operating System — shifts, decisions, roles, workflows, standards |
-| **1.0 final** | Knowledge · multi-agent · metrics · continuous improvement · dedup pass |
+**Frozen v1.0.** All changes: [GOVERNANCE.md §5](GOVERNANCE.md#5-change-process) — PR + Executive Review + Human approval.
 
-Changes to orchestration in this file → note in PR. Structural changes to decision authority → ADR in `14_DECISION_LOG.md`.
+History: [CHANGELOG.md](CHANGELOG.md)
 
 ================================================================================
 # FILE: .ai/KNOWLEDGE_MANAGEMENT.md
@@ -322,10 +573,10 @@ Changes to orchestration in this file → note in PR. Structural changes to deci
 | Constitution | `docs/PRODUCT-CONSTITUTION.md` | Read · cite · enforce — **never edit** |
 | Product OS | `product-operating-system/` | Read · cite · enforce — **never edit** |
 | ADR | `product-operating-system/14_DECISION_LOG.md` | Read · cite · draft Level 3 — **never accept** |
-| Team OS | `.ai/` (this tree) | Read · propose improvements via PR |
+| Team OS | `.ai/` (this tree) | Read · propose via [GOVERNANCE.md](GOVERNANCE.md) — **frozen v1.0** |
 | Runtime ops | Root `AGENTS.md` | Read · update when env changes |
 
-**Supremacy:** Constitution → POS → ADR → Team OS → Code → `SYSTEM_ANALYSIS.md` (context only).
+**Supremacy:** [GOVERNANCE.md §2](GOVERNANCE.md#2-authority)
 
 ---
 
@@ -460,7 +711,7 @@ Multiple agents work in parallel without corrupting each other's work, product t
 2. **One PR owner per PR** — reviewer agents comment; only owner pushes  
 3. **Canonical truth is shared** — POS/ADR/Team OS; working knowledge is not  
 4. **Conflicts escalate** — do not force-push over another agent  
-5. **Human merges** — agents never merge to `main`
+5. **Human merges** — agents never merge to `main` or frozen Team OS without [GOVERNANCE.md](GOVERNANCE.md) process
 
 ---
 
@@ -823,17 +1074,20 @@ See AI_METRICS.md — [link or table]
 
 ## Proposal Rules
 
+Team OS is **frozen** — all changes follow [GOVERNANCE.md §5](GOVERNANCE.md#5-change-process).
+
 | Target | Agent may | Requires |
 |--------|-----------|----------|
-| `.ai/workflows/` | Propose PR | Human merge |
-| `.ai/standards/` | Propose PR | Human merge |
-| `.ai/roles/` | Propose PR | Human merge |
-| `.cursor/rules/` | Propose PR | Human merge |
+| `.ai/` (Team OS) | Draft PR only | Executive Review + **human merge** |
+| `.ai/workflows/` | Draft PR | Governance §5 |
+| `.ai/standards/` | Draft PR | Governance §5 |
+| `.ai/roles/` | Draft PR | Governance §5 |
+| `.cursor/rules/` | Draft PR | Human merge (adapter layer) |
 | `product-operating-system/` | **Never edit** | Human + CPO process |
 | `docs/PRODUCT-CONSTITUTION.md` | **Never edit** | Human founder |
 | ADR acceptance | Draft only | POS 14 human acceptance |
 
-**Level:** Team OS changes are typically Level 2 (document in PR). Decision-authority changes → Level 3 ADR.
+**Level:** Team OS PATCH/MINOR typically Level 2. MAJOR or decision-authority → Level 3 ADR + Governance Executive Review.
 
 ---
 
@@ -874,7 +1128,7 @@ Store in `.ai/improvements/lessons/` or PR description for human to file.
 
 # Night Shift
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Applies when:** No human is available to answer escalations within the session  
 **Goal:** Safe, productive autonomous progress without product or trust risk
 
@@ -981,7 +1235,7 @@ At session end, ensure:
 
 # Day Shift
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Applies when:** Human is available for questions, review, and Level 4 decisions  
 **Goal:** Collaborative delivery with faster feedback loops and broader scope
 
@@ -1214,7 +1468,7 @@ File: `.ai/reports/YYYY-MM-DD.md`
 
 # Decision Model
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Purpose:** Classify every agent decision by autonomy level  
 **Rule:** When in doubt, classify **up** (more restrictive)
 
@@ -1332,7 +1586,8 @@ Otherwise → Level 1
 
 ## Relation to Other Docs
 
-- **Seven Questions** (`.ai/runtime/DECISION_ENGINE.md`) — qualitative pass/fail within a level
+- **Governance:** [GOVERNANCE.md](GOVERNANCE.md) — changing levels requires MAJOR version + Executive Review
+- **Seven Questions** (`.ai/runtime/DECISION_ENGINE.md`) — qualitative pass/fail within a level (legacy deep ref)
 - **Escalation triggers** ([HUMAN_ESCALATION.md](HUMAN_ESCALATION.md)) — automatic Level 4
 - **POS 14** — ADR format and acceptance process
 
@@ -1344,7 +1599,7 @@ Do not duplicate ADR content here. Reference POS 14 for templates.
 
 # Human Escalation
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Rule:** When a trigger fires, **stop all implementation** on that track. Document. Wait.
 
 No "best guess." No "we can revert later." No silent product decisions.
@@ -1622,6 +1877,8 @@ Ensure shipped work advances First Success and parent trust — not feature coun
 - [ ] No anti-ship patterns (POS 02 conflict matrix)
 - [ ] First Success path preserved or improved
 
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md) (product review gate)
+
 ================================================================================
 # FILE: .ai/roles/cto.md
 ================================================================================
@@ -1756,7 +2013,9 @@ Preserve ten-year structure. Enable POS without rewrite tax.
 - [ ] No duplicate systems introduced
 - [ ] ADR linked if Level 3
 
-**Authority:** POS 10 · `14_DECISION_LOG.md` · [standards/architecture.md](../standards/architecture.md)
+**Workflow:** [workflows/implementation.md](../workflows/implementation.md) · [workflows/refactoring.md](../workflows/refactoring.md)
+
+**Governance:** Team OS changes → [GOVERNANCE.md](../GOVERNANCE.md)
 
 ================================================================================
 # FILE: .ai/roles/game-director.md
@@ -1824,6 +2083,8 @@ World grows because life grew — stars are fuel, not the destination.
 - [ ] Celebrations non-blocking
 - [ ] Child respected — fair, no manipulation
 
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)
+
 ================================================================================
 # FILE: .ai/roles/parent-experience.md
 ================================================================================
@@ -1890,6 +2151,8 @@ EM-06 morning stress test — calm, one next step, no surprise. Parents feel: *"
 - [ ] No tomma tillstånd (Constitution 3)
 - [ ] No "varför ser jag det här?" moment (Constitution 2)
 - [ ] Mobile portrait verified
+
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)
 
 ================================================================================
 # FILE: .ai/roles/qa-director.md
@@ -2160,6 +2423,8 @@ WCAG baseline; reduced motion; child dignity.
 - [ ] Touch targets ≥44pt
 - [ ] Reduced motion tested
 
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)
+
 ================================================================================
 # FILE: .ai/roles/release-manager.md
 ================================================================================
@@ -2293,7 +2558,8 @@ Accurate, minimal docs — agents and humans find truth fast without duplication
 - [ ] Root `AGENTS.md` updated if runtime changed
 - [ ] CLAUDE.md updated only for major architecture shifts (human preference)
 
-**Standard:** [standards/documentation.md](../standards/documentation.md)
+**Standard:** [standards/documentation.md](../standards/documentation.md)  
+**Governance:** [GOVERNANCE.md](../GOVERNANCE.md) — Team OS change process
 
 ================================================================================
 # FILE: .ai/roles/ai-operations.md
@@ -2362,6 +2628,7 @@ Keep the AI Team Operating System running: scalable, consistent, model-agnostic,
 - [ ] Metrics filed for the week
 - [ ] Improvement proposals linked from retro
 - [ ] Knowledge classes respected — no POS duplication in `.ai/`
+- [ ] Governance Review filed when due ([GOVERNANCE.md](../GOVERNANCE.md) §9)
 
 ================================================================================
 # FILE: .ai/workflows/implementation.md
@@ -3291,9 +3558,7 @@ Full text: `docs/PRODUCT-CONSTITUTION.md`
 
 ## Conflict Resolution
 
-```
-Constitution > Experience Manifesto > Taste > ADR > Code
-```
+[GOVERNANCE.md §2](../GOVERNANCE.md#2-authority) — canonical authority stack.
 
 If POS contradicts code → fix code.  
 If POS contradicts itself → ADR + human (Level 4).
@@ -3340,6 +3605,16 @@ Proposals and retros — **not** product truth.
 | `feedback-log.md` | Repeated human feedback (create when needed) |
 
 Process: [CONTINUOUS_IMPROVEMENT.md](../CONTINUOUS_IMPROVEMENT.md)
+
+================================================================================
+# FILE: .ai/improvements/governance-reviews/README.md
+================================================================================
+
+# Governance Reviews
+
+Quarterly and pre-release governance test outputs per [GOVERNANCE.md](../../GOVERNANCE.md) §9.
+
+**Owner:** AI Operations Lead
 
 ================================================================================
 # FILE: .ai/reports/README.md
