@@ -1,7 +1,8 @@
 # App Store Screenshots — Plan & overlay-copy
 
 > Uppdaterad 2026-06-29 för native v2 (Hem · Planering · Belöningar · För dig · Familj).  
-> **Du:** ta screenshots i Simulator → lägg overlay i Figma/Canva → ladda upp i App Store Connect.  
+> **Appen är redan på App Store** — byt screenshots när overlays är klara; ingen ny build krävs.  
+> **Du:** lägg overlay i Figma/Canva → ladda upp i App Store Connect → Spara.  
 > **Agent:** copy, ordning och CPP-mappning (denna fil).
 
 ---

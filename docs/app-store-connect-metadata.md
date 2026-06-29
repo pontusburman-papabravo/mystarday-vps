@@ -1,9 +1,23 @@
 # App Store Connect — Metadata
 
+> Appen är **redan live** — metadata, screenshots och promotional text kan uppdateras **utan ny app-version** (ingen ny build till review).  
 > Säljtext redo att klistras in i App Store Connect.  
 > Skärmbilder med overlay-copy: [`app-store-screenshots/SCREENSHOT-PLAN.md`](./app-store-screenshots/SCREENSHOT-PLAN.md)  
 > Custom Product Pages: [`app-store-custom-product-pages.md`](./app-store-custom-product-pages.md)  
 > Featuring-pitch: [`app-store-featuring-pitch.md`](./app-store-featuring-pitch.md)
+
+### Snabbast effekt (redan publicerad app)
+
+| Åtgärd | Ny build? | Var i Connect |
+|--------|-----------|---------------|
+| Subtitle + keywords | Nej | App Information → Swedish |
+| Description | Nej | Version → Description |
+| Promotional text | Nej | Version → Promotional Text |
+| Screenshots | Nej | Version → Screenshots |
+| Custom Product Pages | Nej | Custom Product Pages |
+| App Name | Sällan (review) | App Information |
+
+**Gör idag:** subtitle, keywords, promotional text → screenshots med overlay → spara. Ingen väntan på review om du bara ändrar metadata/screenshots på befintlig version.
 
 ---
 

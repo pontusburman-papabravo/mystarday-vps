@@ -1,7 +1,8 @@
 # App Store Featuring Pitch
 
 > Skickas via Apple Developer → **Promote your app on the App Store**.  
-> Gör detta **6–8 veckor före** planerad lansering eller större release.  
+> Appen är **redan live** — pitcha vid **större uppdateringar** (t.ex. v2-nav, boendeschema, För dig-rutiner) eller när du har nya screenshots som visar tydligare värde. Apple svarar sällan, men kostar inget att skicka.  
+> Skicka **6–8 veckor före** den release du vill att de ska lyfta (inte före första lansering).  
 > Formuläret är på engelska — klistra in blocken nedan.
 
 ---
@@ -71,9 +72,9 @@ We're a small, independent team (Papa Bravo AB) building specifically for Swedis
 
 ## Timing & news hook
 
-- **[Adjust date]** Major v2 release: redesigned parent navigation (Home · Planning · Rewards · For You · Family), custody scheduling, and guided routine packages
-- **[Adjust date]** Featured routines: "Good mornings" and "Calm evenings" — addressing the #1 parent pain point (transitions)
-- Built during a period when Swedish families are increasingly searching for digital alternatives to physical picture-schedule boards
+- **Nu (juni 2026):** v2 parent navigation (Home · Planning · Rewards · For You · Family), custody scheduling (Week A/B), and guided routine packages ("Good mornings", "Calm evenings")
+- **Hook for editorial:** Swedish indie app replacing physical picture-schedule boards with a native iOS experience — designed for neurodivergent children and co-parenting households
+- **When to submit:** 6–8 weeks before your next App Store **version release** if you want featuring to coincide with that update — or anytime as a standing pitch (lower odds, zero cost)
 
 ---
 

@@ -1,6 +1,7 @@
 # Custom Product Pages (CPP)
 
 > Upp till **35** skräddarsydda App Store-sidor. Varje CPP får en unik URL (`?ppid=…`) för annonser och kampanjer.  
+> **Appen är redan live** — skapa CPP:er när Meta/Google-annonser startar; ingen ny app-version behövs.  
 > **Du skapar CPP:er i App Store Connect** → Custom Product Pages. **Denna fil** är copy-paste-mall.
 
 Källbilder och overlay-stil: [`app-store-screenshots/SCREENSHOT-PLAN.md`](./app-store-screenshots/SCREENSHOT-PLAN.md)
