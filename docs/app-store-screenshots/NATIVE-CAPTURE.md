@@ -42,7 +42,7 @@ I Xcode verktygsfältet:
 | Lösenord | `AppReview2026!` |
 | Barn-PIN | `4455` |
 
-## 4. Ta fem screenshots (⌘S)
+## 4. Ta screenshots (⌘S)
 
 Varje **⌘S** sparar PNG på **Skrivbordet**. Kontrollera mått:
 
@@ -50,15 +50,21 @@ Varje **⌘S** sparar PNG på **Skrivbordet**. Kontrollera mått:
 file ~/Desktop/*.png | grep -E '1242 x 2688|1284 x 2778'
 ```
 
-| # | Navigera till | Vad ska synas |
-|---|---------------|---------------|
-| 1 | Förälder → Hem | Native **bottenflik** (inte hamburger) |
-| 2 | Barninloggning | "Välj vem du är" / Anna |
-| 3 | Barnvy | Flik **☀️ Idag** |
-| 4 | Barnvy | Flik **💎 Skattkammaren** (vänta tills rummen syns) |
-| 5 | Barnvy | Flik **🏡 Familj** |
+**Standard-set (5 bilder för upload):** se [`SCREENSHOT-PLAN.md`](./SCREENSHOT-PLAN.md) för overlay-copy.
 
-Döp om filerna t.ex. `01-parent.png` … `05-family.png` innan upload.
+| Källfil (förslag) | Navigera till | Vad ska synas |
+|-------------------|---------------|---------------|
+| `src-06-barnvy-idag.png` | Barnvy | Dagens uppdrag med delsteg |
+| `src-07-skattkammaren.png` | Barnvy | Skattkammaren, önskelista, troféer |
+| `src-01-for-dig-rutiner.png` | Förälder → **För dig** | Trygga kvällar, Bra morgonar |
+| `src-02-hem.png` | Förälder → **Hem** | Översikt, flera barn, bottenflik |
+| `src-05-boendeschema.png` | Förälder → **Familj** | Boendeschema vecka A/B |
+
+**Reserv** (CPP, ej standard): Planering-hub (`src-03`), För dig rekommendationer (`src-04`).
+
+Föräldranav som ska synas: **Hem · Planering · Belöningar · För dig · Familj**
+
+Lägg overlay i Figma/Canva → exportera som `01-barnvy-idag.png` … `05-boendeschema.png` innan upload.
 
 ## 5. Ladda upp i App Store Connect
 

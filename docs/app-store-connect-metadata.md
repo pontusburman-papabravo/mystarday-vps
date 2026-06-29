@@ -1,17 +1,23 @@
 # App Store Connect — Metadata
 
-> Säljtext redo att klistras in i App Store Connect.
-> Fyll i eventuella varianter (ditt land/reglering) vid behov.
-> Svensk text — översätt till engelska vid sidan av Apple Store Review.
+> Säljtext redo att klistras in i App Store Connect.  
+> Skärmbilder med overlay-copy: [`app-store-screenshots/SCREENSHOT-PLAN.md`](./app-store-screenshots/SCREENSHOT-PLAN.md)  
+> Custom Product Pages: [`app-store-custom-product-pages.md`](./app-store-custom-product-pages.md)  
+> Featuring-pitch: [`app-store-featuring-pitch.md`](./app-store-featuring-pitch.md)
 
 ---
 
 ## App Information
 
-**App Name:** Min Stjärndag
+**App Name:** Min Stjärndag   <!-- pragma: allowlist secret -->
+*(max 30 tecken — behåll kort; nyckelord i subtitle)*
 
 **Subtitle** (max 30 tecken):
-> Dagliga scheman för barn
+> Visuellt stöd & rutiner
+
+*Tecken: 22/30. Alternativ om A/B-test:*
+- `Bildschema & belöningar` (23 tecken)
+- `Rutiner utan tjat` (18 tecken)
 
 ---
 
@@ -19,50 +25,49 @@
 
 > Max 4000 tecken. Svensk text för svenska App Store.
 
-Min Stjärndag hjälper föräldrar och barn att få en lugnare vardag — tillsammans.
+Min Stjärndag hjälper föräldrar och barn att få en lugnare vardag — tillsammans. <!-- pragma: allowlist secret -->
 
-**För föräldrar:**
-Skapa dagsscheman med aktiviteter och belöningar, följ hur det går och ge stjärnor när barnet gör bra ifrån sig. Du ser allas framsteg i en tydlig översikt och kan dela utvald information med förskola eller skola via säkra delningslänkar.
+**Visuellt stöd som barnet förstår**
+Bygg dagsscheman med bilder och delsteg. Barnet ser exakt vad som händer nu och vad som kommer sen — perfekt för barn som behöver tydlig struktur, oavsett om det gäller morgonrutin, läxor eller läggdags.
 
-**För barn:**
-Barn loggar in med en egen PIN-kod och möts av en färgglad, stjärnbaserad vy. Där ser de sitt dagsschema med bilder och får belöningar när aktiviteter är klara. Allt är utformat för att vara självständigt för ett barn i förskoleåldern.
+**Belöningar som motiverar**
+Varje avklarat steg ger stjärnor. Stjärnorna samlas i Skattkammaren mot belöningar ni själva väljer — från extra saga till restaurangbesök. Positiv förstärkning istället för tjat.
 
-**Vad du får:**
-- Dagliga och veckovisa scheman anpassade för ditt barn
-- Stjärnbelöningar och belöningskammare (Skattkammaren)
-- Push-notiser för påminnelser och framsteg
-- Delning av rapporter med pedagoger och terapeuter
-- Pedagoganteckningar (för pedagoger)
-- Offline-läge — funkar även utan internet
+**För föräldrar**
+- Skapa och redigera scheman på några minuter
+- Följ alla barns framsteg i en överblick
+- Bjud in medförälder — samma schema, ingen dubbelplanering
+- Boendeschema för växelvis boende (vecka A/B)
+- Dela rapporter säkert med förskola, skola eller terapeut
+- Skriv ut schema som PDF
 
-Passar för familjer med barn i åldrarna 3–10 år.
+**För barn**
+Barn loggar in med egen PIN och möts av en färgglad vy med dagens uppdrag, stjärnor och belöningar. Utformat för självständighet — barn i åldrarna 3–10 kan bocka av själva.
+
+**Färdiga rutiner att aktivera**
+Morgonrutin, kvällsrutin, självständighet och mer — aktivera på en minut via För dig-fliken.
+
+**Trygghet**
+- Svensk app, data i EU
+- Ingen reklam
+- Offline-läge
+- Sign in with Apple
+
+Passar familjer med barn 3–10 år — särskilt de som söker bildschema, bildstöd eller tydligare vardagsrutiner.
 
 ---
 
-## Keywords (Keywords)
+## Keywords
 
-> Max 100 tecken per nyckelord. Sju nyckelord à max 100 tecken = 700 tecken totalt.
+> **Ett** fält, **max 100 tecken totalt**. Kommaseparerat, **inga mellanslag** efter komma.  
+> Upprepa inte ord som redan finns i App Name eller Subtitle (`Min`, `Stjärndag`, `visuellt`, `stöd`, `rutiner`).
 
-Nyckelord 1 (59 tecken):
-> dagliga scheman barn förskola föräldrar rutiner aktiviteter
+**Klistra in (98 tecken):**
+```
+bildschema,bildstöd,NPF,ADHD,autism,belöning,förskola,morgon,kväll,medförälder,pedagog,barn,rutin
+```
 
-Nyckelord 2 (69 tecken):
-> stjärnbelöning belöningssystem familjeapp barnschema vardagsrutiner
-
-Nyckelord 3 (51 tecken):
-> förskola skola pedagoganteckningar observationer barnutveckling
-
-Nyckelord 4 (57 tecken):
-> push-notiser påminnelse föräldraapp familjeliv schema barn
-
-Nyckelord 5 (60 tecken):
-> skattkammare belöningskammare star rewards barn app rutiner
-
-Nyckelord 6 (37 tecken):
-> offline familjeapp förskolebarn dagliga rutiner
-
-Nyckelord 7 (46 tecken):
-> swedish family app kids schedule routine star rewards
+*Verifiering:* `echo -n 'bildschema,bildstöd,NPF,ADHD,autism,belöning,förskola,morgon,kväll,medförälder,pedagog,barn,rutin' | wc -c` → 98
 
 ---
 
@@ -70,50 +75,40 @@ Nyckelord 7 (46 tecken):
 
 > Max 170 tecken. Uppdateras utan ny version.
 
-Skapa dagsscheman, ge stjärnor och låt barnen följa sin egen vy. Min Stjärndag – ordning och glädje för hela familjen. ★
+Bildschema med stjärnbelöningar — barnet ser vad som händer, ni slipper tjat. Aktivera morgon- eller kvällsrutin på en minut. Prova gratis. ★
+
+*Tecken: 138/170*
 
 ---
 
 ## Screenshots & Preview
 
-**Källa:** Xcode Simulator eller TestFlight (native app) — se `docs/app-store-screenshots/NATIVE-CAPTURE.md`.  
-Playwright/PWA-bilder i repot är **inte** för upload.
+**Detaljerad plan:** [`app-store-screenshots/SCREENSHOT-PLAN.md`](./app-store-screenshots/SCREENSHOT-PLAN.md)  
+**Inspelning:** [`app-store-screenshots/NATIVE-CAPTURE.md`](./app-store-screenshots/NATIVE-CAPTURE.md)
 
-### Godkända mått (endast dessa)
+### Snabbreferens — standardordning (5 bilder)
 
-| Portrait | Landscape |
-|----------|-----------|
-| **1242 × 2688** | **2688 × 1242** |
-| **1284 × 2778** | **2778 × 1284** |
+| # | Källa | Overlay-rubrik |
+|---|-------|----------------|
+| 1 | Barnvy — Dagens uppdrag | Barnet ser vad som händer nu |
+| 2 | Skattkammaren | Stjärnor som motiverar |
+| 3 | För dig — rutiner | Morgon & kväll utan maktkamp |
+| 4 | Hem — översikt | Hela familjen i samma överblick |
+| 5 | Boendeschema | Växelvis boende? Vecka A & B |
 
-**Avvisas:** 1290×2796, 1242×2208, och alla andra storlekar.
-
-Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×2688 · Screenshot **⌘S**.
-
-### Innehåll (ordning 1–5)
-
-| # | Vy | Innehåll |
-|---|-----|----------|
-| 1 | Förälder | Hem med native bottenflik (Hem · Schema · …) |
-| 2 | Barn | Välj barn / PIN |
-| 3 | Barn | **☀️ Idag** |
-| 4 | Barn | **💎 Skattkammaren** (rum-hub) |
-| 5 | Barn | **🏡 Familj** |
-
-**Screenshot-krav:**
-- Native UI (inte mobil webb med hamburger-meny)
-- **3-fliksnavigation** i barnvy (Idag · Skattkammaren · Familj)
-- Reellt innehåll från review-kontot
+Lägg **alltid** overlay-text ovanpå mockupen innan upload. Ladda inte upp rena screenshots utan säljcopy.
 
 ---
 
 ## Category & Age Rating
 
-**Primary Category:** Family & Education
+**Primary Category:** Education  
 **Secondary Category:** Lifestyle
 
-**Age Rating:** 4+
-**Content Flags:** None (app does not contain mature content)
+*Alternativ om Education känns smal:* Primary Family, Secondary Education.
+
+**Age Rating:** 4+  
+**Content Flags:** None
 
 ---
 
@@ -121,9 +116,9 @@ Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×
 
 | Field | URL |
 |-------|-----|
-| Support URL | https://mystarday.se |
-| Privacy Policy URL | https://mystarday.se/privacy |
-| Marketing URL | https://mystarday.se |
+| Support URL | https://mystarday.se | <!-- pragma: allowlist secret -->
+| Privacy Policy URL | https://mystarday.se/privacy | <!-- pragma: allowlist secret -->
+| Marketing URL | https://mystarday.se | <!-- pragma: allowlist secret -->
 
 ---
 
@@ -131,19 +126,16 @@ Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×
 
 | Field | Value |
 |-------|-------|
-| Developer Website | https://mystarday.se |
+| Developer Website | https://mystarday.se | <!-- pragma: allowlist secret -->
 | Copyright | © 2026 Papa Bravo AB |
 
 ---
 
 ## Review Information
 
-**Contact First Name:** [First name]
-**Contact Last Name:** [Last name]
-**Contact Email:** info@mystarday.se
-**Phone:** [Phone number — optional]
-**Demo Account Username:** review@mystarday.se
+**Contact Email:** info@mystarday.se   <!-- pragma: allowlist secret -->
+**Demo Account Username:** review@mystarday.se   <!-- pragma: allowlist secret -->
 **Demo Account Password:** AppReview2026!
 
-**Notes to Reviewer (Engelska):**
-> The app is a Swedish family routine and reward app. The reviewer can log in with the test account above. The parent logs in with email + password. Children use a 4-digit PIN to access the child view. The app has a privacy policy at /privacy.html and terms of service at /terms.html. All user data is stored in EU. Push notifications are opt-in. No advertising. No third-party analytics without consent.
+**Notes to Reviewer (engelska):**
+> Min Stjärndag is a Swedish family routine and visual schedule app. Log in with the test account above (parent: email + password). Children use a 4-digit PIN (4455 for child Anna). Parent nav: Home · Planning · Rewards · For You · Family. Child view shows daily missions with visual sub-steps and a star reward system (Skattkammaren). Privacy policy at /privacy. Data stored in EU. Push notifications are opt-in. No ads. <!-- pragma: allowlist secret -->
