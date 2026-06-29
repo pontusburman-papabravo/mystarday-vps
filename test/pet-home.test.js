@@ -30,13 +30,18 @@ describe('pet home game v2', () => {
     assert.equal(s.bowl_fill, 50);
   });
 
-  it('pet-home page loads game scripts', () => {
+  it('pet-home state migrates hamster to kanin', () => {
+    const { normalizePetHomeState } = require('../src/lib/play/pet-home-state');
+    assert.equal(normalizePetHomeState({ pet_id: 'hamster' }).pet_id, 'kanin');
+  });
+
+  it('pet-home page has mockup panels and toolbar', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/build-pet-home.html'), 'utf8');
-    assert.match(html, /play-pet-home\.css/);
-    assert.match(html, /build-game-mobile\.js/);
-    assert.match(html, /play\/pet-home\.js/);
-    assert.match(html, /phRoom/);
-    assert.match(html, /phFoodBag/);
+    assert.match(html, /phMeters/);
+    assert.match(html, /phGoals/);
+    assert.match(html, /phToolbar/);
+    assert.match(html, /phTreat/);
+    assert.match(html, /pet-hund\.svg/);
   });
 
   it('routes register pet-home and redirect play/husdjur', () => {

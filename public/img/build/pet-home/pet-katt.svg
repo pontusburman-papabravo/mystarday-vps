@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" aria-hidden="true">
+  <defs>
+    <linearGradient id="fur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9CA3AF"/>
+      <stop offset="100%" stop-color="#6B7280"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1B2340" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <g filter="url(#soft)">
+    <ellipse cx="105" cy="130" rx="50" ry="30" fill="url(#fur)"/>
+    <ellipse cx="100" cy="78" rx="44" ry="38" fill="url(#fur)"/>
+    <path d="M62 42 L72 78 L58 74 Z" fill="#6B7280"/>
+    <path d="M138 42 L128 78 L142 74 Z" fill="#6B7280"/>
+    <circle cx="84" cy="72" r="8" fill="#22C55E"/><circle cx="87" cy="69" r="3" fill="#fff"/>
+    <circle cx="116" cy="72" r="8" fill="#22C55E"/><circle cx="119" cy="69" r="3" fill="#fff"/>
+    <path d="M94 86 L100 92 L106 86" stroke="#1B2340" stroke-width="2.5" fill="none"/>
+    <path d="M155 118 Q185 100 178 82" stroke="#6B7280" stroke-width="10" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

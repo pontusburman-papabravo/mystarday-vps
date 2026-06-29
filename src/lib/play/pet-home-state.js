@@ -4,7 +4,7 @@
  * Husdjurshemmet — server-side state normalisering (sparad i customization JSONB).
  */
 
-const PET_IDS = ['hund', 'katt', 'hamster', 'hast'];
+const PET_IDS = ['hund', 'katt', 'kanin', 'hast'];
 
 const DEFAULT_PET_HOME = {
   game_version: 2,
@@ -25,6 +25,7 @@ function clamp(n, min, max) {
 function normalizePetHomeState(raw) {
   const c = { ...DEFAULT_PET_HOME, ...(raw && typeof raw === 'object' ? raw : {}) };
   c.game_version = 2;
+  if (c.pet_id === 'hamster') c.pet_id = 'kanin';
   c.pet_id = PET_IDS.includes(c.pet_id) ? c.pet_id : 'hund';
   c.hunger = clamp(c.hunger, 0, 100);
   c.happiness = clamp(c.happiness, 0, 100);

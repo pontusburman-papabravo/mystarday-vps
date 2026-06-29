@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/play-pet-home.css?v=1">
+  <link rel="stylesheet" href="/css/play-pet-home.css?v=2">
   <script src="/js/auth.js?v=2.22.0"></script>
 </head>
 <body class="pet-home-page">
@@ -26,78 +26,101 @@
 
     <header class="ph-topbar">
       <a href="/child/world" class="ph-back">← Min värld</a>
-      <h1 class="ph-title">🐾 Husdjurshemmet</h1>
+      <h1 class="ph-title">Husdjurshemmet</h1>
       <span class="ph-topbar-spacer"></span>
     </header>
 
-    <div class="ph-meters" id="phMeters" aria-label="Hur mår djuret"></div>
+    <div class="ph-game">
+      <aside class="ph-panel ph-panel--wellbeing" aria-label="Välmående">
+        <h2 class="ph-panel-title">Välmående</h2>
+        <div class="ph-meters" id="phMeters"></div>
+      </aside>
 
-    <p class="ph-hint" id="phHint" role="status">Dra matpåsen till skålen 🥣</p>
+      <aside class="ph-panel ph-panel--goals" aria-label="Dagens mål">
+        <h2 class="ph-panel-title">Dagens mål</h2>
+        <ul class="ph-goals" id="phGoals"></ul>
+      </aside>
 
-    <div class="ph-room" id="phRoom">
-      <div class="ph-room-bg" aria-hidden="true">
-        <div class="ph-wall"></div>
-        <div class="ph-floor"></div>
-        <div class="ph-window"></div>
-        <div class="ph-rug"></div>
-        <div class="ph-dogbed"></div>
-      </div>
-
-      <div class="ph-fx" id="phFx" aria-hidden="true"></div>
-
-      <div class="ph-bowl-zone" id="phBowlZone">
-        <div class="ph-bowl" id="phBowl">
-          <div class="ph-bowl-inner"></div>
-          <div class="ph-bowl-food" id="phBowlFood"></div>
+      <aside class="ph-panel ph-panel--collect" aria-label="Samla och bygg" hidden id="phCollectPanel">
+        <h2 class="ph-panel-title">Samla &amp; bygg</h2>
+        <div class="ph-collect" id="phCollect">
+          <div class="ph-collect-bar"><i id="phCollectFill"></i></div>
+          <p class="ph-collect-label" id="phCollectLabel">0 / 75 delar</p>
         </div>
-      </div>
+      </aside>
 
-      <div class="ph-pet-stage" id="phPetStage">
-        <div class="ph-pet" id="phPet" data-pet="hund" data-mood="idle">
-          <div class="ph-pet-tail" aria-hidden="true"></div>
-          <div class="ph-pet-body" aria-hidden="true"></div>
-          <div class="ph-pet-head" aria-hidden="true">
-            <span class="ph-ear ph-ear--l"></span>
-            <span class="ph-ear ph-ear--r"></span>
-            <span class="ph-snout"></span>
-            <span class="ph-eye ph-eye--l"></span>
-            <span class="ph-eye ph-eye--r"></span>
-            <span class="ph-nose"></span>
+      <p class="ph-hint" id="phHint" role="status">Dra matpåsen till skålen</p>
+
+      <div class="ph-room" id="phRoom">
+        <div class="ph-room-bg" aria-hidden="true">
+          <div class="ph-wall"></div>
+          <div class="ph-floor"></div>
+          <div class="ph-window"></div>
+          <div class="ph-plant ph-plant--l"></div>
+          <div class="ph-plant ph-plant--r"></div>
+          <div class="ph-sofa"></div>
+          <div class="ph-basket"></div>
+          <div class="ph-rug"></div>
+          <div class="ph-dogbed"></div>
+        </div>
+
+        <div class="ph-fx" id="phFx" aria-hidden="true"></div>
+
+        <div class="ph-bowl-zone" id="phBowlZone">
+          <div class="ph-bowl" id="phBowl">
+            <div class="ph-bowl-inner"></div>
+            <div class="ph-bowl-food" id="phBowlFood"></div>
           </div>
-          <div class="ph-pet-dirt" id="phPetDirt" aria-hidden="true"></div>
         </div>
-        <div class="ph-blanket-on-pet" id="phBlanketOnPet" hidden></div>
-        <div class="ph-zzz" id="phZzz" hidden aria-hidden="true">💤 💤</div>
-        <div class="ph-scrub-meter" id="phScrubMeter" hidden>
-          <span>Borsta pälsen</span>
-          <div class="ph-scrub-track"><i id="phScrubFill"></i></div>
+
+        <div class="ph-pet-stage" id="phPetStage">
+          <div class="ph-pet" id="phPet" data-pet="hund" data-mood="idle">
+            <img class="ph-pet-img" id="phPetImg" src="/img/build/pet-home/pet-hund.svg" alt="" draggable="false">
+            <div class="ph-pet-dirt" id="phPetDirt" aria-hidden="true"></div>
+          </div>
+          <div class="ph-blanket-on-pet" id="phBlanketOnPet" hidden></div>
+          <div class="ph-zzz" id="phZzz" hidden aria-hidden="true">💤 💤</div>
+          <div class="ph-scrub-meter" id="phScrubMeter" hidden>
+            <span>Borsta pälsen</span>
+            <div class="ph-scrub-track"><i id="phScrubFill"></i></div>
+          </div>
         </div>
       </div>
 
-      <div class="ph-prop ph-prop--bag" id="phFoodBag" data-tool="bag">
-        <span class="ph-prop-icon">🥫</span>
-        <span class="ph-prop-label">Mat</span>
-      </div>
-      <div class="ph-prop ph-prop--brush" id="phBrush" data-tool="brush">
-        <span class="ph-prop-icon">🪮</span>
-        <span class="ph-prop-label">Borsta</span>
-      </div>
-      <div class="ph-prop ph-prop--ball" id="phBall" data-tool="ball">
-        <span class="ph-prop-icon">🎾</span>
-        <span class="ph-prop-label">Boll</span>
-      </div>
-      <div class="ph-prop ph-prop--blanket" id="phBlanket" data-tool="blanket">
-        <span class="ph-prop-icon">🛏️</span>
-        <span class="ph-prop-label">Filt</span>
+      <nav class="ph-toolbar" id="phToolbar" aria-label="Verktyg">
+        <div class="ph-tool ph-prop--bag" id="phFoodBag" data-tool="bag">
+          <span class="ph-tool-icon" aria-hidden="true">🥫</span>
+          <span class="ph-tool-label">Matpåse</span>
+        </div>
+        <button type="button" class="ph-tool ph-prop--brush" id="phBrush" data-tool="brush">
+          <span class="ph-tool-icon" aria-hidden="true">🪮</span>
+          <span class="ph-tool-label">Borsta</span>
+        </button>
+        <div class="ph-tool ph-prop--ball" id="phBall" data-tool="ball">
+          <span class="ph-tool-icon" aria-hidden="true">🎾</span>
+          <span class="ph-tool-label">Boll</span>
+        </div>
+        <div class="ph-tool ph-prop--blanket" id="phBlanket" data-tool="blanket">
+          <span class="ph-tool-icon" aria-hidden="true">🛏️</span>
+          <span class="ph-tool-label">Filt</span>
+        </div>
+        <div class="ph-tool ph-prop--treat" id="phTreat" data-tool="treat">
+          <span class="ph-tool-icon" aria-hidden="true">🍖</span>
+          <span class="ph-tool-label">Godis</span>
+        </div>
+      </nav>
+
+      <div class="ph-picker-wrap">
+        <p class="ph-picker-title">Välj ditt djur</p>
+        <div class="ph-picker" id="phPicker" aria-label="Välj husdjur"></div>
       </div>
     </div>
 
-    <div class="ph-picker" id="phPicker" aria-label="Välj husdjur"></div>
     <div id="phToast" class="ph-toast" role="status" aria-live="polite"></div>
   </div>
 
   <script src="/js/build-game-mobile.js?v=1"></script>
   <script src="/js/play-world-save.js?v=1"></script>
-  <script src="/js/play/pet-home.js?v=1"></script>
+  <script src="/js/play/pet-home.js?v=2"></script>
 </body>
 </html>
