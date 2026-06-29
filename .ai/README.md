@@ -13,6 +13,7 @@ The **AI Operating System** governs **how** autonomous agents work on Stjärndag
 | System | Location | Answers |
 |--------|----------|---------|
 | **Product OS** | `product-operating-system/` | *What* to build · *Why* · *How it should feel* |
+| **ADR** | `.ai/adr/` | *Technical decisions* under implementation |
 | **Company OS** | `.ai/company/` | *How executives decide, prioritize, approve* |
 | **AI OS** | `.ai/` + `.cursor/rules/` | *How agents decide, ship, review, and iterate* |
 | **Runtime env** | Root `AGENTS.md` | Node, Postgres, test commands, deploy ops |
