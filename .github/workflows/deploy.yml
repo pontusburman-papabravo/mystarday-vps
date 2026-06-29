@@ -66,9 +66,9 @@ jobs:
             echo "→ npm install"
             export NPM_CONFIG_MIN_RELEASE_AGE=0
             if [ -f package-lock.json ]; then
-              npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+              npm ci --legacy-peer-deps --include=dev || npm install --legacy-peer-deps --include=dev
             else
-              npm install --legacy-peer-deps
+              npm install --legacy-peer-deps --include=dev
             fi
 
             echo "→ migrate"

@@ -46,21 +46,21 @@ function finalizeChecks(checks) {
   };
 }
 
+const { runJourneyHttpQa } = require('./http-qa');
+
+function trimEnv(value) {
+  if (!value) return value;
+  return String(value).split('#')[0].trim();
+}
+
 async function runJourneyBrowserQa(options = {}) {
   const base = options.baseUrl || resolveBaseUrl();
-  const email = options.email || process.env.JOURNEY_QA_PARENT_EMAIL;
-  const password = options.password || process.env.JOURNEY_QA_PARENT_PASSWORD;
+  const email = trimEnv(options.email || process.env.JOURNEY_QA_PARENT_EMAIL);
+  const password = trimEnv(options.password || process.env.JOURNEY_QA_PARENT_PASSWORD);
   const puppeteer = loadPuppeteer();
 
   if (!puppeteer) {
-    return {
-      measurementPoints: 0,
-      passed: 0,
-      failed: 0,
-      failures: [],
-      skipped: true,
-      skippedReason: 'puppeteer ej installerat',
-    };
+    return runJourneyHttpQa({ ...options, email, password, fallbackReason: 'puppeteer ej installerat' });
   }
   if (!email || !password) {
     return {
@@ -314,12 +314,14 @@ async function runJourneyBrowserQa(options = {}) {
     }
   } catch (err) {
     if (checks.length === 0) {
-      record('browser_qa_runtime', false, 'Browser QA avbröts', {
-        detail: err.message,
-        action: 'Se serverloggar [journey-daily-analysis]',
-        severity: 'critical',
-      });
+      const shortReason = String(err.message || err).split('\n')[0].slice(0, 240);
+      return runJourneyHttpQa({ ...options, email, password, baseUrl: base, fallbackReason: shortReason });
     }
+    record('browser_qa_runtime', false, 'Browser QA avbröts', {
+      detail: err.message,
+      action: 'Se serverloggar [journey-daily-analysis]',
+      severity: 'info',
+    });
   } finally {
     if (browser) await browser.close().catch(() => {});
   }

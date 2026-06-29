@@ -288,9 +288,12 @@ function buildReport(metrics, browserQa = null) {
     browserFailures = browserQa.failures || [];
     sections.push({
       id: 'browser_qa',
-      title: 'Browser QA — knappar & utseende',
+      title: browserQa.mode === 'http'
+        ? 'Browser QA — HTTP-läge (utan headless Chrome)'
+        : 'Browser QA — knappar & utseende',
       severity: browserFailures.length ? 'warning' : 'info',
       findings: [
+        browserQa.mode === 'http' ? 'Körs via HTTP (Puppeteer/Chrome ej tillgänglig på servern)' : null,
         `Mätpunkter: ${browserQa.measurementPoints || 0}`,
         `Godkända: ${browserQa.passed || 0}`,
         `Fel: ${browserFailures.length}`,
@@ -299,6 +302,9 @@ function buildReport(metrics, browserQa = null) {
       failures: browserFailures,
     });
     for (const fail of browserFailures) {
+      if (fail.id === 'qa_mode_http_fallback' || fail.id === 'qa_mode_http') continue;
+      if (fail.id === 'browser_qa_runtime' || fail.id === 'http_qa_runtime') continue;
+      if (fail.severity === 'info' && !fail.route) continue;
       if (fail.action) {
         actions.push({
           priority: fail.severity || 'warning',

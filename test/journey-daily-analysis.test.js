@@ -68,6 +68,31 @@ describe('journey daily-analysis — history', () => {
   });
 });
 
+describe('journey http-qa', () => {
+  it('htmlHasId matches id attributes', () => {
+    const { htmlHasId } = require('../src/lib/journey/http-qa');
+    assert.equal(htmlHasId('<div id="foo"></div>', 'foo'), true);
+    assert.equal(htmlHasId("<div id='bar'></div>", 'bar'), true);
+    assert.equal(htmlHasId('<div id="baz">', 'qux'), false);
+  });
+
+  it('skips when credentials missing', async () => {
+    const { runJourneyHttpQa } = require('../src/lib/journey/http-qa');
+    const prevEmail = process.env.JOURNEY_QA_PARENT_EMAIL;
+    const prevPass = process.env.JOURNEY_QA_PARENT_PASSWORD;
+    delete process.env.JOURNEY_QA_PARENT_EMAIL;
+    delete process.env.JOURNEY_QA_PARENT_PASSWORD;
+    try {
+      const r = await runJourneyHttpQa();
+      assert.equal(r.skipped, true);
+      assert.equal(r.measurementPoints, 0);
+    } finally {
+      if (prevEmail) process.env.JOURNEY_QA_PARENT_EMAIL = prevEmail;
+      if (prevPass) process.env.JOURNEY_QA_PARENT_PASSWORD = prevPass;
+    }
+  });
+});
+
 describe('journey browser-qa — finalizeChecks', () => {
   it('counts passes and failures', () => {
     const r = finalizeChecks([
