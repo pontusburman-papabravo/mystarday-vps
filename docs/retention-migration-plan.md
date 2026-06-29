@@ -201,7 +201,7 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ```
 ☑ WIN_BACK_ENABLED=false          (prod 2026-06-29)
 ☑ ACTIVATION_PROGRAM_EMAIL_ENABLED=false
-☐ retention_reengagement_v1 — endast ON när Gate äger dag 3/7/14
+☑ retention_reengagement_v1 — Gate äger dag 3/7/14 (src/lib/journey/retention-push.js)
 ```
 
 ### Steg 2 — Migrera
@@ -237,7 +237,8 @@ Migreringen är **klar** när alla punkter är sanna och verifierade i prod:
 - [x] Legacy win-back/activation-email schedulers avmonterade från server.js (moduler kvar för diagnostik/manuell trigger)
 - [x] Admin visar P0 48h som North Star
 - [x] Win-back admin KPI bygger på avbockningar, inte login
-- [ ] Journey ensam avgör familjens kommunikationsstatus; Gate ensam avgör utskick (retention_reengagement_v1 kvar tills Gate äger dag 3/7/14)
+- [x] Retention-push (dag 3/7/14) eligibility + beslut via Journey + Gate (`retention-push.js`)
+- [ ] Journey ensam avgör familjens kommunikationsstatus; Gate ensam avgör utskick (activation-nudge/push-schedulers kvar)
 
 ---
 
