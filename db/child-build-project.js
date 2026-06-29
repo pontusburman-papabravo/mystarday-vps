@@ -5,6 +5,7 @@ const {
   normalizeCustomization,
   DEFAULT_CUSTOMIZATION,
 } = require('../src/lib/build-catalog');
+const { BUILD_PARTS_REQUIRED } = require('../src/lib/build-adventures');
 
 async function getCatalog() {
   const r = await db.query(
@@ -56,14 +57,14 @@ async function ensureDemoCompletedCar(childId) {
   await db.query(
     `INSERT INTO child_build_project
        (child_id, catalog_slug, status, parts_collected, garage_unlocked, customization)
-     VALUES ($1, 'racerbil', 'completed', 6, true, $2::jsonb)
+     VALUES ($1, 'racerbil', 'completed', $2, true, $3::jsonb)
      ON CONFLICT (child_id, catalog_slug) DO UPDATE SET
        status = 'completed',
-       parts_collected = 6,
+       parts_collected = $2,
        garage_unlocked = true,
        updated_at = NOW()
      RETURNING id`,
-    [childId, JSON.stringify(DEFAULT_CUSTOMIZATION)]
+    [childId, BUILD_PARTS_REQUIRED, JSON.stringify(DEFAULT_CUSTOMIZATION)]
   );
   return getCompletedGarageProject(childId);
 }
@@ -153,7 +154,7 @@ async function grantPart(childId, dailyLogItemId) {
   );
   if (dup.rows.length > 0) return { error: 'already_granted', project: active };
 
-  const partsRequired = active.parts_required || 6;
+  const partsRequired = active.parts_required || BUILD_PARTS_REQUIRED;
   if (active.parts_collected >= partsRequired) {
     return { error: 'project_complete', project: active };
   }
@@ -202,7 +203,7 @@ async function grantPart(childId, dailyLogItemId) {
 }
 
 function mapProjectRow(row) {
-  const partsRequired = row.parts_required || 6;
+  const partsRequired = row.parts_required || BUILD_PARTS_REQUIRED;
   const collected = row.parts_collected || 0;
   return {
     id: row.id,

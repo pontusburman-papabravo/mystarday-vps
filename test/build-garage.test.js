@@ -32,8 +32,9 @@ describe('build garage customization', () => {
   });
 
   it('build-adventures lib lists 7 MVP slugs', () => {
-    const { MVP_ADVENTURE_SLUGS } = require('../src/lib/build-adventures');
+    const { MVP_ADVENTURE_SLUGS, BUILD_PARTS_REQUIRED } = require('../src/lib/build-adventures');
     assert.equal(MVP_ADVENTURE_SLUGS.length, 7);
+    assert.equal(BUILD_PARTS_REQUIRED, 75);
     assert.ok(MVP_ADVENTURE_SLUGS.includes('vardag'));
   });
 
@@ -67,6 +68,8 @@ describe('build garage customization', () => {
     const fn = src.slice(src.indexOf('function updateArena'), src.indexOf('function refresh'));
     assert.equal((fn.match(/const step/g) || []).length, 1);
   });
+
+  it('normalizeCustomization clamps tune and cleanliness', () => {
     const { normalizeCustomization } = require('../src/lib/build-catalog');
     const c = normalizeCustomization({ cleanliness: 200, tune_level: 9, color_id: 'bogus' });
     assert.equal(c.cleanliness, 100);

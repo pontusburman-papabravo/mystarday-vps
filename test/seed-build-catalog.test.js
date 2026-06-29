@@ -15,6 +15,7 @@ test('ensureBuildCatalog seeds when empty', async () => {
     const result = await ensureBuildCatalog();
     assert.equal(result.seeded, false);
   }
-  const racer = await db.query("SELECT slug, name FROM build_project_catalog WHERE slug = 'racerbil'");
+  const racer = await db.query("SELECT slug, parts_required FROM build_project_catalog WHERE slug = 'racerbil'");
   assert.equal(racer.rows[0].slug, 'racerbil');
+  assert.equal(racer.rows[0].parts_required, 75);
 });

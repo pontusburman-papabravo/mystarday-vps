@@ -15,6 +15,9 @@ const MVP_ADVENTURE_SLUGS = [
   'vardag',
 ];
 
+/** Delar att samla per äventyr innan världen låses upp. */
+const BUILD_PARTS_REQUIRED = 75;
+
 const WORLD_LABELS = {
   garage: 'Garaget',
   pet_home: 'Husdjurshemmet',
@@ -57,12 +60,13 @@ function isMvpSlug(slug) {
 
 function partLabelForProject(partsCollected, partsRequired) {
   const n = partsCollected + 1;
-  const total = partsRequired || 6;
+  const total = partsRequired || BUILD_PARTS_REQUIRED;
   return 'Del ' + Math.min(n, total) + ' av ' + total;
 }
 
 module.exports = {
   MVP_ADVENTURE_SLUGS,
+  BUILD_PARTS_REQUIRED,
   WORLD_LABELS,
   enrichCatalogRow,
   filterMvpCatalog,

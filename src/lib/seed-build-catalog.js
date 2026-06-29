@@ -6,13 +6,14 @@
  */
 
 const db = require('./db');
+const { BUILD_PARTS_REQUIRED, MVP_ADVENTURE_SLUGS } = require('./build-adventures');
 
 const MVP_CATALOG = [
   {
     slug: 'racerbil',
     name: 'Mecka med bilen',
     icon: '🏎️',
-    parts: 6,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'vehicles',
     world: 'garage',
     unlock: 'Garaget',
@@ -24,7 +25,7 @@ const MVP_CATALOG = [
     slug: 'husdjur',
     name: 'Ta hand om husdjur',
     icon: '🐾',
-    parts: 8,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'pets',
     world: 'pet_home',
     unlock: 'Husdjurshemmet',
@@ -44,7 +45,7 @@ const MVP_CATALOG = [
     slug: 'dinosaurie',
     name: 'Forska om dinosaurier',
     icon: '🦕',
-    parts: 10,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'dinosaurs',
     world: 'dino_lab',
     unlock: 'Dino-dalen',
@@ -56,7 +57,7 @@ const MVP_CATALOG = [
     slug: 'dockhus',
     name: 'Dockor & dockhus',
     icon: '🏠',
-    parts: 8,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'dolls',
     world: 'dollhouse',
     unlock: 'Dockhuset',
@@ -68,7 +69,7 @@ const MVP_CATALOG = [
     slug: 'fiske',
     name: 'Fiska & båtliv',
     icon: '🎣',
-    parts: 8,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'fishing',
     world: 'fishing_dock',
     unlock: 'Båtkajen',
@@ -80,7 +81,7 @@ const MVP_CATALOG = [
     slug: 'laxor',
     name: 'Plugga & läxor',
     icon: '📚',
-    parts: 8,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'school',
     world: 'study_room',
     unlock: 'Läxbordet',
@@ -92,7 +93,7 @@ const MVP_CATALOG = [
     slug: 'vardag',
     name: 'Vardagsäventyr',
     icon: '⭐',
-    parts: 6,
+    parts: BUILD_PARTS_REQUIRED,
     season: 'routine',
     world: 'routine_home',
     unlock: 'Mitt rum',
@@ -107,40 +108,54 @@ const MVP_CATALOG = [
 
 async function ensureBuildCatalog() {
   const count = await db.query('SELECT COUNT(*)::int AS n FROM build_project_catalog');
-  if (count.rows[0].n > 0) return { seeded: false, count: count.rows[0].n };
-
-  for (const a of MVP_CATALOG) {
-    await db.query(
-      `INSERT INTO build_project_catalog
-         (slug, name, icon, parts_required, season_slug, unlock_label, sort_order,
-          description, world_slug, config)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
-       ON CONFLICT (slug) DO UPDATE SET
-         name = EXCLUDED.name,
-         icon = EXCLUDED.icon,
-         parts_required = EXCLUDED.parts_required,
-         season_slug = EXCLUDED.season_slug,
-         unlock_label = EXCLUDED.unlock_label,
-         sort_order = EXCLUDED.sort_order,
-         description = EXCLUDED.description,
-         world_slug = EXCLUDED.world_slug,
-         config = EXCLUDED.config`,
-      [
-        a.slug, a.name, a.icon, a.parts, a.season, a.unlock, a.order,
-        a.desc, a.world, JSON.stringify(a.config),
-      ]
-    );
+  if (count.rows[0].n === 0) {
+    for (const a of MVP_CATALOG) {
+      await insertCatalogRow(a);
+    }
+    await deprecateLegacySlugs();
+    const after = await db.query('SELECT COUNT(*)::int AS n FROM build_project_catalog');
+    return { seeded: true, count: after.rows[0].n };
   }
 
+  await db.query(
+    `UPDATE build_project_catalog SET parts_required = $1
+     WHERE slug = ANY($2::varchar[])`,
+    [BUILD_PARTS_REQUIRED, MVP_ADVENTURE_SLUGS]
+  );
+
+  return { seeded: false, count: count.rows[0].n };
+}
+
+async function insertCatalogRow(a) {
+  await db.query(
+    `INSERT INTO build_project_catalog
+       (slug, name, icon, parts_required, season_slug, unlock_label, sort_order,
+        description, world_slug, config)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb)
+     ON CONFLICT (slug) DO UPDATE SET
+       name = EXCLUDED.name,
+       icon = EXCLUDED.icon,
+       parts_required = EXCLUDED.parts_required,
+       season_slug = EXCLUDED.season_slug,
+       unlock_label = EXCLUDED.unlock_label,
+       sort_order = EXCLUDED.sort_order,
+       description = EXCLUDED.description,
+       world_slug = EXCLUDED.world_slug,
+       config = EXCLUDED.config`,
+    [
+      a.slug, a.name, a.icon, a.parts, a.season, a.unlock, a.order,
+      a.desc, a.world, JSON.stringify(a.config),
+    ]
+  );
+}
+
+async function deprecateLegacySlugs() {
   await db.query(`
     UPDATE build_project_catalog
     SET sort_order = 90,
         config = COALESCE(config, '{}'::jsonb) || '{"deprecated":true}'::jsonb
     WHERE slug IN ('rymdraket', 'kompis', 'valp')
   `).catch(() => {});
-
-  const after = await db.query('SELECT COUNT(*)::int AS n FROM build_project_catalog');
-  return { seeded: true, count: after.rows[0].n };
 }
 
-module.exports = { ensureBuildCatalog, MVP_CATALOG };
+module.exports = { ensureBuildCatalog, MVP_CATALOG, BUILD_PARTS_REQUIRED };

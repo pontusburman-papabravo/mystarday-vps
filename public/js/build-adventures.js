@@ -4,14 +4,16 @@
 (function () {
   'use strict';
 
+  const BUILD_PARTS_REQUIRED = 75;
+
   const PREVIEW_CATALOG = [
-    { slug: 'racerbil', name: 'Mecka med bilen', icon: '🏎️', description: 'Bygg bilen och mecka i garaget.', parts_required: 6, unlock_label: 'Garaget' },
-    { slug: 'husdjur', name: 'Ta hand om husdjur', icon: '🐾', description: 'Hund, katt, hamster eller häst.', parts_required: 8, unlock_label: 'Husdjurshemmet' },
-    { slug: 'dinosaurie', name: 'Forska om dinosaurier', icon: '🦕', description: 'Gräv, montera och lär dig fakta.', parts_required: 10, unlock_label: 'Dino-dalen' },
-    { slug: 'dockhus', name: 'Dockor & dockhus', icon: '🏠', description: 'Bygg rum och inred minihemmet.', parts_required: 8, unlock_label: 'Dockhuset' },
-    { slug: 'fiske', name: 'Fiska & båtliv', icon: '🎣', description: 'Båt, spö och fångst.', parts_required: 8, unlock_label: 'Båtkajen' },
-    { slug: 'laxor', name: 'Läxor & lärande', icon: '📚', description: 'Bokstäver, siffror, läsa och matte.', parts_required: 6, unlock_label: 'Läxbordet' },
-    { slug: 'vardag', name: 'Vardagsäventyr', icon: '⭐', description: 'Samma som ditt schema — bädda säng, tänder…', parts_required: 6, unlock_label: 'Mitt rum' },
+    { slug: 'racerbil', name: 'Mecka med bilen', icon: '🏎️', description: 'Bygg bilen och mecka i garaget.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Garaget' },
+    { slug: 'husdjur', name: 'Ta hand om husdjur', icon: '🐾', description: 'Hund, katt, hamster eller häst.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Husdjurshemmet' },
+    { slug: 'dinosaurie', name: 'Forska om dinosaurier', icon: '🦕', description: 'Gräv, montera och lär dig fakta.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Dino-dalen' },
+    { slug: 'dockhus', name: 'Dockor & dockhus', icon: '🏠', description: 'Bygg rum och inred minihemmet.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Dockhuset' },
+    { slug: 'fiske', name: 'Fiska & båtliv', icon: '🎣', description: 'Båt, spö och fångst.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Båtkajen' },
+    { slug: 'laxor', name: 'Läxor & lärande', icon: '📚', description: 'Bokstäver, siffror, läsa och matte.', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Läxbordet' },
+    { slug: 'vardag', name: 'Vardagsäventyr', icon: '⭐', description: 'Samma som ditt schema — bädda säng, tänder…', parts_required: BUILD_PARTS_REQUIRED, unlock_label: 'Mitt rum' },
   ];
 
   const $ = (id) => document.getElementById(id);
