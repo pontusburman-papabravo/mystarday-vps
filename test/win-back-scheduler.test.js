@@ -26,4 +26,9 @@ describe('win-back scheduler', () => {
     assert.equal(typeof mod.fetchEligibleFamilies, 'function');
     assert.equal(mod.INACTIVITY_THRESHOLD_DAYS, 18);
   });
+
+  it('is not mounted in server.js (Steg 3 legacy cleanup)', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../server.js'), 'utf8');
+    assert.ok(!src.includes('startWinBackScheduler'));
+  });
 });

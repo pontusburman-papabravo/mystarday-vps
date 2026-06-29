@@ -13,11 +13,6 @@ const { startWeeklySummaryScheduler, stopWeeklySummaryScheduler } = require('./s
 const { startLibraryNotificationScheduler, stopLibraryNotificationScheduler } = require('./src/lib/library-notifications');
 const { startNyhetScheduler, stopNyhetScheduler } = require('./src/lib/nyhet-scheduler');
 const { startPushReminderScheduler, stopPushReminderScheduler } = require('./src/lib/push-reminder-scheduler');
-const { startWinBackScheduler, stopWinBackScheduler } = require('./src/lib/win-back-scheduler');
-const {
-  startActivationEmailScheduler,
-  stopActivationEmailScheduler,
-} = require('./src/lib/activation-program-email-scheduler');
 const {
   startActivationPushScheduler,
   stopActivationPushScheduler,
@@ -64,8 +59,6 @@ const server = app.listen(port, () => {
   startLibraryNotificationScheduler();
   startNyhetScheduler();
   startPushReminderScheduler();
-  startWinBackScheduler();
-  startActivationEmailScheduler();
   startActivationPushScheduler();
   startActivationNudgeScheduler();
   startChildHandoffReminderScheduler();
@@ -78,7 +71,7 @@ const server = app.listen(port, () => {
 
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler(); stopJourneyDailyAnalysisScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler(); stopJourneyDailyAnalysisScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

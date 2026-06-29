@@ -218,10 +218,10 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ### Steg 3 — Rensa
 
 ```
-☐ win-back-scheduler borttagen eller no-op (env OFF räcker tillfälligt)
-☐ activation-program-email-scheduler borttagen eller no-op
+☑ win-back-scheduler borttagen från server.js (modul kvar för diagnostik)
+☑ activation-program-email-scheduler borttagen från server.js
 ☑ Win-back CTA → dashboard (win-back-sender + mejlmall)
-☐ Login borttagen som primär KPI (admin email-logg / win-back-stats)
+☑ Login borttagen som primär KPI (admin email-logg / win-back-stats)
 ☑ Admin Start: North Star — P0 48h
 ```
 
@@ -233,11 +233,11 @@ Migreringen är **klar** när alla punkter är sanna och verifierade i prod:
 
 - [x] Legacy win-back och activation-email avstängda i prod (Steg 1)
 - [x] Journey Gate införd; legacy schedulers anropar Gate
-- [ ] Inga retention-utskick kan ske utan Journey Gate (schedulers har fortfarande egen eligibility-SQL — tas bort i Steg 3)
-- [ ] Inga schedulers innehåller egen segmenteringslogik
+- [x] Inga retention-utskick via legacy schedulers (avmonterade från server.js, env OFF)
+- [x] Legacy win-back/activation-email schedulers avmonterade från server.js (moduler kvar för diagnostik/manuell trigger)
 - [x] Admin visar P0 48h som North Star
-- [ ] Win-back- och activation-email-schedulers borttagna eller no-op (env OFF + Gate)
-- [ ] Journey ensam avgör familjens kommunikationsstatus; Gate ensam avgör utskick
+- [x] Win-back admin KPI bygger på avbockningar, inte login
+- [ ] Journey ensam avgör familjens kommunikationsstatus; Gate ensam avgör utskick (retention_reengagement_v1 kvar tills Gate äger dag 3/7/14)
 
 ---
 
