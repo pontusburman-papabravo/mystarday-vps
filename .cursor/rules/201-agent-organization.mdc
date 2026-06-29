@@ -7,17 +7,20 @@ alwaysApply: true
 
 ## Bootstrap (with 200-runtime-platform)
 
-1. `.ai/brain/PROJECT_BRAIN.md` — company mind (~10 min)
-2. `.ai/runtime/WORKFLOW_ENGINE.md` — pipeline (frozen)
-3. `.ai/agents/README.md` — roster + conflict rules
-4. Embody agents from `.ai/runtime/TASK_ROUTER.md` assignment
+1. `.ai/AGENTS.md` — **Team OS v1.0 entry** (shifts · decisions · workflows)
+2. `.ai/brain/PROJECT_BRAIN.md` — company mind (~10 min)
+3. `.ai/roles/<role>.md` — task role · `.ai/workflows/<type>.md` — task workflow
+4. `.ai/runtime/WORKFLOW_ENGINE.md` — deep pipeline (frozen)
+5. `.ai/agents/README.md` — legacy roster + conflict rules
+6. Embody agents from `.ai/runtime/TASK_ROUTER.md` assignment
 
 ## WHO not HOW
 
 | Layer | Location |
 |-------|----------|
+| Team OS | `.ai/AGENTS.md` · `roles/` · `workflows/` · `standards/` |
 | Mind | `.ai/brain/` |
-| Agents | `.ai/agents/*.md` |
+| Agents | `.ai/agents/*.md` · `.ai/roles/*.md` |
 | Process | `.ai/runtime/` (frozen v1.0) |
 
 ## Every PR
