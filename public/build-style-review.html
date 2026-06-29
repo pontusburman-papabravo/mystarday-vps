@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bygg-loop — stilankare (granskning)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #F5A623;
+      --gold-light: #FFF3D6;
+      --gold-dark: #D4880A;
+      --navy: #1B2340;
+      --navy-soft: #2A3458;
+      --navy-deep: #0F1629;
+      --sky: #E8F0FE;
+      --lavender: #EDE7F6;
+      --mint: #E0F5EC;
+      --text-soft: #5A6178;
+      --radius: 20px;
+      --shadow: 0 8px 32px rgba(27, 35, 64, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--navy);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(245, 166, 35, 0.08), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(139, 92, 246, 0.06), transparent 40%),
+        linear-gradient(180deg, #F0F4FF 0%, #FAFAF8 100%);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px 20px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+      border-radius: var(--radius);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      line-height: 1.5;
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(245, 166, 35, 0.2);
+      color: var(--gold-light);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grid {
+      display: grid;
+      gap: 24px;
+    }
+    @media (min-width: 720px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .grid .card--wide { grid-column: 1 / -1; }
+    }
+    .card {
+      background: #fff;
+      border: 2px solid var(--lavender);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--lavender);
+    }
+    .card-head .num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gold-dark);
+      margin-bottom: 4px;
+    }
+    .card-head h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .card-head p {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+    .card-img {
+      background: linear-gradient(180deg, var(--sky) 0%, var(--gold-light) 55%, var(--lavender) 100%);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+    .card-img img {
+      max-width: 100%;
+      max-height: 320px;
+      width: auto;
+      height: auto;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(27, 35, 64, 0.12);
+    }
+    .card--wide .card-img { min-height: 280px; }
+    .ui-preview {
+      margin-top: 32px;
+      padding: 20px;
+      background: #fff;
+      border: 2px solid var(--lavender);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .ui-preview h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    .phone {
+      max-width: 320px;
+      margin: 0 auto;
+      border-radius: 28px;
+      border: 3px solid var(--navy);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .phone-bar {
+      background: var(--navy);
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .phone-body {
+      padding: 14px;
+      background: linear-gradient(180deg, #fff 0%, var(--gold-light) 100%);
+    }
+    .pick-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .pick-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      background: #fff;
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(245, 166, 35, 0.2);
+    }
+    .pick-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: var(--sky);
+    }
+    .pick-card strong {
+      font-family: 'Outfit', sans-serif;
+      display: block;
+      font-size: 0.95rem;
+    }
+    .pick-card span {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+    .feedback {
+      margin-top: 28px;
+      padding: 18px;
+      background: var(--mint);
+      border-radius: var(--radius);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    .feedback strong { font-family: 'Outfit', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Bygg-loop — stilankare v1</h1>
+      <p>AI-genererade illustrationer i appens grafiska profil (navy, gold, lavender). Godkänn stilen innan vi bygger resten av säsong 1.</p>
+      <span class="badge">Internt granskning — ej i produktionsflöde</span>
+    </header>
+
+    <div class="grid">
+      <article class="card">
+        <div class="card-head">
+          <div class="num">Stilankare 1</div>
+          <h2>🚗 Racerbil — hjälte</h2>
+          <p>Projektval-kort och completion. Ska kännas lekfull men premium — inte billig clip-art.</p>
+        </div>
+        <div class="card-img">
+          <img src="/img/build/style-anchor/build-car-hero.png" alt="Racerbil stilankare" width="512" height="512">
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="num">Stilankare 2</div>
+          <h2>🧩 Del-progress</h2>
+          <p>Silhuett med luckor på Idag-vyn. Ett hjul insamlat, fem kvar.</p>
+        </div>
+        <div class="card-img">
+          <img src="/img/build/style-anchor/build-car-progress.png" alt="Bil del-progress stilankare" width="512" height="512">
+        </div>
+      </article>
+
+      <article class="card card--wide">
+        <div class="card-head">
+          <div class="num">Stilankare 3</div>
+          <h2>🏡 Garage — värld unlock</h2>
+          <p>När bilen är klar öppnas garaget. Samma bil, samma stil, mer scen.</p>
+        </div>
+        <div class="card-img">
+          <img src="/img/build/style-anchor/build-garage-scene.png" alt="Garage scen stilankare" width="1024" height="512">
+        </div>
+      </article>
+    </div>
+
+    <section class="ui-preview">
+      <h3>Förhandsvisning: så kan det sitta i appen</h3>
+      <div class="phone">
+        <div class="phone-bar">Vad vill du bygga?</div>
+        <div class="phone-body">
+          <p class="pick-title">Välj ditt äventyr ⭐</p>
+          <div class="pick-card">
+            <img src="/img/build/style-anchor/build-car-hero.png" alt="">
+            <div>
+              <strong>🚗 Racerbil</strong>
+              <span>6 delar · Lås upp garage</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="feedback">
+      <strong>Feedback?</strong> Skriv t.ex. <em>godkänt</em>, <em>mjukare</em>, <em>mer magi</em>, <em>mindre cartoon</em> eller <em>mer navy/gold</em> — då itererar vi prompts innan kod.
+    </div>
+  </div>
+</body>
+</html>
