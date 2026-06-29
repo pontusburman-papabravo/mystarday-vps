@@ -22,7 +22,15 @@ async function getActivationFunnelCohorts(weeks = 8) {
               COUNT(DISTINCT c.family_id)::int AS signup,
               COUNT(DISTINCT CASE WHEN ae.event_type IN ('activation_onboarding_started', 'funnel_onboarding_started') THEN c.family_id END)::int AS onboarding_started,
               COUNT(DISTINCT CASE WHEN ae.event_type = 'starter_template_selected' THEN c.family_id END)::int AS template_selected,
-              COUNT(DISTINCT CASE WHEN s.schema_saved_at IS NOT NULL THEN c.family_id END)::int AS schema_saved,
+              COUNT(DISTINCT CASE
+                WHEN s.schema_saved_at IS NOT NULL
+                  OR EXISTS (
+                    SELECT 1 FROM weekly_schedule ws
+                    JOIN child ch ON ch.id = ws.child_id
+                    WHERE ch.family_id = c.family_id
+                  )
+                THEN c.family_id
+              END)::int AS schema_saved,
               COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access,
               COUNT(DISTINCT CASE WHEN s.first_completion_at IS NOT NULL THEN c.family_id END)::int AS first_completion,
               COUNT(DISTINCT CASE WHEN s.p0_activated_within_48h THEN c.family_id END)::int AS p0_activated_48h,

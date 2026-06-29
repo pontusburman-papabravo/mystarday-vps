@@ -42,7 +42,14 @@ async function fetchKeyMetrics() {
          COUNT(*) FILTER (
            WHERE f.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
          )::int AS signups_today,
-         COUNT(*) FILTER (WHERE s.schema_saved_at IS NOT NULL)::int AS schema_saved,
+         COUNT(*) FILTER (
+           WHERE s.schema_saved_at IS NOT NULL
+             OR EXISTS (
+               SELECT 1 FROM weekly_schedule ws
+               JOIN child c ON c.id = ws.child_id
+               WHERE c.family_id = f.id
+             )
+         )::int AS schema_saved,
          COUNT(*) FILTER (WHERE s.child_access_completed_at IS NOT NULL)::int AS child_access,
          COUNT(*) FILTER (WHERE s.first_completion_at IS NOT NULL)::int AS first_completion,
          COUNT(*) FILTER (WHERE s.p0_activated_within_48h)::int AS p0_48h
