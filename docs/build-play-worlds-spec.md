@@ -1,8 +1,8 @@
 # Lek-världar — spelspec (v2)
 
-> **Produktspec:** [`build-mode-spec.md`](build-mode-spec.md) — lek är belöning *efter* vardagen, inte ersättning. Dubbel loop med stjärnor oförändrad.
+> **Produktspec:** [`build-mode-spec.md`](build-mode-spec.md) — lek är belöning *efter* vardagen. **PixiJS** för alla interaktiva belöningsvärldar; DOM/CSS endast för app-skål.
 
-> **Kvalitetsribba:** Garaget (`build-garage.html` + verkstad). Varje värld ska kännas **handgjord**, inte som samma spel med annan bakgrund.
+> **Kvalitetsribba:** Garaget (`build-garage.html` + verkstad) — mekanikreferens; **mål:** samma känsla i PixiJS-canvas.
 
 ## Varför v1 (generisk play-sida) är fel
 
@@ -28,18 +28,17 @@ Från `build-loop-mvp.md` (behålls):
 
 ## Arkitektur
 
-```
-public/
-  build-garage.html          ← referens (klar)
-  build-pet-home.html        ← husdjur (v2 pilot)
-  css/play-pet-home.css
-  js/play/
-    pet-home.js              ← egen state machine + mekanik
-  js/play-world-save.js      ← delad: ladda/spara, preview, debounce
+> **PixiJS** för alla interaktiva belöningsvärldar. HTML/JS app-skål monterar `<canvas>` och skickar auth/API. Se [`build-mode-spec.md` §6](build-mode-spec.md).
 
-src/lib/
-  play-world-registry.js     ← slug → route, status (live|shell|planned)
-  build-world-play.js        ← endast persistence-normalisering per slug (minimalt)
+```
+public/js/
+  build-engine/              ← PixiJS BuildEngine (mål)
+  worlds/pet-home/           ← husdjur (första Pixi-paket)
+  play-world-save.js         ← delad persistence
+
+public/                      ← DOM-piloter (migreras)
+  build-garage.html
+  build-pet-home.html
 ```
 
 **Gemensamt (återanvänd):**
