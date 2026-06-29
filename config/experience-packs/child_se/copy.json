@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "coach",
+      "headline_template": "Idag tog {{child_name}} sitt första steg.",
+      "body_template": "{{child_name}} klarade {{activity_name}} — ett riktigt första steg.",
+      "cta": "Visa"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Första stjärnan är klar!",
+      "body_template": "{{child_name}} har klarat sin första aktivitet — och du såg det.",
+      "cta": "Toppen!"
+    },
+    "child_first_completion": {
+      "tone": "celebration",
+      "message": "Du klarade det!",
+      "world_hint": "Något väntar i Morgonhuset"
+    }
+  }
+}

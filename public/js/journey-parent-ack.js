@@ -40,7 +40,10 @@
     const child = document.getElementById('journeyParentAckChild');
     const btn = document.getElementById('journeyParentAckDismissBtn');
 
-    if (headline) headline.textContent = exp.headline || 'Barnet klarade en aktivitet!';
+    const packHeadline = item.pack_feedback?.headline || item.pack_feedback?.parent_message;
+    if (headline) {
+      headline.textContent = packHeadline || exp.headline || 'Barnet klarade en aktivitet!';
+    }
     if (child) child.textContent = item.child_name || 'Barnet';
     if (activity) activity.textContent = item.activity_name || 'en aktivitet';
     if (btn) {
