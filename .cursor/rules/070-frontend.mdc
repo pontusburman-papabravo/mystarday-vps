@@ -1,0 +1,37 @@
+---
+description: Frontend — public/ JS/CSS/HTML. Small modules, no CDN, IIFE pattern.
+globs: public/**/*.js,public/**/*.html,public/css/**
+alwaysApply: false
+---
+
+# 070 — Frontend
+
+**Owner docs:** POS `03`–`03B`, `04`, `05` · also `large-files.mdc`
+
+## Structure
+
+- **IIFE modules** — minimal `window.*` exports
+- **New feature → new small file** (e.g. `dashboard-cta.js` pattern)
+- **Never** grow monoliths (`schedule.js`, `dashboard.js`, `child-dashboard.js`) — grep + chunk read only
+
+## CSS
+
+- `tailwind.build.css` only — **no Tailwind CDN** (DS-04)
+- Run `npm run check:css` when classes change
+- Bump `public/sw.js` CACHE_NAME when static assets change
+
+## Patterns
+
+- Share schedule logic via `schedule-core.js` — no duplicate business rules client-side
+- Child event bus / universe invalidation patterns — preserve on completion
+- Parent magic shell — `parent-magic-view` consistency
+
+## Quality
+
+- No duplicated DOM logic across dashboard/schedule
+- Error toasts: human Swedish + status — not raw stack to users
+- `prefers-reduced-motion` on all celebrations
+
+## Forbidden
+
+Inline business rules that belong on server · copying `public/v2/` without design review · new global handlers undocumented

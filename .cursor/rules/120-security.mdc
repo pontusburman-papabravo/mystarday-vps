@@ -1,0 +1,42 @@
+---
+description: Security — child scope, PIN, CSRF, secrets, trust UX.
+globs: src/middleware/**/*.js,src/routes/auth/**/*.js,src/routes/**/*.js
+alwaysApply: false
+---
+
+# 120 — Security
+
+**Owner docs:** POS `00`, `04`, `10`, `15` Section C
+
+## Non-negotiables
+
+- **Child deny-by-default** on APIs — server enforced
+- **PIN gate** child→parent when PIN set
+- **CSRF** on state-changing parent `/api` routes
+- **Secrets in env only** — never commit keys/URLs
+- **Parameterized SQL** — no injection
+
+## Auth
+
+- JWT scope matches role (parent vs child)
+- Authz centralized — no duplicate `childAccess` patterns
+- Impersonation write-block for admin
+
+## Data
+
+- Minimize child PII in client logs
+- GDPR-minded — no dark patterns for consent
+- Account deletion flows tested when touched
+
+## Client
+
+- Never rely on client-only permission checks
+- No secrets in `public/` JS
+
+## Tests
+
+Auth or child-scope changes → **auth-integration** + **child-access-integration** (Q-06)
+
+## Escalate
+
+New data collection · third-party SDK · payment changes → user + ADR

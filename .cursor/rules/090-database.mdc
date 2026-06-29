@@ -1,0 +1,32 @@
+---
+description: Database — migrations, db/* queries, monotonic stars, rollback gate.
+globs: db/**/*.js,migrations/**/*.js,migrate.js
+alwaysApply: false
+---
+
+# 090 — Database
+
+**Owner docs:** POS `07`, `09`, `10`
+
+## Rules
+
+- **Parameterized queries only** (T-04)
+- New queries → `db/*.js` modules
+- Migrations: timestamp prefix · idempotent · **backward-compatible one deploy** (REL-02)
+- Run `migration-rollback-gate.test.js` — must pass
+
+## Domain invariants
+
+- **Lifetime stars monotonic** (R-06) — never decrease
+- Redemption spend **atomic** — `SELECT FOR UPDATE` pattern
+- Child/parent scoping on all family data
+
+## Changes
+
+- Schema change PR: locking/downtime note + rollback plan
+- No destructive migration without backup procedure in PR
+- Index new foreign keys and hot filters
+
+## Forbidden
+
+Raw string concatenation SQL · business rules only in triggers without tests · breaking migration without ADR

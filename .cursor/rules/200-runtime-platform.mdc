@@ -1,0 +1,50 @@
+---
+description: Autonomous AI Development Platform — runtime control plane. Governs Composer execution.
+alwaysApply: true
+---
+
+# 200 — Runtime Platform (Autonomous Development)
+
+## Authority stack (frozen v1.0 — do not expand)
+
+1. `product-operating-system/` (POS)
+2. `.ai/company/` (COS)
+3. `product-content-bible/` (PCB)
+4. `.ai/` + `.cursor/rules/` 000–190 (AOS)
+5. **`.ai/runtime/`** (this platform — execution control)
+6. Code
+
+## Session start (feature request or fix)
+
+Before code, read in order:
+
+1. `.ai/runtime/WORKFLOW_ENGINE.md`
+2. `.ai/runtime/MISSION_ENGINE.md` — produce Mission Brief
+3. `.ai/runtime/PLANNING_ENGINE.md` + `TASK_ROUTER.md`
+4. Execute phases per WORKFLOW — no skipped reviews
+
+## Mandatory pipeline (summary)
+
+Understand → Read POS → Identify systems → Review code → Risks → Architecture → Implement → Tests → Lint → Performance · A11y · Mobile · Security → POS · AOS · COS · PCB review → Executive review → REVIEW_ENGINE (16 reviewers) → Refactor → Commit → PR → SELF_IMPROVEMENT
+
+Detail: `.ai/runtime/` engines — not duplicated here.
+
+## Completion
+
+Work is **not done** until:
+
+- `QA_ENGINE` all applicable gates pass
+- `REVIEW_ENGINE` zero BLOCK vetoes
+- `DECISION_ENGINE` seven questions pass
+- `190-definition-of-done.mdc` satisfied
+
+## Rules
+
+- Do **not** expand frozen POS/COS/PCB/AOS unless contradiction ADR
+- Do **not** skip test:gate or REVIEW_ENGINE for user-facing changes
+- Founder silence ≠ approval — gates = approval
+- Apply `large-files.mdc` during research phase
+
+## Entry point
+
+`.ai/runtime/README.md`

@@ -1,0 +1,41 @@
+---
+description: Testing — test:gate required, constitution test on UX, no live email keys.
+alwaysApply: true
+---
+
+# 130 — Testing
+
+**Owner docs:** POS `12`, `15` · runtime: root `AGENTS.md`
+
+## Required before merge
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
+NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
+```
+
+Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
+
+## Layers
+
+0. Lint + CSS check  
+1. **test:gate** (CI required)  
+2. Full `npm test` optional pre-release  
+3. Mobile smoke when native-affecting  
+4. Manual constitution test on UX (15 Section A)
+
+## When to add tests
+
+Touching paywall · Journey Gate · universe rules · IAP → add/extend tests in same PR.
+
+## UX regression triggers (full constitution test)
+
+Parent home/coach · child completion · rewards · onboarding · push/email · paywall
+
+## Forbidden
+
+Merge with failing gate · `npm test` on live VPS with real email keys · skip mobile QA for Capacitor plugins
+
+## DB tests
+
+Serialize via advisory lock — do not parallelize conflicting DB integration files.

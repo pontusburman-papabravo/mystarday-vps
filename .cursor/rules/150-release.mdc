@@ -1,0 +1,44 @@
+---
+description: Release — CI, migrate, SW bump, health check, flag rollout.
+globs: .github/workflows/**,public/sw.js,scripts/css-build.mjs
+alwaysApply: false
+---
+
+# 150 — Release
+
+**Owner docs:** POS `13`, `12`, `15` · deploy: root `AGENTS.md`, VPS deploy rule in `.cursor/rules/`
+
+## Pipeline
+
+PR → CI (lint, css, migrate, test:gate, rollback gate) → merge main → deploy → health
+
+## Pre-merge
+
+- [ ] CI green locally if server touched
+- [ ] `npm run check:css` if Tailwind touched
+- [ ] SW `CACHE_NAME` bumped if static JS/CSS changed
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](../product-operating-system/15_PRODUCT_QUALITY_STANDARD.md) pass
+- [ ] ADR if architectural
+
+## Post-deploy
+
+- [ ] `GET /health` healthy
+- [ ] Login smoke parent + child
+- [ ] Logs normal 5 min
+- [ ] TestFlight if native binary changed
+
+## Rules REL-01–REL-09
+
+See POS 13 — no direct main push without CI · backward-compatible migrations · flag rollout runbook
+
+## Rollback
+
+Revert on main → pipeline redeploys. Irreversible migration → DB restore procedure. Flag off for flag incidents.
+
+## Native
+
+Web deploy updates Capacitor UI. Store binary only when plugins/permissions change.
+
+## Forbidden
+
+Deploy without migrate · enable Journey flags without retiring duplicate coaches · uncommitted VPS edits

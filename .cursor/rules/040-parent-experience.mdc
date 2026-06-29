@@ -1,0 +1,36 @@
+---
+description: Parent UX — POS 05, 00A. One coach, calm Hem, no analytics home.
+globs: public/dashboard.html,public/js/dashboard*.js,public/js/journey-coach.js,public/js/home-*.js,public/js/planning*.js,public/onboarding.html,public/js/onboarding*.js
+alwaysApply: false
+---
+
+# 040 — Parent Experience
+
+**Owner doc:** `product-operating-system/05_PARENT_EXPERIENCE.md`
+
+## Feeling (00A)
+
+Parent: *"Det här hjälper oss."* — relief, one next step, trust.
+
+## Hem
+
+- **Single coach** — Journey-fed only (PA-01, PA-02)
+- Action cards — not analytics
+- No star chart on home (Target: weekly story only)
+- Approvals = exception UI (PA-06)
+
+## Rules PA-01–PA-10
+
+Enforce all — see POS 05.
+
+## Build vs run
+
+Planning/library = build (08). Hem = run. **No build on Hem** (B-08).
+
+## Forbidden
+
+Triple coach mounts · enterprise DAU/funnel home · empty post-register dashboard · comparing children on stars
+
+## PR extras
+
+Coach/home changes: screenshot or recording + constitution spot-check.

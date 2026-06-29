@@ -1,0 +1,44 @@
+---
+description: Code review checklist — senior bar, POS compliance, no debt introduction.
+alwaysApply: false
+---
+
+# 140 — Code Review
+
+Every author **and** agent acts as reviewer before commit.
+
+## Product (POS)
+
+- [ ] Constitution Rules 1–5 on affected flows
+- [ ] 00A manifesto / 00B taste — not cheap list
+- [ ] Cited POS rule IDs in PR description
+- [ ] No invented product behavior (Open Question if unclear)
+
+## Code quality
+
+- [ ] Simpler than before — not more complex
+- [ ] No duplicated logic
+- [ ] No magic numbers — named constants
+- [ ] No TODO/FIXME left behind
+- [ ] No dead code · no temp hacks
+- [ ] Errors logged server-side; calm UX client-side
+
+## Security & data
+
+- [ ] Authz correct for parent/child/pedagog
+- [ ] No secrets in diff
+- [ ] Migrations safe + rollback considered
+
+## Frontend
+
+- [ ] Mobile portrait OK
+- [ ] Reduced motion path
+- [ ] SW bumped if static changed
+
+## Block merge if
+
+Anti-ship list (15) · gate red · POS violation · unexplained scope creep
+
+## Reviewer stance
+
+Principal Engineer: would I maintain this in 3 years?
