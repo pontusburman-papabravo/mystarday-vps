@@ -1186,6 +1186,62 @@ function escapeJs(str) {
   return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\');
 }
 
+// ── Dev skip login (localhost development only) ───────────────────────────────
+async function initDevSkipLogin() {
+  const row = document.getElementById('clDevSkipRow');
+  const btn = document.getElementById('clDevSkipBtn');
+  if (!row || !btn) return;
+  try {
+    const res = await fetch('/api/auth/dev-child-login/status', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.available) return;
+    row.classList.remove('hidden');
+    btn.addEventListener('click', handleDevSkipLogin);
+  } catch (_) { /* not in dev */ }
+}
+
+async function handleDevSkipLogin() {
+  const btn = document.getElementById('clDevSkipBtn');
+  const hint = document.getElementById('clDevSkipHint');
+  if (btn) btn.disabled = true;
+  showLoading();
+  try {
+    const res = await fetch('/api/auth/dev-child-login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    hideLoading();
+    if (!res.ok) {
+      if (hint) hint.textContent = data.error || 'Dev-inloggning misslyckades';
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+    if (window.DeviceMode) DeviceMode.enterChild();
+
+    upsertKnownChild({
+      username: data.user.username,
+      name: data.user.name,
+      emoji: data.user.emoji || '⭐',
+      avatar_url: data.user.avatar_url || null,
+      familyId: data.user.familyId || null,
+    });
+
+    if (hint && data.hint) hint.textContent = data.hint;
+    trackChildEntry('child_login_success', { username: data.user.username, dev_skip: true });
+    showSuccess();
+    setTimeout(function () { window.location.href = '/child/today'; }, 800);
+  } catch (_) {
+    hideLoading();
+    if (hint) hint.textContent = 'Nätverksfel — kör servern i development-läge';
+    if (btn) btn.disabled = false;
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
@@ -1247,4 +1303,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 150);
   }
+
+  initDevSkipLogin();
 });

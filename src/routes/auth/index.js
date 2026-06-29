@@ -25,6 +25,9 @@ router.use('/', require('./refresh'));
 // ─── Child login route ────────────────────────────────────────────────────────
 router.use('/', require('./child-login'));
 
+// ─── Dev-only localhost child skip (development mode only) ────────────────────
+router.use('/', require('./dev-child-login'));
+
 // ─── Email-flow routes (verify / resend / forgot / reset) ─────────────────────
 router.use('/', require('./email'));
 

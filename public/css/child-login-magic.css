@@ -219,6 +219,40 @@
   font-weight: 700;
 }
 
+/* Local dev skip login (localhost + NODE_ENV=development only) */
+.cl-dev-skip-row {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255,255,255,0.15);
+  text-align: center;
+}
+
+.cl-dev-skip-btn {
+  width: 100%;
+  max-width: 280px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(147,197,253,0.55);
+  background: rgba(59,130,246,0.12);
+  color: rgba(191,219,254,0.95);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cl-dev-skip-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.cl-dev-skip-hint {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.35;
+}
+
 /* Add-child choice modal */
 .cl-modal-overlay {
   position: fixed;

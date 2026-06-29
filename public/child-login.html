@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
   <script src="/js/platform.js?v=1.0.0"></script>
   
-  <link rel="stylesheet" href="/css/child-login-magic.css?v=154">
+  <link rel="stylesheet" href="/css/child-login-magic.css?v=155">
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <script src="/js/auth.js?v=2.22.0"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -98,6 +98,14 @@
             Fortsätt →
           </button>
         </form>
+      </div>
+
+      <!-- Dev-only: skip login on localhost -->
+      <div id="clDevSkipRow" class="cl-dev-skip-row hidden">
+        <button type="button" id="clDevSkipBtn" class="cl-dev-skip-btn">
+          Snabb inloggning (lokal dev)
+        </button>
+        <p id="clDevSkipHint" class="cl-dev-skip-hint"></p>
       </div>
 
       <!-- "Jag är vuxen" removed — barn ska aldrig se vuxeninloggning här -->
@@ -200,7 +208,7 @@
   <!-- SW Register -->
   <script src="/js/sw-register.js?v=2.13.0"></script>
   <script src="/js/dom-utils.js?v=2.13.0"></script>
-  <script src="/js/child-login.js?v=284"></script>
+  <script src="/js/child-login.js?v=285"></script>
 
   <!-- Animated stars + clouds (same pattern as login-magic.js) -->
   <script>
