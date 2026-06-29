@@ -42,8 +42,8 @@ function isLocalDatabase() {
 
 function isDevChildLoginAllowed(req) {
   if (!isLocalhostRequest(req)) return false;
-  if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
   if (process.env.ALLOW_DEV_CHILD_SKIP === 'true' || process.env.ALLOW_DEV_CHILD_SKIP === '1') return true;
+  if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
   if (process.env.NODE_ENV === 'development') return true; // pragma: allowlist secret
   if (isLocalDatabase()) return true;
   return false;

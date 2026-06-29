@@ -68,6 +68,21 @@ test('isDevChildLoginAllowed: true on localhost with local DATABASE_URL', () => 
   }
 });
 
+test('isDevChildLoginAllowed: ALLOW_DEV_CHILD_SKIP vinner över DEV_CHILD_SKIP_LOGIN=false', () => {
+  const prevAllow = process.env.ALLOW_DEV_CHILD_SKIP;
+  const prevSkip = process.env.DEV_CHILD_SKIP_LOGIN;
+  process.env.ALLOW_DEV_CHILD_SKIP = 'true';
+  process.env.DEV_CHILD_SKIP_LOGIN = 'false';
+  try {
+    assert.equal(isDevChildLoginAllowed({ hostname: 'localhost' }), true);
+  } finally {
+    if (prevAllow === undefined) delete process.env.ALLOW_DEV_CHILD_SKIP;
+    else process.env.ALLOW_DEV_CHILD_SKIP = prevAllow;
+    if (prevSkip === undefined) delete process.env.DEV_CHILD_SKIP_LOGIN;
+    else process.env.DEV_CHILD_SKIP_LOGIN = prevSkip;
+  }
+});
+
 test('isDevChildLoginAllowed: respects DEV_CHILD_SKIP_LOGIN=false', () => {
   const prev = process.env.DEV_CHILD_SKIP_LOGIN;
   process.env.DEV_CHILD_SKIP_LOGIN = 'false';
