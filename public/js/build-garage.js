@@ -64,11 +64,140 @@
   }
 
   function haptic() {
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+    if (window.Platform && window.Platform.haptics && typeof window.Platform.haptics.light === 'function') {
+      window.Platform.haptics.light();
+    } else if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
       window.Capacitor.Plugins.Haptics.impact({ style: 'LIGHT' }).catch(function () {});
     } else if (navigator.vibrate) {
       navigator.vibrate(12);
     }
+  }
+
+  function hapticHeavy() {
+    if (window.Platform && window.Platform.haptics && typeof window.Platform.haptics.medium === 'function') {
+      window.Platform.haptics.medium();
+    } else if (navigator.vibrate) {
+      navigator.vibrate([20, 30, 20]);
+    } else {
+      haptic();
+    }
+  }
+
+  function updateTuneBar(level) {
+    const bar = $('tuneBar');
+    if (!bar) return;
+    const n = Math.max(0, Math.min(5, level || 0));
+    bar.querySelectorAll('i').forEach(function (seg, idx) {
+      seg.classList.toggle('is-lit', idx < n);
+    });
+  }
+
+  function pulseTuneBar() {
+    const bar = $('tuneBar');
+    if (!bar) return;
+    bar.classList.add('is-pulse');
+    clearTimeout(pulseTuneBar._t);
+    pulseTuneBar._t = setTimeout(function () {
+      bar.classList.remove('is-pulse');
+    }, 1100);
+  }
+
+  function spawnParticles(wrap, opts) {
+    const layer = $('carFx');
+    if (!layer || !wrap) return;
+    const count = opts.count || 10;
+    const emojis = opts.emojis || ['✨'];
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'garage-particle garage-particle--' + (opts.type || 'sparkle');
+      el.textContent = emojis[i % emojis.length];
+      el.style.left = (opts.xMin + Math.random() * (opts.xMax - opts.xMin)) + '%';
+      el.style.top = (opts.yMin + Math.random() * (opts.yMax - opts.yMin)) + '%';
+      el.style.animationDelay = (Math.random() * 0.35) + 's';
+      layer.appendChild(el);
+      setTimeout(function () { el.remove(); }, opts.duration || 1400);
+    }
+  }
+
+  function clearActionClasses(wrap) {
+    if (!wrap) return;
+    wrap.classList.remove('is-washing', 'is-honking', 'is-racing', 'is-polishing', 'is-tuning');
+  }
+
+  function playActionFx(actionId) {
+    const wrap = $('carWrap');
+    if (!wrap) return;
+
+    clearActionClasses(wrap);
+    void wrap.offsetWidth;
+
+    switch (actionId) {
+      case 'wash':
+        wrap.classList.add('is-washing');
+        spawnParticles(wrap, {
+          type: 'bubble',
+          emojis: ['🫧', '💧', '🫧', '✨'],
+          count: 16,
+          xMin: 8, xMax: 88, yMin: 35, yMax: 75,
+          duration: 1500,
+        });
+        setTimeout(function () { wrap.classList.remove('is-washing'); }, 1600);
+        break;
+      case 'polish':
+        wrap.classList.add('is-polishing');
+        spawnParticles(wrap, {
+          type: 'sparkle',
+          emojis: ['✨', '⭐', '🌟', '✨'],
+          count: 14,
+          xMin: 5, xMax: 92, yMin: 15, yMax: 80,
+          duration: 1000,
+        });
+        setTimeout(function () { wrap.classList.remove('is-polishing'); }, 1000);
+        break;
+      case 'tune':
+        wrap.classList.add('is-tuning');
+        spawnParticles(wrap, {
+          type: 'smoke',
+          emojis: ['💨', '⚙️', '💨'],
+          count: 8,
+          xMin: 20, xMax: 55, yMin: 20, yMax: 45,
+          duration: 1100,
+        });
+        pulseTuneBar();
+        setTimeout(function () { wrap.classList.remove('is-tuning'); }, 900);
+        break;
+      case 'honk':
+        wrap.classList.add('is-honking');
+        spawnParticles(wrap, {
+          type: 'dust',
+          emojis: ['📣', '💨'],
+          count: 6,
+          xMin: 0, xMax: 25, yMin: 40, yMax: 65,
+          duration: 700,
+        });
+        setTimeout(function () { wrap.classList.remove('is-honking'); }, 800);
+        break;
+      case 'race':
+        wrap.classList.add('is-racing');
+        spawnParticles(wrap, {
+          type: 'dust',
+          emojis: ['💨', '🏁', '💨'],
+          count: 10,
+          xMin: 0, xMax: 30, yMin: 55, yMax: 85,
+          duration: 900,
+        });
+        setTimeout(function () { wrap.classList.remove('is-racing'); }, 1250);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function flashActionButton(actionId) {
+    const btn = document.querySelector('.garage-action-btn[data-action="' + actionId + '"]');
+    if (!btn) return;
+    btn.classList.add('is-pressed');
+    setTimeout(function () { btn.classList.remove('is-pressed'); }, 320);
   }
 
   function showApp() {
@@ -96,10 +225,8 @@
       else carImg.classList.remove('is-dirty');
     }
 
-    ['wheelFront', 'wheelRear'].forEach(function (id) {
-      const w = $(id);
-      if (w) w.setAttribute('data-wheel', c.wheels || 'standard');
-    });
+    const wrap = $('carWrap');
+    if (wrap) wrap.setAttribute('data-wheel', c.wheels || 'standard');
 
     const decalEl = $('carDecal');
     const decalOpt = (state.options.decals || []).find(function (d) { return d.id === c.decal; });
@@ -114,6 +241,7 @@
 
     if ($('statClean')) $('statClean').textContent = '✨ Ren ' + Math.round(c.cleanliness) + '%';
     if ($('statTune')) $('statTune').textContent = '🔧 Motor ' + (c.tune_level || 0) + '/5';
+    updateTuneBar(c.tune_level || 0);
 
     document.querySelectorAll('.garage-swatch').forEach(function (el) {
       el.classList.toggle('is-active', el.getAttribute('data-id') === c.color_id);
@@ -148,8 +276,9 @@
     }).join('');
 
     $('actionRow').innerHTML = (state.actions || []).map(function (a) {
-      return '<button type="button" class="garage-action-btn" data-action="' + a.id + '">' +
-        '<span>' + a.icon + '</span><span>' + a.label + '</span></button>';
+      return '<button type="button" class="garage-action-btn garage-action-btn--' + a.id + '" data-action="' + a.id + '">' +
+        '<span class="garage-action-icon" aria-hidden="true">' + a.icon + '</span>' +
+        '<span class="garage-action-label">' + a.label + '</span></button>';
     }).join('');
 
     bindPanelEvents();
@@ -168,17 +297,12 @@
 
   function runPreviewAction(actionId) {
     const c = normalizeLocalCustomization(state.project.customization);
-    const wrap = $('carWrap');
     let message = '';
 
     switch (actionId) {
       case 'wash':
         c.cleanliness = 100;
         message = 'Så fin och ren! 🫧';
-        if (wrap) {
-          wrap.classList.add('is-washing');
-          setTimeout(function () { wrap.classList.remove('is-washing'); }, 1400);
-        }
         break;
       case 'polish':
         c.cleanliness = Math.min(100, c.cleanliness + 15);
@@ -190,17 +314,9 @@
         break;
       case 'honk':
         message = 'BRUM BRUM! 📣';
-        if (wrap) {
-          wrap.classList.add('is-honking');
-          setTimeout(function () { wrap.classList.remove('is-honking'); }, 700);
-        }
         break;
       case 'race':
         message = 'Vroom runt garaget! 🏁';
-        if (wrap) {
-          wrap.classList.add('is-racing');
-          setTimeout(function () { wrap.classList.remove('is-racing'); }, 1200);
-        }
         break;
       default:
         return;
@@ -208,8 +324,11 @@
 
     state.project.customization = c;
     applyCustomization(c);
+    playActionFx(actionId);
+    flashActionButton(actionId);
     showToast(message);
-    haptic();
+    if (actionId === 'honk' || actionId === 'race') hapticHeavy();
+    else haptic();
   }
 
   async function patchCustomization(patch) {
@@ -247,7 +366,6 @@
     }
     if (state.saving) return;
     state.saving = true;
-    const wrap = $('carWrap');
     try {
       const res = await Auth.api('/api/me/build/garage/action', {
         method: 'POST',
@@ -255,21 +373,11 @@
       });
       state.project.customization = res.customization;
       applyCustomization(res.customization);
+      playActionFx(actionId);
+      flashActionButton(actionId);
       showToast(res.message);
-      haptic();
-
-      if (actionId === 'honk' && wrap) {
-        wrap.classList.add('is-honking');
-        setTimeout(function () { wrap.classList.remove('is-honking'); }, 700);
-      }
-      if (actionId === 'race' && wrap) {
-        wrap.classList.add('is-racing');
-        setTimeout(function () { wrap.classList.remove('is-racing'); }, 1200);
-      }
-      if (actionId === 'wash' && wrap) {
-        wrap.classList.add('is-washing');
-        setTimeout(function () { wrap.classList.remove('is-washing'); }, 1400);
-      }
+      if (actionId === 'honk' || actionId === 'race') hapticHeavy();
+      else haptic();
     } catch (err) {
       showToast(err.message || 'Något gick fel');
     } finally {

@@ -35,8 +35,11 @@ body.build-garage-page {
 .bg-garage-scene {
   position: absolute;
   inset: 0;
-  background: url('/img/build/style-anchor/build-garage-scene.png') center bottom / cover no-repeat;
-  opacity: 0.95;
+  background: url('/img/build/style-anchor/build-garage-scene.png') center 72% / cover no-repeat;
+  opacity: 0.45;
+  filter: blur(5px) saturate(0.9);
+  transform: scale(1.06);
+  transform-origin: center bottom;
 }
 
 .bg-garage-vignette {
@@ -114,25 +117,160 @@ body.build-garage-page {
   color: #fff;
 }
 
+.garage-stat--tune {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 108px;
+}
+
+.garage-tune-bar {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+.garage-tune-bar i {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.25s ease;
+}
+
+.garage-tune-bar i.is-lit {
+  background: linear-gradient(90deg, var(--gold), #ffcc55);
+  box-shadow: 0 0 8px rgba(245, 166, 35, 0.65);
+}
+
+.garage-tune-bar.is-pulse i.is-lit:last-child {
+  animation: tunePulse 0.5s ease 2;
+}
+
 .garage-stage {
   position: relative;
-  flex: 1;
-  min-height: 220px;
+  flex: 0 0 auto;
+  min-height: 180px;
+  max-height: 36vh;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 12px;
+  padding: 4px 8px 0;
+  margin-bottom: 6px;
+}
+
+.garage-stage::before {
+  content: '';
+  position: absolute;
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(88%, 260px);
+  height: 28%;
+  background: radial-gradient(ellipse at center, rgba(237, 231, 246, 0.4) 0%, transparent 72%);
+  pointer-events: none;
 }
 
 .garage-car-wrap {
   position: relative;
-  width: min(92%, 300px);
+  width: min(82vw, 270px);
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.garage-car-wrap[data-wheel="sport"] .garage-car-img {
+  transform: scale(1.03);
+}
+
+.garage-car-wrap[data-wheel="offroad"] .garage-car-img {
+  transform: scale(1.07);
+}
+
+.garage-car-wrap.is-racing,
+.garage-car-wrap.is-tuning,
+.garage-car-wrap.is-honking {
+  transition: none;
 }
 
 .garage-car-wrap.is-racing { animation: garageRace 1.2s ease-in-out; }
 .garage-car-wrap.is-honking { animation: garageHonk 0.35s ease-in-out 2; }
 .garage-car-wrap.is-washing .garage-sparkles { opacity: 1; }
+.garage-car-wrap.is-polishing .garage-shine-sweep { animation: garageShine 0.9s ease-out forwards; }
+.garage-car-wrap.is-tuning .garage-wrench-fx { animation: garageWrench 0.85s ease-in-out; }
+.garage-car-wrap.is-tuning { animation: garageEngineShake 0.4s ease-in-out 2; }
+.garage-car-wrap.is-honking .garage-honk-blast { opacity: 1; }
+.garage-car-wrap.is-honking .garage-honk-ring { animation: garageHonkRing 0.55s ease-out forwards; }
+.garage-car-wrap.is-racing .garage-speed-lines { opacity: 1; }
+.garage-car-wrap.is-racing .garage-speed-lines span { animation: garageSpeedLine 0.7s linear infinite; }
+
+@keyframes garageShine {
+  0% { transform: translateX(-120%) skewX(-12deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(120%) skewX(-12deg); opacity: 0; }
+}
+
+@keyframes garageEngineShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px) rotate(-0.6deg); }
+  75% { transform: translateX(3px) rotate(0.6deg); }
+}
+
+@keyframes garageWrench {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) rotate(-30deg) scale(0.6); }
+  15% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1.1); }
+  35% { transform: translate(-50%, -50%) rotate(25deg) scale(1); }
+  55% { transform: translate(-50%, -50%) rotate(-15deg) scale(1); }
+  75% { transform: translate(-50%, -50%) rotate(20deg) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(45deg) scale(0.5); }
+}
+
+@keyframes garageHonkRing {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes garageSpeedLine {
+  0% { transform: translateX(40%) scaleX(0.4); opacity: 0; }
+  30% { opacity: 0.85; }
+  100% { transform: translateX(-120%) scaleX(1); opacity: 0; }
+}
+
+@keyframes tunePulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.8); }
+}
+
+@keyframes actionPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes particleBubble {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-90px) scale(1.1); opacity: 0; }
+}
+
+@keyframes particleSparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+  100% { transform: scale(0.3) rotate(90deg) translateY(-40px); opacity: 0; }
+}
+
+@keyframes particleSmoke {
+  0% { transform: translateY(0) scale(0.6); opacity: 0.8; }
+  100% { transform: translateY(-50px) scale(1.4); opacity: 0; }
+}
+
+@keyframes particleDust {
+  0% { transform: translateX(0) scale(1); opacity: 0.9; }
+  100% { transform: translateX(-60px) scale(0.3); opacity: 0; }
+}
 
 @keyframes garageRace {
   0% { transform: translateX(-8%) scale(1); }
@@ -147,46 +285,24 @@ body.build-garage-page {
 
 .garage-car-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
-  transition: filter 0.35s ease;
+  transition: filter 0.35s ease, transform 0.3s ease;
 }
 
 .garage-car-img.is-dirty {
   filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35)) brightness(0.92) saturate(0.85);
 }
 
-.garage-wheel {
-  position: absolute;
-  width: 14%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #555, #1a1a1a 70%);
-  border: 3px solid #333;
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.15);
-  transition: width 0.3s ease, border-color 0.3s ease;
-}
-
-.garage-wheel--front { bottom: 8%; left: 18%; }
-.garage-wheel--rear { bottom: 8%; right: 18%; }
-
-.garage-wheel[data-wheel="sport"] {
-  width: 15%;
-  border-color: var(--gold);
-}
-
-.garage-wheel[data-wheel="offroad"] {
-  width: 17%;
-  border-width: 4px;
-}
-
 .garage-decal {
   position: absolute;
-  top: 28%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.8rem;
+  top: 40%;
+  left: 63%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(0.9rem, 4.5vw, 1.35rem);
+  line-height: 1;
   pointer-events: none;
 }
 
@@ -202,6 +318,96 @@ body.build-garage-page {
     radial-gradient(circle at 50% 60%, rgba(245,166,35,0.9) 0 3px, transparent 4px);
   animation: sparklePulse 1s ease infinite;
 }
+
+.garage-fx-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.garage-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  z-index: 5;
+}
+
+.garage-particle--bubble { animation: particleBubble 1.4s ease-out forwards; }
+.garage-particle--sparkle { animation: particleSparkle 0.9s ease-out forwards; font-size: 0.95rem; }
+.garage-particle--smoke { animation: particleSmoke 1s ease-out forwards; font-size: 1.3rem; }
+.garage-particle--dust { animation: particleDust 0.8s ease-out forwards; font-size: 0.85rem; }
+
+.garage-shine-sweep {
+  position: absolute;
+  top: 8%;
+  left: 0;
+  width: 35%;
+  height: 84%;
+  background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.65) 45%, transparent 90%);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+}
+
+.garage-wrench-fx {
+  position: absolute;
+  top: 42%;
+  left: 38%;
+  transform: translate(-50%, -50%);
+  font-size: 2.4rem;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+}
+
+.garage-honk-blast {
+  position: absolute;
+  top: 52%;
+  left: 8%;
+  width: 28%;
+  height: 28%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+}
+
+.garage-honk-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(245, 166, 35, 0.75);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.garage-honk-ring:nth-child(2) { animation-delay: 0.12s; }
+.garage-honk-ring:nth-child(3) { animation-delay: 0.24s; }
+
+.garage-speed-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.garage-speed-lines span {
+  position: absolute;
+  height: 3px;
+  width: 36%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
+  opacity: 0;
+}
+
+.garage-speed-lines span:nth-child(1) { top: 35%; left: -10%; animation-delay: 0s; }
+.garage-speed-lines span:nth-child(2) { top: 48%; left: -10%; animation-delay: 0.1s; width: 28%; }
+.garage-speed-lines span:nth-child(3) { top: 62%; left: -10%; animation-delay: 0.05s; }
+.garage-speed-lines span:nth-child(4) { top: 72%; left: -10%; animation-delay: 0.15s; width: 22%; }
 
 @keyframes sparklePulse {
   0%, 100% { opacity: 0.6; }
@@ -263,6 +469,24 @@ body.build-garage-page {
 
 .garage-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 
+.garage-chip-row--wheels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.garage-chip-row--decals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.garage-chip-row--wheels .garage-chip,
+.garage-chip-row--decals .garage-chip {
+  flex: unset;
+  min-width: 0;
+  padding: 10px 4px;
+  font-size: 0.7rem;
+}
+
 .garage-chip {
   flex: 1;
   min-width: calc(33% - 8px);
@@ -279,25 +503,83 @@ body.build-garage-page {
 
 .garage-chip.is-active { border-color: var(--gold); background: var(--gold-light); }
 
-.garage-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.garage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
 
 .garage-action-btn {
+  flex: 0 0 calc(33.333% - 6px);
+  max-width: calc(33.333% - 6px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 12px 6px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, var(--sky) 0%, #fff 100%);
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 8px 4px 10px;
+  border-radius: 18px;
+  background: #fff;
   border: 2px solid var(--lavender);
   font-family: 'Outfit', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--navy);
   cursor: pointer;
+  text-align: center;
+  line-height: 1.15;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.garage-action-btn span:first-child { font-size: 1.35rem; }
+.garage-action-btn:active,
+.garage-action-btn.is-pressed {
+  transform: scale(0.94);
+  border-color: var(--gold);
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.25);
+}
+
+.garage-action-btn:nth-child(n+4) {
+  flex: 0 0 calc(50% - 4px);
+  max-width: calc(50% - 4px);
+}
+
+.garage-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  font-size: 1.65rem;
+  line-height: 1;
+  box-shadow: inset 0 -3px 0 rgba(27, 35, 64, 0.08), 0 4px 12px rgba(27, 35, 64, 0.1);
+}
+
+.garage-action-btn--wash .garage-action-icon {
+  background: linear-gradient(165deg, #dbeafe 0%, #93c5fd 100%);
+}
+
+.garage-action-btn--polish .garage-action-icon {
+  background: linear-gradient(165deg, #fef9c3 0%, #fde047 100%);
+}
+
+.garage-action-btn--tune .garage-action-icon {
+  background: linear-gradient(165deg, #e9d5ff 0%, #c084fc 100%);
+}
+
+.garage-action-btn--honk .garage-action-icon {
+  background: linear-gradient(165deg, #ffedd5 0%, #fb923c 100%);
+}
+
+.garage-action-btn--race .garage-action-icon {
+  background: linear-gradient(165deg, #dcfce7 0%, #4ade80 100%);
+}
+
+.garage-action-label {
+  display: block;
+  padding: 0 2px;
+}
 
 .garage-loading {
   position: fixed;
