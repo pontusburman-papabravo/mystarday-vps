@@ -23,6 +23,7 @@ function registerRoutes(app) {
   app.use('/api/me/activation-program', require('./activation-program'));
   const childUniverse = require('./child-universe');
   app.use('/api/me', childUniverse.childRouter);
+  app.use('/api/me/build', require('./build-loop'));
   app.use('/api/family', childUniverse.parentRouter);
   const familyHall = require('./family-hall');
   app.use('/api/me', familyHall.childRouter);
@@ -116,6 +117,9 @@ function registerRoutes(app) {
   // Barnmeny v2 — must register before /child/:childId A/B router in static-routes
   app.get('/child/today', (req, res) => res.sendFile(childDashboardHtml));
   app.get('/child/world', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/garage', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'build-garage.html'));
+  });
   app.get('/child/family', (req, res) => res.sendFile(childDashboardHtml));
 
   // ─── PWA + child view routes ─────────────────────────────────

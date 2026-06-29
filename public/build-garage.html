@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0F1629">
+  <title>Garaget — Min värld</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/build-garage.css?v=1">
+  <script src="/js/auth.js?v=2.22.0"></script>
+</head>
+<body class="build-garage-page">
+  <div class="bg-garage-root" aria-hidden="true">
+    <div class="bg-garage-scene"></div>
+    <div class="bg-garage-vignette"></div>
+  </div>
+
+  <div id="garageLoading" class="garage-loading">Öppnar garaget…</div>
+
+  <div id="garageLogin" class="garage-app garage-login-prompt" style="display:none">
+    <p>Logga in som barn för att mecka i garaget.</p>
+    <a href="/child-login">Gå till barnlogin</a>
+  </div>
+
+  <div id="garageApp" class="garage-app" style="display:none">
+    <header class="garage-topbar">
+      <a href="/child/world" class="garage-back">← Min värld</a>
+      <div class="garage-title-wrap">
+        <h1 class="garage-title" id="garageTitle">🏎️ Garaget</h1>
+        <p class="garage-sub" id="garageSub">Mecka, byt färg och kör!</p>
+      </div>
+      <div style="width:72px"></div>
+    </header>
+
+    <div class="garage-stats">
+      <span class="garage-stat" id="statClean">✨ Ren 100%</span>
+      <span class="garage-stat" id="statTune">🔧 Motor 0/5</span>
+    </div>
+
+    <div class="garage-stage">
+      <div class="garage-car-wrap" id="carWrap">
+        <div class="garage-sparkles" aria-hidden="true"></div>
+        <img id="carImg" class="garage-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="Din bil">
+        <span id="carDecal" class="garage-decal" hidden></span>
+        <div class="garage-wheel garage-wheel--front" id="wheelFront" data-wheel="standard"></div>
+        <div class="garage-wheel garage-wheel--rear" id="wheelRear" data-wheel="standard"></div>
+      </div>
+    </div>
+
+    <div id="garageToast" class="garage-toast" role="status" aria-live="polite"></div>
+
+    <section class="garage-panel">
+      <h2>🎨 Färg</h2>
+      <div class="garage-colors" id="colorRow"></div>
+
+      <h2>🛞 Däck</h2>
+      <div class="garage-chip-row" id="wheelRow"></div>
+
+      <h2>✨ Dekaler</h2>
+      <div class="garage-chip-row" id="decalRow"></div>
+
+      <h2>🔧 Mecka</h2>
+      <div class="garage-actions" id="actionRow"></div>
+    </section>
+  </div>
+
+  <script src="/js/build-garage.js?v=1"></script>
+</body>
+</html>
