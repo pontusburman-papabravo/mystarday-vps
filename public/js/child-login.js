@@ -958,7 +958,7 @@ async function submitLogin() {
       sessionStorage.removeItem('child_login_mode');
     } catch (_) { /* ignore */ }
     showSuccess();
-    setTimeout(() => { window.location.href = '/child/today'; }, 1200);
+    setTimeout(() => { window.location.href = getPostLoginRedirect(); }, 1200);
 
   } catch (err) {
     hideLoading();
@@ -1186,6 +1186,14 @@ function escapeJs(str) {
   return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\');
 }
 
+function getPostLoginRedirect() {
+  try {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (next && next.startsWith('/') && !next.startsWith('//')) return next;
+  } catch (_) { /* ignore */ }
+  return '/child/today';
+}
+
 // ── Dev skip login (localhost development only) ───────────────────────────────
 async function initDevSkipLogin() {
   const row = document.getElementById('clDevSkipRow');
@@ -1223,6 +1231,28 @@ async function handleDevSkipLogin() {
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
     if (window.DeviceMode) DeviceMode.enterChild();
 
+    try {
+      const verifyRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!verifyRes.ok) {
+        if (hint) hint.textContent = 'Kunde inte spara session — rensa cookies och försök igen';
+        if (btn) btn.disabled = false;
+        Auth.clearAuth();
+        return;
+      }
+      const me = await verifyRes.json();
+      if (me.type !== 'child') {
+        if (hint) hint.textContent = 'Fel sessionstyp — logga ut som vuxen först';
+        if (btn) btn.disabled = false;
+        Auth.clearAuth();
+        return;
+      }
+      Auth.setAuth(null, me, data.csrfToken, data.expiresAt);
+    } catch (_) {
+      if (hint) hint.textContent = 'Nätverksfel vid sessionskontroll';
+      if (btn) btn.disabled = false;
+      return;
+    }
+
     upsertKnownChild({
       username: data.user.username,
       name: data.user.name,
@@ -1234,7 +1264,7 @@ async function handleDevSkipLogin() {
     if (hint && data.hint) hint.textContent = data.hint;
     trackChildEntry('child_login_success', { username: data.user.username, dev_skip: true });
     showSuccess();
-    setTimeout(function () { window.location.href = '/child/today'; }, 800);
+    setTimeout(function () { window.location.href = getPostLoginRedirect(); }, 800);
   } catch (_) {
     hideLoading();
     if (hint) hint.textContent = 'Nätverksfel — kör servern i development-läge';

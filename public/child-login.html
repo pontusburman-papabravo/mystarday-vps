@@ -100,14 +100,6 @@
         </form>
       </div>
 
-      <!-- Dev-only: skip login on localhost -->
-      <div id="clDevSkipRow" class="cl-dev-skip-row hidden">
-        <button type="button" id="clDevSkipBtn" class="cl-dev-skip-btn">
-          Snabb inloggning (lokal dev)
-        </button>
-        <p id="clDevSkipHint" class="cl-dev-skip-hint"></p>
-      </div>
-
       <!-- "Jag är vuxen" removed — barn ska aldrig se vuxeninloggning här -->
 
     </section>
@@ -197,6 +189,14 @@
   </div>
   <!-- end layout -->
 
+  <!-- Dev-only: skip login on localhost (synlig på alla steg) -->
+  <div id="clDevSkipRow" class="cl-dev-skip-row hidden" style="position:relative;z-index:1;">
+    <button type="button" id="clDevSkipBtn" class="cl-dev-skip-btn">
+      Snabb inloggning (lokal dev)
+    </button>
+    <p id="clDevSkipHint" class="cl-dev-skip-hint"></p>
+  </div>
+
   <!-- Help link footer -->
   <div class="cl-help-link" style="position:relative;z-index:1;">
     Behöver du hjälp?
@@ -208,7 +208,7 @@
   <!-- SW Register -->
   <script src="/js/sw-register.js?v=2.13.0"></script>
   <script src="/js/dom-utils.js?v=2.13.0"></script>
-  <script src="/js/child-login.js?v=285"></script>
+  <script src="/js/child-login.js?v=286"></script>
 
   <!-- Animated stars + clouds (same pattern as login-magic.js) -->
   <script>

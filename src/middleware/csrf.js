@@ -33,6 +33,7 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/auth/login',
   '/auth/register',
   '/auth/child-login',
+  '/auth/dev-child-login',
   '/auth/verify-email',
   '/auth/resend-verification',
   '/auth/forgot-password',

@@ -60,6 +60,13 @@
       showToast('Förhandsvisning — logga in som barn för att starta');
       return;
     }
+    if (!sessionOk) {
+      showToast('Logga in som barn först');
+      setTimeout(function () {
+        window.location.href = '/child-login?next=' + encodeURIComponent('/child/adventures');
+      }, 900);
+      return;
+    }
     try {
       const res = await Auth.api('/api/me/build/start', {
         method: 'POST',
@@ -73,6 +80,14 @@
       }, 900);
     } catch (err) {
       haptic('error');
+      if (err && err.status === 401) {
+        if (window.Auth && Auth.clearAuth) Auth.clearAuth();
+        showToast('Sessionen gick ut — logga in igen');
+        setTimeout(function () {
+          window.location.href = '/child-login?next=' + encodeURIComponent('/child/adventures');
+        }, 1200);
+        return;
+      }
       showToast((err && err.message) || 'Kunde inte starta');
     }
   }
@@ -91,6 +106,25 @@
     showToast._t = setTimeout(function () { t.style.display = 'none'; }, 2800);
   }
 
+  let sessionOk = false;
+
+  async function ensureChildSession() {
+    if (!window.Auth) return false;
+    try {
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!meRes.ok) return false;
+      const me = await meRes.json();
+      if (me.type !== 'child') return false;
+      const csrf = Auth.getCsrfToken ? Auth.getCsrfToken() : null;
+      const exp = Auth._getExpiryMs ? Auth._getExpiryMs() : null;
+      Auth.setAuth(null, me, csrf, exp);
+      if (window.DeviceMode) DeviceMode.enterChild();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   async function init() {
     $('advLoading').hidden = false;
     if (isPreview()) {
@@ -102,12 +136,22 @@
       $('advLoading').textContent = 'Logga in som barn först.';
       return;
     }
+    sessionOk = await ensureChildSession();
+    if (!sessionOk) {
+      $('advLoading').innerHTML = 'Logga in som barn först. <a href="/child-login?next=%2Fchild%2Fadventures" style="color:#F5A623">Gå till login →</a>';
+      renderCards(PREVIEW_CATALOG, null);
+      $('advLoading').hidden = true;
+      return;
+    }
     try {
       const data = await Auth.api('/api/me/build');
       const catalog = (data.catalog && data.catalog.length) ? data.catalog : PREVIEW_CATALOG;
       renderCards(catalog, data.active_project);
       if (data.active_project) showActive(data.active_project);
-    } catch (_) {
+    } catch (err) {
+      sessionOk = false;
+      if (err && err.status === 401 && window.Auth && Auth.clearAuth) Auth.clearAuth();
+      $('advLoading').innerHTML = 'Logga in som barn först. <a href="/child-login?next=%2Fchild%2Fadventures" style="color:#F5A623">Gå till login →</a>';
       renderCards(PREVIEW_CATALOG, null);
     }
     $('advLoading').hidden = true;
