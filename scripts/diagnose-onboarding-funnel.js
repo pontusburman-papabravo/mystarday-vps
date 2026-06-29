@@ -32,6 +32,14 @@ async function getOverallFunnel() {
      SELECT
        COUNT(*)::int AS signup,
        COUNT(*) FILTER (WHERE s.schema_saved_at IS NOT NULL)::int AS schema_saved,
+       COUNT(*) FILTER (
+         WHERE s.schema_saved_at IS NOT NULL
+           OR EXISTS (
+             SELECT 1 FROM weekly_schedule ws
+             JOIN child c ON c.id = ws.child_id
+             WHERE c.family_id = fam.family_id
+           )
+       )::int AS schema_saved_incl_schedule,
        COUNT(*) FILTER (WHERE s.child_access_completed_at IS NOT NULL)::int AS child_access,
        COUNT(*) FILTER (WHERE s.first_completion_at IS NOT NULL)::int AS first_completion,
        COUNT(*) FILTER (WHERE s.p0_activated_within_48h)::int AS p0_48h
@@ -64,7 +72,8 @@ async function main() {
 
   console.log('--- Totalt (alla familjer) ---');
   console.log(`Signup:           ${overall.signup}`);
-  console.log(`Schema sparat:    ${overall.schema_saved} (${pct(overall.schema_saved, overall.signup)})`);
+  console.log(`Schema sparat:    ${overall.schema_saved} (milestone)`);
+  console.log(`Schema (inkl WS): ${overall.schema_saved_incl_schedule} (${pct(overall.schema_saved_incl_schedule, overall.signup)})`);
   console.log(`Child access:     ${overall.child_access} (${pct(overall.child_access, overall.signup)})`);
   console.log(`Första avbockning:${overall.first_completion} (${pct(overall.first_completion, overall.signup)})`);
   console.log(`P0 inom 48h:      ${overall.p0_48h} (${pct(overall.p0_48h, overall.signup)}) ← North Star`);

@@ -163,6 +163,15 @@ async function seedChildDefaultSchedule({ childId, familyId, birthday }) {
     );
   }
 
+  if (familyId) {
+    const { updateActivationState } = require('./activation-p0');
+    updateActivationState(familyId, 'schema_saved', {
+      metadata: { source: 'child_default_schedule_seed', default_schedule: defaultScheduleName },
+    }).catch((err) => {
+      console.error('[SEED-SCHEDULE] schema_saved milestone error:', err.message);
+    });
+  }
+
   return { seeded: true, defaultScheduleName };
 }
 
