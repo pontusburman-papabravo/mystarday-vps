@@ -59,10 +59,19 @@
 
   const $ = (id) => document.getElementById(id);
 
-  function haptic() {
+  function haptic(kind) {
+    if (window.BuildGameMobile) {
+      BuildGameMobile.haptic(kind || 'tick');
+      return;
+    }
     if (window.Platform && window.Platform.haptics && window.Platform.haptics.light) {
-      window.Platform.haptics.light();
+      Platform.haptics.light();
     } else if (navigator.vibrate) navigator.vibrate(10);
+  }
+
+  function hapticSuccess() {
+    if (window.BuildGameMobile) BuildGameMobile.haptic('success');
+    else haptic('medium');
   }
 
   function currentStep() {
@@ -253,6 +262,7 @@
     setTimeout(function () { $('gwBolts') && $('gwBolts').classList.remove('is-turning'); }, 180);
     if (state.unscrewCount >= state.screwTarget) {
       showBurst('🔩', 'Skruvarna är lossa!');
+      hapticSuccess();
       setTimeout(nextStep, 400);
     } else {
       setHint('Skruva loss… ' + state.unscrewCount + '/' + state.screwTarget);
@@ -425,6 +435,7 @@
 
   function open(opts) {
     opts = opts || {};
+    if (window.BuildGameMobile) BuildGameMobile.lockScroll();
     state.open = true;
     state.mode = opts.mode || 'wheel';
     state.onComplete = opts.onComplete || null;
@@ -454,6 +465,7 @@
   function close() {
     state.open = false;
     state.drag = null;
+    if (window.BuildGameMobile) BuildGameMobile.unlockScroll();
     const overlay = $('garageWorkshop');
     if (overlay) {
       overlay.classList.remove('is-open');

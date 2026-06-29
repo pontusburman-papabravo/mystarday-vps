@@ -234,7 +234,9 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]
     );
-    res.json(result.rows[0]);
+    const { tryGrantBuildPart } = require('../../lib/build-part-grant');
+    const buildPart = await tryGrantBuildPart(req.user.id, req.params.itemId, item.completed);
+    res.json({ ...result.rows[0], build_part: buildPart });
     // Family layer: derived contribution event (fire-and-forget)
     if (!item.completed) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');

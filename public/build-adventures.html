@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1B2340">
+  <title>Välj äventyr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/build-adventures.css?v=1">
+  <script src="/js/auth.js?v=2.22.0"></script>
+  <script src="/js/build-game-mobile.js?v=1"></script>
+</head>
+<body class="adv-page">
+  <header class="adv-header">
+    <a href="/child-dashboard" class="adv-back">← Idag</a>
+    <h1>Välj ditt äventyr</h1>
+    <p>Gör uppdrag → samla delar 🧩 → lås upp en värld</p>
+  </header>
+
+  <div id="advLoading" class="adv-loading">Laddar äventyr…</div>
+  <div id="advGrid" class="adv-grid" hidden></div>
+  <p id="advActive" class="adv-active" hidden></p>
+
+  <script src="/js/build-adventures.js?v=1"></script>
+</body>
+</html>

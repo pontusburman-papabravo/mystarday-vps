@@ -533,6 +533,7 @@ function isTodayFocusLayer() {
 function updateGoalBar(goalData) {
   if (isTodayFocusLayer()) {
     if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
+    if (window.ChildBuildHype) ChildBuildHype.setGoalData(goalData);
     return;
   }
   const section = document.getElementById('goalBarSection');
@@ -559,6 +560,7 @@ function updateGoalBar(goalData) {
   if (label) label.textContent = `⭐ ${balance} av ${starCost}`;
   if (nameEl) nameEl.textContent = `${icon} ${name}`;
   if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
+  if (window.ChildBuildHype) ChildBuildHype.setGoalData(goalData);
   if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(goalData);
 }
 
@@ -577,6 +579,7 @@ function renderActivities(data, trueStarBalance) {
 
   if (isTodayFocusLayer()) {
     if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
+    if (window.ChildBuildHype) ChildBuildHype.updateProgress(completed, total);
   } else {
     // Legacy dashboard chrome (hidden in today-focus-mode)
     if (document.getElementById('progressLabel')) {
@@ -1439,11 +1442,15 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
     window.Platform.haptics.light();
   }
 
+  let buildPartPayload = null;
+
   const apiPromise = Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
-    .then(() => {
+    .then(function (res) {
+      buildPartPayload = res;
       if (queueId && window.OfflineQueue) {
         window.OfflineQueue.markSynced(queueId);
       }
+      return res;
     })
     .catch((err) => {
       const isOffline = !navigator.onLine ||
@@ -1474,6 +1481,9 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
         itemId: itemId,
         timestamp: new Date().toISOString(),
       });
+    }
+    if (!isCurrentlyDone && buildPartPayload && buildPartPayload.build_part && window.ChildBuildHype) {
+      ChildBuildHype.onPartEarned(buildPartPayload.build_part);
     }
     // Scroll to the new NU card so the child sees what's next
     setTimeout(() => {
@@ -1764,6 +1774,11 @@ async function loadDay(dateStr, showLoader = true) {
     if (window.ChildRewardsEngine && goalData) {
       ChildRewardsEngine.setGoalData(goalData);
       ChildRewardsEngine.mountGoalProgress();
+      ChildRewardsEngine.mountRedeemNudgeIfNeeded();
+      if (goalData.auto_set && goalData.goal) {
+        const icon = goalData.goal.reward_icon || '🎯';
+        showToast(icon + ' Ditt första mål: ' + goalData.goal.reward_name + '!');
+      }
     }
   } catch (err) {
     if (skeletonTimer) skeletonTimer.stop();

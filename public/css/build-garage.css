@@ -1122,3 +1122,62 @@ body.build-garage-page {
   content: ' 🔧';
   font-size: 0.65rem;
 }
+
+/* Mobil: verktyg längst ner (tumzon) */
+@media (max-width: 768px) {
+  .garage-workshop {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .gw-layout {
+    flex-direction: column-reverse;
+  }
+
+  .gw-tool-wall {
+    flex: 0 0 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    padding: 10px 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+
+  .gw-tool {
+    flex: 0 0 72px;
+    min-height: 72px;
+    scroll-snap-align: center;
+  }
+
+  .gw-tool-icon { font-size: 1.75rem; }
+
+  .gw-arena {
+    min-height: 42vh;
+  }
+
+  .gw-hint {
+    font-size: 0.88rem;
+    padding: 12px;
+  }
+
+  .garage-action-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .garage-action-btn {
+    min-height: 88px;
+  }
+}
+
+html.bgm-scroll-lock,
+body.bgm-scroll-lock {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+  position: fixed;
+  width: 100%;
+}

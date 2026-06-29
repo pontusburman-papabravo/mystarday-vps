@@ -16,6 +16,7 @@ const {
   DECAL_OPTIONS,
   normalizeCustomization,
 } = require('../lib/build-catalog');
+const { filterMvpCatalog } = require('../lib/build-adventures');
 const universeDb = require('../../db/child-universe');
 const universeEngine = require('../lib/universe-engine');
 
@@ -32,17 +33,40 @@ const ActionSchema = z.object({
   action: z.enum(['wash', 'polish', 'honk', 'tune', 'race']),
 });
 
+const StartSchema = z.object({
+  catalog_slug: z.string().min(2).max(32),
+});
+
 router.get('/', async (req, res) => {
   try {
     const childId = req.user.id;
-    const [catalog, projects] = await Promise.all([
+    const [catalogRows, projects] = await Promise.all([
       buildDb.getCatalog(),
       buildDb.getProjectsForChild(childId),
     ]);
+    const catalog = filterMvpCatalog(catalogRows);
+    const active_project = await buildDb.getActiveProject(childId);
     const garageProject = projects.find((p) => p.status === 'completed' && p.garage_unlocked) || null;
-    res.json({ catalog, projects, garage_project: garageProject });
+    res.json({ catalog, projects, active_project, garage_project: garageProject });
   } catch (err) {
     console.error('[BUILD] GET / error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+router.post('/start', validate(StartSchema), async (req, res) => {
+  try {
+    const childId = req.user.id;
+    const result = await buildDb.startProject(childId, req.body.catalog_slug);
+    if (result.error === 'not_found') {
+      return res.status(404).json({ error: 'Äventyret finns inte.' });
+    }
+    res.status(201).json({
+      message: 'Äventyr startat! Gör aktiviteter för att samla delar 🧩',
+      project: result.project,
+    });
+  } catch (err) {
+    console.error('[BUILD] POST /start error:', err);
     res.status(500).json({ error: 'Något gick fel.' });
   }
 });

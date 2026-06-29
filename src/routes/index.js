@@ -120,6 +120,9 @@ function registerRoutes(app) {
   app.get('/child/garage', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'build-garage.html'));
   });
+  app.get('/child/adventures', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'build-adventures.html'));
+  });
   app.get('/child/family', (req, res) => res.sendFile(childDashboardHtml));
 
   // ─── PWA + child view routes ─────────────────────────────────

@@ -96,7 +96,9 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate, req.user.id]
     );
-    res.json(result.rows[0]);
+    const { tryGrantBuildPart } = require('../../lib/build-part-grant');
+    const buildPart = await tryGrantBuildPart(item.child_id, req.params.itemId, item.completed);
+    res.json({ ...result.rows[0], build_part: buildPart });
     if (!item.completed) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
       handleActivityCompleted(req.params.itemId, item.child_id, false).catch(() => {});

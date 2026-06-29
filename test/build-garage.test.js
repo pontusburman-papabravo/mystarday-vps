@@ -18,17 +18,43 @@ describe('build garage customization', () => {
     assert.match(src, /racerbil/);
   });
 
+  it('MVP migration defines 7 adventures + part grant table', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'migrations/1808930000000_build_mvp_adventures.js'),
+      'utf8'
+    );
+    assert.match(src, /husdjur/);
+    assert.match(src, /dockhus/);
+    assert.match(src, /fiske/);
+    assert.match(src, /laxor/);
+    assert.match(src, /vardag/);
+    assert.match(src, /build_part_grant/);
+  });
+
+  it('build-adventures lib lists 7 MVP slugs', () => {
+    const { MVP_ADVENTURE_SLUGS } = require('../src/lib/build-adventures');
+    assert.equal(MVP_ADVENTURE_SLUGS.length, 7);
+    assert.ok(MVP_ADVENTURE_SLUGS.includes('vardag'));
+  });
+
   it('build-loop route mounted under /api/me/build', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(src, /\/api\/me\/build/);
     assert.match(src, /\/child\/garage/);
+    assert.match(src, /\/child\/adventures/);
   });
 
   it('garage page uses brand CSS and child auth', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/build-garage.html'), 'utf8');
     assert.match(html, /build-garage\.css/);
+    assert.match(html, /build-game-mobile\.js/);
     assert.match(html, /auth\.js/);
     assert.match(html, /build-car-hero\.png/);
+  });
+
+  it('child build hype script on dashboard', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(html, /child-build-hype\.js/);
   });
 
   it('normalizeCustomization clamps tune and cleanliness', () => {

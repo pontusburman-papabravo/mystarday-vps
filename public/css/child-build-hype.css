@@ -1,0 +1,87 @@
+/** child-build-hype.css — Byggdel + stjärn-hype på Idag */
+.cbh-mount { margin: 0 16px 12px; max-width: 32rem; }
+
+.cbh-card {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(237, 231, 246, 0.95), #fff);
+  border: 2px solid #c4b5fd;
+  box-shadow: 0 6px 24px rgba(27, 35, 64, 0.08);
+}
+
+.cbh-card--pick {
+  border-color: #F5A623;
+  background: linear-gradient(135deg, #FFF3D6, #fff);
+}
+
+.cbh-card--unlock {
+  border-color: #4ade80;
+  background: linear-gradient(135deg, #E0F5EC, #fff);
+  animation: cbhPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cbhPop {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.cbh-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #1B2340;
+  margin: 0 0 6px;
+}
+
+.cbh-line {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #5A6178;
+  margin: 0 0 8px;
+}
+
+.cbh-line--gold { color: #D4880A; }
+.cbh-line--pulse { color: #1B2340; animation: cbhPulse 1.2s ease infinite; }
+.cbh-line--missions { color: #1B2340; }
+
+@keyframes cbhPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+.cbh-parent-nag {
+  font-size: 0.72rem;
+  color: #8B5CF6;
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.cbh-cta {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #F5A623, #D4880A);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  min-height: 44px;
+  line-height: 24px;
+}
+
+.cbh-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(27, 35, 64, 0.1);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.cbh-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8B5CF6, #F5A623);
+  transition: width 0.45s ease;
+}
