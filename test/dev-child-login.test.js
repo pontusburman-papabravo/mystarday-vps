@@ -18,9 +18,20 @@ test('isDevChildLoginAllowed: true on localhost in development', () => {
   assert.equal(mockReq('127.0.0.1', 'development'), true);
 });
 
-test('isDevChildLoginAllowed: false when not in development mode', () => {
-  assert.equal(mockReq('localhost', 'test'), false);
-  assert.equal(mockReq('example.com', 'test'), false);
+test('isDevChildLoginAllowed: false when not in development mode and remote DB', () => {
+  const prevDb = process.env.DATABASE_URL;
+  const prevEnv = process.env.NODE_ENV; // pragma: allowlist secret
+  process.env.DATABASE_URL = 'postgresql://user@remote.example.com:5432/stjarndag';
+  process.env.NODE_ENV = 'test'; // pragma: allowlist secret
+  try {
+    assert.equal(mockReq('localhost', 'test'), false);
+    assert.equal(mockReq('example.com', 'test'), false);
+  } finally {
+    if (prevDb === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = prevDb;
+    if (prevEnv === undefined) delete process.env.NODE_ENV; // pragma: allowlist secret
+    else process.env.NODE_ENV = prevEnv; // pragma: allowlist secret
+  }
 });
 
 test('isDevChildLoginAllowed: false on non-local host even in development', () => {
@@ -37,6 +48,21 @@ test('isDevChildLoginAllowed: respects ALLOW_DEV_CHILD_SKIP=true on localhost', 
   } finally {
     if (prevSkip === undefined) delete process.env.ALLOW_DEV_CHILD_SKIP;
     else process.env.ALLOW_DEV_CHILD_SKIP = prevSkip;
+    if (prevEnv === undefined) delete process.env.NODE_ENV; // pragma: allowlist secret
+    else process.env.NODE_ENV = prevEnv; // pragma: allowlist secret
+  }
+});
+
+test('isDevChildLoginAllowed: true on localhost with local DATABASE_URL', () => {
+  const prevDb = process.env.DATABASE_URL;
+  const prevEnv = process.env.NODE_ENV; // pragma: allowlist secret
+  process.env.DATABASE_URL = 'postgresql://user@localhost:5432/stjarndag';
+  process.env.NODE_ENV = 'test'; // pragma: allowlist secret
+  try {
+    assert.equal(isDevChildLoginAllowed({ hostname: 'localhost' }), true);
+  } finally {
+    if (prevDb === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = prevDb;
     if (prevEnv === undefined) delete process.env.NODE_ENV; // pragma: allowlist secret
     else process.env.NODE_ENV = prevEnv; // pragma: allowlist secret
   }

@@ -29,12 +29,18 @@ function isLocalhostRequest(req) {
   return host === 'localhost' || host === '127.0.0.1';
 }
 
+function isLocalDatabase() {
+  const url = process.env.DATABASE_URL || '';
+  return /@localhost(?::|\/)/i.test(url) || /@127\.0\.0\.1(?::|\/)/i.test(url);
+}
+
 function isDevChildLoginAllowed(req) {
   if (!isLocalhostRequest(req)) return false;
   if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
   if (process.env.ALLOW_DEV_CHILD_SKIP === 'true') return true;
-  if (process.env.NODE_ENV !== 'development') return false; // pragma: allowlist secret
-  return true;
+  if (process.env.NODE_ENV === 'development') return true; // pragma: allowlist secret
+  if (isLocalDatabase()) return true;
+  return false;
 }
 
 async function findFirstChild() {
@@ -240,6 +246,8 @@ async function completeDevChildLogin(req, res, child, meta) {
 module.exports = {
   DEV_CHILD_NAME,
   DEV_CHILD_PIN,
+  isLocalhostRequest,
+  isLocalDatabase,
   isDevChildLoginAllowed,
   ensureDevChild,
   completeDevChildLogin,
