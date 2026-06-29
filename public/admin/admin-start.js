@@ -369,6 +369,7 @@
     renderStartKpisLoading();
     renderMessagesLoading();
     renderActivityLoading();
+    if (typeof loadJourneyDailyAnalysis === 'function') loadJourneyDailyAnalysis();
 
     try {
       const data = await Auth.api('/api/admin/start-summary?_=' + Date.now());

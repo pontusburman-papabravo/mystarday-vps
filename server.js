@@ -46,6 +46,10 @@ const {
   startJourneyPushScheduler,
   stopJourneyPushScheduler,
 } = require('./src/lib/journey-push-scheduler');
+const {
+  startJourneyDailyAnalysisScheduler,
+  stopJourneyDailyAnalysisScheduler,
+} = require('./src/lib/journey-daily-analysis-scheduler');
 const { pool } = require('./src/lib/db');
 const { createApp } = require('./app');
 
@@ -69,11 +73,12 @@ const server = app.listen(port, () => {
   startRetentionReengagementScheduler();
   startActivationAdvisorScheduler();
   startJourneyPushScheduler();
+  startJourneyDailyAnalysisScheduler();
 });
 
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopWinBackScheduler(); stopActivationEmailScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler(); stopJourneyDailyAnalysisScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

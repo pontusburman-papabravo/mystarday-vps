@@ -38,6 +38,9 @@ const RETENTION_REENGAGEMENT_LOCK_ID = 1009;
 /** Activation advisor — daily ops recommendations for admin Start page */
 const ACTIVATION_ADVISOR_LOCK_ID = 1010;
 
+/** Family Journey daily analysis + browser QA — 06:00 Europe/Stockholm */
+const JOURNEY_DAILY_ANALYSIS_LOCK_ID = 1011;
+
 module.exports = {
   MIDNIGHT_SCHEDULER_LOCK_ID,
   DELETION_SCHEDULER_LOCK_ID,
@@ -49,4 +52,5 @@ module.exports = {
   CUSTODY_HANDOFF_SCHEDULER_LOCK_ID,
   RETENTION_REENGAGEMENT_LOCK_ID,
   ACTIVATION_ADVISOR_LOCK_ID,
+  JOURNEY_DAILY_ANALYSIS_LOCK_ID,
 };

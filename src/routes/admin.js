@@ -51,6 +51,7 @@ const familyOverviewRouter = require('./admin/family-overview');
 const adminSearchRouter = require('./admin/admin-search');
 const l1GovernanceRouter = require('./admin/l1-governance');
 const journeyRolloutRouter = require('./admin/journey-rollout');
+const journeyDailyAnalysisRouter = require('./admin/journey-daily-analysis');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -76,6 +77,7 @@ router.use(startSummaryRouter);
 router.use(operationalAlertsRouter);
 router.use(analyticsRouter);
 router.use(journeyRolloutRouter);
+router.use(journeyDailyAnalysisRouter);
 router.use(activationProgramRouter);
 router.use(forDigRouter);
 router.use('/welcome-email', welcomeEmailRouter);
