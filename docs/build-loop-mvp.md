@@ -1,6 +1,8 @@
 # Build-loop MVP — 7 äventyr
 
-> **Produktspec:** Se [`build-mode-spec.md`](build-mode-spec.md) för dubbel belöningsloop, Nintendo-princip, levande världar och föräldrakontroll.
+> **⚠️ Authority:** [`00_MASTER_SPEC.md`](00_MASTER_SPEC.md). Product: [`01_PRODUCT_PRINCIPLES.md`](01_PRODUCT_PRINCIPLES.md). Worlds: [`04_WORLD_DESIGN.md`](04_WORLD_DESIGN.md).
+
+> **Produktspec:** Se även [`build-mode-spec.md`](build-mode-spec.md) för BUILD MODE-teknisk index.
 
 Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i schemat ger **både** ⭐ (Skattkammaren, föräldern) **och** **en byggdel** (🧩, barnets emotionella loop) till det aktiva projektet. När alla delar är samlade låses en **värld** upp där barnet leker vidare.
 

@@ -1,5 +1,7 @@
 # BUILD MODE — Formell produktspec
 
+> **⚠️ Authority:** [`00_MASTER_SPEC.md`](00_MASTER_SPEC.md) wins on any conflict. This file is technical detail / index for BUILD MODE. Product laws: [`01_PRODUCT_PRINCIPLES.md`](01_PRODUCT_PRINCIPLES.md). Engine: [`03_GAME_ENGINE.md`](03_GAME_ENGINE.md).
+
 | | |
 |---|---|
 | **Status** | Godkänd produktvision (v1.1 — PixiJS-spellager) |

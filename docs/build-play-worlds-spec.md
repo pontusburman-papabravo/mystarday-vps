@@ -1,6 +1,8 @@
 # Lek-världar — spelspec (v2)
 
-> **Produktspec:** [`build-mode-spec.md`](build-mode-spec.md) — lek är belöning *efter* vardagen. **PixiJS** för alla interaktiva belöningsvärldar; DOM/CSS endast för app-skål.
+> **⚠️ Authority:** [`00_MASTER_SPEC.md`](00_MASTER_SPEC.md). Engine: [`03_GAME_ENGINE.md`](03_GAME_ENGINE.md). Worlds: [`04_WORLD_DESIGN.md`](04_WORLD_DESIGN.md).
+
+> **Produktspec:** [`01_PRODUCT_PRINCIPLES.md`](01_PRODUCT_PRINCIPLES.md) — lek är belöning *efter* vardagen. **PixiJS** för alla interaktiva belöningsvärldar.
 
 > **Kvalitetsribba:** Garaget (`build-garage.html` + verkstad) — mekanikreferens; **mål:** samma känsla i PixiJS-canvas.
 

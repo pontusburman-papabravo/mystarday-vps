@@ -2,6 +2,8 @@
 
 This repo is a Swedish family-routine app (Express.js + PostgreSQL, static frontend in `public/`). See `README.md` and `CLAUDE.md` for the product/architecture overview, directory map, and DB schema.
 
+**BUILD MODE / reward worlds:** Read [`docs/00_MASTER_SPEC.md`](docs/00_MASTER_SPEC.md) first (highest authority). Then [`docs/05_AI_DEVELOPER_GUIDE.md`](docs/05_AI_DEVELOPER_GUIDE.md). Use **PixiJS** for interactive child reward worlds — not React/CSS/DOM.
+
 ## Cursor Cloud specific instructions
 
 The startup update script already installs npm dependencies. The notes below are the non-obvious things needed to run/test the app here.
