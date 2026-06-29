@@ -17,7 +17,7 @@
   function defaultMap() {
     return [
       { slug: 'racerbil', icon: '🏎️', label: 'Garaget', href: '/child/garage', unlocked: false, active: false },
-      { slug: 'husdjur', icon: '🐾', label: 'Husdjurshemmet', href: '/child/play/husdjur', unlocked: false, active: false },
+      { slug: 'husdjur', icon: '🐾', label: 'Husdjurshemmet', href: '/child/pet-home', unlocked: false, active: false },
       { slug: 'dinosaurie', icon: '🦕', label: 'Dino-dalen', href: '/child/play/dinosaurie', unlocked: false, active: false },
       { slug: 'dockhus', icon: '🏠', label: 'Dockhuset', href: '/child/play/dockhus', unlocked: false, active: false },
       { slug: 'fiske', icon: '🎣', label: 'Båtkajen', href: '/child/play/fiske', unlocked: false, active: false },

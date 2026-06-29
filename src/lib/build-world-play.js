@@ -1,11 +1,14 @@
 'use strict';
 
 /**
- * Lek-världar (utom garage) — konfig, customization, actions.
- * Visuellt: SVG + CSS (samma profil som stilankare: navy, gold, lavender).
+ * Lek-världar — persistence + shell-världar (v1 placeholder).
+ * Handgjorda spel: se docs/build-play-worlds-spec.md + public/build-pet-home.html
  */
 
-const PLAY_WORLD_SLUGS = ['husdjur', 'dinosaurie', 'dockhus', 'fiske', 'laxor', 'vardag'];
+const { playHrefForSlug, isPlayWorldSlug, SHELL_SLUGS } = require('./play-world-registry');
+const { normalizePetHomeState, DEFAULT_PET_HOME } = require('./play/pet-home-state');
+
+const PLAY_WORLD_SLUGS = ['husdjur', ...SHELL_SLUGS];
 
 const PLAY_WORLDS = {
   husdjur: {
@@ -13,31 +16,8 @@ const PLAY_WORLDS = {
     title: 'Husdjurshemmet',
     icon: '🐾',
     subtitle: 'Mata, borsta och lek med din kompis!',
-    theme: 'bpw--pets',
-    hero_svg: '/img/build/svg/pet-hero.svg',
-    scene_svg: '/img/build/svg/pet-scene.svg',
-    stats: [
-      { key: 'happiness', label: 'Glädje', icon: '💚', max: 100 },
-      { key: 'hunger', label: 'Mättnad', icon: '🥣', max: 100 },
-      { key: 'cleanliness', label: 'Ren', icon: '✨', max: 100 },
-    ],
-    pickers: [{
-      key: 'pet_id',
-      label: 'Välj husdjur',
-      options: [
-        { id: 'hund', label: 'Hund', icon: '🐶' },
-        { id: 'katt', label: 'Katt', icon: '🐱' },
-        { id: 'hamster', label: 'Hamster', icon: '🐹' },
-        { id: 'hast', label: 'Häst', icon: '🐴' },
-      ],
-    }],
-    actions: [
-      { id: 'feed', label: 'Mata', icon: '🥣' },
-      { id: 'brush', label: 'Borsta', icon: '🪮' },
-      { id: 'pet', label: 'Klappa', icon: '🤚' },
-      { id: 'walk', label: 'Promenera', icon: '🦮' },
-    ],
-    defaults: { pet_id: 'hund', happiness: 75, hunger: 40, cleanliness: 90 },
+    game: 'pet-home',
+    defaults: DEFAULT_PET_HOME,
   },
   dinosaurie: {
     catalog_slug: 'dinosaurie',
@@ -191,25 +171,16 @@ const PLAY_WORLDS = {
   },
 };
 
-function isPlayWorldSlug(slug) {
-  return PLAY_WORLD_SLUGS.includes(slug);
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, Number(n) || 0));
 }
 
 function worldConfig(slug) {
   return PLAY_WORLDS[slug] || null;
 }
 
-function playHrefForSlug(catalogSlug) {
-  if (catalogSlug === 'racerbil') return '/child/garage';
-  if (isPlayWorldSlug(catalogSlug)) return '/child/play/' + catalogSlug;
-  return '/child/world';
-}
-
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, Number(n) || 0));
-}
-
 function normalizePlayCustomization(slug, raw) {
+  if (slug === 'husdjur') return normalizePetHomeState(raw);
   const cfg = worldConfig(slug);
   if (!cfg) return {};
   const c = { ...cfg.defaults, ...(raw && typeof raw === 'object' ? raw : {}) };

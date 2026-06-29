@@ -39,7 +39,7 @@ Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i sch
 - Part-grant på aktivitet klar (`daily-logs` → build)
 - Första-besök-flöde: tvinga val om inget aktivt projekt
 - Completion-ritual + unlock per `world_slug`
-- Världsspecifika lekytor (husdjur, dino, …) — en i taget efter garage-MVP
+- **Handgjorda lek-världar** — en i taget, se [`build-play-worlds-spec.md`](build-play-worlds-spec.md). Husdjur (`/child/pet-home`) = pilot v2. Generisk `build-play-world` = shell för ej-byggda världar.
 
 ### Sprint 3+
 - Säsonger / fler projekt inom samma äventyrstyp

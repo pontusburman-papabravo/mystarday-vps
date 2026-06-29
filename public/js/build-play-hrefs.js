@@ -8,6 +8,7 @@
 
   function playHrefForSlug(slug) {
     if (slug === 'racerbil') return '/child/garage';
+    if (slug === 'husdjur') return '/child/pet-home';
     if (PLAY_SLUGS.indexOf(slug) >= 0) return '/child/play/' + slug;
     return '/child/world';
   }

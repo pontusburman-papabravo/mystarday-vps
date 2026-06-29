@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FFF3D6">
+  <title>Husdjurshemmet — Min värld</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/play-pet-home.css?v=1">
+  <script src="/js/auth.js?v=2.22.0"></script>
+</head>
+<body class="pet-home-page">
+  <div id="phLoading" class="ph-loading">Öppnar husdjurshemmet…</div>
+
+  <div id="phLogin" class="ph-login" hidden>
+    <p id="phLoginMsg">Logga in som barn för att leka här.</p>
+    <a href="/child-login?next=/child/pet-home">Barnlogin</a>
+    <p class="ph-login-hint"><a href="?preview=1">?preview=1</a> — testa utan login</p>
+  </div>
+
+  <div id="phApp" class="ph-app" hidden>
+    <p id="phPreviewBanner" class="ph-preview-banner" hidden>Förhandsvisning — sparas inte</p>
+
+    <header class="ph-topbar">
+      <a href="/child/world" class="ph-back">← Min värld</a>
+      <h1 class="ph-title">🐾 Husdjurshemmet</h1>
+      <span class="ph-topbar-spacer"></span>
+    </header>
+
+    <div class="ph-meters" id="phMeters" aria-label="Hur mår djuret"></div>
+
+    <p class="ph-hint" id="phHint" role="status">Dra matpåsen till skålen 🥣</p>
+
+    <div class="ph-room" id="phRoom">
+      <div class="ph-room-bg" aria-hidden="true">
+        <div class="ph-wall"></div>
+        <div class="ph-floor"></div>
+        <div class="ph-window"></div>
+        <div class="ph-rug"></div>
+        <div class="ph-dogbed"></div>
+      </div>
+
+      <div class="ph-fx" id="phFx" aria-hidden="true"></div>
+
+      <div class="ph-bowl-zone" id="phBowlZone">
+        <div class="ph-bowl" id="phBowl">
+          <div class="ph-bowl-inner"></div>
+          <div class="ph-bowl-food" id="phBowlFood"></div>
+        </div>
+      </div>
+
+      <div class="ph-pet-stage" id="phPetStage">
+        <div class="ph-pet" id="phPet" data-pet="hund" data-mood="idle">
+          <div class="ph-pet-tail" aria-hidden="true"></div>
+          <div class="ph-pet-body" aria-hidden="true"></div>
+          <div class="ph-pet-head" aria-hidden="true">
+            <span class="ph-ear ph-ear--l"></span>
+            <span class="ph-ear ph-ear--r"></span>
+            <span class="ph-snout"></span>
+            <span class="ph-eye ph-eye--l"></span>
+            <span class="ph-eye ph-eye--r"></span>
+            <span class="ph-nose"></span>
+          </div>
+          <div class="ph-pet-dirt" id="phPetDirt" aria-hidden="true"></div>
+        </div>
+        <div class="ph-blanket-on-pet" id="phBlanketOnPet" hidden></div>
+        <div class="ph-zzz" id="phZzz" hidden aria-hidden="true">💤 💤</div>
+        <div class="ph-scrub-meter" id="phScrubMeter" hidden>
+          <span>Borsta pälsen</span>
+          <div class="ph-scrub-track"><i id="phScrubFill"></i></div>
+        </div>
+      </div>
+
+      <div class="ph-prop ph-prop--bag" id="phFoodBag" data-tool="bag">
+        <span class="ph-prop-icon">🥫</span>
+        <span class="ph-prop-label">Mat</span>
+      </div>
+      <div class="ph-prop ph-prop--brush" id="phBrush" data-tool="brush">
+        <span class="ph-prop-icon">🪮</span>
+        <span class="ph-prop-label">Borsta</span>
+      </div>
+      <div class="ph-prop ph-prop--ball" id="phBall" data-tool="ball">
+        <span class="ph-prop-icon">🎾</span>
+        <span class="ph-prop-label">Boll</span>
+      </div>
+      <div class="ph-prop ph-prop--blanket" id="phBlanket" data-tool="blanket">
+        <span class="ph-prop-icon">🛏️</span>
+        <span class="ph-prop-label">Filt</span>
+      </div>
+    </div>
+
+    <div class="ph-picker" id="phPicker" aria-label="Välj husdjur"></div>
+    <div id="phToast" class="ph-toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="/js/build-game-mobile.js?v=1"></script>
+  <script src="/js/play-world-save.js?v=1"></script>
+  <script src="/js/play/pet-home.js?v=1"></script>
+</body>
+</html>

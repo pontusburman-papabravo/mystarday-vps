@@ -240,18 +240,37 @@ async function testGarage(page) {
 }
 
 const PLAY_WORLDS = [
-  { slug: 'husdjur', title: 'Husdjurshemmet' },
-  { slug: 'dinosaurie', title: 'Dino-dalen' },
-  { slug: 'dockhus', title: 'Dockhuset' },
-  { slug: 'fiske', title: 'Båtkajen' },
-  { slug: 'laxor', title: 'Läxbordet' },
-  { slug: 'vardag', title: 'Mitt rum' },
+  { slug: 'husdjur', url: '/child/pet-home', title: 'Husdjurshemmet', room: '#phRoom' },
+  { slug: 'dinosaurie', url: '/child/play/dinosaurie', title: 'Dino', room: '#bpwApp' },
+  { slug: 'dockhus', url: '/child/play/dockhus', title: 'Dockhus', room: '#bpwApp' },
+  { slug: 'fiske', url: '/child/play/fiske', title: 'Fiske', room: '#bpwApp' },
+  { slug: 'laxor', url: '/child/play/laxor', title: 'Läxor', room: '#bpwApp' },
+  { slug: 'vardag', url: '/child/play/vardag', title: 'Vardag', room: '#bpwApp' },
 ];
 
 async function testPlayWorld(page, world) {
-  await page.goto(BASE + '/child/play/' + world.slug + '?preview=1', NAV_OPTS);
-  await page.waitForSelector('#bpwApp', { visible: true, timeout: 15000 });
+  await page.goto(BASE + world.url + '?preview=1', NAV_OPTS);
+  await page.waitForSelector(world.room, { visible: true, timeout: 15000 });
   await assertNoErrors(page, 'Play ' + world.slug);
+
+  if (world.slug === 'husdjur') {
+    const pet = await page.evaluate(() => {
+      const room = document.querySelector('#phRoom');
+      const bag = document.getElementById('phFoodBag');
+      const bowl = document.getElementById('phBowl');
+      const petEl = document.getElementById('phPet');
+      return {
+        roomH: room ? room.getBoundingClientRect().height : 0,
+        hasBag: !!bag,
+        hasBowl: !!bowl,
+        hasPet: !!petEl,
+      };
+    });
+    if (pet.roomH < 200) fail('Pet home: rum för litet');
+    if (!pet.hasBag || !pet.hasBowl || !pet.hasPet) fail('Pet home: saknar scen-element');
+    console.log('OK Pet home — interaktiv scen', Math.round(pet.roomH), 'px');
+    return pet;
+  }
 
   const info = await page.evaluate(() => {
     const title = document.getElementById('bpwTitle')?.textContent || '';

@@ -120,6 +120,13 @@ function registerRoutes(app) {
   app.get('/child/garage', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'build-garage.html'));
   });
+  app.get('/child/pet-home', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'build-pet-home.html'));
+  });
+  app.get('/child/play/husdjur', (req, res) => {
+    const q = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    res.redirect(302, '/child/pet-home' + q);
+  });
   app.get('/child/play/:slug', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'build-play-world.html'));
   });

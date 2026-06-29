@@ -22,9 +22,9 @@ describe('build world play', () => {
     assert.ok(PLAY_WORLD_SLUGS.includes('vardag'));
   });
 
-  it('playHrefForSlug routes racerbil to garage and others to /child/play/', () => {
+  it('playHrefForSlug routes racerbil to garage and husdjur to pet-home', () => {
     assert.equal(playHrefForSlug('racerbil'), '/child/garage');
-    assert.equal(playHrefForSlug('husdjur'), '/child/play/husdjur');
+    assert.equal(playHrefForSlug('husdjur'), '/child/pet-home');
     assert.equal(playHrefForSlug('laxor'), '/child/play/laxor');
     assert.equal(playHrefForSlug('unknown'), '/child/world');
   });
@@ -48,11 +48,10 @@ describe('build world play', () => {
     assert.ok(result.customization.happiness > 50);
   });
 
-  it('publicWorldConfig exposes SVG paths per world', () => {
+  it('publicWorldConfig exposes play href for shell worlds', () => {
     const cfg = publicWorldConfig('dinosaurie');
     assert.equal(cfg.catalog_slug, 'dinosaurie');
     assert.match(cfg.hero_svg, /dino-hero\.svg/);
-    assert.match(cfg.scene_svg, /dino-scene\.svg/);
     assert.equal(cfg.play_href, '/child/play/dinosaurie');
   });
 

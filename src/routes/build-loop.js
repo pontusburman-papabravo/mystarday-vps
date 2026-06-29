@@ -255,6 +255,16 @@ router.get('/play/:catalogSlug', async (req, res) => {
     if (!project) {
       return res.status(404).json({ error: 'Bygg klart äventyret först — 75 delar! 🧩' });
     }
+    if (slug === 'husdjur') {
+      const customization = normalizePlayCustomization(slug, project.customization);
+      return res.json({
+        project,
+        game: 'pet-home',
+        play_href: playHrefForSlug(slug),
+        customization,
+        state: customization,
+      });
+    }
     const world = publicWorldConfig(slug);
     res.json({
       project,
@@ -273,7 +283,9 @@ router.patch('/play/:catalogSlug', async (req, res) => {
     if (!isPlayWorldSlug(slug)) {
       return res.status(404).json({ error: 'Lek-världen finns inte.' });
     }
-    const schema = playPatchSchema(slug);
+    const schema = slug === 'husdjur'
+      ? z.object({}).passthrough()
+      : playPatchSchema(slug);
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: 'Ogiltigt val.' });

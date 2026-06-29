@@ -11,7 +11,7 @@ const BUILD_MILESTONES = [15, 30, 45, 60, 75];
 
 const WORLD_MAP = [
   { slug: 'racerbil', world_slug: 'garage', icon: '🏎️', label: 'Garaget', href: '/child/garage' },
-  { slug: 'husdjur', world_slug: 'pet_home', icon: '🐾', label: 'Husdjurshemmet', href: '/child/play/husdjur' },
+  { slug: 'husdjur', world_slug: 'pet_home', icon: '🐾', label: 'Husdjurshemmet', href: '/child/pet-home' },
   { slug: 'dinosaurie', world_slug: 'dino_lab', icon: '🦕', label: 'Dino-dalen', href: '/child/play/dinosaurie' },
   { slug: 'dockhus', world_slug: 'dollhouse', icon: '🏠', label: 'Dockhuset', href: '/child/play/dockhus' },
   { slug: 'fiske', world_slug: 'fishing_dock', icon: '🎣', label: 'Båtkajen', href: '/child/play/fiske' },
