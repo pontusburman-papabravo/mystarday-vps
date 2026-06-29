@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../db');
+const appConfig = require('../../../db/app-config');
 const rollout = require('./rollout');
 
 const CONFIG_KEY = 'JOURNEY_DAILY_ANALYSIS_LATEST';
