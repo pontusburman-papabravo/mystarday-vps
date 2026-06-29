@@ -53,14 +53,15 @@ Night shift forbidden items remain forbidden without explicit human instruction.
 
 ## Decision Handling
 
+**Canonical source:** [DECISION_MODEL.md](DECISION_MODEL.md) — same levels 1–4 as night shift.
+
 | Level | Day shift behavior |
 |-------|-------------------|
-| 1 | Proceed |
-| 2 | Proceed + PR note |
+| 1–2 | Same as night — proceed (+ PR note for L2) |
 | 3 | Draft ADR → human review → implement after acceptance |
 | 4 | Stop → ask → wait |
 
-See [DECISION_MODEL.md](DECISION_MODEL.md) for classification.
+Night shift forbidden items remain forbidden without explicit human instruction.
 
 ---
 

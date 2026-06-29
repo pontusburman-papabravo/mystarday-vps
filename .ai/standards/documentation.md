@@ -18,6 +18,8 @@
 | Runtime ops | Root `AGENTS.md` | Agent when env changes |
 | Architecture overview | `CLAUDE.md` | Major shifts only |
 
+**Knowledge classes:** [KNOWLEDGE_MANAGEMENT.md](../KNOWLEDGE_MANAGEMENT.md)
+
 ---
 
 ## When Agents Write Docs

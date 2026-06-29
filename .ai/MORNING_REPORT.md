@@ -2,7 +2,9 @@
 
 **Version:** 1.0  
 **Purpose:** Standard handoff format from night (or multi-session) AI work to humans  
-**Where:** PR description body · issue comment · `.ai/reports/YYYY-MM-DD.md` (optional)
+**Where:** PR description body · issue comment · `.ai/reports/YYYY-MM-DD.md` (multi-agent rollup)
+
+**Multi-agent:** One report **per agent per session** in that agent's PR. When several night agents run concurrently, AI Operations may add a rollup in `.ai/reports/` linking all PRs — see [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md).
 
 ---
 
@@ -21,6 +23,7 @@
 
 **Shift:** Night | Day  
 **Branch:** `cursor/...`  
+**Agent ID:** [cloud-agent-id / session / tool name]  
 **Agent session:** [brief identifier if available]
 
 ---
@@ -112,3 +115,25 @@ A Morning Report is **incomplete** if:
 - [ ] PR links missing when code was pushed
 - [ ] Blockers omit Level 3–4 classification
 - [ ] Test gate failure not listed under Blockers or Risker
+- [ ] Agent ID present when multiple agents may run same night
+- [ ] Metrics block optional — see [AI_METRICS.md](AI_METRICS.md)
+
+---
+
+## Daily Rollup (multi-agent, optional)
+
+File: `.ai/reports/YYYY-MM-DD.md`
+
+```markdown
+# Daily Agent Rollup — YYYY-MM-DD
+
+| Agent ID | Branch | PR | Status |
+|----------|--------|-----|--------|
+| ... | ... | #... | ready / draft / blocked |
+
+## Combined blockers
+-
+
+## Recommended human priority
+1.
+```

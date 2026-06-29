@@ -12,6 +12,7 @@
 - POS domain docs identified
 - Decision level classified ([DECISION_MODEL.md](../DECISION_MODEL.md))
 - Shift rules ([DAY_SHIFT.md](../DAY_SHIFT.md) / [NIGHT_SHIFT.md](../NIGHT_SHIFT.md))
+- Branch ownership per [MULTI_AGENT_COORDINATION.md](../MULTI_AGENT_COORDINATION.md)
 
 ---
 

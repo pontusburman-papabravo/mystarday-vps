@@ -7,32 +7,32 @@ alwaysApply: true
 
 ## Bootstrap (with 200-runtime-platform)
 
-1. `.ai/AGENTS.md` — **Team OS v1.0 entry** (shifts · decisions · workflows)
-2. `.ai/brain/PROJECT_BRAIN.md` — company mind (~10 min)
-3. `.ai/roles/<role>.md` — task role · `.ai/workflows/<type>.md` — task workflow
-4. `.ai/runtime/WORKFLOW_ENGINE.md` — deep pipeline (frozen)
-5. `.ai/agents/README.md` — legacy roster + conflict rules
-6. Embody agents from `.ai/runtime/TASK_ROUTER.md` assignment
+1. `.ai/AGENTS.md` — **Team OS v1.0 entry**
+2. `.ai/KNOWLEDGE_MANAGEMENT.md` — truth classes
+3. `.ai/MULTI_AGENT_COORDINATION.md` — if parallel agents possible
+4. `.ai/roles/<role>.md` + `.ai/workflows/<type>.md`
+5. `.ai/brain/PROJECT_BRAIN.md` — company mind (deep)
+6. `.ai/runtime/WORKFLOW_ENGINE.md` — deep pipeline (frozen, optional)
 
 ## WHO not HOW
 
 | Layer | Location |
 |-------|----------|
-| Team OS | `.ai/AGENTS.md` · `roles/` · `workflows/` · `standards/` |
+| Team OS | `.ai/AGENTS.md` · core systems · `roles/` · `workflows/` · `standards/` |
 | Mind | `.ai/brain/` |
-| Agents | `.ai/agents/*.md` · `.ai/roles/*.md` |
-| Process | `.ai/runtime/` (frozen v1.0) |
+| Agents | `.ai/roles/*.md` · `.ai/agents/*.md` (legacy deep) |
+| Process | `.ai/runtime/` (frozen) |
 
 ## Every PR
 
-- Quality Index table: `.ai/brain/QUALITY_INDEX.md`
-- Mandatory agent reviews per `.ai/agents/README.md`
-- QA Director ship veto · Security 10
+- Quality Index: `.ai/brain/QUALITY_INDEX.md`
+- AI Metrics block: `.ai/AI_METRICS.md`
+- QA Director ship veto · Security review on auth paths
 
 ## Do not
 
-- Expand frozen POS/COS/PCB/AOS/Runtime without contradiction ADR mission
+- Edit POS/Constitution without human
 - Skip agent hat reviews on user-facing changes
-- Merge below Quality Index floors
+- Merge to main (human only)
 
-Entry: `.ai/agents/README.md`
+Entry: `.ai/AGENTS.md`

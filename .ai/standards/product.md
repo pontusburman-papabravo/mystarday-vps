@@ -66,3 +66,5 @@ If POS contradicts itself → ADR + human (Level 4).
 | Game Director | [roles/game-director.md](../roles/game-director.md) |
 | Product bibles | `.ai/product/` (PCB — world fiction) |
 | Human escalation | [HUMAN_ESCALATION.md](../HUMAN_ESCALATION.md) |
+
+> Constitution **full text** only in `docs/PRODUCT-CONSTITUTION.md` — table above is a PR checklist only.

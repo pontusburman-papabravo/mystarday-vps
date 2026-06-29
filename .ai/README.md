@@ -1,96 +1,62 @@
 # AI Team Operating System
 
-**Version:** 1.0  
+**Version:** 1.0 (final)  
 **Status:** Normative for all AI agents in this repository  
-**Created:** 2026-06-29
+**Audience:** Any AI agent — model-agnostic, session-agnostic, multi-agent safe
+
+> **Start here:** [AGENTS.md](AGENTS.md) is the single entry point. This file is a brief index.
 
 ---
 
 ## What This Is
 
-The **AI Team Operating System** governs **how** autonomous agents work in this repository. It does **not** replace the **Product Operating System** (POS) — it **implements** it in engineering practice.
+The **AI Team Operating System** governs **how** autonomous agents work in this repository. It does **not** replace **Product OS** — it implements it.
 
-| System | Location | Answers |
-|--------|----------|---------|
-| **Constitution** | `docs/PRODUCT-CONSTITUTION.md` | Immutable product rules |
-| **Product OS** | `product-operating-system/` | *What* to build · *Why* · *How it should feel* |
-| **ADR** | `product-operating-system/14_DECISION_LOG.md` | Accepted architectural decisions |
-| **AI Team OS** | `.ai/` (this tree) | *How agents decide, ship, review, report* |
-| **Runtime env** | Root `AGENTS.md` | Node, Postgres, test commands, deploy ops |
+| System | Location |
+|--------|----------|
+| Constitution | `docs/PRODUCT-CONSTITUTION.md` |
+| Product OS | `product-operating-system/` |
+| ADR | `product-operating-system/14_DECISION_LOG.md` |
+| **Team OS** | `.ai/` (this tree) |
+| Runtime env | Root `AGENTS.md` |
 
-### Supremacy order
-
-1. **Constitution** + **Product OS** — absolute product truth  
-2. **ADR** — accepted decisions  
-3. **AI Team OS** — agent behavior and engineering workflow  
-4. **Codebase** — fix when it violates POS  
-5. **`SYSTEM_ANALYSIS.md`** — context only  
-
-> When POS and code conflict → **POS is correct.** Rewrite code, not docs (unless ADR-worthy contradiction in POS itself).
+**Supremacy:** Constitution → POS → ADR → Team OS → Code. Details: [AGENTS.md](AGENTS.md#authority-stack).
 
 ---
 
-## Start Here
+## Core Systems (v1.0)
 
-**Open [AGENTS.md](AGENTS.md) first.** It links everything else.
-
-### Session bootstrap
-
-```
-1. .ai/AGENTS.md
-2. docs/PRODUCT-CONSTITUTION.md
-3. DAY_SHIFT.md or NIGHT_SHIFT.md
-4. Task role → .ai/roles/<role>.md
-5. Task workflow → .ai/workflows/<type>.md
-6. Standards → .ai/standards/
-7. Root AGENTS.md for runtime
-```
-
-### Autonomy loop (all work)
-
-```
-SPEC → IMPLEMENT → TEST → VERIFY → RED TEAM REVIEW
-→ BUG HUNT → FIX → REGRESSION TEST → PR → MORNING REPORT
-```
+| System | Document |
+|--------|----------|
+| Entry & orchestration | [AGENTS.md](AGENTS.md) |
+| Night / day shifts | [NIGHT_SHIFT.md](NIGHT_SHIFT.md) · [DAY_SHIFT.md](DAY_SHIFT.md) |
+| Decisions & escalation | [DECISION_MODEL.md](DECISION_MODEL.md) · [HUMAN_ESCALATION.md](HUMAN_ESCALATION.md) |
+| Reporting | [MORNING_REPORT.md](MORNING_REPORT.md) |
+| **Knowledge** | [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md) |
+| **Multi-agent** | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) |
+| **Metrics** | [AI_METRICS.md](AI_METRICS.md) |
+| **Improvement** | [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md) |
 
 ---
 
-## Directory Map (v1.0)
+## Structure
 
 ```
 .ai/
-├── README.md              ← You are here
-├── AGENTS.md              ← Single entry point (Team OS v1.0)
-├── NIGHT_SHIFT.md         ← Night autonomy rules
-├── DAY_SHIFT.md           ← Day + human collaboration
-├── MORNING_REPORT.md      ← Handoff format
-├── DECISION_MODEL.md      ← Levels 1–4
-├── HUMAN_ESCALATION.md    ← Stop triggers
-├── roles/                 ← Executive + domain roles
-├── workflows/             ← Implementation → emergency
-├── standards/             ← Pointers to POS/ADR (no duplication)
-├── company/               ← Executive playbooks (deep detail)
-├── agents/                ← Agent personas (deep detail)
-├── runtime/               ← Execution engines (deep detail)
-├── brain/                 ← Company mind
-└── product/               ← Product Content Bible
-
-product-operating-system/    ← Product truth
-docs/PRODUCT-CONSTITUTION.md
-AGENTS.md                    ← Runtime / Cloud VM (not AI org)
+├── AGENTS.md                    ← Entry point
+├── KNOWLEDGE_MANAGEMENT.md      ← Truth classes & validation
+├── MULTI_AGENT_COORDINATION.md  ← Parallel agents
+├── AI_METRICS.md                ← Quality measurement
+├── CONTINUOUS_IMPROVEMENT.md    ← Weekly improvement loop
+├── NIGHT_SHIFT.md · DAY_SHIFT.md · MORNING_REPORT.md
+├── DECISION_MODEL.md · HUMAN_ESCALATION.md
+├── roles/ · workflows/ · standards/
+├── improvements/                ← Lessons, retros, metrics (proposals)
+├── reports/                     ← Multi-agent daily rollups
+├── company/ · agents/ · runtime/ · brain/ · product/  ← deep refs
 ```
 
----
-
-## Shifts & Decisions
-
-| Topic | Document |
-|-------|----------|
-| Night work (no human) | [NIGHT_SHIFT.md](NIGHT_SHIFT.md) |
-| Day work (human available) | [DAY_SHIFT.md](DAY_SHIFT.md) |
-| Decision levels 1–4 | [DECISION_MODEL.md](DECISION_MODEL.md) |
-| When to stop | [HUMAN_ESCALATION.md](HUMAN_ESCALATION.md) |
-| Morning handoff | [MORNING_REPORT.md](MORNING_REPORT.md) |
+Full map: [AGENTS.md#directory-map](AGENTS.md#directory-map).
 
 ---
 
@@ -98,21 +64,15 @@ AGENTS.md                    ← Runtime / Cloud VM (not AI org)
 
 | Conflict | Winner |
 |----------|--------|
-| Quality vs speed | **Quality** |
-| Architecture vs shortcut | **Architecture** |
-| POS vs implementation | **POS** |
-| Agent guess vs undefined POS | **Escalate** |
-
-Goal: product children love and parents trust — not code volume.
+| Quality vs speed | Quality |
+| Architecture vs shortcut | Architecture |
+| POS vs implementation | POS |
+| Agent guess vs undefined POS | Escalate |
 
 ---
 
-## Versioning
+## Legacy
 
-| Version | Change |
-|---------|--------|
-| **1.0** | AI Team Operating System — shifts, roles, workflows, standards |
+`company/`, `agents/`, `runtime/`, `brain/` remain valid deep references. **Routing** uses v1.0 structure above.
 
-Changes to `.ai/AGENTS.md` orchestration → note in PR. Decision authority changes → ADR in POS 14.
-
-Legacy trees (`company/`, `agents/`, `runtime/`, `brain/`) remain valid deep references; **routing** uses this v1.0 structure.
+Changes to decision authority → ADR in POS 14. Team OS changes → PR with human merge.

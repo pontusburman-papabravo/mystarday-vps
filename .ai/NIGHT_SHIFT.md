@@ -50,11 +50,12 @@ Ship **low-risk engineering value** overnight: bugs fixed, tests added, ADRs imp
 ```
 1. Read .ai/AGENTS.md + this file
 2. Pick work from: open issues · ADR backlog · test gaps · lint debt · known bugs
-3. Classify every decision → DECISION_MODEL.md
+3. Classify every decision per [DECISION_MODEL.md](DECISION_MODEL.md) (canonical)
 4. If any Level 3–4 → STOP, document blocker in MORNING_REPORT
-5. Execute: SPEC → IMPLEMENT → TEST → VERIFY → RED TEAM → BUG HUNT → FIX → REGRESSION
-6. Open PR (draft OK) — never merge
-7. Write MORNING_REPORT.md sections in PR body
+5. Check [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) for locks/conflicts
+6. Execute: SPEC → IMPLEMENT → TEST → VERIFY → RED TEAM → BUG HUNT → FIX → REGRESSION
+7. Open PR (draft OK) — never merge
+8. Write MORNING_REPORT.md sections in PR body
 ```
 
 ---
