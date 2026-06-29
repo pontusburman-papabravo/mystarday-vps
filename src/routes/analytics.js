@@ -123,6 +123,8 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   // Engine coach governance (engine-coach.js, engine-client.js)
   'engine_coach_cta_click',
   'engine_authority_conflict',
+  // Family Journey coach (journey-coach.js)
+  'journey_coach_cta_click',
 ]);
 
 /**

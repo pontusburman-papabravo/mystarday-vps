@@ -65,4 +65,14 @@ describe('journey Fas 3 — BUILDING_ROUTINE coach', () => {
     assert.equal(ctx.priority, 'coach');
     assert.ok(ctx.recommended_experiences.includes('coach_consistency'));
   });
+
+  it('journey-coach wires CTA for coach_consistency and handoff', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/journey-coach.js'), 'utf8');
+    assert.match(src, /coach_consistency/);
+    assert.match(src, /onCoachCta/);
+    assert.match(src, /handoff_to_child/);
+    assert.match(src, /journey-coach-tips/);
+  });
 });
