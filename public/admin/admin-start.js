@@ -124,10 +124,11 @@
           '#analytics'
         )}
         ${kpiCard(
-          'P0 inom 48h',
+          'North Star — P0 inom 48h',
           m.p0_48h ?? '–',
           `${formatPct(m.p0RatePct)} av nya · mål ${m.p0TargetPct || 25}%`,
-          p0Tone
+          p0Tone,
+          '#analytics'
         )}
         ${kpiCard(
           'Stjärna efter barnåtkomst',

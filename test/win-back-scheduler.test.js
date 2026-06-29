@@ -13,6 +13,7 @@ describe('win-back scheduler', () => {
     );
     assert.ok(src.includes('NOT EXISTS'), 'should exclude recent activity');
     assert.ok(src.includes('login_event'), 'should use login_event for migrated users');
+    assert.ok(src.includes('evaluateCommunicationGate'), 'must call Journey Gate before send');
     assert.ok(src.includes("'failed'"), 'should block new pending when failed record exists');
     assert.ok(
       !src.match(/AND EXISTS\s*\(\s*SELECT 1 FROM analytics_events[\s\S]*created_at > NOW\(\) - INTERVAL/),

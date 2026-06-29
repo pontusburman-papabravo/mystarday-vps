@@ -13,6 +13,7 @@ const {
 } = require('./activation-program-enroll');
 const { isEligibleForActivationEmail } = require('./activation-program-eligibility');
 const programAnalytics = require('./activation-program-analytics');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 
 const SCHEDULER_LOCK_ID = 17997001;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -51,6 +52,15 @@ async function fetchEligibleParents() {
 }
 
 async function sendInviteToParent(row) {
+  const gate = await evaluateCommunicationGate(row.family_id, {
+    channel: 'email',
+    intent: 'legacy_activation_email',
+  });
+  if (!gate.allowed) {
+    console.log(`[ACTIVATION-EMAIL] Skipped family ${row.family_id} — Gate: ${gate.reason}`);
+    return false;
+  }
+
   const invite = await emailInviteDb.createInvite(row.parent_id, row.family_id);
   const baseUrl = config.email?.baseUrl || 'https://mystarday.se';
   const ctaUrl = `${baseUrl}/api/public/activation-program/invite/${invite.token}`;
@@ -64,6 +74,7 @@ async function sendInviteToParent(row) {
 
   await emailInviteDb.markSent(invite.id);
   programAnalytics.trackEmailInviteSent(row.family_id, row.parent_id);
+  return true;
 }
 
 async function runActivationEmailJob() {
@@ -93,8 +104,8 @@ async function runActivationEmailJob() {
   let sent = 0;
   for (const row of parents) {
     try {
-      await sendInviteToParent(row);
-      sent += 1;
+      const ok = await sendInviteToParent(row);
+      if (ok) sent += 1;
     } catch (err) {
       console.error('[ACTIVATION-EMAIL] Send failed for', row.parent_id, err.message);
     }

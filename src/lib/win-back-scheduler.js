@@ -25,6 +25,7 @@ const db = require('./db');
 const winBackLog = require('../../db/win-back-email-log');
 const { WIN_BACK_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { isAutoApproveEnabled, approveAndSend } = require('./win-back-sender');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 
 /**
  * Days of inactivity to trigger a win-back email record.
@@ -205,6 +206,15 @@ async function runWinBackJob() {
 
     for (const row of eligible.rows) {
       try {
+        const gate = await evaluateCommunicationGate(row.family_id, {
+          channel: 'email',
+          intent: 'legacy_win_back',
+        });
+        if (!gate.allowed) {
+          console.log(`[WIN-BACK] Skipped ${row.parent_email} — Gate: ${gate.reason} (state=${gate.state})`);
+          continue;
+        }
+
         const childResult = await db.query(
           `SELECT c.name, c.id
            FROM child c
