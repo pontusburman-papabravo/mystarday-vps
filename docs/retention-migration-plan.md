@@ -199,8 +199,8 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ### Steg 1 — Stoppa legacy
 
 ```
-☐ WIN_BACK_ENABLED=false
-☐ ACTIVATION_PROGRAM_EMAIL_ENABLED=false
+☑ WIN_BACK_ENABLED=false          (prod 2026-06-29)
+☑ ACTIVATION_PROGRAM_EMAIL_ENABLED=false
 ☐ retention_reengagement_v1 — endast ON när Gate äger dag 3/7/14
 ```
 
@@ -220,7 +220,7 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ```
 ☐ win-back-scheduler borttagen eller no-op (env OFF räcker tillfälligt)
 ☐ activation-program-email-scheduler borttagen eller no-op
-☑ Win-back CTA → dashboard (win-back-sender; mejlmall kan uppdateras)
+☑ Win-back CTA → dashboard (win-back-sender + mejlmall)
 ☐ Login borttagen som primär KPI (admin email-logg / win-back-stats)
 ☑ Admin Start: North Star — P0 48h
 ```
@@ -231,10 +231,12 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 
 Migreringen är **klar** när alla punkter är sanna och verifierade i prod:
 
-- [ ] Inga retention-utskick kan ske utan Journey Gate
+- [x] Legacy win-back och activation-email avstängda i prod (Steg 1)
+- [x] Journey Gate införd; legacy schedulers anropar Gate
+- [ ] Inga retention-utskick kan ske utan Journey Gate (schedulers har fortfarande egen eligibility-SQL — tas bort i Steg 3)
 - [ ] Inga schedulers innehåller egen segmenteringslogik
-- [ ] Admin visar P0 48h som North Star
-- [ ] Win-back- och activation-email-schedulers är borttagna eller no-op
+- [x] Admin visar P0 48h som North Star
+- [ ] Win-back- och activation-email-schedulers borttagna eller no-op (env OFF + Gate)
 - [ ] Journey ensam avgör familjens kommunikationsstatus; Gate ensam avgör utskick
 
 ---
