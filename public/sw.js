@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v395: ACT-1 onboarding blank-screen fix; redirect incomplete onboarding to wizard
+ * v407: P0 onboarding handoff — skip steg 2–4, barninloggning CTA, child_access via child-login
  * v393: App Store-badge inline SVG (fix trasig bild)
  * v392: Fix App Store-lansering — hero-kort istället för trasig banner
  * v390: App Store launch banner på startsidan
@@ -216,7 +216,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v406';
+const CACHE_NAME = 'stjarndag-v407';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route

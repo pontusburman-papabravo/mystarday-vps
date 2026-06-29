@@ -626,12 +626,14 @@
         </div>
       </div>
 
-      <div class="flex gap-3">
-        <button onclick="goToStep(4)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0">
-          ← Tillbaka
+      <div class="flex flex-col gap-3">
+        <button type="button" id="step5ChildLoginBtn"
+          class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
+          👶 Testa barninloggning nu
         </button>
-        <button onclick="goToStep(6)" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-          Nästa →
+        <button type="button" id="step5ContinueParentBtn"
+          class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2 transition-colors">
+          Fortsätt som förälder →
         </button>
       </div>
     </div>
@@ -643,11 +645,16 @@
       <div class="text-center mb-6 relative overflow-visible" id="celebrationArea">
         <div class="text-5xl mb-3">🎉</div>
         <h1 class="text-2xl font-heading font-bold text-navy mb-2">Nästan klart!</h1>
-        <p class="text-text-soft text-sm">Bjud in en annan vuxen i hushållet — eller hoppa vidare direkt.</p>
+        <p class="text-text-soft text-sm">Låt barnet testa appen — du kan bjuda in andra vuxna och sätta föräldralås <strong>efter</strong> första avbockningen.</p>
       </div>
 
-      <!-- Föräldralås (vuxen-PIN) — döljs om PIN redan satt eller add-child-läge -->
-      <div id="onboardingParentPinBlock" class="bg-gold-light border border-gold rounded-2xl p-4 mb-5">
+      <div id="onboardingLaterOptions" class="text-center text-xs text-text-soft space-y-2 mb-5">
+        <button type="button" id="showParentPinLink" class="underline hover:text-navy">Sätt föräldralås senare</button>
+        <button type="button" id="showInviteLink" class="underline hover:text-navy block mx-auto">Bjud in medförälder senare</button>
+      </div>
+
+      <!-- Föräldralås (vuxen-PIN) — döljs tills förälder väljer att sätta -->
+      <div id="onboardingParentPinBlock" class="hidden bg-gold-light border border-gold rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xl">🔒</span>
           <span class="font-semibold text-navy text-sm">Sätt föräldralås</span>
@@ -674,8 +681,8 @@
         <p class="text-xs text-text-soft">Du kan ändra din PIN senare under Familjen &amp; inställningar.</p>
       </div>
 
-      <!-- Invite another adult -->
-      <div class="bg-sky border border-lavender rounded-2xl p-4 mb-5">
+      <!-- Invite another adult (visas på begäran) -->
+      <div id="onboardingInviteBlock" class="hidden bg-sky border border-lavender rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-3">
           <span class="text-xl">👨‍👩‍👧</span>
           <span class="font-semibold text-navy text-sm">Bjud in en annan vuxen</span>
@@ -744,7 +751,7 @@
 
       <div class="mt-6" style="position: relative; z-index: 1;">
         <button id="step6Btn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-4 rounded-xl transition-colors text-base font-heading shadow-md shadow-yellow-200">
-          🏠 Gå till dashboarden
+          👶 Låt barnet börja
         </button>
       </div>
 
@@ -815,9 +822,9 @@
 
   <script src="/js/journey-context-client.js?v=1.0.0"></script>
   <script src="/js/activation-program-enroll-choice.js?v=1.0.0"></script>
-  <script src="/js/onboarding.js?v=2.16.5"></script>
-  <script src="/js/onboarding-starter-plan.js?v=1.2.1"></script>
-  <script src="/js/onboarding-activation.js?v=1.1.0"></script>
+  <script src="/js/onboarding.js?v=2.17.0"></script>
+  <script src="/js/onboarding-starter-plan.js?v=1.2.2"></script>
+  <script src="/js/onboarding-activation.js?v=1.2.0"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

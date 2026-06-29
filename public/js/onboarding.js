@@ -313,9 +313,32 @@ function goToStep(n) {
 
   window.scrollTo(0, 0);
 
-  if (n === 6 && !IS_ADD_CHILD) {
-    initParentPinOnboardingBlock();
+}
+
+function populateStep5LoginInfo() {
+  const s5Child = document.getElementById('s5ChildName');
+  if (s5Child && childName) s5Child.textContent = childName;
+  const s5Coach = document.getElementById('s5ChildNameCoach');
+  if (s5Coach && childName) s5Coach.textContent = childName;
+  const s5User = document.getElementById('s5Username');
+  if (s5User && childUsername) s5User.textContent = childUsername;
+  const s5Pin = document.getElementById('s5Pin');
+  if (s5Pin && childPin) s5Pin.textContent = childPin;
+}
+
+/** After child + schema: default dagsvy, skip steps 2–4, go straight to handoff. */
+async function finalizeSchemaAndGoHandoff() {
+  populateStep5LoginInfo();
+  if (childId) {
+    window.apiFetch('/api/onboarding/child-view', {
+      method: 'POST',
+      body: JSON.stringify({ child_id: childId, view_type: 'day' }),
+    }).catch(function () {});
   }
+  if (window.OnboardingActivation && typeof OnboardingActivation.notifyPinSet === 'function') {
+    OnboardingActivation.notifyPinSet('onboarding_auto');
+  }
+  goToStep(5);
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -373,7 +396,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
     if (schedData.weekdays_only) {
       showWeekendModal();
     } else {
-      goToStep(2);
+      await finalizeSchemaAndGoHandoff();
     }
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel. Försök igen.');
@@ -412,7 +435,7 @@ window.applyWeekendSchedule = async function() {
 
     weekendScheduleAdded = true;
     hideWeekendModal();
-    goToStep(2);
+    await finalizeSchemaAndGoHandoff();
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel. Försök igen.');
     yesBtn.disabled = false;
@@ -421,10 +444,10 @@ window.applyWeekendSchedule = async function() {
   }
 };
 
-window.skipWeekendSchedule = function() {
+window.skipWeekendSchedule = async function() {
   weekendScheduleAdded = false;
   hideWeekendModal();
-  goToStep(2);
+  await finalizeSchemaAndGoHandoff();
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -661,7 +684,7 @@ window.saveCustomPin = async function() {
     document.getElementById('s5Pin').textContent = newPin;
     cancelPinEdit();
     if (window.OnboardingActivation && typeof OnboardingActivation.notifyPinSet === 'function') {
-      OnboardingActivation.notifyPinSet();
+      OnboardingActivation.notifyPinSet('onboarding_custom');
     }
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel');
@@ -706,20 +729,36 @@ function readOnboardingParentPin(prefix) {
   }).join('');
 }
 
-async function initParentPinOnboardingBlock() {
-  const block = document.getElementById('onboardingParentPinBlock');
-  if (!block || IS_ADD_CHILD) return;
-  try {
-    const res = await window.apiFetch('/api/family/parent-pin-status');
-    if (res.ok) {
-      const data = await res.json();
-      if (data.has_pin) {
-        block.classList.add('hidden');
-        return;
-      }
+function wireDeferredStep6Options() {
+  const pinLink = document.getElementById('showParentPinLink');
+  const pinBlock = document.getElementById('onboardingParentPinBlock');
+  if (pinLink && pinBlock) {
+    pinLink.addEventListener('click', function () {
+      pinBlock.classList.remove('hidden');
+      pinLink.classList.add('hidden');
+    });
+  }
+  const inviteLink = document.getElementById('showInviteLink');
+  const inviteBlock = document.getElementById('onboardingInviteBlock');
+  if (inviteLink && inviteBlock) {
+    inviteLink.addEventListener('click', function () {
+      inviteBlock.classList.remove('hidden');
+      inviteLink.classList.add('hidden');
+      loadInviteChildren();
+    });
+  }
+}
+
+async function redirectToChildHandoffAfterComplete() {
+  document.getElementById('step6').classList.remove('active');
+  document.getElementById('loadingStep').classList.remove('hidden');
+  setTimeout(function () {
+    if (window.Auth && typeof Auth.logout === 'function') {
+      Auth.logout({ childFlow: true });
+    } else {
+      window.location.href = '/child-login';
     }
-  } catch { /* show block */ }
-  block.classList.remove('hidden');
+  }, 900);
 }
 
 async function saveOnboardingParentPinIfProvided() {
@@ -835,7 +874,7 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
   setLoading(btn, 'Slutför…');
 
   if (!(await saveOnboardingParentPinIfProvided())) {
-    setLoading(btn, '🏠 Gå till dashboarden', false);
+    setLoading(btn, '👶 Låt barnet börja', false);
     return;
   }
 
@@ -856,22 +895,18 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
     // Fas 4: val-skärm innan dashboard (väg A)
     if (!IS_ADD_CHILD && window.ActivationProgramEnrollChoice) {
       const showedChoice = await ActivationProgramEnrollChoice.maybeShowAfterOnboarding({
-        onDone: () => { window.location.href = '/dashboard'; },
+        onDone: () => { redirectToChildHandoffAfterComplete(); },
       });
       if (showedChoice) {
-        setLoading(btn, '🏠 Gå till dashboarden', false);
+        setLoading(btn, '👶 Låt barnet börja', false);
         return;
       }
     }
 
-    document.getElementById('step6').classList.remove('active');
-    document.getElementById('loadingStep').classList.remove('hidden');
-    setTimeout(() => {
-      window.location.href = IS_ADD_CHILD ? '/child-login' : '/dashboard';
-    }, 1400);
+    await redirectToChildHandoffAfterComplete();
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel. Försök igen.');
-    setLoading(btn, '🏠 Gå till dashboarden', false);
+    setLoading(btn, '👶 Låt barnet börja', false);
   }
 });
 
@@ -1071,11 +1106,7 @@ window.skipInvite = async function() {
       Auth.setAuth(Auth.getToken(), user);
     }
 
-    document.getElementById('step6').classList.remove('active');
-    document.getElementById('loadingStep').classList.remove('hidden');
-    setTimeout(() => {
-      window.location.href = IS_ADD_CHILD ? '/child-login' : '/dashboard';
-    }, 1000);
+    await redirectToChildHandoffAfterComplete();
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel. Försök igen.');
   }
@@ -1261,6 +1292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initIOSAvatarPicker();
   setupPinInputs();
   setupParentPinOnboardingInputs();
+  wireDeferredStep6Options();
   if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.logPost && AppleSignInDiagnostics.isPostLoginTraceActive()) {
     AppleSignInDiagnostics.logPost('step_8_onboarding_loaded', { path: window.location.pathname });
     AppleSignInDiagnostics.endPostLoginTrace();

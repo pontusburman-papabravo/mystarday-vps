@@ -281,6 +281,18 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
       scopeKey: require('../../../db/family-milestones').scopeKeyForChild(child.id),
     });
 
+    const analytics = require('../../../db/analytics');
+    analytics.track(child.family_id, 'child_session_started', {
+      child_id: child.id,
+      source: 'child_login',
+    });
+    const { updateActivationState } = require('../../lib/activation-p0');
+    updateActivationState(child.family_id, 'child_access', {
+      metadata: { child_id: child.id, source: 'child_login' },
+    }).catch((err) => {
+      console.error('[AUTH] activation child_access error:', err.message);
+    });
+
     const csrfToken = generateCsrfToken(res);
     const user = {
       id: child.id,
