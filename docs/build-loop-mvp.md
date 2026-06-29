@@ -1,13 +1,15 @@
 # Build-loop MVP — 7 äventyr
 
-Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i schemat ger ⭐ + **en byggdel** (🧩) till det aktiva projektet. När alla delar är samlade låses en **värld** upp där barnet leker vidare.
+> **Produktspec:** Se [`build-mode-spec.md`](build-mode-spec.md) för dubbel belöningsloop, Nintendo-princip, levande världar och föräldrakontroll.
+
+Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i schemat ger **både** ⭐ (Skattkammaren, föräldern) **och** **en byggdel** (🧩, barnets emotionella loop) till det aktiva projektet. När alla delar är samlade låses en **värld** upp där barnet leker vidare.
 
 ## De 7 MVP-äventyren
 
 | # | Slug | Namn | Delar | Värld efter klart | Lek efter unlock |
 |---|------|------|-------|-------------------|------------------|
 | 1 | `racerbil` | Mecka med bilen | 75 | Garaget | Verktygsvägg, byt däck, tvätta, tuta, kör |
-| 2 | `husdjur` | Ta hand om husdjur | 75 | Husdjurshemmet | Välj hund/katt/hamster/häst — mata, borsta, promenera |
+| 2 | `husdjur` | Ta hand om husdjur | 75 | Husdjurshemmet | Välj hund/katt/kanin/häst — mata, borsta, promenera |
 | 3 | `dinosaurie` | Forska om dinosaurier | 75 | Dino-dalen | Gräv, borsta ben, montera skelett, läs fakta |
 | 4 | `dockhus` | Dockor & dockhus | 75 | Dockhuset | Bygg rum, måla, inred, bjud in gäster |
 | 5 | `fiske` | Fiska & båtliv | 75 | Båtkajen | Bygg spö/båt, kasta, dra, hala upp fisk |
@@ -47,6 +49,7 @@ Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i sch
 
 ## Designprinciper
 
+- **Dubbel belöningsloop** — stjärnor (förälder) + byggdelar (barn) från samma aktivitet; se [`build-mode-spec.md`](build-mode-spec.md)
 - **Ett aktivt projekt** per barn (`child_build_project_one_active_idx`)
 - **Samma visuella stil** som stilankare (navy, gold, lavender, Outfit)
 - **Verktyg före resultat** — barn ska *göra* saker (skruva, dra, skrubba), inte bara trycka en knapp

@@ -1,5 +1,7 @@
 # Lek-världar — spelspec (v2)
 
+> **Produktspec:** [`build-mode-spec.md`](build-mode-spec.md) — lek är belöning *efter* vardagen, inte ersättning. Dubbel loop med stjärnor oförändrad.
+
 > **Kvalitetsribba:** Garaget (`build-garage.html` + verkstad). Varje värld ska kännas **handgjord**, inte som samma spel med annan bakgrund.
 
 ## Varför v1 (generisk play-sida) är fel
