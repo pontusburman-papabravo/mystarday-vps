@@ -61,6 +61,7 @@ Governance read order — **before any code change**:
 ├── README.md          ← You are here
 ├── AGENTS.md          ← Engineering role specs (AOS v1.0)
 ├── brain/             ← Company mind — read PROJECT_BRAIN first
+├── product/           ← Product Content Bible v1.0 (world soul — master)
 ├── agents/            ← Persistent agent team (WHO Composer is)
 ├── runtime/           ← Execution platform (HOW — frozen v1.0)
 └── company/           ← Executive playbooks (frozen v1.0)
