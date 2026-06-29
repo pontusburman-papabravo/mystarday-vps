@@ -55,7 +55,9 @@
     "instagram:recensioner": "node scripts/export-instagram-recensioner-video.mjs",
     "android:aab": "node scripts/build-android-aab.mjs",
     "qa:mobile-gate": "QA_MODE=gate node scripts/smoke-mobile-full-qa.mjs",
-    "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs"
+    "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs",
+    "smoke:child-worlds": "node scripts/smoke-child-worlds-mobile.js",
+    "smoke:garage": "node scripts/smoke-garage-browser.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",
