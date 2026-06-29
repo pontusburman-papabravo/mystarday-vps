@@ -1,0 +1,60 @@
+---
+description: Definition of Done — no task complete until ALL criteria met.
+alwaysApply: true
+---
+
+# 190 — Definition of Done
+
+A task is **not complete** until every item below is true.
+
+## Tests & automation
+
+- [ ] `npm run test:gate` green (130) for server/auth/journey changes
+- [ ] `npm run check:css` if Tailwind/static classes changed
+- [ ] New behavior has tests when touching paywall/auth/universe/IAP gaps
+
+## Code quality
+
+- [ ] No duplicated logic
+- [ ] No unnecessary complexity — **easier to understand than before**
+- [ ] No TODO · FIXME · temporary hacks · dead code
+- [ ] No magic numbers without named constants
+
+## Product (POS)
+
+- [ ] No Product Operating System violations
+- [ ] POS sections cited in commit/PR for user-facing work
+- [ ] [15_PRODUCT_QUALITY_STANDARD.md](../product-operating-system/15_PRODUCT_QUALITY_STANDARD.md) applicable sections pass
+
+## Cursor rules
+
+- [ ] No violations of applicable `.cursor/rules/*.mdc`
+- [ ] `180-self-review.mdc` completed for all eight roles
+
+## UX & craft
+
+- [ ] No obvious UX issues on mobile portrait
+- [ ] No accessibility regressions (contrast, touch, reduced motion)
+- [ ] Not on 00B "cheap" list — feels premium/handcrafted
+
+## Performance & security
+
+- [ ] No performance regressions on routine path
+- [ ] No security regressions (child scope, secrets)
+
+## Process
+
+- [ ] Self-review documented
+- [ ] ADR appended if architectural (160)
+- [ ] SW bumped if static assets changed (150)
+
+## Philosophy check
+
+| Question | Required answer |
+|----------|-----------------|
+| Does this help real mornings? | Yes |
+| Would Nintendo respect the child player? | Yes |
+| Would a stressed parent feel calmer? | Yes or N/A (backend-only) |
+| Is the world the reward, not the points? | Yes or N/A |
+
+If any checkbox fails → **not done**. Continue cycle: fix → test → review.

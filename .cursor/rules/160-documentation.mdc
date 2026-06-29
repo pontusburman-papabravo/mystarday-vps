@@ -1,0 +1,41 @@
+---
+description: Documentation — when to update POS vs ADR vs code comments only.
+alwaysApply: false
+---
+
+# 160 — Documentation
+
+## Authority (do not confuse)
+
+| Doc | Purpose | Who updates |
+|-----|---------|-------------|
+| `product-operating-system/` | Product truth | CEO/CPO + ADR — **agents rarely change** |
+| `.ai/` | AI organization | AI Systems Architect + CTO |
+| `.cursor/rules/` | Agent enforcement | Same as AOS |
+| Root `AGENTS.md` | Runtime/Cloud VM | Ops |
+| `SYSTEM_ANALYSIS.md` | Codebase snapshot | Periodic audit — not per feature |
+| `CLAUDE.md` / `docs/*` | Legacy reference | Do not treat as normative |
+
+## When to append ADR (POS 14)
+
+- New product authority · payment path · child data class · permanent architecture fork
+- NOT for: bugfixes, refactors, visual polish aligned with existing POS
+
+## PR documentation
+
+User-facing PRs must include:
+
+- POS sections satisfied
+- Self-review summary (180)
+- Test commands run
+- Screenshots for coach/home/child UI
+
+## Code comments
+
+Only non-obvious business logic — not narration of what code does.
+
+## Forbidden
+
+Duplicating POS content in `.cursor/rules/` — **reference**, don't copy  
+Updating POS for every code change  
+Stale Open Questions without owner
