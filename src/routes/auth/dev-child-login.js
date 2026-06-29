@@ -8,21 +8,16 @@
 
 const express = require('express');
 const {
-  isDevChildLoginAllowed,
-  isLocalhostRequest,
+  getDevChildLoginStatus,
   ensureDevChild,
   completeDevChildLogin,
+  isDevChildLoginAllowed,
 } = require('../../lib/dev-child-login');
 
 const router = express.Router();
 
 router.get('/dev-child-login/status', (req, res) => {
-  const available = isDevChildLoginAllowed(req);
-  const payload = { available };
-  if (!available && isLocalhostRequest(req)) {
-    payload.hint = 'Starta om servern efter git pull. Kräver localhost i DATABASE_URL eller ALLOW_DEV_CHILD_SKIP=true.';
-  }
-  res.json(payload);
+  res.json(getDevChildLoginStatus(req));
 });
 
 router.post('/dev-child-login', async (req, res) => {

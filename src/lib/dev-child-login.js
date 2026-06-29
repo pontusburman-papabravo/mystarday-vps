@@ -17,7 +17,7 @@ const {
 } = require('./refresh-tokens');
 const pinLockout = require('../../db/pin-lockout');
 const { parseDuration } = require('../routes/auth/session');
-const { seedChildDefaultSchedule } = require('./seed-child-default-schedule');
+const { diagnoseDatabaseUrl } = require('./load-env');
 
 const DEV_CHILD_NAME = 'Testbarn';
 const DEV_CHILD_USERNAME = 'testbarn';
@@ -25,22 +25,47 @@ const DEV_CHILD_PIN = '1234';
 const DEV_PARENT_EMAIL = 'dev-parent@localhost.local';
 
 function isLocalhostRequest(req) {
-  const host = (req.hostname || '').toLowerCase();
+  let host = (req.hostname || '').toLowerCase();
+  if (!host && req.get) {
+    const raw = req.get('host') || '';
+    host = raw.split(':')[0].toLowerCase();
+  }
   return host === 'localhost' || host === '127.0.0.1';
 }
 
 function isLocalDatabase() {
-  const url = process.env.DATABASE_URL || '';
-  return /@localhost(?::|\/)/i.test(url) || /@127\.0\.0\.1(?::|\/)/i.test(url);
+  const diag = diagnoseDatabaseUrl(process.env.DATABASE_URL);
+  if (!diag.ok) return false;
+  const host = (diag.host || '').toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1';
 }
 
 function isDevChildLoginAllowed(req) {
   if (!isLocalhostRequest(req)) return false;
   if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
-  if (process.env.ALLOW_DEV_CHILD_SKIP === 'true') return true;
+  if (process.env.ALLOW_DEV_CHILD_SKIP === 'true' || process.env.ALLOW_DEV_CHILD_SKIP === '1') return true;
   if (process.env.NODE_ENV === 'development') return true; // pragma: allowlist secret
   if (isLocalDatabase()) return true;
   return false;
+}
+
+function getDevChildLoginStatus(req) {
+  const diag = diagnoseDatabaseUrl(process.env.DATABASE_URL);
+  const localhost = isLocalhostRequest(req);
+  const payload = {
+    available: isDevChildLoginAllowed(req),
+    localhost,
+    local_db: isLocalDatabase(),
+    db_host: diag.ok ? diag.host : null,
+    allow_flag: process.env.ALLOW_DEV_CHILD_SKIP === 'true' || process.env.ALLOW_DEV_CHILD_SKIP === '1',
+    skip_disabled: process.env.DEV_CHILD_SKIP_LOGIN === 'false',
+  };
+  if (!payload.available && localhost) {
+    payload.hint = payload.skip_disabled
+      ? 'Ta bort DEV_CHILD_SKIP_LOGIN=false från .env'
+      : 'Lägg ALLOW_DEV_CHILD_SKIP=true i .env och starta om, eller sätt DATABASE_URL till @localhost';
+  }
+  return payload;
 }
 
 async function findFirstChild() {
@@ -249,6 +274,7 @@ module.exports = {
   isLocalhostRequest,
   isLocalDatabase,
   isDevChildLoginAllowed,
+  getDevChildLoginStatus,
   ensureDevChild,
   completeDevChildLogin,
 };
