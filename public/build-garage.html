@@ -21,11 +21,13 @@
   <div id="garageLoading" class="garage-loading">Öppnar garaget…</div>
 
   <div id="garageLogin" class="garage-app garage-login-prompt" style="display:none">
-    <p>Logga in som barn för att mecka i garaget.</p>
+    <p id="garageLoginMsg">Logga in som barn för att mecka i garaget.</p>
     <a href="/child-login">Gå till barnlogin</a>
+    <p style="margin-top:20px;font-size:0.8rem;opacity:0.85">Eller testa UI utan login:<br><a href="?preview=1" style="color:#F5A623;margin-top:8px;display:inline-block">?preview=1</a></p>
   </div>
 
   <div id="garageApp" class="garage-app" style="display:none">
+    <p id="garagePreviewBanner" class="garage-preview-banner" hidden>Förhandsvisning — ändringar sparas inte</p>
     <header class="garage-topbar">
       <a href="/child/world" class="garage-back">← Min värld</a>
       <div class="garage-title-wrap">
@@ -67,6 +69,6 @@
     </section>
   </div>
 
-  <script src="/js/build-garage.js?v=1"></script>
+  <script src="/js/build-garage.js?v=2"></script>
 </body>
 </html>

@@ -48,7 +48,7 @@ body.build-garage-page {
 
 .garage-app {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 28rem;
   margin: 0 auto;
   min-height: 100vh;
@@ -314,7 +314,17 @@ body.build-garage-page {
 
 .garage-loading.hidden { display: none; }
 
-.garage-login-prompt { text-align: center; padding: 48px 24px; color: #fff; }
+.garage-login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 70vh;
+  padding: 48px 24px;
+  color: #fff;
+  z-index: 10;
+}
 
 .garage-login-prompt a {
   display: inline-block;
@@ -326,4 +336,16 @@ body.build-garage-page {
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
   text-decoration: none;
+}
+
+.garage-preview-banner {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(245, 166, 35, 0.2);
+  border: 1px solid rgba(245, 166, 35, 0.45);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
 }

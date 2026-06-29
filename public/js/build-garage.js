@@ -4,14 +4,53 @@
 (function () {
   'use strict';
 
+  const PREVIEW_OPTIONS = {
+    colors: [
+      { id: 'racer_red', hex: '#E53935', label: 'Racer-röd', filter: 'none' },
+      { id: 'ocean_blue', hex: '#3B82F6', label: 'Oceanblå', filter: 'hue-rotate(195deg) saturate(1.15)' },
+      { id: 'forest_green', hex: '#22C55E', label: 'Skogsgrön', filter: 'hue-rotate(95deg) saturate(1.1)' },
+      { id: 'sun_gold', hex: '#F5A623', label: 'Solguld', filter: 'hue-rotate(35deg) saturate(1.25) brightness(1.05)' },
+      { id: 'lavender', hex: '#8B5CF6', label: 'Lila', filter: 'hue-rotate(260deg) saturate(1.2)' },
+      { id: 'navy', hex: '#1B2340', label: 'Midnattsblå', filter: 'hue-rotate(220deg) saturate(0.7) brightness(0.75)' },
+    ],
+    wheels: [
+      { id: 'standard', label: 'Standard', icon: '⚙️' },
+      { id: 'sport', label: 'Sport', icon: '🏎️' },
+      { id: 'offroad', label: 'Breda', icon: '🛞' },
+    ],
+    decals: [
+      { id: 'none', label: 'Ingen', icon: '' },
+      { id: 'stars', label: 'Stjärnor', icon: '⭐' },
+      { id: 'flame', label: 'Eld', icon: '🔥' },
+      { id: 'stripe', label: 'Ränder', icon: '〰️' },
+    ],
+  };
+
+  const PREVIEW_ACTIONS = [
+    { id: 'wash', label: 'Tvätta', icon: '🫧' },
+    { id: 'polish', label: 'Polera', icon: '✨' },
+    { id: 'tune', label: 'Mecka motor', icon: '🔧' },
+    { id: 'honk', label: 'Tuta', icon: '📣' },
+    { id: 'race', label: 'Kör ett varv', icon: '🏁' },
+  ];
+
   let state = {
     project: null,
     options: null,
     actions: [],
     saving: false,
+    preview: false,
   };
 
   const $ = (id) => document.getElementById(id);
+
+  function isChildUser(user) {
+    return !!(user && user.type === 'child');
+  }
+
+  function isPreviewMode() {
+    return new URLSearchParams(window.location.search).get('preview') === '1';
+  }
 
   function showToast(msg) {
     const el = $('garageToast');
@@ -30,6 +69,21 @@
     } else if (navigator.vibrate) {
       navigator.vibrate(12);
     }
+  }
+
+  function showApp() {
+    $('garageLoading').classList.add('hidden');
+    $('garageLogin').style.display = 'none';
+    $('garageApp').style.display = 'flex';
+  }
+
+  function showLogin(message) {
+    $('garageLoading').classList.add('hidden');
+    $('garageApp').style.display = 'none';
+    const login = $('garageLogin');
+    const msgEl = $('garageLoginMsg');
+    if (msgEl && message) msgEl.textContent = message;
+    login.style.display = 'flex';
   }
 
   function applyCustomization(c) {
@@ -58,8 +112,8 @@
       }
     }
 
-    $('statClean').textContent = '✨ Ren ' + Math.round(c.cleanliness) + '%';
-    $('statTune').textContent = '🔧 Motor ' + (c.tune_level || 0) + '/5';
+    if ($('statClean')) $('statClean').textContent = '✨ Ren ' + Math.round(c.cleanliness) + '%';
+    if ($('statTune')) $('statTune').textContent = '🔧 Motor ' + (c.tune_level || 0) + '/5';
 
     document.querySelectorAll('.garage-swatch').forEach(function (el) {
       el.classList.toggle('is-active', el.getAttribute('data-id') === c.color_id);
@@ -101,8 +155,75 @@
     bindPanelEvents();
   }
 
+  function normalizeLocalCustomization(c) {
+    const base = {
+      color_id: 'racer_red',
+      wheels: 'standard',
+      decal: 'none',
+      cleanliness: 100,
+      tune_level: 0,
+    };
+    return Object.assign(base, c || {});
+  }
+
+  function runPreviewAction(actionId) {
+    const c = normalizeLocalCustomization(state.project.customization);
+    const wrap = $('carWrap');
+    let message = '';
+
+    switch (actionId) {
+      case 'wash':
+        c.cleanliness = 100;
+        message = 'Så fin och ren! 🫧';
+        if (wrap) {
+          wrap.classList.add('is-washing');
+          setTimeout(function () { wrap.classList.remove('is-washing'); }, 1400);
+        }
+        break;
+      case 'polish':
+        c.cleanliness = Math.min(100, c.cleanliness + 15);
+        message = 'Wow, den glänser! ✨';
+        break;
+      case 'tune':
+        c.tune_level = Math.min(5, c.tune_level + 1);
+        message = c.tune_level >= 5 ? 'Motorn är maxad! 🔧' : 'Bra meckat — motorn surrar! 🔧';
+        break;
+      case 'honk':
+        message = 'BRUM BRUM! 📣';
+        if (wrap) {
+          wrap.classList.add('is-honking');
+          setTimeout(function () { wrap.classList.remove('is-honking'); }, 700);
+        }
+        break;
+      case 'race':
+        message = 'Vroom runt garaget! 🏁';
+        if (wrap) {
+          wrap.classList.add('is-racing');
+          setTimeout(function () { wrap.classList.remove('is-racing'); }, 1200);
+        }
+        break;
+      default:
+        return;
+    }
+
+    state.project.customization = c;
+    applyCustomization(c);
+    showToast(message);
+    haptic();
+  }
+
   async function patchCustomization(patch) {
     if (state.saving) return;
+
+    if (state.preview) {
+      state.project.customization = normalizeLocalCustomization(
+        Object.assign({}, state.project.customization, patch)
+      );
+      applyCustomization(state.project.customization);
+      haptic();
+      return;
+    }
+
     state.saving = true;
     try {
       const res = await Auth.api('/api/me/build/garage', {
@@ -120,6 +241,10 @@
   }
 
   async function runAction(actionId) {
+    if (state.preview) {
+      runPreviewAction(actionId);
+      return;
+    }
     if (state.saving) return;
     state.saving = true;
     const wrap = $('carWrap');
@@ -175,41 +300,77 @@
     });
   }
 
+  function mountGarageUi(data, preview) {
+    state.preview = preview;
+    state.project = data.project;
+    state.options = data.options;
+    state.actions = data.actions;
+
+    $('garageTitle').textContent = '🏎️ ' + (data.project.name || 'Garaget');
+    $('garageSub').textContent = preview
+      ? 'Förhandsvisning — logga in som barn för att spara'
+      : 'Din ' + (data.project.name || 'bil').toLowerCase() + ' — mecka och kör!';
+
+    const banner = $('garagePreviewBanner');
+    if (banner) banner.hidden = !preview;
+
+    renderOptions();
+    applyCustomization(data.project.customization);
+    showApp();
+  }
+
+  function startPreview() {
+    mountGarageUi({
+      project: {
+        name: 'Racerbil',
+        customization: normalizeLocalCustomization({}),
+      },
+      options: PREVIEW_OPTIONS,
+      actions: PREVIEW_ACTIONS,
+    }, true);
+  }
+
   async function init() {
-    const loading = $('garageLoading');
-    const login = $('garageLogin');
-    const app = $('garageApp');
+    if (!window.Auth || typeof Auth.api !== 'function') {
+      showLogin('Kunde inte ladda inloggning. Ladda om sidan.');
+      return;
+    }
 
     try {
-      await Auth.init();
-      if (!Auth.isChild()) {
-        loading.classList.add('hidden');
-        login.style.display = '';
+      let me = null;
+      try {
+        me = await Auth.api('/api/auth/me');
+      } catch (_) {
+        me = null;
+      }
+
+      if (!isChildUser(me)) {
+        if (isPreviewMode()) {
+          startPreview();
+          return;
+        }
+        if (me && me.type === 'parent') {
+          showLogin('Du är inloggad som förälder. Låt barnet logga in med PIN — eller lägg till ?preview=1 i URL:en för att testa gränssnittet.');
+          return;
+        }
+        showLogin('Logga in som barn för att mecka i garaget.');
         return;
       }
 
       const data = await Auth.api('/api/me/build/garage');
-      state.project = data.project;
-      state.options = data.options;
-      state.actions = data.actions;
-
-      $('garageTitle').textContent = '🏎️ ' + (data.project.name || 'Garaget');
-      $('garageSub').textContent = 'Din ' + (data.project.name || 'bil').toLowerCase() + ' — mecka och kör!';
-
-      renderOptions();
-      applyCustomization(data.project.customization);
-
-      loading.classList.add('hidden');
-      app.style.display = '';
+      mountGarageUi(data, false);
     } catch (err) {
       console.error('[GARAGE]', err);
-      loading.classList.add('hidden');
-      if (!Auth.isChild()) {
-        login.style.display = '';
+      if (isPreviewMode()) {
+        startPreview();
+        showToast('API fel — visar förhandsvisning');
+        return;
+      }
+      const msg = (err && err.message) ? err.message : 'Kunde inte öppna garaget.';
+      if (msg.indexOf('migrate') !== -1 || msg.indexOf('relation') !== -1) {
+        showLogin(msg + ' Kör: npm run migrate');
       } else {
-        showToast('Kunde inte öppna garaget');
-        login.innerHTML = '<p>' + (err.message || 'Fel') + '</p><a href="/child-login">Logga in igen</a>';
-        login.style.display = '';
+        showLogin(msg + ' Prova ?preview=1 eller logga in igen.');
       }
     }
   }
