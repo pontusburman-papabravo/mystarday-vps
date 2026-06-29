@@ -80,7 +80,17 @@
   async function pollNewCompletions() {
     if (typeof window.apiFetch !== 'function') return;
     try {
+      if (window.JourneyContextClient) {
+        const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
+        if (journeyOn) {
+          const ctx = await JourneyContextClient.fetchContext();
+          if (ctx?.capabilities?.parent_ack_v1 || ctx?.capabilities?.activation_ui_removed) {
+            return;
+          }
+        }
+      }
       const res = await window.apiFetch('/api/me/activation-program/new-completions');
+      if (res.status === 410) return;
       if (!res.ok) return;
       const data = await res.json();
       if (data?.completions?.length) {

@@ -250,6 +250,12 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
           child_id: req.user.id,
           source: 'child_complete',
         });
+        require('../../lib/journey/ingest').ingestMilestoneAsync({
+          familyId: fid,
+          milestone: 'child_first_completion',
+          childId: req.user.id,
+          metadata: { daily_log_item_id: req.params.itemId },
+        });
       }
       if (!item.completed) {
         try {

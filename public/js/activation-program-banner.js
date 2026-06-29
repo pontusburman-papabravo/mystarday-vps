@@ -207,6 +207,7 @@
     if (typeof window.apiFetch !== 'function') return;
     try {
       const res = await window.apiFetch('/api/me/activation-program');
+      if (res.status === 410) return;
       if (!res.ok) return;
       const data = await res.json();
       render(data);

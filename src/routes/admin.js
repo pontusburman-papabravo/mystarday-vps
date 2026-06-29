@@ -50,6 +50,7 @@ const referralsRouter = require('./admin/referrals');
 const familyOverviewRouter = require('./admin/family-overview');
 const adminSearchRouter = require('./admin/admin-search');
 const l1GovernanceRouter = require('./admin/l1-governance');
+const journeyRolloutRouter = require('./admin/journey-rollout');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -74,6 +75,7 @@ router.use(l1GovernanceRouter);
 router.use(startSummaryRouter);
 router.use(operationalAlertsRouter);
 router.use(analyticsRouter);
+router.use(journeyRolloutRouter);
 router.use(activationProgramRouter);
 router.use(forDigRouter);
 router.use('/welcome-email', welcomeEmailRouter);

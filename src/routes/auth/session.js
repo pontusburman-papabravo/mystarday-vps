@@ -78,7 +78,7 @@ async function completeLogin(req, res, parent, userType) {
     familyId: parent.family_id,
     isAdmin: parent.is_admin || false,
     type: userType,
-    onboarding_completed: parent.onboarding_completed,
+    onboarding_completed: parent.onboarding_completed, // auth/routing only — DO NOT USE FOR PRODUCT LOGIC
   };
 
   const expiresAt = Date.now() + expiresInSecs * 1000;

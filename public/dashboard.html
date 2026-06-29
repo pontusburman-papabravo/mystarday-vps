@@ -515,7 +515,7 @@
   <script src="/js/skeleton.js?v=1.0.0"></script>
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
-  <script src="/js/dashboard-child-handoff.js?v=2026-06-10-handoff"></script>
+  <script src="/js/dashboard-child-handoff.js?v=2026-06-28-handoff-v2"></script>
   <script src="/js/app-view-mode.js?v=10"></script>
   <script src="/js/parent-magic-auto.js?v=10"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
@@ -668,6 +668,7 @@
         <div id="childrenListView">
           <div id="parentHomeHubMount" class="hidden" aria-live="polite"></div>
           <div id="engineCoachMount" class="hidden mb-4" data-authority="engine-only" aria-live="polite"></div>
+          <div id="journeyCoachMount" class="hidden mb-4" aria-live="polite"></div>
           <div id="homeReadinessMount" class="hidden mb-4" aria-live="polite"></div>
           <div id="homeBumpMount" class="hidden mb-4" aria-live="polite"></div>
 
@@ -1430,6 +1431,10 @@
 
   <!-- SSE real-time sync -->
   <script src="/js/sse-client.js?v=2.12.0"></script>
+  <script src="/js/journey-context-client.js?v=1.1.0"></script>
+  <script src="/js/journey-celebration.js?v=1.1.0"></script>
+  <script src="/js/journey-parent-ack.js?v=1.0.0"></script>
+  <script src="/js/journey-coach.js?v=1.0.0"></script>
   <script src="/js/activation-program-aha-card.js?v=1.0.0"></script>
   <script src="/js/activation-program-banner.js?v=1.0.0"></script>
   <script src="/js/for-dig-outcome-banner.js?v=2"></script>
@@ -1501,6 +1506,42 @@
       animation: activationDayAdvance 0.45s ease-out;
     }
   </style>
+
+  <!-- ─── JOURNEY PARENT ACK MODAL (Fas 2) ───────────────────────────────── -->
+  <div id="journeyParentAckModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9320] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+      <div class="text-5xl mb-4" aria-hidden="true">⭐</div>
+      <h2 id="journeyParentAckHeadline" class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
+        Barnet klarade en aktivitet!
+      </h2>
+      <p class="text-text-soft text-sm mb-6 leading-relaxed">
+        <span id="journeyParentAckChild">Barnet</span> klarade &ldquo;<span id="journeyParentAckActivity">en aktivitet</span>&rdquo;
+      </p>
+      <button id="journeyParentAckDismissBtn"
+              type="button"
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+        Visa
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── JOURNEY CELEBRATION MODAL (Fas 1) ──────────────────────────────── -->
+  <div id="journeyCelebrationModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9350] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+      <div class="text-5xl mb-4" aria-hidden="true">🎉</div>
+      <h2 id="journeyCelebrationHeadline" class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
+        Första stjärnan är klar!
+      </h2>
+      <p id="journeyCelebrationBody" class="text-text-soft text-sm mb-6 leading-relaxed">
+        Barnet har klarat sin första aktivitet — och du såg det.
+      </p>
+      <button id="journeyCelebrationDismissBtn"
+              type="button"
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+        Toppen!
+      </button>
+    </div>
+  </div>
 
   <!-- ─── ACTIVATION PROGRAM AHA MODAL (Fas 2) ─────────────────────────────── -->
   <div id="activationAhaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9300] p-4">

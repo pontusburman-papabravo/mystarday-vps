@@ -40,6 +40,9 @@ router.get('/first-success', requireNotPedagogOnly, async (req, res) => {
 
     queueEngineTrace(familyId, output);
 
+    const { shadowCompare } = require('../../lib/journey/engine-shadow');
+    shadowCompare(familyId, output).catch(() => {});
+
     res.json(serializeEngineOutput(output));
   } catch (err) {
     console.error('[FIRST_SUCCESS] GET /first-success error:', err);

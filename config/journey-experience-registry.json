@@ -1,0 +1,21 @@
+{
+  "version": "2026-06-28-v1",
+  "phases": {
+    "FIRST_USE": {
+      "handoff_to_child": {
+        "tone": "coach",
+        "headline": "Nu är det barnets tur!",
+        "body": "Låt barnet logga in med namn och PIN — då kan hen börja samla stjärnor.",
+        "cta": "Låt barnet börja"
+      }
+    },
+    "BUILDING_ROUTINE": {
+      "celebrate_first_success": {
+        "tone": "celebration",
+        "headline": "Första stjärnan är klar!",
+        "body": "Barnet har klarat sin första aktivitet — och du såg det. Det är en riktig milstolpe.",
+        "cta": "Toppen!"
+      }
+    }
+  }
+}

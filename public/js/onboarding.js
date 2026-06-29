@@ -771,9 +771,50 @@ async function saveOnboardingParentPinIfProvided() {
   }
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// STEP 6 — Complete onboarding
-// ────────────────────────────────────────────────────────────────────────────
+let journeyHandoffMode = false;
+
+async function initJourneyOnboardingCta() {
+  if (IS_ADD_CHILD || !window.JourneyContextClient) return;
+  try {
+    journeyHandoffMode = await JourneyContextClient.isJourneyApiEnabled();
+    if (journeyHandoffMode) {
+      const btn = document.getElementById('step6Btn');
+      if (btn) btn.textContent = 'Låt barnet börja';
+    }
+  } catch (_) { /* legacy CTA */ }
+}
+
+async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
+  if (!(await saveOnboardingParentPinIfProvided())) {
+    setLoading(btn, 'Låt barnet börja', false);
+    return;
+  }
+  launchStars();
+  try {
+    const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
+    if (!res.ok) throw new Error('Kunde inte slutföra onboardingen');
+    const user = Auth.getUser();
+    if (user) {
+      user.onboarding_completed = true;
+      Auth.setAuth(Auth.getToken(), user);
+    }
+    if (window.JourneyContextClient) {
+      await JourneyContextClient.postEvent('handoff_started', childId || null);
+    }
+    document.getElementById('step6').classList.remove('active');
+    document.getElementById('loadingStep').classList.remove('hidden');
+    setTimeout(() => {
+      if (window.Auth && typeof Auth.logout === 'function') {
+        Auth.logout({ childFlow: true });
+      } else {
+        window.location.href = '/child-login';
+      }
+    }, 900);
+  } catch (err) {
+    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
+    setLoading(btn, 'Låt barnet börja', false);
+  }
+}
 document.getElementById('step6Btn').addEventListener('click', async () => {
   const errorEl = document.getElementById('step6Error');
   errorEl.classList.add('hidden');
@@ -782,6 +823,12 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
   // In add-child mode: skip invite step, go straight to complete
   if (IS_ADD_CHILD) {
     completeAddChild();
+    return;
+  }
+
+  if (journeyHandoffMode) {
+    setLoading(btn, 'Slutför…');
+    await finishOnboardingWithJourneyHandoff(btn, errorEl);
     return;
   }
 
@@ -1259,6 +1306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Pre-load children list for step 6 invite
   loadInviteChildren();
+  initJourneyOnboardingCta();
 
   // Track funnel_onboarding_abandoned when user leaves before completing step 6
   // Use sendBeacon so the event is sent even as the page unloads.
