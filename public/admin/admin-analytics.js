@@ -100,6 +100,8 @@ function buildAnalyticsHTML() {
       <!-- ── OVERVIEW (Del 1) ──────────────────────────────── -->
       <div id="section-overview" class="analytics-section space-y-8">
 
+        <div id="journeyRolloutPanel"></div>
+
         <!-- KPI Cards -->
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-4">Nyckeltal</h3>
@@ -426,6 +428,9 @@ function buildAnalyticsHTML() {
 
 async function loadOverviewTab() {
   const container = document.getElementById('kpiCards');
+  if (typeof window.loadJourneyRolloutPanel === 'function') {
+    await window.loadJourneyRolloutPanel();
+  }
   if (!container || container.dataset.loaded === 'true') return;
   try {
     const [kpisRes, snapshotsRes, funnelRes, featuresRes] = await Promise.all([

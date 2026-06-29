@@ -106,8 +106,7 @@ async function insertMilestone({
       VALUES ($1, $2, $3, $4, $5::jsonb, $6${timeVal})
       ON CONFLICT (family_id, milestone)
         WHERE milestone IN (
-          'account_created', 'child_created', 'routine_ready', 'rewards_ready', 'first_success',
-          'established_routine', 'child_self_sufficient_week', 'second_child_created', 'coparent_joined'
+          'account_created', 'child_created', 'routine_ready', 'rewards_ready', 'first_success'
         )
       DO NOTHING
       RETURNING *

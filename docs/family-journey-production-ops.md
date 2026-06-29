@@ -129,6 +129,32 @@ curl -s -b cookies.txt http://127.0.0.1:3000/api/me/journey-context
 curl -s -b cookies.txt http://127.0.0.1:3000/api/me/journey-debug
 ```
 
+## Admin — rollout status (ingen manuell flagg-jakt)
+
+**Admin → Produktanalys → Analytics** visar panelen **Family Journey Rollout**:
+
+- Aktiv wave (1–5)
+- Status per wave (flaggor som saknas / ska vara AV)
+- Familjer per `journey_phase`
+- Knapp **Aktivera Wave N** (en wave i taget)
+
+API: `GET /api/admin/journey-rollout/status`
+
+## CLI — aktivera wave (efter deploy)
+
+```bash
+# Nästa wave (dev/staging — ingen observationsperiod)
+NODE_ENV=development node scripts/journey-rollout-advance.js
+
+# Specifik wave
+NODE_ENV=development node scripts/journey-rollout-advance.js --wave 2
+
+# Produktion: 24h observationsperiod mellan waves
+NODE_ENV=development node scripts/journey-rollout-advance.js --prod
+```
+
+**Prod:** Kräver att PR är mergad och deployad (migrationer `180892` + `180893` + rollout-script).
+
 ## Rollback
 
 **Migrationer rullas inte tillbaka i produktion.** Rollback sker **endast via feature flags**.
