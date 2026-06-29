@@ -1,4 +1,6 @@
 # ALL DOCUMENTS — Stjärndag Product Operating System v2.0
+# Temp export — copy entire file (Cmd+A, Cmd+C)
+# Generated from 22 documents
 
 
 ================================================================================
