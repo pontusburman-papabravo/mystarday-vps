@@ -1,0 +1,37 @@
+---
+description: Performance — 60fps, 200ms interactive, no blocking celebrations.
+globs: public/js/**/*.js,public/css/**,src/**/*.js
+alwaysApply: false
+---
+
+# 110 — Performance
+
+**Owner docs:** POS `03B`, `15`
+
+## Targets
+
+- **60 fps** animations — prefer transform/opacity
+- **<200ms perceived** interactive on routine path (15)
+- **Celebration ≤2s** — never block next activity (MO-01, MO-04)
+- Low-end **Android mid-range** is reference device
+
+## Frontend
+
+- No layout thrash — batch DOM reads/writes
+- Debounce expensive handlers on scroll/resize
+- Split large JS — do not parse 2500-line files on every page if avoidable
+- Images: appropriate size · lazy below fold in world
+
+## Backend
+
+- Avoid N+1 queries — use joins/batch in `db/*`
+- Index hot paths · explain analyze on suspicious slowness
+- Rate limits protect DB — do not disable to "fix" slowness
+
+## Measurement
+
+Note before/after for hot path changes in PR.
+
+## Forbidden
+
+Infinite animations on home · synchronous heavy work on completion tap · unbounded polling

@@ -1,0 +1,33 @@
+---
+description: Game design — POS 06, 07, 09. Play is reward; world grows from real life.
+globs: public/js/child-dashboard*.js,public/js/child-*reward*.js,public/js/child-*pet*.js,public/js/child-skatt*.js,src/lib/universe-engine.js
+alwaysApply: false
+---
+
+# 050 — Game Design
+
+**Owner docs:** `06`, `07`, `09`, `03B`, `06A`
+
+## North star
+
+> Play is the reward. Reality is the goal. **World is the destination — stars are fuel.**
+
+## Motivation stack
+
+Layer 1 Reality → 2 Progress → 3 Identity → 4 Discovery. Layer 4 requires Layer 1.
+
+## Rules G-01–G-08
+
+No login rewards · no leaderboards · no loot boxes · celebration budget · server-side unlocks · no star IAP · no child educator gamification · mini-games need ADR
+
+## Copy
+
+*"Du klarade det!"* before star counts.
+
+## Unlock philosophy (09)
+
+Early rooms fast · pet mid-game · museum late · no paid skips · no client-only unlocks
+
+## Forbidden
+
+Daily login bonus · streak shame · casino psychology · 5s blocking animations on routine path

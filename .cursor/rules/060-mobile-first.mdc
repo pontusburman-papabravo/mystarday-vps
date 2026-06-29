@@ -1,0 +1,42 @@
+---
+description: Mobile-first — 99% phone users. Portrait, thumb, 60fps, WebView QA.
+alwaysApply: true
+---
+
+# 060 — Mobile First
+
+**Owner docs:** POS `04`, `06A`, `15` device matrix
+
+## Priority
+
+99% use **phone, portrait, thumb**. Desktop is secondary.
+
+## Targets
+
+- **60 fps** on animations (transform/opacity only when possible)
+- **Perceived interactive <200ms** on routine path (15)
+- **Safe areas** — notches, home indicator
+- **44pt minimum** touch on child controls
+
+## Platforms (minimum test)
+
+iPhone Safari + iOS WebView · Android Chrome + WebView · iPad layout not broken · PWA child read path
+
+## Native (Capacitor)
+
+- Remote WebView — web deploy updates UI
+- `platform.js` for native bridges
+- SW unregistered on native — network required; honest offline messaging
+- Plugin/native changes → mobile QA gate (Q-05)
+
+## Layout
+
+- Design for **one hand** at 07:15
+- No hover-only critical actions
+- Avoid dense desktop-only patterns
+
+## Performance on mobile
+
+- No celebration blocking school exit
+- Lazy-load non-critical world assets
+- Test on **mid-range Android**, not only flagship

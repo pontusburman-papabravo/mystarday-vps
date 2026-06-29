@@ -1,0 +1,58 @@
+---
+description: Mandatory multi-role self-review before task complete. Fix all issues found.
+alwaysApply: true
+---
+
+# 180 — Self Review
+
+**Run after implementation, before marking task complete.** Fix every issue — do not defer.
+
+## Review hats (all required)
+
+### Principal Engineer
+- Simpler than before? · No duplication? · No magic numbers/TODO/hacks/dead code?
+- Would I maintain this in 3 years?
+- Tests adequate for risk?
+
+### Staff Mobile Engineer
+- Portrait thumb OK? · 44pt child targets? · WebView tested?
+- 60fps? · Celebration doesn't block routine?
+- Safe areas respected?
+
+### Chief Product Officer
+- Constitution 1–5? · One next step on Hem? · Child protagonist?
+- Reality before celebration? · No dashboard anti-patterns?
+
+### UX Director
+- 00A morning stress test? · Calm parent · Obvious child action?
+- Swedish tone? · No surprise modals?
+
+### Game Director
+- World as reward, stars as fuel? · G-01–G-08?
+- Celebration ≤2s skippable? · No grind/FOMO?
+
+### QA Director
+- test:gate green? · Constitution test if UX?
+- Anti-ship list (15) clear?
+
+### Security Engineer
+- Child scope server-enforced? · No secrets in client?
+- Auth changes tested?
+
+### AI Systems Architect
+- POS sections cited? · Correct rules applied?
+- No POS duplication in code comments? · AOS workflow followed?
+
+## Output
+
+In PR or task summary, include:
+
+```
+Self-review: PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA ✓
+Issues found and fixed: [list or "none"]
+POS governed by: [doc sections]
+```
+
+## If any hat fails
+
+Fix before complete. Do not ship with known POS or quality violations.

@@ -1,0 +1,59 @@
+---
+description: AI OS core — POS supremacy, workflow, philosophy. Read first every session.
+alwaysApply: true
+---
+
+# 000 — Core (AI Operating System)
+
+## Authority
+
+| Priority | Source |
+|----------|--------|
+| 1 | `product-operating-system/` (POS) — product truth |
+| 2 | `.ai/` + `.cursor/rules/` — how agents work |
+| 3 | Codebase — fix when it violates POS |
+| 4 | `SYSTEM_ANALYSIS.md` — **context only**, not future decisions |
+
+**POS wins over code.** Do not preserve legacy behavior that violates POS.
+
+## POS minimum read (before any change)
+
+1. `product-operating-system/00_PROJECT_CONSTITUTION.md`
+2. `product-operating-system/00A_EXPERIENCE_MANIFESTO.md`
+3. `product-operating-system/00B_PRODUCT_TASTE.md`
+4. One domain doc (04–09, 03A/B, 06A as relevant)
+5. `.ai/AGENTS.md` for role ownership
+
+Shipping: `product-operating-system/15_PRODUCT_QUALITY_STANDARD.md`
+
+## Mandatory workflow
+
+```
+Understand → Research → Read POS → Identify systems → Design → Risk analysis
+→ Implement → Unit tests → Integration tests → Visual QA → Performance
+→ Accessibility → Security → Self-review (180) → Refactor → Commit → Continue
+```
+
+## Philosophy
+
+| Conflict | Winner |
+|----------|--------|
+| Quality vs speed | Quality |
+| Architecture vs shortcut | Architecture |
+| POS vs implementation | POS |
+
+Goal: product children love, parents trust — not code volume.
+
+## Autonomy
+
+Implement small POS-aligned fixes without asking if: tests pass · DoD met · no user-data risk · no business decision.
+
+**Stop for:** business decision · missing keys/assets · user-data risk · POS/ADR conflict.
+
+## Engineering bar
+
+No TODO · no hacks · no dead code · no magic numbers · no duplicated logic · new code simpler than replaced code.
+
+## Do not modify POS
+
+Unless critical contradiction found — then ADR in `14_DECISION_LOG.md`.

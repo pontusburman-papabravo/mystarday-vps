@@ -1,0 +1,45 @@
+---
+description: API — routes, auth, child scope, validation, paywall components.
+globs: src/routes/**/*.js,src/middleware/**/*.js
+alwaysApply: false
+---
+
+# 100 — API
+
+**Owner docs:** POS `10`, `04`, `05`, `07`, `14` ADR-005
+
+## Route standards
+
+- Validate input (Zod schemas)
+- Auth middleware explicit per route
+- Authz helpers — never ad-hoc ownership SQL
+- Async errors via established error handler
+
+## Child API
+
+- **Deny-by-default** — allowlist in child-parent-api-block
+- Child JWT routes under `/api/me/*` — mount order matters (child before catch-alls)
+- Never expose parent CRUD to child token
+
+## Paywall
+
+- **`requireComponent()` per route** — no global paywall (ADR-005)
+- 402/403 semantics consistent
+
+## Product endpoints
+
+- **One coach data source:** Journey context — do not add parallel "first success" authority
+- Universe unlocks **server-side** only
+
+## Documentation
+
+New routes: comment mount order if sensitive · run `npm run dump:routes` when inventory needed
+
+## Tests
+
+| Change | Minimum |
+|--------|---------|
+| Auth | auth-integration |
+| Child scope | child-access-integration |
+| Journey | test:gate |
+| Paywall | paywall-model-contract |

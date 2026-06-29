@@ -1,5 +1,9 @@
 # AGENTS.md
 
+> **AI organization & workflow:** `.ai/README.md` and `.cursor/rules/` (AI Operating System).  
+> **Product truth:** `product-operating-system/` (Product Operating System).  
+> **This file:** runtime environment (Node, DB, CI, deploy).
+
 This repo is a Swedish family-routine app (Express.js + PostgreSQL, static frontend in `public/`). See `README.md` and `CLAUDE.md` for the product/architecture overview, directory map, and DB schema.
 
 ## Cursor Cloud specific instructions

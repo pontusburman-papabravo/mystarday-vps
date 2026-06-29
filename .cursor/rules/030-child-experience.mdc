@@ -1,0 +1,40 @@
+---
+description: Child UX — POS 04, 00A. Three worlds, one primary action, no forms.
+globs: public/child-*.html,public/js/child-*.js,public/js/child/**/*
+alwaysApply: false
+---
+
+# 030 — Child Experience
+
+**Owner doc:** `product-operating-system/04_CHILD_EXPERIENCE.md`
+
+## Feeling (00A)
+
+Child: *"Det här är min värld."* — welcome home, not software.
+
+## Worlds
+
+**Idag** (routine) · **Min värld** (build/explore) · **Familj** (belonging)
+
+## Rules C-01–C-08
+
+- No forms except PIN login
+- No schedule editing in child UI
+- **One primary action** on Idag — next activity
+- Celebrations ≤2s, skippable
+- No sibling comparison · no paywalled pet
+- PIN for parent exit · server enforces child scope
+
+## Game link
+
+World grows from real life — see `050-game-design.mdc`. Stars are fuel, not destination.
+
+## Implementation
+
+- Extend `child-*.js` modules — avoid monolith growth
+- Mobile portrait, thumb, 44pt targets
+- Test: child-login + completion smoke on iOS/Android WebView
+
+## Forbidden
+
+Stats dashboard · loot boxes · forced world before routine · guilt streaks

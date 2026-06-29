@@ -1,0 +1,53 @@
+---
+description: Git workflow — branches, commits, PR checklist, hotfix, rollback.
+alwaysApply: true
+---
+
+# 170 — Git Workflow
+
+## Branch strategy
+
+- **`main`** — release branch (live deploy)
+- **Feature:** `cursor/<descriptive-name>-5889` or team convention
+- One logical change per branch when possible
+- Do not push broken gate to main
+
+## Commit messages
+
+Complete sentences. User-facing changes cite POS rules.
+
+```
+fix(child): skip celebration when reduced-motion (MO-03, 03B)
+
+- Honor prefers-reduced-motion on milestone confetti
+- POS: 04 C-04, 15 Section B
+```
+
+## Pull request checklist
+
+- [ ] POS sections cited
+- [ ] test:gate green (130)
+- [ ] Self-review (180) completed
+- [ ] Definition of Done (190)
+- [ ] Screenshots if UI/coach/home/child
+- [ ] ADR linked if architectural
+
+## Review checklist
+
+See `140-code-review.mdc` + `15` quality standard.
+
+## Hotfix
+
+Minimal fix aligned with POS → same CI pipeline → prefer revert-forward if unsure.
+
+## Rollback
+
+Git revert on main → auto deploy. DB: follow REL rollback in POS 13. Feature flags off first for flag-related incidents.
+
+## Push
+
+`git push -u origin <branch>` — retry on network with backoff.
+
+## Forbidden
+
+Force-push main · commit secrets · large unrelated refactors mixed with hotfix · skip CI

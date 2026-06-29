@@ -1,0 +1,41 @@
+---
+description: Design & craft — POS 03, 03A, 03B, 00B. Premium not generic.
+globs: public/**/*.{html,css,js},public/css/**
+alwaysApply: false
+---
+
+# 020 — Design
+
+**Owner docs:** `00B`, `03`, `03A`, `03B`, `00A`
+
+## Bar
+
+Nintendo · Apple · Pixar — **not** Bootstrap, Material, shadcn-default, SaaS admin.
+
+## Tokens (03)
+
+Gold `#F5A623` · Navy `#1B2340` · Lavender · `rounded-2xl` cards · gold CTA
+
+## Art (03A)
+
+Soft ink lines · living eyes · warm shadows · wood/nature materials · one accent per screen
+
+## Motion (03B)
+
+Use timing tokens: instant 80–120ms · fast 150–200ms · celebration ≤2000ms · `prefers-reduced-motion` required
+
+## Audio (06A)
+
+Silent by default · no autoplay on child launch
+
+## Checks before UI ship
+
+- [ ] 00B premium vs cheap lists
+- [ ] 03A art checklist
+- [ ] 03B motion tokens + skip path
+- [ ] Swedish copy on user surfaces
+- [ ] `npm run check:css` if Tailwind classes changed
+
+## Forbidden
+
+Tailwind CDN in HTML · enterprise tables on family home · emoji-as-final-brand forever

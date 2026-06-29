@@ -1,0 +1,41 @@
+---
+description: Backend — Express, middleware order, server-owned product logic.
+globs: src/**/*.js,server.js,app.js
+alwaysApply: false
+---
+
+# 080 — Backend
+
+**Owner doc:** POS `10_TECH_ARCHITECTURE.md` · runtime: root `AGENTS.md`
+
+## Principles (T-01–T-07)
+
+- Business logic on **server** — UI is channel
+- **One Journey authority** — no parallel product brains
+- **Child cannot hit parent APIs** — enforce in middleware
+- Parameterized SQL only · secrets in env
+- Migrations idempotent · rollback-compatible one release
+
+## Middleware order (security-critical)
+
+Do not reorder without Architect review:
+
+Resend webhook → JSON/cookies → session restore → optionalAuth → limiter → platform HTML → maintenance (IAP exempt) → `/api` CSRF → impersonation block → **child API block** → apiLimiter → routes
+
+## Structure
+
+- Routes in `src/routes/` — mount in `index.js` with order comments when sensitive
+- Queries in `db/*.js` — avoid inline SQL in routes
+- Authz via `src/middleware/authz.js` helpers
+
+## Schedulers
+
+Retention comms through **Journey Gate** only — no parallel email brains.
+
+## Node
+
+Use Node 20 per root `AGENTS.md`: `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"`
+
+## Forbidden
+
+Global subscription middleware · new coach API without Journey · Stripe revival without ADR
