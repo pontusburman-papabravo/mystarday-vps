@@ -1215,10 +1215,17 @@ async function handleDevSkipLogin() {
   if (btn) btn.disabled = true;
   showLoading();
   try {
+    let csrf = '';
+    if (window.Auth && Auth.ensureCsrfToken) {
+      csrf = (await Auth.ensureCsrfToken()) || Auth.getCsrfToken() || '';
+    }
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrf) headers['X-CSRF-Token'] = csrf;
+
     const res = await fetch('/api/auth/dev-child-login', {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
     });
     const data = await res.json();
     hideLoading();

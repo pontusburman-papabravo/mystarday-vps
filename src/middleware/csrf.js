@@ -71,6 +71,7 @@ const CSRF_EXEMPT_PATHS = new Set([
 // Prefix-based exemptions for public endpoints with dynamic segments.
 // Survey respondent endpoints are anonymous (no session) — CSRF not applicable.
 const CSRF_EXEMPT_PREFIXES = [
+  '/auth/dev-child-login',      // POST dev skip + status
   '/surveys/s/',          // POST /surveys/s/:slug/start
   '/surveys/responses/',  // POST /surveys/responses/:rid/answers, /submit
   '/surveys/popup/',            // POST /surveys/popup/interaction — user-initiated from own session
