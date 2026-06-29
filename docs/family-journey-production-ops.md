@@ -41,6 +41,8 @@ Rollout guide for Family Journey Fas 1–5 on the live VPS (see deploy rules in 
 4. Verify `GET /api/me/journey-context` for test families
 5. Enable `family_journey_debug_api` temporarily if needed
 
+**Recommendation (Wave 1 freeze):** Låt Wave 1 vara aktiv minst en full observationsperiod (t.ex. 24 timmar eller en normal användningscykel) innan Wave 2 aktiveras — om inte detta är en kontrollerad staging-rollout. Wave 1 introducerar domänmotorn; ge den tid att bevisa stabilitet.
+
 ### Wave 2 — Fas 2 (parent ack + handoff)
 
 1. `family_journey_registry_v2`
@@ -68,6 +70,8 @@ Rollout guide for Family Journey Fas 1–5 on the live VPS (see deploy rules in 
 4. `family_journey_push_v1`
 
 ## Go / No-Go per wave
+
+**Rule (release gate):** Aktivera aldrig mer än **en** rollout-wave under samma deploy-fönster. Slutför Go/No-Go-verifiering för aktuell wave innan nästa wave flaggas på.
 
 Gå vidare till nästa wave **endast** när alla kriterier för aktuell wave är uppfyllda. Vid No-Go: håll kvar wave, undersök, abort vid behov (se nedan).
 
@@ -106,7 +110,7 @@ Kör manuellt på **en ny testfamilj** efter deploy och efter varje wave som på
 □ Barn klarar första aktivitet (child_first_completion)
 □ Förälder bekräftar (parent_saw_completion / parent-ack-modal)
 □ first_success deriverad → BUILDING_ROUTINE
-□ Celebration visas en gång (celebration_dismissed)
+□ Celebration visas exakt en gång (client intent `celebration_dismissed` sätter metadata `celebration_shown` på `first_success` — inte en separat milestone)
 □ Coach/handoff enligt Context — inget Engine/Journey-konflikt (wave 3+)
 ```
 
@@ -146,3 +150,4 @@ For activation sunset rollback: re-enable `activation_program_new_enrollments` a
 - `first_success` = derived from `child_first_completion` ∧ `parent_saw_completion`
 - Inconsistent milestone state → `SETTING_UP`, `blocking_experience: null`
 - `journey_phase` is derived — **never** update it directly outside the Journey domain (`ingest.js` / `recomputePhase`)
+- **Journey Context is a projection** — never persist Context directly (no DB columns for `blocking_experience`, `recommended_experiences`, etc.). Always derive from `phase` + milestones via `evaluator.js` / `buildContextForFamily`.
