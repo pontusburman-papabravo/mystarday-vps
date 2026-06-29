@@ -13,6 +13,7 @@ The **AI Operating System** governs **how** autonomous agents work on Stjärndag
 | System | Location | Answers |
 |--------|----------|---------|
 | **Product OS** | `product-operating-system/` | *What* to build · *Why* · *How it should feel* |
+| **Company OS** | `.ai/company/` | *How executives decide, prioritize, approve* |
 | **AI OS** | `.ai/` + `.cursor/rules/` | *How agents decide, ship, review, and iterate* |
 | **Runtime env** | Root `AGENTS.md` | Node, Postgres, test commands, deploy ops |
 | **Current codebase** | `SYSTEM_ANALYSIS.md` | Historical snapshot — **not** product authority |
@@ -20,9 +21,10 @@ The **AI Operating System** governs **how** autonomous agents work on Stjärndag
 ### Supremacy order
 
 1. **Product Operating System** — absolute product truth  
-2. **AI Operating System** — agent behavior and engineering workflow  
-3. **Codebase as it exists today** — fix when it violates POS  
-4. **`SYSTEM_ANALYSIS.md`** — context only  
+2. **Company Operating System** — executive judgment (complements POS; never duplicates)  
+3. **AI Operating System** — agent behavior and engineering workflow  
+4. **Codebase as it exists today** — fix when it violates POS  
+5. **`SYSTEM_ANALYSIS.md`** — context only  
 
 > When POS and code conflict → **POS is correct.** Rewrite code, not docs (unless ADR-worthy contradiction in POS itself).
 
@@ -38,10 +40,11 @@ Read in order — **before any code change**:
 | 2 | `product-operating-system/00A_EXPERIENCE_MANIFESTO.md` |
 | 3 | `product-operating-system/00B_PRODUCT_TASTE.md` |
 | 4 | `.ai/AGENTS.md` — your role(s) and orchestration |
-| 5 | One POS domain doc for the task (04–09, 03A/B, 06A) |
-| 6 | Relevant `.cursor/rules/*.mdc` (auto-loaded by Cursor) |
+| 5 | Relevant `.ai/company/` playbook when making executive decisions (prioritize, ship, approve) |
+| 6 | One POS domain doc for the task (04–09, 03A/B, 06A) |
+| 7 | Relevant `.cursor/rules/*.mdc` (auto-loaded by Cursor) |
 
-**Shipping:** also read `product-operating-system/15_PRODUCT_QUALITY_STANDARD.md`.
+**Shipping:** also read `product-operating-system/15_PRODUCT_QUALITY_STANDARD.md` and `.ai/company/010_RELEASE_COMMAND.md`.
 
 ---
 
@@ -50,7 +53,8 @@ Read in order — **before any code change**:
 ```
 .ai/
 ├── README.md          ← You are here
-└── AGENTS.md          ← AI organization, roles, escalation
+├── AGENTS.md          ← AI organization, roles, escalation
+└── company/           ← Company OS — executive playbooks (CEO, CPO, CTO, …)
 
 .cursor/rules/
 ├── 000-core.mdc       ← POS supremacy, workflow, philosophy
@@ -103,7 +107,8 @@ Detail: `.cursor/rules/000-core.mdc`, `180-self-review.mdc`, `190-definition-of-
 | Quality vs speed | **Quality** |
 | Architecture vs shortcut | **Architecture** |
 | POS vs implementation | **POS** |
-| POS vs AOS | **POS** (AOS serves POS) |
+| POS vs COS vs AOS | **POS** (COS and AOS serve POS) |
+| Growth vs quality vs speed | **Quality** default; CEO resolves per `.ai/company/001_CEO_PLAYBOOK.md` |
 
 Goal is **not** code volume. Goal: a product children love and parents trust — Europe's best routine app for children.
 
@@ -126,6 +131,7 @@ Agents may implement **small improvements** without asking when:
 | Version | Change |
 |---------|--------|
 | **1.0** | Initial AOS alongside POS v2.0 |
+| **1.1** | Company OS (`.ai/company/`) — executive playbooks complement AOS |
 
 Changes to `000-core.mdc` or `.ai/AGENTS.md` orchestration → note in PR + optional ADR in POS `14_DECISION_LOG.md`.
 
@@ -133,4 +139,6 @@ Changes to `000-core.mdc` or `.ai/AGENTS.md` orchestration → note in PR + opti
 
 ## CXO Sign-off
 
-AOS v1.0 reviewed as complete entry point for autonomous agents — POS remains product authority; AOS adds engineering governance without duplication.
+AOS v1.0 + COS v1.0 reviewed as complete entry point for autonomous agents — POS remains product authority; COS adds executive judgment; AOS adds engineering governance without duplication.
+
+**Full COS export:** `/AI-COMPANY-ALL-DOCUMENTS-TEMP.md`
