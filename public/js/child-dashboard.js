@@ -1772,6 +1772,7 @@ async function loadDay(dateStr, showLoader = true) {
       ChildActivityEngine.mountPausedBannerIfNeeded();
     }
     if (window.ChildRewardsEngine && goalData) {
+      if (rwdData) ChildRewardsEngine.setRewardsData(rwdData);
       ChildRewardsEngine.setGoalData(goalData);
       ChildRewardsEngine.mountGoalProgress();
       ChildRewardsEngine.mountRedeemNudgeIfNeeded();
