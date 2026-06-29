@@ -143,6 +143,8 @@
     });
   }
 
+  const WHEEL_ZONE_STEPS = ['unscrew', 'remove', 'pick_tire', 'mount', 'screw'];
+
   function updateArena() {
     const arena = $('gwArena');
     if (!arena) return;
@@ -153,12 +155,19 @@
     const sprayMeter = $('gwSprayMeter');
     const scrubMeter = $('gwScrubMeter');
     const step = currentStep();
+
+    const wheelZone = $('gwWheelZone');
+    if (wheelZone) {
+      const showZone = state.mode === 'wheel' && step && WHEEL_ZONE_STEPS.indexOf(step.id) >= 0;
+      wheelZone.hidden = !showZone;
+    }
     if (sprayMeter) sprayMeter.hidden = !(state.mode === 'wash' && step && (step.id === 'spray' || step.id === 'pick_hose'));
     if (scrubMeter) scrubMeter.hidden = !(state.mode === 'wash' && step && step.id === 'scrub');
 
     const wheelEl = $('gwWheel');
     if (wheelEl) {
       wheelEl.setAttribute('data-tire-type', state.desiredWheel);
+      wheelEl.hidden = !!(step && step.id === 'pick_tire');
       wheelEl.classList.toggle('is-dragging', !!(state.drag && state.drag.type === 'wheel'));
       const step = currentStep();
       if (state.drag && (state.drag.type === 'wheel' || state.drag.type === 'wheel-mount')) {

@@ -971,20 +971,38 @@ body.build-garage-page {
   transform: translateY(-18px);
 }
 
+/* Samma proportioner som garage-vyn — hjulzonen följer bilen, inte hela arenan */
+.gw-car-body {
+  position: relative;
+  width: min(82%, 270px);
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .gw-car-img {
-  width: 78%;
-  max-height: 55%;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
   filter: drop-shadow(0 10px 24px rgba(0,0,0,0.4));
   pointer-events: none;
+  /* Dölj inbakade hjul — samma clip som garage-vyn */
+  clip-path: polygon(0 0, 100% 0, 100% 68%, 72% 68%, 72% 100%, 28% 100%, 28% 68%, 0 68%);
 }
 
 .gw-wheel-zone {
   position: absolute;
-  left: 14%;
-  bottom: 22%;
-  width: 22%;
+  left: 18.5%;
+  bottom: 13%;
+  width: 17%;
   aspect-ratio: 1;
+  z-index: 2;
+}
+
+.gw-wheel-zone[hidden] {
+  display: none !important;
 }
 
 .gw-bolts {

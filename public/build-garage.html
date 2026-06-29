@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/build-garage.css?v=5">
+  <link rel="stylesheet" href="/css/build-garage.css?v=6">
   <script src="/js/auth.js?v=2.22.0"></script>
 </head>
 <body class="build-garage-page">
@@ -120,10 +120,12 @@
 
         <div class="gw-arena" id="gwArena">
           <div class="gw-car-lift">
-            <img class="gw-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="">
-            <div class="gw-wheel-zone" id="gwWheelZone">
-              <div class="gw-bolts" id="gwBolts"><i></i><i></i><i></i><i></i><i></i></div>
-              <div class="gw-wheel" id="gwWheel" data-tire-type="standard"></div>
+            <div class="gw-car-body">
+              <img class="gw-car-img" src="/img/build/style-anchor/build-car-hero.png" alt="">
+              <div class="gw-wheel-zone" id="gwWheelZone" hidden>
+                <div class="gw-bolts" id="gwBolts"><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="gw-wheel" id="gwWheel" data-tire-type="standard"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -134,7 +136,7 @@
   </div>
 
   <script src="/js/build-game-mobile.js?v=1"></script>
-  <script src="/js/build-garage-workshop.js?v=2"></script>
+  <script src="/js/build-garage-workshop.js?v=3"></script>
   <script src="/js/build-garage.js?v=4"></script>
 </body>
 </html>
