@@ -348,7 +348,7 @@ function buildReport(metrics, browserQa = null) {
   };
 }
 
-async function runDailyAnalysis({ browserQa = null } = {}) {
+async function runDailyAnalysis({ browserQa } = {}) {
   const metrics = await collectMetrics();
   let qaResult = browserQa;
   if (qaResult === undefined) {
