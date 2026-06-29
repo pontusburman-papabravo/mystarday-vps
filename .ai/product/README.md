@@ -10,6 +10,8 @@
 | [GAME_DESIGN_BIBLE.md](./GAME_DESIGN_BIBLE.md) | **Game experience contract** — loops, systems, Experience Packs |
 | [WORLD_DESIGN_BIBLE.md](./WORLD_DESIGN_BIBLE.md) | **World live-release contract** — Progression Nodes, WQS-200, all worlds |
 | [WORLD_DESIGN_BIBLE_CHANGELOG.md](./WORLD_DESIGN_BIBLE_CHANGELOG.md) | WDB revision history |
+| [PARENT_EXPERIENCE_BIBLE.md](./PARENT_EXPERIENCE_BIBLE.md) | **Parent experience spec** — journey, Coach, Trust, Family OS, PQS-150 |
+| [PARENT_EXPERIENCE_BIBLE_CHANGELOG.md](./PARENT_EXPERIENCE_BIBLE_CHANGELOG.md) | PEB revision history |
 | `product-content-bible/` (when merged) | Per-world deep specs — progression via pack manifest |
 
 **Read with:** `.ai/brain/PROJECT_BRAIN.md` + `product-operating-system/`
