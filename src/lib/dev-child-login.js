@@ -24,11 +24,17 @@ const DEV_CHILD_USERNAME = 'testbarn';
 const DEV_CHILD_PIN = '1234';
 const DEV_PARENT_EMAIL = 'dev-parent@localhost.local';
 
-function isDevChildLoginAllowed(req) {
-  if (process.env.NODE_ENV !== 'development') return false; // pragma: allowlist secret
-  if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
+function isLocalhostRequest(req) {
   const host = (req.hostname || '').toLowerCase();
   return host === 'localhost' || host === '127.0.0.1';
+}
+
+function isDevChildLoginAllowed(req) {
+  if (!isLocalhostRequest(req)) return false;
+  if (process.env.DEV_CHILD_SKIP_LOGIN === 'false') return false;
+  if (process.env.ALLOW_DEV_CHILD_SKIP === 'true') return true;
+  if (process.env.NODE_ENV !== 'development') return false; // pragma: allowlist secret
+  return true;
 }
 
 async function findFirstChild() {
