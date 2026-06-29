@@ -56,7 +56,7 @@ async function getStuckWithoutCompletion() {
        COUNT(*) FILTER (WHERE s.child_access_completed_at IS NOT NULL AND s.first_completion_at IS NULL)::int AS child_access_no_completion,
        COUNT(*) FILTER (WHERE s.schema_saved_at IS NULL)::int AS no_schema
      FROM family f
-     LEFT JOIN family_activation_state s ON s.family_id = f.family_id
+     LEFT JOIN family_activation_state s ON s.family_id = f.id
      WHERE f.archived_at IS NULL`
   );
   return result.rows[0] || {};
