@@ -54,10 +54,13 @@ router.get('/summary', async (req, res) => {
   }
 });
 
-// POST /api/admin/email-log/trigger-winback — manually trigger win-back scheduler
+// POST /api/admin/email-log/trigger-winback — legacy manual trigger (win-back v1 avvecklad)
 router.post('/trigger-winback', async (req, res) => {
   if (process.env.WIN_BACK_ENABLED !== 'true') {
-    return res.status(400).json({ error: 'WIN_BACK_ENABLED=false — aktivera i miljövariabler först' });
+    return res.status(410).json({
+      error: 'Win-back v1 är avvecklad (WIN_BACK_ENABLED=false). Nya retention-utskick styrs av Journey Gate.',
+      deprecated: true,
+    });
   }
   try {
     const { runWinBackNow } = require('../../lib/win-back-scheduler');

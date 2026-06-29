@@ -57,14 +57,20 @@
 
     if (e.returned) {
       const days = e.days_to_return != null ? ` (${e.days_to_return}d)` : '';
+      parts.push(`<span class="text-green-700 font-semibold">✓ ${e.completions_after_send} avbockning${e.completions_after_send === 1 ? '' : 'ar'}${days}</span>`);
+      const when = e.first_completion_at || e.first_return_at;
+      if (when) {
+        parts.push(`<span class="block text-xs text-text-soft">${esc(formatShortDate(when))}</span>`);
+      }
+    } else if (e.had_diagnostic_activity) {
       const source = e.return_source_label ? ` via ${esc(e.return_source_label)}` : '';
-      parts.push(`<span class="text-green-700 font-semibold">✓ Återkom${days}${source}</span>`);
-      const when = e.first_return_at || e.first_login_at;
+      parts.push(`<span class="text-amber-700">Besök${source} — ingen avbockning</span>`);
+      const when = e.first_login_at || e.first_return_at;
       if (when) {
         parts.push(`<span class="block text-xs text-text-soft">${esc(formatShortDate(when))}</span>`);
       }
     } else {
-      parts.push('<span class="text-text-soft">Ingen aktivitet</span>');
+      parts.push('<span class="text-text-soft">Ingen avbockning</span>');
     }
 
     if (e.for_dig_goal_slug) {
@@ -72,11 +78,7 @@
     }
 
     if (e.win_back_landings > 0) {
-      parts.push(`<span class="block text-xs text-navy mt-0.5">Klickade mejllänken</span>`);
-    }
-
-    if (e.completions_after_send > 0) {
-      parts.push(`<span class="block text-xs text-navy mt-0.5">${e.completions_after_send} avbockning${e.completions_after_send === 1 ? '' : 'ar'}</span>`);
+      parts.push(`<span class="block text-xs text-text-soft mt-0.5">Klickade mejllänken</span>`);
     }
 
     return parts.join('');
@@ -145,41 +147,49 @@
     </div>
 
     <div class="bg-sky/40 border-2 border-lavender rounded-2xl p-5 mb-6">
-      <h4 class="text-sm font-bold text-navy mb-3">Uppföljning efter utskick <span class="font-normal text-text-soft">(${attrDays} dagar)</span></h4>
+      <h4 class="text-sm font-bold text-navy mb-3">Uppföljning efter utskick <span class="font-normal text-text-soft">(${attrDays} dagar — primärt avbockningar)</span></h4>
       <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
-          <div class="text-xl font-bold text-green-700">${eng.returned_7d ?? 0}</div>
-          <div class="text-xs text-text-soft mt-1">Återkom inom 7d</div>
+        <div class="bg-white rounded-xl p-3 text-center border-2 border-green-300">
+          <div class="text-xl font-bold text-green-700">${eng.active_completions_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Avbockningar inom ${attrDays}d</div>
+        </div>
+        <div class="bg-white rounded-xl p-3 text-center border-2 border-green-200">
+          <div class="text-xl font-bold text-green-700">${eng.completion_rate_14d ?? 0}%</div>
+          <div class="text-xs text-text-soft mt-1">Avbockningsgrad (${eng.sent_tracked ?? 0} skickade)</div>
         </div>
         <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
-          <div class="text-xl font-bold text-green-700">${eng.returned_14d ?? 0}</div>
-          <div class="text-xs text-text-soft mt-1">Återkom inom ${attrDays}d</div>
+          <div class="text-xl font-bold text-navy">${eng.completions_within_7d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Avbockning inom 7d</div>
         </div>
-        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
-          <div class="text-xl font-bold text-navy">${eng.return_rate_14d ?? 0}%</div>
-          <div class="text-xs text-text-soft mt-1">Återkomst (${eng.sent_tracked ?? 0} skickade)</div>
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50 opacity-80">
+          <div class="text-xl font-bold text-navy">${eng.diagnostic_activity_14d ?? eng.returned_14d ?? 0}</div>
+          <div class="text-xs text-text-soft mt-1">Besök/inloggning <span class="text-text-soft">(diagnostik)</span></div>
         </div>
-        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50 opacity-80">
           <div class="text-xl font-bold text-navy">${eng.win_back_landings_14d ?? 0}</div>
           <div class="text-xs text-text-soft mt-1">Klickade mejllänken</div>
         </div>
-        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
+        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50 opacity-80">
           <div class="text-xl font-bold text-navy">${eng.for_dig_14d ?? 0}</div>
           <div class="text-xs text-text-soft mt-1">Aktiverade För dig</div>
         </div>
-        <div class="bg-white rounded-xl p-3 text-center border border-lavender/50">
-          <div class="text-xl font-bold text-navy">${eng.active_completions_14d ?? 0}</div>
-          <div class="text-xs text-text-soft mt-1">Bockade av aktiviteter</div>
-        </div>
       </div>
       <p class="text-xs text-text-soft mt-3">
-        Mäter återkomst via inloggning, mejllänk (<code class="bg-white px-1 rounded">utm_source=winback</code>),
-        För dig-besök eller appöppning efter <code class="bg-white px-1 rounded">sent_at</code>.
-        Väntande poster auto-avvisas efter <strong>${staleHours}h</strong> (<code class="bg-white px-1 rounded">WIN_BACK_STALE_HOURS</code>).
+        <strong>Primär KPI:</strong> avbockningar inom ${attrDays} dagar efter <code class="bg-white px-1 rounded">sent_at</code>.
+        Inloggning och mejllänk är diagnostik — inte styr-KPI (se retention-migration-plan).
+        Väntande poster auto-avvisas efter <strong>${staleHours}h</strong>.
       </p>
     </div>
 
-    <div class="bg-white border-2 border-lavender rounded-2xl p-4 mb-4 flex items-center justify-between gap-4 flex-wrap">
+    <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 mb-4">
+      <div class="text-sm font-bold text-navy">Win-back v1 avvecklad</div>
+      <p class="text-xs text-text-soft mt-1 max-w-2xl">
+        Automatiska win-back-utskick är avstängda (<code class="bg-white px-1 rounded">WIN_BACK_ENABLED=false</code>).
+        Historiska mejl visas nedan. Nya retention-utskick styrs av Journey Gate.
+      </p>
+    </div>
+
+    <div class="bg-white border-2 border-lavender rounded-2xl p-4 mb-4 flex items-center justify-between gap-4 flex-wrap opacity-60">
       <div>
         <div class="text-sm font-bold text-navy">Auto-godkännande av win-back</div>
         <p class="text-xs text-text-soft mt-0.5 max-w-md">
@@ -195,18 +205,17 @@
       </button>
     </div>
 
-    <div class="flex flex-wrap gap-3 mb-8">
-      <button type="button" onclick="triggerWinBackNow()"
-        class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold hover:bg-navy-soft transition-colors">
-        ↺ Kör win-back nu
+    <div class="flex flex-wrap gap-3 mb-8 opacity-60">
+      <button type="button" disabled title="Win-back v1 avvecklad — WIN_BACK_ENABLED=false"
+        class="px-4 py-2 bg-gray-300 text-gray-500 rounded-xl text-sm font-semibold cursor-not-allowed">
+        ↺ Kör win-back nu (avvecklad)
       </button>
       <button type="button" onclick="loadEmailLog(true)"
         class="px-4 py-2 border-2 border-lavender rounded-xl text-sm font-semibold hover:bg-sky transition-colors">
         ↺ Uppdatera
       </button>
       <p class="text-xs text-text-soft self-center max-w-xl">
-        Skapar win-back-poster för familjer inaktiva &gt;18 dagar.
-        ${emailLogAutoApprove ? 'Mejlen skickas <strong>automatiskt</strong> (auto-godkännande på).' : 'Du godkänner och skickar under fliken Väntar.'}
+        Win-back v1 körs inte längre automatiskt. Historiska mejl kan fortfarande godkännas manuellt om poster finns kvar.
       </p>
     </div>
 

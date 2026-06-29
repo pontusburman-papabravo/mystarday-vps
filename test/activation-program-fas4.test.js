@@ -309,9 +309,9 @@ describe('Fas 4 — UI assets and infrastructure', () => {
     assert.ok(src.includes('enroll_source'));
   });
 
-  it('email scheduler is wired in server.js', () => {
+  it('legacy activation email scheduler is not wired in server.js (Steg 3)', () => {
     const src = fs.readFileSync(path.join(__dirname, '../server.js'), 'utf8');
-    assert.ok(src.includes('startActivationEmailScheduler'));
-    assert.ok(src.includes('stopActivationEmailScheduler'));
+    assert.ok(!src.includes('startActivationEmailScheduler'));
+    assert.ok(fs.existsSync(path.join(__dirname, '../src/lib/activation-program-email-scheduler.js')));
   });
 });
