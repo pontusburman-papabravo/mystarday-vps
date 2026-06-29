@@ -6,13 +6,13 @@ Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i sch
 
 | # | Slug | Namn | Delar | Värld efter klart | Lek efter unlock |
 |---|------|------|-------|-------------------|------------------|
-| 1 | `racerbil` | Mecka med bilen | 6 | Garaget | Verktygsvägg, byt däck, tvätta, tuta, kör |
-| 2 | `husdjur` | Ta hand om husdjur | 8 | Husdjurshemmet | Välj hund/katt/hamster/häst — mata, borsta, promenera |
-| 3 | `dinosaurie` | Forska om dinosaurier | 10 | Dino-dalen | Gräv, borsta ben, montera skelett, läs fakta |
-| 4 | `dockhus` | Dockor & dockhus | 8 | Dockhuset | Bygg rum, måla, inred, bjud in gäster |
-| 5 | `fiske` | Fiska & båtliv | 8 | Båtkajen | Bygg spö/båt, kasta, dra, hala upp fisk |
-| 6 | `laxor` | Läxor & lärande | 6 | Läxbordet | Bokstäver, siffror, läsa, skriva, matte (lek) |
-| 7 | `vardag` | Vardagsäventyr | 6 | Mitt rum | Speglar aktivitetslistan: bädda säng, klä på dig, frukost, borsta tänder… |
+| 1 | `racerbil` | Mecka med bilen | 75 | Garaget | Verktygsvägg, byt däck, tvätta, tuta, kör |
+| 2 | `husdjur` | Ta hand om husdjur | 75 | Husdjurshemmet | Välj hund/katt/hamster/häst — mata, borsta, promenera |
+| 3 | `dinosaurie` | Forska om dinosaurier | 75 | Dino-dalen | Gräv, borsta ben, montera skelett, läs fakta |
+| 4 | `dockhus` | Dockor & dockhus | 75 | Dockhuset | Bygg rum, måla, inred, bjud in gäster |
+| 5 | `fiske` | Fiska & båtliv | 75 | Båtkajen | Bygg spö/båt, kasta, dra, hala upp fisk |
+| 6 | `laxor` | Läxor & lärande | 75 | Läxbordet | Bokstäver, siffror, läsa, skriva, matte (lek) |
+| 7 | `vardag` | Vardagsäventyr | 75 | Mitt rum | Speglar aktivitetslistan: bädda säng, klä på dig, frukost, borsta tänder… |
 
 ## Koppling till aktiviteter (vardag + alla)
 
@@ -26,8 +26,12 @@ Barn väljer **ett äventyr** vid första besök. Varje avklarad aktivitet i sch
 ### Implementerat
 - `build_project_catalog` + `child_build_project` (migration `180892…`)
 - MVP-katalog med 7 rader + metadata (`180893…`)
+- **75 delar** per äventyr (`180895…`, `BUILD_PARTS_REQUIRED`)
 - Garaget för `racerbil` (verkstad, däckbyte, tvätt)
-- `GET /api/me/build` — katalog + pågående projekt
+- Delmål 15/30/45/60/75 + visuell byggscen på Idag (`src/lib/build-progress.js`, `child-build-hype.js`)
+- Figur-guide + upplåsningsceremoni (`child-build-ceremony.js`)
+- Världskarta i Min värld (`child-skatt-house.js` + `world_map` i API)
+- `GET /api/me/build` — katalog + pågående projekt + world_map
 - `POST /api/me/build/start` — välj äventyr
 - `/child/adventures` — äventyrsväljare (kort)
 

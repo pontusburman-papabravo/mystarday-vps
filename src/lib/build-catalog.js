@@ -39,6 +39,9 @@ function normalizeCustomization(raw) {
   if (!DECAL_OPTIONS.some((o) => o.id === c.decal)) c.decal = 'none';
   c.cleanliness = Math.max(0, Math.min(100, Number(c.cleanliness) || 100));
   c.tune_level = Math.max(0, Math.min(5, Number(c.tune_level) || 0));
+  if (Array.isArray(raw && raw.milestone_perks)) {
+    c.milestone_perks = raw.milestone_perks.filter(Boolean);
+  }
   return c;
 }
 

@@ -44,6 +44,7 @@
   let _sections = {};
   let _meta = {};
   let _universe = null;
+  let _worldMap = [];
   const _entered = false;
 
   function chestTier(balance) {
@@ -173,6 +174,11 @@
     return '<div class="skatt-theme-picker">' + btns + '</div>';
   }
 
+  function renderWorldMap() {
+    if (window.ChildWorldMap) return ChildWorldMap.renderSection(_worldMap);
+    return '';
+  }
+
   function renderHub() {
     const theme = currentTheme();
     const rooms = unlockedRooms();
@@ -225,6 +231,7 @@
           '<span class="skatt-hub-stars-label">Dina stjärnor</span>' +
         '</div>' +
         renderThemePicker() +
+        renderWorldMap() +
         '<div class="skatt-hub-grid">' + cards + '</div>' +
       '</div>' +
     '</div>';
@@ -300,12 +307,23 @@
     });
   }
 
+  function ensureWorldMap() {
+    if (_worldMap && _worldMap.length) return Promise.resolve(_worldMap);
+    if (!window.Auth || typeof Auth.api !== 'function') return Promise.resolve([]);
+    return Auth.api('/api/me/build').then(function (data) {
+      _worldMap = (data && data.world_map) ? data.world_map : [];
+      return _worldMap;
+    }).catch(function () { return []; });
+  }
+
   function showHub() {
     if (!_view) return;
-    _view.classList.remove('skatt-in-room');
-    _view.innerHTML = renderHub();
-    bindHubEvents();
-    document.body.classList.add('child-home-active');
+    ensureWorldMap().then(function () {
+      _view.classList.remove('skatt-in-room');
+      _view.innerHTML = renderHub();
+      bindHubEvents();
+      document.body.classList.add('child-home-active');
+    });
   }
 
   function bindHubEvents() {
@@ -363,8 +381,13 @@
       ? ChildUniverse.load(true)
       : Promise.resolve(null);
 
-    return loadPromise.then(function (u) {
-      _universe = u;
+    const buildPromise = (window.Auth && typeof Auth.api === 'function')
+      ? Auth.api('/api/me/build').catch(function () { return null; })
+      : Promise.resolve(null);
+
+    return Promise.all([loadPromise, buildPromise]).then(function (results) {
+      _universe = results[0];
+      _worldMap = (results[1] && results[1].world_map) ? results[1].world_map : [];
       if (_view) showHub();
     });
   }

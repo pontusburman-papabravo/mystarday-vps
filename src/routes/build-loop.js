@@ -17,6 +17,7 @@ const {
   normalizeCustomization,
 } = require('../lib/build-catalog');
 const { filterMvpCatalog } = require('../lib/build-adventures');
+const { enrichProject, unlockedWorldsFromProjects } = require('../lib/build-progress');
 const universeDb = require('../../db/child-universe');
 const universeEngine = require('../lib/universe-engine');
 
@@ -45,9 +46,16 @@ router.get('/', async (req, res) => {
       buildDb.getProjectsForChild(childId),
     ]);
     const catalog = filterMvpCatalog(catalogRows);
-    const active_project = await buildDb.getActiveProject(childId);
+    const activeRaw = await buildDb.getActiveProject(childId);
+    const active_project = enrichProject(activeRaw);
     const garageProject = projects.find((p) => p.status === 'completed' && p.garage_unlocked) || null;
-    res.json({ catalog, projects, active_project, garage_project: garageProject });
+    const world_map = unlockedWorldsFromProjects(projects).map(function (w) {
+      return {
+        ...w,
+        active: !!(activeRaw && activeRaw.catalog_slug === w.slug),
+      };
+    });
+    res.json({ catalog, projects, active_project, garage_project: garageProject, world_map });
   } catch (err) {
     console.error('[BUILD] GET / error:', err);
     res.status(500).json({ error: 'Något gick fel.' });

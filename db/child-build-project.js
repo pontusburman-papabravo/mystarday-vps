@@ -6,6 +6,11 @@ const {
   DEFAULT_CUSTOMIZATION,
 } = require('../src/lib/build-catalog');
 const { BUILD_PARTS_REQUIRED } = require('../src/lib/build-adventures');
+const {
+  milestoneCrossed,
+  applyMilestonePerk,
+  enrichProject,
+} = require('../src/lib/build-progress');
 
 async function getCatalog() {
   const r = await db.query(
@@ -159,8 +164,14 @@ async function grantPart(childId, dailyLogItemId) {
     return { error: 'project_complete', project: active };
   }
 
-  const newCount = active.parts_collected + 1;
+  const prevCount = active.parts_collected;
+  const newCount = prevCount + 1;
   const completed = newCount >= partsRequired;
+  const milestoneHit = milestoneCrossed(prevCount, newCount);
+  let customization = normalizeCustomization(active.customization);
+  if (milestoneHit) {
+    customization = applyMilestonePerk(customization, active.catalog_slug, milestoneHit);
+  }
 
   await db.query('BEGIN');
   try {
@@ -172,11 +183,12 @@ async function grantPart(childId, dailyLogItemId) {
     await db.query(
       `UPDATE child_build_project SET
          parts_collected = $1,
-         status = CASE WHEN $2 THEN 'completed' ELSE status END,
-         garage_unlocked = CASE WHEN $2 THEN true ELSE garage_unlocked END,
+         customization = $2::jsonb,
+         status = CASE WHEN $3 THEN 'completed' ELSE status END,
+         garage_unlocked = CASE WHEN $3 THEN true ELSE garage_unlocked END,
          updated_at = NOW()
-       WHERE id = $3 AND child_id = $4`,
-      [newCount, completed, active.id, childId]
+       WHERE id = $4 AND child_id = $5`,
+      [newCount, JSON.stringify(customization), completed, active.id, childId]
     );
     await db.query('COMMIT');
   } catch (err) {
@@ -194,10 +206,12 @@ async function grantPart(childId, dailyLogItemId) {
     [active.id]
   );
 
+  const project = enrichProject(mapProjectRow(r.rows[0]));
   return {
     granted: true,
     completed,
-    project: mapProjectRow(r.rows[0]),
+    milestone_hit: milestoneHit,
+    project,
     part_number: newCount,
   };
 }

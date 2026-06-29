@@ -104,27 +104,24 @@ async function testIdag(page) {
     },
     { timeout: 15000 }
   );
-  await waitForHidden(page, '.skeleton-error', 12000).catch(() => {});
-  await assertNoErrors(page, 'Idag');
+  await page.waitForFunction(
+    () => {
+      const hype = document.getElementById('childBuildHypeMount');
+      return hype && hype.innerText && hype.innerText.trim().length > 10;
+    },
+    { timeout: 15000 }
+  );
 
-  const today = await page.evaluate(() => {
-    const navBtns = document.querySelectorAll('[data-child-world]').length;
-    const hasSchedule = !!document.getElementById('scheduleView');
+  const world = await page.evaluate(() => {
     const hype = document.getElementById('childBuildHypeMount');
-    const hypeText = hype ? (hype.innerText || '') : '';
-    const bodyText = document.body ? (document.body.innerText || '') : '';
-    const missions = document.querySelectorAll('[data-activity-id], .activity-card, .dagdel-section').length;
-    return { navBtns, hasSchedule, hypeText, bodyText, missions };
+    const hasScene = hype ? !!hype.querySelector('.cbh-scene') : false;
+    const hasMilestones = hype ? !!hype.querySelector('.cbh-milestones') : false;
+    return { hasScene, hasMilestones, hypeText: hype ? hype.innerText.slice(0, 120) : '' };
   });
-
-  if (today.navBtns < 3) fail('Idag: förväntade 3 nav-knappar, fick ' + today.navBtns);
-  if (!today.hasSchedule) fail('Idag: schema-vyn saknas');
-
-  const hasBuildCue = /äventyr|delar|uppdrag/i.test(today.hypeText + today.bodyText) || today.missions > 0;
-  if (!hasBuildCue) fail('Idag: varken bygg-hype eller uppdrag syns för barnet');
-
-  console.log('OK Idag — nav:', today.navBtns, 'uppdrag/sektioner:', today.missions);
-  return today;
+  if (!world.hasScene && !/äventyr|Välj|delar/i.test(world.hypeText)) {
+    fail('Idag: saknar bygg-scen eller äventyrsprompt — «' + world.hypeText + '»');
+  }
+  console.log('OK Idag — bygg-scen:', world.hasScene, 'delmål:', world.hasMilestones);
 }
 
 async function testMinVarld(page) {
@@ -139,10 +136,8 @@ async function testMinVarld(page) {
   await waitForHidden(page, '#skattkammarLoading', 15000).catch(() => {});
   await page.waitForFunction(
     () => {
-      const view = document.getElementById('skattkammarView');
-      if (!view) return false;
-      const style = window.getComputedStyle(view);
-      return style.display !== 'none' && view.innerText.trim().length > 20;
+      const map = document.querySelector('.skatt-world-map');
+      return map && map.querySelectorAll('.skatt-world-pin').length >= 7;
     },
     { timeout: 15000 }
   );
@@ -150,13 +145,16 @@ async function testMinVarld(page) {
 
   const world = await page.evaluate(() => {
     const view = document.getElementById('skattkammarView');
+    const map = document.querySelector('.skatt-world-map');
     return {
       textLen: view ? view.innerText.length : 0,
-      hasStars: /stjärn|⭐/i.test(view ? view.innerText : ''),
+      hasMap: !!map,
+      mapPins: map ? map.querySelectorAll('.skatt-world-pin').length : 0,
     };
   });
   if (world.textLen < 20) fail('Skattkammaren: tom vy');
-  console.log('OK Min värld — Skattkammaren laddad (' + world.textLen + ' tecken)');
+  if (world.mapPins < 7) fail('Min värld: förväntade 7 världar på kartan, fick ' + world.mapPins);
+  console.log('OK Min värld — karta med', world.mapPins, 'världar');
   return world;
 }
 

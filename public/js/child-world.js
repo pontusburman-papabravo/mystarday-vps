@@ -10,10 +10,16 @@
       ChildRewardsEngine.refreshRewards().then(function () {
         ChildRewardsEngine.mountGoalProgress();
         ChildRewardsEngine.mountPendingBannerIfNeeded();
+        if (window.ChildWorldMap) {
+          ChildWorldMap.refresh(document.getElementById('skattkammarView'));
+        }
       });
     }
     if (window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
       ChildSkattHouse.showHub();
+    }
+    if (window.ChildWorldMap) {
+      ChildWorldMap.refresh(document.getElementById('skattkammarView'));
     }
   }
 

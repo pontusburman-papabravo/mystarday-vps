@@ -7,23 +7,30 @@ async function tryGrantBuildPart(childId, dailyLogItemId, wasAlreadyCompleted) {
   if (wasAlreadyCompleted) return null;
   try {
     const buildDb = require('../../db/child-build-project');
+    const {
+      guideMessage,
+      milestoneReward,
+    } = require('./build-progress');
     const gp = await buildDb.grantPart(childId, dailyLogItemId);
     if (!gp.granted) return null;
+    const guide = guideMessage(gp.project.catalog_slug, {
+      partsCollected: gp.project.parts_collected,
+      partsRequired: gp.project.parts_required,
+      unlockLabel: gp.project.unlock_label,
+      milestoneHit: gp.milestone_hit,
+      completed: gp.completed,
+      justEarned: true,
+    });
+    const milestoneRewardInfo = gp.milestone_hit
+      ? milestoneReward(gp.project.catalog_slug, gp.milestone_hit)
+      : null;
     return {
       part_number: gp.part_number,
       completed: gp.completed,
-      project: {
-        id: gp.project.id,
-        name: gp.project.name,
-        icon: gp.project.icon,
-        parts_collected: gp.project.parts_collected,
-        parts_required: gp.project.parts_required,
-        progress_pct: gp.project.progress_pct,
-        unlock_label: gp.project.unlock_label,
-        catalog_slug: gp.project.catalog_slug,
-        garage_unlocked: gp.project.garage_unlocked,
-        status: gp.project.status,
-      },
+      milestone_hit: gp.milestone_hit,
+      milestone_reward: milestoneRewardInfo,
+      guide_message: guide,
+      project: gp.project,
     };
   } catch (err) {
     console.error('[BUILD] grantPart:', err.message);

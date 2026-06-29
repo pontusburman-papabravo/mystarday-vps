@@ -1,6 +1,5 @@
 /**
- * child-build-hype.js — Bygg-loop + stjärn-hype på barnvyn.
- * Mål: barn ska vilja göra fler uppdrag och "tjata" på föräldrar om stjärnor.
+ * child-build-hype.js — Bygg-loop + stjärn-hype på barnvyn (10/10).
  */
 (function () {
   'use strict';
@@ -53,6 +52,43 @@
       ' till ' + esc(icon) + ' ' + esc(name) + '</p>';
   }
 
+  function renderScene(active) {
+    const stage = active.build_stage || { key: 'empty', label: 'Början' };
+    const sceneClass = active.scene_class || 'cbh-scene--generic';
+    const slug = active.catalog_slug || '';
+    return '<div class="cbh-scene ' + esc(sceneClass) + '" data-stage="' + esc(stage.key) + '" data-slug="' + esc(slug) + '">' +
+      '<div class="cbh-scene-sky" aria-hidden="true"></div>' +
+      '<div class="cbh-scene-layer cbh-scene-layer--ground"></div>' +
+      '<div class="cbh-scene-layer cbh-scene-layer--build"></div>' +
+      '<div class="cbh-scene-layer cbh-scene-layer--detail"></div>' +
+      '<div class="cbh-scene-layer cbh-scene-layer--hero">' + esc(active.icon || '🧩') + '</div>' +
+      '<p class="cbh-scene-label">' + esc(stage.label) + '</p>' +
+    '</div>';
+  }
+
+  function renderMilestones(active) {
+    const milestones = active.milestones || [];
+    if (!milestones.length) return '';
+    const dots = milestones.map(function (m) {
+      const cls = m.reached ? ' is-done' : '';
+      const reward = m.reward || {};
+      return '<div class="cbh-milestone' + cls + '" title="' + esc(reward.label || '') + '">' +
+        '<span class="cbh-milestone-at">' + m.at + '</span>' +
+        '<span class="cbh-milestone-icon">' + esc(reward.icon || '🎁') + '</span>' +
+      '</div>';
+    }).join('');
+    return '<div class="cbh-milestones" aria-label="Delmål">' + dots + '</div>';
+  }
+
+  function renderGuideBubble(active, message) {
+    const guide = active.guide || { name: 'Kompisen', emoji: '🧩' };
+    const text = message || (active.routine_line || 'Gör uppdrag så bygger du vidare!');
+    return '<div class="cbh-guide">' +
+      '<span class="cbh-guide-avatar" aria-hidden="true">' + esc(guide.emoji) + '</span>' +
+      '<div class="cbh-guide-bubble"><strong>' + esc(guide.name) + '</strong> ' + esc(text) + '</div>' +
+    '</div>';
+  }
+
   function buildNagHtml() {
     const active = _state && _state.active_project;
     const catalog = (_state && _state.catalog) || [];
@@ -66,27 +102,29 @@
 
     if (!active) return '';
 
-    const left = Math.max(0, active.parts_required - active.parts_collected);
+    const left = active.parts_left != null
+      ? active.parts_left
+      : Math.max(0, active.parts_required - active.parts_collected);
     const pct = active.progress_pct || 0;
     const unlock = active.unlock_label || 'din värld';
     const icon = active.icon || '🧩';
-    let urgency = '';
-
-    if (left === 1) {
-      urgency = '<p class="cbh-line cbh-line--pulse"><strong>SNART KLART!</strong> Bara 1 del kvar till ' +
-        esc(unlock) + '! Gör nästa uppdrag nu.</p>';
-    } else if (left > 0) {
-      urgency = '<p class="cbh-line">' + icon + ' <strong>' + active.parts_collected + '/' +
-        active.parts_required + ' delar</strong> till ' + esc(unlock) +
-        ' — gör fler uppdrag så bygger du vidare!</p>';
-    }
 
     if (active.status === 'completed' || active.garage_unlocked) {
       const playHref = active.catalog_slug === 'racerbil' ? '/child/garage' : '/child/world';
       return '<div class="cbh-card cbh-card--unlock">' +
+        renderScene(active) +
         '<p class="cbh-title">🎉 ' + esc(unlock) + ' är öppen!</p>' +
         '<p class="cbh-line">Fortsätt samla stjärnor ⭐ till Skattkammaren medan du leker.</p>' +
         '<a href="' + playHref + '" class="cbh-cta">Lek nu</a></div>';
+    }
+
+    let urgency = '';
+    if (left === 1) {
+      urgency = '<p class="cbh-line cbh-line--pulse"><strong>SNART KLART!</strong> Bara 1 del kvar till ' +
+        esc(unlock) + '!</p>';
+    } else {
+      urgency = '<p class="cbh-line">' + icon + ' <strong>' + active.parts_collected + '/' +
+        active.parts_required + ' delar</strong> till ' + esc(unlock) + '</p>';
     }
 
     const missions = remainingMissions();
@@ -96,10 +134,19 @@
         ' uppdrag</strong> kvar idag — varje klart ger en byggdel 🧩</p>';
     }
 
-    return '<div class="cbh-card">' +
-      '<div class="cbh-progress"><div class="cbh-progress-fill" style="width:' + pct + '%"></div></div>' +
-      urgency + missionLine + goalNagLine() +
-      '<p class="cbh-parent-nag">💬 Tips: Säg till mamma eller pappa att kolla Idag — då ser de att du jobbat!</p>' +
+    const nextM = active.next_milestone;
+    const nextLine = nextM
+      ? '<p class="cbh-line cbh-line--next">Nästa delmål: <strong>' + nextM + ' delar</strong></p>'
+      : '';
+
+    return '<div class="cbh-card cbh-card--building">' +
+      renderGuideBubble(active, active.routine_line) +
+      renderScene(active) +
+      '<div class="cbh-progress" aria-label="Byggprogress">' +
+        '<div class="cbh-progress-fill" style="width:' + pct + '%"></div>' +
+      '</div>' +
+      renderMilestones(active) +
+      urgency + nextLine + missionLine + goalNagLine() +
       '</div>';
   }
 
@@ -121,6 +168,15 @@
     render();
   }
 
+  function showGuideToast(message, reward) {
+    let msg = message;
+    if (reward && reward.label) {
+      msg = (reward.icon || '🎁') + ' ' + reward.label + ' upplåst! ' + (message || '');
+    }
+    if (typeof showToast === 'function') showToast(msg);
+    else if (window.showToast) window.showToast(msg);
+  }
+
   function onPartEarned(payload) {
     if (!payload || !payload.project) return;
     if (_state) {
@@ -130,20 +186,31 @@
 
     const p = payload.project;
     const left = Math.max(0, p.parts_required - p.parts_collected);
-    let msg = '🧩 Ny del till ' + (p.name || 'projektet') + '! (' + p.parts_collected + '/' + p.parts_required + ')';
+
     if (payload.completed) {
-      msg = '🎉 KLART! ' + (p.unlock_label || 'Din värld') + ' är öppen!';
-      if (window.BuildGameMobile) BuildGameMobile.haptic('success');
-      else if (window.Platform && Platform.haptics) Platform.haptics.success();
-    } else if (left === 1) {
-      msg = '🔥 SNART! Bara 1 del kvar — gör ett till uppdrag!';
+      if (window.ChildBuildCeremony) ChildBuildCeremony.show(p);
+      else showGuideToast(payload.guide_message || ('🎉 KLART! ' + (p.unlock_label || 'Din värld') + ' är öppen!'));
+      return;
+    }
+
+    if (payload.milestone_hit && payload.milestone_reward) {
+      showGuideToast(payload.guide_message, payload.milestone_reward);
+      if (window.BuildGameMobile) BuildGameMobile.haptic('heavy');
+      else if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+      return;
+    }
+
+    if (payload.guide_message) {
+      showGuideToast(payload.guide_message);
+    } else {
+      showGuideToast('🧩 Ny del! (' + p.parts_collected + '/' + p.parts_required + ')');
+    }
+
+    if (left === 1) {
       if (window.BuildGameMobile) BuildGameMobile.haptic('heavy');
     } else if (window.BuildGameMobile) {
       BuildGameMobile.haptic('success');
     }
-
-    if (typeof showToast === 'function') showToast(msg);
-    else if (window.showToast) window.showToast(msg);
   }
 
   function updateProgress(completed, total) {

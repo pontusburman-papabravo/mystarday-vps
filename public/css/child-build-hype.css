@@ -1,4 +1,4 @@
-/** child-build-hype.css — Byggdel + stjärn-hype på Idag */
+/** child-build-hype.css — Byggdel + progression + ceremoni */
 .cbh-mount { margin: 0 16px 12px; max-width: 32rem; }
 
 .cbh-card {
@@ -18,6 +18,10 @@
   border-color: #4ade80;
   background: linear-gradient(135deg, #E0F5EC, #fff);
   animation: cbhPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cbh-card--building {
+  border-color: #a78bfa;
 }
 
 @keyframes cbhPop {
@@ -43,17 +47,11 @@
 .cbh-line--gold { color: #D4880A; }
 .cbh-line--pulse { color: #1B2340; animation: cbhPulse 1.2s ease infinite; }
 .cbh-line--missions { color: #1B2340; }
+.cbh-line--next { color: #7c3aed; font-weight: 600; }
 
 @keyframes cbhPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.75; }
-}
-
-.cbh-parent-nag {
-  font-size: 0.72rem;
-  color: #8B5CF6;
-  margin: 8px 0 0;
-  font-weight: 600;
 }
 
 .cbh-cta {
@@ -72,10 +70,10 @@
 }
 
 .cbh-progress {
-  height: 8px;
+  height: 10px;
   border-radius: 999px;
   background: rgba(27, 35, 64, 0.1);
-  margin-bottom: 10px;
+  margin: 10px 0 8px;
   overflow: hidden;
 }
 
@@ -83,5 +81,313 @@
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, #8B5CF6, #F5A623);
-  transition: width 0.45s ease;
+  transition: width 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* Guide */
+.cbh-guide {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.cbh-guide-avatar {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.cbh-guide-bubble {
+  background: #fff;
+  border: 2px solid #e9d5ff;
+  border-radius: 14px 14px 14px 4px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #1B2340;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.12);
+}
+
+.cbh-guide-bubble strong {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  color: #7c3aed;
+  margin-bottom: 2px;
+}
+
+/* Build scene */
+.cbh-scene {
+  position: relative;
+  height: 118px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: linear-gradient(180deg, #dbeafe 0%, #e0e7ff 55%, #d4d4d8 100%);
+}
+
+.cbh-scene-sky {
+  position: absolute;
+  inset: 0 0 40%;
+  background: linear-gradient(180deg, #93c5fd, #e0f2fe);
+}
+
+.cbh-scene-layer {
+  position: absolute;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.cbh-scene-layer--ground {
+  left: 8%;
+  right: 8%;
+  bottom: 8px;
+  height: 18px;
+  border-radius: 8px;
+  background: #78716c;
+  opacity: 0.35;
+}
+
+.cbh-scene-layer--build {
+  left: 18%;
+  right: 18%;
+  bottom: 22px;
+  height: 42px;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.cbh-scene-layer--detail {
+  left: 28%;
+  right: 28%;
+  bottom: 60px;
+  height: 16px;
+  border-radius: 6px 6px 0 0;
+  background: #64748b;
+  opacity: 0;
+}
+
+.cbh-scene-layer--hero {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  transition: transform 0.45s ease;
+}
+
+.cbh-scene-label {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.88);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1B2340;
+}
+
+/* Stage visibility */
+.cbh-scene[data-stage="empty"] .cbh-scene-layer--ground { opacity: 0.5; }
+.cbh-scene[data-stage="foundation"] .cbh-scene-layer--ground,
+.cbh-scene[data-stage="start"] .cbh-scene-layer--ground,
+.cbh-scene[data-stage="fence"] .cbh-scene-layer--ground,
+.cbh-scene[data-stage="bed"] .cbh-scene-layer--ground { opacity: 0.7; }
+
+.cbh-scene[data-stage="foundation"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="start"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="fence"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="floor"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="desk"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="dock"] .cbh-scene-layer--build { opacity: 0.55; transform: translateY(0); height: 24px; }
+
+.cbh-scene[data-stage="walls"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="growing"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="house"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="books"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="boat"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="half"] .cbh-scene-layer--build { opacity: 0.75; transform: translateY(0); height: 36px; }
+
+.cbh-scene[data-stage="roof"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="door"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="bowl"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="rooms"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="bones"] .cbh-scene-layer--build,
+.cbh-scene[data-stage="almost"] .cbh-scene-layer--build { opacity: 0.9; transform: translateY(0); height: 48px; }
+
+.cbh-scene[data-stage="roof"] .cbh-scene-layer--detail,
+.cbh-scene[data-stage="tools"] .cbh-scene-layer--detail,
+.cbh-scene[data-stage="toys"] .cbh-scene-layer--detail,
+.cbh-scene[data-stage="museum"] .cbh-scene-layer--detail,
+.cbh-scene[data-stage="finishing"] .cbh-scene-layer--detail { opacity: 1; }
+
+.cbh-scene[data-stage="done"] .cbh-scene-layer--build { opacity: 1; height: 52px; background: linear-gradient(180deg, #fde68a, #f59e0b); }
+.cbh-scene[data-stage="done"] .cbh-scene-layer--detail { opacity: 1; background: #fbbf24; }
+.cbh-scene[data-stage="done"] .cbh-scene-layer--hero { transform: translateX(-50%) scale(1.15); }
+
+/* Theme tints */
+.cbh-scene--garage { background: linear-gradient(180deg, #bfdbfe, #e2e8f0 60%, #94a3b8); }
+.cbh-scene--pets { background: linear-gradient(180deg, #bbf7d0, #ecfccb 60%, #a3e635); }
+.cbh-scene--dino { background: linear-gradient(180deg, #fde68a, #fcd34d 60%, #d97706); }
+.cbh-scene--doll { background: linear-gradient(180deg, #fbcfe8, #fce7f3 60%, #f9a8d4); }
+.cbh-scene--fish { background: linear-gradient(180deg, #7dd3fc, #bae6fd 60%, #0284c7); }
+.cbh-scene--study { background: linear-gradient(180deg, #ddd6fe, #ede9fe 60%, #8b5cf6); }
+.cbh-scene--room { background: linear-gradient(180deg, #fef08a, #fef9c3 60%, #facc15); }
+
+/* Milestones */
+.cbh-milestones {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.cbh-milestone {
+  flex: 1;
+  text-align: center;
+  opacity: 0.45;
+  transform: scale(0.92);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.cbh-milestone.is-done {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cbh-milestone-at {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #9AA0B8;
+}
+
+.cbh-milestone.is-done .cbh-milestone-at { color: #7c3aed; }
+
+.cbh-milestone-icon {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+/* Unlock ceremony */
+body.cbh-ceremony-open { overflow: hidden; }
+
+.cbh-ceremony {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.cbh-ceremony-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  animation: cbhFadeIn 0.35s ease;
+}
+
+.cbh-ceremony-panel {
+  position: relative;
+  width: min(100%, 340px);
+  padding: 28px 22px 22px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #fff7ed, #ffffff);
+  border: 3px solid #F5A623;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  animation: cbhCeremonyIn 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes cbhFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cbhCeremonyIn {
+  from { transform: scale(0.85) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.cbh-ceremony-burst {
+  font-size: 3.5rem;
+  line-height: 1;
+  margin-bottom: 8px;
+  animation: cbhBurst 0.8s ease infinite alternate;
+}
+
+@keyframes cbhBurst {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+.cbh-ceremony-kicker {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #D4880A;
+}
+
+.cbh-ceremony-title {
+  margin: 6px 0 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1B2340;
+}
+
+.cbh-ceremony-sub {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: #5A6178;
+}
+
+.cbh-ceremony-door {
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #64748b, #334155);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cbhDoorOpen 1.2s ease 0.3s forwards;
+  transform-origin: left center;
+}
+
+@keyframes cbhDoorOpen {
+  0% { transform: perspective(400px) rotateY(0deg); }
+  100% { transform: perspective(400px) rotateY(-72deg); }
+}
+
+.cbh-ceremony-door-icon { font-size: 2rem; }
+
+.cbh-ceremony-cta {
+  display: block;
+  margin: 0 auto 10px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  text-decoration: none;
+  min-height: 48px;
+}
+
+.cbh-ceremony-close {
+  background: none;
+  border: none;
+  color: #9AA0B8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
 }

@@ -53,9 +53,17 @@ describe('build garage customization', () => {
     assert.match(html, /build-car-hero\.png/);
   });
 
-  it('child build hype script on dashboard', () => {
+  it('child build hype + ceremony + world map on dashboard', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /child-build-hype\.js/);
+    assert.match(html, /child-build-ceremony\.js/);
+    assert.match(html, /child-world-map\.js/);
+  });
+
+  it('build-progress lib exposes milestones at 75', () => {
+    const bp = require('../src/lib/build-progress');
+    assert.deepEqual(bp.BUILD_MILESTONES, [15, 30, 45, 60, 75]);
+    assert.equal(bp.getStageForParts('racerbil', 75).key, 'done');
   });
 
   it('garage workshop CSS hides overlay when [hidden]', () => {
