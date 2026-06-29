@@ -173,13 +173,17 @@ function renderActivityListSkeleton() {
 // ── Error states ───────────────────────────────────────────
 
 // Error state for child dashboard schedule
-function showChildScheduleError(container, dateStr) {
+function showChildScheduleError(container, dateStr, devHint) {
   if (!container) return;
+  const hintExtra = devHint
+    ? '<p class="skeleton-error-hint" style="margin-top:8px;opacity:0.85">' + String(devHint).replace(/</g, '&lt;') + '</p>'
+    : '';
   $html(container, `
     <div class="skeleton-error">
       <div class="skeleton-error-icon">🌟</div>
       <p class="skeleton-error-text">Hmm, något gick fel.</p>
       <p class="skeleton-error-hint">Försök igen — och kontrollera att wifi är på</p>
+      ${hintExtra}
       <button class="skeleton-retry-btn" onclick="loadDay('${dateStr}', false)">
         🔄 Försök igen
       </button>

@@ -1783,7 +1783,6 @@ async function loadDay(dateStr, showLoader = true) {
   } catch (err) {
     if (skeletonTimer) skeletonTimer.stop();
     console.error('Load day error:', err);
-    // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
       ? OfflineStore.getDailyLog(me?.id, dateStr)
       : Promise.resolve(null));
@@ -1791,7 +1790,8 @@ async function loadDay(dateStr, showLoader = true) {
       renderActivities(cached, null);
       showOfflineBanner('📶 Offline — visar sparat schema');
     } else if (window.Skeleton) {
-      window.Skeleton.showChildScheduleError(container, dateStr);
+      const devHint = (err && err.message) ? String(err.message) : '';
+      window.Skeleton.showChildScheduleError(container, dateStr, devHint);
     } else {
       showOfflineErrorState(container, dateStr);
     }

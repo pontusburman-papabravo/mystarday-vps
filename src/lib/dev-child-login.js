@@ -18,6 +18,8 @@ const {
 const pinLockout = require('../../db/pin-lockout');
 const { parseDuration } = require('../routes/auth/session');
 const { diagnoseDatabaseUrl } = require('./load-env');
+const { seedChildDefaultSchedule } = require('./seed-child-default-schedule');
+const { ensureDevFamilyReady } = require('./seed-dev-family');
 
 const DEV_CHILD_NAME = 'Testbarn';
 const DEV_CHILD_USERNAME = 'testbarn';
@@ -187,12 +189,14 @@ async function createDevChildInExistingFamily(familyId, parentId) {
 async function ensureDevChild() {
   const existing = await findFirstChild();
   if (existing) {
+    await ensureDevFamilyReady(existing.family_id, existing.id);
     return { child: existing, pin: null, created: false };
   }
 
   const family = await findFirstFamilyWithParent();
   if (family) {
     const child = await createDevChildInExistingFamily(family.family_id, family.parent_id);
+    await ensureDevFamilyReady(family.family_id, child.id);
     try {
       await seedChildDefaultSchedule({
         childId: child.id,
@@ -200,12 +204,13 @@ async function ensureDevChild() {
         birthday: '2018-06-01',
       });
     } catch (seedErr) {
-      console.warn('[DEV-CHILD] Schedule seed skipped:', seedErr.message);
+      console.warn('[DEV-CHILD] Global schedule seed skipped:', seedErr.message);
     }
     return { child, pin: DEV_CHILD_PIN, created: true };
   }
 
   const boot = await bootstrapDevFamily();
+  await ensureDevFamilyReady(boot.familyId, boot.child.id);
   try {
     await seedChildDefaultSchedule({
       childId: boot.child.id,
@@ -213,7 +218,7 @@ async function ensureDevChild() {
       birthday: '2018-06-01',
     });
   } catch (seedErr) {
-    console.warn('[DEV-CHILD] Schedule seed skipped:', seedErr.message);
+    console.warn('[DEV-CHILD] Global schedule seed skipped:', seedErr.message);
   }
   return { child: boot.child, pin: DEV_CHILD_PIN, created: true };
 }
