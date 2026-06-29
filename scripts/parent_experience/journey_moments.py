@@ -1,0 +1,97 @@
+"""Critical parent journey moments — concrete experience beats."""
+
+JOURNEY_MOMENTS = {
+    "första_60_sekunderna": {
+        "title": "Första 60 sekunderna (efter registrering)",
+        "parent_feels": "Lättnad blandat med 'hoppas jag gjorde rätt'",
+        "parent_sees": "Success screen: '[Barn] är redo ⭐' — en primär knapp 'Visa barnet', en sekundär 'Ändra rutinen'",
+        "parent_does": "Trycker nästan alltid 'Visa barnet' — handoff är default, inte inställningar",
+        "product_rules": [
+            "Ingen wizard, ingen mallväljare, ingen tom hemvy",
+            "Voice tone: coach; reducesUncertainty: 'Eras första rutin är redo'",
+            "Constitution §5 — mer färdigt än före registrering",
+        ],
+        "success": "Barnets namn syns; föräldern förstår att nästa steg är 30 sekunder, inte 30 minuter",
+        "failure": "Tom dashboard, 'lägg till aktivitet', eller fler än ett lika starkt CTA",
+    },
+    "första_kvällen": {
+        "title": "Första kvällen (registrering efter kl. 15)",
+        "parent_feels": "Nyfikenhet — 'fungerar det ikväll?'",
+        "parent_sees": "Copy: 'Ikväll kan barnet följa sin första rutin'. Handoff till barn-PIN eller barnvy",
+        "parent_does": "Sitter bredvid eller visar skärmen; pratar inte igenom hela appen",
+        "child_sees": "NU / NÄSTA / SENARE — en aktivitet i taget",
+        "product_rules": [
+            "Kvällsrutin seed om registrering sent — samma dag 0-regler",
+            "Parent hem: tyst eller endast SHOW_CHILD om handoff missades",
+            "Ingen push samma kväll",
+        ],
+        "success": "Barn bockar av minst ett steg; förälder känner 'det var enkelt'",
+        "failure": "Kräver schema-redigering innan barnet kan börja",
+    },
+    "första_morgonen": {
+        "title": "Första morgonen (registrering före kl. 15)",
+        "parent_feels": "Morgonstress — vill att appen ska hjälpa, inte addera",
+        "parent_sees": "Igår kväll: 'Imorgon bitti är rutinen redo'. Idag: lugn status — inte fem påminnelser",
+        "parent_does": "Pekar barn mot Idag; backar fysiskt",
+        "child_sees": "Morgonsekvens visuell — samma som landning lovade",
+        "product_rules": [
+            "school morning mode light — ett fokus, kort celebration",
+            "Parent ser sammanfattning, inte live-spionering",
+            "Offline check-off köas om nät saknas",
+        ],
+        "success": "Färre upprepningar IRL; First Success-bevis möjligt (stjärna eller hel rutin)",
+        "failure": "Parent måste 'starta' morgon i appen varje dag",
+    },
+    "första_veckan": {
+        "title": "Första veckan (dag 2–7)",
+        "parent_feels": "Väntar på om vanan håller",
+        "parent_sees": "Coach: COMPLETE_DAY om halvvägs; annars tyst. Max ett kort",
+        "parent_does": "Minimal justering; bjuder in partner om ensam",
+        "product_rules": [
+            "Ingen streak-skräck; ingen 'du missade måndag'",
+            "Veckosammanfattning endast opt-in",
+            "Metric: dag 2 + dag 7 retention, first_success_within_48h",
+        ],
+        "success": "Rutin känns normal; coach föreslår kväll först när morgon sitter",
+        "failure": "Feature-bomb: belöning + värld + push samma vecka",
+    },
+    "första_gången_barnet_vägrar": {
+        "title": "Första gången barnet vägrar",
+        "parent_feels": "Frustration — 'appens fel?'",
+        "parent_sees": "Ingen röd varning om barnet. Tips: 'Rutinen väntar — inget försvinner'",
+        "parent_does": "Väljer verklig belöning eller pausar krav — produkten dömer inte",
+        "product_rules": [
+            "Ingen skuld-copy till parent om barn",
+            "Recovery mode tillgängligt utan gömd inställning",
+            "Handoff tips, inte 'tvinga barnet'",
+        ],
+        "success": "Familjen provar igen nästa dag utan shame",
+        "failure": "Push 'barnet har inte loggat in'",
+    },
+    "första_gången_familjen_faller_ur": {
+        "title": "Första gången familjen faller ur (5–14 dagar)",
+        "parent_feels": "Skuld — 'vi misslyckades igen'",
+        "parent_sees": "Vid återkomst: 'Välkommen tillbaka' — RESUME_ROUTINE, encouragement tone",
+        "parent_does": "Öppnar appen försiktigt",
+        "product_rules": [
+            "Core state DORMANT → RETURNING",
+            "Värld dim ≤15%, aldrig reset",
+            "Win-back email varsam, approval-gated — inte skuld",
+        ],
+        "success": "En handling → känsla av att det fortfarande är deras familj i appen",
+        "failure": "Streak nollställd med stor siffra",
+    },
+    "första_gången_det_fungerar": {
+        "title": "Första gången det faktiskt fungerar (First Success)",
+        "parent_feels": "Stolthet — 'morgonen flöt'",
+        "parent_sees": "Milestone: celebration tone, kort, skippbar. Copy erkänner verkligheten",
+        "parent_does": "Skickar kanske skärmdump till partner; stänger appen",
+        "product_rules": [
+            "first_success_kind: star | full_routine | smooth_morning",
+            "Coach pausar under milestone — inte två CTAs",
+            "Proxyn firas; målet är offline lättnad",
+        ],
+        "success": "Intrinsic test: skulle de fortsätta utan stjärnor imorgon?",
+        "failure": "30 sek obligatorisk animation blocking exit",
+    },
+}

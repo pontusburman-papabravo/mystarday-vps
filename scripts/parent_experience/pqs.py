@@ -1,44 +1,157 @@
-"""Parent Quality Score PQS-001–150 for PARENT_EXPERIENCE_BIBLE v1.0."""
+"""Parent Quality Score PQS-001–150 — unique, objective, testable gates."""
 from __future__ import annotations
 
 
 def gen_pqs() -> list[tuple[str, str]]:
-    items: list[tuple[str, str]] = []
-    n = 1
-
-    def add(text: str, count: int = 1) -> None:
-        nonlocal n
-        for _ in range(count):
-            items.append((f"PQS-{n:03d}", text))
-            n += 1
-
-    add("Constitution §1 — parent knows next step without manual.", 5)
-    add("Constitution §2 — no 'why am I seeing this?' moments.", 5)
-    add("Constitution §3 — no empty home states.", 5)
-    add("Constitution §4 — reducesUncertainty in voice.", 5)
-    add("Constitution §5 — feels complete after registration.", 5)
-    add("Day 0 — barn + rutin + rewards without wizard.", 5)
-    add("Coach silent when primaryNeed null.", 5)
-    add("Brain → Coach → Voice separation preserved.", 5)
-    add("First Success not equated with DAU.", 5)
-    add("No parent streak shame.", 5)
-    add("No child surveillance dashboard.", 5)
-    add("Co-parent shared progress not compare.", 5)
-    add("Skattkammaren parent approval required.", 5)
-    add("Push never for missed routine.", 5)
-    add("Failure recovery welcome not guilt.", 5)
-    add("Family Memory celebrates not archives shame.", 5)
-    add("AI coach never decides schema alone.", 5)
-    add("Anti-pattern AP-P01–P10 checked.", 10)
-    add("Family OS contexts have product rule.", 10)
-    add("Parent loops defined daily→yearly.", 5)
-    add("Success metrics = stress/joy not MAU.", 5)
-    add("Landning synced with day 0 promise.", 3)
-    add("Separation/bonusfamilj neutral copy.", 3)
-    add("Intrinsic test documented per feature.", 3)
-    add("G-rules G-01–G-08 parent surface pass.", 5)
-    add("Executive Review all roles 10/10.", 1)
-
-    while n <= 150:
-        add(f"Parent experience binary gate PQS-{n:03d} verified in review.")
-    return items[:150]
+    return [
+        ("PQS-001", "Registrering ≤4 fält — namn, e-post, lösenord, barnnamn."),
+        ("PQS-002", "Dag 0: barn + rutin + Skattkammare utan wizard."),
+        ("PQS-003", "Success screen: exakt en primär CTA (Visa barnet)."),
+        ("PQS-004", "Första 60 s: ingen tom hemvy efter registrering."),
+        ("PQS-005", "Constitution §5: känns färdigare efter registrering än före."),
+        ("PQS-006", "reducesUncertainty-sats efter dag 0."),
+        ("PQS-007", "Landning hero synkad med dag 0 löfte."),
+        ("PQS-008", "Första kväll: barn kan börja samma dag om registrering efter kl. 15."),
+        ("PQS-009", "Första morgon: copy 'imorgon bitti' om morgon-seed."),
+        ("PQS-010", "Handoff når barnvy ≤2 tryck från success screen."),
+        ("PQS-011", "Barn-PIN: lockout varnar parent — inte skuldbelägger barn."),
+        ("PQS-012", "Första aktivitet: completion copy före stjärnsiffra."),
+        ("PQS-013", "Första stjärna: server-verifierad — ingen offline falsk grant."),
+        ("PQS-014", "Min värld optional efter rutin — aldrig tvång före Idag."),
+        ("PQS-015", "Handoff avslutas med exit till verkligheten — ingen retention-hook."),
+        ("PQS-016", "Hem: max ett coach-kort när need ≠ null."),
+        ("PQS-017", "primaryNeed null → coach tyst (calm mode)."),
+        ("PQS-018", "Brain returnerar need — inte action eller copy."),
+        ("PQS-019", "Coach mappar need → action — experiment här, inte Brain."),
+        ("PQS-020", "Voice-katalog: inget ord 'Mission' i parent UI."),
+        ("PQS-021", "Milestone celebration pausar konkurrerande coach-CTA."),
+        ("PQS-022", "Celebration skippbar — ≤2000 ms emotional equivalent."),
+        ("PQS-023", "UX-P01 one next step — binär review per release."),
+        ("PQS-024", "UX-P02: ingen röd status-vägg på Hem."),
+        ("PQS-025", "UX-P03: inställningar inte default destination dag 0."),
+        ("PQS-026", "UX-P04: ingen synlig miss-streak efter frånvaro."),
+        ("PQS-027", "UX-P05: barnets privata val ej parent-logg."),
+        ("PQS-028", "UX-P06: copy utan produktivitets-jargong."),
+        ("PQS-029", "UX-P07: confidence copy efter varje onboarding-steg."),
+        ("PQS-030", "Constitution §1: ny förälder vet nästa steg utan manual."),
+        ("PQS-031", "Constitution §2: ingen 'varför ser jag det här?' utan förklaring."),
+        ("PQS-032", "Constitution §3: inga tomma tillstånd på Hem."),
+        ("PQS-033", "Constitution §4: osäkerhet minskas varje steg."),
+        ("PQS-034", "SC-01 trött ensamförälder: setup ≤2 min till handoff."),
+        ("PQS-035", "SC-02 två föräldrar: samma sanning real-time sync."),
+        ("PQS-036", "SC-03 separation: neutral copy — ingen skuld tilldelning."),
+        ("PQS-037", "SC-04 bonusfamilj: roller primary/shared — invite valfri."),
+        ("PQS-038", "SC-05 ADHD: ett NOW-steg — ingen timer-panic."),
+        ("PQS-039", "SC-06 autism: reduced motion + förutsägbar ordning."),
+        ("PQS-040", "SC-07 dormant: ingen skuld-push dag 30."),
+        ("PQS-041", "SC-08 återkomst 30d: RESUME utan re-wizard."),
+        ("PQS-042", "Skattkammaren: parent approval på redemption."),
+        ("PQS-043", "Belöning copy varm — inte transaktionell."),
+        ("PQS-044", "G-07: real-world reward kräver parent."),
+        ("PQS-045", "Stjärnor säljs inte (G-06)."),
+        ("PQS-046", "Layer 7 offline belöning — app budbärare inte merchant."),
+        ("PQS-047", "Barn shame neutralt om parent nekar belöning."),
+        ("PQS-048", "Co-parent ser progress — inte syskonjämförelse."),
+        ("PQS-049", "INVITE_PARENT endast när SHARE_RESPONSIBILITY need."),
+        ("PQS-050", "Calm mode default när rutin flyter."),
+        ("PQS-051", "Setup mode: ett beslut i taget."),
+        ("PQS-052", "Recovery mode: välkommen tillbaka copy."),
+        ("PQS-053", "School morning mode: minimal parent surface 06–09."),
+        ("PQS-054", "Evening mode: calm — ADD_EVENING ej dag 0."),
+        ("PQS-055", "Vacation mode: parent-controlled paus."),
+        ("PQS-056", "Co-parent mode: en schema-sanning."),
+        ("PQS-057", "Crisis mode: human support synlig — coach tyst."),
+        ("PQS-058", "Barn vägrar: ingen push om barnet."),
+        ("PQS-059", "Dålig vecka: värld dim ≤15% — WDB aligned."),
+        ("PQS-060", "Retroactive completion: fair cap — parent only."),
+        ("PQS-061", "Push: opt-in påminnelse endast parent valt."),
+        ("PQS-062", "Push: aldrig 'barnet missade rutin'."),
+        ("PQS-063", "Push: aldrig FOMO värld/event."),
+        ("PQS-064", "Push: natt 21–07 default av."),
+        ("PQS-065", "PIN lockout: säkerhets-push tillåten."),
+        ("PQS-066", "Skattkammaren redemption: action-needed push OK."),
+        ("PQS-067", "AI: föreslår — fattar inte schema utan approve."),
+        ("PQS-068", "AI: skriver inte till barn utan parent gate."),
+        ("PQS-069", "AI: ingen medicinsk/NPF-diagnos."),
+        ("PQS-070", "AI: ingen syskonjämförelse."),
+        ("PQS-071", "Trust failure: back fungerar alltid."),
+        ("PQS-072", "Trust failure: fel skyller inte på barn."),
+        ("PQS-073", "Trust failure: push default av efter breach."),
+        ("PQS-074", "Trust failure: plain-language fix synlig."),
+        ("PQS-075", "Family Memory: firande — inte skuld-arkiv."),
+        ("PQS-076", "Museum export: parent opt-in only."),
+        ("PQS-077", "Veckosammanfattning: opt-in."),
+        ("PQS-078", "Family OS morgon: handoff > dashboard."),
+        ("PQS-079", "Family OS helg: paus utan skuld."),
+        ("PQS-080", "Family OS sjukdom: ingen push."),
+        ("PQS-081", "Family OS skolstart: mjuk förslag — parent godkänner."),
+        ("PQS-082", "Family OS jul: ingen parent FOMO countdown."),
+        ("PQS-083", "Family OS födelsedag: celebration kort."),
+        ("PQS-084", "Daily loop: parent backup not dirigent."),
+        ("PQS-085", "Weekly loop: mönster utan streak terror."),
+        ("PQS-086", "Monthly loop: justera optional."),
+        ("PQS-087", "Yearly loop: årsminne varmt."),
+        ("PQS-088", "first_success_within_48h tracked — not DAU goal."),
+        ("PQS-089", "Intrinsic test dokumenterad per parent feature."),
+        ("PQS-090", "Success metric: familjestress — kvalitativ proxy."),
+        ("PQS-091", "AP-P01: inte todo-app — ett nästa steg."),
+        ("PQS-092", "AP-P02: inte kalender-default."),
+        ("PQS-093", "AP-P03: inte skolplattform-estetik parent."),
+        ("PQS-094", "AP-P04: inte habit streak skuld."),
+        ("PQS-095", "AP-P05: inte övervakning."),
+        ("PQS-096", "AP-P06: inte produktivitetsapp."),
+        ("PQS-097", "AP-P07: inte admin hem."),
+        ("PQS-098", "AP-P08: inte kontroll-fjärr."),
+        ("PQS-099", "AP-P09: inte skuld-copy."),
+        ("PQS-100", "AP-P10: inte uppfostran-domare."),
+        ("PQS-101", "Parent runtime Decision Support: ett steg output."),
+        ("PQS-102", "Planning: parent-initierad — inte default hem."),
+        ("PQS-103", "Reflection: optional — inte krav."),
+        ("PQS-104", "Insights: tips vid need — inte surveillance."),
+        ("PQS-105", "Conflict prevention: neutral co-parent copy."),
+        ("PQS-106", "Family alignment: samma unlock sanning."),
+        ("PQS-107", "G-01: ingen belöning för att öppna app."),
+        ("PQS-108", "G-02: ingen straff för miss."),
+        ("PQS-109", "G-03: ingen syskon-tävling."),
+        ("PQS-110", "Screenshot test: förälder stolt delar skärm."),
+        ("PQS-111", "Child protagonist: parent copy sekundär."),
+        ("PQS-112", "Offline: queue med timestamp — sync calm."),
+        ("PQS-113", "Sync indicator: lugn — inte alarm."),
+        ("PQS-114", "Nätverksfel: retry utan blame."),
+        ("PQS-115", "Parent help reachable från child gate."),
+        ("PQS-116", "48 px touch parent routes."),
+        ("PQS-117", "Contrast 4.5:1 parent surfaces."),
+        ("PQS-118", "Reduced motion parent celebrations."),
+        ("PQS-119", "Win-back email: approval gated — varsam."),
+        ("PQS-120", "Dormant 14d: warning tone sällan — inte skuld."),
+        ("PQS-121", "Emotional journey: 6 faser dokumenterade."),
+        ("PQS-122", "Lifecycle Discovery→Year 3: varje fas har success/anti."),
+        ("PQS-123", "7 journey moments: konkret parent sees/does."),
+        ("PQS-124", "8 scenarios: SC-01–SC-08 review checklist."),
+        ("PQS-125", "Handoff 6 steg: dokumenterad kedja."),
+        ("PQS-126", "Reward 4 layers: parent/child/app roller."),
+        ("PQS-127", "8 operating modes: definierade triggers."),
+        ("PQS-128", "Trust failure recovery: parent-facing plan."),
+        ("PQS-129", "Coach never_says lista enforced copy review."),
+        ("PQS-130", "Notification never_push lista enforced."),
+        ("PQS-131", "Mental load: default gjort — anpassa optional."),
+        ("PQS-132", "Pedagog scope: parent UI separat — ej barn surveillance."),
+        ("PQS-133", "Add child flow: samma dag 0-princip."),
+        ("PQS-134", "Multi-child: separata sessioner — ingen compare UI."),
+        ("PQS-135", "Year 3: historik bevarad — no reset trauma."),
+        ("PQS-136", "Teen pack future: parent UX age-agnostic core."),
+        ("PQS-137", "Support path: synlig in crisis mode."),
+        ("PQS-138", "ADR vid Constitution conflict."),
+        ("PQS-139", "DoR checklist: PEB cite required."),
+        ("PQS-140", "DoD: PQS subset pass documented."),
+        ("PQS-141", "Playtest: förälder 'gör jag rätt?' ≤1/10 sessions."),
+        ("PQS-142", "Playtest: barn voluntary world return."),
+        ("PQS-143", "Playtest: co-parent conflict copy neutral."),
+        ("PQS-144", "Playtest: återkomst 30d utan shame."),
+        ("PQS-145", "Copy review: svensk vardag — inte översättningsegen."),
+        ("PQS-146", "Feature flag rollback parent-facing features."),
+        ("PQS-147", "Analytics: no PII parent events."),
+        ("PQS-148", "Experiment: Coach layer only — Brain unchanged."),
+        ("PQS-149", "Document status: live-release v1.0 Review Round 2 complete."),
+        ("PQS-150", "Executive Review: alla 15 roller 10/10 signerade."),
+    ]

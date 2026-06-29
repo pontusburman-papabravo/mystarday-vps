@@ -215,17 +215,29 @@ MOTIVATION = {
     "barn": {
         "framework": "SDT — competence, autonomy, relatedness (GDB §8, PCB)",
         "fuel": "Stjärnor som punctuation — Min värld som optional lek",
-        "forbidden": "Login bonus, guilt NPC, sibling leaderboard, G-01–G-08",
+        "forbidden": [
+            "Login bonus",
+            "Skuld-NPC eller Tamagotchi-mechanik",
+            "Syskon-leaderboard",
+            "G-regler G-01–G-08 brutna",
+        ],
     },
     "förälder": {
         "framework": "Lättnad, stolthet, samarbete — inte produktivitetspoäng",
         "fuel": "Ser att det fungerar offline; coach bekräftar rätt väg",
-        "forbidden": "Parent streak, admin completion badges, DAU guilt",
+        "forbidden": [
+            "Parent streak som skuld",
+            "Admin completion badges",
+            "DAU-guilt i copy eller push",
+        ],
     },
     "familj": {
         "framework": "Relatedness — Familj-värld, co-parent, delade minnen",
         "fuel": "Gemensam stolthet, inte tävling",
-        "forbidden": "Familj leaderboard, shared blame",
+        "forbidden": [
+            "Familj-leaderboard",
+            "Delad skuld mellan vuxna",
+        ],
     },
 }
 
