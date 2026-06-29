@@ -32,13 +32,15 @@ The **AI Operating System** governs **how** autonomous agents work on Stjärndag
 
 ## Start Here (new Composer session)
 
-**Autonomous execution:** read `.ai/runtime/WORKFLOW_ENGINE.md` first — runtime controls *how* you work.
+**Autonomous execution:** read `.ai/brain/PROJECT_BRAIN.md` then `.ai/runtime/WORKFLOW_ENGINE.md`.
 
 Governance read order — **before any code change**:
 
 | Step | Document |
 |------|----------|
-| 1 | `.ai/runtime/WORKFLOW_ENGINE.md` + `MISSION_ENGINE.md` |
+| 1 | `.ai/brain/PROJECT_BRAIN.md` |
+| 2 | `.ai/runtime/WORKFLOW_ENGINE.md` + `MISSION_ENGINE.md` |
+| 3 | `.ai/agents/README.md` — embody routed agents |
 | 2 | `product-operating-system/00_PROJECT_CONSTITUTION.md` |
 | 3 | `product-operating-system/00A_EXPERIENCE_MANIFESTO.md` |
 | 4 | `product-operating-system/00B_PRODUCT_TASTE.md` |
@@ -57,31 +59,17 @@ Governance read order — **before any code change**:
 ```
 .ai/
 ├── README.md          ← You are here
-├── AGENTS.md          ← AI organization, roles, escalation
-├── runtime/           ← Autonomous Development Platform (execution control)
-└── company/           ← Company OS — executive playbooks (CEO, CPO, CTO, …)
+├── AGENTS.md          ← Engineering role specs (AOS v1.0)
+├── brain/             ← Company mind — read PROJECT_BRAIN first
+├── agents/            ← Persistent agent team (WHO Composer is)
+├── runtime/           ← Execution platform (HOW — frozen v1.0)
+└── company/           ← Executive playbooks (frozen v1.0)
 
 .cursor/rules/
 ├── 000-core.mdc       ← POS supremacy, workflow, philosophy
-├── 010-product.mdc    ← Product constraints (→ POS)
-├── 020-design.mdc     ← Design & craft (→ POS 03/03A/03B/00B)
-├── 030-child-experience.mdc
-├── 040-parent-experience.mdc
-├── 050-game-design.mdc
-├── 060-mobile-first.mdc
-├── 070-frontend.mdc
-├── 080-backend.mdc
-├── 090-database.mdc
-├── 100-api.mdc
-├── 110-performance.mdc
-├── 120-security.mdc
-├── 130-testing.mdc
-├── 140-code-review.mdc
-├── 150-release.mdc
-├── 160-documentation.mdc
-├── 170-git-workflow.mdc
-├── 180-self-review.mdc
-└── 190-definition-of-done.mdc
+├── …                  ← 010–190 AOS rules
+├── 200-runtime-platform.mdc
+└── 201-agent-organization.mdc
 
 product-operating-system/   ← Product truth (do not duplicate here)
 AGENTS.md                   ← Runtime / Cloud VM (not AI org)
@@ -137,7 +125,8 @@ Agents may implement **small improvements** without asking when:
 |---------|--------|
 | **1.0** | Initial AOS alongside POS v2.0 |
 | **1.1** | Company OS (`.ai/company/`) — executive playbooks complement AOS |
-| **1.2** | Runtime platform (`.ai/runtime/`) — autonomous Composer execution |
+| **1.2** | Runtime platform (`.ai/runtime/`) — autonomous Composer execution (frozen) |
+| **1.3** | Agent organization (`.ai/agents/`, `.ai/brain/`) — WHO Composer is |
 
 Changes to `000-core.mdc` or `.ai/AGENTS.md` orchestration → note in PR + optional ADR in POS `14_DECISION_LOG.md`.
 
