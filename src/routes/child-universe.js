@@ -2,6 +2,7 @@
 
 const express = require('express');
 const { requireChild, requireParent } = require('../middleware/auth');
+const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { validate } = require('../middleware/validate');
 const { z } = require('zod');
 const universeEngine = require('../lib/universe-engine');
@@ -32,6 +33,7 @@ const BuyCollectibleSchema = z.object({
 // ─── Child router ─────────────────────────────────────────
 
 const childRouter = express.Router();
+childRouter.use(scopeRouterToPath('/universe', '/avatar', '/house', '/pet', '/collectibles'));
 childRouter.use(requireChild);
 
 childRouter.get('/universe', async (req, res, next) => {

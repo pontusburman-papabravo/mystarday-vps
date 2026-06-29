@@ -7,6 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireChild } = require('../../middleware/auth');
+const { scopeRouterToPath } = require('../../middleware/router-path-scope');
 const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
@@ -18,6 +19,7 @@ const {
 } = require('./helpers');
 
 const childSelfRouter = express.Router();
+childSelfRouter.use(scopeRouterToPath('/daily-log', '/view-type'));
 childSelfRouter.use(requireChild);
 
 /**

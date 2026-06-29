@@ -9,6 +9,7 @@
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
+const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { requireNotPedagogOnly } = require('../middleware/authz');
 const { sendEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
@@ -519,6 +520,7 @@ parentRouter.put('/redemptions/:id/deny', async (req, res) => {
 // ─── Child Router ─────────────────────────────────────────
 
 const childRouter = express.Router();
+childRouter.use(scopeRouterToPath('/rewards'));
 childRouter.use(requireChild);
 
 childRouter.get('/rewards', async (req, res) => {

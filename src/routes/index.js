@@ -12,16 +12,16 @@ function registerRoutes(app) {
   const { isBillingUiEnabled } = require('../lib/billing-ui');
   // ─── API Routes ───────────────────────────────────────────
 
-  // Mount /api/me routes FIRST so child-self endpoints (daily-log, rewards, goals, ratings)
-  // are matched before the children router's /:childId catch-all can intercept them.
-  // This prevents /api/me/rewards from being caught by children.js/:childId
-  // (which would try to query "rewards" as a UUID → 500 error).
+  // Journey Context (parent) — before child /api/me routers whose requireChild middleware
+  // would otherwise block GET /api/me/journey-context for parents.
+  app.use('/api/me', require('./journey-context'));
+
+  // Mount /api/me child-self routes before the children router's /:childId catch-all.
   app.use('/api/me', require('./daily-logs').childSelfRouter);
   app.use('/api/me', require('./rewards').childRouter);
   app.use('/api/me', require('./goals').childRouter);
   app.use('/api/me', require('./ratings').childRouter);
   app.use('/api/me/activation-program', require('./activation-program'));
-  app.use('/api/me', require('./journey-context'));
   const childUniverse = require('./child-universe');
   app.use('/api/me', childUniverse.childRouter);
   app.use('/api/family', childUniverse.parentRouter);

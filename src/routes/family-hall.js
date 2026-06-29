@@ -3,6 +3,7 @@
 const express = require('express');
 const { z } = require('zod');
 const { requireChild, requireParent, requireAuth } = require('../middleware/auth');
+const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { validate } = require('../middleware/validate');
 const familyHallDb = require('../../db/family-hall');
 
@@ -45,6 +46,7 @@ async function getHallHandler(req, res, next) {
 // ─── Child: GET /api/me/family ────────────────────────────
 
 const childRouter = express.Router();
+childRouter.use(scopeRouterToPath('/family'));
 childRouter.use(requireChild, requireFamilyContext);
 childRouter.get('/family', getHallHandler);
 

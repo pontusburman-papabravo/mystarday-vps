@@ -2,6 +2,7 @@
 
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
+const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const familyMilestones = require('../../db/family-milestones');
 const { getContextDerivation, getPhaseDerivation } = require('../lib/journey/evaluator');
 const { ingestClientIntent } = require('../lib/journey/ingest');
@@ -11,6 +12,7 @@ const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags
 const { listUnseenCompletions, mapCompletionRow } = require('../lib/activation-program-aha');
 
 const router = express.Router();
+router.use(scopeRouterToPath('/journey'));
 router.use(requireParent);
 
 async function requireContextApi(req, res, next) {

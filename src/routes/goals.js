@@ -21,6 +21,7 @@
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
+const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { requireNotPedagogOnly, getChildAccess } = require('../middleware/authz');
 const { broadcast } = require('../lib/sse-broadcast');
 const { notifyChildStarGranted } = require('../lib/push');
@@ -445,6 +446,7 @@ parentRouter.get('/pending-requests', async (req, res) => {
 // ─── Child Router ─────────────────────────────────────────
 
 const childRouter = express.Router();
+childRouter.use(scopeRouterToPath('/goal', '/manual-stars'));
 childRouter.use(requireChild);
 
 /**
