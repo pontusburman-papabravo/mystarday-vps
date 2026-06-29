@@ -79,7 +79,7 @@ src/lib/
 
 **Djuret reagerar:** blink, hopp, spin, skäll/wow-ljud (haptics), blir smutsigt/hungrigt över tid.
 
-**Djurval:** hund, katt, hamster, häst — olika silhuett/CSS, samma mekanik.
+**Djurval:** hund (`build-pet-hero.png` facit), katt, kanin, häst — SVG tills egna PNG-facit finns.
 
 ## Dino (nästa)
 
