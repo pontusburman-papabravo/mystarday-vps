@@ -19,7 +19,7 @@ const {
 } = require('./helpers');
 
 const childSelfRouter = express.Router();
-childSelfRouter.use(scopeRouterToPath('/daily-log', '/view-type'));
+childSelfRouter.use(scopeRouterToPath('/daily-log', '/daily-log-items', '/view-type'));
 childSelfRouter.use(requireChild);
 
 /**

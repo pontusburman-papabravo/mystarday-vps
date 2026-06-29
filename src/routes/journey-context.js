@@ -12,7 +12,7 @@ const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags
 const { listUnseenCompletions, mapCompletionRow } = require('../lib/activation-program-aha');
 
 const router = express.Router();
-router.use(scopeRouterToPath('/journey'));
+router.use(scopeRouterToPath('/journey-context', '/journey-debug'));
 router.use(requireParent);
 
 async function requireContextApi(req, res, next) {
