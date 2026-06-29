@@ -167,6 +167,10 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
       require('../../db/analytics').track(req.user.familyId, 'child_profile_created', {
         child_id: child.id,
       });
+      require('../../db/analytics').track(req.user.familyId, 'child_pin_created', {
+        child_id: child.id,
+        source: 'onboarding_auto',
+      });
       require('../lib/journey/ingest').ingestMilestoneAsync({
         familyId: req.user.familyId,
         milestone: 'child_created',
@@ -877,13 +881,7 @@ router.post('/update-pin', async (req, res) => {
     );
 
     const analytics = require('../../db/analytics');
-    analytics.track(req.user.familyId, 'child_pin_created', { child_id });
-    const { updateActivationState } = require('../lib/activation-p0');
-    updateActivationState(req.user.familyId, 'child_access', {
-      metadata: { child_id, source: 'onboarding_pin' },
-    }).catch((err) => {
-      console.error('[ONBOARDING] activation child_access error:', err.message);
-    });
+    analytics.track(req.user.familyId, 'child_pin_created', { child_id, source: 'onboarding_custom' });
 
     res.json({ success: true });
   } catch (err) {
@@ -893,17 +891,24 @@ router.post('/update-pin', async (req, res) => {
 });
 
 // ─── POST /api/onboarding/child-access-complete ──────────
-// Marks child handoff complete (PIN set, barnvy opened, or explicit handoff).
+// Marks child handoff when parent explicitly opens barninloggning (weak signal).
+// Verified child sessions set child_access via POST /api/auth/child-login.
+const VERIFIED_CHILD_ACCESS_SOURCES = new Set(['child_view', 'handoff']);
+
 router.post('/child-access-complete', async (req, res) => {
   try {
     const { child_id, source } = req.body || {};
+    const src = source || 'handoff';
+    if (!VERIFIED_CHILD_ACCESS_SOURCES.has(src)) {
+      return res.json({ success: true, skipped: true });
+    }
     const { updateActivationState } = require('../lib/activation-p0');
     const analytics = require('../../db/analytics');
-    if (source === 'child_view') {
-      analytics.track(req.user.familyId, 'child_view_opened', { child_id, source: 'handoff' });
+    if (src === 'child_view') {
+      analytics.track(req.user.familyId, 'child_view_opened', { child_id, source: src });
     }
     await updateActivationState(req.user.familyId, 'child_access', {
-      metadata: { child_id, source: source || 'handoff' },
+      metadata: { child_id, source: src },
     });
     res.json({ success: true });
   } catch (err) {

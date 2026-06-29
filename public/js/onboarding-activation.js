@@ -1,11 +1,12 @@
 /**
- * onboarding-activation.js — ACT-1 PR2: child handoff + first star guide (flag-gated).
+ * onboarding-activation.js — child handoff + first star guide (flag-gated).
  */
 (function () {
   'use strict';
 
   let config = null;
   let childId = null;
+  let handoffWired = false;
 
   function api(path, opts) {
     if (!window.apiFetch) return Promise.reject(new Error('no api'));
@@ -45,93 +46,44 @@
     const childName = nameEl ? nameEl.textContent.trim() : 'Barnet';
     const pin = pinEl ? pinEl.textContent.trim() : '';
     return [
-      'Inloggning till Min Stjärndag för ' + childName + ':',
+      'Inloggning till [REDACTED] för ' + childName + ':',
       '',
-      '1. Gå till https://mystarday.se/child-login',
+      '1. Gå till [REDACTED]/child-login',
       '2. Välj barnet och ange PIN: ' + pin,
     ].join('\n');
   }
 
-  function copyLoginInfo() {
-    const text = buildLoginInfoText();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () {
-        if (typeof window.showToast === 'function') window.showToast('Inloggningsinfo kopierad', 'success');
-      }).catch(function () { window.prompt('Kopiera:', text); });
+  function openChildLogin() {
+    if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
+      DashboardChildHandoff.startChildLogin();
     } else {
-      window.prompt('Kopiera inloggningsinfo:', text);
+      window.location.href = '/child-login';
     }
   }
 
-  function emailLoginInfo() {
-    const text = buildLoginInfoText();
-    const subject = encodeURIComponent('Inloggning till Min Stjärndag'); // pragma: allowlist secret
-    const body = encodeURIComponent(text);
-    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  function startChildHandoff(source) {
+    const src = source || 'handoff';
+    trackEvent('child_view_opened', { child_id: childId, source: src });
+    return recordChildAccess('child_view').finally(function () {
+      openChildLogin();
+    });
   }
 
-  function enhanceStep5() {
-    if (!config || !config.flags.activation_child_handoff_v1) return;
-    const step5 = document.getElementById('step5');
-    if (!step5 || step5.dataset.handoffEnhanced) return;
-    step5.dataset.handoffEnhanced = '1';
+  function wireStep5Handoff() {
+    if (handoffWired) return;
+    const loginBtn = document.getElementById('step5ChildLoginBtn');
+    const continueBtn = document.getElementById('step5ContinueParentBtn');
+    if (!loginBtn || !continueBtn) return;
+    handoffWired = true;
 
-    const actions = step5.querySelector('.flex.flex-wrap.gap-3.mt-4');
-    if (actions) {
-      const copyBtn = document.createElement('button');
-      copyBtn.type = 'button';
-      copyBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
-      copyBtn.textContent = '📋 Kopiera inloggningsinfo';
-      copyBtn.addEventListener('click', copyLoginInfo);
-      actions.appendChild(copyBtn);
+    loginBtn.addEventListener('click', function () {
+      startChildHandoff('step5_primary_cta');
+    });
 
-      const mailBtn = document.createElement('button');
-      mailBtn.type = 'button';
-      mailBtn.className = 'px-4 py-2.5 border-2 border-lavender hover:bg-sky text-navy rounded-lg font-semibold text-sm transition-colors';
-      mailBtn.textContent = '✉️ Skicka via e-post';
-      mailBtn.addEventListener('click', emailLoginInfo);
-      actions.appendChild(mailBtn);
-
-      const openBtn = document.createElement('button');
-      openBtn.type = 'button';
-      openBtn.className = 'px-4 py-2.5 bg-gold hover:bg-gold-dark text-white rounded-lg font-semibold text-sm transition-colors';
-      openBtn.textContent = '👶 Öppna barninloggning';
-      openBtn.addEventListener('click', function () {
-        recordChildAccess('child_view').then(function () {
-          trackEvent('child_view_opened', { child_id: childId, source: 'handoff' });
-          if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
-            DashboardChildHandoff.startChildLogin();
-          } else {
-            window.location.href = '/child-login';
-          }
-        });
-      });
-      actions.appendChild(openBtn);
-    }
-
-    const nav = step5.querySelector('.flex.gap-3:last-of-type');
-    if (nav) {
-      const skipBtn = document.createElement('button');
-      skipBtn.type = 'button';
-      skipBtn.className = 'px-4 py-3 text-text-soft text-sm font-semibold hover:text-navy';
-      skipBtn.textContent = 'Hoppa över för nu';
-      skipBtn.addEventListener('click', function () {
-        const ok = window.confirm(
-          'Barnet kommer igång snabbare om ni testar inloggningen nu. Vi påminner er om 24 timmar om ni hoppar över.'
-        );
-        if (!ok) return;
-        trackEvent('child_handoff_skipped', { child_id: childId });
-        window.goToStep(6);
-      });
-      nav.insertBefore(skipBtn, nav.firstChild);
-    }
-
-    const nextBtn = step5.querySelector('button[onclick="goToStep(6)"]');
-    if (nextBtn) {
-      nextBtn.addEventListener('click', function () {
-        recordChildAccess('step5_continue');
-      }, { capture: true });
-    }
+    continueBtn.addEventListener('click', function () {
+      trackEvent('child_handoff_skipped', { child_id: childId, source: 'step5_continue_parent' });
+      if (typeof window.goToStep === 'function') window.goToStep(6);
+    });
   }
 
   function showFirstStarGuide(onDone) {
@@ -153,22 +105,15 @@
       '    <li>Markera en aktivitet som klar i barnvyn</li>',
       '    <li>Fira stjärnan tillsammans!</li>',
       '  </ol>',
-      '  <div class="flex flex-col gap-2">',
-      '    <button type="button" id="fsgChildLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">👶 Öppna barninloggning</button>',
-      '    <button type="button" id="fsgDashboard" class="w-full bg-lavender hover:bg-purple-200 text-navy font-semibold py-3 rounded-xl">Gå till översikten</button>',
-      '  </div>',
+      '  <button type="button" id="fsgChildLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">👶 Öppna barninloggning</button>',
       '</div>',
     ].join('');
     document.body.appendChild(overlay);
 
     document.getElementById('fsgChildLogin').addEventListener('click', function () {
-      recordChildAccess('first_star_guide');
       trackEvent('child_view_opened', { child_id: childId, source: 'first_star_guide' });
-      window.location.href = '/child-login';
-    });
-    document.getElementById('fsgDashboard').addEventListener('click', function () {
       overlay.remove();
-      onDone();
+      openChildLogin();
     });
   }
 
@@ -205,10 +150,12 @@
     }, true);
   }
 
-  function notifyPinSet() {
+  function notifyPinSet(source) {
     if (!config || !config.flags.activation_child_handoff_v1) return;
-    recordChildAccess('pin_set');
-    trackEvent('child_pin_created', { child_id: childId, source: 'onboarding_step5' });
+    trackEvent('child_pin_created', {
+      child_id: childId,
+      source: source || 'onboarding_step5',
+    });
   }
 
   function init() {
@@ -216,35 +163,23 @@
     loadConfig().then(function () {
       patchSkipInvite();
       patchStep6Btn();
+      wireStep5Handoff();
       const obs = new MutationObserver(function () {
-        if (document.getElementById('step5') && document.getElementById('step5').classList.contains('active')) {
-          enhanceStep5();
-        }
+        const step5 = document.getElementById('step5');
+        if (step5 && step5.classList.contains('active')) wireStep5Handoff();
       });
       const root = document.getElementById('onboardingRoot') || document.body;
       obs.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
-      enhanceStep5();
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof childId !== 'undefined') return;
     });
   }
 
   window.OnboardingActivation = {
     init: init,
     setChildId: function (id) { childId = id; },
+    startChildHandoff: startChildHandoff,
     recordChildAccess: recordChildAccess,
     notifyPinSet: notifyPinSet,
   };
 
   document.addEventListener('DOMContentLoaded', init);
-
-  const origGoToStep = window.goToStep;
-  if (typeof origGoToStep === 'function') {
-    window.goToStep = function (n) {
-      origGoToStep(n);
-      if (n === 5) enhanceStep5();
-    };
-  }
 })();
