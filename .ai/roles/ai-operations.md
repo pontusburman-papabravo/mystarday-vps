@@ -61,3 +61,4 @@ Keep the AI Team Operating System running: scalable, consistent, model-agnostic,
 - [ ] Metrics filed for the week
 - [ ] Improvement proposals linked from retro
 - [ ] Knowledge classes respected — no POS duplication in `.ai/`
+- [ ] Governance Review filed when due ([GOVERNANCE.md](../GOVERNANCE.md) §9)

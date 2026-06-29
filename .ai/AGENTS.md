@@ -1,7 +1,9 @@
 # AI Team Operating System
 
-**Version:** 1.0 (final)  
-**Status:** Normative for all AI agents in this repository  
+**Version:** 1.0  
+**Status:** **Frozen**  
+**Changes require:** PR + Executive Review + Human approval  
+**Governance:** [GOVERNANCE.md](GOVERNANCE.md)  
 **Audience:** Any AI agent — model-agnostic, session-agnostic, multi-agent safe
 
 ---
@@ -23,18 +25,13 @@ This is **operational governance** — not product documentation. Product truth 
 
 ## Authority Stack
 
-Higher layers win. Never invert this order.
+**Canonical definition:** [GOVERNANCE.md §2](GOVERNANCE.md#2-authority)
 
-| Priority | Source | Location | Governs |
-|----------|--------|----------|---------|
-| 1 | **Constitution** | `docs/PRODUCT-CONSTITUTION.md` · `product-operating-system/00_PROJECT_CONSTITUTION.md` | Immutable product rules |
-| 2 | **Product OS (POS)** | `product-operating-system/` | What to build · why · how it should feel |
-| 3 | **ADR** | `product-operating-system/14_DECISION_LOG.md` | Accepted architectural & product decisions |
-| 4 | **AI Team OS** | `.ai/` (this tree) | How agents work · shifts · workflows |
-| 5 | **Runtime env** | Root `/AGENTS.md` | Node, Postgres, CI, deploy ops |
-| 6 | **Codebase** | `src/`, `public/` | Implementation — fix when it violates POS |
+```
+Constitution → Product OS → ADR → AI Team OS → Runtime → Implementation
+```
 
-> When POS and code conflict → **POS is correct.** Rewrite code, not product docs (unless ADR-worthy contradiction).
+No lower layer may contradict a higher layer. When POS and code conflict → fix code.
 
 ---
 
@@ -103,6 +100,7 @@ Agents **stop and wait** when any trigger in [HUMAN_ESCALATION.md](HUMAN_ESCALAT
 
 | System | Document | Purpose |
 |--------|----------|---------|
+| **Governance** | [GOVERNANCE.md](GOVERNANCE.md) | Constitution for Team OS · versioning · change process |
 | Knowledge | [KNOWLEDGE_MANAGEMENT.md](KNOWLEDGE_MANAGEMENT.md) | Canonical vs working knowledge — never invent product truth |
 | Multi-agent | [MULTI_AGENT_COORDINATION.md](MULTI_AGENT_COORDINATION.md) | Branch locks, handoffs, parallel rules |
 | Metrics | [AI_METRICS.md](AI_METRICS.md) | Quality trend measurement |
@@ -157,17 +155,18 @@ Night-shift agents produce a [MORNING_REPORT.md](MORNING_REPORT.md) at end of se
 
 ```
 1. Read this file (.ai/AGENTS.md)
-2. Read KNOWLEDGE_MANAGEMENT.md — classify sources before acting
-3. Read docs/PRODUCT-CONSTITUTION.md (or POS 00)
-4. Read product-operating-system/00A + 00B
-5. Identify shift: DAY_SHIFT.md or NIGHT_SHIFT.md
-6. If other agents active: MULTI_AGENT_COORDINATION.md
-7. Read task-domain POS doc (04–09, 03A/B, 06A as relevant)
-8. Read assigned role: .ai/roles/<role>.md
-9. Follow workflow: .ai/workflows/<type>.md
-10. Enforce standards: .ai/standards/
-11. Root AGENTS.md for runtime (Node, DB, test commands)
-12. .cursor/rules/000-core.mdc → 180-self-review → 190-definition-of-done
+2. Read GOVERNANCE.md — frozen status · authority · change rules
+3. Read KNOWLEDGE_MANAGEMENT.md — classify sources before acting
+4. Read docs/PRODUCT-CONSTITUTION.md (or POS 00)
+5. Read product-operating-system/00A + 00B
+6. Identify shift: DAY_SHIFT.md or NIGHT_SHIFT.md
+7. If other agents active: MULTI_AGENT_COORDINATION.md
+8. Read task-domain POS doc (04–09, 03A/B, 06A as relevant)
+9. Read assigned role: .ai/roles/<role>.md
+10. Follow workflow: .ai/workflows/<type>.md
+11. Enforce standards: .ai/standards/
+12. Root AGENTS.md for runtime (Node, DB, test commands)
+13. Optional Cursor adapter: .cursor/rules/000-core.mdc → 180 → 190
 ```
 
 ---
@@ -184,26 +183,22 @@ Night-shift agents produce a [MORNING_REPORT.md](MORNING_REPORT.md) at end of se
 
 ```
 .ai/
-├── AGENTS.md                    ← You are here (Team OS v1.0 final)
-├── KNOWLEDGE_MANAGEMENT.md      ← Truth classes · validation
-├── MULTI_AGENT_COORDINATION.md  ← Parallel agents · locks · handoffs
-├── AI_METRICS.md                ← Quality metrics
-├── CONTINUOUS_IMPROVEMENT.md    ← Weekly improvement loop
+├── GOVERNANCE.md                ← Team OS constitution (frozen v1.0)
+├── AGENTS.md                    ← You are here (entry point)
+├── CHANGELOG.md                 ← Version history
+├── KNOWLEDGE_MANAGEMENT.md · MULTI_AGENT_COORDINATION.md
+├── AI_METRICS.md · CONTINUOUS_IMPROVEMENT.md
 ├── NIGHT_SHIFT.md · DAY_SHIFT.md · MORNING_REPORT.md
 ├── DECISION_MODEL.md · HUMAN_ESCALATION.md
 ├── roles/ · workflows/ · standards/
-├── improvements/                ← Lessons · retros · metrics files
-├── reports/                     ← Multi-agent daily rollups
-├── company/ · agents/ · runtime/ · brain/ · product/
+├── improvements/ · reports/
+├── company/ · agents/ · runtime/ · brain/ · product/  ← legacy deep refs
 ```
 
 ---
 
-## Versioning
+## Versioning & Changes
 
-| Version | Change |
-|---------|--------|
-| **1.0** | AI Team Operating System — shifts, decisions, roles, workflows, standards |
-| **1.0 final** | Knowledge · multi-agent · metrics · continuous improvement · dedup pass |
+**Frozen v1.0.** All changes: [GOVERNANCE.md §5](GOVERNANCE.md#5-change-process) — PR + Executive Review + Human approval.
 
-Changes to orchestration in this file → note in PR. Structural changes to decision authority → ADR in `14_DECISION_LOG.md`.
+History: [CHANGELOG.md](CHANGELOG.md)

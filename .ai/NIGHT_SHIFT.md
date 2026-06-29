@@ -1,6 +1,6 @@
 # Night Shift
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Applies when:** No human is available to answer escalations within the session  
 **Goal:** Safe, productive autonomous progress without product or trust risk
 

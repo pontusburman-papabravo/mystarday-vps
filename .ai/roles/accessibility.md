@@ -58,3 +58,5 @@ WCAG baseline; reduced motion; child dignity.
 - [ ] MO-03 paths verified (POS 15)
 - [ ] Touch targets ≥44pt
 - [ ] Reduced motion tested
+
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)

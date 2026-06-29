@@ -58,4 +58,5 @@ Accurate, minimal docs — agents and humans find truth fast without duplication
 - [ ] Root `AGENTS.md` updated if runtime changed
 - [ ] CLAUDE.md updated only for major architecture shifts (human preference)
 
-**Standard:** [standards/documentation.md](../standards/documentation.md)
+**Standard:** [standards/documentation.md](../standards/documentation.md)  
+**Governance:** [GOVERNANCE.md](../GOVERNANCE.md) — Team OS change process

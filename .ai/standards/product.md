@@ -38,9 +38,7 @@ Full text: `docs/PRODUCT-CONSTITUTION.md`
 
 ## Conflict Resolution
 
-```
-Constitution > Experience Manifesto > Taste > ADR > Code
-```
+[GOVERNANCE.md §2](../GOVERNANCE.md#2-authority) — canonical authority stack.
 
 If POS contradicts code → fix code.  
 If POS contradicts itself → ADR + human (Level 4).

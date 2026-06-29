@@ -1,6 +1,6 @@
 # Human Escalation
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Rule:** When a trigger fires, **stop all implementation** on that track. Document. Wait.
 
 No "best guess." No "we can revert later." No silent product decisions.

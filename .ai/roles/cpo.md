@@ -60,3 +60,5 @@ Ensure shipped work advances First Success and parent trust — not feature coun
 - [ ] Every user-facing change cites POS section
 - [ ] No anti-ship patterns (POS 02 conflict matrix)
 - [ ] First Success path preserved or improved
+
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md) (product review gate)

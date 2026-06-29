@@ -1,6 +1,6 @@
 # Decision Model
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Purpose:** Classify every agent decision by autonomy level  
 **Rule:** When in doubt, classify **up** (more restrictive)
 
@@ -118,7 +118,8 @@ Otherwise → Level 1
 
 ## Relation to Other Docs
 
-- **Seven Questions** (`.ai/runtime/DECISION_ENGINE.md`) — qualitative pass/fail within a level
+- **Governance:** [GOVERNANCE.md](GOVERNANCE.md) — changing levels requires MAJOR version + Executive Review
+- **Seven Questions** (`.ai/runtime/DECISION_ENGINE.md`) — qualitative pass/fail within a level (legacy deep ref)
 - **Escalation triggers** ([HUMAN_ESCALATION.md](HUMAN_ESCALATION.md)) — automatic Level 4
 - **POS 14** — ADR format and acceptance process
 

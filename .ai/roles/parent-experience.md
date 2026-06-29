@@ -60,3 +60,5 @@ EM-06 morning stress test — calm, one next step, no surprise. Parents feel: *"
 - [ ] No tomma tillstånd (Constitution 3)
 - [ ] No "varför ser jag det här?" moment (Constitution 2)
 - [ ] Mobile portrait verified
+
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)

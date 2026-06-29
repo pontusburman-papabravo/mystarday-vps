@@ -73,17 +73,20 @@ See AI_METRICS.md — [link or table]
 
 ## Proposal Rules
 
+Team OS is **frozen** — all changes follow [GOVERNANCE.md §5](GOVERNANCE.md#5-change-process).
+
 | Target | Agent may | Requires |
 |--------|-----------|----------|
-| `.ai/workflows/` | Propose PR | Human merge |
-| `.ai/standards/` | Propose PR | Human merge |
-| `.ai/roles/` | Propose PR | Human merge |
-| `.cursor/rules/` | Propose PR | Human merge |
+| `.ai/` (Team OS) | Draft PR only | Executive Review + **human merge** |
+| `.ai/workflows/` | Draft PR | Governance §5 |
+| `.ai/standards/` | Draft PR | Governance §5 |
+| `.ai/roles/` | Draft PR | Governance §5 |
+| `.cursor/rules/` | Draft PR | Human merge (adapter layer) |
 | `product-operating-system/` | **Never edit** | Human + CPO process |
 | `docs/PRODUCT-CONSTITUTION.md` | **Never edit** | Human founder |
 | ADR acceptance | Draft only | POS 14 human acceptance |
 
-**Level:** Team OS changes are typically Level 2 (document in PR). Decision-authority changes → Level 3 ADR.
+**Level:** Team OS PATCH/MINOR typically Level 2. MAJOR or decision-authority → Level 3 ADR + Governance Executive Review.
 
 ---
 

@@ -61,4 +61,6 @@ Preserve ten-year structure. Enable POS without rewrite tax.
 - [ ] No duplicate systems introduced
 - [ ] ADR linked if Level 3
 
-**Authority:** POS 10 · `14_DECISION_LOG.md` · [standards/architecture.md](../standards/architecture.md)
+**Workflow:** [workflows/implementation.md](../workflows/implementation.md) · [workflows/refactoring.md](../workflows/refactoring.md)
+
+**Governance:** Team OS changes → [GOVERNANCE.md](../GOVERNANCE.md)

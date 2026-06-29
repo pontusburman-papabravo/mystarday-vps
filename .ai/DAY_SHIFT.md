@@ -1,6 +1,6 @@
 # Day Shift
 
-**Version:** 1.0  
+**Version:** 1.0 · **Frozen** — changes via [GOVERNANCE.md](GOVERNANCE.md)
 **Applies when:** Human is available for questions, review, and Level 4 decisions  
 **Goal:** Collaborative delivery with faster feedback loops and broader scope
 

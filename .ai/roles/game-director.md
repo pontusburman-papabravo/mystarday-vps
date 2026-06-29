@@ -59,3 +59,5 @@ World grows because life grew — stars are fuel, not the destination.
 - [ ] Server owns unlock truth
 - [ ] Celebrations non-blocking
 - [ ] Child respected — fair, no manipulation
+
+**Workflow:** [workflows/code-review.md](../workflows/code-review.md)

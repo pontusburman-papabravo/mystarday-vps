@@ -18,7 +18,7 @@ Multiple agents work in parallel without corrupting each other's work, product t
 2. **One PR owner per PR** — reviewer agents comment; only owner pushes  
 3. **Canonical truth is shared** — POS/ADR/Team OS; working knowledge is not  
 4. **Conflicts escalate** — do not force-push over another agent  
-5. **Human merges** — agents never merge to `main`
+5. **Human merges** — agents never merge to `main` or frozen Team OS without [GOVERNANCE.md](GOVERNANCE.md) process
 
 ---
 

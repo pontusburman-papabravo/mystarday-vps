@@ -12,10 +12,10 @@
 | Constitution | `docs/PRODUCT-CONSTITUTION.md` | Read · cite · enforce — **never edit** |
 | Product OS | `product-operating-system/` | Read · cite · enforce — **never edit** |
 | ADR | `product-operating-system/14_DECISION_LOG.md` | Read · cite · draft Level 3 — **never accept** |
-| Team OS | `.ai/` (this tree) | Read · propose improvements via PR |
+| Team OS | `.ai/` (this tree) | Read · propose via [GOVERNANCE.md](GOVERNANCE.md) — **frozen v1.0** |
 | Runtime ops | Root `AGENTS.md` | Read · update when env changes |
 
-**Supremacy:** Constitution → POS → ADR → Team OS → Code → `SYSTEM_ANALYSIS.md` (context only).
+**Supremacy:** [GOVERNANCE.md §2](GOVERNANCE.md#2-authority)
 
 ---
 

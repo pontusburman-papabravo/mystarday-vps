@@ -7,8 +7,9 @@ alwaysApply: true
 
 ## Bootstrap (with 200-runtime-platform)
 
-1. `.ai/AGENTS.md` — **Team OS v1.0 entry**
-2. `.ai/KNOWLEDGE_MANAGEMENT.md` — truth classes
+1. `.ai/AGENTS.md` — **Team OS v1.0 entry (frozen)**
+2. `.ai/GOVERNANCE.md` — authority · change process
+3. `.ai/KNOWLEDGE_MANAGEMENT.md` — truth classes
 3. `.ai/MULTI_AGENT_COORDINATION.md` — if parallel agents possible
 4. `.ai/roles/<role>.md` + `.ai/workflows/<type>.md`
 5. `.ai/brain/PROJECT_BRAIN.md` — company mind (deep)
@@ -18,7 +19,7 @@ alwaysApply: true
 
 | Layer | Location |
 |-------|----------|
-| Team OS | `.ai/AGENTS.md` · core systems · `roles/` · `workflows/` · `standards/` |
+| Team OS | `.ai/GOVERNANCE.md` · `AGENTS.md` · `roles/` · `workflows/` · `standards/` |
 | Mind | `.ai/brain/` |
 | Agents | `.ai/roles/*.md` · `.ai/agents/*.md` (legacy deep) |
 | Process | `.ai/runtime/` (frozen) |
@@ -32,6 +33,7 @@ alwaysApply: true
 ## Do not
 
 - Edit POS/Constitution without human
+- Edit frozen Team OS without [GOVERNANCE.md](.ai/GOVERNANCE.md) process
 - Skip agent hat reviews on user-facing changes
 - Merge to main (human only)
 
