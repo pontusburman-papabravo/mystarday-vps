@@ -57,7 +57,16 @@ describe('build garage customization', () => {
     assert.match(html, /child-build-hype\.js/);
   });
 
-  it('normalizeCustomization clamps tune and cleanliness', () => {
+  it('garage workshop CSS hides overlay when [hidden]', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/build-garage.css'), 'utf8');
+    assert.match(css, /\.garage-workshop\[hidden\][\s\S]*display:\s*none\s*!important/);
+  });
+
+  it('workshop updateArena does not redeclare step (TDZ)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/build-garage-workshop.js'), 'utf8');
+    const fn = src.slice(src.indexOf('function updateArena'), src.indexOf('function refresh'));
+    assert.equal((fn.match(/const step/g) || []).length, 1);
+  });
     const { normalizeCustomization } = require('../src/lib/build-catalog');
     const c = normalizeCustomization({ cleanliness: 200, tune_level: 9, color_id: 'bogus' });
     assert.equal(c.cleanliness, 100);

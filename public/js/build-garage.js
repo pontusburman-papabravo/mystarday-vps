@@ -528,6 +528,12 @@
         showToast('API fel — visar förhandsvisning');
         return;
       }
+      const host = (window.location.hostname || '').toLowerCase();
+      if (host === 'localhost' || host === '127.0.0.1') {
+        startPreview();
+        showToast('Demoläge — kör npm run migrate om garaget inte sparar');
+        return;
+      }
       const msg = (err && err.message) ? err.message : 'Kunde inte öppna garaget.';
       if (msg.indexOf('migrate') !== -1 || msg.indexOf('relation') !== -1) {
         showLogin(msg + ' Kör: npm run migrate');

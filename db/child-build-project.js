@@ -47,6 +47,9 @@ async function getCompletedGarageProject(childId) {
 }
 
 async function ensureDemoCompletedCar(childId) {
+  const { ensureBuildCatalog } = require('../src/lib/seed-build-catalog');
+  await ensureBuildCatalog();
+
   const existing = await getCompletedGarageProject(childId);
   if (existing) return existing;
 

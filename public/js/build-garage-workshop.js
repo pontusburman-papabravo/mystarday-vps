@@ -169,7 +169,6 @@
       wheelEl.setAttribute('data-tire-type', state.desiredWheel);
       wheelEl.hidden = !!(step && step.id === 'pick_tire');
       wheelEl.classList.toggle('is-dragging', !!(state.drag && state.drag.type === 'wheel'));
-      const step = currentStep();
       if (state.drag && (state.drag.type === 'wheel' || state.drag.type === 'wheel-mount')) {
         wheelEl.style.transform = 'translate(' + state.drag.dx + 'px,' + state.drag.dy + 'px)';
       } else if (step && step.id === 'mount' && state.wheelRemoved && !state.wheelMounted) {

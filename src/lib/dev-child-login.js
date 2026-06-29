@@ -20,6 +20,7 @@ const { parseDuration } = require('../routes/auth/session');
 const { diagnoseDatabaseUrl } = require('./load-env');
 const { seedChildDefaultSchedule } = require('./seed-child-default-schedule');
 const { ensureDevFamilyReady } = require('./seed-dev-family');
+const { ensureBuildCatalog } = require('./seed-build-catalog');
 
 const DEV_CHILD_NAME = 'Testbarn';
 const DEV_CHILD_USERNAME = 'testbarn';
@@ -187,6 +188,7 @@ async function createDevChildInExistingFamily(familyId, parentId) {
 }
 
 async function ensureDevChild() {
+  await ensureBuildCatalog();
   const existing = await findFirstChild();
   if (existing) {
     await ensureDevFamilyReady(existing.family_id, existing.id);
