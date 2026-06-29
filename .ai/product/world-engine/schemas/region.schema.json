@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:region",
+  "title": "Region",
+  "type": "object",
+  "required": [
+    "region_id",
+    "world_slug",
+    "scenes"
+  ],
+  "properties": {
+    "region_id": {
+      "type": "string"
+    },
+    "world_slug": {
+      "type": "string"
+    },
+    "name_sv": {
+      "type": "string"
+    },
+    "bounds": {
+      "type": "object"
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "portals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "portal_id",
+          "target_region_id"
+        ],
+        "properties": {
+          "portal_id": {
+            "type": "string"
+          },
+          "target_region_id": {
+            "type": "string"
+          },
+          "target_scene_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "weather_override": {
+      "type": "string"
+    },
+    "lighting_preset": {
+      "type": "string"
+    }
+  }
+}

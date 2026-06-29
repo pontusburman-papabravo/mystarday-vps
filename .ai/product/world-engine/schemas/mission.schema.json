@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:mission",
+  "title": "Mission",
+  "type": "object",
+  "required": [
+    "mission_id",
+    "routine_hook"
+  ],
+  "properties": {
+    "mission_id": {
+      "type": "string"
+    },
+    "routine_hook": {
+      "type": "string"
+    },
+    "world_slug": {
+      "type": "string"
+    },
+    "copy_sv": {
+      "type": "string"
+    },
+    "completion_signal": {
+      "type": "string"
+    }
+  }
+}

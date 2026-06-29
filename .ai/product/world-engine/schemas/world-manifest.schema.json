@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:world-manifest",
+  "title": "WorldManifest",
+  "type": "object",
+  "required": [
+    "world_id",
+    "slug",
+    "version",
+    "emotion_job",
+    "regions",
+    "progression_ref"
+  ],
+  "properties": {
+    "world_id": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "emotion_job": {
+      "type": "string"
+    },
+    "differentiation": {
+      "type": "string"
+    },
+    "pack_id": {
+      "type": "string"
+    },
+    "primary_interaction": {
+      "type": "string"
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "region_id",
+          "scenes"
+        ],
+        "properties": {
+          "region_id": {
+            "type": "string"
+          },
+          "name_sv": {
+            "type": "string"
+          },
+          "scenes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "streaming": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "progression_ref": {
+      "type": "string"
+    },
+    "global_systems": {
+      "type": "object",
+      "properties": {
+        "weather_ref": {
+          "type": "string"
+        },
+        "season_ref": {
+          "type": "string"
+        },
+        "lighting_ref": {
+          "type": "string"
+        },
+        "audio_bed_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "asset_bundle": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

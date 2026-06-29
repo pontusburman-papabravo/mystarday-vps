@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:camera",
+  "title": "CameraRig",
+  "type": "object",
+  "required": [
+    "rig_id"
+  ],
+  "properties": {
+    "rig_id": {
+      "type": "string"
+    },
+    "anchors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "default_transition_ms": {
+      "type": "integer",
+      "maximum": 400
+    },
+    "reduced_motion_transition": {
+      "type": "string",
+      "enum": [
+        "cut",
+        "instant"
+      ]
+    }
+  }
+}

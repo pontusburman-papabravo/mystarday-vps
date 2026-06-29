@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:weather",
+  "title": "WeatherState",
+  "type": "object",
+  "required": [
+    "state_id"
+  ],
+  "properties": {
+    "state_id": {
+      "type": "string"
+    },
+    "overlay_opacity": {
+      "type": "number",
+      "maximum": 0.55
+    },
+    "wind_strength": {
+      "type": "number"
+    },
+    "particle_ref": {
+      "type": "string"
+    },
+    "audio_ref": {
+      "type": "string"
+    }
+  }
+}

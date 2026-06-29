@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:season",
+  "title": "SeasonPhase",
+  "type": "object",
+  "required": [
+    "phase_id"
+  ],
+  "properties": {
+    "phase_id": {
+      "type": "string"
+    },
+    "prop_swaps": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "from_entity",
+          "to_entity"
+        ]
+      }
+    },
+    "palette_shift": {
+      "type": "object"
+    }
+  }
+}

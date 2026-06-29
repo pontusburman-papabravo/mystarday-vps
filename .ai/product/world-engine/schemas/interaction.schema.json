@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:interaction",
+  "title": "InteractionGraph",
+  "type": "object",
+  "required": [
+    "interaction_id",
+    "verb",
+    "graph"
+  ],
+  "properties": {
+    "interaction_id": {
+      "type": "string"
+    },
+    "verb": {
+      "type": "string"
+    },
+    "target_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "gestures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "graph": {
+      "type": "object"
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "emit_on_complete": {
+      "type": "string"
+    }
+  }
+}

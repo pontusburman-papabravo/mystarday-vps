@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:scene",
+  "title": "Scene",
+  "type": "object",
+  "required": [
+    "scene_id",
+    "region_id",
+    "layers",
+    "entities"
+  ],
+  "properties": {
+    "scene_id": {
+      "type": "string"
+    },
+    "region_id": {
+      "type": "string"
+    },
+    "focal_anchor": {
+      "type": "string"
+    },
+    "primary_interaction_target": {
+      "type": "string"
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "layer_id",
+          "z_index"
+        ],
+        "properties": {
+          "layer_id": {
+            "type": "string"
+          },
+          "z_index": {
+            "type": "integer"
+          },
+          "parallax": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/entity"
+      }
+    },
+    "ambient_behaviours": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "camera_default_rig": {
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "entity": {
+      "type": "object",
+      "required": [
+        "entity_id",
+        "archetype",
+        "transform"
+      ],
+      "properties": {
+        "entity_id": {
+          "type": "string"
+        },
+        "archetype": {
+          "type": "string"
+        },
+        "transform": {
+          "type": "object",
+          "required": [
+            "x",
+            "y"
+          ],
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "z": {
+              "type": "number",
+              "default": 0
+            },
+            "rotation": {
+              "type": "number",
+              "default": 0
+            },
+            "scale": {
+              "type": "number",
+              "default": 1,
+              "minimum": 0.01
+            }
+          }
+        },
+        "layer_id": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "progression_gate": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

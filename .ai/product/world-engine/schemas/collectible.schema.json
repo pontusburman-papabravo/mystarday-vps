@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:collectible",
+  "title": "Collectible",
+  "type": "object",
+  "required": [
+    "collectible_id",
+    "world_slug",
+    "earn_signal"
+  ],
+  "properties": {
+    "collectible_id": {
+      "type": "string"
+    },
+    "world_slug": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "ambient",
+        "earned",
+        "secret"
+      ]
+    },
+    "earn_signal": {
+      "type": "string"
+    },
+    "entity_ref": {
+      "type": "string"
+    }
+  }
+}

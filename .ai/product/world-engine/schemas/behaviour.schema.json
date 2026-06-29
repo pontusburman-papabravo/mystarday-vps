@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:behaviour",
+  "title": "BehaviourTree",
+  "type": "object",
+  "required": [
+    "tree_id",
+    "root"
+  ],
+  "properties": {
+    "tree_id": {
+      "type": "string"
+    },
+    "root": {
+      "type": "object"
+    },
+    "blackboard_schema": {
+      "type": "object"
+    },
+    "tick_budget_nodes": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

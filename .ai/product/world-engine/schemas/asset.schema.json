@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:asset",
+  "title": "AssetRef",
+  "type": "object",
+  "required": [
+    "asset_id",
+    "uri",
+    "kind"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string"
+    },
+    "uri": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "sprite",
+        "atlas",
+        "audio",
+        "data",
+        "font"
+      ]
+    },
+    "lod_tiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bundle_id": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:experience-pack",
+  "title": "ExperiencePack",
+  "type": "object",
+  "required": [
+    "pack_id",
+    "audience_band",
+    "locale",
+    "worlds"
+  ],
+  "properties": {
+    "pack_id": {
+      "type": "string"
+    },
+    "audience_band": {
+      "type": "string",
+      "enum": [
+        "child",
+        "teen",
+        "young_adult",
+        "adult",
+        "support"
+      ]
+    },
+    "locale": {
+      "type": "string"
+    },
+    "reading_level": {
+      "type": "string"
+    },
+    "fiction_manifest": {
+      "type": "string"
+    },
+    "ui_skin": {
+      "type": "string"
+    },
+    "pacing": {
+      "type": "object"
+    },
+    "feature_flags": {
+      "type": "object"
+    },
+    "worlds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Refs to world manifest files"
+    },
+    "copy_tables": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

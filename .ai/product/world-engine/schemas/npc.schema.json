@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:npc",
+  "title": "NPC",
+  "type": "object",
+  "required": [
+    "npc_id",
+    "display_name_sv",
+    "personality",
+    "schedule"
+  ],
+  "properties": {
+    "npc_id": {
+      "type": "string"
+    },
+    "display_name_sv": {
+      "type": "string"
+    },
+    "personality": {
+      "type": "object",
+      "required": [
+        "traits"
+      ],
+      "properties": {
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "phase_id",
+          "anchor_id"
+        ],
+        "properties": {
+          "phase_id": {
+            "type": "string"
+          },
+          "anchor_id": {
+            "type": "string"
+          },
+          "activity": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mood_default": {
+      "type": "string",
+      "default": "calm"
+    },
+    "dialog_trees": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reactions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "memory_policy": {
+      "type": "string",
+      "enum": [
+        "session",
+        "persistent",
+        "none"
+      ]
+    }
+  }
+}

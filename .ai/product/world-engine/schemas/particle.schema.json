@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:particle",
+  "title": "ParticleSystem",
+  "type": "object",
+  "required": [
+    "system_id"
+  ],
+  "properties": {
+    "system_id": {
+      "type": "string"
+    },
+    "max_particles": {
+      "type": "integer"
+    },
+    "duration_ms": {
+      "type": "integer"
+    },
+    "reduced_motion_mode": {
+      "type": "string",
+      "enum": [
+        "off",
+        "static",
+        "full"
+      ]
+    }
+  }
+}

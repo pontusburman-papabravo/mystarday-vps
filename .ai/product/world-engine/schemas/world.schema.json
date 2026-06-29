@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:stjarndag:world-engine:v1:world",
+  "title": "World",
+  "description": "Alias root — World DSL document (world.json / world.yaml parsed to JSON)",
+  "allOf": [
+    {
+      "$ref": "world-manifest.json"
+    }
+  ]
+}
