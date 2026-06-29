@@ -8,6 +8,7 @@
 const db = require('./db');
 const { sendActivationNudgeEmail } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
@@ -43,6 +44,15 @@ async function runActivationNudgeJob() {
     try {
       const flagOk = await isActivationFlagEnabled(FLAG_KEYS.onboarding, row.family_id);
       if (!flagOk) continue;
+
+      const gate = await evaluateCommunicationGate(row.family_id, {
+        channel: 'email',
+        intent: 'legacy_activation_nudge',
+      });
+      if (!gate.allowed) {
+        console.log(`[ACTIVATION-NUDGE] Skipped family ${row.family_id} — Gate: ${gate.reason}`);
+        continue;
+      }
 
       await sendActivationNudgeEmail({
         to: row.email,

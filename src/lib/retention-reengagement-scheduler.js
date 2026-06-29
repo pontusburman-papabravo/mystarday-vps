@@ -8,6 +8,7 @@
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { RETENTION_REENGAGEMENT_LOCK_ID } = require('./scheduler-constants');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const analytics = require('../../db/analytics');
 
 const MILESTONES = [3, 7, 14];
@@ -111,6 +112,12 @@ async function runJob() {
       const parents = await findEligibleParents(day);
       const copy = COPY[day];
       for (const row of parents) {
+        const gate = await evaluateCommunicationGate(row.family_id, {
+          channel: 'push',
+          intent: 'legacy_retention_push',
+        });
+        if (!gate.allowed) continue;
+
         const result = await sendPushNotification(row.parent_id, {
           title: copy.title,
           body: copy.body,

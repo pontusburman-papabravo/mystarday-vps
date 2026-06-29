@@ -12,6 +12,7 @@ const db = require('./db');
 const winBackLog = require('../../db/win-back-email-log');
 const { sendWinBackEmail } = require('./email');
 const { trackWinBackEmailSent } = require('./analytics-tracker');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const config = require('./config');
 
 const AUTO_APPROVE_FLAG_KEY = 'win_back_auto_approve';
@@ -47,11 +48,21 @@ async function approveAndSend(id) {
     return { ok: false, notFound: true };
   }
 
+  const gate = await evaluateCommunicationGate(record.family_id, {
+    channel: 'email',
+    intent: 'legacy_win_back',
+  });
+  if (!gate.allowed) {
+    await winBackLog.reject(id);
+    return { ok: false, status: 'rejected', error: `Journey Gate: ${gate.reason}` };
+  }
+
+  const dashboardUrl = `${config.email.baseUrl}/dashboard?utm_source=winback&utm_medium=email`;
   const result = await sendWinBackEmail({
     to: record.parent_email,
     parentName: record.parent_name,
     childName: record.child_name,
-    ctaUrl: `${config.email.baseUrl}/for-dig?utm_source=winback&utm_medium=email`,
+    ctaUrl: dashboardUrl,
   });
 
   if (result.success) {

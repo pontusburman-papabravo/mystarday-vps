@@ -77,7 +77,7 @@ Gate returnerar minst: `{ allowed: boolean, reason: string, state: string }`.
 |-------|--------|
 | Milestones & fas | `db/family-milestones.js`, `src/lib/journey/ingest.js`, `src/lib/journey/phases.js` |
 | Context & state | `src/lib/journey/context-builder.js`, `src/lib/journey/evaluator.js` |
-| Gate (ska införas) | `src/lib/journey/communication-gate.js` *(planerat)* |
+| Gate (ska införas) | `src/lib/journey/communication-gate.js` |
 | Experiences / in-app | `src/lib/journey/registry.js` |
 | Push-UX | `src/lib/journey/push-projector.js` |
 
@@ -207,9 +207,10 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ### Steg 2 — Migrera
 
 ```
-☐ Journey Gate införd (src/lib/journey/communication-gate.js)
-☐ Legacy-schedulers anropar Gate — ingen egen segmentering kvar
-☐ Gate använder Journey state (AT_RISK, CHURNED, etc.) för tillåtelsebeslut
+☑ Journey Gate införd (src/lib/journey/communication-gate.js)
+☑ derived-state (src/lib/journey/derived-state.js)
+☑ Legacy-schedulers anropar Gate
+☑ Gate använder Journey state (AT_RISK, CHURNED, etc.) för tillåtelsebeslut
 ☐ activation_program_new_enrollments förblir OFF
 ☐ activation_program_ui_removed förblir ON
 ```
@@ -217,11 +218,11 @@ Family Journey ska göra fler familjer framgångsrika under **sina första två 
 ### Steg 3 — Rensa
 
 ```
-☐ win-back-scheduler borttagen eller no-op
+☐ win-back-scheduler borttagen eller no-op (env OFF räcker tillfälligt)
 ☐ activation-program-email-scheduler borttagen eller no-op
-☐ CTA "Utforska För dig" borttagen från win-back-mall
+☑ Win-back CTA → dashboard (win-back-sender; mejlmall kan uppdateras)
 ☐ Login borttagen som primär KPI (admin email-logg / win-back-stats)
-☐ Admin: en rad North Star (P0 48h %)
+☑ Admin Start: North Star — P0 48h
 ```
 
 ---
