@@ -1,0 +1,362 @@
+/** build-play-world.css — Generisk lek-värld (husdjur, dino, dockhus, …) */
+:root {
+  --gold: #F5A623;
+  --gold-light: #FFF3D6;
+  --gold-dark: #D4880A;
+  --navy: #1B2340;
+  --navy-soft: #2A3458;
+  --navy-deep: #0F1629;
+  --sky: #E8F0FE;
+  --lavender: #EDE7F6;
+  --text-soft: #5A6178;
+}
+
+* { box-sizing: border-box; }
+
+body.build-play-page {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--navy);
+  background: var(--navy-deep);
+  overflow-x: hidden;
+}
+
+.bpw-bg-root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(245, 166, 35, 0.12), transparent),
+    linear-gradient(180deg, #0a1020 0%, #141b33 40%, #1a2340 100%);
+}
+
+.bpw-bg-scene {
+  position: absolute;
+  inset: 0;
+  background: center 72% / cover no-repeat;
+  opacity: 0.42;
+  filter: blur(4px) saturate(0.95);
+  transform: scale(1.05);
+  transform-origin: center bottom;
+}
+
+.bpw-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 22, 41, 0.35) 0%, transparent 30%, rgba(15, 22, 41, 0.55) 100%);
+  pointer-events: none;
+}
+
+.bpw-app {
+  position: relative;
+  z-index: 2;
+  max-width: 28rem;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top, 12px) 16px env(safe-area-inset-bottom, 20px);
+}
+
+.bpw-loading,
+.bpw-login-prompt {
+  text-align: center;
+  color: #fff;
+  padding-top: 40vh;
+}
+
+.bpw-login-prompt a {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.bpw-login-hint {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.bpw-preview-link {
+  color: var(--gold);
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.bpw-preview-banner {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--gold);
+  background: rgba(245, 166, 35, 0.15);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin: 0 0 8px;
+}
+
+.bpw-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bpw-back {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+.bpw-title-wrap { text-align: center; flex: 1; min-width: 0; }
+
+.bpw-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bpw-sub {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 2px 0 0;
+}
+
+.bpw-topbar-spacer { width: 72px; flex-shrink: 0; }
+
+.bpw-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 10px 0 8px;
+}
+
+.bpw-stat {
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.bpw-stat-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.bpw-stat-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), #ffcc55);
+  transition: width 0.4s ease;
+}
+
+.bpw-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 4px 0 12px;
+}
+
+.bpw-hero-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 320 / 280;
+  transition: transform 0.35s ease;
+}
+
+.bpw-hero-wrap.is-bounce {
+  animation: bpwBounce 0.5s ease;
+}
+
+@keyframes bpwBounce {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  70% { transform: scale(0.98); }
+}
+
+.bpw-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+}
+
+.bpw-fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bpw-particle {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: bpwParticle 1.2s ease forwards;
+  opacity: 0;
+}
+
+@keyframes bpwParticle {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+}
+
+.bpw-shine-sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.25) 50%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bpw-hero-wrap.is-action .bpw-shine-sweep {
+  animation: bpwShine 0.8s ease;
+}
+
+@keyframes bpwShine {
+  0% { opacity: 0; transform: translateX(-100%); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+
+.bpw-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 16px) + 100px);
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(27, 35, 64, 0.92);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 50;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.bpw-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.bpw-panel {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: auto;
+}
+
+.bpw-panel h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: #fff;
+  margin: 12px 0 8px;
+}
+
+.bpw-panel h2:first-child { margin-top: 0; }
+
+.bpw-picker-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 6px;
+}
+
+.bpw-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bpw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.bpw-chip.is-active {
+  border-color: var(--gold);
+  background: rgba(245, 166, 35, 0.2);
+}
+
+.bpw-chip:active { transform: scale(0.96); }
+
+.bpw-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.bpw-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(145deg, rgba(245, 166, 35, 0.25), rgba(245, 166, 35, 0.1));
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.bpw-action-btn .bpw-action-icon { font-size: 1.5rem; }
+
+.bpw-action-btn:active,
+.bpw-action-btn.is-pressed {
+  transform: scale(0.95);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Tema-varianter */
+.bpw--pets .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(34, 197, 94, 0.15), transparent), linear-gradient(180deg, #0a1020, #1a2340); }
+.bpw--dino .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(34, 197, 94, 0.2), transparent), linear-gradient(180deg, #0a1020, #142818); }
+.bpw--doll .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(139, 92, 246, 0.15), transparent), linear-gradient(180deg, #0a1020, #1a2340); }
+.bpw--fish .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(56, 189, 248, 0.2), transparent), linear-gradient(180deg, #0a1020, #0f2840); }
+.bpw--study .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(245, 166, 35, 0.12), transparent), linear-gradient(180deg, #0a1020, #1a2340); }
+.bpw--room .bpw-bg-root { background: radial-gradient(ellipse 70% 40% at 50% 90%, rgba(245, 166, 35, 0.18), transparent), linear-gradient(180deg, #0a1020, #1a2340); }

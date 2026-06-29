@@ -11,12 +11,12 @@ const BUILD_MILESTONES = [15, 30, 45, 60, 75];
 
 const WORLD_MAP = [
   { slug: 'racerbil', world_slug: 'garage', icon: '🏎️', label: 'Garaget', href: '/child/garage' },
-  { slug: 'husdjur', world_slug: 'pet_home', icon: '🐾', label: 'Husdjurshemmet', href: '/child/world' },
-  { slug: 'dinosaurie', world_slug: 'dino_lab', icon: '🦕', label: 'Dino-dalen', href: '/child/world' },
-  { slug: 'dockhus', world_slug: 'dollhouse', icon: '🏠', label: 'Dockhuset', href: '/child/world' },
-  { slug: 'fiske', world_slug: 'fishing_dock', icon: '🎣', label: 'Båtkajen', href: '/child/world' },
-  { slug: 'laxor', world_slug: 'study_room', icon: '📚', label: 'Läxbordet', href: '/child/world' },
-  { slug: 'vardag', world_slug: 'routine_home', icon: '⭐', label: 'Mitt rum', href: '/child/world' },
+  { slug: 'husdjur', world_slug: 'pet_home', icon: '🐾', label: 'Husdjurshemmet', href: '/child/play/husdjur' },
+  { slug: 'dinosaurie', world_slug: 'dino_lab', icon: '🦕', label: 'Dino-dalen', href: '/child/play/dinosaurie' },
+  { slug: 'dockhus', world_slug: 'dollhouse', icon: '🏠', label: 'Dockhuset', href: '/child/play/dockhus' },
+  { slug: 'fiske', world_slug: 'fishing_dock', icon: '🎣', label: 'Båtkajen', href: '/child/play/fiske' },
+  { slug: 'laxor', world_slug: 'study_room', icon: '📚', label: 'Läxbordet', href: '/child/play/laxor' },
+  { slug: 'vardag', world_slug: 'routine_home', icon: '⭐', label: 'Mitt rum', href: '/child/play/vardag' },
 ];
 
 const DEFAULT_STAGES = [

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="Läxrum">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF3D6"/><stop offset="100%" stop-color="#EDE7F6"/></linearGradient>
+  </defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <rect x="60" y="40" width="520" height="240" rx="12" fill="#fff" stroke="#1B2340" stroke-width="4" opacity="0.9"/>
+  <rect x="100" y="200" width="200" height="60" rx="6" fill="#F5A623" opacity="0.5"/>
+  <rect x="340" y="80" width="180" height="120" rx="6" fill="#E8F0FE" stroke="#1B2340" stroke-width="2"/>
+  <text x="120" y="130" font-size="36" fill="#1B2340">=$</text>
+  <text x="380" y="160" font-size="32" fill="#F5A623">2+3=5</text>
+  <circle cx="560" cy="100" r="30" fill="#22c55e" opacity="0.4"/>
+  <text x="545" y="110" font-size="24">P</text>
+</svg>

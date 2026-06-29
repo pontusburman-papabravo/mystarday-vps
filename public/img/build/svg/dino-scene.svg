@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="Dino-dal">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#86efac"/><stop offset="50%" stop-color="#bbf7d0"/><stop offset="100%" stop-color="#D4880A" stop-opacity="0.3"/></linearGradient>
+  </defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <ellipse cx="320" cy="290" rx="300" ry="22" fill="#22c55e" opacity="0.35"/>
+  <path d="M80 220 Q200 180 320 200 T560 210 L560 320 L80 320 Z" fill="#a16207" opacity="0.5"/>
+  <rect x="260" y="160" width="120" height="80" rx="8" fill="#78716c" stroke="#1B2340" stroke-width="3"/>
+  <path d="M260 160 L320 120 L380 160 Z" fill="#57534e" stroke="#1B2340" stroke-width="3"/>
+  <ellipse cx="140" cy="240" rx="35" ry="12" fill="#F5A623" opacity="0.6"/>
+  <ellipse cx="500" cy="230" rx="28" ry="10" fill="#fff" opacity="0.5"/>
+  <text x="290" y="210" font-size="32">>´</text>
+</svg>

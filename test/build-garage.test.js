@@ -42,6 +42,7 @@ describe('build garage customization', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(src, /\/api\/me\/build/);
     assert.match(src, /\/child\/garage/);
+    assert.match(src, /\/child\/play\/:slug/);
     assert.match(src, /\/child\/adventures/);
   });
 

@@ -239,6 +239,54 @@ async function testGarage(page) {
   return workshop;
 }
 
+const PLAY_WORLDS = [
+  { slug: 'husdjur', title: 'Husdjurshemmet' },
+  { slug: 'dinosaurie', title: 'Dino-dalen' },
+  { slug: 'dockhus', title: 'Dockhuset' },
+  { slug: 'fiske', title: 'Båtkajen' },
+  { slug: 'laxor', title: 'Läxbordet' },
+  { slug: 'vardag', title: 'Mitt rum' },
+];
+
+async function testPlayWorld(page, world) {
+  await page.goto(BASE + '/child/play/' + world.slug + '?preview=1', NAV_OPTS);
+  await page.waitForSelector('#bpwApp', { visible: true, timeout: 15000 });
+  await assertNoErrors(page, 'Play ' + world.slug);
+
+  const info = await page.evaluate(() => {
+    const title = document.getElementById('bpwTitle')?.textContent || '';
+    const actions = document.querySelectorAll('#bpwActions .bpw-action-btn').length;
+    const hero = document.getElementById('bpwHeroImg');
+    const heroW = hero ? hero.getBoundingClientRect().width : 0;
+    return { title, actions, heroW };
+  });
+
+  if (!info.title) fail('Play ' + world.slug + ': saknar titel');
+  if (info.actions < 4) fail('Play ' + world.slug + ': förväntade 4 actions, fick ' + info.actions);
+  if (info.heroW < 70) fail('Play ' + world.slug + ': hero för liten (' + info.heroW + 'px)');
+
+  const feedBtn = await page.waitForSelector('#bpwActions [data-action]', { timeout: 8000 });
+  await feedBtn.click();
+  await page.waitForFunction(
+    () => {
+      const t = document.getElementById('bpwToast');
+      return t && t.classList.contains('is-visible');
+    },
+    { timeout: 5000 }
+  );
+
+  console.log('OK Play', world.slug, '—', info.actions, 'actions, hero', Math.round(info.heroW), 'px');
+  return info;
+}
+
+async function testAllPlayWorlds(page) {
+  const results = {};
+  for (const w of PLAY_WORLDS) {
+    results[w.slug] = await testPlayWorld(page, w);
+  }
+  return results;
+}
+
 async function testNavRoundtrip(page) {
   await page.goto(BASE + '/child/today', NAV_OPTS);
   await waitForChildShell(page);
@@ -277,6 +325,7 @@ async function run() {
     results.nav = await step('nav-runda', () => testNavRoundtrip(page));
     results.adventures = await step('adventures', () => testAdventures(page));
     results.garage = await step('garage', () => testGarage(page));
+    results.playWorlds = await step('play-varldar', () => testAllPlayWorlds(page));
   } finally {
     await browser.close();
   }

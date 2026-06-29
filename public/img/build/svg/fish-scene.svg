@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="Båtkaj">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7dd3fc"/><stop offset="60%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#1B2340" stop-opacity="0.4"/></linearGradient>
+  </defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <rect x="0" y="220" width="640" height="100" fill="#78716c" opacity="0.6"/>
+  <rect x="180" y="200" width="280" height="20" rx="4" fill="#a8a29e"/>
+  <ellipse cx="120" cy="250" rx="40" ry="15" fill="#38bdf8" opacity="0.5"/>
+  <ellipse cx="520" cy="245" rx="50" ry="18" fill="#38bdf8" opacity="0.45"/>
+  <path d="M300 200 L300 120" stroke="#57534e" stroke-width="6"/>
+  <circle cx="300" cy="115" r="8" fill="#F5A623"/>
+  <text x="100" y="180" font-size="24">=</text>
+  <text x="480" y="190" font-size="22">õ</text>
+</svg>

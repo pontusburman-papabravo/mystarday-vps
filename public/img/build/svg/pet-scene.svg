@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="Husdjurshem">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bbf7d0"/><stop offset="55%" stop-color="#EDE7F6"/><stop offset="100%" stop-color="#F5A623" stop-opacity="0.35"/></linearGradient>
+  </defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <ellipse cx="320" cy="290" rx="280" ry="24" fill="#86efac" opacity="0.4"/>
+  <rect x="180" y="140" width="280" height="120" rx="12" fill="#fff" stroke="#1B2340" stroke-width="4"/>
+  <path d="M180 140 L320 80 L460 140 Z" fill="#8B5CF6" stroke="#1B2340" stroke-width="4"/>
+  <rect x="250" y="190" width="60" height="70" rx="6" fill="#D4880A"/>
+  <circle cx="120" cy="200" r="40" fill="#22c55e" opacity="0.5"/>
+  <circle cx="520" cy="190" r="50" fill="#22c55e" opacity="0.45"/>
+  <text x="300" y="250" font-size="28"><á</text>
+</svg>

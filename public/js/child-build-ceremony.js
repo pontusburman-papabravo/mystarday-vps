@@ -14,6 +14,9 @@
 
   function playHref(project) {
     if (!project) return '/child/world';
+    if (window.BuildPlayHrefs && BuildPlayHrefs.playHrefForSlug) {
+      return BuildPlayHrefs.playHrefForSlug(project.catalog_slug);
+    }
     return project.catalog_slug === 'racerbil' ? '/child/garage' : '/child/world';
   }
 

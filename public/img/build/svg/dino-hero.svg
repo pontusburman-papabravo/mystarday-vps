@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" role="img" aria-label="Dinosaurie">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E8F0FE"/><stop offset="100%" stop-color="#bbf7d0"/></linearGradient>
+    <linearGradient id="dino" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient>
+  </defs>
+  <rect width="320" height="280" fill="url(#sky)" rx="24"/>
+  <ellipse cx="160" cy="248" rx="110" ry="18" fill="#EDE7F6" opacity="0.8"/>
+  <g transform="translate(150 150)">
+    <ellipse cx="0" cy="35" rx="70" ry="45" fill="url(#dino)"/>
+    <ellipse cx="-55" cy="5" rx="22" ry="38" fill="#15803d" transform="rotate(-25)"/>
+    <ellipse cx="55" cy="5" rx="22" ry="38" fill="#15803d" transform="rotate(25)"/>
+    <ellipse cx="45" cy="-25" rx="50" ry="38" fill="url(#dino)"/>
+    <circle cx="62" cy="-35" r="8" fill="#1B2340"/><circle cx="66" cy="-38" r="3" fill="#fff"/>
+    <path d="M75 -20 L110 -10 L95 0 Z" fill="#F5A623"/>
+    <path d="M-30 55 L-50 75 M30 55 L50 75" stroke="#15803d" stroke-width="10" stroke-linecap="round"/>
+    <ellipse cx="0" cy="72" rx="55" ry="12" fill="#86efac" opacity="0.5"/>
+  </g>
+  <text x="24" y="44" font-size="20">>´</text>
+  <text x="260" y="52" font-size="18">Ï</text>
+</svg>

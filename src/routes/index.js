@@ -120,6 +120,9 @@ function registerRoutes(app) {
   app.get('/child/garage', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'build-garage.html'));
   });
+  app.get('/child/play/:slug', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'build-play-world.html'));
+  });
   app.get('/child/adventures', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'build-adventures.html'));
   });

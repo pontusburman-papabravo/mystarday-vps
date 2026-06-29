@@ -18,6 +18,14 @@ const {
 } = require('../lib/build-catalog');
 const { filterMvpCatalog } = require('../lib/build-adventures');
 const { enrichProject, unlockedWorldsFromProjects } = require('../lib/build-progress');
+const {
+  isPlayWorldSlug,
+  publicWorldConfig,
+  normalizePlayCustomization,
+  applyPlayAction,
+  PLAY_WORLD_SLUGS,
+  playHrefForSlug,
+} = require('../lib/build-world-play');
 const universeDb = require('../../db/child-universe');
 const universeEngine = require('../lib/universe-engine');
 
@@ -52,6 +60,7 @@ router.get('/', async (req, res) => {
     const world_map = unlockedWorldsFromProjects(projects).map(function (w) {
       return {
         ...w,
+        href: playHrefForSlug(w.slug),
         active: !!(activeRaw && activeRaw.catalog_slug === w.slug),
       };
     });
@@ -212,5 +221,112 @@ async function syncGarageToUniverse(childId, project) {
     console.error('[BUILD] universe sync failed:', err.message);
   }
 }
+
+function playPatchSchema(slug) {
+  const cfg = publicWorldConfig(slug);
+  if (!cfg || !cfg.pickers.length) return z.object({}).passthrough();
+  const shape = {};
+  cfg.pickers.forEach(function (p) {
+    const ids = p.options.map((o) => o.id);
+    shape[p.key] = z.enum(ids);
+  });
+  return z.object(shape).passthrough();
+}
+
+function playActionSchema(slug) {
+  const cfg = publicWorldConfig(slug);
+  const ids = (cfg && cfg.actions) ? cfg.actions.map((a) => a.id) : [];
+  if (!ids.length) return z.object({ action: z.string() });
+  return z.object({ action: z.enum(ids) });
+}
+
+router.get('/play/:catalogSlug', async (req, res) => {
+  try {
+    const slug = req.params.catalogSlug;
+    if (!isPlayWorldSlug(slug)) {
+      return res.status(404).json({ error: 'Lek-världen finns inte.' });
+    }
+    const childId = req.user.id;
+    let project = await buildDb.getCompletedWorldProject(childId, slug);
+    const preview = req.query.preview === '1';
+    if (!project && preview) {
+      project = await buildDb.ensureDemoCompletedWorld(childId, slug);
+    }
+    if (!project) {
+      return res.status(404).json({ error: 'Bygg klart äventyret först — 75 delar! 🧩' });
+    }
+    const world = publicWorldConfig(slug);
+    res.json({
+      project,
+      world,
+      customization: normalizePlayCustomization(slug, project.customization),
+    });
+  } catch (err) {
+    console.error('[BUILD] GET /play/:slug error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+router.patch('/play/:catalogSlug', async (req, res) => {
+  try {
+    const slug = req.params.catalogSlug;
+    if (!isPlayWorldSlug(slug)) {
+      return res.status(404).json({ error: 'Lek-världen finns inte.' });
+    }
+    const schema = playPatchSchema(slug);
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Ogiltigt val.' });
+    }
+    const childId = req.user.id;
+    const project = await buildDb.getCompletedWorldProject(childId, slug);
+    if (!project) {
+      return res.status(404).json({ error: 'Lek-världen är inte öppen ännu.' });
+    }
+    const merged = normalizePlayCustomization(slug, {
+      ...project.customization,
+      ...parsed.data,
+    });
+    await buildDb.updateCustomization(project.id, childId, merged);
+    res.json({ message: 'Sparat!', customization: merged });
+  } catch (err) {
+    console.error('[BUILD] PATCH /play/:slug error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
+
+router.post('/play/:catalogSlug/action', async (req, res) => {
+  try {
+    const slug = req.params.catalogSlug;
+    if (!isPlayWorldSlug(slug)) {
+      return res.status(404).json({ error: 'Lek-världen finns inte.' });
+    }
+    const schema = playActionSchema(slug);
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Okänd åtgärd' });
+    }
+    const childId = req.user.id;
+    const project = await buildDb.getCompletedWorldProject(childId, slug);
+    if (!project) {
+      return res.status(404).json({ error: 'Lek-världen är inte öppen ännu.' });
+    }
+    const base = normalizePlayCustomization(slug, project.customization);
+    const result = applyPlayAction(slug, base, parsed.data.action);
+    const customization = await buildDb.updateCustomization(
+      project.id,
+      childId,
+      result.customization
+    );
+    res.json({
+      action: parsed.data.action,
+      message: result.message,
+      customization,
+    });
+  } catch (err) {
+    console.error('[BUILD] POST /play/:slug/action error:', err);
+    res.status(500).json({ error: 'Något gick fel.' });
+  }
+});
 
 module.exports = router;

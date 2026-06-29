@@ -37,55 +37,69 @@ async function getProjectsForChild(childId) {
   return r.rows.map(mapProjectRow);
 }
 
-async function getCompletedGarageProject(childId) {
+async function getCompletedWorldProject(childId, catalogSlug) {
   const r = await db.query(
     `SELECT p.id, p.catalog_slug, p.status, p.parts_collected, p.garage_unlocked,
             p.customization, p.created_at, p.updated_at,
-            c.name, c.icon, c.parts_required, c.unlock_label
+            c.name, c.icon, c.parts_required, c.unlock_label, c.world_slug, c.description, c.config
      FROM child_build_project p
      JOIN build_project_catalog c ON c.slug = p.catalog_slug
-     WHERE p.child_id = $1 AND p.status = 'completed' AND p.garage_unlocked = true
-     ORDER BY p.updated_at DESC
+     WHERE p.child_id = $1 AND p.catalog_slug = $2
+       AND p.status = 'completed' AND p.garage_unlocked = true
      LIMIT 1`,
-    [childId]
+    [childId, catalogSlug]
   );
   return r.rows[0] ? mapProjectRow(r.rows[0]) : null;
 }
 
-async function ensureDemoCompletedCar(childId) {
+async function getCompletedGarageProject(childId) {
+  return getCompletedWorldProject(childId, 'racerbil');
+}
+
+async function ensureDemoCompletedWorld(childId, catalogSlug) {
   const { ensureBuildCatalog } = require('../src/lib/seed-build-catalog');
+  const { normalizePlayCustomization } = require('../src/lib/build-world-play');
   await ensureBuildCatalog();
 
-  const existing = await getCompletedGarageProject(childId);
+  const existing = await getCompletedWorldProject(childId, catalogSlug);
   if (existing) return existing;
+
+  const customization = catalogSlug === 'racerbil'
+    ? DEFAULT_CUSTOMIZATION
+    : normalizePlayCustomization(catalogSlug, {});
 
   await db.query(
     `INSERT INTO child_build_project
        (child_id, catalog_slug, status, parts_collected, garage_unlocked, customization)
-     VALUES ($1, 'racerbil', 'completed', $2, true, $3::jsonb)
+     VALUES ($1, $2, 'completed', $3, true, $4::jsonb)
      ON CONFLICT (child_id, catalog_slug) DO UPDATE SET
        status = 'completed',
-       parts_collected = $2,
+       parts_collected = $3,
        garage_unlocked = true,
-       updated_at = NOW()
-     RETURNING id`,
-    [childId, BUILD_PARTS_REQUIRED, JSON.stringify(DEFAULT_CUSTOMIZATION)]
+       customization = $4::jsonb,
+       updated_at = NOW()`,
+    [childId, catalogSlug, BUILD_PARTS_REQUIRED, JSON.stringify(customization)]
   );
-  return getCompletedGarageProject(childId);
+  return getCompletedWorldProject(childId, catalogSlug);
+}
+
+async function ensureDemoCompletedCar(childId) {
+  return ensureDemoCompletedWorld(childId, 'racerbil');
 }
 
 async function updateCustomization(projectId, childId, patch) {
   const cur = await db.query(
-    `SELECT customization FROM child_build_project
-     WHERE id = $1 AND child_id = $2 AND status = 'completed'`,
+    `SELECT p.customization, p.catalog_slug FROM child_build_project p
+     WHERE p.id = $1 AND p.child_id = $2 AND p.status = 'completed'`,
     [projectId, childId]
   );
   if (cur.rows.length === 0) return null;
 
-  const merged = normalizeCustomization({
-    ...cur.rows[0].customization,
-    ...patch,
-  });
+  const slug = cur.rows[0].catalog_slug;
+  const { isPlayWorldSlug, normalizePlayCustomization } = require('../src/lib/build-world-play');
+  const merged = isPlayWorldSlug(slug)
+    ? normalizePlayCustomization(slug, { ...cur.rows[0].customization, ...patch })
+    : normalizeCustomization({ ...cur.rows[0].customization, ...patch });
 
   await db.query(
     `UPDATE child_build_project SET customization = $1::jsonb, updated_at = NOW()
@@ -217,8 +231,12 @@ async function grantPart(childId, dailyLogItemId) {
 }
 
 function mapProjectRow(row) {
+  const { isPlayWorldSlug, normalizePlayCustomization } = require('../src/lib/build-world-play');
   const partsRequired = row.parts_required || BUILD_PARTS_REQUIRED;
   const collected = row.parts_collected || 0;
+  const customization = isPlayWorldSlug(row.catalog_slug)
+    ? normalizePlayCustomization(row.catalog_slug, row.customization)
+    : normalizeCustomization(row.customization);
   return {
     id: row.id,
     catalog_slug: row.catalog_slug,
@@ -232,7 +250,7 @@ function mapProjectRow(row) {
     unlock_label: row.unlock_label,
     world_slug: row.world_slug || null,
     description: row.description || null,
-    customization: normalizeCustomization(row.customization),
+    customization: customization,
     updated_at: row.updated_at,
   };
 }
@@ -244,6 +262,8 @@ module.exports = {
   startProject,
   grantPart,
   getCompletedGarageProject,
+  getCompletedWorldProject,
   ensureDemoCompletedCar,
+  ensureDemoCompletedWorld,
   updateCustomization,
 };

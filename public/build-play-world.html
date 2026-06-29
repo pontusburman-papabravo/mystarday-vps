@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0F1629">
+  <title>Lek-värld — Min värld</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/build-play-world.css?v=1">
+  <script src="/js/auth.js?v=2.22.0"></script>
+</head>
+<body class="build-play-page">
+  <div class="bpw-bg-root" aria-hidden="true">
+    <div class="bpw-bg-scene" id="bpwBgScene"></div>
+    <div class="bpw-bg-vignette"></div>
+  </div>
+
+  <div id="bpwLoading" class="bpw-loading">Öppnar lek-världen…</div>
+
+  <div id="bpwLogin" class="bpw-app bpw-login-prompt" style="display:none">
+    <p id="bpwLoginMsg">Logga in som barn för att leka här.</p>
+    <a href="/child-login">Gå till barnlogin</a>
+    <p class="bpw-login-hint">Eller testa UI utan login:<br><a href="?preview=1" class="bpw-preview-link">?preview=1</a></p>
+  </div>
+
+  <div id="bpwApp" class="bpw-app" style="display:none">
+    <p id="bpwPreviewBanner" class="bpw-preview-banner" hidden>Förhandsvisning — ändringar sparas inte</p>
+    <header class="bpw-topbar">
+      <a href="/child/world" class="bpw-back">← Min värld</a>
+      <div class="bpw-title-wrap">
+        <h1 class="bpw-title" id="bpwTitle">Lek-värld</h1>
+        <p class="bpw-sub" id="bpwSub"></p>
+      </div>
+      <div class="bpw-topbar-spacer"></div>
+    </header>
+
+    <div class="bpw-stats" id="bpwStats"></div>
+
+    <div class="bpw-stage">
+      <div class="bpw-hero-wrap" id="bpwHeroWrap">
+        <div class="bpw-fx-layer" id="bpwFx" aria-hidden="true"></div>
+        <div class="bpw-shine-sweep" aria-hidden="true"></div>
+        <img id="bpwHeroImg" class="bpw-hero-img" src="" alt="">
+      </div>
+    </div>
+
+    <div id="bpwToast" class="bpw-toast" role="status" aria-live="polite"></div>
+
+    <section class="bpw-panel">
+      <div id="bpwPickers"></div>
+      <h2>🎮 Lek</h2>
+      <div class="bpw-actions" id="bpwActions"></div>
+    </section>
+  </div>
+
+  <script src="/js/build-play-world.js?v=1"></script>
+</body>
+</html>

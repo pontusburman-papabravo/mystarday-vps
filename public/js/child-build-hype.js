@@ -110,7 +110,9 @@
     const icon = active.icon || '🧩';
 
     if (active.status === 'completed' || active.garage_unlocked) {
-      const playHref = active.catalog_slug === 'racerbil' ? '/child/garage' : '/child/world';
+      const playHref = (window.BuildPlayHrefs && BuildPlayHrefs.playHrefForSlug)
+        ? BuildPlayHrefs.playHrefForSlug(active.catalog_slug)
+        : (active.catalog_slug === 'racerbil' ? '/child/garage' : '/child/world');
       return '<div class="cbh-card cbh-card--unlock">' +
         renderScene(active) +
         '<p class="cbh-title">🎉 ' + esc(unlock) + ' är öppen!</p>' +
