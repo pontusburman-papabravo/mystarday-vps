@@ -115,11 +115,30 @@ async function evaluateCommunicationGate(familyId, opts = {}) {
     if (state === 'CHURNED') {
       return { allowed: false, reason: 'churned_no_push', state, phase };
     }
-    if (!PUSH_ALLOWED_STATES.has(state)) {
-      return { allowed: false, reason: 'push_not_allowed_for_state', state, phase };
+    if (intent === 'retention_push') {
+      const milestoneDay = Number(opts.milestoneDay);
+      if (![3, 7, 14].includes(milestoneDay)) {
+        return { allowed: false, reason: 'invalid_milestone_day', state, phase };
+      }
+      if (!comm.everCompleted) {
+        return { allowed: false, reason: 'never_completed', state, phase };
+      }
+      if (comm.daysSinceCompletion !== milestoneDay) {
+        return {
+          allowed: false,
+          reason: 'milestone_day_mismatch',
+          state,
+          phase,
+        };
+      }
     }
-    if (state !== 'AT_RISK' && !['SETTING_UP', 'FIRST_USE', 'BUILDING_ROUTINE', 'ESTABLISHED_ROUTINE'].includes(state)) {
-      return { allowed: false, reason: 'retention_push_state_mismatch', state, phase };
+    if (intent === 'legacy_retention_push') {
+      if (!PUSH_ALLOWED_STATES.has(state)) {
+        return { allowed: false, reason: 'push_not_allowed_for_state', state, phase };
+      }
+      if (state !== 'AT_RISK' && !['SETTING_UP', 'FIRST_USE', 'BUILDING_ROUTINE', 'ESTABLISHED_ROUTINE'].includes(state)) {
+        return { allowed: false, reason: 'retention_push_state_mismatch', state, phase };
+      }
     }
   }
 
