@@ -48,6 +48,7 @@ test('journey-context mount order: parent GET /api/me/journey-context is not blo
     }
   } finally {
     await http.close();
+    await db.cleanup();
   }
 });
 
