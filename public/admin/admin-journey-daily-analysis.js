@@ -4,6 +4,9 @@
 (function () {
   'use strict';
 
+  let _failureChart = null;
+  let _funnelChart = null;
+
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -22,6 +25,89 @@
     } catch {
       return iso;
     }
+  }
+
+  function formatChartLabel(iso) {
+    try {
+      return new Date(iso).toLocaleString('sv-SE', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return iso;
+    }
+  }
+
+  function renderHistoryCharts(history) {
+    if (!history || history.length < 2 || typeof Chart === 'undefined') return;
+
+    const labels = history.map((h) => formatChartLabel(h.generatedAt));
+
+    if (_failureChart) { _failureChart.destroy(); _failureChart = null; }
+    if (_funnelChart) { _funnelChart.destroy(); _funnelChart = null; }
+
+    const failCanvas = document.getElementById('journeyChartFailures');
+    const funnelCanvas = document.getElementById('journeyChartFunnel');
+    if (!failCanvas || !funnelCanvas) return;
+
+    _failureChart = new Chart(failCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Hittade fel',
+            data: history.map((h) => h.failuresFound),
+            borderColor: '#e17055',
+            backgroundColor: 'rgba(225,112,85,0.15)',
+            tension: 0.25,
+            fill: true,
+          },
+          {
+            label: 'Browser QA-fel',
+            data: history.map((h) => h.browserQaFailures),
+            borderColor: '#fdcb6e',
+            tension: 0.25,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      },
+    });
+
+    _funnelChart = new Chart(funnelCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'FIRST_USE utan barnlogin',
+            data: history.map((h) => h.firstUseNoChildLogin),
+            borderColor: '#6c5ce7',
+            tension: 0.25,
+          },
+          {
+            label: 'Parent-ack kö',
+            data: history.map((h) => h.parentAckPending),
+            borderColor: '#00b894',
+            tension: 0.25,
+          },
+          {
+            label: 'first_success (30d)',
+            data: history.map((h) => h.firstSuccess30d),
+            borderColor: '#0984e3',
+            tension: 0.25,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      },
+    });
   }
 
   function renderReport(data) {
@@ -129,12 +215,27 @@
             Browser QA delvis hoppad — sätt <code>JOURNEY_QA_PARENT_EMAIL</code> / <code>PASSWORD</code> på servern.
           </p>` : ''}
 
+        <div class="mb-4 ${(data.history || []).length < 2 ? 'hidden' : ''}" id="journeyAnalysisChartsWrap">
+          <p class="text-xs font-bold uppercase text-text-soft mb-2">Trend (${(data.history || []).length} körningar)</p>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-xl border border-indigo-100 p-3">
+              <p class="text-xs font-semibold text-navy mb-2">Fel &amp; browser QA</p>
+              <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="journeyChartFailures"></canvas></div>
+            </div>
+            <div class="bg-white rounded-xl border border-indigo-100 p-3">
+              <p class="text-xs font-semibold text-navy mb-2">Journey-flaskhalsar</p>
+              <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="journeyChartFunnel"></canvas></div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid md:grid-cols-2 gap-3 mb-2">${sectionsHtml}</div>
         ${actionsHtml}
       </div>`;
 
     document.getElementById('journeyAnalysisRefreshBtn')?.addEventListener('click', loadJourneyDailyAnalysis);
     bindRunBtn();
+    renderHistoryCharts(data.history || []);
   }
 
   function bindRunBtn() {

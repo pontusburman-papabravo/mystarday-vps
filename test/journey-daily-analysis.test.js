@@ -50,6 +50,24 @@ describe('journey daily-analysis — buildReport', () => {
   });
 });
 
+describe('journey daily-analysis — history', () => {
+  it('extractHistoryPoint captures graph metrics', () => {
+    const { extractHistoryPoint } = require('../src/lib/journey/daily-analysis');
+    const p = extractHistoryPoint({
+      generatedAt: '2026-06-29T08:00:00.000Z',
+      summary: { measurementPoints: 40, failuresFound: 2, browserQaPoints: 36, browserQaFailures: 1, activeWave: 5 },
+      metrics: {
+        bottlenecks: { first_use_no_child_login: 138, parent_ack_pending: 4 },
+        funnel30d: { first_success_30d: 1, signups_30d: 97, pct_first_success: 1.0 },
+      },
+      actions: [{}, {}],
+    });
+    assert.equal(p.firstUseNoChildLogin, 138);
+    assert.equal(p.failuresFound, 2);
+    assert.equal(p.actionCount, 2);
+  });
+});
+
 describe('journey browser-qa — finalizeChecks', () => {
   it('counts passes and failures', () => {
     const r = finalizeChecks([

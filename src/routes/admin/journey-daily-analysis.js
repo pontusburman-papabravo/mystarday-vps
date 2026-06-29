@@ -4,6 +4,7 @@ const express = require('express');
 const {
   loadLatestReport,
   runJourneyDailyAnalysisJob,
+  loadHistory,
   msUntilNextRun,
   ANALYSIS_HOUR_STOCKHOLM,
 } = require('../../lib/journey-daily-analysis-scheduler');
@@ -12,9 +13,10 @@ const router = express.Router();
 
 router.get('/journey-daily-analysis/latest', async (req, res) => {
   try {
-    const report = await loadLatestReport();
+    const [report, history] = await Promise.all([loadLatestReport(), loadHistory(60)]);
     res.json({
       report,
+      history,
       nextRunInMs: msUntilNextRun(),
       scheduleHourStockholm: ANALYSIS_HOUR_STOCKHOLM,
     });

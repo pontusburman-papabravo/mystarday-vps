@@ -4,6 +4,65 @@ const db = require('../db');
 const rollout = require('./rollout');
 
 const CONFIG_KEY = 'JOURNEY_DAILY_ANALYSIS_LATEST';
+const HISTORY_CONFIG_KEY = 'JOURNEY_DAILY_ANALYSIS_HISTORY';
+const HISTORY_MAX_POINTS = 90;
+
+/**
+ * Compact snapshot for trend graphs (stored per run).
+ * @param {object} report
+ */
+function extractHistoryPoint(report) {
+  const s = report.summary || {};
+  const b = report.metrics?.bottlenecks || {};
+  const f = report.metrics?.funnel30d || {};
+  return {
+    generatedAt: report.generatedAt,
+    measurementPoints: s.measurementPoints ?? 0,
+    failuresFound: s.failuresFound ?? 0,
+    browserQaPoints: s.browserQaPoints ?? 0,
+    browserQaFailures: s.browserQaFailures ?? 0,
+    actionCount: (report.actions || []).length,
+    activeWave: s.activeWave ?? 0,
+    firstUseNoChildLogin: b.first_use_no_child_login ?? 0,
+    parentAckPending: b.parent_ack_pending ?? 0,
+    firstSuccess30d: f.first_success_30d ?? 0,
+    signups30d: f.signups_30d ?? 0,
+    pctFirstSuccess: f.pct_first_success ?? 0,
+  };
+}
+
+async function appendHistory(report) {
+  const point = extractHistoryPoint(report);
+  const raw = await appConfig.get(HISTORY_CONFIG_KEY);
+  let history = [];
+  if (raw) {
+    try {
+      history = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []);
+    } catch {
+      history = [];
+    }
+  }
+  history.push(point);
+  if (history.length > HISTORY_MAX_POINTS) {
+    history = history.slice(-HISTORY_MAX_POINTS);
+  }
+  await appConfig.set(HISTORY_CONFIG_KEY, JSON.stringify(history), {
+    description: 'Family Journey analys — historik för trendgrafer (senaste 90 körningar)',
+  });
+  return history;
+}
+
+async function loadHistory(limit = 30) {
+  const raw = await appConfig.get(HISTORY_CONFIG_KEY);
+  if (!raw) return [];
+  let history = [];
+  try {
+    history = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []);
+  } catch {
+    return [];
+  }
+  return history.slice(-limit);
+}
 
 /**
  * Collect Journey metrics from DB (read-only).
@@ -310,7 +369,11 @@ async function runDailyAnalysis({ browserQa = null } = {}) {
 
 module.exports = {
   CONFIG_KEY,
+  HISTORY_CONFIG_KEY,
   collectMetrics,
   buildReport,
   runDailyAnalysis,
+  extractHistoryPoint,
+  appendHistory,
+  loadHistory,
 };

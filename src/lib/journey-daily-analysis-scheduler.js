@@ -1,7 +1,7 @@
 'use strict';
 
 const appConfig = require('../../db/app-config');
-const { runDailyAnalysis, CONFIG_KEY } = require('./journey/daily-analysis');
+const { runDailyAnalysis, CONFIG_KEY, appendHistory, loadHistory } = require('./journey/daily-analysis');
 const { JOURNEY_DAILY_ANALYSIS_LOCK_ID } = require('./scheduler-constants');
 const db = require('./db');
 
@@ -34,6 +34,7 @@ async function persistReport(report) {
   await appConfig.set(CONFIG_KEY, JSON.stringify(report), {
     description: 'Senaste Family Journey dagliga analys (metrics + browser QA)',
   });
+  await appendHistory(report);
   return report;
 }
 
@@ -114,6 +115,7 @@ module.exports = {
   runJourneyDailyAnalysisJob,
   loadLatestReport,
   persistReport,
+  loadHistory,
   msUntilNextRun,
   ANALYSIS_HOUR_STOCKHOLM,
 };
