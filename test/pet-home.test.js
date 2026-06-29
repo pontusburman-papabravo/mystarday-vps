@@ -41,7 +41,7 @@ describe('pet home game v2', () => {
     assert.match(html, /phGoals/);
     assert.match(html, /phToolbar/);
     assert.match(html, /phTreat/);
-    assert.match(html, /pet-hund\.svg/);
+    assert.match(html, /build-pet-hero\.png/);
   });
 
   it('routes register pet-home and redirect play/husdjur', () => {
@@ -49,6 +49,10 @@ describe('pet home game v2', () => {
     assert.match(src, /\/child\/pet-home/);
     assert.match(src, /build-pet-home\.html/);
     assert.match(src, /\/child\/play\/husdjur/);
+  });
+
+  it('pet-home style anchor PNG exists', () => {
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/img/build/style-anchor/build-pet-hero.png')));
   });
 
   it('play-world-save bridge exists', () => {

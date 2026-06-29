@@ -5,7 +5,8 @@
   'use strict';
 
   const SLUG = 'husdjur';
-  const PET_IMG = '/img/build/pet-home/pet-';
+  const PET_HERO = '/img/build/style-anchor/build-pet-hero.png';
+  const PET_SVG = '/img/build/pet-home/pet-';
   const PETS = [
     { id: 'hund', label: 'Hund' },
     { id: 'katt', label: 'Katt' },
@@ -242,7 +243,8 @@
   }
 
   function petImgSrc(id) {
-    return PET_IMG + id + '.svg';
+    if (id === 'hund') return PET_HERO;
+    return PET_SVG + id + '.svg';
   }
 
   function renderPet() {
@@ -253,7 +255,10 @@
     pet.classList.remove('is-dirty', 'is-happy', 'is-eating', 'is-playing', 'is-sleeping');
     if (state.dirty_spots > 0 || state.cleanliness < 70) pet.classList.add('is-dirty');
     if (state.asleep) pet.classList.add('is-sleeping');
-    if (img) img.src = petImgSrc(state.pet_id);
+    if (img) {
+      img.src = petImgSrc(state.pet_id);
+      img.classList.toggle('is-dirty', state.dirty_spots > 0 || state.cleanliness < 70);
+    }
 
     const bowl = $('phBowl');
     if (bowl) bowl.classList.toggle('has-food', state.bowl_fill > 8);

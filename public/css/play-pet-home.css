@@ -252,6 +252,34 @@ body.pet-home-page {
 
 .ph-room-bg { position: absolute; inset: 0; }
 
+.ph-sky-glow {
+  position: absolute;
+  inset: 0 0 55%;
+  background:
+    radial-gradient(ellipse 70% 80% at 25% 20%, rgba(255, 214, 120, 0.55), transparent 55%),
+    radial-gradient(ellipse 60% 70% at 75% 15%, rgba(147, 197, 253, 0.45), transparent 50%);
+  pointer-events: none;
+}
+
+.ph-stars {
+  position: absolute;
+  inset: 0 0 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 220, 100, 0.9) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 28% 32%, rgba(255, 220, 100, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 45% 12%, rgba(255, 220, 100, 0.85) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 62% 24%, rgba(255, 220, 100, 0.6) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 14%, rgba(255, 220, 100, 0.8) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 88% 28%, rgba(255, 220, 100, 0.65) 0 1px, transparent 1.5px);
+  animation: phTwinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes phTwinkle {
+  0% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+
 .ph-wall {
   position: absolute;
   inset: 0 0 30%;
@@ -454,9 +482,9 @@ body.pet-home-page {
   position: absolute;
   left: 50%; bottom: 0;
   transform: translateX(-50%);
-  width: 75%;
-  max-width: 200px;
-  height: 88%;
+  width: 82%;
+  max-width: 240px;
+  height: 92%;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -466,13 +494,23 @@ body.pet-home-page {
   height: 100%;
   object-fit: contain;
   object-position: bottom center;
-  filter: drop-shadow(0 8px 12px rgba(27, 35, 64, 0.15));
+  filter: drop-shadow(0 14px 24px rgba(27, 35, 64, 0.22));
   pointer-events: none;
   user-select: none;
+  transition: filter 0.35s ease;
 }
 
+.ph-pet-img.is-dirty {
+  filter: drop-shadow(0 12px 20px rgba(27, 35, 64, 0.2)) brightness(0.94) saturate(0.88);
+}
+
+.ph-pet[data-pet="hund"] { max-width: 260px; width: 88%; }
 .ph-pet[data-pet="kanin"] { max-width: 150px; }
 .ph-pet[data-pet="hast"] { max-width: 220px; width: 90%; }
+
+.ph-pet.is-sleeping .ph-pet-img {
+  filter: saturate(0.82) brightness(0.94) drop-shadow(0 8px 16px rgba(27, 35, 64, 0.15));
+}
 
 .ph-pet-dirt {
   position: absolute;
@@ -492,7 +530,6 @@ body.pet-home-page {
 .ph-pet.is-happy { animation: phWiggle 0.35s ease 3; }
 .ph-pet.is-eating { animation: phNodImg 0.4s ease 4; }
 .ph-pet.is-playing { animation: phBounceImg 0.45s ease 3; }
-.ph-pet.is-sleeping .ph-pet-img { filter: saturate(0.8) brightness(0.95) drop-shadow(0 6px 10px rgba(27,35,64,0.12)); }
 
 @keyframes phWiggle {
   0%, 100% { transform: translateX(-50%) rotate(0); }
