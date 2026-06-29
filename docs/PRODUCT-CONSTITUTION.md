@@ -1,6 +1,6 @@
 # Product Constitution
 
-> Fem regler som alla produktbeslut ska kunna testas mot — som Reacts designprinciper, men för denna produkt.
+> Fem regler som alla produktbeslut ska kunna testas mot — som Reacts designprinciper, men för denna produkt. (Regel 6 tillagd 2026-06-29: Progression Nodes / No Magic Numbers.)
 
 Använd i PR-beskrivningar: *"Hur uppfyller denna ändring konstitutionen?"*
 
@@ -43,6 +43,16 @@ Efter varje handling ska föräldern känna: *"Jag verkar göra rätt."* Om anv�
 Efter registrering ska appen kännas mer komplett än före — inte som ett tomt verktyg som väntar på konfiguration.
 
 **Test:** Känns det som att något redan är gjort åt familjen, inte som att de fått ett blankt formulär?
+
+---
+
+## 6. Inga magiska tal (No Magic Numbers)
+
+Produkten får **aldrig** bero på godtyckliga konstanter (t.ex. "75 delar", "30 stjärnor", "5 nivåer"). Varje progressionströskel ska härledas från önskad spelarupplevelse, pacing och emotionell resa — och vara **konfigurerbar via data** (pack manifest, server config), inte hårdkodad i motor eller klient.
+
+**Test:** Finns tröskeln kvar om vi byter pack eller justerar pacing utan deploy av core engine? Om nej — magic number, redesign.
+
+**Authority:** [WORLD_DESIGN_BIBLE.md](../.ai/product/WORLD_DESIGN_BIBLE.md) operationaliserar detta som Progression Nodes.
 
 ---
 
