@@ -20,7 +20,7 @@ describe('EventBus (ADR-005)', () => {
   });
 
   it('freezes payload at emit time', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const payload = { child_id: 'a' };
     bus.subscribe('onWorldEnter', 'test:freeze', (p) => {
       assert.throws(() => { p.child_id = 'b'; });
