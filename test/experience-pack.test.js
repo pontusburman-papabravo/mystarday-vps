@@ -23,6 +23,7 @@ describe('Experience Pack loader', () => {
     assert.ok(pack.progression.worlds.length > 0);
     assert.ok(pack.rewards.rewards.length > 0);
     assert.ok(pack.copy.experiences.parent_ack_completion);
+    assert.ok(pack.livingObjects.worlds.some((w) => w.world_slug === 'garden'));
   });
 
   it('progression nodes come from pack only — no hardcoded IDs in loader', () => {

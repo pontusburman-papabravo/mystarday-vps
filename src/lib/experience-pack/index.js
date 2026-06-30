@@ -58,6 +58,9 @@ function loadPack(packId = DEFAULT_PACK_ID) {
     worlds: includes.worlds
       ? readPackJsonFile(path.join(packDir, includes.worlds), `${packId}/${includes.worlds}`)
       : { worlds: [] },
+    livingObjects: includes.living_objects
+      ? readPackJsonFile(path.join(packDir, includes.living_objects), `${packId}/${includes.living_objects}`)
+      : { worlds: [] },
   };
 
   packCache.set(packId, pack);
@@ -90,6 +93,16 @@ function getWorldDef(pack, worldSlug) {
   return (pack.worlds.worlds || []).find((w) => w.world_slug === worldSlug) || null;
 }
 
+function getLivingWorldDef(pack, worldSlug) {
+  return (pack.livingObjects.worlds || []).find((w) => w.world_slug === worldSlug) || null;
+}
+
+function getLivingArchetype(pack, worldSlug, archetypeId) {
+  const world = getLivingWorldDef(pack, worldSlug);
+  if (!world) return null;
+  return (world.archetypes || []).find((a) => a.archetype_id === archetypeId) || null;
+}
+
 function interpolateTemplate(template, vars = {}) {
   if (!template) return '';
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
@@ -119,6 +132,8 @@ module.exports = {
   getAllProgressionNodes,
   getRewardBySignal,
   getWorldDef,
+  getLivingWorldDef,
+  getLivingArchetype,
   interpolateTemplate,
   resolveExperienceCopy,
 };

@@ -17,6 +17,7 @@
     "progression": "progression.json",
     "rewards": "rewards.json",
     "copy": "copy.json",
-    "worlds": "worlds.json"
+    "worlds": "worlds.json",
+    "living_objects": "living-objects.json"
   }
 }

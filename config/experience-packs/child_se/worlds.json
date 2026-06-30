@@ -15,6 +15,11 @@
           "visual_token": "morning_light_warm"
         }
       }
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Trädgården",
+      "first_unlock_message": "Trädgården väntar på dig"
     }
   ]
 }
