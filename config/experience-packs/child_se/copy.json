@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Idag tog {{child_name}} sitt första steg.",
+      "body_template": "En liten vardagshandling — men den betyder mycket. Nu vet ni att rutinen fungerar.",
+      "cta": "Det ser jag"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Ni gjorde det tillsammans",
+      "body_template": "{{child_name}} började. Du såg det. Så föds vanor.",
+      "cta": "Vad fint"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Något glimmar i Morgonhuset…"
+    }
+  }
+}

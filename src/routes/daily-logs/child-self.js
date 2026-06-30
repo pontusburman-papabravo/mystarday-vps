@@ -258,6 +258,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
           childId: req.user.id,
           metadata: { daily_log_item_id: req.params.itemId },
         });
+        require('../../lib/platform-runtime').handleActivityComplete({
+          childId: req.user.id,
+          familyId: fid,
+          dailyLogItemId: req.params.itemId,
+        }).catch((err) => {
+          console.error('[platform-runtime] activity complete error:', err.message);
+        });
       }
       if (!item.completed) {
         try {

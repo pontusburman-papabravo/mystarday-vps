@@ -1,5 +1,6 @@
 /**
- * journey-celebration.js — celebration modal driven by Journey Context only.
+ * journey-celebration.js — celebration modal driven by Journey Context.
+ * Experience Pack copy when platform runtime provides celebration_copy on context.
  */
 (function () {
   'use strict';
@@ -11,13 +12,7 @@
     return document.getElementById(MODAL_ID);
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
-  }
-
-  async function showCelebration(registry) {
+  async function showCelebration(registry, celebrationCopy) {
     const modal = getModal();
     if (!modal) return;
 
@@ -26,9 +21,15 @@
     const body = document.getElementById('journeyCelebrationBody');
     const btn = document.getElementById('journeyCelebrationDismissBtn');
 
-    if (headline) headline.textContent = exp.headline || 'Första stjärnan är klar!';
-    if (body) body.textContent = exp.body || 'Barnet har klarat sin första aktivitet.';
-    if (btn) btn.textContent = exp.cta || 'Toppen!';
+    if (headline) {
+      headline.textContent = celebrationCopy?.headline || exp.headline || 'Ni gjorde det tillsammans';
+    }
+    if (body) {
+      body.textContent = celebrationCopy?.body || exp.body || 'Barnet började — och du såg det.';
+    }
+    if (btn) {
+      btn.textContent = celebrationCopy?.cta || exp.cta || 'Vad fint';
+    }
 
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -57,7 +58,7 @@
       const ctx = await JourneyContextClient.fetchContext();
       if (ctx?.celebration === 'celebrate_first_success') {
         const registry = await JourneyContextClient.fetchRegistry();
-        await showCelebration(registry);
+        await showCelebration(registry, ctx.celebration_copy);
       }
     } finally {
       polling = false;
@@ -76,7 +77,7 @@
     }
 
     pollCelebration();
-    setInterval(pollCelebration, 30000);
+    setInterval(pollCelebration, 15000);
   }
 
   if (document.readyState === 'loading') {

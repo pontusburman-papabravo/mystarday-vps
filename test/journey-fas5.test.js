@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const { derivePhase } = require('../src/lib/journey/phases');
 const { deriveContext } = require('../src/lib/journey/evaluator');
 const { ReasonCode } = require('../src/lib/journey/reason-codes');
-const { projectPushForFamily, PUSH_EXPERIENCE_PREFIX } = require('../src/lib/journey/push-projector');
+const { injectMockDb } = require('./helpers/setup.js');
 
 describe('journey Fas 5 — EXPANDING phase', () => {
   it('derivePhase returns EXPANDING for second_child_created', () => {
@@ -62,12 +62,28 @@ describe('journey Fas 5 — INDEPENDENCE phase', () => {
 
 describe('journey Fas 5 — push projector', () => {
   it('exports PUSH_EXPERIENCE_PREFIX', () => {
+    const { PUSH_EXPERIENCE_PREFIX } = require('../src/lib/journey/push-projector');
     assert.equal(PUSH_EXPERIENCE_PREFIX, 'push_');
   });
 
   it('projectPushForFamily returns null when push flag off', async () => {
-    const result = await projectPushForFamily('00000000-0000-4000-8000-000000000001');
-    assert.equal(result, null);
+    const mock = injectMockDb();
+    mock.setQuery(async (sql) => {
+      if (String(sql).includes('feature_flag')) {
+        return { rows: [{ enabled: false }] };
+      }
+      return { rows: [] };
+    });
+
+    try {
+      delete require.cache[require.resolve('../src/lib/journey/flags')];
+      delete require.cache[require.resolve('../src/lib/journey/push-projector')];
+      const { projectPushForFamily } = require('../src/lib/journey/push-projector');
+      const result = await projectPushForFamily('00000000-0000-4000-8000-000000000001');
+      assert.equal(result, null);
+    } finally {
+      mock.restore();
+    }
   });
 
   it('journey push scheduler is started from server', () => {

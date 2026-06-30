@@ -19,6 +19,8 @@ const WRITABLE_MILESTONES = new Set([
   'second_child_created',
   'coparent_joined',
   'evening_routine_added',
+  'first_week_day_dismissed',
+  'week_reflection_completed',
 ]);
 
 const CLIENT_INTENTS = {
@@ -26,6 +28,8 @@ const CLIENT_INTENTS = {
   handoff_deferred: 'handoff_deferred',
   celebration_dismissed: 'celebration_dismissed',
   parent_ack_dismissed: 'parent_saw_completion',
+  first_week_dismissed: 'first_week_day_dismissed',
+  week_reflection_completed: 'week_reflection_completed',
 };
 
 async function getPhaseOpts() {
@@ -100,6 +104,27 @@ async function ingestClientIntent({ familyId, intent, childId = null, metadata =
 
   const milestone = CLIENT_INTENTS[intent];
   if (!milestone) return { ok: false, error: 'unknown_intent' };
+
+  if (intent === 'first_week_dismissed') {
+    const day = metadata?.day;
+    if (!day || day < 1 || day > 7) return { ok: false, error: 'invalid_day' };
+    return ingestMilestone({
+      familyId,
+      milestone,
+      scopeKey: `day:${day}`,
+      metadata: { day },
+      source: 'system',
+    }, client);
+  }
+
+  if (intent === 'week_reflection_completed') {
+    return ingestMilestone({
+      familyId,
+      milestone: 'week_reflection_completed',
+      metadata: { warmth: metadata?.warmth || null },
+      source: 'system',
+    }, client);
+  }
 
   const milestones = await familyMilestones.getMilestoneMap(familyId, client);
   const derivedPhase = derivePhase(milestones, await getPhaseOpts());

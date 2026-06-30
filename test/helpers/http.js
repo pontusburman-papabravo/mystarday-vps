@@ -35,21 +35,39 @@ function getSetCookieHeaders(response) {
 }
 
 /**
+ * Integration tests load src/lib/db via createApp(). In test we only tear down
+ * the HTTP server here; test:gate:db uses --test-force-exit so workers exit
+ * without waiting on the pg pool idleTimeoutMillis (~30s per file).
+ */
+async function endAppDbPoolIfLoaded() {
+  // Intentionally no-op — see listenApp close() and test:gate:db --test-force-exit.
+}
+
+/**
  * Start createApp() on an ephemeral port. Returns { app, server, baseUrl, close }.
  */
 async function listenApp(createApp) {
   const app = createApp();
   const server = await new Promise((resolve) => {
     const s = app.listen(0, '127.0.0.1', () => resolve(s));
+    // Avoid integration tests waiting on server.close() for idle keep-alive sockets.
+    s.keepAliveTimeout = 1;
+    s.headersTimeout = 2_000;
   });
   const { port } = server.address();
   return {
     app,
     server,
     baseUrl: `http://127.0.0.1:${port}`,
-    close: () => new Promise((resolve, reject) => {
-      server.close((err) => (err ? reject(err) : resolve()));
-    }),
+    close: async () => {
+      if (typeof server.closeAllConnections === 'function') {
+        server.closeAllConnections();
+      }
+      await new Promise((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      });
+      await endAppDbPoolIfLoaded();
+    },
   };
 }
 

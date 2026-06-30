@@ -12,6 +12,7 @@ const ONCE_MILESTONES = new Set([
   'child_self_sufficient_week',
   'second_child_created',
   'coparent_joined',
+  'week_reflection_completed',
 ]);
 
 const SCOPED_ONCE_MILESTONES = new Set([
@@ -49,6 +50,12 @@ async function getMilestoneMap(familyId, client = db) {
     const iso = row.occurred_at instanceof Date
       ? row.occurred_at.toISOString()
       : new Date(row.occurred_at).toISOString();
+
+    if (row.milestone === 'first_week_day_dismissed') {
+      const dayNum = row.scope_key?.replace('day:', '') || row.metadata?.day;
+      if (dayNum) map[`fw_day_dismissed_${dayNum}`] = iso;
+      continue;
+    }
 
     if (row.milestone === 'child_logged_in') {
       const cid = row.child_id || (row.scope_key?.startsWith('child:') ? row.scope_key.slice(6) : null);
@@ -106,7 +113,8 @@ async function insertMilestone({
       VALUES ($1, $2, $3, $4, $5::jsonb, $6${timeVal})
       ON CONFLICT (family_id, milestone)
         WHERE milestone IN (
-          'account_created', 'child_created', 'routine_ready', 'rewards_ready', 'first_success'
+          'account_created', 'child_created', 'routine_ready', 'rewards_ready', 'first_success',
+          'week_reflection_completed'
         )
       DO NOTHING
       RETURNING *

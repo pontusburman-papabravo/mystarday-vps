@@ -40,11 +40,14 @@ async function setupTestDb(options = {}) {
 
   try {
     if (migrationsAppliedForUrl !== url) {
-      execSync('npm run migrate', {
-        cwd: REPO_ROOT,
-        env: { ...process.env, DATABASE_URL: url },
-        stdio: 'pipe',
-      });
+      const skipMigrate = process.env.TEST_SKIP_MIGRATE === '1' || process.env.TEST_SKIP_MIGRATE === 'true';
+      if (!skipMigrate) {
+        execSync('npm run migrate', {
+          cwd: REPO_ROOT,
+          env: { ...process.env, DATABASE_URL: url },
+          stdio: 'pipe',
+        });
+      }
       migrationsAppliedForUrl = url;
     }
 

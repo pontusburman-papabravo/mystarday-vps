@@ -1,0 +1,32 @@
+{
+  "pack_id": "child_se",
+  "audience_band": "child",
+  "locale": "sv-SE",
+  "reading_level": "early_reader",
+  "fiction_manifest": "fiction/child_se_v1.json",
+  "ui_skin": "child_warm_v1",
+  "pacing": {
+    "progression": {
+      "routine_home": {
+        "welcome_mat": { "threshold": 1 },
+        "mirror": { "threshold": 3 },
+        "bird": { "threshold": 5 }
+      }
+    },
+    "rewards": {
+      "onStarGranted": { "presentation": "star_burst" },
+      "progression": {
+        "routine_home_welcome_mat": { "presentation": "node_reveal" }
+      }
+    }
+  },
+  "worlds": [
+    "routine_home",
+    "workshop"
+  ],
+  "copy_tables": {
+    "ui": {
+      "welcome": "Välkommen!"
+    }
+  }
+}

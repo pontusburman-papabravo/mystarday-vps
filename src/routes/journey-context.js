@@ -71,18 +71,18 @@ router.get('/journey-debug', async (req, res) => {
 router.post('/journey-context/events', async (req, res) => {
   try {
     const familyId = req.user.familyId;
-    const { intent, child_id: childId, daily_log_item_id: dailyLogItemId } = req.body || {};
+    const { intent, child_id: childId, daily_log_item_id: dailyLogItemId, metadata } = req.body || {};
     if (!familyId || !intent) return res.status(400).json({ error: 'intent krävs' });
 
-    const metadata = {};
-    if (dailyLogItemId) metadata.daily_log_item_id = dailyLogItemId;
-    if (intent === 'parent_ack_dismissed') metadata.parent_id = req.user.id;
+    const eventMetadata = metadata && typeof metadata === 'object' ? { ...metadata } : {};
+    if (dailyLogItemId) eventMetadata.daily_log_item_id = dailyLogItemId;
+    if (intent === 'parent_ack_dismissed') eventMetadata.parent_id = req.user.id;
 
     const result = await ingestClientIntent({
       familyId,
       intent,
       childId: childId || null,
-      metadata,
+      metadata: eventMetadata,
     });
 
     if (!result.ok) {
@@ -122,9 +122,28 @@ router.get('/journey-context/pending-completions', async (req, res) => {
 
     const rows = await listUnseenCompletions(parentId, familyId);
     const now = new Date();
-    res.json({
-      completions: rows.map((row) => mapCompletionRow(row, now)),
-    });
+    const platformRuntime = require('../lib/platform-runtime');
+    const runtimeOn = await platformRuntime.isRuntimeEnabled();
+
+    const completions = await Promise.all(rows.map(async (row) => {
+      const mapped = mapCompletionRow(row, now);
+      if (runtimeOn && row.child_id && row.daily_log_item_id) {
+        const packFeedback = await platformRuntime.getParentFeedback(
+          row.child_id,
+          row.daily_log_item_id
+        );
+        if (packFeedback) {
+          mapped.pack_feedback = packFeedback;
+          mapped.headline = packFeedback.headline || mapped.headline;
+          mapped.parent_message = packFeedback.parent_message;
+          mapped.body = packFeedback.body;
+          mapped.cta = packFeedback.cta;
+        }
+      }
+      return mapped;
+    }));
+
+    res.json({ completions });
   } catch (err) {
     console.error('[journey-context] pending-completions error:', err);
     res.status(500).json({ error: 'Något gick fel' });

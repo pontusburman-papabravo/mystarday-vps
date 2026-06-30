@@ -95,6 +95,12 @@
       return;
     }
 
+    if (expKey.startsWith('fw_')) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return;
+    }
+
     const exp = registry?.phases?.[context.phase]?.[expKey] || {};
     mount.classList.remove('hidden');
     mount.innerHTML =
