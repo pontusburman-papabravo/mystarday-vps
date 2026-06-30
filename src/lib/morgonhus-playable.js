@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('./db');
+const { hasAccess } = require('../../db/features');
 const {
   resolvePackForChild,
   getWorldDef,
@@ -8,7 +8,7 @@ const {
 } = require('./experience-pack');
 const progressionDb = require('../../db/child-progression-node');
 
-const FLAG_KEY = 'morgonhus_playable_v1';
+const FEATURE_SLUG = 'morgonhus_playable';
 const WORLD_SLUG = 'routine_home';
 
 const AMBIENT_PROPS = [
@@ -23,17 +23,15 @@ const AMBIENT_PROPS = [
 ];
 
 /**
- * Playable Morgonhuset kill switch. Default OFF when flag row missing or disabled.
+ * Playable Morgonhuset — per-family feature access (features/family_features).
+ * Default denied when familyId missing, feature off, or not on dev allowlist.
  */
-async function isPlayableEnabled() {
+async function isPlayableEnabled(familyId) {
+  if (!familyId) return false;
   try {
-    const result = await db.query(
-      'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
-      [FLAG_KEY]
-    );
-    return Boolean(result.rows[0]?.enabled);
+    return await hasAccess(familyId, FEATURE_SLUG);
   } catch (err) {
-    console.error('[morgonhus-playable] flag DB error, defaulting disabled:', err.message);
+    console.error('[morgonhus-playable] hasAccess error, defaulting disabled:', err.message);
     return false;
   }
 }
@@ -92,7 +90,7 @@ async function buildSceneState(childId, client) {
 }
 
 module.exports = {
-  FLAG_KEY,
+  FEATURE_SLUG,
   WORLD_SLUG,
   isPlayableEnabled,
   buildSceneState,

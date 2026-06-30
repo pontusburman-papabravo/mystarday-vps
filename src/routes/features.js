@@ -12,11 +12,11 @@ const router = express.Router();
 // GET /api/features — list features accessible to the authenticated family
 router.get('/', requireAuth, async (req, res) => {
   try {
-    // Only parent families have feature access (not child login)
-    if (req.user.type !== 'parent') {
+    const familyId = req.user.familyId;
+    if (!familyId) {
       return res.json([]);
     }
-    const features = await getAccessibleFeatures(req.user.familyId);
+    const features = await getAccessibleFeatures(familyId);
     res.json(features);
   } catch (err) {
     console.error('[FEATURES] get accessible error:', err);

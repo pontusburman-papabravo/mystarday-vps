@@ -59,12 +59,28 @@ async function loadRewardsInner(options) {
   }
 
   if (navigator.onLine && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
-    const mounted = await window.ChildMorgonhus.tryMountWorld();
-    if (mounted) {
-      if (skeletonTimer) skeletonTimer.stop();
-      rewardsLoaded = true;
-      hideOfflineBanner();
-      return;
+    let morgonhusAllowed = false;
+    try {
+      const features = window.fetchStjarndagFeatures
+        ? await window.fetchStjarndagFeatures()
+        : await fetch('/api/features', { credentials: 'include' }).then(function (r) {
+          return r.ok ? r.json() : [];
+        });
+      morgonhusAllowed = features.some(function (f) {
+        return f.slug === 'morgonhus_playable';
+      });
+    } catch {
+      morgonhusAllowed = false;
+    }
+
+    if (morgonhusAllowed) {
+      const mounted = await window.ChildMorgonhus.tryMountWorld();
+      if (mounted) {
+        if (skeletonTimer) skeletonTimer.stop();
+        rewardsLoaded = true;
+        hideOfflineBanner();
+        return;
+      }
     }
     document.body.classList.remove('child-morgonhus-active');
   }

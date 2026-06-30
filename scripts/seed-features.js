@@ -801,6 +801,26 @@ const FEATURES = [
     changelog: [],
   },
 
+  // ── Morgonhuset playable slice (dev rollout via family_features) ─────────────
+  {
+    slug: 'morgonhus_playable',
+    name: 'Morgonhuset (spelbart)',
+    description: 'Första spelbara Morgonhuset-scenen i barnets Min värld — per-familj dev-rollout',
+    status: 'dev',
+    tags: ['barn', 'belöningar'],
+    priority: 'high',
+    complexity: 5,
+    estimated_hours: 12.0,
+    documentation: {
+      purpose: 'Kontrollerad rollout av spelbara Morgonhuset utan global feature_flag.',
+      user_story: 'Som barn i testfamilj vill jag se Morgonhuset i Skattkammaren när familjen har tillgång.',
+      acceptance_criteria: 'status=dev kräver family_features; status=live ger alla familjer; status=off stänger av.',
+      technical_notes: 'hasAccess(familyId, morgonhus_playable). Tilldelas via /admin/development. Ersätter morgonhus_playable_v1.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
+
   // ── Haptisk påminnelse — timer-larm (R5-T5) ─────────────────────────────────
   {
     slug: 'haptik_paminnelse',

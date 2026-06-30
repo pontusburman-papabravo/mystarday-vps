@@ -11,7 +11,7 @@ childRouter.use(requireChild);
 
 childRouter.get('/morgonhus', async (req, res) => {
   try {
-    const enabled = await morgonhus.isPlayableEnabled();
+    const enabled = await morgonhus.isPlayableEnabled(req.user.familyId);
     if (!enabled) {
       return res.status(503).json({ error: 'Morgonhuset ej aktiverat' });
     }
