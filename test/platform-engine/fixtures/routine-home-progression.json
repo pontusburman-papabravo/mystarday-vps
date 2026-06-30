@@ -1,0 +1,52 @@
+{
+  "world_slug": "routine_home",
+  "progression_model": "emotion_beats",
+  "phases": ["Sprout", "Root", "Branch"],
+  "nodes": [
+    {
+      "node_id": "routine_home_welcome_mat",
+      "order": 1,
+      "node_type": "build",
+      "name_sv": "Välkomstmatta",
+      "emotional_beat": "Första foten innanför",
+      "unlock_signal": "first_activity_complete:morning",
+      "pack_config_key": "progression.routine_home.welcome_mat"
+    },
+    {
+      "node_id": "routine_home_nightstand",
+      "order": 2,
+      "node_type": "build",
+      "name_sv": "Nattduksbord",
+      "emotional_beat": "Natten och morgonen hänger ihop",
+      "unlock_signal": "milestone:sprout",
+      "pack_config_key": "progression.routine_home.nightstand"
+    },
+    {
+      "node_id": "routine_home_mirror",
+      "order": 3,
+      "node_type": "room",
+      "name_sv": "Spegelhörna",
+      "emotional_beat": "Jag ser mig själv som kapabel",
+      "unlock_signal": "activity_streak:brush_teeth:3",
+      "pack_config_key": "progression.routine_home.mirror"
+    },
+    {
+      "node_id": "routine_home_mira",
+      "order": 4,
+      "node_type": "npc",
+      "name_sv": "Morgon-Mira",
+      "emotional_beat": "Någon ser att jag försöker",
+      "unlock_signal": "milestone:root + first_world_enter",
+      "pack_config_key": "progression.routine_home.npc_mira"
+    },
+    {
+      "node_id": "routine_home_bird",
+      "order": 5,
+      "node_type": "animal",
+      "name_sv": "Fönsterfågel",
+      "emotional_beat": "Världen utanför väntar lugnt",
+      "unlock_signal": "explore:taps:5",
+      "pack_config_key": "progression.routine_home.bird"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "onActivityComplete": {
+    "child_id": "00000000-0000-4000-8000-000000000001",
+    "activity_id": "brush_teeth",
+    "completed_date": "2026-06-29",
+    "verified": true,
+    "section": "morning",
+    "first_in_section": true
+  },
+  "onStarGranted": {
+    "child_id": "00000000-0000-4000-8000-000000000001",
+    "amount": 1,
+    "source_activity_id": "brush_teeth"
+  },
+  "onProgressionNodeUnlocked": {
+    "child_id": "00000000-0000-4000-8000-000000000001",
+    "world_slug": "routine_home",
+    "node_id": "routine_home_welcome_mat",
+    "metadata": {
+      "emotional_beat": "Första foten innanför",
+      "node_type": "build"
+    }
+  },
+  "onWorldEnter": {
+    "child_id": "00000000-0000-4000-8000-000000000001",
+    "world_slug": "routine_home"
+  },
+  "onMilestone": {
+    "child_id": "00000000-0000-4000-8000-000000000001",
+    "milestone_type": "sprout",
+    "threshold_ref": "progression.routine_home.nightstand"
+  }
+}
