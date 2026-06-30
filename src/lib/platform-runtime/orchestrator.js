@@ -203,13 +203,28 @@ async function getChildFeedback(childId, client) {
   })));
 
   const copy = resolveExperienceCopy(pack, 'child_first_completion');
+  const stats = await gatherChildStats(childId, client);
 
   return {
     pack_id: pack.manifest.pack_id,
-    message: copy?.message,
-    world_hint: copy?.world_hint,
+    is_first_completion: stats.child_completions === 1,
+    world_hint: copy?.world_hint || null,
     world_feedback: worldFeedback,
     unlocked_nodes: unlocked,
+  };
+}
+
+async function getCelebrationCopy(childName = 'Barnet') {
+  const pack = resolvePackForChild(null);
+  const { resolveExperienceCopy } = require('../experience-pack');
+  const copy = resolveExperienceCopy(pack, 'celebrate_first_success', { child_name: childName });
+  if (!copy) return null;
+  return {
+    pack_id: pack.manifest.pack_id,
+    headline: copy.headline,
+    body: copy.body,
+    cta: copy.cta,
+    tone: copy.tone,
   };
 }
 
@@ -220,5 +235,6 @@ module.exports = {
   replayPendingEvents,
   getParentFeedback,
   getChildFeedback,
+  getCelebrationCopy,
   gatherChildStats,
 };

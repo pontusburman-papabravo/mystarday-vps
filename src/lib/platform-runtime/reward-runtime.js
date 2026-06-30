@@ -1,6 +1,6 @@
 'use strict';
 
-const { getRewardBySignal, interpolateTemplate } = require('../experience-pack');
+const { getRewardBySignal, interpolateTemplate, resolveExperienceCopy } = require('../experience-pack');
 const progressionDb = require('../../../db/child-progression-node');
 const eventBus = require('./event-bus');
 
@@ -17,10 +17,14 @@ async function processRewards({ childId, familyId, pack, signal, context }, clie
     activity_name: context.activityName || 'en aktivitet',
   };
 
+  const ackCopy = resolveExperienceCopy(pack, 'parent_ack_completion', vars);
   const feedback = {
     reward_id: reward.reward_id,
-    child_message: reward.child_message,
     parent_message: interpolateTemplate(reward.parent_message_template, vars),
+    headline: ackCopy?.headline || interpolateTemplate(reward.parent_message_template, vars),
+    body: ackCopy?.body || null,
+    cta: ackCopy?.cta || 'Det ser jag',
+    tone: ackCopy?.tone || 'warm',
     celebration_theme: reward.celebration_theme,
     celebration_max_ms: reward.celebration_max_ms,
     pack_config_key: reward.pack_config_key,

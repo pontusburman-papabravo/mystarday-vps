@@ -68,7 +68,8 @@ describe('Platform Runtime integration (DB)', () => {
       assert.match(parentFeedback.parent_message, /Idag tog Alma sitt första steg/);
 
       const childFeedback = await platformRuntime.getChildFeedback(childId, db.query);
-      assert.equal(childFeedback.message, 'Du klarade det!');
+      assert.equal(childFeedback.is_first_completion, true);
+      assert.match(childFeedback.world_hint, /Morgonhuset/);
       assert.ok(childFeedback.unlocked_nodes.length >= 1);
     } finally {
       await db.cleanup();

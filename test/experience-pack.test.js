@@ -46,7 +46,8 @@ describe('Experience Pack loader', () => {
       activity_name: 'Tänder',
     });
     assert.equal(copy.headline, 'Idag tog Alma sitt första steg.');
-    assert.match(copy.body, /Alma/);
+    assert.match(copy.body, /vardagshandling|rutinen/);
+    assert.equal(copy.cta, 'Det ser jag');
   });
 });
 
@@ -82,6 +83,6 @@ describe('Unlock signal evaluator', () => {
       node_id: 'routine_home_welcome_mat',
     }]);
     assert.equal(feedback[0].world_name, 'Morgonhuset');
-    assert.match(feedback[0].child_message, /välkomstmatta/i);
+    assert.match(feedback[0].child_message, /Morgonhuset/i);
   });
 });

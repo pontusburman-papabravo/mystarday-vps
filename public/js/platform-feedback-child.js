@@ -1,12 +1,12 @@
 /**
- * platform-feedback-child.js — Experience Pack feedback after activity completion.
- * Temporary UI component proving Platform Runtime integration (POS C-04, G-01).
+ * platform-feedback-child.js — First-completion world whisper from Experience Pack.
+ * Does not duplicate dopamin burst / "Du klarade det!" — only a gentle Morgonhuset hint.
  */
 (function () {
   'use strict';
 
   const TOAST_ID = 'platformFeedbackToast';
-  const CELEBRATION_MAX_MS = 2000;
+  const WHISPER_MAX_MS = 2200;
 
   function ensureToast() {
     let el = document.getElementById(TOAST_ID);
@@ -14,8 +14,9 @@
 
     el = document.createElement('div');
     el.id = TOAST_ID;
-    el.className = 'hidden fixed top-24 left-1/2 -translate-x-1/2 z-[60] bg-white/95 text-navy px-5 py-3 rounded-2xl shadow-xl font-heading font-semibold text-sm max-w-xs text-center border border-amber-100';
+    el.className = 'hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-[60] max-w-xs text-center pointer-events-none';
     el.setAttribute('role', 'status');
+    el.innerHTML = '<p class="platform-feedback-whisper text-sm font-heading text-navy/80 italic px-4 py-2 rounded-full bg-white/80 shadow-md border border-amber-50/80 backdrop-blur-sm"></p>';
     document.body.appendChild(el);
     return el;
   }
@@ -24,26 +25,23 @@
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  function showFeedback(data) {
-    if (!data) return;
-
-    const message = data.message || (data.world_feedback && data.world_feedback[0]?.child_message);
-    const hint = data.world_hint || (data.world_feedback && data.world_feedback[0]?.first_enter_message);
-    if (!message && !hint) return;
+  function showWhisper(hint) {
+    if (!hint) return;
 
     const toast = ensureToast();
-    const lines = [message, hint].filter(Boolean);
-    toast.textContent = lines.join(' — ');
+    const line = toast.querySelector('.platform-feedback-whisper');
+    if (!line) return;
+
+    line.textContent = hint;
     toast.classList.remove('hidden');
 
-    const duration = prefersReducedMotion() ? 800 : CELEBRATION_MAX_MS;
+    const duration = prefersReducedMotion() ? 900 : WHISPER_MAX_MS;
     setTimeout(() => toast.classList.add('hidden'), duration);
   }
 
   async function fetchFeedback() {
     try {
-      const res = await window.Auth.api('/api/me/platform-feedback');
-      return res;
+      return await window.Auth.api('/api/me/platform-feedback');
     } catch (err) {
       console.warn('[platform-feedback] fetch failed:', err.message);
       return null;
@@ -52,7 +50,8 @@
 
   async function onActivityCompleted() {
     const data = await fetchFeedback();
-    showFeedback(data);
+    if (!data?.is_first_completion) return;
+    showWhisper(data.world_hint);
   }
 
   function init() {
@@ -75,7 +74,7 @@
 
   window.PlatformFeedback = {
     fetchFeedback,
-    showFeedback,
+    showWhisper,
     onActivityCompleted,
   };
 })();

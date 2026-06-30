@@ -116,6 +116,7 @@ describe('First Success Journey E2E', () => {
 
       const parentFeedback = await platformRuntime.getParentFeedback(childId, itemId, db.query);
       assert.equal(parentFeedback.parent_message, 'Idag tog Alma sitt första steg.');
+      assert.equal(parentFeedback.cta, 'Det ser jag');
 
       await ingestMilestone({
         familyId,

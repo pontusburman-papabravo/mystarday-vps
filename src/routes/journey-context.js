@@ -136,6 +136,8 @@ router.get('/journey-context/pending-completions', async (req, res) => {
           mapped.pack_feedback = packFeedback;
           mapped.headline = packFeedback.headline || mapped.headline;
           mapped.parent_message = packFeedback.parent_message;
+          mapped.body = packFeedback.body;
+          mapped.cta = packFeedback.cta;
         }
       }
       return mapped;
