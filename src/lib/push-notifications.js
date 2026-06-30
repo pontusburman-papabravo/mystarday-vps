@@ -36,10 +36,10 @@ const FCM_SERVER_KEY = process.env.FCM_SERVER_KEY;
  * (both web and native).
  *
  * @param {string} parentId - UUID of the parent account
- * @param {{ title: string, body: string, icon?: string, url?: string, type?: string }} payload
+ * @param {{ title: string, body: string, icon?: string, url?: string, type?: string, metadata?: object }} payload
  * @returns {Promise<{ sent: number, cleaned: number }>}
  */
-async function sendPushNotification(parentId, { title, body, icon, url, type = 'general' }) {
+async function sendPushNotification(parentId, { title, body, icon, url, type = 'general', metadata }) {
   const [webSubs, nativeSubs] = await Promise.all([
     pushSubscriptions.getWebSubscriptions(parentId),
     pushSubscriptions.getNativeSubscriptions(parentId),
@@ -111,7 +111,7 @@ async function sendPushNotification(parentId, { title, body, icon, url, type = '
 
   // Archive notification for the parent's inbox (best-effort — never block send)
   if (totalSent > 0) {
-    notificationLog.logNotification(parentId, { title, body, type, url }).catch((err) => {
+    notificationLog.logNotification(parentId, { title, body, type, url, metadata }).catch((err) => {
       console.error('[PUSH] Failed to log notification to archive:', err.message);
     });
   }

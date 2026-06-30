@@ -548,6 +548,7 @@ CREATE TABLE IF NOT EXISTS notification_log (
   body TEXT,
   type VARCHAR(64),
   url TEXT,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
   is_read BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
