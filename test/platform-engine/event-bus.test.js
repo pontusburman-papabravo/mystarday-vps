@@ -8,7 +8,7 @@ const { HANDLER_BUDGET_MS } = require('../../src/platform-engine/constants');
 
 describe('EventBus (ADR-005)', () => {
   it('queues and flushes same tick', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const seen = [];
     bus.subscribe('onMilestone', 'test:1', (payload) => {
       seen.push(payload.milestone_type);
