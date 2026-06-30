@@ -145,3 +145,27 @@ html.is-native #globalFeedbackBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
   z-index: 10001 !important;
 }
+
+/* ── Android WebView GPU stability ───────────────────────────────────────
+ * backdrop-filter crashes the renderer on many mid/low-end Android WebViews
+ * (Play pre-launch report / Family Policy stability). Use solid backgrounds. */
+html.is-native-android *,
+html.is-native-android {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.is-native-android .native-tab-bar {
+  background: #ffffff !important;
+}
+
+html.is-native-android.dark .native-tab-bar,
+html.is-native-android.parent-theme-dark .native-tab-bar {
+  background: #1c1c1e !important;
+}
+
+html.is-native-android .app-entry-screen .entry-choice-card,
+html.is-native-android .magic-form-fields .magic-input,
+html.is-native-android #ppin-overlay > div {
+  background: rgba(255, 255, 255, 0.98) !important;
+}

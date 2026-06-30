@@ -33,6 +33,16 @@ const config: CapacitorConfig = {
       '@capacitor/push-notifications',
     ],
   },
+  android: {
+    // Apple Sign In is iOS-only. Excluding it keeps the Android APK lean and avoids
+    // shipping an unused auth plugin in Play review builds.
+    includePlugins: [
+      '@capacitor/app',
+      '@capacitor/camera',
+      '@capacitor/push-notifications',
+      '@codetrix-studio/capacitor-google-auth',
+    ],
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
