@@ -165,6 +165,11 @@ describe('ChildGarden client module', () => {
       document: dom,
       window: {
         matchMedia: () => ({ matches: false }),
+        GardenAssetPipeline: {
+          assetUrl: (id) => '/assets/worlds/garden/' + id + '.webp?v=1.0.0',
+          preloadCritical: async () => true,
+          watchSceneAssets: () => function () {},
+        },
         Auth: { api: async () => ({
           enabled: true,
           display_name: 'Trädgården',
@@ -194,13 +199,17 @@ describe('ChildGarden client module', () => {
       ],
     });
     assert.match(html, /gd-scene/);
-    assert.match(html, /gd-house-edge/);
+    assert.match(html, /gd-scene--asset/);
+    assert.match(html, /gd-asset--background/);
+    assert.match(html, /assets\/worlds\/garden\/house-left\.webp/);
     assert.match(html, /gd-hotspot--path/);
     assert.match(html, /gd-back-fab/);
     assert.match(html, /aria-label="Tillbaka till Morgonhuset"/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
     assert.doesNotMatch(html, /gd-scene-toast/);
+    assert.doesNotMatch(html, /gd-house-wall/);
+    assert.doesNotMatch(html, /gd-sunflower/);
     assert.doesNotMatch(html, /Tillbaka till Morgonhuset<\/button>/);
   });
 
@@ -215,11 +224,10 @@ describe('ChildGarden client module', () => {
       path.join(__dirname, '../public/css/child-garden.css'),
       'utf8'
     );
-    assert.match(css, /gd-grass-sway/);
     assert.match(css, /gd-cloud-drift/);
     assert.match(css, /gd-bird-fly/);
-    assert.match(css, /gd-leaf-float/);
-    assert.match(css, /gd-house-edge/);
+    assert.match(css, /gd-layer--house/);
+    assert.match(css, /prefers-reduced-motion/);
     assert.match(css, /min-height: calc\(100dvh/);
   });
 
