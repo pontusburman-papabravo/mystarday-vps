@@ -1,0 +1,205 @@
+/* child-living-world-transition.css — Living World place mode (chrome hide + portal) */
+
+/* ── App chrome fades out while entering / hidden in world ── */
+body.living-world-chrome-out #childMainHeader,
+body.living-world-active #childMainHeader,
+body.living-world-entering #childMainHeader,
+body.living-world-exiting #childMainHeader,
+body.living-world-chrome-out #childBottomNav,
+body.living-world-active #childBottomNav,
+body.living-world-entering #childBottomNav,
+body.living-world-exiting #childBottomNav,
+body.living-world-chrome-out #progressSection,
+body.living-world-active #progressSection,
+body.living-world-entering #progressSection,
+body.living-world-exiting #progressSection,
+body.living-world-chrome-out #weekNavDetails,
+body.living-world-active #weekNavDetails,
+body.living-world-chrome-out #childLayerNav,
+body.living-world-active #childLayerNav,
+body.living-world-chrome-out #appViewToggleMount,
+body.living-world-active #appViewToggleMount,
+body.living-world-chrome-out #todayFocusMount,
+body.living-world-active #todayFocusMount,
+body.living-world-chrome-out #offlineBanner,
+body.living-world-active #offlineBanner,
+body.living-world-chrome-out #homeView,
+body.living-world-active #homeView,
+body.living-world-chrome-out #scheduleView,
+body.living-world-active #scheduleView,
+body.living-world-chrome-out #familyView,
+body.living-world-active #familyView,
+body.living-world-chrome-out #moreView,
+body.living-world-active #moreView {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+body.living-world-chrome-out .skatt-banner,
+body.living-world-active .skatt-banner,
+body.living-world-entering .skatt-banner {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ── Full-screen world shell (no app chrome) ── */
+body.living-world-active #rewardsView,
+body.living-world-entering #rewardsView,
+body.living-world-exiting #rewardsView {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  display: block !important;
+  padding: 0 !important;
+  margin: 0;
+  overflow: hidden;
+  background: #0f1824 !important;
+}
+
+body.living-world-active #skattkammarView,
+body.living-world-entering #skattkammarView,
+body.living-world-exiting #skattkammarView {
+  position: fixed;
+  inset: 0;
+  z-index: 181;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body.living-world-active #skattkammarLoading,
+body.living-world-entering #skattkammarLoading {
+  display: none !important;
+}
+
+body.living-world-active .gd-scene,
+body.living-world-entering .gd-scene--illustrated {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+}
+
+/* ── Door opens (Morgonhus) ── */
+.mh-prop--door.lw-door-opening {
+  z-index: 190;
+  animation: lw-door-open 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.mh-prop--door.lw-door-opening .mh-prop-emoji {
+  animation: lw-door-emoji-glow 0.38s ease forwards;
+}
+
+@keyframes lw-door-open {
+  0%   { transform: scale(1); box-shadow: 0 4px 16px rgba(27, 35, 64, 0.12); }
+  45%  { transform: scale(1.06); box-shadow: 0 0 28px rgba(255, 214, 120, 0.55); }
+  100% { transform: scale(1.1); box-shadow: 0 0 36px rgba(255, 230, 160, 0.65); }
+}
+
+@keyframes lw-door-emoji-glow {
+  0%   { filter: none; }
+  100% { filter: drop-shadow(0 0 10px rgba(255, 220, 100, 0.9)); }
+}
+
+/* ── Portal overlay (warm light through door) ── */
+.lw-portal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 185;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse 70% 60% at 22% 58%, rgba(255, 236, 180, 0.75), transparent 68%);
+  transition: opacity 0.32s ease;
+}
+
+.lw-portal-overlay.is-visible {
+  opacity: 1;
+}
+
+/* ── Camera through door (zoom + parallax) ── */
+#skattkammarView.lw-portal-zoom {
+  transform-origin: 18% 62%;
+  animation: lw-portal-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+#skattkammarView.lw-portal-zoom-out {
+  transform-origin: 18% 62%;
+  animation: lw-portal-exit 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+#skattkammarView.lw-portal-return {
+  transform-origin: 18% 62%;
+  animation: lw-portal-return 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+#skattkammarView.lw-world-visible {
+  transform: none;
+  opacity: 1;
+}
+
+@keyframes lw-portal-enter {
+  from { transform: scale(1) translate3d(0, 0, 0); opacity: 1; filter: brightness(1); }
+  to   { transform: scale(1.22) translate3d(6%, -2%, 0); opacity: 0.15; filter: brightness(1.25); }
+}
+
+@keyframes lw-portal-exit {
+  from { transform: scale(1) translate3d(0, 0, 0); opacity: 1; }
+  to   { transform: scale(0.92) translate3d(-4%, 2%, 0); opacity: 0.2; filter: brightness(0.85); }
+}
+
+@keyframes lw-portal-return {
+  from { transform: scale(1.14) translate3d(5%, -1%, 0); opacity: 0.25; filter: brightness(1.15); }
+  to   { transform: scale(1) translate3d(0, 0, 0); opacity: 1; filter: brightness(1); }
+}
+
+/* ── World reveal after portal ── */
+body.living-world-active .gd-scene--entering {
+  animation: lw-world-reveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes lw-world-reveal {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Reduced motion: instant place swap, no portal ── */
+@media (prefers-reduced-motion: reduce) {
+  body.living-world-chrome-out #childMainHeader,
+  body.living-world-active #childMainHeader,
+  body.living-world-chrome-out #childBottomNav,
+  body.living-world-active #childBottomNav,
+  body.living-world-chrome-out #progressSection,
+  body.living-world-active #progressSection {
+    transition: none;
+  }
+
+  .mh-prop--door.lw-door-opening,
+  .mh-prop--door.lw-door-opening .mh-prop-emoji,
+  #skattkammarView.lw-portal-zoom,
+  #skattkammarView.lw-portal-zoom-out,
+  #skattkammarView.lw-portal-return,
+  body.living-world-active .gd-scene--entering,
+  .lw-portal-overlay {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  #skattkammarView.lw-portal-zoom,
+  #skattkammarView.lw-portal-zoom-out,
+  #skattkammarView.lw-portal-return {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}

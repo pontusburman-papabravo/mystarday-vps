@@ -373,6 +373,16 @@ function applyChildViewMode() {
 }
 
 function showTab(tab) {
+  if (window.LivingWorldTransition
+      && typeof window.LivingWorldTransition.isActive === 'function'
+      && window.LivingWorldTransition.isActive()) {
+    return;
+  }
+  if (window.ChildGarden
+      && typeof window.ChildGarden.isActive === 'function'
+      && window.ChildGarden.isActive()) {
+    return;
+  }
   if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
     if (tab === 'home' || tab === 'more') tab = 'schedule';
   } else if (tab === 'home' && !childUiMagic) {
@@ -412,7 +422,8 @@ function showTab(tab) {
   }
 
   if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()
-      && (!window.ChildGarden || !window.ChildGarden.isActive())) {
+      && (!window.ChildGarden || !window.ChildGarden.isActive())
+      && (!window.LivingWorldTransition || !window.LivingWorldTransition.isActive())) {
     window.rewardsLoaded = false;
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
       window.ChildMorgonhus.clearPreferSkatt();
