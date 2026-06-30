@@ -1,6 +1,6 @@
 /**
- * child-garden.js — Trädgården immersive place (presentation only).
- * Enter from Morgonhus door · visual ambient world · no toasts.
+ * child-garden.js — Trädgården layered asset scene (presentation only).
+ * Enter from Morgonhus door · illustrated layers · no toasts.
  */
 (function () {
   'use strict';
@@ -12,6 +12,7 @@
   let _active = false;
   let _state = null;
   let _prefersReducedMotion = false;
+  let _assetCleanup = null;
 
   function esc(str) {
     if (!str) return '';
@@ -19,6 +20,28 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function pipeline() {
+    return window.GardenAssetPipeline || null;
+  }
+
+  function assetSrc(id) {
+    const p = pipeline();
+    if (p && typeof p.assetUrl === 'function') {
+      return p.assetUrl(id);
+    }
+    return '/assets/worlds/garden/' + id + '.webp';
+  }
+
+  function assetImg(id, className, extraAttrs) {
+    const src = assetSrc(id);
+    return '<img class="gd-asset ' + esc(className) + '"' +
+      ' data-asset-id="' + esc(id) + '"' +
+      ' src="' + esc(src) + '"' +
+      ' alt="" decoding="async" loading="eager"' +
+      (extraAttrs || '') +
+      ' />';
   }
 
   function renderScene(state) {
@@ -32,50 +55,42 @@
         ' aria-label="' + esc(label || id) + '"></button>';
     }
 
-    return '<div class="gd-scene gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
-      '<div class="gd-sky" aria-hidden="true">' +
-        '<div class="gd-sun"></div>' +
-        '<div class="gd-cloud gd-cloud--a"></div>' +
-        '<div class="gd-cloud gd-cloud--b"></div>' +
-        '<div class="gd-cloud gd-cloud--c"></div>' +
-        '<div class="gd-bird" id="gdBird"></div>' +
+    return '<div class="gd-scene gd-scene--asset gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
+      '<div class="gd-fallback-bg" aria-hidden="true"></div>' +
+      '<div class="gd-layer gd-layer--sky" aria-hidden="true">' +
+        assetImg('background', 'gd-asset--background') +
       '</div>' +
-      '<div class="gd-house-edge" aria-hidden="true">' +
-        '<div class="gd-house-wall"></div>' +
-        '<div class="gd-door-frame"></div>' +
-        '<div class="gd-door-light"></div>' +
-        '<div class="gd-door-mat"></div>' +
+      '<div class="gd-layer gd-layer--clouds" aria-hidden="true">' +
+        assetImg('clouds', 'gd-asset--clouds') +
       '</div>' +
-      '<div class="gd-world" aria-hidden="true">' +
-        '<div class="gd-hills"></div>' +
-        '<div class="gd-hill-tree"></div>' +
-        '<div class="gd-lake"></div>' +
-        '<div class="gd-fence"></div>' +
-        '<div class="gd-path" id="gdPath"></div>' +
-        '<div class="gd-flower-bed" id="gdFlowerBed">' +
-          '<span class="gd-sunflower"></span>' +
-          '<span class="gd-wildflower gd-wildflower--a"></span>' +
-          '<span class="gd-wildflower gd-wildflower--b"></span>' +
-        '</div>' +
-        '<div class="gd-tree">' +
-          '<span class="gd-swing"></span>' +
-          '<span class="gd-birdhouse"></span>' +
-        '</div>' +
-        '<div class="gd-grass gd-grass--back"></div>' +
-        '<div class="gd-grass gd-grass--mid"></div>' +
-        '<div class="gd-grass gd-grass--front"></div>' +
-        '<div class="gd-leaves">' +
-          '<span class="gd-leaf gd-leaf--1"></span>' +
-          '<span class="gd-leaf gd-leaf--2"></span>' +
-          '<span class="gd-leaf gd-leaf--3"></span>' +
-          '<span class="gd-leaf gd-leaf--4"></span>' +
+      '<div class="gd-layer gd-layer--path" aria-hidden="true">' +
+        assetImg('path', 'gd-asset--path', ' id="gdPath"') +
+        '<div class="gd-path-shimmer" id="gdPathShimmer" aria-hidden="true"></div>' +
+      '</div>' +
+      '<div class="gd-layer gd-layer--flowers" aria-hidden="true">' +
+        assetImg('flowers', 'gd-asset--flowers', ' id="gdFlowerBed"') +
+      '</div>' +
+      '<div class="gd-layer gd-layer--house" aria-hidden="true">' +
+        assetImg('house-left', 'gd-asset--house') +
+      '</div>' +
+      '<div class="gd-layer gd-layer--foreground" aria-hidden="true">' +
+        assetImg('foreground-leaves', 'gd-asset--foreground') +
+        '<div class="gd-leaf-particles" aria-hidden="true">' +
+          '<span class="gd-leaf-particle gd-leaf-particle--1"></span>' +
+          '<span class="gd-leaf-particle gd-leaf-particle--2"></span>' +
+          '<span class="gd-leaf-particle gd-leaf-particle--3"></span>' +
+          '<span class="gd-leaf-particle gd-leaf-particle--4"></span>' +
         '</div>' +
       '</div>' +
+      '<div class="gd-layer gd-layer--actors" aria-hidden="true">' +
+        assetImg('bird', 'gd-asset--bird', ' id="gdBird"') +
+        assetImg('butterfly', 'gd-asset--butterfly', ' id="gdButterfly"') +
+      '</div>' +
+      '<div class="gd-vignette" aria-hidden="true"></div>' +
       hotspot('garden_path', 'gd-hotspot--path', 'Stigen') +
       hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
       hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
       '<div class="gd-sparkles" id="gdSparkles" aria-hidden="true"></div>' +
-      '<div class="gd-butterfly" id="gdButterfly" aria-hidden="true"></div>' +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -85,20 +100,27 @@
   function triggerVisual(root, sceneryId) {
     if (!root) return;
     const path = root.querySelector('#gdPath');
+    const pathShimmer = root.querySelector('#gdPathShimmer');
     const bed = root.querySelector('#gdFlowerBed');
     const bird = root.querySelector('#gdBird');
     const butterfly = root.querySelector('#gdButterfly');
-    const leaves = root.querySelectorAll('.gd-leaf');
+    const leaves = root.querySelectorAll('.gd-leaf-particle');
 
-    if (sceneryId === 'garden_path' && path) {
-      path.classList.add('is-glow');
+    if (sceneryId === 'garden_path') {
+      if (path) path.classList.add('is-glow');
+      if (pathShimmer) pathShimmer.classList.add('is-active');
       spawnSparkles(root);
-      setTimeout(function () { path.classList.remove('is-glow'); }, TAP_RESET_MS);
+      setTimeout(function () {
+        if (path) path.classList.remove('is-glow');
+        if (pathShimmer) pathShimmer.classList.remove('is-active');
+      }, TAP_RESET_MS);
       return;
     }
     if (sceneryId === 'garden_bed' && bed) {
       bed.classList.add('is-bloom');
       if (butterfly) {
+        butterfly.classList.remove('is-flutter');
+        void butterfly.offsetWidth;
         butterfly.classList.add('is-flutter');
         setTimeout(function () { butterfly.classList.remove('is-flutter'); }, TAP_RESET_MS);
       }
@@ -110,6 +132,13 @@
         bird.classList.remove('is-flying');
         void bird.offsetWidth;
         bird.classList.add('is-flying');
+        setTimeout(function () { bird.classList.remove('is-flying'); }, TAP_RESET_MS);
+      }
+      if (butterfly && !_prefersReducedMotion) {
+        butterfly.classList.remove('is-pass');
+        void butterfly.offsetWidth;
+        butterfly.classList.add('is-pass');
+        setTimeout(function () { butterfly.classList.remove('is-pass'); }, TAP_RESET_MS);
       }
       leaves.forEach(function (leaf) {
         leaf.classList.add('is-gust');
@@ -163,6 +192,16 @@
     scene.addEventListener('animationend', onEnd);
   }
 
+  function bindAssetPipeline(root) {
+    if (_assetCleanup) {
+      _assetCleanup();
+      _assetCleanup = null;
+    }
+    const p = pipeline();
+    if (!p || typeof p.watchSceneAssets !== 'function') return;
+    _assetCleanup = p.watchSceneAssets(root);
+  }
+
   function hideLoader() {
     const loader = document.getElementById('skattkammarLoading');
     const view = document.getElementById('skattkammarView');
@@ -199,6 +238,10 @@
   function deactivate() {
     _active = false;
     _state = null;
+    if (_assetCleanup) {
+      _assetCleanup();
+      _assetCleanup = null;
+    }
     document.body.classList.remove('child-garden-active');
     const view = document.getElementById('skattkammarView');
     if (view) view.classList.remove('gd-exit-through-door');
@@ -218,11 +261,25 @@
     _prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const p = pipeline();
+    let assetsOk = true;
+    if (p && typeof p.preloadCritical === 'function') {
+      assetsOk = await p.preloadCritical(5000);
+      if (!assetsOk) {
+        console.warn('[garden] critical assets preload incomplete — showing fallback layers');
+      }
+    }
+
     _state = sceneState;
     _active = true;
     view.classList.add('gd-exit-through-door');
     view.innerHTML = renderScene(sceneState);
+    if (!assetsOk) {
+      const scene = view.querySelector('.gd-scene');
+      if (scene) scene.classList.add('gd-scene--fallback');
+    }
     bindInteractions(view);
+    bindAssetPipeline(view);
     finishEnterAnimation(view);
     hideLoader();
     document.body.classList.add('child-garden-active');

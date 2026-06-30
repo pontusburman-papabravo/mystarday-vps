@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v420';
+const CACHE_NAME = 'stjarndag-v421';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
@@ -377,8 +377,17 @@ const STATIC_ASSETS = [
   '/js/child-layer-router.js',
   '/js/child-morgonhus.js',
   '/css/child-morgonhus.css',
+  '/js/garden-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
+  '/assets/worlds/garden/background.webp',
+  '/assets/worlds/garden/house-left.webp',
+  '/assets/worlds/garden/path.webp',
+  '/assets/worlds/garden/foreground-leaves.webp',
+  '/assets/worlds/garden/flowers.webp',
+  '/assets/worlds/garden/clouds.webp',
+  '/assets/worlds/garden/bird.webp',
+  '/assets/worlds/garden/butterfly.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
