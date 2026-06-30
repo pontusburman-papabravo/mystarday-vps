@@ -820,6 +820,24 @@ const FEATURES = [
     dev_notes: [],
     changelog: [],
   },
+  {
+    slug: 'garden_playable',
+    name: 'Trädgården (spelbar)',
+    description: 'Första spelbara trädgården i barnets Min värld — per-familj dev-rollout',
+    status: 'dev',
+    tags: ['barn', 'belöningar'],
+    priority: 'high',
+    complexity: 5,
+    estimated_hours: 12.0,
+    documentation: {
+      purpose: 'Kontrollerad rollout av spelbara Trädgården utan global feature_flag.',
+      user_story: 'Som barn i testfamilj vill jag plantera och skörda i trädgården när familjen har tillgång.',
+      acceptance_criteria: 'status=dev kräver family_features; status=live ger alla familjer; status=off stänger av.',
+      technical_notes: 'hasAccess(familyId, garden_playable). Tilldelas via /admin/development. LOE persistence i living_object_instance.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
 
   // ── Haptisk påminnelse — timer-larm (R5-T5) ─────────────────────────────────
   {

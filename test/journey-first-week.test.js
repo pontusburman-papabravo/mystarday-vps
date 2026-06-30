@@ -254,6 +254,7 @@ describe('first week — evaluator integration', () => {
         celebrationShown: true,
         firstWeekDay: 1,
         registryVersion: 'test',
+        now: new Date('2026-06-30T08:00:00+02:00'),
       },
     });
     assert.ok(ctx.recommended_experiences.includes('fw_day1_morning'));
