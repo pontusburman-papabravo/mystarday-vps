@@ -94,31 +94,46 @@ async function enqueueEvent({
 }, client) {
   const query = q(client);
 
+  let insertResult;
+  try {
+    insertResult = await query.query(
+      `INSERT INTO progression_event_queue
+         (child_id, family_id, event_type, idempotency_key, payload)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (idempotency_key) DO NOTHING
+       RETURNING id, processed_at`,
+      [childId, familyId, eventType, idempotencyKey, JSON.stringify(payload)]
+    );
+  } catch (err) {
+    if (err.code !== '23505') throw err;
+    insertResult = { rows: [] };
+  }
+
+  if (insertResult.rows[0]) {
+    return {
+      inserted: true,
+      replayed: false,
+      pending: true,
+      eventId: insertResult.rows[0].id,
+    };
+  }
+
   const existing = await query.query(
     `SELECT id, processed_at FROM progression_event_queue
      WHERE idempotency_key = $1 LIMIT 1`,
     [idempotencyKey]
   );
-
-  if (existing.rows[0]) {
-    const row = existing.rows[0];
-    return {
-      inserted: false,
-      replayed: Boolean(row.processed_at),
-      pending: !row.processed_at,
-      eventId: row.id,
-    };
+  const row = existing.rows[0];
+  if (!row) {
+    throw new Error(`[progression] enqueue conflict without row for ${idempotencyKey}`);
   }
 
-  const result = await query.query(
-    `INSERT INTO progression_event_queue
-       (child_id, family_id, event_type, idempotency_key, payload)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING id`,
-    [childId, familyId, eventType, idempotencyKey, JSON.stringify(payload)]
-  );
-
-  return { inserted: true, eventId: result.rows[0].id };
+  return {
+    inserted: false,
+    replayed: Boolean(row.processed_at),
+    pending: !row.processed_at,
+    eventId: row.id,
+  };
 }
 
 async function markEventProcessed(idempotencyKey, client) {

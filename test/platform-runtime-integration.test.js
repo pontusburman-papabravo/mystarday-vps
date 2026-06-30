@@ -130,6 +130,67 @@ describe('Platform Runtime integration (DB)', () => {
     }
   });
 
+  it('concurrent duplicate requests stay idempotent', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    clearPackCache();
+
+    try {
+      await enableRuntimeFlag(db.query);
+
+      const fam = await db.query(
+        `INSERT INTO family (name, timezone) VALUES ('Concurrent Test', 'Europe/Stockholm') RETURNING id`
+      );
+      const familyId = fam.rows[0].id;
+      const child = await db.query(
+        `INSERT INTO child (family_id, name, emoji, username, pin, sort_order)
+         VALUES ($1, 'Maja', '⭐', 'maja', 'hash', 0) RETURNING id`,
+        [familyId]
+      );
+      const childId = child.rows[0].id;
+      const log = await db.query(
+        `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+        [childId]
+      );
+      const item = await db.query(
+        `INSERT INTO daily_log_item (daily_log_id, name, section, sort_order, star_value, completed, completed_by)
+         VALUES ($1, 'Frukost', 'fm', 0, 1, true, 'child') RETURNING id`,
+        [log.rows[0].id]
+      );
+      const itemId = item.rows[0].id;
+
+      const platformRuntime = require('../src/lib/platform-runtime');
+      const payload = { childId, familyId, dailyLogItemId: itemId };
+
+      const [a, b] = await Promise.all([
+        platformRuntime.handleActivityComplete(payload, db.query),
+        platformRuntime.handleActivityComplete(payload, db.query),
+      ]);
+
+      assert.ok(a.ok || b.ok);
+      assert.ok(a.duplicate || b.duplicate || a.ok);
+
+      const nodes = await db.query(
+        'SELECT COUNT(*)::int AS cnt FROM child_progression_node WHERE child_id = $1',
+        [childId]
+      );
+      assert.equal(nodes.rows[0].cnt, 2);
+
+      const queue = await db.query(
+        `SELECT COUNT(*)::int AS cnt FROM progression_event_queue
+         WHERE idempotency_key = $1 AND processed_at IS NOT NULL`,
+        [`activity_complete:${childId}:${itemId}`]
+      );
+      assert.equal(queue.rows[0].cnt, 1);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
   it('two children in same family get independent progression', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {

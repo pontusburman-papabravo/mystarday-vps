@@ -96,6 +96,14 @@ async function handleActivityComplete({
     return { ok: true, duplicate: true, replay: true };
   }
 
+  if (!queued.inserted && queued.pending) {
+    console.info('[platform-runtime] resuming pending event:', {
+      childId,
+      dailyLogItemId,
+      idempotencyKey,
+    });
+  }
+
   const pack = resolvePackForChild(childId, packId);
   const childContext = await gatherChildContext(childId, dailyLogItemId, client);
   const stats = await gatherChildStats(childId, client);
