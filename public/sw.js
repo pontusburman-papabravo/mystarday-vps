@@ -216,7 +216,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v409';
+const CACHE_NAME = 'stjarndag-v412';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
@@ -285,6 +285,7 @@ const CACHE_NAME = 'stjarndag-v409';
 // stjarndag-v403: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v404: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v409: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v412: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -363,6 +364,8 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-celebrations.js',
   '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
+  '/js/child-morgonhus.js',
+  '/css/child-morgonhus.css',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
