@@ -81,25 +81,26 @@ var Platform = (function () {
         throw new Error('Google Sign In är endast tillgängligt i Android-appen');
       }
       const clientId = await loadGoogleClientId();
-      if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth) {
-        if (clientId && typeof Capacitor.Plugins.GoogleAuth.initialize === 'function') {
-          try {
-            await Capacitor.Plugins.GoogleAuth.initialize({
-              clientId: clientId,
-              scopes: ['profile', 'email'],
-              grantOfflineAccess: false,
-            });
-          } catch (_) {}
-        }
-        const result = await Capacitor.Plugins.GoogleAuth.signIn();
-        const idToken =
-          (result && result.authentication && result.authentication.idToken) ||
-          (result && result.idToken);
-        return { idToken: idToken };
+      if (!clientId) {
+        throw new Error('Google Sign In är inte redo — försök igen om en stund.');
       }
-      throw new Error(
-        'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
-      );
+      const GoogleAuth =
+        typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth;
+      if (!GoogleAuth || typeof GoogleAuth.initialize !== 'function' || typeof GoogleAuth.signIn !== 'function') {
+        throw new Error(
+          'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
+        );
+      }
+      await GoogleAuth.initialize({
+        clientId: clientId,
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: false,
+      });
+      const result = await GoogleAuth.signIn();
+      const idToken =
+        (result && result.authentication && result.authentication.idToken) ||
+        (result && result.idToken);
+      return { idToken: idToken };
     },
   };
 
@@ -128,15 +129,36 @@ var Platform = (function () {
     } catch (_) {}
   }
 
-  // Haptics — uses @capacitor/haptics on native, navigator.vibrate on web.
+  // Haptics — navigator.vibrate on native Android WebView (bare-specifier @capacitor/haptics
+  // imports fail in remote-URL WebView). iOS native uses bridge when plugin is present.
+  function nativeVibrate(ms) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(ms);
+    }
+  }
+
+  function getHapticsPlugin() {
+    return (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.Haptics) || null;
+  }
+
+  async function runNativeHaptic(kind) {
+    const Haptics = getHapticsPlugin();
+    if (Haptics && typeof Haptics.impact === 'function' && !isAndroid()) {
+      try {
+        await Haptics.impact({ style: kind });
+        return;
+      } catch (_) {}
+    }
+    if (kind === 'light') nativeVibrate(10);
+    else if (kind === 'medium') nativeVibrate(25);
+    else nativeVibrate(50);
+  }
+
   const haptics = {
     async light() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
-        try {
-          const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
-          await Haptics.impact({ style: ImpactStyle.Light });
-        } catch (_) {}
+        await runNativeHaptic('light');
       } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate(10);
       }
@@ -144,10 +166,7 @@ var Platform = (function () {
     async medium() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
-        try {
-          const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
-          await Haptics.impact({ style: ImpactStyle.Medium });
-        } catch (_) {}
+        await runNativeHaptic('medium');
       } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate(25);
       }
@@ -155,10 +174,7 @@ var Platform = (function () {
     async heavy() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
-        try {
-          const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
-          await Haptics.impact({ style: ImpactStyle.Heavy });
-        } catch (_) {}
+        await runNativeHaptic('heavy');
       } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate(50);
       }
@@ -166,10 +182,14 @@ var Platform = (function () {
     async success() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
-        try {
-          const { Haptics, NotificationType } = await import('@capacitor/haptics');
-          await Haptics.notification({ type: NotificationType.Success });
-        } catch (_) {}
+        const Haptics = getHapticsPlugin();
+        if (Haptics && typeof Haptics.notification === 'function' && !isAndroid()) {
+          try {
+            await Haptics.notification({ type: 'SUCCESS' });
+            return;
+          } catch (_) {}
+        }
+        nativeVibrate([30, 50, 30]);
       } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate([30, 50, 30]);
       }
@@ -177,10 +197,14 @@ var Platform = (function () {
     async error() {
       if (!isHapticsEnabled()) return;
       if (isNative()) {
-        try {
-          const { Haptics, NotificationType } = await import('@capacitor/haptics');
-          await Haptics.notification({ type: NotificationType.Error });
-        } catch (_) {}
+        const Haptics = getHapticsPlugin();
+        if (Haptics && typeof Haptics.notification === 'function' && !isAndroid()) {
+          try {
+            await Haptics.notification({ type: 'ERROR' });
+            return;
+          } catch (_) {}
+        }
+        nativeVibrate([80, 30, 80]);
       } else if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate([80, 30, 80]);
       }
@@ -189,18 +213,20 @@ var Platform = (function () {
     setEnabled(val) { setHapticsEnabled(val); }
   };
 
-  // Share — @capacitor/share on native, Web Share API on web, clipboard fallback.
+  // Share — Capacitor bridge on native (bare-specifier imports fail in remote-URL WebView).
   const share = async function (opts) {
     if (isNative()) {
-      try {
-        const { Share } = await import('@capacitor/share');
-        return await Share.share({
-          title: opts.title || '',
-          text: opts.text || '',
-          url: opts.url || '',
-        });
-      } catch (err) {
-        console.warn('[Platform.share] Native share failed:', err.message);
+      const Share = (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.Share) || null;
+      if (Share && typeof Share.share === 'function') {
+        try {
+          return await Share.share({
+            title: opts.title || '',
+            text: opts.text || '',
+            url: opts.url || '',
+          });
+        } catch (err) {
+          console.warn('[Platform.share] Native share failed:', err.message);
+        }
       }
     }
     if (typeof navigator !== 'undefined' && navigator.share) {

@@ -96,12 +96,17 @@ function patchBuildGradle() {
 function main() {
   fs.mkdirSync(path.dirname(OUT_AAB), { recursive: true });
 
-  run('npm install --legacy-peer-deps');
+  run('NODE_ENV=development npm install --include=dev --legacy-peer-deps');
   ensureKeystore();
   writeKeystoreProperties();
   patchBuildGradle();
 
-  const env = { ...process.env };
+  if (!process.env.GOOGLE_WEB_CLIENT_ID) {
+    console.warn('\n⚠️  GOOGLE_WEB_CLIENT_ID not set — Google Sign In will fail on Android.');
+    console.warn('    Export it before building: GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com npm run android:aab\n');
+  }
+
+  const env = { ...process.env, NODE_ENV: 'development' };
   if (process.env.GOOGLE_WEB_CLIENT_ID) {
     env.GOOGLE_WEB_CLIENT_ID = process.env.GOOGLE_WEB_CLIENT_ID;
   }
