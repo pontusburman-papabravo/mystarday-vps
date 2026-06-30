@@ -24,6 +24,8 @@ const UNIT_FILES = [
   'test/journey-fas4.test.js',
   'test/journey-fas5.test.js',
   'test/journey-daily-analysis.test.js',
+  'test/route-inventory.test.js',
+  'test/setup-test-db-cleanup-contract.test.js',
 ];
 
 const DB_FILES = [
@@ -32,6 +34,8 @@ const DB_FILES = [
   'test/auth-integration.test.js',
   'test/child-access-integration.test.js',
   'test/maintenance-order.test.js',
+  'test/messages-read-csrf-integration.test.js',
+  'test/paywall-model-contract.test.js',
   'test/journey-route-scope.test.js',
   'test/journey-golden-path.test.js',
 ];
@@ -60,7 +64,7 @@ function main() {
 
   const totalStart = Date.now();
   const unit = runFiles('unit', UNIT_FILES, ['--test-concurrency=4']);
-  const db = runFiles('db', DB_FILES, ['--test-concurrency=1']);
+  const db = runFiles('db', DB_FILES, ['--test-concurrency=1', '--test-force-exit']);
 
   console.log('\n=== test:gate benchmark ===\n');
   console.log(`unit (${UNIT_FILES.length} files, concurrency 4): ${unit.ms}ms ${unit.ok ? 'OK' : 'FAIL'}`);

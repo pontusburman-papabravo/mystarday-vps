@@ -35,21 +35,12 @@ function getSetCookieHeaders(response) {
 }
 
 /**
- * Integration tests load src/lib/db via createApp(). End the pool so Node does not
- * wait ~idleTimeoutMillis before exiting (30s hang in CI).
+ * Integration tests load src/lib/db via createApp(). In test we only tear down
+ * the HTTP server here; test:gate:db uses --test-force-exit so workers exit
+ * without waiting on the pg pool idleTimeoutMillis (~30s per file).
  */
 async function endAppDbPoolIfLoaded() {
-  if (process.env.NODE_ENV !== 'test') return;
-  try {
-    const dbPath = require.resolve('../../src/lib/db');
-    const cached = require.cache[dbPath];
-    if (cached?.exports?.pool) {
-      await cached.exports.pool.end();
-      delete require.cache[dbPath];
-    }
-  } catch {
-    // db module never loaded
-  }
+  // Intentionally no-op — see listenApp close() and test:gate:db --test-force-exit.
 }
 
 /**
