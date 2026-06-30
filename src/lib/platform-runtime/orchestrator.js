@@ -16,14 +16,20 @@ const eventBus = require('./event-bus');
 
 const FLAG_KEY = 'platform_runtime_enabled';
 
+/**
+ * Platform Runtime kill switch. Default OFF when flag row missing or disabled.
+ * Env `PLATFORM_RUNTIME_ENABLED=false` forces off without DB (prod emergency brake).
+ */
 async function isRuntimeEnabled() {
+  if (process.env.PLATFORM_RUNTIME_ENABLED === 'false') return false;
   try {
     const result = await db.query(
       'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
       [FLAG_KEY]
     );
     return Boolean(result.rows[0]?.enabled);
-  } catch {
+  } catch (err) {
+    console.error('[platform-runtime] flag DB error, defaulting disabled:', err.message);
     return false;
   }
 }

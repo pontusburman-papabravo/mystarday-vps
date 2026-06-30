@@ -64,9 +64,9 @@ module.exports = {
 
     await client.query(
       `INSERT INTO feature_flag (key, enabled, description)
-       VALUES ($1, true, $2)
+       VALUES ($1, false, $2)
        ON CONFLICT (key) DO NOTHING`,
-      ['platform_runtime_enabled', 'Platform Runtime — Experience Pack progression/reward/world integration']
+      ['platform_runtime_enabled', 'Platform Runtime — Experience Pack progression/reward/world integration (default OFF — enable per rollout)']
     );
   },
 
