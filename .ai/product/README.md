@@ -6,6 +6,7 @@
 | Document | Role |
 |----------|------|
 | [LIVING_WORLD_PLAYBOOK.md](./LIVING_WORLD_PLAYBOOK.md) | **Product method** — how worlds are designed (pipeline, 9 questions, WORLD BRIEF template) |
+| `world-briefs/` | Completed WORLD BRIEFs per world (Playbook output) |
 | [PRODUCT_CONTENT_BIBLE.md](./PRODUCT_CONTENT_BIBLE.md) | World soul, motivation, seven worlds |
 | [ART_BIBLE.md](./ART_BIBLE.md) | **Visual live-release contract** — FINAL v1.0, 500 QG, §1–41 |
 | [GAME_DESIGN_BIBLE.md](./GAME_DESIGN_BIBLE.md) | **Game experience contract** — loops, systems, Experience Packs |
