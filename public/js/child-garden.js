@@ -108,7 +108,18 @@
     });
 
     const backBtn = root.querySelector('#gdBackMorgonhus');
-    if (backBtn) backBtn.addEventListener('click', exitToMorgonhus);
+    if (backBtn) {
+      backBtn.addEventListener('click', function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.isActive === 'function'
+            && window.LivingWorldTransition.isActive()
+            && typeof window.LivingWorldTransition.exitGarden === 'function') {
+          window.LivingWorldTransition.exitGarden();
+          return;
+        }
+        exitToMorgonhus();
+      });
+    }
   }
 
   function finishEnterAnimation(root) {
@@ -134,6 +145,13 @@
     if (!p || typeof p.watchSceneImage !== 'function') return;
     _assetCleanup = p.watchSceneImage(root, function () {
       console.warn('[garden] scene-bg failed — exiting to Morgonhus');
+      if (window.LivingWorldTransition
+          && typeof window.LivingWorldTransition.isActive === 'function'
+          && window.LivingWorldTransition.isActive()
+          && typeof window.LivingWorldTransition.exitGarden === 'function') {
+        window.LivingWorldTransition.exitGarden();
+        return;
+      }
       exitToMorgonhus();
     });
   }
@@ -203,9 +221,11 @@
     return false;
   }
 
-  async function mount(state) {
+  async function mount(state, opts) {
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
+
+    const viaTransition = opts && opts.viaTransition;
 
     const sceneState = state || await fetchState();
     if (!sceneState || !sceneState.enabled) return false;
@@ -228,7 +248,9 @@
 
     _state = sceneState;
     _active = true;
-    view.classList.add('gd-exit-through-door');
+    if (!viaTransition) {
+      view.classList.add('gd-exit-through-door');
+    }
     view.innerHTML = renderScene(sceneState);
     bindInteractions(view);
     bindAssetWatch(view);
@@ -239,7 +261,16 @@
     return true;
   }
 
-  async function enterFromMorgonhus() {
+  async function enterFromMorgonhus(opts) {
+    if (opts && opts.viaTransition) {
+      return mount(null, { viaTransition: true });
+    }
+    if (window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.enterGarden === 'function') {
+      return window.LivingWorldTransition.enterGarden({
+        doorEl: opts && opts.doorEl,
+      });
+    }
     return mount();
   }
 

@@ -119,13 +119,22 @@
         if (!prop) return;
 
         if (prop.unlocked || prop.always_active) {
-          if (prop.leads_to_garden && window.ChildGarden && typeof window.ChildGarden.enterFromMorgonhus === 'function') {
+          if (prop.leads_to_garden && window.LivingWorldTransition
+              && typeof window.LivingWorldTransition.enterGarden === 'function') {
             triggerReaction(btn, null);
-            const view = document.getElementById('skattkammarView');
-            if (view) view.classList.add('gd-exit-through-door');
+            window.LivingWorldTransition.enterGarden({ doorEl: btn }).then(function (entered) {
+              if (!entered) {
+                showToast(root, 'Trädgården är inte redo just nu. Du är kvar i Morgonhuset.');
+              }
+            });
+            if (h.onGardenEnter) h.onGardenEnter(prop);
+            return;
+          }
+          if (prop.leads_to_garden && window.ChildGarden
+              && typeof window.ChildGarden.enterFromMorgonhus === 'function') {
+            triggerReaction(btn, null);
             window.ChildGarden.enterFromMorgonhus().then(function (entered) {
               if (!entered) {
-                if (view) view.classList.remove('gd-exit-through-door');
                 showToast(root, 'Trädgården är inte redo just nu. Du är kvar i Morgonhuset.');
               }
             });
@@ -226,6 +235,8 @@
   async function tryMountWorld() {
     if (_preferSkatt) return false;
     if (window.ChildGarden && window.ChildGarden.isActive && window.ChildGarden.isActive()) return false;
+    if (window.LivingWorldTransition && window.LivingWorldTransition.isActive
+        && window.LivingWorldTransition.isActive()) return false;
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 

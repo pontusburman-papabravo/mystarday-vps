@@ -170,6 +170,10 @@ describe('ChildGarden client module', () => {
           preloadScene: async () => true,
           watchSceneImage: () => function () {},
         },
+        LivingWorldTransition: {
+          isActive: () => false,
+          exitGarden: async () => true,
+        },
         Auth: { api: async () => ({
           enabled: true,
           display_name: 'Trädgården',
@@ -231,14 +235,20 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(css, /gd-house-edge/);
   });
 
-  it('door transition uses through-door class for continuity', () => {
-    assert.match(mhSrc, /gd-exit-through-door/);
-    assert.match(src, /gd-scene--entering/);
+  it('door transition uses living-world portal, not page navigation', () => {
+    const transitionSrc = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-living-world-transition.js'),
+      'utf8'
+    );
+    assert.match(transitionSrc, /enterGarden/);
+    assert.match(transitionSrc, /lw-portal-zoom/);
+    assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
+    assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
   it('morgonhus door navigates to garden when leads_to_garden', () => {
     assert.match(mhSrc, /leads_to_garden/);
-    assert.match(mhSrc, /ChildGarden\.enterFromMorgonhus/);
+    assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
     assert.match(mhSrc, /deactivate/);
   });
 
