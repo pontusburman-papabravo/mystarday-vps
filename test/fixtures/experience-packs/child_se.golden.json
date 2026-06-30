@@ -1,0 +1,108 @@
+{
+  "pack_id": "child_se",
+  "manifest": {
+    "pack_id": "child_se",
+    "version": "1.0.0",
+    "audience_band": "child",
+    "locale": "sv-SE",
+    "reading_level": "grade_1_2",
+    "fiction_manifest": "pcb_seven_worlds_v1",
+    "ui_skin": "child_warm_diorama",
+    "pacing": {
+      "celebration_max_ms": 2000,
+      "surprise_max_per_session": 1
+    },
+    "feature_flags": {
+      "streak_visible_child": false
+    },
+    "includes": {
+      "progression": "progression.json",
+      "rewards": "rewards.json",
+      "copy": "copy.json",
+      "worlds": "worlds.json"
+    }
+  },
+  "progression": {
+    "version": "1.0.0",
+    "worlds": [
+      {
+        "world_slug": "routine_home",
+        "progression_model": "first_success_sequence",
+        "nodes": [
+          {
+            "node_id": "routine_home_welcome_mat",
+            "order": 1,
+            "node_type": "build",
+            "name_sv": "Välkomstmatta",
+            "emotional_beat": "Första foten innanför — du hör hemma.",
+            "unlock_signal": "first_activity_complete",
+            "pack_config_key": "progression.routine_home.welcome_mat"
+          },
+          {
+            "node_id": "routine_home_first_light",
+            "order": 2,
+            "node_type": "animation",
+            "name_sv": "Morgonljus",
+            "emotional_beat": "Ett varmt ljus tänds när dagen börjar.",
+            "unlock_signal": "node_unlocked:routine_home_welcome_mat",
+            "pack_config_key": "progression.routine_home.first_light"
+          }
+        ]
+      }
+    ]
+  },
+  "rewards": {
+    "version": "1.0.1",
+    "rewards": [
+      {
+        "reward_id": "first_step_acknowledgment",
+        "trigger_signal": "first_activity_complete",
+        "parent_message_template": "Idag tog {{child_name}} sitt första steg.",
+        "celebration_theme": "warm_glow",
+        "celebration_max_ms": 2000,
+        "pack_config_key": "rewards.first_step_acknowledgment"
+      }
+    ]
+  },
+  "copy": {
+    "version": "1.0.1",
+    "experiences": {
+      "parent_ack_completion": {
+        "tone": "warm",
+        "headline_template": "Idag tog {{child_name}} sitt första steg.",
+        "body_template": "En liten vardagshandling — men den betyder mycket. Nu vet ni att rutinen fungerar.",
+        "cta": "Det ser jag"
+      },
+      "celebrate_first_success": {
+        "tone": "celebration",
+        "headline": "Ni gjorde det tillsammans",
+        "body_template": "{{child_name}} började. Du såg det. Så föds vanor.",
+        "cta": "Vad fint"
+      },
+      "child_first_completion": {
+        "tone": "whisper",
+        "world_hint": "Något glimmar i Morgonhuset…"
+      }
+    }
+  },
+  "worlds": {
+    "version": "1.0.1",
+    "worlds": [
+      {
+        "world_slug": "routine_home",
+        "display_name_sv": "Morgonhuset",
+        "first_unlock_message": "Morgonhuset väntar på dig",
+        "unlock_feedback": {
+          "routine_home_welcome_mat": {
+            "child_message": "Morgonhuset känner att du kom.",
+            "visual_token": "welcome_mat_glow"
+          },
+          "routine_home_first_light": {
+            "child_message": "Ett mjukt ljus tänds.",
+            "visual_token": "morning_light_warm"
+          }
+        }
+      }
+    ]
+  }
+}
