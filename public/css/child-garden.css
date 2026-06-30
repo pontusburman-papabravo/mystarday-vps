@@ -1,0 +1,195 @@
+/* child-garden.css — Trädgården ambient scene (experience slice) */
+
+.gd-scene {
+  position: relative;
+  min-height: min(74vh, 580px);
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #b8dff5 0%, #d4f0e4 38%, #8fbc7a 72%, #6b9b52 100%);
+  box-shadow: 0 12px 40px rgba(27, 35, 64, 0.14);
+  padding: 20px 16px 16px;
+}
+
+.gd-scene-sky {
+  position: absolute;
+  inset: 0 0 45%;
+  background:
+    radial-gradient(ellipse 70% 55% at 30% 20%, rgba(255, 255, 255, 0.55), transparent 65%),
+    linear-gradient(180deg, rgba(255, 248, 220, 0.35), transparent 80%);
+  pointer-events: none;
+}
+
+.gd-scene-sun {
+  position: absolute;
+  top: 14px;
+  left: 16%;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff9e6, #f5c842 70%);
+  box-shadow: 0 0 28px rgba(245, 200, 66, 0.45);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.gd-scene-breeze {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: gd-breeze 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gd-breeze {
+  0%, 100% { background-position: 100% 0; }
+  50% { background-position: 0% 0; }
+}
+
+.gd-scene-header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.gd-scene-title {
+  margin: 0;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1b3d2a;
+}
+
+.gd-scene-intro {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: #3d5c45;
+}
+
+.gd-scene-ground {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 4px;
+}
+
+.gd-scenery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 104px;
+  padding: 12px 8px;
+  border: 2px solid rgba(107, 155, 82, 0.35);
+  border-radius: 18px;
+  background: rgba(255, 255, 252, 0.72);
+  color: #1b3d2a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gd-scenery--garden_sky {
+  grid-column: 1 / -1;
+  min-height: 72px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.gd-scenery:active,
+.gd-scenery.is-tapped {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 3px rgba(107, 155, 82, 0.4), 0 6px 16px rgba(27, 61, 42, 0.15);
+}
+
+.gd-scenery-emoji {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.gd-scenery-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.gd-scene-ambient {
+  position: relative;
+  z-index: 1;
+  margin: 8px 8px 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #3d5c45;
+  font-style: italic;
+}
+
+.gd-scene-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 88%;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: rgba(27, 61, 42, 0.88);
+  color: #f7fff5;
+  font-size: 0.85rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gd-scene-toast.is-visible {
+  opacity: 1;
+}
+
+.gd-toast-off {
+  opacity: 0;
+}
+
+.gd-scene-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.gd-back-btn {
+  min-height: 48px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 16px;
+  background: #1b2340;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.2);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gd-back-btn:active {
+  transform: scale(0.97);
+}
+
+body.child-garden-active #skattkammarView {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-scene-breeze {
+    animation: none;
+  }
+
+  .gd-scenery,
+  .gd-back-btn {
+    transition: none;
+  }
+}

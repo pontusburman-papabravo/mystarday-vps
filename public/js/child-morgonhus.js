@@ -118,6 +118,13 @@
         if (!prop) return;
 
         if (prop.unlocked || prop.always_active) {
+          if (prop.leads_to_garden && window.ChildGarden && typeof window.ChildGarden.enterFromMorgonhus === 'function') {
+            triggerReaction(btn, null);
+            window.ChildGarden.enterFromMorgonhus();
+            if (h.onGardenEnter) h.onGardenEnter(prop);
+            return;
+          }
+
           triggerReaction(btn, prop.visual_token);
           const msg = prop.child_message || prop.ambient_message || 'Det händer något…';
           showToast(root, msg);
@@ -155,11 +162,20 @@
     }
   }
 
+  function deactivate() {
+    _active = false;
+    _state = null;
+    document.body.classList.remove('child-morgonhus-active');
+  }
+
   function openSkattkammaren() {
     _active = false;
     _preferSkatt = true;
     _state = null;
     document.body.classList.remove('child-morgonhus-active');
+    if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
+      window.ChildGarden.deactivate();
+    }
     if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
       window.loadRewards();
@@ -176,6 +192,7 @@
 
   async function tryMountWorld() {
     if (_preferSkatt) return false;
+    if (window.ChildGarden && window.ChildGarden.isActive && window.ChildGarden.isActive()) return false;
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 
@@ -236,6 +253,7 @@
     refresh: refresh,
     isActive: isActive,
     openSkattkammaren: openSkattkammaren,
+    deactivate: deactivate,
     shouldPreferSkatt: shouldPreferSkatt,
     clearPreferSkatt: clearPreferSkatt,
   };

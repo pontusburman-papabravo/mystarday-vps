@@ -411,7 +411,8 @@ function showTab(tab) {
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
   }
 
-  if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
+  if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()
+      && (!window.ChildGarden || !window.ChildGarden.isActive())) {
     window.rewardsLoaded = false;
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
       window.ChildMorgonhus.clearPreferSkatt();
