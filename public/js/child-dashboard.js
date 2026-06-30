@@ -411,7 +411,15 @@ function showTab(tab) {
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
   }
 
-  if ((isHome || isUniverse) && !window.rewardsLoaded) loadRewards();
+  if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
+    window.rewardsLoaded = false;
+    if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
+      window.ChildMorgonhus.clearPreferSkatt();
+    }
+    loadRewards({ force: true });
+  } else if ((isHome || isUniverse) && !window.rewardsLoaded) {
+    loadRewards();
+  }
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 
   if (window.ChildWorldsNav) {

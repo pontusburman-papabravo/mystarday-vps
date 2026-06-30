@@ -385,6 +385,28 @@ describe('ChildMorgonhus client module', () => {
     assert.match(src, /findProp\(liveState, propId\)/);
   });
 
+  it('Skattkammaren round-trip uses preferSkatt, not session skip', () => {
+    assert.doesNotMatch(src, /_skipForSession/);
+    assert.match(src, /_preferSkatt/);
+    assert.match(src, /shouldPreferSkatt/);
+    assert.match(src, /clearPreferSkatt/);
+  });
+
+  it('toast uses visible mh-toast-off classes (not Tailwind hidden)', () => {
+    assert.match(src, /mh-toast-off/);
+    assert.match(src, /is-visible/);
+    assert.doesNotMatch(src, /classList\.remove\('hidden'\)/);
+  });
+
+  it('showTab remounts Morgonhus when leaving Skattkammaren', () => {
+    const dashSrc = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-dashboard.js'),
+      'utf8'
+    );
+    assert.match(dashSrc, /isUniverse && window\.ChildMorgonhus && !window\.ChildMorgonhus\.isActive\(\)/);
+    assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
+  });
+
   it('loadRewards gates Morgonhus mount on morgonhus_playable feature', () => {
     const rewardsSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-rewards.js'),
@@ -392,6 +414,9 @@ describe('ChildMorgonhus client module', () => {
     );
     assert.match(rewardsSrc, /morgonhus_playable/);
     assert.match(rewardsSrc, /fetchStjarndagFeatures/);
+    assert.match(rewardsSrc, /shouldPreferSkatt/);
+    assert.match(rewardsSrc, /options\.force/);
+    assert.match(rewardsSrc, /clearPreferSkatt/);
     assert.match(rewardsSrc, /ChildMorgonhus\.tryMountWorld/);
   });
 });

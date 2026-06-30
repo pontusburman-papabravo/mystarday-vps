@@ -6,10 +6,11 @@
   'use strict';
 
   const API_PATH = '/api/me/morgonhus';
-  const REACTION_MS = 1800;
+  const REACTION_MS = 2800;
+  const TAP_MS = 1800;
 
   let _active = false;
-  let _skipForSession = false;
+  let _preferSkatt = false;
   let _state = null;
   let _prefersReducedMotion = false;
 
@@ -57,7 +58,7 @@
       '<div class="mh-scene-room" role="group" aria-label="Morgonhuset">' +
         propButtons +
       '</div>' +
-      '<div class="mh-scene-toast hidden" id="mhSceneToast" role="status" aria-live="polite"></div>' +
+      '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status" aria-live="polite"></div>' +
       '<div class="mh-scene-footer">' +
         '<button type="button" class="mh-skatt-link" id="mhSkattLink">💎 Skattkammaren</button>' +
       '</div>' +
@@ -72,10 +73,12 @@
     const toast = root.querySelector('#mhSceneToast');
     if (!toast || !message) return;
     toast.textContent = message;
-    toast.classList.remove('hidden');
+    toast.classList.remove('mh-toast-off');
+    toast.classList.add('is-visible');
     clearTimeout(showToast._timer);
     showToast._timer = setTimeout(function () {
-      toast.classList.add('hidden');
+      toast.classList.remove('is-visible');
+      toast.classList.add('mh-toast-off');
     }, REACTION_MS);
   }
 
@@ -86,7 +89,7 @@
     setTimeout(function () {
       btn.classList.remove('is-tapped');
       if (token) btn.classList.remove('mh-token-active--' + token);
-    }, REACTION_MS);
+    }, TAP_MS);
   }
 
   function applyUnlockedState(root, state) {
@@ -154,7 +157,7 @@
 
   function openSkattkammaren() {
     _active = false;
-    _skipForSession = true;
+    _preferSkatt = true;
     _state = null;
     document.body.classList.remove('child-morgonhus-active');
     if (typeof window.loadRewards === 'function') {
@@ -163,8 +166,16 @@
     }
   }
 
+  function shouldPreferSkatt() {
+    return _preferSkatt;
+  }
+
+  function clearPreferSkatt() {
+    _preferSkatt = false;
+  }
+
   async function tryMountWorld() {
-    if (_skipForSession) return false;
+    if (_preferSkatt) return false;
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 
@@ -225,5 +236,7 @@
     refresh: refresh,
     isActive: isActive,
     openSkattkammaren: openSkattkammaren,
+    shouldPreferSkatt: shouldPreferSkatt,
+    clearPreferSkatt: clearPreferSkatt,
   };
 })();
