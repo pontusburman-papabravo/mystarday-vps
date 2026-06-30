@@ -1,0 +1,175 @@
+/* child-morgonhus.css — Placeholder Morgonhuset scene (routine_home) */
+
+.mh-scene {
+  position: relative;
+  min-height: min(72vh, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f7f0e4 0%, #e8dcc8 55%, #d4c4a8 100%);
+  box-shadow: 0 12px 40px rgba(27, 35, 64, 0.12);
+  padding: 20px 16px 16px;
+}
+
+.mh-scene-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 214, 140, 0.45), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 40%);
+  pointer-events: none;
+}
+
+.mh-scene-sun {
+  position: absolute;
+  top: 12px;
+  right: 18%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8dc, #f5a623 70%);
+  box-shadow: 0 0 24px rgba(245, 166, 35, 0.5);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.mh-scene-header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.mh-scene-title {
+  margin: 0;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1b2340;
+}
+
+.mh-scene-intro {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: #5a6178;
+}
+
+.mh-scene-room {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 8px 4px 12px;
+}
+
+.mh-prop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 108px;
+  padding: 12px 8px;
+  border: 2px solid rgba(196, 149, 106, 0.45);
+  border-radius: 18px;
+  background: rgba(255, 252, 245, 0.82);
+  color: #1b2340;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mh-prop:active,
+.mh-prop.is-tapped {
+  transform: scale(0.96);
+}
+
+.mh-prop.is-locked {
+  opacity: 0.55;
+  filter: grayscale(0.35);
+}
+
+.mh-prop.is-unlocked {
+  border-color: rgba(245, 166, 35, 0.65);
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.2);
+}
+
+.mh-prop-emoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.mh-prop-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #5a6178;
+}
+
+.mh-prop--door {
+  grid-column: 1 / -1;
+}
+
+.mh-token--welcome_mat_glow.is-unlocked,
+.mh-prop.mh-token-active--welcome_mat_glow {
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.55), 0 4px 16px rgba(245, 166, 35, 0.25);
+  border-color: #f5a623;
+}
+
+.mh-token--morning_light_warm.is-unlocked .mh-prop-emoji,
+.mh-prop.mh-token-active--morning_light_warm .mh-prop-emoji {
+  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.9));
+}
+
+.mh-scene-toast {
+  position: relative;
+  z-index: 2;
+  margin: 8px auto 0;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #1b2340;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(27, 35, 64, 0.08);
+}
+
+.mh-scene-toast.hidden {
+  display: none;
+}
+
+.mh-scene-footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.mh-skatt-link {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(108, 92, 231, 0.35);
+  background: rgba(255, 255, 255, 0.75);
+  color: #6c5ce7;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.child-morgonhus-active #rewardsView {
+  background: linear-gradient(180deg, #faf6ef 0%, #f0e8dc 100%) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-prop {
+    transition: none;
+  }
+  .mh-prop:active,
+  .mh-prop.is-tapped {
+    transform: none;
+  }
+}

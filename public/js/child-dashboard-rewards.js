@@ -29,6 +29,17 @@ async function loadRewards() {
   }
   if (view) view.style.display = 'none';
 
+  if (navigator.onLine && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
+    const mounted = await window.ChildMorgonhus.tryMountWorld();
+    if (mounted) {
+      if (skeletonTimer) skeletonTimer.stop();
+      rewardsLoaded = true;
+      hideOfflineBanner();
+      return;
+    }
+    document.body.classList.remove('child-morgonhus-active');
+  }
+
   // ── Offline path: serve cached rewards from IndexedDB ─────────
   if (!navigator.onLine) {
     const cached = await (window.OfflineStore

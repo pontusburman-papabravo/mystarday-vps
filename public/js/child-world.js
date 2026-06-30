@@ -12,7 +12,7 @@
         ChildRewardsEngine.mountPendingBannerIfNeeded();
       });
     }
-    if (window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
+    if (!window.ChildMorgonhus && window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
       ChildSkattHouse.showHub();
     }
   }
