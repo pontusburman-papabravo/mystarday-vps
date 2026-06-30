@@ -7,11 +7,13 @@
 
   const API_PATH = '/api/me/morgonhus';
   const REACTION_MS = 1800;
+  const FETCH_TIMEOUT_MS = 8000;
 
   let _active = false;
   let _skipForSession = false;
   let _state = null;
   let _prefersReducedMotion = false;
+  let _mountInflight = null;
 
   function esc(str) {
     if (!str) return '';
@@ -143,12 +145,35 @@
 
   async function fetchState() {
     if (!window.Auth || typeof window.Auth.api !== 'function') return null;
+
+    const startedAt = Date.now();
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    let timedOut = false;
+    const timeoutId = controller
+      ? setTimeout(function () {
+        timedOut = true;
+        controller.abort();
+      }, FETCH_TIMEOUT_MS)
+      : null;
+
     try {
-      return await window.Auth.api(API_PATH);
+      const state = await window.Auth.api(API_PATH, controller ? { signal: controller.signal } : {});
+      return state;
     } catch (err) {
+      const elapsedMs = Date.now() - startedAt;
+      if (timedOut || err?.name === 'AbortError') {
+        console.warn('[morgonhus] fetch timeout after', elapsedMs, 'ms — falling back to Skattkammaren');
+        return null;
+      }
       if (err && err.status === 503) return null;
-      console.warn('[morgonhus] fetch failed:', err && err.message);
+      console.warn('[morgonhus] fetch failed:', {
+        status: err && err.status,
+        message: err && err.message,
+        elapsedMs: elapsedMs,
+      });
       return null;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   }
 
@@ -165,6 +190,15 @@
 
   async function tryMountWorld() {
     if (_skipForSession) return false;
+    if (_mountInflight) return _mountInflight;
+
+    _mountInflight = tryMountWorldInner().finally(function () {
+      _mountInflight = null;
+    });
+    return _mountInflight;
+  }
+
+  async function tryMountWorldInner() {
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 

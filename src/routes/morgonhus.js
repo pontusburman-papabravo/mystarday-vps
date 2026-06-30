@@ -19,7 +19,11 @@ childRouter.get('/morgonhus', async (req, res) => {
     const state = await morgonhus.buildSceneState(req.user.id);
     res.json(state);
   } catch (err) {
-    console.error('[morgonhus] child GET error:', err);
+    console.error('[morgonhus] child GET error:', {
+      childId: req.user?.id,
+      familyId: req.user?.familyId,
+      message: err.message,
+    });
     res.status(500).json({ error: 'Något gick fel' });
   }
 });

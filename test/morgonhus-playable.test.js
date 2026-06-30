@@ -184,6 +184,27 @@ describe('morgonhus_playable — feature access rollout', () => {
     assert.match(welcomeMat.child_message, /Morgonhuset/);
   });
 
+  it('client fetchState has timeout + structured failure logging (no infinite hang)', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-morgonhus.js'),
+      'utf8'
+    );
+    assert.match(src, /FETCH_TIMEOUT_MS/);
+    assert.match(src, /AbortController/);
+    assert.match(src, /fetch timeout after/);
+    assert.match(src, /falling back to Skattkammaren/);
+    assert.match(src, /_mountInflight/);
+  });
+
+  it('server logs childId and familyId on GET errors', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../src/routes/morgonhus.js'),
+      'utf8'
+    );
+    assert.match(src, /childId: req\.user\?\.id/);
+    assert.match(src, /familyId: req\.user\?\.familyId/);
+  });
+
   it('morgonhus scene does not depend on platform_runtime_enabled flag', () => {
     const libSrc = fs.readFileSync(
       path.join(__dirname, '../src/lib/morgonhus-playable.js'),
