@@ -99,26 +99,30 @@ function deriveContext(input = {}) {
     };
   }
 
-  if (phase === 'BUILDING_ROUTINE' && opts.coachEnabled && !milestones.established_routine) {
-    const fw = tryFirstWeekExperience(phase, milestones, {
-      ...opts,
-      celebrationShown,
-      registryVersion,
-    });
-    if (fw) return fw;
+  if (phase === 'BUILDING_ROUTINE' && !milestones.established_routine) {
+    if (opts.firstWeekEnabled) {
+      const fw = tryFirstWeekExperience(phase, milestones, {
+        ...opts,
+        celebrationShown,
+        registryVersion,
+      });
+      if (fw) return fw;
+    }
 
-    const experiences = ['coach_consistency'];
-    if (!milestones.evening_routine_added) experiences.push('coach_evening');
-    return {
-      phase,
-      milestones,
-      recommended_experiences: experiences,
-      blocking_experience: null,
-      celebration: null,
-      priority: 'coach',
-      reason: [ReasonCode.COACH_CONSISTENCY],
-      registry_version: registryVersion,
-    };
+    if (opts.coachEnabled) {
+      const experiences = ['coach_consistency'];
+      if (!milestones.evening_routine_added) experiences.push('coach_evening');
+      return {
+        phase,
+        milestones,
+        recommended_experiences: experiences,
+        blocking_experience: null,
+        celebration: null,
+        priority: 'coach',
+        reason: [ReasonCode.COACH_CONSISTENCY],
+        registry_version: registryVersion,
+      };
+    }
   }
 
   if (phase === 'FIRST_USE' && milestones.child_logged_in) {

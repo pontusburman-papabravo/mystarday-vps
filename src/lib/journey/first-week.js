@@ -116,15 +116,29 @@ function pickFirstWeekExperience(input) {
 /**
  * Warm narrative for week reflection — not stats, not productivity.
  */
-function buildWeekReflectionStory({ childName = 'barnet', completionDays = 0, hadMorningRoutine = false }) {
+function buildWeekReflectionStory({
+  childName = 'barnet',
+  childCount = 1,
+  childNames = [],
+  hadMorningRoutine = false,
+  anyCompletion = false,
+}) {
+  if (childCount >= 2) {
+    const names = childNames.filter(Boolean);
+    const who = names.length >= 2
+      ? `${names[0]} och ${names[1]}`
+      : (names[0] || 'barnen');
+    if (hadMorningRoutine || anyCompletion) {
+      return `Den här veckan började ${who} hitta sin egen rytm i vardagen.\n\nNi gjorde det tillsammans.`;
+    }
+    return `Den här veckan lärde ni känna rutinen tillsammans.\n\nImorgon är en ny dag — och ni är redo.`;
+  }
+
   const name = childName.trim() || 'barnet';
-  if (hadMorningRoutine || completionDays >= 3) {
+  if (hadMorningRoutine || anyCompletion) {
     return `Den här veckan tog ${name} sina första steg mot en egen morgonrutin.\n\nNi gjorde det tillsammans.`;
   }
-  if (completionDays >= 1) {
-    return `Den här veckan började ${name} hitta sin egen rytm i vardagen.\n\nNi gjorde det tillsammans — steg för steg.`;
-  }
-  return `Den här veckan lärde ni känna appen tillsammans.\n\nImorgon är en ny dag — och ni är redo.`;
+  return `Den här veckan lärde ni känna rutinen tillsammans.\n\nImorgon är en ny dag — och ni är redo.`;
 }
 
 /**
@@ -245,8 +259,10 @@ async function buildFirstWeekContext(familyId, milestones) {
   if (pick.experience === 'fw_week_reflection') {
     reflectionStory = buildWeekReflectionStory({
       childName: signals.childName,
-      completionDays: signals.completionDays,
+      childCount: signals.childCount,
+      childNames: signals.children.map((c) => c.name),
       hadMorningRoutine: signals.hadMorningRoutine,
+      anyCompletion: (signals.completionDays || 0) > 0,
     });
   }
 

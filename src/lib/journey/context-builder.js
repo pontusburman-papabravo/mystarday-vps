@@ -83,6 +83,9 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
 
   if (firstWeekBlock) {
     context.first_week = firstWeekBlock;
+    context.activation_program_suppressed = Boolean(
+      firstWeekEnabled && firstWeekBlock.active
+    );
   }
 
   return context;

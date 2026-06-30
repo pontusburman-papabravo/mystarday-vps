@@ -3,12 +3,12 @@
 const REGISTRY_SEED = require('../config/journey-experience-registry.json');
 
 const FIRST_WEEK_EXPERIENCES = [
-  ['BUILDING_ROUTINE', 'fw_day1_morning', 'coach', 'God morgon — er första riktiga morgon', 'Schemat ligger redo. Låt barnet logga in och börja dagen i sin egen takt.', 'Visa barnet'],
-  ['BUILDING_ROUTINE', 'fw_day1_evening', 'coach', 'Kvällsrutinen väntar', 'En lugn kväll gör morgondagen enklare. Kika på kvällsaktiviteterna tillsammans.', 'Se kvällsschemat'],
+  ['BUILDING_ROUTINE', 'fw_day1_morning', 'coach', 'God morgon', 'Schemat ligger redo. Låt barnet logga in och börja dagen i sin egen takt.', 'Visa barnet'],
+  ['BUILDING_ROUTINE', 'fw_day1_evening', 'coach', 'En lugn kväll', 'En enkel kvällsrutin gör morgondagen lättare. Kika tillsammans på vad som väntar.', 'Till kvällen'],
   ['BUILDING_ROUTINE', 'fw_day2_quiet', 'coach', 'Barnet hittar rytmen', 'Ni behöver inte göra så mycket nu — låt barnet leda.', 'Visa barnupplevelsen'],
-  ['BUILDING_ROUTINE', 'fw_day3_new_day', 'coach', 'Imorgon är en ny dag', 'Igår blev det inte som planerat — det är helt okej. Ingen streak, inget att ångra.', 'Visa schemat'],
-  ['BUILDING_ROUTINE', 'fw_day4_discovery', 'coach', 'Något nytt i världen', 'Barnet har upptäckt något nytt i sin stjärnvärld — som en naturlig del av resan.', 'Se vad som hänt'],
-  ['BUILDING_ROUTINE', 'fw_week_reflection', 'reflection', 'Er första vecka', null, 'Stäng'],
+  ['BUILDING_ROUTINE', 'fw_day3_new_day', 'coach', 'Imorgon är en ny dag', 'Igår blev det inte som planerat — det är helt okej. Rutinen finns kvar när ni är redo.', 'Okej'],
+  ['BUILDING_ROUTINE', 'fw_day4_discovery', 'coach', 'Något nytt i världen', 'Barnet har hittat något nytt i stjärnvärlden — helt på egen hand.', 'Se vad som hänt'],
+  ['BUILDING_ROUTINE', 'fw_week_reflection', 'reflection', 'En vecka tillsammans', null, 'Stäng'],
 ];
 
 module.exports = {

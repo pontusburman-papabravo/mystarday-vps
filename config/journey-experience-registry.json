@@ -18,15 +18,15 @@
       },
       "fw_day1_morning": {
         "tone": "coach",
-        "headline": "God morgon — er första riktiga morgon",
+        "headline": "God morgon",
         "body": "Schemat ligger redo. Låt barnet logga in och börja dagen i sin egen takt.",
         "cta": "Visa barnet"
       },
       "fw_day1_evening": {
         "tone": "coach",
-        "headline": "Kvällsrutinen väntar",
-        "body": "En lugn kväll gör morgondagen enklare. Kika på kvällsaktiviteterna tillsammans.",
-        "cta": "Se kvällsschemat"
+        "headline": "En lugn kväll",
+        "body": "En enkel kvällsrutin gör morgondagen lättare. Kika tillsammans på vad som väntar.",
+        "cta": "Till kvällen"
       },
       "fw_day2_quiet": {
         "tone": "coach",
@@ -37,18 +37,18 @@
       "fw_day3_new_day": {
         "tone": "coach",
         "headline": "Imorgon är en ny dag",
-        "body": "Igår blev det inte som planerat — det är helt okej. Ingen streak, inget att ångra. Rutinen finns kvar när ni är redo.",
-        "cta": "Visa schemat"
+        "body": "Igår blev det inte som planerat — det är helt okej. Rutinen finns kvar när ni är redo.",
+        "cta": "Okej"
       },
       "fw_day4_discovery": {
         "tone": "coach",
         "headline": "Något nytt i världen",
-        "body": "Barnet har upptäckt något nytt i sin stjärnvärld — som en naturlig del av resan, inte som belöning.",
+        "body": "Barnet har hittat något nytt i stjärnvärlden — helt på egen hand.",
         "cta": "Se vad som hänt"
       },
       "fw_week_reflection": {
         "tone": "reflection",
-        "headline": "Er första vecka",
+        "headline": "En vecka tillsammans",
         "body": "",
         "cta": "Stäng"
       },

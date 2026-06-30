@@ -149,7 +149,7 @@ describe('first week — warm reflection story', () => {
   it('uses child name and morning routine narrative', () => {
     const story = buildWeekReflectionStory({
       childName: 'Alma',
-      completionDays: 4,
+      anyCompletion: true,
       hadMorningRoutine: true,
     });
     assert.match(story, /Alma/);
@@ -159,8 +159,19 @@ describe('first week — warm reflection story', () => {
   });
 
   it('gentle story when few completions', () => {
-    const story = buildWeekReflectionStory({ childName: 'Erik', completionDays: 0 });
+    const story = buildWeekReflectionStory({ childName: 'Erik', anyCompletion: false });
     assert.match(story, /Imorgon är en ny dag/);
+    assert.doesNotMatch(story, /app/i);
+  });
+
+  it('two-child story names both children', () => {
+    const story = buildWeekReflectionStory({
+      childCount: 2,
+      childNames: ['Alma', 'Erik'],
+      anyCompletion: true,
+    });
+    assert.match(story, /Alma och Erik/);
+    assert.doesNotMatch(story, /statistik|produktivitet|streak/i);
   });
 });
 
@@ -232,6 +243,21 @@ describe('first week — evaluator integration', () => {
     });
     assert.ok(ctx.recommended_experiences.includes('coach_consistency'));
   });
+
+  it('first week works when coach_v1 is off', () => {
+    const ctx = deriveContext({
+      phase: 'BUILDING_ROUTINE',
+      milestones,
+      opts: {
+        coachEnabled: false,
+        firstWeekEnabled: true,
+        celebrationShown: true,
+        firstWeekDay: 1,
+        registryVersion: 'test',
+      },
+    });
+    assert.ok(ctx.recommended_experiences.includes('fw_day1_morning'));
+  });
 });
 
 describe('first week — registry copy', () => {
@@ -247,7 +273,8 @@ describe('first week — registry copy', () => {
       assert.ok(phase[key].headline);
     }
     assert.match(phase.fw_day3_new_day.headline, /Imorgon är en ny dag/);
-    assert.doesNotMatch(phase.fw_day3_new_day.body, /streak-förlust|förlorad streak/i);
+    assert.doesNotMatch(phase.fw_day3_new_day.body, /streak|statistik|dashboard|produktivitet/i);
+    assert.doesNotMatch(phase.fw_week_reflection.headline, /sammanfattning/i);
   });
 });
 
@@ -366,11 +393,165 @@ describe('first week — DB integration', () => {
 });
 
 describe('first week — offline resilience', () => {
-  it('context client caches for offline display', () => {
+  it('context client caches with TTL for offline display', () => {
     const fs = require('fs');
     const path = require('path');
     const src = fs.readFileSync(path.join(__dirname, '../public/js/journey-context-client.js'), 'utf8');
     assert.match(src, /cachedContext/);
-    assert.match(src, /getCachedContext/);
+    assert.match(src, /CACHE_TTL_MS/);
+    assert.match(src, /clearCache/);
+  });
+
+  it('first-week module stops polling when flag is off', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/journey-first-week.js'), 'utf8');
+    assert.match(src, /flagOff/);
+    assert.match(src, /capabilities\?\.first_week_v1/);
+    assert.match(src, /fetchContext\(true\)/);
+  });
+});
+
+describe('first week — release readiness', () => {
+  it('migration defaults family_journey_first_week_v1 to OFF', () => {
+    const migration = require('../migrations/1809000000000_journey_first_week.js');
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../migrations/1809000000000_journey_first_week.js'),
+      'utf8'
+    );
+    assert.match(src, /family_journey_first_week_v1/);
+    assert.match(src, /VALUES \(\$1, false/);
+    assert.equal(typeof migration.down, 'function');
+  });
+
+  it('registry seed is idempotent via ON CONFLICT DO UPDATE', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../migrations/1809000000000_journey_first_week.js'),
+      'utf8'
+    );
+    assert.match(src, /ON CONFLICT \(version, phase, experience_key, locale\) DO UPDATE/);
+  });
+
+  it('flag OFF — context has no first_week block and no fw experiences', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    try {
+      await db.query(
+        `INSERT INTO feature_flag (key, enabled, description) VALUES ($1, false, 'test')
+         ON CONFLICT (key) DO UPDATE SET enabled = false`,
+        [FLAG_KEYS.firstWeekV1]
+      );
+      for (const key of [FLAG_KEYS.ingestEnabled, FLAG_KEYS.evaluatorEnabled, FLAG_KEYS.contextApi]) {
+        await db.query(
+          `INSERT INTO feature_flag (key, enabled, description) VALUES ($1, true, 'test')
+           ON CONFLICT (key) DO UPDATE SET enabled = true`,
+          [key]
+        );
+      }
+
+      const fam = await db.query(
+        `INSERT INTO family (name, timezone, journey_phase) VALUES ('Flag Off', 'Europe/Stockholm', 'BUILDING_ROUTINE') RETURNING id`
+      );
+      const familyId = fam.rows[0].id;
+      const { ingestMilestone } = require('../src/lib/journey/ingest');
+      await ingestMilestone({ familyId, milestone: 'child_first_completion', source: 'system' });
+      await ingestMilestone({ familyId, milestone: 'parent_saw_completion', source: 'system' });
+      await require('../src/lib/journey/ingest').maybeDeriveFirstSuccess(familyId);
+      await require('../db/family-milestones').markCelebrationShown(familyId);
+
+      const { buildContextForFamily } = require('../src/lib/journey/context-builder');
+      const ctx = await buildContextForFamily(familyId);
+      assert.equal(ctx.capabilities.first_week_v1, false);
+      assert.equal(ctx.first_week, undefined);
+      assert.ok(!ctx.recommended_experiences?.some((k) => k.startsWith('fw_')));
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('activation banner suppresses when first_week active', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../public/js/activation-program-banner.js'),
+      'utf8'
+    );
+    assert.match(src, /shouldSuppressForJourneyFirstWeek/);
+    assert.match(src, /activation_program_suppressed/);
+  });
+
+  it('journey-first-week shouldRender hides during celebration and parent ack', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../public/js/journey-first-week.js'),
+      'utf8'
+    );
+    assert.match(src, /parent_ack_completion/);
+    assert.match(src, /context\.celebration/);
+  });
+
+  it('dismiss is scoped per day — day 2 dismiss does not block day 3', () => {
+    const pick = pickFirstWeekExperience({
+      day: 3,
+      milestones: { fw_day_dismissed_2: '2026-01-01' },
+      signals: {},
+    });
+    assert.notEqual(pick.reason, 'day_dismissed');
+    assert.equal(pick.experience, null);
+    assert.equal(pick.fallthrough, true);
+  });
+
+  it('week reflection after parent returns 48h on day 7', () => {
+    const fsAt = DateTime.now().setZone(TZ).minus({ days: 7 }).toJSDate();
+    const returnAt = DateTime.now().setZone(TZ).toJSDate();
+    const day = effectiveFirstWeekDay(fsAt, returnAt, TZ, true);
+    assert.equal(day, 7);
+    const pick = pickFirstWeekExperience({
+      day,
+      milestones: { _celebration_shown: true },
+      signals: {},
+    });
+    assert.equal(pick.experience, 'fw_week_reflection');
+  });
+
+  it('reflection is once per family — second submit is idempotent', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    try {
+      await db.query(
+        `INSERT INTO feature_flag (key, enabled, description) VALUES ($1, true, 'test')
+         ON CONFLICT (key) DO UPDATE SET enabled = true`,
+        [FLAG_KEYS.ingestEnabled]
+      );
+      const fam = await db.query(
+        `INSERT INTO family (name, timezone) VALUES ('Reflect Once', 'Europe/Stockholm') RETURNING id`
+      );
+      const familyId = fam.rows[0].id;
+      const { ingestClientIntent } = require('../src/lib/journey/ingest');
+      const first = await ingestClientIntent({ familyId, intent: 'week_reflection_completed' });
+      const second = await ingestClientIntent({ familyId, intent: 'week_reflection_completed' });
+      assert.equal(first.inserted, true);
+      assert.equal(second.inserted, false);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('migration down removes flag and registry rows', async () => {
+    const mod = require('../migrations/1809000000000_journey_first_week.js');
+    assert.equal(typeof mod.up, 'function');
+    assert.equal(typeof mod.down, 'function');
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../migrations/1809000000000_journey_first_week.js'),
+      'utf8'
+    );
+    assert.match(src, /DELETE FROM feature_flag WHERE key = 'family_journey_first_week_v1'/);
+    assert.match(src, /DELETE FROM journey_experience_registry/);
+    assert.match(src, /idx_family_milestones_once/);
   });
 });
