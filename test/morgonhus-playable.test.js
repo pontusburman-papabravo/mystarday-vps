@@ -59,7 +59,10 @@ describe('morgonhus_playable — feature access rollout', () => {
     assert.match(src, /morgonhus_playable/);
     assert.match(src, /'dev'/);
     assert.match(src, /family_features/);
-    assert.match(src, /ILIKE '%pontus%'/);
+    assert.match(src, /Pontus@burman\.cc/);
+    assert.match(src, /LOWER\(p\.email\) = LOWER/);
+    assert.doesNotMatch(src, /ILIKE '%pontus%'/);
+    assert.match(src, /status = 'dev'/);
     assert.match(src, /DELETE FROM feature_flag WHERE key = 'morgonhus_playable_v1'/);
   });
 

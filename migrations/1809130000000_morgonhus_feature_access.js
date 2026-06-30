@@ -4,7 +4,7 @@
  * Morgonhuset — migrate from global feature_flag to features/family_features.
  * - Registers morgonhus_playable (dev) in features table
  * - Removes legacy global kill switch (prevents accidental global rollout)
- * - Seeds Pontus test families on allowlist
+ * - Seeds Pontus test family via parent email (Pontus@burman.cc)
  */
 
 module.exports = {
@@ -14,7 +14,9 @@ module.exports = {
     await client.query(
       `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       ON CONFLICT (slug) DO NOTHING`,
+       ON CONFLICT (slug) DO UPDATE SET
+         status = 'dev',
+         updated_at = NOW()`,
       [
         'morgonhus_playable',
         'Morgonhuset (spelbart)',
@@ -29,11 +31,13 @@ module.exports = {
 
     await client.query(
       `INSERT INTO family_features (family_id, feature_slug)
-       SELECT f.id, 'morgonhus_playable'
-       FROM family f
-       WHERE f.archived_at IS NULL
-         AND f.name ILIKE '%pontus%'
-       ON CONFLICT (family_id, feature_slug) DO NOTHING`
+       SELECT DISTINCT p.family_id, 'morgonhus_playable'
+       FROM parent p
+       JOIN family f ON f.id = p.family_id
+       WHERE LOWER(p.email) = LOWER($1)
+         AND f.archived_at IS NULL
+       ON CONFLICT (family_id, feature_slug) DO NOTHING`,
+      ['Pontus@burman.cc']
     );
 
     await client.query(
