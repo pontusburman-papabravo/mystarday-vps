@@ -56,11 +56,15 @@
     if (!_goalData || !_goalData.goal) return '';
     const goal = _goalData.goal;
     const pct = Math.min(100, _goalData.progress_pct || 0);
-    const current = _goalData.stars_toward_goal != null ? _goalData.stars_toward_goal : (_goalData.current_stars || 0);
+    const current = _goalData.stars_toward_goal != null
+      ? _goalData.stars_toward_goal
+      : (_goalData.star_balance != null ? _goalData.star_balance : (_goalData.current_stars || 0));
     const target = goal.star_cost || _goalData.target_stars || '?';
+    const goalLabel = goal.reward_name || goal.name || '';
+    const goalIcon = goal.reward_icon || goal.icon || '🎁';
     return '<div id="childGoalProgressMount" class="mx-4 mb-4 p-4 bg-white border border-lavender rounded-2xl" aria-live="polite">' +
       '<p class="text-xs text-text-soft mb-1">Mål</p>' +
-      '<p class="font-bold text-navy mb-2">' + (goal.icon || '🎁') + ' ' + (goal.name || '') + '</p>' +
+      '<p class="font-bold text-navy mb-2">' + goalIcon + ' ' + goalLabel + '</p>' +
       '<div class="h-2 bg-lavender rounded-full overflow-hidden"><div class="h-full bg-gold transition-all" style="width:' + pct + '%"></div></div>' +
       '<p class="text-sm font-semibold text-navy mt-2">' + current + ' av ' + target + ' stjärnor</p></div>';
   }

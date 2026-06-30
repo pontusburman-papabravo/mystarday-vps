@@ -11,23 +11,52 @@
 
 let _currentGoalData = null; // cache for goal-picker
 let _currentRewardsData = null;
+let _loadRewardsInflight = null;
 
-async function loadRewards() {
+function showRewardsLoadError(loader, message) {
+  if (!loader) return;
+  const text = message || 'Kunde inte ladda belöningar.';
+  const safe = typeof escHtml === 'function' ? escHtml(text) : text;
+  loader.style.display = '';
+  loader.innerHTML =
+    '<div class="text-center py-12">' +
+    '<p class="text-4xl mb-3">😕</p>' +
+    '<p class="text-text-soft mb-4">' + safe + '</p>' +
+    '<button type="button" class="px-6 py-3 bg-gold text-navy font-semibold rounded-xl min-h-[44px]" ' +
+    'onclick="window.rewardsLoaded=false;loadRewards({force:true})">🔄 Försök igen</button>' +
+    '</div>';
+}
+
+async function loadRewards(options) {
+  options = options || {};
+  if (_loadRewardsInflight) return _loadRewardsInflight;
+
+  _loadRewardsInflight = loadRewardsInner(options).finally(function () {
+    _loadRewardsInflight = null;
+  });
+  return _loadRewardsInflight;
+}
+
+async function loadRewardsInner(options) {
   // Show loader, hide content
   const loader = document.getElementById('skattkammarLoading');
   const view = document.getElementById('skattkammarView');
 
-  // Use shimmer skeleton on Capacitor, spinner on web
+  // Use shimmer skeleton on Capacitor, spinner on web/PWA
   let skeletonTimer;
-  if (window.Skeleton && window.Skeleton.isNative()) {
-    if (loader) loader.style.display = 'none';
-    skeletonTimer = window.Skeleton.createTimer(function () {
-      window.Skeleton.showChildRewardsSkeleton();
-    });
-  } else {
-    if (loader) { loader.style.display = ''; loader.innerHTML = '<p class="text-5xl mb-3" style="display:inline-block;animation:skattSpin 1.5s linear infinite">⭐</p><p class="text-text-soft font-semibold mt-3">Öppnar Skattkammaren...</p>'; }
+  const showBlockingLoader = !window.rewardsLoaded || options.force;
+  if (showBlockingLoader) {
+    if (window.Skeleton && window.Skeleton.isNative()) {
+      if (loader) loader.style.display = 'none';
+      skeletonTimer = window.Skeleton.createTimer(function () {
+        window.Skeleton.showChildRewardsSkeleton();
+      });
+    } else if (loader) {
+      loader.style.display = '';
+      loader.innerHTML = '<p class="text-5xl mb-3" style="display:inline-block;animation:skattSpin 1.5s linear infinite">⭐</p><p class="text-text-soft font-semibold mt-3">Öppnar Skattkammaren...</p>';
+    }
+    if (view) view.style.display = 'none';
   }
-  if (view) view.style.display = 'none';
 
   if (navigator.onLine && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
     const mounted = await window.ChildMorgonhus.tryMountWorld();
@@ -47,7 +76,7 @@ async function loadRewards() {
       : Promise.resolve(null));
     if (skeletonTimer) skeletonTimer.stop();
     if (cached) {
-      rewardsLoaded = true;
+      window.rewardsLoaded = true;
       _currentRewardsData = cached;
       renderSkattkammaren(cached, _currentGoalData, { grants: [] });
       showOfflineBanner('📶 Offline — visar sparat data');
@@ -71,30 +100,44 @@ async function loadRewards() {
     }
 
     hideOfflineBanner();
-    rewardsLoaded = true;
+    window.rewardsLoaded = true;
     _currentGoalData = goalData;
     _currentRewardsData = rewardsData;
     updateGoalBar(goalData);
-    renderSkattkammaren(rewardsData, goalData, manualData);
-    if (window.ChildRewardsEngine) {
-      ChildRewardsEngine.setGoalData(goalData);
-      ChildRewardsEngine.setRewardsData(rewardsData);
-      ChildRewardsEngine.mountGoalProgress();
-      ChildRewardsEngine.mountPendingBannerIfNeeded();
+    try {
+      renderSkattkammaren(rewardsData, goalData, manualData);
+      if (window.ChildRewardsEngine) {
+        ChildRewardsEngine.setGoalData(goalData);
+        ChildRewardsEngine.setRewardsData(rewardsData);
+        ChildRewardsEngine.mountGoalProgress();
+        ChildRewardsEngine.mountPendingBannerIfNeeded();
+      }
+    } catch (renderErr) {
+      console.error('[loadRewards] renderSkattkammaren failed:', renderErr);
+      window.rewardsLoaded = false;
+      if (showBlockingLoader) showRewardsLoadError(loader, 'Kunde inte visa belöningarna. Försök igen.');
     }
   } catch (err) {
+    console.error('[loadRewards] API failed:', err);
     // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
       ? OfflineStore.getRewards(me?.id)
       : Promise.resolve(null));
     if (skeletonTimer) skeletonTimer.stop();
     if (cached) {
-      rewardsLoaded = true;
+      window.rewardsLoaded = true;
       _currentRewardsData = cached;
-      renderSkattkammaren(cached, _currentGoalData, { grants: [] });
-      showOfflineBanner('📶 Offline — visar sparat data');
-    } else if (loader) {
-      loader.innerHTML = '<div class="text-center py-12"><p class="text-4xl mb-3">😕</p><p class="text-text-soft">Kunde inte ladda belöningar.</p></div>';
+      try {
+        renderSkattkammaren(cached, _currentGoalData, { grants: [] });
+        showOfflineBanner('📶 Offline — visar sparat data');
+      } catch (renderErr) {
+        console.error('[loadRewards] cached render failed:', renderErr);
+        window.rewardsLoaded = false;
+        showRewardsLoadError(loader);
+      }
+    } else {
+      window.rewardsLoaded = false;
+      showRewardsLoadError(loader, err && err.message ? err.message : undefined);
     }
   }
 }
@@ -548,7 +591,7 @@ async function requestRedeem(rewardId) {
 
   try {
     const data = await Auth.api('/api/me/rewards/' + rewardId + '/redeem', { method: 'POST' });
-    rewardsLoaded = false;
+    window.rewardsLoaded = false;
     if (window.Platform && window.Platform.haptics) {
       window.Platform.haptics.medium();
     }
@@ -618,7 +661,7 @@ async function setGoal(rewardId, isChange) {
       showToast('🎯 ' + data.message);
       launchMilestoneConfetti();
     }
-    rewardsLoaded = false;
+    window.rewardsLoaded = false;
     await loadRewards();
   } catch (err) {
     showToast(err.message || 'Kunde inte sätta mål.', true);

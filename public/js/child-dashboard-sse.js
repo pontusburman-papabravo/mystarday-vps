@@ -24,7 +24,7 @@ function scheduleSSEStarReload() {
   _sseStarTimer = setTimeout(async () => {
     _sseStarTimer = null;
     // Reload rewards (updates star balance + goal progress bar)
-    if (typeof loadRewards === 'function' && rewardsLoaded) {
+    if (typeof loadRewards === 'function' && window.rewardsLoaded) {
       try { await loadRewards(); } catch {}
     } else {
       // Refresh goal bar in header even if skattkammaren isn't open
