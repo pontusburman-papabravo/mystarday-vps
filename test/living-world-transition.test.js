@@ -71,7 +71,8 @@ describe('Living World transition — place mode', () => {
     assert.match(TRANSITION_CSS, /living-world-active #progressSection/);
     assert.match(TRANSITION_CSS, /living-world-active #rewardsView/);
     assert.match(TRANSITION_CSS, /100dvh/);
-    assert.match(TRANSITION_CSS, /prefers-reduced-motion/);
+    assert.match(TRANSITION_CSS, /childGoalProgressMount/);
+    assert.match(TRANSITION_SRC, /mount\(null, \{ viaTransition: true \}\)/);
   });
 
   it('CSS has door open and portal through-door animations', () => {
@@ -97,10 +98,51 @@ describe('Living World transition — place mode', () => {
     assert.match(DASH_SRC, /function showTab\(tab\)/);
   });
 
+  it('enterGarden calls ChildGarden.mount with null state and viaTransition opts', async () => {
+    let mountArgs = null;
+    const context = {
+      document: {
+        body: {
+          classList: { add: () => {}, remove: () => {} },
+          appendChild: () => {},
+        },
+        getElementById: (id) => {
+          if (id === 'skattkammarView' || id === 'rewardsView') {
+            return { classList: { add: () => {}, remove: () => {} } };
+          }
+          return null;
+        },
+        createElement: () => ({
+          classList: { add: () => {}, remove: () => {} },
+          setAttribute: () => {},
+          offsetWidth: 0,
+        }),
+      },
+      window: {
+        matchMedia: () => ({ matches: true }),
+        ChildGarden: {
+          mount: async function (state, opts) {
+            mountArgs = { state: state, opts: opts };
+            return true;
+          },
+          deactivate: () => {},
+        },
+        ChildMorgonhus: { tryRemountCached: () => true },
+        LivingWorldTransition: null,
+      },
+      setTimeout: (fn) => { fn(); return 1; },
+      clearTimeout: () => {},
+    };
+    vm.runInNewContext(TRANSITION_SRC, context);
+    await context.window.LivingWorldTransition.enterGarden({ doorEl: null });
+    assert.equal(mountArgs.state, null);
+    assert.equal(mountArgs.opts.viaTransition, true);
+  });
+
   it('service worker precaches transition assets', () => {
     const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
     assert.match(sw, /child-living-world-transition\.js/);
     assert.match(sw, /child-living-world-transition\.css/);
-    assert.match(sw, /stjarndag-v423/);
+    assert.match(sw, /stjarndag-v424/);
   });
 });

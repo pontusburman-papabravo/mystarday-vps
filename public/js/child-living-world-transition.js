@@ -96,9 +96,12 @@
       if (skattView) skattView.classList.add('lw-portal-zoom');
       await wait(THROUGH_MS);
 
-      const mounted = await window.ChildGarden.mount({ viaTransition: true });
+      const mounted = await window.ChildGarden.mount(null, { viaTransition: true });
       if (!mounted) {
         resetEnterClasses(doorEl);
+        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryRemountCached === 'function') {
+          window.ChildMorgonhus.tryRemountCached();
+        }
         _entering = false;
         return false;
       }
