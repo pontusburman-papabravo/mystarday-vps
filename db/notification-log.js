@@ -11,15 +11,15 @@ const db = require('../src/lib/db');
  * Called from push-notifications.js after each send.
  *
  * @param {string} parentId
- * @param {{ title: string, body: string, type?: string, url?: string }} payload
+ * @param {{ title: string, body: string, type?: string, url?: string, metadata?: object }} payload
  * @returns {Promise<object>} the created row
  */
-async function logNotification(parentId, { title, body, type = 'general', url = null }) {
+async function logNotification(parentId, { title, body, type = 'general', url = null, metadata = {} }) {
   const result = await db.query(
-    `INSERT INTO notification_log (parent_id, title, body, type, url)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO notification_log (parent_id, title, body, type, url, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb)
      RETURNING *`,
-    [parentId, title, body || '', type, url]
+    [parentId, title, body || '', type, url, JSON.stringify(metadata || {})]
   );
   return result.rows[0];
 }

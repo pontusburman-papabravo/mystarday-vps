@@ -357,30 +357,27 @@ async function sendStarMilestoneNotifications() {
 
       for (const milestone of STAR_MILESTONES) {
         if (totalStars >= milestone) {
-          // Check if we already notified for this milestone
-          const notifResult = await db.query(
-            `SELECT metadata FROM notification_log
+          const dupCheck = await db.query(
+            `SELECT 1 FROM notification_log
              WHERE parent_id = $1 AND type = 'star_milestone'
                AND created_at > NOW() - INTERVAL '7 days'
+               AND metadata->>'child_id' = $2
+               AND (metadata->>'milestone')::int = $3
              LIMIT 1`,
-            [parent_id]
+            [parent_id, child.id, milestone]
           );
-          const alreadyNotified = notifResult.rows.some(r => {
-            const m = JSON.parse(r.metadata || '{}');
-            return m.child_id === child.id && m.milestone === milestone;
-          });
+          if (dupCheck.rows.length > 0) continue;
 
-          if (!alreadyNotified) {
-            await sendPushNotification(parent_id, {
-              title: `${child.name} har samlat ${milestone} stjärnor! 🌟`,
-              body: milestone === 100
-                ? 'Helt fantastiskt! Nu väntar nya utmaningar!'
-                : `${child.emoji || '⭐'} Grattis till ${child.name}!`,
-              type: 'star_milestone',
-              url: '/dashboard',
-            });
-            console.log(`[PUSH-REMINDER] Star milestone (${milestone}) sent for ${child.name} to parent ${parent_id}`);
-          }
+          await sendPushNotification(parent_id, {
+            title: `${child.name} har samlat ${milestone} stjärnor! 🌟`,
+            body: milestone === 100
+              ? 'Helt fantastiskt! Nu väntar nya utmaningar!'
+              : `${child.emoji || '⭐'} Grattis till ${child.name}!`,
+            type: 'star_milestone',
+            url: '/dashboard',
+            metadata: { child_id: child.id, milestone },
+          });
+          console.log(`[PUSH-REMINDER] Star milestone (${milestone}) sent for ${child.name} to parent ${parent_id}`);
         }
       }
     }
