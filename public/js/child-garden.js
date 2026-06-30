@@ -1,13 +1,13 @@
 /**
- * child-garden.js — Trädgården layered asset scene (presentation only).
- * Enter from Morgonhus door · illustrated layers · no toasts.
+ * child-garden.js — Trädgården illustrated asset scene (presentation only).
+ * Primary visual: scene-bg.webp via <picture>. CSS = layout + animation only.
  */
 (function () {
   'use strict';
 
   const API_PATH = '/api/me/garden';
   const FETCH_TIMEOUT_MS = 8000;
-  const TAP_RESET_MS = 1400;
+  const TAP_RESET_MS = 1200;
 
   let _active = false;
   let _state = null;
@@ -26,22 +26,19 @@
     return window.GardenAssetPipeline || null;
   }
 
-  function assetSrc(id) {
+  function scenePictureMarkup() {
     const p = pipeline();
-    if (p && typeof p.assetUrl === 'function') {
-      return p.assetUrl(id);
+    if (p && typeof p.scenePictureHtml === 'function') {
+      return p.scenePictureHtml();
     }
-    return '/assets/worlds/garden/' + id + '.webp';
-  }
-
-  function assetImg(id, className, extraAttrs) {
-    const src = assetSrc(id);
-    return '<img class="gd-asset ' + esc(className) + '"' +
-      ' data-asset-id="' + esc(id) + '"' +
-      ' src="' + esc(src) + '"' +
-      ' alt="" decoding="async" loading="eager"' +
-      (extraAttrs || '') +
-      ' />';
+    return '<picture class="gd-scene-picture" data-asset-id="scene-bg">' +
+      '<source type="image/webp" media="(max-width: 430px)" srcset="/assets/worlds/garden/scene-bg-430.webp" />' +
+      '<source type="image/webp" media="(max-width: 860px)" srcset="/assets/worlds/garden/scene-bg-860.webp" />' +
+      '<img class="gd-scene-bg" data-asset-id="scene-bg" data-critical="true"' +
+        ' src="/assets/worlds/garden/scene-bg.webp"' +
+        ' srcset="/assets/worlds/garden/scene-bg-430.webp 430w, /assets/worlds/garden/scene-bg-860.webp 860w, /assets/worlds/garden/scene-bg-1280.webp 1280w"' +
+        ' sizes="100vw" alt="" decoding="async" loading="eager" fetchpriority="high" />' +
+      '</picture>';
   }
 
   function renderScene(state) {
@@ -55,42 +52,15 @@
         ' aria-label="' + esc(label || id) + '"></button>';
     }
 
-    return '<div class="gd-scene gd-scene--asset gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
-      '<div class="gd-fallback-bg" aria-hidden="true"></div>' +
-      '<div class="gd-layer gd-layer--sky" aria-hidden="true">' +
-        assetImg('background', 'gd-asset--background') +
+    return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
+      '<div class="gd-scene-canvas" aria-hidden="true">' +
+        scenePictureMarkup() +
+        '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
+        '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      '<div class="gd-layer gd-layer--clouds" aria-hidden="true">' +
-        assetImg('clouds', 'gd-asset--clouds') +
-      '</div>' +
-      '<div class="gd-layer gd-layer--path" aria-hidden="true">' +
-        assetImg('path', 'gd-asset--path', ' id="gdPath"') +
-        '<div class="gd-path-shimmer" id="gdPathShimmer" aria-hidden="true"></div>' +
-      '</div>' +
-      '<div class="gd-layer gd-layer--flowers" aria-hidden="true">' +
-        assetImg('flowers', 'gd-asset--flowers', ' id="gdFlowerBed"') +
-      '</div>' +
-      '<div class="gd-layer gd-layer--house" aria-hidden="true">' +
-        assetImg('house-left', 'gd-asset--house') +
-      '</div>' +
-      '<div class="gd-layer gd-layer--foreground" aria-hidden="true">' +
-        assetImg('foreground-leaves', 'gd-asset--foreground') +
-        '<div class="gd-leaf-particles" aria-hidden="true">' +
-          '<span class="gd-leaf-particle gd-leaf-particle--1"></span>' +
-          '<span class="gd-leaf-particle gd-leaf-particle--2"></span>' +
-          '<span class="gd-leaf-particle gd-leaf-particle--3"></span>' +
-          '<span class="gd-leaf-particle gd-leaf-particle--4"></span>' +
-        '</div>' +
-      '</div>' +
-      '<div class="gd-layer gd-layer--actors" aria-hidden="true">' +
-        assetImg('bird', 'gd-asset--bird', ' id="gdBird"') +
-        assetImg('butterfly', 'gd-asset--butterfly', ' id="gdButterfly"') +
-      '</div>' +
-      '<div class="gd-vignette" aria-hidden="true"></div>' +
       hotspot('garden_path', 'gd-hotspot--path', 'Stigen') +
       hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
       hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
-      '<div class="gd-sparkles" id="gdSparkles" aria-hidden="true"></div>' +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -99,67 +69,30 @@
 
   function triggerVisual(root, sceneryId) {
     if (!root) return;
-    const path = root.querySelector('#gdPath');
-    const pathShimmer = root.querySelector('#gdPathShimmer');
-    const bed = root.querySelector('#gdFlowerBed');
-    const bird = root.querySelector('#gdBird');
-    const butterfly = root.querySelector('#gdButterfly');
-    const leaves = root.querySelectorAll('.gd-leaf-particle');
+    const pulse = root.querySelector('#gdTapPulse');
+    const scene = root.querySelector('.gd-scene-canvas');
 
-    if (sceneryId === 'garden_path') {
-      if (path) path.classList.add('is-glow');
-      if (pathShimmer) pathShimmer.classList.add('is-active');
-      spawnSparkles(root);
-      setTimeout(function () {
-        if (path) path.classList.remove('is-glow');
-        if (pathShimmer) pathShimmer.classList.remove('is-active');
-      }, TAP_RESET_MS);
+    if (pulse) {
+      pulse.classList.remove('is-active');
+      void pulse.offsetWidth;
+      pulse.classList.add('is-active');
+      setTimeout(function () { pulse.classList.remove('is-active'); }, TAP_RESET_MS);
+    }
+
+    if (sceneryId === 'garden_path' && scene) {
+      scene.classList.add('is-path-tap');
+      setTimeout(function () { scene.classList.remove('is-path-tap'); }, TAP_RESET_MS);
       return;
     }
-    if (sceneryId === 'garden_bed' && bed) {
-      bed.classList.add('is-bloom');
-      if (butterfly) {
-        butterfly.classList.remove('is-flutter');
-        void butterfly.offsetWidth;
-        butterfly.classList.add('is-flutter');
-        setTimeout(function () { butterfly.classList.remove('is-flutter'); }, TAP_RESET_MS);
-      }
-      setTimeout(function () { bed.classList.remove('is-bloom'); }, TAP_RESET_MS);
+    if (sceneryId === 'garden_bed' && scene) {
+      scene.classList.add('is-bloom-tap');
+      setTimeout(function () { scene.classList.remove('is-bloom-tap'); }, TAP_RESET_MS);
       return;
     }
-    if (sceneryId === 'garden_sky') {
-      if (bird) {
-        bird.classList.remove('is-flying');
-        void bird.offsetWidth;
-        bird.classList.add('is-flying');
-        setTimeout(function () { bird.classList.remove('is-flying'); }, TAP_RESET_MS);
-      }
-      if (butterfly && !_prefersReducedMotion) {
-        butterfly.classList.remove('is-pass');
-        void butterfly.offsetWidth;
-        butterfly.classList.add('is-pass');
-        setTimeout(function () { butterfly.classList.remove('is-pass'); }, TAP_RESET_MS);
-      }
-      leaves.forEach(function (leaf) {
-        leaf.classList.add('is-gust');
-        setTimeout(function () { leaf.classList.remove('is-gust'); }, TAP_RESET_MS);
-      });
+    if (sceneryId === 'garden_sky' && scene) {
+      scene.classList.add('is-sky-tap');
+      setTimeout(function () { scene.classList.remove('is-sky-tap'); }, TAP_RESET_MS);
     }
-  }
-
-  function spawnSparkles(root) {
-    const layer = root.querySelector('#gdSparkles');
-    if (!layer || _prefersReducedMotion) return;
-    layer.innerHTML = '';
-    for (let i = 0; i < 5; i += 1) {
-      const s = document.createElement('span');
-      s.className = 'gd-sparkle';
-      s.style.left = (28 + i * 9 + Math.random() * 6) + '%';
-      s.style.bottom = (22 + Math.random() * 8) + '%';
-      s.style.animationDelay = (i * 0.08) + 's';
-      layer.appendChild(s);
-    }
-    setTimeout(function () { layer.innerHTML = ''; }, TAP_RESET_MS);
   }
 
   function bindInteractions(root) {
@@ -169,7 +102,7 @@
       btn.addEventListener('click', function () {
         const id = btn.getAttribute('data-scenery');
         btn.classList.add('is-tapped');
-        setTimeout(function () { btn.classList.remove('is-tapped'); }, 300);
+        setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
         triggerVisual(root, id);
       });
     });
@@ -192,14 +125,17 @@
     scene.addEventListener('animationend', onEnd);
   }
 
-  function bindAssetPipeline(root) {
+  function bindAssetWatch(root) {
     if (_assetCleanup) {
       _assetCleanup();
       _assetCleanup = null;
     }
     const p = pipeline();
-    if (!p || typeof p.watchSceneAssets !== 'function') return;
-    _assetCleanup = p.watchSceneAssets(root);
+    if (!p || typeof p.watchSceneImage !== 'function') return;
+    _assetCleanup = p.watchSceneImage(root, function () {
+      console.warn('[garden] scene-bg failed — exiting to Morgonhus');
+      exitToMorgonhus();
+    });
   }
 
   function hideLoader() {
@@ -247,52 +183,7 @@
     if (view) view.classList.remove('gd-exit-through-door');
   }
 
-  async function mount(state) {
-    const view = document.getElementById('skattkammarView');
-    if (!view) return false;
-
-    const sceneState = state || await fetchState();
-    if (!sceneState || !sceneState.enabled) return false;
-
-    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.deactivate === 'function') {
-      window.ChildMorgonhus.deactivate();
-    }
-
-    _prefersReducedMotion = window.matchMedia
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const p = pipeline();
-    let assetsOk = true;
-    if (p && typeof p.preloadCritical === 'function') {
-      assetsOk = await p.preloadCritical(5000);
-      if (!assetsOk) {
-        console.warn('[garden] critical assets preload incomplete — showing fallback layers');
-      }
-    }
-
-    _state = sceneState;
-    _active = true;
-    view.classList.add('gd-exit-through-door');
-    view.innerHTML = renderScene(sceneState);
-    if (!assetsOk) {
-      const scene = view.querySelector('.gd-scene');
-      if (scene) scene.classList.add('gd-scene--fallback');
-    }
-    bindInteractions(view);
-    bindAssetPipeline(view);
-    finishEnterAnimation(view);
-    hideLoader();
-    document.body.classList.add('child-garden-active');
-    document.body.classList.remove('child-morgonhus-active');
-    return true;
-  }
-
-  async function enterFromMorgonhus() {
-    return mount();
-  }
-
-  async function exitToMorgonhus() {
-    deactivate();
+  async function remountMorgonhusOrSkatt() {
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       const remounted = await window.ChildMorgonhus.tryMountWorld();
       if (remounted) return true;
@@ -310,6 +201,51 @@
       window.loadRewards();
     }
     return false;
+  }
+
+  async function mount(state) {
+    const view = document.getElementById('skattkammarView');
+    if (!view) return false;
+
+    const sceneState = state || await fetchState();
+    if (!sceneState || !sceneState.enabled) return false;
+
+    const p = pipeline();
+    if (p && typeof p.preloadScene === 'function') {
+      const sceneOk = await p.preloadScene(5000);
+      if (!sceneOk) {
+        console.warn('[garden] scene-bg unavailable — staying in Morgonhus');
+        return false;
+      }
+    }
+
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.deactivate === 'function') {
+      window.ChildMorgonhus.deactivate();
+    }
+
+    _prefersReducedMotion = window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    _state = sceneState;
+    _active = true;
+    view.classList.add('gd-exit-through-door');
+    view.innerHTML = renderScene(sceneState);
+    bindInteractions(view);
+    bindAssetWatch(view);
+    finishEnterAnimation(view);
+    hideLoader();
+    document.body.classList.add('child-garden-active');
+    document.body.classList.remove('child-morgonhus-active');
+    return true;
+  }
+
+  async function enterFromMorgonhus() {
+    return mount();
+  }
+
+  async function exitToMorgonhus() {
+    deactivate();
+    return remountMorgonhusOrSkatt();
   }
 
   function isActive() {

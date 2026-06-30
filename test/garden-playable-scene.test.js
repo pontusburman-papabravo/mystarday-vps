@@ -166,9 +166,9 @@ describe('ChildGarden client module', () => {
       window: {
         matchMedia: () => ({ matches: false }),
         GardenAssetPipeline: {
-          assetUrl: (id) => '/assets/worlds/garden/' + id + '.webp?v=1.0.0',
-          preloadCritical: async () => true,
-          watchSceneAssets: () => function () {},
+          scenePictureHtml: () => '<picture class="gd-scene-picture"><img class="gd-scene-bg" src="/assets/worlds/garden/scene-bg.webp" alt="" /></picture>',
+          preloadScene: async () => true,
+          watchSceneImage: () => function () {},
         },
         Auth: { api: async () => ({
           enabled: true,
@@ -199,9 +199,10 @@ describe('ChildGarden client module', () => {
       ],
     });
     assert.match(html, /gd-scene/);
-    assert.match(html, /gd-scene--asset/);
-    assert.match(html, /gd-asset--background/);
-    assert.match(html, /assets\/worlds\/garden\/house-left\.webp/);
+    assert.match(html, /gd-scene--illustrated/);
+    assert.match(html, /gd-scene-bg/);
+    assert.match(html, /picture/);
+    assert.match(html, /scene-bg/);
     assert.match(html, /gd-hotspot--path/);
     assert.match(html, /gd-back-fab/);
     assert.match(html, /aria-label="Tillbaka till Morgonhuset"/);
@@ -209,26 +210,25 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(html, /gd-scene-title/);
     assert.doesNotMatch(html, /gd-scene-toast/);
     assert.doesNotMatch(html, /gd-house-wall/);
-    assert.doesNotMatch(html, /gd-sunflower/);
     assert.doesNotMatch(html, /Tillbaka till Morgonhuset<\/button>/);
   });
 
   it('garden uses visual feedback, not toast', () => {
     assert.doesNotMatch(src, /showToast/);
     assert.match(src, /triggerVisual/);
-    assert.match(src, /spawnSparkles/);
+    assert.match(src, /gd-tap-pulse/);
   });
 
-  it('garden CSS has ambient motion layers', () => {
+  it('garden CSS is layout-only with responsive full-screen scene', () => {
     const css = fs.readFileSync(
       path.join(__dirname, '../public/css/child-garden.css'),
       'utf8'
     );
-    assert.match(css, /gd-cloud-drift/);
-    assert.match(css, /gd-bird-fly/);
-    assert.match(css, /gd-layer--house/);
+    assert.match(css, /object-fit: cover/);
+    assert.match(css, /gd-scene-bg/);
     assert.match(css, /prefers-reduced-motion/);
     assert.match(css, /min-height: calc\(100dvh/);
+    assert.doesNotMatch(css, /gd-house-edge/);
   });
 
   it('door transition uses through-door class for continuity', () => {
