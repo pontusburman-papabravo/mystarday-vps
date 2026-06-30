@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v416';
+const CACHE_NAME = 'stjarndag-v417';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
@@ -287,6 +287,7 @@ const CACHE_NAME = 'stjarndag-v416';
 // stjarndag-v404: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v409: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v412: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v417: Morgonhuset toast visibility + force remount after Skattkammaren
 // stjarndag-v416: Morgonhuset — Skattkammaren round-trip + tap feedback toast
 // stjarndag-v415: PWA precache barnmeny v2 nav scripts (fix legacy child nav on stale cache)
 // stjarndag-v414: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)

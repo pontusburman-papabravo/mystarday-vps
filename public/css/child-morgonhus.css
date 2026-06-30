@@ -156,7 +156,7 @@
   transform: translateX(-50%) translateY(0);
 }
 
-.mh-scene-toast.mh-toast-off {
+.mh-scene-toast.mh-toast-off:not(.is-visible) {
   opacity: 0;
   visibility: hidden;
   transform: translateX(-50%) translateY(6px);

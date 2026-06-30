@@ -404,7 +404,7 @@ describe('ChildMorgonhus client module', () => {
       'utf8'
     );
     assert.match(dashSrc, /isUniverse && window\.ChildMorgonhus && !window\.ChildMorgonhus\.isActive\(\)/);
-    assert.match(dashSrc, /window\.rewardsLoaded = false/);
+    assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
   });
 
   it('loadRewards gates Morgonhus mount on morgonhus_playable feature', () => {
@@ -415,6 +415,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(rewardsSrc, /morgonhus_playable/);
     assert.match(rewardsSrc, /fetchStjarndagFeatures/);
     assert.match(rewardsSrc, /shouldPreferSkatt/);
+    assert.match(rewardsSrc, /options\.force/);
     assert.match(rewardsSrc, /clearPreferSkatt/);
     assert.match(rewardsSrc, /ChildMorgonhus\.tryMountWorld/);
   });

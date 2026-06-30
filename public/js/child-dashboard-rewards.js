@@ -29,7 +29,11 @@ function showRewardsLoadError(loader, message) {
 
 async function loadRewards(options) {
   options = options || {};
-  if (_loadRewardsInflight) return _loadRewardsInflight;
+  if (options.force) {
+    _loadRewardsInflight = null;
+  } else if (_loadRewardsInflight) {
+    return _loadRewardsInflight;
+  }
 
   _loadRewardsInflight = loadRewardsInner(options).finally(function () {
     _loadRewardsInflight = null;
