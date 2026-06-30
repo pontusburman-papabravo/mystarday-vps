@@ -93,6 +93,21 @@ describe('morgonhus_playable_v1 — playable morning house slice', () => {
     assert.equal(welcomeMat.visual_token, 'welcome_mat_glow');
     assert.match(welcomeMat.child_message, /Morgonhuset/);
   });
+
+  it('morgonhus scene does not depend on platform_runtime_enabled flag', () => {
+    const libSrc = fs.readFileSync(
+      path.join(__dirname, '../src/lib/morgonhus-playable.js'),
+      'utf8'
+    );
+    const routeSrc = fs.readFileSync(
+      path.join(__dirname, '../src/routes/morgonhus.js'),
+      'utf8'
+    );
+    assert.doesNotMatch(libSrc, /platform_runtime_enabled/);
+    assert.doesNotMatch(libSrc, /isRuntimeEnabled/);
+    assert.doesNotMatch(routeSrc, /isRuntimeEnabled/);
+    assert.match(libSrc, /always_active: true/);
+  });
 });
 
 describe('ChildMorgonhus client module', () => {
@@ -273,6 +288,11 @@ describe('ChildMorgonhus client module', () => {
     );
     assert.match(worldSrc, /ChildMorgonhus/);
     assert.match(worldSrc, /!window\.ChildMorgonhus/);
+  });
+
+  it('bindInteractions reads live state after refresh (no stale closure)', () => {
+    assert.match(src, /const liveState = _state \|\| state/);
+    assert.match(src, /findProp\(liveState, propId\)/);
   });
 
   it('loadRewards tries Morgonhus mount before Skattkammaren', () => {

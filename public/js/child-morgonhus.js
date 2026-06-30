@@ -110,7 +110,8 @@
     root.querySelectorAll('.mh-prop').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const propId = btn.getAttribute('data-prop');
-        const prop = findProp(state, propId);
+        const liveState = _state || state;
+        const prop = findProp(liveState, propId);
         if (!prop) return;
 
         if (prop.unlocked || prop.always_active) {
