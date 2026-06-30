@@ -1,6 +1,7 @@
 'use strict';
 
 const { hasAccess } = require('../../db/features');
+const { hasLivingWorldAccess } = require('./living-world-access');
 const {
   resolvePackForChild,
   getWorldDef,
@@ -41,7 +42,7 @@ function propIdFromNode(nodeId) {
   return nodeId.slice('routine_home_'.length);
 }
 
-function buildPropsFromPack(pack, unlockedIds) {
+function buildPropsFromPack(pack, unlockedIds, gateToGarden = false) {
   const worldDef = getWorldDef(pack, WORLD_SLUG);
   const nodes = getAllProgressionNodes(pack).filter((n) => n.world_slug === WORLD_SLUG);
 
@@ -61,22 +62,41 @@ function buildPropsFromPack(pack, unlockedIds) {
   });
 
   for (const ambient of AMBIENT_PROPS) {
+    const isGardenDoor = ambient.prop_id === 'door' && gateToGarden;
     props.push({
       ...ambient,
       unlocked: true,
       visual_token: null,
-      child_message: ambient.ambient_message,
+      child_message: isGardenDoor ? 'Utanför väntar trädgården…' : ambient.ambient_message,
+      leads_to_garden: isGardenDoor,
     });
   }
 
   return props;
 }
 
-async function buildSceneState(childId, client) {
+async function buildSceneState(childId, familyIdOrClient) {
+  let client;
+  let familyId = null;
+  if (familyIdOrClient && typeof familyIdOrClient.query === 'function') {
+    client = familyIdOrClient;
+  } else if (typeof familyIdOrClient === 'string') {
+    familyId = familyIdOrClient;
+  }
+
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, WORLD_SLUG);
   const unlockedRows = await progressionDb.listUnlockedNodes(childId, client);
   const unlockedIds = new Set(unlockedRows.map((row) => row.node_id));
+
+  let gateToGarden = false;
+  if (familyId) {
+    try {
+      gateToGarden = await hasLivingWorldAccess(familyId, 'garden_playable');
+    } catch (err) {
+      console.error('[morgonhus-playable] garden gate error:', err.message);
+    }
+  }
 
   return {
     enabled: true,
@@ -84,7 +104,8 @@ async function buildSceneState(childId, client) {
     world_slug: WORLD_SLUG,
     display_name: worldDef?.display_name_sv || 'Morgonhuset',
     first_enter_message: worldDef?.first_unlock_message || 'Morgonhuset väntar på dig',
-    props: buildPropsFromPack(pack, unlockedIds),
+    gate_to_garden: gateToGarden,
+    props: buildPropsFromPack(pack, unlockedIds, gateToGarden),
     unlocked_node_ids: [...unlockedIds],
   };
 }

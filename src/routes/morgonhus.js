@@ -16,7 +16,7 @@ childRouter.get('/morgonhus', async (req, res) => {
       return res.status(503).json({ error: 'Morgonhuset ej aktiverat' });
     }
 
-    const state = await morgonhus.buildSceneState(req.user.id);
+    const state = await morgonhus.buildSceneState(req.user.id, req.user.familyId);
     res.json(state);
   } catch (err) {
     console.error('[morgonhus] child GET error:', err);
