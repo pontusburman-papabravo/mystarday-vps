@@ -3,41 +3,60 @@
 const path = require('path');
 const fs = require('fs');
 
-const PACKS_ROOT = path.join(__dirname, '../../../config/experience-packs');
+function getPacksRoot() {
+  return process.env.EXPERIENCE_PACKS_ROOT
+    || path.join(__dirname, '../../../config/experience-packs');
+}
 const DEFAULT_PACK_ID = 'child_se';
 
 const packCache = new Map();
 
-function readJsonFile(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+function readPackJsonFile(filePath, label) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Experience pack file missing (${label}): ${filePath}`);
+  }
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      throw new Error(`Experience pack JSON invalid (${label}): ${filePath} — ${err.message}`);
+    }
+    throw err;
+  }
 }
 
 function loadPack(packId = DEFAULT_PACK_ID) {
   const cached = packCache.get(packId);
   if (cached) return cached;
 
-  const packDir = path.join(PACKS_ROOT, packId);
+  const packDir = path.join(getPacksRoot(), packId);
   const manifestPath = path.join(packDir, 'manifest.json');
   if (!fs.existsSync(manifestPath)) {
-    throw new Error(`Experience pack not found: ${packId}`);
+    throw new Error(`Experience pack not found: ${packId} (expected ${manifestPath})`);
   }
 
-  const manifest = readJsonFile(manifestPath);
+  const manifest = readPackJsonFile(manifestPath, `${packId}/manifest.json`);
+  if (manifest.pack_id && manifest.pack_id !== packId) {
+    throw new Error(
+      `Experience pack id mismatch: directory "${packId}" but manifest.pack_id is "${manifest.pack_id}"`
+    );
+  }
+
   const includes = manifest.includes || {};
 
   const pack = {
     manifest,
     progression: includes.progression
-      ? readJsonFile(path.join(packDir, includes.progression))
+      ? readPackJsonFile(path.join(packDir, includes.progression), `${packId}/${includes.progression}`)
       : { worlds: [] },
     rewards: includes.rewards
-      ? readJsonFile(path.join(packDir, includes.rewards))
+      ? readPackJsonFile(path.join(packDir, includes.rewards), `${packId}/${includes.rewards}`)
       : { rewards: [] },
     copy: includes.copy
-      ? readJsonFile(path.join(packDir, includes.copy))
+      ? readPackJsonFile(path.join(packDir, includes.copy), `${packId}/${includes.copy}`)
       : { experiences: {} },
     worlds: includes.worlds
-      ? readJsonFile(path.join(packDir, includes.worlds))
+      ? readPackJsonFile(path.join(packDir, includes.worlds), `${packId}/${includes.worlds}`)
       : { worlds: [] },
   };
 
