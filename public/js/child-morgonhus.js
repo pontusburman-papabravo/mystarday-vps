@@ -121,8 +121,11 @@
         if (prop.unlocked || prop.always_active) {
           if (prop.leads_to_garden && window.ChildGarden && typeof window.ChildGarden.enterFromMorgonhus === 'function') {
             triggerReaction(btn, null);
+            const view = document.getElementById('skattkammarView');
+            if (view) view.classList.add('gd-exit-through-door');
             window.ChildGarden.enterFromMorgonhus().then(function (entered) {
               if (!entered) {
+                if (view) view.classList.remove('gd-exit-through-door');
                 showToast(root, 'Trädgården är inte redo just nu. Du är kvar i Morgonhuset.');
               }
             });

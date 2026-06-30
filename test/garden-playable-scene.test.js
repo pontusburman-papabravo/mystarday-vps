@@ -183,18 +183,49 @@ describe('ChildGarden client module', () => {
     return context.window.ChildGarden;
   }
 
-  it('renderScene includes garden ambient structure', () => {
+  it('renderScene is immersive place — no cards, labels, or toasts', () => {
     const ChildGarden = loadGardenModule();
     const html = ChildGarden.renderScene({
       display_name: 'Trädgården',
-      first_enter_message: 'Trädgården väntar på dig',
-      ambient_message: 'Gräset rör sig långsamt i brisen.',
-      scenery: [{ scenery_id: 'garden_path', label_sv: 'Stigen', emoji: '🌿' }],
+      scenery: [
+        { scenery_id: 'garden_path', label_sv: 'Stigen' },
+        { scenery_id: 'garden_bed', label_sv: 'Blomsterbädden' },
+        { scenery_id: 'garden_sky', label_sv: 'Himlen' },
+      ],
     });
     assert.match(html, /gd-scene/);
-    assert.match(html, /Trädgården väntar på dig/);
-    assert.match(html, /Tillbaka till Morgonhuset/);
-    assert.match(html, /data-scenery="garden_path"/);
+    assert.match(html, /gd-house-edge/);
+    assert.match(html, /gd-hotspot--path/);
+    assert.match(html, /gd-back-fab/);
+    assert.match(html, /aria-label="Tillbaka till Morgonhuset"/);
+    assert.doesNotMatch(html, /gd-scenery-label/);
+    assert.doesNotMatch(html, /gd-scene-title/);
+    assert.doesNotMatch(html, /gd-scene-toast/);
+    assert.doesNotMatch(html, /Tillbaka till Morgonhuset<\/button>/);
+  });
+
+  it('garden uses visual feedback, not toast', () => {
+    assert.doesNotMatch(src, /showToast/);
+    assert.match(src, /triggerVisual/);
+    assert.match(src, /spawnSparkles/);
+  });
+
+  it('garden CSS has ambient motion layers', () => {
+    const css = fs.readFileSync(
+      path.join(__dirname, '../public/css/child-garden.css'),
+      'utf8'
+    );
+    assert.match(css, /gd-grass-sway/);
+    assert.match(css, /gd-cloud-drift/);
+    assert.match(css, /gd-bird-fly/);
+    assert.match(css, /gd-leaf-float/);
+    assert.match(css, /gd-house-edge/);
+    assert.match(css, /min-height: calc\(100dvh/);
+  });
+
+  it('door transition uses through-door class for continuity', () => {
+    assert.match(mhSrc, /gd-exit-through-door/);
+    assert.match(src, /gd-scene--entering/);
   });
 
   it('morgonhus door navigates to garden when leads_to_garden', () => {
