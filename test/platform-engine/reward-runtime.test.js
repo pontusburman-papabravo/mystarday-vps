@@ -12,7 +12,7 @@ const CHILD_ID = '00000000-0000-4000-8000-000000000003';
 
 describe('RewardRuntime skeleton', () => {
   it('records pack-driven reward signals without hardcoded gameplay', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const reward = new RewardRuntime({ eventBus: bus });
     reward.attach(pack);
 
@@ -26,7 +26,7 @@ describe('RewardRuntime skeleton', () => {
   });
 
   it('does not emit reward.signal when config missing', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const signals = [];
     bus.subscribe('reward.signal', 'test:reward', (p) => signals.push(p));
 

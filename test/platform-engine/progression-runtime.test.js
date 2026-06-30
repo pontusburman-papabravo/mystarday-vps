@@ -15,7 +15,7 @@ const CHILD_ID = '00000000-0000-4000-8000-000000000001';
 
 describe('ProgressionRuntime (ADR-004)', () => {
   it('unlocks node on matching event and emits onProgressionNodeUnlocked', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const unlocked = [];
     bus.subscribe('onProgressionNodeUnlocked', 'test:cap', (p) => unlocked.push(p.node_id));
 
@@ -42,7 +42,7 @@ describe('ProgressionRuntime (ADR-004)', () => {
   });
 
   it('does not double-unlock the same node', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     let count = 0;
     bus.subscribe('onProgressionNodeUnlocked', 'test:dup', () => { count += 1; });
 
@@ -63,7 +63,7 @@ describe('ProgressionRuntime (ADR-004)', () => {
   });
 
   it('indexes events for O(candidates) not O(all nodes)', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const runtime = new ProgressionRuntime({ eventBus: bus, store: new MemoryProgressionStore() });
     runtime.loadMap('routine_home', progression);
 

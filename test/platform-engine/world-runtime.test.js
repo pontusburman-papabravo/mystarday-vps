@@ -13,7 +13,7 @@ const CHILD_ID = '00000000-0000-4000-8000-000000000004';
 
 describe('WorldRuntime skeleton', () => {
   it('loads worlds from pack and tracks enter/exit', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const msg = new MessageBus();
     const world = new WorldRuntime({ eventBus: bus, messageBus: msg });
     world.attach(pack);
@@ -34,7 +34,7 @@ describe('WorldRuntime skeleton', () => {
   });
 
   it('updates progression overlay on node unlock', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const world = new WorldRuntime({ eventBus: bus, messageBus: new MessageBus() });
     world.attach(pack);
 

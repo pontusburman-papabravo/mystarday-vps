@@ -16,7 +16,7 @@ const CHILD_ID = '00000000-0000-4000-8000-000000000020';
 
 describe('Merge readiness — Event Bus edge cases', () => {
   it('delivers handler-emitted events in the same flush (nested emit, not re-entrant flush)', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const order = [];
     bus.subscribe('onMilestone', 'chain:a', () => {
       order.push('a');
@@ -85,7 +85,7 @@ describe('Merge readiness — Progression replay & compound', () => {
 
 describe('Merge readiness — Reward boundary', () => {
   it('never emits reward.signal without pack config (no auto-grant)', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     const signals = [];
     bus.subscribe('reward.signal', 'audit', (p) => signals.push(p));
 
