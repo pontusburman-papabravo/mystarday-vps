@@ -203,8 +203,25 @@
     }
   }
 
+  async function shouldSuppressForJourneyFirstWeek() {
+    if (!window.JourneyContextClient) return false;
+    try {
+      const ctx = await JourneyContextClient.fetchContext();
+      if (ctx?.activation_program_suppressed) return true;
+      if (ctx?.capabilities?.first_week_v1 && ctx?.first_week?.active) return true;
+    } catch (_) {
+      // fall through to legacy banner
+    }
+    return false;
+  }
+
   async function load() {
     if (typeof window.apiFetch !== 'function') return;
+    if (await shouldSuppressForJourneyFirstWeek()) {
+      const banner = document.getElementById(BANNER_ID);
+      if (banner) banner.classList.add('hidden');
+      return;
+    }
     try {
       const res = await window.apiFetch('/api/me/activation-program');
       if (res.status === 410) return;

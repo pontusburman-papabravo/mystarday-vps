@@ -71,18 +71,18 @@ router.get('/journey-debug', async (req, res) => {
 router.post('/journey-context/events', async (req, res) => {
   try {
     const familyId = req.user.familyId;
-    const { intent, child_id: childId, daily_log_item_id: dailyLogItemId } = req.body || {};
+    const { intent, child_id: childId, daily_log_item_id: dailyLogItemId, metadata } = req.body || {};
     if (!familyId || !intent) return res.status(400).json({ error: 'intent krävs' });
 
-    const metadata = {};
-    if (dailyLogItemId) metadata.daily_log_item_id = dailyLogItemId;
-    if (intent === 'parent_ack_dismissed') metadata.parent_id = req.user.id;
+    const eventMetadata = metadata && typeof metadata === 'object' ? { ...metadata } : {};
+    if (dailyLogItemId) eventMetadata.daily_log_item_id = dailyLogItemId;
+    if (intent === 'parent_ack_dismissed') eventMetadata.parent_id = req.user.id;
 
     const result = await ingestClientIntent({
       familyId,
       intent,
       childId: childId || null,
-      metadata,
+      metadata: eventMetadata,
     });
 
     if (!result.ok) {
