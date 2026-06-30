@@ -1,116 +1,109 @@
 # RC1 Release Checklist
 
-**Release Candidate:** RC1 (Foundation, Platform, PoP, First Week)  
-**PRs:** GitHub #401, #396, #400, #402  
-**Decision:** **BLOCKED** — see §Decision. Use this checklist on the **integration branch** before merging to `main`.
+**Release Candidate:** RC1 · **PRs:** #401, #396, #400, #402 · **Base:** `d692088`  
+**Decision:** **BLOCKED** — integration required before merge to `main`.
 
 ---
 
-## Pre-merge
+## Consistency matrix (verified 2026-06-30)
 
-### Integration branch (required)
+| Area | #401 | #396 | #400 | #402 | RC1 integration |
+|------|------|------|------|------|-----------------|
+| **Merge order** | 1st | 2nd | 3rd | 4th | See §Merge order |
+| **Migrations** | — | `180896` | `180895` | `180900` | **BLOCKER:** `180895`/`180896` clash on `child_progression_node` |
+| **Migration apply order** | — | — | — | — | `180895` → `180896` → `180900` (timestamps) |
+| **package.json** | `test:gate:unit` + `test:gate:db` | flat `test:gate` + 11 platform-engine tests | flat + 5 runtime/e2e tests | flat + `journey-first-week.test.js` | Union all; use #401 split |
+| **`.npmrc`** | `legacy-peer-deps=true` | — | — | — | Take #401 |
+| **sw.js** | v407 | v407 | v409 | v409 | **Sync** to one value (e.g. `stjarndag-v410`) |
+| **cache-version.json** | v406 | v406 | v409 ✓ | v406 ✗ | **#402 mismatch** — must match sw.js |
+| **`platform_runtime_enabled`** | — | — | seeds `false`, `ON CONFLICT DO NOTHING` | — | Post-migrate: **false** |
+| **`family_journey_first_week_v1`** | — | — | — | seeds `false`, `ON CONFLICT DO NOTHING` | Post-migrate: **false** |
+| **Journey registry** | — | — | `2026-06-28-v1` | `2026-06-30-first-week-v1` + `fw_*` keys | #402 supersedes version; no key collision |
+| **Experience Pack** | — | — | `config/experience-packs/child_se/` | — | Inert when runtime OFF |
+| **Platform Engine** | — | `src/platform-engine/` skeleton | — | — | Unused until runtime ON |
+| **Platform Runtime** | — | — | `src/lib/platform-runtime/` | — | `handleActivityComplete` → `{ skipped, reason: 'runtime_disabled' }` when OFF |
+| **Journey (first week)** | — | — | — | evaluator + UI behind `first_week_v1` | No `first_week` block when OFF |
+| **Git conflicts** | — | vs #400 on `package.json` | vs #401, #396, #402 | vs #400 on `context-builder`, `journey-context-client`, `sw.js`, `package.json` | Integration branch required |
 
-- [ ] Create `rc1/integration` from `main`
-- [ ] Merge PRs in order below; resolve conflicts (do not merge PR-by-PR to `main` without this step)
-- [ ] Resolve `child_progression_node` migration conflict (#396 `180896` vs #400 `180895`) — **one schema only**
-- [ ] Merge `package.json` `test:gate` = union of all four PR test files + #401 split (`test:gate:unit` + `test:gate:db`)
-- [ ] Set `public/sw.js` **and** `config/cache-version.json` to same `CACHE_NAME` (use `stjarndag-v410` or higher after integration)
-- [ ] Run `npm run migrate` on clean DB — all migrations apply without error
-- [ ] Run `npm run test:gate` per root `AGENTS.md` (test env, email keys unset) — green
+---
+
+## Pre-merge (integration branch)
+
+- [ ] Branch `rc1/integration` from `main`
+- [ ] Merge in order §Merge order; resolve all conflicts
+- [ ] **Unify `child_progression_node`:** keep #400 schema (`180895`); drop or no-op #396 `180896` CREATE TABLE
+- [ ] Merge `package.json` `test:gate` = #401 split + all unique test files from #396/#400/#402
+- [ ] Align `public/sw.js` **and** `config/cache-version.json` to same `CACHE_NAME`
+- [ ] `npm run migrate` on clean DB — no errors
+- [ ] `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate` — green (email keys unset)
 - [ ] `node --test test/migration-rollback-gate.test.js` — green
-
-### Per-PR gates (verify on integration branch)
-
-| PR | Gate |
-|----|------|
-| #401 | `.npmrc` has `legacy-peer-deps=true`; CI `npm ci` succeeds |
-| #396 | `node --test test/platform-engine/*.test.js` — 43 pass |
-| #400 | `platform_runtime_enabled` migration seeds `enabled = false` |
-| #402 | `family_journey_first_week_v1` migration seeds `enabled = false` |
-
-### Feature flags — must be OFF before deploy
-
-```sql
-SELECT key, enabled FROM feature_flag
-WHERE key IN ('platform_runtime_enabled', 'family_journey_first_week_v1');
--- Expected: both false
-```
-
-- [ ] `platform_runtime_enabled` = **false** (not auto-enabled by migration)
-- [ ] `family_journey_first_week_v1` = **false**
-- [ ] Runtime kill-switch env var set to `false` on server `.env` (env overrides DB per #400)
 
 ---
 
 ## Merge order
 
-| Step | PR | Why |
-|------|-----|-----|
-| 1 | **#401** Foundation & CI | No product surface; fixes gate/CI for all following merges. Supersedes #398/#399. |
-| 2 | **#396** Platform Engine | Library skeleton (`src/platform-engine/`). **Must reconcile migration `180896` with #400 before step 3** — see §Blockers. |
-| 3 | **#400** Proof of Product | Runtime integration, Experience Pack, Journey hooks. Depends on stable CI (#401). |
-| 4 | **#402** First Week | Extends Journey evaluator/UI; conflicts with #400 in `context-builder.js` (trivial). Must land after #400. |
-
-**Do not merge #400 before #396 migration is resolved.**  
-**Alternative:** Hold #396 migration; merge #396 code-only + #400 + #402 (PgStore in #396 unused until unified).
+| Step | PR | Rationale |
+|------|-----|-----------|
+| 1 | **#401** Foundation & CI | `.npmrc`, split `test:gate`, route-inventory CI. Safe alone. |
+| 2 | **#396** Platform Engine | Library only. **Resolve `180896` vs #400 before step 3.** |
+| 3 | **#400** Proof of Product | Runtime, Experience Pack, Journey hooks. Needs CI from #401. |
+| 4 | **#402** First Week | Extends Journey; lands after #400 (`context-builder` overlap). |
 
 ---
 
-## Post-merge (to `main`)
+## Feature flags — must be OFF after all migrations
+
+```sql
+SELECT key, enabled FROM feature_flag
+WHERE key IN ('platform_runtime_enabled', 'family_journey_first_week_v1');
+-- Expected: both false (or rows absent → code defaults disabled)
+```
+
+| Flag | Migration | Default | Re-migrate safety |
+|------|-----------|---------|-------------------|
+| `platform_runtime_enabled` | `180895` (#400) | `false` | `ON CONFLICT DO NOTHING` — never auto-enables |
+| `family_journey_first_week_v1` | `180900` (#402) | `false` | `ON CONFLICT DO NOTHING` — never auto-enables |
+
+Also set the platform runtime env kill-switch to off on server (overrides DB).
+
+---
+
+## Legacy flows — flags OFF (expected unchanged)
+
+| Flow | Verification | Expected |
+|------|--------------|----------|
+| **Legacy Journey** | `GET /api/me/journey-context` | Existing evaluator/coach/celebration paths; no `first_week` block |
+| **Legacy onboarding** | New registration | Wizard unchanged; no first-week banner |
+| **Legacy child** | Child login + complete activity | Stars/celebration work; no platform feedback |
+| **Legacy parent** | Hem dashboard | No first-week banner; activation banner if enrolled |
+| **Platform Runtime** | Activity complete | `skipped: true, reason: 'runtime_disabled'`; API 503 |
+| **Activation overlap** | Enrolled + first week OFF | Activation banner visible (no suppression) |
+
+Covered by tests: `platform-runtime-flag.test.js` (#400), `journey-first-week.test.js` flag-OFF cases (#402).
+
+---
+
+## Post-merge & live smoke (~15 min, flags OFF)
 
 - [ ] GitHub Actions green on `main`
-- [ ] Deploy via normal merge-to-main pipeline
-- [ ] `npm run migrate` on server (or confirm deploy hook ran)
-- [ ] Re-run flag SQL above on server — both **false**
-
----
-
-## Live verification (flags OFF)
-
-Expect **no user-visible change** when both flags are OFF.
-
-| Check | Command / action | Expected |
-|-------|------------------|----------|
-| Health | `GET /health` | `healthy` |
-| Legacy parent Hem | Log in as existing family | Dashboard loads; no first-week banner; no platform feedback |
-| Legacy onboarding | New registration (staging) | Onboarding wizard unchanged |
-| Legacy child | Child login + complete activity | Stars work; universe unchanged |
-| Journey API | `GET /api/me/journey-context` | 200 or 503 per existing journey flags — not broken by deploy |
-| Activation banner | Enrolled family on Hem | Legacy 7-day banner still works if enrolled |
-
----
-
-## Feature flag verification (staging only — optional)
-
-Only after integration tests pass. **Never enable both flags globally without runbook.**
-
-| Flag | Enable on | Smoke | Disable after |
-|------|-----------|-------|---------------|
-| `platform_runtime_enabled` | Staging test account per FIRST-LIVE-ENABLE-CHECKLIST | Activity complete → progression feedback | ≤15 min; SQL OFF |
-| `family_journey_first_week_v1` | Staging family post-`first_success` | Day 1 banner; day 7 reflection; activation banner hidden | SQL OFF |
-
-Prerequisites for first week: `family_journey_evaluator_enabled`, `family_journey_context_api`, `family_journey_ingest_enabled`.
+- [ ] Deploy; confirm `npm run migrate` on server
+- [ ] Re-run flag SQL — both **false**
+- [ ] `GET /health` → healthy
+- [ ] Parent login → Hem loads, no console errors
+- [ ] Child login → complete activity → parent ack/celebration
+- [ ] Schedule edit → save → reload OK
+- [ ] Admin → families list loads
 
 ---
 
 ## Rollback
 
-| Level | Action | Effect |
-|-------|--------|--------|
-| Instant | `UPDATE feature_flag SET enabled = false WHERE key IN ('platform_runtime_enabled', 'family_journey_first_week_v1')` | New behavior off; legacy paths resume |
-| Runtime kill | Set runtime kill-switch env var to `false` in `.env`; restart app service | #400 runtime hard-off |
-| Deploy | Revert merge commit on `main`; redeploy | Full code rollback |
-| DB | Do **not** roll back migrations on live without ADR — flags OFF is sufficient | Milestones/tables remain inert |
-
----
-
-## Smoke tests (human, ~15 min, flags OFF)
-
-1. Parent login → Hem loads, no errors in console  
-2. Child login → complete one activity → parent sees ack/celebration (existing journey)  
-3. Schedule edit → save → reload OK  
-4. Admin login → families list loads  
-5. `GET /health` on live host → healthy  
+| Level | Action |
+|-------|--------|
+| Instant | `UPDATE feature_flag SET enabled = false WHERE key IN ('platform_runtime_enabled', 'family_journey_first_week_v1')` |
+| Runtime kill | Set platform runtime env override to off in server `.env`; restart app service |
+| Code | Revert merge on `main`; redeploy |
+| DB | Do **not** roll back migrations on live — flags OFF is sufficient |
 
 ---
 
@@ -118,42 +111,33 @@ Prerequisites for first week: `family_journey_evaluator_enabled`, `family_journe
 
 ### BLOCKED
 
-RC1 is **not merge-ready** as four independent PRs to `main`.
+RC1 cannot ship as four independent merges to `main`.
 
 **Blockers**
 
-1. **Migration conflict:** `180895` (#400) and `180896` (#396) define incompatible `child_progression_node` schemas (different PK/constraints). Cannot apply both on one database without reconciliation.
-2. **Git conflicts:** `package.json` conflicts across #401+#396+#400+#402; `context-builder.js` conflicts #400+#402.
-3. **No integration branch** with combined `test:gate` green yet.
-4. **Minor:** #402 bumps `sw.js` to v409 but leaves `cache-version.json` at v406 — fix on integration (breaks `check:css` if uncorrected).
+1. **`child_progression_node` schema clash** — #400 (`UUID` PK, `family_id`, `UNIQUE(child_id,node_id)`) vs #396 (`PK(child_id,world_slug,node_id)`). `CREATE TABLE IF NOT EXISTS` → first migration wins; other code breaks.
+2. **Git conflicts** — `package.json` (all four); `context-builder.js`, `journey-context-client.js`, `sw.js` (#400+#402).
+3. **No integration branch** with combined green `test:gate`.
+4. **SW/cache mismatch** on #402 — `sw.js` v409, `cache-version.json` v406.
 
-**Path to READY**
+**Path to READY:** integration branch → resolve blockers → green gate → deploy flags OFF → §Live smoke → **READY**.
 
-1. Open integration branch; merge in order §Merge order.  
-2. Unify `child_progression_node` to #400 schema (authoritative for runtime); drop or rewrite #396 migration `180896`.  
-3. Green `test:gate` + migration rollback gate.  
-4. Deploy with both flags OFF; run §Live verification.  
-5. Change decision to **READY**.
-
-**Safe to merge now (isolated):** **#401 only** — no RC1 product dependency.
-
-**Hold until integration:** **#396, #400, #402** — merge together or in order after blocker #1 resolved.
+**Merge now:** **#401 only** (no RC1 product dependency).  
+**Hold:** **#396, #400, #402** until integration PR lands.
 
 ---
 
-## Executive review (RC1)
+## Executive review
 
-| Role | Verdict | Blockers | Non-blocking follow-ups |
-|------|---------|----------|-------------------------|
-| **CEO** | Concern | RC1 not shippable as four parallel merges | Integration branch + single green gate before any product flag ON |
-| **CTO** | Concern | `child_progression_node` dual migration | Pick #400 schema; defer #396 PgStore until unified |
-| **Release Manager** | **BLOCKED** | No integration branch; merge conflicts; migration clash | #401 may merge alone; RC1 docs in `docs/releases/` |
-| **QA Director** | Concern | Combined `test:gate` not run on integration | Full constitution test when flags enabled on staging |
-| **Security Lead** | Approve | — | Verify platform-feedback API returns 503 when runtime OFF post-merge |
-| **Parent Experience Lead** | Approve (conditional) | — | Confirm activation/first-week mutual exclusion on integration smoke |
+| Role | Verdict | Blockers | Follow-ups |
+|------|---------|----------|------------|
+| **CTO** | **Concern** | Dual `child_progression_node` migration — pick #400 schema; #396 PgStore deferred until unified | Single authoritative progression table before any runtime enable |
+| **Release Manager** | **BLOCKED** | No integration branch; migration clash; merge conflicts; SW/cache drift on #402 | Ship #401 alone; RC1 ships as one integration PR |
+| **QA Director** | **Concern** | Combined `test:gate` never run on integrated tree | Constitution test when flags enabled on staging only |
+| **Security Lead** | **Approve** | — | Post-merge: confirm `platform-feedback` returns 503 when runtime OFF; child scope unchanged |
 
-**Recommendation:** Merge **#401** now. Block **#396+#400+#402** until integration PR resolves migration + conflicts. Target **READY** after one green integration deploy with flags OFF.
+**Recommendation:** Merge **#401** now. Block **#396+#400+#402** until integration resolves migration + conflicts. Target **READY** after one green integration deploy with both flags OFF.
 
 ---
 
-*Owner: Release Manager · POS: 13 REL, 15 Q-05 · Updated: 2026-06-30*
+*Owner: Release Manager · POS: 13 REL, 15 Q-05 · 2026-06-30*
