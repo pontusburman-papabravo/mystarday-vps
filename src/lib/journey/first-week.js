@@ -83,7 +83,7 @@ function pickFirstWeekExperience(input) {
     if (signals.hasNewDiscovery) {
       return { experience: 'fw_day4_discovery', priority: 'coach', reason: 'day_4_discovery' };
     }
-    return { experience: null, priority: 'none', reason: 'day_4_no_discovery', fallthrough: true };
+    return { experience: null, priority: 'none', reason: 'day_4_no_discovery', silent: true };
   }
 
   // Day 3 — calm setback when activity missed; no shame, no streak loss
@@ -91,7 +91,7 @@ function pickFirstWeekExperience(input) {
     if (signals.missedYesterday || signals.missedTwoDays) {
       return { experience: 'fw_day3_new_day', priority: 'coach', reason: 'day_3_setback' };
     }
-    return { experience: null, priority: 'none', reason: 'day_3_on_track', fallthrough: true };
+    return { experience: null, priority: 'none', reason: 'day_3_on_track', silent: true };
   }
 
   // Day 2 — child leads; product whispers less

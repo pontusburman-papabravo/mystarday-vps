@@ -10,6 +10,7 @@ const VACATION_GAP_DAYS = 5;
 const CALM_WEEK_COMPLETION_DAYS = 5;
 const MORNING_FLOW_DAYS = 3;
 const TRADITION_WEEK_COUNT = 3;
+const COPARENT_WINDOW_HOURS = 48;
 
 /**
  * Calendar days since first_success (same anchor as first week).
@@ -61,6 +62,11 @@ function pickFirstMonthExperience(input) {
     return { experience: 'fm_welcome_back', priority: 'affirmation', reason: 'returned_from_gap', week };
   }
 
+  // Coparent — within 48h of milestone (not calendar day 14)
+  if (signals.coparentWithin48h && !isMomentDismissed(milestones, 'fm_coparent_roots')) {
+    return { experience: 'fm_coparent_roots', priority: 'affirmation', reason: 'coparent_roots', week };
+  }
+
   // Day 30 — month affirmation (confirm, don't celebrate)
   if (day === FIRST_MONTH_MAX_DAY) {
     return { experience: 'fm_month_affirmation', priority: 'reflection', reason: 'day_30_affirmation', week: 4 };
@@ -68,14 +74,14 @@ function pickFirstMonthExperience(input) {
 
   // Week 2 — family creates own routines; product whispers
   if (week === 2) {
+    if (day === 8 && !isMomentDismissed(milestones, 'fm_day8_bridge')) {
+      return { experience: 'fm_day8_bridge', priority: 'whisper', reason: 'day_8_bridge', week };
+    }
     if (day === 10 && signals.hasCustomActivity && !isMomentDismissed(milestones, 'fm_own_initiative')) {
       return { experience: 'fm_own_initiative', priority: 'affirmation', reason: 'own_initiative', week };
     }
     if (day === 13 && signals.calmWeek && !isMomentDismissed(milestones, 'fm_calm_week')) {
       return { experience: 'fm_calm_week', priority: 'affirmation', reason: 'calm_week', week };
-    }
-    if (day === 14 && signals.coparentJoined && !isMomentDismissed(milestones, 'fm_coparent_roots')) {
-      return { experience: 'fm_coparent_roots', priority: 'affirmation', reason: 'coparent_roots', week };
     }
     return { experience: null, priority: 'none', reason: `week_2_day_${day}_silent`, silent: true, week };
   }
@@ -98,6 +104,9 @@ function pickFirstMonthExperience(input) {
   if (week === 4) {
     if (day === 25 && signals.hasTradition && !isMomentDismissed(milestones, 'fm_tradition')) {
       return { experience: 'fm_tradition', priority: 'affirmation', reason: 'first_tradition', week };
+    }
+    if (day === 28 && !isMomentDismissed(milestones, 'fm_week4_presence')) {
+      return { experience: 'fm_week4_presence', priority: 'whisper', reason: 'week_4_presence', week };
     }
     if (day >= 26 && day <= 29) {
       return { experience: null, priority: 'none', reason: `week_4_day_${day}_silent`, silent: true, week };
@@ -239,10 +248,9 @@ async function loadFirstMonthSignals(familyId, firstSuccessAt, timezone = 'Europ
       [familyId]
     ),
     db.query(
-      `SELECT EXISTS (
-         SELECT 1 FROM family_milestones
-         WHERE family_id = $1 AND milestone = 'coparent_joined'
-       ) AS joined`,
+      `SELECT occurred_at FROM family_milestones
+       WHERE family_id = $1 AND milestone = 'coparent_joined'
+       LIMIT 1`,
       [familyId]
     ),
     db.query(
@@ -265,9 +273,19 @@ async function loadFirstMonthSignals(familyId, firstSuccessAt, timezone = 'Europ
   const childSelfMorningDays = morningRes.rows[0]?.child_morning_days || 0;
   const hasCustomActivity = Boolean(customActRes.rows[0]?.has_custom);
   const hasTradition = Boolean(traditionRes.rows[0]?.has_tradition);
-  const coparentJoined = Boolean(coparentRes.rows[0]?.joined);
-  const siblingActivity = (siblingRes.rows[0]?.active_children || 0) >= 2;
   const tz = familyRes.rows[0]?.timezone || timezone;
+  const coparentJoinedAt = coparentRes.rows[0]?.occurred_at || null;
+  let coparentWithin48h = false;
+  if (coparentJoinedAt) {
+    const joined = DateTime.fromJSDate(
+      coparentJoinedAt instanceof Date ? coparentJoinedAt : new Date(coparentJoinedAt),
+      { zone: tz }
+    );
+    const hoursSince = now.diff(joined, 'hours').hours;
+    coparentWithin48h = hoursSince >= 0 && hoursSince <= COPARENT_WINDOW_HOURS;
+  }
+  const coparentJoined = Boolean(coparentJoinedAt);
+  const siblingActivity = (siblingRes.rows[0]?.active_children || 0) >= 2;
 
   const latest = gapRes.rows[0]?.latest;
   const previous = gapRes.rows[0]?.previous;
@@ -295,6 +313,7 @@ async function loadFirstMonthSignals(familyId, firstSuccessAt, timezone = 'Europ
     hasCustomActivity,
     hasTradition,
     coparentJoined,
+    coparentWithin48h,
     calmWeek,
     childLedWeek,
     childSelfMorningDays,
@@ -369,6 +388,7 @@ async function buildFirstMonthContext(familyId, milestones) {
       child_self_morning_days: signals.childSelfMorningDays,
       sibling_activity: signals.siblingActivity,
       coparent_joined: signals.coparentJoined,
+      coparent_within_48h: signals.coparentWithin48h,
       has_tradition: signals.hasTradition,
       timezone: signals.timezone,
     },
@@ -381,6 +401,7 @@ module.exports = {
   FIRST_MONTH_MIN_DAY,
   FIRST_MONTH_MAX_DAY,
   VACATION_GAP_DAYS,
+  COPARENT_WINDOW_HOURS,
   effectiveFirstMonthDay,
   monthWeek,
   pickFirstMonthExperience,

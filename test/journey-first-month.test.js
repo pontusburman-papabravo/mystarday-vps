@@ -63,12 +63,16 @@ describe('first month — day derivation (dag 8–30)', () => {
 describe('first month — product moments (pure)', () => {
   const baseMilestones = { _celebration_shown: true };
 
-  it('week 2 day 8–9 silent — product says less', () => {
+  it('week 2 day 8 — single low-key bridge', () => {
     const d8 = pickFirstMonthExperience({ day: 8, milestones: baseMilestones, signals: {} });
+    assert.equal(d8.experience, 'fm_day8_bridge');
+    assert.equal(d8.priority, 'whisper');
+  });
+
+  it('week 2 day 9 silent', () => {
     const d9 = pickFirstMonthExperience({ day: 9, milestones: baseMilestones, signals: {} });
-    assert.equal(d8.silent, true);
     assert.equal(d9.silent, true);
-    assert.equal(d8.experience, null);
+    assert.equal(d9.experience, null);
   });
 
   it('day 10 — first own initiative when custom activity exists', () => {
@@ -90,13 +94,23 @@ describe('first month — product moments (pure)', () => {
     assert.equal(pick.experience, 'fm_calm_week');
   });
 
-  it('day 14 — coparent roots (bonusfamilj)', () => {
+  it('coparent within 48h of event — not calendar day 14', () => {
+    const pick = pickFirstMonthExperience({
+      day: 20,
+      milestones: baseMilestones,
+      signals: { coparentWithin48h: true },
+    });
+    assert.equal(pick.experience, 'fm_coparent_roots');
+  });
+
+  it('coparent outside 48h window — no moment', () => {
     const pick = pickFirstMonthExperience({
       day: 14,
       milestones: baseMilestones,
-      signals: { coparentJoined: true },
+      signals: { coparentWithin48h: false, coparentJoined: true },
     });
-    assert.equal(pick.experience, 'fm_coparent_roots');
+    assert.equal(pick.experience, null);
+    assert.equal(pick.silent, true);
   });
 
   it('week 3 day 17 — child explores independently', () => {
@@ -124,6 +138,21 @@ describe('first month — product moments (pure)', () => {
       signals: { childCount: 2, siblingActivity: true },
     });
     assert.equal(pick.experience, 'fm_sibling_moment');
+  });
+
+  it('week 4 day 28 — single low-key presence', () => {
+    const pick = pickFirstMonthExperience({ day: 28, milestones: baseMilestones, signals: {} });
+    assert.equal(pick.experience, 'fm_week4_presence');
+    assert.equal(pick.priority, 'whisper');
+  });
+
+  it('week 4 days 26–27 and 29 silent (only one whisper on 28)', () => {
+    const d26 = pickFirstMonthExperience({ day: 26, milestones: baseMilestones, signals: {} });
+    const d27 = pickFirstMonthExperience({ day: 27, milestones: baseMilestones, signals: {} });
+    const d29 = pickFirstMonthExperience({ day: 29, milestones: baseMilestones, signals: {} });
+    assert.equal(d26.silent, true);
+    assert.equal(d27.silent, true);
+    assert.equal(d29.silent, true);
   });
 
   it('week 4 day 25 — first tradition', () => {
@@ -451,5 +480,39 @@ describe('first month — release readiness', () => {
     const fs = DateTime.now().setZone(TZ).minus({ days: 8 }).startOf('day');
     assert.equal(deriveFirstWeekDay(fs.toJSDate(), new Date(), TZ), 8);
     assert.equal(effectiveFirstMonthDay(fs.toJSDate(), new Date(), TZ, true), 8);
+  });
+
+  it('calibration — tryFirstMonthExperience whisper on day 8', () => {
+    const ctx = tryFirstMonthExperience('BUILDING_ROUTINE', {
+      first_success: fsAtDaysAgo(8).toISOString(),
+      _celebration_shown: true,
+    }, {
+      firstMonthEnabled: true,
+      celebrationShown: true,
+      firstMonthDay: 8,
+      firstMonthSignals: {},
+    });
+    assert.equal(ctx.recommended_experiences[0], 'fm_day8_bridge');
+    assert.equal(ctx.priority, 'whisper');
+  });
+
+  it('calibration — frontend whisper has no CTA button', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../public/js/journey-first-month.js'),
+      'utf8'
+    );
+    assert.match(src, /renderWhisperCard/);
+    const whisperBlock = src.split('function renderWhisperCard')[1].split('function renderMomentCard')[0];
+    assert.doesNotMatch(whisperBlock, /journey-fm-cta/);
+  });
+
+  it('calibration migration seeds whisper registry only — no new flag', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../migrations/1809110000000_first_month_calibration.js'),
+      'utf8'
+    );
+    assert.match(src, /fm_day8_bridge/);
+    assert.match(src, /fm_week4_presence/);
+    assert.doesNotMatch(src, /feature_flag/);
   });
 });

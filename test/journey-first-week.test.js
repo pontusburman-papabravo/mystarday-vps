@@ -93,13 +93,25 @@ describe('first week — experience picker (pure)', () => {
     assert.equal(pick.reason, 'day_3_setback');
   });
 
-  it('day 3 fallthrough when on track', () => {
+  it('day 3 silent when on track — no legacy coach fallthrough', () => {
     const pick = pickFirstWeekExperience({
       day: 3,
       milestones: baseMilestones,
       signals: { missedYesterday: false, missedTwoDays: false },
     });
-    assert.equal(pick.fallthrough, true);
+    assert.equal(pick.silent, true);
+    assert.equal(pick.reason, 'day_3_on_track');
+    assert.equal(pick.fallthrough, undefined);
+  });
+
+  it('day 4 silent when no discovery — no legacy coach fallthrough', () => {
+    const pick = pickFirstWeekExperience({
+      day: 4,
+      milestones: baseMilestones,
+      signals: { hasNewDiscovery: false },
+    });
+    assert.equal(pick.silent, true);
+    assert.equal(pick.reason, 'day_4_no_discovery');
   });
 
   it('day 3 handles two missed days', () => {
@@ -182,6 +194,29 @@ describe('first week — evaluator integration', () => {
     parent_saw_completion: 'c',
     _celebration_shown: true,
   };
+
+  it('deriveContext day 3 on track blocks legacy coach', () => {
+    const ctx = deriveContext({
+      phase: 'BUILDING_ROUTINE',
+      milestones: {
+        first_success: fsAtDaysAgo(3),
+        child_first_completion: fsAtDaysAgo(3),
+        parent_saw_completion: fsAtDaysAgo(3),
+        _celebration_shown: true,
+      },
+      registryVersion: '2026-06-30-first-month-v1',
+      opts: {
+        firstWeekEnabled: true,
+        celebrationShown: true,
+        firstWeekDay: 3,
+        firstWeekSignals: { missedYesterday: false, missedTwoDays: false },
+        coachEnabled: true,
+      },
+    });
+    assert.ok(ctx.reason.includes(ReasonCode.FIRST_WEEK_SILENT));
+    assert.notEqual(ctx.recommended_experiences?.[0], 'coach_consistency');
+    assert.equal(ctx.priority, 'none');
+  });
 
   it('day 3 setback in BUILDING_ROUTINE', () => {
     const ctx = deriveContext({
@@ -495,11 +530,11 @@ describe('first week — release readiness', () => {
     const pick = pickFirstWeekExperience({
       day: 3,
       milestones: { fw_day_dismissed_2: '2026-01-01' },
-      signals: {},
+      signals: { missedYesterday: false, missedTwoDays: false },
     });
     assert.notEqual(pick.reason, 'day_dismissed');
-    assert.equal(pick.experience, null);
-    assert.equal(pick.fallthrough, true);
+    assert.equal(pick.silent, true);
+    assert.equal(pick.reason, 'day_3_on_track');
   });
 
   it('week reflection after parent returns 48h on day 7', () => {

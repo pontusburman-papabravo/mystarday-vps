@@ -73,6 +73,7 @@
 
   function cardClasses(priority) {
     if (priority === 'reflection') return 'border-stone-300 bg-stone-50';
+    if (priority === 'whisper') return 'border-stone-200 bg-stone-50/60';
     if (priority === 'affirmation') return 'border-emerald-200 bg-emerald-50/80';
     return 'border-sky-200 bg-sky-50';
   }
@@ -114,6 +115,23 @@
     lastRenderedExp = 'fm_month_affirmation';
   }
 
+  function renderWhisperCard(mount, context, registry, expKey) {
+    const exp = registry?.phases?.[context.phase]?.[expKey] || {};
+    const fm = context.first_month;
+    const day = fm?.effective_day || fm?.day;
+    mount.classList.remove('hidden');
+    const body = esc(exp.body || '');
+    mount.innerHTML =
+      '<div class="journey-fm-card journey-fm-whisper rounded-xl border ' + cardClasses('whisper') + ' px-4 py-3" role="status">' +
+      '<div class="flex justify-between items-start gap-2">' +
+      '<p class="text-sm text-navy/75 leading-relaxed flex-1">' + body + '</p>' +
+      '<button type="button" class="journey-fm-dismiss text-navy/30 text-xs font-medium shrink-0" aria-label="Stäng">✕</button>' +
+      '</div></div>';
+    bindCard(mount.querySelector('.journey-fm-card'), expKey, day, 'whisper');
+    lastRenderedDay = day;
+    lastRenderedExp = expKey;
+  }
+
   function renderMomentCard(mount, context, registry, expKey, priority) {
     const exp = registry?.phases?.[context.phase]?.[expKey] || {};
     const fm = context.first_month;
@@ -142,6 +160,9 @@
     if (context.first_month.silent || context.priority === 'none') return false;
     const expKey = context.recommended_experiences?.[0];
     if (context.priority === 'reflection' || expKey === 'fm_month_affirmation') return true;
+    if (context.priority === 'whisper') {
+      return Boolean(expKey && expKey.startsWith('fm_'));
+    }
     if (context.priority === 'affirmation' || context.priority === 'coach') {
       return Boolean(expKey && expKey.startsWith('fm_'));
     }
@@ -167,6 +188,11 @@
     if (priority === 'reflection' || expKey === 'fm_month_affirmation') {
       const exp = registry?.phases?.BUILDING_ROUTINE?.fm_month_affirmation || {};
       renderReflection(mount, fm.affirmation_story, exp, day);
+      return;
+    }
+
+    if (priority === 'whisper' && expKey && expKey.startsWith('fm_')) {
+      renderWhisperCard(mount, context, registry, expKey);
       return;
     }
 

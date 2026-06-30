@@ -260,7 +260,9 @@ function tryFirstMonthExperience(phase, milestones, opts) {
 
   const priority = pick.priority === 'reflection'
     ? 'reflection'
-    : (pick.priority === 'affirmation' ? 'affirmation' : 'coach');
+    : (pick.priority === 'affirmation'
+      ? 'affirmation'
+      : (pick.priority === 'whisper' ? 'whisper' : 'coach'));
 
   return {
     phase,

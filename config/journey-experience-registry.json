@@ -76,6 +76,18 @@
         "body": "När fler vuxna är med blir vardagen lättare — inte mer komplicerad.",
         "cta": "Okej"
       },
+      "fm_day8_bridge": {
+        "tone": "whisper",
+        "headline": "",
+        "body": "Första veckan är gjord. Ni leder nu — vi håller tyst.",
+        "cta": ""
+      },
+      "fm_week4_presence": {
+        "tone": "whisper",
+        "headline": "",
+        "body": "Ni har det.",
+        "cta": ""
+      },
       "fm_child_explores": {
         "tone": "coach",
         "headline": "Barnet utforskar själv",

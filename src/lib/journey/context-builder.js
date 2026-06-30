@@ -93,6 +93,7 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
         childSelfMorningDays: firstMonthBlock.signals?.child_self_morning_days,
         siblingActivity: firstMonthBlock.signals?.sibling_activity,
         coparentJoined: firstMonthBlock.signals?.coparent_joined,
+        coparentWithin48h: firstMonthBlock.signals?.coparent_within_48h,
         hasTradition: firstMonthBlock.signals?.has_tradition,
         missedYesterday: firstMonthBlock.signals?.missed_yesterday,
         missedTwoDays: firstMonthBlock.signals?.missed_two_days,
