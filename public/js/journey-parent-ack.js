@@ -1,5 +1,6 @@
 /**
  * journey-parent-ack.js — parent acknowledgment modal via Journey Context (Fas 2).
+ * Experience Pack copy takes precedence when platform runtime is active.
  */
 (function () {
   'use strict';
@@ -35,16 +36,45 @@
       || registry?.phases?.FIRST_USE?.parent_ack_completion
       || {};
 
+    const pack = item.pack_feedback;
+    const hasPack = Boolean(pack?.headline || pack?.parent_message);
+
     const headline = document.getElementById('journeyParentAckHeadline');
-    const activity = document.getElementById('journeyParentAckActivity');
+    const body = document.getElementById('journeyParentAckBody');
+    const detail = document.getElementById('journeyParentAckDetail');
     const child = document.getElementById('journeyParentAckChild');
+    const activity = document.getElementById('journeyParentAckActivity');
     const btn = document.getElementById('journeyParentAckDismissBtn');
 
-    if (headline) headline.textContent = exp.headline || 'Barnet klarade en aktivitet!';
-    if (child) child.textContent = item.child_name || 'Barnet';
-    if (activity) activity.textContent = item.activity_name || 'en aktivitet';
+    if (headline) {
+      headline.textContent = hasPack
+        ? (pack.headline || pack.parent_message)
+        : (exp.headline || 'Barnet klarade en aktivitet!');
+    }
+
+    if (body) {
+      const bodyText = hasPack ? pack.body : exp.body;
+      if (bodyText) {
+        body.textContent = bodyText;
+        body.classList.remove('hidden');
+      } else {
+        body.textContent = '';
+        body.classList.add('hidden');
+      }
+    }
+
+    if (detail) {
+      if (hasPack) {
+        detail.classList.add('hidden');
+      } else {
+        detail.classList.remove('hidden');
+        if (child) child.textContent = item.child_name || 'Barnet';
+        if (activity) activity.textContent = item.activity_name || 'en aktivitet';
+      }
+    }
+
     if (btn) {
-      btn.textContent = exp.cta || 'Visa';
+      btn.textContent = (hasPack && pack.cta) ? pack.cta : (exp.cta || 'Det ser jag');
       btn.dataset.dailyLogItemId = item.daily_log_item_id;
     }
 
@@ -71,7 +101,7 @@
     const btn = document.getElementById('journeyParentAckDismissBtn');
     if (btn) btn.addEventListener('click', dismissAck);
     pollPendingCompletions();
-    setInterval(pollPendingCompletions, 30000);
+    setInterval(pollPendingCompletions, 15000);
   }
 
   if (document.readyState === 'loading') {

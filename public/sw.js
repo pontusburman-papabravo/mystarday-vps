@@ -216,7 +216,7 @@
  */
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
-const CACHE_NAME = 'stjarndag-v407';
+const CACHE_NAME = 'stjarndag-v409';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
@@ -360,6 +360,7 @@ const STATIC_ASSETS = [
   '/js/child-dashboard.js',
   '/js/child-dashboard-photo-cards.js',
   '/js/child-dashboard-celebrations.js',
+  '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
   // Pedagog pages
   '/pedagog-note.html',

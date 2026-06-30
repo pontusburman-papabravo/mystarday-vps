@@ -1,0 +1,20 @@
+{
+  "version": "1.0.1",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Morgonhuset",
+      "first_unlock_message": "Morgonhuset väntar på dig",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Morgonhuset känner att du kom.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Ett mjukt ljus tänds.",
+          "visual_token": "morning_light_warm"
+        }
+      }
+    }
+  ]
+}
