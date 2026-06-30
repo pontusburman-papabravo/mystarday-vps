@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-30-first-week-v1",
+  "version": "2026-06-30-first-month-v1",
   "phases": {
     "FIRST_USE": {
       "handoff_to_child": {
@@ -49,6 +49,60 @@
       "fw_week_reflection": {
         "tone": "reflection",
         "headline": "En vecka tillsammans",
+        "body": "",
+        "cta": "Stäng"
+      },
+      "fm_welcome_back": {
+        "tone": "affirmation",
+        "headline": "Välkommen tillbaka",
+        "body": "Semestern är över — rutinen finns kvar när ni är redo. Ingen stress.",
+        "cta": "Okej"
+      },
+      "fm_own_initiative": {
+        "tone": "affirmation",
+        "headline": "Er egen rutin",
+        "body": "Ni har skapat något som passar er familj. Det är precis så det ska vara.",
+        "cta": "Visa schemat"
+      },
+      "fm_calm_week": {
+        "tone": "affirmation",
+        "headline": "En lugn vecka",
+        "body": "Ni har hittat en rytm som fungerar — utan att jaga något.",
+        "cta": "Okej"
+      },
+      "fm_coparent_roots": {
+        "tone": "affirmation",
+        "headline": "Ni gör det tillsammans",
+        "body": "När fler vuxna är med blir vardagen lättare — inte mer komplicerad.",
+        "cta": "Okej"
+      },
+      "fm_child_explores": {
+        "tone": "coach",
+        "headline": "Barnet utforskar själv",
+        "body": "Stjärnvärlden växer när barnet leder. Du behöver inte styra.",
+        "cta": "Se barnupplevelsen"
+      },
+      "fm_morning_flows": {
+        "tone": "affirmation",
+        "headline": "Morgonen flyter på",
+        "body": "Barnet klarar morgonen i sin egen takt. Det är en riktig förändring.",
+        "cta": "Okej"
+      },
+      "fm_sibling_moment": {
+        "tone": "affirmation",
+        "headline": "Syskon tillsammans",
+        "body": "När barnen hittar sin egen rytm tillsammans — det är vardagsmagi.",
+        "cta": "Okej"
+      },
+      "fm_tradition": {
+        "tone": "affirmation",
+        "headline": "Er tradition",
+        "body": "Ni har något som återkommer — en liten ritual som är er.",
+        "cta": "Okej"
+      },
+      "fm_month_affirmation": {
+        "tone": "reflection",
+        "headline": "Er vardag",
         "body": "",
         "cta": "Stäng"
       },

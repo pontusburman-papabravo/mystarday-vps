@@ -21,6 +21,8 @@ const WRITABLE_MILESTONES = new Set([
   'evening_routine_added',
   'first_week_day_dismissed',
   'week_reflection_completed',
+  'first_month_moment_dismissed',
+  'month_reflection_completed',
 ]);
 
 const CLIENT_INTENTS = {
@@ -30,6 +32,8 @@ const CLIENT_INTENTS = {
   parent_ack_dismissed: 'parent_saw_completion',
   first_week_dismissed: 'first_week_day_dismissed',
   week_reflection_completed: 'week_reflection_completed',
+  first_month_moment_dismissed: 'first_month_moment_dismissed',
+  month_reflection_completed: 'month_reflection_completed',
 };
 
 async function getPhaseOpts() {
@@ -121,6 +125,29 @@ async function ingestClientIntent({ familyId, intent, childId = null, metadata =
     return ingestMilestone({
       familyId,
       milestone: 'week_reflection_completed',
+      metadata: { warmth: metadata?.warmth || null },
+      source: 'system',
+    }, client);
+  }
+
+  if (intent === 'first_month_moment_dismissed') {
+    const moment = metadata?.moment;
+    if (!moment || typeof moment !== 'string' || !moment.startsWith('fm_')) {
+      return { ok: false, error: 'invalid_moment' };
+    }
+    return ingestMilestone({
+      familyId,
+      milestone: 'first_month_moment_dismissed',
+      scopeKey: `moment:${moment}`,
+      metadata: { moment },
+      source: 'system',
+    }, client);
+  }
+
+  if (intent === 'month_reflection_completed') {
+    return ingestMilestone({
+      familyId,
+      milestone: 'month_reflection_completed',
       metadata: { warmth: metadata?.warmth || null },
       source: 'system',
     }, client);

@@ -22,6 +22,7 @@ const FLAG_KEYS = {
   pushV1: 'family_journey_push_v1',
   addChildV1: 'family_journey_add_child_v1',
   firstWeekV1: 'family_journey_first_week_v1',
+  firstMonthV1: 'family_journey_first_month_v1',
 };
 
 async function isFlagEnabled(key) {

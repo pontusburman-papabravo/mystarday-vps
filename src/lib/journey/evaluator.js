@@ -3,6 +3,7 @@
 const { ReasonCode } = require('./reason-codes');
 const { derivePhase, getPhaseDerivation, needsHandoff } = require('./phases');
 const { pickFirstWeekExperience } = require('./first-week');
+const { pickFirstMonthExperience } = require('./first-month');
 
 const DEFAULT_REGISTRY_VERSION = '2026-06-28-v1';
 
@@ -71,6 +72,15 @@ function deriveContext(input = {}) {
       registry_version: registryVersion,
       handoff_child_id: milestones._pending_handoff_child_id || null,
     };
+  }
+
+  if (opts.firstMonthEnabled && celebrationShown) {
+    const fm = tryFirstMonthExperience(phase, milestones, {
+      ...opts,
+      celebrationShown,
+      registryVersion,
+    });
+    if (fm) return fm;
   }
 
   if (phase === 'INDEPENDENCE') {
@@ -209,6 +219,67 @@ function tryFirstWeekExperience(phase, milestones, opts) {
   };
 }
 
+function tryFirstMonthExperience(phase, milestones, opts) {
+  if (!opts.firstMonthEnabled || !opts.celebrationShown) return null;
+  const fmDay = opts.firstMonthDay;
+  if (!fmDay || fmDay < 8 || fmDay > 30) return null;
+
+  const pick = pickFirstMonthExperience({
+    day: fmDay,
+    signals: opts.firstMonthSignals || {},
+    milestones,
+    now: opts.now || new Date(),
+    timezone: opts.timezone || 'Europe/Stockholm',
+  });
+
+  if (pick.silent || (!pick.experience && pick.priority === 'none')) {
+    return {
+      phase,
+      milestones,
+      recommended_experiences: [],
+      blocking_experience: null,
+      celebration: null,
+      priority: 'none',
+      reason: [ReasonCode.FIRST_MONTH_SILENT, pick.reason],
+      registry_version: opts.registryVersion || DEFAULT_REGISTRY_VERSION,
+      first_month: { day: fmDay, week: pick.week, silent: true, reason: pick.reason },
+    };
+  }
+
+  if (!pick.experience) return null;
+
+  const reasonMap = {
+    fm_welcome_back: ReasonCode.FIRST_MONTH_RETURN,
+    fm_month_affirmation: ReasonCode.FIRST_MONTH_AFFIRMATION,
+  };
+  const reasons = [
+    ReasonCode.FIRST_MONTH_DAY,
+    reasonMap[pick.experience] || ReasonCode.FIRST_MONTH_MOMENT,
+    pick.reason,
+  ].filter(Boolean);
+
+  const priority = pick.priority === 'reflection'
+    ? 'reflection'
+    : (pick.priority === 'affirmation' ? 'affirmation' : 'coach');
+
+  return {
+    phase,
+    milestones,
+    recommended_experiences: [pick.experience],
+    blocking_experience: pick.experience === 'fm_month_affirmation' ? 'fm_month_affirmation' : null,
+    celebration: null,
+    priority,
+    reason: reasons,
+    registry_version: opts.registryVersion || DEFAULT_REGISTRY_VERSION,
+    first_month: {
+      day: fmDay,
+      week: pick.week,
+      experience: pick.experience,
+      affirmation_story: opts.affirmationStory || null,
+    },
+  };
+}
+
 function emptyContext(phase, milestones, registryVersion, reason) {
   return {
     phase: phase === 'SETTING_UP' ? 'SETTING_UP' : phase,
@@ -276,4 +347,5 @@ module.exports = {
   derivePhase,
   getPhaseDerivation,
   tryFirstWeekExperience,
+  tryFirstMonthExperience,
 };

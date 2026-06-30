@@ -95,7 +95,7 @@
       return;
     }
 
-    if (expKey.startsWith('fw_')) {
+    if (expKey.startsWith('fw_') || expKey.startsWith('fm_')) {
       mount.classList.add('hidden');
       mount.innerHTML = '';
       return;

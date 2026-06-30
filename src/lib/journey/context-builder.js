@@ -9,6 +9,10 @@ const {
   buildFirstWeekContext,
   effectiveFirstWeekDay,
 } = require('./first-week');
+const {
+  buildFirstMonthContext,
+  effectiveFirstMonthDay,
+} = require('./first-month');
 
 async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
   const evaluatorOn = await isFlagEnabled(FLAG_KEYS.evaluatorEnabled);
@@ -24,6 +28,7 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
     parent_ack_v1: await isFlagEnabled(FLAG_KEYS.parentAckV1),
     activation_ui_removed: await isFlagEnabled(FLAG_KEYS.activationUiRemoved),
     first_week_v1: await isFlagEnabled(FLAG_KEYS.firstWeekV1),
+    first_month_v1: await isFlagEnabled(FLAG_KEYS.firstMonthV1),
   };
 
   if (!evaluatorOn) {
@@ -43,6 +48,7 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
   const phaseOpts = await getPhaseOpts();
   const coachEnabled = capabilities.coach_v1;
   const firstWeekEnabled = capabilities.first_week_v1;
+  const firstMonthEnabled = capabilities.first_month_v1;
 
   let firstWeekBlock = null;
   let firstWeekOpts = {};
@@ -66,6 +72,36 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
     };
   }
 
+  let firstMonthBlock = null;
+  let firstMonthOpts = {};
+  if (firstMonthEnabled && milestones.first_success) {
+    firstMonthBlock = await buildFirstMonthContext(familyId, milestones);
+    const celebrationShown = Boolean(milestones._celebration_shown);
+    const fsAt = milestones.first_success ? new Date(milestones.first_success) : null;
+    const tz = firstMonthBlock.signals?.timezone || 'Europe/Stockholm';
+    const effectiveDay = effectiveFirstMonthDay(fsAt, new Date(), tz, celebrationShown);
+    firstMonthOpts = {
+      firstMonthEnabled: true,
+      firstMonthDay: effectiveDay || firstMonthBlock.effective_day || firstMonthBlock.day,
+      firstMonthSignals: {
+        hasCustomActivity: firstMonthBlock.signals?.has_custom_activity,
+        calmWeek: firstMonthBlock.signals?.calm_week,
+        childLedWeek: firstMonthBlock.signals?.child_led_week,
+        returnedFromGap: firstMonthBlock.signals?.returned_from_gap,
+        childCount: firstMonthBlock.signals?.child_count,
+        hasNewDiscovery: firstMonthBlock.signals?.has_new_discovery,
+        childSelfMorningDays: firstMonthBlock.signals?.child_self_morning_days,
+        siblingActivity: firstMonthBlock.signals?.sibling_activity,
+        coparentJoined: firstMonthBlock.signals?.coparent_joined,
+        hasTradition: firstMonthBlock.signals?.has_tradition,
+        missedYesterday: firstMonthBlock.signals?.missed_yesterday,
+        missedTwoDays: firstMonthBlock.signals?.missed_two_days,
+      },
+      timezone: firstMonthBlock.signals?.timezone,
+      affirmationStory: firstMonthBlock.affirmation_story,
+    };
+  }
+
   const context = {
     ...deriveContext({
       phase,
@@ -76,6 +112,7 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
         coachEnabled,
         pedagogSkip,
         ...firstWeekOpts,
+        ...firstMonthOpts,
       },
     }),
     capabilities,
@@ -86,6 +123,13 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
     context.activation_program_suppressed = Boolean(
       firstWeekEnabled && firstWeekBlock.active
     );
+  }
+
+  if (firstMonthBlock) {
+    context.first_month = firstMonthBlock;
+    if (firstMonthEnabled && firstMonthBlock.active) {
+      context.activation_program_suppressed = true;
+    }
   }
 
   return enrichCelebrationCopy(familyId, context);
