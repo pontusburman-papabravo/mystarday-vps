@@ -411,6 +411,9 @@ function showTab(tab) {
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
   }
 
+  if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()) {
+    window.rewardsLoaded = false;
+  }
   if ((isHome || isUniverse) && !window.rewardsLoaded) loadRewards();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 

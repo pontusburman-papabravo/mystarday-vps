@@ -33,6 +33,9 @@ async function loadRewards(options) {
 
   _loadRewardsInflight = loadRewardsInner(options).finally(function () {
     _loadRewardsInflight = null;
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
+      window.ChildMorgonhus.clearPreferSkatt();
+    }
   });
   return _loadRewardsInflight;
 }
@@ -73,7 +76,7 @@ async function loadRewardsInner(options) {
       morgonhusAllowed = false;
     }
 
-    if (morgonhusAllowed) {
+    if (morgonhusAllowed && !window.ChildMorgonhus.shouldPreferSkatt()) {
       const mounted = await window.ChildMorgonhus.tryMountWorld();
       if (mounted) {
         if (skeletonTimer) skeletonTimer.stop();

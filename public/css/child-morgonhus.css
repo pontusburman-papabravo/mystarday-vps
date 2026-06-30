@@ -82,7 +82,14 @@
 
 .mh-prop:active,
 .mh-prop.is-tapped {
-  transform: scale(0.96);
+  transform: scale(0.94);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.55), 0 6px 18px rgba(245, 166, 35, 0.3);
+}
+
+.mh-prop.is-locked.is-tapped {
+  opacity: 0.72;
+  filter: grayscale(0.15);
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.35), 0 4px 14px rgba(27, 35, 64, 0.12);
 }
 
 .mh-prop.is-locked {
@@ -122,23 +129,37 @@
 }
 
 .mh-scene-toast {
-  position: relative;
-  z-index: 2;
-  margin: 8px auto 0;
-  max-width: 280px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(245, 166, 35, 0.35);
-  font-size: 0.82rem;
-  font-style: italic;
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  max-width: min(320px, 92%);
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid rgba(245, 166, 35, 0.55);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.35;
   color: #1b2340;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(27, 35, 64, 0.08);
+  box-shadow: 0 8px 24px rgba(27, 35, 64, 0.14);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
 }
 
-.mh-scene-toast.hidden {
-  display: none;
+.mh-scene-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.mh-scene-toast.mh-toast-off {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(6px);
 }
 
 .mh-scene-footer {
