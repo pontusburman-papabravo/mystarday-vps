@@ -324,7 +324,8 @@ function updateDateLine() {
 
 // ── Tabs ───────────────────────────────────────────────
 
-const rewardsLoaded = false;
+// Shared with child-dashboard-rewards.js (separate script tag — must be on window).
+window.rewardsLoaded = false;
 let childUiMagic = false;
 
 function applyChildViewChrome() {
@@ -364,7 +365,7 @@ function applyChildViewMode() {
 
   if (childUiMagic) {
     showTab('home');
-    if (!rewardsLoaded) loadRewards();
+    if (!window.rewardsLoaded) loadRewards();
   } else {
     document.body.classList.remove('child-home-active');
     showTab('schedule');
@@ -410,7 +411,7 @@ function showTab(tab) {
     if (progress) { progress.classList.add('hidden'); progress.setAttribute('aria-hidden', 'true'); }
   }
 
-  if ((isHome || isUniverse) && !rewardsLoaded) loadRewards();
+  if ((isHome || isUniverse) && !window.rewardsLoaded) loadRewards();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 
   if (window.ChildWorldsNav) {
@@ -433,7 +434,7 @@ function showTab(tab) {
 
   if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(isHome ? 'home' : tab);
 
-  if (isHome && rewardsLoaded && window.ChildSkattHouse) {
+  if (isHome && window.rewardsLoaded && window.ChildSkattHouse) {
     ChildSkattHouse.showHub();
   }
 }
@@ -1530,7 +1531,7 @@ window.addEventListener('offlineQueue:synced', (e) => {
   const { type } = e.detail || {};
   // Refresh rewards view if a reward-related action synced
   if (type === 'REDEEM_REWARD' || type === 'ADD_STARS') {
-    if (typeof loadRewards === 'function' && rewardsLoaded) {
+    if (typeof loadRewards === 'function' && window.rewardsLoaded) {
       loadRewards().catch(() => {});
     }
   }

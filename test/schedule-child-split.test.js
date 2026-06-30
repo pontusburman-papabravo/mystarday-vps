@@ -59,4 +59,20 @@ describe('F3a–F3d schedule + child-dashboard split', () => {
   it('child-dashboard-rewards.js is precached for offline', () => {
     assert.match(read('public/sw.js'), /'\/js\/child-dashboard-rewards\.js'/);
   });
+
+  it('child rewards load shares window.rewardsLoaded across split scripts', () => {
+    const dash = read('public/js/child-dashboard.js');
+    const rewards = read('public/js/child-dashboard-rewards.js');
+    assert.match(dash, /window\.rewardsLoaded\s*=\s*false/);
+    assert.match(dash, /!window\.rewardsLoaded/);
+    assert.match(rewards, /window\.rewardsLoaded\s*=\s*true/);
+    assert.match(rewards, /_loadRewardsInflight/);
+    assert.match(rewards, /Försök igen/);
+  });
+
+  it('child-rewards-engine reads star_balance from goal API', () => {
+    const src = read('public/js/child-rewards-engine.js');
+    assert.match(src, /star_balance/);
+    assert.match(src, /reward_name/);
+  });
 });
