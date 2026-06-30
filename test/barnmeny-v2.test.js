@@ -64,6 +64,13 @@ describe('barnmeny v2 — Sprint 1 three-world nav', () => {
     assert.match(src, /ChildWorlds\.V2_ENABLED/);
     assert.match(src, /ChildWorldsNav/);
   });
+
+  it('barnmeny v2 nav scripts are precached for offline PWA', () => {
+    const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
+    assert.match(sw, /'\/js\/child-worlds\.js'/);
+    assert.match(sw, /'\/js\/child-worlds-nav\.js'/);
+    assert.match(sw, /'\/js\/child-layer-router\.js'/);
+  });
 });
 
 describe('barnmeny v2 — Sprint 2 modules', () => {
