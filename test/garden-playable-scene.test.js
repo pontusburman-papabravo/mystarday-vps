@@ -216,6 +216,25 @@ describe('ChildGarden client module', () => {
     assert.match(dashSrc, /ChildGarden\.isActive/);
   });
 
+  it('garden fetch is fail-closed: offline, timeout, errors return null', () => {
+    assert.match(src, /navigator\.onLine === false/);
+    assert.match(src, /AbortController/);
+    assert.match(src, /FETCH_TIMEOUT_MS/);
+    assert.match(src, /err\.status === 503/);
+  });
+
+  it('garden enter failure keeps child in Morgonhus with toast', () => {
+    assert.match(mhSrc, /enterFromMorgonhus\(\)\.then/);
+    assert.match(mhSrc, /Du är kvar i Morgonhuset/);
+  });
+
+  it('garden exit falls back to cached Morgonhus then Skattkammaren', () => {
+    assert.match(src, /tryRemountCached/);
+    assert.match(src, /openSkattkammaren/);
+    assert.match(mhSrc, /tryRemountCached/);
+    assert.match(mhSrc, /_cachedSceneState/);
+  });
+
   it('no LOE gameplay verbs in garden client', () => {
     assert.doesNotMatch(src, /\bverb\b.*plant|\bplant\b|\bharvest\b|timer_ms/i);
   });

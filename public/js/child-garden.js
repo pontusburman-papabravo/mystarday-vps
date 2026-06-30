@@ -7,6 +7,7 @@
 
   const API_PATH = '/api/me/garden';
   const AMBIENT_MS = 3200;
+  const FETCH_TIMEOUT_MS = 8000;
 
   let _active = false;
   let _state = null;
@@ -95,12 +96,27 @@
 
   async function fetchState() {
     if (!window.Auth || typeof window.Auth.api !== 'function') return null;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = controller
+      ? setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT_MS)
+      : null;
+
     try {
-      return await window.Auth.api(API_PATH);
+      const options = controller ? { signal: controller.signal } : {};
+      return await window.Auth.api(API_PATH, options);
     } catch (err) {
-      if (err && err.status === 503) return null;
-      console.warn('[garden] fetch failed:', err && err.message);
+      if (err && err.name === 'AbortError') {
+        console.warn('[garden] fetch timeout');
+      } else if (err && err.status === 503) {
+        return null;
+      } else {
+        console.warn('[garden] fetch failed:', err && err.message);
+      }
       return null;
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
 
@@ -141,7 +157,20 @@
   async function exitToMorgonhus() {
     deactivate();
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
-      return window.ChildMorgonhus.tryMountWorld();
+      const remounted = await window.ChildMorgonhus.tryMountWorld();
+      if (remounted) return true;
+      if (typeof window.ChildMorgonhus.tryRemountCached === 'function'
+          && window.ChildMorgonhus.tryRemountCached()) {
+        return true;
+      }
+      if (typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
+        window.ChildMorgonhus.openSkattkammaren();
+        return true;
+      }
+    }
+    if (typeof window.loadRewards === 'function') {
+      window.rewardsLoaded = false;
+      window.loadRewards();
     }
     return false;
   }

@@ -12,6 +12,7 @@
   let _active = false;
   let _preferSkatt = false;
   let _state = null;
+  let _cachedSceneState = null;
   let _prefersReducedMotion = false;
 
   function esc(str) {
@@ -120,7 +121,11 @@
         if (prop.unlocked || prop.always_active) {
           if (prop.leads_to_garden && window.ChildGarden && typeof window.ChildGarden.enterFromMorgonhus === 'function') {
             triggerReaction(btn, null);
-            window.ChildGarden.enterFromMorgonhus();
+            window.ChildGarden.enterFromMorgonhus().then(function (entered) {
+              if (!entered) {
+                showToast(root, 'Trädgården är inte redo just nu. Du är kvar i Morgonhuset.');
+              }
+            });
             if (h.onGardenEnter) h.onGardenEnter(prop);
             return;
           }
@@ -162,7 +167,32 @@
     }
   }
 
+  function snapshotScene() {
+    if (_state) {
+      _cachedSceneState = JSON.parse(JSON.stringify(_state));
+    }
+  }
+
+  function tryRemountCached() {
+    if (!_cachedSceneState) return false;
+    const view = document.getElementById('skattkammarView');
+    if (!view) return false;
+
+    _state = _cachedSceneState;
+    _active = true;
+    view.innerHTML = renderScene(_state);
+    applyUnlockedState(view, _state);
+    bindInteractions(view, _state, {
+      onSkattLink: openSkattkammaren,
+    });
+    hideLoader();
+    document.body.classList.add('child-morgonhus-active');
+    document.body.classList.remove('child-garden-active');
+    return true;
+  }
+
   function deactivate() {
+    if (_active && _state) snapshotScene();
     _active = false;
     _state = null;
     document.body.classList.remove('child-morgonhus-active');
@@ -254,6 +284,8 @@
     isActive: isActive,
     openSkattkammaren: openSkattkammaren,
     deactivate: deactivate,
+    snapshotScene: snapshotScene,
+    tryRemountCached: tryRemountCached,
     shouldPreferSkatt: shouldPreferSkatt,
     clearPreferSkatt: clearPreferSkatt,
   };
