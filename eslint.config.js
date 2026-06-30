@@ -99,6 +99,7 @@ module.exports = [
         setInterval: 'readonly',
         clearTimeout: 'readonly',
         clearInterval: 'readonly',
+        setImmediate: 'readonly',
         Buffer: 'readonly',
         Promise: 'readonly',
         Error: 'readonly',
@@ -137,6 +138,22 @@ module.exports = [
       'prefer-const': ['warn', { destructuring: 'all' }],
       'no-undef': 'off',
     },
+  },
+  {
+    files: ['src/lib/journey/browser-qa.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        ...browserGlobals,
+        Auth: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        process: 'readonly',
+      },
+    },
+    rules: sharedRules,
   },
   {
     ignores: [

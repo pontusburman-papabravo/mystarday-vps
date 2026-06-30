@@ -186,7 +186,7 @@ async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn } 
     const subject = 'Välkommen till My Starday – din gratis period har börjat!';
     const html = buildTrialEmailHtml({ greeting, upgradeUrl, subject });
 
-    const result = await sendEmail({ to: parentEmail, subject, html, unsubscribeUrl: unsubscribeUrl.includes('unsubscribe') ? unsubscribeUrl : undefined });
+    const result = await sendEmail({ to: parentEmail, subject, html });
     if (!result.success) throw new Error(result.error || 'Email send failed');
     console.log(`[WELCOME-MAILER] Trial welcome email sent to ${parentEmail}`);
     return { success: true };
