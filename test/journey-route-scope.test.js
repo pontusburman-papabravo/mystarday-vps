@@ -39,7 +39,7 @@ test('journey-context mount order: parent GET /api/me/journey-context is not blo
     });
     const text = await res.text();
     assert.notEqual(res.status, 403, `parent should not get child-auth 403: ${text}`);
-    assert.notMatch(text, /kräver barninloggning/i, text);
+    assert.doesNotMatch(text, /kräver barninloggning/i, text);
     if (res.status === 200) {
       const body = JSON.parse(text);
       assert.ok(body.phase, 'expected journey phase in context');
@@ -48,6 +48,7 @@ test('journey-context mount order: parent GET /api/me/journey-context is not blo
     }
   } finally {
     await http.close();
+    await db.cleanup();
   }
 });
 

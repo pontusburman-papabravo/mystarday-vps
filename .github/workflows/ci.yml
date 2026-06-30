@@ -26,6 +26,7 @@ jobs:
       REQUIRE_EMAIL_VERIFICATION: 'false'
       JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
       NODE_ENV: test
+      TEST_SKIP_MIGRATE: '1'
 
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +37,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Build Tailwind CSS
         run: npm run css:build
