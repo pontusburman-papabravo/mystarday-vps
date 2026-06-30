@@ -31,7 +31,7 @@ describe('Merge readiness — Event Bus edge cases', () => {
   });
 
   it('throws when delivery cap exceeded (emit storm)', () => {
-    const bus = new EventBus();
+    const bus = new EventBus({ enforceBudget: false });
     bus.subscribe('onMilestone', 'storm', () => {
       bus.emit('onMilestone', { child_id: 'c1', milestone_type: 'loop' });
     });
