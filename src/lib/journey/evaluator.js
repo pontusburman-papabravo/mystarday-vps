@@ -2,6 +2,7 @@
 
 const { ReasonCode } = require('./reason-codes');
 const { derivePhase, getPhaseDerivation, needsHandoff } = require('./phases');
+const { pickFirstWeekExperience } = require('./first-week');
 
 const DEFAULT_REGISTRY_VERSION = '2026-06-28-v1';
 
@@ -19,7 +20,7 @@ function deriveContext(input = {}) {
     return emptyContext('SETTING_UP', milestones, registryVersion, [ReasonCode.PEDAGOG_SKIP]);
   }
 
-  const celebrationShown = Boolean(milestones._celebration_shown);
+  const celebrationShown = Boolean(milestones._celebration_shown || opts.celebrationShown);
   delete milestones._celebration_shown;
 
   let phase = input.phase || derivePhase(milestones, opts);
@@ -99,6 +100,13 @@ function deriveContext(input = {}) {
   }
 
   if (phase === 'BUILDING_ROUTINE' && opts.coachEnabled && !milestones.established_routine) {
+    const fw = tryFirstWeekExperience(phase, milestones, {
+      ...opts,
+      celebrationShown,
+      registryVersion,
+    });
+    if (fw) return fw;
+
     const experiences = ['coach_consistency'];
     if (!milestones.evening_routine_added) experiences.push('coach_evening');
     return {
@@ -140,6 +148,61 @@ function deriveContext(input = {}) {
   }
 
   return emptyContext(phase, milestones, registryVersion, deriveReasonCodes(phase, milestones));
+}
+
+function tryFirstWeekExperience(phase, milestones, opts) {
+  if (!opts.firstWeekEnabled || !opts.celebrationShown) return null;
+  const fwDay = opts.firstWeekDay;
+  if (!fwDay || fwDay < 1 || fwDay > 7) return null;
+
+  const pick = pickFirstWeekExperience({
+    day: fwDay,
+    signals: opts.firstWeekSignals || {},
+    milestones,
+    now: opts.now || new Date(),
+    timezone: opts.timezone || 'Europe/Stockholm',
+  });
+
+  if (pick.fallthrough) return null;
+
+  if (pick.silent || (!pick.experience && pick.priority === 'none')) {
+    return {
+      phase,
+      milestones,
+      recommended_experiences: [],
+      blocking_experience: null,
+      celebration: null,
+      priority: 'none',
+      reason: [ReasonCode.FIRST_WEEK_SILENT, pick.reason],
+      registry_version: opts.registryVersion || DEFAULT_REGISTRY_VERSION,
+      first_week: { day: fwDay, silent: true, reason: pick.reason },
+    };
+  }
+
+  if (!pick.experience) return null;
+
+  const reasonMap = {
+    fw_day3_new_day: ReasonCode.FIRST_WEEK_SETBACK,
+    fw_day4_discovery: ReasonCode.FIRST_WEEK_DISCOVERY,
+    fw_week_reflection: ReasonCode.FIRST_WEEK_REFLECTION,
+  };
+  const reasons = [ReasonCode.FIRST_WEEK_DAY, reasonMap[pick.experience] || pick.reason].filter(Boolean);
+
+  return {
+    phase,
+    milestones,
+    recommended_experiences: [pick.experience],
+    blocking_experience: pick.experience === 'fw_week_reflection' ? 'fw_week_reflection' : null,
+    celebration: null,
+    priority: pick.priority === 'reflection' ? 'reflection' : 'coach',
+    reason: reasons,
+    registry_version: opts.registryVersion || DEFAULT_REGISTRY_VERSION,
+    first_week: {
+      day: fwDay,
+      experience: pick.experience,
+      reflection_story: opts.reflectionStory || null,
+    },
+  };
 }
 
 function emptyContext(phase, milestones, registryVersion, reason) {
@@ -208,4 +271,5 @@ module.exports = {
   getContextDerivation,
   derivePhase,
   getPhaseDerivation,
+  tryFirstWeekExperience,
 };

@@ -1,5 +1,5 @@
 {
-  "version": "2026-06-28-v1",
+  "version": "2026-06-30-first-week-v1",
   "phases": {
     "FIRST_USE": {
       "handoff_to_child": {
@@ -15,6 +15,62 @@
         "headline": "Första stjärnan är klar!",
         "body": "Barnet har klarat sin första aktivitet — och du såg det. Det är en riktig milstolpe.",
         "cta": "Toppen!"
+      },
+      "fw_day1_morning": {
+        "tone": "coach",
+        "headline": "God morgon — er första riktiga morgon",
+        "body": "Schemat ligger redo. Låt barnet logga in och börja dagen i sin egen takt.",
+        "cta": "Visa barnet"
+      },
+      "fw_day1_evening": {
+        "tone": "coach",
+        "headline": "Kvällsrutinen väntar",
+        "body": "En lugn kväll gör morgondagen enklare. Kika på kvällsaktiviteterna tillsammans.",
+        "cta": "Se kvällsschemat"
+      },
+      "fw_day2_quiet": {
+        "tone": "coach",
+        "headline": "Barnet hittar rytmen",
+        "body": "Ni behöver inte göra så mycket nu — låt barnet leda. Rutinen sitter bättre när hen gör det själv.",
+        "cta": "Visa barnupplevelsen"
+      },
+      "fw_day3_new_day": {
+        "tone": "coach",
+        "headline": "Imorgon är en ny dag",
+        "body": "Igår blev det inte som planerat — det är helt okej. Ingen streak, inget att ångra. Rutinen finns kvar när ni är redo.",
+        "cta": "Visa schemat"
+      },
+      "fw_day4_discovery": {
+        "tone": "coach",
+        "headline": "Något nytt i världen",
+        "body": "Barnet har upptäckt något nytt i sin stjärnvärld — som en naturlig del av resan, inte som belöning.",
+        "cta": "Se vad som hänt"
+      },
+      "fw_week_reflection": {
+        "tone": "reflection",
+        "headline": "Er första vecka",
+        "body": "",
+        "cta": "Stäng"
+      },
+      "coach_consistency": {
+        "tone": "coach",
+        "headline": "Bygg vanan",
+        "body": "Barnet är igång — håll rutinen lätt och rolig den här veckan.",
+        "cta": "Visa tips"
+      },
+      "coach_evening": {
+        "tone": "coach",
+        "headline": "Kvällsrutin?",
+        "body": "Familjer som lägger till en enkel kvällsrutin får oftast stabilare dagar.",
+        "cta": "Utforska"
+      }
+    },
+    "ESTABLISHED_ROUTINE": {
+      "coach_expand": {
+        "tone": "coach",
+        "headline": "Ni har kommit in i flytet",
+        "body": "Rutinen sitter. Utforska nya belöningar eller bjud in en medförälder.",
+        "cta": "Fortsätt"
       }
     }
   }
