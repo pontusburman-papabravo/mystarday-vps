@@ -49,4 +49,9 @@ describe('Android Play stability guards', () => {
     const versions = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
     assert.ok(versions.versionCode >= 3);
   });
+
+  it('patch-android-version.mjs is idempotent when build.gradle already matches', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-version.mjs'), 'utf8');
+    assert.match(src, /already at versionCode/);
+  });
 });

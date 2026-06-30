@@ -34,12 +34,16 @@ if (!versionName || typeof versionName !== 'string') {
 let gradle = fs.readFileSync(GRADLE_FILE, 'utf8');
 const before = gradle;
 
+if (!/versionCode\s+\d+/.test(gradle) || !/versionName\s+"[^"]*"/.test(gradle)) {
+  throw new Error('Could not find versionCode/versionName in build.gradle');
+}
+
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`);
 gradle = gradle.replace(/versionName\s+"[^"]*"/, `versionName "${versionName}"`);
 
 if (gradle === before) {
-  throw new Error('Could not find versionCode/versionName in build.gradle');
+  console.log(`android/app/build.gradle already at versionCode ${versionCode}, versionName "${versionName}"`);
+} else {
+  fs.writeFileSync(GRADLE_FILE, gradle);
+  console.log(`Patched android/app/build.gradle → versionCode ${versionCode}, versionName "${versionName}"`);
 }
-
-fs.writeFileSync(GRADLE_FILE, gradle);
-console.log(`Patched android/app/build.gradle → versionCode ${versionCode}, versionName "${versionName}"`);
