@@ -225,9 +225,14 @@
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 
-    const viaTransition = opts && opts.viaTransition;
+    let sceneState = state;
+    let viaTransition = opts && opts.viaTransition;
+    if (sceneState && sceneState.viaTransition && sceneState.enabled === undefined) {
+      viaTransition = true;
+      sceneState = null;
+    }
 
-    const sceneState = state || await fetchState();
+    sceneState = sceneState || await fetchState();
     if (!sceneState || !sceneState.enabled) return false;
 
     const p = pipeline();
