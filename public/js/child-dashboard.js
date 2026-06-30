@@ -1434,6 +1434,7 @@ async function _drainCheckOffQueue() {
 
 async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, icon, name }) {
   let queueId = null;
+  let apiSucceeded = false;
 
   // Haptic: activity check-off → light impact (uncomplete also triggers light)
   if (window.Platform && window.Platform.haptics) {
@@ -1442,6 +1443,7 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
 
   const apiPromise = Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
     .then(() => {
+      apiSucceeded = true;
       if (queueId && window.OfflineQueue) {
         window.OfflineQueue.markSynced(queueId);
       }
@@ -1468,14 +1470,6 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
   // ── Dedupe concurrent loadDay: wait for any in-flight call ──────────────
   try {
     await _refreshLoadDay();
-    if (!isCurrentlyDone && window.ChildEventBus) {
-      ChildEventBus.emitActivityCompleted({
-        childId: me && me.id,
-        activityId: itemId,
-        itemId: itemId,
-        timestamp: new Date().toISOString(),
-      });
-    }
     // Scroll to the new NU card so the child sees what's next
     setTimeout(() => {
       const newNowCard = document.querySelector('.now-card');
@@ -1492,8 +1486,17 @@ async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, 
     // loadDay failed (e.g. fully offline) — optimistic state already shown
   }
 
-  // Await the API promise silently so unhandled rejection is avoided
+  // Await API before bus — progression must be committed server-side first
   await apiPromise.catch(() => {});
+
+  if (apiSucceeded && !isCurrentlyDone && window.ChildEventBus) {
+    ChildEventBus.emitActivityCompleted({
+      childId: me && me.id,
+      activityId: itemId,
+      itemId: itemId,
+      timestamp: new Date().toISOString(),
+    });
+  }
 }
 
 /**
@@ -1528,7 +1531,15 @@ window.addEventListener('offlineQueue:allSynced', (e) => {
 
 // Also listen for individual syncs (e.g. star grants, redemptions)
 window.addEventListener('offlineQueue:synced', (e) => {
-  const { type } = e.detail || {};
+  const { type, payload } = e.detail || {};
+  if (type === 'COMPLETE_ACTIVITY' && window.ChildEventBus) {
+    ChildEventBus.emitActivityCompleted({
+      childId: me && me.id,
+      activityId: payload && payload.itemId,
+      itemId: payload && payload.itemId,
+      timestamp: new Date().toISOString(),
+    });
+  }
   // Refresh rewards view if a reward-related action synced
   if (type === 'REDEEM_REWARD' || type === 'ADD_STARS') {
     if (typeof loadRewards === 'function' && window.rewardsLoaded) {

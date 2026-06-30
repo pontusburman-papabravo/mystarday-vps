@@ -134,10 +134,20 @@ async function handleActivityComplete({
     context,
   }, client);
 
-  const worldResult = await worldRuntime.processWorld({
-    pack,
-    newlyUnlocked: progressionResult.newlyUnlocked,
-  });
+  let worldResult = { feedback: [] };
+  try {
+    worldResult = await worldRuntime.processWorld({
+      pack,
+      newlyUnlocked: progressionResult.newlyUnlocked,
+    });
+  } catch (err) {
+    console.error('[platform-runtime] world error (progression kept):', {
+      childId,
+      dailyLogItemId,
+      message: err.message,
+    });
+    worldResult = { feedback: [], error: err.message };
+  }
 
   await progressionDb.markEventProcessed(idempotencyKey, client);
 

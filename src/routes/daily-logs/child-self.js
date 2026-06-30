@@ -236,50 +236,59 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]
     );
+
+    const familyId = await getChildFamilyId(req.user.id);
+
+    if (!item.completed && familyId) {
+      try {
+        await require('../../lib/platform-runtime').handleActivityComplete({
+          childId: req.user.id,
+          familyId,
+          dailyLogItemId: req.params.itemId,
+        });
+      } catch (err) {
+        console.error('[platform-runtime] activity complete error:', {
+          childId: req.user.id,
+          familyId,
+          dailyLogItemId: req.params.itemId,
+          message: err.message,
+        });
+      }
+    }
+
     res.json(result.rows[0]);
     // Family layer: derived contribution event (fire-and-forget)
     if (!item.completed) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
       handleActivityCompleted(req.params.itemId, req.user.id, false).catch(() => {});
     }
-    // Broadcast to all family members + push notify parents (fire-and-forget)
-    getChildFamilyId(req.user.id).then(async (fid) => {
-      if (!fid) return;
-      broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
-      // Activation program: child_first_completion (Fas 2 — child path only)
-      if (!item.completed) {
-        require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
-          child_id: req.user.id,
-          source: 'child_complete',
-        });
-        require('../../lib/journey/ingest').ingestMilestoneAsync({
-          familyId: fid,
-          milestone: 'child_first_completion',
-          childId: req.user.id,
-          metadata: { daily_log_item_id: req.params.itemId },
-        });
-        require('../../lib/platform-runtime').handleActivityComplete({
-          childId: req.user.id,
-          familyId: fid,
-          dailyLogItemId: req.params.itemId,
-        }).catch((err) => {
-          console.error('[platform-runtime] activity complete error:', err.message);
-        });
-      }
-      if (!item.completed) {
+    // Broadcast, journey, activation, push (fire-and-forget — response already sent)
+    if (!item.completed && familyId) {
+      broadcast(familyId, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
+      require('../../lib/activation-first-completion').maybeRecordFirstCompletion(familyId, {
+        child_id: req.user.id,
+        source: 'child_complete',
+      });
+      require('../../lib/journey/ingest').ingestMilestoneAsync({
+        familyId,
+        milestone: 'child_first_completion',
+        childId: req.user.id,
+        metadata: { daily_log_item_id: req.params.itemId },
+      });
+      (async () => {
         try {
           const parentActivationProgram = require('../../../db/parent-activation-program');
           const { isActivationProgramEnabled } = require('../../lib/activation-program-enroll');
           const { maybeTrackChildFirstCompletion, getFamilyTimezone } = require('../../lib/activation-program-aha');
           if (isActivationProgramEnabled()) {
-            const program = await parentActivationProgram.getActiveByFamily(fid);
+            const program = await parentActivationProgram.getActiveByFamily(familyId);
             if (program) {
               const [activityRow, timezone] = await Promise.all([
                 db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
-                getFamilyTimezone(fid),
+                getFamilyTimezone(familyId),
               ]);
               await maybeTrackChildFirstCompletion({
-                familyId: fid,
+                familyId,
                 program,
                 childId: req.user.id,
                 dailyLogItemId: req.params.itemId,
@@ -291,18 +300,17 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
         } catch (err) {
           console.error('[ACTIVATION-PROGRAM] child_first_completion error:', err.message);
         }
-      }
-      // Push notification: look up child name + activity name, then notify parents
-      try {
-        const [childRow, activityRow] = await Promise.all([
-          db.query('SELECT name FROM child WHERE id = $1', [req.user.id]),
-          db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
-        ]);
-        const childName = childRow.rows[0]?.name || 'Barnet';
-        const activityName = activityRow.rows[0]?.name || 'en aktivitet';
-        notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        try {
+          const [childRow, activityRow] = await Promise.all([
+            db.query('SELECT name FROM child WHERE id = $1', [req.user.id]),
+            db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
+          ]);
+          const childName = childRow.rows[0]?.name || 'Barnet';
+          const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+          await notifyParentsChildCompleted(familyId, req.user.id, childName, activityName);
+        } catch (_) {}
+      })().catch(() => {});
+    }
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
