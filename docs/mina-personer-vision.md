@@ -225,7 +225,7 @@ Growing circle
 - **Projektprogress** ovanför fold
 - **"Familj"** som rubrik i barn-UI
 
-*Befintlig kod (`child-family-hall.js`) är utgångspunkt — inte målbild.*
+*Befintlig familjehall-V0 är utgångspunkt — inte målbild.*
 
 ---
 

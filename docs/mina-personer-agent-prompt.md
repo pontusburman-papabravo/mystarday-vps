@@ -24,7 +24,7 @@ Förväntad modell (samma som Idag/Skattkammaren):
 4. `npm run test:gate` + konstitutionstester
 5. Minimal diff — vision > kod
 
-**Filer (preliminärt):** `child-family-hall.js`, `child-family-client.js`, `child-today-focus.css` (route guards finns)
+**Filer (preliminärt):** familjehall-klienten och relaterad barn-UI (putsas, inte ombyggs)
 
 ---
 
