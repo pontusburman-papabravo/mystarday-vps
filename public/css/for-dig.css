@@ -228,6 +228,124 @@ html.dark .for-dig-most-installed {
   margin-top: 1rem;
 }
 
+.for-dig-decision__headline {
+  color: var(--color-navy, #1B2340);
+}
+
+.for-dig-decision__promise {
+  font-weight: 600;
+}
+
+.for-dig-decision__points {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.for-dig-decision__point {
+  font-size: 0.875rem;
+  color: var(--color-navy, #1B2340);
+  padding: 0.2rem 0;
+}
+
+.for-dig-details-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  min-height: 44px;
+  text-align: left;
+}
+
+.for-dig-details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 10rem;
+  overflow-y: auto;
+}
+
+.for-dig-activate-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--fdg-bg, #FFF3D6);
+  margin-bottom: 1rem;
+}
+
+.for-dig-activate-header__icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.for-dig-activate-header__title {
+  color: var(--color-navy, #1B2340);
+}
+
+.for-dig-activate-header__tagline {
+  font-size: 0.875rem;
+  color: var(--color-text-soft, #6B7280);
+  margin-top: 0.15rem;
+}
+
+.for-dig-activate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.for-dig-customize-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #EDE7F6;
+}
+
+.for-dig-star-picker {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.for-dig-star-opt {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid #EDE7F6;
+  border-radius: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.for-dig-star-opt.is-on {
+  border-color: var(--fdg-accent, #F5A623);
+  background: var(--fdg-bg, #FFF3D6);
+}
+
+html.dark .for-dig-decision__headline,
+html.dark .for-dig-decision__point,
+html.dark .for-dig-decision__promise {
+  color: #f1f5f9;
+}
+
+html.dark .for-dig-activate-header {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html.dark .for-dig-activate-header__title {
+  color: #f1f5f9;
+}
+
+html.dark .for-dig-star-opt {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
 .for-dig-modal-backdrop {
   position: fixed;
   inset: 0;

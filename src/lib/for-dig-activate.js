@@ -49,6 +49,153 @@ function libraryUnavailableError(context) {
   return err;
 }
 
+const SECTION_LABELS = {
+  morgon: 'Morgon',
+  dag: 'Dag',
+  kvall: 'Kväll',
+};
+
+const WEEKDAY_INDICES = [1, 2, 3, 4, 5];
+
+function formatDaysLabel(days) {
+  const sorted = [...days].map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d)).sort((a, b) => a - b);
+  if (sorted.length === 7) return 'alla dagar';
+  if (sorted.length === 5 && WEEKDAY_INDICES.every((d, i) => sorted[i] === d)) return 'vardagar';
+  const short = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
+  return sorted.map((d) => short[d]).join(', ');
+}
+
+function sectionLabelForGoal(goal, preview) {
+  if (goal.scheduleSection && SECTION_LABELS[goal.scheduleSection]) {
+    return SECTION_LABELS[goal.scheduleSection];
+  }
+  if (preview?.type === 'schedule' && preview.items?.length > 0) {
+    return 'Rutin';
+  }
+  return SECTION_LABELS.dag;
+}
+
+function getGoalCtaLabel(goal) {
+  if (goal.confirmCtaLabel) return goal.confirmCtaLabel;
+  if (goal.scheduleName) {
+    return `Lägg in ${scheduleActivatableLabel(goal).toLowerCase()}`;
+  }
+  if (goal.activityNames && goal.activityNames.length > 0) {
+    return 'Lägg till aktiviteterna';
+  }
+  if (goal.rewardNames && goal.rewardNames.length > 0) {
+    return 'Lägg till belöningarna';
+  }
+  return goal.activateLabel || 'Aktivera';
+}
+
+function buildPromiseLine(goal, childNames) {
+  const who = childNames.length === 1 ? childNames[0] : 'barnen';
+  if (goal.rewardNames && goal.rewardNames.length > 0) {
+    return 'Belöningarna är klara på mindre än en minut.';
+  }
+  if (goal.scheduleName) {
+    return `${scheduleActivatableLabel(goal)} för ${who} blir klar på mindre än en minut.`;
+  }
+  return `Aktiviteterna för ${who} är klara på mindre än en minut.`;
+}
+
+async function childHasScheduleOnDays(childId, days) {
+  const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
+  if (validDays.length === 0) return false;
+  const result = await db.query(
+    `SELECT 1 FROM weekly_schedule_item wsi
+     JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+     WHERE ws.child_id = $1 AND ws.day_of_week = ANY($2::int[])
+     LIMIT 1`,
+    [childId, validDays]
+  );
+  return result.rows.length > 0;
+}
+
+function itemCountForPlan(goal, preview) {
+  const previewCount = (preview?.items || []).length;
+  if (previewCount > 0) return previewCount;
+  if (goal.activityNames) return goal.activityNames.length;
+  if (goal.rewardNames) return goal.rewardNames.length;
+  return 0;
+}
+
+async function buildActivationPlanPreview({ parentId, childIds, goalSlug }) {
+  const goal = getGoalBySlug(goalSlug);
+  if (!goal) return null;
+
+  const ids = Array.isArray(childIds) ? childIds.filter(Boolean) : [];
+  if (ids.length === 0) {
+    const err = new Error('Minst ett barn krävs.');
+    err.status = 400;
+    throw err;
+  }
+
+  const verifiedChildren = [];
+  for (const id of ids) {
+    const child = await verifyChildAccess(parentId, id);
+    if (!child) {
+      const err = new Error('Du har inte åtkomst till ett av valda barn.');
+      err.status = 403;
+      throw err;
+    }
+    verifiedChildren.push(child);
+  }
+
+  const preview = await getGoalActivationPreview(goalSlug);
+  const childNames = verifiedChildren.map((c) => c.name);
+  const headline = goal.headline || goal.title;
+  const promise = buildPromiseLine(goal, childNames);
+  const decisions = [];
+  const itemCount = itemCountForPlan(goal, preview);
+
+  if (goal.scheduleName) {
+    const days = goal.scheduleDays || WEEKDAY_INDICES;
+    let willReplace = false;
+    for (const child of verifiedChildren) {
+      if (await childHasScheduleOnDays(child.id, days)) {
+        willReplace = true;
+        break;
+      }
+    }
+    if (willReplace) {
+      decisions.push({
+        signal: 'replace',
+        text: `Ersätter ${scheduleActivatableLabel(goal).toLowerCase()} på valda dagar`,
+      });
+    } else {
+      decisions.push({ signal: 'add', text: 'Lägger in rutinen i schemat' });
+    }
+    decisions.push({ signal: 'safe', text: 'Du kan ändra efteråt' });
+  } else if (goal.activityNames && goal.activityNames.length > 0) {
+    const countText = itemCount === 1 ? '1 aktivitet' : `${itemCount} aktiviteter`;
+    decisions.push({ signal: 'add', text: `Lägger till ${countText} i schemat` });
+    decisions.push({ signal: 'keep', text: 'Befintligt schema behålls' });
+    decisions.push({ signal: 'safe', text: 'Du kan ändra efteråt' });
+  } else if (goal.rewardNames && goal.rewardNames.length > 0) {
+    const countText = itemCount === 1 ? '1 belöning' : `${itemCount} belöningar`;
+    decisions.push({ signal: 'add', text: `Lägger till ${countText} i Skattkammaren` });
+    decisions.push({ signal: 'safe', text: 'Du kan ändra efteråt' });
+  }
+
+  return {
+    headline,
+    promise,
+    decisions: decisions.slice(0, 3),
+    cta_label: getGoalCtaLabel(goal),
+    child_names: childNames,
+    details: {
+      type: preview?.type || 'none',
+      items: preview?.items || [],
+      days_label: goal.scheduleDays ? formatDaysLabel(goal.scheduleDays) : null,
+      section_label: sectionLabelForGoal(goal, preview),
+      item_count: itemCount,
+    },
+    library_available: itemCount > 0 || preview?.type === 'none',
+  };
+}
+
 function scheduleActivatableLabel(goal) {
   if (goal.activateLabel && /^aktivera\s+/i.test(goal.activateLabel)) {
     const rest = goal.activateLabel.replace(/^aktivera\s+/i, '');
@@ -643,10 +790,12 @@ async function activateGoal({
 module.exports = {
   activateGoal,
   getGoalActivationPreview,
+  buildActivationPlanPreview,
   verifyChildAccess,
   buildActivationSuccessMessage,
   buildActivationNextStep,
   scheduleActivatableLabel,
+  getGoalCtaLabel,
   starValueForItem,
   lookupStarOverride,
 };
