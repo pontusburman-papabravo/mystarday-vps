@@ -372,6 +372,8 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-dashboard.js',
+  '/js/child-first-star-mode.js',
+  '/css/child-first-star-mode.css',
   '/js/child-dashboard-photo-cards.js',
   '/js/child-dashboard-celebrations.js',
   '/js/platform-feedback-child.js',

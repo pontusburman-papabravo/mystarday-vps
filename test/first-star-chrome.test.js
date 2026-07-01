@@ -1,0 +1,88 @@
+'use strict';
+
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+
+function read(rel) {
+  return fs.readFileSync(path.join(ROOT, rel), 'utf8');
+}
+
+describe('First Star chrome (PR 2)', () => {
+  it('child-first-star-mode.js exposes copy and API-driven applyFromDailyLog', () => {
+    const src = read('public/js/child-first-star-mode.js');
+    assert.match(src, /Ditt första uppdrag/);
+    assert.match(src, /Tryck i ringen när du är klar!/);
+    assert.match(src, /applyFromDailyLog/);
+    assert.match(src, /first_star_mode === true/);
+    assert.match(src, /first-star-mode/);
+  });
+
+  it('child-first-star-mode.css hides distractors when first-star-mode is active', () => {
+    const css = read('public/css/child-first-star-mode.css');
+    assert.match(css, /\.first-star-mode #goalTeaserBtn/);
+    assert.match(css, /\.first-star-mode #childBottomNav/);
+    assert.match(css, /\.first-star-mode #todayFocusMount/);
+    assert.match(css, /\.first-star-mode \[data-child-world="world"\]/);
+    assert.match(css, /\.first-star-mode \[data-child-world="family"\]/);
+    assert.match(css, /\.first-star-mode #appViewToggleMount/);
+  });
+
+  it('child-dashboard.js wires first star mode from daily-log and blocks tab escape', () => {
+    const src = read('public/js/child-dashboard.js');
+    assert.match(src, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
+    assert.match(src, /ChildFirstStarMode\.isActive\(\) && tab !== 'schedule'/);
+    assert.match(src, /first-star-mission-wrap/);
+    assert.match(src, /renderNowCard\(item, isToday\)/);
+  });
+
+  it('child-dashboard.js skips goal bar and rewards mount while first star active', () => {
+    const src = read('public/js/child-dashboard.js');
+    assert.match(src, /ChildFirstStarMode && ChildFirstStarMode\.isActive\(\)\) return/);
+    assert.match(src, /ChildFirstStarMode\.isActive\(\)\)\) \{\s*\n\s*ChildRewardsEngine\.setGoalData/);
+  });
+
+  it('child-dashboard.html loads first star assets after today-focus', () => {
+    const html = read('public/child-dashboard.html');
+    const focusIdx = html.indexOf('child-today-focus.js');
+    const firstStarIdx = html.indexOf('child-first-star-mode.js');
+    const cssIdx = html.indexOf('child-first-star-mode.css');
+    assert.ok(focusIdx > -1 && firstStarIdx > -1 && cssIdx > -1);
+    assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
+  });
+
+  it('service worker precaches first star assets (v431+)', () => {
+    const sw = read('public/sw.js');
+    assert.match(sw, /stjarndag-v431/);
+    assert.match(sw, /\/js\/child-first-star-mode\.js/);
+    assert.match(sw, /\/css\/child-first-star-mode\.css/);
+  });
+
+  it('flag OFF path leaves first_star_mode field absent (PR 1 contract)', () => {
+    const src = read('src/routes/daily-logs/child-self.js');
+    assert.match(src, /if \(firstStarModeFlagOn\)/);
+    assert.match(src, /responsePayload\.first_star_mode = firstStarMode/);
+  });
+});
+
+describe('First Star chrome — exit after completion (integration contract)', () => {
+  it('completion reload uses daily-log first_star_mode to exit chrome', () => {
+    const dash = read('public/js/child-dashboard.js');
+    const mode = read('public/js/child-first-star-mode.js');
+    assert.match(dash, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
+    assert.match(mode, /function exit\(\)/);
+    assert.match(mode, /first_star_mode === true[\s\S]*enter\(\)/);
+    assert.match(mode, /else[\s\S]*exit\(\)/);
+  });
+
+  it('celebration remains unchanged — still calls checkMilestones in first star path', () => {
+    const src = read('public/js/child-dashboard.js');
+    assert.match(src, /ChildFirstStarMode\.isActive\(\)[\s\S]*checkMilestones\(total, completed\)/);
+    const cel = read('public/js/child-dashboard-celebrations.js');
+    assert.match(cel, /function checkMilestones/);
+    assert.doesNotMatch(cel, /first_star_mode/);
+  });
+});
