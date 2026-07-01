@@ -47,11 +47,33 @@ Dessa beslut gäller. De ska inte omförhandlas i varje PR.
 - `week_variant` behålls som **legacy/cache** under övergången.
 - Ny kod skriver `custody_home_id`; läser med fallback: `custody_home_id` → `week_variant` + pattern mapping → legacy null.
 
-### 4. En gemensam Schedule Engine
+### 4. En gemensam Schedule Engine (lagerad resolve)
 
 - All beräkning av aktivt hem sker i **`src/lib/custody-schedule-engine.js`**.
 - **`custody-resolver.js` avvecklas** efter migrering av konsumenter.
 - Ingen route, scheduler eller UI-fil får duplicera datumlogik.
+- Motorn ska implementera **lagerad resolve** redan i v1 — även om undantagslagret är tomt.
+
+**Prioritetsordning (låst):**
+
+| Prioritet | Lager | v1 |
+|-----------|-------|-----|
+| 1 | **Override** (undantag) | Hook reserverad — returnerar inget |
+| 2 | **Pattern** (grundschema) | `alternate_weeks`, `alternate_weekends` |
+| 3 | **Fallback** | Legacy veckoschema utan `custody_schedule` |
+
+```js
+function resolveCustodyDateSync(ctx, date) {
+  const override = findOverrideForDate(ctx.overrides, date); // v1: alltid null
+  if (override) return buildResultFromOverride(override);
+
+  if (ctx.schedule) return resolvePattern(ctx.schedule, date);
+
+  return null; // fallback hanteras av anroparen
+}
+```
+
+**Varför nu:** Delad vårdnad har nästan alltid grundregel *plus* sportlov, jul, sommar och tillfälliga byten. Att baka in specialfall i `pattern_type` leder till oändliga varianter. Grundregler + överstyrningar är renare domändesign.
 
 ### 5. v1 pattern types
 
@@ -78,20 +100,64 @@ Endast dessa implementeras i första engine-versionen:
 - PDF-generering, print-layout och exportformat ägs av separat tjänst (t.ex. `print-schema`).
 - Foto-scan/OCR förblir FEAT-6.
 
+### 9. Undantag reserverade — ej FEAT-1
+
+- **`custody_override`** är reserverad framtida tabell — **ingen migration i FEAT-1**.
+- Schedule Engine ska ha `findOverrideForDate()` som **no-op** i v1 (`overrides: []`).
+- Nästa feature lägger till tabell + UI utan att ändra resolve-kedjan.
+
+**Reserverad modell:**
+
+```sql
+-- Framtida — ej FEAT-1
+CREATE TABLE custody_override (
+  id UUID PRIMARY KEY,
+  child_id UUID NOT NULL REFERENCES child(id),
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  home_id UUID NOT NULL REFERENCES custody_home(id),
+  reason TEXT,
+  priority SMALLINT NOT NULL DEFAULT 0
+);
+```
+
+Exempel på undantag: sportlov, sommarlov, jul, påsk, födelsedagar, domstolsbeslut, tillfälliga byten.
+
 ---
 
 ## Arkitektur
 
 ```
+Grundschema (custody_schedule.pattern_type)
+        │
+        ▼
+Boendeschema + hem (custody_home, assignments)
+        │
+        ▼
+Undantag (custody_override)          ← v1: tom, hook reserverad
+        │
+        ▼
+Aktivt hem per datum                 ← custody-schedule-engine.js
+```
+
+**Datamodell v1:**
+
+```
 custody_home ─────────────┐
 custody_parent_home ──────┤
-custody_schedule ─────────┼──► custody-schedule-engine.js
-  pattern_type            │         │
-  configuration           │         ▼
-  anchor_date             │    Active Home + handoffs
+custody_schedule ─────────┼──► resolveCustodyDate()
+  pattern_type            │      1. override?  (v1: skip)
+  configuration           │      2. pattern.resolve(date)
+  anchor_date             │      3. fallback
                           │
 weekly_schedule ──────────┘    (custody_home_id primärt;
   custody_home_id                 week_variant fallback)
+```
+
+**Framtida utökning (ingen motor-omskrivning):**
+
+```
+custody_override ─────────► findOverrideForDate() → return override.home
 ```
 
 **Fel (legacy):**
@@ -118,6 +184,7 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 - En testbar motor med tydliga edge cases
 - UI och copy följer domänen (hem, inte variant)
 - `alternate_weekends` möjlig utan `week_variant`-hack
+- Undantag (sportlov, jul, …) kan läggas till utan motor-omskrivning
 
 ### Kostnad
 
@@ -146,6 +213,8 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | `alternate_weekends` vardagar | **`default_home`** gäller mån–tors |
 | `alternate_weekends` helger | **`weekend_home_a` / `weekend_home_b`** fre–sön varannan helg |
 | Null-hem i v1? | **Nej** — varje dag har aktivt hem när boendeschema finns |
+| Undantag i FEAT-1? | **Nej** — arkitektur reserverad, `overrides: []` i v1 |
+| Resolve-prioritet | **Override → Pattern → Fallback** |
 
 ---
 
@@ -166,3 +235,4 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | 2026-07-01 | 1.0 | Accepted — domänomskrivning FEAT-1 |
 | 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; domänexponering via API |
 | 2026-07-01 | 1.2 | Låst alternate_weekends: default_home + weekend_home_a/b |
+| 2026-07-01 | 1.3 | Lagerad Schedule Engine: override → pattern → fallback; custody_override reserverad |

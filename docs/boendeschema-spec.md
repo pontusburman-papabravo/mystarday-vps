@@ -54,6 +54,22 @@ Systemet ska vara byggt för att kunna utökas utan databasmigrering när fler b
 | **Anchor Date** | Datum då schemat börjar |
 | **Active Home** | Hemmet som gäller ett visst datum |
 | **Assignment** | Koppling mellan förälder och hem |
+| **Grundschema** | Det normala återkommande mönstret (`pattern_type` + `configuration`) |
+| **Undantag** | Tillfällig avvikelse från grundschemat (sportlov, domstolsbeslut, …) — **ej v1** |
+| **Faktiskt schema** | Resultat efter att undantag applicerats på grundschemat |
+
+### Tre nivåer av regler
+
+```
+Grundschema  →  Boendeschema  →  Undantag  →  Aktivt hem
+(pattern)        (custody_schedule)   (override)    (per datum)
+```
+
+1. **Grundschema** — varannan vecka, varannan helg, 2–2–3, osv.
+2. **Undantag** — sportlov, sommarlov, jul, påsk, födelsedagar, domstolsbeslut, tillfälliga byten
+3. **Faktiskt schema** — vad som faktiskt gäller ett givet datum
+
+FEAT-1 implementerar **grundschema** (nivå 1). **Undantag** (nivå 2) reserveras i Schedule Engine men implementeras **inte** i v1 — se ADR §4.
 
 ---
 
@@ -357,26 +373,53 @@ På sikt ersätts `week_variant` av `custody_home_id` som primär koppling (ADR)
 
 **Modul:** `src/lib/custody-schedule-engine.js`
 
-**Input:**
+### Prioritetsordning (låst i ADR)
+
+```
+resolve(date):
+  1. Override (undantag)     ← v1: tom lista, hook reserverad
+  2. Pattern (grundschema)   ← v1: alternate_weeks | alternate_weekends
+  3. Fallback                ← legacy veckoschema utan boendeschema
+```
+
+Motorn ska **alltid** gå via denna kedja — även när undantagslagret är tomt i v1 — så att framtida `custody_override` kan läggas till utan omskrivning.
+
+### Input
 
 - datum (`YYYY-MM-DD`)
 - barn (`childId`)
 - schema (laddat från DB + hem + assignments)
+- overrides (valfritt, **v1: alltid `[]`**)
 
-**Output:**
+### Output
 
 ```js
 {
   activeHome: { id, label, color, icon },
-  activePeriod: { start, end },      // t.ex. helg fre–sön eller hel vecka
+  activePeriod: { start, end },
   nextHandoff: { date, home },
   previousHandoff: { date, home },
   patternType: 'alternate_weeks',
-  isParentDay: boolean               // när parentHomeId anges
+  source: 'pattern',              // 'override' | 'pattern' | 'fallback'
+  isParentDay: boolean            // när parentHomeId anges
 }
 ```
 
 Alla vyer och tjänster använder samma motor. Ingen vy får implementera egen logik.
+
+### Framtida undantag (ej FEAT-1)
+
+Reserverad datamodell — implementeras i separat feature:
+
+| Fält | Typ |
+|------|-----|
+| `id` | uuid |
+| `child_id` | uuid |
+| `start_date` | date |
+| `end_date` | date |
+| `home_id` | uuid |
+| `reason` | text |
+| `priority` | int |
 
 ---
 
@@ -440,9 +483,9 @@ Alla vyer och tjänster använder samma motor. Ingen vy får implementera egen l
 
 ## Utanför scope (v1)
 
-- Manuella undantagsdagar
-- Semesteröverlapp
-- Fler än två aktiva hem per barn i samma mönster
+- **Undantag / overrides** — arkitektur reserverad (ADR), implementation i separat feature
+- Semesteröverlapp som egen produktlogik
+- Fler än två aktiva hem per barn i samma mönster (undantag kan peka på vilket hem som helst i framtiden)
 - iCal-export
 - PDF-generering, print-layout och exportformat (separat tjänst/feature)
 - Foto-scan / OCR (→ FEAT-6)
@@ -476,3 +519,4 @@ FEAT-1 är klar när:
 | 2026-07-01 | 1.0 | Domänspec — ersätter A/B-centrerad §6.5.1 i aktivering-exekveringsplan |
 | 2026-07-01 | 1.1 | BC-13 utskrift borttagen; domänexponering + scope-gräns; PDF/print utanför FEAT-1 |
 | 2026-07-01 | 1.2 | Låst `alternate_weekends`: default_home mån–tors, weekend_home fre–sön; inget null-hem v1 |
+| 2026-07-01 | 1.3 | Schedule Engine: grundschema → undantag → aktivt hem; overrides reserverade ej v1 |
