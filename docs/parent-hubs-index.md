@@ -1,6 +1,7 @@
 # Föräldrahubbar 10/10 — Kravdokument (index)
 
 **Status:** Produktmässigt GO för implementation (2026-07) — Hem · Planering · Belöningar · Familj  
+**Baseline:** [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) · tagg `parent-hubs-10-10`  
 **Mall:** samma struktur som [För dig 10/10](for-dig-vision.md)  
 **Branch (implementation):** `cursor/for-dig-10-10-2c04`  
 **Arkitekturreferens:** [vuxenmeny-v2.md](vuxenmeny-v2.md)
@@ -61,6 +62,18 @@ Hubbarna delar data men **inte begrepp**:
 | **Familj** | Medlemmar | Vem som ingår + inbjudan | *+ Bjud in förälder* | `family_invite` (undantag via Hem) |
 
 **Regel:** Samma underliggande rader — aldrig dubbel logik mellan hubbar.
+
+---
+
+## Implementationsordning (rekommenderad)
+
+Se [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) för full baseline.
+
+```
+1. Hem → 2. Planering → 3. Belöningar → 4. Familj
+```
+
+En hubb per PR. Jenny-test + `test:gate` innan nästa.
 
 ---
 
