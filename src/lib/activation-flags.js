@@ -6,6 +6,7 @@ const FLAG_KEYS = {
   onboarding: 'activation_onboarding_v1',
   childHandoff: 'activation_child_handoff_v1',
   firstStarGuide: 'activation_first_star_guide_v1',
+  firstStarMode: 'activation_first_star_mode_v1',
   aiStarterPlan: 'activation_ai_starter_plan',
   custodySchedule: 'custody_schedule_beta',
   printScan: 'print_scan_beta',
