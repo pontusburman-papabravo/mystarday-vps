@@ -16,10 +16,18 @@
 
   function hideBottomNavForFirstStar() {
     const nav = document.getElementById('childBottomNav');
-    if (!nav) return;
-    nav.innerHTML = '';
-    nav.style.display = 'none';
-    nav.setAttribute('aria-hidden', 'true');
+    if (nav) {
+      nav.innerHTML = '';
+      nav.style.setProperty('display', 'none', 'important');
+      nav.setAttribute('aria-hidden', 'true');
+    }
+
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.style.setProperty('display', 'none', 'important');
+      legacyNav.setAttribute('aria-hidden', 'true');
+    }
+
     document.body.classList.remove('child-has-bottom-nav');
   }
 

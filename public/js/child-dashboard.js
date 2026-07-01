@@ -338,8 +338,13 @@ function applyChildViewChrome() {
   if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
     const bottomNav = document.getElementById('childBottomNav');
     if (bottomNav) {
-      bottomNav.style.display = 'none';
+      bottomNav.style.setProperty('display', 'none', 'important');
       bottomNav.setAttribute('aria-hidden', 'true');
+    }
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.style.setProperty('display', 'none', 'important');
+      legacyNav.setAttribute('aria-hidden', 'true');
     }
     return;
   }

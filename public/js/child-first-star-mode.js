@@ -56,8 +56,14 @@
     const bottomNav = document.getElementById('childBottomNav');
     if (bottomNav) {
       savedBottomNavDisplay = bottomNav.style.display;
-      bottomNav.style.display = 'none';
+      bottomNav.style.setProperty('display', 'none', 'important');
       bottomNav.setAttribute('aria-hidden', 'true');
+    }
+
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.style.setProperty('display', 'none', 'important');
+      legacyNav.setAttribute('aria-hidden', 'true');
     }
 
     const focusMount = document.getElementById('todayFocusMount');
@@ -70,8 +76,15 @@
 
     const bottomNav = document.getElementById('childBottomNav');
     if (bottomNav) {
-      bottomNav.style.display = savedBottomNavDisplay || '';
+      bottomNav.style.removeProperty('display');
+      if (savedBottomNavDisplay) bottomNav.style.display = savedBottomNavDisplay;
       bottomNav.removeAttribute('aria-hidden');
+    }
+
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.style.removeProperty('display');
+      legacyNav.removeAttribute('aria-hidden');
     }
 
     const focusMount = document.getElementById('todayFocusMount');
