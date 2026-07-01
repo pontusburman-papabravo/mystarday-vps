@@ -61,7 +61,46 @@
     });
   }
 
+  function softenQuestChrome() {
+    document.querySelectorAll('#scheduleView .nl-section-label').forEach(function (label) {
+      label.classList.add('ctf-hidden');
+    });
+    document.querySelectorAll('#scheduleView .nl-chip').forEach(function (chip) {
+      chip.classList.add('ctf-hidden');
+    });
+    document.querySelectorAll('#scheduleView .later-card').forEach(function (card) {
+      card.classList.add('ctf-hidden');
+    });
+  }
+
   function capIncompleteTasks() {
+    if (!isFocusMode()) {
+      capLegacyIncompleteTasks();
+      return;
+    }
+
+    const queueCards = Array.from(document.querySelectorAll(
+      '#scheduleView .now-card:not(.done), #scheduleView .next-card:not(.done)'
+    ));
+
+    let hidden = 0;
+    queueCards.forEach(function (card, index) {
+      if (index >= MAX_VISIBLE) {
+        card.classList.add('ctf-hidden');
+        hidden++;
+      } else {
+        card.classList.remove('ctf-hidden');
+      }
+    });
+
+    if (hidden > 0) {
+      showMoreHint(hidden);
+    } else {
+      removeMoreHint();
+    }
+  }
+
+  function capLegacyIncompleteTasks() {
     const selector = [
       '#scheduleView .now-card:not(.done)',
       '#scheduleView .activity-card:not(.done)',
@@ -149,6 +188,7 @@
     const items = (data && data.items) || [];
     injectRewardTeasers(buildStarMap(items));
     hideDoneHistory();
+    softenQuestChrome();
     capIncompleteTasks();
     mountSkattCta();
   }

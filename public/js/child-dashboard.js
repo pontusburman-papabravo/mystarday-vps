@@ -578,10 +578,7 @@ function isTodayFocusLayer() {
 
 function updateGoalBar(goalData) {
   if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) return;
-  if (isTodayFocusLayer()) {
-    if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
-    return;
-  }
+  if (isTodayFocusLayer()) return;
   const section = document.getElementById('goalBarSection');
   if (!section) return;
   const bar = document.getElementById('goalProgressBarTop');
@@ -605,7 +602,6 @@ function updateGoalBar(goalData) {
   if (bar) bar.style.width = `${pct}%`;
   if (label) label.textContent = `⭐ ${balance} av ${starCost}`;
   if (nameEl) nameEl.textContent = `${icon} ${name}`;
-  if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
   if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(goalData);
 }
 
@@ -665,7 +661,9 @@ function renderActivities(data, trueStarBalance) {
   }
 
   if (isTodayFocusLayer()) {
-    if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
+    if (window.ChildTodayFocus) {
+      ChildTodayFocus.updateFromDailyLog(data, isToday);
+    }
   } else {
     // Legacy dashboard chrome (hidden in today-focus-mode)
     if (document.getElementById('progressLabel')) {
@@ -739,7 +737,7 @@ function renderActivities(data, trueStarBalance) {
     sections[s].push(item);
   }
 
-  if (viewType === 'day_sections') {
+  if (viewType === 'day_sections' && !(isTodayFocusLayer() && isToday)) {
     // ── Dagsvy: Färgkodade dagdelssektioner ──────────────────
     // 'dag' items are split visually: <12:00 → förmiddag, ≥12:00 or no time → eftermiddag
     // Section rendering order: morgon → förmiddag → eftermiddag → kvall → natt
@@ -802,6 +800,9 @@ function renderActivities(data, trueStarBalance) {
   } else {
     // ── NOW/NEXT/LATER timeline layout ────────────────────────
 
+    const focusQuestMode = isTodayFocusLayer() && isToday &&
+      !(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
+
     // Determine NOW/NEXT/LATER status for each item.
     // If backend already filtered (now_next_filtered=true), use _nnl_status from API.
     // Otherwise, fall back to client-side classification.
@@ -811,7 +812,7 @@ function renderActivities(data, trueStarBalance) {
       for (const item of items) {
         timeStatusMap[item.id] = item._nnl_status || 'now';
       }
-    } else if (isToday && showNowNext) {
+    } else if (isToday && (showNowNext || focusQuestMode)) {
       // Client-side fallback: tag ALL items (done/now/next/later)
       let globalUnchecked = 0;
       for (const section of sectionOrder) {
@@ -833,7 +834,7 @@ function renderActivities(data, trueStarBalance) {
       }
     }
 
-    const filterActive = backendFiltered || (isToday && showNowNext);
+    const filterActive = backendFiltered || (isToday && showNowNext) || focusQuestMode;
 
     if (filterActive) {
       // Timeline layout: completed history → NU → NÄSTA → SEDAN

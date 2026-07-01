@@ -95,9 +95,17 @@
 
 .ctf-missions-sub {
   font-size: 0.72rem;
-  font-weight: 600;
-  color: #9AA0B8;
+  font-weight: 700;
+  color: #B45309;
   white-space: nowrap;
+}
+
+.ctf-next-step {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #5A6178;
+  margin: 6px 0 0;
+  line-height: 1.35;
 }
 
 /* Activities get visual priority */
