@@ -10,7 +10,11 @@ const { requireFeature } = require('../middleware/feature-gate');
 const analytics = require('../../db/analytics');
 const feedbackDb = require('../../db/for-dig-goal-feedback');
 const favoritesDb = require('../../db/for-dig-favorites');
-const { activateGoal, buildActivationSuccessMessage } = require('../lib/for-dig-activate');
+const {
+  activateGoal,
+  buildActivationSuccessMessage,
+  buildActivationNextStep,
+} = require('../lib/for-dig-activate');
 const {
   FOR_DIG_GOALS,
   VALID_INTENT_REASONS,
@@ -219,6 +223,7 @@ router.post('/:slug/activate', async (req, res) => {
       child_name: result.child_name,
       goal_slug: slug,
       goal_title: goal.title,
+      next_step: buildActivationNextStep(result, childId),
     });
   } catch (err) {
     console.error('[FOR-DIG] activate error:', err);

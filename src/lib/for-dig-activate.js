@@ -36,12 +36,73 @@ function scheduleActivatableLabel(goal) {
   return goal.title;
 }
 
+function activityCountLabel(count) {
+  if (count === 1) return '1 aktivitet';
+  return `${count} aktiviteter`;
+}
+
+function rewardCountLabel(count) {
+  if (count === 1) return '1 belöning';
+  return `${count} belöningar`;
+}
+
 function buildActivationSuccessMessage(goal, result) {
   const name = result.child_name;
   if (result.schedule) {
     return `${scheduleActivatableLabel(goal)} är nu igång för ${name}!`;
   }
+
+  if (result.activities) {
+    const { copied, matched } = result.activities;
+    if (copied > 0) {
+      return `${activityCountLabel(copied)} tillagda i biblioteket. Lägg till dem i ${name}s schema när ni är redo.`;
+    }
+    if (matched > 0) {
+      return `Aktiviteterna finns redan i biblioteket. Lägg till dem i ${name}s schema när ni vill.`;
+    }
+  }
+
+  if (result.rewards) {
+    const { copied, matched } = result.rewards;
+    if (copied > 0) {
+      return `${rewardCountLabel(copied)} tillagda i Skattkammaren!`;
+    }
+    if (matched > 0) {
+      return 'Belöningarna finns redan i Skattkammaren.';
+    }
+  }
+
   return `Material för ${goal.title} finns nu i biblioteket.`;
+}
+
+function buildActivationNextStep(result, childId) {
+  if (!childId) return null;
+
+  if (result.schedule) {
+    return {
+      label: 'Visa schema',
+      href: `/schedule?child=${childId}`,
+      hint: 'Rutinen är redan inlagd i veckoschemat.',
+    };
+  }
+
+  if (result.activities) {
+    return {
+      label: 'Lägg till i schema',
+      href: `/schedule?child=${childId}`,
+      hint: 'Aktiviteterna finns i biblioteket — lägg till dem i schemat när ni vill börja.',
+    };
+  }
+
+  if (result.rewards) {
+    return {
+      label: 'Öppna Skattkammaren',
+      href: '/skattkammaren',
+      hint: 'Belöningarna är redo att användas.',
+    };
+  }
+
+  return null;
 }
 
 async function verifyChildAccess(parentId, childId) {
@@ -323,5 +384,6 @@ module.exports = {
   activateGoal,
   verifyChildAccess,
   buildActivationSuccessMessage,
+  buildActivationNextStep,
   scheduleActivatableLabel,
 };

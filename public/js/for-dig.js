@@ -185,7 +185,14 @@
 
   function confirmActivationText(goal, child) {
     if (goal.scheduleName) {
-      return `<strong>${esc(scheduleLabel(goal))}</strong> kommer att läggas till för <strong>${esc(child.name)}</strong>. Rutinen kan ersätta befintligt innehåll i veckoschemat.`;
+      return `<strong>${esc(scheduleLabel(goal))}</strong> läggs in i <strong>${esc(child.name)}</strong>s veckoschema. Befintligt innehåll kan ersättas.`;
+    }
+    if (goal.activityNames && goal.activityNames.length > 0) {
+      const examples = goal.activityNames.slice(0, 3).join(', ');
+      return `Aktiviteter som <strong>${esc(examples)}</strong> läggs till i ert bibliotek — inte direkt i schemat. Lägg sedan till dem i <strong>${esc(child.name)}</strong>s schema när ni vill börja.`;
+    }
+    if (goal.rewardNames && goal.rewardNames.length > 0) {
+      return `Belöningar för <strong>${esc(goal.title)}</strong> läggs till i Skattkammaren.`;
     }
     return `Material för <strong>${esc(goal.title)}</strong> läggs till i biblioteket.`;
   }
@@ -424,6 +431,7 @@
       await loadInstalls();
       renderGoals();
       renderRecommendations();
+      await showNextStepModal(data);
       showIntentModal(slug, child.id, goal.title);
     } catch (err) {
       window.showToast && showToast(err.message || 'Något gick fel', true);
@@ -436,6 +444,38 @@
         b.textContent = originalLabels[i];
       });
     }
+  }
+
+  function showNextStepModal(data) {
+    if (!data || !data.next_step) return Promise.resolve();
+
+    const step = data.next_step;
+    const html = `
+      <h3 class="font-heading font-bold text-navy text-lg mb-2">Klart!</h3>
+      <p class="text-sm text-text-soft mb-2">${esc(data.message || '')}</p>
+      <p class="text-sm text-text-soft mb-4">${esc(step.hint || '')}</p>
+      <a href="${esc(step.href)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-2">${esc(step.label)}</a>
+      <button type="button" class="text-sm text-text-soft underline w-full" data-action="next-step-dismiss">Stäng</button>
+    `;
+
+    return new Promise((resolve) => {
+      const backdrop = showModal(html, (root) => {
+        root.querySelector('[data-action="next-step-dismiss"]').addEventListener('click', () => {
+          root.remove();
+          resolve();
+        });
+        root.querySelector('a.for-dig-cta')?.addEventListener('click', () => {
+          root.remove();
+          resolve();
+        });
+      });
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
+          backdrop.remove();
+          resolve();
+        }
+      });
+    });
   }
 
   function showIntentModal(goalSlug, childId, goalTitle) {
