@@ -33,12 +33,12 @@ describe('Engine coach authority (PR1)', () => {
     }
   });
 
-  it('dashboard.html declares exclusive mount above readiness', () => {
+  it('dashboard.html declares readiness before engine coach (hem-vision priority)', () => {
     const html = read('public/dashboard.html');
     const engineIdx = html.indexOf('id="engineCoachMount"');
     const readinessIdx = html.indexOf('id="homeReadinessMount"');
     assert.ok(engineIdx > 0 && readinessIdx > 0);
-    assert.ok(engineIdx < readinessIdx, 'Engine monopoly slot must appear before readiness');
+    assert.ok(readinessIdx < engineIdx, 'Undantag (readiness) must appear before engine coach');
     assert.match(html, /data-authority="engine-only"/);
   });
 

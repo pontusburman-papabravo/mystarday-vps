@@ -139,21 +139,6 @@
       '<div class="parent-week-labels">' + labels + '</div>';
   }
 
-  function encouragementCopy(children) {
-    const allDone = children.length > 0 && children.every(function (c) {
-      const t = c.today_total || 0;
-      return t > 0 && (c.today_completed || 0) === t;
-    });
-    if (allDone) {
-      return { emoji: '🌟', title: 'Bra jobbat!', sub: 'Alla barn har klarat dagens schema' };
-    }
-    const stars = children.reduce(function (s, c) { return s + (c.stars_today || 0); }, 0);
-    if (stars >= 5) {
-      return { emoji: '✨', title: 'Stjärnig dag!', sub: stars + ' stjärnor samlade idag' };
-    }
-    return { emoji: '💛', title: 'Fortsätt så!', sub: 'Små steg varje dag blir stora framsteg' };
-  }
-
   function renderAvatar(child, size) {
     if (typeof window.renderChildAvatar === 'function') {
       return window.renderChildAvatar(child, size || 32);
@@ -174,23 +159,6 @@
         '<div class="parent-ready-name">' + escHtml(capName(c.name)) + '</div>' +
         '<div class="parent-ready-task">' + escHtml(status.icon) + ' ' + escHtml(status.text) + '</div>' +
         '</button>';
-    }).join('');
-  }
-
-  function renderActionGrid() {
-    const actions = [
-      { action: 'give-stars', icon: '⭐', label: 'Ge extra stjärnor' },
-      { action: 'backfill-log', icon: '📝', label: 'Fyll i i efterhand' },
-      { action: 'once-task', icon: '📋', label: 'Engångsaktivitet' },
-      { action: 'ledig-dag', icon: '🏠', label: 'Ledig dag' },
-      { action: 'today-schedule', icon: '📅', label: 'Dagens schema' },
-      { action: 'stats', icon: '📊', label: 'Statistik' },
-      { action: 'messages', icon: '💬', label: 'Meddelanden' },
-    ];
-    return actions.map(function (a) {
-      return '<button type="button" class="parent-action-tile magic-3d-card" data-action="' + escHtml(a.action) + '">' +
-        '<span class="parent-action-icon" aria-hidden="true">' + a.icon + '</span>' +
-        '<span class="parent-action-label">' + escHtml(a.label) + '</span></button>';
     }).join('');
   }
 
@@ -215,39 +183,17 @@
       '</div></section>';
   }
 
-  function render(stats) {
-    const mount = document.getElementById('parentHomeHubMount');
-    if (!mount) return false;
-
-    if (!shouldUse()) {
-      document.body.classList.remove('parent-magic-dashboard');
-      mount.classList.add('hidden');
-      mount.innerHTML = '';
-      return false;
-    }
-
-    document.body.classList.add('parent-magic-dashboard');
-    mount.classList.remove('hidden');
-
-    const children = (stats && stats.children) ? stats.children : [];
-    const user = (window.Auth && Auth.getUser) ? Auth.getUser() : null;
-    const focusId = findFocusChild(children);
-    const enc = encouragementCopy(children);
-    const weekSeries = buildWeekSeries(children);
-    const scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
-
-    mount.innerHTML =
-      '<div class="parent-home-hub magic-3d-scene">' +
+  function renderHead(stats, children, focusId, scheduleHref) {
+    return '<div class="parent-home-hub magic-3d-scene">' +
       '<div id="parentHubDailySummaryMount" class="parent-hub-daily-summary" aria-live="polite"></div>' +
       '<header class="parent-hub-top">' +
       '<div class="parent-hub-family-avatar" aria-hidden="true">👨‍👩‍👧</div>' +
       '</header>' +
       '<div class="parent-hub-greeting-block">' +
       '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +
-      '<p class="parent-hub-sub">Här är en översikt av er familjs framsteg. ✨</p>' +
+      '<p class="parent-hub-sub">Så här ser dagen ut.</p>' +
       '<div class="parent-hub-mascot" aria-hidden="true">⭐</div>' +
       '</div>' +
-      renderCoParentCta(stats) +
       '<section class="parent-ready-section parent-glass-card">' +
       '<div class="parent-ready-head">' +
       '<h2>Redo för nästa aktivitet' + (children.length > 1 ? ' <span class="parent-ready-count">(' + children.length + ' barn)</span>' : '') + '</h2>' +
@@ -257,7 +203,11 @@
       '</div></div>' +
       '<div class="parent-ready-scroll">' + renderReadyRow(children, focusId) + '</div>' +
       '</section>' +
-      '<div class="parent-action-grid">' + renderActionGrid() + '</div>' +
+      '</div>';
+  }
+
+  function renderFooter(stats, weekSeries) {
+    return '<div class="parent-home-hub-footer">' +
       '<section class="parent-glass-card parent-handoff-card parent-handoff-large">' +
       '<div class="parent-handoff-lock" aria-hidden="true">🔒</div>' +
       '<div class="parent-handoff-copy">' +
@@ -268,19 +218,54 @@
       '<button type="button" class="parent-handoff-primary" data-action="child-login">👶 Barnet loggar in</button>' +
       '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">Logga ut</button>' +
       '</div></section>' +
+      renderCoParentCta(stats) +
       '<section class="parent-glass-card parent-week-section">' +
       '<div class="parent-ready-head">' +
-      '<h3>Veckans framsteg</h3>' +
+      '<h3>Veckans berättelse</h3>' +
       '<a class="parent-schedule-link" href="/daily-log">Fyll i glömda dagar →</a>' +
       '</div>' +
       renderWeekChart(weekSeries) +
-      '<div class="parent-encourage-inline">' +
-      '<span class="emoji" aria-hidden="true">' + enc.emoji + '</span>' +
-      '<div><strong>' + escHtml(enc.title) + '</strong><span>' + escHtml(enc.sub) + '</span></div>' +
-      '</div></section>' +
+      '</section>' +
       '</div>';
+  }
 
-    bindActions(mount);
+  function render(stats) {
+    const headMount = document.getElementById('parentHomeHubMount');
+    const footerMount = document.getElementById('parentHomeHubFooterMount');
+    if (!headMount) return false;
+
+    if (!shouldUse()) {
+      document.body.classList.remove('parent-magic-dashboard');
+      headMount.classList.add('hidden');
+      headMount.innerHTML = '';
+      if (footerMount) {
+        footerMount.classList.add('hidden');
+        footerMount.innerHTML = '';
+      }
+      return false;
+    }
+
+    document.body.classList.add('parent-magic-dashboard');
+    headMount.classList.remove('hidden');
+
+    const children = (stats && stats.children) ? stats.children : [];
+    const focusId = findFocusChild(children);
+    const weekSeries = buildWeekSeries(children);
+    const scheduleHref = focusId ? '/schedule?child=' + encodeURIComponent(focusId) : '/schedule';
+
+    headMount.innerHTML = renderHead(stats, children, focusId, scheduleHref);
+    bindActions(headMount);
+
+    if (footerMount) {
+      footerMount.classList.remove('hidden');
+      footerMount.innerHTML = renderFooter(stats, weekSeries);
+      bindActions(footerMount);
+    }
+
+    if (window.HomeReadiness && typeof window.HomeReadiness.reload === 'function') {
+      window.HomeReadiness.reload();
+    }
+
     return true;
   }
 

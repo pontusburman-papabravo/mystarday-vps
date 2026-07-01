@@ -29,11 +29,12 @@ describe('meny v2.2 — Sprint 2 readiness extensions + PX4', () => {
     assert.match(src, /pending_invite/);
   });
 
-  it('home-readiness exposes warnings-only filter', () => {
+  it('home-readiness shows undantag only (priority <= 1)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/home-readiness.js'), 'utf8');
-    assert.match(src, /warningsOnlyEnabled/);
-    assert.match(src, /homeReadinessFilter/);
+    assert.match(src, /EXCEPTION_PRIORITY_MAX/);
+    assert.match(src, /isExceptionItem/);
     assert.match(src, /HomeReadiness/);
+    assert.doesNotMatch(src, /homeReadinessFilter/);
   });
 });
 

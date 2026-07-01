@@ -418,9 +418,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (AppViewMode.isClassic()) {
         document.body.classList.remove('parent-magic-dashboard');
         const hubMount = document.getElementById('parentHomeHubMount');
+        const footerMount = document.getElementById('parentHomeHubFooterMount');
         if (hubMount) {
           hubMount.classList.add('hidden');
           hubMount.innerHTML = '';
+        }
+        if (footerMount) {
+          footerMount.classList.add('hidden');
+          footerMount.innerHTML = '';
         }
         if (typeof renderDashboardCards === 'function') renderDashboardCards();
       } else if (window.DashboardHomeHub) {

@@ -1,10 +1,12 @@
 /**
- * home-readiness.js — Hem readiness / action center (vuxenmeny v2.2).
+ * home-readiness.js — Hem undantag / action center (vuxenmeny v2.2, baseline parent-hubs-10-10).
+ * Shows only priority <= 1 items (undantag). Same data as Belöningar pending — no duplicate logic.
  */
 (function () {
   'use strict';
 
-  const FILTER_KEY = 'homeReadinessWarningsOnly';
+  /** Hem undantag = urgency only (POS PA-06). Lower-priority readiness rows belong elsewhere. */
+  const EXCEPTION_PRIORITY_MAX = 1;
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -20,17 +22,13 @@
     }
   }
 
+  /** @deprecated Legacy filter key — undantag-only is always on per hem-vision.md */
   function warningsOnlyEnabled() {
-    try {
-      return localStorage.getItem(FILTER_KEY) === '1';
-    } catch (_) {
-      return false;
-    }
+    return true;
   }
 
-  /** priority 0–1 = urgent/warning; 2+ informational */
-  function isWarningItem(item) {
-    return item.priority != null ? item.priority <= 1 : (
+  function isExceptionItem(item) {
+    return item.priority != null ? item.priority <= EXCEPTION_PRIORITY_MAX : (
       item.type === 'pending_invite' ||
       item.type === 'pending_approval' ||
       item.type === 'incomplete_past_days'
@@ -38,8 +36,11 @@
   }
 
   function filterItems(items) {
-    if (!warningsOnlyEnabled()) return items;
-    return items.filter(isWarningItem);
+    return items.filter(isExceptionItem);
+  }
+
+  function resolveMount() {
+    return document.getElementById('homeReadinessMount');
   }
 
   function renderCard(item) {
@@ -62,50 +63,33 @@
   }
 
   async function load() {
-    const mount = document.getElementById('homeReadinessMount');
+    const mount = resolveMount();
     if (!mount) return;
     try {
       const res = await window.apiFetch('/api/family/readiness');
       if (!res.ok) return;
       const data = await res.json();
-      let items = data.items || [];
-      items = filterItems(items);
+      const items = filterItems(data.items || []);
       if (!items.length) {
         mount.classList.add('hidden');
+        mount.innerHTML = '';
         return;
       }
       mount.classList.remove('hidden');
-      const filterOn = warningsOnlyEnabled();
-      const html =
-        '<div class="flex items-center justify-between mb-3 gap-2">' +
-        '<h2 class="text-lg font-heading font-bold text-navy">Kräver åtgärd</h2>' +
-        '<label class="flex items-center gap-2 text-xs text-text-soft whitespace-nowrap cursor-pointer">' +
-        '<input type="checkbox" id="homeReadinessFilter" class="rounded border-lavender"' + (filterOn ? ' checked' : '') + ' />' +
-        'Bara varningar</label></div>' +
+      mount.innerHTML =
+        '<h2 class="text-lg font-heading font-bold text-navy mb-3">Kräver åtgärd</h2>' +
         items.map(renderCard).join('');
-      mount.innerHTML = html;
       bindClicks(mount, items);
-
-      const filterEl = document.getElementById('homeReadinessFilter');
-      if (filterEl) {
-        filterEl.addEventListener('change', function () {
-          try {
-            localStorage.setItem(FILTER_KEY, filterEl.checked ? '1' : '0');
-          } catch (_) { /* ignore */ }
-          load();
-          if (typeof window.renderDashboardCards === 'function') {
-            window.renderDashboardCards();
-          }
-        });
-      }
     } catch (_) {
       mount.classList.add('hidden');
+      mount.innerHTML = '';
     }
   }
 
   window.HomeReadiness = {
     warningsOnlyEnabled: warningsOnlyEnabled,
     reload: load,
+    isExceptionItem: isExceptionItem,
   };
 
   if (document.readyState === 'loading') {
