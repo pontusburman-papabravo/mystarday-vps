@@ -1,0 +1,91 @@
+/**
+ * First Star Mode — focused first mission chrome (PR 2).
+ * Active when GET /api/me/daily-log returns first_star_mode: true.
+ */
+
+.first-star-mode #goalTeaserBtn,
+.first-star-mode #progressSection,
+.first-star-mode #weekNavDetails,
+.first-star-mode #todayFocusMount,
+.first-star-mode #childBottomNav,
+.first-star-mode #childLayerNav,
+.first-star-mode #appViewToggleMount,
+.first-star-mode #viewToggleBtn,
+.first-star-mode #printBtn,
+.first-star-mode #childDarkBtn,
+.first-star-mode #switchChildBtn,
+.first-star-mode #logoutBtn,
+.first-star-mode #childHeaderRing,
+.first-star-mode #homeView,
+.first-star-mode #moreView,
+.first-star-mode [data-child-world="world"],
+.first-star-mode [data-child-world="family"],
+.first-star-mode [data-child-world-legacy="world"],
+.first-star-mode [data-child-world-legacy="family"] {
+  display: none !important;
+}
+
+.first-star-mode #childMainHeader .flex.items-center.gap-1\.5 {
+  display: none !important;
+}
+
+.first-star-chrome {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+  text-align: center;
+}
+
+.first-star-chrome.hidden {
+  display: none;
+}
+
+.first-star-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.first-star-hint {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5A6178;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.first-star-mode #scheduleView {
+  padding-top: 4px;
+}
+
+.first-star-mission-wrap {
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.first-star-mode .first-star-mission-wrap .now-card {
+  margin-top: 8px;
+}
+
+.first-star-mode .first-star-mission-wrap .now-badge {
+  display: none;
+}
+
+.first-star-mode .first-star-mission-wrap .now-check {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+}
+
+.first-star-mode .first-star-mission-wrap .now-emoji {
+  font-size: 3rem;
+}
+
+.first-star-mode .first-star-mission-wrap .now-title {
+  font-size: 1.35rem;
+}

@@ -335,6 +335,15 @@ window.rewardsLoaded = false;
 let childUiMagic = false;
 
 function applyChildViewChrome() {
+  if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+    const bottomNav = document.getElementById('childBottomNav');
+    if (bottomNav) {
+      bottomNav.style.display = 'none';
+      bottomNav.setAttribute('aria-hidden', 'true');
+    }
+    return;
+  }
+
   childUiMagic = !!(window.AppViewMode && AppViewMode.isMagic());
 
   if (window.ChildWorlds && ChildWorlds.V2_ENABLED) {
@@ -360,6 +369,8 @@ function applyChildViewChrome() {
   }
 }
 
+window.applyChildViewChrome = applyChildViewChrome;
+
 function applyChildViewMode() {
   applyChildViewChrome();
 
@@ -379,6 +390,9 @@ function applyChildViewMode() {
 }
 
 function showTab(tab) {
+  if (window.ChildFirstStarMode && ChildFirstStarMode.isActive() && tab !== 'schedule') {
+    return;
+  }
   if (window.LivingWorldTransition
       && typeof window.LivingWorldTransition.isActive === 'function'
       && window.LivingWorldTransition.isActive()) {
@@ -558,6 +572,7 @@ function isTodayFocusLayer() {
 }
 
 function updateGoalBar(goalData) {
+  if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) return;
   if (isTodayFocusLayer()) {
     if (window.ChildTodayFocus) ChildTodayFocus.updateGoal(goalData);
     return;
@@ -596,11 +611,53 @@ function renderActivities(data, trueStarBalance) {
   const items = data.items || [];
   const isToday = currentDate === todayStr;
 
+  if (window.ChildFirstStarMode) {
+    ChildFirstStarMode.applyFromDailyLog(data);
+  }
+
   // Use server-provided totals (covers full list even when items are pre-filtered)
   const total = data.total != null ? data.total : items.length;
   const completed = data.completed != null ? data.completed : items.filter(i => i.completed).length;
   const todayStars = items.filter(i => i.completed).reduce((s, i) => s + (i.star_value || 1), 0);
   const totalStarCount = total > 0 ? items.reduce((s, i) => s + (i.star_value || 1), 0) : 0;
+
+  if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+    if (isToday) {
+      checkMilestones(total, completed);
+    }
+
+    const backendFiltered = !!data.now_next_filtered;
+    if (items.length === 0 && backendFiltered && total > 0 && completed === total) {
+      // Celebration path — fall through to shared empty-state handler below
+    } else if (items.length === 0) {
+      container.innerHTML = `
+      <div class="text-center py-16 bg-white rounded-2xl mt-2">
+        <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
+        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? 'Inga aktiviteter idag!' : 'Inget schema den här dagen'}</p>
+        <p class="text-text-soft text-sm">${isToday ? 'Njut av din lediga dag ⭐' : 'Välj en annan dag för att se schemat'}</p>
+      </div>`;
+      return;
+    } else {
+      const item = items[0];
+      let html = '<div class="first-star-mission-wrap">';
+      html += renderNowCard(item, isToday);
+      html += '</div>';
+      container.innerHTML = html;
+      initTimeTimers();
+      const allCards = container.querySelectorAll('[data-sub-step-count]');
+      for (const card of allCards) {
+        const count = parseInt(card.dataset.subStepCount || '0', 10);
+        const itemId = card.dataset.itemId;
+        if (count > 0 && itemId && !subStepExpanded[itemId]) {
+          const btn = document.getElementById('expand-btn-' + itemId);
+          if (btn) expandSubSteps(new Event('click'), itemId);
+          break;
+        }
+      }
+      if (window.ChildTodayTasks) ChildTodayTasks.afterRender(data, isToday);
+      return;
+    }
+  }
 
   if (isTodayFocusLayer()) {
     if (window.ChildTodayFocus) ChildTodayFocus.updateProgress(completed, total);
@@ -1788,7 +1845,7 @@ async function loadDay(dateStr, showLoader = true) {
       ChildActivityEngine.setLastDayData(data);
       ChildActivityEngine.mountPausedBannerIfNeeded();
     }
-    if (window.ChildRewardsEngine && goalData) {
+    if (window.ChildRewardsEngine && goalData && !(window.ChildFirstStarMode && ChildFirstStarMode.isActive())) {
       ChildRewardsEngine.setGoalData(goalData);
       ChildRewardsEngine.mountGoalProgress();
     }
