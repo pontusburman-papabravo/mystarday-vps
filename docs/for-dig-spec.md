@@ -372,7 +372,7 @@ Om `default_schedule` saknas lokalt (tomt admin-bibliotek): visa vänligt fel + 
 
 **Idag (pre-fix):** `copySchedule` med `overwrite: true` raderar alla items på valda dagar. Det ska ändras i separat PR.
 
-**Ej i scope för content-sync:** namnmatchning, biblioteksglapp, headlines — klart i #476.
+**Ej i scope för content-sync:** namnmatchning, biblioteksglapp, headlines — klart i #476. Avslutsdokumentation: [`for-dig-content-sync-476-closure.md`](for-dig-content-sync-476-closure.md).
 
 ---
 
