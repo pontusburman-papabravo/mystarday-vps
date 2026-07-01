@@ -54,11 +54,26 @@ describe('First Star chrome (PR 2)', () => {
     assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
   });
 
-  it('service worker precaches first star assets (v431+)', () => {
+  it('service worker precaches first star assets (v432+)', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v431/);
+    assert.match(sw, /stjarndag-v432/);
     assert.match(sw, /\/js\/child-first-star-mode\.js/);
     assert.match(sw, /\/css\/child-first-star-mode\.css/);
+  });
+
+  it('child-worlds-nav.js hides bottom nav when First Star Mode is active', () => {
+    const nav = read('public/js/child-worlds-nav.js');
+    assert.match(nav, /isFirstStarModeActive/);
+    assert.match(nav, /ChildFirstStarMode\.isActive\(\)/);
+    assert.match(nav, /hideBottomNavForFirstStar/);
+    assert.match(nav, /if \(isFirstStarModeActive\(\)\) \{\s*\n\s*hideBottomNavForFirstStar\(\)/);
+    assert.match(nav, /syncFirstStarHide/);
+    assert.match(nav, /if \(isFirstStarModeActive\(\)\) return/);
+  });
+
+  it('child-first-star-mode.js re-syncs nav hide after enter()', () => {
+    const mode = read('public/js/child-first-star-mode.js');
+    assert.match(mode, /ChildWorldsNav\.syncFirstStarHide/);
   });
 
   it('flag OFF path leaves first_star_mode field absent (PR 1 contract)', () => {
