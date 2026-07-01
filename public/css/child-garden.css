@@ -3,6 +3,13 @@
 body.child-garden-active #rewardsView {
   background: transparent !important;
   padding-bottom: 0 !important;
+  overflow: hidden;
+}
+
+body.child-garden-active .gd-scene {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
 }
 
 body.child-garden-active #skattkammarView {

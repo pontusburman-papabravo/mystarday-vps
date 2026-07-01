@@ -143,6 +143,6 @@ describe('Living World transition — place mode', () => {
     const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
     assert.match(sw, /child-living-world-transition\.js/);
     assert.match(sw, /child-living-world-transition\.css/);
-    assert.match(sw, /stjarndag-v424/);
+    assert.match(sw, /stjarndag-v425/);
   });
 });

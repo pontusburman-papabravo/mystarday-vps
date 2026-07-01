@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v424';
+const CACHE_NAME = 'stjarndag-v425';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
@@ -297,7 +297,7 @@ const CACHE_NAME = 'stjarndag-v424';
 // stjarndag-v421: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v422: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v423: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
-// stjarndag-v424: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v425: Garden illustrated scene-bg asset pack (picture srcset, no CSS diorama)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -390,6 +390,9 @@ const STATIC_ASSETS = [
   '/assets/worlds/garden/scene-bg-430.webp',
   '/assets/worlds/garden/scene-bg-860.webp',
   '/assets/worlds/garden/scene-bg-1280.webp',
+  '/assets/worlds/garden/sky-clouds.webp',
+  '/assets/worlds/garden/ambient-bird.webp',
+  '/assets/worlds/garden/ambient-butterfly.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',

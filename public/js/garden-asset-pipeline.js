@@ -6,7 +6,7 @@
   'use strict';
 
   const BASE = '/assets/worlds/garden/';
-  const VERSION = '2.0.0';
+  const VERSION = '2.0.1';
 
   const SCENE_BG = Object.freeze({
     id: 'scene-bg',

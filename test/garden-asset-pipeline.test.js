@@ -66,7 +66,7 @@ describe('garden illustrated asset pipeline v2', () => {
 
   it('pipeline exposes scene-bg srcset and preloadScene', () => {
     const pipeline = loadPipeline();
-    assert.equal(pipeline.VERSION, '2.0.0');
+    assert.equal(pipeline.VERSION, '2.0.1');
     assert.equal(pipeline.SCENE_BG.file, 'scene-bg.webp');
     assert.equal(pipeline.SCENE_BG.srcset.length, 3);
     assert.equal(pipeline.CRITICAL_FILE, 'scene-bg.webp');
@@ -94,6 +94,7 @@ describe('garden illustrated assets — service worker precache', () => {
     for (const file of SCENE_FILES) {
       assert.match(sw, new RegExp('/assets/worlds/garden/' + file.replace('.', '\\.')));
     }
+    assert.match(sw, /sky-clouds\.webp/);
   });
 });
 
@@ -116,6 +117,20 @@ describe('garden illustrated renderer contract', () => {
     assert.doesNotMatch(gardenSrc, /gd-house-wall/);
     assert.doesNotMatch(gardenSrc, /gd-house-edge/);
     assert.doesNotMatch(gardenSrc, /spawnSparkles/);
+  });
+
+  it('renderScene outputs picture with scene-bg asset id', () => {
+    const context = { window: {}, document: {} };
+    vm.runInNewContext(PIPELINE_SRC, context);
+    vm.runInNewContext(gardenSrc, context);
+    const html = context.window.ChildGarden.renderScene({
+      enabled: true,
+      scenery: [{ scenery_id: 'garden_path' }],
+    });
+    assert.match(html, /data-asset-id="scene-bg"/);
+    assert.match(html, /scene-bg-430\.webp/);
+    assert.doesNotMatch(html, /gd-house-wall/);
+    assert.doesNotMatch(html, /linear-gradient/);
   });
 
   it('CSS is layout and animation only', () => {
