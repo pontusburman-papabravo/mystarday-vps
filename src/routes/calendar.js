@@ -12,13 +12,12 @@ const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const { getLocalDateStr, getDayOfWeek } = require('../lib/daily-log-generator');
 const { addDaysIso, getWeekMondayIso } = require('../lib/date-utils');
-const custodyDb = require('../../db/custody');
+const { legacyWeekVariant } = require('../lib/custody-context-api');
 const {
-  getWeekVariantForDate,
-  getHomeForDate,
-  getWeekBannerContext,
-  isParentCustodyDay,
-} = require('../lib/custody-resolver');
+  loadCustodyContext,
+  resolveCustodyDateSync,
+} = require('../lib/custody-schedule-engine');
+const { weekVariantForHomeId } = require('../lib/custody-schedule-resolve');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
 
 const router = express.Router({ mergeParams: true });
@@ -26,6 +25,41 @@ const router = express.Router({ mergeParams: true });
 router.use(requireParent);
 
 const DAY_NAMES_SV = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+
+/**
+ * @deprecated Phase 4 UI — legacy calendar day shape until schedule UI migrates
+ * @param {import('../lib/custody-schedule-engine/types').CustodyContext} resolved
+ * @param {object} schedule
+ * @param {string|null} parentHomeId
+ */
+function calendarDayCustodyPayload(resolved, schedule, parentHomeId) {
+  if (!resolved?.activeHome) return null;
+  const home = resolved.activeHome;
+  return {
+    variant: legacyWeekVariant(schedule, home),
+    homeId: home.id,
+    label: home.label,
+    color: home.color,
+    isMyDay: parentHomeId ? resolved.isParentDay : null,
+  };
+}
+
+/**
+ * Template lookup: custody_home_id → week_variant → legacy null (same order as resolve).
+ */
+function templateActivitiesForDay(templatesByVariant, templatesByHome, dow, resolved, schedule) {
+  const homeId = resolved?.activeHome?.id;
+  if (homeId) {
+    const byHome = templatesByHome[`${dow}_${homeId}`];
+    if (byHome) return byHome;
+  }
+  const variant = weekVariantForHomeId(schedule, homeId);
+  if (variant) {
+    const byVariant = templatesByVariant[`${dow}_${variant}`];
+    if (byVariant) return byVariant;
+  }
+  return templatesByVariant[`${dow}_legacy`] || [];
+}
 
 /**
  * GET /api/children/:childId/calendar-week?weekOffset=0
@@ -77,17 +111,21 @@ router.get('/calendar-week', async (req, res) => {
 
     const myDaysOnly = req.query.myDays === '1' || req.query.myDays === 'true';
 
-    // Custody pattern (FEAT-1) — optional per child
-    let custodyPattern = null;
-    let custodyHomesById = {};
-    let parentHomeId = null;
+    let custodyActive = false;
+    let engineCtx = null;
+    const custodyByDate = {};
     const custodyFlag = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, child.family_id);
     if (custodyFlag) {
-      custodyPattern = await custodyDb.getPattern(childId);
-      if (custodyPattern) {
-        const homes = await custodyDb.listHomes(child.family_id);
-        custodyHomesById = Object.fromEntries(homes.map((h) => [h.id, h]));
-        parentHomeId = await custodyDb.getParentHomeId(parentId, child.family_id);
+      engineCtx = await loadCustodyContext({
+        childId,
+        familyId: child.family_id,
+        parentId,
+      });
+      custodyActive = Boolean(engineCtx.schedule);
+      if (custodyActive) {
+        for (const dateStr of dates) {
+          custodyByDate[dateStr] = resolveCustodyDateSync(engineCtx, dateStr);
+        }
       }
     }
 
@@ -95,6 +133,7 @@ router.get('/calendar-week', async (req, res) => {
     const templatesResult = await db.query(
       `SELECT ws.day_of_week,
               ws.week_variant,
+              ws.custody_home_id,
               wsi.id AS item_id,
               at.name,
               at.icon,
@@ -109,17 +148,22 @@ router.get('/calendar-week', async (req, res) => {
            OR ($2::boolean = true AND ws.week_variant IN ('a', 'b'))
          )
        ORDER BY ws.day_of_week ASC, ws.week_variant ASC NULLS FIRST, wsi.sort_order ASC`,
-      [childId, Boolean(custodyPattern)]
+      [childId, custodyActive]
     );
 
-    // Group templates by day_of_week + week variant
-    const templatesByKey = {};
+    // Group templates by day_of_week + week_variant, and by custody_home_id fallback
+    const templatesByVariant = {};
+    const templatesByHome = {};
     for (const row of templatesResult.rows) {
       const variantKey = row.week_variant || 'legacy';
-      const key = `${row.day_of_week}_${variantKey}`;
-      if (!templatesByKey[key]) templatesByKey[key] = [];
+      const variantMapKey = `${row.day_of_week}_${variantKey}`;
+      if (!templatesByVariant[variantMapKey]) templatesByVariant[variantMapKey] = [];
+      if (row.custody_home_id) {
+        const homeMapKey = `${row.day_of_week}_${row.custody_home_id}`;
+        if (!templatesByHome[homeMapKey]) templatesByHome[homeMapKey] = [];
+      }
       if (row.item_id && row.name) {
-        templatesByKey[key].push({
+        const item = {
           id: row.item_id,
           name: row.name,
           icon: row.icon || '',
@@ -131,7 +175,11 @@ router.get('/calendar-week', async (req, res) => {
           completed: null,
           source: 'template',
           is_exception: false,
-        });
+        };
+        templatesByVariant[variantMapKey].push(item);
+        if (row.custody_home_id) {
+          templatesByHome[`${row.day_of_week}_${row.custody_home_id}`].push(item);
+        }
       }
     }
 
@@ -247,27 +295,27 @@ router.get('/calendar-week', async (req, res) => {
         // Use special day items when no log generated yet
         activities = specialByDate[dateStr].items;
       } else {
-        const variantKey = custodyPattern
-          ? getWeekVariantForDate(custodyPattern, dateStr)
-          : 'legacy';
-        const tplKey = `${dow}_${variantKey}`;
-        activities = templatesByKey[tplKey] ? [...templatesByKey[tplKey]] : [];
+        const resolved = custodyByDate[dateStr];
+        activities = custodyActive
+          ? [...templateActivitiesForDay(
+            templatesByVariant,
+            templatesByHome,
+            dow,
+            resolved,
+            engineCtx.schedule
+          )]
+          : [...(templatesByVariant[`${dow}_legacy`] || [])];
       }
 
       let custody = null;
-      if (custodyPattern) {
-        const ctx = getHomeForDate(custodyPattern, custodyHomesById, dateStr);
-        const isMyDay = parentHomeId
-          ? isParentCustodyDay(parentHomeId, custodyPattern, dateStr)
-          : null;
-        custody = {
-          variant: ctx.variant,
-          homeId: ctx.homeId,
-          label: ctx.label,
-          color: ctx.color,
-          isMyDay,
-        };
-        if (myDaysOnly && parentHomeId && !isMyDay) {
+      if (custodyActive) {
+        const resolved = custodyByDate[dateStr];
+        custody = calendarDayCustodyPayload(
+          resolved,
+          engineCtx.schedule,
+          engineCtx.parentHomeId
+        );
+        if (myDaysOnly && engineCtx.parentHomeId && custody && custody.isMyDay === false) {
           activities = [];
         }
       }
@@ -292,8 +340,16 @@ router.get('/calendar-week', async (req, res) => {
       };
     });
 
-    const weekBanner = custodyPattern
-      ? getWeekBannerContext(custodyPattern, custodyHomesById, todayStr)
+    const weekBanner = custodyActive
+      ? (() => {
+        const weekResolved = resolveCustodyDateSync(engineCtx, getWeekMondayIso(todayStr));
+        if (!weekResolved.activeHome) return null;
+        return {
+          label: weekResolved.activeHome.label,
+          color: weekResolved.activeHome.color,
+          variant: legacyWeekVariant(engineCtx.schedule, weekResolved.activeHome),
+        };
+      })()
       : null;
 
     res.json({
@@ -301,7 +357,7 @@ router.get('/calendar-week', async (req, res) => {
       weekStart,
       weekEnd,
       today: todayStr,
-      custody: custodyPattern
+      custody: custodyActive
         ? {
             active: true,
             weekBanner: weekBanner

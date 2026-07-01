@@ -37,10 +37,11 @@ describe('FEAT-1 boendeschema', () => {
     assert.match(routes, /buildCustodyContextResponse/);
   });
 
-  it('calendar integrates custody resolver', () => {
+  it('calendar integrates custody schedule engine', () => {
     const cal = fs.readFileSync(path.join(ROOT, 'src/routes/calendar.js'), 'utf8');
-    assert.match(cal, /custodyPattern/);
-    assert.match(cal, /getWeekVariantForDate/);
+    assert.match(cal, /resolveCustodyDateSync/);
+    assert.match(cal, /loadCustodyContext/);
+    assert.doesNotMatch(cal, /custody-resolver/);
   });
 
   it('UI scripts exist', () => {
