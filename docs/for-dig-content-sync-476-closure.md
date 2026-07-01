@@ -48,7 +48,7 @@ Innehållsglapp mellan `for-dig-config` och standardbiblioteket (`default_activi
 
 Hur `scheduleName`-mål ska hantera befintliga scheman: **hela dagen** vs **endast relevant sektion**.
 
-→ Se `docs/for-dig-spec.md` §7.4. Separat implementation-PR; ingen vidare finputs på content-sync planerad.
+→ **Stängt i designspec:** [`helrutin-semantik-spec.md`](helrutin-semantik-spec.md) + [`helrutin-semantik-adr.md`](helrutin-semantik-adr.md). Implementation i separat PR.
 
 ---
 
