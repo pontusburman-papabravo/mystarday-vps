@@ -1,21 +1,31 @@
 /**
- * planning-hub.js — Thin planning hub (vuxenmeny v2 Sprint 2 + capability links Sprint 6).
+ * planning-hub.js — Planering hub 10/10 (vuxenmeny v2 + vision copy/order).
+ * POS: B-08 — build tools live here, not on Hem.
  */
 (function () {
   'use strict';
 
   const CONTENT_LINKS = [
-    { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Scheman, aktiviteter och belöningar' },
+    { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar' },
     { href: '/library#magic-bilder', icon: '📷', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
   ];
 
-  const PLANNING_LINKS = [
-    { href: '/family#custodyScheduleSection', icon: '🏠', title: 'Boendeschema', sub: 'Växelvis boende — vecka A/B per barn' },
+  const PLAN_LINKS = [
     { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
-    { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Bocka av, backfill och skriv ut' },
-    { href: '/print-schema', icon: '📄', title: 'Skapa PDF — schema', sub: 'Välj barn, 1–4 veckor — rymms på ett ark' },
-    { href: '/calendar', icon: '🗓️', title: 'Kalender', sub: 'Månad och specialdagar' },
-    { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera mall till barn' },
+    { href: '/calendar', icon: '🗓️', title: 'Kalender', sub: 'Se månad och specialdagar' },
+  ];
+
+  const CUSTODY_LINK = {
+    href: '/family#custodyScheduleSection',
+    icon: '🏠',
+    title: 'Boendeschema',
+    sub: 'Växelvis boende mellan hushåll',
+  };
+
+  const OTHER_LINKS = [
+    { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Se och justera tidigare dagar' },
+    { href: '/print-schema', icon: '📄', title: 'Skapa PDF — schema', sub: 'Skriv ut schema' },
+    { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
   ];
 
   const CAPABILITY_LINKS = {
@@ -67,38 +77,85 @@
     );
   }
 
-  async function getSections() {
-    const planning = PLANNING_LINKS.slice();
-    if (window.NavConfig && window.fetchPackageAccess) {
-      try {
-        const access = await window.fetchPackageAccess();
-        const caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
-        for (let i = 0; i < caps.length; i++) {
-          const cap = caps[i];
-          const extra = CAPABILITY_LINKS[cap.id];
-          if (extra) planning.push(extra);
-        }
-      } catch (_) {
-        /* basic links only */
-      }
+  function gettingStartedHtml() {
+    return (
+      '<section class="magic-hub-section mb-2" data-planning-getting-started="1">' +
+      '<div class="p-4 bg-white rounded-2xl border border-gold/40">' +
+      '<p class="font-heading font-bold text-navy mb-2">Kom igång</p>' +
+      '<p class="text-sm text-text-soft mb-3">Börja i Biblioteket om du vill skapa aktiviteter.</p>' +
+      '<p class="text-sm text-text-soft mb-3">Gå till För dig om du vill få en färdig rekommendation.</p>' +
+      '<div class="flex flex-wrap gap-2">' +
+      '<a href="/library" class="inline-flex items-center px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm min-h-[44px]" data-hub-link="Kom igång Bibliotek" data-full-load="1">Bibliotek</a>' +
+      '<a href="/for-dig" class="inline-flex items-center px-4 py-2 bg-navy text-white rounded-lg font-semibold text-sm min-h-[44px]" data-hub-link="Kom igång För dig" data-full-load="1">För dig</a>' +
+      '</div></div></section>'
+    );
+  }
+
+  async function fetchCustodyActive() {
+    if (!window.apiFetch) return false;
+    try {
+      const res = await window.apiFetch('/api/family/custody');
+      if (!res.ok) return false;
+      const data = await res.json();
+      const homes = data.homes || [];
+      const patterns = data.patterns || [];
+      return homes.length > 1 || patterns.length > 0;
+    } catch (_) {
+      return false;
     }
+  }
+
+  async function fetchNeedsGettingStarted() {
+    if (!window.apiFetch) return false;
+    try {
+      const res = await window.apiFetch('/api/family/dashboard-stats');
+      if (!res.ok) return false;
+      const data = await res.json();
+      const children = data.children || [];
+      if (!children.length) return true;
+      return children.every(function (c) {
+        const today = c.today || {};
+        return (today.total || 0) === 0;
+      });
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function getCapabilityLinks() {
+    const links = [];
+    if (!window.NavConfig || !window.fetchPackageAccess) return links;
+    try {
+      const access = await window.fetchPackageAccess();
+      const caps = NavConfig.capabilitiesForPlacement(access, null, 'planning_hub');
+      for (let i = 0; i < caps.length; i++) {
+        const extra = CAPABILITY_LINKS[caps[i].id];
+        if (extra) links.push(extra);
+      }
+    } catch (_) {
+      /* basic links only */
+    }
+    return links;
+  }
+
+  async function getSections() {
+    const custodyActive = await fetchCustodyActive();
+    const planLinks = PLAN_LINKS.slice();
+    if (custodyActive) planLinks.push(CUSTODY_LINK);
+
+    const other = OTHER_LINKS.slice();
+    const capabilities = await getCapabilityLinks();
+    for (let i = 0; i < capabilities.length; i++) other.push(capabilities[i]);
+
     return {
+      showGettingStarted: await fetchNeedsGettingStarted(),
       content: CONTENT_LINKS.slice(),
-      planning: planning,
+      plan: planLinks,
+      other: other,
     };
   }
 
-  async function render() {
-    const mount = document.getElementById('planningHubMount');
-    if (!mount) return;
-
-    const sections = await getSections();
-    mount.innerHTML =
-      '<div class="magic-hub-sections max-w-lg space-y-6">' +
-      sectionHtml('Bygg innehåll', sections.content) +
-      sectionHtml('Planera vardagen', sections.planning) +
-      '</div>';
-
+  function bindHubClicks(mount) {
     mount.querySelectorAll('[data-hub-link]').forEach(function (el) {
       el.addEventListener('click', function () {
         trackClick(el.getAttribute('data-hub-link'));
@@ -118,11 +175,31 @@
     });
   }
 
+  async function render() {
+    const mount = document.getElementById('planningHubMount');
+    if (!mount) return;
+
+    const sections = await getSections();
+    let html = '<div class="magic-hub-sections max-w-lg space-y-6">';
+    if (sections.showGettingStarted) html += gettingStartedHtml();
+    html += sectionHtml('Bygg innehåll', sections.content);
+    html += sectionHtml('Planera vardagen', sections.plan);
+    if (sections.other.length) html += sectionHtml('Övrigt', sections.other);
+    html += '</div>';
+    mount.innerHTML = html;
+    bindHubClicks(mount);
+  }
+
   async function bootPlanningPage() {
     await render();
   }
 
-  window.PlanningHub = { render: render };
+  window.PlanningHub = {
+    render: render,
+    getSections: getSections,
+    fetchCustodyActive: fetchCustodyActive,
+    fetchNeedsGettingStarted: fetchNeedsGettingStarted,
+  };
 
   if (window.ParentMagicPageBoot) {
     ParentMagicPageBoot.register('planning', bootPlanningPage);
