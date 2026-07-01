@@ -56,4 +56,10 @@ describe('custody-notify (Phase 4.4)', () => {
     const ctx = engineCtxFromPatternRow({}, {});
     assert.equal(isCustodyHandoffEve(ctx, '2026-06-07'), false);
   });
+
+  it('getNotifyParentIds returns [] when activeHome unresolved (no custody-specific notify)', async () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/lib/custody-notify.js'), 'utf8');
+    assert.match(src, /resolved\.source === 'fallback'/);
+    assert.match(src, /return \[\]/);
+  });
 });

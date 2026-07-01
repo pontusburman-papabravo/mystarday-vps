@@ -64,7 +64,9 @@ async function getNotifyParentIdsForChildDate(childId, dateStr, client = db) {
 
   const resolved = resolveCustodyDateSync(engineCtx, dateStr);
   const homeId = resolved.activeHome?.id;
-  if (!homeId) return allParentIds;
+  if (!homeId || resolved.source === 'fallback') {
+    return [];
+  }
 
   const mapped = await client.query(
     `SELECT cph.parent_id
