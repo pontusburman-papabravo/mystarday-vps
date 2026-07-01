@@ -14,6 +14,25 @@ const {
 
 const ROOT = path.join(__dirname, '..');
 
+/** SQL predicate aligned with db/activation-funnel.js second_day_activity CTE. */
+const SECOND_DAY_COUNT_SQL = `
+  SELECT COUNT(*)::int AS n FROM (
+    SELECT DISTINCT fam.id AS family_id
+    FROM family fam
+    JOIN child ch ON ch.family_id = fam.id
+    JOIN daily_log dl ON dl.child_id = ch.id
+    JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+    WHERE fam.id = $1
+      AND dli.completed = true
+      AND COALESCE(
+        dli.completed_date,
+        (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
+      ) = (
+        (fam.created_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date + 1
+      )
+  ) sub
+`;
+
 describe('First Success funnel — step definitions', () => {
   it('defines exactly 6 steps in order', () => {
     assert.equal(FIRST_SUCCESS_FUNNEL_STEPS.length, 6);
@@ -83,13 +102,14 @@ describe('First Success funnel — SQL contract', () => {
     assert.match(src, /child_created_at IS NOT NULL/);
   });
 
-  it('second_day_activity uses daily_log_item with family timezone', () => {
+  it('second_day_activity matches signup_date + 1 in family timezone', () => {
     const src = fs.readFileSync(path.join(ROOT, 'db/activation-funnel.js'), 'utf8');
     assert.match(src, /families_with_second_day/);
     assert.match(src, /daily_log_item dli/);
     assert.match(src, /fam\.timezone/);
-    assert.match(src, /completed_date/);
-    assert.match(src, />= 2/);
+    assert.match(src, /fam\.created_at AT TIME ZONE/);
+    assert.match(src, /::date \+ 1/);
+    assert.doesNotMatch(src, /HAVING COUNT\(DISTINCT COALESCE/);
   });
 
   it('keeps childAccessDiagnostics separate from main funnel', () => {
@@ -101,7 +121,109 @@ describe('First Success funnel — SQL contract', () => {
 });
 
 describe('First Success funnel — second_day_activity (DB)', () => {
-  it('counts families with completions on two distinct timezone dates', async (t) => {
+  async function seedFamilyWithCompletion(db, { familyId, childId, signupAt, completedDate }) {
+    await db.query(
+      `INSERT INTO family (id, name, timezone, created_at)
+       VALUES ($1, 'FunnelTest', 'Europe/Stockholm', $2)`,
+      [familyId, signupAt]
+    );
+    await db.query(
+      `INSERT INTO child (id, family_id, name, emoji, pin, username, pin_fingerprint)
+       VALUES ($1, $2, 'Testbarn', '⭐', 'hash', 'testbarn', 'fp')`,
+      [childId, familyId]
+    );
+    const logRes = await db.query(
+      `INSERT INTO daily_log (child_id, date) VALUES ($1, $2) RETURNING id`,
+      [childId, completedDate]
+    );
+    await db.query(
+      `INSERT INTO daily_log_item (daily_log_id, name, completed, completed_date, completed_at)
+       VALUES ($1, 'Testaktivitet', true, $2, $3)`,
+      [logRes.rows[0].id, completedDate, `${completedDate}T08:00:00Z`]
+    );
+  }
+
+  async function countSecondDay(db, familyId) {
+    const result = await db.query(SECOND_DAY_COUNT_SQL, [familyId]);
+    return result.rows[0].n;
+  }
+
+  it('counts completion on signup_date + 1 calendar day', async (t) => {
+    const { setupTestDb } = require('./helpers/setup.js');
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const { randomUUID } = require('crypto');
+    const familyId = randomUUID();
+    const childId = randomUUID();
+
+    try {
+      await seedFamilyWithCompletion(db, {
+        familyId,
+        childId,
+        signupAt: '2026-06-10T10:00:00Z',
+        completedDate: '2026-06-11',
+      });
+      assert.equal(await countSecondDay(db, familyId), 1);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('does not count completion on signup_date only', async (t) => {
+    const { setupTestDb } = require('./helpers/setup.js');
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const { randomUUID } = require('crypto');
+    const familyId = randomUUID();
+    const childId = randomUUID();
+
+    try {
+      await seedFamilyWithCompletion(db, {
+        familyId,
+        childId,
+        signupAt: '2026-06-10T10:00:00Z',
+        completedDate: '2026-06-10',
+      });
+      assert.equal(await countSecondDay(db, familyId), 0);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('does not count completion on signup_date + 2 without day +1', async (t) => {
+    const { setupTestDb } = require('./helpers/setup.js');
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const { randomUUID } = require('crypto');
+    const familyId = randomUUID();
+    const childId = randomUUID();
+
+    try {
+      await seedFamilyWithCompletion(db, {
+        familyId,
+        childId,
+        signupAt: '2026-06-10T10:00:00Z',
+        completedDate: '2026-06-12',
+      });
+      assert.equal(await countSecondDay(db, familyId), 0);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('two distinct completion days without signup_date + 1 does not count', async (t) => {
     const { setupTestDb } = require('./helpers/setup.js');
     const db = await setupTestDb();
     if (db.skip) {
@@ -115,7 +237,8 @@ describe('First Success funnel — second_day_activity (DB)', () => {
 
     try {
       await db.query(
-        `INSERT INTO family (id, name, timezone) VALUES ($1, 'FunnelTest', 'Europe/Stockholm')`,
+        `INSERT INTO family (id, name, timezone, created_at)
+         VALUES ($1, 'FunnelTest', 'Europe/Stockholm', '2026-06-10T10:00:00Z')`,
         [familyId]
       );
       await db.query(
@@ -124,63 +247,19 @@ describe('First Success funnel — second_day_activity (DB)', () => {
         [childId, familyId]
       );
 
-      const logRes = await db.query(
-        `INSERT INTO daily_log (child_id, date) VALUES ($1, '2026-06-10') RETURNING id`,
-        [childId]
-      );
-      const logId = logRes.rows[0].id;
+      for (const date of ['2026-06-10', '2026-06-12']) {
+        const logRes = await db.query(
+          `INSERT INTO daily_log (child_id, date) VALUES ($1, $2) RETURNING id`,
+          [childId, date]
+        );
+        await db.query(
+          `INSERT INTO daily_log_item (daily_log_id, name, completed, completed_date, completed_at)
+           VALUES ($1, 'Testaktivitet', true, $2, $3)`,
+          [logRes.rows[0].id, date, `${date}T08:00:00Z`]
+        );
+      }
 
-      await db.query(
-        `INSERT INTO daily_log_item (daily_log_id, name, completed, completed_date, completed_at)
-         VALUES ($1, 'Testaktivitet', true, '2026-06-10', '2026-06-10T08:00:00Z')`,
-        [logId]
-      );
-
-      const oneDay = await db.query(
-        `SELECT COUNT(*)::int AS n FROM (
-           SELECT ch.family_id
-           FROM child ch
-           JOIN family fam ON fam.id = ch.family_id
-           JOIN daily_log dl ON dl.child_id = ch.id
-           JOIN daily_log_item dli ON dli.daily_log_id = dl.id
-           WHERE ch.family_id = $1 AND dli.completed = true
-           GROUP BY ch.family_id, fam.timezone
-           HAVING COUNT(DISTINCT COALESCE(
-             dli.completed_date,
-             (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
-           )) >= 2
-         ) sub`,
-        [familyId]
-      );
-      assert.equal(oneDay.rows[0].n, 0);
-
-      const log2 = await db.query(
-        `INSERT INTO daily_log (child_id, date) VALUES ($1, '2026-06-11') RETURNING id`,
-        [childId]
-      );
-      await db.query(
-        `INSERT INTO daily_log_item (daily_log_id, name, completed, completed_date, completed_at)
-         VALUES ($1, 'Testaktivitet', true, '2026-06-11', '2026-06-11T08:00:00Z')`,
-        [log2.rows[0].id]
-      );
-
-      const twoDays = await db.query(
-        `SELECT COUNT(*)::int AS n FROM (
-           SELECT ch.family_id
-           FROM child ch
-           JOIN family fam ON fam.id = ch.family_id
-           JOIN daily_log dl ON dl.child_id = ch.id
-           JOIN daily_log_item dli ON dli.daily_log_id = dl.id
-           WHERE ch.family_id = $1 AND dli.completed = true
-           GROUP BY ch.family_id, fam.timezone
-           HAVING COUNT(DISTINCT COALESCE(
-             dli.completed_date,
-             (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
-           )) >= 2
-         ) sub`,
-        [familyId]
-      );
-      assert.equal(twoDays.rows[0].n, 1);
+      assert.equal(await countSecondDay(db, familyId), 0);
     } finally {
       await db.cleanup();
     }

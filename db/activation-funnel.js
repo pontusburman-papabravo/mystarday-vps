@@ -66,17 +66,18 @@ async function getActivationFunnelCohorts(weeks = 8) {
          AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
      ),
      families_with_second_day AS (
-       SELECT ch.family_id
-       FROM child ch
-       JOIN family fam ON fam.id = ch.family_id
+       SELECT DISTINCT fam.id AS family_id
+       FROM family fam
+       JOIN child ch ON ch.family_id = fam.id
        JOIN daily_log dl ON dl.child_id = ch.id
        JOIN daily_log_item dli ON dli.daily_log_id = dl.id
        WHERE dli.completed = true
-       GROUP BY ch.family_id, fam.timezone
-       HAVING COUNT(DISTINCT COALESCE(
-         dli.completed_date,
-         (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
-       )) >= 2
+         AND COALESCE(
+           dli.completed_date,
+           (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
+         ) = (
+           (fam.created_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date + 1
+         )
      )
      SELECT c.cohort_week,
             COUNT(DISTINCT c.family_id)::int AS signup,
