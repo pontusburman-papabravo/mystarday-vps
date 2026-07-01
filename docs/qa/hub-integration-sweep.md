@@ -228,4 +228,4 @@ POS governed by: parent-platform-principles.md, hem-vision.md, planering-vision.
 
 ---
 
-*Nästa rekommenderade steg: Belöningar-implementation på `cursor/for-dig-10-10-2c04` enligt `beloningar-agent-prompt.md`.*
+*Nästa rekommenderade steg: Belöningar-implementation på `cursor/for-dig-10-10-2c04` enligt `beloningar-agent-prompt.md`. Använd [parent-hub-acceptance-checklist.md](parent-hub-acceptance-checklist.md) i varje hubb-PR.*
