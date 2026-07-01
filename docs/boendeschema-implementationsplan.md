@@ -209,6 +209,8 @@ Se [boendeschema-adr.md §4](./boendeschema-adr.md) och `types.js`.
 
 Migrera i ordning — varje steg ska ha grönt `test:gate`.
 
+**Arkitekturregel (ADR E7):** Ingen konsument får implementera egen boendeschemalogik. Varje konsument anropar endast `resolveCustodyDate()` / `resolveCustodyDateSync()` / `resolveCustodyDateRange()` eller `GET /api/family/custody/context`. Egen “är det vecka A?”-logik i UI-komponenter eller schedulers betraktas som arkitekturfel.
+
 ### 4.1 API context (pilot)
 
 | Fil | Ändring |

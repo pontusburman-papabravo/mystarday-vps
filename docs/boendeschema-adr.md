@@ -85,6 +85,7 @@ function resolveCustodyDateSync(ctx, date) {
 | E4 | **Overrides generella** | `reason` är metadata; motorn har ingen logik per orsak (jul, sportlov, …) |
 | E5 | **`activePeriod` semantik** | Override: radens intervall. Pattern: mönstersegment som innehåller `date`. |
 | E6 | **`nextTransition`** | Första datum efter `date` där `activeHome.id` kan ändra per resolverkedja (override → pattern) |
+| E7 | **Ingen konsumentlogik** | Dashboard, kalender, push, handoff och framtida PDF/print får **endast** anropa `resolveCustodyDate()` eller API som returnerar `CustodyContext`. Egen “är det vecka A?”-logik i UI eller scheduler är arkitekturfel. |
 
 **CustodyContext (publikt kontrakt):**
 
