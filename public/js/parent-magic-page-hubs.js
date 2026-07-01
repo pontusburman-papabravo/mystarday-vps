@@ -351,7 +351,8 @@
     } else if (page === 'for-dig') {
       el.innerHTML = renderForDigHero();
     } else if (page === 'family') {
-      el.innerHTML = renderFamilyHero();
+      el.innerHTML = '';
+      el.classList.add('hidden');
     } else if (page === 'settings') {
       resetSettingsState();
       tagSettingsSections();

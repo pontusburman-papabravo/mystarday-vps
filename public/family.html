@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=9">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=14">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/dashboard-warmth.css?v=2026-06-10-copy">
   <link rel="stylesheet" href="/css/family-museum.css?v=1">
@@ -86,7 +86,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="family">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Mobile Top Bar -->
     <div class="md:hidden bg-navy text-white p-4 flex items-center justify-between sticky top-0 z-20 parent-magic-legacy-hide">
@@ -134,14 +134,80 @@
       <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
       <div class="hidden md:flex bg-sky border-b border-lavender p-4 md:p-6 justify-between items-center parent-magic-legacy-hide">
         <div>
-          <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 Familjen</h2>
+          <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 Familj</h2>
           <p id="familySummary" class="text-sm text-text-soft mt-0.5"></p>
           <p id="todayLabel" class="text-sm text-text-soft hidden"></p>
         </div>
         <span id="userEmail" class="text-sm text-text-soft"></span>
       </div>
 
-      <div class="flex-1 p-4 md:p-8 overflow-auto space-y-8">
+      <div class="flex-1 p-4 md:p-8 overflow-auto space-y-6 magic-hub-content pb-20 md:pb-8" id="familyHubMain">
+
+        <header class="family-hub-intro max-w-lg mb-1 md:mb-2">
+          <h1 class="text-xl font-heading font-bold text-navy dark:text-white">Familj</h1>
+          <p id="familyHubSummary" class="text-sm text-text-soft mt-0.5" aria-live="polite"></p>
+        </header>
+
+        <!-- ─── Barn (priority 1) ─────────────────────────────── -->
+        <section id="familyChildrenSection">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
+              <button onclick="openFamilyModal('addChildModal')"
+              class="px-3 py-1.5 text-sm bg-gold hover:bg-yellow-500 text-navy rounded-lg font-semibold transition-colors min-h-[44px]">
+              ➕ Lägg till barn
+            </button>
+          </div>
+
+          <div id="childrenGrid" class="grid grid-cols-1 gap-3"></div>
+
+          <div id="noChildrenState" class="hidden text-center py-12 bg-sky dark:bg-navy-soft rounded-2xl">
+            <p class="text-5xl mb-3">👶</p>
+            <p class="text-lg font-heading font-bold text-navy dark:text-white mb-2">Inga barn tillagda än</p>
+            <p class="text-text-soft text-sm mb-5">Lägg till ditt första barn för att komma igång.</p>
+              <button onclick="openFamilyModal('addChildModal')"
+              class="px-6 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+              ➕ Lägg till barn
+            </button>
+          </div>
+        </section>
+
+        <!-- ─── Vuxna (priority 2) ────────────────────────────── -->
+        <section id="familyAdultsSection">
+          <div class="flex justify-between items-center mb-4 gap-3">
+            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Vuxna</h3>
+            <button type="button" onclick="openCoParentInviteModal()"
+              class="px-4 py-2 text-sm bg-gold hover:bg-yellow-500 text-navy rounded-lg font-semibold transition-colors min-h-[44px] flex-shrink-0">
+              + Bjud in förälder
+            </button>
+          </div>
+
+          <div id="adultsGrid" class="grid grid-cols-1 gap-3"></div>
+
+          <div id="noAdultsState" class="hidden text-center py-12 bg-sky dark:bg-navy-soft rounded-2xl">
+            <p class="text-5xl mb-3">👨‍👩‍👧</p>
+            <p class="text-lg font-heading font-bold text-navy dark:text-white mb-2">Inga vuxna tillagda än</p>
+            <p class="text-text-soft text-sm mb-5">Bjud in en annan vuxen till familjen.</p>
+            <button type="button" onclick="openCoParentInviteModal()"
+              class="px-6 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+              + Bjud in förälder
+            </button>
+          </div>
+
+          <div id="pendingInvitesSection" class="hidden mt-4">
+            <h4 class="text-base font-heading font-semibold text-navy dark:text-white mb-3">Väntande inbjudningar</h4>
+            <div id="pendingInvitesList" class="space-y-2"></div>
+          </div>
+
+          <p class="mt-3 text-xs text-text-soft">
+            <button type="button" onclick="scanAndAddAdult()" class="text-gold font-semibold underline">Skanna QR</button>
+            <span aria-hidden="true"> · </span>
+            <button id="inviteBtn" type="button" onclick="openFamilyModal('inviteModal')" class="hidden text-gold font-semibold underline">Bjud in via e-post (admin)</button>
+          </p>
+        </section>
+
+        <div id="familyPedagogSection" class="hidden" aria-live="polite"></div>
+
+        <div id="familyHubSecondary" class="family-hub-secondary space-y-8">
 
         <!-- Tips section (collapsed by default) -->
         <details class="warm-tips parent-magic-legacy-hide">
@@ -185,75 +251,6 @@
         <!-- ─── Familjemuseum (V4) ───────────────────────────── -->
         <div id="familyMuseumMount"></div>
 
-        <!-- ─── Children Section ──────────────────────────────── -->
-        <section>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
-              <button onclick="openFamilyModal('addChildModal')"
-              class="px-3 py-1.5 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">
-              ➕ Lägg till ett barn
-            </button>
-          </div>
-
-          <!-- Child switcher tabs -->
-          <div id="childSwitcherTabs" class="hidden flex gap-2 flex-wrap mb-4"></div>
-
-          <!-- Children grid -->
-          <div id="childrenGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-
-          <!-- Empty state: no children -->
-          <div id="noChildrenState" class="hidden text-center py-16 bg-sky dark:bg-navy-soft rounded-2xl">
-            <p class="text-6xl mb-4">👶</p>
-            <p class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Inga barn tillagda än</p>
-            <p class="text-text-soft text-sm mb-6">Lägg till ditt första barn för att komma igång!</p>
-              <button onclick="openFamilyModal('addChildModal')"
-              class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
-              ➕ Lägg till ett barn
-            </button>
-          </div>
-        </section>
-
-        <!-- ─── Adults Section ────────────────────────────────── -->
-        <section>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Vuxna</h3>
-            <div class="flex gap-2">
-              <button id="inviteBtn" onclick="openFamilyModal('inviteModal')"
-                class="hidden px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">
-                + Bjud in förälder
-              </button>
-              <button type="button" onclick="scanAndAddAdult()"
-                class="px-3 py-1.5 text-sm bg-lavender hover:bg-purple-100 text-navy border border-purple-200 rounded-lg font-semibold transition-colors dark:bg-purple-900 dark:text-purple-100 dark:border-purple-700">
-                Skanna QR
-              </button>
-              <button type="button" onclick="openCoParentInviteModal()"
-                class="px-3 py-1.5 text-sm bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
-                + Lägg till vuxen
-              </button>
-            </div>
-          </div>
-
-          <!-- Adults grid -->
-          <div id="adultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-
-          <!-- Empty state: no adults (shouldn't happen normally) -->
-          <div id="noAdultsState" class="hidden text-center py-16 bg-sky dark:bg-navy-soft rounded-2xl">
-            <p class="text-6xl mb-4">👨‍👩‍👧</p>
-            <p class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Inga vuxna tillagda än</p>
-            <p class="text-text-soft text-sm mb-6">Skapa ett konto åt en annan vuxen i din familj!</p>
-            <button type="button" onclick="openCoParentInviteModal()"
-              class="px-6 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500 dark:text-white">
-              + Lägg till vuxen
-            </button>
-          </div>
-
-          <!-- Pending invites (hidden from regular parents - shown for admin only in admin panel) -->
-          <div id="pendingInvitesSection" class="hidden mt-6">
-            <h4 class="text-base font-heading font-semibold text-navy dark:text-white mb-3">Väntande inbjudningar</h4>
-            <div id="pendingInvitesList" class="space-y-2"></div>
-          </div>
-        </section>
-
         <!-- ─── Familjenamn (sällan ändrat — längst ner) ─────── -->
         <details id="familyNameSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden group">
           <summary class="text-sm font-semibold text-text-soft cursor-pointer list-none flex items-center justify-between gap-2">
@@ -274,6 +271,8 @@
           </div>
           <p id="familySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
         </details>
+
+        </div><!-- /familyHubSecondary -->
 
       </div>
     </main>
@@ -876,7 +875,8 @@
   <script src="/js/family-museum.js?v=1.1.0"></script>
   <script src="/js/family-chest-setting.js?v=1.0.0"></script>
   <script src="/js/custody-settings.js?v=2"></script>
-  <script src="/js/family.js?v=2.14.4"></script>
+  <script src="/js/family-hub.js?v=1.0.0"></script>
+  <script src="/js/family.js?v=2.15.0"></script>
   <script src="/js/coparent-invite-ui.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
