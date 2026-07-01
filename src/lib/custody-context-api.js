@@ -6,7 +6,7 @@ const {
   resolveCustodyDateSync,
 } = require('./custody-schedule-engine');
 
-/** @deprecated Phase 4 cleanup — remove with UI migration off week_variant */
+/** @deprecated API legacy — keep until Phase 5 custody_home_id write path; not used for resolution. */
 const LEGACY_API_FIELDS = Object.freeze([
   'variant',
   'home',
@@ -17,8 +17,8 @@ const LEGACY_API_FIELDS = Object.freeze([
 ]);
 
 /**
- * @deprecated Phase 4 cleanup — legacy alias only; never use for resolution.
- * Maps activeHome.id to a/b for alternate_weeks consumers still on week_variant.
+ * API legacy alias — maps activeHome.id to a/b for alternate_weeks consumers on week_variant.
+ * Resolution uses engine only; never call for date logic.
  * @param {object|null} schedule
  * @param {{ id: string }|null} activeHome
  * @returns {'a'|'b'|null}
@@ -34,8 +34,8 @@ function legacyWeekVariant(schedule, activeHome) {
 }
 
 /**
- * @deprecated Phase 4 cleanup
- * @param {{ label: string, color: string, variant: 'a'|'b'|null }} weekBannerHome
+ * API legacy week banner shape for calendar-week consumers.
+ * @param {{ label: string, color: string }|null} weekBannerHome
  * @param {object} schedule
  */
 function legacyWeekBanner(weekBannerHome, schedule) {
@@ -77,7 +77,7 @@ function buildCustodyContextFromEngine(engineCtx, dateStr) {
     // API envelope (not part of CustodyContext)
     weekMonday,
     parentHomeId: engineCtx.parentHomeId,
-    // @deprecated legacy aliases — remove when Phase 4 UI migration complete
+    // API legacy aliases — keep until Phase 5 custody_home_id write path
     variant: legacyWeekVariant(engineCtx.schedule, context.activeHome),
     home: context.activeHome,
     weekBanner: legacyWeekBanner(weekContext.activeHome, engineCtx.schedule),
