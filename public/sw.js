@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v448';
+const CACHE_NAME = 'stjarndag-v449';
 // stjarndag-v441: För dig + barnprofil kontrast i mörkt magic-tema
 // stjarndag-v440: library init resilience + Planering→Bibliotek empty-box fix
 // stjarndag-v439: fix library init crash (_libIsAdmin) + Bildarkiv section scope

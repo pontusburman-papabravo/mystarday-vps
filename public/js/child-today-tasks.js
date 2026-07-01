@@ -174,15 +174,61 @@
     if (bottom) bottom.classList.add('ctf-hidden');
   }
 
+  function removePrimaryCta() {
+    document.querySelectorAll('.idag-now-cta').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  function syncPrimaryCta(state) {
+    removePrimaryCta();
+    if (!isFocusMode() || !state || !state.primaryAction) return;
+
+    const card = document.getElementById('card-' + state.primaryAction.itemId);
+    if (!card || card.classList.contains('done')) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'idag-now-cta';
+    btn.setAttribute('aria-label', 'Klart! Bocka av uppdrag');
+
+    if (state.starsOnNow > 0) {
+      btn.innerHTML =
+        'Klart!<span class="idag-now-cta-stars">+' + state.starsOnNow + ' ⭐</span>';
+    } else {
+      btn.textContent = 'Klart!';
+    }
+
+    btn.addEventListener('click', function () {
+      if (typeof toggleItem === 'function') {
+        toggleItem(state.primaryAction.itemId, false);
+      }
+    });
+
+    card.appendChild(btn);
+  }
+
+  function numberNextQueue() {
+    if (!isFocusMode()) return;
+    const nextCards = document.querySelectorAll(
+      '#scheduleView .next-card:not(.done):not(.ctf-hidden)'
+    );
+    nextCards.forEach(function (card, index) {
+      card.setAttribute('data-queue-num', String(index + 2));
+    });
+  }
+
   function afterRender(data, isToday) {
     if (isFirstStarMode()) {
       hideSkattCta();
       removeMoreHint();
+      removePrimaryCta();
       return;
     }
     if (!isFocusMode() || !isToday) {
       hideSkattCta();
       removeMoreHint();
+      removePrimaryCta();
       return;
     }
     const items = (data && data.items) || [];
@@ -190,12 +236,17 @@
     hideDoneHistory();
     softenQuestChrome();
     capIncompleteTasks();
+    numberNextQueue();
     mountSkattCta();
+    if (window.ChildTodayFocus && ChildTodayFocus.resolveIdagState) {
+      syncPrimaryCta(ChildTodayFocus.resolveIdagState(data, { isToday: isToday }));
+    }
   }
 
   window.ChildTodayTasks = {
     afterRender: afterRender,
     hideSkattCta: hideSkattCta,
+    syncPrimaryCta: syncPrimaryCta,
     MAX_VISIBLE: MAX_VISIBLE,
   };
 })();

@@ -70,4 +70,13 @@ describe('Idag barn 10/10', () => {
     assert.match(src, /later-card/);
     assert.match(src, /nl-section-label/);
   });
+
+  it('has idag hero with primary CTA wiring', () => {
+    const focus = fs.readFileSync(FOCUS, 'utf8');
+    const tasks = fs.readFileSync(TASKS, 'utf8');
+    assert.match(focus, /idag-hero/);
+    assert.match(focus, /renderProgressDots/);
+    assert.match(tasks, /syncPrimaryCta/);
+    assert.match(tasks, /idag-now-cta/);
+  });
 });

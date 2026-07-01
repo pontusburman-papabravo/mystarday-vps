@@ -1,5 +1,5 @@
 /**
- * child-today-focus.js — Idag 10/10: quest focus bar + resolveIdagState().
+ * child-today-focus.js — Idag 10/10: quest hero + resolveIdagState().
  * Stjärnor, mål, vecka och statistik → Skattkammaren.
  */
 (function () {
@@ -12,11 +12,39 @@
   };
 
   let _childName = '';
+  let _childEmoji = '⭐';
   let _lastState = null;
 
   function firstName(name) {
     if (!name) return 'du';
     return String(name).trim().split(/\s+/)[0];
+  }
+
+  function esc(s) {
+    if (typeof window.escHtml === 'function') return window.escHtml(s);
+    const d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  function getTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 11) return 'God morgon';
+    if (hour < 17) return 'Hej';
+    if (hour < 21) return 'God kväll';
+    return 'Hej';
+  }
+
+  function formatTodayDate() {
+    try {
+      return new Date().toLocaleDateString('sv-SE', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+    } catch (_) {
+      return '';
+    }
   }
 
   function incompleteItems(items) {
@@ -128,28 +156,72 @@
     });
   }
 
-  function renderFocusBar(state) {
-    const progress = state.progressLabel || '';
-    const nextStep = state.nextStepLabel || '';
-    const nowName = state.nowItem ? state.nowItem.name : '';
+  function renderProgressDots(completed, total) {
+    const capped = Math.min(total, 12);
+    let html = '<div class="idag-progress" role="img" aria-label="' +
+      esc(completed + ' av ' + total + ' klara') + '">';
+    for (let i = 0; i < capped; i++) {
+      html += '<span class="idag-dot' + (i < completed ? ' is-done' : '') + '"></span>';
+    }
+    if (total > capped) {
+      html += '<span class="idag-dot-more">+' + (total - capped) + '</span>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderHero(state) {
+    const greeting = getTimeGreeting();
+    const name = firstName(_childName);
+    const dateLine = formatTodayDate();
 
     let headline = 'Dagens uppdrag';
-    if (state.state === IDAG_STATES.ACTIVE && nowName) {
-      headline = 'Nu: ' + nowName;
+    let subline = state.progressLabel || '';
+    let moodClass = 'idag-mood-active';
+
+    if (state.state === IDAG_STATES.NO_TASKS) {
+      headline = 'Ledig dag';
+      subline = state.nextStepLabel || 'Inget på schemat idag';
+      moodClass = 'idag-mood-free';
     } else if (state.state === IDAG_STATES.ALL_DONE) {
-      headline = 'Bra jobbat!';
+      headline = 'Allt klart!';
+      subline = state.progressLabel;
+      moodClass = 'idag-mood-done';
+    } else if (state.state === IDAG_STATES.ACTIVE && state.nowItem) {
+      headline = state.nowItem.name;
+      subline = state.progressLabel;
     }
 
-    return '<div class="ctf-bar" id="todayFocusBar">' +
-      '<div class="ctf-greeting">Hej ' + firstName(_childName) + ' 👋</div>' +
-      '<div class="ctf-missions-head">' +
-        '<span class="ctf-missions-title">' + headline + '</span>' +
-        '<span class="ctf-missions-sub">' + progress + '</span>' +
+    let starsHint = '';
+    if (state.state === IDAG_STATES.ACTIVE && state.starsOnNow > 0) {
+      starsHint = '<span class="idag-stars-hint">+' + state.starsOnNow + ' ⭐</span>';
+    }
+
+    return '<div class="idag-hero ' + moodClass + '" id="todayFocusBar">' +
+      '<div class="idag-sky" aria-hidden="true"><span class="idag-sun"></span></div>' +
+      '<div class="idag-hero-inner">' +
+        '<div class="idag-identity">' +
+          '<span class="idag-emoji" aria-hidden="true">' + esc(_childEmoji) + '</span>' +
+          '<div class="idag-identity-text">' +
+            '<p class="idag-greeting">' + esc(greeting) + ', ' + esc(name) + '</p>' +
+            (dateLine ? '<p class="idag-date">' + esc(dateLine) + '</p>' : '') +
+          '</div>' +
+        '</div>' +
+        (state.total > 0 ? renderProgressDots(state.completed, state.total) : '') +
+        '<div class="idag-headline-row">' +
+          '<h2 class="idag-headline">' + esc(headline) + '</h2>' +
+          starsHint +
+        '</div>' +
+        '<p class="idag-subline">' + esc(subline) + '</p>' +
+        (state.state === IDAG_STATES.ACTIVE && state.nextStepLabel
+          ? '<p class="idag-next">' + esc(state.nextStepLabel) + '</p>'
+          : '') +
       '</div>' +
-      (nextStep
-        ? '<p class="ctf-next-step">' + nextStep + '</p>'
-        : '') +
     '</div>';
+  }
+
+  function setIdagTabActive(active) {
+    document.body.classList.toggle('idag-tab-active', !!active);
   }
 
   function mount(state) {
@@ -157,7 +229,7 @@
     if (!existing) return;
     _lastState = state || _lastState;
     if (!_lastState) return;
-    existing.innerHTML = renderFocusBar(_lastState);
+    existing.innerHTML = renderHero(_lastState);
   }
 
   function hideLegacyChrome() {
@@ -168,20 +240,20 @@
         el.setAttribute('aria-hidden', 'true');
       }
     });
-    const weekNav = document.getElementById('weekNavDetails');
-    if (weekNav) {
-      weekNav.classList.add('ctf-hidden');
-      weekNav.setAttribute('aria-hidden', 'true');
-    }
     const ringWrap = document.getElementById('childHeaderRing');
     if (ringWrap) {
       ringWrap.classList.add('ctf-hidden');
       ringWrap.setAttribute('aria-hidden', 'true');
     }
-    ['viewToggleBtn', 'printBtn'].forEach(function (id) {
+    ['viewToggleBtn', 'printBtn', 'childDarkBtn', 'switchChildBtn', 'logoutBtn'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.classList.add('ctf-hidden');
     });
+    const nameBlock = document.querySelector('#childMainHeader .flex.items-center.gap-2');
+    if (nameBlock) {
+      nameBlock.classList.add('ctf-hidden');
+      nameBlock.setAttribute('aria-hidden', 'true');
+    }
   }
 
   function renameTab() {
@@ -191,23 +263,37 @@
     if (tabLegacy) tabLegacy.textContent = '☀️ Idag';
   }
 
+  function syncEmoji() {
+    const emojiEl = document.getElementById('childEmoji');
+    if (emojiEl && emojiEl.textContent) {
+      _childEmoji = emojiEl.textContent.trim() || '⭐';
+    }
+  }
+
   function init(childName) {
     _childName = childName || '';
+    syncEmoji();
     document.documentElement.classList.add('today-focus-mode');
     hideLegacyChrome();
     renameTab();
+    setIdagTabActive(true);
   }
 
   function updateFromDailyLog(data, isToday) {
     _lastState = resolveIdagState(data, { isToday: isToday });
     mount(_lastState);
+    if (window.ChildTodayTasks && ChildTodayTasks.syncPrimaryCta) {
+      ChildTodayTasks.syncPrimaryCta(_lastState);
+    }
     return _lastState;
   }
 
   function onTabChange(tab) {
     const mountEl = document.getElementById('todayFocusMount');
     if (!mountEl) return;
-    if (tab === 'schedule') {
+    const isIdag = tab === 'schedule';
+    setIdagTabActive(isIdag);
+    if (isIdag) {
       mountEl.classList.remove('hidden');
       mount(_lastState);
     } else {
@@ -221,7 +307,7 @@
     onTabChange: onTabChange,
     resolveIdagState: resolveIdagState,
     IDAG_STATES: IDAG_STATES,
-    // Legacy aliases — goal bar now lives in Skattkammaren
+    syncEmoji: syncEmoji,
     updateGoal: function () {},
     updateProgress: function (completed, total) {
       if (!_lastState) return;
