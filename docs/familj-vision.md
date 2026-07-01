@@ -3,13 +3,25 @@
 **Status:** Godkänd produktkompass (2026-07)  
 **Domän:** `family`  
 **Route:** `/family` (hub) · `/family/child/:id` (barnprofil)  
-**Relaterat:** [familj-agent-prompt.md](familj-agent-prompt.md) · [parent-hubs-index.md](parent-hubs-index.md) · [vuxenmeny-v2.md](vuxenmeny-v2.md) §4
+**Relaterat:** [familj-agent-prompt.md](familj-agent-prompt.md) · [parent-hubs-index.md](parent-hubs-index.md) · [parent-hub-vision-template.md](parent-hub-vision-template.md) · [vuxenmeny-v2.md](vuxenmeny-v2.md) §4
 
 ---
 
 ## Kompassen
 
 > **Familj ska få föräldern att känna: "Jag ser vem som är med — och vet var jag hanterar varje barn."**
+
+### Filterregel
+
+> **Om en komponent inte hjälper användaren hitta en person, administrera en person eller öppna en barnprofil inom fem sekunder, hör den inte hemma på Familj.**
+
+Innan något läggs till: *"Hjälper detta användaren att (1) hitta vem som ingår, (2) administrera en person eller (3) öppna ett barns detaljer?"* Om svaret är *inget* — flytta till Inställningar eller ta bort.
+
+### Beslutsregel
+
+> **På Familj får det aldrig finnas mer än en primär åtgärd per sektion — och inga konto- eller appinställningar.**
+
+Barn · Vuxna · Pedagoger är de enda hub-sektionerna. Push, GDPR, prenumeration och radera konto hör hemma i **Inställningar**.
 
 ---
 
@@ -46,11 +58,34 @@ Familj har historiskt varit en **allt-i-ett-sida** med konto, push och barn i sa
 
 **POS:** P-04 (inget parent dashboard på Hem — Familj är admin, inte daglig coach), C-01 (barn har inga formulär).
 
+### Copy-regel
+
+| Yta | Beskriver |
+|-----|-----------|
+| **Familj** | Människor — *vem som ingår och hur man når dem* |
+| **Barnprofil** | Ett barns värld — *schema, belöningar, framsteg, PIN* |
+| **Inställningar** | Konto och app — *push, GDPR, prenumeration* |
+| **Hem** | Dagens läge — *inte familjeadmin* |
+
 ---
 
 ## Framgångskriterium
 
 > **När en förälder öppnar Familj ska det vara uppenbart vem som ingår — och ett tryck leder till rätt barns detaljer.**
+
+| Fråga | Om nej → bygg inte |
+|--------|---------------------|
+| Hjälper det här Jenny hitta eller administrera en person? | |
+| Flyttar vi konto-/appinställningar hit? | |
+| Bryter det mot beslutsregeln (flera primära åtgärder)? | |
+
+### Exit Rule
+
+Familj är **färdigt** när föräldern kan säga:
+
+- Jag vet vilka barn och vuxna som ingår
+- Jag vet hur jag bjuder in en annan vuxen (eller att det inte behövs)
+- Jag kan nå rätt barns detaljer med ett tryck
 
 ---
 
@@ -84,7 +119,27 @@ Behöver jag bjuda in partner? → Vuxna → Bjud in
 
 ---
 
+## Priority Ladder
+
+```
+1. Barn              →  Kort med emoji/avatar → /family/child/:id
+        ↓
+2. Vuxna             →  Lista + Bjud in
+        ↓
+3. Pedagoger         →  feature: pedagog (dold eller intresse)
+        ↓
+4. Familjenivå       →  Familjenamn, familjekista — diskret
+        ↓
+5. Museum            →  Livstidsstatistik — under fold
+```
+
+**Exempel:** Push-toggle får aldrig ligga ovanför barnlistan. Museum får aldrig dominera hubben.
+
+---
+
 ## Informationshierarki
+
+Priority Ladder i implementation:
 
 ```
 1. Familjesammanfattning   →  "2 barn · 2 föräldrar"
@@ -134,6 +189,19 @@ Anna
 ```
 
 Ingen push-toggle. Ingen "Radera konto" ovanför barnlistan.
+
+---
+
+## Success Metrics (PR-granskning)
+
+| Mål | Mått |
+|-----|------|
+| Jenny ser vilka som ingår | < 5 sek |
+| Ingen scroll för orientering | Ja |
+| Antal hub-sektioner (synliga) | ≤ 3 |
+| Primär åtgärd per sektion | ≤ 1 |
+| Barnprofil nåbar | 1 tryck från hub |
+| Filterregeln | Varje komponent = hitta, administrera eller öppna profil |
 
 ---
 

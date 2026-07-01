@@ -422,6 +422,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           hubMount.classList.add('hidden');
           hubMount.innerHTML = '';
         }
+        if (window.DashboardHomeHub && typeof DashboardHomeHub.restoreMounts === 'function') {
+          DashboardHomeHub.restoreMounts();
+        }
+        if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') {
+          HomeReadiness.reload();
+        }
         if (typeof renderDashboardCards === 'function') renderDashboardCards();
       } else if (window.DashboardHomeHub) {
         DashboardHomeHub.render(dashboardStats);

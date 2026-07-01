@@ -63,9 +63,25 @@
     }
   }
 
+  function shouldDeferToExceptions() {
+    return window.EngineClient &&
+      typeof EngineClient.isReadinessBlockingCoach === 'function' &&
+      EngineClient.isReadinessBlockingCoach();
+  }
+
+  function shouldDeferToJourneyCoach() {
+    var journey = document.getElementById('journeyCoachMount');
+    return journey && !journey.classList.contains('hidden') && journey.innerHTML.trim().length > 0;
+  }
+
   function render(engine) {
     var mount = document.getElementById(MOUNT_ID);
     if (!mount) return false;
+    if (shouldDeferToExceptions() || shouldDeferToJourneyCoach()) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return false;
+    }
     if (!engine || !engine.policy) {
       mount.classList.add('hidden');
       mount.innerHTML = '';

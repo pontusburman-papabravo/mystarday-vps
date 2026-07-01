@@ -91,6 +91,11 @@
     fetchFirstSuccess: fetchFirstSuccess,
     detectAuthorityConflicts: detectAuthorityConflicts,
     readDomAuthorityState: readDomAuthorityState,
+    isReadinessBlockingCoach: function () {
+      if (!window.DashboardHomeHub || typeof DashboardHomeHub.shouldUse !== 'function') return false;
+      if (!DashboardHomeHub.shouldUse()) return false;
+      return readDomAuthorityState().readinessVisible;
+    },
     clearCache: function () { cache = { at: 0, data: null }; },
   };
 })();

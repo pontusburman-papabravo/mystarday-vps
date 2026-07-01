@@ -20,6 +20,27 @@ En förälder som aldrig sett Hem ska inom **5 sekunder**, **utan scroll**, svar
 
 Om någon fråga inte kan besvaras utan att scrolla förbi diagram, läsa mycket text eller tolka tre konkurrerande kort — är implementationen inte klar.
 
+## Filterregel + beslutsregel
+
+Varje komponent du lägger till eller behåller måste klara:
+
+- **Filterregeln:** Hjälper den användaren besvara minst en av de tre frågorna inom 5 sek?
+- **Beslutsregeln:** Finns det högst **en** komponent som föreslår nästa handling?
+
+## Exit Rule
+
+Föräldern ska kunna lämna Hem och säga: *jag vet hur dagen ser ut · jag har gjort (eller vet att inget) vuxenbeslut krävs · barnet kan ta över*.
+
+## Success Metrics (PR)
+
+| Mål | Mått |
+|-----|------|
+| Jenny hittar nästa steg | < 5 sek |
+| Ingen scroll för beslut | Ja |
+| Antal coacher | 1 |
+| Synliga blockerande beslut | ≤ 1 |
+| Tom-state | Alltid definierad |
+
 ## Framgångskänsla
 
 När föräldern lämnar Hem ska det kännas som att **dagen redan är under kontroll**.
@@ -44,6 +65,10 @@ Du får ändra copy, informationshierarki och komponentstruktur om det leder til
 **Produktvisionen ([hem-vision.md](hem-vision.md)) är viktigare än befintlig kod.**
 
 Om du hittar en enklare lösning som bättre uppfyller visionen ska du välja den och motivera varför i PR-beskrivningen.
+
+Du ska kunna säga:
+
+> *"Det här uppfyller inte filterregeln / beslutsregeln, därför gör jag annorlunda."*
 
 ---
 
@@ -75,22 +100,25 @@ Om du hittar förbättringar utanför scope:
 
 ## Anti-patterns — bygg inte
 
-- Fler coach-kort · fler banners · fler CTA-rader
+- Fler coach-kort · fler banners · fler CTA-rader (bryter beslutsregeln)
 - Schemaeditor eller bibliotek på Hem
 - Stjärndiagram som primär vy
 - `encouragementCopy()` som dold policy för "nästa steg"
 - Readiness som coach *och* undantag samtidigt
+- Tips/rekommendationer i undantagssektionen (se undantagsdefinition i visionen)
 - Jämförelse mellan barn
+- Veckodiagram ovanför blockerande godkännande (bryter priority ladder)
 
 **Om du lägger till något ska något annat tas bort.**
 
 ## Självgranskning innan du är klar
 
-Gå igenom **varje sektion** (barnrad, åtgärd, coach, handoff, vecka) och fråga:
+Gå igenom **varje sektion** enligt priority ladder (Safety → Status → Coach → Handoff → Vecka) och fråga:
 
-> *"Om jag vore Jenny klockan 07:15, skulle jag fortfarande undra vad jag ska titta på först?"*
+1. *"Vilken av de tre frågorna besvarar denna sektion?"* (filterregeln)
+2. *"Om jag vore Jenny klockan 07:15, skulle jag fortfarande undra vad jag ska titta på först?"*
 
-Om **ja** på någon sektion — förbättra innan du lämnar arbetet.
+Om **ja** på fråga 2 — eller **ingen** på fråga 1 — förbättra innan du lämnar arbetet.
 
 ---
 
@@ -100,15 +128,24 @@ Om **ja** på någon sektion — förbättra innan du lämnar arbetet.
 
 > **Hem ska få föräldern att känna: "Jag ser läget — och vet exakt vad jag gör härnäst."**
 
+## Kärnregler
+
+| Regel | En mening |
+|-------|-----------|
+| **Filterregel** | Om en komponent inte hjälper besvara en av tre frågor inom 5 sek — hör den inte hemma på Hem |
+| **Beslutsregel** | Högst en komponent föreslår nästa handling |
+| **Copy-regel** | Hem = läge · För dig = rekommendation · Planering = handlingar |
+| **Undantag** | Kräver vuxenbeslut nu · blockerar barnet · kan inte vänta |
+
 ## Tre frågor (standardvy)
 
 1. Hur går det idag? → per-barn statusrad
 2. Behöver jag göra något? → undantagskort eller tydligt "inget"
 3. Hur lämnar jag över? → handoff synlig
 
-## Informationshierarki
+## Priority Ladder
 
-`Idag per barn → Undantag → Ett nästa steg → Handoff → Vecka`
+`Safety (undantag) → Status (idag) → Coach (ett nästa steg) → Handoff → Vecka`
 
 ---
 
@@ -129,12 +166,12 @@ Om **ja** på någon sektion — förbättra innan du lämnar arbetet.
 
 **Sannolik riktning (du avgör hur):**
 
-- `/readiness` → endast `priority <= 1` (godkännanden, inbjudningar) — dölj sektion om tom
-- Ett `#engineCoachMount` eller motsvarande för Journey-nästa-steg
-- Veckodiagram **under** handoff
+- `/readiness` → endast undantag (`priority <= 1`: godkännanden, inbjudningar) — dölj sektion om tom
+- Ett `#engineCoachMount` eller motsvarande för Journey-nästa-steg (beslutsregeln)
+- Veckodiagram **under** handoff (priority ladder steg 5)
 - Ta bort eller nedgradera parallella coach-banners som duplicerar beslut
 
-**Branch:** `cursor/for-dig-10-10-2c04`
+**Branch:** `cursor/hem-vision-docs-6752` (eller aktuell feature-branch)
 
 **Test:**
 
@@ -148,12 +185,12 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 # Arbetsflöde
 
 1. Läs vision + kod + Jenny-scenariot (morgon, två barn, en pending approval)
-2. Kartlägg var tre frågor inte besvaras idag
-3. Designa minsta ändring som klarar Definition of Done
+2. Kartlägg var tre frågor inte besvaras idag; märk komponenter som bryter filterregel/beslutsregel
+3. Designa minsta ändring som klarar Definition of Done + priority ladder
 4. Implementera — ta bort lika mycket som du lägger till
 5. Jenny-test + självgranskning per sektion
 6. `npm run test:gate`
-7. PR: vision uppfylld, Jenny-test, vad som togs bort, POS-sektioner (PA-01, PA-02, P-04, B-08)
+7. PR: vision uppfylld, Jenny-test, success metrics, vad som togs bort, POS-sektioner (PA-01, PA-02, P-04, B-08)
 
 ---
 
