@@ -21,7 +21,9 @@
   margin: 0 auto;
 }
 
-body.child-magic-view .child-bottom-nav {
+body.child-magic-view .child-bottom-nav,
+body.child-worlds-v2 .child-bottom-nav,
+body.child-has-bottom-nav .child-bottom-nav {
   display: flex;
 }
 
@@ -74,6 +76,9 @@ body.child-magic-view .child-bottom-nav {
 body.child-has-bottom-nav #scheduleView,
 body.child-has-bottom-nav #rewardsView,
 body.child-has-bottom-nav #familyView,
+body.child-worlds-v2 #scheduleView,
+body.child-worlds-v2 #rewardsView,
+body.child-worlds-v2 #familyView,
 body.child-home-active #homeView {
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
 }
