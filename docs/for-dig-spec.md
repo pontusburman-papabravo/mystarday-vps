@@ -7,7 +7,8 @@
 **Relaterat:** onboarding, `foraldaraktivering_7d`, standardbibliotek, bibliotek, Skattkammaren
 
 > **Produktvision (10/10):** [`for-dig-vision.md`](for-dig-vision.md)  
-> **Agent-uppdrag (implementation):** [`for-dig-agent-prompt.md`](for-dig-agent-prompt.md) · kort: [`for-dig-agent-prompt-short.md`](for-dig-agent-prompt-short.md)
+> **Agent-uppdrag (implementation):** [`for-dig-agent-prompt.md`](for-dig-agent-prompt.md) · kort: [`for-dig-agent-prompt-short.md`](for-dig-agent-prompt-short.md)  
+> **Helrutin (scheduleName-merge):** [`helrutin-semantik-spec.md`](helrutin-semantik-spec.md) · ADR: [`helrutin-semantik-adr.md`](helrutin-semantik-adr.md)
 
 ---
 
@@ -356,23 +357,34 @@ Om `default_schedule` saknas lokalt (tomt admin-bibliotek): visa vänligt fel + 
 - Om aktivitet redan finns i familjen (namn-match) → standard-library hanterar det
 - Schema-copy med `overwrite: true` → ersätter befintligt (samma som `family.js` `applySchedulePackage`)
 
-### 7.4 Helrutin-semantik — produktbeslut (v1)
+### 7.4 Helrutin-semantik — sektionsspecifik merge (v1)
 
-**Status:** Content-sync (#476) stängd och live i prod. **Nästa PR:** sektionsspecifik merge — inte hel dag.
+**Status:** Designspec klar (2026-07-01). **Implementation:** separat PR — ej i designspec-PR.
 
-**Beslut (v1):** Mål med `scheduleName` ska **inte** ersätta hela dagen. De ska **append/ersätta relevant sektion** endast:
+**Normativa dokument:**
 
-| Mål | Schema | Sektion |
-|-----|--------|---------|
+| Dokument | Innehåll |
+|----------|----------|
+| [`helrutin-semantik-spec.md`](helrutin-semantik-spec.md) | Sektioner, append/replace, konflikter, preview-copy, DoD |
+| [`helrutin-semantik-adr.md`](helrutin-semantik-adr.md) | Låsta beslut |
+
+**Sammanfattning (v1):**
+
+- Mål med `scheduleName` (**helrutin**) får **aldrig** ersätta hela dagen.
+- Paket påverkar endast **en sektion**: `morgon`, `kvall`, eller `dag` (produkt: **Skola** för skolansvar).
+- **Append** om målsektionen är tom; **replace (sektion)** om den redan har aktiviteter.
+- Övriga sektioner på samma dag **behålls alltid**.
+- Preview före aktivering ska säga exakt vilken sektion som ändras och vad som behålls.
+
+| Mål | `scheduleName` | `scheduleSection` |
+|-----|----------------|-------------------|
 | Trygga kvällar | Kvällsrutin | `kvall` |
 | Bra morgnar | Kort morgon | `morgon` |
-| Skolansvar | Skola vardag | skolrelaterad sektion (`dag` / skola) |
+| Skolansvar | Skola vardag | `dag` (copy: Skola) |
 
-**Motivering:** Dag-ersättning (`overwrite: true` på alla `weekly_schedule_item`) är för destruktivt — aktivering av ett paket får inte oväntat skriva över användarens befintliga morgon/kväll/dag.
+**Idag (pre-fix):** `copySchedule` med `overwrite: true` raderar alla items på valda dagar — se ADR §1.
 
-**Idag (pre-fix):** `copySchedule` med `overwrite: true` raderar alla items på valda dagar. Det ska ändras i separat PR.
-
-**Ej i scope för content-sync:** namnmatchning, biblioteksglapp, headlines — klart i #476. Avslutsdokumentation: [`for-dig-content-sync-476-closure.md`](for-dig-content-sync-476-closure.md).
+**Content-sync (#476):** stängd. Avslut: [`for-dig-content-sync-476-closure.md`](for-dig-content-sync-476-closure.md).
 
 ---
 
