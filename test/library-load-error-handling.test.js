@@ -47,9 +47,10 @@ describe('library load error handling', () => {
 });
 
 describe('rewards hub treasury link', () => {
-  it('Stjärnor & kista links to /skattkammaren not library#treasury', () => {
+  it('embeds per-child star overview instead of skattkammaren CTA', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/rewards-hub.js'), 'utf8');
-    assert.match(src, /href="\/skattkammaren"/);
-    assert.doesNotMatch(src, /library#treasury/);
+    assert.doesNotMatch(src, /href="\/skattkammaren"/);
+    assert.match(src, /proximityCopy/);
+    assert.match(src, /dashboard-stats/);
   });
 });

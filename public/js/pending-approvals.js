@@ -18,16 +18,28 @@
     return res.json();
   }
 
-  function rowHtml(req, type) {
-    const label =
-      type === 'goal'
-        ? '🎯 Vill byta mål till ' + esc(req.to_reward_name || '') + ' ' + esc(req.to_reward_icon || '')
-        : '🎁 ' + esc(req.reward_name || '') + ' (⭐ ' + (req.star_cost || 0) + ')';
+  function rowHtml(req, type, opts) {
+    opts = opts || {};
+    const childName = req.child_name ? esc(req.child_name) : '';
+    let label;
+    if (type === 'goal') {
+      label = childName
+        ? childName + ' vill byta mål till ' + esc(req.to_reward_name || '') + ' ' + esc(req.to_reward_icon || '')
+        : '🎯 Vill byta mål till ' + esc(req.to_reward_name || '') + ' ' + esc(req.to_reward_icon || '');
+    } else if (opts.hub && childName) {
+      label = childName + ' vill ha "' + esc(req.reward_name || '') + '" (' + (req.star_cost || 0) + ' ⭐)';
+    } else {
+      label = '🎁 ' + esc(req.reward_name || '') + ' (⭐ ' + (req.star_cost || 0) + ')';
+    }
+    const cardClass = opts.hub
+      ? 'flex items-center gap-2 p-3 bg-white rounded-2xl border border-lavender parent-glass-card'
+      : 'flex items-center gap-2 p-3 bg-white rounded-xl border border-lavender';
+    const approveLabel = opts.hub ? 'Godkänn' : '✅';
     return (
-      '<div class="flex items-center gap-2 p-3 bg-white rounded-xl border border-lavender">' +
-      '<span class="flex-1 text-sm font-semibold text-navy">' + label + '</span>' +
-      '<button type="button" data-pending-action="approve" data-pending-type="' + esc(type) + '" data-pending-id="' + esc(req.id) + '" class="min-h-[40px] px-3 bg-green-500 text-white text-xs font-bold rounded-lg">✅</button>' +
-      '<button type="button" data-pending-action="deny" data-pending-type="' + esc(type) + '" data-pending-id="' + esc(req.id) + '" class="min-h-[40px] px-3 bg-red-100 text-red-700 text-xs font-bold rounded-lg">❌</button>' +
+      '<div class="' + cardClass + '">' +
+      '<span class="flex-1 text-sm font-semibold text-navy leading-snug">' + label + '</span>' +
+      '<button type="button" data-pending-action="approve" data-pending-type="' + esc(type) + '" data-pending-id="' + esc(req.id) + '" class="min-h-[44px] px-3 bg-green-500 text-white text-xs font-bold rounded-lg flex-shrink-0">' + approveLabel + '</button>' +
+      '<button type="button" data-pending-action="deny" data-pending-type="' + esc(type) + '" data-pending-id="' + esc(req.id) + '" class="min-h-[44px] px-3 bg-red-100 text-red-700 text-xs font-bold rounded-lg flex-shrink-0" aria-label="Neka">❌</button>' +
       '</div>'
     );
   }
@@ -44,22 +56,26 @@
     }
 
     if (!redemptions.length && !goals.length) {
-      return opts.emptyHtml || '<p class="text-sm text-text-soft text-center py-4">Inga väntande förfrågningar 🎉</p>';
+      return opts.emptyHtml != null ? opts.emptyHtml : '<p class="text-sm text-text-soft text-center py-4">Inga väntande förfrågningar 🎉</p>';
     }
 
+    const hub = !!opts.hub;
     let html = '<div class="space-y-2 pending-approvals-list">';
     if (opts.heading) {
-      html += '<h2 class="text-lg font-heading font-bold text-navy mb-2">' + esc(opts.heading) + '</h2>';
+      const headingClass = hub
+        ? 'text-lg font-heading font-bold mb-2 parent-readiness-heading'
+        : 'text-lg font-heading font-bold text-navy mb-2';
+      html += '<h2 class="' + headingClass + '">' + esc(opts.heading) + '</h2>';
     }
     goals.forEach(function (req) {
       const name = childName || req.child_name || '';
-      html += rowHtml(req, 'goal') +
-        (name && !childId ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
+      html += rowHtml(req, 'goal', opts) +
+        (name && !childId && !hub ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
     });
     redemptions.forEach(function (req) {
       const name = childName || req.child_name || '';
-      html += rowHtml(req, 'redemption') +
-        (name && !childId ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
+      html += rowHtml(req, 'redemption', opts) +
+        (name && !childId && !hub ? '<p class="text-xs text-text-soft -mt-1 mb-1 pl-1">' + esc(name) + '</p>' : '');
     });
     html += '</div>';
     return html;
@@ -127,9 +143,11 @@
     denyGoal: denyGoal,
     approveRedemption: approveRedemption,
     denyRedemption: denyRedemption,
-    mountHub: async function (mountEl) {
+    mountHub: async function (mountEl, opts) {
+      opts = opts || {};
       if (!mountEl) return;
       mountEl.innerHTML = '<p class="text-sm text-text-soft py-2">Laddar förfrågningar…</p>';
+      mountEl.classList.remove('hidden');
       try {
         const data = await fetchPending();
         const total = (data.pending_redemptions || []).length + (data.pending_goal_changes || []).length;
@@ -139,7 +157,12 @@
           return;
         }
         mountEl.classList.remove('hidden');
-        mountEl.innerHTML = renderList(data, { heading: 'Kräver godkännande (' + total + ')' });
+        const heading = total > 1 ? 'Kräver godkännande (' + total + ')' : 'Kräver godkännande';
+        mountEl.innerHTML = renderList(data, {
+          heading: heading,
+          hub: opts.hub,
+          emptyHtml: '',
+        });
         bindRowActions(mountEl);
       } catch (_) {
         mountEl.innerHTML = '<p class="text-sm text-coral py-2">Kunde inte ladda förfrågningar.</p>';
