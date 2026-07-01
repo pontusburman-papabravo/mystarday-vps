@@ -11,6 +11,23 @@ const chartInstances = {};
 let activeTab = 'overview';
 const trendChart = null;
 
+function syncAnalyticsHistoryWarnings() {
+  const warn = window.AdminHistoryWarning;
+  if (!warn) return;
+  warn.setHistoryLimitedWarning('analyticsFeaturesHistoryWarning', activeTab === 'overview');
+  warn.setHistoryLimitedWarning('analyticsHeatmapHistoryWarning', activeTab === 'dynamics');
+  warn.setHistoryLimitedWarning('analyticsRetentionHistoryWarning', activeTab === 'retention');
+}
+
+function syncTrendsHistoryWarning(days) {
+  const warn = window.AdminHistoryWarning;
+  if (!warn) return;
+  warn.setHistoryLimitedWarning(
+    'analyticsTrendsHistoryWarning',
+    activeTab === 'trends' && warn.isLongTrendDays(days)
+  );
+}
+
 // ─── Entry point ──────────────────────────────────────────
 
 async function loadAnalytics() {
@@ -66,6 +83,8 @@ async function switchTab(tabName) {
   const target = document.getElementById(`section-${tabName}`);
   if (target) target.classList.remove('hidden');
 
+  syncAnalyticsHistoryWarnings();
+
   // Load data for the active tab
   if (tabName === 'overview') await loadOverviewTab();
   else if (tabName === 'dynamics') await loadDynamics();
@@ -117,6 +136,7 @@ function buildAnalyticsHTML() {
 
         <!-- Feature popularity -->
         <div class="bg-white rounded-2xl border border-sky p-6">
+          <div id="analyticsFeaturesHistoryWarning" class="hidden mb-4"></div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Feature-popularitet</h3>
           <p class="text-text-soft text-sm mb-4">Antal händelser per funktion (senaste 30 dagarna)</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="featureChart"></canvas></div>
@@ -175,6 +195,7 @@ function buildAnalyticsHTML() {
 
         <!-- Activity heatmap -->
         <div class="bg-white rounded-2xl border border-sky p-6">
+          <div id="analyticsHeatmapHistoryWarning" class="hidden mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
               <h4 class="text-base font-heading font-bold text-navy">🗓️ Aktivitetsvärmekarta</h4>
@@ -253,6 +274,7 @@ function buildAnalyticsHTML() {
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">📈 Retention-kurva</h3>
           <p class="text-text-soft text-sm mb-6">Veckovisa kohorter — "Fastnar appen?" — aktiv familj = minst 1 event/vecka</p>
+          <div id="analyticsRetentionHistoryWarning" class="hidden mb-4"></div>
         </div>
 
         <!-- Summary stats -->
@@ -289,6 +311,7 @@ function buildAnalyticsHTML() {
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">📉 Historiska trender</h3>
           <p class="text-text-soft text-sm mb-6">Fullstora grafer från dagliga snapshots</p>
+          <div id="analyticsTrendsHistoryWarning" class="hidden mb-4"></div>
         </div>
 
         <!-- Period toggle -->
@@ -507,6 +530,8 @@ async function loadTrends() {
 }
 
 async function loadTrendsData(days) {
+  syncTrendsHistoryWarning(days);
+
   try {
     destroyChart('trendActiveFamilies');
     destroyChart('trendActiveFamilies7d');

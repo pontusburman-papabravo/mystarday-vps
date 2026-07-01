@@ -696,6 +696,12 @@
           btn.classList.remove('border-gold', 'bg-gold-light');
         }
       });
+      if (window.AdminHistoryWarning) {
+        window.AdminHistoryWarning.setHistoryLimitedWarning(
+          'overviewHistoryWarning',
+          window.AdminHistoryWarning.isLongOverviewPeriod(period)
+        );
+      }
       loadOverviewStats();
     }
 
