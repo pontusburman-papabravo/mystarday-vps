@@ -158,10 +158,16 @@ custody-schedule-engine.js
 
 **Fil:** `src/lib/custody-patterns/alternate-weekends.js`
 
-- Varannan helg: fre–sön (eller konfigurerbar `weekend_start`)
-- Övriga dagar: inget “byte”-hem — motor returnerar veckans “bashem” eller null för vardagar (beslut: vardagar följer senaste helgs hem eller separat `weekday_home` i configuration — **rekommendation:** vardagar tillhör det hem som äger kommande helg tills helg börjar; dokumentera i pattern-modulen)
+**Låst v1 (spec § BC-4):**
 
-**Alternativ enklare v1:** `alternate_weekends` = endast fre–sön har aktivt hem; mån–tors `activeHome` = null → UI visar neutralt / föregående periods hem. Specificera i pattern-test.
+| Dag | Hem |
+|-----|-----|
+| Mån–tors | `configuration.default_home` |
+| Fre–sön | `weekend_home_a` eller `weekend_home_b` (varannan helg från `anchor_date`) |
+
+- `activeHome` är **aldrig null**
+- `weekend_start` default `friday`
+- `activePeriod`: helgblock fre–sön när helghem gäller; mån–tors kan markeras som `weekday` period
 
 ### 3.4 Enhetstester
 
@@ -174,7 +180,7 @@ custody-schedule-engine.js
 | Skottår 29 feb | båda |
 | Ankardatum i framtiden | båda |
 | Handoff-eve (söndag → måndag byte) | `alternate_weeks` |
-| Varannan helg fre–sön | `alternate_weekends` |
+| Varannan helg fre–sön + default_home mån–tors | `alternate_weekends` |
 | `nextHandoff` / `previousHandoff` | båda |
 | `isParentDay` med assignment | båda |
 | Okänt `pattern_type` → tydligt fel | — |
@@ -396,3 +402,4 @@ test/custody-api-integration.test.js
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Första implementationsplan — Phase 1–5 |
 | 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; externa konsumenter via API |
+| 2026-07-01 | 1.2 | Låst alternate_weekends semantik (default_home + weekend_home) |

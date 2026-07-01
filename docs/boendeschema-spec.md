@@ -112,10 +112,19 @@ Schemat består av:
 **Varannan helg** (`alternate_weekends`)
 
 ```
-Fredag–söndag varannan vecka hos respektive hem
+Mån–tors: default_home (fast)
+Fre–sön: weekend_home_a / weekend_home_b (växlar varannan helg)
 ```
 
-Konfiguration för `alternate_weekends` inkluderar `weekend_start` (default `friday`).
+**Låst v1-semantik (ingen null-hem):**
+
+| Veckodag | Aktivt hem |
+|----------|------------|
+| Mån–tors | `default_home` |
+| Fre–sön | `weekend_home_a` eller `weekend_home_b` beroende på vilken helg som gäller enligt `anchor_date` |
+
+- Varje kalenderdag ska ha exakt ett aktivt hem — **`activeHome` är aldrig null i v1**.
+- `weekend_start` default `friday` (fre–sön räknas som helgblock).
 
 ---
 
@@ -150,7 +159,7 @@ Externa konsumenter (t.ex. utskrift/PDF) hämtar samma data via Schedule Engine 
 
 All beräkning sker i **Schedule Engine** — ingen vy eller tjänst implementerar egen logik.
 
----
+**v1:** `activeHome` returneras alltid (aldrig `null`) när barn har boendeschema.
 
 ### BC-7 Färgmarkering
 
@@ -323,11 +332,15 @@ Ersätter/utökar dagens `custody_pattern` (se ADR).
 
 ```json
 {
-  "home_a": "uuid",
-  "home_b": "uuid",
+  "default_home": "uuid",
+  "weekend_home_a": "uuid",
+  "weekend_home_b": "uuid",
   "weekend_start": "friday"
 }
 ```
+
+- `default_home` — mån–tors varje vecka
+- `weekend_home_a` / `weekend_home_b` — fre–sön, varannan helg
 
 ### Veckoschema (`weekly_schedule`)
 
@@ -462,3 +475,4 @@ FEAT-1 är klar när:
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Domänspec — ersätter A/B-centrerad §6.5.1 i aktivering-exekveringsplan |
 | 2026-07-01 | 1.1 | BC-13 utskrift borttagen; domänexponering + scope-gräns; PDF/print utanför FEAT-1 |
+| 2026-07-01 | 1.2 | Låst `alternate_weekends`: default_home mån–tors, weekend_home fre–sön; inget null-hem v1 |

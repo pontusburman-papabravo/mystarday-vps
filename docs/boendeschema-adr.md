@@ -143,6 +143,9 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | Aktiviteter per hem eller per variant? | **Per hem** (`custody_home_id`) |
 | Ett hem per familj? | Tillåtet — boendeschema är valfritt |
 | UI: A/B eller hemnamn? | **Hemnamn** överallt i föräldravyn |
+| `alternate_weekends` vardagar | **`default_home`** gäller mån–tors |
+| `alternate_weekends` helger | **`weekend_home_a` / `weekend_home_b`** fre–sön varannan helg |
+| Null-hem i v1? | **Nej** — varje dag har aktivt hem när boendeschema finns |
 
 ---
 
@@ -162,3 +165,4 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Accepted — domänomskrivning FEAT-1 |
 | 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; domänexponering via API |
+| 2026-07-01 | 1.2 | Låst alternate_weekends: default_home + weekend_home_a/b |
