@@ -5,135 +5,100 @@
 **Mockup:** [mockups/beloningar.html](mockups/beloningar.html)  
 **Förälder (parallell):** [beloningar-vision.md](beloningar-vision.md)
 
+> **Tillståndsmaskinen i visionen är enda sanningskällan.** Implementera genom att mappa API-data → exklusivt tillstånd → UI. Duplicera inte logik i pseudokod här.
+
 ---
 
 # Definition of Done
 
 ## Olle-test
 
-Ett barn (eller testare i barnvy) som öppnar Skattkammaren ska inom **5 sekunder**, **utan scroll**, svara:
+Inom **5 sekunder**, **utan scroll**:
 
-1. **Hur många stjärnor har jag?**
-2. **Vad sparar jag till?**
-3. **Kan jag göra något här?**
-4. **Vad är nästa steg?**
+1. Hur många stjärnor har jag?
+2. Vad sparar jag till?
+3. Kan jag göra något här?
+4. Vad är nästa steg?
 
-## Filterregel + beslutsregel
+## Regler (från vision)
 
-- **Filterregeln:** Varje komponent ovanför fold måste hjälpa förstå stjärnor, mål eller belöningsläget inom 5 sek
-- **Beslutsregeln:** Högst en primär handling synlig — möjligheten att lösa in eller välja mål prioriteras före utforskning
-
-## Exit Rule
-
-Barnet ska kunna lämna Skattkammaren och säga: *jag vet hur många stjärnor jag har · jag vet vad jag sparar till · jag vet om jag kan fråga om en belöning · jag vet vad nästa steg är*.
-
-## Success Metrics (PR)
-
-| Mål | Mått |
-|-----|------|
-| Olle ser stjärnor | < 5 sek |
-| Olle ser mål | < 5 sek |
-| Olle vet nästa steg | < 5 sek |
-| Primära handlingar synliga | ≤ 1 |
-| Tom-state utan brus | Ja (ingen tom trofésektion) |
-| Pending synkad med förälder | Samma `reward_redemption` |
-| Tillståndsmaskin följd | Tabell i vision § Tillståndsmaskin |
+- **Filterregel** + processregel: inget ovanför hero utan PR-motivering
+- **Beslutsregel:** max en primär handling
+- **Tillståndsmaskin:** exklusivt tillstånd enligt vision § Prioritet
+- **Sortering:** mål → snart råd → övriga
+- **Tomma lägen:** enligt vision § Tomma lägen
 
 ## Tekniskt minimum
 
 - `npm run test:gate` grön
-- Mobil först (portrait, 44pt barnmål)
+- Mobil först (portrait, 44pt)
 - POS: C-01, C-03, G-01, G-04, R-02
-- Commit + PR med Olle-test-resultat + screenshots
+- PR med Olle-test + screenshots
 
 ---
 
 # Ditt mandat
 
-Bygg **barnets Skattkammaren** till 10/10 enligt [skattkammaren-vision.md](skattkammaren-vision.md).
+Bygg barnets Skattkammaren enligt [skattkammaren-vision.md](skattkammaren-vision.md).
 
-**Vision > kod.** Ta bort dubblerad UI (grid + *Du har råd nu!*-remsa, tom trofésektion).
-
-Du ska kunna säga:
-
-> *"Det här uppfyller inte filterregeln — det hjälper inte barnet med stjärnor, mål eller handling."*
+**Vision > kod.** Tillståndsmaskinen styr allt — hero, primär knapp, status, lista.
 
 ---
 
 # Scope
 
-**Endast** barnets belöningsvy (se nyckelfiler nedan).
+Barnets belöningsvy endast. Ändra inte förälder `/rewards` eller Idag.
 
-Ändra inte förälder `/rewards`, bibliotek eller Idag-fliken annat än delad pending-data.
-
-**Routes idag:** `/child-dashboard#rewards` · framtida `/child/world` (barnmeny v2) · demo `/skattkammaren?demo=1`
+**Routes:** `/child-dashboard#rewards` · framtida `/child/world` · demo `/skattkammaren?demo=1`
 
 ---
 
-## Anti-patterns
+## Självgranskning
 
-Se vision § *Vanliga felidéer* och § *Vad som ska bort*. Implementation:
-
-- Flera *Fråga*-knappar synliga samtidigt
-- Tom trofésektion med placeholder-text
-- Schema eller checklist i Skattkammaren
-- Syskonjämförelse · stjärn-IAP
-- Skuldbeläggande vid nekad belöning
-- Status som ser ut som primär CTA
-- Firande som blockerar >2s (G-04)
-
-## Självgranskning innan du är klar
-
-1. *"Hjälper detta med stjärnor, mål eller handling?"* (filterregeln)
-2. *"Är detta den enda primära knappen just nu?"* (beslutsregeln)
-3. *"Matchar detta tillståndsmaskinen?"* (vision § Tillståndsmaskin)
+1. Ett exklusivt tillstånd? (vision § Tillståndsmaskin)
+2. Rätt prioritet vid pending + råd? (överskott-stjärnor-scenariot)
+3. Lista sorterad enligt vision?
+4. Filterregeln för varje komponent ovanför fold?
 
 ---
 
-# Tillståndsmaskin → kod
+# Implementation — härled från vision
 
-Implementera enligt visionens tabell. Pseudologik:
+**Steg:**
 
-```
-if (!goal)           → primary = "Välj mitt mål"
-else if (canAfford && !pending) → primary = "Fråga om att lösa in"
-else if (pending)    → status only, primary = none
-else if (denied)     → status only, primary = none
-else                 → collect hint, primary = none
-```
+1. Läs inputs: `goal`, `starBalance`, `redemptions[]`, `rewards[]`
+2. **Resolve state** med prioritetsordning i vision (Awaiting decision → … → No goal)
+3. Rendera hero alltid (stjärnor + mål/progress)
+4. Rendera primär knapp **endast** om tillståndet tillåter (No goal · Redeem available)
+5. Sortera belöningslista: mål → snart råd → övriga
+6. Statussektion för pending/denied — aldrig som primär CTA
+7. Troféer endast om `trophies.length > 0`
 
-Hero uppdateras alltid med `starBalance` + progress mot mål. Trofésektion: `if (trophies.length === 0) render nothing`.
+**Edge cases att testa:**
 
----
-
-# Produktvision (sammanfattning)
-
-| Regel | En mening |
-|-------|-----------|
-| **Filterregel** | Stjärnor, mål eller belöningsläge |
-| **Beslutsregel** | Max en primär handling |
-| **Primär / sekundär / status** | Se vision § Primär handling |
-| **Priority Ladder** | `Stjärnburken → Primär → Belöningar → Status → Utforskning` |
+- 0 stjärnor, inget mål (första gången)
+- Collecting (mål, inte råd)
+- Redeem available
+- Pending på mål + saldo räcker till andra belöningar (ingen extra primär)
+- Nekad nyligen
+- Godkänd just nu (Completed ≤2s)
+- Inga belöningar · offline · laddar · fel
 
 ---
 
 # Teknisk vägledning
 
-**Nyckelfiler:**
-
 | Fil | Roll |
 |-----|------|
-| `public/js/child-dashboard-rewards.js` | `renderSkattkammaren`, inlösen, mål |
-| `public/js/child-rewards-engine.js` | Goal progress, pending banner |
-| `public/child-dashboard.html` | Skatt-CSS |
-| `docs/mockups/beloningar.html` | Visuell målbild |
-| `test/skattkammaren-10-10.test.js` | Konstitutions- och regressionsgate |
+| `public/js/child-dashboard-rewards.js` | Render, state → UI |
+| `public/js/child-rewards-engine.js` | Goal progress, banners |
+| `public/child-dashboard.html` | CSS |
+| `docs/mockups/beloningar.html` | Målbild |
+| `test/skattkammaren-10-10.test.js` | Konstitutionsgate |
 
 **API:** `/api/me/rewards`, `/api/me/goal`, `POST /api/me/rewards/:id/redeem`
 
 **Branch:** `cursor/skattkammaren-barn-10-10-87ba`
-
-**Test:**
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
@@ -142,35 +107,24 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ---
 
-# Nuläge vs mål (implementation)
+# Nuläge vs mål
 
-**På plats:**
+**På plats:** hero, lista med progress, en primär CTA, tom trofé dold, pending/denied-copy.
 
-- `child-dashboard-rewards.js`, mål, inlösen, troféer, pending/denied-vänlig copy
-- Universum via `child-skatt-house.js`, offline-cache
-- Hero Stjärnburken + belöningslista med progress
-- En primär CTA, tom trofésektion dold
-
-**Kvar:**
-
-- Verifiera tillståndsmaskin för alla edge cases (0 stjärnor, byter mål pending)
-- Olle-test med riktiga barn (5-sekundersregeln)
-- Barnmeny v2 `/child/world` route-migrering
+**Kvar:** explicit `resolveSkattState()` enligt exklusiv maskin · sortering enligt vision · alla tomma lägen · Olle-test med barn.
 
 ---
 
 # Arbetsflöde
 
-1. Läs [skattkammaren-vision.md](skattkammaren-vision.md) (produkt) + mockup
-2. Läs `child-dashboard-rewards.js` (implementation)
-3. Olle-test: inget mål · sparar · har råd · pending · nekad · första gången
-4. Verifiera tillståndsmaskin + priority ladder
-5. Implementera — ta bort lika mycket som du lägger till
-6. `npm run test:gate`
-7. PR med screenshots (iPhone portrait)
+1. Läs vision § Tillståndsmaskin + § Tomma lägen
+2. Implementera state resolver (en funktion, en sanning)
+3. Koppla UI till tillstånd — ta bort parallell logik
+4. Edge cases ovan
+5. `npm run test:gate` + screenshots
 
 ---
 
 # Sista instruktionen
 
-Skattkammaren ska kännas som **stjärnburken + drömmen** — först hur många stjärnor, sedan hur nära målet, sedan en tydlig väg att fråga.
+**Stjärnburken + mål i hero → ett tillstånd → en primär väg framåt.**

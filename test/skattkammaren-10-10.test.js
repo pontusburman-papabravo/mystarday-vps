@@ -7,27 +7,34 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const REWARDS = path.join(ROOT, 'public/js/child-dashboard-rewards.js');
+const VISION = path.join(ROOT, 'docs/skattkammaren-vision.md');
+const PROMPT = path.join(ROOT, 'docs/skattkammaren-agent-prompt.md');
 
 describe('Skattkammaren barn 10/10', () => {
-  it('vision is product-only constitution', () => {
-    const vision = fs.readFileSync(path.join(ROOT, 'docs/skattkammaren-vision.md'), 'utf8');
+  it('vision is product-only constitution v3', () => {
+    const vision = fs.readFileSync(VISION, 'utf8');
     assert.match(vision, /Olle-test/);
     assert.match(vision, /Filterregel/);
-    assert.match(vision, /Priority Ladder/);
-    assert.match(vision, /Icke-mål/);
-    assert.match(vision, /Tillståndsmaskin/);
-    assert.match(vision, /Vanliga felidéer/);
-    assert.match(vision, /nästa steg/);
-    assert.match(vision, /teknikagnostiskt/i);
+    assert.match(vision, /Visuell prioritering/);
+    assert.match(vision, /Tillståndsmaskin \(exklusiv\)/);
+    assert.match(vision, /Awaiting decision/);
+    assert.match(vision, /Redeem available/);
+    assert.match(vision, /överskott av stjärnor/i);
+    assert.match(vision, /Belöningslistan — sortering/);
+    assert.match(vision, /Tomma lägen/);
+    assert.match(vision, /ovanför hero/);
     assert.doesNotMatch(vision, /child-dashboard-rewards\.js/);
     assert.doesNotMatch(vision, /npm run test:gate/);
+    assert.doesNotMatch(vision, /Priority Ladder/);
   });
 
-  it('agent prompt owns implementation details', () => {
-    const prompt = fs.readFileSync(path.join(ROOT, 'docs/skattkammaren-agent-prompt.md'), 'utf8');
+  it('agent prompt derives from state machine only — no duplicate pseudocode', () => {
+    const prompt = fs.readFileSync(PROMPT, 'utf8');
     assert.match(prompt, /child-dashboard-rewards\.js/);
     assert.match(prompt, /npm run test:gate/);
-    assert.match(prompt, /Tillståndsmaskin/);
+    assert.match(prompt, /enda sanningskällan/i);
+    assert.doesNotMatch(prompt, /if \(!goal\)/);
+    assert.doesNotMatch(prompt, /else if \(canAfford/);
   });
 
   it('uses hero with star count and goal progress (Olle-test)', () => {
@@ -46,7 +53,7 @@ describe('Skattkammaren barn 10/10', () => {
     assert.doesNotMatch(src, /skatt-reward-grid/);
   });
 
-  it('reward list uses progress rows with Klar tag', () => {
+  it('reward list uses progress rows with Klar tag and sort helper', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /skatt-reward-list/);
     assert.match(src, /skatt-reward-row/);
