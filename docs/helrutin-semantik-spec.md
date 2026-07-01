@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | Draft — designspec (ingen implementation i första PR) |
+| **Status** | Accepted — designspec (implementation i separat PR efter merge) |
 | **Typ** | Produktspec — normativ för helrutin / `scheduleName`-aktivering |
 | **Feature** | För dig (`for_dig`) · helrutin-paket |
 | **ADR** | [helrutin-semantik-adr.md](./helrutin-semantik-adr.md) |
@@ -60,6 +60,36 @@ Konfigurationsfält (framtida implementation): `scheduleSection` på mål med `s
 
 Aktivitetsmål (`activityNames` utan `scheduleName`) behåller befintlig append-logik; se §6.
 
+### 2.2 Sektionsidentitet — hur replace vet vad som ska ersättas
+
+Aktiviteter tillhör **inte** bara en veckodag — varje `weekly_schedule_item` har en **`section`**-kolumn (`morgon` | `dag` | `kvall`).
+
+Samma dag kan alltså innehålla tre oberoende listor:
+
+```text
+Måndag
+├── Morgon   (section = morgon)   — Borsta tänderna, Klä på sig
+├── Dag      (section = dag)      — Skolan, Läxor
+└── Kväll    (section = kvall)    — Läsa bok, Packa väska
+```
+
+**Regel S4:** Replace identifierar målgruppen med `weekly_schedule_item.section = targetSection` (efter normalisering, se §2.3). Veckodag (`day_of_week`) avgör *vilken dag*; `section` avgör *vilken del av dagen*.
+
+**Regel S5:** Aktivering av **Trygga kvällar** (`targetSection = kvall`) ersätter **endast** raden under Kväll i exemplet ovan. Morgon- och dag-items har andra `section`-värden och **rörs aldrig**.
+
+**Regel S6:** UI-gruppering i Schema (`schedule-core.js` → `SECTIONS`) och DB-värdet ska vara samma nyckel. Merge-motorn använder DB-värdet, inte visuell ordning.
+
+### 2.3 Normalisering (legacy)
+
+| `section` i DB | Tolkas som |
+|----------------|------------|
+| `morgon` | `morgon` |
+| `dag` | `dag` |
+| `kvall` | `kvall` |
+| `NULL` / tom sträng | `dag` (legacy-rader) |
+
+Normalisering sker i `normalizeSection()` — samma funktion i preview, merge och persist.
+
 ---
 
 ## 3. Append vs replace
@@ -98,6 +128,17 @@ Efter merge i `targetSection`:
 ---
 
 ## 4. Konfliktregler
+
+### 4.0 Sammanfattning (v1)
+
+| Situation | Resultat |
+| --------- | -------- |
+| Sektionen är tom | **Append** — paketets aktiviteter läggs in i `targetSection` |
+| Sektionen innehåller paketaktiviteter (tidigare aktivering) | **Replace (sektion)** — efter preview; endast `targetSection` skrivs om |
+| Sektionen innehåller egna aktiviteter (manuellt tillagda) | **Preview** visar ersättning; efter bekräftelse **replace (sektion)** endast i `targetSection` |
+| Övriga sektioner på samma dag | **Oförändrade** — inga deletes utanför `targetSection` |
+
+Paket- vs egna aktiviteter styrs **inte** av olika merge-läge i v1 — båda leder till replace när sektionen inte är tom. Skillnaden är förälderns förväntan; preview ska vara tydlig i båda fallen.
 
 ### 4.1 Detektering (preview + activate)
 
@@ -213,16 +254,82 @@ Mål med endast `activityNames` (t.ex. Självständighet, Samarbeta hemma) följ
 
 ---
 
-## 7. Scope-gränser (v1)
+## 7. `mergeScheduleSection()` — rent API-kontrakt
 
-### 7.1 Ingår
+Pure function i `src/lib/merge-schedule-section.js`. **Ingen** kännedom om UI, För dig-aktivering, PostgreSQL eller HTTP.
 
-- Sektionsspecifik merge för `scheduleName` i `for-dig-activate.js`
+### 7.1 Input
+
+```ts
+interface ScheduleItem {
+  activityTemplateId: string;
+  section?: string | null;      // normaliseras via normalizeSection()
+  sortOrder?: number;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+interface MergeScheduleSectionInput {
+  /** Alla aktiviteter för en veckodag (alla sektioner). */
+  existingItems: ScheduleItem[];
+  /** Målsektion: morgon | dag | kvall */
+  targetSection: string;
+  /** Paketets aktiviteter — redan filtrerade till targetSection. */
+  packageItems: ScheduleItem[];
+}
+```
+
+### 7.2 Output
+
+```ts
+interface MergeScheduleSectionResult {
+  /** Hela dagens schema efter merge (alla sektioner). */
+  items: ScheduleItem[];
+  /** append | replace */
+  mode: 'append' | 'replace';
+  /** Antal borttagna rader i targetSection (0 vid append). */
+  removedInSection: number;
+  /** Antal nya rader i targetSection efter merge. */
+  addedInSection: number;
+}
+```
+
+### 7.3 Regler (motorn)
+
+1. `packageItems.length === 0` → returnera `existingItems` oförändrat; anroparen (DB-lager) ska behandla som fel 503.
+2. `targetSection` tom efter normalisering → throw / error i anroparen före merge.
+3. Items utanför `targetSection` i `existingItems` kopieras oförändrade till output.
+4. **Append:** inga items i `targetSection` → lägg till `packageItems`; hoppa över dupes (`activityTemplateId` redan i sektionen).
+5. **Replace:** minst ett item i `targetSection` → ersätt hela sektionslistan med `packageItems` (paketordning = `sortOrder`).
+
+### 7.4 Hjälpare (samma modul)
+
+| Funktion | Syfte |
+|----------|--------|
+| `normalizeSection(section)` | Legacy `NULL` → `dag` |
+| `planMergeMode(existingItems, targetSection)` | `'append' \| 'replace'` utan att mutera |
+
+### 7.5 DB-adapter (for-dig-activate — inte i motorn)
+
+1. Läs `existingItems` för `(childId, dayOfWeek)`.
+2. Anropa `mergeScheduleSection`.
+3. `DELETE` endast rader i `targetSection` om `mode === 'replace'`.
+4. `INSERT` nya rader från merge-resultatet i `targetSection`.
+5. Rör aldrig rader i andra sektioner.
+
+---
+
+## 8. Scope-gränser (v1)
+
+### 8.1 Ingår
+
+- `src/lib/merge-schedule-section.js` (pure)
+- Sektionsspecifik persist i `for-dig-activate.js`
 - Uppdaterad preview i `buildActivationPlanPreview`
 - Config: `scheduleSection` på helrutin-mål
 - Enhetstester för merge-regler
 
-### 7.2 Ingår inte (v1)
+### 8.2 Ingår inte (v1)
 
 - Ändra `family.js` `applySchedulePackage` (bibliotek → *Applicera schema* med hel-dag-confirm) — separat beslut
 - Flera sektioner i ett enda För dig-mål
@@ -233,7 +340,7 @@ Mål med endast `activityNames` (t.ex. Självständighet, Samarbeta hemma) följ
 
 ---
 
-## 8. Acceptanskriterier (DoD)
+## 9. Acceptanskriterier (DoD)
 
 Implementation (senare PR) är klar när:
 
@@ -246,8 +353,9 @@ Implementation (senare PR) är klar när:
 
 ---
 
-## 9. Dokumenthistorik
+## 10. Dokumenthistorik
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Initial designspec — post FEAT-1 QA |
+| 2026-07-01 | 1.1 | Sektionsidentitet §2.2, konflikttabell §4.0, mergeScheduleSection API §7 |

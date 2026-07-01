@@ -65,10 +65,15 @@ Produkttermen **Skola** mappas till DB `dag` — ingen fjärde sektionskolumn i 
 
 ### 5. Konflikt med befintliga aktiviteter
 
-- **Inom sektion:** replace (se §3).
-- **Utanför sektion:** ingen åtgärd — explicit *keep*-budskap i preview.
-- **Dubbletter (append):** hoppa över samma `activity_template_id` på samma dag.
-- **Dagens logg:** historik bevaras; schemaändring påverkar framtida dagar.
+Se spec §4.0. Kort:
+
+| Situation | Resultat |
+|-----------|----------|
+| Tom sektion | Append |
+| Sektion har innehåll (paket eller eget) | Replace efter preview |
+| Övriga sektioner | Oförändrade |
+
+Sektion identifieras via `weekly_schedule_item.section`, inte veckodag alone.
 
 ### 6. Preview är kontrakt
 
@@ -81,14 +86,15 @@ Felaktig preview = blockerande bugg (förtroendeprodukt).
 
 ### 7. Implementation-yta (nästa PR)
 
-| Fil | Ändring |
-|-----|---------|
-| `src/lib/for-dig-activate.js` | Ersätt dag-`DELETE` med `mergeScheduleSection()` |
+| Fil | Roll |
+|-----|------|
+| `src/lib/merge-schedule-section.js` | **Pure** merge — input/output enligt spec §7 |
+| `src/lib/for-dig-activate.js` | DB-adapter + preview; anropar motorn |
 | `src/lib/for-dig-config.js` | `scheduleSection` på helrutin-mål |
-| `test/for-dig-activate*.test.js` | Sektions-merge |
-| `public/js/for-dig-config.js` | Synka config |
+| `test/merge-schedule-section.test.js` | Enhetstester motorn (inga DB) |
+| `test/for-dig-plan-preview.test.js` | Preview-copy |
 
-**Ej i första PR:** endast dokumentation.
+**Ej i docs-PR:** kod. **Ej i motorn:** UI, SQL, aktiverings-HTTP.
 
 ### 8. Medvetet undantag
 
@@ -140,4 +146,4 @@ Plus manuell För dig-QA: aktivera kvällsrutin på barn med ifylld morgon → m
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
-| 2026-07-01 | 1.0 | Accepted design — post FEAT-1, pre-implementation |
+| 2026-07-01 | 1.1 | Konflikttabell, mergeScheduleSection pure API, sektionsidentitet |
