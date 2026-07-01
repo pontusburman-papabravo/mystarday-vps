@@ -21,16 +21,22 @@ async function getParentStats() {
       WHERE pending_deletion = false
     `),
     db.query(`
-      SELECT COUNT(DISTINCT family_id) AS cnt
-      FROM analytics_events
-      WHERE event_type = 'auth_parent_login'
-        AND created_at >= NOW() - INTERVAL '7 days'
+      SELECT COUNT(DISTINCT le.user_id) AS cnt
+      FROM login_event le
+      JOIN parent p ON p.id = le.user_id
+      WHERE le.role = 'parent'
+        AND p.is_admin = false
+        AND p.pending_deletion = false
+        AND le.occurred_at >= NOW() - INTERVAL '7 days'
     `),
     db.query(`
-      SELECT COUNT(DISTINCT family_id) AS cnt
-      FROM analytics_events
-      WHERE event_type = 'auth_parent_login'
-        AND created_at >= NOW() - INTERVAL '30 days'
+      SELECT COUNT(DISTINCT le.user_id) AS cnt
+      FROM login_event le
+      JOIN parent p ON p.id = le.user_id
+      WHERE le.role = 'parent'
+        AND p.is_admin = false
+        AND p.pending_deletion = false
+        AND le.occurred_at >= NOW() - INTERVAL '30 days'
     `),
     db.query(`
       SELECT ROUND(AVG(child_count)::numeric, 2) AS avg_children
