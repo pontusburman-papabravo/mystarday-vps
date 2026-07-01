@@ -118,6 +118,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   // FEAT-1 boendeschema
   'custody_home_selected',
   'custody_week_variant_changed',
+  'custody_schedule_updated',
   'custody_view_filtered',
   'custody_banner_seen',
   'print_schema_exported',

@@ -1,11 +1,14 @@
 /**
- * custody-settings.js — FEAT-1 boendeschema setup on /family (flag-gated).
+ * custody-settings.js — FEAT-1 boendeschema på /family (flag-gated).
+ * Sparar pattern_type + hem via API — ingen egen datumlogik.
  */
 (function () {
   'use strict';
 
-  const COLORS = ['#4F46E5', '#22C55E', '#F59E0B', '#EC4899', '#0EA5E9', '#8B5CF6'];
   let _config = null;
+
+  const PATTERN_WEEKS = 'alternate_weeks';
+  const PATTERN_WEEKENDS = 'alternate_weekends';
 
   function track(event, meta) {
     if (window.analytics && typeof window.analytics.track === 'function') {
@@ -19,6 +22,102 @@
 
   function todayIso() {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function homeOptions(homes, selectedId) {
+    return homes.map(function (h) {
+      const sel = h.id === selectedId ? ' selected' : '';
+      return '<option value="' + h.id + '"' + sel + '>' + escapeHtml(h.label) + '</option>';
+    }).join('');
+  }
+
+  function patternTypeFromPat(pat) {
+    if (!pat) return PATTERN_WEEKS;
+    return pat.pattern_type === PATTERN_WEEKENDS ? PATTERN_WEEKENDS : PATTERN_WEEKS;
+  }
+
+  function defaultHomeFromPat(pat) {
+    if (!pat || !pat.configuration) return pat ? pat.week_a_home_id : '';
+    const cfg = typeof pat.configuration === 'string'
+      ? JSON.parse(pat.configuration)
+      : pat.configuration;
+    return cfg.default_home || pat.week_a_home_id || '';
+  }
+
+  function togglePatternFields(block) {
+    const type = block.querySelector('.custody-pattern-type').value;
+    const weeks = block.querySelector('.custody-fields-weeks');
+    const weekends = block.querySelector('.custody-fields-weekends');
+    if (weeks) weeks.classList.toggle('hidden', type !== PATTERN_WEEKS);
+    if (weekends) weekends.classList.toggle('hidden', type !== PATTERN_WEEKENDS);
+  }
+
+  function childBlockHtml(c, pat, homes) {
+    const enabled = Boolean(pat);
+    const patternType = patternTypeFromPat(pat);
+    const anchor = pat ? pat.anchor_date : todayIso();
+    const homeA = pat ? pat.week_a_home_id : (homes[0] && homes[0].id);
+    const homeB = pat ? pat.week_b_home_id : (homes[1] && homes[1].id);
+    const defaultHome = defaultHomeFromPat(pat) || homeA;
+    const opts = homeOptions(homes);
+
+    return (
+      '<div class="border border-lavender rounded-xl p-3 space-y-2 custody-child-block" data-child-id="' + c.id + '">' +
+      '<label class="flex items-center gap-2 font-semibold text-sm text-navy dark:text-white">' +
+      '<input type="checkbox" class="custody-child-enable" ' + (enabled ? 'checked' : '') + ' /> ' +
+      escapeHtml(c.emoji || '⭐') + ' ' + escapeHtml(c.name) +
+      '</label>' +
+      '<div class="custody-child-fields space-y-2 ' + (enabled ? '' : 'hidden') + '">' +
+      '<div><label class="block text-xs text-text-soft mb-1">Mönster</label>' +
+      '<select class="custody-pattern-type w-full border rounded-lg px-2 py-1 text-sm">' +
+      '<option value="' + PATTERN_WEEKS + '"' + (patternType === PATTERN_WEEKS ? ' selected' : '') + '>Varannan vecka</option>' +
+      '<option value="' + PATTERN_WEEKENDS + '"' + (patternType === PATTERN_WEEKENDS ? ' selected' : '') + '>Varannan helg (fre–sön)</option>' +
+      '</select></div>' +
+      '<label class="block text-xs text-text-soft">Ankardatum (första perioden enligt mönster)</label>' +
+      '<input type="date" class="custody-anchor w-full border rounded-lg px-2 py-1 text-sm" value="' + anchor + '" />' +
+      '<div class="custody-fields-weeks space-y-2 ' + (patternType === PATTERN_WEEKS ? '' : 'hidden') + '">' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+      '<div><label class="text-xs text-text-soft">Hem period 1</label>' +
+      '<select class="custody-week-a w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<div><label class="text-xs text-text-soft">Hem period 2</label>' +
+      '<select class="custody-week-b w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '</div></div>' +
+      '<div class="custody-fields-weekends space-y-2 ' + (patternType === PATTERN_WEEKENDS ? '' : 'hidden') + '">' +
+      '<div><label class="text-xs text-text-soft">Bashem vardagar (mån–tors)</label>' +
+      '<select class="custody-default-home w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+      '<div><label class="text-xs text-text-soft">Helg hem A</label>' +
+      '<select class="custody-week-a w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<div><label class="text-xs text-text-soft">Helg hem B</label>' +
+      '<select class="custody-week-b w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '</div></div>' +
+      '</div></div>'
+    );
+  }
+
+  function bindChildBlock(block, pat, homes) {
+    const homeA = pat ? pat.week_a_home_id : homes[0]?.id;
+    const homeB = pat ? pat.week_b_home_id : homes[1]?.id;
+    const defaultHome = defaultHomeFromPat(pat) || homeA;
+
+    const wa = block.querySelector('.custody-fields-weeks .custody-week-a')
+      || block.querySelector('.custody-fields-weekends .custody-week-a');
+    const wb = block.querySelector('.custody-fields-weeks .custody-week-b')
+      || block.querySelector('.custody-fields-weekends .custody-week-b');
+    // Set values on all matching selects (weeks + weekends share class names in separate containers)
+    block.querySelectorAll('.custody-week-a').forEach(function (s) { if (homeA) s.value = homeA; });
+    block.querySelectorAll('.custody-week-b').forEach(function (s) { if (homeB) s.value = homeB; });
+    const defSel = block.querySelector('.custody-default-home');
+    if (defSel && defaultHome) defSel.value = defaultHome;
+
+    const typeSel = block.querySelector('.custody-pattern-type');
+    if (typeSel) {
+      typeSel.addEventListener('change', function () { togglePatternFields(block); });
+    }
   }
 
   function render() {
@@ -39,16 +138,13 @@
 
     if (homes.length < 2) {
       body.innerHTML =
-        '<p class="text-sm text-text-soft mb-3">Växelvis boende: två veckoscheman (A/B) som växlar varannan vecka.</p>' +
+        '<p class="text-sm text-text-soft mb-3">Boendeschema hjälper dig hålla reda på vilket hem barnet är på — med hemnamn och färger, inte vecka A/B.</p>' +
         '<button type="button" id="custodySetupBtn" class="px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm">Kom igång med boendeschema</button>';
       el('custodySetupBtn').addEventListener('click', runSetup);
       return;
     }
 
-    const homeOptions = homes.map(function (h) {
-      return '<option value="' + h.id + '">' + escapeHtml(h.label) + '</option>';
-    }).join('');
-
+    const homeOpts = homeOptions(homes);
     const parentRows = parents.map(function (p) {
       const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
       const selected = mapped ? mapped.custody_home_id : '';
@@ -56,40 +152,20 @@
         '<div class="flex flex-wrap items-center gap-2 text-sm">' +
         '<span class="min-w-[8rem] text-navy dark:text-white">' + escapeHtml(p.name || p.email) + '</span>' +
         '<select class="custody-parent-home border rounded-lg px-2 py-1" data-parent-id="' + p.id + '">' +
-        '<option value="">—</option>' + homeOptions +
+        '<option value="">—</option>' + homeOpts +
         '</select></div>'
       );
     }).join('');
 
     const childBlocks = children.map(function (c) {
       const pat = patterns.find(function (p) { return p.child_id === c.id; });
-      const enabled = Boolean(pat);
-      return (
-        '<div class="border border-lavender rounded-xl p-3 space-y-2 custody-child-block" data-child-id="' + c.id + '">' +
-        '<label class="flex items-center gap-2 font-semibold text-sm text-navy dark:text-white">' +
-        '<input type="checkbox" class="custody-child-enable" ' + (enabled ? 'checked' : '') + ' /> ' +
-        escapeHtml(c.emoji || '⭐') + ' ' + escapeHtml(c.name) +
-        '</label>' +
-        '<div class="custody-child-fields space-y-2 ' + (enabled ? '' : 'hidden') + '">' +
-        '<label class="block text-xs text-text-soft">Första vecka A började</label>' +
-        '<input type="date" class="custody-anchor w-full border rounded-lg px-2 py-1 text-sm" value="' + (pat ? pat.anchor_date : todayIso()) + '" />' +
-        '<div class="grid grid-cols-2 gap-2">' +
-        '<div><label class="text-xs text-text-soft">Vecka A hem</label>' +
-        '<select class="custody-week-a w-full border rounded-lg px-2 py-1 text-sm">' + homeOptions + '</select></div>' +
-        '<div><label class="text-xs text-text-soft">Vecka B hem</label>' +
-        '<select class="custody-week-b w-full border rounded-lg px-2 py-1 text-sm">' + homeOptions + '</select></div>' +
-        '</div></div></div>'
-      );
+      return childBlockHtml(c, pat, homes);
     }).join('');
 
     body.innerHTML =
-      '<p class="text-sm text-text-soft">Etikett och färg per hem. Varannan vecka växlar barnet mellan vecka A och B.</p>' +
-      '<p class="text-xs text-text-soft mt-2 rounded-lg bg-sky/50 border border-lavender px-3 py-2">' +
-      '💡 <strong>Skapa PDF av dina dagar:</strong> gå till ' +
-      '<a href="/print-schema?scope=my" class="text-gold font-semibold hover:underline">Skapa PDF — schema → Bara mina dagar</a> ' +
-      '(kräver att boendeschema är sparat).</p>' +
+      '<p class="text-sm text-text-soft">Etikett och färg per hem. Välj mönster per barn — varannan vecka eller varannan helg.</p>' +
       '<div class="space-y-3 mt-3" id="custodyHomesEditor">' +
-      homes.map(function (h, i) {
+      homes.map(function (h) {
         return (
           '<div class="flex flex-wrap gap-2 items-center custody-home-row" data-home-id="' + h.id + '">' +
           '<input type="color" class="custody-color w-10 h-10 rounded border-0" value="' + h.color + '" />' +
@@ -109,13 +185,10 @@
       if (sel && mapped) sel.value = mapped.custody_home_id;
     });
 
-    patterns.forEach(function (pat) {
-      const block = document.querySelector('[data-child-id="' + pat.child_id + '"]');
-      if (!block) return;
-      const wa = block.querySelector('.custody-week-a');
-      const wb = block.querySelector('.custody-week-b');
-      if (wa) wa.value = pat.week_a_home_id;
-      if (wb) wb.value = pat.week_b_home_id;
+    children.forEach(function (c) {
+      const pat = patterns.find(function (p) { return p.child_id === c.id; });
+      const block = document.querySelector('[data-child-id="' + c.id + '"]');
+      if (block) bindChildBlock(block, pat, homes);
     });
 
     body.querySelectorAll('.custody-child-enable').forEach(function (cb) {
@@ -129,10 +202,6 @@
     if (saveBtn) saveBtn.onclick = saveAll;
   }
 
-  function escapeHtml(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-  }
-
   async function runSetup() {
     try {
       await Auth.api('/api/family/custody/setup', { method: 'POST' });
@@ -140,6 +209,27 @@
     } catch (err) {
       showToast('Kunde inte starta: ' + (err.message || 'fel'), true);
     }
+  }
+
+  function readPatternPayload(block) {
+    const patternType = block.querySelector('.custody-pattern-type').value;
+    const visible = patternType === PATTERN_WEEKENDS
+      ? block.querySelector('.custody-fields-weekends')
+      : block.querySelector('.custody-fields-weeks');
+    const weekA = visible.querySelector('.custody-week-a').value;
+    const weekB = visible.querySelector('.custody-week-b').value;
+    const payload = {
+      anchor_date: block.querySelector('.custody-anchor').value,
+      week_a_home_id: weekA,
+      week_b_home_id: weekB,
+      pattern_type: patternType,
+      clone_week_b: true,
+    };
+    if (patternType === PATTERN_WEEKENDS) {
+      const defSel = block.querySelector('.custody-default-home');
+      payload.default_home_id = defSel ? defSel.value : weekA;
+    }
+    return payload;
   }
 
   async function saveAll() {
@@ -188,16 +278,11 @@
         }
         await Auth.api('/api/family/custody/pattern/' + childId, {
           method: 'PUT',
-          body: JSON.stringify({
-            anchor_date: block.querySelector('.custody-anchor').value,
-            week_a_home_id: block.querySelector('.custody-week-a').value,
-            week_b_home_id: block.querySelector('.custody-week-b').value,
-            clone_week_b: true,
-          }),
+          body: JSON.stringify(readPatternPayload(block)),
         });
       }
 
-      track('custody_view_filtered', { source: 'family_settings_save' });
+      track('custody_schedule_updated', { source: 'family_settings_save' });
       if (msg) { msg.textContent = '✓ Sparat!'; setTimeout(function () { msg.classList.add('hidden'); }, 2000); }
       await load();
     } catch (err) {
