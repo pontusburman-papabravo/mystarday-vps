@@ -80,9 +80,10 @@ describe('computeAiGoNoGoVerdict', () => {
 });
 
 describe('legacy onboarding funnel', () => {
-  it('funnel counts legacy onboarding start', () => {
+  it('legacy onboarding start is tracked in client analytics, not main First Success funnel', () => {
     const db = fs.readFileSync(path.join(ROOT, 'db/activation-funnel.js'), 'utf8');
-    assert.match(db, /funnel_onboarding_started/);
+    assert.doesNotMatch(db, /funnel_onboarding_started/);
+    assert.match(db, /child_created_at/);
     const onboarding = fs.readFileSync(path.join(ROOT, 'public/js/onboarding.js'), 'utf8');
     assert.match(onboarding, /trackLegacyOnboardingIfNeeded/);
     assert.match(onboarding, /funnel_onboarding_started/);
