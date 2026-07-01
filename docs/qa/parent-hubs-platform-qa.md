@@ -140,9 +140,14 @@ Screenshots: `/opt/cursor/artifacts/screenshots/*-iphone-se-platform-qa.png`
 ## Nästa steg
 
 1. Merge **Familj #456** → `cursor/for-dig-10-10-2c04`
-2. Merge **denna QA-rapport** (valfritt, docs-only PR)
+2. Merge **QA #460** → `cursor/for-dig-10-10-2c04` (spårbarhet, docs-only)
 3. Merge **`cursor/for-dig-10-10-2c04` → `main`**
-4. Manuell spot-check: Bibliotek ← Till planering på fysisk enhet
+
+## Slutlig release-check (före prod)
+
+- [ ] **Manuell spot-check:** Planering → Bibliotek → tillbaka (`← Till planering` eller bottom nav)
+- [x] `npm run test:gate` grön på for-dig-branchen
+- [x] Plattforms-QA rapport (#460)
 
 ---
 
