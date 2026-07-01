@@ -1,22 +1,20 @@
 # Föräldrahubbar 10/10 — Kravdokument (index)
 
-**Status:** Kravdokument (2026-07) — **ingen implementation i denna PR**  
-**Mall:** samma struktur som [För dig 10/10](for-dig-vision.md)  
-**Branch (implementation):** `cursor/for-dig-10-10-2c04`  
-**Arkitekturreferens:** [vuxenmeny-v2.md](vuxenmeny-v2.md)
+**Status:** Operativ produktkonstitution (2026-07) — **Hem GO för implementation**  
+**Mall:** [parent-hub-vision-template.md](parent-hub-vision-template.md) (låst format)  
+**Referens (För dig):** [for-dig-vision.md](for-dig-vision.md)  
+**Branch (implementation):** `cursor/hem-vision-docs-6752`
 
 ---
 
 ## Kopiera till agent — hela uppsättningen
 
-Kopiera länkarna nedan till en ny agent, eller peka agenten hit:
-
-| Område | Vision | Agent-uppdrag |
-|--------|--------|---------------|
-| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) |
-| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) |
-| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) |
-| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) |
+| Område | Vision | Agent-uppdrag | Status |
+|--------|--------|---------------|--------|
+| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) | **GO** |
+| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) | Konstitution klar |
+| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) | Konstitution klar |
+| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) | Konstitution klar |
 
 **Referens (För dig — redan byggt):**
 
@@ -26,9 +24,27 @@ Kopiera länkarna nedan till en ny agent, eller peka agenten hit:
 
 ---
 
+## Gemensam konstitutionsstruktur
+
+Alla hubbar följer [parent-hub-vision-template.md](parent-hub-vision-template.md):
+
+| Byggsten | Syfte |
+|----------|--------|
+| **Filterregel** | Varje komponent måste motivera sin existens |
+| **Beslutsregel** | Högst en primär handling per domän |
+| **Priority Ladder** | Objektiv ordning vid konkurrens |
+| **Exit Rule** | När användaren är "klar" |
+| **Success Metrics** | PR-granskning utan subjektiv smak |
+| **Copy-regel** | Rätt ton per hub |
+
+Hubb-specifikt innehåll — inte ordagranna kopior. Se mallen för per-hub-filter och beslutsregler.
+
+---
+
 ## Snabbkopiering (råa sökvägar)
 
 ```
+docs/parent-hub-vision-template.md
 docs/hem-vision.md
 docs/hem-agent-prompt.md
 docs/planering-vision.md
@@ -41,19 +57,13 @@ docs/familj-agent-prompt.md
 
 ---
 
-## Vad varje dokument innehåller
-
-| Fil | Syfte |
-|-----|-------|
-| `*-vision.md` | Produktkompass, Jenny-test, informationshierarki, anti-patterns |
-| `*-agent-prompt.md` | Definition of Done, mandat, scope, teknisk vägledning, arbetsflöde |
-
----
-
 ## Gemensam Definition of Done (alla hubbar)
 
 Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 
+- Filterregel och beslutsregel verifierade
+- Exit rule uppfylld
+- Success metrics ifyllda i PR
 - Mobil först (iPhone portrait, parent-magic dark theme)
 - Inga POS-brott (se `.cursor/rules/010-product.mdc`, `040-parent-experience.mdc`)
 - `npm run test:gate` grön vid implementation
@@ -61,15 +71,15 @@ Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 
 ---
 
-## Avgränsning mot För dig
+## Avgränsning mellan hubbar
 
-| Flik | Roll | Inte |
-|------|------|------|
-| **Hem** | *Här är läget* — status, ett nästa steg | Coach-katalog, byggverktyg |
-| **Planering** | *Jag vill planera* — bygga och justera | Daglig status, rekommendationer |
-| **Belöningar** | *Stjärnor och belöningar* — hantera och följa | Schema, familjeadmin |
-| **Familj** | *Vilka är med?* — barn, vuxna, pedagoger | Inställningar, prenumeration |
-| **För dig** | *Här är vad jag rekommenderar* — problem → rutin | (se [for-dig-vision.md](for-dig-vision.md)) |
+| Flik | Roll | Filterregel (kort) | Inte |
+|------|------|-------------------|------|
+| **Hem** | *Här är läget* | Besvara tre frågor om dagen | Coach-katalog, byggverktyg |
+| **Planering** | *Jag vill planera* | Hitta rätt byggverktyg | Daglig status, rekommendationer |
+| **Belöningar** | *Stjärnor och belöningar* | Godkänna, hantera, följa | Schema, familjeadmin |
+| **Familj** | *Vilka är med?* | Hitta, administrera, öppna person | Inställningar, prenumeration |
+| **För dig** | *Här är vad jag rekommenderar* | Problem → rutin | (se [for-dig-vision.md](for-dig-vision.md)) |
 
 ---
 
@@ -78,11 +88,11 @@ Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 | Hub | Tre frågor (inom 5 sek, utan scroll) |
 |-----|--------------------------------------|
 | Hem | Hur går det idag? · Vad ska jag göra nu? · Var hittar jag barnet? |
-| Planering | Vad kan jag göra här? · Var går jag för [schema/bibliotek]? · Känns det överbefolkat? |
+| Planering | Vad kan jag göra här? · Var går jag för schema? · Var skapar jag aktivitet? |
 | Belöningar | Vad väntar på mig? · Var hanterar jag belöningar? · Hur ser barnets stjärnor ut? |
 | Familj | Vem ingår? · Hur lägger jag till någon? · Var ser jag ett barns detaljer? |
 
-Detaljer och godkända målbilder finns i respektive `*-vision.md`.
+Detaljer, priority ladder och godkända målbilder finns i respektive `*-vision.md`.
 
 ---
 

@@ -3,7 +3,7 @@
 **Status:** Godkänd produktkompass (2026-07)  
 **Feature slug:** `parent_home_magic` (presentation) · domän `home`  
 **Route:** `/dashboard`  
-**Relaterat:** [hem-agent-prompt.md](hem-agent-prompt.md) · [parent-hubs-index.md](parent-hubs-index.md) · [vuxenmeny-v2.md](vuxenmeny-v2.md) §2
+**Relaterat:** [hem-agent-prompt.md](hem-agent-prompt.md) · [parent-hubs-index.md](parent-hubs-index.md) · [parent-hub-vision-template.md](parent-hub-vision-template.md) · [vuxenmeny-v2.md](vuxenmeny-v2.md) §2
 
 ---
 
