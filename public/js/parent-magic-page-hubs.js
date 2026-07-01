@@ -105,12 +105,23 @@
       '</div></div>';
   }
 
-  function renderForDigHero() {
+  function renderForDigHero(opts) {
+    const greeting = (opts && opts.greeting) || 'Hej 👋';
+    const focus = (opts && opts.focus) || 'Vad vill du fokusera på just nu?';
     return '<div class="magic-page-shell magic-3d-scene">' +
-      '<div class="magic-page-hero">' +
+      '<div class="magic-page-hero for-dig-magic-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">✨</div>' +
-      '<div><h1>För dig</h1><p>Mål, favoriter och rekommendationer</p></div>' +
+      '<div><h1>' + escHtml(greeting) + '</h1><p class="for-dig-magic-focus">' + escHtml(focus) + '</p></div>' +
       '</div></div>';
+  }
+
+  function updateForDigHero(opts) {
+    const el = mount();
+    if (!el || !(window.ParentMagicShell && ParentMagicShell.isMagic())) return;
+    const page = document.body.getAttribute('data-magic-page');
+    if (page !== 'for-dig') return;
+    el.innerHTML = renderForDigHero(opts);
+    el.classList.remove('hidden');
   }
 
   function renderFamilyHero() {
@@ -360,6 +371,7 @@
 
   window.ParentMagicPageHub = {
     refresh: refresh,
+    updateForDigHero: updateForDigHero,
     refreshScheduleHero: function () {
       const magic = window.ParentMagicShell && ParentMagicShell.isMagic();
       if (magic) refresh('schedule', true);

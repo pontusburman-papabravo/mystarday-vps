@@ -17,6 +17,51 @@
   margin-top: 0.5rem;
 }
 
+.for-dig-magic-focus {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-navy, #1B2340);
+  margin-top: 0.35rem;
+}
+
+.for-dig-section-title {
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-navy, #1B2340);
+  margin-bottom: 0.35rem;
+}
+
+.for-dig-section-sub {
+  font-size: 0.875rem;
+  color: var(--color-text-soft, #6B7280);
+  margin-bottom: 1rem;
+}
+
+.for-dig-goal-teasers {
+  margin-top: 0.75rem;
+  padding-left: 0;
+  list-style: none;
+}
+
+.for-dig-goal-teasers li {
+  font-size: 0.875rem;
+  color: var(--color-text-soft, #6B7280);
+  padding: 0.15rem 0;
+}
+
+.for-dig-goal-card .for-dig-badge--child {
+  background: #E0F5EC;
+  color: #166534;
+}
+
+.for-dig-recommend-highlight {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-soft, #6B7280);
+  margin-top: 0.15rem;
+}
+
 .for-dig-goal-card {
   background: #fff;
   border: 2px solid #EDE7F6;

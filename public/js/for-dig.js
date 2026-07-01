@@ -69,6 +69,40 @@
     return installs.some((i) => i.goal_slug === slug && i.child_id === childId);
   }
 
+  function installedChildren(slug) {
+    return children.filter((c) => isInstalled(slug, c.id));
+  }
+
+  function installedBadgeHtml(goal) {
+    const installed = installedChildren(goal.slug);
+    if (installed.length === 0) return '';
+    if (installed.length === 1) {
+      return `<span class="for-dig-badge for-dig-badge--child">För ${esc(installed[0].name)}</span>`;
+    }
+    if (installed.length === children.length && children.length > 1) {
+      return '<span class="for-dig-badge for-dig-badge--child">Alla barn</span>';
+    }
+    return `<span class="for-dig-badge for-dig-badge--child">${installed.length} barn</span>`;
+  }
+
+  function goalStarsLine(goal) {
+    if (!goal.starsHint || goal.starsHint.includes('tempo')) {
+      return 'Belöningar och stjärnor som passar barnets tempo.';
+    }
+    return `Barn brukar tjäna ${esc(goal.starsHint)}.`;
+  }
+
+  function recommendationHighlights(goal) {
+    const highlights = goal.highlightActivities || [];
+    if (highlights.length > 0) return highlights.slice(0, 3).join(' · ');
+    return goal.tagline || '';
+  }
+
+  function shouldSkipChildPicker(preselectedChildId) {
+    if (children.length === 1) return true;
+    return Boolean(preselectedChildId);
+  }
+
   function topPopularSlugs() {
     return new Set(popular.slice(0, 3).map((p) => p.goal_slug));
   }
@@ -100,11 +134,7 @@
 
     const items = allFavoriteItems();
     if (items.length === 0) {
-      mount.innerHTML = `
-        <div class="for-dig-favorites">
-          <p class="font-semibold text-navy text-sm mb-1">Mina favoriter</p>
-          <p class="text-sm text-text-soft">Spara favoriter med stjärnan — då hittar du dem här.</p>
-        </div>`;
+      mount.innerHTML = '';
       return;
     }
 
@@ -214,7 +244,7 @@
       : 'barnens';
 
     if (goal.scheduleName) {
-      return `<strong>${esc(scheduleLabel(goal))}</strong> läggs in i ${possessive} veckoschema. Befintligt innehåll kan ersättas.`;
+      return `<strong>${esc(scheduleLabel(goal))}</strong> läggs in i ${possessive} veckoschema på valda dagar. Annat innehåll på samma dagar ersätts.`;
     }
     if (goal.activityNames && goal.activityNames.length > 0) {
       const examples = goal.activityNames.slice(0, 3).join(', ');
@@ -231,6 +261,16 @@
     if (!mount) return;
 
     const withBirthday = children.filter((c) => c.birthday);
+    if (children.length > 0 && withBirthday.length === 0) {
+      mount.innerHTML = `
+        <div class="for-dig-recommend mb-2">
+          <p class="for-dig-section-title">Personliga tips</p>
+          <p class="text-sm text-text-soft mb-2">Lägg till barnets födelsedag under Familj så kan vi föreslå rätt mål.</p>
+          <a href="/family" class="text-sm text-gold font-semibold no-underline">Gå till Familjen →</a>
+        </div>`;
+      return;
+    }
+
     if (withBirthday.length === 0) {
       mount.innerHTML = '';
       return;
@@ -246,16 +286,19 @@
       if (relevant.length === 0) continue;
       html += `
         <div class="for-dig-recommend mb-3">
-          <p class="font-semibold text-navy text-sm mb-2">För ${esc(child.name)} (${age} år) — Rekommenderat just nu</p>
+          <p class="for-dig-section-title">Rekommenderat för ${esc(child.name)} (${age} år)</p>
           <div class="space-y-2">
             ${relevant.map((g) => {
               const done = isInstalled(g.slug, child.id);
               return `
               <div class="for-dig-recommend-row">
-                <span class="text-sm text-navy">${g.icon} ${esc(g.title)}</span>
+                <span class="text-sm text-navy min-w-0">
+                  ${g.icon} ${esc(g.title)}
+                  <span class="for-dig-recommend-highlight">${esc(recommendationHighlights(g))}</span>
+                </span>
                 ${done
                   ? '<span class="for-dig-recommend-done">Aktiverad ✓</span>'
-                  : `<button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}" data-child-id="${esc(child.id)}">Aktivera</button>`}
+                  : `<button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}" data-child-id="${esc(child.id)}">${esc(g.activateLabel || 'Aktivera')}</button>`}
               </div>`;
             }).join('')}
           </div>
@@ -269,11 +312,11 @@
   }
 
   function renderGoalCard(goal) {
-    const isExplore = goal.primaryAction === 'explore';
     const expanded = expandedSlug === goal.slug;
-    const installedAny = children.some((c) => isInstalled(goal.slug, c.id));
+    const installedAny = installedChildren(goal.slug).length > 0;
     const isPop = topPopularSlugs().has(goal.slug);
     const isFav = goalFavoriteSlugs.has(goal.slug);
+    const teaserOutcomes = (goal.outcomes || []).slice(0, 2);
 
     return `
       <article class="for-dig-goal-card${installedAny ? ' is-installed' : ''}" data-slug="${esc(goal.slug)}">
@@ -282,11 +325,16 @@
           <div class="flex-1 min-w-0">
             <h3 class="font-heading font-bold text-navy text-lg">
               ${esc(goal.title)}
-              ${installedAny ? '<span class="for-dig-badge">Aktiverad</span>' : ''}
+              ${installedBadgeHtml(goal)}
               ${isPop ? '<span class="for-dig-badge for-dig-popular-badge">Populärt</span>' : ''}
             </h3>
             <p class="text-sm text-text-soft mt-0.5">${esc(goal.tagline)}</p>
             <p class="text-xs text-text-soft mt-1">För barn ${goal.ageMin}–${goal.ageMax} år</p>
+            ${!expanded && teaserOutcomes.length > 0 ? `
+              <ul class="for-dig-goal-teasers">
+                ${teaserOutcomes.map((o) => `<li>✓ ${esc(o)}</li>`).join('')}
+              </ul>
+            ` : ''}
           </div>
           <button type="button" class="for-dig-fav-star${isFav ? ' is-on' : ''}" data-action="toggle-favorite" data-slug="${esc(goal.slug)}" aria-label="${isFav ? 'Ta bort favorit' : 'Spara som favorit'}">${isFav ? '★' : '☆'}</button>
         </div>
@@ -294,11 +342,9 @@
         ${expanded ? renderGoalDetail(goal) : ''}
 
         <div class="mt-4 flex flex-col gap-2">
-          ${isExplore && !expanded
-            ? `<button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="expand" data-slug="${esc(goal.slug)}">Utforska</button>`
-            : ''}
-          ${!isExplore || expanded
-            ? `<button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate" data-slug="${esc(goal.slug)}">${esc(goal.activateLabel || 'Aktivera')}</button>`
+          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate" data-slug="${esc(goal.slug)}">${esc(goal.activateLabel || 'Aktivera')}</button>
+          ${!expanded && (goal.outcomes || []).length > 2
+            ? `<button type="button" class="text-sm text-gold font-semibold" data-action="expand" data-slug="${esc(goal.slug)}">Visa mer</button>`
             : ''}
           <button type="button" class="for-dig-suggestion-link" data-action="suggest" data-slug="${esc(goal.slug)}">💡 Föreslå förbättring</button>
         </div>
@@ -312,20 +358,25 @@
         <ul class="text-sm text-text-soft space-y-1 mb-3">
           ${(goal.outcomes || []).map((o) => `<li>✓ ${esc(o)}</li>`).join('')}
         </ul>
-        <p class="text-sm text-text-soft mb-2">Barn brukar tjäna ${esc(goal.starsHint || 'stjärnor per vecka')}</p>
-        <div class="flex flex-wrap gap-2 mb-3">
+        <p class="text-sm text-text-soft mb-2">${goalStarsLine(goal)}</p>
+        <div class="flex flex-wrap gap-2 mb-1">
           ${(goal.rewardExamples || []).map((r) => `
             <span class="text-sm bg-gold-light px-2 py-1 rounded-lg">${r.icon} ${esc(r.label)}</span>
           `).join('')}
         </div>
-        <a href="/library" class="text-sm text-gold underline" data-action="library-link">Anpassa själv i biblioteket →</a>
       </div>`;
   }
 
   function renderGoals() {
     const mount = document.getElementById('forDigGoals');
     if (!mount) return;
-    mount.innerHTML = sortGoalsForDisplay().map(renderGoalCard).join('');
+    mount.innerHTML = `
+      <div class="for-dig-section">
+        <h2 class="for-dig-section-title">Utvecklingsmål</h2>
+        <p class="for-dig-section-sub">Välj ett problem — vi sätter upp rutinen åt dig.</p>
+      </div>
+      ${sortGoalsForDisplay().map(renderGoalCard).join('')}
+    `;
   }
 
   function showModal(html, onMount) {
@@ -442,7 +493,7 @@
     else if (children.length === 1) initialIds.add(children[0].id);
 
     return new Promise((resolve) => {
-      let phase = 'pick';
+      let phase = shouldSkipChildPicker(preselectedChildId) ? 'confirm' : 'pick';
       let selectedChildIds = initialIds;
       let preview = null;
       let starOverrides = null;
@@ -595,9 +646,7 @@
       await loadInstalls();
       renderGoals();
       renderRecommendations();
-      await showNextStepModal(data);
-      const firstChild = selectedChildren[0];
-      showIntentModal(slug, firstChild.id, goal.title);
+      await showPostActivationModal(data, slug, selectedChildren, goal.title);
     } catch (err) {
       window.showToast && showToast(err.message || 'Något gick fel', true);
     } finally {
@@ -611,27 +660,58 @@
     }
   }
 
-  function showNextStepModal(data) {
-    if (!data || !data.next_step) return Promise.resolve();
+  function showPostActivationModal(data, goalSlug, selectedChildren, goalTitle) {
+    const step = data && data.next_step;
+    const firstChild = selectedChildren[0];
+    const childId = firstChild ? firstChild.id : null;
 
-    const step = data.next_step;
     const html = `
       <h3 class="font-heading font-bold text-navy text-lg mb-2">Klart!</h3>
-      <p class="text-sm text-text-soft mb-2">${esc(data.message || '')}</p>
-      <p class="text-sm text-text-soft mb-4">${esc(step.hint || '')}</p>
-      <a href="${esc(step.href)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-2">${esc(step.label)}</a>
-      <button type="button" class="text-sm text-text-soft underline w-full" data-action="next-step-dismiss">Stäng</button>
+      <p class="text-sm text-text-soft mb-3">${esc(data.message || '')}</p>
+      ${step ? `
+        <p class="text-sm text-text-soft mb-3">${esc(step.hint || '')}</p>
+        <a href="${esc(step.href)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(step.label)}</a>
+      ` : ''}
+      <div class="border-t border-lavender pt-4 mt-2">
+        <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med? <span class="text-xs">(valfritt)</span></p>
+        <div id="forDigIntentOptions">
+          ${INTENT_OPTIONS.map((o) => `
+            <button type="button" class="for-dig-intent-option" data-reason="${o.value}">${esc(o.label)}</button>
+          `).join('')}
+        </div>
+        <button type="button" class="text-sm text-text-soft underline w-full mt-3" data-action="post-activation-dismiss">Inte nu</button>
+      </div>
     `;
 
     return new Promise((resolve) => {
       const backdrop = showModal(html, (root) => {
-        root.querySelector('[data-action="next-step-dismiss"]').addEventListener('click', () => {
+        const dismiss = () => {
           root.remove();
           resolve();
-        });
+        };
+
+        root.querySelector('[data-action="post-activation-dismiss"]')?.addEventListener('click', dismiss);
         root.querySelector('a.for-dig-cta')?.addEventListener('click', () => {
           root.remove();
           resolve();
+        });
+
+        root.querySelector('#forDigIntentOptions')?.addEventListener('click', async (ev) => {
+          const btn = ev.target.closest('[data-reason]');
+          if (!btn || !childId) return;
+          try {
+            await window.apiFetch('/api/for-dig/feedback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                goal_slug: goalSlug,
+                child_id: childId,
+                phase: 'intent',
+                intent_reason: btn.dataset.reason,
+              }),
+            });
+          } catch (_) { /* non-blocking */ }
+          dismiss();
         });
       });
       backdrop.addEventListener('click', (e) => {
@@ -639,38 +719,6 @@
           backdrop.remove();
           resolve();
         }
-      });
-    });
-  }
-
-  function showIntentModal(goalSlug, childId, goalTitle) {
-    const html = `
-      <h3 class="font-heading font-bold text-navy text-lg mb-2">Vi är nyfikna</h3>
-      <p class="text-sm text-text-soft mb-4">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med?</p>
-      <div id="forDigIntentOptions">
-        ${INTENT_OPTIONS.map((o) => `
-          <button type="button" class="for-dig-intent-option" data-reason="${o.value}">${esc(o.label)}</button>
-        `).join('')}
-      </div>
-    `;
-    showModal(html, (backdrop) => {
-      backdrop.querySelector('#forDigIntentOptions').addEventListener('click', async (ev) => {
-        const btn = ev.target.closest('[data-reason]');
-        if (!btn) return;
-        try {
-          await window.apiFetch('/api/for-dig/feedback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              goal_slug: goalSlug,
-              child_id: childId,
-              phase: 'intent',
-              intent_reason: btn.dataset.reason,
-            }),
-          });
-          // Server records `for_dig_feedback_intent` on successful insert.
-        } catch (_) { /* non-blocking */ }
-        backdrop.remove();
       });
     });
   }
@@ -904,17 +952,22 @@
     if (!user || gen !== _forDigInitGen) return;
 
     const greetingEl = document.getElementById('forDigGreeting');
+    const greeting = `Hej ${parentFirstName()} 👋`;
+    const focus = 'Vad vill du fokusera på just nu?';
     if (greetingEl) {
-      greetingEl.textContent = `Hej ${parentFirstName()} 👋`;
+      greetingEl.textContent = greeting;
+    }
+    if (window.ParentMagicPageHub && ParentMagicPageHub.updateForDigHero) {
+      ParentMagicPageHub.updateForDigHero({ greeting, focus });
     }
 
     try {
       await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular(), loadFavorites()]);
       if (gen !== _forDigInitGen) return;
-      renderFavorites();
       renderRecommendations();
-      renderPopular();
       renderGoals();
+      renderFavorites();
+      renderPopular();
       bindEvents();
       trackWinbackLanding();
       const utm = getStoredWinbackUtm();

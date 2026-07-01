@@ -47,7 +47,7 @@
       '/js/dashboard.js?v=2.38.0',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    'for-dig': ['/js/for-dig.js?v=2.10'],
+    'for-dig': ['/js/for-dig.js?v=2.11'],
     family: [
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',

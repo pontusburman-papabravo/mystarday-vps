@@ -103,13 +103,6 @@ async function getPendingOutcomes(familyId, parentId) {
      JOIN parent_child pc ON pc.child_id = c.id AND pc.parent_id = $2 AND pc.revoked_at IS NULL
      WHERE i.family_id = $1
        AND i.installed_at <= NOW() - INTERVAL '7 days'
-       AND EXISTS (
-         SELECT 1 FROM for_dig_goal_feedback f
-         WHERE f.family_id = i.family_id
-           AND f.child_id = i.child_id
-           AND f.goal_slug = i.goal_slug
-           AND f.phase = 'intent'
-       )
        AND NOT EXISTS (
          SELECT 1 FROM for_dig_goal_feedback f
          WHERE f.family_id = i.family_id
