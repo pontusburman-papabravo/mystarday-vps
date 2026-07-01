@@ -74,8 +74,10 @@ describe('Hem 10/10 — priority ladder', () => {
     assert.match(css, /parent-hub-readiness-slot/);
   });
 
-  it('SW bumped for Hem 10/10', () => {
+  it('SW cache version matches config (Hem + Planering merge)', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v434/);
+    const cache = JSON.parse(read('config/cache-version.json'));
+    assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
+    assert.ok(cache.cacheName >= 'stjarndag-v435', 'for-dig branch should be at v435+ after merge');
   });
 });

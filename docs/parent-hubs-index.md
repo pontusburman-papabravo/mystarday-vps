@@ -68,8 +68,17 @@ Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 - Inga POS-brott (se `.cursor/rules/010-product.mdc`, `040-parent-experience.mdc`)
 - `npm run test:gate` grön vid implementation
 - Commit + PR med POS-citat och Jenny-test-resultat
+- **[Parent Hub Acceptance Checklist](qa/parent-hub-acceptance-checklist.md)** ifylld före merge
 
 ---
+
+## QA & integration
+
+| Dokument | Syfte |
+|----------|--------|
+| [qa/parent-hub-acceptance-checklist.md](qa/parent-hub-acceptance-checklist.md) | Återanvändbar checklista per hubb-PR |
+| [qa/hub-integration-sweep.md](qa/hub-integration-sweep.md) | Integrationssweep efter parallell utveckling |
+
 
 ## Avgränsning mellan hubbar
 
