@@ -7,6 +7,14 @@
 
 ---
 
+## Produktgrund vs teknisk grund
+
+> **Teknisk grund får göra framtida produktbeslut billigare — men aldrig fatta dem i förväg.**
+>
+> Vid granskning: fråga om ändringen är teknisk förberedelse eller produktbeslut. Produktbeslut för en barnvärld väntar tills dess vision är godkänd.
+
+---
+
 ## Kopiera till agent
 
 | Värld | Vision | Agent-uppdrag | Status |
