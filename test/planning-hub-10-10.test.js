@@ -14,7 +14,8 @@ describe('Planering hub 10/10', () => {
     assert.match(src, /title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar'/);
     assert.match(src, /title: 'Kalender', sub: 'Se månad och specialdagar'/);
     assert.match(src, /title: 'Veckoschema', sub: 'Redigera barnets vecka'/);
-    assert.match(src, /title: 'Boendeschema', sub: 'Växelvis boende mellan hushåll'/);
+    assert.match(src, /title: 'Boendeschema'/);
+    assert.match(src, /sub: 'Växelvis boende mellan hushåll'/);
     assert.match(src, /title: 'Daglig logg', sub: 'Se och justera tidigare dagar'/);
     assert.match(src, /title: 'Tilldela schema', sub: 'Kopiera schema till barn'/);
   });
