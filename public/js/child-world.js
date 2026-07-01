@@ -12,9 +12,6 @@
         ChildRewardsEngine.mountPendingBannerIfNeeded();
       });
     }
-    if (!window.ChildMorgonhus && window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
-      ChildSkattHouse.showHub();
-    }
   }
 
   window.ChildWorld = { onEnter: onEnter };

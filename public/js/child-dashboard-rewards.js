@@ -13,6 +13,35 @@ let _currentGoalData = null; // cache for goal-picker
 let _currentRewardsData = null;
 let _loadRewardsInflight = null;
 
+function childMe() {
+  const bridge = window.ChildDashboardBridge;
+  if (bridge && typeof bridge.getMe === 'function') {
+    const session = bridge.getMe();
+    if (session) return session;
+  }
+  return (window.Auth && typeof Auth.getUser === 'function') ? Auth.getUser() : null;
+}
+
+function childUiMagicEnabled() {
+  const bridge = window.ChildDashboardBridge;
+  if (bridge && typeof bridge.getChildUiMagic === 'function') {
+    return bridge.getChildUiMagic();
+  }
+  return !!(window.AppViewMode && AppViewMode.isMagic());
+}
+
+function minimalUiEnabled() {
+  const bridge = window.ChildDashboardBridge;
+  if (bridge && typeof bridge.isMinimalUiActive === 'function') {
+    return bridge.isMinimalUiActive();
+  }
+  return false;
+}
+
+function childWorldsV2Enabled() {
+  return !!(window.ChildWorlds && ChildWorlds.V2_ENABLED);
+}
+
 function showRewardsLoadError(loader, message) {
   if (!loader) return;
   const text = message || 'Kunde inte ladda belöningar.';
@@ -94,8 +123,9 @@ async function loadRewardsInner(options) {
 
   // ── Offline path: serve cached rewards from IndexedDB ─────────
   if (!navigator.onLine) {
+    const session = childMe();
     const cached = await (window.OfflineStore
-      ? OfflineStore.getRewards(me?.id)
+      ? OfflineStore.getRewards(session?.id)
       : Promise.resolve(null));
     if (skeletonTimer) skeletonTimer.stop();
     if (cached) {
@@ -118,8 +148,9 @@ async function loadRewardsInner(options) {
     if (skeletonTimer) skeletonTimer.stop();
 
     // Cache rewards for offline use
-    if (window.OfflineStore && me?.id) {
-      OfflineStore.saveRewards(me.id, rewardsData).catch(() => {});
+    const session = childMe();
+    if (window.OfflineStore && session?.id) {
+      OfflineStore.saveRewards(session.id, rewardsData).catch(() => {});
     }
 
     hideOfflineBanner();
@@ -128,7 +159,7 @@ async function loadRewardsInner(options) {
     _currentRewardsData = rewardsData;
     updateGoalBar(goalData);
     try {
-      renderSkattkammaren(rewardsData, goalData, manualData);
+      await renderSkattkammaren(rewardsData, goalData, manualData);
       if (window.ChildRewardsEngine) {
         ChildRewardsEngine.setGoalData(goalData);
         ChildRewardsEngine.setRewardsData(rewardsData);
@@ -144,14 +175,14 @@ async function loadRewardsInner(options) {
     console.error('[loadRewards] API failed:', err);
     // Fallback to IndexedDB cache on API failure
     const cached = await (window.OfflineStore
-      ? OfflineStore.getRewards(me?.id)
+      ? OfflineStore.getRewards(childMe()?.id)
       : Promise.resolve(null));
     if (skeletonTimer) skeletonTimer.stop();
     if (cached) {
       window.rewardsLoaded = true;
       _currentRewardsData = cached;
       try {
-        renderSkattkammaren(cached, _currentGoalData, { grants: [] });
+        await renderSkattkammaren(cached, _currentGoalData, { grants: [] });
         showOfflineBanner('📶 Offline — visar sparat data');
       } catch (renderErr) {
         console.error('[loadRewards] cached render failed:', renderErr);
@@ -307,13 +338,14 @@ function resolveSkattState(rewardsData, goalData, options) {
   });
 }
 
-function renderSkattkammaren(rewardsData, goalData, manualData) {
+async function renderSkattkammaren(rewardsData, goalData, manualData) {
   const { rewards, starBalance, redemptions } = rewardsData;
   const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
   const grants = (manualData && manualData.grants) ? manualData.grants : [];
   const trophies = redemptions.filter(r => r.status === 'approved' || r.status === 'auto');
   const skatt = resolveSkattState(rewardsData, goalData);
   const goal = skatt.goal;
+  const session = childMe();
 
   // ── Hide loader, show content ──────────────────────────
   const loader = document.getElementById('skattkammarLoading');
@@ -331,8 +363,8 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
   const totalEarned = starBalance + redemptions
     .filter(function (r) { return r.status === 'approved' || r.status === 'auto'; })
     .reduce(function (acc, r) { return acc + (r.star_cost || 0); }, 0);
-  const childLabel = (me && me.name) ? escHtml(me.name) : 'Du';
-  const heroTitle = minimalUiActive ? '🤝 Be om hjälp' : 'Stjärnburken';
+  const childLabel = (session && session.name) ? escHtml(session.name) : 'Du';
+  const heroTitle = minimalUiEnabled() ? '🤝 Be om hjälp' : 'Stjärnburken';
 
   // 1. Stjärnburken — hero (Olle-test: stjärnor + mål)
   html += '<div class="skatt-banner skatt-hero-v10">' +
@@ -533,19 +565,24 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     economyHtml: totalEarned > starBalance
       ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:12px;font-family:'Plus Jakarta Sans',sans-serif;">Totalt tjänat: ⭐ ${totalEarned}</div>`
       : '',
-    childName: me && me.name,
-    childEmoji: me && me.emoji,
-    avatarUrl: me && me.avatar_url,
+    childName: session && session.name,
+    childEmoji: session && session.emoji,
+    avatarUrl: session && session.avatar_url,
   };
 
-  if (!minimalUiActive && childUiMagic && window.ChildSkattHouse) {
+  const useSkattHouse = !minimalUiEnabled() && window.ChildSkattHouse;
+  const v2World = childWorldsV2Enabled();
+  const magicView = childUiMagicEnabled();
+
+  if (useSkattHouse && v2World) {
+    await ChildSkattHouse.present(view, html, hubMeta);
+  } else if (useSkattHouse && magicView) {
     const homeMount = document.getElementById('homeHubMount');
     const homeLoader = document.getElementById('homeHubLoading');
     if (homeMount) {
-      ChildSkattHouse.mountHome(homeMount, html, hubMeta).then(function () {
-        if (homeLoader) homeLoader.style.display = 'none';
-        homeMount.style.display = '';
-      });
+      await ChildSkattHouse.mountHome(homeMount, html, hubMeta);
+      if (homeLoader) homeLoader.style.display = 'none';
+      homeMount.style.display = '';
     }
     view.innerHTML = html;
   } else {
@@ -603,8 +640,9 @@ async function requestRedeem(rewardId) {
   // ── Offline: queue the request and show notice ──────────────────
   const isOffline = !navigator.onLine;
   if (isOffline) {
-    if (window.OfflineQueue && me?.id) {
-      OfflineQueue.queueRedeem(me.id, rewardId).catch(() => {});
+    const session = childMe();
+    if (window.OfflineQueue && session?.id) {
+      OfflineQueue.queueRedeem(session.id, rewardId).catch(() => {});
       showToast('📶 Sparas — skickas när nätverket är tillbaka', false);
     } else {
       showToast('Kräver internet för att lösa in.', true);
@@ -622,8 +660,11 @@ async function requestRedeem(rewardId) {
     await loadRewards();
   } catch (err) {
     const netErr = err && (err.message === 'Failed to fetch' || err.message === 'NetworkError when attempting to fetch resource.');
-    if (netErr && window.OfflineQueue && me?.id) {
-      OfflineQueue.queueRedeem(me.id, rewardId).catch(() => {});
+    if (netErr && window.OfflineQueue) {
+      const session = childMe();
+      if (session?.id) {
+        OfflineQueue.queueRedeem(session.id, rewardId).catch(() => {});
+      }
       showToast('📶 Sparas — skickas när nätverket är tillbaka', false);
     } else {
       showToast(err.message || 'Kunde inte lösa in.', true);

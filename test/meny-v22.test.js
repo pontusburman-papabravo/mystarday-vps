@@ -71,10 +71,10 @@ describe('meny v2.2 — Sprint 5 barn KX3/KX6/KX8', () => {
     assert.match(src, /setRewardsData/);
   });
 
-  it('child-world refreshes rewards engine on enter', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-world.js'), 'utf8');
+  it('child-world delegates skatt house to loadRewards present', () => {
+    const src = read('public/js/child-world.js');
     assert.match(src, /refreshRewards/);
-    assert.match(src, /mountPendingBannerIfNeeded/);
+    assert.doesNotMatch(src, /ChildSkattHouse\.showHub/);
   });
 });
 

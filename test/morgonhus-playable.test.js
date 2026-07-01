@@ -371,13 +371,13 @@ describe('ChildMorgonhus client module', () => {
     assert.ok(!lightBtn.classList.contains('is-unlocked'));
   });
 
-  it('child-world defers to Morgonhus when module present', () => {
+  it('child-world loads rewards on enter (Morgonhus handled in loadRewards)', () => {
     const worldSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-world.js'),
       'utf8'
     );
-    assert.match(worldSrc, /ChildMorgonhus/);
-    assert.match(worldSrc, /!window\.ChildMorgonhus/);
+    assert.match(worldSrc, /refreshRewards/);
+    assert.doesNotMatch(worldSrc, /ChildSkattHouse\.showHub/);
   });
 
   it('bindInteractions reads live state after refresh (no stale closure)', () => {

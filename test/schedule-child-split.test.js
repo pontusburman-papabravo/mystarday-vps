@@ -64,10 +64,14 @@ describe('F3a–F3d schedule + child-dashboard split', () => {
     const dash = read('public/js/child-dashboard.js');
     const rewards = read('public/js/child-dashboard-rewards.js');
     assert.match(dash, /window\.rewardsLoaded\s*=\s*false/);
+    assert.match(dash, /ChildDashboardBridge/);
+    assert.match(rewards, /ChildDashboardBridge/);
+    assert.match(rewards, /childMe\(/);
     assert.match(dash, /!window\.rewardsLoaded/);
     assert.match(rewards, /window\.rewardsLoaded\s*=\s*true/);
     assert.match(rewards, /_loadRewardsInflight/);
     assert.match(rewards, /Försök igen/);
+    assert.match(rewards, /ChildSkattHouse\.present/);
   });
 
   it('child-rewards-engine reads star_balance from goal API', () => {

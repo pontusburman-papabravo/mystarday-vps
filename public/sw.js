@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v453';
+const CACHE_NAME = 'stjarndag-v454';
+// stjarndag-v454: fix Skattkammaren v2 — ChildDashboardBridge + present hub
 // stjarndag-v453: barnmeny v2 — visa bottom nav när child-worlds-v2 är aktiv
 // stjarndag-v452: barnillustrationer — lazy bg + family hall glass + morgonhus scene CSS
 // stjarndag-v451: barnillustrationer under /images/child/ — bakgrunder, hubbar, rum, dekaler

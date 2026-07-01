@@ -28,7 +28,7 @@ const _checkOffQueue = [];
 let _checkOffRunning = false;
 let _pendingLoadDay = null; // dedup: coalesce concurrent loadDay calls
 let dopaminAnimation = true; // toggled by parent — star burst on check-off
-const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
+const minimalUiActive = false; // legacy const — use ChildDashboardBridge.isMinimalUiActive()
 let visualTimer = true; // toggled by parent — Time Timer in now-card
 let hideClock = false; // toggled by parent — hides digital time labels on cards
 let colorCoding = true; // toggled by parent — color-codes cards by activity type
@@ -333,6 +333,13 @@ function updateDateLine() {
 // Shared with child-dashboard-rewards.js (separate script tag — must be on window).
 window.rewardsLoaded = false;
 let childUiMagic = false;
+let _minimalUiActive = false;
+
+window.ChildDashboardBridge = {
+  getMe: function () { return me; },
+  getChildUiMagic: function () { return childUiMagic; },
+  isMinimalUiActive: function () { return _minimalUiActive; },
+};
 
 function applyChildViewChrome() {
   if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
@@ -2050,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Minimal UI: hide print/dark/logout if minimal_ui feature is accessible
     // and child_view_config.minimal_ui is true
-    let minimalUiActive = false;
+    _minimalUiActive = false;
     try {
       const [featRes, viewCfgRes] = await Promise.all([
         fetch('/api/features', { credentials: 'include' }),
@@ -2060,11 +2067,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const feats = await featRes.json();
         const slugs = feats.map(f => f.slug);
         if (slugs.includes('minimal_ui') && viewCfgRes && viewCfgRes.minimal_ui) {
-          minimalUiActive = true;
+          _minimalUiActive = true;
         }
       }
     } catch { /* fail open */ }
-    if (minimalUiActive) {
+    if (_minimalUiActive) {
       const printBtn = document.getElementById('printBtn');
       const logoutBtn = document.getElementById('logoutBtn');
       const switchChildBtn = document.getElementById('switchChildBtn');
