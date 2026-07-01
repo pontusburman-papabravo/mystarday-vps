@@ -45,18 +45,18 @@ function calendarDayCustodyPayload(resolved, schedule, parentHomeId) {
 }
 
 /**
- * Template lookup: week_variant → custody_home_id → legacy null (same order as resolve).
+ * Template lookup: custody_home_id → week_variant → legacy null (same order as resolve).
  */
 function templateActivitiesForDay(templatesByVariant, templatesByHome, dow, resolved, schedule) {
   const homeId = resolved?.activeHome?.id;
+  if (homeId) {
+    const byHome = templatesByHome[`${dow}_${homeId}`];
+    if (byHome) return byHome;
+  }
   const variant = weekVariantForHomeId(schedule, homeId);
   if (variant) {
     const byVariant = templatesByVariant[`${dow}_${variant}`];
     if (byVariant) return byVariant;
-  }
-  if (homeId) {
-    const byHome = templatesByHome[`${dow}_${homeId}`];
-    if (byHome) return byHome;
   }
   return templatesByVariant[`${dow}_legacy`] || [];
 }
