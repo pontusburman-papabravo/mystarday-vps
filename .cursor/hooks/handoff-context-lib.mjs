@@ -112,6 +112,28 @@ export function buildContextSnapshot(input) {
   return null;
 }
 
+const CACHED_STATE_MAX_AGE_MS = Number.parseInt(
+  process.env.CURSOR_HANDOFF_CACHE_MAX_AGE_MS || String(30 * 60 * 1000),
+  10
+);
+
+export function resolveContextState(input) {
+  const built = buildContextSnapshot(input);
+  if (built) return built;
+
+  const cached = readContextState(projectRoot(input));
+  if (!cached) return null;
+
+  const ageMs = cached.updated_at
+    ? Date.now() - Date.parse(cached.updated_at)
+    : Number.POSITIVE_INFINITY;
+
+  return {
+    ...cached,
+    source: ageMs > CACHED_STATE_MAX_AGE_MS ? 'cached_stale' : 'cached'
+  };
+}
+
 export function formatContextUserMessage(state) {
   if (!state) {
     return [
@@ -121,13 +143,23 @@ export function formatContextUserMessage(state) {
     ].join(' ');
   }
 
-  const src = state.source === 'preCompact' ? 'exakt (Cursor)' : 'uppskattning';
+  const srcBySource = {
+    preCompact: 'exakt (Cursor)',
+    estimated: 'uppskattning',
+    cached: 'cachad (senaste hook-körning)',
+    cached_stale: 'cachad (kan vara inaktuell)'
+  };
+  const src = srcBySource[state.source] || 'okänd';
   const lines = [
     `Kontext: ${state.percent}%`,
     `Tokens: ~${state.tokens?.toLocaleString('sv-SE')} / ${state.window_size?.toLocaleString('sv-SE')}`,
     `Källa: ${src}`,
     `Uppdaterad: ${state.updated_at}`
   ];
+
+  if (state.source === 'cached_stale') {
+    lines.push('', 'Obs: ingen färsk transcript — skicka ett meddelande och kör /context igen.');
+  }
 
   if (state.percent >= 75) {
     lines.push('', 'Rekommendation: kör /handoff → ny agent → /handoff-continue');

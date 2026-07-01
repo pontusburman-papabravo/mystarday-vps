@@ -7,7 +7,8 @@ import {
   CONTEXT_CHECK_MARKER,
   buildContextSnapshot,
   formatContextUserMessage,
-  readStdin
+  readStdin,
+  resolveContextState
 } from './handoff-context-lib.mjs';
 
 async function main() {
@@ -23,7 +24,7 @@ async function main() {
   const prompt = input.prompt || '';
   const isContextCheck = prompt.includes(CONTEXT_CHECK_MARKER);
 
-  const state = buildContextSnapshot(input);
+  const state = isContextCheck ? resolveContextState(input) : buildContextSnapshot(input);
 
   if (isContextCheck) {
     process.stdout.write(JSON.stringify({
