@@ -231,6 +231,14 @@ Redo för nästa aktivitet
 
 Ingen veckodiagram ovanför handoff. Ingen "Kräver åtgärd" om listan är tom.
 
+### QA-checklista (merge Hem)
+
+- [ ] Klick på barnrad **med aktiviteter** öppnar dagens logg för rätt barn och dagens datum
+- [ ] Check-knappar synliga utan extra navigation eller expandering
+- [ ] Tillbaka tar användaren tillbaka till Hem
+- [ ] Barn **utan schema** öppnar barnprofilen
+- [ ] Ingen ny CTA eller knapp har tillkommit på Hem
+
 ---
 
 ## Success Metrics (PR-granskning)
