@@ -30,7 +30,7 @@
 
   const PAGE_STYLES = {
     dashboard: ['/css/dashboard-magic.css?v=5'],
-    'for-dig': ['/css/for-dig.css?v=2'],
+    'for-dig': ['/css/for-dig.css?v=5'],
     skattkammaren: ['/css/skattkammaren-parent.css?v=1'],
   };
 

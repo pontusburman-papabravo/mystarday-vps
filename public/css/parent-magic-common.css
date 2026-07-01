@@ -302,6 +302,7 @@ body.parent-magic-view:not(.parent-theme-light) .bg-white\/60,
 body.parent-magic-view:not(.parent-theme-light) .bg-sky,
 body.parent-magic-view:not(.parent-theme-light) .bg-sky\/40,
 body.parent-magic-view:not(.parent-theme-light) .bg-sky\/60,
+body.parent-magic-view:not(.parent-theme-light) .bg-sky\/95,
 body.parent-magic-view:not(.parent-theme-light) .bg-lavender,
 body.parent-magic-view:not(.parent-theme-light) .bg-mint,
 body.parent-magic-view:not(.parent-theme-light) .bg-gold-light,
@@ -394,6 +395,36 @@ body.parent-magic-view:not(.parent-theme-light) .child-tab.bg-navy {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   border-color: transparent !important;
   color: #1b2340 !important;
+}
+
+/* Barnprofil — tab pills readable on magic dark (bg-white + global .text-navy broke contrast) */
+body.parent-magic-view:not(.parent-theme-light) #childProfileTabBar {
+  background: rgba(12, 12, 36, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #childProfileTabBar .child-profile-tab:not(.is-active) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #childProfileTabBar .child-profile-tab.is-active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light #childProfileTabBar .child-profile-tab:not(.is-active) {
+  background: #ffffff;
+  border: 1px solid #ede7f6;
+  color: #1b2340;
+}
+
+body.parent-magic-view.parent-theme-light #childProfileTabBar .child-profile-tab.is-active {
+  background: #f5a623;
+  border-color: transparent;
+  color: #1b2340;
 }
 
 body.parent-magic-view:not(.parent-theme-light) .day-tab.border-lavender {
@@ -600,6 +631,29 @@ body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card .text-navy,
 body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-card .text-text-soft,
 body.parent-magic-view:not(.parent-theme-light).for-dig-page .text-navy {
   color: #f4f4ff !important;
+}
+
+/* För dig — section titles use for-dig-section-title (navy in for-dig.css), not .text-navy */
+body.parent-magic-view:not(.parent-theme-light) .for-dig-section-title,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-magic-focus,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__headline,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__promise,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__point,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__title {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .for-dig-section-sub,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend-highlight,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__tagline,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__label,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-goal-teasers li {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend-done {
+  color: #6ee7a0 !important;
 }
 
 body.parent-magic-view:not(.parent-theme-light).for-dig-page .text-text-soft,

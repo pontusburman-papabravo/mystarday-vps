@@ -236,8 +236,8 @@
     if (!mount || !child) return;
     const tab = currentTab();
     const tabsHtml = TABS.map(function (t) {
-      const active = t.id === tab ? ' bg-gold text-navy' : ' bg-white text-navy border border-lavender';
-      return '<button type="button" data-tab="' + t.id + '" class="px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + active + '">' + t.label + '</button>';
+      const active = t.id === tab;
+      return '<button type="button" data-tab="' + t.id + '" class="child-profile-tab px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + (active ? ' is-active' : '') + '">' + t.label + '</button>';
     }).join('');
 
     mount.innerHTML =
