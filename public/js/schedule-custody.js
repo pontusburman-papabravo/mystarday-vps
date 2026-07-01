@@ -1,10 +1,12 @@
 /**
- * schedule-custody.js — FEAT-1 BC-6/BC-7/BC-9: schemasida — hemnamn, dagsfärger, Mina dagar.
+ * schedule-custody.js — FEAT-1 schemasida: hemnamn, dagsfärger, Mina dagar.
  * Konsumerar calendar-week (engine) — ingen egen boendeschemalogik.
- * week_variant i API-anrop är legacy tills Phase 5 (custody_home_id).
+ * week_variant i schedule-API är avsiktlig legacy tills Phase 5 (custody_home_id-skrivning).
  */
 (function () {
   'use strict';
+
+  const PERIOD_FALLBACK = { a: 'Period 1', b: 'Period 2' };
 
   const state = {
     active: false,
@@ -13,7 +15,7 @@
     weekData: null,
     childId: null,
     weekOffset: 0,
-    variantLabels: { a: 'Vecka A', b: 'Vecka B' },
+    variantLabels: { a: PERIOD_FALLBACK.a, b: PERIOD_FALLBACK.b },
     variantHomes: { a: null, b: null },
   };
 
@@ -36,9 +38,9 @@
     return map;
   }
 
-  /** Build home labels per legacy week_variant from engine-backed day.custody. */
+  /** Home labels per variant key from engine-backed day.custody. */
   function syncVariantLabelsFromWeek(weekData) {
-    state.variantLabels = { a: 'Vecka A', b: 'Vecka B' };
+    state.variantLabels = { a: PERIOD_FALLBACK.a, b: PERIOD_FALLBACK.b };
     state.variantHomes = { a: null, b: null };
     if (!weekData || !weekData.days) return;
     weekData.days.forEach(function (d) {
@@ -196,13 +198,13 @@
     }
   }
 
-  /** @deprecated Phase 5 — legacy week_variant query until custody_home_id write path */
+  /** API legacy: week_variant query until Phase 5 custody_home_id write path. */
   function scheduleQuery() {
     if (!state.active) return '';
     return '?week_variant=' + encodeURIComponent(state.editVariant);
   }
 
-  /** @deprecated Phase 5 */
+  /** API legacy: week_variant body until Phase 5 custody_home_id write path. */
   function getCreateExtras() {
     if (!state.active) return {};
     return { week_variant: state.editVariant };
@@ -216,10 +218,10 @@
 
   function getEditVariantLabel() {
     const label = state.variantLabels[state.editVariant];
-    if (label && label !== 'Vecka A' && label !== 'Vecka B') {
+    if (label && label !== PERIOD_FALLBACK.a && label !== PERIOD_FALLBACK.b) {
       return 'hos ' + label;
     }
-    return label || (state.editVariant === 'b' ? 'Vecka B' : 'Vecka A');
+    return label || PERIOD_FALLBACK[state.editVariant] || '';
   }
 
   window.ScheduleCustody = {

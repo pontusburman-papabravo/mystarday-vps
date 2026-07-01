@@ -15,12 +15,12 @@ describe('schedule-custody (Phase 4.5c)', () => {
     assert.doesNotMatch(src, /custody-resolver/);
   });
 
-  it('shows home labels from day.custody; Vecka A/B only as legacy fallback', () => {
+  it('shows home labels from day.custody; period fallback until labels load', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
     assert.match(src, /syncVariantLabelsFromWeek/);
     assert.match(src, /d\.custody\.label/);
-    assert.match(src, /Vecka A/);
-    assert.match(src, /@deprecated Phase 5/);
+    assert.match(src, /PERIOD_FALLBACK/);
+    assert.match(src, /week_variant/);
     assert.match(src, /home_id/);
   });
 

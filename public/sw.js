@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v448';
+const CACHE_NAME = 'stjarndag-v449';
 // stjarndag-v441: För dig + barnprofil kontrast i mörkt magic-tema
 // stjarndag-v440: library init resilience + Planering→Bibliotek empty-box fix
 // stjarndag-v439: fix library init crash (_libIsAdmin) + Bildarkiv section scope
@@ -307,6 +307,7 @@ const CACHE_NAME = 'stjarndag-v448';
 // stjarndag-v424: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v447: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v448: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v449: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
