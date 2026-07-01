@@ -13,6 +13,15 @@ const FLAG_KEYS = {
   nudge: 'activation_nudge_v1',
 };
 
+/** Core ACT-1 onboarding flags — excludes legacy 7-day program sunset flags. */
+const ACT1_ONBOARDING_FLAG_KEYS = [
+  FLAG_KEYS.onboarding,
+  FLAG_KEYS.childHandoff,
+  FLAG_KEYS.firstStarGuide,
+  FLAG_KEYS.aiStarterPlan,
+  FLAG_KEYS.nudge,
+];
+
 /** Global rollout — not limited to families created after ACTIVATION_ONBOARDING_LAUNCH_AT */
 const COHORT_EXEMPT_FLAG_KEYS = new Set([
   FLAG_KEYS.custodySchedule,
@@ -48,5 +57,6 @@ async function isActivationFlagEnabled(key, familyId) {
 
 module.exports = {
   FLAG_KEYS,
+  ACT1_ONBOARDING_FLAG_KEYS,
   isActivationFlagEnabled,
 };

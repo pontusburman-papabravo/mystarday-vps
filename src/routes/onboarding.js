@@ -176,6 +176,12 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
         milestone: 'child_created',
         childId: child.id,
       });
+      require('../lib/activation-p0').updateActivationState(req.user.familyId, 'child_created', {
+        at: child.created_at,
+        metadata: { child_id: child.id, source: 'onboarding' },
+      }).catch((err) => {
+        console.error('[ONBOARDING] child_created activation state failed:', err.message);
+      });
       const countResult = await db.query(
         'SELECT COUNT(*)::int AS n FROM child WHERE family_id = $1',
         [req.user.familyId]

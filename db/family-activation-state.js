@@ -4,7 +4,7 @@ const db = require('../src/lib/db');
 
 async function getByFamilyId(familyId) {
   const result = await db.query(
-    `SELECT family_id, signup_at, schema_saved_at, child_access_completed_at,
+    `SELECT family_id, signup_at, child_created_at, schema_saved_at, child_access_completed_at,
             first_completion_at, p0_activated_at, p0_activated_within_48h,
             activation_variant, updated_at
      FROM family_activation_state
@@ -19,7 +19,7 @@ async function insertState(familyId, signupAt, activationVariant = 'legacy') {
     `INSERT INTO family_activation_state (family_id, signup_at, activation_variant)
      VALUES ($1, $2, $3)
      ON CONFLICT (family_id) DO NOTHING
-     RETURNING family_id, signup_at, schema_saved_at, child_access_completed_at,
+     RETURNING family_id, signup_at, child_created_at, schema_saved_at, child_access_completed_at,
                first_completion_at, p0_activated_at, p0_activated_within_48h,
                activation_variant, updated_at`,
     [familyId, signupAt, activationVariant]
@@ -41,7 +41,7 @@ async function patchState(familyId, fields) {
     `UPDATE family_activation_state
      SET ${sets.join(', ')}
      WHERE family_id = $1
-     RETURNING family_id, signup_at, schema_saved_at, child_access_completed_at,
+     RETURNING family_id, signup_at, child_created_at, schema_saved_at, child_access_completed_at,
                first_completion_at, p0_activated_at, p0_activated_within_48h,
                activation_variant, updated_at`,
     values

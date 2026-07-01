@@ -10,7 +10,7 @@ const { buildRecommendations, P0_TARGET_PCT } = require('../src/lib/activation-a
 const adminOperationalAlerts = require('../db/admin-operational-alerts');
 
 describe('activation-advisor buildRecommendations', () => {
-  it('flags critical when activation feature flags are off', async () => {
+  it('flags critical when core ACT-1 onboarding flags are off', async () => {
     const alerts = await buildRecommendations({
       families: 100,
       everActivatedPct: 20,
@@ -24,12 +24,72 @@ describe('activation-advisor buildRecommendations', () => {
       weekChildAccess: 0,
       weekFirstCompletion: 0,
       incompleteOnboarding14d: 0,
-      flags: [{ key: 'activation_starter_plan', enabled: false }],
+      flags: [{ key: 'activation_onboarding_v1', enabled: false }],
       events30d: {},
     });
     const flagAlert = alerts.find((a) => a.slug.startsWith('activation-flags-off'));
     assert.ok(flagAlert);
     assert.equal(flagAlert.severity, 'critical');
+  });
+
+  it('does not warn when only legacy program sunset flag is off', async () => {
+    const alerts = await buildRecommendations({
+      families: 100,
+      everActivatedPct: 20,
+      neverSignalPct: 10,
+      weekSignups: 6,
+      weekAct1Variant: 5,
+      weekAct1AdoptionPct: 83.3,
+      weekP0_48h: 2,
+      weekP0RatePct: 33.3,
+      weekSchemaSaved: 6,
+      weekChildAccess: 5,
+      weekFirstCompletion: 4,
+      incompleteOnboarding14d: 0,
+      flags: [
+        { key: 'activation_onboarding_v1', enabled: true },
+        { key: 'activation_child_handoff_v1', enabled: true },
+        { key: 'activation_first_star_guide_v1', enabled: true },
+        { key: 'activation_ai_starter_plan', enabled: true },
+        { key: 'activation_nudge_v1', enabled: true },
+        { key: 'activation_program_new_enrollments', enabled: false },
+        { key: 'activation_program_api_deprecated', enabled: true },
+        { key: 'activation_program_ui_removed', enabled: true },
+      ],
+      events30d: { activation_onboarding_started: 10 },
+    });
+    const flagAlert = alerts.find((a) => a.slug.startsWith('activation-flags-off'));
+    assert.equal(flagAlert, undefined);
+    for (const alert of alerts) {
+      assert.doesNotMatch(alert.body || '', /Nya familjer får inte ACT-1-flödet/);
+    }
+  });
+
+  it('warns when activation_child_handoff_v1 is off', async () => {
+    const alerts = await buildRecommendations({
+      families: 100,
+      everActivatedPct: 20,
+      neverSignalPct: 10,
+      weekSignups: 0,
+      weekAct1Variant: 0,
+      weekAct1AdoptionPct: 0,
+      weekP0_48h: 0,
+      weekP0RatePct: 0,
+      weekSchemaSaved: 0,
+      weekChildAccess: 0,
+      weekFirstCompletion: 0,
+      incompleteOnboarding14d: 0,
+      flags: [
+        { key: 'activation_onboarding_v1', enabled: true },
+        { key: 'activation_child_handoff_v1', enabled: false },
+        { key: 'activation_program_new_enrollments', enabled: false },
+      ],
+      events30d: {},
+    });
+    const flagAlert = alerts.find((a) => a.slug.startsWith('activation-flags-off'));
+    assert.ok(flagAlert);
+    assert.match(flagAlert.body, /activation_child_handoff_v1/);
+    assert.match(flagAlert.body, /Nya familjer får inte ACT-1-flödet/);
   });
 
   it('warns when P0 rate is below target with enough signups', async () => {
@@ -46,7 +106,7 @@ describe('activation-advisor buildRecommendations', () => {
       weekChildAccess: 5,
       weekFirstCompletion: 1,
       incompleteOnboarding14d: 0,
-      flags: [{ key: 'activation_starter_plan', enabled: true }],
+      flags: [{ key: 'activation_onboarding_v1', enabled: true }],
       events30d: { activation_onboarding_started: 5 },
     });
     const p0 = alerts.find((a) => a.slug.startsWith('activation-low-p0'));
@@ -70,7 +130,7 @@ describe('activation-advisor buildRecommendations', () => {
       weekChildAccess: 5,
       weekFirstCompletion: 4,
       incompleteOnboarding14d: 1,
-      flags: [{ key: 'activation_starter_plan', enabled: true }],
+      flags: [{ key: 'activation_onboarding_v1', enabled: true }],
       events30d: { activation_onboarding_started: 10 },
     });
     assert.equal(alerts.length, 1);

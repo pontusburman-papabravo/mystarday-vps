@@ -21,7 +21,7 @@ async function ensureActivationState(familyId, signupAt = new Date(), activation
 }
 
 /**
- * @typedef {'schema_saved'|'child_access'|'first_completion'} ActivationMilestone
+ * @typedef {'child_created'|'schema_saved'|'child_access'|'first_completion'} ActivationMilestone
  */
 
 /**
@@ -37,6 +37,7 @@ async function updateActivationState(familyId, milestone, options = {}) {
   const state = await ensureActivationState(familyId, at);
 
   const columnByMilestone = {
+    child_created: 'child_created_at',
     schema_saved: 'schema_saved_at',
     child_access: 'child_access_completed_at',
     first_completion: 'first_completion_at',
