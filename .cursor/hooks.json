@@ -1,6 +1,16 @@
 {
   "version": 1,
   "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "node .cursor/hooks/handoff-before-prompt.mjs"
+      }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/handoff-track-context.mjs"
+      }
+    ],
     "preCompact": [
       {
         "command": "node .cursor/hooks/handoff-pre-compact.mjs"

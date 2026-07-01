@@ -1,37 +1,21 @@
 #!/usr/bin/env node
 /**
- * preCompact hook — snapshot transcript + prompt user before context compaction.
- * Threshold: CURSOR_HANDOFF_THRESHOLD (default 75) context_usage_percent.
- *
- * Triggers:
- * - Automatic: Cursor compacts context (usually near context limit)
- * - Manual: user runs /summarize or /compress (trigger === "manual")
+ * preCompact hook — accurate context % + optional handoff snapshot.
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  buildContextSnapshot,
+  formatContextUserMessage,
+  projectRoot,
+  readStdin,
+  transcriptPath,
+  writeContextState,
+  stateFromPreCompact
+} from './handoff-context-lib.mjs';
 
 const THRESHOLD = Number.parseInt(process.env.CURSOR_HANDOFF_THRESHOLD || '75', 10);
 const SNAPSHOT_MAX_CHARS = 120_000;
-
-function readStdin() {
-  return new Promise((resolve) => {
-    let data = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', (chunk) => { data += chunk; });
-    process.stdin.on('end', () => resolve(data));
-  });
-}
-
-function projectRoot(input) {
-  return process.env.CURSOR_PROJECT_DIR
-    || process.env.CLAUDE_PROJECT_DIR
-    || input.workspace_roots?.[0]
-    || process.cwd();
-}
-
-function transcriptPath(input) {
-  return process.env.CURSOR_TRANSCRIPT_PATH || input.transcript_path || null;
-}
 
 function readTranscriptTail(filePath) {
   try {
@@ -62,16 +46,21 @@ async function main() {
     process.exit(0);
   }
 
-  const percent = Number(input.context_usage_percent ?? 0);
+  input.hook_event_name = 'preCompact';
+  const state = writeContextState(projectRoot(input), stateFromPreCompact(input));
+
+  const percent = state.percent;
   const trigger = input.trigger || 'auto';
   const root = projectRoot(input);
   const handoffDir = path.join(root, '.cursor', 'handoff');
   const latestPath = path.join(handoffDir, 'latest.md');
   const snapshotPath = path.join(handoffDir, 'transcript-snapshot.txt');
-  const shouldAct = percent >= THRESHOLD || trigger === 'manual';
+  const shouldSnapshot = percent >= THRESHOLD || trigger === 'manual';
 
-  if (!shouldAct) {
-    process.stdout.write('{}');
+  if (!shouldSnapshot) {
+    process.stdout.write(JSON.stringify({
+      user_message: formatContextUserMessage(state)
+    }));
     process.exit(0);
   }
 
@@ -87,7 +76,7 @@ async function main() {
     '# Agent handoff (auto-snapshot)',
     '',
     `> Generated: ${isoNow()}`,
-    `> Trigger: ${trigger} | Context: ${percent}% (${input.context_tokens ?? '?'} / ${input.context_window_size ?? '?'} tokens)`,
+    `> Trigger: ${trigger} | Context: ${percent}% (${state.tokens} / ${state.window_size} tokens)`,
     `> Conversation: ${input.conversation_id || 'unknown'}`,
     `> Model: ${input.model || input.model_id || 'unknown'}`,
     '',
@@ -122,11 +111,11 @@ async function main() {
   fs.writeFileSync(latestPath, header, 'utf8');
 
   const userMessage = [
-    `Kontext ${percent}% — handoff-snapshot sparad.`,
-    'Starta en NY agent och kör `/handoff-continue`.',
-    'Kör `/handoff` först om du vill att nuvarande agent skriver en bättre sammanfattning innan du byter.',
+    formatContextUserMessage(state),
+    '',
+    'Handoff-snapshot sparad. Starta NY agent → `/handoff-continue`.',
     `Filer: .cursor/handoff/latest.md${snapshot ? ' + transcript-snapshot.txt' : ''}`
-  ].join(' ');
+  ].join('\n');
 
   process.stdout.write(JSON.stringify({ user_message: userMessage }));
 }

@@ -15,6 +15,7 @@ prisma/*.db-journal
 # Cursor agent handoff (session-local; template stays in repo)
 .cursor/handoff/latest.md
 .cursor/handoff/transcript-snapshot.txt
+.cursor/handoff/context-state.json
 
 # Scratch / repair / agent-work files
 debug/
