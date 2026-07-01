@@ -1,5 +1,6 @@
 /**
- * custody-banner.js — FEAT-1 BC-5: "Denna vecka hos …" on dashboard.
+ * custody-banner.js — FEAT-1 BC-5/BC-8: boendeschema-banner på dashboard.
+ * Konsumerar endast GET /api/family/custody/context — ingen egen datumlogik.
  */
 (function () {
   'use strict';
@@ -30,7 +31,7 @@
     const anchor = document.getElementById('childCardsGrid');
     const banner = document.createElement('div');
     banner.id = BANNER_ID;
-    banner.className = 'hidden mb-3 mx-0 rounded-xl border-2 px-4 py-3 text-sm font-semibold text-navy flex flex-wrap items-center gap-2';
+    banner.className = 'hidden mb-3 mx-0 rounded-xl border-2 px-4 py-3 text-sm font-semibold text-navy flex flex-wrap items-center gap-x-3 gap-y-1';
     banner.setAttribute('role', 'status');
     if (anchor && anchor.parentNode) {
       anchor.parentNode.insertBefore(banner, anchor);
@@ -39,6 +40,57 @@
       main.insertBefore(banner, main.firstChild);
     }
     return banner;
+  }
+
+  /** @param {string} isoDate YYYY-MM-DD */
+  function handoffWeekdayLabel(isoDate) {
+    if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return '';
+    const d = new Date(isoDate + 'T12:00:00');
+    return d.toLocaleDateString('sv-SE', { weekday: 'long' });
+  }
+
+  /** Prefer engine field; nextHandoff is legacy alias from API. */
+  function nextHandoffDate(data) {
+    return data.nextTransition || data.nextHandoff || null;
+  }
+
+  function renderBanner(banner, data) {
+    const wb = data.weekBanner;
+    const homeLabel = (wb && wb.label) || (data.activeHome && data.activeHome.label) || '';
+    if (!homeLabel) {
+      banner.classList.add('hidden');
+      return;
+    }
+
+    banner.style.borderColor = wb.color || data.activeHome.color;
+    banner.style.backgroundColor = (wb.color || data.activeHome.color) + '18';
+
+    let textSpan = banner.querySelector('[data-custody-banner-text]');
+    if (!textSpan) {
+      textSpan = document.createElement('span');
+      textSpan.setAttribute('data-custody-banner-text', '1');
+      banner.appendChild(textSpan);
+    }
+    textSpan.textContent = 'Denna vecka: hos ' + homeLabel;
+
+    const handoffIso = nextHandoffDate(data);
+    const weekday = handoffWeekdayLabel(handoffIso);
+    let handoffSpan = banner.querySelector('[data-custody-banner-handoff]');
+    if (weekday) {
+      if (!handoffSpan) {
+        handoffSpan = document.createElement('span');
+        handoffSpan.setAttribute('data-custody-banner-handoff', '1');
+        handoffSpan.className = 'text-xs font-medium text-navy/80 w-full sm:w-auto';
+        banner.appendChild(handoffSpan);
+      }
+      handoffSpan.textContent = 'Nästa byte på ' + weekday;
+      handoffSpan.classList.remove('hidden');
+    } else if (handoffSpan) {
+      handoffSpan.classList.add('hidden');
+      handoffSpan.textContent = '';
+    }
+
+    banner.classList.remove('hidden');
   }
 
   async function refresh() {
@@ -60,7 +112,7 @@
       const data = await res.json();
       const banner = ensureBanner();
 
-      if (!data.active || !data.weekBanner) {
+      if (!data.active) {
         banner.classList.add('hidden');
         _lastChildId = childId;
         return;
@@ -70,21 +122,14 @@
         _lastChildId = childId;
         if (!_seenForChild[childId]) {
           _seenForChild[childId] = true;
-          track('custody_banner_seen', { child_id: childId, variant: data.weekBanner.variant });
+          track('custody_banner_seen', {
+            child_id: childId,
+            home_id: data.activeHome && data.activeHome.id,
+          });
         }
       }
 
-      const wb = data.weekBanner;
-      banner.style.borderColor = wb.color;
-      banner.style.backgroundColor = wb.color + '18';
-      let textSpan = banner.querySelector('[data-custody-banner-text]');
-      if (!textSpan) {
-        textSpan = document.createElement('span');
-        textSpan.setAttribute('data-custody-banner-text', '1');
-        banner.insertBefore(textSpan, banner.firstChild);
-      }
-      textSpan.textContent = 'Denna vecka: hos ' + wb.label;
-      banner.classList.remove('hidden');
+      renderBanner(banner, data);
 
       if (window.DashboardCustody) {
         if (typeof DashboardCustody.ensureMyDaysToggle === 'function') {
