@@ -49,8 +49,9 @@
     return d.toLocaleDateString('sv-SE', { weekday: 'long' });
   }
 
+  /** Prefer engine field; nextHandoff is legacy alias from API. */
   function nextHandoffDate(data) {
-    return data.nextHandoff || data.nextTransition || null;
+    return data.nextTransition || data.nextHandoff || null;
   }
 
   function renderBanner(banner, data) {

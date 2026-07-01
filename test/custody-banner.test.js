@@ -21,7 +21,13 @@ describe('custody-banner (Phase 4.5a)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-banner.js'), 'utf8');
     assert.match(src, /Denna vecka: hos /);
     assert.match(src, /Nästa byte på /);
-    assert.match(src, /nextHandoff|nextTransition/);
     assert.match(src, /activeHome/);
+  });
+
+  it('prefers nextTransition over legacy nextHandoff alias', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-banner.js'), 'utf8');
+    assert.match(src, /data\.nextTransition \|\| data\.nextHandoff/);
+    assert.match(src, /home_id:/);
+    assert.doesNotMatch(src, /variant:/);
   });
 });
