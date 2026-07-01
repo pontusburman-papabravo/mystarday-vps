@@ -397,14 +397,28 @@ Motorn ska **alltid** gå via denna kedja — även när undantagslagret är tom
 {
   date: '2026-06-04',
   activeHome: { id, label, color, icon },
-  source: 'pattern',              // 'override' | 'pattern' | 'fallback'
+  source: 'pattern',
   patternType: 'alternate_weeks',
-  activePeriod: { start, end },
-  nextTransition: '2026-06-08',
+  activePeriod: { start, end },   // se semantik nedan
+  nextTransition: '2026-06-08',   // se semantik nedan
   previousTransition: null,
   isParentDay: boolean
 }
 ```
+
+**`activePeriod` (låst semantik):**
+
+| `source` | Betydelse |
+|----------|-----------|
+| `override` | Override-radens `start_date` … `end_date` |
+| `pattern` | Det mönstersegment som innehåller `date` (t.ex. mån–sön eller mån–tors / fre–sön) — **inte** nödvändigtvis samma som ”hem oförändrat till” |
+| `fallback` | `null` |
+
+**`nextTransition` (låst semantik):**
+
+Första datum **efter** `date` där `activeHome.id` kan ändras enligt **hela resolverkedjan** (override → pattern). Inte enbart ”nästa byte i grundschemat” — overrides kan flytta bytesdatum.
+
+**Datum/tid:** Motorn arbetar med kalenderdatum (`YYYY-MM-DD`) och UTC-middagsarithmetik. Ingen väggklocka eller familj-timezone i v1 — sommartid påverkar inte datumsträngar.
 
 ### Intern struktur
 

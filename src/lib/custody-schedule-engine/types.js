@@ -10,8 +10,15 @@
 
 /**
  * @typedef {object} CustodyActivePeriod
- * @property {string} start YYYY-MM-DD
- * @property {string} end YYYY-MM-DD
+ * @property {string} start YYYY-MM-DD inclusive
+ * @property {string} end YYYY-MM-DD inclusive
+ *
+ * Semantics (stable contract):
+ * - source=override: the override row's [start_date, end_date].
+ * - source=pattern: the current pattern segment containing `date` (e.g. Mon–Sun
+ *   week block, or Mon–Thu / Fri–Sun for alternate_weekends) — NOT "how long
+ *   activeHome stays unchanged" when segment boundaries differ from home changes.
+ * - source=fallback: null.
  */
 
 /**
@@ -25,8 +32,11 @@
  * @property {CustodySource} source
  * @property {string|null} patternType
  * @property {CustodyActivePeriod|null} activePeriod
- * @property {string|null} [nextTransition] YYYY-MM-DD
- * @property {string|null} [previousTransition] YYYY-MM-DD
+ * @property {string|null} [nextTransition] YYYY-MM-DD — first date **after** `date`
+ *   where `activeHome.id` may change per the full resolver chain (override →
+ *   pattern). Not "next pattern handoff" alone — overrides can shift the date.
+ * @property {string|null} [previousTransition] YYYY-MM-DD — first date where the
+ *   current `activeHome.id` became active (per resolver chain).
  * @property {boolean} isParentDay
  * @property {string} date
  */

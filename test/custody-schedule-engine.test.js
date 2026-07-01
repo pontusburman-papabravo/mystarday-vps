@@ -5,11 +5,13 @@ const assert = require('node:assert/strict');
 const {
   resolveCustodyDateSync,
   ResolverPipeline,
+  getHomeIdForDate,
 } = require('../src/lib/custody-schedule-engine');
 const OverrideResolver = require('../src/lib/custody-schedule-engine/resolvers/override-resolver');
 const PatternResolver = require('../src/lib/custody-schedule-engine/resolvers/pattern-resolver');
 const FallbackResolver = require('../src/lib/custody-schedule-engine/resolvers/fallback-resolver');
 const { findOverrideForDate } = require('../src/lib/custody-schedule-engine/overrides/find-override-for-date');
+const { registerPattern, resolvePattern } = require('../src/lib/custody-schedule-engine/patterns');
 
 const HOME_A = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 const HOME_B = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
@@ -74,23 +76,71 @@ describe('custody-schedule-engine', () => {
     assert.deepEqual(calls, ['a', 'b']);
   });
 
-  it('alternate_weeks: anchor week is home A', () => {
-    const result = resolveCustodyDateSync(weeksCtx(), '2026-06-04');
-    assert.equal(result.source, 'pattern');
-    assert.equal(result.patternType, 'alternate_weeks');
+  it('resolvers are isolated — PatternResolver does not read overrides', () => {
+    const ctx = weeksCtx();
+    ctx.overrides = [{
+      start_date: '2026-06-04',
+      end_date: '2026-06-30',
+      home_id: HOME_B,
+      priority: 0,
+    }];
+    const patternOnly = PatternResolver.resolve(ctx, '2026-06-04');
+    assert.equal(patternOnly.activeHome.id, HOME_A);
+  });
+
+  it('FallbackResolver does not read schedule', () => {
+    const ctx = weeksCtx();
+    const fb = FallbackResolver.resolve(ctx, '2026-06-04');
+    assert.equal(fb.source, 'fallback');
+    assert.equal(fb.activeHome, null);
+  });
+
+  it('is deterministic — same input yields same output', () => {
+    const ctx = weeksCtx();
+    const a = resolveCustodyDateSync(ctx, '2026-06-04');
+    const b = resolveCustodyDateSync(ctx, '2026-06-04');
+    assert.deepEqual(a, b);
+  });
+
+  it('alternate_weeks: first day (anchor Monday)', () => {
+    const result = resolveCustodyDateSync(weeksCtx('2026-06-01'), '2026-06-01');
     assert.equal(result.activeHome.id, HOME_A);
-    assert.equal(result.isParentDay, true);
+    assert.equal(result.activePeriod.start, '2026-06-01');
   });
 
-  it('alternate_weeks: following week is home B', () => {
-    const result = resolveCustodyDateSync(weeksCtx(), '2026-06-11');
+  it('alternate_weeks: last day before week handoff (Sunday)', () => {
+    const result = resolveCustodyDateSync(weeksCtx(), '2026-06-07');
+    assert.equal(result.activeHome.id, HOME_A);
+    assert.equal(result.nextTransition, '2026-06-08');
+  });
+
+  it('alternate_weeks: handoff day (Monday of B week)', () => {
+    const result = resolveCustodyDateSync(weeksCtx(), '2026-06-08');
     assert.equal(result.activeHome.id, HOME_B);
-    assert.equal(result.isParentDay, false);
+    assert.equal(result.source, 'pattern');
   });
 
-  it('alternate_weeks: leap year date resolves', () => {
+  it('alternate_weeks: date before anchor still resolves', () => {
+    const result = resolveCustodyDateSync(weeksCtx('2026-06-02'), '2026-05-20');
+    assert.equal(result.source, 'pattern');
+    assert.ok(result.activeHome);
+  });
+
+  it('alternate_weeks: year boundary', () => {
+    const result = resolveCustodyDateSync(weeksCtx('2025-12-29'), '2026-01-02');
+    assert.equal(result.source, 'pattern');
+    assert.ok(result.activeHome);
+  });
+
+  it('alternate_weeks: leap year (Feb 29)', () => {
     const result = resolveCustodyDateSync(weeksCtx('2024-02-26'), '2024-02-29');
     assert.equal(result.source, 'pattern');
+    assert.ok(result.activeHome);
+  });
+
+  it('calendar dates are timezone-agnostic (DST spring forward date)', () => {
+    const result = resolveCustodyDateSync(weeksCtx('2026-03-23'), '2026-03-29');
+    assert.equal(result.date, '2026-03-29');
     assert.ok(result.activeHome);
   });
 
@@ -108,7 +158,7 @@ describe('custody-schedule-engine', () => {
     assert.equal(result.activePeriod.end, '2026-06-07');
   });
 
-  it('alternate_weekends: never returns null activeHome when schedule exists', () => {
+  it('alternate_weekends: never null activeHome when schedule exists', () => {
     for (let i = 0; i < 14; i += 1) {
       const d = `2026-06-${String(i + 1).padStart(2, '0')}`;
       const result = resolveCustodyDateSync(weekendsCtx('2026-06-06'), d);
@@ -129,6 +179,34 @@ describe('custody-schedule-engine', () => {
     assert.equal(result.source, 'override');
     assert.equal(result.activeHome.id, HOME_B);
     assert.equal(result.patternType, null);
+    assert.equal(result.activePeriod.start, '2026-06-04');
+    assert.equal(result.activePeriod.end, '2026-06-10');
+  });
+
+  it('nextTransition follows resolver chain when override ends', () => {
+    const ctx = weeksCtx();
+    ctx.overrides = [{
+      start_date: '2026-06-04',
+      end_date: '2026-06-06',
+      home_id: HOME_B,
+      priority: 0,
+    }];
+    const result = resolveCustodyDateSync(ctx, '2026-06-05');
+    assert.equal(result.activeHome.id, HOME_B);
+    assert.equal(result.nextTransition, '2026-06-07');
+  });
+
+  it('override shifts nextTransition vs pattern-only', () => {
+    const withOverride = weeksCtx();
+    withOverride.overrides = [{
+      start_date: '2026-06-04',
+      end_date: '2026-06-14',
+      home_id: HOME_B,
+      priority: 0,
+    }];
+    const patternOnly = resolveCustodyDateSync(weeksCtx(), '2026-06-06');
+    const overridden = resolveCustodyDateSync(withOverride, '2026-06-06');
+    assert.notEqual(patternOnly.nextTransition, overridden.nextTransition);
   });
 
   it('findOverrideForDate picks higher priority', () => {
@@ -140,6 +218,31 @@ describe('custody-schedule-engine', () => {
     assert.equal(hit.home_id, HOME_B);
   });
 
+  it('unknown patternType throws', () => {
+    const ctx = weeksCtx();
+    ctx.schedule.pattern_type = 'not_a_real_pattern';
+    assert.throws(
+      () => resolveCustodyDateSync(ctx, '2026-06-04'),
+      /Okänt pattern_type/
+    );
+  });
+
+  it('registerPattern plugs in new type without pipeline changes', () => {
+    registerPattern('test_stub', {
+      resolve: () => ({
+        activeHome: { id: HOME_A, label: 'Stub', color: '#000', icon: null },
+        patternType: 'test_stub',
+        activePeriod: { start: '2026-01-01', end: '2026-01-01' },
+      }),
+    });
+    const out = resolvePattern(
+      { pattern_type: 'test_stub', anchor_date: '2026-01-01', configuration: {} },
+      homesById,
+      '2026-01-01'
+    );
+    assert.equal(out.patternType, 'test_stub');
+  });
+
   it('fallback when no schedule', () => {
     const ctx = { ...weeksCtx(), schedule: null };
     const result = resolveCustodyDateSync(ctx, '2026-06-04');
@@ -147,13 +250,19 @@ describe('custody-schedule-engine', () => {
     assert.equal(result.activeHome, null);
   });
 
-  it('exposes nextTransition when home changes', () => {
-    const result = resolveCustodyDateSync(weeksCtx(), '2026-06-06');
-    assert.equal(result.activeHome.id, HOME_A);
-    assert.equal(result.nextTransition, '2026-06-08');
+  it('getHomeIdForDate uses transition pipeline (override + pattern)', () => {
+    const ctx = weeksCtx();
+    ctx.overrides = [{
+      start_date: '2026-06-04',
+      end_date: '2026-06-10',
+      home_id: HOME_B,
+      priority: 0,
+    }];
+    assert.equal(getHomeIdForDate(ctx, '2026-06-05'), HOME_B);
+    assert.equal(getHomeIdForDate(ctx, '2026-06-12'), HOME_B);
   });
 
-  it('resolveCustodyDateSync completes 1000 iterations under 5ms each', () => {
+  it('resolveCustodyDateSync completes 1000 iterations under 5s total', () => {
     const ctx = weeksCtx();
     const start = performance.now();
     for (let i = 0; i < 1000; i += 1) {

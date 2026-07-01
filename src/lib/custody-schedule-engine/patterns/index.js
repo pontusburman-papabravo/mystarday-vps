@@ -11,6 +11,15 @@ const PATTERN_MODULES = {
 };
 
 /**
+ * Register a pattern module. New types (e.g. 223.js) only need a file + one call here.
+ * @param {string} patternType
+ * @param {{ resolve: Function }} module
+ */
+function registerPattern(patternType, module) {
+  PATTERN_MODULES[patternType] = module;
+}
+
+/**
  * @param {object} schedule
  * @param {Record<string, object>} homesById
  * @param {string} dateStr
@@ -26,5 +35,6 @@ function resolvePattern(schedule, homesById, dateStr) {
 
 module.exports = {
   PATTERN_MODULES,
+  registerPattern,
   resolvePattern,
 };

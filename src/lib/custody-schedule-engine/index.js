@@ -2,10 +2,13 @@
 
 const custodyDb = require('../../../db/custody');
 const { homesById } = require('./homes');
-const { defaultPipeline } = require('./pipeline');
+const { defaultPipeline, ResolverPipeline } = require('./pipeline');
 const { findTransitions } = require('./handoff');
 const OverrideResolver = require('./resolvers/override-resolver');
 const PatternResolver = require('./resolvers/pattern-resolver');
+
+/** Pipeline for transition scan — override + pattern only (no fallback). */
+const transitionPipeline = new ResolverPipeline([OverrideResolver, PatternResolver]);
 
 /**
  * @param {import('pg').Pool|import('pg').PoolClient} [client]
@@ -32,18 +35,13 @@ async function loadCustodyContext({ childId, familyId, parentId }, client) {
 }
 
 /**
- * Home id for a date using override + pattern layers only (for transition scan).
+ * Active home id for transition scan — same resolver chain as pipeline (no fallback).
  * @param {import('./types').CustodyResolveInput} ctx
  * @param {string} dateStr
  */
 function getHomeIdForDate(ctx, dateStr) {
-  const override = OverrideResolver.resolve(ctx, dateStr);
-  if (override?.activeHome) return override.activeHome.id;
-
-  const pattern = PatternResolver.resolve(ctx, dateStr);
-  if (pattern?.activeHome) return pattern.activeHome.id;
-
-  return null;
+  const partial = transitionPipeline.resolve(ctx, dateStr);
+  return partial?.activeHome?.id ?? null;
 }
 
 /**
@@ -145,4 +143,5 @@ module.exports = {
   finalizeContext,
   ResolverPipeline: require('./pipeline').ResolverPipeline,
   defaultPipeline: require('./pipeline').defaultPipeline,
+  transitionPipeline,
 };

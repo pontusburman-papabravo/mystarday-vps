@@ -83,6 +83,8 @@ function resolveCustodyDateSync(ctx, date) {
 | E2 | **ResolverPipeline** — inte if-kedjor | `OverrideResolver` → `PatternResolver` → `FallbackResolver` |
 | E3 | **Mönster isolerade** | `patterns/alternate-weeks.js`, `alternate-weekends.js` — ingen `switch` i motorn |
 | E4 | **Overrides generella** | `reason` är metadata; motorn har ingen logik per orsak (jul, sportlov, …) |
+| E5 | **`activePeriod` semantik** | Override: radens intervall. Pattern: mönstersegment som innehåller `date`. |
+| E6 | **`nextTransition`** | Första datum efter `date` där `activeHome.id` kan ändra per resolverkedja (override → pattern) |
 
 **CustodyContext (publikt kontrakt):**
 
@@ -263,3 +265,4 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | 2026-07-01 | 1.2 | Låst alternate_weekends: default_home + weekend_home_a/b |
 | 2026-07-01 | 1.3 | Lagerad Schedule Engine: override → pattern → fallback; custody_override reserverad |
 | 2026-07-01 | 1.4 | Engine-principer E1–E4: CustodyContext, pipeline, isolerade patterns |
+| 2026-07-01 | 1.5 | E5–E6: activePeriod + nextTransition semantik låst |
