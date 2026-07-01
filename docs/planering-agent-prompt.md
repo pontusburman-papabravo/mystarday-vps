@@ -35,6 +35,16 @@ Föräldern ska kunna lämna Planering och säga: *jag vet vad jag kan göra hä
 | Grundlänkar (basic) | ≤ ~8 |
 | Tom-state | Alltid definierad |
 
+## Ovanför-folden (iPhone SE)
+
+Screenshot iPhone SE portrait (375×667) ska visa **utan scroll**:
+
+- Sidrubrik + båda mentala gruppernas rubriker
+- **Veckoschema**, **Bibliotek**, **Kalender** (med utfallscopy)
+
+Se prioriteringsregeln i [planering-vision.md](planering-vision.md#ovanför-folden-iphone-se).
+
+
 ## Framgångskänsla
 
 När föräldern lämnar Planering ska hen känna: *"Jag vet exakt vilken dörr jag ska gå igenom."*
@@ -64,6 +74,8 @@ Du ska kunna säga:
 
 Om hubben kräver fler än ~8 grundlänkar för att täcka basic — **gruppera eller dölj**, lägg inte till fler rader.
 
+Nya funktioner: fråga *"Tillhör detta Bygg innehåll eller Planera vardagen?"* innan *"Var lägger vi en ny ruta?"*
+
 Om en ändring kräver flytt av affärslogik från `/schedule` — dokumentera minimal arkitekturändring först.
 
 ---
@@ -76,6 +88,19 @@ Om en ändring kräver flytt av affärslogik från `/schedule` — dokumentera m
 
 ---
 
+## Obligatoriska regler (från vision)
+
+| Regel | Test |
+|-------|------|
+| **Filterregel** | Varje länk hjälper bygga innehåll eller planera vardagen |
+| **Copy-regel** | Varje länk har underrad som svarar *"Vad händer när jag trycker?"* |
+| **Prioriteringsregel** | Veckoschema → Bibliotek → Kalender → Bildarkiv → Övrigt |
+| **Boendeschema-regel** | Sekundär/dold för enkelfamiljer utan växelvis boende |
+| **Tom-state** | Ny familj ser *Kom igång* med Bibliotek + För dig |
+| **Skalbarhetsregel** | Två mentala grupper — Övrigt tillåtet som tredje visuell sektion |
+
+---
+
 ## Anti-patterns — bygg inte
 
 - Fler länkar utan att ta bort någon (bryter beslutsregeln)
@@ -84,6 +109,7 @@ Om en ändring kräver flytt av affärslogik från `/schedule` — dokumentera m
 - Status/daglig överblick på hubben (→ Hem)
 - Coachande språk (*"Testa …"*) — det hör hemma i För dig
 - Ny route som duplicerar `/library`
+- Boendeschema ovanför Veckoschema för enkelfamiljer
 
 **Om du lägger till en länk ska en annan grupperas bort eller flyttas till detaljer.**
 
@@ -123,8 +149,10 @@ Gå igenom **varje länk** enligt priority ladder och fråga:
 | `public/js/nav-config.js` | Capabilities + placements |
 | `public/planning.html` | Shell |
 | `test/planning-back-nav.test.js` | Back-nav regression |
+| `test/planning-hub-10-10.test.js` | Copy, order, custody, övrigt |
 
-**Branch:** `cursor/hem-vision-docs-6752` (eller aktuell feature-branch)
+**Branch:** `cursor/hem-implementation-6752` (eller aktuell feature-branch)
+
 
 **Test:**
 
@@ -140,11 +168,14 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 1. Läs vision + `planning-hub.js`
 2. Jenny-test mot nuvarande hub (mobil viewport)
 3. Märk länkar som bryter filterregel/beslutsregel
-4. Förbättra copy, gruppering, tom-state
-5. Verifiera back-nav från `/library` och `/schedule`
-6. Jenny-test + success metrics
-7. `npm run test:gate`
-8. PR med screenshots (iPhone portrait)
+4. Verifiera filterregel + copy-regel på varje länk
+5. Förbättra copy, gruppering, tom-state, boendeschema-placering
+6. Screenshot iPhone SE — ovanför-folden-check
+7. Verifiera back-nav från `/library` och `/schedule`
+8. Jenny-test + success metrics
+9. `npm run test:gate`
+10. PR med screenshots (iPhone portrait)
+
 
 ---
 

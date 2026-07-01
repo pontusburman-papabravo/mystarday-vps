@@ -360,6 +360,9 @@
       const backBar = document.getElementById('magicSettingsBackBar');
       if (backBar) backBar.innerHTML = '';
       openFromHash();
+    } else if (page === 'planning') {
+      el.innerHTML = '';
+      el.classList.add('hidden');
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
