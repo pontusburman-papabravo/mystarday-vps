@@ -18,11 +18,11 @@ describe('co-parent invite fix', () => {
     assert.match(src, /tagChild\('coParentInviteSection', 'family'\)/);
   });
 
-  it('dashboard home hub renders co-parent CTA', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
-    assert.match(src, /renderCoParentCta/);
-    assert.match(src, /invite-coparent/);
-    assert.match(src, /openMedforalderCtaInvite/);
+  it('co-parent invite available via Familj and readiness API', () => {
+    const core = fs.readFileSync(path.join(ROOT, 'src/routes/family/core.js'), 'utf8');
+    const readiness = fs.readFileSync(path.join(ROOT, 'public/js/home-readiness.js'), 'utf8');
+    assert.match(core, /pending_invite/);
+    assert.match(readiness, /pending_invite/);
   });
 
   it('medforalder modal has opaque magic panel class', () => {

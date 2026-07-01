@@ -84,9 +84,21 @@
     btn.addEventListener('click', function () { onCoachCta(expKey, card, btn); });
   }
 
+  function shouldDeferToExceptions() {
+    return window.EngineClient &&
+      typeof EngineClient.isReadinessBlockingCoach === 'function' &&
+      EngineClient.isReadinessBlockingCoach();
+  }
+
   async function renderCoach(context, registry) {
     const mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
+
+    if (shouldDeferToExceptions()) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return;
+    }
 
     const expKey = context?.recommended_experiences?.[0];
     if (!expKey || context.priority !== 'coach') {

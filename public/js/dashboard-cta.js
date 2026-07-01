@@ -18,6 +18,11 @@
     const banner = document.getElementById('medforalderCtaBanner');
     if (!banner) return;
 
+    if (window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function' && DashboardHomeHub.shouldUse()) {
+      banner.style.display = 'none';
+      return;
+    }
+
     // 1. Feature gate — element is hidden by default via data-feature + feature-check.js
     //    We double-check here using the cached feature list.
     if (!window._stjarndagFeatures || !window._stjarndagFeatures['medforalder_cta']) {
