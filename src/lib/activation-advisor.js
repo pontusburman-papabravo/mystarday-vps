@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('./db');
+const { ACT1_ONBOARDING_FLAG_KEYS } = require('./activation-flags');
 
 const P0_TARGET_PCT = 25;
 const NEVER_ACTIVATED_WARN_PCT = 35;
@@ -172,14 +173,15 @@ async function buildRecommendations(metrics) {
   const alerts = [];
   const date = new Date().toISOString().slice(0, 10);
 
-  const flagsOff = (m.flags || []).filter((f) => f.key.startsWith('activation_') && !f.enabled);
+  const act1FlagSet = new Set(ACT1_ONBOARDING_FLAG_KEYS);
+  const flagsOff = (m.flags || []).filter((f) => act1FlagSet.has(f.key) && !f.enabled);
   if (flagsOff.length) {
     alerts.push({
       slug: `activation-flags-off-${date}`,
       category: 'activation',
       severity: 'critical',
       title: 'ACT-1-flaggor är avstängda',
-      body: `Följande flaggor är OFF: ${flagsOff.map((f) => f.key).join(', ')}. Nya familjer får inte ACT-1-flödet.`,
+      body: `Följande ACT-1 onboarding-flaggor är OFF: ${flagsOff.map((f) => f.key).join(', ')}. Nya familjer får inte ACT-1-flödet.`,
       action_route: '#funktioner',
       metrics: { flagsOff: flagsOff.map((f) => f.key) },
     });
