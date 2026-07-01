@@ -54,9 +54,9 @@ describe('First Star chrome (PR 2)', () => {
     assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
   });
 
-  it('service worker precaches first star assets (v433+)', () => {
+  it('service worker precaches first star assets (v434+)', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v433/);
+    assert.match(sw, /stjarndag-v434/);
     assert.match(sw, /\/js\/child-first-star-mode\.js/);
     assert.match(sw, /\/css\/child-first-star-mode\.css/);
   });
@@ -64,7 +64,7 @@ describe('First Star chrome (PR 2)', () => {
   it('child-first-star-mode.css beats legacy top-nav !important rule', () => {
     const css = read('public/css/child-first-star-mode.css');
     assert.match(css, /body\.first-star-mode #childLayerNav/);
-    assert.match(css, /body\.first-star-mode #childBottomNav/);
+    assert.match(css, /body\.first-star-mode \.child-bottom-nav/);
   });
 
   it('child-worlds-nav.js hides bottom nav when First Star Mode is active', () => {

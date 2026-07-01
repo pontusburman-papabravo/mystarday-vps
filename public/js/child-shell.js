@@ -40,7 +40,13 @@
     const worldId = detectWorldFromPath();
     document.documentElement.setAttribute('data-child-world-active', worldId);
 
-    if (window.ChildWorldsNav) ChildWorldsNav.renderBottomNav();
+    if (window.ChildWorldsNav) {
+      if (!(window.ChildFirstStarMode && ChildFirstStarMode.isActive())) {
+        ChildWorldsNav.renderBottomNav();
+      } else {
+        ChildWorldsNav.syncFirstStarHide();
+      }
+    }
     if (window.ChildSystemMenu) ChildSystemMenu.mount();
 
     bootstrapModules(worldId);
