@@ -183,13 +183,23 @@
     return goal.title;
   }
 
-  function confirmActivationText(goal, child) {
+  function childrenLabel(selectedChildren) {
+    if (!selectedChildren || selectedChildren.length === 0) return '';
+    return selectedChildren.map((c) => esc(c.name)).join(', ');
+  }
+
+  function confirmActivationText(goal, selectedChildren) {
+    const who = childrenLabel(selectedChildren);
+    const possessive = selectedChildren.length === 1
+      ? `<strong>${who}</strong>s`
+      : 'barnens';
+
     if (goal.scheduleName) {
-      return `<strong>${esc(scheduleLabel(goal))}</strong> läggs in i <strong>${esc(child.name)}</strong>s veckoschema. Befintligt innehåll kan ersättas.`;
+      return `<strong>${esc(scheduleLabel(goal))}</strong> läggs in i ${possessive} veckoschema. Befintligt innehåll kan ersättas.`;
     }
     if (goal.activityNames && goal.activityNames.length > 0) {
       const examples = goal.activityNames.slice(0, 3).join(', ');
-      return `Aktiviteter som <strong>${esc(examples)}</strong> läggs till i ert bibliotek — inte direkt i schemat. Lägg sedan till dem i <strong>${esc(child.name)}</strong>s schema när ni vill börja.`;
+      return `Aktiviteter som <strong>${esc(examples)}</strong> läggs till i biblioteket och i ${possessive} veckoschema.`;
     }
     if (goal.rewardNames && goal.rewardNames.length > 0) {
       return `Belöningar för <strong>${esc(goal.title)}</strong> läggs till i Skattkammaren.`;
@@ -322,8 +332,8 @@
       <div class="for-dig-activate-header" style="${goalAccentStyle(goal)}">
         <span class="for-dig-activate-header__icon" aria-hidden="true">${goal.icon}</span>
         <div>
-          <p class="font-heading font-bold text-navy text-lg leading-tight">${esc(goal.title)}</p>
-          <p class="text-xs text-text-soft">${esc(goal.tagline || '')}</p>
+          <p class="for-dig-activate-header__title font-heading text-lg leading-tight">${esc(goal.title)}</p>
+          <p class="for-dig-activate-header__tagline">${esc(goal.tagline || '')}</p>
         </div>
       </div>`;
   }
@@ -362,20 +372,24 @@
       </div>`;
   }
 
-  function buildActivationModalHtml(goal, phase, selectedChild, preview, starOverrides) {
+  function buildActivationModalHtml(goal, phase, selectedChildren, preview, starOverrides, selectedChildIds) {
     if (phase === 'pick') {
+      const ids = selectedChildIds || new Set();
       return `
-        <h3 class="font-heading font-bold text-navy text-lg mb-3">Välj barn</h3>
-        <p class="text-sm text-text-soft mb-4">Vem ska det gälla?</p>
-        <div class="space-y-2" id="forDigChildPicker">
+        ${renderGoalHeader(goal)}
+        <h3 class="font-heading font-bold text-navy text-lg mb-2">Välj barn</h3>
+        <p class="text-sm text-text-soft mb-4">Välj ett eller flera barn som ska få rutinen i sitt schema.</p>
+        <div class="space-y-2" id="forDigChildPicker" style="${goalAccentStyle(goal)}">
           ${children.map((c) => `
-            <button type="button" class="for-dig-intent-option" data-child-id="${esc(c.id)}">
-              ${esc(c.emoji || '⭐')} ${esc(c.name)}
+            <button type="button" class="for-dig-intent-option${ids.has(c.id) ? ' is-selected' : ''}" data-child-id="${esc(c.id)}">
+              ${ids.has(c.id) ? '✓ ' : ''}${esc(c.emoji || '⭐')} ${esc(c.name)}
             </button>
           `).join('')}
         </div>
-        <button type="button" class="mt-3 text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
-      `;
+        <div class="for-dig-activate-actions mt-4">
+          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="pick-continue" style="background:var(--fdg-accent); color:#1B2340" ${ids.size === 0 ? 'disabled' : ''}>Fortsätt</button>
+          <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
+        </div>`;
     }
 
     if (phase === 'customize') {
@@ -384,8 +398,8 @@
 
     return `
       ${renderGoalHeader(goal)}
-      <p class="text-sm text-text-soft mb-2">${confirmActivationText(goal, selectedChild)}</p>
-      <p class="text-xs text-text-soft mb-4">Aktiviteterna markeras med ${goal.icon} i biblioteket och schemat så ni ser att de hör till detta mål.</p>
+      <p class="text-sm text-text-soft mb-2">${confirmActivationText(goal, selectedChildren)}</p>
+      <p class="text-xs text-text-soft mb-4">Aktiviteterna markeras med ${goal.icon} så ni ser att de hör till detta mål.</p>
       <div class="for-dig-activate-actions" style="${goalAccentStyle(goal)}">
         <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">Aktivera</button>
         <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">Anpassa</button>
@@ -394,7 +408,7 @@
     `;
   }
 
-  async function confirmActivation(goal, preselectedChild) {
+  async function confirmActivation(goal, preselectedChildId) {
     if (children.length === 0) {
       window.showToast && showToast('Lägg till ett barn först under Familjen.', true);
       return null;
@@ -404,11 +418,13 @@
       return null;
     }
 
-    const initialChild = preselectedChild || (children.length === 1 ? children[0] : null);
+    const initialIds = new Set();
+    if (preselectedChildId) initialIds.add(preselectedChildId);
+    else if (children.length === 1) initialIds.add(children[0].id);
 
     return new Promise((resolve) => {
-      let phase = initialChild ? 'confirm' : 'pick';
-      let selectedChild = initialChild;
+      let phase = 'pick';
+      let selectedChildIds = initialIds;
       let preview = null;
       let starOverrides = null;
 
@@ -416,13 +432,16 @@
       backdrop.className = 'for-dig-modal-backdrop';
       backdrop.setAttribute('data-activation', '1');
 
+      const selectedChildren = () => children.filter((c) => selectedChildIds.has(c.id));
+
       const renderModal = () => {
         backdrop.querySelector('.for-dig-modal').innerHTML = buildActivationModalHtml(
           goal,
           phase,
-          selectedChild,
+          selectedChildren(),
           preview,
-          starOverrides
+          starOverrides,
+          selectedChildIds
         );
       };
 
@@ -447,16 +466,24 @@
 
         if (phase === 'pick') {
           const pickBtn = ev.target.closest('[data-child-id]');
-          if (!pickBtn) return;
-          selectedChild = children.find((c) => c.id === pickBtn.dataset.childId) || null;
-          if (!selectedChild) return;
-          phase = 'confirm';
-          renderModal();
+          if (pickBtn) {
+            const id = pickBtn.dataset.childId;
+            if (selectedChildIds.has(id)) selectedChildIds.delete(id);
+            else selectedChildIds.add(id);
+            renderModal();
+            return;
+          }
+          const continueBtn = ev.target.closest('[data-action="pick-continue"]');
+          if (continueBtn && selectedChildIds.size > 0) {
+            phase = 'confirm';
+            renderModal();
+            return;
+          }
           return;
         }
 
         const customizeBtn = ev.target.closest('[data-action="activate-customize"]');
-        if (customizeBtn && selectedChild) {
+        if (customizeBtn && selectedChildIds.size > 0) {
           try {
             const res = await window.apiFetch(`/api/for-dig/${goal.slug}/preview`);
             const data = await res.json();
@@ -497,10 +524,10 @@
         }
 
         const confirmBtn = ev.target.closest('[data-action="activate-confirm"]');
-        if (confirmBtn && selectedChild) {
+        if (confirmBtn && selectedChildIds.size > 0) {
           backdrop.remove();
           resolve({
-            child: selectedChild,
+            childIds: Array.from(selectedChildIds),
             starOverrides: phase === 'customize' ? starOverrides : null,
           });
         }
@@ -512,14 +539,10 @@
     const goal = goals.find((g) => g.slug === slug);
     if (!goal) return;
 
-    const preselectedChild = preselectedChildId
-      ? children.find((c) => c.id === preselectedChildId) || null
-      : null;
-
-    const activation = await confirmActivation(goal, preselectedChild);
+    const activation = await confirmActivation(goal, preselectedChildId || null);
     if (!activation) return;
 
-    const child = activation.child;
+    const selectedChildren = children.filter((c) => activation.childIds.includes(c.id));
     const starOverrides = activation.starOverrides;
 
     // Note: the server records `for_dig_activate_click` (and `_success`/`_fail`)
@@ -541,7 +564,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          child_id: child.id,
+          child_ids: activation.childIds,
           overwrite: true,
           star_overrides: starOverrides,
         }),
@@ -554,7 +577,8 @@
       renderGoals();
       renderRecommendations();
       await showNextStepModal(data);
-      showIntentModal(slug, child.id, goal.title);
+      const firstChild = selectedChildren[0];
+      showIntentModal(slug, firstChild.id, goal.title);
     } catch (err) {
       window.showToast && showToast(err.message || 'Något gick fel', true);
     } finally {

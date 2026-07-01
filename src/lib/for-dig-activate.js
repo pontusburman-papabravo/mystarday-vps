@@ -75,6 +75,14 @@ function buildActivationSuccessMessage(goal, result) {
 
   if (result.activities) {
     const { copied, matched } = result.activities;
+    if (result.activitySchedule?.filledDays?.length) {
+      const names = result.child_names || [name];
+      const who = names.length === 1 ? `${names[0]}s` : 'barnens';
+      if (copied > 0) {
+        return `${activityCountLabel(copied)} tillagda i ${who} schema!`;
+      }
+      return `Aktiviteterna finns nu i ${who} schema.`;
+    }
     if (copied > 0) {
       return `${activityCountLabel(copied)} tillagda i biblioteket. Lägg till dem i ${name}s schema när ni är redo.`;
     }
@@ -99,11 +107,13 @@ function buildActivationSuccessMessage(goal, result) {
 function buildActivationNextStep(result, childId) {
   if (!childId) return null;
 
-  if (result.schedule) {
+  if (result.schedule || result.activitySchedule) {
     return {
       label: 'Visa schema',
       href: `/schedule?child=${childId}`,
-      hint: 'Rutinen är redan inlagd i veckoschemat.',
+      hint: result.activitySchedule
+        ? 'Aktiviteterna är inlagda i veckoschemat.'
+        : 'Rutinen är redan inlagd i veckoschemat.',
     };
   }
 
@@ -319,7 +329,74 @@ async function copyActivities(client, familyId, activityNames, goalSlug, starOve
     skipped: matched.length - toCopy.length,
     matched: matched.length,
     touchedTemplateIds,
+    matchedActivities: matched,
   };
+}
+
+async function getActivityTemplateIds(client, familyId, activityNames) {
+  const rows = await client.query(
+    `SELECT id, name FROM activity_template WHERE family_id = $1`,
+    [familyId]
+  );
+  const matched = findByNames(rows.rows, activityNames);
+  return matched.map((row) => row.id);
+}
+
+async function appendActivitiesToSchedule(client, childId, goal, templateIds) {
+  if (!templateIds.length) {
+    return { filledDays: [] };
+  }
+
+  const days = (goal.scheduleDays || [1, 2, 3, 4, 5])
+    .map((d) => parseInt(d, 10))
+    .filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
+  const section = goal.scheduleSection || 'dag';
+  const filledDays = [];
+
+  for (const dow of days) {
+    let scheduleRowId;
+    const existingSchedule = await client.query(
+      'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
+      [childId, dow]
+    );
+
+    if (existingSchedule.rows.length > 0) {
+      scheduleRowId = existingSchedule.rows[0].id;
+    } else {
+      const newSched = await client.query(
+        'INSERT INTO weekly_schedule (child_id, day_of_week, name, sort_order) VALUES ($1, $2, $3, $4) RETURNING id',
+        [childId, dow, goal.title, dow]
+      );
+      scheduleRowId = newSched.rows[0].id;
+    }
+
+    const maxSort = await client.query(
+      'SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM weekly_schedule_item WHERE weekly_schedule_id = $1',
+      [scheduleRowId]
+    );
+    let nextOrder = parseInt(maxSort.rows[0].max_order, 10) + 1;
+    let addedOnDay = false;
+
+    for (const templateId of templateIds) {
+      const dup = await client.query(
+        `SELECT 1 FROM weekly_schedule_item
+         WHERE weekly_schedule_id = $1 AND activity_template_id = $2`,
+        [scheduleRowId, templateId]
+      );
+      if (dup.rows.length > 0) continue;
+
+      await client.query(
+        `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section)
+         VALUES ($1, $2, $3, $4)`,
+        [scheduleRowId, templateId, nextOrder++, section]
+      );
+      addedOnDay = true;
+    }
+
+    if (addedOnDay) filledDays.push(dow);
+  }
+
+  return { filledDays };
 }
 
 async function copyRewards(client, familyId, rewardNames, starOverrides) {
@@ -410,7 +487,15 @@ async function getGoalActivationPreview(goalSlug) {
   return { type: 'none', items: [] };
 }
 
-async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite = true, starOverrides = null }) {
+async function activateGoal({
+  parentId,
+  familyId,
+  childId,
+  childIds,
+  goalSlug,
+  overwrite = true,
+  starOverrides = null,
+}) {
   const goal = getGoalBySlug(goalSlug);
   if (!goal) {
     const err = new Error('Utvecklingsmålet hittades inte.');
@@ -418,36 +503,39 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
     throw err;
   }
 
-  const child = await verifyChildAccess(parentId, childId);
-  if (!child) {
-    const err = new Error('Du har inte åtkomst till detta barn.');
-    err.status = 403;
+  const ids = Array.isArray(childIds) && childIds.length > 0
+    ? childIds
+    : (childId ? [childId] : []);
+  if (ids.length === 0) {
+    const err = new Error('Minst ett barn krävs.');
+    err.status = 400;
     throw err;
+  }
+
+  const verifiedChildren = [];
+  for (const id of ids) {
+    const child = await verifyChildAccess(parentId, id);
+    if (!child) {
+      const err = new Error('Du har inte åtkomst till ett av valda barn.');
+      err.status = 403;
+      throw err;
+    }
+    verifiedChildren.push(child);
   }
 
   const client = await db.getClient();
   let scheduleResult = null;
   let activityResult = null;
   let rewardResult = null;
+  let activitySchedule = null;
   const touchedTemplateIds = new Set();
+  const activityScheduleByChild = [];
 
   try {
     await client.query('BEGIN');
 
-    if (goal.scheduleName) {
-      scheduleResult = await copySchedule(
-        client,
-        familyId,
-        childId,
-        goal.scheduleName,
-        goal.scheduleDays || [1, 2, 3, 4, 5],
-        overwrite,
-        goalSlug,
-        starOverrides
-      );
-      for (const id of scheduleResult.touchedTemplateIds || []) {
-        touchedTemplateIds.add(id);
-      }
+    if (goal.rewardNames && goal.rewardNames.length > 0) {
+      rewardResult = await copyRewards(client, familyId, goal.rewardNames, starOverrides);
     }
 
     if (goal.activityNames && goal.activityNames.length > 0) {
@@ -461,10 +549,34 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
       for (const id of activityResult.touchedTemplateIds || []) {
         touchedTemplateIds.add(id);
       }
+
+      const templateIds = await getActivityTemplateIds(client, familyId, goal.activityNames);
+      for (const child of verifiedChildren) {
+        const appended = await appendActivitiesToSchedule(client, child.id, goal, templateIds);
+        activityScheduleByChild.push({ child_id: child.id, ...appended });
+      }
+      activitySchedule = {
+        filledDays: [...new Set(activityScheduleByChild.flatMap((r) => r.filledDays))],
+        child_count: verifiedChildren.length,
+      };
     }
 
-    if (goal.rewardNames && goal.rewardNames.length > 0) {
-      rewardResult = await copyRewards(client, familyId, goal.rewardNames, starOverrides);
+    if (goal.scheduleName) {
+      for (const child of verifiedChildren) {
+        scheduleResult = await copySchedule(
+          client,
+          familyId,
+          child.id,
+          goal.scheduleName,
+          goal.scheduleDays || [1, 2, 3, 4, 5],
+          overwrite,
+          goalSlug,
+          starOverrides
+        );
+        for (const id of scheduleResult.touchedTemplateIds || []) {
+          touchedTemplateIds.add(id);
+        }
+      }
     }
 
     if (!scheduleResult && !activityResult && !rewardResult) {
@@ -485,15 +597,25 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
     client.release();
   }
 
-  if (scheduleResult?.filledDays?.length) {
-    for (const dow of scheduleResult.filledDays) {
+  for (const child of verifiedChildren) {
+    const daysToSync = new Set();
+    if (scheduleResult?.filledDays?.length) {
+      for (const dow of scheduleResult.filledDays) daysToSync.add(dow);
+    }
+    const childAppend = activityScheduleByChild.find((r) => r.child_id === child.id);
+    if (childAppend?.filledDays?.length) {
+      for (const dow of childAppend.filledDays) daysToSync.add(dow);
+    }
+    for (const dow of daysToSync) {
       try {
-        await syncDailyLogWithSchedule(childId, dow);
+        await syncDailyLogWithSchedule(child.id, dow);
       } catch (syncErr) {
         console.error('[FOR-DIG] Sync error (non-fatal):', syncErr.message);
       }
     }
-    broadcast(familyId, 'SCHEDULE_UPDATED', { childId });
+    if (daysToSync.size > 0) {
+      broadcast(familyId, 'SCHEDULE_UPDATED', { childId: child.id });
+    }
   }
 
   for (const templateId of touchedTemplateIds) {
@@ -504,11 +626,16 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
     }
   }
 
+  const childNames = verifiedChildren.map((c) => c.name);
+
   return {
     goal,
-    child_name: child.name,
+    child_name: childNames.join(', '),
+    child_names: childNames,
+    child_ids: verifiedChildren.map((c) => c.id),
     schedule: scheduleResult,
     activities: activityResult,
+    activitySchedule,
     rewards: rewardResult,
   };
 }

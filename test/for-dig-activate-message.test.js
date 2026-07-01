@@ -23,25 +23,55 @@ test('buildActivationSuccessMessage for schedule goal', () => {
   assert.equal(msg, 'Kvällsrutinen är nu igång för Emma!');
 });
 
-test('buildActivationSuccessMessage for explore-only goal with copied activities', () => {
+test('buildActivationSuccessMessage for activity goal with schedule append', () => {
   const goal = getGoalBySlug('sjalvstandighet');
   const msg = buildActivationSuccessMessage(goal, {
     child_name: 'Emma',
+    child_names: ['Emma'],
     activities: { copied: 2, matched: 2, skipped: 0 },
+    activitySchedule: { filledDays: [1, 2, 3, 4, 5], child_count: 1 },
   });
-  assert.equal(msg, '2 aktiviteter tillagda i biblioteket. Lägg till dem i Emmas schema när ni är redo.');
+  assert.equal(msg, '2 aktiviteter tillagda i Emmas schema!');
 });
 
 test('buildActivationSuccessMessage for samarbete-hemma when activities already exist', () => {
   const goal = getGoalBySlug('samarbete-hemma');
   const msg = buildActivationSuccessMessage(goal, {
     child_name: 'Lucas',
+    child_names: ['Lucas'],
     activities: { copied: 0, matched: 3, skipped: 3 },
+    activitySchedule: { filledDays: [0, 1, 2, 3, 4, 5, 6], child_count: 1 },
   });
-  assert.equal(msg, 'Aktiviteterna finns redan i biblioteket. Lägg till dem i Lucass schema när ni vill.');
+  assert.equal(msg, 'Aktiviteterna finns nu i Lucass schema.');
 });
 
-test('buildActivationNextStep points activity goals to schedule', () => {
+test('buildActivationSuccessMessage for multiple children', () => {
+  const goal = getGoalBySlug('samarbete-hemma');
+  const msg = buildActivationSuccessMessage(goal, {
+    child_name: 'Anna, Erik',
+    child_names: ['Anna', 'Erik'],
+    activities: { copied: 3, matched: 3, skipped: 0 },
+    activitySchedule: { filledDays: [1, 2, 3], child_count: 2 },
+  });
+  assert.equal(msg, '3 aktiviteter tillagda i barnens schema!');
+});
+
+test('buildActivationNextStep points activity goals with schedule to schedule view', () => {
+  const step = buildActivationNextStep(
+    {
+      activities: { copied: 2, matched: 2, skipped: 0 },
+      activitySchedule: { filledDays: [1, 2, 3, 4, 5] },
+    },
+    'child-uuid-1'
+  );
+  assert.deepEqual(step, {
+    label: 'Visa schema',
+    href: '/schedule?child=child-uuid-1',
+    hint: 'Aktiviteterna är inlagda i veckoschemat.',
+  });
+});
+
+test('buildActivationNextStep points library-only activity goals to schedule', () => {
   const step = buildActivationNextStep(
     { activities: { copied: 2, matched: 2, skipped: 0 } },
     'child-uuid-1'

@@ -204,10 +204,19 @@ router.get('/:slug/preview', async (req, res) => {
 
 router.post('/:slug/activate', async (req, res) => {
   const { slug } = req.params;
-  const { child_id: childId, overwrite = true, star_overrides: starOverrides } = req.body || {};
+  const {
+    child_id: legacyChildId,
+    child_ids: childIdsBody,
+    overwrite = true,
+    star_overrides: starOverrides,
+  } = req.body || {};
 
-  if (!childId) {
-    return res.status(400).json({ error: 'child_id krävs' });
+  const childIds = Array.isArray(childIdsBody) && childIdsBody.length > 0
+    ? childIdsBody
+    : (legacyChildId ? [legacyChildId] : []);
+
+  if (childIds.length === 0) {
+    return res.status(400).json({ error: 'Minst ett barn krävs (child_ids)' });
   }
 
   const goal = getGoalBySlug(slug);
@@ -215,36 +224,42 @@ router.post('/:slug/activate', async (req, res) => {
     return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
   }
 
-  trackEvent(req.user.familyId, 'for_dig_activate_click', { goal_slug: slug, child_id: childId });
+  for (const childId of childIds) {
+    trackEvent(req.user.familyId, 'for_dig_activate_click', { goal_slug: slug, child_id: childId });
+  }
 
   try {
     const result = await activateGoal({
       parentId: req.user.id,
       familyId: req.user.familyId,
-      childId,
+      childIds,
       goalSlug: slug,
       overwrite: overwrite !== false,
       starOverrides: starOverrides || null,
     });
 
-    // Reset the feedback loop only after a successful (re)activation so a
-    // failed attempt never wipes previously-recorded intent/outcome answers.
-    await feedbackDb.clearFeedbackForReactivation(req.user.familyId, childId, slug);
-    await feedbackDb.logInstall(slug, req.user.familyId, childId, req.user.id);
-    trackEvent(req.user.familyId, 'for_dig_activate_success', {
-      goal_slug: slug,
-      child_id: childId,
-      schedule_id: result.schedule?.scheduleId || null,
-    });
-    trackEvent(req.user.familyId, 'for_dig_install_logged', { goal_slug: slug, child_id: childId });
+    for (const childId of childIds) {
+      await feedbackDb.clearFeedbackForReactivation(req.user.familyId, childId, slug);
+      await feedbackDb.logInstall(slug, req.user.familyId, childId, req.user.id);
+      trackEvent(req.user.familyId, 'for_dig_activate_success', {
+        goal_slug: slug,
+        child_id: childId,
+        schedule_id: result.schedule?.scheduleId || null,
+      });
+      trackEvent(req.user.familyId, 'for_dig_install_logged', { goal_slug: slug, child_id: childId });
+    }
+
+    const primaryChildId = childIds[0];
 
     res.status(201).json({
       message: buildActivationSuccessMessage(goal, result),
-      child_id: childId,
+      child_id: primaryChildId,
+      child_ids: childIds,
       child_name: result.child_name,
+      child_names: result.child_names,
       goal_slug: slug,
       goal_title: goal.title,
-      next_step: buildActivationNextStep(result, childId),
+      next_step: buildActivationNextStep(result, primaryChildId),
     });
   } catch (err) {
     console.error('[FOR-DIG] activate error:', err);

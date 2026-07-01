@@ -84,6 +84,8 @@ const FOR_DIG_GOALS = [
     primaryAction: 'explore',
     activateLabel: 'Aktivera självständighetsaktiviteter',
     activityNames: ['Klä på sig', 'Borsta tänder', 'Äta själv', 'Packa väska'],
+    scheduleDays: [1, 2, 3, 4, 5],
+    scheduleSection: 'dag',
     highlightActivities: ['Klä på sig', 'Borsta tänder', 'Packa väska'],
   },
   {
@@ -137,6 +139,8 @@ const FOR_DIG_GOALS = [
     primaryAction: 'explore',
     activateLabel: 'Aktivera hemma-aktiviteter',
     activityNames: ['Städa rum', 'Duka av', 'Hämta post', 'Hjälpa till'],
+    scheduleDays: [0, 1, 2, 3, 4, 5, 6],
+    scheduleSection: 'dag',
     highlightActivities: ['Städa rum', 'Duka av', 'Hjälpa till'],
   },
   {

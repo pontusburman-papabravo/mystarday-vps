@@ -34,6 +34,32 @@
   line-height: 1;
 }
 
+/* Light accent panel — always dark text (readable in parent-magic dark theme) */
+.for-dig-activate-header__title {
+  color: #1B2340;
+  font-weight: 700;
+}
+
+.for-dig-activate-header__tagline {
+  color: #4A5568;
+  font-size: 0.75rem;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__title,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__tagline {
+  color: #1B2340;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__tagline {
+  color: #4A5568;
+}
+
+.for-dig-intent-option.is-selected {
+  border-color: var(--fdg-accent, #F5A623);
+  background: var(--fdg-bg, #FFF3D6);
+  font-weight: 700;
+}
+
 .for-dig-customize-row {
   display: flex;
   align-items: center;
