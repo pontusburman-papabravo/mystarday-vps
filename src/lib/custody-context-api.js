@@ -6,8 +6,19 @@ const {
   resolveCustodyDateSync,
 } = require('./custody-schedule-engine');
 
+/** @deprecated Phase 4 cleanup — remove with UI migration off week_variant */
+const LEGACY_API_FIELDS = Object.freeze([
+  'variant',
+  'home',
+  'weekBanner',
+  'isMyDay',
+  'nextHandoff',
+  'previousHandoff',
+]);
+
 /**
- * Legacy A/B variant for API consumers not yet migrated off week_variant.
+ * @deprecated Phase 4 cleanup — legacy alias only; never use for resolution.
+ * Maps activeHome.id to a/b for alternate_weeks consumers still on week_variant.
  * @param {object|null} schedule
  * @param {{ id: string }|null} activeHome
  * @returns {'a'|'b'|null}
@@ -23,36 +34,53 @@ function legacyWeekVariant(schedule, activeHome) {
 }
 
 /**
+ * @deprecated Phase 4 cleanup
+ * @param {{ label: string, color: string, variant: 'a'|'b'|null }} weekBannerHome
+ * @param {object} schedule
+ */
+function legacyWeekBanner(weekBannerHome, schedule) {
+  if (!weekBannerHome) return null;
+  return {
+    label: weekBannerHome.label,
+    color: weekBannerHome.color,
+    variant: legacyWeekVariant(schedule, weekBannerHome),
+  };
+}
+
+/**
  * Build API payload from a loaded engine context (no DB).
+ * Resolution uses only resolveCustodyDateSync — no date/variant logic here.
  * @param {import('./custody-schedule-engine/types').CustodyResolveInput} engineCtx
  * @param {string} dateStr YYYY-MM-DD
  */
 function buildCustodyContextFromEngine(engineCtx, dateStr) {
-  if (!engineCtx.schedule) {
+  const context = resolveCustodyDateSync(engineCtx, dateStr);
+
+  if (!engineCtx.schedule || context.source === 'fallback' || !context.activeHome) {
     return { active: false };
   }
 
-  const context = resolveCustodyDateSync(engineCtx, dateStr);
   const weekMonday = getWeekMondayIso(dateStr);
   const weekContext = resolveCustodyDateSync(engineCtx, weekMonday);
 
-  const weekBannerHome = weekContext.activeHome;
-
   return {
     active: true,
-    ...context,
+    // CustodyContext (public contract)
+    date: context.date,
+    activeHome: context.activeHome,
+    source: context.source,
+    patternType: context.patternType,
+    activePeriod: context.activePeriod,
+    nextTransition: context.nextTransition,
+    previousTransition: context.previousTransition,
+    isParentDay: context.isParentDay,
+    // API envelope (not part of CustodyContext)
     weekMonday,
     parentHomeId: engineCtx.parentHomeId,
-    // Legacy aliases — remove when Phase 4 UI migration complete
+    // @deprecated legacy aliases — remove when Phase 4 UI migration complete
     variant: legacyWeekVariant(engineCtx.schedule, context.activeHome),
     home: context.activeHome,
-    weekBanner: weekBannerHome
-      ? {
-        label: weekBannerHome.label,
-        color: weekBannerHome.color,
-        variant: legacyWeekVariant(engineCtx.schedule, weekBannerHome),
-      }
-      : null,
+    weekBanner: legacyWeekBanner(weekContext.activeHome, engineCtx.schedule),
     isMyDay: context.isParentDay,
     nextHandoff: context.nextTransition ?? null,
     previousHandoff: context.previousTransition ?? null,
@@ -76,7 +104,9 @@ async function buildCustodyContextResponse({
 }
 
 module.exports = {
+  LEGACY_API_FIELDS,
   legacyWeekVariant,
+  legacyWeekBanner,
   buildCustodyContextFromEngine,
   buildCustodyContextResponse,
 };
