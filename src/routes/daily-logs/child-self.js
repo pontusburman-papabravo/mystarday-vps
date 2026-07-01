@@ -12,6 +12,12 @@ const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
+const { FLAG_KEYS, isActivationFlagEnabled } = require('../../lib/activation-flags');
+const {
+  countLifetimeCompletions,
+  resolveFirstStarMode,
+  applyFirstStarModeFilter,
+} = require('../../lib/first-star-mode');
 const {
   getChildFamilyId,
   getSectionTimes,
@@ -149,9 +155,29 @@ childSelfRouter.get('/daily-log', async (req, res) => {
 
     let filteredItems = sortedItems;
     let nowNextFiltered = false;
+    let firstStarModeApplied = false;
+
+    const familyId = req.user.familyId;
+    const firstStarModeFlagOn = await isActivationFlagEnabled(FLAG_KEYS.firstStarMode, familyId);
+    let firstStarMode = false;
+
+    if (firstStarModeFlagOn) {
+      const lifetimeCompletions = await countLifetimeCompletions(childId);
+      firstStarMode = resolveFirstStarMode({
+        flagEnabled: true,
+        lifetimeCompletions,
+      });
+
+      if (firstStarMode && isToday) {
+        filteredItems = applyFirstStarModeFilter(sortedItems);
+        nowNextFiltered = true;
+        firstStarModeApplied = true;
+      }
+    }
+
     // Only apply NOW/NEXT/LATER tagging when child's view_type is 'now_next_later'
     // (and the legacy show_now_next toggle is also on, and it's today).
-    if (viewType === 'now_next_later' && showNowNext && isToday) {
+    if (!firstStarModeApplied && viewType === 'now_next_later' && showNowNext && isToday) {
       const sectionOrder = ['morgon', 'dag', 'kvall', 'natt'];
       const tagged = [];
       let uncheckedCount = 0;
@@ -178,7 +204,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       filteredSections[item.section].push(item);
     }
 
-    res.json({
+    const responsePayload = {
       log,
       allow_child_reorder: allowChildReorder,
       show_now_next: showNowNext,
@@ -195,7 +221,13 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       total,
       completed: completedCount,
       now_next_filtered: nowNextFiltered,
-    });
+    };
+
+    if (firstStarModeFlagOn) {
+      responsePayload.first_star_mode = firstStarMode;
+    }
+
+    res.json(responsePayload);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Get error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
