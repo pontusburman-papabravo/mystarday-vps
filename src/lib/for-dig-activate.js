@@ -36,8 +36,13 @@ function normalizeName(name) {
 }
 
 function findByNames(items, names) {
-  const wanted = (names || []).map(normalizeName);
-  return items.filter((item) => wanted.some((w) => normalizeName(item.name).includes(w) || w.includes(normalizeName(item.name))));
+  const byNorm = new Map(items.map((item) => [normalizeName(item.name), item]));
+  const matched = [];
+  for (const name of names || []) {
+    const item = byNorm.get(normalizeName(name));
+    if (item) matched.push(item);
+  }
+  return matched;
 }
 
 function libraryUnavailableError(context) {
@@ -798,4 +803,6 @@ module.exports = {
   getGoalCtaLabel,
   starValueForItem,
   lookupStarOverride,
+  findByNames,
+  normalizeName,
 };
