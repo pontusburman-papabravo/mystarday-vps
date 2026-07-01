@@ -8,6 +8,8 @@
  * near the page bottom; widthOfString avoids the issue.
  */
 
+const { getIsoWeekYearAndNumber } = require('./date-utils');
+
 const MONTHS_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
 
 const NAVY  = '#1C2340';
@@ -28,14 +30,6 @@ const sectionLabel = (sec) => {
   const map = { morgon: 'Morgon', fm: 'Morgon', dag: 'Dag', em: 'Dag', kvall: 'Kväll', evening: 'Kväll', natt: 'Natt', other: 'Övrigt' };
   return map[sec?.toLowerCase()] || (sec ? sec.charAt(0).toUpperCase() + sec.slice(1) : 'Övrigt');
 };
-
-function getISOWeek(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return { year: d.getUTCFullYear(), week: weekNo };
-}
 
 function fmtWeek(dates) {
   if (!dates || dates.length === 0) return 'v.?';
@@ -194,7 +188,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
   completion.forEach((r) => {
     if (r.total === 0) return;
     const d = new Date(r.date + 'T00:00:00');
-    const iso = getISOWeek(d);
+    const iso = getIsoWeekYearAndNumber(d);
     const wk = iso.week;
     const yr = iso.year;
     const key = yr + '-v' + pad(wk);

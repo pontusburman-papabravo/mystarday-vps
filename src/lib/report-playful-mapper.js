@@ -4,6 +4,8 @@
  * Does NOT own: DB queries, PDF rendering, HTML rendering.
  */
 
+const { getIsoWeekNumber } = require('./date-utils');
+
 const MONTHS_SV = ['januari','februari','mars','april','maj','juni',
                    'juli','augusti','september','oktober','november','december'];
 const MONTHS_SV_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -18,13 +20,6 @@ function fmtDateUpper(str) {
   if (!str) return '';
   const d = new Date(str + 'T00:00:00');
   return (d.getDate() + ' ' + MONTHS_SV[d.getMonth()]).toUpperCase();
-}
-
-function getISOWeek(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
 /**
@@ -132,7 +127,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     completion.forEach(r => {
       if (r.total === 0) return;
       const d = new Date(r.date + 'T00:00:00');
-      const wk = getISOWeek(d);
+      const wk = getIsoWeekNumber(d);
       const yr = d.getFullYear();
       const key = yr + '-v' + String(wk).padStart(2, '0');
       if (!weekMap[key]) weekMap[key] = { done: 0, total: 0, dates: [] };

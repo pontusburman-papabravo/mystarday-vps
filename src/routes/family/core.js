@@ -15,6 +15,7 @@ const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
+const { getIsoWeekNumber } = require('../../lib/date-utils');
 
 const router = express.Router();
 
@@ -810,7 +811,7 @@ router.get('/star-history', async (req, res) => {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
 
-      const weekLabel = `V${getWeekNumber(weekStart)}`;
+      const weekLabel = `V${getIsoWeekNumber(weekStart)}`;
       const weekStartStr = weekStart.toLocaleDateString('sv-SE');
 
       const childTotals = {};
@@ -909,11 +910,4 @@ router.get('/activation-config', async (req, res) => {
   }
 });
 
-function getWeekNumber(d) {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = date.getUTCDay() || 7;
-  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-}
 module.exports = router;

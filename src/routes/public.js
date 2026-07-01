@@ -455,10 +455,6 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
 const jwt = require('jsonwebtoken');
 const config = require('../lib/config');
 
-// WHY module-scope: fmtWeek() is module-level and needs this; previously was
-// inside route handler only, causing ReferenceError when fmtWeek was called.
-const MONTHS_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
-
 const reportPinLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: process.env.RATE_LIMIT_ENABLED === 'false' ? 0 : 5,
@@ -675,24 +671,6 @@ router.get('/public/report/:publicId/playful', async (req, res) => {
     res.status(500).json({ error: 'Något gick fel.' });
   }
 });
-
-// ISO week number helper
-function getISOWeek(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return { year: d.getUTCFullYear(), week: weekNo };
-}
-
-// Format week date range as "28 apr–4 maj"
-function fmtWeek(dates) {
-  if (!dates || dates.length === 0) return 'v.?';
-  const sorted = [...dates].sort();
-  const startD = new Date(sorted[0] + 'T00:00:00');
-  const endD   = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-  return startD.getDate() + ' ' + MONTHS_SV[startD.getMonth()] + '–' + endD.getDate() + ' ' + MONTHS_SV[endD.getMonth()];
-}
 
 // POST /api/public/report/:publicId/session
 // Verify PIN. Returns short JWT (15 min) for the publicId.

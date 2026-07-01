@@ -1,11 +1,13 @@
 /**
- * Shared date utilities for ISO date-string arithmetic.
+ * Shared date utilities for ISO date-string arithmetic and ISO week numbers.
  *
- * All functions work on ISO YYYY-MM-DD strings and use UTC arithmetic
- * (midday UTC trick) to avoid DST off-by-one errors.
+ * Date-string functions use UTC arithmetic (midday UTC trick) to avoid DST
+ * off-by-one errors. Week helpers use the standard ISO-8601 week algorithm.
  *
  * Does NOT own: database, scheduling, or business logic.
  */
+
+const MS_PER_DAY = 86400000;
 
 /**
  * Add (or subtract) whole days from an ISO date string.
@@ -34,4 +36,31 @@ function getWeekMondayIso(dateStr) {
   return dt.toISOString().slice(0, 10);
 }
 
-module.exports = { addDaysIso, getWeekMondayIso };
+/**
+ * ISO-8601 week number for a Date (1–53).
+ * @param {Date} date
+ * @returns {number}
+ */
+function getIsoWeekNumber(date) {
+  return getIsoWeekYearAndNumber(date).week;
+}
+
+/**
+ * ISO-8601 week year and week number for a Date.
+ * @param {Date} date
+ * @returns {{ year: number, week: number }}
+ */
+function getIsoWeekYearAndNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((d - yearStart) / MS_PER_DAY) + 1) / 7);
+  return { year: d.getUTCFullYear(), week };
+}
+
+module.exports = {
+  addDaysIso,
+  getWeekMondayIso,
+  getIsoWeekNumber,
+  getIsoWeekYearAndNumber,
+};
