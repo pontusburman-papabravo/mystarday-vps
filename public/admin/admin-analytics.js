@@ -392,8 +392,8 @@ function buildAnalyticsHTML() {
 
       <div id="section-activation" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">⭐ Aktiveringstratt (P0)</h3>
-          <p class="text-text-soft text-sm mb-4">Veckokohort — 9 steg enligt ACT-1 (signup → P0 inom 48h). Steg 2 räknar ACT-1-wizard + legacy-onboarding.</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">First Success-tratt</h3>
+          <p class="text-text-soft text-sm mb-4">Veckokohort — signup → barn → schema → barnåtkomst → första stjärnan → aktivitet dag 2</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
           <table class="w-full text-sm">
@@ -402,6 +402,14 @@ function buildAnalyticsHTML() {
             </thead>
             <tbody id="activationFunnelBody"></tbody>
           </table>
+          <div id="activationFunnelConversions" class="mt-6 pt-6 border-t border-sky hidden">
+            <h4 class="text-sm font-heading font-bold text-navy mb-1">Steg-till-steg-konvertering</h4>
+            <p class="text-text-soft text-xs mb-3">Andel som når nästa steg (från föregående steg i tratt)</p>
+            <table class="w-full text-sm">
+              <thead id="activationFunnelConvHead"></thead>
+              <tbody id="activationFunnelConvBody"></tbody>
+            </table>
+          </div>
           <div id="activationChildAccessDiag" class="mt-4 pt-4 border-t border-sky text-sm hidden"></div>
         </div>
 
@@ -1129,28 +1137,75 @@ function showToast(msg, type) {
   else alert(msg);
 }
 
+/** Build conversion column metadata from API steps (adjacent pairs). */
+function buildFunnelConversionColumns(steps) {
+  const cols = [];
+  for (let i = 1; i < steps.length; i++) {
+    const from = steps[i - 1];
+    const to = steps[i];
+    cols.push({
+      key: from.key + '_to_' + to.key,
+      label: from.label + ' → ' + to.label,
+    });
+  }
+  return cols;
+}
+
 async function loadActivationFunnel() {
   const head = document.getElementById('activationFunnelHead');
   const body = document.getElementById('activationFunnelBody');
+  const convWrap = document.getElementById('activationFunnelConversions');
+  const convHead = document.getElementById('activationFunnelConvHead');
+  const convBody = document.getElementById('activationFunnelConvBody');
   if (!head || !body || body.dataset.loaded === 'true') return;
   try {
     const data = await Auth.api('/api/admin/analytics/activation-funnel?weeks=8');
     const steps = data.steps || [];
+    const conversionCols = buildFunnelConversionColumns(steps);
+
     head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
-      steps.map(function (s) { return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(s.label) + '</th>'; }).join('') +
+      steps.map(function (s) {
+        return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(s.label) +
+          '<span class="block text-[10px] font-normal text-text-soft normal-case tracking-normal">antal (% signup)</span></th>';
+      }).join('') +
       '</tr>';
+
     if (!data.cohorts || data.cohorts.length === 0) {
       body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
+      if (convWrap) convWrap.classList.add('hidden');
     } else {
       body.innerHTML = data.cohorts.map(function (row) {
         const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
         const cells = steps.map(function (s) {
           const n = (row.counts && row.counts[s.key]) || 0;
           const pct = (row.rates && row.rates[s.key]) || 0;
-          return '<td class="text-right px-2 py-2 tabular-nums">' + n + '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
+          return '<td class="text-right px-2 py-2 tabular-nums">' + n +
+            '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
         }).join('');
         return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
       }).join('');
+
+      if (convWrap && convHead && convBody && conversionCols.length > 0) {
+        convHead.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
+          conversionCols.map(function (c) {
+            return '<th class="text-right pb-2 px-2 whitespace-nowrap text-xs">' + esc(c.label) + '</th>';
+          }).join('') +
+          '</tr>';
+        convBody.innerHTML = data.cohorts.map(function (row) {
+          const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+          const conversions = row.conversions || {};
+          const cells = conversionCols.map(function (c) {
+            const conv = conversions[c.key];
+            if (!conv || conv.from_count === 0) {
+              return '<td class="text-right px-2 py-2 text-text-soft tabular-nums">—</td>';
+            }
+            return '<td class="text-right px-2 py-2 tabular-nums font-medium">' + conv.rate_pct + '%' +
+              '<span class="text-text-soft text-xs font-normal"> (' + conv.to_count + '/' + conv.from_count + ')</span></td>';
+          }).join('');
+          return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+        }).join('');
+        convWrap.classList.remove('hidden');
+      }
     }
 
     const diagEl = document.getElementById('activationChildAccessDiag');
@@ -1168,7 +1223,8 @@ async function loadActivationFunnel() {
     body.dataset.loaded = 'true';
   } catch (err) {
     console.error('[Analytics] loadActivationFunnel error:', err);
-    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda aktiveringstratt</td></tr>';
+    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda First Success-tratt</td></tr>';
+    if (convWrap) convWrap.classList.add('hidden');
   }
 }
 
