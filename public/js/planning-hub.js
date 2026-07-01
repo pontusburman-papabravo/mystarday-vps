@@ -79,15 +79,13 @@
 
   function gettingStartedHtml() {
     return (
-      '<section class="magic-hub-section mb-2" data-planning-getting-started="1">' +
-      '<div class="p-4 bg-white rounded-2xl border border-gold/40">' +
-      '<p class="font-heading font-bold text-navy mb-2">Kom igång</p>' +
-      '<p class="text-sm text-text-soft mb-3">Börja i Biblioteket om du vill skapa aktiviteter.</p>' +
-      '<p class="text-sm text-text-soft mb-3">Gå till För dig om du vill få en färdig rekommendation.</p>' +
-      '<div class="flex flex-wrap gap-2">' +
-      '<a href="/library" class="inline-flex items-center px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm min-h-[44px]" data-hub-link="Kom igång Bibliotek" data-full-load="1">Bibliotek</a>' +
-      '<a href="/for-dig" class="inline-flex items-center px-4 py-2 bg-navy text-white rounded-lg font-semibold text-sm min-h-[44px]" data-hub-link="Kom igång För dig" data-full-load="1">För dig</a>' +
-      '</div></div></section>'
+      '<section class="magic-hub-section mb-1" data-planning-getting-started="1">' +
+      '<div class="p-3 bg-white rounded-2xl border border-gold/40">' +
+      '<p class="font-heading font-bold text-navy text-sm mb-1">Kom igång</p>' +
+      '<p class="text-sm text-text-soft leading-snug">' +
+      'Börja i <a href="/library" class="text-gold font-semibold underline" data-hub-link="Kom igång Bibliotek" data-full-load="1">Biblioteket</a> om du vill skapa aktiviteter. ' +
+      'Gå till <a href="/for-dig" class="text-gold font-semibold underline" data-hub-link="Kom igång För dig" data-full-load="1">För dig</a> om du vill få en färdig rekommendation.' +
+      '</p></div></section>'
     );
   }
 
@@ -180,10 +178,10 @@
     if (!mount) return;
 
     const sections = await getSections();
-    let html = '<div class="magic-hub-sections max-w-lg space-y-6">';
+    let html = '<div class="magic-hub-sections max-w-lg space-y-5">';
     if (sections.showGettingStarted) html += gettingStartedHtml();
-    html += sectionHtml('Bygg innehåll', sections.content);
     html += sectionHtml('Planera vardagen', sections.plan);
+    html += sectionHtml('Bygg innehåll', sections.content);
     if (sections.other.length) html += sectionHtml('Övrigt', sections.other);
     html += '</div>';
     mount.innerHTML = html;

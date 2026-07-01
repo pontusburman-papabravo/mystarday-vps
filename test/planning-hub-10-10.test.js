@@ -25,6 +25,10 @@ describe('Planering hub 10/10', () => {
     const otherIdx = src.indexOf('const OTHER_LINKS');
     assert.ok(planIdx >= 0 && otherIdx > planIdx);
     assert.match(src, /sectionHtml\('Planera vardagen'/);
+    assert.match(src, /sectionHtml\('Bygg innehåll'/);
+    const planSectionIdx = src.indexOf("sectionHtml('Planera vardagen'");
+    const buildSectionIdx = src.indexOf("sectionHtml('Bygg innehåll'");
+    assert.ok(planSectionIdx > 0 && buildSectionIdx > planSectionIdx);
     assert.match(src, /sectionHtml\('Övrigt'/);
     const veckoIdx = src.indexOf("title: 'Veckoschema'");
     const boendeIdx = src.indexOf('CUSTODY_LINK');
@@ -46,6 +50,13 @@ describe('Planering hub 10/10', () => {
     assert.match(src, /fetchNeedsGettingStarted/);
     assert.match(src, /href="\/for-dig"/);
     assert.match(src, /showGettingStarted/);
+    assert.doesNotMatch(src, /Kom igång För dig.*min-h-\[44px\]/);
+  });
+
+  it('planning hub page skips large magic hero', () => {
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    assert.match(hubs, /page === 'planning'/);
+    assert.match(hubs, /el\.classList\.add\('hidden'\)/);
   });
 
   it('keeps capabilities in Övrigt via capabilitiesForPlacement', () => {
