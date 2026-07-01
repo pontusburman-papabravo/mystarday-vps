@@ -8,6 +8,16 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 
 describe('FEAT-1 boendeschema', () => {
+  it('custody domain migration adds pattern_type and configuration', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'migrations/1808970000000_custody_schedule_domain.js'),
+      'utf8'
+    );
+    assert.match(src, /custody_pattern/);
+    assert.match(src, /pattern_type/);
+    assert.match(src, /configuration/);
+  });
+
   it('migration creates custody tables and week_variant', () => {
     const src = fs.readFileSync(
       path.join(ROOT, 'migrations/1808650000000_custody_schedule.js'),
