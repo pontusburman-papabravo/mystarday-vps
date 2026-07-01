@@ -11,6 +11,10 @@
 
 > **Planering ska få föräldern att känna: "Jag vet var jag går för att fixa schemat — utan att drunkna i val."**
 
+**Metafor (designtest):**
+
+> **Planering ska kännas som en reception med två skyltar — inte ett kontrollrum.**
+
 ---
 
 ## Varför finns Planering?
@@ -41,10 +45,39 @@ Det är ett **navigations- och språkproblem** — inte ett funktionsproblem.
 |--------------|-------------------|
 | Hub till byggverktyg | Daglig status |
 | Tydliga föräldrajobb | Feature-lista per paket |
-| Två sektioner max i standardvy | Lång länklista utan gruppering |
+| **Två mentala grupper** (bygg · planera) | Lång länklista utan gruppering |
 | Ingång till bibliotek | Ersättning av `/library` eller `/schedule` |
 
 **POS:** B-08 omvänt — bygg **hör hemma här**, inte på Hem.
+
+### Skalbarhetsregel (mental vs visuell)
+
+Visionen handlar om **två mentala grupper** — inte *exakt två visuella sektioner för alltid*.
+
+När nya funktioner tillkommer ska implementatören fråga:
+
+> *"Tillhör detta Bygg innehåll eller Planera vardagen?"*
+
+— **innan**:
+
+> *"Var ska vi lägga ytterligare en ruta?"*
+
+En tredje visuell sektion (*Övrigt*) är tillåten när lägre prioritet inte får plats ovanför folden — men innehållet ska fortfarande mappas till en av de två mentala grupperna.
+
+---
+
+## Filterregel (vad får finnas)
+
+> **Om en länk inte hjälper föräldern att bygga innehåll eller planera vardagen hör den inte hemma i Planering.**
+
+| Hör hemma | Hör inte hemma |
+|-----------|----------------|
+| Skapa/redigera aktiviteter, belöningar, schema | Daglig status (*hur går det idag?*) |
+| Kalender, specialdagar, tilldelning | Paketdump med disabled rader |
+| Bildarkiv, PDF-export | Duplicerade ingångar till samma route |
+| Boendeschema (när relevant) | Coach, journey, nästa steg |
+
+**Beslutstest:** Kan föräldern *bygga* eller *planera* något genom att trycka? Annars → flytta till Hem, Familj eller paketdetalj.
 
 ---
 
@@ -82,22 +115,102 @@ Jag är i rätt verktyg (schema, bibliotek, kalender)
 
 ---
 
+## Copy-regel (varje länk)
+
+> **Varje länk ska svara på: "Vad händer när jag trycker här?"**
+
+| Länk | Underrad (utfallscopy) |
+|------|------------------------|
+| **Veckoschema** | Redigera barnets vecka |
+| **Bibliotek** | Skapa aktiviteter och belöningar |
+| **Kalender** | Se månad och specialdagar |
+| **Bildarkiv** | Egna foton — tandborste, säng, skola |
+| **Boendeschema** | Växelvis boende mellan hushåll |
+| **Tilldela schema** | Kopiera schema till barn |
+| **Daglig logg** | Se och justera tidigare dagar |
+| **PDF** | Skriv ut schema |
+
+**Designregel:** Titel = *vad* · Underrad = *vad som händer*.
+
+---
+
 ## Informationshierarki
 
 ```
 1. Sida-rubrik        →  Planering
 2. Sektion A          →  Bygg innehåll (Bibliotek, Bildarkiv)
 3. Sektion B          →  Planera vardagen (Schema, Kalender, Daglig logg, …)
-4. Paket-capabilities →  Endast om köpt + synlig (Rapporter, TEACCH, …)
-5. Tillbaka-nav       →  Konsekvent från undersidor (planFromPlanning)
+4. Sektion C (valfri) →  Övrigt (lägre prioritet, fortfarande planera-bygg)
+5. Paket-capabilities →  Endast om köpt + synlig (Rapporter, TEACCH, …)
+6. Tillbaka-nav       →  Konsekvent från undersidor (planFromPlanning)
 ```
 
-### Sektioner (låst)
+### Sektioner (låst mental modell)
 
-| Sektion | Ingångar (basic) | Föräldratext |
-|---------|------------------|--------------|
-| **Bygg innehåll** | Bibliotek, Bildarkiv | *Scheman, aktiviteter och belöningar* |
-| **Planera vardagen** | Boendeschema, Veckoschema, Daglig logg, PDF, Kalender, Tilldela schema | Konkret underrad per länk |
+| Mental grupp | Ingångar (basic) | Föräldratext |
+|--------------|------------------|--------------|
+| **Bygg innehåll** | Bibliotek, Bildarkiv | Konkret underrad per länk |
+| **Planera vardagen** | Veckoschema, Kalender, Boendeschema (vid behov) | Konkret underrad per länk |
+| **Övrigt** (vid behov) | Daglig logg, PDF, Tilldela schema, paketfeatures | Lägre prioritet — scroll OK |
+
+---
+
+## Ovanför folden (iPhone SE)
+
+> **Allt som krävs för Jenny-testet ska synas utan scroll på iPhone SE (375×667).**
+
+### Vad som alltid ska synas ovanför folden
+
+1. Sidrubrik *Planering*
+2. Båda mentala gruppernas rubriker (*Bygg innehåll* · *Planera vardagen*)
+3. **Veckoschema** (med utfallscopy)
+4. **Bibliotek** (med utfallscopy)
+5. **Kalender** (med utfallscopy)
+
+### Prioriteringsregel (när allt inte får plats)
+
+1. **Veckoschema**
+2. **Bibliotek**
+3. **Kalender**
+4. **Bildarkiv**
+5. **Övrigt** (Boendeschema, Daglig logg, PDF, Tilldela schema, paketfeatures)
+
+Lägre prioritet får scrollas under folden eller grupperas i *Övrigt* — aldrig högre prioritet än Veckoschema.
+
+**PR-granskning:** Screenshot iPhone SE portrait ska visa minst punkterna 1–5 ovanför folden.
+
+---
+
+## Boendeschema-regel
+
+> **Boendeschema visas som sekundär länk om familjen inte har växelvis boende eller flera hushåll.**
+
+| Familjesituation | Placering |
+|------------------|-----------|
+| Enkelfamilj, ett hushåll | Dölj eller visa under *Övrigt* — aldrig ovanför Veckoschema |
+| Växelvis boende / flera hushåll aktiverat | Synlig i *Planera vardagen*, med underrad *Växelvis boende mellan hushåll* |
+
+Boendeschema ska **aldrig dominera** hubben för majoriteten (enkelfamiljer).
+
+---
+
+## Tom-state — ny familj
+
+När familjen saknar schema eller aktiviteter ska hubben visa en kort vägledning — inte tom yta.
+
+**Exempel:**
+
+> **Kom igång**
+>
+> Börja i Biblioteket om du vill skapa aktiviteter.
+>
+> Gå till För dig om du vill få en färdig rekommendation.
+
+**Regler:**
+
+- Max två rader vägledning + två tydliga länkar
+- Ingen skuld eller tom dashboard-känsla
+- Länka till `/library` och `/for-dig` — inte tekniska onboarding-steg
 
 ---
 
@@ -127,15 +240,15 @@ En förälder som aldrig sett Planering ska inom **5 sekunder**, **utan scroll**
 Planering
 
 Bygg innehåll
-📚 Bibliotek          Scheman, aktiviteter och belöningar
+📚 Bibliotek          Skapa aktiviteter och belöningar
 📷 Bildarkiv          Egna foton — tandborste, säng, skola
 
 Planera vardagen
 📅 Veckoschema        Redigera barnets vecka
-🗓️ Kalender           Månad och specialdagar
+🗓️ Kalender           Se månad och specialdagar
 ```
 
-Max två sektioner synliga utan scroll på iPhone SE.
+Max två mentala grupper synliga utan scroll på iPhone SE. Veckoschema, Bibliotek och Kalender ovanför folden.
 
 ---
 
@@ -146,6 +259,7 @@ Max två sektioner synliga utan scroll på iPhone SE.
 - Duplicerade ingångar till samma route med olika namn
 - Daglig status / "hur går det idag" på Planering (→ Hem)
 - Ny bottenflik per paketfeature
+- Länkar som inte klarar filterregeln
 
 ---
 
@@ -153,11 +267,11 @@ Max två sektioner synliga utan scroll på iPhone SE.
 
 **Redan på plats:** `planning-hub.js`, två sektioner, `PlanningBackNav`, capability-länkar via `nav-config.js`.
 
-**Kvar för 10/10:**
+**Implementerat i 10/10:**
 
-- Konsekvent utfallscopy på alla länkar (inga tekniska underrader)
-- Hub-tom-state för ny familj (*Börja i Biblioteket eller För dig*)
-- Verifiera max-höjd mobil utan scroll
-- Boendeschema synligt men inte dominerande för enkelfamiljer
+- Konsekvent utfallscopy (copy-regeln)
+- Hub-tom-state för ny familj
+- Prioriteringsordning + Övrigt-gruppering
+- Boendeschema adaptivt (sekundärt/dolt för enkelfamiljer)
 
 Se [planering-agent-prompt.md](planering-agent-prompt.md) för agent-uppdrag.
