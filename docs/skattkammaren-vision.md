@@ -2,7 +2,7 @@
 
 **Status:** Godkänd produktkompass (2026-07)  
 **Domän:** Barnets belöningsvärld (Min värld)  
-**Relaterat:** [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) · [beloningar-vision.md](beloningar-vision.md) (förälder) · [informationsarkitektur-barnapp.md](informationsarkitektur-barnapp.md) · [barnmeny-v2.md](barnmeny-v2.md) §3.4 · [mockups/beloningar.html](mockups/beloningar.html)
+**Relaterat:** [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) · [beloningar-vision.md](beloningar-vision.md) (förälder) · [idag-vision.md](idag-vision.md) · [mina-personer-vision.md](mina-personer-vision.md) · [informationsarkitektur-barnapp.md](informationsarkitektur-barnapp.md) · [barnmeny-v2.md](barnmeny-v2.md) §3.4 · [mockups/beloningar.html](mockups/beloningar.html)
 
 > **Detta dokument är teknikagnostiskt.** Implementation, filer och tester finns i [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md).
 

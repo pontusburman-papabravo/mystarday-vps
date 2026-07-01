@@ -2,7 +2,7 @@
 
 **Status:** Godkänd produktkompass (2026-07)  
 **Domän:** Barnets handlingsyta (☀️ Idag)  
-**Relaterat:** [idag-agent-prompt.md](idag-agent-prompt.md) · [skattkammaren-vision.md](skattkammaren-vision.md) · [informationsarkitektur-barnapp.md](informationsarkitektur-barnapp.md) §4 · [barnmeny-v2.md](barnmeny-v2.md)
+**Relaterat:** [idag-agent-prompt.md](idag-agent-prompt.md) · [skattkammaren-vision.md](skattkammaren-vision.md) · [mina-personer-vision.md](mina-personer-vision.md) · [informationsarkitektur-barnapp.md](informationsarkitektur-barnapp.md) §4 · [barnmeny-v2.md](barnmeny-v2.md)
 
 > **Teknikagnostiskt.** Implementation i [idag-agent-prompt.md](idag-agent-prompt.md).
 

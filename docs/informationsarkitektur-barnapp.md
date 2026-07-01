@@ -196,7 +196,10 @@ Göra individuell motivation till **gemensam riktning**.
 
 Testa med prototyp innan migration. Se testprinciper §8.
 
-### Vad som finns idag (inte Familjehallen)
+### Vad som finns idag (inte målbild)
+
+Se [mina-personer-vision.md](mina-personer-vision.md) för relationslagrets produktkonstitution. Befintlig V0:
+
 
 - `GET /api/family/museum` — livstidsstatistik (aktiviteter, belöningar, stjärnor)
 - `public/js/family-museum.js` — kort på `/family`
