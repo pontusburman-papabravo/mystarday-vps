@@ -82,6 +82,17 @@ describe('resolveIdagState — exclusive state machine', () => {
     assert.equal(state.starsOnNow, 3);
   });
 
+  it('All done — only when no incomplete work remains (counters cannot override)', () => {
+    const state = resolveIdagState({
+      items: [item('a', 'Frukost'), item('b', 'Läxa', { completed: true })],
+      total: 2,
+      completed: 2,
+    }, { isToday: true });
+    assert.equal(state.state, IDAG_STATES.ACTIVE);
+    assert.equal(state.nowItem.id, 'a');
+    assert.equal(state.primaryAction.itemId, 'a');
+  });
+
   it('not today — no primary complete action', () => {
     const state = resolveIdagState({
       items: [item('a', 'Frukost')],

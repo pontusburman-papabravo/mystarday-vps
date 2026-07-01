@@ -63,4 +63,11 @@ describe('Idag barn 10/10', () => {
     const src = fs.readFileSync(DASH, 'utf8');
     assert.match(src, /isTodayFocusLayer\(\)\) return/);
   });
+
+  it('softens quest chrome — hides schema labels and later pile in focus mode', () => {
+    const src = fs.readFileSync(TASKS, 'utf8');
+    assert.match(src, /softenQuestChrome/);
+    assert.match(src, /later-card/);
+    assert.match(src, /nl-section-label/);
+  });
 });

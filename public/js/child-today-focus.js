@@ -85,6 +85,9 @@
       starsOnNow: 0,
     };
 
+    const incomplete = incompleteItems(items);
+    const hasOpenWork = incomplete.length > 0 || (total > 0 && completed < total);
+
     if (total === 0) {
       return Object.assign({}, base, {
         state: IDAG_STATES.NO_TASKS,
@@ -93,7 +96,7 @@
       });
     }
 
-    if (completed === total) {
+    if (!hasOpenWork) {
       return Object.assign({}, base, {
         state: IDAG_STATES.ALL_DONE,
         progressLabel: completed + ' av ' + total + ' klara',
