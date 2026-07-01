@@ -389,85 +389,35 @@ flowchart LR
 
 #### 6.5.1 FEAT-1 — Boendeschema (P1)
 
-**Produktidé:** Stöd för **växelvis boende** och två hem — inte bara “samma schema varje vecka”. Båda föräldrar ser vems vecka/dagar det är; varje förälder kan fokusera på **sina dagar**.
+> **Normativ spec (2026-07):** Domänen är *boendeschema*, inte “vecka A/B”. Se:
+>
+> - **[`boendeschema-spec.md`](./boendeschema-spec.md)** — funktionella krav BC-1 … BC-13
+> - **[`boendeschema-adr.md`](./boendeschema-adr.md)** — ADR: hemcentrerad domän, Schedule Engine, `custody_schedule`
+> - **[`boendeschema-implementationsplan.md`](./boendeschema-implementationsplan.md)** — Phase 1–5, PR-sekvens
+>
+> Den tidigare A/B-variant-specen i detta avsnitt är **ersatt** av ovan.
 
-**Varför:** Oddrobo-recensioner efterfrågar varannan vecka. Målgruppen (NPF, separerade föräldrar) behöver olika rutiner per hem **och** synk mellan vuxna — vår styrka vs fysiska tavlor.
+**Produktidé:** Stöd för **växelvis boende** och flera hem — återkommande boendeschema per barn. Båda föräldrar ser vems dagar det är; varje förälder kan fokusera på **sina dagar**.
 
-**Gate:** Bygg **efter ACT-1 A2** (template-first). Inte före `activation_rate_48h`-arbetet.
+**Varför:** Oddrobo-recensioner efterfrågar varannan vecka/helg. Målgruppen (NPF, separerade föräldrar) behöver olika rutiner per hem **och** synk mellan vuxna.
 
-**Produktprincip:** *Föräldern ser hem och vecka. Barnet ser idag.*
+**Gate:** Bygg **efter ACT-1 A2** (template-first). Implementation enligt Phase 2–5 i implementationsplanen — **inte** före spec + ADR är mergad.
 
-**Befintlig kod / luckor:**
+**Produktprinciper:** Barnet ser sin dag · Föräldern ser sitt ansvar · Hem är neutrala · Kärnfamiljer opåverkade.
 
-| Del | Status |
-|-----|--------|
-| `weekly_schedule` per `day_of_week` (mån–sön) | ✅ Upprepas varje kalendervecka |
-| Upprepning vid tillägg | ✅ “Bara idag” / “varje vecka” — **inte** varannan vecka |
-| Schemamallar (`weekly_schedule.name`, `child_id` null) | ✅ Kan kopieras manuellt |
-| Familjeöversikt (`/schedule?view=family`) | ✅ Kalendervecka — **ingen** “vems vecka” |
-| Co-parent-synk | ✅ Samma familj — **samma** schema idag |
-| Färg per hem / mina dagar | ❌ Saknas |
+**v1 pattern types:** `alternate_weeks`, `alternate_weekends`.
 
-**Scope (låst — en release, ingen uppdelning v1/v1.5):**
+**Låsta arkitekturbeslut (ADR):**
 
-| ID | Krav |
-|----|------|
-| BC-1 | **Två scheman per barn:** Vecka A och Vecka B (eller “Hem 1” / “Hem 2”) — var sin uppsättning `weekly_schedule`-dagar |
-| BC-2 | **Växlingsmönster:** Varannan kalendervecka (14-dagars cykel). Ankardatum: “första vecka A började YYYY-MM-DD” |
-| BC-3 | **Etikett + färg per hem:** Familjeinställning — namn (“Hos mamma”, “Hos pappa”) + färg — inte hårdkodat kön |
-| BC-4 | **Dagsmarkering:** I schema/familjeöversikt — bakgrund eller kantfärg per dag utifrån vilket hem som gäller den kalenderdagen |
-| BC-5 | **Banner:** “Denna vecka: hos [etikett]” synlig för **båda** föräldrar (dashboard + schema) |
-| BC-6 | **“Mina dagar”-filter (förälder):** Visa bara dagar där inloggad förälder är “ägare” / hem — toggle “Mina dagar” / “Hela veckan” |
-| BC-7 | **Barnvy:** Neutral — visar aktiviteter för **idag** utan hem-etikett som default (valfri liten 🏠-ikon i inställning) |
-| BC-8 | **Feature-flagga** `custody_schedule_beta`; koppla till befintlig co-parent (`primary` / `shared`) |
-| BC-9 | **Handoff-dag:** Påminnelse sista dagen före byte + valfri aktivitet “Packa väska” |
-| BC-10 | **Notiser:** Morgonpåminnelser primärt till förälder som har barnet den dagen |
-| BC-11 | **Utskrift:** Skriv ut bara “mina dagar” (enkelriktad utskrift; foto-scan kommer i FEAT-6) |
+| Beslut | Riktning |
+|--------|----------|
+| `custody_pattern` | Utökas till `custody_schedule` (`pattern_type` + `configuration`) |
+| `weekly_schedule.week_variant` | På sikt ersätts av `custody_home_id` |
+| Beräkning | En gemensam `custody-schedule-engine.js` |
 
-**Medvetet utanför FEAT-1 (senare features):**
+**Paket:** Basic (`basic_app`). **Feature-flagga:** `custody_schedule_beta` (globalt aktiverad i prod).
 
-| | |
-|--|--|
-| 2–2–3, var 3:e vecka, udda mönster | v2 |
-| Vecka som inte börjar måndag | v2 (behåll mån–sön i v1) |
-| Rapporter uppdelade per hem | v2 |
-| iCal-export | P3 |
-
-**Datamodell (förslag):**
-
-```sql
--- custody_home: per familj, 2 rader typiskt
-CREATE TABLE custody_home (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  family_id UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
-  label VARCHAR(64) NOT NULL,           -- "Hos mamma"
-  color VARCHAR(7) NOT NULL,          -- "#22C55E"
-  sort_order SMALLINT NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- custody_parent_home: vilken förälder hör till vilket hem
-CREATE TABLE custody_parent_home (
-  parent_id UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
-  custody_home_id UUID NOT NULL REFERENCES custody_home(id) ON DELETE CASCADE,
-  PRIMARY KEY (parent_id, custody_home_id)
-);
-
--- custody_pattern: per barn
-CREATE TABLE custody_pattern (
-  child_id UUID PRIMARY KEY REFERENCES child(id) ON DELETE CASCADE,
-  anchor_date DATE NOT NULL,          -- första vecka A
-  interval_weeks SMALLINT NOT NULL DEFAULT 2 CHECK (interval_weeks >= 2),
-  week_a_home_id UUID NOT NULL REFERENCES custody_home(id),
-  week_b_home_id UUID NOT NULL REFERENCES custody_home(id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- weekly_schedule: lägg till custody_home_id + week_variant ('a'|'b'|null)
--- null = legacy enkelt veckoschema (bakåtkompatibelt)
-```
-
-**Uppskattad insats:** ~2–3 veckor (hela Boendeschema i en release).
+**Implementationstatus:** Delar av BC-1 … BC-13 finns i kod (A/B-modell). Domänomskrivning + `alternate_weekends` + engine enligt implementationsplan.
 
 **SEO/copy:** “Växelvis boende”, “schema varannan vecka”, “synka rutiner mellan föräldrar”.
 
@@ -677,6 +627,7 @@ Bygg i PR-ordning: exekveringsplan §7
 | 2026-06-24 | 0.6 | FEAT-1 utökad till boendeschema (§6.5.1); FEAT-6 omnumrerad §6.5.2 |
 | 2026-06-24 | 0.7 | FEAT-1: hela Boendeschema i en release (BC-1–11, ingen v1.5) |
 | 2026-06-24 | 0.8 | D11: FEAT-6 foto-scan i Basic (`basic_app`) |
+| 2026-07-01 | 0.9 | FEAT-1: domänspec + ADR + implementationsplan — ersätter A/B-spec i §6.5.1 |
 
 ---
 

@@ -227,19 +227,17 @@ Kör när PR 1–2 är igång eller mellan PR — **blockera inte** activation-s
 
 ---
 
-## Efter ACT-1 — FEAT-1 Boendeschema (P1, en release)
+## Efter ACT-1 — FEAT-1 Boendeschema (P1)
 
-**Spec:** [`aktivering-exekveringsplan.md` §6.5.1](./aktivering-exekveringsplan.md#651-feat-1--boendeschema-p1) — BC-1 … BC-11 levereras tillsammans.
+**Spec:** [`boendeschema-spec.md`](./boendeschema-spec.md) (BC-1 … BC-13) · **ADR:** [`boendeschema-adr.md`](./boendeschema-adr.md) · **Plan:** [`boendeschema-implementationsplan.md`](./boendeschema-implementationsplan.md)
 
-- [ ] Migration: `custody_home`, `custody_parent_home`, `custody_pattern`; `weekly_schedule.week_variant` + `custody_home_id`
-- [ ] Inställningar: etikett + färg per hem, ankardatum, koppla förälder ↔ hem
-- [ ] Vecka A/B-scheman per barn; resolver: vilken vecka gäller datum X
-- [ ] UI: dagsfärg, banner “denna vecka hos …”, filter “Mina dagar”
-- [ ] Barnvy: neutral idag-vy (ingen hem-etikett default)
-- [ ] Handoff: påminnelse dag före byte + valfri “Packa väska”-aktivitet
-- [ ] Notiser: morgonpåminnelser till förälder som har barnet den dagen
-- [ ] Utskrift: “mina dagar”-filter i befintlig dagboks-utskrift
-- [ ] Feature-flagga `custody_schedule_beta` + tester
+**Ordning:** Spec + ADR mergad → Phase 2 migration → Phase 3 engine → Phase 4 konsumenter → Phase 5 cleanup.
+
+- [x] Phase 1: domänspec, ADR, implementationsplan
+- [ ] Phase 2: `pattern_type` + `configuration`; backfill `alternate_weeks`; `icon` på hem
+- [ ] Phase 3: `custody-schedule-engine.js` (`alternate_weeks` + `alternate_weekends`)
+- [ ] Phase 4: migrera API, schedulers, UI till engine; banner “nästa byte”
+- [ ] Phase 5: `custody_home_id` primärt; `week_variant` legacy; hemnamn i UI (ej A/B)
 
 ---
 
@@ -269,3 +267,4 @@ Spec: docs/act-1-ai-startschema-spec.md
 | 2026-06-24 | 1.2 | D3 referral v0 + D5 auto-sitemap som parallella tasks |
 | 2026-06-24 | 1.3 | FEAT-1 boendeschema — post-ACT-1 tasklista |
 | 2026-06-24 | 1.4 | FEAT-1: hela scope (BC-1–11) i en release |
+| 2026-07-01 | 1.5 | FEAT-1: domänspec + ADR + Phase 1–5 implementationsplan |

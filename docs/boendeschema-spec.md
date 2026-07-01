@@ -1,0 +1,438 @@
+# FEAT-1 — Boendeschema (Custody Schedule)
+
+| | |
+|--|--|
+| **Status** | Godkänd domänspec (2026-07) |
+| **Prioritet** | P1 |
+| **Paket** | Basic (`basic_app`) |
+| **Typ** | Produktspec — normativ för FEAT-1 |
+| **Relaterat** | [boendeschema-adr.md](./boendeschema-adr.md) · [boendeschema-implementationsplan.md](./boendeschema-implementationsplan.md) |
+
+**Beroenden:**
+
+- ACT-1 A2 (template-first aktivering)
+- Familjemodulen
+- Veckoschema
+
+---
+
+## Syfte
+
+Appen ska stödja familjer där barn bor i ett eller flera hem enligt ett återkommande boendeschema.
+
+Boendeschemat ska användas för att:
+
+- visa rätt aktiviteter för rätt förälder
+- förenkla planering
+- styra påminnelser
+- ge båda hemmen samma struktur
+- fungera oavsett framtida schemaform
+
+Systemet ska vara byggt för att kunna utökas utan databasmigrering när fler boendemönster införs.
+
+> **Viktigt:** “Vecka A / Vecka B” är en *implementation* av mönstret `alternate_weeks` — inte domänen. Domänen är **boendeschema** → **aktivt hem** per datum.
+
+---
+
+## Produktprinciper
+
+1. **Barnet ser sin dag.**
+2. **Föräldern ser sitt ansvar.**
+3. **Hem är neutrala** — inte mamma/pappa.
+4. **Schemat ska kännas naturligt** oavsett familjekonstellation.
+5. **Vanliga kärnfamiljer ska inte påverkas.**
+
+---
+
+## Begrepp
+
+| Begrepp | Definition |
+|---------|------------|
+| **Home** | Ett logiskt hem inom familjen |
+| **Custody Schedule** | Återkommande boendeschema per barn |
+| **Pattern** | Typ av schema (`alternate_weeks`, `alternate_weekends`, …) |
+| **Anchor Date** | Datum då schemat börjar |
+| **Active Home** | Hemmet som gäller ett visst datum |
+| **Assignment** | Koppling mellan förälder och hem |
+
+---
+
+## Funktionella krav
+
+### BC-1 Hem
+
+En familj kan ha ett eller flera hem.
+
+Varje hem har:
+
+- namn (`label`)
+- färg (`color`)
+- ikon (`icon`, valfritt)
+- sorteringsordning (`sort_order`)
+
+Familjer med endast ett hem eller utan boendeschema ska fungera oförändrat.
+
+---
+
+### BC-2 Föräldrakoppling
+
+En eller flera vuxna kan kopplas till ett hem.
+
+Exempel:
+
+- Hos Anna
+- Hos Erik
+- Hos bonusförälder
+- Gemensamt hem
+
+Systemet får **aldrig** anta kön eller familjerelation.
+
+---
+
+### BC-3 Boendeschema
+
+Varje barn kan ha ett boendeschema.
+
+Schemat består av:
+
+- schematyp (`pattern_type`)
+- startdatum (`anchor_date`)
+- konfiguration (`configuration`, JSONB)
+
+---
+
+### BC-4 Stödda schematyper (v1)
+
+**Varannan vecka** (`alternate_weeks`)
+
+```
+7 dagar → 7 dagar (växlar varannan kalendervecka)
+```
+
+**Varannan helg** (`alternate_weekends`)
+
+```
+Fredag–söndag varannan vecka hos respektive hem
+```
+
+Konfiguration för `alternate_weekends` inkluderar `weekend_start` (default `friday`).
+
+---
+
+### BC-5 Framtida schematyper
+
+Datamodellen ska stödja framtida schematyper **utan databasmigrering** — nya värden i `pattern_type` + utökad `configuration`.
+
+Exempel (v2+):
+
+- `223` (2–2–3)
+- `3443` (3–4–4–3)
+- `5225` (5–2–2–5)
+- `custom`
+- manuella undantag (se utanför scope v1)
+
+---
+
+### BC-6 Aktivt hem
+
+Systemet ska kunna avgöra vilket hem som gäller för ett valfritt datum.
+
+Resultatet används av:
+
+- Dashboard
+- Kalender
+- Veckoplanering
+- Pushnotiser
+- Handoff
+- Utskrift
+- Daglig logg
+
+All beräkning sker i **Schedule Engine** — ingen vy eller tjänst implementerar egen logik.
+
+---
+
+### BC-7 Färgmarkering
+
+Planeringsvyn ska kunna markera dagar efter aktivt hem.
+
+Färg får **aldrig** vara enda informationsbärare — komplettera med ikon eller text (WCAG AA).
+
+---
+
+### BC-8 Banner
+
+Dashboard ska visa kontextberoende copy, t.ex.:
+
+- “Denna vecka hos [hem]”
+- “Nästa byte på fredag”
+
+beroende på schemat och datum.
+
+---
+
+### BC-9 Mina dagar
+
+Förälder kan växla mellan:
+
+- **Mina dagar**
+- **Alla dagar**
+
+Filtret används konsekvent i:
+
+- Dashboard
+- Planering
+- Utskrift
+
+---
+
+### BC-10 Barnvy
+
+Barn ser:
+
+- dagens aktiviteter
+- dagens rutiner
+
+Hem visas **inte** som standard (valfri liten 🏠-ikon i inställning).
+
+---
+
+### BC-11 Handoff
+
+Systemet ska kunna skapa:
+
+- påminnelse inför byte
+- packlista
+- valfri aktivitet (t.ex. “Packa väska”)
+
+---
+
+### BC-12 Pushnotiser
+
+Primär mottagare ska vara den förälder som ansvarar för barnet den aktuella dagen.
+
+---
+
+### BC-13 Utskrift
+
+Användaren kan skriva ut:
+
+- hela schemat
+- endast mina dagar
+
+---
+
+## Datamodell
+
+```
+Family
+│
+├── Homes (custody_home)
+│
+├── ParentHomeAssignments (custody_parent_home)
+│
+└── Child
+     │
+     └── CustodySchedule (custody_schedule)
+              │
+              └── Pattern (pattern_type + configuration)
+                     │
+                     ▼
+              Schedule Engine
+                     │
+                     ▼
+             Active Home
+```
+
+### `custody_home`
+
+| Fält | Typ |
+|------|-----|
+| `id` | uuid |
+| `family_id` | uuid |
+| `label` | text |
+| `color` | text |
+| `icon` | text (nullable) |
+| `sort_order` | int |
+
+### `custody_parent_home`
+
+| Fält | Typ |
+|------|-----|
+| `parent_id` | uuid |
+| `custody_home_id` | uuid |
+
+### `custody_schedule`
+
+Ersätter/utökar dagens `custody_pattern` (se ADR).
+
+| Fält | Typ |
+|------|-----|
+| `child_id` | uuid (PK) |
+| `pattern_type` | enum/text |
+| `anchor_date` | date |
+| `configuration` | jsonb |
+
+**Legacy-kolumner** (`week_a_home_id`, `week_b_home_id`, `interval_weeks`) behålls temporärt under migration — läses inte av ny kod efter Phase 3.
+
+### Pattern types
+
+| `pattern_type` | Status |
+|----------------|--------|
+| `alternate_weeks` | v1 |
+| `alternate_weekends` | v1 |
+| `223` | v2 |
+| `3443` | v2 |
+| `5225` | v2 |
+| `custom` | v2 |
+
+### Konfigurationsexempel
+
+**Varannan vecka:**
+
+```json
+{
+  "home_a": "uuid",
+  "home_b": "uuid"
+}
+```
+
+**Varannan helg:**
+
+```json
+{
+  "home_a": "uuid",
+  "home_b": "uuid",
+  "weekend_start": "friday"
+}
+```
+
+### Veckoschema (`weekly_schedule`)
+
+| Fält | Syfte |
+|------|--------|
+| `custody_home_id` | **Målmodell** — aktiviteter per hem |
+| `week_variant` | **Legacy** — `'a' \| 'b' \| null`; behålls som cache under övergång |
+
+På sikt ersätts `week_variant` av `custody_home_id` som primär koppling (ADR).
+
+---
+
+## Schedule Engine
+
+**Modul:** `src/lib/custody-schedule-engine.js`
+
+**Input:**
+
+- datum (`YYYY-MM-DD`)
+- barn (`childId`)
+- schema (laddat från DB + hem + assignments)
+
+**Output:**
+
+```js
+{
+  activeHome: { id, label, color, icon },
+  activePeriod: { start, end },      // t.ex. helg fre–sön eller hel vecka
+  nextHandoff: { date, home },
+  previousHandoff: { date, home },
+  patternType: 'alternate_weeks',
+  isParentDay: boolean               // när parentHomeId anges
+}
+```
+
+Alla vyer och tjänster använder samma motor. Ingen vy får implementera egen logik.
+
+---
+
+## Behörigheter
+
+| Roll | Läs | Ändra |
+|------|-----|-------|
+| Primary Parent | Ja | Ja |
+| Shared Parent | Ja | Ja |
+| Pedagog | Begränsat (kontext) | Nej |
+| Barn | Begränsat | Nej |
+
+---
+
+## Accessibility
+
+- WCAG AA
+- Färg kompletteras med ikon eller text
+- Tangentbordsnavigering
+- Skärmläsarstöd för banner, filter och dagsmarkering
+
+---
+
+## Analytics
+
+| Event | När |
+|-------|-----|
+| `custody_schedule_created` | Första sparning av boendeschema |
+| `custody_schedule_updated` | Ändring av mönster eller hem |
+| `custody_home_selected` | Hem valt i setup |
+| `custody_filter_changed` | Mina dagar / alla dagar |
+| `custody_banner_seen` | Banner visad |
+| `custody_handoff_sent` | Handoff-påminnelse skickad |
+
+---
+
+## Edge cases
+
+| Case | Förväntat beteende |
+|------|-------------------|
+| Skottår | Ingen avvikelse — datumbaserad beräkning |
+| Sommartid | Använd familjens `timezone`; datum som kalenderdagar |
+| Tidszon | `Europe/Stockholm` default; respektera `family.timezone` |
+| Ankardatum i framtiden | Motorn returnerar aktivt hem enligt ankare — UI varnar |
+| Barn utan schema | Legacy veckoschema; ingen custody-kontext |
+| Borttaget hem | RESTRICT eller validering vid delete; blockera om aktivt i schema |
+| Två vuxna kopplade till samma hem | Tillåtet — båda får “mina dagar” |
+| Flera barn med olika scheman | Varje barn har eget `custody_schedule` |
+| Familjer med endast ett hem | Ingen custody-setup krävs; oförändrat flöde |
+
+---
+
+## Icke-funktionella krav
+
+- Beräkning av aktivt hem **&lt; 5 ms** (CPU, in-memory)
+- **Ingen extra databasfråga per kalenderdag** — ladda schema + hem en gång per request/batch
+- Full bakåtkompatibilitet med befintliga veckoscheman (`week_variant IS NULL`)
+- Ingen påverkan på familjer utan boendeschema
+
+---
+
+## Utanför scope (v1)
+
+- Manuella undantagsdagar
+- Semesteröverlapp
+- Fler än två aktiva hem per barn i samma mönster
+- iCal-export
+- OCR/fotoimport (→ FEAT-6)
+- Automatisk synkning med externa kalendrar
+- Rapporter per hem
+
+---
+
+## Definition of Done
+
+FEAT-1 är klar när:
+
+- [ ] Samtliga funktionella krav BC-1 … BC-13 är implementerade
+- [ ] Boendeschemat fungerar för både `alternate_weeks` och `alternate_weekends`
+- [ ] Samma Schedule Engine används av samtliga vyer och tjänster
+- [ ] Alla API-kontrakt är dokumenterade
+- [ ] Enhetstester täcker schemaberäkningar, inklusive gränsfall
+- [ ] Integrationstester verifierar API och datamodell
+- [ ] UI-tester verifierar banner, färgmarkeringar, filter och utskrift
+- [ ] Accessibility uppfyller WCAG AA
+- [ ] Analytics skickar definierade händelser
+- [ ] Befintliga familjer utan boendeschema fungerar oförändrat
+
+---
+
+## Dokumenthistorik
+
+| Datum | Version | Ändring |
+|-------|---------|---------|
+| 2026-07-01 | 1.0 | Domänspec — ersätter A/B-centrerad §6.5.1 i aktivering-exekveringsplan |
