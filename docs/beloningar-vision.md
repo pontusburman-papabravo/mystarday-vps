@@ -33,7 +33,7 @@ Stjärnor är bränsle, inte poängjakt (G-01, R-02). Föräldern behöver:
 2. **Hantera** belöningsutbudet (skapa, redigera, kosta stjärnor)
 3. **Följa** vad barnen samlat och begärt
 
-Barnet upplever belöningar i **Skattkammaren**. Föräldern styr här.
+Barnet upplever belöningar i **Skattkammaren** ([skattkammaren-vision.md](skattkammaren-vision.md)). Föräldern styr här.
 
 ---
 
