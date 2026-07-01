@@ -153,6 +153,13 @@
     return map[roomId] || FOOT_ICONS[roomId] || '⭐';
   }
 
+  function wrapImmersiveRoom(roomId, innerHtml) {
+    return '<div class="skatt-room-view skatt-room-immersive skatt-room-' + roomId + ' ' + themeClass() + '">' +
+      '<div class="skatt-room-bg" aria-hidden="true"></div>' +
+      '<div class="skatt-room-content">' + innerHtml + '</div>' +
+      '</div>';
+  }
+
   function renderHubAvatar() {
     if (_meta.avatarUrl) {
       return '<img src="' + esc(_meta.avatarUrl) + '" alt="" class="skatt-hub-avatar-img" />';
@@ -196,7 +203,8 @@
 
       return '<button type="button" class="skatt-hub-card' + lockCls + '" data-room="' + room.id + '" aria-label="' + esc(room.label) + '"' +
         (unlocked ? '' : ' disabled') + '>' +
-        '<div class="skatt-hub-card-art" aria-hidden="true"><span class="skatt-hub-card-art-emoji">' + artEmoji + '</span></div>' +
+        '<div class="skatt-hub-card-art skatt-art-' + room.id + '" aria-hidden="true">' +
+          '<span class="skatt-hub-card-art-emoji">' + artEmoji + '</span></div>' +
         '<div class="skatt-hub-card-foot">' +
           '<span class="skatt-hub-card-icon">' + (FOOT_ICONS[room.id] || '⭐') + '</span>' +
           '<div class="skatt-hub-card-text">' +
@@ -232,7 +240,7 @@
 
   function renderChestRoom() {
     const tier = chestTier(_meta.starBalance || 0);
-    return '<div class="skatt-room-view skatt-room-immersive ' + themeClass() + '">' +
+    return wrapImmersiveRoom('chest',
       '<button type="button" class="skatt-room-back" data-back="1">← Ut till huset</button>' +
       '<div class="skatt-room-title">💰 Stjärnkistan</div>' +
       '<div class="skatt-chest-room">' +
@@ -241,7 +249,8 @@
         '<div class="skatt-chest-balance">⭐ ' + (_meta.starBalance || 0) + '</div>' +
         '<div class="skatt-chest-label">Dina sparade stjärnor</div>' +
         (_meta.economyHtml || '') +
-      '</div></div>';
+      '</div>'
+    );
   }
 
   function roomContent(roomId) {
@@ -280,10 +289,10 @@
     if (unlockedRooms().indexOf(roomId) < 0) return;
 
     const inner = roomId === 'chest' ? renderChestRoom() :
-      '<div class="skatt-room-view skatt-room-immersive ' + themeClass() + '">' +
+      wrapImmersiveRoom(roomId,
         '<button type="button" class="skatt-room-back" data-back="1">← Ut till huset</button>' +
-        roomContent(roomId) +
-      '</div>';
+        roomContent(roomId)
+      );
 
     _view.innerHTML = inner;
     _view.classList.add('skatt-in-room');

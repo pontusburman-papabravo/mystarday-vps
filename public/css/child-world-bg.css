@@ -1,0 +1,120 @@
+/**
+ * child-world-bg.css — Illustrated backgrounds for barnmeny v2 huvudvyer.
+ * Asset register: docs/child-image-assets.md → public/images/child/
+ */
+
+#childWorldBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cwb-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  transition: opacity 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cwb-layer {
+    transition: none;
+  }
+}
+
+.cwb-today {
+  background-image: url('/images/child/today/bg@2x.webp');
+}
+
+.cwb-world {
+  background-image: url('/images/child/world/hub@2x.webp');
+  background-position: center 18%;
+}
+
+.cwb-family {
+  background-image: url('/images/child/family/hall@2x.webp');
+  background-position: center 22%;
+}
+
+/* Scrim: keep lower third readable for activity / room cards */
+.cwb-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 243, 235, 0.08) 0%,
+    rgba(247, 243, 235, 0.02) 38%,
+    rgba(247, 243, 235, 0.42) 68%,
+    rgba(247, 243, 235, 0.88) 100%
+  );
+}
+
+.cwb-world::after {
+  background: linear-gradient(
+    180deg,
+    rgba(26, 5, 51, 0.05) 0%,
+    rgba(26, 5, 51, 0.02) 32%,
+    rgba(247, 243, 235, 0.5) 70%,
+    rgba(247, 243, 235, 0.92) 100%
+  );
+}
+
+/* Active world — html attrs set by child-layer-router + child-shell */
+html[data-child-layer='today'] .cwb-today,
+html[data-child-world='today'] .cwb-today,
+html[data-child-world-active='today'] .cwb-today,
+html[data-child-layer='home'] .cwb-today,
+html[data-child-world='home'] .cwb-today {
+  opacity: 1;
+}
+
+html[data-child-layer='world'] .cwb-world,
+html[data-child-layer='universe'] .cwb-world,
+html[data-child-world='world'] .cwb-world,
+html[data-child-world='universe'] .cwb-world,
+html[data-child-world-active='world'] .cwb-world {
+  opacity: 1;
+}
+
+html[data-child-layer='family'] .cwb-family,
+html[data-child-world='family'] .cwb-family,
+html[data-child-world-active='family'] .cwb-family {
+  opacity: 1;
+}
+
+/* Only when barnmeny v2 is active */
+body.child-worlds-v2 {
+  background: #f7f3eb;
+}
+
+body.child-worlds-v2 #childMainHeader {
+  background: rgba(27, 35, 64, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body.child-worlds-v2 #todayFocusMount {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom-color: rgba(237, 231, 246, 0.65);
+}
+
+body.child-worlds-v2 #scheduleView,
+body.child-worlds-v2 #familyView,
+body.child-worlds-v2 #rewardsView {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+
+/* Skattkammarhus: tema-exteriör (F1–F3) i child-skatt-house.css */
+body.child-home-active .cwb-layer {
+  opacity: 0;
+}

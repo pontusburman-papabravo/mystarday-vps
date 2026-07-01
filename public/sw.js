@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v450';
+const CACHE_NAME = 'stjarndag-v451';
+// stjarndag-v451: barnillustrationer under /images/child/ — bakgrunder, hubbar, rum, dekaler
 // stjarndag-v441: För dig + barnprofil kontrast i mörkt magic-tema
 // stjarndag-v440: library init resilience + Planering→Bibliotek empty-box fix
 // stjarndag-v439: fix library init crash (_libIsAdmin) + Bildarkiv section scope
@@ -403,6 +404,24 @@ const STATIC_ASSETS = [
   '/assets/worlds/garden/scene-bg-430.webp',
   '/assets/worlds/garden/scene-bg-860.webp',
   '/assets/worlds/garden/scene-bg-1280.webp',
+  '/css/child-world-bg.css',
+  '/css/child-skatt-rooms.css',
+  '/images/child/today/bg@2x.webp',
+  '/images/child/world/hub@2x.webp',
+  '/images/child/world/hub-castle@2x.webp',
+  '/images/child/world/hub-treehouse@2x.webp',
+  '/images/child/world/hub-space@2x.webp',
+  '/images/child/family/hall@2x.webp',
+  '/images/child/world/rooms/chest@2x.webp',
+  '/images/child/world/rooms/dreams@2x.webp',
+  '/images/child/world/rooms/trophy@2x.webp',
+  '/images/child/world/rooms/shelf@2x.webp',
+  '/images/child/world/rooms/collections@2x.webp',
+  '/images/child/world/rooms/story@2x.webp',
+  '/images/child/world/rooms/avatar@2x.webp',
+  '/images/child/world/rooms/pet@2x.webp',
+  '/images/child/world/rooms/museum@2x.webp',
+  '/images/child/world/rooms/shop@2x.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',

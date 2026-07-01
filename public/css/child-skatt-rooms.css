@@ -1,0 +1,127 @@
+/**
+ * child-skatt-rooms.css — Illustrated Skattkammaren room art (hub cards + immersive rooms).
+ * Assets: public/images/child/world/rooms/ — see docs/child-image-assets.md
+ */
+
+/* ── Hub card thumbnails ── */
+body.child-worlds-v2 .skatt-hub-card-art {
+  background-color: #ede7f6;
+  background-size: cover;
+  background-position: center 24%;
+  background-repeat: no-repeat;
+}
+
+body.child-worlds-v2 .skatt-hub-card-art-emoji {
+  display: none;
+}
+
+body.child-worlds-v2 .skatt-hub-card.is-locked .skatt-hub-card-art {
+  filter: grayscale(0.65) brightness(0.72);
+}
+
+.skatt-art-chest { background-image: url('/images/child/world/rooms/chest@2x.webp'); }
+.skatt-art-dreams { background-image: url('/images/child/world/rooms/dreams@2x.webp'); }
+.skatt-art-trophy { background-image: url('/images/child/world/rooms/trophy@2x.webp'); }
+.skatt-art-shelf { background-image: url('/images/child/world/rooms/shelf@2x.webp'); }
+.skatt-art-collections { background-image: url('/images/child/world/rooms/collections@2x.webp'); }
+.skatt-art-story { background-image: url('/images/child/world/rooms/story@2x.webp'); }
+.skatt-art-avatar { background-image: url('/images/child/world/rooms/avatar@2x.webp'); }
+.skatt-art-pet {
+  background-image: url('/images/child/world/rooms/pet@2x.webp');
+  background-position: center 20%;
+}
+.skatt-art-museum {
+  background-image: url('/images/child/world/rooms/museum@2x.webp');
+  background-position: center 18%;
+}
+.skatt-art-shop {
+  background-image: url('/images/child/world/rooms/shop@2x.webp');
+  background-position: center 22%;
+}
+
+/* ── Immersive room backgrounds ── */
+body.child-worlds-v2 .skatt-room-immersive {
+  position: relative;
+  min-height: 62vh;
+  margin: 0 -12px;
+  padding: 0 12px 24px;
+}
+
+body.child-worlds-v2 .skatt-room-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+body.child-worlds-v2 .skatt-room-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 243, 235, 0.06) 0%,
+    rgba(247, 243, 235, 0.02) 34%,
+    rgba(247, 243, 235, 0.55) 72%,
+    rgba(247, 243, 235, 0.94) 100%
+  );
+}
+
+body.child-worlds-v2 .skatt-room-content {
+  position: relative;
+  z-index: 1;
+}
+
+body.child-worlds-v2 .skatt-room-immersive .skatt-section {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(27, 35, 64, 0.1);
+}
+
+body.child-worlds-v2 .skatt-room-immersive .skatt-room-back {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 12px rgba(27, 35, 64, 0.08);
+}
+
+body.child-worlds-v2 .skatt-room-immersive .skatt-room-title {
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.85);
+}
+
+body.child-worlds-v2 .skatt-room-chest .skatt-chest-room {
+  background: rgba(26, 26, 46, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.skatt-room-chest .skatt-room-bg { background-image: url('/images/child/world/rooms/chest@2x.webp'); }
+.skatt-room-dreams .skatt-room-bg { background-image: url('/images/child/world/rooms/dreams@2x.webp'); }
+.skatt-room-trophy .skatt-room-bg { background-image: url('/images/child/world/rooms/trophy@2x.webp'); }
+.skatt-room-shelf .skatt-room-bg { background-image: url('/images/child/world/rooms/shelf@2x.webp'); }
+.skatt-room-collections .skatt-room-bg { background-image: url('/images/child/world/rooms/collections@2x.webp'); }
+.skatt-room-story .skatt-room-bg { background-image: url('/images/child/world/rooms/story@2x.webp'); }
+.skatt-room-avatar .skatt-room-bg { background-image: url('/images/child/world/rooms/avatar@2x.webp'); }
+.skatt-room-pet .skatt-room-bg {
+  background-image: url('/images/child/world/rooms/pet@2x.webp');
+  background-position: center 18%;
+}
+.skatt-room-museum .skatt-room-bg {
+  background-image: url('/images/child/world/rooms/museum@2x.webp');
+  background-position: center 16%;
+}
+.skatt-room-shop .skatt-room-bg {
+  background-image: url('/images/child/world/rooms/shop@2x.webp');
+  background-position: center 20%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.child-worlds-v2 .skatt-room-immersive {
+    animation: none;
+  }
+}

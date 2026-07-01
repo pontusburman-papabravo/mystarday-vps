@@ -15,20 +15,25 @@
 
 | ID | Vy | Filnamn (runtime @2x) | Repo-sökväg | Var i appen | Status |
 |----|-----|----------------------|-------------|-------------|--------|
-| `today-bg` | Idag | `bg@2x.webp` | `public/images/child/today/bg@2x.webp` | Bakgrund Idag (planerad; idag CSS-gradient i `child-today-focus.css`) | saknas |
-| `world-hub-castle` | Min värld | `hub-castle@2x.webp` | `public/images/child/world/hub-castle@2x.webp` | Skattkammaren hub (`child-skatt-house.js` — idag emoji-kort) | saknas |
-| `world-room-chest` | Min värld / rum `chest` | `chest@2x.webp` | `public/images/child/world/rooms/chest@2x.webp` | Stjärnkistan (`child-skatt-house.js`) | saknas |
-| `world-room-shop` | Min värld / rum `shop` | `shop@2x.webp` | `public/images/child/world/rooms/shop@2x.webp` | Butiken | saknas |
-| `world-room-dreams` | Min värld / rum `dreams` | `dreams@2x.webp` | `public/images/child/world/rooms/dreams@2x.webp` | Drömvägg | saknas |
-| `world-room-trophy` | Min värld / rum `trophy` | `trophy@2x.webp` | `public/images/child/world/rooms/trophy@2x.webp` | Troférum | saknas |
-| `world-room-shelf` | Min värld / rum `shelf` | `shelf@2x.webp` | `public/images/child/world/rooms/shelf@2x.webp` | Belöningshylla | saknas |
-| `world-room-collections` | Min värld / rum `collections` | `collections@2x.webp` | `public/images/child/world/rooms/collections@2x.webp` | Samlingar | saknas |
-| `world-room-story` | Min värld / rum `story` | `story@2x.webp` | `public/images/child/world/rooms/story@2x.webp` | Historiebok | saknas |
-| `world-room-avatar` | Min värld / rum `avatar` | `avatar@2x.webp` | `public/images/child/world/rooms/avatar@2x.webp` | Min avatar | saknas |
-| `world-room-pet` | Min värld / rum `pet` | `pet@2x.webp` | `public/images/child/world/rooms/pet@2x.webp` | Husdjur | saknas |
-| `world-room-museum` | Min värld / rum `museum` | `museum@2x.webp` | `public/images/child/world/rooms/museum@2x.webp` | Museum | saknas |
-| `family-hall` | Mina personer | `hall@2x.webp` | `public/images/child/family/hall@2x.webp` | Familjehall V0 (`child-family-hall.js` — idag ren CSS) | saknas |
-| `morgonhus-scene` | Morgonhus | `scene@2x.webp` | `public/images/child/morgonhus/scene@2x.webp` | Morgonhuset (`child-morgonhus.css` `.mh-scene-bg` — idag gradient) | saknas |
+| `today-bg` | Idag | `bg@2x.webp` | `public/images/child/today/bg@2x.webp` | `child-world-bg.css` → `.cwb-today` | godkänd |
+| `world-hub-bg` | Min värld | `hub@2x.webp` | `public/images/child/world/hub@2x.webp` | `child-world-bg.css` → `.cwb-world` | godkänd |
+| `world-hub-castle` | Min värld / tema `castle` | `hub-castle@2x.webp` | `public/images/child/world/hub-castle@2x.webp` | `child-skatt-house.css` → `.skatt-theme-castle` | godkänd |
+| `world-hub-treehouse` | Min värld / tema `treehouse` | `hub-treehouse@2x.webp` | `public/images/child/world/hub-treehouse@2x.webp` | `child-skatt-house.css` → `.skatt-theme-treehouse` | godkänd |
+| `world-hub-space` | Min värld / tema `space` | `hub-space@2x.webp` | `public/images/child/world/hub-space@2x.webp` | `child-skatt-house.css` → `.skatt-theme-space` | godkänd |
+| `world-room-chest` | Min värld / rum `chest` | `chest@2x.webp` | `public/images/child/world/rooms/chest@2x.webp` | `child-skatt-rooms.css` → Stjärnkistan | godkänd |
+| `world-room-shop` | Min värld / rum `shop` | `shop@2x.webp` | `public/images/child/world/rooms/shop@2x.webp` | `child-skatt-rooms.css` → Butiken | godkänd |
+| `world-room-dreams` | Min värld / rum `dreams` | `dreams@2x.webp` | `public/images/child/world/rooms/dreams@2x.webp` | `child-skatt-rooms.css` → Drömvägg | godkänd |
+| `world-room-trophy` | Min värld / rum `trophy` | `trophy@2x.webp` | `public/images/child/world/rooms/trophy@2x.webp` | `child-skatt-rooms.css` → Troférum | godkänd |
+| `world-room-shelf` | Min värld / rum `shelf` | `shelf@2x.webp` | `public/images/child/world/rooms/shelf@2x.webp` | `child-skatt-rooms.css` → Belöningshylla | godkänd |
+| `world-room-collections` | Min värld / rum `collections` | `collections@2x.webp` | `public/images/child/world/rooms/collections@2x.webp` | `child-skatt-rooms.css` → Samlingar | godkänd |
+| `world-room-story` | Min värld / rum `story` | `story@2x.webp` | `public/images/child/world/rooms/story@2x.webp` | `child-skatt-rooms.css` → Historiebok | godkänd |
+| `world-room-avatar` | Min värld / rum `avatar` | `avatar@2x.webp` | `public/images/child/world/rooms/avatar@2x.webp` | `child-skatt-rooms.css` → Min avatar | godkänd |
+| `world-room-pet` | Min värld / rum `pet` | `pet@2x.webp` | `public/images/child/world/rooms/pet@2x.webp` | `child-skatt-rooms.css` → Husdjur | godkänd |
+| `world-room-museum` | Min värld / rum `museum` | `museum@2x.webp` | `public/images/child/world/rooms/museum@2x.webp` | `child-skatt-rooms.css` → Museum | godkänd |
+| `family-hall` | Mina personer | `hall@2x.webp` | `public/images/child/family/hall@2x.webp` | `child-world-bg.css` → `.cwb-family` | godkänd |
+| `morgonhus-scene` | Morgonhus | `scene@2x.webp` | `public/images/child/morgonhus/scene@2x.webp` | Morgonhuset (`child-morgonhus.css` — idag gradient) | saknas |
+| `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | Tomt tillstånd Idag (ej kopplad) | behöver iteration |
+| `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s (ej kopplad) | behöver iteration |
 | `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | **Legacy:** `public/assets/worlds/garden/` | `child-garden.js`, `garden-asset-pipeline.js`, SW precache | saknas |
 
 ### Rum-ID (Min värld)

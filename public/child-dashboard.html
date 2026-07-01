@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/for-dig-goal-badge.css?v=1">
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
-  <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.1.0">
+  <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.2.0">
+  <link rel="stylesheet" href="/css/child-skatt-rooms.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-morgonhus.css?v=1.0.2">
   <link rel="stylesheet" href="/css/child-living-world-transition.css?v=1.0.1">
   <link rel="stylesheet" href="/css/child-garden.css?v=2.0.0">
@@ -30,6 +31,7 @@
   <link rel="stylesheet" href="/css/child-today-focus.css?v=1.2.0">
   <link rel="stylesheet" href="/css/child-first-star-mode.css?v=1.0.2">
   <link rel="stylesheet" href="/css/child-family-hall.css?v=1.0.0">
+  <link rel="stylesheet" href="/css/child-world-bg.css?v=1.1.0">
   <link rel="stylesheet" href="/css/child-dashboard-warmth.css?v=2026-06-10-child">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -1652,6 +1654,11 @@
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
 </head>
 <body class="bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white">
+  <div id="childWorldBg" aria-hidden="true">
+    <div class="cwb-layer cwb-today" role="presentation"></div>
+    <div class="cwb-layer cwb-world" role="presentation"></div>
+    <div class="cwb-layer cwb-family" role="presentation"></div>
+  </div>
   <!-- Header (hidden on Hem-flik — hub has its own topbar) -->
   <div id="childMainHeader" class="bg-navy text-white px-4 py-3 sticky top-0 z-10" style="padding-top: max(0.75rem, env(safe-area-inset-top));">
     <div class="flex items-center justify-between max-w-lg mx-auto">
@@ -1806,7 +1813,7 @@
   </div>
 
   <!-- Family View = Familjehallen V0 (read-only shell) — also used from Mer -->
-  <div id="familyView" class="hidden pb-20" data-layer="family" style="background: linear-gradient(180deg, #fff8f0 0%, #f0fff4 100%);">
+  <div id="familyView" class="hidden pb-20" data-layer="family">
     <div id="familyHallMount"></div>
   </div>
 
@@ -1822,7 +1829,7 @@
   </div>
 
   <!-- Rewards View = Skattkammaren -->
-  <div id="rewardsView" class="hidden pb-20" data-layer="universe" style="background: linear-gradient(180deg, #f0e8ff 0%, #e8f0ff 40%, #f0fff4 100%);">
+  <div id="rewardsView" class="hidden pb-20" data-layer="universe">
     <!-- Loading state -->
     <div id="skattkammarLoading" class="p-6 text-center py-16">
       <p class="text-5xl mb-3 animate-spin" style="display:inline-block">⭐</p>
@@ -1938,7 +1945,7 @@
   <script src="/js/child-achievements.js?v=1.0.0"></script>
   <script src="/js/child-pet.js?v=1.0.0"></script>
   <script src="/js/child-museum.js?v=1.0.0"></script>
-  <script src="/js/child-skatt-house.js?v=2.1.0"></script>
+  <script src="/js/child-skatt-house.js?v=2.2.0"></script>
   <script src="/js/child-living-world-transition.js?v=1.0.1"></script>
   <script src="/js/child-morgonhus.js?v=1.0.6"></script>
   <script src="/js/garden-asset-pipeline.js?v=2.0.0"></script>

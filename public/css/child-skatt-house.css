@@ -394,14 +394,26 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.skatt-hub-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 243, 235, 0.05) 0%,
+    rgba(247, 243, 235, 0.02) 28%,
+    rgba(247, 243, 235, 0.48) 66%,
+    rgba(247, 243, 235, 0.92) 100%
+  );
 }
 
 .skatt-hub-scene-deco {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.85;
+  display: none;
 }
 
 .skatt-hub-content {
@@ -412,45 +424,31 @@
   padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(88px + env(safe-area-inset-bottom, 0px));
 }
 
-/* ── Castle theme ── */
+/* ── F1 Slott — illustrated exterior ── */
 .skatt-theme-castle .skatt-hub-bg {
-  background: linear-gradient(180deg, #87CEEB 0%, #B8D4F0 25%, #90C695 55%, #5AAD5A 80%, #3D8B3D 100%);
-}
-.skatt-theme-castle .skatt-hub-scene-deco {
-  background:
-    radial-gradient(ellipse 80% 40% at 50% 85%, rgba(255,255,255,0.25) 0%, transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cpath fill='%23C4B5FD' d='M60 90 L70 50 L80 65 L90 40 L100 60 L110 35 L120 55 L130 45 L140 90 Z'/%3E%3Crect fill='%23A78BFA' x='55' y='90' width='90' height='25' rx='4'/%3E%3C/svg%3E") center 72% / 70% auto no-repeat;
-}
-.skatt-theme-castle .skatt-hub-card-art {
-  background: linear-gradient(180deg, #E8F4FD 0%, #C4E7C4 100%);
+  background-image: url('/images/child/world/hub-castle@2x.webp');
 }
 
-/* ── Treehouse theme ── */
+/* ── F2 Trädkoja — illustrated exterior ── */
 .skatt-theme-treehouse .skatt-hub-bg {
-  background: linear-gradient(180deg, #FFB347 0%, #FFD194 20%, #87CEEB 45%, #228B22 70%, #1B5E20 100%);
-}
-.skatt-theme-treehouse .skatt-hub-scene-deco {
-  background:
-    radial-gradient(ellipse 90% 50% at 50% 80%, rgba(34,139,34,0.4) 0%, transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cellipse fill='%23228B22' cx='100' cy='100' rx='90' ry='30'/%3E%3Crect fill='%238B6914' x='70' y='55' width='60' height='40' rx='4'/%3E%3Cpolygon fill='%23556B2F' points='100,20 130,55 70,55'/%3E%3C/svg%3E") center 68% / 65% auto no-repeat;
-}
-.skatt-theme-treehouse .skatt-hub-card-art {
-  background: linear-gradient(180deg, #FFF3D6 0%, #C8E6C9 100%);
+  background-image: url('/images/child/world/hub-treehouse@2x.webp');
 }
 
-/* ── Space theme ── */
+/* ── F3 Rymden — illustrated exterior ── */
 .skatt-theme-space .skatt-hub-bg {
-  background: linear-gradient(180deg, #0a0a1a 0%, #1a1035 35%, #2d1b69 65%, #4a2c6a 100%);
+  background-image: url('/images/child/world/hub-space@2x.webp');
 }
-.skatt-theme-space .skatt-hub-scene-deco {
-  background:
-    radial-gradient(circle at 20% 15%, rgba(255,255,255,0.8) 1px, transparent 1px),
-    radial-gradient(circle at 80% 25%, rgba(255,255,255,0.6) 1px, transparent 1px),
-    radial-gradient(circle at 40% 60%, rgba(255,255,255,0.5) 1px, transparent 1px),
-    radial-gradient(circle at 70% 80%, rgba(255,255,255,0.7) 1px, transparent 1px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cellipse fill='%23E17055' cx='160' cy='30' rx='25' ry='25'/%3E%3Cpath fill='%23fff' d='M30 70 L50 40 L55 55 L70 35 L75 70 Z'/%3E%3Ccircle fill='%23DDD' cx='50' cy='75' r='8'/%3E%3C/svg%3E") center 75% / 60% auto no-repeat;
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 60% auto;
+
+.skatt-theme-space .skatt-hub-bg::after {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 26, 0.12) 0%,
+    rgba(10, 10, 26, 0.04) 26%,
+    rgba(247, 243, 235, 0.55) 68%,
+    rgba(247, 243, 235, 0.94) 100%
+  );
 }
+
 .skatt-theme-space .skatt-hub-hello,
 .skatt-theme-space .skatt-hub-sub,
 .skatt-theme-space .skatt-hub-stars-label { color: rgba(255,255,255,0.85); }
@@ -463,9 +461,6 @@
 .skatt-theme-space .skatt-hub-menu {
   background: rgba(255,255,255,0.12);
   color: #fff;
-}
-.skatt-theme-space .skatt-hub-card-art {
-  background: linear-gradient(180deg, #2d1f4e 0%, #1a1035 100%);
 }
 .skatt-theme-space .skatt-hub-card-foot {
   background: rgba(255,255,255,0.95);

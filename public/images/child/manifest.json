@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "root": "/images/child",
+  "register": "docs/child-image-assets.md",
+  "assets": [
+    { "id": "today-bg", "view": "Idag", "path": "today/bg@2x.webp", "css": "child-world-bg.css → .cwb-today", "status": "godkänd" },
+    { "id": "world-hub-bg", "view": "Min värld", "path": "world/hub@2x.webp", "css": "child-world-bg.css → .cwb-world", "status": "godkänd" },
+    { "id": "family-hall-bg", "view": "Familj", "path": "family/hall@2x.webp", "css": "child-world-bg.css → .cwb-family", "status": "godkänd" },
+    { "id": "morgonhus-scene", "view": "Morgonhus", "path": "morgonhus/scene@2x.webp", "css": "child-morgonhus.css (ej kopplad)", "status": "saknas" },
+    { "id": "hub-castle", "view": "Min värld / castle", "path": "world/hub-castle@2x.webp", "css": "child-skatt-house.css → .skatt-theme-castle", "status": "godkänd" },
+    { "id": "hub-treehouse", "view": "Min värld / treehouse", "path": "world/hub-treehouse@2x.webp", "css": "child-skatt-house.css → .skatt-theme-treehouse", "status": "godkänd" },
+    { "id": "hub-space", "view": "Min värld / space", "path": "world/hub-space@2x.webp", "css": "child-skatt-house.css → .skatt-theme-space", "status": "godkänd" },
+    { "id": "room-chest", "view": "Min värld / chest", "path": "world/rooms/chest@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-dreams", "view": "Min värld / dreams", "path": "world/rooms/dreams@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-trophy", "view": "Min värld / trophy", "path": "world/rooms/trophy@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-shelf", "view": "Min värld / shelf", "path": "world/rooms/shelf@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-collections", "view": "Min värld / collections", "path": "world/rooms/collections@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-story", "view": "Min värld / story", "path": "world/rooms/story@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-avatar", "view": "Min värld / avatar", "path": "world/rooms/avatar@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-pet", "view": "Min värld / pet", "path": "world/rooms/pet@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-museum", "view": "Min värld / museum", "path": "world/rooms/museum@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "room-shop", "view": "Min värld / shop", "path": "world/rooms/shop@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
+    { "id": "G1-today-empty", "view": "Idag", "path": "decals/today-empty-v1@2x.webp", "css": "(ej kopplad)", "status": "behöver iteration" },
+    { "id": "G2-celebration-frame", "view": "Idag / firande", "path": "decals/today-celebration-frame-v1@2x.webp", "css": "(ej kopplad)", "status": "behöver iteration" }
+  ]
+}
