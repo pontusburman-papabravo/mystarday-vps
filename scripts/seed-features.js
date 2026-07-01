@@ -839,6 +839,26 @@ const FEATURES = [
     changelog: [],
   },
 
+  // ── Mina personer 10/10 (dev rollout via family_features) ───────────────────
+  {
+    slug: 'mina_personer_10_10',
+    name: 'Mina personer 10/10',
+    description: 'Barnets relationsvy med resolveFamilyState — per-familj dev-rollout',
+    status: 'dev',
+    tags: ['barn', 'familj'],
+    priority: 'high',
+    complexity: 4,
+    estimated_hours: 8.0,
+    documentation: {
+      purpose: 'Mobil-Olle-test på prod innan global rollout av Mina personer 10/10.',
+      user_story: 'Som barn vill jag se vem som hjälper mig — relation, inte register.',
+      acceptance_criteria: 'status=dev kräver family_features; efter godkänt Olle-test → status=live.',
+      technical_notes: 'GET /api/features slug mina_personer_10_10. child-family-hall.js väljer v10 vs legacy.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
+
   // ── Haptisk påminnelse — timer-larm (R5-T5) ─────────────────────────────────
   {
     slug: 'haptik_paminnelse',

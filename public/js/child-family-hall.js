@@ -5,8 +5,39 @@
 (function () {
   'use strict';
 
+  const FEATURE_SLUG = 'mina_personer_10_10';
+
   let _cachedData = null;
   let _warmTimer = null;
+  let _v10Enabled = false;
+
+  function fetchFeatures() {
+    if (window.Auth && typeof Auth.api === 'function') {
+      return Auth.api('/api/features').catch(function () { return []; });
+    }
+    return fetch('/api/features', { credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .catch(function () { return []; });
+  }
+
+  function isV10Enabled(features) {
+    return (features || []).some(function (f) { return f.slug === FEATURE_SLUG; });
+  }
+
+  function paint(root, data) {
+    if (_v10Enabled) {
+      const state = resolveState(data);
+      root.innerHTML = render(data);
+      scheduleWarmMomentRerender(data, state);
+      return;
+    }
+    clearWarmTimer();
+    if (window.ChildFamilyHallLegacy && ChildFamilyHallLegacy.render) {
+      root.innerHTML = ChildFamilyHallLegacy.render(data);
+      return;
+    }
+    root.innerHTML = render(data);
+  }
 
   function clearWarmTimer() {
     if (_warmTimer) {
@@ -27,9 +58,8 @@
     if (remaining <= 0) return;
     _warmTimer = setTimeout(function () {
       const root = document.getElementById('familyHallMount');
-      if (root && _cachedData) {
-        root.innerHTML = render(_cachedData);
-        scheduleWarmMomentRerender(_cachedData, resolveState(_cachedData));
+      if (root && _cachedData && _v10Enabled) {
+        paint(root, _cachedData);
       }
     }, remaining + 40);
   }
@@ -195,10 +225,11 @@
 
     ChildFamily.load()
       .then(function (data) {
-        _cachedData = data;
-        const state = resolveState(data);
-        root.innerHTML = render(data);
-        scheduleWarmMomentRerender(data, state);
+        return fetchFeatures().then(function (features) {
+          _cachedData = data;
+          _v10Enabled = isV10Enabled(features);
+          paint(root, data);
+        });
       })
       .catch(function () {
         root.innerHTML = renderError();

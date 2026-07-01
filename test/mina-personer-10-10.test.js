@@ -77,10 +77,17 @@ describe('Mina personer barn 10/10', () => {
     assert.doesNotMatch(src, /person\.awayLabel/);
   });
 
+  it('gates v10 behind mina_personer_10_10 feature', () => {
+    const src = fs.readFileSync(HALL, 'utf8');
+    assert.match(src, /mina_personer_10_10/);
+    assert.match(src, /ChildFamilyHallLegacy/);
+    assert.match(src, /fetchFeatures/);
+  });
+
   it('SW bumped for Mina personer 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v453');
+    assert.ok(cache.cacheName >= 'stjarndag-v454');
   });
 });
