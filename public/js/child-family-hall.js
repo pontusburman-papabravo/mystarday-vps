@@ -1,5 +1,5 @@
 /**
- * child-family-hall.js — Family layer V0 (event-sourced read model).
+ * child-family-hall.js — Mina personer 10/10 (read-only, resolveFamilyState-driven).
  * All data from GET /api/me/family — NO mocks, NO UI writes.
  */
 (function () {
@@ -22,25 +22,61 @@
     }
   }
 
+  function resolveState(data) {
+    if (typeof window.resolveFamilyState === 'function') {
+      return window.resolveFamilyState(data, { now: Date.now() });
+    }
+    return { state: 'together', persons: [], personCount: 0, statusLine: '', togetherLine: '' };
+  }
+
+  function personAvatarHtml(person) {
+    if (person.avatarUrl) {
+      return '<img class="cfh-person-photo" src="' + esc(person.avatarUrl) + '" alt="" loading="lazy" decoding="async" />';
+    }
+    return '<span class="cfh-person-emoji" aria-hidden="true">' + esc(person.emoji || '👤') + '</span>';
+  }
+
+  function renderPersonCards(state) {
+    if (!state.persons.length) {
+      return '<p class="cfh-empty cfh-empty-hero">Här visas de som hjälper dig varje dag.</p>';
+    }
+    return '<div class="cfh-person-grid" role="list">' + state.persons.map(function (person) {
+      const awayCls = person.away ? ' cfh-person-card--away' : '';
+      const highlightCls = state.highlightPersonKey === person.key ? ' cfh-person-card--highlight' : '';
+      return '<div class="cfh-person-card' + awayCls + highlightCls + '" role="listitem">' +
+        personAvatarHtml(person) +
+        '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
+        '<span class="cfh-person-role">' + esc(person.roleLabel) + '</span>' +
+        (person.away && person.awayLabel
+          ? '<span class="cfh-person-away">' + esc(person.awayLabel) + '</span>'
+          : '') +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
+  function renderHero(state) {
+    const warmCls = state.state === 'warm_moment' ? ' cfh-hero--warm' : '';
+    return '<header class="cfh-hero' + warmCls + '">' +
+      '<h1 class="cfh-title">❤️ Mina personer</h1>' +
+      '<p class="cfh-subtitle">De som hjälper mig</p>' +
+      (state.statusLine
+        ? '<p class="cfh-status">' + esc(state.statusLine) + '</p>'
+        : '') +
+      (state.togetherLine && state.state !== 'growing_circle'
+        ? '<p class="cfh-together-line">' + esc(state.togetherLine) + '</p>'
+        : '') +
+    '</header>';
+  }
+
   function renderProjects(projects) {
     if (!projects || !projects.length) {
-      return '<p class="cfh-empty">Inga familjeprojekt ännu — föräldern kan lägga till ett gemensamt mål.</p>';
+      return '<p class="cfh-empty">Inga gemensamma mål just nu.</p>';
     }
     return projects.map(function (p) {
-      const pct = p.targetValue > 0
-        ? Math.min(100, Math.round((p.currentValue / p.targetValue) * 100))
-        : 0;
-      const contrib = (p.contributors || []).map(function (c) {
-        return esc(c.name);
-      }).join(', ');
-      return '<div class="cfh-card">' +
+      return '<div class="cfh-card cfh-card-muted">' +
         '<span class="cfh-card-emoji">' + esc(p.emoji || '🎯') + '</span>' +
         '<div class="cfh-card-body">' +
           '<div class="cfh-card-title">' + esc(p.title) + '</div>' +
-          '<div class="cfh-progress-track"><div class="cfh-progress-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="cfh-card-sub">⭐ ' + (p.currentValue || 0) + ' / ' + (p.targetValue || 0) +
-            (contrib ? ' · ' + contrib : '') +
-          '</div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -48,7 +84,7 @@
 
   function renderStory(story) {
     if (!story || !story.length) {
-      return '<p class="cfh-empty">Er familjeberättelse börjar när någon klarar ett uppdrag ✨</p>';
+      return '<p class="cfh-empty">Er berättelse börjar när ni gör något tillsammans ✨</p>';
     }
     return story.map(function (s) {
       return '<div class="cfh-story-item">' +
@@ -58,70 +94,64 @@
     }).join('');
   }
 
-  function renderLoading() {
-    return '<div class="cfh-shell cfh-loading">' +
-      '<p class="text-4xl mb-3">🏡</p>' +
-      '<p class="text-text-soft">Laddar familjehallen...</p>' +
-    '</div>';
-  }
-
-  function renderError() {
-    return '<div class="cfh-shell cfh-error">' +
-      '<p class="text-4xl mb-3">😴</p>' +
-      '<p class="text-navy font-semibold">Kunde inte ladda familjehallen</p>' +
-      '<p class="text-text-soft text-sm mt-2">Försök igen om en stund.</p>' +
-      '<button type="button" id="cfhRetryBtn" class="mt-4 px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm">Försök igen</button>' +
-    '</div>';
-  }
-
   function renderChestSection(data) {
     if (data.chestEnabled === false) return '';
-    return '<section class="cfh-section">' +
-      '<h2 class="cfh-section-title">⭐ Familjeskista</h2>' +
-      '<div class="cfh-chest">' +
+    return '<section class="cfh-section cfh-section-muted">' +
+      '<h3 class="cfh-section-title">⭐ Tillsammans</h3>' +
+      '<p class="cfh-section-hint">Ni samlar stjärnor som familj — utan jämförelse.</p>' +
+      '<div class="cfh-chest cfh-chest-muted">' +
         '<div class="cfh-chest-value">' + (data.chest || 0) + '</div>' +
         '<div class="cfh-chest-label">stjärnor tillsammans</div>' +
       '</div>' +
     '</section>';
   }
 
-  function renderPersons(data) {
-    const persons = data.persons;
-    if (!persons) return '';
-    let cards = '';
-    (persons.parents || []).forEach(function (p) {
-      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(p.emoji || '👤') + '</span>' +
-        '<span class="cfh-person-name">' + esc(p.name) + '</span><span class="cfh-person-role">Vuxen</span></div>';
-    });
-    (persons.siblings || []).forEach(function (s) {
-      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(s.emoji || '⭐') + '</span>' +
-        '<span class="cfh-person-name">' + esc(s.name) + '</span><span class="cfh-person-role">Syskon</span></div>';
-    });
-    if (!cards) {
-      return '<p class="cfh-empty">Här visas familjen som hjälper dig varje dag.</p>';
-    }
-    return '<div class="cfh-person-grid">' + cards + '</div>';
+  function renderBelowFold(data) {
+    const hasSecondary = (data.projects && data.projects.length) ||
+      (data.story && data.story.length) ||
+      data.chestEnabled !== false;
+    if (!hasSecondary) return '';
+
+    return '<details class="cfh-below-fold">' +
+      '<summary class="cfh-below-fold-summary">Tidigare stunder och gemensamma mål</summary>' +
+      '<div class="cfh-below-fold-body">' +
+        '<section class="cfh-section cfh-section-muted">' +
+          '<h3 class="cfh-section-title">🎯 Gemensamma mål</h3>' +
+          renderProjects(data.projects) +
+        '</section>' +
+        renderChestSection(data) +
+        '<section class="cfh-section cfh-section-muted">' +
+          '<h3 class="cfh-section-title">📖 Våra stunder</h3>' +
+          renderStory(data.story) +
+        '</section>' +
+      '</div>' +
+    '</details>';
+  }
+
+  function renderLoading() {
+    return '<div class="cfh-shell cfh-loading">' +
+      '<p class="text-4xl mb-3" aria-hidden="true">❤️</p>' +
+      '<p class="text-text-soft">Laddar dina personer...</p>' +
+    '</div>';
+  }
+
+  function renderError() {
+    return '<div class="cfh-shell cfh-error">' +
+      '<p class="text-4xl mb-3" aria-hidden="true">😴</p>' +
+      '<p class="text-navy font-semibold">Kunde inte ladda Mina personer</p>' +
+      '<p class="text-text-soft text-sm mt-2">Försök igen om en stund.</p>' +
+      '<button type="button" id="cfhRetryBtn" class="mt-4 px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm min-h-[44px]">Försök igen</button>' +
+    '</div>';
   }
 
   function render(data) {
-    return '<div class="cfh-shell">' +
-      '<div class="cfh-header">' +
-        '<div class="cfh-title">🏡 Familjehallen</div>' +
-        '<div class="cfh-subtitle">Vad bygger vi tillsammans?</div>' +
-      '</div>' +
-      '<section class="cfh-section">' +
-        '<h2 class="cfh-section-title">❤️ Mina personer</h2>' +
-        renderPersons(data) +
+    const state = resolveState(data);
+    return '<div class="cfh-shell" data-cfh-state="' + esc(state.state) + '">' +
+      renderHero(state) +
+      '<section class="cfh-persons-primary" aria-label="Mina personer">' +
+        renderPersonCards(state) +
       '</section>' +
-      '<section class="cfh-section">' +
-        '<h2 class="cfh-section-title">🎯 Familjeprojekt</h2>' +
-        renderProjects(data.projects) +
-      '</section>' +
-      renderChestSection(data) +
-      '<section class="cfh-section">' +
-        '<h2 class="cfh-section-title">📖 Familjens berättelse</h2>' +
-        renderStory(data.story) +
-      '</section>' +
+      renderBelowFold(data) +
     '</div>';
   }
 

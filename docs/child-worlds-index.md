@@ -21,7 +21,7 @@
 |-------|--------|---------------|--------|
 | **Idag** (rutin) | [idag-vision.md](idag-vision.md) | [idag-agent-prompt.md](idag-agent-prompt.md) | **GO** |
 | **Skattkammaren** (belöningar) | [skattkammaren-vision.md](skattkammaren-vision.md) | [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) | **Shipped** |
-| **Mina personer** (familj) | barnmeny-v2 §3.5 | — | Tidig |
+| **Mina personer** (familj) | [mina-personer-vision.md](mina-personer-vision.md) | [mina-personer-agent-prompt.md](mina-personer-agent-prompt.md) | **Shipped** |
 
 **Förälder Belöningar (parallell domän):**
 
@@ -47,9 +47,9 @@ Varje barnvärld ska klara **sitt Olle-test** (se respektive vision) **plus**:
 ## Snabbkopiering (råa sökvägar)
 
 ```
+docs/idag-vision.md
 docs/skattkammaren-vision.md
-docs/skattkammaren-agent-prompt.md
-docs/mockups/beloningar.html
+docs/mina-personer-vision.md
 docs/informationsarkitektur-barnapp.md
 ```
 

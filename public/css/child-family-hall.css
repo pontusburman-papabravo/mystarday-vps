@@ -1,5 +1,5 @@
 /**
- * child-family-hall.css — Family layer V0 (read-only shell).
+ * child-family-hall.css — Mina personer 10/10 (personkort först).
  */
 
 #familyView[data-active="true"] {
@@ -12,26 +12,55 @@
   padding: 16px 16px 80px;
 }
 
-.cfh-header {
+.cfh-hero {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.cfh-hero--warm .cfh-status {
+  color: #B45309;
 }
 
 .cfh-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: #1B2340;
+  margin: 0;
 }
 
 .cfh-subtitle {
   font-size: 0.85rem;
   color: #5A6178;
-  margin-top: 4px;
+  margin: 6px 0 0;
+}
+
+.cfh-status {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1B2340;
+  margin: 10px 0 0;
+  line-height: 1.35;
+}
+
+.cfh-together-line {
+  font-size: 0.8rem;
+  color: #5A6178;
+  margin: 8px auto 0;
+  max-width: 20rem;
+  line-height: 1.4;
+}
+
+.cfh-persons-primary {
+  margin-bottom: 12px;
 }
 
 .cfh-section {
   margin-bottom: 20px;
+}
+
+.cfh-section-muted .cfh-section-title {
+  font-size: 0.88rem;
 }
 
 .cfh-section-title {
@@ -121,11 +150,40 @@
   line-height: 1.4;
 }
 
-.cfh-empty {
-  font-size: 0.82rem;
-  color: #9AA0B8;
-  padding: 8px 0;
-  line-height: 1.4;
+.cfh-chest-muted {
+  opacity: 0.92;
+}
+
+.cfh-below-fold {
+  margin-top: 8px;
+  border-top: 1px solid rgba(237, 231, 246, 0.9);
+  padding-top: 8px;
+}
+
+.cfh-below-fold-summary {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #5A6178;
+  cursor: pointer;
+  padding: 10px 4px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cfh-below-fold-summary::-webkit-details-marker {
+  display: none;
+}
+
+.cfh-below-fold-body {
+  padding-top: 4px;
+}
+
+.cfh-empty-hero {
+  text-align: center;
+  padding: 12px 8px 4px;
 }
 
 .cfh-progress-track {
@@ -160,24 +218,59 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 12px 8px;
-  background: #fff;
-  border: 1px solid #EDE7F6;
+  padding: 14px 10px;
+  min-height: 44px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid #EDE7F6;
   border-radius: 16px;
   text-align: center;
+  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.06);
+}
+
+.cfh-person-card--away {
+  border-color: rgba(196, 181, 253, 0.65);
+}
+
+.cfh-person-card--highlight {
+  border-color: #C4B5FD;
+  box-shadow: 0 0 0 2px rgba(196, 181, 253, 0.35);
 }
 
 .cfh-person-emoji {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+.cfh-person-photo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #EDE7F6;
 }
 
 .cfh-person-name {
   font-weight: 700;
   color: #1B2340;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .cfh-person-role {
   font-size: 0.7rem;
   color: #5A6178;
+  line-height: 1.3;
+}
+
+.cfh-person-away {
+  font-size: 0.68rem;
+  color: #7C6F9E;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.cfh-empty {
+  font-size: 0.82rem;
+  color: #9AA0B8;
+  padding: 8px 0;
+  line-height: 1.4;
 }
