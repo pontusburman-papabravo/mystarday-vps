@@ -664,8 +664,22 @@ body.parent-magic-view.parent-magic-page-rewards .parent-magic-hide-header {
 }
 
 body.parent-magic-view.parent-magic-page-planning .magic-hub-content,
-body.parent-magic-view.parent-magic-page-rewards .magic-hub-content {
+body.parent-magic-view.parent-magic-page-rewards .magic-hub-content,
+body.parent-magic-view.parent-magic-page-family .magic-hub-content {
   padding-top: 0;
+}
+
+body.parent-magic-view.parent-magic-page-family .family-hub-intro h1 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+body.parent-magic-view.parent-magic-page-family .family-child-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-family .family-child-card {
+  border-color: rgba(27, 35, 64, 0.08);
 }
 
 body.parent-magic-view:not(.parent-theme-light) .magic-hub-links a {
