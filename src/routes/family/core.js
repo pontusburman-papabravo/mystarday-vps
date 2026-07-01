@@ -15,6 +15,7 @@ const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
+const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 
 const router = express.Router();
 
@@ -423,7 +424,8 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       const childId = children[i].id;
       const stats = todayStatsByChild[childId];
       if (!stats || !stats.log_id) continue;
-      todayItemsMap[stats.log_id] = result.items.map(item => ({
+      const enrichedItems = await enrichLogItemsWithForDigGoal(result.items);
+      todayItemsMap[stats.log_id] = enrichedItems.map((item) => ({
         id: item.id,
         name: item.name,
         icon: item.icon,
@@ -434,6 +436,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         completed: item.completed,
         sort_order: item.sort_order,
         is_once_task: !!item.is_once_task || !item.activity_template_id,
+        for_dig_goal: item.for_dig_goal || null,
       }));
     }
 
@@ -512,6 +515,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
           start_time: item.start_time,
           end_time: item.end_time,
           is_once_task: item.is_once_task || false,
+          for_dig_goal: item.for_dig_goal || null,
           status,
         };
       });

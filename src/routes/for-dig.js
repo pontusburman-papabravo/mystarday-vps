@@ -14,6 +14,7 @@ const {
   activateGoal,
   buildActivationSuccessMessage,
   buildActivationNextStep,
+  getGoalActivationPreview,
 } = require('../lib/for-dig-activate');
 const {
   FOR_DIG_GOALS,
@@ -182,9 +183,28 @@ router.get('/feedback/pending', async (req, res) => {
   }
 });
 
+router.get('/:slug/preview', async (req, res) => {
+  const { slug } = req.params;
+  const goal = getGoalBySlug(slug);
+  if (!goal) {
+    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+  }
+
+  try {
+    const preview = await getGoalActivationPreview(slug);
+    if (!preview) {
+      return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    }
+    res.json(preview);
+  } catch (err) {
+    console.error('[FOR-DIG] preview error:', err);
+    res.status(500).json({ error: 'Kunde inte ladda förhandsvisning' });
+  }
+});
+
 router.post('/:slug/activate', async (req, res) => {
   const { slug } = req.params;
-  const { child_id: childId, overwrite = true } = req.body || {};
+  const { child_id: childId, overwrite = true, star_overrides: starOverrides } = req.body || {};
 
   if (!childId) {
     return res.status(400).json({ error: 'child_id krävs' });
@@ -204,6 +224,7 @@ router.post('/:slug/activate', async (req, res) => {
       childId,
       goalSlug: slug,
       overwrite: overwrite !== false,
+      starOverrides: starOverrides || null,
     });
 
     // Reset the feedback loop only after a successful (re)activation so a

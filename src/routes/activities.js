@@ -7,6 +7,7 @@ const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
 const { validate, validateParams } = require('../middleware/validate');
+const { attachGoalMetaToMany } = require('../lib/for-dig-goal-meta');
 const {
   CreateActivitySchema,
   UpdateActivitySchema,
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT at.id, at.name, at.icon, at.image_url, at.category_id, at.star_value, at.is_favorite,
-              at.feedback_for, at.sort_order, at.schema_type,
+              at.feedback_for, at.sort_order, at.schema_type, at.for_dig_goal_slug,
               COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
               c.name AS category_name, c.sort_order AS category_sort_order
@@ -39,7 +40,7 @@ router.get('/', async (req, res) => {
        ORDER BY c.sort_order ASC NULLS LAST, at.sort_order ASC NULLS LAST, at.name ASC`,
       [req.user.familyId]
     );
-    res.json(result.rows);
+    res.json(attachGoalMetaToMany(result.rows));
   } catch (err) {
     console.error('[ACTIVITIES] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

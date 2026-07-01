@@ -29,3 +29,10 @@ test('getGoalBySlug returns goal or null', () => {
 test('intent reasons set is complete', () => {
   assert.equal(VALID_INTENT_REASONS.size, 5);
 });
+
+test('each goal has accent color pair for UI badges', () => {
+  for (const goal of FOR_DIG_GOALS) {
+    assert.match(goal.accentColor, /^#[0-9A-Fa-f]{6}$/, goal.slug);
+    assert.match(goal.accentBg, /^#[0-9A-Fa-f]{6}$/, goal.slug);
+  }
+});

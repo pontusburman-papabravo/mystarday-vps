@@ -841,6 +841,9 @@ function renderDashboardCards() {
         const checkClass = item.completed ? 'checked' : '';
         const badgeHtml = item.status === 'NU' ? `<span class="status-badge-nu">NU</span>` :
                           item.status === 'NÄSTA' ? `<span class="status-badge-nasta">NÄSTA</span>` : '';
+        const goalBadgeHtml = item.for_dig_goal && window.ForDigGoalBadge
+          ? ForDigGoalBadge.render(item.for_dig_goal)
+          : '';
         const starsHtml = item.star_value > 0 ? `<span class="text-[10px] text-gold font-bold ml-auto flex-shrink-0">+${item.star_value}⭐</span>` : '';
         const nameDisplay = item.completed ? `<span class="line-through opacity-60">${escHtml(item.name)}</span>` : `<span>${escHtml(item.name)}</span>`;
         const oncePin = item.is_once_task ? `<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>` : '';
@@ -851,7 +854,7 @@ function renderDashboardCards() {
             </button>
             ${oncePin}
             <span class="text-base flex-shrink-0">${item.icon || '📋'}</span>
-            <span class="text-sm font-medium text-navy flex-1 min-w-0 truncate">${nameDisplay}</span>
+            <span class="text-sm font-medium text-navy flex-1 min-w-0 truncate flex items-center gap-1">${goalBadgeHtml}${nameDisplay}</span>
             ${badgeHtml}
             ${starsHtml}
           </div>`;

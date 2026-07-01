@@ -11,6 +11,7 @@ const { scopeRouterToPath } = require('../../middleware/router-path-scope');
 const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
+const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const {
   getChildFamilyId,
   getSectionTimes,
@@ -48,11 +49,12 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
 
     const { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
+    const enrichedItems = await enrichLogItemsWithForDigGoal(items);
 
     // Apply child's custom ordering within each section.
     // child_sort_order is set when the child reorders activities via drag & drop.
     // Falls back to parent's sort_order when no custom order has been set.
-    const sortedItems = [...items].sort((a, b) => {
+    const sortedItems = [...enrichedItems].sort((a, b) => {
       if (a.section !== b.section) return 0; // section grouping handled below
       const aOrder = a.child_sort_order != null ? a.child_sort_order : a.sort_order;
       const bOrder = b.child_sort_order != null ? b.child_sort_order : b.sort_order;

@@ -1,0 +1,82 @@
+/* För dig — goal marker on activities (parent + child views) */
+.for-dig-goal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  background: var(--fdg-bg, #FFF3D6);
+  border: 2px solid var(--fdg-accent, #F5A623);
+  flex-shrink: 0;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(27, 35, 64, 0.08);
+}
+
+.for-dig-goal-badge__icon {
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.for-dig-activate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--fdg-accent, #F5A623);
+  background: var(--fdg-bg, #FFF3D6);
+  margin-bottom: 1rem;
+}
+
+.for-dig-activate-header__icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.for-dig-customize-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #EDE7F6;
+}
+
+.for-dig-customize-row:last-child {
+  border-bottom: none;
+}
+
+.for-dig-star-picker {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.for-dig-star-opt {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: 0.5rem;
+  border: 2px solid #EDE7F6;
+  background: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #1B2340;
+}
+
+.for-dig-star-opt.is-on {
+  border-color: var(--fdg-accent, #F5A623);
+  background: var(--fdg-bg, #FFF3D6);
+}
+
+.for-dig-activate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.for-dig-activate-actions .for-dig-cta-primary {
+  width: 100%;
+}

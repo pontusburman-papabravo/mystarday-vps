@@ -7,6 +7,12 @@ const DAY_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
 const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 const SCORE_LABELS = ['', 'Jättesvårt 😢', 'Svårt 😞', 'Lite svårt 😕', 'Okej 😐', 'Ganska bra 🙂', 'Bra 😊', 'Jättebra 😄', 'Superbra 😁', 'Nästan perfekt 🤩', 'Fantastiskt! 🌟'];
 
+function forDigGoalBadgeHtml(item) {
+  return (window.ForDigGoalBadge && item && item.for_dig_goal)
+    ? ForDigGoalBadge.render(item.for_dig_goal)
+    : '';
+}
+
 let currentDate = null;
 let todayStr = null;
 let me = null;
@@ -933,7 +939,7 @@ function renderNowCard(item, canToggle) {
       <div class="now-activity">
         <div class="now-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="now-details">
-          <div class="now-title ${isDone ? 'line-through text-text-soft' : ''}">${escHtml(item.name)}</div>
+          <div class="now-title ${isDone ? 'line-through text-text-soft' : ''}">${forDigGoalBadgeHtml(item)} ${escHtml(item.name)}</div>
           <div class="flex items-center gap-2 mt-0.5">
             ${timeStr && !hideClock ? `<span class="now-time"><span>🕐</span> ${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-sm font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}
@@ -1082,7 +1088,7 @@ function renderActivityCard(item, isToday, timeStatus) {
         </div>` : ''}
         <div class="text-3xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="flex-1 min-w-0">
-          <h4 class="font-heading font-bold text-base ${isDone ? 'line-through text-text-soft' : 'text-navy'} truncate">${escHtml(item.name)}</h4>
+          <h4 class="font-heading font-bold text-base ${isDone ? 'line-through text-text-soft' : 'text-navy'} truncate">${forDigGoalBadgeHtml(item)} ${escHtml(item.name)}</h4>
           <div class="flex items-center flex-wrap gap-1 mt-0.5">
             ${timeStr && !hideClock ? `<span class="text-xs text-text-soft">${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-xs font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}

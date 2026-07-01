@@ -429,6 +429,7 @@ function renderActivityItem(a) {
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="font-semibold text-sm text-navy" style="word-break:break-word">${escHtml(a.name)}</span>
+              ${a.for_dig_goal && window.ForDigGoalBadge ? ForDigGoalBadge.render(a.for_dig_goal) : ''}
               ${a.is_favorite ? '<span class="text-gold text-sm flex-shrink-0">★</span>' : ''}
               ${countBadge}
             </div>

@@ -8,7 +8,28 @@
 const db = require('./db');
 const { getGoalBySlug } = require('./for-dig-config');
 const { broadcast } = require('./sse-broadcast');
-const { syncDailyLogWithSchedule } = require('./daily-log-generator');
+const { syncDailyLogWithSchedule, syncDailyLogsForTemplateChange } = require('./daily-log-generator');
+
+function lookupStarOverride(starOverrides, name) {
+  if (!starOverrides || typeof starOverrides !== 'object') return null;
+  const wanted = normalizeName(name);
+  for (const [key, value] of Object.entries(starOverrides)) {
+    if (normalizeName(key) !== wanted) continue;
+    const stars = parseInt(value, 10);
+    if (stars >= 1 && stars <= 5) return stars;
+  }
+  return null;
+}
+
+function starValueForItem(item, starOverrides) {
+  const override = lookupStarOverride(starOverrides, item.name);
+  if (override != null) return override;
+  return parseInt(item.star_value, 10) || 1;
+}
+
+function hasStarOverrides(starOverrides) {
+  return starOverrides && typeof starOverrides === 'object' && Object.keys(starOverrides).length > 0;
+}
 
 function normalizeName(name) {
   return String(name || '').trim().toLowerCase();
@@ -116,7 +137,7 @@ async function verifyChildAccess(parentId, childId) {
   return result.rows[0] || null;
 }
 
-async function copySchedule(client, familyId, childId, scheduleName, days, overwrite) {
+async function copySchedule(client, familyId, childId, scheduleName, days, overwrite, goalSlug, starOverrides) {
   const scheduleResult = await client.query(
     'SELECT id, name FROM default_schedule WHERE LOWER(name) = LOWER($1) LIMIT 1',
     [scheduleName]
@@ -146,22 +167,37 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
   }
 
   const activityTemplateMap = {};
+  const touchedTemplateIds = [];
   for (const item of items.rows) {
+    const stars = starValueForItem(item, starOverrides);
     const existing = await client.query(
       `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
       [familyId, item.name]
     );
 
     if (existing.rows.length > 0) {
-      activityTemplateMap[item.name] = existing.rows[0].id;
+      const templateId = existing.rows[0].id;
+      activityTemplateMap[item.name] = templateId;
+      if (goalSlug) {
+        const updated = await client.query(
+          `UPDATE activity_template
+           SET for_dig_goal_slug = $1,
+               star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
+           WHERE id = $2 AND family_id = $3
+           RETURNING id`,
+          [goalSlug, templateId, familyId, hasStarOverrides(starOverrides), stars]
+        );
+        if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
+      }
     } else {
       const newTemplate = await client.query(
-        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-         VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
-        [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
+        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, for_dig_goal_slug)
+         VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING id`,
+        [familyId, item.name, item.icon, stars, item.sort_order || 0, goalSlug || null]
       );
       const templateId = newTemplate.rows[0].id;
       activityTemplateMap[item.name] = templateId;
+      touchedTemplateIds.push(templateId);
 
       const subSteps = item.sub_steps || [];
       if (Array.isArray(subSteps) && subSteps.length > 0) {
@@ -212,10 +248,10 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
     filledDays.push(dow);
   }
 
-  return { scheduleId, scheduleName, filledDays, activityTemplateMap };
+  return { scheduleId, scheduleName, filledDays, activityTemplateMap, touchedTemplateIds };
 }
 
-async function copyActivities(client, familyId, activityNames) {
+async function copyActivities(client, familyId, activityNames, goalSlug, starOverrides) {
   const defaults = await client.query(
     `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template ORDER BY sort_order ASC`
   );
@@ -228,26 +264,29 @@ async function copyActivities(client, familyId, activityNames) {
     throw libraryUnavailableError('activities_no_match');
   }
 
-  const existing = await client.query(
-    `SELECT LOWER(name) AS lname FROM activity_template WHERE family_id = $1`,
+  const existingRows = await client.query(
+    `SELECT id, LOWER(name) AS lname FROM activity_template WHERE family_id = $1`,
     [familyId]
   );
-  const existingNames = new Set(existing.rows.map((a) => a.lname));
+  const existingByName = new Map(existingRows.rows.map((a) => [a.lname, a.id]));
 
-  const toCopy = matched.filter((a) => !existingNames.has(normalizeName(a.name)));
+  const toCopy = matched.filter((a) => !existingByName.has(normalizeName(a.name)));
   const maxSort = await client.query(
     `SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM activity_template WHERE family_id = $1`,
     [familyId]
   );
   let nextOrder = parseInt(maxSort.rows[0].max_order, 10) + 1;
+  const touchedTemplateIds = [];
 
   for (const act of toCopy) {
+    const stars = starValueForItem(act, starOverrides);
     const newTemplate = await client.query(
-      `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-       VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
-      [familyId, act.name, act.icon, act.star_value, nextOrder++]
+      `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, for_dig_goal_slug)
+       VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING id`,
+      [familyId, act.name, act.icon, stars, nextOrder++, goalSlug || null]
     );
     const templateId = newTemplate.rows[0].id;
+    touchedTemplateIds.push(templateId);
     const subSteps = act.sub_steps || [];
     if (Array.isArray(subSteps) && subSteps.length > 0) {
       for (let i = 0; i < subSteps.length; i++) {
@@ -260,10 +299,30 @@ async function copyActivities(client, familyId, activityNames) {
     }
   }
 
-  return { copied: toCopy.length, skipped: matched.length - toCopy.length, matched: matched.length };
+  for (const act of matched) {
+    const existingId = existingByName.get(normalizeName(act.name));
+    if (!existingId || !goalSlug) continue;
+    const stars = starValueForItem(act, starOverrides);
+    const updated = await client.query(
+      `UPDATE activity_template
+       SET for_dig_goal_slug = $1,
+           star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
+       WHERE id = $2 AND family_id = $3
+       RETURNING id`,
+      [goalSlug, existingId, familyId, hasStarOverrides(starOverrides), stars]
+    );
+    if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
+  }
+
+  return {
+    copied: toCopy.length,
+    skipped: matched.length - toCopy.length,
+    matched: matched.length,
+    touchedTemplateIds,
+  };
 }
 
-async function copyRewards(client, familyId, rewardNames) {
+async function copyRewards(client, familyId, rewardNames, starOverrides) {
   const defaults = await client.query(
     `SELECT id, name, icon, star_cost FROM default_reward ORDER BY sort_order ASC`
   );
@@ -290,17 +349,68 @@ async function copyRewards(client, familyId, rewardNames) {
   let nextOrder = parseInt(maxSort.rows[0].max_order, 10) + 1;
 
   for (const r of toCopy) {
+    const starCost = starValueForItem(r, starOverrides);
     await client.query(
       `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, sort_order, source_default_id, modified_by_family)
        VALUES ($1, $2, $3, $4, false, true, $5, $6, false)`,
-      [familyId, r.name, r.icon, r.star_cost, nextOrder++, r.id]
+      [familyId, r.name, r.icon, starCost, nextOrder++, r.id]
     );
+  }
+
+  if (hasStarOverrides(starOverrides)) {
+    for (const r of matched) {
+      const starCost = starValueForItem(r, starOverrides);
+      await client.query(
+        `UPDATE reward SET star_cost = $1
+         WHERE family_id = $2 AND source_default_id = $3`,
+        [starCost, familyId, r.id]
+      );
+    }
   }
 
   return { copied: toCopy.length, skipped: matched.length - toCopy.length, matched: matched.length };
 }
 
-async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite = true }) {
+async function getGoalActivationPreview(goalSlug) {
+  const goal = getGoalBySlug(goalSlug);
+  if (!goal) return null;
+
+  if (goal.scheduleName) {
+    const scheduleResult = await db.query(
+      'SELECT id FROM default_schedule WHERE LOWER(name) = LOWER($1) LIMIT 1',
+      [goal.scheduleName]
+    );
+    if (scheduleResult.rows.length === 0) {
+      return { type: 'schedule', items: [] };
+    }
+    const items = await db.query(
+      `SELECT name, icon, star_value
+       FROM default_schedule_item
+       WHERE default_schedule_id = $1
+       ORDER BY sort_order ASC`,
+      [scheduleResult.rows[0].id]
+    );
+    return { type: 'schedule', items: items.rows };
+  }
+
+  if (goal.activityNames && goal.activityNames.length > 0) {
+    const defaults = await db.query(
+      'SELECT name, icon, star_value FROM default_activity_template ORDER BY sort_order ASC'
+    );
+    return { type: 'activities', items: findByNames(defaults.rows, goal.activityNames) };
+  }
+
+  if (goal.rewardNames && goal.rewardNames.length > 0) {
+    const defaults = await db.query(
+      'SELECT name, icon, star_cost AS star_value FROM default_reward ORDER BY sort_order ASC'
+    );
+    return { type: 'rewards', items: findByNames(defaults.rows, goal.rewardNames) };
+  }
+
+  return { type: 'none', items: [] };
+}
+
+async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite = true, starOverrides = null }) {
   const goal = getGoalBySlug(goalSlug);
   if (!goal) {
     const err = new Error('Utvecklingsmålet hittades inte.');
@@ -319,6 +429,7 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
   let scheduleResult = null;
   let activityResult = null;
   let rewardResult = null;
+  const touchedTemplateIds = new Set();
 
   try {
     await client.query('BEGIN');
@@ -330,16 +441,30 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
         childId,
         goal.scheduleName,
         goal.scheduleDays || [1, 2, 3, 4, 5],
-        overwrite
+        overwrite,
+        goalSlug,
+        starOverrides
       );
+      for (const id of scheduleResult.touchedTemplateIds || []) {
+        touchedTemplateIds.add(id);
+      }
     }
 
     if (goal.activityNames && goal.activityNames.length > 0) {
-      activityResult = await copyActivities(client, familyId, goal.activityNames);
+      activityResult = await copyActivities(
+        client,
+        familyId,
+        goal.activityNames,
+        goalSlug,
+        starOverrides
+      );
+      for (const id of activityResult.touchedTemplateIds || []) {
+        touchedTemplateIds.add(id);
+      }
     }
 
     if (goal.rewardNames && goal.rewardNames.length > 0) {
-      rewardResult = await copyRewards(client, familyId, goal.rewardNames);
+      rewardResult = await copyRewards(client, familyId, goal.rewardNames, starOverrides);
     }
 
     if (!scheduleResult && !activityResult && !rewardResult) {
@@ -371,6 +496,14 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
     broadcast(familyId, 'SCHEDULE_UPDATED', { childId });
   }
 
+  for (const templateId of touchedTemplateIds) {
+    try {
+      await syncDailyLogsForTemplateChange(templateId);
+    } catch (syncErr) {
+      console.error('[FOR-DIG] Template sync error (non-fatal):', syncErr.message);
+    }
+  }
+
   return {
     goal,
     child_name: child.name,
@@ -382,8 +515,11 @@ async function activateGoal({ parentId, familyId, childId, goalSlug, overwrite =
 
 module.exports = {
   activateGoal,
+  getGoalActivationPreview,
   verifyChildAccess,
   buildActivationSuccessMessage,
   buildActivationNextStep,
   scheduleActivatableLabel,
+  starValueForItem,
+  lookupStarOverride,
 };

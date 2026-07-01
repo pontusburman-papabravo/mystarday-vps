@@ -311,7 +311,58 @@
     return backdrop;
   }
 
-  function buildActivationModalHtml(goal, phase, selectedChild) {
+  function goalAccentStyle(goal) {
+    const color = (goal && goal.accentColor) || '#F5A623';
+    const bg = (goal && goal.accentBg) || '#FFF3D6';
+    return `--fdg-accent:${color};--fdg-bg:${bg}`;
+  }
+
+  function renderGoalHeader(goal) {
+    return `
+      <div class="for-dig-activate-header" style="${goalAccentStyle(goal)}">
+        <span class="for-dig-activate-header__icon" aria-hidden="true">${goal.icon}</span>
+        <div>
+          <p class="font-heading font-bold text-navy text-lg leading-tight">${esc(goal.title)}</p>
+          <p class="text-xs text-text-soft">${esc(goal.tagline || '')}</p>
+        </div>
+      </div>`;
+  }
+
+  function customizeStarLabel(previewType) {
+    if (previewType === 'rewards') return 'stjärnor';
+    return 'stjärnor';
+  }
+
+  function buildCustomizeHtml(goal, preview, starOverrides) {
+    const items = (preview && preview.items) || [];
+    const type = preview && preview.type;
+    const starWord = customizeStarLabel(type);
+    return `
+      ${renderGoalHeader(goal)}
+      <h3 class="font-heading font-bold text-navy text-lg mb-2">Anpassa</h3>
+      <p class="text-sm text-text-soft mb-4">Välj hur många ${starWord} varje ${type === 'rewards' ? 'belöning' : 'aktivitet'} ska ge.</p>
+      <div class="mb-4 max-h-64 overflow-y-auto" style="${goalAccentStyle(goal)}">
+        ${items.map((item, idx) => {
+          const current = starOverrides[item.name] || item.star_value || 1;
+          return `
+          <div class="for-dig-customize-row">
+            <span class="text-sm text-navy min-w-0">${item.icon || '📋'} ${esc(item.name)}</span>
+            <div class="for-dig-star-picker">
+              ${[1, 2, 3, 4, 5].map((n) => `
+                <button type="button" class="for-dig-star-opt${current === n ? ' is-on' : ''}" data-star-index="${idx}" data-stars="${n}">${n}⭐</button>
+              `).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="for-dig-activate-actions">
+        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); border-color:var(--fdg-accent)">OK</button>
+        <button type="button" class="text-sm text-text-soft underline w-full" data-action="customize-back">Tillbaka</button>
+        <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
+      </div>`;
+  }
+
+  function buildActivationModalHtml(goal, phase, selectedChild, preview, starOverrides) {
     if (phase === 'pick') {
       return `
         <h3 class="font-heading font-bold text-navy text-lg mb-3">Välj barn</h3>
@@ -327,12 +378,18 @@
       `;
     }
 
+    if (phase === 'customize') {
+      return buildCustomizeHtml(goal, preview, starOverrides || {});
+    }
+
     return `
-      <h3 class="font-heading font-bold text-navy text-lg mb-3">Aktivera</h3>
-      <p class="text-sm text-text-soft mb-5">${confirmActivationText(goal, selectedChild)}</p>
-      <div class="flex gap-2">
-        <button type="button" class="for-dig-cta for-dig-cta-secondary flex-1" data-action="activate-cancel">Avbryt</button>
-        <button type="button" class="for-dig-cta for-dig-cta-primary flex-1" data-action="activate-confirm">Aktivera</button>
+      ${renderGoalHeader(goal)}
+      <p class="text-sm text-text-soft mb-2">${confirmActivationText(goal, selectedChild)}</p>
+      <p class="text-xs text-text-soft mb-4">Aktiviteterna markeras med ${goal.icon} i biblioteket och schemat så ni ser att de hör till detta mål.</p>
+      <div class="for-dig-activate-actions" style="${goalAccentStyle(goal)}">
+        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">OK</button>
+        <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">Anpassa</button>
+        <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
       </div>
     `;
   }
@@ -343,7 +400,6 @@
       return null;
     }
 
-    // Guard: don't stack multiple activation modals on rapid double-clicks.
     if (document.querySelector('.for-dig-modal-backdrop[data-activation]')) {
       return null;
     }
@@ -353,11 +409,26 @@
     return new Promise((resolve) => {
       let phase = initialChild ? 'confirm' : 'pick';
       let selectedChild = initialChild;
+      let preview = null;
+      let starOverrides = null;
 
       const backdrop = document.createElement('div');
       backdrop.className = 'for-dig-modal-backdrop';
       backdrop.setAttribute('data-activation', '1');
-      backdrop.innerHTML = `<div class="for-dig-modal" role="dialog">${buildActivationModalHtml(goal, phase, selectedChild)}</div>`;
+
+      const renderModal = () => {
+        backdrop.querySelector('.for-dig-modal').innerHTML = buildActivationModalHtml(
+          goal,
+          phase,
+          selectedChild,
+          preview,
+          starOverrides
+        );
+      };
+
+      backdrop.innerHTML = `<div class="for-dig-modal" role="dialog"></div>`;
+      renderModal();
+
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) {
           backdrop.remove();
@@ -366,7 +437,7 @@
       });
       document.body.appendChild(backdrop);
 
-      backdrop.addEventListener('click', (ev) => {
+      backdrop.addEventListener('click', async (ev) => {
         const cancelBtn = ev.target.closest('[data-action="activate-cancel"]');
         if (cancelBtn) {
           backdrop.remove();
@@ -380,14 +451,58 @@
           selectedChild = children.find((c) => c.id === pickBtn.dataset.childId) || null;
           if (!selectedChild) return;
           phase = 'confirm';
-          backdrop.querySelector('.for-dig-modal').innerHTML = buildActivationModalHtml(goal, phase, selectedChild);
+          renderModal();
           return;
+        }
+
+        const customizeBtn = ev.target.closest('[data-action="activate-customize"]');
+        if (customizeBtn && selectedChild) {
+          try {
+            const res = await window.apiFetch(`/api/for-dig/${goal.slug}/preview`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Kunde inte ladda anpassning');
+            preview = data;
+            if (!preview.items || preview.items.length === 0) {
+              window.showToast && showToast('Inget att anpassa för detta mål just nu.', true);
+              return;
+            }
+            starOverrides = {};
+            for (const item of preview.items || []) {
+              starOverrides[item.name] = item.star_value || 1;
+            }
+            phase = 'customize';
+            renderModal();
+          } catch (err) {
+            window.showToast && showToast(err.message || 'Kunde inte ladda anpassning', true);
+          }
+          return;
+        }
+
+        if (phase === 'customize') {
+          const backBtn = ev.target.closest('[data-action="customize-back"]');
+          if (backBtn) {
+            phase = 'confirm';
+            starOverrides = null;
+            renderModal();
+            return;
+          }
+          const starBtn = ev.target.closest('[data-stars]');
+          if (starBtn) {
+            const idx = parseInt(starBtn.dataset.starIndex, 10);
+            const item = (preview.items || [])[idx];
+            if (item) starOverrides[item.name] = parseInt(starBtn.dataset.stars, 10);
+            renderModal();
+            return;
+          }
         }
 
         const confirmBtn = ev.target.closest('[data-action="activate-confirm"]');
         if (confirmBtn && selectedChild) {
           backdrop.remove();
-          resolve(selectedChild);
+          resolve({
+            child: selectedChild,
+            starOverrides: phase === 'customize' ? starOverrides : null,
+          });
         }
       });
     });
@@ -401,8 +516,11 @@
       ? children.find((c) => c.id === preselectedChildId) || null
       : null;
 
-    const child = await confirmActivation(goal, preselectedChild);
-    if (!child) return;
+    const activation = await confirmActivation(goal, preselectedChild);
+    if (!activation) return;
+
+    const child = activation.child;
+    const starOverrides = activation.starOverrides;
 
     // Note: the server records `for_dig_activate_click` (and `_success`/`_fail`)
     // on the activate route — do not also track client-side or it double-counts.
@@ -422,7 +540,11 @@
       const res = await window.apiFetch(`/api/for-dig/${slug}/activate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ child_id: child.id, overwrite: true }),
+        body: JSON.stringify({
+          child_id: child.id,
+          overwrite: true,
+          star_overrides: starOverrides,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Aktivering misslyckades');
