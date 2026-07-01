@@ -45,6 +45,14 @@ describe('Skattkammaren barn 10/10', () => {
     assert.match(src, /Stjärnburken/);
   });
 
+  it('has exclusive resolveSkattState as single truth source', () => {
+    const src = fs.readFileSync(REWARDS, 'utf8');
+    assert.match(src, /function resolveSkattState/);
+    assert.match(src, /SKATT_STATES/);
+    assert.match(src, /window\.resolveSkattState = resolveSkattState/);
+    assert.match(src, /skatt = resolveSkattState\(rewardsData, goalData\)/);
+  });
+
   it('has at most one primary CTA pattern', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /skatt-primary-cta/);
@@ -77,6 +85,6 @@ describe('Skattkammaren barn 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v442');
+    assert.ok(cache.cacheName >= 'stjarndag-v443');
   });
 });

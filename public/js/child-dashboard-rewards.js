@@ -171,6 +171,21 @@ async function loadRewardsInner(options) {
 // ══════════════════════════════════════════════════════════
 
 const SKATT_PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
+const SKATT_COMPLETED_FLASH_MS = 8000;
+const SKATT_DENIED_FLASH_MS = 120000;
+
+const SKATT_STATES = {
+  NO_GOAL: 'no_goal',
+  COLLECTING: 'collecting',
+  REDEEM_AVAILABLE: 'redeem_available',
+  AWAITING_DECISION: 'awaiting_decision',
+  DENIED: 'denied',
+  COMPLETED: 'completed',
+};
+
+function skattRedemptionTime(rd) {
+  return new Date(rd.approved_at || rd.updated_at || rd.created_at || 0).getTime();
+}
 
 function skattRewardState(r, starBalance, redemptions, goal) {
   const isRedeemed = redemptions.some(function (rd) {
@@ -186,25 +201,119 @@ function skattRewardState(r, starBalance, redemptions, goal) {
   return { isRedeemed, hasPending, canAfford, pct, isCurrentGoal, ready };
 }
 
-function sortRewardsForList(rewards, starBalance, redemptions) {
+function skattListSortBucket(st) {
+  if (st.isCurrentGoal) return 0;
+  if (!st.isRedeemed && !st.hasPending) return 1;
+  return 2;
+}
+
+function sortRewardsForList(rewards, starBalance, redemptions, goal) {
   return rewards.slice().sort(function (a, b) {
-    const sa = skattRewardState(a, starBalance, redemptions, null);
-    const sb = skattRewardState(b, starBalance, redemptions, null);
-    if (sa.ready !== sb.ready) return sa.ready ? -1 : 1;
+    const sa = skattRewardState(a, starBalance, redemptions, goal);
+    const sb = skattRewardState(b, starBalance, redemptions, goal);
+    const ba = skattListSortBucket(sa);
+    const bb = skattListSortBucket(sb);
+    if (ba !== bb) return ba - bb;
+    if (ba === 1) {
+      if (sa.ready !== sb.ready) return sa.ready ? -1 : 1;
+      return sb.pct - sa.pct;
+    }
     if (sa.hasPending !== sb.hasPending) return sa.hasPending ? -1 : 1;
     return sb.pct - sa.pct;
   });
 }
 
-function renderSkattkammaren(rewardsData, goalData, manualData) {
-  const { rewards, starBalance, redemptions } = rewardsData;
-  const pending = redemptions.filter(r => r.status === 'pending');
-  const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
-  const goal = goalData ? goalData.goal : null;
+/**
+ * Exclusive Skattkammaren state — vision § Tillståndsmaskin.
+ * Priority: Awaiting decision → Completed → Denied → Redeem available → Collecting → No goal.
+ */
+function resolveSkattState(rewardsData, goalData, options) {
+  options = options || {};
+  const now = options.now != null ? options.now : Date.now();
+  const starBalance = rewardsData.starBalance || 0;
+  const redemptions = rewardsData.redemptions || [];
+  const goal = goalData && goalData.goal ? goalData.goal : null;
   const progressPct = goalData ? Math.min(100, goalData.progress_pct || 0) : 0;
   const pendingChangeReq = goalData ? goalData.pending_change_request : null;
+  const hasGoal = !!(goal && goal.reward_id);
+  const canAffordGoal = hasGoal && starBalance >= goal.star_cost;
+  const pending = redemptions.filter(function (r) { return r.status === 'pending'; });
+  const hasPending = pending.length > 0 || !!pendingChangeReq;
+
+  const recentApproved = redemptions
+    .filter(function (r) {
+      return (r.status === 'approved' || r.status === 'auto') &&
+        now - skattRedemptionTime(r) < SKATT_COMPLETED_FLASH_MS;
+    })
+    .sort(function (a, b) { return skattRedemptionTime(b) - skattRedemptionTime(a); });
+
+  const recentDenied = redemptions
+    .filter(function (r) {
+      return r.status === 'denied' && now - skattRedemptionTime(r) < SKATT_DENIED_FLASH_MS;
+    })
+    .sort(function (a, b) { return skattRedemptionTime(b) - skattRedemptionTime(a); });
+
+  let progressLabel = 'Välj vad du sparar till';
+  if (hasGoal) {
+    progressLabel = starBalance + ' av ' + goal.star_cost + ' till ' + goal.reward_name;
+  }
+
+  const base = {
+    starBalance: starBalance,
+    goal: goal,
+    progressPct: hasGoal ? progressPct : 0,
+    progressLabel: progressLabel,
+    pending: pending,
+    pendingChangeReq: pendingChangeReq,
+    showGoalChangeLink: hasGoal && !pendingChangeReq,
+    primaryAction: null,
+    collectHint: null,
+    completedReward: null,
+    recentDenied: recentDenied,
+    allowListRedeem: true,
+  };
+
+  if (hasPending) {
+    return Object.assign({}, base, {
+      state: SKATT_STATES.AWAITING_DECISION,
+    });
+  }
+  if (recentApproved.length > 0) {
+    return Object.assign({}, base, {
+      state: SKATT_STATES.COMPLETED,
+      completedReward: recentApproved[0],
+    });
+  }
+  if (recentDenied.length > 0) {
+    return Object.assign({}, base, {
+      state: SKATT_STATES.DENIED,
+    });
+  }
+  if (hasGoal && canAffordGoal) {
+    return Object.assign({}, base, {
+      state: SKATT_STATES.REDEEM_AVAILABLE,
+      primaryAction: { type: 'redeem', rewardId: goal.reward_id },
+    });
+  }
+  if (hasGoal) {
+    return Object.assign({}, base, {
+      state: SKATT_STATES.COLLECTING,
+      collectHint: { starsToGo: Math.max(0, goal.star_cost - starBalance) },
+    });
+  }
+  return Object.assign({}, base, {
+    state: SKATT_STATES.NO_GOAL,
+    primaryAction: { type: 'pick_goal' },
+  });
+}
+
+function renderSkattkammaren(rewardsData, goalData, manualData) {
+  const { rewards, starBalance, redemptions } = rewardsData;
+  const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
   const grants = (manualData && manualData.grants) ? manualData.grants : [];
   const trophies = redemptions.filter(r => r.status === 'approved' || r.status === 'auto');
+  const skatt = resolveSkattState(rewardsData, goalData);
+  const goal = skatt.goal;
 
   // ── Hide loader, show content ──────────────────────────
   const loader = document.getElementById('skattkammarLoading');
@@ -224,15 +333,6 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     .reduce(function (acc, r) { return acc + (r.star_cost || 0); }, 0);
   const childLabel = (me && me.name) ? escHtml(me.name) : 'Du';
   const heroTitle = minimalUiActive ? '🤝 Be om hjälp' : 'Stjärnburken';
-  const goalProgressPct = goal && goal.reward_id ? progressPct : 0;
-  const canAffordGoal = !!(goal && goal.reward_id && starBalance >= goal.star_cost);
-  const goalHasPending = goal && goal.reward_id && pending.some(function (r) {
-    return r.reward_id === goal.reward_id;
-  });
-  let progressLabel = 'Välj vad du sparar till';
-  if (goal && goal.reward_id) {
-    progressLabel = starBalance + ' av ' + goal.star_cost + ' till ' + goal.reward_name;
-  }
 
   // 1. Stjärnburken — hero (Olle-test: stjärnor + mål)
   html += '<div class="skatt-banner skatt-hero-v10">' +
@@ -241,38 +341,35 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     '<div class="skatt-hero-count">' + starBalance + '</div>' +
     '<p class="skatt-hero-sublabel">stjärnor samlade</p>' +
     '<div class="skatt-hero-progress-track">' +
-    '<div class="skatt-hero-progress-fill" id="skattGoalBar" style="width:' + goalProgressPct + '%"></div>' +
+    '<div class="skatt-hero-progress-fill" id="skattGoalBar" style="width:' + skatt.progressPct + '%"></div>' +
     '</div>' +
-    '<p class="skatt-hero-progress-label">' + escHtml(progressLabel) + '</p>' +
+    '<p class="skatt-hero-progress-label">' + escHtml(skatt.progressLabel) + '</p>' +
     (window.ChildDashboardWarmth
       ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned)
       : (totalEarned > starBalance
         ? '<p class="skatt-hero-economy">Totalt tjänat: ⭐ ' + totalEarned + '</p>'
         : '')) +
-    (goal && goal.reward_id && !pendingChangeReq
+    (skatt.showGoalChangeLink
       ? '<button type="button" class="skatt-hero-link" onclick="openGoalPicker()">🔄 Byt mål</button>'
       : '') +
   '</div></div>';
 
-  // 2. Primär handling — max en knapp (beslutsregel)
-  if (goal && goal.reward_id && canAffordGoal && !goalHasPending && !pendingChangeReq) {
+  // 2. Primär handling — driven by resolveSkattState (max en knapp)
+  if (skatt.primaryAction && skatt.primaryAction.type === 'redeem') {
     html += '<div class="skatt-primary-wrap">' +
-      '<button type="button" onclick="requestRedeem(\'' + goal.reward_id + '\')" class="skatt-primary-cta skatt-redeem-btn">' +
+      '<button type="button" onclick="requestRedeem(\'' + skatt.primaryAction.rewardId + '\')" class="skatt-primary-cta skatt-redeem-btn">' +
       '📨 Fråga om att lösa in' +
       '</button></div>';
-  } else if (!goal || !goal.reward_id) {
-    if (!pendingChangeReq) {
-      html += '<div class="skatt-primary-wrap">' +
-        '<button type="button" onclick="openGoalPicker()" class="skatt-primary-cta skatt-redeem-btn">' +
-        '✨ Välj mitt mål' +
-        '</button></div>';
-    }
-  } else if (goal && goal.reward_id && !canAffordGoal) {
-    const starsToGo = Math.max(0, goal.star_cost - starBalance);
-    html += '<div class="skatt-collect-hint">Samla ' + starsToGo + ' ⭐ till! 💪</div>';
+  } else if (skatt.primaryAction && skatt.primaryAction.type === 'pick_goal') {
+    html += '<div class="skatt-primary-wrap">' +
+      '<button type="button" onclick="openGoalPicker()" class="skatt-primary-cta skatt-redeem-btn">' +
+      '✨ Välj mitt mål' +
+      '</button></div>';
+  } else if (skatt.collectHint) {
+    html += '<div class="skatt-collect-hint">Samla ' + skatt.collectHint.starsToGo + ' ⭐ till! 💪</div>';
   }
 
-  if (pendingChangeReq) {
+  if (skatt.pendingChangeReq) {
     html += '<div class="skatt-status-card skatt-status-pending">' +
       '<span>⏳</span><div><strong>Byter mål</strong><p>Väntar på svar från förälder</p></div></div>';
   }
@@ -295,7 +392,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       '</div>';
   } else {
     html += '<div class="skatt-reward-list">';
-    const sortedRewards = sortRewardsForList(rewards, starBalance, redemptions);
+    const sortedRewards = sortRewardsForList(rewards, starBalance, redemptions, goal);
     sortedRewards.forEach(function (r, idx) {
       const st = skattRewardState(r, starBalance, redemptions, goal);
       const color = SKATT_PROGRESS_COLORS[idx % SKATT_PROGRESS_COLORS.length];
@@ -324,11 +421,20 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
   }
   html += '</div></div>';
 
-  // 4. Status — pending / denied (informativt, inte primär handling)
-  if (pending.length > 0 || deniedRecent.length > 0) {
+  // 4. Status — pending / denied / completed (informativt, inte primär handling)
+  const showStatus = skatt.pending.length > 0 || deniedRecent.length > 0 ||
+    skatt.state === SKATT_STATES.COMPLETED;
+  if (showStatus) {
     html += '<div class="skatt-section skatt-status-section"><div class="skatt-section-body">';
-    if (pending.length > 0) {
-      for (const r of pending) {
+    if (skatt.state === SKATT_STATES.COMPLETED && skatt.completedReward) {
+      const cr = skatt.completedReward;
+      html += '<div class="skatt-status-card skatt-status-completed">' +
+        '<span>' + (cr.reward_icon || '🎉') + '</span>' +
+        '<div><strong>' + escHtml(cr.reward_name) + '</strong>' +
+        '<p>🎉 Belöningen är din!</p></div></div>';
+    }
+    if (skatt.pending.length > 0) {
+      for (const r of skatt.pending) {
         html += '<div class="skatt-status-card skatt-status-pending">' +
           '<span>' + (r.reward_icon || '🎁') + '</span>' +
           '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
@@ -588,6 +694,10 @@ async function setGoal(rewardId, isChange) {
   // Exposed on window for inline onclick + cross-file callers
   window.loadRewards = loadRewards;
   window.renderSkattkammaren = renderSkattkammaren;
+  window.resolveSkattState = resolveSkattState;
+  window.skattRewardState = skattRewardState;
+  window.sortRewardsForList = sortRewardsForList;
+  window.SKATT_STATES = SKATT_STATES;
   window.playCoinSound = playCoinSound;
   window.coinEntryRipple = coinEntryRipple;
   window.requestRedeem = requestRedeem;
