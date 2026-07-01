@@ -69,6 +69,7 @@ let rewardChildren = [];
 let _rewardsLoaded = false;
 let _activitiesLoaded = false;
 let _categoriesLoaded = false;
+let _libIsAdmin = false;
 let confirmCallback = null;
 let favValue = false;
 let approvalValue = true;
@@ -136,45 +137,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = await window.authGuard();
   if (!user) return;
-  _libIsAdmin = !!user.is_admin;
 
-  document.getElementById('logoutBtn')?.addEventListener('click', () => window.logout());
-  // logoutBtn2 removed — logout only in sidebar/hamburger menu now
-
-  const menuToggle = document.getElementById('menuToggle');
-  const sidebar = document.getElementById('sidebar');
-  if (menuToggle && sidebar) {
-    menuToggle.addEventListener('click', () => sidebar.classList.toggle('hidden'));
-  }
+  let magicReady = false;
 
   try {
-    buildIconPicker();
-    buildRewardIconPicker();
-    selectStar(1);
-    setApproval(true);
-  } catch (err) {
-    console.warn('[LIBRARY] Picker init skipped:', err.message);
-  }
+    _libIsAdmin = !!user.is_admin;
 
-  // Load library data in parallel with magic hub — never block on AppViewMode.initParent()
-  const dataLoadPromise = (async () => {
-    try {
-      await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
-      if (window.LibraryImages) await LibraryImages.init();
-    } catch (err) {
-      console.error('[LIBRARY] Data load error:', err);
-      showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
+    document.getElementById('logoutBtn')?.addEventListener('click', () => window.logout());
+
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (menuToggle && sidebar) {
+      menuToggle.addEventListener('click', () => sidebar.classList.toggle('hidden'));
     }
-  })();
 
-  if (window.LibraryMagicHub) {
-    await LibraryMagicHub.init();
+    try {
+      buildIconPicker();
+      buildRewardIconPicker();
+      selectStar(1);
+      setApproval(true);
+    } catch (err) {
+      console.warn('[LIBRARY] Picker init skipped:', err.message);
+    }
+
+    const dataLoadPromise = (async () => {
+      try {
+        await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+        if (window.LibraryImages) await LibraryImages.init();
+      } catch (err) {
+        console.error('[LIBRARY] Data load error:', err);
+        showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
+      }
+    })();
+
+    if (window.LibraryMagicHub) {
+      magicReady = !!(await LibraryMagicHub.init());
+    }
+
+    await dataLoadPromise;
+
+    if (!magicReady) {
+      routeLibraryHash();
+    }
+
+    if (window.ParentMagicShell) await ParentMagicShell.init('library');
+  } catch (err) {
+    console.error('[LIBRARY] Init failed:', err);
+    document.documentElement.classList.remove('parent-magic-early');
+    try {
+      routeLibraryHash();
+    } catch (_) {
+      switchTab('schema');
+    }
+    showToast('Biblioteket kunde inte laddas. Försök ladda om sidan.', true);
   }
-
-  await dataLoadPromise;
-  routeLibraryHash();
-
-  if (window.ParentMagicShell) await ParentMagicShell.init('library');
 });
 
 // ─── Main tab switching (4 tabs: schema, activities, rewards, standard) ──

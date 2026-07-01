@@ -9,7 +9,6 @@ let _schemaLoaded = false;
 let schemaChildren = [];
 let standardSchedules = [];
 let familyTemplates = [];
-const _libIsAdmin = false;
 
 async function safeJson(res) {
   try {

@@ -59,6 +59,25 @@ describe('family image library', () => {
     assert.match(src, /libDirectSection/);
   });
 
+  it('library-schema does not declare const _libIsAdmin (library.js assigns it)', () => {
+    const schema = fs.readFileSync(path.join(ROOT, 'public/js/library-schema.js'), 'utf8');
+    const lib = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    assert.doesNotMatch(schema, /const _libIsAdmin/);
+    assert.match(lib, /let _libIsAdmin = false/);
+  });
+
+  it('bildarkiv magic section hides activities chrome', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/library-magic.css'), 'utf8');
+    assert.match(css, /library-magic-section-bilder.*activitiesContainer/s);
+    assert.match(css, /library-magic-section-bilder.*library-magic-activities-toolbar/s);
+  });
+
+  it('library init is resilient (try/catch around magic hub boot)', () => {
+    const lib = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    assert.match(lib, /\[LIBRARY\] Init failed/);
+    assert.match(lib, /magicReady/);
+  });
+
   it('library magic hub returns to planning when entered from planning hub', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');

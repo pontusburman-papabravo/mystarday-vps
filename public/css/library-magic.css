@@ -611,9 +611,22 @@ body.parent-magic-library.library-magic-section-mine.library-magic-mine-beloning
 }
 
 body.parent-magic-library.library-magic-section-activities .library-magic-activities-toolbar,
-body.parent-magic-library.library-magic-section-bilder .library-magic-activities-toolbar,
 body.parent-magic-library.library-magic-section-mine.library-magic-mine-aktiviteter .library-magic-activities-toolbar {
   display: flex !important;
+}
+
+/* Bildarkiv — only the photo archive, not full activities list */
+body.parent-magic-library.library-magic-section-bilder .library-magic-activities-toolbar,
+body.parent-magic-library.library-magic-section-bilder #activitySearchInput,
+body.parent-magic-library.library-magic-section-bilder #activitiesContainer,
+body.parent-magic-library.library-magic-section-bilder #familyImageArchive > .flex:first-child > div:first-child {
+  display: none !important;
+}
+
+body.parent-magic-library.library-magic-section-bilder #familyImageArchive {
+  border: none;
+  background: transparent;
+  padding: 0;
 }
 
 body.parent-magic-library.library-magic-section-activities #activitiesContainer [data-id],

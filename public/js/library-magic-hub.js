@@ -102,6 +102,7 @@
       const card = e.target.closest('[data-library-section]');
       if (!card || !hub.contains(card)) return;
       e.preventDefault();
+      try { sessionStorage.removeItem('libDirectSection'); } catch (_) {}
       openSection(card.getAttribute('data-library-section'), false);
     });
   }
@@ -193,6 +194,7 @@
     mount.querySelectorAll('[data-library-section]').forEach(function (card) {
       card.addEventListener('click', function (e) {
         e.preventDefault();
+        try { sessionStorage.removeItem('libDirectSection'); } catch (_) {}
         openSection(card.getAttribute('data-library-section'), false);
       });
     });
@@ -311,7 +313,6 @@
     }
 
     _section = key;
-    try { sessionStorage.removeItem('libDirectSection'); } catch (_) {}
     document.body.classList.remove('library-magic-on-hub');
     document.body.classList.add('library-magic-in-section');
     clearSectionClasses();
