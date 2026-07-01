@@ -18,6 +18,10 @@
   function getActiveChildId() {
     const tab = document.querySelector('.child-tab.bg-navy, .child-tab.border-navy');
     if (tab && tab.getAttribute('data-id')) return tab.getAttribute('data-id');
+    const magicActive = document.querySelector('.parent-ready-child.is-active[data-child-id]');
+    if (magicActive) return magicActive.getAttribute('data-child-id');
+    const magicChild = document.querySelector('.parent-ready-child[data-child-id]');
+    if (magicChild) return magicChild.getAttribute('data-child-id');
     const card = document.querySelector('.dash-child-card.is-expanded');
     if (card) return card.getAttribute('data-child-id');
     const first = document.querySelector('.dash-child-card[data-child-id]');
@@ -28,7 +32,9 @@
   function ensureBanner() {
     const existing = document.getElementById(BANNER_ID);
     if (existing) return existing;
-    const anchor = document.getElementById('childCardsGrid');
+    const anchor = document.getElementById('childCardsGrid')
+      || document.getElementById('parentHomeHubMount')
+      || document.querySelector('main');
     const banner = document.createElement('div');
     banner.id = BANNER_ID;
     banner.className = 'hidden mb-3 mx-0 rounded-xl border-2 px-4 py-3 text-sm font-semibold text-navy flex flex-wrap items-center gap-x-3 gap-y-1';
@@ -151,7 +157,7 @@
     refresh();
     setInterval(refresh, 5000);
     document.addEventListener('click', function (e) {
-      if (e.target.closest('.child-tab') || e.target.closest('.dash-child-card')) {
+      if (e.target.closest('.child-tab') || e.target.closest('.dash-child-card') || e.target.closest('.parent-ready-child')) {
         _lastChildId = null;
         setTimeout(refresh, 150);
       }

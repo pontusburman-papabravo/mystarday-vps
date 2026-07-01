@@ -30,4 +30,10 @@ describe('custody-banner (Phase 4.5a)', () => {
     assert.match(src, /home_id:/);
     assert.doesNotMatch(src, /variant:/);
   });
+
+  it('resolves active child on magic Hem dashboard', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-banner.js'), 'utf8');
+    assert.match(src, /parent-ready-child/);
+    assert.match(src, /parentHomeHubMount/);
+  });
 });
