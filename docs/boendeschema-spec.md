@@ -391,21 +391,44 @@ Motorn ska **alltid** gå via denna kedja — även när undantagslagret är tom
 - schema (laddat från DB + hem + assignments)
 - overrides (valfritt, **v1: alltid `[]`**)
 
-### Output
+### Output — CustodyContext (enda kontrakt)
 
 ```js
 {
+  date: '2026-06-04',
   activeHome: { id, label, color, icon },
-  activePeriod: { start, end },
-  nextHandoff: { date, home },
-  previousHandoff: { date, home },
+  source: 'pattern',
   patternType: 'alternate_weeks',
-  source: 'pattern',              // 'override' | 'pattern' | 'fallback'
-  isParentDay: boolean            // när parentHomeId anges
+  activePeriod: { start, end },   // se semantik nedan
+  nextTransition: '2026-06-08',   // se semantik nedan
+  previousTransition: null,
+  isParentDay: boolean
 }
 ```
 
-Alla vyer och tjänster använder samma motor. Ingen vy får implementera egen logik.
+**`activePeriod` (låst semantik):**
+
+| `source` | Betydelse |
+|----------|-----------|
+| `override` | Override-radens `start_date` … `end_date` |
+| `pattern` | Det mönstersegment som innehåller `date` (t.ex. mån–sön eller mån–tors / fre–sön) — **inte** nödvändigtvis samma som ”hem oförändrat till” |
+| `fallback` | `null` |
+
+**`nextTransition` (låst semantik):**
+
+Första datum **efter** `date` där `activeHome.id` kan ändras enligt **hela resolverkedjan** (override → pattern). Inte enbart ”nästa byte i grundschemat” — overrides kan flytta bytesdatum.
+
+**Datum/tid:** Motorn arbetar med kalenderdatum (`YYYY-MM-DD`) och UTC-middagsarithmetik. Ingen väggklocka eller familj-timezone i v1 — sommartid påverkar inte datumsträngar.
+
+### Intern struktur
+
+```
+ResolverPipeline → OverrideResolver → PatternResolver → FallbackResolver
+                              patterns/alternate-weeks.js
+                              patterns/alternate-weekends.js
+```
+
+Alla konsumenter får **CustodyContext** — ingen ska veta hur resultatet räknades fram.
 
 ### Framtida undantag (ej FEAT-1)
 
@@ -520,3 +543,4 @@ FEAT-1 är klar när:
 | 2026-07-01 | 1.1 | BC-13 utskrift borttagen; domänexponering + scope-gräns; PDF/print utanför FEAT-1 |
 | 2026-07-01 | 1.2 | Låst `alternate_weekends`: default_home mån–tors, weekend_home fre–sön; inget null-hem v1 |
 | 2026-07-01 | 1.3 | Schedule Engine: grundschema → undantag → aktivt hem; overrides reserverade ej v1 |
+| 2026-07-01 | 1.4 | CustodyContext som enda kontrakt; ResolverPipeline; nextTransition |
