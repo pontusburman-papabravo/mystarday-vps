@@ -2040,7 +2040,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       OfflineStore.clearStaleData(7).catch(() => {});
     }
     document.getElementById('childName').textContent = me.name || 'Mitt schema';
-    if (window.ChildWorldsNav && ChildWorlds.V2_ENABLED) ChildWorldsNav.renderBottomNav();
     document.getElementById('childEmoji').textContent = me.emoji || '⭐';
     if (window.ChildTodayFocus) ChildTodayFocus.init(me.name);
     const darkBtn = document.getElementById('childDarkBtn');
@@ -2099,6 +2098,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.ChildLayerRouter) {
       ChildLayerRouter.init();
       applyChildViewChrome();
+      if (window.ChildWorldsNav && window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+        ChildWorldsNav.syncFirstStarHide();
+      }
     } else if (window.location.hash === '#rewards') {
       showTab('rewards');
     } else if (window.AppViewMode && AppViewMode.isAllowed()) {
