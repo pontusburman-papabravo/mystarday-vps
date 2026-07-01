@@ -112,11 +112,8 @@ async function main() {
   record('Setup', 'onboarding complete', res.status === 200 ? 'PASS' : 'FAIL', `status ${res.status}`);
 
   ({ res, json } = await api('/api/auth/me', { jar }));
-  const onboardingDone = json?.onboardingComplete === true || json?.onboarding_complete === true;
-  record('Setup', 'me onboarding flag', onboardingDone ? 'PASS' : 'FAIL', JSON.stringify({
-    onboardingComplete: json?.onboardingComplete,
-    onboarding_complete: json?.onboarding_complete,
-  }));
+  const onboardingDone = json?.onboarding_completed === true;
+  record('Setup', 'me onboarding flag', onboardingDone ? 'PASS' : 'FAIL', String(json?.onboarding_completed));
 
   // ── Custody API ──
   ({ res, json } = await api('/api/family/custody/setup', { method: 'POST', jar, csrf }));
