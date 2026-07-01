@@ -9,13 +9,25 @@ const ROOT = path.join(__dirname, '..');
 const REWARDS = path.join(ROOT, 'public/js/child-dashboard-rewards.js');
 
 describe('Skattkammaren barn 10/10', () => {
-  it('vision and agent prompt docs exist', () => {
-    for (const f of ['docs/skattkammaren-vision.md', 'docs/skattkammaren-agent-prompt.md']) {
-      const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
-      assert.match(src, /Olle-test/);
-      assert.match(src, /Filterregel/);
-      assert.match(src, /Priority Ladder/);
-    }
+  it('vision is product-only constitution', () => {
+    const vision = fs.readFileSync(path.join(ROOT, 'docs/skattkammaren-vision.md'), 'utf8');
+    assert.match(vision, /Olle-test/);
+    assert.match(vision, /Filterregel/);
+    assert.match(vision, /Priority Ladder/);
+    assert.match(vision, /Icke-mål/);
+    assert.match(vision, /Tillståndsmaskin/);
+    assert.match(vision, /Vanliga felidéer/);
+    assert.match(vision, /nästa steg/);
+    assert.match(vision, /teknikagnostiskt/i);
+    assert.doesNotMatch(vision, /child-dashboard-rewards\.js/);
+    assert.doesNotMatch(vision, /npm run test:gate/);
+  });
+
+  it('agent prompt owns implementation details', () => {
+    const prompt = fs.readFileSync(path.join(ROOT, 'docs/skattkammaren-agent-prompt.md'), 'utf8');
+    assert.match(prompt, /child-dashboard-rewards\.js/);
+    assert.match(prompt, /npm run test:gate/);
+    assert.match(prompt, /Tillståndsmaskin/);
   });
 
   it('uses hero with star count and goal progress (Olle-test)', () => {

@@ -1,7 +1,7 @@
 # Agent-uppdrag: Bygg Skattkammaren (barn) till 10/10 (GO)
 
 **Kopiera hela filen till en ny agent** — eller peka agenten hit: `docs/skattkammaren-agent-prompt.md`  
-**Produktvision:** [skattkammaren-vision.md](skattkammaren-vision.md)  
+**Produktvision (teknikagnostisk):** [skattkammaren-vision.md](skattkammaren-vision.md)  
 **Mockup:** [mockups/beloningar.html](mockups/beloningar.html)  
 **Förälder (parallell):** [beloningar-vision.md](beloningar-vision.md)
 
@@ -16,15 +16,16 @@ Ett barn (eller testare i barnvy) som öppnar Skattkammaren ska inom **5 sekunde
 1. **Hur många stjärnor har jag?**
 2. **Vad sparar jag till?**
 3. **Kan jag göra något här?**
+4. **Vad är nästa steg?**
 
 ## Filterregel + beslutsregel
 
 - **Filterregeln:** Varje komponent ovanför fold måste hjälpa förstå stjärnor, mål eller belöningsläget inom 5 sek
-- **Beslutsregeln:** Högst en primär handling synlig — lösa in eller välj mål dominerar utforskning
+- **Beslutsregeln:** Högst en primär handling synlig — möjligheten att lösa in eller välja mål prioriteras före utforskning
 
 ## Exit Rule
 
-Barnet ska kunna lämna Skattkammaren och säga: *jag vet hur många stjärnor jag har · jag vet vad jag sparar till · jag vet om jag kan fråga om en belöning*.
+Barnet ska kunna lämna Skattkammaren och säga: *jag vet hur många stjärnor jag har · jag vet vad jag sparar till · jag vet om jag kan fråga om en belöning · jag vet vad nästa steg är*.
 
 ## Success Metrics (PR)
 
@@ -32,9 +33,11 @@ Barnet ska kunna lämna Skattkammaren och säga: *jag vet hur många stjärnor j
 |-----|------|
 | Olle ser stjärnor | < 5 sek |
 | Olle ser mål | < 5 sek |
+| Olle vet nästa steg | < 5 sek |
 | Primära handlingar synliga | ≤ 1 |
-| Tom-state utan brus | Ja |
+| Tom-state utan brus | Ja (ingen tom trofésektion) |
 | Pending synkad med förälder | Samma `reward_redemption` |
+| Tillståndsmaskin följd | Tabell i vision § Tillståndsmaskin |
 
 ## Tekniskt minimum
 
@@ -47,9 +50,9 @@ Barnet ska kunna lämna Skattkammaren och säga: *jag vet hur många stjärnor j
 
 # Ditt mandat
 
-Bygg **barnets Skattkammaren** (`renderSkattkammaren` / `#rewards`-fliken) till 10/10.
+Bygg **barnets Skattkammaren** till 10/10 enligt [skattkammaren-vision.md](skattkammaren-vision.md).
 
-**Vision > kod.** Ta bort dubblerad UI (grid + *Du har råd nu!*-remsa, tom troféhylla).
+**Vision > kod.** Ta bort dubblerad UI (grid + *Du har råd nu!*-remsa, tom trofésektion).
 
 Du ska kunna säga:
 
@@ -59,44 +62,58 @@ Du ska kunna säga:
 
 # Scope
 
-**Endast** barnets belöningsvy: `child-dashboard-rewards.js`, tillhörande CSS, `child-rewards-engine.js` banners.
+**Endast** barnets belöningsvy (se nyckelfiler nedan).
 
 Ändra inte förälder `/rewards`, bibliotek eller Idag-fliken annat än delad pending-data.
+
+**Routes idag:** `/child-dashboard#rewards` · framtida `/child/world` (barnmeny v2) · demo `/skattkammaren?demo=1`
 
 ---
 
 ## Anti-patterns
 
+Se vision § *Vanliga felidéer* och § *Vad som ska bort*. Implementation:
+
 - Flera *Fråga*-knappar synliga samtidigt
-- Tom troféhylla med placeholder-text
+- Tom trofésektion med placeholder-text
 - Schema eller checklist i Skattkammaren
 - Syskonjämförelse · stjärn-IAP
 - Skuldbeläggande vid nekad belöning
+- Status som ser ut som primär CTA
 - Firande som blockerar >2s (G-04)
 
 ## Självgranskning innan du är klar
 
-Gå igenom **varje sektion** enligt priority ladder och fråga:
-
 1. *"Hjälper detta med stjärnor, mål eller handling?"* (filterregeln)
 2. *"Är detta den enda primära knappen just nu?"* (beslutsregeln)
+3. *"Matchar detta tillståndsmaskinen?"* (vision § Tillståndsmaskin)
 
 ---
 
-# Produktvision (läs [skattkammaren-vision.md](skattkammaren-vision.md) för full version)
+# Tillståndsmaskin → kod
 
-## Kärnregler
+Implementera enligt visionens tabell. Pseudologik:
+
+```
+if (!goal)           → primary = "Välj mitt mål"
+else if (canAfford && !pending) → primary = "Fråga om att lösa in"
+else if (pending)    → status only, primary = none
+else if (denied)     → status only, primary = none
+else                 → collect hint, primary = none
+```
+
+Hero uppdateras alltid med `starBalance` + progress mot mål. Trofésektion: `if (trophies.length === 0) render nothing`.
+
+---
+
+# Produktvision (sammanfattning)
 
 | Regel | En mening |
 |-------|-----------|
-| **Filterregel** | Hjälper komponenten barnet förstå stjärnor, mål eller belöningsläget |
-| **Beslutsregel** | Högst en primär handling — lösa in eller välj mål först |
-| **Status** | Pending/denied är informativt, inte primär handling |
-| **Copy-regel** | Stjärnburken + Belöningar — inte vuxenhubb-språk |
-
-## Priority Ladder
-
-`Primär handling → Stjärnburken → Belöningar → Status → Utforskning`
+| **Filterregel** | Stjärnor, mål eller belöningsläge |
+| **Beslutsregel** | Max en primär handling |
+| **Primär / sekundär / status** | Se vision § Primär handling |
+| **Priority Ladder** | `Stjärnburken → Primär → Belöningar → Status → Utforskning` |
 
 ---
 
@@ -106,12 +123,15 @@ Gå igenom **varje sektion** enligt priority ladder och fråga:
 
 | Fil | Roll |
 |-----|------|
-| `public/js/child-dashboard-rewards.js` | Render, inlösen, mål |
+| `public/js/child-dashboard-rewards.js` | `renderSkattkammaren`, inlösen, mål |
 | `public/js/child-rewards-engine.js` | Goal progress, pending banner |
 | `public/child-dashboard.html` | Skatt-CSS |
 | `docs/mockups/beloningar.html` | Visuell målbild |
+| `test/skattkammaren-10-10.test.js` | Konstitutions- och regressionsgate |
 
-**Branch:** `cursor/skattkammaren-barn-10-10-87ba` (eller aktuell feature-branch)
+**API:** `/api/me/rewards`, `/api/me/goal`, `POST /api/me/rewards/:id/redeem`
+
+**Branch:** `cursor/skattkammaren-barn-10-10-87ba`
 
 **Test:**
 
@@ -122,13 +142,30 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ---
 
+# Nuläge vs mål (implementation)
+
+**På plats:**
+
+- `child-dashboard-rewards.js`, mål, inlösen, troféer, pending/denied-vänlig copy
+- Universum via `child-skatt-house.js`, offline-cache
+- Hero Stjärnburken + belöningslista med progress
+- En primär CTA, tom trofésektion dold
+
+**Kvar:**
+
+- Verifiera tillståndsmaskin för alla edge cases (0 stjärnor, byter mål pending)
+- Olle-test med riktiga barn (5-sekundersregeln)
+- Barnmeny v2 `/child/world` route-migrering
+
+---
+
 # Arbetsflöde
 
-1. Läs vision + mockup + `child-dashboard-rewards.js`
-2. Olle-test (med mål, utan mål, med pending)
-3. Verifiera priority ladder och en primär knapp
-4. Implementera — ta bort lika mycket som du lägger till
-5. Olle-test + success metrics
+1. Läs [skattkammaren-vision.md](skattkammaren-vision.md) (produkt) + mockup
+2. Läs `child-dashboard-rewards.js` (implementation)
+3. Olle-test: inget mål · sparar · har råd · pending · nekad · första gången
+4. Verifiera tillståndsmaskin + priority ladder
+5. Implementera — ta bort lika mycket som du lägger till
 6. `npm run test:gate`
 7. PR med screenshots (iPhone portrait)
 
