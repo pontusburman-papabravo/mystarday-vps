@@ -54,6 +54,14 @@ body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__taglin
   color: #4A5568;
 }
 
+.for-dig-activation-footnote .for-dig-goal-badge {
+  display: inline-flex;
+  width: 1.125rem;
+  height: 1.125rem;
+  vertical-align: -0.15em;
+  margin: 0 0.1rem;
+}
+
 .for-dig-intent-option.is-selected {
   border-color: var(--fdg-accent, #F5A623);
   background: var(--fdg-bg, #FFF3D6);

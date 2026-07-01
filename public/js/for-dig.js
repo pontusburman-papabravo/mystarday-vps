@@ -188,6 +188,25 @@
     return selectedChildren.map((c) => esc(c.name)).join(', ');
   }
 
+  function activationFootnoteHtml(goal) {
+    const badge = (typeof ForDigGoalBadge !== 'undefined' && ForDigGoalBadge.render)
+      ? ForDigGoalBadge.render(goal)
+      : esc(goal.icon || '⭐');
+
+    if (goal.rewardNames && goal.rewardNames.length > 0) {
+      return `<p class="text-xs text-text-soft mb-4">Belöningarna läggs till i Skattkammaren med förslagna stjärnkostnader — justera under <strong>Anpassa</strong>.</p>`;
+    }
+
+    if (goal.scheduleName || (goal.activityNames && goal.activityNames.length > 0)) {
+      const starsHint = goal.starsHint
+        ? ` ${esc(goal.starsHint)} brukar räcka när rutinen sitter.`
+        : '';
+      return `<p class="text-xs text-text-soft mb-4 for-dig-activation-footnote">I biblioteket och schemat syns de med ${badge} i målets färg, med förslagna stjärnor per aktivitet.${starsHint} Ändra stjärnorna under <strong>Anpassa</strong>.</p>`;
+    }
+
+    return `<p class="text-xs text-text-soft mb-4">Materialet markeras med målets ikon och färg.</p>`;
+  }
+
   function confirmActivationText(goal, selectedChildren) {
     const who = childrenLabel(selectedChildren);
     const possessive = selectedChildren.length === 1
@@ -399,7 +418,7 @@
     return `
       ${renderGoalHeader(goal)}
       <p class="text-sm text-text-soft mb-2">${confirmActivationText(goal, selectedChildren)}</p>
-      <p class="text-xs text-text-soft mb-4">Aktiviteterna markeras med ${goal.icon} så ni ser att de hör till detta mål.</p>
+      ${activationFootnoteHtml(goal)}
       <div class="for-dig-activate-actions" style="${goalAccentStyle(goal)}">
         <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">Aktivera</button>
         <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">Anpassa</button>
