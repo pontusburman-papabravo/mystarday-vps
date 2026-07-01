@@ -167,7 +167,34 @@ async function loadRewardsInner(options) {
 
 // ══════════════════════════════════════════════════════════
 // SKATTKAMMAREN — renderSkattkammaren()
+// POS: skattkammaren-vision.md — Olle-test, priority ladder
 // ══════════════════════════════════════════════════════════
+
+const SKATT_PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
+
+function skattRewardState(r, starBalance, redemptions, goal) {
+  const isRedeemed = redemptions.some(function (rd) {
+    return rd.reward_id === r.id && (rd.status === 'approved' || rd.status === 'auto');
+  });
+  const hasPending = redemptions.some(function (rd) {
+    return rd.reward_id === r.id && rd.status === 'pending';
+  });
+  const canAfford = starBalance >= r.star_cost;
+  const pct = Math.min(100, Math.round((starBalance / r.star_cost) * 100));
+  const isCurrentGoal = !!(goal && goal.reward_id === r.id);
+  const ready = canAfford && !isRedeemed && !hasPending;
+  return { isRedeemed, hasPending, canAfford, pct, isCurrentGoal, ready };
+}
+
+function sortRewardsForList(rewards, starBalance, redemptions) {
+  return rewards.slice().sort(function (a, b) {
+    const sa = skattRewardState(a, starBalance, redemptions, null);
+    const sb = skattRewardState(b, starBalance, redemptions, null);
+    if (sa.ready !== sb.ready) return sa.ready ? -1 : 1;
+    if (sa.hasPending !== sb.hasPending) return sa.hasPending ? -1 : 1;
+    return sb.pct - sa.pct;
+  });
+}
 
 function renderSkattkammaren(rewardsData, goalData, manualData) {
   const { rewards, starBalance, redemptions } = rewardsData;
@@ -192,338 +219,205 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
 
   let html = '';
 
-  // ══════════════════════════════════════════════════════
-  // 1. FESTIVE BANNER — Stjärnkistan
-  // ══════════════════════════════════════════════════════
   const totalEarned = starBalance + redemptions
-    .filter(r => r.status === 'approved' || r.status === 'auto')
-    .reduce((acc, r) => acc + (r.star_cost || 0), 0);
-
-  // Twinkle stars positions
-  const twinkleStars = [
-    { top: '15%', left: '8%', dur: '1.8s', delay: '0s' },
-    { top: '30%', left: '90%', dur: '2.2s', delay: '0.5s' },
-    { top: '60%', left: '5%', dur: '1.5s', delay: '0.8s' },
-    { top: '75%', left: '92%', dur: '2.5s', delay: '0.3s' },
-    { top: '20%', left: '50%', dur: '1.9s', delay: '1.1s' },
-    { top: '80%', left: '40%', dur: '2.1s', delay: '0.6s' },
-    { top: '45%', left: '85%', dur: '1.7s', delay: '1.4s' },
-    { top: '10%', left: '70%', dur: '2.3s', delay: '0.2s' },
-  ];
-  const twinkleHtml = twinkleStars.map(s =>
-    `<span class="skatt-banner-star" style="top:${s.top};left:${s.left};--dur:${s.dur};--delay:${s.delay}">✦</span>`
-  ).join('');
-
-  html += `
-  <div class="skatt-banner">
-    <div class="skatt-banner-stars">${twinkleHtml}</div>
-    <div style="position:relative;z-index:2;">
-      <!-- Title -->
-      <div style="text-align:center;margin-bottom:16px;">
-        <div style="font-family:'Outfit',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:4px;">Min</div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;color:white;letter-spacing:0.02em;">${minimalUiActive ? '🤝 Be om hjälp' : '💎 Skattkammaren'}</div>
-      </div>
-
-      <!-- Chest + balance -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-        <div style="text-align:center;">
-          <div class="skatt-chest" style="font-size:3rem;line-height:1;">🪙</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:2px;">Dina sparade stjärnor</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:3.2rem;font-weight:800;color:#FFD700;line-height:1;text-shadow:0 0 20px rgba(255,215,0,0.5);">⭐ ${starBalance}</div>
-          ${window.ChildDashboardWarmth ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned) : (totalEarned > starBalance ? `<div style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-top:4px;">Totalt tjänat: ⭐ ${totalEarned}</div>` : '')}
-        </div>
-        <div style="text-align:center;">
-          <div class="skatt-chest" style="font-size:3rem;line-height:1;animation-delay:-1.5s;">🎁</div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-
-  // ══════════════════════════════════════════════════════
-  // 2. ÖNSKELISTAN — Active Goal
-  // ══════════════════════════════════════════════════════
-  html += `<div class="skatt-section">
-    <div class="skatt-section-header">
-      <div class="skatt-section-icon" style="background:linear-gradient(135deg,#ff6b6b,#ffd93d);">🎯</div>
-      <span class="skatt-section-title" style="color:#d63031;">Önskelistan</span>
-    </div>
-    <div class="skatt-section-body">`;
-
+    .filter(function (r) { return r.status === 'approved' || r.status === 'auto'; })
+    .reduce(function (acc, r) { return acc + (r.star_cost || 0); }, 0);
+  const childLabel = (me && me.name) ? escHtml(me.name) : 'Du';
+  const heroTitle = minimalUiActive ? '🤝 Be om hjälp' : 'Stjärnburken';
+  const goalProgressPct = goal && goal.reward_id ? progressPct : 0;
+  const canAffordGoal = !!(goal && goal.reward_id && starBalance >= goal.star_cost);
+  const goalHasPending = goal && goal.reward_id && pending.some(function (r) {
+    return r.reward_id === goal.reward_id;
+  });
+  let progressLabel = 'Välj vad du sparar till';
   if (goal && goal.reward_id) {
-    const starsToGo = Math.max(0, goal.star_cost - starBalance);
-    const canAffordGoal = starBalance >= goal.star_cost;
-    html += `
-      <div class="skatt-goal-wrap">
-        <div class="skatt-goal-shine"></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;position:relative;z-index:1;">
-          <div style="width:60px;height:60px;min-width:60px;background:rgba(245,166,35,0.15);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2rem;border:1.5px solid rgba(245,166,35,0.3);">${escHtml(goal.reward_icon || '🎯')}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#B8860B;margin-bottom:2px;font-family:'Outfit',sans-serif;">Mitt drömtid</div>
-            <div style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:#1B2340;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escHtml(goal.reward_name)}</div>
-          </div>
-        </div>
-
-        <!-- Progress bar -->
-        <div style="margin-bottom:8px;position:relative;z-index:1;">
-          <div class="skatt-progress-track">
-            <div class="skatt-progress-fill" id="skattGoalBar" style="width:${progressPct}%">
-              ${progressPct > 20 ? `<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-family:'Outfit',sans-serif;font-weight:800;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.4);">⭐ ${starBalance} av ${goal.star_cost}</span>` : ''}
-            </div>
-            <!-- Milestone marks -->
-            <div style="position:absolute;left:25%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.5);border-radius:1px;"></div>
-            <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.5);border-radius:1px;"></div>
-            <div style="position:absolute;left:75%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.5);border-radius:1px;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px;">
-            <span style="font-size:0.65rem;color:#B8860B;font-weight:600;font-family:'Outfit',sans-serif;">${progressPct}%${starsToGo > 0 ? ` — ${starsToGo} ⭐ kvar` : ''}</span>
-            ${progressPct <= 20 ? `<span style="font-size:0.65rem;color:#5A6178;">⭐ ${starBalance} av ${goal.star_cost}</span>` : ''}
-          </div>
-        </div>
-
-        <!-- Action -->
-        <div style="display:flex;gap:8px;margin-top:12px;position:relative;z-index:1;">
-          ${canAffordGoal ?
-            `<button onclick="requestRedeem('${goal.reward_id}')" class="skatt-redeem-btn" style="flex:1;">
-              📨 Fråga om att lösa in
-            </button>` :
-            `<div style="flex:1;background:rgba(245,166,35,0.1);border-radius:14px;padding:12px;text-align:center;border:1.5px dashed rgba(245,166,35,0.4);">
-              <div style="font-size:0.75rem;font-weight:700;color:#B8860B;font-family:'Outfit',sans-serif;">Samla ${starsToGo} ⭐ till! 💪</div>
-            </div>`
-          }
-          ${pendingChangeReq ?
-            `<div style="min-height:44px;display:flex;align-items:center;justify-content:center;background:#EDE7F6;border-radius:14px;padding:8px 14px;font-size:0.75rem;font-weight:700;color:#1B2340;white-space:nowrap;">⏳ Väntar på svar</div>` :
-            `<button onclick="openGoalPicker()" style="min-height:44px;background:#EDE7F6;border:none;border-radius:14px;padding:8px 14px;font-size:0.75rem;font-weight:700;color:#1B2340;cursor:pointer;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='#DDD6FE'" onmouseout="this.style.background='#EDE7F6'">🔄 Byt mål</button>`
-          }
-        </div>
-      </div>`;
-  } else {
-    html += `
-      <div style="text-align:center;padding:20px 0;">
-        <div style="font-size:3rem;margin-bottom:12px;animation:skattFloat 3s ease-in-out infinite;display:inline-block;">🎯</div>
-        <div style="font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:#1B2340;margin-bottom:6px;">Välj ett drömtid!</div>
-        <div style="font-size:0.82rem;color:#5A6178;margin-bottom:18px;">Vad sparar du stjärnor till?</div>
-        <button onclick="openGoalPicker()" class="skatt-redeem-btn" style="width:auto;padding:14px 28px;">
-          ✨ Välj mitt mål
-        </button>
-      </div>`;
+    progressLabel = starBalance + ' av ' + goal.star_cost + ' till ' + goal.reward_name;
   }
 
-  html += `</div></div>`;
+  // 1. Stjärnburken — hero (Olle-test: stjärnor + mål)
+  html += '<div class="skatt-banner skatt-hero-v10">' +
+    '<div class="skatt-hero-v10-inner">' +
+    '<p class="skatt-hero-label">' + childLabel + ' · ' + heroTitle + '</p>' +
+    '<div class="skatt-hero-count">' + starBalance + '</div>' +
+    '<p class="skatt-hero-sublabel">stjärnor samlade</p>' +
+    '<div class="skatt-hero-progress-track">' +
+    '<div class="skatt-hero-progress-fill" id="skattGoalBar" style="width:' + goalProgressPct + '%"></div>' +
+    '</div>' +
+    '<p class="skatt-hero-progress-label">' + escHtml(progressLabel) + '</p>' +
+    (window.ChildDashboardWarmth
+      ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned)
+      : (totalEarned > starBalance
+        ? '<p class="skatt-hero-economy">Totalt tjänat: ⭐ ' + totalEarned + '</p>'
+        : '')) +
+    (goal && goal.reward_id && !pendingChangeReq
+      ? '<button type="button" class="skatt-hero-link" onclick="openGoalPicker()">🔄 Byt mål</button>'
+      : '') +
+  '</div></div>';
 
-  // ══════════════════════════════════════════════════════
-  // 3. TROFÉHYLLAN — Trophies
-  // ══════════════════════════════════════════════════════
+  // 2. Primär handling — max en knapp (beslutsregel)
+  if (goal && goal.reward_id && canAffordGoal && !goalHasPending && !pendingChangeReq) {
+    html += '<div class="skatt-primary-wrap">' +
+      '<button type="button" onclick="requestRedeem(\'' + goal.reward_id + '\')" class="skatt-primary-cta skatt-redeem-btn">' +
+      '📨 Fråga om att lösa in' +
+      '</button></div>';
+  } else if (!goal || !goal.reward_id) {
+    if (!pendingChangeReq) {
+      html += '<div class="skatt-primary-wrap">' +
+        '<button type="button" onclick="openGoalPicker()" class="skatt-primary-cta skatt-redeem-btn">' +
+        '✨ Välj mitt mål' +
+        '</button></div>';
+    }
+  } else if (goal && goal.reward_id && !canAffordGoal) {
+    const starsToGo = Math.max(0, goal.star_cost - starBalance);
+    html += '<div class="skatt-collect-hint">Samla ' + starsToGo + ' ⭐ till! 💪</div>';
+  }
+
+  if (pendingChangeReq) {
+    html += '<div class="skatt-status-card skatt-status-pending">' +
+      '<span>⏳</span><div><strong>Byter mål</strong><p>Väntar på svar från förälder</p></div></div>';
+  }
+
+  // 3. Belöningslista med progress (mockup)
+  html += '<div class="skatt-section skatt-rewards-list-section">' +
+    '<div class="skatt-section-header">' +
+    '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);">🎁</div>' +
+    '<span class="skatt-section-title" style="color:#6c5ce7;">Belöningar</span>' +
+    (rewards.length > 0
+      ? '<span class="skatt-section-count">' + rewards.length + ' st</span>'
+      : '') +
+    '</div><div class="skatt-section-body">';
+
+  if (rewards.length === 0) {
+    html += '<div class="skatt-empty-rewards">' +
+      '<div style="font-size:3rem;margin-bottom:10px;opacity:0.5;">🎁</div>' +
+      '<p class="skatt-empty-title">Inga belöningar ännu!</p>' +
+      '<p class="skatt-empty-sub">Be din förälder lägga till belöningar 🌟</p>' +
+      '</div>';
+  } else {
+    html += '<div class="skatt-reward-list">';
+    const sortedRewards = sortRewardsForList(rewards, starBalance, redemptions);
+    sortedRewards.forEach(function (r, idx) {
+      const st = skattRewardState(r, starBalance, redemptions, goal);
+      const color = SKATT_PROGRESS_COLORS[idx % SKATT_PROGRESS_COLORS.length];
+      const rowClass = st.isRedeemed ? 'is-earned' : st.hasPending ? 'is-pending' : st.ready ? 'is-ready' : '';
+      const tap = st.ready && !st.isRedeemed && !st.hasPending
+        ? ' onclick="requestRedeem(\'' + r.id + '\')" role="button" tabindex="0"'
+        : '';
+      let tag = '';
+      if (st.ready) tag = '<span class="skatt-reward-tag ready">Klar!</span>';
+      else if (st.hasPending) tag = '<span class="skatt-reward-tag pending">⏳</span>';
+      else if (st.isCurrentGoal) tag = '<span class="skatt-reward-tag goal">🎯</span>';
+      else if (st.isRedeemed) tag = '<span class="skatt-reward-tag earned">✅</span>';
+
+      html += '<div class="skatt-reward-row ' + rowClass + '"' + tap + '>' +
+        tag +
+        '<div class="skatt-reward-row-icon">' + (r.icon || '🎁') + '</div>' +
+        '<div class="skatt-reward-row-body">' +
+        '<div class="skatt-reward-row-name">' + escHtml(r.name) + '</div>' +
+        '<div class="skatt-reward-row-bar"><div class="skatt-reward-row-fill ' + color + '" style="width:' + st.pct + '%"></div></div>' +
+        '<div class="skatt-reward-row-labels">' +
+        '<span>' + starBalance + ' av ' + r.star_cost + ' stjärnor</span>' +
+        '<span class="skatt-reward-row-cost">⭐ ' + r.star_cost + '</span>' +
+        '</div></div></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  // 4. Status — pending / denied (informativt, inte primär handling)
+  if (pending.length > 0 || deniedRecent.length > 0) {
+    html += '<div class="skatt-section skatt-status-section"><div class="skatt-section-body">';
+    if (pending.length > 0) {
+      for (const r of pending) {
+        html += '<div class="skatt-status-card skatt-status-pending">' +
+          '<span>' + (r.reward_icon || '🎁') + '</span>' +
+          '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
+          '<p>⏳ Föräldern godkänner snart</p></div></div>';
+      }
+    }
+    if (deniedRecent.length > 0) {
+      for (const r of deniedRecent) {
+        html += '<div class="skatt-status-card skatt-status-denied">' +
+          '<span>' + (r.reward_icon || '🎁') + '</span>' +
+          '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
+          '<p>Inte den här gången — fråga igen senare 💛</p></div></div>';
+      }
+    }
+    html += '</div></div>';
+  }
+
+  // 5. Troféhylla — endast om innehåll (dölj tom state)
   if (trophies.length > 0) {
-    html += `<div class="skatt-section">
-      <div class="skatt-section-header">
-        <div class="skatt-section-icon" style="background:linear-gradient(135deg,#fdcb6e,#e17055);">🏆</div>
-        <span class="skatt-section-title" style="color:#c0392b;">Troféhyllan</span>
-        <span style="margin-left:auto;font-size:0.7rem;font-weight:700;background:#ffeaa7;color:#d4a017;border-radius:50px;padding:2px 10px;">${trophies.length} st</span>
-      </div>
-      <div class="skatt-section-body">
-        <div class="skatt-trophy-grid">`;
+    html += '<div class="skatt-section">' +
+      '<div class="skatt-section-header">' +
+      '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#fdcb6e,#e17055);">🏆</div>' +
+      '<span class="skatt-section-title" style="color:#c0392b;">Troféhyllan</span>' +
+      '<span class="skatt-section-count">' + trophies.length + ' st</span>' +
+      '</div><div class="skatt-section-body"><div class="skatt-trophy-grid">';
 
-    trophies.slice(0, 9).forEach((r, i) => {
+    trophies.slice(0, 9).forEach(function (r, i) {
       const d = new Date(r.created_at);
       const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-      html += `<div class="skatt-trophy-item" style="animation-delay:${i * 60}ms;" title="${escHtml(r.reward_name)} · ${dateStr}">
-        <span class="skatt-trophy-emoji">${r.reward_icon || '🎁'}</span>
-        <span class="skatt-trophy-name">${escHtml(r.reward_name)}</span>
-        <span class="skatt-trophy-badge">✅</span>
-      </div>`;
+      html += '<div class="skatt-trophy-item" style="animation-delay:' + (i * 60) + 'ms;" title="' +
+        escHtml(r.reward_name) + ' · ' + dateStr + '">' +
+        '<span class="skatt-trophy-emoji">' + (r.reward_icon || '🎁') + '</span>' +
+        '<span class="skatt-trophy-name">' + escHtml(r.reward_name) + '</span>' +
+        '<span class="skatt-trophy-badge">✅</span></div>';
     });
 
     if (trophies.length > 9) {
-      html += `<div class="skatt-trophy-item" style="background:linear-gradient(135deg,#f0f0f0,#e8e8e8);">
-        <span class="skatt-trophy-emoji" style="font-size:1.2rem;">+${trophies.length - 9}</span>
-        <span class="skatt-trophy-name">fler trofeer</span>
-      </div>`;
+      html += '<div class="skatt-trophy-item skatt-trophy-more">' +
+        '<span class="skatt-trophy-emoji">+' + (trophies.length - 9) + '</span>' +
+        '<span class="skatt-trophy-name">fler trofeer</span></div>';
     }
-
-    html += `</div>`;
-
-    // Pending redemptions (inside trophy shelf)
-    if (pending.length > 0) {
-      html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(0,0,0,0.06);padding-top:12px;">
-        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9AA0B8;margin-bottom:8px;font-family:'Outfit',sans-serif;">Väntar på godkännande</div>`;
-      for (const r of pending) {
-        html += `<div style="display:flex;align-items:center;gap:10px;background:#faf0ff;border:1.5px solid rgba(168,85,247,0.2);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
-          <span style="font-size:1.5rem;">${r.reward_icon || '🎁'}</span>
-          <div style="flex:1;">
-            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
-            <div style="font-size:0.7rem;color:#A855F7;">⏳ Föräldern godkänner snart</div>
-          </div>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-
-    if (deniedRecent.length > 0) {
-      html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(0,0,0,0.06);padding-top:12px;">
-        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9AA0B8;margin-bottom:8px;font-family:'Outfit',sans-serif;">Inte den här gången</div>`;
-      for (const r of deniedRecent) {
-        html += `<div style="display:flex;align-items:center;gap:10px;background:#FEF2F2;border:1.5px solid rgba(239,68,68,0.2);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
-          <span style="font-size:1.5rem;">${r.reward_icon || '🎁'}</span>
-          <div style="flex:1;">
-            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
-            <div style="font-size:0.7rem;color:#EF4444;">En vuxen sa nej — fråga igen senare 💛</div>
-          </div>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-
-    html += `</div></div>`;
-  } else {
-    // Empty trophy shelf — show placeholder
-    html += `<div class="skatt-section">
-      <div class="skatt-section-header">
-        <div class="skatt-section-icon" style="background:linear-gradient(135deg,#fdcb6e,#e17055);">🏆</div>
-        <span class="skatt-section-title" style="color:#c0392b;">Troféhyllan</span>
-      </div>
-      <div class="skatt-section-body" style="text-align:center;padding:20px 16px;">
-        ${pending.length > 0 ? `
-          <div style="margin-bottom:14px;">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9AA0B8;margin-bottom:8px;font-family:'Outfit',sans-serif;">Väntar på godkännande</div>
-            ${pending.map(r => `<div style="display:flex;align-items:center;gap:10px;background:#faf0ff;border:1.5px solid rgba(168,85,247,0.2);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
-              <span style="font-size:1.5rem;">${r.reward_icon || '🎁'}</span>
-              <div style="flex:1;text-align:left;">
-                <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;">${escHtml(r.reward_name)}</div>
-                <div style="font-size:0.7rem;color:#A855F7;">⏳ Föräldern godkänner snart</div>
-              </div>
-            </div>`).join('')}
-          </div>` : ''}
-        <div style="font-size:2.5rem;margin-bottom:8px;opacity:0.4;">🏆</div>
-        <div style="font-size:0.85rem;color:#9AA0B8;">Lös in en belöning — och vinn din första trofé!</div>
-      </div>
-    </div>`;
+    html += '</div></div></div>';
   }
 
-  // ══════════════════════════════════════════════════════
-  // 4. BELÖNINGSHYLLAN — All Rewards Grid (locked + unlocked)
-  // ══════════════════════════════════════════════════════
-  html += `<div class="skatt-section">
-    <div class="skatt-section-header">
-      <div class="skatt-section-icon" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);">🛍️</div>
-      <span class="skatt-section-title" style="color:#6c5ce7;">Belöningshyllan</span>
-      ${rewards.length > 0 ? `<span style="margin-left:auto;font-size:0.7rem;font-weight:700;background:#EDE7F6;color:#6c5ce7;border-radius:50px;padding:2px 10px;">${rewards.length} st</span>` : ''}
-    </div>
-    <div class="skatt-section-body">`;
-
-  if (rewards.length === 0) {
-    html += `<div style="text-align:center;padding:20px 0;">
-      <div style="font-size:3rem;margin-bottom:10px;opacity:0.5;">🎁</div>
-      <div style="font-family:'Outfit',sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Inga belöningar ännu!</div>
-      <div style="font-size:0.82rem;color:#9AA0B8;">Be din förälder lägga till belöningar 🌟</div>
-    </div>`;
-  } else {
-    // Grid: 3 columns on mobile, 4 on wider screens
-    html += `<div class="skatt-reward-grid">`;
-    for (const r of rewards) {
-      const isRedeemed = redemptions.some(rd => rd.reward_id === r.id && (rd.status === 'approved' || rd.status === 'auto'));
-      const hasPending = redemptions.some(rd => rd.reward_id === r.id && rd.status === 'pending');
-      const canAfford = starBalance >= r.star_cost;
-      const isCurrentGoal = goal && goal.reward_id === r.id;
-      const pct = Math.min(100, Math.round((starBalance / r.star_cost) * 100));
-      const isLocked = !canAfford && !isRedeemed && !hasPending;
-
-      // Determine badge
-      let badge = '';
-      if (isRedeemed) badge = `<span class="skatt-rg-badge earned">✅</span>`;
-      else if (hasPending) badge = `<span class="skatt-rg-badge pending">⏳</span>`;
-      else if (isCurrentGoal) badge = `<span class="skatt-rg-badge goal">🎯</span>`;
-      else if (isLocked) badge = `<span class="skatt-rg-badge locked">🔒</span>`;
-
-      const cardClass = isRedeemed ? 'earned' : hasPending ? 'pending' : canAfford ? 'affordable' : 'locked';
-
-      html += `<div class="skatt-rg-item ${cardClass}" ${!isLocked && !isRedeemed && !hasPending ? `onclick="requestRedeem('${r.id}')" style="cursor:pointer;"` : ''}>
-        ${badge}
-        <div class="skatt-rg-icon">${r.icon || '🎁'}</div>
-        <div class="skatt-rg-name">${escHtml(r.name)}</div>
-        <div class="skatt-rg-cost">⭐ ${r.star_cost}</div>
-        ${isLocked ? `<div class="skatt-rg-bar"><div class="skatt-rg-bar-fill" style="width:${pct}%"></div></div>` : ''}
-      </div>`;
-    }
-    html += `</div>`;
-
-    // Affordables CTA strip — full-width redeem buttons for affordable rewards not yet redeemed
-    const affordableUnredeemed = rewards.filter(r => {
-      const isRedeemed = redemptions.some(rd => rd.reward_id === r.id && (rd.status === 'approved' || rd.status === 'auto'));
-      const hasPending = redemptions.some(rd => rd.reward_id === r.id && rd.status === 'pending');
-      return starBalance >= r.star_cost && !isRedeemed && !hasPending;
-    });
-    if (affordableUnredeemed.length > 0) {
-      html += `<div style="margin-top:14px;border-top:1.5px dashed rgba(245,166,35,0.3);padding-top:14px;">
-        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#B8860B;margin-bottom:8px;font-family:'Outfit',sans-serif;">✨ Du har råd nu!</div>`;
-      for (const r of affordableUnredeemed) {
-        html += `<div style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFBEB,#FFF3D6);border:1.5px solid rgba(245,166,35,0.4);border-radius:14px;padding:10px 12px;margin-bottom:6px;">
-          <span style="font-size:1.5rem;">${r.icon || '🎁'}</span>
-          <div style="flex:1;min-width:0;">
-            <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:0.85rem;color:#1B2340;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(r.name)}</div>
-            <div style="font-size:0.7rem;color:#B8860B;">⭐ ${r.star_cost} stjärnor</div>
-          </div>
-          <button onclick="requestRedeem('${r.id}')" class="skatt-redeem-btn" style="min-height:40px;font-size:0.8rem;padding:8px 14px;width:auto;flex-shrink:0;">📨 Fråga</button>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-  }
-
-  html += `</div></div>`;
-
-  // ══════════════════════════════════════════════════════
-  // 5. STJÄRNFRONTEN — Manual Star Grants
-  // ══════════════════════════════════════════════════════
+  // 6. Bonus-stjärnor (utforskning)
   if (grants.length > 0) {
-    html += `<div class="skatt-section">
-      <div class="skatt-section-header">
-        <div class="skatt-section-icon" style="background:linear-gradient(135deg,#00b894,#55efc4);">✨</div>
-        <span class="skatt-section-title" style="color:#00864e;">Bonus-stjärnor</span>
-      </div>
-      <div class="skatt-section-body">`;
+    html += '<div class="skatt-section">' +
+      '<div class="skatt-section-header">' +
+      '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#00b894,#55efc4);">✨</div>' +
+      '<span class="skatt-section-title" style="color:#00864e;">Bonus-stjärnor</span>' +
+      '</div><div class="skatt-section-body">';
 
     for (const g of grants.slice(0, 8)) {
       const d = new Date(g.created_at);
       const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-      html += `<div class="skatt-grant-card">
-        ${g.image_url ? `<img src="${escHtml(g.image_url)}" alt="" style="width:52px;height:52px;border-radius:14px;object-fit:cover;flex-shrink:0;border:2px solid rgba(34,197,94,0.2);">` :
-          `<div style="width:44px;height:44px;min-width:44px;background:rgba(34,197,94,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1.5px solid rgba(34,197,94,0.2);">⭐</div>`
-        }
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:0.9rem;color:#00864e;">+${g.star_count} ⭐</span>
-            <span style="font-size:0.68rem;color:#9AA0B8;">${dateStr}</span>
-          </div>
-          <div style="font-size:0.82rem;color:#1B2340;line-height:1.35;">${escHtml(g.reason)}</div>
-          <div style="font-size:0.68rem;color:#9AA0B8;margin-top:4px;">— ${escHtml(g.parent_name || 'Förälder')}</div>
-        </div>
-      </div>`;
+      html += '<div class="skatt-grant-card">' +
+        (g.image_url
+          ? '<img src="' + escHtml(g.image_url) + '" alt="" class="skatt-grant-img">'
+          : '<div class="skatt-grant-icon">⭐</div>') +
+        '<div style="flex:1;min-width:0;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+        '<span class="skatt-grant-stars">+' + g.star_count + ' ⭐</span>' +
+        '<span class="skatt-grant-date">' + dateStr + '</span></div>' +
+        '<div class="skatt-grant-reason">' + escHtml(g.reason) + '</div>' +
+        '<div class="skatt-grant-parent">— ' + escHtml(g.parent_name || 'Förälder') + '</div>' +
+        '</div></div>';
     }
-    html += `</div></div>`;
+    html += '</div></div>';
   }
 
-  // ══════════════════════════════════════════════════════
-  // 6. HISTORIKBOKEN — Redemption History
-  // ══════════════════════════════════════════════════════
-  const historyWins = [...trophies].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // 7. Historikboken (utforskning)
+  const historyWins = trophies.slice().sort(function (a, b) {
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
 
   if (historyWins.length > 0) {
-    html += `<div class="skatt-section" style="margin-bottom:24px;">
-      <div class="skatt-section-header">
-        <div class="skatt-section-icon" style="background:linear-gradient(135deg,#74b9ff,#0984e3);">📖</div>
-        <span class="skatt-section-title" style="color:#0652c5;">Historikboken</span>
-      </div>
-      <div class="skatt-section-body" style="padding-bottom:8px;">`;
+    html += '<div class="skatt-section" style="margin-bottom:24px;">' +
+      '<div class="skatt-section-header">' +
+      '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#74b9ff,#0984e3);">📖</div>' +
+      '<span class="skatt-section-title" style="color:#0652c5;">Historikboken</span>' +
+      '</div><div class="skatt-section-body" style="padding-bottom:8px;">';
 
     for (const r of historyWins.slice(0, 10)) {
       html += window.ChildDashboardWarmth
         ? window.ChildDashboardWarmth.renderHistoryStoryHtml(r)
-        : `<div class="skatt-history-story"><div class="skatt-history-story-text">Du låste upp ${escHtml(r.reward_name)} ${r.reward_icon || '🎁'} 🎉</div></div>`;
+        : '<div class="skatt-history-story"><div class="skatt-history-story-text">Du låste upp ' +
+          escHtml(r.reward_name) + ' ' + (r.reward_icon || '🎁') + ' 🎉</div></div>';
     }
-
-    html += `</div></div>`;
+    html += '</div></div>';
   }
 
   // Done — render to DOM
@@ -587,7 +481,7 @@ function playCoinSound() {
 
 // ── Coin ripple visual on entry ─────────────────────────
 function coinEntryRipple() {
-  const banner = document.querySelector('.skatt-banner');
+  const banner = document.querySelector('.skatt-banner, .skatt-hero-v10');
   if (!banner) return;
   const r = document.createElement('div');
   r.className = 'coin-ripple';
