@@ -166,6 +166,8 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       anchor_date: anchorDate,
       week_a_home_id: weekAHomeId,
       week_b_home_id: weekBHomeId,
+      pattern_type: patternType,
+      default_home_id: defaultHomeId,
       enabled,
       clone_week_b: cloneWeekB,
       pack_luggage_reminder: packLuggage,
@@ -177,16 +179,39 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
     }
 
     if (!anchorDate || !weekAHomeId || !weekBHomeId) {
-      return res.status(400).json({ error: 'anchor_date, week_a_home_id och week_b_home_id krävs' });
+      return res.status(400).json({ error: 'anchor_date och två hem krävs' });
     }
     if (weekAHomeId === weekBHomeId) {
-      return res.status(400).json({ error: 'Vecka A och B måste ha olika hem' });
+      return res.status(400).json({ error: 'De två hemmen måste vara olika' });
     }
 
     const homeA = await custodyDb.getHomeInFamily(weekAHomeId, familyId, client);
     const homeB = await custodyDb.getHomeInFamily(weekBHomeId, familyId, client);
     if (!homeA || !homeB) {
       return res.status(400).json({ error: 'Ogiltiga hem' });
+    }
+
+    const resolvedType = patternType === 'alternate_weekends'
+      ? 'alternate_weekends'
+      : 'alternate_weeks';
+
+    let configuration;
+    if (resolvedType === 'alternate_weekends') {
+      if (!defaultHomeId) {
+        return res.status(400).json({ error: 'default_home_id krävs för varannan helg' });
+      }
+      const defaultHome = await custodyDb.getHomeInFamily(defaultHomeId, familyId, client);
+      if (!defaultHome) {
+        return res.status(400).json({ error: 'Ogiltigt bashem för vardagar' });
+      }
+      configuration = {
+        default_home: defaultHomeId,
+        weekend_home_a: weekAHomeId,
+        weekend_home_b: weekBHomeId,
+        weekend_start: 'friday',
+      };
+    } else {
+      configuration = custodyDb.buildAlternateWeeksConfiguration(weekAHomeId, weekBHomeId);
     }
 
     await client.query('BEGIN');
@@ -197,6 +222,8 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       interval_weeks: 2,
       week_a_home_id: weekAHomeId,
       week_b_home_id: weekBHomeId,
+      pattern_type: resolvedType,
+      configuration,
     }, client);
 
     if (typeof packLuggage === 'boolean') {
@@ -212,8 +239,9 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
 
     await client.query('COMMIT');
 
-    analytics.track(familyId, 'custody_week_variant_changed', {
+    analytics.track(familyId, 'custody_schedule_updated', {
       child_id: childId,
+      pattern_type: resolvedType,
       anchor_date: anchorDate,
     });
 
