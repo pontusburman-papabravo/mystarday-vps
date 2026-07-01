@@ -85,4 +85,14 @@ module.exports = {
       );
     }
   },
+
+  down: async (client) => {
+    for (const act of FOR_DIG_ACTIVITIES) {
+      await client.query('DELETE FROM default_activity_template WHERE name = $1', [act.name]);
+    }
+
+    for (const reward of FOR_DIG_REWARDS) {
+      await client.query('DELETE FROM default_reward WHERE name = $1', [reward.name]);
+    }
+  },
 };
