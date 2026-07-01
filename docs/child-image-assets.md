@@ -31,7 +31,7 @@
 | `world-room-pet` | Min värld / rum `pet` | `pet@2x.webp` | `public/images/child/world/rooms/pet@2x.webp` | `child-skatt-rooms.css` → Husdjur | godkänd |
 | `world-room-museum` | Min värld / rum `museum` | `museum@2x.webp` | `public/images/child/world/rooms/museum@2x.webp` | `child-skatt-rooms.css` → Museum | godkänd |
 | `family-hall` | Mina personer | `hall@2x.webp` | `public/images/child/family/hall@2x.webp` | `child-world-bg.css` → `.cwb-family` | godkänd |
-| `morgonhus-scene` | Morgonhus | `scene@2x.webp` | `public/images/child/morgonhus/scene@2x.webp` | Morgonhuset (`child-morgonhus.css` — idag gradient) | saknas |
+| `morgonhus-scene` | Morgonhus | `scene@2x.webp` | `public/images/child/morgonhus/scene@2x.webp` | `child-morgonhus.css` → `.mh-scene.is-illustrated` (gradient fallback tills fil finns) | saknas |
 | `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | Tomt tillstånd Idag (ej kopplad) | behöver iteration |
 | `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s (ej kopplad) | behöver iteration |
 | `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | **Legacy:** `public/assets/worlds/garden/` | `child-garden.js`, `garden-asset-pipeline.js`, SW precache | saknas |

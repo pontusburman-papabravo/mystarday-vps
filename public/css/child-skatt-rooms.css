@@ -3,41 +3,31 @@
  * Assets: public/images/child/world/rooms/ — see docs/child-image-assets.md
  */
 
-/* ── Hub card thumbnails ── */
+/* ── Hub card thumbnails (lazy <img> from child-skatt-house.js) ── */
 body.child-worlds-v2 .skatt-hub-card-art {
   background-color: #ede7f6;
-  background-size: cover;
-  background-position: center 24%;
-  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+body.child-worlds-v2 .skatt-hub-card-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 24%;
+  display: block;
 }
 
 body.child-worlds-v2 .skatt-hub-card-art-emoji {
   display: none;
 }
 
-body.child-worlds-v2 .skatt-hub-card.is-locked .skatt-hub-card-art {
+body.child-worlds-v2 .skatt-hub-card.is-locked .skatt-hub-card-art-img {
   filter: grayscale(0.65) brightness(0.72);
 }
 
-.skatt-art-chest { background-image: url('/images/child/world/rooms/chest@2x.webp'); }
-.skatt-art-dreams { background-image: url('/images/child/world/rooms/dreams@2x.webp'); }
-.skatt-art-trophy { background-image: url('/images/child/world/rooms/trophy@2x.webp'); }
-.skatt-art-shelf { background-image: url('/images/child/world/rooms/shelf@2x.webp'); }
-.skatt-art-collections { background-image: url('/images/child/world/rooms/collections@2x.webp'); }
-.skatt-art-story { background-image: url('/images/child/world/rooms/story@2x.webp'); }
-.skatt-art-avatar { background-image: url('/images/child/world/rooms/avatar@2x.webp'); }
-.skatt-art-pet {
-  background-image: url('/images/child/world/rooms/pet@2x.webp');
-  background-position: center 20%;
-}
-.skatt-art-museum {
-  background-image: url('/images/child/world/rooms/museum@2x.webp');
-  background-position: center 18%;
-}
-.skatt-art-shop {
-  background-image: url('/images/child/world/rooms/shop@2x.webp');
-  background-position: center 22%;
-}
+.skatt-art-pet .skatt-hub-card-art-img { object-position: center 20%; }
+.skatt-art-museum .skatt-hub-card-art-img { object-position: center 18%; }
+.skatt-art-shop .skatt-hub-card-art-img { object-position: center 22%; }
 
 /* ── Immersive room backgrounds ── */
 body.child-worlds-v2 .skatt-room-immersive {

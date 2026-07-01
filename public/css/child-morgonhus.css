@@ -1,13 +1,39 @@
-/* child-morgonhus.css — Placeholder Morgonhuset scene (routine_home) */
+/* child-morgonhus.css — Morgonhuset scene (routine_home)
+ * Asset: /images/child/morgonhus/scene@2x.webp — see docs/child-image-assets.md
+ */
 
 .mh-scene {
   position: relative;
   min-height: min(72vh, 560px);
   border-radius: 24px;
   overflow: hidden;
-  background: linear-gradient(180deg, #f7f0e4 0%, #e8dcc8 55%, #d4c4a8 100%);
+  background-color: #e8dcc8;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(247, 243, 235, 0.12) 0%,
+      rgba(247, 243, 235, 0.04) 36%,
+      rgba(247, 243, 235, 0.52) 72%,
+      rgba(247, 243, 235, 0.9) 100%
+    ),
+    linear-gradient(180deg, #f7f0e4 0%, #e8dcc8 55%, #d4c4a8 100%);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   box-shadow: 0 12px 40px rgba(27, 35, 64, 0.12);
   padding: 20px 16px 16px;
+}
+
+.mh-scene.is-illustrated {
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(247, 243, 235, 0.1) 0%,
+      rgba(247, 243, 235, 0.03) 34%,
+      rgba(247, 243, 235, 0.5) 70%,
+      rgba(247, 243, 235, 0.92) 100%
+    ),
+    url('/images/child/morgonhus/scene@2x.webp');
 }
 
 .mh-scene-bg {
@@ -17,6 +43,10 @@
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 214, 140, 0.45), transparent 70%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 40%);
   pointer-events: none;
+}
+
+.mh-scene.is-illustrated .mh-scene-bg {
+  background: none;
 }
 
 .mh-scene-sun {
@@ -30,6 +60,10 @@
   box-shadow: 0 0 24px rgba(245, 166, 35, 0.5);
   opacity: 0.85;
   pointer-events: none;
+}
+
+.mh-scene.is-illustrated .mh-scene-sun {
+  display: none;
 }
 
 .mh-scene-header {
@@ -72,7 +106,9 @@
   padding: 12px 8px;
   border: 2px solid rgba(196, 149, 106, 0.45);
   border-radius: 18px;
-  background: rgba(255, 252, 245, 0.82);
+  background: rgba(255, 252, 245, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #1b2340;
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
