@@ -1,5 +1,6 @@
 /**
- * dashboard-custody.js — FEAT-1 BC-4/BC-6 on parent dashboard (day colors + Mina dagar).
+ * dashboard-custody.js — FEAT-1 BC-6/BC-9 on parent dashboard (day colors + Mina dagar).
+ * Konsumerar context API + calendar-week — ingen egen boendeschemalogik.
  */
 (function () {
   'use strict';
@@ -16,6 +17,20 @@
 
   function todayIso() {
     return new Date().toLocaleDateString('sv-SE');
+  }
+
+  /** @param {object|null} ctx */
+  function homeFromContext(ctx) {
+    if (!ctx) return null;
+    return ctx.activeHome || ctx.home || null;
+  }
+
+  /** @param {object|null} ctx */
+  function isParentDay(ctx) {
+    if (!ctx) return null;
+    if (typeof ctx.isParentDay === 'boolean') return ctx.isParentDay;
+    if (typeof ctx.isMyDay === 'boolean') return ctx.isMyDay;
+    return null;
   }
 
   async function fetchContext(childId) {
@@ -47,20 +62,30 @@
     if (!card) return;
 
     const ctx = _contextByChild[childId];
+    const home = homeFromContext(ctx);
     card.style.borderLeftWidth = '';
     card.style.borderLeftStyle = '';
     card.style.borderLeftColor = '';
     card.style.opacity = '';
+    card.removeAttribute('data-custody-home-label');
+    card.removeAttribute('aria-label');
 
     if (!ctx || !ctx.active) return;
 
-    if (ctx.home && ctx.home.color) {
+    if (home && home.color) {
       card.style.borderLeftWidth = '4px';
       card.style.borderLeftStyle = 'solid';
-      card.style.borderLeftColor = ctx.home.color;
+      card.style.borderLeftColor = home.color;
     }
 
-    if (myDaysOnly && ctx.isMyDay === false) {
+    if (home && home.label) {
+      card.setAttribute('data-custody-home-label', home.label);
+      const icon = home.icon ? home.icon + ' ' : '';
+      card.setAttribute('aria-label', icon + 'Hos ' + home.label);
+    }
+
+    const parentDay = isParentDay(ctx);
+    if (myDaysOnly && parentDay === false) {
       card.style.opacity = '0.4';
     }
   }
@@ -81,11 +106,21 @@
       const day = dayMap[dow];
       el.style.opacity = '';
       el.style.borderColor = '';
+      el.removeAttribute('title');
+      el.removeAttribute('aria-label');
       if (!day || !day.custody) return;
-      if (myDaysOnly && day.custody.isMyDay === false) {
+
+      const dayParent = typeof day.custody.isMyDay === 'boolean' ? day.custody.isMyDay : null;
+      if (myDaysOnly && dayParent === false) {
         el.style.opacity = '0.35';
       } else if (day.custody.color) {
         el.style.borderColor = day.custody.color;
+      }
+
+      if (day.custody.label) {
+        const hint = 'Hos ' + day.custody.label;
+        el.setAttribute('title', hint);
+        el.setAttribute('aria-label', hint);
       }
     });
   }
