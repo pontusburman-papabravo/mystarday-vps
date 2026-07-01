@@ -57,6 +57,31 @@
     return list;
   }
 
+  function firstName(name) {
+    if (!name) return '';
+    return String(name).trim().split(/\s+/)[0];
+  }
+
+  /** Barnvänlig borta-copy — aldrig skuld eller "försvunnen". */
+  function softenAwayLabel(label) {
+    if (!label) return '';
+    const s = String(label).trim();
+    if (/borta|saknas|frånvarande|lämnad|övergiven|ensam/i.test(s)) {
+      return 'hos den andra föräldern just nu';
+    }
+    return s;
+  }
+
+  function awayCardNote(person) {
+    const soft = softenAwayLabel(person.awayLabel);
+    if (!soft) return 'Finns kvar här';
+    return 'Just nu: ' + soft;
+  }
+
+  function awayHeroStatus() {
+    return 'Alla finns kvar här';
+  }
+
   function latestWarmStory(story, now) {
     if (!story || !story.length) return null;
     const latest = story[0];
@@ -68,7 +93,7 @@
 
   function findAwayHighlight(persons) {
     for (let i = 0; i < persons.length; i++) {
-      if (persons[i].away && persons[i].awayLabel) return persons[i];
+      if (persons[i].away) return persons[i];
     }
     return null;
   }
@@ -87,7 +112,10 @@
   function resolveFamilyState(data, options) {
     options = options || {};
     const now = options.now != null ? options.now : Date.now();
-    const persons = flattenPersons(data && data.persons);
+    const persons = flattenPersons(data && data.persons).map(function (p) {
+      if (!p.away) return p;
+      return Object.assign({}, p, { cardNote: awayCardNote(p) });
+    });
     const personCount = persons.length;
     const warmStory = latestWarmStory(data && data.story, now);
     const awayPerson = findAwayHighlight(persons);
@@ -101,6 +129,7 @@
       statusLine: '',
       warmText: '',
       highlightPersonKey: null,
+      awayNote: '',
     };
 
     if (warmStory) {
@@ -113,10 +142,15 @@
     }
 
     if (awayPerson) {
+      const note = awayCardNote(awayPerson);
       return Object.assign({}, base, {
         state: FAMILY_STATES.AWAY,
-        statusLine: awayPerson.awayLabel,
+        statusLine: awayHeroStatus(),
+        togetherLine: firstName(awayPerson.name)
+          ? firstName(awayPerson.name) + ' finns kvar här'
+          : 'Finns kvar här',
         highlightPersonKey: awayPerson.key,
+        awayNote: note,
       });
     }
 

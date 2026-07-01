@@ -5,6 +5,35 @@
 (function () {
   'use strict';
 
+  let _cachedData = null;
+  let _warmTimer = null;
+
+  function clearWarmTimer() {
+    if (_warmTimer) {
+      clearTimeout(_warmTimer);
+      _warmTimer = null;
+    }
+  }
+
+  function scheduleWarmMomentRerender(data, state) {
+    clearWarmTimer();
+    if (!data || state.state !== 'warm_moment') return;
+    const story = data.story && data.story[0];
+    if (!story || !story.createdAt) return;
+    const created = Date.parse(story.createdAt);
+    if (!created) return;
+    const limit = typeof window.WARM_MOMENT_MS === 'number' ? window.WARM_MOMENT_MS : 2000;
+    const remaining = limit - (Date.now() - created);
+    if (remaining <= 0) return;
+    _warmTimer = setTimeout(function () {
+      const root = document.getElementById('familyHallMount');
+      if (root && _cachedData) {
+        root.innerHTML = render(_cachedData);
+        scheduleWarmMomentRerender(_cachedData, resolveState(_cachedData));
+      }
+    }, remaining + 40);
+  }
+
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
     return String(str || '')
@@ -41,14 +70,14 @@
       return '<p class="cfh-empty cfh-empty-hero">Här visas de som hjälper dig varje dag.</p>';
     }
     return '<div class="cfh-person-grid" role="list">' + state.persons.map(function (person) {
-      const awayCls = person.away ? ' cfh-person-card--away' : '';
       const highlightCls = state.highlightPersonKey === person.key ? ' cfh-person-card--highlight' : '';
-      return '<div class="cfh-person-card' + awayCls + highlightCls + '" role="listitem">' +
+      const awayNote = person.cardNote || '';
+      return '<div class="cfh-person-card' + highlightCls + '" role="listitem">' +
         personAvatarHtml(person) +
         '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
         '<span class="cfh-person-role">' + esc(person.roleLabel) + '</span>' +
-        (person.away && person.awayLabel
-          ? '<span class="cfh-person-away">' + esc(person.awayLabel) + '</span>'
+        (awayNote
+          ? '<span class="cfh-person-away">' + esc(awayNote) + '</span>'
           : '') +
       '</div>';
     }).join('') + '</div>';
@@ -56,15 +85,18 @@
 
   function renderHero(state) {
     const warmCls = state.state === 'warm_moment' ? ' cfh-hero--warm' : '';
+    let togetherHtml = '';
+    if (state.togetherLine && state.state !== 'growing_circle') {
+      const warmLineCls = state.state === 'warm_moment' ? ' cfh-together-line--warm' : '';
+      togetherHtml = '<p class="cfh-together-line' + warmLineCls + '">' + esc(state.togetherLine) + '</p>';
+    }
     return '<header class="cfh-hero' + warmCls + '">' +
       '<h1 class="cfh-title">❤️ Mina personer</h1>' +
       '<p class="cfh-subtitle">De som hjälper mig</p>' +
       (state.statusLine
         ? '<p class="cfh-status">' + esc(state.statusLine) + '</p>'
         : '') +
-      (state.togetherLine && state.state !== 'growing_circle'
-        ? '<p class="cfh-together-line">' + esc(state.togetherLine) + '</p>'
-        : '') +
+      togetherHtml +
     '</header>';
   }
 
@@ -163,7 +195,10 @@
 
     ChildFamily.load()
       .then(function (data) {
+        _cachedData = data;
+        const state = resolveState(data);
         root.innerHTML = render(data);
+        scheduleWarmMomentRerender(data, state);
       })
       .catch(function () {
         root.innerHTML = renderError();
@@ -174,6 +209,7 @@
 
   function refresh() {
     if (!window.ChildFamily) return Promise.resolve();
+    clearWarmTimer();
     ChildFamily.invalidate();
     mount();
     return Promise.resolve();

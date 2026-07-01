@@ -64,10 +64,23 @@ describe('Mina personer barn 10/10', () => {
     assert.doesNotMatch(hallSrc, />Vuxen</);
   });
 
+  it('re-renders after warm moment window (G-04)', () => {
+    const src = fs.readFileSync(HALL, 'utf8');
+    assert.match(src, /scheduleWarmMomentRerender/);
+    assert.match(src, /WARM_MOMENT_MS/);
+    assert.match(src, /clearWarmTimer/);
+  });
+
+  it('away copy uses safe framing on cards', () => {
+    const src = fs.readFileSync(HALL, 'utf8');
+    assert.match(src, /person\.cardNote/);
+    assert.doesNotMatch(src, /person\.awayLabel/);
+  });
+
   it('SW bumped for Mina personer 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v452');
+    assert.ok(cache.cacheName >= 'stjarndag-v453');
   });
 });

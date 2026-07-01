@@ -228,7 +228,7 @@
 }
 
 .cfh-person-card--away {
-  border-color: rgba(196, 181, 253, 0.65);
+  /* legacy — away persons stay fully visible (no dimming) */
 }
 
 .cfh-person-card--highlight {
@@ -261,9 +261,14 @@
   line-height: 1.3;
 }
 
+.cfh-together-line--warm {
+  color: #B45309;
+  font-weight: 600;
+}
+
 .cfh-person-away {
   font-size: 0.68rem;
-  color: #7C6F9E;
+  color: #5A6178;
   line-height: 1.3;
   margin-top: 2px;
 }

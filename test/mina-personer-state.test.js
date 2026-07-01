@@ -75,7 +75,7 @@ describe('resolveFamilyState — exclusive state machine', () => {
     assert.equal(state.state, FAMILY_STATES.TOGETHER);
   });
 
-  it('Away — calm status without guilt copy', () => {
+  it('Away — calm status, person stays in world (no guilt copy)', () => {
     const state = resolveFamilyState(personsData({
       persons: {
         parents: [
@@ -86,8 +86,22 @@ describe('resolveFamilyState — exclusive state machine', () => {
       },
     }), { now: NOW });
     assert.equal(state.state, FAMILY_STATES.AWAY);
-    assert.equal(state.statusLine, 'Hos mamma den här veckan');
+    assert.equal(state.statusLine, 'Alla finns kvar här');
+    assert.match(state.togetherLine, /Pappa finns kvar här/);
+    assert.match(state.awayNote, /Just nu: Hos mamma den här veckan/);
     assert.equal(state.highlightPersonKey, 'parent-1');
+    assert.match(state.persons[1].cardNote, /Just nu:/);
+  });
+
+  it('Away — blocks guilt phrasing in labels', () => {
+    const state = resolveFamilyState(personsData({
+      persons: {
+        parents: [{ name: 'Pappa', away: true, awayLabel: 'Pappa är borta' }],
+        siblings: [],
+      },
+    }), { now: NOW });
+    assert.match(state.persons[0].cardNote, /hos den andra föräldern just nu/i);
+    assert.doesNotMatch(state.statusLine, /borta/i);
   });
 
   it('priority — warm moment beats away', () => {
