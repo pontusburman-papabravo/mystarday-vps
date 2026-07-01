@@ -78,17 +78,18 @@ describe('magic appearance fixes', () => {
     assert.match(css, /parent-theme-light \.parent-coparent-cta-copy strong/);
   });
 
-  it('home hub binds click handlers directly on action tiles', () => {
+  it('home hub uses priority ladder slots (no action grid)', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
     const css = fs.readFileSync(path.join(ROOT, 'public/css/dashboard-magic.css'), 'utf8');
+    assert.match(hub, /parentHubCoachSlot/);
     assert.match(hub, /btn\.addEventListener\('click'/);
     assert.match(hub, /dataset\.hubBound/);
-    assert.match(css, /parent-action-grid[\s\S]*pointer-events: auto/);
+    assert.match(css, /parent-hub-coach-slot/);
     assert.match(css, /parent-home-hub\.magic-3d-scene[\s\S]*transform-style: flat/);
   });
 
   it('SW bumped to v339', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
-    assert.match(sw, /stjarndag-v(?:339|[3-9]\d\d|\d{4,})/);
+    assert.match(sw, /stjarndag-v(?:33[3-9]|[4-9]\d\d|\d{4,})/);
   });
 });

@@ -36,3 +36,9 @@ test('each goal has accent color pair for UI badges', () => {
     assert.match(goal.accentBg, /^#[0-9A-Fa-f]{6}$/, goal.slug);
   }
 });
+
+test('each goal has outcome headline for parents', () => {
+  for (const goal of FOR_DIG_GOALS) {
+    assert.ok(goal.headline && goal.headline.length > 5, goal.slug);
+  }
+});

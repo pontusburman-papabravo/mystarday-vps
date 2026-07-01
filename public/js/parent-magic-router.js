@@ -54,10 +54,11 @@
       '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/custody-settings.js?v=2',
-      '/js/family.js?v=2.14.4',
+      '/js/family-hub.js?v=1.0.0',
+      '/js/family.js?v=2.15.0',
       '/js/coparent-invite-ui.js?v=1',
     ],
-    planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.5.0'],
+    planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.6.1'],
     rewards: [
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.1',

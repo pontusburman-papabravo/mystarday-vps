@@ -18,10 +18,10 @@ describe('family UI + avatar menu fix', () => {
     assert.match(css, /background: #141432 !important/);
   });
 
-  it('family child card simplified — no delete on card', () => {
+  it('family child card links to barnprofil — no delete on card', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
-    assert.match(src, /family-child-settings-btn/);
-    assert.match(src, /Inställningar/);
+    assert.match(src, /family-child-card/);
+    assert.match(src, /\/family\/child\//);
     assert.doesNotMatch(src, /Ta bort barn[\s\S]*?child-card-wrap/);
   });
 

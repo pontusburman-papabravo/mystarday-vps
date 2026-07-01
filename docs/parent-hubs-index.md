@@ -1,36 +1,20 @@
 # Föräldrahubbar 10/10 — Kravdokument (index)
 
-**Status:** Produktmässigt GO för implementation (2026-07) — Hem · Planering · Belöningar · Familj  
-**Baseline:** [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) · tagg `parent-hubs-10-10`  
-**Principer:** [parent-platform-principles.md](parent-platform-principles.md)  
-**Mall:** samma struktur som [För dig 10/10](for-dig-vision.md)  
-**Branch (implementation):** `cursor/for-dig-10-10-2c04`  
-**Arkitekturreferens:** [vuxenmeny-v2.md](vuxenmeny-v2.md)
-
----
-
-## En hub, ett verb
-
-| Hub | Verb | Vision |
-|-----|------|--------|
-| Hem | Se | [hem-vision.md](hem-vision.md) |
-| Planering | Bygga | [planering-vision.md](planering-vision.md) |
-| Belöningar | Hantera | [beloningar-vision.md](beloningar-vision.md) |
-| Familj | Administrera | [familj-vision.md](familj-vision.md) |
-| För dig | Aktivera | [for-dig-vision.md](for-dig-vision.md) |
+**Status:** Operativ produktkonstitution (2026-07) — **Hem GO för implementation**  
+**Mall:** [parent-hub-vision-template.md](parent-hub-vision-template.md) (låst format)  
+**Referens (För dig):** [for-dig-vision.md](for-dig-vision.md)  
+**Branch (implementation):** `cursor/hem-vision-docs-6752`
 
 ---
 
 ## Kopiera till agent — hela uppsättningen
 
-Kopiera länkarna nedan till en ny agent, eller peka agenten hit:
-
-| Område | Vision | Agent-uppdrag |
-|--------|--------|---------------|
-| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) |
-| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) |
-| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) |
-| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) |
+| Område | Vision | Agent-uppdrag | Status |
+|--------|--------|---------------|--------|
+| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) | **GO** |
+| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) | Konstitution klar |
+| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) | Konstitution klar |
+| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) | Konstitution klar |
 
 **Referens (För dig — redan byggt):**
 
@@ -40,9 +24,27 @@ Kopiera länkarna nedan till en ny agent, eller peka agenten hit:
 
 ---
 
+## Gemensam konstitutionsstruktur
+
+Alla hubbar följer [parent-hub-vision-template.md](parent-hub-vision-template.md):
+
+| Byggsten | Syfte |
+|----------|--------|
+| **Filterregel** | Varje komponent måste motivera sin existens |
+| **Beslutsregel** | Högst en primär handling per domän |
+| **Priority Ladder** | Objektiv ordning vid konkurrens |
+| **Exit Rule** | När användaren är "klar" |
+| **Success Metrics** | PR-granskning utan subjektiv smak |
+| **Copy-regel** | Rätt ton per hub |
+
+Hubb-specifikt innehåll — inte ordagranna kopior. Se mallen för per-hub-filter och beslutsregler.
+
+---
+
 ## Snabbkopiering (råa sökvägar)
 
 ```
+docs/parent-hub-vision-template.md
 docs/hem-vision.md
 docs/hem-agent-prompt.md
 docs/planering-vision.md
@@ -55,65 +57,38 @@ docs/familj-agent-prompt.md
 
 ---
 
-## Vad varje dokument innehåller
-
-| Fil | Syfte |
-|-----|-------|
-| `parent-platform-principles.md` | Gemensamma plattformsregler (verb, filter, DoD) |
-| `parent-hubs-product-baseline-10-10.md` | Fryst baseline, implementationsordning |
-| `*-vision.md` | Produktkompass, Jenny-test, informationshierarki, prioritetsordning, filter-/copy-regler |
-| `*-agent-prompt.md` | Definition of Done, mandat, scope, låsta regler, teknisk vägledning |
-
-**Agent-uppdrag** finns endast i `*-agent-prompt.md` — inte inklistrade i visionerna.
-
----
-
-## Undantag vs Pending (låst)
-
-Hubbarna delar data men **inte begrepp**:
-
-| Hub | Begrepp | Scope | Exempel | Datakälla |
-|-----|---------|-------|---------|-----------|
-| **Hem** | Undantag | Alla vuxenbeslut som kräver uppmärksamhet idag | *Godkänn Olles belöning* → `/rewards` | `GET /api/family/readiness` |
-| **Belöningar** | Pending | Belöningsdomänen | Inline godkännande av inlösen/målbyte | `GET /api/rewards/pending-requests` |
-| **Familj** | Medlemmar | Vem som ingår + inbjudan | *+ Bjud in förälder* | `family_invite` (undantag via Hem) |
-
-**Regel:** Samma underliggande rader — aldrig dubbel logik mellan hubbar.
-
----
-
-## Implementationsordning (rekommenderad)
-
-Se [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) för full baseline.
-
-```
-1. Hem → 2. Planering → 3. Belöningar → 4. Familj
-```
-
-En hubb per PR. Jenny-test + `test:gate` innan nästa.
-
----
-
 ## Gemensam Definition of Done (alla hubbar)
 
 Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 
+- Filterregel och beslutsregel verifierade
+- Exit rule uppfylld
+- Success metrics ifyllda i PR
 - Mobil först (iPhone portrait, parent-magic dark theme)
 - Inga POS-brott (se `.cursor/rules/010-product.mdc`, `040-parent-experience.mdc`)
 - `npm run test:gate` grön vid implementation
 - Commit + PR med POS-citat och Jenny-test-resultat
+- **[Parent Hub Acceptance Checklist](qa/parent-hub-acceptance-checklist.md)** ifylld före merge
 
 ---
 
-## Avgränsning mot För dig
+## QA & integration
 
-| Flik | Roll | Inte |
-|------|------|------|
-| **Hem** | *Här är läget* — status, ett nästa steg | Coach-katalog, byggverktyg |
-| **Planering** | *Jag vill planera* — bygga och justera | Daglig status, rekommendationer |
-| **Belöningar** | *Stjärnor och belöningar* — hantera och följa | Schema, familjeadmin |
-| **Familj** | *Vilka är med?* — barn, vuxna, pedagoger | Inställningar, prenumeration |
-| **För dig** | *Här är vad jag rekommenderar* — problem → rutin | (se [for-dig-vision.md](for-dig-vision.md)) |
+| Dokument | Syfte |
+|----------|--------|
+| [qa/parent-hub-acceptance-checklist.md](qa/parent-hub-acceptance-checklist.md) | Återanvändbar checklista per hubb-PR |
+| [qa/hub-integration-sweep.md](qa/hub-integration-sweep.md) | Integrationssweep efter parallell utveckling |
+
+
+## Avgränsning mellan hubbar
+
+| Flik | Roll | Filterregel (kort) | Inte |
+|------|------|-------------------|------|
+| **Hem** | *Här är läget* | Besvara tre frågor om dagen | Coach-katalog, byggverktyg |
+| **Planering** | *Jag vill planera* | Hitta rätt byggverktyg | Daglig status, rekommendationer |
+| **Belöningar** | *Stjärnor och belöningar* | Godkänna, hantera, följa | Schema, familjeadmin |
+| **Familj** | *Vilka är med?* | Hitta, administrera, öppna person | Inställningar, prenumeration |
+| **För dig** | *Här är vad jag rekommenderar* | Problem → rutin | (se [for-dig-vision.md](for-dig-vision.md)) |
 
 ---
 
@@ -122,11 +97,11 @@ Varje hub ska klara **sitt Jenny-test** (se respektive vision) **plus**:
 | Hub | Tre frågor (inom 5 sek, utan scroll) |
 |-----|--------------------------------------|
 | Hem | Hur går det idag? · Vad ska jag göra nu? · Var hittar jag barnet? |
-| Planering | Vad kan jag göra här? · Var går jag för [schema/bibliotek]? · Känns det överbefolkat? |
+| Planering | Vad kan jag göra här? · Var går jag för schema? · Var skapar jag aktivitet? |
 | Belöningar | Vad väntar på mig? · Var hanterar jag belöningar? · Hur ser barnets stjärnor ut? |
 | Familj | Vem ingår? · Hur lägger jag till någon? · Var ser jag ett barns detaljer? |
 
-Detaljer och godkända målbilder finns i respektive `*-vision.md`.
+Detaljer, priority ladder och godkända målbilder finns i respektive `*-vision.md`.
 
 ---
 

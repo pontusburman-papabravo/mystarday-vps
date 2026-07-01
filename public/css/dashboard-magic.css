@@ -603,11 +603,13 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 12px 10px 10px;
+  padding: 12px 28px 10px 10px;
   text-align: center;
   cursor: pointer;
   color: #f4f4ff;
   font-family: inherit;
+  text-decoration: none;
+  display: block;
 }
 
 .parent-ready-child.is-active {
@@ -874,4 +876,65 @@ body.parent-magic-dashboard.parent-theme-light .parent-encourage-card p {
   .parent-ready-child:active {
     transform: none;
   }
+}
+
+/* ── Hem 10/10: priority ladder slots ── */
+body.parent-magic-dashboard #homeBumpMount {
+  display: none !important;
+}
+
+.parent-hub-readiness-slot {
+  margin-bottom: 12px;
+}
+
+.parent-hub-readiness-slot #homeReadinessMount {
+  margin-bottom: 0;
+}
+
+.parent-hub-coach-slot {
+  margin-bottom: 12px;
+}
+
+.parent-hub-coach-slot #engineCoachMount,
+.parent-hub-coach-slot #journeyCoachMount {
+  margin-bottom: 0;
+}
+
+.parent-hub-coach-slot .engine-coach-card,
+.parent-hub-coach-slot .journey-coach-card {
+  margin-bottom: 0;
+}
+
+.parent-readiness-heading {
+  color: rgba(244, 244, 255, 0.95);
+}
+
+.parent-readiness-card {
+  color: inherit;
+}
+
+.parent-ready-progress {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffcc33;
+  margin-top: 4px;
+}
+
+.parent-ready-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(244, 244, 255, 0.45);
+  pointer-events: none;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-readiness-heading {
+  color: #1b2340;
+}
+
+body.parent-magic-dashboard.parent-theme-light .parent-ready-progress {
+  color: #c8870a;
 }

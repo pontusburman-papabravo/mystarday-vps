@@ -14,6 +14,7 @@ const {
   activateGoal,
   buildActivationSuccessMessage,
   buildActivationNextStep,
+  buildActivationPlanPreview,
   getGoalActivationPreview,
 } = require('../lib/for-dig-activate');
 const {
@@ -180,6 +181,37 @@ router.get('/feedback/pending', async (req, res) => {
   } catch (err) {
     console.error('[FOR-DIG] pending error:', err);
     res.status(500).json({ error: 'Kunde inte hämta väntande feedback' });
+  }
+});
+
+router.post('/:slug/preview-plan', async (req, res) => {
+  const { slug } = req.params;
+  const { child_ids: childIdsBody } = req.body || {};
+
+  const goal = getGoalBySlug(slug);
+  if (!goal) {
+    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+  }
+
+  const childIds = Array.isArray(childIdsBody) ? childIdsBody.filter(Boolean) : [];
+  if (childIds.length === 0) {
+    return res.status(400).json({ error: 'Minst ett barn krävs (child_ids)' });
+  }
+
+  try {
+    const plan = await buildActivationPlanPreview({
+      parentId: req.user.id,
+      childIds,
+      goalSlug: slug,
+    });
+    if (!plan) {
+      return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    }
+    res.json(plan);
+  } catch (err) {
+    console.error('[FOR-DIG] preview-plan error:', err);
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || 'Kunde inte ladda planen' });
   }
 });
 

@@ -70,7 +70,9 @@
         const childParam = urlParams.get('child');
         const tabParam = urlParams.get('tab');
         if (childParam && familyChildren.some(c => c.id === childParam)) {
-          openChildDrawer(childParam, tabParam || undefined);
+          const q = tabParam ? '?tab=' + encodeURIComponent(tabParam) : '';
+          window.location.replace('/family/child/' + encodeURIComponent(childParam) + q);
+          return;
         }
       } catch (err) {
         showToast('Kunde inte ladda familjeinformation: ' + err.message, true);
@@ -93,38 +95,26 @@
       window.familyChildren = children;
       if (window.CustodySettings) CustodySettings.reload();
 
-      const summaryEl = document.getElementById('familySummary');
-      if (summaryEl) {
-        const parents = data.parents || [];
-        const parts = [];
-        if (children.length) parts.push(children.length === 1 ? '1 barn' : children.length + ' barn');
-        if (parents.length) parts.push(parents.length === 1 ? '1 förälder' : parents.length + ' föräldrar');
-        summaryEl.textContent = parts.join(' · ');
-      }
+      const parents = data.parents || [];
+      const summaryParts = [];
+      if (children.length) summaryParts.push(children.length === 1 ? '1 barn' : children.length + ' barn');
+      if (parents.length) summaryParts.push(parents.length === 1 ? '1 förälder' : parents.length + ' föräldrar');
+      const summaryText = summaryParts.join(' · ');
+      ['familySummary', 'familyHubSummary'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = summaryText;
+      });
       const noChildren = document.getElementById('noChildrenState');
       const childrenGrid = document.getElementById('childrenGrid');
-      const switcher = document.getElementById('childSwitcherTabs');
       if (children.length === 0) {
         noChildren.classList.remove('hidden');
         childrenGrid.classList.add('hidden');
-        switcher.classList.add('hidden');
       } else {
         noChildren.classList.add('hidden');
         childrenGrid.classList.remove('hidden');
         childrenGrid.innerHTML = children.map(c => renderChildCard(c)).join('');
-        if (children.length >= 2) {
-          switcher.classList.remove('hidden');
-          switcher.innerHTML = children.map(c => `
-            <button onclick="openChildDrawer('${c.id}')"
-              class="flex items-center gap-2 px-4 py-2 rounded-full border-2 font-semibold text-sm transition-colors border-lavender text-navy hover:border-gold hover:bg-gold-light dark:text-white dark:border-navy-soft dark:hover:border-gold">
-              ${childAvatarHtml(c, 24)} ${escHtml(c.name)}
-            </button>`).join('');
-        } else {
-          switcher.classList.add('hidden');
-        }
       }
 
-      const parents = data.parents || [];
       const pending = data.pendingInvites || [];
       const noAdults = document.getElementById('noAdultsState');
       const adultsGrid = document.getElementById('adultsGrid');
@@ -157,110 +147,38 @@
       if (window.ParentMagicPageHub && window.ParentMagicShell && ParentMagicShell.isMagic()) {
         ParentMagicPageHub.refresh('family', true);
       }
+      if (window.FamilyHub && typeof FamilyHub.afterRender === 'function') {
+        void FamilyHub.afterRender();
+      }
     }
 
     // ─── Child card (compact clickable summary) ──────────
     function renderChildCard(child) {
-      const ageText = child.birthday ? calculateAge(child.birthday) : null;
-      // Build mini status badges for active toggles
-      const badges = [];
-      if (child.lock_schedule) badges.push('<span class="text-xs bg-lavender dark:bg-purple-900 text-purple-700 dark:text-purple-200 px-1.5 py-0.5 rounded-full">🔒 Låst</span>');
-      if (child.hide_clock) badges.push('<span class="text-xs bg-sky dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-1.5 py-0.5 rounded-full">🕐 Dold klocka</span>');
-
+      const ageText = child.birthday ? calculateAge(child.birthday) : 'Ålder okänd';
+      const href = '/family/child/' + encodeURIComponent(child.id);
       return `
-        <div class="bg-sky dark:bg-navy-soft rounded-2xl p-4 card-hover fade-in child-card-wrap relative"
-             data-child-id="${child.id}">
-          <span class="drag-handle text-gray-300 text-lg select-none cursor-grab absolute top-3 right-10"
+        <div class="child-card-wrap relative fade-in" data-child-id="${child.id}">
+          <span class="drag-handle text-gray-300 text-lg select-none cursor-grab absolute top-3 right-3 z-10"
                 title="Dra för att ändra ordning"
-                onclick="event.stopPropagation()">⠿</span>
-
-          <div class="flex items-center gap-3 mb-3">
+                onclick="event.preventDefault(); event.stopPropagation()">⠿</span>
+          <a href="${href}" class="family-child-card flex items-center gap-3 p-4 bg-sky dark:bg-navy-soft rounded-2xl card-hover no-underline min-h-[72px]">
             ${childAvatarHtml(child, 48)}
-            <div class="flex-1 min-w-0">
-              <p class="font-heading font-bold text-navy dark:text-white">${escHtml(child.name)}</p>
-              <p class="text-xs text-text-soft">${ageText || 'Ålder okänd'}</p>
+            <div class="flex-1 min-w-0 pr-6">
+              <p class="font-heading font-bold text-navy dark:text-white truncate">${escHtml(child.name)}</p>
+              <p class="text-sm text-text-soft">${escHtml(ageText)}</p>
             </div>
-            ${child.has_pin
-              ? '<span class="text-xs bg-mint text-green-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0" title="PIN kod inställd">PIN ✅</span>'
-              : '<span class="text-xs bg-coral text-red-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0" title="Ingen PIN kod">PIN ❌</span>'}
-          </div>
-
-          ${badges.length > 0 ? `<div class="flex gap-1.5 flex-wrap mb-3">${badges.join('')}</div>` : ''}
-
-          <div class="pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
-            <a href="/family/child/${child.id}?tab=setup"
-               class="family-child-settings-btn flex w-full items-center justify-center gap-2 px-4 py-3.5 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl transition-colors min-h-[48px]">
-              ⚙️ Inställningar
-            </a>
-            <div class="grid grid-cols-2 gap-2">
-              <a href="/family/child/${child.id}"
-                 class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white/80 dark:bg-navy border border-lavender dark:border-navy-soft text-navy dark:text-white text-xs font-semibold rounded-xl transition-colors min-h-[44px]">
-                🌟 Profil
-              </a>
-              <a href="/schedule?child=${child.id}"
-                 class="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white dark:text-navy text-xs font-semibold rounded-xl transition-colors min-h-[44px]">
-                📅 Schema
-              </a>
-            </div>
-          </div>
+            <span class="text-text-soft text-xl flex-shrink-0" aria-hidden="true">→</span>
+          </a>
         </div>
       `;
     }
 
-    // ─── Child settings drawer ────────────────────────────
-    async function openChildDrawer(childId, initialTab) {
-      drawerChildId = childId;
-      const child = familyChildren.find(c => c.id === childId) || {};
-
-      // Update header
-      document.getElementById('drawerChildEmoji').innerHTML = childAvatarHtml(child, 40);
-      document.getElementById('drawerChildName').textContent = child.name || '';
-      document.getElementById('drawerChildAge').textContent = child.birthday ? calculateAge(child.birthday) + ' — klicka för att ändra' : '⚠️ Ange födelsedatum — klicka här';
-
-      // Pre-populate settings tab
-      document.getElementById('setting-show_now_next').checked = child.show_now_next !== false;
-      document.getElementById('setting-show_mood_rating').checked = child.show_mood_rating !== false;
-      document.getElementById('setting-allow_child_reorder').checked = !!child.allow_child_reorder;
-      document.getElementById('setting-hide_clock').checked = !!child.hide_clock;
-      document.getElementById('setting-lock_schedule').checked = !!child.lock_schedule;
-      document.getElementById('setting-dopamin_animation').checked = child.dopamin_animation !== false;
-      document.getElementById('setting-visual_timer').checked = child.visual_timer !== false;
-      document.getElementById('setting-time_adjustment').checked = child.time_adjustment !== false;
-      document.getElementById('setting-color_coding').checked = child.color_coding !== false;
-
-      // Pre-populate edit tab
-      document.getElementById('drawerEditChildId').value = child.id || '';
-      document.getElementById('drawerEditName').value = child.name || '';
-      setBirthdayPicker('drawerEditBirthday', child.birthday || '');
-      document.getElementById('drawerEditPin').value = '';
-      drawerEmojiSelected = child.emoji || '';
-      document.getElementById('drawerEditEmoji').value = drawerEmojiSelected;
-      document.querySelectorAll('.drawer-emoji-opt').forEach(b => {
-        b.classList.remove('border-gold', 'bg-gold-light');
-        if (b.dataset.emoji === drawerEmojiSelected) b.classList.add('border-gold', 'bg-gold-light');
-      });
-
-      // Update edit schema link with child ID
-      const editSchemaLink = document.getElementById('editSchemaLink');
-      if (editSchemaLink) editSchemaLink.href = `/schedule?child=${childId}`;
-
-      // Switch to requested tab (or schema by default)
-      const tabName = initialTab || 'schema';
-      const tabButtons = document.querySelectorAll('.drawer-tab');
-      const tabBtn = Array.from(tabButtons).find(b => {
-        const paneId = 'drawer-pane-' + tabName;
-        return b.getAttribute('onclick')?.includes("'" + tabName + "'");
-      }) || tabButtons[0];
-      switchDrawerTab(tabName, tabBtn);
-
-      // Show drawer
-      const drawer = document.getElementById('childDrawer');
-      drawer.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-
-      // Load schema packages & rewards async
-      loadSchemaPackages(childId);
-      loadRewards(childId, child);
+    // Legacy drawer → barnprofil (Familj 10/10)
+    function openChildDrawer(childId, initialTab) {
+      if (!childId) return;
+      let url = '/family/child/' + encodeURIComponent(childId);
+      if (initialTab) url += '?tab=' + encodeURIComponent(initialTab);
+      window.location.href = url;
     }
 
     function closeChildDrawer() {

@@ -74,7 +74,7 @@
       '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">Laddar belöningar…</p></div>' +
       '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
       '</div>' +
-      '<a href="/child-settings?id=' + encodeURIComponent(child.id) + '" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
+      '<a href="/family/child/' + encodeURIComponent(child.id) + '?tab=setup" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
       '</div>';
   }
 

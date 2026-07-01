@@ -217,7 +217,11 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v435';
+const CACHE_NAME = 'stjarndag-v438';
+// stjarndag-v438: merge parent hubs 10/10 (Hem/Planering/Belöningar/Familj) + first-star chrome
+// stjarndag-v437: Familj hub 10/10 — barnkort → barnprofil, ingen magic-stat-hero
+// stjarndag-v436: Belöningar hub 10/10 — inline stjärnor, ingen skattkammaren-CTA
+// stjarndag-v435: merge Hem 10/10 + Planering fold-fix
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route

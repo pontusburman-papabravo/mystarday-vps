@@ -6,12 +6,6 @@
 
 ---
 
-# Kärnmetafor
-
-> **Familj = klasslistan** — vem som är med, inte kontrollpanelen för hela appen.
-
----
-
 # Definition of Done
 
 ## Jenny-test
@@ -21,6 +15,25 @@ En förälder som aldrig sett Familj ska inom **5 sekunder**, **utan scroll**, s
 1. **Vilka barn har vi i appen?**
 2. **Hur bjuder jag in en annan vuxen?**
 3. **Var klickar jag för att se Astrids detaljer?**
+
+## Filterregel + beslutsregel
+
+- **Filterregeln:** Varje komponent måste hjälpa hitta, administrera eller öppna en person inom 5 sek
+- **Beslutsregeln:** Högst en primär åtgärd per sektion — inga konto-/appinställningar
+
+## Exit Rule
+
+Föräldern ska kunna lämna Familj och säga: *jag vet vilka som ingår · jag vet hur jag bjuder in · jag kan nå rätt barns detaljer med ett tryck*.
+
+## Success Metrics (PR)
+
+| Mål | Mått |
+|-----|------|
+| Jenny ser vilka som ingår | < 5 sek |
+| Ingen scroll för orientering | Ja |
+| Hub-sektioner synliga | ≤ 3 |
+| Primär åtgärd per sektion | ≤ 1 |
+| Barnprofil nåbar | 1 tryck |
 
 ## Tekniskt minimum
 
@@ -36,6 +49,10 @@ En förälder som aldrig sett Familj ska inom **5 sekunder**, **utan scroll**, s
 Bygg **Familjehubben** och **barnprofilen** till 10/10 — ren "vem är med"-yta.
 
 **Vision > legacy drawer.**
+
+Du ska kunna säga:
+
+> *"Det här uppfyller inte filterregeln — det hjälper inte hitta, administrera eller öppna en person."*
 
 ---
 
@@ -55,42 +72,37 @@ Om inställningar fortfarande bor på `/family` — flytta till `/settings` inna
 
 ---
 
-# Låsta regler (från vision)
-
-## Prioritetsordning
-
-```
-Barn → Vuxna → Pedagoger → Familjenivå → Museum
-```
-
-Lägg aldrig inställningar eller kontoåtgärder ovanför barnlistan.
-
-## Hubben vs barnprofil
-
-- **Hubben** = vem som ingår + inbjudan
-- **Barnprofil** = ett barns värld (schema, belöningar, framsteg, PIN)
-
-## Hem vs Familj
-
-Hem visar inbjudningsundantag (`readiness` type `pending_invite`) och länkar hit. Samma `family_invite`-data — ingen dubbel logik.
-
-## Filterregel
-
-Komponenten hör hemma bara om den hjälper föräldern se vem som ingår, bjuda in, eller nå ett barns profil.
-
-## Copy-regel
-
-Vem som är med och hur man lägger till — inte prestation, coachning eller undantag.
-
----
-
 ## Anti-patterns
 
-- Push/GDPR/radera på Familj-sidan
+- Push/GDPR/radera på Familj-sidan (→ Inställningar)
+- Flera primära åtgärder i samma sektion (bryter beslutsregeln)
 - Drawer som enda barn-UX utan profil-route
 - Ny bottenflik för pedagog
 - Barnformulär i barnläge (C-01)
-- Daglig status, undantag eller belöningsgodkännande på hubben
+- Museum eller familjekista ovanför barnlistan (bryter priority ladder)
+
+## Självgranskning innan du är klar
+
+Gå igenom **varje sektion** enligt priority ladder och fråga:
+
+1. *"Hjälper detta hitta, administrera eller öppna en person?"* (filterregeln)
+2. *"Hör detta hemma i Inställningar i stället?"* (beslutsregeln)
+
+---
+
+# Produktvision (läs [familj-vision.md](familj-vision.md) för full version)
+
+## Kärnregler
+
+| Regel | En mening |
+|-------|-----------|
+| **Filterregel** | Hjälper komponenten hitta, administrera eller öppna en person |
+| **Beslutsregel** | Högst en primär åtgärd per sektion — inga appinställningar |
+| **Copy-regel** | Familj = människor · Barnprofil = barnets värld · Inställningar = konto |
+
+## Priority Ladder
+
+`Barn → Vuxna → Pedagoger → Familjenivå → Museum`
 
 ---
 
@@ -106,7 +118,26 @@ Vem som är med och hur man lägger till — inte prestation, coachning eller un
 | `public/js/nav-config.js` | Pedagog capability |
 | `src/routes/family/members.js` | Inbjudan, barn |
 
-**Branch:** `cursor/for-dig-10-10-2c04`
+**Branch:** `cursor/hem-vision-docs-6752` (eller aktuell feature-branch)
+
+**Test:**
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
+NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run test:gate
+```
+
+---
+
+# Arbetsflöde
+
+1. Läs vision + `family.js` + barnprofil-route
+2. Jenny-test mot nuvarande hub
+3. Flytta inställningsbrus till `/settings` om det finns kvar
+4. Implementera barnprofil som kanonisk destination
+5. Jenny-test + success metrics
+6. `npm run test:gate`
+7. PR med screenshots
 
 ---
 
@@ -115,5 +146,3 @@ Vem som är med och hur man lägger till — inte prestation, coachning eller un
 Familj ska kännas som **klasslistan** — inte kontrollpanelen för hela appen.
 
 Tre sektioner. Tydliga kort. Ett tryck till barnets värld.
-
-Verifiera mot [familj-vision.md](familj-vision.md) § Prioritetsordning, Filterregel och Copy-regel innan PR.

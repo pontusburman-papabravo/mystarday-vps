@@ -6,14 +6,6 @@
 
 ---
 
-# Kärnmetafor
-
-> **Belöningar = brevlådan + verktygslådan.**
-
-Först det som väntar (brevlådan). Sedan var man sköter resten (verktygslådan).
-
----
-
 # Definition of Done
 
 ## Jenny-test
@@ -23,6 +15,25 @@ En förälder som aldrig sett Belöningar ska inom **5 sekunder**, **utan scroll
 1. **Väntar något på mig?**
 2. **Var ändrar jag vilka belöningar som finns?**
 3. **Var ser jag barnets stjärnor?**
+
+## Filterregel + beslutsregel
+
+- **Filterregeln:** Varje komponent måste hjälpa godkänna, hantera eller förstå belöningsläget inom 5 sek
+- **Beslutsregeln:** Högst en primär handling synlig — godkännanden dominerar alltid
+
+## Exit Rule
+
+Föräldern ska kunna lämna Belöningar och säga: *jag vet om något väntar · jag vet var belöningar hanteras · jag vet hur barnets stjärnor ser ut*.
+
+## Success Metrics (PR)
+
+| Mål | Mått |
+|-----|------|
+| Jenny ser om något väntar | < 5 sek |
+| Ingen scroll för beslut | Ja |
+| Primära handlingar synliga | ≤ 1 |
+| Tom-state utan brus | Ja |
+| Pending synkad med Hem | Samma datakälla |
 
 ## Tekniskt minimum
 
@@ -39,6 +50,10 @@ Bygg **Belöningshubben** (`/rewards`) till 10/10.
 
 **Vision > kod.** Ta bort förvirrande ingångar (särskilt `/skattkammaren` som hub-CTA).
 
+Du ska kunna säga:
+
+> *"Det här uppfyller inte filterregeln — det hjälper inte med godkänna, hantera eller följa."*
+
 ---
 
 # Scope
@@ -49,62 +64,38 @@ Bygg **Belöningshubben** (`/rewards`) till 10/10.
 
 ---
 
-# Låsta regler (från vision)
-
-## Prioritetsordning
-
-```
-1. Pending
-2. Hantera
-3. Stjärnor
-4. Utveckling
-```
-
-Lägg aldrig statistik, tips eller rekommendationer ovanför pending.
-
-## Pending
-
-Räknas:
-
-- belöning som väntar på godkännande (inlösen)
-- målbyte som väntar på godkännande
-- annat undantag som kräver manuellt vuxenbeslut
-
-Räknas **inte**: nya stjärnor, statistik, tips, rekommendationer.
-
-**Källa:** `GET /api/rewards/pending-requests` — samma underliggande rader som Hem `readiness` type `pending_approval`, inte duplicerad logik.  
-**Tom state:** sektion dold — ingen "Inga väntande"-ruta.
-
-## Överblick
-
-Visa hur nära **varje barn** är sin nästa belöning. Ingen syskonjämförelse (R-02).
-
-## Filterregel
-
-En komponent hör hemma här bara om den hjälper föräldern att **godkänna**, **hantera** eller **förstå barnets belöningsläge**.
-
-## Copy-regel
-
-Beskriv vad som väntar, vad som finns, var du ändrar — **inte** hur duktigt barnet varit, motivation eller coachning.
-
-## Hub-regel
-
-Länka **aldrig** till `/skattkammaren` som primär CTA för inloggad förälder.
-
-## Hem vs Belöningar
-
-Hem visar belöningsundantag; Belöningar äger godkännande-UI. Samma data — se [hem-vision.md](hem-vision.md) § Undantag.
-
----
-
 ## Anti-patterns
 
 - Skattkammaren som primär hub-länk för förälder
-- Tom "inga väntande"-ruta
+- Tom "inga väntande"-ruta (dölj sektionen i stället)
 - Stjärn-IAP · syskonjämförelse
+- Flera primära handlingar synliga (bryter beslutsregeln)
+- Schema eller familjeadmin på hubben
 - Ny modal för godkännande om inline räcker
-- Statistik/tips/rekommendation ovanför pending
-- Motivations- eller coachningstext på hubben
+
+## Självgranskning innan du är klar
+
+Gå igenom **varje sektion** enligt priority ladder och fråga:
+
+1. *"Hjälper detta godkänna, hantera eller följa?"* (filterregeln)
+2. *"Är detta den enda primära handlingen just nu?"* (beslutsregeln)
+
+---
+
+# Produktvision (läs [beloningar-vision.md](beloningar-vision.md) för full version)
+
+## Kärnregler
+
+| Regel | En mening |
+|-------|-----------|
+| **Filterregel** | Hjälper komponenten godkänna, hantera eller förstå belöningsläget |
+| **Beslutsregel** | Högst en primär handling — godkännanden först |
+| **Undantag** | Pending redemption som kräver vuxenbeslut nu |
+| **Copy-regel** | Belöningar = belöningsläge · inte Skattkammaren som hub-CTA |
+
+## Priority Ladder
+
+`Godkännanden → Hantera → Följa → Utveckling → Paket`
 
 ---
 
@@ -118,11 +109,31 @@ Hem visar belöningsundantag; Belöningar äger godkännande-UI. Samma data — 
 | `public/js/pending-approvals.js` | Godkännanden |
 | `public/rewards.html` | Shell |
 | `public/js/library.js` | Belöningsflik (`#rewards`) |
+| `public/js/home-readiness.js` | Synk med Hem-undantag |
 
-**Branch:** `cursor/for-dig-10-10-2c04`
+**Branch:** `cursor/hem-vision-docs-6752` (eller aktuell feature-branch)
+
+**Test:**
+
+```bash
+export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
+NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run test:gate
+```
+
+---
+
+# Arbetsflöde
+
+1. Läs vision + `rewards-hub.js` + pending-flöde
+2. Jenny-test (med och utan pending)
+3. Verifiera priority ladder och synk med Hem
+4. Implementera — ta bort lika mycket som du lägger till
+5. Jenny-test + success metrics
+6. `npm run test:gate`
+7. PR med screenshots
 
 ---
 
 # Sista instruktionen
 
-Belöningar ska kännas som **brevlådan + verktygslådan** — först det som väntar, sedan var man sköter resten. Verifiera mot [beloningar-vision.md](beloningar-vision.md) § Prioritetsordning, Pending, Överblick, Filterregel och Copy-regel innan PR.
+Belöningar ska kännas som **brevlådan + verktygslådan** — först det som väntar, sedan var man sköter resten.

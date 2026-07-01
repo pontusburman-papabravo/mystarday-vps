@@ -217,6 +217,11 @@
 
   async function load() {
     if (typeof window.apiFetch !== 'function') return;
+    if (window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function' && DashboardHomeHub.shouldUse()) {
+      const banner = document.getElementById(BANNER_ID);
+      if (banner) banner.classList.add('hidden');
+      return;
+    }
     if (await shouldSuppressForJourneyFirstWeek()) {
       const banner = document.getElementById(BANNER_ID);
       if (banner) banner.classList.add('hidden');
