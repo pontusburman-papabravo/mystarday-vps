@@ -356,17 +356,23 @@ Om `default_schedule` saknas lokalt (tomt admin-bibliotek): visa vänligt fel + 
 - Om aktivitet redan finns i familjen (namn-match) → standard-library hanterar det
 - Schema-copy med `overwrite: true` → ersätter befintligt (samma som `family.js` `applySchedulePackage`)
 
-### 7.4 Känd risk — helrutin ersätter hel dag (ej löst i content-sync)
+### 7.4 Helrutin-semantik — produktbeslut (v1)
 
-Mål med `scheduleName` (t.ex. **Trygga kvällar**, **Bra morgnar**, **Skolansvar**) kopierar ett `default_schedule`-paket med `overwrite: true` på valda dagar. Det **ersätter alla befintliga `weekly_schedule_item` på den dagen**, inte bara en sektion (morgon/kväll/dag).
+**Status:** Content-sync (#476) stängd och live i prod. **Nästa PR:** sektionsspecifik merge — inte hel dag.
 
-| Mål | Schema | Effekt idag |
-|-----|--------|-------------|
-| Trygga kvällar | Kvällsrutin | Hela dagen ersätts om rutinen läggs på alla dagar |
-| Bra morgnar | Kort morgon | Morgon + övriga sektioner på vardagar ersätts |
-| Skolansvar | Skola vardag | 15 aktiviteter — hel skoldag, inte bara läxor/väska |
+**Beslut (v1):** Mål med `scheduleName` ska **inte** ersätta hela dagen. De ska **append/ersätta relevant sektion** endast:
 
-**Beslut avvaktas:** Sektionsspecifik merge (lägg till kväll utan att röra morgon) eller smalare scheman. Content-sync-PR fixar **namnmatchning och biblioteksglapp** (t.ex. Samarbete hemma 1/4, Motivation 2/4) — inte replace-semantiken.
+| Mål | Schema | Sektion |
+|-----|--------|---------|
+| Trygga kvällar | Kvällsrutin | `kvall` |
+| Bra morgnar | Kort morgon | `morgon` |
+| Skolansvar | Skola vardag | skolrelaterad sektion (`dag` / skola) |
+
+**Motivering:** Dag-ersättning (`overwrite: true` på alla `weekly_schedule_item`) är för destruktivt — aktivering av ett paket får inte oväntat skriva över användarens befintliga morgon/kväll/dag.
+
+**Idag (pre-fix):** `copySchedule` med `overwrite: true` raderar alla items på valda dagar. Det ska ändras i separat PR.
+
+**Ej i scope för content-sync:** namnmatchning, biblioteksglapp, headlines — klart i #476. Avslutsdokumentation: [`for-dig-content-sync-476-closure.md`](for-dig-content-sync-476-closure.md).
 
 ---
 
