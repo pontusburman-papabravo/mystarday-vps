@@ -226,7 +226,7 @@ Migrera i ordning — varje steg ska ha grönt `test:gate`.
 | `src/lib/push-reminder-scheduler.js` | `getNotifyParentIdsForChildDate` via engine `isParentDay` |
 | `server.js` | Oförändrad mount — verifiera scheduler |
 
-### 4.5 UI — förälder
+### 4.5 UI — förälder (FEAT-1)
 
 | Fil | Ändring |
 |-----|---------|
@@ -234,8 +234,15 @@ Migrera i ordning — varje steg ska ha grönt `test:gate`.
 | `public/js/dashboard-custody.js` | Hämta context från API; färg + text/ikon |
 | `public/js/schedule-custody.js` | Samma; `alternate_weekends` dagsmarkering |
 | `public/js/custody-settings.js` | Pattern-väljare: varannan vecka / varannan helg; hemnamn |
-| `public/js/daily-log.js` | Print filter via engine-context |
-| `public/js/print-schema-core.js` | “Mina dagar” via `isParentDay` |
+
+### 4.5b Externa konsumenter (ej FEAT-1)
+
+Utskrift/PDF ägs av separat tjänst (`print-schema`). FEAT-1 levererar endast API/engine.
+
+| Fil | Ändring (senare, utanför FEAT-1 PRs) |
+|-----|--------------------------------------|
+| `public/js/print-schema-core.js` | Konsumera `isParentDay` från `/api/family/custody/context` |
+| `public/js/daily-log.js` | Samma — inga custody-ändringar i FEAT-1 Phase 4 |
 
 ### 4.6 Analytics
 
@@ -307,7 +314,7 @@ WHERE ws.child_id = cp.child_id
 | **PR-C** | 3 | Engine + pattern modules + unit tests | Låg |
 | **PR-D** | 4a | API context + schedule-resolve + daily-log | Medel |
 | **PR-E** | 4b | Calendar + push + handoff schedulers | Medel |
-| **PR-F** | 4c | UI (settings, banner, dashboard, schedule, print) | Medel |
+| **PR-F** | 4c | UI (settings, banner, dashboard, schedule) | Medel |
 | **PR-G** | 5 | home_id backfill + UI hemnamn + cleanup | Medel |
 
 Varje PR: `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate`
@@ -322,13 +329,13 @@ Kopplad till [boendeschema-spec.md § Definition of Done](./boendeschema-spec.md
 |---|-------------|-----|
 | 1 | `alternate_weeks` prod-data backfillad | 2 |
 | 2 | `alternate_weekends` manuellt testat i UI | 4 |
-| 3 | `resolveCustodyDate` används i alla 8 konsumenter | 4 |
+| 3 | `resolveCustodyDate` används i alla FEAT-1-konsumenter (ej print/PDF) | 4 |
 | 4 | Inga direkta anrop till `getWeekVariantForDate` utanför engine | 4 |
 | 5 | Banner visar hemnamn + nästa byte | 4 |
 | 6 | Färg + text i dashboard/schedule | 4 |
 | 7 | Barnvy utan hem-etikett | 4 |
 | 8 | Handoff + push till rätt förälder | 4 |
-| 9 | Utskrift “mina dagar” | 4 |
+| 9 | API exponerar `activeHome` + `isParentDay` för externa konsumenter | 4 |
 | 10 | Familj utan custody oförändrad | 2–5 |
 | 11 | Engine unit tests inkl. skottår + helg | 3 |
 | 12 | Analytics events enligt spec | 4 |
@@ -356,9 +363,15 @@ public/js/custody-settings.js
 public/js/custody-banner.js
 public/js/dashboard-custody.js
 public/js/schedule-custody.js
+test/custody-*.test.js
+```
+
+### Externa konsumenter (ej FEAT-1 — migreras separat)
+
+```
 public/js/daily-log.js
 public/js/print-schema-core.js
-test/custody-*.test.js
+public/js/print-schema.js
 ```
 
 ### Nytt (skapas)
@@ -382,3 +395,4 @@ test/custody-api-integration.test.js
 | Datum | Version | Ändring |
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Första implementationsplan — Phase 1–5 |
+| 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; externa konsumenter via API |

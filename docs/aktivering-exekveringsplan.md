@@ -417,7 +417,7 @@ flowchart LR
 
 **Paket:** Basic (`basic_app`). **Feature-flagga:** `custody_schedule_beta` (globalt aktiverad i prod).
 
-**Implementationstatus:** Delar av BC-1 … BC-13 finns i kod (A/B-modell). Domänomskrivning + `alternate_weekends` + engine enligt implementationsplan.
+**Implementationstatus:** Delar av BC-1 … BC-12 finns i kod (A/B-modell). Domänomskrivning + `alternate_weekends` + engine enligt implementationsplan. Utskrift/PDF (tidigare BC-13) ägs av separat tjänst — konsumerar FEAT-1 via API.
 
 **SEO/copy:** “Växelvis boende”, “schema varannan vecka”, “synka rutiner mellan föräldrar”.
 
@@ -628,6 +628,7 @@ Bygg i PR-ordning: exekveringsplan §7
 | 2026-06-24 | 0.7 | FEAT-1: hela Boendeschema i en release (BC-1–11, ingen v1.5) |
 | 2026-06-24 | 0.8 | D11: FEAT-6 foto-scan i Basic (`basic_app`) |
 | 2026-07-01 | 0.9 | FEAT-1: domänspec + ADR + implementationsplan — ersätter A/B-spec i §6.5.1 |
+| 2026-07-01 | 1.0 | FEAT-1: BC-13 utskrift ut; domänexponering via API |
 
 ---
 

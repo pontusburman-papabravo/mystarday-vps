@@ -137,15 +137,16 @@ Exempel (v2+):
 
 Systemet ska kunna avgöra vilket hem som gäller för ett valfritt datum.
 
-Resultatet används av:
+Resultatet används internt av:
 
 - Dashboard
 - Kalender
 - Veckoplanering
 - Pushnotiser
 - Handoff
-- Utskrift
 - Daglig logg
+
+Externa konsumenter (t.ex. utskrift/PDF) hämtar samma data via Schedule Engine och API — se BC-13.
 
 All beräkning sker i **Schedule Engine** — ingen vy eller tjänst implementerar egen logik.
 
@@ -177,11 +178,14 @@ Förälder kan växla mellan:
 - **Mina dagar**
 - **Alla dagar**
 
-Filtret används konsekvent i:
+Filtret är en **domänfunktion** exponerad via Schedule Engine och API (`isParentDay`).
+
+Föräldravyn använder filtret konsekvent i:
 
 - Dashboard
 - Planering
-- Utskrift
+
+Andra tjänster (t.ex. utskrift/PDF) konsumerar samma filter via API — de ägs inte av FEAT-1.
 
 ---
 
@@ -212,16 +216,35 @@ Primär mottagare ska vara den förälder som ansvarar för barnet den aktuella 
 
 ---
 
-### BC-13 Utskrift
+### BC-13 Domänexponering (integration)
 
-Användaren kan skriva ut:
+Boendeschema ska exponera **aktivt hem** och **mina dagar** via Schedule Engine och API.
 
-- hela schemat
-- endast mina dagar
+- `GET /api/family/custody/context` (och framtida range-endpoints) returnerar motorns output
+- Konsumenter får **inte** duplicera datumlogik
+
+Andra tjänster — t.ex. **utskrift/PDF** (`print-schema`), export, foto-scan — **får konsumera** detta men **ägs inte av FEAT-1**.
 
 ---
 
-## Datamodell
+## Scope-gräns
+
+### FEAT-1 ansvarar för
+
+- hem (`custody_home`)
+- boendeschema (`custody_schedule`)
+- aktivt hem per datum (Schedule Engine)
+- mina dagar-filter som domänfunktion
+- notis- och handoff-underlag (vilken förälder, när byte)
+
+### FEAT-1 ansvarar inte för
+
+- PDF-generering
+- print-layout
+- exportformat
+- foto-scan / OCR (→ FEAT-6)
+
+---
 
 ```
 Family
@@ -408,7 +431,8 @@ Alla vyer och tjänster använder samma motor. Ingen vy får implementera egen l
 - Semesteröverlapp
 - Fler än två aktiva hem per barn i samma mönster
 - iCal-export
-- OCR/fotoimport (→ FEAT-6)
+- PDF-generering, print-layout och exportformat (separat tjänst/feature)
+- Foto-scan / OCR (→ FEAT-6)
 - Automatisk synkning med externa kalendrar
 - Rapporter per hem
 
@@ -421,10 +445,11 @@ FEAT-1 är klar när:
 - [ ] Samtliga funktionella krav BC-1 … BC-13 är implementerade
 - [ ] Boendeschemat fungerar för både `alternate_weeks` och `alternate_weekends`
 - [ ] Samma Schedule Engine används av samtliga vyer och tjänster
+- [ ] API exponerar aktivt hem och `isParentDay` för externa konsumenter
 - [ ] Alla API-kontrakt är dokumenterade
 - [ ] Enhetstester täcker schemaberäkningar, inklusive gränsfall
 - [ ] Integrationstester verifierar API och datamodell
-- [ ] UI-tester verifierar banner, färgmarkeringar, filter och utskrift
+- [ ] UI-tester verifierar banner, färgmarkeringar och filter
 - [ ] Accessibility uppfyller WCAG AA
 - [ ] Analytics skickar definierade händelser
 - [ ] Befintliga familjer utan boendeschema fungerar oförändrat
@@ -436,3 +461,4 @@ FEAT-1 är klar när:
 | Datum | Version | Ändring |
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Domänspec — ersätter A/B-centrerad §6.5.1 i aktivering-exekveringsplan |
+| 2026-07-01 | 1.1 | BC-13 utskrift borttagen; domänexponering + scope-gräns; PDF/print utanför FEAT-1 |

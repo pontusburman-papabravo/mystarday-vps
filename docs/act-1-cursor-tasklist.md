@@ -238,6 +238,7 @@ Kör när PR 1–2 är igång eller mellan PR — **blockera inte** activation-s
 - [ ] Phase 3: `custody-schedule-engine.js` (`alternate_weeks` + `alternate_weekends`)
 - [ ] Phase 4: migrera API, schedulers, UI till engine; banner “nästa byte”
 - [ ] Phase 5: `custody_home_id` primärt; `week_variant` legacy; hemnamn i UI (ej A/B)
+- [ ] (Separat) Print/PDF: konsumera `activeHome` / `isParentDay` via custody API — ej FEAT-1
 
 ---
 
@@ -268,3 +269,4 @@ Spec: docs/act-1-ai-startschema-spec.md
 | 2026-06-24 | 1.3 | FEAT-1 boendeschema — post-ACT-1 tasklista |
 | 2026-06-24 | 1.4 | FEAT-1: hela scope (BC-1–11) i en release |
 | 2026-07-01 | 1.5 | FEAT-1: domänspec + ADR + Phase 1–5 implementationsplan |
+| 2026-07-01 | 1.6 | FEAT-1: utskrift/PDF utanför scope; BC-13 = domänexponering |

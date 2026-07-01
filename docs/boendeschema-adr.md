@@ -72,6 +72,12 @@ Endast dessa implementeras i första engine-versionen:
 - Familjer utan `custody_schedule` använder legacy `weekly_schedule` (`week_variant IS NULL`).
 - Ingen forced setup.
 
+### 8. Utskrift/PDF utanför FEAT-1
+
+- FEAT-1 exponerar `activeHome` och `isParentDay` via Schedule Engine och API.
+- PDF-generering, print-layout och exportformat ägs av separat tjänst (t.ex. `print-schema`).
+- Foto-scan/OCR förblir FEAT-6.
+
 ---
 
 ## Arkitektur
@@ -155,3 +161,4 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | Datum | Version | Ändring |
 |-------|---------|---------|
 | 2026-07-01 | 1.0 | Accepted — domänomskrivning FEAT-1 |
+| 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; domänexponering via API |
