@@ -2,9 +2,22 @@
 
 **Status:** Produktmässigt GO för implementation (2026-07) — Hem · Planering · Belöningar · Familj  
 **Baseline:** [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) · tagg `parent-hubs-10-10`  
+**Principer:** [parent-platform-principles.md](parent-platform-principles.md)  
 **Mall:** samma struktur som [För dig 10/10](for-dig-vision.md)  
 **Branch (implementation):** `cursor/for-dig-10-10-2c04`  
 **Arkitekturreferens:** [vuxenmeny-v2.md](vuxenmeny-v2.md)
+
+---
+
+## En hub, ett verb
+
+| Hub | Verb | Vision |
+|-----|------|--------|
+| Hem | Se | [hem-vision.md](hem-vision.md) |
+| Planering | Bygga | [planering-vision.md](planering-vision.md) |
+| Belöningar | Hantera | [beloningar-vision.md](beloningar-vision.md) |
+| Familj | Administrera | [familj-vision.md](familj-vision.md) |
+| För dig | Aktivera | [for-dig-vision.md](for-dig-vision.md) |
 
 ---
 
@@ -46,8 +59,12 @@ docs/familj-agent-prompt.md
 
 | Fil | Syfte |
 |-----|-------|
+| `parent-platform-principles.md` | Gemensamma plattformsregler (verb, filter, DoD) |
+| `parent-hubs-product-baseline-10-10.md` | Fryst baseline, implementationsordning |
 | `*-vision.md` | Produktkompass, Jenny-test, informationshierarki, prioritetsordning, filter-/copy-regler |
 | `*-agent-prompt.md` | Definition of Done, mandat, scope, låsta regler, teknisk vägledning |
+
+**Agent-uppdrag** finns endast i `*-agent-prompt.md` — inte inklistrade i visionerna.
 
 ---
 

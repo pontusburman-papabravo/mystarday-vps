@@ -10,7 +10,7 @@
 
 En fryst referenspunkt där visioner, agent-promptar, gränsdragningar och Jenny-test är konsekventa **innan** hubbimplementation påbörjas.
 
-**Index:** [parent-hubs-index.md](parent-hubs-index.md)
+**Index:** [parent-hubs-index.md](parent-hubs-index.md) · **Principer:** [parent-platform-principles.md](parent-platform-principles.md)
 
 | Hub | Vision | Agent |
 |-----|--------|-------|

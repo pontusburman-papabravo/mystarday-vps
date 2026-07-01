@@ -11,6 +11,10 @@
 
 > **Familj ska få föräldern att känna: "Jag ser vem som är med — och vet var jag hanterar varje barn."**
 
+**Verb:** Administrera · **Kärnfråga:** Vem ingår och vem ansvarar för vad?
+
+Se [parent-platform-principles.md](parent-platform-principles.md) för gemensamma hubbregler.
+
 ---
 
 ## Kärnmetafor
