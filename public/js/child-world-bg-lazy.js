@@ -5,12 +5,12 @@
 (function () {
   'use strict';
 
-  var BG = {
+  const BG = {
     world: '/images/child/world/hub@2x.webp',
     family: '/images/child/family/hall@2x.webp',
   };
 
-  var loaded = {};
+  const loaded = {};
 
   function layerToKey(layer) {
     if (layer === 'home' || layer === 'universe' || layer === 'world') return 'world';
@@ -21,9 +21,9 @@
   function loadBg(key) {
     if (!BG[key] || loaded[key]) return;
     loaded[key] = true;
-    var el = document.querySelector('.cwb-' + key);
+    const el = document.querySelector('.cwb-' + key);
     if (!el) return;
-    var img = new Image();
+    const img = new Image();
     img.onload = function () {
       el.classList.add('is-bg-loaded');
     };
@@ -31,13 +31,13 @@
   }
 
   function onLayer(layer) {
-    var key = layerToKey(layer);
+    const key = layerToKey(layer);
     if (key) loadBg(key);
   }
 
   function watchLayer() {
     onLayer(document.documentElement.getAttribute('data-child-layer') || 'today');
-    var obs = new MutationObserver(function () {
+    const obs = new MutationObserver(function () {
       onLayer(document.documentElement.getAttribute('data-child-layer') || 'today');
     });
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-child-layer'] });

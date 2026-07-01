@@ -195,7 +195,6 @@
   }
 
   function renderHub() {
-    const theme = currentTheme();
     const rooms = unlockedRooms();
     const name = _meta.childName || (_universe && _universe.avatar && _universe.avatar.name) || 'du';
     const balance = _meta.starBalance || 0;
