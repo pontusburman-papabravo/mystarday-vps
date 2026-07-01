@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v439';
+const CACHE_NAME = 'stjarndag-v440';
+// stjarndag-v440: library init resilience + Planering→Bibliotek empty-box fix
 // stjarndag-v439: fix library init crash (_libIsAdmin) + Bildarkiv section scope
 // stjarndag-v438: merge parent hubs 10/10 (Hem/Planering/Belöningar/Familj) + first-star chrome
 // stjarndag-v437: Familj hub 10/10 — barnkort → barnprofil, ingen magic-stat-hero
