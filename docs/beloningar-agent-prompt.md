@@ -72,7 +72,7 @@ Räknas:
 
 Räknas **inte**: nya stjärnor, statistik, tips, rekommendationer.
 
-**Källa:** `GET /api/rewards/pending-requests` — samma data som Hem, inte duplicerad logik.  
+**Källa:** `GET /api/rewards/pending-requests` — samma underliggande rader som Hem `readiness` type `pending_approval`, inte duplicerad logik.  
 **Tom state:** sektion dold — ingen "Inga väntande"-ruta.
 
 ## Överblick
@@ -90,6 +90,10 @@ Beskriv vad som väntar, vad som finns, var du ändrar — **inte** hur duktigt 
 ## Hub-regel
 
 Länka **aldrig** till `/skattkammaren` som primär CTA för inloggad förälder.
+
+## Hem vs Belöningar
+
+Hem visar belöningsundantag; Belöningar äger godkännande-UI. Samma data — se [hem-vision.md](hem-vision.md) § Undantag.
 
 ---
 

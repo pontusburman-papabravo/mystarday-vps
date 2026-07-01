@@ -137,6 +137,19 @@ Inte pending:
 
 ---
 
+## Hem vs Belöningar (låst)
+
+| | Hem | Belöningar |
+|--|-----|------------|
+| **Begrepp** | **Undantag** | **Pending** |
+| **Scope** | Alla vuxenbeslut som kräver uppmärksamhet idag | Endast belöningsdomänen |
+| **Exempel** | *Godkänn Olles belöning* (länk hit) | Inline godkännande av inlösen/målbyte |
+| **Data** | `readiness` type `pending_approval` | `pending-requests` — **samma underliggande rader** |
+
+**Regel:** Dubbel logik är förbjuden. Hem **visar** undantaget; Belöningar **äger** godkännande-UI. Se [hem-vision.md](hem-vision.md) § Undantag.
+
+---
+
 ## Överblick (Stjärnor & kista)
 
 Överblicken ska visa **hur nära varje barn är sin nästa belöning** — inte skapa jämförelser mellan syskon.
