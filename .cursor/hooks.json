@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "preCompact": [
+      {
+        "command": "node .cursor/hooks/handoff-pre-compact.mjs"
+      }
+    ],
+    "sessionStart": [
+      {
+        "command": "node .cursor/hooks/handoff-session-start.mjs"
+      }
+    ]
+  }
+}
