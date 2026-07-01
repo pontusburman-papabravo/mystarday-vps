@@ -8,10 +8,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('custody-schedule-resolve resilience', () => {
-  it('falls back to legacy schedule when custody tables are missing', () => {
+  it('falls back to legacy schedule when engine resolve fails', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/lib/custody-schedule-resolve.js'), 'utf8');
-    assert.match(src, /getPattern failed/);
-    assert.match(src, /schedule-date-utils/);
+    assert.match(src, /resolveWeeklyScheduleId failed/);
+    assert.match(src, /week_variant IS NULL/);
+    assert.match(src, /resolveCustodyDateSync/);
   });
 
   it('daily-log uses explicit ISO dates for API calls', () => {
