@@ -75,6 +75,32 @@ function resolveCustodyDateSync(ctx, date) {
 
 **Varför nu:** Delad vårdnad har nästan alltid grundregel *plus* sportlov, jul, sommar och tillfälliga byten. Att baka in specialfall i `pattern_type` leder till oändliga varianter. Grundregler + överstyrningar är renare domändesign.
 
+**Engine-principer (låsta inför PR-C):**
+
+| # | Princip | Detalj |
+|---|---------|--------|
+| E1 | **CustodyContext** är enda publika kontraktet | Alla konsumenter får samma objekt — ingen ska veta hur det räknades |
+| E2 | **ResolverPipeline** — inte if-kedjor | `OverrideResolver` → `PatternResolver` → `FallbackResolver` |
+| E3 | **Mönster isolerade** | `patterns/alternate-weeks.js`, `alternate-weekends.js` — ingen `switch` i motorn |
+| E4 | **Overrides generella** | `reason` är metadata; motorn har ingen logik per orsak (jul, sportlov, …) |
+
+**CustodyContext (publikt kontrakt):**
+
+```ts
+interface CustodyContext {
+  date: string;
+  activeHome: Home | null;
+  source: 'override' | 'pattern' | 'fallback';
+  patternType: string | null;
+  activePeriod: { start: string; end: string } | null;
+  nextTransition?: string | null;
+  previousTransition?: string | null;
+  isParentDay: boolean;
+}
+```
+
+Modul: `src/lib/custody-schedule-engine/`
+
 ### 5. v1 pattern types
 
 Endast dessa implementeras i första engine-versionen:
@@ -236,3 +262,4 @@ const result = await resolveCustodyDate({ childId, date, familyId, parentId });
 | 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; domänexponering via API |
 | 2026-07-01 | 1.2 | Låst alternate_weekends: default_home + weekend_home_a/b |
 | 2026-07-01 | 1.3 | Lagerad Schedule Engine: override → pattern → fallback; custody_override reserverad |
+| 2026-07-01 | 1.4 | Engine-principer E1–E4: CustodyContext, pipeline, isolerade patterns |

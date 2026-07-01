@@ -113,62 +113,45 @@ CREATE INDEX IF NOT EXISTS idx_custody_pattern_type ON custody_pattern (pattern_
 
 ---
 
-## Phase 3 — Schedule Engine
+## Phase 3 — Schedule Engine ✅ PR-C
 
-> **Låst innan implementation:** Lagerad resolve enligt ADR §4 — override → pattern → fallback. v1 implementerar endast pattern-lagret; override är no-op.
+> **Scope:** Endast motorn + kontrakt + tester. **Inga konsumenter** migreras i PR-C.
 
-### 3.1 Ny modul
+### 3.1 Modul
 
-**Fil:** `src/lib/custody-schedule-engine.js`
-
-```js
-/**
- * @typedef {object} CustodyResolveResult
- * @property {{ id, label, color, icon }} activeHome
- * @property {{ start: string, end: string }} activePeriod
- * @property {{ date: string, home: object }|null} nextHandoff
- * @property {{ date: string, home: object }|null} previousHandoff
- * @property {string} patternType
- * @property {'override'|'pattern'|'fallback'} source
- * @property {boolean} [isParentDay]
- */
-
-async function resolveCustodyDate({ childId, date, familyId, parentId, client })
-async function resolveCustodyDateRange({ childId, dateFrom, dateTo, familyId, parentId, client })
-function resolveCustodyDateSync({ schedule, homes, overrides, parentHomeId, date })
-```
-
-**Intern struktur:**
+**Rot:** `src/lib/custody-schedule-engine/` (re-export via `src/lib/custody-schedule-engine.js`)
 
 ```
-custody-schedule-engine.js
-├── loadCustodyContext(childId, familyId)   // schedule + homes + assignments; v1: overrides=[]
-├── resolveCustodyDateSync(...)             // lagerad kedja (ADR §4)
-├── overrides/
-│   └── find-override-for-date.js           // v1: returnerar alltid null
+custody-schedule-engine/
+├── index.js              loadCustodyContext, resolveCustodyDate(Sync|Range)
+├── types.js              CustodyContext JSDoc
+├── pipeline.js           ResolverPipeline
+├── resolvers/
+│   ├── override-resolver.js
+│   ├── pattern-resolver.js
+│   └── fallback-resolver.js
 ├── patterns/
-│   ├── index.js                            // dispatch pattern_type
+│   ├── index.js          registry — ingen switch i motorn
 │   ├── alternate-weeks.js
 │   └── alternate-weekends.js
-└── handoff.js                              // nextHandoff, previousHandoff, isHandoffEve
+├── overrides/
+│   └── find-override-for-date.js
+├── handoff.js            nextTransition / previousTransition
+├── date-math.js
+└── homes.js
 ```
 
-**Resolve-kedja (obligatorisk):**
+### 3.2 CustodyContext (enda kontrakt — ADR E1)
 
-```js
-function resolveCustodyDateSync(ctx, date) {
-  const override = findOverrideForDate(ctx.overrides, date);
-  if (override) return { ...buildFromOverride(override), source: 'override' };
+Se [boendeschema-adr.md §4](./boendeschema-adr.md) och `types.js`.
 
-  if (ctx.schedule) {
-    return { ...resolvePattern(ctx.schedule, ctx.homes, date), source: 'pattern' };
-  }
+### 3.3 Tester
 
-  return null; // anroparen hanterar fallback (legacy schema)
-}
-```
+**Fil:** `test/custody-schedule-engine.test.js` — pipeline, weeks, weekends, override, fallback, prestanda.
 
-### 3.2 Pattern: `alternate_weeks`
+**Gate:** `npm run test:gate` grönt. Konsumenter oförändrade.
+
+### 3.4 Pattern: `alternate_weeks`
 
 **Fil:** `src/lib/custody-patterns/alternate-weeks.js`
 
@@ -428,3 +411,4 @@ test/custody-api-integration.test.js
 | 2026-07-01 | 1.1 | Utskrift/PDF utanför FEAT-1; externa konsumenter via API |
 | 2026-07-01 | 1.2 | Låst alternate_weekends semantik (default_home + weekend_home) |
 | 2026-07-01 | 1.3 | Phase 3: lagerad engine override → pattern → fallback |
+| 2026-07-01 | 1.4 | Phase 3 levererad i PR-C: pipeline, CustodyContext, patterns |
