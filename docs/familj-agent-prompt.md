@@ -6,6 +6,12 @@
 
 ---
 
+# Kärnmetafor
+
+> **Familj = klasslistan** — vem som är med, inte kontrollpanelen för hela appen.
+
+---
+
 # Definition of Done
 
 ## Jenny-test
@@ -49,12 +55,42 @@ Om inställningar fortfarande bor på `/family` — flytta till `/settings` inna
 
 ---
 
+# Låsta regler (från vision)
+
+## Prioritetsordning
+
+```
+Barn → Vuxna → Pedagoger → Familjenivå → Museum
+```
+
+Lägg aldrig inställningar eller kontoåtgärder ovanför barnlistan.
+
+## Hubben vs barnprofil
+
+- **Hubben** = vem som ingår + inbjudan
+- **Barnprofil** = ett barns värld (schema, belöningar, framsteg, PIN)
+
+## Hem vs Familj
+
+Hem visar inbjudningsundantag (`readiness` type `pending_invite`) och länkar hit. Samma `family_invite`-data — ingen dubbel logik.
+
+## Filterregel
+
+Komponenten hör hemma bara om den hjälper föräldern se vem som ingår, bjuda in, eller nå ett barns profil.
+
+## Copy-regel
+
+Vem som är med och hur man lägger till — inte prestation, coachning eller undantag.
+
+---
+
 ## Anti-patterns
 
 - Push/GDPR/radera på Familj-sidan
 - Drawer som enda barn-UX utan profil-route
 - Ny bottenflik för pedagog
 - Barnformulär i barnläge (C-01)
+- Daglig status, undantag eller belöningsgodkännande på hubben
 
 ---
 
@@ -79,3 +115,5 @@ Om inställningar fortfarande bor på `/family` — flytta till `/settings` inna
 Familj ska kännas som **klasslistan** — inte kontrollpanelen för hela appen.
 
 Tre sektioner. Tydliga kort. Ett tryck till barnets värld.
+
+Verifiera mot [familj-vision.md](familj-vision.md) § Prioritetsordning, Filterregel och Copy-regel innan PR.

@@ -98,6 +98,96 @@ Jag kan lämna över till barnet
 
 ---
 
+## Prioritetsordning (låst)
+
+Allt på Hem följer denna ordning. Inget får bryta den:
+
+```
+1. Idag per barn   →  Statusrad (hur går det just nu)
+        ↓
+2. Undantag        →  Kräver åtgärd (om några)
+        ↓
+3. Nästa steg      →  Ett coach-kort
+        ↓
+4. Handoff         →  Barnet loggar in
+        ↓
+5. Utveckling      →  Veckans berättelse, detaljlänkar
+```
+
+Lägg aldrig veckodiagram, tips eller rekommendationer ovanför undantag eller handoff.
+
+---
+
+## Vad räknas som Undantag?
+
+**Undantag** = allt på Hem som kräver förälderns uppmärksamhet **innan** vardagen kan rulla vidare som vanligt.
+
+Hem äger begreppet **undantag** — inte *pending*. Pending är Belöningars domän (se [beloningar-vision.md](beloningar-vision.md)).
+
+```
+Undantag =
+✓ väntande belöningsgodkännande (exempel — ett av flera)
+✓ väntande medförälder-inbjudan
+✓ ofullständiga tidigare dagar (retroaktiv logg)
+✓ annat vuxenbeslut som kräver handling idag
+
+Inte undantag:
+✗ daglig status per barn ("hur går det idag")
+✗ coach / nästa steg
+✗ veckoberättelse
+✗ tips, motivation eller rekommendationer
+```
+
+**Teknisk källa:** `GET /api/family/readiness` (`home-readiness.js`).  
+**Presentation:** Om inget är undantag → sektionen **dold**. Ingen tom "Kräver åtgärd"-ruta.
+
+---
+
+## Hem vs Belöningar (låst)
+
+| | Hem | Belöningar |
+|--|-----|------------|
+| **Begrepp** | **Undantag** | **Pending** |
+| **Scope** | Alla vuxenbeslut som kräver uppmärksamhet idag | Endast belöningsdomänen |
+| **Exempel** | *Godkänn Olles belöning* (länk → `/rewards`) | Inline godkännande av inlösen/målbyte |
+| **Data** | `readiness` type `pending_approval` | `pending-requests` — **samma underliggande rader** |
+
+**Regel:** Dubbel logik är förbjuden. Hem **visar** undantaget och länkar dit beslutet tas; Belöningar **äger** godkännande-UI.
+
+---
+
+## Filterregel
+
+Om en komponent inte hjälper föräldern att:
+
+- **förstå läget idag** (per barn),
+- **se om något kräver åtgärd** (undantag), eller
+- **veta nästa steg / lämna över till barnet**,
+
+…hör den **inte** hemma på Hem.
+
+Flytta till rätt hub: Planering (bygg), Belöningar (belöningar), Familj (medlemmar), För dig (rekommendation), Inställningar (konto).
+
+---
+
+## Copy-regel
+
+Hem beskriver:
+
+- **läget idag**
+- **om något kräver dig**
+- **vad som är nästa steg**
+
+Hem beskriver **inte**:
+
+- hur duktigt barnet varit över tid
+- belöningsutbud eller stjärnhantering (→ Belöningar)
+- vem som ingår i familjen (→ Familj)
+
+Det håller isär Hem, Belöningar och Familj.
+
+---
+
 ## Informationshierarki
 
 ```
@@ -168,8 +258,9 @@ Ingen veckodiagram ovanför handoff. Ingen "Kräver åtgärd" om listan är tom.
 **Kvar för 10/10:**
 
 - En beslutskälla för "nästa steg" (Journey / First Success — se [first-success/DECISION-BOUNDARIES.md](first-success/DECISION-BOUNDARIES.md))
-- Readiness = endast undantag, inte coach
+- Readiness = endast undantag (`priority <= 1`), inte coach
 - Tydlig tom-state när inget kräver åtgärd
 - Veckosektion under handoff, inte ovanför
+- Belöningsundantag synkat med Belöningar (`readiness` ↔ `pending-requests`)
 
 Se [hem-agent-prompt.md](hem-agent-prompt.md) för agent-uppdrag.

@@ -1,6 +1,7 @@
 # Föräldrahubbar 10/10 — Kravdokument (index)
 
-**Status:** Kravdokument (2026-07) — **ingen implementation i denna PR**  
+**Status:** Produktmässigt GO för implementation (2026-07) — Hem · Planering · Belöningar · Familj  
+**Baseline:** [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) · tagg `parent-hubs-10-10`  
 **Mall:** samma struktur som [För dig 10/10](for-dig-vision.md)  
 **Branch (implementation):** `cursor/for-dig-10-10-2c04`  
 **Arkitekturreferens:** [vuxenmeny-v2.md](vuxenmeny-v2.md)
@@ -45,8 +46,34 @@ docs/familj-agent-prompt.md
 
 | Fil | Syfte |
 |-----|-------|
-| `*-vision.md` | Produktkompass, Jenny-test, informationshierarki, anti-patterns |
-| `*-agent-prompt.md` | Definition of Done, mandat, scope, teknisk vägledning, arbetsflöde |
+| `*-vision.md` | Produktkompass, Jenny-test, informationshierarki, prioritetsordning, filter-/copy-regler |
+| `*-agent-prompt.md` | Definition of Done, mandat, scope, låsta regler, teknisk vägledning |
+
+---
+
+## Undantag vs Pending (låst)
+
+Hubbarna delar data men **inte begrepp**:
+
+| Hub | Begrepp | Scope | Exempel | Datakälla |
+|-----|---------|-------|---------|-----------|
+| **Hem** | Undantag | Alla vuxenbeslut som kräver uppmärksamhet idag | *Godkänn Olles belöning* → `/rewards` | `GET /api/family/readiness` |
+| **Belöningar** | Pending | Belöningsdomänen | Inline godkännande av inlösen/målbyte | `GET /api/rewards/pending-requests` |
+| **Familj** | Medlemmar | Vem som ingår + inbjudan | *+ Bjud in förälder* | `family_invite` (undantag via Hem) |
+
+**Regel:** Samma underliggande rader — aldrig dubbel logik mellan hubbar.
+
+---
+
+## Implementationsordning (rekommenderad)
+
+Se [parent-hubs-product-baseline-10-10.md](parent-hubs-product-baseline-10-10.md) för full baseline.
+
+```
+1. Hem → 2. Planering → 3. Belöningar → 4. Familj
+```
+
+En hubb per PR. Jenny-test + `test:gate` innan nästa.
 
 ---
 

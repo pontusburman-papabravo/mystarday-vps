@@ -13,6 +13,20 @@
 
 ---
 
+## Kärnmetafor
+
+> **Familj = klasslistan** — vem som är med i klassen, inte kontrollpanelen för hela skolan.
+
+| | Klasslistan | Inte klasslistan |
+|--|-------------|------------------|
+| **Vad** | Barn, vuxna, pedagoger | Push, GDPR, prenumeration |
+| **Handling** | Ett tryck → barnets värld | Daglig coach, undantag, schema |
+| **Exempel** | *Astrid, 7 år →* | *Radera konto* ovanför barnlistan |
+
+Hubben ska kännas som att läsa klasslistan — inte som att öppna systeminställningar.
+
+---
+
 ## Varför finns Familj?
 
 Appen är en **familjeenhet** med flera vuxna, barn och ibland pedagoger. Föräldern behöver en ren yta för:
@@ -84,6 +98,109 @@ Behöver jag bjuda in partner? → Vuxna → Bjud in
 
 ---
 
+## Prioritetsordning (låst)
+
+Allt på Familj-hubben följer denna ordning. Inget får bryta den:
+
+```
+1. Barn          →  Kort → /family/child/:id
+        ↓
+2. Vuxna         →  Lista + Bjud in
+        ↓
+3. Pedagoger     →  Om feature live
+        ↓
+4. Familjenivå   →  Namn, familjekista — diskret
+        ↓
+5. Museum        →  Livstidsstatistik — under fold
+```
+
+Lägg aldrig inställningar, push eller kontoåtgärder ovanför barnlistan.
+
+---
+
+## Vad hör hemma på hubben?
+
+```
+Familj-hubben visar =
+✓ vilka barn och vuxna som ingår
+✓ hur man bjuder in medförälder eller pedagog
+✓ ingång till varje barns profil
+
+Inte på hubben:
+✗ push, GDPR, radera konto, prenumeration (→ Inställningar)
+✗ daglig status, coach, undantag (→ Hem)
+✗ belöningsgodkännande (→ Belöningar)
+✗ schemaeditor (→ Planering / barnprofil)
+✗ motivation eller prestationstext
+```
+
+---
+
+## Barnprofil (låst)
+
+**Barnprofilen** (`/family/child/:id`) = **ett barns värld** — inte hubben.
+
+| Barnprofil äger | Barnprofil äger inte |
+|-----------------|----------------------|
+| Schema, belöningar, framsteg för **ett** barn | Familjemedlemmar, inbjudan |
+| PIN, barnvy, daglig översikt | Push, GDPR, konto |
+| Barnspecifika inställningar | Syskonjämförelse |
+
+Ersätter legacy `/child-settings` drawer som primär modell.
+
+```
+🌟 Astrid · 7 år
+
+Idag          ⭐⭐⭐☆☆
+Översikt | Schema | Belöningar | Framsteg | Barnvy | PIN
+```
+
+---
+
+## Hem vs Familj (låst)
+
+| | Hem | Familj |
+|--|-----|--------|
+| **Begrepp** | **Undantag** | **Medlemmar** |
+| **Exempel** | *1 väntande medförälder-inbjudan* (länk hit) | *+ Bjud in förälder* |
+| **Data** | `readiness` type `pending_invite` | `family_invite` — **samma underliggande rader** |
+
+**Regel:** Hem **visar** att en inbjudan väntar; Familj **äger** inbjudnings-UI. Saknad PIN länkar från Hem till barnprofil — inte till hubbens topp.
+
+---
+
+## Filterregel
+
+Om en komponent inte hjälper föräldern att:
+
+- **se vem som ingår** i familjen,
+- **lägga till eller bjuda in** någon, eller
+- **nå ett specifikt barns värld** (barnprofil),
+
+…hör den **inte** hemma på Familj-hubben.
+
+Flytta till rätt hub: Hem (läge idag), Belöningar (belöningar), Planering (schema), Inställningar (konto).
+
+---
+
+## Copy-regel
+
+Familj beskriver:
+
+- **vem som är med**
+- **hur man lägger till någon**
+- **var man hanterar ett barn**
+
+Familj beskriver **inte**:
+
+- hur barnet presterat eller motivation
+- daglig coach eller undantag (→ Hem)
+- belöningsgodkännande (→ Belöningar)
+
+Det håller isär Familj, Hem och Belöningar.
+
+---
+
 ## Informationshierarki
 
 ```
@@ -94,17 +211,6 @@ Behöver jag bjuda in partner? → Vuxna → Bjud in
 5. Familjenivå (valfritt)  →  Familjenamn, familjekista — diskret
 6. Museum (valfritt)       →  Livstidsstatistik — under fold
 ```
-
-### Barnprofil (`/family/child/:id`) — navets viktigaste objekt
-
-```
-🌟 Astrid · 7 år
-
-Idag          ⭐⭐⭐☆☆
-Översikt | Schema | Belöningar | Framsteg | Barnvy | PIN
-```
-
-Ersätter legacy `/child-settings` drawer som primär modell.
 
 ---
 
@@ -144,6 +250,7 @@ Ingen push-toggle. Ingen "Radera konto" ovanför barnlistan.
 - Föräldralås i föräldratext (→ "PIN-kod" under barnprofil)
 - Pedagog som egen bottenflik
 - Barnformulär i barnvy (C-01)
+- Motivation, coachning eller prestationstext på hubben
 
 ---
 
@@ -158,5 +265,6 @@ Ingen push-toggle. Ingen "Radera konto" ovanför barnlistan.
 - Redirect `/child-settings?id=` → barnprofil
 - Pedagogsektion enligt `nav-config` capability
 - Tydlig tom-state: *Lägg till barn* → onboarding eller modal
+- Inbjudningsundantag synkat med Hem (`readiness` ↔ `family_invite`)
 
 Se [familj-agent-prompt.md](familj-agent-prompt.md) för agent-uppdrag.

@@ -6,6 +6,14 @@
 
 ---
 
+# Kärnmetafor
+
+> **Belöningar = brevlådan + verktygslådan.**
+
+Först det som väntar (brevlådan). Sedan var man sköter resten (verktygslådan).
+
+---
+
 # Definition of Done
 
 ## Jenny-test
@@ -41,12 +49,62 @@ Bygg **Belöningshubben** (`/rewards`) till 10/10.
 
 ---
 
+# Låsta regler (från vision)
+
+## Prioritetsordning
+
+```
+1. Pending
+2. Hantera
+3. Stjärnor
+4. Utveckling
+```
+
+Lägg aldrig statistik, tips eller rekommendationer ovanför pending.
+
+## Pending
+
+Räknas:
+
+- belöning som väntar på godkännande (inlösen)
+- målbyte som väntar på godkännande
+- annat undantag som kräver manuellt vuxenbeslut
+
+Räknas **inte**: nya stjärnor, statistik, tips, rekommendationer.
+
+**Källa:** `GET /api/rewards/pending-requests` — samma underliggande rader som Hem `readiness` type `pending_approval`, inte duplicerad logik.  
+**Tom state:** sektion dold — ingen "Inga väntande"-ruta.
+
+## Överblick
+
+Visa hur nära **varje barn** är sin nästa belöning. Ingen syskonjämförelse (R-02).
+
+## Filterregel
+
+En komponent hör hemma här bara om den hjälper föräldern att **godkänna**, **hantera** eller **förstå barnets belöningsläge**.
+
+## Copy-regel
+
+Beskriv vad som väntar, vad som finns, var du ändrar — **inte** hur duktigt barnet varit, motivation eller coachning.
+
+## Hub-regel
+
+Länka **aldrig** till `/skattkammaren` som primär CTA för inloggad förälder.
+
+## Hem vs Belöningar
+
+Hem visar belöningsundantag; Belöningar äger godkännande-UI. Samma data — se [hem-vision.md](hem-vision.md) § Undantag.
+
+---
+
 ## Anti-patterns
 
 - Skattkammaren som primär hub-länk för förälder
 - Tom "inga väntande"-ruta
 - Stjärn-IAP · syskonjämförelse
 - Ny modal för godkännande om inline räcker
+- Statistik/tips/rekommendation ovanför pending
+- Motivations- eller coachningstext på hubben
 
 ---
 
@@ -67,4 +125,4 @@ Bygg **Belöningshubben** (`/rewards`) till 10/10.
 
 # Sista instruktionen
 
-Belöningar ska kännas som **brevlådan + verktygslådan** — först det som väntar, sedan var man sköter resten.
+Belöningar ska kännas som **brevlådan + verktygslådan** — först det som väntar, sedan var man sköter resten. Verifiera mot [beloningar-vision.md](beloningar-vision.md) § Prioritetsordning, Pending, Överblick, Filterregel och Copy-regel innan PR.

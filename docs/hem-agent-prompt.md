@@ -110,6 +110,28 @@ Om **ja** på någon sektion — förbättra innan du lämnar arbetet.
 
 `Idag per barn → Undantag → Ett nästa steg → Handoff → Vecka`
 
+## Låsta regler (från vision)
+
+### Prioritetsordning
+
+```
+Idag → Undantag → Nästa steg → Handoff → Utveckling
+```
+
+### Undantag (inte Pending)
+
+Hem äger **undantag** — Belöningar äger **pending**. Ett väntande belöningsgodkännande är *ett exempel* på undantag.
+
+**Källa:** `GET /api/family/readiness`. Belöningsundantag (`pending_approval`) ska peka till `/rewards` och använda samma data som `pending-requests` — ingen dubbel logik.
+
+### Filterregel
+
+Komponenten hör hemma bara om den hjälper föräldern förstå läget idag, se undantag, eller veta nästa steg/handoff.
+
+### Copy-regel
+
+Läge idag och undantag — inte belöningshantering (Belöningar) eller familjemedlemmar (Familj).
+
 ---
 
 # Teknisk vägledning (inte order)
