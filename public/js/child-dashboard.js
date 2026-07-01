@@ -433,7 +433,9 @@ function showTab(tab) {
   if (fv) fv.classList.toggle('hidden', !isFamily);
   if (mv) mv.classList.toggle('hidden', !isMore);
 
-  document.body.classList.toggle('child-has-bottom-nav', childUiMagic);
+  const showChildBottomNav = childUiMagic
+    || (window.ChildWorlds && ChildWorlds.V2_ENABLED);
+  document.body.classList.toggle('child-has-bottom-nav', showChildBottomNav);
   document.body.classList.toggle('child-home-active', childUiMagic && isHome);
 
   if (isToday) {
