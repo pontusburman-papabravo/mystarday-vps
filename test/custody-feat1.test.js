@@ -34,6 +34,7 @@ describe('FEAT-1 boendeschema', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/family/custody.js'), 'utf8');
     assert.match(routes, /\/custody\/pattern/);
     assert.match(routes, /\/custody\/setup/);
+    assert.match(routes, /buildCustodyContextResponse/);
   });
 
   it('calendar integrates custody resolver', () => {

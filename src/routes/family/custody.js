@@ -10,13 +10,8 @@ const db = require('../../lib/db');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
 const custodyDb = require('../../../db/custody');
-const {
-  getHomeForDate,
-  getWeekBannerContext,
-  isParentCustodyDay,
-} = require('../../lib/custody-resolver');
+const { buildCustodyContextResponse } = require('../../lib/custody-context-api');
 const { migrateChildScheduleToCustody } = require('../../lib/custody-schedule-migrate');
-const { getWeekMondayIso } = require('../../lib/date-utils');
 const analytics = require('../../../db/analytics');
 
 const router = express.Router();
@@ -80,39 +75,18 @@ router.get('/context', requireNotPedagogOnly, requireCustodyFeature, async (req,
     const child = await verifyChildInFamily(childId, req.user.familyId);
     if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
 
-    const pattern = await custodyDb.getPattern(childId);
-    if (!pattern) {
-      return res.json({ active: false });
-    }
-
-    const homes = await custodyDb.listHomes(req.user.familyId);
-    const byId = homesById(homes);
     const dateStr = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
       ? date
       : new Date().toISOString().slice(0, 10);
 
-    const dayContext = getHomeForDate(pattern, byId, dateStr);
-    const weekContext = getWeekBannerContext(pattern, byId, dateStr);
-    const parentHomeId = await custodyDb.getParentHomeId(req.user.id, req.user.familyId);
-
-    res.json({
-      active: true,
-      date: dateStr,
-      weekMonday: getWeekMondayIso(dateStr),
-      variant: dayContext.variant,
-      home: {
-        id: dayContext.homeId,
-        label: dayContext.label,
-        color: dayContext.color,
-      },
-      weekBanner: {
-        label: weekContext.label,
-        color: weekContext.color,
-        variant: weekContext.variant,
-      },
-      isMyDay: parentHomeId ? isParentCustodyDay(parentHomeId, pattern, dateStr) : null,
-      parentHomeId,
+    const payload = await buildCustodyContextResponse({
+      childId,
+      familyId: req.user.familyId,
+      parentId: req.user.id,
+      dateStr,
     });
+
+    res.json(payload);
   } catch (err) {
     next(err);
   }
