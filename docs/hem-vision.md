@@ -11,6 +11,18 @@
 
 > **Hem ska få föräldern att känna: "Jag ser läget — och vet exakt vad jag gör härnäst."**
 
+### Filterregel
+
+> **Om en komponent inte hjälper användaren att besvara någon av de tre frågorna inom fem sekunder, hör den inte hemma på Hem.**
+
+Innan något läggs till: *"Vilken av de tre frågorna hjälper detta användaren att besvara?"* Om svaret är *ingen* — flytta eller ta bort.
+
+### Beslutsregel
+
+> **På Hem får det aldrig finnas mer än en komponent som föreslår nästa handling.**
+
+Allt som rör "nästa steg" — coach, Journey, First Success, aktiveringsbanner — ska gå genom denna regel. Undantag (godkännanden, inbjudningar) är **inte** nästa steg; de är blockerare som kräver vuxenbeslut.
+
 ---
 
 ## Varför finns Hem?
@@ -20,8 +32,8 @@ Morgonen är stressig. Föräldern öppnar appen och behöver **inte** ett kontr
 Hem svarar på tre saker på en gång:
 
 1. **Hur går det idag?** (per barn, utan jämförelse)
-2. **Vad behöver min uppmärksamhet?** (undantag — godkännanden, inbjudningar)
-3. **Vad är nästa steg?** (ett — inte tre coacher)
+2. **Vad behöver min uppmärksamhet?** (undantag — se definition nedan)
+3. **Vad är nästa steg?** (ett — se beslutsregeln)
 
 **Schemat driver vardagen. Hem visar läget.**
 
@@ -56,6 +68,16 @@ Det är inte ett data-problem. Det är ett **beslutsproblem**.
 
 **POS:** PA-01 (en coach), PA-02 (Journey authority), P-04 (inget parent dashboard anti-pattern), B-08 (inget bygg på Hem).
 
+### Copy-regel
+
+| Yta | Beskriver |
+|-----|-----------|
+| **Hem** | Läget — *hur det går idag* |
+| **För dig** | Rekommenderad förändring — *vad som kan bli bättre* |
+| **Planering** | Handlingar — *vad som ska byggas eller ändras* |
+
+Coachande språk (*"Testa …"*, *"Du borde …"*) hör hemma i För dig, inte på Hem.
+
 ---
 
 ## Framgångskriterium
@@ -66,7 +88,15 @@ Det är inte ett data-problem. Det är ett **beslutsproblem**.
 |--------|---------------------|
 | Hjälper det här en stressad morgon? | |
 | Flyttar vi byggjobb till Hem? | |
-| Finns det mer än ett "nästa steg"? | |
+| Bryter det mot beslutsregeln? | |
+
+### Exit Rule
+
+Hem är **färdigt** när föräldern kan säga:
+
+- Jag vet hur dagen ser ut (per barn)
+- Jag har gjort det enda vuxenbeslutet som krävdes (eller vet att inget krävs)
+- Barnet kan ta över (handoff är tydlig)
 
 ---
 
@@ -79,7 +109,7 @@ Jag ser hur det går idag (per barn)
         ↓
 Om något kräver mig → tydligt undantagskort
         ↓
-Annars → ett rekommenderat nästa steg
+Annars → ett rekommenderat nästa steg (beslutsregeln)
         ↓
 Jag kan lämna över till barnet
 ```
@@ -98,12 +128,52 @@ Jag kan lämna över till barnet
 
 ---
 
-## Informationshierarki
+## Vad är ett undantag?
+
+**Undantag** = något som kräver vuxenbeslut **nu** och inte kan vänta.
+
+| Är undantag | Är inte undantag |
+|-------------|------------------|
+| ✓ Kräver ett vuxenbeslut | ✗ Tips eller rekommendation |
+| ✓ Blockerar barnets fortsättning | ✗ Statistik eller uppmuntran |
+| ✓ Kan inte vänta till senare | ✗ Veckobild eller utvecklingsmål |
+
+**Exempel på undantag:** godkännande av belöning, väntande inbjudan, PIN-varning.
+
+**Exempel som inte är undantag:** aktiveringsförslag, kvällsrutin-rekommendation, veckosammanfattning.
+
+`/readiness` visar **endast** undantag. Coach och Journey följer **beslutsregeln** — aldrig parallellt i samma vy.
+
+---
+
+## Priority Ladder
+
+Inget på Hem får bryta ordningen. Högre steg dominerar alltid lägre.
 
 ```
-1. Idag per barn     →  Redo för nästa aktivitet (horisontell rad)
-2. Kräver åtgärd     →  Endast undantag (godkännande, inbjudan, PIN)
-3. Ett nästa steg    →  Coach / Journey (ett kort)
+1. Safety        →  Godkännanden, blockerare (undantag)
+        ↓
+2. Status        →  Idag per barn
+        ↓
+3. Coach         →  Ett nästa steg (beslutsregeln)
+        ↓
+4. Handoff       →  Barnet loggar in
+        ↓
+5. Vecka         →  Kort veckobild (under handoff)
+```
+
+**Exempel:** Veckodiagram får aldrig ligga ovanför ett blockerande godkännande. Coach får aldrig konkurrera med undantag.
+
+---
+
+## Informationshierarki
+
+Priority Ladder i implementation:
+
+```
+1. Kräver åtgärd     →  Endast undantag (godkännande, inbjudan, PIN)
+2. Idag per barn     →  Redo för nästa aktivitet (horisontell rad)
+3. Ett nästa steg    →  Coach / Journey (ett kort — beslutsregeln)
 4. Handoff           →  Barnet loggar in
 5. Veckans berättelse →  Kort veckobild (inte stjärnchart)
 6. Detaljer          →  Schema, daglig logg (länkar — inte inline-bygg)
@@ -150,6 +220,21 @@ Ingen veckodiagram ovanför handoff. Ingen "Kräver åtgärd" om listan är tom.
 
 ---
 
+## Success Metrics (PR-granskning)
+
+Produktmått — inte analytics. Varje PR mot Hem ska kunna besvara:
+
+| Mål | Mått |
+|-----|------|
+| Jenny hittar nästa steg | < 5 sek |
+| Ingen scroll krävs för beslut | Ja |
+| Antal coacher som föreslår handling | 1 |
+| Antal synliga blockerande beslut | ≤ 1 åt gången |
+| Tom-state när inget kräver åtgärd | Alltid definierad |
+| Filterregeln | Varje ny komponent mappar till en av tre frågor |
+
+---
+
 ## Vad som ska bort
 
 - Flera parallella coach-mounts (`readiness` + `activation` + `encouragementCopy` som policy)
@@ -168,8 +253,8 @@ Ingen veckodiagram ovanför handoff. Ingen "Kräver åtgärd" om listan är tom.
 **Kvar för 10/10:**
 
 - En beslutskälla för "nästa steg" (Journey / First Success — se [first-success/DECISION-BOUNDARIES.md](first-success/DECISION-BOUNDARIES.md))
-- Readiness = endast undantag, inte coach
+- Readiness = endast undantag (se definition ovan), inte coach
 - Tydlig tom-state när inget kräver åtgärd
-- Veckosektion under handoff, inte ovanför
+- Veckosektion under handoff, inte ovanför (priority ladder)
 
 Se [hem-agent-prompt.md](hem-agent-prompt.md) för agent-uppdrag.
