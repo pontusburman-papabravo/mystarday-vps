@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v436';
+const CACHE_NAME = 'stjarndag-v438';
+// stjarndag-v438: För dig magic — läsbar kontrast på section titles (mörkt tema)
 // stjarndag-v436: Belöningar hub 10/10 — inline stjärnor, ingen skattkammaren-CTA
 // stjarndag-v435: merge Hem 10/10 + Planering fold-fix
 // stjarndag-v434: Hem barnrad → daglig logg; Planering compact tom-state

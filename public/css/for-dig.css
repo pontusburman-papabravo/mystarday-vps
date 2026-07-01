@@ -412,3 +412,21 @@ html.dark .for-dig-modal {
   background: #1e293b;
   color: #f1f5f9;
 }
+
+/* Parent magic dark shell — section titles must not stay navy-on-navy */
+body.parent-magic-view:not(.parent-theme-light) .for-dig-section-title,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-greeting,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-focus,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-magic-focus,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__headline,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__promise,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-decision__point,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__title {
+  color: #f4f4ff;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .for-dig-section-sub,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-recommend-highlight,
+body.parent-magic-view:not(.parent-theme-light) .for-dig-activate-header__tagline {
+  color: rgba(244, 244, 255, 0.72);
+}
