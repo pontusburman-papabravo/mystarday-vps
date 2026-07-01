@@ -85,6 +85,6 @@ describe('Skattkammaren barn 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v443');
+    assert.ok(cache.cacheName >= 'stjarndag-v444');
   });
 });

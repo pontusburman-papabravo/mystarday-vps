@@ -147,7 +147,7 @@ describe('resolveSkattState — exclusive state machine', () => {
           reward_name: 'Filmkväll',
           reward_icon: '🎬',
           status: 'approved',
-          created_at: '2026-07-01T11:59:58.000Z',
+          created_at: '2026-07-01T11:59:59.000Z',
         }],
       }),
       goalData({ progress_pct: 25 }),
@@ -156,6 +156,36 @@ describe('resolveSkattState — exclusive state machine', () => {
     assert.equal(state.state, SKATT_STATES.COMPLETED);
     assert.equal(state.primaryAction, null);
     assert.equal(state.completedReward.reward_name, 'Filmkväll');
+  });
+
+  it('Completed — expires after 2s per vision G-04', () => {
+    const fresh = resolveSkattState(
+      rewardsData({
+        starBalance: 5,
+        redemptions: [{
+          reward_id: GOAL_ID,
+          status: 'approved',
+          created_at: '2026-07-01T11:59:59.000Z',
+        }],
+      }),
+      goalData({ progress_pct: 25 }),
+      { now: NOW }
+    );
+    assert.equal(fresh.state, SKATT_STATES.COMPLETED);
+
+    const stale = resolveSkattState(
+      rewardsData({
+        starBalance: 5,
+        redemptions: [{
+          reward_id: GOAL_ID,
+          status: 'approved',
+          created_at: '2026-07-01T11:59:57.000Z',
+        }],
+      }),
+      goalData({ progress_pct: 25 }),
+      { now: NOW }
+    );
+    assert.equal(stale.state, SKATT_STATES.COLLECTING);
   });
 
   it('priority order — pending beats completed flash', () => {
@@ -171,7 +201,7 @@ describe('resolveSkattState — exclusive state machine', () => {
           {
             reward_id: OTHER_ID,
             status: 'approved',
-            created_at: '2026-07-01T11:59:58.000Z',
+            created_at: '2026-07-01T11:59:59.000Z',
           },
         ],
       }),

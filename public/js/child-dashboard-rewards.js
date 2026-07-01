@@ -171,7 +171,7 @@ async function loadRewardsInner(options) {
 // ══════════════════════════════════════════════════════════
 
 const SKATT_PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
-const SKATT_COMPLETED_FLASH_MS = 8000;
+const SKATT_COMPLETED_FLASH_MS = 2000;
 const SKATT_DENIED_FLASH_MS = 120000;
 
 const SKATT_STATES = {
