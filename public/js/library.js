@@ -69,6 +69,7 @@ let rewardChildren = [];
 let _rewardsLoaded = false;
 let _activitiesLoaded = false;
 let _categoriesLoaded = false;
+let _libIsAdmin = false;
 let confirmCallback = null;
 let favValue = false;
 let approvalValue = true;
