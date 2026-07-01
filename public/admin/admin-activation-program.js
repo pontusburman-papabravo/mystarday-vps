@@ -218,6 +218,12 @@
         ? `Kohort mogen för Day ${currentWindow}.`
         : `Day ${currentWindow} — väntar på att kohorten ska mogna.`;
     }
+    if (window.AdminHistoryWarning) {
+      window.AdminHistoryWarning.setHistoryLimitedWarning(
+        'activationHistoryWarning',
+        window.AdminHistoryWarning.isLongActivationWindow(currentWindow)
+      );
+    }
   }
 
   async function loadActivationProgramAdmin(force) {

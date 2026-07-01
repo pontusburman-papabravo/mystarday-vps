@@ -115,6 +115,13 @@ async function loadPackageStats() {
   const barsEl = document.getElementById('packageStatsBars');
   if (!summaryEl || !barsEl) return;
 
+  if (window.AdminHistoryWarning) {
+    window.AdminHistoryWarning.setHistoryLimitedWarning(
+      'packageStatsHistoryWarning',
+      window.AdminHistoryWarning.isLongSubscriptionPeriod(period)
+    );
+  }
+
   try {
     const stats = await Auth.api('/api/admin/subscription-stats?period=' + encodeURIComponent(period));
     summaryEl.innerHTML = `

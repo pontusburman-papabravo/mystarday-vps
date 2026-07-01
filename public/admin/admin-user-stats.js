@@ -19,6 +19,7 @@ function renderUserStats(data) {
   if (!container) return;
 
   container.innerHTML = `
+    ${window.AdminHistoryWarning ? window.AdminHistoryWarning.historyLimitedWarningHtml() : ''}
 
     <!-- PARENTS -->
     <div class="mb-10">

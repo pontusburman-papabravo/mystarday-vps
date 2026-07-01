@@ -53,6 +53,9 @@
   async function loadForDigInstallations() {
     const el = document.getElementById('forDigAdminInstallations');
     const logEl = document.getElementById('forDigAdminInstallLog');
+    if (window.AdminHistoryWarning) {
+      window.AdminHistoryWarning.setHistoryLimitedWarning('forDigInstallationsHistoryWarning', true);
+    }
     if (!el) return;
     try {
       const [summary, log] = await Promise.all([
