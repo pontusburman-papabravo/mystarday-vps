@@ -4,20 +4,34 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { isCustodyHandoffEve } = require('../src/lib/custody-notify');
+const {
+  engineCtxFromPatternRow,
+  isCustodyHandoffEve,
+} = require('../src/lib/custody-notify');
 
 const ROOT = path.join(__dirname, '..');
 
+function weeksPatternCtx() {
+  const pattern = {
+    anchor_date: '2026-06-01',
+    interval_weeks: 2,
+    week_a_home_id: 'a',
+    week_b_home_id: 'b',
+    pattern_type: 'alternate_weeks',
+    configuration: { home_a: 'a', home_b: 'b' },
+  };
+  const homesById = {
+    a: { id: 'a', label: 'A', color: '#000' },
+    b: { id: 'b', label: 'B', color: '#111' },
+  };
+  return engineCtxFromPatternRow(pattern, homesById);
+}
+
 describe('FEAT-1B boendeschema', () => {
-  it('isCustodyHandoffEve detects variant change tomorrow', () => {
-    const pattern = {
-      anchor_date: '2026-06-01',
-      interval_weeks: 2,
-      week_a_home_id: 'a',
-      week_b_home_id: 'b',
-    };
-    assert.equal(isCustodyHandoffEve(pattern, '2026-06-07'), true);
-    assert.equal(isCustodyHandoffEve(pattern, '2026-06-04'), false);
+  it('isCustodyHandoffEve detects active home change tomorrow', () => {
+    const ctx = weeksPatternCtx();
+    assert.equal(isCustodyHandoffEve(ctx, '2026-06-07'), true);
+    assert.equal(isCustodyHandoffEve(ctx, '2026-06-04'), false);
   });
 
   it('daily-log-generator uses custody schedule resolve', () => {
