@@ -54,11 +54,17 @@ describe('First Star chrome (PR 2)', () => {
     assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
   });
 
-  it('service worker precaches first star assets (v432+)', () => {
+  it('service worker precaches first star assets (v433+)', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v432/);
+    assert.match(sw, /stjarndag-v433/);
     assert.match(sw, /\/js\/child-first-star-mode\.js/);
     assert.match(sw, /\/css\/child-first-star-mode\.css/);
+  });
+
+  it('child-first-star-mode.css beats legacy top-nav !important rule', () => {
+    const css = read('public/css/child-first-star-mode.css');
+    assert.match(css, /body\.first-star-mode #childLayerNav/);
+    assert.match(css, /body\.first-star-mode #childBottomNav/);
   });
 
   it('child-worlds-nav.js hides bottom nav when First Star Mode is active', () => {
@@ -66,6 +72,8 @@ describe('First Star chrome (PR 2)', () => {
     assert.match(nav, /isFirstStarModeActive/);
     assert.match(nav, /ChildFirstStarMode\.isActive\(\)/);
     assert.match(nav, /hideBottomNavForFirstStar/);
+    assert.match(nav, /childLayerNav/);
+    assert.match(nav, /setProperty\('display', 'none', 'important'\)/);
     assert.match(nav, /if \(isFirstStarModeActive\(\)\) \{\s*\n\s*hideBottomNavForFirstStar\(\)/);
     assert.match(nav, /syncFirstStarHide/);
     assert.match(nav, /if \(isFirstStarModeActive\(\)\) return/);

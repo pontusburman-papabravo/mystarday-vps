@@ -3,29 +3,29 @@
  * Active when GET /api/me/daily-log returns first_star_mode: true.
  */
 
-.first-star-mode #goalTeaserBtn,
-.first-star-mode #progressSection,
-.first-star-mode #weekNavDetails,
-.first-star-mode #todayFocusMount,
-.first-star-mode #childBottomNav,
-.first-star-mode #childLayerNav,
-.first-star-mode #appViewToggleMount,
-.first-star-mode #viewToggleBtn,
-.first-star-mode #printBtn,
-.first-star-mode #childDarkBtn,
-.first-star-mode #switchChildBtn,
-.first-star-mode #logoutBtn,
-.first-star-mode #childHeaderRing,
-.first-star-mode #homeView,
-.first-star-mode #moreView,
-.first-star-mode [data-child-world="world"],
-.first-star-mode [data-child-world="family"],
-.first-star-mode [data-child-world-legacy="world"],
-.first-star-mode [data-child-world-legacy="family"] {
+body.first-star-mode #goalTeaserBtn,
+body.first-star-mode #progressSection,
+body.first-star-mode #weekNavDetails,
+body.first-star-mode #todayFocusMount,
+body.first-star-mode #childBottomNav,
+body.first-star-mode #childLayerNav,
+body.first-star-mode #appViewToggleMount,
+body.first-star-mode #viewToggleBtn,
+body.first-star-mode #printBtn,
+body.first-star-mode #childDarkBtn,
+body.first-star-mode #switchChildBtn,
+body.first-star-mode #logoutBtn,
+body.first-star-mode #childHeaderRing,
+body.first-star-mode #homeView,
+body.first-star-mode #moreView,
+body.first-star-mode [data-child-world="world"],
+body.first-star-mode [data-child-world="family"],
+body.first-star-mode [data-child-world-legacy="world"],
+body.first-star-mode [data-child-world-legacy="family"] {
   display: none !important;
 }
 
-.first-star-mode #childMainHeader .flex.items-center.gap-1\.5 {
+body.first-star-mode #childMainHeader .flex.items-center.gap-1\.5 {
   display: none !important;
 }
 

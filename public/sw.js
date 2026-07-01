@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v432';
+const CACHE_NAME = 'stjarndag-v433';
 // stjarndag-v402: Family Journey Fas 1 — journey-context API + celebration modal
 // stjarndag-v400: Bibliotek — parallel data load, classic hash routing, tab retry on Laddar…
 // stjarndag-v399: Fix Stjärnor & kista → /skattkammaren; library load error states; parent treasury route
