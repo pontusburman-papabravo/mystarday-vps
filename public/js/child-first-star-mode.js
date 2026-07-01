@@ -86,6 +86,9 @@
     active = true;
     hideDistractors();
     renderChrome();
+    if (window.ChildWorldsNav && typeof ChildWorldsNav.syncFirstStarHide === 'function') {
+      ChildWorldsNav.syncFirstStarHide();
+    }
   }
 
   function exit() {

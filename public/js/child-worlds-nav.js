@@ -10,6 +10,19 @@
   const LEGACY_BTN_CLASS = 'flex-1 py-3 text-sm font-semibold border-b-2';
   let _initialized = false;
 
+  function isFirstStarModeActive() {
+    return !!(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
+  }
+
+  function hideBottomNavForFirstStar() {
+    const nav = document.getElementById('childBottomNav');
+    if (!nav) return;
+    nav.innerHTML = '';
+    nav.style.display = 'none';
+    nav.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('child-has-bottom-nav');
+  }
+
   function labelContext() {
     const nameEl = document.getElementById('childName');
     return { childName: nameEl ? nameEl.textContent : '' };
@@ -18,6 +31,11 @@
   function renderBottomNav() {
     const nav = document.getElementById('childBottomNav');
     if (!nav) return;
+
+    if (isFirstStarModeActive()) {
+      hideBottomNavForFirstStar();
+      return;
+    }
 
     const active = ChildWorlds.activeChildNavItem(
       window.location.pathname,
@@ -52,6 +70,8 @@
     nav.setAttribute('role', 'navigation');
     nav.setAttribute('aria-label', 'Barnnavigering');
     nav.style.display = '';
+    nav.removeAttribute('aria-hidden');
+    document.body.classList.add('child-has-bottom-nav');
 
     nav.querySelectorAll('[data-child-world]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -129,10 +149,13 @@
     if (moreView) moreView.classList.add('hidden');
 
     document.body.classList.add('child-worlds-v2');
-    document.body.classList.add('child-has-bottom-nav');
+    if (!isFirstStarModeActive()) {
+      document.body.classList.add('child-has-bottom-nav');
+    }
   }
 
   function highlightActive(tabKey) {
+    if (isFirstStarModeActive()) return;
     const worldId = ChildWorlds.tabKeyToWorldId(tabKey);
     const nav = document.getElementById('childBottomNav');
     if (!nav) return;
@@ -154,11 +177,16 @@
     renderBottomNav();
   }
 
+  function syncFirstStarHide() {
+    if (isFirstStarModeActive()) hideBottomNavForFirstStar();
+  }
+
   window.ChildWorldsNav = {
     init: init,
     navigateWorld: navigateWorld,
     highlightActive: highlightActive,
     renderBottomNav: renderBottomNav,
+    syncFirstStarHide: syncFirstStarHide,
   };
 
   if (document.readyState === 'loading') {
