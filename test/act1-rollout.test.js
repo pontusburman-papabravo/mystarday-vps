@@ -14,6 +14,7 @@ describe('ACT-1 full rollout scripts', () => {
       'activation_onboarding_v1',
       'activation_child_handoff_v1',
       'activation_first_star_guide_v1',
+      'activation_first_star_mode_v1',
       'activation_ai_starter_plan',
       'activation_nudge_v1',
       'referral_program',

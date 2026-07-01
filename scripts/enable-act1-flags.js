@@ -2,6 +2,7 @@
 
 /**
  * Enable all ACT-1 + growth flags on production (full rollout).
+ * Idempotent: only sets enabled=true for listed keys — never disables flags.
  * Usage on VPS: node scripts/enable-act1-flags.js
  */
 const { loadEnvFile, diagnoseDatabaseUrl } = require('../src/lib/load-env');
@@ -13,6 +14,7 @@ const FLAG_KEYS = [
   'activation_onboarding_v1',
   'activation_child_handoff_v1',
   'activation_first_star_guide_v1',
+  'activation_first_star_mode_v1',
   'activation_ai_starter_plan',
   'activation_nudge_v1',
   'referral_program',
