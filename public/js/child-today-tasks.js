@@ -7,6 +7,10 @@
 
   const MAX_VISIBLE = 5;
 
+  function isFirstStarMode() {
+    return !!(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
+  }
+
   function isFocusMode() {
     return document.documentElement.classList.contains('today-focus-mode');
   }
@@ -102,6 +106,10 @@
   }
 
   function mountSkattCta() {
+    if (isFirstStarMode()) {
+      hideSkattCta();
+      return;
+    }
     let bottom = document.getElementById('ctfSkattBottom');
     if (!bottom) {
       bottom = document.createElement('div');
@@ -128,6 +136,11 @@
   }
 
   function afterRender(data, isToday) {
+    if (isFirstStarMode()) {
+      hideSkattCta();
+      removeMoreHint();
+      return;
+    }
     if (!isFocusMode() || !isToday) {
       hideSkattCta();
       removeMoreHint();
@@ -142,6 +155,7 @@
 
   window.ChildTodayTasks = {
     afterRender: afterRender,
+    hideSkattCta: hideSkattCta,
     MAX_VISIBLE: MAX_VISIBLE,
   };
 })();

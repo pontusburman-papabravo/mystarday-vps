@@ -68,6 +68,10 @@
 
     const focusMount = document.getElementById('todayFocusMount');
     if (focusMount) focusMount.classList.add('hidden');
+
+    if (window.ChildTodayTasks && typeof ChildTodayTasks.hideSkattCta === 'function') {
+      ChildTodayTasks.hideSkattCta();
+    }
   }
 
   function showDistractors() {
