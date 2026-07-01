@@ -12,6 +12,11 @@ const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-fla
 const custodyDb = require('../../../db/custody');
 const { buildCustodyContextResponse } = require('../../lib/custody-context-api');
 const { migrateChildScheduleToCustody } = require('../../lib/custody-schedule-migrate');
+const {
+  PATTERN_CUSTOM,
+  isMondayAnchor,
+  validateCustomConfiguration,
+} = require('../../lib/custody-custom-config');
 const analytics = require('../../../db/analytics');
 
 const router = express.Router();
@@ -168,6 +173,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       week_b_home_id: weekBHomeId,
       pattern_type: patternType,
       default_home_id: defaultHomeId,
+      configuration: bodyConfiguration,
       enabled,
       clone_week_b: cloneWeekB,
       pack_luggage_reminder: packLuggage,
@@ -178,40 +184,67 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       return res.json({ ok: true, pattern: null });
     }
 
-    if (!anchorDate || !weekAHomeId || !weekBHomeId) {
-      return res.status(400).json({ error: 'anchor_date och två hem krävs' });
-    }
-    if (weekAHomeId === weekBHomeId) {
-      return res.status(400).json({ error: 'De två hemmen måste vara olika' });
+    if (!anchorDate) {
+      return res.status(400).json({ error: 'anchor_date krävs' });
     }
 
-    const homeA = await custodyDb.getHomeInFamily(weekAHomeId, familyId, client);
-    const homeB = await custodyDb.getHomeInFamily(weekBHomeId, familyId, client);
-    if (!homeA || !homeB) {
-      return res.status(400).json({ error: 'Ogiltiga hem' });
-    }
+    const familyHomes = await custodyDb.listHomes(familyId, client);
+    const validHomeIds = new Set(familyHomes.map((h) => h.id));
 
-    const resolvedType = patternType === 'alternate_weekends'
-      ? 'alternate_weekends'
-      : 'alternate_weeks';
-
+    let resolvedType;
     let configuration;
-    if (resolvedType === 'alternate_weekends') {
-      if (!defaultHomeId) {
-        return res.status(400).json({ error: 'default_home_id krävs för varannan helg' });
+    let resolvedWeekA;
+    let resolvedWeekB;
+
+    if (patternType === PATTERN_CUSTOM) {
+      if (!isMondayAnchor(anchorDate)) {
+        return res.status(400).json({ error: 'anchor_date måste vara en måndag' });
       }
-      const defaultHome = await custodyDb.getHomeInFamily(defaultHomeId, familyId, client);
-      if (!defaultHome) {
-        return res.status(400).json({ error: 'Ogiltigt bashem för vardagar' });
+      const customCheck = validateCustomConfiguration(bodyConfiguration, validHomeIds);
+      if (!customCheck.ok) {
+        return res.status(400).json({ error: customCheck.error });
       }
-      configuration = {
-        default_home: defaultHomeId,
-        weekend_home_a: weekAHomeId,
-        weekend_home_b: weekBHomeId,
-        weekend_start: 'friday',
-      };
+      resolvedType = PATTERN_CUSTOM;
+      configuration = { cycle_weeks: customCheck.cycleWeeks };
+      resolvedWeekA = customCheck.distinctHomeIds[0];
+      resolvedWeekB = customCheck.distinctHomeIds[1];
     } else {
-      configuration = custodyDb.buildAlternateWeeksConfiguration(weekAHomeId, weekBHomeId);
+      if (!weekAHomeId || !weekBHomeId) {
+        return res.status(400).json({ error: 'anchor_date och två hem krävs' });
+      }
+      if (weekAHomeId === weekBHomeId) {
+        return res.status(400).json({ error: 'De två hemmen måste vara olika' });
+      }
+
+      const homeA = await custodyDb.getHomeInFamily(weekAHomeId, familyId, client);
+      const homeB = await custodyDb.getHomeInFamily(weekBHomeId, familyId, client);
+      if (!homeA || !homeB) {
+        return res.status(400).json({ error: 'Ogiltiga hem' });
+      }
+
+      resolvedType = patternType === 'alternate_weekends'
+        ? 'alternate_weekends'
+        : 'alternate_weeks';
+      resolvedWeekA = weekAHomeId;
+      resolvedWeekB = weekBHomeId;
+
+      if (resolvedType === 'alternate_weekends') {
+        if (!defaultHomeId) {
+          return res.status(400).json({ error: 'default_home_id krävs för varannan helg' });
+        }
+        const defaultHome = await custodyDb.getHomeInFamily(defaultHomeId, familyId, client);
+        if (!defaultHome) {
+          return res.status(400).json({ error: 'Ogiltigt bashem för vardagar' });
+        }
+        configuration = {
+          default_home: defaultHomeId,
+          weekend_home_a: weekAHomeId,
+          weekend_home_b: weekBHomeId,
+          weekend_start: 'friday',
+        };
+      } else {
+        configuration = custodyDb.buildAlternateWeeksConfiguration(weekAHomeId, weekBHomeId);
+      }
     }
 
     await client.query('BEGIN');
@@ -222,8 +255,8 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       child_id: childId,
       anchor_date: anchorDate,
       interval_weeks: 2,
-      week_a_home_id: weekAHomeId,
-      week_b_home_id: weekBHomeId,
+      week_a_home_id: resolvedWeekA,
+      week_b_home_id: resolvedWeekB,
       pattern_type: resolvedType,
       configuration,
     }, client);
@@ -236,7 +269,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
     }
 
     if (cloneWeekB !== false) {
-      await migrateChildScheduleToCustody(client, childId, weekAHomeId, weekBHomeId);
+      await migrateChildScheduleToCustody(client, childId, resolvedWeekA, resolvedWeekB);
     }
 
     await client.query('COMMIT');
@@ -245,6 +278,13 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       child_id: childId,
       pattern_type: resolvedType,
       anchor_date: anchorDate,
+    const analyticsMeta = {
+      child_id: childId,
+      pattern_type: resolvedType,
+      anchor_date: anchorDate,
+      ...(resolvedType === PATTERN_CUSTOM
+        ? { cycle_length: configuration.cycle_weeks.length }
+        : {}),
     };
     if (!existingPattern) {
       analytics.track(familyId, 'custody_schedule_created', analyticsMeta);
