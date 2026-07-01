@@ -286,6 +286,8 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
       child_id: child.id,
       source: 'child_login',
     });
+    const { maybeTrackChildLogin } = require('../../lib/first-star-mode-analytics');
+    await maybeTrackChildLogin({ familyId: child.family_id, childId: child.id });
     const { updateActivationState } = require('../../lib/activation-p0');
     updateActivationState(child.family_id, 'child_access', {
       metadata: { child_id: child.id, source: 'child_login' },
