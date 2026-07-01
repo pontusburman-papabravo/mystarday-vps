@@ -227,6 +227,11 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       responsePayload.first_star_mode = firstStarMode;
     }
 
+    if (firstStarMode && isToday) {
+      const { maybeTrackFirstStarModeShown } = require('../../lib/first-star-mode-analytics');
+      await maybeTrackFirstStarModeShown({ familyId, childId });
+    }
+
     res.json(responsePayload);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Get error:', err);
@@ -252,6 +257,10 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     if (item.is_paused) return res.status(400).json({ error: 'Dagen är pausad' });
 
+    const lifetimeCompletionsBefore = item.completed
+      ? null
+      : await countLifetimeCompletions(req.user.id);
+
     // Look up log date for completed_date
     const logDateResult2 = await db.query(
       'SELECT date FROM daily_log WHERE id = $1',
@@ -270,6 +279,17 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]
     );
+
+    if (!item.completed && req.user.familyId) {
+      const { maybeTrackFirstStarModeActivity } = require('../../lib/first-star-mode-analytics');
+      await maybeTrackFirstStarModeActivity({
+        familyId: req.user.familyId,
+        childId: req.user.id,
+        dailyLogItemId: req.params.itemId,
+        lifetimeCompletionsBefore,
+      });
+    }
+
     res.json(result.rows[0]);
     // Family layer: derived contribution event (fire-and-forget)
     if (!item.completed) {
