@@ -43,7 +43,8 @@ describe('ACT-1 PR2 checkpoint', () => {
     assert.match(db, /buildStepConversions/);
     assert.match(admin, /activation-funnel/);
     assert.match(ui, /loadActivationFunnel/);
-    assert.match(ui, /Aktiveringstratt/);
+    assert.match(ui, /First Success-tratt/);
+    assert.match(ui, /buildFunnelConversionColumns/);
   });
 
   it('onboarding.html loads activation script after onboarding.js', () => {
