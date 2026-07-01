@@ -356,7 +356,7 @@
         }).join('')}
       </div>
       <div class="for-dig-activate-actions">
-        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); border-color:var(--fdg-accent)">OK</button>
+        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); border-color:var(--fdg-accent)">Aktivera</button>
         <button type="button" class="text-sm text-text-soft underline w-full" data-action="customize-back">Tillbaka</button>
         <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
       </div>`;
@@ -387,7 +387,7 @@
       <p class="text-sm text-text-soft mb-2">${confirmActivationText(goal, selectedChild)}</p>
       <p class="text-xs text-text-soft mb-4">Aktiviteterna markeras med ${goal.icon} i biblioteket och schemat så ni ser att de hör till detta mål.</p>
       <div class="for-dig-activate-actions" style="${goalAccentStyle(goal)}">
-        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">OK</button>
+        <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">Aktivera</button>
         <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">Anpassa</button>
         <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
       </div>
