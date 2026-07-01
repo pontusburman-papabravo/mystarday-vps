@@ -6,6 +6,9 @@
 **URL:** `/for-dig`  
 **Relaterat:** onboarding, `foraldaraktivering_7d`, standardbibliotek, bibliotek, Skattkammaren
 
+> **Produktvision (10/10):** [`for-dig-vision.md`](for-dig-vision.md)  
+> **Agent-uppdrag (implementation):** [`for-dig-agent-prompt.md`](for-dig-agent-prompt.md) · kort: [`for-dig-agent-prompt-short.md`](for-dig-agent-prompt-short.md)
+
 ---
 
 ## 0. Vad det här är (och inte är)

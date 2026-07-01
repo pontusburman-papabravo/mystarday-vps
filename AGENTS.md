@@ -2,6 +2,14 @@
 
 This repo is a Swedish family-routine app (Express.js + PostgreSQL, static frontend in `public/`). See `README.md` and `CLAUDE.md` for the product/architecture overview, directory map, and DB schema.
 
+### För dig 10/10 (agent-uppdrag)
+
+- **Vision:** [`docs/for-dig-vision.md`](docs/for-dig-vision.md)
+- **Full agent-prompt (GO):** [`docs/for-dig-agent-prompt.md`](docs/for-dig-agent-prompt.md)
+- **Kort prompt:** [`docs/for-dig-agent-prompt-short.md`](docs/for-dig-agent-prompt-short.md)
+- **Engineering-spec:** [`docs/for-dig-spec.md`](docs/for-dig-spec.md)
+- **Branch:** `cursor/for-dig-10-10-2c04`
+
 ## Cursor Cloud specific instructions
 
 The startup update script already installs npm dependencies. The notes below are the non-obvious things needed to run/test the app here.
