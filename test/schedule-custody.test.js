@@ -1,0 +1,32 @@
+'use strict';
+
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const ROOT = path.join(__dirname, '..');
+
+describe('schedule-custody (Phase 4.5c)', () => {
+  it('uses calendar-week only — no custody date logic', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    assert.match(src, /calendar-week/);
+    assert.doesNotMatch(src, /getWeekVariantForDate/);
+    assert.doesNotMatch(src, /custody-resolver/);
+  });
+
+  it('shows home labels from day.custody; Vecka A/B only as legacy fallback', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    assert.match(src, /syncVariantLabelsFromWeek/);
+    assert.match(src, /d\.custody\.label/);
+    assert.match(src, /Vecka A/);
+    assert.match(src, /@deprecated Phase 5/);
+    assert.match(src, /home_id/);
+  });
+
+  it('day tabs get aria/title from custody label', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    assert.match(src, /Hos ' \+ day\.custody\.label/);
+    assert.match(src, /isMyDay/);
+  });
+});
