@@ -10,8 +10,8 @@
 
 | Värld | Vision | Agent-uppdrag | Status |
 |-------|--------|---------------|--------|
-| **Skattkammaren** (belöningar) | [skattkammaren-vision.md](skattkammaren-vision.md) | [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) | **GO** |
-| **Idag** (rutin) | informationsarkitektur §4 | — | Delvis (quest layer kvar) |
+| **Idag** (rutin) | [idag-vision.md](idag-vision.md) | [idag-agent-prompt.md](idag-agent-prompt.md) | **GO** |
+| **Skattkammaren** (belöningar) | [skattkammaren-vision.md](skattkammaren-vision.md) | [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) | **Shipped** |
 | **Mina personer** (familj) | barnmeny-v2 §3.5 | — | Tidig |
 
 **Förälder Belöningar (parallell domän):**

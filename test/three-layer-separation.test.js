@@ -18,10 +18,11 @@ describe('Phase 1 — Today layer', () => {
     assert.doesNotMatch(src, /ChildUniverse|ChildSkattHouse/);
   });
 
-  it('child-today-focus hides legacy chrome', () => {
+  it('child-today-focus hides legacy chrome and exposes resolveIdagState', () => {
     const src = read('public/js/child-today-focus.js');
     assert.match(src, /weekNavSection/);
     assert.match(src, /childHeaderRing/);
+    assert.match(src, /resolveIdagState/);
     assert.doesNotMatch(src, /familyMock/);
   });
 
