@@ -1,5 +1,7 @@
 /**
- * schedule-custody.js — FEAT-1 BC-4/BC-6: vecka A/B-växlare, dagsfärger, "Mina dagar" på schemasidan.
+ * schedule-custody.js — FEAT-1 BC-6/BC-7/BC-9: schemasida — hemnamn, dagsfärger, Mina dagar.
+ * Konsumerar calendar-week (engine) — ingen egen boendeschemalogik.
+ * week_variant i API-anrop är legacy tills Phase 5 (custody_home_id).
  */
 (function () {
   'use strict';
@@ -11,6 +13,8 @@
     weekData: null,
     childId: null,
     weekOffset: 0,
+    variantLabels: { a: 'Vecka A', b: 'Vecka B' },
+    variantHomes: { a: null, b: null },
   };
 
   function track(event, meta) {
@@ -30,6 +34,22 @@
       map[d.dayOfWeek] = d;
     });
     return map;
+  }
+
+  /** Build home labels per legacy week_variant from engine-backed day.custody. */
+  function syncVariantLabelsFromWeek(weekData) {
+    state.variantLabels = { a: 'Vecka A', b: 'Vecka B' };
+    state.variantHomes = { a: null, b: null };
+    if (!weekData || !weekData.days) return;
+    weekData.days.forEach(function (d) {
+      if (!d.custody || !d.custody.variant || !d.custody.label) return;
+      state.variantLabels[d.custody.variant] = d.custody.label;
+      state.variantHomes[d.custody.variant] = {
+        id: d.custody.homeId,
+        label: d.custody.label,
+        color: d.custody.color,
+      };
+    });
   }
 
   function ensureMount() {
@@ -57,15 +77,18 @@
 
     mount.classList.remove('hidden');
     const wb = state.weekData.custody && state.weekData.custody.weekBanner;
-    const bannerHtml = wb
+    const bannerHtml = wb && wb.label
       ? '<div class="rounded-xl border-2 px-4 py-2.5 mb-3 text-sm font-semibold text-navy" role="status" style="border-color:' + esc(wb.color) + ';background:' + esc(wb.color) + '18">Denna vecka: hos ' + esc(wb.label) + '</div>'
       : '';
+
+    const labelA = esc(state.variantLabels.a);
+    const labelB = esc(state.variantLabels.b);
 
     mount.innerHTML = bannerHtml + [
       '<div class="flex flex-wrap items-center gap-2 mb-2">',
       '<span class="text-xs text-text-soft font-medium">Redigera schema:</span>',
-      '<button type="button" data-custody-var="a" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors">Vecka A</button>',
-      '<button type="button" data-custody-var="b" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors">Vecka B</button>',
+      '<button type="button" data-custody-var="a" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="Redigera schema för ' + labelA + '">' + labelA + '</button>',
+      '<button type="button" data-custody-var="b" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="Redigera schema för ' + labelB + '">' + labelB + '</button>',
       '<label class="ml-auto flex items-center gap-2 text-xs font-semibold text-navy cursor-pointer">',
       '<input type="checkbox" id="custodyMyDaysChk" class="rounded" /> Mina dagar',
       '</label>',
@@ -75,18 +98,26 @@
     mount.querySelectorAll('.custody-var-btn').forEach(function (btn) {
       const v = btn.getAttribute('data-custody-var');
       const selected = v === state.editVariant;
+      const home = state.variantHomes[v];
       btn.classList.toggle('bg-navy', selected);
       btn.classList.toggle('text-white', selected);
       btn.classList.toggle('border-navy', selected);
       btn.classList.toggle('border-lavender', !selected);
       btn.classList.toggle('text-navy', !selected);
+      if (!selected && home && home.color) {
+        btn.style.borderColor = home.color;
+      } else {
+        btn.style.borderColor = '';
+      }
       btn.onclick = function () {
         if (state.editVariant === v) return;
         state.editVariant = v;
         renderChrome();
         styleDayTabs();
         if (typeof loadScheduleForDay === 'function') loadScheduleForDay();
-        track('custody_week_variant_changed', { context: 'schedule_editor', variant: v });
+        const meta = { context: 'schedule_editor', variant: v };
+        if (home && home.id) meta.home_id = home.id;
+        track('custody_week_variant_changed', meta);
       };
     });
 
@@ -111,12 +142,21 @@
       const isSelected = btn.classList.contains('bg-gold');
       btn.style.opacity = '';
       btn.style.borderColor = '';
+      btn.removeAttribute('title');
+      btn.removeAttribute('aria-label');
       if (!day || !day.custody) return;
-      if (state.myDaysOnly && day.custody.isMyDay === false) {
+
+      const parentDay = typeof day.custody.isMyDay === 'boolean' ? day.custody.isMyDay : null;
+      if (state.myDaysOnly && parentDay === false) {
         btn.style.opacity = '0.35';
       }
       if (!isSelected && day.custody.color) {
         btn.style.borderColor = day.custody.color;
+      }
+      if (day.custody.label) {
+        const hint = 'Hos ' + day.custody.label;
+        btn.setAttribute('title', hint);
+        btn.setAttribute('aria-label', hint);
       }
     });
   }
@@ -142,6 +182,7 @@
       }
       state.weekData = await res.json();
       state.active = Boolean(state.weekData.custody && state.weekData.custody.active);
+      syncVariantLabelsFromWeek(state.weekData);
       if (state.active && state.weekData.custody.weekBanner && state.weekData.custody.weekBanner.variant) {
         if (state.editVariant !== 'a' && state.editVariant !== 'b') {
           state.editVariant = state.weekData.custody.weekBanner.variant;
@@ -149,17 +190,19 @@
       }
       renderChrome();
       styleDayTabs();
-    } catch (err) {
+    } catch {
       state.active = false;
       renderChrome();
     }
   }
 
+  /** @deprecated Phase 5 — legacy week_variant query until custody_home_id write path */
   function scheduleQuery() {
     if (!state.active) return '';
     return '?week_variant=' + encodeURIComponent(state.editVariant);
   }
 
+  /** @deprecated Phase 5 */
   function getCreateExtras() {
     if (!state.active) return {};
     return { week_variant: state.editVariant };
@@ -172,7 +215,11 @@
   }
 
   function getEditVariantLabel() {
-    return state.editVariant === 'b' ? 'Vecka B' : 'Vecka A';
+    const label = state.variantLabels[state.editVariant];
+    if (label && label !== 'Vecka A' && label !== 'Vecka B') {
+      return 'hos ' + label;
+    }
+    return label || (state.editVariant === 'b' ? 'Vecka B' : 'Vecka A');
   }
 
   window.ScheduleCustody = {
