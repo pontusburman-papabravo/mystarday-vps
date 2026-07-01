@@ -68,6 +68,19 @@
     return done + '/' + total;
   }
 
+  /**
+   * Hem visar läge — daglig logg/barnprofil äger avcheckning (B-08).
+   * Barn med aktiviteter idag → dagens daglig logg; annars barnprofil.
+   */
+  function childRowHref(c) {
+    const total = c.today_total || 0;
+    if (total > 0) {
+      const today = new Date().toISOString().slice(0, 10);
+      return '/daily-log?childId=' + encodeURIComponent(c.id) + '&date=' + encodeURIComponent(today);
+    }
+    return '/family/child/' + encodeURIComponent(c.id);
+  }
+
   function findFocusChild(children) {
     for (let i = 0; i < children.length; i++) {
       const c = children[i];
@@ -162,13 +175,16 @@
       const status = getChildStatus(c);
       const progress = progressLabel(c);
       const active = c.id === focusId ? ' is-active' : '';
-      return '<button type="button" class="parent-ready-child magic-3d-card' + active + '" data-action="open-child-profile" data-child-id="' + escHtml(c.id) + '">' +
+      const href = childRowHref(c);
+      const name = capName(c.name);
+      return '<a href="' + escHtml(href) + '" class="parent-ready-child magic-3d-card' + active + ' no-underline" data-child-id="' + escHtml(c.id) + '" aria-label="' + escHtml(name) + ' — visa dagens aktiviteter">' +
         (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
         '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
-        '<div class="parent-ready-name">' + escHtml(capName(c.name)) + '</div>' +
+        '<div class="parent-ready-name">' + escHtml(name) + '</div>' +
         '<div class="parent-ready-task">' + escHtml(status.icon) + ' ' + escHtml(status.text) + '</div>' +
         (progress ? '<div class="parent-ready-progress">' + escHtml(progress) + '</div>' : '') +
-        '</button>';
+        '<span class="parent-ready-chevron" aria-hidden="true">→</span>' +
+        '</a>';
     }).join('');
   }
 
@@ -276,11 +292,6 @@
 
   function bindActions(mount) {
     function handleAction(action, btn) {
-      if (action === 'open-child-profile' || action === 'open-schedule') {
-        const cid = btn.getAttribute('data-child-id');
-        window.location.href = cid ? '/family/child/' + encodeURIComponent(cid) : '/family';
-        return;
-      }
       if (action === 'child-login') {
         if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
           DashboardChildHandoff.startChildLogin();

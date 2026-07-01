@@ -603,11 +603,13 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 12px 10px 10px;
+  padding: 12px 28px 10px 10px;
   text-align: center;
   cursor: pointer;
   color: #f4f4ff;
   font-family: inherit;
+  text-decoration: none;
+  display: block;
 }
 
 .parent-ready-child.is-active {
@@ -916,6 +918,17 @@ body.parent-magic-dashboard #homeBumpMount {
   font-weight: 700;
   color: #ffcc33;
   margin-top: 4px;
+}
+
+.parent-ready-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(244, 244, 255, 0.45);
+  pointer-events: none;
 }
 
 body.parent-magic-dashboard.parent-theme-light .parent-readiness-heading {

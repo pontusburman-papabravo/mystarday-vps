@@ -179,6 +179,19 @@ Priority Ladder i implementation:
 6. Detaljer          →  Schema, daglig logg (länkar — inte inline-bygg)
 ```
 
+### Barnrad → dagvy (B-08, retroaktiv check)
+
+Hem **visar läget** och **länkar vidare** — duplicerar inte avcheckning.
+
+| Barnrad | Länkar till | Inte på Hem |
+|---------|-------------|-------------|
+| Har aktiviteter idag | `/daily-log?childId=…&date=idag` | Inline checka av |
+| Inget schema idag | `/family/child/:id` (barnprofil) | Ny CTA "Checka av" |
+
+Exempel: *Astrid · Tandborsta kvar · 3/7 →* → daglig logg med retroaktiv avcheckning.
+
+**Verifiering:** QA ska bekräfta att klick på barnrad leder till vy där förälder enkelt kan checka av aktiviteter — utan extra jakt.
+
 ---
 
 ## Hem vs För dig (låst)

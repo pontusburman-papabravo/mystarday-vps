@@ -27,10 +27,15 @@ describe('Hem 10/10 — priority ladder', () => {
     assert.doesNotMatch(hub, /renderCoParentCta/);
   });
 
-  it('hub shows progress per child and handoff before week', () => {
+  it('child row links to daily-log when child has activities today', () => {
     const hub = read('public/js/dashboard-home-hub.js');
-    assert.match(hub, /parent-ready-progress/);
-    assert.match(hub, /Veckans berättelse/);
+    assert.match(hub, /childRowHref/);
+    assert.match(hub, /\/daily-log\?childId=/);
+    assert.match(hub, /parent-ready-chevron/);
+  });
+
+  it('hub shows handoff before week section', () => {
+    const hub = read('public/js/dashboard-home-hub.js');
     const handoffIdx = hub.indexOf('parent-handoff-card');
     const weekIdx = hub.indexOf('parent-week-section');
     assert.ok(handoffIdx > 0 && weekIdx > handoffIdx);
@@ -71,6 +76,6 @@ describe('Hem 10/10 — priority ladder', () => {
 
   it('SW bumped for Hem 10/10', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v433/);
+    assert.match(sw, /stjarndag-v434/);
   });
 });
