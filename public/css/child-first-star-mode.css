@@ -3,6 +3,7 @@
  * Active when GET /api/me/daily-log returns first_star_mode: true.
  */
 
+body.first-star-mode #ctfSkattBottom,
 body.first-star-mode #goalTeaserBtn,
 body.first-star-mode #progressSection,
 body.first-star-mode #weekNavDetails,

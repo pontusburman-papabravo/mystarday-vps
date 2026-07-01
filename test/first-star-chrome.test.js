@@ -54,9 +54,9 @@ describe('First Star chrome (PR 2)', () => {
     assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
   });
 
-  it('service worker precaches first star assets (v434+)', () => {
+  it('service worker precaches first star assets (v435+)', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v434/);
+    assert.match(sw, /stjarndag-v435/);
     assert.match(sw, /\/js\/child-first-star-mode\.js/);
     assert.match(sw, /\/css\/child-first-star-mode\.css/);
   });
@@ -79,9 +79,18 @@ describe('First Star chrome (PR 2)', () => {
     assert.match(nav, /if \(isFirstStarModeActive\(\)\) return/);
   });
 
+  it('child-today-tasks.js suppresses Skattkammaren CTA during First Star Mode', () => {
+    const src = read('public/js/child-today-tasks.js');
+    assert.match(src, /isFirstStarMode/);
+    assert.match(src, /ChildFirstStarMode\.isActive\(\)/);
+    assert.match(src, /hideSkattCta/);
+    assert.match(src, /if \(isFirstStarMode\(\)\)/);
+  });
+
   it('child-first-star-mode.js re-syncs nav hide after enter()', () => {
     const mode = read('public/js/child-first-star-mode.js');
     assert.match(mode, /ChildWorldsNav\.syncFirstStarHide/);
+    assert.match(mode, /ChildTodayTasks\.hideSkattCta/);
   });
 
   it('flag OFF path leaves first_star_mode field absent (PR 1 contract)', () => {

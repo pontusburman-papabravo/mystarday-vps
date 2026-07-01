@@ -659,7 +659,7 @@ function renderActivities(data, trueStarBalance) {
           break;
         }
       }
-      if (window.ChildTodayTasks) ChildTodayTasks.afterRender(data, isToday);
+      if (window.ChildTodayTasks) ChildTodayTasks.hideSkattCta();
       return;
     }
   }
