@@ -31,9 +31,9 @@ describe('seed-child-default-schedule milestone', () => {
 });
 
 describe('activation funnel schema step', () => {
-  it('counts weekly_schedule as schema fallback', () => {
+  it('routine_ready counts schema_saved_at only (no weekly_schedule fallback)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'db/activation-funnel.js'), 'utf8');
-    assert.match(src, /weekly_schedule ws/);
     assert.match(src, /schema_saved_at IS NOT NULL/);
+    assert.doesNotMatch(src, /weekly_schedule/);
   });
 });

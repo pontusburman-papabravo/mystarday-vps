@@ -2,8 +2,56 @@
 
 const db = require('../src/lib/db');
 
+/** First Success huvudtratt (PR 2) — 6 steg, family_activation_state + daily_log_item. */
+const FIRST_SUCCESS_FUNNEL_STEPS = [
+  { key: 'signup', label: 'Signup' },
+  { key: 'child_created', label: 'Barn skapat' },
+  { key: 'routine_ready', label: 'Rutin klar' },
+  { key: 'child_access', label: 'Barnåtkomst' },
+  { key: 'first_completion', label: 'Första stjärnan' },
+  { key: 'second_day_activity', label: 'Aktiv dag 2' },
+];
+
 /**
- * Weekly cohort activation funnel (ACT-1 §6.2).
+ * Step rates as % of signup (cohort entry).
+ * @param {object} row
+ * @param {{ key: string }[]} steps
+ */
+function buildStepRates(row, steps) {
+  const signup = row.signup || 0;
+  const rates = {};
+  for (const s of steps) {
+    rates[s.key] = signup > 0 ? Math.round((1000 * (row[s.key] || 0)) / signup) / 10 : 0;
+  }
+  return rates;
+}
+
+/**
+ * Step-to-step conversion rates between adjacent funnel steps.
+ * @param {object} row
+ * @param {{ key: string }[]} steps
+ */
+function buildStepConversions(row, steps) {
+  const conversions = {};
+  for (let i = 1; i < steps.length; i++) {
+    const fromStep = steps[i - 1];
+    const toStep = steps[i];
+    const fromCount = row[fromStep.key] || 0;
+    const toCount = row[toStep.key] || 0;
+    const conversionKey = `${fromStep.key}_to_${toStep.key}`;
+    conversions[conversionKey] = {
+      from: fromStep.key,
+      to: toStep.key,
+      from_count: fromCount,
+      to_count: toCount,
+      rate_pct: fromCount > 0 ? Math.round((1000 * toCount) / fromCount) / 10 : 0,
+    };
+  }
+  return conversions;
+}
+
+/**
+ * Weekly cohort First Success funnel (PR 2).
  * @param {number} weeks
  */
 async function getActivationFunnelCohorts(weeks = 8) {
@@ -17,72 +65,44 @@ async function getActivationFunnelCohorts(weeks = 8) {
        WHERE f.archived_at IS NULL
          AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
      ),
-     event_counts AS (
-       SELECT c.cohort_week,
-              COUNT(DISTINCT c.family_id)::int AS signup,
-              COUNT(DISTINCT CASE WHEN ae.event_type IN ('activation_onboarding_started', 'funnel_onboarding_started') THEN c.family_id END)::int AS onboarding_started,
-              COUNT(DISTINCT CASE WHEN ae.event_type = 'starter_template_selected' THEN c.family_id END)::int AS template_selected,
-              COUNT(DISTINCT CASE
-                WHEN s.schema_saved_at IS NOT NULL
-                  OR EXISTS (
-                    SELECT 1 FROM weekly_schedule ws
-                    JOIN child ch ON ch.id = ws.child_id
-                    WHERE ch.family_id = c.family_id
-                  )
-                THEN c.family_id
-              END)::int AS schema_saved,
-              COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access,
-              COUNT(DISTINCT CASE WHEN s.first_completion_at IS NOT NULL THEN c.family_id END)::int AS first_completion,
-              COUNT(DISTINCT CASE WHEN s.p0_activated_within_48h THEN c.family_id END)::int AS p0_activated_48h,
-              COUNT(DISTINCT CASE WHEN ae_d7.family_id IS NOT NULL THEN c.family_id END)::int AS active_day_7,
-              COUNT(DISTINCT CASE WHEN ae_d14.family_id IS NOT NULL THEN c.family_id END)::int AS active_day_14
-       FROM cohort c
-       LEFT JOIN family_activation_state s ON s.family_id = c.family_id
-       LEFT JOIN analytics_events ae ON ae.family_id = c.family_id
-         AND ae.event_type IN (
-           'activation_onboarding_started', 'funnel_onboarding_started', 'starter_template_selected'
+     families_with_second_day AS (
+       SELECT DISTINCT fam.id AS family_id
+       FROM family fam
+       JOIN child ch ON ch.family_id = fam.id
+       JOIN daily_log dl ON dl.child_id = ch.id
+       JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+       WHERE dli.completed = true
+         AND COALESCE(
+           dli.completed_date,
+           (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
+         ) = (
+           (fam.created_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date + 1
          )
-       LEFT JOIN LATERAL (
-         SELECT 1 AS family_id
-         FROM analytics_events ae2
-         WHERE ae2.family_id = c.family_id
-           AND ae2.created_at >= c.created_at + interval '6 days'
-           AND ae2.created_at < c.created_at + interval '8 days'
-         LIMIT 1
-       ) ae_d7 ON true
-       LEFT JOIN LATERAL (
-         SELECT 1 AS family_id
-         FROM analytics_events ae3
-         WHERE ae3.family_id = c.family_id
-           AND ae3.created_at >= c.created_at + interval '13 days'
-           AND ae3.created_at < c.created_at + interval '15 days'
-         LIMIT 1
-       ) ae_d14 ON true
-       GROUP BY c.cohort_week
      )
-     SELECT * FROM event_counts
+     SELECT c.cohort_week,
+            COUNT(DISTINCT c.family_id)::int AS signup,
+            COUNT(DISTINCT CASE WHEN s.child_created_at IS NOT NULL THEN c.family_id END)::int AS child_created,
+            COUNT(DISTINCT CASE WHEN s.schema_saved_at IS NOT NULL THEN c.family_id END)::int AS routine_ready,
+            COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access,
+            COUNT(DISTINCT CASE WHEN s.first_completion_at IS NOT NULL THEN c.family_id END)::int AS first_completion,
+            COUNT(DISTINCT CASE WHEN sd.family_id IS NOT NULL THEN c.family_id END)::int AS second_day_activity
+     FROM cohort c
+     LEFT JOIN family_activation_state s ON s.family_id = c.family_id
+     LEFT JOIN families_with_second_day sd ON sd.family_id = c.family_id
+     GROUP BY c.cohort_week
      ORDER BY cohort_week DESC`,
     [safeWeeks]
   );
 
-  const steps = [
-    { key: 'signup', label: 'Signup' },
-    { key: 'onboarding_started', label: 'Onboarding öppnad' },
-    { key: 'template_selected', label: 'Template selected' },
-    { key: 'schema_saved', label: 'Schema saved' },
-    { key: 'child_access', label: 'Child access' },
-    { key: 'first_completion', label: 'First completion' },
-    { key: 'p0_activated_48h', label: 'P0 within 48h' },
-    { key: 'active_day_7', label: 'Active day 7' },
-    { key: 'active_day_14', label: 'Active day 14' },
-  ];
+  const steps = FIRST_SUCCESS_FUNNEL_STEPS;
 
   return {
     steps,
     cohorts: result.rows.map((row) => ({
       cohort_week: row.cohort_week,
       counts: Object.fromEntries(steps.map((s) => [s.key, row[s.key] || 0])),
-      rates: buildRates(row, steps),
+      rates: buildStepRates(row, steps),
+      conversions: buildStepConversions(row, steps),
     })),
     childAccessDiagnostics: await getActivationChildAccessDiagnostics(safeWeeks),
   };
@@ -127,15 +147,6 @@ async function getActivationChildAccessDiagnostics(weeks = 8) {
     metrics,
     counts: Object.fromEntries(metrics.map((m) => [m.key, row[m.key] || 0])),
   };
-}
-
-function buildRates(row, steps) {
-  const signup = row.signup || 0;
-  const rates = {};
-  for (const s of steps) {
-    rates[s.key] = signup > 0 ? Math.round((1000 * (row[s.key] || 0)) / signup) / 10 : 0;
-  }
-  return rates;
 }
 
 const VARIANT_META = [
@@ -253,8 +264,11 @@ function computeAiGoNoGoVerdict(totals) {
 }
 
 module.exports = {
+  FIRST_SUCCESS_FUNNEL_STEPS,
   getActivationFunnelCohorts,
   getActivationExperimentCohorts,
   getActivationChildAccessDiagnostics,
   computeAiGoNoGoVerdict,
+  buildStepRates,
+  buildStepConversions,
 };

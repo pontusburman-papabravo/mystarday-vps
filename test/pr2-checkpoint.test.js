@@ -34,13 +34,13 @@ describe('ACT-1 PR2 checkpoint', () => {
     assert.match(src, /updateActivationState\(req\.user\.familyId, 'child_access'/);
   });
 
-  it('admin activation funnel API + UI (9 steps)', () => {
+  it('admin activation funnel API + UI (First Success 6-step funnel)', () => {
     const db = read('db/activation-funnel.js');
     const admin = read('src/routes/admin/analytics.js');
     const ui = read('public/admin/admin-analytics.js');
-    assert.match(db, /p0_activated_48h/);
-    assert.match(db, /child_access/);
-    assert.match(db, /active_day_14/);
+    assert.match(db, /second_day_activity/);
+    assert.match(db, /child_created_at/);
+    assert.match(db, /buildStepConversions/);
     assert.match(admin, /activation-funnel/);
     assert.match(ui, /loadActivationFunnel/);
     assert.match(ui, /Aktiveringstratt/);
