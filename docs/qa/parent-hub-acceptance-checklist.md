@@ -95,6 +95,8 @@ Hem → barnrad → daglig logg → tillbaka
 
 **Mål:** Inga döda länkar, inga dubbla vägar till samma jobb, tillbaka-knappar landar rätt.
 
+**Rapport (efter alla fyra hubbar):** [parent-hubs-platform-qa.md](parent-hubs-platform-qa.md)
+
 ---
 
 ## PR-mall (kort)
