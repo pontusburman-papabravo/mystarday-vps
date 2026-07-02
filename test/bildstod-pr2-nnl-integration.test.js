@@ -21,7 +21,7 @@ test('child weekly-schedule: child token can read, cannot write parent schedule 
   }
 
   const { createApp } = require('../app');
-  const http = await listenApp(createApp());
+  const http = await listenApp(createApp);
 
   try {
     const session = await registerAndLogin(http.baseUrl);
