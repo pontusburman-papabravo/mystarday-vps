@@ -66,6 +66,9 @@
 
   function contextWantsHandoff(ctx) {
     if (!ctx) return false;
+    if (ctx.capabilities?.handoff_v2) {
+      return ctx.blocking_experience === 'handoff_to_child';
+    }
     if (ctx.blocking_experience === 'handoff_to_child') return true;
     return ctx.priority === 'handoff'
       && Array.isArray(ctx.recommended_experiences)
@@ -133,5 +136,6 @@
     startChildLogin: startChildLogin,
     parentLogout: parentLogout,
     resolveVisibility: resolveVisibility,
+    contextWantsHandoff: contextWantsHandoff,
   };
 })();

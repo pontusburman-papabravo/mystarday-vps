@@ -14,6 +14,7 @@ const WRITABLE_MILESTONES = new Set([
   'child_logged_in',
   'child_first_completion',
   'parent_saw_completion',
+  'parent_ack_shown',
   'established_routine',
   'child_self_sufficient_week',
   'second_child_created',

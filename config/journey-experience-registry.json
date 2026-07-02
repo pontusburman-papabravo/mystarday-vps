@@ -7,6 +7,12 @@
         "headline": "Nu är det barnets tur!",
         "body": "Låt barnet logga in med namn och PIN — då kan hen börja samla stjärnor.",
         "cta": "Låt barnet börja"
+      },
+      "parent_ack_completion": {
+        "tone": "coach",
+        "headline": "Barnet klarade en aktivitet!",
+        "body": "Bekräfta så ni firar första framgången tillsammans.",
+        "cta": "Visa"
       }
     },
     "BUILDING_ROUTINE": {
