@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v481';
+const CACHE_NAME = 'stjarndag-v482';
 // stjarndag-v481: Journey Fas 2 + ACT-1 PR5 nudge ON (ship train)
 // stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
 // stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout

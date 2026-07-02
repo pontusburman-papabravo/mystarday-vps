@@ -50,14 +50,15 @@ Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
 - Template-first, handoff, first star guide, AI (fallback till mall)
 - PR 5 (nudges) + `activation_first_star_mode_v1` kvar OFF
 
-### 3. FEAT-1B — `custom` boendemönster
+### 3. ~~FEAT-1B — `custom` boendemönster~~ ✅
 
-- Spec: `docs/boendeschema-spec.md` (ej v1)
-- Separat branch; kräver ADR om scope ändras
+- Spec: `docs/boendeschema-feat1b-custom-spec.md`
+- Engine + API + UI på `/family#boendeschema`
 
-### 4. FEAT-1C — `custody_override`
+### 4. ~~FEAT-1C — `custody_override`~~ ✅
 
-- Pipeline-stub finns; produkt ej definierad
+- Migration `1809330000000` · API + undantag-UI i `custody-settings.js`
+- Pipeline: override → pattern → fallback (oförändrad ordning)
 
 ### 5. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
 

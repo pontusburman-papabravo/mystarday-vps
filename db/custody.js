@@ -236,6 +236,114 @@ async function getParentHomeId(parentId, familyId, client = db) {
   return result.rows[0]?.custody_home_id || null;
 }
 
+const OVERRIDE_SELECT = `
+  SELECT co.id, co.child_id, co.start_date::text AS start_date,
+         co.end_date::text AS end_date, co.home_id, co.reason, co.priority,
+         co.created_at, co.updated_at
+  FROM custody_override co
+`;
+
+/**
+ * @param {string} childId
+ */
+async function listOverridesForChild(childId, client = db) {
+  const result = await client.query(
+    `${OVERRIDE_SELECT}
+     WHERE co.child_id = $1
+     ORDER BY co.start_date ASC, co.priority DESC, co.created_at ASC`,
+    [childId]
+  );
+  return result.rows;
+}
+
+/**
+ * @param {string} familyId
+ */
+async function listOverridesForFamily(familyId, client = db) {
+  const result = await client.query(
+    `${OVERRIDE_SELECT}
+     JOIN child c ON c.id = co.child_id
+     WHERE c.family_id = $1
+     ORDER BY co.child_id, co.start_date ASC, co.priority DESC, co.created_at ASC`,
+    [familyId]
+  );
+  return result.rows;
+}
+
+/**
+ * @param {string} overrideId
+ * @param {string} familyId
+ */
+async function getOverrideInFamily(overrideId, familyId, client = db) {
+  const result = await client.query(
+    `${OVERRIDE_SELECT}
+     JOIN child c ON c.id = co.child_id
+     WHERE co.id = $1 AND c.family_id = $2`,
+    [overrideId, familyId]
+  );
+  return result.rows[0] || null;
+}
+
+/**
+ * @param {object} row
+ */
+async function createOverride(row, client = db) {
+  const result = await client.query(
+    `INSERT INTO custody_override (child_id, start_date, end_date, home_id, reason, priority)
+     VALUES ($1, $2::date, $3::date, $4, $5, $6)
+     RETURNING id, child_id, start_date::text AS start_date, end_date::text AS end_date,
+               home_id, reason, priority, created_at, updated_at`,
+    [
+      row.child_id,
+      row.start_date,
+      row.end_date,
+      row.home_id,
+      row.reason ?? null,
+      row.priority ?? 0,
+    ]
+  );
+  return result.rows[0];
+}
+
+/**
+ * @param {string} overrideId
+ * @param {object} row
+ */
+async function updateOverride(overrideId, row, client = db) {
+  const result = await client.query(
+    `UPDATE custody_override
+     SET start_date = $2::date,
+         end_date = $3::date,
+         home_id = $4,
+         reason = $5,
+         priority = $6,
+         updated_at = now()
+     WHERE id = $1
+     RETURNING id, child_id, start_date::text AS start_date, end_date::text AS end_date,
+               home_id, reason, priority, created_at, updated_at`,
+    [
+      overrideId,
+      row.start_date,
+      row.end_date,
+      row.home_id,
+      row.reason ?? null,
+      row.priority ?? 0,
+    ]
+  );
+  return result.rows[0] || null;
+}
+
+/**
+ * @param {string} overrideId
+ */
+async function deleteOverride(overrideId, client = db) {
+  const result = await client.query(
+    'DELETE FROM custody_override WHERE id = $1 RETURNING id',
+    [overrideId]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   PATTERN_ALTERNATE_WEEKS,
   PATTERN_ALTERNATE_WEEKENDS,
@@ -257,4 +365,10 @@ module.exports = {
   deleteSchedule,
   getFamilyConfig,
   getParentHomeId,
+  listOverridesForChild,
+  listOverridesForFamily,
+  getOverrideInFamily,
+  createOverride,
+  updateOverride,
+  deleteOverride,
 };

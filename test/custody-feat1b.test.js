@@ -50,12 +50,17 @@ describe('FEAT-1B boendeschema', () => {
     assert.match(src, /startCustodyHandoffScheduler/);
   });
 
-  it('daily-log has print my days', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'public/daily-log.html'), 'utf8');
-    const js = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
-    assert.match(html, /printMyDaysBtn/);
-    assert.match(js, /printMyDaysWeek/);
-    assert.match(js, /print_schema_exported/);
+  it('PUT pattern route accepts custom pattern_type', () => {
+    const routes = fs.readFileSync(path.join(ROOT, 'src/routes/family/custody.js'), 'utf8');
+    assert.match(routes, /PATTERN_CUSTOM/);
+    assert.match(routes, /validateCustomConfiguration/);
+  });
+
+  it('custody-settings has custom veckogrid and help text', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-settings.js'), 'utf8');
+    assert.match(src, /Eget mönster/);
+    assert.match(src, /CUSTOM_HELP_TEXT/);
+    assert.match(src, /undantag/);
   });
 
   it('BC-11 print discoverability from planning and schedule', () => {
