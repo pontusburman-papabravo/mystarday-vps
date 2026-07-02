@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v471';
+const CACHE_NAME = 'stjarndag-v472';
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
@@ -325,6 +325,7 @@ const CACHE_NAME = 'stjarndag-v471';
 // stjarndag-v468: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
+// stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
