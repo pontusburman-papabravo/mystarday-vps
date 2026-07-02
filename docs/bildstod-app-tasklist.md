@@ -362,25 +362,29 @@
 
 **Start:** direkt efter R2, ingen trafik-gate (D8 — medveten satsning på räckvidd framför stegvis validering). Mät löpande via R3.3 för att kunna justera kadensen om det inte konverterar.
 
+**Status:** ✅ Första batch levererad 2026-07-02 — 20 long-tail-sidor, generator, tester, Search Console-checklista.
+
 ### EPIC R3.1 — Landningspage-generator
 
-- [ ] Datafil: `{ intent, title, body, relatedSlugs, downloadSlug }`
-- [ ] Build-script eller handcurated batch — inga tunna dubbletter
+- [x] Datafil: `{ intent, title, body, relatedSlugs, downloadSlug }` → `config/resurser-r3-pages-data.js` + `config/resurser-r3.js`
+- [x] Build-script: `scripts/generate-resurser-r3-html.mjs` — samma layout som R1/R2 (`seo-article.css`, canonical, CTA, article-events)
 
 ### EPIC R3.2 — Skala 50 → 100+ sidor
 
-- [ ] Exempel: `bildkort-adhd`, `bildschema-pdf`, `kanslokort-barn`, `bildstod-forskolan`
-- [ ] ≥300 ord unik text per sida
-- [ ] Minst 1 nedladdning eller guide-länk per sida
+- [x] Första batch: 20 sidor (kvalitet före kvantitet — se plan §5.6/D8)
+- [x] ≥300 ord unik text per sida (assertion i `test/resurser-r3.test.js`)
+- [x] Minst 1 nedladdning eller guide-länk per sida (`downloadSlug` + `relatedSlugs`)
 
 ### EPIC R3.3 — Search Console
 
-- [ ] Månatlig: sidor med impressions men låg CTR → förbättra title/ingress
-- [ ] Index coverage för `/resurser/*`
+- [x] Månatlig checklista dokumenterad: `docs/resurser-r3-search-console-checklist.md`
+- [ ] **Löpande (mänsklig):** sidor med impressions men låg CTR → förbättra title/ingress
+- [ ] **Löpande (mänsklig):** index coverage för `/resurser/*`
 
 ### EPIC R3.4 — Kadens
 
-- [ ] 2 nya PDF-mallar + 5 long-tail-sidor per månad (growth-rutin)
+- [ ] **Löpande process (ej kod):** 2 nya PDF-mallar + 5 long-tail-sidor per månad (growth-rutin)
+- Se `docs/resurser-r3-search-console-checklist.md` kvartalsvis granskning
 
 ---
 

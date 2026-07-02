@@ -1779,9 +1779,12 @@ Se `config/subscription-components.js` (metadata) och `config/component-feature-
 | Nivå | API | Syfte |
 |------|-----|-------|
 | **Komponent** | `hasComponent('teacch')` / `requireComponent('teacch')` | Paketköp — "har familjen Extra stöd?" |
-| **Feature** | `hasFeature('visual_timer')` / `requireFeature('read_aloud')` | Finmaskig rollout inom paket (v1.3: `social_stories`, `minimal_ui` utan nytt paket) |
+| **Feature** | `requireFeature(slug)` · `db/features.hasAccess(familyId, slug)` | Finmaskig rollout inom paket (v1.3: `social_stories`, `minimal_ui` utan nytt paket) |
 
-Middleware i `src/middleware/require-component.js` utökas med `requireFeature(slug)` som kollar `family_features` + komponent-mapping (§8.1).
+- **Komponent:** `requireComponent(component)` — `src/middleware/require-component.js`
+- **Feature:** `requireFeature(slug)` — `src/middleware/feature-gate.js` → `db/features.hasAccess()` (komponent via `component-feature-map.js` **och** feature-flag `live` / `dev` + `family_features`)
+
+*Kodexemplet nedan använder `hasFeature` som begrepp; det finns ingen fristående `hasFeature()`-helper — server-sanningen är `hasAccess()` / `requireFeature()`.*
 
 ```javascript
 // Exempel
