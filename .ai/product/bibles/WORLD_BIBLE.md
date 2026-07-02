@@ -1,7 +1,7 @@
 # World Bible — Min värld Spatial & Emotional Architecture
 
 **Version:** 1.0  
-**Status:** In progress — **Part III RBS complete** · **Part IV catalog started** (`bibles/rooms/`)  
+**Status:** **World Bible v1.0 — Conceptual Foundation complete** (Parts I–V) · **Part VI Room Catalog in progress** (`bibles/rooms/`)  
 **Authority:** Subordinate to World Constitution (when present), PCB, WDB, LWES  
 **Audience:** Art directors, level designers, animators, AI agents, engineers  
 **Map:** [DOCUMENTATION_MAP.md](../DOCUMENTATION_MAP.md)  
@@ -449,7 +449,7 @@ scene:
 ---
 
 **Next work:** Complete [`bibles/rooms/home_hall.yaml`](./rooms/home_hall.yaml) → Entity Bible rows for hero + interactives.  
-**Cross-ref:** [Part III RBS](#part-iii--room-blueprint-standard-rbs) · [Part IV Room Catalog](#part-iv--room-catalog) · [EMOTION_BIBLE.md](./EMOTION_BIBLE.md)
+**Cross-ref:** [Part III RBS](#part-iii--room-blueprint-standard-rbs) · [Part V Living World Simulation](#part-v--living-world-simulation) · [Part VI Room Catalog](#part-vi--room-catalog) · [EMOTION_BIBLE.md](./EMOTION_BIBLE.md)
 
 ---
 
@@ -457,7 +457,8 @@ scene:
 
 > **Det mest använda kapitlet.** Definierar **hur ett rum specificeras i data**.  
 > **Korsref:** §1–11 ovan (spatial architecture) · [LWES §22 Interaction Types](../LIVING_WORLD_ENGINE_SPEC.md#22-interaction-types) · [Appendix C](../LIVING_WORLD_ENGINE_SPEC.md#appendix-c--scene-pack-schema)  
-> **Konkreta rum:** [Part IV](#part-iv--room-catalog) → [`bibles/rooms/`](./rooms/README.md)
+> **Konkreta rum:** [Part VI — Room Catalog](#part-vi--room-catalog) → [`bibles/rooms/`](./rooms/README.md)  
+> **Levande värld:** [Part V — Living World Simulation](#part-v--living-world-simulation)
 
 ## Purpose
 
@@ -514,27 +515,163 @@ hero_object:
   interaction_level: inspect_primary
 ```
 
-## Supporting Objects · Ambient Objects · Interactive Objects
+## Supporting Objects
 
-Lists per rum. Interactive objects **MUST** use LWES §22 types only:
+```yaml
+supporting_objects:
+  - id: string
+    description: string
+    story_role: ownership | capability | navigation | curiosity | comfort
+```
 
-`Inspect · Open · Place · Collect · Feed · Pet · Talk · Move · Activate · Navigate`
+## Ambient Objects
 
-## Build Slots · Navigation · NPC Contract · Pet Contract
+```yaml
+ambient_objects:
+  - id: string
+    description: string
+    budget_tier: subtle | medium | rare
+```
 
-Navigation **explicit — never infer**. Se fullständig mall: [`rooms/_TEMPLATE.yaml`](./rooms/_TEMPLATE.yaml).
+## Interactive Objects
 
-## Camera · Lighting · Audio · Ambient Runtime
+Varje rad refererar **LWES §22 / Appendix D**. Sluten lista — inga custom utan ADR.
 
-Config only — ingen custom logik per rum. Audio → [AUDIO_BIBLE.md](./AUDIO_BIBLE.md).
+```yaml
+interactive_objects:
+  - id: door_garden
+    interaction_type: Navigate
+    target_scene: garden
+    landmark_label_sv: Trädgården
+  - id: welcome_mat_build
+    interaction_type: Place
+    build_slot: hall_welcome_mat
+    progression_key: progression.routine_home.welcome_mat
+  - id: fireplace_hero
+    interaction_type: Inspect
+```
 
-## Story Anchors · Discoveries · Seasonal · Weather · Theme Variants
+## Build Slots
+
+```yaml
+build_slots:
+  - id: hall_welcome_mat
+    location: zone_entry_mat
+    required_part: welcome_mat
+    theme_variant: welcome_mat_{theme}
+    unlock: progression.routine_home.welcome_mat
+```
+
+## Navigation
+
+**Explicit — infereras aldrig.**
+
+```yaml
+navigation:
+  edges:
+    - nav_id: door_garden
+      direction: out
+      from_scene: home_hall
+      to_scene: garden
+      transition_profile: door_fade_pan
+      landmark_label_sv: Trädgården
+  return_anchor: door_from_exterior
+  comfort_zone: true
+```
+
+## NPC Contract
+
+```yaml
+npc_contract:
+  present: true
+  npcs:
+    - id: dog_companion
+      entity_ref: dog_companion
+      role: companion
+      max_bubbles_per_beat: 3
+      emotional_object: true
+      progression_unlock: progression.routine_home.npc_mira
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+```
+
+## Pet Contract
+
+```yaml
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      species: dog
+      nameable: true
+      hunger_timer: false
+      sick_state: false
+      interact_verbs: [pet, call]
+      home_anchor: fireplace_hero
+```
+
+## Camera Contract
+
+Config only — ingen custom logik.
+
+```yaml
+camera_contract:
+  profile_id: hall_fixed_2_5d
+  type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_push_in
+  reduced_motion_fallback: static_frame
+```
+
+## Lighting Contract
+
+```yaml
+lighting_contract:
+  profile_id: home_hall_morning
+  primary_source: window_morning_warm
+  secondary_source: fireplace_glow
+  time_variants: [morning, evening, night]
+  weather_reactive: true
+```
+
+## Audio Contract
+
+```yaml
+audio_contract:
+  profile_id: home_hall_day
+  night_variant_id: home_hall_night
+  master_gain_max: 0.65
+  duck_on_interact: true
+  layers_ref: audio_bible/home_hall_day
+```
+
+## Ambient Runtime
+
+```yaml
+ambient_runtime:
+  director_scene_key: home_hall
+  calmness_target: 80
+  max_visual_density: 0.65
+  opening_grace_ms: 10000
+  ambient_ids: [light_dust_motes, curtain_edge_sway]
+  rare_events: []
+```
+
+## Story Anchors
 
 ```yaml
 story_anchors:
-  past: []
-  present: []
-  future: []
+  past: [{ id, description, progression_key }]
+  present: [{ id, description, entity }]
+  future: [{ id, description, progression_key }]
+```
+
+## Discoveries
+
+Ref LWES §23 Discovery Engine.
+
+```yaml
 discoveries:
   common: []
   rare: []
@@ -542,11 +679,87 @@ discoveries:
   hidden: []
 ```
 
-Discoveries → LWES §23 Discovery Runtime.
+## Seasonal Variants
 
-## Performance Budget · Asset Manifest · Prompt Manifest · Animation Manifest
+```yaml
+seasonal_variants:
+  global_sync: true
+  variants: [{ season, overlay_ids }]
+```
 
-Asset manifest: **semantic IDs only** — aldrig filnamn i logik. Prompt manifest: id, version, negative_prompt, art_style → [PROMPT_BIBLE.md](./PROMPT_BIBLE.md).
+## Weather Support
+
+Atmosfär only — påverkar inte gameplay gates.
+
+```yaml
+weather_support:
+  inherit_world: true
+  effects: [{ weather, audio, visual }]
+```
+
+## Theme Variants
+
+```yaml
+theme_variants:
+  house: { skin_set, landmark_label }
+  castle: { skin_set, landmark_label }
+  treehouse: { skin_set, landmark_label }
+  space: { skin_set, landmark_label }
+  pirate: { skin_set, landmark_label }
+  wizard: { skin_set, landmark_label }
+```
+
+## Performance Budget
+
+```yaml
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 10
+  max_animated_ambient: 4
+  max_particle_systems: 2
+  texture_memory_mb: 12
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+```
+
+## Asset Manifest
+
+IDs only — aldrig filnamn i logik.
+
+```yaml
+asset_manifest:
+  scene_bg: semantic_id
+  layers: []
+  entities: []
+  theme_resolver: semantic_id_plus_theme_suffix
+```
+
+## Prompt Manifest
+
+```yaml
+prompt_manifest:
+  - id: hall_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No text on walls, no brand logos, no scary shadows
+    catalog_ref: TBD
+```
+
+Källa: [PROMPT_BIBLE.md](./PROMPT_BIBLE.md) · [ART_PROMPT_CATALOG.md](./ART_PROMPT_CATALOG.md).
+
+## Animation Manifest
+
+```yaml
+animation_manifest:
+  idle: []
+  ambient: []
+  hero: []
+  interaction: []
+  celebration: []
+```
+
+Korsref: [ANIMATION_BIBLE.md](./ANIMATION_BIBLE.md).
 
 ## Quality Gates
 

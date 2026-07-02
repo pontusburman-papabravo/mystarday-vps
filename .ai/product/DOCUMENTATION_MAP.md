@@ -57,4 +57,25 @@ Kod
 
 ---
 
-*Se även [.ai/product/README.md](./README.md) · [docs/child-worlds-index.md](../docs/child-worlds-index.md)*
+---
+
+## Target documentation hierarchy (roadmap)
+
+Planned `docs/` tree — **current paths in parentheses**; no mass migration yet:
+
+| Target | Today | Notes |
+|--------|-------|-------|
+| `docs/00-product/` | `docs/PRODUCT-CONSTITUTION.md`, visions in `docs/*-vision.md` | Product constitution summaries |
+| `docs/01-world/` | **`docs/world/`** ✅ | Places database — ACTIVE |
+| `docs/02-entities/` | `docs/world/entities/` stub | Future entity YAML + MD |
+| `docs/03-experience-packs/` | `config/experience-packs/` | Runtime data, not under docs/ |
+| `docs/04-art/` | `.ai/product/ART_BIBLE.md`, `bibles/ART_PROMPT_CATALOG.md` | Visual contracts |
+| `docs/05-audio/` | `.ai/product/bibles/AUDIO_BIBLE.md` | Audio profiles |
+| `docs/06-progression/` | `WORLD_DESIGN_BIBLE.md`, `progression.json` | WDB nodes |
+| `docs/07-adr/` | `product-operating-system/14_DECISION_LOG.md` | ADRs |
+
+POS (`product-operating-system/`) and LWES (`.ai/product/LIVING_WORLD_ENGINE_SPEC.md`) remain top-level authority — not moved.
+
+---
+
+*Se även [.ai/product/README.md](./README.md) · [docs/child-worlds-index.md](../docs/child-worlds-index.md) · [docs/world/README.md](../docs/world/README.md)*
