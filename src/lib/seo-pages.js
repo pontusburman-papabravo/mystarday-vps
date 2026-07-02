@@ -4,6 +4,7 @@
  */
 
 const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
+const { R2_INDEXABLE_PATHS } = require('../../config/resurser-r2');
 
 const SEO_INDEXABLE_PATHS = new Set([
   '/',
@@ -24,6 +25,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/veckoschema-bildstod',
   '/resurser',
   ...R1_INDEXABLE_PATHS,
+  ...R2_INDEXABLE_PATHS,
 ]);
 
 function normalizeSeoPath(path) {

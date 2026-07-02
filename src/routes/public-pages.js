@@ -85,12 +85,17 @@ router.get('/veckoschema-bildstod', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'veckoschema-bildstod.html'));
 });
 
-// Resursbibliotek hub + R1 category/PDF pages (Phase R0/R1)
+// Resursbibliotek hub + R1/R2 category/PDF pages (Phase R0–R2)
 const {
   R1_CATEGORY_PAGES,
   R1_BILDKORT_PAGES,
   R1_PDF_PAGES,
 } = require('../../config/resurser-r1');
+const {
+  R2_CATEGORY_PAGES,
+  R2_BILDKORT_PAGES,
+  R2_PDF_PAGES,
+} = require('../../config/resurser-r2');
 
 function sendPublicHtml(relativeFile) {
   return (req, res) => {
@@ -102,7 +107,14 @@ router.get('/resurser', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'resurser.html'));
 });
 
-for (const page of [...R1_CATEGORY_PAGES, ...R1_BILDKORT_PAGES, ...R1_PDF_PAGES]) {
+for (const page of [
+  ...R1_CATEGORY_PAGES,
+  ...R1_BILDKORT_PAGES,
+  ...R1_PDF_PAGES,
+  ...R2_CATEGORY_PAGES,
+  ...R2_BILDKORT_PAGES,
+  ...R2_PDF_PAGES,
+]) {
   router.get(page.path, sendPublicHtml(page.file));
 }
 

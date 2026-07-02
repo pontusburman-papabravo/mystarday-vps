@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Static printable PDFs for resursbibliotek (morgon/kväll v1).
+ * Static printable PDFs for resursbibliotek (morgon/kväll + R2 categories).
  * Emoji-free labels — reliable in PDFKit without custom fonts.
  */
 
@@ -11,6 +11,11 @@ const NAVY = '#1C2340';
 const AMBER = '#F5A623';
 const GRAY = '#5A6378';
 const BORDER = '#E8E4DC';
+
+const WEEKDAY_LABELS = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag'];
+
+const BELONING_STAR_ROWS = 5;
+const BELONING_STAR_COLS = 10;
 
 function labelsForKeys(keys) {
   return keys.map((key, index) => {
@@ -107,16 +112,85 @@ function drawCard(doc, x, y, w, h, step) {
     .text(step.label, x + 10, y + 58, { width: w - 20, align: 'center' });
 }
 
-function generateResurserPdf(stream, { type, keys, title, subtitle, emptyBoxes }) {
+function drawBeloningPdf(doc, { title, subtitle }) {
+  doc.font('Helvetica-Bold').fontSize(20).fillColor(NAVY).text(title, 40, 48);
+  doc.font('Helvetica').fontSize(11).fillColor(GRAY).text(subtitle, 40, 78, { width: 515 });
+
+  const labelW = 120;
+  const starSize = 18;
+  const starGap = 6;
+  const rowH = 32;
+  let y = 110;
+
+  doc.font('Helvetica-Bold').fontSize(10).fillColor(NAVY)
+    .text('Aktivitet', 40, y)
+    .text('Stjärnor', 40 + labelW + 10, y);
+  y += 24;
+
+  for (let row = 0; row < BELONING_STAR_ROWS; row += 1) {
+    doc.rect(40, y, labelW, rowH - 4).strokeColor(BORDER).lineWidth(1).stroke();
+    for (let col = 0; col < BELONING_STAR_COLS; col += 1) {
+      const sx = 40 + labelW + 10 + col * (starSize + starGap);
+      doc.rect(sx, y + 4, starSize, starSize - 2).strokeColor(BORDER).lineWidth(0.8).stroke();
+    }
+    y += rowH;
+  }
+
+  doc.font('Helvetica').fontSize(10).fillColor(GRAY)
+    .text('Mål: _____ stjärnor  →  Belöning: _______________________', 40, y + 16, { width: 515 });
+  doc.fontSize(9).fillColor(GRAY)
+    .text('Utskrivbart stjärnschema — samma idé som Skattkammaren i appen, men på papper.', 40, y + 36, { width: 515 });
+  writeFooter(doc, 1);
+}
+
+function drawVeckoschemaPdf(doc, { title, subtitle, exampleLabels }) {
+  doc.font('Helvetica-Bold').fontSize(20).fillColor(NAVY).text(title, 40, 48);
+  doc.font('Helvetica').fontSize(11).fillColor(GRAY).text(subtitle, 40, 78, { width: 515 });
+
+  const colW = 68;
+  const rowH = 28;
+  const x0 = 40;
+  let y = 110;
+
+  WEEKDAY_LABELS.forEach((day, col) => {
+    const x = x0 + col * colW;
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(NAVY)
+      .text(day, x, y, { width: colW - 4, align: 'center' });
+  });
+  y += 20;
+
+  const rows = exampleLabels ? 4 : 3;
+  for (let row = 0; row < rows; row += 1) {
+    WEEKDAY_LABELS.forEach((day, col) => {
+      const x = x0 + col * colW;
+      doc.rect(x, y, colW - 4, rowH).strokeColor(BORDER).lineWidth(1).stroke();
+      if (exampleLabels && exampleLabels[col] && row === 0) {
+        doc.font('Helvetica').fontSize(7).fillColor(NAVY)
+          .text(exampleLabels[col], x + 2, y + 8, { width: colW - 8, align: 'center' });
+      }
+    });
+    y += rowH + 4;
+  }
+
+  doc.fontSize(9).fillColor(GRAY)
+    .text('Statisk veckomall — i appen uppdateras veckoschemat utan att skriva ut om.', 40, y + 12, { width: 515 });
+  writeFooter(doc, 1);
+}
+
+function generateResurserPdf(stream, { type, keys, title, subtitle, emptyBoxes, exampleLabels }) {
   const PDFDocument = require('pdfkit');
   const doc = new PDFDocument({ size: 'A4', margin: 40, info: { Title: title, Author: 'Min Stjärndag' } });
   doc.pipe(stream);
-  const steps = labelsForKeys(keys);
+  const steps = keys ? labelsForKeys(keys) : [];
 
   if (type === 'schedule') {
     drawSchedulePdf(doc, { title, subtitle, steps, emptyBoxes: !!emptyBoxes });
   } else if (type === 'bildkort') {
     drawBildkortPdf(doc, { title, steps });
+  } else if (type === 'beloning') {
+    drawBeloningPdf(doc, { title, subtitle });
+  } else if (type === 'veckoschema') {
+    drawVeckoschemaPdf(doc, { title, subtitle, exampleLabels: exampleLabels || null });
   } else {
     throw new Error(`Unknown resurser PDF type: ${type}`);
   }
@@ -127,4 +201,7 @@ function generateResurserPdf(stream, { type, keys, title, subtitle, emptyBoxes }
 module.exports = {
   labelsForKeys,
   generateResurserPdf,
+  WEEKDAY_LABELS,
+  BELONING_STAR_ROWS,
+  BELONING_STAR_COLS,
 };
