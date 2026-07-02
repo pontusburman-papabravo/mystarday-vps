@@ -1,8 +1,8 @@
 # Organizational Knowledge Index
 
-**Maintained by:** Org Health (Orchestrator + AI Systems Architect)  
-**Updated:** 2026-07-02 (overnight run complete)  
-**Purpose:** Living map — update after each mission, do not re-grep from scratch
+**Maintained by:** CTO / Org Health  
+**Updated:** 2026-07-02 (MO002 — Home pack refactor)  
+**Purpose:** Living map — update after each mission
 
 ---
 
@@ -10,49 +10,56 @@
 
 | Layer | Location | Status |
 |-------|----------|--------|
-| POS | `product-operating-system/` | ✅ 12 files restored |
-| COS | `.ai/company/ORGANIZATION.md` | ✅ v1.1 org OS |
-| PCB + bibles | `.ai/product/` | ✅ WDB/GDB ref aligned |
-| AOS | `.ai/` + `.cursor/rules/` | ✅ tier-aware 200/201 |
-| Runtime | `.ai/runtime/` | ✅ tier in MISSION/REVIEW/WORKFLOW |
-| Registry | `config/governance-registry.json` | ✅ 7 rules + CI |
-| Knowledge | `.ai/knowledge/` | ✅ index + backlog |
+| POS | `product-operating-system/` | ✅ |
+| COS | `.ai/company/ORGANIZATION.md` | ✅ v1.1 |
+| PCB + bibles | `.ai/product/` | ✅ |
+| Registry | `config/governance-registry.json` | ✅ 7 rules |
+| Knowledge | `.ai/knowledge/` | ✅ |
 
 ---
 
-## Core systems
+## Min Värld — vertical slice status (MO002)
 
-| System | Entry | Tests |
-|--------|-------|-------|
-| Express app | `app.js`, `server.js` | `test/maintenance-order.test.js` |
-| Auth | `src/routes/auth/` | `test/auth-integration.test.js` |
-| Journey coach | `src/lib/journey/`, `journey-coach.js` | `test/journey-*.test.js` |
-| Core Engine | `src/core-engine/` | `test/engine-golden.test.js` |
-| Experience packs | `config/experience-packs/child_se/` | `test/experience-pack*.test.js` |
-| Platform runtime | `src/lib/platform-runtime/` | `test/platform-runtime-integration.test.js` |
-| Governance | `config/governance-registry.json` | `test/governance-registry.test.js` |
+| Slice | Component | Status | Notes |
+|-------|-----------|--------|-------|
+| **Home** | Progression nodes | ✅ | `progression.json` — welcome_mat, first_light |
+| **Home** | Ambient props | ✅ | Pack-driven `worlds.json` ambient_props (v1.0.2) |
+| **Home** | Server scene | ✅ | `morgonhus-playable.js` — no hardcoded AMBIENT_PROPS |
+| **Home** | Client scene | ✅ | `child-morgonhus.js` |
+| **Home** | QA | ✅ | `morgonhus-playable.test.js` + structural pack tests |
+| **Garden** | Ambient scenery | ⚠️ | Still hardcoded `AMBIENT_SCENERY` — next refactor target |
+| **Garden** | Living objects | ✅ | `living-objects.json` sunflower loop |
+| **Platform runtime** | Orchestrator | ✅ | Flag default OFF |
+
+**Reference implementation pattern:** progression nodes + unlock_feedback + ambient_props in pack → playable module reads pack only.
 
 ---
 
-## World implementation state
+## Repository map (world systems)
 
-| World (PCB) | Pack slug | Status |
-|---------------|-----------|--------|
-| Morgonhuset | `routine_home` | Live |
-| Trädgården | `garden` | Live |
-| Verkstaden–Läshörnan (5) | — | Not in pack |
-| Platform runtime flag | `platform_runtime_enabled` | Default OFF |
+```
+config/experience-packs/child_se/
+  manifest.json · progression.json · worlds.json · living-objects.json
+src/lib/
+  morgonhus-playable.js    ← Home scene builder
+  garden-playable.js       ← Garden ambient (refactor pending)
+  platform-runtime/        ← Progression unlock pipeline
+  living-world-access.js   ← Feature gate per world
+public/js/
+  child-morgonhus.js · child-garden.js · child-world.js
+src/routes/
+  morgonhus.js · garden.js (if exists)
+```
 
 ---
 
 ## Open gaps
 
-| ID | Gap | Priority |
-|----|-----|----------|
-| GAP-001 | GDB/WDB version refs | ✅ fixed |
-| GAP-002 | `lint:public` over CI budget | P2 |
-| GAP-003 | 5 PCB worlds not in pack | P3 (human content) |
-| GAP-004 | Child IA doc drift | ✅ ADR + indexes updated |
+| ID | Gap | Priority | Next mission |
+|----|-----|----------|--------------|
+| GAP-005 | Garden AMBIENT_SCENERY hardcoded | P1 | Garden pack refactor (vertical slice) |
+| GAP-002 | lint:public CI budget | P2 | Engineering debt |
+| GAP-003 | PCB worlds 3–7 not in pack | P3 | Human creative |
 
 ---
 

@@ -130,6 +130,22 @@ describe('experience pack structural validation', () => {
         }
       });
 
+      it('ambient_props have required fields and valid gate references', () => {
+        const worldSlugs = new Set((pack.worlds.worlds || []).map((w) => w.world_slug));
+        for (const world of pack.worlds.worlds || []) {
+          for (const ambient of world.ambient_props || []) {
+            assert.ok(ambient.prop_id, `ambient prop missing prop_id in ${world.world_slug}`);
+            assert.ok(ambient.label_sv, `ambient ${ambient.prop_id} missing label_sv`);
+            if (ambient.gate_to_world) {
+              assert.ok(
+                worldSlugs.has(ambient.gate_to_world),
+                `ambient ${ambient.prop_id} gate_to_world "${ambient.gate_to_world}" not in worlds.json`
+              );
+            }
+          }
+        }
+      });
+
       it('required runtime copy experiences exist', () => {
         const experiences = pack.copy.experiences || {};
         for (const key of REQUIRED_COPY_KEYS) {

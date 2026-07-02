@@ -9,10 +9,19 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
+| BL-020 | P1 | Garden ambient_props pack refactor | Reuse Home pattern | BL-021 done | Low | Backend | **next** |
+| BL-021 | P1 | Home ambient_props pack refactor | Constitution §6 | — | Low | Backend | **done** |
 | BL-010 | P2 | `lint:public` budget vs debt | CI noise | — | Med | Engineering | open |
-| BL-011 | P3 | Program-catalog API orphan audit | Dead code | — | Low | Backend | open |
-| BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
 | BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | open |
+| BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
+
+---
+
+## Completed (MO002 2026-07-02)
+
+| ID | Mission |
+|----|---------|
+| BL-021 | Home `ambient_props` in worlds.json; removed hardcoded AMBIENT_PROPS |
 
 ---
 

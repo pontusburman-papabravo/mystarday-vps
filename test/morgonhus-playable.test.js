@@ -182,6 +182,64 @@ describe('morgonhus_playable — feature access rollout', () => {
     const welcomeMat = state.props.find((p) => p.prop_id === 'welcome_mat');
     assert.equal(welcomeMat.visual_token, 'welcome_mat_glow');
     assert.match(welcomeMat.child_message, /Morgonhuset/);
+
+    const door = state.props.find((p) => p.prop_id === 'door');
+    assert.match(door.child_message, /Dörren skakar/);
+    assert.equal(door.leads_to_garden, false);
+  });
+
+  it('buildSceneState gates door to garden from pack ambient_props when access granted', async () => {
+    clearPackCache();
+    const mock = injectMockDb();
+    mock.setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('child_progression_node')) return { rows: [] };
+      if (q.includes('FROM features WHERE slug')) {
+        const slug = params[0];
+        if (slug === 'garden_playable') {
+          return { rows: [{ slug, status: 'live' }] };
+        }
+        return { rows: [] };
+      }
+      if (q.includes('FROM family_features')) return { rows: [] };
+      if (q.includes('family_subscriptions') || q.includes('has_component')) {
+        return { rows: [{ has_component: true }] };
+      }
+      return { rows: [] };
+    });
+
+    const modPath = require.resolve('../src/lib/morgonhus-playable');
+    const livingPath = require.resolve('../src/lib/living-world-access');
+    const featuresPath = require.resolve('../db/features');
+    const progressionPath = require.resolve('../db/child-progression-node');
+    delete require.cache[modPath];
+    delete require.cache[livingPath];
+    delete require.cache[featuresPath];
+    delete require.cache[progressionPath];
+    const { buildSceneState } = require(modPath);
+
+    const state = await buildSceneState('child-test-2', FAMILY_A);
+    assert.equal(state.gate_to_garden, true);
+    const door = state.props.find((p) => p.prop_id === 'door');
+    assert.equal(door.leads_to_garden, true);
+    assert.match(door.child_message, /trädgården/);
+  });
+
+  it('ambient props are defined in experience pack worlds.json not hardcoded', () => {
+    const worlds = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '../config/experience-packs/child_se/worlds.json'),
+      'utf8'
+    ));
+    const home = worlds.worlds.find((w) => w.world_slug === 'routine_home');
+    assert.ok(home.ambient_props?.length, 'routine_home must define ambient_props in pack');
+    assert.ok(home.ambient_props.some((p) => p.prop_id === 'door'));
+
+    const libSrc = fs.readFileSync(
+      path.join(__dirname, '../src/lib/morgonhus-playable.js'),
+      'utf8'
+    );
+    assert.doesNotMatch(libSrc, /const AMBIENT_PROPS/);
+    assert.match(libSrc, /ambient_props/);
   });
 
   it('morgonhus scene does not depend on platform_runtime_enabled flag', () => {
@@ -196,7 +254,7 @@ describe('morgonhus_playable — feature access rollout', () => {
     assert.doesNotMatch(libSrc, /platform_runtime_enabled/);
     assert.doesNotMatch(libSrc, /isRuntimeEnabled/);
     assert.doesNotMatch(routeSrc, /isRuntimeEnabled/);
-    assert.match(libSrc, /always_active: true/);
+    assert.match(libSrc, /ambient_props/);
   });
 });
 

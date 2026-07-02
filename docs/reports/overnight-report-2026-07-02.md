@@ -1,133 +1,122 @@
-# Overnight Autonomous Development Report — 2026-07-02
+# CTO Report — 2026-07-02 (Mission Order 002)
 
-## Executive Summary
+## Executive summary
 
-Autonomous run focused on **authority restoration** and **COS v1.1 organizational operating model** — not feature code. Repository is measurably easier for future agents to navigate and enforce product law.
-
-### Missions completed (9)
-
-| # | Mission | Outcome |
-|---|---------|---------|
-| 1 | Restore POS root | 12 canonical files at `product-operating-system/` |
-| 2 | COS v1.1 org OS | Cells, tiers T0–T3, council model in `ORGANIZATION.md` |
-| 3 | Governance registry | `config/governance-registry.json` + 7 rule mappings |
-| 4 | CI enforcement | `npm run check:governance` + CI step + `test/governance-registry.test.js` |
-| 5 | Tier-scaled runtime | MISSION/REVIEW/WORKFLOW engines updated |
-| 6 | Child IA ADR | POS `14` §1 — Idag · Min värld · Familj canonical |
-| 7 | Doc reconciliation | Constitution pointer, child-worlds-index, informationsarkitektur |
-| 8 | Knowledge system | `.ai/knowledge/index.md` + `BACKLOG.md` |
-| 9 | Agent org v1.1 | Cell-based roster in `.ai/agents/README.md` |
-
-### Repository improvements
-
-- **Authority vacuum closed** — POS exists; agents can follow documented supremacy stack
-- **COS clarified** as org OS (not product bible)
-- **Review bloat reduced** — tier matrix replaces uniform 16-reviewer mandate
-- **Mechanical enforcement** — governance survives beyond prompts
-
-### Architecture improvements
-
-- Documented canonical pipeline: Core Engine → Experience Pack → Platform Runtime (POS 09)
-- ADR for child IA removes dual-truth between docs and POS rules
-
-### Documentation improvements
-
-- POS restored from fragments (constitution, manifesto, taste, domains 04–07, 09–10, 14–15)
-- WDB/GDB version reference aligned
-- Legacy `docs/PRODUCT-CONSTITUTION.md` → pointer to POS
-
-### Tests added
-
-- `test/governance-registry.test.js` (6 tests) — in `test:gate:unit`
-- `scripts/check-governance.mjs` — POS file presence + constitution rule count
-
-### Technical debt removed
-
-- Constitution rule count mismatch (5 vs 6) in `010-product.mdc`
-- Missing POS references across governance stack
-- GDB v2 phantom reference in WDB header
+Permanent CTO mode initiated. First Min Värld vertical slice mission completed: **Home ambient props are now data-driven** in the experience pack — removing hardcoded scene constants and establishing the reference pattern for Garden and future rooms.
 
 ---
 
-## Remaining Blockers
+## Completed missions
 
-### Human decisions
-
-| Blocker | Why |
-|---------|-----|
-| World 3+ in experience pack | Creative/content decision for PCB worlds 3–7 |
-| Merge + deploy RC | Human approval gate — no autonomous merge to main |
-
-### Missing assets
-
-- None blocking org work
-
-### Product clarification
-
-- Long-term: per-world deep specs under `product-content-bible/` (referenced, not present)
+| Mission | Tier | Result |
+|---------|------|--------|
+| MO001 org foundation | T3 | POS + COS v1.1 (PR #517) |
+| MO002 Home pack refactor | T2 | `ambient_props` in pack; `morgonhus-playable.js` generalized |
 
 ---
 
-## Release Candidates
+## Architecture improvements
 
-### RC-001 — AI Dev Org + POS Restoration
-
-**Branch:** `cursor/ai-dev-org-overnight-5e52`  
-**Tier:** T3 (architecture + governance)  
-**Type:** Documentation + CI + org structure — **no runtime behavior change**
-
-**Includes:**
-
-- Full POS tree (12 files)
-- COS v1.1 organization charter
-- Governance registry + CI check
-- Tier-scaled agent runtime
-- Child IA ADR
-
-**Test results:** `test:gate` green · `check:governance` green
-
-**Rollback:** Revert single commit `94f4255`
-
-**Recommended human action:** Review PR · merge to main · no deploy-specific steps (docs/CI only)
+- **Pack-driven ambient props** — door + garden gate configured in `worlds.json`, not JS constants
+- **`resolveAmbientGate()`** — reusable gate resolver with feature-slug from pack
+- **Structural validation** — `ambient_props` schema checked in `experience-pack-structural.test.js`
+- **Reference pattern documented** in `.ai/knowledge/index.md` vertical slice table
 
 ---
 
-## Recommended Next Steps (Product Owner)
+## Repository improvements
 
-1. **Merge RC-001** — unblocks all future autonomous agents
-2. **Approve world 3 creative brief** — unlock experience pack expansion (BL-012)
-3. **Decide `lint:public` strategy** — raise budget vs dedicated debt sprint (BL-010)
-4. **Expand governance registry** — map remaining P-/C-/G- rules to contract tests (BL-013)
-5. **Platform runtime validation** — human-led live test per `docs/first-success/PLATFORM-RUNTIME-PROD-SAFE-VALIDATION.md` when ready
+- `config/experience-packs/child_se/worlds.json` v1.0.2
+- Governance registry links constitution-6 → morgonhus tests
+- Knowledge graph updated with Min Värld slice status
 
 ---
 
-## Lessons Learned
+## Tests added
 
-### Organization
+- `ambient_props have required fields` (structural)
+- `ambient props defined in pack not hardcoded` (morgonhus)
+- `buildSceneState gates door to garden from pack` (morgonhus)
 
-- **COS works as org OS** when defined as cells + tiers + gates — not as another document library
-- **17 agents are competencies**, not meeting attendees — TASK_ROUTER + tier fixes rubber-stamping risk
-- **Knowledge index** (`.ai/knowledge/`) must be updated per mission — replaces expensive re-research
-
-### COS evolution (v1.2 candidates)
-
-- Machine-readable tier classifier in MISSION_ENGINE (decision tree JSON)
-- Auto-generate governance registry from `.cursor/rules/` rule IDs
-- Hook handoff templates to include tier + backlog pointer
-
-### Future agents
-
-1. Read `.ai/knowledge/index.md` first — not full repo grep
-2. Classify tier before spawning reviewers
-3. Never invent product — POS Alignment Office pattern
-4. Commit hook blocks deploy-mode env name in docs — use live-deploy wording
+**Gate:** test:gate 656 tests pass
 
 ---
 
-## Autonomous run status
+## Documentation improvements
 
-**Stopped after:** High-value org missions complete · test:gate green · RC prepared  
-**Not attempted:** World implementation · live deploy · lint:public debt (lower priority vs authority fix)
+- Knowledge index: Min Värld vertical slice tracker
+- Backlog: BL-021 done, BL-020 Garden next
 
-**Branch pushed:** awaiting PR creation
+---
+
+## Technical debt removed
+
+- Hardcoded `AMBIENT_PROPS` in `morgonhus-playable.js` (Constitution §6 violation)
+
+---
+
+## Release candidates
+
+| RC | Branch | Content | Human action |
+|----|--------|---------|--------------|
+| RC-001 | `cursor/ai-dev-org-overnight-5e52` | POS + COS v1.1 | Merge PR #517 |
+| RC-002 | `cursor/min-varld-home-pack-5e52` | Home ambient_props pack refactor | Review + merge |
+
+---
+
+## Remaining blockers
+
+| Blocker | Type |
+|---------|------|
+| World 3+ creative content | Human |
+| Live deploy / platform runtime enable | Human approval gate |
+| PR merge | Human |
+
+---
+
+## Top 5 recommended human decisions
+
+1. Merge PR #517 (org foundation) then RC-002 (Home pack)
+2. Approve Garden ambient refactor as next autonomous mission (BL-020)
+3. World 3 creative brief when ready for pack expansion
+4. Platform runtime live validation window (existing runbook)
+5. `lint:public` budget strategy
+
+---
+
+## Top 5 recommended autonomous missions
+
+1. **Garden ambient_props pack refactor** — mirror Home pattern (BL-020)
+2. **Shared `world-ambient.js` helper** — DRY gate resolver for Home + Garden
+3. **Expand governance registry** — C-03, G-01 world scene tests
+4. **Garden QA pass** — structural + playable tests after pack move
+5. **Program-catalog orphan audit** — dead API cleanup
+
+---
+
+## Lessons learned
+
+- Vertical slice order works: Home refactor before Garden prevents copying bad patterns
+- Experience pack is the right abstraction for rooms — engine stays dumb, data stays rich
+- Test mocks must handle **all feature slugs** queried, not only the primary FEATURE_SLUG
+
+---
+
+## Recommended COS improvements
+
+- Add **Min Värld vertical slice tracker** to standard Mission Brief template
+- Document **pack schema versions** in MISSION_ENGINE when touching `worlds.json`
+
+---
+
+## Estimated repository health
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Product authority | 9/10 | POS restored; worlds 3–7 pending |
+| Architecture | 8/10 | Home pattern clean; Garden lagging |
+| Test coverage | 8/10 | Gate green; world client E2E manual |
+| Org capability | 8/10 | COS v1.1 operational |
+| Min Värld readiness | 6/10 | 2/7 worlds; runtime flag off |
+
+**Overall:** Improved since MO001. Ready for Garden vertical slice.

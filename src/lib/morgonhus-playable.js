@@ -12,17 +12,6 @@ const progressionDb = require('../../db/child-progression-node');
 const FEATURE_SLUG = 'morgonhus_playable';
 const WORLD_SLUG = 'routine_home';
 
-const AMBIENT_PROPS = [
-  {
-    prop_id: 'door',
-    node_id: null,
-    label_sv: 'Dörren',
-    always_active: true,
-    locked_hint: null,
-    ambient_message: 'Dörren skakar lite — som om någon väntar därute.',
-  },
-];
-
 /**
  * Playable Morgonhuset — per-family feature access (features/family_features).
  * Default denied when familyId missing, feature off, or not on dev allowlist.
@@ -42,7 +31,35 @@ function propIdFromNode(nodeId) {
   return nodeId.slice('routine_home_'.length);
 }
 
-function buildPropsFromPack(pack, unlockedIds, gateToGarden = false) {
+async function resolveAmbientGate(familyId, ambient, accessCache) {
+  if (!ambient.gate_to_world || !familyId) {
+    return { gated: false, message: ambient.ambient_message_sv || null };
+  }
+
+  const featureSlug = ambient.gate_feature_slug || `${ambient.gate_to_world}_playable`;
+  let allowed = accessCache.get(featureSlug);
+  if (allowed === undefined) {
+    try {
+      allowed = await hasLivingWorldAccess(familyId, featureSlug);
+    } catch (err) {
+      console.error('[morgonhus-playable] ambient gate error:', err.message);
+      allowed = false;
+    }
+    accessCache.set(featureSlug, allowed);
+  }
+
+  if (!allowed) {
+    return { gated: false, message: ambient.ambient_message_sv || null };
+  }
+
+  return {
+    gated: true,
+    message: ambient.gate_message_sv || ambient.ambient_message_sv || null,
+    leads_to_world: ambient.gate_to_world,
+  };
+}
+
+function buildPropsFromPack(pack, unlockedIds, ambientGates = new Map()) {
   const worldDef = getWorldDef(pack, WORLD_SLUG);
   const nodes = getAllProgressionNodes(pack).filter((n) => n.world_slug === WORLD_SLUG);
 
@@ -61,14 +78,19 @@ function buildPropsFromPack(pack, unlockedIds, gateToGarden = false) {
     };
   });
 
-  for (const ambient of AMBIENT_PROPS) {
-    const isGardenDoor = ambient.prop_id === 'door' && gateToGarden;
+  for (const ambient of worldDef?.ambient_props || []) {
+    const gate = ambientGates.get(ambient.prop_id) || { gated: false, message: ambient.ambient_message_sv };
+    const leadsToGarden = gate.gated && ambient.gate_to_world === 'garden';
     props.push({
-      ...ambient,
+      prop_id: ambient.prop_id,
+      node_id: null,
+      label_sv: ambient.label_sv,
       unlocked: true,
       visual_token: null,
-      child_message: isGardenDoor ? 'Utanför väntar trädgården…' : ambient.ambient_message,
-      leads_to_garden: isGardenDoor,
+      child_message: gate.message || ambient.ambient_message_sv || null,
+      locked_hint: null,
+      always_active: Boolean(ambient.always_active),
+      leads_to_garden: leadsToGarden,
     });
   }
 
@@ -89,14 +111,16 @@ async function buildSceneState(childId, familyIdOrClient) {
   const unlockedRows = await progressionDb.listUnlockedNodes(childId, client);
   const unlockedIds = new Set(unlockedRows.map((row) => row.node_id));
 
-  let gateToGarden = false;
-  if (familyId) {
-    try {
-      gateToGarden = await hasLivingWorldAccess(familyId, 'garden_playable');
-    } catch (err) {
-      console.error('[morgonhus-playable] garden gate error:', err.message);
-    }
+  const accessCache = new Map();
+  const ambientGates = new Map();
+  for (const ambient of worldDef?.ambient_props || []) {
+    const gate = await resolveAmbientGate(familyId, ambient, accessCache);
+    ambientGates.set(ambient.prop_id, gate);
   }
+
+  const gateToGarden = [...ambientGates.values()].some(
+    (g) => g.gated && g.leads_to_world === 'garden'
+  );
 
   return {
     enabled: true,
@@ -105,7 +129,7 @@ async function buildSceneState(childId, familyIdOrClient) {
     display_name: worldDef?.display_name_sv || 'Morgonhuset',
     first_enter_message: worldDef?.first_unlock_message || 'Morgonhuset väntar på dig',
     gate_to_garden: gateToGarden,
-    props: buildPropsFromPack(pack, unlockedIds, gateToGarden),
+    props: buildPropsFromPack(pack, unlockedIds, ambientGates),
     unlocked_node_ids: [...unlockedIds],
   };
 }
@@ -117,4 +141,5 @@ module.exports = {
   buildSceneState,
   buildPropsFromPack,
   propIdFromNode,
+  resolveAmbientGate,
 };

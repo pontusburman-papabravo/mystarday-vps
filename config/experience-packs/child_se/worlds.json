@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "worlds": [
     {
       "world_slug": "routine_home",
@@ -14,7 +14,18 @@
           "child_message": "Ett mjukt ljus tänds.",
           "visual_token": "morning_light_warm"
         }
-      }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Dörren",
+          "always_active": true,
+          "ambient_message_sv": "Dörren skakar lite — som om någon väntar därute.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Utanför väntar trädgården…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
     },
     {
       "world_slug": "garden",

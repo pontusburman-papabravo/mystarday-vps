@@ -10,7 +10,11 @@
     },
     "constitution-6": {
       "pos": "product-operating-system/00_PROJECT_CONSTITUTION.md#6",
-      "tests": ["test/experience-pack-structural.test.js", "test/experience-pack.test.js"],
+      "tests": [
+        "test/experience-pack-structural.test.js",
+        "test/experience-pack.test.js",
+        "test/morgonhus-playable.test.js"
+      ],
       "owners": ["GameDirector", "PrincipalEngineer"]
     },
     "PA-01": {
