@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v454';
+const CACHE_NAME = 'stjarndag-v458';
+// stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
 // stjarndag-v454: morgonhus scene@2x.webp precache + manifest godkänd
 // stjarndag-v453: barnmeny v2 — visa bottom nav när child-worlds-v2 är aktiv
 // stjarndag-v452: barnillustrationer — lazy bg + family hall glass + morgonhus scene CSS
