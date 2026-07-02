@@ -14,12 +14,17 @@ const FLAG_KEYS = {
   nudge: 'activation_nudge_v1',
 };
 
-/** Core ACT-1 onboarding flags — excludes legacy 7-day program sunset flags. */
-const ACT1_ONBOARDING_FLAG_KEYS = [
+/** PR 1–4 rollout — template, handoff, first star guide, AI (excludes PR 5 nudge). */
+const ACT1_PR14_FLAG_KEYS = [
   FLAG_KEYS.onboarding,
   FLAG_KEYS.childHandoff,
   FLAG_KEYS.firstStarGuide,
   FLAG_KEYS.aiStarterPlan,
+];
+
+/** Core ACT-1 onboarding flags — includes PR 5 nudge; excludes legacy 7-day program. */
+const ACT1_ONBOARDING_FLAG_KEYS = [
+  ...ACT1_PR14_FLAG_KEYS,
   FLAG_KEYS.nudge,
 ];
 
@@ -64,6 +69,7 @@ async function isActivationFlagEnabled(key, familyId) {
 
 module.exports = {
   FLAG_KEYS,
+  ACT1_PR14_FLAG_KEYS,
   ACT1_ONBOARDING_FLAG_KEYS,
   isActivationFlagEnabled,
 };

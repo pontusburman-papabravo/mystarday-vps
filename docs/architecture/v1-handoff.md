@@ -1,7 +1,7 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (ACT-1 PR3 rollout, FEAT-1B, Child Worlds v1.1)
+**Till:** Nästa fas (ACT-1 PR 5, FEAT-1B, Child Worlds v1.1)
 
 ---
 
@@ -19,7 +19,7 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Parent Hubs | Complete | `docs/qa/hub-integration-sweep.md` v2 |
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
-| ACT-1 v1 | Kod mergad, flags OFF | `docs/act-1-rollout-runbook.md` |
+| ACT-1 PR 1–4 | **Live** (migration `180922`) | `docs/act-1-rollout-runbook.md` |
 | För dig | **v1 Complete** | Sprint 3–5; Sprint 4 defer |
 
 ---
@@ -43,12 +43,11 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 - Pipeline-stub finns; produkt ej definierad
 - Kräver POS/ADR innan implementation
 
-### 3. ACT-1 PR 3 — Template-first onboarding (**nästa fokus**)
+### 3. ~~ACT-1 PR 1–4~~ ✅ Live (migration `180922`)
 
-- Kod finns på `main` (`onboarding-starter-plan.js`); flag `activation_onboarding_v1` OFF
-- Kör `node --test test/pr3-checkpoint.test.js` + `scripts/pr3-checkpoint.mjs` före pilot
-- Efter PR 3 stabil: PR 4 (AI), PR 5 (nudges) — se `docs/act-1-cursor-tasklist.md`
-- **Blocker:** manuell QA sign-off innan flag ON (Agent 7 / runbook)
+- Template-first onboarding, handoff, first star guide, AI (fallback till mall)
+- PR 5 (nudges) + `activation_first_star_mode_v1` kvar OFF — separat go-live
+- Mät `activation-funnel` i admin 48h efter deploy
 
 ### 4. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
 
@@ -80,6 +79,6 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 
 ## Öppna frågor
 
-1. ACT-1: när aktivera `activation_child_handoff_v1` för pilotfamiljer?
+1. ACT-1 PR 5: när aktivera `activation_nudge_v1`?
 2. För dig Sprint 4: implementera nav-flytt med flag eller defer?
-3. FEAT-1B: prioritet vs ACT-1 PR 3?
+3. FEAT-1B: prioritet vs ACT-1 PR 5?
