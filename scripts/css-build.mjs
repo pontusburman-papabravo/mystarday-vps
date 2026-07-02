@@ -21,10 +21,9 @@ execSync(
 );
 
 const header = `/* Tailwind build v${tailwindBuild} — ${cacheName} — do not edit; run npm run css:build */\n`;
-const css = fs.readFileSync(outCss, 'utf8');
-if (!css.startsWith('/* Tailwind build')) {
-  fs.writeFileSync(outCss, header + css);
-}
+const headerRe = /^\/\* Tailwind build v\d+ — [^\n]* — do not edit; run npm run css:build \*\/\n/;
+const css = fs.readFileSync(outCss, 'utf8').replace(headerRe, '');
+fs.writeFileSync(outCss, header + css);
 
 let sw = fs.readFileSync(swPath, 'utf8');
 const cacheRe = /const CACHE_NAME = 'stjarndag-v\d+'/;
