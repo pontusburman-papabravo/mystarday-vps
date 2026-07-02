@@ -1,6 +1,6 @@
 # Autonomous Development Backlog
 
-**Reprioritized:** 2026-07-02 (overnight run)  
+**Reprioritized:** 2026-07-02 (MO002 Garden complete)  
 **Rule:** Closed items removed · new items appended with full fields
 
 ---
@@ -9,10 +9,10 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-020 | P1 | Garden ambient_props pack refactor | Reuse Home pattern | BL-021 done | Low | Backend | **next** |
-| BL-021 | P1 | Home ambient_props pack refactor | Constitution §6 | — | Low | Backend | **done** |
+| BL-022 | P1 | Pet Runtime vertical slice | Min värld depth | Home+Garden pattern | Med | Backend | **next** |
 | BL-010 | P2 | `lint:public` budget vs debt | CI noise | — | Med | Engineering | open |
 | BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | open |
+| BL-023 | P2 | Extract `world-ambient.js` shared helper | DRY across worlds | 3 worlds | Low | Refactoring | open |
 | BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
 
 ---
@@ -22,6 +22,7 @@
 | ID | Mission |
 |----|---------|
 | BL-021 | Home `ambient_props` in worlds.json; removed hardcoded AMBIENT_PROPS |
+| BL-020 | Garden `ambient_scenery` in worlds.json; removed hardcoded AMBIENT_SCENERY |
 
 ---
 

@@ -99,6 +99,24 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.equal(JSON.stringify(state).includes('harvest'), false);
   });
 
+  it('ambient scenery is defined in experience pack worlds.json not hardcoded', () => {
+    const worlds = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '../config/experience-packs/child_se/worlds.json'),
+      'utf8'
+    ));
+    const garden = worlds.worlds.find((w) => w.world_slug === 'garden');
+    assert.ok(garden.ambient_scenery?.length, 'garden must define ambient_scenery in pack');
+    assert.ok(garden.ambient_scenery.some((s) => s.scenery_id === 'garden_path'));
+
+    const libSrc = fs.readFileSync(
+      path.join(__dirname, '../src/lib/garden-playable.js'),
+      'utf8'
+    );
+    assert.doesNotMatch(libSrc, /const AMBIENT_SCENERY/);
+    assert.match(libSrc, /ambient_scenery/);
+    assert.match(libSrc, /buildSceneryFromPack/);
+  });
+
   it('isPlayableEnabled denied without allowlist', async () => {
     mockFeatureAccess(new Set());
     const { isPlayableEnabled } = loadGardenPlayable();

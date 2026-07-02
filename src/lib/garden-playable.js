@@ -8,26 +8,15 @@ const {
 
 const FEATURE_SLUG = 'garden_playable';
 
-const AMBIENT_SCENERY = [
-  {
-    scenery_id: 'garden_path',
-    label_sv: 'Stigen',
-    emoji: '🌿',
-    ambient_message: 'Stigen leder längre in i trädgården.',
-  },
-  {
-    scenery_id: 'garden_bed',
-    label_sv: 'Blomsterbädden',
-    emoji: '🪴',
-    ambient_message: 'Jorden känns mjuk och varm under fingrarna.',
-  },
-  {
-    scenery_id: 'garden_sky',
-    label_sv: 'Himlen',
-    emoji: '☁️',
-    ambient_message: 'Molnen rör sig långsamt.',
-  },
-];
+function buildSceneryFromPack(worldDef) {
+  return (worldDef?.ambient_scenery || []).map((entry) => ({
+    scenery_id: entry.scenery_id,
+    label_sv: entry.label_sv,
+    emoji: entry.emoji || null,
+    ambient_message: entry.ambient_message_sv || null,
+    hotspot_class: entry.hotspot_class || null,
+  }));
+}
 
 /**
  * Playable Trädgården — ambient scene only (no LOE verbs/timers).
@@ -52,8 +41,8 @@ async function buildSceneState(childId) {
     world_slug: GARDEN_WORLD_SLUG,
     display_name: worldDef?.display_name_sv || 'Trädgården',
     first_enter_message: worldDef?.first_unlock_message || 'Trädgården väntar på dig',
-    ambient_message: 'Gräset rör sig långsamt i brisen.',
-    scenery: AMBIENT_SCENERY,
+    ambient_message: worldDef?.ambient_message_sv || 'Gräset rör sig långsamt i brisen.',
+    scenery: buildSceneryFromPack(worldDef),
   };
 }
 
@@ -62,4 +51,5 @@ module.exports = {
   WORLD_SLUG: GARDEN_WORLD_SLUG,
   isPlayableEnabled,
   buildSceneState,
+  buildSceneryFromPack,
 };

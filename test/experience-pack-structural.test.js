@@ -143,6 +143,11 @@ describe('experience pack structural validation', () => {
               );
             }
           }
+          for (const scenery of world.ambient_scenery || []) {
+            assert.ok(scenery.scenery_id, `ambient scenery missing scenery_id in ${world.world_slug}`);
+            assert.ok(scenery.label_sv, `scenery ${scenery.scenery_id} missing label_sv`);
+            assert.ok(scenery.hotspot_class, `scenery ${scenery.scenery_id} missing hotspot_class`);
+          }
         }
       });
 

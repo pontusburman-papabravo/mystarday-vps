@@ -1,7 +1,7 @@
 # Organizational Knowledge Index
 
 **Maintained by:** CTO / Org Health  
-**Updated:** 2026-07-02 (MO002 — Home pack refactor)  
+**Updated:** 2026-07-02 (MO002 — Home + Garden pack refactor)  
 **Purpose:** Living map — update after each mission
 
 ---
@@ -27,11 +27,14 @@
 | **Home** | Server scene | ✅ | `morgonhus-playable.js` — no hardcoded AMBIENT_PROPS |
 | **Home** | Client scene | ✅ | `child-morgonhus.js` |
 | **Home** | QA | ✅ | `morgonhus-playable.test.js` + structural pack tests |
-| **Garden** | Ambient scenery | ⚠️ | Still hardcoded `AMBIENT_SCENERY` — next refactor target |
+| **Garden** | Ambient scenery | ✅ | Pack-driven `worlds.json` ambient_scenery (v1.0.3) |
+| **Garden** | Server scene | ✅ | `garden-playable.js` — `buildSceneryFromPack()` |
+| **Garden** | Client scene | ✅ | `child-garden.js` — dynamic `hotspot_class` from pack |
+| **Garden** | QA | ✅ | `garden-playable-scene.test.js` + structural pack tests |
 | **Garden** | Living objects | ✅ | `living-objects.json` sunflower loop |
 | **Platform runtime** | Orchestrator | ✅ | Flag default OFF |
 
-**Reference implementation pattern:** progression nodes + unlock_feedback + ambient_props in pack → playable module reads pack only.
+**Reference implementation pattern:** progression nodes + unlock_feedback + ambient_props / ambient_scenery in pack → playable module reads pack only → client renders pack-driven classes.
 
 ---
 
@@ -41,14 +44,14 @@
 config/experience-packs/child_se/
   manifest.json · progression.json · worlds.json · living-objects.json
 src/lib/
-  morgonhus-playable.js    ← Home scene builder
-  garden-playable.js       ← Garden ambient (refactor pending)
+  morgonhus-playable.js    ← Home scene builder (ambient_props)
+  garden-playable.js       ← Garden ambient (ambient_scenery)
   platform-runtime/        ← Progression unlock pipeline
   living-world-access.js   ← Feature gate per world
 public/js/
   child-morgonhus.js · child-garden.js · child-world.js
 src/routes/
-  morgonhus.js · garden.js (if exists)
+  morgonhus.js · garden.js
 ```
 
 ---
@@ -57,7 +60,7 @@ src/routes/
 
 | ID | Gap | Priority | Next mission |
 |----|-----|----------|--------------|
-| GAP-005 | Garden AMBIENT_SCENERY hardcoded | P1 | Garden pack refactor (vertical slice) |
+| GAP-006 | Shared world-ambient helper (gate + scenery) | P2 | Extract after 3rd world |
 | GAP-002 | lint:public CI budget | P2 | Engineering debt |
 | GAP-003 | PCB worlds 3–7 not in pack | P3 | Human creative |
 

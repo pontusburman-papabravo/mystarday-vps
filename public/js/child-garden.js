@@ -43,14 +43,15 @@
 
   function renderScene(state) {
     const scenery = (state && state.scenery) || [];
-    const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
 
-    function hotspot(id, className, label) {
-      if (hotspotIds.indexOf(id) === -1) return '';
-      return '<button type="button" class="gd-hotspot ' + className + '"' +
+    const sceneryHtml = scenery.map(function (s) {
+      const id = s.scenery_id;
+      const cls = s.hotspot_class || ('gd-hotspot--' + id.replace(/^garden_/, ''));
+      if (!id) return '';
+      return '<button type="button" class="gd-hotspot ' + cls + '"' +
         ' data-scenery="' + esc(id) + '"' +
-        ' aria-label="' + esc(label || id) + '"></button>';
-    }
+        ' aria-label="' + esc(s.label_sv || id) + '"></button>';
+    }).join('');
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
@@ -58,9 +59,7 @@
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      hotspot('garden_path', 'gd-hotspot--path', 'Stigen') +
-      hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
-      hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
+      sceneryHtml +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +

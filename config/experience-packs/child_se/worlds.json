@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "worlds": [
     {
       "world_slug": "routine_home",
@@ -30,7 +30,31 @@
     {
       "world_slug": "garden",
       "display_name_sv": "Trädgården",
-      "first_unlock_message": "Trädgården väntar på dig"
+      "first_unlock_message": "Trädgården väntar på dig",
+      "ambient_message_sv": "Gräset rör sig långsamt i brisen.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Stigen",
+          "emoji": "🌿",
+          "ambient_message_sv": "Stigen leder längre in i trädgården.",
+          "hotspot_class": "gd-hotspot--path"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Blomsterbädden",
+          "emoji": "🪴",
+          "ambient_message_sv": "Jorden känns mjuk och varm under fingrarna.",
+          "hotspot_class": "gd-hotspot--bed"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Himlen",
+          "emoji": "☁️",
+          "ambient_message_sv": "Molnen rör sig långsamt.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
     }
   ]
 }
