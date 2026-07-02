@@ -100,9 +100,9 @@ const CATEGORY_COPY = {
     back: '/resurser',
     backLabel: '← Resursbibliotek',
     downloads: [
-      ['Hygiensschema PDF', '/resurser/pdf/hygien'],
+      ['Hygienschema PDF', '/resurser/pdf/hygien'],
       ['Hygien-bildkort', '/resurser/bildkort/hygien'],
-      ['Direktlänk: hygiensschema-mall (PDF)', '/resurser/pdf/hygiensschema.pdf'],
+      ['Direktlänk: hygienschema-mall (PDF)', '/resurser/pdf/hygienschema.pdf'],
     ],
     related: 'Mer: <a class="inline" href="/resurser/morgon">Morgon</a> · <a class="inline" href="/resurser/kvall">Kväll</a>',
     utm: 'resurs-hygien',
@@ -206,7 +206,7 @@ const PDF_COPY = {
   overgangar: { back: '/resurser/overgangar', backLabel: '← Övergångar', h1: 'Övergångsschema PDF', howto: 'Skriv ut schemat eller klipp ut <a class="inline" href="/resurser/bildkort/overgangar">övergångskorten</a> separat. Förvarna vid byten mellan aktiviteter.' },
   'teacch-inspirerat': { back: '/resurser/teacch-inspirerat', backLabel: '← TEACCH-inspirerat', h1: 'TEACCH-inspirerat PDF', howto: 'TEACCH-inspirerade kort att klippa ut — inspirerat av visuellt stöd, inte officiell TEACCH-metod.' },
   skola: { back: '/resurser/skola', backLabel: '← Skola', h1: 'Skolaschema PDF', howto: 'Skriv ut och sätt upp där barnet ser skoldagsrutinen. Justera steg efter er vecka.' },
-  hygien: { back: '/resurser/hygien', backLabel: '← Hygien', h1: 'Hygiensschema PDF', howto: 'Skriv ut hygienrutinen steg för steg — eller använd <a class="inline" href="/resurser/bildkort/hygien">bildkorten</a> separat.' },
+  hygien: { back: '/resurser/hygien', backLabel: '← Hygien', h1: 'Hygienschema PDF', howto: 'Skriv ut hygienrutinen steg för steg — eller använd <a class="inline" href="/resurser/bildkort/hygien">bildkorten</a> separat.' },
   beloningsschema: { back: '/resurser', backLabel: '← Resursbibliotek', h1: 'Belöningsschema PDF', howto: 'Skriv ut stjärnschemat på kylskåpet eller väggen. Fyll i aktiviteter och mål — samma idé som ett papper-belöningssystem.' },
   veckoschema: { back: '/resurser', backLabel: '← Resursbibliotek', h1: 'Veckoschema PDF', howto: 'Skriv ut veckomallen och fyll i vad som händer varje dag. Kompletterar appens <a class="inline" href="/veckoschema-bildstod">levande veckoschema</a>.' },
 };

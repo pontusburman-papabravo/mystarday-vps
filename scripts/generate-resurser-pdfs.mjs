@@ -131,18 +131,18 @@ const JOBS = [
   },
   // ── R2 hygien ─────────────────────────────────────────────
   {
-    file: 'hygiensschema.pdf',
+    file: 'hygienschema.pdf',
     type: 'schedule',
     keys: HYGIENE_KEYS,
-    title: 'Hygiensschema — tom mall',
+    title: 'Hygienschema — tom mall',
     subtitle: 'Tomma rutor för hygienrutinen.',
     emptyBoxes: true,
   },
   {
-    file: 'hygiensschema-exempel.pdf',
+    file: 'hygienschema-exempel.pdf',
     type: 'schedule',
     keys: HYGIENE_KEYS,
-    title: 'Hygiensschema — exempel',
+    title: 'Hygienschema — exempel',
     subtitle: 'Vanliga hygiensteg — tvätta händer, tänder med mera.',
     emptyBoxes: false,
   },

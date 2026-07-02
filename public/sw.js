@@ -327,6 +327,7 @@ const CACHE_NAME = 'stjarndag-v475';
 // stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
 // stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
 // stjarndag-v474: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v475: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
