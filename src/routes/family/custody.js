@@ -10,7 +10,7 @@ const db = require('../../lib/db');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
 const custodyDb = require('../../../db/custody');
-const { buildCustodyContextResponse } = require('../../lib/custody-context-api');
+const { buildCustodyContextResponse, buildCustodyContextRangeResponse } = require('../../lib/custody-context-api');
 const { migrateChildScheduleToCustody } = require('../../lib/custody-schedule-migrate');
 const {
   PATTERN_CUSTOM,
@@ -93,6 +93,44 @@ router.get('/context', requireNotPedagogOnly, requireCustodyFeature, async (req,
       parentId: req.user.id,
       dateStr,
     });
+
+    res.json(payload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/family/custody/context-range?childId=&from=&to=
+router.get('/context-range', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const { childId, from, to } = req.query;
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'childId krävs' });
+    }
+    if (typeof from !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
+      return res.status(400).json({ error: 'from krävs (YYYY-MM-DD)' });
+    }
+    if (typeof to !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+      return res.status(400).json({ error: 'to krävs (YYYY-MM-DD)' });
+    }
+    if (from > to) {
+      return res.status(400).json({ error: 'from får inte vara efter to' });
+    }
+
+    const child = await verifyChildInFamily(childId, req.user.familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const payload = await buildCustodyContextRangeResponse({
+      childId,
+      familyId: req.user.familyId,
+      parentId: req.user.id,
+      dateFrom: from,
+      dateTo: to,
+    });
+
+    if (payload.ok === false) {
+      return res.status(400).json({ error: payload.error });
+    }
 
     res.json(payload);
   } catch (err) {

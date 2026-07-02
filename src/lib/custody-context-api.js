@@ -6,6 +6,8 @@ const {
   resolveCustodyDateSync,
 } = require('./custody-schedule-engine');
 
+const CONTEXT_RANGE_MAX_DAYS = 28;
+
 /** @deprecated API legacy — keep until clients stop reading week_variant aliases. */
 const LEGACY_API_FIELDS = Object.freeze([
   'variant',
@@ -103,10 +105,82 @@ async function buildCustodyContextResponse({
   return buildCustodyContextFromEngine(engineCtx, dateStr);
 }
 
+/**
+ * Count inclusive calendar days between YYYY-MM-DD strings (UTC noon math).
+ * @param {string} dateFrom
+ * @param {string} dateTo
+ */
+function inclusiveDayCount(dateFrom, dateTo) {
+  const [y1, m1, d1] = dateFrom.split('-').map(Number);
+  const [y2, m2, d2] = dateTo.split('-').map(Number);
+  const start = Date.UTC(y1, m1 - 1, d1, 12, 0, 0);
+  const end = Date.UTC(y2, m2 - 1, d2, 12, 0, 0);
+  return Math.floor((end - start) / 86400000) + 1;
+}
+
+/**
+ * Build GET /custody/context-range response — compact day list for preview UI.
+ * @param {object} params
+ * @param {string} params.childId
+ * @param {string} params.familyId
+ * @param {string} params.parentId
+ * @param {string} params.dateFrom YYYY-MM-DD
+ * @param {string} params.dateTo YYYY-MM-DD
+ * @param {import('pg').Pool|import('pg').PoolClient} [params.client]
+ */
+async function buildCustodyContextRangeResponse({
+  childId, familyId, parentId, dateFrom, dateTo, client,
+}) {
+  const spanDays = inclusiveDayCount(dateFrom, dateTo);
+  if (spanDays < 1 || spanDays > CONTEXT_RANGE_MAX_DAYS) {
+    return {
+      ok: false,
+      error: `Datumintervallet måste vara 1–${CONTEXT_RANGE_MAX_DAYS} dagar`,
+    };
+  }
+
+  const engineCtx = await loadCustodyContext({ childId, familyId, parentId }, client);
+  if (!engineCtx.schedule) {
+    return { ok: true, active: false, days: [] };
+  }
+
+  const days = [];
+  let d = dateFrom;
+  while (d <= dateTo) {
+    const payload = buildCustodyContextFromEngine(engineCtx, d);
+    if (payload.active && payload.activeHome) {
+      days.push({
+        date: d,
+        activeHome: payload.activeHome,
+        source: payload.source,
+        isParentDay: payload.isParentDay,
+      });
+    } else {
+      days.push({ date: d, activeHome: null, source: 'fallback', isParentDay: false });
+    }
+    const [y, m, day] = d.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, day, 12, 0, 0));
+    dt.setUTCDate(dt.getUTCDate() + 1);
+    d = dt.toISOString().slice(0, 10);
+  }
+
+  return {
+    ok: true,
+    active: true,
+    dateFrom,
+    dateTo,
+    weekMonday: getWeekMondayIso(dateFrom),
+    days,
+  };
+}
+
 module.exports = {
+  CONTEXT_RANGE_MAX_DAYS,
   LEGACY_API_FIELDS,
   legacyWeekVariant,
   legacyWeekBanner,
   buildCustodyContextFromEngine,
   buildCustodyContextResponse,
+  buildCustodyContextRangeResponse,
+  inclusiveDayCount,
 };

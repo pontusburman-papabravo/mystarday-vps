@@ -56,6 +56,19 @@
     return dt.toISOString().slice(0, 10);
   }
 
+  function addDaysIso(dateStr, days) {
+    const parts = dateStr.split('-').map(Number);
+    const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 12, 0, 0));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function previewRangeFromToday() {
+    const from = mondayOfWeek(todayIso());
+    const to = addDaysIso(from, 27);
+    return { from: from, to: to };
+  }
+
   function parseConfiguration(pat) {
     if (!pat || !pat.configuration) return {};
     if (typeof pat.configuration === 'string') {
@@ -259,6 +272,74 @@
     return start + ' – ' + end;
   }
 
+  function previewSectionHtml() {
+    return (
+      '<div class="custody-preview-section space-y-2 mt-3 border-t border-lavender/50 pt-3">' +
+      '<h4 class="text-xs font-semibold text-navy dark:text-white">Kommande 4 veckor</h4>' +
+      '<p class="text-xs text-text-soft leading-relaxed">Från denna veckas måndag — inklusive undantag.</p>' +
+      '<div class="custody-preview-grid text-xs text-text-soft" aria-live="polite">Laddar…</div>' +
+      '</div>'
+    );
+  }
+
+  function previewGridHtml(days) {
+    if (!days || !days.length) {
+      return '<p class="text-text-soft">Ingen förhandsvisning tillgänglig.</p>';
+    }
+    const header =
+      '<div class="grid grid-cols-7 gap-0.5 mb-1 text-[10px] text-text-soft text-center">' +
+      CYCLE_DAY_KEYS.map(function (k) { return '<span>' + CYCLE_DAY_LABELS[k] + '</span>'; }).join('') +
+      '</div>';
+    const weeks = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push(days.slice(i, i + 7));
+    }
+    const rows = weeks.map(function (weekDays, wi) {
+      const cells = weekDays.map(function (day) {
+        const home = day.activeHome;
+        if (!home) {
+          return '<span class="block aspect-square rounded bg-lavender/30" title="—"></span>';
+        }
+        const overrideMark = day.source === 'override' ? ' ring-2 ring-gold ring-offset-1' : '';
+        const parentMark = day.isParentDay ? ' font-bold' : '';
+        const initial = escapeHtml((home.label || '?').charAt(0));
+        return (
+          '<span class="block aspect-square rounded flex items-center justify-center text-[10px] text-white' +
+          overrideMark + parentMark + '" style="background:' + escapeHtml(home.color || '#4F46E5') + ';" ' +
+          'title="' + escapeHtml(home.label) + (day.source === 'override' ? ' (undantag)' : '') + '">' +
+          initial + '</span>'
+        );
+      }).join('');
+      return (
+        '<div class="custody-preview-week" data-week-index="' + wi + '">' +
+        '<div class="grid grid-cols-7 gap-0.5">' + cells + '</div></div>'
+      );
+    }).join('');
+    return header + '<div class="space-y-1">' + rows + '</div>';
+  }
+
+  async function loadPreviewForBlock(block, childId) {
+    const grid = block.querySelector('.custody-preview-grid');
+    if (!grid) return;
+    const range = previewRangeFromToday();
+    grid.textContent = 'Laddar…';
+    try {
+      const data = await Auth.api(
+        '/api/family/custody/context-range?childId=' + encodeURIComponent(childId) +
+        '&from=' + encodeURIComponent(range.from) +
+        '&to=' + encodeURIComponent(range.to)
+      );
+      if (!data.active || !data.days || !data.days.length) {
+        grid.innerHTML = '<p class="text-text-soft">Aktivera mönster för att se förhandsvisning.</p>';
+        return;
+      }
+      grid.innerHTML = previewGridHtml(data.days);
+    } catch (err) {
+      grid.innerHTML = '<p class="text-text-soft">Kunde inte ladda förhandsvisning.</p>';
+      console.warn('[custody-settings] preview', err.message);
+    }
+  }
+
   function overrideListHtml(overrides, homes) {
     if (!overrides.length) {
       return '<p class="text-xs text-text-soft custody-override-empty">Inga undantag ännu.</p>';
@@ -361,6 +442,7 @@
       '<select class="custody-week-b w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '</div></div>' +
       customFieldsHtml(pat, homes) +
+      (enabled ? previewSectionHtml() : '') +
       (enabled ? overrideSectionHtml(childOverrides || [], homes) : '') +
       '</div></div>'
     );
@@ -401,6 +483,9 @@
     bindCustomDaySelects(block, homes);
     togglePatternFields(block);
     bindOverrides(block, block.getAttribute('data-child-id'), homes);
+    if (pat) {
+      loadPreviewForBlock(block, block.getAttribute('data-child-id'));
+    }
   }
 
   function bindOverrides(block, childId, homes) {

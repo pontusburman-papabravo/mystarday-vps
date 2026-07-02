@@ -1,7 +1,7 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (Journey slim signup, ACT-1 PR 5, FEAT-1B, Child Worlds v1.1)
+**Till:** Nästa fas (Journey slim signup, ACT-1 PR 5, Child Worlds v1.1)
 
 ---
 
@@ -16,6 +16,7 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Domän | Tillstånd | Källsanning |
 |-------|-----------|-------------|
 | FEAT-1 v1 | Closed (Phase 5) | `custody_home_id`, engine, migration `1809210000000` |
+| FEAT-1B + 1C + v2.1 preview | **Shipped** (PR #514, #496) | `docs/boendeschema-feat1b-custom-spec.md` |
 | Parent Hubs | Complete | `docs/qa/hub-integration-sweep.md` v2 |
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
@@ -28,8 +29,8 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 ## Rekommenderad merge-/deploy-ordning (nästa ship)
 
 ```
-#506 ACT-1 PR 1–4 flags → main → migrate
 #508 slim signup + Journey + power-user → main → migrate
+ACT-1 PR 5 nudges (flag OFF tills manuell rollout)
 ```
 
 Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
@@ -72,7 +73,6 @@ Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
 
 | Område | Ägare nästa fas |
 |--------|-----------------|
-| `migrations/*custody*`, `custody-*` | FEAT-1B agent |
 | `onboarding*.js`, `src/lib/journey/*` | Journey / signup agent |
 | `for-dig.js`, `nav-config.js` | För dig agent |
 | `public/images/child/**` | Assets agent före wiring |
@@ -92,4 +92,3 @@ Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
 
 1. ACT-1 PR 5: när aktivera `activation_nudge_v1`?
 2. För dig Sprint 4: nav-flytt när metrics möter tröskel?
-3. FEAT-1B: prioritet vs ACT-1 PR 5?

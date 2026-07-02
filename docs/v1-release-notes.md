@@ -8,8 +8,10 @@
 
 ## För användare (föräldrar & barn)
 
-### Boendeschema (FEAT-1 v1)
-- Veckoschema kan kopplas till **aktivt hem** vid delad vårdnad (`alternate_weeks`, `alternate_weekends`)
+### Boendeschema (FEAT-1 v1 + post-v1)
+- Veckoschema kan kopplas till **aktivt hem** vid delad vårdnad (`alternate_weeks`, `alternate_weekends`, `custom`)
+- **Undantag** (lov, resor) utan att ändra grundschema (FEAT-1C)
+- **4-veckors förhandsvisning** på `/family#boendeschema` (v2.1)
 - Dashboard och schema visar **hemnamn** istället för abstrakt Vecka A/B där det är relevant
 - Familjer **utan** boendeschema påverkas inte
 
@@ -42,7 +44,7 @@
 
 **Tester:** `npm run test:gate` — 93/93 grön på release candidate.
 
-**Medvetet utanför v1:** FEAT-1B (`custom`), FEAT-1C (overrides), För dig Sprint 4 nav-flytt (defer ADR), AI starter plan, print/PDF custody.
+**Medvetet utanför v1 (nu levererat post-v1):** FEAT-1B (`custom`) ✅, FEAT-1C (overrides) ✅, v2.1 4-veckors förhandsvisning ✅. Kvar: För dig Sprint 4 nav-flytt (defer ADR), AI starter plan, print/PDF custody.
 
 ---
 
