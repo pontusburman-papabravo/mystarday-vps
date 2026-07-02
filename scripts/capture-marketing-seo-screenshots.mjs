@@ -117,7 +117,7 @@ async function main() {
     await applyCookies(page, parentCookies);
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
     await capture(page, 'fardiga-scheman-bildstod.png', `${BASE}/planning`, '#planningHubMount, .magic-hub-section', 2500);
-    await capture(page, 'vardagsrutiner-bildstod.png', `${BASE}/`, '.for-dig-card, [data-for-dig], #hemCoachMount', 2500);
+    await capture(page, 'vardagsrutiner-bildstod.png', `${BASE}/`, '#parentHubCoachSlot, #parentHubReadinessSlot', 2500);
   }
 
   await browser.close();

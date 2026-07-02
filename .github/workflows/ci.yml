@@ -37,7 +37,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps --include=dev
 
       - name: Build Tailwind CSS
         run: npm run css:build

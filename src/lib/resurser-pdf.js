@@ -22,14 +22,22 @@ function labelsForKeys(keys) {
   });
 }
 
+/**
+ * A4 page is 841.89pt tall with a 40pt margin (bottom boundary ≈ 801.89pt).
+ * Footer must sit clear of that boundary — PDFKit silently inserts a blank
+ * page instead of clipping text that would overflow the bottom margin.
+ */
+const FOOTER_Y = 780;
+
 function writeFooter(doc, pageNum) {
   doc.fontSize(8).fillColor(GRAY)
-    .text('Min Stjärndag — gratis resursbibliotek · mystarday.se/resurser', 40, 800, {
+    .text('Min Stjärndag — gratis resursbibliotek · mystarday.se/resurser', 40, FOOTER_Y, {
       width: 515,
       align: 'center',
+      lineBreak: false,
     });
   if (pageNum) {
-    doc.text(`Sida ${pageNum}`, 40, 800, { width: 515, align: 'right' });
+    doc.text(`Sida ${pageNum}`, 40, FOOTER_Y, { width: 515, align: 'right', lineBreak: false });
   }
 }
 
@@ -69,20 +77,20 @@ function drawBildkortPdf(doc, { title, steps }) {
   const cardH = 100;
   const gapX = 15;
   const gapY = 14;
-  let x0 = 40;
+  const x0 = 40;
   let y0 = 96;
+  let pageStartIndex = 0;
 
   steps.forEach((step, index) => {
     const col = index % cols;
-    const row = Math.floor(index / cols);
+    const row = Math.floor((index - pageStartIndex) / cols);
     const x = x0 + col * (cardW + gapX);
     const y = y0 + row * (cardH + gapY);
     if (y + cardH > 760) {
       doc.addPage();
+      pageStartIndex = index;
       y0 = 60;
-      const row2 = Math.floor(index / cols);
-      const y2 = y0 + (row2 - Math.floor(index / cols)) * (cardH + gapY);
-      drawCard(doc, x, y2, cardW, cardH, step);
+      drawCard(doc, x, y0, cardW, cardH, step);
       return;
     }
     drawCard(doc, x, y, cardW, cardH, step);
