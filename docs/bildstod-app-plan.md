@@ -611,9 +611,9 @@ Oförändrat från v1.1 + tillägg:
 - [ ] `npm run test:gate` grön · Self-review (180) · POS citerat
 
 ### Resursbibliotek
-- [ ] `/resurser` hub · ≥20 PDF:er (R2)
-- [ ] `test/seo-pages.test.js` utökad för `/resurser/*`
-- [ ] Alla 6 guider länkar till resurser
+- [x] `/resurser` hub live (R0) · [ ] ≥20 PDF:er totalt — 6/20 klara (R1: morgon+kväll), resterande i R2
+- [x] `test/seo-pages.test.js` utökad för `/resurser/*`
+- [x] Alla 6 guider länkar till resurser (TODO-kommentarer upplösta till riktiga länkar 2026-07-02)
 
 ---
 

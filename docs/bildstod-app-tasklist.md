@@ -1,7 +1,7 @@
-# Bildstöd-app — Cursor tasklist (v1.2)
+# Bildstöd-app — Cursor tasklist (v1.3)
 
 **Skapad:** 2026-07-02
-**Status:** PR 0, PR 1, PR R0 levererade och mergade till `main` 2026-07-02 (se checklistor nedan). Nästa: PR 2 (app) + PR R1 (resurser).
+**Status:** PR 0, PR 1, PR R0, PR R1 levererade och mergade till `main` 2026-07-02 (se checklistor nedan). Nästa: PR 2 (app), sedan PR 3 + R2.
 
 **Plan:** [`bildstod-app-plan.md`](./bildstod-app-plan.md) v1.2.3
 **Klar-definition:** 100 % på en panel = alla ☐ → ☑ i plan §2.1
@@ -274,42 +274,50 @@
 
 **Mål:** Första nedladdningsbara PDF:er · internlänkar från guider.
 
-**Förutsättning:** EPIC 1.1 bildbibliotek (delade illustrationer).
+**Status:** ✅ Levererat 2026-07-02 (commit `da2bd43` + `a7d07bc`). PDF:er är PDFKit-genererade (emoji-fria, `src/lib/resurser-pdf.js`) istället för designade illustrationer — fasad-nivå enligt EPIC 1.1:s designkapacitet-notering, inte de riktiga illustrationerna. Verifierat mot riktig Postgres (607/607 test).
 
 ### EPIC R1.1 — Morgon-bildkort
 
-- [ ] 8 illustrationer + `public/resurser/bildkort/morgon.html`
-- [ ] PDF: A4 rutnät med morgon-nycklar (statisk v1)
+- [x] `public/resurser/bildkort-morgon.html` (8 nycklar, `MORNING_KEYS`)
+- [x] PDF: A4-rutnät/kort med morgon-nycklar (PDFKit, `bildkort-morgon.pdf`) — **emoji-fri text**, inte illustrationer (kvarstår när design levererar riktiga bilder)
 
 ### EPIC R1.2 — Kväll-bildkort
 
-- [ ] 6 illustrationer + sida + PDF
+- [x] `public/resurser/bildkort-kvall.html` (6 nycklar, `EVENING_KEYS`) + `bildkort-kvall.pdf`
 
 ### EPIC R1.3 — Morgonschema-PDF
 
-- [ ] `/resurser/pdf/morgonschema` — mall med tomma rutor
-- [ ] Nedladdningslänk (statisk fil i `public/resurser/pdf/`)
+- [x] `/resurser/pdf/morgonschema` — tom mall (`morgonschema.pdf`) + exempel (`morgonschema-exempel.pdf`)
+- [x] Nedladdningslänk i `public/resurser/pdf/`
 
 ### EPIC R1.4 — Kvällsschema-PDF
 
-- [ ] `/resurser/pdf/kvallsschema` — samma mönster
+- [x] `/resurser/pdf/kvallsschema` — samma mönster (`kvallsschema.pdf` + `kvallsschema-exempel.pdf`)
 
 ### EPIC R1.5 — Landningssidor
 
-- [ ] 4 kategorisidor + 2 PDF-sidor indexerbara
-- [ ] Meta title/description per sida (svenska)
+- [x] 2 kategorisidor (morgon/kväll) + 2 bildkort-sidor + 2 PDF-sidor = 6 indexerbara sidor (matchar PR R1:s morgon+kväll-scope — övriga kategorier från plan §5.2 kommer i R2)
+- [x] Meta title/description per sida (svenska)
 
 ### EPIC R1.6 — Internlänkar från guider
 
-- [ ] `/bildschema-app` → resurser
-- [ ] `/morgonrutin-barn` → morgonschema-PDF
-- [ ] `/beloningssystem-barn` → (placeholder till R2 belöningsschema)
-- [ ] `/rutiner-npf-barn` → (placeholder till R2 övergångar)
-- [ ] `/alternativ-bildschema-tavla` → `/resurser` hub
-- [ ] `/veckoschema-bildstod` → (placeholder till R2.6)
-- [ ] Uppdatera `test/seo-pages.test.js` för nya internlänkar
+- [x] `/bildschema-app` → `/resurser` hub + morgon-/kvällsschema-PDF
+- [x] `/morgonrutin-barn` → morgonschema-PDF
+- [ ] `/beloningssystem-barn` → (placeholder till R2 belöningsschema — oförändrad)
+- [ ] `/rutiner-npf-barn` → (placeholder till R2 övergångar — oförändrad)
+- [x] `/alternativ-bildschema-tavla` → `/resurser` hub
+- [ ] `/veckoschema-bildstod` → (placeholder till R2.6 — oförändrad)
+- [x] Utökat `test/seo-pages.test.js` för nya internlänkar
 
-**PR R1 klar när:** ≥6 PDF:er nedladdningsbara · CTA på varje sida · 6 guider länkar (minst hub + morgon).
+**PR R1 klar när:** ≥6 PDF:er nedladdningsbara · CTA på varje sida · 6 guider länkar (minst hub + morgon). **✅ Klar** (morgon/kväll-scope). Resterande guide-placeholders (beloning/rutiner-npf/veckoschema) väntar medvetet på R2-innehåll.
+
+### EPIC 1.5 (uppföljning från PR 1) — Marketing screenshots
+
+**Status:** ✅ Script levererat (commit `d3d26b3`), ⏳ bilder ej infångade än.
+
+- [x] `scripts/capture-marketing-seo-screenshots.mjs` (`npm run capture:marketing-seo`) — Puppeteer, loggar in som riktigt barn/förälderkonto
+- [ ] **Kör mot staging/prod** med `CHILD_USER`/`CHILD_PIN` eller `PARENT_EMAIL`/`PARENT_PASSWORD` — kunde inte köras lokalt (ingen seedad testfamilj i denna miljö)
+- [ ] Granska PNG:er och ersätt mockups i `public/images/marketing-seo/` (flaggade i `bildstod-pr0-marketing-audit.md`)
 
 ---
 
@@ -390,11 +398,11 @@
 ## Rekommenderad byggordning
 
 ```
-PR 0          ✅ Klar (2026-07-02)
-PR 1 + PR R0  ✅ Klara (2026-07-02, mergade i ordningen PR0 → R0 → PR1)
-PR 2          ← nästa (app — sekventiellt efter PR 1, delar filer med PR 3)
-PR R1         (efter 1.1 bilder — bildbiblioteket finns nu, kan starta)
-PR 3          (sekventiellt efter PR 2 — 3.1–3.2 motor, 3.3 = direkttest på 3–5 familjer, D9)
+PR 0                ✅ Klar (2026-07-02)
+PR 1 + PR R0        ✅ Klara (2026-07-02, mergade i ordningen PR0 → R0 → PR1)
+PR R1               ✅ Klar (2026-07-02, morgon+kväll — 6 PDF:er, 6 sidor)
+PR 2                ← nästa (app — sekventiellt efter PR 1, delar filer med PR 3)
+PR 3                (sekventiellt efter PR 2 — 3.1–3.2 motor, 3.3 = direkttest på 3–5 familjer, D9)
 PR R2         (direkt efter R1, ingen trafik-gate — D8)
 PR R3         (direkt efter R2, löpande — D8, mät med R3.3)
 ```
@@ -416,6 +424,8 @@ PR R3         (direkt efter R2, löpande — D8, mät med R3.3)
 
 ## Changelog
 
+**v1.2 → v1.3 (2026-07-02):** PR R1 (morgon + kväll: 6 PDF:er via `src/lib/resurser-pdf.js`/PDFKit, 6 indexerbara sidor) och EPIC 1.5:s uppföljningsscript (`capture-marketing-seo-screenshots.mjs`) byggda parallellt i en separat live IDE-session medan huvudsessionen granskade/mergade PR0+PR1+R0. Granskat och verifierat på samma sätt (riktig Postgres, 607/607 test, lint 0 fel, `check:css` grönt) innan commit. TODO-länkar till `/resurser` i marknadscopy (från PR 0) upplösta till riktiga länkar nu som R0+R1 är live. PDF:erna är PDFKit-genererad text (emoji-fri), inte färdiga illustrationer — riktig design är fortsatt ett öppet steg.
+
 **v1.1 → v1.2 (2026-07-02):** PR 0, PR 1, PR R0 byggda parallellt av tre isolerade Composer 2.5-agenter (var sin git-worktree/branch), granskade och verifierade mot riktig lokal Postgres 16 innan merge till `main` (inte bara mock-DB/unit-tester). Två integrationsfel hittade och fixade under granskning: (1) SW cache-version-kollision — huvudgrenen landade oberoende på samma `stjarndag-v471` som PR 1 medan agenterna jobbade, vilket hade tystat cache-invalidering för de nya klientfilerna; fixat till v472. (2) En test i PR 1 skickade en relativ `image_url`-path — appkoden (som kräver absolut URL, konsekvent med `object-storage.js` och `family-images.js`) var korrekt, testet fixades. `docs/route-inventory-pre-split.md` och `tailwind.build.css` regenererade efter merge (`npm run dump:routes` / `npm run check:css`). §2.1 panel 1 (5/5) och panel 4 app-del (3/3) uppdaterade i planen.
 
-*Version 1.2 · Synkad med bildstod-app-plan.md v1.2.3*
+*Version 1.3 · Synkad med bildstod-app-plan.md v1.2.3*
