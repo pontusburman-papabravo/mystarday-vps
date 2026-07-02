@@ -27,6 +27,11 @@ const { WIN_BACK_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 const { isAutoApproveEnabled, approveAndSend } = require('./win-back-sender');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
+const {
+  getStockholmDateParts,
+  stockholmWallClockToUtcMs,
+  addDaysToStockholmDate,
+} = require('./stockholm-time');
 
 /**
  * Days of inactivity to trigger a win-back email record.
@@ -39,69 +44,40 @@ const INACTIVITY_THRESHOLD_DAYS = 18;
 const EMAIL_COOLDOWN_DAYS = 30;
 
 /**
- * Day-of-month of the last Sunday in a given month (for DST calculation).
- * @param {number} year  - e.g. 2026
- * @param {number} month - 0-indexed (0=January, 11=December)
- */
-function lastSundayOfMonth(year, month) {
-  const lastDayOfMonth = new Date(year, month + 1, 0);
-  const dayOfWeek = lastDayOfMonth.getDay(); // 0=Sun
-  const sunday = new Date(lastDayOfMonth.getTime() - dayOfWeek * 86400 * 1000);
-  return sunday.getDate();
-}
-
-/**
  * Milliseconds until next Sunday 10:00 Europe/Stockholm.
  */
-function msUntilNextSunday1000Stockholm() {
-  const now = new Date();
-
-  const fmt = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Stockholm',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false,
-  });
-  const parts = Object.fromEntries(fmt.formatToParts(now).map(p => [p.type, p.value]));
-  const localDow = new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`).getDay();
-
+function msUntilNextSunday1000Stockholm({ afterRun = false, now = new Date() } = {}) {
+  const parts = getStockholmDateParts(now);
   const targetHour = 10;
-  const currentHour = parseInt(parts.hour, 10);
-  const currentMinute = parseInt(parts.minute, 10);
 
-  let daysUntilSunday = (7 - localDow) % 7;
-  if (daysUntilSunday === 0 && (currentHour < targetHour || (currentHour === targetHour && currentMinute === 0))) {
-    daysUntilSunday = 0;
-  } else if (daysUntilSunday === 0) {
-    daysUntilSunday = 7;
-  }
+  let daysUntilSunday = (7 - parts.localDow) % 7;
+  let targetDate = { year: parts.year, month: parts.month, day: parts.day };
 
-  const nextSundayLocal = new Date(`${parts.year}-${parts.month}-${parts.day}T${targetHour}:00:00`);
-  nextSundayLocal.setDate(nextSundayLocal.getDate() + daysUntilSunday);
-
-  const stockholmYear = parseInt(
-    new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Stockholm', year: 'numeric' }).format(nextSundayLocal),
-    10
-  );
-
-  const dstStart = lastSundayOfMonth(stockholmYear, 2);
-  const dstEnd   = lastSundayOfMonth(stockholmYear, 9);
-  const stockholmDay   = nextSundayLocal.getDate();
-  const stockholmMonth = nextSundayLocal.getMonth() + 1;
-
-  let offsetMs;
-  if (stockholmMonth > 3 && stockholmMonth < 10) {
-    offsetMs = 2 * 3600 * 1000;
-  } else if (stockholmMonth === 3 && stockholmDay >= dstStart) {
-    offsetMs = 2 * 3600 * 1000;
-  } else if (stockholmMonth === 10 && stockholmDay < dstEnd) {
-    offsetMs = 2 * 3600 * 1000;
+  if (daysUntilSunday > 0) {
+    targetDate = addDaysToStockholmDate(parts.year, parts.month, parts.day, daysUntilSunday);
+  } else if (
+    !afterRun &&
+    parts.hour < targetHour
+  ) {
+    // Sunday before 10:00 — run later today
   } else {
-    offsetMs = 1 * 3600 * 1000;
+    targetDate = addDaysToStockholmDate(parts.year, parts.month, parts.day, 7);
   }
 
-  const utcMs = nextSundayLocal.getTime() - offsetMs;
-  return Math.max(0, utcMs - now.getTime());
+  let utcMs = stockholmWallClockToUtcMs(targetDate.year, targetDate.month, targetDate.day, targetHour, 0);
+  let ms = utcMs - now.getTime();
+
+  if (ms <= 0 && !afterRun) {
+    return 0;
+  }
+
+  if (ms <= 0 && afterRun) {
+    targetDate = addDaysToStockholmDate(targetDate.year, targetDate.month, targetDate.day, 7);
+    utcMs = stockholmWallClockToUtcMs(targetDate.year, targetDate.month, targetDate.day, targetHour, 0);
+    ms = utcMs - now.getTime();
+  }
+
+  return Math.max(0, ms);
 }
 
 /**
@@ -161,14 +137,14 @@ async function fetchEligibleFamilies() {
 
 let _timer = null;
 
-function scheduleNextRun() {
-  const ms = msUntilNextSunday1000Stockholm();
+function scheduleNextRun(afterRun = false) {
+  const ms = msUntilNextSunday1000Stockholm({ afterRun });
   const minutes = Math.round(ms / 60000);
   console.log(`[WIN-BACK] Next run in ${minutes} minutes (next Sunday 10:00 Stockholm)`);
 
   _timer = setTimeout(async () => {
     await runWinBackJob();
-    scheduleNextRun();
+    scheduleNextRun(true);
   }, ms);
 
   if (_timer.unref) _timer.unref();
@@ -199,7 +175,7 @@ async function runWinBackJob() {
           intent: 'legacy_win_back',
         });
         if (!gate.allowed) {
-          console.log(`[WIN-BACK] Skipped ${row.parent_email} — Gate: ${gate.reason} (state=${gate.state})`);
+          console.log(`[WIN-BACK] Skipped parent ${row.parent_id} — Gate: ${gate.reason} (state=${gate.state})`);
           continue;
         }
 
@@ -232,13 +208,13 @@ async function runWinBackJob() {
           const result = await approveAndSend(record.id);
           if (result.ok) {
             sentCount++;
-            console.log(`[WIN-BACK] Auto-sent to ${row.parent_email} (child: ${childName})`);
+            console.log(`[WIN-BACK] Auto-sent to parent ${row.parent_id} (child: ${childName})`);
           } else {
             errorCount++;
-            console.error(`[WIN-BACK] Auto-send failed for ${row.parent_email}:`, result.error || 'okänt fel');
+            console.error(`[WIN-BACK] Auto-send failed for parent ${row.parent_id}:`, result.error || 'okänt fel');
           }
         } else {
-          console.log(`[WIN-BACK] Pending record created for ${row.parent_email} (child: ${childName})`);
+          console.log(`[WIN-BACK] Pending record created for parent ${row.parent_id} (child: ${childName})`);
         }
       } catch (err) {
         errorCount++;

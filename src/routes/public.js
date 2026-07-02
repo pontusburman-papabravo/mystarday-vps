@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 const db = require('../lib/db');
 const { sendEmail, isTestMailbox } = require('../lib/email');
+const { maskEmail } = require('../lib/log-redact');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
 const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
@@ -98,7 +99,7 @@ router.post('/contact', async (req, res) => {
       `,
       });
     } else {
-      console.log(`[CONTACT] Skipping owner email for test mailbox ${normalizedEmail}`);
+      console.log(`[CONTACT] Skipping owner email for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ message: 'Tack! Vi har tagit emot ditt meddelande.' });
@@ -261,7 +262,7 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
       `,
     }).catch(() => {});
     } else {
-      console.log(`[PROFESSIONAL-INTEREST] Skipping emails for test mailbox ${normalizedEmail}`);
+      console.log(`[PROFESSIONAL-INTEREST] Skipping emails for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ ok: true });
@@ -323,7 +324,7 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
       `,
     }).catch(() => {});
     } else {
-      console.log(`[WAITLIST] Skipping emails for test mailbox ${normalizedEmail}`);
+      console.log(`[WAITLIST] Skipping emails for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ ok: true, message: 'Welcome to the waitlist!' });
@@ -437,7 +438,7 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
       `,
       }).catch(() => {});
     } else {
-      console.log(`[PUBLIC-NEWSLETTER] Skipping email for test mailbox ${normalizedEmail}`);
+      console.log(`[PUBLIC-NEWSLETTER] Skipping email for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     let message = 'Tack! Du är anmäld till nyhetsbrevet.';

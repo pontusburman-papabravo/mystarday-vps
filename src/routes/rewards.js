@@ -748,7 +748,7 @@ async function notifyParentsOfRedemption(childId, reward) {
       subject: `${child_name} vill lösa in "${reward.name}" ⭐`,
       html,
     });
-    console.log(`[REWARDS] Redemption notification sent to ${parent.email} for child ${child_name}`);
+    console.log(`[REWARDS] Redemption notification sent to parent ${parent.id} for child ${child_name}`);
   }
 }
 

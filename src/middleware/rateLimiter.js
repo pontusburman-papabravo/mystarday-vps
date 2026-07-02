@@ -101,17 +101,9 @@ const globalLimiter = rateLimit({
   message: { error: 'För många förfrågningar. Vänta en stund och försök igen.' },
   keyGenerator: (req) => getRealIp(req),
   // Skip SSE — long-lived connections must not consume rate limit tokens.
-  // Skip authenticated requests — apiLimiter already handles per-user limits.
-  //   NOTE: req.user is only set AFTER optionalAuth middleware, but globalLimiter
-  //   runs BEFORE optionalAuth. So this check only works for routes where auth is
-  //   applied earlier. Admin API paths are exempted explicitly below.
-  // Skip static assets — not abuse vectors; they exhaust the IP budget on
-  // asset-heavy pages (admin panel loads 20+ JS files per page).
-  // Skip admin API paths — requireAdmin middleware already gates these; the global
-  // limiter was causing 429s on admin panel load (20+ API calls in quick succession)
-  // which cascaded into failed silentRefresh → 401 → redirect to /login.
-  // Skip auth refresh — silentRefresh POSTs here; 429 leaves the access token expired,
-  // and the next API call gets a server-side 401 → redirect to /login.
+  // globalLimiter runs before optionalAuth, so req.user is usually unset here;
+  // authenticated per-user limits are handled by apiLimiter after optionalAuth.
+  // Admin API, auth refresh, and static assets are exempt (see paths below).
   skip: (req) =>
     !ENABLED ||
     req.path.startsWith('/.well-known/') ||

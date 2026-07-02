@@ -13,6 +13,7 @@
 const db = require('./db');
 const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
+const { STOCKHOLM_TZ } = require('./stockholm-time');
 
 /**
  * Calculate child's age in years from a birthday string (YYYY-MM-DD).
@@ -20,15 +21,20 @@ const { getDayOfWeek } = require('./schedule-date-utils');
  * @param {string|null} birthday - ISO date string
  * @returns {number} Age in years, or null if birthday is not set
  */
-function getChildAgeInYears(birthday) {
+function getChildAgeInYears(birthday, timezone = STOCKHOLM_TZ) {
   if (!birthday) return null;
-  const birthDate = new Date(birthday);
-  if (isNaN(birthDate.getTime())) return null;
+  const birthMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(birthday).trim());
+  if (!birthMatch) return null;
 
-  const now = new Date();
-  const diffMs = now.getTime() - birthDate.getTime();
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: timezone });
+  const [by, bm, bd] = birthMatch.slice(1).map(Number);
+  const [ty, tm, td] = todayStr.split('-').map(Number);
+
+  const diffMs = Date.UTC(ty, tm - 1, td) - Date.UTC(by, bm - 1, bd);
+  if (diffMs < 0) return null;
+
   const ageYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
-  return Math.round(ageYears * 10) / 10; // Round to 1 decimal
+  return Math.round(ageYears * 10) / 10;
 }
 
 /**

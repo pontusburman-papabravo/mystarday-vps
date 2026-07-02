@@ -138,10 +138,11 @@ function createApp() {
 
   app.use((err, req, res, _next) => {
     const errPath = req.path.startsWith('/api/events') ? req.path : req.originalUrl;
-    req.log.error(
-      { msg: 'Unhandled error', operation: 'server.error', path: errPath, error: err.message || err },
-      err
-    );
+    console.error('[SERVER] Unhandled error', {
+      operation: 'server.error',
+      path: errPath,
+      error: err.message || String(err),
+    }, err);
     res.status(500).json({ error: 'Internt serverfel' });
   });
 

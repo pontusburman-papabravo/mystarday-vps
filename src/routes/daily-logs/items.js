@@ -7,7 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
-const { getItemAccess } = require('../../middleware/authz');
+const { getItemAccess, requireItemAccess } = require('../../middleware/authz');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { getChildFamilyId } = require('./helpers');
@@ -49,10 +49,9 @@ itemRouter.put('/reorder', async (req, res) => {
   }
 });
 
-itemRouter.delete('/:itemId', async (req, res) => {
+itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const meta = await db.query(
       'SELECT activity_template_id, is_once_task FROM daily_log_item WHERE id = $1',
@@ -75,10 +74,9 @@ itemRouter.delete('/:itemId', async (req, res) => {
   }
 });
 
-itemRouter.put('/:itemId/complete', async (req, res) => {
+itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const logDateResult = await db.query(
       'SELECT date FROM daily_log WHERE id = $1',
@@ -135,10 +133,9 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
   }
 });
 
-itemRouter.put('/:itemId/uncomplete', async (req, res) => {
+itemRouter.put('/:itemId/uncomplete', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const result = await db.query(
       `UPDATE daily_log_item
@@ -157,10 +154,8 @@ itemRouter.put('/:itemId/uncomplete', async (req, res) => {
   }
 });
 
-itemRouter.patch('/:itemId/note', async (req, res) => {
+itemRouter.patch('/:itemId/note', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
 
     const rawNote = req.body.note;
     const note = rawNote === null || rawNote === undefined || rawNote === ''

@@ -37,7 +37,9 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ✅ Fixad |
 | M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ✅ Fixad |
 | M8 | In-memory rate limiting | 🟡 Medel | PR-E | ✅ Dokumenterad |
-| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⏸ Deferred (L7 ✅) |
+| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | Backlog | ✅ L2–L8 klara; L1 kvar (Fas 8) |
+| N12 | PII i loggar — utökad scope | 🟢 Låg | Backlog | ✅ Fixad |
+| H2† | `requireLogAccess` / `requireItemAccess` montering | 🟢 Låg | Backlog | ✅ Fixad |
 
 ### Prod-deploy
 
@@ -488,14 +490,14 @@ Verifiering prod: `git log -1` → `8e0908a`, `curl http://127.0.0.1:3000/health
 
 | ID | Status | Fynd | Fil | Motivering / åtgärd |
 |----|--------|------|-----|---------------------|
-| L1 | ⏸ Deferred | Stora filer (svåra att underhålla) | `public/js/schedule.js` (2594 r), `public/js/dashboard.js` (1468 r) | Stor Fas 8-refactor — egen PR, inte PR-E del 3. |
-| L2 | ⏸ Deferred | `AUTHZ_HARDENING_ENABLED=false` kill switch | `authz.js:28–29,169` | Incident-runbook först; ta bort när H1/N4 är stabil i prod. |
-| L3 | ⏸ Deferred | Manuell DST-logik | `win-back-scheduler.js:41–102` | Byt till Luxon vid nästa större ändring i filen. |
-| L4 | ⏸ Deferred | `getChildAgeInYears` server-local tid | `daily-log-generator.js:23–30` | Tidszon-fix vid nästa berörning av generatorn. |
-| L5 | ⏸ Deferred | `req.log` utan pino-http | `app.js:134` | Strukturerad loggning — separat observability-PR. |
-| L6 | ⏸ Deferred | CSP report-only | `securityHeaders.js:42–43` | Enforcing CSP efter violations-period utan regressions. |
-| L7 | ✅ Fixad | JWT-rotation i impersonation/maintenance | `impersonation.js:28`, `maintenance.js:52` | Åtgärdad via N5/PR-E del 1–2. |
-| L8 | ⏸ Deferred | Kommentar om middleware-ordning | `rateLimiter.js:104–106` | Verifiera/uppdatera vid nästa ändring i rateLimiter. |
+| L1 | 📋 Fas 8 | Stora filer (svåra att underhålla) | `public/js/schedule.js`, `public/js/dashboard.js` | Fortsatt modulär extraktion — separat refactor-spår, ej blockerande. |
+| L2 | ✅ Dokumenterad | `AUTHZ_HARDENING_ENABLED` kill switch | `authz.js`, `docs/ops-incident-runbook.md` | Runbook + prod-stabil H1/N4; borttagning av switch vid 90 dagar utan incident. |
+| L3 | ✅ Fixad | Manuell DST-logik i win-back | `win-back-scheduler.js` | Använder `stockholm-time.js` (samma mönster som weekly-summary). |
+| L4 | ✅ Fixad | `getChildAgeInYears` server-local tid | `daily-log-generator.js` | Kalenderdatum i angiven tidszon (`STOCKHOLM_TZ` default). |
+| L5 | ✅ Fixad | `req.log` utan pino-http | `app.js` | Error handler använder `console.error` med strukturerat objekt. |
+| L6 | ✅ Dokumenterad | CSP report-only | `securityHeaders.js` | Enforcing efter 30+ dagar utan violations — dokumenterat i filheader. |
+| L7 | ✅ Fixad | JWT-rotation i impersonation/maintenance | `impersonation.js`, `maintenance.js` | N5/PR-E del 1–2. |
+| L8 | ✅ Fixad | Kommentar om middleware-ordning | `rateLimiter.js` | Kommentar uppdaterad (global vs apiLimiter, admin/refresh exempt). |
 
 ---
 
@@ -643,6 +645,8 @@ Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
 | Scheduler locks | `test/scheduler-lock.test.js` |
 | JWT-rotation (5 ställen) | `test/jwt-rotation-contract.test.js` |
 | Win-back spoofing + markSent | `test/win-back-return-tracker.test.js`, `test/win-back-email-log-mark-sent.test.js` |
+| PII i loggar (N12) | `test/log-redact.test.js`, `test/pii-logging-contract.test.js` |
+| Authz middleware (H2†) | `test/authz-middleware-mounted.test.js` |
 | Fail-closed gates | `test/activation-flags-fail-closed.test.js`, `test/require-component-fail-closed.test.js` |
 | Admin TOCTOU | `test/family-components-toctou.test.js` |
 | Kontakt XSS | `test/contact-email-escape.test.js` |
@@ -658,10 +662,14 @@ Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
 - **27 prioriterade fynd** (K1–M8, exkl. deferred L): implementerade, testade i `test:gate`, deployade prod.
 - **Prod-migreringar:** `1809190000000_daily_log_item_unique_activity` (med dedup), `1809200000000_notification_log_dup_check_idx`.
 
-### Medveten backlog (ej blockerande)
+### Medveten backlog
 
-| ID | Titel | Prioritet | Not |
-|----|-------|-----------|-----|
-| **N12** | PII i loggar — utökad scope | 🟢 Låg | E-post i klartext kvar i t.ex. `public.js`, `admin/family.js`, `rewards.js`, `win-back-scheduler.js`, `weekly-summary-scheduler.js` — utanför N11:s ursprungsfilurval. Egen liten PR vid behov. |
-| **H2†** | `requireLogAccess` / `requireItemAccess` ej monterade | 🟢 Låg | `requireChildAccess` monterad på flera routes; `childAccess.js` borttagen. Helpers används inline på övriga ställen — utökad middleware-montering är städning, inte säkerhetslucka efter H1/N4. |
-| **L1–L6, L8** | Teknisk skuld | 🟢 Låg | Se tabell under [Låg / teknisk skuld](#-låg--teknisk-skuld). |
+**Stängd 2026-07-02** (denna omgång: N12, H2†, L2–L8 utom L1).
+
+| ID | Status | Not |
+|----|--------|-----|
+| **N12** | ✅ Fixad | `src/lib/log-redact.js` + maskning/parent-id i alla kvarvarande loggfiler; `test/pii-logging-contract.test.js`. |
+| **H2†** | ✅ Fixad | `requireLogAccess` / `requireItemAccess` monterade i `daily-logs/logs.js` + `items.js`. |
+| **L1** | 📋 Fas 8 | Stora JS-filer — fortsatt modulär extraktion, ej del av säkerhetsreview. |
+
+Övriga L2–L8: se tabellen [Låg / teknisk skuld](#-låg--teknisk-skuld).

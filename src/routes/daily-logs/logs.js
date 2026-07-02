@@ -7,7 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
-const { getLogAccess } = require('../../middleware/authz');
+const { requireLogAccess } = require('../../middleware/authz');
 
 const logRouter = express.Router();
 logRouter.use(requireParent);
@@ -16,11 +16,8 @@ logRouter.use(requireParent);
  * PUT /api/daily-logs/:logId/pause
  * Pause a day (sick day / holiday).
  */
-logRouter.put('/:logId/pause', async (req, res) => {
+logRouter.put('/:logId/pause', requireLogAccess('logId'), async (req, res) => {
   try {
-    const log = await getLogAccess(req.user.id, req.params.logId);
-    if (!log) return res.status(404).json({ error: 'Dagloggen hittades inte' });
-
     const result = await db.query(
       `UPDATE daily_log SET is_paused = true WHERE id = $1 RETURNING id, date, is_paused`,
       [req.params.logId]
@@ -36,11 +33,8 @@ logRouter.put('/:logId/pause', async (req, res) => {
  * PUT /api/daily-logs/:logId/unpause
  * Un-pause a day.
  */
-logRouter.put('/:logId/unpause', async (req, res) => {
+logRouter.put('/:logId/unpause', requireLogAccess('logId'), async (req, res) => {
   try {
-    const log = await getLogAccess(req.user.id, req.params.logId);
-    if (!log) return res.status(404).json({ error: 'Dagloggen hittades inte' });
-
     const result = await db.query(
       `UPDATE daily_log SET is_paused = false WHERE id = $1 RETURNING id, date, is_paused`,
       [req.params.logId]
@@ -62,11 +56,8 @@ logRouter.put('/:logId/unpause', async (req, res) => {
  * Returns: { updated: number, snapshot: Array<{ id, start_time, end_time }> }
  * The snapshot lets the client implement a single-level undo.
  */
-logRouter.put('/:logId/bump-time', async (req, res) => {
+logRouter.put('/:logId/bump-time', requireLogAccess('logId'), async (req, res) => {
   try {
-    const log = await getLogAccess(req.user.id, req.params.logId);
-    if (!log) return res.status(404).json({ error: 'Dagloggen hittades inte' });
-
     const ALLOWED_MINUTES = [5, 10, 15, 30];
     const minutes = parseInt(req.body.minutes, 10);
     if (!ALLOWED_MINUTES.includes(minutes)) {
@@ -126,11 +117,8 @@ logRouter.put('/:logId/bump-time', async (req, res) => {
  *
  * Body: { snapshot: Array<{ id, start_time, end_time }> }
  */
-logRouter.put('/:logId/bump-time-undo', async (req, res) => {
+logRouter.put('/:logId/bump-time-undo', requireLogAccess('logId'), async (req, res) => {
   try {
-    const log = await getLogAccess(req.user.id, req.params.logId);
-    if (!log) return res.status(404).json({ error: 'Dagloggen hittades inte' });
-
     const snapshot = req.body.snapshot;
     if (!Array.isArray(snapshot) || snapshot.length === 0) {
       return res.status(400).json({ error: 'Ogiltig snapshot' });

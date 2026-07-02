@@ -7,6 +7,7 @@ const db = require('../../lib/db');
 const { hashPassword, comparePassword } = require('../../lib/hash');
 const crypto = require('crypto');
 const { sendEmail } = require('../../lib/email');
+const { maskEmail } = require('../../lib/log-redact');
 
 const router = express.Router();
 
@@ -250,7 +251,7 @@ router.put('/parents/:id/admin', async (req, res) => {
       return res.status(404).json({ error: 'Förälder hittades inte' });
     }
     const p = result.rows[0];
-    console.log(`[ADMIN] Admin toggle for ${p.email}: now is_admin=${p.is_admin} by admin ${req.user.id}`);
+    console.log(`[ADMIN] Admin toggle for parent ${p.id}: now is_admin=${p.is_admin} by admin ${req.user.id}`);
     res.json({ message: p.is_admin ? 'Admin-rättigheter tilldelade' : 'Admin-rättigheter borttagna', is_admin: p.is_admin });
   } catch (err) {
     console.error('[ADMIN] Toggle admin error:', err);
@@ -360,7 +361,7 @@ router.post('/create-admin', async (req, res) => {
 
       await client.query('COMMIT');
 
-      console.log(`[ADMIN] New admin created: ${normalizedEmail} by admin ${req.user.id}`);
+      console.log(`[ADMIN] New admin created: parent ${parentResult.rows[0].id} by admin ${req.user.id}`);
       res.status(201).json({
         message: `Admin-konto skapat för ${normalizedEmail}`,
         admin: parentResult.rows[0],
@@ -448,7 +449,7 @@ router.put('/parents/:id/email', async (req, res) => {
       })]
     );
 
-    console.log(`[ADMIN] Email changed for parent ${id}: ${oldEmail} → ${trimmedEmail} by admin ${req.user.id}`);
+    console.log(`[ADMIN] Email changed for parent ${id}: ${maskEmail(oldEmail)} → ${maskEmail(trimmedEmail)} by admin ${req.user.id}`);
     res.json({ message: 'E-postadress uppdaterad', email: trimmedEmail });
   } catch (err) {
     console.error('[ADMIN] Change parent email error:', err);
@@ -503,7 +504,7 @@ router.delete('/parents/:id/apple-link', async (req, res) => {
       })]
     );
 
-    console.log(`[ADMIN] Apple unlinked for parent ${id} (${parent.email}) by admin ${req.user.id}`);
+    console.log(`[ADMIN] Apple unlinked for parent ${id} by admin ${req.user.id}`);
     res.json({ message: 'Apple-konto har kopplats bort' });
   } catch (err) {
     console.error('[ADMIN] Admin unlink Apple error:', err);
@@ -625,7 +626,7 @@ router.put('/reset-parent-password/:id', async (req, res) => {
       })]
     );
 
-    console.log(`[ADMIN] Password reset for ${parent.email} by admin ${req.user.id}`);
+    console.log(`[ADMIN] Password reset for parent ${id} by admin ${req.user.id}`);
     res.json({ success: true, message: 'Lösenord skickat via e-post' });
   } catch (err) {
     console.error('[ADMIN] Reset password error:', err.message);

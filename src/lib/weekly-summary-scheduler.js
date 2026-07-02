@@ -276,13 +276,13 @@ async function runWeeklySummaryJob() {
         const totalStars = childData.reduce((sum, c) => sum + c.stats.starsEarned, 0);
         const totalRoutines = childData.reduce((sum, c) => sum + c.stats.routinesTotal, 0);
         if (totalStars === 0 && totalRoutines === 0) {
-          console.log(`[WEEKLY-SUMMARY] Skipping ${parent.email} — no activity this week`);
+          console.log(`[WEEKLY-SUMMARY] Skipping parent ${parent.parent_id} — no activity this week`);
           continue;
         }
 
         const claimed = await claimWeeklySummarySend(parent.parent_id, endDate);
         if (!claimed) {
-          console.log(`[WEEKLY-SUMMARY] Skipping ${parent.email} — already sent for ${endDate}`);
+          console.log(`[WEEKLY-SUMMARY] Skipping parent ${parent.parent_id} — already sent for ${endDate}`);
           continue;
         }
 
@@ -296,7 +296,7 @@ async function runWeeklySummaryJob() {
         });
 
         sentCount++;
-        console.log(`[WEEKLY-SUMMARY] Sent to ${parent.email}`);
+        console.log(`[WEEKLY-SUMMARY] Sent to parent ${parent.parent_id}`);
       } catch (err) {
         errorCount++;
         console.error(`[WEEKLY-SUMMARY] Failed for parent ${parent.parent_id}:`, err.message);

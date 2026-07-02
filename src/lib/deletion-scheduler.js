@@ -110,10 +110,10 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
     // Send deletion confirmation email (non-blocking)
     const firstName = email.split('@')[0].split('.')[0]; // rough extraction
     sendAccountDeletedEmail(email, firstName).catch(err => {
-      console.warn(`[DELETION-SCHEDULER] Failed to send deletion email to ${email}:`, err.message);
+      console.warn(`[DELETION-SCHEDULER] Failed to send deletion email to parent ${parentId}:`, err.message);
     });
 
-    console.log(`[DELETION-SCHEDULER] Completed deletion for ${email}`);
+    console.log(`[DELETION-SCHEDULER] Completed deletion for parent ${parentId}`);
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
