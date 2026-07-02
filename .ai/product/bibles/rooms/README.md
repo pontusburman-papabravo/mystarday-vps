@@ -1,71 +1,39 @@
-# Room Catalog — Production Blueprints
+# Room Catalog — DEPRECATED
 
-**Version:** 1.0  
-**Status:** In progress — `home_hall` pilot  
-**Authority:** [WORLD_BIBLE.md Part III RBS](../WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs) → denna katalog → Entity / Animation / Audio / Prompt Bibles → implementation  
-**Pack target:** `config/experience-packs/child_se/scenes.json` (ej skapad ännu — LWES Appendix C)
-
----
-
-## Purpose
-
-Production-ready **room specs** using the Room Blueprint Standard (RBS). Varje fil är single source of truth för ett rum — Design, Art, Engineering, Animation, Audio, AI Gen och QA läser samma YAML.
-
-**Ingen art. Ingen kod. Ingen AI-bild.** förrän RBS-blueprinten är komplett (Part III Definition of Done).
+> **⚠️ Canonical location moved:** [`docs/world/`](../../../docs/world/README.md)  
+> **Rulebook (frozen):** [WORLD_BIBLE.md Part III RBS](../WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs)  
+> **Do not add new room YAML here.**
 
 ---
 
-## Priority order
+## Migration map
 
-Fyll i denna ordning:
-
-| # | `room_id` | Display (sv) | Notes |
-|---|-----------|--------------|-------|
-| 1 | `home_hall` | Hallen | **Påbörjad** — hem centrum, trädgårdskoppling, comfort + fireplace hero |
-| 2 | `hall` | Hall / entré | Yttre hall om separat från `home_hall` — TBD topologi |
-| 3 | `bedroom` | Sovrummet | Nav från `home_hall` (LWES §67.2) |
-| 4 | `kitchen` | Kök | Morgonhus-frukost progression (WDB) |
-| 5 | `garden` | Trädgården | Shipped slice: `child-garden.js` — blueprint TBD |
-| 6 | `trophy_room` | Troférum | Nav `door_trophy` från hall |
-| 7 | `pet_room` | Husdjursrum | TBD topologi |
-| 8 | `workshop` | Verkstaden | Part I topologi — kvarn-landmärke |
-| 9 | `museum` | Museet | Glasdom-landmärke |
+| Legacy reference | Canonical path |
+|------------------|----------------|
+| `home_hall` pilot | [`docs/world/data/101-hall.yaml`](../../../docs/world/data/101-hall.yaml) |
+| `home_exterior` | [`docs/world/data/100-home.yaml`](../../../docs/world/data/100-home.yaml) |
+| `_TEMPLATE.yaml` (planned) | [`docs/world/_TEMPLATE.room.yaml`](../../../docs/world/_TEMPLATE.room.yaml) |
+| Room catalog index | [`docs/world/README.md`](../../../docs/world/README.md) |
 
 ---
 
-## File convention
+## Why deprecated
 
-| Fil | Innehåll |
-|-----|----------|
-| `home_hall.yaml` | **Canonical pilot** — full RBS för `scene_id: home_hall` |
-| `<room_id>.yaml` | Övriga rum enligt [`_TEMPLATE.yaml`](./_TEMPLATE.yaml) |
-| `<production_number>_<room_id>.yaml` | Valfritt katalognummer (t.ex. `100_home.yaml`) |
-| `<room_id>.md` | Valfritt — Part I checklist-noter, QA, screenshots |
+Creative Director course change (2026-07-02): **Production Specifications** live in `docs/world/` as a **world database** with dual YAML + Markdown per room. World Bible Part IV remains the **schema authority** in `.ai/product/bibles/WORLD_BIBLE.md`; concrete room data moved to `docs/world/data/`.
 
 ---
 
-## Cursor workflow
+## Historical notes
 
-1. Läs [World Constitution](../WORLD_BIBLE.md) §1 + [Part I](../WORLD_BIBLE.md#part-i--world-topology--spatial-design) + Part III RBS.
-2. Kopiera `_TEMPLATE.yaml` → `<room_id>.yaml`.
-3. Fyll **alla** sektioner. Okänt = `TBD` med kommentar — **inte** utelämna sektion.
-4. Verifiera Constitution + LWES §22 interaction types.
-5. Skapa/uppdatera Entity Bible-rader för hero + interactives.
-6. Först därefter: Art Prompt Catalog, assets, `scenes.json`, kod.
+This folder previously held Part IV room catalog stubs (`home_hall` first). Pack target remains `config/experience-packs/child_se/scenes.json` (LWES Appendix C).
 
----
+**Priority order** (unchanged intent — see numbered catalog in `docs/world/README.md`):
 
-## Cross-references
-
-| Dokument | Roll |
-|----------|------|
-| [WORLD_BIBLE.md](../WORLD_BIBLE.md) Part I | Topologi, landmärken, emotional geography |
-| [WORLD_BIBLE.md](../WORLD_BIBLE.md) Part III | RBS schema |
-| [LIVING_WORLD_ENGINE_SPEC.md](../../LIVING_WORLD_ENGINE_SPEC.md) | Runtime, interaction types, pack schema |
-| [WORLD_DESIGN_BIBLE.md](../../WORLD_DESIGN_BIBLE.md) | WDB progression nodes |
-| [ENTITY_BIBLE.md](../ENTITY_BIBLE.md) | Per-object rows |
-| [docs/child-image-assets.md](../../../docs/child-image-assets.md) | Shipped asset IDs |
+1. Home (100) + Hall (101)  
+2. Garden (110) — shipped slice `child-garden.js`  
+3. Bedroom, kitchen, bathroom, attic (102–105)  
+4. Workshop, museum, trophy, pet house, reading corner, forest, lake (120–180)  
 
 ---
 
-*Nästa: slutför `home_hall.yaml` → `garden.yaml` (befintlig implementation att dokumentera).*
+*Redirect only. Edit room contracts in `docs/world/`.*
