@@ -9,6 +9,7 @@
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { RETENTION_REENGAGEMENT_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 const {
   RETENTION_PUSH_MILESTONES,
   findEligibleRecipients,
@@ -57,57 +58,44 @@ async function findEligibleParents(milestoneDay) {
 async function runJob() {
   if (!(await isFlagEnabled())) return { skipped: 'flag_off' };
 
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [
-      RETENTION_REENGAGEMENT_LOCK_ID,
-    ]);
-    lockAcquired = rows[0]?.acquired;
-  } catch (err) {
-    console.error('[RETENTION-PUSH] Lock error:', err.message);
-    lockAcquired = true;
-  }
-  if (!lockAcquired) return { skipped: 'lock' };
-
+  const outcome = await withAdvisoryLock(RETENTION_REENGAGEMENT_LOCK_ID, async () => {
   let sent = 0;
-  try {
-    for (const day of RETENTION_PUSH_MILESTONES) {
-      const parents = await findEligibleRecipients(day);
-      const copy = COPY[day];
-      for (const row of parents) {
-        const gate = await evaluateRetentionPush(row.family_id, { milestoneDay: day });
-        if (!gate.allowed) continue;
+  for (const day of RETENTION_PUSH_MILESTONES) {
+    const parents = await findEligibleRecipients(day);
+    const copy = COPY[day];
+    for (const row of parents) {
+      const gate = await evaluateRetentionPush(row.family_id, { milestoneDay: day });
+      if (!gate.allowed) continue;
 
-        const result = await sendPushNotification(row.parent_id, {
-          title: copy.title,
-          body: copy.body,
-          url: '/dashboard',
-          type: 'retention_reengagement',
-        });
-        if (result.sent > 0) {
-          await db.query(
-            `INSERT INTO retention_reengagement_push (parent_id, family_id, milestone_day)
-             VALUES ($1, $2, $3)
-             ON CONFLICT (parent_id, family_id, milestone_day) DO NOTHING`,
-            [row.parent_id, row.family_id, day]
-          );
-          analytics.track(row.family_id, 'retention_reengagement_push_sent', {
-            milestone_day: day,
-            parent_id: row.parent_id,
-          }).catch(() => {});
-          sent += result.sent;
-        }
+      const result = await sendPushNotification(row.parent_id, {
+        title: copy.title,
+        body: copy.body,
+        url: '/dashboard',
+        type: 'retention_reengagement',
+      });
+      if (result.sent > 0) {
+        await db.query(
+          `INSERT INTO retention_reengagement_push (parent_id, family_id, milestone_day)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (parent_id, family_id, milestone_day) DO NOTHING`,
+          [row.parent_id, row.family_id, day]
+        );
+        analytics.track(row.family_id, 'retention_reengagement_push_sent', {
+          milestone_day: day,
+          parent_id: row.parent_id,
+        }).catch(() => {});
+        sent += result.sent;
       }
     }
-    if (sent > 0) {
-      console.log(`[RETENTION-PUSH] Sent ${sent} push(es)`);
-    }
-    return { sent };
-  } finally {
-    if (lockAcquired) {
-      await db.query('SELECT pg_advisory_unlock($1)', [RETENTION_REENGAGEMENT_LOCK_ID]).catch(() => {});
-    }
   }
+  if (sent > 0) {
+    console.log(`[RETENTION-PUSH] Sent ${sent} push(es)`);
+  }
+  return { sent };
+  });
+
+  if (outcome?.skipped === 'lock') return { skipped: 'lock' };
+  return outcome?.result ?? { sent: 0 };
 }
 
 let timer = null;

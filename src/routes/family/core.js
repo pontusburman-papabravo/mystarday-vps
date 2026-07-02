@@ -253,7 +253,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       `SELECT c.id, c.name, c.emoji, c.timezone, c.birthday
        FROM child c
        JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1
+       WHERE pc.parent_id = $1 AND pc.revoked_at IS NULL
        ORDER BY c.created_at ASC`,
       [parentId]
     );

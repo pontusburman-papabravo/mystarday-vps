@@ -92,12 +92,13 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
            completed_by = COALESCE(completed_by, 'parent'),
            completed_by_parent_id = COALESCE(completed_by_parent_id, $3),
            completion_source = COALESCE(completion_source, 'home')
-       WHERE id = $1
+       WHERE id = $1 AND completed = false
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate, req.user.id]
     );
-    res.json(result.rows[0]);
-    if (!item.completed) {
+    const justCompleted = result.rows.length > 0;
+    res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
+    if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
       handleActivityCompleted(req.params.itemId, item.child_id, false).catch(() => {});
     }
@@ -105,12 +106,13 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
       if (!fid) return;
       require('../../lib/analytics-tracker').trackDailyLog(fid);
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: true });
-      if (!item.completed) {
+      if (justCompleted) {
         require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
           child_id: item.child_id,
           source: 'parent_complete',
         });
       }
+      if (!justCompleted) return;
       try {
         const [childRow, activityRow] = await Promise.all([
           db.query('SELECT name FROM child WHERE id = $1', [item.child_id]),

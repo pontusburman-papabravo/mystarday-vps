@@ -19,28 +19,11 @@ const { sendPushNotification } = require('./push-notifications');
 const systemMessages = require('../../db/system-messages');
 const libraryUpdateLog = require('../../db/library-update-log');
 const { LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 
 const FLUSH_INTERVAL_MS = 30 * 1000; // check every 30 seconds
 
 let _timer = null;
-
-/**
- * Acquire advisory lock for this scheduler. Fail-open: duplicate flush
- * notifications are not harmful (idempotent update + push is stateless).
- */
-async function acquireLock() {
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID]);
-    return rows[0].acquired;
-  } catch (err) {
-    console.error('[LIBRARY-NOTIFY] Advisory lock error:', err.message);
-    return true; // fail-open
-  }
-}
-
-async function releaseLock() {
-  await db.query('SELECT pg_advisory_unlock($1)', [LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID]).catch(() => {});
-}
 
 // Human-readable kind labels (Swedish)
 const KIND_LABELS = {
@@ -154,17 +137,11 @@ async function sendNotificationBatch(row) {
  */
 function startLibraryNotificationScheduler() {
   _timer = setInterval(async () => {
-    const lockAcquired = await acquireLock();
-    if (!lockAcquired) {
-      console.log('[LIBRARY-NOTIFY] Skipping — another instance holds the lock');
-      return;
-    }
-    try {
+    const outcome = await withAdvisoryLock(LIBRARY_NOTIFICATION_SCHEDULER_LOCK_ID, async () => {
       await flushPendingNotifications();
-    } catch (err) {
-      console.error('[LIBRARY-NOTIFY] Scheduler tick error:', err.message);
-    } finally {
-      await releaseLock();
+    });
+    if (outcome?.skipped === 'lock') {
+      console.log('[LIBRARY-NOTIFY] Skipping — another instance holds the lock');
     }
   }, FLUSH_INTERVAL_MS);
 

@@ -10,7 +10,7 @@ const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
-const { requireNotPedagogOnly } = require('../middleware/authz');
+const { requireNotPedagogOnly, getChildAccess, requireChildAccess } = require('../middleware/authz');
 const { sendEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
 const { validate, validateParams } = require('../middleware/validate');
@@ -89,22 +89,12 @@ parentRouter.use(requireNotPedagogOnly);
  * Also includes the child's name/emoji for display.
  * Requires the requesting parent to have parent_child link to childId.
  */
-parentRouter.get('/child-view/:childId', async (req, res) => {
+parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (req, res) => {
   try {
     const parentId = req.user.id;
     const { childId } = req.params;
 
-    // Verify parent has access to this child
-    const accessCheck = await db.query(
-      `SELECT c.id, c.name, c.emoji, c.family_id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE c.id = $1 AND pc.parent_id = $2`,
-      [childId, parentId]
-    );
-    if (accessCheck.rows.length === 0) {
-      return res.status(403).json({ error: 'Inget tillstånd för detta barn' });
-    }
-    const child = accessCheck.rows[0];
+    const child = req.authzChild;
     const familyId = child.family_id;
 
     // All active rewards visible to this child — DISTINCT ON prevents duplicate rows

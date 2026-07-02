@@ -68,7 +68,8 @@ async function batchInsertDailyLogItems(q, logId, items) {
     pi += 10;
   }
   await q.query(
-    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}`,
+    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}
+     ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
     params
   );
 }
@@ -486,7 +487,8 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+         ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, nextOrder, si.section]
       );
@@ -590,7 +592,8 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+         ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, si.sort_order, si.section]
       );

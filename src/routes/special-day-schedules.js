@@ -19,6 +19,7 @@
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
+const authz = require('../middleware/authz');
 const { getDayOfWeek, syncDailyLogForSpecialDay, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 
@@ -27,37 +28,15 @@ const scheduleRouter = express.Router({ mergeParams: true });
 
 childRouter.use(requireParent);
 scheduleRouter.use(requireParent);
-
-// ─── Helpers ─────────────────────────────────────────────
-
-async function getChildAccess(parentId, childId) {
-  const result = await db.query(
-    `SELECT c.id, c.family_id, c.timezone, c.birthday
-     FROM child c JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND c.id = $2`,
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
-}
-
-async function getSpecialDayAccess(parentId, scheduleId) {
-  const result = await db.query(
-    `SELECT sds.id, sds.child_id, sds.date, sds.note
-     FROM special_day_schedule sds
-     JOIN child c ON c.id = sds.child_id
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND sds.id = $2`,
-    [parentId, scheduleId]
-  );
-  return result.rows[0] || null;
-}
+childRouter.use(authz.requireChildAccess('childId'));
+scheduleRouter.use(authz.requireSpecialDayAccess('scheduleId'));
 
 // ─── Child-scoped routes ──────────────────────────────────
 
 // GET /api/children/:childId/special-days?from=YYYY-MM-DD&to=YYYY-MM-DD
 childRouter.get('/', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { from, to } = req.query;
@@ -94,7 +73,7 @@ childRouter.get('/', async (req, res) => {
 // Body: { date: 'YYYY-MM-DD', note?: string, copy_from_template?: boolean }
 childRouter.post('/', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { date, note, copy_from_template } = req.body;
@@ -187,7 +166,7 @@ childRouter.post('/', async (req, res) => {
 // DELETE /api/children/:childId/special-days/:date
 childRouter.delete('/:date', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const dateParam = req.params.date;
@@ -248,7 +227,7 @@ childRouter.delete('/:date', async (req, res) => {
 // GET /api/special-day-schedules/:scheduleId/items
 scheduleRouter.get('/', async (req, res) => {
   try {
-    const schedule = await getSpecialDayAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const items = await db.query(
@@ -276,7 +255,7 @@ scheduleRouter.get('/', async (req, res) => {
 // Body: { activity_template_id?, name, icon?, start_time?, end_time?, star_value?, sort_order?, section? }
 scheduleRouter.post('/', async (req, res) => {
   try {
-    const schedule = await getSpecialDayAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const { activity_template_id, name, icon, start_time, end_time, star_value, sort_order, section } = req.body;
@@ -333,7 +312,7 @@ scheduleRouter.post('/', async (req, res) => {
 // IMPORTANT: Must be before /:itemId
 scheduleRouter.put('/reorder', async (req, res) => {
   try {
-    const schedule = await getSpecialDayAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const { order } = req.body;
@@ -382,7 +361,7 @@ scheduleRouter.put('/reorder', async (req, res) => {
 // PUT /api/special-day-schedules/:scheduleId/items/:itemId
 scheduleRouter.put('/:itemId', async (req, res) => {
   try {
-    const schedule = await getSpecialDayAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const existing = await db.query(
@@ -434,7 +413,7 @@ scheduleRouter.put('/:itemId', async (req, res) => {
 // DELETE /api/special-day-schedules/:scheduleId/items/:itemId
 scheduleRouter.delete('/:itemId', async (req, res) => {
   try {
-    const schedule = await getSpecialDayAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const result = await db.query(

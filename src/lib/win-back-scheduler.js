@@ -24,6 +24,7 @@
 const db = require('./db');
 const winBackLog = require('../../db/win-back-email-log');
 const { WIN_BACK_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 const { isAutoApproveEnabled, approveAndSend } = require('./win-back-sender');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 
@@ -179,20 +180,7 @@ async function runWinBackJob() {
     return;
   }
 
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [WIN_BACK_SCHEDULER_LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[WIN-BACK] Failed to acquire advisory lock:', err.message);
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[WIN-BACK] Skipping — another instance holds the lock');
-    return;
-  }
-
+  const outcome = await withAdvisoryLock(WIN_BACK_SCHEDULER_LOCK_ID, async () => {
   const autoApprove = await isAutoApproveEnabled();
   console.log(`[WIN-BACK] Starting job — auto-approve ${autoApprove ? 'ON (sending automatically)' : 'OFF (queuing for manual approval)'}`);
 
@@ -259,11 +247,14 @@ async function runWinBackJob() {
     }
   } catch (err) {
     console.error('[WIN-BACK] Job failed:', err.message);
-  } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [WIN_BACK_SCHEDULER_LOCK_ID]).catch(() => {});
   }
 
   console.log(`[WIN-BACK] Done. Created=${createdCount} Sent=${sentCount} Errors=${errorCount}`);
+  });
+
+  if (outcome?.skipped === 'lock') {
+    console.log('[WIN-BACK] Skipping — another instance holds the lock');
+  }
 }
 
 function startWinBackScheduler() {

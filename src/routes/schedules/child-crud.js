@@ -8,6 +8,7 @@ const express = require('express');
 const db = require('../../lib/db');
 const custodyDb = require('../../../db/custody');
 const { requireParent } = require('../../middleware/auth');
+const authz = require('../../middleware/authz');
 const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
@@ -16,14 +17,6 @@ const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-fla
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
-
-async function getChildAccess(parentId, childId) {
-  const result = await db.query(
-    'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
-}
 
 /** Resolve activity_template_id for an engångsaktivitet (library template or inline sub_steps). */
 async function resolveOnceTaskTemplateId(familyId, { name, icon, star_value, activity_template_id, sub_steps }) {
@@ -75,7 +68,7 @@ async function resolveCustodyVariantFilter(child, childId, rawVariant) {
 // GET /api/children/:childId/schedules — list all 7-day schedules for child
 router.get('/', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { variantFilter } = await resolveCustodyVariantFilter(
@@ -108,7 +101,7 @@ router.get('/', async (req, res) => {
 // POST /api/children/:childId/schedules — create schedule for a day
 router.post('/', validate(CreateScheduleSchema), async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { day_of_week, template_category_id } = req.body;
@@ -230,7 +223,7 @@ router.post('/', validate(CreateScheduleSchema), async (req, res) => {
 // DELETE /api/children/:childId/schedules/:scheduleId — delete schedule (and all items)
 router.delete('/:scheduleId', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const schedule = await db.query(
@@ -263,7 +256,7 @@ router.delete('/:scheduleId', async (req, res) => {
 // POST /api/children/:childId/schedules/once-tasks — create one-time task in daily log
 router.post('/once-tasks', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const {

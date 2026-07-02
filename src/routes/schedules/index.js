@@ -17,6 +17,7 @@
  */
 
 const express = require('express');
+const authz = require('../../middleware/authz');
 const childCrudRouter = require('./child-crud');
 const childBulkRouter = require('./child-bulk');
 const fillWeekRouter = require('./fill-week');
@@ -26,6 +27,9 @@ const templatesRouter = require('./templates');
 const childRouter = express.Router({ mergeParams: true });
 const scheduleRouter = express.Router({ mergeParams: true });
 const familyRouter = express.Router();
+
+childRouter.use(authz.requireChildAccess('childId'));
+scheduleRouter.use(authz.requireScheduleAccess('scheduleId'));
 
 // Child-scoped routes: mount sub-routers at their specific paths
 childRouter.use('/', childCrudRouter);             // GET /, POST /, DELETE /:scheduleId, POST /once-tasks

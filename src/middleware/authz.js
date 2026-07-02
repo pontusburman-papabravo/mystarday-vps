@@ -23,7 +23,7 @@
  */
 
 const db = require('../lib/db');
-const { getParentRoles } = require('../../db/parent-access');
+const { getParentRoles, getActiveChildAccess } = require('../../db/parent-access');
 
 // Kill switch: set AUTHZ_HARDENING_ENABLED=false to disable and fall through.
 const ENABLED = process.env.AUTHZ_HARDENING_ENABLED !== 'false';
@@ -37,14 +37,7 @@ const ENABLED = process.env.AUTHZ_HARDENING_ENABLED !== 'false';
  * Returns child row or null.
  */
 async function getChildAccess(parentId, childId) {
-  const result = await db.query(
-    `SELECT c.id, c.family_id, c.timezone, c.birthday, c.name, pc.role
-     FROM child c
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL`,
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
+  return getActiveChildAccess(parentId, childId);
 }
 
 /**

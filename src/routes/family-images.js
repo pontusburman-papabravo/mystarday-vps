@@ -46,14 +46,7 @@ async function isImageUrlAllowedForFamily(familyId, imageUrl) {
     'SELECT 1 FROM activity_template WHERE family_id = $1 AND image_url = $2 LIMIT 1',
     [familyId, imageUrl]
   );
-  if (onActivity.rows.length > 0) return true;
-
-  // Same-origin /uploads/ paths
-  if (imageUrl.startsWith('/uploads/')) return true;
-  const appBase = (process.env.APP_URL || '').replace(/\/$/, '');
-  if (appBase && imageUrl.startsWith(appBase + '/uploads/')) return true;
-
-  return false;
+  return onActivity.rows.length > 0;
 }
 
 function resolveLocalUploadPath(imageUrl) {

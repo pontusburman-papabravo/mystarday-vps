@@ -13,6 +13,7 @@
 const db = require('./db');
 const { sendAccountDeletedEmail } = require('./email');
 const { DELETION_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 
 let _timer = null;
 
@@ -21,28 +22,10 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 const GRACE_PERIOD_DAYS = 30;
 
 async function runDeletionJob() {
-  // Advisory lock prevents two instances from deleting the same families concurrently.
-  // Partial family deletion on crash = data loss — this lock is safety-critical.
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [DELETION_SCHEDULER_LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[DELETION-SCHEDULER] Failed to acquire advisory lock:', err.message);
-    // Fail-closed: skip this run rather than risk a partial double-delete
-    return;
-  }
-
-  if (!lockAcquired) {
-    console.log('[DELETION-SCHEDULER] Skipping — another instance holds the lock');
-    return;
-  }
-
+  const outcome = await withAdvisoryLock(DELETION_SCHEDULER_LOCK_ID, async () => {
   console.log('[DELETION-SCHEDULER] Checking for due deletions...');
 
-  try {
-    // Find all parents past their 30-day grace period with pending deletion
-    const due = await db.query(`
+  const due = await db.query(`
       SELECT p.id, p.email, p.family_id, p.deletion_requested_at
       FROM parent p
       WHERE p.pending_deletion = true
@@ -50,32 +33,31 @@ async function runDeletionJob() {
         AND p.deletion_requested_at < NOW() - INTERVAL '${GRACE_PERIOD_DAYS} days'
     `);
 
-    if (due.rows.length === 0) {
-      console.log('[DELETION-SCHEDULER] No deletions due.');
-      return;
-    }
+  if (due.rows.length === 0) {
+    console.log('[DELETION-SCHEDULER] No deletions due.');
+    return;
+  }
 
-    console.log(`[DELETION-SCHEDULER] Found ${due.rows.length} deletion(s) to process.`);
+  console.log(`[DELETION-SCHEDULER] Found ${due.rows.length} deletion(s) to process.`);
 
-    for (const row of due.rows) {
-      try {
-        await executeCascadeDelete(row);
-      } catch (err) {
-        console.error(`[DELETION-SCHEDULER] Failed to delete parent ${row.id}:`, err.message);
-        // Record the error so we don't keep retrying the same failing parent
-        await db.query(
-          `INSERT INTO deletion_job (parent_id, family_id, status, error)
-           VALUES ($1, $2, 'failed', $3)
-           ON CONFLICT (parent_id) DO UPDATE SET
-             error = $3, status = 'failed'`,
-          [row.id, row.family_id, err.message]
-        );
-      }
+  for (const row of due.rows) {
+    try {
+      await executeCascadeDelete(row);
+    } catch (err) {
+      console.error(`[DELETION-SCHEDULER] Failed to delete parent ${row.id}:`, err.message);
+      await db.query(
+        `INSERT INTO deletion_job (parent_id, family_id, status, error)
+         VALUES ($1, $2, 'failed', $3)
+         ON CONFLICT (parent_id) DO UPDATE SET
+           error = $3, status = 'failed'`,
+        [row.id, row.family_id, err.message]
+      );
     }
-  } catch (err) {
-    console.error('[DELETION-SCHEDULER] Job error:', err.message);
-  } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [DELETION_SCHEDULER_LOCK_ID]).catch(() => {});
+  }
+  });
+
+  if (outcome?.skipped === 'lock') {
+    console.log('[DELETION-SCHEDULER] Skipping — another instance holds the lock');
   }
 }
 

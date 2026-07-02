@@ -14,6 +14,7 @@ const express = require('express');
 const db = require('../lib/db');
 const { hashPassword, pinFingerprint } = require('../lib/hash');
 const { requireParent } = require('../middleware/auth');
+const authz = require('../middleware/authz');
 const { requireFeature } = require('../middleware/feature-gate');
 const { validate } = require('../middleware/validate');
 const {
@@ -234,16 +235,11 @@ router.post('/schedule', async (req, res) => {
     }
 
     // Verify parent has access to this child
-    const childAccess = await db.query(
-      `SELECT c.id, c.family_id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, child_id]
-    );
-    if (childAccess.rows.length === 0) {
+    const childAccess = await authz.getChildAccess(req.user.id, child_id);
+    if (!childAccess) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
-    const familyId = childAccess.rows[0].family_id;
+    const familyId = childAccess.family_id;
 
     // Map template_group key to default_schedule name (admin-maintained curated schedules)
     const GROUP_TO_SCHEDULE = {
@@ -475,16 +471,11 @@ router.post('/weekend-schedule', async (req, res) => {
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
 
     // Verify parent has access to this child
-    const childAccess = await db.query(
-      `SELECT c.id, c.family_id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, child_id]
-    );
-    if (childAccess.rows.length === 0) {
+    const childAccess = await authz.getChildAccess(req.user.id, child_id);
+    if (!childAccess) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
-    const familyId = childAccess.rows[0].family_id;
+    const familyId = childAccess.family_id;
 
     // Look up the "Helg" default schedule
     const helgRow = await db.query(
@@ -817,13 +808,8 @@ router.post('/child-view', async (req, res) => {
     const dbViewType = dbValueMap[view_type] || 'day_sections';
 
     // Verify child belongs to this parent's family
-    const check = await db.query(
-      `SELECT c.id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, child_id]
-    );
-    if (check.rows.length === 0) {
+    const check = await authz.getChildAccess(req.user.id, child_id);
+    if (!check) {
       return res.status(403).json({ error: 'Inte tillåtet' });
     }
 
@@ -857,17 +843,12 @@ router.post('/update-pin', async (req, res) => {
     }
 
     // Verify parent has access to this child
-    const childAccess = await db.query(
-      `SELECT c.id, c.name FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND c.id = $2`,
-      [req.user.id, child_id]
-    );
-    if (childAccess.rows.length === 0) {
+    const childAccess = await authz.getChildAccess(req.user.id, child_id);
+    if (!childAccess) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
-    const childName = childAccess.rows[0].name;
+    const childName = childAccess.name;
 
     // Check uniqueness (name + PIN combination)
     const pinFp = pinFingerprint(pin);

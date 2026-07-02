@@ -295,6 +295,18 @@ async function revokePedagogLink({ pedagogParentId, childId, revokerParentId }) 
   return result.rowCount > 0 ? { parent_id: pedagogParentId, child_id: childId } : null;
 }
 
+async function verifyPrimaryChildrenForInvite(parentId, familyId, childIds) {
+  if (!childIds?.length) return [];
+  const { rows } = await db.query(
+    `SELECT c.id FROM child c
+     JOIN parent_child pc ON pc.child_id = c.id
+     WHERE pc.parent_id = $1 AND pc.role = 'primary' AND c.id = ANY($2)
+       AND c.family_id = $3 AND pc.revoked_at IS NULL`,
+    [parentId, childIds, familyId]
+  );
+  return rows;
+}
+
 module.exports = {
   createInvite,
   getInviteByToken,
@@ -305,4 +317,5 @@ module.exports = {
   listPendingInvites,
   revokeInvite,
   revokePedagogLink,
+  verifyPrimaryChildrenForInvite,
 };

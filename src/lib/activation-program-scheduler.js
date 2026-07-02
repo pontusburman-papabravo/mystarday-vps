@@ -6,6 +6,8 @@
 const { DateTime } = require('luxon');
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
+const { ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 const {
   isActivationProgramEnabled,
   isPostLaunchEnrollment,
@@ -19,7 +21,6 @@ const programAnalytics = require('./activation-program-analytics');
 const parentActivationProgram = require('../../db/parent-activation-program');
 const pushSubscriptions = require('../../db/push-subscriptions');
 
-const SCHEDULER_LOCK_ID = 17999002;
 const PUSH_HOUR_STOCKHOLM = 8;
 
 /**
@@ -110,53 +111,35 @@ async function runActivationPushJob({ force = false } = {}) {
     return { sent: 0, skipped: 'disabled' };
   }
 
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [SCHEDULER_LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[ACTIVATION-PUSH] Lock error:', err.message);
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[ACTIVATION-PUSH] Skipping — lock held');
-    return { sent: 0, skipped: 'lock' };
-  }
-
+  const outcome = await withAdvisoryLock(ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID, async () => {
   let totalSent = 0;
   let eligible = 0;
 
-  try {
-    const programs = await parentActivationProgram.listActiveTreatmentPrograms();
+  const programs = await parentActivationProgram.listActiveTreatmentPrograms();
 
-    for (const program of programs) {
-      const timezone = program.family_timezone || 'Europe/Stockholm';
-      const { send, effectiveDay } = shouldSendPushForProgram(program, timezone);
-      if (!send || effectiveDay == null) continue;
+  for (const program of programs) {
+    const timezone = program.family_timezone || 'Europe/Stockholm';
+    const { send, effectiveDay } = shouldSendPushForProgram(program, timezone);
+    if (!send || effectiveDay == null) continue;
 
-      eligible += 1;
-      try {
-        const result = await sendPushForProgram(program, effectiveDay);
-        totalSent += result.sent || 0;
-      } catch (err) {
-        console.error('[ACTIVATION-PUSH] Send failed for', program.id, err.message);
-      }
-    }
-
-    console.log(`[ACTIVATION-PUSH] Sent ${totalSent} push(es) for ${eligible} program(s)`);
-  } finally {
+    eligible += 1;
     try {
-      if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]);
-    } catch (_) {
-      // ignore
+      const result = await sendPushForProgram(program, effectiveDay);
+      totalSent += result.sent || 0;
+    } catch (err) {
+      console.error('[ACTIVATION-PUSH] Send failed for', program.id, err.message);
     }
   }
 
+  console.log(`[ACTIVATION-PUSH] Sent ${totalSent} push(es) for ${eligible} program(s)`);
   return { sent: totalSent, eligible };
+  });
+
+  if (outcome?.skipped === 'lock') {
+    console.log('[ACTIVATION-PUSH] Skipping — lock held');
+    return { sent: 0, skipped: 'lock' };
+  }
+  return outcome?.result ?? { sent: 0, eligible: 0 };
 }
 
 let _timer = null;

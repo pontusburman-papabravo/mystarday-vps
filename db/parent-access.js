@@ -87,9 +87,25 @@ async function syncAccountType(parentId) {
   return accountType;
 }
 
+/**
+ * Verify parent has an active (non-revoked) link to a child.
+ * Returns child row with pc.role or null.
+ */
+async function getActiveChildAccess(parentId, childId) {
+  const result = await db.query(
+    `SELECT c.id, c.family_id, c.timezone, c.birthday, c.name, c.emoji, pc.role
+     FROM child c
+     JOIN parent_child pc ON pc.child_id = c.id
+     WHERE pc.parent_id = $1 AND c.id = $2 AND pc.revoked_at IS NULL`,
+    [parentId, childId]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   getParentRoles,
   getChildrenForParent,
   getPedagogChildIds,
   syncAccountType,
+  getActiveChildAccess,
 };

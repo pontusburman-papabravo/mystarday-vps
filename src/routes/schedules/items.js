@@ -7,6 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
+const authz = require('../../middleware/authz');
 const { getOrGenerateDailyLog, getSchoolVariant, syncDailyLogWithSchedule, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
 const { addDaysIso } = require('../../lib/date-utils');
 const { broadcast } = require('../../lib/sse-broadcast');
@@ -15,27 +16,6 @@ const { CreateScheduleItemSchema, UpdateScheduleItemSchema, ReorderSchema } = re
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
-
-async function getScheduleAccess(parentId, scheduleId) {
-  const childResult = await db.query(
-    `SELECT ws.id, ws.child_id, ws.day_of_week, ws.sort_order
-     FROM weekly_schedule ws
-     JOIN child c ON c.id = ws.child_id
-     JOIN parent_child pc ON pc.child_id = c.id
-     WHERE pc.parent_id = $1 AND ws.id = $2`,
-    [parentId, scheduleId]
-  );
-  if (childResult.rows.length > 0) return childResult.rows[0];
-
-  const familyResult = await db.query(
-    `SELECT ws.id, ws.child_id, ws.day_of_week, ws.sort_order
-     FROM weekly_schedule ws
-     JOIN parent p ON p.family_id = ws.family_id
-     WHERE p.id = $1 AND ws.id = $2 AND ws.child_id IS NULL`,
-    [parentId, scheduleId]
-  );
-  return familyResult.rows[0] || null;
-}
 
 function determineSection(startTime, familySettings) {
   if (!startTime) return 'dag';
@@ -169,7 +149,7 @@ async function enrichOnceTaskSubSteps(items) {
 // GET /api/schedules/:scheduleId/items — list items in schedule
 router.get('/', async (req, res) => {
   try {
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const items = await db.query(
@@ -282,7 +262,7 @@ router.get('/', async (req, res) => {
 // POST /api/schedules/:scheduleId/items — add item to schedule
 router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
   try {
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const { activity_template_id, start_time, end_time, sort_order, section, date } = req.body;
@@ -344,7 +324,7 @@ router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
 // PUT /api/schedules/:scheduleId/items/reorder — bulk reorder items
 router.put('/reorder', validate(ReorderSchema), async (req, res) => {
   try {
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const { order } = req.body;
@@ -394,7 +374,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
 // PUT /api/schedules/:scheduleId/items/:itemId — update item
 router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
   try {
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const existing = await db.query(
@@ -477,7 +457,7 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
 // DELETE /api/schedules/:scheduleId/items/:itemId — remove item from schedule
 router.delete('/:itemId', async (req, res) => {
   try {
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
 
     const result = await db.query(
@@ -530,7 +510,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
       return res.status(400).json({ error: 'Ogiltigt datum (YYYY-MM-DD)' });
     }
 
-    const schedule = await getScheduleAccess(req.user.id, req.params.scheduleId);
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
     if (!schedule) return res.status(403).json({ error: 'Åtkomst nekad' });
 
     const itemRes = await db.query(
