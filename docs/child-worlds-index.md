@@ -19,9 +19,9 @@
 
 | Värld | Vision | Agent-uppdrag | Status |
 |-------|--------|---------------|--------|
-| **Idag** (rutin) | [idag-vision.md](idag-vision.md) | [idag-agent-prompt.md](idag-agent-prompt.md) | **GO** |
+| **Idag** (rutin) | [idag-vision.md](idag-vision.md) | [idag-agent-prompt.md](idag-agent-prompt.md) | **Shipped** |
 | **Skattkammaren** (belöningar) | [skattkammaren-vision.md](skattkammaren-vision.md) | [skattkammaren-agent-prompt.md](skattkammaren-agent-prompt.md) | **Shipped** |
-| **Mina personer** (familj) | barnmeny-v2 §3.5 | — | Tidig |
+| **Mina personer** (familj) | [mina-personer-vision.md](mina-personer-vision.md) | — | **Tidig (V0)** |
 
 **Förälder Belöningar (parallell domän):**
 
@@ -55,4 +55,4 @@ docs/informationsarkitektur-barnapp.md
 
 ---
 
-*Senast uppdaterad: 2026-07-01*
+*Senast uppdaterad: 2026-07-02*

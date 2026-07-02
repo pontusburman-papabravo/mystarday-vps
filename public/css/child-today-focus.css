@@ -108,6 +108,102 @@
   line-height: 1.35;
 }
 
+.ctf-empty-illus {
+  margin: 0 auto 12px;
+  max-width: 18rem;
+}
+
+.ctf-empty-illus img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.ctf-schedule-empty {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  background: #fff;
+  border-radius: 1rem;
+  margin-top: 0.5rem;
+}
+
+.ctf-schedule-empty-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1B2340;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.ctf-schedule-empty-sub {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5A6178;
+  margin: 0;
+}
+
+.ctf-celebration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(27, 35, 64, 0.45);
+  animation: ctfCelebrationIn 0.25s ease-out;
+}
+
+.ctf-celebration-overlay.ctf-celebration--out {
+  animation: ctfCelebrationOut 0.28s ease-in forwards;
+}
+
+.ctf-celebration-overlay.ctf-celebration--reduced {
+  animation: none;
+}
+
+.ctf-celebration-frame {
+  max-width: min(18rem, 82vw);
+  pointer-events: none;
+}
+
+.ctf-celebration-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ctf-celebration-skip {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  min-height: 44px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1B2340;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes ctfCelebrationIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ctfCelebrationOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctf-celebration-overlay {
+    animation: none;
+  }
+}
+
 /* Activities get visual priority */
 .today-focus-mode #scheduleView {
   padding-top: 8px;

@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v467';
+const CACHE_NAME = 'stjarndag-v468';
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
@@ -413,10 +413,7 @@ const STATIC_ASSETS = [
   '/js/garden-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
-  '/assets/worlds/garden/scene-bg.webp',
-  '/assets/worlds/garden/scene-bg-430.webp',
-  '/assets/worlds/garden/scene-bg-860.webp',
-  '/assets/worlds/garden/scene-bg-1280.webp',
+  '/css/child-today-focus.css',
   '/css/child-world-bg.css',
   '/css/child-skatt-rooms.css',
   '/images/child/today/bg@2x.webp',

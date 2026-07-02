@@ -219,12 +219,16 @@ function renderActivities(data, trueStarBalance) {
   if (items.length === 0 && backendFiltered && total > 0 && completed === total) {
     // All done — show celebration (handled below after the rendering block)
   } else if (items.length === 0) {
-    container.innerHTML = `
+    if (isTodayFocusLayer() && window.ChildTodayFocus && typeof ChildTodayFocus.renderScheduleEmpty === 'function') {
+      container.innerHTML = ChildTodayFocus.renderScheduleEmpty(isToday);
+    } else {
+      container.innerHTML = `
       <div class="text-center py-16 bg-white rounded-2xl mt-2">
         <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
         <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? 'Inga aktiviteter idag!' : 'Inget schema den här dagen'}</p>
         <p class="text-text-soft text-sm">${isToday ? 'Njut av din lediga dag ⭐' : 'Välj en annan dag för att se schemat'}</p>
       </div>`;
+    }
     return;
   }
 
