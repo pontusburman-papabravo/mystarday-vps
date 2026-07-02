@@ -1,0 +1,45 @@
+# Trädgården — RBS production contract (stub)
+# Human spec: docs/world/specs/110-garden.md
+# Full template: docs/world/_TEMPLATE.room.yaml
+
+status: draft
+production_number: 110
+schema_version: "1.0"
+
+room:
+  id: garden
+  display_name_sv: Trädgården
+  pack_scene_id: garden
+  description: TBD
+  primary_emotion: Curiosity
+  secondary_emotion: TBD
+  theme_support: [house, castle, treehouse, space, pirate, wizard]
+  unlock_condition: TBD
+
+emotion: Curiosity
+hero_object: ancient_tree
+landmark: ancient_tree
+
+camera:
+  type: fixed_2_5d
+
+navigation_targets: ['home', 'forest', 'workshop']
+
+ambient:
+  birds: TBD
+  butterflies: TBD
+  dust: TBD
+
+pet:
+  allowed: TBD
+  favorite_spots: []
+
+build_slots: []
+
+discoveries:
+  common: []
+  rare: []
+  seasonal: []
+  hidden: []
+
+part_i_checklist_ref: specs/110-garden.md

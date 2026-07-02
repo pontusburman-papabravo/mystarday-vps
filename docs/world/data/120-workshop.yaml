@@ -1,0 +1,45 @@
+# Verkstaden — RBS production contract (stub)
+# Human spec: docs/world/specs/120-workshop.md
+# Full template: docs/world/_TEMPLATE.room.yaml
+
+status: draft
+production_number: 120
+schema_version: "1.0"
+
+room:
+  id: workshop
+  display_name_sv: Verkstaden
+  pack_scene_id: workshop
+  description: TBD
+  primary_emotion: Creativity
+  secondary_emotion: TBD
+  theme_support: [house, castle, treehouse, space, pirate, wizard]
+  unlock_condition: TBD
+
+emotion: Creativity
+hero_object: workbench
+landmark: windmill
+
+camera:
+  type: fixed_2_5d
+
+navigation_targets: ['garden', 'home']
+
+ambient:
+  birds: TBD
+  butterflies: TBD
+  dust: TBD
+
+pet:
+  allowed: TBD
+  favorite_spots: []
+
+build_slots: []
+
+discoveries:
+  common: []
+  rare: []
+  seasonal: []
+  hidden: []
+
+part_i_checklist_ref: specs/120-workshop.md
