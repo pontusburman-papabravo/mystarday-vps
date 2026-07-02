@@ -8,6 +8,7 @@ const {
   LEGACY_API_FIELDS,
   legacyWeekVariant,
   buildCustodyContextFromEngine,
+  inclusiveDayCount,
 } = require('../src/lib/custody-context-api');
 const { resolveCustodyDateSync } = require('../src/lib/custody-schedule-engine');
 
@@ -153,5 +154,17 @@ describe('custody-context-api', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/family/custody.js'), 'utf8');
     assert.match(routes, /buildCustodyContextResponse/);
     assert.doesNotMatch(routes, /custody-resolver/);
+  });
+
+  it('inclusiveDayCount counts calendar days inclusively', () => {
+    assert.equal(inclusiveDayCount('2026-06-01', '2026-06-01'), 1);
+    assert.equal(inclusiveDayCount('2026-06-01', '2026-06-28'), 28);
+    assert.equal(inclusiveDayCount('2026-06-01', '2026-06-29'), 29);
+  });
+
+  it('GET /context-range route is mounted', () => {
+    const routes = fs.readFileSync(path.join(ROOT, 'src/routes/family/custody.js'), 'utf8');
+    assert.match(routes, /buildCustodyContextRangeResponse/);
+    assert.match(routes, /\/context-range/);
   });
 });

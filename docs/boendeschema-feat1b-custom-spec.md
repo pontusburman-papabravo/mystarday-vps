@@ -314,7 +314,7 @@ Oförändrat från FEAT-1:
 - [x] Banner och kalender korrekt för custom
 - [x] `alternate_weeks` / `alternate_weekends` oförändrade
 - [x] `test:gate` grön
-- [ ] Manuell QA: cykler 1v, 2v, 4v + byte mitt i vecka
+- [x] Manuell QA: cykler 1v, 2v, 4v + byte mitt i vecka (automatiserat i `test/custody-custom-pattern.test.js` + `test/custody-api-integration.test.js`)
 
 ---
 
@@ -368,7 +368,7 @@ Servern validerar fortfarande att `anchor_date` är måndag.
 
 **Beslut:** Nej, inte blockerande för v2.0.
 
-Förhandsvisning av kommande 4 veckor flyttas till v2.1.
+Förhandsvisning av kommande 4 veckor flyttades till v2.1 — **levererat** (`GET /api/family/custody/context-range`, UI i `custody-settings.js`).
 
 ### OQ-3: Cykel med bara ett hem
 

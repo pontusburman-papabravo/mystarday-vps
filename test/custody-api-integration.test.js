@@ -311,3 +311,73 @@ test('custody override API: exception wins in context resolve', async (t) => {
     await db.cleanup();
   }
 });
+
+test('custody context-range API: 28-day preview for custom pattern', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL (mock_test or unset)');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ('custody_schedule_beta', true, 'FEAT-1B range test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`
+    );
+
+    const session = await registerAndLogin(http.baseUrl);
+    const childId = await createChild(http.baseUrl, session, { name: 'Range Barn' });
+
+    const setup = await authFetch(http.baseUrl, session, '/api/family/custody/setup', {
+      method: 'POST',
+      body: {},
+    });
+    assert.equal(setup.res.status, 200, setup.text);
+    const homeA = setup.json.homes[0].id;
+    const homeB = setup.json.homes[1].id;
+
+    const cycleWeeks = [
+      { mon: homeA, tue: homeA, wed: homeB, thu: homeB, fri: homeB, sat: homeB, sun: homeB },
+    ];
+    const pattern = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/pattern/${childId}`,
+      {
+        method: 'PUT',
+        body: {
+          anchor_date: '2026-06-01',
+          pattern_type: 'custom',
+          configuration: { cycle_weeks: cycleWeeks },
+          clone_week_b: true,
+        },
+      }
+    );
+    assert.equal(pattern.res.status, 200, pattern.text);
+
+    const range = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context-range?childId=${encodeURIComponent(childId)}&from=2026-06-01&to=2026-06-28`
+    );
+    assert.equal(range.res.status, 200, range.text);
+    assert.equal(range.json.active, true);
+    assert.equal(range.json.days.length, 28);
+    assert.equal(range.json.days[0].activeHome.id, homeA);
+    assert.equal(range.json.days[2].activeHome.id, homeB);
+
+    const tooLong = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context-range?childId=${encodeURIComponent(childId)}&from=2026-06-01&to=2026-06-30`
+    );
+    assert.equal(tooLong.res.status, 400, tooLong.text);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
