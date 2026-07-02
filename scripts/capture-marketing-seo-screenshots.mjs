@@ -13,6 +13,16 @@
  *   CHILD_PIN         child PIN
  *   PARENT_EMAIL      parent email for planning shot (optional)
  *   PARENT_PASSWORD   parent password
+ *
+ * Notes:
+ *   - Child and parent sessions run in separate browser contexts so
+ *     localStorage/session state from one doesn't leak into the other
+ *     (a shared page previously caused the parent shots to render a PIN
+ *     gate / logged-out state).
+ *   - The morning items are auto-completed between the two /child/today
+ *     shots so "morgonschema" and "kvallsschema" show genuinely different
+ *     NU/NÄSTA states instead of an identical duplicate.
+ *   - The parent's coach Hem view lives at /dashboard, not /.
  */
 import fs from 'fs';
 import path from 'path';
@@ -51,7 +61,37 @@ async function childLogin() {
     console.warn(`child login failed (${res.status}) — skipping child screenshots`);
     return null;
   }
-  return parseCookies(res.headers.getSetCookie ? res.headers.getSetCookie() : []);
+  const cookies = parseCookies(res.headers.getSetCookie ? res.headers.getSetCookie() : []);
+  const body = await res.json().catch(() => ({}));
+  return { cookies, csrfToken: body.csrfToken };
+}
+
+function cookieHeader(cookies) {
+  return Object.entries(cookies).map(([k, v]) => `${k}=${v}`).join('; ');
+}
+
+/**
+ * Marks any still-incomplete "morgon" items as done via the real completion
+ * API, so a second /child/today capture naturally shows the day's later
+ * NU/NÄSTA/SENARE state instead of an identical duplicate of the first shot.
+ */
+async function completeMorningActivities(childCookies) {
+  const res = await fetch(`${BASE}/api/me/daily-log`, {
+    headers: { Cookie: cookieHeader(childCookies.cookies) },
+  });
+  if (!res.ok) return;
+  const { items } = await res.json();
+  const morning = (items || []).filter((i) => i.section === 'morgon' && !i.completed);
+  for (const item of morning) {
+    await fetch(`${BASE}/api/me/daily-log-items/${item.id}/complete`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(childCookies.cookies),
+        'X-CSRF-Token': childCookies.csrfToken || '',
+      },
+    });
+  }
 }
 
 async function parentLogin() {
@@ -101,23 +141,32 @@ async function main() {
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
-  const page = await browser.newPage();
-  await page.setViewport(VIEWPORT);
 
+  // Separate browser contexts for child vs. parent sessions — a shared page
+  // leaks localStorage flags (e.g. "active child session") between the two,
+  // which forces the parent pages behind a PIN gate / logged-out state.
   const childCookies = await childLogin();
   if (childCookies) {
-    await applyCookies(page, childCookies);
-    await capture(page, 'morgonschema-bildstod.png', `${BASE}/child/today`, '#childWorldBg, .child-dashboard, #todayView');
-    await capture(page, 'kvallsschema-bildstod.png', `${BASE}/child/today`, '#childWorldBg, .child-dashboard, #todayView');
-    await capture(page, 'stjarnor-beloningssystem.png', `${BASE}/child/world`, '.skatt-hub, #skattkammarView, #homeHubMount');
+    const childContext = await browser.createBrowserContext();
+    const childPage = await childContext.newPage();
+    await childPage.setViewport(VIEWPORT);
+    await applyCookies(childPage, childCookies.cookies);
+    await capture(childPage, 'morgonschema-bildstod.png', `${BASE}/child/today`, '#childWorldBg, .child-dashboard, #todayView');
+    await completeMorningActivities(childCookies);
+    await capture(childPage, 'kvallsschema-bildstod.png', `${BASE}/child/today`, '#childWorldBg, .child-dashboard, #todayView');
+    await capture(childPage, 'stjarnor-beloningssystem.png', `${BASE}/child/world`, '.skatt-hub, #skattkammarView, #homeHubMount');
+    await childContext.close();
   }
 
   const parentCookies = await parentLogin();
   if (parentCookies) {
-    await applyCookies(page, parentCookies);
-    await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
-    await capture(page, 'fardiga-scheman-bildstod.png', `${BASE}/planning`, '#planningHubMount, .magic-hub-section', 2500);
-    await capture(page, 'vardagsrutiner-bildstod.png', `${BASE}/`, '#parentHubCoachSlot, #parentHubReadinessSlot', 2500);
+    const parentContext = await browser.createBrowserContext();
+    const parentPage = await parentContext.newPage();
+    await parentPage.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
+    await applyCookies(parentPage, parentCookies);
+    await capture(parentPage, 'fardiga-scheman-bildstod.png', `${BASE}/planning`, '#planningHubMount, .magic-hub-section', 2500);
+    await capture(parentPage, 'vardagsrutiner-bildstod.png', `${BASE}/dashboard`, '#parentHubCoachSlot, #parentHubReadinessSlot', 2500);
+    await parentContext.close();
   }
 
   await browser.close();

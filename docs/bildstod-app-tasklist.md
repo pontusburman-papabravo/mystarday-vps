@@ -313,11 +313,11 @@
 
 ### EPIC 1.5 (uppföljning från PR 1) — Marketing screenshots
 
-**Status:** ✅ Script levererat (commit `d3d26b3`), ⏳ bilder ej infångade än.
+**Status:** ✅ Klar (2026-07-02) — infångade lokalt mot en riktig test­familj efter PR2/R2/PR3/R3.
 
 - [x] `scripts/capture-marketing-seo-screenshots.mjs` (`npm run capture:marketing-seo`) — Puppeteer, loggar in som riktigt barn/förälderkonto
-- [ ] **Kör mot staging/prod** med `CHILD_USER`/`CHILD_PIN` eller `PARENT_EMAIL`/`PARENT_PASSWORD` — kunde inte köras lokalt (ingen seedad testfamilj i denna miljö)
-- [ ] Granska PNG:er och ersätt mockups i `public/images/marketing-seo/` (flaggade i `bildstod-pr0-marketing-audit.md`)
+- [x] **Kört lokalt** mot en manuellt skapad testfamilj (riktigt schema, 4 avklarade aktiviteter, 2 belöningar) — separata browser-kontexter för barn/förälder (en delad sida läckte tidigare barnets localStorage-flagga in i förälderpassen → PIN-gate/utloggad vy istället för Planering/Hem); morgonpasset avklaras automatiskt mellan de två `/child/today`-bilderna så morgon-/kvällsbilden skiljer sig åt; `vardagsrutiner-bildstod.png` pekade om från `/` (publik landningssida) till `/dashboard` (faktisk Hem-coachvy)
+- [x] Granska PNG:er och ersätt mockups i `public/images/marketing-seo/` (flaggade i `bildstod-pr0-marketing-audit.md`) — alla 5 bilder visar nu riktigt appinnehåll (NU/NÄSTA/SENARE, stjärnor, belöningar, Planering, Hem-coach)
 
 ---
 
