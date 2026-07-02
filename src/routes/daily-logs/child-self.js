@@ -12,6 +12,7 @@ const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
+const { enrichPictogramFieldsMany } = require('../../../config/pictogram-library');
 const { FLAG_KEYS, isActivationFlagEnabled } = require('../../lib/activation-flags');
 const {
   countLifetimeCompletions,
@@ -55,7 +56,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
 
     const { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
-    const enrichedItems = await enrichLogItemsWithForDigGoal(items);
+    const enrichedItems = enrichPictogramFieldsMany(await enrichLogItemsWithForDigGoal(items));
 
     // Apply child's custom ordering within each section.
     // child_sort_order is set when the child reorders activities via drag & drop.

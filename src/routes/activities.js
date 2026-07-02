@@ -9,6 +9,11 @@ const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator')
 const { validate, validateParams } = require('../middleware/validate');
 const { attachGoalMetaToMany } = require('../lib/for-dig-goal-meta');
 const {
+  validatePictogramKey,
+  enrichPictogramFieldsMany,
+  listPictogramsForApi,
+} = require('../../config/pictogram-library');
+const {
   CreateActivitySchema,
   UpdateActivitySchema,
   ReorderSchema,
@@ -29,7 +34,7 @@ router.use(requireParent);
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT at.id, at.name, at.icon, at.image_url, at.category_id, at.star_value, at.is_favorite,
+      `SELECT at.id, at.name, at.icon, at.icon_key, at.image_url, at.category_id, at.star_value, at.is_favorite,
               at.feedback_for, at.sort_order, at.schema_type, at.for_dig_goal_slug,
               COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
@@ -40,7 +45,7 @@ router.get('/', async (req, res) => {
        ORDER BY c.sort_order ASC NULLS LAST, at.sort_order ASC NULLS LAST, at.name ASC`,
       [req.user.familyId]
     );
-    res.json(attachGoalMetaToMany(result.rows));
+    res.json(attachGoalMetaToMany(enrichPictogramFieldsMany(result.rows)));
   } catch (err) {
     console.error('[ACTIVITIES] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -78,8 +83,7 @@ router.get('/icons', async (req, res) => {
 });
 
 router.get('/pictograms', (req, res) => {
-  const { PICTOGRAMS } = require('../../config/seven-questions-pictograms');
-  res.json({ pictograms: PICTOGRAMS });
+  res.json({ pictograms: listPictogramsForApi() });
 });
 
 const VALID_FEEDBACK_FOR = new Set(['both', 'child', 'parent', 'none']);
@@ -87,10 +91,14 @@ const VALID_FEEDBACK_FOR = new Set(['both', 'child', 'parent', 'none']);
 // ─── POST /api/activities ───────────────────────────────
 router.post('/', validate(CreateActivitySchema), async (req, res) => {
   try {
-    const { name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type } = req.body;
+    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type } = req.body;
 
     if (!name || name.trim().length < 1) {
       return res.status(400).json({ error: 'Aktivitetsnamn krävs' });
+    }
+    const iconKeyError = validatePictogramKey(icon_key);
+    if (iconKeyError) {
+      return res.status(400).json({ error: iconKeyError });
     }
     const stars = parseInt(star_value, 10) || 1;
     if (stars < 1 || stars > 5) {
@@ -125,12 +133,12 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     }
 
     const result = await db.query(
-      `INSERT INTO activity_template (family_id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order`,
-      [req.user.familyId, name.trim(), icon || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder]
+      `INSERT INTO activity_template (family_id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order`,
+      [req.user.familyId, name.trim(), icon || null, icon_key || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(enrichPictogramFieldsMany(result.rows)[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Create error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -170,7 +178,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    const { name, icon, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
+    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -183,6 +191,14 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     if (icon !== undefined) {
       updates.push(`icon = $${idx++}`);
       values.push(icon || null);
+    }
+    if (icon_key !== undefined) {
+      const iconKeyError = validatePictogramKey(icon_key);
+      if (iconKeyError) {
+        return res.status(400).json({ error: iconKeyError });
+      }
+      updates.push(`icon_key = $${idx++}`);
+      values.push(icon_key || null);
     }
     if (image_url !== undefined) {
       updates.push(`image_url = $${idx++}`);
@@ -234,12 +250,12 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE activity_template SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type`,
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type`,
       values
     );
 
-    // If name, icon, image_url, or star_value changed, sync daily logs for all affected children
-    if (name !== undefined || icon !== undefined || image_url !== undefined || star_value !== undefined) {
+    // If name, icon, icon_key, image_url, or star_value changed, sync daily logs for all affected children
+    if (name !== undefined || icon !== undefined || icon_key !== undefined || image_url !== undefined || star_value !== undefined) {
       try {
         await syncDailyLogsForTemplateChange(req.user.familyId, req.params.id);
       } catch (syncErr) {
@@ -247,7 +263,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       }
     }
 
-    res.json(result.rows[0]);
+    res.json(enrichPictogramFieldsMany(result.rows)[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Update error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -428,7 +444,7 @@ router.delete('/:id', async (req, res) => {
     await client.query('BEGIN');
 
     const existing = await client.query(
-      'SELECT id, name, icon, seven_questions FROM activity_template WHERE id = $1 AND family_id = $2',
+      'SELECT id, name, icon, icon_key, seven_questions FROM activity_template WHERE id = $1 AND family_id = $2',
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
@@ -451,7 +467,7 @@ router.delete('/:id', async (req, res) => {
     await scrubWhatNextReferences(client, req.user.familyId, req.params.id, {
       name: snap.name,
       emoji: snap.icon,
-      icon_key: null,
+      icon_key: snap.icon_key || null,
     });
 
     await client.query('DELETE FROM activity_template WHERE id = $1', [req.params.id]);

@@ -46,6 +46,7 @@ function registerRoutes(app) {
   app.use('/api/categories', require('./categories'));
   app.use('/api/activities', require('./activities'));
   app.use('/api/activity-templates', require('./activities')); // backward-compat alias
+  app.use('/api/pictograms', require('./pictograms'));
   app.use('/api/onboarding', require('./onboarding'));
   app.use('/api/standard-library', require('./standard-library'));
 
