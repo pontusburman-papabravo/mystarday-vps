@@ -120,9 +120,17 @@
   };
 
   // ─── HELP PANEL ──────────────────────────────────────────
+  function refreshDashboardHelpTip() {
+    const mount = document.getElementById('helpJourneyTipMount');
+    if (!mount || !window.HelpJourneyTip) return;
+    HelpJourneyTip.refresh(mount);
+  }
+
   window.toggleHelpPanel = function() {
     const panel = document.getElementById('helpPanel');
+    const opening = panel.classList.contains('hidden');
     panel.classList.toggle('hidden');
+    if (opening) refreshDashboardHelpTip();
   };
 
   window.switchHelpTab = function(btn, tab) {

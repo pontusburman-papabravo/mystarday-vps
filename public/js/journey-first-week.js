@@ -128,6 +128,7 @@
   }
 
   function shouldRender(context) {
+    if (context?.signup_journey?.active) return false;
     if (!context?.capabilities?.first_week_v1) return false;
     if (!context.first_week?.active) return false;
     if (context.celebration || context.blocking_experience === 'parent_ack_completion') return false;

@@ -174,6 +174,7 @@ async function buildSignupJourneyContext(familyId, milestones) {
     reason: pick.reason,
     signals: {
       child_name: signals.childName,
+      child_id: signals.childId,
       total_completions: signals.totalCompletions,
       child_ever_logged_in: signals.childEverLoggedIn,
     },
