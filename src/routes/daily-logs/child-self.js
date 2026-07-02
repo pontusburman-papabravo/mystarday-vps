@@ -40,7 +40,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
 
     // Get child's UI flags + timezone (for NOW/NEXT/LATER date comparison)
     const childResult = await db.query(
-      'SELECT allow_child_reorder, show_now_next, show_mood_rating, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
+      'SELECT allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
       [childId]
     );
     const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
@@ -49,6 +49,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;
     const showNowNext = childResult.rows[0]?.show_now_next !== false; // default true
     const showMoodRating = childResult.rows[0]?.show_mood_rating !== false; // default true
+    const moodInputMode = childResult.rows[0]?.mood_input_mode || 'slider';
+    const transitionLeadMinutes = childResult.rows[0]?.transition_lead_minutes;
     const dopaminAnimation = childResult.rows[0]?.dopamin_animation !== false; // default true
     const visualTimer = childResult.rows[0]?.visual_timer !== false; // default true
     const hideClock = childResult.rows[0]?.hide_clock || false; // default false
@@ -123,7 +125,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const ratingMap = {};
     if (itemIds.length > 0) {
       const ratingResult = await db.query(
-        `SELECT daily_log_item_id, score AS child_score, comment AS child_comment
+        `SELECT daily_log_item_id, score AS child_score, emotion_key AS child_emotion_key, comment AS child_comment
          FROM rating
          WHERE daily_log_item_id = ANY($1::uuid[]) AND user_type = 'child'`,
         [itemIds]
@@ -131,6 +133,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       for (const row of ratingResult.rows) {
         ratingMap[row.daily_log_item_id] = {
           child_score: row.child_score,
+          child_emotion_key: row.child_emotion_key,
           child_comment: row.child_comment,
         };
       }
@@ -210,6 +213,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       allow_child_reorder: allowChildReorder,
       show_now_next: showNowNext,
       show_mood_rating: showMoodRating,
+      mood_input_mode: moodInputMode,
+      transition_lead_minutes: transitionLeadMinutes,
       dopamin_animation: dopaminAnimation,
       visual_timer: visualTimer,
       hide_clock: hideClock,

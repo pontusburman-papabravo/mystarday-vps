@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v483';
+const CACHE_NAME = 'stjarndag-v484';
+// stjarndag-v484: merge PR 3 — övergångsstöd (teacch-gated) + känslostöd (basic) + föräldrarapport (EPIC 3.1-3.8, D9: EPIC 3.3 exkluderad)
 // stjarndag-v483: merge FEAT-1B/1C custody (v482) with bildstöd PR2+R2 (v482) — NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor
 // stjarndag-v482: FEAT-1B verify + FEAT-1C custody_override
 // stjarndag-v481: Journey Fas 2 + ACT-1 PR5 nudge ON (ship train)
@@ -338,6 +339,7 @@ const CACHE_NAME = 'stjarndag-v483';
 // stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
 // stjarndag-v474: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v475: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v476: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

@@ -134,6 +134,8 @@ const UpdateChildSchema = z.object({
   visual_timer: z.boolean().optional(),
   time_adjustment: z.boolean().optional(),
   color_coding: z.boolean().optional(),
+  mood_input_mode: z.enum(['cards', 'slider', 'off']).optional(),
+  transition_lead_minutes: z.array(z.coerce.number().int().min(1).max(60)).max(3).optional(),
   sort_order: z.coerce.number().int().optional(),
   // avatar_url: nullable — set to null to clear avatar and show emoji instead
   avatar_url: z.string().url({ message: "Ogiltig URL" }).max(500).nullable().optional(),

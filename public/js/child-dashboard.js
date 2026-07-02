@@ -17,6 +17,9 @@ let showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
 let viewType = 'now_next_later'; // 'day_sections' | 'now_next_later' (server may override for existing children)
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off
+let moodInputMode = 'slider'; // cards | slider | off — parent setting
+let transitionSupportEnabled = false; // Extra stöd feature gate
+let transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
 let dopaminAnimation = true; // toggled by parent — star burst on check-off
 const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
 let visualTimer = true; // toggled by parent — Time Timer in now-card
@@ -520,8 +523,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!slugs.includes('emotion_tracking')) {
           showMoodRating = false;
         }
+        transitionSupportEnabled = slugs.includes('transition_support');
       }
-    } catch { /* fail open */ }
+    } catch { /* fail open for transition; mood stays gated below */ }
 
     me = await Auth.api('/api/auth/me');
     if (me.type !== 'child') {

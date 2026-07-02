@@ -7,12 +7,48 @@
 
   const SCORE_LABELS = ['', 'Jättesvårt 😢', 'Svårt 😞', 'Lite svårt 😕', 'Okej 😐', 'Ganska bra 🙂', 'Bra 😊', 'Jättebra 😄', 'Superbra 😁', 'Nästan perfekt 🤩', 'Fantastiskt! 🌟'];
 
+  const EMOTION_CARDS = [
+    { key: 'happy', label: 'Glad', emoji: '😊' },
+    { key: 'angry', label: 'Arg', emoji: '😠' },
+    { key: 'sad', label: 'Ledsen', emoji: '😢' },
+    { key: 'tired', label: 'Trött', emoji: '😴' },
+    { key: 'worried', label: 'Orolig', emoji: '😟' },
+    { key: 'proud', label: 'Stolt', emoji: '😌' },
+    { key: 'scared', label: 'Rädd', emoji: '😨' },
+    { key: 'stressed', label: 'Stressad', emoji: '😰' },
+  ];
+
   const _checkOffQueue = [];
   let _checkOffRunning = false;
   let ratingItemId = null;
   let ratingItemIcon = null;
   let ratingItemName = null;
   let ratingScore = 0;
+  let ratingEmotionKey = null;
+
+  function shouldShowMoodModal() {
+    return showMoodRating && moodInputMode && moodInputMode !== 'off';
+  }
+
+  function setRatingModalMode(mode) {
+    const sliderBlock = document.getElementById('ratingSliderBlock');
+    const cardsBlock = document.getElementById('ratingCardsBlock');
+    const faceBlock = document.getElementById('ratingFaceBlock');
+    if (!sliderBlock || !cardsBlock) return;
+    const useCards = mode === 'cards';
+    sliderBlock.classList.toggle('hidden', useCards);
+    if (faceBlock) faceBlock.classList.toggle('hidden', useCards);
+    cardsBlock.classList.toggle('hidden', !useCards);
+  }
+
+  function selectEmotionCard(key) {
+    ratingEmotionKey = key;
+    ratingScore = 0;
+    const buttons = document.querySelectorAll('#ratingCardsGrid .emotion-card-btn');
+    buttons.forEach((btn) => {
+      btn.classList.toggle('selected', btn.dataset.emotionKey === key);
+    });
+  }
 
   function toggleNextInSection(sectionKey, event) {
     if (event) event.stopPropagation();
@@ -155,7 +191,7 @@
           newNowCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 150);
-      if (!isCurrentlyDone && showMoodRating && feedbackFor !== 'parent' && feedbackFor !== 'none') {
+      if (!isCurrentlyDone && shouldShowMoodModal() && feedbackFor !== 'parent' && feedbackFor !== 'none') {
         openRatingModal(itemId, icon, name);
       }
     } catch {
@@ -170,17 +206,25 @@
     ratingItemIcon = icon;
     ratingItemName = name;
     ratingScore = 5;
+    ratingEmotionKey = null;
     document.getElementById('ratingActivityIcon').textContent = icon;
     document.getElementById('ratingActivityName').textContent = name;
     document.getElementById('ratingComment').value = '';
+    const mode = moodInputMode === 'cards' ? 'cards' : 'slider';
+    setRatingModalMode(mode);
     const slider = document.getElementById('moodSlider');
     if (slider) slider.value = 5;
-    updateMoodSlider(5);
+    if (mode === 'slider') {
+      updateMoodSlider(5);
+    } else {
+      selectEmotionCard(null);
+    }
     document.getElementById('ratingModal').classList.remove('hidden');
   }
 
   function updateMoodSlider(score) {
     ratingScore = score;
+    ratingEmotionKey = null;
     const scoreDisplay = document.getElementById('scoreDisplay');
     const scoreLabel = document.getElementById('scoreLabel');
     if (scoreDisplay) scoreDisplay.textContent = score;
@@ -240,30 +284,64 @@
   function dismissRating() {
     document.getElementById('ratingModal').classList.add('hidden');
     ratingItemId = null;
+    ratingEmotionKey = null;
   }
 
   async function submitRating() {
     if (!ratingItemId) return;
-    const score = ratingScore || 5;
     const comment = document.getElementById('ratingComment').value.trim();
+    const useCards = moodInputMode === 'cards';
+    const payload = { comment: comment || null };
+    if (useCards) {
+      if (!ratingEmotionKey) {
+        showToast('Välj en känsla först', true);
+        return;
+      }
+      payload.emotion_key = ratingEmotionKey;
+    } else {
+      payload.score = ratingScore || 5;
+    }
+
     const btn = document.getElementById('ratingSubmitBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
     try {
       await Auth.api(`/api/me/daily-log-items/${ratingItemId}/rate`, {
         method: 'POST',
-        body: JSON.stringify({ score, comment: comment || null }),
+        body: JSON.stringify(payload),
       });
-      itemRatings[ratingItemId] = { child_score: score, child_comment: comment };
+      itemRatings[ratingItemId] = useCards
+        ? { child_emotion_key: ratingEmotionKey, child_comment: comment }
+        : { child_score: payload.score, child_comment: comment };
       dismissRating();
       await loadDay(currentDate, false);
       showToast('⭐ Betyg sparat!');
     } catch (err) {
       console.error('Rating error:', err);
-      dismissRating();
+      if (!navigator.onLine && window.OfflineQueue) {
+        window.OfflineQueue.queueChildRate(ratingItemId, payload);
+        dismissRating();
+        showToast('📶 Känsla sparas när nätverket är tillbaka', false);
+      } else {
+        dismissRating();
+      }
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Spara ⭐'; }
     }
   }
+
+  function initEmotionCardsGrid() {
+    const grid = document.getElementById('ratingCardsGrid');
+    if (!grid || grid.dataset.built === '1') return;
+    grid.dataset.built = '1';
+    grid.innerHTML = EMOTION_CARDS.map((c) => `
+      <button type="button" class="emotion-card-btn" data-emotion-key="${c.key}"
+        onclick="selectEmotionCard('${c.key}')" aria-label="${c.label}">
+        <span class="text-2xl" aria-hidden="true">${c.emoji}</span>
+        <span class="text-xs font-semibold text-navy">${c.label}</span>
+      </button>`).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', initEmotionCardsGrid);
 
   window.addEventListener('offlineQueue:allSynced', (e) => {
     const count = e.detail && e.detail.count || 0;
@@ -288,6 +366,7 @@
   window.toggleNextInSection = toggleNextInSection;
   window.openRatingModal = openRatingModal;
   window.updateMoodSlider = updateMoodSlider;
+  window.selectEmotionCard = selectEmotionCard;
   window.dismissRating = dismissRating;
   window.submitRating = submitRating;
 })();

@@ -11,7 +11,7 @@
  *   'COMPLETE_ACTIVITY'    { itemId, substepId?, completed: true }
  *   'UNCOMPLETE_ACTIVITY' { itemId, substepId? }
  *   'ADD_STARS'            { childId, count, reason }
- *   'EMOTION_TOGGLE'       { childId, emotion }
+ *   'CHILD_RATE'           { itemId, score?, emotion_key?, comment? }
  *   'REDEEM_REWARD'        { childId, rewardId }
  *
  * All actions use last-write-wins: a newer entry for the same entityId wins.
@@ -128,8 +128,8 @@
         return 'item:' + (action.payload.itemId || action.payload.id);
       case 'ADD_STARS':
         return 'stars:' + action.payload.childId;
-      case 'EMOTION_TOGGLE':
-        return 'emotion:' + action.payload.childId;
+      case 'CHILD_RATE':
+        return 'rate:' + (action.payload.itemId || action.payload.id);
       case 'REDEEM_REWARD':
         return 'redeem:' + action.payload.rewardId;
       default:
@@ -279,11 +279,11 @@
           body: JSON.stringify({ child_id: childId, star_count: count, reason }),
         });
       }
-      case 'EMOTION_TOGGLE': {
-        const { childId, emotion } = entry.payload;
-        return fetch(`/api/me/children/${childId}/emotion`, {
+      case 'CHILD_RATE': {
+        const { itemId, score, emotion_key, comment } = entry.payload;
+        return fetch(`/api/me/daily-log-items/${itemId}/rate`, {
           ...opts,
-          body: JSON.stringify({ emotion }),
+          body: JSON.stringify({ score, emotion_key, comment }),
         });
       }
       case 'REDEEM_REWARD': {
@@ -339,8 +339,8 @@
     queueAddStars(childId, count, reason) {
       return queueAction({ type: 'ADD_STARS', payload: { childId, count, reason } });
     },
-    queueEmotion(childId, emotion) {
-      return queueAction({ type: 'EMOTION_TOGGLE', payload: { childId, emotion } });
+    queueChildRate(itemId, payload) {
+      return queueAction({ type: 'CHILD_RATE', payload: { itemId, ...payload } });
     },
     queueRedeem(childId, rewardId) {
       return queueAction({ type: 'REDEEM_REWARD', payload: { childId, rewardId } });

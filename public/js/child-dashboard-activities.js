@@ -454,6 +454,15 @@ function renderNowCard(item, canToggle) {
 
   // Time Timer: show only if visualTimer is on, item is not done, and has start+end
   const showTimer = visualTimer && !isDone && item.start_time && item.end_time;
+
+  let transitionHtml = '';
+  if (transitionSupportEnabled && !isDone && item.start_time && window.TransitionSupport) {
+    const tr = TransitionSupport.getTransitionFromStartTime(item.start_time, {
+      leadMinutes: transitionLeadMinutes,
+    });
+    transitionHtml = `<div class="transition-inline" id="transition-${item.id}" data-start="${item.start_time}" aria-live="polite">${escHtml(tr.label)}</div>`;
+  }
+
   const timerHtml = showTimer ? `
     <div class="time-timer-wrap" id="timer-${item.id}" aria-hidden="true">
       <svg class="time-timer-svg" width="52" height="52" viewBox="0 0 36 36">
@@ -475,6 +484,7 @@ function renderNowCard(item, canToggle) {
          data-item-id="${item.id}"
          data-sub-step-count="${subStepCount}">
       <div class="now-badge"><div class="pulse-dot"></div> NU</div>
+      ${transitionHtml}
       <div class="now-activity">
         <div class="now-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="now-details">

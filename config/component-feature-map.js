@@ -19,6 +19,7 @@ const FEATURE_TO_COMPONENT = {
   barninloggning: 'basic_app',
   push_notiser: 'basic_app',
   onboarding: 'basic_app',
+  emotion_tracking: 'basic_app',
   // reporting
   klinisk_rapportering: 'reporting',
   // pedagog

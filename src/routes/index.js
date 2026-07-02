@@ -26,6 +26,7 @@ function registerRoutes(app) {
   app.use('/api/me', require('./rewards').childRouter);
   app.use('/api/me', require('./goals').childRouter);
   app.use('/api/me', require('./ratings').childRouter);
+  app.use('/api/me/transition-support', require('./transition-support'));
   app.use('/api/me/activation-program', require('./activation-program'));
   const childUniverse = require('./child-universe');
   app.use('/api/me', childUniverse.childRouter);
@@ -39,6 +40,7 @@ function registerRoutes(app) {
   app.use('/api/auth', require('./auth'));
   app.use('/api/family', require('./family'));
   app.use('/api/children', require('./children'));
+  app.use('/api/children', require('./mood-summary'));
   app.use('/api/children', require('./observations'));
   app.use('/api/observations', require('./observations')); // PATCH /:id, DELETE /:id (child-scoped)
   app.use('/api/general-observations', require('./general-observations')); // family-level general observations
