@@ -137,21 +137,24 @@ const ALLOWED_CLIENT_EVENTS = new Set([
  * Unauthenticated: uses a session nonce from body (for landing-page visits).
  */
 router.post('/event', optionalAuth, async (req, res) => {
-  // Always respond 204 — analytics must never fail the caller
-  res.status(204).end();
+  try {
+    const { event_type, metadata = {}, session_id } = req.body || {};
+    if (!event_type || !ALLOWED_CLIENT_EVENTS.has(event_type)) return;
 
-  const { event_type, metadata = {}, session_id } = req.body || {};
-  if (!event_type || !ALLOWED_CLIENT_EVENTS.has(event_type)) return;
+    // Use authenticated family_id when available, else fall back to session_id nonce
+    const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);
+    if (!familyId) return;
 
-  // Use authenticated family_id when available, else fall back to session_id nonce
-  const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);
-  if (!familyId) return;
-
-  analytics.track(familyId, event_type, metadata);
-  // N7: win-back attribution requires an authenticated familyId — an unauthenticated
-  // session_id nonce is client-supplied and would let anyone spoof `returned_at`.
-  if (req.user?.familyId) {
-    maybeMarkWinBackReturnedFromEngagement(req.user.familyId, event_type).catch(() => {});
+    analytics.track(familyId, event_type, metadata);
+    // N7: win-back attribution requires an authenticated familyId — an unauthenticated
+    // session_id nonce is client-supplied and would let anyone spoof `returned_at`.
+    if (req.user?.familyId) {
+      await maybeMarkWinBackReturnedFromEngagement(req.user.familyId, event_type);
+    }
+  } catch (_) {
+    // analytics must never fail the caller
+  } finally {
+    res.status(204).end();
   }
 });
 
