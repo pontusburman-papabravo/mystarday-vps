@@ -1,8 +1,8 @@
 # World Bible — Min värld Spatial & Emotional Architecture
 
-**Version:** 0.1 (skeleton)  
-**Status:** In progress — **priority #1** production bible  
-**Authority:** Subordinate to PCB (soul), WDB (progression nodes), LWES (runtime)  
+**Version:** 1.0  
+**Status:** In progress — **Part III RBS complete** · **Part IV catalog started** (`bibles/rooms/`)  
+**Authority:** Subordinate to World Constitution (when present), PCB, WDB, LWES  
 **Audience:** Art directors, level designers, animators, AI agents, engineers  
 **Map:** [DOCUMENTATION_MAP.md](../DOCUMENTATION_MAP.md)  
 
@@ -448,5 +448,139 @@ scene:
 
 ---
 
-**Next work:** Complete `home_hall` entity list → Entity Bible.  
-**Cross-ref:** [EMOTION_BIBLE.md](./EMOTION_BIBLE.md) · [TECHNICAL_ARCHITECTURE_BIBLE.md](./TECHNICAL_ARCHITECTURE_BIBLE.md)
+**Next work:** Complete [`bibles/rooms/home_hall.yaml`](./rooms/home_hall.yaml) → Entity Bible rows for hero + interactives.  
+**Cross-ref:** [Part III RBS](#part-iii--room-blueprint-standard-rbs) · [Part IV Room Catalog](#part-iv--room-catalog) · [EMOTION_BIBLE.md](./EMOTION_BIBLE.md)
+
+---
+
+# Part III — Room Blueprint Standard (RBS)
+
+> **Det mest använda kapitlet.** Definierar **hur ett rum specificeras i data**.  
+> **Korsref:** §1–11 ovan (spatial architecture) · [LWES §22 Interaction Types](../LIVING_WORLD_ENGINE_SPEC.md#22-interaction-types) · [Appendix C](../LIVING_WORLD_ENGINE_SPEC.md#appendix-c--scene-pack-schema)  
+> **Konkreta rum:** [Part IV](#part-iv--room-catalog) → [`bibles/rooms/`](./rooms/README.md)
+
+## Purpose
+
+RBS är **single source of truth** för Design, Art, Engineering, Animation, Audio, AI Gen och QA. Ett rum utan komplett RBS-YAML får inte till art eller kod.
+
+## Blueprint Philosophy
+
+Ett rum är en **levande plats** — inte en bild, komponent eller asset-lista. Data beskriver vad som finns, var det finns, hur det känns; LWES beskriver hur motorn kör det.
+
+## Room Identity
+
+```yaml
+room_identity:
+  id: home_hall
+  display_name: Hallen
+  description: TBD
+  primary_emotion: Comfort
+  secondary_emotion: Belonging
+  theme_support: [house, castle, treehouse, space, pirate, wizard]
+  unlock_condition: always
+```
+
+## Emotional Contract
+
+**En primär känsla.** Tillåtna värden:
+
+`Comfort · Safety · Wonder · Curiosity · Pride · Calm · Joy · Creativity · Belonging · Peace · Adventure`
+
+Motorn använder primär känsla för lighting, audio, animation pacing, NPC, ambient density, camera. Måste stärka minst en Constitution-pelare.
+
+## Spatial Contract
+
+```yaml
+spatial_contract:
+  layout: wide_2_5d_interior
+  entrance: { id, from_scene, landmark_label_sv, camera_on_enter }
+  landmark: { id, description }
+  walking_area: { id, description }
+  interaction_zones: []
+  ambient_zones: []
+  future_build_zones: []
+  camera_anchor: { id, description }
+```
+
+## Hero Object
+
+Exakt ett per rum.
+
+```yaml
+hero_object:
+  id: fireplace_hero
+  description: TBD
+  story_purpose: TBD
+  interaction_level: inspect_primary
+```
+
+## Supporting Objects · Ambient Objects · Interactive Objects
+
+Lists per rum. Interactive objects **MUST** use LWES §22 types only:
+
+`Inspect · Open · Place · Collect · Feed · Pet · Talk · Move · Activate · Navigate`
+
+## Build Slots · Navigation · NPC Contract · Pet Contract
+
+Navigation **explicit — never infer**. Se fullständig mall: [`rooms/_TEMPLATE.yaml`](./rooms/_TEMPLATE.yaml).
+
+## Camera · Lighting · Audio · Ambient Runtime
+
+Config only — ingen custom logik per rum. Audio → [AUDIO_BIBLE.md](./AUDIO_BIBLE.md).
+
+## Story Anchors · Discoveries · Seasonal · Weather · Theme Variants
+
+```yaml
+story_anchors:
+  past: []
+  present: []
+  future: []
+discoveries:
+  common: []
+  rare: []
+  seasonal: []
+  hidden: []
+```
+
+Discoveries → LWES §23 Discovery Runtime.
+
+## Performance Budget · Asset Manifest · Prompt Manifest · Animation Manifest
+
+Asset manifest: **semantic IDs only** — aldrig filnamn i logik. Prompt manifest: id, version, negative_prompt, art_style → [PROMPT_BIBLE.md](./PROMPT_BIBLE.md).
+
+## Quality Gates
+
+| Gate | Fråga |
+|------|-------|
+| Designer | Stärker rummet en tydlig primär känsla + Constitution-pelare? |
+| Artist | Hero, stöd, ambient, tomrum — inget billigt mittparti? |
+| AI | All generering från Prompt Manifest — inget ad-hoc? |
+| Engineer | Hela rummet i pack-data utan ny `if (sceneId)`? |
+
+## Example (Simplified) — `home_hall`
+
+Full spec: [`rooms/home_hall.yaml`](./rooms/home_hall.yaml).
+
+## Definition of Done (per room)
+
+- [ ] Alla RBS-sektioner i `bibles/rooms/<id>.yaml`
+- [ ] Constitution + LWES §22
+- [ ] Navigation targets i topologi
+- [ ] Quality Gates ja/nej
+
+## Final Principle
+
+> **Om datan inte är komplett nog att en främmande agent kan producera rummet utan att fråga "vad menar ni?" — är blueprinten inte klar.** Börja fylla `bibles/rooms/`.
+
+---
+
+# Part IV — Room Catalog
+
+| | |
+|--|--|
+| Katalog | [`bibles/rooms/README.md`](./rooms/README.md) |
+| Mall | [`bibles/rooms/_TEMPLATE.yaml`](./rooms/_TEMPLATE.yaml) |
+| Pilot | [`bibles/rooms/home_hall.yaml`](./rooms/home_hall.yaml) |
+
+**Normativt nästa steg:** Fyll room blueprints i prioritetsordning — komplett RBS före art eller kod. §12–§14 ovan är snabbreferens; **RBS YAML i `rooms/` är normativt.**
+
