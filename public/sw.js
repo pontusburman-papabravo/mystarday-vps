@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v482';
-// stjarndag-v482: merge origin/main (Journey Fas2/ACT-1/FEAT-1B/Mina personer) with bildstöd PR2+R2 (NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor)
+const CACHE_NAME = 'stjarndag-v483';
+// stjarndag-v483: merge FEAT-1B/1C custody (v482) with bildstöd PR2+R2 (v482) — NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor
+// stjarndag-v482: FEAT-1B verify + FEAT-1C custody_override
 // stjarndag-v481: Journey Fas 2 + ACT-1 PR5 nudge ON (ship train)
 // stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
 // stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout

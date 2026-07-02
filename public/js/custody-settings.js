@@ -254,6 +254,54 @@
     }
   }
 
+  function formatOverrideRange(start, end) {
+    if (start === end) return start;
+    return start + ' – ' + end;
+  }
+
+  function overrideListHtml(overrides, homes) {
+    if (!overrides.length) {
+      return '<p class="text-xs text-text-soft custody-override-empty">Inga undantag ännu.</p>';
+    }
+    return overrides.map(function (o) {
+      const home = homeById(homes, o.home_id);
+      return (
+        '<div class="flex flex-wrap items-center gap-2 custody-override-row text-sm" data-override-id="' + o.id + '">' +
+        '<span class="inline-flex items-center gap-1 min-w-0">' +
+        '<span class="w-3 h-3 rounded-full shrink-0" style="background:' + escapeHtml(home.color || '#4F46E5') + '"></span>' +
+        '<span class="truncate">' + escapeHtml(home.label) + '</span></span>' +
+        '<span class="text-text-soft">' + escapeHtml(formatOverrideRange(o.start_date, o.end_date)) + '</span>' +
+        (o.reason ? '<span class="text-text-soft truncate max-w-[10rem]">' + escapeHtml(o.reason) + '</span>' : '') +
+        '<button type="button" class="custody-override-delete text-red-600 text-xs min-h-[44px] px-2 ml-auto">Ta bort</button>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function overrideSectionHtml(overrides, homes) {
+    return (
+      '<div class="custody-overrides-section space-y-2 mt-3 border-t border-lavender/50 pt-3">' +
+      '<h4 class="text-xs font-semibold text-navy dark:text-white">Undantag</h4>' +
+      '<p class="text-xs text-text-soft leading-relaxed">När verkligheten avviker — lov, resor eller enstaka byte. Grundschemat ändras inte.</p>' +
+      '<div class="custody-override-list space-y-1">' + overrideListHtml(overrides, homes) + '</div>' +
+      '<div class="custody-override-form space-y-2">' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+      '<div><label class="text-xs text-text-soft">Från</label>' +
+      '<input type="date" class="custody-override-start w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" /></div>' +
+      '<div><label class="text-xs text-text-soft">Till</label>' +
+      '<input type="date" class="custody-override-end w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" /></div>' +
+      '</div>' +
+      '<div><label class="text-xs text-text-soft">Hem under perioden</label>' +
+      '<select class="custody-override-home w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' +
+      homeOptions(homes) +
+      '</select></div>' +
+      '<div><label class="text-xs text-text-soft">Orsak (valfritt)</label>' +
+      '<input type="text" class="custody-override-reason w-full border rounded-lg px-2 py-2 text-sm" maxlength="280" placeholder="t.ex. Sportlov" /></div>' +
+      '<button type="button" class="custody-override-add px-3 py-2 bg-lavender text-navy rounded-lg text-sm font-semibold min-h-[44px]">Lägg till undantag</button>' +
+      '</div></div>'
+    );
+  }
+
   function validateCustomBeforeSave(cycleWeeks) {
     const homeIds = new Set();
     for (let w = 0; w < cycleWeeks.length; w += 1) {
@@ -272,7 +320,7 @@
     return null;
   }
 
-  function childBlockHtml(c, pat, homes) {
+  function childBlockHtml(c, pat, homes, childOverrides) {
     const enabled = Boolean(pat);
     const patternType = patternTypeFromPat(pat);
     const anchor = pat ? pat.anchor_date : todayIso();
@@ -313,6 +361,7 @@
       '<select class="custody-week-b w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '</div></div>' +
       customFieldsHtml(pat, homes) +
+      (enabled ? overrideSectionHtml(childOverrides || [], homes) : '') +
       '</div></div>'
     );
   }
@@ -351,6 +400,65 @@
 
     bindCustomDaySelects(block, homes);
     togglePatternFields(block);
+    bindOverrides(block, block.getAttribute('data-child-id'), homes);
+  }
+
+  function bindOverrides(block, childId, homes) {
+    const addBtn = block.querySelector('.custody-override-add');
+    if (!addBtn) return;
+
+    addBtn.addEventListener('click', async function () {
+      const startEl = block.querySelector('.custody-override-start');
+      const endEl = block.querySelector('.custody-override-end');
+      const homeEl = block.querySelector('.custody-override-home');
+      const reasonEl = block.querySelector('.custody-override-reason');
+      const start = startEl ? startEl.value : '';
+      const end = endEl ? endEl.value : '';
+      const homeId = homeEl ? homeEl.value : '';
+      if (!start || !end || !homeId) {
+        showToast('Fyll i datum och hem för undantaget', true);
+        return;
+      }
+      if (start > end) {
+        showToast('Startdatum får inte vara efter slutdatum', true);
+        return;
+      }
+      try {
+        await Auth.api('/api/family/custody/overrides/' + childId, {
+          method: 'POST',
+          body: JSON.stringify({
+            start_date: start,
+            end_date: end,
+            home_id: homeId,
+            reason: reasonEl && reasonEl.value.trim() ? reasonEl.value.trim() : undefined,
+          }),
+        });
+        track('custody_override_created', { child_id: childId });
+        if (startEl) startEl.value = '';
+        if (endEl) endEl.value = '';
+        if (reasonEl) reasonEl.value = '';
+        await load();
+      } catch (err) {
+        showToast('Kunde inte lägga till undantag: ' + (err.message || 'fel'), true);
+      }
+    });
+
+    block.querySelectorAll('.custody-override-delete').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        const row = btn.closest('.custody-override-row');
+        const overrideId = row ? row.getAttribute('data-override-id') : null;
+        if (!overrideId) return;
+        try {
+          await Auth.api('/api/family/custody/overrides/' + childId + '/' + overrideId, {
+            method: 'DELETE',
+          });
+          track('custody_override_deleted', { child_id: childId, override_id: overrideId });
+          await load();
+        } catch (err) {
+          showToast('Kunde inte ta bort undantag: ' + (err.message || 'fel'), true);
+        }
+      });
+    });
   }
 
   function render() {
@@ -367,6 +475,7 @@
     const homes = _config.homes || [];
     const parents = _config.parents || [];
     const patterns = _config.patterns || [];
+    const overrides = _config.overrides || [];
     const children = (window.familyChildren || []);
 
     if (homes.length < 2) {
@@ -391,7 +500,8 @@
 
     const childBlocks = children.map(function (c) {
       const pat = patterns.find(function (p) { return p.child_id === c.id; });
-      return childBlockHtml(c, pat, homes);
+      const childOverrides = overrides.filter(function (o) { return o.child_id === c.id; });
+      return childBlockHtml(c, pat, homes, childOverrides);
     }).join('');
 
     body.innerHTML =

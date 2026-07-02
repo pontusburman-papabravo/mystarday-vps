@@ -307,13 +307,13 @@ Oförändrat från FEAT-1:
 
 ## Acceptanskriterier
 
-- [ ] Förälder kan skapa och spara ett 2-veckors custom-mönster
-- [ ] Hjälptext om grundschema vs undantag visas vid eget mönster
-- [ ] `resolveCustodyDate()` returnerar rätt hem för 14+ dagar (cykel verifierad)
-- [ ] Enhetstest: override-hook + custom pattern i samma `ctx` — override vinner på överlappande datum (förberedelse för FEAT-1C, kan mocka `overrides[]`)
-- [ ] Banner och kalender korrekt för custom
-- [ ] `alternate_weeks` / `alternate_weekends` oförändrade
-- [ ] `test:gate` grön
+- [x] Förälder kan skapa och spara ett 2-veckors custom-mönster
+- [x] Hjälptext om grundschema vs undantag visas vid eget mönster
+- [x] `resolveCustodyDate()` returnerar rätt hem för 14+ dagar (cykel verifierad)
+- [x] Enhetstest: override-hook + custom pattern i samma `ctx` — override vinner på överlappande datum (förberedelse för FEAT-1C, kan mocka `overrides[]`)
+- [x] Banner och kalender korrekt för custom
+- [x] `alternate_weeks` / `alternate_weekends` oförändrade
+- [x] `test:gate` grön
 - [ ] Manuell QA: cykler 1v, 2v, 4v + byte mitt i vecka
 
 ---
