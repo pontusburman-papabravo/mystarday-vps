@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-07-02",
+  "authority": "POS > registry tests > .cursor/rules/",
+  "rules": {
+    "constitution-1": {
+      "pos": "product-operating-system/00_PROJECT_CONSTITUTION.md#1",
+      "tests": [],
+      "owners": ["CPO", "UXDirector"]
+    },
+    "constitution-6": {
+      "pos": "product-operating-system/00_PROJECT_CONSTITUTION.md#6",
+      "tests": ["test/experience-pack-structural.test.js", "test/experience-pack.test.js"],
+      "owners": ["GameDirector", "PrincipalEngineer"]
+    },
+    "PA-01": {
+      "pos": "product-operating-system/05_PARENT_EXPERIENCE.md",
+      "tests": ["test/engine-coach-authority.test.js", "test/journey-context.test.js"],
+      "owners": ["CPO", "BackendLead"]
+    },
+    "C-03": {
+      "pos": "product-operating-system/04_CHILD_EXPERIENCE.md",
+      "tests": ["test/idag-10-10.test.js"],
+      "owners": ["GameDirector", "FrontendLead"]
+    },
+    "G-01": {
+      "pos": "product-operating-system/06_GAME_DESIGN.md",
+      "tests": ["test/engine-golden.test.js"],
+      "owners": ["GameDirector"]
+    },
+    "R-02": {
+      "pos": "product-operating-system/07_REWARDS.md",
+      "tests": ["test/paywall-model-contract.test.js", "test/iap-webhook.test.js"],
+      "owners": ["CPO", "BackendLead"]
+    },
+    "T-03": {
+      "pos": "product-operating-system/10_TECH_ARCHITECTURE.md",
+      "tests": ["test/authz-middleware-mounted.test.js", "test/child-access-integration.test.js"],
+      "owners": ["SecurityLead"]
+    }
+  },
+  "pos_required_files": [
+    "product-operating-system/README.md",
+    "product-operating-system/00_PROJECT_CONSTITUTION.md",
+    "product-operating-system/00A_EXPERIENCE_MANIFESTO.md",
+    "product-operating-system/00B_PRODUCT_TASTE.md",
+    "product-operating-system/04_CHILD_EXPERIENCE.md",
+    "product-operating-system/05_PARENT_EXPERIENCE.md",
+    "product-operating-system/06_GAME_DESIGN.md",
+    "product-operating-system/07_REWARDS.md",
+    "product-operating-system/09_WORLD_ENGINE.md",
+    "product-operating-system/10_TECH_ARCHITECTURE.md",
+    "product-operating-system/14_DECISION_LOG.md",
+    "product-operating-system/15_PRODUCT_QUALITY_STANDARD.md"
+  ],
+  "cos_required_files": [
+    ".ai/company/README.md",
+    ".ai/company/ORGANIZATION.md"
+  ]
+}

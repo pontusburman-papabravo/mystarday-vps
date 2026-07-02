@@ -13,7 +13,7 @@ The **AI Operating System** governs **how** autonomous agents work on Stjärndag
 | System | Location | Answers |
 |--------|----------|---------|
 | **Product OS** | `product-operating-system/` | *What* to build · *Why* · *How it should feel* |
-| **Company OS** | `.ai/company/` | *How executives decide, prioritize, approve* |
+| **Company OS** | `.ai/company/` | *How the AI organization works* (not product) |
 | **AI OS** | `.ai/` + `.cursor/rules/` | *How agents decide, ship, review, and iterate* |
 | **Runtime env** | Root `AGENTS.md` | Node, Postgres, test commands, deploy ops |
 | **Current codebase** | `SYSTEM_ANALYSIS.md` | Historical snapshot — **not** product authority |
@@ -41,13 +41,11 @@ Governance read order — **before any code change**:
 | 1 | `.ai/brain/PROJECT_BRAIN.md` |
 | 2 | `.ai/runtime/WORKFLOW_ENGINE.md` + `MISSION_ENGINE.md` |
 | 3 | `.ai/agents/README.md` — embody routed agents |
-| 2 | `product-operating-system/00_PROJECT_CONSTITUTION.md` |
-| 3 | `product-operating-system/00A_EXPERIENCE_MANIFESTO.md` |
-| 4 | `product-operating-system/00B_PRODUCT_TASTE.md` |
-| 5 | `.ai/AGENTS.md` — role(s) and orchestration |
-| 6 | Relevant `.ai/company/` playbook when making executive decisions |
-| 7 | One POS domain doc for the task (04–09, 03A/B, 06A) |
-| 8 | `product-content-bible/` if child world surface |
+| 4 | `product-operating-system/00_PROJECT_CONSTITUTION.md` |
+| 5 | `product-operating-system/00A_EXPERIENCE_MANIFESTO.md` |
+| 6 | `product-operating-system/00B_PRODUCT_TASTE.md` |
+| 7 | One POS domain doc for the task (04–09) |
+| 8 | `.ai/company/ORGANIZATION.md` if org/tier decision |
 | 9 | Relevant `.cursor/rules/*.mdc` (000–200 auto-loaded) |
 
 **Shipping:** `product-operating-system/15_PRODUCT_QUALITY_STANDARD.md` · `.ai/company/010_RELEASE_COMMAND.md` · `.ai/runtime/QA_ENGINE.md` · `.ai/runtime/REVIEW_ENGINE.md`.
@@ -64,7 +62,9 @@ Governance read order — **before any code change**:
 ├── product/           ← PCB v1.0 + Art Bible v1.0 (world soul + visual truth)
 ├── agents/            ← Persistent agent team (WHO Composer is)
 ├── runtime/           ← Execution platform (HOW — frozen v1.0)
-└── company/           ← Executive playbooks (frozen v1.0)
+├── company/           ← COS v1.1 — AI org OS (ORGANIZATION.md)
+├── knowledge/         ← Living index + backlog
+```
 
 .cursor/rules/
 ├── 000-core.mdc       ← POS supremacy, workflow, philosophy

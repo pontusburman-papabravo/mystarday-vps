@@ -10,9 +10,24 @@
 
 Simulate a world-class product org review in one Composer session. **Any BLOCK veto stops completion** until resolved or waived per QA_ENGINE rules.
 
+**COS v1.1:** Review depth scales with Mission Brief **tier** — do not run 16 reviewers on T1.
+
 ---
 
-## Review Table Template (required in PR)
+## Tier review matrix (mandatory)
+
+| Tier | Required reviewers | Executive Council |
+|------|-------------------|-------------------|
+| **T0** | AI Systems Architect | No |
+| **T1** | Primary owner, Security Lead, QA Director | No |
+| **T2** | TASK_ROUTER mandatory reviewers + Principal if structural | No |
+| **T3** | Full table below (16) + Council sign-off | Yes → Release Candidate |
+
+**Rule R-T01:** T2 child-facing missions require Game Director + UX Director — cannot waive.
+
+---
+
+## Review Table Template (required in PR — T2+ fill rows; T3 fill all 16)
 
 ```markdown
 | Reviewer | Verdict | BLOCK? | Notes |

@@ -1,16 +1,31 @@
 # AI Agent Organization
 
-**Version:** 1.0  
-**Type:** Persistent multi-agent executive team  
-**Frozen upstream:** POS · COS · PCB · AOS · Runtime v1.0
+**Version:** 1.1  
+**Type:** Competency profiles for COS Delivery Cells and Assurance  
+**COS charter:** `.ai/company/ORGANIZATION.md`
 
 ---
 
 ## What This Is
 
-**WHO Composer is** — sixteen persistent agents with voice, authority, veto, and checklists. Runtime (`.ai/runtime/`) defines *how* work executes; agents define *who* decides.
+**WHO agents are** — not a permanent meeting roster. Mission Control spawns profiles per TASK_ROUTER; Assurance scales by tier (T1: 3, T2: 3–5, T3: up to 16).
 
-Company mind: `.ai/brain/` — read first for judgment.
+Company mind: `.ai/brain/` — judgment layer.
+
+---
+
+## Cells (COS v1.1)
+
+| Cell | Agents |
+|------|--------|
+| **Mission Control** | Orchestrator (uses MISSION_ENGINE, TASK_ROUTER) |
+| **Product Alignment** | CPO |
+| **Engineering** | Principal, Frontend, Backend, Mobile |
+| **Creative** | Game, Creative, Art, UX Directors |
+| **Assurance** | QA Director, Security, Accessibility, Performance |
+| **Platform** | Release Manager |
+| **Org Health** | AI Systems Architect |
+| **Executive Council** | CEO, CTO (+ convened members) |
 
 ---
 

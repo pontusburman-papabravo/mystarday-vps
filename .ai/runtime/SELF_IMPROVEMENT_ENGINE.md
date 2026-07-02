@@ -27,7 +27,7 @@ Run when **any** true:
 
 ## Discovery Scan (ordered)
 
-Execute scans — record findings in **Improvement Backlog** (session artifact or `docs/ai-improvement-backlog.md` only if user wants persistence — default session only):
+Execute scans — record findings in **Improvement Backlog** — default: `.ai/knowledge/BACKLOG.md` (update after each mission):
 
 | # | Scan | Method | Finds |
 |---|------|--------|-------|

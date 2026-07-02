@@ -8,22 +8,26 @@ alwaysApply: true
 ## Bootstrap (with 200-runtime-platform)
 
 1. `.ai/brain/PROJECT_BRAIN.md` — company mind (~10 min)
-2. `.ai/runtime/WORKFLOW_ENGINE.md` — pipeline (frozen)
-3. `.ai/agents/README.md` — roster + conflict rules
-4. Embody agents from `.ai/runtime/TASK_ROUTER.md` assignment
+2. `.ai/company/ORGANIZATION.md` — COS org cells and mission tiers
+3. `.ai/runtime/WORKFLOW_ENGINE.md` — pipeline
+4. `.ai/agents/README.md` — competency profiles (spawn per TASK_ROUTER)
+5. Embody only agents required for mission tier — not all 17
 
 ## WHO not HOW
 
 | Layer | Location |
 |-------|----------|
+| Product law | `product-operating-system/` |
+| Org OS | `.ai/company/` (COS) |
 | Mind | `.ai/brain/` |
 | Agents | `.ai/agents/*.md` |
-| Process | `.ai/runtime/` (frozen v1.0) |
+| Process | `.ai/runtime/` |
+| Memory | `.ai/knowledge/` |
 
 ## Every PR
 
 - Quality Index table: `.ai/brain/QUALITY_INDEX.md`
-- Mandatory agent reviews per `.ai/agents/README.md`
+- Mandatory agent reviews per tier (T1: 3 · T2: 3–5 · T3: full) — `.ai/agents/README.md`
 - QA Director ship veto · Security 10
 
 ## Do not

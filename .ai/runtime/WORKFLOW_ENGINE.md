@@ -36,7 +36,16 @@ PHASE 14 SELF_IMPROVEMENT        → SELF_IMPROVEMENT_ENGINE (next item or idle)
 
 **Rule W-02:** Phases 5–10 may iterate in a loop (`fix → re-run`) until green.
 
-**Rule W-03:** Single-phase hotfix (P0) may skip phases 8–9 only with QA Director + CTO BLOCK waived in writing in PR — never skip 5–7 or 10.
+**Rule W-03:** T1 may skip phases 8–9 with QA + Security pass — never skip 5–7.
+
+**Rule W-T01 (COS v1.1):** Mission tier scales phases 8–10:
+
+| Tier | Phases 8–9 | Phase 10 reviewers |
+|------|------------|-------------------|
+| T0 | Skip | Org Health only |
+| T1 | Skip | 3 (owner, Security, QA) |
+| T2 | Alignment spot-check | TASK_ROUTER (3–5) |
+| T3 | Full governance + Council | Up to 16 + RC |
 
 ---
 

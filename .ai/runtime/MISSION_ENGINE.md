@@ -12,11 +12,25 @@ Convert any user message — vague or precise — into a **Mission Brief** Compo
 
 ---
 
+## Mission tier (COS v1.1 — assign in Step 0)
+
+| Tier | When | Assurance depth |
+|------|------|-----------------|
+| **T0** | Research, org audit, knowledge update | Org Health only |
+| **T1** | Hotfix, test fix, lint | Owner + Security + QA |
+| **T2** | Standard feature, bugfix, refactor | TASK_ROUTER reviewers (3–5) |
+| **T3** | Architecture, world, auth, IAP, irreversible | Full review + Executive Council → RC |
+
+**Rule M-T01:** Default T2. Downgrade to T1 only with blast radius `low` and no product behavior change. Upgrade to T3 when auth, payments, world pack, or migration irreversible.
+
+---
+
 ## Mission Brief Template (required output)
 
 ```markdown
 ## Mission Brief
 - **ID:** mission-YYYYMMDD-HHMM (session-local)
+- **Tier:** T0 | T1 | T2 | T3
 - **Raw intent:** "[user words]"
 - **Mission type:** feature | bugfix | refactor | debt | docs-runtime-only
 - **Primary goal:** [one sentence]
@@ -136,7 +150,7 @@ Otherwise: **proceed with defaults**.
 |------|--------|
 | M-P01 | Cite POS section IDs in plan and PR — not paraphrase-only |
 | M-P02 | Do not duplicate POS into runtime artifacts |
-| M-P03 | Constitution Rules 1–5 are hard BLOCK |
+| M-P03 | Constitution Rules 1–6 are hard BLOCK |
 | M-P04 | Feature requests run CPO six questions (COS 002) before Phase 4 |
 | M-P05 | Child world work requires PCB world bible section refs |
 

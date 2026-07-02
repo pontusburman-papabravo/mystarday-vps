@@ -48,6 +48,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Governance registry and POS
+        run: npm run check:governance
+
       - name: Lint public client JS
         run: npm run lint:public
 

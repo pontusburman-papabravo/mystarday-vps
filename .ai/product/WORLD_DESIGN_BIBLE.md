@@ -24,7 +24,7 @@ Detta dokument är **hela företagets byggkontrakt för världar**. När WDB v1.
 Product Constitution (§6 No Magic Numbers)
 POS 00A/04/09 + Design tokens (020-design.mdc)
 PRODUCT_CONTENT_BIBLE — world soul & emotion job
-GAME_DESIGN_BIBLE v2 — loops, systems, Experience Packs
+GAME_DESIGN_BIBLE v1.0 FINAL — loops, systems, Experience Packs
 ART_BIBLE v1 FINAL — visual/motion/audio handoff
 DENNA World Design Bible — progression maps, living rules, WQS
 Implementation — följer, överstyr inte

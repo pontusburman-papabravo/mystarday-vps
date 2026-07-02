@@ -1,71 +1,85 @@
-# Stjärndag — Company Operating System (COS)
+# Company Operating System (COS) v1.1
 
-**Version:** 1.0  
-**Status:** Executive authority — complements POS and AOS  
-**Created:** 2026-06-29
-
----
-
-## What This Is
-
-**How the company thinks, decides, prioritizes, and approves** — written for AI agents acting as executive leadership and for senior hires who need company judgment without the founder in the room.
-
-| Layer | Location | Answers |
-|-------|----------|---------|
-| **Product OS** | `product-operating-system/` | Product truth — what we build |
-| **AI OS** | `.ai/` + `.cursor/rules/` | Engineering execution |
-| **Company OS** | `.ai/company/` (this folder) | **Executive judgment** |
-| **Runtime** | Root `AGENTS.md` | VM, CI, deploy |
-
-### Supremacy
-
-1. **POS** — product law (never duplicated here)  
-2. **COS** — how executives apply POS to decisions  
-3. **AOS** — how engineers ship  
-4. Code · SYSTEM_ANALYSIS (context)
-
-> COS **references** POS. If COS and POS conflict, **POS wins** — fix COS.
+**Type:** AI Development Organization operating system  
+**Not:** Product documentation (that is POS)  
+**Updated:** 2026-07-02
 
 ---
 
-## Playbooks
+## What COS is
 
-| # | Document | Role |
-|---|----------|------|
-| 001 | [CEO_PLAYBOOK.md](./001_CEO_PLAYBOOK.md) | Mission, vision, priority, conflict resolution |
-| 002 | [CPO_PLAYBOOK.md](./002_CPO_PLAYBOOK.md) | Product decisions, feature bar |
-| 003 | [CTO_PLAYBOOK.md](./003_CTO_PLAYBOOK.md) | Technical strategy, architecture approval |
-| 004 | [GAME_DIRECTOR_PLAYBOOK.md](./004_GAME_DIRECTOR_PLAYBOOK.md) | Motivation, world, progression |
-| 005 | [CREATIVE_DIRECTOR_PLAYBOOK.md](./005_CREATIVE_DIRECTOR_PLAYBOOK.md) | Visual philosophy, craft |
-| 006 | [UX_DIRECTOR_PLAYBOOK.md](./006_UX_DIRECTOR_PLAYBOOK.md) | Flows, clarity, calm |
-| 007 | [QA_DIRECTOR_PLAYBOOK.md](./007_QA_DIRECTOR_PLAYBOOK.md) | Quality gate, ship/no-ship |
-| 008 | [GROWTH_PLAYBOOK.md](./008_GROWTH_PLAYBOOK.md) | Acquisition, retention ethics |
-| 009 | [ANALYTICS_PLAYBOOK.md](./009_ANALYTICS_PLAYBOOK.md) | Measurement without betraying mission |
-| 010 | [RELEASE_COMMAND.md](./010_RELEASE_COMMAND.md) | Ship authority, rollback, comms |
+COS describes **how the AI organization works**: structure, decision rights, mission tiers, review depth, escalation, and human approval gate.
+
+POS describes **what we build**. COS describes **how we build it**.
 
 ---
 
-## When to Read
+## Organization structure
 
-| Situation | Playbooks |
-|-----------|-----------|
-| Prioritize roadmap | 001, 002, 008 |
-| Approve feature | 002, 006, 004 (if child/world) |
-| Architecture change | 001, 003, 010 |
-| Visual/motion change | 005, 006 |
-| Ship decision | 007, 010 |
-| Metrics / experiment | 008, 009 |
+```
+Orchestrator (session lead)
+├── Mission Control      — intake, tier, routing, handoff
+├── Product Alignment    — POS compliance (CPO lens), no invention
+├── Delivery Cells       — Engineering · Creative · Platform · Research
+├── Assurance Cell       — QA + Security + tier-scaled review
+├── Executive Council    — CEO · CPO · CTO (convened T3 only)
+└── Org Health           — AI Systems Architect
+```
 
-Always cross-check: `product-operating-system/15_PRODUCT_QUALITY_STANDARD.md`
+Detail: [ORGANIZATION.md](./ORGANIZATION.md)
 
 ---
 
-## Export
+## Authority on conflict
 
-Full text: `/AI-COMPANY-ALL-DOCUMENTS-TEMP.md` (repo root)
+```
+POS (product law)
+  → Product Alignment Office interprets
+  → Delivery Cells implement
+  → Assurance Cell verifies
+  → Executive Council (T3 / deadlock)
+  → Human (live deploy only)
+```
+
+COS playbooks 001–010 are **Executive Council judgment protocols** — not daily reading for every hotfix.
+
+---
+
+## Mission tiers
+
+| Tier | Examples | Review depth |
+|------|----------|--------------|
+| T0 | Research, org audit | Org Health |
+| T1 | Hotfix, test fix | Owner + Security + QA |
+| T2 | Feature, refactor | TASK_ROUTER (3–5 reviewers) |
+| T3 | Architecture, world, auth, IAP | Full Assurance + Council → RC |
+
+Runtime: `.ai/runtime/MISSION_ENGINE.md` (tier field) · `.ai/runtime/REVIEW_ENGINE.md` (tier matrix)
+
+---
+
+## Human approval gate
+
+Agents may prepare unlimited Release Candidates.  
+**Never** without explicit human approval: deploy · merge to protected main · live DB migrations · live feature flags.
+
+---
+
+## Playbooks (Council protocols)
+
+| # | Role |
+|---|------|
+| 001–003 | CEO, CPO, CTO |
+| 004–006 | Game, Creative, UX Directors |
+| 007–010 | QA, Growth, Analytics, Release |
 
 ---
 
 ## Versioning
 
-**1.0** — Initial COS alongside AOS v1.0 and POS v2.0
+| Version | Change |
+|---------|--------|
+| 1.0 | Executive playbooks |
+| 1.1 | Org OS — cells, tiers, council convening model |
+
+Org Health may propose COS 1.2 via explicit mission — not drive-by expansion.

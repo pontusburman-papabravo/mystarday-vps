@@ -5,6 +5,8 @@
 > **Engineering:** [`engineering-architecture-barnapp.md`](./engineering-architecture-barnapp.md) · [`separation-contract-barnapp.md`](./separation-contract-barnapp.md) · [`implementation-plan-3-layers.md`](./implementation-plan-3-layers.md)
 >
 > **Senast uppdaterad:** 2026-06-10 · **Branch:** `main`
+>
+> **⚠️ IA superseded (2026-07-02):** Canonical child places are **Idag · Min värld · Familj** per `product-operating-system/00A_EXPERIENCE_MANIFESTO.md` and ADR `14_DECISION_LOG.md` §1. Skattkammaren is a reward surface, not a root tab. This doc remains for historical engineering context.
 
 ---
 
