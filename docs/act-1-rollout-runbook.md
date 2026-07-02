@@ -2,7 +2,7 @@
 
 **Syfte:** Aktivera ACT-1 PR 1–4 (instrumentering, handoff, template-first, AI) för alla familjer.
 
-**Default efter migrate `180922`:** PR 1–4 flaggor **ON**. PR 5 (nudge), referral och `activation_first_star_mode_v1` förblir **OFF** tills separat go-live.
+**Default efter migrate `180932`:** PR 1–5 flaggor **ON** (inkl. `activation_nudge_v1`). Referral och `activation_first_star_mode_v1` förblir **OFF** tills separat go-live.
 
 ---
 
@@ -15,7 +15,7 @@
 | `activation_first_star_guide_v1` | First star guide efter handoff | 2 | **ON** |
 | `activation_ai_starter_plan` | AI-personalisering (fallback till mall) | 4 | **ON** |
 | `activation_first_star_mode_v1` | Barnvy: en aktivitet i taget | — | OFF |
-| `activation_nudge_v1` | 24–48h påminnelse om ej P0 | 5 | OFF |
+| `activation_nudge_v1` | 24–48h påminnelse om ej P0 | 5 | **ON** (efter `180932`) |
 | `referral_program` | Referral v0 spårning | parallell | OFF |
 
 **Cohort:** Om `ACTIVATION_ONBOARDING_LAUNCH_AT` är satt i `.env` får endast familjer skapade efter det datumet flaggorna (utom undantag i `activation-flags.js`). **För alla familjer:** ta bort env-raden och starta om.

@@ -37,4 +37,15 @@ async function getExperience(version, phase, experienceKey, locale = 'sv') {
   return result.rows[0] || null;
 }
 
-module.exports = { getActiveRegistry, getExperience };
+async function listActiveRows(locale = 'sv') {
+  const result = await db.query(
+    `SELECT version, phase, experience_key, tone, headline, body, cta, locale, is_active
+     FROM journey_experience_registry
+     WHERE is_active = true AND locale = $1
+     ORDER BY version DESC, phase, experience_key`,
+    [locale]
+  );
+  return result.rows;
+}
+
+module.exports = { getActiveRegistry, getExperience, listActiveRows };
