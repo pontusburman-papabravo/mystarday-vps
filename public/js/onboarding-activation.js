@@ -1,5 +1,6 @@
 /**
- * onboarding-activation.js — child handoff + first star guide (flag-gated).
+ * onboarding-activation.js — ACT-1 child handoff step (flag-gated).
+ * First star guide lives in onboarding-first-star.js.
  */
 (function () {
   'use strict';
@@ -7,6 +8,7 @@
   let config = null;
   let childId = null;
   let handoffWired = false;
+  let onboardingStartedTracked = false;
 
   function api(path, opts) {
     if (!window.apiFetch) return Promise.reject(new Error('no api'));
@@ -33,24 +35,24 @@
       });
   }
 
+  function isHandoffEnabled() {
+    return Boolean(config && config.flags && config.flags.activation_child_handoff_v1);
+  }
+
+  function isAnyAct1OnboardingFlagEnabled() {
+    if (!config || !config.flags) return false;
+    return Boolean(
+      config.flags.activation_child_handoff_v1
+      || config.flags.activation_first_star_guide_v1
+      || config.flags.activation_onboarding_v1
+    );
+  }
+
   function recordChildAccess(source) {
     return api('/api/onboarding/child-access-complete', {
       method: 'POST',
       body: JSON.stringify({ child_id: childId, source: source }),
     });
-  }
-
-  function buildLoginInfoText() {
-    const nameEl = document.getElementById('s5ChildName');
-    const pinEl = document.getElementById('s5Pin');
-    const childName = nameEl ? nameEl.textContent.trim() : 'Barnet';
-    const pin = pinEl ? pinEl.textContent.trim() : '';
-    return [
-      'Inloggning till [REDACTED] för ' + childName + ':',
-      '',
-      '1. Gå till [REDACTED]/child-login',
-      '2. Välj barnet och ange PIN: ' + pin,
-    ].join('\n');
   }
 
   function openChildLogin() {
@@ -63,9 +65,44 @@
 
   function startChildHandoff(source) {
     const src = source || 'handoff';
-    trackEvent('child_view_opened', { child_id: childId, source: src });
-    return recordChildAccess('child_view').finally(function () {
-      openChildLogin();
+    if (isHandoffEnabled()) {
+      trackEvent('child_view_opened', { child_id: childId, source: src });
+      return recordChildAccess('child_view').finally(function () {
+        openChildLogin();
+      });
+    }
+    openChildLogin();
+    return Promise.resolve();
+  }
+
+  function confirmHandoffSkip(onConfirm) {
+    const overlay = document.createElement('div');
+    overlay.id = 'childHandoffSkipOverlay';
+    overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'handoffSkipTitle');
+    overlay.innerHTML = [
+      '<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">',
+      '  <h2 id="handoffSkipTitle" class="text-lg font-heading font-bold text-navy mb-2">Hoppa över barninloggning?</h2>',
+      '  <p class="text-sm text-text-soft mb-4 leading-relaxed">',
+      '    Barnet behöver PIN-koden för att logga in själv. Utan test nu kan morgonrutinen kännas krångligare — vi skickar en påminnelse om 24 timmar om barnet inte testat än.',
+      '  </p>',
+      '  <div class="flex flex-col gap-2">',
+      '    <button type="button" id="handoffSkipConfirmLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">👶 Testa barninloggning</button>',
+      '    <button type="button" id="handoffSkipConfirmSkip" class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2">Hoppa över ändå</button>',
+      '  </div>',
+      '</div>',
+    ].join('');
+    document.body.appendChild(overlay);
+
+    document.getElementById('handoffSkipConfirmLogin').addEventListener('click', function () {
+      overlay.remove();
+      startChildHandoff('step5_skip_dialog_primary');
+    });
+    document.getElementById('handoffSkipConfirmSkip').addEventListener('click', function () {
+      overlay.remove();
+      onConfirm();
     });
   }
 
@@ -81,88 +118,38 @@
     });
 
     continueBtn.addEventListener('click', function () {
-      trackEvent('child_handoff_skipped', { child_id: childId, source: 'step5_continue_parent' });
-      if (typeof window.goToStep === 'function') window.goToStep(6);
-    });
-  }
-
-  function showFirstStarGuide(onDone) {
-    if (!config || !config.flags.activation_first_star_guide_v1) {
-      onDone();
-      return;
-    }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'firstStarGuideOverlay';
-    overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4';
-    overlay.innerHTML = [
-      '<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">',
-      '  <div class="text-center mb-4"><div class="text-4xl mb-2">⭐</div>',
-      '  <h2 class="text-xl font-heading font-bold text-navy mb-2">Ge första stjärnan</h2>',
-      '  <p class="text-sm text-text-soft mb-4">Tre snabba steg — sedan är ni igång på riktigt.</p></div>',
-      '  <ol class="text-sm text-navy space-y-2 mb-5 list-decimal list-inside">',
-      '    <li>Låt barnet logga in med PIN-koden</li>',
-      '    <li>Markera en aktivitet som klar i barnvyn</li>',
-      '    <li>Fira stjärnan tillsammans!</li>',
-      '  </ol>',
-      '  <button type="button" id="fsgChildLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">👶 Öppna barninloggning</button>',
-      '</div>',
-    ].join('');
-    document.body.appendChild(overlay);
-
-    document.getElementById('fsgChildLogin').addEventListener('click', function () {
-      trackEvent('child_view_opened', { child_id: childId, source: 'first_star_guide' });
-      overlay.remove();
-      openChildLogin();
-    });
-  }
-
-  function patchSkipInvite() {
-    if (!window.skipInvite || window.skipInvite.__activationPatched) return;
-    const original = window.skipInvite;
-    window.skipInvite = async function () {
-      if (!config || !config.flags.activation_first_star_guide_v1) {
-        return original.apply(this, arguments);
+      function goToInviteStep() {
+        if (typeof window.goToStep === 'function') window.goToStep(6);
       }
-      const errorEl = document.getElementById('step6Error');
-      if (errorEl) errorEl.classList.add('hidden');
-      showFirstStarGuide(function () {
-        original.apply(window, arguments);
+      if (!isHandoffEnabled()) {
+        goToInviteStep();
+        return;
+      }
+      confirmHandoffSkip(function () {
+        trackEvent('child_handoff_skipped', { child_id: childId, source: 'step5_continue_parent' });
+        goToInviteStep();
       });
-    };
-    window.skipInvite.__activationPatched = true;
-  }
-
-  /** Capture-phase hook so step6Btn also shows first star guide (not only skipInvite). */
-  function patchStep6Btn() {
-    const btn = document.getElementById('step6Btn');
-    if (!btn || btn.dataset.firstStarPatched) return;
-    btn.dataset.firstStarPatched = '1';
-    btn.addEventListener('click', function (e) {
-      if (!config || !config.flags.activation_first_star_guide_v1) return;
-      if (btn.dataset.firstStarDone === '1') return;
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      showFirstStarGuide(function () {
-        btn.dataset.firstStarDone = '1';
-        btn.click();
-      });
-    }, true);
+    });
   }
 
   function notifyPinSet(source) {
-    if (!config || !config.flags.activation_child_handoff_v1) return;
+    if (!isHandoffEnabled()) return;
     trackEvent('child_pin_created', {
       child_id: childId,
       source: source || 'onboarding_step5',
     });
   }
 
+  function maybeTrackOnboardingStarted() {
+    if (onboardingStartedTracked || !isAnyAct1OnboardingFlagEnabled()) return;
+    onboardingStartedTracked = true;
+    trackEvent('activation_onboarding_started', { source: 'onboarding_entry' });
+  }
+
   function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
     loadConfig().then(function () {
-      patchSkipInvite();
-      patchStep6Btn();
+      maybeTrackOnboardingStarted();
       wireStep5Handoff();
       const obs = new MutationObserver(function () {
         const step5 = document.getElementById('step5');
@@ -176,8 +163,13 @@
   window.OnboardingActivation = {
     init: init,
     setChildId: function (id) { childId = id; },
+    getChildId: function () { return childId; },
+    getConfig: function () { return config; },
+    isHandoffEnabled: isHandoffEnabled,
+    trackEvent: trackEvent,
     startChildHandoff: startChildHandoff,
     recordChildAccess: recordChildAccess,
+    openChildLogin: openChildLogin,
     notifyPinSet: notifyPinSet,
   };
 

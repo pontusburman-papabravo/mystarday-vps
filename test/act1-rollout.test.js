@@ -43,4 +43,13 @@ describe('ACT-1 full rollout scripts', () => {
     assert.match(src, /enable-act1-flags\.js/);
     assert.match(src, /systemctl restart/);
   });
+
+  it('act-1-rollout-runbook documents flag defaults and rollback', () => {
+    const doc = fs.readFileSync(path.join(ROOT, 'docs/act-1-rollout-runbook.md'), 'utf8');
+    assert.match(doc, /activation_child_handoff_v1/);
+    assert.match(doc, /activation_first_star_guide_v1/);
+    assert.match(doc, /enable-act1-flags/);
+    assert.match(doc, /OFF/);
+    assert.match(doc, /rollback/i);
+  });
 });

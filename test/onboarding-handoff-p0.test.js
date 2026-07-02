@@ -20,11 +20,13 @@ describe('Onboarding handoff P0', () => {
     assert.doesNotMatch(src, /hideWeekendModal\(\);\s*goToStep\(2\)/);
   });
 
-  it('onboarding-activation wires step5 CTA and does not inflate child_access on continue', () => {
+  it('onboarding-activation wires step5 CTA with flag gating and skip confirm', () => {
     const src = read('public/js/onboarding-activation.js');
     assert.match(src, /step5ChildLoginBtn/);
     assert.match(src, /step5ContinueParentBtn/);
     assert.match(src, /startChildHandoff/);
+    assert.match(src, /isHandoffEnabled/);
+    assert.match(src, /confirmHandoffSkip/);
     assert.match(src, /recordChildAccess\('child_view'\)/);
     assert.doesNotMatch(src, /recordChildAccess\('step5_continue'\)/);
     assert.doesNotMatch(src, /recordChildAccess\('pin_set'\)/);
@@ -62,5 +64,12 @@ describe('Onboarding handoff P0', () => {
     assert.match(html, /step5ChildLoginBtn/);
     assert.match(html, /onboardingParentPinBlock" class="hidden/);
     assert.match(html, /onboardingInviteBlock" class="hidden/);
+  });
+
+  it('onboarding.html loads first-star script after activation', () => {
+    const html = read('public/onboarding.html');
+    const aIdx = html.indexOf('onboarding-activation.js');
+    const fIdx = html.indexOf('onboarding-first-star.js');
+    assert.ok(aIdx >= 0 && fIdx > aIdx);
   });
 });
