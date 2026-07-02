@@ -1,7 +1,8 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (Journey slim signup, ACT-1 PR 5, FEAT-1B, Child Worlds v1.1)
+**Till:** Nästa fas (ACT-1 PR 5, Journey Fas 2, FEAT-1B, Child Worlds v1.1)  
+**Prod:** `8cc9f17` (2026-07-02) · SW v477 · smoketest OK
 
 ---
 
@@ -19,31 +20,42 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Parent Hubs | Complete | `docs/qa/hub-integration-sweep.md` v2 |
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
-| ACT-1 PR 1–4 | **Live** (migration `180922`) | `docs/act-1-rollout-runbook.md` |
-| Slim signup + Journey | Ship branch → main | `docs/signup-slim-prod-checklist.md` |
+| ACT-1 PR 1–4 | **Live** (migration `180922`, #506) | `docs/act-1-rollout-runbook.md` |
+| Slim signup + Journey | **Live** (#508, `activation_signup_slim_v1` ON) | `docs/signup-slim-prod-checklist.md` |
+| Hem snabbknappar | **Live** (#509–#510) | `public/js/dashboard-home-hub.js`, SW v476–477 |
 | För dig | **v1 Complete** | Sprint 3–5; Sprint 4 defer |
 
 ---
 
-## Rekommenderad merge-/deploy-ordning (nästa ship)
+## Shippat till prod (2026-07-02)
 
 ```
-#506 ACT-1 PR 1–4 flags → main → migrate
-#508 slim signup + Journey + power-user → main → migrate
+✅ #506 ACT-1 PR 1–4 flags → main → migrate (180922)
+✅ #508 slim signup + Journey + power-user → main → migrate (180923–180924)
+✅ #509–#510 Hem snabbknappar (återställning + klick/etikett) → main
 ```
 
-Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
+Verifiering: [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md) (alla punkter klara).
+
+## Rekommenderad ordning (nästa ship)
+
+```
+1. ACT-1 PR 5 (nudges — flaggor OFF tills go-live)
+2. Journey Fas 2 (registry + handoff v2 + parent-ack)
+3. FEAT-1B / Child Worlds v1.1 (efter produktbeslut)
+```
 
 ---
 
 ## Plocka härnäst
 
-### 1. Journey event-first onboarding
+### 1. ~~Journey event-first onboarding~~ ✅ (#508, prod `8cc9f17`)
 
 - ADR: [`docs/decisions/journey-event-first-onboarding.md`](../decisions/journey-event-first-onboarding.md)
-- Signup standard: 3 frågor → auto-schema → Hem
-- Power-user: välj färdigt schema / 7-frågor wizard
+- Signup standard: 3 frågor → auto-schema → Hem (`activation_signup_slim_v1`)
+- Power-user: välj färdigt schema / 7-frågor wizard (handoff + first-star kvar)
 - Journey = event-first, day-second (1, 2, 3, tyst 4–6, 7, 14)
+- **Nästa:** Journey **Fas 2** — `docs/family-journey-fas2-5-roadmap.md`
 
 ### 2. ~~ACT-1 PR 1–4~~ ✅ (migration `180922`)
 

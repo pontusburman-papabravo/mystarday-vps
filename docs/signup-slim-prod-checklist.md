@@ -1,6 +1,7 @@
 # Slim signup + ACT-1 — merge & prod-checklista
 
 **Skapad:** 2026-07-02  
+**Status:** ✅ **Shippat** — prod `8cc9f17` (2026-07-02), SW v477, smoketest OK  
 **Syfte:** Säker ship av slim signup + Journey + ACT-1 PR 1–4.
 
 **Produktlåsning:** ADR [`journey-event-first-onboarding.md`](./decisions/journey-event-first-onboarding.md)
@@ -79,8 +80,8 @@ UPDATE feature_flag SET enabled = false WHERE key = 'activation_signup_slim_v1';
 
 ## Checklista
 
-- [ ] `test:gate` grön
-- [ ] `npm run migrate` prod OK
-- [ ] `/health` OK
-- [ ] Journey evaluator + coach ON
-- [ ] Röktest A + B
+- [x] `test:gate` grön (pre-ship + hygiene-pass 2026-07-02)
+- [x] `npm run migrate` prod OK (#506 + #508 migrations)
+- [x] `/health` OK (prod efter deploy)
+- [x] Journey evaluator + coach ON (prod SQL enligt §Journey-coach)
+- [x] Röktest A + B (smoketest OK)

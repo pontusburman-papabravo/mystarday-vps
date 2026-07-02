@@ -1,6 +1,6 @@
 # Kända buggar & förbättringar (teknisk backlog)
 
-Uppdaterad vid kodgranskning 2026-05-29.
+Uppdaterad vid kodgranskning 2026-05-29. Hygiene-pass 2026-07-02: medium-prio kvar oförändrad (ej blockerande för #508–510 ship).
 
 ## Åtgärdat i `main` (senaste pass)
 
