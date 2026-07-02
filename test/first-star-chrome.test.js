@@ -111,8 +111,8 @@ describe('First Star chrome — exit after completion (integration contract)', (
   });
 
   it('celebration remains unchanged — still calls checkMilestones in first star path', () => {
-    const src = read('public/js/child-dashboard-activities.js');
-    assert.match(src, /ChildFirstStarMode\.isActive\(\)[\s\S]*checkMilestones\(total, completed\)/);
+    const activities = read('public/js/child-dashboard-activities.js');
+    assert.match(activities, /ChildFirstStarMode\.isActive\(\)[\s\S]*checkMilestones\(total, completed\)/);
     const cel = read('public/js/child-dashboard-celebrations.js');
     assert.match(cel, /function checkMilestones/);
     assert.doesNotMatch(cel, /first_star_mode/);
