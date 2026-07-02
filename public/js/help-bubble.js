@@ -203,6 +203,7 @@
             { q: 'Vad är en aktivitet?', a: 'En <strong>aktivitet</strong> är en uppgift som barnet gör (t.ex. "Borsta tänderna"). Aktiviteter ger 1–5 stjärnor och kan ha delsteg. Samla dem i ditt bibliotek och lägg till i barnens scheman.' },
             { q: 'Hur skapar jag en ny aktivitet?', a: 'Klicka "+ Ny aktivitet" → fyll i namn, kategori (Hygien, Mat, Lek osv.), varaktighet och stjärnvärde. Spara och aktiviteten läggs till ditt bibliotek.' },
             { q: 'Hur lägger jag till en aktivitet i schemat?', a: 'Aktiviteter finns i ditt bibliotek. Gå till Veckoschema → välj dag → "+" → välj aktiviteten du vill lägga till.' },
+            { q: 'Hur tar jag bort en aktivitet från alla dagar?', a: 'Klicka ✕ på aktiviteten → välj <strong>Alla dagar i veckan</strong>. Vill du bara ta bort idag eller en veckodag (t.ex. alla torsdagar) finns egna val för det.' },
             { q: 'Hur redigerar jag en aktivitet?', a: 'Klicka på aktiviteten i listan → "Redigera". Ändringarna gäller direkt i alla scheman där aktiviteten används.' },
           ],
         },
