@@ -216,6 +216,8 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
 
     await client.query('BEGIN');
 
+    const existingPattern = await custodyDb.getPattern(childId, client);
+
     const pattern = await custodyDb.upsertPattern({
       child_id: childId,
       anchor_date: anchorDate,
@@ -239,11 +241,15 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
 
     await client.query('COMMIT');
 
-    analytics.track(familyId, 'custody_schedule_updated', {
+    const analyticsMeta = {
       child_id: childId,
       pattern_type: resolvedType,
       anchor_date: anchorDate,
-    });
+    };
+    if (!existingPattern) {
+      analytics.track(familyId, 'custody_schedule_created', analyticsMeta);
+    }
+    analytics.track(familyId, 'custody_schedule_updated', analyticsMeta);
 
     res.json({ pattern });
   } catch (err) {

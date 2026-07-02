@@ -2,7 +2,38 @@
 
 /**
  * Promote legacy weekly_schedule rows to week A and clone to week B.
+ * Phase 5: backfill custody_home_id on existing A/B rows from pattern configuration.
  */
+
+/**
+ * Backfill weekly_schedule.custody_home_id from custody_pattern configuration.
+ * Idempotent — only updates rows where custody_home_id IS NULL.
+ * @param {import('pg').PoolClient} client
+ * @returns {Promise<number>} rows updated
+ */
+async function backfillWeeklyScheduleHomeIds(client) {
+  const result = await client.query(`
+    UPDATE weekly_schedule ws
+    SET custody_home_id = CASE ws.week_variant
+      WHEN 'a' THEN COALESCE(
+        (cp.configuration->>'home_a')::uuid,
+        (cp.configuration->>'weekend_home_a')::uuid,
+        cp.week_a_home_id
+      )
+      WHEN 'b' THEN COALESCE(
+        (cp.configuration->>'home_b')::uuid,
+        (cp.configuration->>'weekend_home_b')::uuid,
+        cp.week_b_home_id
+      )
+    END
+    FROM custody_pattern cp
+    WHERE ws.child_id = cp.child_id
+      AND ws.week_variant IS NOT NULL
+      AND ws.custody_home_id IS NULL
+    RETURNING ws.id
+  `);
+  return result.rowCount;
+}
 
 /**
  * @param {import('pg').PoolClient} client
@@ -87,6 +118,7 @@ async function migrateChildScheduleToCustody(client, childId, weekAHomeId, weekB
 }
 
 module.exports = {
+  backfillWeeklyScheduleHomeIds,
   promoteLegacyScheduleToWeekA,
   cloneWeekAToWeekB,
   migrateChildScheduleToCustody,
