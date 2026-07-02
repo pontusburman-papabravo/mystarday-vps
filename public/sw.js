@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v477';
+const CACHE_NAME = 'stjarndag-v478';
+// stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
 // stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout
 // stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)
 // stjarndag-v463: SEO marketing images — logical routine sequences only
