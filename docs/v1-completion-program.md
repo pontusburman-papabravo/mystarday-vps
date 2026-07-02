@@ -1,6 +1,6 @@
 # v1 Completion Program
 
-**Status:** Operativ styrplan (Våg 0)  
+**Status:** **CLOSED** (2026-07-02) — alla åtta agenter levererade och mergade  
 **Mål:** Stäng påbörjat arbete — sammanhängande **v1-release**, inte nya stora features.  
 **Skapad:** 2026-07-02  
 **Ägare:** Agent 8 (program) → Agent 7 (release gate)

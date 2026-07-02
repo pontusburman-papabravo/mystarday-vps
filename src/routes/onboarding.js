@@ -227,7 +227,7 @@ const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 // School/preschool groups → weekdays only. Other groups → all 7 days.
 router.post('/schedule', async (req, res) => {
   try {
-    const { child_id, template_group, custom_items } = req.body;
+    const { child_id, template_group, custom_items, plan_edited_before_save, activity_count } = req.body;
 
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
     if (!template_group || !VALID_TEMPLATE_GROUPS.includes(template_group)) {
@@ -434,7 +434,14 @@ router.post('/schedule', async (req, res) => {
 
       const { updateActivationState } = require('../lib/activation-p0');
       updateActivationState(req.user.familyId, 'schema_saved', {
-        metadata: { template_group, source: 'onboarding_schedule' },
+        metadata: {
+          template_group,
+          source: 'onboarding_schedule',
+          plan_edited_before_save: plan_edited_before_save === true,
+          activity_count: Number.isFinite(Number(activity_count))
+            ? Number(activity_count)
+            : (Array.isArray(custom_items) ? custom_items.length : undefined),
+        },
       }).catch((err) => {
         console.error('[ONBOARDING] activation schema_saved error:', err.message);
       });

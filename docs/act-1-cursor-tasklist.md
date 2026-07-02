@@ -113,27 +113,27 @@
 
 ### EPIC 3.1 — Frågeflöde
 
-- [ ] `public/js/onboarding-starter-plan.js` — `StarterPlanQuestionFlow`
-- [ ] 7 frågor enligt spec (< 90 sek)
-- [ ] `activation_question_answered` per steg
-- [ ] Flag `activation_onboarding_v1` — visa nytt flöde istället för/efter steg 1 legacy
+- [x] `public/js/onboarding-starter-plan.js` — `StarterPlanQuestionFlow`
+- [x] 7 frågor enligt spec (< 90 sek)
+- [x] `activation_question_answered` per steg
+- [x] Flag `activation_onboarding_v1` — visa nytt flöde istället för/efter steg 1 legacy
 
 ### EPIC 3.2 — Preview & save
 
-- [ ] `StarterPlanPreview`: lista aktiviteter, edit (namn, ordning, ta bort, lägg till)
-- [ ] `starter_plan_preview_viewed`, `starter_plan_saved`
-- [ ] Save via befintlig `POST /api/onboarding/schedule` eller `saveStarterPlan()` wrapper
-- [ ] `starter_template_selected` med `template_id`
+- [x] `StarterPlanPreview`: lista aktiviteter, edit (namn, ordning, ta bort, lägg till)
+- [x] `starter_plan_preview_viewed`, `starter_plan_saved` (server via schedule POST)
+- [x] Save via befintlig `POST /api/onboarding/schedule` eller `saveStarterPlan()` wrapper
+- [x] `starter_template_selected` med `template_id`
 
 ### EPIC 3.3 — Flödesintegration
 
-- [ ] Efter save → `ChildAccessStep` (PR 2)
-- [ ] Efter handoff → `FirstStarGuide` (PR 2)
-- [ ] Legacy onboarding kvar för kontroll-arm / flag off
+- [x] Efter save → `ChildAccessStep` (PR 2)
+- [x] Efter handoff → `FirstStarGuide` (PR 2)
+- [x] Legacy onboarding kvar för kontroll-arm / flag off
 
 ### EPIC 3.4 — Kvalitetsmetrics
 
-- [ ] Logga `plan_edited_before_save: boolean`, `activity_count` i `starter_plan_saved` metadata
+- [x] Logga `plan_edited_before_save: boolean`, `activity_count` i `starter_plan_saved` metadata
 
 **PR 3 klar när:** Variant A (template + handoff + first star, **utan AI**) kan köras end-to-end.
 

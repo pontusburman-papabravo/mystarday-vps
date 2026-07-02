@@ -382,6 +382,9 @@
           child_id: childData.id,
           template_group: state.plan.template_group,
           custom_items: state.previewItems,
+          // starter_plan_saved — server-side via schedule POST → activation schema_saved
+          plan_edited_before_save: state.planEdited,
+          activity_count: state.previewItems.length,
         }),
       });
       const schedData = await schedRes.json();
