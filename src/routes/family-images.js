@@ -135,14 +135,22 @@ router.get('/source', async (req, res) => {
         res.set('Cache-Control', 'private, no-store');
         return res.send(buffer);
       } catch (readErr) {
-        if (readErr.code !== 'ENOENT') {
-          console.error('[FAMILY-IMAGES] Local read error:', readErr.message);
+        if (readErr.code === 'ENOENT') {
+          return res.status(404).json({ error: 'Bilden hittades inte' });
         }
-        // fall through to remote fetch
+        console.error('[FAMILY-IMAGES] Local read error:', readErr.message);
+        return res.status(500).json({ error: 'Kunde inte hämta bilden' });
       }
     }
 
-    const response = await fetch(imageUrl);
+    let fetchUrl;
+    try {
+      fetchUrl = new URL(imageUrl);
+    } catch {
+      return res.status(404).json({ error: 'Bilden hittades inte' });
+    }
+
+    const response = await fetch(fetchUrl);
     if (!response.ok) {
       return res.status(502).json({ error: 'Kunde inte hämta bilden' });
     }
