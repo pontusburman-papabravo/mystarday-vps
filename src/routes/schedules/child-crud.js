@@ -58,17 +58,48 @@ async function resolveOnceTaskTemplateId(familyId, { name, icon, star_value, act
   return templateId;
 }
 
-async function resolveCustodyVariantFilter(child, childId, rawVariant) {
+async function resolveCustodyScheduleFilter(child, childId, query) {
   const custodyFlag = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, child.family_id);
-  if (!custodyFlag) return { pattern: null, variantFilter: null };
+  if (!custodyFlag) {
+    return { pattern: null, variantFilter: null, homeIdFilter: null };
+  }
 
   const pattern = await custodyDb.getPattern(childId);
-  if (!pattern) return { pattern: null, variantFilter: null };
-
-  if (rawVariant === 'a' || rawVariant === 'b') {
-    return { pattern, variantFilter: rawVariant };
+  if (!pattern) {
+    return { pattern: null, variantFilter: null, homeIdFilter: null };
   }
-  return { pattern, variantFilter: 'a' };
+
+  if (query.custody_home_id) {
+    const resolved = resolveScheduleWriteFields(pattern, { custody_home_id: query.custody_home_id });
+    if (resolved.error) {
+      return { error: resolved.error };
+    }
+    return {
+      pattern,
+      variantFilter: resolved.weekVariant,
+      homeIdFilter: resolved.custodyHomeId,
+    };
+  }
+
+  const rawVariant = query.week_variant;
+  if (rawVariant === 'a' || rawVariant === 'b') {
+    const resolved = resolveScheduleWriteFields(pattern, { week_variant: rawVariant });
+    if (resolved.error) {
+      return { error: resolved.error };
+    }
+    return {
+      pattern,
+      variantFilter: resolved.weekVariant,
+      homeIdFilter: resolved.custodyHomeId,
+    };
+  }
+
+  const defaultResolved = resolveScheduleWriteFields(pattern, { week_variant: 'a' });
+  return {
+    pattern,
+    variantFilter: defaultResolved.weekVariant || 'a',
+    homeIdFilter: defaultResolved.custodyHomeId || null,
+  };
 }
 
 // GET /api/children/:childId/schedules — list all 7-day schedules for child
@@ -77,25 +108,25 @@ router.get('/', async (req, res) => {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
-    const { variantFilter } = await resolveCustodyVariantFilter(
-      child,
-      req.params.childId,
-      req.query.week_variant
-    );
+    const filter = await resolveCustodyScheduleFilter(child, req.params.childId, req.query);
+    if (filter.error) {
+      return res.status(400).json({ error: filter.error });
+    }
 
     const schedules = await db.query(
-      `SELECT ws.id, ws.day_of_week, ws.sort_order, ws.week_variant,
+      `SELECT ws.id, ws.day_of_week, ws.sort_order, ws.week_variant, ws.custody_home_id,
               COUNT(wsi.id) AS item_count
        FROM weekly_schedule ws
        LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
        WHERE ws.child_id = $1
          AND (
-           ($2::text IS NULL AND ws.week_variant IS NULL)
-           OR ($2::text IS NOT NULL AND ws.week_variant = $2)
+           ($2::uuid IS NOT NULL AND ws.custody_home_id = $2)
+           OR ($2::uuid IS NULL AND $3::text IS NULL AND ws.week_variant IS NULL)
+           OR ($2::uuid IS NULL AND $3::text IS NOT NULL AND ws.week_variant = $3)
          )
        GROUP BY ws.id
        ORDER BY ws.day_of_week ASC`,
-      [req.params.childId, variantFilter]
+      [req.params.childId, filter.homeIdFilter, filter.homeIdFilter ? null : filter.variantFilter]
     );
     res.json(schedules.rows);
   } catch (err) {
@@ -119,11 +150,15 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
       return res.status(400).json({ error: 'Veckodag måste vara ett tal 0–6' });
     }
 
-    const { pattern } = await resolveCustodyVariantFilter(
+    const filter = await resolveCustodyScheduleFilter(
       child,
       req.params.childId,
-      req.body.week_variant
+      req.body
     );
+    if (filter.error) {
+      return res.status(400).json({ error: filter.error });
+    }
+    const { pattern } = filter;
 
     let weekVariant = null;
     let custodyHomeId = null;
@@ -150,10 +185,11 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
       `SELECT id FROM weekly_schedule
        WHERE child_id = $1 AND day_of_week = $2
          AND (
-           ($3::text IS NULL AND week_variant IS NULL)
-           OR ($3::text IS NOT NULL AND week_variant = $3)
+           ($3::uuid IS NOT NULL AND custody_home_id = $3)
+           OR ($3::uuid IS NULL AND $4::text IS NULL AND week_variant IS NULL)
+           OR ($3::uuid IS NULL AND $4::text IS NOT NULL AND week_variant = $4)
          )`,
-      [req.params.childId, dow, weekVariant]
+      [req.params.childId, dow, custodyHomeId, custodyHomeId ? null : weekVariant]
     );
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Det finns redan ett schema för den veckodagen', id: existing.rows[0].id });

@@ -120,7 +120,22 @@ describe('custody weekly_schedule home backfill (Phase 5)', () => {
     );
     assert.match(src, /resolveScheduleWriteFields/);
     assert.match(src, /CreateChildScheduleSchema/);
+    assert.match(src, /resolveCustodyScheduleFilter/);
     assert.match(src, /custody_home_id/);
     assert.match(src, /RETURNING id, child_id, day_of_week, sort_order, week_variant, custody_home_id/);
+  });
+
+  it('schedule-custody prefers custody_home_id in API calls', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    assert.match(src, /custody_home_id/);
+    assert.match(src, /scheduleQuery/);
+    assert.match(src, /getCreateExtras/);
+  });
+
+  it('analytics filter events tracked from custody UI', () => {
+    const schedule = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    const dashboard = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-custody.js'), 'utf8');
+    assert.match(schedule, /custody_filter_changed/);
+    assert.match(dashboard, /custody_filter_changed/);
   });
 });
