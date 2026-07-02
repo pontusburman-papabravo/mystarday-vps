@@ -19,14 +19,14 @@ Efter senaste 24h-sprinten finns fungerande kod i flera spår (~45–90 % per sp
 
 | Spår | Uppskattning | Källa |
 |------|-------------|--------|
-| FEAT-1 v1 (boendeschema) | ~85 % | Engine + Phase 4 UI mergade; Phase 5 + DoD öppen |
-| Parent Hubs 10/10 | ~90 % | Kod + kontraktstester; manuell Jenny-QA saknas |
-| För dig (Sprint 1–5) | ~70 % | Aktivering + helrutin klart; Sprint 3–5 delvis |
-| Child Worlds 10/10 | ~75 % | Skattkammaren shipped; Idag kod klar, ej markerad |
-| Illustrationer | ~85 % | Registry; garden + decals ofullständiga |
-| First Star / ACT-1 v1 | ~45 % | Funnel + barnvy-chrome; onboarding-handoff saknas |
-| QA / Release | ~70 % | `test:gate` grön; constitution test ej systematisk |
-| Dokumentation | ~80 % | Specs finns; DoD ej avbockad |
+| FEAT-1 v1 (boendeschema) | **Closed** | Phase 5 mergad (#498) |
+| Parent Hubs 10/10 | **Complete** | Hub sweep v2 (#499) |
+| För dig (Sprint 1–5) | ~70 % | Sprint 3–5 delvis — Agent 3 Våg 2 |
+| Child Worlds 10/10 | **Complete (v1)** | Idag + Skatt shipped; Mina personer V0 (#502) |
+| Illustrationer | **Complete** | Registry + garden + decals (#501) |
+| First Star / ACT-1 v1 | **v1 kod klar** | Handoff mergad (#500); flags OFF |
+| QA / Release | **RC** | `docs/qa/v1-release-candidate.md` |
+| Dokumentation | **Complete** | `docs/v1-release-notes.md`, handoff |
 
 ---
 
