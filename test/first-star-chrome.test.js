@@ -41,9 +41,10 @@ describe('First Star chrome (PR 2)', () => {
   });
 
   it('child-dashboard.js skips goal bar and rewards mount while first star active', () => {
-    const src = read('public/js/child-dashboard.js');
-    assert.match(src, /ChildFirstStarMode && ChildFirstStarMode\.isActive\(\)\) return/);
-    assert.match(src, /ChildFirstStarMode\.isActive\(\)\)\) \{\s*\n\s*ChildRewardsEngine\.setGoalData/);
+    const loadDay = read('public/js/child-dashboard-load-day.js');
+    const host = read('public/js/child-dashboard.js');
+    assert.match(host, /ChildFirstStarMode && ChildFirstStarMode\.isActive\(\)\) return/);
+    assert.match(loadDay, /ChildFirstStarMode\.isActive\(\)\)\) \{\s*\n\s*ChildRewardsEngine\.setGoalData/);
   });
 
   it('child-dashboard.html loads first star assets after today-focus', () => {

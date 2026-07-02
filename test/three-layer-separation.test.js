@@ -20,14 +20,14 @@ describe('Phase 1 — Today layer', () => {
 
   it('child-today-focus hides legacy chrome and exposes resolveIdagState', () => {
     const src = read('public/js/child-today-focus.js');
-    assert.match(src, /weekNavSection/);
+    assert.match(src, /weekNavDetails/);
     assert.match(src, /childHeaderRing/);
     assert.match(src, /resolveIdagState/);
     assert.doesNotMatch(src, /familyMock/);
   });
 
   it('loadDay skips rewards fetch in focus mode', () => {
-    const src = read('public/js/child-dashboard.js');
+    const src = read('public/js/child-dashboard-load-day.js');
     assert.match(src, /isTodayFocusLayer/);
     assert.match(src, /focusLayer[\s\S]*Promise\.resolve\(null\)/);
   });
@@ -87,7 +87,7 @@ describe('Phase 4 — Event pipe', () => {
   });
 
   it('child-dashboard emits event on completion', () => {
-    const src = read('public/js/child-dashboard.js');
+    const src = read('public/js/child-dashboard-checkoff.js');
     assert.match(src, /ChildEventBus\.emitActivityCompleted/);
   });
 

@@ -1,7 +1,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
+const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -30,6 +30,23 @@ const MODULES = {
     'getTimeMinutes',
     'classifyActivities',
   ],
+  'public/js/child-dashboard-substeps.js': [
+    'initChildSortable',
+    'expandSubSteps',
+    'renderSubStepListHtml',
+    'renderSubStepList',
+    'toggleSubStep',
+    'updateSubStepProgressBadge',
+  ],
+  'public/js/child-dashboard-checkoff.js': [
+    'toggleItem',
+    'toggleNextInSection',
+    'openRatingModal',
+    'updateMoodSlider',
+    'dismissRating',
+    'submitRating',
+  ],
+  'public/js/child-dashboard-load-day.js': ['loadDay', 'coalescedLoadDay'],
 };
 
 describe('Fas 8 F3 child-dashboard split', () => {
@@ -57,6 +74,7 @@ describe('Fas 8 F3 child-dashboard split', () => {
     const src = read('public/js/child-dashboard.js');
     assert.match(src, /let weekOffset = 0/);
     assert.match(src, /let visualTimer = true/);
+    assert.match(src, /let subStepCache = \{\}/);
   });
 
   it('child-dashboard.html loads split modules before child-dashboard.js', () => {
@@ -70,8 +88,22 @@ describe('Fas 8 F3 child-dashboard split', () => {
     }
   });
 
-  it('child-dashboard.js exposes loadDay on window for inline onclick', () => {
-    const src = read('public/js/child-dashboard.js');
+  it('load-day loads before checkoff (checkoff calls coalescedLoadDay)', () => {
+    const html = read('public/child-dashboard.html');
+    const loadIdx = html.indexOf('/js/child-dashboard-load-day.js');
+    const checkIdx = html.indexOf('/js/child-dashboard-checkoff.js');
+    assert.ok(loadIdx < checkIdx, 'load-day must load before checkoff');
+  });
+
+  it('substeps loads before activities (renderSubStepListHtml)', () => {
+    const html = read('public/child-dashboard.html');
+    const subIdx = html.indexOf('/js/child-dashboard-substeps.js');
+    const actIdx = html.indexOf('/js/child-dashboard-activities.js');
+    assert.ok(subIdx < actIdx, 'substeps must load before activities');
+  });
+
+  it('child-dashboard-load-day.js exposes loadDay on window for inline onclick', () => {
+    const src = read('public/js/child-dashboard-load-day.js');
     assert.match(src, /window\.loadDay\s*=\s*loadDay/);
   });
 

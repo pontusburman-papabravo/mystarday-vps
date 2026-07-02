@@ -324,6 +324,7 @@ const CACHE_NAME = 'stjarndag-v471';
 // stjarndag-v466: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v468: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -401,6 +402,13 @@ const STATIC_ASSETS = [
   '/js/child-first-star-mode.js',
   '/css/child-first-star-mode.css',
   '/js/child-dashboard-photo-cards.js',
+  '/js/child-dashboard-substeps.js',
+  '/js/child-dashboard-activities.js',
+  '/js/child-dashboard-offline.js',
+  '/js/child-dashboard-day-nav.js',
+  '/js/child-dashboard-timers.js',
+  '/js/child-dashboard-load-day.js',
+  '/js/child-dashboard-checkoff.js',
   '/js/child-dashboard-celebrations.js',
   '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
