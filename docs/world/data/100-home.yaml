@@ -1,0 +1,405 @@
+# Home (exterior) — RBS production contract
+# Authority: World Bible Part III · Part I landmarks · LWES home_exterior
+# Human spec: docs/world/specs/100-home.md
+
+status: draft
+production_number: 100
+schema_version: "1.0"
+
+room:
+  id: home
+  display_name_sv: Mitt hem
+  pack_scene_id: home_exterior
+  description: >
+    Barnets hus utifrån — första vyn av hemmet. Mjuk morgonljus på fasaden,
+    gräsmatta och stig, inbjudande dörr. Platsen där barnet landar innan de går in.
+  primary_emotion: Ownership
+  secondary_emotion: Comfort
+  theme_support: [house, castle, treehouse, space, pirate, wizard]
+  unlock_condition: always
+
+emotion: Ownership
+hero_object: front_door
+landmark: chimney
+
+emotional_contract:
+  primary: Ownership
+  secondary: Comfort
+  constitution_pillar: ownership
+  first_five_seconds: >
+    Mjuk morgonljus på husfasaden. Gräsmattan rör sig lätt.
+    Dörren är stängd men inbjudande. Ingen text, ingen knapp — bara platsen.
+
+spatial_contract:
+  layout: wide_2_5d_exterior
+  entrance:
+    id: path_from_garden
+    from_scene: garden
+    landmark_label_sv: Stigen från trädgården
+    camera_on_enter: gentle_pan_home
+  landmark:
+    id: chimney_smoke
+    description: Skorsten med lätt rök — Part I landmärke för Hem
+  walking_area:
+    id: front_lawn_path
+    description: Gräsmatta och stig fram till dörren och brevlådan
+  interaction_zones:
+    - id: zone_front_door
+      accepts: [navigate, inspect]
+    - id: zone_mailbox
+      accepts: [inspect, open]
+    - id: zone_welcome_mat_exterior
+      accepts: [place]
+    - id: zone_path_garden
+      accepts: [navigate]
+  ambient_zones:
+    - id: zone_sky_morning
+      description: Morgonhimmel — fåglar, moln, säsong
+    - id: zone_window_warm_glow
+      description: Varmt ljus genom fönster — antyder liv inuti
+    - id: zone_chimney_wisp
+      description: Tunn rök från skorsten
+  future_build_zones:
+    - id: zone_porch_planter
+      description: Tom plats vid dörr — blomkruka (WDB TBD)
+    - id: zone_garden_gate
+      description: Grind mot trädgård — synlig expansion
+  camera_anchor:
+    id: home_exterior_fixed_2_5d
+    description: Barn-ögonhöjd; hus centrerat; dörr nedre tredjedel (Art Prompt Catalog 0001)
+
+hero_object:
+  id: front_door
+  description: Husets huvuddörr — stängd men inbjudande; varmt ljus bakom
+  story_purpose: >
+    Dörren är tröskeln mellan världen utanför och barnets hem.
+    "Här bor jag." — utan förklarande copy.
+  interaction_level: navigate
+
+supporting_objects:
+  - id: mailbox
+    description: Brevlåda till höger om dörren
+    story_role: curiosity
+  - id: welcome_mat_exterior
+    description: Plats för välkomstmatta (synlig utifrån efter WDB unlock)
+    story_role: ownership
+  - id: welcome_mat_ghost
+    description: Tom ghost tills progression.routine_home.welcome_mat
+    story_role: ownership
+  - id: window_warm_light
+    description: Fönster med mjukt inre ljus
+    story_role: comfort
+  - id: path_to_garden
+    description: Stig som leder till trädgården
+    story_role: navigation
+  - id: package_door_spot
+    description: Paketplats vid dörr (föräldraöverraskning utifrån)
+    story_role: imagination
+
+ambient_objects:
+  - id: grass_sway_light
+    description: Gräs som rör sig i bris
+    budget_tier: subtle
+  - id: chimney_smoke_wisp
+    description: Tunn rök från skorsten
+    budget_tier: subtle
+  - id: distant_birds_ambient
+    description: Fågelljud från trädgård/skog
+    budget_tier: subtle
+  - id: curtain_window_sway
+    description: Gardin synlig genom fönster
+    budget_tier: subtle
+
+interactive_objects:
+  - id: door_enter
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Dörren
+    note: Pack nav_id door_enter → catalog room hall (101)
+
+  - id: path_garden
+    interaction_type: Navigate
+    target_scene: garden
+    landmark_label_sv: Trädgården
+
+  - id: mailbox_inspect
+    interaction_type: Inspect
+    entity_ref: mailbox
+    note: Öppna frågor — vem skickade brevet?
+
+  - id: mailbox_open
+    interaction_type: Open
+    entity_ref: mailbox
+    progression_key: TBD
+    note: Parent surprise channel — World Events Bible
+
+  - id: welcome_mat_build_exterior
+    interaction_type: Place
+    build_slot: exterior_welcome_mat
+    progression_key: progression.routine_home.welcome_mat
+
+  - id: window_warm_inspect
+    interaction_type: Inspect
+    entity_ref: window_warm_light
+    note: Ser in mot hallen — sightline till fireplace TBD
+
+build_slots:
+  - id: exterior_welcome_mat
+    location: zone_welcome_mat_exterior
+    required_part: welcome_mat
+    theme_variant: welcome_mat_{theme}
+    unlock: progression.routine_home.welcome_mat
+    note: Shipped via morgonhus welcome_mat prop — exterior view TBD
+
+  - id: porch_planter
+    location: zone_porch_planter
+    required_part: flower_pot
+    theme_variant: flower_pot_{theme}
+    unlock: TBD
+
+navigation:
+  edges:
+    - nav_id: door_enter
+      direction: in
+      from_scene: home_exterior
+      to_scene: home_hall
+      transition_profile: door_open_warm
+      landmark_label_sv: In genom dörren
+      catalog_target: hall
+
+    - nav_id: path_garden
+      direction: out
+      from_scene: home_exterior
+      to_scene: garden
+      transition_profile: path_fade_pan
+      landmark_label_sv: Trädgården
+      catalog_target: garden
+
+  return_anchor: path_from_garden
+  comfort_zone: true
+
+navigation_targets: [hall, garden]
+
+npc_contract:
+  present: false
+  npcs: []
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
+
+pet:
+  allowed: true
+  favorite_spots: [welcome_mat_exterior, path_to_garden]
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      species: dog
+      nameable: true
+      hunger_timer: false
+      sick_state: false
+      interact_verbs: [pet, call]
+      home_anchor: TBD
+      note: Dog primarily in hall (101); may greet at door — TBD animation
+
+camera:
+  type: fixed_2_5d
+camera_contract:
+  profile_id: home_exterior_fixed_2_5d
+  type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_pan_home
+  pan_speed: slow
+  bounds: scene_rect
+  reduced_motion_fallback: static_frame
+
+lighting_contract:
+  profile_id: home_exterior_morning
+  primary_source: sun_morning_golden
+  secondary_source: window_warm_interior_glow
+  time_variants:
+    - id: morning
+      color_temp: warm_gold
+    - id: evening
+      color_temp: amber_window_glow
+    - id: night
+      color_temp: cool_moon_silhouette
+  weather_reactive: true
+
+audio_contract:
+  profile_id: home_exterior_day
+  night_variant_id: home_exterior_night
+  master_gain_max: 0.60
+  duck_on_interact: true
+  layers_ref: audio_bible/home_exterior_day
+
+ambient:
+  birds: true
+  butterflies: false
+  dust: false
+ambient_runtime:
+  director_scene_key: home_exterior
+  calmness_target: 85
+  max_visual_density: 0.55
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids:
+    - grass_sway_light
+    - chimney_smoke_wisp
+    - distant_birds_ambient
+    - curtain_window_sway
+  rare_events:
+    - id: parent_package_door
+      cooldown_days: TBD
+      progression_gate: TBD
+      world_event_ref: evt_parent_gift_door
+
+story_anchors:
+  past:
+    - id: first_arrival
+      description: Första gången barnet ser sitt hus efter Idag
+      progression_key: progression.routine_home.welcome_mat
+  present:
+    - id: warm_windows
+      description: Ljus inuti antyder att någon (eller något) väntar
+      entity: window_warm_light
+  future:
+    - id: porch_planter_bloom
+      description: Blommor vid dörren när barnet vårdar trädgård
+      progression_key: TBD
+    - id: seasonal_wreath
+      description: Säsongsdekoration vid dörr
+      progression_key: TBD
+
+discoveries:
+  common:
+    - id: grass_rustle_spot
+      type: ambient
+      interaction: Inspect
+    - id: chimney_smoke_inspect
+      type: ambient
+      interaction: Inspect
+  rare:
+    - id: mailbox_letter
+      type: inspect_discovery
+      progression_key: TBD
+      note: Open question — who_sent_the_letter
+  seasonal:
+    - id: snow_roof_light
+      event_ref: evt_snow_morning
+    - id: birthday_wreath
+      event_ref: evt_birthday_mode
+  hidden:
+    - id: secret_footprint_path
+      progression_key: TBD
+      note: Kindness + explore flag — TBD
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [light_snow_roof, frost_window_edge]
+    - season: summer
+      overlay_ids: [bright_garden_green, open_window]
+    - season: birthday
+      overlay_ids: [subtle_banner_door, extra_warm_light]
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_roof_soft
+      visual: window_droplets
+    - weather: wind
+      audio: grass_wind_light
+      visual: grass_sway_amplitude_up
+    - weather: snow
+      visual: roof_snow_light
+
+theme_variants:
+  house:
+    skin_set: house_default
+    landmark_label: Skorsten med lätt rök
+  castle:
+    skin_set: castle_gate_facade
+    landmark_label: Torn och portcullis silhuett
+  treehouse:
+    skin_set: treehouse_platform_exterior
+    landmark_label: Repstege och plattform i träd
+  space:
+    skin_set: habitat_module_exterior
+    landmark_label: Luftsluss och varm panelglöd
+  pirate:
+    skin_set: ship_cabin_exterior
+    landmark_label: Lykta och reling
+  wizard:
+    skin_set: tower_base_exterior
+    landmark_label: Svävande ljusorb vid ingång
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 7
+  max_animated_ambient: 4
+  max_particle_systems: 2
+  texture_memory_mb: 10
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+
+asset_manifest:
+  scene_bg: home_exterior_bg
+  layers:
+    - sky_morning
+    - house_architecture
+    - foreground_lawn_path
+    - objects_mailbox_door
+  entities:
+    - front_door
+    - mailbox
+    - welcome_mat_exterior
+    - window_warm_light
+  theme_resolver: house_exterior_{theme}
+  shipped_note: >
+    Art Prompt Catalog 0001 — layers TBD split.
+    Morgonhus monolit (scene@2x.webp) covers interior slice only today;
+    dedicated exterior asset pipeline not shipped.
+
+prompt_manifest:
+  - id: home_exterior_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No cars, no brand logos, no scary shadows, no text on house,
+      no stock photo aesthetic, no empty grey yard
+    catalog_ref: art_prompt_catalog/0001
+
+animation_manifest:
+  idle: []
+  ambient:
+    - grass_sway_light
+    - chimney_smoke_wisp
+    - curtain_window_sway
+  hero:
+    - door_warm_glow_pulse
+  interaction:
+    - door_open_enter_transition
+    - mailbox_open_lid
+    - welcome_mat_place_snap
+  celebration:
+    - placement_whisper_sparkle
+
+quality_gates:
+  designer: "Ownership + Comfort — ja; hem som ankare (Part I Home Is The Center)"
+  artist: "Hero door + mailbox + path; tomrum i himmel — TBD asset review"
+  ai_gen: "Prompt manifest 0001 — ja; inget ad-hoc"
+  engineer: "Ej shipped som egen scen — morgonhus = interior; exterior TBD pack data"
+
+implementation_notes:
+  shipped: false
+  current_slice: >
+    child-morgonhus.js implements routine_home interior props (welcome_mat, first_light, door)
+    — not home_exterior facade. LWES starting_scene_id home_hall.
+  worlds_pack: config/experience-packs/child_se/worlds.json — routine_home
+  scenes_json: TBD — config/experience-packs/child_se/scenes.json not created
+
+part_i_checklist_ref: specs/100-home.md

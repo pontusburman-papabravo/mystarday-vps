@@ -10,6 +10,7 @@ Kanonisk mapp för illustrerade barnvy-assets (Idag, Min värld, Familj, Skattka
 today/bg@2x.webp
 world/hub@2x.webp + hub-{castle,treehouse,space}@2x.webp
 world/rooms/{room-id}@2x.webp
+world/garden/scene-bg.webp (+ scene-bg-{430,860,1280}.webp srcset)
 family/hall@2x.webp
 morgonhus/scene@2x.webp
 decals/

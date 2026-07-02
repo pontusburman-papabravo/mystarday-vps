@@ -1,0 +1,68 @@
+# Room Blueprint — Min värld (Production Specification)
+# Authority: World Bible Rulebook 01–08 → denna fil → Entity / Animation / Audio Bibles → LWES pack
+# Kopiera till <production_number>_<room_id>.yaml och fyll alla sektioner. Okänt = TBD med kommentar.
+
+production_number: 000          # 100-series catalog number (see rooms/README.md)
+room_id:                        # stable snake_case; matches scenes.json scene_id
+display_name:                   # Swedish child-facing name
+status: draft                   # draft | review | approved | shipped
+
+rulebook_gates:
+  constitution: false           # Rulebook 01
+  topology_checklist: false     # Rulebook 02 — 11 frågor
+  sds_pass: false               # Rulebook 03 — Scene Design Standard
+  rbs_complete: false           # Rulebook 04 — alla RBS-sektioner
+  progression_hooks: false      # Rulebook 05
+  simulation_hooks: false       # Rulebook 06
+  ecology_checklist: false      # Rulebook 07
+  pipeline_approved: false      # Rulebook 08 — Production Pipeline
+
+room_identity:
+  id:
+  display_name:
+  description: >
+  primary_emotion:                # one only — Rulebook 04 Emotional Contract
+  secondary_emotion:
+  theme_support: []
+  unlock_condition:
+
+# --- RBS sections (Rulebook 04) — expand per WORLD_BIBLE.md Rulebook 04 ---
+
+spatial_contract: {}
+hero_object: {}
+supporting_objects: []
+ambient_objects: []
+interactive_objects: []
+build_slots: []
+navigation:
+  edges: []
+story_anchors:
+  past: []
+  present: []
+  future: []
+
+simulation:                       # Rulebook 06 — Living World Simulation
+  daily_difference_candidates: []
+  weekly_difference_candidates: []
+  weather_behaviour: {}
+  pet_routine_spots: []
+  npc_routine_behaviours: []
+  story_seed_locations: []
+  calmness_weight: normal           # quiet | normal | active
+  ambient_cycles: []
+
+ecology:                          # Rulebook 07 — World Ecology
+  cause_effect_chains: []
+  environmental_storytelling: []
+  human_presence_traces: []
+  child_presence_traces: []
+  animal_ecology: []
+  sound_sources: []
+  light_sources: []
+  natural_placement_rationale: {}
+  ecology_checklist_pass: false
+
+performance_budget: {}
+asset_manifest: {}
+prompt_manifest: []
+animation_manifest: {}

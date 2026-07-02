@@ -26,11 +26,13 @@ Målet: **Europas bästa spelifierade rutinupplevelse för barn** — med arkite
 2. COS — Company Operating System (.ai/company/)
 3. Company Brain (.ai/brain/)
 4. PRODUCT_CONTENT_BIBLE.md — world soul, emotion jobs
-5. DENNA Game Design Bible v1.0 FINAL — loops, systems, motivation, game feel
-6. ART_BIBLE.md — visual/motion/audio produktions-handoff
-7. docs/PRODUCT-CONSTITUTION.md — five product laws
-8. Per-world specs (får inte bryta ovan)
-9. Implementation (aldrig överstyrande)
+5. WORLD_DESIGN_BIBLE.md — progression nodes, world structure
+6. DENNA Game Design Bible v1.0 FINAL — loops, systems, motivation, game feel
+7. ART_BIBLE.md — visual/motion/audio produktions-handoff
+8. LIVING_WORLD_ENGINE_SPEC.md — runtime behaviour (scenes, entities, events)
+9. docs/PRODUCT-CONSTITUTION.md — five product laws
+10. Per-world specs (får inte bryta ovan)
+11. Implementation (aldrig överstyrande)
 ```
 
 **Konfliktregel:** POS 06 (Motivation & Game Ethics) och Product Constitution vinner vid etisk konflikt. Game Director operationaliserar gameplay; CPO äger målgruppsprioritering.
@@ -53,6 +55,8 @@ Målet: **Europas bästa spelifierade rutinupplevelse för barn** — med arkite
 |----------|------------|
 | [PRODUCT_CONTENT_BIBLE.md](./PRODUCT_CONTENT_BIBLE.md) | Sju världar, motivation pyramid, NPC soul |
 | [ART_BIBLE.md](./ART_BIBLE.md) | Celebration ≤2000 ms, game feel visual handoff |
+| [LIVING_WORLD_ENGINE_SPEC.md](./LIVING_WORLD_ENGINE_SPEC.md) | Scene lifecycle, entity model, event bus, persistence |
+| [WORLD_DESIGN_BIBLE.md](./WORLD_DESIGN_BIBLE.md) | Progression nodes per world/scene |
 | [PRODUCT-CONSTITUTION.md](../../docs/PRODUCT-CONSTITUTION.md) | Fem produktlagar |
 | [CORE_VALUES.md](../brain/CORE_VALUES.md) | Lugn magi, kapacitet, trust |
 | [PROJECT_BRAIN.md](../brain/PROJECT_BRAIN.md) | Varför vi finns, beslutordning |

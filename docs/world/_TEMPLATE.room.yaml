@@ -1,0 +1,210 @@
+# Room Blueprint Standard (RBS) — full contract template
+# Authority: .ai/product/bibles/WORLD_BIBLE.md Part III
+# Copy → docs/world/data/XXX-room_id.yaml — fill all sections; unknown = TBD (never omit)
+
+status: draft                    # draft | review | approved | shipped
+production_number: 000            # Catalog number (100–199 home cluster, 110 garden, etc.)
+schema_version: "1.0"
+
+room:
+  id: room_id                     # Catalog ID (stable forever)
+  display_name_sv: Rumnamn
+  pack_scene_id: scene_id         # LWES scenes.json scene_id (may differ from catalog id)
+  description: >
+    TBD — barnvänlig platsbeskrivning.
+  primary_emotion: Comfort        # Sluten lista — se Emotional Contract i World Bible Part III
+  secondary_emotion: TBD          # Max 1; får inte motsäga primär
+  theme_support: [house, castle, treehouse, space, pirate, wizard]
+  unlock_condition: always        # always | WDB progression key
+
+# --- Quick reference (expanded below) ---
+emotion: Comfort
+hero_object: TBD
+landmark: TBD
+
+# --- Emotional Contract ---
+emotional_contract:
+  primary: Comfort
+  secondary: TBD
+  constitution_pillar: comfort    # capability | ownership | comfort | curiosity | imagination
+  first_five_seconds: >
+    TBD — vad barnet ser/hör utan text eller knapp.
+
+# --- Spatial Contract ---
+spatial_contract:
+  layout: TBD                     # wide_2_5d_interior | garden_exterior | etc.
+  entrance:
+    id: TBD
+    from_scene: TBD
+    landmark_label_sv: TBD
+    camera_on_enter: gentle_push_in
+  landmark:
+    id: TBD
+    description: TBD
+  walking_area:
+    id: TBD
+    description: TBD
+  interaction_zones: []
+  ambient_zones: []
+  future_build_zones: []
+  camera_anchor:
+    id: TBD
+    description: TBD
+
+# --- Hero Object (exactly one) ---
+hero_object:
+  id: TBD
+  description: TBD
+  story_purpose: TBD
+  interaction_level: inspect        # inspect | activate | open | navigate
+
+# --- Supporting Objects ---
+supporting_objects: []
+
+# --- Ambient Objects ---
+ambient_objects: []
+
+# --- Interactive Objects (LWES §22 types only) ---
+interactive_objects: []
+
+# --- Build Slots ---
+build_slots: []
+
+# --- Navigation (explicit edges — never inferred) ---
+navigation:
+  edges: []
+  return_anchor: TBD
+  comfort_zone: false
+
+# Quick nav list (human scan) — mirrors edges[].to_scene
+navigation_targets: []
+
+# --- NPC Contract ---
+npc_contract:
+  present: false
+  npcs: []
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
+
+# --- Pet Contract ---
+pet:
+  allowed: false
+  favorite_spots: []
+pet_contract:
+  allowed: false
+  pets: []
+
+# --- Camera Contract ---
+camera:
+  type: fixed_2_5d                  # fixed_2_5d | wide_2_5d | scroll_pan
+camera_contract:
+  profile_id: TBD
+  type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_push_in
+  pan_speed: slow
+  bounds: scene_rect
+  reduced_motion_fallback: static_frame
+
+# --- Lighting Contract ---
+lighting_contract:
+  profile_id: TBD
+  primary_source: TBD
+  secondary_source: TBD
+  time_variants: []
+  weather_reactive: true
+
+# --- Audio Contract ---
+audio_contract:
+  profile_id: TBD
+  night_variant_id: TBD
+  master_gain_max: 0.65
+  duck_on_interact: true
+  layers_ref: TBD
+
+# --- Ambient Runtime (Director) ---
+ambient:
+  birds: false
+  butterflies: false
+  dust: false
+ambient_runtime:
+  director_scene_key: TBD
+  calmness_target: 80
+  max_visual_density: 0.65
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids: []
+  rare_events: []
+
+# --- Story Anchors ---
+story_anchors:
+  past: []
+  present: []
+  future: []
+
+# --- Discoveries (LWES §23) ---
+discoveries:
+  common: []
+  rare: []
+  seasonal: []
+  hidden: []
+
+# --- Seasonal Variants ---
+seasonal_variants:
+  global_sync: true
+  variants: []
+
+# --- Weather Support (atmosphere only) ---
+weather_support:
+  inherit_world: true
+  effects: []
+
+# --- Theme Variants ---
+theme_variants: {}
+
+# --- Performance Budget ---
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 10
+  max_animated_ambient: 4
+  max_particle_systems: 2
+  texture_memory_mb: 12
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+
+# --- Asset Manifest (semantic IDs only) ---
+asset_manifest:
+  scene_bg: TBD
+  layers: []
+  entities: []
+  theme_resolver: TBD
+
+# --- Prompt Manifest ---
+prompt_manifest:
+  - id: TBD
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No text on walls, no brand logos, no scary shadows,
+      no realistic horror, no empty grey rooms, no stock photo aesthetic
+    catalog_ref: TBD
+
+# --- Animation Manifest ---
+animation_manifest:
+  idle: []
+  ambient: []
+  hero: []
+  interaction: []
+  celebration: []
+
+# --- QA / Quality Gates ---
+quality_gates:
+  designer: TBD
+  artist: TBD
+  ai_gen: TBD
+  engineer: TBD
+
+# --- Part I checklist (11 questions) — answer in specs/*.md companion ---
+part_i_checklist_ref: specs/XXX-room_id.md

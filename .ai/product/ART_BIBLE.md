@@ -19,6 +19,29 @@ Art Bible v1.0 FINAL är ** det enda produktionskontraktet **för all visuell pr
 
 Art Bible ** ersätter inte** [PRODUCT_CONTENT_BIBLE.md](./PRODUCT_CONTENT_BIBLE.md) (PCB). PCB äger själ och emotion job. Art Bible äger ** hur det ser ut, rör sig och känns **i pixel, tid och ljud (visuell handoff).
 
+[LIVING_WORLD_ENGINE_SPEC.md](./LIVING_WORLD_ENGINE_SPEC.md) Part III operationaliserar rendering i spelmotorn — Art Bible vinner vid pixel-/materialkonflikt.
+
+### Min värld mantra
+
+Normativ för all visuell produktion i barnets levande värld:
+
+> **A child should never see an "app that contains a world".**
+>
+> **A child should feel they are visiting a world that happens to exist inside an app.**
+
+### Craft quality bar
+
+**10/10 betyder inte "mest möjligt". 10/10 betyder "inget känns billigt".**
+
+Nintendo levererar inte 200 animationer — de levererar **20 perfekta**. Pixar lägger inte till fler detaljer — de lägger till **rätt detaljer**. Samma bar gäller illustration, motion och scenauthorship (se även LWES Rule 7).
+
+### Min värld — five feelings filter
+
+> **Nothing exists only because it is fun.**  
+> **Everything exists because it strengthens the child's feeling of capability, ownership, comfort, curiosity, or imagination.**
+
+Before any scene ships: name which feeling(s) it strengthens. See [LIVING_WORLD_ENGINE_SPEC.md](./LIVING_WORLD_ENGINE_SPEC.md) Appendix J.
+
 ### Auktoritetshierarki
 
 ```
@@ -44,6 +67,7 @@ Art Bible ** ersätter inte** [PRODUCT_CONTENT_BIBLE.md](./PRODUCT_CONTENT_BIBLE
 | POS 03 | Tokens |
 | POS 03B | Celebration ≤2000 ms, reduced motion |
 | [PRODUCT_CONTENT_BIBLE.md](./PRODUCT_CONTENT_BIBLE.md) | Sju världar, NPC, collectibles |
+| [LIVING_WORLD_ENGINE_SPEC.md](./LIVING_WORLD_ENGINE_SPEC.md) | Pixel/motion; **Part VI** game feel, celebration beats, interaction timing |
 | [CORE_VALUES.md](../brain/CORE_VALUES.md) | Lugn magi, kapacitet, trust |
 
 ### Hur du använder detta dokument

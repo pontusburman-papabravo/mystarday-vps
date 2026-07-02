@@ -25,6 +25,16 @@ When documents disagree, resolve in this order:
 
 **PCB v1.0 is the single master reference for world fiction, motivation philosophy, and emotional design.** Per-world spec files under `product-content-bible/` (e.g. `morgonhuset.md`, `verkstaden.md`) may go deeper on props, NPC scripts, and art briefs — but they must not contradict this bible. If they do, update the world spec, not PCB without CPO + Game Director review.
 
+### Min värld — five feelings filter
+
+Supreme content filter for all Min värld fiction, rooms, and props (full normative definition: [LIVING_WORLD_ENGINE_SPEC.md](./LIVING_WORLD_ENGINE_SPEC.md) metadata + Appendix J):
+
+> **Nothing exists only because it is fun.**
+>
+> **Everything exists because it strengthens the child's feeling of capability, ownership, comfort, curiosity, or imagination.**
+
+Before adding any world element, ask: *which of the five does it strengthen?* If the answer is *none* or *only because it's cool* — it does not belong in Min värld.
+
 ### What PCB owns vs what it does not
 
 | PCB owns | PCB does not duplicate |

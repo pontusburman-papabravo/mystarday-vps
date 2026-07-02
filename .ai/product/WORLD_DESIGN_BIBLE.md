@@ -27,10 +27,11 @@ PRODUCT_CONTENT_BIBLE — world soul & emotion job
 GAME_DESIGN_BIBLE v2 — loops, systems, Experience Packs
 ART_BIBLE v1 FINAL — visual/motion/audio handoff
 DENNA World Design Bible — progression maps, living rules, WQS
+LIVING_WORLD_ENGINE_SPEC v1 — runtime behaviour (scenes, entities, events)
 Implementation — följer, överstyr inte
 ```
 
-**Konflikt:** PCB vinner fiction soul; WDB vinner progression structure; Art Bible vinner pixel timing.
+**Konflikt:** PCB vinner fiction soul; WDB vinner progression structure; Art Bible vinner pixel timing; LWES vinner runtime system boundaries.
 
 ---
 
