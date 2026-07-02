@@ -4,6 +4,7 @@ const db = require('../src/lib/db');
 
 const PATTERN_ALTERNATE_WEEKS = 'alternate_weeks';
 const PATTERN_ALTERNATE_WEEKENDS = 'alternate_weekends';
+const { PATTERN_CUSTOM } = require('../src/lib/custody-custom-config');
 
 /**
  * Build configuration JSON for alternate_weeks from legacy home IDs.
@@ -238,6 +239,7 @@ async function getParentHomeId(parentId, familyId, client = db) {
 module.exports = {
   PATTERN_ALTERNATE_WEEKS,
   PATTERN_ALTERNATE_WEEKENDS,
+  PATTERN_CUSTOM,
   buildAlternateWeeksConfiguration,
   resolveScheduleFields,
   listHomes,
