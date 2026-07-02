@@ -94,8 +94,12 @@
 
       const items = data.items || [];
       for (const item of items) {
-        if (item.rating && item.rating.child_score != null) {
-          itemRatings[item.id] = { child_score: item.rating.child_score, child_comment: item.rating.child_comment || null };
+        if (item.rating && (item.rating.child_score != null || item.rating.child_emotion_key)) {
+          itemRatings[item.id] = {
+            child_score: item.rating.child_score,
+            child_emotion_key: item.rating.child_emotion_key,
+            child_comment: item.rating.child_comment || null,
+          };
         }
       }
       const unfetched = items.filter(i => !itemRatings[i.id]).map(i => i.id);
@@ -108,6 +112,10 @@
         viewType = data.view_type || 'day_sections';
       }
       showMoodRating = data.show_mood_rating !== false;
+      moodInputMode = data.mood_input_mode || 'slider';
+      if (Array.isArray(data.transition_lead_minutes) && data.transition_lead_minutes.length > 0) {
+        transitionLeadMinutes = data.transition_lead_minutes;
+      }
       dopaminAnimation = data.dopamin_animation !== false;
       visualTimer = data.visual_timer !== false;
       hideClock = !!data.hide_clock;

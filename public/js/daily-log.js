@@ -259,6 +259,7 @@
         }
 
         renderLog(data);
+        await loadMoodSummary();
       } catch (err) {
         console.error('[daily-log] loadLog error:', err);
         renderLogError(err);
@@ -366,7 +367,8 @@
           <div class="w-full bg-lavender rounded-full h-3">
             <div class="progress-bar-fill bg-gold rounded-full h-3" style="width:${pct}%"></div>
           </div>
-        </div>` : '';
+        </div>
+        <div id="moodSummaryBlock" class="hidden"></div>` : `<div id="moodSummaryBlock" class="hidden"></div>`;
 
       // ── Retroactive entry banner (shown for past dates only) ─────────
       const isPast = currentDateStr < getTodayStr();
@@ -536,9 +538,11 @@
       const feedbackFor = item.feedback_for || 'both';
 
       // Rating badges — child score shown as n/10, parent as stars
-      let ratingHtml = '';
-      if (rating && (rating.child_score || rating.parent_score)) {
-        if (rating.child_score) {
+    let ratingHtml = '';
+      if (rating && (rating.child_score || rating.child_emotion_key || rating.parent_score)) {
+        if (rating.child_emotion_key) {
+          ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="Barnets känsla">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
+        } else if (rating.child_score) {
           ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold"
             title="Barnets betyg${rating.child_comment ? ': ' + rating.child_comment : ''}"
             onclick="event.stopPropagation()">
@@ -685,6 +689,50 @@
         showToast('Kunde inte spara ordningen', 'error');
       }
     }
+    // ── Mood summary (parent Idag / daily-log — not Hem dashboard) ──
+
+    async function loadMoodSummary() {
+      const block = document.getElementById('moodSummaryBlock');
+      if (!block || !currentChildId) return;
+      try {
+        const res = await apiFetch(
+          `/api/children/${currentChildId}/mood-summary?date=${encodeURIComponent(currentDateStr)}`
+        );
+        if (!res.ok) {
+          block.classList.add('hidden');
+          block.innerHTML = '';
+          return;
+        }
+        const data = await res.json();
+        renderMoodSummary(data);
+      } catch {
+        block.classList.add('hidden');
+      }
+    }
+
+    function renderMoodSummary(data) {
+      const block = document.getElementById('moodSummaryBlock');
+      if (!block) return;
+      const emotions = data.emotions || [];
+      const scoreCount = data.scores && data.scores.count ? data.scores.count : 0;
+      if (emotions.length === 0 && !scoreCount) {
+        block.classList.add('hidden');
+        block.innerHTML = '';
+        return;
+      }
+      const chips = emotions.map((e) =>
+        `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-lavender text-navy text-xs font-semibold">${escHtml(e.emoji)} ${escHtml(e.label)} ×${e.count}</span>`
+      ).join('');
+      const scoreLine = scoreCount
+        ? `<span class="text-xs text-text-soft">Slider: ${scoreCount} svar${data.scores.avg != null ? ` (snitt ${data.scores.avg})` : ''}</span>`
+        : '';
+      block.className = 'bg-white dark:bg-navy-soft rounded-2xl p-4 shadow-sm border border-lavender';
+      block.innerHTML = `
+        <div class="text-xs font-bold text-text-soft uppercase tracking-wider mb-2">💛 Känslor idag</div>
+        <div class="flex flex-wrap gap-2">${chips || '<span class="text-xs text-text-soft">Inga känslokort ännu</span>'}</div>
+        ${scoreLine ? `<div class="mt-2">${scoreLine}</div>` : ''}`;
+    }
+
     // ── Navigation ─────────────────────────────────────────
 
     function navigateDate(offset) {

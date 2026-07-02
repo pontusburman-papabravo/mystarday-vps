@@ -340,6 +340,45 @@
       transition: stroke-dashoffset 1s linear;
     }
 
+    /* ── Övergångsstöd inline (Extra stöd) ─────────────── */
+    .transition-inline {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 0 10px 0;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(27, 35, 64, 0.08);
+      color: #1B2340;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Känslokort i rating modal ────────────────────── */
+    #ratingCardsGrid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .emotion-card-btn {
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 14px;
+      border: 2px solid #E8E4F8;
+      background: #FAFAFE;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    .emotion-card-btn.selected {
+      border-color: #F5A623;
+      background: #FFF8E8;
+      transform: scale(1.02);
+    }
+
     /* ── NOW/NEXT/LATER Layout Styles ──────────────────── */
     .now-card {
       background: linear-gradient(135deg, #FFF9EE, #FFF0D0);
@@ -1950,8 +1989,9 @@
         <p class="text-sm text-text-soft" id="ratingActivityName">Aktivitet</p>
       </div>
 
-      <!-- Morphing face -->
-      <div class="flex justify-center mb-3">
+      <!-- Morphing face + slider (slider mode) -->
+      <div id="ratingSliderBlock">
+      <div id="ratingFaceBlock" class="flex justify-center mb-3">
         <svg id="moodFace" viewBox="0 0 100 100" width="120" height="120" class="face-svg">
           <!-- Face background circle -->
           <circle cx="50" cy="50" r="47" id="faceBg" fill="#FFF3D6" stroke="#F5A623" stroke-width="3"/>
@@ -1988,6 +2028,13 @@
           id="moodSlider"
           oninput="updateMoodSlider(parseInt(this.value))"
           onchange="ratingScore = parseInt(this.value)">
+      </div>
+      </div>
+
+      <!-- Emotion cards (cards mode — never shown together with slider) -->
+      <div id="ratingCardsBlock" class="hidden mb-4">
+        <p class="text-sm text-text-soft text-center mb-3">Hur känns det?</p>
+        <div id="ratingCardsGrid"></div>
       </div>
 
       <!-- Optional comment -->
@@ -2072,6 +2119,7 @@
   <script src="/js/child-week-overview.js?v=1"></script>
   <script src="/js/child-dashboard-offline.js?v=1"></script>
   <script src="/js/child-dashboard-day-nav.js?v=1"></script>
+  <script src="/js/transition-support.js?v=1"></script>
   <script src="/js/child-dashboard-timers.js?v=1"></script>
   <script src="/js/child-dashboard-load-day.js?v=1"></script>
   <script src="/js/child-dashboard-checkoff.js?v=1"></script>

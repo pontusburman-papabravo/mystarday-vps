@@ -14,6 +14,7 @@ const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
+const { isValidEmotionKey } = require('../../config/emotion-keys');
 
 // ─── Child rating router ──────────────────────────────────
 
@@ -30,12 +31,30 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
   try {
     const childId = req.user.id;
     const { itemId } = req.params;
-    const { score, comment } = req.body;
+    const { score, comment, emotion_key: emotionKey } = req.body;
 
-    // Validate score — child uses 1–10 drag-slider
-    const s = parseInt(score, 10);
-    if (isNaN(s) || s < 1 || s > 10) {
-      return res.status(400).json({ error: 'Betyg måste vara mellan 1 och 10' });
+    const hasScore = score !== undefined && score !== null && score !== '';
+    const hasEmotion = emotionKey !== undefined && emotionKey !== null && emotionKey !== '';
+
+    if (!hasScore && !hasEmotion) {
+      return res.status(400).json({ error: 'Ange antingen betyg (1–10) eller ett känslokort' });
+    }
+
+    let parsedScore = null;
+    if (hasScore) {
+      const s = parseInt(score, 10);
+      if (Number.isNaN(s) || s < 1 || s > 10) {
+        return res.status(400).json({ error: 'Betyg måste vara mellan 1 och 10' });
+      }
+      parsedScore = s;
+    }
+
+    let parsedEmotion = null;
+    if (hasEmotion) {
+      if (!isValidEmotionKey(emotionKey)) {
+        return res.status(400).json({ error: 'Ogiltigt känslokort' });
+      }
+      parsedEmotion = emotionKey;
     }
 
     // Verify item belongs to this child; get feedback_for config
@@ -55,14 +74,18 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
       return res.status(403).json({ error: 'Betygsättning är inte tillåten för detta barn på den här aktiviteten' });
     }
 
-    // Upsert rating
+    // Upsert rating — score OR emotion_key on same row
     const result = await db.query(
-      `INSERT INTO rating (daily_log_item_id, user_type, score, comment)
-       VALUES ($1, 'child', $2, $3)
+      `INSERT INTO rating (daily_log_item_id, user_type, score, emotion_key, comment)
+       VALUES ($1, 'child', $2, $3, $4)
        ON CONFLICT (daily_log_item_id, user_type)
-       DO UPDATE SET score = EXCLUDED.score, comment = EXCLUDED.comment, created_at = NOW()
-       RETURNING id, score, comment, created_at`,
-      [itemId, s, comment || null]
+       DO UPDATE SET
+         score = EXCLUDED.score,
+         emotion_key = EXCLUDED.emotion_key,
+         comment = EXCLUDED.comment,
+         created_at = NOW()
+       RETURNING id, score, emotion_key, comment, created_at`,
+      [itemId, parsedScore, parsedEmotion, comment || null]
     );
 
     res.json({ rating: result.rows[0], message: 'Betyg sparat! ⭐' });
@@ -93,7 +116,7 @@ childRouter.get('/daily-log-items/:itemId/rating', async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT r_child.score AS child_score, r_child.comment AS child_comment,
+      `SELECT r_child.score AS child_score, r_child.emotion_key AS child_emotion_key, r_child.comment AS child_comment,
               r_parent.score AS parent_score, r_parent.comment AS parent_comment
        FROM (SELECT 1) AS dummy
        LEFT JOIN rating r_child ON r_child.daily_log_item_id = $1 AND r_child.user_type = 'child'
@@ -187,7 +210,7 @@ parentRouter.get('/:itemId/ratings', async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT r_child.score AS child_score, r_child.comment AS child_comment,
+      `SELECT r_child.score AS child_score, r_child.emotion_key AS child_emotion_key, r_child.comment AS child_comment,
               r_parent.score AS parent_score, r_parent.comment AS parent_comment
        FROM (SELECT 1) AS dummy
        LEFT JOIN rating r_child ON r_child.daily_log_item_id = $1 AND r_child.user_type = 'child'

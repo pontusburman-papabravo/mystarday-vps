@@ -164,6 +164,8 @@ function toChildListResponse(row) {
     allow_child_reorder: row.allow_child_reorder,
     show_now_next: row.show_now_next,
     show_mood_rating: row.show_mood_rating,
+    mood_input_mode: row.mood_input_mode || 'slider',
+    transition_lead_minutes: row.transition_lead_minutes,
     hide_clock: row.hide_clock,
     lock_schedule: row.lock_schedule,
     dopamin_animation: row.dopamin_animation,
@@ -429,6 +431,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
 
     const result = await db.query(
       `SELECT id, name, emoji, birthday, timezone, view_mode, allow_child_reorder, show_now_next, show_mood_rating,
+              mood_input_mode, transition_lead_minutes,
               hide_clock, lock_schedule, dopamin_animation, visual_timer, username, avatar_url, created_at
        FROM child WHERE id = $1`,
       [req.params.id]
@@ -487,7 +490,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
-    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, avatar_url } = req.body;
+    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, avatar_url } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -539,6 +542,20 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       updates.push(`show_mood_rating = $${idx++}`);
       values.push(!!show_mood_rating);
     }
+    if (mood_input_mode !== undefined) {
+      const allowedModes = ['cards', 'slider', 'off'];
+      if (!allowedModes.includes(mood_input_mode)) {
+        return res.status(400).json({ error: 'Ogiltigt mood_input_mode' });
+      }
+      updates.push(`mood_input_mode = $${idx++}`);
+      values.push(mood_input_mode);
+    }
+    if (transition_lead_minutes !== undefined) {
+      const { normalizeLeadMinutes } = require('../lib/transition-support');
+      const normalized = normalizeLeadMinutes(transition_lead_minutes);
+      updates.push(`transition_lead_minutes = $${idx++}`);
+      values.push(JSON.stringify(normalized));
+    }
     if (hide_clock !== undefined) {
       updates.push(`hide_clock = $${idx++}`);
       values.push(!!hide_clock);
@@ -575,7 +592,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE child SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, avatar_url, created_at`,
+       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, avatar_url, created_at`,
       values
     );
 

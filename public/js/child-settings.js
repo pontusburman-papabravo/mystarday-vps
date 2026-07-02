@@ -11,6 +11,7 @@ const childId = urlParams.get('child');
 if (!childId) { window.location.href = '/family'; }
 
 let childData = null;
+let hasTeacchAccess = false;
 let pinBuffer = '';
 let selectedEmoji = '';
 let selectedAvatarUrl = null;   // set when parent picks a new photo (PWA + native)
@@ -501,6 +502,8 @@ function renderPage(child) {
   const currentViewType = child.view_type || 'day_sections';
   const ageText = child.birthday ? calcAge(child.birthday) : null;
   const avatarUrl = selectedAvatarUrl || child.avatar_url || null;
+  const moodMode = child.mood_input_mode || 'slider';
+  const leadMins = Array.isArray(child.transition_lead_minutes) ? child.transition_lead_minutes : [5, 1];
 
   const html = `
   <!-- Child header card -->
@@ -683,13 +686,43 @@ function renderPage(child) {
     <div class="setting-row">
       <div class="flex-1 pr-4">
         <p class="text-sm font-semibold text-navy dark:text-white">Känsloregistrering</p>
-        <p class="text-xs text-text-soft mt-0.5">Barnet drar en slider (ledsen → glad) efter varje avbockning</p>
+        <p class="text-xs text-text-soft mt-0.5">Fråga barnet efter avbockning (kan stängas av helt)</p>
       </div>
       <div class="toggle-track ${child.show_mood_rating !== false ? 'on' : ''}" id="toggle-show_mood_rating">
         <div class="toggle-thumb"></div>
       </div>
     </div>
+    <div class="mt-4 pt-3 border-t border-lavender/60">
+      <p class="text-xs font-semibold text-text-soft mb-2">Hur barnet svarar</p>
+      <div class="flex flex-col gap-2" id="moodModeGroup">
+        <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
+          <input type="radio" name="mood_input_mode" value="slider" ${moodMode === 'slider' ? 'checked' : ''} class="accent-gold"> Slider (1–10)
+        </label>
+        <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
+          <input type="radio" name="mood_input_mode" value="cards" ${moodMode === 'cards' ? 'checked' : ''} class="accent-gold"> Känslokort (8 val)
+        </label>
+        <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
+          <input type="radio" name="mood_input_mode" value="off" ${moodMode === 'off' ? 'checked' : ''} class="accent-gold"> Av — ingen fråga
+        </label>
+      </div>
+    </div>
   </div>
+
+  ${hasTeacchAccess ? `
+  <!-- 4b. Övergångsstöd (Extra stöd) -->
+  <div class="section-card fade-in">
+    <div class="section-title">⏳ Övergångsstöd</div>
+    <p class="text-xs text-text-soft mb-3">Välj när barnet ser varningstext i NU-kortet: Snart → Om X min → Nu.</p>
+    <div class="flex flex-col gap-2" id="transitionLeadGroup">
+      ${[5, 3, 1].map((m) => `
+        <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
+          <input type="checkbox" class="transition-lead-cb accent-gold" data-minutes="${m}" ${leadMins.includes(m) ? 'checked' : ''}>
+          Om ${m} min${m === 1 ? '' : 'uter'}
+        </label>`).join('')}
+    </div>
+    <p class="text-xs text-text-soft mt-3">Minst en lead-tid rekommenderas. Standard: 5 och 1 minut.</p>
+  </div>
+  ` : ''}
 
   <!-- 5. PIN -->
   <div class="section-card fade-in">
@@ -859,6 +892,35 @@ function renderPage(child) {
     ['toggle-color_coding', 'color_coding', child.color_coding !== false],
   ];
   toggles.forEach(([id, field, val]) => makeToggle(id, field, val));
+
+  document.querySelectorAll('input[name="mood_input_mode"]').forEach((radio) => {
+    radio.addEventListener('change', async () => {
+      if (!radio.checked) return;
+      try {
+        await saveSetting('mood_input_mode', radio.value);
+        showSuccessToast('Känsloläge sparat');
+      } catch (_) { /* reverted by saveSetting */ }
+    });
+  });
+
+  document.querySelectorAll('.transition-lead-cb').forEach((cb) => {
+    cb.addEventListener('change', async () => {
+      const selected = [...document.querySelectorAll('.transition-lead-cb:checked')]
+        .map((el) => parseInt(el.dataset.minutes, 10))
+        .filter((n) => !Number.isNaN(n));
+      if (selected.length === 0) {
+        showToast('Välj minst en lead-tid', true);
+        cb.checked = true;
+        return;
+      }
+      try {
+        await saveSetting('transition_lead_minutes', selected);
+        showSuccessToast('Övergångstider sparade');
+      } catch (_) {
+        cb.checked = !cb.checked;
+      }
+    });
+  });
 }
 
 function updateViewExplanation(type) {
@@ -926,8 +988,18 @@ async function unlockChild() {
 // ── Load child data ──────────────────────────────────────
 async function init() {
   try {
-    // Load view config and children in parallel
-    await loadViewConfig();
+    await Promise.all([
+      loadViewConfig(),
+      (async () => {
+        try {
+          const res = await fetch('/api/subscription/access', { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            hasTeacchAccess = !!(data.components && data.components.teacch && data.components.teacch.has);
+          }
+        } catch { hasTeacchAccess = false; }
+      })(),
+    ]);
     const children = await Auth.api('/api/children');
     childData = children.find(c => c.id === childId);
     if (!childData) {

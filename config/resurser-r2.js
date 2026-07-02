@@ -6,17 +6,7 @@
 
 const { getPictogram } = require('./pictogram-library');
 
-/** Same 8 keys as mood_input_mode cards (plan §4.6). */
-const EMOTION_KEYS = [
-  'happy',
-  'angry',
-  'sad',
-  'tired',
-  'worried',
-  'proud',
-  'scared',
-  'stressed',
-];
+const { EMOTION_KEYS } = require('./emotion-keys');
 
 /** Först–sedan och övergångsstöd (vänta, nu, snart). */
 const TRANSITION_KEYS = [
