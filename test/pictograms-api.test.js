@@ -102,11 +102,11 @@ test('POST /api/activities validates icon_key and round-trips save', async (t) =
         Cookie: cookieHeader(session.cookies),
         'X-CSRF-Token': session.csrfToken,
       },
-      body: JSON.stringify({ image_url: '/uploads/family/test.jpg' }),
+      body: JSON.stringify({ image_url: 'https://mystarday.se/uploads/family/test.jpg' }),
     });
     const withPhoto = await photoRes.json();
     assert.equal(photoRes.status, 200);
-    assert.equal(withPhoto.image_url, '/uploads/family/test.jpg');
+    assert.equal(withPhoto.image_url, 'https://mystarday.se/uploads/family/test.jpg');
     assert.equal(withPhoto.pictogram_emoji, undefined);
   } finally {
     await http.close();
