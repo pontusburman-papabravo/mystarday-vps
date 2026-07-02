@@ -16,6 +16,7 @@ const {
   categoryPath,
   registerUtmPath,
 } = require('../config/resurser-pages');
+const { R2_INDEXABLE_PATHS } = require('../config/resurser-r2');
 const { listenApp } = require('./helpers/http');
 
 const ROOT = path.join(__dirname, '..');
@@ -155,11 +156,14 @@ test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
   assert.match(html, /seo-article\.css/);
   assert.match(html, /utm_content=resurs-hub/);
   assert.match(html, /href="\/resurser\/morgon"/);
-  assert.match(html, /kommer snart/);
+  assert.match(html, /href="\/resurser\/kanslor"/);
+  assert.match(html, /href="\/resurser\/pdf\/beloningsschema"/);
   const xml = buildSitemapXml();
   assert.match(xml, /\/resurser<\/loc>/);
   assert.match(xml, /\/resurser\/morgon<\/loc>/);
   assert.match(xml, /\/resurser\/pdf\/morgonschema<\/loc>/);
+  assert.match(xml, /\/resurser\/kanslor<\/loc>/);
+  assert.match(xml, /\/resurser\/pdf\/veckoschema<\/loc>/);
 });
 
 test('resurser registry documents category URL conventions', () => {
@@ -191,6 +195,49 @@ test('R1 resurser pages return 200 and PDF files are served', async () => {
 test('morgonrutin guide links to morgonschema PDF', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/morgonrutin-barn.html'), 'utf8');
   assert.match(html, /href="\/resurser\/pdf\/morgonschema"/);
+});
+
+test('beloning guide links to beloningsschema PDF', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/beloningssystem-barn.html'), 'utf8');
+  assert.match(html, /href="\/resurser\/pdf\/beloningsschema"/);
+});
+
+test('rutiner-npf guide links to overgangar bildkort', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/rutiner-npf-barn.html'), 'utf8');
+  assert.match(html, /href="\/resurser\/bildkort\/overgangar"/);
+});
+
+test('veckoschema guide links to veckoschema PDF', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/veckoschema-bildstod.html'), 'utf8');
+  assert.match(html, /href="\/resurser\/pdf\/veckoschema"/);
+});
+
+test('R2 resurser pages are indexable and return 200', async () => {
+  for (const p of R2_INDEXABLE_PATHS) {
+    assert.equal(isSeoIndexable(p), true, p);
+    assert.ok(SEO_INDEXABLE_PATHS.has(p), p);
+  }
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+  }
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    for (const p of [
+      '/resurser/kanslor',
+      '/resurser/bildkort/overgangar',
+      '/resurser/pdf/beloningsschema',
+      '/resurser/pdf/veckoschema',
+    ]) {
+      const res = await fetch(`${http.baseUrl}${p}`);
+      assert.equal(res.status, 200, p);
+    }
+    const pdf = await fetch(`${http.baseUrl}/resurser/pdf/beloningsschema.pdf`);
+    assert.equal(pdf.status, 200);
+    assert.match(pdf.headers.get('content-type') || '', /pdf/i);
+  } finally {
+    await http.close();
+  }
 });
 
 test('GET /resurser returns 200', async () => {
@@ -233,6 +280,9 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
     '/resurser': 'public/resurser.html',
     '/resurser/morgon': 'public/resurser/morgon.html',
     '/resurser/pdf/morgonschema': 'public/resurser/pdf-morgonschema.html',
+    '/resurser/kanslor': 'public/resurser/kanslor.html',
+    '/resurser/pdf/beloningsschema': 'public/resurser/pdf-beloningsschema.html',
+    '/resurser/pdf/veckoschema': 'public/resurser/pdf-veckoschema.html',
   };
   for (const [p, file] of Object.entries(pageFiles)) {
     const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
