@@ -31,13 +31,22 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | N10 | TOCTOU i admin family-components | 🟡 Medel | PR-E | ⬜ |
 | N11/M6 | PII i loggar | 🟡 Medel | PR-E | ⬜ |
 | M1 | Tysta fel i fire-and-forget-kedjor | 🟡 Medel | PR-E | ⬜ |
-| M2 | IAP `timingSafeEqual` kan kasta | 🟡 Medel | PR-E | ⬜ |
+| M2 | IAP `timingSafeEqual` kan kasta | 🟡 Medel | PR-E | ✅ Delvis fixad i 6df30fe |
 | M3 | `requireComponent` fail-open vid DB-fel | 🟡 Medel | PR-E | ⬜ |
 | M4 | Pool `max: 5` + 13 schedulers + SSE | 🟡 Medel | PR-E | ⬜ |
 | M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ⬜ |
 | M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ⬜ |
 | M8 | In-memory rate limiting | 🟡 Medel | PR-E | ⬜ |
 | L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⬜ |
+
+### Prod-deploy (PR-A–D)
+
+| PR | Status |
+|----|--------|
+| **PR-A** | ✅ Deployad prod 2026-07-02 |
+| **PR-B** | ✅ Deployad prod 2026-07-02 |
+| **PR-C** | ✅ Deployad prod 2026-07-02 (inkl. H3 dedup 714 rader + unikt index) |
+| **PR-D** | ✅ Deployad prod 2026-07-02 |
 
 ---
 
@@ -375,8 +384,8 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `iap.js:60` |
+| **Status** | ✅ Delvis fixad i 6df30fe (length-check före `timingSafeEqual`) |
+| **Filer** | `src/routes/iap-webhook-handler.js` (flyttad från `iap.js`) |
 | **Problem** | `crypto.timingSafeEqual` kastar `RangeError` om buffrarnas längd skiljer sig — en felformad/kortare signatur ger okontrollerat `500` i stället för `401`. |
 | **Konsekvens** | Felaktig felkod till anroparen och onödig stack trace i loggar för ett förväntat scenario (ogiltig signatur). |
 | **Föreslagen åtgärd** | 1. Längdkoll innan jämförelse.<br>2. Returnera `401` oavsett längdskillnad eller felaktig signatur. |

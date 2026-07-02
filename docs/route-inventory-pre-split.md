@@ -439,7 +439,7 @@
 | GET | `/api/i18n` | app.js (inline) | — |
 | GET | `/api/i18n/:lang` | app.js (inline) | — |
 | GET | `/api/iap/config` | src/routes/iap.js | — |
-| POST | `/api/iap/webhook` | src/routes/iap.js | — |
+| POST | `/api/iap/webhook` | app.js (inline) | — |
 | GET | `/api/landing/stats` | src/routes/public.js | — |
 | GET | `/api/me/activation-program/` | src/routes/activation-program.js | — |
 | POST | `/api/me/activation-program/aha-dismiss` | src/routes/activation-program.js | — |
