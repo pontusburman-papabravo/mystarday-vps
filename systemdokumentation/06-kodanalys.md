@@ -37,7 +37,7 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ✅ Fixad |
 | M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ✅ Fixad |
 | M8 | In-memory rate limiting | 🟡 Medel | PR-E | ✅ Dokumenterad |
-| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | Backlog | ✅ L2–L8 klara; L1 kvar (Fas 8) |
+| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | Backlog | ✅ L1–L8 klara |
 | N12 | PII i loggar — utökad scope | 🟢 Låg | Backlog | ✅ Fixad |
 | H2† | `requireLogAccess` / `requireItemAccess` montering | 🟢 Låg | Backlog | ✅ Fixad |
 
@@ -490,7 +490,7 @@ Verifiering prod: `git log -1` → `8e0908a`, `curl http://127.0.0.1:3000/health
 
 | ID | Status | Fynd | Fil | Motivering / åtgärd |
 |----|--------|------|-----|---------------------|
-| L1 | 📋 Fas 8 (pågår) | Stora filer | `schedule.js` ✅ ~953 r, `dashboard.js` ✅ ~791 r, `child-dashboard.js` ~1931 r | Schedule + dashboard under mål; barnvy F3a–c (offline, day-nav, timers) extraherad — renderActivities m.m. kvar. |
+| L1 | ✅ Fas 8 klar | Stora filer | `schedule.js` ✅ ~953 r, `dashboard.js` ✅ ~791 r, `child-dashboard.js` ✅ ~550 r host + 12 moduler | Barnvy split F3a–g (offline, day-nav, timers, activities, substeps, checkoff, load-day, rewards, celebrations, …). |
 | L2 | ✅ Dokumenterad | `AUTHZ_HARDENING_ENABLED` kill switch | `authz.js`, `docs/ops-incident-runbook.md` | Runbook + prod-stabil H1/N4; borttagning av switch vid 90 dagar utan incident. |
 | L3 | ✅ Fixad | Manuell DST-logik i win-back | `win-back-scheduler.js` | Använder `stockholm-time.js` (samma mönster som weekly-summary). |
 | L4 | ✅ Fixad | `getChildAgeInYears` server-local tid | `daily-log-generator.js` | Kalenderdatum i angiven tidszon (`STOCKHOLM_TZ` default). |
@@ -664,12 +664,12 @@ Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
 
 ### Medveten backlog
 
-**Stängd 2026-07-02** (denna omgång: N12, H2†, L2–L8 utom L1).
+**Stängd 2026-07-02** (denna omgång: N12, H2†, L1–L8).
 
 | ID | Status | Not |
 |----|--------|-----|
 | **N12** | ✅ Fixad | `src/lib/log-redact.js` + maskning/parent-id i alla kvarvarande loggfiler; `test/pii-logging-contract.test.js`. |
 | **H2†** | ✅ Fixad | `requireLogAccess` / `requireItemAccess` monterade i `daily-logs/logs.js` + `items.js`. |
-| **L1** | 📋 Fas 8 (pågår) | `schedule.js` + `dashboard.js` under radmål (2026-07-02). `child-dashboard.js` delvis — offline/day-nav/timers extraherade; `renderActivities` m.m. kvarstår. |
+| **L1** | ✅ Fas 8 klar | `schedule.js` + `dashboard.js` + `child-dashboard.js` host under radmål (2026-07-02). Barnvy F3a–g extraherad till `child-dashboard-*.js` moduler. |
 
 Övriga L2–L8: se tabellen [Låg / teknisk skuld](#-låg--teknisk-skuld).

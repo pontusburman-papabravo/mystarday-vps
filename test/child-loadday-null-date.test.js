@@ -23,15 +23,19 @@ describe('child loadDay date=null race', () => {
   });
 
   it('loadDay normalizes null and waits for me before fetching', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-load-day.js'), 'utf8');
     assert.match(src, /if \(!dateStr \|\| dateStr === 'null'/);
     assert.match(src, /if \(!me\) return;/);
-    assert.match(src, /window\.resolveChildScheduleDate = resolveChildScheduleDate/);
   });
 
   it('_refreshLoadDay falls back to todayStr/getLocalDate', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-load-day.js'), 'utf8');
     assert.match(src, /const dateStr = currentDate \|\| todayStr \|\| getLocalDate\(\)/);
+  });
+
+  it('resolveChildScheduleDate stays on host', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    assert.match(src, /window\.resolveChildScheduleDate = resolveChildScheduleDate/);
   });
 
   it('child-activity-engine uses resolveChildScheduleDate fallback', () => {
