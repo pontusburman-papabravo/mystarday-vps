@@ -313,7 +313,7 @@ function renderActivities(data, trueStarBalance) {
   } else {
     // ── NOW/NEXT/LATER timeline layout ────────────────────────
 
-    const focusQuestMode = isTodayFocusLayer() && isToday &&
+    const focusQuestMode = isTodayFocusLayer() && isToday && showNowNext &&
       !(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
 
     // Determine NOW/NEXT/LATER status for each item.

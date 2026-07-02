@@ -9,37 +9,29 @@ function read(rel) {
   return fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
 }
 
-describe('require_sequential_completion parent toggle', () => {
-  it('migration adds child.require_sequential_completion default true', () => {
-    const src = read('migrations/1809510000000_require_sequential_completion.js');
-    assert.match(src, /require_sequential_completion BOOLEAN NOT NULL DEFAULT true/);
+describe('NU/NÄSTA/SEDAN parent opt-in (default off)', () => {
+  it('migrations default require_sequential_completion and show_now_next to false', () => {
+    const seq = read('migrations/1809510000000_require_sequential_completion.js');
+    const nnl = read('migrations/1809520000000_child_show_now_next_default_off.js');
+    assert.match(seq, /DEFAULT false/);
+    assert.match(nnl, /show_now_next SET DEFAULT false/);
   });
 
-  it('UpdateChildSchema accepts require_sequential_completion', () => {
-    const src = read('src/lib/schemas.js');
-    assert.match(src, /require_sequential_completion: z\.boolean\(\)\.optional\(\)/);
-  });
-
-  it('child-self daily log returns require_sequential_completion', () => {
+  it('child-self treats flags as opt-in (=== true)', () => {
     const src = read('src/routes/daily-logs/child-self.js');
-    assert.match(src, /require_sequential_completion/);
-    assert.match(src, /require_sequential_completion: requireSequentialCompletion/);
+    assert.match(src, /show_now_next === true/);
+    assert.match(src, /require_sequential_completion === true/);
   });
 
-  it('children PUT persists require_sequential_completion', () => {
-    const src = read('src/routes/children.js');
-    assert.match(src, /require_sequential_completion !== undefined/);
-  });
-
-  it('child dashboard respects requireSequentialCompletion in canToggle', () => {
+  it('focus quest mode requires showNowNext parent opt-in', () => {
     const src = read('public/js/child-dashboard-activities.js');
-    assert.match(src, /function activityCanToggle/);
-    assert.match(src, /!requireSequentialCompletion/);
+    assert.match(src, /focusQuestMode = isTodayFocusLayer\(\) && isToday && showNowNext/);
   });
 
-  it('child-settings exposes parent toggle', () => {
+  it('child-settings couples NU/NÄSTA/SEDAN toggle to both fields', () => {
     const src = read('public/js/child-settings.js');
-    assert.match(src, /En aktivitet i taget/);
-    assert.match(src, /toggle-require_sequential_completion/);
+    assert.match(src, /saveNnlMode/);
+    assert.match(src, /require_sequential_completion: enabled/);
+    assert.match(src, /Standard: barnet väljer själv/);
   });
 });

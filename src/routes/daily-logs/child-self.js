@@ -47,8 +47,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const dateStr = parseLogDate(req.query.date, childTimezone);
 
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;
-    const showNowNext = childResult.rows[0]?.show_now_next !== false; // default true
-    const requireSequentialCompletion = childResult.rows[0]?.require_sequential_completion !== false; // default true
+    const showNowNext = childResult.rows[0]?.show_now_next === true; // default off — parent opt-in
+    const requireSequentialCompletion = childResult.rows[0]?.require_sequential_completion === true; // default off
     const showMoodRating = childResult.rows[0]?.show_mood_rating !== false; // default true
     const moodInputMode = childResult.rows[0]?.mood_input_mode || 'slider';
     const transitionLeadMinutes = childResult.rows[0]?.transition_lead_minutes;

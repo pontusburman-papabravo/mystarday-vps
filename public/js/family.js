@@ -672,6 +672,30 @@
       }
     }
 
+    async function saveNnlMode(enabled) {
+      if (!drawerChildId) return;
+      try {
+        await Auth.api(`/api/children/${drawerChildId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            show_now_next: enabled,
+            require_sequential_completion: enabled,
+          }),
+        });
+        const child = familyChildren.find(c => c.id === drawerChildId);
+        if (child) {
+          child.show_now_next = enabled;
+          child.require_sequential_completion = enabled;
+        }
+        showToast(enabled ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+      } catch (err) {
+        showToast('Kunde inte spara: ' + err.message, true);
+        const cb = document.getElementById('setting-show_now_next');
+        if (cb) cb.checked = !enabled;
+      }
+    }
+    window.saveNnlMode = saveNnlMode;
+
     // ─── Edit tab ─────────────────────────────────────────
     document.querySelectorAll('.drawer-emoji-opt').forEach(btn => {
       btn.addEventListener('click', () => {
