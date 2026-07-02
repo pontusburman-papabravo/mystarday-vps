@@ -5,8 +5,10 @@
  */
 
 const express = require('express');
+const { z } = require('zod');
 const db = require('../../lib/db');
 const custodyDb = require('../../../db/custody');
+const { resolveScheduleWriteFields } = require('../../lib/custody-schedule-write');
 const { requireParent } = require('../../middleware/auth');
 const authz = require('../../middleware/authz');
 const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
@@ -14,6 +16,10 @@ const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { CreateScheduleSchema } = require('../../lib/schemas');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
+
+const CreateChildScheduleSchema = CreateScheduleSchema.extend({
+  custody_home_id: z.string().uuid().optional(),
+});
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
@@ -99,7 +105,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/children/:childId/schedules — create schedule for a day
-router.post('/', validate(CreateScheduleSchema), async (req, res) => {
+router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
@@ -122,14 +128,22 @@ router.post('/', validate(CreateScheduleSchema), async (req, res) => {
     let weekVariant = null;
     let custodyHomeId = null;
     if (pattern) {
-      const v = req.body.week_variant;
-      if (v !== 'a' && v !== 'b') {
-        return res.status(400).json({ error: 'week_variant krävs (a eller b) när boendeschema är aktivt' });
+      const resolved = resolveScheduleWriteFields(pattern, {
+        week_variant: req.body.week_variant,
+        custody_home_id: req.body.custody_home_id,
+      });
+      if (resolved.error) {
+        return res.status(400).json({ error: resolved.error });
       }
-      weekVariant = v;
-      custodyHomeId = v === 'a' ? pattern.week_a_home_id : pattern.week_b_home_id;
-    } else if (req.body.week_variant) {
-      return res.status(400).json({ error: 'week_variant stöds bara när boendeschema är aktivt' });
+      weekVariant = resolved.weekVariant;
+      custodyHomeId = resolved.custodyHomeId;
+
+      const homeInFamily = await custodyDb.getHomeInFamily(custodyHomeId, child.family_id);
+      if (!homeInFamily) {
+        return res.status(400).json({ error: 'custody_home_id tillhör inte familjen' });
+      }
+    } else if (req.body.week_variant || req.body.custody_home_id) {
+      return res.status(400).json({ error: 'custody_home_id och week_variant stöds bara när boendeschema är aktivt' });
     }
 
     const existing = await db.query(
@@ -152,7 +166,7 @@ router.post('/', validate(CreateScheduleSchema), async (req, res) => {
       const result = await client.query(
         `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, week_variant, custody_home_id)
          VALUES ($1, $2, $3, $4, $5)
-         RETURNING id, child_id, day_of_week, sort_order, week_variant`,
+         RETURNING id, child_id, day_of_week, sort_order, week_variant, custody_home_id`,
         [req.params.childId, dow, dow, weekVariant, custodyHomeId]
       );
       const schedule = result.rows[0];
