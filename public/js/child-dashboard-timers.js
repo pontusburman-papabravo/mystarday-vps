@@ -1,6 +1,6 @@
 /**
  * Child dashboard Time Timer SVG countdown (Fas 8 F3c).
- * Reads visualTimer + getTimeMinutes from child-dashboard.js host.
+ * Reads visualTimer from host; getTimeMinutes from child-dashboard-activities.js.
  */
 (function () {
   'use strict';

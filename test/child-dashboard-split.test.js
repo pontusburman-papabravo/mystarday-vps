@@ -21,6 +21,15 @@ const MODULES = {
     'updateDateLine',
   ],
   'public/js/child-dashboard-timers.js': ['initTimeTimers'],
+  'public/js/child-dashboard-activities.js': [
+    'renderActivities',
+    'renderNowCard',
+    'renderDoneHistoryCard',
+    'renderNLCard',
+    'renderActivityCard',
+    'getTimeMinutes',
+    'classifyActivities',
+  ],
 };
 
 describe('Fas 8 F3 child-dashboard split', () => {
@@ -59,5 +68,12 @@ describe('Fas 8 F3 child-dashboard split', () => {
       assert.ok(idx !== -1, `${tag} missing`);
       assert.ok(idx < hostIdx, `${tag} must load before child-dashboard.js`);
     }
+  });
+
+  it('child-dashboard-activities.js references scheduleView and time-timer DOM hooks', () => {
+    const src = read('public/js/child-dashboard-activities.js');
+    assert.match(src, /getElementById\('scheduleView'\)/);
+    assert.match(src, /time-timer-wrap/);
+    assert.match(src, /now-badge/);
   });
 });
