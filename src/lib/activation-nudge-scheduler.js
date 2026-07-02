@@ -16,8 +16,9 @@ const { withAdvisoryLock } = require('./scheduler-lock');
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
 function resolveNudgeCtaUrl() {
-  const base = String(config.email?.baseUrl || process.env.APP_URL || '').replace(/\/$/, '');
-  return base ? `${base}/dashboard` : '/dashboard';
+  const base = String(process.env.APP_URL || config.email?.baseUrl || '').replace(/\/$/, '');
+  if (!base || base.includes('[REDACTED]')) return '/dashboard';
+  return `${base}/dashboard`;
 }
 
 let _timer = null;
