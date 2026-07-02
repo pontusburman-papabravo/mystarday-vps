@@ -4,7 +4,7 @@ Systematisk genomgång av `src/routes/`, `src/lib/`, `src/middleware/`, `db/` oc
 
 Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | Problem | Konsekvens | Föreslagen åtgärd | Kodskiss | Tester | PR | Beroenden` — lagd **vertikalt** (fält som rader) i stället för horisontellt, eftersom numrerade åtgärdssteg och kodskisser inte går att läsa i en 10-kolumners tabell. Innehållet är identiskt med det begärda formatet.
 
-> **Slutstatus 2026-07-02:** Alla prioriterade fynd K1–M8 är fixade eller dokumenterade. PR-A–E deployade prod (`8e0908a`). Kvarstående arbete är medvetet backlog (L1–L8, N12) — se [Slutstatus & backlog](#slutstatus--backlog).
+> **Slutstatus 2026-07-02 (senast Fas 8 F3e–g, prod `638ab61`):** Alla prioriterade fynd **K1–M8** fixade eller dokumenterade. Backlog **N12, H2†, L1–L8** stängd. Medvetna uppföljningar (ej öppna buggar): **M4/M8** drift/skalning, **L2** kill switch efter 90 dagar, **L6** CSP enforcing efter 30 dagar. Se [Slutstatus & backlog](#slutstatus--backlog).
 
 ---
 
@@ -664,12 +664,19 @@ Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
 
 ### Medveten backlog
 
-**Stängd 2026-07-02** (denna omgång: N12, H2†, L1–L8).
+**Stängd 2026-07-02** — hela review-scope (N12, H2†, L1–L8). Inget öppet i denna lista.
 
 | ID | Status | Not |
 |----|--------|-----|
 | **N12** | ✅ Fixad | `src/lib/log-redact.js` + maskning/parent-id i alla kvarvarande loggfiler; `test/pii-logging-contract.test.js`. |
 | **H2†** | ✅ Fixad | `requireLogAccess` / `requireItemAccess` monterade i `daily-logs/logs.js` + `items.js`. |
-| **L1** | ✅ Fas 8 klar | `schedule.js` + `dashboard.js` + `child-dashboard.js` host under radmål (2026-07-02). Barnvy F3a–g extraherad till `child-dashboard-*.js` moduler. |
+| **L1** | ✅ Fas 8 klar | `schedule.js` + `dashboard.js` + `child-dashboard.js` host under radmål. Barnvy F3a–g extraherad (`638ab61` prod). |
 
-Övriga L2–L8: se tabellen [Låg / teknisk skuld](#-låg--teknisk-skuld).
+### Uppföljningar utanför review-scope (tidshorisonter)
+
+| ID | Status | Not |
+|----|--------|-----|
+| **M4** | 📋 Drift | Pool-övervakning — se `docs/ops-pool-monitoring.md` |
+| **M8** | 📋 Skalning | MemoryStore rate limit OK single-instance; Redis vid multi-instance |
+| **L2** | 📋 90 dagar | Ta bort `AUTHZ_HARDENING_ENABLED` efter 90 dagar utan incident |
+| **L6** | 📋 30 dagar | CSP report-only → enforcing efter 30+ dagar utan violations |

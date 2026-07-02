@@ -1,6 +1,6 @@
 # Kodgranskning — Refaktor Fas 0–11
 
-> **Granskat:** `main` @ `ad9a895` · **Datum:** 2026-06-24
+> **Granskat:** `main` @ `ad9a895` · **Datum:** 2026-06-24 · **Definition of done:** ✅ 2026-07-02 (prod `638ab61`)
 > **Verktyg:** lint (`eslint src/ server.js`), full testsvit (`node --test`, mock-DB), route-inventory-diff, manuell läsning av säkerhetskritisk kod.
 
 ## Sammanfattande omdöme
@@ -133,10 +133,11 @@ inneboende i en kolumn-drop, men kolumnerna var döda sedan Fas 1.)
 ## 5. Frontend (Fas 8–9) — verifierad
 
 - Split-moduler (`dashboard-*`, `schedule-*`, `child-dashboard-*`) wirade — täcks av dussintals
-  **passerande** tester (script-laddningsordning + window-exponering).
+  **passerande** tester (script-laddningsordning + window-exponering). Fas 8 F3a–g avslutad
+  2026-07-02 (`child-dashboard-checkoff/substeps/load-day.js`; host ~550 r).
 - **Tailwind-CDN helt borttagen** från serverade sidor (`cdn.tailwindcss.com` finns endast i
   migrations-/test-/QA-smoke-script som *kontrollerar frånvaro*). Alla sidor länkar `tailwind.build.css`.
-- SW `CACHE_NAME = 'stjarndag-v315'` matchar `config/cache-version.json` — konsekvent.
+- SW `CACHE_NAME` synkas via `npm run css:build` + `config/cache-version.json` (senast `stjarndag-v471`).
 
 ---
 
@@ -158,13 +159,13 @@ inneboende i en kolumn-drop, men kolumnerna var döda sedan Fas 1.)
 
 ## 8. "Definition of done" — för helt grön svit
 
-- [ ] §1.1–1.3: byt `src/routes/family.js` → `src/routes/family/core.js` i tre readiness-tester
-- [ ] §1.4: flytta `launchMilestoneConfetti()`-assert till `child-dashboard-rewards.js`
-- [ ] §1.5: byt till `child-dashboard-rewards.js` i denied-redemptions-testet
-- [ ] §1.6: `node scripts/dump-routes.js --write` + committa inventory
-- [ ] §1.7: peka om footer-länk till `/skattkammaren?demo=1` (eller justera testet)
-- [ ] Kör `npm run lint` (0 errors) och `NODE_ENV=test npm test` (förväntat: 0 fail, ~10 skip lokalt)
-- [ ] Bekräfta grön CI (Node 20 + Postgres-integrationstester) före deploy
+- [x] §1.1–1.3: byt `src/routes/family.js` → `src/routes/family/core.js` i tre readiness-tester
+- [x] §1.4: flytta `launchMilestoneConfetti()`-assert till `child-dashboard-rewards.js`
+- [x] §1.5: byt till `child-dashboard-rewards.js` i denied-redemptions-testet
+- [x] §1.6: `node scripts/dump-routes.js --write` + committa inventory (`test/route-inventory.test.js` grön)
+- [x] §1.7: peka om footer-länk till `/skattkammaren?demo=1` (`public/index.html` footer)
+- [x] Kör `npm run lint` (0 errors) och `NODE_ENV=test npm test` (CI grön; ~10 skip lokalt utan Postgres)
+- [x] Bekräfta grön CI (Node 20 + Postgres-integrationstester) före deploy
 
 > Allt ovan är low-severity och rör test-/dokumenthygien + en kosmetisk UX-länk.
-> Ingen produktionskodregression kräver åtgärd.
+> Ingen produktionskodregression kräver åtgärd. **Checklistan stängd 2026-07-02.**
