@@ -1,46 +1,158 @@
-# Room Blueprint Standard (RBS) — full contract template
-# Authority: .ai/product/bibles/WORLD_BIBLE.md Part III
-# Copy → docs/world/data/XXX-room_id.yaml — fill all sections; unknown = TBD (never omit)
+# World Production Template (WPT) — room data contract
+# Authority: docs/world/WPT.md · World Bible Part III RBS
+# Copy → docs/world/data/XXX-room.yaml — fill ALL sections; unknown = TBD (never omit)
 
-status: draft                    # draft | review | approved | shipped
-production_number: 000            # Catalog number (100–199 home cluster, 110 garden, etc.)
+status: draft
+production_number: 000
 schema_version: "1.0"
+wpt_version: "1.0"
 
+# --- Room identity ---
 room:
-  id: room_id                     # Catalog ID (stable forever)
+  id: room_id
   display_name_sv: Rumnamn
-  pack_scene_id: scene_id         # LWES scenes.json scene_id (may differ from catalog id)
+  pack_scene_id: scene_id
   description: >
-    TBD — barnvänlig platsbeskrivning.
-  primary_emotion: Comfort        # Sluten lista — se Emotional Contract i World Bible Part III
-  secondary_emotion: TBD          # Max 1; får inte motsäga primär
+    TBD — barnvänlig platsbeskrivning (sv).
+  primary_emotion: Comfort
+  secondary_emotion: TBD
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: always        # always | WDB progression key
+  unlock_condition: always
 
-# --- Quick reference (expanded below) ---
-emotion: Comfort
-hero_object: TBD
-landmark: TBD
+# --- §1 Purpose ---
+purpose:
+  summary: TBD
+  failure_impact: TBD
+  constitution_pillars: []
 
-# --- Emotional Contract ---
+# --- §2 Emotional Contract ---
 emotional_contract:
-  primary: Comfort
-  secondary: TBD
-  constitution_pillar: comfort    # capability | ownership | comfort | curiosity | imagination
-  first_five_seconds: >
-    TBD — vad barnet ser/hör utan text eller knapp.
+  primary_emotion: Comfort
+  secondary_emotion: TBD
+  stress_level: lowest
+  activity_level: calm
+  music_density: low
+  ambient_density: medium
+  light_temperature: warm
+  constitution_pillar: comfort
+  calmness_target: 80
 
-# --- Spatial Contract ---
+# --- §3 First Impression ---
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence: []
+
+# --- §4 Room Story ---
+room_story:
+  identity: TBD
+  lived_in: true
+  patina_level: subtle
+  inhabitants: []
+  open_questions: []
+
+# --- §5 Hero Object + landmark ---
+hero_object:
+  id: TBD
+  description: TBD
+  story_purpose: TBD
+  interaction_level: inspect_primary
+
+landmark:
+  id: TBD
+  description: TBD
+
+theme_hero_variants: {}
+
+# --- §6 Environmental Storytelling ---
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories: []
+
+# --- §7 Pet Behaviour ---
+pet_behaviour:
+  simulation_driven: true
+  states: []
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: false
+  pets: []
+
+# --- §8 Ambient Life ---
+ambient_life:
+  always_active: []
+  sometimes: []
+
+ambient_runtime:
+  director_scene_key: TBD
+  calmness_target: 80
+  max_visual_density: 0.65
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids: []
+  rare_events: []
+
+# --- §9 Build Progression ---
+build_progression:
+  day_1:
+    description: TBD
+    visible_elements: []
+  weeks_later:
+    description: TBD
+    visible_elements: []
+
+build_slots: []
+
+# --- §10 Memory Points ---
+memory_points: []
+
+story_anchors:
+  past: []
+  present: []
+  future: []
+
+# --- §11 Navigation ---
+navigation:
+  edges: []
+  return_anchor: TBD
+  comfort_zone: false
+
+navigation_targets: []
+
+# --- §12 Audio ---
+audio_contract:
+  profile_id: TBD
+  night_variant_id: TBD
+  master_gain_max: 0.65
+  duck_on_interact: true
+  diegetic_sources: []
+  abstract_ambient_allowed: false
+  layers_ref: TBD
+
+# --- §13 Weather ---
+weather_support:
+  inherit_world: true
+  effects: []
+
+# --- §14 QA ---
+qa:
+  acceptance_criteria: []
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+# --- Appendix: Spatial / Camera / Layout ---
 spatial_contract:
-  layout: TBD                     # wide_2_5d_interior | garden_exterior | etc.
+  layout: TBD
   entrance:
     id: TBD
     from_scene: TBD
     landmark_label_sv: TBD
     camera_on_enter: gentle_push_in
-  landmark:
-    id: TBD
-    description: TBD
   walking_area:
     id: TBD
     description: TBD
@@ -51,54 +163,6 @@ spatial_contract:
     id: TBD
     description: TBD
 
-# --- Hero Object (exactly one) ---
-hero_object:
-  id: TBD
-  description: TBD
-  story_purpose: TBD
-  interaction_level: inspect        # inspect | activate | open | navigate
-
-# --- Supporting Objects ---
-supporting_objects: []
-
-# --- Ambient Objects ---
-ambient_objects: []
-
-# --- Interactive Objects (LWES §22 types only) ---
-interactive_objects: []
-
-# --- Build Slots ---
-build_slots: []
-
-# --- Navigation (explicit edges — never inferred) ---
-navigation:
-  edges: []
-  return_anchor: TBD
-  comfort_zone: false
-
-# Quick nav list (human scan) — mirrors edges[].to_scene
-navigation_targets: []
-
-# --- NPC Contract ---
-npc_contract:
-  present: false
-  npcs: []
-  rules:
-    - No guilt dialogue for absence
-    - No quest giver behavior
-    - Celebrate real wins only (G-01)
-
-# --- Pet Contract ---
-pet:
-  allowed: false
-  favorite_spots: []
-pet_contract:
-  allowed: false
-  pets: []
-
-# --- Camera Contract ---
-camera:
-  type: fixed_2_5d                  # fixed_2_5d | wide_2_5d | scroll_pan
 camera_contract:
   profile_id: TBD
   type: fixed_2_5d
@@ -108,7 +172,7 @@ camera_contract:
   bounds: scene_rect
   reduced_motion_fallback: static_frame
 
-# --- Lighting Contract ---
+# --- Appendix: Lighting / Time of Day ---
 lighting_contract:
   profile_id: TBD
   primary_source: TBD
@@ -116,55 +180,43 @@ lighting_contract:
   time_variants: []
   weather_reactive: true
 
-# --- Audio Contract ---
-audio_contract:
-  profile_id: TBD
-  night_variant_id: TBD
-  master_gain_max: 0.65
-  duck_on_interact: true
-  layers_ref: TBD
+# --- Appendix: NPC ---
+npc_contract:
+  present: false
+  npcs: []
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
 
-# --- Ambient Runtime (Director) ---
-ambient:
-  birds: false
-  butterflies: false
-  dust: false
-ambient_runtime:
-  director_scene_key: TBD
-  calmness_target: 80
-  max_visual_density: 0.65
-  opening_grace_ms: 10000
-  silence_min_after_hero_ms: 15000
-  ambient_ids: []
-  rare_events: []
+# --- Appendix: Interactions ---
+interactive_objects: []
 
-# --- Story Anchors ---
-story_anchors:
-  past: []
-  present: []
-  future: []
+supporting_objects: []
+ambient_objects: []
 
-# --- Discoveries (LWES §23) ---
+# --- Appendix: Discoveries ---
 discoveries:
   common: []
   rare: []
   seasonal: []
   hidden: []
 
-# --- Seasonal Variants ---
+# --- Appendix: Season ---
 seasonal_variants:
   global_sync: true
   variants: []
 
-# --- Weather Support (atmosphere only) ---
-weather_support:
-  inherit_world: true
-  effects: []
-
-# --- Theme Variants ---
+# --- Appendix: Theme Variants ---
 theme_variants: {}
 
-# --- Performance Budget ---
+# --- Appendix: Accessibility (flags) ---
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+  no_sound_only_critical_info: true
+
+# --- Appendix: Performance ---
 performance_budget:
   target_fps: 60
   max_interactive_hotspots: 10
@@ -174,14 +226,7 @@ performance_budget:
   first_paint_ms_target: 200
   reduced_motion_path: true
 
-# --- Asset Manifest (semantic IDs only) ---
-asset_manifest:
-  scene_bg: TBD
-  layers: []
-  entities: []
-  theme_resolver: TBD
-
-# --- Prompt Manifest ---
+# --- Appendix: Prompt ---
 prompt_manifest:
   - id: TBD
     version: 0.1.0
@@ -191,7 +236,18 @@ prompt_manifest:
       no realistic horror, no empty grey rooms, no stock photo aesthetic
     catalog_ref: TBD
 
-# --- Animation Manifest ---
+# --- Appendix: Ecology (cross-ref World Bible) ---
+ecology:
+  cross_ref: .ai/product/bibles/WORLD_BIBLE.md
+  cause_effect_chains: []
+
+# --- Appendix: Assets / Animation ---
+asset_manifest:
+  scene_bg: TBD
+  layers: []
+  entities: []
+  theme_resolver: semantic_id_pattern
+
 animation_manifest:
   idle: []
   ambient: []
@@ -199,12 +255,10 @@ animation_manifest:
   interaction: []
   celebration: []
 
-# --- QA / Quality Gates ---
-quality_gates:
-  designer: TBD
-  artist: TBD
-  ai_gen: TBD
-  engineer: TBD
-
-# --- Part I checklist (11 questions) — answer in specs/*.md companion ---
-part_i_checklist_ref: specs/XXX-room_id.md
+# --- Meta ---
+meta:
+  world_id: TBD
+  wdb_world_slug: TBD
+  experience_pack: child_se
+  part_i_checklist_ref: specs/XXX-room.md
+  implementation_notes: TBD

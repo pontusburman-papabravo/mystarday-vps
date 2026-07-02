@@ -1,45 +1,547 @@
-# Hallen — RBS production contract (stub)
+# Hallen — RBS production contract
+# Migrated from legacy bibles/rooms/100_home.yaml (was misnumbered)
 # Human spec: docs/world/specs/101-hall.md
-# Full template: docs/world/_TEMPLATE.room.yaml
+# Merged from legacy home_hall.yaml · Authority: World Bible Rulebook 01–08
 
-status: draft
 production_number: 101
-schema_version: "1.0"
+room_id: hall
+display_name_sv: Hallen
+status: draft
+
+rulebook_gates:
+  constitution: true
+  topology_checklist: true
+  sds_pass: false
+  rbs_complete: false
+  progression_hooks: false
+  simulation_hooks: false
+  ecology_checklist: false
+  pipeline_approved: false
+
+rbs_version: "1.0"
+constitution_check: pending
 
 room:
   id: hall
-  display_name_sv: Hallen
   pack_scene_id: home_hall
-  description: TBD
+  display_name_sv: Hallen
+
+room_identity:
+  id: home_hall
+  display_name: Hallen
+  description: >
+    Hemmets inre hall — första rummet innanför dörren. Varm spis, morgonljus genom fönster,
+    vägar till sovrum, troféer och trädgården. Känslomässigt ankare i grannskapet (Part I Home Is The Center).
   primary_emotion: Comfort
-  secondary_emotion: TBD
-  theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  secondary_emotion: Belonging
+  theme_support:
+    - house
+    - castle
+    - treehouse
+    - space
+    - pirate
+    - wizard
+  unlock_condition: always
 
-emotion: Comfort
-hero_object: fireplace
-landmark: chimney
+emotional_contract:
+  primary: Comfort
+  constitution_pillar: comfort
+  first_five_seconds: >
+    Mjukt morgonljus. Spisen glöder lätt. Ingen modal, ingen recap —
+    bara en bekant hall som redan andas. Eventuellt hund sover vid spisen (LWES §58.1).
+  open_questions:
+    - who_warmed_the_fireplace
+    - what_is_outside_the_window_today
+    - where_did_the_dog_go_yesterday
+  pretend_affordances:
+    - pretend_arrival_home
+    - pretend_take_off_coat
+    - pretend_warm_hands_by_fire
+    - pretend_listen_at_door
 
-camera:
+spatial_contract:
+  layout: wide_2_5d_interior
+  entrance:
+    id: door_from_exterior
+    from_scene: home_exterior
+    landmark_label_sv: Dörren
+    camera_on_enter: gentle_push_in
+  landmark:
+    id: fireplace_hero
+    description: Öppen spis / brasa — hero object; hund vilar ofta här
+  walking_area:
+    id: hall_floor_center
+    description: Öppen golvyta mellan entré, spis och innerdörrar — avsiktligt tomrum för fantasi
+  interaction_zones:
+    - id: zone_entry_mat
+      accepts: [Place, Inspect]
+    - id: zone_fireplace
+      accepts: [Inspect, Activate]
+    - id: zone_window
+      accepts: [Inspect]
+    - id: zone_inner_doors
+      accepts: [Navigate]
+    - id: zone_coat_area
+      accepts: [Place, Inspect]
+  ambient_zones:
+    - id: zone_window_light
+      description: Morgonljusstråle — damm, fågelljud utifrån
+    - id: zone_chimney_smoke
+      description: Lätt rök — kopplad till Part I landmärke skorsten
+    - id: zone_fireplace_glow
+      description: Glöd-puls på spis
+  future_build_zones:
+    - id: zone_coat_peg
+      description: Tom vägg vid entré — kapstok (WDB routine_home_coat_peg)
+    - id: zone_museum_frame
+      description: Vägg för morgonfoto-ram (WDB routine_home_museum_frame)
+    - id: zone_balcony_door
+      description: Antydd utgång — balkongkrok legacy (WDB routine_home_balcony_hook)
+  camera_anchor:
+    id: hall_fixed_2_5d
+    description: Barn-ögonhöjd, fast 2.5D diorama — LWES camera_profile hall_fixed_2_5d
+
+hero_object:
+  id: fireplace_hero
+  description: Varm öppen spis med mjuk glöd — story anchor och comfort anchor (Part II SDS)
+  story_purpose: >
+    Barnet känner "här är det varmt och tryggt" utan förklarande copy.
+    Små berättelser: hund sover här dag 1, kanske vid sängen dag 2 (LWES §105 Rule 5).
+  interaction_level: inspect_primary
+
+supporting_objects:
+  - id: welcome_mat_slot
+    description: Ghost-plats för välkomstmatta vid entré
+    story_role: ownership
+  - id: first_light_window
+    description: Fönster där morgonljus tänds (progression routine_home_first_light)
+    story_role: capability
+  - id: coat_peg_wall
+    description: Vägg för kapstok — tom tills unlock
+    story_role: ownership
+  - id: inner_door_bedroom
+    description: Dörr till sovrum
+    story_role: navigation
+  - id: inner_door_trophy
+    description: Dörr till troférum / minnesvägg
+    story_role: navigation
+  - id: door_garden_exit
+    description: Utgång mot trädgården — idag prop_id door i morgonhus-playable
+    story_role: navigation
+  - id: kettle_steam_hook
+    description: Animerad ånga efter morgon-klar (WDB routine_home_kettle_steam)
+    story_role: comfort
+  - id: museum_frame_slot
+    description: Tom ram för morgonfoto-minne
+    story_role: belonging
+
+ambient_objects:
+  - id: light_dust_motes
+    description: Dammpartiklar i fönsterljus
+    budget_tier: subtle
+  - id: curtain_edge_sway
+    description: Gardinkant som rör sig i drag
+    budget_tier: subtle
+  - id: chimney_smoke_wisp
+    description: Tunn rök från skorsten — synlig via fönster eller spis
+    budget_tier: subtle
+  - id: floorboard_creak
+    description: Living object — sällsynt knarr
+    budget_tier: rare
+  - id: fire_glow_flicker
+    description: Spis-glöd ambient animation
+    budget_tier: subtle
+
+interactive_objects:
+  - id: door_garden
+    interaction_type: Navigate
+    target_scene: garden
+    landmark_label_sv: Trädgården
+    note: Shipped as prop_id door + leads_to_garden i morgonhus-playable.js
+
+  - id: door_bedroom
+    interaction_type: Navigate
+    target_scene: bedroom
+    landmark_label_sv: Sovrummet
+
+  - id: door_trophy
+    interaction_type: Navigate
+    target_scene: trophy_room
+    landmark_label_sv: Troféerna
+
+  - id: door_from_exterior
+    interaction_type: Navigate
+    target_scene: home_exterior
+    landmark_label_sv: Ut genom dörren
+    note: Return path — comfort_zone anchor
+
+  - id: welcome_mat_build
+    interaction_type: Place
+    build_slot: hall_welcome_mat
+    progression_key: progression.routine_home.welcome_mat
+    landmark_label_sv: Välkomstmattan
+
+  - id: first_light_window
+    interaction_type: Activate
+    progression_key: progression.routine_home.first_light
+    landmark_label_sv: Morgonljuset
+
+  - id: coat_peg_build
+    interaction_type: Place
+    build_slot: hall_coat_peg
+    progression_key: progression.routine_home.coat_peg
+    landmark_label_sv: Kapstoken
+
+  - id: fireplace_hero
+    interaction_type: Inspect
+    landmark_label_sv: Spisen
+
+  - id: dog_companion
+    interaction_type: Pet
+    progression_key: progression.routine_home.npc_mira
+    landmark_label_sv: Hunden
+
+  - id: window_bird_perch
+    interaction_type: Inspect
+    progression_key: progression.routine_home.bird
+    landmark_label_sv: Fågeln vid fönstret
+
+interactive_objects_count: 10
+
+build_slots:
+  - id: hall_welcome_mat
+    location: zone_entry_mat
+    required_part: welcome_mat
+    theme_variant: welcome_mat_{theme}
+    unlock: progression.routine_home.welcome_mat
+
+  - id: hall_coat_peg
+    location: zone_coat_peg
+    required_part: coat_peg
+    theme_variant: coat_peg_{theme}
+    unlock: progression.routine_home.coat_peg
+
+  - id: hall_museum_frame
+    location: zone_museum_frame
+    required_part: museum_frame
+    theme_variant: museum_frame_{theme}
+    unlock: progression.routine_home.museum
+
+navigation:
+  edges:
+    - nav_id: door_from_exterior
+      direction: in
+      from_scene: home_exterior
+      to_scene: home_hall
+      transition_profile: door_open_warm
+      landmark_label_sv: In genom dörren
+
+    - nav_id: door_garden
+      direction: out
+      from_scene: home_hall
+      to_scene: garden
+      transition_profile: door_fade_pan
+      landmark_label_sv: Trädgården
+
+    - nav_id: door_bedroom
+      direction: out
+      from_scene: home_hall
+      to_scene: bedroom
+      transition_profile: door_soft
+      landmark_label_sv: Sovrummet
+
+    - nav_id: door_trophy
+      direction: out
+      from_scene: home_hall
+      to_scene: trophy_room
+      transition_profile: door_soft
+      landmark_label_sv: Troféerna
+
+  return_anchor: door_from_exterior
+  comfort_zone: true
+
+npc_contract:
+  present: true
+  npcs:
+    - id: dog_companion
+      entity_ref: dog_companion
+      role: companion
+      max_bubbles_per_beat: 3
+      emotional_object: true
+      default_pose_near: fireplace_hero
+      progression_unlock: progression.routine_home.npc_mira
+      wdb_node_id: routine_home_mira_arrives
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      species: dog
+      nameable: true
+      hunger_timer: false
+      sick_state: false
+      interact_verbs: [pet, call]
+      home_anchor: fireplace_hero
+      entity_bible_ref: dog_companion
+
+camera_contract:
+  profile_id: hall_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_push_in
+  pan_speed: slow
+  bounds: scene_rect
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['garden', 'bedroom', 'trophy_room', 'workshop']
+lighting_contract:
+  profile_id: home_hall_morning
+  primary_source: window_morning_warm
+  secondary_source: fireplace_glow
+  time_variants:
+    - id: morning
+      color_temp: warm_gold
+    - id: evening
+      color_temp: amber_dim
+    - id: night
+      color_temp: cool_moon_window
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+audio_contract:
+  profile_id: home_hall_day
+  night_variant_id: home_hall_night
+  master_gain_max: 0.65
+  duck_on_interact: true
+  layers_ref: audio_bible/home_hall_day
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+ambient_runtime:
+  director_scene_key: home_hall
+  calmness_target: 80
+  max_visual_density: 0.65
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids:
+    - light_dust_motes
+    - curtain_edge_sway
+    - chimney_smoke_wisp
+    - fire_glow_flicker
+  rare_events:
+    - id: window_bird_land
+      cooldown_days: 1
+      progression_gate: progression.routine_home.bird
+    - id: kettle_steam_puff
+      progression_gate: progression.routine_home.kettle_anim
 
-build_slots: []
+story_anchors:
+  past:
+    - id: first_foot_inside
+      description: Välkomstmattan efter första Idag-klara morgon
+      progression_key: progression.routine_home.welcome_mat
+      wdb_node_id: routine_home_welcome_mat
+  present:
+    - id: warm_fireplace
+      description: Spisen glöder — hundens plats idag
+      entity: fireplace_hero
+    - id: morning_light
+      description: Fönsterljus efter routine_home_first_light
+      entity: first_light_window
+  future:
+    - id: museum_memories
+      description: Ram för morgonfoto / föräldraexport-minne
+      progression_key: progression.routine_home.museum
+      wdb_node_id: routine_home_museum_frame
+    - id: balcony_summer_air
+      description: Balkongkrok — sommarluft som legacy-mål
+      progression_key: progression.routine_home.balcony
+      wdb_node_id: routine_home_balcony_hook
+    - id: secret_breakfast
+      description: Hemlig frukostbricka för utforskare
+      progression_key: progression.routine_home.secret_tray
+      wdb_node_id: routine_home_breakfast_secret
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: floor_creak_spot
+      type: ambient
+      interaction_type: Inspect
+  rare:
+    - id: window_bird
+      type: ambient_discovery
+      progression_key: progression.routine_home.bird
+      wdb_node_id: routine_home_window_bird
+  seasonal:
+    - id: birthday_banner
+      event_ref: evt_birthday_mode
+      world_events_bible: true
+  hidden:
+    - id: secret_breakfast_tray
+      progression_key: progression.routine_home.secret_tray
+      wdb_node_id: routine_home_breakfast_secret
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [frost_window_edge, warm_fire_boost]
+    - season: summer
+      overlay_ids: [bright_window_wash, curtain_open_wide]
+    - season: birthday
+      overlay_ids: [banner_subtle, extra_warm_light]
+    - season: snow
+      event_ref: evt_snow_morning
+      overlay_ids: [frost_window_corner]
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_roof_soft
+      visual: window_droplets
+    - weather: wind
+      audio: curtains_breeze
+      visual: curtain_sway_amplitude_up
+    - weather: snow
+      visual: frost_window_corner
+
+theme_variants:
+  house:
+    skin_set: house_default
+    landmark_label: Skorsten med lätt rök
+  castle:
+    skin_set: castle_great_hall
+    landmark_label: Öppen eldstad i sten
+  treehouse:
+    skin_set: treehouse_platform_interior
+    landmark_label: Eldstad av stenring
+  space:
+    skin_set: habitat_corridor
+    landmark_label: Varm instrumentpanel-glöd
+  pirate:
+    skin_set: ship_galley_hall
+    landmark_label: Lykta och kartbord
+  wizard:
+    skin_set: tower_entry
+    landmark_label: Svävande ljusorb vid härd
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 10
+  max_animated_ambient: 4
+  max_particle_systems: 2
+  texture_memory_mb: 12
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+
+asset_manifest:
+  scene_bg: morgonhus_hall_bg
+  layers:
+    - sky_through_window
+    - hall_architecture
+    - ground_floor
+    - objects_mid
+    - foreground_door_frame
+  entities:
+    - fireplace_hero
+    - welcome_mat_slot
+    - dog_companion
+    - door_garden_exit
+  theme_resolver: semantic_id_plus_theme_suffix
+  shipped_asset_notes: >
+    Monolit idag: manifest id morgonhus-scene → public/images/child/morgonhus/scene@2x.webp.
+    Layer split + hit_areas: TBD (Appendix C scenes.json).
+
+prompt_manifest:
+  - id: hall_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No text on walls, no brand logos, no scary shadows,
+      no realistic horror, no empty grey rooms, no stock photo aesthetic,
+      no casino lighting, no achievement UI
+    catalog_ref: TBD
+  - id: fireplace_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No roaring flames, no smoke damage, no horror fireplace
+    catalog_ref: TBD
+
+animation_manifest:
+  idle:
+    - dog_idle_01
+    - dog_idle_02
+    - dog_sleep_fireplace
+  ambient:
+    - curtain_sway_slow
+    - fire_glow_flicker
+    - light_dust_drift
+    - kettle_steam_rise
+  hero:
+    - fireplace_ember_pulse
+  interaction:
+    - welcome_mat_place_snap
+    - door_open_garden
+    - first_light_glow_on
+    - coat_peg_place_snap
+  celebration:
+    - placement_whisper_sparkle
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai: pending
+  engineer: pending
 
 part_i_checklist_ref: specs/101-hall.md
+
+legacy_part_i_checklist:
+  topology_position: Hem centrum — in från home_exterior, ut till garden, bedroom, trophy_room
+  nav_in_out: door_from_exterior (in); door_garden, door_bedroom, door_trophy (out)
+  sightlines: Fönster mot trädgårdsträd; antydd rök/skorsten; innerdörrar synliga
+  primary_emotion: Comfort
+  landmark: fireplace_hero
+  seasons: global_sync — winter/summer/birthday/snow overlays
+  future_expansion: balcony_hook, museum_frame, coat_peg zones reserverade
+  hidden_areas: secret_breakfast_tray (hidden discovery)
+  build_slots: welcome_mat, coat_peg, museum_frame
+  window_test: Fönsterljus + antydd trädgård utanför; stig till trädgård via dörr
+  neighborhood_test: Boelig hall — spis, matta, hund, dörrar som leder någonstans
+  constitution_violation: false
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  starting_scene: true
+  lwes_strengthens_feeling:
+    - comfort
+    - imagination
+    - ownership
+  toy_density_target: 8
+  wdb_progression_refs:
+    - routine_home_welcome_mat
+    - routine_home_first_light
+    - routine_home_coat_peg
+    - routine_home_mira_arrives
+    - routine_home_kettle_steam
+    - routine_home_window_bird
+    - routine_home_museum_frame
+    - routine_home_balcony_hook
+    - routine_home_breakfast_secret
+  story_seeds:
+    - seed_id: package_door
+      trigger: surprise:daily
+      note: LWES pack example — koppling föräldrapaket fiction
+  implementation_notes: >
+    child-morgonhus.js använder world_slug routine_home och props welcome_mat, first_light, door.
+    Feature flag morgonhus_playable. Garden via LivingWorldTransition.enterGarden när garden_playable.
+    Pack scenes.json ej skapad — blueprint före implementation migration.
+  hotspot_hit_areas: TBD
+  entity_bible_rows_pending:
+    - fireplace_hero
+    - welcome_mat_slot
+    - first_light_window
+    - coat_peg_wall
