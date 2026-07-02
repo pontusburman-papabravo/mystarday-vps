@@ -88,6 +88,34 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
     );
   }
 
+  const signupSlimOn = await require('../activation-flags').isActivationFlagEnabled(
+    require('../activation-flags').FLAG_KEYS.signupSlim,
+    familyId
+  );
+  if (signupSlimOn && milestones.routine_ready) {
+    const { buildSignupJourneyContext } = require('./signup-journey');
+    const signupBlock = await buildSignupJourneyContext(familyId, milestones);
+    context.signup_journey = signupBlock;
+    if (signupBlock.active && signupBlock.experience) {
+      context.recommended_experiences = [signupBlock.experience];
+      context.celebration = null;
+      context.priority = signupBlock.priority === 'reflection' ? 'reflection'
+        : (signupBlock.priority === 'celebration' ? 'celebration' : 'coach');
+      context.blocking_experience = signupBlock.experience === 'sj_day7_reflection'
+        ? 'sj_day7_reflection'
+        : null;
+      if (signupBlock.reflection_story) {
+        context.signup_journey.reflection_story = signupBlock.reflection_story;
+      }
+    } else if (signupBlock.active && signupBlock.silent) {
+      context.recommended_experiences = [];
+      context.celebration = null;
+      context.priority = 'none';
+      context.blocking_experience = null;
+      context.reason = [...(context.reason || []), 'signup_journey_silent'];
+    }
+  }
+
   return enrichCelebrationCopy(familyId, context);
 }
 

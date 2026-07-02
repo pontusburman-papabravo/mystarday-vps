@@ -893,11 +893,13 @@ router.get('/activation-config', async (req, res) => {
         isActivationFlagEnabled(FLAG_KEYS.childHandoff, familyId),
         isActivationFlagEnabled(FLAG_KEYS.firstStarGuide, familyId),
         isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, familyId),
-      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan]) => ({
+        isActivationFlagEnabled(FLAG_KEYS.signupSlim, familyId),
+      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan, signupSlim]) => ({
         activation_onboarding_v1: onboarding,
         activation_child_handoff_v1: childHandoff,
         activation_first_star_guide_v1: firstStarGuide,
         activation_ai_starter_plan: aiStarterPlan,
+        activation_signup_slim_v1: signupSlim,
       })),
       activationDb.getByFamilyId(familyId),
     ]);

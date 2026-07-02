@@ -12,6 +12,7 @@ const FLAG_KEYS = {
   printScan: 'print_scan_beta',
   referral: 'referral_program',
   nudge: 'activation_nudge_v1',
+  signupSlim: 'activation_signup_slim_v1',
 };
 
 /** Core ACT-1 onboarding flags — excludes legacy 7-day program sunset flags. */

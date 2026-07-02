@@ -35,11 +35,17 @@
       });
   }
 
+  function isSlimSignup() {
+    return Boolean(config && config.flags && config.flags.activation_signup_slim_v1);
+  }
+
   function isHandoffEnabled() {
+    if (isSlimSignup()) return false;
     return Boolean(config && config.flags && config.flags.activation_child_handoff_v1);
   }
 
   function isAnyAct1OnboardingFlagEnabled() {
+    if (isSlimSignup()) return false;
     if (!config || !config.flags) return false;
     return Boolean(
       config.flags.activation_child_handoff_v1

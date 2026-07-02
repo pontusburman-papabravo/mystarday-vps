@@ -23,7 +23,29 @@
   const COACH_ROUTES = {
     coach_evening: '/planning',
     coach_expand: '/for-dig',
+    sj_introduce_stars: '/rewards',
+    sj_day2_try_routine: '/schedule',
   };
+
+  const SJ_EXPERIENCES = new Set([
+    'sj_day1_child_preview',
+    'sj_day2_try_routine',
+    'sj_day3_child_try',
+    'sj_celebrate_star',
+    'sj_introduce_stars',
+    'sj_welcome_child_login',
+    'sj_help_get_started',
+    'sj_day7_reflection',
+  ]);
+
+  function lookupExperience(registry, expKey, phase) {
+    if (expKey && expKey.startsWith('sj_')) {
+      return registry?.phases?.BUILDING_ROUTINE?.[expKey]
+        || registry?.phases?.FIRST_USE?.[expKey]
+        || {};
+    }
+    return registry?.phases?.[phase]?.[expKey] || {};
+  }
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -58,6 +80,32 @@
 
     if (expKey === 'handoff_to_child' && window.DashboardChildHandoff) {
       DashboardChildHandoff.startChildLogin();
+      return;
+    }
+
+    if (
+      expKey === 'sj_day1_child_preview'
+      || expKey === 'sj_day3_child_try'
+      || expKey === 'sj_help_get_started'
+    ) {
+      if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
+        DashboardChildHandoff.startChildLogin();
+      } else {
+        window.location.href = '/child-login';
+      }
+      return;
+    }
+
+    if (expKey === 'sj_celebrate_star' || expKey === 'sj_welcome_child_login') {
+      if (window.JourneyCelebration && JourneyCelebration.dismissCelebration) {
+        JourneyCelebration.dismissCelebration();
+      }
+      return;
+    }
+
+    if (expKey === 'sj_day7_reflection') {
+      const card = document.querySelector('.journey-coach-card');
+      if (card) card.closest('#' + MOUNT_ID).classList.add('hidden');
       return;
     }
 
@@ -101,7 +149,12 @@
     }
 
     const expKey = context?.recommended_experiences?.[0];
-    if (!expKey || context.priority !== 'coach') {
+    const isSj = expKey && SJ_EXPERIENCES.has(expKey);
+    const allowedPriority = isSj
+      ? ['coach', 'celebration', 'reflection'].includes(context.priority)
+      : context.priority === 'coach';
+
+    if (!expKey || !allowedPriority) {
       mount.classList.add('hidden');
       mount.innerHTML = '';
       return;
@@ -113,11 +166,32 @@
       return;
     }
 
-    const exp = registry?.phases?.[context.phase]?.[expKey] || {};
+    const exp = lookupExperience(registry, expKey, context.phase);
+    const isCelebration = context.priority === 'celebration' || exp.tone === 'celebration';
+    const isReflection = expKey === 'sj_day7_reflection' || context.priority === 'reflection';
+
     mount.classList.remove('hidden');
+
+    if (isReflection) {
+      const story = context.signup_journey?.reflection_story || exp.body || '';
+      mount.innerHTML =
+        '<div class="journey-coach-card rounded-2xl border-2 border-gold/40 bg-gold-light p-4 mb-4" role="region" aria-label="Veckoreflektion">' +
+        '<p class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1">En vecka</p>' +
+        '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(exp.headline || 'En vecka tillsammans') + '</p>' +
+        '<p class="text-sm text-navy whitespace-pre-line mb-3">' + esc(story) + '</p>' +
+        (exp.cta ? '<button type="button" class="journey-coach-cta w-full py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(exp.cta) + '</button>' : '') +
+        '</div>';
+      bindCta(mount.querySelector('.journey-coach-card'), expKey, exp);
+      return;
+    }
+
+    const borderClass = isCelebration ? 'border-gold bg-gold-light' : 'border-indigo-200 bg-indigo-50';
+    const labelClass = isCelebration ? 'text-gold-dark' : 'text-indigo-700';
+    const label = isCelebration ? 'Milstolpe' : 'Nästa steg';
+
     mount.innerHTML =
-      '<div class="journey-coach-card rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 mb-4" role="region" aria-label="Nästa steg">' +
-      '<p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Nästa steg</p>' +
+      '<div class="journey-coach-card rounded-2xl border-2 ' + borderClass + ' p-4 mb-4" role="region" aria-label="' + esc(label) + '">' +
+      '<p class="text-xs font-bold uppercase tracking-wide ' + labelClass + ' mb-1">' + esc(label) + '</p>' +
       '<p class="font-heading font-bold text-navy text-base mb-1">' + esc(exp.headline || '') + '</p>' +
       '<p class="text-sm text-text-soft mb-3">' + esc(exp.body || '') + '</p>' +
       tipsHtml(expKey) +
