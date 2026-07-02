@@ -236,6 +236,10 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   cursor: pointer;
   color: #f4f4ff;
   font-family: inherit;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .parent-quick-tile:active {

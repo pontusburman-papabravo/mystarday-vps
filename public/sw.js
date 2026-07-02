@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v475';
-// stjarndag-v475: Kontextuella journey-tips i hjälp på alla sidor (help-journey-tip.js)
+const CACHE_NAME = 'stjarndag-v476';
+// stjarndag-v476: Hem magic — snabbåtgärder (efterhand + engångsaktivitet) tillbaka på hubben
 // stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
