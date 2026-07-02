@@ -320,3 +320,43 @@ body.seo-article-page { background: var(--cream); }
   line-height: 1.6;
   margin: 1.5rem 0;
 }
+
+.seo-two-track {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.75rem 0 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .seo-two-track { grid-template-columns: 1fr 1fr; }
+}
+
+.seo-two-track__card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.25rem;
+}
+
+.seo-two-track__card h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+}
+
+.seo-two-track__card p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.seo-two-track__tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--amber-dk);
+  margin-bottom: 0.35rem;
+}
