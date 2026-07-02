@@ -28,7 +28,8 @@ async function main() {
   }
 
   for (const [path, needle] of [
-    ['/js/onboarding-activation.js?v=1.1.0', 'patchStep6Btn'],
+    ['/js/onboarding-activation.js?v=1.3.0', 'confirmHandoffSkip'],
+    ['/js/onboarding-first-star.js?v=1.0.0', 'patchStep6Btn'],
     ['/admin/admin-analytics.js', 'activation-funnel'],
     ['/js/planning-back-nav.js', 'planFromPlanning'],
   ]) {
