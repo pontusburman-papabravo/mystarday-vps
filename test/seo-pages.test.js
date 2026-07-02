@@ -107,6 +107,7 @@ test('landing problem and solution sections mention routines and skattkammaren l
   assert.match(html, /morgonrutiner som havererar/);
   assert.match(html, /Barnet ser vad som ska hända/);
   assert.match(html, /href="\/skattkammaren\?demo=1"/);
+  assert.match(html, /href="\/resurser"/);
 });
 
 test('bildschema-app cornerstone has hub sections, FAQ, guides and tracking', () => {
@@ -122,6 +123,7 @@ test('bildschema-app cornerstone has hub sections, FAQ, guides and tracking', ()
   assert.match(html, /"@type": "FAQPage"/);
   assert.match(html, /seo-article\.css/);
   assert.match(html, /article-events\.js/);
+  assert.match(html, /href="\/resurser"/);
   assert.match(html, /data-track="article_cta_register"/);
   assert.match(html, /utm_content=guide-bildschema-app/);
   assert.match(html, /href="\/morgonrutin-barn"/);
@@ -152,10 +154,12 @@ test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
   assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/resurser"/);
   assert.match(html, /seo-article\.css/);
   assert.match(html, /utm_content=resurs-hub/);
+  assert.match(html, /href="\/resurser\/morgon"/);
   assert.match(html, /kommer snart/);
-  assert.doesNotMatch(html, /href="\/resurser\/pdf\//);
   const xml = buildSitemapXml();
   assert.match(xml, /\/resurser<\/loc>/);
+  assert.match(xml, /\/resurser\/morgon<\/loc>/);
+  assert.match(xml, /\/resurser\/pdf\/morgonschema<\/loc>/);
 });
 
 test('resurser registry documents category URL conventions', () => {
@@ -163,6 +167,30 @@ test('resurser registry documents category URL conventions', () => {
   assert.equal(categoryPath('morgon'), '/resurser/morgon');
   assert.equal(registerUtmPath('morgon'), '/register?utm_content=resurs-morgon');
   assert.equal(registerUtmPath(), '/register?utm_content=resurs-hub');
+});
+
+test('R1 resurser pages return 200 and PDF files are served', async () => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+  }
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    for (const p of ['/resurser/morgon', '/resurser/pdf/morgonschema', '/resurser/bildkort/morgon']) {
+      const res = await fetch(`${http.baseUrl}${p}`);
+      assert.equal(res.status, 200, p);
+    }
+    const pdf = await fetch(`${http.baseUrl}/resurser/pdf/morgonschema.pdf`);
+    assert.equal(pdf.status, 200);
+    assert.match(pdf.headers.get('content-type') || '', /pdf/i);
+  } finally {
+    await http.close();
+  }
+});
+
+test('morgonrutin guide links to morgonschema PDF', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/morgonrutin-barn.html'), 'utf8');
+  assert.match(html, /href="\/resurser\/pdf\/morgonschema"/);
 });
 
 test('GET /resurser returns 200', async () => {
@@ -203,6 +231,8 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
     '/alternativ-bildschema-tavla': 'public/alternativ-bildschema-tavla.html',
     '/veckoschema-bildstod': 'public/veckoschema-bildstod.html',
     '/resurser': 'public/resurser.html',
+    '/resurser/morgon': 'public/resurser/morgon.html',
+    '/resurser/pdf/morgonschema': 'public/resurser/pdf-morgonschema.html',
   };
   for (const [p, file] of Object.entries(pageFiles)) {
     const html = fs.readFileSync(path.join(ROOT, file), 'utf8');

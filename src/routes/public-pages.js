@@ -85,10 +85,26 @@ router.get('/veckoschema-bildstod', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'veckoschema-bildstod.html'));
 });
 
-// Resursbibliotek hub (Phase R0 — category pages ship in R1/R2)
+// Resursbibliotek hub + R1 category/PDF pages (Phase R0/R1)
+const {
+  R1_CATEGORY_PAGES,
+  R1_BILDKORT_PAGES,
+  R1_PDF_PAGES,
+} = require('../../config/resurser-r1');
+
+function sendPublicHtml(relativeFile) {
+  return (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', relativeFile));
+  };
+}
+
 router.get('/resurser', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'resurser.html'));
 });
+
+for (const page of [...R1_CATEGORY_PAGES, ...R1_BILDKORT_PAGES, ...R1_PDF_PAGES]) {
+  router.get(page.path, sendPublicHtml(page.file));
+}
 
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));

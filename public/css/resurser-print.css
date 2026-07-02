@@ -1,0 +1,113 @@
+/* Resursbibliotek — printable bildkort + download pages */
+
+.resurser-print-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0 2rem;
+}
+
+.resurser-print-actions .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(28, 35, 64, 0.12);
+  background: #fff;
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.resurser-print-actions .btn-secondary:hover {
+  border-color: var(--amber-dk, #d4891a);
+  color: var(--amber-dk, #d4891a);
+}
+
+.resurser-download-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 2rem;
+}
+
+.resurser-download-list li {
+  margin-bottom: 0.65rem;
+}
+
+.resurser-download-list a {
+  font-weight: 600;
+  color: var(--amber-dk, #d4891a);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.resurser-bildkort-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.resurser-bildkort {
+  background: #fff;
+  border: 2px solid rgba(28, 35, 64, 0.08);
+  border-radius: 16px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.resurser-bildkort__emoji {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.resurser-bildkort__label {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+.resurser-related-links {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(28, 35, 64, 0.08);
+}
+
+@media print {
+  body.seo-article-page {
+    background: #fff;
+  }
+
+  .back-home,
+  .seo-cta-card,
+  .resurser-print-actions,
+  .cookie-banner,
+  script {
+    display: none !important;
+  }
+
+  .seo-article {
+    max-width: none;
+    padding: 0.5in;
+  }
+
+  .resurser-bildkort-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.35in;
+  }
+
+  .resurser-bildkort {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+}

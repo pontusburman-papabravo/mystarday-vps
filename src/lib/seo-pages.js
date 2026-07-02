@@ -3,6 +3,8 @@
  * All other HTML responses get <meta name="robots" content="noindex"> injected.
  */
 
+const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
+
 const SEO_INDEXABLE_PATHS = new Set([
   '/',
   '/register',
@@ -21,6 +23,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/alternativ-bildschema-tavla',
   '/veckoschema-bildstod',
   '/resurser',
+  ...R1_INDEXABLE_PATHS,
 ]);
 
 function normalizeSeoPath(path) {
