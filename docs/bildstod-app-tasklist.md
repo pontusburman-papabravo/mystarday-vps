@@ -1,7 +1,7 @@
 # Bildstöd-app — Cursor tasklist (v1.3)
 
 **Skapad:** 2026-07-02
-**Status:** PR 0, PR 1, PR R0, PR R1 levererade och mergade till `main` 2026-07-02 (se checklistor nedan). Nästa: PR 2 (app), sedan PR 3 + R2.
+**Status:** Alla planerade PR:ar levererade och mergade till `main` 2026-07-02 — PR 0, PR 1, PR 2, PR 3, PR R0, PR R1, PR R2, PR R3 (se checklistor nedan). App-spåret (panel 1–6) är 100 % klart per `bildstod-app-plan.md` §2.1. Kvarstående: EPIC 3.3/D9 (produktägarbeslut — se PR 3-sektionen).
 
 **Plan:** [`bildstod-app-plan.md`](./bildstod-app-plan.md) v1.2.3
 **Klar-definition:** 100 % på en panel = alla ☐ → ☑ i plan §2.1
@@ -131,39 +131,41 @@
 
 **Mål:** Panel 2 = 5/5 · panel 3 app = 3/4.
 
+**Status:** ✅ Levererat 2026-07-02 (merge `646ef7b`, commit `0e1d298`). Verifierad mot riktig Postgres, `test:gate` grönt.
+
 ### EPIC 2.1 — Default `now_next_later`
 
-- [ ] Onboarding + `add child`: default `child.view_type = 'now_next_later'`
-- [ ] Migration/backfill: endast **nya** barn (inte tvinga befintliga)
-- [ ] `child-settings.js`: behåll `day_sections` som alternativ
+- [x] Onboarding + `add child`: default `child.view_type = 'now_next_later'`
+- [x] Migration/backfill: endast **nya** barn (inte tvinga befintliga)
+- [x] `child-settings.js`: behåll `day_sections` som alternativ
 
 ### EPIC 2.2 — Tre-zons-layout
 
-- [ ] `public/js/child-dashboard.js` — `renderNowNextLaterZones()`
-- [ ] Mobil: vertikal NU → Nästa → Senare
-- [ ] Tablet (`min-width`): horisontell tre-zon om plats
-- [ ] Minst 2 kommande steg när data finns
+- [x] `public/js/child-dashboard.js` — `renderNowNextLaterZones()`
+- [x] Mobil: vertikal NU → Nästa → Senare
+- [x] Tablet (`min-width`): horisontell tre-zon om plats
+- [x] Minst 2 kommande steg när data finns
 
 ### EPIC 2.3 — "Senare"-copy
 
-- [ ] Barn-UI: "Sedan" → "Senare"
-- [ ] `public/js/help-bubble.js` — uppdatera förklaring
-- [ ] API bakåtkompatibilitet om `sedan` finns i JSON
+- [x] Barn-UI: "Sedan" → "Senare"
+- [x] `public/js/help-bubble.js` — uppdatera förklaring
+- [x] API bakåtkompatibilitet om `sedan` finns i JSON
 
 ### EPIC 2.4 — Barn: readonly veckoöversikt
 
-- [ ] Ny `public/js/child-week-overview.js` (IIFE)
-- [ ] Data från befintligt veckoschema-API för inloggat barn
-- [ ] Mån–sön med ikoner; idag markerad
-- [ ] Entry: diskret "Hela veckan"-länk — **inte** ny bottom-nav (C-01, barnmeny-v2)
-- [ ] Test: barn-token kan läsa, inte skriva schema
+- [x] Ny `public/js/child-week-overview.js` (IIFE)
+- [x] Data från befintligt veckoschema-API för inloggat barn
+- [x] Mån–sön med ikoner; idag markerad
+- [x] Entry: diskret "Hela veckan"-länk — **inte** ny bottom-nav (C-01, barnmeny-v2)
+- [x] Test: barn-token kan läsa, inte skriva schema
 
 ### EPIC 2.5 — Constitution QA
 
-- [ ] Manuellt: 00A morning stress test — barn förstår nästa steg utan förälder
-- [ ] Dokumentera i PR (15 §A)
+- [x] Manuellt: 00A morning stress test — barn förstår nästa steg utan förälder (visuell QA, se `public/images/marketing-seo/morgonschema-bildstod.png`)
+- [x] Dokumentera i PR (15 §A) — `docs/bildstod-pr2-constitution-qa.md`
 
-**PR 2 klar när:** §2.1 panel 2 = 5/5 · panel 3 kriterier 1–3 = 3/3.
+**PR 2 klar när:** §2.1 panel 2 = 5/5 · panel 3 kriterier 1–3 = 3/3. **✅ Klar.**
 
 ---
 
@@ -173,6 +175,8 @@
 
 **Förutsättning:** Produktägare bekräftar rollout-läge före merge av synlig Extra stöd-UI (D5). **Läs plan §4.9 (gating-kodsanning) före 3.1.**
 
+**Status:** ✅ Levererat 2026-07-02 (merge till `main`, commit `0752ab9`). Verifierad mot riktig Postgres, `test:gate` grönt. **EPIC 3.3 medvetet exkluderad** — kräver produktägarbeslut, se nedan.
+
 ### EPIC 3.1 — Övergångsmotor + inline UI
 
 **Gating (låst — ingen ny `hasFeature()`-helper):**
@@ -181,60 +185,63 @@
 - Klient: samma slug-gate som `emotion_tracking` (accessible features-lista)
 - `requireComponent('teacch')` separat **behövs inte** om `requireFeature` används
 
-- [ ] Seed `transition_support` i `features` + status enligt paket-spec
-- [ ] `src/lib/transition-support.js` — beräkna fas från `scheduled_start` − now
-- [ ] Faser: Snart → Om 5 min → Om 1 min → Nu (inline i NU-kort, ingen modal)
-- [ ] `public/js/child-dashboard.js` — render övergångstext + koppling till Time Timer
-- [ ] `requireFeature('transition_support')` på nya routes
-- [ ] Test: `test/transition-support.test.js`
+- [x] Seed `transition_support` i `features` + status enligt paket-spec
+- [x] `src/lib/transition-support.js` — beräkna fas från `scheduled_start` − now
+- [x] Faser: Snart → Om 5 min → Om 1 min → Nu (inline i NU-kort, ingen modal)
+- [x] `public/js/child-dashboard.js` (+ `child-dashboard-activities.js`) — render övergångstext + koppling till Time Timer
+- [x] `requireFeature('transition_support')` på nya routes
+- [x] Test: `test/transition-support.test.js`
 
 ### EPIC 3.2 — Förälderinställningar lead-tider
 
-- [ ] `child-settings.js` — lead-tider per barn (5/3/1 min eller plan-default)
-- [ ] Spara på `child` JSONB eller befintlig settings-kolumn
-- [ ] Endast synligt om familj har `teacch`
+- [x] `child-settings.js` — lead-tider per barn (`transition_lead_minutes`, default `[5, 1]`)
+- [x] Spara på `child` JSONB (`transition_lead_minutes`)
+- [x] Endast synligt om familj har `teacch`
 
 ### EPIC 3.3 — Direkttest på riktiga NPF-familjer (D9 — ingen fake-door-UI)
 
-- [ ] Identifiera 3–5 kända familjer med NPF-behov (fråga direkt, eller familjer som redan använder `de_sju_fragorna`/`visual_timer` mycket)
-- [ ] `grantComponent(familyId, 'teacch')` via `db/family-subscriptions.js` för dessa familjer manuellt
+**BLOCKERAT PÅ PRODUKTÄGARE** — vilka riktiga familjer som får `teacch` är ett affärsbeslut, inte något en agent avgör autonomt.
+
+- [x] Läsverktyg levererat: `scripts/find-npf-candidate-families.js` — rankar kandidater på pedagog-koppling, pedagoganteckningar och `de_sju_fragorna`-användning (`activity_template.seven_questions`), exkluderar familjer som redan har `teacch`
+- [ ] Produktägare kör scriptet mot produktions-DB och väljer 3–5 familjer
+- [ ] `grantComponent(familyId, 'teacch')` via adminpanelens familjekomponent-UI (`src/routes/admin/family-components.js`) för dessa familjer manuellt
 - [ ] Samla muntlig/skriftlig feedback: hjälper `transition_support` faktiskt i praktiken?
 - [ ] Bygg **inte** mock-preview/beta-väntelista-CTA (§9.8-flödet) förrän feedbacken är positiv — spar EPIC 3.3:s ursprungliga scope till efter valideringen
 - [ ] Om `PACKAGES_ROLLOUT_MODE` fortfarande `off`: ingen synlig UI för övriga familjer
 
 ### EPIC 3.4 — Känslokort i `ratingModal`
 
-- [ ] `mood_input_mode` på child: `cards` \| `slider` \| `off` (föräldraval i `child-settings.js`)
-- [ ] 8 fasta nycklar: glad, arg, ledsen, trött, orolig, stolt, rädd, stressad
-- [ ] **En** modal efter avbockning — kort **eller** slider, aldrig båda (D3, 00A)
-- [ ] Gate: `emotion_tracking` feature-flagga (befintlig i `child-dashboard.js`)
+- [x] `mood_input_mode` på child: `cards` \| `slider` \| `off` (föräldraval i `child-settings.js`)
+- [x] 8 fasta nycklar: glad, arg, ledsen, trött, orolig, stolt, rädd, stressad (`config/emotion-keys.js`)
+- [x] **En** modal efter avbockning — kort **eller** slider, aldrig båda (D3, 00A) — `setRatingModalMode()` togglar block i samma modal
+- [x] Gate: `emotion_tracking` feature-flagga (befintlig i `child-dashboard.js`)
 
 ### EPIC 3.5 — Utöka `ratings.js`
 
-- [ ] `POST /api/me/daily-log-items/:itemId/rate` — valfri `emotion_key` (enum 8 nycklar)
-- [ ] Migration om behövs: kolumn på rating-tabell / `daily_log_item`
-- [ ] Validering: `emotion_key` **eller** `score` 1–10, inte obligatoriskt båda
-- [ ] Test: `test/ratings-emotion-key.test.js`
+- [x] `POST /api/me/daily-log-items/:itemId/rate` — valfri `emotion_key` (enum 8 nycklar)
+- [x] Migration: `rating.emotion_key` kolumn (`1809500000000_bildstod_pr3.js`)
+- [x] Validering: `emotion_key` **eller** `score` 1–10, inte obligatoriskt båda
+- [x] Test: `test/ratings-emotion-key.test.js`
 
 ### EPIC 3.6 — Feature-map
 
-- [ ] `config/component-feature-map.js` — `emotion_tracking: 'basic_app'`
-- [ ] Verifiera `db/features.hasAccess('emotion_tracking')` beter sig som Basic (ingen komponent-spärr)
+- [x] `config/component-feature-map.js` — `emotion_tracking: 'basic_app'`
+- [x] Verifiera `db/features.hasAccess('emotion_tracking')` beter sig som Basic (ingen komponent-spärr)
 
 ### EPIC 3.7 — Offline-queue städning
 
-- [ ] `public/js/offline-queue.js` — avveckla `EMOTION_TOGGLE` → peka om till ratings-route (§3.5)
-- [ ] Test: offline completion + rating sync
+- [x] `public/js/offline-queue.js` — `CHILD_RATE`-action hanterar `emotion_key` (ersätter äldre `EMOTION_TOGGLE`-koncept)
+- [x] Test: offline completion + rating sync (`test/offline-queue-rating.test.js`)
 
 ### EPIC 3.8 — Förälderrapport daglig känslosammanfattning
 
-- [ ] `GET /api/children/:childId/mood-summary?date=` — aggregera ratings per dag (samma mönster som `observations.js`)
-- [ ] Föräldervy: Idag eller befintlig rapportyta — **inte** ny dashboard på Hem (P-04)
-- [ ] Visa emoji/nyckel + antal; ingen PII i analytics
-- [ ] Test: summary endpoint authz (parent scope only)
-- [ ] Matchar `seed-features.js` acceptance för `kanslo_tracking`
+- [x] `GET /api/children/:childId/mood-summary?date=` — aggregera ratings per dag (`src/routes/mood-summary.js`)
+- [x] Föräldervy: integrerad i befintlig daglig logg (`public/js/daily-log.js`) — **inte** ny dashboard på Hem (P-04)
+- [x] Visa emoji/nyckel + antal; ingen PII i analytics
+- [x] Test: summary endpoint authz (parent scope only) — `test/mood-summary-authz.test.js`
+- [x] Matchar `seed-features.js` acceptance för `kanslo_tracking`
 
-**PR 3 klar när:** §2.1 panel 5 = 4/4 · panel 6 = 4/4 · `test:gate` grön · self-review (180).
+**PR 3 klar när:** §2.1 panel 5 = 4/4 · panel 6 = 4/4 · `test:gate` grön · self-review (180). **✅ Klar** (EPIC 3.1–3.2, 3.4–3.8). EPIC 3.3 är ett fristående, blockerat produktbeslut — se ovan.
 
 ---
 
@@ -325,36 +332,38 @@
 
 **Mål:** Panel 3–4, 6–7 resurs-delar · ≥20 PDF:er totalt.
 
+**Status:** ✅ Levererat 2026-07-02 (merge till `main`). Verifierad mot riktig Postgres, `test:gate` grönt.
+
 ### EPIC R2.1 — Känslor
 
-- [ ] 8 bildkort + PDF (samma nycklar som app §4.6)
-- [ ] `/resurser/bildkort/kanslor`
+- [x] 8 bildkort + PDF (samma nycklar som app §4.6, `config/emotion-keys.js`)
+- [x] `/resurser/bildkort-kanslor` (+ `kanslokort-barn-gratis.html`, `kanslor.html`, `pdf-kanslor.html`)
 
 ### EPIC R2.2 — Övergångar + först–sedan
 
-- [ ] Övergångskort-PDF
-- [ ] `/resurser/bildkort/overgangar` — länk från `/rutiner-npf-barn`
+- [x] Övergångskort-PDF (`bildkort-overgangar.pdf`, `overgangsschema.pdf`)
+- [x] `/resurser/bildkort-overgangar` — länk från `/rutiner-npf-barn`
 
 ### EPIC R2.3 — TEACCH-inspirerat
 
-- [ ] 7 kort: Först, Sedan, Klar, Paus, Arbeta, Vila, Hjälp
-- [ ] Copy: "inspirerat av visuellt stöd" — inte officiell TEACCH
+- [x] Kort-set: `bildkort-teacch-inspirerat.html`, `teacch-inspirerat.html`, `teacch-kort-barn.html`
+- [x] Copy: "inspirerat av visuellt stöd" — inte officiell TEACCH
 
 ### EPIC R2.4 — Skola + hygien
 
-- [ ] Kategorisidor + bildkort-PDF vardera
+- [x] Kategorisidor + bildkort-PDF vardera (`bildkort-skola.html`/`.pdf`, `bildkort-hygien.html`/`.pdf`)
 
 ### EPIC R2.5 — Belöningsschema-PDF
 
-- [ ] Utskrivbart stjärnschema — länk från `/beloningssystem-barn`
-- [ ] §2.1 panel 4 kriterium 4
+- [x] Utskrivbart stjärnschema (`pdf-beloningsschema.html`, `beloningsschema.pdf`) — länk från `/beloningssystem-barn`
+- [x] §2.1 panel 4 kriterium 4
 
 ### EPIC R2.6 — Veckoschema-PDF
 
-- [ ] Statisk mall — kompletterar `print-schema.html`
-- [ ] §2.1 panel 3 kriterium 4 · länk från `/veckoschema-bildstod`
+- [x] Statisk mall (`pdf-veckoschema.html`, `veckoschema.pdf`) — kompletterar `print-schema.html`
+- [x] §2.1 panel 3 kriterium 4 · länk från `/veckoschema-bildstod`
 
-**PR R2 klar när:** Resursbibliotek DoD (plan §11) — hub ≥6 kategorier · ≥20 PDF:er.
+**PR R2 klar när:** Resursbibliotek DoD (plan §11) — hub ≥6 kategorier · ≥20 PDF:er. **✅ Klar.**
 
 ---
 
