@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v468';
+const CACHE_NAME = 'stjarndag-v469';
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js

@@ -14,7 +14,7 @@
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
 | ACT-1 v1 | Kod mergad, flags OFF | `docs/act-1-rollout-runbook.md` |
-| För dig | ~70 % | Sprint 3–5 öppen |
+| För dig | **v1 Complete** | Sprint 3–5; Sprint 4 defer |
 
 ---
 

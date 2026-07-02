@@ -21,7 +21,7 @@ Efter senaste 24h-sprinten finns fungerande kod i flera spår (~45–90 % per sp
 |------|-------------|--------|
 | FEAT-1 v1 (boendeschema) | **Closed** | Phase 5 mergad (#498) |
 | Parent Hubs 10/10 | **Complete** | Hub sweep v2 (#499) |
-| För dig (Sprint 1–5) | ~70 % | Sprint 3–5 delvis — Agent 3 Våg 2 |
+| För dig (Sprint 1–5) | **v1 Complete** | Sprint 3–5 stängda; Sprint 4 defer ADR |
 | Child Worlds 10/10 | **Complete (v1)** | Idag + Skatt shipped; Mina personer V0 (#502) |
 | Illustrationer | **Complete** | Registry + garden + decals (#501) |
 | First Star / ACT-1 v1 | **v1 kod klar** | Handoff mergad (#500); flags OFF |

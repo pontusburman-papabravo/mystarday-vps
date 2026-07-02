@@ -42,7 +42,7 @@
 
 **Tester:** `npm run test:gate` — 93/93 grön på release candidate.
 
-**Medvetet utanför v1:** FEAT-1B (`custom`), FEAT-1C (overrides), För dig Sprint 4 nav-flytt, AI starter plan, print/PDF custody.
+**Medvetet utanför v1:** FEAT-1B (`custom`), FEAT-1C (overrides), För dig Sprint 4 nav-flytt (defer ADR), AI starter plan, print/PDF custody.
 
 ---
 
@@ -50,7 +50,7 @@
 
 - Hem-hub: coach/handoff kan ligga under fold på små skärmar när barnrad + vecka fyller (icke-blockerande)
 - ACT-1: alla `activation_*` flaggor OFF tills manuell rollout
-- För dig Sprint 3–5: ej fullständigt stängt (Agent 3, Våg 2)
+- För dig Sprint 3–5: **v1 Complete** (Sprint 4 nav defer till v1.1, se `docs/decisions/for-dig-sprint4-defer.md`)
 
 ---
 
