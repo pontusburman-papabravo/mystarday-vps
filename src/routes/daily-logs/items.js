@@ -66,7 +66,7 @@ itemRouter.delete('/:itemId', async (req, res) => {
 
     getChildFamilyId(item.child_id).then(fid => {
       if (fid) broadcast(fid, 'SCHEDULE_UPDATED', { once_task: true });
-    }).catch(() => {});
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Broadcast after delete failed:', err.message));
 
     res.json({ ok: true });
   } catch (err) {
@@ -100,7 +100,9 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
     res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
     if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
-      handleActivityCompleted(req.params.itemId, item.child_id, false).catch(() => {});
+      handleActivityCompleted(req.params.itemId, item.child_id, false).catch((err) => {
+        console.error('[DAILY-LOG-ITEM] handleActivityCompleted failed:', err.message);
+      });
     }
     getChildFamilyId(item.child_id).then(async (fid) => {
       if (!fid) return;
@@ -120,9 +122,13 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
-        notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch((err) => {
+          console.error('[DAILY-LOG-ITEM] notifyParentsChildCompleted failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[DAILY-LOG-ITEM] Completion notify lookup failed:', err.message);
+      }
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Post-complete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -144,7 +150,7 @@ itemRouter.put('/:itemId/uncomplete', async (req, res) => {
     res.json(result.rows[0]);
     getChildFamilyId(item.child_id).then(fid => {
       if (fid) broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: false });
-    }).catch(() => {});
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Uncomplete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Uncomplete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

@@ -114,6 +114,40 @@ test('IAP webhook: invalid signature returns 401', async (t) => {
   }
 });
 
+test('IAP webhook: short signature returns 401 not 500', async () => {
+  process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_SECRET;
+  injectMockDb();
+
+  const handlerPath = require.resolve('../src/routes/iap-webhook-handler');
+  delete require.cache[handlerPath];
+  const { handleIapWebhook } = require('../src/routes/iap-webhook-handler');
+
+  const body = buildRenewalPayload('00000000-0000-0000-0000-000000000077');
+  const bodyBuffer = Buffer.from(body);
+
+  let statusCode;
+  const res = {
+    status(code) {
+      statusCode = code;
+      return this;
+    },
+    json(payload) {
+      this.body = payload;
+      return this;
+    },
+  };
+
+  await handleIapWebhook(
+    {
+      headers: { authorization: 'Bearer test-key:x' },
+      body: bodyBuffer,
+    },
+    res
+  );
+
+  assert.equal(statusCode, 401);
+});
+
 test('IAP webhook: req.body is Buffer so JSON.parse works on raw payload', async () => {
   process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_SECRET;
   injectMockDb();

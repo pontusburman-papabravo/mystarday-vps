@@ -146,7 +146,7 @@ router.post('/forgot-password', forgotPasswordLimiter, validate(ForgotPasswordSc
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    console.log('[AUTH] forgot-password: looking up email', normalizedEmail);
+    console.log('[AUTH] forgot-password: looking up account');
     // Security: always return the same message regardless of whether email exists
     const successMessage = 'Om e-postadressen finns skickar vi en länk';
 
@@ -182,7 +182,7 @@ router.post('/forgot-password', forgotPasswordLimiter, validate(ForgotPasswordSc
     if (!emailResult || !emailResult.success) {
       console.error('[AUTH] Password reset email delivery FAILED:', JSON.stringify(emailResult));
     } else {
-      console.log('[AUTH] Password reset email sent OK to:', normalizedEmail, 'via', emailResult.provider);
+      console.log('[AUTH] Password reset email sent OK via', emailResult.provider);
     }
 
     res.json({

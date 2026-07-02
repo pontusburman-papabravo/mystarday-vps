@@ -297,7 +297,10 @@ function requirePrimaryParent(req, res, next) {
       return res.status(403).json({ error: 'ONLY_PRIMARY', message: 'Endast primärförälder kan hantera pedagog-inbjudan.' });
     }
     next();
-  }).catch(next);
+  }).catch((err) => {
+    console.error('[AUTHZ] requirePrimaryParent failed for parent', req.user.id, ':', err.message);
+    next(err);
+  });
 }
 
 Object.assign(module.exports, {

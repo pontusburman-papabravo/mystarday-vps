@@ -4,8 +4,9 @@
  * Does NOT own: child PIN lockout (DB-based, lives in auth routes).
  *
  * Kill switch: set RATE_LIMIT_ENABLED=false to bypass all limits (useful during incidents).
- * In-memory store — does not survive restarts and is not shared across multiple instances.
- * If multi-instance scaling is required, replace MemoryStore with rate-limit-redis.
+ * In-memory MemoryStore — OK for current single-instance VPS deploy; limits reset on restart
+ * and are not shared across processes. Redis (e.g. rate-limit-redis) is required before
+ * horizontal scaling to multiple Node instances.
  */
 const rateLimit = require('express-rate-limit');
 const config = require('../lib/config');

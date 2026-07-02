@@ -192,7 +192,7 @@ router.get('/', async (req, res) => {
 // ─── PATCH /api/children/:id/view-config ───────────────────
 router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('id'), validate(ChildViewConfigSchema), async (req, res) => {
   try {
-    console.log('[VIEW-CONFIG] PATCH received for child', req.params.id, 'body:', JSON.stringify(req.body));
+    console.log('[VIEW-CONFIG] PATCH for child', req.params.id, 'fields:', Object.keys(req.body));
 
     // Fetch existing config
     const existing = await db.query(
@@ -206,9 +206,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
 
     // Deep-merge incoming fields over existing config
     const current = existing.rows[0].child_view_config || {};
-    console.log('[VIEW-CONFIG] PATCH existing config:', JSON.stringify(current));
     const merged = { ...current, ...req.body };
-    console.log('[VIEW-CONFIG] PATCH merged config:', JSON.stringify(merged));
 
     // Validate view_mode if provided
     if (merged.view_mode && !['classic', 'new'].includes(merged.view_mode)) {
@@ -221,7 +219,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
       [JSON.stringify(merged), req.params.id]
     );
 
-    console.log('[VIEW-CONFIG] PATCH saved:', JSON.stringify(merged));
+    console.log('[VIEW-CONFIG] PATCH saved for child', req.params.id);
     res.json(merged);
   } catch (err) {
     console.error('[VIEW-CONFIG] PATCH error:', err.message, err.stack);

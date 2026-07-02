@@ -29,15 +29,15 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | N8 | `activation-flags` fail-hard vid DB-fel | 🟡 Medel | PR-E | ✅ Fixad |
 | N9 | `markSent` utan statusvakt | 🟡 Medel | PR-E | ✅ Fixad |
 | N10 | TOCTOU i admin family-components | 🟡 Medel | PR-E | ✅ Fixad |
-| N11/M6 | PII i loggar | 🟡 Medel | PR-E | ⬜ |
-| M1 | Tysta fel i fire-and-forget-kedjor | 🟡 Medel | PR-E | ⬜ |
-| M2 | IAP `timingSafeEqual` kan kasta | 🟡 Medel | PR-E | ✅ Delvis fixad i 6df30fe |
+| N11/M6 | PII i loggar | 🟡 Medel | PR-E | ✅ Fixad |
+| M1 | Tysta fel i fire-and-forget-kedjor | 🟡 Medel | PR-E | ✅ Fixad |
+| M2 | IAP `timingSafeEqual` kan kasta | 🟡 Medel | PR-E | ✅ Fixad |
 | M3 | `requireComponent` fail-open vid DB-fel | 🟡 Medel | PR-E | ✅ Fixad |
-| M4 | Pool `max: 5` + 13 schedulers + SSE | 🟡 Medel | PR-E | ⬜ |
-| M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ⬜ |
+| M4 | Pool `max: 5` + 13 schedulers + SSE | 🟡 Medel | PR-E | ✅ Dokumenterad |
+| M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ✅ Fixad |
 | M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ✅ Fixad |
-| M8 | In-memory rate limiting | 🟡 Medel | PR-E | ⬜ |
-| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⬜ |
+| M8 | In-memory rate limiting | 🟡 Medel | PR-E | ✅ Dokumenterad |
+| L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⏸ Deferred (L7 ✅) |
 
 ### Prod-deploy (PR-A–D)
 
@@ -350,7 +350,7 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Fixad |
 | **Filer** | `src/routes/children.js:195,218,220,233`, `src/routes/auth/email.js:149,164` |
 | **Problem** | `PATCH /:id/view-config` loggar hela request-body och hela det sammanslagna config-objektet okontrollerat (rad 195, 218, 220, 233 — fyra `console.log` med `JSON.stringify(req.body)`/`current`/`merged`). `auth/email.js:149` loggar e-postadress i klartext vid forgot-password. Ingen är strikt känslig (inga lösenord/PIN/betalinfo), men bryter mot dataminimering (GDPR). |
 | **Konsekvens** | Onödig personuppgiftsexponering i loggar; ökar blast radius vid ett eventuellt loggläckage. |
@@ -367,13 +367,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Fixad |
 | **Filer** | `daily-logs/items.js:69,102,121–123`, `daily-logs/child-self.js:297,357,359`, `goals.js:342,344`, `schedules/fill-week.js:136`, `authz.js:307` (`.catch(next)` utan logg) |
 | **Problem** | Tomma `catch (_) {}`/`.catch(() => {})` sväljer fel helt tyst — svårare produktionsfelsökning om t.ex. notis- eller synk-anrop kastar. |
 | **Konsekvens** | Fel i bakgrundsjobb syns aldrig i loggarna. |
 | **Föreslagen åtgärd** | 1. Lägg till minst `console.error` med kontext (funktionsnamn + relevant id) i varje tomt catch-block.<br>2. `authz.js:307`: byt `.catch(next)` mot `.catch((err) => { console.error(...); next(err); })` för synlighet innan felet når den generiska handlern. |
 | **Kodskiss** | <pre>}).catch((err) => console.error('[DAILY-LOG-ITEM] Notify failed:', err.message));</pre> |
-| **Tester** | Ingen ny — verifiera via kodgranskning att alla tomma catch-block fått loggning. |
+| **Tester** | `test/empty-catch-logging-contract.test.js` — grep att listade filer inte har tomma catch utan logg. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -384,13 +384,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ✅ Delvis fixad i 6df30fe (length-check före `timingSafeEqual`) |
+| **Status** | ✅ Fixad (length-check i `iap-webhook-handler.js`, 6df30fe) |
 | **Filer** | `src/routes/iap-webhook-handler.js` (flyttad från `iap.js`) |
 | **Problem** | `crypto.timingSafeEqual` kastar `RangeError` om buffrarnas längd skiljer sig — en felformad/kortare signatur ger okontrollerat `500` i stället för `401`. |
 | **Konsekvens** | Felaktig felkod till anroparen och onödig stack trace i loggar för ett förväntat scenario (ogiltig signatur). |
 | **Föreslagen åtgärd** | 1. Längdkoll innan jämförelse.<br>2. Returnera `401` oavsett längdskillnad eller felaktig signatur. |
 | **Kodskiss** | <pre>const providedBuf = Buffer.from(providedSig, 'base64');<br>const expectedBuf = Buffer.from(expectedSig, 'base64');<br>if (providedBuf.length !== expectedBuf.length ||<br>    !crypto.timingSafeEqual(providedBuf, expectedBuf)) {<br>  return res.status(401).json({ error: 'Unauthorized' });<br>}</pre> |
-| **Tester** | Signatur med avvikande längd → förvänta `401`, inte `500`. |
+| **Tester** | `test/iap-webhook.test.js` — kort signatur → `401`, inte `500`. |
 | **PR** | PR-E |
 | **Beroenden** | K1 (samma fil — gör i samma PR om K1 ändå rörs) |
 
@@ -418,7 +418,7 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Dokumenterad (`docs/ops-pool-monitoring.md`, `AGENTS.md`) |
 | **Filer** | `db.js:15,17` |
 | **Problem** | `max: 5` anslutningar delas mellan HTTP-requests, 13+ schedulers och långlivade SSE-anslutningar; `connectionTimeoutMillis: 5000` risk för väntetid/timeout under last. |
 | **Konsekvens** | Risk för pool-utarmning under hög last, vilket kan förvärra andra fynd (t.ex. N8:s fail-hard-beteende). |
@@ -435,13 +435,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `push-reminder-scheduler.js:238–243,361,459–462`, `baseline-schema.sql:544–553` |
+| **Status** | ✅ Fixad |
+| **Filer** | `migrations/1809200000000_notification_log_dup_check_idx.js`, `push-reminder-scheduler.js:238–243,361,459–462` |
 | **Problem** | Tre ställen filtrerar `notification_log` på `parent_id, type, title LIKE ..., created_at` utan stödjande index — full scan vid växande tabell. |
 | **Konsekvens** | Långsammare dup-kontroller i push-schedulern i takt med att `notification_log` växer. |
 | **Föreslagen åtgärd** | 1. Lägg till index `(parent_id, type, created_at DESC)`.<br>2. Verifiera med `EXPLAIN ANALYZE` före/efter. |
 | **Kodskiss** | <pre>CREATE INDEX IF NOT EXISTS notification_log_dup_check_idx<br>  ON notification_log (parent_id, type, created_at DESC);</pre> |
-| **Tester** | `EXPLAIN ANALYZE` före/efter i PR-beskrivning; inget nytt testfall krävs. |
+| **Tester** | `test/notification-log-dup-index.test.js` — migration + indexnamn; `EXPLAIN ANALYZE` före/efter i PR-beskrivning vid deploy. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -469,7 +469,7 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Dokumenterad (`rateLimiter.js` header — MemoryStore OK single-instance; Redis vid multi-instance) |
 | **Filer** | `rateLimiter.js:7–8` |
 | **Problem** | `express-rate-limit` använder default `MemoryStore` — delas inte mellan flera Node-instanser/processer. |
 | **Konsekvens** | Rate limits blir per-instans i stället för globala om driften skalas till flera instanser. |
@@ -483,16 +483,16 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 
 ## 🟢 Låg / teknisk skuld
 
-| ID | Fynd | Fil | Föreslagen åtgärd |
-|----|------|-----|--------------------|
-| L1 | Stora filer (svåra att underhålla) | `public/js/schedule.js` (2594 r), `public/js/dashboard.js` (1468 r) | Fortsätt Fas 8-mönstret: extrahera fler IIFE-moduler per feature-yta. |
-| L2 | `AUTHZ_HARDENING_ENABLED=false` kill switch gör middleware no-op (helpers opåverkade) | `authz.js:28–29,169` | Dokumentera i incident-runbook; ta bort kill switch när H1/N4-migreringen är stabil i produktion. |
-| L3 | Manuell DST-logik i stället för Luxon | `win-back-scheduler.js:41–102` | Ersätt med `luxon`/`date-fns-tz` vid nästa större ändring i filen. |
-| L4 | `getChildAgeInYears` använder server-local tid | `daily-log-generator.js:23–30` | Byt till explicit tidszon-medveten beräkning (samma mönster som `getLocalDateStr`). |
-| L5 | `req.log` används i error handler men sätts aldrig (ingen pino-http) | `app.js:134` | Montera `pino-http` (sätter `req.log`) eller byt till `console.error` konsekvent. |
-| L6 | CSP är report-only (XSS blockas inte av CSP) | `securityHeaders.js:42–43` | Efter en period utan CSP-violation-rapporter: byt till enforcing `Content-Security-Policy`. |
-| L7 | Sammanslagen i N5 ovan — `impersonation.js`/`maintenance.js` delar samma JWT-rotationsbugg | `impersonation.js:28`, `maintenance.js:52` | Åtgärdas som del av N5/PR-E. |
-| L8 | Kommentar om middleware-ordning | `rateLimiter.js:104–106` | Verifiera om kommentaren fortfarande stämmer efter admin-route-exemptet; uppdatera eller ta bort vid nästa ändring i filen. |
+| ID | Status | Fynd | Fil | Motivering / åtgärd |
+|----|--------|------|-----|---------------------|
+| L1 | ⏸ Deferred | Stora filer (svåra att underhålla) | `public/js/schedule.js` (2594 r), `public/js/dashboard.js` (1468 r) | Stor Fas 8-refactor — egen PR, inte PR-E del 3. |
+| L2 | ⏸ Deferred | `AUTHZ_HARDENING_ENABLED=false` kill switch | `authz.js:28–29,169` | Incident-runbook först; ta bort när H1/N4 är stabil i prod. |
+| L3 | ⏸ Deferred | Manuell DST-logik | `win-back-scheduler.js:41–102` | Byt till Luxon vid nästa större ändring i filen. |
+| L4 | ⏸ Deferred | `getChildAgeInYears` server-local tid | `daily-log-generator.js:23–30` | Tidszon-fix vid nästa berörning av generatorn. |
+| L5 | ⏸ Deferred | `req.log` utan pino-http | `app.js:134` | Strukturerad loggning — separat observability-PR. |
+| L6 | ⏸ Deferred | CSP report-only | `securityHeaders.js:42–43` | Enforcing CSP efter violations-period utan regressions. |
+| L7 | ✅ Fixad | JWT-rotation i impersonation/maintenance | `impersonation.js:28`, `maintenance.js:52` | Åtgärdad via N5/PR-E del 1–2. |
+| L8 | ⏸ Deferred | Kommentar om middleware-ordning | `rateLimiter.js:104–106` | Verifiera/uppdatera vid nästa ändring i rateLimiter. |
 
 ---
 
@@ -617,7 +617,12 @@ Innan varje PR anses klar (utöver `npm run test:gate`, se `130-testing.mdc`):
 - [x] Admin TOCTOU (N10): `FOR UPDATE`-transaktion i family-components PUT
 - [x] Kontakt-mejl (M7): HTML i meddelande → escapat i utgående mejl
 - [x] requireComponent (M3): DB-fel → `503`, inte fail-open
-- [ ] IAP-signatur (M2): avvikande längd → `401` inte `500`
+- [x] PII-loggning (N11): view-config + forgot-password utan full body/e-post i loggar
+- [x] Fire-and-forget (M1): tomma catch → `console.error` med kontext
+- [x] notification_log-index (M5): `notification_log_dup_check_idx` migration
+- [x] IAP-signatur (M2): avvikande längd → `401` inte `500`
+- [x] Pool (M4): dokumenterad övervakning i `docs/ops-pool-monitoring.md`
+- [x] Rate limit (M8): MemoryStore single-instance dokumenterat i `rateLimiter.js`
 
 ---
 

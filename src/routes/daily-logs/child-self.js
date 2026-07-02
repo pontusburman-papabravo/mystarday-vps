@@ -292,7 +292,9 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
     if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
-      handleActivityCompleted(req.params.itemId, req.user.id, false).catch(() => {});
+      handleActivityCompleted(req.params.itemId, req.user.id, false).catch((err) => {
+        console.error('[DAILY-LOG-CHILD] handleActivityCompleted failed:', err.message);
+      });
     }
     getChildFamilyId(req.user.id).then(async (fid) => {
       if (!fid) return;
@@ -347,9 +349,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
-        notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch((err) => {
+          console.error('[DAILY-LOG-CHILD] notifyParentsChildCompleted failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[DAILY-LOG-CHILD] Completion notify lookup failed:', err.message);
+      }
+    }).catch((err) => console.error('[DAILY-LOG-CHILD] Post-complete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
