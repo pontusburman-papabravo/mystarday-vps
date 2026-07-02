@@ -81,6 +81,9 @@ router.get('/bildschema-app', (req, res) => {
 router.get('/alternativ-bildschema-tavla', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'alternativ-bildschema-tavla.html'));
 });
+router.get('/veckoschema-bildstod', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'veckoschema-bildstod.html'));
+});
 
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));

@@ -81,8 +81,14 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'nav_signup_click',
   'footer_signup_click',
   'child_view_example_click',
+  'landing_guide_card_click',
   'landing_faq_expand',
   'app_store_click',
+  // SEO guide articles (public/js/article-events.js)
+  'article_cta_register',
+  'guide_next_step_click',
+  'guide_hub_nav_click',
+  'article_faq_expand',
   // Dashboard viral CTAs (dashboard-cta.js + coparent-invite-ui.js)
   'cta_invite_co_parent_shown',
   'cta_invite_co_parent_clicked',

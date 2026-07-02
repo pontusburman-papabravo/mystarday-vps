@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="canonical" href="/bildschema-app">
   <title>Bildschema-app — gör ditt eget visuella schema med bildstöd | Min Stjärndag</title>
-  <meta name="description" content="Min Stjärndag är en svensk bildschema-app: bygg ditt eget visuella schema med bildstöd för barn. Dagsschema, veckoschema och rutiner — prova gratis.">
+  <meta name="description" content="Komplett guide till bildschema för barn: vad det är, varför bildstöd fungerar, exempel på morgon- och veckoschema, app vs papper — och hur du bygger ditt eget i Min Stjärndag.">
   <meta property="og:title" content="Bildschema-app — gör ditt eget visuella schema med bildstöd">
-  <meta property="og:description" content="Bygg ditt eget bildschema med bildstöd: dagsschema, veckoschema och rutiner för barn. Svensk app, prova gratis.">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="Allt om bildschema för barn: definition, exempel, bildstöd och hur du skapar ditt eget schema i en svensk app.">
+  <meta property="og:type" content="article">
   <meta property="og:url" content="https://mystarday.se/bildschema-app">
   <meta property="og:image" content="https://mystarday.se/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/landing.css?v=1">
+  <link rel="stylesheet" href="/css/landing.css?v=7">
+  <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script type="application/ld+json">
   {
@@ -29,61 +30,215 @@
     "inLanguage": "sv-SE"
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Vad är ett bildschema?", "acceptedAnswer": { "@type": "Answer", "text": "Ett bildschema visar dagens aktiviteter som bilder eller symboler i tur och ordning. Barnet ser vad som ska hända nu och härnäst utan att behöva läsa eller komma ihåg hela dagen." }},
+      { "@type": "Question", "name": "Hur gör man ett bildschema?", "acceptedAnswer": { "@type": "Answer", "text": "Bryt ner dagen i konkreta steg, välj en bild per steg, sätt dem i rätt ordning och låt barnet bocka av. I Min Stjärndag kan du välja färdiga mallar eller bygga från grunden på några minuter." }},
+      { "@type": "Question", "name": "Behöver barnet kunna läsa?", "acceptedAnswer": { "@type": "Answer", "text": "Nej. Bildstöd gör att barn förstår schemat visuellt. Text kan finnas som komplement för vuxna, men barnet ska kunna följa bilderna." }},
+      { "@type": "Question", "name": "Passar bildschema barn med ADHD eller autism?", "acceptedAnswer": { "@type": "Answer", "text": "Många familjer med NPF använder bildschema för tydlighet och förutsägbarhet. Min Stjärndag är ett pedagogiskt stödverktyg, inte medicinsk behandling — läs mer i vår guide om rutiner vid ADHD och autism." }},
+      { "@type": "Question", "name": "Vad är skillnaden mellan dagsschema och veckoschema?", "acceptedAnswer": { "@type": "Answer", "text": "Ett dagsschema visar vad som händer idag, steg för steg. Ett veckoschema visar hur dagarna skiljer sig åt — till exempel sim på tisdag och fredagsmys på fredag." }},
+      { "@type": "Question", "name": "Kan flera vuxna dela samma bildschema?", "acceptedAnswer": { "@type": "Answer", "text": "Ja. I Min Stjärndag kan båda föräldrarna — och vid behov förskola eller behandlare — se samma schema och barnets framsteg." }}
+    ]
+  }
+  </script>
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
-  <style>
-    body { background: var(--cream); }
-    .article { max-width: 720px; margin: 0 auto; padding: 5rem 1.5rem 4rem; }
-    .article .back-home { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; font-weight: 600; color: var(--text-2); text-decoration: none; margin-bottom: 1.5rem; }
-    .article .back-home:hover { color: var(--amber-dk); }
-    .article h1 { font-family: 'Fraunces', serif; font-size: 2.3rem; line-height: 1.15; color: var(--navy); margin-bottom: 0.75rem; }
-    .article .lead { font-size: 1.1rem; color: var(--text-2); line-height: 1.7; margin-bottom: 2.5rem; }
-    .article h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; color: var(--navy); margin: 2.5rem 0 0.75rem; }
-    .article p { color: var(--text-1, #1c2340); line-height: 1.75; margin-bottom: 1rem; }
-    .article ul, .article ol { color: var(--text-1, #1c2340); line-height: 1.75; padding-left: 1.3rem; margin-bottom: 1rem; }
-    .article li { margin-bottom: 0.4rem; }
-    .article a.inline { color: var(--amber-dk); font-weight: 600; }
-    .cta-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2rem; margin: 3rem 0 0; text-align: center; box-shadow: 0 8px 32px rgba(28, 35, 64, 0.06); }
-    .cta-card h3 { font-family: 'Fraunces', serif; font-size: 1.4rem; color: var(--navy); margin-bottom: 0.5rem; }
-    .cta-card p { color: var(--text-2); margin-bottom: 1.25rem; }
-  </style>
 </head>
-<body>
-  <article class="article">
+<body class="seo-article-page">
+  <article class="seo-article">
     <a href="/" class="back-home">← Min Stjärndag</a>
     <h1>Bildschema-app: gör ditt eget visuella schema med bildstöd</h1>
-    <p class="lead">Ett bildschema gör dagen begriplig för barn — varje moment visas som en bild, i tur och ordning. Med Min Stjärndag bygger du ditt eget bildschema direkt i mobilen eller på datorn: dagsschema, veckoschema och återkommande rutiner, med bildstöd som barnet förstår.</p>
+    <p class="lead">Ett bildschema gör dagen begriplig för barn — varje moment visas som en bild i tur och ordning. Här får du en komplett introduktion: vad bildschema är, varför bildstöd fungerar, konkreta exempel och hur du bygger ditt eget schema i mobilen med Min Stjärndag.</p>
 
     <h2>Vad är ett bildschema?</h2>
-    <p>Ett bildschema (eller visuellt schema) visar dagens aktiviteter som bilder eller symboler istället för text. Barnet ser vad som ska hända nu och härnäst, kan "bocka av" varje steg och behöver inte hålla hela dagen i huvudet. Det skapar förutsägbarhet och självständighet — och färre konflikter.</p>
+    <p>Ett <strong>bildschema</strong> (eller visuellt schema) visar dagens aktiviteter som bilder, symboler eller foton istället för text. Barnet ser vad som ska hända <em>nu</em> och <em>härnäst</em>, kan bocka av varje steg och behöver inte hålla hela dagen i huvudet. För många barn är det skillnaden mellan att vänta på att en vuxen säger åt dem — och att själv veta vad som kommer.</p>
+    <p>Bildscheman används hemma, i förskola och i skola. De kan vara enkla listor med fem steg ("toalett → tvätta händer → frukost") eller mer detaljerade med delsteg ("klä på" uppdelat i strumpor, byxor, tröja). Poängen är samma: göra abstrakta vardagsmoment konkreta och förutsägbara.</p>
+    <p>Ett <strong>dagsschema</strong> täcker en dag i taget. Ett <strong>veckoschema</strong> visar hur dagarna skiljer sig åt — till exempel när det är idrott, när ett syskon har aktivitet eller när ni är hos den andra föräldern. Läs mer i vår guide om <a class="inline" href="/veckoschema-bildstod" data-track="guide_next_step_click" data-guide-slug="veckoschema-bildstod" data-link-type="spoke">veckoschema med bildstöd</a>. Båda formaten kan byggas i samma app.</p>
+    <p>Du kan också kombinera bildschema med enkla textetiketter för vuxna, men barnets vy ska i första hand vara visuell. Ju färre ord barnet behöver läsa för att förstå, desto tydligare blir stödet.</p>
 
-    <h2>Varför en app istället för en tavla?</h2>
+    <figure class="seo-figure">
+      <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/28ba72a2-78b5-4276-949d-26346771b3d3.png" alt="Barnvy med visuellt dagsschema — Nu, Nästa och Senare med bildstöd" loading="lazy" width="280" height="600">
+      <figcaption>Barnets vy: tydliga steg med bilder. Barnet ser vad som gäller nu och vad som kommer sen.</figcaption>
+    </figure>
+
+    <h2>Varför fungerar bildstöd?</h2>
+    <p>Barn — särskilt yngre barn och barn som behöver extra struktur — tar in världen visuellt snabbare än genom tal och text. När dagen visas som en sekvens av bilder slipper barnet tolka vaga instruktioner som "gör dig klar". Varje steg är entydigt.</p>
+    <p><strong>Visuell struktur</strong> avlastar arbetsminnet. Istället för att komma ihåg tio saker på morgonen kan barnet titta på nästa bild. Det minskar stress och gör det lättare att komma igång själv.</p>
+    <p><strong>Övergångar</strong> blir enklare. Många konflikter uppstår när en aktivitet tar slut och nästa ska börja. Ett bildschema visar tydligt vad som kommer härnäst — utan att vuxen behöver upprepa sig.</p>
+    <p><strong>Rutiner bygger vana.</strong> När samma bilder kommer i samma ordning varje morgon blir beteendet gradvis automatiserat. Barnet behöver mindre påminnelse över tid — inte för att vuxen tjatat mer, utan för att strukturen tränat in vanan.</p>
+    <p><strong>Självständighet och stolthet.</strong> Att bocka av ett steg ger barnet en konkret känsla av att ha klarat något. Det stärker självkänslan mer än ett generellt "bra jobbat" i slutet av morgonen.</p>
+    <p>Forskning och erfarenhet från förskola, habilitering och specialpedagogik pekar åt samma håll: när barn får se strukturen utanför sitt eget huvud minskar ofta både ångest och motstånd. Det handlar inte om att "styra" barnet hårdare — utan om att göra förväntningarna synliga så att barnet kan lyckas på egen hand.</p>
+
+    <h2>Vilka barn har nytta av bildschema?</h2>
+    <p>Bildschema är inte bara för barn med diagnos — det är ett verktyg som passar brett:</p>
     <ul>
-      <li><strong>Alltid med.</strong> Schemat finns i telefonen hemma, hos mor- och farföräldrar, i bilen och på utflykten — inte bara på kylskåpsdörren.</li>
-      <li><strong>Enkelt att ändra.</strong> Byt ordning, lägg till en aktivitet eller skapa en specialdag på några sekunder, utan att skriva ut och laminera nytt.</li>
-      <li><strong>Bildstöd + motivation.</strong> Barnet samlar stjärnor för avklarade moment och kan byta dem mot belöningar i <a class="inline" href="/skattkammaren">Skattkammaren</a>.</li>
-      <li><strong>Delas mellan vuxna.</strong> Båda föräldrarna — och vid behov förskola, skola eller behandlare — kan se samma schema.</li>
+      <li><strong>Små barn</strong> som ännu inte läser flytande men vill göra själva.</li>
+      <li><strong>Barn med kaotiska morgnar</strong> där alla glömmer nästa steg.</li>
+      <li><strong>Barn som snabbt tappar fokus</strong> och behöver en tydlig "nu gör vi det här".</li>
+      <li><strong>Syskon i olika åldrar</strong> som behöver olika scheman men samma system hemma.</li>
+      <li><strong>Skolstart och nya rutiner</strong> när vardagen förändras.</li>
     </ul>
+    <p>För barn med NPF — till exempel ADHD eller autism — är tydlighet och förutsägbarhet ofta extra viktigt. Bildschema kan minska tjat vid övergångar och ge barnet en känsla av kontroll. Läs mer i vår guide om <a class="inline" href="/rutiner-npf-barn" data-track="guide_next_step_click" data-guide-slug="rutiner-npf-barn" data-link-type="spoke">rutiner för barn med ADHD och autism</a>.</p>
+    <p>En vanlig missuppfattning är att bildschema bara passar barn som "behöver extra hjälp". I praktiken använder många familjer det som ett vardagsverktyg — precis som en kalender eller en packlista fungerar för vuxna.</p>
 
-    <h2>Så gör du ditt eget schema</h2>
+    <h2>Exempel på bildscheman</h2>
+    <p>Här är tre vanliga typer. De är medvetet korta — för djupgående tips om morgonrutin, se vår <a class="inline" href="/morgonrutin-barn" data-track="guide_next_step_click" data-guide-slug="morgonrutin-barn" data-link-type="spoke">guide om morgonrutin för barn</a>.</p>
+
+    <div class="seo-example-box">
+      <h3>Exempel: morgonschema (5–7 steg)</h3>
+      <ol>
+        <li>Vakna / gå upp ur sängen</li>
+        <li>Toalett och tvätta händer</li>
+        <li>Klä på sig (ev. delsteg: strumpor → byxor → tröja)</li>
+        <li>Frukost</li>
+        <li>Borsta tänder</li>
+        <li>Packa väska / jacka och skor</li>
+        <li>Redo att gå</li>
+      </ol>
+      <p>Tips: börja med färre steg om morgonen känns överväldigande. Tre tydliga steg som fungerar slår tio steg som aldrig hålls. När rutinen sitter kan du lägga till fler moment. Vill du gå djupare? Läs vår <a class="inline" href="/morgonrutin-barn" data-track="guide_next_step_click" data-guide-slug="morgonrutin-barn" data-link-type="spoke">guide om morgonrutin för barn</a>.</p>
+    </div>
+
+    <div class="seo-example-box">
+      <h3>Exempel: kvällsschema</h3>
+      <ol>
+        <li>Läxor eller lugnt spel</li>
+        <li>Dusch / kvällstoalett</li>
+        <li>Pyjamas</li>
+        <li>Kvällsmat eller kvällsfika</li>
+        <li>Tandborstning</li>
+        <li>Saga eller nedvarvning</li>
+        <li>Läggdags</li>
+      </ol>
+      <p>Kvällen är ofta den andra stora stresspunkten efter morgonen. Ett kort, tydligt schema hjälper barnet att förstå att läggdags inte kommer som en överraskning — den är bara sista steget i en kedja ni kommit överens om.</p>
+    </div>
+
+    <div class="seo-example-box">
+      <h3>Exempel: veckoschema (översikt)</h3>
+      <p>Måndag–fredag: samma morgonrutin, men onsdag har sim och fredag har fredagsmys. Lördag: senare morgon och längre frukost. Söndag: förberedelse inför skolveckan. Ett veckoschema hjälper barnet att förstå <em>vilken sorts dag</em> det är — inte bara vad som händer nu.</p>
+    </div>
+
+    <figure class="seo-figure">
+      <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/297b0f38-78eb-4877-9aab-9e1d51e31487.png" alt="Veckoschema med bildstöd per dag i Min Stjärndag" loading="lazy" width="280" height="600">
+      <figcaption>Föräldervy: veckoschema med aktiviteter per dag — enkelt att anpassa när vardagen ändras.</figcaption>
+    </figure>
+
+    <h2>Bildschema i app eller på papper?</h2>
+    <p>Många familjer börjar med en fysisk tavla med kardborrebilder. Det fungerar bra som första steg hemma vid kylskåpet. Men när vardagen rör sig mellan hem, förskola, skola och mor- eller farföräldrar blir en app ofta enklare att hålla levande.</p>
+
+    <table class="seo-cmp">
+      <thead>
+        <tr><th>&nbsp;</th><th>Utskrivbart / tavla</th><th>Bildschema-app</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Alltid med</td><td>Nej — sitter på ett ställe</td><td>Ja, i telefonen</td></tr>
+        <tr><td>Ändra schema</td><td>Skriv ut och laminera om</td><td>Några sekunder</td></tr>
+        <tr><td>Barn bockar av</td><td>Manuellt eller med magnet</td><td>Inbyggt i barnets vy</td></tr>
+        <tr><td>Dela mellan vuxna</td><td>Svårt</td><td>Flera vuxna ser samma schema</td></tr>
+        <tr><td>Motivation</td><td>Separat system</td><td>Stjärnor och belöningar kopplat till schemat</td></tr>
+      </tbody>
+    </table>
+
+    <p>Vill du läsa en ärligare jämförelse — inklusive när en fysisk tavla faktiskt kan vara rätt val? Se vår guide om <a class="inline" href="/alternativ-bildschema-tavla" data-track="guide_next_step_click" data-guide-slug="alternativ-bildschema-tavla" data-link-type="spoke">alternativ till bildschema-tavlan</a>.</p>
+    <p><strong>När papper fungerar bra:</strong> Hemma vid en fast plats, när barnet är väldigt litet och behöver röra vid fysiska kort, eller när skärmtid ska hållas nere under själva rutinen. <strong>När app fungerar bra:</strong> När flera vuxna delar ansvar, när schemat ändras ofta, eller när barnet ska kunna bocka av själv och se framsteg med stjärnor.</p>
+
+    <h2>Så kommer du igång med ett bildschema</h2>
+    <p>Du behöver inte bygga hela barnets liv på en gång. Ett bra första steg är att välja <strong>en återkommande rutin</strong> som ofta strular — nästan alltid morgon eller kväll — och göra den visuell.</p>
     <ol>
-      <li>Skapa barnets profil och välj en färdig mall för morgon, dag eller vecka — eller bygg från grunden.</li>
-      <li>Lägg till aktiviteter med bild/symbol. Dela upp i delsteg vid behov (t.ex. "klä på" → strumpor, byxor, tröja).</li>
-      <li>Sätt tider eller bara ordning. Lägg in <a class="inline" href="/morgonrutin-barn">morgonrutin</a>, eftermiddag och kväll.</li>
-      <li>Barnet bockar av och samlar stjärnor. Du följer framstegen och kan ge beröm.</li>
+      <li><strong>Skriv ner stegen</strong> som ni redan gör idag, i den ordning ni vill att de ska hända.</li>
+      <li><strong>Välj eller ta bilder</strong> som barnet känner igen. Egna foton på rummet, tänderborsten eller jackan fungerar ofta bättre än generiska symboler.</li>
+      <li><strong>Testa en vecka</strong> utan att ändra för mycket. Poängen är förutsägbarhet, inte perfektion.</li>
+      <li><strong>Fira små framsteg.</strong> Barnet som bockar av ett steg själv har gjort mer än barnet som "bara lyder" — även om ni fortfarande hjälper till med delar av rutinen.</li>
     </ol>
+    <p>I Min Stjärndag finns färdiga mallar för morgon, dag och vecka om du vill komma igång snabbt. Du kan alltid justera ordning, bilder och delsteg när ni lärt er vad som fungerar hemma hos er.</p>
+    <p>Oavsett om du använder papper, en tavla eller en app är det viktigaste att barnet förstår samma struktur varje dag. Bildschemat är en överenskommelse mellan er — inte en lista som vuxen läser upp med rösten höjd.</p>
 
-    <h2>Bildschema vid autism och ADHD</h2>
-    <p>Visuellt stöd och tydlig struktur är särskilt värdefullt för barn med NPF. Bildschemat avlastar arbetsminnet, gör övergångar lättare och minskar stress. Läs mer i vår guide om <a class="inline" href="/rutiner-npf-barn">rutiner för barn med NPF (ADHD &amp; autism)</a>.</p>
+    <h2>Hur fungerar Min Stjärndag?</h2>
+    <p>Min Stjärndag är en svensk bildschema-app där du bygger barnets rutiner visuellt och låter barnet använda schemat själv i en egen barnvy.</p>
+    <ol>
+      <li><strong>Skapa barnets profil</strong> och välj en färdig mall för morgon, dag eller vecka — eller bygg från grunden med egna aktiviteter och bilder.</li>
+      <li><strong>Lägg till steg med bildstöd.</strong> Dela upp i delsteg vid behov. Sätt tider eller bara ordning.</li>
+      <li><strong>Barnet loggar in</strong> med namn och PIN i sin egen vy. Det ser Nu, Nästa och Senare — och bockar av utan att behöva läsa.</li>
+      <li><strong>Stjärnor och belöningar.</strong> Avklarade steg ger stjärnor som kan bytas mot belöningar ni väljer tillsammans i <a class="inline" href="/skattkammaren">Skattkammaren</a>. Vill du förstå hur motivationen hänger ihop? Läs vår guide om <a class="inline" href="/beloningssystem-barn" data-track="guide_next_step_click" data-guide-slug="beloningssystem-barn" data-link-type="spoke">belöningssystem för barn</a>.</li>
+    </ol>
+    <p>Du kan börja med en enda rutin — till exempel morgonen — och bygga på när det sitter. Många familjer märker skillnad redan första veckan när barnet förstår att schemat är "chef" över ordningen, inte förälderns röst.</p>
+    <p>Behöver förskola, skola eller en behandlare se samma struktur kan du bjuda in dem så att alla vuxna runt barnet arbetar med samma bilder och samma ordning.</p>
 
-    <h2>Veckoschema och belöningar</h2>
-    <p>Utöver dagsschemat kan du bygga ett veckoschema med bildstöd så att barnet ser hela veckan. Kombinera med ett <a class="inline" href="/beloningssystem-barn">belöningssystem med stjärnor</a> för extra motivation.</p>
+    <figure class="seo-figure">
+      <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Förälderns dagsschema med färgkodade aktiviteter och bildstöd" loading="lazy" width="280" height="600">
+      <figcaption>Som vuxen bygger och anpassar du schemat. Barnet ser en förenklad vy anpassad för dem.</figcaption>
+    </figure>
 
-    <div class="cta-card">
-      <h3>Bygg ditt bildschema gratis</h3>
-      <p>Kom igång på några minuter — färdiga mallar med bildstöd för morgon, dag och vecka.</p>
-      <a href="/register" class="btn-primary" data-track="article_cta_register">Kom igång gratis</a>
+    <p>Vill du skapa ett bildschema för morgonen? Läs vår <a class="inline" href="/morgonrutin-barn" data-track="guide_next_step_click" data-guide-slug="morgonrutin-barn" data-link-type="spoke">guide om morgonrutiner</a>. Vill du motivera barnet över tid? Läs om <a class="inline" href="/beloningssystem-barn" data-track="guide_next_step_click" data-guide-slug="beloningssystem-barn" data-link-type="spoke">belöningssystem med stjärnor</a>.</p>
+
+    <h2>Vanliga frågor om bildschema</h2>
+    <div class="faq-list">
+      <div class="faq-item" data-faq="vad-ar">
+        <button type="button" class="faq-question" aria-expanded="false">Vad är ett bildschema?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Ett bildschema visar dagens aktiviteter som bilder i tur och ordning. Barnet ser vad som ska hända utan att behöva läsa eller fråga vuxen hela tiden.</div></div>
+      </div>
+      <div class="faq-item" data-faq="hur-gor-man">
+        <button type="button" class="faq-question" aria-expanded="false">Hur gör man ett bildschema?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Bryt ner dagen i små steg, välj en tydlig bild per steg och sätt dem i ordning. Börja med en rutin i taget — till exempel morgonen — innan du bygger hela dagen.</div></div>
+      </div>
+      <div class="faq-item" data-faq="lasa">
+        <button type="button" class="faq-question" aria-expanded="false">Behöver barnet kunna läsa?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Nej. Bildstöd är poängen. Barnet ska kunna följa schemat visuellt. Text kan finnas som stöd för vuxna.</div></div>
+      </div>
+      <div class="faq-item" data-faq="npf">
+        <button type="button" class="faq-question" aria-expanded="false">Passar bildschema barn med ADHD eller autism?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Många familjer med NPF använder bildschema för struktur och förutsägbarhet. Min Stjärndag är ett pedagogiskt verktyg, inte medicinsk behandling. <a class="inline" href="/rutiner-npf-barn">Läs mer om rutiner vid NPF</a>.</div></div>
+      </div>
+      <div class="faq-item" data-faq="dag-vs-vecka">
+        <button type="button" class="faq-question" aria-expanded="false">Vad är skillnaden mellan dagsschema och veckoschema?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Dagsschema = idag steg för steg. Veckoschema = hur dagarna skiljer sig åt över veckan. Många familjer använder båda.</div></div>
+      </div>
+      <div class="faq-item" data-faq="flera-vuxna">
+        <button type="button" class="faq-question" aria-expanded="false">Kan flera vuxna dela samma schema?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Ja. Båda föräldrarna kan se samma schema och barnets framsteg. Du kan även bjuda in pedagoger vid behov.</div></div>
+      </div>
+    </div>
+
+    <h2>Relaterade guider</h2>
+    <p>Vill du gå djupare inom ett specifikt område? Dessa guider bygger vidare på bildschema — utan att du behöver söka vidare.</p>
+    <div class="seo-guide-grid">
+      <a href="/morgonrutin-barn" class="seo-guide-card" data-track="guide_hub_nav_click" data-guide-slug="morgonrutin-barn">
+        <div class="seo-guide-card__emoji">🌅</div>
+        <div class="seo-guide-card__title">Morgonrutin för barn</div>
+        <p class="seo-guide-card__desc">Konkreta tips för en lugnare morgon med bildschema.</p>
+      </a>
+      <a href="/beloningssystem-barn" class="seo-guide-card" data-track="guide_hub_nav_click" data-guide-slug="beloningssystem-barn">
+        <div class="seo-guide-card__emoji">⭐</div>
+        <div class="seo-guide-card__title">Belöningssystem för barn</div>
+        <p class="seo-guide-card__desc">Så motiverar du utan att det blir mutor.</p>
+      </a>
+      <a href="/rutiner-npf-barn" class="seo-guide-card" data-track="guide_hub_nav_click" data-guide-slug="rutiner-npf-barn">
+        <div class="seo-guide-card__emoji">🧩</div>
+        <div class="seo-guide-card__title">Rutiner vid ADHD &amp; autism</div>
+        <p class="seo-guide-card__desc">Tydlighet, övergångar och visuellt stöd.</p>
+      </a>
+      <a href="/alternativ-bildschema-tavla" class="seo-guide-card" data-track="guide_hub_nav_click" data-guide-slug="alternativ-bildschema-tavla">
+        <div class="seo-guide-card__emoji">📋</div>
+        <div class="seo-guide-card__title">Alternativ till bildschema-tavla</div>
+        <p class="seo-guide-card__desc">Tavla vs app — ärlig jämförelse.</p>
+      </a>
+      <a href="/veckoschema-bildstod" class="seo-guide-card" data-track="guide_hub_nav_click" data-guide-slug="veckoschema-bildstod">
+        <div class="seo-guide-card__emoji">📅</div>
+        <div class="seo-guide-card__title">Veckoschema med bildstöd</div>
+        <p class="seo-guide-card__desc">Planera hela veckan visuellt.</p>
+      </a>
+    </div>
+
+    <div class="seo-cta-card">
+      <h3>Bygg barnets bildschema gratis</h3>
+      <p>Kom igång på några minuter med färdiga mallar för morgon, dag och vecka — med bildstöd barnet förstår.</p>
+      <a href="/register?utm_content=guide-bildschema-app" class="btn-primary" data-track="article_cta_register">Kom igång gratis</a>
+      <br>
+      <a href="/skattkammaren?demo=1" class="btn-secondary btn-secondary--ghost">Se Skattkammaren i demo</a>
     </div>
   </article>
+  <script src="/js/article-events.js?v=1"></script>
   <script src="/js/sw-register.js?v=2.13.0"></script>
 </body>
 </html>

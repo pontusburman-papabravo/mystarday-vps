@@ -19,6 +19,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/rutiner-npf-barn',
   '/bildschema-app',
   '/alternativ-bildschema-tavla',
+  '/veckoschema-bildstod',
 ]);
 
 function normalizeSeoPath(path) {

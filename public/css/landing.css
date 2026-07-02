@@ -1423,3 +1423,34 @@ body.platform-web.landing-magic-bg {
   .landing-nav__child-login { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
   .landing-nav__login { font-size: 0.82rem; }
 }
+
+/* ── Landing guide cards (SEO cluster) ───────────────────── */
+.landing-guides-grid {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 900px) {
+  .landing-guides-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.landing-guides-more {
+  text-align: center;
+  margin: 1.35rem 0 0;
+  font-size: 0.95rem;
+}
+
+.landing-guides-more a {
+  font-weight: 600;
+  color: var(--amber-dk);
+  text-decoration: none;
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0 0.5rem;
+}
+
+.landing-guides-more a:hover { text-decoration: underline; }

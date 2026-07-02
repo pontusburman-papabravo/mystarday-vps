@@ -102,3 +102,51 @@ test('landing problem and solution sections mention routines and skattkammaren l
   assert.match(html, /Barnet ser vad som ska hända/);
   assert.match(html, /href="\/skattkammaren\?demo=1"/);
 });
+
+test('bildschema-app cornerstone has hub sections, FAQ, guides and tracking', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/bildschema-app.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="\/bildschema-app"/);
+  assert.match(html, /Vad är ett bildschema\?/);
+  assert.match(html, /Varför fungerar bildstöd\?/);
+  assert.match(html, /Vilka barn har nytta av bildschema\?/);
+  assert.match(html, /Exempel på bildscheman/);
+  assert.match(html, /Bildschema i app eller på papper\?/);
+  assert.match(html, /Hur fungerar Min Stjärndag\?/);
+  assert.match(html, /Relaterade guider/);
+  assert.match(html, /"@type": "FAQPage"/);
+  assert.match(html, /seo-article\.css/);
+  assert.match(html, /article-events\.js/);
+  assert.match(html, /data-track="article_cta_register"/);
+  assert.match(html, /utm_content=guide-bildschema-app/);
+  assert.match(html, /href="\/morgonrutin-barn"/);
+  assert.match(html, /href="\/beloningssystem-barn"/);
+  assert.match(html, /href="\/rutiner-npf-barn"/);
+  assert.match(html, /href="\/alternativ-bildschema-tavla"/);
+  assert.match(html, /href="\/veckoschema-bildstod"/);
+});
+
+test('veckoschema-bildstod is indexable with route and sitemap entry', () => {
+  assert.equal(isSeoIndexable('/veckoschema-bildstod'), true);
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(route, /\/veckoschema-bildstod/);
+  const html = fs.readFileSync(path.join(ROOT, 'public/veckoschema-bildstod.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="\/veckoschema-bildstod"/);
+  assert.match(html, /seo-article\.css/);
+  const xml = buildSitemapXml();
+  assert.match(xml, /\/veckoschema-bildstod<\/loc>/);
+});
+
+test('landing page has guide cards block with tracking', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(html, /Läs våra guider/);
+  assert.match(html, /data-track="landing_guide_card_click"/);
+  assert.match(html, /href="\/bildschema-app"/);
+  assert.match(html, /href="\/veckoschema-bildstod"/);
+});
+
+test('SEO guide analytics events are allowlisted', () => {
+  const analytics = fs.readFileSync(path.join(ROOT, 'src/routes/analytics.js'), 'utf8');
+  for (const ev of ['article_cta_register', 'guide_next_step_click', 'guide_hub_nav_click', 'article_faq_expand', 'landing_guide_card_click']) {
+    assert.match(analytics, new RegExp(`'${ev}'`));
+  }
+});
