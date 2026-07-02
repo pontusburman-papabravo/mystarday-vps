@@ -148,7 +148,11 @@ router.post('/event', optionalAuth, async (req, res) => {
   if (!familyId) return;
 
   analytics.track(familyId, event_type, metadata);
-  maybeMarkWinBackReturnedFromEngagement(familyId, event_type).catch(() => {});
+  // N7: win-back attribution requires an authenticated familyId — an unauthenticated
+  // session_id nonce is client-supplied and would let anyone spoof `returned_at`.
+  if (req.user?.familyId) {
+    maybeMarkWinBackReturnedFromEngagement(req.user.familyId, event_type).catch(() => {});
+  }
 });
 
 module.exports = router;

@@ -107,12 +107,15 @@ async function reject(id) {
 
 /**
  * Mark a record as sent.
+ * Guarded like reject() (N9): only an 'approved' record that hasn't been sent yet
+ * can transition — prevents a race (scheduler + manual approve) from re-sending
+ * or re-stamping sent_at, which would shift the win-back attribution window.
  */
 async function markSent(id) {
   const result = await db.query(
     `UPDATE win_back_email_log
        SET status = 'sent', sent_at = NOW()
-     WHERE id = $1
+     WHERE id = $1 AND status = 'approved' AND sent_at IS NULL
      RETURNING *`,
     [id]
   );

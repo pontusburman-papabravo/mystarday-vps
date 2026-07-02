@@ -38,22 +38,28 @@ function parseLaunchAt() {
 /**
  * @param {string} key feature_flag.key
  * @param {string} [familyId] optional cohort filter by family.created_at
+ * @returns {Promise<boolean>} never throws — returns false on DB error (fail-closed)
  */
 async function isActivationFlagEnabled(key, familyId) {
-  const result = await db.query(
-    'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
-    [key]
-  );
-  if (!result.rows[0]?.enabled) return false;
+  try {
+    const result = await db.query(
+      'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
+      [key]
+    );
+    if (!result.rows[0]?.enabled) return false;
 
-  if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;
+    if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;
 
-  const launchAt = parseLaunchAt();
-  if (!launchAt || !familyId) return true;
+    const launchAt = parseLaunchAt();
+    if (!launchAt || !familyId) return true;
 
-  const fam = await db.query('SELECT created_at FROM family WHERE id = $1 LIMIT 1', [familyId]);
-  if (!fam.rows[0]?.created_at) return true;
-  return new Date(fam.rows[0].created_at) >= launchAt;
+    const fam = await db.query('SELECT created_at FROM family WHERE id = $1 LIMIT 1', [familyId]);
+    if (!fam.rows[0]?.created_at) return true;
+    return new Date(fam.rows[0].created_at) >= launchAt;
+  } catch (err) {
+    console.error('[ACTIVATION-FLAGS] Check failed for', key, ':', err.message);
+    return false;
+  }
 }
 
 module.exports = {

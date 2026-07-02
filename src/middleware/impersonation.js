@@ -1,10 +1,8 @@
 // Impersonation middleware
 // Owns: blocking write operations during admin support sessions.
 // Does NOT own: JWT verification (handled by auth.js) or auth state.
-const jwt = require('jsonwebtoken');
 const db = require('../lib/db');
-const config = require('../lib/config');
-const { extractToken } = require('./auth');
+const { extractToken, verifyToken } = require('./auth');
 
 /**
  * blockImpersonationWrites — applied globally on /api/* routes.
@@ -25,7 +23,7 @@ async function blockImpersonationWrites(req, res, next) {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, config.jwt.secret);
+    decoded = verifyToken(token);
   } catch {
     // Invalid token — let auth middleware handle the 401
     return next();

@@ -14,7 +14,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const db = require('../../lib/db');
 const config = require('../../lib/config');
-const { requireParent, requireAuth, resolveParentIdForLoginPicker } = require('../../middleware/auth');
+const { requireParent, requireAuth, resolveParentIdForLoginPicker, verifyToken } = require('../../middleware/auth');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const { parentPinLimiter } = require('../../middleware/rateLimiter');
 const parentPinDb = require('../../../db/parent-pin');
@@ -292,7 +292,7 @@ router.post('/restore-parent-session', async (req, res) => {
 
     let payload;
     try {
-      payload = jwt.verify(gateToken, config.jwt.secret);
+      payload = verifyToken(gateToken);
     } catch {
       return res.status(401).json({ error: 'Sessionen har gått ut. Ange PIN-koden igen.' });
     }

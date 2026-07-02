@@ -49,6 +49,7 @@ router.get('/families/:familyId/subscription', async (req, res, next) => {
 });
 
 router.put('/families/:familyId/components/:slug', async (req, res, next) => {
+  const client = await db.getClient();
   try {
     const { familyId, slug } = req.params;
     const { action } = req.body;
@@ -61,8 +62,13 @@ router.put('/families/:familyId/components/:slug', async (req, res, next) => {
       return res.status(400).json({ error: 'Ogiltig komponent' });
     }
 
-    const sub = await familySubscriptions.getByFamilyId(familyId);
-    const components = [...(sub?.components || [])];
+    await client.query('BEGIN');
+
+    const { rows } = await client.query(
+      'SELECT components FROM family_subscriptions WHERE family_id = $1 FOR UPDATE',
+      [familyId]
+    );
+    const components = [...(rows[0]?.components || [])];
     const idx = components.findIndex((c) => c.component === slug);
 
     if (action === 'grant' || action === 'reactivate') {
@@ -77,24 +83,28 @@ router.put('/families/:familyId/components/:slug', async (req, res, next) => {
       if (idx >= 0) components[idx] = { ...components[idx], ...entry };
       else components.push(entry);
     } else if (action === 'archive') {
-      if (idx < 0) return res.status(404).json({ error: 'Komponent saknas' });
+      if (idx < 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Komponent saknas' });
+      }
       components[idx] = {
         ...components[idx],
         state: 'archived',
         archived_at: new Date().toISOString(),
       };
     } else {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'action måste vara grant, archive eller reactivate' });
     }
 
-    await db.query(
+    await client.query(
       `INSERT INTO family_subscriptions (family_id, components)
-       VALUES ($1, $2)
-       ON CONFLICT (family_id) DO UPDATE SET components = $2, updated_at = NOW()`,
+       VALUES ($1, $2::jsonb)
+       ON CONFLICT (family_id) DO UPDATE SET components = $2::jsonb, updated_at = NOW()`,
       [familyId, JSON.stringify(components)]
     );
 
-    await db.query(
+    await client.query(
       `INSERT INTO admin_audit_log (admin_id, target_family_id, action, metadata)
        VALUES ($1, $2, $3, $4)`,
       [
@@ -105,9 +115,13 @@ router.put('/families/:familyId/components/:slug', async (req, res, next) => {
       ]
     );
 
+    await client.query('COMMIT');
     res.json({ ok: true, components });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     next(err);
+  } finally {
+    client.release();
   }
 });
 

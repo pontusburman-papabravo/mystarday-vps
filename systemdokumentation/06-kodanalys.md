@@ -24,18 +24,18 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | K3 | Fail-open vid lock-fel | 🔴 Kritisk | PR-D | ✅ Fixad |
 | H5 | `activation-nudge-scheduler` saknar lock | 🟠 Hög | PR-D | ✅ Fixad |
 | N6 | Fler schedulers utan lock (journey-push, child-handoff) | 🟠 Hög | PR-D | ✅ Fixad |
-| N5/L7/M9 | JWT-rotation saknas + JWT i query-string | 🟠 Hög | PR-E | ⬜ |
-| N7 | Spoofbar win-back-attribution | 🟡 Medel | PR-E | ⬜ |
-| N8 | `activation-flags` fail-hard vid DB-fel | 🟡 Medel | PR-E | ⬜ |
-| N9 | `markSent` utan statusvakt | 🟡 Medel | PR-E | ⬜ |
-| N10 | TOCTOU i admin family-components | 🟡 Medel | PR-E | ⬜ |
+| N5/L7/M9 | JWT-rotation saknas + JWT i query-string | 🟠 Hög | PR-E | ✅ Fixad |
+| N7 | Spoofbar win-back-attribution | 🟡 Medel | PR-E | ✅ Fixad |
+| N8 | `activation-flags` fail-hard vid DB-fel | 🟡 Medel | PR-E | ✅ Fixad |
+| N9 | `markSent` utan statusvakt | 🟡 Medel | PR-E | ✅ Fixad |
+| N10 | TOCTOU i admin family-components | 🟡 Medel | PR-E | ✅ Fixad |
 | N11/M6 | PII i loggar | 🟡 Medel | PR-E | ⬜ |
 | M1 | Tysta fel i fire-and-forget-kedjor | 🟡 Medel | PR-E | ⬜ |
 | M2 | IAP `timingSafeEqual` kan kasta | 🟡 Medel | PR-E | ✅ Delvis fixad i 6df30fe |
-| M3 | `requireComponent` fail-open vid DB-fel | 🟡 Medel | PR-E | ⬜ |
+| M3 | `requireComponent` fail-open vid DB-fel | 🟡 Medel | PR-E | ✅ Fixad |
 | M4 | Pool `max: 5` + 13 schedulers + SSE | 🟡 Medel | PR-E | ⬜ |
 | M5 | Saknat index i `notification_log` | 🟡 Medel | PR-E | ⬜ |
-| M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ⬜ |
+| M7 | Oescapad HTML i kontakt-mejl | 🟡 Medel | PR-E | ✅ Fixad |
 | M8 | In-memory rate limiting | 🟡 Medel | PR-E | ⬜ |
 | L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⬜ |
 
@@ -263,13 +263,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟠 Hög |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Fixad |
 | **Filer** | `src/routes/public.js:477–483` (`verifyReportToken`), `src/routes/family/pin.js:293–298` (`restore-parent-session`), `src/routes/events.js:26–44` (`extractUser`, SSE-auth), `src/middleware/impersonation.js:28`, `src/middleware/maintenance.js:52` |
 | **Problem** | `src/middleware/auth.js:16–31` exporterar delad `verifyToken(token)` med dokumenterat dual-secret-stöd (`JWT_SECRET`+`JWT_SECRET_PREVIOUS` för nollstopps-nyckelrotation, rad 6–7,192–210). Fem ställen anropar i stället `jwt.verify(token, config.jwt.secret)` **direkt**, utan fallback till `previousSecret`: `public.js:479`, `family/pin.js:295`, `events.js:29,33,37,41` (fyra separata anrop i `extractUser`), `impersonation.js:28`, `maintenance.js:52`. Utöver rotationsluckan skickar `events.js:40–41` även token via `?token=`-query-param som SSE-fallback — query-strings hamnar lätt i serverloggar/proxy-loggar/`Referer`-headers. |
 | **Konsekvens** | Vid en nyckelrotation loggas användare oväntat ut från rapportlänkar, PIN-återställning, SSE, admin-impersonation och underhållsläge tills token naturligt går ut — inkonsekvent med resten av appen. Query-param-token är en mindre men reell läckagerisk. |
 | **Föreslagen åtgärd** | 1. Importera `verifyToken` (redan exporterad, `auth.js:286`) i samtliga fem filer i stället för direkt `jwt.verify(token, config.jwt.secret)`.<br>2. `events.js`: ersätt de fyra manuella anropen i `extractUser` med `verifyToken(token)`, en gång per källa.<br>3. Ta bort `?token=`-fallbacket i `events.js:40–42` om inga aktiva klienter behöver det (sök `EventSource(` i `public/js/` innan borttagning); annars flagga som deprecated med utfasningsdatum.<br>4. Regressionstest: sätt `JWT_SECRET_PREVIOUS`, skapa token med gammal hemlighet, verifiera att alla fem accepterar den. |
 | **Kodskiss** | <pre>// public.js / family/pin.js / impersonation.js / maintenance.js<br>const { verifyToken } = require('../middleware/auth'); // justera path per fil<br>function verifyReportToken(token) {<br>  try { return verifyToken(token); } catch { return null; }<br>}</pre> |
-| **Tester** | Nytt `test/jwt-rotation-contract.test.js` — tabelldrivet över alla fem call-sites med `JWT_SECRET_PREVIOUS` satt. |
+| **Tester** | `test/jwt-rotation-contract.test.js` — tabelldrivet över alla fem call-sites (importerar `verifyToken`, inget rått `jwt.verify(token, config.jwt.secret)`, ingen `?token=`-fallback kvar) + funktionellt test att `verifyToken()` accepterar en token signerad med `JWT_SECRET_PREVIOUS`. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -282,13 +282,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Fixad |
 | **Filer** | `src/routes/analytics.js:139–151`, `src/lib/win-back-return-tracker.js:42–62` |
 | **Problem** | `POST /api/analytics/event` (rad 139) tillåter oautentiserade requests: `familyId` faller tillbaka till klient-skickat `session_id` (rad 147) om `req.user` saknas. Om `event_type` är `win_back_landing`/`for_dig_page_view`/`app_opened` anropas `maybeMarkWinBackReturnedFromEngagement(familyId, eventType)` (rad 151), som markerar `win_back_email_log.returned_at` utan att verifiera att avsändaren äger/representerar familjen. |
 | **Konsekvens** | Vem som helst som känner till/gissar en `family_id`-UUID kan spoofa `returned_at`, vilket förvränger win-back-kampanjens returstatistik och ev. automatiska beslut baserade på den. |
 | **Föreslagen åtgärd** | 1. Begränsa `maybeMarkWinBackReturnedFromEngagement`-anropet till autentiserade requests (`req.user?.familyId`, inte `session_id`-fallback) för de tre attribution-triggande event-typerna.<br>2. Om oautentiserad landningssida måste kunna trigga attribution: byt till signerat/kortlivat token i länken i stället för fri-text `session_id`.<br>3. Regressionstest: oautentiserad POST med godtycklig `session_id` → `win_back_email_log.returned_at` oförändrad. |
 | **Kodskiss** | <pre>const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);<br>if (!familyId) return;<br>analytics.track(familyId, event_type, metadata);<br>if (req.user?.familyId) { // kräv autentisering för win-back-attribution<br>  maybeMarkWinBackReturnedFromEngagement(req.user.familyId, event_type).catch(() => {});<br>}</pre> |
-| **Tester** | Utöka `test/win-back-return-tracker.test.js` — spoof-request påverkar inte `returned_at`. |
+| **Tester** | `test/win-back-return-tracker.test.js` — oautentiserad request med spoofad `session_id` påverkar inte `returned_at`; autentiserad request från samma familj sätter `returned_at`. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -299,13 +299,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `src/lib/activation-flags.js:42–47` |
+| **Status** | ✅ Fixad |
+| **Filer** | `src/lib/activation-flags.js` |
 | **Problem** | `isActivationFlagEnabled` gör två sekventiella `await db.query(...)` (rad 43–44, 54) utan `try/catch`. Ett DB-fel (t.ex. pool-utarmning, M4) propagerar rakt upp — till skillnad från andra flagg-kontroller som failar till "av". |
 | **Konsekvens** | En tillfällig DB-störning kan krascha aktiveringsflöden i stället för att bara inaktivera funktionen — motsatt önskat beteende för feature flags. |
 | **Föreslagen åtgärd** | 1. Lägg `try/catch` runt båda `db.query`-anropen.<br>2. Vid fel: logga och returnera `false` (fail-closed — säkert default för en opt-in-flagga).<br>3. Dokumentera i JSDoc att funktionen aldrig kastar. |
 | **Kodskiss** | <pre>async function isActivationFlagEnabled(key, familyId) {<br>  try {<br>    const result = await db.query('SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1', [key]);<br>    if (!result.rows[0]?.enabled) return false;<br>    if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;<br>    const launchAt = parseLaunchAt();<br>    if (!launchAt || !familyId) return true;<br>    const fam = await db.query('SELECT created_at FROM family WHERE id = $1 LIMIT 1', [familyId]);<br>    if (!fam.rows[0]?.created_at) return true;<br>    return new Date(fam.rows[0].created_at) >= launchAt;<br>  } catch (err) {<br>    console.error('[ACTIVATION-FLAGS] Check failed for', key, ':', err.message);<br>    return false; // fail-closed<br>  }<br>}</pre> |
-| **Tester** | Enhetstest med mockad `db.query` som kastar → förvänta `false`, inget kastat undantag. |
+| **Tester** | `test/activation-flags-fail-closed.test.js` — mockad `db.query` som kastar → `false`, inget kastat undantag. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -316,13 +316,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
+| **Status** | ✅ Fixad |
 | **Filer** | `db/win-back-email-log.js:111–120` |
 | **Problem** | `reject(id)` (rad 97–106) och `markFailed` guardar korrekt med `WHERE id = $1 AND status IN (...)`. `markSent(id)` (rad 111–120) saknar motsvarande vakt — kan anropas flera gånger för samma rad och skriver om `sent_at` varje gång, vilket förskjuter attributionsfönstret i `win-back-return-tracker` (N7, `sent_at > NOW() - N days`). |
 | **Konsekvens** | Risk för duplicerad sändningsstatus och förskjuten attributionsstart vid race mellan `win-back-scheduler.js` och en manuell admin-approve-flow. |
 | **Föreslagen åtgärd** | 1. Lägg till samma statusvakt-mönster som `reject`: `WHERE id = $1 AND status = 'approved' AND sent_at IS NULL`.<br>2. Låt anroparen (`win-back-sender.js` m.fl.) hantera `null`-retur (redan skickad) som no-op. |
 | **Kodskiss** | <pre>async function markSent(id) {<br>  const result = await db.query(<br>    `UPDATE win_back_email_log<br>       SET status = 'sent', sent_at = NOW()<br>     WHERE id = $1 AND status = 'approved' AND sent_at IS NULL<br>     RETURNING *`,<br>    [id]<br>  );<br>  return result.rows[0] || null;<br>}</pre> |
-| **Tester** | Anropa `markSent` två gånger i rad för samma `id` → andra anropet returnerar `null`, `sent_at` oförändrad efter första. |
+| **Tester** | `test/win-back-email-log-mark-sent.test.js` — andra `markSent`-anropet för samma `id` returnerar `null` och `sent_at` är oförändrad; ett `pending_approval`-record kan inte gå direkt till `sent`. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -333,13 +333,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `src/routes/admin/family-components.js:64–95` |
+| **Status** | ✅ Fixad |
+| **Filer** | `src/routes/admin/family-components.js` |
 | **Problem** | `PUT /families/:familyId/components/:slug` läser hela `components`-arrayen (rad 64), muterar en lokal kopia (rad 65–88), skriver tillbaka **hela** arrayen (rad 90–95) — utan transaktion/radlås. Två parallella admin-requests för samma familj kan skriva över varandras ändring (last-write-wins). |
 | **Konsekvens** | En admin-beviljad/arkiverad komponent kan tyst försvinna om två ändringar för samma familj sker nära i tiden. |
 | **Föreslagen åtgärd** | 1. `SELECT … FOR UPDATE` på `family_subscriptions`-raden inom en transaktion (`db.getClient()`+`BEGIN`) innan läsning, håll låset till `UPDATE` är klar.<br>2. Alternativt: uttryck ändringen som en atomär SQL-uppdatering (`jsonb`-operatorer) i stället för läs-i-JS-skriv-tillbaka.<br>3. Om ingen transaktion önskas: optimistic-lock via `updated_at`-check från klienten. |
 | **Kodskiss** | <pre>const client = await db.getClient();<br>try {<br>  await client.query('BEGIN');<br>  const { rows } = await client.query(<br>    'SELECT components FROM family_subscriptions WHERE family_id = $1 FOR UPDATE', [familyId]);<br>  const components = [...(rows[0]?.components || [])];<br>  // … mutera components som idag …<br>  await client.query(<br>    `INSERT INTO family_subscriptions (family_id, components) VALUES ($1, $2)<br>     ON CONFLICT (family_id) DO UPDATE SET components = $2, updated_at = NOW()`,<br>    [familyId, JSON.stringify(components)]);<br>  await client.query('COMMIT');<br>} catch (err) { await client.query('ROLLBACK'); throw err; }<br>finally { client.release(); }</pre> |
-| **Tester** | Två parallella `PUT` som grant:ar olika komponenter för samma familj → båda finns i slutresultatet. |
+| **Tester** | `test/family-components-toctou.test.js` — kontrakt: `BEGIN`/`COMMIT`/`ROLLBACK`, `FOR UPDATE`, audit-log inom transaktion. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -401,13 +401,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `require-component.js:82–85` |
+| **Status** | ✅ Fixad |
+| **Filer** | `src/middleware/require-component.js` |
 | **Problem** | Paywall-kollen faller igenom (`next()`) vid DB-fel — kringgår komponent-gaten om databasen har problem. |
 | **Konsekvens** | Betald komponent kan nås utan giltig prenumeration under en DB-störning. |
 | **Föreslagen åtgärd** | 1. Överväg fail-closed för betalda komponenter (avväg mot tillgänglighet — om DB är nere är hela appen påverkad ändå).<br>2. Om fail-closed väljs: returnera `503` (inte `403`) så klienten kan skilja "betalning saknas" från "tillfälligt fel". |
 | **Kodskiss** | <pre>} catch (err) {<br>  req.log?.error({ msg: 'component check failed', operation: 'requireComponent', error: err.message });<br>  return res.status(503).json({ error: 'Tillfälligt fel, försök igen' }); // fail-closed<br>}</pre> |
-| **Tester** | Mocka DB-fel → förvänta `503` (efter beslut) i stället för att requesten släpps igenom. |
+| **Tester** | `test/require-component-fail-closed.test.js` — mockat DB-fel → `503`, inte `next()`. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -452,13 +452,13 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | Fält | Innehåll |
 |---|---|
 | **Prioritet** | 🟡 Medel |
-| **Status** | ⬜ Öppen |
-| **Filer** | `public.js:82` |
+| **Status** | ✅ Fixad |
+| **Filer** | `src/routes/public.js` |
 | **Problem** | `${message.trim()}` injiceras direkt i HTML-mejlet till admin — ett meddelande med `<script>`/HTML-taggar renderas obehandlat i mejlklienten. |
 | **Konsekvens** | Möjlig HTML/script-injektion i det interna admin-mejlklientfönstret. |
 | **Föreslagen åtgärd** | 1. Escapa HTML-specialtecken innan interpolering, eller skicka mejlet som text-only. |
 | **Kodskiss** | <pre>function escapeHtml(s) {<br>  return s.replace(/[&<>"']/g, (c) => ({<br>    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'<br>  }[c]));<br>}<br>// …<br>&lt;p&gt;${escapeHtml(message.trim())}&lt;/p&gt;</pre> |
-| **Tester** | Kontaktformulär med `<img src=x onerror=alert(1)>` i meddelandet → verifiera att mejlets HTML innehåller escapade entiteter. |
+| **Tester** | `test/contact-email-escape.test.js` — XSS-payload i meddelande → escapade entiteter i utgående mejl-HTML. |
 | **PR** | PR-E |
 | **Beroenden** | inga |
 
@@ -610,12 +610,13 @@ Innan varje PR anses klar (utöver `npm run test:gate`, se `130-testing.mdc`):
 - [ ] Varje migrerad scheduler: normal (icke-parallell) körning fungerar som innan (smoke test per fil)
 
 **PR-E**
-- [ ] JWT-rotation (N5): token signerad med `JWT_SECRET_PREVIOUS` accepteras på alla 5 ställen
-- [ ] Win-back-spoofing (N7): oautentiserad request kan inte sätta `returned_at`
-- [ ] `activation-flags` (N8): DB-fel → `false`, inget kastat undantag
-- [ ] `markSent` (N9): dubbelanrop → andra anropet no-op
-- [ ] Admin TOCTOU (N10): två parallella `PUT`-komponentändringar för samma familj → båda ändringarna bevaras
-- [ ] Kontakt-mejl (M7): HTML i meddelande → escapat i utgående mejl
+- [x] JWT-rotation (N5): token signerad med `JWT_SECRET_PREVIOUS` accepteras på alla 5 ställen
+- [x] Win-back-spoofing (N7): oautentiserad request kan inte sätta `returned_at`
+- [x] `activation-flags` (N8): DB-fel → `false`, inget kastat undantag
+- [x] `markSent` (N9): dubbelanrop → andra anropet no-op
+- [x] Admin TOCTOU (N10): `FOR UPDATE`-transaktion i family-components PUT
+- [x] Kontakt-mejl (M7): HTML i meddelande → escapat i utgående mejl
+- [x] requireComponent (M3): DB-fel → `503`, inte fail-open
 - [ ] IAP-signatur (M2): avvikande längd → `401` inte `500`
 
 ---

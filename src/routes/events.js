@@ -4,41 +4,38 @@
  * Owns: GET /api/events — one persistent connection per authenticated user.
  * Does NOT own: event emission logic (see src/lib/sse-broadcast.js).
  *
- * Authentication: httpOnly access_token cookie (primary), Bearer header, or ?token= query param.
+ * Authentication: httpOnly access_token cookie (primary) or Bearer header.
  * EventSource sends cookies automatically for same-origin requests.
+ * The legacy ?token= query-param fallback was removed (N5) — query strings leak into
+ * server/proxy logs and no active client (grep `EventSource(` in public/js/) used it.
  * Family isolation: events are scoped to the authenticated user's family_id.
  * Keep-alive: heartbeat ping every 15 seconds.
  */
 
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const config = require('../lib/config');
 const db = require('../lib/db');
+const { verifyToken } = require('../middleware/auth');
 const { addClient, removeClient } = require('../lib/sse-broadcast');
 const { asyncHandler } = require('../middleware/asyncHandler');
 
 const router = express.Router();
 
-// ─── Auth: httpOnly cookie | Bearer header | query param ──
+// ─── Auth: httpOnly cookie | Bearer header ────────────────
 // Primary: httpOnly access_token cookie (sent automatically by browser).
-// Fallback: Bearer header or ?token= query param (legacy compat).
+// Fallback: Bearer header. No query-param fallback (N5 — removed, was a token-leak risk).
 
 function extractUser(req) {
   // httpOnly cookie (primary — set by login endpoint as 'access_token')
   if (req.cookies?.access_token) {
-    try { return jwt.verify(req.cookies.access_token, config.jwt.secret); } catch {}
+    try { return verifyToken(req.cookies.access_token); } catch {}
   }
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
-    try { return jwt.verify(authHeader.slice(7), config.jwt.secret); } catch {}
+    try { return verifyToken(authHeader.slice(7)); } catch {}
   }
   // Legacy cookie name
   if (req.cookies?.token) {
-    try { return jwt.verify(req.cookies.token, config.jwt.secret); } catch {}
-  }
-  // Query param fallback (legacy SSE clients)
-  if (req.query.token) {
-    try { return jwt.verify(req.query.token, config.jwt.secret); } catch {}
+    try { return verifyToken(req.cookies.token); } catch {}
   }
   return null;
 }
