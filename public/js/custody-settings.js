@@ -23,7 +23,10 @@
   };
 
   const CUSTOM_HELP_TEXT =
-    'Det här är barnets normala veckomönster. Lov, högtider och enstaka byten läggs senare som undantag, utan att ändra grundschemat.';
+    'Det här är barnets normala veckomönster. Lov, högtider och enstaka byten läggs som undantag nedan, utan att ändra grundschemat.';
+
+  const OVERRIDE_HELP_TEXT =
+    'Lov, högtider, resor och enstaka byten — utan att ändra grundschemat.';
 
   const ANCHOR_SNAP_TEXT =
     'Cykeln börjar alltid på en måndag. Datumet har justerats till måndagen i samma vecka.';
@@ -272,6 +275,113 @@
     return null;
   }
 
+  function overridesForChild(childId) {
+    return (_config.overrides || []).filter(function (o) { return o.child_id === childId; });
+  }
+
+  function overrideSectionHtml(childId, homes) {
+    const items = overridesForChild(childId);
+    const opts = homeOptions(homes);
+    const rows = items.map(function (o) {
+      const home = homeById(homes, o.home_id);
+      const reason = o.reason ? (' · ' + escapeHtml(o.reason)) : '';
+      return (
+        '<div class="flex flex-wrap items-center gap-2 text-sm custody-override-row" data-override-id="' + o.id + '">' +
+        '<span class="text-navy dark:text-white">' + escapeHtml(o.start_date) + ' – ' + escapeHtml(o.end_date) + '</span>' +
+        '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium" style="background:' +
+        (home && home.color ? home.color + '22' : '#eee') + ';color:' + (home && home.color || '#333') + '">' +
+        escapeHtml(home ? home.label : '?') + '</span>' +
+        '<span class="text-text-soft text-xs">' + reason + '</span>' +
+        '<button type="button" class="custody-override-delete text-xs text-red-600 min-h-[44px] px-2">Ta bort</button>' +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<div class="custody-overrides mt-3 pt-3 border-t border-lavender/50 space-y-2">' +
+      '<div><h5 class="text-xs font-semibold text-navy dark:text-white">Undantag</h5>' +
+      '<p class="text-xs text-text-soft mt-1 leading-relaxed">' + escapeHtml(OVERRIDE_HELP_TEXT) + '</p></div>' +
+      '<div class="custody-override-list space-y-2">' +
+      (rows || '<p class="text-xs text-text-soft custody-override-empty">Inga undantag ännu.</p>') +
+      '</div>' +
+      '<details class="custody-override-add-panel text-sm">' +
+      '<summary class="cursor-pointer text-gold font-semibold min-h-[44px] flex items-center">Lägg till undantag</summary>' +
+      '<div class="mt-2 space-y-2 custody-override-form p-2 rounded-lg bg-white/50 dark:bg-navy/30">' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+      '<div><label class="text-xs text-text-soft">Från</label>' +
+      '<input type="date" class="custody-override-start w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" /></div>' +
+      '<div><label class="text-xs text-text-soft">Till</label>' +
+      '<input type="date" class="custody-override-end w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" /></div>' +
+      '</div>' +
+      '<div><label class="text-xs text-text-soft">Hem under perioden</label>' +
+      '<select class="custody-override-home w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
+      '<div><label class="text-xs text-text-soft">Anledning (valfritt)</label>' +
+      '<input type="text" class="custody-override-reason w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" maxlength="200" placeholder="T.ex. sportlov, jul hos mamma" /></div>' +
+      '<button type="button" class="custody-override-save px-3 py-2 bg-gold text-white rounded-lg text-sm font-semibold min-h-[44px]">Spara undantag</button>' +
+      '</div></details></div>'
+    );
+  }
+
+  async function saveOverride(block, childId) {
+    const start = block.querySelector('.custody-override-start')?.value;
+    const end = block.querySelector('.custody-override-end')?.value;
+    const homeId = block.querySelector('.custody-override-home')?.value;
+    const reason = block.querySelector('.custody-override-reason')?.value?.trim() || null;
+
+    if (!start || !end || !homeId) {
+      showToast('Fyll i datum och hem för undantaget', true);
+      return;
+    }
+    if (start > end) {
+      showToast('Slutdatum måste vara samma dag eller efter startdatum', true);
+      return;
+    }
+
+    await Auth.api('/api/family/custody/overrides', {
+      method: 'POST',
+      body: JSON.stringify({
+        child_id: childId,
+        start_date: start,
+        end_date: end,
+        home_id: homeId,
+        reason: reason,
+      }),
+    });
+    track('custody_override_created', { child_id: childId });
+    await load();
+    showToast('Undantag sparat');
+  }
+
+  async function deleteOverride(overrideId, childId) {
+    await Auth.api('/api/family/custody/overrides/' + overrideId + '?childId=' + encodeURIComponent(childId), {
+      method: 'DELETE',
+    });
+    track('custody_override_deleted', { child_id: childId });
+    await load();
+    showToast('Undantag borttaget');
+  }
+
+  function bindOverrideSection(block, childId) {
+    const saveBtn = block.querySelector('.custody-override-save');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        saveOverride(block, childId).catch(function (err) {
+          showToast('Kunde inte spara undantag: ' + (err.message || 'fel'), true);
+        });
+      });
+    }
+    block.querySelectorAll('.custody-override-delete').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const row = btn.closest('.custody-override-row');
+        const id = row && row.getAttribute('data-override-id');
+        if (!id) return;
+        deleteOverride(id, childId).catch(function (err) {
+          showToast('Kunde inte ta bort: ' + (err.message || 'fel'), true);
+        });
+      });
+    });
+  }
+
   function childBlockHtml(c, pat, homes) {
     const enabled = Boolean(pat);
     const patternType = patternTypeFromPat(pat);
@@ -313,6 +423,7 @@
       '<select class="custody-week-b w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '</div></div>' +
       customFieldsHtml(pat, homes) +
+      overrideSectionHtml(c.id, homes) +
       '</div></div>'
     );
   }
@@ -351,6 +462,7 @@
 
     bindCustomDaySelects(block, homes);
     togglePatternFields(block);
+    bindOverrideSection(block, block.getAttribute('data-child-id'));
   }
 
   function render() {

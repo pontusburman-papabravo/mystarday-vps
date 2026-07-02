@@ -58,7 +58,16 @@ describe('custody-settings (Phase 4.5d)', () => {
     assert.match(routes, /alternate_weekends/);
     assert.match(routes, /weekend_home_a/);
     assert.match(routes, /custody_schedule_updated/);
+    assert.match(routes, /router\.post\('\/overrides'/);
+    assert.match(routes, /custody_override_created/);
     assert.doesNotMatch(routes, /custody_week_variant_changed/);
     assert.doesNotMatch(routes, /Vecka A/);
+  });
+
+  it('override UI saves via custody override API', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-settings.js'), 'utf8');
+    assert.match(src, /Undantag/);
+    assert.match(src, /custody-override-save/);
+    assert.match(src, /custody_override_created/);
   });
 });

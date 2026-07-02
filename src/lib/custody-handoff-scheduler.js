@@ -9,9 +9,8 @@ const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { CUSTODY_HANDOFF_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
-const custodyDb = require('../../db/custody');
-const { isCustodyHandoffEve, engineCtxFromPatternRow } = require('./custody-notify');
-const { resolveCustodyDateSync } = require('./custody-schedule-engine');
+const { isCustodyHandoffEve } = require('./custody-notify');
+const { loadCustodyContext, resolveCustodyDateSync } = require('./custody-schedule-engine');
 const { addDaysIso } = require('./date-utils');
 const { getOrGenerateDailyLog } = require('./daily-log-generator');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
@@ -69,9 +68,11 @@ async function runCustodyHandoffJob(now = new Date()) {
     const flagOk = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, row.family_id);
     if (!flagOk) continue;
 
-    const homes = await custodyDb.listHomes(row.family_id);
-    const homesById = Object.fromEntries(homes.map((h) => [h.id, h]));
-    const engineCtx = engineCtxFromPatternRow(row, homesById);
+    const engineCtx = await loadCustodyContext({
+      childId: row.child_id,
+      familyId: row.family_id,
+    });
+    if (!engineCtx.schedule) continue;
     if (!isCustodyHandoffEve(engineCtx, dateStr)) continue;
 
     const tomorrow = addDaysIso(dateStr, 1);

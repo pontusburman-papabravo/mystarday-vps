@@ -138,6 +138,106 @@ test('custody API integration: setup → context → custody_home_id schedule wr
   }
 });
 
+test('custody override API: create → context source override → delete', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL (mock_test or unset)');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ('custody_schedule_beta', true, 'FEAT-1C test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`
+    );
+
+    const session = await registerAndLogin(http.baseUrl);
+    const childId = await createChild(http.baseUrl, session, { name: 'Override Barn' });
+
+    const setup = await authFetch(http.baseUrl, session, '/api/family/custody/setup', {
+      method: 'POST',
+      body: {},
+    });
+    assert.equal(setup.res.status, 200, setup.text);
+    const homeA = setup.json.homes[0].id;
+    const homeB = setup.json.homes[1].id;
+
+    await authFetch(http.baseUrl, session, `/api/family/custody/pattern/${childId}`, {
+      method: 'PUT',
+      body: {
+        anchor_date: '2026-06-02',
+        week_a_home_id: homeA,
+        week_b_home_id: homeB,
+        pattern_type: 'alternate_weeks',
+        clone_week_b: false,
+      },
+    });
+
+    const before = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-04`
+    );
+    assert.equal(before.res.status, 200, before.text);
+    assert.notEqual(before.json.source, 'override');
+
+    const created = await authFetch(http.baseUrl, session, '/api/family/custody/overrides', {
+      method: 'POST',
+      body: {
+        child_id: childId,
+        start_date: '2026-06-04',
+        end_date: '2026-06-06',
+        home_id: homeB,
+        reason: 'sportlov',
+      },
+    });
+    assert.equal(created.res.status, 201, created.text);
+    assert.equal(created.json.override.home_id, homeB);
+
+    const during = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-05`
+    );
+    assert.equal(during.res.status, 200, during.text);
+    assert.equal(during.json.source, 'override');
+    assert.equal(during.json.activeHome.id, homeB);
+    assert.equal(during.json.activePeriod.start, '2026-06-04');
+    assert.equal(during.json.activePeriod.end, '2026-06-06');
+
+    const list = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/overrides?childId=${encodeURIComponent(childId)}`
+    );
+    assert.equal(list.res.status, 200, list.text);
+    assert.equal(list.json.overrides.length, 1);
+
+    const deleted = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/overrides/${created.json.override.id}?childId=${encodeURIComponent(childId)}`,
+      { method: 'DELETE' }
+    );
+    assert.equal(deleted.res.status, 200, deleted.text);
+
+    const after = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-05`
+    );
+    assert.equal(after.res.status, 200, after.text);
+    assert.notEqual(after.json.source, 'override');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('custody backfill migration maps week_variant rows to custody_home_id', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {

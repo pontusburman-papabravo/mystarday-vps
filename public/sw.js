@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v481';
+const CACHE_NAME = 'stjarndag-v482';
+// stjarndag-v482: FEAT-1C custody_override — undantag (lov/byten) ovanpå grundschema
 // stjarndag-v481: Journey Fas 2 + ACT-1 PR5 nudge ON (ship train)
 // stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
 // stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout
@@ -332,6 +333,7 @@ const CACHE_NAME = 'stjarndag-v481';
 // stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
 // stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
+// stjarndag-v482: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

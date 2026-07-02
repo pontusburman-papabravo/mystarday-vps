@@ -17,6 +17,9 @@ const {
   isMondayAnchor,
   validateCustomConfiguration,
 } = require('../../lib/custody-custom-config');
+const {
+  validateOverridePayload,
+} = require('../../lib/custody-override-config');
 const analytics = require('../../../db/analytics');
 
 const router = express.Router();
@@ -54,6 +57,7 @@ router.get('/', requireNotPedagogOnly, requireCustodyFeature, async (req, res, n
   try {
     const familyId = req.user.familyId;
     const config = await custodyDb.getFamilyConfig(familyId);
+    const overrides = await custodyDb.listOverridesForFamily(familyId);
     const parents = await db.query(
       `SELECT id, name, email FROM parent WHERE family_id = $1 AND is_admin = false ORDER BY created_at ASC`,
       [familyId]
@@ -63,6 +67,7 @@ router.get('/', requireNotPedagogOnly, requireCustodyFeature, async (req, res, n
       homes: config.homes,
       parentHomes: config.parentHomes,
       patterns: config.patterns,
+      overrides,
       parents: parents.rows,
     });
   } catch (err) {
@@ -347,6 +352,129 @@ router.post('/setup', requireNotPedagogOnly, requireCustodyFeature, async (req, 
     next(err);
   } finally {
     client.release();
+  }
+});
+
+// GET /api/family/custody/overrides?childId=
+router.get('/overrides', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const { childId } = req.query;
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'childId krävs' });
+    }
+    const child = await verifyChildInFamily(childId, req.user.familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const overrides = await custodyDb.listOverridesForChild(childId);
+    res.json({ overrides });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/family/custody/overrides
+router.post('/overrides', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    const { child_id: childId } = req.body || {};
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'child_id krävs' });
+    }
+
+    const child = await verifyChildInFamily(childId, familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const pattern = await custodyDb.getPattern(childId);
+    if (!pattern) {
+      return res.status(400).json({ error: 'Aktivera boendeschema för barnet först' });
+    }
+
+    const familyHomes = await custodyDb.listHomes(familyId);
+    const validHomeIds = new Set(familyHomes.map((h) => h.id));
+    const check = validateOverridePayload(req.body, validHomeIds);
+    if (!check.ok) {
+      return res.status(400).json({ error: check.error });
+    }
+
+    const override = await custodyDb.createOverride({
+      child_id: childId,
+      ...check.row,
+    });
+
+    analytics.track(familyId, 'custody_override_created', {
+      child_id: childId,
+      start_date: override.start_date,
+      end_date: override.end_date,
+    });
+
+    res.status(201).json({ override });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/family/custody/overrides/:overrideId
+router.put('/overrides/:overrideId', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    const { overrideId } = req.params;
+    const { child_id: childId } = req.body || {};
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'child_id krävs' });
+    }
+
+    const child = await verifyChildInFamily(childId, familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const existing = await custodyDb.getOverrideForChild(overrideId, childId);
+    if (!existing) return res.status(404).json({ error: 'Undantag hittades inte' });
+
+    const familyHomes = await custodyDb.listHomes(familyId);
+    const validHomeIds = new Set(familyHomes.map((h) => h.id));
+    const check = validateOverridePayload(req.body, validHomeIds);
+    if (!check.ok) {
+      return res.status(400).json({ error: check.error });
+    }
+
+    const override = await custodyDb.updateOverride(overrideId, {
+      child_id: childId,
+      ...check.row,
+    });
+
+    analytics.track(familyId, 'custody_override_updated', {
+      child_id: childId,
+      override_id: overrideId,
+    });
+
+    res.json({ override });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/family/custody/overrides/:overrideId?childId=
+router.delete('/overrides/:overrideId', requireNotPedagogOnly, requireCustodyFeature, async (req, res, next) => {
+  try {
+    const { overrideId } = req.params;
+    const childId = req.query.childId;
+    if (!childId || typeof childId !== 'string') {
+      return res.status(400).json({ error: 'childId krävs' });
+    }
+
+    const child = await verifyChildInFamily(childId, req.user.familyId);
+    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+
+    const deleted = await custodyDb.deleteOverride(overrideId, childId);
+    if (!deleted) return res.status(404).json({ error: 'Undantag hittades inte' });
+
+    analytics.track(req.user.familyId, 'custody_override_deleted', {
+      child_id: childId,
+      override_id: overrideId,
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
   }
 });
 
