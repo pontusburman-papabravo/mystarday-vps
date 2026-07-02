@@ -1,7 +1,7 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (Journey event-first signup, ACT-1 slim, FEAT-1B, Child Worlds v1.1)
+**Till:** Nästa fas (Journey slim signup, ACT-1 PR 5, FEAT-1B, Child Worlds v1.1)
 
 ---
 
@@ -19,38 +19,50 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Parent Hubs | Complete | `docs/qa/hub-integration-sweep.md` v2 |
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
-| ACT-1 PR 1–4 | Kod på main; rollout via PR #506 / prod flags | `docs/act-1-rollout-runbook.md` |
+| ACT-1 PR 1–4 | **Live** (migration `180922`) | `docs/act-1-rollout-runbook.md` |
+| Slim signup + Journey | Ship branch → main | `docs/signup-slim-prod-checklist.md` |
 | För dig | **v1 Complete** | Sprint 3–5; Sprint 4 defer |
 
 ---
 
-## Rekommenderad merge-/deploy-ordning (redan genomförd)
+## Rekommenderad merge-/deploy-ordning (nästa ship)
 
 ```
-#497 docs → #498 feat1 → #500 act1 → #499 hubs → #501 assets → #502 worlds → docs final
+#506 ACT-1 PR 1–4 flags → main → migrate
+#508 slim signup + Journey + power-user → main → migrate
 ```
+
+Se [`docs/signup-slim-prod-checklist.md`](../signup-slim-prod-checklist.md).
 
 ---
 
 ## Plocka härnäst
 
-### 1. Journey event-first onboarding (**produktlåsning — start här**)
+### 1. Journey event-first onboarding
 
 - ADR: [`docs/decisions/journey-event-first-onboarding.md`](../decisions/journey-event-first-onboarding.md)
-- Signup = “Er rutin är redo” (3 frågor → auto-schema → Hem)
+- Signup standard: 3 frågor → auto-schema → Hem
+- Power-user: välj färdigt schema / 7-frågor wizard
 - Journey = event-first, day-second (1, 2, 3, tyst 4–6, 7, 14)
-- Avveckla handoff + first-star i signup när slim flag live
 
-### 2. FEAT-1B — `custom` boendemönster
+### 2. ~~ACT-1 PR 1–4~~ ✅ (migration `180922`)
+
+- Template-first, handoff, first star guide, AI (fallback till mall)
+- PR 5 (nudges) + `activation_first_star_mode_v1` kvar OFF
+
+### 3. FEAT-1B — `custom` boendemönster
+
 - Spec: `docs/boendeschema-spec.md` (ej v1)
 - Separat branch; kräver ADR om scope ändras
 
-### 3. FEAT-1C — `custody_override`
+### 4. FEAT-1C — `custody_override`
+
 - Pipeline-stub finns; produkt ej definierad
 
-### 4. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
+### 5. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
 
-### 5. Child Worlds v1.1
+### 6. Child Worlds v1.1
+
 - Mina personer: interaktiv berättelse, avatarer
 
 ---
@@ -77,6 +89,6 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 
 ## Öppna frågor
 
-1. Slim signup: flag rollout vs direkt ersättning av ACT-1 wizard?
+1. ACT-1 PR 5: när aktivera `activation_nudge_v1`?
 2. För dig Sprint 4: nav-flytt när metrics möter tröskel?
-3. FEAT-1B vs Journey slim — prioritet?
+3. FEAT-1B: prioritet vs ACT-1 PR 5?

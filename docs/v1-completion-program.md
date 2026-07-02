@@ -283,36 +283,26 @@ Agent 7: ✓ release [blocked|ready]
 
 ## ACT-1 rollout-regler
 
-**Prod-default:** `activation_first_star_mode_v1` = **OFF** (migration `1809170000000`).
+**Prod-default (PR 1–4):** **ON** via migration `1809220000000_enable_act1_pr1_4_flags`.
 
-### Före rollout
+**Fortfarande OFF:** `activation_first_star_mode_v1`, `activation_nudge_v1`, `referral_program`.
 
-1. Agent 5 PR 1–2 mergade + grön gate
-2. Agent 7 manuell QA: första familjen, flera barn, avbruten/återupptagen onboarding
-3. Skriftlig go i PR eller `docs/first-success/OPERATIONAL-TRUTH.md`
+### Efter deploy
 
-### Rollout-steg (rekommenderat)
+1. Verifiera health + ny registrering → template-wizard → handoff → first star
+2. Mät `activation-funnel` i admin 48h
+3. PR 5 / first_star_mode: separat go-live med `node scripts/enable-act1-flags.js --full`
 
-| Steg | Åtgärd |
-|------|--------|
-| 1 | Intern dogfood-familjer via admin feature_flag |
-| 2 | `scripts/enable-act1-flags.js` på staging — **inte** full lista på prod utan L1-beslut |
-| 3 | Mät `activation-funnel` 6-steg i admin 48h |
-| 4 | Gradvis prod: `activation_first_star_mode_v1` först, sedan handoff |
-
-### Flaggor i `enable-act1-flags.js`
+### PR 1–4 flaggor (live)
 
 ```
-activation_onboarding_v1
-activation_child_handoff_v1
-activation_first_star_guide_v1
-activation_first_star_mode_v1
-activation_ai_starter_plan      ← v1: lämna OFF om ej implementerad
-activation_nudge_v1
-referral_program
+activation_onboarding_v1          ON
+activation_child_handoff_v1       ON
+activation_first_star_guide_v1    ON
+activation_ai_starter_plan        ON (fallback till mall utan OPENAI_API_KEY)
 ```
 
-**OBS:** Alla flaggor måste finnas i DB (`npm run migrate`) innan script körs.
+**OBS:** `npm run migrate` på deploy aktiverar PR 1–4 automatiskt.
 
 ---
 
@@ -324,7 +314,7 @@ referral_program
 | `docs/parent-hubs-index.md` + `qa/hub-integration-sweep.md` | Agent 2 |
 | `docs/for-dig-spec.md` Sprint 3–5 | Agent 3 |
 | `docs/child-worlds-index.md` | Agent 4 |
-| `docs/act-1-cursor-tasklist.md` PR 2 | Agent 5 |
+| `docs/act-1-cursor-tasklist.md` PR 1–4 | Agent 5 |
 | `docs/child-image-assets.md` | Agent 6 |
 | `docs/15` constitution + `190-definition-of-done.mdc` | Agent 7 |
 | ADR + release notes | Agent 8 |
@@ -340,7 +330,7 @@ referral_program
 | För dig | ~70% | **95–100%** |
 | Child Worlds | ~75% | **90–100%** |
 | Illustrationer | ~85% | **100%** |
-| First Star | ~45% | **100% (v1)** |
+| First Star | ~45% | **100% (PR 1–4 live)** |
 | QA | ~70% | **100%** |
 | Dokumentation | ~80% | **100%** |
 

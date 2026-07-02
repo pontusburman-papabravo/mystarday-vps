@@ -1,88 +1,86 @@
-# ACT-1 rollout runbook (v1)
+# ACT-1 rollout runbook (PR 1–4 live)
 
-**Syfte:** Säker aktivering av ACT-1 (child handoff + first star guide) utan oavsiktlig prod-exponering.
+**Syfte:** Aktivera ACT-1 PR 1–4 (instrumentering, handoff, template-first, AI) för alla familjer.
 
-**Default:** Alla `activation_*` flaggor är **OFF** efter migrate. Ingen auto-enable i deploy.
+**Default efter migrate `180922`:** PR 1–4 flaggor **ON**. PR 5 (nudge), referral och `activation_first_star_mode_v1` förblir **OFF** tills separat go-live.
 
 ---
 
-## Flaggor (per familj + global `feature_flag.enabled`)
+## Flaggor
 
-| Nyckel | Vad | PR |
-|--------|-----|-----|
-| `activation_child_handoff_v1` | Steg 5 handoff, soft gate, `child_access_completed` | A1 |
-| `activation_first_star_guide_v1` | First star guide efter steg 6 | A1 |
-| `activation_first_star_mode_v1` | Barnvy: en aktivitet i taget (separat agent) | — |
-| `activation_onboarding_v1` | Template-first wizard (PR 3 — utanför v1 handoff) | A2 |
-| `activation_ai_starter_plan` | AI-personalisering (PR 4) | A3 |
-| `activation_nudge_v1` | 24–48h påminnelse om ej P0 | PR 5 |
+| Nyckel | Vad | PR | Default efter 180922 |
+|--------|-----|-----|----------------------|
+| `activation_onboarding_v1` | Template-first wizard | 3 | **ON** |
+| `activation_child_handoff_v1` | Steg 5 handoff, `child_access_completed` | 2 | **ON** |
+| `activation_first_star_guide_v1` | First star guide efter handoff | 2 | **ON** |
+| `activation_ai_starter_plan` | AI-personalisering (fallback till mall) | 4 | **ON** |
+| `activation_first_star_mode_v1` | Barnvy: en aktivitet i taget | — | OFF |
+| `activation_nudge_v1` | 24–48h påminnelse om ej P0 | 5 | OFF |
+| `referral_program` | Referral v0 spårning | parallell | OFF |
 
-**Cohort:** Om `ACTIVATION_ONBOARDING_LAUNCH_AT` är satt i `.env` får endast familjer skapade efter det datumet flaggorna (utom undantag i `activation-flags.js`).
+**Cohort:** Om `ACTIVATION_ONBOARDING_LAUNCH_AT` är satt i `.env` får endast familjer skapade efter det datumet flaggorna (utom undantag i `activation-flags.js`). **För alla familjer:** ta bort env-raden och starta om.
+
+**AI:** Utan `OPENAI_API_KEY` faller PR 4 tillbaka till ren mall — onboarding blockeras aldrig.
 
 ---
 
 ## Före rollout
 
 1. `npm run test:gate` grön på main/branch
-2. `node --test test/first-star-mode*.test.js test/pr2-checkpoint.test.js test/act1-rollout.test.js test/onboarding-handoff-p0.test.js`
-3. `node scripts/pr2-checkpoint.mjs` (assets) — API-delen kräver `PR2_EMAIL` + `PR2_PASSWORD`
-4. Admin → Analytics → Aktivering: baseline-vecka noterad
+2. `node --test test/pr2-checkpoint.test.js test/pr3-checkpoint.test.js test/pr4-checkpoint.test.js test/act1-rollout.test.js`
+3. Admin → Analytics → Aktivering: baseline-vecka noterad
 
 ---
 
-## Dev / staging (en familj)
+## Deploy (automatisk via CI)
+
+GitHub Actions deploy kör `npm run migrate` → migration `1809220000000_enable_act1_pr1_4_flags` sätter PR 1–4 **ON**.
+
+Verifiera efter deploy:
 
 ```bash
-# Efter migrate — aktivera bara handoff + guide (inte hela ACT-1)
-psql "$DATABASE_URL" -c "
-  UPDATE feature_flag SET enabled = true
-  WHERE key IN (
-    'activation_child_handoff_v1',
-    'activation_first_star_guide_v1'
-  );
-"
+sleep 3 && curl -s http://127.0.0.1:3000/health
 ```
 
-Manuellt test: ny registrering → onboarding steg 5 → testa barninloggning / hoppa över → first star guide → barnvy → första avbockning.
-
 ---
 
-## Prod — full rollout (endast efter explicit go)
-
-**FÖRBJUDET** att köra utan produkt-go:
+## Prod — manuell rollout (om migrate redan körts utan 180922)
 
 ```bash
-# PÅ VPS — endast efter godkännande (sökväg/service: se deploy-regler i .cursor/rules/)
 cd "$VPS_APP_ROOT"
 ./scripts/rollout-act1-full.sh
 ```
 
-Skriptet: `git pull` → `npm run migrate` → `node scripts/enable-act1-flags.js` → `systemctl restart "$SYSTEMD_SERVICE"` → health.
+Skriptet: `git pull` → `npm run migrate` → `node scripts/enable-act1-flags.js` (PR 1–4) → restart → health.
 
-**Alternativ manuell flag-enable (begränsad):**
+**Full rollout** (inkl. nudge + referral + first_star_mode):
 
 ```bash
-node scripts/enable-act1-flags.js   # sätter ALLA ACT-1-flaggor ON
+node scripts/enable-act1-flags.js --full
 ```
 
 ---
 
 ## Verifiering efter prod
 
-1. `sleep 3 && curl -s http://127.0.0.1:3000/health`
-2. `PR2_EMAIL=... PR2_PASSWORD=... node scripts/pr2-checkpoint.mjs`
-3. Admin funnel: signup → child access → first completion (48h-kohort)
-4. `node scripts/diagnose-onboarding-funnel.js` (valfritt)
+1. Ny registrering → template-wizard (7 frågor) → preview → handoff → first star guide
+2. Admin funnel: signup → child access → first completion (48h-kohort)
+3. `PR2_EMAIL=... PR2_PASSWORD=... node scripts/pr2-checkpoint.mjs` (valfritt)
 
 ---
 
 ## Rollback
 
-1. Stäng flaggor (snabbast):
+1. Stäng PR 1–4 flaggor:
 
 ```sql
 UPDATE feature_flag SET enabled = false
-WHERE key LIKE 'activation_%' OR key = 'referral_program';
+WHERE key IN (
+  'activation_onboarding_v1',
+  'activation_child_handoff_v1',
+  'activation_first_star_guide_v1',
+  'activation_ai_starter_plan'
+);
 ```
 
 2. `sudo systemctl restart "$SYSTEMD_SERVICE"`
@@ -94,12 +92,13 @@ WHERE key LIKE 'activation_%' OR key = 'referral_program';
 
 | Fil | Roll |
 |-----|------|
-| `public/js/onboarding-activation.js` | Child handoff (steg 5) |
-| `public/js/onboarding-first-star.js` | First star guide (steg 6) |
-| `scripts/enable-act1-flags.js` | Prod flag-enable (manuell) |
-| `scripts/pr2-checkpoint.mjs` | Smoke efter deploy |
+| `migrations/1809220000000_enable_act1_pr1_4_flags.js` | PR 1–4 ON vid migrate |
+| `scripts/enable-act1-flags.js` | Idempotent PR 1–4 (eller `--full`) |
+| `scripts/rollout-act1-full.sh` | VPS rollout-helper |
 | `src/lib/activation-flags.js` | Cohort + fail-closed |
-| `src/lib/child-handoff-reminder-scheduler.js` | 24h efter `child_handoff_skipped` |
+| `public/js/onboarding-starter-plan.js` | Template-first (PR 3) |
+| `public/js/onboarding-activation.js` | Child handoff (PR 2) |
+| `public/js/onboarding-first-star.js` | First star guide (PR 2) |
 
 ---
 

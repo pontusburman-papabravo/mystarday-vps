@@ -217,12 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-<<<<<<< HEAD
 const CACHE_NAME = 'stjarndag-v473';
-// stjarndag-v473: Slim signup + Journey + power-user paths (merge med bildstöd v472)
-=======
-const CACHE_NAME = 'stjarndag-v472';
->>>>>>> 0afd0be (feat(onboarding): power-user paths in slim signup + enable flag)
+// stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js

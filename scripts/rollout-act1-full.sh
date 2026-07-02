@@ -37,7 +37,7 @@ fi
 echo "→ migrate"
 npm run migrate
 
-echo "→ enable ACT-1 flags"
+echo "→ enable ACT-1 PR 1–4 flags (idempotent; migration 180922 also enables)"
 node scripts/enable-act1-flags.js
 
 echo "→ restart $SYSTEMD_SERVICE"
