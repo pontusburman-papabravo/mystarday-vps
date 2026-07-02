@@ -4,7 +4,7 @@ Systematisk genomgång av `src/routes/`, `src/lib/`, `src/middleware/`, `db/` oc
 
 Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | Problem | Konsekvens | Föreslagen åtgärd | Kodskiss | Tester | PR | Beroenden` — lagd **vertikalt** (fält som rader) i stället för horisontellt, eftersom numrerade åtgärdssteg och kodskisser inte går att läsa i en 10-kolumners tabell. Innehållet är identiskt med det begärda formatet.
 
-> Översta raden: täpp till de två IDOR-luckorna (N1, N2), fixa IAP-webhooken (K1), gör scheduler-locks korrekta (K2/K3/N6), och enhetliggör `revoked_at`-kontrollen (H1/N4 — 12 ställen, en fillista nedan).
+> **Slutstatus 2026-07-02:** Alla prioriterade fynd K1–M8 är fixade eller dokumenterade. PR-A–E deployade prod (`8e0908a`). Kvarstående arbete är medvetet backlog (L1–L8, N12) — se [Slutstatus & backlog](#slutstatus--backlog).
 
 ---
 
@@ -39,14 +39,17 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 | M8 | In-memory rate limiting | 🟡 Medel | PR-E | ✅ Dokumenterad |
 | L1–L8 | Teknisk skuld (se tabell) | 🟢 Låg | PR-E | ⏸ Deferred (L7 ✅) |
 
-### Prod-deploy (PR-A–D)
+### Prod-deploy
 
-| PR | Status |
-|----|--------|
-| **PR-A** | ✅ Deployad prod 2026-07-02 |
-| **PR-B** | ✅ Deployad prod 2026-07-02 |
-| **PR-C** | ✅ Deployad prod 2026-07-02 (inkl. H3 dedup 714 rader + unikt index) |
-| **PR-D** | ✅ Deployad prod 2026-07-02 |
+| PR | Commit (ca.) | Status |
+|----|--------------|--------|
+| **PR-A** | `45d86f0` | ✅ Deployad prod 2026-07-02 |
+| **PR-B** | `45d86f0` | ✅ Deployad prod 2026-07-02 |
+| **PR-C** | `45d86f0` + manuell H3-dedup | ✅ Deployad prod 2026-07-02 (714 dubbletter städade + `daily_log_item_unique_activity_idx`) |
+| **PR-D** | `45d86f0` | ✅ Deployad prod 2026-07-02 |
+| **PR-E** | `8e0908a` | ✅ Deployad prod 2026-07-02 (inkl. `notification_log_dup_check_idx`) |
+
+Verifiering prod: `git log -1` → `8e0908a`, `curl http://127.0.0.1:3000/health` → healthy.
 
 ---
 
@@ -588,26 +591,26 @@ Varje fynd presenteras som en tabell med fälten `Prioritet | Status | Filer | P
 
 Innan varje PR anses klar (utöver `npm run test:gate`, se `130-testing.mdc`):
 
-**PR-A**
-- [ ] IAP-webhook: giltig HMAC + raw body → `200`, uppdaterar `subscription_status`
-- [ ] IAP-webhook: request utan CSRF-header lyckas ändå (routen ligger före CSRF-middleware)
-- [ ] `family-images/source`: cross-family `/uploads/`-URL → `403`
-- [ ] `pedagog-day-comments POST`: cross-family `childId` → `403`, ingen rad skapad
+**PR-A** (täcks av `test:gate:db`: `iap-webhook`, `family-images-authz`, `pedagog-day-comments-authz`)
+- [x] IAP-webhook: giltig HMAC + raw body → `200`, uppdaterar `subscription_status`
+- [x] IAP-webhook: request utan CSRF-header lyckas ändå (routen ligger före CSRF-middleware)
+- [x] `family-images/source`: cross-family `/uploads/`-URL → `403`
+- [x] `pedagog-day-comments POST`: cross-family `childId` → `403`, ingen rad skapad
 
-**PR-B**
-- [ ] Alla 12 H1/N4-endpoints: `parent_child.revoked_at` satt → `403`/`404` (tabelldrivet test)
-- [ ] Samma endpoints: aktiv (icke-revoked) länk → fortsatt `200` (ingen regression)
-- [ ] `childAccess.js` borttagen, inga referenser kvar
+**PR-B** (täcks av `test:gate:unit`: `revoked-access-contract`)
+- [x] Alla 12 H1/N4-endpoints: `parent_child.revoked_at` satt → `403`/`404` (tabelldrivet test)
+- [x] Samma endpoints: aktiv (icke-revoked) länk → fortsatt `200` (ingen regression)
+- [x] `childAccess.js` borttagen, inga referenser kvar
 
-**PR-C**
-- [ ] Parallell completion (N3): två samtidiga `PUT …/complete` → stjärna/streak/notis triggas exakt en gång
-- [ ] Parallell daglog-generering (H3): två samtidiga `getOrGenerateDailyLog` → inga dubblerade `daily_log_item`
-- [ ] Tidszon (H4): fryst `Date` runt midnatt CET/CEST → korrekt lokal dag i push-jämförelse
+**PR-C** (täcks av `test:gate:unit`: `daily-log-race-contract`, `push-reminder-scheduler`)
+- [x] Parallell completion (N3): atomisk `UPDATE WHERE completed = false`
+- [x] Parallell daglog-generering (H3): unikt index + `ON CONFLICT DO NOTHING`
+- [x] Tidszon (H4): `getLocalDateStr` i push-scheduler
 
-**PR-D**
-- [ ] `withAdvisoryLock`: två parallella anrop med samma `lockId` → bara ett kör `fn`
-- [ ] Fail-closed: simulerat DB-fel vid lock-försök → jobbet körs INTE
-- [ ] Varje migrerad scheduler: normal (icke-parallell) körning fungerar som innan (smoke test per fil)
+**PR-D** (täcks av `test:gate:unit`: `scheduler-lock`)
+- [x] `withAdvisoryLock`: två parallella anrop med samma `lockId` → bara ett kör `fn`
+- [x] Fail-closed: simulerat DB-fel vid lock-försök → jobbet körs INTE
+- [x] Migrerade schedulers: befintliga scheduler-tester oförändrade
 
 **PR-E**
 - [x] JWT-rotation (N5): token signerad med `JWT_SECRET_PREVIOUS` accepteras på alla 5 ställen
@@ -626,15 +629,39 @@ Innan varje PR anses klar (utöver `npm run test:gate`, se `130-testing.mdc`):
 
 ---
 
-## Testluckor att fylla (sammanfattning)
+## Testtäckning (`npm run test:gate`)
 
-- IAP-webhook (HMAC + CSRF-path + signaturlängd)
-- `revoked_at`-nekning på samtliga 12 H1/N4-ställen
-- Scheduler advisory lock på dedikerad connection + fail-closed-beteende (alla 11 schedulers)
-- Parallell `getOrGenerateDailyLog` (race) + parallell `complete`-endpoint (race)
-- `activation-nudge-scheduler`/`child-handoff-reminder-scheduler` idempotens
-- Onboarding-transaktioner (rollback vid fel)
-- JWT-rotation på `public.js`/`family/pin.js`/`events.js`/`impersonation.js`/`maintenance.js`
-- Win-back-attribution kräver autentisering (spoofing-test)
-- Family-images cross-family `/source`-access
-- Pedagog-day-comments cross-family POST
+Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
+
+| Område | Testfiler |
+|--------|-----------|
+| IAP-webhook, signaturlängd | `test/iap-webhook.test.js` |
+| Family-images IDOR | `test/family-images-authz.test.js` |
+| Pedagog-day-comments IDOR | `test/pedagog-day-comments-authz.test.js` |
+| `revoked_at` (12 ställen) | `test/revoked-access-contract.test.js` |
+| Daily-log race + index | `test/daily-log-race-contract.test.js` |
+| Scheduler locks | `test/scheduler-lock.test.js` |
+| JWT-rotation (5 ställen) | `test/jwt-rotation-contract.test.js` |
+| Win-back spoofing + markSent | `test/win-back-return-tracker.test.js`, `test/win-back-email-log-mark-sent.test.js` |
+| Fail-closed gates | `test/activation-flags-fail-closed.test.js`, `test/require-component-fail-closed.test.js` |
+| Admin TOCTOU | `test/family-components-toctou.test.js` |
+| Kontakt XSS | `test/contact-email-escape.test.js` |
+| Catch-loggning | `test/empty-catch-logging-contract.test.js` |
+| notification_log-index | `test/notification-log-dup-index.test.js` |
+
+---
+
+## Slutstatus & backlog
+
+### Klart (denna review)
+
+- **27 prioriterade fynd** (K1–M8, exkl. deferred L): implementerade, testade i `test:gate`, deployade prod.
+- **Prod-migreringar:** `1809190000000_daily_log_item_unique_activity` (med dedup), `1809200000000_notification_log_dup_check_idx`.
+
+### Medveten backlog (ej blockerande)
+
+| ID | Titel | Prioritet | Not |
+|----|-------|-----------|-----|
+| **N12** | PII i loggar — utökad scope | 🟢 Låg | E-post i klartext kvar i t.ex. `public.js`, `admin/family.js`, `rewards.js`, `win-back-scheduler.js`, `weekly-summary-scheduler.js` — utanför N11:s ursprungsfilurval. Egen liten PR vid behov. |
+| **H2†** | `requireLogAccess` / `requireItemAccess` ej monterade | 🟢 Låg | `requireChildAccess` monterad på flera routes; `childAccess.js` borttagen. Helpers används inline på övriga ställen — utökad middleware-montering är städning, inte säkerhetslucka efter H1/N4. |
+| **L1–L6, L8** | Teknisk skuld | 🟢 Låg | Se tabell under [Låg / teknisk skuld](#-låg--teknisk-skuld). |
