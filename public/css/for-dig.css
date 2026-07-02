@@ -192,6 +192,10 @@
   margin-bottom: 1rem;
 }
 
+.for-dig-favorites--empty {
+  border-style: dashed;
+}
+
 .for-dig-favorites-item {
   display: flex;
   align-items: center;
