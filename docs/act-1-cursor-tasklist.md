@@ -172,9 +172,10 @@
 
 ### EPIC 5.1 — Non-activated nudges
 
-- [ ] Mejl/push 24–48h efter signup om inte `activation_achieved_48h`
-- [ ] Copy: “Ditt schema väntar — ge första stjärnan på 2 min” (skilj från win-back för tidigare aktiva)
-- [ ] Respektera `notification_preference` / `EMAIL_ENABLED`
+- [x] Mejl 24–48h efter signup om inte `activation_achieved_48h` (`activation-nudge-scheduler.js`)
+- [x] Copy slim-aware: “testa rutinen” + CTA Hem (`/dashboard`)
+- [x] Respektera `notification_preference.email_enabled` + Journey Gate + `EMAIL_ENABLED`
+- [x] Go-live: migration `180932` sätter `activation_nudge_v1` ON
 
 ### EPIC 5.2 — Experiment
 
@@ -184,8 +185,7 @@
 
 ### EPIC 5.3 — Aktiveringsprogram (D7)
 
-- [ ] Utvärdera auto-enroll treatment för nya familjer efter A1 (ersätt opt-in gap)
-- [ ] Verifiera `ACTIVATION_PROGRAM_ENABLED` + `ACTIVATION_PROGRAM_LAUNCH_AT` på prod
+- [x] **Avstängt** — auto-enroll ersatt av Journey Fas 2/4 sunset (se `family-journey-fas2-5-roadmap.md`)
 
 ### EPIC 5.4 — Admin & docs
 
@@ -193,7 +193,7 @@
 - [ ] Uppdatera `CLAUDE.md` changelog vid deploy
 - [ ] SW bump om frontend-ändringar
 
-**PR 5 klar när:** veckorapport kan svara på de tre veckofrågorna i exekveringsplanen.
+**PR 5 klar när:** veckorapport kan svara på de tre veckofrågorna i exekveringsplanen. **Status:** shipped (`180932`, nudge ON).
 
 ---
 

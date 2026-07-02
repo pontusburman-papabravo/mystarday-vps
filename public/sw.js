@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v479';
-// stjarndag-v479: Journey Fas 2 — admin metrics/registry, handoff gate, enable migration
+const CACHE_NAME = 'stjarndag-v480';
+// stjarndag-v480: ACT-1 PR5 — activation_nudge_v1 ON, slim-aware nudge email
 // stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
 // stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout
 // stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)

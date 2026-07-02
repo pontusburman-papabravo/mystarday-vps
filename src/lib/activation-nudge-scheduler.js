@@ -6,6 +6,7 @@
  */
 
 const db = require('./db');
+const config = require('./config');
 const { sendActivationNudgeEmail } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
@@ -13,6 +14,11 @@ const { ACTIVATION_NUDGE_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
+
+function resolveNudgeCtaUrl() {
+  const base = String(config.email?.baseUrl || process.env.APP_URL || '').replace(/\/$/, '');
+  return base ? `${base}/dashboard` : '/dashboard';
+}
 
 let _timer = null;
 
@@ -32,13 +38,14 @@ async function runActivationNudgeJob() {
       `SELECT s.family_id, p.email, p.name AS parent_name
        FROM family_activation_state s
        JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+       LEFT JOIN notification_preference np ON np.parent_id = p.id
        WHERE s.p0_activated_within_48h = false
          AND s.p0_activated_at IS NULL
          AND s.activation_nudge_sent_at IS NULL
          AND s.signup_at >= NOW() - INTERVAL '48 hours'
          AND s.signup_at <= NOW() - INTERVAL '24 hours'
          AND p.email IS NOT NULL
-         AND COALESCE(p.newsletter_subscribed, true) = true
+         AND COALESCE(np.email_enabled, true) = true
        ORDER BY s.signup_at ASC
        LIMIT 50`
     );
@@ -69,7 +76,7 @@ async function runActivationNudgeJob() {
         await sendActivationNudgeEmail({
           to: row.email,
           parentName: row.parent_name,
-          ctaUrl: 'https://mystarday.se/onboarding',
+          ctaUrl: resolveNudgeCtaUrl(),
         });
 
         require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {
@@ -112,4 +119,5 @@ module.exports = {
   startActivationNudgeScheduler,
   stopActivationNudgeScheduler,
   runActivationNudgeJob,
+  resolveNudgeCtaUrl,
 };

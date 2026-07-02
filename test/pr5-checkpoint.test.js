@@ -39,5 +39,13 @@ describe('ACT-1 PR5 checkpoint', () => {
     const mig = read('migrations/1808630000000_activation_nudge_sent.js');
     assert.match(mig, /activation_nudge_sent_at/);
     assert.match(mig, /activation_nudge_v1/);
+    const enable = read('migrations/1809320000000_enable_activation_nudge_v1.js');
+    assert.match(enable, /activation_nudge_v1/);
+  });
+
+  it('scheduler respects notification_preference', () => {
+    const sched = read('src/lib/activation-nudge-scheduler.js');
+    assert.match(sched, /notification_preference/);
+    assert.match(sched, /resolveNudgeCtaUrl/);
   });
 });

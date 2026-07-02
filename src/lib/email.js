@@ -390,28 +390,28 @@ async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl }) {
 
 async function sendActivationNudgeEmail({ to, parentName, ctaUrl }) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
-  const url = ctaUrl || 'https://mystarday.se/onboarding';
+  const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/dashboard`;
   return sendEmail({
     to,
-    subject: 'Ditt schema väntar — ge första stjärnan på 2 min ⭐',
+    subject: 'Er rutin väntar — testa tillsammans ikväll ⭐',
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
         <p style="color:#5A6178;line-height:1.6;">
-          Ni är nästan igång med Min Stjärndag. Barnets schema finns redan — det som återstår är att
-          <strong>låta barnet logga in</strong> och tjäna den första stjärnan.
+          Ni har redan ett schema. Det som återstår är att
+          <strong>testa rutinen tillsammans</strong> — låt barnet logga in och samla den första stjärnan.
         </p>
         <p style="color:#5A6178;line-height:1.6;">
-          Det tar ungefär två minuter tillsammans.
+          Det tar ungefär två minuter. Ingen stress.
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${url}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Fortsätt onboarding →
+            Öppna Hem →
           </a>
         </div>
-        <p style="color:#9CA3AF;font-size:13px;">Min Stjärndag — mystarday.se</p>
+        <p style="color:#9CA3AF;font-size:13px;">[REDACTED] — [REDACTED].se</p>
       </div>
     `,
   });
