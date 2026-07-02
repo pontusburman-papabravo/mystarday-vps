@@ -41,6 +41,13 @@ describe('custody-settings (Phase 4.5d)', () => {
     assert.match(src, /minst två olika hem/);
   });
 
+  it('override section uses custody override API — no client date logic', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-settings.js'), 'utf8');
+    assert.match(src, /custody-overrides-section/);
+    assert.match(src, /\/api\/family\/custody\/overrides\//);
+    assert.doesNotMatch(src, /resolveCustodyDate/);
+  });
+
   it('saves pattern_type and default_home_id via pattern API', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-settings.js'), 'utf8');
     assert.match(src, /pattern_type/);

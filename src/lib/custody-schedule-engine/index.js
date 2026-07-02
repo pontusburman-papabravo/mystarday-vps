@@ -18,10 +18,11 @@ const transitionPipeline = new ResolverPipeline([OverrideResolver, PatternResolv
  * @param {string} [params.parentId]
  */
 async function loadCustodyContext({ childId, familyId, parentId }, client) {
-  const [schedule, homes, parentHomeId] = await Promise.all([
+  const [schedule, homes, parentHomeId, overrides] = await Promise.all([
     custodyDb.getSchedule(childId, client),
     custodyDb.listHomes(familyId, client),
     parentId ? custodyDb.getParentHomeId(parentId, familyId, client) : Promise.resolve(null),
+    custodyDb.listOverridesForChild(childId, client),
   ]);
 
   return {
@@ -30,7 +31,7 @@ async function loadCustodyContext({ childId, familyId, parentId }, client) {
     parentHomeId: parentHomeId || null,
     schedule: schedule || null,
     homesById: homesById(homes),
-    overrides: [],
+    overrides: overrides || [],
   };
 }
 

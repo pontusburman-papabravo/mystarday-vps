@@ -202,3 +202,112 @@ test('custody backfill migration maps week_variant rows to custody_home_id', asy
     await db.cleanup();
   }
 });
+
+test('custody override API: exception wins in context resolve', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL (mock_test or unset)');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ('custody_schedule_beta', true, 'FEAT-1C test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`
+    );
+
+    const session = await registerAndLogin(http.baseUrl);
+    const childId = await createChild(http.baseUrl, session, { name: 'Override Barn' });
+
+    const setup = await authFetch(http.baseUrl, session, '/api/family/custody/setup', {
+      method: 'POST',
+      body: {},
+    });
+    assert.equal(setup.res.status, 200, setup.text);
+    const homeA = setup.json.homes[0].id;
+    const homeB = setup.json.homes[1].id;
+
+    const pattern = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/pattern/${childId}`,
+      {
+        method: 'PUT',
+        body: {
+          anchor_date: '2026-06-01',
+          week_a_home_id: homeA,
+          week_b_home_id: homeB,
+          pattern_type: 'alternate_weeks',
+          clone_week_b: false,
+        },
+      }
+    );
+    assert.equal(pattern.res.status, 200, pattern.text);
+
+    const before = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-03`
+    );
+    assert.equal(before.res.status, 200, before.text);
+    const patternHomeId = before.json.activeHome.id;
+
+    const created = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/overrides/${childId}`,
+      {
+        method: 'POST',
+        body: {
+          start_date: '2026-06-02',
+          end_date: '2026-06-04',
+          home_id: homeB,
+          reason: 'Sportlov',
+        },
+      }
+    );
+    assert.equal(created.res.status, 201, created.text);
+    assert.equal(created.json.override.home_id, homeB);
+
+    const after = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-03`
+    );
+    assert.equal(after.res.status, 200, after.text);
+    assert.equal(after.json.source, 'override');
+    assert.equal(after.json.activeHome.id, homeB);
+    assert.notEqual(after.json.activeHome.id, patternHomeId);
+
+    const list = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/overrides/${childId}`
+    );
+    assert.equal(list.res.status, 200, list.text);
+    assert.equal(list.json.overrides.length, 1);
+
+    const deleted = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/overrides/${childId}/${created.json.override.id}`,
+      { method: 'DELETE' }
+    );
+    assert.equal(deleted.res.status, 200, deleted.text);
+
+    const restored = await authFetch(
+      http.baseUrl,
+      session,
+      `/api/family/custody/context?childId=${encodeURIComponent(childId)}&date=2026-06-03`
+    );
+    assert.equal(restored.res.status, 200, restored.text);
+    assert.equal(restored.json.source, 'pattern');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
