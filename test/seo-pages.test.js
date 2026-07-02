@@ -45,9 +45,9 @@ test('injectPlatformHtml applies noindex on dashboard', () => {
   assert.match(out, /name="robots" content="noindex"/);
 });
 
-test('index.html has canonical and no hidden SEO text', () => {
+test('index.html has absolute canonical and no hidden SEO text', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="\/"/);
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/"/);
   assert.doesNotMatch(html, /font-size:0;color:transparent/);
   assert.doesNotMatch(html, /Hidden SEO/);
 });
@@ -73,9 +73,9 @@ test('sitemap reflects index strategy', () => {
 test('faq and kontakt pages are indexable with canonical', () => {
   const faq = fs.readFileSync(path.join(ROOT, 'public/faq.html'), 'utf8');
   const kontakt = fs.readFileSync(path.join(ROOT, 'public/kontakt.html'), 'utf8');
-  assert.match(faq, /rel="canonical" href="\/faq"/);
+  assert.match(faq, /rel="canonical" href="https:\/\/mystarday\.se\/faq"/);
   assert.match(faq, /"@type": "FAQPage"/);
-  assert.match(kontakt, /rel="canonical" href="\/kontakt"/);
+  assert.match(kontakt, /rel="canonical" href="https:\/\/mystarday\.se\/kontakt"/);
   assert.equal(isSeoIndexable('/faq'), true);
   assert.equal(isSeoIndexable('/kontakt'), true);
 });
@@ -105,7 +105,7 @@ test('landing problem and solution sections mention routines and skattkammaren l
 
 test('bildschema-app cornerstone has hub sections, FAQ, guides and tracking', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/bildschema-app.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="\/bildschema-app"/);
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/bildschema-app"/);
   assert.match(html, /Vad är ett bildschema\?/);
   assert.match(html, /Varför fungerar bildstöd\?/);
   assert.match(html, /Vilka barn har nytta av bildschema\?/);
@@ -130,7 +130,7 @@ test('veckoschema-bildstod is indexable with route and sitemap entry', () => {
   const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
   assert.match(route, /\/veckoschema-bildstod/);
   const html = fs.readFileSync(path.join(ROOT, 'public/veckoschema-bildstod.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="\/veckoschema-bildstod"/);
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/veckoschema-bildstod"/);
   assert.match(html, /seo-article\.css/);
   const xml = buildSitemapXml();
   assert.match(xml, /\/veckoschema-bildstod<\/loc>/);
@@ -142,6 +142,34 @@ test('landing page has guide cards block with tracking', () => {
   assert.match(html, /data-track="landing_guide_card_click"/);
   assert.match(html, /href="\/bildschema-app"/);
   assert.match(html, /href="\/veckoschema-bildstod"/);
+});
+
+test('SEO indexable HTML pages use absolute canonical URLs', () => {
+  const pageFiles = {
+    '/': 'public/index.html',
+    '/faq': 'public/faq.html',
+    '/kontakt': 'public/kontakt.html',
+    '/pricing-info': 'public/pricing-info.html',
+    '/skattkammaren': 'public/skattkammaren.html',
+    '/bildschema-app': 'public/bildschema-app.html',
+    '/beloningssystem-barn': 'public/beloningssystem-barn.html',
+    '/morgonrutin-barn': 'public/morgonrutin-barn.html',
+    '/rutiner-npf-barn': 'public/rutiner-npf-barn.html',
+    '/alternativ-bildschema-tavla': 'public/alternativ-bildschema-tavla.html',
+    '/veckoschema-bildstod': 'public/veckoschema-bildstod.html',
+  };
+  for (const [p, file] of Object.entries(pageFiles)) {
+    const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    const loc = p === '/' ? 'https://mystarday.se/' : `https://mystarday.se${p}`;
+    assert.match(html, new RegExp(`rel="canonical" href="${loc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`), p);
+  }
+});
+
+test('llms.txt is available for AI agents', () => {
+  const txt = fs.readFileSync(path.join(ROOT, 'public/llms.txt'), 'utf8');
+  assert.match(txt, /# Min Stjärndag/);
+  assert.match(txt, /bildschema-app/);
+  assert.match(txt, /sitemap\.xml/);
 });
 
 test('SEO guide analytics events are allowlisted', () => {
