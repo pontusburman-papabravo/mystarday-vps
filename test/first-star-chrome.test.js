@@ -31,12 +31,13 @@ describe('First Star chrome (PR 2)', () => {
     assert.match(css, /\.first-star-mode #appViewToggleMount/);
   });
 
-  it('child-dashboard.js wires first star mode from daily-log and blocks tab escape', () => {
-    const src = read('public/js/child-dashboard.js');
-    assert.match(src, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
-    assert.match(src, /ChildFirstStarMode\.isActive\(\) && tab !== 'schedule'/);
-    assert.match(src, /first-star-mission-wrap/);
-    assert.match(src, /renderNowCard\(item, isToday\)/);
+  it('child-dashboard wires first star mode from daily-log and blocks tab escape', () => {
+    const dash = read('public/js/child-dashboard.js');
+    const activities = read('public/js/child-dashboard-activities.js');
+    assert.match(activities, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
+    assert.match(dash, /ChildFirstStarMode\.isActive\(\) && tab !== 'schedule'/);
+    assert.match(activities, /first-star-mission-wrap/);
+    assert.match(activities, /renderNowCard\(item, isToday\)/);
   });
 
   it('child-dashboard.js skips goal bar and rewards mount while first star active', () => {
@@ -54,9 +55,8 @@ describe('First Star chrome (PR 2)', () => {
     assert.ok(focusIdx < firstStarIdx, 'first-star script after today-focus');
   });
 
-  it('service worker precaches first star assets (v435+)', () => {
+  it('service worker precaches first star assets', () => {
     const sw = read('public/sw.js');
-    assert.match(sw, /stjarndag-v435/);
     assert.match(sw, /\/js\/child-first-star-mode\.js/);
     assert.match(sw, /\/css\/child-first-star-mode\.css/);
   });
@@ -102,16 +102,16 @@ describe('First Star chrome (PR 2)', () => {
 
 describe('First Star chrome — exit after completion (integration contract)', () => {
   it('completion reload uses daily-log first_star_mode to exit chrome', () => {
-    const dash = read('public/js/child-dashboard.js');
+    const activities = read('public/js/child-dashboard-activities.js');
     const mode = read('public/js/child-first-star-mode.js');
-    assert.match(dash, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
+    assert.match(activities, /ChildFirstStarMode\.applyFromDailyLog\(data\)/);
     assert.match(mode, /function exit\(\)/);
     assert.match(mode, /first_star_mode === true[\s\S]*enter\(\)/);
     assert.match(mode, /else[\s\S]*exit\(\)/);
   });
 
   it('celebration remains unchanged — still calls checkMilestones in first star path', () => {
-    const src = read('public/js/child-dashboard.js');
+    const src = read('public/js/child-dashboard-activities.js');
     assert.match(src, /ChildFirstStarMode\.isActive\(\)[\s\S]*checkMilestones\(total, completed\)/);
     const cel = read('public/js/child-dashboard-celebrations.js');
     assert.match(cel, /function checkMilestones/);

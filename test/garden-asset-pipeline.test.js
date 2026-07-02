@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const ASSET_DIR = path.join(__dirname, '../public/assets/worlds/garden');
+const ASSET_DIR = path.join(__dirname, '../public/images/child/world/garden');
 const SCENE_FILES = [
   'scene-bg.webp',
   'scene-bg-430.webp',
@@ -70,7 +70,7 @@ describe('garden illustrated asset pipeline v2', () => {
     assert.equal(pipeline.SCENE_BG.file, 'scene-bg.webp');
     assert.equal(pipeline.SCENE_BG.srcset.length, 3);
     assert.equal(pipeline.CRITICAL_FILE, 'scene-bg.webp');
-    assert.match(pipeline.assetUrl('scene-bg.webp'), /^\/assets\/worlds\/garden\/scene-bg\.webp\?v=/);
+    assert.match(pipeline.assetUrl('scene-bg.webp'), /^\/images\/child\/world\/garden\/scene-bg\.webp\?v=/);
     assert.ok(typeof pipeline.preloadScene === 'function');
     assert.ok(typeof pipeline.scenePictureHtml === 'function');
   });
@@ -92,7 +92,7 @@ describe('garden illustrated assets — service worker precache', () => {
   it('precaches pipeline JS and scene-bg responsive WebP set', () => {
     assert.match(sw, /garden-asset-pipeline\.js/);
     for (const file of SCENE_FILES) {
-      assert.match(sw, new RegExp('/assets/worlds/garden/' + file.replace('.', '\\.')));
+      assert.match(sw, new RegExp('/images/child/world/garden/' + file.replace('.', '\\.')));
     }
   });
 });
