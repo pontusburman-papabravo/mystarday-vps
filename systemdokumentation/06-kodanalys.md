@@ -490,7 +490,7 @@ Verifiering prod: `git log -1` → `8e0908a`, `curl http://127.0.0.1:3000/health
 
 | ID | Status | Fynd | Fil | Motivering / åtgärd |
 |----|--------|------|-----|---------------------|
-| L1 | 📋 Fas 8 | Stora filer (svåra att underhålla) | `public/js/schedule.js`, `public/js/dashboard.js` | Fortsatt modulär extraktion — separat refactor-spår, ej blockerande. |
+| L1 | 📋 Fas 8 (pågår) | Stora filer | `schedule.js` ✅ ~953 r, `dashboard.js` ✅ ~791 r, `child-dashboard.js` ~1931 r | Schedule + dashboard under mål; barnvy F3a–c (offline, day-nav, timers) extraherad — renderActivities m.m. kvar. |
 | L2 | ✅ Dokumenterad | `AUTHZ_HARDENING_ENABLED` kill switch | `authz.js`, `docs/ops-incident-runbook.md` | Runbook + prod-stabil H1/N4; borttagning av switch vid 90 dagar utan incident. |
 | L3 | ✅ Fixad | Manuell DST-logik i win-back | `win-back-scheduler.js` | Använder `stockholm-time.js` (samma mönster som weekly-summary). |
 | L4 | ✅ Fixad | `getChildAgeInYears` server-local tid | `daily-log-generator.js` | Kalenderdatum i angiven tidszon (`STOCKHOLM_TZ` default). |
@@ -670,6 +670,6 @@ Säkerhetsreview-fynden ovan täcks av följande i CI (sedan `d6d426a`):
 |----|--------|-----|
 | **N12** | ✅ Fixad | `src/lib/log-redact.js` + maskning/parent-id i alla kvarvarande loggfiler; `test/pii-logging-contract.test.js`. |
 | **H2†** | ✅ Fixad | `requireLogAccess` / `requireItemAccess` monterade i `daily-logs/logs.js` + `items.js`. |
-| **L1** | 📋 Fas 8 | Stora JS-filer — fortsatt modulär extraktion, ej del av säkerhetsreview. |
+| **L1** | 📋 Fas 8 (pågår) | `schedule.js` + `dashboard.js` under radmål (2026-07-02). `child-dashboard.js` delvis — offline/day-nav/timers extraherade; `renderActivities` m.m. kvarstår. |
 
 Övriga L2–L8: se tabellen [Låg / teknisk skuld](#-låg--teknisk-skuld).

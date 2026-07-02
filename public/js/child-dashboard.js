@@ -33,52 +33,7 @@ let visualTimer = true; // toggled by parent — Time Timer in now-card
 let hideClock = false; // toggled by parent — hides digital time labels on cards
 let colorCoding = true; // toggled by parent — color-codes cards by activity type
 
-// ── Offline helpers ─────────────────────────────────────────────────────────
-
-let _offlineBanner = null;
-const _offlineTimer = null;
-
-function getOfflineBanner() {
-  if (!_offlineBanner) {
-    _offlineBanner = document.getElementById('offlineBanner');
-  }
-  return _offlineBanner;
-}
-
-function showOfflineBanner(msg) {
-  const banner = getOfflineBanner();
-  if (!banner) return;
-  banner.innerHTML = `<span>📶</span><span>${msg}</span>`;
-  banner.classList.remove('hidden');
-  banner.classList.add('flex');
-}
-
-function hideOfflineBanner() {
-  const banner = getOfflineBanner();
-  if (!banner) return;
-  banner.classList.add('hidden');
-  banner.classList.remove('flex');
-}
-
-function showOfflineEmptyState(container) {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="text-center py-12 bg-white rounded-2xl mt-2">
-      <p class="text-4xl mb-3">📶</p>
-      <p class="text-text-soft font-semibold">Ingen uppkoppling</p>
-      <p class="text-text-soft text-sm mt-1">Koppla upp för att se schemat</p>
-    </div>`;
-}
-
-function showOfflineErrorState(container, dateStr) {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="text-center py-12 bg-white rounded-2xl mt-2">
-      <p class="text-4xl mb-3">😕</p>
-      <p class="text-text-soft">Kunde inte ladda schemat.</p>
-      <button onclick="loadDay('${dateStr}')" class="mt-4 px-6 py-2 bg-gold text-white rounded-xl font-semibold">Försök igen</button>
-    </div>`;
-}
+// ── Offline UI — /js/child-dashboard-offline.js (Fas 8 F3a) ──
 
 // ── Dag-del (day section) definitions ─────────────────────────────────────
 // Maps DB section names to display config for the day_sections view.
@@ -243,90 +198,7 @@ function classifyActivities(items, currentTimeStr) {
 
 // ── Day tabs ───────────────────────────────────────────
 
-function renderDayTabs() {
-  const container = document.getElementById('dayTabs');
-  const today = new Date();
-  const todayDow = today.getDay();
-  const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
-
-  const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + mondayOffset + i + (weekOffset * 7));
-    const dateStr = d.toLocaleDateString('sv-SE');
-    const isToday = dateStr === todayStr;
-    const dow = d.getDay();
-    days.push({ dateStr, dow, isToday, dayNum: d.getDate(), month: d.getMonth() });
-  }
-
-  // Update week label
-  const weekLabel = document.getElementById('weekLabel');
-  if (weekLabel) {
-    const first = days[0];
-    const last = days[6];
-    if (weekOffset === 0) {
-      weekLabel.textContent = 'Denna vecka';
-    } else {
-      // Get ISO week number of Monday
-      const monday = new Date(today);
-      monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
-      const startOfYear = new Date(monday.getFullYear(), 0, 1);
-      const dayOfYear = Math.floor((monday - startOfYear) / 86400000);
-      const weekNum = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
-      weekLabel.textContent = `Vecka ${weekNum} · ${first.dayNum} ${MONTH_NAMES[first.month]} – ${last.dayNum} ${MONTH_NAMES[last.month]}`;
-    }
-  }
-
-  // Show/hide Idag button
-  updateTodayBtn();
-
-  container.innerHTML = days.map(d => `
-    <button
-      class="day-tab flex-shrink-0 px-3 py-2 rounded-lg text-xs font-semibold text-center min-w-[44px] ${d.dateStr === currentDate ? 'active' : 'bg-sky text-navy hover:bg-lavender'}"
-      onclick="loadDay('${d.dateStr}')"
-    >
-      <div>${DAY_SHORT[d.dow]}</div>
-      <div class="text-base font-bold">${d.dayNum}</div>
-      ${d.isToday ? '<div class="text-[9px] opacity-75">idag</div>' : ''}
-    </button>
-  `).join('');
-}
-
-function navigateWeek(direction) {
-  weekOffset += direction;
-  // Select Monday of the new week
-  const today = new Date();
-  const todayDow = today.getDay();
-  const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
-  const newDate = monday.toLocaleDateString('sv-SE');
-  updateTodayBtn();
-  loadDay(newDate);
-}
-
-function goToToday() {
-  weekOffset = 0;
-  updateTodayBtn();
-  loadDay(todayStr);
-}
-
-function updateTodayBtn() {
-  const btn = document.getElementById('todayBtn');
-  if (!btn) return;
-  if (weekOffset !== 0) {
-    btn.classList.remove('hidden');
-  } else {
-    btn.classList.add('hidden');
-  }
-}
-
-function updateDateLine() {
-  const el = document.getElementById('childDateLine');
-  if (el) {
-    el.textContent = formatDateDisplay(currentDate || todayStr);
-  }
-}
+// ── Day tabs / week nav — /js/child-dashboard-day-nav.js (Fas 8 F3b) ──
 
 // ── Tabs ───────────────────────────────────────────────
 
@@ -508,69 +380,7 @@ const _currentRewardsData = null;
 // Extracted to /js/child-dashboard-celebrations.js (Fas 8 F3).
 // Exposes window.checkMilestones / launchMilestoneConfetti / launchDopaminBurst.
 
-// ── Time Timer — circular SVG countdown ────────────────
-// SVG circle circumference = 2π × r = 2π × 15.9 ≈ 99.9 ≈ 100
-// stroke-dasharray="progress remaining" where progress+remaining=100.
-// remaining = (1 - elapsed_fraction) * 100
-// We update every 5 seconds for smoothness without battery drain.
-
-let _timerInterval = null;
-const _timerDoneFired = new Map(); // itemId → true (haptic already fired for this timer completion)
-
-function initTimeTimers() {
-  // Clear any previous ticker
-  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
-  _timerDoneFired.clear();
-  if (!visualTimer) return;
-
-  function tick() {
-    const wraps = document.querySelectorAll('.time-timer-wrap[id]');
-    if (wraps.length === 0) return;
-
-    const nowMins = (() => {
-      const d = new Date();
-      return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
-    })();
-
-    wraps.forEach(wrap => {
-      const fill = wrap.querySelector('.time-timer-fill');
-      if (!fill) return;
-
-      const itemId = wrap.id.replace('timer-', '');
-      const startMins = getTimeMinutes(fill.dataset.start);
-      const endMins   = getTimeMinutes(fill.dataset.end);
-      if (startMins === null || endMins === null || endMins <= startMins) return;
-
-      const total = endMins - startMins;
-      const elapsed = Math.max(0, Math.min(total, nowMins - startMins));
-      const remaining = 1 - elapsed / total; // 1 = full, 0 = done
-      const progress = Math.max(0, remaining * 100);
-
-      // stroke-dasharray = "progress gap"
-      fill.setAttribute('stroke-dasharray', `${progress.toFixed(1)} ${(100 - progress).toFixed(1)}`);
-
-      // Colour shift: green → orange → red as time runs out
-      if (remaining > 0.5) {
-        fill.style.stroke = '#22C55E'; // plenty of time
-      } else if (remaining > 0.2) {
-        fill.style.stroke = '#F97316'; // getting close
-      } else {
-        fill.style.stroke = '#EF4444'; // urgent
-      }
-
-      // Haptic: fire once when timer hits 0 (remaining < 1%)
-      if (remaining <= 0.01 && !_timerDoneFired.get(itemId)) {
-        _timerDoneFired.set(itemId, true);
-        if (window.Platform && window.Platform.haptics) {
-          window.Platform.haptics.medium();
-        }
-      }
-    });
-  }
-
-  tick(); // immediate first pass
-  _timerInterval = setInterval(tick, 5000); // update every 5s
-}
+// ── Time Timer — /js/child-dashboard-timers.js (Fas 8 F3c) ──
 
 // ── Goal progress bar (top) ─────────────────────────────
 
