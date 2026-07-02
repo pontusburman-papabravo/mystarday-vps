@@ -66,20 +66,20 @@
       },
       "sj_day1_child_preview": {
         "tone": "coach",
-        "headline": "Så här ser barnet schemat",
-        "body": "Kika tillsammans — rutinen är redan på plats.",
-        "cta": "Visa barnet"
+        "headline": "Er rutin är redo",
+        "body": "Schemat finns på plats. Kika på barnets dag när det passar — ni behöver inte göra allt ikväll.",
+        "cta": "Visa barnets dag"
       },
       "sj_day2_try_routine": {
         "tone": "coach",
-        "headline": "Testa rutinen idag",
-        "body": "Det räcker att ni kikar in tillsammans — ingen stress.",
-        "cta": "Visa schemat"
+        "headline": "Testa rutinen i vardagen",
+        "body": "Det räcker att ni kikar tillsammans en stund. Ingen stress.",
+        "cta": "Öppna schemat"
       },
       "sj_day3_child_try": {
         "tone": "coach",
-        "headline": "Nu får barnet prova",
-        "body": "Låt barnet logga in med PIN-koden och testa sin vy.",
+        "headline": "Dags att låta barnet prova",
+        "body": "Visa PIN-koden och låt barnet logga in i sin egen vy.",
         "cta": "Visa barnkod"
       },
       "sj_celebrate_star": {
@@ -102,9 +102,9 @@
       },
       "sj_help_get_started": {
         "tone": "coach",
-        "headline": "Behöver du hjälp att komma igång?",
-        "body": "Er rutin väntar. Det tar bara en minut att kika tillsammans.",
-        "cta": "Visa barnet"
+        "headline": "Behöver du en knuff?",
+        "body": "Er rutin väntar. Kika på barnets dag — det tar en minut.",
+        "cta": "Visa barnets dag"
       },
       "sj_day7_reflection": {
         "tone": "reflection",

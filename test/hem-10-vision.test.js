@@ -20,6 +20,15 @@ describe('Hem 10/10 — priority ladder', () => {
     assert.match(hub, /restoreMounts/);
   });
 
+  it('hub has quick actions for retroactive fill and engångsaktivitet', () => {
+    const hub = read('public/js/dashboard-home-hub.js');
+    assert.match(hub, /renderQuickActions/);
+    assert.match(hub, /Fyll i i efterhand/);
+    assert.match(hub, /Engångsaktivitet/);
+    assert.match(hub, /openOnceTaskModal/);
+    assert.match(hub, /parent-quick-grid/);
+  });
+
   it('hub removes action grid and encouragement copy', () => {
     const hub = read('public/js/dashboard-home-hub.js');
     assert.doesNotMatch(hub, /renderActionGrid/);

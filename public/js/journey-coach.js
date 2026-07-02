@@ -27,6 +27,30 @@
     sj_day2_try_routine: '/schedule',
   };
 
+  function todayIsoDate() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function childDailyLogHref(childId) {
+    if (!childId) return '/schedule';
+    return '/daily-log?childId=' + encodeURIComponent(childId) + '&date=' + encodeURIComponent(todayIsoDate());
+  }
+
+  function signupSignals(context) {
+    return (context && context.signup_journey && context.signup_journey.signals) || {};
+  }
+
+  function personalizeSjCopy(exp, expKey, context) {
+    const sig = signupSignals(context);
+    const name = (sig.child_name || '').trim();
+    if (!name) return exp;
+    const out = { ...exp };
+    if (expKey === 'sj_day3_child_try') {
+      out.headline = 'Dags att låta ' + name + ' prova';
+    }
+    return out;
+  }
+
   const SJ_EXPERIENCES = new Set([
     'sj_day1_child_preview',
     'sj_day2_try_routine',
@@ -83,11 +107,15 @@
       return;
     }
 
-    if (
-      expKey === 'sj_day1_child_preview'
-      || expKey === 'sj_day3_child_try'
-      || expKey === 'sj_help_get_started'
-    ) {
+    if (expKey === 'sj_day1_child_preview' || expKey === 'sj_help_get_started') {
+      const ctx = window.__journeyCoachLastContext || (window.JourneyContextClient && JourneyContextClient.getCachedContext
+        ? JourneyContextClient.getCachedContext()
+        : null);
+      window.location.href = childDailyLogHref(signupSignals(ctx).child_id);
+      return;
+    }
+
+    if (expKey === 'sj_day3_child_try') {
       if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
         DashboardChildHandoff.startChildLogin();
       } else {
@@ -166,9 +194,10 @@
       return;
     }
 
-    const exp = lookupExperience(registry, expKey, context.phase);
+    const exp = personalizeSjCopy(lookupExperience(registry, expKey, context.phase), expKey, context);
     const isCelebration = context.priority === 'celebration' || exp.tone === 'celebration';
     const isReflection = expKey === 'sj_day7_reflection' || context.priority === 'reflection';
+    const isSignupJourney = isSj && context.signup_journey?.active;
 
     mount.classList.remove('hidden');
 
@@ -187,7 +216,7 @@
 
     const borderClass = isCelebration ? 'border-gold bg-gold-light' : 'border-indigo-200 bg-indigo-50';
     const labelClass = isCelebration ? 'text-gold-dark' : 'text-indigo-700';
-    const label = isCelebration ? 'Milstolpe' : 'Nästa steg';
+    const label = isCelebration ? 'Milstolpe' : (isSignupJourney ? 'Tips' : 'Nästa steg');
 
     mount.innerHTML =
       '<div class="journey-coach-card rounded-2xl border-2 ' + borderClass + ' p-4 mb-4" role="region" aria-label="' + esc(label) + '">' +
@@ -207,6 +236,9 @@
     if (!enabled) return;
 
     const ctx = await JourneyContextClient.fetchContext();
+    if (window.JourneyContextClient) {
+      window.__journeyCoachLastContext = ctx;
+    }
     const registry = await JourneyContextClient.fetchRegistry();
     await renderCoach(ctx, registry);
   }

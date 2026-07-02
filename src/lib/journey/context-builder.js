@@ -96,6 +96,12 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
     const { buildSignupJourneyContext } = require('./signup-journey');
     const signupBlock = await buildSignupJourneyContext(familyId, milestones);
     context.signup_journey = signupBlock;
+    if (signupBlock.active) {
+      if (context.first_week) {
+        context.first_week = { ...context.first_week, active: false, suppressed_by: 'signup_journey' };
+      }
+      context.activation_program_suppressed = true;
+    }
     if (signupBlock.active && signupBlock.experience) {
       context.recommended_experiences = [signupBlock.experience];
       context.celebration = null;
