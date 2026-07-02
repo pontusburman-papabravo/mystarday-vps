@@ -300,11 +300,21 @@ function bindRecurrenceAddHandlers() {
 function bindRecurrenceDeleteHandlers(itemId) {
   const onceBtn = document.getElementById('recurrenceOnceBtn');
   const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
   if (!onceBtn || !weeklyBtn) return;
   onceBtn.removeAttribute('onclick');
   weeklyBtn.removeAttribute('onclick');
   onceBtn.disabled = false;
   weeklyBtn.disabled = false;
+  if (allDaysBtn) {
+    allDaysBtn.removeAttribute('onclick');
+    allDaysBtn.disabled = false;
+    allDaysBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      deleteAllDays(itemId);
+    };
+  }
   onceBtn.onclick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -949,8 +959,14 @@ function removeItem(itemId){
   document.getElementById('recurrenceActivityName').textContent = item ? `"${item.activity_name || 'aktiviteten'}"` : '';
   document.getElementById('recurrenceOnceLbl').textContent = '📌 Bara denna dag';
   document.getElementById('recurrenceOnceDesc').textContent = 'Aktiviteten försvinner bara från dagens schema';
-  document.getElementById('recurrenceWeeklyLbl').textContent = `🗑️ Alla kommande ${DAYS[currentDay]}ar`;
-  document.getElementById('recurrenceWeeklyDesc').textContent = 'Tar bort aktiviteten från schemat permanent';
+  document.getElementById('recurrenceWeeklyLbl').textContent = `🗑️ Bara alla ${DAYS[currentDay]}ar`;
+  document.getElementById('recurrenceWeeklyDesc').textContent = `Tar bort aktiviteten från varje ${DAYS[currentDay].toLowerCase()} i veckoschemat`;
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
+  if (allDaysBtn) {
+    allDaysBtn.classList.remove('hidden');
+    document.getElementById('recurrenceAllDaysLbl').textContent = '🗓️ Alla dagar i veckan';
+    document.getElementById('recurrenceAllDaysDesc').textContent = 'Tar bort aktiviteten från måndag till söndag';
+  }
   document.getElementById('recurrenceStep1').classList.remove('hidden');
   document.getElementById('recurrenceStep2').classList.add('hidden');
   document.getElementById('recurrenceError').classList.add('hidden');
@@ -962,8 +978,10 @@ function removeItem(itemId){
 async function deleteOnce(itemId) {
   const onceBtn = document.getElementById('recurrenceOnceBtn');
   const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
   if (onceBtn) onceBtn.disabled = true;
   if (weeklyBtn) weeklyBtn.disabled = true;
+  if (allDaysBtn) allDaysBtn.disabled = true;
   try {
     // Check if this is a once-task (engångsaktivitet) — stored as daily_log_item, not weekly_schedule_item
     const item = scheduleItems.find(i => i.id == itemId);
@@ -1007,8 +1025,10 @@ async function deleteOnce(itemId) {
 async function deleteAll(itemId) {
   const onceBtn = document.getElementById('recurrenceOnceBtn');
   const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
   if (onceBtn) onceBtn.disabled = true;
   if (weeklyBtn) weeklyBtn.disabled = true;
+  if (allDaysBtn) allDaysBtn.disabled = true;
   try {
     const res = await window.apiFetch(
       `/api/schedules/${currentScheduleId}/items/${itemId}`,
@@ -1018,6 +1038,34 @@ async function deleteAll(itemId) {
       document.getElementById('recurrenceModal').classList.add('hidden');
       resetRecurrenceModalTexts();
       showToast('Aktiviteten har tagits bort');
+      await loadScheduleForDay();
+    } else {
+      const d = await res.json();
+      showToast(d.error || 'Fel uppstod', true);
+      bindRecurrenceDeleteHandlers(itemId);
+    }
+  } catch (_) {
+    showToast('Nätverksfel. Försök igen.', true);
+    bindRecurrenceDeleteHandlers(itemId);
+  }
+}
+
+async function deleteAllDays(itemId) {
+  const onceBtn = document.getElementById('recurrenceOnceBtn');
+  const weeklyBtn = document.getElementById('recurrenceWeeklyBtn');
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
+  if (onceBtn) onceBtn.disabled = true;
+  if (weeklyBtn) weeklyBtn.disabled = true;
+  if (allDaysBtn) allDaysBtn.disabled = true;
+  try {
+    const res = await window.apiFetch(
+      `/api/schedules/${currentScheduleId}/items/${itemId}/all-days`,
+      { method: 'DELETE' }
+    );
+    if (res.ok) {
+      document.getElementById('recurrenceModal').classList.add('hidden');
+      resetRecurrenceModalTexts();
+      showToast('Aktiviteten borttagen från alla dagar');
       await loadScheduleForDay();
     } else {
       const d = await res.json();
@@ -1041,6 +1089,8 @@ function resetRecurrenceModalTexts() {
   document.getElementById('recurrenceOnceDesc').textContent = 'Visas bara en gång, den valda dagen';
   document.getElementById('recurrenceWeeklyLbl').textContent = '🔁 Flera gånger';
   document.getElementById('recurrenceWeeklyDesc').textContent = 'Läggs till varje vald veckodag';
+  const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
+  if (allDaysBtn) allDaysBtn.classList.add('hidden');
   // Restore original onclick handlers
   bindRecurrenceAddHandlers();
 }
@@ -1097,6 +1147,7 @@ function resetRecurrenceModalTexts() {
   window.removeItem = removeItem;
   window.deleteOnce = deleteOnce;
   window.deleteAll = deleteAll;
+  window.deleteAllDays = deleteAllDays;
   window.resetRecurrenceModalTexts = resetRecurrenceModalTexts;
   window.getCurrentDayDateStr = getCurrentDayDateStr;
 })();
