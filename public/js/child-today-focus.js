@@ -11,6 +11,10 @@
     ACTIVE: 'active',
   };
 
+  const DECAL_EMPTY = '/images/child/decals/today-empty-v1@2x.webp';
+  const DECAL_CELEBRATION = '/images/child/decals/today-celebration-frame-v1@2x.webp';
+  const CELEBRATION_MS = 2000;
+
   let _childName = '';
   let _lastState = null;
 
@@ -128,6 +132,65 @@
     });
   }
 
+  function emptyIllusHtml() {
+    return '<div class="ctf-empty-illus" role="img" aria-label="Ledig dag">' +
+      '<img src="' + DECAL_EMPTY + '" alt="" decoding="async" loading="lazy" width="320" height="200" />' +
+    '</div>';
+  }
+
+  function renderScheduleEmpty(isToday) {
+    if (isToday) {
+      return '<div class="ctf-schedule-empty">' +
+        emptyIllusHtml() +
+        '<p class="ctf-schedule-empty-title">Inga aktiviteter idag!</p>' +
+        '<p class="ctf-schedule-empty-sub">Njut av din lediga dag</p>' +
+      '</div>';
+    }
+    return '<div class="ctf-schedule-empty">' +
+      '<p class="text-4xl mb-3" aria-hidden="true">📅</p>' +
+      '<p class="ctf-schedule-empty-title">Inget schema den här dagen</p>' +
+      '<p class="ctf-schedule-empty-sub">Välj en annan dag för att se schemat</p>' +
+    '</div>';
+  }
+
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function dismissCelebrationOverlay(overlay) {
+    if (!overlay || !overlay.parentNode) return;
+    overlay.classList.add('ctf-celebration--out');
+    const delay = prefersReducedMotion() ? 0 : 280;
+    setTimeout(function () {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, delay);
+  }
+
+  function showCelebrationOverlay() {
+    if (document.getElementById('ctfCelebrationOverlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'ctfCelebrationOverlay';
+    overlay.className = 'ctf-celebration-overlay' +
+      (prefersReducedMotion() ? ' ctf-celebration--reduced' : '');
+    overlay.innerHTML =
+      '<button type="button" class="ctf-celebration-skip" aria-label="Hoppa över firande">Hoppa över</button>' +
+      '<div class="ctf-celebration-frame" role="presentation">' +
+        '<img src="' + DECAL_CELEBRATION + '" alt="" decoding="async" width="320" height="320" />' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    const skip = overlay.querySelector('.ctf-celebration-skip');
+    if (skip) {
+      skip.addEventListener('click', function () { dismissCelebrationOverlay(overlay); });
+    }
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) dismissCelebrationOverlay(overlay);
+    });
+
+    const duration = prefersReducedMotion() ? 800 : CELEBRATION_MS;
+    setTimeout(function () { dismissCelebrationOverlay(overlay); }, duration);
+  }
+
   function renderFocusBar(state) {
     const progress = state.progressLabel || '';
     const nextStep = state.nextStepLabel || '';
@@ -140,7 +203,10 @@
       headline = 'Bra jobbat!';
     }
 
+    const illus = state.state === IDAG_STATES.NO_TASKS ? emptyIllusHtml() : '';
+
     return '<div class="ctf-bar" id="todayFocusBar">' +
+      illus +
       '<div class="ctf-greeting">Hej ' + firstName(_childName) + ' 👋</div>' +
       '<div class="ctf-missions-head">' +
         '<span class="ctf-missions-title">' + headline + '</span>' +
@@ -199,8 +265,16 @@
   }
 
   function updateFromDailyLog(data, isToday) {
+    const prevState = _lastState && _lastState.state;
     _lastState = resolveIdagState(data, { isToday: isToday });
     mount(_lastState);
+    if (
+      isToday &&
+      _lastState.state === IDAG_STATES.ALL_DONE &&
+      prevState !== IDAG_STATES.ALL_DONE
+    ) {
+      showCelebrationOverlay();
+    }
     return _lastState;
   }
 
@@ -219,6 +293,7 @@
     init: init,
     updateFromDailyLog: updateFromDailyLog,
     onTabChange: onTabChange,
+    renderScheduleEmpty: renderScheduleEmpty,
     resolveIdagState: resolveIdagState,
     IDAG_STATES: IDAG_STATES,
     // Legacy aliases — goal bar now lives in Skattkammaren
