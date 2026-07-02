@@ -30,7 +30,10 @@ async function handleIapWebhook(req, res) {
     .update(req.body)
     .digest('base64');
 
-  if (!crypto.timingSafeEqual(Buffer.from(providedSig), Buffer.from(expectedSig))) {
+  const providedBuf = Buffer.from(providedSig);
+  const expectedBuf = Buffer.from(expectedSig);
+  if (providedBuf.length !== expectedBuf.length
+    || !crypto.timingSafeEqual(providedBuf, expectedBuf)) {
     console.error('[iap-webhook] Signature mismatch');
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -109,6 +112,7 @@ async function handleIapWebhook(req, res) {
     params.push(appUserId);
   }
 
+  params.push(family.id);
   const sql = `UPDATE family SET ${updateFields.join(', ')} WHERE id = $${params.length}`;
   try {
     await db.query(sql, params);
