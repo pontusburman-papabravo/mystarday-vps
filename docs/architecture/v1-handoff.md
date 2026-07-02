@@ -1,7 +1,7 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (ACT-1 PR3 rollout, FEAT-1B, Child Worlds v1.1)
+**Till:** Nästa fas (Journey event-first signup, ACT-1 slim, FEAT-1B, Child Worlds v1.1)
 
 ---
 
@@ -19,7 +19,7 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Parent Hubs | Complete | `docs/qa/hub-integration-sweep.md` v2 |
 | Child Worlds | Idag + Skatt shipped; Mina personer V0 | `docs/child-worlds-index.md` |
 | Assets | Registry synkad | `docs/child-image-assets.md`, SW v467–468 |
-| ACT-1 v1 | Kod mergad, flags OFF | `docs/act-1-rollout-runbook.md` |
+| ACT-1 PR 1–4 | Kod på main; rollout via PR #506 / prod flags | `docs/act-1-rollout-runbook.md` |
 | För dig | **v1 Complete** | Sprint 3–5; Sprint 4 defer |
 
 ---
@@ -34,27 +34,24 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 
 ## Plocka härnäst
 
-### 1. FEAT-1B — `custom` boendemönster
+### 1. Journey event-first onboarding (**produktlåsning — start här**)
+
+- ADR: [`docs/decisions/journey-event-first-onboarding.md`](../decisions/journey-event-first-onboarding.md)
+- Signup = “Er rutin är redo” (3 frågor → auto-schema → Hem)
+- Journey = event-first, day-second (1, 2, 3, tyst 4–6, 7, 14)
+- Avveckla handoff + first-star i signup när slim flag live
+
+### 2. FEAT-1B — `custom` boendemönster
 - Spec: `docs/boendeschema-spec.md` (ej v1)
 - Separat branch; kräver ADR om scope ändras
-- **Lås inte** `week_variant` förrän 1B-plan är godkänd
 
-### 2. FEAT-1C — `custody_override`
+### 3. FEAT-1C — `custody_override`
 - Pipeline-stub finns; produkt ej definierad
-- Kräver POS/ADR innan implementation
-
-### 3. ACT-1 PR 3 — Template-first onboarding (**nästa fokus**)
-
-- Kod finns på `main` (`onboarding-starter-plan.js`); flag `activation_onboarding_v1` OFF
-- Kör `node --test test/pr3-checkpoint.test.js` + `scripts/pr3-checkpoint.mjs` före pilot
-- Efter PR 3 stabil: PR 4 (AI), PR 5 (nudges) — se `docs/act-1-cursor-tasklist.md`
-- **Blocker:** manuell QA sign-off innan flag ON (Agent 7 / runbook)
 
 ### 4. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
 
 ### 5. Child Worlds v1.1
 - Mina personer: interaktiv berättelse, avatarer
-- Nya decals/rooms endast via `child-image-assets.md` registry
 
 ---
 
@@ -63,7 +60,7 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 | Område | Ägare nästa fas |
 |--------|-----------------|
 | `migrations/*custody*`, `custody-*` | FEAT-1B agent |
-| `onboarding*.js` | ACT-1 agent |
+| `onboarding*.js`, `src/lib/journey/*` | Journey / signup agent |
 | `for-dig.js`, `nav-config.js` | För dig agent |
 | `public/images/child/**` | Assets agent före wiring |
 | `public/sw.js` | En bump per mergad PR |
@@ -73,13 +70,13 @@ Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` o
 ## Drift
 
 - Prod URL och VPS-värden: se deploy-regler i `.cursor/rules/` och root `AGENTS.md`
-- Efter deploy: health check på lokal port 3000 (se ops-dokumentation)
+- Efter deploy: health check på lokal port 3000
 - Kör **inte** full testsvit på prod med live e-postnycklar
 
 ---
 
 ## Öppna frågor
 
-1. ACT-1: när aktivera `activation_child_handoff_v1` för pilotfamiljer?
-2. För dig Sprint 4: implementera nav-flytt med flag eller defer?
-3. FEAT-1B: prioritet vs ACT-1 PR 3?
+1. Slim signup: flag rollout vs direkt ersättning av ACT-1 wizard?
+2. För dig Sprint 4: nav-flytt när metrics möter tröskel?
+3. FEAT-1B vs Journey slim — prioritet?
