@@ -81,6 +81,14 @@ router.get('/bildschema-app', (req, res) => {
 router.get('/alternativ-bildschema-tavla', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'alternativ-bildschema-tavla.html'));
 });
+router.get('/veckoschema-bildstod', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'veckoschema-bildstod.html'));
+});
+
+// Resursbibliotek hub (Phase R0 — category pages ship in R1/R2)
+router.get('/resurser', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'resurser.html'));
+});
 
 // /treasury → canonical Swedish URL
 router.get('/treasury', (req, res) => res.redirect(301, '/skattkammaren'));

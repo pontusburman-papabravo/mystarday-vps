@@ -16,37 +16,14 @@ const { sendPushNotification, sendPushBroadcast } = require('./push-notification
 const { isFacebookConfigured, postNyhetToFacebook } = require('./facebook');
 const db = require('./db');
 const { NYHET_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 
 const POLL_INTERVAL_MS = 60 * 1000; // 1 minute
 
 let _timer = null;
 
-/**
- * Acquire advisory lock for this scheduler. Fail-open: if lock fails, we proceed
- * because duplicate publishes are idempotent (status set to 'published' already).
- */
-async function acquireLock() {
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [NYHET_SCHEDULER_LOCK_ID]);
-    return rows[0].acquired;
-  } catch (err) {
-    console.error('[NYHET-SCHEDULER] Advisory lock error:', err.message);
-    return true; // fail-open
-  }
-}
-
-async function releaseLock() {
-  await db.query('SELECT pg_advisory_unlock($1)', [NYHET_SCHEDULER_LOCK_ID]).catch(() => {});
-}
-
 async function tick() {
-  const lockAcquired = await acquireLock();
-  if (!lockAcquired) {
-    console.log('[NYHET-SCHEDULER] Skipping — another instance holds the lock');
-    return;
-  }
-
-  try {
+  const outcome = await withAdvisoryLock(NYHET_SCHEDULER_LOCK_ID, async () => {
     // 1. Publish any scheduled nyheter whose time has come
     let justPublished = [];
   try {
@@ -102,8 +79,10 @@ async function tick() {
   } catch (err) {
     console.error('[NYHET-SCHEDULER] unpublishExpiredNyheter error:', err.message);
   }
-  } finally {
-    await releaseLock();
+  });
+
+  if (outcome?.skipped === 'lock') {
+    console.log('[NYHET-SCHEDULER] Skipping — another instance holds the lock');
   }
 }
 

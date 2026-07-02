@@ -339,9 +339,13 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const parentName = parentRow.rows[0]?.name || 'En förälder';
-        notifyChildStarGranted(child_id, childName, count, parentName).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        notifyChildStarGranted(child_id, childName, count, parentName).catch((err) => {
+          console.error('[GOALS] notifyChildStarGranted failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[GOALS] Star-grant notify lookup failed:', err.message);
+      }
+    }).catch((err) => console.error('[GOALS] STAR_GRANTED broadcast failed:', err.message));
   } catch (err) {
     console.error('[GOALS] Manual stars error:', err);
     res.status(500).json({ error: 'Något gick fel.' });

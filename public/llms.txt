@@ -1,0 +1,24 @@
+# Min Stjärndag
+> Svensk familjeapp för visuella scheman med bildstöd, rutiner och stjärnbelöningar för barn.
+
+## Kunskapscenter
+
+- [Bildschema för barn](https://mystarday.se/bildschema-app): Komplett guide till bildschema, bildstöd och schema-app
+- [Belöningssystem för barn](https://mystarday.se/beloningssystem-barn): Stjärnor och motivation utan mutor
+- [Morgonrutin för barn](https://mystarday.se/morgonrutin-barn): Lugnare morgonar med visuellt schema
+- [Rutiner vid ADHD och autism](https://mystarday.se/rutiner-npf-barn): Tydlighet och förutsägbarhet vid NPF
+- [Alternativ till bildschema-tavla](https://mystarday.se/alternativ-bildschema-tavla): Jämförelse tavla vs digital app
+- [Veckoschema med bildstöd](https://mystarday.se/veckoschema-bildstod): Planera hela veckan visuellt
+
+## Produkt
+
+- [Startsida](https://mystarday.se/): Visuella scheman och stjärnor för familjer
+- [Skapa konto](https://mystarday.se/register): Registrera föräldrakonto gratis
+- [Skattkammaren demo](https://mystarday.se/skattkammaren?demo=1): Se belöningssystemet i demo
+- [För pedagoger och terapeuter](https://mystarday.se/pedagoger-och-terapeuter): Samarbete kring barnets rutiner
+- [FAQ](https://mystarday.se/faq): Vanliga frågor och svar
+- [Kontakt](https://mystarday.se/kontakt): Kontakta Min Stjärndag
+
+## Sitemap
+
+- [XML-sitemap](https://mystarday.se/sitemap.xml): Alla indexbara sidor för sökmotorer

@@ -6,6 +6,8 @@
 const db = require('./db');
 const { sendActivationProgramInviteEmail } = require('./email');
 const config = require('./config');
+const { ACTIVATION_PROGRAM_EMAIL_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 const emailInviteDb = require('../../db/activation-program-email-invite');
 const {
   isActivationEmailEnabled,
@@ -15,7 +17,6 @@ const { isEligibleForActivationEmail } = require('./activation-program-eligibili
 const programAnalytics = require('./activation-program-analytics');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 
-const SCHEDULER_LOCK_ID = 17997001;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 async function fetchEligibleParents() {
@@ -83,23 +84,7 @@ async function runActivationEmailJob() {
     return;
   }
 
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [SCHEDULER_LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[ACTIVATION-EMAIL] Lock error:', err.message);
-    lockAcquired = true;
-  }
-
-  if (!lockAcquired) {
-    console.log('[ACTIVATION-EMAIL] Skipping — lock held');
-    return;
-  }
-
+  const outcome = await withAdvisoryLock(ACTIVATION_PROGRAM_EMAIL_LOCK_ID, async () => {
   const parents = await fetchEligibleParents();
   let sent = 0;
   for (const row of parents) {
@@ -112,11 +97,10 @@ async function runActivationEmailJob() {
   }
 
   console.log(`[ACTIVATION-EMAIL] Sent ${sent} invite(s)`);
+  });
 
-  try {
-    if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [SCHEDULER_LOCK_ID]);
-  } catch (_) {
-    // ignore
+  if (outcome?.skipped === 'lock') {
+    console.log('[ACTIVATION-EMAIL] Skipping — lock held');
   }
 }
 

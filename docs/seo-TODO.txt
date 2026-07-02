@@ -1,0 +1,10 @@
+SEO innehåll — en sida i taget (ingen ny spec förrän alla ☐ är ☑)
+
+☑ Bildschema-app          /bildschema-app
+☑ Belöningssystem         /beloningssystem-barn
+☑ Morgonrutin             /morgonrutin-barn
+☑ NPF                     /rutiner-npf-barn
+☑ Alternativ tavla        /alternativ-bildschema-tavla
+☑ Veckoschema             /veckoschema-bildstod
+☑ Landning — guider-block /
+☑ Sitemap                 (via seo-pages.js)

@@ -27,18 +27,12 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
       return res.status(400).json({ error: 'Välj minst ett barn att dela med pedagogen' });
     }
 
-    // Verify all childIds belong to this family and are linked to the primary parent
-    const childCheck = await db.query(
-      `SELECT c.id FROM child c
-       JOIN parent_child pc ON pc.child_id = c.id
-       WHERE pc.parent_id = $1 AND pc.role = 'primary' AND c.id = ANY($2) AND c.family_id = $3`,
-      [req.user.id, childIds, req.user.familyId]
-    );
-    if (childCheck.rows.length !== childIds.length) {
+    const { verifyPrimaryChildrenForInvite, createInvite } = require('../../../db/pedagog-invite');
+    const childCheck = await verifyPrimaryChildrenForInvite(req.user.id, req.user.familyId, childIds);
+    if (childCheck.length !== childIds.length) {
       return res.status(400).json({ error: 'Ett eller flera barn hittades inte eller saknar behörighet' });
     }
 
-    const { createInvite } = require('../../../db/pedagog-invite');
     const invite = await createInvite({
       familyId: req.user.familyId,
       inviterParentId: req.user.id,

@@ -98,6 +98,10 @@
         const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
         if (journeyOn) {
           const ctx = await JourneyContextClient.fetchContext();
+          if (ctx?.signup_journey?.active) {
+            el.classList.add('hidden');
+            return;
+          }
           if (ctx?.capabilities?.handoff_v2) {
             el.classList.toggle('hidden', !contextWantsHandoff(ctx));
             if (!contextWantsHandoff(ctx)) return;

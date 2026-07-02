@@ -98,6 +98,48 @@ test('findByNames uses exact normalized match only', () => {
   assert.deepEqual(findByNames(items, ['Städa rum']), []);
 });
 
+test('buildActivationPlanPreview for trygga-kvallar uses section-scoped decisions', async () => {
+  const parentId = '00000000-0000-4000-8000-000000000010';
+  const childId = '00000000-0000-4000-8000-000000000011';
+
+  const db = require('../src/lib/db');
+  const originalQuery = db.query.bind(db);
+  db.query = async (sql, params) => {
+    if (sql.includes('FROM child c') && sql.includes('parent_child')) {
+      return { rows: [{ id: childId, family_id: 'f1', name: 'Astrid' }] };
+    }
+    if (sql.includes('weekly_schedule_item') && sql.includes('COALESCE')) {
+      return { rows: [{ '?column?': 1 }] };
+    }
+    if (sql.includes('default_schedule_item')) {
+      return {
+        rows: [
+          { name: 'Kvällsrutin', icon: '🌙', star_value: 2, section: 'kvall' },
+          { name: 'Borsta tänder', icon: '🪥', star_value: 1, section: 'kvall' },
+        ],
+      };
+    }
+    if (sql.includes('FROM default_schedule')) {
+      return { rows: [{ id: 'sch-1' }] };
+    }
+    return originalQuery(sql, params);
+  };
+
+  try {
+    const plan = await buildActivationPlanPreview({
+      parentId,
+      childIds: [childId],
+      goalSlug: 'trygga-kvallar',
+    });
+
+    assert.equal(plan.details.section_label, 'Kväll');
+    assert.ok(plan.decisions.some((d) => d.text.includes('kvällsaktiviteterna')));
+    assert.ok(plan.decisions.some((d) => d.text.includes('Övriga sektioner behålls')));
+  } finally {
+    db.query = originalQuery;
+  }
+});
+
 test('buildActivationPlanPreview rejects empty child_ids', async () => {
   await assert.rejects(
     () => buildActivationPlanPreview({

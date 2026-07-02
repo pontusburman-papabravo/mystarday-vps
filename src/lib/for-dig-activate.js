@@ -9,6 +9,11 @@ const db = require('./db');
 const { getGoalBySlug } = require('./for-dig-config');
 const { broadcast } = require('./sse-broadcast');
 const { syncDailyLogWithSchedule, syncDailyLogsForTemplateChange } = require('./daily-log-generator');
+const {
+  mergeScheduleSection,
+  normalizeSection,
+  belongsToSection,
+} = require('./merge-schedule-section');
 
 function lookupStarOverride(starOverrides, name) {
   if (!starOverrides || typeof starOverrides !== 'object') return null;
@@ -71,6 +76,7 @@ function formatDaysLabel(days) {
 }
 
 function sectionLabelForGoal(goal, preview) {
+  if (goal.scheduleSectionLabel) return goal.scheduleSectionLabel;
   if (goal.scheduleSection && SECTION_LABELS[goal.scheduleSection]) {
     return SECTION_LABELS[goal.scheduleSection];
   }
@@ -78,6 +84,24 @@ function sectionLabelForGoal(goal, preview) {
     return 'Rutin';
   }
   return SECTION_LABELS.dag;
+}
+
+function resolveScheduleSection(goal) {
+  if (goal.scheduleSection) return normalizeSection(goal.scheduleSection);
+  const bySlug = {
+    'trygga-kvallar': 'kvall',
+    'bra-morgnar': 'morgon',
+    skolansvar: 'dag',
+  };
+  return bySlug[goal.slug] || 'dag';
+}
+
+function sectionActivityLabel(goal) {
+  const label = sectionLabelForGoal(goal).toLowerCase();
+  if (label === 'kväll') return 'kvällsaktiviteterna';
+  if (label === 'morgon') return 'morgonaktiviteterna';
+  if (label === 'skola') return 'skolaktiviteterna';
+  return `${label}saktiviteterna`;
 }
 
 function getGoalCtaLabel(goal) {
@@ -105,15 +129,17 @@ function buildPromiseLine(goal, childNames) {
   return `Aktiviteterna för ${who} är klara på mindre än en minut.`;
 }
 
-async function childHasScheduleOnDays(childId, days) {
+async function childHasItemsInSection(childId, days, targetSection) {
   const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
   if (validDays.length === 0) return false;
+  const section = normalizeSection(targetSection);
   const result = await db.query(
     `SELECT 1 FROM weekly_schedule_item wsi
      JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
      WHERE ws.child_id = $1 AND ws.day_of_week = ANY($2::int[])
+       AND LOWER(COALESCE(NULLIF(wsi.section, ''), 'dag')) = $3
      LIMIT 1`,
-    [childId, validDays]
+    [childId, validDays, section]
   );
   return result.rows.length > 0;
 }
@@ -157,21 +183,27 @@ async function buildActivationPlanPreview({ parentId, childIds, goalSlug }) {
 
   if (goal.scheduleName) {
     const days = goal.scheduleDays || WEEKDAY_INDICES;
+    const targetSection = resolveScheduleSection(goal);
     let willReplace = false;
     for (const child of verifiedChildren) {
-      if (await childHasScheduleOnDays(child.id, days)) {
+      if (await childHasItemsInSection(child.id, days, targetSection)) {
         willReplace = true;
         break;
       }
     }
+    const sectionLabel = sectionLabelForGoal(goal, preview);
     if (willReplace) {
       decisions.push({
         signal: 'replace',
-        text: `Ersätter ${scheduleActivatableLabel(goal).toLowerCase()} på valda dagar`,
+        text: `Ersätter ${sectionActivityLabel(goal)} på valda dagar`,
       });
     } else {
-      decisions.push({ signal: 'add', text: 'Lägger in rutinen i schemat' });
+      decisions.push({
+        signal: 'add',
+        text: `Lägger in rutinen under ${sectionLabel}`,
+      });
     }
+    decisions.push({ signal: 'keep', text: 'Övriga sektioner behålls' });
     decisions.push({ signal: 'safe', text: 'Du kan ändra efteråt' });
   } else if (goal.activityNames && goal.activityNames.length > 0) {
     const countText = itemCount === 1 ? '1 aktivitet' : `${itemCount} aktiviteter`;
@@ -299,7 +331,8 @@ async function verifyChildAccess(parentId, childId) {
   return result.rows[0] || null;
 }
 
-async function copySchedule(client, familyId, childId, scheduleName, days, overwrite, goalSlug, starOverrides) {
+async function copySchedule(client, familyId, childId, scheduleName, days, targetSection, goalSlug, starOverrides) {
+  const section = normalizeSection(targetSection);
   const scheduleResult = await client.query(
     'SELECT id, name FROM default_schedule WHERE LOWER(name) = LOWER($1) LIMIT 1',
     [scheduleName]
@@ -317,8 +350,9 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
     [scheduleId]
   );
 
-  if (items.rows.length === 0) {
-    throw libraryUnavailableError(`schedule_empty:${scheduleName}`);
+  const sectionItems = items.rows.filter((item) => normalizeSection(item.section) === section);
+  if (sectionItems.length === 0) {
+    throw libraryUnavailableError(`schedule_section_empty:${scheduleName}:${section}`);
   }
 
   const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
@@ -330,7 +364,7 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
 
   const activityTemplateMap = {};
   const touchedTemplateIds = [];
-  for (const item of items.rows) {
+  for (const item of sectionItems) {
     const stars = starValueForItem(item, starOverrides);
     const existing = await client.query(
       `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
@@ -383,13 +417,7 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
     );
 
     if (existingSchedule.rows.length > 0) {
-      if (!overwrite) continue;
       scheduleRowId = existingSchedule.rows[0].id;
-      await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [scheduleRowId]);
-      await client.query(
-        'UPDATE weekly_schedule SET name = $1 WHERE id = $2',
-        [scheduleName, scheduleRowId]
-      );
     } else {
       const newSched = await client.query(
         'INSERT INTO weekly_schedule (child_id, day_of_week, name, sort_order) VALUES ($1, $2, $3, $4) RETURNING id',
@@ -398,19 +426,69 @@ async function copySchedule(client, familyId, childId, scheduleName, days, overw
       scheduleRowId = newSched.rows[0].id;
     }
 
-    for (const item of items.rows) {
-      const templateId = activityTemplateMap[item.name];
-      if (!templateId) continue;
+    const existingItemsResult = await client.query(
+      `SELECT activity_template_id, section, sort_order, start_time, end_time
+       FROM weekly_schedule_item WHERE weekly_schedule_id = $1`,
+      [scheduleRowId]
+    );
+    const existingItems = existingItemsResult.rows.map((row) => ({
+      activityTemplateId: row.activity_template_id,
+      section: row.section,
+      sortOrder: row.sort_order,
+      startTime: row.start_time,
+      endTime: row.end_time,
+    }));
+
+    const packageItems = sectionItems.map((item) => ({
+      activityTemplateId: activityTemplateMap[item.name],
+      section,
+      sortOrder: item.sort_order ?? 0,
+      startTime: item.start_time || null,
+      endTime: item.end_time || null,
+    })).filter((item) => item.activityTemplateId);
+
+    const mergeResult = mergeScheduleSection({
+      existingItems,
+      targetSection: section,
+      packageItems,
+    });
+
+    if (mergeResult.emptyPackage) {
+      throw libraryUnavailableError(`schedule_section_empty:${scheduleName}:${section}`);
+    }
+
+    if (mergeResult.mode === 'replace') {
+      await client.query(
+        `DELETE FROM weekly_schedule_item
+         WHERE weekly_schedule_id = $1
+           AND LOWER(COALESCE(NULLIF(section, ''), 'dag')) = $2`,
+        [scheduleRowId, section]
+      );
+    }
+
+    const existingInSectionIds = new Set(
+      existingItems
+        .filter((item) => belongsToSection(item, section))
+        .map((item) => item.activityTemplateId)
+    );
+    const toInsert = mergeResult.items
+      .filter((item) => belongsToSection(item, section))
+      .filter((item) => mergeResult.mode === 'replace' || !existingInSectionIds.has(item.activityTemplateId));
+
+    for (const item of toInsert) {
       await client.query(
         `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [scheduleRowId, templateId, item.start_time || null, item.end_time || null, item.sort_order || 0, item.section || 'dag']
+        [scheduleRowId, item.activityTemplateId, item.startTime, item.endTime, item.sortOrder ?? 0, section]
       );
     }
-    filledDays.push(dow);
+
+    if (toInsert.length > 0 || mergeResult.mode === 'replace') {
+      filledDays.push(dow);
+    }
   }
 
-  return { scheduleId, scheduleName, filledDays, activityTemplateMap, touchedTemplateIds };
+  return { scheduleId, scheduleName, filledDays, activityTemplateMap, touchedTemplateIds, targetSection: section };
 }
 
 async function copyActivities(client, familyId, activityNames, goalSlug, starOverrides) {
@@ -612,12 +690,14 @@ async function getGoalActivationPreview(goalSlug) {
     if (scheduleResult.rows.length === 0) {
       return { type: 'schedule', items: [] };
     }
+    const section = resolveScheduleSection(goal);
     const items = await db.query(
-      `SELECT name, icon, star_value
+      `SELECT name, icon, star_value, section
        FROM default_schedule_item
        WHERE default_schedule_id = $1
+         AND LOWER(COALESCE(NULLIF(section, ''), 'dag')) = $2
        ORDER BY sort_order ASC`,
-      [scheduleResult.rows[0].id]
+      [scheduleResult.rows[0].id, section]
     );
     return { type: 'schedule', items: items.rows };
   }
@@ -714,6 +794,7 @@ async function activateGoal({
     }
 
     if (goal.scheduleName) {
+      const targetSection = resolveScheduleSection(goal);
       for (const child of verifiedChildren) {
         scheduleResult = await copySchedule(
           client,
@@ -721,7 +802,7 @@ async function activateGoal({
           child.id,
           goal.scheduleName,
           goal.scheduleDays || [1, 2, 3, 4, 5],
-          overwrite,
+          targetSection,
           goalSlug,
           starOverrides
         );

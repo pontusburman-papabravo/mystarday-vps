@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const db = require('../lib/db');
 const { hashPassword, pinFingerprint } = require('../lib/hash');
 const { requireAuth, requireParent } = require('../middleware/auth');
-const { requireNotPedagogOnly, getChildAccess } = require('../middleware/authz');
+const { requireNotPedagogOnly, getChildAccess, requireChildAccess } = require('../middleware/authz');
 const { validate, validateParams } = require('../middleware/validate');
 const {
   CreateChildSchema,
@@ -190,18 +190,9 @@ router.get('/', async (req, res) => {
 });
 
 // ─── PATCH /api/children/:id/view-config ───────────────────
-router.patch('/:id/view-config', validateParams(UUIDParam), validate(ChildViewConfigSchema), async (req, res) => {
+router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('id'), validate(ChildViewConfigSchema), async (req, res) => {
   try {
-    console.log('[VIEW-CONFIG] PATCH received for child', req.params.id, 'body:', JSON.stringify(req.body));
-
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      console.warn('[VIEW-CONFIG] PATCH denied — no access for parent', req.user.id, 'child', req.params.id);
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
+    console.log('[VIEW-CONFIG] PATCH for child', req.params.id, 'fields:', Object.keys(req.body));
 
     // Fetch existing config
     const existing = await db.query(
@@ -215,9 +206,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), validate(ChildViewCo
 
     // Deep-merge incoming fields over existing config
     const current = existing.rows[0].child_view_config || {};
-    console.log('[VIEW-CONFIG] PATCH existing config:', JSON.stringify(current));
     const merged = { ...current, ...req.body };
-    console.log('[VIEW-CONFIG] PATCH merged config:', JSON.stringify(merged));
 
     // Validate view_mode if provided
     if (merged.view_mode && !['classic', 'new'].includes(merged.view_mode)) {
@@ -230,7 +219,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), validate(ChildViewCo
       [JSON.stringify(merged), req.params.id]
     );
 
-    console.log('[VIEW-CONFIG] PATCH saved:', JSON.stringify(merged));
+    console.log('[VIEW-CONFIG] PATCH saved for child', req.params.id);
     res.json(merged);
   } catch (err) {
     console.error('[VIEW-CONFIG] PATCH error:', err.message, err.stack);
@@ -678,16 +667,8 @@ router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
 });
 
 // ─── PUT /api/children/:id/pin ──────────────────────────
-router.put('/:id/pin', validateParams(UUIDParam), validate(UpdateChildPinSchema), async (req, res) => {
+router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), validate(UpdateChildPinSchema), async (req, res) => {
   try {
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
-
     const { pin } = req.body;
     if (!pin || !/^\d{4}$/.test(pin)) {
       return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
@@ -726,16 +707,8 @@ router.put('/:id/pin', validateParams(UUIDParam), validate(UpdateChildPinSchema)
 // ─── POST /api/children/:id/unlock-pin ──────────────────
 // Parent clears a child's PIN lockout and resets the attempt counter.
 // Does NOT change the PIN — only resets the lockout state.
-router.post('/:id/unlock-pin', validateParams(UUIDParam), async (req, res) => {
+router.post('/:id/unlock-pin', validateParams(UUIDParam), requireChildAccess('id'), async (req, res) => {
   try {
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
-
     await pinLockout.clearLockout(req.params.id);
 
     // Audit: parent unlocked the child
@@ -754,16 +727,8 @@ router.post('/:id/unlock-pin', validateParams(UUIDParam), async (req, res) => {
 
 // ─── GET /api/children/:id/pin-status ───────────────────
 // Parent can check if a child is currently locked out.
-router.get('/:id/pin-status', validateParams(UUIDParam), async (req, res) => {
+router.get('/:id/pin-status', validateParams(UUIDParam), requireChildAccess('id'), async (req, res) => {
   try {
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
-
     const status = await pinLockout.checkLockout(req.params.id);
     const lockoutRow = await pinLockout.getLockout(req.params.id);
     res.json({
@@ -779,16 +744,8 @@ router.get('/:id/pin-status', validateParams(UUIDParam), async (req, res) => {
 });
 
 // ─── GET /api/children/:id/progress ─────────────────────
-router.get('/:id/progress', validateParams(UUIDParam), async (req, res) => {
+router.get('/:id/progress', validateParams(UUIDParam), requireChildAccess('id'), async (req, res) => {
   try {
-    const access = await db.query(
-      'SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
-    }
-
     // Placeholder — will be filled in later phases
     const streak = await db.query(
       'SELECT current_streak, cycle_day, last_active_date FROM streak WHERE child_id = $1',

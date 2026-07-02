@@ -32,11 +32,11 @@
       return p.scenePictureHtml();
     }
     return '<picture class="gd-scene-picture" data-asset-id="scene-bg">' +
-      '<source type="image/webp" media="(max-width: 430px)" srcset="/assets/worlds/garden/scene-bg-430.webp" />' +
-      '<source type="image/webp" media="(max-width: 860px)" srcset="/assets/worlds/garden/scene-bg-860.webp" />' +
+      '<source type="image/webp" media="(max-width: 430px)" srcset="/images/child/world/garden/scene-bg-430.webp" />' +
+      '<source type="image/webp" media="(max-width: 860px)" srcset="/images/child/world/garden/scene-bg-860.webp" />' +
       '<img class="gd-scene-bg" data-asset-id="scene-bg" data-critical="true"' +
-        ' src="/assets/worlds/garden/scene-bg.webp"' +
-        ' srcset="/assets/worlds/garden/scene-bg-430.webp 430w, /assets/worlds/garden/scene-bg-860.webp 860w, /assets/worlds/garden/scene-bg-1280.webp 1280w"' +
+        ' src="/images/child/world/garden/scene-bg.webp"' +
+        ' srcset="/images/child/world/garden/scene-bg-430.webp 430w, /images/child/world/garden/scene-bg-860.webp 860w, /images/child/world/garden/scene-bg-1280.webp 1280w"' +
         ' sizes="100vw" alt="" decoding="async" loading="eager" fetchpriority="high" />' +
       '</picture>';
   }

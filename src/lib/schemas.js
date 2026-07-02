@@ -171,6 +171,7 @@ const sevenQuestions = z.record(z.string(), z.any()).optional().nullable();
 const CreateActivitySchema = z.object({
   name: z.string().min(1, 'Aktivitetsnamn krävs').max(200),
   icon: emoji,
+  icon_key: z.string().max(64).optional().nullable(),
   image_url: optionalUrl.nullish(),
   category_id: uuid.optional().nullable(),
   star_value: starValue.optional().default(1),
@@ -184,6 +185,7 @@ const CreateActivitySchema = z.object({
 const UpdateActivitySchema = z.object({
   name: z.string().min(1).max(200).optional(),
   icon: emoji,
+  icon_key: z.string().max(64).optional().nullable(),
   image_url: optionalUrl.nullish(),
   category_id: uuid.optional().nullable(),
   star_value: starValue.optional(),

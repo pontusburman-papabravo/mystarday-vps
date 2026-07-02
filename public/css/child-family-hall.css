@@ -279,3 +279,26 @@
   padding: 8px 0;
   line-height: 1.4;
 }
+
+/* Illustrated hall background (child-world-bg.css) — keep cards readable */
+body.child-worlds-v2 .cfh-shell {
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+}
+
+body.child-worlds-v2 .cfh-title {
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85);
+}
+
+body.child-worlds-v2 .cfh-subtitle {
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.75);
+}
+
+body.child-worlds-v2 .cfh-card,
+body.child-worlds-v2 .cfh-person-card,
+body.child-worlds-v2 .cfh-chest,
+body.child-worlds-v2 .cfh-story-item {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 18px rgba(27, 35, 64, 0.08);
+}

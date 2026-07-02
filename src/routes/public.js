@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
 const db = require('../lib/db');
 const { sendEmail, isTestMailbox } = require('../lib/email');
+const { maskEmail } = require('../lib/log-redact');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
 const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
@@ -47,6 +48,17 @@ const publicNewsletterLimiter = rateLimit({
 });
 
 // ─── POST /api/contact ──────────────────────────────────
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 router.post('/contact', async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -70,21 +82,24 @@ router.post('/contact', async (req, res) => {
     );
 
     if (!isTestMailbox(normalizedEmail)) {
+      const safeName = escapeHtml(name.trim());
+      const safeEmail = escapeHtml(normalizedEmail);
+      const safeMessage = escapeHtml(message.trim());
       await sendEmail({
       to: 'info@mystarday.se',
       subject: `Kontaktformulär — ${name.trim()}`,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2 style="color: #1B2340;">Nytt meddelande från Stjärndag</h2>
-          <p><strong>Namn:</strong> ${name.trim()}</p>
-          <p><strong>E-post:</strong> ${normalizedEmail}</p>
+          <p><strong>Namn:</strong> ${safeName}</p>
+          <p><strong>E-post:</strong> ${safeEmail}</p>
           <p><strong>Meddelande:</strong></p>
-          <p style="background: #f5f5f5; padding: 12px; border-radius: 8px;">${message.trim()}</p>
+          <p style="background: #f5f5f5; padding: 12px; border-radius: 8px;">${safeMessage}</p>
         </div>
       `,
       });
     } else {
-      console.log(`[CONTACT] Skipping owner email for test mailbox ${normalizedEmail}`);
+      console.log(`[CONTACT] Skipping owner email for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ message: 'Tack! Vi har tagit emot ditt meddelande.' });
@@ -247,7 +262,7 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
       `,
     }).catch(() => {});
     } else {
-      console.log(`[PROFESSIONAL-INTEREST] Skipping emails for test mailbox ${normalizedEmail}`);
+      console.log(`[PROFESSIONAL-INTEREST] Skipping emails for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ ok: true });
@@ -309,7 +324,7 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
       `,
     }).catch(() => {});
     } else {
-      console.log(`[WAITLIST] Skipping emails for test mailbox ${normalizedEmail}`);
+      console.log(`[WAITLIST] Skipping emails for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     res.json({ ok: true, message: 'Welcome to the waitlist!' });
@@ -423,7 +438,7 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
       `,
       }).catch(() => {});
     } else {
-      console.log(`[PUBLIC-NEWSLETTER] Skipping email for test mailbox ${normalizedEmail}`);
+      console.log(`[PUBLIC-NEWSLETTER] Skipping email for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
     let message = 'Tack! Du är anmäld till nyhetsbrevet.';
@@ -454,6 +469,7 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
 
 const jwt = require('jsonwebtoken');
 const config = require('../lib/config');
+const { verifyToken } = require('../middleware/auth');
 
 // WHY module-scope: fmtWeek() is module-level and needs this; previously was
 // inside route handler only, causing ReferenceError when fmtWeek was called.
@@ -476,7 +492,7 @@ const reportPinLimiter = rateLimit({
  */
 function verifyReportToken(token) {
   try {
-    return jwt.verify(token, config.jwt.secret);
+    return verifyToken(token);
   } catch {
     return null;
   }

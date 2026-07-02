@@ -16,7 +16,7 @@ Phase 1  Spec & ADR                    ✅ (detta PR)
 Phase 2  Migration                     DB + backfill
 Phase 3  Schedule Engine               custody-schedule-engine.js
 Phase 4  Konsumenter                   routes, UI, schedulers
-Phase 5  Weekly schedule cleanup       home_id primärt, week_variant legacy
+Phase 5  Weekly schedule cleanup       ✅ home_id primärt, week_variant legacy
 ```
 
 **Låsta beslut (ADR):**

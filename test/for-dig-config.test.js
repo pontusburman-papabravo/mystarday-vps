@@ -21,6 +21,19 @@ test('for-dig schedule goals have unique scheduleName', () => {
   assert.equal(new Set(names).size, names.length);
 });
 
+test('helrutin goals declare scheduleSection', () => {
+  const helrutin = FOR_DIG_GOALS.filter((g) => g.scheduleName);
+  assert.equal(helrutin.length, 3);
+  const expected = {
+    'trygga-kvallar': 'kvall',
+    'bra-morgnar': 'morgon',
+    skolansvar: 'dag',
+  };
+  for (const goal of helrutin) {
+    assert.equal(goal.scheduleSection, expected[goal.slug], goal.slug);
+  }
+});
+
 test('getGoalBySlug returns goal or null', () => {
   assert.ok(getGoalBySlug('trygga-kvallar'));
   assert.equal(getGoalBySlug('finns-inte'), null);

@@ -7,6 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
+const authz = require('../../middleware/authz');
 const { syncDailyLogWithSchedule, syncDailyLogForSpecialDay } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
@@ -15,18 +16,10 @@ const { CopyDaySchema, CopyToChildSchema, ApplyDateRangeSchema } = require('../.
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
 
-async function getChildAccess(parentId, childId) {
-  const result = await db.query(
-    'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
-    [parentId, childId]
-  );
-  return result.rows[0] || null;
-}
-
 // POST /api/children/:childId/schedules/copy-day — copy one day → other days
 router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { from_day, to_days } = req.body;
@@ -115,14 +108,14 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
 // POST /api/children/:childId/schedules/copy-to-child — copy all schedules to another child
 router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { target_child_id, days, overwrite } = req.body;
     if (!target_child_id) return res.status(400).json({ error: 'target_child_id krävs' });
     if (target_child_id === req.params.childId) return res.status(400).json({ error: 'Kan inte kopiera till samma barn' });
 
-    const targetChild = await getChildAccess(req.user.id, target_child_id);
+    const targetChild = await authz.getChildAccess(req.user.id, target_child_id);
     if (!targetChild) return res.status(403).json({ error: 'Du har inte åtkomst till målbarnet' });
 
     const dayFilter = Array.isArray(days) && days.length > 0
@@ -211,7 +204,7 @@ router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
 // POST /api/children/:childId/schedules/copy-to-weeks — copy weekly schedule to future weeks
 router.post('/copy-to-weeks', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { from_day, week_offsets } = req.body;
@@ -317,7 +310,7 @@ router.post('/copy-to-weeks', async (req, res) => {
 // POST /api/children/:childId/schedules/copy-item-to-day — copy single item to another day
 router.post('/copy-item-to-day', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { item_id, from_schedule_id, to_day } = req.body;
@@ -403,7 +396,7 @@ router.post('/copy-item-to-day', async (req, res) => {
 // POST /api/children/:childId/schedules/copy-item-to-child — copy single item to another child
 router.post('/copy-item-to-child', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { item_id, from_schedule_id, to_child_id, to_day } = req.body;
@@ -415,7 +408,7 @@ router.post('/copy-item-to-child', async (req, res) => {
       return res.status(400).json({ error: 'to_day måste vara 0–6' });
     }
 
-    const targetChild = await getChildAccess(req.user.id, to_child_id);
+    const targetChild = await authz.getChildAccess(req.user.id, to_child_id);
     if (!targetChild) return res.status(403).json({ error: 'Du har inte åtkomst till målbarnet' });
 
     const itemResult = await db.query(
@@ -490,7 +483,7 @@ router.post('/copy-item-to-child', async (req, res) => {
 // POST /api/children/:childId/schedules/swap-day — swap all activities between two days
 router.post('/swap-day', async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const { day_a, day_b } = req.body;
@@ -753,7 +746,7 @@ async function resolveDateRangeItems(client, familyId, body) {
 // POST /api/children/:childId/schedules/apply-date-range — library schema for each day in range
 router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res) => {
   try {
-    const child = await getChildAccess(req.user.id, req.params.childId);
+    const child = await authz.getChildAccess(req.user.id, req.params.childId);
     if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const {

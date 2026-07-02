@@ -12,6 +12,11 @@ const { buildListUnsubscribeHeaders } = require('./list-unsubscribe-headers');
 const FROM_ADDRESS = config.email.from;
 const FROM_HEADER = `${config.email.fromName} <${FROM_ADDRESS}>`;
 const RESEND_API_URL = 'https://api.resend.com/emails';
+const { maskEmail } = require('./log-redact');
+
+function maskToField(to) {
+  return normalizeRecipients(to).map(maskEmail).join(',') || '(redacted)';
+}
 
 /** RFC 2606 / common test domains — never send to these in production. */
 const TEST_MAILBOX_SUFFIXES = [
@@ -51,12 +56,12 @@ async function registerContact(_email, _name, _source = 'signup') {
 async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile, unsubscribeUrl, headers: extraHeaders }) {
   const recipients = normalizeRecipients(to);
   if (recipients.length > 0 && recipients.every(isTestMailbox)) {
-    console.log(`[EMAIL] Suppressed (test mailbox): to=${recipients.join(',')}, subject="${subject}"`);
+    console.log(`[EMAIL] Suppressed (test mailbox): to=${maskToField(to)}, subject="${subject}"`);
     return { success: true, provider: 'suppressed_test_mailbox' };
   }
 
   if (process.env.EMAIL_ENABLED === 'false') {
-    console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${to}, subject="${subject}"`);
+    console.log(`[EMAIL] Suppressed (EMAIL_ENABLED=false): to=${maskToField(to)}, subject="${subject}"`);
     return { success: true, provider: 'suppressed' };
   }
 
@@ -67,7 +72,7 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
     : 'RESEND_API_KEY';
 
   console.log(
-    `[EMAIL] Sending email to=${to}, subject="${subject}", keyProfile=${keyProfile}, hasApiKey=${!!apiKey}`
+    `[EMAIL] Sending email to=${maskToField(to)}, subject="${subject}", keyProfile=${keyProfile}, hasApiKey=${!!apiKey}`
   );
 
   if (!apiKey) {
@@ -104,7 +109,7 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
     const data = await res.json().catch(() => ({}));
 
     if (res.ok) {
-      console.log(`[EMAIL] Sent OK to=${to}, provider=resend, id=${data.id || 'n/a'}`);
+      console.log(`[EMAIL] Sent OK to=${maskToField(to)}, provider=resend, id=${data.id || 'n/a'}`);
       return { success: true, provider: 'resend', data, emailId: data.id || null };
     }
 

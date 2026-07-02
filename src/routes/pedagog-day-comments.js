@@ -37,6 +37,14 @@ router.post('/', requireComponent('pedagog'), async (req, res) => {
       return res.status(400).json({ error: 'childId, date och content krävs' });
     }
 
+    const owns = await db.query(
+      'SELECT 1 FROM child WHERE id = $1 AND family_id = $2',
+      [childId, req.user.familyId]
+    );
+    if (owns.rows.length === 0) {
+      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    }
+
     const { rows } = await db.query(
       `INSERT INTO pedagog_day_comment (child_id, parent_id, date, content)
        VALUES ($1, $2, $3::date, $4)

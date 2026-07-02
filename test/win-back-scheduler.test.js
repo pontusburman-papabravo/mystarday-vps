@@ -1,5 +1,7 @@
 'use strict';
 
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://localhost:5432/test';
+
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
@@ -25,6 +27,15 @@ describe('win-back scheduler', () => {
     const mod = require('../src/lib/win-back-scheduler');
     assert.equal(typeof mod.fetchEligibleFamilies, 'function');
     assert.equal(mod.INACTIVITY_THRESHOLD_DAYS, 18);
+  });
+
+  it('uses stockholm-time for next-run scheduling (L3)', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../src/lib/win-back-scheduler.js'),
+      'utf8'
+    );
+    assert.ok(src.includes("require('./stockholm-time')"), 'should use shared Stockholm helpers');
+    assert.ok(!src.includes('lastSundayOfMonth'), 'manual DST table removed');
   });
 
   it('is not mounted in server.js (Steg 3 legacy cleanup)', () => {

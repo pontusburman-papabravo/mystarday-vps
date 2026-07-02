@@ -63,6 +63,54 @@
         "headline": "Kvällsrutin?",
         "body": "Familjer som lägger till en enkel kvällsrutin får oftast stabilare dagar.",
         "cta": "Utforska"
+      },
+      "sj_day1_child_preview": {
+        "tone": "coach",
+        "headline": "Er rutin är redo",
+        "body": "Schemat finns på plats. Kika på barnets dag när det passar — ni behöver inte göra allt ikväll.",
+        "cta": "Visa barnets dag"
+      },
+      "sj_day2_try_routine": {
+        "tone": "coach",
+        "headline": "Testa rutinen i vardagen",
+        "body": "Det räcker att ni kikar tillsammans en stund. Ingen stress.",
+        "cta": "Öppna schemat"
+      },
+      "sj_day3_child_try": {
+        "tone": "coach",
+        "headline": "Dags att låta barnet prova",
+        "body": "Visa PIN-koden och låt barnet logga in i sin egen vy.",
+        "cta": "Visa barnkod"
+      },
+      "sj_celebrate_star": {
+        "tone": "celebration",
+        "headline": "En stjärna!",
+        "body": "Barnet har klarat en aktivitet — fira tillsammans.",
+        "cta": "Toppen!"
+      },
+      "sj_introduce_stars": {
+        "tone": "coach",
+        "headline": "Så funkar stjärnorna",
+        "body": "Varje avprickad aktivitet ger en stjärna. Stjärnor kan bytas mot belöningar i Skattkammaren.",
+        "cta": "Visa Skattkammaren"
+      },
+      "sj_welcome_child_login": {
+        "tone": "celebration",
+        "headline": "Barnet är inne!",
+        "body": "Bra start — låt barnet leda i sin egen takt.",
+        "cta": "Toppen!"
+      },
+      "sj_help_get_started": {
+        "tone": "coach",
+        "headline": "Behöver du en knuff?",
+        "body": "Er rutin väntar. Kika på barnets dag — det tar en minut.",
+        "cta": "Visa barnets dag"
+      },
+      "sj_day7_reflection": {
+        "tone": "reflection",
+        "headline": "En vecka tillsammans",
+        "body": "",
+        "cta": "Stäng"
       }
     },
     "ESTABLISHED_ROUTINE": {

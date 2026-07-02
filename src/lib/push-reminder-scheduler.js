@@ -17,7 +17,7 @@
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
-const { getDayOfWeek } = require('./daily-log-generator');
+const { getDayOfWeek, getLocalDateStr } = require('./daily-log-generator');
 const { shouldSendScheduleReminder } = require('./push-reminder-timing');
 const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getNotifyParentIdsForChildDate } = require('./custody-notify');
@@ -93,24 +93,8 @@ function isChildNotificationEnabled(prefs, childId, type) {
  * Main job — called every 5 minutes.
  */
 async function runPushReminderJob() {
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query(
-      'SELECT pg_try_advisory_lock($1) AS acquired',
-      [LOCK_ID]
-    );
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[PUSH-REMINDER] Lock acquisition failed:', err.message);
-    lockAcquired = true; // fail-open
-  }
-
-  if (!lockAcquired) {
-    console.log('[PUSH-REMINDER] Skipping — another instance holds lock');
-    return;
-  }
-
-  try {
+  const { withAdvisoryLock } = require('./scheduler-lock');
+  const outcome = await withAdvisoryLock(LOCK_ID, async () => {
     const now = new Date();
     const stockholmNow = new Intl.DateTimeFormat('sv-SE', {
       timeZone: 'Europe/Stockholm',
@@ -118,7 +102,6 @@ async function runPushReminderJob() {
       hour: '2-digit', minute: '2-digit',
       hour12: false,
     }).format(now);
-    // sv-SE uses space ("2026-06-04 23:25"), not ISO "T" separator
     const [sDate, sTime] = stockholmNow.split(/[T ]/);
     const [year, month, day] = sDate.split('-').map(Number);
     const [hour, minute] = sTime.split(':').map(Number);
@@ -126,10 +109,8 @@ async function runPushReminderJob() {
 
     console.log(`[PUSH-REMINDER] Running at ${hour}:${String(minute).padStart(2,'0')} Stockholm`);
 
-    // ── 1. Schedule reminders (every 5 min) ─────────────────────────────────
     await sendScheduleReminders(year, month, day, currentTimeMin);
 
-    // ── 2. Inactivity nudge (18:00 only) ───────────────────────────────────
     if (hour === 18 && minute < 5) {
       await sendInactivityNudges();
     }
@@ -146,11 +127,10 @@ async function runPushReminderJob() {
     if (hour === 8 && minute < 5) {
       await sendCustodyMorningReminders(sDate);
     }
+  });
 
-  } catch (err) {
-    console.error('[PUSH-REMINDER] Job error:', err);
-  } finally {
-    await db.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]).catch(() => {});
+  if (outcome?.skipped === 'lock') {
+    console.log('[PUSH-REMINDER] Skipping — another instance holds lock');
   }
 }
 
@@ -267,7 +247,7 @@ async function sendInactivityNudges() {
         OR NOT p.push_preferences::jsonb ? 'enabled'`
   );
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
 
   for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
     const prefs = {
@@ -397,7 +377,7 @@ async function sendBackfillReminders() {
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  const yesterdayStr = getLocalDateStr(yesterday, 'Europe/Stockholm');
 
   for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
     const prefs = {

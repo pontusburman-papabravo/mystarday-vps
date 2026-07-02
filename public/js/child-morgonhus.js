@@ -31,6 +31,14 @@
     return classes.join(' ');
   }
 
+  function probeSceneArt(root) {
+    const scene = root && root.querySelector('.mh-scene');
+    if (!scene) return;
+    const img = new Image();
+    img.onload = function () { scene.classList.add('is-illustrated'); };
+    img.src = '/images/child/morgonhus/scene@2x.webp';
+  }
+
   function renderScene(state) {
     const props = (state && state.props) || [];
     const title = (state && state.display_name) || 'Morgonhuset';
@@ -197,6 +205,7 @@
     bindInteractions(view, _state, {
       onSkattLink: openSkattkammaren,
     });
+    probeSceneArt(view);
     hideLoader();
     document.body.classList.add('child-morgonhus-active');
     document.body.classList.remove('child-garden-active');
@@ -253,6 +262,7 @@
     bindInteractions(view, state, {
       onSkattLink: openSkattkammaren,
     });
+    probeSceneArt(view);
     hideLoader();
     document.body.classList.add('child-morgonhus-active');
     return true;

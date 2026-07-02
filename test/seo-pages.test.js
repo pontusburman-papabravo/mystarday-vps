@@ -11,6 +11,12 @@ const {
   SEO_INDEXABLE_PATHS,
 } = require('../src/lib/seo-pages');
 const { buildSitemapXml } = require('../src/lib/sitemap');
+const {
+  RESURSER_CATEGORIES,
+  categoryPath,
+  registerUtmPath,
+} = require('../config/resurser-pages');
+const { listenApp } = require('./helpers/http');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -45,9 +51,9 @@ test('injectPlatformHtml applies noindex on dashboard', () => {
   assert.match(out, /name="robots" content="noindex"/);
 });
 
-test('index.html has canonical and no hidden SEO text', () => {
+test('index.html has absolute canonical and no hidden SEO text', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="\/"/);
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/"/);
   assert.doesNotMatch(html, /font-size:0;color:transparent/);
   assert.doesNotMatch(html, /Hidden SEO/);
 });
@@ -73,9 +79,9 @@ test('sitemap reflects index strategy', () => {
 test('faq and kontakt pages are indexable with canonical', () => {
   const faq = fs.readFileSync(path.join(ROOT, 'public/faq.html'), 'utf8');
   const kontakt = fs.readFileSync(path.join(ROOT, 'public/kontakt.html'), 'utf8');
-  assert.match(faq, /rel="canonical" href="\/faq"/);
+  assert.match(faq, /rel="canonical" href="https:\/\/mystarday\.se\/faq"/);
   assert.match(faq, /"@type": "FAQPage"/);
-  assert.match(kontakt, /rel="canonical" href="\/kontakt"/);
+  assert.match(kontakt, /rel="canonical" href="https:\/\/mystarday\.se\/kontakt"/);
   assert.equal(isSeoIndexable('/faq'), true);
   assert.equal(isSeoIndexable('/kontakt'), true);
 });
@@ -101,4 +107,150 @@ test('landing problem and solution sections mention routines and skattkammaren l
   assert.match(html, /morgonrutiner som havererar/);
   assert.match(html, /Barnet ser vad som ska hända/);
   assert.match(html, /href="\/skattkammaren\?demo=1"/);
+});
+
+test('bildschema-app cornerstone has hub sections, FAQ, guides and tracking', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/bildschema-app.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/bildschema-app"/);
+  assert.match(html, /Vad är ett bildschema\?/);
+  assert.match(html, /Varför fungerar bildstöd\?/);
+  assert.match(html, /Vilka barn har nytta av bildschema\?/);
+  assert.match(html, /Exempel på bildscheman/);
+  assert.match(html, /Bildschema i app eller på papper\?/);
+  assert.match(html, /Hur fungerar Min Stjärndag\?/);
+  assert.match(html, /Relaterade guider/);
+  assert.match(html, /"@type": "FAQPage"/);
+  assert.match(html, /seo-article\.css/);
+  assert.match(html, /article-events\.js/);
+  assert.match(html, /data-track="article_cta_register"/);
+  assert.match(html, /utm_content=guide-bildschema-app/);
+  assert.match(html, /href="\/morgonrutin-barn"/);
+  assert.match(html, /href="\/beloningssystem-barn"/);
+  assert.match(html, /href="\/rutiner-npf-barn"/);
+  assert.match(html, /href="\/alternativ-bildschema-tavla"/);
+  assert.match(html, /href="\/veckoschema-bildstod"/);
+});
+
+test('veckoschema-bildstod is indexable with route and sitemap entry', () => {
+  assert.equal(isSeoIndexable('/veckoschema-bildstod'), true);
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(route, /\/veckoschema-bildstod/);
+  const html = fs.readFileSync(path.join(ROOT, 'public/veckoschema-bildstod.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/veckoschema-bildstod"/);
+  assert.match(html, /seo-article\.css/);
+  const xml = buildSitemapXml();
+  assert.match(xml, /\/veckoschema-bildstod<\/loc>/);
+});
+
+test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
+  assert.equal(isSeoIndexable('/resurser'), true);
+  assert.ok(SEO_INDEXABLE_PATHS.has('/resurser'));
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(route, /router\.get\('\/resurser'/);
+  assert.match(route, /resurser\.html/);
+  const html = fs.readFileSync(path.join(ROOT, 'public/resurser.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/resurser"/);
+  assert.match(html, /seo-article\.css/);
+  assert.match(html, /utm_content=resurs-hub/);
+  assert.match(html, /kommer snart/);
+  assert.doesNotMatch(html, /href="\/resurser\/pdf\//);
+  const xml = buildSitemapXml();
+  assert.match(xml, /\/resurser<\/loc>/);
+});
+
+test('resurser registry documents category URL conventions', () => {
+  assert.equal(RESURSER_CATEGORIES.length, 7);
+  assert.equal(categoryPath('morgon'), '/resurser/morgon');
+  assert.equal(registerUtmPath('morgon'), '/register?utm_content=resurs-morgon');
+  assert.equal(registerUtmPath(), '/register?utm_content=resurs-hub');
+});
+
+test('GET /resurser returns 200', async () => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+  }
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const res = await fetch(`${http.baseUrl}/resurser`);
+    assert.equal(res.status, 200);
+    const body = await res.text();
+    assert.match(body, /Gratis resurser/);
+  } finally {
+    await http.close();
+  }
+});
+
+test('landing page has guide cards block with tracking', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(html, /Läs våra guider/);
+  assert.match(html, /data-track="landing_guide_card_click"/);
+  assert.match(html, /href="\/bildschema-app"/);
+  assert.match(html, /href="\/veckoschema-bildstod"/);
+});
+
+test('SEO indexable HTML pages use absolute canonical URLs', () => {
+  const pageFiles = {
+    '/': 'public/index.html',
+    '/faq': 'public/faq.html',
+    '/kontakt': 'public/kontakt.html',
+    '/pricing-info': 'public/pricing-info.html',
+    '/skattkammaren': 'public/skattkammaren.html',
+    '/bildschema-app': 'public/bildschema-app.html',
+    '/beloningssystem-barn': 'public/beloningssystem-barn.html',
+    '/morgonrutin-barn': 'public/morgonrutin-barn.html',
+    '/rutiner-npf-barn': 'public/rutiner-npf-barn.html',
+    '/alternativ-bildschema-tavla': 'public/alternativ-bildschema-tavla.html',
+    '/veckoschema-bildstod': 'public/veckoschema-bildstod.html',
+    '/resurser': 'public/resurser.html',
+  };
+  for (const [p, file] of Object.entries(pageFiles)) {
+    const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    const loc = p === '/' ? 'https://mystarday.se/' : `https://mystarday.se${p}`;
+    assert.match(html, new RegExp(`rel="canonical" href="${loc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`), p);
+  }
+});
+
+test('llms.txt is available for AI agents', () => {
+  const txt = fs.readFileSync(path.join(ROOT, 'public/llms.txt'), 'utf8');
+  assert.match(txt, /^# Min Stjärndag\n> /m);
+  assert.match(txt, /\[Bildschema för barn\]\(https:\/\/mystarday\.se\/bildschema-app\):/);
+  assert.match(txt, /\[XML-sitemap\]\(https:\/\/mystarday\.se\/sitemap\.xml\):/);
+  assert.doesNotMatch(txt, /^- https:\/\//m);
+});
+
+test('SEO guide analytics events are allowlisted', () => {
+  const analytics = fs.readFileSync(path.join(ROOT, 'src/routes/analytics.js'), 'utf8');
+  for (const ev of ['article_cta_register', 'guide_next_step_click', 'guide_hub_nav_click', 'article_faq_expand', 'landing_guide_card_click']) {
+    assert.match(analytics, new RegExp(`'${ev}'`));
+  }
+});
+
+test('SEO guides ship local marketing images for Google Image Search', () => {
+  const marketingDir = path.join(ROOT, 'public/images/marketing-seo');
+  const files = [
+    'fardiga-scheman-bildstod.png',
+    'morgonschema-bildstod.png',
+    'kvallsschema-bildstod.png',
+    'stjarnor-beloningssystem.png',
+    'vardagsrutiner-bildstod.png',
+  ];
+  for (const file of files) {
+    assert.ok(fs.existsSync(path.join(marketingDir, file)), `missing ${file}`);
+  }
+  const guideImages = {
+    'public/bildschema-app.html': ['fardiga-scheman-bildstod', 'morgonschema-bildstod'],
+    'public/beloningssystem-barn.html': ['stjarnor-beloningssystem'],
+    'public/rutiner-npf-barn.html': ['kvallsschema-bildstod'],
+    'public/morgonrutin-barn.html': ['vardagsrutiner-bildstod'],
+    'public/veckoschema-bildstod.html': ['fardiga-scheman-bildstod'],
+  };
+  for (const [file, slugs] of Object.entries(guideImages)) {
+    const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const slug of slugs) {
+      assert.match(html, new RegExp(`/images/marketing-seo/${slug}\\.png`), `${file} should reference ${slug}`);
+    }
+    assert.match(html, /loading="lazy"/);
+    assert.match(html, /alt="[^"]{20,}"/);
+  }
 });

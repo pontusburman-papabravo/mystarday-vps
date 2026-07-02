@@ -32,13 +32,21 @@
 }
 
 .cwb-world {
-  background-image: url('/images/child/world/hub@2x.webp');
+  /* Lazy-loaded: /images/child/world/hub@2x.webp — see child-world-bg-lazy.js */
   background-position: center 18%;
 }
 
 .cwb-family {
-  background-image: url('/images/child/family/hall@2x.webp');
+  /* Lazy-loaded: /images/child/family/hall@2x.webp — see child-world-bg-lazy.js */
   background-position: center 22%;
+}
+
+.cwb-world.is-bg-loaded {
+  background-image: url('/images/child/world/hub@2x.webp');
+}
+
+.cwb-family.is-bg-loaded {
+  background-image: url('/images/child/family/hall@2x.webp');
 }
 
 /* Scrim: keep lower third readable for activity / room cards */

@@ -13,6 +13,7 @@
 const db = require('./db');
 const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
+const { STOCKHOLM_TZ } = require('./stockholm-time');
 
 /**
  * Calculate child's age in years from a birthday string (YYYY-MM-DD).
@@ -20,15 +21,20 @@ const { getDayOfWeek } = require('./schedule-date-utils');
  * @param {string|null} birthday - ISO date string
  * @returns {number} Age in years, or null if birthday is not set
  */
-function getChildAgeInYears(birthday) {
+function getChildAgeInYears(birthday, timezone = STOCKHOLM_TZ) {
   if (!birthday) return null;
-  const birthDate = new Date(birthday);
-  if (isNaN(birthDate.getTime())) return null;
+  const birthMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(birthday).trim());
+  if (!birthMatch) return null;
 
-  const now = new Date();
-  const diffMs = now.getTime() - birthDate.getTime();
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: timezone });
+  const [by, bm, bd] = birthMatch.slice(1).map(Number);
+  const [ty, tm, td] = todayStr.split('-').map(Number);
+
+  const diffMs = Date.UTC(ty, tm - 1, td) - Date.UTC(by, bm - 1, bd);
+  if (diffMs < 0) return null;
+
   const ageYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
-  return Math.round(ageYears * 10) / 10; // Round to 1 decimal
+  return Math.round(ageYears * 10) / 10;
 }
 
 /**
@@ -68,7 +74,8 @@ async function batchInsertDailyLogItems(q, logId, items) {
     pi += 10;
   }
   await q.query(
-    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}`,
+    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}
+     ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
     params
   );
 }
@@ -107,6 +114,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
     const items = await q.query(
       `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
               COALESCE(dli.image_url, at.image_url) AS image_url,
+              at.icon_key AS icon_key,
               dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
               dli.sort_order, dli.child_sort_order, dli.section,
               dli.parent_note, dli.child_note,
@@ -147,6 +155,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           const populatedItems = await q.query(
             `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                     COALESCE(dli.image_url, at.image_url) AS image_url,
+              at.icon_key AS icon_key,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -181,6 +190,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
           const populatedItems = await q.query(
             `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                     COALESCE(dli.image_url, at.image_url) AS image_url,
+              at.icon_key AS icon_key,
                     dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                     dli.sort_order, dli.child_sort_order, dli.section,
                     COALESCE(at.feedback_for, 'both') AS feedback_for
@@ -249,6 +259,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
       const items = await q.query(
         `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
                 COALESCE(dli.image_url, at.image_url) AS image_url,
+              at.icon_key AS icon_key,
                 dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
                 dli.sort_order, dli.child_sort_order, dli.section,
                 dli.parent_note, dli.child_note,
@@ -486,7 +497,8 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+         ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, nextOrder, si.section]
       );
@@ -590,7 +602,8 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
             star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+         ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, si.sort_order, si.section]
       );

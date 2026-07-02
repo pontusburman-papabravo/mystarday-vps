@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { getDayOfWeek } = require('../src/lib/daily-log-generator');
+const { getDayOfWeek, getChildAgeInYears, getSchoolVariant } = require('../src/lib/daily-log-generator');
 
 describe('daily-log-generator', () => {
   it('getDayOfWeek returns Thursday=4 for 2026-06-04 Stockholm', () => {
@@ -25,5 +25,27 @@ describe('daily-log-generator', () => {
     assert.match(fn, /pi \+= 10;/);
     assert.match(fn, /child_sort_order, section\) VALUES/);
     assert.doesNotMatch(fn, /pi \+ 10\}/);
+  });
+
+  it('getChildAgeInYears uses timezone calendar dates (L4)', () => {
+    const realDate = Date;
+    global.Date = class extends realDate {
+      constructor(...args) {
+        if (args.length === 0) {
+          super('2026-06-04T10:00:00.000Z');
+        } else {
+          super(...args);
+        }
+      }
+      static now() {
+        return new realDate('2026-06-04T10:00:00.000Z').getTime();
+      }
+    };
+    try {
+      assert.equal(getChildAgeInYears('2020-06-05', 'Europe/Stockholm'), 6);
+      assert.equal(getSchoolVariant('2020-06-05'), 'Skola/Förskola');
+    } finally {
+      global.Date = realDate;
+    }
   });
 });

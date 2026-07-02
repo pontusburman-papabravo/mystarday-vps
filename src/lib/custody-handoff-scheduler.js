@@ -8,6 +8,7 @@
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
 const { CUSTODY_HANDOFF_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 const custodyDb = require('../../db/custody');
 const { isCustodyHandoffEve, engineCtxFromPatternRow } = require('./custody-notify');
 const { resolveCustodyDateSync } = require('./custody-schedule-engine');
@@ -56,16 +57,7 @@ async function runCustodyHandoffJob(now = new Date()) {
   const { dateStr, hour, minute } = stockholmParts(now);
   if (hour !== 18 || minute >= 10) return;
 
-  let lockAcquired = false;
-  try {
-    const { rows } = await db.query('SELECT pg_try_advisory_lock($1) AS acquired', [LOCK_ID]);
-    lockAcquired = rows[0].acquired;
-  } catch (err) {
-    console.error('[CUSTODY-HANDOFF] Lock error:', err.message);
-    lockAcquired = true;
-  }
-  if (!lockAcquired) return;
-
+  const outcome = await withAdvisoryLock(LOCK_ID, async () => {
   const patterns = await db.query(
     `SELECT cp.*, c.name AS child_name, c.family_id, c.emoji
      FROM custody_pattern cp
@@ -135,11 +127,10 @@ async function runCustodyHandoffJob(now = new Date()) {
   if (sent > 0) {
     console.log(`[CUSTODY-HANDOFF] Sent ${sent} reminder(s) for ${dateStr}`);
   }
+  });
 
-  try {
-    if (lockAcquired) await db.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]);
-  } catch (_) {
-    // ignore
+  if (outcome?.skipped === 'lock') {
+    console.log('[CUSTODY-HANDOFF] Skipping — another instance holds the lock');
   }
 }
 

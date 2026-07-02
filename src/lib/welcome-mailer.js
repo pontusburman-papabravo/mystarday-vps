@@ -77,11 +77,11 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
     if (!result.success) {
       throw new Error(result.error || 'Email send failed');
     }
-    console.log(`[WELCOME-MAILER] Welcome email sent to ${parentEmail}`);
+    console.log(`[WELCOME-MAILER] Welcome email sent to parent ${parentId}`);
     return { success: true };
 
   } catch (err) {
-    console.error('[WELCOME-MAILER] Failed to send welcome email to', parentEmail, ':', err.message);
+    console.error('[WELCOME-MAILER] Failed to send welcome email to parent', parentId, ':', err.message);
     return { success: false, error: err.message };
   }
 }
@@ -188,10 +188,10 @@ async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn } 
 
     const result = await sendEmail({ to: parentEmail, subject, html });
     if (!result.success) throw new Error(result.error || 'Email send failed');
-    console.log(`[WELCOME-MAILER] Trial welcome email sent to ${parentEmail}`);
+    console.log(`[WELCOME-MAILER] Trial welcome email sent to parent ${parentId}`);
     return { success: true };
   } catch (err) {
-    console.error('[WELCOME-MAILER] Failed to send trial welcome email to', parentEmail, ':', err.message);
+    console.error('[WELCOME-MAILER] Failed to send trial welcome email to parent', parentId, ':', err.message);
     return { success: false, error: err.message };
   }
 }

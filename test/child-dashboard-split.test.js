@@ -1,0 +1,116 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('path');
+
+const ROOT = path.join(__dirname, '..');
+const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+
+const MODULES = {
+  'public/js/child-dashboard-offline.js': [
+    'showOfflineBanner',
+    'hideOfflineBanner',
+    'showOfflineEmptyState',
+    'showOfflineErrorState',
+  ],
+  'public/js/child-dashboard-day-nav.js': [
+    'renderDayTabs',
+    'navigateWeek',
+    'goToToday',
+    'updateTodayBtn',
+    'updateDateLine',
+  ],
+  'public/js/child-dashboard-timers.js': ['initTimeTimers'],
+  'public/js/child-dashboard-activities.js': [
+    'renderActivities',
+    'renderNowCard',
+    'renderDoneHistoryCard',
+    'renderNLCard',
+    'renderActivityCard',
+    'getTimeMinutes',
+    'classifyActivities',
+  ],
+  'public/js/child-dashboard-substeps.js': [
+    'initChildSortable',
+    'expandSubSteps',
+    'renderSubStepListHtml',
+    'renderSubStepList',
+    'toggleSubStep',
+    'updateSubStepProgressBadge',
+  ],
+  'public/js/child-dashboard-checkoff.js': [
+    'toggleItem',
+    'toggleNextInSection',
+    'openRatingModal',
+    'updateMoodSlider',
+    'dismissRating',
+    'submitRating',
+  ],
+  'public/js/child-dashboard-load-day.js': ['loadDay', 'coalescedLoadDay'],
+};
+
+describe('Fas 8 F3 child-dashboard split', () => {
+  for (const [file, fns] of Object.entries(MODULES)) {
+    it(`${path.basename(file)} is an IIFE exposing handlers on window`, () => {
+      const src = read(file);
+      assert.match(src, /^\(function \(\) \{/m, `${file} must be an IIFE`);
+      for (const fn of fns) {
+        assert.match(src, new RegExp(`function ${fn}\\b`), `${file} must define ${fn}`);
+        assert.match(src, new RegExp(`window\\.${fn}\\s*=\\s*${fn};`), `${file} must expose window.${fn}`);
+      }
+    });
+  }
+
+  it('child-dashboard.js no longer defines extracted functions', () => {
+    const src = read('public/js/child-dashboard.js');
+    for (const fns of Object.values(MODULES)) {
+      for (const fn of fns) {
+        assert.doesNotMatch(src, new RegExp(`function ${fn}\\b`), `child-dashboard.js must not define ${fn}`);
+      }
+    }
+  });
+
+  it('child-dashboard.js retains weekOffset state', () => {
+    const src = read('public/js/child-dashboard.js');
+    assert.match(src, /let weekOffset = 0/);
+    assert.match(src, /let visualTimer = true/);
+    assert.match(src, /let subStepCache = \{\}/);
+  });
+
+  it('child-dashboard.html loads split modules before child-dashboard.js', () => {
+    const html = read('public/child-dashboard.html');
+    const hostIdx = html.indexOf('/js/child-dashboard.js');
+    for (const file of Object.keys(MODULES)) {
+      const tag = '/js/' + path.basename(file);
+      const idx = html.indexOf(tag);
+      assert.ok(idx !== -1, `${tag} missing`);
+      assert.ok(idx < hostIdx, `${tag} must load before child-dashboard.js`);
+    }
+  });
+
+  it('load-day loads before checkoff (checkoff calls coalescedLoadDay)', () => {
+    const html = read('public/child-dashboard.html');
+    const loadIdx = html.indexOf('/js/child-dashboard-load-day.js');
+    const checkIdx = html.indexOf('/js/child-dashboard-checkoff.js');
+    assert.ok(loadIdx < checkIdx, 'load-day must load before checkoff');
+  });
+
+  it('substeps loads before activities (renderSubStepListHtml)', () => {
+    const html = read('public/child-dashboard.html');
+    const subIdx = html.indexOf('/js/child-dashboard-substeps.js');
+    const actIdx = html.indexOf('/js/child-dashboard-activities.js');
+    assert.ok(subIdx < actIdx, 'substeps must load before activities');
+  });
+
+  it('child-dashboard-load-day.js exposes loadDay on window for inline onclick', () => {
+    const src = read('public/js/child-dashboard-load-day.js');
+    assert.match(src, /window\.loadDay\s*=\s*loadDay/);
+  });
+
+  it('child-dashboard-activities.js references scheduleView and time-timer DOM hooks', () => {
+    const src = read('public/js/child-dashboard-activities.js');
+    assert.match(src, /getElementById\('scheduleView'\)/);
+    assert.match(src, /time-timer-wrap/);
+    assert.match(src, /now-badge/);
+  });
+});

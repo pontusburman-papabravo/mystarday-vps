@@ -1,6 +1,6 @@
 /**
- * onboarding-starter-plan.js — ACT-1 PR3 template-first question flow + preview.
- * Flag: activation_onboarding_v1
+ * onboarding-starter-plan.js — ACT-1 PR3 template-first + slim signup (ADR).
+ * Flags: activation_signup_slim_v1 (3 frågor → Hem) | activation_onboarding_v1 (full wizard)
  */
 (function () {
   'use strict';
@@ -59,8 +59,13 @@
     },
   ];
 
+  const SLIM_QUESTION_IDS = ['child_name', 'age_band', 'routine_type_ui'];
+
   const state = {
     enabled: false,
+    slim: false,
+    /** null | 'slim' | 'full_wizard' | 'legacy_template' */
+    signupPath: null,
     flags: {},
     qIndex: 0,
     answers: {},
@@ -82,6 +87,13 @@
       method: 'POST',
       body: JSON.stringify({ event_type: eventType, metadata: metadata || {} }),
     }).catch(function () {});
+  }
+
+  function activeQuestions() {
+    if (state.slim) {
+      return QUESTIONS.filter(function (q) { return SLIM_QUESTION_IDS.indexOf(q.id) >= 0; });
+    }
+    return QUESTIONS;
   }
 
   function trackQuestionAnswered(questionId) {
@@ -133,7 +145,8 @@
     card.classList.remove('hidden');
     card.classList.add('active');
     const label = document.getElementById('stepLabel');
-    if (label) label.textContent = 'Skapa schema ' + (state.qIndex + 1) + ' av ' + QUESTIONS.length;
+    const questions = activeQuestions();
+    if (label) label.textContent = 'Skapa schema ' + (state.qIndex + 1) + ' av ' + questions.length;
   }
 
   function renderQuestion() {
@@ -143,12 +156,18 @@
     if (preview) preview.classList.add('hidden');
     container.classList.remove('hidden');
 
-    const q = QUESTIONS[state.qIndex];
+    const questions = activeQuestions();
+    const q = questions[state.qIndex];
+    if (!q) return;
+
+    const intro = state.slim
+      ? 'Tre snabba frågor — sedan är rutinen klar.'
+      : 'Svarar på några frågor — tar under en minut.';
     const html = [
       '<div class="text-center mb-6">',
       '  <div class="text-5xl mb-3">✨</div>',
-      '  <h1 class="text-2xl font-heading font-bold text-navy mb-2">Skapa ert första schema</h1>',
-      '  <p class="text-text-soft text-sm">Svarar på några frågor — tar under en minut.</p>',
+      '  <h1 class="text-2xl font-heading font-bold text-navy mb-2">' + (state.slim ? 'Er rutin är snart klar' : 'Skapa ert första schema') + '</h1>',
+      '  <p class="text-text-soft text-sm">' + intro + '</p>',
       '</div>',
       '<label class="block font-semibold text-navy mb-2">' + esc(q.label) + '</label>',
     ];
@@ -171,8 +190,22 @@
       html.push('<button type="button" id="spBack" class="px-5 py-3.5 bg-lavender text-navy font-semibold rounded-xl text-sm">← Tillbaka</button>');
     }
     html.push('<button type="button" id="spNext" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl">' +
-      (state.qIndex === QUESTIONS.length - 1 ? 'Visa schema →' : 'Nästa →') + '</button>');
+      (state.qIndex === questions.length - 1
+        ? (state.slim ? 'Skapa rutin →' : 'Visa schema →')
+        : 'Nästa →') + '</button>');
     html.push('</div>');
+
+    if (state.slim) {
+      html.push(
+        '<div class="mt-6 pt-5 border-t border-lavender/70">',
+        '  <p class="text-xs text-text-soft text-center mb-3">Vill du välja eller bygga själv?</p>',
+        '  <div class="flex flex-col gap-2">',
+        '    <button type="button" id="spChooseTemplate" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">📋 Välj färdigt schema</button>',
+        '    <button type="button" id="spFullWizard" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">✏️ Bygg och anpassa själv (7 frågor)</button>',
+        '  </div>',
+        '</div>'
+      );
+    }
 
     container.innerHTML = html.join('');
 
@@ -196,10 +229,55 @@
     });
 
     document.getElementById('spNext').addEventListener('click', onQuestionNext);
+
+    const chooseTemplate = document.getElementById('spChooseTemplate');
+    if (chooseTemplate) chooseTemplate.addEventListener('click', enterLegacyTemplate);
+    const fullWizard = document.getElementById('spFullWizard');
+    if (fullWizard) fullWizard.addEventListener('click', enterFullWizard);
+  }
+
+  function prefillLegacyFromSlimAnswers() {
+    const name = (state.answers.child_name || '').trim();
+    if (!name) return;
+    const input = document.getElementById('childName');
+    if (input && !input.value.trim()) input.value = name;
+  }
+
+  function showLegacyStep1() {
+    const card = document.getElementById('stepStarterPlan');
+    if (card) {
+      card.classList.remove('active');
+      card.classList.add('hidden');
+    }
+    const step1 = document.getElementById('step1');
+    if (step1) {
+      step1.classList.remove('hidden');
+      step1.classList.add('active');
+    }
+    if (typeof window.goToStep === 'function') {
+      window.goToStep(1);
+    }
+  }
+
+  function enterLegacyTemplate() {
+    state.signupPath = 'legacy_template';
+    track('signup_power_path_selected', { path: 'legacy_template' });
+    prefillLegacyFromSlimAnswers();
+    showLegacyStep1();
+  }
+
+  function enterFullWizard() {
+    state.signupPath = 'full_wizard';
+    state.slim = false;
+    state.qIndex = 0;
+    track('signup_power_path_selected', { path: 'full_wizard' });
+    renderQuestion();
+    showStarterStep();
   }
 
   function readCurrentAnswer() {
-    const q = QUESTIONS[state.qIndex];
+    const questions = activeQuestions();
+    const q = questions[state.qIndex];
     if (q.type === 'choice') return state.answers[q.id];
     const input = document.getElementById('spAnswer');
     return input ? input.value.trim() : '';
@@ -207,7 +285,8 @@
 
   async function onQuestionNext() {
     hideError();
-    const q = QUESTIONS[state.qIndex];
+    const questions = activeQuestions();
+    const q = questions[state.qIndex];
     const val = readCurrentAnswer();
     if (!val && !q.optional) {
       showError('Välj eller fyll i ett svar');
@@ -218,14 +297,155 @@
       trackQuestionAnswered(q.id);
     }
 
-    if (state.qIndex < QUESTIONS.length - 1) {
+    if (state.qIndex < questions.length - 1) {
       state.qIndex++;
       renderQuestion();
       showStarterStep();
       return;
     }
 
+    if (state.slim) {
+      await autoSaveSlimAndFinish();
+      return;
+    }
+
     await loadPreview();
+  }
+
+  async function autoSaveSlimAndFinish() {
+    const btn = document.getElementById('spNext');
+    if (btn) { btn.disabled = true; btn.textContent = 'Skapar rutin…'; }
+
+    try {
+      track('activation_onboarding_started', { source: 'signup_slim' });
+
+      const suggestBody = {
+        age_band: state.answers.age_band,
+        routine_type_ui: state.answers.routine_type_ui,
+        support_ui: 'lite',
+        length_ui: 'normal',
+        main_challenges: [],
+        free_text: '',
+      };
+
+      const suggestRes = await api('/api/onboarding/starter-plan/suggest', {
+        method: 'POST',
+        body: JSON.stringify(suggestBody),
+      });
+      const suggestData = await suggestRes.json();
+      if (!suggestRes.ok) throw new Error(suggestData.error || 'Kunde inte välja mall');
+
+      const previewRes = await api(
+        '/api/onboarding/starter-plan/preview?scheduleName=' + encodeURIComponent(suggestData.scheduleName) +
+        '&desiredLength=normal'
+      );
+      const previewData = await previewRes.json();
+      if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
+
+      state.plan = suggestData;
+      state.previewItems = previewData.items || [];
+      state.planEdited = false;
+      state.usedAi = false;
+
+      const name = (state.answers.child_name || '').trim();
+      if (!name) throw new Error('Ange barnets namn');
+
+      const childRes = await api('/api/onboarding/child', {
+        method: 'POST',
+        body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
+      });
+      const childData = await childRes.json();
+      if (!childRes.ok) throw new Error(childData.error || 'Kunde inte skapa barn');
+
+      const schedRes = await api('/api/onboarding/schedule', {
+        method: 'POST',
+        body: JSON.stringify({
+          child_id: childData.id,
+          template_group: state.plan.template_group,
+          custom_items: state.previewItems,
+          plan_edited_before_save: false,
+          activity_count: state.previewItems.length,
+        }),
+      });
+      const schedData = await schedRes.json();
+      if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
+
+      window.dispatchEvent(new CustomEvent('onboarding:child-created', {
+        detail: {
+          id: childData.id,
+          name: childData.name,
+          username: childData.username,
+          pin: childData.pin,
+          birthday: null,
+        },
+      }));
+
+      if (typeof window.selectedDayPref !== 'undefined') {
+        window.selectedDayPref = state.plan.template_group;
+      }
+
+      state.signupPath = 'slim';
+
+      track('signup_slim_completed', {
+        activity_count: state.previewItems.length,
+        routine_type: state.answers.routine_type_ui,
+      });
+
+      showSlimSuccessAndGoHome();
+    } catch (err) {
+      showError(err.message || 'Något gick fel');
+      if (btn) { btn.disabled = false; btn.textContent = 'Skapa rutin →'; }
+    }
+  }
+
+  async function completeSignupAndRedirect(targetHref) {
+    const res = await api('/api/onboarding/complete', { method: 'POST' });
+    if (!res.ok) throw new Error('Kunde inte slutföra');
+    if (window.Auth) {
+      const user = Auth.getUser();
+      if (user) {
+        user.onboarding_completed = true;
+        Auth.setAuth(Auth.getToken(), user);
+      }
+    }
+    window.location.href = targetHref;
+  }
+
+  function showSlimSuccessAndGoHome() {
+    const container = document.getElementById('starterPlanQuestions');
+    const preview = document.getElementById('starterPlanPreview');
+    if (container) container.classList.add('hidden');
+    if (preview) {
+      preview.classList.remove('hidden');
+      const childName = state.answers.child_name || 'Barnet';
+      preview.innerHTML = [
+        '<div class="text-center py-6">',
+        '  <div class="text-5xl mb-3" aria-hidden="true">✨</div>',
+        '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">Er rutin är redo</h2>',
+        '  <p class="text-text-soft text-sm mb-1">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter</p>',
+        '  <p class="text-navy text-sm font-medium mt-4">Ni kan testa detta ikväll.</p>',
+        '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">Gå till Hem →</button>',
+        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">Anpassa schema först</button>',
+        '</div>',
+      ].join('');
+
+      document.getElementById('slimGoHome').addEventListener('click', function () {
+        const btn = document.getElementById('slimGoHome');
+        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar Hem…'; }
+        completeSignupAndRedirect('/dashboard').catch(function (err) {
+          showError(err.message || 'Kunde inte slutföra');
+          if (btn) { btn.disabled = false; btn.textContent = 'Gå till Hem →'; }
+        });
+      });
+      document.getElementById('slimCustomize').addEventListener('click', function () {
+        const btn = document.getElementById('slimCustomize');
+        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar schema…'; }
+        completeSignupAndRedirect('/schedule').catch(function (err) {
+          showError(err.message || 'Kunde inte slutföra');
+          if (btn) { btn.disabled = false; btn.textContent = 'Anpassa schema först'; }
+        });
+      });
+    }
   }
 
   async function loadPreview() {
@@ -382,6 +602,9 @@
           child_id: childData.id,
           template_group: state.plan.template_group,
           custom_items: state.previewItems,
+          // starter_plan_saved — server-side via schedule POST → activation schema_saved
+          plan_edited_before_save: state.planEdited,
+          activity_count: state.previewItems.length,
         }),
       });
       const schedData = await schedRes.json();
@@ -421,6 +644,17 @@
     return state.enabled === true;
   }
 
+  /** True only for the default 3-question fast path (Journey handles coach; no signup handoff). */
+  function isSlimFastPath() {
+    if (state.signupPath === 'slim') return true;
+    if (state.signupPath === 'full_wizard' || state.signupPath === 'legacy_template') return false;
+    return state.slim && state.enabled;
+  }
+
+  function getSignupPath() {
+    return state.signupPath;
+  }
+
   async function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
 
@@ -428,10 +662,24 @@
       const res = await api('/api/family/activation-config');
       if (!res.ok) return;
       const data = await res.json();
-      if (!data.flags || !data.flags.activation_onboarding_v1) return;
+      const flags = data.flags || {};
+
+      if (flags.activation_signup_slim_v1) {
+        state.slim = true;
+        state.enabled = true;
+        state.flags = flags;
+        hideLegacyStep1();
+        ensureCard();
+        renderQuestion();
+        showStarterStep();
+        track('activation_onboarding_started', { source: 'signup_slim_entry' });
+        return;
+      }
+
+      if (!flags.activation_onboarding_v1) return;
 
       state.enabled = true;
-      state.flags = data.flags || {};
+      state.flags = flags;
       hideLegacyStep1();
       ensureCard();
       renderQuestion();
@@ -440,5 +688,11 @@
     } catch (_) {}
   }
 
-  window.OnboardingStarterPlan = { init: init, isEnabled: isEnabled };
+  window.OnboardingStarterPlan = {
+    init: init,
+    isEnabled: isEnabled,
+    isSlim: function () { return state.slim; },
+    isSlimFastPath: isSlimFastPath,
+    getSignupPath: getSignupPath,
+  };
 })();

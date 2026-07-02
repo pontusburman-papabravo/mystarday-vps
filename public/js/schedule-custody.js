@@ -1,7 +1,7 @@
 /**
  * schedule-custody.js — FEAT-1 schemasida: hemnamn, dagsfärger, Mina dagar.
  * Konsumerar calendar-week (engine) — ingen egen boendeschemalogik.
- * week_variant i schedule-API är avsiktlig legacy tills Phase 5 (custody_home_id-skrivning).
+ * week_variant i schedule-API är legacy; custody_home_id är primär (Phase 5).
  */
 (function () {
   'use strict';
@@ -129,6 +129,7 @@
       chk.onchange = function () {
         state.myDaysOnly = chk.checked;
         styleDayTabs();
+        track('custody_filter_changed', { context: 'schedule_editor', enabled: state.myDaysOnly });
         track('custody_view_filtered', { context: 'schedule', enabled: state.myDaysOnly });
         if (typeof loadScheduleForDay === 'function') loadScheduleForDay();
       };
@@ -198,16 +199,23 @@
     }
   }
 
-  /** API legacy: week_variant query until Phase 5 custody_home_id write path. */
+  /** Phase 5: prefer custody_home_id; keep week_variant for legacy clients one deploy. */
   function scheduleQuery() {
     if (!state.active) return '';
+    const home = state.variantHomes[state.editVariant];
+    if (home && home.id) {
+      return '?custody_home_id=' + encodeURIComponent(home.id);
+    }
     return '?week_variant=' + encodeURIComponent(state.editVariant);
   }
 
-  /** API legacy: week_variant body until Phase 5 custody_home_id write path. */
+  /** Phase 5: send custody_home_id on create; week_variant kept in parallel during transition. */
   function getCreateExtras() {
     if (!state.active) return {};
-    return { week_variant: state.editVariant };
+    const home = state.variantHomes[state.editVariant];
+    const extras = { week_variant: state.editVariant };
+    if (home && home.id) extras.custody_home_id = home.id;
+    return extras;
   }
 
   function isDayHidden(dayOfWeek) {

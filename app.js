@@ -32,12 +32,19 @@ function createApp() {
   });
 
   const { handleResendWebhook } = require('./src/routes/resend-webhook');
-  const { resendWebhookLimiter } = require('./src/middleware/rateLimiter');
+  const { handleIapWebhook } = require('./src/routes/iap-webhook-handler');
+  const { resendWebhookLimiter, iapWebhookLimiter } = require('./src/middleware/rateLimiter');
   app.post(
     '/api/resend/webhook',
     resendWebhookLimiter,
     express.raw({ type: 'application/json' }),
     handleResendWebhook
+  );
+  app.post(
+    '/api/iap/webhook',
+    iapWebhookLimiter,
+    express.raw({ type: 'application/json' }),
+    handleIapWebhook
   );
 
   app.set('trust proxy', 1);
@@ -131,10 +138,11 @@ function createApp() {
 
   app.use((err, req, res, _next) => {
     const errPath = req.path.startsWith('/api/events') ? req.path : req.originalUrl;
-    req.log.error(
-      { msg: 'Unhandled error', operation: 'server.error', path: errPath, error: err.message || err },
-      err
-    );
+    console.error('[SERVER] Unhandled error', {
+      operation: 'server.error',
+      path: errPath,
+      error: err.message || String(err),
+    }, err);
     res.status(500).json({ error: 'Internt serverfel' });
   });
 

@@ -53,6 +53,9 @@ describe('FEAT-1 boendeschema', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/analytics.js'), 'utf8');
     assert.match(src, /custody_banner_seen/);
     assert.match(src, /custody_view_filtered/);
+    assert.match(src, /custody_schedule_created/);
+    assert.match(src, /custody_filter_changed/);
+    assert.match(src, /custody_schedule_updated/);
   });
 
   it('custody schedule enabled globally via migration', () => {

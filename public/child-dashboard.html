@@ -21,17 +21,17 @@
   <link rel="stylesheet" href="/css/for-dig-goal-badge.css?v=1">
   <link rel="stylesheet" href="/css/skeleton.css?v=1.0.0">
   <link rel="stylesheet" href="/css/child-skatt-house.css?v=2.2.0">
-  <link rel="stylesheet" href="/css/child-skatt-rooms.css?v=1.0.0">
-  <link rel="stylesheet" href="/css/child-morgonhus.css?v=1.0.2">
+  <link rel="stylesheet" href="/css/child-skatt-rooms.css?v=1.1.0">
+  <link rel="stylesheet" href="/css/child-morgonhus.css?v=1.1.0">
   <link rel="stylesheet" href="/css/child-living-world-transition.css?v=1.0.1">
   <link rel="stylesheet" href="/css/child-garden.css?v=2.0.0">
-  <link rel="stylesheet" href="/css/child-bottom-nav.css?v=1">
+  <link rel="stylesheet" href="/css/child-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/child-seven-questions.css">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
   <link rel="stylesheet" href="/css/child-today-focus.css?v=1.2.0">
   <link rel="stylesheet" href="/css/child-first-star-mode.css?v=1.0.2">
   <link rel="stylesheet" href="/css/child-family-hall.css?v=1.1.1">
-  <link rel="stylesheet" href="/css/child-world-bg.css?v=1.1.0">
+  <link rel="stylesheet" href="/css/child-world-bg.css?v=1.2.0">
   <link rel="stylesheet" href="/css/child-dashboard-warmth.css?v=2026-06-10-child">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -766,6 +766,42 @@
       font-size: 0.72rem;
       color: rgba(255,255,255,0.5);
       margin-top: 6px;
+    }
+    .skatt-star-grid-wrap {
+      margin-top: 14px;
+    }
+    .skatt-star-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .skatt-star-cell {
+      font-size: 1.2rem;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.45;
+    }
+    .skatt-star-cell.is-filled {
+      opacity: 1;
+    }
+    .skatt-star-grid-goal {
+      font-size: 2.25rem;
+      line-height: 1;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .skatt-star-grid-more {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 6px;
+      text-align: center;
     }
     .skatt-hero-economy { font-size: 0.65rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
     .skatt-hero-link {
@@ -1945,9 +1981,9 @@
   <script src="/js/child-achievements.js?v=1.0.0"></script>
   <script src="/js/child-pet.js?v=1.0.0"></script>
   <script src="/js/child-museum.js?v=1.0.0"></script>
-  <script src="/js/child-skatt-house.js?v=2.2.0"></script>
+  <script src="/js/child-skatt-house.js?v=2.3.0"></script>
   <script src="/js/child-living-world-transition.js?v=1.0.1"></script>
-  <script src="/js/child-morgonhus.js?v=1.0.6"></script>
+  <script src="/js/child-morgonhus.js?v=1.0.7"></script>
   <script src="/js/garden-asset-pipeline.js?v=2.0.0"></script>
   <script src="/js/child-garden.js?v=2.0.1"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
@@ -1969,18 +2005,26 @@
   <script src="/js/child-world.js?v=1.0.0"></script>
   <script src="/js/child-family.js?v=1.0.0"></script>
   <script src="/js/child-activity-engine.js?v=1.0.0"></script>
-  <script src="/js/child-rewards-engine.js?v=1.1.0"></script>
+  <script src="/js/child-rewards-engine.js?v=1.2.0"></script>
   <script src="/js/child-star-feedback.js?v=1"></script>
   <script src="/js/child-support-layer.js?v=1.0.0"></script>
   <script src="/js/child-today-coach.js?v=1.0.0"></script>
   <script src="/js/child-layer-router.js?v=1.2.0"></script>
+  <script src="/js/child-world-bg-lazy.js?v=1.0.0"></script>
   <!-- Main child dashboard logic (schedule, activities, rewards, ratings) -->
   <script src="/js/child-dashboard-warmth.js?v=2026-06-10-child"></script>
   <script src="/js/child-read-aloud.js?v=1.0.0"></script>
   <script src="/js/child-seven-questions.js?v=1.0.0"></script>
-  <script src="/js/activity-visual.js?v=1"></script>
+  <script src="/js/activity-visual.js?v=2"></script>
   <script src="/js/child-dashboard-photo-cards.js?v=1"></script>
   <script src="/js/for-dig-goal-badge.js?v=1"></script>
+  <script src="/js/child-dashboard-substeps.js?v=1"></script>
+  <script src="/js/child-dashboard-activities.js?v=1"></script>
+  <script src="/js/child-dashboard-offline.js?v=1"></script>
+  <script src="/js/child-dashboard-day-nav.js?v=1"></script>
+  <script src="/js/child-dashboard-timers.js?v=1"></script>
+  <script src="/js/child-dashboard-load-day.js?v=1"></script>
+  <script src="/js/child-dashboard-checkoff.js?v=1"></script>
   <script src="/js/child-dashboard.js?v=2.27.0"></script>
   <script src="/js/child-dashboard-rewards.js?v=4"></script>
   <script src="/js/child-dashboard-celebrations.js?v=1"></script>

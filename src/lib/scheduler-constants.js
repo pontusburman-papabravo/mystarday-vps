@@ -41,6 +41,21 @@ const ACTIVATION_ADVISOR_LOCK_ID = 1010;
 /** Family Journey daily analysis + browser QA — 06:00 Europe/Stockholm */
 const JOURNEY_DAILY_ANALYSIS_LOCK_ID = 1011;
 
+/** Activation nudge email — hourly */
+const ACTIVATION_NUDGE_LOCK_ID = 1012;
+
+/** Journey push projector — every 6h */
+const JOURNEY_PUSH_LOCK_ID = 1013;
+
+/** Child handoff reminder email — hourly */
+const CHILD_HANDOFF_REMINDER_LOCK_ID = 1014;
+
+/** Activation program day scheduler */
+const ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID = 1015;
+
+/** Activation program email scheduler */
+const ACTIVATION_PROGRAM_EMAIL_LOCK_ID = 1016;
+
 module.exports = {
   MIDNIGHT_SCHEDULER_LOCK_ID,
   DELETION_SCHEDULER_LOCK_ID,
@@ -53,4 +68,9 @@ module.exports = {
   RETENTION_REENGAGEMENT_LOCK_ID,
   ACTIVATION_ADVISOR_LOCK_ID,
   JOURNEY_DAILY_ANALYSIS_LOCK_ID,
+  ACTIVATION_NUDGE_LOCK_ID,
+  JOURNEY_PUSH_LOCK_ID,
+  CHILD_HANDOFF_REMINDER_LOCK_ID,
+  ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID,
+  ACTIVATION_PROGRAM_EMAIL_LOCK_ID,
 };

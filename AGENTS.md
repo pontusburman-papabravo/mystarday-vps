@@ -42,6 +42,8 @@ Without `./scripts/cloud-agent-bootstrap.sh`, `npm run migrate` fails on fresh V
 - A local **PostgreSQL 16** is used for dev. Start it with `sudo pg_ctlcluster 16 main start`.
 - Connection string for local dev: `postgresql://<user>:<pass>@localhost:5432/stjarndag` — set up a local role/DB named `stjarndag` (the role can match the password for dev). `src/lib/db.js` auto-disables SSL when the host is `localhost`.
 - Apply schema with `npm run migrate` (idempotent; also aliased as `npm run build`). The app **exits immediately** if `DATABASE_URL` is unset.
+- **Pool capacity (M4):** `max: 5` in `src/lib/db.js` — see [`docs/ops-pool-monitoring.md`](docs/ops-pool-monitoring.md) for `waitingCount` monitoring and when to re-evaluate after scheduler-lock work.
+- **Incidents / kill switches:** [`docs/ops-incident-runbook.md`](docs/ops-incident-runbook.md) (`AUTHZ_HARDENING_ENABLED`, rate-limit notes).
 
 ### Required env to run the server / tests
 ```

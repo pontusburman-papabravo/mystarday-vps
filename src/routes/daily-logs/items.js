@@ -7,7 +7,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
-const { getItemAccess } = require('../../middleware/authz');
+const { getItemAccess, requireItemAccess } = require('../../middleware/authz');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { getChildFamilyId } = require('./helpers');
@@ -49,10 +49,9 @@ itemRouter.put('/reorder', async (req, res) => {
   }
 });
 
-itemRouter.delete('/:itemId', async (req, res) => {
+itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const meta = await db.query(
       'SELECT activity_template_id, is_once_task FROM daily_log_item WHERE id = $1',
@@ -66,7 +65,7 @@ itemRouter.delete('/:itemId', async (req, res) => {
 
     getChildFamilyId(item.child_id).then(fid => {
       if (fid) broadcast(fid, 'SCHEDULE_UPDATED', { once_task: true });
-    }).catch(() => {});
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Broadcast after delete failed:', err.message));
 
     res.json({ ok: true });
   } catch (err) {
@@ -75,10 +74,9 @@ itemRouter.delete('/:itemId', async (req, res) => {
   }
 });
 
-itemRouter.put('/:itemId/complete', async (req, res) => {
+itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const logDateResult = await db.query(
       'SELECT date FROM daily_log WHERE id = $1',
@@ -92,25 +90,29 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
            completed_by = COALESCE(completed_by, 'parent'),
            completed_by_parent_id = COALESCE(completed_by_parent_id, $3),
            completion_source = COALESCE(completion_source, 'home')
-       WHERE id = $1
+       WHERE id = $1 AND completed = false
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate, req.user.id]
     );
-    res.json(result.rows[0]);
-    if (!item.completed) {
+    const justCompleted = result.rows.length > 0;
+    res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
+    if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
-      handleActivityCompleted(req.params.itemId, item.child_id, false).catch(() => {});
+      handleActivityCompleted(req.params.itemId, item.child_id, false).catch((err) => {
+        console.error('[DAILY-LOG-ITEM] handleActivityCompleted failed:', err.message);
+      });
     }
     getChildFamilyId(item.child_id).then(async (fid) => {
       if (!fid) return;
       require('../../lib/analytics-tracker').trackDailyLog(fid);
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: true });
-      if (!item.completed) {
+      if (justCompleted) {
         require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
           child_id: item.child_id,
           source: 'parent_complete',
         });
       }
+      if (!justCompleted) return;
       try {
         const [childRow, activityRow] = await Promise.all([
           db.query('SELECT name FROM child WHERE id = $1', [item.child_id]),
@@ -118,19 +120,22 @@ itemRouter.put('/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
-        notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch((err) => {
+          console.error('[DAILY-LOG-ITEM] notifyParentsChildCompleted failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[DAILY-LOG-ITEM] Completion notify lookup failed:', err.message);
+      }
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Post-complete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
 
-itemRouter.put('/:itemId/uncomplete', async (req, res) => {
+itemRouter.put('/:itemId/uncomplete', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    const item = req.authzItem;
 
     const result = await db.query(
       `UPDATE daily_log_item
@@ -142,17 +147,15 @@ itemRouter.put('/:itemId/uncomplete', async (req, res) => {
     res.json(result.rows[0]);
     getChildFamilyId(item.child_id).then(fid => {
       if (fid) broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: false });
-    }).catch(() => {});
+    }).catch((err) => console.error('[DAILY-LOG-ITEM] Uncomplete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Uncomplete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
 
-itemRouter.patch('/:itemId/note', async (req, res) => {
+itemRouter.patch('/:itemId/note', requireItemAccess('itemId'), async (req, res) => {
   try {
-    const item = await getItemAccess(req.user.id, req.params.itemId);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
 
     const rawNote = req.body.note;
     const note = rawNote === null || rawNote === undefined || rawNote === ''

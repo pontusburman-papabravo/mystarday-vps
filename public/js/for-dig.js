@@ -134,7 +134,11 @@
 
     const items = allFavoriteItems();
     if (items.length === 0) {
-      mount.innerHTML = '';
+      mount.innerHTML = `
+        <div class="for-dig-favorites for-dig-favorites--empty">
+          <p class="font-semibold text-navy text-sm mb-2">Mina favoriter</p>
+          <p class="text-sm text-text-soft">Spara favoriter med stjärnan ☆ på mål, scheman eller belöningar — de samlas här.</p>
+        </div>`;
       return;
     }
 
@@ -189,6 +193,34 @@
           `).join('')}
         </ol>
       </div>`;
+  }
+
+  function childAges() {
+    return children
+      .map((c) => ({ child: c, age: calcAge(c.birthday) }))
+      .filter((x) => x.age != null);
+  }
+
+  function goalMatchesFamilyAge(goal) {
+    const ages = childAges();
+    if (ages.length === 0) return true;
+    return ages.some((x) => x.age >= goal.ageMin && x.age <= goal.ageMax);
+  }
+
+  function goalsForDisplay() {
+    return sortGoalsForDisplay().filter(goalMatchesFamilyAge);
+  }
+
+  function sortRecommendationsForChild(child, relevantGoals) {
+    return [...relevantGoals].sort((a, b) => {
+      const aDone = isInstalled(a.slug, child.id) ? 1 : 0;
+      const bDone = isInstalled(b.slug, child.id) ? 1 : 0;
+      if (aDone !== bDone) return aDone - bDone;
+      const pop = popularSlugs();
+      const aPop = pop.has(a.slug) ? 1 : 0;
+      const bPop = pop.has(b.slug) ? 1 : 0;
+      return bPop - aPop;
+    }).slice(0, 3);
   }
 
   function sortGoalsForDisplay() {
@@ -334,11 +366,14 @@
     for (const child of sorted) {
       const age = calcAge(child.birthday);
       if (age == null) continue;
-      const relevant = goals.filter((g) => age >= g.ageMin && age <= g.ageMax).slice(0, 3);
+      const relevant = sortRecommendationsForChild(
+        child,
+        goals.filter((g) => age >= g.ageMin && age <= g.ageMax)
+      );
       if (relevant.length === 0) continue;
       html += `
         <div class="for-dig-recommend mb-3">
-          <p class="for-dig-section-title">Bra nästa steg för ${esc(child.name)}</p>
+          <p class="for-dig-section-title">Rekommenderat för ${esc(child.name)}</p>
           <div class="space-y-2">
             ${relevant.map((g) => {
               const done = isInstalled(g.slug, child.id);
@@ -421,7 +456,7 @@
         <h2 class="for-dig-section-title">Utvecklingsmål</h2>
         <p class="for-dig-section-sub">Välj ett problem — vi sätter upp rutinen åt dig.</p>
       </div>
-      ${sortGoalsForDisplay().map(renderGoalCard).join('')}
+      ${goalsForDisplay().map(renderGoalCard).join('')}
     `;
   }
 
@@ -750,24 +785,23 @@
         <a href="${esc(step.href)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(step.label)}</a>
       ` : ''}
       <div class="border-t border-lavender pt-4 mt-2">
-        <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med? <span class="text-xs">(valfritt)</span></p>
+        <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med?</p>
         <div id="forDigIntentOptions">
           ${INTENT_OPTIONS.map((o) => `
             <button type="button" class="for-dig-intent-option" data-reason="${o.value}">${esc(o.label)}</button>
           `).join('')}
         </div>
-        <button type="button" class="text-sm text-text-soft underline w-full mt-3" data-action="post-activation-dismiss">Inte nu</button>
       </div>
     `;
 
     return new Promise((resolve) => {
+      let intentRecorded = false;
       const backdrop = showModal(html, (root) => {
         const dismiss = () => {
           root.remove();
           resolve();
         };
 
-        root.querySelector('[data-action="post-activation-dismiss"]')?.addEventListener('click', dismiss);
         root.querySelector('a.for-dig-cta')?.addEventListener('click', () => {
           root.remove();
           resolve();
@@ -775,7 +809,8 @@
 
         root.querySelector('#forDigIntentOptions')?.addEventListener('click', async (ev) => {
           const btn = ev.target.closest('[data-reason]');
-          if (!btn || !childId) return;
+          if (!btn || !childId || intentRecorded) return;
+          intentRecorded = true;
           try {
             await window.apiFetch('/api/for-dig/feedback', {
               method: 'POST',
@@ -790,12 +825,6 @@
           } catch (_) { /* non-blocking */ }
           dismiss();
         });
-      });
-      backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) {
-          backdrop.remove();
-          resolve();
-        }
       });
     });
   }

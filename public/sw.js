@@ -217,9 +217,16 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v454';
-// stjarndag-v454: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback
-// stjarndag-v452: Mina personer 10/10 — resolveFamilyState, personkort först
+const CACHE_NAME = 'stjarndag-v478';
+// stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
+// stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout
+// stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)
+// stjarndag-v463: SEO marketing images — logical routine sequences only
+// stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
+// stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
+// stjarndag-v454: morgonhus scene@2x.webp precache + manifest godkänd
+// stjarndag-v453: barnmeny v2 — visa bottom nav när child-worlds-v2 är aktiv
+// stjarndag-v452: barnillustrationer — lazy bg + family hall glass + morgonhus scene CSS
 // stjarndag-v451: barnillustrationer under /images/child/ — bakgrunder, hubbar, rum, dekaler
 // stjarndag-v441: För dig + barnprofil kontrast i mörkt magic-tema
 // stjarndag-v440: library init resilience + Planering→Bibliotek empty-box fix
@@ -312,6 +319,18 @@ const CACHE_NAME = 'stjarndag-v454';
 // stjarndag-v448: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v449: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v450: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v459: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// v461: Fas 8 PR-S3/S4 — schedule-activity-modals.js + schedule-dnd.js extracted from schedule.js
+// stjarndag-v461: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v464: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v465: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v466: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v468: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v472: Slim signup power-user paths (välj schema / full wizard) + prod flag enable
+// stjarndag-v471: Slim signup (3 frågor → Hem) + event-first signup Journey (sj_* coach)
+// stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
+// stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -389,12 +408,20 @@ const STATIC_ASSETS = [
   '/js/child-first-star-mode.js',
   '/css/child-first-star-mode.css',
   '/js/child-dashboard-photo-cards.js',
+  '/js/child-dashboard-substeps.js',
+  '/js/child-dashboard-activities.js',
+  '/js/child-dashboard-offline.js',
+  '/js/child-dashboard-day-nav.js',
+  '/js/child-dashboard-timers.js',
+  '/js/child-dashboard-load-day.js',
+  '/js/child-dashboard-checkoff.js',
   '/js/child-dashboard-celebrations.js',
   '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
   '/js/child-worlds.js',
   '/js/child-worlds-nav.js',
   '/js/child-layer-router.js',
+  '/js/child-world-bg-lazy.js',
   '/js/child-morgonhus.js',
   '/css/child-morgonhus.css',
   '/css/child-living-world-transition.css',
@@ -402,10 +429,7 @@ const STATIC_ASSETS = [
   '/js/garden-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
-  '/assets/worlds/garden/scene-bg.webp',
-  '/assets/worlds/garden/scene-bg-430.webp',
-  '/assets/worlds/garden/scene-bg-860.webp',
-  '/assets/worlds/garden/scene-bg-1280.webp',
+  '/css/child-today-focus.css',
   '/css/child-world-bg.css',
   '/css/child-skatt-rooms.css',
   '/images/child/today/bg@2x.webp',
@@ -414,6 +438,7 @@ const STATIC_ASSETS = [
   '/images/child/world/hub-treehouse@2x.webp',
   '/images/child/world/hub-space@2x.webp',
   '/images/child/family/hall@2x.webp',
+  '/images/child/morgonhus/scene@2x.webp',
   '/images/child/world/rooms/chest@2x.webp',
   '/images/child/world/rooms/dreams@2x.webp',
   '/images/child/world/rooms/trophy@2x.webp',
@@ -424,6 +449,12 @@ const STATIC_ASSETS = [
   '/images/child/world/rooms/pet@2x.webp',
   '/images/child/world/rooms/museum@2x.webp',
   '/images/child/world/rooms/shop@2x.webp',
+  '/images/child/decals/today-empty-v1@2x.webp',
+  '/images/child/decals/today-celebration-frame-v1@2x.webp',
+  '/images/child/world/garden/scene-bg.webp',
+  '/images/child/world/garden/scene-bg-430.webp',
+  '/images/child/world/garden/scene-bg-860.webp',
+  '/images/child/world/garden/scene-bg-1280.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
@@ -431,6 +462,7 @@ const STATIC_ASSETS = [
   '/js/sse-client.js',
   '/js/child-dashboard-sse.js',
   '/js/help-bubble.js',
+  '/js/help-journey-tip.js',
   '/js/feature-check.js',
   '/js/platform.js',
   '/js/device-mode.js',

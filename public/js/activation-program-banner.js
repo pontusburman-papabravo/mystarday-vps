@@ -208,6 +208,7 @@
     try {
       const ctx = await JourneyContextClient.fetchContext();
       if (ctx?.activation_program_suppressed) return true;
+      if (ctx?.signup_journey?.active) return true;
       if (ctx?.capabilities?.first_week_v1 && ctx?.first_week?.active) return true;
     } catch (_) {
       // fall through to legacy banner

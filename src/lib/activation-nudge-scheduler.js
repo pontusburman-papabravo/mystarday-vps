@@ -9,6 +9,8 @@ const db = require('./db');
 const { sendActivationNudgeEmail } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
+const { ACTIVATION_NUDGE_LOCK_ID } = require('./scheduler-constants');
+const { withAdvisoryLock } = require('./scheduler-lock');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
@@ -25,56 +27,64 @@ async function runActivationNudgeJob() {
   if (process.env.EMAIL_ENABLED === 'false') return;
   if (!(await isNudgeFlagEnabled())) return;
 
-  const candidates = await db.query(
-    `SELECT s.family_id, p.email, p.name AS parent_name
-     FROM family_activation_state s
-     JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
-     WHERE s.p0_activated_within_48h = false
-       AND s.p0_activated_at IS NULL
-       AND s.activation_nudge_sent_at IS NULL
-       AND s.signup_at >= NOW() - INTERVAL '48 hours'
-       AND s.signup_at <= NOW() - INTERVAL '24 hours'
-       AND p.email IS NOT NULL
-       AND COALESCE(p.newsletter_subscribed, true) = true
-     ORDER BY s.signup_at ASC
-     LIMIT 50`
-  );
+  const outcome = await withAdvisoryLock(ACTIVATION_NUDGE_LOCK_ID, async () => {
+    const candidates = await db.query(
+      `SELECT s.family_id, p.email, p.name AS parent_name
+       FROM family_activation_state s
+       JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+       WHERE s.p0_activated_within_48h = false
+         AND s.p0_activated_at IS NULL
+         AND s.activation_nudge_sent_at IS NULL
+         AND s.signup_at >= NOW() - INTERVAL '48 hours'
+         AND s.signup_at <= NOW() - INTERVAL '24 hours'
+         AND p.email IS NOT NULL
+         AND COALESCE(p.newsletter_subscribed, true) = true
+       ORDER BY s.signup_at ASC
+       LIMIT 50`
+    );
 
-  for (const row of candidates.rows) {
-    try {
-      const flagOk = await isActivationFlagEnabled(FLAG_KEYS.onboarding, row.family_id);
-      if (!flagOk) continue;
+    for (const row of candidates.rows) {
+      try {
+        const flagOk = await isActivationFlagEnabled(FLAG_KEYS.onboarding, row.family_id);
+        if (!flagOk) continue;
 
-      const gate = await evaluateCommunicationGate(row.family_id, {
-        channel: 'email',
-        intent: 'legacy_activation_nudge',
-      });
-      if (!gate.allowed) {
-        console.log(`[ACTIVATION-NUDGE] Skipped family ${row.family_id} — Gate: ${gate.reason}`);
-        continue;
+        const gate = await evaluateCommunicationGate(row.family_id, {
+          channel: 'email',
+          intent: 'legacy_activation_nudge',
+        });
+        if (!gate.allowed) {
+          console.log(`[ACTIVATION-NUDGE] Skipped family ${row.family_id} — Gate: ${gate.reason}`);
+          continue;
+        }
+
+        const claimed = await db.query(
+          `UPDATE family_activation_state
+           SET activation_nudge_sent_at = NOW()
+           WHERE family_id = $1 AND activation_nudge_sent_at IS NULL
+           RETURNING family_id`,
+          [row.family_id]
+        );
+        if (claimed.rows.length === 0) continue;
+
+        await sendActivationNudgeEmail({
+          to: row.email,
+          parentName: row.parent_name,
+          ctaUrl: 'https://mystarday.se/onboarding',
+        });
+
+        require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {
+          channel: 'email',
+        });
+
+        console.log('[ACTIVATION-NUDGE] Sent to family', row.family_id);
+      } catch (err) {
+        console.error('[ACTIVATION-NUDGE] Failed for family', row.family_id, ':', err.message);
       }
-
-      await sendActivationNudgeEmail({
-        to: row.email,
-        parentName: row.parent_name,
-        ctaUrl: 'https://mystarday.se/onboarding',
-      });
-
-      await db.query(
-        `UPDATE family_activation_state
-         SET activation_nudge_sent_at = NOW()
-         WHERE family_id = $1 AND activation_nudge_sent_at IS NULL`,
-        [row.family_id]
-      );
-
-      require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {
-        channel: 'email',
-      });
-
-      console.log('[ACTIVATION-NUDGE] Sent to family', row.family_id);
-    } catch (err) {
-      console.error('[ACTIVATION-NUDGE] Failed for family', row.family_id, ':', err.message);
     }
+  });
+
+  if (outcome?.skipped === 'lock') {
+    console.log('[ACTIVATION-NUDGE] Skipping — another instance holds the lock');
   }
 }
 

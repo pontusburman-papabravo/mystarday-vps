@@ -3,10 +3,8 @@
  * Owns: maintenance_mode feature flag check, admin bypass, maintenance HTML page.
  * Does NOT own: feature flag CRUD (that's in admin routes).
  */
-const jwt = require('jsonwebtoken');
-const config = require('../lib/config');
 const db = require('../lib/db');
-const { extractToken } = require('./auth');
+const { extractToken, verifyToken } = require('./auth');
 
 let maintenanceCache = null;
 let maintenanceCacheAt = 0;
@@ -49,7 +47,7 @@ async function checkMaintenanceMode(req, res, next) {
   let isAdmin = false;
   if (token) {
     try {
-      const decoded = jwt.verify(token, config.jwt.secret);
+      const decoded = verifyToken(token);
       isAdmin = decoded.type === 'parent' && decoded.isAdmin === true;
     } catch {
       // invalid token — treat as non-admin

@@ -8,7 +8,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const FOCUS = path.join(ROOT, 'public/js/child-today-focus.js');
 const TASKS = path.join(ROOT, 'public/js/child-today-tasks.js');
-const DASH = path.join(ROOT, 'public/js/child-dashboard.js');
+const ACTIVITIES = path.join(ROOT, 'public/js/child-dashboard-activities.js');
 const VISION = path.join(ROOT, 'docs/idag-vision.md');
 const PROMPT = path.join(ROOT, 'docs/idag-agent-prompt.md');
 
@@ -39,11 +39,19 @@ describe('Idag barn 10/10', () => {
     assert.doesNotMatch(src, /ctf-goal-card/);
   });
 
-  it('hides legacy chrome above fold', () => {
+  it('hideLegacyChrome keeps week picker, hides progress + goal teaser', () => {
     const src = fs.readFileSync(FOCUS, 'utf8');
-    assert.match(src, /weekNavSection/);
+    const fn = src.match(/function hideLegacyChrome\(\) \{[\s\S]*?\n  \}/);
+    assert.ok(fn, 'hideLegacyChrome must exist');
+    assert.match(fn[0], /progressSection/);
+    assert.match(fn[0], /goalTeaserBtn/);
+    assert.doesNotMatch(fn[0], /['"]weekNavDetails['"]/);
+    assert.doesNotMatch(fn[0], /['"]weekNavSection['"]/);
+  });
+
+  it('hides header ring in focus mode', () => {
+    const src = fs.readFileSync(FOCUS, 'utf8');
     assert.match(src, /childHeaderRing/);
-    assert.match(src, /goalTeaserBtn/);
   });
 
   it('caps visible tasks at 5 with star teasers', () => {
@@ -53,14 +61,14 @@ describe('Idag barn 10/10', () => {
   });
 
   it('forces quest layout in today-focus mode', () => {
-    const src = fs.readFileSync(DASH, 'utf8');
+    const src = fs.readFileSync(ACTIVITIES, 'utf8');
     assert.match(src, /focusQuestMode/);
     assert.match(src, /day_sections' && !\(isTodayFocusLayer\(\) && isToday\)/);
     assert.match(src, /ChildTodayFocus\.updateFromDailyLog/);
   });
 
   it('goal bar skipped in focus mode — stars live in Skattkammaren', () => {
-    const src = fs.readFileSync(DASH, 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
     assert.match(src, /isTodayFocusLayer\(\)\) return/);
   });
 

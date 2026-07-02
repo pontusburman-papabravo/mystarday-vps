@@ -344,6 +344,9 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     '<div class="skatt-hero-progress-fill" id="skattGoalBar" style="width:' + skatt.progressPct + '%"></div>' +
     '</div>' +
     '<p class="skatt-hero-progress-label">' + escHtml(skatt.progressLabel) + '</p>' +
+    (goal && goal.star_cost && window.ChildRewardsEngine
+      ? window.ChildRewardsEngine.starGridHtml(starBalance, goal.star_cost, goal.reward_icon || '🎁')
+      : '') +
     (window.ChildDashboardWarmth
       ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned)
       : (totalEarned > starBalance

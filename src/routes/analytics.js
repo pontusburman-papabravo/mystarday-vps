@@ -81,8 +81,14 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'nav_signup_click',
   'footer_signup_click',
   'child_view_example_click',
+  'landing_guide_card_click',
   'landing_faq_expand',
   'app_store_click',
+  // SEO guide articles (public/js/article-events.js)
+  'article_cta_register',
+  'guide_next_step_click',
+  'guide_hub_nav_click',
+  'article_faq_expand',
   // Dashboard viral CTAs (dashboard-cta.js + coparent-invite-ui.js)
   'cta_invite_co_parent_shown',
   'cta_invite_co_parent_clicked',
@@ -118,7 +124,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   // FEAT-1 boendeschema
   'custody_home_selected',
   'custody_week_variant_changed',
+  'custody_schedule_created',
   'custody_schedule_updated',
+  'custody_filter_changed',
   'custody_view_filtered',
   'custody_banner_seen',
   'print_schema_exported',
@@ -137,18 +145,25 @@ const ALLOWED_CLIENT_EVENTS = new Set([
  * Unauthenticated: uses a session nonce from body (for landing-page visits).
  */
 router.post('/event', optionalAuth, async (req, res) => {
-  // Always respond 204 — analytics must never fail the caller
-  res.status(204).end();
+  try {
+    const { event_type, metadata = {}, session_id } = req.body || {};
+    if (!event_type || !ALLOWED_CLIENT_EVENTS.has(event_type)) return;
 
-  const { event_type, metadata = {}, session_id } = req.body || {};
-  if (!event_type || !ALLOWED_CLIENT_EVENTS.has(event_type)) return;
+    // Use authenticated family_id when available, else fall back to session_id nonce
+    const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);
+    if (!familyId) return;
 
-  // Use authenticated family_id when available, else fall back to session_id nonce
-  const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);
-  if (!familyId) return;
-
-  analytics.track(familyId, event_type, metadata);
-  maybeMarkWinBackReturnedFromEngagement(familyId, event_type).catch(() => {});
+    analytics.track(familyId, event_type, metadata);
+    // N7: win-back attribution requires an authenticated familyId — an unauthenticated
+    // session_id nonce is client-supplied and would let anyone spoof `returned_at`.
+    if (req.user?.familyId) {
+      await maybeMarkWinBackReturnedFromEngagement(req.user.familyId, event_type);
+    }
+  } catch (_) {
+    // analytics must never fail the caller
+  } finally {
+    res.status(204).end();
+  }
 });
 
 module.exports = router;

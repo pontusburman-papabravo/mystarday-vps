@@ -19,6 +19,7 @@
     nav_signup_click: true,
     footer_signup_click: true,
     child_view_example_click: true,
+    landing_guide_card_click: true,
   };
 
   function track(eventType, metadata) {
@@ -43,7 +44,11 @@
     document.querySelectorAll(selector).forEach(function (el) {
       el.addEventListener('click', function () {
         if (ALLOWED[eventName] || eventName.indexOf('faq_expand_') === 0) {
-          track(eventName);
+          var meta = { page: 'landing' };
+          if (eventName === 'landing_guide_card_click') {
+            meta.guide_slug = el.getAttribute('data-guide-slug') || undefined;
+          }
+          track(eventName, meta);
         }
       });
     });
@@ -64,6 +69,7 @@
     bindCta('[data-track="nav_signup_click"]', 'nav_signup_click');
     bindCta('[data-track="footer_signup_click"]', 'footer_signup_click');
     bindCta('[data-track="child_view_example_click"]', 'child_view_example_click');
+    bindCta('[data-track="landing_guide_card_click"]', 'landing_guide_card_click');
   }
 
   if (document.readyState === 'loading') {

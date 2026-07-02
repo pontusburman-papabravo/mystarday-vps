@@ -12,14 +12,20 @@ const FLAG_KEYS = {
   printScan: 'print_scan_beta',
   referral: 'referral_program',
   nudge: 'activation_nudge_v1',
+  signupSlim: 'activation_signup_slim_v1',
 };
 
-/** Core ACT-1 onboarding flags — excludes legacy 7-day program sunset flags. */
-const ACT1_ONBOARDING_FLAG_KEYS = [
+/** PR 1–4 rollout — template, handoff, first star guide, AI (excludes PR 5 nudge). */
+const ACT1_PR14_FLAG_KEYS = [
   FLAG_KEYS.onboarding,
   FLAG_KEYS.childHandoff,
   FLAG_KEYS.firstStarGuide,
   FLAG_KEYS.aiStarterPlan,
+];
+
+/** Core ACT-1 onboarding flags — includes PR 5 nudge; excludes legacy 7-day program. */
+const ACT1_ONBOARDING_FLAG_KEYS = [
+  ...ACT1_PR14_FLAG_KEYS,
   FLAG_KEYS.nudge,
 ];
 
@@ -38,26 +44,33 @@ function parseLaunchAt() {
 /**
  * @param {string} key feature_flag.key
  * @param {string} [familyId] optional cohort filter by family.created_at
+ * @returns {Promise<boolean>} never throws — returns false on DB error (fail-closed)
  */
 async function isActivationFlagEnabled(key, familyId) {
-  const result = await db.query(
-    'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
-    [key]
-  );
-  if (!result.rows[0]?.enabled) return false;
+  try {
+    const result = await db.query(
+      'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
+      [key]
+    );
+    if (!result.rows[0]?.enabled) return false;
 
-  if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;
+    if (COHORT_EXEMPT_FLAG_KEYS.has(key)) return true;
 
-  const launchAt = parseLaunchAt();
-  if (!launchAt || !familyId) return true;
+    const launchAt = parseLaunchAt();
+    if (!launchAt || !familyId) return true;
 
-  const fam = await db.query('SELECT created_at FROM family WHERE id = $1 LIMIT 1', [familyId]);
-  if (!fam.rows[0]?.created_at) return true;
-  return new Date(fam.rows[0].created_at) >= launchAt;
+    const fam = await db.query('SELECT created_at FROM family WHERE id = $1 LIMIT 1', [familyId]);
+    if (!fam.rows[0]?.created_at) return true;
+    return new Date(fam.rows[0].created_at) >= launchAt;
+  } catch (err) {
+    console.error('[ACTIVATION-FLAGS] Check failed for', key, ':', err.message);
+    return false;
+  }
 }
 
 module.exports = {
   FLAG_KEYS,
+  ACT1_PR14_FLAG_KEYS,
   ACT1_ONBOARDING_FLAG_KEYS,
   isActivationFlagEnabled,
 };

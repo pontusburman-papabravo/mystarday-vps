@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  const BASE = '/assets/worlds/garden/';
+  const BASE = '/images/child/world/garden/';
   const VERSION = '2.0.0';
 
   const SCENE_BG = Object.freeze({

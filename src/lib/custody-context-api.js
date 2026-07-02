@@ -6,7 +6,7 @@ const {
   resolveCustodyDateSync,
 } = require('./custody-schedule-engine');
 
-/** @deprecated API legacy — keep until Phase 5 custody_home_id write path; not used for resolution. */
+/** @deprecated API legacy — keep until clients stop reading week_variant aliases. */
 const LEGACY_API_FIELDS = Object.freeze([
   'variant',
   'home',
@@ -77,7 +77,7 @@ function buildCustodyContextFromEngine(engineCtx, dateStr) {
     // API envelope (not part of CustodyContext)
     weekMonday,
     parentHomeId: engineCtx.parentHomeId,
-    // API legacy aliases — keep until Phase 5 custody_home_id write path
+    // API legacy aliases — keep until clients stop reading week_variant aliases
     variant: legacyWeekVariant(engineCtx.schedule, context.activeHome),
     home: context.activeHome,
     weekBanner: legacyWeekBanner(weekContext.activeHome, engineCtx.schedule),

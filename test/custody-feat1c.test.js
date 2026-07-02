@@ -8,10 +8,10 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 
 describe('FEAT-1C schedule custody UI', () => {
-  it('child-crud filters schedules by week_variant', () => {
+  it('child-crud filters schedules by custody_home_id and week_variant', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/schedules/child-crud.js'), 'utf8');
     assert.match(src, /week_variant/);
-    assert.match(src, /resolveCustodyVariantFilter/);
+    assert.match(src, /resolveCustodyScheduleFilter/);
     assert.match(src, /custody_home_id/);
   });
 

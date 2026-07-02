@@ -44,6 +44,32 @@ describe('child art assets — manifest + files', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     assert.match(sw, /\/images\/child\/today\/bg@2x\.webp/);
     assert.match(sw, /\/images\/child\/world\/hub-castle@2x\.webp/);
+    assert.match(sw, /\/images\/child\/morgonhus\/scene@2x\.webp/);
+    assert.match(sw, /\/js\/child-world-bg-lazy\.js/);
     assert.doesNotMatch(sw, /\/img\/skatt-rooms\//);
+  });
+
+  it('lazy bg defers world/family until layer visit', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/child-world-bg.css'), 'utf8');
+    const lazy = fs.readFileSync(path.join(ROOT, 'public/js/child-world-bg-lazy.js'), 'utf8');
+    assert.match(css, /\.cwb-today[\s\S]*\/images\/child\/today\/bg@2x\.webp/);
+    assert.match(css, /\.is-bg-loaded/);
+    assert.match(lazy, /\/images\/child\/world\/hub@2x\.webp/);
+    assert.match(lazy, /\/images\/child\/family\/hall@2x\.webp/);
+  });
+
+  it('garden pipeline uses canonical child image path', () => {
+    const pipeline = fs.readFileSync(path.join(ROOT, 'public/js/garden-asset-pipeline.js'), 'utf8');
+    assert.match(pipeline, /\/images\/child\/world\/garden\//);
+    assert.doesNotMatch(pipeline, /\/assets\/worlds\/garden\//);
+  });
+
+  it('today focus wires decal assets', () => {
+    const focus = fs.readFileSync(path.join(ROOT, 'public/js/child-today-focus.js'), 'utf8');
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/child-today-focus.css'), 'utf8');
+    assert.match(focus, /today-empty-v1@2x\.webp/);
+    assert.match(focus, /today-celebration-frame-v1@2x\.webp/);
+    assert.match(css, /\.ctf-empty-illus/);
+    assert.match(css, /\.ctf-celebration-frame/);
   });
 });

@@ -80,9 +80,8 @@ function requireComponent(componentName) {
 
       next();
     } catch (err) {
-      req.log?.error({ msg: 'component check failed', operation: 'requireComponent', error: err.message });
-      // Fail open — don't block if the check itself errors
-      next();
+      console.error('[REQUIRE-COMPONENT] component check failed:', err.message);
+      return res.status(503).json({ error: 'Tillfälligt fel, försök igen' });
     }
   };
 }

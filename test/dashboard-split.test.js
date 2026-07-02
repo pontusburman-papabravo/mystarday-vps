@@ -11,6 +11,7 @@ const MODULES = {
   'public/js/dashboard-views.js': ['renderTimeline', 'renderSbsView', 'loadAllChildrenSchedules'],
   'public/js/dashboard-activity-modal.js': ['loadTemplates', 'submitAddActivity', 'removeItem', 'openEditItem', 'confirmRecurrence'],
   'public/js/dashboard-approvals.js': ['openGiveStarsModal', 'submitGiveStars', 'openRequestPanel', 'approveRedemption'],
+  'public/js/dashboard-cards.js': ['loadDashboardCards', 'renderDashboardCards', 'toggleCardExpand'],
   'public/js/dashboard-dnd.js': ['initDragDrop', 'moveItem', 'copyActivityToDay', 'openDayDndModal'],
   'public/js/dashboard-copy-modals.js': ['confirmDeleteSchedule', 'openCopyDayModal', 'submitCopyChild', 'openConfirmModal'],
   'public/js/dashboard-card-actions.js': ['toggleInlineRedemption', 'togglePauseDay', 'openGiveStarsQuick', 'dashToggleActivity'],
@@ -37,9 +38,9 @@ describe('F2d–F2i dashboard split', () => {
     }
   });
 
-  it('dashboard.js is under the ~1500 line target', () => {
+  it('dashboard.js is under the ~900 line target', () => {
     const lines = read('public/js/dashboard.js').split('\n').length;
-    assert.ok(lines < 1500, `dashboard.js is ${lines} lines (target < 1500)`);
+    assert.ok(lines < 900, `dashboard.js is ${lines} lines (target < 900)`);
   });
 
   it('dashboard.html loads every split module after dashboard.js', () => {

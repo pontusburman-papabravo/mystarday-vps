@@ -419,6 +419,8 @@ Visa: "Populärt just nu" / "Mest aktiverade" — aggregat i admin, föräldrar-
 
 ## 9. Sprint 4 — Navigation (ingen ny V-version)
 
+**Status (v1):** **Deferred till v1.1** — se `docs/decisions/for-dig-sprint4-defer.md`. Metrics enligt §9.1 ej verifierade; ingen nav-omläggning i v1 Completion Program.
+
 **Engineering Sprint 4** är ren produktnavigering — ingen ny produktversion. Flyttar För dig till primär bottom nav och Bibliotek under *Mer* när metrics motiverar det (§9.1). Befintliga användare påverkas av synlighet, inte av ny funktionalitet (§22).
 
 ### 9.1 Förutsättning

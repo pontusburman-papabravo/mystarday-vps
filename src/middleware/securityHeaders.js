@@ -7,7 +7,8 @@
  * Default: enabled.
  *
  * CSP is REPORT-ONLY — logs violations to CSP endpoint, never blocks.
- * Switch to enforce mode after verifying all external scripts.
+ * Enforcing mode (L6): switch to Content-Security-Policy after 30+ days without
+ * regressions in browser violation reports / admin smoke tests.
  */
 
 function securityHeadersMiddleware() {

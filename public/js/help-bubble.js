@@ -37,7 +37,7 @@
           id: 'stars',
           label: '⭐ Stjärnor',
           faqs: [
-            { q: 'Hur tjänar barnet stjärnor?', a: 'Varje avklarad aktivitet ger <strong>1 stjärna</strong>. Barnet bockar av i sin barnvy. Du kan också ge bonus-stjärnor manuellt via ⭐-knappen ovan barnkorten.' },
+            { q: 'Hur tjänar barnet stjärnor?', a: 'Varje avklarad aktivitet ger <strong>1 stjärna</strong>. Barnet bockar av i sin barnvy — eller du kan bocka av i Daglig logg medan ni testar. Bonus-stjärnor ger du via ⭐-knappen ovan barnkorten.' },
             { q: 'Hur funkar Skattkammaren?', a: 'Barnet öppnar Skattkammaren via 💎-fliken i barnvyn och ser belöningar med stjärnpris. Barnet kan begära belöning när det sparat tillräckligt — du godkänner det.' },
             { q: 'Hur lägger jag till belöningar?', a: 'Gå till <strong>Bibliotek</strong> i menyn → fliken "Belöningar". Lägg till egna belöningar, redigera stjärnkostnad och välj vilka barn som ser dem.' },
           ],
@@ -56,7 +56,8 @@
           label: '👨‍👩‍👧 Familj',
           faqs: [
             { q: 'Hur bjuder jag in en annan vuxen?', a: 'Gå till <strong>Familjen & inställningar → Familjemedlemmar</strong> → klicka "Bjud in". Den inbjudna personen får ett e-postmeddelande med inloggningslänk.' },
-            { q: 'Hur loggar barnet in?', a: 'Barnet loggar in på <strong>/child-login</strong> med sitt användarnamn och PIN-kod. Inloggningsuppgifterna hittar du under <strong>Familjen & inställningar → Barn</strong>.' },
+            { q: 'Hur ser jag barnets dag?', a: 'Öppna <strong>Daglig logg</strong> i menyn — där ser du dagens aktiviteter som barnet kommer att se. Perfekt första kvällen innan barnet loggar in själv.' },
+            { q: 'Hur loggar barnet in?', a: 'När ni är redo: barnet loggar in på <strong>/child-login</strong> med användarnamn och PIN. Uppgifterna hittar du under <strong>Familjen & inställningar → Barn</strong>.' },
             { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> — vi svarar inom 24 timmar.' },
           ],
         },
@@ -293,7 +294,7 @@
           id: 'log',
           label: '📖 Logg',
           faqs: [
-            { q: 'Vad är den dagliga loggen?', a: 'Loggen visar en historik av alla avklarade aktiviteter per barn och dag. Perfekt för att följa upp rutinerna över tid.' },
+            { q: 'Vad är den dagliga loggen?', a: 'Loggen visar barnets dag — aktiviteter, avprickningar och stjärnor. Använd den för att <strong>förhandsgranska</strong> vad barnet ser, eller för att fylla i i efterhand.' },
             { q: 'Hur filtrerar jag loggen?', a: 'Välj barn i filtret högst upp för att visa loggen bara för ett specifikt barn. Du kan också filtrera på datum.' },
             { q: 'Hur långt bak kan jag se?', a: 'Loggen sparar data från den dag du började använda Min Stjärndag. Scrolla eller välj datum för att se äldre data.' },
           ],
@@ -406,6 +407,8 @@
         <h2 class="hb-title">${content.title}</h2>
         <button class="hb-close" onclick="window.__hbClose()" aria-label="Stäng hjälp">×</button>
       </div>
+
+      <div id="hbJourneyTipMount" class="hb-journey-tip-mount" style="display:none;"></div>
 
       <!-- Tabs (only if multiple) -->
       ${content.tabs.length > 1 ? `
@@ -638,6 +641,68 @@
       margin: 0;
     }
     .hb-hr:last-child { display: none; }
+
+    /* Signup journey contextual tip */
+    .hb-journey-tip-mount {
+      flex-shrink: 0;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid #EDE7F6;
+    }
+    .help-journey-tip {
+      border-radius: 14px;
+      border: 2px solid #C7D2FE;
+      background: #EEF2FF;
+      padding: 12px 14px;
+    }
+    .help-journey-tip--celebration {
+      border-color: rgba(245, 166, 35, 0.45);
+      background: #FFF8E7;
+    }
+    .help-journey-tip--reflection {
+      border-color: rgba(245, 166, 35, 0.45);
+      background: #FFF8E7;
+    }
+    .help-journey-tip-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #4338CA;
+      margin: 0 0 4px;
+    }
+    .help-journey-tip--celebration .help-journey-tip-label,
+    .help-journey-tip--reflection .help-journey-tip-label {
+      color: #B45309;
+    }
+    .help-journey-tip-headline {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1B2340;
+      margin: 0 0 4px;
+    }
+    .help-journey-tip-body {
+      font-size: 12px;
+      color: #5A6178;
+      line-height: 1.6;
+      margin: 0 0 10px;
+    }
+    .help-journey-tip-body--pre {
+      white-space: pre-line;
+    }
+    .help-journey-tip-cta {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      background: #F5A623;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .help-journey-tip-cta:hover { background: #E09510; }
   `;
 
   document.head.appendChild(style);
@@ -653,6 +718,40 @@
     mount();
   }
 
+  // ─── Journey tip (signup slim) ─────────────────────────────────────────────
+  let tipModuleLoading = false;
+
+  function ensureTipModule(cb) {
+    if (window.HelpJourneyTip) {
+      cb();
+      return;
+    }
+    if (tipModuleLoading) {
+      document.addEventListener('help-journey-tip-ready', cb, { once: true });
+      return;
+    }
+    tipModuleLoading = true;
+    const s = document.createElement('script');
+    s.src = '/js/help-journey-tip.js';
+    s.onload = function () {
+      tipModuleLoading = false;
+      document.dispatchEvent(new Event('help-journey-tip-ready'));
+      cb();
+    };
+    s.onerror = function () {
+      tipModuleLoading = false;
+    };
+    document.head.appendChild(s);
+  }
+
+  function refreshJourneyTip() {
+    const mount = document.getElementById('hbJourneyTipMount');
+    if (!mount) return;
+    ensureTipModule(function () {
+      if (window.HelpJourneyTip) HelpJourneyTip.refresh(mount);
+    });
+  }
+
   // ─── Logic ─────────────────────────────────────────────────────────────────
   window.__hbToggle = function () {
     const panel = document.getElementById('hbPanel');
@@ -664,6 +763,7 @@
     } else {
       panel.classList.add('hb-open');
       backdrop.classList.add('hb-open');
+      refreshJourneyTip();
     }
   };
 

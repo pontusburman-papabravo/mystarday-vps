@@ -12,6 +12,7 @@ const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
+const { enrichPictogramFieldsMany } = require('../../../config/pictogram-library');
 const { FLAG_KEYS, isActivationFlagEnabled } = require('../../lib/activation-flags');
 const {
   countLifetimeCompletions,
@@ -55,7 +56,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
 
     const { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
-    const enrichedItems = await enrichLogItemsWithForDigGoal(items);
+    const enrichedItems = enrichPictogramFieldsMany(await enrichLogItemsWithForDigGoal(items));
 
     // Apply child's custom ordering within each section.
     // child_sort_order is set when the child reorders activities via drag & drop.
@@ -268,19 +269,18 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     );
     const logDate2 = logDateResult2.rows[0]?.date || new Date();
 
-    // Modell A (§4.4.11): record 'child' as home source; don't overwrite a
-    // pedagog/school completion that already happened first.
     const result = await db.query(
       `UPDATE daily_log_item
        SET completed = true, completed_at = NOW(), completed_date = $2,
            completed_by = COALESCE(completed_by, 'child'),
            completion_source = COALESCE(completion_source, 'home')
-       WHERE id = $1
+       WHERE id = $1 AND completed = false
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]
     );
+    const justCompleted = result.rows.length > 0;
 
-    if (!item.completed && req.user.familyId) {
+    if (justCompleted && req.user.familyId) {
       const { maybeTrackFirstStarModeActivity } = require('../../lib/first-star-mode-analytics');
       await maybeTrackFirstStarModeActivity({
         familyId: req.user.familyId,
@@ -290,61 +290,57 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       });
     }
 
-    res.json(result.rows[0]);
-    // Family layer: derived contribution event (fire-and-forget)
-    if (!item.completed) {
+    res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
+    if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
-      handleActivityCompleted(req.params.itemId, req.user.id, false).catch(() => {});
+      handleActivityCompleted(req.params.itemId, req.user.id, false).catch((err) => {
+        console.error('[DAILY-LOG-CHILD] handleActivityCompleted failed:', err.message);
+      });
     }
-    // Broadcast to all family members + push notify parents (fire-and-forget)
     getChildFamilyId(req.user.id).then(async (fid) => {
       if (!fid) return;
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
-      // Activation program: child_first_completion (Fas 2 — child path only)
-      if (!item.completed) {
-        require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
-          child_id: req.user.id,
-          source: 'child_complete',
-        });
-        require('../../lib/journey/ingest').ingestMilestoneAsync({
-          familyId: fid,
-          milestone: 'child_first_completion',
-          childId: req.user.id,
-          metadata: { daily_log_item_id: req.params.itemId },
-        });
-        require('../../lib/platform-runtime').handleActivityComplete({
-          childId: req.user.id,
-          familyId: fid,
-          dailyLogItemId: req.params.itemId,
-        }).catch((err) => {
-          console.error('[platform-runtime] activity complete error:', err.message);
-        });
-      }
-      if (!item.completed) {
-        try {
-          const parentActivationProgram = require('../../../db/parent-activation-program');
-          const { isActivationProgramEnabled } = require('../../lib/activation-program-enroll');
-          const { maybeTrackChildFirstCompletion, getFamilyTimezone } = require('../../lib/activation-program-aha');
-          if (isActivationProgramEnabled()) {
-            const program = await parentActivationProgram.getActiveByFamily(fid);
-            if (program) {
-              const [activityRow, timezone] = await Promise.all([
-                db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
-                getFamilyTimezone(fid),
-              ]);
-              await maybeTrackChildFirstCompletion({
-                familyId: fid,
-                program,
-                childId: req.user.id,
-                dailyLogItemId: req.params.itemId,
-                activityName: activityRow.rows[0]?.name || 'en aktivitet',
-                timezone,
-              });
-            }
+      if (!justCompleted) return;
+      require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
+        child_id: req.user.id,
+        source: 'child_complete',
+      });
+      require('../../lib/journey/ingest').ingestMilestoneAsync({
+        familyId: fid,
+        milestone: 'child_first_completion',
+        childId: req.user.id,
+        metadata: { daily_log_item_id: req.params.itemId },
+      });
+      require('../../lib/platform-runtime').handleActivityComplete({
+        childId: req.user.id,
+        familyId: fid,
+        dailyLogItemId: req.params.itemId,
+      }).catch((err) => {
+        console.error('[platform-runtime] activity complete error:', err.message);
+      });
+      try {
+        const parentActivationProgram = require('../../../db/parent-activation-program');
+        const { isActivationProgramEnabled } = require('../../lib/activation-program-enroll');
+        const { maybeTrackChildFirstCompletion, getFamilyTimezone } = require('../../lib/activation-program-aha');
+        if (isActivationProgramEnabled()) {
+          const program = await parentActivationProgram.getActiveByFamily(fid);
+          if (program) {
+            const [activityRow, timezone] = await Promise.all([
+              db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
+              getFamilyTimezone(fid),
+            ]);
+            await maybeTrackChildFirstCompletion({
+              familyId: fid,
+              program,
+              childId: req.user.id,
+              dailyLogItemId: req.params.itemId,
+              activityName: activityRow.rows[0]?.name || 'en aktivitet',
+              timezone,
+            });
           }
-        } catch (err) {
-          console.error('[ACTIVATION-PROGRAM] child_first_completion error:', err.message);
         }
+      } catch (err) {
+        console.error('[ACTIVATION-PROGRAM] child_first_completion error:', err.message);
       }
       // Push notification: look up child name + activity name, then notify parents
       try {
@@ -354,9 +350,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
         ]);
         const childName = childRow.rows[0]?.name || 'Barnet';
         const activityName = activityRow.rows[0]?.name || 'en aktivitet';
-        notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch(() => {});
-      } catch (_) {}
-    }).catch(() => {});
+        notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch((err) => {
+          console.error('[DAILY-LOG-CHILD] notifyParentsChildCompleted failed:', err.message);
+        });
+      } catch (err) {
+        console.error('[DAILY-LOG-CHILD] Completion notify lookup failed:', err.message);
+      }
+    }).catch((err) => console.error('[DAILY-LOG-CHILD] Post-complete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

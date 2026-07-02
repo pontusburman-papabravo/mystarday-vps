@@ -20,7 +20,7 @@ describe('schedule-custody (Phase 4.5c)', () => {
     assert.match(src, /syncVariantLabelsFromWeek/);
     assert.match(src, /d\.custody\.label/);
     assert.match(src, /PERIOD_FALLBACK/);
-    assert.match(src, /week_variant/);
+    assert.match(src, /custody_home_id/);
     assert.match(src, /home_id/);
   });
 

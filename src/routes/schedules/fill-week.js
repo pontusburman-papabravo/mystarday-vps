@@ -133,7 +133,9 @@ router.post('/fill-week', async (req, res) => {
       for (const dow of filledDays) {
         try {
           await syncDailyLogWithSchedule(req.params.childId, dow);
-        } catch (_) {}
+        } catch (err) {
+          console.error('[SCHEDULE-FILL-WEEK] syncDailyLogWithSchedule failed for child', req.params.childId, 'day', dow, ':', err.message);
+        }
       }
 
       res.json({

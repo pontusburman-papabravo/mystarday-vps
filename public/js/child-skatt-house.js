@@ -40,6 +40,20 @@
     story: '📖', avatar: '🧑', pet: '🐾', shop: '🛍️', museum: '🏛️',
   };
 
+  /** Illustrated room art — public/images/child/world/rooms/ */
+  const ROOM_ART = {
+    chest: '/images/child/world/rooms/chest@2x.webp',
+    dreams: '/images/child/world/rooms/dreams@2x.webp',
+    trophy: '/images/child/world/rooms/trophy@2x.webp',
+    shelf: '/images/child/world/rooms/shelf@2x.webp',
+    collections: '/images/child/world/rooms/collections@2x.webp',
+    story: '/images/child/world/rooms/story@2x.webp',
+    avatar: '/images/child/world/rooms/avatar@2x.webp',
+    pet: '/images/child/world/rooms/pet@2x.webp',
+    museum: '/images/child/world/rooms/museum@2x.webp',
+    shop: '/images/child/world/rooms/shop@2x.webp',
+  };
+
   let _view = null;
   let _sections = {};
   let _meta = {};
@@ -181,7 +195,6 @@
   }
 
   function renderHub() {
-    const theme = currentTheme();
     const rooms = unlockedRooms();
     const name = _meta.childName || (_universe && _universe.avatar && _universe.avatar.name) || 'du';
     const balance = _meta.starBalance || 0;
@@ -204,7 +217,10 @@
       return '<button type="button" class="skatt-hub-card' + lockCls + '" data-room="' + room.id + '" aria-label="' + esc(room.label) + '"' +
         (unlocked ? '' : ' disabled') + '>' +
         '<div class="skatt-hub-card-art skatt-art-' + room.id + '" aria-hidden="true">' +
-          '<span class="skatt-hub-card-art-emoji">' + artEmoji + '</span></div>' +
+          (ROOM_ART[room.id]
+            ? '<img class="skatt-hub-card-art-img" src="' + esc(ROOM_ART[room.id]) + '" alt="" loading="lazy" decoding="async" />'
+            : '<span class="skatt-hub-card-art-emoji">' + artEmoji + '</span>') +
+        '</div>' +
         '<div class="skatt-hub-card-foot">' +
           '<span class="skatt-hub-card-icon">' + (FOOT_ICONS[room.id] || '⭐') + '</span>' +
           '<div class="skatt-hub-card-text">' +

@@ -130,7 +130,10 @@
       document.body.classList.remove('parent-magic-dashboard');
     }
     document.body.classList.toggle('child-magic-view', _role === 'child' && magic);
-    document.body.classList.toggle('child-has-bottom-nav', _role === 'child' && magic);
+    const childBottomNav = _role === 'child' && (
+      magic || (window.ChildWorlds && ChildWorlds.V2_ENABLED)
+    );
+    document.body.classList.toggle('child-has-bottom-nav', childBottomNav);
     if (_role === 'parent' && magic) {
       document.documentElement.classList.add('parent-magic-early');
     } else {
