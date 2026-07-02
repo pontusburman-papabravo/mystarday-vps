@@ -149,6 +149,7 @@
     myDaysOnly = Boolean(enabled);
     Object.keys(_contextByChild).forEach(applyCardStyles);
     Object.keys(_weekByChild).forEach(applyWeekDayColors);
+    track('custody_filter_changed', { context: 'dashboard', enabled: myDaysOnly });
     track('custody_view_filtered', { context: 'dashboard', enabled: myDaysOnly });
   }
 
