@@ -6,7 +6,7 @@
     { "id": "today-bg", "view": "Idag", "path": "today/bg@2x.webp", "css": "child-world-bg.css → .cwb-today", "status": "godkänd" },
     { "id": "world-hub-bg", "view": "Min värld", "path": "world/hub@2x.webp", "css": "child-world-bg.css → .cwb-world", "status": "godkänd" },
     { "id": "family-hall-bg", "view": "Familj", "path": "family/hall@2x.webp", "css": "child-world-bg.css → .cwb-family", "status": "godkänd" },
-    { "id": "morgonhus-scene", "view": "Morgonhus", "path": "morgonhus/scene@2x.webp", "css": "child-morgonhus.css → .mh-scene.is-illustrated", "status": "saknas" },
+    { "id": "morgonhus-scene", "view": "Morgonhus", "path": "morgonhus/scene@2x.webp", "css": "child-morgonhus.css → .mh-scene.is-illustrated", "status": "godkänd" },
     { "id": "hub-castle", "view": "Min värld / castle", "path": "world/hub-castle@2x.webp", "css": "child-skatt-house.css → .skatt-theme-castle", "status": "godkänd" },
     { "id": "hub-treehouse", "view": "Min värld / treehouse", "path": "world/hub-treehouse@2x.webp", "css": "child-skatt-house.css → .skatt-theme-treehouse", "status": "godkänd" },
     { "id": "hub-space", "view": "Min värld / space", "path": "world/hub-space@2x.webp", "css": "child-skatt-house.css → .skatt-theme-space", "status": "godkänd" },

@@ -44,6 +44,7 @@ describe('child art assets — manifest + files', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     assert.match(sw, /\/images\/child\/today\/bg@2x\.webp/);
     assert.match(sw, /\/images\/child\/world\/hub-castle@2x\.webp/);
+    assert.match(sw, /\/images\/child\/morgonhus\/scene@2x\.webp/);
     assert.match(sw, /\/js\/child-world-bg-lazy\.js/);
     assert.doesNotMatch(sw, /\/img\/skatt-rooms\//);
   });

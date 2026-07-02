@@ -11,7 +11,7 @@ today/bg@2x.webp
 world/hub@2x.webp + hub-{castle,treehouse,space}@2x.webp
 world/rooms/{room-id}@2x.webp
 family/hall@2x.webp
-morgonhus/scene@2x.webp   (saknas)
+morgonhus/scene@2x.webp
 decals/
 ```
 
