@@ -20,6 +20,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/bildschema-app',
   '/alternativ-bildschema-tavla',
   '/veckoschema-bildstod',
+  '/resurser',
 ]);
 
 function normalizeSeoPath(path) {

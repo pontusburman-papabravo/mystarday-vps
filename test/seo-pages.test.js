@@ -11,6 +11,12 @@ const {
   SEO_INDEXABLE_PATHS,
 } = require('../src/lib/seo-pages');
 const { buildSitemapXml } = require('../src/lib/sitemap');
+const {
+  RESURSER_CATEGORIES,
+  categoryPath,
+  registerUtmPath,
+} = require('../config/resurser-pages');
+const { listenApp } = require('./helpers/http');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -136,6 +142,45 @@ test('veckoschema-bildstod is indexable with route and sitemap entry', () => {
   assert.match(xml, /\/veckoschema-bildstod<\/loc>/);
 });
 
+test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
+  assert.equal(isSeoIndexable('/resurser'), true);
+  assert.ok(SEO_INDEXABLE_PATHS.has('/resurser'));
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(route, /router\.get\('\/resurser'/);
+  assert.match(route, /resurser\.html/);
+  const html = fs.readFileSync(path.join(ROOT, 'public/resurser.html'), 'utf8');
+  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/resurser"/);
+  assert.match(html, /seo-article\.css/);
+  assert.match(html, /utm_content=resurs-hub/);
+  assert.match(html, /kommer snart/);
+  assert.doesNotMatch(html, /href="\/resurser\/pdf\//);
+  const xml = buildSitemapXml();
+  assert.match(xml, /\/resurser<\/loc>/);
+});
+
+test('resurser registry documents category URL conventions', () => {
+  assert.equal(RESURSER_CATEGORIES.length, 7);
+  assert.equal(categoryPath('morgon'), '/resurser/morgon');
+  assert.equal(registerUtmPath('morgon'), '/register?utm_content=resurs-morgon');
+  assert.equal(registerUtmPath(), '/register?utm_content=resurs-hub');
+});
+
+test('GET /resurser returns 200', async () => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+  }
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const res = await fetch(`${http.baseUrl}/resurser`);
+    assert.equal(res.status, 200);
+    const body = await res.text();
+    assert.match(body, /Gratis resurser/);
+  } finally {
+    await http.close();
+  }
+});
+
 test('landing page has guide cards block with tracking', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
   assert.match(html, /Läs våra guider/);
@@ -157,6 +202,7 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
     '/rutiner-npf-barn': 'public/rutiner-npf-barn.html',
     '/alternativ-bildschema-tavla': 'public/alternativ-bildschema-tavla.html',
     '/veckoschema-bildstod': 'public/veckoschema-bildstod.html',
+    '/resurser': 'public/resurser.html',
   };
   for (const [p, file] of Object.entries(pageFiles)) {
     const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
