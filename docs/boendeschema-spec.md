@@ -153,8 +153,8 @@ Exempel (v2+):
 - `223` (2–2–3)
 - `3443` (3–4–4–3)
 - `5225` (5–2–2–5)
-- `custom`
-- manuella undantag (se utanför scope v1)
+- `custom` — se [boendeschema-feat1b-custom-spec.md](./boendeschema-feat1b-custom-spec.md) (normalvecka endast)
+- manuella undantag → `custody_override` (FEAT-1C), **inte** i `custom` eller `cycle_weeks`
 
 ---
 
