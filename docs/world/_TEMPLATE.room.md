@@ -1,132 +1,149 @@
 # {Display Name} — Production Specification
 
-> **Machine-readable contract (source of truth):** [`../data/XXX-room_id.yaml`](../data/XXX-room_id.yaml)  
-> **Rulebook (frozen):** [World Bible Part III RBS](../../.ai/product/bibles/WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs)  
+> **Machine-readable contract (source of truth):** [`../data/XXX-room.yaml`](../data/XXX-room.yaml)  
+> **Template:** [WPT](../WPT.md) · **Rulebook:** [World Bible Part III RBS](../../.ai/product/bibles/WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs)  
 > **Status:** draft · **Production #:** XXX · **Room ID:** `room_id`
 
+---
+
+## 1. Purpose
+
+<!-- TBD — Varför finns rummet? Inte inventarielista. -->
+
+*Authoring hint: En paragraf + vilken pelare (comfort/ownership/…) som bärs.*
+
+## 2. Emotional Contract
+
+<!-- TBD — YAML-block med primary_emotion, stress_level, music_density, … -->
+
 ```yaml
-# Excerpt — full contract in data/XXX-room_id.yaml
-room:
-  id: room_id
-  pack_scene_id: scene_id
-production_number: XXX
-status: draft
+# Se ../data/XXX-room.yaml → emotional_contract
 ```
 
----
+## 3. First Impression
 
-## Overview
+<!-- TBD — Sekvensdiagram 0–5 s. Ingen popup/dialog/belöning. -->
 
-TBD
+```text
+Steg 1
+  ↓
+Steg 2
+  ↓
+…
+```
 
-## Emotion
+## 4. Room Story
 
-TBD
+<!-- TBD — Levt in, inte nytt, inte slitet. Vem bor här? -->
 
-## History
+## 5. Hero Object
 
-TBD
+<!-- TBD — Ett hero + tema-tabell om flera teman. -->
 
-## Purpose
+| Tema | Hero | Etikett (sv) |
+|------|------|--------------|
+| house | TBD | TBD |
 
-TBD
+**Landmark:** <!-- TBD -->
 
-## Story
+## 6. Environmental Storytelling
 
-TBD
+<!-- TBD — Lista micro-stories (minst 12, Home = 20+). Inget förklaras i UI. -->
 
-## Camera
+## 7. Pet Behaviour
 
-TBD
+<!-- TBD — Simulationsdrivna tillstånd, inte slump. -->
 
-## Layout
+## 8. Ambient Life
 
-TBD
+**Alltid aktiv:** <!-- TBD -->
 
-## Lighting
+**Ibland:** <!-- TBD -->
 
-TBD
+## 9. Build Progression
 
-## Weather
+**Dag 1:** <!-- TBD -->
 
-TBD
+**Efter veckor:** <!-- TBD -->
 
-## Time of Day
+## 10. Memory Points
 
-TBD
+<!-- TBD — Minnen i rummet, inte som UI-lista. -->
 
-## Navigation
+## 11. Navigation
 
-TBD
+<!-- TBD — Intuitiva utgångar, inga menyer. -->
 
-## Hero Object
+## 12. Audio
 
-TBD
+<!-- TBD — Varje ljud har källa. Inga abstrakta ambient-spår. -->
 
-## Ambient
+## 13. Weather
 
-TBD
+<!-- TBD — Per väder: ljud, ljus, rekvisita. -->
 
-## NPC
+## 14. QA
 
-TBD
-
-## Pet
-
-TBD
-
-## Build Slots
-
-TBD
-
-## Interactions
-
-TBD
-
-## Audio
-
-TBD
-
-## Particles
-
-TBD
-
-## Secrets
-
-TBD
-
-## Discoveries
-
-TBD
-
-## Season
-
-TBD
-
-## Evolution
-
-TBD
-
-## Theme Variants
-
-TBD
-
-## Accessibility
-
-TBD
-
-## Performance
-
-TBD
-
-## Prompt
-
-TBD
-
-## QA
-
-TBD
+<!-- TBD — Kvalitativa acceptanskriterier (punktlista). -->
 
 ---
 
-*Companion narrative for [`../data/XXX-room_id.yaml`](../data/XXX-room_id.yaml). Contracts live in YAML; this file explains why.*
+## Appendix — Camera
+
+<!-- TBD — camera_contract; fast 2.5D, barn-ögonhöjd -->
+
+## Appendix — Layout
+
+<!-- TBD — spatial_contract zoner -->
+
+## Appendix — Lighting
+
+<!-- TBD — lighting_contract -->
+
+## Appendix — Time of Day
+
+<!-- TBD — time_variants -->
+
+## Appendix — NPC
+
+<!-- TBD — npc_contract -->
+
+## Appendix — Interactions
+
+<!-- TBD — interactive_objects, LWES §22 -->
+
+## Appendix — Build Slots
+
+<!-- TBD — build_slots + WDB keys -->
+
+## Appendix — Discoveries
+
+<!-- TBD — discoveries -->
+
+## Appendix — Season
+
+<!-- TBD — seasonal_variants -->
+
+## Appendix — Theme Variants
+
+<!-- TBD — theme_variants -->
+
+## Appendix — Accessibility
+
+<!-- TBD — reduced motion, 44pt, kontrast -->
+
+## Appendix — Performance
+
+<!-- TBD — performance_budget -->
+
+## Appendix — Prompt
+
+<!-- TBD — prompt_manifest → Art Prompt Catalog -->
+
+## Appendix — Ecology
+
+<!-- TBD — Korsref World Bible ekologi; cause-effect -->
+
+---
+
+*Companion narrative for [`../data/XXX-room.yaml`](../data/XXX-room.yaml). Contracts live in YAML; this file explains why.*
