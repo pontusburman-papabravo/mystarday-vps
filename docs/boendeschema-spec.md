@@ -521,17 +521,17 @@ Reserverad datamodell — implementeras i separat feature:
 
 FEAT-1 är klar när:
 
-- [ ] Samtliga funktionella krav BC-1 … BC-13 är implementerade
-- [ ] Boendeschemat fungerar för både `alternate_weeks` och `alternate_weekends`
-- [ ] Samma Schedule Engine används av samtliga vyer och tjänster
-- [ ] API exponerar aktivt hem och `isParentDay` för externa konsumenter
-- [ ] Alla API-kontrakt är dokumenterade
-- [ ] Enhetstester täcker schemaberäkningar, inklusive gränsfall
-- [ ] Integrationstester verifierar API och datamodell
-- [ ] UI-tester verifierar banner, färgmarkeringar och filter
-- [ ] Accessibility uppfyller WCAG AA
-- [ ] Analytics skickar definierade händelser
-- [ ] Befintliga familjer utan boendeschema fungerar oförändrat
+- [x] Samtliga funktionella krav BC-1 … BC-13 är implementerade (v1 scope; print/PDF utanför per BC-13)
+- [x] Boendeschemat fungerar för både `alternate_weeks` och `alternate_weekends`
+- [x] Samma Schedule Engine används av samtliga vyer och tjänster
+- [x] API exponerar aktivt hem och `isParentDay` för externa konsumenter
+- [x] Alla API-kontrakt är dokumenterade
+- [x] Enhetstester täcker schemaberäkningar, inklusive gränsfall
+- [x] Integrationstester verifierar API och datamodell
+- [ ] UI-tester verifierar banner, färgmarkeringar och filter (delvis — manuell QA)
+- [ ] Accessibility uppfyller WCAG AA (ej systematisk constitution test)
+- [x] Analytics skickar definierade händelser
+- [x] Befintliga familjer utan boendeschema fungerar oförändrat
 
 ---
 

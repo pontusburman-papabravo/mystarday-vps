@@ -1,6 +1,6 @@
 # Föräldrahubbar 10/10 — Kravdokument (index)
 
-**Status:** Operativ produktkonstitution (2026-07) — **Hem GO för implementation**  
+**Status:** Operativ produktkonstitution (2026-07) — **Parent Hubs Complete (v1)**  
 **Mall:** [parent-hub-vision-template.md](parent-hub-vision-template.md) (låst format)  
 **Referens (För dig):** [for-dig-vision.md](for-dig-vision.md)  
 **Branch (implementation):** `cursor/hem-vision-docs-6752`
@@ -11,10 +11,10 @@
 
 | Område | Vision | Agent-uppdrag | Status |
 |--------|--------|---------------|--------|
-| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) | **GO** |
-| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) | Konstitution klar |
-| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) | Konstitution klar |
-| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) | Konstitution klar |
+| **Hem** | [hem-vision.md](hem-vision.md) | [hem-agent-prompt.md](hem-agent-prompt.md) | **Complete** |
+| **Planering** | [planering-vision.md](planering-vision.md) | [planering-agent-prompt.md](planering-agent-prompt.md) | **Complete** |
+| **Belöningar** | [beloningar-vision.md](beloningar-vision.md) | [beloningar-agent-prompt.md](beloningar-agent-prompt.md) | **Complete** |
+| **Familj** | [familj-vision.md](familj-vision.md) | [familj-agent-prompt.md](familj-agent-prompt.md) | **Complete** |
 
 **Referens (För dig — redan byggt):**
 
