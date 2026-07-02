@@ -64,6 +64,8 @@
   const state = {
     enabled: false,
     slim: false,
+    /** null | 'slim' | 'full_wizard' | 'legacy_template' */
+    signupPath: null,
     flags: {},
     qIndex: 0,
     answers: {},
@@ -193,6 +195,18 @@
         : 'Nästa →') + '</button>');
     html.push('</div>');
 
+    if (state.slim) {
+      html.push(
+        '<div class="mt-6 pt-5 border-t border-lavender/70">',
+        '  <p class="text-xs text-text-soft text-center mb-3">Vill du välja eller bygga själv?</p>',
+        '  <div class="flex flex-col gap-2">',
+        '    <button type="button" id="spChooseTemplate" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">📋 Välj färdigt schema</button>',
+        '    <button type="button" id="spFullWizard" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">✏️ Bygg och anpassa själv (7 frågor)</button>',
+        '  </div>',
+        '</div>'
+      );
+    }
+
     container.innerHTML = html.join('');
 
     container.querySelectorAll('.sp-choice').forEach(function (btn) {
@@ -215,6 +229,50 @@
     });
 
     document.getElementById('spNext').addEventListener('click', onQuestionNext);
+
+    const chooseTemplate = document.getElementById('spChooseTemplate');
+    if (chooseTemplate) chooseTemplate.addEventListener('click', enterLegacyTemplate);
+    const fullWizard = document.getElementById('spFullWizard');
+    if (fullWizard) fullWizard.addEventListener('click', enterFullWizard);
+  }
+
+  function prefillLegacyFromSlimAnswers() {
+    const name = (state.answers.child_name || '').trim();
+    if (!name) return;
+    const input = document.getElementById('childName');
+    if (input && !input.value.trim()) input.value = name;
+  }
+
+  function showLegacyStep1() {
+    const card = document.getElementById('stepStarterPlan');
+    if (card) {
+      card.classList.remove('active');
+      card.classList.add('hidden');
+    }
+    const step1 = document.getElementById('step1');
+    if (step1) {
+      step1.classList.remove('hidden');
+      step1.classList.add('active');
+    }
+    if (typeof window.goToStep === 'function') {
+      window.goToStep(1);
+    }
+  }
+
+  function enterLegacyTemplate() {
+    state.signupPath = 'legacy_template';
+    track('signup_power_path_selected', { path: 'legacy_template' });
+    prefillLegacyFromSlimAnswers();
+    showLegacyStep1();
+  }
+
+  function enterFullWizard() {
+    state.signupPath = 'full_wizard';
+    state.slim = false;
+    state.qIndex = 0;
+    track('signup_power_path_selected', { path: 'full_wizard' });
+    renderQuestion();
+    showStarterStep();
   }
 
   function readCurrentAnswer() {
@@ -326,6 +384,8 @@
         window.selectedDayPref = state.plan.template_group;
       }
 
+      state.signupPath = 'slim';
+
       track('signup_slim_completed', {
         activity_count: state.previewItems.length,
         routine_type: state.answers.routine_type_ui,
@@ -336,6 +396,19 @@
       showError(err.message || 'Något gick fel');
       if (btn) { btn.disabled = false; btn.textContent = 'Skapa rutin →'; }
     }
+  }
+
+  async function completeSignupAndRedirect(targetHref) {
+    const res = await api('/api/onboarding/complete', { method: 'POST' });
+    if (!res.ok) throw new Error('Kunde inte slutföra');
+    if (window.Auth) {
+      const user = Auth.getUser();
+      if (user) {
+        user.onboarding_completed = true;
+        Auth.setAuth(Auth.getToken(), user);
+      }
+    }
+    window.location.href = targetHref;
   }
 
   function showSlimSuccessAndGoHome() {
@@ -351,27 +424,28 @@
         '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">Er rutin är redo</h2>',
         '  <p class="text-text-soft text-sm mb-1">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter</p>',
         '  <p class="text-navy text-sm font-medium mt-4">Ni kan testa detta ikväll.</p>',
-        '  <p class="text-text-soft text-xs mt-6">Tar dig till Hem…</p>',
+        '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">Gå till Hem →</button>',
+        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">Anpassa schema först</button>',
         '</div>',
       ].join('');
-    }
 
-    setTimeout(async function () {
-      try {
-        const res = await api('/api/onboarding/complete', { method: 'POST' });
-        if (!res.ok) throw new Error('Kunde inte slutföra');
-        if (window.Auth) {
-          const user = Auth.getUser();
-          if (user) {
-            user.onboarding_completed = true;
-            Auth.setAuth(Auth.getToken(), user);
-          }
-        }
-        window.location.href = '/dashboard';
-      } catch (err) {
-        showError(err.message || 'Kunde inte slutföra');
-      }
-    }, 1400);
+      document.getElementById('slimGoHome').addEventListener('click', function () {
+        const btn = document.getElementById('slimGoHome');
+        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar Hem…'; }
+        completeSignupAndRedirect('/dashboard').catch(function (err) {
+          showError(err.message || 'Kunde inte slutföra');
+          if (btn) { btn.disabled = false; btn.textContent = 'Gå till Hem →'; }
+        });
+      });
+      document.getElementById('slimCustomize').addEventListener('click', function () {
+        const btn = document.getElementById('slimCustomize');
+        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar schema…'; }
+        completeSignupAndRedirect('/schedule').catch(function (err) {
+          showError(err.message || 'Kunde inte slutföra');
+          if (btn) { btn.disabled = false; btn.textContent = 'Anpassa schema först'; }
+        });
+      });
+    }
   }
 
   async function loadPreview() {
@@ -570,6 +644,17 @@
     return state.enabled === true;
   }
 
+  /** True only for the default 3-question fast path (Journey handles coach; no signup handoff). */
+  function isSlimFastPath() {
+    if (state.signupPath === 'slim') return true;
+    if (state.signupPath === 'full_wizard' || state.signupPath === 'legacy_template') return false;
+    return state.slim && state.enabled;
+  }
+
+  function getSignupPath() {
+    return state.signupPath;
+  }
+
   async function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
 
@@ -603,5 +688,11 @@
     } catch (_) {}
   }
 
-  window.OnboardingStarterPlan = { init: init, isEnabled: isEnabled, isSlim: function () { return state.slim; } };
+  window.OnboardingStarterPlan = {
+    init: init,
+    isEnabled: isEnabled,
+    isSlim: function () { return state.slim; },
+    isSlimFastPath: isSlimFastPath,
+    getSignupPath: getSignupPath,
+  };
 })();

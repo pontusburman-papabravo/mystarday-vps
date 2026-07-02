@@ -102,12 +102,15 @@ describe('signup-slim checkpoint', () => {
     assert.match(src, /autoSaveSlimAndFinish/);
     assert.match(src, /Er rutin är redo/);
     assert.match(src, /\/dashboard/);
+    assert.match(src, /signup_power_path_selected/);
+    assert.match(src, /Välj färdigt schema/);
+    assert.match(src, /isSlimFastPath/);
   });
 
-  it('onboarding-activation disables handoff when slim', () => {
+  it('onboarding-activation disables handoff only on slim fast path', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/onboarding-activation.js'), 'utf8');
-    assert.match(src, /isSlimSignup/);
-    assert.match(src, /activation_signup_slim_v1/);
+    assert.match(src, /isSlimFastPathOnly/);
+    assert.match(src, /isSlimFastPath/);
   });
 
   it('migration seeds activation_signup_slim_v1', () => {
@@ -116,6 +119,15 @@ describe('signup-slim checkpoint', () => {
       'utf8'
     );
     assert.match(src, /activation_signup_slim_v1/);
+  });
+
+  it('rollout migration enables activation_signup_slim_v1', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'migrations/1809240000000_enable_signup_slim_flag.js'),
+      'utf8'
+    );
+    assert.match(src, /activation_signup_slim_v1/);
+    assert.match(src, /ON CONFLICT \(key\) DO UPDATE SET enabled = EXCLUDED.enabled/);
   });
 
   it('journey registry has sj_* experiences', () => {

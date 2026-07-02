@@ -35,17 +35,20 @@
       });
   }
 
-  function isSlimSignup() {
+  function isSlimFastPathOnly() {
+    if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function') {
+      return OnboardingStarterPlan.isSlimFastPath();
+    }
     return Boolean(config && config.flags && config.flags.activation_signup_slim_v1);
   }
 
   function isHandoffEnabled() {
-    if (isSlimSignup()) return false;
+    if (isSlimFastPathOnly()) return false;
     return Boolean(config && config.flags && config.flags.activation_child_handoff_v1);
   }
 
   function isAnyAct1OnboardingFlagEnabled() {
-    if (isSlimSignup()) return false;
+    if (isSlimFastPathOnly()) return false;
     if (!config || !config.flags) return false;
     return Boolean(
       config.flags.activation_child_handoff_v1

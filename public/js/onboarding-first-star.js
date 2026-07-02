@@ -12,8 +12,13 @@
   function isGuideEnabled() {
     const oa = act();
     if (!oa || typeof oa.getConfig !== 'function') return false;
+    if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function') {
+      if (OnboardingStarterPlan.isSlimFastPath()) return false;
+    } else {
+      const cfg = oa.getConfig();
+      if (cfg && cfg.flags && cfg.flags.activation_signup_slim_v1) return false;
+    }
     const cfg = oa.getConfig();
-    if (cfg && cfg.flags && cfg.flags.activation_signup_slim_v1) return false;
     return Boolean(cfg && cfg.flags && cfg.flags.activation_first_star_guide_v1);
   }
 

@@ -51,6 +51,16 @@ Hem
 - AI-personalisering: **valfritt**, fallback till mall (befintlig PR 4-regel)
 - Schema **måste** sparas i signup (undvik “registrerad men tom”)
 
+**Power-user (låst):** Slim är **standard**, men föräldern ska alltid kunna gå snabbare/mer kontrollerat utan att lämna signup:
+
+| Väg | UI | Efter schema |
+|-----|-----|--------------|
+| **Standard (slim)** | 3 frågor → auto-schema | “Er rutin är redo” → Hem (eller anpassa schema) |
+| **Välj färdigt schema** | Legacy steg 1 (mallväljare) | Full legacy/ACT-1-handoff om flaggad |
+| **Bygg och anpassa** | 7 frågor + preview | Handoff / first-star som idag |
+
+Journey-coach gäller endast **slim standardväg**; handoff och first-star i signup är **på** för power-user-vägar.
+
 ### 3. Journey — kadens 1, 2, 3, 7, 14 (day-second)
 
 | Dag | Coach-jobb | Inte |

@@ -217,8 +217,12 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
+<<<<<<< HEAD
 const CACHE_NAME = 'stjarndag-v473';
 // stjarndag-v473: Slim signup + Journey + power-user paths (merge med bildstöd v472)
+=======
+const CACHE_NAME = 'stjarndag-v472';
+>>>>>>> 0afd0be (feat(onboarding): power-user paths in slim signup + enable flag)
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
@@ -324,6 +328,7 @@ const CACHE_NAME = 'stjarndag-v473';
 // stjarndag-v465: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v466: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v468: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v472: Slim signup power-user paths (välj schema / full wizard) + prod flag enable
 // stjarndag-v471: Slim signup (3 frågor → Hem) + event-first signup Journey (sj_* coach)
 // stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
