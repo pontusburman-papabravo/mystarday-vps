@@ -26,7 +26,7 @@
 - ADHD
 - Autism
 - Specialpedagogik
-- Bildstöd / TEACCH
+- Bildstöd / TEACCH-inspirerat visuellt stöd
 - Föräldraskap
 
 ## Videoscript (30 sek)
