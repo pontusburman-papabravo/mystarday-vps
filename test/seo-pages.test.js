@@ -167,9 +167,10 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
 
 test('llms.txt is available for AI agents', () => {
   const txt = fs.readFileSync(path.join(ROOT, 'public/llms.txt'), 'utf8');
-  assert.match(txt, /# Min Stjärndag/);
-  assert.match(txt, /bildschema-app/);
-  assert.match(txt, /sitemap\.xml/);
+  assert.match(txt, /^# Min Stjärndag\n> /m);
+  assert.match(txt, /\[Bildschema för barn\]\(https:\/\/mystarday\.se\/bildschema-app\):/);
+  assert.match(txt, /\[XML-sitemap\]\(https:\/\/mystarday\.se\/sitemap\.xml\):/);
+  assert.doesNotMatch(txt, /^- https:\/\//m);
 });
 
 test('SEO guide analytics events are allowlisted', () => {

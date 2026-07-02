@@ -1357,6 +1357,22 @@ body.platform-web.landing-magic-bg {
 
 .landing-footer__col a:hover { color: rgba(255, 255, 255, 0.9); }
 
+.landing-footer__cookie-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.landing-footer__cookie-link:hover { color: rgba(255, 255, 255, 0.9); }
+
 .landing-footer__copy {
   max-width: var(--max-w);
   margin: 0 auto;
