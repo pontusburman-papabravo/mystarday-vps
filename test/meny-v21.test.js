@@ -85,7 +85,7 @@ describe('meny v2.1 — Sprint 4 engine split', () => {
   });
 
   it('child-dashboard wires engines after loadDay and loadRewards', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-load-day.js'), 'utf8');
     assert.match(src, /ChildActivityEngine\.setLastDayData/);
     assert.match(src, /ChildRewardsEngine\.setGoalData/);
     assert.match(src, /coalescedLoadDay/);
@@ -147,7 +147,7 @@ describe('meny v2.1 — Sprint 7 coach + support layer', () => {
   });
 
   it('child-dashboard delegates substeps to support layer', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-substeps.js'), 'utf8');
     assert.match(src, /ChildSupportLayer\.renderInteractiveSubsteps/);
   });
 });
