@@ -516,7 +516,91 @@ function setEmoji(gridId, inputId, previewId, emoji) {
 }
 function previewNewActEmoji() {
   const v = document.getElementById('newActEmojiInput').value.trim();
+  if (v) resetNewActIconKey();
   document.getElementById('newActEmojiPreview').textContent = v || '📌';
+}
+
+let _newActIconKey = null;
+let _pictogramList = null;
+
+function resetNewActIconKey() {
+  _newActIconKey = null;
+  const hidden = document.getElementById('newActIconKeyInput');
+  if (hidden) hidden.value = '';
+  const panel = document.getElementById('newActPictogramPanel');
+  if (panel) panel.classList.add('hidden');
+  const toggle = document.getElementById('newActPictogramToggle');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+}
+
+async function ensurePictogramList() {
+  if (_pictogramList) return _pictogramList;
+  if (window.PictogramRegistry && window.PictogramRegistry.load) {
+    await window.PictogramRegistry.load();
+  }
+  try {
+    const res = await window.apiFetch('/api/pictograms');
+    if (res.ok) {
+      const data = await res.json();
+      _pictogramList = Array.isArray(data) ? data : (data.pictograms || []);
+    } else {
+      _pictogramList = [];
+    }
+  } catch (_) {
+    _pictogramList = [];
+  }
+  return _pictogramList;
+}
+
+function renderNewActPictogramGrid(filter) {
+  const grid = document.getElementById('newActPictogramGrid');
+  if (!grid || !_pictogramList) return;
+  const q = (filter || '').trim().toLowerCase();
+  const rows = _pictogramList.filter(function (p) {
+    if (!q) return true;
+    return p.label.toLowerCase().includes(q) || p.key.includes(q);
+  });
+  grid.innerHTML = rows.slice(0, 72).map(function (p) {
+    const selected = _newActIconKey === p.key ? ' ring-2 ring-gold bg-white' : '';
+    return '<button type="button" onclick="selectNewActPictogram(\'' + p.key + '\')" class="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-white transition-colors text-xl' + selected + '" title="' + escHtml(p.label) + '">' + p.emoji + '</button>';
+  }).join('');
+}
+
+async function toggleNewActPictogramPanel() {
+  const panel = document.getElementById('newActPictogramPanel');
+  const toggle = document.getElementById('newActPictogramToggle');
+  if (!panel) return;
+  const willShow = panel.classList.contains('hidden');
+  if (willShow) {
+    await ensurePictogramList();
+    const searchEl = document.getElementById('newActPictogramSearch');
+    renderNewActPictogramGrid(searchEl ? searchEl.value : '');
+    panel.classList.remove('hidden');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  } else {
+    panel.classList.add('hidden');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function selectNewActPictogram(key) {
+  _newActIconKey = key;
+  const hidden = document.getElementById('newActIconKeyInput');
+  if (hidden) hidden.value = key;
+  const pic = (_pictogramList || []).find(function (p) { return p.key === key; });
+  const preview = document.getElementById('newActEmojiPreview');
+  if (pic && preview) preview.textContent = pic.emoji;
+  const searchEl = document.getElementById('newActPictogramSearch');
+  renderNewActPictogramGrid(searchEl ? searchEl.value : '');
+}
+
+function clearNewActPictogram() {
+  resetNewActIconKey();
+  previewNewActEmoji();
+}
+
+function filterNewActPictograms(val) {
+  renderNewActPictogramGrid(val);
 }
 function previewEditTplEmoji() {
   const v = document.getElementById('editTplEmojiInput').value.trim();
@@ -537,6 +621,7 @@ let _newActSubsteps = []; // { name, icon }
 
 function openCreateActivityModal(prefillName) {
   _newActSubsteps = [];
+  resetNewActIconKey();
   document.getElementById('newActName').value = prefillName || '';
   document.getElementById('newActEmojiInput').value = '';
   document.getElementById('newActEmojiPreview').textContent = '📌';
@@ -589,12 +674,17 @@ async function submitCreateActivity() {
     }
     const icon = document.getElementById('newActEmojiInput').value.trim() || null;
     const starValue = parseInt(document.getElementById('newActStarValue').value, 10) || 1;
+    const iconKeyEl = document.getElementById('newActIconKeyInput');
+    const iconKey = iconKeyEl && iconKeyEl.value ? iconKeyEl.value.trim() : null;
     document.getElementById('createActivityError').classList.add('hidden');
+
+    const createBody = { name, icon, star_value: starValue, is_favorite: false, feedback_for: 'both', time_group: addSectionOverride === 'morgon' ? 'morgon' : addSectionOverride === 'kvall' ? 'kvall' : 'morgon' };
+    if (iconKey) createBody.icon_key = iconKey;
 
     // Create the activity template
     const res = await window.apiFetch('/api/activities', {
       method: 'POST',
-      body: JSON.stringify({ name, icon, star_value: starValue, is_favorite: false, feedback_for: 'both', time_group: addSectionOverride === 'morgon' ? 'morgon' : addSectionOverride === 'kvall' ? 'kvall' : 'morgon' })
+      body: JSON.stringify(createBody)
     });
     const data = await res.json();
     if (!res.ok) {
@@ -978,6 +1068,10 @@ function resetRecurrenceModalTexts() {
   window.renderEmojiGrid = renderEmojiGrid;
   window.setEmoji = setEmoji;
   window.previewNewActEmoji = previewNewActEmoji;
+  window.toggleNewActPictogramPanel = toggleNewActPictogramPanel;
+  window.selectNewActPictogram = selectNewActPictogram;
+  window.clearNewActPictogram = clearNewActPictogram;
+  window.filterNewActPictograms = filterNewActPictograms;
   window.previewEditTplEmoji = previewEditTplEmoji;
   window.pickStarVal = pickStarVal;
   window.openCreateActivityModal = openCreateActivityModal;

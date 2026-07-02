@@ -541,6 +541,7 @@
 | GET | `/api/pedagog/school-activities/` | src/routes/pedagog-school-activities.js | — |
 | POST | `/api/pedagog/school-activities/` | src/routes/pedagog-school-activities.js | — |
 | DELETE | `/api/pedagog/school-activities/:id` | src/routes/pedagog-school-activities.js | — |
+| GET | `/api/pictograms/` | src/routes/pictograms.js | — |
 | GET | `/api/public/activation-program/invite/:token` | src/routes/public.js | — |
 | POST | `/api/public/newsletter-subscribe` | src/routes/public.js | — |
 | GET | `/api/public/preview-data` | src/routes/public.js | — |

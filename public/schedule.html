@@ -21,7 +21,8 @@
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
     <script src="/js/schedule-core.js?v=1"></script>
   <script src="/js/schedule-cal-nav.js?v=1"></script>
-  <script src="/js/schedule-activity-modals.js?v=1"></script>
+  <script src="/js/pictogram-registry.js?v=1"></script>
+  <script src="/js/schedule-activity-modals.js?v=2"></script>
   <script src="/js/schedule-custody.js?v=3"></script>
   <script src="/js/schedule.js?v=2.27.0"></script>
   <script src="/js/schedule-dnd.js?v=1"></script>
@@ -541,6 +542,15 @@
           <input type="text" id="newActEmojiInput" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewNewActEmoji()">
         </div>
         <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" id="newActEmojiGrid"></div>
+        <div class="mt-2">
+          <button type="button" id="newActPictogramToggle" class="text-sm font-semibold text-purple-700 hover:text-purple-900" aria-expanded="false" onclick="toggleNewActPictogramPanel()">🖼️ Välj bildstöd <span class="font-normal text-text-soft">(valfritt)</span></button>
+          <div id="newActPictogramPanel" class="hidden mt-2 p-3 bg-purple-50 rounded-xl border border-purple-100">
+            <input type="search" id="newActPictogramSearch" placeholder="Sök bild…" class="w-full mb-2 px-3 py-2 rounded-lg border border-lavender text-sm" oninput="filterNewActPictograms(this.value)">
+            <div id="newActPictogramGrid" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto"></div>
+            <button type="button" class="mt-2 text-xs text-text-soft hover:text-navy" onclick="clearNewActPictogram()">Ta bort bildstöd</button>
+          </div>
+          <input type="hidden" id="newActIconKeyInput" value="">
+        </div>
       </div>
       <!-- Star value -->
       <div class="mb-3">
