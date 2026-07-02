@@ -14,7 +14,7 @@ const itemRatings = {}; // itemId -> { child_score, child_comment, parent_score,
 let weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
 let allowChildReorder = false; // toggled by parent in child profile settings
 let showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
-let viewType = 'day_sections'; // 'day_sections' (default) | 'now_next_later'
+let viewType = 'now_next_later'; // 'day_sections' | 'now_next_later' (server may override for existing children)
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off
 let dopaminAnimation = true; // toggled by parent — star burst on check-off
@@ -341,6 +341,74 @@ async function childLogout() {
 }
 window.childLogout = childLogout;
 
+// ── NU / Nästa / Senare three-zone layout ─────────────────
+function renderNowNextLaterZones(opts) {
+  const doneItems = opts.doneItems || [];
+  const nowItems = opts.nowItems || [];
+  const nextItems = opts.nextItems || [];
+  const laterItems = opts.laterItems || [];
+  const isToday = opts.isToday !== false;
+
+  const renderNow = window.renderNowCard;
+  const renderDone = window.renderDoneHistoryCard;
+  const renderCard = window.renderActivityCard;
+  if (typeof renderNow !== 'function' || typeof renderCard !== 'function') return '';
+
+  let html = '';
+
+  if (doneItems.length > 0 && typeof renderDone === 'function') {
+    html += `<div class="nnl-done-history mb-4">
+      <div class="nl-section-label" style="color:#22C55E;">✅ Klart</div>
+      <div class="space-y-2">`;
+    for (const item of doneItems) {
+      html += renderDone(item);
+    }
+    html += `</div></div>`;
+  }
+
+  html += '<div class="nnl-zones-layout">';
+
+  html += `<div class="nnl-zone nnl-zone--now">
+    <div class="nnl-zone-header">⚡ NU</div>
+    <div class="sortable-section space-y-3" data-sortable-section="now">`;
+  if (nowItems.length > 0) {
+    for (const item of nowItems) {
+      html += renderNow(item, isToday);
+    }
+  } else {
+    html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">Inget just nu</p>';
+  }
+  html += `</div></div>`;
+
+  html += `<div class="nnl-zone nnl-zone--next">
+    <div class="nnl-zone-header">▶ Nästa</div>
+    <div class="sortable-section space-y-3" data-sortable-section="next">`;
+  if (nextItems.length > 0) {
+    for (const item of nextItems) {
+      html += renderCard(item, isToday, 'next');
+    }
+  } else {
+    html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">—</p>';
+  }
+  html += `</div></div>`;
+
+  html += `<div class="nnl-zone nnl-zone--later">
+    <div class="nnl-zone-header">📋 Senare</div>
+    <div class="sortable-section space-y-3" data-sortable-section="later">`;
+  if (laterItems.length > 0) {
+    for (const item of laterItems) {
+      html += renderCard(item, isToday, 'later');
+    }
+  } else {
+    html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">—</p>';
+  }
+  html += `</div></div>`;
+
+  html += '</div>';
+  return html;
+}
+window.renderNowNextLaterZones = renderNowNextLaterZones;
+
 // ── View type toggle (child can switch view in-session) ─
 function updateViewToggleButton() {
   const icon = document.getElementById('viewToggleIcon');
@@ -348,7 +416,7 @@ function updateViewToggleButton() {
   if (!icon) return;
   if (viewType === 'now_next_later') {
     icon.textContent = '⚡';
-    if (label) label.textContent = 'Nu/Nästa/Sedan';
+    if (label) label.textContent = 'Nu/Nästa/Senare';
   } else {
     icon.textContent = '🌅';
     if (label) label.textContent = 'Dagsvy';

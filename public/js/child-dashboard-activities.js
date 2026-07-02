@@ -343,7 +343,7 @@ function renderActivities(data, trueStarBalance) {
     const filterActive = backendFiltered || (isToday && showNowNext) || focusQuestMode;
 
     if (filterActive) {
-      // Timeline layout: completed history → NU → NÄSTA → SEDAN
+      // Timeline layout: completed history → NU → NÄSTA → SENARE
       const doneItems = [];
       const nowItems = [];
       const nextItems = [];
@@ -359,44 +359,14 @@ function renderActivities(data, trueStarBalance) {
         }
       }
 
-      // 1. Completed history at top (dimmed, not clickable)
-      if (doneItems.length > 0) {
-        html += `<div class="mb-4">
-          <div class="nl-section-label" style="color:#22C55E;">✅ Klart</div>
-          <div class="space-y-2">`;
-        for (const item of doneItems) {
-          html += renderDoneHistoryCard(item);
-        }
-        html += `</div></div>`;
-      }
-
-      // 2. NOW card (featured)
-      if (nowItems.length > 0) {
-        html += `<div class="mb-4"><div class="sortable-section space-y-3" data-sortable-section="now">`;
-        for (const item of nowItems) {
-          html += renderNowCard(item, true);
-        }
-        html += `</div></div>`;
-      }
-
-      // 3. NEXT card
-      if (nextItems.length > 0) {
-        html += `<div class="mb-4"><div class="sortable-section space-y-3" data-sortable-section="next">`;
-        for (const item of nextItems) {
-          html += renderActivityCard(item, isToday, 'next');
-        }
-        html += `</div></div>`;
-      }
-
-      // 4. LATER cards (ALL remaining)
-      if (laterItems.length > 0) {
-        html += `<div class="mb-4">
-          <div class="nl-section-label">📋 Sedan</div>
-          <div class="sortable-section space-y-3" data-sortable-section="later">`;
-        for (const item of laterItems) {
-          html += renderActivityCard(item, isToday, 'later');
-        }
-        html += `</div></div>`;
+      if (typeof window.renderNowNextLaterZones === 'function') {
+        html += window.renderNowNextLaterZones({
+          doneItems,
+          nowItems,
+          nextItems,
+          laterItems,
+          isToday,
+        });
       }
     } else {
       // Normal section-grouped layout (non-filtered view for now_next_later on non-today)
@@ -565,7 +535,7 @@ function renderNLCard(item, view, canToggle) {
   const timeStr = item.start_time || '';
   const isPast = view === 'past';
   const chipClass = isPast ? 'chip-redan' : view === 'next' ? 'chip-next' : 'chip-later';
-  const chipLabel = isPast ? 'Redan' : view === 'next' ? 'Nästa' : 'Sedan';
+  const chipLabel = isPast ? 'Redan' : view === 'next' ? 'Nästa' : 'Senare';
   const cardClass = view === 'next' ? 'next-card' : view === 'past' ? 'past-card' : 'later-card';
   const clickAttr = canToggle && !isDone ? `onclick="toggleItem('${item.id}', ${isDone})"` : '';
 
@@ -623,7 +593,7 @@ function renderActivityCard(item, isToday, timeStatus) {
   if (isNext) {
     badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EDE9FF] text-[#6B50F5] mb-1">▶ Nästa</span>';
   } else if (isLater && !isDone) {
-    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669] mb-1">Sedan</span>';
+    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669] mb-1">Senare</span>';
   }
 
   const hasSubSteps = (item.sub_step_count || 0) > 0;

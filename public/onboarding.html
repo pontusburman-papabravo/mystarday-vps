@@ -375,8 +375,8 @@
 
       <div class="grid grid-cols-1 gap-4 mb-5">
 
-        <!-- DAGSVY (default) -->
-        <div class="view-type-card selected" id="viewCardDay" onclick="selectViewType('day')">
+        <!-- DAGSVY -->
+        <div class="view-type-card" id="viewCardDay" onclick="selectViewType('day')">
           <div class="selected-badge">✓</div>
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:#FFF3D6">🌅</div>
@@ -412,13 +412,13 @@
           </div>
         </div>
 
-        <!-- TIDSLINJE -->
-        <div class="view-type-card" id="viewCardTimeline" onclick="selectViewType('timeline')">
+        <!-- TIDSLINJE (default för nya barn) -->
+        <div class="view-type-card selected" id="viewCardTimeline" onclick="selectViewType('timeline')">
           <div class="selected-badge">✓</div>
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:#EDE7F6">⏱️</div>
             <div>
-              <div class="font-heading font-bold text-navy text-base">Nu/Nästa/Sedan-vy</div>
+              <div class="font-heading font-bold text-navy text-base">Nu/Nästa/Senare-vy</div>
               <div class="text-text-soft text-xs">Visar bara vad som händer just nu</div>
             </div>
           </div>
@@ -445,7 +445,7 @@
               <span class="text-xs">Lek</span>
             </div>
           </div>
-          <p class="text-text-soft text-xs mt-3 text-center">Du kan även välja Nu/Nästa/Sedan-vy om ditt barn föredrar att fokusera på en sak i taget.</p>
+          <p class="text-text-soft text-xs mt-3 text-center">Du kan även välja Dagsvy om ditt barn föredrar färgkodade dagdelssektioner.</p>
         </div>
       </div>
 

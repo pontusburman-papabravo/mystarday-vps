@@ -144,7 +144,7 @@
     if (isNext) {
       badgeHtml = '<span class="nl-chip chip-next">Nästa</span>';
     } else if (isLater && !isDone) {
-      badgeHtml = '<span class="nl-chip chip-later">Sedan</span>';
+      badgeHtml = '<span class="nl-chip chip-later">Senare</span>';
     }
 
     let ratingHtml = '';

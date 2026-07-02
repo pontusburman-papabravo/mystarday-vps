@@ -15,7 +15,7 @@ describe('Onboarding handoff P0', () => {
   it('onboarding.js skips steps 2–4 after schema via finalizeSchemaAndGoHandoff', () => {
     const src = read('public/js/onboarding.js');
     assert.match(src, /finalizeSchemaAndGoHandoff/);
-    assert.match(src, /view_type: 'day'/);
+    assert.match(src, /view_type: 'timeline'/);
     assert.match(src, /goToStep\(5\)/);
     assert.doesNotMatch(src, /hideWeekendModal\(\);\s*goToStep\(2\)/);
   });

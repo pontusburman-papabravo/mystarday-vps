@@ -8,7 +8,7 @@ const express = require('express');
 const db = require('../../lib/db');
 const { requireChild } = require('../../middleware/auth');
 const { scopeRouterToPath } = require('../../middleware/router-path-scope');
-const { getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
+const { getOrGenerateDailyLog, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
@@ -27,7 +27,7 @@ const {
 } = require('./helpers');
 
 const childSelfRouter = express.Router();
-childSelfRouter.use(scopeRouterToPath('/daily-log', '/daily-log-items', '/view-type'));
+childSelfRouter.use(scopeRouterToPath('/daily-log', '/daily-log-items', '/view-type', '/weekly-schedule'));
 childSelfRouter.use(requireChild);
 
 /**
@@ -573,6 +573,61 @@ childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/uncomplete', 
     res.json(upsertResult.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Sub-step uncomplete error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+/**
+ * GET /api/me/weekly-schedule
+ * Read-only week template for the authenticated child (Mon–Sun icons).
+ */
+childSelfRouter.get('/weekly-schedule', async (req, res) => {
+  try {
+    const childId = req.user.id;
+    const childResult = await db.query('SELECT timezone FROM child WHERE id = $1', [childId]);
+    const tz = childResult.rows[0]?.timezone || 'Europe/Stockholm';
+    const todayStr = getLocalDateStr(new Date(), tz);
+    const todayDow = getDayOfWeek(todayStr, tz);
+
+    const DAY_NAMES = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+    const DAY_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+    const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+    const scheduleRows = await db.query(
+      `SELECT ws.day_of_week,
+              at.name, at.icon, at.icon_key, at.image_url,
+              wsi.sort_order
+       FROM weekly_schedule ws
+       JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
+       JOIN activity_template at ON at.id = wsi.activity_template_id
+       WHERE ws.child_id = $1 AND ws.week_variant IS NULL
+       ORDER BY ws.day_of_week ASC, wsi.sort_order ASC`,
+      [childId]
+    );
+
+    const byDow = {};
+    for (const row of scheduleRows.rows) {
+      if (!byDow[row.day_of_week]) byDow[row.day_of_week] = [];
+      byDow[row.day_of_week].push({
+        name: row.name,
+        icon: row.icon || '',
+        icon_key: row.icon_key || null,
+        image_url: row.image_url || null,
+        sort_order: row.sort_order,
+      });
+    }
+
+    const days = DOW_ORDER.map((dow) => ({
+      dayOfWeek: dow,
+      dayName: DAY_NAMES[dow],
+      shortName: DAY_SHORT[dow],
+      isToday: dow === todayDow,
+      activities: byDow[dow] || [],
+    }));
+
+    res.json({ today: todayStr, days });
+  } catch (err) {
+    console.error('[DAILY-LOG-CHILD] Weekly schedule read error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

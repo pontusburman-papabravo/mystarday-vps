@@ -131,9 +131,9 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
 
       // Insert child
       const childResult = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, pin, username, pin_fingerprint, avatar_url)
-         VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', $5, $6, $7, $8)
-         RETURNING id, name, emoji, birthday, username, avatar_url, created_at`,
+        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint, avatar_url)
+         VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', 'now_next_later', $5, $6, $7, $8)
+         RETURNING id, name, emoji, birthday, view_type, username, avatar_url, created_at`,
         [req.user.familyId, childName, emoji, childBirthday, pinHash, username, pinFp, avatar_url || null]
       );
       const child = childResult.rows[0];
@@ -812,7 +812,7 @@ router.post('/child-view', async (req, res) => {
       return res.status(400).json({ error: 'Ogiltig view_type. Välj dag eller tidslinje.' });
     }
 
-    const dbViewType = dbValueMap[view_type] || 'day_sections';
+    const dbViewType = dbValueMap[view_type] || 'now_next_later';
 
     // Verify child belongs to this parent's family
     const check = await authz.getChildAccess(req.user.id, child_id);

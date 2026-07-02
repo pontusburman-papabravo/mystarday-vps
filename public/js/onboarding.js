@@ -33,7 +33,7 @@ window.addEventListener('onboarding:child-created', (e) => {
   if (s5Pin && d.pin) s5Pin.textContent = d.pin;
 });   // stored for schedule-preview age calc
 let selectedDayPref = null;      // template_group key (e.g. 'forskola', 'morgon', 'helg')
-let selectedViewType = 'day';    // 'day' | 'timeline' — default: Dagsvy
+let selectedViewType = 'timeline';    // 'day' | 'timeline' — default: Nu/Nästa/Senare
 const selectedRewards = [];        // array of { name, icon, star_cost }
 let selectedEmojiValue = null;
 let selectedAvatarUrl = null;    // uploaded avatar URL (iOS native camera) — null = use emoji
@@ -332,7 +332,7 @@ async function finalizeSchemaAndGoHandoff() {
   if (childId) {
     window.apiFetch('/api/onboarding/child-view', {
       method: 'POST',
-      body: JSON.stringify({ child_id: childId, view_type: 'day' }),
+      body: JSON.stringify({ child_id: childId, view_type: 'timeline' }),
     }).catch(function () {});
   }
   if (window.OnboardingActivation && typeof OnboardingActivation.notifyPinSet === 'function') {

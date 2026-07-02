@@ -315,9 +315,9 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
 
       // Create child
       const childResult = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, pin, username, pin_fingerprint, avatar_url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-         RETURNING id, name, emoji, birthday, timezone, view_mode, username, avatar_url, created_at`,
+        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint, avatar_url)
+         VALUES ($1, $2, $3, $4, $5, $6, 'now_next_later', $7, $8, $9, $10)
+         RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, username, avatar_url, created_at`,
         [req.user.familyId, name.trim(), emoji, birthday || null, childTimezone, childViewMode, pinHash, username, pinFp, req.body.avatar_url || null]
       );
 
