@@ -229,6 +229,7 @@ module.exports = {
   deriveActiveWave,
   waveIsComplete,
   getRolloutStatus,
+  getPhaseDistribution,
   enableWaveUpTo,
   advanceOneWave,
   runHealthChecks,

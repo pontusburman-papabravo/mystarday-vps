@@ -5,7 +5,7 @@ const { requireParent } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const familyMilestones = require('../../db/family-milestones');
 const { getContextDerivation, getPhaseDerivation } = require('../lib/journey/evaluator');
-const { ingestClientIntent } = require('../lib/journey/ingest');
+const { ingestClientIntent, ingestMilestone } = require('../lib/journey/ingest');
 const { buildContextForFamily } = require('../lib/journey/context-builder');
 const { loadRegistry } = require('../lib/journey/registry');
 const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags');
@@ -102,6 +102,9 @@ router.get('/journey-context/registry', async (req, res) => {
     const registry = await loadRegistry({
       useDb: await isFlagEnabled(FLAG_KEYS.registryV2),
     });
+    if (registry?.version) {
+      res.set('X-Journey-Registry-Version', registry.version);
+    }
     res.json(registry);
   } catch (err) {
     res.status(500).json({ error: 'Något gick fel' });
@@ -142,6 +145,21 @@ router.get('/journey-context/pending-completions', async (req, res) => {
       }
       return mapped;
     }));
+
+    if (completions.length > 0) {
+      for (const item of completions) {
+        await ingestMilestone({
+          familyId,
+          milestone: 'parent_ack_shown',
+          childId: item.child_id || null,
+          metadata: {
+            daily_log_item_id: item.daily_log_item_id,
+            parent_id: parentId,
+          },
+          source: 'system',
+        });
+      }
+    }
 
     res.json({ completions });
   } catch (err) {

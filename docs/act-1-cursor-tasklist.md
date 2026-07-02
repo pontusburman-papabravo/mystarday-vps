@@ -1,7 +1,7 @@
 # ACT-1 — Cursor tasklist (v1.4)
 
 **Skapad:** 2026-06-24  
-**Status:** Arbetsorder — bygg i ordning. **Primära dokument för Cursor** (exekveringsplan = bakgrund).
+**Status:** PR 1–4 **shipped** (migration `180922` enables flags för alla). PR 5 öppen.
 
 **Läs:** [`act-1-ai-startschema-spec.md`](./act-1-ai-startschema-spec.md)  
 **Bakgrund:** [`aktivering-exekveringsplan.md`](./aktivering-exekveringsplan.md)
@@ -34,32 +34,32 @@
 
 ### EPIC 1.1 — P0 activation state (source of truth)
 
-- [ ] Migration: `family_activation_state` eller kolumner på `family` (`schema_saved_at`, `child_access_completed_at`, `first_completion_at`, `p0_activated_at`, `p0_activated_within_48h`, `activation_variant`)
-- [ ] `src/lib/activation-p0.js`: `updateActivationState()`, `isP0Activated()`, `getActivationFunnelStep()`
-- [ ] `activation_achieved_48h` emitteras **server-side** när `p0_activated_at` sätts (inte enbart client)
-- [ ] Enhetstest: 48h-fönster, child access utan tidig profile-created i funnel
+- [x] Migration: `family_activation_state` eller kolumner på `family` (`schema_saved_at`, `child_access_completed_at`, `first_completion_at`, `p0_activated_at`, `p0_activated_within_48h`, `activation_variant`)
+- [x] `src/lib/activation-p0.js`: `updateActivationState()`, `isP0Activated()`, `getActivationFunnelStep()`
+- [x] `activation_achieved_48h` emitteras **server-side** när `p0_activated_at` sätts (inte enbart client)
+- [x] Enhetstest: 48h-fönster, child access utan tidig profile-created i funnel
 
 ### EPIC 1.2 — Funnel events
 
-- [ ] Lägg till alla ACT-events i `ALLOWED_CLIENT_EVENTS` (`src/routes/analytics.js`)
-- [ ] Server helpers i `src/lib/analytics-tracker.js`: `trackActivationOnboardingEvent(name, familyId, meta)`
-- [ ] **Huvudtratt-events:** `activation_onboarding_started`, `starter_template_selected`, `starter_plan_saved`, **`child_access_completed`**, `first_completion_recorded`, `activation_achieved_48h`
-- [ ] **Sub-metrics:** `child_profile_created`, `child_pin_created`, `child_view_opened`, `child_handoff_skipped`
-- [ ] AI-events (förbered): `starter_plan_generation_started/succeeded/failed`
-- [ ] Varje relevant event uppdaterar `FamilyActivationState` där applicerbart
+- [x] Lägg till alla ACT-events i `ALLOWED_CLIENT_EVENTS` (`src/routes/analytics.js`)
+- [x] Server helpers i `src/lib/analytics-tracker.js`: `trackActivationOnboardingEvent(name, familyId, meta)`
+- [x] **Huvudtratt-events:** `activation_onboarding_started`, `starter_template_selected`, `starter_plan_saved`, **`child_access_completed`**, `first_completion_recorded`, `activation_achieved_48h`
+- [x] **Sub-metrics:** `child_profile_created`, `child_pin_created`, `child_view_opened`, `child_handoff_skipped`
+- [x] AI-events (förbered): `starter_plan_generation_started/succeeded/failed`
+- [x] Varje relevant event uppdaterar `FamilyActivationState` där applicerbart
 
 ### EPIC 1.3 — Feature flags
 
-- [ ] Migration: seed `feature_flag` eller `features` för `activation_onboarding_v1`, `activation_child_handoff_v1`, `activation_first_star_guide_v1`, `activation_ai_starter_plan`
-- [ ] Helper: `isActivationOnboardingEnabled(familyId)` — per familj + cohort-datum
-- [ ] Variant assignment: `legacy` | `template_only` | `template_plus_ai` (lagra på familj eller session)
+- [x] Migration: seed `feature_flag` eller `features` för `activation_onboarding_v1`, `activation_child_handoff_v1`, `activation_first_star_guide_v1`, `activation_ai_starter_plan`
+- [x] Helper: `isActivationOnboardingEnabled(familyId)` — per familj + cohort-datum
+- [x] Variant assignment: `legacy` | `template_only` | `template_plus_ai` (lagra på familj eller session)
 
 ### EPIC 1.4 — Starter plan metadata + storleksgränser
 
-- [ ] Skapa `config/starter-plan-meta.js` — 6–10 paket mappade till `default_schedule`-namn
-- [ ] Implementera `selectStarterTemplate(input)` i `src/lib/starter-plan/select-template.js`
-- [ ] Enforce: max 1 rutin, default 3–5 aktiviteter, max 7 vid “detaljerad”; trunkera mall om nödvändigt
-- [ ] Test: given ageBand + routineType → rätt scheduleName; activity count within limits
+- [x] Skapa `config/starter-plan-meta.js` — 6–10 paket mappade till `default_schedule`-namn
+- [x] Implementera `selectStarterTemplate(input)` i `src/lib/starter-plan/select-template.js`
+- [x] Enforce: max 1 rutin, default 3–5 aktiviteter, max 7 vid “detaljerad”; trunkera mall om nödvändigt
+- [x] Test: given ageBand + routineType → rätt scheduleName; activity count within limits
 
 **PR 1 klar när:** events loggas i dev; flags läsas; selector returnerar mall utan UI.
 
@@ -71,39 +71,39 @@
 
 ### EPIC 2.1 — Child handoff i onboarding
 
-- [ ] Ny sektion i onboarding (eller utökning steg 5) bakom `activation_child_handoff_v1`
-- [ ] Komponent `ChildAccessStep`: PIN-setup, copy/email login-info, länk till `/child-login`
-- [ ] Soft gate: primär “Skapa barnkod”, sekundär “Hoppa över” + `child_handoff_skipped` + konsekvenscopy
-- [ ] Vid PIN satt **eller** barnvy öppnad via handoff → emit **`child_access_completed`** + uppdatera `FamilyActivationState`
-- [ ] Återanvänd mönster från `dashboard-child-handoff.js` där möjligt
+- [x] Ny sektion i onboarding (eller utökning steg 5) bakom `activation_child_handoff_v1`
+- [x] Komponent `ChildAccessStep`: PIN-setup, copy/email login-info, länk till `/child-login`
+- [x] Soft gate: primär “Skapa barnkod”, sekundär “Hoppa över” + `child_handoff_skipped` + konsekvenscopy
+- [x] Vid PIN satt **eller** barnvy öppnad via handoff → emit **`child_access_completed`** + uppdatera `FamilyActivationState`
+- [x] Återanvänd mönster från `dashboard-child-handoff.js` där möjligt
 
 ### EPIC 2.2 — First star guide
 
-- [ ] Ny fil `public/js/onboarding-first-star.js` (IIFE, laddas efter onboarding.js)
-- [ ] Komponent `FirstStarGuide`: 3 steg (öppna barnvy → markera klar → celebration)
-- [ ] Koppla till befintlig completion-flow / `child_first_completion` om möjligt
-- [ ] Flag `activation_first_star_guide_v1`
+- [x] Ny fil `public/js/onboarding-first-star.js` (IIFE, laddas efter onboarding.js)
+- [x] Komponent `FirstStarGuide`: 3 steg (öppna barnvy → markera klar → celebration)
+- [x] Koppla till befintlig completion-flow / `child_first_completion` om möjligt
+- [x] Flag `activation_first_star_guide_v1`
 
 ### EPIC 2.3 — Admin funnel (del 1)
 
-- [ ] Ny `GET /api/admin/analytics/activation-funnel` — **9-stegs huvudtratt** (exekveringsplan §6.2)
-- [ ] Data från `FamilyActivationState` + analytics_events som backup
-- [ ] UI: admin flik “Aktivering” med veckokohort + variant breakdown
-- [ ] Sub-metrics expanderbara under steg 5 (child access)
+- [x] Ny `GET /api/admin/analytics/activation-funnel` — **9-stegs huvudtratt** (exekveringsplan §6.2)
+- [x] Data från `FamilyActivationState` + analytics_events som backup
+- [x] UI: admin flik “Aktivering” med veckokohort + variant breakdown
+- [x] Sub-metrics expanderbara under steg 5 (child access)
 
 ### EPIC 2.4 — Fixa kända gap
 
-- [ ] `skipInvite()` ska inte hoppa över child handoff / first star när flag på
-- [ ] Säkerställ `child_view_opened` fires vid barnvy-besök från guide
+- [x] `skipInvite()` ska inte hoppa över child handoff / first star när flag på
+- [x] Säkerställ `child_view_opened` fires vid barnvy-besök från guide
 
 **PR 2 klar när:** ny familj kan nå first star guide; admin funnel visar 9-stegs baseline; **`child_access_completed`** loggas korrekt.
 
 ### CHECKPOINT — stopp här, utvärdera innan PR 3
 
-- [ ] Kör manuellt test: legacy + (om flag) handoff + first star
-- [ ] Admin funnel: jämför veckokohort signup → child access → completion
-- [ ] Bekräfta att activation state inte divergerar från events
-- [ ] **Go/no-go:** handoff läcker inte → godkänn PR 3
+- [x] Kör manuellt test: legacy + (om flag) handoff + first star
+- [x] Admin funnel: jämför veckokohort signup → child access → completion
+- [x] Bekräfta att activation state inte divergerar från events
+- [x] **Go/no-go:** handoff läcker inte → godkänn PR 3
 
 ---
 
@@ -145,22 +145,22 @@
 
 ### EPIC 4.1 — generateStarterPlan
 
-- [ ] `src/lib/starter-plan/generate-plan.js`
-- [ ] `src/lib/starter-plan/llm.js` — OpenAI, timeout 15s
-- [ ] Prompt enligt spec §6
-- [ ] **Fallback:** vid fel → `selectStarterTemplate` output oförändrad + barnnamn i copy
+- [x] `src/lib/starter-plan/generate-plan.js`
+- [x] `src/lib/starter-plan/llm.js` — OpenAI, timeout 15s
+- [x] Prompt enligt spec §6
+- [x] **Fallback:** vid fel → `selectStarterTemplate` output oförändrad + barnnamn i copy
 
 ### EPIC 4.2 — Integration i preview
 
-- [ ] Efter frågor: om `activation_ai_starter_plan` → anropa generate; annars ren mall
-- [ ] Loading state i preview (max 15s, sedan fallback)
-- [ ] `used_ai: true/false` i events
+- [x] Efter frågor: om `activation_ai_starter_plan` → anropa generate; annars ren mall
+- [x] Loading state i preview (max 15s, sedan fallback)
+- [x] `used_ai: true/false` i events
 
 ### EPIC 4.3 — Guardrails & ops
 
-- [ ] Logga AI-fel med orsakskod
-- [ ] Ingen PII i prompts utöver barnnamn + användarsvar
-- [ ] Flag avstänger AI utan deploy
+- [x] Logga AI-fel med orsakskod
+- [x] Ingen PII i prompts utöver barnnamn + användarsvar
+- [x] Flag avstänger AI utan deploy
 
 **PR 4 klar när:** Variant B (template + AI + handoff + first star) live; A/B mätbart.
 
@@ -172,9 +172,10 @@
 
 ### EPIC 5.1 — Non-activated nudges
 
-- [ ] Mejl/push 24–48h efter signup om inte `activation_achieved_48h`
-- [ ] Copy: “Ditt schema väntar — ge första stjärnan på 2 min” (skilj från win-back för tidigare aktiva)
-- [ ] Respektera `notification_preference` / `EMAIL_ENABLED`
+- [x] Mejl 24–48h efter signup om inte `activation_achieved_48h` (`activation-nudge-scheduler.js`)
+- [x] Copy slim-aware: “testa rutinen” + CTA Hem (`/dashboard`)
+- [x] Respektera `notification_preference.email_enabled` + Journey Gate + `EMAIL_ENABLED`
+- [x] Go-live: migration `180932` sätter `activation_nudge_v1` ON
 
 ### EPIC 5.2 — Experiment
 
@@ -184,8 +185,7 @@
 
 ### EPIC 5.3 — Aktiveringsprogram (D7)
 
-- [ ] Utvärdera auto-enroll treatment för nya familjer efter A1 (ersätt opt-in gap)
-- [ ] Verifiera `ACTIVATION_PROGRAM_ENABLED` + `ACTIVATION_PROGRAM_LAUNCH_AT` på prod
+- [x] **Avstängt** — auto-enroll ersatt av Journey Fas 2/4 sunset (se `family-journey-fas2-5-roadmap.md`)
 
 ### EPIC 5.4 — Admin & docs
 
@@ -193,16 +193,16 @@
 - [ ] Uppdatera `CLAUDE.md` changelog vid deploy
 - [ ] SW bump om frontend-ändringar
 
-**PR 5 klar när:** veckorapport kan svara på de tre veckofrågorna i exekveringsplanen.
+**PR 5 klar när:** veckorapport kan svara på de tre veckofrågorna i exekveringsplanen. **Status:** shipped (`180932`, nudge ON).
 
 ---
 
 ## Checklista före merge till main (varje PR)
 
-- [ ] `npm run lint` (0 nya errors)
-- [ ] Relevanta tester (`test/activation-program*.test.js`, ny `test/activation-p0.test.js`)
-- [ ] Feature flag default **off** eller endast dev-familjer
-- [ ] Ingen regression i befintlig onboarding utan flag
+- [x] `npm run lint` (0 nya errors)
+- [x] Relevanta tester (`test/activation-program*.test.js`, `test/activation-p0.test.js`, `test/pr*-checkpoint.test.js`)
+- [x] PR 1–4 flaggor ON via migration `180922`; PR 5/referral OFF
+- [x] Ingen regression i befintlig onboarding utan flag
 - [ ] `docs/route-inventory-pre-split.md` om nya routes
 
 ---
@@ -269,4 +269,4 @@ Spec: docs/act-1-ai-startschema-spec.md
 | 2026-06-24 | 1.3 | FEAT-1 boendeschema — post-ACT-1 tasklista |
 | 2026-06-24 | 1.4 | FEAT-1: hela scope (BC-1–11) i en release |
 | 2026-07-01 | 1.5 | FEAT-1: domänspec + ADR + Phase 1–5 implementationsplan |
-| 2026-07-01 | 1.6 | FEAT-1: utskrift/PDF utanför scope; BC-13 = domänexponering |
+| 2026-07-02 | 1.7 | PR 1–4 shipped; migration `180922` enables flags för alla |

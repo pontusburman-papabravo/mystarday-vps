@@ -217,7 +217,14 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v475';
+const CACHE_NAME = 'stjarndag-v482';
+// stjarndag-v482: merge origin/main (Journey Fas2/ACT-1/FEAT-1B/Mina personer) with bildstöd PR2+R2 (NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor)
+// stjarndag-v481: Journey Fas 2 + ACT-1 PR5 nudge ON (ship train)
+// stjarndag-v478: Mina personer 10/10 dev-gate (mina_personer_10_10) + legacy fallback (merge main)
+// stjarndag-v477: Hem snabbknappar — fix klick (länk) + etikettlayout
+// stjarndag-v475: Bildstöd PR R2 — resurser-kategoriutökning (känslor/övergångar/TEACCH/skola/hygien) PDF-footer fix
+// stjarndag-v474: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v473: Slim signup + Journey + power-user paths + enable migration (merge bildstöd v472)
 // stjarndag-v463: SEO marketing images — logical routine sequences only
 // stjarndag-v462: SEO guides — marketing-seo images for Google Image Search
 // stjarndag-v458: SEO hub /bildschema-app cornerstone + seo-article.css + article-events.js
@@ -323,6 +330,8 @@ const CACHE_NAME = 'stjarndag-v475';
 // stjarndag-v465: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v466: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v468: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v472: Slim signup power-user paths (välj schema / full wizard) + prod flag enable
+// stjarndag-v471: Slim signup (3 frågor → Hem) + event-first signup Journey (sj_* coach)
 // stjarndag-v470: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v471: Fas 8 F3e–g — child-dashboard-checkoff/substeps/load-day.js; host ~550 r
 // stjarndag-v472: Bildstöd PR1 — pictogram-registry.js, icon_key stjärnrutnät (Skattkammaren)
@@ -413,6 +422,7 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-load-day.js',
   '/js/child-dashboard-checkoff.js',
   '/js/child-dashboard-celebrations.js',
+  '/js/child-week-overview.js',
   '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
   '/js/child-worlds.js',
@@ -459,6 +469,7 @@ const STATIC_ASSETS = [
   '/js/sse-client.js',
   '/js/child-dashboard-sse.js',
   '/js/help-bubble.js',
+  '/js/help-journey-tip.js',
   '/js/feature-check.js',
   '/js/platform.js',
   '/js/device-mode.js',

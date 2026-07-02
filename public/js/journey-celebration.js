@@ -56,6 +56,9 @@
       if (!enabled) return;
 
       const ctx = await JourneyContextClient.fetchContext();
+      if (ctx?.signup_journey?.active && ctx.signup_journey.day <= 14) {
+        return;
+      }
       if (ctx?.celebration === 'celebrate_first_success') {
         const registry = await JourneyContextClient.fetchRegistry();
         await showCelebration(registry, ctx.celebration_copy);

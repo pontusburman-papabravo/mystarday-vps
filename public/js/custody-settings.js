@@ -9,6 +9,24 @@
 
   const PATTERN_WEEKS = 'alternate_weeks';
   const PATTERN_WEEKENDS = 'alternate_weekends';
+  const PATTERN_CUSTOM = 'custom';
+
+  const CYCLE_DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  const CYCLE_DAY_LABELS = {
+    mon: 'Mån',
+    tue: 'Tis',
+    wed: 'Ons',
+    thu: 'Tor',
+    fri: 'Fre',
+    sat: 'Lör',
+    sun: 'Sön',
+  };
+
+  const CUSTOM_HELP_TEXT =
+    'Det här är barnets normala veckomönster. Lov, högtider och enstaka byten läggs senare som undantag, utan att ändra grundschemat.';
+
+  const ANCHOR_SNAP_TEXT =
+    'Cykeln börjar alltid på en måndag. Datumet har justerats till måndagen i samma vecka.';
 
   function track(event, meta) {
     if (window.analytics && typeof window.analytics.track === 'function') {
@@ -28,32 +46,230 @@
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   }
 
+  function mondayOfWeek(dateStr) {
+    const parts = dateStr.split('-').map(Number);
+    if (parts.length !== 3) return dateStr;
+    const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 12, 0, 0));
+    const day = dt.getUTCDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    dt.setUTCDate(dt.getUTCDate() + diff);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function parseConfiguration(pat) {
+    if (!pat || !pat.configuration) return {};
+    if (typeof pat.configuration === 'string') {
+      try {
+        return JSON.parse(pat.configuration);
+      } catch (_e) {
+        return {};
+      }
+    }
+    return pat.configuration;
+  }
+
   function homeOptions(homes, selectedId) {
     return homes.map(function (h) {
       const sel = h.id === selectedId ? ' selected' : '';
-      return '<option value="' + h.id + '"' + sel + '>' + escapeHtml(h.label) + '</option>';
+      return (
+        '<option value="' + h.id + '" data-color="' + escapeHtml(h.color || '#4F46E5') + '"' + sel + '>' +
+        escapeHtml(h.label) +
+        '</option>'
+      );
     }).join('');
+  }
+
+  function homeById(homes, id) {
+    return homes.find(function (h) { return h.id === id; }) || homes[0];
   }
 
   function patternTypeFromPat(pat) {
     if (!pat) return PATTERN_WEEKS;
-    return pat.pattern_type === PATTERN_WEEKENDS ? PATTERN_WEEKENDS : PATTERN_WEEKS;
+    if (pat.pattern_type === PATTERN_WEEKENDS) return PATTERN_WEEKENDS;
+    if (pat.pattern_type === PATTERN_CUSTOM) return PATTERN_CUSTOM;
+    return PATTERN_WEEKS;
   }
 
   function defaultHomeFromPat(pat) {
-    if (!pat || !pat.configuration) return pat ? pat.week_a_home_id : '';
-    const cfg = typeof pat.configuration === 'string'
-      ? JSON.parse(pat.configuration)
-      : pat.configuration;
+    if (!pat) return '';
+    const cfg = parseConfiguration(pat);
     return cfg.default_home || pat.week_a_home_id || '';
+  }
+
+  function defaultCycleWeek(homes, homeId) {
+    const id = homeId || (homes[0] && homes[0].id);
+    const row = {};
+    CYCLE_DAY_KEYS.forEach(function (k) { row[k] = id; });
+    return row;
+  }
+
+  function defaultCycleWeeks(homes, count) {
+    const a = homes[0] && homes[0].id;
+    const b = (homes[1] && homes[1].id) || a;
+    const weeks = [];
+    for (let i = 0; i < count; i += 1) {
+      weeks.push(defaultCycleWeek(homes, i % 2 === 0 ? a : b));
+    }
+    return weeks;
+  }
+
+  function cycleWeeksFromPat(pat, homes) {
+    const cfg = parseConfiguration(pat);
+    const weeks = cfg.cycle_weeks;
+    if (Array.isArray(weeks) && weeks.length >= 1) return weeks;
+    return defaultCycleWeeks(homes, 2);
+  }
+
+  function customDaySelectHtml(homes, weekIndex, dayKey, selectedId) {
+    const home = homeById(homes, selectedId);
+    const color = (home && home.color) || '#4F46E5';
+    return (
+      '<div class="flex items-center gap-2 min-h-[44px]">' +
+      '<span class="custody-home-swatch w-3 h-3 rounded-full flex-shrink-0" style="background-color:' + escapeHtml(color) + '" aria-hidden="true"></span>' +
+      '<select class="custody-custom-day flex-1 border rounded-lg px-2 py-2 text-sm min-h-[44px]" data-week="' + weekIndex + '" data-day="' + dayKey + '">' +
+      homeOptions(homes, selectedId) +
+      '</select></div>'
+    );
+  }
+
+  function customWeekPanelHtml(weekIndex, weekRow, homes, visible) {
+    const dayRows = CYCLE_DAY_KEYS.map(function (dayKey) {
+      return (
+        '<div class="grid grid-cols-[3rem_1fr] gap-2 items-center">' +
+        '<span class="text-xs font-medium text-text-soft">' + CYCLE_DAY_LABELS[dayKey] + '</span>' +
+        customDaySelectHtml(homes, weekIndex, dayKey, weekRow[dayKey]) +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<div class="custody-custom-week space-y-2 border border-lavender/60 rounded-lg p-2 ' + (visible ? '' : 'hidden') + '" data-week-index="' + weekIndex + '">' +
+      '<p class="text-xs font-semibold text-navy dark:text-white">Vecka ' + (weekIndex + 1) + ' i cykeln</p>' +
+      '<div class="space-y-1">' + dayRows + '</div></div>'
+    );
+  }
+
+  function customFieldsHtml(pat, homes) {
+    const cycleWeeks = cycleWeeksFromPat(pat, homes);
+    const cycleLen = cycleWeeks.length;
+    const panels = cycleWeeks.map(function (weekRow, i) {
+      return customWeekPanelHtml(i, weekRow, homes, i < cycleLen);
+    }).join('');
+
+    let lengthOpts = '';
+    for (let n = 1; n <= 4; n += 1) {
+      lengthOpts += '<option value="' + n + '"' + (n === cycleLen ? ' selected' : '') + '>' + n + ' vecka' + (n > 1 ? 'r' : '') + '</option>';
+    }
+
+    return (
+      '<div class="custody-fields-custom space-y-3 hidden">' +
+      '<p class="text-xs text-text-soft leading-relaxed custody-custom-help">' + escapeHtml(CUSTOM_HELP_TEXT) + '</p>' +
+      '<div><label class="block text-xs text-text-soft mb-1">Längd på cykeln</label>' +
+      '<select class="custody-cycle-length w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + lengthOpts + '</select></div>' +
+      '<div class="custody-custom-weeks space-y-2">' + panels + '</div>' +
+      '<p class="text-xs text-gold custody-anchor-snap hidden" role="status"></p>' +
+      '</div>'
+    );
   }
 
   function togglePatternFields(block) {
     const type = block.querySelector('.custody-pattern-type').value;
     const weeks = block.querySelector('.custody-fields-weeks');
     const weekends = block.querySelector('.custody-fields-weekends');
+    const custom = block.querySelector('.custody-fields-custom');
     if (weeks) weeks.classList.toggle('hidden', type !== PATTERN_WEEKS);
     if (weekends) weekends.classList.toggle('hidden', type !== PATTERN_WEEKENDS);
+    if (custom) custom.classList.toggle('hidden', type !== PATTERN_CUSTOM);
+  }
+
+  function readCustomWeeksFromDom(block) {
+    const cycleLen = parseInt(block.querySelector('.custody-cycle-length').value, 10) || 1;
+    const weeks = [];
+    for (let w = 0; w < cycleLen; w += 1) {
+      const row = {};
+      CYCLE_DAY_KEYS.forEach(function (dayKey) {
+        const sel = block.querySelector(
+          '.custody-custom-day[data-week="' + w + '"][data-day="' + dayKey + '"]'
+        );
+        row[dayKey] = sel ? sel.value : '';
+      });
+      weeks.push(row);
+    }
+    return weeks;
+  }
+
+  function syncCustomWeekVisibility(block) {
+    const cycleLen = parseInt(block.querySelector('.custody-cycle-length').value, 10) || 1;
+    block.querySelectorAll('.custody-custom-week').forEach(function (panel) {
+      const idx = parseInt(panel.getAttribute('data-week-index'), 10);
+      panel.classList.toggle('hidden', idx >= cycleLen);
+    });
+  }
+
+  function ensureCustomWeekPanels(block, homes) {
+    const container = block.querySelector('.custody-custom-weeks');
+    const cycleLen = parseInt(block.querySelector('.custody-cycle-length').value, 10) || 1;
+    const existing = readCustomWeeksFromDom(block);
+    const weeks = existing.slice(0, cycleLen);
+    while (weeks.length < cycleLen) {
+      weeks.push(defaultCycleWeek(homes, weeks.length % 2 === 0 ? homes[0]?.id : homes[1]?.id));
+    }
+    container.innerHTML = weeks.map(function (weekRow, i) {
+      return customWeekPanelHtml(i, weekRow, homes, true);
+    }).join('');
+    bindCustomDaySelects(block, homes);
+    syncCustomWeekVisibility(block);
+  }
+
+  function updateSwatchForSelect(select) {
+    const opt = select.options[select.selectedIndex];
+    const color = opt ? opt.getAttribute('data-color') : null;
+    const swatch = select.closest('.flex')?.querySelector('.custody-home-swatch');
+    if (swatch && color) swatch.style.backgroundColor = color;
+  }
+
+  function bindCustomDaySelects(block, homes) {
+    block.querySelectorAll('.custody-custom-day').forEach(function (sel) {
+      updateSwatchForSelect(sel);
+      sel.addEventListener('change', function () { updateSwatchForSelect(sel); });
+    });
+  }
+
+  function snapAnchorField(block) {
+    const input = block.querySelector('.custody-anchor');
+    const note = block.querySelector('.custody-anchor-snap');
+    if (!input || !input.value) return;
+    const type = block.querySelector('.custody-pattern-type').value;
+    if (type !== PATTERN_CUSTOM) return;
+
+    const monday = mondayOfWeek(input.value);
+    if (monday !== input.value) {
+      input.value = monday;
+      if (note) {
+        note.textContent = ANCHOR_SNAP_TEXT;
+        note.classList.remove('hidden');
+      }
+    } else if (note) {
+      note.classList.add('hidden');
+    }
+  }
+
+  function validateCustomBeforeSave(cycleWeeks) {
+    const homeIds = new Set();
+    for (let w = 0; w < cycleWeeks.length; w += 1) {
+      for (let d = 0; d < CYCLE_DAY_KEYS.length; d += 1) {
+        const dayKey = CYCLE_DAY_KEYS[d];
+        const id = cycleWeeks[w][dayKey];
+        if (!id) {
+          return 'Välj hem för alla dagar i vecka ' + (w + 1) + ' (' + CYCLE_DAY_LABELS[dayKey] + ').';
+        }
+        homeIds.add(id);
+      }
+    }
+    if (homeIds.size < 2) {
+      return 'Eget mönster behöver minst två olika hem. Stäng av boendeschema om barnet alltid bor på samma ställe.';
+    }
+    return null;
   }
 
   function childBlockHtml(c, pat, homes) {
@@ -73,28 +289,30 @@
       '</label>' +
       '<div class="custody-child-fields space-y-2 ' + (enabled ? '' : 'hidden') + '">' +
       '<div><label class="block text-xs text-text-soft mb-1">Mönster</label>' +
-      '<select class="custody-pattern-type w-full border rounded-lg px-2 py-1 text-sm">' +
+      '<select class="custody-pattern-type w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' +
       '<option value="' + PATTERN_WEEKS + '"' + (patternType === PATTERN_WEEKS ? ' selected' : '') + '>Varannan vecka</option>' +
       '<option value="' + PATTERN_WEEKENDS + '"' + (patternType === PATTERN_WEEKENDS ? ' selected' : '') + '>Varannan helg (fre–sön)</option>' +
+      '<option value="' + PATTERN_CUSTOM + '"' + (patternType === PATTERN_CUSTOM ? ' selected' : '') + '>Eget mönster</option>' +
       '</select></div>' +
-      '<label class="block text-xs text-text-soft">Ankardatum (första perioden enligt mönster)</label>' +
-      '<input type="date" class="custody-anchor w-full border rounded-lg px-2 py-1 text-sm" value="' + anchor + '" />' +
+      '<label class="block text-xs text-text-soft">Ankardatum (första måndagen i cykeln)</label>' +
+      '<input type="date" class="custody-anchor w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]" value="' + anchor + '" />' +
       '<div class="custody-fields-weeks space-y-2 ' + (patternType === PATTERN_WEEKS ? '' : 'hidden') + '">' +
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
       '<div><label class="text-xs text-text-soft">Hem period 1</label>' +
-      '<select class="custody-week-a w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<select class="custody-week-a w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '<div><label class="text-xs text-text-soft">Hem period 2</label>' +
-      '<select class="custody-week-b w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<select class="custody-week-b w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '</div></div>' +
       '<div class="custody-fields-weekends space-y-2 ' + (patternType === PATTERN_WEEKENDS ? '' : 'hidden') + '">' +
       '<div><label class="text-xs text-text-soft">Bashem vardagar (mån–tors)</label>' +
-      '<select class="custody-default-home w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<select class="custody-default-home w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
       '<div><label class="text-xs text-text-soft">Helg hem A</label>' +
-      '<select class="custody-week-a w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<select class="custody-week-a w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '<div><label class="text-xs text-text-soft">Helg hem B</label>' +
-      '<select class="custody-week-b w-full border rounded-lg px-2 py-1 text-sm">' + opts + '</select></div>' +
+      '<select class="custody-week-b w-full border rounded-lg px-2 py-2 text-sm min-h-[44px]">' + opts + '</select></div>' +
       '</div></div>' +
+      customFieldsHtml(pat, homes) +
       '</div></div>'
     );
   }
@@ -104,11 +322,6 @@
     const homeB = pat ? pat.week_b_home_id : homes[1]?.id;
     const defaultHome = defaultHomeFromPat(pat) || homeA;
 
-    const wa = block.querySelector('.custody-fields-weeks .custody-week-a')
-      || block.querySelector('.custody-fields-weekends .custody-week-a');
-    const wb = block.querySelector('.custody-fields-weeks .custody-week-b')
-      || block.querySelector('.custody-fields-weekends .custody-week-b');
-    // Set values on all matching selects (weeks + weekends share class names in separate containers)
     block.querySelectorAll('.custody-week-a').forEach(function (s) { if (homeA) s.value = homeA; });
     block.querySelectorAll('.custody-week-b').forEach(function (s) { if (homeB) s.value = homeB; });
     const defSel = block.querySelector('.custody-default-home');
@@ -116,8 +329,28 @@
 
     const typeSel = block.querySelector('.custody-pattern-type');
     if (typeSel) {
-      typeSel.addEventListener('change', function () { togglePatternFields(block); });
+      typeSel.addEventListener('change', function () {
+        togglePatternFields(block);
+        if (typeSel.value === PATTERN_CUSTOM) {
+          snapAnchorField(block);
+        }
+      });
     }
+
+    const anchorInput = block.querySelector('.custody-anchor');
+    if (anchorInput) {
+      anchorInput.addEventListener('change', function () { snapAnchorField(block); });
+    }
+
+    const cycleLenSel = block.querySelector('.custody-cycle-length');
+    if (cycleLenSel) {
+      cycleLenSel.addEventListener('change', function () {
+        ensureCustomWeekPanels(block, homes);
+      });
+    }
+
+    bindCustomDaySelects(block, homes);
+    togglePatternFields(block);
   }
 
   function render() {
@@ -139,7 +372,7 @@
     if (homes.length < 2) {
       body.innerHTML =
         '<p class="text-sm text-text-soft mb-3">Boendeschema hjälper dig hålla reda på vilket hem barnet är på — med hemnamn och färger, inte vecka A/B.</p>' +
-        '<button type="button" id="custodySetupBtn" class="px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm">Kom igång med boendeschema</button>';
+        '<button type="button" id="custodySetupBtn" class="px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm min-h-[44px]">Kom igång med boendeschema</button>';
       el('custodySetupBtn').addEventListener('click', runSetup);
       return;
     }
@@ -147,11 +380,10 @@
     const homeOpts = homeOptions(homes);
     const parentRows = parents.map(function (p) {
       const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
-      const selected = mapped ? mapped.custody_home_id : '';
       return (
         '<div class="flex flex-wrap items-center gap-2 text-sm">' +
         '<span class="min-w-[8rem] text-navy dark:text-white">' + escapeHtml(p.name || p.email) + '</span>' +
-        '<select class="custody-parent-home border rounded-lg px-2 py-1" data-parent-id="' + p.id + '">' +
+        '<select class="custody-parent-home border rounded-lg px-2 py-1">' +
         '<option value="">—</option>' + homeOpts +
         '</select></div>'
       );
@@ -163,7 +395,7 @@
     }).join('');
 
     body.innerHTML =
-      '<p class="text-sm text-text-soft">Etikett och färg per hem. Välj mönster per barn — varannan vecka eller varannan helg.</p>' +
+      '<p class="text-sm text-text-soft">Etikett och färg per hem. Välj mönster per barn — varannan vecka, varannan helg eller eget mönster.</p>' +
       '<div class="space-y-3 mt-3" id="custodyHomesEditor">' +
       homes.map(function (h) {
         return (
@@ -176,13 +408,20 @@
       '</div>' +
       '<div class="mt-4"><h4 class="text-sm font-semibold text-navy dark:text-white mb-2">Förälder ↔ hem</h4><div class="space-y-2">' + parentRows + '</div></div>' +
       '<div class="mt-4"><h4 class="text-sm font-semibold text-navy dark:text-white mb-2">Barn</h4><div class="space-y-3">' + (childBlocks || '<p class="text-sm text-text-soft">Lägg till ett barn först.</p>') + '</div></div>' +
-      '<button type="button" id="custodySaveBtn" class="mt-4 px-4 py-2 bg-navy text-white rounded-lg font-semibold text-sm">Spara boendeschema</button>' +
+      '<button type="button" id="custodySaveBtn" class="mt-4 px-4 py-2 bg-navy text-white rounded-lg font-semibold text-sm min-h-[44px]">Spara boendeschema</button>' +
       '<p id="custodySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>';
 
     parents.forEach(function (p) {
       const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
       const sel = document.querySelector('.custody-parent-home[data-parent-id="' + p.id + '"]');
       if (sel && mapped) sel.value = mapped.custody_home_id;
+    });
+    document.querySelectorAll('.custody-parent-home').forEach(function (sel, idx) {
+      const p = parents[idx];
+      if (!p) return;
+      sel.setAttribute('data-parent-id', p.id);
+      const mapped = (_config.parentHomes || []).find(function (m) { return m.parent_id === p.id; });
+      if (mapped) sel.value = mapped.custody_home_id;
     });
 
     children.forEach(function (c) {
@@ -213,13 +452,30 @@
 
   function readPatternPayload(block) {
     const patternType = block.querySelector('.custody-pattern-type').value;
+    const anchorDate = block.querySelector('.custody-anchor').value;
+
+    if (patternType === PATTERN_CUSTOM) {
+      snapAnchorField(block);
+      const cycleWeeks = readCustomWeeksFromDom(block);
+      const validationError = validateCustomBeforeSave(cycleWeeks);
+      if (validationError) {
+        throw new Error(validationError);
+      }
+      return {
+        anchor_date: block.querySelector('.custody-anchor').value,
+        pattern_type: PATTERN_CUSTOM,
+        configuration: { cycle_weeks: cycleWeeks },
+        clone_week_b: true,
+      };
+    }
+
     const visible = patternType === PATTERN_WEEKENDS
       ? block.querySelector('.custody-fields-weekends')
       : block.querySelector('.custody-fields-weeks');
     const weekA = visible.querySelector('.custody-week-a').value;
     const weekB = visible.querySelector('.custody-week-b').value;
     const payload = {
-      anchor_date: block.querySelector('.custody-anchor').value,
+      anchor_date: anchorDate,
       week_a_home_id: weekA,
       week_b_home_id: weekB,
       pattern_type: patternType,
@@ -276,9 +532,17 @@
           });
           continue;
         }
+        let payload;
+        try {
+          payload = readPatternPayload(block);
+        } catch (validationErr) {
+          if (msg) msg.classList.add('hidden');
+          showToast(validationErr.message || 'Kontrollera mönstret', true);
+          return;
+        }
         await Auth.api('/api/family/custody/pattern/' + childId, {
           method: 'PUT',
-          body: JSON.stringify(readPatternPayload(block)),
+          body: JSON.stringify(payload),
         });
       }
 

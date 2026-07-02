@@ -91,10 +91,11 @@ describe('meny v2.2 — Sprint 6 barn KX7/KX11', () => {
     assert.match(src, /persons/);
   });
 
-  it('child-family-hall renders Mina personer section', () => {
+  it('child-family-hall renders Mina personer from state', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-family-hall.js'), 'utf8');
     assert.match(src, /Mina personer/);
-    assert.match(src, /renderPersons/);
+    assert.match(src, /resolveFamilyState/);
+    assert.match(src, /cfh-persons-primary/);
   });
 });
 

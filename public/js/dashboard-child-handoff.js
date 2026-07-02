@@ -66,6 +66,9 @@
 
   function contextWantsHandoff(ctx) {
     if (!ctx) return false;
+    if (ctx.capabilities?.handoff_v2) {
+      return ctx.blocking_experience === 'handoff_to_child';
+    }
     if (ctx.blocking_experience === 'handoff_to_child') return true;
     return ctx.priority === 'handoff'
       && Array.isArray(ctx.recommended_experiences)
@@ -98,6 +101,10 @@
         const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
         if (journeyOn) {
           const ctx = await JourneyContextClient.fetchContext();
+          if (ctx?.signup_journey?.active) {
+            el.classList.add('hidden');
+            return;
+          }
           if (ctx?.capabilities?.handoff_v2) {
             el.classList.toggle('hidden', !contextWantsHandoff(ctx));
             if (!contextWantsHandoff(ctx)) return;
@@ -129,5 +136,6 @@
     startChildLogin: startChildLogin,
     parentLogout: parentLogout,
     resolveVisibility: resolveVisibility,
+    contextWantsHandoff: contextWantsHandoff,
   };
 })();
