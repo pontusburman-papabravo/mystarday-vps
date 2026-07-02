@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS child (
   sort_order INTEGER NOT NULL DEFAULT 0,
   allow_child_reorder BOOLEAN DEFAULT false,
   show_now_next BOOLEAN DEFAULT true,
+  require_sequential_completion BOOLEAN NOT NULL DEFAULT true,
   show_mood_rating BOOLEAN DEFAULT false,
   hide_clock BOOLEAN DEFAULT false,
   lock_schedule BOOLEAN DEFAULT false,

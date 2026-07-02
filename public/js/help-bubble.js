@@ -168,6 +168,7 @@
           faqs: [
             { q: 'Hur lägger jag till ett barn?', a: 'Gå till Översikten → klicka "+ Lägg till barn". Fyll i namn, emoji och födelsedag. Barnet får automatiskt ett schema baserat på ålder.' },
             { q: 'Hur ändrar jag barnets PIN?', a: 'Klicka på barnkortet → fliken "Inställningar" → "Ändra PIN". Välj en ny 4-siffrig PIN-kod.' },
+            { q: 'Barnet måste göra aktiviteter i ordning — kan jag ändra det?', a: 'Ja. Gå till barnets profil → <strong>Avancerade inställningar</strong> → stäng av <strong>En aktivitet i taget</strong>. Då kan barnet bocka av i valfri ordning och hoppa över det som redan passerat.' },
             { q: 'Hur ser barnet sina inloggningsuppgifter?', a: 'Klicka på barnkortet → fliken "Inställningar" → "Visa inloggningsuppgifter". Du ser barnets användarnamn och PIN.' },
             { q: 'Hur tar jag bort ett barn?', a: 'Klicka på barnkortet → fliken "Inställningar" → "Ta bort barn". OBS: Detta tar bort all data för barnet permanent.' },
           ],

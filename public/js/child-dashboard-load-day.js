@@ -108,6 +108,7 @@
       }
       allowChildReorder = !!data.allow_child_reorder;
       showNowNext = data.show_now_next !== false;
+      requireSequentialCompletion = data.require_sequential_completion !== false;
       if (!viewTypeLocalOverride) {
         viewType = data.view_type || 'day_sections';
       }

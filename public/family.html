@@ -424,6 +424,25 @@
             </label>
           </div>
 
+          <!-- Require sequential completion -->
+          <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
+            <div class="flex-1 pr-3">
+              <div class="flex items-center gap-1.5">
+                <p class="text-sm font-semibold text-navy dark:text-white">En aktivitet i taget</p>
+                <span class="tooltip-wrap">
+                  <i class="tooltip-icon">ℹ️</i>
+                  <span class="tooltip-box">När påslagen måste barnet bocka av NU-aktiviteten innan NÄSTA och SEDAN kan göras. Stäng av om barnet ska kunna hoppa över eller göra i valfri ordning.</span>
+                </span>
+              </div>
+              <p class="text-xs text-text-soft mt-0.5">Kräver ordning NU → Nästa → Senare</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
+              <input type="checkbox" id="setting-require_sequential_completion" class="sr-only peer" onchange="saveChildSetting('require_sequential_completion', this.checked)" />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gold/50 rounded-full peer dark:bg-gray-600 peer-checked:bg-gold transition-colors"></div>
+              <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5 pointer-events-none"></div>
+            </label>
+          </div>
+
           <!-- Show mood rating -->
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">

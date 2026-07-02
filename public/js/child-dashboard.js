@@ -14,6 +14,7 @@ const itemRatings = {}; // itemId -> { child_score, child_comment, parent_score,
 let weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
 let allowChildReorder = false; // toggled by parent in child profile settings
 let showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
+let requireSequentialCompletion = true; // toggled by parent — child must complete NU before NÄSTA/SEDAN
 let viewType = 'now_next_later'; // 'day_sections' | 'now_next_later' (server may override for existing children)
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off

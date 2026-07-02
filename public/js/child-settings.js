@@ -786,6 +786,15 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
+        <p class="text-sm font-semibold text-navy dark:text-white">En aktivitet i taget</p>
+        <p class="text-xs text-text-soft mt-0.5">Barnet måste bocka av NU innan nästa kan göras. Stäng av för valfri ordning.</p>
+      </div>
+      <div class="toggle-track ${child.require_sequential_completion !== false ? 'on' : ''}" id="toggle-require_sequential_completion">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="flex-1 pr-4">
         <p class="text-sm font-semibold text-navy dark:text-white">Barnets omsortering</p>
         <p class="text-xs text-text-soft mt-0.5">Barnet kan dra om aktiviteter</p>
       </div>
@@ -884,6 +893,7 @@ function renderPage(child) {
   const toggles = [
     ['toggle-show_mood_rating', 'show_mood_rating', child.show_mood_rating !== false],
     ['toggle-show_now_next', 'show_now_next', child.show_now_next !== false],
+    ['toggle-require_sequential_completion', 'require_sequential_completion', child.require_sequential_completion !== false],
     ['toggle-allow_child_reorder', 'allow_child_reorder', !!child.allow_child_reorder],
     ['toggle-hide_clock', 'hide_clock', !!child.hide_clock],
     ['toggle-lock_schedule', 'lock_schedule', !!child.lock_schedule],

@@ -40,7 +40,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
 
     // Get child's UI flags + timezone (for NOW/NEXT/LATER date comparison)
     const childResult = await db.query(
-      'SELECT allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
+      'SELECT allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
       [childId]
     );
     const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
@@ -48,6 +48,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
 
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;
     const showNowNext = childResult.rows[0]?.show_now_next !== false; // default true
+    const requireSequentialCompletion = childResult.rows[0]?.require_sequential_completion !== false; // default true
     const showMoodRating = childResult.rows[0]?.show_mood_rating !== false; // default true
     const moodInputMode = childResult.rows[0]?.mood_input_mode || 'slider';
     const transitionLeadMinutes = childResult.rows[0]?.transition_lead_minutes;
@@ -212,6 +213,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       log,
       allow_child_reorder: allowChildReorder,
       show_now_next: showNowNext,
+      require_sequential_completion: requireSequentialCompletion,
       show_mood_rating: showMoodRating,
       mood_input_mode: moodInputMode,
       transition_lead_minutes: transitionLeadMinutes,
