@@ -32,9 +32,9 @@
 | `world-room-museum` | Min värld / rum `museum` | `museum@2x.webp` | `public/images/child/world/rooms/museum@2x.webp` | `child-skatt-rooms.css` → Museum | godkänd |
 | `family-hall` | Mina personer | `hall@2x.webp` | `public/images/child/family/hall@2x.webp` | `child-world-bg.css` → `.cwb-family` | godkänd |
 | `morgonhus-scene` | Morgonhus | `scene@2x.webp` | `public/images/child/morgonhus/scene@2x.webp` | `child-morgonhus.css` → `.mh-scene.is-illustrated` | godkänd |
-| `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | Tomt tillstånd Idag (ej kopplad) | behöver iteration |
-| `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s (ej kopplad) | behöver iteration |
-| `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | **Legacy:** `public/assets/worlds/garden/` | `child-garden.js`, `garden-asset-pipeline.js`, SW precache | saknas |
+| `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | `child-today-focus.css` → `.ctf-empty-illus` | godkänd |
+| `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s → `.ctf-celebration-frame` | godkänd |
+| `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | `public/images/child/world/garden/` | `garden-asset-pipeline.js`, `child-garden.js` | godkänd |
 
 ### Rum-ID (Min värld)
 
@@ -55,7 +55,7 @@ Källa: `BASE_ROOMS` i `child-skatt-house.js` — `chest`, `dreams`, `trophy`, `
 
 | Område | Kanonisk (ny) | Legacy (kod idag) |
 |--------|---------------|-------------------|
-| Trädgården | `public/images/child/world/garden/` (framtida) | `public/assets/worlds/garden/` |
+| Trädgården | `public/images/child/world/garden/` | `public/assets/worlds/garden/` (fallback en deploy) |
 | Övriga barnvyer | `public/images/child/{vy}/` | CSS-gradient / emoji |
 
 Migrera legacy-sökvägar när filerna finns i `public/images/child/` — en PR per vy, minimal diff.
@@ -68,4 +68,4 @@ Migrera legacy-sökvägar när filerna finns i `public/images/child/` — en PR 
 - [barnmeny-v2.md](barnmeny-v2.md) §5 — rum och vyer
 - Art Bible §14 — `stjarndag-{world}-{asset}-v{n}-@2x` (källfilnamn)
 
-*Senast uppdaterad: 2026-07-01*
+*Senast uppdaterad: 2026-07-02*

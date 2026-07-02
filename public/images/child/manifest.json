@@ -20,7 +20,8 @@
     { "id": "room-pet", "view": "Min värld / pet", "path": "world/rooms/pet@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
     { "id": "room-museum", "view": "Min värld / museum", "path": "world/rooms/museum@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
     { "id": "room-shop", "view": "Min värld / shop", "path": "world/rooms/shop@2x.webp", "css": "child-skatt-rooms.css", "status": "godkänd" },
-    { "id": "G1-today-empty", "view": "Idag", "path": "decals/today-empty-v1@2x.webp", "css": "(ej kopplad)", "status": "behöver iteration" },
-    { "id": "G2-celebration-frame", "view": "Idag / firande", "path": "decals/today-celebration-frame-v1@2x.webp", "css": "(ej kopplad)", "status": "behöver iteration" }
+    { "id": "G1-today-empty", "view": "Idag", "path": "decals/today-empty-v1@2x.webp", "css": "child-today-focus.css → .ctf-empty-illus", "status": "godkänd" },
+    { "id": "G2-celebration-frame", "view": "Idag / firande", "path": "decals/today-celebration-frame-v1@2x.webp", "css": "child-today-focus.css → .ctf-celebration-frame", "status": "godkänd" },
+    { "id": "garden-scene-bg", "view": "Morgonhus → Trädgården", "path": "world/garden/scene-bg.webp", "css": "garden-asset-pipeline.js, child-garden.js", "status": "godkänd" }
   ]
 }
