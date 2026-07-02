@@ -1,7 +1,13 @@
 # v1 Architecture Handoff
 
 **Från:** v1 Completion Program (2026-07-02)  
-**Till:** Nästa fas (FEAT-1B, ACT-1 PR 3+, För dig Sprint 4–5)
+**Till:** Nästa fas (ACT-1 PR3 rollout, FEAT-1B, Child Worlds v1.1)
+
+---
+
+## v1-programmet — stängt
+
+Alla åtta agenter (PR #497–#504) är mergade. Se `docs/v1-release-notes.md` och `docs/qa/v1-release-candidate.md`.
 
 ---
 
@@ -37,15 +43,14 @@
 - Pipeline-stub finns; produkt ej definierad
 - Kräver POS/ADR innan implementation
 
-### 3. ACT-1 PR 3+ (onboarding funnel, AI plan)
-- `docs/act-1-cursor-tasklist.md` PR 3–5
-- **Blocker:** manuell QA sign-off innan flag ON (Agent 7)
-- Filer: `onboarding.js` monopol — en agent i taget
+### 3. ACT-1 PR 3 — Template-first onboarding (**nästa fokus**)
 
-### 4. För dig Sprint 3–5 (Agent 3)
-- Startvillkor uppfyllda (FEAT-1 + ACT-1 v1 på main)
-- `nav-config.js` låst tills Sprint 4-beslut (metrics/flag)
-- Se `docs/for-dig-spec.md` §9
+- Kod finns på `main` (`onboarding-starter-plan.js`); flag `activation_onboarding_v1` OFF
+- Kör `node --test test/pr3-checkpoint.test.js` + `scripts/pr3-checkpoint.mjs` före pilot
+- Efter PR 3 stabil: PR 4 (AI), PR 5 (nudges) — se `docs/act-1-cursor-tasklist.md`
+- **Blocker:** manuell QA sign-off innan flag ON (Agent 7 / runbook)
+
+### 4. ~~För dig Sprint 3–5~~ ✅ v1 Complete (#504)
 
 ### 5. Child Worlds v1.1
 - Mina personer: interaktiv berättelse, avatarer
