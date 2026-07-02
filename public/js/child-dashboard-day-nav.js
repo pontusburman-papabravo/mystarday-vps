@@ -10,6 +10,7 @@
 
 function renderDayTabs() {
   const container = document.getElementById('dayTabs');
+  if (!container) return;
   const today = new Date();
   const todayDow = today.getDay();
   const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;

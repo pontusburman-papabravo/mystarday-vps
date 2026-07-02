@@ -227,18 +227,14 @@
   }
 
   function hideLegacyChrome() {
-    ['weekNavSection', 'progressSection', 'weekNavDetails', 'goalTeaserBtn'].forEach(function (id) {
+    ['progressSection', 'goalTeaserBtn'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) {
         el.classList.add('ctf-hidden');
         el.setAttribute('aria-hidden', 'true');
       }
     });
-    const weekNav = document.getElementById('weekNavDetails');
-    if (weekNav) {
-      weekNav.classList.add('ctf-hidden');
-      weekNav.setAttribute('aria-hidden', 'true');
-    }
+    // weekNavDetails stays visible — collapsed <details> "Andra dagar" for multi-day browse
     const ringWrap = document.getElementById('childHeaderRing');
     if (ringWrap) {
       ringWrap.classList.add('ctf-hidden');

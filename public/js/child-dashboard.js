@@ -211,8 +211,13 @@ function showTab(tab) {
   document.body.classList.toggle('child-home-active', childUiMagic && isHome);
 
   if (isToday) {
+    const hideWeekNav = window.ChildFirstStarMode && ChildFirstStarMode.isActive();
+    if (!hideWeekNav && weekNav) {
+      weekNav.classList.remove('hidden');
+      weekNav.classList.remove('ctf-hidden');
+      weekNav.removeAttribute('aria-hidden');
+    }
     if (!window.ChildTodayFocus) {
-      if (weekNav) { weekNav.classList.remove('hidden'); weekNav.removeAttribute('aria-hidden'); }
       if (progress) { progress.classList.remove('hidden'); progress.removeAttribute('aria-hidden'); }
     }
   } else {
@@ -1016,6 +1021,16 @@ async function loadDay(dateStr, showLoader = true) {
     }
   }
 }
+
+window.loadDay = loadDay;
+window.toggleItem = toggleItem;
+window.expandSubSteps = expandSubSteps;
+window.toggleNextInSection = toggleNextInSection;
+window.initChildSortable = initChildSortable;
+window.launchConfetti = launchConfetti;
+window.isTodayFocusLayer = isTodayFocusLayer;
+window.getSectionLabel = getSectionLabel;
+window.formatDateDisplay = formatDateDisplay;
 
 async function loadRatingsForItems(itemIds) {
   // Load ratings for all items in parallel (batch with Promise.all)

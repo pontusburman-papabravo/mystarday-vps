@@ -70,6 +70,11 @@ describe('Fas 8 F3 child-dashboard split', () => {
     }
   });
 
+  it('child-dashboard.js exposes loadDay on window for inline onclick', () => {
+    const src = read('public/js/child-dashboard.js');
+    assert.match(src, /window\.loadDay\s*=\s*loadDay/);
+  });
+
   it('child-dashboard-activities.js references scheduleView and time-timer DOM hooks', () => {
     const src = read('public/js/child-dashboard-activities.js');
     assert.match(src, /getElementById\('scheduleView'\)/);

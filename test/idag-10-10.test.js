@@ -39,11 +39,19 @@ describe('Idag barn 10/10', () => {
     assert.doesNotMatch(src, /ctf-goal-card/);
   });
 
-  it('hides legacy chrome above fold', () => {
+  it('hideLegacyChrome keeps week picker, hides progress + goal teaser', () => {
     const src = fs.readFileSync(FOCUS, 'utf8');
-    assert.match(src, /weekNavSection/);
+    const fn = src.match(/function hideLegacyChrome\(\) \{[\s\S]*?\n  \}/);
+    assert.ok(fn, 'hideLegacyChrome must exist');
+    assert.match(fn[0], /progressSection/);
+    assert.match(fn[0], /goalTeaserBtn/);
+    assert.doesNotMatch(fn[0], /['"]weekNavDetails['"]/);
+    assert.doesNotMatch(fn[0], /['"]weekNavSection['"]/);
+  });
+
+  it('hides header ring in focus mode', () => {
+    const src = fs.readFileSync(FOCUS, 'utf8');
     assert.match(src, /childHeaderRing/);
-    assert.match(src, /goalTeaserBtn/);
   });
 
   it('caps visible tasks at 5 with star teasers', () => {
