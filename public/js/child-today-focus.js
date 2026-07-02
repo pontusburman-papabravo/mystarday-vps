@@ -115,7 +115,7 @@
 
     let nextStepLabel = '';
     if (nextItem) {
-      nextStepLabel = 'Sedan: ' + nextItem.name;
+      nextStepLabel = 'Senare: ' + nextItem.name;
     } else if (nowItem) {
       nextStepLabel = 'Bocka av för att gå vidare';
     }

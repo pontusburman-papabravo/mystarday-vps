@@ -230,7 +230,7 @@ function initViewToggle(initialType) {
     setActive('now_next_later');
     try {
       await saveSetting('view_type', 'now_next_later');
-      showSuccessToast('Nu/Nästa/Sedan sparat!');
+      showSuccessToast('Nu/Nästa/Senare sparat!');
     } catch(e) { setActive('day_sections'); }
   };
 }
@@ -867,7 +867,7 @@ function updateViewExplanation(type) {
   if (type === 'day_sections') {
     el.textContent = '🌅 Dagsvy: Aktiviteterna visas i färgkodade dagdelssektioner — Morgon, Dag, Kväll och Natt. Bra för strukturerad överblick av hela dagen.';
   } else {
-    el.textContent = '⚡ Tidslinje: Visar NU (aktiv), NÄSTA (härnäst) och SEDAN (kommande). Fokuserar på vad som gäller just nu.';
+    el.textContent = '⚡ Tidslinje: Visar NU (aktiv), Nästa (härnäst) och Senare (kommande). Fokuserar på vad som gäller just nu.';
   }
 }
 

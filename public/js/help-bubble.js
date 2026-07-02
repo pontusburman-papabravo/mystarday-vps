@@ -73,7 +73,7 @@
             { q: 'Hur bockar jag av en aktivitet?', a: 'Tryck på den vita cirkeln bredvid aktiviteten med texten <strong>NU</strong>. Den fylls grön med bock och du tjänar en stjärna! 🌟' },
             { q: 'Vad är understeg och hur ser jag dem?', a: 'Aktiviteter med understeg visar en 📋-knapp. Tryck på den för att se stegen som hjälper dig klara aktiviteten! Du bockar ändå av hela aktiviteten med ett enda tryck.' },
             { q: 'Vad är cirkeln runt min emoji?', a: 'Cirkeln runt din emoji visar <strong>dagens framsteg</strong> — hur många aktiviteter du klarat av idag. Cirkeln fylls på och blir grön när du är klar med alla! 🟢' },
-            { q: 'Vad är NU / NÄSTA / SEDAN?', a: '<strong>NU</strong> = din aktuella aktivitet att göra. <strong>NÄSTA</strong> = vad som kommer efter. <strong>SEDAN</strong> = resten av dagen. Bocka av NU-aktiviteten för att gå vidare.' },
+            { q: 'Vad är NU / Nästa / Senare?', a: '<strong>NU</strong> = din aktuella aktivitet att göra. <strong>Nästa</strong> = vad som kommer efter. <strong>Senare</strong> = resten av dagen. Bocka av NU-aktiviteten för att gå vidare.' },
             { q: 'Vad är timern?', a: 'Den runda timern visar hur lång tid aktiviteten tar. Grön = gott om tid, Orange = lite kvar, Röd = snart slut.' },
           ],
         },
