@@ -199,12 +199,12 @@
   function renderQuickActions(children) {
     const logHref = escHtml(retroactiveLogHref(children));
     return '<div class="parent-quick-grid" role="group" aria-label="Snabbåtgärder">' +
-      '<a href="' + logHref + '" class="parent-quick-tile no-underline" data-action="retroactive">' +
+      '<a href="' + logHref + '" class="parent-quick-tile parent-quick-tile-link no-underline">' +
       '<span class="parent-quick-tile-icon" aria-hidden="true">📝</span>' +
-      '<span class="parent-quick-tile-label">Fyll i i efterhand</span></a>' +
+      '<span class="parent-quick-tile-label">I efterhand</span></a>' +
       '<button type="button" class="parent-quick-tile" data-action="once-task">' +
       '<span class="parent-quick-tile-icon" aria-hidden="true">📋</span>' +
-      '<span class="parent-quick-tile-label">Engångsaktivitet</span></button>' +
+      '<span class="parent-quick-tile-label">Engångs-<wbr>aktivitet</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="give-stars">' +
       '<span class="parent-quick-tile-icon" aria-hidden="true">⭐</span>' +
       '<span class="parent-quick-tile-label">Extra stjärnor</span></button>' +
@@ -347,7 +347,11 @@
         return;
       }
       if (action === 'once-task') {
-        if (typeof window.openOnceTaskModal === 'function') window.openOnceTaskModal();
+        if (typeof window.openOnceTaskModal === 'function') {
+          void Promise.resolve(window.openOnceTaskModal()).catch(function (err) {
+            console.error('[HUB] openOnceTaskModal failed:', err);
+          });
+        }
         return;
       }
       if (action === 'give-stars') {
@@ -360,7 +364,7 @@
       }
     }
 
-    mount.querySelectorAll('[data-action]').forEach(function (btn) {
+    mount.querySelectorAll('button[data-action]').forEach(function (btn) {
       if (btn.dataset.hubBound === '1') return;
       btn.dataset.hubBound = '1';
       btn.addEventListener('click', function (e) {
