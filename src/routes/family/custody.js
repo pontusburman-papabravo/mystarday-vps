@@ -278,10 +278,6 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       child_id: childId,
       pattern_type: resolvedType,
       anchor_date: anchorDate,
-    const analyticsMeta = {
-      child_id: childId,
-      pattern_type: resolvedType,
-      anchor_date: anchorDate,
       ...(resolvedType === PATTERN_CUSTOM
         ? { cycle_length: configuration.cycle_weeks.length }
         : {}),
