@@ -1,13 +1,16 @@
 'use strict';
 
 const { PATTERN_ALTERNATE_WEEKS, PATTERN_ALTERNATE_WEEKENDS } = require('../../../../db/custody');
+const { PATTERN_CUSTOM } = require('../../custody-custom-config');
 const { resolveAlternateWeeks } = require('./alternate-weeks');
 const { resolveAlternateWeekends } = require('./alternate-weekends');
+const { resolveCustom } = require('./custom');
 
 /** @type {Record<string, { resolve: Function }>} */
 const PATTERN_MODULES = {
   [PATTERN_ALTERNATE_WEEKS]: { resolve: resolveAlternateWeeks },
   [PATTERN_ALTERNATE_WEEKENDS]: { resolve: resolveAlternateWeekends },
+  [PATTERN_CUSTOM]: { resolve: resolveCustom },
 };
 
 /**
