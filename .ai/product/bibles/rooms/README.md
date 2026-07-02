@@ -37,8 +37,10 @@ Fyll i denna ordning:
 
 | Fil | Innehåll |
 |-----|----------|
-| `<room_id>.yaml` | Full RBS enligt [`_TEMPLATE.yaml`](./_TEMPLATE.yaml) |
-| `<room_id>.md` | Valfritt — Part I checklist-svar, QA-noter, screenshots |
+| `home_hall.yaml` | **Canonical pilot** — full RBS för `scene_id: home_hall` |
+| `<room_id>.yaml` | Övriga rum enligt [`_TEMPLATE.yaml`](./_TEMPLATE.yaml) |
+| `<production_number>_<room_id>.yaml` | Valfritt katalognummer (t.ex. `100_home.yaml`) |
+| `<room_id>.md` | Valfritt — Part I checklist-noter, QA, screenshots |
 
 ---
 

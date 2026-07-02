@@ -1,5 +1,6 @@
-# Production Spec 100 — Hemmet (hall + hemkärna)
-# Merged from legacy home_hall.yaml · Authority: World Bible Rulebook 01–08
+# Room Blueprint — home_hall (canonical pilot)
+# scene_id: home_hall · Authority: WORLD_BIBLE Part I + Part III RBS
+# Duplicate catalog: 100_home.yaml (production_number 100)
 
 production_number: 100
 room_id: home

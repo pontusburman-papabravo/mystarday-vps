@@ -1,68 +1,285 @@
-# Room Blueprint — Min värld (Production Specification)
-# Authority: World Bible Rulebook 01–08 → denna fil → Entity / Animation / Audio Bibles → LWES pack
-# Kopiera till <production_number>_<room_id>.yaml och fyll alla sektioner. Okänt = TBD med kommentar.
+# Room Blueprint — RBS Template (WORLD_BIBLE Part III)
+# Authority: Part III RBS → denna fil → Entity / Animation / Audio Bibles → LWES pack
+# Copy to <room_id>.yaml (or <production_number>_<room_id>.yaml) — fill ALL sections.
+# Unknown = TBD with comment — never omit a section.
 
-production_number: 000          # 100-series catalog number (see rooms/README.md)
-room_id:                        # stable snake_case; matches scenes.json scene_id
-display_name:                   # Swedish child-facing name
+production_number: 000          # Optional catalog number (100-series home rooms)
+room_id: TBD                    # Stable snake_case; matches scenes.json scene_id
+display_name: TBD               # Swedish child-facing name
 status: draft                   # draft | review | approved | shipped
 
-rulebook_gates:
-  constitution: false           # Rulebook 01
-  topology_checklist: false     # Rulebook 02 — 11 frågor
-  sds_pass: false               # Rulebook 03 — Scene Design Standard
-  rbs_complete: false           # Rulebook 04 — alla RBS-sektioner
-  progression_hooks: false      # Rulebook 05
-  simulation_hooks: false       # Rulebook 06
-  ecology_checklist: false      # Rulebook 07
-  pipeline_approved: false      # Rulebook 08 — Production Pipeline
+rulebook_gates:                 # Optional pipeline gates
+  constitution: false
+  topology_checklist: false
+  sds_pass: false
+  rbs_complete: false
+  progression_hooks: false
+  simulation_hooks: false
+  ecology_checklist: false
+  pipeline_approved: false
 
+rbs_version: "1.0"
+constitution_check: pending     # pass | fail | pending
+
+# --- Room Identity ---
 room_identity:
-  id:
-  display_name:
-  description: >
-  primary_emotion:                # one only — Rulebook 04 Emotional Contract
-  secondary_emotion:
-  theme_support: []
-  unlock_condition:
+  id: TBD                        # Pack-unique scene_id
+  display_name: TBD              # Child-facing Swedish
+  description: TBD               # What place is this?
+  primary_emotion: TBD           # Comfort | Safety | Wonder | Curiosity | Pride | Calm | Joy | Creativity | Belonging | Peace | Adventure
+  secondary_emotion: TBD         # Max one; must not contradict primary
+  theme_support:
+    - house
+    - castle
+    - treehouse
+    - space
+    - pirate
+    - wizard
+  unlock_condition: TBD          # always | WDB/progression key
 
-# --- RBS sections (Rulebook 04) — expand per WORLD_BIBLE.md Rulebook 04 ---
+# --- Emotional Contract ---
+emotional_contract:
+  primary: TBD
+  constitution_pillar: TBD       # capability | ownership | comfort | curiosity | imagination
+  first_five_seconds: TBD        # Sight + sound on enter; no UI chrome
+  open_questions:                # ≥1 unanswered
+    - TBD
+  pretend_affordances:           # LWES Appendix J
+    - TBD
 
-spatial_contract: {}
-hero_object: {}
-supporting_objects: []
-ambient_objects: []
-interactive_objects: []
-build_slots: []
+# --- Spatial Contract ---
+spatial_contract:
+  layout: TBD                    # e.g. wide_2_5d_interior
+  entrance:
+    id: TBD
+    from_scene: TBD
+    landmark_label_sv: TBD
+    camera_on_enter: TBD
+  landmark:
+    id: TBD
+    description: TBD
+  walking_area:
+    id: TBD
+    description: TBD
+  interaction_zones:
+    - id: TBD
+      accepts: []
+  ambient_zones:
+    - id: TBD
+      description: TBD
+  future_build_zones:
+    - id: TBD
+      description: TBD
+  camera_anchor:
+    id: TBD
+    description: TBD
+
+# --- Hero Object (exactly one) ---
+hero_object:
+  id: TBD
+  description: TBD
+  story_purpose: TBD
+  interaction_level: TBD         # inspect_primary | activate | open | navigate
+
+# --- Supporting Objects ---
+supporting_objects:
+  - id: TBD
+    description: TBD
+    story_role: TBD
+
+# --- Ambient Objects ---
+ambient_objects:
+  - id: TBD
+    description: TBD
+    budget_tier: subtle          # subtle | medium | rare
+
+# --- Interactive Objects (LWES §22 only) ---
+interactive_objects:
+  - id: TBD
+    interaction_type: TBD        # Inspect | Open | Place | Collect | Feed | Pet | Talk | Move | Activate | Navigate
+    target_scene: TBD
+    landmark_label_sv: TBD
+    build_slot: TBD
+    progression_key: TBD
+
+# --- Build Slots ---
+build_slots:
+  - id: TBD
+    location: TBD
+    required_part: TBD
+    theme_variant: TBD
+    unlock: TBD
+
+# --- Navigation (explicit — never infer) ---
 navigation:
-  edges: []
+  edges:
+    - nav_id: TBD
+      direction: in              # in | out
+      from_scene: TBD
+      to_scene: TBD
+      transition_profile: TBD
+      landmark_label_sv: TBD
+  return_anchor: TBD
+  comfort_zone: false
+
+# --- NPC Contract ---
+npc_contract:
+  present: false
+  npcs: []
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
+
+# --- Pet Contract ---
+pet_contract:
+  allowed: false
+  pets: []
+
+# --- Camera Contract (config only) ---
+camera_contract:
+  profile_id: TBD
+  type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: TBD
+  pan_speed: slow
+  bounds: scene_rect
+  reduced_motion_fallback: static_frame
+
+# --- Lighting Contract ---
+lighting_contract:
+  profile_id: TBD
+  primary_source: TBD
+  secondary_source: TBD
+  time_variants: []
+  weather_reactive: true
+
+# --- Audio Contract ---
+audio_contract:
+  profile_id: TBD
+  night_variant_id: TBD
+  master_gain_max: 0.65
+  duck_on_interact: true
+  layers_ref: TBD
+
+# --- Ambient Runtime ---
+ambient_runtime:
+  director_scene_key: TBD
+  calmness_target: 75
+  max_visual_density: 0.65
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids: []
+  rare_events: []
+
+# --- Story Anchors ---
 story_anchors:
   past: []
   present: []
   future: []
 
-simulation:                       # Rulebook 06 — Living World Simulation
-  daily_difference_candidates: []
-  weekly_difference_candidates: []
-  weather_behaviour: {}
-  pet_routine_spots: []
-  npc_routine_behaviours: []
-  story_seed_locations: []
-  calmness_weight: normal           # quiet | normal | active
-  ambient_cycles: []
+# --- Discoveries (LWES §23) ---
+discoveries:
+  common: []
+  rare: []
+  seasonal: []
+  hidden: []
 
-ecology:                          # Rulebook 07 — World Ecology
-  cause_effect_chains: []
-  environmental_storytelling: []
-  human_presence_traces: []
-  child_presence_traces: []
-  animal_ecology: []
-  sound_sources: []
-  light_sources: []
-  natural_placement_rationale: {}
-  ecology_checklist_pass: false
+# --- Seasonal Variants ---
+seasonal_variants:
+  global_sync: true
+  variants: []
 
-performance_budget: {}
-asset_manifest: {}
-prompt_manifest: []
-animation_manifest: {}
+# --- Weather Support (atmosphere only) ---
+weather_support:
+  inherit_world: true
+  effects: []
+
+# --- Theme Variants ---
+theme_variants:
+  house:
+    skin_set: TBD
+    landmark_label: TBD
+  castle:
+    skin_set: TBD
+    landmark_label: TBD
+  treehouse:
+    skin_set: TBD
+    landmark_label: TBD
+  space:
+    skin_set: TBD
+    landmark_label: TBD
+  pirate:
+    skin_set: TBD
+    landmark_label: TBD
+  wizard:
+    skin_set: TBD
+    landmark_label: TBD
+
+# --- Performance Budget ---
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 10
+  max_animated_ambient: 4
+  max_particle_systems: 2
+  texture_memory_mb: 12
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+
+# --- Asset Manifest (semantic IDs only) ---
+asset_manifest:
+  scene_bg: TBD
+  layers: []
+  entities: []
+  theme_resolver: semantic_id_pattern
+  shipped_asset_notes: TBD
+
+# --- Prompt Manifest ---
+prompt_manifest:
+  - id: TBD
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    negative_prompt: >
+      No text on walls, no brand logos, no scary shadows,
+      no realistic horror, no empty grey rooms, no stock photo aesthetic
+    catalog_ref: TBD
+
+# --- Animation Manifest ---
+animation_manifest:
+  idle: []
+  ambient: []
+  hero: []
+  interaction: []
+  celebration: []
+
+# --- Quality Gates ---
+quality_gates:
+  designer: pending
+  artist: pending
+  ai: pending
+  engineer: pending
+
+# --- Part I checklist (11 questions) ---
+part_i_checklist:
+  topology_position: TBD
+  nav_in_out: TBD
+  sightlines: TBD
+  primary_emotion: TBD
+  landmark: TBD
+  seasons: TBD
+  future_expansion: TBD
+  hidden_areas: TBD
+  build_slots: TBD
+  window_test: TBD
+  neighborhood_test: TBD
+  constitution_violation: false
+
+# --- Meta ---
+meta:
+  world_id: TBD
+  wdb_world_slug: TBD
+  experience_pack: child_se
+  lwes_strengthens_feeling: []
+  toy_density_target: 8
+  wdb_progression_refs: []
+  implementation_notes: TBD
