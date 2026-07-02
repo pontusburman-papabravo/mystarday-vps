@@ -179,3 +179,33 @@ test('SEO guide analytics events are allowlisted', () => {
     assert.match(analytics, new RegExp(`'${ev}'`));
   }
 });
+
+test('SEO guides ship local marketing images for Google Image Search', () => {
+  const marketingDir = path.join(ROOT, 'public/images/marketing-seo');
+  const files = [
+    'fardiga-scheman-bildstod.png',
+    'schema-exempel-barn.png',
+    'stjarnor-beloningssystem.png',
+    'bildstod-adhd-schema.png',
+    'morgonschema-bildstod.png',
+    'vardagsrutiner-bildstod.png',
+  ];
+  for (const file of files) {
+    assert.ok(fs.existsSync(path.join(marketingDir, file)), `missing ${file}`);
+  }
+  const guideImages = {
+    'public/bildschema-app.html': ['fardiga-scheman-bildstod', 'schema-exempel-barn'],
+    'public/beloningssystem-barn.html': ['stjarnor-beloningssystem'],
+    'public/rutiner-npf-barn.html': ['bildstod-adhd-schema'],
+    'public/morgonrutin-barn.html': ['morgonschema-bildstod', 'vardagsrutiner-bildstod'],
+    'public/veckoschema-bildstod.html': ['fardiga-scheman-bildstod'],
+  };
+  for (const [file, slugs] of Object.entries(guideImages)) {
+    const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const slug of slugs) {
+      assert.match(html, new RegExp(`/images/marketing-seo/${slug}\\.png`), `${file} should reference ${slug}`);
+    }
+    assert.match(html, /loading="lazy"/);
+    assert.match(html, /alt="[^"]{20,}"/);
+  }
+});

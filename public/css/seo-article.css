@@ -102,6 +102,27 @@ body.seo-article-page { background: var(--cream); }
   line-height: 1.5;
 }
 
+.seo-figure--wide img {
+  max-width: min(100%, 560px);
+  width: 100%;
+  height: auto;
+}
+
+.seo-figure-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 1.75rem 0;
+}
+
+@media (min-width: 640px) {
+  .seo-figure-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.seo-figure-grid .seo-figure {
+  margin: 0;
+}
+
 .seo-example-box {
   background: var(--white);
   border: 1px solid var(--border);
