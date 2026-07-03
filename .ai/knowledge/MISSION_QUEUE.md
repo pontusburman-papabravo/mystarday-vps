@@ -9,9 +9,8 @@
 
 | Rank | ID | Mission | ROI | Status | Blocker |
 |------|-----|---------|-----|--------|---------|
-| 1 | BL-012 | World 3+ creative direction | 8.1 | **HRC** | Human creative |
-| 2 | BL-029c | Memory hall entry wiring | 7.0 | queued | BL-012 |
-| 3 | BL-040 | IRC bundle merge prep | 5.0 | **done** | HRC merge |
+| 1 | BL-041 | Memory hall scene art (asset spec → illustration) | 6.5 | queued | Art HRC |
+| 2 | BL-042 | Parent opt-in milestone frames (`warm_echo`) | 6.0 | queued | Parent HRC |
 
 ---
 
@@ -19,8 +18,8 @@
 
 | ID | Mission | ROI |
 |----|---------|-----|
-| BL-029b | Exhibit slot schema (`exhibits.json`) | 7.5 ✅ |
-| BL-040 | IRC bundle merge guide | 5.0 ✅ |
+| BL-012 | Minnesrummet creative direction | 8.1 ✅ |
+| BL-029c | Garden path entry + pride exhibits | 7.5 ✅ |
 | BL-029 | Museum runtime scaffold (reversible prep) | 8.1 ✅ |
 | BL-038 | Garden auto-bloom aria-live announcement | 7.8 ✅ |
 | BL-036 | gate_feature_slug structural guard | 6.0 ✅ |

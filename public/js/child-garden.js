@@ -213,7 +213,20 @@
     }
   }
 
-  async function handleSceneryTap(root, sceneryId) {
+  async function handleSceneryTap(root, sceneryId, btn) {
+    const scenery = (_state && _state.scenery || []).find(function (s) {
+      return s.scenery_id === sceneryId;
+    });
+
+    if (scenery && scenery.leads_to_memory_hall && window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.enterMemoryHall === 'function') {
+      const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
+      if (!entered) {
+        showLoeFeedback(root, 'Minnesrummet är inte redo just nu.');
+      }
+      return;
+    }
+
     const slot = findLivingSlot(_state, sceneryId);
     if (slot && slot.available_verbs && slot.available_verbs.length) {
       try {
@@ -243,7 +256,7 @@
         const id = btn.getAttribute('data-scenery');
         btn.classList.add('is-tapped');
         setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        handleSceneryTap(root, id);
+        handleSceneryTap(root, id, btn);
       });
     });
 

@@ -1,6 +1,6 @@
 /**
- * child-memory-hall.js — Minneshallen playable scaffold (world 3).
- * Not mounted in child-dashboard until BL-012 creative approval.
+ * child-memory-hall.js — Minnesrummet (world 3) — warm pride, not stats.
+ * Dev-gated via memory_hall_playable. BL-012 approved.
  */
 (function () {
   'use strict';
@@ -22,20 +22,25 @@
 
   function renderEmptyState() {
     return '<div class="mu-scene mu-scene--empty" data-world="memory_hall">' +
-      '<p class="mu-empty-message" role="status">Här blir det plats för minnen.</p>' +
+      '<p class="mu-empty-message" role="status">' +
+        'Här växer minnen när du gör saker du är stolt över.' +
+      '</p>' +
     '</div>';
   }
 
   function renderExhibitSlots(slots) {
     if (!slots || !slots.length) return '';
     const items = slots.map(function (slot) {
+      const emoji = (slot.content && slot.content.emoji) ? slot.content.emoji : '✨';
+      const title = (slot.content && slot.content.title) || slot.label_sv || '';
       return '<div class="mu-exhibit mu-exhibit--' + esc(slot.slot_type || 'unknown') + '"' +
         ' role="listitem" data-slot="' + esc(slot.slot_id || '') + '"' +
-        ' aria-label="' + esc(slot.label_sv || slot.slot_id || '') + '">' +
-        '<span class="mu-exhibit-label">' + esc(slot.label_sv || '') + '</span>' +
+        ' aria-label="' + esc(title) + '">' +
+        '<span class="mu-exhibit-emoji" aria-hidden="true">' + esc(emoji) + '</span>' +
+        '<span class="mu-exhibit-label">' + esc(title) + '</span>' +
         '</div>';
     }).join('');
-    return '<div class="mu-exhibits" role="list" aria-label="Utställningar">' + items + '</div>';
+    return '<div class="mu-exhibits" role="list" aria-label="Mina minnen">' + items + '</div>';
   }
 
   function renderScene(state) {
@@ -44,7 +49,7 @@
     const hasExhibits = state.exhibits && state.exhibits.length;
     if (!hasScenery && !hasExhibits) return renderEmptyState();
 
-    const title = state.display_name || 'Minneshallen';
+    const title = state.display_name || 'Minnesrummet';
     const intro = state.first_enter_message || '';
 
     const sceneryHtml = hasScenery ? (state.scenery || []).map(function (s) {
@@ -61,6 +66,9 @@
       renderExhibitSlots(state.exhibits) +
       '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
       (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
+      '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
+        '<span class="mu-back-icon" aria-hidden="true"></span>' +
+      '</button>' +
     '</div>';
   }
 
@@ -85,9 +93,23 @@
           btn.classList.add('is-tapped');
           setTimeout(function () { btn.classList.remove('is-tapped'); }, TAP_RESET_MS);
         }
-        showFeedback(root, scenery.ambient_message_sv || scenery.label_sv || '');
+        showFeedback(root, scenery.ambient_message || scenery.label_sv || '');
       });
     });
+
+    const backBtn = root.querySelector('#muBackGarden');
+    if (backBtn) {
+      backBtn.addEventListener('click', function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.activeWorld === 'function'
+            && window.LivingWorldTransition.activeWorld() === 'memory_hall'
+            && typeof window.LivingWorldTransition.exitMemoryHall === 'function') {
+          window.LivingWorldTransition.exitMemoryHall();
+          return;
+        }
+        deactivate();
+      });
+    }
   }
 
   async function fetchState() {
@@ -101,7 +123,14 @@
     }
   }
 
-  async function mount(container) {
+  function hideLoader() {
+    const loader = document.getElementById('skattkammarLoading');
+    const view = document.getElementById('skattkammarView');
+    if (loader) loader.style.display = 'none';
+    if (view) view.style.display = '';
+  }
+
+  async function mount(container, opts) {
     const root = container || document.getElementById('skattkammarView');
     if (!root) return false;
 
@@ -115,6 +144,7 @@
     _active = true;
     root.innerHTML = renderScene(state);
     bindInteractions(root, state);
+    hideLoader();
     document.body.classList.add('child-memory-hall-active');
     document.body.classList.remove('child-morgonhus-active', 'child-garden-active');
     return true;

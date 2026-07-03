@@ -12,6 +12,7 @@ const {
 } = require('../src/lib/experience-pack');
 
 const WORLD = 'memory_hall';
+const CHILD_ID = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 
 function validateExhibitsFile(raw) {
   const errors = [];
@@ -62,16 +63,30 @@ describe('memory hall exhibits pack schema (BL-029b prep)', () => {
     assert.deepEqual(buildExhibitViews(pack, WORLD), []);
   });
 
-  it('garden has no memory_hall gate until BL-012 entry decision', () => {
-    const pack = loadPack('child_se');
-    const { getWorldDef } = require('../src/lib/experience-pack');
-    const garden = getWorldDef(pack, 'garden');
-    for (const scenery of garden.ambient_scenery || []) {
-      assert.notEqual(scenery.gate_to_world, 'memory_hall');
-    }
-    const morgonhus = getWorldDef(pack, 'routine_home');
-    for (const prop of morgonhus.ambient_props || []) {
-      assert.notEqual(prop.gate_to_world, 'memory_hall');
-    }
+  it('garden path gates to memory_hall when memory_hall_playable allowed', async () => {
+    const { injectMockDb } = require('./helpers/setup.js');
+    const FEATURE = 'memory_hall_playable';
+    const FAMILY = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    injectMockDb().setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('FROM features WHERE slug')) {
+        return { rows: [{ slug: params[0], status: 'dev' }] };
+      }
+      if (q.includes('FROM family_features')) {
+        return params[1] === FEATURE ? { rows: [{ family_id: FAMILY }] } : { rows: [] };
+      }
+      if (q.includes('has_component')) return { rows: [{ has_component: true }] };
+      return { rows: [] };
+    });
+
+    const gardenPath = require.resolve('../src/lib/garden-playable');
+    const accessPath = require.resolve('../src/lib/living-world-access');
+    delete require.cache[gardenPath];
+    delete require.cache[accessPath];
+    const fresh = require('../src/lib/garden-playable');
+    const state = await fresh.buildSceneState(CHILD_ID, FAMILY);
+    const pathScenery = state.scenery.find((s) => s.scenery_id === 'garden_path');
+    assert.equal(pathScenery.leads_to_memory_hall, true);
+    assert.match(pathScenery.ambient_message, /minnen/i);
   });
 });

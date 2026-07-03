@@ -9,6 +9,7 @@
 
 | ID | Date | Title | Location |
 |----|------|-------|----------|
+| ADR-memory-hall-bl012 | 2026-07-03 | Minnesrummet — world 3 creative direction | `docs/decisions/adr-memory-hall-bl012.md` |
 | ADR-child-ia-2026-07-02 | 2026-07-02 | Canonical child IA: Idag / Min värld / Familj | This file §1 |
 | ADR-boendeschema | 2026-05 | Custody schedule semantics | `docs/boendeschema-adr.md` |
 | ADR-helrutin | 2026-05 | Helrutin semantics | `docs/helrutin-semantik-adr.md` |
@@ -33,6 +34,15 @@
 
 - New child nav work follows three-root model
 - Marketing may still name Skattkammaren — product IA treats it as reward chamber
+
+---
+
+## §2 — Minnesrummet world 3 (2026-07-03)
+
+**Status:** Accepted  
+**Full ADR:** `docs/decisions/adr-memory-hall-bl012.md`
+
+**Decision:** Third playable world is **Minnesrummet** (`memory_hall`) — child's warm memory room inside Min Värld. Pride-first; no museum/shop/stats/dashboard tone. Dev-gated via `memory_hall_playable`.
 
 ---
 

@@ -139,10 +139,22 @@ describe('Living World transition — place mode', () => {
     assert.equal(mountArgs.opts.viaTransition, true);
   });
 
+  it('garden path uses LivingWorldTransition.enterMemoryHall when gate open', () => {
+    assert.match(GARDEN_SRC, /LivingWorldTransition\.enterMemoryHall/);
+    assert.match(GARDEN_SRC, /leads_to_memory_hall/);
+  });
+
+  it('exposes enterMemoryHall, exitMemoryHall, activeWorld', () => {
+    const { api } = loadTransitionModule();
+    assert.equal(typeof api.enterMemoryHall, 'function');
+    assert.equal(typeof api.exitMemoryHall, 'function');
+    assert.equal(typeof api.activeWorld, 'function');
+  });
+
   it('service worker precaches transition assets', () => {
     const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
     assert.match(sw, /child-living-world-transition\.js/);
     assert.match(sw, /child-living-world-transition\.css/);
-    assert.match(sw, /stjarndag-v424/);
+    assert.match(sw, /child-memory-hall\.js/);
   });
 });

@@ -35,14 +35,33 @@ async function resolveAmbientGate(familyId, ambient, accessCache) {
 }
 
 function buildSceneryFromPack(worldDef) {
-  return (worldDef?.ambient_scenery || []).map((entry) => ({
+  return (worldDef?.ambient_scenery || []).map((entry) => sceneryEntryToView(entry, null));
+}
+
+function sceneryEntryToView(entry, gate) {
+  const leadsToWorld = gate?.gated && entry.gate_to_world ? entry.gate_to_world : null;
+  return {
     scenery_id: entry.scenery_id,
     label_sv: entry.label_sv,
     emoji: entry.emoji || null,
-    ambient_message: entry.ambient_message_sv || null,
+    ambient_message: gate?.gated
+      ? (gate.message || entry.gate_message_sv || entry.ambient_message_sv || null)
+      : (entry.ambient_message_sv || null),
     hotspot_class: entry.hotspot_class || null,
     living_slot_id: entry.living_slot_id || null,
-  }));
+    leads_to_world: leadsToWorld,
+    leads_to_garden: leadsToWorld === 'garden',
+    leads_to_memory_hall: leadsToWorld === 'memory_hall',
+  };
+}
+
+async function buildSceneryWithGates(familyId, worldDef, accessCache = new Map()) {
+  const scenery = [];
+  for (const entry of worldDef?.ambient_scenery || []) {
+    const gate = await resolveAmbientGate(familyId, entry, accessCache);
+    scenery.push(sceneryEntryToView(entry, gate));
+  }
+  return scenery;
 }
 
 function ambientPropToSceneProp(ambient, gate) {
@@ -66,5 +85,7 @@ function ambientPropToSceneProp(ambient, gate) {
 module.exports = {
   resolveAmbientGate,
   buildSceneryFromPack,
+  buildSceneryWithGates,
+  sceneryEntryToView,
   ambientPropToSceneProp,
 };

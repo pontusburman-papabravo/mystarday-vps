@@ -6,7 +6,7 @@ const {
   getWorldDef,
 } = require('./experience-pack');
 const { loadLivingSlots, applyVerb } = require('./living-object-runtime');
-const { buildSceneryFromPack } = require('./world-ambient');
+const { buildSceneryFromPack, buildSceneryWithGates } = require('./world-ambient');
 
 const FEATURE_SLUG = 'garden_playable';
 
@@ -24,6 +24,11 @@ async function isPlayableEnabled(familyId) {
 }
 
 async function buildSceneState(childId, familyIdOrClient) {
+  let familyId = null;
+  if (typeof familyIdOrClient === 'string') {
+    familyId = familyIdOrClient;
+  }
+
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, GARDEN_WORLD_SLUG);
   const livingSlots = await loadLivingSlots({
@@ -32,6 +37,10 @@ async function buildSceneState(childId, familyIdOrClient) {
     pack,
   });
 
+  const scenery = familyId
+    ? await buildSceneryWithGates(familyId, worldDef)
+    : buildSceneryFromPack(worldDef);
+
   return {
     enabled: true,
     pack_id: pack.manifest.pack_id,
@@ -39,7 +48,7 @@ async function buildSceneState(childId, familyIdOrClient) {
     display_name: worldDef?.display_name_sv || 'Trädgården',
     first_enter_message: worldDef?.first_unlock_message || 'Trädgården väntar på dig',
     ambient_message: worldDef?.ambient_message_sv || 'Gräset rör sig långsamt i brisen.',
-    scenery: buildSceneryFromPack(worldDef),
+    scenery,
     living_slots: livingSlots,
   };
 }

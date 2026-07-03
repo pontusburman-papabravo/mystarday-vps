@@ -127,60 +127,73 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     const pack = loadPack('child_se');
     const world = getWorldDef(pack, WORLD_SLUG);
     assert.ok(world, 'memory_hall world required in worlds.json');
-    assert.equal(world.display_name_sv, 'Minneshallen');
+    assert.equal(world.display_name_sv, 'Minnesrummet');
     assert.ok((world.ambient_scenery || []).length >= 2);
     assert.ok(world.ambient_scenery.every((s) => s.hotspot_class && s.label_sv));
   });
 
-  it('buildSceneState returns scaffold payload with empty exhibits', async () => {
+  it('buildSceneState returns pride tone and memory exhibits', async () => {
+    injectMockDb().setQuery(async (sql) => {
+      if (String(sql).includes('child_achievement')) return { rows: [] };
+      if (String(sql).includes('reward_redemption')) return { rows: [] };
+      return { rows: [] };
+    });
+
     const mod = loadMemoryHallPlayable();
-    const state = await mod.buildSceneState(CHILD_ID);
+    const state = await mod.buildSceneState(CHILD_ID, FAMILY_A);
     assert.equal(state.world_slug, WORLD_SLUG);
-    assert.equal(state.scaffold, true);
+    assert.equal(state.tone, 'pride');
+    assert.equal(state.display_name, 'Minnesrummet');
     assert.deepEqual(state.exhibits, []);
-    assert.ok(Array.isArray(state.exhibit_slot_types));
-    assert.ok(state.exhibit_slot_types.includes('trophy'));
     assert.ok(state.scenery.length >= 2);
   });
 
-  it('child-memory-hall not mounted in child-dashboard yet', () => {
+  it('child-memory-hall loaded in child-dashboard for dev entry wiring', () => {
     const html = fs.readFileSync(
       path.join(__dirname, '../public/child-dashboard.html'),
       'utf8'
     );
-    assert.doesNotMatch(html, /child-memory-hall\.js/);
-    assert.doesNotMatch(html, /child-memory-hall\.css/);
+    assert.match(html, /child-memory-hall\.js/);
+    assert.match(html, /child-memory-hall\.css/);
   });
 
   it('client renderScene has accessible hotspots and empty state', () => {
     const ChildMemoryHall = loadChildMemoryHall();
     const scene = ChildMemoryHall.renderScene({
-      display_name: 'Minneshallen',
+      display_name: 'Minnesrummet',
       scenery: [
-        { scenery_id: 'memory_hall_entry', label_sv: 'Ingången', hotspot_class: 'mu-hotspot--entry' },
+        { scenery_id: 'memory_hall_window', label_sv: 'Fönstret', hotspot_class: 'mu-hotspot--window' },
       ],
     });
-    assert.match(scene, /aria-label="Ingången"/);
+    assert.match(scene, /aria-label="Fönstret"/);
     assert.match(scene, /aria-live="polite"/);
 
     const empty = ChildMemoryHall.renderEmptyState();
     assert.match(empty, /role="status"/);
-    assert.match(empty, /plats för minnen/);
+    assert.match(empty, /växer minnen/);
 
     const withExhibits = ChildMemoryHall.renderScene({
-      display_name: 'Minneshallen',
+      display_name: 'Minnesrummet',
       scenery: [],
-      exhibits: [{ slot_id: 'frame_1', slot_type: 'trophy', label_sv: 'Trofé' }],
+      exhibits: [{
+        slot_id: 'frame_1',
+        slot_type: 'proud_moment',
+        label_sv: 'Första stjärnan',
+        content: { emoji: '⭐', title: 'Första stjärnan' },
+      }],
     });
     assert.match(withExhibits, /role="list"/);
-    assert.match(withExhibits, /aria-label="Trofé"/);
+    assert.match(withExhibits, /aria-label="Första stjärnan"/);
   });
 
-  it('prep doc and ADR draft exist for human decision', () => {
+  it('prep doc and BL-012 ADR exist for human decision', () => {
     assert.ok(fs.existsSync(path.join(__dirname, '../docs/museum-world-prep.md')));
-    assert.ok(fs.existsSync(path.join(__dirname, '../docs/adr-draft-memory-hall-world.md')));
+    assert.ok(fs.existsSync(path.join(__dirname, '../docs/decisions/adr-memory-hall-bl012.md')));
     const prep = fs.readFileSync(path.join(__dirname, '../docs/museum-world-prep.md'), 'utf8');
     assert.match(prep, /BL-012/);
     assert.match(prep, /memory_hall/);
+    const adr = fs.readFileSync(path.join(__dirname, '../docs/decisions/adr-memory-hall-bl012.md'), 'utf8');
+    assert.match(adr, /pride/i);
+    assert.match(adr, /dev/);
   });
 });

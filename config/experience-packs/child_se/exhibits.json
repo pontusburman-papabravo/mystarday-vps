@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "worlds": [
     {
       "world_slug": "memory_hall",
@@ -8,14 +8,14 @@
     }
   ],
   "slot_types": {
-    "trophy": {
-      "description": "Prestationstrofé — earned, not purchased"
+    "proud_moment": {
+      "description": "Stolt ögonblick — en prestation i taget, ingen trofévägg"
     },
-    "milestone_frame": {
-      "description": "Milstolpe-minne — parent opt-in only (HRC)"
+    "remembered_gift": {
+      "description": "Belöning som varmt minne — inte butik"
     },
-    "memory_token": {
-      "description": "Lugnt minnesmärke utan skuld"
+    "warm_echo": {
+      "description": "Mjukt framsteg utan press eller streak"
     }
   }
 }

@@ -7,12 +7,12 @@ const {
   buildExhibitViews,
 } = require('./experience-pack');
 const { buildSceneryFromPack } = require('./world-ambient');
+const { resolveExhibitMemories } = require('./memory-hall-exhibit-resolver');
 
 const FEATURE_SLUG = 'memory_hall_playable';
 
 /**
- * Memory Hall (world 3) — scaffold only. Feature off by default (dev, no allowlist).
- * Creative content blocked BL-012; exhibits[] reserved for future slots.
+ * Minnesrummet (world 3) — warm pride room. BL-012 approved; dev-gated.
  */
 async function isPlayableEnabled(familyId) {
   if (!familyId) return false;
@@ -24,21 +24,24 @@ async function isPlayableEnabled(familyId) {
   }
 }
 
-async function buildSceneState(childId) {
+async function buildSceneState(childId, familyId) {
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, MEMORY_HALL_WORLD_SLUG);
+  const packExhibits = buildExhibitViews(pack, MEMORY_HALL_WORLD_SLUG);
+  const memories = await resolveExhibitMemories(childId);
+  const exhibits = packExhibits.length ? packExhibits : memories;
 
   return {
     enabled: true,
     scaffold: true,
+    tone: 'pride',
     pack_id: pack.manifest.pack_id,
     world_slug: MEMORY_HALL_WORLD_SLUG,
-    display_name: worldDef?.display_name_sv || 'Minneshallen',
-    first_enter_message: worldDef?.first_unlock_message || 'Här samlas minnena.',
-    ambient_message: worldDef?.ambient_message_sv || 'Det är tyst och lugnt.',
+    display_name: worldDef?.display_name_sv || 'Minnesrummet',
+    first_enter_message: worldDef?.first_unlock_message || 'Här finns det du varit stolt över.',
+    ambient_message: worldDef?.ambient_message_sv || 'Det känns varmt och tryggt här.',
     scenery: buildSceneryFromPack(worldDef),
-    exhibits: buildExhibitViews(pack, MEMORY_HALL_WORLD_SLUG),
-    exhibit_slot_types: Object.keys(pack.exhibits?.slot_types || {}),
+    exhibits,
   };
 }
 

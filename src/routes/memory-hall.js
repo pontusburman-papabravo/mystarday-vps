@@ -13,10 +13,10 @@ childRouter.get('/memory-hall', async (req, res) => {
   try {
     const enabled = await memoryHall.isPlayableEnabled(req.user.familyId);
     if (!enabled) {
-      return res.status(503).json({ error: 'Minneshallen ej aktiverad' });
+      return res.status(503).json({ error: 'Minnesrummet ej aktiverat' });
     }
 
-    const state = await memoryHall.buildSceneState(req.user.id);
+    const state = await memoryHall.buildSceneState(req.user.id, req.user.familyId);
     res.json(state);
   } catch (err) {
     console.error('[memory-hall] child GET error:', err);

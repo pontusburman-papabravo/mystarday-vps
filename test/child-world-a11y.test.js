@@ -136,6 +136,12 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /mu-exhibit[\s\S]*min-height:\s*44px/);
   });
 
+  it('memory hall back control meets 44px minimum touch target', () => {
+    const css = read('public/css/child-memory-hall.css');
+    assert.match(css, /mu-back-fab[\s\S]*min-width:\s*44px/);
+    assert.match(css, /mu-back-fab[\s\S]*min-height:\s*44px/);
+  });
+
   it('garden LOE feedback uses polite status region not blocking modal', () => {
     const src = read('public/js/child-garden.js');
     assert.match(src, /gdSceneStatus/);

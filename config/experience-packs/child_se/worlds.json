@@ -1,5 +1,5 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "worlds": [
     {
       "world_slug": "routine_home",
@@ -38,7 +38,10 @@
           "label_sv": "Stigen",
           "emoji": "🌿",
           "ambient_message_sv": "Stigen leder längre in i trädgården.",
-          "hotspot_class": "gd-hotspot--path"
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Stigen leder till ett varmt rum fullt av minnen…",
+          "gate_feature_slug": "memory_hall_playable"
         },
         {
           "scenery_id": "garden_bed",
@@ -59,21 +62,21 @@
     },
     {
       "world_slug": "memory_hall",
-      "display_name_sv": "Minneshallen",
-      "first_unlock_message": "Här samlas minnena.",
-      "ambient_message_sv": "Det är tyst och lugnt.",
+      "display_name_sv": "Minnesrummet",
+      "first_unlock_message": "Här finns det du varit stolt över.",
+      "ambient_message_sv": "Det känns varmt och tryggt här.",
       "ambient_scenery": [
         {
-          "scenery_id": "memory_hall_entry",
-          "label_sv": "Ingången",
-          "hotspot_class": "mu-hotspot--entry",
-          "ambient_message_sv": "Du kan gå vidare här."
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Fönstret",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Ljuset faller mjukt in."
         },
         {
           "scenery_id": "memory_hall_wall",
-          "label_sv": "Väggen",
+          "label_sv": "Minnesväggen",
           "hotspot_class": "mu-hotspot--wall",
-          "ambient_message_sv": "Plats för minnen."
+          "ambient_message_sv": "Här hänger det som betyder något för dig."
         }
       ]
     }

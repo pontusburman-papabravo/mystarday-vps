@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v491';
+const CACHE_NAME = 'stjarndag-v492';
+// stjarndag-v492: Minnesrummet BL-012 — memory hall entry + pride exhibits (dev gate)
 // stjarndag-v491: Garden auto-bloom aria-live on timer transition (BL-038)
 // stjarndag-v490: Morgonhus aria-atomic parity + garden LOE reduced-motion (BL-032/033)
 // stjarndag-v489: Garden LOE aria-live feedback + child-world a11y (BL-028)
@@ -446,6 +447,8 @@ const STATIC_ASSETS = [
   '/js/garden-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
+  '/js/child-memory-hall.js',
+  '/css/child-memory-hall.css',
   '/css/child-today-focus.css',
   '/css/child-world-bg.css',
   '/css/child-skatt-rooms.css',

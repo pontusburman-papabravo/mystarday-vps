@@ -1,6 +1,6 @@
 # Museum / Minneshallen — HRC-adjacent prep (BL-029)
 
-**Status:** Reversible scaffold only — creative direction blocked (BL-012).  
+**Status:** BL-012 approved 2026-07-03 — see `docs/decisions/adr-memory-hall-bl012.md`  
 **Does not ship to users** until `memory_hall_playable` is allowlisted and product approves content.
 
 ---
