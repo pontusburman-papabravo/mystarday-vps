@@ -11,6 +11,20 @@
   let _active = false;
   let _state = null;
   let _prefersReducedMotion = false;
+  let _assetCleanup = null;
+  let _illustratedScene = false;
+
+  function pipeline() {
+    return window.MemoryHallAssetPipeline || null;
+  }
+
+  function scenePictureMarkup() {
+    const p = pipeline();
+    if (p && typeof p.scenePictureHtml === 'function') {
+      return p.scenePictureHtml();
+    }
+    return '';
+  }
 
   function esc(str) {
     if (!str) return '';
@@ -43,12 +57,13 @@
     return '<div class="mu-exhibits" role="list" aria-label="Mina minnen">' + items + '</div>';
   }
 
-  function renderScene(state) {
+  function renderScene(state, opts) {
     if (!state) return renderEmptyState();
     const hasScenery = state.scenery && state.scenery.length;
     const hasExhibits = state.exhibits && state.exhibits.length;
     if (!hasScenery && !hasExhibits) return renderEmptyState();
 
+    const illustrated = opts && opts.illustrated;
     const title = state.display_name || 'Minnesrummet';
     const intro = state.first_enter_message || '';
 
@@ -60,8 +75,11 @@
         ' aria-label="' + esc(s.label_sv || id) + '"></button>';
     }).join('') : '';
 
-    return '<div class="mu-scene" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
-      '<div class="mu-scene-canvas" aria-hidden="true"></div>' +
+    const sceneClass = 'mu-scene' + (illustrated ? ' mu-scene--illustrated' : '');
+    const canvasInner = illustrated ? scenePictureMarkup() : '';
+
+    return '<div class="' + sceneClass + '" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
+      '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
       sceneryHtml +
       renderExhibitSlots(state.exhibits) +
       '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
@@ -112,6 +130,26 @@
     }
   }
 
+  function bindAssetWatch(root) {
+    if (_assetCleanup) {
+      _assetCleanup();
+      _assetCleanup = null;
+    }
+    const p = pipeline();
+    if (!p || typeof p.watchSceneImage !== 'function') return;
+    _assetCleanup = p.watchSceneImage(root, function () {
+      console.warn('[memory-hall] scene-bg failed — exiting to garden');
+      if (window.LivingWorldTransition
+          && typeof window.LivingWorldTransition.activeWorldId === 'function'
+          && window.LivingWorldTransition.activeWorldId() === 'memory_hall'
+          && typeof window.LivingWorldTransition.exitMemoryHall === 'function') {
+        window.LivingWorldTransition.exitMemoryHall();
+        return;
+      }
+      deactivate();
+    });
+  }
+
   async function fetchState() {
     if (!window.Auth || typeof window.Auth.api !== 'function') return null;
     try {
@@ -137,13 +175,23 @@
     const state = await fetchState();
     if (!state || !state.enabled) return false;
 
+    const p = pipeline();
+    let illustrated = false;
+    if (p && typeof p.preloadScene === 'function') {
+      illustrated = await p.preloadScene(5000);
+    }
+
     _prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     _state = state;
     _active = true;
-    root.innerHTML = renderScene(state);
+    _illustratedScene = illustrated;
+    root.innerHTML = renderScene(state, { illustrated: illustrated });
     bindInteractions(root, state);
+    if (illustrated) {
+      bindAssetWatch(root);
+    }
     hideLoader();
     document.body.classList.add('child-memory-hall-active');
     document.body.classList.remove('child-morgonhus-active', 'child-garden-active');
@@ -153,6 +201,11 @@
   function deactivate() {
     _active = false;
     _state = null;
+    _illustratedScene = false;
+    if (_assetCleanup) {
+      _assetCleanup();
+      _assetCleanup = null;
+    }
     document.body.classList.remove('child-memory-hall-active');
   }
 
