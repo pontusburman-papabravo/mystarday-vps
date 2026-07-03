@@ -6,18 +6,19 @@
 
 ---
 
-## Relay system (session continuity)
+**Updated:** 2026-07-03 (Supervisor/Worker relay v2.0)
+
+---
+
+## Relay system (Supervisor / Worker)
 
 | File | Role |
 |------|------|
-| `.ai/runtime/AUTONOMOUS_SESSION.md` | **Start here** — mission · branch · gates |
-| `.ai/runtime/RESUME_ENGINE.md` | Relay protocol |
-| `.ai/knowledge/MISSION_QUEUE.md` | AMQ |
-| `.ai/knowledge/REPOSITORY_STATE.md` | Branch · LKG · gate status |
-| `.ai/knowledge/OPEN_BLOCKERS.md` | HRC blockers |
-| `.ai/knowledge/OPEN_PRS.md` | IRC table |
-| `.ai/knowledge/CAPABILITY_QUEUE.md` | Platform capability queue (≥2 consumers) |
-| `.ai/prompts/RESUME_AUTONOMOUS_WORKER.md` | Resume prompt |
+| `.ai/runtime/NEXT_WORKER_PROMPT.md` | **Worker entry** — one-line resume target |
+| `.ai/runtime/WORKER_HANDOFF.md` | Last Worker report |
+| `.ai/runtime/SUPERVISOR.md` | Mission selection + dispatch |
+| `.ai/runtime/WORKER_PROTOCOL.md` | One mission per session |
+| `.ai/runtime/AUTONOMOUS_SESSION.md` | Session snapshot + fallback |
 
 ---
 

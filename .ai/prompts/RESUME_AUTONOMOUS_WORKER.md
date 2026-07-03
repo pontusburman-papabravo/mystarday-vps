@@ -1,66 +1,64 @@
 # Resume Autonomous Worker
 
-**Use this prompt to start any Composer session without chat history.**
-
----
-
-## Instructions
-
-1. Read `.ai/runtime/AUTONOMOUS_SESSION.md`.
-2. Read `.ai/knowledge/MISSION_QUEUE.md`.
-3. Read `.ai/company/STRATEGIC_INTENT.md`.
-4. Read `.ai/company/HUMAN_APPROVAL_GATE.md`.
-5. Resume from the **highest-ROI unblocked mission** in the AMQ.
-6. Continue the **CAE loop** (`.ai/runtime/CONTINUOUS_EXECUTION.md`).
-7. Do **not** restart discovery unless session state is missing or stale (>24h without gate run).
-8. Do **not** ask the user for the next task.
-9. Do **not** stop after one mission if unblocked work remains.
-10. Before stopping, update **all relay files** per `.ai/runtime/RESUME_ENGINE.md`.
-
----
-
-## Bootstrap sequence
+**One-line entry for every new Composer session:**
 
 ```
-git fetch origin
-git checkout <Current Branch from AUTONOMOUS_SESSION.md>
-Read OPEN_BLOCKERS.md + OPEN_PRS.md
-Run test:gate if gate status is unknown or stale
-Execute next mission via WORKFLOW_ENGINE
+Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 ```
 
 ---
 
-## Stopping phrase
+## Worker protocol (summary)
 
-When you must end the session:
+You are a **Worker** — exactly one bounded mission, then stop.
 
-> Relay handoff written. Next worker can resume.
+1. Read `.ai/runtime/NEXT_WORKER_PROMPT.md` (full assignment).
+2. Read files listed in the prompt only — do not restart full discovery.
+3. `git fetch` + checkout assigned branch.
+4. Implement mission scope.
+5. Run tests listed in prompt.
+6. Update knowledge + session state.
+7. Write `.ai/runtime/WORKER_HANDOFF.md`.
+8. Write `.ai/runtime/NEXT_WORKER_PROMPT.md` (next Worker assignment).
+9. Commit + push.
+10. **Stop.**
 
-Include the resume command:
+Full rules: `.ai/runtime/WORKER_PROTOCOL.md`
+
+---
+
+## Fallback (NEXT_WORKER_PROMPT missing)
 
 ```
-Read .ai/runtime/AUTONOMOUS_SESSION.md and continue autonomous execution.
+1. Read .ai/runtime/AUTONOMOUS_SESSION.md
+2. Read .ai/knowledge/MISSION_QUEUE.md + CAPABILITY_QUEUE.md
+3. Read .ai/knowledge/OPEN_BLOCKERS.md
+4. Act as Supervisor (.ai/runtime/SUPERVISOR.md) — select one mission
+5. Execute as Worker — then write NEXT_WORKER_PROMPT for the following session
 ```
+
+---
+
+## Supervisor reference
+
+Supervisor selects missions and writes prompts. Does not implement features.
+
+`.ai/runtime/SUPERVISOR.md`
 
 ---
 
 ## Forbidden
 
-- "Session complete" (unless zero unblocked AMQ work)
+- Multiple missions in one session
 - "What should I do next?"
-- "Shall I proceed?"
 - Deploy / merge main / enable live flags without HAG
-- Commit final art without Art HRC
+- Art binaries without Art HRC
+- Keeping session alive to "finish everything"
 
 ---
 
-## Relay files to update before stop
+## Stopping phrase
 
-- `.ai/runtime/AUTONOMOUS_SESSION.md`
-- `.ai/knowledge/MISSION_QUEUE.md`
-- `.ai/knowledge/REPOSITORY_STATE.md`
-- `.ai/knowledge/OPEN_BLOCKERS.md`
-- `.ai/knowledge/OPEN_PRS.md`
-
-Optional: `docs/reports/handover-YYYY-MM-DD.md`
+```
+Worker handoff written. Next session: Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
+```

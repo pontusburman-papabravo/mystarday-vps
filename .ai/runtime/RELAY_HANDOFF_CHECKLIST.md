@@ -4,54 +4,29 @@
 
 ---
 
-## Mandatory updates
+## Mandatory updates (Worker end)
 
-- [ ] `.ai/runtime/AUTONOMOUS_SESSION.md` — all sections reflect current reality
-- [ ] `.ai/knowledge/MISSION_QUEUE.md` — ranks, statuses, completed items
+- [ ] `.ai/runtime/WORKER_HANDOFF.md` — this Worker’s report
+- [ ] `.ai/runtime/NEXT_WORKER_PROMPT.md` — next Worker assignment (actionable)
+- [ ] `.ai/runtime/AUTONOMOUS_SESSION.md` — session snapshot
 - [ ] `.ai/knowledge/REPOSITORY_STATE.md` — branch, SHA, gate results
-- [ ] `.ai/knowledge/OPEN_BLOCKERS.md` — HRC with exact decision text
-- [ ] `.ai/knowledge/OPEN_PRS.md` — matches GitHub draft PRs
-
----
-
-## Quality gates
-
-- [ ] `test:gate` run if code changed (record N/N in REPOSITORY_STATE)
-- [ ] `check:governance` run if `.ai/` or governance docs changed
-- [ ] No deploy-mode env literals in docs (secret scanner)
-
----
+- [ ] `.ai/knowledge/MISSION_QUEUE.md` or `CAPABILITY_QUEUE.md` — status changes
+- [ ] `.ai/knowledge/OPEN_BLOCKERS.md` — if blockers changed
+- [ ] `.ai/knowledge/OPEN_PRS.md` — if PRs changed
 
 ## Resume clarity test
 
-Read **only** `AUTONOMOUS_SESSION.md` and verify:
+Read **only** `NEXT_WORKER_PROMPT.md` and verify:
 
-- [ ] **Next Recommended Action** is one concrete imperative
-- [ ] **Current Branch** matches git branch
-- [ ] **Active Mission** ID matches AMQ rank 1
-- [ ] **HRC Blockers** list exact human decisions
-- [ ] **Resume command** is present
+- [ ] Mission ID present
+- [ ] Goal is one sentence
+- [ ] Branch matches git
+- [ ] Tests to run listed
+- [ ] Handoff requirements listed
+- [ ] Stop conditions clear
 
-If any fail → fix before stopping.
-
----
-
-## Stopping phrase
+## Stopping phrase (Worker)
 
 ```
-Relay handoff written. Next worker can resume.
+Worker handoff written. Next session: Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 ```
-
-Resume command:
-
-```
-Read .ai/runtime/AUTONOMOUS_SESSION.md and continue autonomous execution.
-```
-
----
-
-## Anti-patterns
-
-- [ ] Did NOT say "session complete" with open unblocked AMQ work
-- [ ] Did NOT ask user "what next?"
-- [ ] Did NOT rely on chat for mission state

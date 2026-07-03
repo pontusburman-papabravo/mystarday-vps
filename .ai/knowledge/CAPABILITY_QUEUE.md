@@ -8,7 +8,7 @@
 
 | Rank | ID | Capability | Consumers | ROI | Status |
 |------|-----|------------|-----------|-----|--------|
-| 1 | CAP-003 | Generic world enter/exit in LivingWorldTransition | memory_hall, future worlds | 7.5 | queued |
+| 1 | CAP-003 | Generic world enter/exit in LivingWorldTransition | memory_hall, future worlds | 7.5 | **assigned** → `NEXT_WORKER_PROMPT.md` |
 
 ---
 
