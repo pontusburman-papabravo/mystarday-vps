@@ -219,6 +219,7 @@
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 const CACHE_NAME = 'stjarndag-v494';
 // stjarndag-v494: Admin Paket V2 — per-package workspace (Extra stöd, Rapportering, Pedagog)
+// stjarndag-v493: CAP-001/002 scene-asset-pipeline + morgonhus wrapper
 // stjarndag-v493: ACT-1 onboarding resume + merge main (barninställningar consolidate)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor
@@ -442,6 +443,8 @@ const STATIC_ASSETS = [
   '/css/child-morgonhus.css',
   '/css/child-living-world-transition.css',
   '/js/child-living-world-transition.js',
+  '/js/scene-asset-pipeline.js',
+  '/js/morgonhus-asset-pipeline.js',
   '/js/garden-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',

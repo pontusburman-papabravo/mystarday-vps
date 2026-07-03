@@ -6,13 +6,18 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
+const CORE_SRC = fs.readFileSync(
+  path.join(__dirname, '../public/js/scene-asset-pipeline.js'),
+  'utf8'
+);
 const PIPELINE_SRC = fs.readFileSync(
   path.join(__dirname, '../public/js/memory-hall-asset-pipeline.js'),
   'utf8'
 );
 
 function loadPipeline() {
-  const context = { window: {}, document: {} };
+  const context = { window: {} };
+  vm.runInNewContext(CORE_SRC, context);
   vm.runInNewContext(PIPELINE_SRC, context);
   return context.window.MemoryHallAssetPipeline;
 }
@@ -20,7 +25,7 @@ function loadPipeline() {
 describe('memory-hall asset pipeline stub (BL-044)', () => {
   it('exposes scene srcset manifest matching art spec paths', () => {
     const pipeline = loadPipeline();
-    assert.equal(pipeline.VERSION, '0.1.0-stub');
+    assert.equal(pipeline.VERSION, '0.2.0');
     assert.equal(pipeline.SCENE.file, 'scene@2x.webp');
     assert.equal(pipeline.SCENE.srcset.length, 3);
     assert.equal(pipeline.CRITICAL_FILE, 'scene@2x.webp');

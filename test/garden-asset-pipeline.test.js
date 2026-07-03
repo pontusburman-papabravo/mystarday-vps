@@ -23,6 +23,10 @@ const OPTIONAL_FILES = [
   'ambient-butterfly.webp',
 ];
 
+const CORE_SRC = fs.readFileSync(
+  path.join(__dirname, '../public/js/scene-asset-pipeline.js'),
+  'utf8'
+);
 const PIPELINE_SRC = fs.readFileSync(
   path.join(__dirname, '../public/js/garden-asset-pipeline.js'),
   'utf8'
@@ -30,6 +34,7 @@ const PIPELINE_SRC = fs.readFileSync(
 
 function loadPipeline() {
   const context = { window: {}, document: {} };
+  vm.runInNewContext(CORE_SRC, context);
   vm.runInNewContext(PIPELINE_SRC, context);
   return context.window.GardenAssetPipeline;
 }
@@ -90,6 +95,7 @@ describe('garden illustrated assets — service worker precache', () => {
   const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
 
   it('precaches pipeline JS and scene-bg responsive WebP set', () => {
+    assert.match(sw, /scene-asset-pipeline\.js/);
     assert.match(sw, /garden-asset-pipeline\.js/);
     for (const file of SCENE_FILES) {
       assert.match(sw, new RegExp('/images/child/world/garden/' + file.replace('.', '\\.')));
