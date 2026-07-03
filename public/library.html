@@ -804,6 +804,25 @@
           <p class="text-xs text-text-soft mt-1">Visas efter att aktiviteten bockats av</p>
         </div>
 
+        <div id="activityTimerSection" class="border-t border-lavender pt-4">
+          <label class="block text-sm font-semibold text-navy mb-1">⏳ Aktivitetstimer</label>
+          <p class="text-xs text-text-soft mb-2">Nedräkning i barnvyn (kräver master under barninställningar). Endast heltal.</p>
+          <input type="hidden" id="activityDurationSeconds" value="">
+          <div id="activityTimerPresets" class="flex flex-wrap gap-2 mb-2"></div>
+          <div id="activityTimerCustom" class="hidden grid grid-cols-2 gap-2 mb-2">
+            <div>
+              <label class="text-xs text-text-soft">Minuter</label>
+              <input type="number" id="activityTimerMinutes" min="0" max="60" step="1" class="w-full px-3 py-2 rounded-xl border-2 border-lavender text-sm" value="0">
+            </div>
+            <div>
+              <label class="text-xs text-text-soft">Sekunder</label>
+              <input type="number" id="activityTimerSeconds" min="0" max="59" step="1" class="w-full px-3 py-2 rounded-xl border-2 border-lavender text-sm" value="0">
+            </div>
+          </div>
+          <button type="button" id="activityTimerCustomize" class="text-xs text-gold font-semibold underline">Anpassa…</button>
+          <button type="button" id="activityTimerClear" class="text-xs text-text-soft underline ml-3">Ingen timer</button>
+        </div>
+
         <!-- Substeps (always visible, pre-loads existing steps for edit) -->
         <div id="libSubstepSection">
           <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>

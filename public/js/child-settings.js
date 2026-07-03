@@ -856,6 +856,15 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
+        <p class="text-sm font-semibold text-navy dark:text-white">Aktivitetstimer (timglas)</p>
+        <p class="text-xs text-text-soft mt-0.5">Masterbrytare. Sätt tid per aktivitet i biblioteket.</p>
+      </div>
+      <div class="toggle-track ${child.activity_timers_enabled === true ? 'on' : ''}" id="toggle-activity_timers_enabled">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="flex-1 pr-4">
         <p class="text-sm font-semibold text-navy dark:text-white">Visuell timer</p>
         <p class="text-xs text-text-soft mt-0.5">Cirkulär klocka vid pågående aktivitet</p>
       </div>
@@ -922,6 +931,7 @@ function renderPage(child) {
     ['toggle-lock_schedule', 'lock_schedule', !!child.lock_schedule],
     ['toggle-dopamin_animation', 'dopamin_animation', child.dopamin_animation !== false],
     ['toggle-visual_timer', 'visual_timer', child.visual_timer !== false],
+    ['toggle-activity_timers_enabled', 'activity_timers_enabled', child.activity_timers_enabled === true],
     ['toggle-color_coding', 'color_coding', child.color_coding !== false],
   ];
   toggles.forEach(([id, field, val]) => makeToggle(id, field, val));
