@@ -6,6 +6,28 @@
   border-radius: 1.25rem;
   overflow: hidden;
   background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 55%, #e6dccf 100%);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.living-world-active .mu-scene,
+body.child-memory-hall-active .mu-scene {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+body.child-memory-hall-active #skattkammarView {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+body.child-memory-hall-active #rewardsView {
+  background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 100%) !important;
+  padding-bottom: 0 !important;
 }
 
 .mu-scene--empty {
@@ -53,14 +75,18 @@
   -webkit-user-drag: none;
 }
 
+/* Invisible tap zones — match garden (no debug borders) */
 .mu-hotspot {
   position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 5;
   min-width: 44px;
   min-height: 44px;
-  border: 2px solid rgba(180, 140, 90, 0.35);
-  border-radius: 12px;
-  background: rgba(255, 252, 247, 0.5);
-  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mu-hotspot--window {
@@ -77,14 +103,74 @@
   height: 42%;
 }
 
+/* Scaffold (pre-art): hide ambient hotspots — exhibits are the room */
+.mu-scene:not(.mu-scene--illustrated) .mu-hotspot {
+  display: none;
+}
+
+.mu-scene:not(.mu-scene--illustrated) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 56px)
+    1rem
+    calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+}
+
+.mu-scene:not(.mu-scene--illustrated) .mu-scene-intro {
+  position: static;
+  order: -1;
+  margin: 0 0 1.25rem;
+  padding: 0 2.5rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.mu-scene:not(.mu-scene--illustrated) .mu-exhibits {
+  position: static;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+  justify-items: stretch;
+  max-width: 22rem;
+  margin: 0 auto;
+  width: 100%;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
+.mu-scene:not(.mu-scene--illustrated) .mu-exhibit {
+  max-width: none;
+  width: 100%;
+}
+
 .mu-hotspot.is-tapped {
   transform: scale(0.97);
   transition: transform 0.15s ease;
 }
 
+.mu-hotspot.is-tapped::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 70%);
+  animation: mu-hotspot-ripple 0.45s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes mu-hotspot-ripple {
+  from { opacity: 0.7; transform: scale(0.7); }
+  to   { opacity: 0; transform: scale(1.15); }
+}
+
 .mu-scene-intro {
   position: absolute;
-  top: 12px;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
   left: 12px;
   right: 56px;
   margin: 0;
@@ -92,6 +178,12 @@
   font-weight: 600;
   color: #4a3f32;
   text-align: center;
+  z-index: 4;
+}
+
+.mu-scene--illustrated .mu-scene-intro {
+  color: rgba(255, 252, 247, 0.92);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
 }
 
 .mu-scene-status {
@@ -113,6 +205,7 @@
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
+  z-index: 4;
 }
 
 .mu-exhibit {
@@ -144,9 +237,9 @@
 
 .mu-back-fab {
   position: absolute;
-  top: 10px;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
   left: 10px;
-  z-index: 5;
+  z-index: 6;
   min-width: 44px;
   min-height: 44px;
   border-radius: 999px;
@@ -167,13 +260,13 @@
   transform: rotate(45deg) translate(0.05rem, -0.05rem);
 }
 
-.child-memory-hall-active #rewardsView {
-  background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 100%) !important;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mu-hotspot.is-tapped {
     transform: none;
     transition: none;
+  }
+
+  .mu-hotspot.is-tapped::after {
+    animation: none;
   }
 }

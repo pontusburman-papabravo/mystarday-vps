@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v497';
+const CACHE_NAME = 'stjarndag-v498';
+// stjarndag-v498: Minnesrummet scaffold polish — invisible hotspots, pride grid layout
 // stjarndag-v497: garden path CTA + hotspot fix for Minnesrummet entry
 // stjarndag-v496: CAP-005 memory-hall-asset-pipeline wired in child-memory-hall
 // stjarndag-v495: IRC-014-R1 memory_hall on CAP-003 enterWorld/exitWorld registry
