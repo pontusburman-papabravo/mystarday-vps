@@ -60,8 +60,8 @@ Full list: `.ai/knowledge/OPEN_BLOCKERS.md`
 | Rank | ID | Capability | Status |
 |------|-----|------------|--------|
 | — | CAP-001 | scene-asset-pipeline.js | **done** ✅ |
-| 1 | CAP-002 | Morgonhus pipeline wrapper | queued |
-| 2 | CAP-003 | Generic world enter/exit transitions | queued |
+| — | CAP-002 | Morgonhus pipeline wrapper | **done** ✅ |
+| 1 | CAP-003 | Generic world enter/exit transitions | queued |
 
 Full queue: `.ai/knowledge/CAPABILITY_QUEUE.md`
 
@@ -78,8 +78,8 @@ Full queue: `.ai/knowledge/CAPABILITY_QUEUE.md`
 
 ## Repository Value Score
 
-**RVS:** 9.4 / 10 (Δ +0.1 — shared runtime, deduplicated pipelines)  
-**LWS:** 9.0 / 10 (Δ +0.2 — faster future world asset integration)
+**RVS:** 9.5 / 10 (Δ +0.1 — CAP-001 + CAP-002)  
+**LWS:** 9.1 / 10 (Δ +0.1)
 
 ---
 
@@ -87,14 +87,13 @@ Full queue: `.ai/knowledge/CAPABILITY_QUEUE.md`
 
 | Gate | Status |
 |------|--------|
-| `test:gate` | **792/792 green** (686 unit + 106 db) |
-| `check:governance` | N/A on main (IRC-007) |
+| `test:gate` | **795/795 green** (689 unit + 106 db) |
 
 ---
 
 ## Next Recommended Action
 
-Execute **CAP-002**: Morgonhus `scene-asset-pipeline` wrapper — replace inline `scene@2x.webp` URL in `child-morgonhus.js` with shared runtime. Then **CAP-003**: extend `LivingWorldTransition` with generic world enter/exit factory (memory_hall consumer on IRC-014 branch).
+Execute **CAP-003**: refactor `LivingWorldTransition` to generic `enterWorld`/`exitWorld` factory — enables memory_hall without duplicating garden transition logic (coordinate with IRC-014 branch).
 
 **Resume command:**
 
