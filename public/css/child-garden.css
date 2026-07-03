@@ -166,6 +166,47 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   pointer-events: none;
 }
 
+/* ── LOE visual tokens (pack-driven via living_slots.visual_token) ── */
+.gd-hotspot--bed.gd-loe--sunflower_seed::before,
+.gd-hotspot--bed.gd-loe--sunflower_bloom::before,
+.gd-hotspot--bed.gd-loe--sunflower_harvested::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 42%;
+  pointer-events: none;
+}
+
+.gd-hotspot--bed.gd-loe--sunflower_seed::before {
+  background: radial-gradient(circle, rgba(139, 195, 74, 0.28), transparent 72%);
+  animation: gd-loe-seed-glow 2.8s ease-in-out infinite;
+}
+
+.gd-hotspot--bed.gd-loe--sunflower_bloom::before {
+  background: radial-gradient(circle, rgba(255, 213, 79, 0.38), transparent 74%);
+  animation: gd-loe-bloom-glow 3.2s ease-in-out infinite;
+}
+
+.gd-hotspot--bed.gd-loe--sunflower_harvested::before {
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.22), transparent 75%);
+  opacity: 0.85;
+}
+
+.gd-scene-canvas.gd-loe--sunflower_bloom .gd-scene-bg {
+  filter: saturate(1.05) brightness(1.02);
+  transition: filter 0.6s ease;
+}
+
+@keyframes gd-loe-seed-glow {
+  0%, 100% { opacity: 0.65; transform: scale(0.98); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gd-loe-bloom-glow {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.03); }
+}
+
 @keyframes gd-hotspot-ripple {
   from { opacity: 0.7; transform: scale(0.7); }
   to   { opacity: 0; transform: scale(1.3); }
@@ -215,7 +256,9 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   .gd-scene-canvas.is-path-tap .gd-scene-bg,
   .gd-scene-canvas.is-bloom-tap .gd-scene-bg,
   .gd-scene-canvas.is-sky-tap .gd-scene-bg,
-  .gd-hotspot.is-tapped::after {
+  .gd-hotspot.is-tapped::after,
+  .gd-hotspot--bed.gd-loe--sunflower_seed::before,
+  .gd-hotspot--bed.gd-loe--sunflower_bloom::before {
     animation: none !important;
   }
 }

@@ -9,11 +9,18 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-027 | P1 | Garden visual token ↔ LOE state sync | Child delight | BL-023 done | Low | Frontend | **active** |
-| BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | queued |
+| BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | **active** |
+| BL-028 | P2 | Accessibility audit — child world hotspots | Child calm | — | Low | QA | queued |
 | BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
 
 ---
+
+## Completed (session 2026-07-03 resume)
+
+| ID | Mission |
+|----|---------|
+| BL-031 | Living World Score (LWS) KPI |
+| BL-027 | Garden visual_token ↔ LOE state sync |
 
 ## Completed (MO005 2026-07-03)
 

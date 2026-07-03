@@ -328,7 +328,48 @@ describe('ChildGarden client module', () => {
     assert.match(src, /available_verbs/);
     assert.match(src, /living_slot_id/);
     assert.match(src, /scheduleTimerRefresh/);
+    assert.match(src, /applyLivingSlotVisuals/);
+    assert.match(src, /visualTokenClass/);
     assert.doesNotMatch(src, /['"]plant['"]/);
     assert.doesNotMatch(src, /['"]harvest['"]/);
+  });
+
+  it('applyLivingSlotVisuals maps visual_token to bed hotspot classes', () => {
+    const ChildGarden = loadGardenModule();
+    const bed = {
+      classList: {
+        _s: new Set(),
+        add: function (c) { this._s.add(c); },
+        forEach: function (fn) { this._s.forEach(fn); },
+        remove: function (c) { this._s.delete(c); },
+      },
+      setAttribute: function () {},
+      removeAttribute: function () {},
+    };
+    const scene = {
+      classList: {
+        _s: new Set(),
+        add: function (c) { this._s.add(c); },
+        forEach: function (fn) { this._s.forEach(fn); },
+        remove: function (c) { this._s.delete(c); },
+      },
+    };
+    const dom = {
+      querySelector: function (sel) {
+        if (sel === '.gd-scene-canvas') return scene;
+        if (sel === '.gd-hotspot--bed') return bed;
+        return null;
+      },
+    };
+    ChildGarden.applyLivingSlotVisuals(dom, {
+      living_slots: [{
+        slot_id: 'bed_1',
+        state_key: 'blooming',
+        visual_token: 'sunflower_bloom',
+      }],
+    });
+    assert.ok(bed.classList._s.has('gd-loe--sunflower_bloom'));
+    assert.ok(scene.classList._s.has('gd-loe--sunflower_bloom'));
+    assert.equal(ChildGarden.visualTokenClass('sunflower_seed'), 'gd-loe--sunflower_seed');
   });
 });

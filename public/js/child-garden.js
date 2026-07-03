@@ -41,6 +41,8 @@
       const fresh = await fetchState();
       if (fresh && fresh.enabled) {
         _state = fresh;
+        const view = document.getElementById('skattkammarView');
+        if (view) applyLivingSlotVisuals(view, fresh);
         scheduleTimerRefresh(fresh);
       }
     }, minMs + 200);
@@ -57,15 +59,45 @@
     });
   }
 
-  function applySlotVisual(root, slot) {
-    if (!root || !slot) return;
+  function visualTokenClass(token) {
+    if (!token) return null;
+    return 'gd-loe--' + String(token).replace(/[^a-z0-9_-]/gi, '');
+  }
+
+  function stripLoeClasses(el) {
+    if (!el || !el.classList) return;
+    const remove = [];
+    el.classList.forEach(function (c) {
+      if (c.indexOf('gd-loe--') === 0) remove.push(c);
+    });
+    remove.forEach(function (c) { el.classList.remove(c); });
+  }
+
+  function applyLivingSlotVisuals(root, state) {
+    if (!root || !state) return;
     const scene = root.querySelector('.gd-scene-canvas');
-    if (!scene) return;
-    const token = slot.visual_token || '';
-    if (token.indexOf('seed') !== -1 || token.indexOf('bloom') !== -1) {
-      scene.classList.add('is-bloom-tap');
-      setTimeout(function () { scene.classList.remove('is-bloom-tap'); }, TAP_RESET_MS);
+    const bedBtn = root.querySelector('.gd-hotspot--bed');
+    if (scene) stripLoeClasses(scene);
+    if (bedBtn) {
+      stripLoeClasses(bedBtn);
+      bedBtn.removeAttribute('data-loe-state');
     }
+
+    (state.living_slots || []).forEach(function (slot) {
+      const cls = visualTokenClass(slot.visual_token);
+      if (!cls) return;
+      if (slot.slot_id === 'bed_1') {
+        if (bedBtn) {
+          bedBtn.classList.add(cls);
+          if (slot.state_key) bedBtn.setAttribute('data-loe-state', slot.state_key);
+        }
+        if (scene) scene.classList.add(cls);
+      }
+    });
+  }
+
+  function applySlotVisual(root, slot) {
+    applyLivingSlotVisuals(root, { living_slots: slot ? [slot] : [] });
   }
 
   let _active = false;
@@ -164,7 +196,7 @@
             return s.slot_id === result.slot.slot_id ? result.slot : s;
           });
           _state = Object.assign({}, _state, { living_slots: slots });
-          applySlotVisual(root, result.slot);
+          applyLivingSlotVisuals(root, _state);
           scheduleTimerRefresh(_state);
           return;
         }
@@ -341,6 +373,7 @@
     bindInteractions(view);
     bindAssetWatch(view);
     finishEnterAnimation(view);
+    applyLivingSlotVisuals(view, sceneState);
     hideLoader();
     document.body.classList.add('child-garden-active');
     document.body.classList.remove('child-morgonhus-active');
@@ -379,5 +412,7 @@
     deactivate: deactivate,
     isActive: isActive,
     triggerVisual: triggerVisual,
+    visualTokenClass: visualTokenClass,
+    applyLivingSlotVisuals: applyLivingSlotVisuals,
   };
 })();

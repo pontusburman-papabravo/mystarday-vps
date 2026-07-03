@@ -8,15 +8,13 @@
 ## Intent (current)
 
 ```
-Build Min Värld.
+Continue building Min Värld into the best children's experience possible.
 
-Prioritize the largest improvement to child experience.
+Optimize for: child delight, emotional safety, ownership, exploration, calm, simplicity, maintainability.
 
-Keep architecture simple.
+Repository quality is a constraint. Product quality is the objective.
 
-Never violate POS.
-
-Live deploy always requires human approval.
+Never violate POS. Live deploy always requires human approval.
 ```
 
 ---

@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v487';
+const CACHE_NAME = 'stjarndag-v488';
+// stjarndag-v488: Garden LOE visual_token sync — bed hotspot state classes from living_slots (BL-027)
 // stjarndag-v487: Garden LOE — living-object-runtime + child-garden verb API (IRC-003)
 // stjarndag-v486: Min Värld — Garden ambient_scenery pack-driven hotspots (child-garden.js dynamic hotspot_class)
 // stjarndag-v485: FEAT-1B/1C v2.1 — 4-veckors boendeschema-förhandsvisning (context-range API + custody-settings grid)

@@ -15,7 +15,8 @@
         "test/experience-pack.test.js",
         "test/morgonhus-playable.test.js",
         "test/garden-playable-scene.test.js",
-        "test/living-object-runtime.test.js"
+        "test/living-object-runtime.test.js",
+        "test/world-ambient.test.js"
       ],
       "owners": ["GameDirector", "PrincipalEngineer"]
     },
@@ -65,6 +66,7 @@
     ".ai/company/HUMAN_APPROVAL_GATE.md",
     ".ai/company/REPOSITORY_VALUE_SCORE.md",
     ".ai/company/STRATEGIC_INTENT.md",
-    ".ai/company/NIGHTLY_REVIEW.md"
+    ".ai/company/NIGHTLY_REVIEW.md",
+    ".ai/company/LIVING_WORLD_SCORE.md"
   ]
 }
