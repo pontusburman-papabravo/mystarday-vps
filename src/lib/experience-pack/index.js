@@ -61,6 +61,9 @@ function loadPack(packId = DEFAULT_PACK_ID) {
     livingObjects: includes.living_objects
       ? readPackJsonFile(path.join(packDir, includes.living_objects), `${packId}/${includes.living_objects}`)
       : { worlds: [] },
+    exhibits: includes.exhibits
+      ? readPackJsonFile(path.join(packDir, includes.exhibits), `${packId}/${includes.exhibits}`)
+      : { worlds: [] },
   };
 
   packCache.set(packId, pack);
@@ -103,6 +106,23 @@ function getLivingArchetype(pack, worldSlug, archetypeId) {
   return (world.archetypes || []).find((a) => a.archetype_id === archetypeId) || null;
 }
 
+function getExhibitWorldDef(pack, worldSlug) {
+  return (pack.exhibits.worlds || []).find((w) => w.world_slug === worldSlug) || null;
+}
+
+/** Pack-defined exhibit slots; content resolved server-side when BL-012 ships. */
+function buildExhibitViews(pack, worldSlug) {
+  const worldDef = getExhibitWorldDef(pack, worldSlug);
+  if (!worldDef) return [];
+  return (worldDef.slots || []).map((slot) => ({
+    slot_id: slot.slot_id,
+    slot_type: slot.slot_type,
+    label_sv: slot.label_sv || null,
+    visual_token: slot.visual_token || null,
+    content: null,
+  }));
+}
+
 function interpolateTemplate(template, vars = {}) {
   if (!template) return '';
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? '');
@@ -134,6 +154,8 @@ module.exports = {
   getWorldDef,
   getLivingWorldDef,
   getLivingArchetype,
+  getExhibitWorldDef,
+  buildExhibitViews,
   interpolateTemplate,
   resolveExperienceCopy,
 };

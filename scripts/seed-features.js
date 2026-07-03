@@ -874,6 +874,24 @@ const FEATURES = [
     dev_notes: [],
     changelog: [],
   },
+  {
+    slug: 'memory_hall_playable',
+    name: 'Minneshallen (scaffold)',
+    description: 'World 3 scaffold — API + pack scene; creative blocked BL-012',
+    status: 'dev',
+    tags: ['barn', 'belöningar'],
+    priority: 'medium',
+    complexity: 6,
+    estimated_hours: 16.0,
+    documentation: {
+      purpose: 'Reversible prep for world 3 without shipping creative direction.',
+      user_story: 'Som barn i testfamilj vill jag utforska minneshallen när familjen har tillgång.',
+      acceptance_criteria: 'status=dev kräver family_features; ingen allowlist i migration; scaffold=true i API.',
+      technical_notes: 'hasAccess(familyId, memory_hall_playable). GET /api/me/memory-hall. Se docs/museum-world-prep.md.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
 
   // ── Mina personer 10/10 (dev rollout via family_features) ───────────────────
   {

@@ -31,12 +31,20 @@
     return classes.join(' ');
   }
 
+  function getAssetPipeline() {
+    return window.MorgonhusAssetPipeline || null;
+  }
+
   function probeSceneArt(root) {
     const scene = root && root.querySelector('.mh-scene');
     if (!scene) return;
+    const pipeline = getAssetPipeline();
+    const url = pipeline
+      ? pipeline.assetUrl(pipeline.CRITICAL_FILE)
+      : '/images/child/morgonhus/scene@2x.webp';
     const img = new Image();
     img.onload = function () { scene.classList.add('is-illustrated'); };
-    img.src = '/images/child/morgonhus/scene@2x.webp';
+    img.src = url;
   }
 
   function renderScene(state) {

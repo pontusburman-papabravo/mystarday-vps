@@ -130,6 +130,46 @@ describe('experience pack structural validation', () => {
         }
       });
 
+      it('ambient_props have required fields and valid gate references', () => {
+        const worldSlugs = new Set((pack.worlds.worlds || []).map((w) => w.world_slug));
+        for (const world of pack.worlds.worlds || []) {
+          for (const ambient of world.ambient_props || []) {
+            assert.ok(ambient.prop_id, `ambient prop missing prop_id in ${world.world_slug}`);
+            assert.ok(ambient.label_sv, `ambient ${ambient.prop_id} missing label_sv`);
+            if (ambient.gate_to_world) {
+              assert.ok(
+                worldSlugs.has(ambient.gate_to_world),
+                `ambient ${ambient.prop_id} gate_to_world "${ambient.gate_to_world}" not in worlds.json`
+              );
+              assert.ok(
+                ambient.gate_feature_slug,
+                `ambient ${ambient.prop_id} gate_to_world requires gate_feature_slug`
+              );
+            }
+          }
+          for (const scenery of world.ambient_scenery || []) {
+            assert.ok(scenery.scenery_id, `ambient scenery missing scenery_id in ${world.world_slug}`);
+            assert.ok(scenery.label_sv, `scenery ${scenery.scenery_id} missing label_sv`);
+            assert.ok(scenery.hotspot_class, `scenery ${scenery.scenery_id} missing hotspot_class`);
+          }
+        }
+      });
+
+      it('exhibits worlds reference worlds.json slugs when exhibits.json present', () => {
+        if (!pack.manifest.includes?.exhibits) return;
+        const worldSlugs = new Set((pack.worlds.worlds || []).map((w) => w.world_slug));
+        for (const world of pack.exhibits.worlds || []) {
+          assert.ok(
+            world.world_slug,
+            'exhibit world missing world_slug'
+          );
+          assert.ok(
+            worldSlugs.has(world.world_slug),
+            `exhibits world "${world.world_slug}" missing from worlds.json`
+          );
+        }
+      });
+
       it('required runtime copy experiences exist', () => {
         const experiences = pack.copy.experiences || {};
         for (const key of REQUIRED_COPY_KEYS) {

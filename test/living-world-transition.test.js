@@ -55,14 +55,67 @@ function loadTransitionModule() {
 }
 
 describe('Living World transition — place mode', () => {
-  it('exposes enterGarden, exitGarden, isActive', () => {
+  it('exposes generic enterWorld/exitWorld and garden wrappers', () => {
     const { api } = loadTransitionModule();
     assert.ok(api);
+    assert.equal(typeof api.enterWorld, 'function');
+    assert.equal(typeof api.exitWorld, 'function');
     assert.equal(typeof api.enterGarden, 'function');
     assert.equal(typeof api.exitGarden, 'function');
     assert.equal(typeof api.isActive, 'function');
+    assert.equal(typeof api.activeWorldId, 'function');
+    assert.equal(typeof api.registerWorld, 'function');
     assert.equal(api.CHROME_MS >= 200 && api.CHROME_MS <= 500, true);
     assert.equal(api.DOOR_MS >= 200 && api.DOOR_MS <= 500, true);
+  });
+
+  it('enterGarden delegates to enterWorld with garden id', () => {
+    assert.match(TRANSITION_SRC, /async function enterGarden\(opts\) \{\s*return enterWorld\('garden', opts\);/);
+    assert.match(TRANSITION_SRC, /async function exitGarden\(\) \{\s*return exitWorld\('garden'\);/);
+  });
+
+  it('tracks activeWorldId after garden enter', async () => {
+    const context = {
+      document: {
+        body: {
+          classList: { add: () => {}, remove: () => {} },
+          appendChild: () => {},
+        },
+        getElementById: (id) => {
+          if (id === 'skattkammarView' || id === 'rewardsView') {
+            return { classList: { add: () => {}, remove: () => {} } };
+          }
+          return null;
+        },
+        createElement: () => ({
+          classList: { add: () => {}, remove: () => {} },
+          setAttribute: () => {},
+          offsetWidth: 0,
+        }),
+      },
+      window: {
+        matchMedia: () => ({ matches: true }),
+        ChildGarden: {
+          mount: async () => true,
+          deactivate: () => {},
+        },
+        ChildMorgonhus: { tryRemountCached: () => true },
+        LivingWorldTransition: null,
+      },
+      setTimeout: (fn) => { fn(); return 1; },
+      clearTimeout: () => {},
+    };
+    vm.runInNewContext(TRANSITION_SRC, context);
+    assert.equal(context.window.LivingWorldTransition.activeWorldId(), null);
+    await context.window.LivingWorldTransition.enterWorld('garden', { doorEl: null });
+    assert.equal(context.window.LivingWorldTransition.isActive(), true);
+    assert.equal(context.window.LivingWorldTransition.activeWorldId(), 'garden');
+  });
+
+  it('enterWorld returns false for unknown worldId', async () => {
+    const { api } = loadTransitionModule();
+    const result = await api.enterWorld('unknown_world', {});
+    assert.equal(result, false);
   });
 
   it('CSS hides app chrome during living-world-active', () => {
@@ -139,10 +192,69 @@ describe('Living World transition — place mode', () => {
     assert.equal(mountArgs.opts.viaTransition, true);
   });
 
-  it('service worker precaches transition assets', () => {
+  it('garden path uses LivingWorldTransition.enterMemoryHall when gate open', () => {
+    assert.match(GARDEN_SRC, /LivingWorldTransition\.enterMemoryHall/);
+    assert.match(GARDEN_SRC, /leads_to_memory_hall/);
+  });
+
+  it('enterMemoryHall and exitMemoryHall delegate to generic world API', () => {
+    assert.match(TRANSITION_SRC, /async function enterMemoryHall\(opts\) \{\s*return enterWorld\('memory_hall', opts\);/);
+    assert.match(TRANSITION_SRC, /async function exitMemoryHall\(\) \{\s*return exitWorld\('memory_hall'\);/);
+    const { api } = loadTransitionModule();
+    assert.equal(typeof api.enterMemoryHall, 'function');
+    assert.equal(typeof api.exitMemoryHall, 'function');
+  });
+
+  it('memory_hall enter deactivates garden before mount', async () => {
+    let gardenDeactivated = false;
+    let memoryMounted = false;
+    const context = {
+      document: {
+        body: {
+          classList: { add: () => {}, remove: () => {} },
+          appendChild: () => {},
+        },
+        getElementById: (id) => {
+          if (id === 'skattkammarView' || id === 'rewardsView') {
+            return { classList: { add: () => {}, remove: () => {} } };
+          }
+          return null;
+        },
+        createElement: () => ({
+          classList: { add: () => {}, remove: () => {} },
+          setAttribute: () => {},
+          offsetWidth: 0,
+        }),
+      },
+      window: {
+        matchMedia: () => ({ matches: true }),
+        ChildGarden: {
+          mount: async () => true,
+          deactivate: () => { gardenDeactivated = true; },
+        },
+        ChildMemoryHall: {
+          mount: async () => { memoryMounted = true; return true; },
+          deactivate: () => {},
+        },
+        LivingWorldTransition: null,
+      },
+      setTimeout: (fn) => { fn(); return 1; },
+      clearTimeout: () => {},
+    };
+    vm.runInNewContext(TRANSITION_SRC, context);
+    const ok = await context.window.LivingWorldTransition.enterMemoryHall({ pathEl: null });
+    assert.equal(ok, true);
+    assert.equal(gardenDeactivated, true);
+    assert.equal(memoryMounted, true);
+    assert.equal(context.window.LivingWorldTransition.activeWorldId(), 'memory_hall');
+  });
+
+  it('service worker precaches transition and memory hall assets', () => {
     const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
     assert.match(sw, /child-living-world-transition\.js/);
     assert.match(sw, /child-living-world-transition\.css/);
-    assert.match(sw, /stjarndag-v424/);
+    assert.match(sw, /child-memory-hall\.js/);
+    assert.match(sw, /memory-hall-asset-pipeline\.js/);
+    assert.match(sw, /stjarndag-v496/);
   });
 });

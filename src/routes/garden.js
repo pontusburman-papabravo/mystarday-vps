@@ -16,7 +16,7 @@ childRouter.get('/garden', async (req, res) => {
       return res.status(503).json({ error: 'Trädgården ej aktiverad' });
     }
 
-    const state = await garden.buildSceneState(req.user.id);
+    const state = await garden.buildSceneState(req.user.id, req.user.familyId);
     res.json(state);
   } catch (err) {
     console.error('[garden] child GET error:', err);

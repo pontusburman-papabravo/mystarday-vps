@@ -217,8 +217,12 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v494';
+const CACHE_NAME = 'stjarndag-v496';
+// stjarndag-v496: CAP-005 memory-hall-asset-pipeline wired in child-memory-hall
+// stjarndag-v495: IRC-014-R1 memory_hall on CAP-003 enterWorld/exitWorld registry
 // stjarndag-v494: Admin Paket V2 — per-package workspace (Extra stöd, Rapportering, Pedagog)
+// stjarndag-v494: CAP-003 generic enterWorld/exitWorld in living-world transition
+// stjarndag-v493: CAP-001/002 scene-asset-pipeline + morgonhus wrapper
 // stjarndag-v493: ACT-1 onboarding resume + merge main (barninställningar consolidate)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor
@@ -442,9 +446,14 @@ const STATIC_ASSETS = [
   '/css/child-morgonhus.css',
   '/css/child-living-world-transition.css',
   '/js/child-living-world-transition.js',
+  '/js/scene-asset-pipeline.js',
+  '/js/morgonhus-asset-pipeline.js',
   '/js/garden-asset-pipeline.js',
+  '/js/memory-hall-asset-pipeline.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
+  '/js/child-memory-hall.js',
+  '/css/child-memory-hall.css',
   '/css/child-today-focus.css',
   '/css/child-world-bg.css',
   '/css/child-skatt-rooms.css',
