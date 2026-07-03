@@ -30,6 +30,29 @@
   pointer-events: none;
 }
 
+.mu-scene--illustrated {
+  background: #2a2218;
+}
+
+.mu-scene-picture,
+.mh-scene-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mu-scene-picture {
+  position: absolute;
+  inset: 0;
+}
+
+.mh-scene-bg {
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .mu-hotspot {
   position: absolute;
   min-width: 44px;

@@ -254,6 +254,7 @@ describe('Living World transition — place mode', () => {
     assert.match(sw, /child-living-world-transition\.js/);
     assert.match(sw, /child-living-world-transition\.css/);
     assert.match(sw, /child-memory-hall\.js/);
-    assert.match(sw, /stjarndag-v495/);
+    assert.match(sw, /memory-hall-asset-pipeline\.js/);
+    assert.match(sw, /stjarndag-v496/);
   });
 });

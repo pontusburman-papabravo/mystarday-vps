@@ -57,6 +57,16 @@ describe('memory-hall asset pipeline stub (BL-044)', () => {
     const assetDir = path.join(__dirname, '../public/images/child/world/memory-hall');
     assert.equal(fs.existsSync(assetDir), false, 'asset dir should not exist until Art HRC');
   });
+
+  it('child-memory-hall.js wires pipeline for illustrated mount', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-memory-hall.js'),
+      'utf8'
+    );
+    assert.match(src, /window\.MemoryHallAssetPipeline/);
+    assert.match(src, /watchSceneImage/);
+    assert.match(src, /exitMemoryHall/);
+  });
 });
 
 describe('memory-hall art spec register alignment', () => {

@@ -155,6 +155,19 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     );
     assert.match(html, /child-memory-hall\.js/);
     assert.match(html, /child-memory-hall\.css/);
+    assert.match(html, /memory-hall-asset-pipeline\.js/);
+  });
+
+  it('child-memory-hall uses MemoryHallAssetPipeline when illustrated', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-memory-hall.js'),
+      'utf8'
+    );
+    assert.match(src, /MemoryHallAssetPipeline/);
+    assert.match(src, /scenePictureMarkup/);
+    assert.match(src, /bindAssetWatch/);
+    assert.match(src, /preloadScene/);
+    assert.match(src, /mu-scene--illustrated/);
   });
 
   it('client renderScene has accessible hotspots and empty state', () => {

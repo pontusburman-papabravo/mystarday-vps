@@ -1,8 +1,8 @@
-# Worker Handoff — CAP-004-R1
+# Worker Handoff — CAP-005
 
 **Worker:** Composer (autonomous)  
 **Date:** 2026-07-03  
-**Mission:** CAP-004-R1 — Sync relay branch with IRC-014-R1  
+**Mission:** CAP-005 — Wire memory-hall-asset-pipeline into child-memory-hall  
 **Branch:** `cursor/autonomous-relay-resume-b105`  
 **PR:** #541 (IRC-016)
 
@@ -10,7 +10,7 @@
 
 ## Summary
 
-Cherry-picked `110e5b57` (IRC-014-R1) onto `cursor/autonomous-relay-resume-b105` with **zero conflicts**. Relay branch now includes the full `memory_hall` registry consumer, Minnesrummet scaffold, and all IRC-014-R1 tests. PRs #539 and #541 are aligned on CAP-003 + memory_hall.
+Wired `memory-hall-asset-pipeline.js` into child dashboard load order and `child-memory-hall.js` mount path, mirroring the garden pattern. Illustrated scene loads when WebP assets exist; warm gradient fallback when preload fails (no mount block). `bindAssetWatch` exits to garden on critical image failure.
 
 ---
 
@@ -18,10 +18,11 @@ Cherry-picked `110e5b57` (IRC-014-R1) onto `cursor/autonomous-relay-resume-b105`
 
 | Artifact | Change |
 |----------|--------|
-| Cherry-pick `9837f6b3` | IRC-014-R1 commit on relay branch |
-| `child-living-world-transition.js` | `memory_hall` WORLD_REGISTRY + thin wrappers |
-| Full IRC-014 scaffold | API, pack, client, migration, tests |
-| SW v495 | Unchanged from IRC-014-R1 |
+| `public/child-dashboard.html` | `memory-hall-asset-pipeline.js` script tag |
+| `public/js/child-memory-hall.js` | `pipeline()`, `scenePictureMarkup()`, `preloadScene`, `bindAssetWatch` |
+| `public/css/child-memory-hall.css` | `mh-scene-bg` / illustrated layout |
+| `public/sw.js` | v496 + precache pipeline JS |
+| Tests | `memory-hall-playable`, `memory-hall-asset-pipeline`, `living-world-transition` |
 
 ---
 
@@ -38,11 +39,11 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
 
 PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA ✓  
 Issues found and fixed: none  
-POS governed by: N/A (platform sync only)
+POS governed by: 04 C-04 (reduced motion preserved), 03A (gradient fallback until art HRC)
 
 ---
 
 ## Notes for next Worker
 
-- `memory-hall-asset-pipeline.js` exists but is **not wired** in `child-dashboard.html` or `child-memory-hall.js` — assign CAP-005
-- BL-041/042 remain HRC-blocked
+- Cherry-pick CAP-005 to `cursor/memory-hall-bl012-5e52` (#539) for branch parity (CAP-006-R1)
+- BL-041 art binaries still HRC-blocked
