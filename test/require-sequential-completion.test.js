@@ -28,10 +28,12 @@ describe('NU/NÄSTA/SEDAN parent opt-in (default off)', () => {
     assert.match(src, /focusQuestMode = isTodayFocusLayer\(\) && isToday && showNowNext/);
   });
 
-  it('child-settings couples NU/NÄSTA/SEDAN toggle to both fields', () => {
-    const src = read('public/js/child-settings.js');
-    assert.match(src, /saveNnlMode/);
-    assert.match(src, /require_sequential_completion: enabled/);
-    assert.match(src, /Standard: barnet väljer själv/);
+  it('child-settings and child-profile-setup couple NU/NÄSTA/SEDAN toggle to both fields', () => {
+    const settings = read('public/js/child-settings.js');
+    const setup = read('public/js/child-profile-setup.js');
+    assert.match(settings, /saveNnlMode/);
+    assert.match(setup, /saveNnlMode/);
+    assert.match(setup, /require_sequential_completion: enabled/);
+    assert.match(setup, /Fri avbockning — barnet väljer själv/);
   });
 });

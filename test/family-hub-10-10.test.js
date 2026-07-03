@@ -67,16 +67,18 @@ describe('Familj hub 10/10', () => {
     assert.match(src, /afterRender: afterRender/);
   });
 
-  it('child-profile-setup links advanced settings to full child-settings page', () => {
+  it('child-profile-setup includes barnvy & rutiner settings inline', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
-    assert.match(src, /\/child-settings\?child=/);
-    assert.doesNotMatch(src, /\?tab=setup.*Avancerade inställningar/);
+    assert.match(src, /Barnvy & rutiner/);
+    assert.match(src, /profileSetupNnl/);
+    assert.match(src, /saveNnlMode/);
+    assert.doesNotMatch(src, /\/child-settings\?child=/);
   });
 
-  it('child-settings route serves page when child id present', () => {
+  it('child-settings redirects to barnprofil setup tab', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
-    assert.match(routes, /\/child-settings[\s\S]*child-settings\.html/);
-    assert.doesNotMatch(routes, /tab=setup/);
+    assert.match(routes, /\/child-settings[\s\S]*\/family\/child\/\$\{encodeURIComponent\(childId\)\}\?tab=setup/);
+    assert.doesNotMatch(routes, /child-settings\.html/);
   });
 
   it('child-profile-setup shows reward star_cost', () => {
@@ -88,6 +90,6 @@ describe('Familj hub 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v437');
+    assert.ok(cache.cacheName >= 'stjarndag-v492');
   });
 });
