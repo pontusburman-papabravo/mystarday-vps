@@ -12,7 +12,7 @@
 | HRC-ART-041 | BL-041 | Creative direction / assets | Approve and commit `memory-hall` scene WebP set per `docs/art-specs/memory-hall-bl041.md` | Asset pipeline stub only — no binaries |
 | HRC-PARENT-042 | BL-042 | Parent UX not in POS | Approve parent opt-in copy + flow for `warm_echo` milestone frames | Schema draft + docs only |
 | HRC-DEPLOY-IRC | IRC bundle | Live deploy boundary | Human merge + deploy IRC-007–015 to live hosts | Continue IRC prep on branches |
-| HRC-FLAG-MH | memory_hall_playable | Live flag enablement | Explicit approval to allowlist families for Minnesrummet QA | Migration template only — no family seeded |
+| HRC-FLAG-MH | memory_hall_playable | Live flag enablement | Explicit approval to allowlist families for Minnesrummet QA | **Dev:** `Pontus@burman.cc` via migration `180955`. App Store review-konto avallowlistat. |
 
 ---
 
