@@ -458,12 +458,12 @@
     "world_id": "museum",
     "asset_dir": "museum",
     "class_prefix": "mu",
-    "display_name_sv": "Museet",
+    "display_name_sv": "Minnesrummet",
     "exit_target": "garden",
-    "exit_label_sv": null,
-    "asset_exportable": false,
-    "wire_in": false,
-    "wired_via": null,
+    "exit_label_sv": "Tillbaka till trädgården",
+    "asset_exportable": true,
+    "wire_in": true,
+    "wired_via": "child-memory-hall.js",
     "hotspots": [
       {
         "hotspot_id": "memory_wall",

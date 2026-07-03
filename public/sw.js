@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v508';
+const CACHE_NAME = 'stjarndag-v509';
+// stjarndag-v509: museum-scene-master-high.png + museum scene-bg export (130 = Minnesrummet)
 // stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
 // stjarndag-v507: catalog room wire-in (hall+102–105), scenes.json, memory-hall master, hero assets
 // stjarndag-v506: generic room scene export (home→lake webp sets)
@@ -527,6 +528,10 @@ const STATIC_ASSETS = [
   '/images/child/world/lake/scene-bg-430.webp',
   '/images/child/world/lake/scene-bg-860.webp',
   '/images/child/world/lake/scene-bg-1280.webp',
+  '/images/child/world/museum/scene-bg.webp',
+  '/images/child/world/museum/scene-bg-430.webp',
+  '/images/child/world/museum/scene-bg-860.webp',
+  '/images/child/world/museum/scene-bg-1280.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',

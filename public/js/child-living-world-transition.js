@@ -122,6 +122,26 @@
     },
   };
 
+  (function registerMuseumAlias() {
+    const hall = WORLD_REGISTRY.memory_hall;
+    WORLD_REGISTRY.museum = {
+      globalKey: hall.globalKey,
+      triggerOpt: hall.triggerOpt,
+      doorWait: hall.doorWait,
+      canEnter: hall.canEnter,
+      canExit: function (state) {
+        return state.active && state.activeWorldId === 'museum' && !state.exiting;
+      },
+      beforeMount: hall.beforeMount,
+      mount: hall.mount,
+      deactivate: hall.deactivate,
+      onMountFail: hall.onMountFail,
+      onEnterError: hall.onEnterError,
+      remountParent: hall.remountParent,
+      afterExit: hall.afterExit,
+    };
+  }());
+
   function transitionState() {
     return {
       active: _active,

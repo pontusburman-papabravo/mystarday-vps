@@ -26,7 +26,7 @@ describe('room scene export — catalog contract', () => {
   it('ROOM_SLUGS covers 13 non-garden catalog rooms', () => {
     assert.equal(ROOM_SLUGS.length, 13);
     assert.ok(!ROOM_SLUGS.includes('garden'));
-    assert.equal(EXPORTABLE_SLUGS.length, 12);
+    assert.equal(EXPORTABLE_SLUGS.length, 13);
     assert.equal(slugToFilePrefix('pet_house'), 'pet-house');
     assert.equal(slugToFilePrefix('reading_corner'), 'reading-corner');
   });
@@ -46,10 +46,9 @@ describe('room scene export — catalog contract', () => {
         'missing source for ' + slug + ': ' + path.basename(master)
       );
     }
-    assert.equal(
+    assert.ok(
       fs.existsSync(path.join(SOURCES, 'museum-scene-master-high.png')),
-      false,
-      'museum master not yet uploaded — expected gap'
+      'museum-scene-master-high.png required (alias of memory hall master per 130-museum.yaml)'
     );
   });
 

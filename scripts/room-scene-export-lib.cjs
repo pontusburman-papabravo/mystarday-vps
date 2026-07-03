@@ -21,12 +21,8 @@ const ROOM_SLUGS = Object.freeze([
   'lake',
 ]);
 
-/** Rooms with scene-master-high.png in scripts/sources/ (museum pending art). */
-const EXPORTABLE_SLUGS = Object.freeze(
-  ROOM_SLUGS.filter(function (slug) {
-    return slug !== 'museum';
-  })
-);
+/** Rooms with scene-master-high.png in scripts/sources/ (museum = Minnesrummet, 130-museum.yaml). */
+const EXPORTABLE_SLUGS = Object.freeze(ROOM_SLUGS.slice());
 
 /** Mobile scene aspect ratio (860×1859) — matches garden shipped set. */
 const TARGET_RATIO = 860 / 1859;

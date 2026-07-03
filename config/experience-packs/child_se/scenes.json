@@ -548,9 +548,9 @@
     {
       "scene_id": "museum",
       "catalog_number": 130,
-      "display_name_sv": "Museet",
+      "display_name_sv": "Minnesrummet",
       "asset_dir": "museum",
-      "asset_exportable": false,
+      "asset_exportable": true,
       "theme_variants": [
         "house",
         "castle",

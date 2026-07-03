@@ -31,11 +31,12 @@ describe('scenes.json — LWES Appendix C pack', () => {
     }));
   });
 
-  it('museum scene is present but not asset-exportable', () => {
+  it('museum scene is asset-exportable (130-museum = Minnesrummet)', () => {
     const data = buildScenesJson();
     const museum = data.scenes.find(function (s) { return s.scene_id === 'museum'; });
     assert.ok(museum);
-    assert.equal(museum.asset_exportable, false);
+    assert.equal(museum.asset_exportable, true);
+    assert.equal(museum.asset_dir, 'museum');
   });
 
   it('generated client catalog matches wired interior rooms', () => {
