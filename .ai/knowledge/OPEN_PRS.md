@@ -25,7 +25,7 @@
 
 | IRC | PR | Branch | Status | Notes |
 |-----|-----|--------|--------|-------|
-| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Draft | Relay engine + BL-044 prep |
+| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Draft | Relay + CAP-003 + **memory_hall synced (CAP-004-R1)** |
 
 ---
 

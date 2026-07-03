@@ -1,15 +1,17 @@
 # Repository State
 
-**Updated:** 2026-07-03 (IRC-014-R1 complete)
+**Updated:** 2026-07-03 (CAP-004-R1 complete)
 
 ---
 
 ## Active branches
 
-| Branch | PR | Purpose | SHA (post-Worker) |
-|--------|-----|---------|-------------------|
-| `cursor/memory-hall-bl012-5e52` | #539 IRC-014 | Minnesrummet + CAP-003 consumer | *(pending commit push)* |
-| `cursor/autonomous-relay-resume-b105` | #541 IRC-016 | Relay platform + CAP-003 | `5203679d` |
+| Branch | PR | Purpose | SHA |
+|--------|-----|---------|-----|
+| `cursor/autonomous-relay-resume-b105` | #541 IRC-016 | Relay platform + CAP-003 + memory_hall | `9837f6b3` |
+| `cursor/memory-hall-bl012-5e52` | #539 IRC-014 | Minnesrummet (same baseline as relay) | `110e5b57` |
+
+**Note:** #539 and #541 now share identical IRC-014-R1 content (cherry-pick on relay).
 
 ---
 
@@ -17,8 +19,8 @@
 
 | Field | Value |
 |-------|-------|
-| Mission | IRC-014-R1 |
-| Branch | `cursor/memory-hall-bl012-5e52` |
+| Mission | CAP-004-R1 |
+| Branch | `cursor/autonomous-relay-resume-b105` |
 | Gate | `test:gate` 698/698 ✅ |
 
 ---
@@ -27,9 +29,9 @@
 
 | Field | Value |
 |-------|-------|
-| Mission | CAP-004-R1 |
+| Mission | CAP-005 |
 | Branch | `cursor/autonomous-relay-resume-b105` |
-| Goal | Sync memory_hall consumer from IRC-014-R1 |
+| Goal | Wire memory-hall-asset-pipeline into child-memory-hall.js |
 
 ---
 

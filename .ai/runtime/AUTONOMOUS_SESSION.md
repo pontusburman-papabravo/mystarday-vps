@@ -1,6 +1,6 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~08:25 UTC  
+**Last updated:** 2026-07-03 ~08:30 UTC  
 **Relay version:** 2.0 (Supervisor/Worker chain)  
 **Mode:** Short-lived Workers · persistent Supervisor state
 
@@ -24,7 +24,7 @@ Build the **Living World Platform** via capability-first Workers. Feature work (
 
 | Field | Value |
 |-------|-------|
-| **Next mission** | CAP-004-R1 |
+| **Next mission** | CAP-005 |
 | **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
 | **Status** | ready for next session |
 
@@ -34,11 +34,11 @@ Build the **Living World Platform** via capability-first Workers. Feature work (
 
 | Field | Value |
 |-------|-------|
-| **ID** | IRC-014-R1 |
-| **Title** | Memory hall on CAP-003 enterWorld/exitWorld |
+| **ID** | CAP-004-R1 |
+| **Title** | Sync relay branch with IRC-014-R1 |
 | **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
-| **Branch** | `cursor/memory-hall-bl012-5e52` |
-| **PR** | #539 |
+| **Branch** | `cursor/autonomous-relay-resume-b105` |
+| **PR** | #541 |
 
 ---
 
@@ -46,21 +46,21 @@ Build the **Living World Platform** via capability-first Workers. Feature work (
 
 | ID | Mission | Status |
 |----|---------|--------|
+| IRC-014-R1 | memory_hall on CAP-003 | ✅ |
 | CAP-003 | Generic enterWorld/exitWorld | ✅ |
 | SW-001 | Supervisor/Worker protocol | ✅ |
 | CAP-001/002 | Asset pipelines | ✅ |
 | BL-043/044 | Relay engine + HRC prep | ✅ |
-| IRC-014-R1 | memory_hall registry consumer | ✅ |
 
 ---
 
-## Current branch (last Worker)
+## Current branch
 
 ```
-cursor/memory-hall-bl012-5e52
+cursor/autonomous-relay-resume-b105
 ```
 
-Next Worker targets: `cursor/autonomous-relay-resume-b105` (CAP-004-R1 sync)
+PRs #539 and #541 aligned on CAP-003 + memory_hall (SHA `9837f6b3` family)
 
 ---
 
@@ -74,7 +74,7 @@ BL-041 (art), BL-042 (parent warm_echo) — no change
 
 | Gate | Status |
 |------|--------|
-| `test:gate` | 698/698 green (2026-07-03, IRC-014-R1) |
+| `test:gate` | 698/698 green (2026-07-03, CAP-004-R1) |
 
 ---
 
