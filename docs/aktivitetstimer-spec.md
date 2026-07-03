@@ -1,4 +1,4 @@
-# Aktivitetstimer — kort spec (v0.2)
+# Aktivitetstimer — kort spec (v0.3)
 
 | | |
 |--|--|
@@ -7,13 +7,13 @@
 | **POS** | 04 C-04 (barnvy), 06A (mobil barn-UI), 15 B (a11y, reducerad rörelse, ej blockande) |
 | **Skiljer sig från** | `visual_timer` (schemafönster start–slut), `how_long` (text i De sju frågorna) |
 | **Relaterat** | [bildstod-app-plan.md](./bildstod-app-plan.md), [paket-v1.2-spec.md](./paket-v1.2-spec.md) |
-| **Changelog** | v0.2 — livscykel, kantfall, a11y, ljud, master switch, lokalt session-objekt |
+| **Changelog** | v0.3 — `duration_seconds`, Klar-rensning, localStorage, `daily_log_item_id`, ljudspec, klocka/NYU-försvinnande |
 
 ---
 
 ## Problem
 
-Förälder vill säga *"borsta tänder i 2 minuter"* och barnet ska se en **startbar nedräkning** (timglas + siffror). Idag finns bara schema-cirkel (kräver start+sluttid i schemat) och valfri text "Hur länge?" utan timer.
+Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och barnet ska se en **startbar nedräkning** (timglas + siffror). Idag finns bara schema-cirkel (kräver start+sluttid i schemat) och valfri text "Hur länge?" utan timer.
 
 ---
 
@@ -24,26 +24,26 @@ Förälder vill säga *"borsta tänder i 2 minuter"* och barnet ska se en **star
 | Default | **Av** globalt och per aktivitet |
 | Vem ställer in | Förälder |
 | Var | Barninställningar (master) + Bibliotek/aktivitet (per aktivitet) |
-| Barnvy | Progress-ring runt timglas + `M:SS` |
-| Före start | Visa full tid (`2:00`), inte `--:--` |
+| Lagring (tid) | **`duration_seconds`** (heltal sekunder) — inte minuter i DB |
+| Barnvy | Progress-ring runt timglas + `M:SS` eller `0:SS` |
+| Före start | Visa full tid (`2:00`, `0:45`), inte `--:--` |
 | Start | Barn trycker **Starta timer** — **ingen** auto-start v1 |
 | Paus | **v1: ingen paus.** Endast Start → (nedräkning) → Klar |
-| Slut vid 0 | Stanna på `0:00`, visa **Färdig!** + ljud + lätt haptic |
-| Klar före 0 | Avsluta utan slutsignal (inget ljud, ingen "Färdig!") |
+| Slut vid 0 | Stanna på `0:00`, **Färdig!** + ljud + lätt haptic |
+| Klar före 0 | Avsluta utan slutsignal; **rensa session** (se nedan) |
 | Blockerar inte | Ingen modal; **Klar** alltid tillgänglig (nödutgång) |
-| Minsta tid | **1 minut** (`timer_minutes >= 1`) |
+| Minsta tid | **5 sekunder** (`duration_seconds >= 5`) |
+| Max tid | **3600 sekunder** (60 min) |
 
 ---
 
 ## Master switch vs per aktivitet
 
-Två fält behålls — men beteendet ska vara **tydligt**:
-
-| Global (`activity_timers_enabled`) | Per aktivitet (`timer_enabled` + minuter) | Barnvy |
-|-----------------------------------|-------------------------------------------|--------|
+| Global (`activity_timers_enabled`) | Per aktivitet (`timer_enabled` + `duration_seconds`) | Barnvy |
+|-----------------------------------|--------------------------------------------------------|--------|
 | Av | sparad i biblioteket | Ingen timer |
 | På | av | Ingen timer |
-| På | på + minuter ≥ 1 | Timer enligt spec |
+| På | på + sekunder ≥ 5 | Timer enligt spec |
 
 **Föräldra-copy (global toggle):** *"Masterbrytare. Individuella inställningar i biblioteket sparas även när detta är av."*
 
@@ -64,134 +64,24 @@ Biblioteket visar alltid per-aktivitet-inställningar (gråade när master av).
 | Fält | Typ | Default | Validering |
 |------|-----|---------|------------|
 | `timer_enabled` | boolean | `false` | |
-| `timer_minutes` | smallint nullable | `null` | om `timer_enabled`: 1–60 |
+| `duration_seconds` | integer nullable | `null` | om `timer_enabled`: 5–3600 (heltal) |
 
-**Visning i barnvy:** `activity_timers_enabled && timer_enabled && timer_minutes >= 1`
+**Visning i barnvy:** `activity_timers_enabled && timer_enabled && duration_seconds >= 5`
 
-**Migration:** `how_long.minutes` i `seven_questions` får **inte** auto-aktivera timer. UI kan föreslå samma värde vid redigering.
+**Migration:** `how_long.minutes` i `seven_questions` får **inte** auto-aktivera timer. UI kan föreslå `minutes × 60` vid redigering.
 
----
+**API-exempel:**
 
-## Lokalt runtime-objekt (ej server)
-
-Timer-state lever **endast i klienten** (localStorage / sessionStorage per barn + dag + aktivitet):
-
-```text
-activity_timer_session
-----------------------
-daily_log_item_id   (eller schedule item id + datum)
-activity_id
-duration_seconds    (från timer_minutes × 60)
-started_at          (ISO 8601, null om ej startad)
-ended_at            (ISO 8601, när 0 nåtts eller Klar)
-cancelled_at        (ISO 8601, vid Klar före 0)
+```http
+PUT /api/activities/:id
 ```
 
-**Återhämtning vid bakgrund / reload / låst skärm:**
-
-1. Vid **Start** sparas `started_at` + `duration_seconds` lokalt.  
-2. Vid återöppning: `remaining = duration_seconds - (now - started_at)` i **verklig tid**, inte antal renderade tick.  
-3. Om `remaining <= 0` → behandla som **Färdig!**-tillstånd (0:00, slutsignal redan spelad max en gång per session).  
-4. Om aktiviteten är **Klar** i API → rensa session, visa inte timer.
-
-**Förälder ändrar aktivitet under pågående timer:**
-
-> Pågående session påverkas **inte**. Ändringar i biblioteket gäller **nästa** gång aktiviteten startas (ny dag eller ny NU-session utan aktiv `started_at`).
-
----
-
-## Livscykel (tillstånd)
-
+```json
+{
+  "timer_enabled": true,
+  "duration_seconds": 150
+}
 ```
-IDLE          full tid visas (2:00), [Starta timer]
-  │ start (debounce, ingen dubbeltryck)
-  ▼
-RUNNING       nedräkning, Start-knapp borta
-  │ klar före 0          │ remaining → 0
-  ▼                      ▼
-DONE_EARLY    cancelled_at    FINISHED   ended_at, 0:00, Färdig!
-  (ingen ljud)                  │ starta igen
-                                ▼
-                          RUNNING (ny started_at, samma duration)
-```
-
-| Tillstånd | UI |
-|-----------|-----|
-| IDLE | `⏳` + ring + `2:00` + **[Starta timer]** |
-| RUNNING | ring fylls + `1:47` — **ingen Start-knapp** |
-| FINISHED | `0:00` + **Färdig!** + **[Starta igen]** + **[Klar]** |
-| DONE_EARLY | (aktivitet bockad) — timer borta |
-
-**Paus v1:** finns **inte**. Felstart → vänta ut eller tryck **Klar** (förälder kan avbocka i daglig logg v1.1).
-
-**Omstart:**
-
-- Efter **0:00** (FINISHED): barnet kan trycka **Starta igen** → ny `started_at`, samma `duration_seconds`. Aktiviteten är fortfarande inte klar.  
-- Efter **Klar**: ingen omstart i barnvy (aktivitet avbockad). Förälder hanterar via daglig logg.
-
-**Start-knapp:** Efter tryck ersätts den **omedelbart** av nedräkning (optimistic UI + debounce 300 ms) — inga race conditions vid dubbeltryck.
-
----
-
-## Vid 0:00 (normativt)
-
-```
-      ◜⏳◝
-       0:00
-     Färdig!
-
- [Starta igen]   [Klar]
-```
-
-- **Aldrig** negativ tid (`-0:17` förbjudet).  
-- Timern **stannar** på `0:00`.  
-- Text: **Färdig!** (inte bara siffror).  
-- **Ljud:** kort, mjukt "klart"-ljud (samma familj som befintliga celebration-ljud; respektera `prefers-reduced-motion` → dämpa eller hoppa över ljud).  
-- **Haptic:** lätt vid 0 (medium endast om redan använt i appen).  
-- **Klar** finns kvar — barnet blockereras inte.
-
-**Klar före 0:** sätt `cancelled_at`, rensa ljudkö, **ingen** Färdig!-text, **inget** slutljud.
-
----
-
-## Barnvy (NU-kort)
-
-**Före start:**
-
-```
-NU — Borsta tänderna
-[🪥]        ◜⏳◝
-            2:00
-      [ Starta timer ]
-      [ ○ Klar ]
-```
-
-**Under nedräkning:**
-
-```
-            ◜⏳◝
-            1:47
-      [ ○ Klar ]
-```
-
-- Uppdatering: **1 Hz** (eller `requestAnimationFrame` med beräkning från `Date.now()`).  
-- **Progress-ring** runt timglas — primär visuell "hur mycket kvar".  
-- Färg på ring: grön >50%, orange >20%, röd ≤20% — **kompletteras alltid** med siffror + ikon (färg får aldrig vara enda signalen).  
-- Sista 20%: färgskifte till rött/orange tillåtet — **ingen** blink, skakning eller aggressiv puls.  
-- **Haptic vid Start:** lätt vibration (light) som bekräftelse.  
-- Touch: min **44pt** på Starta / Klar / Starta igen.  
-- Timer visas **bara på NU-kort**, inte på SEDAN-listan v1.
-
----
-
-## Tillgänglighet
-
-| Krav | Implementation |
-|------|----------------|
-| `prefers-reduced-motion` | Statisk ring/siffra, ingen ring-animation, inget ljud (eller mycket kort) |
-| VoiceOver | `aria-live="polite"` på sifferfält; läs t.ex. *"Timer. En minut trettio sekunder kvar."* vid väsentlig ändring (var 15 s eller vid färgbyte, inte varje sekund) |
-| Färg | Alltid parat med siffra + text/ikon |
-| Kontrast | Siffror mot bakgrund ≥ WCAG AA (15) |
 
 ---
 
@@ -200,30 +90,201 @@ NU — Borsta tänderna
 ### Barninställningar → Avancerade
 
 - Toggle: **Aktivitetstimer (timglas)** — master, default av  
-- Hjälptext: *"Masterbrytare. Sätt minuter per aktivitet i biblioteket."*
+- Hjälptext: *"Masterbrytare. Sätt tid per aktivitet i biblioteket."*
 
 ### Bibliotek → Redigera aktivitet
 
-- `[ ] Visa nedräkningstimer`  
-- `Minuter:` 1–60, snabbval 1 / 2 / 5 / 10 / 15  
-- Om master av: fält synliga men gråade + länk *"Slå på under barninställningar"*
+**Normal (99 %):** snabbval i sekunder (visas som minuter i etikett där det passar):
+
+| Knapp | `duration_seconds` |
+|-------|-------------------|
+| 30 s | 30 |
+| 1 min | 60 |
+| 2 min | 120 |
+| 3 min | 180 |
+| 5 min | 300 |
+| 10 min | 600 |
+| 15 min | 900 |
+| **Anpassa…** | öppnar avancerat fält |
+
+**Anpassa:** två heltalsfält (inga decimaler):
+
+```
+Minuter: [ 2 ]    Sekunder: [ 30 ]
+```
+
+eller ett fält `M:SS` som parsas till heltal sekunder. UI ska tydliggöra **endast heltal** — ingen 1,5 min.
+
+Om master av: fält synliga men gråade + länk *"Slå på under barninställningar"*.
 
 ---
 
-## Förifyllda minuter (förslag vid första master-aktivering)
+## Lokalt runtime-objekt (ej server)
 
-| Aktivitet (match namn) | Föreslagen min |
-|------------------------|----------------|
-| Borsta tänder* | 2 |
-| Tvätta händer | 1 |
-| Hårborstning | 3 |
-| Duscha | 8 |
-| Bada | 12 |
-| Medicin | 1 |
-| Klä på sig*, Packa *väska | 5–8 |
-| Pyjamas | 3 |
-| Godnattsaga, Läsa* | 10 |
-| Läxor | 20 |
+**Lagring:** **`localStorage` endast** (inte `sessionStorage`). Safari/WebView kan döda sessioner; `localStorage` överlever omladdning.
+
+**Nyckel:** `activity_timer_session:{childId}:{scheduleDate}:{daily_log_item_id}`
+
+**Primär identifierare:** `daily_log_item_id` — **inte** `activity_id`.  
+Samma aktivitet två gånger samma dag (t.ex. borsta tänder morgon + kväll) får **separata** sessioner.
+
+```text
+activity_timer_session
+----------------------
+daily_log_item_id   (PK i praktiken — obligatorisk)
+child_id
+schedule_date       (YYYY-MM-DD, barnets tidszon)
+duration_seconds    (snapshot vid start — pågående session påverkas inte av senare API-ändring)
+started_at          (ISO 8601, null om ej startad)
+ended_at            (ISO 8601, när 0 nåtts)
+cancelled_at        (ISO 8601, vid Klar före 0)
+```
+
+**Två timers samma dag:** får **aldrig** dela session eller påverka varandra (acceptanstest #11).
+
+---
+
+## Tidkälla och klockändringar
+
+**Systemklockan** (`Date.now()`) är sann källa för återstående tid.
+
+Mindre avvikelser vid manuell klockändring, resa eller automatisk tidshopp **accepteras**. Aktivitetstimern är ett **hjälpmedel**, inte exakt tidtagning — ingen NTP-kompensation v1.
+
+---
+
+## Återhämtning och rensning
+
+### Vid Start
+
+Spara `started_at` + `duration_seconds` i `localStorage`.
+
+### Vid reload / bakgrund / låst skärm
+
+`remaining = duration_seconds - (now - started_at)` i verklig tid.
+
+- Om `remaining <= 0` → **FINISHED** (0:00, slutljud max en gång per session).  
+- Om aktiviteten är **klar** i API → rensa session (se Klar nedan).
+
+### När **Klar** trycks (normativt) ⭐
+
+1. `cancelled_at` sätts (om före 0) eller aktiviteten avslutas normalt.  
+2. Lokalt `activity_timer_session` för detta **`daily_log_item_id` tas bort** (`localStorage.removeItem`).  
+3. **Ingen** timer återställs vid reload — IDLE eller borttagen UI.  
+4. Aktiviteten markeras klar enligt **befintligt** avbockningsflöde (ingen ändring av completion-API).
+
+Eliminerar race där gammal timer dyker upp efter Klar.
+
+### Om aktiviteten försvinner från NU
+
+Om posten inte längre är aktuell i dagens schema (förälder flyttat, schema ändrat, dag regenererad, annat NU-kort):
+
+> Eventuell lokal timersession för det `daily_log_item_id` **avslutas och rensas** från `localStorage`.
+
+### Förälder ändrar `duration_seconds` under RUNNING
+
+Pågående session påverkas **inte**. Ändringar gäller nästa start.
+
+---
+
+## Livscykel (tillstånd)
+
+```
+IDLE          full tid (2:00 / 0:45), [Starta timer]
+  │ start (debounce 300 ms, optimistic UI)
+  ▼
+RUNNING       nedräkning, ingen Start-knapp
+  │ Klar före 0              │ remaining → 0
+  ▼                          ▼
+DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
+  aktivitet klar                    │ ↻ Starta igen (sekundär)
+                                    ▼
+                              RUNNING (ny started_at)
+```
+
+| Tillstånd | UI |
+|-----------|-----|
+| IDLE | ring full + tid + **[Starta timer]** + [Klar] |
+| RUNNING | ring töms + `M:SS` + **[Klar]** |
+| FINISHED | `0:00` + **Färdig!** + **[Klar]** (primär) + *↻ Starta igen* (sekundär, mindre) |
+| DONE_EARLY | timer borta, aktivitet bockad |
+
+**Paus v1:** nej.
+
+**Omstart:** efter 0:00 — **Starta igen** (diskret länk under Klar). Efter **Klar** — ingen omstart i barnvy.
+
+**Start-knapp:** ersätts **omedelbart** vid tryck; debounce förhindrar dubbel session.
+
+---
+
+## Vid 0:00
+
+```
+      ◜⏳◝
+       0:00
+     Färdig!
+
+      [ Klar ]
+
+   ↻ Starta igen
+```
+
+- **Aldrig** negativ tid.  
+- **Ljud (normativt):** max **500 ms**, **låg volym**, **en ton**, spelas **en gång** per session — aldrig upprepas vid re-render. `prefers-reduced-motion` → hoppa över ljud.  
+- **Haptic:** lätt vid 0.  
+- **Klar** är visuellt primär; **Starta igen** sekundär (textlänk, inte lika stor knapp).
+
+**Klar före 0:** `cancelled_at`, **ta bort** `localStorage`-session, inget ljud, ingen Färdig!.
+
+---
+
+## Barnvy (NU-kort)
+
+**Formatering:** `duration_seconds` → visning
+
+| Sekunder | Visning |
+|----------|---------|
+| ≥ 60 | `M:SS` (t.ex. `2:00`, `1:47`) |
+| < 60 | `0:SS` (t.ex. `0:45`, `0:07`) |
+
+**Progress-ring:**
+
+- Ringen **töms medurs** när tiden rinner ut (full ring = hela tiden kvar; tom ring = 0:00).  
+- Färg: grön >50%, orange >20%, röd ≤20% — **alltid** tillsammans med siffra + ikon.  
+- Sista 20%: färgskifte OK — **ingen** blink, puls eller skakning.
+
+**Uppdatering:** beräkning från `Date.now()`; visuell uppdatering 1 Hz.
+
+**Haptic vid Start:** lätt (light).
+
+**Timer endast på NU-kort** v1.
+
+---
+
+## Tillgänglighet
+
+| Krav | Implementation |
+|------|----------------|
+| `prefers-reduced-motion` | **Ingen kontinuerlig animation** (inga svep, puls, blink). Diskret uppdatering av ring/siffra 1 Hz är OK. |
+| VoiceOver | `aria-live="polite"`; t.ex. *"Timer. En minut trettio sekunder kvar."* (var ~15 s eller vid färgbyte, inte varje sekund) |
+| Färg | Alltid parat med siffra + text/ikon |
+| Kontrast | Siffror ≥ WCAG AA (15) |
+
+---
+
+## Förifyllda värden (sekunder, vid master-aktivering)
+
+| Aktivitet (match namn) | `duration_seconds` |
+|------------------------|-------------------|
+| Tvätta händer | 30 |
+| Medicin | 30 |
+| Borsta tänder* | 120 |
+| Hårborstning | 180 |
+| Pyjamas | 180 |
+| Klä på sig*, Packa *väska | 300–480 |
+| Duscha | 480 |
+| Bada | 720 |
+| Godnattsaga, Läsa* | 600 |
+| Läxor | 1200 |
 
 **Utan förslag:** Vakna, Sova, Skola/Förskola, Leka*, Pyssel, Rast, Utflykt, blockaktiviteter.
 
@@ -232,10 +293,10 @@ NU — Borsta tänderna
 ## API
 
 - `PUT /api/children/:id` — `activity_timers_enabled`  
-- `PUT /api/activities/:id` — `timer_enabled`, `timer_minutes` (validera ≥ 1 om enabled)  
-- `GET /api/daily-logs/child/...` — `timer_enabled`, `timer_minutes` per item när master på  
+- `PUT /api/activities/:id` — `timer_enabled`, `duration_seconds` (5–3600 om enabled)  
+- `GET /api/daily-logs/child/...` — `timer_enabled`, `duration_seconds` per **daily_log_item** när master på  
 
-**Ingen** server-side timer-state. Klar via befintlig avbockning = sanning.
+Ingen server-side timer-state.
 
 ---
 
@@ -243,37 +304,46 @@ NU — Borsta tänderna
 
 | Ingår | Ingår inte |
 |-------|------------|
-| En timer per aktivitet | Timer per delsteg |
-| Manuell start | Auto-start vid NU |
-| Lokalt `activity_timer_session` | Server-sync av timer |
-| Progress-ring + timglas + ljud vid 0 | Push/larm |
-| Starta igen efter 0 | Paus |
+| `duration_seconds` 5–3600 | Decimaler / under 5 s |
+| `localStorage` + `daily_log_item_id` | `sessionStorage`, nyckel på `activity_id` |
+| Klar rensar session | Timer kvar efter Klar |
+| Progress-ring töms medurs | Paus |
+| Ljudspec 500 ms | Push/larm |
+| Starta igen (sekundär) | Auto-start vid NU |
 | Ersätter inte `visual_timer` | Schema-cirkel oförändrad |
-| Ljud + haptic vid 0 | Aggressiv animation sista 20% |
 
 ---
 
 ## Acceptanskriterier
 
-1. Ny familj: master **av** → ingen timer i barnvy.  
-2. Master på + Borsta tänder 2 min → barn ser `2:00` + Start (inte `--:--`).  
-3. Start → knapp försvinner direkt; dubbeltryck startar inte två sessioner.  
-4. Lås skärm 30 s under 2-min timer → återstående tid korrekt (verklig tid).  
-5. 0:00 → Färdig! + ljud en gång; aldrig negativ tid.  
-6. Klar vid 1:30 → inget slutljud; aktivitet bockad.  
-7. Förälder ändrar 2→5 min under RUNNING → pågående fortfarande 2 min.  
-8. Master av → biblioteksinställningar kvar men barnvy utan timer.  
-9. VoiceOver läser återstående tid vid behov.  
-10. `test:gate` + mobil QA (iPhone Safari, Android Chrome, WebView).
+1. Master av → ingen timer i barnvy.  
+2. Master på + 120 s → barn ser `2:00` + Start.  
+3. 45 s → barn ser `0:45` + Start.  
+4. Start → knapp borta direkt; dubbeltryck = en session.  
+5. Lås skärm 30 s under 2-min timer → korrekt återstående (verklig tid).  
+6. 0:00 → Färdig! + ljud en gång (≤500 ms); aldrig negativ tid.  
+7. **Klar** vid 1:30 → inget ljud; **localStorage-session borta**; reload visar ingen pågående timer.  
+8. Förälder ändrar duration under RUNNING → pågående oförändrad.  
+9. Aktivitet försvinner från NU → session rensad.  
+10. VoiceOver läser återstående tid vid behov.  
+11. **Två olika aktiviteter med timer samma dag delar inte session** (olika `daily_log_item_id`).  
+12. Samma `activity_id` två gånger samma dag → **två** oberoende sessioner.  
+13. `test:gate` + mobil QA (iPhone Safari, Android Chrome, WebView).
 
 ---
 
-## Låsta beslut (tidigare öppna frågor)
+## Låsta beslut (register)
 
-| Fråga | Beslut v0.2 |
-|-------|-------------|
-| Auto-start vid NU? | **Nej** v1 |
-| Timer på SEDAN? | **Nej** v1 |
-| Paus? | **Nej** v1 |
-| Pictogram | `wait` / `timer_*` från bildbiblioteket; emoji ⏳ fallback |
-| Ljud vid klart? | **Ja** v1 (reduced-motion respekteras) |
+| Fråga | Beslut |
+|-------|--------|
+| Auto-start vid NU? | Nej v1 |
+| Timer på SEDAN? | Nej v1 |
+| Paus? | Nej v1 |
+| Lagring | `localStorage` |
+| Session-nyckel | `daily_log_item_id` (+ child + datum) |
+| Tidsenhet i DB | `duration_seconds` |
+| Klockändring | Systemklocka; hjälpmedel, inte exakt |
+| Pictogram | `wait` / `timer_*`; emoji ⏳ fallback |
+| Ring | Töms medurs |
+| Ljud | ≤500 ms, låg volym, en ton, en gång |
+| Reduced motion | Ingen kontinuerlig animation; 1 Hz diskret OK |
