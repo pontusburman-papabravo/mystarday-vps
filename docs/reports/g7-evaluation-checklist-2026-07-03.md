@@ -1,8 +1,7 @@
 # G7 — Första utvärdering Minnesrummet
 
 **Datum:** 2026-07-03  
-**Konto:** QA test account / barn Anna (se `docs/qa-test-account.md`)  
-**Miljö:** Live prod host (se docs/qa-test-account.md)  
+**Konto:** `Pontus@burman.cc` (dev testfamilj — se `docs/first-success/PLATFORM-RUNTIME-PROD-SAFE-VALIDATION.md`)  
 **Status:** ✅ **G7 PASS** (8/10, 2 N/A)
 
 ---
@@ -11,8 +10,9 @@
 
 - [x] IRC-014 mergad till `main` (PR #543)
 - [x] Prod deploy klar (`GET /health` OK)
-- [x] Migration `180953` + QA living-world flags (morgonhus, garden, memory_hall)
-- [x] Barn Anna inloggad via `/child-login`
+- [x] Migration `180955` — `memory_hall_playable` på Pontus (morgonhus + garden redan via 180913/180915)
+- [x] Review-konto avallowlistat (180953/180954 återkallade)
+- [x] Barn inloggad via `/child-login` (Pontus-familj)
 
 ---
 
@@ -47,7 +47,8 @@ Min värld → Morgonhuset → (milestone-modal vid dörr) → Trädgården → 
 
 - **Milestone-modal vid dörr:** 6-stjärns milestone öppnar Skattkammaren-modal innan trädgård — acceptabelt men avbryter flödet något
 - **Exhibits tomma:** Förväntat för G7 — koppling till proud_moment-data är framtida arbete
-- **Hotfix krävdes:** QA-konto behövde `morgonhus_playable` + `garden_playable` utöver `memory_hall_playable` (PR #544)
+- **Hotfix krävdes:** Full living-world-kedja kräver morgonhus + garden + memory_hall flags (PR #544)
+- **Allowlist:** Dev-test sker med `Pontus@burman.cc`, inte App Store review-konto (migration 180955)
 
 ---
 
@@ -55,7 +56,7 @@ Min värld → Morgonhuset → (milestone-modal vid dörr) → Trädgården → 
 
 - Scen-WebP saknas (HRC-ART-041) — gradient-fallback
 - `warm_echo` parent frames ej aktivt (HRC-PARENT-042)
-- Endast QA-familj allowlistad
+- Endast Pontus dev-testfamilj allowlistad (inte review@ App Store-konto)
 
 ---
 
