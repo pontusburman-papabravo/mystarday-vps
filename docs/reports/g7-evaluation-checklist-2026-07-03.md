@@ -2,16 +2,17 @@
 
 **Datum:** 2026-07-03  
 **Konto:** QA test account / barn Anna (se `docs/qa-test-account.md`)  
-**Gate:** G7 efter G4 merge, G5 deploy, G6 `memory_hall_playable` allowlist
+**Miljö:** Live prod host (se docs/qa-test-account.md)  
+**Status:** ✅ **G7 PASS** (8/10, 2 N/A)
 
 ---
 
 ## Förutsättningar
 
-- [ ] IRC-014 mergad till `main`
-- [ ] Prod deploy klar (`GET /health` OK)
-- [ ] Migration `1809530000000_memory_hall_allowlist_qa` körd på prod
-- [ ] Barn Anna inloggad via `/child-login`
+- [x] IRC-014 mergad till `main` (PR #543)
+- [x] Prod deploy klar (`GET /health` OK)
+- [x] Migration `180953` + QA living-world flags (morgonhus, garden, memory_hall)
+- [x] Barn Anna inloggad via `/child-login`
 
 ---
 
@@ -19,35 +20,47 @@
 
 | # | Kriterium | Pass? | Anteckning |
 |---|-----------|-------|------------|
-| 1 | Trädgård → Minnesrum-portal synlig (gated) | | |
-| 2 | `enterMemoryHall` transition ≤2s, skippbar | | |
-| 3 | Varm gradient-fallback utan WebP (Art HRC) | | |
-| 4 | Stolt-ögonblick/exhibits renderas (tomt = OK) | | |
-| 5 | `exitMemoryHall` tillbaka till trädgård | | |
-| 6 | Bildfel → exit till trädgård (bindAssetWatch) | | |
-| 7 | Reduced motion respekteras | | |
-| 8 | Ingen shop/stats/leaderboard-ton | | |
-| 9 | Svensk copy känns varm, inte belöningsgrind | | |
-| 10 | 44pt touch, portrait thumb OK | | |
+| 1 | Trädgård → Minnesrum-portal synlig (gated) | ✅ | Stigen-hotspot i trädgården |
+| 2 | `enterMemoryHall` transition ≤2s, skippbar | ✅ | <2s, smidig |
+| 3 | Varm gradient-fallback utan WebP (Art HRC) | ✅ | Gradient syns som förväntat |
+| 4 | Stolt-ögonblick/exhibits renderas (tomt = OK) | ✅ | Tom lista, copy korrekt |
+| 5 | `exitMemoryHall` tillbaka till trädgård | ✅ | Tillbaka-knapp fungerar |
+| 6 | Bildfel → exit till trädgård (bindAssetWatch) | N/A | Ej testbar utan trasiga assets |
+| 7 | Reduced motion respekteras | N/A | Ej testbar i VM-miljö |
+| 8 | Ingen shop/stats/leaderboard-ton | ✅ | Ren reflektionsyta |
+| 9 | Svensk copy känns varm, inte belöningsgrind | ✅ | "Här finns det du vänt stolt över." |
+| 10 | 44pt touch, portrait thumb OK | ✅ | Stora touch-targets |
+
+**Resultat: 8/10 PASS**
+
+---
+
+## Navigationsflöde verifierat
+
+```
+Min värld → Morgonhuset → (milestone-modal vid dörr) → Trädgården → Minnesrummet → tillbaka
+```
+
+---
+
+## Observationer
+
+- **Milestone-modal vid dörr:** 6-stjärns milestone öppnar Skattkammaren-modal innan trädgård — acceptabelt men avbryter flödet något
+- **Exhibits tomma:** Förväntat för G7 — koppling till proud_moment-data är framtida arbete
+- **Hotfix krävdes:** QA-konto behövde `morgonhus_playable` + `garden_playable` utöver `memory_hall_playable` (PR #544)
 
 ---
 
 ## Kända begränsningar (acceptabla för G7)
 
-- Scen-WebP saknas (HRC-ART-041) — gradient-fallback förväntat
+- Scen-WebP saknas (HRC-ART-041) — gradient-fallback
 - `warm_echo` parent frames ej aktivt (HRC-PARENT-042)
 - Endast QA-familj allowlistad
 
 ---
 
-## Resultat
+## Gate-beslut
 
-**Status:** _pending evaluation_  
-**Sammanfattning:** _fylls i efter browser-pass_
+**G7: ✅ PASS** — Minnesrummet kärnfunktion shipped, tillgänglig, tonalt korrekt.
 
----
-
-## Relaterat
-
-- `docs/decisions/adr-memory-hall-bl012.md`
-- `docs/reports/roadmap-minnesrummet-2026-07-03.md`
+Nästa: G8 (konst HRC) för polerad UX, G9 (warm_echo) separat spår.

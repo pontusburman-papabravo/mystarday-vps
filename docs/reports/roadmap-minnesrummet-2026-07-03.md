@@ -13,10 +13,10 @@
 ✅ G2  Plattform + Minnesrum i kod (CAP-003 → CAP-005)
 ✅ G3  Branch-paritet #539 ↔ #541 (CAP-006-R1)
 ✅ G3b #539 + #541 rebasad på main (CAP-007/008-R1)
-📍 G4  Merge IRC-014 till main          ← G7-release branch
-⏳ G5  Deploy prod
-⏳ G6  QA allowlist testfamilj (migration 180953)
-🎯 G7  Första utvärdering i prod
+✅ G4  Merge IRC-014 till main (PR #543)
+✅ G5  Deploy prod
+✅ G6  QA living-world allowlist (migration 180953 + 180954 hotfix)
+✅ G7  Första utvärdering i prod — **8/10 PASS**
 ⏳ G8  Konst godkänd (HRC-ART-041)       ← valfritt för G7, krävs för polerad UX
 ⏳ G9  Parent warm_echo (HRC-PARENT-042)  ← separat spår
 ```
