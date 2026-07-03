@@ -107,7 +107,8 @@
         await loadRatingsForItems(unfetched);
       }
       allowChildReorder = !!data.allow_child_reorder;
-      showNowNext = data.show_now_next !== false;
+      showNowNext = data.show_now_next === true;
+      requireSequentialCompletion = data.require_sequential_completion === true;
       if (!viewTypeLocalOverride) {
         viewType = data.view_type || 'day_sections';
       }

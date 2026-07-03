@@ -405,20 +405,20 @@
         <!-- ── INSTÄLLNINGAR TAB ── -->
         <div id="drawer-pane-settings" class="drawer-pane space-y-1">
 
-          <!-- Show NOW/NEXT/LATER -->
+          <!-- NU / NÄSTA / SEDAN (parent opt-in) -->
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Visa NU / NÄSTA / SEDAN</p>
+                <p class="text-sm font-semibold text-navy dark:text-white">NU / NÄSTA / SEDAN</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Markerar vilken aktivitet som är aktiv, härnäst och kommande. Bra för barn som behöver struktur och förutsägbarhet.</span>
+                  <span class="tooltip-box">Guidad ordning — barnet ser NU, Nästa och Senare och bockar av en i taget. Av som standard kan barnet välja vilken aktivitet som ska bockas av.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Markerar aktiviteter med NU, NÄSTA och SEDAN</p>
+              <p class="text-xs text-text-soft mt-0.5">Aktivera för strukturerad morgon/kväll-rutin</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
-              <input type="checkbox" id="setting-show_now_next" class="sr-only peer" onchange="saveChildSetting('show_now_next', this.checked)" />
+              <input type="checkbox" id="setting-show_now_next" class="sr-only peer" onchange="saveNnlMode(this.checked)" />
               <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gold/50 rounded-full peer dark:bg-gray-600 peer-checked:bg-gold transition-colors"></div>
               <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5 pointer-events-none"></div>
             </label>

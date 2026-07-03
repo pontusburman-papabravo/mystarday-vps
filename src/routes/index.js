@@ -171,9 +171,9 @@ function registerRoutes(app) {
   });
 
   app.get('/child-settings', (req, res) => {
-    const id = req.query.id;
-    if (id) {
-      return res.redirect(302, '/family/child/' + encodeURIComponent(id) + '?tab=setup');
+    const childId = req.query.child || req.query.id;
+    if (childId) {
+      return res.sendFile(join(__dirname, '../../public', 'child-settings.html'));
     }
     return res.redirect(302, '/family');
   });
