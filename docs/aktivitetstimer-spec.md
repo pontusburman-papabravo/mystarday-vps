@@ -1,13 +1,13 @@
-# Aktivitetstimer — kort spec (v0.3)
+# Aktivitetstimer — kort spec (v0.3.1)
 
 | | |
 |--|--|
-| **Status** | Accepted — designspec (implementation i separat PR) |
-| **Git** | [docs/aktivitetstimer-spec.md](https://github.com/pontusburman-papabravo/mystarday-vps/blob/main/docs/aktivitetstimer-spec.md) <!-- pragma: allowlist secret --> |
+| **Status** | Accepted — implemented |
+| **Git** | [docs/aktivitetstimer-spec.md](https://github.com/pontusburman-papabravo/[REDACTED]-vps/blob/main/docs/aktivitetstimer-spec.md) <!-- pragma: allowlist secret --> |
 | **POS** | 04 C-04 (barnvy), 06A (mobil barn-UI), 15 B (a11y, reducerad rörelse, ej blockande) |
 | **Skiljer sig från** | `visual_timer` (schemafönster start–slut), `how_long` (text i De sju frågorna) |
 | **Relaterat** | [bildstod-app-plan.md](./bildstod-app-plan.md), [paket-v1.2-spec.md](./paket-v1.2-spec.md) |
-| **Changelog** | v0.3 — `duration_seconds`, Klar-rensning, localStorage, `daily_log_item_id`, ljudspec, klocka/NYU-försvinnande |
+| **Changelog** | v0.3.1 — `timer_enabled` borttagen (härleds från `duration_seconds`); session `status` + `ended_at` (ej `cancelled_at`); designprincip. v0.3 — `duration_seconds`, Klar-rensning, localStorage, `daily_log_item_id`, ljudspec |
 
 ---
 
@@ -25,6 +25,7 @@ Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och bar
 | Vem ställer in | Förälder |
 | Var | Barninställningar (master) + Bibliotek/aktivitet (per aktivitet) |
 | Lagring (tid) | **`duration_seconds`** (heltal sekunder) — inte minuter i DB |
+| Timer på/av per aktivitet | **`duration_seconds = null`** → ingen timer; **`≥ 5`** → timer |
 | Barnvy | Progress-ring runt timglas + `M:SS` eller `0:SS` |
 | Före start | Visa full tid (`2:00`, `0:45`), inte `--:--` |
 | Start | Barn trycker **Starta timer** — **ingen** auto-start v1 |
@@ -39,11 +40,11 @@ Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och bar
 
 ## Master switch vs per aktivitet
 
-| Global (`activity_timers_enabled`) | Per aktivitet (`timer_enabled` + `duration_seconds`) | Barnvy |
-|-----------------------------------|--------------------------------------------------------|--------|
+| Global (`activity_timers_enabled`) | Per aktivitet (`duration_seconds`) | Barnvy |
+|-----------------------------------|-------------------------------------|--------|
 | Av | sparad i biblioteket | Ingen timer |
-| På | av | Ingen timer |
-| På | på + sekunder ≥ 5 | Timer enligt spec |
+| På | `null` | Ingen timer |
+| På | ≥ 5 | Timer enligt spec |
 
 **Föräldra-copy (global toggle):** *"Masterbrytare. Individuella inställningar i biblioteket sparas även när detta är av."*
 
@@ -63,10 +64,9 @@ Biblioteket visar alltid per-aktivitet-inställningar (gråade när master av).
 
 | Fält | Typ | Default | Validering |
 |------|-----|---------|------------|
-| `timer_enabled` | boolean | `false` | |
-| `duration_seconds` | integer nullable | `null` | om `timer_enabled`: 5–3600 (heltal) |
+| `duration_seconds` | integer nullable | `null` | `null` eller 5–3600 (heltal) |
 
-**Visning i barnvy:** `activity_timers_enabled && timer_enabled && duration_seconds >= 5`
+**Visning i barnvy:** `activity_timers_enabled && duration_seconds >= 5`
 
 **Migration:** `how_long.minutes` i `seven_questions` får **inte** auto-aktivera timer. UI kan föreslå `minutes × 60` vid redigering.
 
@@ -78,10 +78,11 @@ PUT /api/activities/:id
 
 ```json
 {
-  "timer_enabled": true,
   "duration_seconds": 150
 }
 ```
+
+Sätt `duration_seconds: null` för att stänga av timer på aktiviteten.
 
 ---
 
@@ -115,6 +116,8 @@ Minuter: [ 2 ]    Sekunder: [ 30 ]
 
 eller ett fält `M:SS` som parsas till heltal sekunder. UI ska tydliggöra **endast heltal** — ingen 1,5 min.
 
+**Ingen timer:** knapp som sätter `duration_seconds` till `null`.
+
 Om master av: fält synliga men gråade + länk *"Slå på under barninställningar"*.
 
 ---
@@ -135,10 +138,13 @@ daily_log_item_id   (PK i praktiken — obligatorisk)
 child_id
 schedule_date       (YYYY-MM-DD, barnets tidszon)
 duration_seconds    (snapshot vid start — pågående session påverkas inte av senare API-ändring)
+status              idle | running | finished
 started_at          (ISO 8601, null om ej startad)
 ended_at            (ISO 8601, när 0 nåtts)
-cancelled_at        (ISO 8601, vid Klar före 0)
+end_sound_played    (boolean — ljud max en gång per session)
 ```
+
+Vid **Klar** (före eller efter 0): session **tas bort** helt (`localStorage.removeItem`) — ingen `cancelled_at`.
 
 **Två timers samma dag:** får **aldrig** dela session eller påverka varandra (acceptanstest #11).
 
@@ -156,7 +162,7 @@ Mindre avvikelser vid manuell klockändring, resa eller automatisk tidshopp **ac
 
 ### Vid Start
 
-Spara `started_at` + `duration_seconds` i `localStorage`.
+Spara `started_at` + `duration_seconds` + `status: running` i `localStorage`.
 
 ### Vid reload / bakgrund / låst skärm
 
@@ -167,10 +173,9 @@ Spara `started_at` + `duration_seconds` i `localStorage`.
 
 ### När **Klar** trycks (normativt) ⭐
 
-1. `cancelled_at` sätts (om före 0) eller aktiviteten avslutas normalt.  
-2. Lokalt `activity_timer_session` för detta **`daily_log_item_id` tas bort** (`localStorage.removeItem`).  
-3. **Ingen** timer återställs vid reload — IDLE eller borttagen UI.  
-4. Aktiviteten markeras klar enligt **befintligt** avbockningsflöde (ingen ändring av completion-API).
+1. Lokalt `activity_timer_session` för detta **`daily_log_item_id` tas bort** (`localStorage.removeItem`).  
+2. **Ingen** timer återställs vid reload — IDLE eller borttagen UI.  
+3. Aktiviteten markeras klar enligt **befintligt** avbockningsflöde (ingen ändring av completion-API).
 
 Eliminerar race där gammal timer dyker upp efter Klar.
 
@@ -233,7 +238,7 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 - **Haptic:** lätt vid 0.  
 - **Klar** är visuellt primär; **Starta igen** sekundär (textlänk, inte lika stor knapp).
 
-**Klar före 0:** `cancelled_at`, **ta bort** `localStorage`-session, inget ljud, ingen Färdig!.
+**Klar före 0:** **ta bort** `localStorage`-session, inget ljud, ingen Färdig!.
 
 ---
 
@@ -293,8 +298,8 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 ## API
 
 - `PUT /api/children/:id` — `activity_timers_enabled`  
-- `PUT /api/activities/:id` — `timer_enabled`, `duration_seconds` (5–3600 om enabled)  
-- `GET /api/daily-logs/child/...` — `timer_enabled`, `duration_seconds` per **daily_log_item** när master på  
+- `PUT /api/activities/:id` — `duration_seconds` (`null` eller 5–3600)  
+- `GET /api/daily-logs/child/...` — `duration_seconds` per **daily_log_item** när master på  
 
 Ingen server-side timer-state.
 
@@ -304,7 +309,7 @@ Ingen server-side timer-state.
 
 | Ingår | Ingår inte |
 |-------|------------|
-| `duration_seconds` 5–3600 | Decimaler / under 5 s |
+| `duration_seconds` 5–3600 eller `null` | Separat `timer_enabled`-fält |
 | `localStorage` + `daily_log_item_id` | `sessionStorage`, nyckel på `activity_id` |
 | Klar rensar session | Timer kvar efter Klar |
 | Progress-ring töms medurs | Paus |
@@ -339,6 +344,7 @@ Ingen server-side timer-state.
 | Auto-start vid NU? | Nej v1 |
 | Timer på SEDAN? | Nej v1 |
 | Paus? | Nej v1 |
+| Timer på/av per aktivitet | `duration_seconds` null vs ≥ 5 |
 | Lagring | `localStorage` |
 | Session-nyckel | `daily_log_item_id` (+ child + datum) |
 | Tidsenhet i DB | `duration_seconds` |
@@ -347,3 +353,12 @@ Ingen server-side timer-state.
 | Ring | Töms medurs |
 | Ljud | ≤500 ms, låg volym, en ton, en gång |
 | Reduced motion | Ingen kontinuerlig animation; 1 Hz diskret OK |
+| Klar före 0 | Rensa session — ingen `cancelled_at` |
+
+---
+
+## Designprincip
+
+> **Aktivitetstimern är ett visuellt stöd för barnet, inte en exakt tidtagare eller ett verktyg för kontroll.** Vid konflikt mellan enkelhet och teknisk precision prioriteras ett förutsägbart och lugnt användarflöde.
+
+Använd denna kompass vid framtida önskemål (auto-paus, synk mellan enheter, föräldrarlogg, push, schemaändring under pågående timer).

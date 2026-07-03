@@ -154,6 +154,7 @@ function renderActivities(data, trueStarBalance) {
       html += '</div>';
       container.innerHTML = html;
       initTimeTimers();
+      if (window.ChildActivityTimer) ChildActivityTimer.initForItems([item]);
       const allCards = container.querySelectorAll('[data-sub-step-count]');
       for (const card of allCards) {
         const count = parseInt(card.dataset.subStepCount || '0', 10);
@@ -416,6 +417,14 @@ function renderActivities(data, trueStarBalance) {
   container.innerHTML = html;
   // Start Time Timer ticks after DOM is updated
   initTimeTimers();
+  if (window.ChildActivityTimer) {
+    let nuItems = items.filter(function (i) { return i._nnl_status === 'now'; });
+    if (!nuItems.length && data.now_next_filtered !== true) {
+      const firstOpen = items.find(function (i) { return !i.completed; });
+      if (firstOpen) nuItems = [firstOpen];
+    }
+    ChildActivityTimer.initForItems(nuItems);
+  }
 
   // Auto-expand sub-steps for the NOW activity (first incomplete item with sub-steps)
   // so the child immediately sees what to do without extra taps.
@@ -482,6 +491,10 @@ function renderNowCard(item, canToggle) {
       </svg>
     </div>` : '';
 
+  const activityTimerHtml = (window.ChildActivityTimer && ChildActivityTimer.renderBlock)
+    ? ChildActivityTimer.renderBlock(item)
+    : '';
+
   const nowColorCls = getChildColorClass(item.name);
   return `
     <div class="now-card ${isDone ? 'done' : ''} ${nowColorCls}" id="card-${item.id}"
@@ -502,6 +515,7 @@ function renderNowCard(item, canToggle) {
             ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
           </div>
         </div>
+        ${activityTimerHtml}
         ${timerHtml}
         ${isDone
           ? `<div class="now-check" style="background:#22C55E; border-color:#22C55E;"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>`

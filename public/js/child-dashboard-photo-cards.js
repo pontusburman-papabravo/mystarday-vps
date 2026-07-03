@@ -99,6 +99,10 @@
         '</div>'
       : '';
 
+    const activityTimerHtml = (window.ChildActivityTimer && ChildActivityTimer.renderBlock)
+      ? ChildActivityTimer.renderBlock(item)
+      : '';
+
     return (
       '<div class="activity-card photo-activity-card photo-activity-card--now ' + (isDone ? 'done' : '') + ' ' + colorCls + '" id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(item.feedback_for || 'both') + '"' +
@@ -112,6 +116,7 @@
         '<img src="' + esc(photoUrl(item)) + '" alt="" class="photo-activity-card__img" loading="lazy">' +
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          activityTimerHtml +
           timerHtml +
           checkButton(item, isDone, canToggle, checkAttr) +
         '</div>' +

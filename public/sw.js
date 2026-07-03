@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v488';
+// stjarndag-v489: aktivitetstimer v0.3 — duration_seconds, localStorage session, NU-kort UI
+const CACHE_NAME = 'stjarndag-v489';
 // stjarndag-v485: FEAT-1B/1C v2.1 — 4-veckors boendeschema-förhandsvisning (context-range API + custody-settings grid)
 // stjarndag-v484: merge PR 3 — övergångsstöd (teacch-gated) + känslostöd (basic) + föräldrarapport (EPIC 3.1-3.8, D9: EPIC 3.3 exkluderad)
 // stjarndag-v483: merge FEAT-1B/1C custody (v482) with bildstöd PR2+R2 (v482) — NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor
@@ -423,6 +424,8 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-offline.js',
   '/js/child-dashboard-day-nav.js',
   '/js/child-dashboard-timers.js',
+  '/js/activity-timer-session.js',
+  '/js/child-dashboard-activity-timer.js',
   '/js/child-dashboard-load-day.js',
   '/js/child-dashboard-checkoff.js',
   '/js/child-dashboard-celebrations.js',

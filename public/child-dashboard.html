@@ -340,6 +340,75 @@
       transition: stroke-dashoffset 1s linear;
     }
 
+    /* ── Aktivitetstimer — nedräkning per aktivitet ───── */
+    .activity-timer-wrap {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 52px;
+    }
+    .activity-timer-visual {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .activity-timer-svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+    .activity-timer-track {
+      fill: none;
+      stroke: #E5E7EB;
+      stroke-width: 5;
+    }
+    .activity-timer-ring {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+    }
+    .activity-timer-emoji {
+      font-size: 1.25rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .activity-timer-digits {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #1B2340;
+    }
+    .activity-timer-done-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #22C55E;
+      margin: 0;
+    }
+    .activity-timer-start {
+      margin-top: 4px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: #F5A623;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      min-height: 44px;
+      cursor: pointer;
+    }
+    .activity-timer-restart {
+      min-height: 44px;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
     /* ── Övergångsstöd inline (Extra stöd) ─────────────── */
     .transition-inline {
       display: inline-flex;
@@ -2123,6 +2192,8 @@
   <script src="/js/child-dashboard-day-nav.js?v=1"></script>
   <script src="/js/transition-support.js?v=1"></script>
   <script src="/js/child-dashboard-timers.js?v=1"></script>
+  <script src="/js/activity-timer-session.js?v=1"></script>
+  <script src="/js/child-dashboard-activity-timer.js?v=1"></script>
   <script src="/js/child-dashboard-load-day.js?v=1"></script>
   <script src="/js/child-dashboard-checkoff.js?v=1"></script>
   <script src="/js/child-dashboard.js?v=2.27.0"></script>

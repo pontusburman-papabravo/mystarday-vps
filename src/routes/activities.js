@@ -8,6 +8,7 @@ const { requireParent } = require('../middleware/auth');
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
 const { validate, validateParams } = require('../middleware/validate');
 const { attachGoalMetaToMany } = require('../lib/for-dig-goal-meta');
+const { normalizeDurationSeconds } = require('../lib/activity-timer');
 const {
   validatePictogramKey,
   enrichPictogramFieldsMany,
@@ -35,7 +36,7 @@ router.get('/', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT at.id, at.name, at.icon, at.icon_key, at.image_url, at.category_id, at.star_value, at.is_favorite,
-              at.feedback_for, at.sort_order, at.schema_type, at.for_dig_goal_slug,
+              at.feedback_for, at.sort_order, at.schema_type, at.for_dig_goal_slug, at.duration_seconds,
               COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
               c.name AS category_name, c.sort_order AS category_sort_order
@@ -91,7 +92,7 @@ const VALID_FEEDBACK_FOR = new Set(['both', 'child', 'parent', 'none']);
 // ─── POST /api/activities ───────────────────────────────
 router.post('/', validate(CreateActivitySchema), async (req, res) => {
   try {
-    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type } = req.body;
+    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds } = req.body;
 
     if (!name || name.trim().length < 1) {
       return res.status(400).json({ error: 'Aktivitetsnamn krävs' });
@@ -132,11 +133,20 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
       }
     }
 
+    let normalizedDuration = null;
+    if (duration_seconds !== undefined) {
+      const normalized = normalizeDurationSeconds(duration_seconds);
+      if (normalized === undefined) {
+        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+      }
+      normalizedDuration = normalized;
+    }
+
     const result = await db.query(
-      `INSERT INTO activity_template (family_id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order`,
-      [req.user.familyId, name.trim(), icon || null, icon_key || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder]
+      `INSERT INTO activity_template (family_id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds`,
+      [req.user.familyId, name.trim(), icon || null, icon_key || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder, normalizedDuration]
     );
     res.status(201).json(enrichPictogramFieldsMany(result.rows)[0]);
   } catch (err) {
@@ -178,7 +188,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions } = req.body;
+    const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions, duration_seconds } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -244,13 +254,21 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       updates.push(`seven_questions = $${idx++}::jsonb`);
       values.push(JSON.stringify(normalizeSevenQuestions(seven_questions)));
     }
+    if (duration_seconds !== undefined) {
+      const normalized = normalizeDurationSeconds(duration_seconds);
+      if (normalized === undefined) {
+        return res.status(400).json({ error: 'Timer-tid måste vara 5–3600 sekunder eller tom' });
+      }
+      updates.push(`duration_seconds = $${idx++}`);
+      values.push(normalized);
+    }
 
     if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
 
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE activity_template SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type`,
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds`,
       values
     );
 

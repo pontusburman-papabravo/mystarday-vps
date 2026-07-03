@@ -24,6 +24,7 @@ let transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
 let dopaminAnimation = true; // toggled by parent — star burst on check-off
 const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
 let visualTimer = true; // toggled by parent — Time Timer in now-card
+let activityTimersEnabled = false; // master — aktivitetstimer (timglas)
 let hideClock = false; // toggled by parent — hides digital time labels on cards
 let colorCoding = true; // toggled by parent — color-codes cards by activity type
 
