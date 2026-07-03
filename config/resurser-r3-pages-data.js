@@ -5,7 +5,7 @@
  * Generated HTML via scripts/generate-resurser-r3-html.mjs
  */
 
-const R3_PAGES_DATA = [
+const R3_PAGES_CORE = [
   {
     slug: 'bildschema-forskolan',
     intent: 'bildschema förskola',
@@ -767,5 +767,9 @@ const R3_PAGES_DATA = [
     downloadSlug: 'morgonschema',
   },
 ];
+
+const { R3_PAGES_BATCH2 } = require('./resurser-r3-pages-batch2');
+
+const R3_PAGES_DATA = [...R3_PAGES_CORE, ...R3_PAGES_BATCH2];
 
 module.exports = { R3_PAGES_DATA };

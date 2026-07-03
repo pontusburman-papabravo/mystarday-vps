@@ -62,14 +62,28 @@
 
   function renderBanner(banner, data) {
     const wb = data.weekBanner;
+    const home = wb || data.activeHome;
     const homeLabel = (wb && wb.label) || (data.activeHome && data.activeHome.label) || '';
     if (!homeLabel) {
       banner.classList.add('hidden');
       return;
     }
 
-    banner.style.borderColor = wb.color || data.activeHome.color;
-    banner.style.backgroundColor = (wb.color || data.activeHome.color) + '18';
+    banner.style.borderColor = home.color || data.activeHome.color;
+    banner.style.backgroundColor = (home.color || data.activeHome.color) + '18';
+
+    let markerSpan = banner.querySelector('[data-custody-banner-marker]');
+    const a11yApi = window.CustodyA11y;
+    if (a11yApi && a11yApi.bannerMarkerHtml) {
+      if (!markerSpan) {
+        markerSpan = document.createElement('span');
+        markerSpan.setAttribute('data-custody-banner-marker', '1');
+        banner.insertBefore(markerSpan, banner.firstChild);
+      }
+      markerSpan.innerHTML = a11yApi.bannerMarkerHtml(home, function (s) {
+        return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      });
+    }
 
     let textSpan = banner.querySelector('[data-custody-banner-text]');
     if (!textSpan) {

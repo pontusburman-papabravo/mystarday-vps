@@ -1,6 +1,6 @@
 'use strict';
 
-/** Maps downloadSlug to existing R1/R2 PDF landing pages — no new PDFs in R3. */
+/** Maps downloadSlug to R1/R2/R3 PDF landing pages. */
 const R3_DOWNLOAD_META = {
   morgonschema: {
     label: 'Morgonschema PDF',
@@ -47,6 +47,16 @@ const R3_DOWNLOAD_META = {
     path: '/resurser/pdf/veckoschema',
     pdfHref: '/resurser/pdf/veckoschema.pdf',
   },
+  helgschema: {
+    label: 'Helgschema PDF',
+    path: '/resurser/pdf/helgschema',
+    pdfHref: '/resurser/pdf/helgschema.pdf',
+  },
+  laxschema: {
+    label: 'Läxschema PDF',
+    path: '/resurser/pdf/laxschema',
+    pdfHref: '/resurser/pdf/laxschema.pdf',
+  },
 };
 
 /** Human labels for related internal links. */
@@ -68,6 +78,10 @@ const R3_RELATED_LABELS = {
   '/resurser/pdf/hygien': 'Hygienschema PDF',
   '/resurser/pdf/beloningsschema': 'Belöningsschema PDF',
   '/resurser/pdf/veckoschema': 'Veckoschema PDF',
+  '/resurser/pdf/helgschema': 'Helgschema PDF',
+  '/resurser/pdf/laxschema': 'Läxschema PDF',
+  '/resurser/pdf/helgschema': 'Helgschema PDF',
+  '/resurser/pdf/laxschema': 'Läxschema PDF',
   '/resurser/bildkort/morgon': 'Morgon-bildkort',
   '/resurser/bildkort/kvall': 'Kväll-bildkort',
   '/resurser/bildkort/kanslor': 'Känslokort att klippa ut',

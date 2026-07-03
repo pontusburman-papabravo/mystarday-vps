@@ -948,7 +948,9 @@ router.post('/starter-plan/suggest', async (req, res) => {
     const plan = selectStarterTemplate(input);
     const template_group = slugToTemplateGroup(plan.slug);
 
-    await setActivationVariant(req.user.familyId, 'template_only');
+    const aiEnabled = await isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, req.user.familyId);
+    const variant = aiEnabled ? 'template_plus_ai' : 'template_only';
+    await setActivationVariant(req.user.familyId, variant);
     analytics.track(req.user.familyId, 'starter_template_selected', {
       slug: plan.slug,
       schedule_name: plan.scheduleName,
@@ -957,10 +959,11 @@ router.post('/starter-plan/suggest', async (req, res) => {
       age_band: input.ageBand,
       support_level: input.supportLevel,
       desired_length: input.desiredLength,
-      used_ai: false,
+      used_ai: aiEnabled,
+      variant,
     });
 
-    res.json({ ...plan, template_group, used_ai: false });
+    res.json({ ...plan, template_group, used_ai: aiEnabled, variant });
   } catch (err) {
     console.error('[ONBOARDING] starter-plan/suggest error:', err);
     res.status(500).json({ error: 'Kunde inte välja mall' });
@@ -1048,13 +1051,13 @@ router.post('/starter-plan/personalize', async (req, res) => {
 
     let result;
     if (aiEnabled) {
+      await setActivationVariant(req.user.familyId, 'template_plus_ai');
       result = await generateStarterPlan(genInput);
     } else {
       result = buildFallback(genInput, baseItems, 'AI_DISABLED');
     }
 
-    if (result.used_ai) {
-      await setActivationVariant(req.user.familyId, 'template_plus_ai');
+    if (aiEnabled && result.used_ai) {
       analytics.track(req.user.familyId, 'starter_plan_generation_succeeded', {
         schedule_name: schedule_name,
         activity_count: result.items.length,

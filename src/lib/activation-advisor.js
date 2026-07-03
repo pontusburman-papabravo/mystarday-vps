@@ -12,10 +12,6 @@ function pct(n, d) {
   return Math.round((n / d) * 1000) / 10;
 }
 
-function todaySlug(prefix) {
-  return `${prefix}-${new Date().toISOString().slice(0, 10)}`;
-}
-
 /**
  * Collect activation health metrics (read-only).
  */
@@ -171,13 +167,12 @@ function findFunnelLeak(metrics) {
 async function buildRecommendations(metrics) {
   const m = metrics || await collectMetrics();
   const alerts = [];
-  const date = new Date().toISOString().slice(0, 10);
 
   const act1FlagSet = new Set(ACT1_ONBOARDING_FLAG_KEYS);
   const flagsOff = (m.flags || []).filter((f) => act1FlagSet.has(f.key) && !f.enabled);
   if (flagsOff.length) {
     alerts.push({
-      slug: `activation-flags-off-${date}`,
+      slug: 'activation-flags-off',
       category: 'activation',
       severity: 'critical',
       title: 'ACT-1-flaggor är avstängda',
@@ -189,7 +184,7 @@ async function buildRecommendations(metrics) {
 
   if (m.weekSignups >= 3 && m.weekP0RatePct < P0_TARGET_PCT) {
     alerts.push({
-      slug: `activation-low-p0-${date}`,
+      slug: 'activation-low-p0',
       category: 'activation',
       severity: m.weekP0RatePct < 10 ? 'critical' : 'warning',
       title: `Låg P0-aktivering: ${m.weekP0RatePct}% (mål ${P0_TARGET_PCT}%)`,
@@ -206,7 +201,7 @@ async function buildRecommendations(metrics) {
 
   if (m.neverSignalPct >= NEVER_ACTIVATED_WARN_PCT) {
     alerts.push({
-      slug: `activation-never-started-${date}`,
+      slug: 'activation-never-started',
       category: 'activation',
       severity: 'warning',
       title: `${m.neverSignalPct}% har aldrig startat`,
@@ -222,7 +217,7 @@ async function buildRecommendations(metrics) {
 
   if (m.weekSignups >= 5 && m.weekAct1AdoptionPct < ACT1_ADOPTION_WARN_PCT) {
     alerts.push({
-      slug: `activation-low-act1-ui-${date}`,
+      slug: 'activation-low-act1-ui',
       category: 'activation',
       severity: 'warning',
       title: `Bara ${m.weekAct1AdoptionPct}% når ACT-1-mallen`,
@@ -239,7 +234,7 @@ async function buildRecommendations(metrics) {
   const leak = findFunnelLeak(m);
   if (leak && leak.dropPct >= 40 && leak.fromN >= 3) {
     alerts.push({
-      slug: `activation-funnel-leak-${date}`,
+      slug: 'activation-funnel-leak',
       category: 'activation',
       severity: 'info',
       title: `Största läckaget: ${leak.from} → ${leak.to}`,
@@ -251,7 +246,7 @@ async function buildRecommendations(metrics) {
 
   if (m.incompleteOnboarding14d >= 5) {
     alerts.push({
-      slug: `activation-incomplete-onboarding-${date}`,
+      slug: 'activation-incomplete-onboarding',
       category: 'activation',
       severity: 'info',
       title: `${m.incompleteOnboarding14d} familjer fast i onboarding`,
@@ -264,7 +259,7 @@ async function buildRecommendations(metrics) {
   const started = m.events30d.activation_onboarding_started || 0;
   if (m.weekSignups >= 5 && started === 0) {
     alerts.push({
-      slug: `activation-no-events-${date}`,
+      slug: 'activation-no-events',
       category: 'activation',
       severity: 'critical',
       title: 'Inga ACT-1-events på 30 dagar',
@@ -276,7 +271,7 @@ async function buildRecommendations(metrics) {
 
   if (!alerts.length && m.weekSignups > 0) {
     alerts.push({
-      slug: `activation-ok-${date}`,
+      slug: 'activation-ok',
       category: 'activation',
       severity: 'info',
       title: 'Aktiveringen ser stabil ut',
@@ -307,8 +302,11 @@ async function runActivationAdvisor({ pruneDays = 30 } = {}) {
     saved.push(row);
   }
 
+  const activeSlugs = recommendations.map((a) => a.slug);
+  const synced = await adminAlerts.syncActivationAlerts(activeSlugs);
+  const staleDismissed = await adminAlerts.dismissStaleDatedAlerts();
   const pruned = await adminAlerts.pruneOlderThanDays(pruneDays);
-  return { metrics, recommendations, saved, pruned };
+  return { metrics, recommendations, saved, synced, staleDismissed, pruned };
 }
 
 module.exports = {

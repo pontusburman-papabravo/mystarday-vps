@@ -87,6 +87,23 @@ test('faq and kontakt pages are indexable with canonical', () => {
   assert.equal(isSeoIndexable('/kontakt'), true);
 });
 
+function parseFirstLdJson(html) {
+  const match = html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/);
+  assert.ok(match, 'expected JSON-LD script block');
+  return JSON.parse(match[1]);
+}
+
+test('faq and pedagoger JSON-LD blocks parse as valid JSON', () => {
+  const faq = parseFirstLdJson(fs.readFileSync(path.join(ROOT, 'public/faq.html'), 'utf8'));
+  assert.equal(faq['@type'], 'FAQPage');
+  assert.ok(Array.isArray(faq.mainEntity) && faq.mainEntity.length > 0);
+
+  const pedagog = parseFirstLdJson(fs.readFileSync(path.join(ROOT, 'public/pedagoger-och-terapeuter.html'), 'utf8'));
+  assert.equal(pedagog['@context'], 'https://schema.org');
+  assert.ok(Array.isArray(pedagog['@graph']) && pedagog['@graph'].length >= 2);
+  assert.equal(pedagog['@graph'][0]['@type'], 'WebPage');
+});
+
 test('pricing-info is public access information page', () => {
   const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
   assert.doesNotMatch(route, /isBillingUiEnabled/);

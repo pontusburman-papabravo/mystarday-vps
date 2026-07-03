@@ -866,6 +866,15 @@ function renderPage(child) {
   </div>
 
   <!-- Bottom spacer -->
+  <div class="section-card fade-in" style="border: 1px solid rgba(239,68,68,0.25);">
+    <div class="section-title text-red-700">Farlig zon</div>
+    <button type="button" id="deleteChildBtn"
+      class="w-full px-4 py-3 bg-coral hover:bg-red-100 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">
+      🗑 Radera barn permanent
+    </button>
+    <p class="text-xs text-text-soft mt-2 text-center">Tar bort schema, stjärnor och all historik. Går inte att ångra.</p>
+  </div>
+
   <div class="h-8"></div>
   `;
 
@@ -920,6 +929,32 @@ function renderPage(child) {
         cb.checked = !cb.checked;
       }
     });
+  });
+
+  initDeleteChild(child);
+}
+
+function initDeleteChild(child) {
+  const btn = document.getElementById('deleteChildBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    const name = child.name || 'barnet';
+    const ok = window.confirm(
+      'Ta bort ' + name + ' permanent?\n\nAlla aktiviteter, scheman och belöningshistorik raderas. Detta går inte att ångra.'
+    );
+    if (!ok) return;
+
+    btn.disabled = true;
+    Auth.api('/api/family/children/' + childId, { method: 'DELETE' })
+      .then(() => {
+        showSuccessToast('Barnet är borttaget');
+        window.location.href = '/family';
+      })
+      .catch((err) => {
+        showToast('Kunde inte ta bort: ' + (err.message || 'okänt fel'), true);
+        btn.disabled = false;
+      });
   });
 }
 

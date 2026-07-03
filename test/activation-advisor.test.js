@@ -92,6 +92,28 @@ describe('activation-advisor buildRecommendations', () => {
     assert.match(flagAlert.body, /Nya familjer får inte ACT-1-flödet/);
   });
 
+  it('uses stable slugs without date suffix', async () => {
+    const alerts = await buildRecommendations({
+      families: 200,
+      everActivatedPct: 17,
+      neverSignalPct: 40,
+      weekSignups: 10,
+      weekAct1Variant: 8,
+      weekAct1AdoptionPct: 80,
+      weekP0_48h: 1,
+      weekP0RatePct: 10,
+      weekSchemaSaved: 8,
+      weekChildAccess: 5,
+      weekFirstCompletion: 1,
+      incompleteOnboarding14d: 0,
+      flags: [{ key: 'activation_onboarding_v1', enabled: true }],
+      events30d: { activation_onboarding_started: 5 },
+    });
+    const p0 = alerts.find((a) => a.slug.startsWith('activation-low-p0'));
+    assert.ok(p0);
+    assert.doesNotMatch(p0.slug, /\d{4}-\d{2}-\d{2}/);
+  });
+
   it('warns when P0 rate is below target with enough signups', async () => {
     const alerts = await buildRecommendations({
       families: 200,

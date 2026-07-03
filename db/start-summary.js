@@ -184,44 +184,11 @@ async function fetchMessageSummary() {
 }
 
 async function fetchRecommendations() {
-  const [unreadRow, leadRows, operationalRows] = await Promise.all([
-    db.query(`SELECT COUNT(*)::int AS c FROM contact_message WHERE status = 'new'`),
-    db.query(`
-      SELECT (
-        (SELECT COUNT(*)::int FROM package_interest WHERE lead_status = 'ny') +
-        (SELECT COUNT(*)::int FROM professional_interest WHERE lead_status = 'ny') +
-        (SELECT COUNT(*)::int FROM waitlist WHERE lead_status = 'ny')
-      ) AS c
-    `),
-    adminOperationalAlerts.listActive(10),
-  ]);
-
-  const unread = unreadRow.rows[0]?.c || 0;
-  const newLeads = leadRows.rows[0]?.c || 0;
-  const cards = adminOperationalAlerts.toRecommendationCards(operationalRows);
-
-  if (unread > 0) {
-    cards.push({
-      type: 'unread_messages',
-      title: `${unread} olästa meddelanden`,
-      body: 'Öppna inboxen och markera det viktigaste först.',
-      route: '#meddelanden?inbox=unread',
-      priority: 3,
-    });
-  }
-  if (newLeads > 0) {
-    cards.push({
-      type: 'new_leads',
-      title: `${newLeads} nya leads i pipeline`,
-      body: 'Granska paketintresse, pedagogintresse och waitlist.',
-      route: '#tillvaxt-pipeline',
-      priority: 4,
-    });
-  }
-  return cards.sort((a, b) => a.priority - b.priority);
+  const operationalRows = await adminOperationalAlerts.listActive(5);
+  return adminOperationalAlerts.toRecommendationCards(operationalRows);
 }
 
-async function fetchActivityFeed(limit = 20) {
+async function fetchActivityFeed(limit = 8) {
   const { rows } = await db.query(
     `
     SELECT type, id, title, meta, created_at, route FROM (
@@ -305,7 +272,7 @@ async function buildStartSummary() {
   ] = await Promise.all([
     fetchKeyMetrics(),
     fetchMessageSummary(),
-    fetchActivityFeed(20),
+    fetchActivityFeed(8),
     fetchRecommendations(),
   ]);
 
