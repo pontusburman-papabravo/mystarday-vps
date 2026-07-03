@@ -25,6 +25,40 @@ describe('activation funnel fixes', () => {
     const src = fs.readFileSync(path.join(__dirname, '../public/js/onboarding-starter-plan.js'), 'utf8');
     assert.doesNotMatch(src, /track\('starter_plan_saved'/);
   });
+
+  it('onboarding resumes ACT-1 at handoff when schema already saved', () => {
+    const starter = fs.readFileSync(path.join(__dirname, '../public/js/onboarding-starter-plan.js'), 'utf8');
+    const onboarding = fs.readFileSync(path.join(__dirname, '../public/js/onboarding.js'), 'utf8');
+    assert.match(starter, /tryResumeAct1/);
+    assert.match(starter, /funnel_step/);
+    assert.match(onboarding, /resumeAct1Onboarding/);
+    assert.match(onboarding, /schema_saved.*goToStep\(5\)/s);
+  });
+
+  it('markParentOnboardingComplete is idempotent per parent row', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../src/lib/mark-parent-onboarding-complete.js'), 'utf8');
+    assert.match(src, /onboarding_completed = false/);
+    assert.match(src, /RETURNING id/);
+    assert.match(src, /trackOnboardingCompleted/);
+  });
+
+  it('onboarding schedule route marks complete for ACT-1 starter plan', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../src/routes/onboarding.js'), 'utf8');
+    assert.match(src, /markParentOnboardingComplete/);
+    assert.match(src, /act1StarterPlan/);
+  });
+
+  it('resolveDefaultActivationVariant prefers template_plus_ai when ACT-1 live', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../src/lib/activation-p0.js'), 'utf8');
+    assert.match(src, /resolveDefaultActivationVariant/);
+    assert.match(src, /template_plus_ai/);
+  });
+
+  it('activation-config exposes funnel resume fields', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../src/routes/family/core.js'), 'utf8');
+    assert.match(src, /primary_child_id/);
+    assert.match(src, /schema_saved:/);
+  });
 });
 
 test('GET /api/admin/activation-program/stuck-families', async () => {

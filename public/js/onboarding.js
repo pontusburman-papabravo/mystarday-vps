@@ -315,6 +315,30 @@ function goToStep(n) {
 
 }
 
+/** Resume ACT-1 funnel after schema save or child access (avoids auth redirect loop). */
+async function resumeAct1Onboarding(funnelStep) {
+  const step = funnelStep || 'signup';
+  if (step === 'schema_saved') {
+    goToStep(5);
+    return;
+  }
+  if (['child_access', 'first_completion', 'p0_activated', 'p0_activated_48h'].includes(step)) {
+    try {
+      const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
+      if (res.ok) {
+        const user = Auth.getUser();
+        if (user) {
+          user.onboarding_completed = true;
+          Auth.setAuth(Auth.getToken(), user);
+        }
+      }
+    } catch (_) { /* server may already have marked complete */ }
+    window.location.href = '/dashboard';
+  }
+}
+window.resumeAct1Onboarding = resumeAct1Onboarding;
+window.goToStep = goToStep;
+
 function populateStep5LoginInfo() {
   const s5Child = document.getElementById('s5ChildName');
   if (s5Child && childName) s5Child.textContent = childName;
@@ -1299,12 +1323,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
-    await OnboardingStarterPlan.init().catch(() => {});
+    await OnboardingStarterPlan.init().catch(() => 'inactive');
   }
-  const act1Active = window.OnboardingStarterPlan &&
-    typeof OnboardingStarterPlan.isEnabled === 'function' &&
-    OnboardingStarterPlan.isEnabled();
-  if (!act1Active) {
+  const act1InitResult = window.OnboardingStarterPlan &&
+    typeof OnboardingStarterPlan.getInitResult === 'function' &&
+    OnboardingStarterPlan.getInitResult();
+  const act1Active = act1InitResult === 'active' || act1InitResult === 'resumed';
+  if (act1InitResult === 'resumed') {
+    // resumeAct1Onboarding already navigated (step 5 or dashboard)
+  } else if (!act1Active) {
     trackLegacyOnboardingIfNeeded();
     goToStep(1);
   }

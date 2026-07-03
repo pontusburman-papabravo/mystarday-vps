@@ -433,7 +433,8 @@ router.post('/schedule', async (req, res) => {
       }
 
       const { updateActivationState } = require('../lib/activation-p0');
-      updateActivationState(req.user.familyId, 'schema_saved', {
+      const act1StarterPlan = Array.isArray(custom_items) && custom_items.length > 0;
+      await updateActivationState(req.user.familyId, 'schema_saved', {
         metadata: {
           template_group,
           source: 'onboarding_schedule',
@@ -445,6 +446,12 @@ router.post('/schedule', async (req, res) => {
       }).catch((err) => {
         console.error('[ONBOARDING] activation schema_saved error:', err.message);
       });
+      if (act1StarterPlan) {
+        const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+        await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
+          console.error('[ONBOARDING] mark onboarding complete after ACT-1 schema:', err.message);
+        });
+      }
       require('../lib/journey/ingest').ingestMilestoneAsync({
         familyId,
         milestone: 'routine_ready',
@@ -904,6 +911,10 @@ router.post('/child-access-complete', async (req, res) => {
     await updateActivationState(req.user.familyId, 'child_access', {
       metadata: { child_id, source: src },
     });
+    const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+    await markParentOnboardingComplete(req.user.id, req.user.familyId).catch((err) => {
+      console.error('[ONBOARDING] mark onboarding complete after child access:', err.message);
+    });
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] child-access-complete error:', err);
@@ -916,14 +927,8 @@ router.post('/child-access-complete', async (req, res) => {
 // DO NOT USE onboarding_completed FOR PRODUCT LOGIC — use journey_phase / milestones
 router.post('/complete', async (req, res) => {
   try {
-    await db.query(
-      'UPDATE parent SET onboarding_completed = true WHERE id = $1',
-      [req.user.id]
-    );
-    // Analytics: funnel step — onboarding completed
-    require('../lib/analytics-tracker').trackOnboardingCompleted(req.user.familyId);
-    const { recomputePhase } = require('../lib/journey/ingest');
-    await recomputePhase(req.user.familyId);
+    const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+    await markParentOnboardingComplete(req.user.id, req.user.familyId);
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);

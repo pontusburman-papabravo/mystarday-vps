@@ -82,6 +82,16 @@
     return window.apiFetch(path, opts);
   }
 
+  function syncOnboardingCompleteInAuth() {
+    if (window.Auth && typeof Auth.getUser === 'function') {
+      const user = Auth.getUser();
+      if (user) {
+        user.onboarding_completed = true;
+        Auth.setAuth(Auth.getToken(), user);
+      }
+    }
+  }
+
   function track(eventType, metadata) {
     api('/api/analytics/event', {
       method: 'POST',
@@ -375,6 +385,8 @@
       const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
 
+      syncOnboardingCompleteInAuth();
+
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
         detail: {
           id: childData.id,
@@ -625,6 +637,8 @@
       const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
 
+      syncOnboardingCompleteInAuth();
+
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
         detail: {
           id: childData.id,
@@ -670,13 +684,45 @@
     return state.signupPath;
   }
 
+  let initResult = 'inactive';
+
+  async function tryResumeAct1(data, isAddChild) {
+    const funnelStep = data.funnel_step || 'signup';
+    if (funnelStep === 'signup' || isAddChild) return false;
+
+    const flags = data.flags || {};
+    const act1Live = flags.activation_onboarding_v1 || flags.activation_signup_slim_v1;
+    if (!act1Live) return false;
+
+    state.enabled = true;
+    state.flags = flags;
+    if (data.primary_child_id && window.OnboardingActivation &&
+        typeof OnboardingActivation.setChildId === 'function') {
+      OnboardingActivation.setChildId(data.primary_child_id);
+      window.dispatchEvent(new CustomEvent('onboarding:child-created', {
+        detail: { id: data.primary_child_id },
+      }));
+    }
+    if (typeof window.resumeAct1Onboarding === 'function') {
+      await window.resumeAct1Onboarding(funnelStep);
+    }
+    return true;
+  }
+
   async function init() {
     const isAddChild = typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD;
 
     try {
       const res = await api('/api/family/activation-config');
-      if (!res.ok) return;
+      if (!res.ok) {
+        initResult = 'inactive';
+        return initResult;
+      }
       const data = await res.json();
+      if (await tryResumeAct1(data, isAddChild)) {
+        initResult = 'resumed';
+        return initResult;
+      }
       const flags = data.flags || {};
 
       if (flags.activation_signup_slim_v1 && !isAddChild) {
@@ -688,10 +734,14 @@
         renderQuestion();
         showStarterStep();
         track('activation_onboarding_started', { source: 'signup_slim_entry' });
-        return;
+        initResult = 'active';
+        return initResult;
       }
 
-      if (!flags.activation_onboarding_v1) return;
+      if (!flags.activation_onboarding_v1) {
+        initResult = 'inactive';
+        return initResult;
+      }
 
       state.enabled = true;
       state.flags = flags;
@@ -702,12 +752,18 @@
       track('activation_onboarding_started', {
         source: isAddChild ? 'add_child_entry' : 'onboarding_entry',
       });
-    } catch (_) {}
+      initResult = 'active';
+      return initResult;
+    } catch (_) {
+      initResult = 'inactive';
+      return initResult;
+    }
   }
 
   window.OnboardingStarterPlan = {
     init: init,
     isEnabled: isEnabled,
+    getInitResult: function () { return initResult; },
     isSlim: function () { return state.slim; },
     isSlimFastPath: isSlimFastPath,
     getSignupPath: getSignupPath,

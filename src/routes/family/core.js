@@ -887,7 +887,7 @@ router.get('/activation-config', async (req, res) => {
     const activationDb = require('../../../db/family-activation-state');
     const { getActivationFunnelStep } = require('../../lib/activation-p0');
     const familyId = req.user.familyId;
-    const [flags, state] = await Promise.all([
+    const [flags, state, primaryChildRow] = await Promise.all([
       Promise.all([
         isActivationFlagEnabled(FLAG_KEYS.onboarding, familyId),
         isActivationFlagEnabled(FLAG_KEYS.childHandoff, familyId),
@@ -902,12 +902,18 @@ router.get('/activation-config', async (req, res) => {
         activation_signup_slim_v1: signupSlim,
       })),
       activationDb.getByFamilyId(familyId),
+      db.query(
+        `SELECT id FROM child WHERE family_id = $1 ORDER BY created_at ASC LIMIT 1`,
+        [familyId]
+      ),
     ]);
     res.json({
       flags,
       funnel_step: getActivationFunnelStep(state),
       activation_variant: state?.activation_variant || 'legacy',
       p0_activated_within_48h: !!state?.p0_activated_within_48h,
+      primary_child_id: primaryChildRow.rows[0]?.id || null,
+      schema_saved: Boolean(state?.schema_saved_at),
     });
   } catch (err) {
     console.error('[FAMILY] activation-config error:', err);
