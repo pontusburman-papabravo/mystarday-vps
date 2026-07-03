@@ -4,9 +4,12 @@ const { hasAccess } = require('../../db/features');
 
 const GARDEN_PLAYABLE_SLUG = 'garden_playable';
 const GARDEN_WORLD_SLUG = 'garden';
+const MEMORY_HALL_PLAYABLE_SLUG = 'memory_hall_playable';
+const MEMORY_HALL_WORLD_SLUG = 'memory_hall';
 
 const FEATURE_BY_WORLD = {
   [GARDEN_WORLD_SLUG]: GARDEN_PLAYABLE_SLUG,
+  [MEMORY_HALL_WORLD_SLUG]: MEMORY_HALL_PLAYABLE_SLUG,
 };
 
 /**
@@ -27,5 +30,7 @@ async function hasLivingWorldAccess(familyId, slugOrWorld) {
 module.exports = {
   GARDEN_PLAYABLE_SLUG,
   GARDEN_WORLD_SLUG,
+  MEMORY_HALL_PLAYABLE_SLUG,
+  MEMORY_HALL_WORLD_SLUG,
   hasLivingWorldAccess,
 };

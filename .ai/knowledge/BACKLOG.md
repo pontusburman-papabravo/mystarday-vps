@@ -12,7 +12,8 @@
 | BL-010 | P2 | `lint:public` CI budget reduction | DX / CI | — | Low | Org Health | **done** |
 | BL-032 | P3 | Morgonhus aria-live parity with garden | Child calm | — | Low | QA | done |
 | BL-033 | P3 | Garden LOE reduced-motion CSS polish | MO-03 | — | Low | QA | done |
-| BL-034 | P3 | Experience pack living_slots schema guard | World integrity | — | Low | Backend | queued |
+| BL-034 | P3 | Experience pack living_slots schema guard | World integrity | — | Low | Backend | done |
+| BL-029b | P3 | Memory hall exhibits + garden entry | Min värld | BL-012 | Med | Creative+Eng | queued |
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "worlds": [
     {
       "world_slug": "routine_home",
@@ -54,6 +54,26 @@
           "emoji": "☁️",
           "ambient_message_sv": "Molnen rör sig långsamt.",
           "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Minneshallen",
+      "first_unlock_message": "Här samlas minnena.",
+      "ambient_message_sv": "Det är tyst och lugnt.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_entry",
+          "label_sv": "Ingången",
+          "hotspot_class": "mu-hotspot--entry",
+          "ambient_message_sv": "Du kan gå vidare här."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Väggen",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Plats för minnen."
         }
       ]
     }
