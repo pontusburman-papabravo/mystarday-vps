@@ -83,7 +83,7 @@ See `.ai/knowledge/OPEN_BLOCKERS.md`.
 | IRC-013 | #536 | `cursor/memory-hall-scaffold-5e52` | Superseded by IRC-014 |
 | IRC-014 | #539 | `cursor/memory-hall-bl012-5e52` | BL-012 full implementation |
 | IRC-015 | #540 | `cursor/memory-hall-art-spec-bl041-5e52` | Art spec + handover |
-| IRC-016 | TBD | `cursor/autonomous-relay-resume-b105` | Relay engine + BL-044 prep |
+| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Relay engine + BL-044 prep |
 
 Guide: `docs/reports/irc-bundle-2026-07-03.md`
 

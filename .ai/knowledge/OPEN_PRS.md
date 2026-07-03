@@ -25,7 +25,7 @@
 
 | IRC | PR | Branch | Status | Notes |
 |-----|-----|--------|--------|-------|
-| IRC-016 | TBD | `cursor/autonomous-relay-resume-b105` | Draft (push pending) | Relay engine + BL-044 prep |
+| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Draft | Relay engine + BL-044 prep |
 
 ---
 
