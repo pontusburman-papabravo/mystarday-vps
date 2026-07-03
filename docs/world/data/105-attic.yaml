@@ -1,45 +1,396 @@
-# Vinden — RBS production contract (stub)
+# Vinden — RBS place contract
 # Human spec: docs/world/specs/105-attic.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 105
+catalog_number: 105
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: attic
   display_name_sv: Vinden
   pack_scene_id: attic
-  description: TBD
-  primary_emotion: Curiosity
-  secondary_emotion: TBD
+  description: >
+    Husets vind — snedt tak, damm i ljusstrålar, gamla kistor och hemligheter.
+    Platsen där fantasi och minnen bor högt upp under takåsen.
+  primary_emotion: Imagination
+  secondary_emotion: Curiosity
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: progression.routine_home.attic_unlock
 
-emotion: Curiosity
-hero_object: TBD
-landmark: skylight
+purpose:
+  summary: >
+    Vinden belönar utforskning och långsiktig nyfikenhet — hemligheter utan skräck,
+    skatter utan loot-box.
+  failure_impact: Känns som skräckvind eller tom lagringslåda — magin dör.
+  constitution_pillars: [imagination, curiosity]
 
-camera:
+emotional_contract:
+  primary_emotion: Imagination
+  secondary_emotion: Curiosity
+  stress_level: low
+  activity_level: calm
+  music_density: low
+  ambient_density: medium
+  light_temperature: golden
+  constitution_pillar: imagination
+  calmness_target: 75
+  first_five_seconds: >
+    Ljusstråle genom takfönster. Damm som glittrar. Ingen modal —
+    barnet ser genast att något gömt finns här.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: roof_window_light_beam
+    - at_ms: 2000
+      beat: dust_motes_drift
+    - at_ms: 4000
+      beat: trunk_chest_tease
+
+room_story:
+  identity: Familjevind med arv — farmors kista, gamla leksaker, teckningar i låda.
+  lived_in: true
+  patina_level: moderate
+  inhabitants: [child_protagonist, family_history_implied]
+  open_questions:
+    - what_is_in_the_locked_trunk
+    - who_carved_the_beam_mark
+    - why_does_the_roof_window_glow_at_sunset
+
+hero_object:
+  id: treasure_trunk
+  description: >
+    Gammal träkista med mässingslås — inte skrämmande, inbjudande.
+    Halvt öppen eller med synligt hörn av filt/teckning.
+  story_purpose: "Här finns saker som betyder något." — minne och fantasi.
+  interaction_level: inspect_primary
+
+landmark:
+  id: roof_window
+  description: Takfönster med ljusstråle — landmärke synligt uppifrån i World Bible ekologi.
+
+theme_hero_variants:
+  house: { hero_id: treasure_trunk, landmark_id: roof_window }
+  castle: { hero_id: armory_chest, landmark_id: tower_roof_window }
+  treehouse: { hero_id: rope_chest, landmark_id: canopy_skylight }
+  space: { hero_id: storage_pod, landmark_id: dome_skylight }
+  pirate: { hero_id: sea_chest, landmark_id: hatch_skylight }
+  wizard: { hero_id: spell_chest, landmark_id: star_roof_window }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: dust_light_beam
+      description: Ljusstråle med damm — magiskt men tryggt
+    - id: old_toy_wheel
+      description: Träleksak med sliten färg
+    - id: folded_quilt
+      description: Vikt filt med mormorsmönster
+    - id: beam_carving_initials
+      description: Initialer i balk — familjehistoria
+    - id: spider_web_corner_safe
+      description: Spindelnät i hörn — natur, inte skräck
+    - id: hat_box_stack
+      description: Hattlådor staplade
+    - id: child_drawing_box
+      description: Låda med gamla teckningar
+    - id: roof_rain_sound
+      description: Regn på tak — mysigt inuti
+    - id: rope_pull_ladder
+      description: Repstege till vindstrappa
+    - id: snow_roof_muffle
+      description: Tystnad när snö ligger på tak
+    - id: key_on_hook
+      description: Nyckel på krok — öppen fråga
+    - id: star_through_roof_glass
+      description: Stjärna synlig genom takfönster nattetid
+
+pet_behaviour:
+  simulation_driven: true
+  states:
+    - id: explore_sniff_boxes
+      location: near_treasure_trunk
+      trigger: first_attic_visit
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      home_anchor: near_treasure_trunk
+      interact_verbs: [pet]
+
+ambient_life:
+  always_active: [dust_motes_beam, roof_creak_soft]
+  sometimes: [distant_bird_roof, wind_attic_gentle]
+
+ambient_runtime:
+  director_scene_key: attic
+  calmness_target: 75
+  max_visual_density: 0.55
+  ambient_ids: [dust_motes_beam, roof_creak_soft, wind_attic_gentle]
+
+build_progression:
+  day_1:
+    description: Låst/teased — silhuett eller repstege synlig från hall
+    visible_elements: [rope_pull_ladder]
+  weeks_later:
+    description: Full vind med kista, takfönster, utforskar-slots
+    visible_elements: [treasure_trunk, roof_window, attic_shelf]
+
+build_slots:
+  - id: attic_shelf
+    location: zone_sloped_wall
+    required_part: attic_shelf_board
+    theme_variant: shelf_{theme}
+    unlock: progression.routine_home.attic_shelf
+  - id: memory_box_display
+    location: zone_trunk_top
+    required_part: memory_box
+    theme_variant: memory_box_{theme}
+    unlock: progression.routine_home.attic_memory
+
+memory_points:
+  - id: first_attic_climb
+    progression_key: progression.routine_home.attic_unlock
+
+story_anchors:
+  past:
+    - id: family_trunk_history
+      entity: treasure_trunk
+  present:
+    - id: light_beam_today
+      entity: roof_window
+  future:
+    - id: secret_map_inside_trunk
+      progression_key: progression.routine_home.attic_secret_map
+
+navigation:
+  edges:
+    - nav_id: stairs_from_hall
+      direction: in
+      from_scene: home_hall
+      to_scene: attic
+      transition_profile: stairs_climb_soft
+      landmark_label_sv: Trappan upp
+      unlock: progression.routine_home.attic_unlock
+    - nav_id: stairs_to_hall
+      direction: out
+      from_scene: attic
+      to_scene: home_hall
+      transition_profile: stairs_descend_soft
+      landmark_label_sv: Ner till hallen
+  return_anchor: stairs_to_hall
+  comfort_zone: false
+
+navigation_targets: [hall]
+
+audio_contract:
+  profile_id: attic_day
+  night_variant_id: attic_night
+  master_gain_max: 0.55
+  diegetic_sources: [roof_creak_soft, wind_attic_gentle, dust_silence]
+  layers_ref: audio_bible/attic_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_roof_cozy
+      visual: droplets_on_roof_window
+    - weather: wind
+      audio: wind_attic_gentle
+    - weather: snow
+      visual: snow_on_roof_window
+      audio: muffled_silence
+
+qa:
+  acceptance_criteria:
+    - id: not_scary
+      text_sv: Vind känns spännande, aldrig skrämmande
+    - id: earned_unlock
+      text_sv: Öppning känns som belöning för utforskning, inte grind
+    - id: light_beam_readable
+      text_sv: Ljusstråle ger djup och riktning
+    - id: trunk_invites
+      text_sv: Kistan inbjuder utan låst paywall-dialog
+    - id: return_path_clear
+      text_sv: Trappa ner synlig i första bild
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: sloped_ceiling_2_5d_interior
+  entrance:
+    id: attic_stairs_top
+    from_scene: home_hall
+    landmark_label_sv: Vindstrappan
+    camera_on_enter: tilt_up_gentle
+  landmark:
+    id: roof_window
+    description: Takfönster med ljusstråle
+  walking_area:
+    id: attic_floor_boards
+    description: Trägolv mellan kistor — försiktig yta
+  interaction_zones:
+    - id: zone_trunk
+      accepts: [Inspect, Open]
+    - id: zone_roof_window
+      accepts: [Inspect]
+    - id: zone_shelf
+      accepts: [Place]
+  camera_anchor:
+    id: attic_fixed_2_5d
+    description: Låg vinkel uppåt; snedt tak; takfönster övre tredjedel
+
+camera_contract:
+  profile_id: attic_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: tilt_up_gentle
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['hall']
+lighting_contract:
+  profile_id: attic_golden_beam
+  primary_source: roof_window_sunbeam
+  secondary_source: ambient_dust_glow
+  time_variants:
+    - id: morning
+      color_temp: golden_beam
+    - id: evening
+      color_temp: amber_slanted
+    - id: night
+      color_temp: cool_moon_through_roof
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: trunk_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Kistan
+  - id: trunk_open
+    interaction_type: Open
+    progression_key: progression.routine_home.attic_memory
+    landmark_label_sv: Öppna kistan
+  - id: roof_window_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Takfönstret
+  - id: stairs_to_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Ner till hallen
 
-build_slots: []
+supporting_objects:
+  - id: old_toy_wheel
+    story_role: curiosity
+  - id: folded_quilt
+    story_role: belonging
+  - id: child_drawing_box
+    story_role: ownership
+
+ambient_objects:
+  - id: dust_motes_beam
+    budget_tier: subtle
+  - id: roof_creak_soft
+    budget_tier: rare
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: old_toy_inspect
+      type: inspect_discovery
+  rare:
+    - id: family_photo_in_trunk
+      progression_key: progression.routine_home.attic_memory
+  seasonal:
+    - id: snow_roof_glow
+      event_ref: evt_snow_morning
+  hidden:
+    - id: secret_map
+      progression_key: progression.routine_home.attic_secret_map
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [snow_roof_window, warmer_trunk_glow]
+    - season: summer
+      overlay_ids: [bright_beam, open_roof_window]
+
+theme_variants:
+  house: { skin_set: house_attic_default, landmark_label: Takfönster med ljusstråle }
+  castle: { skin_set: castle_tower_attic, landmark_label: Tornfönster }
+  treehouse: { skin_set: treehouse_loft, landmark_label: Canopy-skylight }
+  space: { skin_set: habitat_storage_loft, landmark_label: Dome-skylight }
+  pirate: { skin_set: ship_crow_nest_attic, landmark_label: Lucka mot stjärnor }
+  wizard: { skin_set: tower_star_attic, landmark_label: Stjärnfönster }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 6
+  max_particle_systems: 2
+  texture_memory_mb: 10
+
+prompt_manifest:
+  - id: attic_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0013
+    positive_prompt: >
+      Nordic attic interior under sloped wooden roof, 2.5D illustrated diorama.
+      Golden sunbeam through roof window illuminating floating dust motes.
+      Old wooden treasure trunk with brass clasp center, folded quilt, toy wheel,
+      hat boxes, rope ladder, wooden floorboards with patina.
+      Warm curious atmosphere, not scary horror attic. Child eye height looking slightly up,
+      handcrafted Scandinavian illustration, sloped ceiling, cozy mystery, golden light beam.
+      Portrait mobile composition, roof window upper third, trunk lower center.
+    negative_prompt: >
+      No horror, no scary shadows, no ghosts, no cobweb horror, no dark evil attic,
+      no text, no brand logos, no stock photo, no empty grey room
+  - id: treasure_trunk_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0013b
+    positive_prompt: >
+      Hero shot of old wooden treasure chest with brass lock, corner of quilt peeking out,
+      golden dust motes in light beam, Nordic warm illustrated style, inviting mystery.
+    negative_prompt: No horror, no scary, no text
+
+ecology:
+  cause_effect_chains:
+    - cause: explore_taps_threshold
+      effect: attic_unlock_nav_active
+    - cause: rain_weather
+      effect: cozy_roof_sound
+
+asset_manifest:
+  scene_bg: attic_bg
+  layers: [sloped_roof, roof_window_sky, floor_boards, trunk_hero, boxes_mid, foreground_stairs]
+  entities: [treasure_trunk, roof_window, old_toy_wheel, folded_quilt]
+  theme_resolver: attic_{theme}
+
+animation_manifest:
+  ambient: [dust_motes_beam, roof_creak_soft, wind_attic_gentle]
+  hero: [light_beam_shift_slow]
+  interaction: [trunk_open_lid, shelf_place_snap]
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  part_i_checklist_ref: specs/105-attic.md
+  implementation_notes: Låst tills progression.routine_home.attic_unlock. Repstege tease från hall.
 
 part_i_checklist_ref: specs/105-attic.md

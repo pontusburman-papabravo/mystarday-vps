@@ -1,45 +1,377 @@
-# Museet — RBS production contract (stub)
+# Museet / Minnesrummet — RBS place contract
 # Human spec: docs/world/specs/130-museum.md
-# Full template: docs/world/_TEMPLATE.room.yaml
+# Runtime: worlds.json memory_hall · garden_path gate
 
 status: draft
-production_number: 130
+catalog_number: 130
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: museum
-  display_name_sv: Museet
-  pack_scene_id: museum
-  description: TBD
-  primary_emotion: Pride
-  secondary_emotion: TBD
+  display_name_sv: Minnesrummet
+  pack_scene_id: memory_hall
+  description: >
+    Ett varmt rum fullt av minnen — ramar på vägg, mjukt ljus, tyst stolthet.
+    Platsen där verkliga framsteg blir synliga utan poängskärm.
+  primary_emotion: Belonging
+  secondary_emotion: Comfort
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: feature_flag:memory_hall_playable
 
-emotion: Pride
-hero_object: glass_dome
-landmark: glass_dome
+purpose:
+  summary: >
+    Minnesrummet är museum sent i bågen — minnen av det barnet varit stolt över,
+    aldrig skuld eller checklista med röda prickar.
+  failure_impact: Känns som trofé-skärm eller galleri med tomma ramar — tillhörighet dör.
+  constitution_pillars: [belonging, comfort]
 
-camera:
+emotional_contract:
+  primary_emotion: Belonging
+  secondary_emotion: Comfort
+  stress_level: lowest
+  activity_level: calm
+  music_density: low
+  ambient_density: low
+  light_temperature: warm
+  constitution_pillar: comfort
+  calmness_target: 88
+  first_five_seconds: >
+    Mjukt ljus faller in. Ramar på vägg — några tomma, några fyllda.
+    Ingen modal — tyst stolthet.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: warm_light_pool
+    - at_ms: 2000
+      beat: memory_wall_readable
+    - at_ms: 4000
+      beat: window_soft_glow
+
+room_story:
+  identity: Familjemuseum — morgonfoto, första medalj, teckning inramad. Frivilligt, aldrig påtvingat.
+  lived_in: true
+  patina_level: subtle
+  inhabitants: [child_protagonist, family_memories]
+  open_questions:
+    - which_frame_will_fill_next
+    - who_chose_these_memories
+    - what_story_does_the_window_light_tell
+
+hero_object:
+  id: memory_wall
+  description: >
+    Vägg med träramar i olika storlekar — illustrationer av verkliga ögonblick,
+    inte generiska troféer.
+  story_purpose: "Det här har jag gjort." — stolthet utan jämförelse.
+  interaction_level: inspect_primary
+
+landmark:
+  id: memory_hall_window
+  description: Stort fönster med mjukt ljus — landmärke i shipped worlds.json.
+
+theme_hero_variants:
+  house: { hero_id: memory_wall, landmark_id: memory_hall_window }
+  castle: { hero_id: tapestry_wall, landmark_id: stained_glass_window }
+  treehouse: { hero_id: photo_branch_wall, landmark_id: round_tree_window }
+  space: { hero_id: holo_memory_wall, landmark_id: viewport_earth }
+  pirate: { hero_id: map_and_frame_wall, landmark_id: porthole_gold_light }
+  wizard: { hero_id: floating_frame_wall, landmark_id: star_window }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: empty_frame_waiting
+      description: Tom ram — inbjudan, inte skuld
+    - id: morning_photo_frame
+      description: Morgonfoto efter bra vecka
+    - id: first_star_medal_illustration
+      description: Första morgon-medalj som bild
+    - id: soft_bench_center
+      description: Bänk att sitta och titta
+    - id: plant_on_sill
+      description: Planta i fönster — liv
+    - id: dust_mote_warm_beam
+      description: Dammpartiklar i ljusstråle
+    - id: child_drawing_framed
+      description: Inramad teckning
+    - id: wooden_floor_creak
+      description: Knarrande golv — respekt
+    - id: ribbon_on_frame_corner
+      description: Diskret rosett — firande utan skrik
+    - id: path_back_to_garden_tease
+      description: Dörr eller öppning tillbaka
+    - id: parent_note_ghost
+      description: Antydd lapp — kärlek utan textvägg
+    - id: seasonal_wreath_subtle
+      description: Säsongskrans vid fönster
+
+pet_behaviour:
+  simulation_driven: false
+  states: []
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: false
+  pets: []
+
+ambient_life:
+  always_active: [dust_mote_warm_beam, window_light_shift]
+  sometimes: [distant_bird_soft]
+
+ambient_runtime:
+  director_scene_key: memory_hall
+  calmness_target: 88
+  ambient_ids: [dust_mote_warm_beam, window_light_shift]
+
+build_progression:
+  day_1:
+    description: Ett fåtal ramar — mest tomma med varma ghost
+    visible_elements: [memory_wall, memory_hall_window]
+  weeks_later:
+    description: Ramar fylls via progression och parent opt-in export
+    visible_elements: [museum_frame_feature, morning_photo_frame]
+
+build_slots:
+  - id: museum_frame_feature
+    location: zone_memory_wall
+    required_part: memory_frame
+    theme_variant: frame_{theme}
+    unlock: progression.routine_home.museum
+    note: Kopplad till hall museum_frame_slot och Progression Bible Day 30
+
+memory_points:
+  - id: first_memory_placed
+    progression_key: progression.routine_home.museum
+
+story_anchors:
+  past:
+    - id: legacy_milestone
+      progression_key: progression.routine_home.museum
+  present:
+    - id: warm_window_today
+      entity: memory_hall_window
+  future:
+    - id: sibling_frame_shared
+      progression_key: progression.family.shared_memory
+
+navigation:
+  edges:
+    - nav_id: path_from_garden
+      direction: in
+      from_scene: memory_hall
+      to_scene: garden
+      transition_profile: path_fade_pan
+      landmark_label_sv: Trädgården
+    - nav_id: path_to_memory_hall
+      direction: in
+      from_scene: garden
+      to_scene: memory_hall
+      transition_profile: path_fade_pan
+      landmark_label_sv: Minnesrummet
+      unlock: feature_flag:memory_hall_playable
+  return_anchor: path_from_garden
+  comfort_zone: true
+
+navigation_targets: [garden]
+
+audio_contract:
+  profile_id: memory_hall_day
+  master_gain_max: 0.50
+  diegetic_sources: [floor_creak_soft, window_breeze]
+  layers_ref: audio_bible/memory_hall_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_window_soft
+      visual: droplets_memory_window
+    - weather: sunny
+      visual: bright_warm_beam
+
+qa:
+  acceptance_criteria:
+    - id: no_point_lecture
+      text_sv: Inga poäng eller jämförelser synliga
+    - id: empty_frames_kind
+      text_sv: Tomma ramar känns inbjudande
+    - id: parent_opt_in_respected
+      text_sv: Export-minnen kräver förälder — inget överraskande
+    - id: calm_visit
+      text_sv: Barnet kan stanna utan uppdrag
+    - id: garden_return_clear
+      text_sv: Väg tillbaka till trädgård tydlig
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: partial — memory_hall i worlds.json
+
+spatial_contract:
+  layout: narrow_2_5d_interior_gallery
+  entrance:
+    id: path_from_garden
+    from_scene: garden
+    landmark_label_sv: Stigen från trädgården
+  landmark:
+    id: memory_hall_window
+    description: Fönster med mjukt ljus
+  walking_area:
+    id: memory_hall_floor
+    description: Trägolv framför minnesvägg
+  interaction_zones:
+    - id: zone_memory_wall
+      accepts: [Inspect, Place]
+    - id: zone_window
+      accepts: [Inspect]
+    - id: zone_bench
+      accepts: [Inspect]
+  camera_anchor:
+    id: memory_hall_fixed_2_5d
+    description: Barn-ögonhöjd; vägg centrum; fönster sidoljus
+
+camera_contract:
+  profile_id: memory_hall_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['lake', 'forest']
+lighting_contract:
+  profile_id: memory_hall_warm_gallery
+  primary_source: memory_hall_window
+  secondary_source: frame_spot_warm
+  time_variants:
+    - id: morning
+      color_temp: warm_gold_beam
+    - id: evening
+      color_temp: amber_dim
+    - id: night
+      color_temp: soft_night_pool
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: memory_hall_wall
+    interaction_type: Inspect
+    landmark_label_sv: Minnesväggen
+    shipped_scenery_id: memory_hall_wall
+  - id: memory_hall_window
+    interaction_type: Inspect
+    landmark_label_sv: Fönstret
+    shipped_scenery_id: memory_hall_window
+  - id: museum_frame_place
+    interaction_type: Place
+    build_slot: museum_frame_feature
+    progression_key: progression.routine_home.museum
+  - id: path_garden
+    interaction_type: Navigate
+    target_scene: garden
+    landmark_label_sv: Trädgården
 
-build_slots: []
+supporting_objects:
+  - id: soft_bench_center
+    story_role: comfort
+  - id: morning_photo_frame
+    story_role: belonging
+
+ambient_objects:
+  - id: dust_mote_warm_beam
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: frame_inspect_story
+      type: inspect_discovery
+  rare:
+    - id: hidden_child_drawing
+      progression_key: progression.routine_home.museum
+  hidden:
+    - id: secret_ribbon_drawer
+      progression_key: progression.memory_hall.secret
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [wreath_window, warmer_beam]
+    - season: birthday
+      overlay_ids: [subtle_banner_frames]
+
+theme_variants:
+  house: { skin_set: house_memory_hall, landmark_label: Varmt fönster }
+  castle: { skin_set: castle_gallery, landmark_label: Glasmålning }
+  treehouse: { skin_set: treehouse_memory_nook, landmark_label: Runnt trädfönster }
+  space: { skin_set: habitat_memory_pod, landmark_label: Jord-glob viewport }
+  pirate: { skin_set: ship_memory_cabin, landmark_label: Gyllene porthole }
+  wizard: { skin_set: tower_memory_chamber, landmark_label: Stjärnfönster }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 6
+  texture_memory_mb: 10
+
+prompt_manifest:
+  - id: memory_hall_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0022
+    positive_prompt: >
+      Nordic memory hall interior gallery room, 2.5D illustrated diorama, warm soft lighting.
+      Wooden wall with picture frames of various sizes — some filled with warm family moment illustrations
+      (morning routine, child drawing, gentle medal), some empty with subtle warm glow invitation.
+      Large window with soft golden light beam and dust motes, wooden bench, plant on sill,
+      cozy museum feeling not trophy screen. Child eye height, handcrafted Scandinavian warmth,
+      quiet pride, belonging atmosphere. Portrait mobile composition, memory wall center,
+      window light from side upper third.
+    negative_prompt: >
+      No text in frames, no leaderboard, no red notification dots, no guilt empty frames,
+      no scary, no stock photo, no casino gold, no point numbers visible
+  - id: memory_wall_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0022b
+    positive_prompt: >
+      Hero shot of wooden picture frame wall, warm illustrations of child achievements,
+      empty frames with soft invitation glow, Nordic cozy gallery style.
+    negative_prompt: No text, no scores, no comparison UI
+
+ecology:
+  cause_effect_chains:
+    - cause: milestone_legacy
+      effect: new_frame_appears_whisper
+    - cause: garden_path_enter
+      effect: memory_hall_unlock_message
+
+asset_manifest:
+  scene_bg: memory_hall_bg
+  layers: [wall_frames, window_light, floor, bench_mid]
+  entities: [memory_wall, memory_hall_window, soft_bench_center]
+  theme_resolver: memory_hall_{theme}
+  shipped_note: worlds.json memory_hall ambient_scenery
+
+animation_manifest:
+  ambient: [dust_mote_warm_beam, window_light_shift]
+  interaction: [frame_place_whisper, frame_inspect_glow]
+
+meta:
+  world_id: memory_hall
+  wdb_world_slug: memory_hall
+  experience_pack: child_se
+  catalog_room_id: museum
+  part_i_checklist_ref: specs/130-museum.md
+  implementation_notes: >
+    pack_scene_id memory_hall (LWES) · catalog id museum (130).
+    Gate från garden_path när memory_hall_playable.
 
 part_i_checklist_ref: specs/130-museum.md

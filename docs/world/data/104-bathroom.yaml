@@ -1,45 +1,376 @@
-# Badrummet — RBS production contract (stub)
+# Badrummet — RBS place contract
 # Human spec: docs/world/specs/104-bathroom.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 104
+catalog_number: 104
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: bathroom
   display_name_sv: Badrummet
   pack_scene_id: home_bathroom
-  description: TBD
+  description: >
+    Hemmets badrum — kakel i mjuka toner, spegel, tvättställ och badkar.
+    Platsen där morgon- och kvällsrutiner känns trygga och begripliga.
   primary_emotion: Capability
-  secondary_emotion: TBD
+  secondary_emotion: Comfort
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: always
 
-emotion: Capability
-hero_object: mirror_corner
-landmark: TBD
+purpose:
+  summary: >
+    Badrummet stärker "jag klarar det själv" — tandborstning, handtvätt, kvällsritual —
+    utan skam eller överdriven lekfullhet.
+  failure_impact: Känns kliniskt, skrämmande eller som skämt — kapacitetsankare bryts.
+  constitution_pillars: [capability, comfort]
 
-camera:
+emotional_contract:
+  primary_emotion: Capability
+  secondary_emotion: Comfort
+  stress_level: lowest
+  activity_level: calm
+  music_density: none
+  ambient_density: low
+  light_temperature: neutral
+  constitution_pillar: capability
+  calmness_target: 82
+  first_five_seconds: >
+    Mjukt ljus, ren men varm känsla. Spegel och tvättställ synliga.
+    Ingen modal — barnet förstår vad rummet är till för.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: sink_mirror_readable
+    - at_ms: 2500
+      beat: soft_water_sound_optional
+    - at_ms: 4000
+      beat: toothbrush_mug_visible
+
+room_story:
+  identity: Familjebadrum med barnhörna — låg krok, färgglad mugg, handduk med eget mönster.
+  lived_in: true
+  patina_level: minimal
+  inhabitants: [child_protagonist]
+  open_questions:
+    - who_left_the_toothbrush_mug
+    - is_the_mirror_foggy_from_a_shower
+    - what_face_will_i_make_today
+
+hero_object:
+  id: bathroom_mirror
+  description: >
+    Spegel ovan tvättställ — barn-ögonhöjd via stegpall.
+    Mjuk belysning, inga skarpa reflektioner som skrämmer.
+  story_purpose: "Här ser jag mig själv och fixar till." — kapacitet utan facit.
+  interaction_level: inspect_primary
+
+landmark:
+  id: tile_wall_pattern
+  description: Mjukt kakel med diskret nordiskt mönster — igenkännbart landmärke.
+
+theme_hero_variants:
+  house: { hero_id: bathroom_mirror, landmark_id: tile_wall_pattern }
+  castle: { hero_id: ornate_mirror, landmark_id: stone_tile_wall }
+  treehouse: { hero_id: wooden_frame_mirror, landmark_id: bark_tile_wall }
+  space: { hero_id: clean_viewport_mirror, landmark_id: panel_tile_wall }
+  pirate: { hero_id: brass_mirror, landmark_id: ship_plank_tile }
+  wizard: { hero_id: star_frame_mirror, landmark_id: mosaic_tile_wall }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: toothbrush_mug_child
+      description: Barnmugg med tandborste
+    - id: step_stool_sink
+      description: Pall så barnet når spegeln
+    - id: fluffy_towel_hook
+      description: Handduk på krok — mjuk textur
+    - id: rubber_duck_tub
+      description: Badanka i badkar — lek utan skämt
+    - id: soap_bubble_dispenser
+      description: Tvålpump barn når
+    - id: foggy_mirror_corner
+      description: Lätt imma efter dusch — varmt
+    - id: nightlight_plug_soft
+      description: Diskret nattlampa — kvällstrygghet
+    - id: bath_mat_color
+      description: Färgglad badmatta
+    - id: hairbrush_tray
+      description: Borste i liten bricka
+    - id: window_frost_winter
+      description: Frost på litet fönster vinter
+    - id: growth_chart_pencil
+      description: Tillväxtlinje på dörrkarm utanför spegel-sikt
+    - id: clean_toothpaste_cap
+      description: Tandkräm med lock på — ordning
+
+pet_behaviour:
+  simulation_driven: false
+  states: []
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: false
+  pets: []
+
+ambient_life:
+  always_active: [soft_drip_occasional]
+  sometimes: [mirror_fog_wisp]
+
+ambient_runtime:
+  director_scene_key: home_bathroom
+  calmness_target: 82
+  max_visual_density: 0.45
+  ambient_ids: [soft_drip_occasional, mirror_fog_wisp]
+  rare_events:
+    - id: mirror_sparkle_brush
+      progression_gate: progression.routine_home.mirror
+
+build_progression:
+  day_1:
+    description: Grundbadrum — spegel, tvättställ, kakel
+    visible_elements: [bathroom_mirror, sink, tile_wall_pattern]
+  weeks_later:
+    description: mirror_corner expansion efter tandborstnings-streak
+    visible_elements: [mirror_corner_room, child_step_stool, toothbrush_mug_child]
+
+build_slots:
+  - id: mirror_corner_room
+    location: zone_mirror_corner
+    required_part: mirror_shelf
+    theme_variant: mirror_corner_{theme}
+    unlock: progression.routine_home.mirror
+  - id: bath_toy_shelf
+    location: zone_tub_edge
+    required_part: toy_shelf
+    theme_variant: toy_shelf_{theme}
+    unlock: progression.routine_home.bathroom_toys
+
+memory_points:
+  - id: mirror_corner_unlock
+    progression_key: progression.routine_home.mirror
+
+story_anchors:
+  past:
+    - id: first_brush_streak
+      progression_key: progression.routine_home.mirror
+  present:
+    - id: foggy_mirror_warm
+      entity: bathroom_mirror
+  future:
+    - id: evening_bath_ritual
+      progression_key: progression.routine_home.evening_bath
+
+navigation:
+  edges:
+    - nav_id: door_hall
+      direction: out
+      from_scene: home_bathroom
+      to_scene: home_hall
+      transition_profile: door_soft
+      landmark_label_sv: Hallen
+  return_anchor: door_hall
+  comfort_zone: true
+
+navigation_targets: [hall]
+
+audio_contract:
+  profile_id: home_bathroom_day
+  night_variant_id: home_bathroom_night
+  master_gain_max: 0.50
+  diegetic_sources: [soft_drip, towel_rustle]
+  layers_ref: audio_bible/home_bathroom_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_small_window
+    - weather: cold
+      visual: mirror_fog_heavier
+
+qa:
+  acceptance_criteria:
+    - id: capability_without_shame
+      text_sv: Tandborstning känns stolt, inte skammande
+    - id: child_reaches_mirror
+      text_sv: Pall gör spegeln tillgänglig
+    - id: clean_not_clinical
+      text_sv: Rent men varmt — inte sjukhus
+    - id: no_scary_reflection
+      text_sv: Spegel trygg för barn
+    - id: privacy_respected
+      text_sv: Inga överraskande karaktärer i spegel
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: narrow_2_5d_interior
+  entrance:
+    id: door_from_hall
+    from_scene: home_hall
+    landmark_label_sv: Dörren till hallen
+  landmark:
+    id: tile_wall_pattern
+    description: Kakelvägg med mjukt mönster
+  walking_area:
+    id: bathroom_floor_mat
+    description: Badmatta mellan sink och badkar
+  interaction_zones:
+    - id: zone_mirror_sink
+      accepts: [Inspect, Activate]
+    - id: zone_tub
+      accepts: [Inspect]
+    - id: zone_mirror_corner
+      accepts: [Place]
+  camera_anchor:
+    id: bathroom_fixed_2_5d
+    description: Barn-ögonhöjd med pall; spegel i övre mitt
+
+camera_contract:
+  profile_id: bathroom_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['hall']
+lighting_contract:
+  profile_id: bathroom_neutral_warm
+  primary_source: ceiling_soft_diffuse
+  secondary_source: mirror_ring_light_soft
+  time_variants:
+    - id: morning
+      color_temp: neutral_bright
+    - id: evening
+      color_temp: warm_dim
+    - id: night
+      color_temp: nightlight_soft
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: mirror_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Spegeln
+    progression_key: progression.routine_home.mirror
+  - id: sink_activate
+    interaction_type: Activate
+    landmark_label_sv: Tvättställ
+  - id: door_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Hallen
+  - id: mirror_corner_build
+    interaction_type: Place
+    build_slot: mirror_corner_room
+    progression_key: progression.routine_home.mirror
 
-build_slots: []
+supporting_objects:
+  - id: child_sink_stool
+    story_role: capability
+  - id: toothbrush_mug_child
+    story_role: capability
+  - id: bathtub_with_duck
+    story_role: comfort
+
+ambient_objects:
+  - id: soft_drip_occasional
+    budget_tier: rare
+  - id: mirror_fog_wisp
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: rubber_duck_inspect
+      type: inspect_discovery
+  rare:
+    - id: mirror_sparkle
+      progression_key: progression.routine_home.mirror
+  hidden:
+    - id: secret_soap_bubble
+      progression_key: progression.routine_home.bathroom_secret
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [frost_window, warmer_light]
+    - season: summer
+      overlay_ids: [bright_window, fresh_towel]
+
+theme_variants:
+  house: { skin_set: house_bathroom_default, landmark_label: Mjukt kakel }
+  castle: { skin_set: castle_bathroom_stone, landmark_label: Stenkakel }
+  treehouse: { skin_set: treehouse_wash_nook, landmark_label: Trä och kakel }
+  space: { skin_set: habitat_sanitation, landmark_label: Ren panelvägg }
+  pirate: { skin_set: ship_head, landmark_label: Träplank och mässing }
+  wizard: { skin_set: tower_wash_chamber, landmark_label: Mosaik med stjärnor }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 6
+  texture_memory_mb: 8
+  first_paint_ms_target: 200
+
+prompt_manifest:
+  - id: bathroom_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0012
+    positive_prompt: >
+      Nordic family bathroom interior, 2.5D illustrated diorama, soft neutral-warm lighting.
+      Child-height sink with step stool, round mirror above with soft ring light glow,
+      subtle patterned tile wall in muted Scandinavian colors (sage, cream, soft blue).
+      Bathtub with rubber duck, fluffy towel on hook, toothbrush mug, soap dispenser.
+      Clean but cozy, not clinical hospital. Child eye height camera, handcrafted illustration,
+      portrait mobile composition, mirror centered upper third, warm inviting atmosphere.
+    negative_prompt: >
+      No text, no brand logos, no scary mirror, no horror, no clinical sterile white,
+      no stock photo, no grime, no adult spa luxury
+  - id: bathroom_mirror_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0012b
+    positive_prompt: >
+      Hero shot of child bathroom mirror above sink, soft warm light, step stool visible,
+      toothbrush mug, Nordic illustrated cozy style, capability and comfort.
+    negative_prompt: No scary reflection, no text, no brand logos
+
+ecology:
+  cause_effect_chains:
+    - cause: brush_teeth_streak_3
+      effect: mirror_corner_unlock
+    - cause: evening_time
+      effect: nightlight_soft_on
+
+asset_manifest:
+  scene_bg: bathroom_bg
+  layers: [tile_wall, tub, sink_mirror, floor_mat, foreground_door]
+  entities: [bathroom_mirror, sink, bathtub_with_duck, child_sink_stool]
+  theme_resolver: bathroom_{theme}
+
+animation_manifest:
+  ambient: [soft_drip_occasional, mirror_fog_wisp]
+  interaction: [sink_water_soft, mirror_sparkle_brush]
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  part_i_checklist_ref: specs/104-bathroom.md
+  implementation_notes: mirror_corner kopplad till Progression Bible Day 7.
 
 part_i_checklist_ref: specs/104-bathroom.md

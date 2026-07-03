@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** **ACTIVE** — canonical place specs for Min värld  
-**Updated:** 2026-07-02
+**Updated:** 2026-07-03
 
 ---
 
@@ -32,6 +32,8 @@ Every room has **two files** with distinct jobs:
 YAML is **canonical for contracts**. Markdown explains intent and may grow to 25–40 pages per room over time. Agents read YAML first; Markdown when judgment is needed.
 
 Templates: [`_TEMPLATE.room.yaml`](./_TEMPLATE.room.yaml) · [`_TEMPLATE.room.md`](./_TEMPLATE.room.md)
+
+**ChatGPT-bildgenerering:** [`CHATGPT_PROMPTS.md`](./CHATGPT_PROMPTS.md) — kopiera prompts per rum.
 
 ---
 

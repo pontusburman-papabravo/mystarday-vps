@@ -1,45 +1,475 @@
-# Trädgården — RBS production contract (stub)
+# Trädgården — RBS place contract
 # Human spec: docs/world/specs/110-garden.md
-# Full template: docs/world/_TEMPLATE.room.yaml
+# Shipped: child-garden.js · worlds.json garden
 
 status: draft
-production_number: 110
+catalog_number: 110
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: garden
   display_name_sv: Trädgården
   pack_scene_id: garden
-  description: TBD
+  description: >
+    Hemmets trädgård — grön gräsmatta, blomsterbädd, stig och himmel.
+    Platsen där barnet kliver ut och känner frisk luft och nyfikenhet.
   primary_emotion: Curiosity
-  secondary_emotion: TBD
+  secondary_emotion: Wonder
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: feature_flag:garden_playable
 
-emotion: Curiosity
-hero_object: ancient_tree
-landmark: ancient_tree
+purpose:
+  summary: >
+    Trädgården öppnar världen utanför huset — nyfikenhet och natur,
+    inte minispel eller grind.
+  failure_impact: Känns som tom grön bakgrund eller casino — utomhusmagin försvinner.
+  constitution_pillars: [curiosity, imagination]
 
-camera:
+emotional_contract:
+  primary_emotion: Curiosity
+  secondary_emotion: Wonder
+  stress_level: low
+  activity_level: moderate
+  music_density: low
+  ambient_density: medium
+  light_temperature: golden
+  constitution_pillar: curiosity
+  calmness_target: 80
+  first_five_seconds: >
+    Gräs som rör sig. Husets silhuett i bakgrund. Stig leder vidare.
+    Ingen modal — barnet ser tre tydliga ytor: stig, bädd, himmel.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: scene_bg_readable
+      note: Illustrerad bakgrund laddad — scene-bg.webp
+    - at_ms: 1500
+      beat: grass_sway
+    - at_ms: 3500
+      beat: hotspots_visible
+      note: garden_path, garden_bed, garden_sky
+
+room_story:
+  identity: Nordisk familjeträdgård — lagom vild, inte perfekt klippt. Fåglar, moln, blommor barnet kan röra.
+  lived_in: true
+  patina_level: subtle
+  inhabitants: [child_protagonist, nature_implied]
+  open_questions:
+    - where_does_the_path_lead
+    - who_planted_the_flowers
+    - what_bird_will_visit_today
+
+hero_object:
+  id: garden_path
+  description: >
+    Grus- eller grässtig som slingrar genom trädgården —
+    leder till minnesrum, skog och verkstad (progression-gated).
+  story_purpose: "Stigen svarar när jag är redo." — utforskning utan quest-logg.
+  interaction_level: navigate_primary
+
+landmark:
+  id: old_oak_tree
+  description: Gammal ek i bakgrund — silhuett mot himmel, ankare i grannskapet.
+
+theme_hero_variants:
+  house: { hero_id: garden_path, landmark_id: old_oak_tree }
+  castle: { hero_id: castle_garden_path, landmark_id: castle_hedge_oak }
+  treehouse: { hero_id: rope_bridge_path, landmark_id: giant_tree_trunk }
+  space: { hero_id: dome_path, landmark_id: bio_dome_tree }
+  pirate: { hero_id: dock_path, landmark_id: mast_silhouette_tree }
+  wizard: { hero_id: stone_path, landmark_id: glowing_tree }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: butterfly_on_bed
+      description: Fjäril på blomsterbädd — sällsynt ambient
+    - id: bird_bath_corner
+      description: Fågelbad med vattenringar
+    - id: garden_gnome_subtle
+      description: Diskret trädgårdsfigur — humor utan skämt
+    - id: watering_can_leaning
+      description: Vattenkanna mot staket
+    - id: boot_prints_mud
+      description: Små fotspår i fuktig jord
+    - id: snail_on_stone
+      description: Snigel på sten — långsam vän
+    - id: dandelion_puff
+      description: Maskros som kan blåsas (visuell, ej grind)
+    - id: house_silhouette_back
+      description: Hus bakom trädgård — hem ankare
+    - id: workshop_smoke_tease
+      description: Tunn rök bortom häck — verkstad tease
+    - id: cloud_shape_dragon
+      description: Moln som liknar något — fantasi
+    - id: firefly_dusk_rare
+      description: Eldsvärmor skymning — rare event
+    - id: pet_house_gate_tease
+      description: Grind mot husdjursstuga i hörn
+
+pet_behaviour:
+  simulation_driven: true
+  states:
+    - id: dig_near_bed
+      location: garden_bed
+      trigger: random_calm
+    - id: run_path
+      location: garden_path
+      trigger: child_enter
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      home_anchor: garden_path
+      interact_verbs: [pet, call]
+
+ambient_life:
+  always_active: [grass_sway, cloud_drift_slow]
+  sometimes: [bird_chirp_sparse, butterfly_pass]
+
+ambient_runtime:
+  director_scene_key: garden
+  calmness_target: 80
+  max_visual_density: 0.60
+  ambient_ids: [grass_sway, cloud_drift_slow, bird_chirp_sparse]
+  rare_events:
+    - id: butterfly_landing
+      cooldown_days: 3
+    - id: firefly_dusk
+      cooldown_days: 7
+
+build_progression:
+  day_1:
+    description: Grundträdgård — stig, bädd, himmel hotspots
+    visible_elements: [garden_path, garden_bed, garden_sky]
+  weeks_later:
+    description: Blommor växer i living slot, staket, fågelmatare
+    visible_elements: [garden_bed_bloom, bird_feeder_slot]
+
+build_slots:
+  - id: garden_bed_living
+    location: zone_garden_bed
+    required_part: flower_bed
+    theme_variant: bed_{theme}
+    unlock: progression.garden.bed_bloom
+    note: Kopplad till living-objects.json bed_1
+  - id: bird_feeder
+    location: zone_oak_tree_base
+    required_part: bird_feeder
+    theme_variant: feeder_{theme}
+    unlock: progression.garden.bird_feeder
+
+memory_points:
+  - id: first_garden_enter
+    progression_key: progression.garden.first_visit
+
+story_anchors:
+  past:
+    - id: door_from_hall_first
+      description: Första steget ut genom hallens dörr
+  present:
+    - id: living_bed_state
+      entity: garden_bed
+  future:
+    - id: path_to_forest
+      progression_key: progression.forest.unlock
+
+navigation:
+  edges:
+    - nav_id: door_from_hall
+      direction: in
+      from_scene: garden
+      to_scene: home_hall
+      transition_profile: door_fade_pan
+      landmark_label_sv: Tillbaka in
+    - nav_id: path_memory_hall
+      direction: out
+      from_scene: garden
+      to_scene: memory_hall
+      transition_profile: path_fade_pan
+      landmark_label_sv: Minnesrummet
+      unlock: feature_flag:memory_hall_playable
+      note: Shipped gate på garden_path i worlds.json
+    - nav_id: path_workshop
+      direction: out
+      from_scene: garden
+      to_scene: workshop
+      transition_profile: path_gate_open
+      landmark_label_sv: Verkstaden
+      unlock: progression.workshop.unlock
+    - nav_id: path_forest
+      direction: out
+      from_scene: garden
+      to_scene: forest
+      transition_profile: path_deep_green
+      landmark_label_sv: Skogen
+      unlock: progression.forest.unlock
+    - nav_id: gate_pet_house
+      direction: out
+      from_scene: garden
+      to_scene: pet_house
+      transition_profile: path_gate_small
+      landmark_label_sv: Husdjursstugan
+      unlock: progression.pet_home.unlock
+  return_anchor: door_from_hall
+  comfort_zone: true
+
+navigation_targets: [hall, memory_hall, workshop, forest, pet_house]
+
+audio_contract:
+  profile_id: garden_day
+  night_variant_id: garden_night
+  master_gain_max: 0.60
+  diegetic_sources: [birds_chirp_sparse, grass_wind_light, distant_breeze]
+  layers_ref: audio_bible/garden_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_leaves
+      visual: wet_grass_sheen
+    - weather: wind
+      audio: grass_wind_light
+      visual: grass_sway_amplitude_up
+    - weather: snow
+      visual: light_snow_garden
+    - weather: clear
+      visual: bright_sky_blue
+
+qa:
+  acceptance_criteria:
+    - id: three_hotspots_clear
+      text_sv: Stig, bädd och himmel tydliga utan text
+    - id: no_empty_green_void
+      text_sv: Trädgård känns beboddd, inte tom bakgrund
+    - id: house_visible
+      text_sv: Hus-silhuett eller hall-retur synlig
+    - id: shipped_asset_works
+      text_sv: scene-bg.webp läsbar på 430px
+    - id: path_gate_honest
+      text_sv: Låsta stigar visar vänligt "inte än", inte FOMO
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: partial — child-garden.js shipped
+
+spatial_contract:
+  layout: wide_2_5d_exterior
+  entrance:
+    id: door_from_house
+    from_scene: home_hall
+    landmark_label_sv: Dörren till huset
+    camera_on_enter: gentle_pan_garden
+  landmark:
+    id: old_oak_tree
+    description: Ek i bakgrund
+  walking_area:
+    id: garden_lawn
+    description: Gräsmatta mellan stig och bädd
+  interaction_zones:
+    - id: zone_garden_path
+      accepts: [Navigate, Inspect]
+    - id: zone_garden_bed
+      accepts: [Inspect, Place, Activate]
+    - id: zone_garden_sky
+      accepts: [Inspect]
+  ambient_zones:
+    - id: zone_sky_clouds
+      description: Moln och fåglar
+    - id: zone_grass_wind
+      description: Gräs i bris
+  camera_anchor:
+    id: garden_fixed_2_5d
+    description: Barn-ögonhöjd; stig i förgrund; ek bakgrund
+
+camera_contract:
+  profile_id: garden_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_pan_garden
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['home', 'forest', 'workshop']
+lighting_contract:
+  profile_id: garden_day_golden
+  primary_source: sun_morning_golden
+  secondary_source: sky_ambient_blue
+  time_variants:
+    - id: morning
+      color_temp: warm_gold
+    - id: evening
+      color_temp: amber_long_shadows
+    - id: night
+      color_temp: cool_moon_garden
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: garden_path
+    interaction_type: Navigate
+    target_scene: memory_hall
+    landmark_label_sv: Stigen
+    note: Gate memory_hall_playable; ambient_message i worlds.json
+    shipped: true
+  - id: garden_bed
+    interaction_type: Inspect
+    landmark_label_sv: Blomsterbädden
+    living_slot_id: bed_1
+    shipped: true
+  - id: garden_sky
+    interaction_type: Inspect
+    landmark_label_sv: Himlen
+    shipped: true
+  - id: door_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: In till huset
 
-build_slots: []
+supporting_objects:
+  - id: old_oak_tree
+    story_role: landmark
+  - id: bird_bath_corner
+    story_role: curiosity
+  - id: watering_can
+    story_role: capability
+  - id: house_silhouette_back
+    story_role: comfort
+
+ambient_objects:
+  - id: grass_sway
+    budget_tier: subtle
+  - id: cloud_drift_slow
+    budget_tier: subtle
+  - id: butterfly_pass
+    budget_tier: rare
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: snail_on_stone
+      type: inspect_discovery
+  rare:
+    - id: butterfly_landing
+      type: ambient_discovery
+  seasonal:
+    - id: snow_garden_light
+      event_ref: evt_snow_morning
+    - id: firefly_dusk
+      event_ref: evt_firefly_evening
+  hidden:
+    - id: dandelion_secret
+      progression_key: progression.garden.hidden_seed
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [light_snow_lawn, frost_bed]
+    - season: summer
+      overlay_ids: [bright_flowers, open_sky]
+    - season: birthday
+      overlay_ids: [garden_banner_subtle]
+
+theme_variants:
+  house: { skin_set: house_garden_default, landmark_label: Gamla eken }
+  castle: { skin_set: castle_hedge_garden, landmark_label: Häck och tornutsikt }
+  treehouse: { skin_set: canopy_garden, landmark_label: Jätteträdets stam }
+  space: { skin_set: biodome_garden, landmark_label: Bio-träd i kupol }
+  pirate: { skin_set: island_garden, landmark_label: Mast och palmer }
+  wizard: { skin_set: enchanted_garden, landmark_label: Lysande träd }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 7
+  texture_memory_mb: 12
+  first_paint_ms_target: 200
+  shipped_assets:
+    - /images/child/world/garden/scene-bg.webp
+    - scene-bg-430.webp
+    - scene-bg-860.webp
+    - scene-bg-1280.webp
+
+prompt_manifest:
+  - id: garden_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0020
+    positive_prompt: >
+      Nordic family garden exterior, 2.5D illustrated diorama, warm golden morning light.
+      Green grass lawn in foreground with gentle path winding through garden,
+      flower bed with soft colorful blooms (not neon), old oak tree silhouette in background,
+      house roof edge visible behind hedge, blue sky with soft white clouds.
+      Child eye height camera, Scandinavian lagom garden, handcrafted illustration,
+      birds optional in sky, watering can by fence, inviting exploration.
+      Portrait mobile composition, path in lower third leading into depth,
+      flower bed right, sky upper portion with clouds.
+    negative_prompt: >
+      No text, no brand logos, no perfect golf course lawn, no scary forest edge,
+      no stock photo, no empty flat green, no casino colors, no harsh shadows
+  - id: garden_path_hotspot
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0020b
+    positive_prompt: >
+      Garden path detail, gravel and grass mix, winding into distance, Nordic illustrated style,
+      warm morning light, inviting trail through green garden.
+    negative_prompt: No text, no signs with words
+  - id: garden_bed_hotspot
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0020c
+    positive_prompt: >
+      Flower bed close view, soft soil, small blooms, child-scale garden patch,
+      Nordic warm illustration, tactile and inviting.
+    negative_prompt: No text, no brand logos
+
+ecology:
+  cause_effect_chains:
+    - cause: bed_care_activities
+      effect: garden_bed_bloom_stage
+    - cause: workshop_unlock
+      effect: smoke_tease_beyond_hedge
+    - cause: rain_weather
+      effect: wet_grass + bird_bath_rings
+
+asset_manifest:
+  scene_bg: garden_scene_bg
+  shipped_path: public/images/child/world/garden/scene-bg.webp
+  layers:
+    - sky_clouds
+    - oak_tree_back
+    - house_silhouette
+    - lawn_mid
+    - flower_bed
+    - path_foreground
+  entities: [garden_path, garden_bed, garden_sky, old_oak_tree]
+  theme_resolver: garden_{theme}
+  shipped_note: Monolit scene-bg idag; layer split mål i scenes.json
+
+animation_manifest:
+  ambient: [grass_sway, cloud_drift_slow, butterfly_pass]
+  interaction: [path_tap_sway, bed_bloom_tap, sky_cloud_tap]
+  shipped_css: [is-path-tap, is-bloom-tap, is-sky-tap]
+
+meta:
+  world_id: garden
+  wdb_world_slug: garden
+  experience_pack: child_se
+  part_i_checklist_ref: specs/110-garden.md
+  implementation_notes: >
+    SHIPPED presentation: child-garden.js + worlds.json ambient_scenery.
+    Hotspots garden_path, garden_bed, garden_sky. memory_hall gate på path.
 
 part_i_checklist_ref: specs/110-garden.md

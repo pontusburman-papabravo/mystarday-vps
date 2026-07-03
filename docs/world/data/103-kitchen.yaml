@@ -1,45 +1,432 @@
-# Köket — RBS production contract (stub)
+# Köket — RBS place contract
 # Human spec: docs/world/specs/103-kitchen.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 103
+catalog_number: 103
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: kitchen
   display_name_sv: Köket
   pack_scene_id: home_kitchen
-  description: TBD
+  description: >
+    Hemmets kök — varm morgonluft, frukostbord vid fönster, spis och diskho.
+    Platsen där morgonmat och helgmys samlas utan stress.
   primary_emotion: Comfort
-  secondary_emotion: TBD
+  secondary_emotion: Capability
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: always
 
-emotion: Comfort
-hero_object: breakfast_table
-landmark: kettle_steam
+purpose:
+  summary: >
+    Köket firar morgon- och hjälp-rutiner — "jag kan bidra" utan mat-skuld.
+    Värme och kompetens, inte prestationskök.
+  failure_impact: Känns som restaurang eller steril showroom — morgonankare försvinner.
+  constitution_pillars: [comfort, capability]
 
-camera:
+emotional_contract:
+  primary_emotion: Comfort
+  secondary_emotion: Capability
+  stress_level: low
+  activity_level: moderate
+  music_density: low
+  ambient_density: medium
+  light_temperature: warm
+  constitution_pillar: comfort
+  calmness_target: 78
+  first_five_seconds: >
+    Varmt ljus genom fönster mot trädgård. Frukostbord dukat eller inbjudande tomt.
+    Ingen modal — bara doften av morgon (visuellt: ånga, honungsljus).
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: room_readable
+    - at_ms: 2000
+      beat: kettle_steam_optional
+    - at_ms: 4000
+      beat: garden_view_through_window
+
+room_story:
+  identity: Levande familjekök — kaffekopp, frukostskål, handduk på krok. Lagom rörigt, aldrig smutsigt.
+  lived_in: true
+  patina_level: subtle
+  inhabitants: [child_protagonist, family_implied]
+  open_questions:
+    - who_set_the_table
+    - what_smells_from_the_oven
+    - is_there_pancake_batter_waiting
+
+hero_object:
+  id: breakfast_table
+  description: >
+    Runtt eller rektangulärt frukostbord vid fönster — två till fyra stolar,
+    mjukt morgonljus, plats för frukost och samtal.
+  story_purpose: "Här äter vi tillsammans." — morgonankare utan quest-logg.
+  interaction_level: inspect_primary
+
+landmark:
+  id: window_garden_view
+  description: Stort fönster med utsikt mot trädgård — grönt ljus in i köket.
+
+theme_hero_variants:
+  house:
+    hero_id: breakfast_table
+    landmark_id: window_garden_view
+  castle:
+    hero_id: long_feast_table
+    landmark_id: arched_garden_window
+  treehouse:
+    hero_id: round_tree_table
+    landmark_id: leaf_frame_window
+  space:
+    hero_id: galley_table
+    landmark_id: viewport_garden_dome
+  pirate:
+    hero_id: galley_bench_table
+    landmark_id: porthole_garden
+  wizard:
+    hero_id: round_brew_table
+    landmark_id: herb_window_glow
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: steam_from_kettle
+      description: Tekanna med lätt ånga
+    - id: fruit_bowl_morning
+      description: Skål med frukt — färg och värme
+    - id: dish_towel_hook
+      description: Handduk på krok — någon har diskat
+    - id: child_step_stool
+      description: Liten pall vid diskho — "jag når"
+    - id: magnet_fridge_drawing
+      description: Barnritning på kylskåp med magnet
+    - id: honey_jar_sunbeam
+      description: Honungsburk i ljusstråle
+    - id: cereal_box_tilt
+      description: Frukostflingor lätt öppna
+    - id: window_herb_pot
+      description: Örtkruka på fönsterbräda
+    - id: clock_wall_gentle
+      description: Väggklocka — tid utan stress
+    - id: wooden_spoon_rest
+      description: Träslev i burk
+    - id: pancake_mix_hint
+      description: Visp och skål — fredagsmys tease
+    - id: warm_oven_glow
+      description: Diskret ugnsglöd bakom lucka
+
+pet_behaviour:
+  simulation_driven: true
+  states:
+    - id: nap_under_table
+      location: under_breakfast_table
+      trigger: morning_calm
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      species: dog
+      home_anchor: under_breakfast_table
+      interact_verbs: [pet]
+
+ambient_life:
+  always_active: [kettle_steam_subtle, window_light_dust]
+  sometimes: [bird_outside_window, fridge_hum_soft]
+
+ambient_runtime:
+  director_scene_key: home_kitchen
+  calmness_target: 78
+  max_visual_density: 0.60
+  opening_grace_ms: 10000
+  silence_min_after_hero_ms: 15000
+  ambient_ids: [kettle_steam_subtle, window_light_dust, curtain_kitchen_sway]
+  rare_events:
+    - id: pancake_steam_puff
+      progression_gate: progression.routine_home.breakfast_nook
+
+build_progression:
+  day_1:
+    description: Grundkök — bord, fönster, spis
+    visible_elements: [breakfast_table, window_garden_view, stove]
+  weeks_later:
+    description: Breakfast nook expansion, örter, barnpall
+    visible_elements: [breakfast_nook_room, herb_pot, step_stool]
+
+build_slots:
+  - id: breakfast_nook
+    location: zone_window_nook
+    required_part: breakfast_nook_bench
+    theme_variant: nook_{theme}
+    unlock: progression.routine_home.breakfast_nook
+  - id: kitchen_herb_pot
+    location: zone_window_sill
+    required_part: herb_pot
+    theme_variant: herb_{theme}
+    unlock: progression.routine_home.kitchen_herb
+  - id: fridge_magnet_frame
+    location: zone_fridge_door
+    required_part: magnet_frame
+    theme_variant: magnet_{theme}
+    unlock: progression.routine_home.kitchen_magnet
+
+memory_points:
+  - id: first_breakfast_week
+    progression_key: progression.routine_home.breakfast_nook
+
+story_anchors:
+  past:
+    - id: first_morning_meal
+      progression_key: progression.routine_home.breakfast_nook
+  present:
+    - id: garden_green_light
+      entity: window_garden_view
+  future:
+    - id: secret_pancake_tray
+      progression_key: progression.routine_home.secret_tray
+
+navigation:
+  edges:
+    - nav_id: door_hall
+      direction: out
+      from_scene: home_kitchen
+      to_scene: home_hall
+      transition_profile: door_soft
+      landmark_label_sv: Hallen
+  return_anchor: door_hall
+  comfort_zone: true
+
+navigation_targets: [hall]
+
+audio_contract:
+  profile_id: home_kitchen_day
+  night_variant_id: home_kitchen_night
+  master_gain_max: 0.60
+  duck_on_interact: true
+  diegetic_sources: [kettle_bubble_soft, fridge_hum, bird_outside_window]
+  layers_ref: audio_bible/home_kitchen_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_window
+      visual: droplets_on_garden_window
+    - weather: snow
+      visual: frost_window_corner
+    - weather: sunny
+      visual: bright_garden_wash
+
+qa:
+  acceptance_criteria:
+    - id: no_food_shame
+      text_sv: Inga diet- eller skuldmeddelanden kring mat
+    - id: garden_visible
+      text_sv: Trädgård läsbar genom fönster
+    - id: child_reaches_sink
+      text_sv: Pall eller låg diskho antyder barn-deltagande
+    - id: calm_morning
+      text_sv: Känns varmt vid 07:15 — inte stressigt
+    - id: capability_without_quest
+      text_sv: Hjälp-känsla utan uppdrags-UI
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: wide_2_5d_interior
+  entrance:
+    id: door_from_hall
+    from_scene: home_hall
+    landmark_label_sv: Dörren till hallen
+    camera_on_enter: gentle_push_in
+  landmark:
+    id: window_garden_view
+    description: Fönster med trädgårdsutsikt
+  walking_area:
+    id: kitchen_floor
+    description: Öppen golvyta mellan spis och bord
+  interaction_zones:
+    - id: zone_breakfast_table
+      accepts: [Inspect, Place]
+    - id: zone_window
+      accepts: [Inspect]
+    - id: zone_stove
+      accepts: [Inspect, Activate]
+    - id: zone_nook
+      accepts: [Place]
+  ambient_zones:
+    - id: zone_steam_kettle
+      description: Ånga från tekanna
+    - id: zone_garden_light
+      description: Grönt ljus från trädgårdsfönster
+  camera_anchor:
+    id: kitchen_fixed_2_5d
+    description: Barn-ögonhöjd; bord i mitt; fönster bakgrund höger
+
+camera_contract:
+  profile_id: kitchen_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_push_in
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['hall']
+lighting_contract:
+  profile_id: kitchen_morning_warm
+  primary_source: window_garden_green_wash
+  secondary_source: stove_warm_glow
+  time_variants:
+    - id: morning
+      color_temp: warm_gold
+    - id: evening
+      color_temp: amber_dim
+    - id: night
+      color_temp: cool_moon_window
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
+  rules: [No guilt dialogue, No quest giver, G-01 wins only]
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: breakfast_table_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Frukostbordet
+  - id: window_garden_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Fönstret mot trädgården
+  - id: stove_kettle
+    interaction_type: Activate
+    progression_key: progression.routine_home.kettle_anim
+    landmark_label_sv: Spisen
+  - id: door_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Hallen
+  - id: breakfast_nook_build
+    interaction_type: Place
+    build_slot: breakfast_nook
+    progression_key: progression.routine_home.breakfast_nook
 
-build_slots: []
+supporting_objects:
+  - id: stove_oven
+    description: Spis med diskret varm glöd
+    story_role: comfort
+  - id: fridge_with_drawings
+    description: Kylskåp med barnritningar
+    story_role: ownership
+  - id: child_step_stool
+    description: Pall vid diskho
+    story_role: capability
+
+ambient_objects:
+  - id: kettle_steam_subtle
+    budget_tier: subtle
+  - id: window_light_dust
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: magnet_drawing_inspect
+      type: inspect_discovery
+  rare:
+    - id: pancake_mix_hint
+      progression_key: progression.routine_home.secret_tray
+  seasonal:
+    - id: birthday_cake_counter
+      event_ref: evt_birthday_mode
+  hidden:
+    - id: secret_breakfast_tray
+      progression_key: progression.routine_home.secret_tray
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [warm_oven_boost, frost_window]
+    - season: summer
+      overlay_ids: [bright_herbs, open_window]
+    - season: birthday
+      overlay_ids: [subtle_banner, extra_candles]
+
+theme_variants:
+  house: { skin_set: house_kitchen_default, landmark_label: Fönster mot trädgård }
+  castle: { skin_set: castle_kitchen_hearth, landmark_label: Valvbågsfönster }
+  treehouse: { skin_set: treehouse_kitchen_nook, landmark_label: Lövramat fönster }
+  space: { skin_set: habitat_galley, landmark_label: Grön viewport }
+  pirate: { skin_set: ship_galley_kitchen, landmark_label: Porthole mot däck }
+  wizard: { skin_set: tower_brew_kitchen, landmark_label: Örtfönster med glöd }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+  no_sound_only_critical_info: true
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 8
+  max_animated_ambient: 4
+  texture_memory_mb: 10
+  first_paint_ms_target: 200
+
+prompt_manifest:
+  - id: kitchen_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0011
+    positive_prompt: >
+      Nordic family kitchen interior, 2.5D illustrated diorama, warm morning light.
+      Round wooden breakfast table with chairs near large window showing green garden outside.
+      Stove with soft warm glow, kettle with gentle steam, wooden cabinets, honey-toned wood.
+      Child-height step stool near sink, fridge with child's drawing magnet, fruit bowl on counter.
+      Child eye height camera, Scandinavian lagom cozy style, handcrafted warmth,
+      soft golden morning light through window mixing with warm interior tones.
+      Portrait mobile composition, table center-left, garden visible through window right.
+    negative_prompt: >
+      No text, no brand logos, no sterile restaurant kitchen, no scary,
+      no empty grey room, no stock photo, no clutter chaos, no sharp knives prominent
+  - id: breakfast_table_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0011b
+    positive_prompt: >
+      Hero close-up of cozy breakfast table, wooden surface, morning light, cereal bowl,
+      juice glass, warm Nordic illustrated style, inviting family morning.
+    negative_prompt: No text, no brand logos, no food shame imagery
+
+ecology:
+  cross_ref: .ai/product/bibles/WORLD_BIBLE.md
+  cause_effect_chains:
+    - cause: garden_season_summer
+      effect: brighter_window_wash
+    - cause: morning_routine_complete
+      effect: kettle_steam_increases
+
+asset_manifest:
+  scene_bg: kitchen_bg
+  layers: [wall_cabinets, window_garden, floor, table_hero, stove_mid, foreground]
+  entities: [breakfast_table, window_garden_view, stove_oven, fridge_with_drawings]
+  theme_resolver: kitchen_{theme}
+
+animation_manifest:
+  ambient: [kettle_steam_subtle, window_light_dust, curtain_kitchen_sway]
+  hero: [stove_glow_pulse]
+  interaction: [kettle_activate_steam, nook_place_snap]
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  part_i_checklist_ref: specs/103-kitchen.md
+  implementation_notes: Ej shipped. breakfast_nook kopplad till Progression Bible Day 30.
 
 part_i_checklist_ref: specs/103-kitchen.md
