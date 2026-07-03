@@ -67,7 +67,7 @@
       '<div class="mh-scene-room" role="group" aria-label="Morgonhuset">' +
         propButtons +
       '</div>' +
-      '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status" aria-live="polite"></div>' +
+      '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status" aria-live="polite" aria-atomic="true"></div>' +
       '<div class="mh-scene-footer">' +
         '<button type="button" class="mh-skatt-link" id="mhSkattLink">💎 Skattkammaren</button>' +
       '</div>' +

@@ -268,7 +268,9 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   .gd-scene-canvas.is-sky-tap .gd-scene-bg,
   .gd-hotspot.is-tapped::after,
   .gd-hotspot--bed.gd-loe--sunflower_seed::before,
-  .gd-hotspot--bed.gd-loe--sunflower_bloom::before {
+  .gd-hotspot--bed.gd-loe--sunflower_bloom::before,
+  .gd-hotspot--bed.gd-loe--sunflower_harvested::before,
+  .gd-scene-canvas.gd-loe--sunflower_bloom .gd-scene-bg {
     animation: none !important;
   }
 }

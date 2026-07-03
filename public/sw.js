@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v489';
+const CACHE_NAME = 'stjarndag-v490';
+// stjarndag-v490: Morgonhus aria-atomic parity + garden LOE reduced-motion (BL-032/033)
 // stjarndag-v489: Garden LOE aria-live feedback + child-world a11y (BL-028)
 // stjarndag-v488: Garden LOE visual_token sync — bed hotspot state classes (BL-027)
 // stjarndag-v487: Garden LOE — living-object-runtime + child-garden verb API (IRC-003)
