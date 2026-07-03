@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "updated": "2026-07-03",
   "authority": "POS > registry tests > .cursor/rules/",
   "rules": {
@@ -47,7 +47,7 @@
     },
     "W-01": {
       "pos": "product-operating-system/09_WORLD_ENGINE.md",
-      "tests": ["test/experience-pack-structural.test.js", "test/world-ambient.test.js"],
+      "tests": ["test/experience-pack-structural.test.js", "test/world-ambient.test.js", "test/memory-hall-exhibits-pack.test.js"],
       "owners": ["GameDirector", "PrincipalEngineer"]
     },
     "MO-03": {

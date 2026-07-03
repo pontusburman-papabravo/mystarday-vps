@@ -72,6 +72,19 @@ GET /api/me/memory-hall
 
 ---
 
+## Exhibit resolver (draft interface)
+
+```javascript
+// Future: src/lib/memory-hall-exhibit-resolver.js
+resolveExhibitContent(childId, exhibitViews) → exhibitViews with content filled
+// trophy → child_achievement rows
+// milestone_frame → parent opt-in export (HRC)
+```
+
+Blocked until BL-012 defines slot content rules.
+
+---
+
 ## After human approval checklist
 
 - [ ] BL-012 creative direction locked

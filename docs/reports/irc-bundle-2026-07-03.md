@@ -10,7 +10,7 @@
 | IRC-010 | #531 | `cursor/pack-living-slot-guard-5e52` | Low | Test only |
 | IRC-011 | #532 | `cursor/loe-timer-edge-tests-5e52` | Low | Test + structural guard |
 | IRC-012 | #534 | `cursor/garden-bloom-aria-5e52` | Low | Child aria-live; SW v491 |
-| IRC-013 | #536 | `cursor/memory-hall-scaffold-5e52` | Low | **No user ship** — dev gate, migration `180951` |
+| IRC-013 | #536 | `cursor/memory-hall-scaffold-5e52` | Low | BL-029 + BL-029b exhibit schema; migration `180951` |
 
 ## Pre-merge checklist
 
