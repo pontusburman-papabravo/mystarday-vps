@@ -1,6 +1,6 @@
 # Capability Queue (CAP)
 
-**Updated:** 2026-07-03 (CAP-003 complete)
+**Updated:** 2026-07-03 (IRC-014-R1 complete — memory_hall uses CAP-003)
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Rank | ID | Capability | Consumers | ROI | Status |
 |------|-----|------------|-----------|-----|--------|
-| — | — | *(none — next: IRC-014-R1 rebase)* | — | — | see `NEXT_WORKER_PROMPT.md` |
+| 1 | CAP-004-R1 | Sync relay branch with IRC-014-R1 | #541 + #539 | 7.0 | **next Worker** |
 
 ---
 

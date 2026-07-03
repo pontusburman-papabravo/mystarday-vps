@@ -1,6 +1,6 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~08:10 UTC  
+**Last updated:** 2026-07-03 ~08:25 UTC  
 **Relay version:** 2.0 (Supervisor/Worker chain)  
 **Mode:** Short-lived Workers · persistent Supervisor state
 
@@ -12,12 +12,6 @@
 Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 ```
 
-**Fallback** (if `NEXT_WORKER_PROMPT.md` missing):
-
-```
-Read .ai/runtime/AUTONOMOUS_SESSION.md and reconstruct next Worker mission per SUPERVISOR.md
-```
-
 ---
 
 ## Current strategy
@@ -26,22 +20,11 @@ Build the **Living World Platform** via capability-first Workers. Feature work (
 
 ---
 
-## Relay model
-
-| Role | Owns | Runs in |
-|------|------|---------|
-| **Supervisor** | Queues, blockers, strategy, `NEXT_WORKER_PROMPT.md` | End of each Worker (or fallback session) |
-| **Worker** | One mission, tests, handoff | One Composer session |
-
-Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
-
----
-
 ## Active Worker assignment
 
 | Field | Value |
 |-------|-------|
-| **Next mission** | IRC-014-R1 |
+| **Next mission** | CAP-004-R1 |
 | **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
 | **Status** | ready for next session |
 
@@ -51,76 +34,39 @@ Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
 
 | Field | Value |
 |-------|-------|
-| **ID** | CAP-003 |
-| **Title** | Generic enterWorld/exitWorld in LivingWorldTransition |
+| **ID** | IRC-014-R1 |
+| **Title** | Memory hall on CAP-003 enterWorld/exitWorld |
 | **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
-| **Branch** | `cursor/autonomous-relay-resume-b105` |
-| **PR** | #541 |
+| **Branch** | `cursor/memory-hall-bl012-5e52` |
+| **PR** | #539 |
 
 ---
 
-## Prior Workers (this PR branch)
+## Prior Workers
 
 | ID | Mission | Status |
 |----|---------|--------|
-| BL-043/044 | Relay engine + HRC prep | ✅ |
-| CAP-001 | scene-asset-pipeline.js | ✅ |
-| CAP-002 | morgonhus-asset-pipeline.js | ✅ |
-| SW-001 | Supervisor/Worker protocol | ✅ |
 | CAP-003 | Generic enterWorld/exitWorld | ✅ |
+| SW-001 | Supervisor/Worker protocol | ✅ |
+| CAP-001/002 | Asset pipelines | ✅ |
+| BL-043/044 | Relay engine + HRC prep | ✅ |
+| IRC-014-R1 | memory_hall registry consumer | ✅ |
 
 ---
 
-## Current branch
+## Current branch (last Worker)
 
 ```
-cursor/autonomous-relay-resume-b105
+cursor/memory-hall-bl012-5e52
 ```
 
-PR: #541 (IRC-016)
-
----
-
-## Queues (snapshot)
-
-### Capability queue
-
-| Rank | ID | Status |
-|------|-----|--------|
-| 1 | CAP-003 | **next Worker** |
-| — | CAP-001, CAP-002 | done ✅ |
-
-Full: `.ai/knowledge/CAPABILITY_QUEUE.md`
-
-### Feature queue (HRC-blocked)
-
-| ID | Blocker |
-|----|---------|
-| BL-041 | Art HRC |
-| BL-042 | Parent HRC |
-
-Full: `.ai/knowledge/MISSION_QUEUE.md`
+Next Worker targets: `cursor/autonomous-relay-resume-b105` (CAP-004-R1 sync)
 
 ---
 
 ## HRC blockers
 
-`.ai/knowledge/OPEN_BLOCKERS.md` — no new blockers.
-
----
-
-## IRC / PR status
-
-`.ai/knowledge/OPEN_PRS.md` — IRC-007–016 draft; human merge pending.
-
----
-
-## Scores
-
-| Metric | Value |
-|--------|-------|
-| RVS | 9.5 / 10 |
-| LWS | 9.1 / 10 |
+BL-041 (art), BL-042 (parent warm_echo) — no change
 
 ---
 
@@ -128,18 +74,7 @@ Full: `.ai/knowledge/MISSION_QUEUE.md`
 
 | Gate | Status |
 |------|--------|
-| `test:gate` | 795/795 green (2026-07-03) |
-
-Re-run after relay doc commits if code unchanged — docs-only should stay green.
-
----
-
-## Last known good
-
-| SHA | Message |
-|-----|---------|
-| `95b7c160` | docs(relay): CAP-001/002 complete |
-| `da243a93` | feat(platform): scene-asset-pipeline (CAP-001, CAP-002) |
+| `test:gate` | 698/698 green (2026-07-03, IRC-014-R1) |
 
 ---
 
@@ -153,5 +88,4 @@ Re-run after relay doc commits if code unchanged — docs-only should stay green
 
 ## Worker stop rule
 
-Each Worker **stops** after writing `WORKER_HANDOFF.md` + `NEXT_WORKER_PROMPT.md`.  
-Do not chain missions in one Composer session.
+Each Worker **stops** after writing `WORKER_HANDOFF.md` + `NEXT_WORKER_PROMPT.md`.
