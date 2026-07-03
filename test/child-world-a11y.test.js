@@ -142,11 +142,16 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /mu-back-fab[\s\S]*min-height:\s*44px/);
   });
 
-  it('memory hall hotspots are invisible in scaffold (no debug borders)', () => {
+  it('memory hall hotspots are invisible in illustrated mode (no debug borders)', () => {
     const css = read('public/css/child-memory-hall.css');
     assert.match(css, /\.mu-hotspot[\s\S]*border:\s*none/);
     assert.match(css, /\.mu-hotspot[\s\S]*background:\s*transparent/);
-    assert.match(css, /\.mu-scene:not\(\.mu-scene--illustrated\)\s+\.mu-hotspot[\s\S]*display:\s*none/);
+  });
+
+  it('memory hall scaffold uses wood frames with 44px touch minimum', () => {
+    const css = read('public/css/child-memory-hall.css');
+    assert.match(css, /mu-frame[\s\S]*min-height:\s*88px/);
+    assert.match(css, /mu-back-fab[\s\S]*min-width:\s*44px/);
   });
 
   it('garden LOE feedback uses polite status region not blocking modal', () => {

@@ -95,8 +95,11 @@ describe('memory hall creative direction — pack copy (BL-012)', () => {
   it('client avoids stats-dashboard aria labels', () => {
     const src = fs.readFileSync(path.join(__dirname, '../public/js/child-memory-hall.js'), 'utf8');
     assert.match(src, /Mina minnen/);
+    assert.match(src, /mu-frame--filled/);
+    assert.match(src, /Det här minnet betyder något för dig/);
     assert.doesNotMatch(src, /Utställningar/);
     assert.doesNotMatch(src, /topplista/i);
+    assert.doesNotMatch(src, /mu-exhibit-label/);
   });
 
   it('living-world transition wires enterMemoryHall and exitMemoryHall', () => {

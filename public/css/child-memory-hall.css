@@ -1,11 +1,11 @@
-/* Minnesrummet — warm memory room (BL-012). Not museum. Not shop. */
+/* Minnesrummet — warm memory room (BL-012). Handcrafted diorama, not trophy wall. */
 
 .mu-scene {
   position: relative;
   min-height: min(72vh, 520px);
   border-radius: 1.25rem;
   overflow: hidden;
-  background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 55%, #e6dccf 100%);
+  background-color: #e6dccf;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -30,22 +30,288 @@ body.child-memory-hall-active #rewardsView {
   padding-bottom: 0 !important;
 }
 
-.mu-scene--empty {
+/* ── Scaffold diorama layers ── */
+.mu-scene--scaffold {
+  background-color: #e8dcc8;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(247, 243, 235, 0.08) 0%,
+      rgba(247, 243, 235, 0.02) 40%,
+      rgba(247, 243, 235, 0.35) 78%,
+      rgba(247, 243, 235, 0.88) 100%
+    ),
+    linear-gradient(180deg, #f7f0e4 0%, #efe6d8 48%, #dcc9b0 100%);
+  box-shadow: inset 0 0 80px rgba(27, 35, 64, 0.06);
+}
+
+.mu-scene--entering {
+  animation: mu-scene-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes mu-scene-enter {
+  from { opacity: 0; transform: translateY(2%) scale(1.01); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mu-room-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 214, 140, 0.22), transparent 68%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 42%);
+}
+
+.mu-room-window {
+  position: absolute;
+  top: 8%;
+  right: 10%;
+  width: 34%;
+  height: 22%;
+  border-radius: 14px 14px 6px 6px;
+  border: 3px solid rgba(196, 149, 106, 0.55);
+  background:
+    linear-gradient(165deg, rgba(255, 248, 220, 0.92) 0%, rgba(232, 201, 160, 0.75) 100%);
+  box-shadow:
+    inset 0 0 18px rgba(255, 236, 180, 0.65),
+    0 8px 24px rgba(27, 35, 64, 0.08);
+}
+
+.mu-room-window::before,
+.mu-room-window::after {
+  content: '';
+  position: absolute;
+  background: rgba(196, 149, 106, 0.45);
+  pointer-events: none;
+}
+
+.mu-room-window::before {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+}
+
+.mu-room-window::after {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+}
+
+.mu-room-light {
+  position: absolute;
+  top: 6%;
+  right: 6%;
+  width: 48%;
+  height: 38%;
+  background: radial-gradient(ellipse at 70% 20%, rgba(255, 236, 180, 0.55), transparent 72%);
+  pointer-events: none;
+  animation: mu-light-breathe 6s ease-in-out infinite;
+}
+
+@keyframes mu-light-breathe {
+  0%, 100% { opacity: 0.75; }
+  50%      { opacity: 1; }
+}
+
+.mu-room-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(196, 168, 130, 0.35) 18%, rgba(180, 148, 110, 0.55) 100%);
+  pointer-events: none;
+}
+
+.mu-room-floor::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 12%;
+  height: 38%;
+  border-radius: 50% 50% 8px 8px;
+  background: radial-gradient(ellipse at 50% 80%, rgba(139, 94, 60, 0.18), transparent 72%);
+}
+
+/* ── Header ── */
+.mu-scene-header {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 56px)
+    1.25rem
+    0.75rem;
+}
+
+.mu-scene-title {
+  margin: 0;
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1b2340;
+  letter-spacing: -0.01em;
+}
+
+.mu-scene-subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #5c4d3a;
+  line-height: 1.4;
+  max-width: 18rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Memory wall (scaffold frames) ── */
+.mu-memory-wall {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0.75rem 1.25rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  max-width: 24rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mu-frame {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  min-height: 88px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mu-frame-inner {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 10px;
+  border: 3px solid #c4956a;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.95) 0%, rgba(247, 236, 220, 0.88) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.55),
+    0 6px 16px rgba(27, 35, 64, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.mu-empty-message {
-  font-size: 1rem;
+.mu-frame--filled .mu-frame-inner {
+  border-color: #b8845a;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 248, 230, 0.7),
+    0 0 0 1px rgba(232, 201, 160, 0.45),
+    0 8px 20px rgba(27, 35, 64, 0.12);
+}
+
+.mu-frame--empty .mu-frame-inner {
+  border-style: dashed;
+  border-color: rgba(196, 149, 106, 0.45);
+  background: rgba(255, 252, 247, 0.35);
+  box-shadow: inset 0 0 12px rgba(255, 236, 200, 0.25);
+}
+
+.mu-frame-emoji {
+  font-size: 1.85rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(27, 35, 64, 0.08));
+}
+
+.mu-frame--filled.is-tapped .mu-frame-inner,
+.mu-frame--filled:active .mu-frame-inner {
+  transform: scale(0.96);
+  box-shadow:
+    0 0 0 3px rgba(232, 201, 160, 0.65),
+    0 6px 18px rgba(232, 201, 160, 0.35);
+}
+
+/* Decorative window tap (scaffold) */
+.mu-window-tap {
+  position: absolute;
+  top: 8%;
+  right: 10%;
+  width: 34%;
+  height: 22%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 5;
+  opacity: 0;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mu-window-tap.is-tapped + .mu-room-light,
+.mu-scene--scaffold:has(.mu-window-tap.is-tapped) .mu-room-light {
+  animation: mu-light-flash 0.9s ease-out;
+}
+
+@keyframes mu-light-flash {
+  0%, 100% { opacity: 0.75; }
+  40%      { opacity: 1; transform: scale(1.04); }
+}
+
+/* ── Warm toast (matches Morgonhuset) ── */
+.mu-scene-toast {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  max-width: min(320px, 92%);
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 2px solid rgba(196, 149, 106, 0.55);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #5c4d3a;
+  line-height: 1.35;
+  color: #1b2340;
   text-align: center;
-  line-height: 1.45;
-  max-width: 20rem;
+  box-shadow: 0 8px 24px rgba(27, 35, 64, 0.14);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
 }
 
+.mu-scene-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.mu-scene-toast.mu-toast-off:not(.is-visible) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(6px);
+}
+
+/* ── Empty state ── */
+.mu-scene--empty {
+  display: flex;
+  flex-direction: column;
+}
+
+.mu-scene--empty .mu-memory-wall {
+  flex: 1;
+  align-content: start;
+}
+
+/* ── Illustrated mode (G8 art) ── */
 .mu-scene-canvas {
   position: absolute;
   inset: 0;
@@ -75,7 +341,6 @@ body.child-memory-hall-active #rewardsView {
   -webkit-user-drag: none;
 }
 
-/* Invisible tap zones — match garden (no debug borders) */
 .mu-hotspot {
   position: absolute;
   border: none;
@@ -101,51 +366,6 @@ body.child-memory-hall-active #rewardsView {
   right: 8%;
   width: 38%;
   height: 42%;
-}
-
-/* Scaffold (pre-art): hide ambient hotspots — exhibits are the room */
-.mu-scene:not(.mu-scene--illustrated) .mu-hotspot {
-  display: none;
-}
-
-.mu-scene:not(.mu-scene--illustrated) {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding:
-    calc(env(safe-area-inset-top, 0px) + 56px)
-    1rem
-    calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
-}
-
-.mu-scene:not(.mu-scene--illustrated) .mu-scene-intro {
-  position: static;
-  order: -1;
-  margin: 0 0 1.25rem;
-  padding: 0 2.5rem;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.mu-scene:not(.mu-scene--illustrated) .mu-exhibits {
-  position: static;
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  align-content: start;
-  justify-items: stretch;
-  max-width: 22rem;
-  margin: 0 auto;
-  width: 100%;
-  left: auto;
-  right: auto;
-  bottom: auto;
-}
-
-.mu-scene:not(.mu-scene--illustrated) .mu-exhibit {
-  max-width: none;
-  width: 100%;
 }
 
 .mu-hotspot.is-tapped {
@@ -176,14 +396,10 @@ body.child-memory-hall-active #rewardsView {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #4a3f32;
-  text-align: center;
-  z-index: 4;
-}
-
-.mu-scene--illustrated .mu-scene-intro {
   color: rgba(255, 252, 247, 0.92);
+  text-align: center;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  z-index: 4;
 }
 
 .mu-scene-status {
@@ -227,14 +443,6 @@ body.child-memory-hall-active #rewardsView {
   line-height: 1;
 }
 
-.mu-exhibit-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #4a3f32;
-  text-align: center;
-  line-height: 1.2;
-}
-
 .mu-back-fab {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 10px);
@@ -249,6 +457,7 @@ body.child-memory-hall-active #rewardsView {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.1);
 }
 
 .mu-back-icon {
@@ -261,7 +470,17 @@ body.child-memory-hall-active #rewardsView {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mu-hotspot.is-tapped {
+  .mu-scene--entering {
+    animation: none;
+  }
+
+  .mu-room-light {
+    animation: none;
+  }
+
+  .mu-hotspot.is-tapped,
+  .mu-frame--filled.is-tapped .mu-frame-inner,
+  .mu-frame--filled:active .mu-frame-inner {
     transform: none;
     transition: none;
   }

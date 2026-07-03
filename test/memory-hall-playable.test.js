@@ -197,6 +197,9 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     });
     assert.match(withExhibits, /role="list"/);
     assert.match(withExhibits, /aria-label="Första stjärnan"/);
+    assert.match(withExhibits, /mu-frame--filled/);
+    assert.match(withExhibits, /mu-scene-title/);
+    assert.doesNotMatch(withExhibits, /mu-exhibit-label/);
   });
 
   it('prep doc and BL-012 ADR exist for human decision', () => {
