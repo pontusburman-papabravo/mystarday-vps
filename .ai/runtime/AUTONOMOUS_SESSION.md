@@ -1,40 +1,76 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~07:50 UTC  
-**Relay version:** 1.0  
-**Mode:** Capability-driven autonomous development  
-**Read this first.** Chat history is not authoritative.
+**Last updated:** 2026-07-03 ~08:00 UTC  
+**Relay version:** 2.0 (Supervisor/Worker chain)  
+**Mode:** Short-lived Workers · persistent Supervisor state
 
 ---
 
-## Current Strategy
+## Resume command (one line)
 
-Build the **Living World Platform** — when feature work is HRC-blocked, increase reusable capabilities that benefit multiple worlds. Minnesrummet art/parent opt-in remain blocked; platform work continues.
+```
+Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
+```
 
-Source: `.ai/company/STRATEGIC_INTENT.md` + Capability-Driven mission order
+**Fallback** (if `NEXT_WORKER_PROMPT.md` missing):
+
+```
+Read .ai/runtime/AUTONOMOUS_SESSION.md and reconstruct next Worker mission per SUPERVISOR.md
+```
 
 ---
 
-## Active Mission
+## Current strategy
+
+Build the **Living World Platform** via capability-first Workers. Feature work (BL-041, BL-042) HRC-blocked; platform capabilities continue.
+
+---
+
+## Relay model
+
+| Role | Owns | Runs in |
+|------|------|---------|
+| **Supervisor** | Queues, blockers, strategy, `NEXT_WORKER_PROMPT.md` | End of each Worker (or fallback session) |
+| **Worker** | One mission, tests, handoff | One Composer session |
+
+Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
+
+---
+
+## Active Worker assignment
 
 | Field | Value |
 |-------|-------|
-| **ID** | CAP-003 |
-| **Title** | Generic world enter/exit in LivingWorldTransition |
+| **Next mission** | CAP-003 |
+| **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
+| **Status** | ready for next session |
+
+---
+
+## Last completed Worker
+
+| Field | Value |
+|-------|-------|
+| **ID** | SW-001 |
+| **Title** | Supervisor/Worker relay model |
+| **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
 | **Branch** | `cursor/autonomous-relay-resume-b105` |
-| **Status** | queued |
-
-## Last Completed Mission
-
-| Field | Value |
-|-------|-------|
-| **ID** | CAP-002 |
-| **Title** | Morgonhus scene-asset-pipeline wrapper |
-| **Consumers** | Morgonhuset + shared scene-asset-pipeline runtime |
+| **PR** | #541 |
 
 ---
 
-## Current Branch
+## Prior Workers (this PR branch)
+
+| ID | Mission | Status |
+|----|---------|--------|
+| BL-043/044 | Relay engine + HRC prep | ✅ |
+| CAP-001 | scene-asset-pipeline.js | ✅ |
+| CAP-002 | morgonhus-asset-pipeline.js | ✅ |
+| SW-001 | Supervisor/Worker protocol | ✅ |
+
+---
+
+## Current branch
 
 ```
 cursor/autonomous-relay-resume-b105
@@ -44,76 +80,77 @@ PR: #541 (IRC-016)
 
 ---
 
-## HRC Blockers (features — not platform)
+## Queues (snapshot)
 
-| ID | Blocker | Agent continues via |
-|----|---------|---------------------|
-| HRC-ART-041 | BL-041 scene art | CAP-001 done; CAP-002 morgonhus wrapper queued |
-| HRC-PARENT-042 | BL-042 warm_echo | Schema draft exists; no new parent UI |
+### Capability queue
 
-Full list: `.ai/knowledge/OPEN_BLOCKERS.md`
+| Rank | ID | Status |
+|------|-----|--------|
+| 1 | CAP-003 | **next Worker** |
+| — | CAP-001, CAP-002 | done ✅ |
 
----
+Full: `.ai/knowledge/CAPABILITY_QUEUE.md`
 
-## Capability Queue (snapshot)
+### Feature queue (HRC-blocked)
 
-| Rank | ID | Capability | Status |
-|------|-----|------------|--------|
-| — | CAP-001 | scene-asset-pipeline.js | **done** ✅ |
-| — | CAP-002 | Morgonhus pipeline wrapper | **done** ✅ |
-| 1 | CAP-003 | Generic world enter/exit transitions | queued |
+| ID | Blocker |
+|----|---------|
+| BL-041 | Art HRC |
+| BL-042 | Parent HRC |
 
-Full queue: `.ai/knowledge/CAPABILITY_QUEUE.md`
-
----
-
-## Feature Queue (HRC-blocked)
-
-| Rank | ID | Mission | Blocker |
-|------|-----|---------|---------|
-| 1 | BL-041 | Scene illustration | Art HRC |
-| 2 | BL-042 | Parent warm_echo opt-in | Parent HRC |
+Full: `.ai/knowledge/MISSION_QUEUE.md`
 
 ---
 
-## Repository Value Score
+## HRC blockers
 
-**RVS:** 9.5 / 10 (Δ +0.1 — CAP-001 + CAP-002)  
-**LWS:** 9.1 / 10 (Δ +0.1)
+`.ai/knowledge/OPEN_BLOCKERS.md` — no new blockers.
 
 ---
 
-## Latest Test Status
+## IRC / PR status
+
+`.ai/knowledge/OPEN_PRS.md` — IRC-007–016 draft; human merge pending.
+
+---
+
+## Scores
+
+| Metric | Value |
+|--------|-------|
+| RVS | 9.5 / 10 |
+| LWS | 9.1 / 10 |
+
+---
+
+## Latest test status
 
 | Gate | Status |
 |------|--------|
-| `test:gate` | **795/795 green** (689 unit + 106 db) |
+| `test:gate` | 795/795 green (2026-07-03) |
+
+Re-run after relay doc commits if code unchanged — docs-only should stay green.
 
 ---
 
-## Next Recommended Action
+## Last known good
 
-Execute **CAP-003**: refactor `LivingWorldTransition` to generic `enterWorld`/`exitWorld` factory — enables memory_hall without duplicating garden transition logic (coordinate with IRC-014 branch).
-
-**Resume command:**
-
-```
-Read .ai/runtime/AUTONOMOUS_SESSION.md and continue autonomous execution.
-```
+| SHA | Message |
+|-----|---------|
+| `95b7c160` | docs(relay): CAP-001/002 complete |
+| `da243a93` | feat(platform): scene-asset-pipeline (CAP-001, CAP-002) |
 
 ---
 
-## Human Approval Gate Status
+## Human Approval Gate
 
-Platform capabilities, tests, scaffolding: ✅  
-Art binaries, family flags, live deploy: ❌ HRC
+| Allowed | Forbidden |
+|---------|-----------|
+| Platform code, tests, docs, draft PR | Live deploy, merge main, art binaries, family flags |
 
 ---
 
-## Relay Handoff Checklist
+## Worker stop rule
 
-- [x] AUTONOMOUS_SESSION.md current
-- [x] CAPABILITY_QUEUE.md updated
-- [x] MISSION_QUEUE.md current
-- [x] REPOSITORY_STATE.md reflects gates
-- [x] test:gate green
+Each Worker **stops** after writing `WORKER_HANDOFF.md` + `NEXT_WORKER_PROMPT.md`.  
+Do not chain missions in one Composer session.
