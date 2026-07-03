@@ -63,6 +63,9 @@
           syncPrenumerationWorkspace(route && route.canonicalKey);
         }
       }
+      if (name === 'paket' && typeof syncPaketWorkspace === 'function') {
+        syncPaketWorkspace(route);
+      }
       if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
       if (name === 'messages' && typeof loadMessagesInbox === 'function') {
         const hash = window.location.hash || '';

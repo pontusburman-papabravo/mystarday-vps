@@ -14,7 +14,7 @@ const appSettings = require('../../db/app-settings');
 const { isBillingUiEnabled } = require('../lib/billing-ui');
 const analytics = require('../../db/analytics');
 const { getFamilyAccess } = require('../lib/package-access');
-const { getAllPreviewPackages } = require('../../config/preview-data');
+const { getAllMergedPreviewPackages } = require('../lib/preview-package-config');
 const {
   INTEREST_COMPONENTS,
   INTEREST_SOURCES,
@@ -34,8 +34,14 @@ const InterestBodySchema = z.object({
  * GET /api/subscription/preview-data
  * Central mock content for preview-shell (§9.6).
  */
-router.get('/preview-data', requireAuth, (req, res) => {
-  res.json(getAllPreviewPackages());
+router.get('/preview-data', requireAuth, async (req, res) => {
+  try {
+    const packages = await getAllMergedPreviewPackages();
+    res.json(packages);
+  } catch (err) {
+    console.error('[SUBSCRIPTION] preview-data error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta förhandsvisning' });
+  }
 });
 
 /**

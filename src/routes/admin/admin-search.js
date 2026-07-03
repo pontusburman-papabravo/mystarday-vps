@@ -51,7 +51,7 @@ router.get('/search', async (req, res, next) => {
       { label: 'Familjer', route: '#familjer', keywords: ['familj', 'familjer'] },
       { label: 'Meddelanden', route: '#meddelanden', keywords: ['meddelande', 'kontakt', 'inbox'] },
       { label: 'Tillväxt pipeline', route: '#tillvaxt-pipeline', keywords: ['pipeline', 'tillväxt', 'lead'] },
-      { label: 'Paketintresse', route: '#paketintresse', keywords: ['paket'] },
+      { label: 'Extra stöd', route: '#extra-stod', keywords: ['paket', 'teacch', 'extra'] },
       { label: 'Produktanalys', route: '#produktanalys', keywords: ['analys', 'analytics'] },
     ].filter((s) =>
       s.label.toLowerCase().includes(q.toLowerCase()) ||

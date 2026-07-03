@@ -70,12 +70,14 @@ describe('Fas 1 — route registry', () => {
     assert.equal(r.canonicalKey, 'start');
   });
 
-  test('#paketintresse → prenumeration + scroll anchor', () => {
+  test('#paketintresse → extra-stod paket workspace + interest panel', () => {
     const r = resolveRoute('#paketintresse');
-    assert.equal(r.targetSection, 'prenumeration');
-    assert.equal(r.scrollTargetId, '#paketintresse-anchor');
-    assert.equal(r.navId, 'paketintresse');
-    assert.deepEqual([...r.breadcrumb], ['Tillväxt', 'Paketintresse']);
+    assert.equal(r.canonicalKey, 'extra-stod');
+    assert.equal(r.targetSection, 'paket');
+    assert.equal(r.subview, 'teacch');
+    assert.equal(r.workspacePanel, 'interest');
+    assert.equal(r.navId, 'extra-stod');
+    assert.deepEqual([...r.breadcrumb], ['Paket', 'Extra stöd']);
   });
 
   test('#valkomstmail → emailmallar + valkomstmail tab', () => {
@@ -109,10 +111,12 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
   const sections = sectionIdsFromHtml();
 
   const routes = [
-    'start', 'familjer', 'meddelanden', 'paketintresse', 'pedagogintresse', 'waitlist',
+    'start', 'familjer', 'meddelanden', 'pedagogintresse', 'waitlist',
     'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
     'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
-    'retention', 'foraldaraktivering', 'fordig', 'bibliotek', 'prenumeration', 'konto',
+    'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
+    'paket', 'extra-stod', 'paket-rapportering', 'paket-pedagog',
+    'prenumeration', 'konto',
     'tillvaxt-pipeline',
   ];
 
@@ -154,10 +158,12 @@ function renderNavHtml() {
 
 /** Canonical routes from A-admin-nav-spec.md §4 (hash router). */
 const SPEC_CANONICAL_ROUTES = [
-  'start', 'familjer', 'meddelanden', 'paketintresse', 'pedagogintresse', 'waitlist',
+  'start', 'familjer', 'meddelanden', 'pedagogintresse', 'waitlist',
   'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
   'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
-  'retention', 'foraldaraktivering', 'fordig', 'bibliotek', 'prenumeration', 'konto',
+  'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
+  'paket', 'extra-stod', 'paket-rapportering', 'paket-pedagog',
+  'prenumeration', 'konto',
 ];
 
 describe('Fas 1 — spec route table completeness', () => {
@@ -168,7 +174,7 @@ describe('Fas 1 — spec route table completeness', () => {
     test(`spec route #${key} resolves with breadcrumb + DOM target`, () => {
       const r = resolveRoute('#' + key);
       assert.equal(r.canonicalKey, key, `expected canonical ${key}, got ${r.canonicalKey}`);
-      assert.ok(r.breadcrumb && r.breadcrumb.length >= 2, 'breadcrumb too short');
+      assert.ok(r.breadcrumb && r.breadcrumb.length >= 1, 'breadcrumb too short');
       assert.equal(r.breadcrumb[r.breadcrumb.length - 1], r.label, 'last breadcrumb !== label');
       assert.ok(sections.has(r.targetSection), `missing ${r.targetSection}Section`);
       assert.ok(['stable', 'ui-only', 'proxy-data'].includes(r.capability), `bad capability: ${r.capability}`);
@@ -177,7 +183,7 @@ describe('Fas 1 — spec route table completeness', () => {
 });
 
 describe('Fas 1 — sidebar render', () => {
-  test('renderAdminNav produces 6 groups and no emojis in labels', () => {
+  test('renderAdminNav produces 7 groups and no emojis in labels', () => {
     let html = '';
     const { renderAdminNav } = loadAdminNav();
     const doc = {
@@ -195,10 +201,13 @@ describe('Fas 1 — sidebar render', () => {
     vm.runInContext(fs.readFileSync(NAV_PATH, 'utf8'), sandbox);
     sandbox.renderAdminNav();
 
-    assert.equal((html.match(/class="admin-nav-group"/g) || []).length, 6);
+    assert.equal((html.match(/class="admin-nav-group"/g) || []).length, 7);
     assert.match(html, /Hem/);
     assert.match(html, /Tillväxt/);
-    assert.match(html, /Paketintresse/);
+    assert.match(html, /Paket/);
+    assert.match(html, /Extra stöd/);
+    assert.match(html, /Rapportering/);
+    assert.doesNotMatch(html, />Paketintresse</);
     assert.match(html, /Pedagogintresse/);
     assert.match(html, /Landningssidor/);
     assert.match(html, /Bildbank/);
@@ -221,7 +230,7 @@ describe('Fas 1 — sidebar render', () => {
     const html = renderNavHtml();
     const hrefs = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
     const { resolveRoute } = loadAdminNav();
-    assert.equal(hrefs.length, 23, 'expected 23 hash nav links (+ 1 external Funktioner)');
+    assert.equal(hrefs.length, 27, 'expected 27 hash nav links (+ 1 external Funktioner)');
     const dup = hrefs.filter((h, i) => hrefs.indexOf(h) !== i);
     assert.deepEqual(dup, [], 'duplicate nav hrefs: ' + dup.join(', '));
     for (const h of hrefs) {
@@ -239,6 +248,9 @@ describe('Fas 1 — sidebar render', () => {
       ['foraldaraktivering', 'experiment'],
       ['fordig', 'experiment'],
       ['dagens-nyhet', 'kampanjer'],
+      ['extra-stod', 'paket'],
+      ['paket-rapportering', 'paket'],
+      ['paket-pedagog', 'paket'],
     ];
     for (const [key, parent] of childCases) {
       assert.equal(resolveRoute('#' + key).parentNavId, parent, `#${key} parent`);
@@ -297,6 +309,7 @@ describe('Fas 1 — admin-core wiring', () => {
       'loadAdminImages', 'loadSurveys', 'loadNewsletterSubscribers', 'loadEmailTemplates',
       'loadEmailLog', 'loadAnalytics', 'loadUserStats', 'loadRetentionData',
       'loadActivationProgramAdmin', 'loadForDigAdmin', 'loadNyheter', 'loadSubscriptionSettings',
+      'syncPaketWorkspace',
     ];
     for (const fn of handlers) {
       assert.match(core, new RegExp(fn), `missing refresh handler ${fn}`);

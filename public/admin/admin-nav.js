@@ -8,6 +8,7 @@
     communication: 'Kommunikation',
     insights: 'Insikter',
     content: 'Innehåll',
+    paket: 'Paket',
     settings: 'Inställningar',
   };
 
@@ -16,6 +17,7 @@
     produktanalys: 'Produktanalys',
     kampanjer: 'Kampanjer',
     experiment: 'Experiment',
+    paket: 'Paket',
   };
 
   const ADMIN_NAV_GROUPS = [
@@ -32,7 +34,6 @@
       id: 'growth',
       label: 'Tillväxt',
       items: [
-        { key: 'paketintresse', navId: 'paketintresse', label: 'Paketintresse', targetSection: 'prenumeration', subview: 'paketintresse', scrollTargetId: 'paketintresse-anchor', capability: 'ui-only' },
         { key: 'pedagogintresse', navId: 'pedagogintresse', label: 'Pedagogintresse', targetSection: 'intresseanmalningar', aliases: ['intresseanmalningar'], capability: 'stable' },
         { key: 'waitlist', navId: 'waitlist', label: 'Waitlist (EN)', targetSection: 'waitlist', capability: 'stable' },
         { key: 'tillvaxt-pipeline', navId: 'tillvaxt-pipeline', label: 'Pipeline', targetSection: 'growthPipeline', capability: 'stable' },
@@ -104,6 +105,25 @@
       ],
     },
     {
+      id: 'paket',
+      label: 'Paket',
+      items: [
+        {
+          key: 'paket',
+          navId: 'paket',
+          label: 'Paket',
+          targetSection: 'paket',
+          subview: 'teacch',
+          capability: 'stable',
+          children: [
+            { key: 'extra-stod', navId: 'extra-stod', label: 'Extra stöd', targetSection: 'paket', subview: 'teacch', parentNavId: 'paket', capability: 'stable' },
+            { key: 'paket-rapportering', navId: 'paket-rapportering', label: 'Rapportering', targetSection: 'paket', subview: 'reporting', parentNavId: 'paket', capability: 'stable' },
+            { key: 'paket-pedagog', navId: 'paket-pedagog', label: 'Pedagog', targetSection: 'paket', subview: 'pedagog', parentNavId: 'paket', capability: 'stable' },
+          ],
+        },
+      ],
+    },
+    {
       id: 'settings',
       label: 'Inställningar',
       items: [
@@ -118,10 +138,15 @@
   const ALIAS_TO_KEY = {};
 
   function buildBreadcrumb(groupId, item, parentLabel) {
-    const parts = [GROUP_LABELS[groupId]];
-    if (parentLabel) parts.push(parentLabel);
-    parts.push(item.label);
-    return parts;
+    const groupLabel = GROUP_LABELS[groupId];
+    if (parentLabel) {
+      if (parentLabel !== groupLabel) {
+        return [groupLabel, parentLabel, item.label];
+      }
+      return [groupLabel, item.label];
+    }
+    if (item.label === groupLabel) return [groupLabel];
+    return [groupLabel, item.label];
   }
 
   function registerRoute(groupId, item, parentLabel) {
@@ -131,6 +156,7 @@
       label: item.label,
       targetSection: item.targetSection,
       subview: item.subview || null,
+      workspacePanel: item.workspacePanel || null,
       scrollTargetId: item.scrollTargetId ? '#' + item.scrollTargetId : null,
       emailTab: null,
       groupId,
@@ -180,6 +206,23 @@
   };
   ALIAS_TO_KEY.valkomstmail = 'valkomstmail';
 
+  ROUTE_BY_KEY.paketintresse = {
+    canonicalKey: 'extra-stod',
+    navId: 'extra-stod',
+    label: 'Extra stöd',
+    targetSection: 'paket',
+    subview: 'teacch',
+    workspacePanel: 'interest',
+    emailTab: null,
+    scrollTargetId: null,
+    groupId: 'paket',
+    breadcrumb: ['Paket', 'Extra stöd'],
+    refreshKey: 'paket',
+    capability: 'ui-only',
+    parentNavId: 'paket',
+  };
+  ALIAS_TO_KEY.paketintresse = 'extra-stod';
+
   function normalizeHash(hash) {
     if (!hash) return '';
     let raw = String(hash).replace(/^#/, '').trim().toLowerCase();
@@ -193,7 +236,11 @@
     if (!raw) raw = 'start';
     const canonicalKey = ALIAS_TO_KEY[raw] || (ROUTE_BY_KEY[raw] ? raw : 'start');
     const route = ROUTE_BY_KEY[canonicalKey] || ROUTE_BY_KEY.start;
-    return Object.assign({}, route, { requestHash: raw });
+    const resolved = Object.assign({}, route, { requestHash: raw });
+    if (raw === 'paketintresse') {
+      resolved.workspacePanel = 'interest';
+    }
+    return resolved;
   }
 
   function itemEsc(str) {

@@ -1328,6 +1328,78 @@
           <div id="growthPipelineContainer" class="bg-white rounded-2xl border-2 border-lavender p-4"></div>
         </div>
 
+        <div id="paketSection" class="mb-8 hidden">
+          <h3 class="text-2xl font-heading font-bold text-navy mb-2">Paket</h3>
+          <div id="paketPackageTabs"></div>
+          <div id="paketPanelTabs"></div>
+
+          <div data-paket-panel="overview" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Översikt</h4>
+            <div id="paketOverviewCards"></div>
+            <div id="paketOverviewMsg" class="text-sm min-h-[1.4em]"></div>
+          </div>
+
+          <div data-paket-panel="families" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 hidden">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Familjer med paket</h4>
+            <div class="flex flex-wrap gap-2 mb-4 max-w-xl">
+              <input type="email" id="paketGrantEmail" placeholder="Förälder e-post…" class="flex-1 min-w-[200px] px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+              <button type="button" id="paketGrantBtn" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-bold">Bevilja + dev</button>
+            </div>
+            <div id="paketGrantMsg" class="text-sm min-h-[1.4em] mb-3"></div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead><tr class="text-xs text-text-soft"><th class="pb-2">Familj</th><th>Förälder</th><th>Barn</th><th>Beviljad</th><th></th></tr></thead>
+                <tbody id="paketFamiliesBody"></tbody>
+              </table>
+            </div>
+            <div id="paketFamiliesMsg" class="text-sm min-h-[1.4em] mt-2"></div>
+          </div>
+
+          <div data-paket-panel="content" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 hidden">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Paketinnehåll</h4>
+            <div id="paketContentPanel"></div>
+          </div>
+
+          <div data-paket-panel="features" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 hidden">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Features i paketet</h4>
+            <div id="paketFeaturesList"></div>
+          </div>
+
+          <div data-paket-panel="preview" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 hidden">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Förhandsvisning (intressefas)</h4>
+            <div id="paketPreviewEditor"></div>
+          </div>
+
+          <div data-paket-panel="interest" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 hidden">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Paketintresse</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead><tr class="text-xs text-text-soft"><th class="pb-2">Datum</th><th>E-post</th><th>Familj</th><th>Källa</th><th>Kommentar</th></tr></thead>
+                <tbody id="paketInterestBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="paketStarterModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <h4 class="text-lg font-bold text-navy mb-4">Starter-mall (Extra stöd)</h4>
+            <div class="space-y-3 mb-4">
+              <input id="paketStarterName" type="text" placeholder="Aktivitetsnamn" class="w-full px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+              <div class="flex gap-2">
+                <input id="paketStarterIcon" type="text" placeholder="Emoji" class="w-20 px-3 py-2 rounded-xl border-2 border-lavender text-sm text-center">
+                <input id="paketStarterStars" type="number" min="1" max="5" placeholder="Stjärnor" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+              </div>
+            </div>
+            <div id="paketStarterFields" class="space-y-2 mb-4"></div>
+            <div class="flex gap-2">
+              <button type="button" id="paketStarterSaveBtn" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-bold">Spara</button>
+              <button type="button" id="paketStarterCancelBtn" class="px-2 py-2 text-sm text-text-soft">Avbryt</button>
+            </div>
+            <div id="paketStarterMsg" class="text-sm min-h-[1.4em] mt-2"></div>
+          </div>
+        </div>
+
         
         <div id="prenumerationSection" class="mb-8 hidden">
           <h3 class="text-2xl font-heading font-bold text-navy mb-2">Prenumeration &amp; IAP</h3>
@@ -2001,13 +2073,15 @@ Använd dubbla radbrytningar för nya stycken.
   </div>
 
   <script src="/admin/admin-history-warning.js?v=1.0.0"></script>
-  <script src="/admin/admin-nav.js?v=1.2.0"></script>
+  <script src="/admin/admin-nav.js?v=1.3.0"></script>
   <script src="/admin/admin-core.js?v=2.4.0"></script>
   <script src="/admin/admin-start.js?v=1.4.0"></script>
   <script src="/admin/admin-journey-daily-analysis.js?v=1.1.0"></script>
   <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-prenumeration-shell.js?v=1.0.0"></script>
+  <script src="/admin/admin-paket-shell.js?v=1.0.0"></script>
+  <script src="/admin/admin-paket-workspace.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
   <script src="/admin/admin-families.js?v=2.3.0"></script>
   <script src="/admin/admin-messages-inbox.js?v=1.0.0"></script>

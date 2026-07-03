@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v493';
+const CACHE_NAME = 'stjarndag-v494';
+// stjarndag-v494: Admin Paket V2 — per-package workspace (Extra stöd, Rapportering, Pedagog)
 // stjarndag-v493: ACT-1 onboarding resume + merge main (barninställningar consolidate)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor

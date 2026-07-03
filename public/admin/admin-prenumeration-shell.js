@@ -4,7 +4,6 @@
 (function () {
   const TABS = [
     { key: 'prenumeration', label: 'Prenumeration & IAP', route: '#prenumeration' },
-    { key: 'paketintresse', label: 'Paketintresse', route: '#paketintresse' },
   ];
 
   function tabBarHtml(activeKey) {

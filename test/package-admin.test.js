@@ -141,6 +141,34 @@ test('pedagog daily-log 409 guard blocks any non-pedagog prior completion', () =
   assert.match(src, /item\.completed && item\.completed_by !== 'pedagog'/);
 });
 
+test('admin Paket V2 workspace exists', () => {
+  const api = fs.readFileSync(path.join(ROOT, 'src/routes/admin/packages.js'), 'utf8');
+  const nav = fs.readFileSync(path.join(ROOT, 'public/admin/admin-nav.js'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, 'public/admin/index.html'), 'utf8');
+  const ws = fs.readFileSync(path.join(ROOT, 'public/admin/admin-paket-workspace.js'), 'utf8');
+  assert.match(api, /starter-content/);
+  assert.match(api, /\/preview/);
+  assert.match(nav, /id: 'paket'/);
+  assert.match(nav, /extra-stod/);
+  assert.match(nav, /paket-rapportering/);
+  assert.match(html, /id="paketSection"/);
+  assert.match(ws, /loadPaketWorkspace/);
+});
+
+test('default_activity_template package content migration exists', () => {
+  const mig = fs.readFileSync(path.join(ROOT, 'migrations/1809600000000_package_admin_content.js'), 'utf8');
+  assert.match(mig, /seven_questions/);
+  assert.match(mig, /package_component/);
+});
+
+test('standard-library copies seven_questions when teacch active', () => {
+  const copy = fs.readFileSync(path.join(ROOT, 'src/lib/standard-library-copy.js'), 'utf8');
+  const lib = fs.readFileSync(path.join(ROOT, 'src/routes/standard-library.js'), 'utf8');
+  assert.match(copy, /hasComponent/);
+  assert.match(copy, /seven_questions/);
+  assert.match(lib, /insertFamilyActivityFromDefault/);
+});
+
 test('interest trigger modal does not render duplicate CTA', () => {
   const src = fs.readFileSync(path.join(ROOT, 'public/js/package-interest-triggers.js'), 'utf8');
   assert.doesNotMatch(src, /pkgInterestCta/);

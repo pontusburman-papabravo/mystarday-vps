@@ -11,6 +11,7 @@ const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
+const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
 
 const router = express.Router();
 router.use(requireParent);
@@ -63,7 +64,7 @@ router.post('/activities/copy-batch', async (req, res) => {
     // Fetch all requested default activities
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     const defaults = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template WHERE id IN (${placeholders})`,
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions FROM default_activity_template WHERE id IN (${placeholders})`,
       ids
     );
     if (defaults.rows.length === 0) {
@@ -95,23 +96,7 @@ router.post('/activities/copy-batch', async (req, res) => {
       await client.query('BEGIN');
 
       for (const act of toCopy) {
-        const newTemplate = await client.query(
-          `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-           VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
-          [req.user.familyId, act.name, act.icon, act.star_value, nextOrder++]
-        );
-
-        // Copy sub-steps if any
-        const subSteps = act.sub_steps || [];
-        if (Array.isArray(subSteps) && subSteps.length > 0) {
-          for (let i = 0; i < subSteps.length; i++) {
-            await client.query(
-              `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-               VALUES ($1, $2, $3, $4)`,
-              [newTemplate.rows[0].id, subSteps[i].name, subSteps[i].icon || null, i]
-            );
-          }
-        }
+        await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder++);
       }
 
       await client.query('COMMIT');
@@ -140,7 +125,7 @@ router.post('/activities/:id/copy', async (req, res) => {
     const { id } = req.params;
 
     const defaultAct = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template WHERE id = $1`,
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions FROM default_activity_template WHERE id = $1`,
       [id]
     );
     if (defaultAct.rows.length === 0) {
@@ -169,23 +154,7 @@ router.post('/activities/:id/copy', async (req, res) => {
     try {
       await client.query('BEGIN');
 
-      const newTemplate = await client.query(
-        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-         VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
-        [req.user.familyId, act.name, act.icon, act.star_value, nextOrder]
-      );
-
-      // Copy sub-steps if any
-      const subSteps = act.sub_steps || [];
-      if (Array.isArray(subSteps) && subSteps.length > 0) {
-        for (let i = 0; i < subSteps.length; i++) {
-          await client.query(
-            `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-             VALUES ($1, $2, $3, $4)`,
-            [newTemplate.rows[0].id, subSteps[i].name, subSteps[i].icon || null, i]
-          );
-        }
-      }
+      await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder);
 
       await client.query('COMMIT');
     } catch (err) {
@@ -209,7 +178,7 @@ router.post('/:group/copy', async (req, res) => {
   try {
     // Fetch all default activities
     const activities = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions
        FROM default_activity_template
        ORDER BY sort_order ASC`
     );
@@ -242,22 +211,7 @@ router.post('/:group/copy', async (req, res) => {
       await client.query('BEGIN');
 
       for (const act of toCopy) {
-        const newTemplate = await client.query(
-          `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-           VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
-          [req.user.familyId, act.name, act.icon, act.star_value, nextOrder++]
-        );
-
-        const subSteps = act.sub_steps || [];
-        if (Array.isArray(subSteps) && subSteps.length > 0) {
-          for (let i = 0; i < subSteps.length; i++) {
-            await client.query(
-              `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-               VALUES ($1, $2, $3, $4)`,
-              [newTemplate.rows[0].id, subSteps[i].name, subSteps[i].icon || null, i]
-            );
-          }
-        }
+        await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder++);
       }
 
       await client.query('COMMIT');
