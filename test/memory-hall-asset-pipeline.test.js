@@ -25,7 +25,7 @@ function loadPipeline() {
 describe('memory-hall asset pipeline stub (BL-044)', () => {
   it('exposes scene srcset manifest matching art spec paths', () => {
     const pipeline = loadPipeline();
-    assert.equal(pipeline.VERSION, '1.0.0');
+    assert.equal(pipeline.VERSION, '1.1.0');
     assert.equal(pipeline.SCENE.file, 'scene@2x.webp');
     assert.equal(pipeline.SCENE.srcset.length, 3);
     assert.equal(pipeline.CRITICAL_FILE, 'scene@2x.webp');
@@ -57,7 +57,7 @@ describe('memory-hall asset pipeline stub (BL-044)', () => {
     const assetDir = path.join(__dirname, '../public/images/child/world/memory-hall');
     assert.ok(fs.existsSync(assetDir), 'memory-hall asset dir should exist after G8');
     const master = path.join(assetDir, 'scene@2x.webp');
-    assert.ok(fs.statSync(master).size > 4096, 'scene master should be non-trivial WebP');
+    assert.ok(fs.statSync(master).size > 50000, 'scene master should be rich WebP v2');
     assert.ok(fs.existsSync(path.join(assetDir, 'scene-430.webp')));
     assert.ok(fs.existsSync(path.join(assetDir, 'scene-1280.webp')));
   });

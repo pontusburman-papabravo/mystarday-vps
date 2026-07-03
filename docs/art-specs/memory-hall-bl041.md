@@ -1,6 +1,6 @@
 # Art spec — Minnesrummet (BL-041)
 
-**Status:** v1 committed (procedural SVG→WebP via `npm run generate:memory-hall-scene`) — illustrator may iterate  
+**Status:** v2 diorama committed (`scripts/sources/memory-hall-scene-v2.png` → WebP srcset) — illustrator may still refine  
 **Governed by:** `docs/decisions/adr-memory-hall-bl012.md` (BL-012 approved)  
 **Does not ship** until assets are approved and committed.
 
