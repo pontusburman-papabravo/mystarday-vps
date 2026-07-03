@@ -1,6 +1,6 @@
 # Roadmap — Min Värld → Minnesrummet
 
-**Uppdaterad:** 2026-07-03 (efter CAP-007-R1)  
+**Uppdaterad:** 2026-07-03 (G7-release branch)  
 **Syfte:** Gates, mänskliga grindar, och var vi är i kedjan mot första utvärdering.
 
 ---
@@ -12,11 +12,10 @@
 ✅ G1  test:gate 698/698
 ✅ G2  Plattform + Minnesrum i kod (CAP-003 → CAP-005)
 ✅ G3  Branch-paritet #539 ↔ #541 (CAP-006-R1)
-✅ G3b #539 rebasad på main (CAP-007-R1, d82c09d7)
-📍 G4  Merge IRC-bunt till main          ← MÄNNISKA (HRC-DEPLOY-IRC)
-⏳ G4b #541 rebas på main               ← agent (CAP-008-R1, annan session)
-⏳ G5  Deploy prod                        ← MÄNNISKA
-⏳ G6  Dev-flagga testfamilj              ← MÄNNISKA (HRC-FLAG-MH)
+✅ G3b #539 + #541 rebasad på main (CAP-007/008-R1)
+📍 G4  Merge IRC-014 till main          ← G7-release branch
+⏳ G5  Deploy prod
+⏳ G6  QA allowlist testfamilj (migration 180953)
 🎯 G7  Första utvärdering i prod
 ⏳ G8  Konst godkänd (HRC-ART-041)       ← valfritt för G7, krävs för polerad UX
 ⏳ G9  Parent warm_echo (HRC-PARENT-042)  ← separat spår
