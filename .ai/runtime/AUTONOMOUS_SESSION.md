@@ -1,8 +1,7 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~08:38 UTC  
-**Relay version:** 2.0  
-**Mode:** Short-lived Workers · persistent Supervisor state
+**Last updated:** 2026-07-03 ~09:05 UTC  
+**Relay version:** 2.0
 
 ---
 
@@ -14,12 +13,12 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 ---
 
-## Active Worker assignment
+## Where we are
 
-| Field | Value |
-|-------|-------|
-| **Next mission** | CAP-006-R1 |
-| **Status** | ready for next session |
+**G3 complete** — branch parity #539 ↔ #541.  
+**Next human gates:** G4 merge → G5 deploy → G6 flag → G7 evaluate.
+
+Roadmap: `docs/reports/roadmap-minnesrummet-2026-07-03.md`
 
 ---
 
@@ -27,29 +26,27 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 | Field | Value |
 |-------|-------|
-| **ID** | CAP-005 |
-| **Title** | Wire memory-hall-asset-pipeline |
-| **Branch** | `cursor/autonomous-relay-resume-b105` |
-| **PR** | #541 |
+| **ID** | CAP-006-R1 |
+| **Branch** | `cursor/memory-hall-bl012-5e52` |
+| **SHA** | `ed435f1a` |
 
 ---
 
-## Current branch
+## Active Worker assignment
 
-```
-cursor/autonomous-relay-resume-b105
-```
+| Field | Value |
+|-------|-------|
+| **Next** | HRC-PREP-001 (optional agent prep) or pause at human gates |
+| **Prompt** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
 
 ---
 
-## Latest test status
+## Test status
 
-| Gate | Status |
-|------|--------|
-| `test:gate` | 698/698 green (CAP-005) |
+`test:gate` — 698/698 green
 
 ---
 
 ## HRC blockers
 
-BL-041 (art), BL-042 (parent warm_echo) — unchanged
+BL-041 (art), BL-042 (parent), HRC-DEPLOY-IRC, HRC-FLAG-MH

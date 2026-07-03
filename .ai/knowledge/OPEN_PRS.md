@@ -16,7 +16,7 @@
 | IRC-011 | #532 | `cursor/loe-timer-edge-tests-5e52` | Low | Draft | LOE timer edge tests |
 | IRC-012 | #534 | `cursor/garden-bloom-aria-5e52` | Low | Draft | Garden bloom aria-live; SW v491 |
 | IRC-013 | #536 | `cursor/memory-hall-scaffold-5e52` | Low | Draft | **Superseded by IRC-014** — close on merge |
-| IRC-014 | #539 | `cursor/memory-hall-bl012-5e52` | Med | Draft | BL-012 + **CAP-003 consumer (IRC-014-R1)** — rebased on relay |
+| IRC-014 | #539 | `cursor/memory-hall-bl012-5e52` | Med | Draft | Minnesrummet — **parity with #541** (`ed435f1a`) |
 | IRC-015 | #540 | `cursor/memory-hall-art-spec-bl041-5e52` | Low | Draft | Art spec + handover; no binaries |
 
 ---
@@ -25,7 +25,7 @@
 
 | IRC | PR | Branch | Status | Notes |
 |-----|-----|--------|--------|-------|
-| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Draft | Relay + CAP-003 + **memory_hall synced (CAP-004-R1)** |
+| IRC-016 | #541 | `cursor/autonomous-relay-resume-b105` | Draft | Relay platform — **parity with #539** (`3059ddf7`) |
 
 ---
 
@@ -38,7 +38,9 @@ IRC-007 → IRC-008 → IRC-009 → IRC-010 → IRC-011 → IRC-012
   → IRC-016
 ```
 
-Guide: `docs/reports/irc-bundle-2026-07-03.md`
+Guide: `docs/reports/irc-bundle-2026-07-03.md` · Roadmap: `docs/reports/roadmap-minnesrummet-2026-07-03.md`
+
+**Branch parity (2026-07-03):** #539 ↔ #541 product code identical (CAP-003, IRC-014-R1, CAP-005). Agent work complete; G4+ requires human.
 
 ---
 
