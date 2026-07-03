@@ -24,12 +24,15 @@ const OUT_DIRS = [
   path.join(ROOT, 'public/assets/worlds/garden'),
 ];
 const SOURCE_CANDIDATES = [
+  path.join(ROOT, 'scripts/sources/garden-scene-master-portrait.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.jpg'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.webp'),
+  path.join(ROOT, 'scripts/sources/garden-scene-master-landscape.png'),
 ];
 
-/** Match shipped aspect ratio (860×1859). */
+/** Shipped scene aspect ratio (860×1859). */
+const TARGET_RATIO = 860 / 1859;
 function heightForWidth(width) {
   return Math.round((width * 1859) / 860);
 }
@@ -53,9 +56,26 @@ function resolveMaster(argvPath) {
     if (fs.existsSync(candidate)) return candidate;
   }
   throw new Error(
-    'No garden master found. Save ChatGPT export as scripts/sources/garden-scene-master.png ' +
-      '(portrait ~1080×2340) or pass a path argument.'
+    'No garden master found. Upload portrait ChatGPT export to scripts/sources/garden-scene-master.png ' +
+      '(~1080×2340) or landscape as garden-scene-master-landscape.png (center-cropped).'
   );
+}
+
+/** Portrait-first: center-crop landscape masters to mobile aspect. */
+async function portraitBase(masterPath) {
+  const rotated = sharp(masterPath).rotate();
+  const meta = await rotated.metadata();
+  const ratio = meta.width / meta.height;
+
+  if (ratio <= TARGET_RATIO * 1.02) {
+    return rotated;
+  }
+
+  const cropH = meta.height;
+  const cropW = Math.min(meta.width, Math.round(cropH * TARGET_RATIO));
+  const left = Math.round((meta.width - cropW) / 2);
+  console.log('Landscape master — center crop to portrait', `${cropW}×${cropH}`);
+  return rotated.extract({ left, top: 0, width: cropW, height: cropH });
 }
 
 function logFile(outPath, width, height) {
@@ -72,7 +92,7 @@ async function exportScene(masterPath) {
     meta.format
   );
 
-  const base = sharp(masterPath).rotate();
+  const base = await portraitBase(masterPath);
 
   for (const outDir of OUT_DIRS) {
     fs.mkdirSync(outDir, { recursive: true });
