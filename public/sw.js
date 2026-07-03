@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v499';
+const CACHE_NAME = 'stjarndag-v500';
+// stjarndag-v500: G8 Minnesrummet scene WebP v1 + illustrated overlay frames
 // stjarndag-v499: Minnesrummet diorama UX — wood frames, warm toast, no badge grid
 // stjarndag-v498: Minnesrummet scaffold polish — invisible hotspots, pride grid layout
 // stjarndag-v497: garden path CTA + hotspot fix for Minnesrummet entry
@@ -483,6 +484,10 @@ const STATIC_ASSETS = [
   '/images/child/world/garden/scene-bg-430.webp',
   '/images/child/world/garden/scene-bg-860.webp',
   '/images/child/world/garden/scene-bg-1280.webp',
+  '/images/child/world/memory-hall/scene@2x.webp',
+  '/images/child/world/memory-hall/scene-430.webp',
+  '/images/child/world/memory-hall/scene-860.webp',
+  '/images/child/world/memory-hall/scene-1280.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',

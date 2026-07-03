@@ -424,6 +424,41 @@ body.child-memory-hall-active #rewardsView {
   z-index: 4;
 }
 
+.mu-exhibits--illustrated {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10%);
+  left: 6%;
+  right: 6%;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.mu-scene--illustrated .mu-frame--overlay {
+  min-height: auto;
+  flex: 0 0 auto;
+  width: calc((100% - 16px) / 3);
+  max-width: 88px;
+}
+
+.mu-scene--illustrated .mu-frame--overlay .mu-frame-inner {
+  aspect-ratio: 1;
+  border-width: 2px;
+  background: rgba(255, 252, 247, 0.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 230, 0.65),
+    0 4px 14px rgba(27, 35, 64, 0.18);
+}
+
+.mu-scene--illustrated .mu-frame--warm-echo .mu-frame-inner {
+  border-color: #d4b080;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 236, 180, 0.75),
+    0 0 12px rgba(232, 201, 160, 0.45);
+}
+
+.mu-scene--illustrated .mu-frame--overlay .mu-frame-emoji {
+  font-size: 1.45rem;
+}
+
 .mu-exhibit {
   min-width: 44px;
   min-height: 44px;
