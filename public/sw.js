@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v507';
+const CACHE_NAME = 'stjarndag-v508';
+// stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
 // stjarndag-v507: catalog room wire-in (hall+102–105), scenes.json, memory-hall master, hero assets
 // stjarndag-v506: generic room scene export (home→lake webp sets)
 // stjarndag-v502: platform auth matrix + Google signup/link (google_user_id)
@@ -498,6 +499,34 @@ const STATIC_ASSETS = [
   '/images/child/world/kitchen/scene-bg-430.webp',
   '/images/child/world/bathroom/scene-bg.webp',
   '/images/child/world/attic/scene-bg.webp',
+  '/images/child/world/home/scene-bg.webp',
+  '/images/child/world/home/scene-bg-430.webp',
+  '/images/child/world/home/scene-bg-860.webp',
+  '/images/child/world/home/scene-bg-1280.webp',
+  '/images/child/world/workshop/scene-bg.webp',
+  '/images/child/world/workshop/scene-bg-430.webp',
+  '/images/child/world/workshop/scene-bg-860.webp',
+  '/images/child/world/workshop/scene-bg-1280.webp',
+  '/images/child/world/pet-house/scene-bg.webp',
+  '/images/child/world/pet-house/scene-bg-430.webp',
+  '/images/child/world/pet-house/scene-bg-860.webp',
+  '/images/child/world/pet-house/scene-bg-1280.webp',
+  '/images/child/world/trophy-room/scene-bg.webp',
+  '/images/child/world/trophy-room/scene-bg-430.webp',
+  '/images/child/world/trophy-room/scene-bg-860.webp',
+  '/images/child/world/trophy-room/scene-bg-1280.webp',
+  '/images/child/world/reading-corner/scene-bg.webp',
+  '/images/child/world/reading-corner/scene-bg-430.webp',
+  '/images/child/world/reading-corner/scene-bg-860.webp',
+  '/images/child/world/reading-corner/scene-bg-1280.webp',
+  '/images/child/world/forest/scene-bg.webp',
+  '/images/child/world/forest/scene-bg-430.webp',
+  '/images/child/world/forest/scene-bg-860.webp',
+  '/images/child/world/forest/scene-bg-1280.webp',
+  '/images/child/world/lake/scene-bg.webp',
+  '/images/child/world/lake/scene-bg-430.webp',
+  '/images/child/world/lake/scene-bg-860.webp',
+  '/images/child/world/lake/scene-bg-1280.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',

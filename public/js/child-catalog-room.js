@@ -1,6 +1,6 @@
 /**
- * child-catalog-room.js — Illustrated interior scenes (hall + 102–105) via shared catalog.
- * Fail-closed: missing scene-bg → exit to parent (Morgonhus / hall).
+ * child-catalog-room.js — Illustrated catalog rooms via shared Living World catalog.
+ * Fail-closed: missing scene-bg → exit to parent (Morgonhus / hall / garden).
  */
 (function () {
   'use strict';
@@ -169,14 +169,7 @@
       return;
     }
     deactivate();
-    if (target === 'routine_home') {
-      await remountMorgonhus();
-      return;
-    }
-    const parent = roomById(target);
-    if (parent && parent.wire_in) {
-      await mount(target, {});
-    }
+    await remountParentForRoom(room);
   }
 
   async function remountMorgonhus() {
@@ -190,6 +183,34 @@
       window.loadRewards();
     }
     return false;
+  }
+
+  async function remountGarden() {
+    if (window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.enterGarden === 'function') {
+      deactivate();
+      return window.LivingWorldTransition.enterGarden({ viaTransition: true });
+    }
+    if (window.ChildGarden && typeof window.ChildGarden.mount === 'function') {
+      deactivate();
+      return window.ChildGarden.mount(null, { viaTransition: true });
+    }
+    return false;
+  }
+
+  async function remountParentForRoom(room) {
+    if (!room) return remountMorgonhus();
+    if (room.exit_target === 'routine_home') {
+      return remountMorgonhus();
+    }
+    if (room.exit_target === 'garden') {
+      return remountGarden();
+    }
+    const parent = roomById(room.exit_target);
+    if (parent && parent.wire_in && !parent.wired_via) {
+      return mount(parent.world_id, { viaTransition: true });
+    }
+    return remountMorgonhus();
   }
 
   function bindAssetWatch(root, worldId) {
@@ -310,27 +331,13 @@
           deactivate();
         },
         onMountFail: async function () {
-          if (room.exit_target === 'routine_home') {
-            return remountMorgonhus();
-          }
-          const parent = roomById(room.exit_target);
-          if (parent && parent.wire_in && !parent.wired_via) {
-            return mount(parent.world_id, { viaTransition: true });
-          }
-          return remountMorgonhus();
+          return remountParentForRoom(room);
         },
         onEnterError: function () {
           deactivate();
         },
         remountParent: async function () {
-          if (room.exit_target === 'routine_home') {
-            return remountMorgonhus();
-          }
-          const parent = roomById(room.exit_target);
-          if (parent && parent.wire_in && !parent.wired_via) {
-            return mount(parent.world_id, { viaTransition: true });
-          }
-          return remountMorgonhus();
+          return remountParentForRoom(room);
         },
       });
     });

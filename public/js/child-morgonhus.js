@@ -77,6 +77,7 @@
       '</div>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status" aria-live="polite"></div>' +
       '<div class="mh-scene-footer">' +
+        '<button type="button" class="mh-exterior-link" id="mhExteriorLink">🏡 Utanför</button>' +
         '<button type="button" class="mh-hall-link" id="mhHallLink">🚪 Hallen</button>' +
         '<button type="button" class="mh-skatt-link" id="mhSkattLink">💎 Skattkammaren</button>' +
       '</div>' +
@@ -185,6 +186,20 @@
           window.LivingWorldTransition.enterWorld('home_hall', { triggerEl: hallLink }).then(function (entered) {
             if (!entered) {
               showToast(root, 'Hallen är inte redo just nu.');
+            }
+          });
+        }
+      });
+    }
+
+    const exteriorLink = root.querySelector('#mhExteriorLink');
+    if (exteriorLink) {
+      exteriorLink.addEventListener('click', function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.enterWorld === 'function') {
+          window.LivingWorldTransition.enterWorld('home_exterior', { triggerEl: exteriorLink }).then(function (entered) {
+            if (!entered) {
+              showToast(root, 'Utanför är inte redo just nu.');
             }
           });
         }

@@ -41,6 +41,28 @@
       '</picture>';
   }
 
+  function catalogGardenRoom() {
+    const c = window.LivingWorldScenesCatalog;
+    return c && typeof c.getRoomByWorldId === 'function' ? c.getRoomByWorldId('garden') : null;
+  }
+
+  function outdoorNavHotspots() {
+    const room = catalogGardenRoom();
+    if (!room || !room.hotspots) return '';
+    const outdoorIds = ['path_workshop', 'path_forest', 'gate_pet_house'];
+    return room.hotspots.filter(function (h) {
+      return outdoorIds.indexOf(h.hotspot_id) !== -1 && h.interaction === 'navigate' && h.target_scene;
+    }).map(function (h) {
+      const hit = h.hit_area || {};
+      const style = 'left:' + ((hit.x || 0) * 100) + '%;top:' + ((hit.y || 0) * 100) + '%;' +
+        'width:' + ((hit.w || 0.15) * 100) + '%;height:' + ((hit.h || 0.15) * 100) + '%;';
+      return '<button type="button" class="gd-hotspot gd-hotspot--outdoor gd-hotspot--' + esc(h.hotspot_id) + '"' +
+        ' data-outdoor-nav="' + esc(h.target_scene) + '"' +
+        ' style="' + style + '"' +
+        ' aria-label="' + esc(h.label_sv || h.hotspot_id) + '"></button>';
+    }).join('');
+  }
+
   function renderScene(state) {
     const scenery = (state && state.scenery) || [];
     const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
@@ -65,6 +87,7 @@
         pathUnlocked ? 'gd-hotspot--path-unlocked' : '') +
       hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
       hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
+      outdoorNavHotspots() +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -144,11 +167,37 @@
     });
   }
 
+  async function handleOutdoorNav(root, targetScene, btn) {
+    const c = window.LivingWorldScenesCatalog;
+    const targetRoom = c && c.getRoomBySceneId ? c.getRoomBySceneId(targetScene) : null;
+    if (targetRoom && targetRoom.wire_in && !targetRoom.wired_via
+        && window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.enterWorld === 'function') {
+      const entered = await window.LivingWorldTransition.enterWorld(targetRoom.world_id, { triggerEl: btn });
+      if (!entered) {
+        triggerVisual(root, null);
+        showPathHint(root, (btn && btn.getAttribute('aria-label')) + ' är inte redo än.');
+      }
+      return;
+    }
+    triggerVisual(root, null);
+    showPathHint(root, 'Stigen svarar inte just nu — försök igen.');
+  }
+
   function bindInteractions(root) {
     if (!root) return;
 
     root.querySelectorAll('.gd-hotspot').forEach(function (btn) {
       bindSceneryButton(root, btn);
+    });
+
+    root.querySelectorAll('[data-outdoor-nav]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const target = btn.getAttribute('data-outdoor-nav');
+        btn.classList.add('is-tapped');
+        setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
+        handleOutdoorNav(root, target, btn);
+      });
     });
 
     const backBtn = root.querySelector('#gdBackMorgonhus');

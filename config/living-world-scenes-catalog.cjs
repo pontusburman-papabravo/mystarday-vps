@@ -16,7 +16,7 @@ const LIVING_WORLD_ROOMS = [
     exit_target: 'routine_home',
     exit_label_sv: 'Tillbaka till Morgonhuset',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'front_door', interaction: 'navigate', target_scene: 'home_hall', label_sv: 'In genom dörren', hit_area: { x: 0.38, y: 0.42, w: 0.24, h: 0.38 } },
     ],
@@ -39,6 +39,7 @@ const LIVING_WORLD_ROOMS = [
       { hotspot_id: 'door_kitchen', interaction: 'navigate', target_scene: 'home_kitchen', label_sv: 'Köket', hit_area: { x: 0.72, y: 0.48, w: 0.18, h: 0.32 } },
       { hotspot_id: 'door_bathroom', interaction: 'navigate', target_scene: 'home_bathroom', label_sv: 'Badrummet', hit_area: { x: 0.78, y: 0.55, w: 0.16, h: 0.28 } },
       { hotspot_id: 'door_attic', interaction: 'navigate', target_scene: 'attic', label_sv: 'Vinden', hit_area: { x: 0.42, y: 0.08, w: 0.2, h: 0.22 } },
+      { hotspot_id: 'door_trophy', interaction: 'navigate', target_scene: 'trophy_room', label_sv: 'Troféerna', hit_area: { x: 0.88, y: 0.42, w: 0.1, h: 0.38 } },
       { hotspot_id: 'door_garden', interaction: 'navigate', target_scene: 'garden', label_sv: 'Trädgården', hit_area: { x: 0.55, y: 0.55, w: 0.2, h: 0.35 } },
     ],
   },
@@ -57,6 +58,7 @@ const LIVING_WORLD_ROOMS = [
     hotspots: [
       { hotspot_id: 'child_bed_inspect', interaction: 'inspect', label_sv: 'Sängen', hit_area: { x: 0.18, y: 0.48, w: 0.42, h: 0.28 } },
       { hotspot_id: 'window_weather_inspect', interaction: 'inspect', label_sv: 'Fönstret', hit_area: { x: 0.62, y: 0.18, w: 0.28, h: 0.22 } },
+      { hotspot_id: 'door_reading_corner', interaction: 'navigate', target_scene: 'reading_corner', label_sv: 'Läshörnan', hit_area: { x: 0.78, y: 0.38, w: 0.16, h: 0.28 } },
       { hotspot_id: 'door_hall', interaction: 'navigate', target_scene: 'home_hall', label_sv: 'Hallen', hit_area: { x: 0.04, y: 0.58, w: 0.18, h: 0.32 } },
     ],
   },
@@ -130,6 +132,9 @@ const LIVING_WORLD_ROOMS = [
       { hotspot_id: 'garden_path', interaction: 'navigate', target_scene: 'memory_hall', label_sv: 'Stigen', hit_area: { x: 0.35, y: 0.55, w: 0.3, h: 0.35 } },
       { hotspot_id: 'garden_bed', interaction: 'inspect', label_sv: 'Blomsterbädden', hit_area: { x: 0.05, y: 0.6, w: 0.25, h: 0.25 } },
       { hotspot_id: 'garden_sky', interaction: 'inspect', label_sv: 'Himlen', hit_area: { x: 0.2, y: 0.05, w: 0.6, h: 0.2 } },
+      { hotspot_id: 'path_workshop', interaction: 'navigate', target_scene: 'workshop', label_sv: 'Verkstaden', hit_area: { x: 0.72, y: 0.48, w: 0.18, h: 0.28 } },
+      { hotspot_id: 'path_forest', interaction: 'navigate', target_scene: 'forest', label_sv: 'Skogen', hit_area: { x: 0.02, y: 0.45, w: 0.2, h: 0.32 } },
+      { hotspot_id: 'gate_pet_house', interaction: 'navigate', target_scene: 'pet_house', label_sv: 'Husdjursstugan', hit_area: { x: 0.82, y: 0.62, w: 0.16, h: 0.28 } },
     ],
   },
   {
@@ -143,7 +148,7 @@ const LIVING_WORLD_ROOMS = [
     exit_target: 'garden',
     exit_label_sv: 'Tillbaka till trädgården',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'workbench_inspect', interaction: 'inspect', label_sv: 'Hörnet', hit_area: { x: 0.25, y: 0.45, w: 0.4, h: 0.3 } },
       { hotspot_id: 'door_garden', interaction: 'navigate', target_scene: 'garden', label_sv: 'Trädgården', hit_area: { x: 0.05, y: 0.55, w: 0.18, h: 0.32 } },
@@ -173,8 +178,9 @@ const LIVING_WORLD_ROOMS = [
     asset_dir: 'pet-house',
     class_prefix: 'ph',
     exit_target: 'garden',
+    exit_label_sv: 'Tillbaka till trädgården',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'rescue_bed', interaction: 'inspect', label_sv: 'Bädden', hit_area: { x: 0.28, y: 0.5, w: 0.35, h: 0.28 } },
       { hotspot_id: 'gate_garden', interaction: 'navigate', target_scene: 'garden', label_sv: 'Trädgården', hit_area: { x: 0.05, y: 0.55, w: 0.2, h: 0.32 } },
@@ -189,8 +195,9 @@ const LIVING_WORLD_ROOMS = [
     asset_dir: 'trophy-room',
     class_prefix: 'tr',
     exit_target: 'home_hall',
+    exit_label_sv: 'Tillbaka till hallen',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'trophy_shelf', interaction: 'inspect', label_sv: 'Hyllan', hit_area: { x: 0.2, y: 0.3, w: 0.5, h: 0.35 } },
       { hotspot_id: 'door_hall', interaction: 'navigate', target_scene: 'home_hall', label_sv: 'Hallen', hit_area: { x: 0.04, y: 0.55, w: 0.16, h: 0.32 } },
@@ -205,8 +212,9 @@ const LIVING_WORLD_ROOMS = [
     asset_dir: 'reading-corner',
     class_prefix: 'rc',
     exit_target: 'bedroom',
+    exit_label_sv: 'Tillbaka till sovrummet',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'reading_lamp', interaction: 'inspect', label_sv: 'Lampan', hit_area: { x: 0.55, y: 0.25, w: 0.25, h: 0.25 } },
       { hotspot_id: 'door_bedroom', interaction: 'navigate', target_scene: 'bedroom', label_sv: 'Sovrummet', hit_area: { x: 0.04, y: 0.55, w: 0.16, h: 0.32 } },
@@ -221,8 +229,9 @@ const LIVING_WORLD_ROOMS = [
     asset_dir: 'forest',
     class_prefix: 'fo',
     exit_target: 'garden',
+    exit_label_sv: 'Tillbaka till trädgården',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'forest_path', interaction: 'navigate', target_scene: 'lake', label_sv: 'Stigen till sjön', hit_area: { x: 0.35, y: 0.55, w: 0.3, h: 0.35 } },
       { hotspot_id: 'ancient_pine', interaction: 'inspect', label_sv: 'Tallen', hit_area: { x: 0.1, y: 0.2, w: 0.35, h: 0.45 } },
@@ -237,8 +246,9 @@ const LIVING_WORLD_ROOMS = [
     asset_dir: 'lake',
     class_prefix: 'lk',
     exit_target: 'forest',
+    exit_label_sv: 'Tillbaka till skogen',
     asset_exportable: true,
-    wire_in: false,
+    wire_in: true,
     hotspots: [
       { hotspot_id: 'lake_dock', interaction: 'inspect', label_sv: 'Bryggan', hit_area: { x: 0.25, y: 0.55, w: 0.45, h: 0.25 } },
       { hotspot_id: 'path_forest', interaction: 'navigate', target_scene: 'forest', label_sv: 'Tillbaka till skogen', hit_area: { x: 0.05, y: 0.6, w: 0.2, h: 0.28 } },

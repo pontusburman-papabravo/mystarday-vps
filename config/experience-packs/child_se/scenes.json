@@ -122,6 +122,18 @@
           "target_scene": "attic"
         },
         {
+          "hotspot_id": "door_trophy",
+          "interaction": "navigate",
+          "label_sv": "Troféerna",
+          "hit_area": {
+            "x": 0.88,
+            "y": 0.42,
+            "w": 0.1,
+            "h": 0.38
+          },
+          "target_scene": "trophy_room"
+        },
+        {
           "hotspot_id": "door_garden",
           "interaction": "navigate",
           "label_sv": "Trädgården",
@@ -180,6 +192,18 @@
             "w": 0.28,
             "h": 0.22
           }
+        },
+        {
+          "hotspot_id": "door_reading_corner",
+          "interaction": "navigate",
+          "label_sv": "Läshörnan",
+          "hit_area": {
+            "x": 0.78,
+            "y": 0.38,
+            "w": 0.16,
+            "h": 0.28
+          },
+          "target_scene": "reading_corner"
         },
         {
           "hotspot_id": "door_hall",
@@ -432,6 +456,42 @@
             "w": 0.6,
             "h": 0.2
           }
+        },
+        {
+          "hotspot_id": "path_workshop",
+          "interaction": "navigate",
+          "label_sv": "Verkstaden",
+          "hit_area": {
+            "x": 0.72,
+            "y": 0.48,
+            "w": 0.18,
+            "h": 0.28
+          },
+          "target_scene": "workshop"
+        },
+        {
+          "hotspot_id": "path_forest",
+          "interaction": "navigate",
+          "label_sv": "Skogen",
+          "hit_area": {
+            "x": 0.02,
+            "y": 0.45,
+            "w": 0.2,
+            "h": 0.32
+          },
+          "target_scene": "forest"
+        },
+        {
+          "hotspot_id": "gate_pet_house",
+          "interaction": "navigate",
+          "label_sv": "Husdjursstugan",
+          "hit_area": {
+            "x": 0.82,
+            "y": 0.62,
+            "w": 0.16,
+            "h": 0.28
+          },
+          "target_scene": "pet_house"
         }
       ],
       "ambient": []

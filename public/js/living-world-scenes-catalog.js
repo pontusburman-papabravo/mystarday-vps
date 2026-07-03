@@ -14,7 +14,7 @@
     "exit_target": "routine_home",
     "exit_label_sv": "Tillbaka till Morgonhuset",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -103,6 +103,18 @@
         }
       },
       {
+        "hotspot_id": "door_trophy",
+        "interaction": "navigate",
+        "target_scene": "trophy_room",
+        "label_sv": "Troféerna",
+        "hit_area": {
+          "x": 0.88,
+          "y": 0.42,
+          "w": 0.1,
+          "h": 0.38
+        }
+      },
+      {
         "hotspot_id": "door_garden",
         "interaction": "navigate",
         "target_scene": "garden",
@@ -148,6 +160,18 @@
           "y": 0.18,
           "w": 0.28,
           "h": 0.22
+        }
+      },
+      {
+        "hotspot_id": "door_reading_corner",
+        "interaction": "navigate",
+        "target_scene": "reading_corner",
+        "label_sv": "Läshörnan",
+        "hit_area": {
+          "x": 0.78,
+          "y": 0.38,
+          "w": 0.16,
+          "h": 0.28
         }
       },
       {
@@ -353,6 +377,42 @@
           "w": 0.6,
           "h": 0.2
         }
+      },
+      {
+        "hotspot_id": "path_workshop",
+        "interaction": "navigate",
+        "target_scene": "workshop",
+        "label_sv": "Verkstaden",
+        "hit_area": {
+          "x": 0.72,
+          "y": 0.48,
+          "w": 0.18,
+          "h": 0.28
+        }
+      },
+      {
+        "hotspot_id": "path_forest",
+        "interaction": "navigate",
+        "target_scene": "forest",
+        "label_sv": "Skogen",
+        "hit_area": {
+          "x": 0.02,
+          "y": 0.45,
+          "w": 0.2,
+          "h": 0.32
+        }
+      },
+      {
+        "hotspot_id": "gate_pet_house",
+        "interaction": "navigate",
+        "target_scene": "pet_house",
+        "label_sv": "Husdjursstugan",
+        "hit_area": {
+          "x": 0.82,
+          "y": 0.62,
+          "w": 0.16,
+          "h": 0.28
+        }
       }
     ]
   },
@@ -365,7 +425,7 @@
     "exit_target": "garden",
     "exit_label_sv": "Tillbaka till trädgården",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -425,9 +485,9 @@
     "class_prefix": "ph",
     "display_name_sv": "Husdjursstugan",
     "exit_target": "garden",
-    "exit_label_sv": null,
+    "exit_label_sv": "Tillbaka till trädgården",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -462,9 +522,9 @@
     "class_prefix": "tr",
     "display_name_sv": "Troférummet",
     "exit_target": "home_hall",
-    "exit_label_sv": null,
+    "exit_label_sv": "Tillbaka till hallen",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -499,9 +559,9 @@
     "class_prefix": "rc",
     "display_name_sv": "Läshörnan",
     "exit_target": "bedroom",
-    "exit_label_sv": null,
+    "exit_label_sv": "Tillbaka till sovrummet",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -536,9 +596,9 @@
     "class_prefix": "fo",
     "display_name_sv": "Skogen",
     "exit_target": "garden",
-    "exit_label_sv": null,
+    "exit_label_sv": "Tillbaka till trädgården",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {
@@ -573,9 +633,9 @@
     "class_prefix": "lk",
     "display_name_sv": "Sjön",
     "exit_target": "forest",
-    "exit_label_sv": null,
+    "exit_label_sv": "Tillbaka till skogen",
     "asset_exportable": true,
-    "wire_in": false,
+    "wire_in": true,
     "wired_via": null,
     "hotspots": [
       {

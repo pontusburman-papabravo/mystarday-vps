@@ -7,7 +7,20 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-const WIRED = ['home_hall', 'bedroom', 'home_kitchen', 'home_bathroom', 'attic'];
+const WIRED = [
+  'home_exterior',
+  'home_hall',
+  'bedroom',
+  'home_kitchen',
+  'home_bathroom',
+  'attic',
+  'workshop',
+  'pet_house',
+  'trophy_room',
+  'reading_corner',
+  'forest',
+  'lake',
+];
 const SCENE_FILES = [
   'scene-bg.webp',
   'scene-bg-430.webp',
@@ -15,7 +28,7 @@ const SCENE_FILES = [
   'scene-bg-1280.webp',
 ];
 
-describe('catalog room wire-in (hall + 102–105)', () => {
+describe('catalog room wire-in (all exportable rooms)', () => {
   it('child-dashboard loads catalog room scripts', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /living-world-scenes-catalog\.js/);
@@ -24,10 +37,25 @@ describe('catalog room wire-in (hall + 102–105)', () => {
     assert.match(html, /child-catalog-room\.css/);
   });
 
-  it('morgonhus exposes Hallen entry to home_hall', () => {
+  it('morgonhus exposes Hallen and Utanför entry points', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-morgonhus.js'), 'utf8');
     assert.match(src, /mhHallLink/);
+    assert.match(src, /mhExteriorLink/);
     assert.match(src, /enterWorld\('home_hall'/);
+    assert.match(src, /enterWorld\('home_exterior'/);
+  });
+
+  it('garden exposes outdoor catalog navigation hotspots', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-garden.js'), 'utf8');
+    assert.match(src, /outdoorNavHotspots/);
+    assert.match(src, /data-outdoor-nav/);
+    assert.match(src, /enterWorld/);
+  });
+
+  it('catalog room remounts garden parent on outdoor exit', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-catalog-room.js'), 'utf8');
+    assert.match(src, /remountGarden/);
+    assert.match(src, /exit_target === 'garden'/);
   });
 
   for (const worldId of WIRED) {
