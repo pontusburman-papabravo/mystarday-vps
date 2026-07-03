@@ -9,6 +9,7 @@
     "css:build": "node scripts/css-build.mjs",
     "generate:resurser-pdfs": "node scripts/generate-resurser-pdfs.mjs",
     "generate:memory-hall-scene": "node scripts/generate-memory-hall-scene.mjs",
+    "generate:garden-scene": "node scripts/generate-garden-scene.mjs",
     "capture:marketing-seo": "node scripts/capture-marketing-seo-screenshots.mjs",
     "check:css": "node scripts/css-build.mjs && git diff --exit-code public/css/tailwind.build.css public/sw.js",
     "migrate": "node migrate.js",
