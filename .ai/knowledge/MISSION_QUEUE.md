@@ -9,9 +9,8 @@
 
 | Rank | ID | Mission | ROI | Status | Blocker |
 |------|-----|---------|-----|--------|---------|
-| 1 | BL-036 | worlds.json gate_to_world cross-ref test | 6.0 | **active** | — |
+| 1 | BL-037 | RVS/LWS nightly score refresh | 5.5 | **done** |
 | 2 | BL-029 | Museum runtime prep (pack scaffold) | 8.1 | queued | BL-012 |
-| 3 | BL-037 | RVS/LWS nightly score refresh | 5.5 | queued | — |
 
 ---
 
