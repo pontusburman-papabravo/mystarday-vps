@@ -47,6 +47,56 @@
       '<div class="toggle-thumb"></div></div></div>';
   }
 
+  function isNnlModeEnabled(child) {
+    return child && child.show_now_next === true;
+  }
+
+  async function saveNnlMode(childId, enabled) {
+    return window.apiFetch('/api/children/' + encodeURIComponent(childId), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        show_now_next: enabled,
+        require_sequential_completion: enabled,
+      }),
+    });
+  }
+
+  function advancedSettingsHtml(child) {
+    const hapticsOn = localStorage.getItem('stjarndag_haptics_enabled') !== 'false';
+    return '<div class="bg-white rounded-2xl border border-lavender p-4">' +
+      '<p class="font-semibold text-navy mb-1">Barnvy & rutiner</p>' +
+      '<p class="text-xs text-text-soft mb-3">Ordning, klocka, animationer och timer.</p>' +
+      toggleRow('profileSetupNnl', 'NU / NÄSTA / SEDAN', 'Guidad ordning — barnet bockar av en i taget', isNnlModeEnabled(child)) +
+      toggleRow('profileSetupReorder', 'Barnets omsortering', 'Barnet kan dra om aktiviteter', !!child.allow_child_reorder) +
+      toggleRow('profileSetupHideClock', 'Dölj klockslag', 'Minskar stress för tidskänsliga barn', !!child.hide_clock) +
+      toggleRow('profileSetupLockSchedule', 'Lås schema', 'Barnet kan inte bläddra till andra dagar', !!child.lock_schedule) +
+      toggleRow('profileSetupDopamin', 'Dopamin-animation', 'Stjärnburst vid avbockning', child.dopamin_animation !== false) +
+      toggleRow('profileSetupHaptics', 'Vibration', 'Taktil feedback vid stjärnor och belöningar', hapticsOn) +
+      toggleRow('profileSetupActivityTimers', 'Aktivitetstimer (timglas)', 'Masterbrytare. Sätt tid per aktivitet i biblioteket.', child.activity_timers_enabled === true) +
+      toggleRow('profileSetupVisualTimer', 'Visuell timer', 'Cirkulär klocka vid pågående aktivitet', child.visual_timer !== false) +
+      toggleRow('profileSetupColorCoding', 'Färgkodning', 'Färgkodade aktivitetskort', child.color_coding !== false) +
+      '</div>';
+  }
+
+  function wireChildToggle(track, childId, field, child, onSaved) {
+    if (!track) return;
+    track.addEventListener('click', async function (e) {
+      e.preventDefault();
+      const on = !track.classList.contains('on');
+      track.classList.toggle('on');
+      const res = await saveChildField(childId, field, on);
+      if (!res.ok) {
+        track.classList.toggle('on');
+        showToast('Kunde inte spara', true);
+        return;
+      }
+      child[field] = on;
+      showToast('Sparat');
+      if (onSaved) onSaved(on);
+    });
+  }
+
   function setupHtml(child, viewConfig) {
     const vm = viewConfig || {};
     const avatar = safeAvatarUrl(child.avatar_url)
@@ -74,7 +124,7 @@
       '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">Laddar belöningar…</p></div>' +
       '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
       '</div>' +
-      '<a href="/child-settings?child=' + encodeURIComponent(child.id) + '" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
+      advancedSettingsHtml(child) +
       '<div class="pt-4 mt-2 border-t border-lavender">' +
       '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
       '🗑 Radera barn permanent</button>' +
@@ -266,6 +316,44 @@
         else { viewConfig.minimal_ui = on; showToast('Sparat'); }
       });
     }
+
+    const nnlToggle = document.getElementById('profileSetupNnl');
+    if (nnlToggle) {
+      nnlToggle.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const on = !nnlToggle.classList.contains('on');
+        nnlToggle.classList.toggle('on');
+        const res = await saveNnlMode(child.id, on);
+        if (!res.ok) {
+          nnlToggle.classList.toggle('on');
+          showToast('Kunde inte spara', true);
+          return;
+        }
+        child.show_now_next = on;
+        child.require_sequential_completion = on;
+        showToast(on ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+      });
+    }
+
+    wireChildToggle(document.getElementById('profileSetupReorder'), child.id, 'allow_child_reorder', child);
+    wireChildToggle(document.getElementById('profileSetupHideClock'), child.id, 'hide_clock', child);
+    wireChildToggle(document.getElementById('profileSetupLockSchedule'), child.id, 'lock_schedule', child);
+    wireChildToggle(document.getElementById('profileSetupDopamin'), child.id, 'dopamin_animation', child);
+    wireChildToggle(document.getElementById('profileSetupActivityTimers'), child.id, 'activity_timers_enabled', child);
+    wireChildToggle(document.getElementById('profileSetupVisualTimer'), child.id, 'visual_timer', child);
+    wireChildToggle(document.getElementById('profileSetupColorCoding'), child.id, 'color_coding', child);
+
+    const hapticsToggle = document.getElementById('profileSetupHaptics');
+    if (hapticsToggle) {
+      hapticsToggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        const on = !hapticsToggle.classList.contains('on');
+        hapticsToggle.classList.toggle('on');
+        localStorage.setItem('stjarndag_haptics_enabled', on ? 'true' : 'false');
+        showToast(on ? 'Vibration påslagen' : 'Vibration avstängd');
+      });
+    }
+
     _wiring = false;
   }
 

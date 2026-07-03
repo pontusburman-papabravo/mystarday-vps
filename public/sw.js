@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-// stjarndag-v491: aktivitetstimer v0.3 — duration_seconds, localStorage session, NU-kort UI
-const CACHE_NAME = 'stjarndag-v491';
+// stjarndag-v492: barninställningar — avancerade toggles inline i barnprofil Inställningar
+const CACHE_NAME = 'stjarndag-v492';
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor
 // stjarndag-v484: merge PR 3 — övergångsstöd (teacch-gated) + känslostöd (basic) + föräldrarapport (EPIC 3.1-3.8, D9: EPIC 3.3 exkluderad)
