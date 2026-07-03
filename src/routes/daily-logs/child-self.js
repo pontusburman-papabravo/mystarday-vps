@@ -40,7 +40,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
 
     // Get child's UI flags + timezone (for NOW/NEXT/LATER date comparison)
     const childResult = await db.query(
-      'SELECT allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, timezone, dopamin_animation, visual_timer, hide_clock, color_coding, view_type FROM child WHERE id = $1',
+      'SELECT allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, timezone, dopamin_animation, visual_timer, activity_timers_enabled, hide_clock, color_coding, view_type FROM child WHERE id = $1',
       [childId]
     );
     const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
@@ -54,6 +54,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const transitionLeadMinutes = childResult.rows[0]?.transition_lead_minutes;
     const dopaminAnimation = childResult.rows[0]?.dopamin_animation !== false; // default true
     const visualTimer = childResult.rows[0]?.visual_timer !== false; // default true
+    const activityTimersEnabled = childResult.rows[0]?.activity_timers_enabled === true;
     const hideClock = childResult.rows[0]?.hide_clock || false; // default false
     const colorCoding = childResult.rows[0]?.color_coding !== false; // default true
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
@@ -219,6 +220,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       transition_lead_minutes: transitionLeadMinutes,
       dopamin_animation: dopaminAnimation,
       visual_timer: visualTimer,
+      activity_timers_enabled: activityTimersEnabled,
       hide_clock: hideClock,
       color_coding: colorCoding,
       view_type: viewType,

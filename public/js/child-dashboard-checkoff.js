@@ -108,6 +108,7 @@
     const name = card ? (card.dataset.itemName || 'Aktivitet') : 'Aktivitet';
 
     if (!isCurrentlyDone) {
+      if (window.ChildActivityTimer) ChildActivityTimer.clearForItem(itemId);
       if (window.Platform && window.Platform.haptics) {
         window.Platform.haptics.medium();
       }

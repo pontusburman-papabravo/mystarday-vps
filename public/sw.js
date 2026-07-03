@@ -217,11 +217,10 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v491';
-// stjarndag-v491: ACT-1 onboarding resume — mark complete on schema save, funnel resume
+const CACHE_NAME = 'stjarndag-v492';
+// stjarndag-v492: ACT-1 onboarding resume + merge main (aktivitetstimer v0.3)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor
-// stjarndag-v488: Boendeschema WCAG AA + 4-veckors förhandsvisning (main)
 // stjarndag-v484: merge PR 3 — övergångsstöd (teacch-gated) + känslostöd (basic) + föräldrarapport (EPIC 3.1-3.8, D9: EPIC 3.3 exkluderad)
 // stjarndag-v483: merge FEAT-1B/1C custody (v482) with bildstöd PR2+R2 (v482) — NU/Nästa/Senare default, child-week-overview.js, 17 nya resurser-sidor
 // stjarndag-v482: FEAT-1B verify + FEAT-1C custody_override
@@ -426,6 +425,8 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-offline.js',
   '/js/child-dashboard-day-nav.js',
   '/js/child-dashboard-timers.js',
+  '/js/activity-timer-session.js',
+  '/js/child-dashboard-activity-timer.js',
   '/js/child-dashboard-load-day.js',
   '/js/child-dashboard-checkoff.js',
   '/js/child-dashboard-celebrations.js',

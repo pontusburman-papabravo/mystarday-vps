@@ -133,6 +133,7 @@ const UpdateChildSchema = z.object({
   lock_schedule: z.boolean().optional(),
   dopamin_animation: z.boolean().optional(),
   visual_timer: z.boolean().optional(),
+  activity_timers_enabled: z.boolean().optional(),
   time_adjustment: z.boolean().optional(),
   color_coding: z.boolean().optional(),
   mood_input_mode: z.enum(['cards', 'slider', 'off']).optional(),
@@ -183,6 +184,10 @@ const CreateActivitySchema = z.object({
   time_group: timeGroupEnum.optional().default('morgon'),
   schema_type: schemaTypeEnum,
   seven_questions: sevenQuestions,
+  duration_seconds: z.union([
+    z.null(),
+    z.coerce.number().int().min(5).max(3600),
+  ]).optional().nullable(),
 });
 
 const UpdateActivitySchema = z.object({
@@ -197,6 +202,10 @@ const UpdateActivitySchema = z.object({
   sort_order: z.coerce.number().int().optional(),
   time_group: timeGroupEnum.optional(),
   seven_questions: sevenQuestions,
+  duration_seconds: z.union([
+    z.null(),
+    z.coerce.number().int().min(5).max(3600),
+  ]).optional(),
 }).partial();
 
 const ReorderSchema = z.object({

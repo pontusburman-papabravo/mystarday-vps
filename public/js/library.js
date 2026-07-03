@@ -868,6 +868,129 @@ async function syncLibActSubsteps(activityId) {
 }
 
 // ─── Activity modal ───────────────────────────────────────
+const ACTIVITY_TIMER_PRESETS = [
+  { label: '30 s', seconds: 30 },
+  { label: '1 min', seconds: 60 },
+  { label: '2 min', seconds: 120 },
+  { label: '3 min', seconds: 180 },
+  { label: '5 min', seconds: 300 },
+  { label: '10 min', seconds: 600 },
+  { label: '15 min', seconds: 900 },
+];
+let _activityTimerPresetsBuilt = false;
+
+function buildActivityTimerPresets() {
+  if (_activityTimerPresetsBuilt) return;
+  const container = document.getElementById('activityTimerPresets');
+  if (!container) return;
+  container.innerHTML = ACTIVITY_TIMER_PRESETS.map(function (p) {
+    return '<button type="button" class="activity-timer-preset-btn px-3 py-1.5 rounded-full text-xs font-semibold border-2 border-lavender hover:border-gold transition-colors" data-seconds="' + p.seconds + '">' + escHtml(p.label) + '</button>';
+  }).join('');
+  _activityTimerPresetsBuilt = true;
+}
+
+function highlightActivityTimerPreset(seconds) {
+  document.querySelectorAll('.activity-timer-preset-btn').forEach(function (btn) {
+    const s = parseInt(btn.dataset.seconds, 10);
+    const on = seconds != null && s === seconds;
+    btn.classList.toggle('border-gold', on);
+    btn.classList.toggle('bg-gold-light', on);
+  });
+}
+
+function setActivityDurationSeconds(seconds) {
+  const hidden = document.getElementById('activityDurationSeconds');
+  if (hidden) hidden.value = seconds == null ? '' : String(seconds);
+  highlightActivityTimerPreset(seconds);
+}
+
+function initActivityTimerUI(act) {
+  buildActivityTimerPresets();
+  const custom = document.getElementById('activityTimerCustom');
+  if (custom) custom.classList.add('hidden');
+  const dur = act && act.duration_seconds != null ? act.duration_seconds : null;
+  setActivityDurationSeconds(dur);
+  if (dur != null && !ACTIVITY_TIMER_PRESETS.some(function (p) { return p.seconds === dur; })) {
+    if (custom) custom.classList.remove('hidden');
+    const minsEl = document.getElementById('activityTimerMinutes');
+    const secsEl = document.getElementById('activityTimerSeconds');
+    if (minsEl) minsEl.value = String(Math.floor(dur / 60));
+    if (secsEl) secsEl.value = String(dur % 60);
+  }
+}
+
+function readCustomActivityDurationSeconds() {
+  const mins = parseInt(document.getElementById('activityTimerMinutes')?.value || '0', 10) || 0;
+  const secs = parseInt(document.getElementById('activityTimerSeconds')?.value || '0', 10) || 0;
+  const total = mins * 60 + secs;
+  if (total === 0) return null;
+  if (total < 5 || total > 3600) return undefined;
+  return total;
+}
+
+function getActivityDurationSecondsFromUI() {
+  const custom = document.getElementById('activityTimerCustom');
+  if (custom && !custom.classList.contains('hidden')) {
+    return readCustomActivityDurationSeconds();
+  }
+  const hidden = document.getElementById('activityDurationSeconds');
+  const raw = hidden ? hidden.value : '';
+  if (raw === '') return null;
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 5 || n > 3600) return undefined;
+  return n;
+}
+
+function wireActivityTimerControls() {
+  buildActivityTimerPresets();
+  const presets = document.getElementById('activityTimerPresets');
+  if (presets && !presets.dataset.wired) {
+    presets.dataset.wired = '1';
+    presets.addEventListener('click', function (e) {
+      const btn = e.target.closest('.activity-timer-preset-btn');
+      if (!btn) return;
+      const custom = document.getElementById('activityTimerCustom');
+      if (custom) custom.classList.add('hidden');
+      setActivityDurationSeconds(parseInt(btn.dataset.seconds, 10));
+    });
+  }
+  const customize = document.getElementById('activityTimerCustomize');
+  if (customize && !customize.dataset.wired) {
+    customize.dataset.wired = '1';
+    customize.addEventListener('click', function () {
+      const custom = document.getElementById('activityTimerCustom');
+      if (custom) custom.classList.remove('hidden');
+      const dur = getActivityDurationSecondsFromUI();
+      if (dur != null) {
+        const minsEl = document.getElementById('activityTimerMinutes');
+        const secsEl = document.getElementById('activityTimerSeconds');
+        if (minsEl) minsEl.value = String(Math.floor(dur / 60));
+        if (secsEl) secsEl.value = String(dur % 60);
+      }
+    });
+  }
+  const clearBtn = document.getElementById('activityTimerClear');
+  if (clearBtn && !clearBtn.dataset.wired) {
+    clearBtn.dataset.wired = '1';
+    clearBtn.addEventListener('click', function () {
+      const custom = document.getElementById('activityTimerCustom');
+      if (custom) custom.classList.add('hidden');
+      setActivityDurationSeconds(null);
+    });
+  }
+  ['activityTimerMinutes', 'activityTimerSeconds'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.wired) {
+      el.dataset.wired = '1';
+      el.addEventListener('change', function () {
+        const total = readCustomActivityDurationSeconds();
+        if (total === undefined) return;
+        setActivityDurationSeconds(total);
+      });
+    }
+  });
+}
+
 function openActivityModalById(id) {
   const act = activities.find(a => String(a.id) === String(id));
   if (act) openActivityModal(act);
@@ -926,6 +1049,8 @@ async function openActivityModal(act) {
 
   if (window.LibraryImages) await LibraryImages.initActivityImagePicker(act);
 
+  initActivityTimerUI(act);
+
   document.getElementById('activityModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('activityName').focus(), 100);
 }
@@ -945,10 +1070,17 @@ async function submitActivity(e) {
   const is_favorite = document.getElementById('activityFavorite').value === 'true';
   const feedback_for = document.getElementById('activityFeedbackFor').value || 'both';
   const seven_questions = window.LibrarySevenQuestions ? LibrarySevenQuestions.getPayload() : undefined;
+  const duration_seconds = getActivityDurationSecondsFromUI();
 
   const btn = document.getElementById('activitySubmitBtn');
   const errEl = document.getElementById('activityError');
   errEl.classList.add('hidden');
+
+  if (duration_seconds === undefined) {
+    errEl.textContent = 'Timer måste vara mellan 5 sekunder och 60 minuter (heltal).';
+    errEl.classList.remove('hidden');
+    return;
+  }
 
   const isPhoto = window.LibraryImages && LibraryImages.isPhotoMode();
   const image_url = isPhoto && LibraryImages ? LibraryImages.getSelectedUrl() : null;
@@ -971,6 +1103,7 @@ async function submitActivity(e) {
     feedback_for,
   };
   if (seven_questions !== undefined) body.seven_questions = seven_questions;
+  body.duration_seconds = duration_seconds;
   const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
@@ -1517,6 +1650,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('rewardModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeRewardModal(); });
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirmModal(); });
   document.getElementById('subStepModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubStepModal(); });
+  wireActivityTimerControls();
 });
 
 // Magic hub modules resolve these on window (Capacitor WebView-safe).

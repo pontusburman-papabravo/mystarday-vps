@@ -119,6 +119,7 @@
       }
       dopaminAnimation = data.dopamin_animation !== false;
       visualTimer = data.visual_timer !== false;
+      activityTimersEnabled = data.activity_timers_enabled === true;
       hideClock = !!data.hide_clock;
       colorCoding = data.color_coding !== false;
       if (window.ChildSevenQuestions?.ready) {
