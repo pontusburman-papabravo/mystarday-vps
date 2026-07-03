@@ -1,6 +1,6 @@
 # warm_echo exhibit slot — schema draft (BL-044)
 
-**Status:** Draft — requires Parent HRC (BL-042) before implementation  
+**Status:** Backend implemented — Parent HRC (BL-042) still required for parent UI + final copy  
 **Governed by:** `docs/decisions/adr-memory-hall-bl012.md`  
 **Pack reference:** `config/experience-packs/child_se/exhibits.json` v1.1.0+
 

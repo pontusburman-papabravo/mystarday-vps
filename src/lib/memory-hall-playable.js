@@ -7,7 +7,7 @@ const {
   buildExhibitViews,
 } = require('./experience-pack');
 const { buildSceneryFromPack } = require('./world-ambient');
-const { resolveExhibitMemories } = require('./memory-hall-exhibit-resolver');
+const { resolveExhibitsForChild } = require('./memory-hall-exhibit-resolver');
 
 const FEATURE_SLUG = 'memory_hall_playable';
 
@@ -28,7 +28,7 @@ async function buildSceneState(childId, familyId) {
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, MEMORY_HALL_WORLD_SLUG);
   const packExhibits = buildExhibitViews(pack, MEMORY_HALL_WORLD_SLUG);
-  const memories = await resolveExhibitMemories(childId);
+  const memories = await resolveExhibitsForChild(childId);
   const exhibits = packExhibits.length ? packExhibits : memories;
 
   return {
