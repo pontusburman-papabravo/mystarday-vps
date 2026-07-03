@@ -1,0 +1,156 @@
+/* Minnesrummet — warm memory room (BL-012). Not museum. Not shop. */
+
+.mu-scene {
+  position: relative;
+  min-height: min(72vh, 520px);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 55%, #e6dccf 100%);
+}
+
+.mu-scene--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.mu-empty-message {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5c4d3a;
+  text-align: center;
+  line-height: 1.45;
+  max-width: 20rem;
+}
+
+.mu-scene-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mu-hotspot {
+  position: absolute;
+  min-width: 44px;
+  min-height: 44px;
+  border: 2px solid rgba(180, 140, 90, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 252, 247, 0.5);
+  cursor: pointer;
+}
+
+.mu-hotspot--window {
+  top: 16%;
+  left: 10%;
+  width: 32%;
+  height: 28%;
+}
+
+.mu-hotspot--wall {
+  top: 28%;
+  right: 8%;
+  width: 38%;
+  height: 42%;
+}
+
+.mu-hotspot.is-tapped {
+  transform: scale(0.97);
+  transition: transform 0.15s ease;
+}
+
+.mu-scene-intro {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 56px;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a3f32;
+  text-align: center;
+}
+
+.mu-scene-status {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.mu-exhibits {
+  position: absolute;
+  bottom: 14%;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.mu-exhibit {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(180, 140, 90, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 96px;
+}
+
+.mu-exhibit-emoji {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.mu-exhibit-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #4a3f32;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.mu-back-fab {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(108, 92, 231, 0.35);
+  background: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mu-back-icon {
+  display: block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-left: 0.16rem solid #1b2340;
+  border-bottom: 0.16rem solid #1b2340;
+  transform: rotate(45deg) translate(0.05rem, -0.05rem);
+}
+
+.child-memory-hall-active #rewardsView {
+  background: linear-gradient(180deg, #faf6f0 0%, #efe6d8 100%) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mu-hotspot.is-tapped {
+    transform: none;
+    transition: none;
+  }
+}

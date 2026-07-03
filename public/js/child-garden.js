@@ -95,6 +95,23 @@
     }
   }
 
+  async function handleSceneryTap(root, sceneryId, btn) {
+    const scenery = (_state && _state.scenery || []).find(function (s) {
+      return s.scenery_id === sceneryId;
+    });
+
+    if (scenery && scenery.leads_to_memory_hall && window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.enterMemoryHall === 'function') {
+      const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
+      if (!entered) {
+        triggerVisual(root, sceneryId);
+      }
+      return;
+    }
+
+    triggerVisual(root, sceneryId);
+  }
+
   function bindInteractions(root) {
     if (!root) return;
 
@@ -103,7 +120,7 @@
         const id = btn.getAttribute('data-scenery');
         btn.classList.add('is-tapped');
         setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        triggerVisual(root, id);
+        handleSceneryTap(root, id, btn);
       });
     });
 

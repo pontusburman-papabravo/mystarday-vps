@@ -67,6 +67,59 @@
         return restored;
       },
     },
+    memory_hall: {
+      globalKey: 'ChildMemoryHall',
+      triggerOpt: 'pathEl',
+      doorWait: false,
+      canEnter: function (state) {
+        if (state.entering || state.exiting) return false;
+        if (state.activeWorldId && state.activeWorldId !== 'garden') return false;
+        return true;
+      },
+      canExit: function (state) {
+        return state.active && state.activeWorldId === 'memory_hall' && !state.exiting;
+      },
+      beforeMount: async function () {
+        if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
+          window.ChildGarden.deactivate();
+        }
+      },
+      mount: async function () {
+        return window.ChildMemoryHall.mount(null, { viaTransition: true });
+      },
+      deactivate: function () {
+        window.ChildMemoryHall.deactivate();
+      },
+      onMountFail: async function () {
+        let restored = false;
+        if (window.ChildGarden && typeof window.ChildGarden.mount === 'function') {
+          restored = await window.ChildGarden.mount(null, { viaTransition: true });
+        }
+        if (restored) {
+          _active = true;
+          _activeWorldId = 'garden';
+        }
+        return restored;
+      },
+      onEnterError: function () {
+        if (window.ChildMemoryHall && typeof window.ChildMemoryHall.deactivate === 'function') {
+          window.ChildMemoryHall.deactivate();
+        }
+      },
+      remountParent: async function () {
+        if (window.ChildGarden && typeof window.ChildGarden.mount === 'function') {
+          return window.ChildGarden.mount(null, { viaTransition: true });
+        }
+        return false;
+      },
+      afterExit: async function (restored) {
+        return {
+          active: !!restored,
+          activeWorldId: restored ? 'garden' : null,
+          success: restored,
+        };
+      },
+    },
   };
 
   function transitionState() {
@@ -265,13 +318,22 @@
       clearPortal();
       await wait(CHROME_MS);
 
+      let exitActive = false;
+      let exitWorldId = null;
+      let exitSuccess = true;
+
       if (typeof world.afterExit === 'function') {
-        await world.afterExit(restored, opts, state);
+        const after = await world.afterExit(restored, opts, state);
+        if (after && typeof after === 'object') {
+          if ('active' in after) exitActive = after.active;
+          if ('activeWorldId' in after) exitWorldId = after.activeWorldId;
+          if ('success' in after) exitSuccess = after.success;
+        }
       }
 
-      _active = false;
-      _activeWorldId = null;
-      return true;
+      _active = exitActive;
+      _activeWorldId = exitWorldId;
+      return exitSuccess;
     } catch (err) {
       console.warn('[living-world] exit failed:', err && err.message);
       resetEnterClasses(null);
@@ -290,6 +352,14 @@
 
   async function exitGarden() {
     return exitWorld('garden');
+  }
+
+  async function enterMemoryHall(opts) {
+    return enterWorld('memory_hall', opts);
+  }
+
+  async function exitMemoryHall() {
+    return exitWorld('memory_hall');
   }
 
   function isActive() {
@@ -315,6 +385,8 @@
     exitWorld: exitWorld,
     enterGarden: enterGarden,
     exitGarden: exitGarden,
+    enterMemoryHall: enterMemoryHall,
+    exitMemoryHall: exitMemoryHall,
     registerWorld: registerWorld,
     isActive: isActive,
     activeWorldId: activeWorldId,

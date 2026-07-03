@@ -20,6 +20,7 @@ function registerRoutes(app) {
   app.use('/api/family', platformFeedback.parentRouter);
   app.use('/api/me', require('./morgonhus').childRouter);
   app.use('/api/me', require('./garden').childRouter);
+  app.use('/api/me', require('./memory-hall').childRouter);
 
   // Mount /api/me child-self routes before the children router's /:childId catch-all.
   app.use('/api/me', require('./daily-logs').childSelfRouter);
