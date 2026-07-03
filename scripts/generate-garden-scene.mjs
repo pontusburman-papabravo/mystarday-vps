@@ -24,10 +24,12 @@ const OUT_DIRS = [
   path.join(ROOT, 'public/assets/worlds/garden'),
 ];
 const SOURCE_CANDIDATES = [
+  path.join(ROOT, 'scripts/sources/garden-scene-master-high.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master-portrait.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.jpg'),
   path.join(ROOT, 'scripts/sources/garden-scene-master.webp'),
+  path.join(ROOT, 'scripts/sources/garden-scene-master-broad.png'),
   path.join(ROOT, 'scripts/sources/garden-scene-master-landscape.png'),
 ];
 
@@ -56,8 +58,8 @@ function resolveMaster(argvPath) {
     if (fs.existsSync(candidate)) return candidate;
   }
   throw new Error(
-    'No garden master found. Upload portrait ChatGPT export to scripts/sources/garden-scene-master.png ' +
-      '(~1080×2340) or landscape as garden-scene-master-landscape.png (center-cropped).'
+    'No garden master found. Upload to scripts/sources/: garden-scene-master-high.png (portrait) ' +
+      'or garden-scene-master-broad.png (landscape, center-cropped).'
   );
 }
 
