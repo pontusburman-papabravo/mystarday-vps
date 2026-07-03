@@ -68,15 +68,15 @@ async function findQualifyingMilestone(childId) {
     }),
   ]);
 
-  for (var i = 0; i < MILESTONE_PRIORITY.length; i += 1) {
-    var key = MILESTONE_PRIORITY[i];
+  for (let i = 0; i < MILESTONE_PRIORITY.length; i += 1) {
+    const key = MILESTONE_PRIORITY[i];
     if (checks.includes(key)) return key;
   }
   return null;
 }
 
 function buildWarmEchoExhibit(milestoneKey) {
-  var copy = WARM_ECHO_COPY[milestoneKey];
+  const copy = WARM_ECHO_COPY[milestoneKey];
   if (!copy) return null;
 
   return {
@@ -106,10 +106,10 @@ function buildWarmEchoExhibit(milestoneKey) {
  * and a non-streak milestone qualifies.
  */
 async function resolveWarmEchoExhibit(childId, childViewConfig) {
-  var config = readWarmEchoConfig(childViewConfig);
+  const config = readWarmEchoConfig(childViewConfig);
   if (!config.enabled) return null;
 
-  var milestoneKey = await findQualifyingMilestone(childId);
+  const milestoneKey = await findQualifyingMilestone(childId);
   if (!milestoneKey) return null;
 
   return buildWarmEchoExhibit(milestoneKey);
