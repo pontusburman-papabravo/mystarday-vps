@@ -112,6 +112,48 @@ describe('resurser R3 — PDF assets', () => {
   });
 });
 
+describe('resurser R3 — SEO aliases', () => {
+  const { R3_ALIAS_REDIRECTS, R3_SLUG_ALIASES } = require('../config/resurser-r3-aliases');
+
+  it('maps common {topic}schema-barn-gratis slugs to bildschema-{topic}-barn', () => {
+    assert.equal(R3_SLUG_ALIASES.get('helgschema-barn-gratis'), 'bildschema-helg-barn');
+    assert.equal(R3_SLUG_ALIASES.get('morgonschema-barn-gratis'), 'bildschema-morgon-barn');
+  });
+
+  it('alias redirects return 301 to canonical page', async () => {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+    }
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      for (const { from, to } of R3_ALIAS_REDIRECTS.slice(0, 5)) {
+        const res = await fetch(`${http.baseUrl}${from}`, { redirect: 'manual' });
+        assert.equal(res.status, 301, from);
+        assert.equal(res.headers.get('location'), to, from);
+      }
+      const canonical = await fetch(`${http.baseUrl}/resurser/bildschema-helg-barn`);
+      assert.equal(canonical.status, 200);
+    } finally {
+      await http.close();
+    }
+  });
+
+  it('unknown /resurser/* returns 404 instead of redirect to home', async () => {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+    }
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      const res = await fetch(`${http.baseUrl}/resurser/does-not-exist-xyz`, { redirect: 'manual' });
+      assert.equal(res.status, 404);
+    } finally {
+      await http.close();
+    }
+  });
+});
+
 describe('resurser R3 — SEO and HTTP', () => {
   it('all R3 paths are in SEO_INDEXABLE_PATHS and sitemap', () => {
     const xml = buildSitemapXml();

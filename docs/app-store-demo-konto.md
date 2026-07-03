@@ -11,8 +11,9 @@
 |-------|-------|
 | Parent email | `review@mystarday.se` |
 | Parent password | `AppReview2026!` |
+| Child name | Anna |
 | Child PIN | `4455` |
-| App URL | https://stjarndag.polsia.app |
+| App URL | https://mystarday.se |
 
 ---
 

@@ -105,10 +105,23 @@ async function setActivationVariant(familyId, variant) {
   return activationDb.patchState(familyId, { activation_variant: variant });
 }
 
+/** Default variant for new signups when ACT-1 onboarding is live. */
+async function resolveDefaultActivationVariant(familyId) {
+  const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
+  if (!await isActivationFlagEnabled(FLAG_KEYS.onboarding, familyId)) {
+    return 'legacy';
+  }
+  if (await isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, familyId)) {
+    return 'template_plus_ai';
+  }
+  return 'template_only';
+}
+
 module.exports = {
   ensureActivationState,
   updateActivationState,
   setActivationVariant,
+  resolveDefaultActivationVariant,
   isP0Activated,
   getActivationFunnelStep,
   // re-export pure helpers for tests

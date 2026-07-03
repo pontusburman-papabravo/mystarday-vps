@@ -97,6 +97,7 @@ const {
   R2_PDF_PAGES,
 } = require('../../config/resurser-r2');
 const { R3_LONGTAIL_PAGES, R3_PDF_PAGES } = require('../../config/resurser-r3');
+const { R3_ALIAS_REDIRECTS } = require('../../config/resurser-r3-aliases');
 
 function sendPublicHtml(relativeFile) {
   return (req, res) => {
@@ -107,6 +108,10 @@ function sendPublicHtml(relativeFile) {
 router.get('/resurser', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'resurser.html'));
 });
+
+for (const { from, to } of R3_ALIAS_REDIRECTS) {
+  router.get(from, (req, res) => res.redirect(301, to));
+}
 
 for (const page of [
   ...R1_CATEGORY_PAGES,

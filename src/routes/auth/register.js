@@ -311,9 +311,12 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       if (Object.keys(attribution).length > 0) {
         tracker.trackSignupAttribution(familyId, attribution);
       }
-      require('../../lib/activation-p0').ensureActivationState(familyId, new Date()).catch((err) => {
-        console.error('[AUTH] ensureActivationState failed for', familyId, ':', err.message);
-      });
+      const activationP0 = require('../../lib/activation-p0');
+      activationP0.resolveDefaultActivationVariant(familyId)
+        .then((variant) => activationP0.ensureActivationState(familyId, new Date(), variant))
+        .catch((err) => {
+          console.error('[AUTH] ensureActivationState failed for', familyId, ':', err.message);
+        });
       require('../../lib/journey/ingest').ingestMilestoneAsync({
         familyId,
         milestone: 'account_created',

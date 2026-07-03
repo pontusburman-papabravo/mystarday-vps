@@ -133,6 +133,15 @@ function createApp() {
     if (req.path.startsWith('/.well-known/')) {
       return res.status(404).json({ error: 'Not found' });
     }
+    if (req.path.startsWith('/resurser/')) {
+      return res.status(404).type('html').send(
+        '<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8">'
+        + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        + '<title>Sidan hittades inte — Min Stjärndag</title></head><body>'
+        + '<h1>Sidan hittades inte</h1>'
+        + '<p><a href="/resurser">Till resursbiblioteket</a></p></body></html>',
+      );
+    }
     res.redirect('/');
   });
 
