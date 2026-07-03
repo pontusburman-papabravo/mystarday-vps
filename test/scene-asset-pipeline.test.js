@@ -130,7 +130,7 @@ describe('scene-asset-pipeline world wrappers', () => {
 
   it('memory-hall wrapper preserves stub API surface', function () {
     const pipeline = loadMemoryHallPipeline();
-    assert.equal(pipeline.VERSION, '1.0.0');
+    assert.equal(pipeline.VERSION, '1.1.0');
     assert.equal(pipeline.SCENE.file, 'scene@2x.webp');
     assert.equal(pipeline.OPTIONAL_FRAMES.length, 2);
     assert.match(pipeline.scenePictureHtml(), /mh-scene-bg/);

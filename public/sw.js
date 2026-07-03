@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v500';
+const CACHE_NAME = 'stjarndag-v501';
+// stjarndag-v501: Minnesrummet scene v2 diorama illustration (BL-041)
 // stjarndag-v500: G8 Minnesrummet scene WebP v1 + illustrated overlay frames
 // stjarndag-v499: Minnesrummet diorama UX — wood frames, warm toast, no badge grid
 // stjarndag-v498: Minnesrummet scaffold polish — invisible hotspots, pride grid layout
