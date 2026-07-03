@@ -62,6 +62,7 @@
   "cos_required_files": [
     ".ai/company/README.md",
     ".ai/company/ORGANIZATION.md",
-    ".ai/company/HUMAN_APPROVAL_GATE.md"
+    ".ai/company/HUMAN_APPROVAL_GATE.md",
+    ".ai/company/REPOSITORY_VALUE_SCORE.md"
   ]
 }

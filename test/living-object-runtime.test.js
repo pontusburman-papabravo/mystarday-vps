@@ -3,7 +3,7 @@
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const { injectMockDb } = require('./helpers/setup.js');
-const { clearPackCache, loadPack } = require('../src/lib/experience-pack');
+const { clearPackCache, loadPack, getLivingArchetype } = require('../src/lib/experience-pack');
 
 const CHILD_ID = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 const FAMILY_ID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
@@ -123,5 +123,55 @@ describe('living-object-runtime — garden sunflower loop', () => {
 
     assert.equal(result.ok, false);
     assert.equal(result.error, 'verb_not_allowed');
+  });
+
+  it('loadLivingSlots auto-transitions planted to blooming when timer elapsed', async () => {
+    const rows = [{
+      id: '22222222-2222-2222-2222-222222222222',
+      child_id: CHILD_ID,
+      family_id: FAMILY_ID,
+      world_slug: GARDEN,
+      archetype_id: 'sunflower',
+      slot_id: BED_SLOT,
+      state_key: 'planted',
+      state_data: { timer_started_at: new Date(Date.now() - 60000).toISOString() },
+      version: 2,
+    }];
+    const mock = injectMockDb();
+    mock.setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('SELECT') && q.includes('living_object_instance') && params.length === 2) {
+        return { rows };
+      }
+      if (q.includes('UPDATE living_object_instance')) {
+        const row = rows[0];
+        if (row.version !== params[3]) return { rows: [] };
+        row.state_key = params[0];
+        row.state_data = JSON.parse(params[1]);
+        row.version += 1;
+        return { rows: [{ ...row }] };
+      }
+      return { rows: [] };
+    });
+
+    const { loadLivingSlots } = loadRuntime();
+    const pack = loadPack('child_se');
+    const slots = await loadLivingSlots({ childId: CHILD_ID, worldSlug: GARDEN, pack });
+
+    assert.equal(slots[0].state_key, 'blooming');
+    assert.equal(slots[0].available_verbs.length, 1);
+    assert.equal(slots[0].available_verbs[0].verb, 'harvest');
+    assert.equal(slots[0].timer_remaining_ms, undefined);
+  });
+
+  it('resolveTimerNextState returns blooming after elapsed planted timer', () => {
+    clearPackCache();
+    const { resolveTimerNextState } = loadRuntime();
+    const pack = loadPack('child_se');
+    const archetype = getLivingArchetype(pack, GARDEN, 'sunflower');
+    const next = resolveTimerNextState(archetype, 'planted', {
+      timer_started_at: new Date(Date.now() - 35000).toISOString(),
+    });
+    assert.equal(next, 'blooming');
   });
 });

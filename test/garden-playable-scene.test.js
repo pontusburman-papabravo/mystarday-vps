@@ -320,6 +320,7 @@ describe('ChildGarden client module', () => {
     assert.match(src, /VERB_PATH/);
     assert.match(src, /available_verbs/);
     assert.match(src, /living_slot_id/);
+    assert.match(src, /scheduleTimerRefresh/);
     assert.doesNotMatch(src, /['"]plant['"]/);
     assert.doesNotMatch(src, /['"]harvest['"]/);
   });

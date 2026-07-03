@@ -1,19 +1,20 @@
 # Release Candidate Template
 
-**COS v1.2 — Human Approval Gate**
+**COS v1.3 — Human Approval Gate**
 
-Choose **IRC** (default) or **HRC** (human decision required).
+Choose **ARC** (no PR), **IRC** (default PR), or **HRC** (human decision).
 
 ---
 
 ## Type
 
-- [ ] **IRC** — Internal Release Candidate (no pause, no human question)
-- [ ] **HRC** — Human Release Candidate (escalation per `HUMAN_APPROVAL_GATE.md`)
+- [ ] **ARC** — Autonomous (commit only, no PR, no pause)
+- [ ] **IRC** — Internal Release Candidate (draft PR, continue)
+- [ ] **HRC** — Human Release Candidate (escalation required)
 
 ### HRC only — decision required
 
-> [Exact human decision: deploy / store / prod migration / prod flag / product / legal / doc conflict]
+> [Exact human decision]
 
 ---
 
@@ -25,17 +26,9 @@ Choose **IRC** (default) or **HRC** (human decision required).
 
 - [ ] List rule IDs and POS doc sections
 
-## Documentation changes
+## Repository Value Score impact
 
-- [ ] Files added/updated
-
-## Architecture changes
-
-- [ ] Diagram or bullet list · migration needed?
-
-## ADRs
-
-- [ ] New or updated ADR links
+[Which RVS dimensions improved — see REPOSITORY_VALUE_SCORE.md]
 
 ## Test results
 
@@ -45,25 +38,11 @@ REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
 npm run check:governance
 ```
 
-- [ ] test:gate green
-- [ ] check:governance green
-
-## Remaining risks
-
-| Risk | Mitigation |
-|------|------------|
-| | |
-
-## Rollback strategy
-
-[How to revert if live incident]
-
 ## Recommended next autonomous mission
 
-[What agent continues without asking — per HAG mandate]
+[ROI-ordered — no human wait]
 
 ---
 
-**IRC:** Agent continues to next mission. Human reviews in morning report bundle.  
-**HRC:** Agent documents blocker and continues other work until human decides.  
-**Never** deploy · merge protected main · live migration · live flags without explicit HRC approval.
+**ARC / IRC:** Agent continues immediately.  
+**HRC:** Agent documents and picks next unblocked mission.

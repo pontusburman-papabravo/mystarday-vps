@@ -130,7 +130,14 @@ When user did not specify, apply **defaults** — do not ask founder unless BLOC
 6. Missing secret/asset that cannot be stubbed  
 7. User explicitly requested founder decision  
 
-**Do not escalate** for: IRC completion, draft PR, test green, next backlog mission.
+**Do not escalate** for: ARC completion, IRC completion, draft PR, test green, next backlog mission.
+
+### Blocked-ROI (when mission blocked)
+
+1. Document HRC if human decision required  
+2. Ask: *"Is there higher-ROI work I can do while waiting?"*  
+3. Execute highest-value unblocked mission — tests, refactor, docs, next slice prep  
+4. **Never idle** if productive work exists
 
 Otherwise: **proceed with defaults** — select next highest-value mission.
 

@@ -1,6 +1,6 @@
 # AI Development Organization
 
-**COS v1.2 — organizational charter**  
+**COS v1.3 — organizational charter**  
 **Not product truth — see `product-operating-system/`**
 
 ---
@@ -100,12 +100,12 @@ Playbooks: `001_*` through `010_*`
 
 ---
 
-## Human Approval Gate (v1.2)
+## Human Approval Gate (v1.3)
 
-Detail: [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md)
+Detail: [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md) · KPI: [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
 
-- **IRC** — internal checkpoint; agent continues immediately
-- **HRC** — human decision required; agent documents and picks next unblocked mission
+- **ARC** → **IRC** → **HRC** (only HRC escalates)
+- **Blocked-ROI:** when blocked, pick highest-value unblocked work — never idle
 - **Never ask** “shall I proceed?” when mandate allows continuation
 
 ---
@@ -127,9 +127,9 @@ Intent → Mission Control (brief + tier)
       → Product Alignment (if product-touching)
       → Delivery Cell (implement)
       → Assurance (gates + tier review)
-      → [Council if T3] → IRC checkpoint (HRC only if HAG trigger)
-      → Org Health updates knowledge + backlog
-      → Next mission (no pause for IRC)
+      → [Council if T3] → ARC / IRC checkpoint (HRC only if HAG trigger)
+      → Org Health updates knowledge + RVS
+      → Next mission (blocked-ROI if needed)
 ```
 
 ---

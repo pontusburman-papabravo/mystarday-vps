@@ -1,4 +1,4 @@
-# Company Operating System (COS) v1.2
+# Company Operating System (COS) v1.3
 
 **Type:** AI Development Organization operating system  
 **Not:** Product documentation (that is POS)  
@@ -60,17 +60,15 @@ Runtime: `.ai/runtime/MISSION_ENGINE.md` (tier field) · `.ai/runtime/REVIEW_ENG
 
 ## Human approval gate
 
-**Policy:** [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md)
+**Policy:** [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md) · **KPI:** [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
 
-| RC type | Pause? | When |
-|---------|--------|------|
-| **IRC** (Internal) | Never | Agent checkpoints — draft PRs, reports |
-| **HRC** (Human) | Escalate only | Live deploy, stores, prod migration/flags, product/legal/doc conflict |
+| Tier | PR | Pause |
+|------|-----|-------|
+| **ARC** | No | Never |
+| **IRC** | Draft | Never |
+| **HRC** | When ready | Escalate only |
 
-**Mandate check:** “Can I continue?” → Yes: proceed. No: escalate, switch mission.
-
-Agents may prepare unlimited IRCs.  
-**Never** without explicit human approval: deploy · merge protected main · live DB migrations · live feature flags · App Store / Google Play publish.
+**Mandate check:** Continue unless HRC trigger. **Blocked-ROI:** never idle — pick highest-value unblocked mission.
 
 ---
 
@@ -91,3 +89,4 @@ Agents may prepare unlimited IRCs.
 | 1.0 | Executive playbooks |
 | 1.1 | Org OS — cells, tiers, council convening model |
 | 1.2 | HAG — IRC vs HRC, no pause for checkpoints, mandate-check escalation |
+| 1.3 | ARC tier, blocked-ROI protocol, Repository Value Score KPI |
