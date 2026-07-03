@@ -9,10 +9,10 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-010 | P2 | `lint:public` CI budget reduction | DX / CI | — | Low | Org Health | **active** |
-| BL-032 | P3 | Morgonhus aria-live parity with garden | Child calm | — | Low | QA | **done** |
-| BL-033 | P3 | Garden LOE reduced-motion CSS polish | MO-03 | — | Low | QA | **done** |
-| BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
+| BL-010 | P2 | `lint:public` CI budget reduction | DX / CI | — | Low | Org Health | **done** |
+| BL-032 | P3 | Morgonhus aria-live parity with garden | Child calm | — | Low | QA | done |
+| BL-033 | P3 | Garden LOE reduced-motion CSS polish | MO-03 | — | Low | QA | done |
+| BL-034 | P3 | Experience pack living_slots schema guard | World integrity | — | Low | Backend | queued |
 
 ---
 
@@ -20,6 +20,9 @@
 
 | ID | Mission |
 |----|---------|
+| BL-010 | lint:public budget 792→550 |
+| BL-032 | Morgonhus aria-live parity |
+| BL-033 | Garden LOE reduced-motion |
 | BL-013 | Governance registry v1.1.0 |
 | BL-028 | Child world a11y audit + aria-live |
 | BL-031 | Living World Score (LWS) KPI |
