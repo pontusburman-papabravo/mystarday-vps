@@ -173,7 +173,7 @@ function registerRoutes(app) {
   app.get('/child-settings', (req, res) => {
     const childId = req.query.child || req.query.id;
     if (childId) {
-      return res.sendFile(join(__dirname, '../../public', 'child-settings.html'));
+      return res.redirect(302, `/family/child/${encodeURIComponent(childId)}?tab=setup`);
     }
     return res.redirect(302, '/family');
   });

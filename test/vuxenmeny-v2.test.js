@@ -79,10 +79,11 @@ describe('vuxenmeny v2 — Sprint 3 barnprofil', () => {
     assert.match(src, /family\/child/);
   });
 
-  it('child-settings serves page when child id present', () => {
+  it('child-settings redirects to barnprofil setup tab when child id present', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(src, /child-settings/);
-    assert.match(src, /child-settings\.html/);
+    assert.match(src, /\/family\/child\/\$\{encodeURIComponent\(childId\)\}\?tab=setup/);
+    assert.doesNotMatch(src, /child-settings\.html/);
   });
 });
 
