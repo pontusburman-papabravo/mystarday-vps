@@ -248,6 +248,16 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   transform: rotate(45deg) translate(0.05rem, -0.05rem);
 }
 
+.gd-scene-status {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .gd-scene--entering,

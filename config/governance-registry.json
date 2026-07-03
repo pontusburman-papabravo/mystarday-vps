@@ -1,11 +1,11 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "updated": "2026-07-03",
   "authority": "POS > registry tests > .cursor/rules/",
   "rules": {
     "constitution-1": {
       "pos": "product-operating-system/00_PROJECT_CONSTITUTION.md#1",
-      "tests": [],
+      "tests": ["test/idag-10-10.test.js", "test/journey-context.test.js"],
       "owners": ["CPO", "UXDirector"]
     },
     "constitution-6": {
@@ -30,10 +30,30 @@
       "tests": ["test/idag-10-10.test.js"],
       "owners": ["GameDirector", "FrontendLead"]
     },
+    "C-04": {
+      "pos": "product-operating-system/04_CHILD_EXPERIENCE.md",
+      "tests": ["test/child-dashboard-celebrations.test.js", "test/garden-playable-scene.test.js"],
+      "owners": ["GameDirector", "UXDirector"]
+    },
+    "C-07": {
+      "pos": "product-operating-system/04_CHILD_EXPERIENCE.md",
+      "tests": ["test/garden-playable.test.js", "test/morgonhus-playable.test.js"],
+      "owners": ["SecurityLead", "BackendLead"]
+    },
     "G-01": {
       "pos": "product-operating-system/06_GAME_DESIGN.md",
       "tests": ["test/engine-golden.test.js"],
       "owners": ["GameDirector"]
+    },
+    "W-01": {
+      "pos": "product-operating-system/09_WORLD_ENGINE.md",
+      "tests": ["test/experience-pack-structural.test.js", "test/world-ambient.test.js"],
+      "owners": ["GameDirector", "PrincipalEngineer"]
+    },
+    "MO-03": {
+      "pos": "product-operating-system/15_PRODUCT_QUALITY_STANDARD.md",
+      "tests": ["test/child-world-a11y.test.js"],
+      "owners": ["StaffMobileEngineer", "UXDirector"]
     },
     "R-02": {
       "pos": "product-operating-system/07_REWARDS.md",

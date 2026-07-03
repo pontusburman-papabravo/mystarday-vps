@@ -96,6 +96,16 @@
     });
   }
 
+  function showLoeFeedback(root, message) {
+    if (!root || !message) return;
+    const status = root.querySelector('#gdSceneStatus');
+    if (!status) return;
+    status.textContent = message;
+    setTimeout(function () {
+      if (status.textContent === message) status.textContent = '';
+    }, TAP_RESET_MS);
+  }
+
   function applySlotVisual(root, slot) {
     applyLivingSlotVisuals(root, { living_slots: slot ? [slot] : [] });
   }
@@ -152,6 +162,7 @@
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
       sceneryHtml +
+      '<div class="gd-scene-status" id="gdSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -197,6 +208,7 @@
           });
           _state = Object.assign({}, _state, { living_slots: slots });
           applyLivingSlotVisuals(root, _state);
+          showLoeFeedback(root, result.child_message_sv);
           scheduleTimerRefresh(_state);
           return;
         }
