@@ -11,8 +11,9 @@ const stuckFamiliesDb = require('../db/activation-stuck-families');
 describe('activation funnel fixes', () => {
   it('onboarding.js skips legacy goToStep(1) when ACT-1 is active', () => {
     const src = fs.readFileSync(path.join(__dirname, '../public/js/onboarding.js'), 'utf8');
-    assert.match(src, /const act1Active = window\.OnboardingStarterPlan/);
-    assert.match(src, /if \(!act1Active\) \{[\s\S]*goToStep\(1\)/);
+    assert.match(src, /const act1InitResult = window\.OnboardingStarterPlan/);
+    assert.match(src, /getInitResult/);
+    assert.match(src, /else if \(!act1Active\) \{[\s\S]*goToStep\(1\)/);
   });
 
   it('auth.js redirects incomplete onboarding away from parent pages', () => {
