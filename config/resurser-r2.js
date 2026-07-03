@@ -212,6 +212,28 @@ const R2_PDF_PAGES = [
     ],
     pictogramKeys: [],
   },
+  {
+    path: '/resurser/pdf/helgschema',
+    file: 'resurser/pdf-helgschema.html',
+    slug: 'helgschema',
+    title: 'Helgschema PDF — lugna helgsteg med bildstöd',
+    description: 'Gratis helgschema att skriva ut — lördags- och söndagsrutiner utan skolstress.',
+    downloads: [
+      { href: '/resurser/pdf/helgschema.pdf', label: 'Helgschema — mall med exempelsteg (PDF)' },
+    ],
+    pictogramKeys: ['breakfast', 'playground', 'lunch', 'walk', 'art', 'dinner', 'bath', 'read_book', 'sleep'],
+  },
+  {
+    path: '/resurser/pdf/laxschema',
+    file: 'resurser/pdf-laxschema.html',
+    slug: 'laxschema',
+    title: 'Läxschema PDF — steg för steg med pauser',
+    description: 'Gratis läxschema att skriva ut — dela upp läxor i små moment med paus och klart.',
+    downloads: [
+      { href: '/resurser/pdf/laxschema.pdf', label: 'Läxschema — steg för steg (PDF)' },
+    ],
+    pictogramKeys: ['homework', 'pencil', 'listen', 'pause', 'done'],
+  },
 ];
 
 const R2_INDEXABLE_PATHS = [
@@ -236,6 +258,8 @@ const R2_PDF_FILES = [
   'beloningsschema.pdf',
   'veckoschema.pdf',
   'veckoschema-exempel.pdf',
+  'helgschema.pdf',
+  'laxschema.pdf',
 ];
 
 function pictogramLabels(keys) {

@@ -347,6 +347,11 @@
       state.planEdited = false;
       state.usedAi = false;
 
+      if (state.flags.activation_ai_starter_plan) {
+        if (btn) btn.textContent = 'Anpassar schema…';
+        await maybePersonalizeWithAi(suggestData, 'normal');
+      }
+
       const name = (state.answers.child_name || '').trim();
       if (!name) throw new Error('Ange barnets namn');
 
@@ -448,6 +453,49 @@
     }
   }
 
+  async function fetchPreviewItems(scheduleName, desiredLength) {
+    const previewRes = await api(
+      '/api/onboarding/starter-plan/preview?scheduleName=' + encodeURIComponent(scheduleName) +
+      '&desiredLength=' + encodeURIComponent(desiredLength)
+    );
+    const previewData = await previewRes.json();
+    if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
+    return previewData.items || [];
+  }
+
+  async function maybePersonalizeWithAi(suggestData, desiredLength) {
+    const personalizeBody = {
+      child_name: state.answers.child_name || '',
+      schedule_name: suggestData.scheduleName,
+      base_items: state.previewItems,
+      age_band: state.answers.age_band,
+      routine_type_ui: state.answers.routine_type_ui,
+      support_ui: state.answers.support_ui || 'lite',
+      length_ui: state.answers.length_ui || desiredLength,
+      main_challenges: state.answers.main_challenge ? [state.answers.main_challenge] : [],
+      free_text: state.answers.free_text || '',
+    };
+
+    if (!state.flags.activation_ai_starter_plan) {
+      state.planTitle = suggestData.scheduleName;
+      state.introText = '';
+      state.usedAi = false;
+      return;
+    }
+
+    const persRes = await api('/api/onboarding/starter-plan/personalize', {
+      method: 'POST',
+      body: JSON.stringify(personalizeBody),
+    });
+    const persData = await persRes.json();
+    if (!persRes.ok) throw new Error(persData.error || 'Kunde inte anpassa schema');
+    state.previewItems = persData.items || state.previewItems;
+    state.planTitle = persData.plan_title || suggestData.scheduleName;
+    state.introText = persData.intro_text || '';
+    state.usedAi = !!persData.used_ai;
+    state.plan.used_ai = state.usedAi;
+  }
+
   async function loadPreview() {
     const btn = document.getElementById('spNext');
     if (btn) { btn.disabled = true; btn.textContent = 'Laddar…'; }
@@ -475,45 +523,12 @@
       const lengthMap = { kort: 'short', normal: 'normal', detaljerad: 'detailed' };
       const desiredLength = lengthMap[state.answers.length_ui] || 'normal';
 
-      const previewRes = await api(
-        '/api/onboarding/starter-plan/preview?scheduleName=' + encodeURIComponent(suggestData.scheduleName) +
-        '&desiredLength=' + encodeURIComponent(desiredLength)
-      );
-      const previewData = await previewRes.json();
-      if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
-
-      state.previewItems = previewData.items || [];
-
-      const personalizeBody = {
-        child_name: state.answers.child_name || '',
-        schedule_name: suggestData.scheduleName,
-        base_items: state.previewItems,
-        age_band: state.answers.age_band,
-        routine_type_ui: state.answers.routine_type_ui,
-        support_ui: state.answers.support_ui,
-        length_ui: state.answers.length_ui,
-        main_challenges: state.answers.main_challenge ? [state.answers.main_challenge] : [],
-        free_text: state.answers.free_text || '',
-      };
+      state.previewItems = await fetchPreviewItems(suggestData.scheduleName, desiredLength);
 
       if (state.flags.activation_ai_starter_plan) {
         if (btn) btn.textContent = 'Anpassar schema…';
-        const persRes = await api('/api/onboarding/starter-plan/personalize', {
-          method: 'POST',
-          body: JSON.stringify(personalizeBody),
-        });
-        const persData = await persRes.json();
-        if (!persRes.ok) throw new Error(persData.error || 'Kunde inte anpassa schema');
-        state.previewItems = persData.items || state.previewItems;
-        state.planTitle = persData.plan_title || suggestData.scheduleName;
-        state.introText = persData.intro_text || '';
-        state.usedAi = !!persData.used_ai;
-        state.plan.used_ai = state.usedAi;
-      } else {
-        state.planTitle = suggestData.scheduleName;
-        state.introText = '';
-        state.usedAi = false;
       }
+      await maybePersonalizeWithAi(suggestData, desiredLength);
 
       renderPreview();
     } catch (err) {
@@ -656,7 +671,7 @@
   }
 
   async function init() {
-    if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
+    const isAddChild = typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD;
 
     try {
       const res = await api('/api/family/activation-config');
@@ -664,7 +679,7 @@
       const data = await res.json();
       const flags = data.flags || {};
 
-      if (flags.activation_signup_slim_v1) {
+      if (flags.activation_signup_slim_v1 && !isAddChild) {
         state.slim = true;
         state.enabled = true;
         state.flags = flags;
@@ -684,7 +699,9 @@
       ensureCard();
       renderQuestion();
       showStarterStep();
-      track('activation_onboarding_started', { source: 'onboarding_entry' });
+      track('activation_onboarding_started', {
+        source: isAddChild ? 'add_child_entry' : 'onboarding_entry',
+      });
     } catch (_) {}
   }
 

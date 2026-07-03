@@ -51,6 +51,25 @@
       <p class="text-text-soft text-center py-12">Laddar barnprofil…</p>
     </div>
   </main>
+  <div id="deleteChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="text-center">
+        <p class="text-5xl mb-4" aria-hidden="true">⚠️</p>
+        <h3 class="text-xl font-heading font-bold text-navy mb-2">Ta bort <span id="deleteChildTargetName"></span>?</h3>
+        <p id="deleteChildTargetMessage" class="text-sm text-text-soft mb-6">Alla aktiviteter, scheman och belöningshistorik för detta barn raderas permanent.</p>
+        <div class="flex gap-3">
+          <button type="button" id="deleteChildCancelBtn"
+            class="flex-1 px-4 py-2 border border-gray-200 text-text-soft rounded-xl font-semibold hover:bg-gray-50 transition-colors min-h-[44px]">
+            Avbryt
+          </button>
+          <button type="button" id="deleteChildConfirmBtn"
+            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors min-h-[44px]">
+            Ta bort
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="manualStarModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
       <h3 class="text-lg font-heading font-bold text-navy mb-3">Ge extra stjärnor</h3>
@@ -68,7 +87,7 @@
   <script src="/js/platform.js?v=2.13.0"></script>
   <script src="/js/pending-approvals.js?v=1"></script>
   <script src="/js/child-profile-setup.js?v=2"></script>
-  <script src="/js/child-profile.js?v=1.3.1"></script>
+  <script src="/js/child-profile.js?v=1.3.2"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/parent-magic-bootstrap.js?v=1"></script>

@@ -328,6 +328,7 @@
       }
       if (window.ChildProfileSetup) {
         ChildProfileSetup.wireSetup(child, viewConfig, pinSetupHtml(), wirePin);
+        wireDeleteChild(child);
       } else {
         mount.innerHTML = pinSetupHtml();
         wirePin();
@@ -344,6 +345,50 @@
         if (window.Auth && Auth.logout) Auth.logout({ childFlow: true });
       });
     }
+  }
+
+  function wireDeleteChild(childRow) {
+    const btn = document.getElementById('profileDeleteChildBtn');
+    const modal = document.getElementById('deleteChildModal');
+    const nameEl = document.getElementById('deleteChildTargetName');
+    const cancelBtn = document.getElementById('deleteChildCancelBtn');
+    const confirmBtn = document.getElementById('deleteChildConfirmBtn');
+    if (!btn || !modal || !nameEl || !confirmBtn) return;
+
+    function closeDeleteModal() {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    btn.onclick = function () {
+      nameEl.textContent = childRow.name || 'barnet';
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+
+    if (cancelBtn) cancelBtn.onclick = closeDeleteModal;
+
+    confirmBtn.onclick = async function () {
+      confirmBtn.disabled = true;
+      try {
+        const res = await window.apiFetch('/api/family/children/' + encodeURIComponent(childRow.id), {
+          method: 'DELETE',
+        });
+        if (!res.ok) {
+          let err = {};
+          try { err = await res.json(); } catch (_) { /* non-json */ }
+          showToast(err.error || 'Kunde inte ta bort barnet', true);
+          return;
+        }
+        closeDeleteModal();
+        showToast('Barnet är borttaget');
+        window.location.href = '/family';
+      } catch (err) {
+        showToast('Kunde inte ta bort: ' + (err.message || 'okänt fel'), true);
+      } finally {
+        confirmBtn.disabled = false;
+      }
+    };
   }
 
   async function onQuickAction(e) {

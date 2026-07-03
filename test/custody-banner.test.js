@@ -22,6 +22,7 @@ describe('custody-banner (Phase 4.5a)', () => {
     assert.match(src, /Denna vecka: hos /);
     assert.match(src, /Nästa byte på /);
     assert.match(src, /activeHome/);
+    assert.match(src, /bannerMarkerHtml/);
   });
 
   it('prefers nextTransition over legacy nextHandoff alias', () => {

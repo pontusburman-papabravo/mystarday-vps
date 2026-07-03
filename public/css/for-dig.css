@@ -80,6 +80,30 @@
   background: linear-gradient(180deg, #fff 0%, #f8fffb 100%);
 }
 
+.for-dig-goal-card--hero {
+  border-color: #F5A623;
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.12);
+}
+
+.for-dig-show-all-goals {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1B2340;
+  text-decoration: underline;
+  text-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.for-dig-show-all-goals:hover {
+  color: #F5A623;
+}
+
 .for-dig-goal-card .for-dig-badge {
   display: inline-block;
   font-size: 0.7rem;

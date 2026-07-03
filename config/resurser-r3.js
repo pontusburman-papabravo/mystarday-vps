@@ -8,6 +8,30 @@
 const { R3_PAGES_DATA } = require('./resurser-r3-pages-data');
 const { R3_EXTRA_SECTIONS } = require('./resurser-r3-extra-sections');
 const { R3_DOWNLOAD_META, R3_RELATED_LABELS } = require('./resurser-r3-downloads');
+const { WEEKEND_KEYS, HOMEWORK_KEYS } = require('./resurser-r3-pdf-keys');
+
+/** R3-only PDF landing pages (helg + läxa). */
+const R3_PDF_PAGES = [
+  {
+    path: '/resurser/pdf/helgschema',
+    file: 'resurser/pdf-helgschema.html',
+    slug: 'helgschema',
+    title: 'Helgschema PDF — mall med bildstöd',
+    description: 'Gratis helgschema att skriva ut — lugna lördags- och söndagssteg utan skolstress.',
+    pictogramKeys: WEEKEND_KEYS,
+  },
+  {
+    path: '/resurser/pdf/laxschema',
+    file: 'resurser/pdf-laxschema.html',
+    slug: 'laxschema',
+    title: 'Läxschema PDF — steg för steg med bildstöd',
+    description: 'Gratis läxschema att skriva ut — dela upp läxor i små moment med paus och klart.',
+    pictogramKeys: HOMEWORK_KEYS,
+  },
+];
+
+/** Static PDF filenames shipped for R3. */
+const R3_PDF_FILES = ['helgschema.pdf', 'laxschema.pdf'];
 
 const R3_LONGTAIL_PAGES = R3_PAGES_DATA.map((page) => {
   const extra = R3_EXTRA_SECTIONS[page.slug];
@@ -27,7 +51,10 @@ const R3_LONGTAIL_PAGES = R3_PAGES_DATA.map((page) => {
   };
 });
 
-const R3_INDEXABLE_PATHS = R3_LONGTAIL_PAGES.map((p) => p.path);
+const R3_INDEXABLE_PATHS = [
+  ...R3_LONGTAIL_PAGES.map((p) => p.path),
+  ...R3_PDF_PAGES.map((p) => p.path),
+];
 
 /** Plain-text body for word-count tests — strips HTML from lead/sections. */
 function r3PagePlainText(page) {
@@ -50,9 +77,13 @@ function countSwedishWords(text) {
 
 module.exports = {
   R3_LONGTAIL_PAGES,
+  R3_PDF_PAGES,
+  R3_PDF_FILES,
   R3_INDEXABLE_PATHS,
   R3_DOWNLOAD_META,
   R3_RELATED_LABELS,
+  WEEKEND_KEYS,
+  HOMEWORK_KEYS,
   r3PagePlainText,
   countSwedishWords,
 };

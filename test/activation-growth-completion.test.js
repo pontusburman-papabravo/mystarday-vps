@@ -22,13 +22,15 @@ describe('ACT-1 growth completion', () => {
     assert.match(sched, /child_handoff_reminder_sent/);
   });
 
-  it('admin funnel includes child access diagnostics', () => {
+  it('admin funnel includes child access diagnostics and weekly report', () => {
     const db = fs.readFileSync(path.join(ROOT, 'db/activation-funnel.js'), 'utf8');
     assert.match(db, /getActivationChildAccessDiagnostics/);
     assert.match(db, /child_profile_created/);
+    assert.match(db, /getActivationWeeklyReport/);
     const admin = fs.readFileSync(path.join(ROOT, 'public/admin/admin-analytics.js'), 'utf8');
     assert.match(admin, /activationChildAccessDiag/);
-    assert.match(admin, /activationExperimentVerdict/);
+    assert.match(admin, /activationWeeklyReport/);
+    assert.match(admin, /Veckorapport aktivering/);
   });
 
   it('referral admin lists delningar (shares)', () => {

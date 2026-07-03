@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../src/lib/db');
+const weeklyReportPure = require('../src/lib/activation-weekly-report');
 
 /** First Success huvudtratt (PR 2) — 6 steg, family_activation_state + daily_log_item. */
 const FIRST_SUCCESS_FUNNEL_STEPS = [
@@ -226,7 +227,64 @@ const MIN_VARIANT_SIGNUPS = 10;
 const AI_PROMOTE_DELTA_PP = 5;
 
 /**
+ * Weekly P0 activation counts per signup cohort week.
+ * @param {number} weeks
+ */
+async function getActivationP0WeeklyCohorts(weeks = 8) {
+  const safeWeeks = Math.min(52, Math.max(1, weeks));
+  const result = await db.query(
+    `SELECT date_trunc('week', signup_at)::date AS cohort_week,
+            COUNT(*)::int AS signups,
+            COUNT(*) FILTER (WHERE p0_activated_within_48h)::int AS p0_48h
+     FROM family_activation_state
+     WHERE signup_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
+     GROUP BY cohort_week
+     ORDER BY cohort_week DESC`,
+    [safeWeeks]
+  );
+
+  return result.rows.map((row) => ({
+    cohort_week: row.cohort_week,
+    signups: row.signups || 0,
+    p0_48h: row.p0_48h || 0,
+    rate_48h: row.signups > 0 ? Math.round((1000 * row.p0_48h) / row.signups) / 10 : 0,
+  }));
+}
+
+/**
+ * Find the funnel step with the largest relative drop-off (latest cohort with signups).
+ * @param {{ cohorts: object[], steps: object[] }} funnelData
+ */
+function findBiggestFunnelDropoff(funnelData) {
+  return weeklyReportPure.findBiggestFunnelDropoff(funnelData);
+}
+
+function computeActivationRateLift(p0Weekly) {
+  return weeklyReportPure.computeActivationRateLift(p0Weekly);
+}
+
+/**
+ * Veckorapport aktivering — answers aktivering-exekveringsplan §6.1.
+ * @param {number} weeks
+ */
+async function getActivationWeeklyReport(weeks = 8) {
+  const [funnel, p0Weekly] = await Promise.all([
+    getActivationFunnelCohorts(weeks),
+    getActivationP0WeeklyCohorts(weeks),
+  ]);
+
+  return {
+    ai_only: true,
+    generated_at: new Date().toISOString(),
+    questions: weeklyReportPure.buildActivationWeeklyQuestions(funnel, p0Weekly),
+    funnel,
+    p0_weekly: p0Weekly,
+  };
+}
+
+/**
  * ACT-1 PR5 go/no-go: AI only if B beats A by ≥5 pp on activation_rate_48h.
+ * @deprecated AI-only rollout — use getActivationWeeklyReport instead.
  * @param {Record<string, { signups: number, rate_48h: number }>} totals
  */
 function computeAiGoNoGoVerdict(totals) {
@@ -268,6 +326,10 @@ module.exports = {
   getActivationFunnelCohorts,
   getActivationExperimentCohorts,
   getActivationChildAccessDiagnostics,
+  getActivationP0WeeklyCohorts,
+  getActivationWeeklyReport,
+  findBiggestFunnelDropoff,
+  computeActivationRateLift,
   computeAiGoNoGoVerdict,
   buildStepRates,
   buildStepConversions,

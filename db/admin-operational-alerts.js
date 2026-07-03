@@ -66,6 +66,31 @@ async function dismiss(alertId, parentId) {
   return rows[0] || null;
 }
 
+/** Dismiss activation alerts superseded by the latest advisor run. */
+async function syncActivationAlerts(activeSlugs) {
+  if (!activeSlugs?.length) return 0;
+  const { rowCount } = await db.query(
+    `UPDATE admin_operational_alert
+     SET dismissed_at = NOW(), dismissed_by = NULL
+     WHERE dismissed_at IS NULL
+       AND category = 'activation'
+       AND NOT (slug = ANY($1::text[]))`,
+    [activeSlugs]
+  );
+  return rowCount;
+}
+
+/** One-time cleanup: date-suffixed slugs from legacy advisor (e.g. activation-low-p0-2026-07-01). */
+async function dismissStaleDatedAlerts() {
+  const { rowCount } = await db.query(
+    `UPDATE admin_operational_alert
+     SET dismissed_at = NOW(), dismissed_by = NULL
+     WHERE dismissed_at IS NULL
+       AND slug ~ '-\\d{4}-\\d{2}-\\d{2}$'`
+  );
+  return rowCount;
+}
+
 async function pruneOlderThanDays(days = 30) {
   const { rowCount } = await db.query(
     `DELETE FROM admin_operational_alert
@@ -96,6 +121,8 @@ module.exports = {
   upsertAlert,
   listActive,
   dismiss,
+  syncActivationAlerts,
+  dismissStaleDatedAlerts,
   pruneOlderThanDays,
   toRecommendationCards,
 };

@@ -25,8 +25,8 @@ function pdfPageCount(filename) {
 }
 
 describe('resurser R2 — PDF assets', () => {
-  it('ships fourteen R2 downloadable PDFs', () => {
-    assert.equal(R2_PDF_FILES.length, 14);
+  it('ships sixteen R2 downloadable PDFs', () => {
+    assert.equal(R2_PDF_FILES.length, 16);
     for (const file of R2_PDF_FILES) {
       const full = path.join(PDF_DIR, file);
       assert.ok(fs.existsSync(full), `missing ${file}`);
@@ -83,12 +83,14 @@ describe('resurser R2 — PDF assets', () => {
 });
 
 describe('resurser R2 — page registry', () => {
-  it('indexes seventeen R2 HTML paths', () => {
-    assert.equal(R2_INDEXABLE_PATHS.length, 17);
+  it('indexes nineteen R2 HTML paths', () => {
+    assert.equal(R2_INDEXABLE_PATHS.length, 19);
     assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/kanslor'));
     assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/bildkort/overgangar'));
     assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/pdf/beloningsschema'));
     assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/pdf/veckoschema'));
+    assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/pdf/helgschema'));
+    assert.ok(R2_INDEXABLE_PATHS.includes('/resurser/pdf/laxschema'));
   });
 
   it('key sets meet R2 minimums', () => {
@@ -118,6 +120,8 @@ describe('resurser R2 — page registry', () => {
       'public/resurser/pdf-hygien.html',
       'public/resurser/pdf-beloningsschema.html',
       'public/resurser/pdf-veckoschema.html',
+      'public/resurser/pdf-helgschema.html',
+      'public/resurser/pdf-laxschema.html',
     ];
     for (const file of files) {
       assert.ok(fs.existsSync(path.join(ROOT, file)), file);

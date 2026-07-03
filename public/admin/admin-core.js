@@ -55,7 +55,6 @@
     function refreshSectionData(name, route) {
       if (name === 'overview') {
         refreshAdminStats();
-        if (typeof loadOverviewStats === 'function') loadOverviewStats();
         if (typeof loadStartSummary === 'function') loadStartSummary();
       }
       if (name === 'prenumeration' && typeof loadSubscriptionSettings === 'function') {
@@ -104,6 +103,7 @@
         if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('produktanalys');
       }
       if (name === 'anvandning' && typeof loadLoginStats === 'function') {
+        if (typeof loadOverviewStats === 'function') loadOverviewStats(3);
         loadLoginStats();
         if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('anvandning');
       }
@@ -249,9 +249,6 @@
 
         // Load stats (retry up to 3 times on transient failures)
         await loadAdminStats(3);
-
-        // Load overview period stats (default period: 7d, retry up to 3 times)
-        if (typeof loadOverviewStats === 'function') loadOverviewStats(3);
 
         // Load grouped families
         if (typeof loadFamilies === 'function') loadFamilies();

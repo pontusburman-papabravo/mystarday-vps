@@ -96,7 +96,7 @@ const {
   R2_BILDKORT_PAGES,
   R2_PDF_PAGES,
 } = require('../../config/resurser-r2');
-const { R3_LONGTAIL_PAGES } = require('../../config/resurser-r3');
+const { R3_LONGTAIL_PAGES, R3_PDF_PAGES } = require('../../config/resurser-r3');
 
 function sendPublicHtml(relativeFile) {
   return (req, res) => {
@@ -116,6 +116,7 @@ for (const page of [
   ...R2_BILDKORT_PAGES,
   ...R2_PDF_PAGES,
   ...R3_LONGTAIL_PAGES,
+  ...R3_PDF_PAGES,
 ]) {
   router.get(page.path, sendPublicHtml(page.file));
 }

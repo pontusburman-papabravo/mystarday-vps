@@ -21,6 +21,7 @@ const {
   SCHOOL_KEYS,
   HYGIENE_KEYS,
 } = require('../config/resurser-r2');
+const { WEEKEND_KEYS, HOMEWORK_KEYS } = require('../config/resurser-r3-pdf-keys');
 const { generateResurserPdf } = require('../src/lib/resurser-pdf');
 
 const JOBS = [
@@ -171,6 +172,23 @@ const JOBS = [
     title: 'Veckoschema — exempel',
     subtitle: 'Exempel på hur veckan kan se ut — justera efter er familj.',
     exampleLabels: ['Skola', 'Sim', 'Skola', 'Skola', 'Skola', 'Lek', 'Vila'],
+  },
+  // ── R3 helg + läxa ───────────────────────────────────────
+  {
+    file: 'helgschema.pdf',
+    type: 'schedule',
+    keys: WEEKEND_KEYS,
+    title: 'Helgschema — exempel',
+    subtitle: 'Lugna helgsteg utan skolstress — justera efter er familj.',
+    emptyBoxes: false,
+  },
+  {
+    file: 'laxschema.pdf',
+    type: 'schedule',
+    keys: HOMEWORK_KEYS,
+    title: 'Läxschema — steg för steg',
+    subtitle: 'Dela upp läxor i små moment — paus och klart-markerade.',
+    emptyBoxes: false,
   },
 ];
 
