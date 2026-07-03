@@ -7,7 +7,7 @@
 if (!Auth.requireAuth()) { /* redirected */ }
 
 const urlParams = new URLSearchParams(window.location.search);
-const childId = urlParams.get('child');
+const childId = urlParams.get('child') || urlParams.get('id');
 if (!childId) { window.location.href = '/family'; }
 
 let childData = null;

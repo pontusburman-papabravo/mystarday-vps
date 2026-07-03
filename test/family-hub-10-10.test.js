@@ -67,15 +67,21 @@ describe('Familj hub 10/10', () => {
     assert.match(src, /afterRender: afterRender/);
   });
 
-  it('child-profile-setup links advanced settings to barnprofil setup tab', () => {
+  it('child-profile-setup links advanced settings to full child-settings page', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
-    assert.match(src, /\/family\/child\/.*\?tab=setup/);
-    assert.doesNotMatch(src, /\/child-settings\?id=/);
+    assert.match(src, /\/child-settings\?child=/);
+    assert.doesNotMatch(src, /\?tab=setup.*Avancerade inställningar/);
   });
 
-  it('child-settings route redirects to barnprofil', () => {
+  it('child-settings route serves page when child id present', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
-    assert.match(routes, /\/child-settings[\s\S]*\/family\/child\/.*tab=setup/);
+    assert.match(routes, /\/child-settings[\s\S]*child-settings\.html/);
+    assert.doesNotMatch(routes, /tab=setup/);
+  });
+
+  it('child-profile-setup shows reward star_cost', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
+    assert.match(src, /star_cost/);
   });
 
   it('SW bumped for Familj 10/10', () => {

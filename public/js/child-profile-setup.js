@@ -74,7 +74,7 @@
       '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">Laddar belöningar…</p></div>' +
       '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
       '</div>' +
-      '<a href="/family/child/' + encodeURIComponent(child.id) + '?tab=setup" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
+      '<a href="/child-settings?child=' + encodeURIComponent(child.id) + '" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
       '</div>';
   }
 
@@ -107,8 +107,12 @@
         const vtc = r.visible_to_children;
         const visible = vtc === null || vtc === undefined || (Array.isArray(vtc) && vtc.indexOf(childId) >= 0);
         return '<div class="flex items-center justify-between gap-2 py-2 border-b border-lavender last:border-0">' +
-          '<div class="flex items-center gap-2 min-w-0"><span>' + esc(r.icon || '🏆') + '</span>' +
-          '<span class="text-sm font-semibold text-navy truncate">' + esc(r.name) + '</span></div>' +
+          '<div class="flex items-center gap-2 min-w-0 flex-1">' +
+          '<span class="shrink-0">' + esc(r.icon || '🏆') + '</span>' +
+          '<div class="min-w-0">' +
+          '<p class="text-sm font-semibold text-navy truncate">' + esc(r.name) + '</p>' +
+          (r.star_cost != null ? '<p class="text-xs text-text-soft">' + esc(String(r.star_cost)) + ' ⭐</p>' : '') +
+          '</div></div>' +
           '<div class="toggle-track profile-reward-toggle ' + (visible ? 'on' : '') + '" data-reward-id="' + esc(r.id) + '" style="min-width:44px;min-height:24px;flex-shrink:0">' +
           '<div class="toggle-thumb"></div></div></div>';
       }).join('');
