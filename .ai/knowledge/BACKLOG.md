@@ -9,12 +9,18 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-023 | P2 | Extract `world-ambient.js` shared helper | DRY across worlds | 3 worlds | Low | Refactoring | **next** |
-| BL-010 | P2 | `lint:public` budget vs debt | CI noise | — | Med | Engineering | open |
-| BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | open |
+| BL-027 | P1 | Garden visual token ↔ LOE state sync | Child delight | BL-023 done | Low | Frontend | **active** |
+| BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | queued |
 | BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
 
 ---
+
+## Completed (MO005 2026-07-03)
+
+| ID | Mission |
+|----|---------|
+| BL-030 | COS v1.4 — Strategic Intent, AMQ, Nightly Review |
+| BL-023 | `world-ambient.js` shared gate + scenery |
 
 ## Completed (MO004 2026-07-03)
 

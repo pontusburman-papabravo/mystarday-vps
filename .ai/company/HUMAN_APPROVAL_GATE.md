@@ -1,6 +1,6 @@
 # Human Approval Gate (HAG)
 
-**COS v1.3 — escalation policy**  
+**COS v1.4 — escalation policy**  
 **Not product truth — see `product-operating-system/`**
 
 ---
@@ -43,6 +43,11 @@ Can I continue according to my mandate?
 **Forbidden question:** “Shall I proceed?” / “Do you want to review first?”
 
 **Assume Product Owner is offline.** Optimize for uninterrupted autonomous execution.
+
+**Strategic Intent** (`.ai/company/STRATEGIC_INTENT.md`) defines *what* to achieve.  
+**AMQ** (`.ai/knowledge/MISSION_QUEUE.md`) ranks *how* — agent picks highest ROI.
+
+**Forbidden:** Asking human to choose next mission.
 
 ---
 
@@ -140,13 +145,13 @@ If none apply → **continue autonomously**.
 
 ## Morning report contract
 
-1. **Repository Value Score (RVS)** — see [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
-2. **ARC log** (optional) — high-signal autonomous commits without PR
-3. **IRC table** — all draft PRs accumulated overnight
-4. **HRC table** — decisions required (may be empty)
-5. **Blockers** — true HAG triggers only
-6. **Next autonomous missions** — ordered by ROI
-7. **Top human decisions** — HRC triggers only
+1. **Repository Value Score (RVS)** — [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
+2. **Current Strategy** — objective, focus, why, alternatives rejected (not “next mission”)
+3. **Nightly Review** — CTO Review, Kill Ideas, Opportunity Discovery — [NIGHTLY_REVIEW.md](./NIGHTLY_REVIEW.md)
+4. **ARC log** (optional)
+5. **IRC table**
+6. **HRC table**
+7. **Mission Queue snapshot** — top 5 ROI from AMQ
 
 ---
 
@@ -158,6 +163,7 @@ If none apply → **continue autonomously**.
 - Asking human to prioritize when backlog + POS already define order
 - Idle waiting when productive autonomous work exists
 - Optimizing for commit/PR count instead of RVS
+- Asking human to pick next mission (use AMQ)
 
 ---
 

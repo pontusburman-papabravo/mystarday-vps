@@ -1,4 +1,4 @@
-# Company Operating System (COS) v1.3
+# Company Operating System (COS) v1.4
 
 **Type:** AI Development Organization operating system  
 **Not:** Product documentation (that is POS)  
@@ -60,7 +60,7 @@ Runtime: `.ai/runtime/MISSION_ENGINE.md` (tier field) · `.ai/runtime/REVIEW_ENG
 
 ## Human approval gate
 
-**Policy:** [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md) · **KPI:** [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
+**Policy:** [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md) · **Intent:** [STRATEGIC_INTENT.md](./STRATEGIC_INTENT.md) · **KPI:** [REPOSITORY_VALUE_SCORE.md](./REPOSITORY_VALUE_SCORE.md)
 
 | Tier | PR | Pause |
 |------|-----|-------|
@@ -90,3 +90,4 @@ Runtime: `.ai/runtime/MISSION_ENGINE.md` (tier field) · `.ai/runtime/REVIEW_ENG
 | 1.1 | Org OS — cells, tiers, council convening model |
 | 1.2 | HAG — IRC vs HRC, no pause for checkpoints, mandate-check escalation |
 | 1.3 | ARC tier, blocked-ROI protocol, Repository Value Score KPI |
+| 1.4 | Strategic Intent, AMQ, Nightly Review (Kill Ideas, CTO Review), Current Strategy |

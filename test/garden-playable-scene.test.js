@@ -58,9 +58,11 @@ function loadMorgonhusPlayable() {
   const modPath = require.resolve('../src/lib/morgonhus-playable');
   const accessPath = require.resolve('../src/lib/living-world-access');
   const featuresPath = require.resolve('../db/features');
+  const ambientPath = require.resolve('../src/lib/world-ambient');
   delete require.cache[modPath];
   delete require.cache[accessPath];
   delete require.cache[featuresPath];
+  delete require.cache[ambientPath];
   return require(modPath);
 }
 
@@ -123,12 +125,17 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.ok(garden.ambient_scenery.some((s) => s.scenery_id === 'garden_path'));
 
     const libSrc = fs.readFileSync(
+      path.join(__dirname, '../src/lib/world-ambient.js'),
+      'utf8'
+    );
+    const gardenSrc = fs.readFileSync(
       path.join(__dirname, '../src/lib/garden-playable.js'),
       'utf8'
     );
-    assert.doesNotMatch(libSrc, /const AMBIENT_SCENERY/);
+    assert.doesNotMatch(gardenSrc, /const AMBIENT_SCENERY/);
     assert.match(libSrc, /ambient_scenery/);
     assert.match(libSrc, /buildSceneryFromPack/);
+    assert.match(gardenSrc, /world-ambient/);
   });
 
   it('isPlayableEnabled denied without allowlist', async () => {

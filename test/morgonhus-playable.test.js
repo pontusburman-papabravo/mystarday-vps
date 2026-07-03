@@ -212,10 +212,12 @@ describe('morgonhus_playable — feature access rollout', () => {
     const livingPath = require.resolve('../src/lib/living-world-access');
     const featuresPath = require.resolve('../db/features');
     const progressionPath = require.resolve('../db/child-progression-node');
+    const ambientPath = require.resolve('../src/lib/world-ambient');
     delete require.cache[modPath];
     delete require.cache[livingPath];
     delete require.cache[featuresPath];
     delete require.cache[progressionPath];
+    delete require.cache[ambientPath];
     const { buildSceneState } = require(modPath);
 
     const state = await buildSceneState('child-test-2', FAMILY_A);

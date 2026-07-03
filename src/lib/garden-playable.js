@@ -6,19 +6,9 @@ const {
   getWorldDef,
 } = require('./experience-pack');
 const { loadLivingSlots, applyVerb } = require('./living-object-runtime');
+const { buildSceneryFromPack } = require('./world-ambient');
 
 const FEATURE_SLUG = 'garden_playable';
-
-function buildSceneryFromPack(worldDef) {
-  return (worldDef?.ambient_scenery || []).map((entry) => ({
-    scenery_id: entry.scenery_id,
-    label_sv: entry.label_sv,
-    emoji: entry.emoji || null,
-    ambient_message: entry.ambient_message_sv || null,
-    hotspot_class: entry.hotspot_class || null,
-    living_slot_id: entry.living_slot_id || null,
-  }));
-}
 
 /**
  * Playable Trädgården — ambient scene + pack-driven living objects (LOE).
