@@ -25,7 +25,7 @@ function loadPipeline() {
 describe('memory-hall asset pipeline stub (BL-044)', () => {
   it('exposes scene srcset manifest matching art spec paths', () => {
     const pipeline = loadPipeline();
-    assert.equal(pipeline.VERSION, '1.1.0');
+    assert.equal(pipeline.VERSION, '1.2.0');
     assert.equal(pipeline.SCENE.file, 'scene@2x.webp');
     assert.equal(pipeline.SCENE.srcset.length, 3);
     assert.equal(pipeline.CRITICAL_FILE, 'scene@2x.webp');

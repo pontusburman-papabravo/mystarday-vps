@@ -77,6 +77,7 @@
       '</div>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status" aria-live="polite"></div>' +
       '<div class="mh-scene-footer">' +
+        '<button type="button" class="mh-hall-link" id="mhHallLink">🚪 Hallen</button>' +
         '<button type="button" class="mh-skatt-link" id="mhSkattLink">💎 Skattkammaren</button>' +
       '</div>' +
     '</div>';
@@ -174,6 +175,20 @@
     const skattLink = root.querySelector('#mhSkattLink');
     if (skattLink && h.onSkattLink) {
       skattLink.addEventListener('click', h.onSkattLink);
+    }
+
+    const hallLink = root.querySelector('#mhHallLink');
+    if (hallLink) {
+      hallLink.addEventListener('click', function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.enterWorld === 'function') {
+          window.LivingWorldTransition.enterWorld('home_hall', { triggerEl: hallLink }).then(function (entered) {
+            if (!entered) {
+              showToast(root, 'Hallen är inte redo just nu.');
+            }
+          });
+        }
+      });
     }
   }
 

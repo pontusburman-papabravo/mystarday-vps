@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 /**
- * generate-memory-hall-scene.mjs — BL-041 scene export (G8).
- * Prefers hand-authored master PNG when present; falls back to procedural SVG v1.
+ * generate-memory-hall-scene.mjs — Minnesrummet scene export (BL-041).
+ * Prefers memory-hall-scene-master-high.png; falls back to v2; then procedural SVG.
  *
- * Master source: scripts/sources/memory-hall-scene-v2.png
  * Regenerate: npm run generate:memory-hall-scene
  */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import sharp from 'sharp';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { exportRoomScene, resolveMaster, SCENE_EXPORTS } = require('./room-scene-export-lib.cjs');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'public/images/child/world/memory-hall');
-const MASTER_PNG = path.join(ROOT, 'scripts/sources/memory-hall-scene-v2.png');
+
+const MASTER_CANDIDATES = [
+  path.join(ROOT, 'scripts/sources/memory-hall-scene-master-high.png'),
+  path.join(ROOT, 'scripts/sources/memory-hall-scene-v2.png'),
+];
 
 /** Art spec palette (procedural fallback) */
 const COLORS = {
@@ -29,7 +35,7 @@ const COLORS = {
 
 function memoryHallSceneSvg() {
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1280" viewBox="0 0 860 1280">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1859" viewBox="0 0 860 1859">
   <defs>
     <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="${COLORS.cream}"/>
@@ -42,8 +48,8 @@ function memoryHallSceneSvg() {
       <stop offset="100%" stop-color="${COLORS.amber}" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <rect width="860" height="1280" fill="url(#wallGrad)"/>
-  <rect width="860" height="1280" fill="url(#windowGlow)"/>
+  <rect width="860" height="1859" fill="url(#wallGrad)"/>
+  <rect width="860" height="1859" fill="url(#windowGlow)"/>
 </svg>`;
 }
 
@@ -60,11 +66,10 @@ function frameSvg(glow) {
 </svg>`;
 }
 
-async function writeWebpFromSvg(svg, outPath, width, height) {
+async function writeWebpFromSvg(sharp, svg, outPath, width, height) {
   let pipeline = sharp(Buffer.from(svg), { density: 144 });
   if (width && height) pipeline = pipeline.resize(width, height, { fit: 'cover' });
   await pipeline.webp({ quality: 90, effort: 4 }).toFile(outPath);
-  logFile(outPath, width, height);
 }
 
 function logFile(outPath, width, height) {
@@ -72,61 +77,71 @@ function logFile(outPath, width, height) {
   console.log('wrote', path.relative(ROOT, outPath), `${width}×${height}`, `${Math.round(stat.size / 1024)}KB`);
 }
 
-/**
- * Portrait crop; optional horizontal flip so window aligns with mu-hotspot--window (top-right).
- * Use --no-flop when master art already has window on the right (e.g. ChatGPT export).
- */
-async function portraitBaseFromMaster(noFlop) {
-  const meta = await sharp(MASTER_PNG).metadata();
-  const portraitW = Math.round(meta.height * (860 / 1280));
-  const left = Math.round((meta.width - portraitW) / 2);
-  let pipeline = sharp(MASTER_PNG)
-    .extract({ left, top: 0, width: portraitW, height: meta.height });
-  if (!noFlop) pipeline = pipeline.flop();
-  return pipeline;
+/** Map garden-style exports to memory-hall legacy filenames. */
+const MEMORY_HALL_FILE_MAP = {
+  'scene-bg-430.webp': 'scene-430.webp',
+  'scene-bg-860.webp': 'scene-860.webp',
+  'scene-bg.webp': 'scene@2x.webp',
+  'scene-bg-1280.webp': 'scene-1280.webp',
+};
+
+async function exportSceneFromMaster(masterPath) {
+  const tempSlug = 'memory-hall-export-temp';
+  const tempDir = path.join(ROOT, 'public/images/child/world', tempSlug);
+  await exportRoomScene(tempSlug, masterPath, { root: ROOT, log: false });
+
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  for (const [srcName, destName] of Object.entries(MEMORY_HALL_FILE_MAP)) {
+    const src = path.join(tempDir, srcName);
+    const dest = path.join(OUT_DIR, destName);
+    fs.copyFileSync(src, dest);
+    const meta = SCENE_EXPORTS.find(function (e) { return e[0] === srcName; });
+    logFile(dest, meta[1], meta[2]);
+  }
+
+  fs.rmSync(tempDir, { recursive: true, force: true });
 }
 
-async function exportSceneFromMaster(noFlop) {
-  const base = await portraitBaseFromMaster(noFlop);
+async function exportSceneFromSvg(sharp) {
+  const sceneSvg = memoryHallSceneSvg();
   const exports = [
-    ['scene@2x.webp', 860, 1280],
-    ['scene-860.webp', 860, 1280],
-    ['scene-430.webp', 430, 640],
-    ['scene-1280.webp', 1280, 1920],
+    ['scene@2x.webp', 860, 1859],
+    ['scene-860.webp', 860, 1859],
+    ['scene-430.webp', 430, 930],
+    ['scene-1280.webp', 1280, 2767],
   ];
+  fs.mkdirSync(OUT_DIR, { recursive: true });
   for (const [name, w, h] of exports) {
-    await base.clone().resize(w, h, { fit: 'cover', position: 'centre' })
-      .webp({ quality: 90, effort: 5 })
-      .toFile(path.join(OUT_DIR, name));
+    await writeWebpFromSvg(sharp, sceneSvg, path.join(OUT_DIR, name), w, h);
     logFile(path.join(OUT_DIR, name), w, h);
   }
 }
 
-async function exportSceneFromSvg() {
-  const sceneSvg = memoryHallSceneSvg();
-  await writeWebpFromSvg(sceneSvg, path.join(OUT_DIR, 'scene@2x.webp'), 860, 1280);
-  await writeWebpFromSvg(sceneSvg, path.join(OUT_DIR, 'scene-860.webp'), 860, 1280);
-  await writeWebpFromSvg(sceneSvg, path.join(OUT_DIR, 'scene-430.webp'), 430, 640);
-  await writeWebpFromSvg(sceneSvg, path.join(OUT_DIR, 'scene-1280.webp'), 1280, 1920);
-}
-
-async function exportFrames() {
-  await writeWebpFromSvg(frameSvg(false), path.join(OUT_DIR, 'frame-empty@2x.webp'), 120, 120);
-  await writeWebpFromSvg(frameSvg(true), path.join(OUT_DIR, 'frame-glow@2x.webp'), 120, 120);
+async function exportFrames(sharp) {
+  await writeWebpFromSvg(sharp, frameSvg(false), path.join(OUT_DIR, 'frame-empty@2x.webp'), 120, 120);
+  logFile(path.join(OUT_DIR, 'frame-empty@2x.webp'), 120, 120);
+  await writeWebpFromSvg(sharp, frameSvg(true), path.join(OUT_DIR, 'frame-glow@2x.webp'), 120, 120);
+  logFile(path.join(OUT_DIR, 'frame-glow@2x.webp'), 120, 120);
 }
 
 async function main() {
-  const noFlop = process.argv.includes('--no-flop')
-    || process.env.MEMORY_HALL_SCENE_NO_FLOP === '1';
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  if (fs.existsSync(MASTER_PNG)) {
-    console.log('Using master PNG:', path.relative(ROOT, MASTER_PNG), noFlop ? '(no flip)' : '(flop for window right)');
-    await exportSceneFromMaster(noFlop);
+  const sharp = (await import('sharp')).default;
+  let masterPath = null;
+  for (const candidate of MASTER_CANDIDATES) {
+    if (fs.existsSync(candidate)) {
+      masterPath = candidate;
+      break;
+    }
+  }
+
+  if (masterPath) {
+    console.log('Using master PNG:', path.relative(ROOT, masterPath));
+    await exportSceneFromMaster(masterPath);
   } else {
     console.log('No master PNG — procedural SVG fallback');
-    await exportSceneFromSvg();
+    await exportSceneFromSvg(sharp);
   }
-  await exportFrames();
+  await exportFrames(sharp);
   console.log('Memory hall scene assets generated.');
 }
 

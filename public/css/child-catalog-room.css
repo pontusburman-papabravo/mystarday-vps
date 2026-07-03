@@ -1,0 +1,145 @@
+/* child-catalog-room.css — Illustrated catalog rooms (hall + interior 102–105) */
+
+body.child-catalog-room-active #rewardsView {
+  background: transparent !important;
+  padding-bottom: 0 !important;
+}
+
+body.child-catalog-room-active #skattkammarView {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  animation: none;
+}
+
+.cr-scene {
+  position: relative;
+  width: 100%;
+  height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
+  max-height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  background: #1a2838;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cr-scene--entering {
+  animation: cr-scene-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cr-scene-enter {
+  from { opacity: 0; transform: translateX(-3%) scale(1.01); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.cr-scene-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.cr-scene-canvas picture,
+.cr-scene-canvas img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.cr-hotspot,
+[class$="-hotspot"] {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  z-index: 2;
+}
+
+.cr-hotspot:focus-visible,
+[class$="-hotspot"]:focus-visible {
+  outline: 2px solid rgba(245, 166, 35, 0.85);
+  outline-offset: 2px;
+}
+
+.cr-hotspot.is-tapped,
+[class$="-hotspot"].is-tapped {
+  transform: scale(0.97);
+}
+
+.cr-back-fab {
+  position: absolute;
+  left: max(12px, env(safe-area-inset-left, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(27, 35, 64, 0.72);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cr-back-icon::before {
+  content: '←';
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.cr-scene-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: min(90vw, 320px);
+  padding: 0.65rem 1rem;
+  border-radius: 1rem;
+  background: rgba(27, 35, 64, 0.88);
+  color: #fff;
+  font-size: 0.95rem;
+  text-align: center;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cr-scene-toast.is-visible {
+  opacity: 1;
+}
+
+.cr-tap-pulse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 60%, rgba(255, 248, 220, 0.25), transparent 55%);
+}
+
+.cr-tap-pulse.is-active {
+  animation: cr-pulse 1.2s ease-out forwards;
+}
+
+@keyframes cr-pulse {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-scene--entering,
+  .cr-tap-pulse.is-active {
+    animation: none !important;
+  }
+  .cr-scene--entering {
+    opacity: 1;
+    transform: none;
+  }
+}

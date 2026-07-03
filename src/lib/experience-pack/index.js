@@ -64,6 +64,9 @@ function loadPack(packId = DEFAULT_PACK_ID) {
     exhibits: includes.exhibits
       ? readPackJsonFile(path.join(packDir, includes.exhibits), `${packId}/${includes.exhibits}`)
       : { worlds: [] },
+    scenes: includes.scenes
+      ? readPackJsonFile(path.join(packDir, includes.scenes), `${packId}/${includes.scenes}`)
+      : { version: '0.0.0', scenes: [] },
   };
 
   packCache.set(packId, pack);
@@ -144,6 +147,10 @@ function resolveExperienceCopy(pack, experienceKey, vars = {}) {
   };
 }
 
+function getSceneDef(pack, sceneId) {
+  return (pack.scenes.scenes || []).find((s) => s.scene_id === sceneId) || null;
+}
+
 module.exports = {
   DEFAULT_PACK_ID,
   loadPack,
@@ -158,4 +165,5 @@ module.exports = {
   buildExhibitViews,
   interpolateTemplate,
   resolveExperienceCopy,
+  getSceneDef,
 };

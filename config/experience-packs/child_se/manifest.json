@@ -18,6 +18,7 @@
     "rewards": "rewards.json",
     "copy": "copy.json",
     "worlds": "worlds.json",
+    "scenes": "scenes.json",
     "living_objects": "living-objects.json",
     "exhibits": "exhibits.json"
   }

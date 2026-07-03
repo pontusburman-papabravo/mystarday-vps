@@ -217,9 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v506';
-// stjarndag-v506: Min värld generic room scene export (home→lake webp sets; wire-in PR 3)
-// stjarndag-v505: (previous)
+const CACHE_NAME = 'stjarndag-v507';
+// stjarndag-v507: catalog room wire-in (hall+102–105), scenes.json, memory-hall master, hero assets
+// stjarndag-v506: generic room scene export (home→lake webp sets)
 // stjarndag-v502: platform auth matrix + Google signup/link (google_user_id)
 // stjarndag-v501: Minnesrummet scene v2 diorama illustration (BL-041)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
@@ -448,8 +448,12 @@ const STATIC_ASSETS = [
   '/js/morgonhus-asset-pipeline.js',
   '/js/garden-asset-pipeline.js',
   '/js/memory-hall-asset-pipeline.js',
+  '/js/living-world-scenes-catalog.js',
+  '/js/living-world-room-pipelines.js',
+  '/js/child-catalog-room.js',
   '/js/child-garden.js',
   '/css/child-garden.css',
+  '/css/child-catalog-room.css',
   '/js/child-memory-hall.js',
   '/css/child-memory-hall.css',
   '/css/child-today-focus.css',
@@ -482,6 +486,18 @@ const STATIC_ASSETS = [
   '/images/child/world/memory-hall/scene-430.webp',
   '/images/child/world/memory-hall/scene-860.webp',
   '/images/child/world/memory-hall/scene-1280.webp',
+  '/images/child/world/hall/scene-bg.webp',
+  '/images/child/world/hall/scene-bg-430.webp',
+  '/images/child/world/hall/scene-bg-860.webp',
+  '/images/child/world/hall/scene-bg-1280.webp',
+  '/images/child/world/bedroom/scene-bg.webp',
+  '/images/child/world/bedroom/scene-bg-430.webp',
+  '/images/child/world/bedroom/scene-bg-860.webp',
+  '/images/child/world/bedroom/scene-bg-1280.webp',
+  '/images/child/world/kitchen/scene-bg.webp',
+  '/images/child/world/kitchen/scene-bg-430.webp',
+  '/images/child/world/bathroom/scene-bg.webp',
+  '/images/child/world/attic/scene-bg.webp',
   // Pedagog pages
   '/pedagog-note.html',
   '/pedagog-oversikt.html',
