@@ -21,8 +21,8 @@ router.post('/link-apple', requireParent, async (req, res) => {
       return res.status(400).json({ error: 'idToken krävs' });
     }
 
-    // Verify Apple JWT — uses same verifyAppleIdToken from auth.js
-    const { verifyAppleIdToken } = require('./auth');
+    // Verify Apple JWT
+    const { verifyAppleIdToken } = require('../../lib/apple-auth');
     const appleUser = await verifyAppleIdToken(idToken);
     if (!appleUser) {
       return res.status(401).json({ error: 'Ogiltig Apple-identitetstoken' });
@@ -78,7 +78,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
 
     // Verify current parent has a password
     const parentRow = await db.query(
-      'SELECT password_hash IS NOT NULL AS has_password, apple_user_id FROM parent WHERE id = $1',
+      'SELECT password_hash, password_hash IS NOT NULL AS has_password, apple_user_id FROM parent WHERE id = $1',
       [parentId]
     );
     if (!parentRow.rows.length) {
@@ -107,6 +107,103 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] unlink-apple error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── POST /api/account/link-google ─────────────────────
+// Link Google ID to current account (from Settings).
+router.post('/link-google', requireParent, async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({ error: 'idToken krävs' });
+    }
+
+    const { verifyGoogleIdToken } = require('../../lib/google-auth');
+    let payload;
+    try {
+      payload = await verifyGoogleIdToken(idToken);
+    } catch (verifyErr) {
+      console.error('[ACCOUNT] Google token verification failed:', verifyErr.message);
+      return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
+    }
+
+    const googleUserId = payload.sub;
+    if (!googleUserId) {
+      return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
+    }
+
+    const parentId = req.user.id;
+
+    const current = await db.query(
+      'SELECT google_user_id FROM parent WHERE id = $1', [parentId]
+    );
+    if (current.rows[0]?.google_user_id) {
+      return res.status(409).json({ error: 'Google-konto är redan kopplat till detta konto' });
+    }
+
+    const existing = await db.query(
+      'SELECT id FROM parent WHERE google_user_id = $1', [googleUserId]
+    );
+    if (existing.rows.length > 0 && existing.rows[0].id !== parentId) {
+      return res.status(409).json({ error: 'Detta Google-konto är redan kopplat till ett annat konto' });
+    }
+
+    await db.query(
+      'UPDATE parent SET google_user_id = $2 WHERE id = $1',
+      [parentId, googleUserId]
+    );
+
+    const accountAuth = await getAccountAuth(parentId);
+    res.json({
+      message: 'Google-konto länkat!',
+      accountAuth,
+    });
+  } catch (err) {
+    console.error('[ACCOUNT] link-google error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── DELETE /api/account/unlink-google ─────────────────
+router.delete('/unlink-google', requireParent, async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'Lösenord krävs för att koppla bort Google' });
+    }
+
+    const parentId = req.user.id;
+    const parentRow = await db.query(
+      'SELECT password_hash, password_hash IS NOT NULL AS has_password, google_user_id FROM parent WHERE id = $1',
+      [parentId]
+    );
+    if (!parentRow.rows.length) {
+      return res.status(404).json({ error: 'Användare hittades inte' });
+    }
+    const row = parentRow.rows[0];
+    if (!row.has_password) {
+      return res.status(400).json({ error: 'Sätt ett lösenord innan du kopplar bort Google' });
+    }
+
+    const valid = await comparePassword(password, row.password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: 'Felaktigt lösenord' });
+    }
+
+    await db.query(
+      'UPDATE parent SET google_user_id = NULL WHERE id = $1',
+      [parentId]
+    );
+
+    const accountAuth = await getAccountAuth(parentId);
+    res.json({
+      message: 'Google-konto bortkopplat',
+      accountAuth,
+    });
+  } catch (err) {
+    console.error('[ACCOUNT] unlink-google error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
@@ -257,7 +354,7 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
 
     // Check current password state
     const existing = await db.query(
-      'SELECT password_hash IS NOT NULL AS has_password, email, apple_user_id, apple_email FROM parent WHERE id = $1',
+      'SELECT password_hash IS NOT NULL AS has_password, email, apple_user_id, apple_email, google_user_id FROM parent WHERE id = $1',
       [parentId]
     );
     if (existing.rows.length === 0) {
@@ -280,9 +377,11 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
     const accountAuth = {
       hasPassword: true,
       hasAppleLinked: !!row.apple_user_id,
+      hasGoogleLinked: !!row.google_user_id,
       email: row.email,
       appleEmail: row.apple_email || null,
-      canUnlinkApple: row.apple_user_id ? true : false, // no password yet, can't unlink
+      canUnlinkApple: !!row.apple_user_id,
+      canUnlinkGoogle: !!row.google_user_id,
     };
 
     res.json({

@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
-  <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <script src="/js/platform.js?v=2026-07-03-auth"></script>
+  <script src="/js/auth-login-platform.js?v=2026-07-03"></script>
     <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
   <link rel="stylesheet" href="/css/app-entry.css?v=284">
@@ -27,7 +28,7 @@
   <script src="/js/app-entry.js?v=284"></script>
   <script src="/js/login-magic.js?v=156"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
-  <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
+  <script src="/js/google-auth-ui.js?v=2026-07-03b" defer></script>
   <style>
     /* WCAG 2.5.8: min 44×44px touch target */
     .touch-link { display: block; min-height: 44px; padding: 10px 4px; }
@@ -268,13 +269,54 @@
           </div>
         </div>
 
-        <!-- Google Sign In — Android native (sprint 18) -->
+        <!-- Google Sign In — web PWA + Android native -->
         <div id="googleLoginSection" class="hidden" style="width:100%;margin-bottom:12px;">
           <button type="button" id="googleLoginBtn" class="apple-btn-magic" style="background:#fff;color:#1d1d1f;border:2px solid rgba(255,255,255,0.3);">
             <span style="font-size:1.1rem;margin-right:8px;">G</span>
             Logga in med Google
           </button>
           <div id="googleLoginError" class="magic-error-box" style="display:none;margin-top:12px;"></div>
+
+          <div id="googleLinkingPrompt" class="hidden" style="margin-top:14px;background:rgba(255,255,255,0.1);border:2px solid rgba(251,191,36,0.4);border-radius:14px;padding:16px;text-align:center;backdrop-filter:blur(12px);">
+            <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;">Ett konto med denna e-postadress finns redan.</p>
+            <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;">Vill du länka ditt Google-konto till det befintliga kontot?</p>
+            <div style="display:flex;gap:10px;">
+              <button type="button" onclick="openGoogleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;">
+                Ja, länka
+              </button>
+              <button type="button" onclick="dismissGoogleLinking()" class="ghost-btn" style="flex:1;">
+                Avbryt
+              </button>
+            </div>
+          </div>
+
+          <div id="googleLinkModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);">
+            <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border:1px solid rgba(251,191,36,0.3);border-radius:18px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+              <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:2.2rem;margin-bottom:8px;">G</div>
+                <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:4px;">Länka Google-konto</h3>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;">Ange lösenordet för att logga in och därefter länka ditt Google-konto.</p>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">E-post</label>
+                <input type="email" id="googleLinkEmail" readonly style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.9rem;box-sizing:border-box;">
+              </div>
+              <div style="margin-bottom:20px;">
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Lösenord</label>
+                <input type="password" id="googleLinkPassword" placeholder="Ditt lösenord" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;font-size:0.9rem;box-sizing:border-box;">
+              </div>
+              <div id="googleLinkModalError" class="magic-error-box" style="display:none;margin-bottom:12px;"></div>
+              <div style="display:flex;gap:10px;">
+                <button type="button" id="googleLinkSubmitBtn" onclick="submitGoogleLink()" style="flex:1;padding:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1d1d1f;font-weight:700;font-size:0.95rem;border:none;border-radius:10px;cursor:pointer;">
+                  Länka
+                </button>
+                <button type="button" onclick="closeGoogleLinkModal()" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;">
+                  Avbryt
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="magic-divider" style="margin:18px 0;"><span>eller</span></div>
         </div>
 
@@ -324,6 +366,12 @@
         <div id="registerLinkSection" class="magic-footer-link" style="display:none;margin-top:4px;">
           Har du inget konto?
           <a href="/register" id="entryLoginSignupLink">Skapa konto</a>
+        </div>
+
+        <div class="magic-footer-link" style="width:100%;margin-top:12px;">
+          <a href="/child-login" id="childLoginFooterLink" class="touch-btn" style="display:inline-block;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.9rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:2px;">
+            Är du barn? Logga in här
+          </a>
         </div>
 
       </div>
@@ -453,16 +501,9 @@
         })
         .catch(() => {});
 
-      // Apple Sign In — iOS native/Safari only (not Android/desktop)
-      if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
-        const appleSection = document.getElementById('appleLoginSection');
-        if (appleSection) appleSection.classList.remove('hidden');
-      }
-
-      // Google Sign In — Android native (google-auth-ui.js binds click handler)
-      if (window.Platform && typeof Platform.isGoogleSignInAvailable === 'function' && Platform.isGoogleSignInAvailable()) {
-        const googleSection = document.getElementById('googleLoginSection');
-        if (googleSection) googleSection.classList.remove('hidden');
+      // OAuth sections — platform matrix (auth-login-platform.js)
+      if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
+        AuthLoginPlatform.applyAuthSections({ page: 'login' });
       }
 
       if (isAddChildReturn) {
@@ -479,6 +520,15 @@
 
       if (window.AppEntry && typeof AppEntry.init === 'function') {
         AppEntry.init();
+      }
+
+      const childLoginFooterLink = document.getElementById('childLoginFooterLink');
+      if (childLoginFooterLink) {
+        childLoginFooterLink.addEventListener('click', function () {
+          if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+            DeviceMode.enterChild();
+          }
+        });
       }
 
       const form     = document.getElementById('loginForm');
