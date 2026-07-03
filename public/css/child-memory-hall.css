@@ -79,6 +79,32 @@
   white-space: nowrap;
 }
 
+.mu-exhibits {
+  position: absolute;
+  bottom: 12%;
+  left: 8%;
+  right: 8%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.mu-exhibit {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(92, 77, 58, 0.25);
+}
+
+.mu-exhibit-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3d3428;
+}
+
 .child-memory-hall-active #rewardsView {
   background: linear-gradient(180deg, #f5f0e8 0%, #e8dfd0 100%) !important;
 }

@@ -26,6 +26,7 @@
 |-------|----------|------|
 | Feature | `memory_hall_playable` (`dev`, no allowlist) | Always 503 until admin grants |
 | Pack | `worlds.json` → `memory_hall` ambient_scenery | Structural labels only |
+| Exhibits | `exhibits.json` → slot_types + empty slots | Schema only; content HRC |
 | Server | `src/lib/memory-hall-playable.js`, `GET /api/me/memory-hall` | `hasLivingWorldAccess` |
 | Client | `child-memory-hall.js` + CSS | **Not** mounted in `child-dashboard.html` |
 | Tests | `test/memory-hall-playable.test.js` | Empty/disabled states |

@@ -10,8 +10,8 @@
 | Rank | ID | Mission | ROI | Status | Blocker |
 |------|-----|---------|-----|--------|---------|
 | 1 | BL-012 | World 3+ creative direction | 8.1 | **HRC** | Human creative |
-| 2 | BL-029b | Memory hall exhibits + entry wiring | 7.5 | queued | BL-012 |
-| 3 | BL-040 | IRC bundle merge prep (changelog) | 5.0 | queued | HRC merge |
+| 2 | BL-029c | Memory hall entry wiring | 7.0 | queued | BL-012 |
+| 3 | BL-040 | IRC bundle merge prep | 5.0 | **done** | HRC merge |
 
 ---
 
@@ -19,6 +19,8 @@
 
 | ID | Mission | ROI |
 |----|---------|-----|
+| BL-029b | Exhibit slot schema (`exhibits.json`) | 7.5 ✅ |
+| BL-040 | IRC bundle merge guide | 5.0 ✅ |
 | BL-029 | Museum runtime scaffold (reversible prep) | 8.1 ✅ |
 | BL-038 | Garden auto-bloom aria-live announcement | 7.8 ✅ |
 | BL-036 | gate_feature_slug structural guard | 6.0 ✅ |

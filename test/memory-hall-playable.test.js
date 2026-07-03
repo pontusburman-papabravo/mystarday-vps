@@ -138,6 +138,8 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     assert.equal(state.world_slug, WORLD_SLUG);
     assert.equal(state.scaffold, true);
     assert.deepEqual(state.exhibits, []);
+    assert.ok(Array.isArray(state.exhibit_slot_types));
+    assert.ok(state.exhibit_slot_types.includes('trophy'));
     assert.ok(state.scenery.length >= 2);
   });
 
@@ -164,6 +166,14 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     const empty = ChildMemoryHall.renderEmptyState();
     assert.match(empty, /role="status"/);
     assert.match(empty, /plats för minnen/);
+
+    const withExhibits = ChildMemoryHall.renderScene({
+      display_name: 'Minneshallen',
+      scenery: [],
+      exhibits: [{ slot_id: 'frame_1', slot_type: 'trophy', label_sv: 'Trofé' }],
+    });
+    assert.match(withExhibits, /role="list"/);
+    assert.match(withExhibits, /aria-label="Trofé"/);
   });
 
   it('prep doc and ADR draft exist for human decision', () => {

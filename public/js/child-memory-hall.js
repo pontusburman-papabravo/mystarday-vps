@@ -26,25 +26,39 @@
     '</div>';
   }
 
+  function renderExhibitSlots(slots) {
+    if (!slots || !slots.length) return '';
+    const items = slots.map(function (slot) {
+      return '<div class="mu-exhibit mu-exhibit--' + esc(slot.slot_type || 'unknown') + '"' +
+        ' role="listitem" data-slot="' + esc(slot.slot_id || '') + '"' +
+        ' aria-label="' + esc(slot.label_sv || slot.slot_id || '') + '">' +
+        '<span class="mu-exhibit-label">' + esc(slot.label_sv || '') + '</span>' +
+        '</div>';
+    }).join('');
+    return '<div class="mu-exhibits" role="list" aria-label="Utställningar">' + items + '</div>';
+  }
+
   function renderScene(state) {
-    if (!state || !state.scenery || !state.scenery.length) {
-      return renderEmptyState();
-    }
+    if (!state) return renderEmptyState();
+    const hasScenery = state.scenery && state.scenery.length;
+    const hasExhibits = state.exhibits && state.exhibits.length;
+    if (!hasScenery && !hasExhibits) return renderEmptyState();
 
     const title = state.display_name || 'Minneshallen';
     const intro = state.first_enter_message || '';
 
-    const sceneryHtml = (state.scenery || []).map(function (s) {
+    const sceneryHtml = hasScenery ? (state.scenery || []).map(function (s) {
       const id = s.scenery_id || '';
       const hotspotClass = s.hotspot_class || 'mu-hotspot';
       return '<button type="button" class="mu-hotspot ' + esc(hotspotClass) + '"' +
         ' data-scenery="' + esc(id) + '"' +
         ' aria-label="' + esc(s.label_sv || id) + '"></button>';
-    }).join('');
+    }).join('') : '';
 
     return '<div class="mu-scene" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
       '<div class="mu-scene-canvas" aria-hidden="true"></div>' +
       sceneryHtml +
+      renderExhibitSlots(state.exhibits) +
       '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
       (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
     '</div>';
@@ -120,6 +134,7 @@
     API_PATH: API_PATH,
     renderScene: renderScene,
     renderEmptyState: renderEmptyState,
+    renderExhibitSlots: renderExhibitSlots,
     mount: mount,
     deactivate: deactivate,
     isActive: isActive,

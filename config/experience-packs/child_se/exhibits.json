@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "trophy": {
+      "description": "Prestationstrofé — earned, not purchased"
+    },
+    "milestone_frame": {
+      "description": "Milstolpe-minne — parent opt-in only (HRC)"
+    },
+    "memory_token": {
+      "description": "Lugnt minnesmärke utan skuld"
+    }
+  }
+}

@@ -4,6 +4,7 @@ const { hasLivingWorldAccess, MEMORY_HALL_WORLD_SLUG } = require('./living-world
 const {
   resolvePackForChild,
   getWorldDef,
+  buildExhibitViews,
 } = require('./experience-pack');
 const { buildSceneryFromPack } = require('./world-ambient');
 
@@ -36,7 +37,8 @@ async function buildSceneState(childId) {
     first_enter_message: worldDef?.first_unlock_message || 'Här samlas minnena.',
     ambient_message: worldDef?.ambient_message_sv || 'Det är tyst och lugnt.',
     scenery: buildSceneryFromPack(worldDef),
-    exhibits: [],
+    exhibits: buildExhibitViews(pack, MEMORY_HALL_WORLD_SLUG),
+    exhibit_slot_types: Object.keys(pack.exhibits?.slot_types || {}),
   };
 }
 

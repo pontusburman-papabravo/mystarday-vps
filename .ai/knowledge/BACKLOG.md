@@ -13,7 +13,8 @@
 | BL-032 | P3 | Morgonhus aria-live parity with garden | Child calm | — | Low | QA | done |
 | BL-033 | P3 | Garden LOE reduced-motion CSS polish | MO-03 | — | Low | QA | done |
 | BL-034 | P3 | Experience pack living_slots schema guard | World integrity | — | Low | Backend | done |
-| BL-029b | P3 | Memory hall exhibits + garden entry | Min värld | BL-012 | Med | Creative+Eng | queued |
+| BL-029b | P3 | Memory hall exhibit slot schema | Min värld | — | Low | Backend | done |
+| BL-029c | P3 | Memory hall entry wiring | Min värld | BL-012 | Med | Creative+Eng | queued |
 
 ---
 
@@ -21,6 +22,7 @@
 
 | ID | Mission |
 |----|---------|
+| BL-029 | Museum world 3 scaffold (memory_hall) |
 | BL-010 | lint:public budget 792→550 |
 | BL-032 | Morgonhus aria-live parity |
 | BL-033 | Garden LOE reduced-motion |

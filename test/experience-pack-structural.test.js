@@ -155,6 +155,21 @@ describe('experience pack structural validation', () => {
         }
       });
 
+      it('exhibits worlds reference worlds.json slugs when exhibits.json present', () => {
+        if (!pack.manifest.includes?.exhibits) return;
+        const worldSlugs = new Set((pack.worlds.worlds || []).map((w) => w.world_slug));
+        for (const world of pack.exhibits.worlds || []) {
+          assert.ok(
+            world.world_slug,
+            'exhibit world missing world_slug'
+          );
+          assert.ok(
+            worldSlugs.has(world.world_slug),
+            `exhibits world "${world.world_slug}" missing from worlds.json`
+          );
+        }
+      });
+
       it('required runtime copy experiences exist', () => {
         const experiences = pack.copy.experiences || {};
         for (const key of REQUIRED_COPY_KEYS) {
