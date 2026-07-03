@@ -124,7 +124,9 @@
   function renderActivityCard(item, isToday, timeStatus) {
     const isDone = item.completed;
     const isNextOrLater = timeStatus === 'next' || timeStatus === 'later';
-    const canToggle = isToday && !isNextOrLater;
+    const canToggle = (typeof window.activityCanToggle === 'function')
+      ? window.activityCanToggle(isToday, isDone, timeStatus)
+      : (isToday && !isNextOrLater);
     const timeStr = item.start_time
       ? (item.end_time ? item.start_time + '–' + item.end_time : item.start_time)
       : '';

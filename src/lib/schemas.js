@@ -127,6 +127,7 @@ const UpdateChildSchema = z.object({
   view_type: z.enum(['day_sections', 'now_next_later']).optional(),
   allow_child_reorder: z.boolean().optional(),
   show_now_next: z.boolean().optional(),
+  require_sequential_completion: z.boolean().optional(),
   show_mood_rating: z.boolean().optional(),
   hide_clock: z.boolean().optional(),
   lock_schedule: z.boolean().optional(),

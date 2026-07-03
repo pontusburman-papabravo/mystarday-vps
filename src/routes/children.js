@@ -163,6 +163,7 @@ function toChildListResponse(row) {
     view_mode: row.view_mode,
     allow_child_reorder: row.allow_child_reorder,
     show_now_next: row.show_now_next,
+    require_sequential_completion: row.require_sequential_completion,
     show_mood_rating: row.show_mood_rating,
     mood_input_mode: row.mood_input_mode || 'slider',
     transition_lead_minutes: row.transition_lead_minutes,
@@ -430,7 +431,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT id, name, emoji, birthday, timezone, view_mode, allow_child_reorder, show_now_next, show_mood_rating,
+      `SELECT id, name, emoji, birthday, timezone, view_mode, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating,
               mood_input_mode, transition_lead_minutes,
               hide_clock, lock_schedule, dopamin_animation, visual_timer, username, avatar_url, created_at
        FROM child WHERE id = $1`,
@@ -490,7 +491,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
-    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, avatar_url } = req.body;
+    const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, avatar_url } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -537,6 +538,10 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     if (show_now_next !== undefined) {
       updates.push(`show_now_next = $${idx++}`);
       values.push(!!show_now_next);
+    }
+    if (require_sequential_completion !== undefined) {
+      updates.push(`require_sequential_completion = $${idx++}`);
+      values.push(!!require_sequential_completion);
     }
     if (show_mood_rating !== undefined) {
       updates.push(`show_mood_rating = $${idx++}`);
@@ -592,7 +597,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE child SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, avatar_url, created_at`,
+       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, time_adjustment, color_coding, username, avatar_url, created_at`,
       values
     );
 

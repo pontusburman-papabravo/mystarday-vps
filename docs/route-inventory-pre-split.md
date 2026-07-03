@@ -610,6 +610,7 @@
 | POST | `/api/schedules(?:/:param)/items/` | src/routes/public.js | — |
 | DELETE | `/api/schedules(?:/:param)/items/:itemId` | src/routes/public.js | — |
 | PUT | `/api/schedules(?:/:param)/items/:itemId` | src/routes/public.js | — |
+| DELETE | `/api/schedules(?:/:param)/items/:itemId/all-days` | src/routes/public.js | — |
 | POST | `/api/schedules(?:/:param)/items/:itemId/exclude-date` | src/routes/public.js | — |
 | PUT | `/api/schedules(?:/:param)/items/reorder` | src/routes/public.js | — |
 | GET | `/api/special-day-schedules(?:/:param)/items/` | src/routes/public.js | — |

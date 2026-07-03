@@ -454,6 +454,70 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
   }
 });
 
+// DELETE /api/schedules/:scheduleId/items/:itemId/all-days — remove activity from every weekday
+router.delete('/:itemId/all-days', async (req, res) => {
+  try {
+    const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
+    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+
+    const itemRes = await db.query(
+      'SELECT activity_template_id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
+      [req.params.itemId, req.params.scheduleId]
+    );
+    if (!itemRes.rows.length) return res.status(404).json({ error: 'Aktiviteten hittades inte i schemat' });
+
+    const { activity_template_id: activityTemplateId } = itemRes.rows[0];
+
+    const deleteResult = await db.query(
+      `DELETE FROM weekly_schedule_item wsi
+       USING weekly_schedule ws
+       WHERE wsi.weekly_schedule_id = ws.id
+         AND ws.child_id = $1
+         AND wsi.activity_template_id = $2
+       RETURNING wsi.id, ws.day_of_week`,
+      [schedule.child_id, activityTemplateId]
+    );
+    if (deleteResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Aktiviteten fanns inte i veckoschemat' });
+    }
+
+    await db.query(
+      'DELETE FROM schedule_date_exclusion WHERE child_id = $1 AND activity_template_id = $2',
+      [schedule.child_id, activityTemplateId]
+    );
+
+    try {
+      const childResult = await db.query('SELECT timezone FROM child WHERE id = $1', [schedule.child_id]);
+      const tz = childResult.rows[0]?.timezone || 'Europe/Stockholm';
+      const today = getLocalDateStr(new Date(), tz);
+      const todayDow = getDayOfWeek(today, tz);
+      const affectedDows = [...new Set(deleteResult.rows.map((row) => row.day_of_week))];
+      for (const dow of affectedDows) {
+        const daysBack = (todayDow - dow + 7) % 7;
+        const targetDateStr = addDaysIso(today, -daysBack);
+        await syncDailyLogWithSchedule(schedule.child_id, dow, null, targetDateStr);
+      }
+    } catch (syncErr) {
+      console.error('[SCHEDULE-ITEMS] All-days sync error (non-fatal):', syncErr.message);
+    }
+
+    try {
+      const famRes = await db.query('SELECT family_id FROM child WHERE id = $1', [schedule.child_id]);
+      if (famRes.rows[0]?.family_id) {
+        broadcast(famRes.rows[0].family_id, 'SCHEDULE_UPDATED', { childId: schedule.child_id });
+      }
+    } catch (_) { /* SSE broadcast is best-effort */ }
+
+    res.json({
+      message: 'Aktiviteten har tagits bort från alla dagar',
+      deleted_count: deleteResult.rows.length,
+    });
+  } catch (err) {
+    console.error('[SCHEDULE-ITEMS] Delete all-days error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
 // DELETE /api/schedules/:scheduleId/items/:itemId — remove item from schedule
 router.delete('/:itemId', async (req, res) => {
   try {

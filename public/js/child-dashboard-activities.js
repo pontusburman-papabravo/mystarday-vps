@@ -6,6 +6,13 @@
 (function () {
   'use strict';
 
+function activityCanToggle(isToday, isDone, timeStatus) {
+  if (!isToday || isDone) return false;
+  if (typeof requireSequentialCompletion !== 'undefined' && !requireSequentialCompletion) return true;
+  const isNextOrLater = timeStatus === 'next' || timeStatus === 'later';
+  return !isNextOrLater;
+}
+
 function forDigGoalBadgeHtml(item) {
   return (window.ForDigGoalBadge && item && item.for_dig_goal)
     ? ForDigGoalBadge.render(item.for_dig_goal)
@@ -306,7 +313,7 @@ function renderActivities(data, trueStarBalance) {
   } else {
     // ── NOW/NEXT/LATER timeline layout ────────────────────────
 
-    const focusQuestMode = isTodayFocusLayer() && isToday &&
+    const focusQuestMode = isTodayFocusLayer() && isToday && showNowNext &&
       !(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
 
     // Determine NOW/NEXT/LATER status for each item.
@@ -576,17 +583,14 @@ function renderActivityCard(item, isToday, timeStatus) {
     return ChildPhotoCards.renderActivityCard(item, isToday, timeStatus);
   }
   const isDone = item.completed;
-  // In filtered NOW/NEXT/LATER view, only NOW cards (and section-grouped cards where timeStatus is null) are toggleable.
-  // NEXT and LATER cards should NOT be clickable or show a checkbox.
-  const isNextOrLater = timeStatus === 'next' || timeStatus === 'later';
-  const canToggle = isToday && !isNextOrLater;
+  // In filtered NOW/NEXT/LATER view, only NOW cards are toggleable when sequential mode is on.
+  const canToggle = activityCanToggle(isToday, isDone, timeStatus);
   const timeStr = item.start_time ? (item.end_time ? `${item.start_time}–${item.end_time}` : item.start_time) : '';
   const rating = itemRatings[item.id];
   const feedbackFor = item.feedback_for || 'both';
-  const isPast = timeStatus === 'past';
   const isNext = timeStatus === 'next';
-
-  // Rating display (child score shown as n/10, parent score as stars)
+  const isLater = timeStatus === 'later';
+  const isNextOrLater = timeStatus === 'next' || timeStatus === 'later';
   let ratingHtml = '';
   if (rating && rating.child_score) {
     ratingHtml = `<span class="text-xs ml-1 font-semibold" title="Ditt betyg" style="color:#F5A623">${rating.child_score}/10</span>`;
@@ -598,7 +602,6 @@ function renderActivityCard(item, isToday, timeStatus) {
   }
 
   // NU/NÄSTA/SEDAN badge (only for today's view when feature is enabled)
-  const isLater = timeStatus === 'later';
   let badgeHtml = '';
   if (isNext) {
     badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EDE9FF] text-[#6B50F5] mb-1">▶ Nästa</span>';
@@ -671,4 +674,5 @@ function renderActivityCard(item, isToday, timeStatus) {
   window.renderDoneHistoryCard = renderDoneHistoryCard;
   window.renderNLCard = renderNLCard;
   window.renderActivityCard = renderActivityCard;
+  window.activityCanToggle = activityCanToggle;
 })();

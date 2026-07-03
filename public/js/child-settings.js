@@ -7,7 +7,7 @@
 if (!Auth.requireAuth()) { /* redirected */ }
 
 const urlParams = new URLSearchParams(window.location.search);
-const childId = urlParams.get('child');
+const childId = urlParams.get('child') || urlParams.get('id');
 if (!childId) { window.location.href = '/family'; }
 
 let childData = null;
@@ -33,6 +33,31 @@ async function saveSetting(field, value) {
     showToast('Kunde inte spara: ' + err.message, true);
     throw err;
   }
+}
+
+/** NU/NÄSTA/SEDAN — parent opt-in; enables badges + one-at-a-time checkoff together. */
+async function saveNnlMode(enabled) {
+  try {
+    const updated = await Auth.api(`/api/children/${childId}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        show_now_next: enabled,
+        require_sequential_completion: enabled,
+      }),
+    });
+    if (childData) {
+      childData.show_now_next = enabled;
+      childData.require_sequential_completion = enabled;
+    }
+    return updated;
+  } catch (err) {
+    showToast('Kunde inte spara: ' + err.message, true);
+    throw err;
+  }
+}
+
+function isNnlModeEnabled(child) {
+  return child && child.show_now_next === true;
 }
 
 // ── Toggle helper ───────────────────────────────────────
@@ -777,10 +802,10 @@ function renderPage(child) {
     <div class="section-title">⚙️ Avancerade inställningar</div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Visa NU / NÄSTA / SEDAN</p>
-        <p class="text-xs text-text-soft mt-0.5">Markerar aktiviteter med tidsstatus</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">NU / NÄSTA / SEDAN</p>
+        <p class="text-xs text-text-soft mt-0.5">Guidad ordning — barnet bockar av en i taget. Standard: barnet väljer själv vilken aktivitet som ska bockas av.</p>
       </div>
-      <div class="toggle-track ${child.show_now_next !== false ? 'on' : ''}" id="toggle-show_now_next">
+      <div class="toggle-track ${isNnlModeEnabled(child) ? 'on' : ''}" id="toggle-show_now_next">
         <div class="toggle-thumb"></div>
       </div>
     </div>
@@ -892,7 +917,6 @@ function renderPage(child) {
   // Wire boolean toggles
   const toggles = [
     ['toggle-show_mood_rating', 'show_mood_rating', child.show_mood_rating !== false],
-    ['toggle-show_now_next', 'show_now_next', child.show_now_next !== false],
     ['toggle-allow_child_reorder', 'allow_child_reorder', !!child.allow_child_reorder],
     ['toggle-hide_clock', 'hide_clock', !!child.hide_clock],
     ['toggle-lock_schedule', 'lock_schedule', !!child.lock_schedule],
@@ -901,6 +925,20 @@ function renderPage(child) {
     ['toggle-color_coding', 'color_coding', child.color_coding !== false],
   ];
   toggles.forEach(([id, field, val]) => makeToggle(id, field, val));
+
+  const nnlTrack = document.getElementById('toggle-show_now_next');
+  if (nnlTrack) {
+    nnlTrack.onclick = async () => {
+      const newVal = !nnlTrack.classList.contains('on');
+      nnlTrack.classList.toggle('on');
+      try {
+        await saveNnlMode(newVal);
+        showSuccessToast(newVal ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+      } catch (_) {
+        nnlTrack.classList.toggle('on');
+      }
+    };
+  }
 
   document.querySelectorAll('input[name="mood_input_mode"]').forEach((radio) => {
     radio.addEventListener('change', async () => {

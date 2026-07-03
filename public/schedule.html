@@ -647,6 +647,14 @@
             <div class="text-xs text-text-soft" id="recurrenceWeeklyDesc">Välj vilka veckodagar aktiviteten ska visas varje vecka</div>
           </div>
         </button>
+        <button type="button" id="recurrenceAllDaysBtn"
+          class="hidden w-full flex items-center gap-3 p-4 rounded-xl border-2 border-lavender hover:border-gold hover:bg-sky transition-colors text-left">
+          <span class="text-2xl flex-shrink-0">🗓️</span>
+          <div class="min-w-0">
+            <div class="font-semibold text-navy text-sm" id="recurrenceAllDaysLbl">Alla dagar i veckan</div>
+            <div class="text-xs text-text-soft" id="recurrenceAllDaysDesc">Tar bort aktiviteten från måndag till söndag</div>
+          </div>
+        </button>
       </div>
       <!-- Step 2: day picker (hidden initially) -->
       <div id="recurrenceStep2" class="hidden mb-4 flex-grow overflow-y-auto">
