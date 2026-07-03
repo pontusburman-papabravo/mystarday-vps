@@ -102,7 +102,7 @@
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
       osc.onended = function () { ctx.close(); };
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
   }
 
   function refreshItemUI(itemId, durationSeconds) {

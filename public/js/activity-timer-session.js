@@ -18,7 +18,7 @@
       const data = JSON.parse(raw);
       if (!data || typeof data !== 'object') return null;
       return data;
-    } catch (_) {
+    } catch {
       return null;
     }
   }
@@ -26,13 +26,13 @@
   function write(key, session) {
     try {
       localStorage.setItem(key, JSON.stringify(session));
-    } catch (_) { /* quota */ }
+    } catch { /* quota */ }
   }
 
   function remove(key) {
     try {
       localStorage.removeItem(key);
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
   }
 
   /** @returns {'idle'|'running'|'finished'} */
@@ -126,7 +126,7 @@
         const itemId = k.slice(prefix.length);
         if (!active.has(itemId)) remove(k);
       }
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
   }
 
   global.ActivityTimerSession = {
