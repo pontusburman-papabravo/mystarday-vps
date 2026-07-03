@@ -151,6 +151,33 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   min-height: 44px;
 }
 
+/* Unlocked path to Minnesrummet — tap the stone path, no floating pill */
+.gd-hotspot--path-unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 18% 8% 12%;
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse 80% 55% at 50% 60%,
+    rgba(255, 252, 245, 0.22),
+    transparent 72%
+  );
+  animation: gd-path-invite 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gd-path-invite {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.75; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-hotspot--path-unlocked::before {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
 .gd-hotspot--bed {
   right: 4%;
   bottom: 12%;
@@ -180,38 +207,9 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   to   { opacity: 0; transform: scale(1.3); }
 }
 
-/* ── Visible path CTA when Minnesrummet is unlocked ── */
+/* ── Visible path CTA (legacy — use gd-hotspot--path-unlocked shimmer instead) ── */
 .gd-path-cta {
-  position: absolute;
-  left: 50%;
-  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  z-index: 12;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0.65rem 1.15rem;
-  border: none;
-  border-radius: 999px;
-  background: rgba(255, 252, 245, 0.92);
-  color: #1B2340;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: 0 4px 18px rgba(27, 35, 64, 0.18);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.gd-path-cta:active {
-  transform: translateX(-50%) scale(0.97);
-}
-
-.gd-path-cta-hint {
-  font-size: 1.1rem;
-  line-height: 1;
+  display: none;
 }
 
 .gd-path-hint {

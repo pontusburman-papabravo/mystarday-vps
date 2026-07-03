@@ -86,6 +86,9 @@ async function loadRewardsInner(options) {
         if (skeletonTimer) skeletonTimer.stop();
         rewardsLoaded = true;
         hideOfflineBanner();
+        if (window.ChildRewardsEngine && typeof window.ChildRewardsEngine.clearGoalChrome === 'function') {
+          window.ChildRewardsEngine.clearGoalChrome();
+        }
         return;
       }
     }

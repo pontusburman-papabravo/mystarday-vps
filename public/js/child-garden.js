@@ -46,20 +46,14 @@
     const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
     const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
 
-    function hotspot(id, className, label) {
+    function hotspot(id, className, label, extraClass) {
       if (hotspotIds.indexOf(id) === -1) return '';
-      return '<button type="button" class="gd-hotspot ' + className + '"' +
+      return '<button type="button" class="gd-hotspot ' + className + (extraClass ? ' ' + extraClass : '') + '"' +
         ' data-scenery="' + esc(id) + '"' +
         ' aria-label="' + esc(label || id) + '"></button>';
     }
 
-    const pathCta = pathEntry && pathEntry.leads_to_memory_hall
-      ? '<button type="button" class="gd-path-cta" data-scenery="garden_path"' +
-        ' aria-label="' + esc(pathEntry.label_sv || 'Stigen') + ' till Minnesrummet">' +
-        '<span class="gd-path-cta-label">' + esc(pathEntry.label_sv || 'Stigen') + '</span>' +
-        '<span class="gd-path-cta-hint" aria-hidden="true">→</span>' +
-        '</button>'
-      : '';
+    const pathUnlocked = pathEntry && pathEntry.leads_to_memory_hall;
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
@@ -67,10 +61,10 @@
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      hotspot('garden_path', 'gd-hotspot--path', 'Stigen') +
+      hotspot('garden_path', 'gd-hotspot--path', pathUnlocked ? 'Stigen till Minnesrummet' : 'Stigen',
+        pathUnlocked ? 'gd-hotspot--path-unlocked' : '') +
       hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
       hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
-      pathCta +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -153,7 +147,7 @@
   function bindInteractions(root) {
     if (!root) return;
 
-    root.querySelectorAll('.gd-hotspot, .gd-path-cta').forEach(function (btn) {
+    root.querySelectorAll('.gd-hotspot').forEach(function (btn) {
       bindSceneryButton(root, btn);
     });
 

@@ -69,12 +69,15 @@ describe('meny v2.2 — Sprint 5 barn KX3/KX6/KX8', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-rewards-engine.js'), 'utf8');
     assert.match(src, /mountPendingBannerIfNeeded/);
     assert.match(src, /setRewardsData/);
+    assert.match(src, /isWorldSceneActive/);
+    assert.match(src, /clearGoalChrome/);
   });
 
   it('child-world refreshes rewards engine on enter', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-world.js'), 'utf8');
     assert.match(src, /refreshRewards/);
-    assert.match(src, /mountPendingBannerIfNeeded/);
+    assert.match(src, /isWorldSceneActive/);
+    assert.match(src, /clearGoalChrome/);
   });
 });
 

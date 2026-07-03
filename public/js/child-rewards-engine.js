@@ -69,7 +69,39 @@
       '<p class="text-sm text-text-soft">' + pending.length + ' belöning' + (pending.length === 1 ? '' : 'ar') + ' väntar på en vuxen.</p></div>';
   }
 
+  function isWorldSceneActive() {
+    if (window.LivingWorldTransition
+        && typeof window.LivingWorldTransition.isActive === 'function'
+        && window.LivingWorldTransition.isActive()) {
+      return true;
+    }
+    if (window.ChildMorgonhus
+        && typeof window.ChildMorgonhus.isActive === 'function'
+        && window.ChildMorgonhus.isActive()) {
+      return true;
+    }
+    if (window.ChildGarden
+        && typeof window.ChildGarden.isActive === 'function'
+        && window.ChildGarden.isActive()) {
+      return true;
+    }
+    if (window.ChildMemoryHall
+        && typeof window.ChildMemoryHall.isActive === 'function'
+        && window.ChildMemoryHall.isActive()) {
+      return true;
+    }
+    return false;
+  }
+
+  function clearGoalChrome() {
+    ['childGoalProgressMount', 'childPendingRedemptionMount'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+  }
+
   function mountPendingBannerIfNeeded() {
+    if (isWorldSceneActive()) return;
     const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view) return;
     const existing = document.getElementById('childPendingRedemptionMount');
@@ -112,6 +144,7 @@
   }
 
   function mountGoalProgress() {
+    if (isWorldSceneActive()) return;
     const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view || !_goalData || !_goalData.goal) return;
     const existing = document.getElementById('childGoalProgressMount');
@@ -137,6 +170,8 @@
     buildStarGridCells: buildStarGridCells,
     starGridHtml: starGridHtml,
     goalProgressHtml: goalProgressHtml,
+    isWorldSceneActive: isWorldSceneActive,
+    clearGoalChrome: clearGoalChrome,
     mountGoalProgress: mountGoalProgress,
     mountPendingBannerIfNeeded: mountPendingBannerIfNeeded,
     flashStarEconomy: flashStarEconomy,
