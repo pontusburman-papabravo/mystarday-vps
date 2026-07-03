@@ -39,7 +39,7 @@ function parseDuration(val) {
  * issue CSRF token, and send the standard login JSON response.
  * Used by the OAuth login routes (Apple / Google).
  */
-async function completeLogin(req, res, parent, userType) {
+async function completeLogin(req, res, parent, userType, meta = {}) {
   // WHY: All modules already imported at top of file — but duplicated
   // here to keep the helper self-contained and avoid closure surprises.
 
@@ -82,8 +82,10 @@ async function completeLogin(req, res, parent, userType) {
   };
 
   const expiresAt = Date.now() + expiresInSecs * 1000;
-  console.log('[APPLE] login completed', { parentId: parent.id, userType });
-  res.json({ csrfToken, user, expiresAt });
+  console.log('[AUTH] login completed', { parentId: parent.id, userType });
+  const body = { csrfToken, user, expiresAt };
+  if (meta.isNewAccount) body.isNewAccount = true;
+  res.json(body);
 }
 
 /** Clear session cookies — uses config.cookieSecure + legacy opposite flag for mismatched deploys. */

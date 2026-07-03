@@ -17,7 +17,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
-  <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <script src="/js/platform.js?v=2026-07-03-auth"></script>
+  <script src="/js/auth-login-platform.js?v=2026-07-03"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22"></script>
     <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
@@ -250,6 +251,12 @@
             </a>
           </p>
         </div>
+
+        <div id="childLoginLink" class="hidden text-center mt-4">
+          <a href="/child-login" class="text-navy font-semibold text-sm hover:underline">
+            Är du barn? Logga in här
+          </a>
+        </div>
       </div>
 
       <!-- Tagline -->
@@ -289,6 +296,7 @@
           document.getElementById('loadingState').classList.add('hidden');
           document.getElementById('registerForm').classList.remove('hidden');
           document.getElementById('loginLink').classList.remove('hidden');
+          document.getElementById('childLoginLink').classList.remove('hidden');
 
           // Pre-fill and lock email if invite specifies it
           if (inviteData.email) {
@@ -296,6 +304,9 @@
             emailField.value = inviteData.email;
             emailField.readOnly = true;
             emailField.classList.add('bg-gray-50', 'text-text-soft');
+          }
+          if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
+            AuthLoginPlatform.applyAuthSections({ page: 'register' });
           }
         } catch {
           document.getElementById('loadingState').classList.add('hidden');
@@ -316,15 +327,11 @@
           document.getElementById('loadingState').classList.add('hidden');
           document.getElementById('registerForm').classList.remove('hidden');
           document.getElementById('loginLink').classList.remove('hidden');
+          document.getElementById('childLoginLink').classList.remove('hidden');
 
-          // Show Apple Sign In button on iOS only
-          if (window.Platform && typeof Platform.isAppleSignInAvailable === 'function' && Platform.isAppleSignInAvailable()) {
-            const appleSection = document.getElementById('appleRegisterSection');
-            if (appleSection) appleSection.classList.remove('hidden');
-          }
-          if (window.Platform && typeof Platform.isGoogleSignInAvailable === 'function' && Platform.isGoogleSignInAvailable()) {
-            const googleSection = document.getElementById('googleRegisterSection');
-            if (googleSection) googleSection.classList.remove('hidden');
+          // OAuth sections — platform matrix (auth-login-platform.js; google-auth-ui binds Google)
+          if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
+            AuthLoginPlatform.applyAuthSections({ page: 'register' });
           }
         } catch {
           window.location.href = '/login';
@@ -514,7 +521,7 @@
     }
   </script>
   <!-- Support bubble for logged-out users -->
-  <script src="/js/google-auth-ui.js?v=2026-05-29-release-os" defer></script>
+  <script src="/js/google-auth-ui.js?v=2026-07-03b" defer></script>
   <script src="/js/support-bubble.js?v=2.12.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
