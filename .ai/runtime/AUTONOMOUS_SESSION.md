@@ -127,7 +127,7 @@ Method: `.ai/company/REPOSITORY_VALUE_SCORE.md`
 
 | Branch | SHA | Message |
 |--------|-----|---------|
-| `cursor/autonomous-relay-resume-b105` | (see REPOSITORY_STATE after push) | Relay engine + BL-044 prep |
+| `cursor/autonomous-relay-resume-b105` | `40dcfb7d` | Relay engine + BL-044 prep |
 | `main` | `6aa50c74` | Aktivitetstimer v0.3 (#537) |
 
 ---

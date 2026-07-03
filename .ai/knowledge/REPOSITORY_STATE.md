@@ -20,7 +20,7 @@
 
 | SHA | Message | When |
 |-----|---------|------|
-| pending push | feat(runtime): Autonomous Relay & Resume Engine (BL-043, BL-044) | 2026-07-03 |
+| `cursor/autonomous-relay-resume-b105` | `40dcfb7d` | feat(runtime): Autonomous Relay & Resume Engine (BL-043, BL-044) |
 
 ---
 
