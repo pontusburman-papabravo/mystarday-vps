@@ -99,21 +99,21 @@ let currentDay = 1;
 let currentScheduleId = null;
 let scheduleItems = [];
 let sectionTimes = {};
-let selectedTemplateId = null;
-let addSectionOverride = 'dag';
-let addSectionsMulti = new Set(['dag']); // multi-section selection state
-let editSectionVal = 'dag';
+const selectedTemplateId = null;
+const addSectionOverride = 'dag';
+const addSectionsMulti = new Set(['dag']); // multi-section selection state
+const editSectionVal = 'dag';
 let copyDaySelections = [];
 let copyTargetChildId = null;
 const allExpanded = true;
 
 // Recurrence dialog state — set when submitAddActivity succeeds, before showing the prompt
-let _pendingRecurrenceTemplateId = null;
-let _pendingRecurrenceTemplateName = null;
-let _pendingRecurrenceSection = 'dag';
-let _pendingRecurrenceSections = ['dag']; // multi-slot
-let _pendingRecurrenceStart = null;
-let _pendingRecurrenceEnd = null;
+const _pendingRecurrenceTemplateId = null;
+const _pendingRecurrenceTemplateName = null;
+const _pendingRecurrenceSection = 'dag';
+const _pendingRecurrenceSections = ['dag']; // multi-slot
+const _pendingRecurrenceStart = null;
+const _pendingRecurrenceEnd = null;
 
 // DnD state
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
@@ -123,14 +123,14 @@ const sbsChildId = null;
 const sbsItems = [];
 const sbsScheduleId = null;
 const sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
-let allTemplates = [];
+const allTemplates = [];
 
 // ── Template editing mode ──────────────────────────────
 // Templates are family-level schedules (child_id IS NULL) editable via the library page.
 // When ?view=template&template=<id> is in the URL, schedule.js enters template mode.
 const templateMode = false;
 const currentTemplateId = null;
-let templateItems = [];  // items for the currently loaded template
+const templateItems = [];  // items for the currently loaded template
 const templateName = '';
 
 // ── Calendar navigation state ─────────────────────────────
@@ -942,9 +942,9 @@ function closeConfirmModal(){document.getElementById('confirmModal').classList.a
 // ── Touch DnD Bridge — /js/dnd-touch-bridge.js (Fas 8 PR-0) ─
 
 // ── Family Grid Mode (Alla barn) — state; logic in schedule-family-grid.js ──
-let scheduleMode = 'single'; // 'single' | 'family'
-let fwWeekOffset = 0;
-let fwChildData = {}; // childId → { [dow]: { scheduleId, items[] } }
+const scheduleMode = 'single'; // 'single' | 'family'
+const fwWeekOffset = 0;
+const fwChildData = {}; // childId → { [dow]: { scheduleId, items[] } }
 
 // ── Modal backdrop close ──────────────────────────────────
 ['addActivityModal','editItemModal','copyDayModal','copyChildModal','copyWeeksModal','confirmModal','dayDndModal','specialDayModal','createActivityModal','editTemplateModal'].forEach(id=>{

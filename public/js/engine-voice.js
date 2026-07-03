@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var VOICE = {
+  const VOICE = {
     SHOW_CHILD: {
       headline: 'Visa barnet rutinen',
       body: 'Nästa steg är att barnet ser sin dag — det tar under en minut.',

@@ -379,7 +379,7 @@ window.addEventListener('stjarndag-magic-navigated', function (e) {
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js
 function escHtml(s) { return escapeHtml(s); }
 // ── Dashboard state ──────────────────────────────────────
-let dashboardStats = null; // cached stats from /api/family/dashboard-stats
+const dashboardStats = null; // cached stats from /api/family/dashboard-stats
 
 // ── Dashboard cards (tidsblock pills + child grid) — /js/dashboard-cards.js (Fas 8 D1) ──
 

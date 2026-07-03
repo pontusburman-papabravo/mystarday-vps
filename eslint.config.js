@@ -133,7 +133,11 @@ module.exports = [
       globals: browserGlobals,
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
       'no-var': 'warn',
       'prefer-const': ['warn', { destructuring: 'all' }],
       'no-undef': 'off',

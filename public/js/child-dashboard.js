@@ -11,20 +11,20 @@ let currentDate = null;
 let todayStr = null;
 let me = null;
 const itemRatings = {}; // itemId -> { child_score, child_comment, parent_score, parent_comment }
-let weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
-let allowChildReorder = false; // toggled by parent in child profile settings
-let showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
+const weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
+const allowChildReorder = false; // toggled by parent in child profile settings
+const showNowNext = true; // toggled by parent — shows NU/NÄSTA/SEDAN badges
 let viewType = 'now_next_later'; // 'day_sections' | 'now_next_later' (server may override for existing children)
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off
-let moodInputMode = 'slider'; // cards | slider | off — parent setting
+const moodInputMode = 'slider'; // cards | slider | off — parent setting
 let transitionSupportEnabled = false; // Extra stöd feature gate
-let transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
-let dopaminAnimation = true; // toggled by parent — star burst on check-off
+const transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
+const dopaminAnimation = true; // toggled by parent — star burst on check-off
 const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
-let visualTimer = true; // toggled by parent — Time Timer in now-card
-let hideClock = false; // toggled by parent — hides digital time labels on cards
-let colorCoding = true; // toggled by parent — color-codes cards by activity type
+const visualTimer = true; // toggled by parent — Time Timer in now-card
+const hideClock = false; // toggled by parent — hides digital time labels on cards
+const colorCoding = true; // toggled by parent — color-codes cards by activity type
 
 // DAG_DEL_CONFIG, COLOR_RULES_CHILD, getChildColorClass — /js/child-dashboard-activities.js (Fas 8 F3d)
 
@@ -32,10 +32,10 @@ let colorCoding = true; // toggled by parent — color-codes cards by activity t
 
 
 // ── Sub-step state ─────────────────────────────────────────
-let subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
+const subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
 const subStepExpanded = {}; // itemId -> bool (expanded state)
 // Track whether child has seen the substep intro tooltip (persisted in localStorage)
-let _substepIntroSeen = localStorage.getItem('substepIntroSeen') === '1';
+const _substepIntroSeen = localStorage.getItem('substepIntroSeen') === '1';
 
 // ── Date helpers ───────────────────────────────────────
 

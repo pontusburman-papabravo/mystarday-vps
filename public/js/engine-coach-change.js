@@ -5,13 +5,13 @@
 (function () {
   'use strict';
 
-  var STORAGE_PREFIX = 'engine_coach_change_seen_';
+  const STORAGE_PREFIX = 'engine_coach_change_seen_';
 
   /**
    * Bump release_id when user-visible coach behavior changes in prod.
    * @type {{ release_id: string, user_visible_intent: string, what_changed: string, why_it_matters: string }}
    */
-  var ACTIVE_RELEASE = {
+  const ACTIVE_RELEASE = {
     release_id: 'coach_primary_v1',
     user_visible_intent: 'Vi visar nu ett tydligt förslag till nästa steg här på Hem.',
     what_changed: 'Ett kort med "Nästa steg" har lagts till högst upp.',
