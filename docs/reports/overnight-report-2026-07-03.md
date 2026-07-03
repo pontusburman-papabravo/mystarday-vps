@@ -69,7 +69,7 @@ Resumed autonomous operation from AMQ. **BL-027 complete:** garden bed visual st
 
 ### Opportunity Discovery
 
-**Best lift/code:** BL-027 (done). **Next:** aria-live polite hint on state change â€” deferred (risk of breaking calm).
+**Best lift/code:** BL-028 aria-live on garden LOE verbs (shipped IRC-007). **Next:** BL-010 lint:public budget.
 
 ### Innovation Budget (10%)
 
@@ -81,10 +81,10 @@ Spike conclusion: unified `visualTokenClass` pattern reusable for Museum props â
 
 | Rank | Mission | ROI | Status |
 |------|---------|-----|--------|
-| 1 | BL-013 Governance expand | 8.9 | partial |
-| 2 | BL-028 A11y audit | 8.4 | queued |
-| 3 | BL-029 Museum scaffold | 8.1 | HRC blocked |
-| 4 | BL-010 lint:public | 7.5 | queued |
+| 1 | BL-010 lint:public | 7.5 | **active** |
+| 2 | BL-029 Museum scaffold | 8.1 | HRC blocked |
+| 3 | BL-032 Morgonhus aria-live | 7.2 | queued |
+| 4 | BL-033 LOE reduced-motion | 6.8 | queued |
 
 ---
 
@@ -93,7 +93,8 @@ Spike conclusion: unified `visualTokenClass` pattern reusable for Museum props â
 | IRC | PR | Summary |
 |-----|-----|---------|
 | IRC-005 | #524 | Strategic Intent + AMQ + world-ambient |
-| IRC-006 | (this) | BL-027 LOE visual sync + LWS |
+| IRC-006 | #525 | BL-027 LOE visual sync + LWS |
+| IRC-007 | (this) | BL-013 governance + BL-028 a11y + aria-live |
 
 ## HRC
 

@@ -9,8 +9,9 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | **active** |
-| BL-028 | P2 | Accessibility audit — child world hotspots | Child calm | — | Low | QA | queued |
+| BL-010 | P2 | `lint:public` CI budget reduction | DX / CI | — | Low | Org Health | **active** |
+| BL-032 | P3 | Morgonhus aria-live parity with garden | Child calm | — | Low | QA | queued |
+| BL-033 | P3 | Garden LOE reduced-motion CSS polish | MO-03 | — | Low | QA | queued |
 | BL-012 | P3 | Experience pack world 3+ | Min värld | Human creative | Med | Creative | blocked |
 
 ---
@@ -19,6 +20,8 @@
 
 | ID | Mission |
 |----|---------|
+| BL-013 | Governance registry v1.1.0 |
+| BL-028 | Child world a11y audit + aria-live |
 | BL-031 | Living World Score (LWS) KPI |
 | BL-027 | Garden visual_token ↔ LOE state sync |
 
