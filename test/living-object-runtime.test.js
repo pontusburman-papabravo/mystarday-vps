@@ -174,4 +174,102 @@ describe('living-object-runtime — garden sunflower loop', () => {
     });
     assert.equal(next, 'blooming');
   });
+
+  it('resolveTimerNextState returns null while planted timer still running', () => {
+    clearPackCache();
+    const { resolveTimerNextState } = loadRuntime();
+    const pack = loadPack('child_se');
+    const archetype = getLivingArchetype(pack, GARDEN, 'sunflower');
+    const next = resolveTimerNextState(archetype, 'planted', {
+      timer_started_at: new Date().toISOString(),
+    });
+    assert.equal(next, null);
+  });
+
+  it('applyVerb harvest transitions blooming to harvested', async () => {
+    const rows = [{
+      id: '33333333-3333-3333-3333-333333333333',
+      child_id: CHILD_ID,
+      family_id: FAMILY_ID,
+      world_slug: GARDEN,
+      archetype_id: 'sunflower',
+      slot_id: BED_SLOT,
+      state_key: 'blooming',
+      state_data: {},
+      version: 3,
+    }];
+    const mock = injectMockDb();
+    mock.setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('SELECT') && q.includes('living_object_instance')) {
+        const slotId = params[2];
+        const hit = rows.find((r) => r.child_id === CHILD_ID && r.slot_id === slotId);
+        return { rows: hit ? [hit] : [] };
+      }
+      if (q.includes('UPDATE living_object_instance')) {
+        const row = rows[0];
+        if (row.version !== params[3]) return { rows: [] };
+        row.state_key = params[0];
+        row.state_data = JSON.parse(params[1]);
+        row.version += 1;
+        return { rows: [{ ...row }] };
+      }
+      return { rows: [] };
+    });
+
+    const { applyVerb } = loadRuntime();
+    const pack = loadPack('child_se');
+    const result = await applyVerb({
+      childId: CHILD_ID,
+      familyId: FAMILY_ID,
+      worldSlug: GARDEN,
+      slotId: BED_SLOT,
+      verb: 'harvest',
+      pack,
+    });
+
+    assert.equal(result.ok, true);
+    assert.equal(result.slot.state_key, 'harvested');
+    assert.equal(result.slot.available_verbs.length, 0);
+    assert.match(result.child_message_sv, /skördade/i);
+  });
+
+  it('applyVerb rejects plant when slot already planted', async () => {
+    const rows = [{
+      id: '44444444-4444-4444-4444-444444444444',
+      child_id: CHILD_ID,
+      family_id: FAMILY_ID,
+      world_slug: GARDEN,
+      archetype_id: 'sunflower',
+      slot_id: BED_SLOT,
+      state_key: 'planted',
+      state_data: { timer_started_at: new Date().toISOString() },
+      version: 1,
+    }];
+    const mock = injectMockDb();
+    mock.setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('SELECT') && q.includes('living_object_instance')) {
+        const slotId = params[2];
+        const hit = rows.find((r) => r.child_id === CHILD_ID && r.slot_id === slotId);
+        return { rows: hit ? [hit] : [] };
+      }
+      return { rows: [] };
+    });
+
+    const { applyVerb } = loadRuntime();
+    const pack = loadPack('child_se');
+    const result = await applyVerb({
+      childId: CHILD_ID,
+      familyId: FAMILY_ID,
+      worldSlug: GARDEN,
+      slotId: BED_SLOT,
+      verb: 'plant',
+      pack,
+    });
+
+    assert.equal(result.ok, false);
+    assert.equal(result.error, 'verb_not_allowed');
+    assert.equal(result.state_key, 'planted');
+  });
 });
