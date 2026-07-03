@@ -44,6 +44,7 @@
   function renderScene(state) {
     const scenery = (state && state.scenery) || [];
     const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
+    const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
 
     function hotspot(id, className, label) {
       if (hotspotIds.indexOf(id) === -1) return '';
@@ -51,6 +52,14 @@
         ' data-scenery="' + esc(id) + '"' +
         ' aria-label="' + esc(label || id) + '"></button>';
     }
+
+    const pathCta = pathEntry && pathEntry.leads_to_memory_hall
+      ? '<button type="button" class="gd-path-cta" data-scenery="garden_path"' +
+        ' aria-label="' + esc(pathEntry.label_sv || 'Stigen') + ' till Minnesrummet">' +
+        '<span class="gd-path-cta-label">' + esc(pathEntry.label_sv || 'Stigen') + '</span>' +
+        '<span class="gd-path-cta-hint" aria-hidden="true">→</span>' +
+        '</button>'
+      : '';
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
@@ -61,10 +70,29 @@
       hotspot('garden_path', 'gd-hotspot--path', 'Stigen') +
       hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
       hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
+      pathCta +
       '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
         '<span class="gd-back-icon" aria-hidden="true"></span>' +
       '</button>' +
     '</div>';
+  }
+
+  function showPathHint(root, message) {
+    if (!root) return;
+    let toast = root.querySelector('.gd-path-hint');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'gd-path-hint';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      root.appendChild(toast);
+    }
+    toast.textContent = message || 'Stigen leder till Minnesrummet…';
+    toast.classList.add('is-visible');
+    clearTimeout(showPathHint._timer);
+    showPathHint._timer = setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 2600);
   }
 
   function triggerVisual(root, sceneryId) {
@@ -105,6 +133,7 @@
       const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
       if (!entered) {
         triggerVisual(root, sceneryId);
+        showPathHint(root, scenery.ambient_message || 'Stigen svarar inte just nu — försök igen.');
       }
       return;
     }
@@ -112,16 +141,20 @@
     triggerVisual(root, sceneryId);
   }
 
+  function bindSceneryButton(root, btn) {
+    btn.addEventListener('click', function () {
+      const id = btn.getAttribute('data-scenery');
+      btn.classList.add('is-tapped');
+      setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
+      handleSceneryTap(root, id, btn);
+    });
+  }
+
   function bindInteractions(root) {
     if (!root) return;
 
-    root.querySelectorAll('.gd-hotspot').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const id = btn.getAttribute('data-scenery');
-        btn.classList.add('is-tapped');
-        setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        handleSceneryTap(root, id, btn);
-      });
+    root.querySelectorAll('.gd-hotspot, .gd-path-cta').forEach(function (btn) {
+      bindSceneryButton(root, btn);
     });
 
     const backBtn = root.querySelector('#gdBackMorgonhus');
