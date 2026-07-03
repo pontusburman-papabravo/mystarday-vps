@@ -159,6 +159,11 @@ const ChildViewConfigSchema = z.object({
   show_child_profile_card: z.boolean().optional(),
   show_progress_ring: z.boolean().optional(),
   show_star_goal: z.boolean().optional(),
+  memory_hall: z.object({
+    warm_echo_enabled: z.boolean().optional(),
+    warm_echo_opted_in_at: z.string().datetime().optional().nullable(),
+    warm_echo_opted_in_by_parent_id: uuid.optional().nullable(),
+  }).optional(),
 });
 
 // ─── Activities ───────────────────────────────────────────

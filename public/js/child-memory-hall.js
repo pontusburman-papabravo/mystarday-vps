@@ -75,6 +75,10 @@
 
   function exhibitTapMessage(slot) {
     if (!slot) return '';
+    if (slot.slot_type === 'warm_echo') {
+      return (slot.content && slot.content.toast)
+        || 'Ett mjukt minne från en bra dag.';
+    }
     var title = (slot.content && slot.content.title) || slot.label_sv || '';
     if (slot.slot_type === 'remembered_gift') {
       return title ? ('Du minns ' + title + '. Det var fint.') : 'Du minns något fint här.';

@@ -17,8 +17,8 @@
 ✅ G5  Deploy prod
 ✅ G6  QA living-world allowlist (migration 180953 + 180954 hotfix)
 ✅ G7  Första utvärdering i prod — **8/10 PASS**
-⏳ G8  Konst godkänd (HRC-ART-041)       ← valfritt för G7, krävs för polerad UX
-⏳ G9  Parent warm_echo (HRC-PARENT-042)  ← separat spår
+⏳ G8  Konst godkänd (HRC-ART-041)       ← senare (UI/bilder)
+🔧 G9  Parent warm_echo (HRC-PARENT-042)  ← backend klart; väntar parent UI/copy HRC
 ```
 
 **#539 är merge-ready** (rebasad, test:gate grön). Nästa mänskliga steg: review + merge.

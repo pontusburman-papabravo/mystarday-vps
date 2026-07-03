@@ -18,6 +18,10 @@ const { getChildrenForParent } = require('../../db/parent-access');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { resolveDefaultScheduleName, seedChildDefaultSchedule } = require('../lib/seed-child-default-schedule');
+const {
+  mergeChildViewConfig,
+  applyWarmEchoOptInMetadata,
+} = require('../lib/child-view-config');
 
 const router = express.Router();
 
@@ -210,7 +214,10 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
 
     // Deep-merge incoming fields over existing config
     const current = existing.rows[0].child_view_config || {};
-    const merged = { ...current, ...req.body };
+    let merged = mergeChildViewConfig(current, req.body);
+    if (req.user.type === 'parent') {
+      merged = applyWarmEchoOptInMetadata(merged, current, req.user.id);
+    }
 
     // Validate view_mode if provided
     if (merged.view_mode && !['classic', 'new'].includes(merged.view_mode)) {
