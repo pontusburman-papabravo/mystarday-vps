@@ -16,6 +16,7 @@
 | `.ai/knowledge/REPOSITORY_STATE.md` | Branch · LKG · gate status |
 | `.ai/knowledge/OPEN_BLOCKERS.md` | HRC blockers |
 | `.ai/knowledge/OPEN_PRS.md` | IRC table |
+| `.ai/knowledge/CAPABILITY_QUEUE.md` | Platform capability queue (≥2 consumers) |
 | `.ai/prompts/RESUME_AUTONOMOUS_WORKER.md` | Resume prompt |
 
 ---
