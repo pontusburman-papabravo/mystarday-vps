@@ -8,6 +8,12 @@
     if (typeof window.showTab === 'function') window.showTab('rewards');
     if (window.ChildRewardsEngine) {
       ChildRewardsEngine.refreshRewards().then(function () {
+        if (ChildRewardsEngine.isWorldSceneActive && ChildRewardsEngine.isWorldSceneActive()) {
+          if (typeof ChildRewardsEngine.clearGoalChrome === 'function') {
+            ChildRewardsEngine.clearGoalChrome();
+          }
+          return;
+        }
         ChildRewardsEngine.mountGoalProgress();
         ChildRewardsEngine.mountPendingBannerIfNeeded();
       });

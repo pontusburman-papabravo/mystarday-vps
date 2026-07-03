@@ -221,6 +221,15 @@
   background: linear-gradient(180deg, #faf6ef 0%, #f0e8dc 100%) !important;
 }
 
+body.child-morgonhus-active #childGoalProgressMount,
+body.child-morgonhus-active #childPendingRedemptionMount,
+body.child-garden-active #childGoalProgressMount,
+body.child-garden-active #childPendingRedemptionMount,
+body.child-memory-hall-active #childGoalProgressMount,
+body.child-memory-hall-active #childPendingRedemptionMount {
+  display: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mh-prop {
     transition: none;

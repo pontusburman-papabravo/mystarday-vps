@@ -45,23 +45,24 @@ var Platform = (function () {
     return !isNative();
   }
 
-  /** Native iOS with plugin, or iOS Safari (Apple JS). */
+  /** Native iOS, or web/PWA (Apple JS when client ID configured). */
   function isAppleSignInAvailable() {
     if (isNative() && isIOS()) {
       return !!(typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.SignInWithApple);
     }
-    if (isWeb() && typeof navigator !== 'undefined') {
-      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    }
+    if (isWeb()) return true;
     return false;
   }
 
-  /** Native Android only — Google plugin wired in sprint 18. */
+  /** Native Android, or web/PWA (Google Identity Services). */
   function isGoogleSignInAvailable() {
-    return isNative() && isAndroid();
+    if (isNative() && isAndroid()) return true;
+    if (isWeb()) return true;
+    return false;
   }
 
   let _googleClientId = null;
+  const GOOGLE_GSI_URL = 'https://accounts.google.com/gsi/client';
 
   function loadGoogleClientId() {
     if (_googleClientId) return Promise.resolve(_googleClientId);
@@ -74,33 +75,135 @@ var Platform = (function () {
       .catch(function () { return ''; });
   }
 
+  function loadGoogleGsi() {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      return Promise.resolve();
+    }
+    const existing = document.getElementById('google-gsi-client');
+    if (existing) {
+      return new Promise(function (resolve, reject) {
+        let attempts = 0;
+        function wait() {
+          if (window.google && window.google.accounts && window.google.accounts.id) {
+            resolve();
+            return;
+          }
+          attempts += 1;
+          if (attempts > 80) {
+            reject(new Error('Google Sign In JS inte tillgänglig'));
+            return;
+          }
+          setTimeout(wait, 50);
+        }
+        wait();
+      });
+    }
+    return new Promise(function (resolve, reject) {
+      const script = document.createElement('script');
+      script.id = 'google-gsi-client';
+      script.src = GOOGLE_GSI_URL;
+      script.async = true;
+      script.defer = true;
+      script.onload = function () {
+        let attempts = 0;
+        function wait() {
+          if (window.google && window.google.accounts && window.google.accounts.id) {
+            resolve();
+            return;
+          }
+          attempts += 1;
+          if (attempts > 80) {
+            reject(new Error('Google Sign In JS inte tillgänglig'));
+            return;
+          }
+          setTimeout(wait, 50);
+        }
+        wait();
+      };
+      script.onerror = function () {
+        reject(new Error('Kunde inte ladda Google Sign In'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  function webGoogleSignIn(clientId) {
+    return loadGoogleGsi().then(function () {
+      return new Promise(function (resolve, reject) {
+        let settled = false;
+        function finish(err, result) {
+          if (settled) return;
+          settled = true;
+          if (err) reject(err);
+          else resolve(result);
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: function (response) {
+            if (response && response.credential) {
+              finish(null, { idToken: response.credential });
+            } else {
+              finish(new Error('Google-inloggning misslyckades'));
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        window.google.accounts.id.prompt(function (notification) {
+          if (!notification) return;
+          if (notification.isNotDisplayed && notification.isNotDisplayed()) {
+            const host = document.createElement('div');
+            host.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none;';
+            document.body.appendChild(host);
+            window.google.accounts.id.renderButton(host, {
+              type: 'standard',
+              theme: 'outline',
+              size: 'large',
+            });
+            const btn = host.querySelector('div[role="button"]');
+            if (btn && typeof btn.click === 'function') btn.click();
+            else finish(new Error('Google-inloggning är inte tillgänglig i den här webbläsaren'));
+            setTimeout(function () { host.remove(); }, 10000);
+          } else if (notification.isDismissedMoment && notification.isDismissedMoment()) {
+            finish(new Error('Avbruten'));
+          }
+        });
+      });
+    });
+  }
+
   const googleSignIn = {
     isAvailable: isGoogleSignInAvailable,
     async signIn() {
-      if (!isGoogleSignInAvailable()) {
-        throw new Error('Google Sign In är endast tillgängligt i Android-appen');
-      }
       const clientId = await loadGoogleClientId();
       if (!clientId) {
         throw new Error('Google Sign In är inte redo — försök igen om en stund.');
       }
-      const GoogleAuth =
-        typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth;
-      if (!GoogleAuth || typeof GoogleAuth.initialize !== 'function' || typeof GoogleAuth.signIn !== 'function') {
-        throw new Error(
-          'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
-        );
+      if (isNative() && isAndroid()) {
+        const GoogleAuth =
+          typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth;
+        if (!GoogleAuth || typeof GoogleAuth.initialize !== 'function' || typeof GoogleAuth.signIn !== 'function') {
+          throw new Error(
+            'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
+          );
+        }
+        await GoogleAuth.initialize({
+          clientId: clientId,
+          scopes: ['profile', 'email'],
+          grantOfflineAccess: false,
+        });
+        const result = await GoogleAuth.signIn();
+        const idToken =
+          (result && result.authentication && result.authentication.idToken) ||
+          (result && result.idToken);
+        return { idToken: idToken };
       }
-      await GoogleAuth.initialize({
-        clientId: clientId,
-        scopes: ['profile', 'email'],
-        grantOfflineAccess: false,
-      });
-      const result = await GoogleAuth.signIn();
-      const idToken =
-        (result && result.authentication && result.authentication.idToken) ||
-        (result && result.idToken);
-      return { idToken: idToken };
+      if (isWeb()) {
+        return webGoogleSignIn(clientId);
+      }
+      throw new Error('Google Sign In är inte tillgängligt på den här enheten');
     },
   };
 

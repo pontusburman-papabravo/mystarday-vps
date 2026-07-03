@@ -73,19 +73,21 @@ function logFile(outPath, width, height) {
 }
 
 /**
- * Portrait crop + horizontal flip so window aligns with mu-hotspot--window (top-right).
+ * Portrait crop; optional horizontal flip so window aligns with mu-hotspot--window (top-right).
+ * Use --no-flop when master art already has window on the right (e.g. ChatGPT export).
  */
-async function portraitBaseFromMaster() {
+async function portraitBaseFromMaster(noFlop) {
   const meta = await sharp(MASTER_PNG).metadata();
   const portraitW = Math.round(meta.height * (860 / 1280));
   const left = Math.round((meta.width - portraitW) / 2);
-  return sharp(MASTER_PNG)
-    .extract({ left, top: 0, width: portraitW, height: meta.height })
-    .flop();
+  let pipeline = sharp(MASTER_PNG)
+    .extract({ left, top: 0, width: portraitW, height: meta.height });
+  if (!noFlop) pipeline = pipeline.flop();
+  return pipeline;
 }
 
-async function exportSceneFromMaster() {
-  const base = await portraitBaseFromMaster();
+async function exportSceneFromMaster(noFlop) {
+  const base = await portraitBaseFromMaster(noFlop);
   const exports = [
     ['scene@2x.webp', 860, 1280],
     ['scene-860.webp', 860, 1280],
@@ -114,10 +116,12 @@ async function exportFrames() {
 }
 
 async function main() {
+  const noFlop = process.argv.includes('--no-flop')
+    || process.env.MEMORY_HALL_SCENE_NO_FLOP === '1';
   fs.mkdirSync(OUT_DIR, { recursive: true });
   if (fs.existsSync(MASTER_PNG)) {
-    console.log('Using master PNG:', path.relative(ROOT, MASTER_PNG));
-    await exportSceneFromMaster();
+    console.log('Using master PNG:', path.relative(ROOT, MASTER_PNG), noFlop ? '(no flip)' : '(flop for window right)');
+    await exportSceneFromMaster(noFlop);
   } else {
     console.log('No master PNG — procedural SVG fallback');
     await exportSceneFromSvg();

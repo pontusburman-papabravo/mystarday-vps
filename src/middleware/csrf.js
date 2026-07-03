@@ -44,6 +44,7 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/auth/apple',
   '/auth/apple/link',
   '/auth/google',
+  '/auth/google/link',
   // Client diagnostics (no PII, no session)
   '/client-log',
   // Invite accept-new: public endpoint — creates account from invite token, no prior session

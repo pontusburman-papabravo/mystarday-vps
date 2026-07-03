@@ -73,6 +73,19 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(html, /aria-label="Blomsterbädden"/);
     assert.match(html, /role="status"/);
     assert.match(html, /aria-live="polite"/);
+    assert.doesNotMatch(html, /gd-path-cta/);
+  });
+
+  it('garden path to Minnesrummet uses invisible hotspot shimmer, not floating pill', () => {
+    const ChildGarden = loadChildGarden();
+    const html = ChildGarden.renderScene({
+      scenery: [
+        { scenery_id: 'garden_path', label_sv: 'Stigen', leads_to_memory_hall: true },
+      ],
+    });
+    assert.match(html, /gd-hotspot--path-unlocked/);
+    assert.match(html, /Stigen till Minnesrummet/);
+    assert.doesNotMatch(html, /gd-path-cta/);
   });
 
   it('garden back control meets 44px minimum touch target', () => {
