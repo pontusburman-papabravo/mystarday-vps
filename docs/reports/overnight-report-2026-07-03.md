@@ -1,5 +1,45 @@
 # End-of-Day Report — 2026-07-03
 
+## CAE checkpoint — 2026-07-03 (IRC-007–011)
+
+**Missions shipped:** BL-013 governance · BL-028 a11y · BL-010 lint ratchet · BL-032/033 morgonhus+LOE motion · BL-034/035 pack+timer guards.
+
+| Dimension | Score | Δ | Notes |
+|-----------|-------|---|-------|
+| Child experience | 9 | 0 | aria-live LOE feedback, calm status regions |
+| Product quality | 9 | 0 | MO-03 compliance expanded |
+| Architecture | 10 | 0 | Pack cross-ref guards |
+| Test coverage | 10 | +1 | a11y, LOE edge, living_slot_id |
+| Documentation | 10 | 0 | AMQ checkpoints |
+| Technical debt | 9 | +0 | lint:public 792→550 |
+| Performance | 8 | 0 | — |
+| Accessibility | 9 | +1 | 44px targets, aria-atomic, reduced-motion LOE |
+
+**RVS: 9.2 / 10** (Δ +0.2 session cumulative)
+
+| Dimension | Score | Δ | Notes |
+|-----------|-------|---|-------|
+| Aliveness | 9 | 0 | Verb feedback announced politely |
+| Discovery | 8 | 0 | — |
+| Comfort | 9 | +0 | No modal/toast blocking on garden LOE |
+| Ownership | 9 | 0 | Harvest terminal state tested |
+| Wonder | 8 | +0 | Reduced-motion disables bloom animation |
+| Coherence | 9 | 0 | worlds↔living-objects cross-ref |
+
+**LWS: 8.8 / 10** (Δ +0.1 session cumulative)
+
+### IRC bundle (draft)
+
+| IRC | PR | Summary |
+|-----|-----|---------|
+| IRC-007 | #527 | Governance v1.1 + child-world a11y |
+| IRC-008 | #528 | lint:public 792→550 |
+| IRC-009 | #529 | Morgonhus a11y + LOE reduced-motion |
+| IRC-010 | #531 | living_slot_id cross-ref |
+| IRC-011 | #532 | LOE timer edge tests |
+
+---
+
 ## Executive summary
 
 Resumed autonomous operation from AMQ. **BL-027 complete:** garden bed visual state now reflects LOE `visual_token` from server — child sees seed/bloom/harvest without new UI. **LWS KPI** codified. Strategic Intent updated per Morning Mission Order.

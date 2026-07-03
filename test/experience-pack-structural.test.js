@@ -141,6 +141,10 @@ describe('experience pack structural validation', () => {
                 worldSlugs.has(ambient.gate_to_world),
                 `ambient ${ambient.prop_id} gate_to_world "${ambient.gate_to_world}" not in worlds.json`
               );
+              assert.ok(
+                ambient.gate_feature_slug,
+                `ambient ${ambient.prop_id} gate_to_world requires gate_feature_slug`
+              );
             }
           }
           for (const scenery of world.ambient_scenery || []) {
