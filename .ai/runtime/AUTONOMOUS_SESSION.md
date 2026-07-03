@@ -1,7 +1,8 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~09:05 UTC  
-**Relay version:** 2.0
+**Last updated:** 2026-07-03 ~09:20 UTC  
+**Relay version:** 2.0 (Supervisor/Worker chain)  
+**Mode:** Short-lived Workers · persistent Supervisor state
 
 ---
 
@@ -13,12 +14,13 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 ---
 
-## Where we are
+## Active Worker assignment
 
-**G3 complete** — branch parity #539 ↔ #541.  
-**Next human gates:** G4 merge → G5 deploy → G6 flag → G7 evaluate.
-
-Roadmap: `docs/reports/roadmap-minnesrummet-2026-07-03.md`
+| Field | Value |
+|-------|-------|
+| **Next mission** | CAP-009-R1 |
+| **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
+| **Status** | ready for next session |
 
 ---
 
@@ -26,27 +28,31 @@ Roadmap: `docs/reports/roadmap-minnesrummet-2026-07-03.md`
 
 | Field | Value |
 |-------|-------|
-| **ID** | CAP-006-R1 |
-| **Branch** | `cursor/memory-hall-bl012-5e52` |
-| **SHA** | `ed435f1a` |
+| **ID** | CAP-008-R1 |
+| **Title** | Rebase IRC-016 (#541) onto main |
+| **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
+| **Branch** | `cursor/autonomous-relay-resume-b105` |
+| **PR** | #541 |
 
 ---
 
-## Active Worker assignment
+## Merge readiness
 
-| Field | Value |
-|-------|-------|
-| **Next** | HRC-PREP-001 (optional agent prep) or pause at human gates |
-| **Prompt** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
-
----
-
-## Test status
-
-`test:gate` — 698/698 green
+| PR | Rebased on main | test:gate | Notes |
+|----|-----------------|-----------|-------|
+| #539 IRC-014 | ✅ | ✅ | Merge-ready pending HAG |
+| #541 IRC-016 | ✅ | ✅ | Merge-ready pending HAG |
 
 ---
 
 ## HRC blockers
 
-BL-041 (art), BL-042 (parent), HRC-DEPLOY-IRC, HRC-FLAG-MH
+BL-041 (art), BL-042 (parent warm_echo) — unchanged
+
+---
+
+## Latest test status
+
+| Gate | Status |
+|------|--------|
+| `test:gate` | 698/698 green (2026-07-03, CAP-008-R1) |

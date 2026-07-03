@@ -1,16 +1,16 @@
-# Worker Handoff — CAP-006-R1
+# Worker Handoff — CAP-008-R1
 
 **Worker:** Composer (autonomous)  
 **Date:** 2026-07-03  
-**Mission:** CAP-006-R1 — Cherry-pick CAP-005 to memory-hall branch  
-**Branch:** `cursor/memory-hall-bl012-5e52`  
-**PR:** #539 (IRC-014)
+**Mission:** CAP-008-R1 — Rebase IRC-016 (#541) onto latest main  
+**Branch:** `cursor/autonomous-relay-resume-b105`  
+**PR:** #541 (IRC-016)
 
 ---
 
 ## Summary
 
-Cherry-picked commit `3059ddf7` (CAP-005) from `cursor/autonomous-relay-resume-b105` onto `cursor/memory-hall-bl012-5e52`. Resolved handoff-doc conflicts; product code applied cleanly. Both IRC PRs (#539, #541) now have identical product code (`public/`, `config/`, `test/` diff = 0).
+Rebased `cursor/autonomous-relay-resume-b105` onto `origin/main` (11 commits). Applied same SW conflict resolution pattern as CAP-007-R1. Regenerated route inventory after IRC-014-R1 route additions.
 
 ---
 
@@ -18,40 +18,33 @@ Cherry-picked commit `3059ddf7` (CAP-005) from `cursor/autonomous-relay-resume-b
 
 | Artifact | Change |
 |----------|--------|
-| `public/child-dashboard.html` | `memory-hall-asset-pipeline.js` script tag |
-| `public/js/child-memory-hall.js` | pipeline, preload, `bindAssetWatch` |
-| `public/css/child-memory-hall.css` | illustrated scene layout |
-| `public/sw.js` | v496 + precache |
-| Tests | memory-hall-playable, memory-hall-asset-pipeline, living-world-transition |
-| `docs/reports/roadmap-minnesrummet-2026-07-03.md` | Updated roadmap (G3 complete) |
+| Rebase | 11 commits onto `0ae9b3b7` (main) |
+| `public/sw.js` | v496 with merged changelog comments |
+| `config/cache-version.json` | v496 |
+| `docs/route-inventory-pre-split.md` | Regenerated (1098 lines) |
+| Conflicts | 4 SW conflicts + 1 route inventory — all resolved |
 
 ---
 
 ## Tests
 
-`test:gate` — **698/698** green (2026-07-03)
-
----
-
-## Branch parity
-
-| Feature | #539 | #541 |
-|---------|------|------|
-| CAP-003 | ✅ | ✅ |
-| IRC-014-R1 | ✅ | ✅ |
-| CAP-005 | ✅ | ✅ |
-
-SHA: `ed435f1a` (#539) · `3059ddf7` (#541)
+```
+NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
+→ 698/698 pass (2026-07-03)
+```
 
 ---
 
 ## Self-review
 
-PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA ✓
+PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA ✓  
+Issues found and fixed: none  
+POS governed by: N/A (merge prep only)
 
 ---
 
-## Notes
+## Notes for next Worker
 
-Agent parity work complete. Next gates are human: G4 merge → G5 deploy → G6 flag → G7 evaluate.  
-Roadmap: `docs/reports/roadmap-minnesrummet-2026-07-03.md`
+- Both IRC PRs (#539, #541) now rebased on main with test:gate green
+- Verify product-code parity between branches (CAP-009-R1)
+- BL-041 art binaries still HRC-blocked
