@@ -22,7 +22,10 @@ Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
 1. **test:gate** (CI required)  
 2. Full `npm test` optional pre-release  
 3. Mobile smoke when native-affecting  
-4. Manual constitution test on UX (15 Section A)
+4. Mobile smoke when native-affecting  
+5. Manual constitution test on UX (15 Section A)
+
+**QA test account** (prod browser/mobile): `review@mystarday.se` · child Anna — credentials in [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md) via [`docs/qa-test-account.md`](../docs/qa-test-account.md).
 
 ## When to add tests
 

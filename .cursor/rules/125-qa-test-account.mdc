@@ -1,0 +1,22 @@
+---
+description: QA test account for browser/mobile smoke tests on mystarday.se — use for all manual and automated UI verification.
+alwaysApply: true
+---
+
+# 125 — QA Test Account
+
+**Credentials + flows:** [`docs/qa-test-account.md`](../docs/qa-test-account.md) → [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md)
+
+| Role | Value |
+|------|-------|
+| Parent email | `review@mystarday.se` |
+| Child name | Anna |
+
+Password and child PIN are in **`docs/app-store-demo-konto.md`** (same as App Store review account).
+
+## Rules
+
+- Prefer this account over inventing test users on prod
+- Do not delete Anna or run destructive tests without explicit user approval
+- Lifetime-free — expect no paywall (402)
+- Child login: `/child-login` → Anna → PIN from demo doc

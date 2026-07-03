@@ -2,6 +2,13 @@
 
 This repo is a Swedish family-routine app (Express.js + PostgreSQL, static frontend in `public/`). See `README.md` and `CLAUDE.md` for the product/architecture overview, directory map, and DB schema.
 
+### QA test account (browser / mobile smoke tests)
+
+Use for **all** logged-in QA on https://mystarday.se — [`docs/qa-test-account.md`](docs/qa-test-account.md) (credentials in [`docs/app-store-demo-konto.md`](docs/app-store-demo-konto.md)).
+
+- Parent: `review@mystarday.se`
+- Child: Anna (PIN in demo doc)
+
 ### För dig 10/10 (agent-uppdrag)
 
 - **Vision:** [`docs/for-dig-vision.md`](docs/for-dig-vision.md)
