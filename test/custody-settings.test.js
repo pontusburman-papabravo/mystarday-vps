@@ -56,6 +56,8 @@ describe('custody-settings (Phase 4.5d)', () => {
     assert.match(src, /custody-fields-weekends/);
     assert.match(src, /visible\.querySelector\('\.custody-week-a'\)/);
     assert.match(src, /custody_schedule_updated/);
+    assert.match(src, /CustodyA11y/);
+    assert.match(src, /homeMarkerHtml/);
   });
 
   it('PUT pattern route accepts pattern_type and weekend configuration', () => {

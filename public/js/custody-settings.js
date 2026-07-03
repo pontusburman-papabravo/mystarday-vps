@@ -133,12 +133,16 @@
     return defaultCycleWeeks(homes, 2);
   }
 
+  function a11y() {
+    return window.CustodyA11y || null;
+  }
+
   function customDaySelectHtml(homes, weekIndex, dayKey, selectedId) {
     const home = homeById(homes, selectedId);
-    const color = (home && home.color) || '#4F46E5';
+    const marker = a11y() ? a11y().homeMarkerHtml(home, escapeHtml) : '';
     return (
       '<div class="flex items-center gap-2 min-h-[44px]">' +
-      '<span class="custody-home-swatch w-3 h-3 rounded-full flex-shrink-0" style="background-color:' + escapeHtml(color) + '" aria-hidden="true"></span>' +
+      marker +
       '<select class="custody-custom-day flex-1 border rounded-lg px-2 py-2 text-sm min-h-[44px]" data-week="' + weekIndex + '" data-day="' + dayKey + '">' +
       homeOptions(homes, selectedId) +
       '</select></div>'
@@ -237,8 +241,13 @@
   function updateSwatchForSelect(select) {
     const opt = select.options[select.selectedIndex];
     const color = opt ? opt.getAttribute('data-color') : null;
-    const swatch = select.closest('.flex')?.querySelector('.custody-home-swatch');
+    const label = opt ? opt.textContent.trim() : '';
+    const row = select.closest('.flex');
+    if (!row) return;
+    const swatch = row.querySelector('.custody-home-swatch');
     if (swatch && color) swatch.style.backgroundColor = color;
+    const markerLabel = row.querySelector('.custody-home-marker span:last-child');
+    if (markerLabel && label) markerLabel.textContent = label;
   }
 
   function bindCustomDaySelects(block, homes) {
@@ -294,19 +303,25 @@
     for (let i = 0; i < days.length; i += 7) {
       weeks.push(days.slice(i, i + 7));
     }
+    const previewCell = a11y() && a11y().previewCellHtml;
     const rows = weeks.map(function (weekDays, wi) {
       const cells = weekDays.map(function (day) {
+        if (previewCell) {
+          return previewCell(day.activeHome, {
+            esc: escapeHtml,
+            isOverride: day.source === 'override',
+            isParentDay: day.isParentDay,
+          });
+        }
         const home = day.activeHome;
         if (!home) {
           return '<span class="block aspect-square rounded bg-lavender/30" title="—"></span>';
         }
-        const overrideMark = day.source === 'override' ? ' ring-2 ring-gold ring-offset-1' : '';
-        const parentMark = day.isParentDay ? ' font-bold' : '';
         const initial = escapeHtml((home.label || '?').charAt(0));
         return (
-          '<span class="block aspect-square rounded flex items-center justify-center text-[10px] text-white' +
-          overrideMark + parentMark + '" style="background:' + escapeHtml(home.color || '#4F46E5') + ';" ' +
-          'title="' + escapeHtml(home.label) + (day.source === 'override' ? ' (undantag)' : '') + '">' +
+          '<span class="block aspect-square rounded flex items-center justify-center text-[10px] text-white" ' +
+          'style="background:' + escapeHtml(home.color || '#4F46E5') + ';" ' +
+          'title="' + escapeHtml(home.label) + '" aria-label="' + escapeHtml(home.label) + '">' +
           initial + '</span>'
         );
       }).join('');
@@ -344,13 +359,15 @@
     if (!overrides.length) {
       return '<p class="text-xs text-text-soft custody-override-empty">Inga undantag ännu.</p>';
     }
+    const marker = a11y() && a11y().homeMarkerHtml;
     return overrides.map(function (o) {
       const home = homeById(homes, o.home_id);
+      const homeMark = marker ? marker(home, escapeHtml) : (
+        '<span class="truncate">' + escapeHtml(home.label) + '</span>'
+      );
       return (
         '<div class="flex flex-wrap items-center gap-2 custody-override-row text-sm" data-override-id="' + o.id + '">' +
-        '<span class="inline-flex items-center gap-1 min-w-0">' +
-        '<span class="w-3 h-3 rounded-full shrink-0" style="background:' + escapeHtml(home.color || '#4F46E5') + '"></span>' +
-        '<span class="truncate">' + escapeHtml(home.label) + '</span></span>' +
+        homeMark +
         '<span class="text-text-soft">' + escapeHtml(formatOverrideRange(o.start_date, o.end_date)) + '</span>' +
         (o.reason ? '<span class="text-text-soft truncate max-w-[10rem]">' + escapeHtml(o.reason) + '</span>' : '') +
         '<button type="button" class="custody-override-delete text-red-600 text-xs min-h-[44px] px-2 ml-auto">Ta bort</button>' +
@@ -593,10 +610,13 @@
       '<p class="text-sm text-text-soft">Etikett och färg per hem. Välj mönster per barn — varannan vecka, varannan helg eller eget mönster.</p>' +
       '<div class="space-y-3 mt-3" id="custodyHomesEditor">' +
       homes.map(function (h) {
+        const colorLabel = 'Färg för ' + (h.label || 'hem');
         return (
           '<div class="flex flex-wrap gap-2 items-center custody-home-row" data-home-id="' + h.id + '">' +
-          '<input type="color" class="custody-color w-10 h-10 rounded border-0" value="' + h.color + '" />' +
-          '<input type="text" class="custody-label flex-1 min-w-[8rem] border rounded-lg px-2 py-1 text-sm" value="' + escapeHtml(h.label) + '" maxlength="64" />' +
+          '<label class="sr-only" for="custody-color-' + h.id + '">' + escapeHtml(colorLabel) + '</label>' +
+          '<input type="color" id="custody-color-' + h.id + '" class="custody-color w-10 h-10 rounded border-0" value="' + h.color + '" aria-label="' + escapeHtml(colorLabel) + '" />' +
+          '<label class="sr-only" for="custody-label-' + h.id + '">Namn på hem</label>' +
+          '<input type="text" id="custody-label-' + h.id + '" class="custody-label flex-1 min-w-[8rem] border rounded-lg px-2 py-1 text-sm" value="' + escapeHtml(h.label) + '" maxlength="64" placeholder="Hemnamn" aria-label="Namn på hem" />' +
           '</div>'
         );
       }).join('') +

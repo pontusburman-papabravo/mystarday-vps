@@ -209,6 +209,8 @@ const PDF_COPY = {
   hygien: { back: '/resurser/hygien', backLabel: '← Hygien', h1: 'Hygienschema PDF', howto: 'Skriv ut hygienrutinen steg för steg — eller använd <a class="inline" href="/resurser/bildkort/hygien">bildkorten</a> separat.' },
   beloningsschema: { back: '/resurser', backLabel: '← Resursbibliotek', h1: 'Belöningsschema PDF', howto: 'Skriv ut stjärnschemat på kylskåpet eller väggen. Fyll i aktiviteter och mål — samma idé som ett papper-belöningssystem.' },
   veckoschema: { back: '/resurser', backLabel: '← Resursbibliotek', h1: 'Veckoschema PDF', howto: 'Skriv ut veckomallen och fyll i vad som händer varje dag. Kompletterar appens <a class="inline" href="/veckoschema-bildstod">levande veckoschema</a>.' },
+  helgschema: { back: '/resurser', backLabel: '← Resursbibliotek', h1: 'Helgschema PDF', howto: 'Skriv ut helgschemat och markera vilka steg som gäller lördag och söndag. Bra när helgen ska kännas förutsägbar utan skolstress.' },
+  laxschema: { back: '/resurser/skola', backLabel: '← Skola', h1: 'Läxschema PDF', howto: 'Dela upp läxorna i små steg med paus — barnet ser när det är klart. Kompletterar <a class="inline" href="/resurser/pdf/skola">skolaschema PDF</a>.' },
 };
 
 function writePdfPage(page) {

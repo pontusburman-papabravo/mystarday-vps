@@ -172,24 +172,34 @@
         </div>`;
     }).join('');
 
+    const hasUrgent = (s.failuresFound || 0) > 0 || actions.some((a) => a.priority === 'critical');
+    const detailsOpen = hasUrgent ? ' open' : '';
+
     mount.innerHTML = `
-      <div class="bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-200 rounded-2xl p-5 shadow-sm">
-        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Family Journey — daglig analys</p>
-            <h2 class="text-xl font-heading font-bold text-navy">Morgonrapport</h2>
-            <p class="text-sm text-text-soft mt-1">
-              Senast körd: <strong>${esc(formatWhen(report.generatedAt))}</strong>
-              · Wave ${esc(s.activeWave ?? '—')}
-              · Nästa schemalagda: kl. 06:00
-            </p>
+      <details id="journeyAnalysisDetails" class="bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-200 rounded-2xl shadow-sm group"${detailsOpen}>
+        <summary class="p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Family Journey — daglig analys</p>
+              <h2 class="text-lg font-heading font-bold text-navy inline">Morgonrapport</h2>
+              <span class="text-sm text-text-soft ml-2">· ${esc(formatWhen(report.generatedAt))} · Wave ${esc(s.activeWave ?? '—')}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-semibold text-indigo-700 bg-white/80 px-2 py-1 rounded-lg border border-indigo-100">
+                ${(s.failuresFound || 0) > 0 ? `${s.failuresFound} fel` : 'OK'}
+                · ${actions.length} åtgärd${actions.length === 1 ? '' : 'er'}
+              </span>
+              <span class="text-sm font-semibold text-gold group-open:hidden">Visa rapport ▾</span>
+              <span class="text-sm font-semibold text-gold hidden group-open:inline">Dölj ▴</span>
+            </div>
           </div>
-          <div class="flex flex-wrap gap-2">
+        </summary>
+        <div class="px-5 pb-5 border-t border-indigo-100 pt-4">
+        <div class="flex flex-wrap gap-2 mb-4 justify-end">
             <button type="button" id="journeyAnalysisRefreshBtn" class="px-3 py-2 rounded-xl border border-indigo-200 bg-white text-sm font-semibold hover:bg-indigo-50">↺ Uppdatera</button>
             <button type="button" id="journeyAnalysisRunBtn" class="px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm hover:bg-yellow-500">Kör om</button>
             <a href="#produktanalys" onclick="return adminNavClick(event)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-white text-sm font-semibold hover:bg-indigo-50">Rollout →</a>
           </div>
-        </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <div class="bg-white rounded-xl border border-indigo-100 p-3 text-center">
@@ -231,7 +241,8 @@
 
         <div class="grid md:grid-cols-2 gap-3 mb-2">${sectionsHtml}</div>
         ${actionsHtml}
-      </div>`;
+        </div>
+      </details>`;
 
     document.getElementById('journeyAnalysisRefreshBtn')?.addEventListener('click', loadJourneyDailyAnalysis);
     bindRunBtn();

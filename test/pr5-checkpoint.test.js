@@ -26,13 +26,15 @@ describe('ACT-1 PR5 checkpoint', () => {
     assert.match(email, /sendActivationNudgeEmail/);
   });
 
-  it('admin analytics exposes funnel and experiment', () => {
+  it('admin analytics exposes funnel API and weekly report UI (AI-only)', () => {
     const routes = read('src/routes/admin/analytics.js');
     assert.match(routes, /activation-funnel/);
     assert.match(routes, /activation-experiment/);
+    assert.match(routes, /activation-weekly-report/);
     const ui = read('public/admin/admin-analytics.js');
-    assert.match(ui, /loadActivationFunnel/);
-    assert.match(ui, /loadActivationExperiment/);
+    assert.match(ui, /loadActivationWeeklyReport/);
+    assert.match(ui, /renderActivationFunnelFromReport/);
+    assert.doesNotMatch(ui, /loadActivationExperiment/);
   });
 
   it('nudge migration adds column and flag', () => {

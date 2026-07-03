@@ -106,7 +106,7 @@
           <h2 class="text-xl font-heading font-bold text-navy">Nyckeltal</h2>
           <p class="text-sm text-text-soft">Registrering, Meta-annons och aktivering — senaste 7 dagar</p>
         </div>
-        <a href="#analytics" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Öppna Analytics →</a>
+        <a href="#anvandning" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Utökad användning →</a>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         ${kpiCard(
@@ -260,7 +260,10 @@
       : '<p class="text-text-soft text-sm">Inga händelser de senaste dagarna.</p>';
 
     const html = `
-      <h3 class="text-lg font-heading font-bold text-navy mb-4">Senaste aktivitet</h3>
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h3 class="text-lg font-heading font-bold text-navy">Senaste aktivitet</h3>
+        <a href="#familjer" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Alla familjer →</a>
+      </div>
       ${listHtml}`;
     setBlockState('startActivityBlock', 'ready', html);
   }
@@ -277,6 +280,8 @@
   }
 
   function renderStartShortcuts(actions) {
+    const el = document.getElementById('startShortcutsBlock');
+    if (!el) return;
     const items = actions && actions.length ? actions : [];
     const html = `
       <h3 class="text-lg font-heading font-bold text-navy mb-4">Genvägar</h3>
@@ -332,7 +337,7 @@
   function renderStartRecommendations(recommendations) {
     const el = document.getElementById('startRecommendationsBlock');
     if (!el) return;
-    const items = recommendations || [];
+    const items = (recommendations || []).slice(0, 5);
     if (!items.length) {
       el.innerHTML = '';
       return;
@@ -381,13 +386,11 @@
       renderStartRecommendations(data.recommendations);
       renderStartMessages(data.messages);
       renderStartActivity(data.activity);
-      renderStartShortcuts(data.quickActions);
     } catch (err) {
       console.error('[ADMIN] Start summary failed:', err);
       renderStartKpisError();
       renderStartMessagesError();
       renderStartActivityError();
-      renderStartShortcuts([]);
     }
   }
 

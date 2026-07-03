@@ -241,4 +241,17 @@ router.get('/analytics/activation-experiment', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/activation-weekly-report ────
+router.get('/analytics/activation-weekly-report', async (req, res) => {
+  try {
+    const weeks = Math.min(52, Math.max(1, parseInt(req.query.weeks, 10) || 8));
+    const { getActivationWeeklyReport } = require('../../../db/activation-funnel');
+    const data = await getActivationWeeklyReport(weeks);
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN analytics] activation-weekly-report error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta veckorapport aktivering' });
+  }
+});
+
 module.exports = router;

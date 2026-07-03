@@ -75,6 +75,11 @@
       '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
       '</div>' +
       '<a href="/child-settings?child=' + encodeURIComponent(child.id) + '" class="block text-sm text-text-soft text-center">Avancerade inställningar (NU/NÄSTA, klocka m.m.) →</a>' +
+      '<div class="pt-4 mt-2 border-t border-lavender">' +
+      '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
+      '🗑 Radera barn permanent</button>' +
+      '<p class="text-xs text-text-soft text-center mt-2">Tar bort schema, stjärnor och all historik för barnet.</p>' +
+      '</div>' +
       '</div>';
   }
 

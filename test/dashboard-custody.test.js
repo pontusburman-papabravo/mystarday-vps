@@ -24,5 +24,8 @@ describe('dashboard-custody (Phase 4.5b)', () => {
     assert.match(src, /ctx\.home/);
     assert.match(src, /ctx\.isMyDay/);
     assert.match(src, /data-custody-home-label/);
+    assert.match(src, /CustodyA11y/);
+    assert.match(src, /ensureDayMarker/);
+    assert.match(src, /ensureCardBadge/);
   });
 });

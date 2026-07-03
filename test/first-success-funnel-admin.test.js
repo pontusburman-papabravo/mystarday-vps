@@ -26,11 +26,13 @@ describe('First Success funnel admin UI (PR 3)', () => {
     assert.match(src, /childAccessDiagnostics/);
   });
 
-  it('does not alter experiment or referral sections', () => {
+  it('activation tab uses weekly report instead of A/B experiment UI', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/admin/admin-analytics.js'), 'utf8');
-    assert.match(src, /Experiment — activation_rate_48h per variant/);
+    assert.match(src, /Veckorapport aktivering/);
+    assert.match(src, /loadActivationWeeklyReport/);
     assert.match(src, /Värvningar \(referral v0\)/);
-    assert.match(src, /loadActivationExperiment/);
     assert.match(src, /loadReferralsAdmin/);
+    assert.doesNotMatch(src, /Experiment — activation_rate_48h per variant/);
+    assert.doesNotMatch(src, /loadActivationExperiment/);
   });
 });

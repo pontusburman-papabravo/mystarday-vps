@@ -93,8 +93,7 @@ async function switchTab(tabName) {
   else if (tabName === 'trends') await loadTrends();
   else if (tabName === 'newsletter') await loadNewsletter();
   else if (tabName === 'activation') {
-    await loadActivationFunnel();
-    await loadActivationExperiment();
+    await loadActivationWeeklyReport();
     await loadReferralsAdmin();
   }
 }
@@ -392,6 +391,28 @@ function buildAnalyticsHTML() {
 
       <div id="section-activation" class="analytics-section hidden space-y-8">
         <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Veckorapport aktivering</h3>
+          <p class="text-text-soft text-sm mb-4">Svar på de tre veckofrågorna (§6.1) — AI-only sedan ACT-1 rollout</p>
+        </div>
+        <div id="activationWeeklyReport" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-sky p-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">1. Aktivering 48h</p>
+            <p id="activationQ1Summary" class="text-navy text-sm font-medium">Laddar…</p>
+            <p id="activationQ1Detail" class="text-text-soft text-xs mt-2"></p>
+          </div>
+          <div class="bg-white rounded-2xl border border-sky p-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">2. Största tappet</p>
+            <p id="activationQ2Summary" class="text-navy text-sm font-medium">Laddar…</p>
+            <p id="activationQ2Detail" class="text-text-soft text-xs mt-2"></p>
+          </div>
+          <div class="bg-white rounded-2xl border border-sky p-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">3. Lyftindikator</p>
+            <p id="activationQ3Summary" class="text-navy text-sm font-medium">Laddar…</p>
+            <p id="activationQ3Detail" class="text-text-soft text-xs mt-2"></p>
+          </div>
+        </div>
+
+        <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">First Success-tratt</h3>
           <p class="text-text-soft text-sm mb-4">Veckokohort — signup → barn → schema → barnåtkomst → första stjärnan → aktivitet dag 2</p>
         </div>
@@ -414,18 +435,23 @@ function buildAnalyticsHTML() {
         </div>
 
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">🧪 Experiment — activation_rate_48h per variant</h3>
-          <p class="text-text-soft text-sm mb-4">Jämför legacy vs mall (A) vs mall+AI (B). Go/no-go: AI endast om B slår A med ≥5 pp absolut.</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">activation_rate_48h per vecka</h3>
+          <p class="text-text-soft text-sm mb-4">P0-aktivering inom 48 timmar från signup</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto mb-4">
-          <table class="w-full text-sm" id="activationExperimentTable">
-            <thead id="activationExperimentHead">
-              <tr><th class="text-left pb-2">Laddar…</th></tr>
+          <table class="w-full text-sm" id="activationP0WeeklyTable">
+            <thead>
+              <tr>
+                <th class="text-left pb-2 pr-4">Vecka</th>
+                <th class="text-right pb-2 px-2">Signups</th>
+                <th class="text-right pb-2 px-2">P0 48h</th>
+                <th class="text-right pb-2">Andel</th>
+              </tr>
             </thead>
-            <tbody id="activationExperimentBody"></tbody>
-            <tfoot id="activationExperimentFoot"></tfoot>
+            <tbody id="activationP0WeeklyBody">
+              <tr><td colspan="4" class="text-center text-text-soft py-6">Laddar…</td></tr>
+            </tbody>
           </table>
-          <p id="activationExperimentVerdict" class="mt-4 text-sm font-medium hidden"></p>
         </div>
 
         <div>
@@ -1151,135 +1177,133 @@ function buildFunnelConversionColumns(steps) {
   return cols;
 }
 
-async function loadActivationFunnel() {
+async function loadActivationWeeklyReport() {
+  const reportRoot = document.getElementById('activationWeeklyReport');
+  if (!reportRoot || reportRoot.dataset.loaded === 'true') return;
+  try {
+    const data = await Auth.api('/api/admin/analytics/activation-weekly-report?weeks=8');
+    const q = data.questions || {};
+
+    const q1 = q.activation_48h || {};
+    const q1El = document.getElementById('activationQ1Summary');
+    const q1Det = document.getElementById('activationQ1Detail');
+    if (q1El) q1El.textContent = q1.summary || '—';
+    if (q1Det) {
+      const week = q1.cohort_week ? String(q1.cohort_week).slice(0, 10) : '—';
+      q1Det.textContent = 'Senaste kohortvecka: ' + week;
+    }
+
+    const q2 = q.biggest_dropoff || {};
+    const q2El = document.getElementById('activationQ2Summary');
+    const q2Det = document.getElementById('activationQ2Detail');
+    if (q2El) q2El.textContent = q2.summary || '—';
+    if (q2Det && q2.step) {
+      q2Det.textContent = 'Steg: ' + q2.step;
+    }
+
+    const q3 = q.lift || {};
+    const q3El = document.getElementById('activationQ3Summary');
+    const q3Det = document.getElementById('activationQ3Detail');
+    if (q3El) q3El.textContent = q3.message || '—';
+    if (q3Det && q3.delta_pp != null) {
+      q3Det.textContent = 'Vecka-till-vecka på activation_rate_48h.';
+    }
+
+    renderActivationFunnelFromReport(data.funnel);
+
+    const p0Body = document.getElementById('activationP0WeeklyBody');
+    const p0Rows = data.p0_weekly || [];
+    if (p0Body) {
+      if (p0Rows.length === 0) {
+        p0Body.innerHTML = '<tr><td colspan="4" class="text-center text-text-soft py-6">Ingen P0-data ännu</td></tr>';
+      } else {
+        p0Body.innerHTML = p0Rows.map(function (row) {
+          const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+          return '<tr class="border-t border-sky">' +
+            '<td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' +
+            '<td class="text-right px-2 py-2 tabular-nums">' + (row.signups || 0) + '</td>' +
+            '<td class="text-right px-2 py-2 tabular-nums">' + (row.p0_48h || 0) + '</td>' +
+            '<td class="text-right py-2 tabular-nums font-medium">' + (row.rate_48h || 0) + '%</td>' +
+            '</tr>';
+        }).join('');
+      }
+    }
+
+    reportRoot.dataset.loaded = 'true';
+  } catch (err) {
+    console.error('[Analytics] loadActivationWeeklyReport error:', err);
+    const q1El = document.getElementById('activationQ1Summary');
+    if (q1El) q1El.textContent = 'Kunde inte ladda veckorapport';
+  }
+}
+
+function renderActivationFunnelFromReport(data) {
   const head = document.getElementById('activationFunnelHead');
   const body = document.getElementById('activationFunnelBody');
   const convWrap = document.getElementById('activationFunnelConversions');
   const convHead = document.getElementById('activationFunnelConvHead');
   const convBody = document.getElementById('activationFunnelConvBody');
-  if (!head || !body || body.dataset.loaded === 'true') return;
-  try {
-    const data = await Auth.api('/api/admin/analytics/activation-funnel?weeks=8');
-    const steps = data.steps || [];
-    const conversionCols = buildFunnelConversionColumns(steps);
+  if (!head || !body) return;
 
-    head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
-      steps.map(function (s) {
-        return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(s.label) +
-          '<span class="block text-[10px] font-normal text-text-soft normal-case tracking-normal">antal (% signup)</span></th>';
+  const steps = (data && data.steps) || [];
+  const conversionCols = buildFunnelConversionColumns(steps);
+
+  head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
+    steps.map(function (s) {
+      return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(s.label) +
+        '<span class="block text-[10px] font-normal text-text-soft normal-case tracking-normal">antal (% signup)</span></th>';
+    }).join('') +
+    '</tr>';
+
+  if (!data || !data.cohorts || data.cohorts.length === 0) {
+    body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
+    if (convWrap) convWrap.classList.add('hidden');
+    return;
+  }
+
+  body.innerHTML = data.cohorts.map(function (row) {
+    const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+    const cells = steps.map(function (s) {
+      const n = (row.counts && row.counts[s.key]) || 0;
+      const pct = (row.rates && row.rates[s.key]) || 0;
+      return '<td class="text-right px-2 py-2 tabular-nums">' + n +
+        '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
+    }).join('');
+    return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+  }).join('');
+
+  if (convWrap && convHead && convBody && conversionCols.length > 0) {
+    convHead.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
+      conversionCols.map(function (c) {
+        return '<th class="text-right pb-2 px-2 whitespace-nowrap text-xs">' + esc(c.label) + '</th>';
       }).join('') +
       '</tr>';
-
-    if (!data.cohorts || data.cohorts.length === 0) {
-      body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
-      if (convWrap) convWrap.classList.add('hidden');
-    } else {
-      body.innerHTML = data.cohorts.map(function (row) {
-        const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
-        const cells = steps.map(function (s) {
-          const n = (row.counts && row.counts[s.key]) || 0;
-          const pct = (row.rates && row.rates[s.key]) || 0;
-          return '<td class="text-right px-2 py-2 tabular-nums">' + n +
-            '<span class="text-text-soft text-xs"> (' + pct + '%)</span></td>';
-        }).join('');
-        return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+    convBody.innerHTML = data.cohorts.map(function (row) {
+      const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
+      const conversions = row.conversions || {};
+      const cells = conversionCols.map(function (c) {
+        const conv = conversions[c.key];
+        if (!conv || conv.from_count === 0) {
+          return '<td class="text-right px-2 py-2 text-text-soft tabular-nums">—</td>';
+        }
+        return '<td class="text-right px-2 py-2 tabular-nums font-medium">' + conv.rate_pct + '%' +
+          '<span class="text-text-soft text-xs font-normal"> (' + conv.to_count + '/' + conv.from_count + ')</span></td>';
       }).join('');
-
-      if (convWrap && convHead && convBody && conversionCols.length > 0) {
-        convHead.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
-          conversionCols.map(function (c) {
-            return '<th class="text-right pb-2 px-2 whitespace-nowrap text-xs">' + esc(c.label) + '</th>';
-          }).join('') +
-          '</tr>';
-        convBody.innerHTML = data.cohorts.map(function (row) {
-          const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
-          const conversions = row.conversions || {};
-          const cells = conversionCols.map(function (c) {
-            const conv = conversions[c.key];
-            if (!conv || conv.from_count === 0) {
-              return '<td class="text-right px-2 py-2 text-text-soft tabular-nums">—</td>';
-            }
-            return '<td class="text-right px-2 py-2 tabular-nums font-medium">' + conv.rate_pct + '%' +
-              '<span class="text-text-soft text-xs font-normal"> (' + conv.to_count + '/' + conv.from_count + ')</span></td>';
-          }).join('');
-          return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
-        }).join('');
-        convWrap.classList.remove('hidden');
-      }
-    }
-
-    const diagEl = document.getElementById('activationChildAccessDiag');
-    if (diagEl && data.childAccessDiagnostics) {
-      const diag = data.childAccessDiagnostics;
-      const items = (diag.metrics || []).map(function (m) {
-        const n = (diag.counts && diag.counts[m.key]) || 0;
-        return '<span class="inline-flex items-center gap-1 mr-4 mb-1"><span class="text-text-soft">' +
-          esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
-      }).join('');
-      diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-2">Child access — diagnostik (sub-metrics)</p>' + items;
-      diagEl.classList.remove('hidden');
-    }
-
-    body.dataset.loaded = 'true';
-  } catch (err) {
-    console.error('[Analytics] loadActivationFunnel error:', err);
-    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda First Success-tratt</td></tr>';
-    if (convWrap) convWrap.classList.add('hidden');
+      return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
+    }).join('');
+    convWrap.classList.remove('hidden');
   }
-}
 
-async function loadActivationExperiment() {
-  const head = document.getElementById('activationExperimentHead');
-  const body = document.getElementById('activationExperimentBody');
-  const foot = document.getElementById('activationExperimentFoot');
-  if (!head || !body || body.dataset.loaded === 'true') return;
-  try {
-    const data = await Auth.api('/api/admin/analytics/activation-experiment?weeks=8');
-    const variants = data.variants || [];
-    head.innerHTML = '<tr><th class="text-left pb-2 pr-4">Vecka</th>' +
-      variants.map(function (v) {
-        return '<th class="text-right pb-2 px-2 whitespace-nowrap">' + esc(v.label) + '</th>';
-      }).join('') + '</tr>';
-
-    if (!data.cohorts || data.cohorts.length === 0) {
-      body.innerHTML = '<tr><td colspan="' + (variants.length + 1) + '" class="text-center text-text-soft py-6">Ingen variantdata ännu</td></tr>';
-    } else {
-      body.innerHTML = data.cohorts.map(function (row) {
-        const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
-        const cells = variants.map(function (v) {
-          const bucket = (row.variants && row.variants[v.key]) || { signups: 0, p0_48h: 0, rate_48h: 0 };
-          if (!bucket.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
-          return '<td class="text-right px-2 py-2 tabular-nums">' +
-            bucket.rate_48h + '%<span class="text-text-soft text-xs"> (' + bucket.p0_48h + '/' + bucket.signups + ')</span></td>';
-        }).join('');
-        return '<tr class="border-t border-sky"><td class="py-2 pr-4 font-medium">' + esc(week) + '</td>' + cells + '</tr>';
-      }).join('');
-    }
-
-    if (foot && data.totals) {
-      const totalCells = variants.map(function (v) {
-        const t = data.totals[v.key] || { signups: 0, p0_48h: 0, rate_48h: 0 };
-        if (!t.signups) return '<td class="text-right px-2 py-2 text-text-soft">—</td>';
-        return '<td class="text-right px-2 py-2 tabular-nums font-bold">' +
-          t.rate_48h + '%<span class="text-text-soft text-xs font-normal"> (' + t.p0_48h + '/' + t.signups + ')</span></td>';
-      }).join('');
-      foot.innerHTML = '<tr class="border-t-2 border-navy bg-sky/30"><td class="py-2 pr-4 font-bold">Totalt</td>' + totalCells + '</tr>';
-    }
-
-    const verdictEl = document.getElementById('activationExperimentVerdict');
-    if (verdictEl && data.verdict) {
-      const v = data.verdict;
-      const color = v.status === 'promote_ai' ? 'text-green-700' :
-        v.status === 'keep_template_only' ? 'text-navy' : 'text-text-soft';
-      verdictEl.className = 'mt-4 text-sm font-medium ' + color;
-      verdictEl.textContent = 'Go/no-go: ' + v.message;
-      verdictEl.classList.remove('hidden');
-    }
-
-    body.dataset.loaded = 'true';
-  } catch (err) {
-    console.error('[Analytics] loadActivationExperiment error:', err);
-    body.innerHTML = '<tr><td class="text-red-500 py-4">Kunde inte ladda experimentdata</td></tr>';
+  const diagEl = document.getElementById('activationChildAccessDiag');
+  if (diagEl && data.childAccessDiagnostics) {
+    const diag = data.childAccessDiagnostics;
+    const items = (diag.metrics || []).map(function (m) {
+      const n = (diag.counts && diag.counts[m.key]) || 0;
+      return '<span class="inline-flex items-center gap-1 mr-4 mb-1"><span class="text-text-soft">' +
+        esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
+    }).join('');
+    diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-2">Child access — diagnostik (sub-metrics)</p>' + items;
+    diagEl.classList.remove('hidden');
   }
 }
 

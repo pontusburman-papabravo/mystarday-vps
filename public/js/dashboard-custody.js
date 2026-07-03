@@ -57,6 +57,10 @@
     }
   }
 
+  function a11y() {
+    return window.CustodyA11y || null;
+  }
+
   function applyCardStyles(childId) {
     const card = document.querySelector('.dash-child-card[data-child-id="' + childId + '"]');
     if (!card) return;
@@ -70,6 +74,11 @@
     card.removeAttribute('data-custody-home-label');
     card.removeAttribute('aria-label');
 
+    const a11yApi = a11y();
+    if (a11yApi && typeof a11yApi.ensureCardBadge === 'function') {
+      a11yApi.ensureCardBadge(card, null);
+    }
+
     if (!ctx || !ctx.active) return;
 
     if (home && home.color) {
@@ -82,6 +91,9 @@
       card.setAttribute('data-custody-home-label', home.label);
       const icon = home.icon ? home.icon + ' ' : '';
       card.setAttribute('aria-label', icon + 'Hos ' + home.label);
+      if (a11yApi && typeof a11yApi.ensureCardBadge === 'function') {
+        a11yApi.ensureCardBadge(card, home);
+      }
     }
 
     const parentDay = isParentDay(ctx);
@@ -100,6 +112,7 @@
     const dayMap = {};
     week.days.forEach(function (d) { dayMap[d.dayOfWeek] = d; });
 
+    const a11yApi = a11y();
     const dowForIndex = [1, 2, 3, 4, 5, 6, 0];
     card.querySelectorAll('.mini-week-day').forEach(function (el, idx) {
       const dow = dowForIndex[idx];
@@ -108,6 +121,9 @@
       el.style.borderColor = '';
       el.removeAttribute('title');
       el.removeAttribute('aria-label');
+      if (a11yApi && typeof a11yApi.ensureDayMarker === 'function') {
+        a11yApi.ensureDayMarker(el, null);
+      }
       if (!day || !day.custody) return;
 
       const dayParent = typeof day.custody.isMyDay === 'boolean' ? day.custody.isMyDay : null;
@@ -118,9 +134,14 @@
       }
 
       if (day.custody.label) {
-        const hint = 'Hos ' + day.custody.label;
+        const hint = a11yApi && a11yApi.dayCustodyHint
+          ? a11yApi.dayCustodyHint(day.custody.label)
+          : 'Hos ' + day.custody.label;
         el.setAttribute('title', hint);
         el.setAttribute('aria-label', hint);
+        if (a11yApi && typeof a11yApi.ensureDayMarker === 'function') {
+          a11yApi.ensureDayMarker(el, day.custody);
+        }
       }
     });
   }

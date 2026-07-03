@@ -20,6 +20,7 @@
   let goalFavoriteSlugs = new Set();
   let expandedSlug = null;
   let showAllFavorites = false;
+  let showAllGoals = false;
   let _forDigClickBound = false;
   let _forDigInitGen = 0;
 
@@ -134,11 +135,7 @@
 
     const items = allFavoriteItems();
     if (items.length === 0) {
-      mount.innerHTML = `
-        <div class="for-dig-favorites for-dig-favorites--empty">
-          <p class="font-semibold text-navy text-sm mb-2">Mina favoriter</p>
-          <p class="text-sm text-text-soft">Spara favoriter med stjärnan ☆ på mål, scheman eller belöningar — de samlas här.</p>
-        </div>`;
+      mount.innerHTML = '';
       return;
     }
 
@@ -373,7 +370,7 @@
       if (relevant.length === 0) continue;
       html += `
         <div class="for-dig-recommend mb-3">
-          <p class="for-dig-section-title">Rekommenderat för ${esc(child.name)}</p>
+          <p class="for-dig-section-title">Bra nästa steg för ${esc(child.name)}</p>
           <div class="space-y-2">
             ${relevant.map((g) => {
               const done = isInstalled(g.slug, child.id);
@@ -398,14 +395,22 @@
     renderMostInstalled();
   }
 
-  function renderGoalCard(goal) {
+  function heroGoalForDisplay() {
+    const displayed = goalsForDisplay();
+    if (displayed.length === 0) return null;
+    const uninstalled = displayed.filter((g) => installedChildren(g.slug).length === 0);
+    return uninstalled[0] || displayed[0];
+  }
+
+  function renderGoalCard(goal, opts) {
+    const isHero = opts && opts.hero;
     const expanded = expandedSlug === goal.slug;
     const installedAny = installedChildren(goal.slug).length > 0;
     const isPop = topPopularSlugs().has(goal.slug);
     const isFav = goalFavoriteSlugs.has(goal.slug);
 
     return `
-      <article class="for-dig-goal-card${installedAny ? ' is-installed' : ''}" data-slug="${esc(goal.slug)}">
+      <article class="for-dig-goal-card${installedAny ? ' is-installed' : ''}${isHero ? ' for-dig-goal-card--hero' : ''}" data-slug="${esc(goal.slug)}">
         <div class="flex items-start gap-3">
           <span class="text-3xl" aria-hidden="true">${goal.icon}</span>
           <div class="flex-1 min-w-0">
@@ -451,12 +456,23 @@
   function renderGoals() {
     const mount = document.getElementById('forDigGoals');
     if (!mount) return;
+
+    const displayed = goalsForDisplay();
+    const total = displayed.length;
+    const hero = heroGoalForDisplay();
+    const cards = showAllGoals
+      ? displayed.map((g) => renderGoalCard(g))
+      : hero ? [renderGoalCard(hero, { hero: true })] : [];
+
     mount.innerHTML = `
       <div class="for-dig-section">
         <h2 class="for-dig-section-title">Utvecklingsmål</h2>
         <p class="for-dig-section-sub">Välj ett problem — vi sätter upp rutinen åt dig.</p>
       </div>
-      ${goalsForDisplay().map(renderGoalCard).join('')}
+      ${cards.join('')}
+      ${!showAllGoals && total > 1
+        ? `<button type="button" class="for-dig-show-all-goals" data-action="show-all-goals">Visa alla ${total} mål</button>`
+        : ''}
     `;
   }
 
@@ -776,14 +792,13 @@
     const step = data && data.next_step;
     const firstChild = selectedChildren[0];
     const childId = firstChild ? firstChild.id : null;
+    const hint = (step && step.hint) || 'Testa rutinen tillsammans med barnet.';
 
     const html = `
       <h3 class="font-heading font-bold text-navy text-lg mb-2">Klart!</h3>
       <p class="text-sm text-text-soft mb-3">${esc(data.message || '')}</p>
-      ${step ? `
-        <p class="text-sm text-text-soft mb-3">${esc(step.hint || '')}</p>
-        <a href="${esc(step.href)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(step.label)}</a>
-      ` : ''}
+      <p class="text-sm text-text-soft mb-4">${esc(hint)}</p>
+      <a href="/child-login" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">Öppna barnvy</a>
       <div class="border-t border-lavender pt-4 mt-2">
         <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med?</p>
         <div id="forDigIntentOptions">
@@ -953,6 +968,14 @@
         const lib = ev.target.closest('[data-action="library-link"]');
         if (lib) {
           track('for_dig_library_link', {});
+          return;
+        }
+
+        const showAllGoalsBtn = ev.target.closest('[data-action="show-all-goals"]');
+        if (showAllGoalsBtn) {
+          showAllGoals = true;
+          track('for_dig_goals_expand', { goal_count: goalsForDisplay().length });
+          renderGoals();
           return;
         }
 

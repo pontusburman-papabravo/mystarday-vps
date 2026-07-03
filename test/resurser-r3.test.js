@@ -7,6 +7,7 @@ const path = require('path');
 const {
   R3_LONGTAIL_PAGES,
   R3_INDEXABLE_PATHS,
+  R3_PDF_FILES,
   R3_DOWNLOAD_META,
   R3_RELATED_LABELS,
   r3PagePlainText,
@@ -19,6 +20,7 @@ const { buildSitemapXml } = require('../src/lib/sitemap');
 const { listenApp } = require('./helpers/http');
 
 const ROOT = path.join(__dirname, '..');
+const PDF_DIR = path.join(ROOT, 'public/resurser/pdf');
 const MIN_BODY_WORDS = 300;
 
 /** Known internal link targets from R0–R2 hub, guides, and R3 pages. */
@@ -48,9 +50,9 @@ function extractInternalHrefs(html) {
 }
 
 describe('resurser R3 — page registry', () => {
-  it('ships twenty long-tail pages', () => {
-    assert.equal(R3_LONGTAIL_PAGES.length, 20);
-    assert.equal(R3_INDEXABLE_PATHS.length, 20);
+  it('ships one hundred long-tail pages', () => {
+    assert.equal(R3_LONGTAIL_PAGES.length, 100);
+    assert.equal(R3_INDEXABLE_PATHS.length, 102);
   });
 
   it('every page has unique slug and path', () => {
@@ -62,7 +64,7 @@ describe('resurser R3 — page registry', () => {
     }
   });
 
-  it('every downloadSlug maps to existing R1/R2 PDF landing page', () => {
+  it('every downloadSlug maps to existing PDF landing page', () => {
     for (const page of R3_LONGTAIL_PAGES) {
       assert.ok(page.downloadSlug, page.slug);
       assert.ok(R3_DOWNLOAD_META[page.downloadSlug], page.downloadSlug);
@@ -91,6 +93,22 @@ describe('resurser R3 — page registry', () => {
       const full = path.join(ROOT, 'public', page.file);
       assert.ok(fs.existsSync(full), page.file);
     }
+  });
+});
+
+describe('resurser R3 — PDF assets', () => {
+  it('ships two R3 downloadable PDFs', () => {
+    assert.equal(R3_PDF_FILES.length, 2);
+    for (const file of R3_PDF_FILES) {
+      const full = path.join(PDF_DIR, file);
+      assert.ok(fs.existsSync(full), `missing ${file}`);
+      assert.ok(fs.statSync(full).size > 500, `${file} too small`);
+    }
+  });
+
+  it('R3 PDF landing HTML files exist', () => {
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/resurser/pdf-helgschema.html')));
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/resurser/pdf-laxschema.html')));
   });
 });
 
@@ -133,6 +151,9 @@ describe('resurser R3 — SEO and HTTP', () => {
         '/resurser/bildstod-adhd-barn',
         '/resurser/hygienschema-barn-pdf',
         '/resurser/bildkort-rutiner-barn',
+        '/resurser/bildschema-lakarbesok-barn',
+        '/resurser/pdf/helgschema',
+        '/resurser/pdf/laxschema',
       ];
       for (const p of sample) {
         const res = await fetch(`${http.baseUrl}${p}`);
