@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v504';
+const CACHE_NAME = 'stjarndag-v505';
 // stjarndag-v503: Min värld reload fix + garden path tap; memory hall scene re-export (--no-flop)
 // stjarndag-v502: platform auth matrix + Google signup/link (google_user_id)
 // stjarndag-v501: Minnesrummet scene v2 diorama illustration (BL-041)
