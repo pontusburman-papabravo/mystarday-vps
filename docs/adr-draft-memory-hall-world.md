@@ -1,7 +1,7 @@
 # ADR Draft — World 3 (Memory Hall)
 
-**Status:** Draft — awaiting human creative decision (BL-012)  
-**Not merged to `product-operating-system/14_DECISION_LOG.md` until approved.
+**Status:** Superseded — human approved BL-012  
+**Canonical ADR:** `docs/decisions/adr-memory-hall-bl012.md`
 
 ---
 

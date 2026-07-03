@@ -9,7 +9,7 @@
 
 | Rank | ID | Mission | ROI | Status | Blocker |
 |------|-----|---------|-----|--------|---------|
-| 1 | BL-041 | Memory hall scene art (asset spec → illustration) | 6.5 | queued | Art HRC |
+| 1 | BL-041 | Memory hall scene art (illustration from spec) | 6.5 | spec done | Art HRC |
 | 2 | BL-042 | Parent opt-in milestone frames (`warm_echo`) | 6.0 | queued | Parent HRC |
 
 ---
@@ -19,6 +19,7 @@
 | ID | Mission | ROI |
 |----|---------|-----|
 | BL-012 | Minnesrummet creative direction | 8.1 ✅ |
+| BL-041 | Memory hall art spec (no assets) | 6.5 ✅ |
 | BL-029c | Garden path entry + pride exhibits | 7.5 ✅ |
 | BL-029 | Museum runtime scaffold (reversible prep) | 8.1 ✅ |
 | BL-038 | Garden auto-bloom aria-live announcement | 7.8 ✅ |

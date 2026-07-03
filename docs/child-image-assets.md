@@ -35,6 +35,9 @@
 | `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | `child-today-focus.css` → `.ctf-empty-illus` | godkänd |
 | `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s → `.ctf-celebration-frame` | godkänd |
 | `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | `public/images/child/world/garden/` | `garden-asset-pipeline.js`, `child-garden.js` | godkänd |
+| `memory-hall-scene` | Minnesrummet | `scene@2x.webp` (+ srcset) | `public/images/child/world/memory-hall/` | `child-memory-hall.css` → `.mu-scene.is-illustrated` | saknas |
+| `memory-hall-frame-empty` | Minnesrummet / tom ram | `frame-empty@2x.webp` | `public/images/child/world/memory-hall/` | Exhibit slot fallback | saknas |
+| `memory-hall-frame-glow` | Minnesrummet / fylld ram | `frame-glow@2x.webp` | `public/images/child/world/memory-hall/` | Exhibit slot filled state | saknas |
 
 ### Rum-ID (Min värld)
 
@@ -67,5 +70,6 @@ Migrera legacy-sökvägar när filerna finns i `public/images/child/` — en PR 
 - [child-worlds-index.md](child-worlds-index.md) — produktvisioner Idag / Skattkammaren / Mina personer
 - [barnmeny-v2.md](barnmeny-v2.md) §5 — rum och vyer
 - Art Bible §14 — `stjarndag-{world}-{asset}-v{n}-@2x` (källfilnamn)
+- [art-specs/memory-hall-bl041.md](art-specs/memory-hall-bl041.md) — Minnesrummet scene spec (BL-041)
 
-*Senast uppdaterad: 2026-07-02*
+*Senast uppdaterad: 2026-07-03*

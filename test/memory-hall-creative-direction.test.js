@@ -105,4 +105,13 @@ describe('memory hall creative direction — pack copy (BL-012)', () => {
     assert.match(src, /exitMemoryHall/);
     assert.match(src, /activeWorld/);
   });
+
+  it('BL-041 art spec exists with pride brief and asset paths', () => {
+    const specPath = path.join(__dirname, '../docs/art-specs/memory-hall-bl041.md');
+    assert.ok(fs.existsSync(specPath));
+    const spec = fs.readFileSync(specPath, 'utf8');
+    assert.match(spec, /Primary emotion.*Pride/s);
+    assert.match(spec, /memory-hall\/scene@2x\.webp/);
+    assert.match(spec, /BL-012/);
+  });
 });
