@@ -25,6 +25,18 @@
     }
   }
 
+  function livingSlotTransitionMessage(prevState, nextState) {
+    const prevSlots = (prevState && prevState.living_slots) || [];
+    const nextSlots = (nextState && nextState.living_slots) || [];
+    for (const slot of nextSlots) {
+      const prev = prevSlots.find(function (s) { return s.slot_id === slot.slot_id; });
+      if (prev && prev.state_key !== slot.state_key && slot.label_state_sv) {
+        return slot.label_state_sv;
+      }
+    }
+    return null;
+  }
+
   function scheduleTimerRefresh(state) {
     clearTimerRefresh();
     if (!state || !_active) return;
@@ -40,9 +52,13 @@
     _timerRefresh = setTimeout(async function () {
       const fresh = await fetchState();
       if (fresh && fresh.enabled) {
-        _state = fresh;
         const view = document.getElementById('skattkammarView');
-        if (view) applyLivingSlotVisuals(view, fresh);
+        const announce = livingSlotTransitionMessage(_state, fresh);
+        _state = fresh;
+        if (view) {
+          applyLivingSlotVisuals(view, fresh);
+          if (announce) showLoeFeedback(view, announce);
+        }
         scheduleTimerRefresh(fresh);
       }
     }, minMs + 200);

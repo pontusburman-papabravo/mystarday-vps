@@ -123,6 +123,13 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(src, /role="status"/);
   });
 
+  it('garden timer refresh announces living slot state transitions', () => {
+    const src = read('public/js/child-garden.js');
+    assert.match(src, /livingSlotTransitionMessage/);
+    assert.match(src, /label_state_sv/);
+    assert.match(src, /scheduleTimerRefresh[\s\S]*showLoeFeedback/);
+  });
+
   it('garden LOE feedback uses polite status region not blocking modal', () => {
     const src = read('public/js/child-garden.js');
     assert.match(src, /gdSceneStatus/);
