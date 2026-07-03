@@ -1,45 +1,416 @@
-# Sjön — RBS production contract (stub)
+# Sjön — RBS place contract
 # Human spec: docs/world/specs/180-lake.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 180
+catalog_number: 180
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: lake
   display_name_sv: Sjön
   pack_scene_id: lake
-  description: TBD
-  primary_emotion: Peace
-  secondary_emotion: TBD
+  description: >
+    En stilla nordisk sjö — spegelblank vatten, brygga, näckrosor och skog runt om.
+    Platsen där tålamod och lugn får ta plats.
+  primary_emotion: Calm
+  secondary_emotion: Wonder
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: progression.lake.unlock
 
-emotion: Peace
-hero_object: pier
-landmark: pier
+purpose:
+  summary: >
+    Sjön är grannskapets lugnaste utpost — fiskebrygga-fantasi, stenar i vatten,
+    fåglar på vattenytan. Tålamod utan tråkig väntan.
+  failure_impact: Känns som tom blå bitmap eller farligt djupt vatten — lugn-fantasin bryts.
+  constitution_pillars: [comfort, curiosity]
 
-camera:
+emotional_contract:
+  primary_emotion: Calm
+  secondary_emotion: Wonder
+  stress_level: lowest
+  activity_level: calm
+  music_density: none
+  ambient_density: low
+  light_temperature: cool
+  constitution_pillar: comfort
+  calmness_target: 88
+  first_five_seconds: >
+    Vatten som glittrar mjukt. Brygga som bjuder in. Ingen modal —
+    stillhet utan tomhet.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: water_surface_readable
+    - at_ms: 2000
+      beat: ripple_subtle
+    - at_ms: 4000
+      beat: duck_or_fish_rare
+
+room_story:
+  identity: Svensk skogssjö — brygga, båt på land, fiskespö mot staket. Sommar och vinter varianter.
+  lived_in: true
+  patina_level: natural
+  inhabitants: [water_birds, fish_implied]
+  open_questions:
+    - what_lives_under_the_lily_pad
+    - will_the_boat_go_out_today
+    - who_skipped_the_stone_last
+
+hero_object:
+  id: lake_dock
+  description: >
+    Enkel träbrygga som sträcker ut över grunt vatten —
+    säker, inbjudande, barn kan sitta på kanten.
+  story_purpose: "Här kan jag vänta och titta." — tålamod som trygghet.
+  interaction_level: inspect_primary
+
+landmark:
+  id: lily_pad_cluster
+  description: Näckrosor i vatten — landmärke mitt i scenen.
+
+theme_hero_variants:
+  house: { hero_id: lake_dock, landmark_id: lily_pad_cluster }
+  castle: { hero_id: stone_dock, landmark_id: moat_lily }
+  treehouse: { hero_id: rope_dock, landmark_id: pond_lily }
+  space: { hero_id: habitat_dock, landmark_id: bio_lily_dome }
+  pirate: { hero_id: wooden_pier, landmark_id: tropical_lily }
+  wizard: { hero_id: floating_dock, landmark_id: glowing_lily }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: ripple_from_fish
+      description: Ringar i vatten — fisk under ytan
+    - id: duck_pair_distant
+      description: Änder på spegelblank yta
+    - id: boat_on_shore
+      description: Båt uppdragen på strand — inte ute idag
+    - id: fishing_rod_leaning
+      description: Fiskespö mot staket — tålamod tease
+    - id: smooth_skipping_stone
+      description: Platt sten för att kasta
+    - id: dragonfly_hover
+      description: Trollslända — sällsynt
+    - id: reeds_wind_sway
+      description: Vass i bris
+    - id: forest_reflection_water
+      description: Skog speglas i sjön
+    - id: cloud_reflection
+      description: Moln i vatten
+    - id: frog_on_lily_rare
+      description: Groda på näckros — rare
+    - id: ice_edge_winter
+      description: Iskant vinter — säker, inte farlig
+    - id: sunset_gold_water
+      description: Guld på vattenytan kvällstid
+
+pet_behaviour:
+  simulation_driven: true
+  states:
+    - id: watch_ducks
+      location: lake_dock
+      trigger: calm_visit
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      home_anchor: shore_grass
+      interact_verbs: [pet]
+      note: Tittar på vatten, badar inte automatiskt
+
+ambient_life:
+  always_active: [water_ripple_subtle, reeds_wind_sway]
+  sometimes: [duck_quack_distant, fish_splash_rare]
+
+ambient_runtime:
+  director_scene_key: lake
+  calmness_target: 88
+  max_visual_density: 0.50
+  ambient_ids: [water_ripple_subtle, reeds_wind_sway, forest_reflection_shimmer]
+  rare_events:
+    - id: dragonfly_pass
+      cooldown_days: 5
+    - id: frog_on_lily
+      cooldown_days: 10
+
+build_progression:
+  day_1:
+    description: Brygga och näckrosor — inget fiske än
+    visible_elements: [lake_dock, lily_pad_cluster]
+  weeks_later:
+    description: Fiskespö-plats, båt-dekoration, bryggstol
+    visible_elements: [fishing_rod_slot, dock_bench_slot]
+
+build_slots:
+  - id: dock_bench
+    location: zone_dock_end
+    required_part: wooden_bench
+    unlock: progression.lake.dock_bench
+  - id: fishing_rod_spot
+    location: zone_shore_fence
+    required_part: fishing_rod
+    unlock: progression.lake.fishing_rod
+    note: Fiskebrygga-world tease — patience fiction
+
+memory_points:
+  - id: first_lake_visit
+    progression_key: progression.lake.first_visit
+
+story_anchors:
+  past:
+    - id: forest_path_arrival
+      description: Stig från skogen öppnar sjön
+  present:
+    - id: water_still_today
+      entity: lily_pad_cluster
+  future:
+    - id: fishing_pier_world_tease
+      progression_key: progression.fishing_pier.unlock
+
+navigation:
+  edges:
+    - nav_id: path_from_forest
+      direction: in
+      from_scene: lake
+      to_scene: forest
+      transition_profile: path_uphill_forest
+      landmark_label_sv: Skogen
+    - nav_id: path_to_lake
+      direction: in
+      from_scene: forest
+      to_scene: lake
+      transition_profile: path_downhill_water
+      landmark_label_sv: Sjön
+      unlock: progression.lake.unlock
+  return_anchor: path_from_forest
+  comfort_zone: true
+
+navigation_targets: [forest]
+
+audio_contract:
+  profile_id: lake_day
+  night_variant_id: lake_night
+  master_gain_max: 0.48
+  diegetic_sources: [water_lap_soft, reeds_wind, duck_distant, fish_splash_rare]
+  layers_ref: audio_bible/lake_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_water_soft
+      visual: ripple_rain_pattern
+    - weather: wind
+      audio: reeds_wind_stronger
+      visual: water_small_waves
+    - weather: snow
+      visual: ice_edge_safe
+      audio: muffled_silence
+    - weather: clear
+      visual: mirror_calm_water
+
+qa:
+  acceptance_criteria:
+    - id: water_safe
+      text_sv: Vatten känns grunt och säkert vid brygga — inte farligt djupt
+    - id: patience_not_boring
+      text_sv: Stillhet känns levande, inte tom
+    - id: forest_connection
+      text_sv: Retur till skog tydlig
+    - id: no_fishing_minigame_grind
+      text_sv: Fiske som fiction, inte grind-spel
+    - id: winter_ice_safe
+      text_sv: Vinter-is känns lekfull, inte risk
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: wide_2_5d_exterior_water
+  entrance:
+    id: path_from_forest
+    from_scene: forest
+    landmark_label_sv: Stigen från skogen
+    camera_on_enter: gentle_pan_lake
+  landmark:
+    id: lily_pad_cluster
+    description: Näckrosor i vatten
+  walking_area:
+    id: shore_grass
+    description: Grässtrand vid brygga
+  interaction_zones:
+    - id: zone_dock
+      accepts: [Inspect, Navigate]
+    - id: zone_lily_pads
+      accepts: [Inspect]
+    - id: zone_skipping_stone
+      accepts: [Inspect, Activate]
+    - id: zone_fishing_spot
+      accepts: [Place, Inspect]
+  camera_anchor:
+    id: lake_fixed_2_5d
+    description: Barn-ögonhöjd; brygga i förgrund; sjö spegel centrum
+
+camera_contract:
+  profile_id: lake_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_pan_lake
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['forest', 'museum', 'reading_corner']
+lighting_contract:
+  profile_id: lake_calm_day
+  primary_source: sky_reflection_water
+  secondary_source: forest_shade_cool
+  time_variants:
+    - id: morning
+      color_temp: cool_gold_mist
+    - id: evening
+      color_temp: sunset_gold_water
+    - id: night
+      color_temp: cool_moon_on_water
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: lake_dock_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Bryggan
+  - id: lily_pad_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Näckrosorna
+  - id: skipping_stone
+    interaction_type: Activate
+    landmark_label_sv: Platta stenar
+  - id: fishing_rod_place
+    interaction_type: Place
+    build_slot: fishing_rod_spot
+    progression_key: progression.lake.fishing_rod
+  - id: path_forest
+    interaction_type: Navigate
+    target_scene: forest
+    landmark_label_sv: Skogen
 
-build_slots: []
+supporting_objects:
+  - id: boat_on_shore
+    story_role: imagination
+  - id: fishing_rod_leaning
+    story_role: curiosity
+  - id: duck_pair_distant
+    story_role: wonder
+
+ambient_objects:
+  - id: water_ripple_subtle
+    budget_tier: subtle
+  - id: reeds_wind_sway
+    budget_tier: subtle
+  - id: dragonfly_hover
+    budget_tier: rare
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: smooth_stone_inspect
+      type: inspect_discovery
+  rare:
+    - id: frog_on_lily
+      type: ambient_discovery
+  seasonal:
+    - id: ice_skate_tease
+      event_ref: evt_snow_morning
+    - id: sunset_gold
+      event_ref: evt_sunset_calm
+  hidden:
+    - id: secret_fish_friend
+      progression_key: progression.lake.secret_fish
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [ice_edge_safe, snow_shore]
+    - season: summer
+      overlay_ids: [bright_lily_bloom, dragonfly]
+    - season: autumn
+      overlay_ids: [golden_trees_reflection, fallen_leaves_shore]
+
+theme_variants:
+  house: { skin_set: nordic_lake_default, landmark_label: Näckrosor }
+  castle: { skin_set: castle_moat_lake, landmark_label: Vallmo på vatten }
+  treehouse: { skin_set: forest_pond, landmark_label: Liljor i damm }
+  space: { skin_set: habitat_water_dome, landmark_label: Bio-liljor }
+  pirate: { skin_set: tropical_lagoon, landmark_label: Palmliljor }
+  wizard: { skin_set: enchanted_lake, landmark_label: Lysande näckrosor }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 7
+  max_particle_systems: 2
+  texture_memory_mb: 11
+
+prompt_manifest:
+  - id: lake_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0031
+    positive_prompt: >
+      Nordic Scandinavian forest lake scene, 2.5D illustrated diorama, calm mirror-still water.
+      Simple wooden dock extending over shallow safe water, lily pads cluster as landmark,
+      reeds along shore, boat pulled up on grass, fishing rod leaning on fence,
+      forest trees reflecting in water, ducks distant on surface, soft cool palette with warm accents,
+      child eye height from shore, peaceful patience atmosphere, handcrafted illustration,
+      Swedish summer lake feeling, not tropical, not scary deep water.
+      Portrait mobile composition, dock foreground left, lake center, forest background reflected in water.
+    negative_prompt: >
+      No scary deep water, no drowning danger, no horror, no tropical beach,
+      no text, no brand logos, no stock photo, no empty flat blue
+  - id: lake_dock_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0031b
+    positive_prompt: >
+      Hero shot of simple wooden lake dock over calm shallow water,
+      lily pads nearby, forest reflection, Nordic peaceful illustration, child-safe inviting pier.
+    negative_prompt: No dangerous deep water, no scary
+
+ecology:
+  cause_effect_chains:
+    - cause: forest_explore_depth
+      effect: lake_path_opens
+    - cause: rain_weather
+      effect: ripple_pattern_changes
+    - cause: fishing_pier_progression_future
+      effect: rod_slot_activates
+
+asset_manifest:
+  scene_bg: lake_bg
+  layers: [forest_reflection, water_surface, shore_grass, dock_hero, lily_pads, sky]
+  entities: [lake_dock, lily_pad_cluster, boat_on_shore, fishing_rod_leaning]
+  theme_resolver: lake_{theme}
+
+animation_manifest:
+  ambient: [water_ripple_subtle, reeds_wind_sway, duck_drift_rare, dragonfly_hover]
+  interaction: [skipping_stone_ripple, dock_sit_calm]
+
+meta:
+  world_id: lake
+  wdb_world_slug: lake
+  experience_pack: child_se
+  part_i_checklist_ref: specs/180-lake.md
+  implementation_notes: Djupaste utpost i home neighborhood graph. Fiskebrygga v1.1+ tease.
 
 part_i_checklist_ref: specs/180-lake.md

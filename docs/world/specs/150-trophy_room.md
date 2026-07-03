@@ -1,131 +1,103 @@
-# Troférummet — Production Specification
+# Troférummet — Place Specification
 
 > **Machine-readable contract (source of truth):** [`../data/150-trophy_room.yaml`](../data/150-trophy_room.yaml)  
 > **Rulebook (frozen):** [World Bible Part III RBS](../../.ai/product/bibles/WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs)  
-> **Status:** draft · **Production #:** 150 · **Room ID:** `trophy_room` · **Pack scene:** `trophy_room`
+> **Status:** draft · **Catalog #:** 150 · **Room ID:** `trophy_room` · **Pack scene:** `trophy_room`
 
 ```yaml
 # Excerpt — full contract in data/150-trophy_room.yaml
 room:
   id: trophy_room
   pack_scene_id: trophy_room
-production_number: 150
+  display_name_sv: Troférummet
+catalog_number: 150
 status: draft
+emotion: Belonging
+secondary_emotion: Ownership
+hero_object: trophy_shelf_hero
+landmark: ribbon_door_arch
+navigation_targets: [hall]
+unlock_condition: progression.routine_home.trophy_unlock
 ```
 
 ---
 
 ## Overview
 
-TBD
+**Troférummet** samlar verkliga prestationer som fysiska objekt i världen — burk med första snöboll, inramad fjäril, ritad stjärna på trä, fjäder från skogen, sten från sjön. Inte guld-pokaler, leaderboard eller stjärnräknare på väggen. Personligt troférum som växer lagom fullt över tid.
+
+Dörren från hallen (`door_trophy`) bär band på båge när låst — synlig tease i hall-sightline. Unlock via `progression.routine_home.trophy_unlock`. Idag **ej shipped**.
+
+**Katalogmappning:** Catalog #150 `trophy_room` ↔ pack `trophy_room` ↔ hall = #101 `home_hall`.
+
+---
 
 ## Emotion
 
-TBD
+**Primär: Belonging** — *"Det här har jag gjort på riktigt."*
 
-## History
+**Sekundär: Ownership** — hyllan tillhör barnet; tom hylla = inbjudan. Director `calmness_target: 82`.
 
-TBD
+| Constitution-pelare | Hur troférummet stärker den |
+|---------------------|-----------------------------|
+| Belonging | Minnesobjekt kopplade till verkliga händelser (G-01) |
+| Ownership | Personlig hylla — aldrig jämförelse med syskon |
+
+Band på dörr = anticipation, inte FOMO. Inga poäng synliga.
+
+---
 
 ## Purpose
 
-TBD
+Troférummet är stolthet utan skrik:
 
-## Story
+1. **Trophy shelf** — Inspect objekt; Place milestone (`trophy_first`, `trophy_second`).
+2. **Reality objects only** — Snöboll, fjäril, medalj — inte generiska sporttroféer.
+3. **Locked tease** — Band synligt från hall tills unlock.
 
-TBD
+Failure mode: sporttrophy-case eller tom skrytrum — tillhörighet blir skam.
 
-## Camera
+---
 
-TBD
+## Art Prompts
 
-## Layout
+**`trophy_room_scene_hero`** · catalog `art_prompt_catalog/0024`
 
-TBD
+**Positive:**
+> Nordic child trophy room interior, 2.5D illustrated diorama, warm soft spotlight.
+> Wooden shelves with meaningful personal objects — jar with first snowball memory,
+> framed butterfly, drawn star on wood plaque, feather, smooth pebble — not gold sports trophies.
+> Ribbon on door arch (locked tease), polished wooden floor, quiet pride atmosphere,
+> no leaderboard, no point numbers. Child eye height, handcrafted Scandinavian warmth,
+> belonging and ownership. Portrait mobile composition, shelf center, soft spotlight from above.
 
-## Lighting
+**Negative:**
+> No gold sports trophies, no leaderboard, no scores, no comparison UI,
+> no text, no brand logos, no casino, no empty boastful room
 
-TBD
+**`trophy_shelf_hero`** · catalog `art_prompt_catalog/0024b`
 
-## Weather
+**Positive:**
+> Hero shot of wooden trophy shelf with personal memory objects,
+> soft warm spotlight, Nordic gentle pride illustration, child-scale treasures.
 
-TBD
+**Negative:** No sports trophies, no scores, no text
 
-## Time of Day
-
-TBD
+---
 
 ## Navigation
 
-TBD
+| Nav ID | Till | Pack scene | Catalog # | Villkor |
+|--------|------|------------|-----------|---------|
+| `door_hall` | Hallen | `home_hall` | 101 | alltid |
 
-## Hero Object
+Ingång `door_trophy` från hall kräver `trophy_unlock`. `return_anchor: door_hall` · `comfort_zone: true`.
 
-TBD
+---
 
-## Ambient
+## Implementation notes
 
-TBD
-
-## NPC
-
-TBD
-
-## Pet
-
-TBD
-
-## Build Slots
-
-TBD
-
-## Interactions
-
-TBD
-
-## Audio
-
-TBD
-
-## Particles
-
-TBD
-
-## Secrets
-
-TBD
-
-## Discoveries
-
-TBD
-
-## Season
-
-TBD
-
-## Evolution
-
-TBD
-
-## Theme Variants
-
-TBD
-
-## Accessibility
-
-TBD
-
-## Performance
-
-TBD
-
-## Prompt
-
-TBD
-
-## QA
-
-TBD
+**Ej shipped.** Nav `door_trophy` från hall definierad i YAML. Låst tills `progression.routine_home.trophy_unlock` WDB node. Väder-reaktiv: false (interiör). QA-gates alla pending.
 
 ---
 

@@ -1,45 +1,380 @@
-# Verkstaden — RBS production contract (stub)
+# Verkstaden — RBS place contract
 # Human spec: docs/world/specs/120-workshop.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 120
+catalog_number: 120
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: workshop
   display_name_sv: Verkstaden
   pack_scene_id: workshop
-  description: TBD
-  primary_emotion: Creativity
-  secondary_emotion: TBD
+  description: >
+    Familjens verkstad — träbänk, verktyg på vägg, projekt halvfärdiga.
+    Platsen där händer skapar och barnet känner "jag kan fixa saker".
+  primary_emotion: Capability
+  secondary_emotion: Imagination
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: progression.workshop.unlock
 
-emotion: Creativity
-hero_object: workbench
-landmark: windmill
+purpose:
+  summary: >
+    Verkstaden firar maker-stolthet — hjälpa, bygga, laga — utan farliga verktyg
+    eller könsstereotyper.
+  failure_impact: Känns som farlig garage eller generisk asset-butik — kompetens-fantasin dör.
+  constitution_pillars: [capability, imagination]
 
-camera:
+emotional_contract:
+  primary_emotion: Capability
+  secondary_emotion: Imagination
+  stress_level: low
+  activity_level: moderate
+  music_density: low
+  ambient_density: medium
+  light_temperature: warm
+  constitution_pillar: capability
+  calmness_target: 72
+  first_five_seconds: >
+    Trädoft visuellt (honey wood). Verktyg på pegboard. Ingen modal —
+    bänken inbjuder till att titta närmare.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: workbench_readable
+    - at_ms: 2000
+      beat: tool_silhouettes_satisfying
+    - at_ms: 4000
+      beat: chimney_smoke_optional_outside
+
+room_story:
+  identity: Nordisk fredagsmys-verkstad — blyertsspill, halvfärdigt fågelhus, förälders verktyg out of reach men synliga.
+  lived_in: true
+  patina_level: moderate
+  inhabitants: [child_protagonist, parent_helper_implied]
+  open_questions:
+    - what_is_being_built_on_the_bench
+    - who_used_the_hammer_last
+    - will_the_birdhouse_get_a_roof
+
+hero_object:
+  id: workbench_hero
+  description: >
+    Robust träarbetsbänk med skruvtvingar, träspån och halvfärdigt projekt.
+    Barn-ögonhöjd detaljer — inte vuxen fara-zon.
+  story_purpose: "Här bygger jag saker som betyder något." — maker pride.
+  interaction_level: inspect_primary
+
+landmark:
+  id: pegboard_tools
+  description: Pegboard med verktygssilhuetter — igenkännbart, tillfredsställande.
+
+theme_hero_variants:
+  house: { hero_id: workbench_hero, landmark_id: pegboard_tools }
+  castle: { hero_id: smith_bench, landmark_id: armor_peg_wall }
+  treehouse: { hero_id: tree_bench, landmark_id: rope_tool_wall }
+  space: { hero_id: repair_bench, landmark_id: tool_panel_grid }
+  pirate: { hero_id: ship_repair_bench, landmark_id: rope_and_hook_wall }
+  wizard: { hero_id: alchemy_bench, landmark_id: wand_peg_wall }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: wood_shavings_curl
+      description: Träspån i hög — färsk aktivitet
+    - id: birdhouse_half_done
+      description: Halvfärdigt fågelhus på bänk
+    - id: pencil_behind_ear_ghost
+      description: Blyertsspill — någon var här
+    - id: safety_goggles_hook
+      description: Skyddsglasögon på krok — säkerhet implicit
+    - id: paint_jar_labels
+      description: Färgburkar utan läsbar text
+    - id: measuring_tape_out
+      description: Måttband utdraget
+    - id: radio_humming
+      description: Gammal radio — visuell, soft audio
+    - id: window_garden_view
+      description: Fönster mot trädgård
+    - id: chimney_smoke_wisp
+      description: Rök ut skorsten — synlig från trädgård
+    - id: child_stool_reach
+      description: Pall för att nå bänk
+    - id: finished_shelf_project
+      description: Färdigt hyllplan väntar på placering
+    - id: screw_jar_sorted
+      description: Burkar med sorterade skruvar
+
+pet_behaviour:
+  simulation_driven: false
+  states: []
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: false
+  pets: []
+
+ambient_life:
+  always_active: [wood_dust_motes, radio_hum_visual]
+  sometimes: [hammer_tap_distant, saw_sound_soft]
+
+ambient_runtime:
+  director_scene_key: workshop
+  calmness_target: 72
+  ambient_ids: [wood_dust_motes, radio_hum_visual]
+
+build_progression:
+  day_1:
+    description: Tom bänk med ghost-verktyg — silhuett unlock
+    visible_elements: [workbench_hero, pegboard_tools]
+  weeks_later:
+    description: Verktyg fyller pegboard, projekt på bänk
+    visible_elements: [tool_unlock_slots, birdhouse_project]
+
+build_slots:
+  - id: pegboard_tool_1
+    location: zone_pegboard
+    required_part: hammer_tool
+    theme_variant: tool_{theme}
+    unlock: progression.workshop.tool_hammer
+  - id: pegboard_tool_2
+    location: zone_pegboard
+    required_part: saw_tool
+    unlock: progression.workshop.tool_saw
+  - id: bench_project_birdhouse
+    location: zone_workbench
+    required_part: birdhouse
+    unlock: progression.workshop.project_birdhouse
+
+memory_points:
+  - id: first_tool_unlock
+    progression_key: progression.workshop.tool_hammer
+
+story_anchors:
+  past:
+    - id: parent_helper_session
+      description: Förälder hjälpte — spår kvar
+  present:
+    - id: birdhouse_in_progress
+      entity: workbench_hero
+  future:
+    - id: birdhouse_on_garden_tree
+      progression_key: progression.workshop.birdhouse_place
+
+navigation:
+  edges:
+    - nav_id: path_from_garden
+      direction: in
+      from_scene: workshop
+      to_scene: garden
+      transition_profile: path_gate_open
+      landmark_label_sv: Trädgården
+    - nav_id: door_workshop_interior
+      direction: in
+      from_scene: garden
+      to_scene: workshop
+      transition_profile: door_shed_open
+      landmark_label_sv: Verkstaden
+  return_anchor: path_from_garden
+  comfort_zone: false
+
+navigation_targets: [garden]
+
+audio_contract:
+  profile_id: workshop_day
+  master_gain_max: 0.58
+  diegetic_sources: [radio_soft, wood_creak, hammer_distant]
+  layers_ref: audio_bible/workshop_day
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_tin_roof
+    - weather: cold
+      visual: breath_fog_window_rare
+
+qa:
+  acceptance_criteria:
+    - id: no_dangerous_tools_prominent
+      text_sv: Inga roterande blad eller farliga verktyg i förgrund
+    - id: maker_pride
+      text_sv: Känns stolt, inte stressande fabrik
+    - id: gender_neutral
+      text_sv: Verkstad för alla barn
+    - id: garden_connection
+      text_sv: Trädgård nåbar som retur
+    - id: smoke_tease_consistent
+      text_sv: Rök synlig från trädgård när unlocked
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: wide_2_5d_interior_shed
+  entrance:
+    id: door_from_garden
+    from_scene: garden
+    landmark_label_sv: Dörren från trädgården
+  landmark:
+    id: pegboard_tools
+    description: Verktygsvägg
+  walking_area:
+    id: workshop_floor
+    description: Betong/trägolv med spån
+  interaction_zones:
+    - id: zone_workbench
+      accepts: [Inspect, Place, Activate]
+    - id: zone_pegboard
+      accepts: [Place, Inspect]
+    - id: zone_window
+      accepts: [Inspect]
+  camera_anchor:
+    id: workshop_fixed_2_5d
+    description: Barn-ögonhöjd; bänk centrum; pegboard bakvägg
+
+camera_contract:
+  profile_id: workshop_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['garden', 'home']
+lighting_contract:
+  profile_id: workshop_warm_wood
+  primary_source: window_garden_side
+  secondary_source: overhead_work_lamp_warm
+  time_variants:
+    - id: morning
+      color_temp: warm_gold
+    - id: evening
+      color_temp: amber_lamp
+    - id: night
+      color_temp: single_lamp_pool
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: workbench_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Arbetsbänken
+  - id: pegboard_tool_place
+    interaction_type: Place
+    build_slot: pegboard_tool_1
+    progression_key: progression.workshop.tool_hammer
+  - id: birdhouse_project
+    interaction_type: Activate
+    build_slot: bench_project_birdhouse
+    progression_key: progression.workshop.project_birdhouse
+  - id: path_garden
+    interaction_type: Navigate
+    target_scene: garden
+    landmark_label_sv: Trädgården
 
-build_slots: []
+supporting_objects:
+  - id: birdhouse_half_done
+    story_role: imagination
+  - id: child_stool_reach
+    story_role: capability
+  - id: window_garden_view
+    story_role: navigation
+
+ambient_objects:
+  - id: wood_dust_motes
+    budget_tier: subtle
+  - id: chimney_smoke_wisp
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: wood_shavings_inspect
+      type: inspect_discovery
+  rare:
+    - id: secret_blueprint
+      progression_key: progression.workshop.secret_blueprint
+  hidden:
+    - id: tiny_tool_drawer
+      progression_key: progression.workshop.hidden_drawer
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [warm_lamp_boost, frost_window]
+    - season: summer
+      overlay_ids: [open_door_breeze, bright_garden_window]
+
+theme_variants:
+  house: { skin_set: house_workshop_shed, landmark_label: Verktygsvägg }
+  castle: { skin_set: castle_smithy, landmark_label: Rustning på vägg }
+  treehouse: { skin_set: treehouse_workshop, landmark_label: Rep och verktyg }
+  space: { skin_set: habitat_workshop, landmark_label: Reparationspanel }
+  pirate: { skin_set: ship_workshop, landmark_label: Krok och rep }
+  wizard: { skin_set: wizard_workshop, landmark_label: Stavar på vägg }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 8
+  texture_memory_mb: 10
+
+prompt_manifest:
+  - id: workshop_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0021
+    positive_prompt: >
+      Nordic family workshop shed interior, 2.5D illustrated diorama, warm honey wood tones.
+      Sturdy wooden workbench center with wood shavings, half-built birdhouse project,
+      pegboard wall with satisfying tool silhouettes (hammer, saw, screwdriver — safe, no spinning blades),
+      window showing green garden outside, soft work lamp glow, child step stool,
+      sorted screw jars, measuring tape, pencil shavings. Maker pride atmosphere,
+      lagom messy not chaotic, child eye height, handcrafted Scandinavian illustration.
+      Portrait mobile composition, workbench lower center, pegboard upper back wall.
+    negative_prompt: >
+      No dangerous power tools prominent, no spinning blades, no horror, no text,
+      no brand logos, no greasy industrial garage, no stock photo
+  - id: workbench_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0021b
+    positive_prompt: >
+      Hero close-up of wooden workbench with birdhouse project, wood shavings,
+      clamp, warm side light, Nordic maker illustration, safe child-friendly workshop.
+    negative_prompt: No sharp danger, no text
+
+ecology:
+  cause_effect_chains:
+    - cause: helper_activities_complete
+      effect: tool_unlock_on_pegboard
+    - cause: birdhouse_finished
+      effect: birdhouse_visible_in_garden_tree
+
+asset_manifest:
+  scene_bg: workshop_bg
+  layers: [pegboard_wall, window_garden, floor, workbench_hero, tools_mid]
+  entities: [workbench_hero, pegboard_tools, birdhouse_half_done]
+  theme_resolver: workshop_{theme}
+
+animation_manifest:
+  ambient: [wood_dust_motes, chimney_smoke_wisp]
+  interaction: [tool_place_snap, birdhouse_hammer_tap]
+
+meta:
+  world_id: workshop
+  wdb_world_slug: workshop
+  experience_pack: child_se
+  part_i_checklist_ref: specs/120-workshop.md
+  implementation_notes: Unlock vecka 2–3 per PCB. Rök-tease från trädgård.
 
 part_i_checklist_ref: specs/120-workshop.md

@@ -1,45 +1,539 @@
-# Sovrummet — RBS production contract (stub)
+# Sovrummet — RBS place contract
 # Human spec: docs/world/specs/102-bedroom.md
-# Full template: docs/world/_TEMPLATE.room.yaml
+# Authority: World Bible Part I · LWES bedroom · Emotion Bible "Lugnt"
 
 status: draft
-production_number: 102
+catalog_number: 102
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: bedroom
   display_name_sv: Sovrummet
   pack_scene_id: bedroom
-  description: TBD
+  description: >
+    Barnets eget sovrum — mjukt kvällsljus genom fönster, ordnad säng,
+    personliga detaljer på hylla. Platsen där dagen landar och morgondagen väntar.
   primary_emotion: Calm
-  secondary_emotion: TBD
+  secondary_emotion: Comfort
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: always
 
-emotion: Calm
-hero_object: bed
-landmark: window_night_light
+purpose:
+  summary: >
+    Sovrummet är vila och "mitt eget" — inte belöningsskärm.
+    Barnet ska känna trygg landning efter Idag, utan prestation.
+  failure_impact: >
+    Känns som hotellrum, tomt hotell eller generisk mall —
+    hela hemmet tappar personlig ankare.
+  constitution_pillars: [comfort, ownership]
 
-camera:
+emotional_contract:
+  primary_emotion: Calm
+  secondary_emotion: Comfort
+  stress_level: lowest
+  activity_level: calm
+  music_density: low
+  ambient_density: low
+  light_temperature: warm
+  constitution_pillar: comfort
+  calmness_target: 85
+  first_five_seconds: >
+    Mjukt fönsterljus. Sängen inbjudande. Ingen modal, ingen recap —
+    bara ett bekant rum som redan andas lugnt.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall]
+  sequence:
+    - at_ms: 0
+      beat: room_readable
+      note: Säng + fönster + dör till hall synliga i första bild
+    - at_ms: 1500
+      beat: ambient_motion
+      note: Gardin eller nattlampa subtil puls
+    - at_ms: 3000
+      beat: affordance_clear
+      note: Fönster (väder) och säng (inspect) uppenbara utan text
+
+room_story:
+  identity: >
+    Ett levande barnsovrum — inte showroom. Nalle på kudde, ritning under sängen,
+    morgondagens kläder på stol. Någon (förälder) har redan varit här och lämnat värme.
+  lived_in: true
+  patina_level: subtle
+  inhabitants: [child_protagonist]
+  open_questions:
+    - what_is_outside_the_window_tonight
+    - who_tucked_the_blanket
+    - where_does_the_night_light_get_its_glow
+
+hero_object:
+  id: child_bed
+  description: >
+    Barnsäng med mjuk filt, kudde och personlig kudde/nalle.
+    Låg sängkant — barn-ögonhöjd, inbjudande utan att kräva interaktion.
+  story_purpose: >
+    "Här sover jag." — trygg landning utan förklarande copy.
+    Sängen är protagonistens territorium.
+  interaction_level: inspect_primary
+
+landmark:
+  id: window_night_light
+  description: >
+    Fönster med mjuk nattlampa eller stjärnljus på fönsterbräda —
+    landmärke synligt från hall (soft light leak).
+
+theme_hero_variants:
+  house:
+    hero_id: child_bed
+    landmark_id: window_night_light
+  castle:
+    hero_id: canopy_bed
+    landmark_id: tower_window_star
+  treehouse:
+    hero_id: bunk_nest_bed
+    landmark_id: round_porthole_window
+  space:
+    hero_id: sleep_pod
+    landmark_id: viewport_stars
+  pirate:
+    hero_id: hammock_bed
+    landmark_id: porthole_lantern
+  wizard:
+    hero_id: star_blanket_bed
+    landmark_id: floating_lantern_window
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: blanket_tuck_corner
+      description: Filten vikt i ett hörn — någon brydde sig
+    - id: drawing_under_pillow
+      description: Ritning halvt synlig under kudden
+    - id: tomorrow_clothes_chair
+      description: Morgondagens tröja på stol — förberedelse utan stress
+    - id: bookshelf_tilt
+      description: En bok sticker ut — läst om och om igen
+    - id: night_light_warm_pool
+      description: Liten ljuskrets på fönsterbräda
+    - id: curtain_breeze
+      description: Gardin rör sig lätt — väder utanför
+    - id: stuffed_friend_spot
+      description: Nalle/gosedjur med egen plats
+    - id: star_sticker_ceiling
+      description: Diskreta stjärnor i tak — imagination, inte neon
+    - id: sock_pair_floor
+      description: Ett strumppar-par vid säng — levt in
+    - id: window_condensation
+      description: Lätt imma på ruta vintertid — mysigt, inte kallt
+    - id: pet_bed_empty_or_occupied
+      description: Liten hundkorg i hörn — tom eller med sovande vän
+    - id: growth_mark_pencil
+      description: Blyertsstreck på dörrkarm — tillväxt utan facit
+
+pet_behaviour:
+  simulation_driven: true
+  states:
+    - id: sleep_in_pet_bed
+      location: pet_bed_corner
+      trigger: evening_time_variant
+    - id: curl_on_rug
+      location: bedside_rug
+      trigger: random_rare_calm
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: true
+  pets:
+    - id: dog_companion
+      species: dog
+      nameable: true
+      hunger_timer: false
+      sick_state: false
+      interact_verbs: [pet, call]
+      home_anchor: pet_bed_corner
+      note: Primärt i hall; sover ibland här kvällstid
+
+ambient_life:
+  always_active:
+    - night_light_glow_pulse
+    - curtain_edge_sway
+  sometimes:
+    - distant_owl_soft
+    - window_rain_droplets
+
+ambient_runtime:
+  director_scene_key: bedroom
+  calmness_target: 85
+  max_visual_density: 0.50
+  opening_grace_ms: 12000
+  silence_min_after_hero_ms: 18000
+  ambient_ids:
+    - night_light_glow_pulse
+    - curtain_edge_sway
+    - star_sticker_twinkle_subtle
+  rare_events:
+    - id: shooting_star_window
+      cooldown_days: 14
+      progression_gate: progression.routine_home.bedroom_star
+
+build_progression:
+  day_1:
+    description: Tomt men tryggt — säng, fönster, nattlampa
+    visible_elements: [child_bed, window_night_light, basic_shelf]
+  weeks_later:
+    description: Hylla fylls, pet_bed, läshörna-tease via bok
+    visible_elements: [shelf_build_slot, pet_bed_corner, reading_corner_tease]
+
+build_slots:
+  - id: bedroom_shelf
+    location: zone_wall_shelf
+    required_part: shelf_board
+    theme_variant: shelf_{theme}
+    unlock: progression.routine_home.bedroom_shelf
+  - id: pet_bed_corner
+    location: zone_pet_bed
+    required_part: pet_bed
+    theme_variant: pet_bed_{theme}
+    unlock: progression.routine_home.pet_bed
+  - id: night_light_upgrade
+    location: zone_window_sill
+    required_part: night_light
+    theme_variant: night_light_{theme}
+    unlock: progression.routine_home.bedroom_night_light
+
+memory_points:
+  - id: first_night_calm
+    description: Första kvällen barnet besöker sovrummet efter stabil kvällsrutin
+    progression_key: progression.routine_home.bedroom_first_night
+
+story_anchors:
+  past:
+    - id: first_pillow_place
+      description: Kudde/nalle fick sin plats
+      progression_key: progression.routine_home.bedroom_shelf
+  present:
+    - id: window_weather
+      description: Väder synligt genom fönster — cause-effect med världen
+      entity: window_night_light
+  future:
+    - id: reading_corner_door_tease
+      description: Antydd dörr eller hylla mot läshörna
+      progression_key: progression.reading_corner.unlock
+
+navigation:
+  edges:
+    - nav_id: door_hall
+      direction: out
+      from_scene: bedroom
+      to_scene: home_hall
+      transition_profile: door_soft_drift
+      landmark_label_sv: Hallen
+    - nav_id: door_reading_corner
+      direction: out
+      from_scene: bedroom
+      to_scene: reading_corner
+      transition_profile: door_soft
+      landmark_label_sv: Läshörnan
+      unlock: progression.reading_corner.unlock
+  return_anchor: door_hall
+  comfort_zone: true
+
+navigation_targets: [hall, reading_corner]
+
+audio_contract:
+  profile_id: bedroom_evening
+  night_variant_id: bedroom_night
+  master_gain_max: 0.55
+  duck_on_interact: true
+  diegetic_sources:
+    - night_light_hum_soft
+    - curtain_breeze
+    - distant_house_creak
+  abstract_ambient_allowed: false
+  layers_ref: audio_bible/bedroom_evening
+
+weather_support:
+  inherit_world: true
+  effects:
+    - weather: rain
+      audio: rain_on_window_soft
+      visual: window_droplets
+      light_shift: cooler_exterior
+    - weather: snow
+      visual: frost_window_edge
+      light_shift: warmer_interior
+    - weather: clear_night
+      visual: stars_through_window
+      light_shift: cool_moon_silhouette
+
+qa:
+  acceptance_criteria:
+    - id: stay_without_rewards
+      text_sv: Barnet kan stanna i rummet utan stjärnor eller uppdrag
+    - id: no_scary_night
+      text_sv: Nattvariant känns trygg — inga skrämmande skuggor
+    - id: window_weather_visible
+      text_sv: Väder läsbart genom fönster utan text
+    - id: reduced_motion_ok
+      text_sv: Statisk bild fungerar med samma emotion
+    - id: child_eye_height
+      text_sv: Kamera på barn-ögonhöjd, säng i nedre tredjedel
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: wide_2_5d_interior
+  entrance:
+    id: door_from_hall
+    from_scene: home_hall
+    landmark_label_sv: Dörren till hallen
+    camera_on_enter: gentle_push_in
+  landmark:
+    id: window_night_light
+    description: Fönster med nattlampa — hero landmark
+  walking_area:
+    id: bedroom_floor_center
+    description: Mjuk matta mellan säng och fönster — tom yta för fantasi
+  interaction_zones:
+    - id: zone_bed
+      accepts: [Inspect, Place]
+    - id: zone_window
+      accepts: [Inspect]
+    - id: zone_shelf
+      accepts: [Place, Inspect]
+    - id: zone_pet_bed
+      accepts: [Place, Inspect]
+    - id: zone_door_hall
+      accepts: [Navigate]
+  ambient_zones:
+    - id: zone_window_light
+      description: Ljusstråle från fönster — damm, väder
+    - id: zone_night_light_pool
+      description: Varm ljuskrets vid fönsterbräda
+  future_build_zones:
+    - id: zone_reading_nook_tease
+      description: Tom hörna — framtida läshörna-anslutning
+  camera_anchor:
+    id: bedroom_fixed_2_5d
+    description: Barn-ögonhöjd; säng nedre tredjedel; fönster övre höger
+
+camera_contract:
+  profile_id: bedroom_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  pan_on_enter: gentle_push_in
+  pan_speed: slow
+  bounds: scene_rect
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['hall']
+lighting_contract:
+  profile_id: bedroom_evening_warm
+  primary_source: window_twilight_soft
+  secondary_source: night_light_warm_pool
+  time_variants:
+    - id: morning
+      color_temp: cool_morning_blue
+    - id: evening
+      color_temp: warm_amber
+    - id: night
+      color_temp: night_light_gold
+  weather_reactive: true
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
+  rules:
+    - No guilt dialogue for absence
+    - No quest giver behavior
+    - Celebrate real wins only (G-01)
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: child_bed_inspect
+    interaction_type: Inspect
+    entity_ref: child_bed
+    landmark_label_sv: Sängen
+  - id: window_weather_inspect
+    interaction_type: Inspect
+    entity_ref: window_night_light
+    landmark_label_sv: Fönstret
+  - id: door_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Hallen
+  - id: shelf_build
+    interaction_type: Place
+    build_slot: bedroom_shelf
+    progression_key: progression.routine_home.bedroom_shelf
+  - id: pet_bed_build
+    interaction_type: Place
+    build_slot: pet_bed_corner
+    progression_key: progression.routine_home.pet_bed
 
-build_slots: []
+supporting_objects:
+  - id: bedside_table
+    description: Liten nattduksbord med bok eller vattenglas
+    story_role: comfort
+  - id: clothes_chair
+    description: Stol med morgondagens kläder
+    story_role: capability
+  - id: growth_mark_doorframe
+    description: Blyertsstreck på dörrkarm
+    story_role: ownership
+  - id: stuffed_friend
+    description: Gosedjur med egen plats
+    story_role: belonging
+
+ambient_objects:
+  - id: star_sticker_ceiling
+    description: Diskreta stjärnor i tak
+    budget_tier: subtle
+  - id: curtain_edge_sway
+    description: Gardin som rör sig i drag
+    budget_tier: subtle
+  - id: night_light_glow_pulse
+    description: Nattlampa pulserar mjukt
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: drawing_under_pillow
+      type: inspect_discovery
+      interaction_type: Inspect
+  rare:
+    - id: shooting_star
+      type: ambient_discovery
+      progression_key: progression.routine_home.bedroom_star
+  seasonal:
+    - id: frost_window_heart
+      event_ref: evt_snow_morning
+  hidden:
+    - id: secret_story_book
+      progression_key: progression.routine_home.bedroom_secret_book
+      note: Kindness + evening routine streak
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: winter
+      overlay_ids: [frost_window, warmer_blanket]
+    - season: summer
+      overlay_ids: [bright_morning_light, open_window]
+    - season: birthday
+      overlay_ids: [subtle_banner_shelf, extra_warm_light]
+
+theme_variants:
+  house:
+    skin_set: house_bedroom_default
+    landmark_label: Fönster med nattlampa
+  castle:
+    skin_set: castle_tower_bedroom
+    landmark_label: Tornfönster med stjärnor
+  treehouse:
+    skin_set: treehouse_nest_bedroom
+    landmark_label: Runtt fönster i träd
+  space:
+    skin_set: habitat_sleep_pod
+    landmark_label: Stjärnviewport
+  pirate:
+    skin_set: ship_cabin_bedroom
+    landmark_label: Lykta i porthole
+  wizard:
+    skin_set: tower_star_bedroom
+    landmark_label: Svävande ljusorb
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+  no_sound_only_critical_info: true
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 8
+  max_animated_ambient: 3
+  max_particle_systems: 1
+  texture_memory_mb: 10
+  first_paint_ms_target: 200
+  reduced_motion_path: true
+
+prompt_manifest:
+  - id: bedroom_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0010
+    positive_prompt: >
+      Nordic child bedroom interior, 2.5D illustrated diorama, warm evening atmosphere.
+      Low wooden bed with soft blanket and pillow, stuffed animal on bed.
+      Window on right with small warm night light on sill, twilight sky visible.
+      Wooden floor, soft rug, small shelf with books, chair with tomorrow's clothes.
+      Child eye height camera, cozy lagom Scandinavian style, handcrafted illustration,
+      soft shadows, no clutter, lived-in warmth, golden amber interior light mixed with cool blue from window.
+      Portrait mobile composition, bed in lower third, ceiling with subtle star stickers.
+    negative_prompt: >
+      No text on walls, no brand logos, no scary shadows, no horror night,
+      no empty grey room, no stock photo, no realistic horror, no neon,
+      no adult bedroom, no messy chaos
+  - id: child_bed_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0010b
+    positive_prompt: >
+      Close hero shot of child's low wooden bed, soft knitted blanket, pillow with stuffed friend,
+      warm side light from night lamp, Nordic illustrated style, inviting and calm.
+    negative_prompt: No scary, no text, no brand logos
+
+ecology:
+  cross_ref: .ai/product/bibles/WORLD_BIBLE.md
+  cause_effect_chains:
+    - cause: evening_routine_complete
+      effect: night_light_warm_pool_intensifies
+    - cause: rain_weather
+      effect: window_droplets + softer audio
+    - cause: dog_in_hall_day
+      effect: pet_bed_occupied_evening_rare
+
+asset_manifest:
+  scene_bg: bedroom_bg
+  layers:
+    - wall_architecture
+    - window_sky
+    - floor_rug
+    - bed_hero
+    - shelf_objects
+    - foreground_door_frame
+  entities:
+    - child_bed
+    - window_night_light
+    - bedside_table
+    - stuffed_friend
+  theme_resolver: bedroom_{theme}
+
+animation_manifest:
+  idle: []
+  ambient:
+    - curtain_edge_sway
+    - night_light_glow_pulse
+    - star_sticker_twinkle_subtle
+  hero:
+    - bed_blanket_breathe
+  interaction:
+    - window_weather_react
+    - shelf_place_snap
+  celebration:
+    - placement_whisper_sparkle
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  part_i_checklist_ref: specs/102-bedroom.md
+  implementation_notes: >
+    Ej shipped som egen scen. Hall door_bedroom nav definierad i 101-hall.yaml.
+    Pack scenes.json ej skapad — blueprint för art pipeline.
 
 part_i_checklist_ref: specs/102-bedroom.md

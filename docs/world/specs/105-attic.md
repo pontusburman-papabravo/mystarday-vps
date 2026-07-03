@@ -1,131 +1,105 @@
-# Vinden — Production Specification
+# Vinden — Place Specification
 
 > **Machine-readable contract (source of truth):** [`../data/105-attic.yaml`](../data/105-attic.yaml)  
 > **Rulebook (frozen):** [World Bible Part III RBS](../../.ai/product/bibles/WORLD_BIBLE.md#part-iii--room-blueprint-standard-rbs)  
-> **Status:** draft · **Production #:** 105 · **Room ID:** `attic` · **Pack scene:** `attic`
+> **Status:** draft · **Catalog #:** 105 · **Room ID:** `attic` · **Pack scene:** `attic`
 
 ```yaml
 # Excerpt — full contract in data/105-attic.yaml
 room:
   id: attic
   pack_scene_id: attic
-production_number: 105
+  display_name_sv: Vinden
+catalog_number: 105
 status: draft
+emotion: Imagination
+secondary_emotion: Curiosity
+hero_object: treasure_trunk
+landmark: roof_window
+navigation_targets: [hall]
+unlock_condition: progression.routine_home.attic_unlock
 ```
 
 ---
 
 ## Overview
 
-TBD
+**Vinden** är husets höga hemlighet — snedt tak, damm i ljusstrålar, gamla kistor och familjehistoria. Platsen där fantasi och minnen bor under takåsen: farmors kista, gamla leksaker, teckningar i låda, initialer i balk. Inte skräckvind — spännande men tryggt.
+
+Vinden låses upp via `progression.routine_home.attic_unlock` (utforskningströskel). Före unlock: repstege-tease synlig från hall. Efter unlock: full scen med kista, takfönster och hyllor. Idag **ej shipped**.
+
+**Katalogmappning:** Catalog #105 `attic` ↔ pack `attic` ↔ hall = #101 `home_hall` (trappa upp/ner).
+
+---
 
 ## Emotion
 
-TBD
+**Primär: Imagination** — *"Här finns saker som betyder något."*
 
-## History
+**Sekundär: Curiosity** — ljusstråle genom takfönster, damm som glittrar, nyckel på krok. Director `calmness_target: 75`.
 
-TBD
+| Constitution-pelare | Hur vinden stärker den |
+|---------------------|------------------------|
+| Imagination | Kista, gammal leksak, teckningslåda — fantasi utan quest-logg |
+| Curiosity | Öppna frågor: vad finns i låsta kistan? Vem ristade initialerna? |
+
+Spindelnät i hörn = natur, inte skräck. `comfort_zone: false` — utforskning, inte hemma-hub.
+
+---
 
 ## Purpose
 
-TBD
+Vinden belönar långsiktig nyfikenhet:
 
-## Story
+1. **Earned unlock** — Repstege tease → full vind efter explore threshold.
+2. **Treasure trunk** — Inspect + Open (`attic_memory`); familjefoto, filt, teckningar.
+3. **Evolution** — `attic_shelf`, `memory_box`, `attic_secret_map` (hidden discovery).
 
-TBD
+Failure mode: skräckvind eller tom lagringslåda — magin dör.
 
-## Camera
+---
 
-TBD
+## Art Prompts
 
-## Layout
+**`attic_scene_hero`** · catalog `art_prompt_catalog/0013`
 
-TBD
+**Positive:**
+> Nordic attic interior under sloped wooden roof, 2.5D illustrated diorama.
+> Golden sunbeam through roof window illuminating floating dust motes.
+> Old wooden treasure trunk with brass clasp center, folded quilt, toy wheel,
+> hat boxes, rope ladder, wooden floorboards with patina.
+> Warm curious atmosphere, not scary horror attic. Child eye height looking slightly up,
+> handcrafted Scandinavian illustration, sloped ceiling, cozy mystery, golden light beam.
+> Portrait mobile composition, roof window upper third, trunk lower center.
 
-## Lighting
+**Negative:**
+> No horror, no scary shadows, no ghosts, no cobweb horror, no dark evil attic,
+> no text, no brand logos, no stock photo, no empty grey room
 
-TBD
+**`treasure_trunk_hero`** · catalog `art_prompt_catalog/0013b`
 
-## Weather
+**Positive:**
+> Hero shot of old wooden treasure chest with brass lock, corner of quilt peeking out,
+> golden dust motes in light beam, Nordic warm illustrated style, inviting mystery.
 
-TBD
+**Negative:** No horror, no scary, no text
 
-## Time of Day
-
-TBD
+---
 
 ## Navigation
 
-TBD
+| Nav ID | Till | Pack scene | Catalog # | Villkor |
+|--------|------|------------|-----------|---------|
+| `stairs_to_hall` | Hallen | `home_hall` | 101 | efter unlock |
+| `stairs_from_hall` | Vinden | `attic` | 105 | `attic_unlock` |
 
-## Hero Object
+`return_anchor: stairs_to_hall`. Kamera: `tilt_up_gentle` vid inträde; snedt tak, takfönster övre tredjedel.
 
-TBD
+---
 
-## Ambient
+## Implementation notes
 
-TBD
-
-## NPC
-
-TBD
-
-## Pet
-
-TBD
-
-## Build Slots
-
-TBD
-
-## Interactions
-
-TBD
-
-## Audio
-
-TBD
-
-## Particles
-
-TBD
-
-## Secrets
-
-TBD
-
-## Discoveries
-
-TBD
-
-## Season
-
-TBD
-
-## Evolution
-
-TBD
-
-## Theme Variants
-
-TBD
-
-## Accessibility
-
-TBD
-
-## Performance
-
-TBD
-
-## Prompt
-
-TBD
-
-## QA
-
-TBD
+**Ej shipped.** Låst tills `progression.routine_home.attic_unlock`. Repstege-tease från hall. Regn på tak = mysigt ljud inuti. Hund kan sniffa vid kistan vid första besök. QA-gates alla pending.
 
 ---
 

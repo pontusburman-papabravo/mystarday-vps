@@ -1,45 +1,361 @@
-# Troférummet — RBS production contract (stub)
+# Troférummet — RBS place contract
 # Human spec: docs/world/specs/150-trophy_room.md
-# Full template: docs/world/_TEMPLATE.room.yaml
 
 status: draft
-production_number: 150
+catalog_number: 150
 schema_version: "1.0"
+wpt_version: "1.0"
 
 room:
   id: trophy_room
   display_name_sv: Troférummet
   pack_scene_id: trophy_room
-  description: TBD
-  primary_emotion: Pride
-  secondary_emotion: TBD
+  description: >
+    Ett rum för stolthet — hyllor med saker barnet gjort, band på dörr när låst.
+    Minnen av verklighet, inte poängtavla.
+  primary_emotion: Belonging
+  secondary_emotion: Ownership
   theme_support: [house, castle, treehouse, space, pirate, wizard]
-  unlock_condition: TBD
+  unlock_condition: progression.routine_home.trophy_unlock
 
-emotion: Pride
-hero_object: memory_wall
-landmark: TBD
+purpose:
+  summary: >
+    Troférummet samlar verkliga prestationer som fysiska objekt i världen —
+    aldrig leaderboard eller stjärnräknare på väggen.
+  failure_impact: Känns som sporttrophy-case eller tom skrytrum — tillhörighet blir skam.
+  constitution_pillars: [belonging, ownership]
 
-camera:
+emotional_contract:
+  primary_emotion: Belonging
+  secondary_emotion: Ownership
+  stress_level: low
+  activity_level: calm
+  music_density: low
+  ambient_density: low
+  light_temperature: warm
+  constitution_pillar: ownership
+  calmness_target: 82
+  first_five_seconds: >
+    Hyllor med föremål. Band på dörr om låst (från hall). Ingen modal —
+    stolthet utan jämförelse.
+
+first_impression:
+  duration_ms: 5000
+  forbidden: [popup, dialog, reward_toast, tutorial_overlay, paywall, leaderboard]
+  sequence:
+    - at_ms: 0
+      beat: shelves_readable
+    - at_ms: 2500
+      beat: ribbon_on_door_if_locked
+    - at_ms: 4000
+      beat: spotlight_soft_on_hero_shelf
+
+room_story:
+  identity: Personligt troférum — första snöboll, sparad fjäril, ritad stjärna. Lagom fullt över tid.
+  lived_in: true
+  patina_level: subtle
+  inhabitants: [child_protagonist]
+  open_questions:
+    - what_will_go_on_the_empty_shelf
+    - who_tied_the_ribbon
+    - which_memory_is_my_favorite
+
+hero_object:
+  id: trophy_shelf_hero
+  description: >
+    Trähylla med föremål — varje objekt kopplat till verklig händelse,
+    inte generisk guld pokal.
+  story_purpose: "Det här har jag gjort på riktigt." — G-01 reality wins.
+  interaction_level: inspect_primary
+
+landmark:
+  id: ribbon_door_arch
+  description: Dörrbåge med band när låst — synlig tease från hall.
+
+theme_hero_variants:
+  house: { hero_id: trophy_shelf_hero, landmark_id: ribbon_door_arch }
+  castle: { hero_id: armor_display_shelf, landmark_id: banner_arch }
+  treehouse: { hero_id: branch_shelf, landmark_id: rope_door_arch }
+  space: { hero_id: specimen_shelf, landmark_id: airlock_arch }
+  pirate: { hero_id: treasure_shelf, landmark_id: rope_curtain_arch }
+  wizard: { hero_id: relic_shelf, landmark_id: star_curtain_arch }
+
+environmental_storytelling:
+  minimum_count: 12
+  micro_stories:
+    - id: empty_shelf_invitation
+      description: Tom hylla — inbjudan
+    - id: first_snowball_jar
+      description: Burk med första snöboll-minne
+    - id: saved_butterfly_frame
+      description: Inramad fjäril — ömtåligt
+    - id: drawn_star_plaque
+      description: Ritad stjärna på trä
+    - id: ribbon_on_door
+      description: Band — "snart"
+    - id: soft_spotlight_shelf
+      description: Mjuk spotlight på hero-hylla
+    - id: wooden_floor_polished
+      description: Polerat golv — respekt
+    - id: window_hall_tease
+      description: Antydd utsikt mot hall
+    - id: medal_on_hook
+      description: Medalj på krok — morgon första gången
+    - id: feather_from_forest
+      description: Fjäder från skogen
+    - id: pebble_from_lake
+      description: Sten från sjön
+    - id: birthday_candle_saved
+      description: Sparat ljus från födelsedag
+
+pet_behaviour:
+  simulation_driven: false
+  states: []
+  forbidden: [random_teleport, hunger_timer, guilt_dialogue]
+
+pet_contract:
+  allowed: false
+  pets: []
+
+ambient_life:
+  always_active: [dust_mote_spotlight]
+  sometimes: [distant_hall_murmur]
+
+ambient_runtime:
+  director_scene_key: trophy_room
+  calmness_target: 82
+  ambient_ids: [dust_mote_spotlight]
+
+build_progression:
+  day_1:
+    description: Dörr låst med band — synlig från hall
+    visible_elements: [ribbon_door_arch]
+  weeks_later:
+    description: Hyllor fylls med milestone-objekt
+    visible_elements: [trophy_shelf_hero, milestone_objects]
+
+build_slots:
+  - id: trophy_shelf_slot_1
+    location: zone_shelf_lower
+    required_part: milestone_object
+    unlock: progression.routine_home.trophy_first
+  - id: trophy_shelf_slot_2
+    location: zone_shelf_upper
+    required_part: milestone_object
+    unlock: progression.routine_home.trophy_second
+
+memory_points:
+  - id: trophy_room_first_enter
+    progression_key: progression.routine_home.trophy_unlock
+
+story_anchors:
+  past:
+    - id: first_milestone_object
+      progression_key: progression.routine_home.trophy_first
+  present:
+    - id: shelf_today
+      entity: trophy_shelf_hero
+  future:
+    - id: full_shelf_ceremony
+      progression_key: progression.routine_home.trophy_complete
+
+navigation:
+  edges:
+    - nav_id: door_hall
+      direction: out
+      from_scene: trophy_room
+      to_scene: home_hall
+      transition_profile: door_soft
+      landmark_label_sv: Hallen
+    - nav_id: door_trophy
+      direction: in
+      from_scene: home_hall
+      to_scene: trophy_room
+      transition_profile: door_soft
+      landmark_label_sv: Troféerna
+      unlock: progression.routine_home.trophy_unlock
+  return_anchor: door_hall
+  comfort_zone: true
+
+navigation_targets: [hall]
+
+audio_contract:
+  profile_id: trophy_room_day
+  master_gain_max: 0.48
+  diegetic_sources: [floor_creak_soft, spotlight_hum]
+  layers_ref: audio_bible/trophy_room_day
+
+weather_support:
+  inherit_world: false
+  effects: []
+
+qa:
+  acceptance_criteria:
+    - id: no_leaderboard
+      text_sv: Inga jämförelser eller ranking
+    - id: reality_objects_only
+      text_sv: Troféer kopplade till verkliga händelser
+    - id: locked_ribbon_kind
+      text_sv: Band på dörr känns anticipation, inte FOMO
+    - id: hall_sightline
+      text_sv: Dörr tease synlig från hall
+    - id: calm_pride
+      text_sv: Stolthet utan skrik
+
+quality_gates:
+  designer: pending
+  artist: pending
+  ai_gen: pending
+  engineer: pending
+
+spatial_contract:
+  layout: narrow_2_5d_interior_gallery
+  entrance:
+    id: door_from_hall
+    from_scene: home_hall
+    landmark_label_sv: Dörren från hallen
+  landmark:
+    id: ribbon_door_arch
+    description: Dörrbåge med band
+  walking_area:
+    id: trophy_room_floor
+    description: Polerat golv framför hyllor
+  interaction_zones:
+    - id: zone_trophy_shelf
+      accepts: [Inspect, Place]
+    - id: zone_door_hall
+      accepts: [Navigate]
+  camera_anchor:
+    id: trophy_room_fixed_2_5d
+    description: Barn-ögonhöjd; hylla centrum
+
+camera_contract:
+  profile_id: trophy_room_fixed_2_5d
   type: fixed_2_5d
+  child_eye_height: true
+  reduced_motion_fallback: static_frame
 
-navigation_targets: ['hall']
+lighting_contract:
+  profile_id: trophy_room_warm_spot
+  primary_source: soft_spotlight_shelf
+  secondary_source: ambient_warm_fill
+  time_variants:
+    - id: morning
+      color_temp: warm_neutral
+    - id: evening
+      color_temp: amber_spot
+    - id: night
+      color_temp: dim_warm
+  weather_reactive: false
 
-ambient:
-  birds: TBD
-  butterflies: TBD
-  dust: TBD
+npc_contract:
+  present: false
+  npcs: []
 
-pet:
-  allowed: TBD
-  favorite_spots: []
+interactive_objects:
+  - id: trophy_shelf_inspect
+    interaction_type: Inspect
+    landmark_label_sv: Hyllan
+  - id: trophy_object_place
+    interaction_type: Place
+    build_slot: trophy_shelf_slot_1
+    progression_key: progression.routine_home.trophy_first
+  - id: door_hall
+    interaction_type: Navigate
+    target_scene: home_hall
+    landmark_label_sv: Hallen
 
-build_slots: []
+supporting_objects:
+  - id: first_snowball_jar
+    story_role: belonging
+  - id: saved_butterfly_frame
+    story_role: curiosity
+
+ambient_objects:
+  - id: dust_mote_spotlight
+    budget_tier: subtle
 
 discoveries:
-  common: []
-  rare: []
-  seasonal: []
-  hidden: []
+  common:
+    - id: shelf_object_inspect
+      type: inspect_discovery
+  rare:
+    - id: hidden_medal_drawer
+      progression_key: progression.routine_home.trophy_secret
+  hidden:
+    - id: secret_shelf_behind_ribbon
+      progression_key: progression.routine_home.trophy_unlock
+
+seasonal_variants:
+  global_sync: true
+  variants:
+    - season: birthday
+      overlay_ids: [extra_candle_shelf]
+    - season: winter
+      overlay_ids: [snowball_jar_highlight]
+
+theme_variants:
+  house: { skin_set: house_trophy_room, landmark_label: Band på dörrbåge }
+  castle: { skin_set: castle_trophy_hall, landmark_label: Banner över båge }
+  treehouse: { skin_set: treehouse_trophy_nook, landmark_label: Repgardin }
+  space: { skin_set: habitat_trophy_pod, landmark_label: Airlock-båge }
+  pirate: { skin_set: ship_trophy_cabin, landmark_label: Repdraperi }
+  wizard: { skin_set: wizard_relic_chamber, landmark_label: Stjärngardin }
+
+accessibility:
+  reduced_motion_path: true
+  min_touch_target_pt: 44
+
+performance_budget:
+  target_fps: 60
+  max_interactive_hotspots: 6
+  texture_memory_mb: 9
+
+prompt_manifest:
+  - id: trophy_room_scene_hero
+    version: 0.1.0
+    art_style: nordic_warm_diorama_2_5d
+    catalog_ref: art_prompt_catalog/0024
+    positive_prompt: >
+      Nordic child trophy room interior, 2.5D illustrated diorama, warm soft spotlight.
+      Wooden shelves with meaningful personal objects — jar with first snowball memory,
+      framed butterfly, drawn star on wood plaque, feather, smooth pebble — not gold sports trophies.
+      Ribbon on door arch (locked tease), polished wooden floor, quiet pride atmosphere,
+      no leaderboard, no point numbers. Child eye height, handcrafted Scandinavian warmth,
+      belonging and ownership. Portrait mobile composition, shelf center, soft spotlight from above.
+    negative_prompt: >
+      No gold sports trophies, no leaderboard, no scores, no comparison UI,
+      no text, no brand logos, no casino, no empty boastful room
+  - id: trophy_shelf_hero
+    version: 0.1.0
+    catalog_ref: art_prompt_catalog/0024b
+    positive_prompt: >
+      Hero shot of wooden trophy shelf with personal memory objects,
+      soft warm spotlight, Nordic gentle pride illustration, child-scale treasures.
+    negative_prompt: No sports trophies, no scores, no text
+
+ecology:
+  cause_effect_chains:
+    - cause: milestone_real_world
+      effect: object_appears_on_shelf_whisper
+    - cause: hall_door_trophy_locked
+      effect: ribbon_visible_sightline
+
+asset_manifest:
+  scene_bg: trophy_room_bg
+  layers: [wall_shelves, door_arch, floor, shelf_objects, spotlight_glow]
+  entities: [trophy_shelf_hero, ribbon_door_arch]
+  theme_resolver: trophy_room_{theme}
+
+animation_manifest:
+  ambient: [dust_mote_spotlight]
+  interaction: [shelf_object_place_whisper, ribbon_door_open]
+
+meta:
+  world_id: home
+  wdb_world_slug: routine_home
+  experience_pack: child_se
+  part_i_checklist_ref: specs/150-trophy_room.md
+  implementation_notes: Nav door_trophy från hall. Låst tills trophy_unlock WDB node.
 
 part_i_checklist_ref: specs/150-trophy_room.md
