@@ -1,8 +1,8 @@
-# Worker Handoff — CAP-006-R1
+# Worker Handoff — CAP-007-R1
 
 **Worker:** Composer (autonomous)  
 **Date:** 2026-07-03  
-**Mission:** CAP-006-R1 — Cherry-pick CAP-005 to memory-hall branch  
+**Mission:** CAP-007-R1 — Rebase IRC-014 (#539) onto latest main  
 **Branch:** `cursor/memory-hall-bl012-5e52`  
 **PR:** #539 (IRC-014)
 
@@ -10,7 +10,7 @@
 
 ## Summary
 
-Cherry-picked commit `3059ddf7` (CAP-005) from `cursor/autonomous-relay-resume-b105` onto `cursor/memory-hall-bl012-5e52`. Resolved handoff-doc conflicts; product code applied cleanly. Both IRC PRs (#539, #541) now include memory-hall asset-pipeline wiring with gradient fallback.
+Rebased `cursor/memory-hall-bl012-5e52` onto `origin/main` (9 commits). Resolved SW/cache-version conflicts at CAP-001, CAP-003, IRC-014-R1, and CAP-005 layers — kept highest version (v496). Regenerated `docs/route-inventory-pre-split.md` after IRC-014 route additions.
 
 ---
 
@@ -18,12 +18,11 @@ Cherry-picked commit `3059ddf7` (CAP-005) from `cursor/autonomous-relay-resume-b
 
 | Artifact | Change |
 |----------|--------|
-| `public/child-dashboard.html` | `memory-hall-asset-pipeline.js` script tag |
-| `public/js/child-memory-hall.js` | `pipeline()`, `scenePictureMarkup()`, `preloadScene`, `bindAssetWatch` |
-| `public/css/child-memory-hall.css` | `mh-scene-bg` / illustrated layout |
-| `public/sw.js` | v496 + precache pipeline JS |
-| Tests | `memory-hall-playable`, `memory-hall-asset-pipeline`, `living-world-transition` |
-| Handoff docs | CAP-006-R1 report + updated queue/state |
+| Rebase | 9 commits onto `0ae9b3b7` (main) |
+| `public/sw.js` | v496 with merged changelog comments |
+| `config/cache-version.json` | v496 |
+| `docs/route-inventory-pre-split.md` | Regenerated (1098 lines) |
+| Conflicts | 4 SW conflicts + 1 route inventory — all resolved |
 
 ---
 
@@ -39,13 +38,13 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
 ## Self-review
 
 PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA ✓  
-Issues found and fixed: handoff-doc cherry-pick conflicts resolved  
-POS governed by: 04 C-04 (reduced motion preserved), 03A (gradient fallback until art HRC)
+Issues found and fixed: route inventory regenerated post-rebase  
+POS governed by: N/A (merge prep only)
 
 ---
 
 ## Notes for next Worker
 
-- #539 and #541 feature parity achieved for CAP-003 + IRC-014-R1 + CAP-005
+- #539 is rebased on main and merge-ready pending human review
+- #541 (`cursor/autonomous-relay-resume-b105`) still needs same rebase (CAP-008-R1)
 - BL-041 art binaries still HRC-blocked
-- Consider IRC-014 rebase against latest `main` before bundle merge (CAP-007-R1)

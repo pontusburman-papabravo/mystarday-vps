@@ -1,6 +1,6 @@
 # Repository State
 
-**Updated:** 2026-07-03 (CAP-006-R1 complete)
+**Updated:** 2026-07-03 (CAP-007-R1 complete)
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Branch | PR | Purpose | SHA (post-Worker) |
 |--------|-----|---------|-------------------|
-| `cursor/memory-hall-bl012-5e52` | #539 IRC-014 | Minnesrummet + CAP-003 + CAP-005 | *(pending commit push)* |
-| `cursor/autonomous-relay-resume-b105` | #541 IRC-016 | Relay platform + CAP-003/004/005 | `3059ddf7` |
+| `cursor/memory-hall-bl012-5e52` | #539 IRC-014 | Minnesrummet — **rebased on main** | `44ffb3f3` |
+| `cursor/autonomous-relay-resume-b105` | #541 IRC-016 | Relay platform — needs rebase | `3059ddf7` |
 
 ---
 
@@ -17,7 +17,7 @@
 
 | Field | Value |
 |-------|-------|
-| Mission | CAP-006-R1 |
+| Mission | CAP-007-R1 |
 | Branch | `cursor/memory-hall-bl012-5e52` |
 | Gate | `test:gate` 698/698 ✅ |
 
@@ -27,9 +27,9 @@
 
 | Field | Value |
 |-------|-------|
-| Mission | CAP-007-R1 |
-| Branch | `cursor/memory-hall-bl012-5e52` |
-| Goal | Rebase IRC-014 onto latest main |
+| Mission | CAP-008-R1 |
+| Branch | `cursor/autonomous-relay-resume-b105` |
+| Goal | Rebase IRC-016 onto latest main |
 
 ---
 

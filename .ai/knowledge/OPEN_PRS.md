@@ -16,7 +16,7 @@
 | IRC-011 | #532 | `cursor/loe-timer-edge-tests-5e52` | Low | Draft | LOE timer edge tests |
 | IRC-012 | #534 | `cursor/garden-bloom-aria-5e52` | Low | Draft | Garden bloom aria-live; SW v491 |
 | IRC-013 | #536 | `cursor/memory-hall-scaffold-5e52` | Low | Draft | **Superseded by IRC-014** — close on merge |
-| IRC-014 | #539 | `cursor/memory-hall-bl012-5e52` | Med | Draft | BL-012 + CAP-003 + **CAP-005 asset-pipeline** (CAP-006-R1 synced) |
+| IRC-014 | #539 | `cursor/memory-hall-bl012-5e52` | Med | Draft | BL-012 + CAP-003/005 — **rebased on main** (CAP-007-R1) |
 | IRC-015 | #540 | `cursor/memory-hall-art-spec-bl041-5e52` | Low | Draft | Art spec + handover; no binaries |
 
 ---

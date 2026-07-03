@@ -1,6 +1,6 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~09:00 UTC  
+**Last updated:** 2026-07-03 ~09:10 UTC  
 **Relay version:** 2.0 (Supervisor/Worker chain)  
 **Mode:** Short-lived Workers · persistent Supervisor state
 
@@ -18,7 +18,7 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 | Field | Value |
 |-------|-------|
-| **Next mission** | CAP-007-R1 |
+| **Next mission** | CAP-008-R1 |
 | **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
 | **Status** | ready for next session |
 
@@ -28,8 +28,8 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 | Field | Value |
 |-------|-------|
-| **ID** | CAP-006-R1 |
-| **Title** | Cherry-pick CAP-005 to memory-hall branch |
+| **ID** | CAP-007-R1 |
+| **Title** | Rebase IRC-014 (#539) onto main |
 | **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
 | **Branch** | `cursor/memory-hall-bl012-5e52` |
 | **PR** | #539 |
@@ -40,13 +40,11 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 
 | ID | Mission | Status |
 |----|---------|--------|
-| CAP-005 | Wire memory-hall-asset-pipeline | ✅ (relay branch) |
+| CAP-006-R1 | Cherry-pick CAP-005 to memory-hall branch | ✅ |
+| CAP-005 | Wire memory-hall-asset-pipeline | ✅ |
 | IRC-014-R1 | memory_hall registry consumer | ✅ |
 | CAP-004-R1 | Sync relay with IRC-014-R1 | ✅ |
 | CAP-003 | Generic enterWorld/exitWorld | ✅ |
-| SW-001 | Supervisor/Worker protocol | ✅ |
-| CAP-001/002 | Asset pipelines | ✅ |
-| BL-043/044 | Relay engine + HRC prep | ✅ |
 
 ---
 
@@ -56,13 +54,22 @@ Read .ai/runtime/NEXT_WORKER_PROMPT.md and execute it.
 cursor/memory-hall-bl012-5e52
 ```
 
-Next Worker targets: same branch (CAP-007-R1 rebase prep)
+Next Worker targets: `cursor/autonomous-relay-resume-b105` (CAP-008-R1)
+
+---
+
+## Merge readiness
+
+| PR | Rebased on main | test:gate | Notes |
+|----|-----------------|-----------|-------|
+| #539 IRC-014 | ✅ | ✅ | Merge-ready pending HAG |
+| #541 IRC-016 | ❌ | — | CAP-008-R1 queued |
 
 ---
 
 ## HRC blockers
 
-BL-041 (art), BL-042 (parent warm_echo) — no change
+BL-041 (art), BL-042 (parent warm_echo) — unchanged
 
 ---
 
@@ -70,14 +77,4 @@ BL-041 (art), BL-042 (parent warm_echo) — no change
 
 | Gate | Status |
 |------|--------|
-| `test:gate` | 698/698 green (2026-07-03, CAP-006-R1) |
-
----
-
-## Branch parity
-
-| Feature | #539 | #541 |
-|---------|------|------|
-| CAP-003 enterWorld/exitWorld | ✅ | ✅ |
-| IRC-014-R1 memory_hall registry | ✅ | ✅ |
-| CAP-005 asset-pipeline wiring | ✅ | ✅ |
+| `test:gate` | 698/698 green (2026-07-03, CAP-007-R1) |
