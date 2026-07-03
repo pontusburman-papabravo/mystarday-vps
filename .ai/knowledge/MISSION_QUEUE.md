@@ -1,6 +1,6 @@
 # Autonomous Mission Queue (AMQ)
 
-**Updated:** 2026-07-03 (IRC-012)  
+**Updated:** 2026-07-03 (governance v1.1.1)  
 **Agent selects.** Not the Product Owner.
 
 ---
