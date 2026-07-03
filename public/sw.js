@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v505';
-// stjarndag-v503: Min värld reload fix + garden path tap; memory hall scene re-export (--no-flop)
+const CACHE_NAME = 'stjarndag-v506';
+// stjarndag-v506: Min värld generic room scene export (home→lake webp sets; wire-in PR 3)
+// stjarndag-v505: (previous)
 // stjarndag-v502: platform auth matrix + Google signup/link (google_user_id)
 // stjarndag-v501: Minnesrummet scene v2 diorama illustration (BL-041)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
