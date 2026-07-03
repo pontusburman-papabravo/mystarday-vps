@@ -230,6 +230,7 @@ router.get('/me', requireAuth, async (req, res) => {
                 f.is_lifetime_free,
                 p.password_hash IS NOT NULL AS has_password,
                 p.apple_user_id IS NOT NULL AS has_apple_linked,
+                p.google_user_id IS NOT NULL AS has_google_linked,
                 p.apple_email
          FROM parent p
          JOIN family f ON f.id = p.family_id
@@ -303,9 +304,11 @@ router.get('/me', requireAuth, async (req, res) => {
         accountAuth: {
           hasPassword: parent.has_password,
           hasAppleLinked: parent.has_apple_linked,
+          hasGoogleLinked: parent.has_google_linked,
           email: parent.email,
           appleEmail: parent.apple_email || null,
           canUnlinkApple: parent.has_password && parent.has_apple_linked,
+          canUnlinkGoogle: parent.has_password && parent.has_google_linked,
         },
         children,
       });

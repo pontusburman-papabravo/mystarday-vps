@@ -217,19 +217,10 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v502';
-// stjarndag-v502: Min värld reload — hide goal stars during Morgonhus; garden path tap only
+const CACHE_NAME = 'stjarndag-v503';
+// stjarndag-v503: Min värld reload fix + garden path tap; memory hall scene re-export (--no-flop)
+// stjarndag-v502: platform auth matrix + Google signup/link (google_user_id)
 // stjarndag-v501: Minnesrummet scene v2 diorama illustration (BL-041)
-// stjarndag-v500: G8 Minnesrummet scene WebP v1 + illustrated overlay frames
-// stjarndag-v499: Minnesrummet diorama UX — wood frames, warm toast, no badge grid
-// stjarndag-v498: Minnesrummet scaffold polish — invisible hotspots, pride grid layout
-// stjarndag-v497: garden path CTA + hotspot fix for Minnesrummet entry
-// stjarndag-v496: CAP-005 memory-hall-asset-pipeline wired in child-memory-hall
-// stjarndag-v495: IRC-014-R1 memory_hall on CAP-003 enterWorld/exitWorld registry
-// stjarndag-v494: Admin Paket V2 — per-package workspace (Extra stöd, Rapportering, Pedagog)
-// stjarndag-v494: CAP-003 generic enterWorld/exitWorld in living-world transition
-// stjarndag-v493: CAP-001/002 scene-asset-pipeline + morgonhus wrapper
-// stjarndag-v493: ACT-1 onboarding resume + merge main (barninställningar consolidate)
 // stjarndag-v490: R3 100 sidor + ACT-1 AI-only + custody a11y + För dig polish (merge main)
 // stjarndag-v489: R3 finish — helgschema/läxschema PDF-landningssidor
 // stjarndag-v484: merge PR 3 — övergångsstöd (teacch-gated) + känslostöd (basic) + föräldrarapport (EPIC 3.1-3.8, D9: EPIC 3.3 exkluderad)
@@ -508,6 +499,7 @@ const STATIC_ASSETS = [
   '/js/native-tab-bar.js',
   '/js/deep-link-router.js',
   '/js/google-auth-ui.js',
+  '/js/auth-login-platform.js',
   '/css/login-magic.css',
   '/css/app-entry.css',
   '/js/login-magic.js',

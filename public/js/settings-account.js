@@ -12,6 +12,13 @@ function showAppleAuthUI() {
   return !!(window.Platform && window.Platform.isIOS && window.Platform.isIOS());
 }
 
+function showGoogleAuthUI() {
+  if (window.AuthLoginPlatform && typeof AuthLoginPlatform.getAuthMethods === 'function') {
+    return AuthLoginPlatform.getAuthMethods().google;
+  }
+  return !!(window.Platform && window.Platform.isGoogleSignInAvailable && Platform.isGoogleSignInAvailable());
+}
+
 // ── Render the "Konto & inloggning" section ─────────────────────────────────
 async function initAccountSection() {
   const sectionId = 'accountSection';
@@ -20,7 +27,7 @@ async function initAccountSection() {
   try {
     const me = await Auth.api('/api/auth/me');
     const auth = me.accountAuth || {};
-    const { hasPassword, hasAppleLinked } = auth;
+    const { hasPassword, hasAppleLinked, hasGoogleLinked } = auth;
 
     const section = document.getElementById(sectionId);
     if (!section) return;
@@ -43,6 +50,15 @@ async function initAccountSection() {
       `;
     }
 
+    if (hasGoogleLinked && showGoogleAuthUI()) {
+      html += `
+        <div class="mb-4 flex items-center gap-3 p-3 bg-mint border border-green-200 rounded-xl">
+          <span class="text-green-600 text-lg">✓</span>
+          <span class="text-sm font-semibold text-navy">Google-konto kopplat</span>
+        </div>
+      `;
+    }
+
     // ── Add password form (no password yet) ────────────────────────────────
     if (!hasPassword) {
       // Android info when Apple-only
@@ -50,6 +66,13 @@ async function initAccountSection() {
         html += `
           <div class="mb-4 p-3 bg-sky border border-lavender rounded-xl">
             <p class="text-sm text-navy">Du kopplade Apple-kontot på en iPhone. För att logga in här, lägg till ett lösenord nedan.</p>
+          </div>
+        `;
+      }
+      if (hasGoogleLinked && !showGoogleAuthUI()) {
+        html += `
+          <div class="mb-4 p-3 bg-sky border border-lavender rounded-xl">
+            <p class="text-sm text-navy">Du kopplade Google-kontot på en annan enhet. För att logga in här, lägg till ett lösenord nedan.</p>
           </div>
         `;
       }
@@ -131,6 +154,28 @@ async function initAccountSection() {
               Koppla bort Apple-konto
             </button>
             <p id="unlinkAppleMsg" class="text-xs text-text-soft text-center mt-1"></p>
+          </div>
+        `;
+      }
+
+      if (!hasGoogleLinked && showGoogleAuthUI()) {
+        html += `
+          <div class="mt-4 pt-4 border-t border-lavender">
+            <button type="button" id="linkGoogleBtn"
+              class="w-full px-4 py-3 bg-white hover:bg-gray-50 text-navy border-2 border-lavender rounded-xl font-heading font-bold transition-colors flex items-center justify-center gap-2">
+              <span>G</span> Koppla Google-konto
+            </button>
+          </div>
+        `;
+      }
+      if (hasGoogleLinked && auth.canUnlinkGoogle) {
+        html += `
+          <div class="mt-4 pt-4 border-t border-lavender">
+            <button type="button" id="unlinkGoogleBtn"
+              class="w-full px-4 py-3 border-2 border-red-300 hover:border-red-400 text-red-600 rounded-xl font-heading font-bold transition-colors">
+              Koppla bort Google-konto
+            </button>
+            <p id="unlinkGoogleMsg" class="text-xs text-text-soft text-center mt-1"></p>
           </div>
         `;
       }
@@ -268,14 +313,15 @@ async function initAccountSection() {
         }
         try {
           const result = await window.Platform.appleSignIn.signIn();
-          if (!result.response || !result.response.identityToken) {
-            return; // cancelled
+          const idToken = result && (result.idToken || (result.response && result.response.identityToken));
+          if (!idToken) {
+            return;
           }
           linkAppleBtn.disabled = true;
           linkAppleBtn.textContent = 'Länkar…';
-          const res = await Auth.api('/api/account/link-apple', {
+          await Auth.api('/api/account/link-apple', {
             method: 'POST',
-            body: JSON.stringify({ idToken: result.response.identityToken }),
+            body: JSON.stringify({ idToken: idToken }),
           });
           // Reload section to reflect new state
           initAccountSection();
@@ -312,6 +358,59 @@ async function initAccountSection() {
           msg.className = 'text-xs text-red-500 text-center mt-1';
           unlinkAppleBtn.disabled = false;
           unlinkAppleBtn.textContent = 'Koppla bort Apple-konto';
+        }
+      });
+    }
+
+    const linkGoogleBtn = document.getElementById('linkGoogleBtn');
+    if (linkGoogleBtn) {
+      linkGoogleBtn.addEventListener('click', async () => {
+        if (!window.Platform || !window.Platform.googleSignIn) {
+          alert('Google-inloggning är inte tillgänglig på denna enhet.');
+          return;
+        }
+        try {
+          const result = await Platform.googleSignIn.signIn();
+          if (!result || !result.idToken) return;
+          linkGoogleBtn.disabled = true;
+          linkGoogleBtn.textContent = 'Länkar…';
+          await Auth.api('/api/account/link-google', {
+            method: 'POST',
+            body: JSON.stringify({ idToken: result.idToken }),
+          });
+          initAccountSection();
+        } catch (err) {
+          const msg = err.message || '';
+          if (msg.includes('409') || msg.toLowerCase().includes('already')) {
+            alert('Detta Google-konto är redan kopplat till ett annat konto.');
+          } else {
+            alert('Kunde inte länka Google: ' + (err.message || 'Försök igen.'));
+          }
+          linkGoogleBtn.disabled = false;
+          linkGoogleBtn.textContent = 'G Koppla Google-konto';
+        }
+      });
+    }
+
+    const unlinkGoogleBtn = document.getElementById('unlinkGoogleBtn');
+    if (unlinkGoogleBtn) {
+      unlinkGoogleBtn.addEventListener('click', async () => {
+        const pw = prompt('Ange ditt lösenord för att koppla bort Google:');
+        if (!pw) return;
+        const msg = document.getElementById('unlinkGoogleMsg');
+        unlinkGoogleBtn.disabled = true;
+        unlinkGoogleBtn.textContent = 'Tar bort…';
+        try {
+          await Auth.api('/api/account/unlink-google', {
+            method: 'DELETE',
+            body: JSON.stringify({ password: pw }),
+          });
+          initAccountSection();
+        } catch (err) {
+          msg.textContent = err.message || 'Kunde inte koppla bort';
+          msg.className = 'text-xs text-red-500 text-center mt-1';
+          unlinkGoogleBtn.disabled = false;
+          unlinkGoogleBtn.textContent = 'Koppla bort Google-konto';
         }
       });
     }
