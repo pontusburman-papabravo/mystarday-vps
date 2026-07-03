@@ -98,4 +98,29 @@ describe('garden living-objects pack (S0-2)', () => {
     assert.equal(world.display_name_sv, 'Trädgården');
     assert.match(world.first_unlock_message, /Trädgården/);
   });
+
+  it('worlds.json living_slot_id references living-objects slot + archetype (BL-034)', () => {
+    const pack = loadPack('child_se');
+    const world = getWorldDef(pack, GARDEN_WORLD);
+    const livingWorld = getLivingWorldDef(pack, GARDEN_WORLD);
+    assert.ok(livingWorld, 'garden living world def required when living_slot_id used');
+
+    const slotById = new Map((livingWorld.slots || []).map((s) => [s.slot_id, s]));
+    const archetypeIds = new Set((livingWorld.archetypes || []).map((a) => a.archetype_id));
+
+    for (const scenery of world.ambient_scenery || []) {
+      if (!scenery.living_slot_id) continue;
+      const slot = slotById.get(scenery.living_slot_id);
+      assert.ok(slot, `living_slot_id ${scenery.living_slot_id} missing from living-objects slots`);
+      assert.ok(
+        archetypeIds.has(slot.default_archetype_id),
+        `slot ${scenery.living_slot_id} default_archetype_id ${slot.default_archetype_id} unknown`
+      );
+      assert.ok(scenery.hotspot_class, `scenery ${scenery.scenery_id} with living_slot needs hotspot_class`);
+    }
+
+    const bed = (world.ambient_scenery || []).find((s) => s.living_slot_id === 'bed_1');
+    assert.ok(bed, 'garden bed scenery with bed_1 living_slot_id required');
+    assert.equal(bed.scenery_id, 'garden_bed');
+  });
 });
