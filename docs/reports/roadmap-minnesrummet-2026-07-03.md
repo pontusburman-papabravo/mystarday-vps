@@ -17,7 +17,7 @@
 ✅ G5  Deploy prod
 ✅ G6  QA living-world allowlist (migration 180953 + 180954 hotfix)
 ✅ G7  Första utvärdering i prod — **8/10 PASS**
-⏳ G8  Konst godkänd (HRC-ART-041)       ← senare (UI/bilder)
+✅ G8  Scen-WebP v1 (BL-041) — procedural diorama live; illustrator iteration optional
 🔧 G9  Parent warm_echo (HRC-PARENT-042)  ← backend klart; väntar parent UI/copy HRC
 ```
 

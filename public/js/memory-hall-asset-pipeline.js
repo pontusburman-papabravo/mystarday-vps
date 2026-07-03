@@ -11,7 +11,7 @@
 
   window.MemoryHallAssetPipeline = window.SceneAssetPipeline.create({
     base: '/images/child/world/memory-hall/',
-    version: '0.2.0',
+    version: '1.0.0',
     classPrefix: 'mh',
     scene: {
       id: 'scene',

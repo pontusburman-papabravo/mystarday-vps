@@ -35,6 +35,7 @@
 | `G1-today-empty` | Idag | `today-empty-v1@2x.webp` | `public/images/child/decals/today-empty-v1@2x.webp` | Tomt tillstånd Idag (ej kopplad) | behöver iteration |
 | `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s (ej kopplad) | behöver iteration |
 | `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | `public/images/child/world/garden/` | `child-garden.js`, `garden-asset-pipeline.js` (legacy `/assets/worlds/garden/` tills Agent 4) | godkänd |
+| `memory-hall-scene` | Minnesrummet | `scene@2x.webp` (+ srcset) | `public/images/child/world/memory-hall/` | `child-memory-hall.js`, `memory-hall-asset-pipeline.js` | behöver iteration (v1 procedural) |
 
 ### Rum-ID (Min värld)
 

@@ -96,14 +96,9 @@
       var emoji = (slot.content && slot.content.emoji) ? slot.content.emoji : '✨';
       var title = (slot.content && slot.content.title) || slot.label_sv || '';
       var message = exhibitTapMessage(slot);
-      if (illustrated) {
-        return '<div class="mu-exhibit mu-exhibit--' + esc(slot.slot_type || 'unknown') + '"' +
-          ' role="listitem" data-slot="' + esc(slot.slot_id || '') + '"' +
-          ' aria-label="' + esc(title) + '">' +
-          '<span class="mu-exhibit-emoji" aria-hidden="true">' + esc(emoji) + '</span>' +
-          '</div>';
-      }
-      return '<button type="button" class="mu-frame mu-frame--filled mu-frame--' + esc(slot.slot_type || 'unknown') + '"' +
+      var overlayClass = illustrated ? ' mu-frame--overlay' : '';
+      var warmClass = slot.slot_type === 'warm_echo' ? ' mu-frame--warm-echo' : '';
+      return '<button type="button" class="mu-frame mu-frame--filled mu-frame--' + esc(slot.slot_type || 'unknown') + overlayClass + warmClass + '"' +
         ' role="listitem" data-slot="' + esc(slot.slot_id || '') + '"' +
         ' data-memory-message="' + esc(message) + '"' +
         ' aria-label="' + esc(title) + '">' +
@@ -114,7 +109,7 @@
     }).join('');
 
     if (illustrated) {
-      return '<div class="mu-exhibits" role="list" aria-label="Mina minnen">' + filled + '</div>';
+      return '<div class="mu-exhibits mu-exhibits--illustrated" role="list" aria-label="Mina minnen">' + filled + '</div>';
     }
 
     var emptyCount = Math.max(0, Math.min(3, MAX_WALL_FRAMES - slots.length));
@@ -173,6 +168,7 @@
       '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
       sceneryHtml +
       renderExhibitSlots(state.exhibits, { illustrated: true }) +
+      '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
       '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
       (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
       '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
@@ -270,15 +266,12 @@
     var p = pipeline();
     if (!p || typeof p.watchSceneImage !== 'function') return;
     _assetCleanup = p.watchSceneImage(root, function () {
-      console.warn('[memory-hall] scene-bg failed — exiting to garden');
-      if (window.LivingWorldTransition
-          && typeof window.LivingWorldTransition.activeWorldId === 'function'
-          && window.LivingWorldTransition.activeWorldId() === 'memory_hall'
-          && typeof window.LivingWorldTransition.exitMemoryHall === 'function') {
-        window.LivingWorldTransition.exitMemoryHall();
-        return;
-      }
-      deactivate();
+      console.warn('[memory-hall] scene-bg failed — falling back to scaffold');
+      if (!_state) return;
+      _illustratedScene = false;
+      root.innerHTML = renderScene(_state, { illustrated: false });
+      bindInteractions(root, _state);
+      scheduleEnterAnimation(root);
     });
   }
 
