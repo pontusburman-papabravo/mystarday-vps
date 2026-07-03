@@ -142,6 +142,15 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   height: 30%;
 }
 
+/* Illustrated scene: gate + path sit mid-frame on mobile art */
+.gd-scene--illustrated .gd-hotspot--path {
+  left: 14%;
+  bottom: 22%;
+  width: 72%;
+  height: 48%;
+  min-height: 44px;
+}
+
 .gd-hotspot--bed {
   right: 4%;
   bottom: 12%;
@@ -169,6 +178,62 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
 @keyframes gd-hotspot-ripple {
   from { opacity: 0.7; transform: scale(0.7); }
   to   { opacity: 0; transform: scale(1.3); }
+}
+
+/* ── Visible path CTA when Minnesrummet is unlocked ── */
+.gd-path-cta {
+  position: absolute;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.65rem 1.15rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 252, 245, 0.92);
+  color: #1B2340;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(27, 35, 64, 0.18);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.gd-path-cta:active {
+  transform: translateX(-50%) scale(0.97);
+}
+
+.gd-path-cta-hint {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.gd-path-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom, 0px)) + 3.25rem);
+  transform: translateX(-50%);
+  z-index: 12;
+  max-width: min(18rem, 88vw);
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(27, 35, 64, 0.88);
+  color: #fff;
+  font-size: 0.875rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.gd-path-hint.is-visible {
+  opacity: 1;
 }
 
 /* ── Back control ── */
