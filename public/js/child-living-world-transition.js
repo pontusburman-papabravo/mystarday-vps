@@ -11,8 +11,85 @@
   const REVEAL_MS = 320;
 
   let _active = false;
+  let _activeWorldId = null;
   let _entering = false;
   let _exiting = false;
+
+  /**
+   * World registry — mount/deactivate/remount hooks per worldId.
+   * IRC-014 (memory_hall) registers here on rebase; garden is the first consumer.
+   */
+  const WORLD_REGISTRY = {
+    garden: {
+      globalKey: 'ChildGarden',
+      triggerOpt: 'doorEl',
+      doorWait: true,
+      canEnter: function (state) {
+        return !state.active && !state.entering;
+      },
+      canExit: function (state) {
+        return state.active && state.activeWorldId === 'garden' && !state.exiting;
+      },
+      mount: async function () {
+        return window.ChildGarden.mount(null, { viaTransition: true });
+      },
+      deactivate: function () {
+        window.ChildGarden.deactivate();
+      },
+      onMountFail: async function () {
+        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryRemountCached === 'function') {
+          window.ChildMorgonhus.tryRemountCached();
+        }
+      },
+      onEnterError: function () {
+        if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
+          window.ChildGarden.deactivate();
+        }
+      },
+      remountParent: async function () {
+        let restored = false;
+        if (window.ChildMorgonhus) {
+          if (typeof window.ChildMorgonhus.tryRemountCached === 'function') {
+            restored = window.ChildMorgonhus.tryRemountCached();
+          }
+          if (!restored && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+            restored = await window.ChildMorgonhus.tryMountWorld();
+          }
+        }
+        if (!restored) {
+          if (window.ChildMorgonhus && typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
+            window.ChildMorgonhus.openSkattkammaren();
+          } else if (typeof window.loadRewards === 'function') {
+            window.rewardsLoaded = false;
+            window.loadRewards();
+          }
+        }
+        return restored;
+      },
+    },
+  };
+
+  function transitionState() {
+    return {
+      active: _active,
+      activeWorldId: _activeWorldId,
+      entering: _entering,
+      exiting: _exiting,
+    };
+  }
+
+  function getWorldModule(world) {
+    if (!world || !world.globalKey) return null;
+    return window[world.globalKey] || null;
+  }
+
+  function worldModuleReady(world, action) {
+    const mod = getWorldModule(world);
+    if (!mod) return false;
+    if (action === 'mount') return typeof mod.mount === 'function';
+    if (action === 'deactivate') return typeof mod.deactivate === 'function';
+    return false;
+  }
 
   function reducedMotion() {
     return window.matchMedia
@@ -47,7 +124,7 @@
     if (el) el.remove();
   }
 
-  function resetEnterClasses(doorEl) {
+  function resetEnterClasses(triggerEl) {
     document.body.classList.remove(
       'living-world-entering',
       'living-world-chrome-out',
@@ -67,17 +144,27 @@
       );
     }
     if (rewardsView) rewardsView.classList.remove('living-world-rewards-shell');
-    if (doorEl) doorEl.classList.remove('lw-door-opening');
+    if (triggerEl) triggerEl.classList.remove('lw-door-opening');
     clearPortal();
   }
 
-  async function enterGarden(opts) {
-    if (_active || _entering) return false;
-    if (!window.ChildGarden || typeof window.ChildGarden.mount !== 'function') {
-      return false;
-    }
+  function resolveTriggerEl(world, opts) {
+    if (!world || !world.triggerOpt || !opts) return null;
+    return opts[world.triggerOpt] || null;
+  }
 
-    const doorEl = opts && opts.doorEl;
+  async function enterWorld(worldId, opts) {
+    const world = WORLD_REGISTRY[worldId];
+    if (!world) return false;
+
+    const state = transitionState();
+    const canEnter = typeof world.canEnter === 'function'
+      ? world.canEnter(state, opts)
+      : !state.active && !state.entering;
+    if (!canEnter) return false;
+    if (!worldModuleReady(world, 'mount')) return false;
+
+    const triggerEl = resolveTriggerEl(world, opts);
     const skattView = document.getElementById('skattkammarView');
     const rewardsView = document.getElementById('rewardsView');
 
@@ -88,19 +175,23 @@
       document.body.classList.add('living-world-chrome-out');
       await wait(CHROME_MS);
 
-      if (doorEl) doorEl.classList.add('lw-door-opening');
-      await wait(DOOR_MS);
+      if (triggerEl) triggerEl.classList.add('lw-door-opening');
+      if (world.doorWait) await wait(DOOR_MS);
 
       portalOverlay(true);
       document.body.classList.add('living-world-through');
       if (skattView) skattView.classList.add('lw-portal-zoom');
       await wait(THROUGH_MS);
 
-      const mounted = await window.ChildGarden.mount(null, { viaTransition: true });
+      if (typeof world.beforeMount === 'function') {
+        await world.beforeMount(opts, state);
+      }
+
+      const mounted = await world.mount(opts, state);
       if (!mounted) {
-        resetEnterClasses(doorEl);
-        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryRemountCached === 'function') {
-          window.ChildMorgonhus.tryRemountCached();
+        resetEnterClasses(triggerEl);
+        if (typeof world.onMountFail === 'function') {
+          await world.onMountFail(opts, state);
         }
         _entering = false;
         return false;
@@ -113,17 +204,18 @@
         skattView.classList.add('lw-world-visible');
       }
       if (rewardsView) rewardsView.classList.add('living-world-rewards-shell');
-      if (doorEl) doorEl.classList.remove('lw-door-opening');
+      if (triggerEl) triggerEl.classList.remove('lw-door-opening');
       clearPortal();
       await wait(REVEAL_MS);
 
       _active = true;
+      _activeWorldId = worldId;
       return true;
     } catch (err) {
       console.warn('[living-world] enter failed:', err && err.message);
-      resetEnterClasses(doorEl);
-      if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
-        window.ChildGarden.deactivate();
+      resetEnterClasses(triggerEl);
+      if (typeof world.onEnterError === 'function') {
+        world.onEnterError(opts, state);
       }
       return false;
     } finally {
@@ -132,11 +224,16 @@
     }
   }
 
-  async function exitGarden() {
-    if (!_active || _exiting) return false;
-    if (!window.ChildGarden || typeof window.ChildGarden.deactivate !== 'function') {
-      return false;
-    }
+  async function exitWorld(worldId, opts) {
+    const world = WORLD_REGISTRY[worldId];
+    if (!world) return false;
+
+    const state = transitionState();
+    const canExit = typeof world.canExit === 'function'
+      ? world.canExit(state, opts)
+      : state.active && state.activeWorldId === worldId && !state.exiting;
+    if (!canExit) return false;
+    if (!worldModuleReady(world, 'deactivate')) return false;
 
     const skattView = document.getElementById('skattkammarView');
     const rewardsView = document.getElementById('rewardsView');
@@ -150,17 +247,12 @@
       portalOverlay(true);
       await wait(THROUGH_MS);
 
-      window.ChildGarden.deactivate();
+      world.deactivate(opts, state);
       if (skattView) skattView.classList.remove('lw-world-visible', 'lw-portal-zoom-out');
 
       let restored = false;
-      if (window.ChildMorgonhus) {
-        if (typeof window.ChildMorgonhus.tryRemountCached === 'function') {
-          restored = window.ChildMorgonhus.tryRemountCached();
-        }
-        if (!restored && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
-          restored = await window.ChildMorgonhus.tryMountWorld();
-        }
+      if (typeof world.remountParent === 'function') {
+        restored = await world.remountParent(opts, state);
       }
 
       document.body.classList.add('living-world-through-reverse');
@@ -173,21 +265,18 @@
       clearPortal();
       await wait(CHROME_MS);
 
-      if (!restored) {
-        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
-          window.ChildMorgonhus.openSkattkammaren();
-        } else if (typeof window.loadRewards === 'function') {
-          window.rewardsLoaded = false;
-          window.loadRewards();
-        }
+      if (typeof world.afterExit === 'function') {
+        await world.afterExit(restored, opts, state);
       }
 
       _active = false;
+      _activeWorldId = null;
       return true;
     } catch (err) {
       console.warn('[living-world] exit failed:', err && err.message);
       resetEnterClasses(null);
       _active = false;
+      _activeWorldId = null;
       return false;
     } finally {
       _exiting = false;
@@ -195,18 +284,40 @@
     }
   }
 
+  async function enterGarden(opts) {
+    return enterWorld('garden', opts);
+  }
+
+  async function exitGarden() {
+    return exitWorld('garden');
+  }
+
   function isActive() {
     return _active;
+  }
+
+  function activeWorldId() {
+    return _activeWorldId;
   }
 
   function isTransitioning() {
     return _entering || _exiting;
   }
 
+  function registerWorld(worldId, handlers) {
+    if (!worldId || !handlers) return false;
+    WORLD_REGISTRY[worldId] = handlers;
+    return true;
+  }
+
   window.LivingWorldTransition = {
+    enterWorld: enterWorld,
+    exitWorld: exitWorld,
     enterGarden: enterGarden,
     exitGarden: exitGarden,
+    registerWorld: registerWorld,
     isActive: isActive,
+    activeWorldId: activeWorldId,
     isTransitioning: isTransitioning,
     CHROME_MS: CHROME_MS,
     DOOR_MS: DOOR_MS,

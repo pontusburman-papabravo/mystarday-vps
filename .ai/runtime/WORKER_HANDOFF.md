@@ -1,28 +1,28 @@
-# Worker Handoff — SW-001
+# Worker Handoff — CAP-003
 
-**Worker mission:** Build Supervisor/Worker relay model  
-**Completed:** 2026-07-03 ~08:00 UTC  
+**Worker mission:** Generic `enterWorld` / `exitWorld` in LivingWorldTransition  
+**Completed:** 2026-07-03 ~08:10 UTC  
 **Branch:** `cursor/autonomous-relay-resume-b105`  
 **PR:** #541 (IRC-016)  
-**Tier:** ARC (platform process)
+**Tier:** IRC (platform capability)
 
 ---
 
 ## What this Worker did
 
-Implemented the **Supervisor/Worker relay chain** so autonomous development survives Composer stopping after each mission.
+Refactored `child-living-world-transition.js` to expose a world registry and generic transition API while preserving garden behavior.
 
 | Deliverable | Status |
 |-------------|--------|
-| `SUPERVISOR.md` | ✅ Created |
-| `WORKER_PROTOCOL.md` | ✅ Created |
-| `NEXT_WORKER_PROMPT.md` | ✅ Created (CAP-003 assignment) |
-| `WORKER_HANDOFF.md` | ✅ This file |
-| `AUTONOMOUS_SESSION.md` | ✅ Updated for relay model |
-| `RESUME_AUTONOMOUS_WORKER.md` | ✅ Points to NEXT_WORKER_PROMPT |
-| Knowledge queues | ✅ Verified current |
+| `WORLD_REGISTRY` with `garden` handlers | ✅ |
+| `enterWorld(worldId, opts)` / `exitWorld(worldId, opts)` | ✅ |
+| `enterGarden` / `exitGarden` thin wrappers | ✅ |
+| `activeWorldId()` + `registerWorld()` for IRC-014 | ✅ |
+| Tests in `living-world-transition.test.js` | ✅ |
+| SW v494 + script `?v=1.0.2` bump | ✅ |
+| `CAPABILITY_QUEUE.md` CAP-003 done | ✅ |
 
-**Did NOT implement CAP-003** — delegated to next Worker per mission order.
+**Did NOT wire `memory_hall`** — IRC-014 branch owns mount; `registerWorld` is ready for rebase.
 
 ---
 
@@ -30,7 +30,9 @@ Implemented the **Supervisor/Worker relay chain** so autonomous development surv
 
 | Gate | Result |
 |------|--------|
-| `test:gate` | 795/795 green (pre-relay commit; re-run after relay doc commit) |
+| `test:gate` | **798/798 green** (2026-07-03) |
+
+Focus: `living-world-transition.test.js`, `garden-playable-scene.test.js` — all pass.
 
 ---
 
@@ -51,7 +53,7 @@ None.
 
 ## Next Worker
 
-**Mission:** CAP-003 — Generic `enterWorld` / `exitWorld` in `LivingWorldTransition`  
+**Mission:** IRC-014-R1 — Rebase memory_hall transition onto generic API  
 **Prompt:** `.ai/runtime/NEXT_WORKER_PROMPT.md`
 
 ---

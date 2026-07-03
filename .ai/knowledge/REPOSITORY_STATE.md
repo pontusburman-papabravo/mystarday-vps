@@ -1,6 +1,6 @@
 # Repository State
 
-**Last updated:** 2026-07-03 ~08:00 UTC  
+**Last updated:** 2026-07-03 ~08:10 UTC  
 **Relay:** Supervisor/Worker v2.0
 
 ---
@@ -11,7 +11,7 @@
 |-------|-------|
 | **Branch** | `cursor/autonomous-relay-resume-b105` |
 | **PR** | #541 IRC-016 |
-| **Next Worker** | CAP-003 via `NEXT_WORKER_PROMPT.md` |
+| **Next Worker** | IRC-014-R1 via `NEXT_WORKER_PROMPT.md` |
 
 ---
 
@@ -19,14 +19,14 @@
 
 | Gate | Result | Run at |
 |------|--------|--------|
-| `test:gate` | **795/795 pass** | 2026-07-03 |
+| `test:gate` | **798/798 pass** | 2026-07-03 |
 | `check:governance` | N/A | IRC-007 |
 
 ---
 
 ## Latest commit context
 
-Supervisor/Worker relay (SW-001) + CAP-001/002 platform work on same branch.
+CAP-003: generic `enterWorld`/`exitWorld` + world registry in `child-living-world-transition.js`. SW v494.
 
 ---
 

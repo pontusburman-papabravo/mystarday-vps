@@ -1,6 +1,6 @@
 # Autonomous Session State
 
-**Last updated:** 2026-07-03 ~08:00 UTC  
+**Last updated:** 2026-07-03 ~08:10 UTC  
 **Relay version:** 2.0 (Supervisor/Worker chain)  
 **Mode:** Short-lived Workers · persistent Supervisor state
 
@@ -41,7 +41,7 @@ Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
 
 | Field | Value |
 |-------|-------|
-| **Next mission** | CAP-003 |
+| **Next mission** | IRC-014-R1 |
 | **Prompt file** | `.ai/runtime/NEXT_WORKER_PROMPT.md` |
 | **Status** | ready for next session |
 
@@ -51,8 +51,8 @@ Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
 
 | Field | Value |
 |-------|-------|
-| **ID** | SW-001 |
-| **Title** | Supervisor/Worker relay model |
+| **ID** | CAP-003 |
+| **Title** | Generic enterWorld/exitWorld in LivingWorldTransition |
 | **Handoff** | `.ai/runtime/WORKER_HANDOFF.md` |
 | **Branch** | `cursor/autonomous-relay-resume-b105` |
 | **PR** | #541 |
@@ -67,6 +67,7 @@ Docs: `SUPERVISOR.md` · `WORKER_PROTOCOL.md`
 | CAP-001 | scene-asset-pipeline.js | ✅ |
 | CAP-002 | morgonhus-asset-pipeline.js | ✅ |
 | SW-001 | Supervisor/Worker protocol | ✅ |
+| CAP-003 | Generic enterWorld/exitWorld | ✅ |
 
 ---
 
