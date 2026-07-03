@@ -1,5 +1,5 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "worlds": [
     {
       "world_slug": "routine_home",
@@ -45,7 +45,8 @@
           "label_sv": "Blomsterbädden",
           "emoji": "🪴",
           "ambient_message_sv": "Jorden känns mjuk och varm under fingrarna.",
-          "hotspot_class": "gd-hotspot--bed"
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
         },
         {
           "scenery_id": "garden_sky",

@@ -1,6 +1,6 @@
 # Autonomous Development Backlog
 
-**Reprioritized:** 2026-07-02 (MO002 Garden complete)  
+**Reprioritized:** 2026-07-03 (MO003 Garden LOE + HAG v1.2)  
 **Rule:** Closed items removed · new items appended with full fields
 
 ---
@@ -9,7 +9,7 @@
 
 | ID | Priority | Mission | Impact | Deps | Risk | Owner | Status |
 |----|----------|---------|--------|------|------|-------|--------|
-| BL-022 | P1 | Pet Runtime vertical slice | Min värld depth | Home+Garden pattern | Med | Backend | **next** |
+| BL-024 | P1 | Garden LOE QA + timer edge cases | Child trust | BL-022 done | Low | QA | **next** |
 | BL-010 | P2 | `lint:public` budget vs debt | CI noise | — | Med | Engineering | open |
 | BL-013 | P2 | Expand governance registry rules | CI coverage | — | Low | Org Health | open |
 | BL-023 | P2 | Extract `world-ambient.js` shared helper | DRY across worlds | 3 worlds | Low | Refactoring | open |
@@ -17,16 +17,25 @@
 
 ---
 
+## Completed (MO003 2026-07-03)
+
+| ID | Mission |
+|----|---------|
+| BL-025 | COS HAG v1.2 — IRC vs HRC, no pause for checkpoints |
+| BL-022 | Garden living-object runtime — sunflower plant/harvest loop |
+
+---
+
 ## Completed (MO002 2026-07-02)
 
 | ID | Mission |
 |----|---------|
-| BL-021 | Home `ambient_props` in worlds.json; removed hardcoded AMBIENT_PROPS |
-| BL-020 | Garden `ambient_scenery` in worlds.json; removed hardcoded AMBIENT_SCENERY |
+| BL-021 | Home `ambient_props` in worlds.json |
+| BL-020 | Garden `ambient_scenery` in worlds.json |
 
 ---
 
-## Blocked (human)
+## Blocked (human — HRC only)
 
 | ID | Blocker |
 |----|---------|

@@ -1,6 +1,6 @@
 # AI Development Organization
 
-**COS v1.1 — organizational charter**  
+**COS v1.2 — organizational charter**  
 **Not product truth — see `product-operating-system/`**
 
 ---
@@ -96,7 +96,17 @@ Playbooks: `001_*` through `010_*`
 | Security | Security Lead | — |
 | Child ethics | Game Director | CPO on product conflict |
 | Architecture (T3) | CTO + Principal | Council |
-| Live deploy | — | **Human only** |
+| Live deploy | — | **Human only (HRC)** |
+
+---
+
+## Human Approval Gate (v1.2)
+
+Detail: [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md)
+
+- **IRC** — internal checkpoint; agent continues immediately
+- **HRC** — human decision required; agent documents and picks next unblocked mission
+- **Never ask** “shall I proceed?” when mandate allows continuation
 
 ---
 
@@ -117,9 +127,9 @@ Intent → Mission Control (brief + tier)
       → Product Alignment (if product-touching)
       → Delivery Cell (implement)
       → Assurance (gates + tier review)
-      → [Council if T3] → RC if live-deploy boundary
+      → [Council if T3] → IRC checkpoint (HRC only if HAG trigger)
       → Org Health updates knowledge + backlog
-      → Next mission
+      → Next mission (no pause for IRC)
 ```
 
 ---
@@ -130,4 +140,5 @@ Intent → Mission Control (brief + tier)
 - CEO implementing code  
 - COS duplicating POS  
 - Permanent specialist agents  
-- Documentation volume as success metric
+- Documentation volume as success metric  
+- Pausing for IRC review (“shall I proceed?”)

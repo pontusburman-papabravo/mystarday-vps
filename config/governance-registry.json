@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-07-02",
+  "updated": "2026-07-03",
   "authority": "POS > registry tests > .cursor/rules/",
   "rules": {
     "constitution-1": {
@@ -14,7 +14,8 @@
         "test/experience-pack-structural.test.js",
         "test/experience-pack.test.js",
         "test/morgonhus-playable.test.js",
-        "test/garden-playable-scene.test.js"
+        "test/garden-playable-scene.test.js",
+        "test/living-object-runtime.test.js"
       ],
       "owners": ["GameDirector", "PrincipalEngineer"]
     },
@@ -60,6 +61,7 @@
   ],
   "cos_required_files": [
     ".ai/company/README.md",
-    ".ai/company/ORGANIZATION.md"
+    ".ai/company/ORGANIZATION.md",
+    ".ai/company/HUMAN_APPROVAL_GATE.md"
   ]
 }

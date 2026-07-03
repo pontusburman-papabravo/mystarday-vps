@@ -5,6 +5,7 @@ const {
   resolvePackForChild,
   getWorldDef,
 } = require('./experience-pack');
+const { loadLivingSlots, applyVerb } = require('./living-object-runtime');
 
 const FEATURE_SLUG = 'garden_playable';
 
@@ -15,11 +16,12 @@ function buildSceneryFromPack(worldDef) {
     emoji: entry.emoji || null,
     ambient_message: entry.ambient_message_sv || null,
     hotspot_class: entry.hotspot_class || null,
+    living_slot_id: entry.living_slot_id || null,
   }));
 }
 
 /**
- * Playable Trädgården — ambient scene only (no LOE verbs/timers).
+ * Playable Trädgården — ambient scene + pack-driven living objects (LOE).
  */
 async function isPlayableEnabled(familyId) {
   if (!familyId) return false;
@@ -31,9 +33,14 @@ async function isPlayableEnabled(familyId) {
   }
 }
 
-async function buildSceneState(childId) {
+async function buildSceneState(childId, familyIdOrClient) {
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, GARDEN_WORLD_SLUG);
+  const livingSlots = await loadLivingSlots({
+    childId,
+    worldSlug: GARDEN_WORLD_SLUG,
+    pack,
+  });
 
   return {
     enabled: true,
@@ -43,7 +50,20 @@ async function buildSceneState(childId) {
     first_enter_message: worldDef?.first_unlock_message || 'Trädgården väntar på dig',
     ambient_message: worldDef?.ambient_message_sv || 'Gräset rör sig långsamt i brisen.',
     scenery: buildSceneryFromPack(worldDef),
+    living_slots: livingSlots,
   };
+}
+
+async function applyLivingVerb(childId, familyId, slotId, verb) {
+  const pack = resolvePackForChild(childId);
+  return applyVerb({
+    childId,
+    familyId,
+    worldSlug: GARDEN_WORLD_SLUG,
+    slotId,
+    verb,
+    pack,
+  });
 }
 
 module.exports = {
@@ -52,4 +72,5 @@ module.exports = {
   isPlayableEnabled,
   buildSceneState,
   buildSceneryFromPack,
+  applyLivingVerb,
 };

@@ -1,8 +1,8 @@
-# Company Operating System (COS) v1.1
+# Company Operating System (COS) v1.2
 
 **Type:** AI Development Organization operating system  
 **Not:** Product documentation (that is POS)  
-**Updated:** 2026-07-02
+**Updated:** 2026-07-03
 
 ---
 
@@ -60,8 +60,17 @@ Runtime: `.ai/runtime/MISSION_ENGINE.md` (tier field) · `.ai/runtime/REVIEW_ENG
 
 ## Human approval gate
 
-Agents may prepare unlimited Release Candidates.  
-**Never** without explicit human approval: deploy · merge to protected main · live DB migrations · live feature flags.
+**Policy:** [HUMAN_APPROVAL_GATE.md](./HUMAN_APPROVAL_GATE.md)
+
+| RC type | Pause? | When |
+|---------|--------|------|
+| **IRC** (Internal) | Never | Agent checkpoints — draft PRs, reports |
+| **HRC** (Human) | Escalate only | Live deploy, stores, prod migration/flags, product/legal/doc conflict |
+
+**Mandate check:** “Can I continue?” → Yes: proceed. No: escalate, switch mission.
+
+Agents may prepare unlimited IRCs.  
+**Never** without explicit human approval: deploy · merge protected main · live DB migrations · live feature flags · App Store / Google Play publish.
 
 ---
 
@@ -81,5 +90,4 @@ Agents may prepare unlimited Release Candidates.
 |---------|--------|
 | 1.0 | Executive playbooks |
 | 1.1 | Org OS — cells, tiers, council convening model |
-
-Org Health may propose COS 1.2 via explicit mission — not drive-by expansion.
+| 1.2 | HAG — IRC vs HRC, no pause for checkpoints, mandate-check escalation |

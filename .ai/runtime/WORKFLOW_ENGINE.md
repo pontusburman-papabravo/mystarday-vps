@@ -32,6 +32,8 @@ PHASE 13 PR                      → Template body · checklist
 PHASE 14 SELF_IMPROVEMENT        → SELF_IMPROVEMENT_ENGINE (next item or idle)
 ```
 
+**Rule W-HAG (COS v1.2):** IRC checkpoints do not pause the pipeline. After PHASE 13, immediately enter PHASE 0 for next mission unless HRC escalation applies. See `.ai/company/HUMAN_APPROVAL_GATE.md`.
+
 **Rule W-01:** Cannot enter phase N+1 while phase N has an open **BLOCK**.
 
 **Rule W-02:** Phases 5–10 may iterate in a loop (`fix → re-run`) until green.

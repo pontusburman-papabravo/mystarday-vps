@@ -76,27 +76,41 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.doesNotMatch(src, /INSERT INTO features/);
   });
 
-  it('garden route is feature-gated with 503', () => {
+  it('garden route is feature-gated and exposes verb POST', () => {
     const src = fs.readFileSync(
       path.join(__dirname, '../src/routes/garden.js'),
       'utf8'
     );
     assert.match(src, /isPlayableEnabled\(req\.user\.familyId\)/);
+    assert.match(src, /post\('\/garden\/verb'/i);
+    assert.match(src, /applyLivingVerb/);
     assert.match(src, /503/);
     assert.match(src, /Trädgården ej aktiverad/);
   });
 
-  it('buildSceneState returns ambient garden from pack — no verbs', async () => {
+  it('buildSceneState returns ambient garden from pack with living slots', async () => {
     clearPackCache();
-    const { buildSceneState } = loadGardenPlayable();
+    const mock = injectMockDb();
+    mock.setQuery(async (sql) => {
+      if (String(sql).includes('living_object_instance')) {
+        return { rows: [] };
+      }
+      return { rows: [] };
+    });
+
+    const modPath = require.resolve('../src/lib/garden-playable');
+    delete require.cache[modPath];
+    const { buildSceneState } = require(modPath);
+
     const state = await buildSceneState('child-test-1');
     assert.equal(state.world_slug, 'garden');
     assert.equal(state.display_name, 'Trädgården');
     assert.match(state.first_enter_message, /Trädgården/);
     assert.ok(state.scenery.length >= 2);
-    assert.ok(state.scenery.every((s) => !s.verb));
-    assert.equal(JSON.stringify(state).includes('plant'), false);
-    assert.equal(JSON.stringify(state).includes('harvest'), false);
+    assert.ok(state.living_slots.length >= 1);
+    assert.equal(state.living_slots[0].slot_id, 'bed_1');
+    assert.equal(JSON.stringify(state.scenery).includes('plant'), false);
+    assert.equal(JSON.stringify(state.scenery).includes('harvest'), false);
   });
 
   it('ambient scenery is defined in experience pack worlds.json not hardcoded', () => {
@@ -302,7 +316,11 @@ describe('ChildGarden client module', () => {
     assert.match(mhSrc, /_cachedSceneState/);
   });
 
-  it('no LOE gameplay verbs in garden client', () => {
-    assert.doesNotMatch(src, /\bverb\b.*plant|\bplant\b|\bharvest\b|timer_ms/i);
+  it('garden LOE uses pack-driven verbs via API, not hardcoded strings', () => {
+    assert.match(src, /VERB_PATH/);
+    assert.match(src, /available_verbs/);
+    assert.match(src, /living_slot_id/);
+    assert.doesNotMatch(src, /['"]plant['"]/);
+    assert.doesNotMatch(src, /['"]harvest['"]/);
   });
 });

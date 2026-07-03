@@ -6,13 +6,73 @@
   'use strict';
 
   const API_PATH = '/api/me/garden';
+  const VERB_PATH = '/api/me/garden/verb';
   const FETCH_TIMEOUT_MS = 8000;
   const TAP_RESET_MS = 1200;
+
+  function findLivingSlot(state, sceneryId) {
+    if (!state || !sceneryId) return null;
+    const scenery = (state.scenery || []).find(function (s) { return s.scenery_id === sceneryId; });
+    const slotId = scenery && scenery.living_slot_id;
+    if (!slotId) return null;
+    return (state.living_slots || []).find(function (s) { return s.slot_id === slotId; }) || null;
+  }
+
+  function clearTimerRefresh() {
+    if (_timerRefresh) {
+      clearTimeout(_timerRefresh);
+      _timerRefresh = null;
+    }
+  }
+
+  function scheduleTimerRefresh(state) {
+    clearTimerRefresh();
+    if (!state || !_active) return;
+    let minMs = null;
+    (state.living_slots || []).forEach(function (slot) {
+      if (slot.timer_remaining_ms != null && slot.timer_remaining_ms > 0) {
+        if (minMs === null || slot.timer_remaining_ms < minMs) {
+          minMs = slot.timer_remaining_ms;
+        }
+      }
+    });
+    if (minMs === null) return;
+    _timerRefresh = setTimeout(async function () {
+      const fresh = await fetchState();
+      if (fresh && fresh.enabled) {
+        _state = fresh;
+        scheduleTimerRefresh(fresh);
+      }
+    }, minMs + 200);
+  }
+
+  async function postSlotVerb(slot) {
+    const verbs = (slot && slot.available_verbs) || [];
+    if (!verbs.length || !window.Auth) return null;
+    const action = verbs[0];
+    if (!action || !action.verb) return null;
+    return window.Auth.api(VERB_PATH, {
+      method: 'POST',
+      body: JSON.stringify({ slot_id: slot.slot_id, verb: action.verb }),
+    });
+  }
+
+  function applySlotVisual(root, slot) {
+    if (!root || !slot) return;
+    const scene = root.querySelector('.gd-scene-canvas');
+    if (!scene) return;
+    const token = slot.visual_token || '';
+    if (token.indexOf('seed') !== -1 || token.indexOf('bloom') !== -1) {
+      scene.classList.add('is-bloom-tap');
+      setTimeout(function () { scene.classList.remove('is-bloom-tap'); }, TAP_RESET_MS);
+    }
+  }
 
   let _active = false;
   let _state = null;
   let _prefersReducedMotion = false;
   let _assetCleanup = null;
+  let _timerRefresh = null;
 
   function esc(str) {
     if (!str) return '';
@@ -94,6 +154,27 @@
     }
   }
 
+  async function handleSceneryTap(root, sceneryId) {
+    const slot = findLivingSlot(_state, sceneryId);
+    if (slot && slot.available_verbs && slot.available_verbs.length) {
+      try {
+        const result = await postSlotVerb(slot);
+        if (result && result.slot) {
+          const slots = (_state.living_slots || []).map(function (s) {
+            return s.slot_id === result.slot.slot_id ? result.slot : s;
+          });
+          _state = Object.assign({}, _state, { living_slots: slots });
+          applySlotVisual(root, result.slot);
+          scheduleTimerRefresh(_state);
+          return;
+        }
+      } catch (err) {
+        console.warn('[garden] verb failed:', err && err.message);
+      }
+    }
+    triggerVisual(root, sceneryId);
+  }
+
   function bindInteractions(root) {
     if (!root) return;
 
@@ -102,7 +183,7 @@
         const id = btn.getAttribute('data-scenery');
         btn.classList.add('is-tapped');
         setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        triggerVisual(root, id);
+        handleSceneryTap(root, id);
       });
     });
 
@@ -191,6 +272,7 @@
   function deactivate() {
     _active = false;
     _state = null;
+    clearTimerRefresh();
     if (_assetCleanup) {
       _assetCleanup();
       _assetCleanup = null;
@@ -262,6 +344,7 @@
     hideLoader();
     document.body.classList.add('child-garden-active');
     document.body.classList.remove('child-morgonhus-active');
+    scheduleTimerRefresh(sceneState);
     return true;
   }
 

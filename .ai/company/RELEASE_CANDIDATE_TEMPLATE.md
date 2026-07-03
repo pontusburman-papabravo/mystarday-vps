@@ -1,7 +1,19 @@
 # Release Candidate Template
 
-**COS v1.1 — Human Approval Gate**  
-Use for Tier T3 missions and any live-deploy-touching work.
+**COS v1.2 — Human Approval Gate**
+
+Choose **IRC** (default) or **HRC** (human decision required).
+
+---
+
+## Type
+
+- [ ] **IRC** — Internal Release Candidate (no pause, no human question)
+- [ ] **HRC** — Human Release Candidate (escalation per `HUMAN_APPROVAL_GATE.md`)
+
+### HRC only — decision required
+
+> [Exact human decision: deploy / store / prod migration / prod flag / product / legal / doc conflict]
 
 ---
 
@@ -29,8 +41,7 @@ Use for Tier T3 missions and any live-deploy-touching work.
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
-# Override deploy-mode shell env — see root AGENTS.md
-REQUIRE_EMAIL_VERIFICATION=false npm run test:gate  # pragma: allowlist secret
+REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
 npm run check:governance
 ```
 
@@ -47,10 +58,12 @@ npm run check:governance
 
 [How to revert if live incident]
 
-## Recommended next step
+## Recommended next autonomous mission
 
-[What human should approve or do next]
+[What agent continues without asking — per HAG mandate]
 
 ---
 
-**STOP:** No deploy · no live migration · no live flags until explicit human approval.
+**IRC:** Agent continues to next mission. Human reviews in morning report bundle.  
+**HRC:** Agent documents blocker and continues other work until human decides.  
+**Never** deploy · merge protected main · live migration · live flags without explicit HRC approval.

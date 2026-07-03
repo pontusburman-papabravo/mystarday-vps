@@ -116,17 +116,23 @@ When user did not specify, apply **defaults** — do not ask founder unless BLOC
 | Code vs POS | Change code (WORKFLOW Phase 4+) |
 | Two user goals in one message | Split into mission A + B; execute A first unless P0 |
 
-### Step 6 — Escalation to founder
+### Step 6 — Escalation (HAG v1.2)
 
-**Stop and ask** only when:
+**Mandate check:** Can the next step continue without human input?
 
-1. Business decision not in POS/COS/ADR (pricing, new market, legal)  
-2. Missing secret/asset that cannot be stubbed  
-3. Irreversible data migration without rollback story  
-4. POS internal contradiction discovered  
-5. User explicitly requested founder decision  
+**Stop and escalate (HRC)** only when `.ai/company/HUMAN_APPROVAL_GATE.md` triggers apply:
 
-Otherwise: **proceed with defaults**.
+1. Product Owner decision not inferable from POS/COS/ADR/PCB  
+2. Canonical documentation conflict without ADR path  
+3. Creative direction not inferable from existing docs  
+4. Live deploy boundary (live hosts, stores, live migration, live flags)  
+5. Business or legal decision  
+6. Missing secret/asset that cannot be stubbed  
+7. User explicitly requested founder decision  
+
+**Do not escalate** for: IRC completion, draft PR, test green, next backlog mission.
+
+Otherwise: **proceed with defaults** — select next highest-value mission.
 
 ---
 
