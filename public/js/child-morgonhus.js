@@ -6,7 +6,7 @@
   'use strict';
 
   const API_PATH = '/api/me/morgonhus';
-  const REACTION_MS = 2800;
+  const REACTION_MS = 4200;
   const TAP_MS = 1800;
 
   const HOTSPOTS = {
@@ -117,10 +117,25 @@
     toast.classList.remove('mh-toast-off');
     toast.classList.add('is-visible');
     clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(function () {
+    function dismiss() {
       toast.classList.remove('is-visible');
       toast.classList.add('mh-toast-off');
-    }, REACTION_MS);
+      if (typeof toast.removeEventListener === 'function') {
+        toast.removeEventListener('click', dismiss);
+      }
+    }
+    if (toast.style) {
+      toast.style.pointerEvents = 'auto';
+      toast.style.cursor = 'pointer';
+    }
+    if (typeof toast.setAttribute === 'function') {
+      toast.setAttribute('role', 'button');
+      toast.setAttribute('aria-label', message + ' — tryck för att stänga');
+    }
+    if (typeof toast.addEventListener === 'function') {
+      toast.addEventListener('click', dismiss);
+    }
+    showToast._timer = setTimeout(dismiss, REACTION_MS);
   }
 
   function triggerPulse(root) {
@@ -344,6 +359,9 @@
     hideLoader();
     document.body.classList.add('child-morgonhus-active');
     document.body.classList.remove('child-garden-active', 'child-catalog-room-active');
+    if (window.PlatformFeedback && typeof window.PlatformFeedback.showPendingHintIfAny === 'function') {
+      setTimeout(function () { window.PlatformFeedback.showPendingHintIfAny(); }, 500);
+    }
   }
 
   function tryRemountCached() {
