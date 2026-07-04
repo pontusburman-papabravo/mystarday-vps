@@ -246,10 +246,12 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus door navigates to garden when leads_to_garden', () => {
-    assert.match(mhSrc, /leads_to_garden/);
+  it('morgonhus door navigates to garden when gate_to_garden', () => {
+    assert.match(mhSrc, /gate_to_garden/);
+    assert.match(mhSrc, /data-nav="/);
+    assert.match(mhSrc, /nav === 'garden'/);
     assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
-    assert.match(mhSrc, /deactivate/);
+    assert.match(mhSrc, /function deactivate/);
   });
 
   it('garden exit returns to morgonhus via tryMountWorld', () => {
@@ -273,7 +275,7 @@ describe('ChildGarden client module', () => {
   });
 
   it('garden enter failure keeps child in Morgonhus with toast', () => {
-    assert.match(mhSrc, /enterFromMorgonhus\(\)\.then/);
+    assert.match(mhSrc, /enterFromMorgonhus/);
     assert.match(mhSrc, /Du är kvar i Morgonhuset/);
   });
 

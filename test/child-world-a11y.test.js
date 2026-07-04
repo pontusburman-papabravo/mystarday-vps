@@ -102,13 +102,13 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /gd-loe--sunflower_harvested/);
   });
 
-  it('morgonhus props meet minimum touch and reduced motion', () => {
+  it('morgonhus hotspots meet minimum touch and reduced motion', () => {
     const css = read('public/css/child-morgonhus.css');
-    assert.match(css, /mh-prop[\s\S]*min-height:\s*44px/);
+    assert.match(css, /mh-hotspot[\s\S]*min-height:\s*44px/);
     assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
   });
 
-  it('morgonhus scene has labelled props and atomic status region', () => {
+  it('morgonhus scene has labelled hotspots and atomic status region', () => {
     const ChildMorgonhus = loadChildMorgonhus();
     const html = ChildMorgonhus.renderScene({
       display_name: 'Morgonhuset',
@@ -118,16 +118,16 @@ describe('child world accessibility — Min värld (BL-028)', () => {
       ],
     });
     assert.match(html, /aria-label="Välkomstmattan"/);
-    assert.match(html, /aria-label="Dörren"/);
+    assert.match(html, /aria-label="Hallen"|aria-label="Trädgården"/);
     assert.match(html, /aria-live="polite"/);
     assert.match(html, /aria-atomic="true"/);
     assert.match(html, /role="status"/);
   });
 
-  it('morgonhus skatt link meets 44px minimum touch target', () => {
+  it('morgonhus nav dock meets 44px minimum touch target', () => {
     const css = read('public/css/child-morgonhus.css');
-    assert.match(css, /mh-skatt-link[\s\S]*min-width:\s*44px/);
-    assert.match(css, /mh-skatt-link[\s\S]*min-height:\s*44px/);
+    assert.match(css, /mh-nav-btn[\s\S]*min-width:\s*44px/);
+    assert.match(css, /mh-nav-btn[\s\S]*min-height:\s*44px/);
   });
 
   it('morgonhus scene uses aria-live polite for feedback', () => {

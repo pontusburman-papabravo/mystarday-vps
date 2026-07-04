@@ -257,23 +257,27 @@ describe('ChildMorgonhus client module', () => {
     return { ChildMorgonhus: context.window.ChildMorgonhus, listeners };
   }
 
-  it('renderScene includes Morgonhuset room structure', () => {
+  it('renderScene is immersive illustrated place with hotspots and nav dock', () => {
     const { ChildMorgonhus } = loadModule();
     const html = ChildMorgonhus.renderScene({
       display_name: 'Morgonhuset',
-      first_enter_message: 'Morgonhuset väntar på dig',
+      gate_to_garden: true,
       props: [
         { prop_id: 'welcome_mat', node_id: 'routine_home_welcome_mat', label_sv: 'Välkomstmatta', unlocked: true, visual_token: 'welcome_mat_glow' },
         { prop_id: 'first_light', node_id: 'routine_home_first_light', label_sv: 'Morgonljus', unlocked: false },
-        { prop_id: 'door', node_id: null, label_sv: 'Dörren', unlocked: true, always_active: true },
+        { prop_id: 'door', node_id: null, label_sv: 'Dörren', unlocked: true, always_active: true, leads_to_garden: true },
       ],
     });
 
-    assert.match(html, /mh-scene/);
+    assert.match(html, /mh-scene--illustrated/);
+    assert.match(html, /morg-scene-picture|morg-scene-bg/);
     assert.match(html, /data-prop="welcome_mat"/);
     assert.match(html, /data-prop="first_light"/);
-    assert.match(html, /data-prop="door"/);
-    assert.match(html, /Morgonhuset väntar på dig/);
+    assert.match(html, /data-nav="garden"/);
+    assert.match(html, /mh-nav-dock/);
+    assert.match(html, /mhHallLink/);
+    assert.doesNotMatch(html, /mh-prop-emoji/);
+    assert.doesNotMatch(html, /mh-scene-title/);
   });
 
   it('bindInteractions fires on unlocked prop tap', () => {
@@ -310,6 +314,7 @@ describe('ChildMorgonhus client module', () => {
         return null;
       },
       querySelectorAll: function (sel) {
+        if (sel === '[data-prop]') return [tapBtn];
         if (sel === '.mh-prop') return [tapBtn];
         return [];
       },

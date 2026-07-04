@@ -32,9 +32,10 @@ describe('morgonhus-asset-pipeline (CAP-002)', () => {
     assert.ok(urls[0].includes('scene@2x.webp'));
   });
 
-  it('child-morgonhus probes scene via MorgonhusAssetPipeline when available', function () {
+  it('child-morgonhus renders scene via MorgonhusAssetPipeline picture markup', function () {
     assert.match(MORGONHUS_SRC, /MorgonhusAssetPipeline/);
-    assert.match(MORGONHUS_SRC, /getAssetPipeline/);
-    assert.doesNotMatch(MORGONHUS_SRC, /img\.src = '\/images\/child\/morgonhus\/scene@2x\.webp'/);
+    assert.match(MORGONHUS_SRC, /scenePictureHtml/);
+    assert.match(MORGONHUS_SRC, /watchSceneImage/);
+    assert.doesNotMatch(MORGONHUS_SRC, /probeSceneArt/);
   });
 });

@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v509';
-// stjarndag-v509: museum-scene-master-high.png + museum scene-bg export (130 = Minnesrummet)
+const CACHE_NAME = 'stjarndag-v510';
+// stjarndag-v510: Morgonhus immersive full-bleed hotspots (Min värld 10/10 pass)
+// stjarndag-v509: museum-scene-master-high.png + museum scene-bg export
 // stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
 // stjarndag-v507: catalog room wire-in (hall+102–105), scenes.json, memory-hall master, hero assets
 // stjarndag-v506: generic room scene export (home→lake webp sets)

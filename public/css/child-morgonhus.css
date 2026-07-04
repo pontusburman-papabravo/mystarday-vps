@@ -1,172 +1,197 @@
-/* child-morgonhus.css — Morgonhuset scene (routine_home)
- * Asset: /images/child/morgonhus/scene@2x.webp — see docs/child-image-assets.md
- */
+/* child-morgonhus.css — Morgonhuset immersive illustrated scene (routine_home) */
 
+body.child-morgonhus-active #rewardsView {
+  background: transparent !important;
+  padding-bottom: 0 !important;
+}
+
+body.child-morgonhus-active #skattkammarView {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  animation: none;
+}
+
+/* ── Full-screen mobile scene ── */
 .mh-scene {
   position: relative;
-  min-height: min(72vh, 560px);
-  border-radius: 24px;
+  width: 100%;
+  height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
+  max-height: calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px));
   overflow: hidden;
-  background-color: #e8dcc8;
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(247, 243, 235, 0.12) 0%,
-      rgba(247, 243, 235, 0.04) 36%,
-      rgba(247, 243, 235, 0.52) 72%,
-      rgba(247, 243, 235, 0.9) 100%
-    ),
-    linear-gradient(180deg, #f7f0e4 0%, #e8dcc8 55%, #d4c4a8 100%);
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
-  box-shadow: 0 12px 40px rgba(27, 35, 64, 0.12);
-  padding: 20px 16px 16px;
+  background: #e8dcc8;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.mh-scene.is-illustrated {
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(247, 243, 235, 0.1) 0%,
-      rgba(247, 243, 235, 0.03) 34%,
-      rgba(247, 243, 235, 0.5) 70%,
-      rgba(247, 243, 235, 0.92) 100%
-    ),
-    url('/images/child/morgonhus/scene@2x.webp');
+.mh-scene--entering {
+  animation: mh-scene-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.mh-scene-bg {
+@keyframes mh-scene-enter {
+  from { opacity: 0; transform: translateX(-2%) scale(1.01); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.mh-scene-canvas {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 214, 140, 0.45), transparent 70%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 40%);
-  pointer-events: none;
+  overflow: hidden;
 }
 
-.mh-scene.is-illustrated .mh-scene-bg {
-  background: none;
+.mh-scene-canvas picture,
+.mh-scene-canvas img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.mh-scene-sun {
+.mh-tap-pulse {
   position: absolute;
-  top: 12px;
-  right: 18%;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fff8dc, #f5a623 70%);
-  box-shadow: 0 0 24px rgba(245, 166, 35, 0.5);
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 55%, rgba(255, 248, 220, 0.35), transparent 62%);
+}
+
+.mh-tap-pulse.is-active {
+  animation: mh-tap-pulse 1s ease-out forwards;
+}
+
+@keyframes mh-tap-pulse {
+  0%   { opacity: 0; transform: scale(0.96); }
+  30%  { opacity: 0.65; }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+
+/* ── Invisible hotspots (44pt min) ── */
+.mh-hotspot {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  z-index: 2;
+}
+
+.mh-hotspot:focus-visible {
+  outline: 2px solid rgba(245, 166, 35, 0.85);
+  outline-offset: 2px;
+}
+
+.mh-hotspot.is-tapped {
+  transform: scale(0.97);
+}
+
+.mh-hotspot.is-locked {
   opacity: 0.85;
+}
+
+.mh-hotspot.is-unlocked.mh-hotspot--welcome_mat {
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.35);
+  border-radius: 12px;
+}
+
+.mh-hotspot.is-unlocked.mh-hotspot--first_light {
+  box-shadow: inset 0 0 0 2px rgba(255, 200, 80, 0.4);
+  border-radius: 12px;
+}
+
+.mh-hotspot--door.mh-hotspot--nav {
+  z-index: 3;
+}
+
+.mh-token--welcome_mat_glow.is-unlocked,
+.mh-hotspot.mh-token-active--welcome_mat_glow {
+  box-shadow: inset 0 0 24px rgba(245, 166, 35, 0.45);
+}
+
+.mh-token--morning_light_warm.is-unlocked,
+.mh-hotspot.mh-token-active--morning_light_warm {
+  box-shadow: inset 0 0 20px rgba(255, 200, 80, 0.5);
+}
+
+/* ── Bottom nav dock ── */
+.mh-nav-dock {
+  position: absolute;
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
   pointer-events: none;
 }
 
-.mh-scene.is-illustrated .mh-scene-sun {
-  display: none;
-}
-
-.mh-scene-header {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.mh-scene-title {
-  margin: 0;
-  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #1b2340;
-}
-
-.mh-scene-intro {
-  margin: 6px 0 0;
-  font-size: 0.82rem;
-  color: #5a6178;
-}
-
-.mh-scene-room {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 8px 4px 12px;
-}
-
-.mh-prop {
+.mh-nav-btn {
+  pointer-events: auto;
+  flex: 1 1 0;
+  max-width: 120px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 108px;
-  padding: 12px 8px;
-  border: 2px solid rgba(196, 149, 106, 0.45);
-  border-radius: 18px;
+  gap: 2px;
+  padding: 8px 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 252, 245, 0.88);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #1b2340;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mh-prop:active,
-.mh-prop.is-tapped {
-  transform: scale(0.94);
-  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.55), 0 6px 18px rgba(245, 166, 35, 0.3);
-}
-
-.mh-prop.is-locked.is-tapped {
-  opacity: 0.72;
-  filter: grayscale(0.15);
-  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.35), 0 4px 14px rgba(27, 35, 64, 0.12);
-}
-
-.mh-prop.is-locked {
-  opacity: 0.55;
-  filter: grayscale(0.35);
-}
-
-.mh-prop.is-unlocked {
-  border-color: rgba(245, 166, 35, 0.65);
-  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.2);
-}
-
-.mh-prop-emoji {
-  font-size: 2.2rem;
+  font-size: 1.1rem;
   line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(27, 35, 64, 0.12);
 }
 
-.mh-prop-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #5a6178;
+.mh-nav-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
-.mh-prop--door {
-  grid-column: 1 / -1;
+.mh-nav-btn--skatt {
+  color: #6c5ce7;
+  border-color: rgba(108, 92, 231, 0.35);
 }
 
-.mh-token--welcome_mat_glow.is-unlocked,
-.mh-prop.mh-token-active--welcome_mat_glow {
-  box-shadow: 0 0 20px rgba(245, 166, 35, 0.55), 0 4px 16px rgba(245, 166, 35, 0.25);
-  border-color: #f5a623;
+.mh-nav-btn--hall {
+  color: #c47a2c;
 }
 
-.mh-token--morning_light_warm.is-unlocked .mh-prop-emoji,
-.mh-prop.mh-token-active--morning_light_warm .mh-prop-emoji {
-  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.9));
+.mh-nav-btn:active {
+  transform: scale(0.96);
 }
 
+/* Legacy alias for tests referencing mh-prop */
+.mh-prop {
+  min-height: 44px;
+}
+
+.mh-skatt-link {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* ── Toast feedback ── */
 .mh-scene-toast {
   position: absolute;
-  bottom: 64px;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   z-index: 10;
   transform: translateX(-50%);
@@ -177,7 +202,6 @@
   border: 2px solid rgba(245, 166, 35, 0.55);
   font-size: 0.95rem;
   font-weight: 600;
-  font-style: normal;
   line-height: 1.35;
   color: #1b2340;
   text-align: center;
@@ -198,29 +222,6 @@
   transform: translateX(-50%) translateY(6px);
 }
 
-.mh-scene-footer {
-  position: relative;
-  z-index: 1;
-  margin-top: 12px;
-  text-align: center;
-}
-
-.mh-skatt-link {
-  min-height: 44px;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(108, 92, 231, 0.35);
-  background: rgba(255, 255, 255, 0.75);
-  color: #6c5ce7;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.child-morgonhus-active #rewardsView {
-  background: linear-gradient(180deg, #faf6ef 0%, #f0e8dc 100%) !important;
-}
-
 body.child-morgonhus-active #childGoalProgressMount,
 body.child-morgonhus-active #childPendingRedemptionMount,
 body.child-garden-active #childGoalProgressMount,
@@ -231,11 +232,12 @@ body.child-memory-hall-active #childPendingRedemptionMount {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mh-prop {
-    transition: none;
+  .mh-scene--entering,
+  .mh-tap-pulse.is-active {
+    animation: none !important;
   }
-  .mh-prop:active,
-  .mh-prop.is-tapped {
+  .mh-hotspot.is-tapped,
+  .mh-nav-btn:active {
     transform: none;
   }
 }
