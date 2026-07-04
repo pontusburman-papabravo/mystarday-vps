@@ -116,13 +116,6 @@
                       document.querySelector(`#card-${itemId} .now-check`) ||
                       document.getElementById('card-' + itemId);
       launchDopaminBurst(checkEl);
-
-      const nowCard = document.querySelector(`#card-${itemId}`);
-      if (nowCard) {
-        nowCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        nowCard.style.opacity = '0.5';
-        nowCard.style.transform = 'scale(0.97)';
-      }
     }
 
     _checkOffQueue.push({

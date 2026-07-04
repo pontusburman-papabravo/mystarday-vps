@@ -6,7 +6,7 @@
   'use strict';
 
   const API_PATH = '/api/me/morgonhus';
-  const REACTION_MS = 4200;
+  const REACTION_MS = 6500;
   const TAP_MS = 1800;
 
   const HOTSPOTS = {
@@ -71,7 +71,9 @@
     const toGarden = Boolean(state && state.gate_to_garden);
     const label = toGarden ? 'Trädgården' : 'Hallen';
     const nav = toGarden ? 'garden' : 'hall';
-    return '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav' +
+    const hint = toGarden ? 'Tryck på dörren — ut till trädgården' : 'Tryck på dörren — in i hallen';
+    return '<p class="mh-door-hint" aria-hidden="true">' + esc(hint) + '</p>' +
+      '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav' +
       (toGarden ? ' mh-hotspot--garden' : ' mh-hotspot--hall') + '"' +
       ' data-nav="' + nav + '"' +
       ' style="' + hotspotStyle(hit) + '"' +

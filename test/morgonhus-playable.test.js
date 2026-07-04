@@ -274,6 +274,8 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /data-prop="welcome_mat"/);
     assert.match(html, /data-prop="first_light"/);
     assert.match(html, /data-nav="garden"/);
+    assert.match(html, /mh-door-hint/);
+    assert.match(html, /Tryck på dörren/);
     assert.match(html, /mh-nav-dock/);
     assert.match(html, /mhHallLink/);
     assert.doesNotMatch(html, /mh-prop-emoji/);

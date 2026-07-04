@@ -122,7 +122,24 @@ body.child-worlds-v2 #rewardsView {
   background: transparent !important;
 }
 
-/* Skattkammarhus: tema-exteriör (F1–F3) i child-skatt-house.css */
-body.child-home-active .cwb-layer {
-  opacity: 0;
+/* Immersive scenes ship their own illustrated canvas — hide fixed hub/today scrims */
+body.child-home-active .cwb-layer,
+body.child-morgonhus-active .cwb-layer,
+body.child-garden-active .cwb-layer,
+body.child-memory-hall-active .cwb-layer,
+body.child-catalog-room-active .cwb-layer {
+  opacity: 0 !important;
+}
+
+/* Idag cards: solid surfaces over illustrated today background (barnmeny v2) */
+body.child-worlds-v2 #scheduleView .now-card:not(.done),
+body.child-worlds-v2 #scheduleView .nl-card:not(.done),
+body.child-worlds-v2 #scheduleView .activity-card:not(.done) {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body.child-worlds-v2 #scheduleView .now-card:not(.done) {
+  background: linear-gradient(135deg, rgba(255, 249, 238, 0.98), rgba(255, 240, 208, 0.98)) !important;
 }
