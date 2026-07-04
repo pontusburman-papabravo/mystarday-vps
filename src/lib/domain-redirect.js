@@ -13,6 +13,9 @@ const MAIN_DOMAIN = 'mystarday.se';
 function createDomainRedirect() {
   return function domainRedirect(req, res, next) {
     const host = (req.headers.host || '').split(':')[0].toLowerCase();
+    if (host === `www.${MAIN_DOMAIN}`) {
+      return res.redirect(301, `https://${MAIN_DOMAIN}${req.originalUrl}`);
+    }
     if (host && REDIRECT_DOMAINS.has(host)) {
       return res.redirect(301, `https://${MAIN_DOMAIN}${req.originalUrl}`);
     }

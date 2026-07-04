@@ -110,10 +110,16 @@ function createApp() {
   app.use(checkMaintenanceMode);
 
   const { buildSitemapXml } = require('./src/lib/sitemap');
+  const { buildRobotsTxt } = require('./src/lib/seo-pages');
   app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml');
     res.set('Cache-Control', 'public, max-age=3600');
     res.send(buildSitemapXml());
+  });
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.send(buildRobotsTxt());
   });
 
   registerRoutes(app);
