@@ -7,7 +7,7 @@
 
   const API_PATH = '/api/me/memory-hall';
   const TAP_RESET_MS = 1800;
-  const TOAST_MS = 2200;
+  const TOAST_MS = 6500;
   const MAX_WALL_FRAMES = 6;
   const ENTER_ANIM_MS = 650;
 
@@ -164,17 +164,34 @@
       '</div>';
     }
 
-    return '<div class="' + sceneClass + '" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
-      '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
-      sceneryHtml +
-      renderExhibitSlots(state.exhibits, { illustrated: true }) +
-      '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
-      '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
-      (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
-      '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
-        '<span class="mu-back-icon" aria-hidden="true"></span>' +
-      '</button>' +
-    '</div>';
+    if (illustrated) {
+      const wf = window.ChildWorldWayfinder;
+      const slots = (state.exhibits || []).map(function (slot) {
+        const copy = Object.assign({}, slot);
+        copy._tapMessage = exhibitTapMessage(slot);
+        return copy;
+      });
+      const sceneHtml = '<div class="' + sceneClass + '" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
+        '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
+        '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
+        '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
+      '</div>';
+      if (!wf || typeof wf.render !== 'function') {
+        return sceneHtml;
+      }
+      return '<div class="cww-shell">' +
+        wf.render({
+          placeId: 'memory_hall',
+          placeLabel: title,
+          placeIcon: '🖼️',
+          back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+        }) +
+        '<div class="cww-scene-stage">' + sceneHtml + '</div>' +
+        wf.renderMemoryPanel(slots) +
+      '</div>';
+    }
+
+    return '';
   }
 
   function showToast(root, message) {
@@ -188,10 +205,25 @@
     toast.classList.remove('mu-toast-off');
     toast.classList.add('is-visible');
     clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(function () {
+    function dismiss() {
       toast.classList.remove('is-visible');
       toast.classList.add('mu-toast-off');
-    }, TOAST_MS);
+      if (typeof toast.removeEventListener === 'function') {
+        toast.removeEventListener('click', dismiss);
+      }
+    }
+    if (toast.style) {
+      toast.style.pointerEvents = 'auto';
+      toast.style.cursor = 'pointer';
+    }
+    if (typeof toast.setAttribute === 'function') {
+      toast.setAttribute('role', 'button');
+      toast.setAttribute('aria-label', message + ' — tryck för att stänga');
+    }
+    if (typeof toast.addEventListener === 'function') {
+      toast.addEventListener('click', dismiss);
+    }
+    showToast._timer = setTimeout(dismiss, TOAST_MS);
   }
 
   function showFeedback(root, message) {
@@ -226,6 +258,30 @@
   function bindInteractions(root, state) {
     if (!root || !state) return;
 
+    var wf = window.ChildWorldWayfinder;
+    if (wf && typeof wf.bind === 'function') {
+      wf.bind(root, {
+        onBack: function () {
+          deactivate();
+          if (window.LivingWorldTransition
+              && typeof window.LivingWorldTransition.exitMemoryHall === 'function'
+              && window.LivingWorldTransition.activeWorldId
+              && window.LivingWorldTransition.activeWorldId() === 'memory_hall') {
+            window.LivingWorldTransition.exitMemoryHall();
+            return;
+          }
+          if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+            window.ChildWorldHub.show();
+          }
+        },
+      });
+    }
+    if (wf && typeof wf.bindMemoryPanel === 'function') {
+      wf.bindMemoryPanel(root, function (message) {
+        showToast(root, message);
+      });
+    }
+
     root.querySelectorAll('.mu-hotspot, .mu-window-tap').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.getAttribute('data-scenery');
@@ -244,7 +300,7 @@
     bindFrameInteractions(root);
 
     var backBtn = root.querySelector('#muBackGarden');
-    if (backBtn) {
+    if (backBtn && !(wf && typeof wf.bind === 'function')) {
       backBtn.addEventListener('click', function () {
         if (window.LivingWorldTransition
             && typeof window.LivingWorldTransition.activeWorldId === 'function'
@@ -330,6 +386,9 @@
     hideLoader();
     document.body.classList.add('child-memory-hall-active');
     document.body.classList.remove('child-morgonhus-active', 'child-garden-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
+      window.ChildWorldWayfinder.setActivePlace(document, 'memory_hall');
+    }
     return true;
   }
 
@@ -342,6 +401,9 @@
       _assetCleanup = null;
     }
     document.body.classList.remove('child-memory-hall-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
+      window.ChildWorldWayfinder.clearActivePlace(document);
+    }
   }
 
   function isActive() {

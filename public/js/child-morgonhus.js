@@ -1,19 +1,13 @@
 /**
  * child-morgonhus.js — Playable Morgonhuset scene (routine_home).
- * Immersive illustrated place: picture + invisible hotspots (not emoji cards).
+ * Immersive illustrated place with labeled wayfinder navigation (not invisible hotspots).
  */
 (function () {
   'use strict';
 
   const API_PATH = '/api/me/morgonhus';
-  const REACTION_MS = 2800;
+  const REACTION_MS = 6500;
   const TAP_MS = 1800;
-
-  const HOTSPOTS = {
-    welcome_mat: { x: 0.06, y: 0.68, w: 0.38, h: 0.2 },
-    first_light: { x: 0.52, y: 0.1, w: 0.38, h: 0.24 },
-    door: { x: 0.34, y: 0.28, w: 0.32, h: 0.5 },
-  };
 
   let _active = false;
   let _preferSkatt = false;
@@ -46,42 +40,18 @@
       '</picture>';
   }
 
-  function hotspotStyle(hit) {
-    if (!hit) return '';
-    return 'left:' + (hit.x * 100) + '%;top:' + (hit.y * 100) + '%;' +
-      'width:' + (hit.w * 100) + '%;height:' + (hit.h * 100) + '%;';
+  function wayfinderConfig(state) {
+    return {
+      placeId: 'morgonhus',
+      placeLabel: (state && state.display_name) || 'Morgonhuset',
+      placeIcon: '🏠',
+      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      actions: [],
+    };
   }
 
-  function progressionHotspots(props) {
-    return (props || []).filter(function (prop) {
-      return prop.prop_id !== 'door' && HOTSPOTS[prop.prop_id];
-    }).map(function (prop) {
-      const hit = HOTSPOTS[prop.prop_id];
-      const lockedClass = prop.unlocked ? ' is-unlocked' : ' is-locked';
-      return '<button type="button" class="mh-hotspot mh-hotspot--' + esc(prop.prop_id) + lockedClass + '"' +
-        ' data-prop="' + esc(prop.prop_id) + '"' +
-        ' data-node="' + esc(prop.node_id || '') + '"' +
-        ' style="' + hotspotStyle(hit) + '"' +
-        ' aria-label="' + esc(prop.label_sv) + '"></button>';
-    }).join('');
-  }
-
-  function doorHotspot(state) {
-    const hit = HOTSPOTS.door;
-    const toGarden = Boolean(state && state.gate_to_garden);
-    const label = toGarden ? 'Trädgården' : 'Hallen';
-    const nav = toGarden ? 'garden' : 'hall';
-    return '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav' +
-      (toGarden ? ' mh-hotspot--garden' : ' mh-hotspot--hall') + '"' +
-      ' data-nav="' + nav + '"' +
-      ' style="' + hotspotStyle(hit) + '"' +
-      ' aria-label="' + esc(label) + '"></button>';
-  }
-
-  function renderScene(state) {
+  function renderSceneInner(state) {
     const title = (state && state.display_name) || 'Morgonhuset';
-    const props = (state && state.props) || [];
-    const showHallInDock = Boolean(state && state.gate_to_garden);
 
     return '<div class="mh-scene mh-scene--illustrated mh-scene--entering" data-world="routine_home"' +
       ' role="img" aria-label="' + esc(title) + '">' +
@@ -89,21 +59,37 @@
         scenePictureMarkup() +
         '<div class="mh-tap-pulse" id="mhTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      progressionHotspots(props) +
-      doorHotspot(state) +
-      '<nav class="mh-nav-dock" aria-label="Utforskning">' +
-        '<button type="button" class="mh-nav-btn mh-nav-btn--exterior" id="mhExteriorLink"' +
-          ' aria-label="Utanför">🏡<span class="mh-nav-label">Utanför</span></button>' +
-        (showHallInDock
-          ? '<button type="button" class="mh-nav-btn mh-nav-btn--hall" id="mhHallLink"' +
-              ' aria-label="Hallen">🚪<span class="mh-nav-label">Hallen</span></button>'
-          : '') +
-        '<button type="button" class="mh-nav-btn mh-nav-btn--skatt" id="mhSkattLink"' +
-          ' aria-label="Skattkammaren">💎<span class="mh-nav-label">Skatt</span></button>' +
-      '</nav>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status"' +
         ' aria-live="polite" aria-atomic="true"></div>' +
     '</div>';
+  }
+
+  function renderScene(state) {
+    const inner = renderSceneInner(state);
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.render !== 'function') {
+      return inner;
+    }
+    return '<div class="cww-shell">' +
+      wf.render(wayfinderConfig(state)) +
+      '<div class="cww-scene-stage">' + inner + '</div>' +
+    '</div>';
+  }
+
+  function bindWayfinder(root, state, handlers) {
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.bind !== 'function' || !root) return;
+
+    const h = handlers || {};
+    wf.bind(root, {
+      onBack: function () {
+        deactivate();
+        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+          window.ChildWorldHub.show();
+        }
+      },
+      onAction: async function () {},
+    });
   }
 
   function findProp(state, propId) {
@@ -117,10 +103,25 @@
     toast.classList.remove('mh-toast-off');
     toast.classList.add('is-visible');
     clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(function () {
+    function dismiss() {
       toast.classList.remove('is-visible');
       toast.classList.add('mh-toast-off');
-    }, REACTION_MS);
+      if (typeof toast.removeEventListener === 'function') {
+        toast.removeEventListener('click', dismiss);
+      }
+    }
+    if (toast.style) {
+      toast.style.pointerEvents = 'auto';
+      toast.style.cursor = 'pointer';
+    }
+    if (typeof toast.setAttribute === 'function') {
+      toast.setAttribute('role', 'button');
+      toast.setAttribute('aria-label', message + ' — tryck för att stänga');
+    }
+    if (typeof toast.addEventListener === 'function') {
+      toast.addEventListener('click', dismiss);
+    }
+    showToast._timer = setTimeout(dismiss, REACTION_MS);
   }
 
   function triggerPulse(root) {
@@ -195,70 +196,7 @@
 
   function bindInteractions(root, state, handlers) {
     if (!root || !state) return;
-
-    const h = handlers || {};
-
-    root.querySelectorAll('[data-prop]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const propId = btn.getAttribute('data-prop');
-        const liveState = _state || state;
-        const prop = findProp(liveState, propId);
-        if (!prop) return;
-
-        if (prop.unlocked || prop.always_active) {
-          triggerReaction(btn, prop.visual_token);
-          const msg = prop.child_message || prop.ambient_message || 'Det händer något…';
-          showToast(root, msg);
-          triggerPulse(root);
-          if (h.onPropTap) h.onPropTap(prop);
-          return;
-        }
-
-        triggerReaction(btn, null);
-        showToast(root, prop.locked_hint || 'Inte redo än.');
-        if (h.onLockedTap) h.onLockedTap(prop);
-      });
-    });
-
-    root.querySelectorAll('[data-nav]').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        const nav = btn.getAttribute('data-nav');
-        if (nav === 'garden') {
-          const entered = await enterGardenFromDoor(root, btn);
-          if (entered && h.onGardenEnter) h.onGardenEnter(findProp(_state || state, 'door'));
-          return;
-        }
-        if (nav === 'hall') {
-          await enterHall(root, btn);
-        }
-      });
-    });
-
-    const skattLink = root.querySelector('#mhSkattLink');
-    if (skattLink && h.onSkattLink) {
-      skattLink.addEventListener('click', h.onSkattLink);
-    }
-
-    const hallLink = root.querySelector('#mhHallLink');
-    if (hallLink) {
-      hallLink.addEventListener('click', function () {
-        enterHall(root, hallLink);
-      });
-    }
-
-    const exteriorLink = root.querySelector('#mhExteriorLink');
-    if (exteriorLink) {
-      exteriorLink.addEventListener('click', function () {
-        if (window.LivingWorldTransition
-            && typeof window.LivingWorldTransition.enterWorld === 'function') {
-          window.LivingWorldTransition.enterWorld('home_exterior', { triggerEl: exteriorLink }).then(function (entered) {
-            if (!entered) {
-              showToast(root, 'Utanför är inte redo just nu.');
-            }
-          });
-        }
-      });
-    }
+    bindWayfinder(root, state, handlers);
   }
 
   function bindAssetWatch(root) {
@@ -309,6 +247,9 @@
       _assetCleanup = null;
     }
     document.body.classList.remove('child-morgonhus-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
+      window.ChildWorldWayfinder.clearActivePlace(document);
+    }
   }
 
   function openSkattkammaren() {
@@ -344,6 +285,12 @@
     hideLoader();
     document.body.classList.add('child-morgonhus-active');
     document.body.classList.remove('child-garden-active', 'child-catalog-room-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
+      window.ChildWorldWayfinder.setActivePlace(document, 'morgonhus');
+    }
+    if (window.PlatformFeedback && typeof window.PlatformFeedback.showPendingHintIfAny === 'function') {
+      setTimeout(function () { window.PlatformFeedback.showPendingHintIfAny(); }, 500);
+    }
   }
 
   function tryRemountCached() {

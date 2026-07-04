@@ -478,6 +478,23 @@ body.child-memory-hall-active #rewardsView {
   line-height: 1;
 }
 
+.mu-back-hint {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  left: 58px;
+  z-index: 5;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 252, 245, 0.9);
+  border: 1px solid rgba(108, 92, 231, 0.25);
+  color: #1b2340;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .mu-back-fab {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 10px);

@@ -13,6 +13,7 @@ function read(rel) {
 }
 
 function loadChildGarden() {
+  const wfSrc = read('public/js/child-world-wayfinder.js');
   const src = read('public/js/child-garden.js');
   const dom = {
     readyState: 'complete',
@@ -32,11 +33,13 @@ function loadChildGarden() {
     setTimeout,
     clearTimeout,
   };
+  vm.runInNewContext(wfSrc, ctx);
   vm.runInNewContext(src, ctx);
   return ctx.window.ChildGarden;
 }
 
 function loadChildMorgonhus() {
+  const wfSrc = read('public/js/child-world-wayfinder.js');
   const src = read('public/js/child-morgonhus.js');
   const dom = {
     readyState: 'complete',
@@ -53,45 +56,46 @@ function loadChildMorgonhus() {
     setTimeout,
     clearTimeout,
   };
+  vm.runInNewContext(wfSrc, ctx);
   vm.runInNewContext(src, ctx);
   return ctx.window.ChildMorgonhus;
 }
 
 describe('child world accessibility — Min värld (BL-028)', () => {
-  it('garden scene has accessible name and labelled hotspots', () => {
+  it('garden scene has accessible name and wayfinder actions', () => {
     const ChildGarden = loadChildGarden();
     const html = ChildGarden.renderScene({
       display_name: 'Trädgården',
       scenery: [
-        { scenery_id: 'garden_path', label_sv: 'Stigen', hotspot_class: 'gd-hotspot--path' },
+        { scenery_id: 'garden_path', label_sv: 'Stigen', leads_to_memory_hall: true },
         { scenery_id: 'garden_bed', label_sv: 'Blomsterbädden', hotspot_class: 'gd-hotspot--bed' },
       ],
     });
     assert.match(html, /role="img"/);
     assert.match(html, /aria-label="Trädgården"/);
-    assert.match(html, /aria-label="Stigen"/);
-    assert.match(html, /aria-label="Blomsterbädden"/);
+    assert.match(html, /data-cww-action="bed"/);
+    assert.match(html, /Blomsterbädd/);
+    assert.doesNotMatch(html, /data-cww-action="memory"/);
     assert.match(html, /role="status"/);
     assert.match(html, /aria-live="polite"/);
-    assert.doesNotMatch(html, /gd-path-cta/);
   });
 
-  it('garden path to Minnesrummet uses invisible hotspot shimmer, not floating pill', () => {
+  it('garden path to Minnesrummet uses labeled wayfinder button', () => {
     const ChildGarden = loadChildGarden();
     const html = ChildGarden.renderScene({
       scenery: [
         { scenery_id: 'garden_path', label_sv: 'Stigen', leads_to_memory_hall: true },
       ],
     });
-    assert.match(html, /gd-hotspot--path-unlocked/);
-    assert.match(html, /Stigen till Minnesrummet/);
-    assert.doesNotMatch(html, /gd-path-cta/);
+    assert.match(html, /data-cww-action="memory"/);
+    assert.match(html, /Minnen/);
+    assert.doesNotMatch(html, /gd-hotspot--path/);
   });
 
-  it('garden back control meets 44px minimum touch target', () => {
-    const css = read('public/css/child-garden.css');
-    assert.match(css, /gd-back-fab[\s\S]*min-width:\s*44px/);
-    assert.match(css, /gd-back-fab[\s\S]*min-height:\s*44px/);
+  it('wayfinder back control meets 44px minimum touch target', () => {
+    const css = read('public/css/child-world-wayfinder.css');
+    assert.match(css, /cww-back[\s\S]*min-height:\s*44px/);
+    assert.match(css, /cww-action[\s\S]*min-height:\s*52px/);
   });
 
   it('garden respects prefers-reduced-motion for all LOE visual tokens', () => {
@@ -108,26 +112,23 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
   });
 
-  it('morgonhus scene has labelled hotspots and atomic status region', () => {
+  it('morgonhus scene has wayfinder actions and status region', () => {
     const ChildMorgonhus = loadChildMorgonhus();
     const html = ChildMorgonhus.renderScene({
       display_name: 'Morgonhuset',
-      props: [
-        { prop_id: 'welcome_mat', label_sv: 'Välkomstmattan', unlocked: true },
-        { prop_id: 'door', label_sv: 'Dörren', unlocked: false },
-      ],
+      gate_to_garden: true,
+      props: [],
     });
-    assert.match(html, /aria-label="Välkomstmattan"/);
-    assert.match(html, /aria-label="Hallen"|aria-label="Trädgården"/);
+    assert.match(html, /cww-place-text/);
+    assert.match(html, /Morgonhuset/);
+    assert.match(html, /data-cww-action="garden"/);
     assert.match(html, /aria-live="polite"/);
-    assert.match(html, /aria-atomic="true"/);
     assert.match(html, /role="status"/);
   });
 
-  it('morgonhus nav dock meets 44px minimum touch target', () => {
-    const css = read('public/css/child-morgonhus.css');
-    assert.match(css, /mh-nav-btn[\s\S]*min-width:\s*44px/);
-    assert.match(css, /mh-nav-btn[\s\S]*min-height:\s*44px/);
+  it('morgonhus wayfinder actions meet 44px minimum touch target', () => {
+    const css = read('public/css/child-world-wayfinder.css');
+    assert.match(css, /cww-action[\s\S]*min-height:\s*52px/);
   });
 
   it('morgonhus scene uses aria-live polite for feedback', () => {

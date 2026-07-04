@@ -142,12 +142,12 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   height: 30%;
 }
 
-/* Illustrated scene: gate + path sit mid-frame on mobile art */
+/* Illustrated scene: narrow path strip — avoid stealing taps from blomsterbädd */
 .gd-scene--illustrated .gd-hotspot--path {
-  left: 14%;
-  bottom: 22%;
-  width: 72%;
-  height: 48%;
+  left: 28%;
+  bottom: 28%;
+  width: 44%;
+  height: 32%;
   min-height: 44px;
 }
 
@@ -278,7 +278,201 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   .gd-scene-canvas.is-path-tap .gd-scene-bg,
   .gd-scene-canvas.is-bloom-tap .gd-scene-bg,
   .gd-scene-canvas.is-sky-tap .gd-scene-bg,
-  .gd-hotspot.is-tapped::after {
+  .gd-hotspot.is-tapped::after,
+  .gd-loe--sunflower_seed::after,
+  .gd-hotspot--bed-ready::before,
+  .gd-harvest-celebrate .gd-harvest-burst {
     animation: none !important;
   }
+}
+
+/* ── Living Objects — bed overlay (visual_token driven) ── */
+.gd-bed-overlay {
+  position: absolute;
+  right: 6%;
+  bottom: 14%;
+  width: 36%;
+  height: 30%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gd-loe--garden_bed_empty::after {
+  content: '';
+  position: absolute;
+  left: 20%;
+  bottom: 8%;
+  width: 60%;
+  height: 35%;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(ellipse at 50% 80%, rgba(101, 67, 33, 0.35), transparent 72%);
+}
+
+.gd-loe--sunflower_seed::after {
+  content: '';
+  position: absolute;
+  left: 38%;
+  bottom: 18%;
+  width: 24%;
+  height: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5c4033 0%, #3d2817 55%, transparent 70%);
+  box-shadow: 0 0 12px rgba(92, 64, 51, 0.4);
+  animation: gd-seed-grow 2.4s ease-in-out infinite;
+}
+
+@keyframes gd-seed-grow {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+
+.gd-loe--sunflower_seed::before {
+  content: '';
+  position: absolute;
+  left: 46%;
+  bottom: 8%;
+  width: 8%;
+  height: 22%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #4a7c3f, #2d5a27);
+}
+
+.gd-loe--sunflower_bloom::before {
+  content: '';
+  position: absolute;
+  left: 46%;
+  bottom: 6%;
+  width: 8%;
+  height: 28%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #4a7c3f, #2d5a27);
+}
+
+.gd-loe--sunflower_bloom::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  bottom: 28%;
+  width: 56%;
+  height: 52%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #5c3d1e 0%, #5c3d1e 22%, transparent 23%),
+    repeating-conic-gradient(from 0deg, #f5c842 0deg 18deg, #f0a820 18deg 36deg);
+  box-shadow: 0 4px 20px rgba(245, 166, 35, 0.45);
+  animation: gd-bloom-arrive 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes gd-bloom-arrive {
+  from { transform: scale(0.4) translateY(12px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.gd-loe--sunflower_harvested::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  bottom: 20%;
+  width: 40%;
+  height: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 200, 66, 0.25), transparent 70%);
+  opacity: 0.6;
+}
+
+/* ── Bed hotspot affordances ── */
+.gd-hotspot--bed-ready::before {
+  content: '';
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.28), transparent 68%);
+  animation: gd-bed-invite 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gd-bed-invite {
+  0%, 100% { opacity: 0.4; transform: scale(0.95); }
+  50%      { opacity: 0.85; transform: scale(1.02); }
+}
+
+.gd-hotspot--bed-harvest::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 220, 80, 0.35), transparent 70%);
+  animation: gd-bed-invite 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.gd-hotspot--bed-growing {
+  cursor: default;
+}
+
+.gd-hotspot.is-acting {
+  opacity: 0.7;
+}
+
+/* ── LOE status + harvest celebration (≤2s, skippable) ── */
+.gd-scene-status {
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(1rem, env(safe-area-inset-bottom, 0px)) + 3.5rem);
+  transform: translateX(-50%);
+  z-index: 12;
+  max-width: min(20rem, 90vw);
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.75rem;
+  background: rgba(27, 35, 64, 0.9);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gd-scene-status:not(:empty) {
+  opacity: 1;
+}
+
+.gd-harvest-celebrate {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 55%, rgba(255, 248, 200, 0.55), transparent 65%);
+  cursor: pointer;
+  animation: gd-harvest-fade-in 0.25s ease forwards;
+}
+
+.gd-harvest-celebrate.is-done {
+  animation: gd-harvest-fade-out 0.2s ease forwards;
+}
+
+@keyframes gd-harvest-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes gd-harvest-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.gd-harvest-burst {
+  font-size: 4rem;
+  line-height: 1;
+  animation: gd-harvest-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  filter: drop-shadow(0 4px 12px rgba(245, 166, 35, 0.5));
+}
+
+@keyframes gd-harvest-pop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }

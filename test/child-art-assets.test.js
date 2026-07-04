@@ -58,6 +58,13 @@ describe('child art assets — manifest + files', () => {
     assert.match(lazy, /\/images\/child\/family\/hall@2x\.webp/);
   });
 
+  it('immersive scenes hide fixed world-bg layers', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/child-world-bg.css'), 'utf8');
+    assert.match(css, /body\.child-morgonhus-active \.cwb-layer/);
+    assert.match(css, /body\.child-garden-active \.cwb-layer/);
+    assert.match(css, /opacity:\s*0\s*!important/);
+  });
+
   it('garden pipeline uses canonical child image path', () => {
     const pipeline = fs.readFileSync(path.join(ROOT, 'public/js/garden-asset-pipeline.js'), 'utf8');
     assert.match(pipeline, /\/images\/child\/world\/garden\//);
