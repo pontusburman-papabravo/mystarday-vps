@@ -1,6 +1,6 @@
 /**
  * child-morgonhus.js — Playable Morgonhuset scene (routine_home).
- * Immersive illustrated place with labeled wayfinder navigation (not invisible hotspots).
+ * Immersive illustrated place — scene hotspots for play, wayfinder for orientation.
  */
 (function () {
   'use strict';
@@ -50,6 +50,16 @@
     };
   }
 
+  function renderDoorHotspot(state) {
+    if (!state || !state.gate_to_garden) return '';
+    const door = findProp(state, 'door');
+    const label = (door && door.label_sv) || 'Ut till trädgården';
+    return '<p class="mh-door-hint" aria-hidden="true">Ut till trädgården</p>' +
+      '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav"' +
+        ' data-prop="door" data-nav="garden"' +
+        ' aria-label="' + esc(label) + '"></button>';
+  }
+
   function renderSceneInner(state) {
     const title = (state && state.display_name) || 'Morgonhuset';
 
@@ -57,6 +67,7 @@
       ' role="img" aria-label="' + esc(title) + '">' +
       '<div class="mh-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
+        renderDoorHotspot(state) +
         '<div class="mh-tap-pulse" id="mhTapPulse" aria-hidden="true"></div>' +
       '</div>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status"' +
@@ -194,9 +205,20 @@
     return entered;
   }
 
+  function bindSceneHotspots(root, state) {
+    if (!root || !state) return;
+    const doorBtn = root.querySelector('[data-prop="door"]');
+    if (doorBtn && state.gate_to_garden) {
+      doorBtn.addEventListener('click', function () {
+        enterGardenFromDoor(root, doorBtn);
+      });
+    }
+  }
+
   function bindInteractions(root, state, handlers) {
     if (!root || !state) return;
     bindWayfinder(root, state, handlers);
+    bindSceneHotspots(root, state);
   }
 
   function bindAssetWatch(root) {

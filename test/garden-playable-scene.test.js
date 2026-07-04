@@ -217,6 +217,8 @@ describe('ChildGarden client module', () => {
     assert.match(html, /scene-bg/);
     assert.match(html, /data-cww-action="bed"/);
     assert.match(html, /Blomsterbädd/);
+    assert.match(html, /gd-hotspot--bed/);
+    assert.match(html, /data-scenery="garden_bed"/);
     assert.match(html, /data-cww-action="back"|cww-back/);
     assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
@@ -254,11 +256,17 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus wayfinder only goes back to hub (no scene hotspots)', () => {
-    assert.match(mhSrc, /ChildWorldHub\.show/);
-    assert.match(mhSrc, /actions:\s*\[\]/);
-    assert.doesNotMatch(mhSrc, /data-nav=/);
-    assert.doesNotMatch(mhSrc, /mh-prop-emoji/);
+  it('morgonhus scene has door hotspot when garden gate open', () => {
+    assert.match(mhSrc, /renderDoorHotspot/);
+    assert.match(mhSrc, /mh-hotspot--door/);
+    assert.match(mhSrc, /enterGardenFromDoor/);
+    assert.match(mhSrc, /bindSceneHotspots/);
+  });
+
+  it('garden bed is tappable in scene via bindInteractions', () => {
+    assert.match(src, /renderBedHotspot/);
+    assert.match(src, /bindSceneryButton/);
+    assert.match(src, /data-scenery="garden_bed"/);
   });
 
   it('garden exit returns to world hub', () => {

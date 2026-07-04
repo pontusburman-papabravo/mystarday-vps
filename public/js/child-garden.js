@@ -135,12 +135,23 @@
     '</div>';
   }
 
+  function renderBedHotspot(slot) {
+    const bed = slot || getBedSlot();
+    const locked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
+    return '<button type="button" class="gd-hotspot gd-hotspot--bed' + bedHotspotExtraClass(bed) + '"' +
+      ' data-scenery="garden_bed"' +
+      ' aria-label="' + esc(bedAriaLabel(bed)) + '"' +
+      (locked ? ' disabled' : '') +
+      '></button>';
+  }
+
   function renderSceneInner(state) {
     const bedSlot = getBedSlot();
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
+        renderBedHotspot(bedSlot) +
         renderBedOverlay(bedSlot) +
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
@@ -515,6 +526,9 @@
   function bindInteractions(root) {
     if (!root) return;
     bindWayfinder(root);
+    root.querySelectorAll('[data-scenery]').forEach(function (btn) {
+      bindSceneryButton(root, btn);
+    });
   }
 
   function finishEnterAnimation(root) {

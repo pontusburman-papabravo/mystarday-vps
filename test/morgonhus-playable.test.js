@@ -277,10 +277,41 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /Morgonhuset/);
     assert.match(html, /Min värld/);
     assert.match(html, /data-cww-action="back"/);
+    assert.match(html, /mh-hotspot--door/);
+    assert.match(html, /data-prop="door"/);
     assert.doesNotMatch(html, /data-cww-action="garden"/);
     assert.doesNotMatch(html, /mh-nav-dock/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
     assert.doesNotMatch(html, /mh-scene-title/);
+  });
+
+  it('bindInteractions wires door to enterGardenFromDoor when gate open', () => {
+    const { ChildMorgonhus, context } = loadModule();
+    let gardenEntered = false;
+    const state = { gate_to_garden: true, props: [], display_name: 'Morgonhuset' };
+    const doorBtn = {
+      getAttribute: function (name) {
+        if (name === 'data-prop') return 'door';
+        return null;
+      },
+      classList: { add: () => {}, remove: () => {} },
+      addEventListener: function (_evt, fn) { this._click = fn; },
+      dispatchEvent: function () { if (this._click) this._click(); return true; },
+    };
+    const root = {
+      innerHTML: ChildMorgonhus.renderScene(state),
+      querySelector: function (sel) {
+        if (sel === '[data-prop="door"]') return doorBtn;
+        return null;
+      },
+      querySelectorAll: function () { return []; },
+    };
+    context.window.LivingWorldTransition = {
+      enterGarden: async function () { gardenEntered = true; return true; },
+    };
+    ChildMorgonhus.bindInteractions(root, state, {});
+    doorBtn.dispatchEvent();
+    assert.equal(gardenEntered, true);
   });
 
   it('bindInteractions wires wayfinder back to hub', () => {

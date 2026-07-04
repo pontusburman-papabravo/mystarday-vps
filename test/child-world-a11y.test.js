@@ -119,7 +119,7 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     });
     assert.match(html, /cww-place-text/);
     assert.match(html, /Morgonhuset/);
-    assert.match(html, /data-cww-action="garden"/);
+    assert.match(html, /mh-hotspot--door/);
     assert.match(html, /aria-live="polite"/);
     assert.match(html, /role="status"/);
   });
