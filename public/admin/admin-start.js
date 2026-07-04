@@ -104,7 +104,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 class="text-xl font-heading font-bold text-navy">Nyckeltal</h2>
-          <p class="text-sm text-text-soft">Registrering, Meta-annons och aktivering — senaste 7 dagar</p>
+          <p class="text-sm text-text-soft">Registrering, familjer och aktivering — senaste 7 dagar</p>
         </div>
         <a href="#anvandning" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Utökad användning →</a>
       </div>
@@ -117,11 +117,11 @@
           '#familjer'
         )}
         ${kpiCard(
-          'Från Meta-annons',
-          m.metaSignups7d ?? '–',
-          `${m.metaSignupsToday || 0} idag · utm_source=meta`,
-          m.metaSignups7d > 0 ? 'text-green-700' : 'text-text-soft',
-          '#analytics'
+          'Antal familjer',
+          m.totalFamilies ?? '–',
+          `${m.signups7d || 0} nya senaste 7 dagarna`,
+          'text-text-soft',
+          '#familjer'
         )}
         ${kpiCard(
           'North Star — P0 inom 48h',

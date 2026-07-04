@@ -39,9 +39,6 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
         }],
       };
     }
-    if (q.includes('signup_attribution') && q.includes('utm_source')) {
-      return { rows: [{ meta_7d: 3, meta_today: 1 }] };
-    }
     if (q.includes('stuck_families')) {
       return { rows: [{ stuck: 4 }] };
     }
@@ -144,7 +141,7 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     const body = await res.json();
     assert.ok(body.generatedAt);
     assert.equal(body.keyMetrics.signups7d, 8);
-    assert.equal(body.keyMetrics.metaSignups7d, 3);
+    assert.equal(body.keyMetrics.totalFamilies, 201);
     assert.equal(body.keyMetrics.p0_48h, 1);
     assert.equal(body.keyMetrics.stuckOnboarding, 4);
     assert.equal(body.keyMetrics.founderSlotsLeft, 24);
@@ -174,10 +171,23 @@ test('getMessageCounts query uses contact_message alias consistently', () => {
   assert.doesNotMatch(cmSrc, /FROM contact_message\n/);
 });
 
-test('fetchRecommendations lead count avoids mixed-type UNION on id', () => {
+test('fetchKeyMetrics does not query Meta attribution', () => {
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  assert.doesNotMatch(src, /signup_attribution/);
+  assert.doesNotMatch(src, /metaSignups/);
+});
+
+test('fetchRecommendations uses operational alerts only', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  assert.match(src, /adminOperationalAlerts\.listActive/);
   assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
-  assert.match(src, /FROM package_interest WHERE lead_status = 'ny'/);
+});
+
+test('admin-start.js shows familjer KPI instead of Meta', () => {
+  const js = fs.readFileSync(path.join(__dirname, '../public/admin/admin-start.js'), 'utf8');
+  assert.match(js, /Antal familjer/);
+  assert.doesNotMatch(js, /Från Meta-annons/);
+  assert.doesNotMatch(js, /metaSignups/);
 });
 
 test('admin-start.js and overview blocks exist', () => {
