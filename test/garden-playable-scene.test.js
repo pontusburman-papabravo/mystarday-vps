@@ -304,6 +304,7 @@ describe('ChildGarden client module', () => {
     assert.match(src, /\bplant\b/);
     assert.match(src, /\bharvest\b/);
     assert.match(src, /gdBedOverlay/);
+    assert.match(src, /sunflower-bloom\.svg/);
     assert.match(src, /launchHarvestCelebration/);
     assert.doesNotMatch(src, /showToast/);
   });

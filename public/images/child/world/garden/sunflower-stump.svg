@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <radialGradient id="st-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f5c842" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f5c842" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="st-soil" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5c4033" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#5c4033" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="40" cy="58" rx="28" ry="12" fill="url(#st-glow)"/>
+  <ellipse cx="40" cy="62" rx="24" ry="9" fill="url(#st-soil)"/>
+  <path d="M40 62 L40 48" stroke="#3d7a35" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="40" cy="48" rx="5" ry="3" fill="#4a7c3f"/>
+</svg>

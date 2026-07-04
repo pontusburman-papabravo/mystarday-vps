@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" fill="none">
+  <defs>
+    <radialGradient id="sf-center" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#3d2817"/>
+      <stop offset="70%" stop-color="#5c3d1e"/>
+      <stop offset="100%" stop-color="#7a4f28"/>
+    </radialGradient>
+    <linearGradient id="sf-petal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe566"/>
+      <stop offset="100%" stop-color="#f0a820"/>
+    </linearGradient>
+    <linearGradient id="sf-stem" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5a9e4a"/>
+      <stop offset="100%" stop-color="#2d6b28"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(60 54)">
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(22.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(45)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(67.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(90)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(112.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(135)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(157.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(202.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(225)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(247.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(270)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(292.5)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(315)"/>
+    <ellipse cx="0" cy="-30" rx="10" ry="21" fill="url(#sf-petal)" transform="rotate(337.5)"/>
+    <circle cx="0" cy="0" r="15" fill="url(#sf-center)"/>
+    <circle cx="-4" cy="-3" r="1.2" fill="#2a1a0e" opacity="0.35"/>
+    <circle cx="3" cy="2" r="1" fill="#2a1a0e" opacity="0.3"/>
+    <circle cx="5" cy="-4" r="0.9" fill="#2a1a0e" opacity="0.28"/>
+  </g>
+  <path d="M60 70 C58 95 62 118 60 148" stroke="url(#sf-stem)" stroke-width="5.5" stroke-linecap="round"/>
+  <ellipse cx="46" cy="108" rx="16" ry="7" fill="#4a9a42" transform="rotate(-28 46 108)"/>
+  <ellipse cx="74" cy="124" rx="15" ry="6.5" fill="#3f8a38" transform="rotate(24 74 124)"/>
+</svg>
