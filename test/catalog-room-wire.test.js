@@ -37,12 +37,10 @@ describe('catalog room wire-in (all exportable rooms)', () => {
     assert.match(html, /child-catalog-room\.css/);
   });
 
-  it('morgonhus exposes Hallen and Utanför entry points', () => {
+  it('morgonhus exposes hall navigation via wayfinder config', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-morgonhus.js'), 'utf8');
-    assert.match(src, /id: 'hall'/);
-    assert.match(src, /id: 'exterior'/);
-    assert.match(src, /enterWorld\('home_hall'/);
-    assert.match(src, /enterWorld\('home_exterior'/);
+    assert.match(src, /placeId: 'morgonhus'/);
+    assert.match(src, /ChildWorldHub\.show/);
   });
 
   it('garden exposes outdoor catalog navigation hotspots', () => {

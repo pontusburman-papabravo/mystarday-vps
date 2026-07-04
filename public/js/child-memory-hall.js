@@ -184,7 +184,7 @@
           placeId: 'memory_hall',
           placeLabel: title,
           placeIcon: '🖼️',
-          back: { label: 'Tillbaka till trädgården', short: 'Trädgården' },
+          back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
         }) +
         '<div class="cww-scene-stage">' + sceneHtml + '</div>' +
         wf.renderMemoryPanel(slots) +
@@ -262,14 +262,17 @@
     if (wf && typeof wf.bind === 'function') {
       wf.bind(root, {
         onBack: function () {
+          deactivate();
           if (window.LivingWorldTransition
-              && typeof window.LivingWorldTransition.activeWorldId === 'function'
-              && window.LivingWorldTransition.activeWorldId() === 'memory_hall'
-              && typeof window.LivingWorldTransition.exitMemoryHall === 'function') {
+              && typeof window.LivingWorldTransition.exitMemoryHall === 'function'
+              && window.LivingWorldTransition.activeWorldId
+              && window.LivingWorldTransition.activeWorldId() === 'memory_hall') {
             window.LivingWorldTransition.exitMemoryHall();
             return;
           }
-          deactivate();
+          if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+            window.ChildWorldHub.show();
+          }
         },
       });
     }

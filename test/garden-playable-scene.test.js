@@ -254,17 +254,21 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus wayfinder navigates to garden when gate_to_garden', () => {
-    assert.match(mhSrc, /gate_to_garden/);
-    assert.match(mhSrc, /id: 'garden'/);
-    assert.match(mhSrc, /id === 'garden'/);
-    assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
-    assert.match(mhSrc, /function deactivate/);
+  it('morgonhus wayfinder only goes back to hub (no scene hotspots)', () => {
+    assert.match(mhSrc, /ChildWorldHub\.show/);
+    assert.match(mhSrc, /actions:\s*\[\]/);
+    assert.doesNotMatch(mhSrc, /data-nav=/);
+    assert.doesNotMatch(mhSrc, /mh-prop-emoji/);
   });
 
-  it('garden exit returns to morgonhus via tryMountWorld', () => {
+  it('garden exit returns to world hub', () => {
     assert.match(src, /exitToMorgonhus/);
-    assert.match(src, /ChildMorgonhus\.tryMountWorld/);
+    assert.match(src, /ChildWorldHub\.show/);
+    const transitionSrc = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-living-world-transition.js'),
+      'utf8'
+    );
+    assert.match(transitionSrc, /ChildWorldHub\.show/);
   });
 
   it('child-dashboard showTab respects garden active state', () => {

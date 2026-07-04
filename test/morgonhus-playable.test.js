@@ -258,7 +258,7 @@ describe('ChildMorgonhus client module', () => {
       context
     );
     vm.runInNewContext(src, context);
-    return { ChildMorgonhus: context.window.ChildMorgonhus, listeners };
+    return { ChildMorgonhus: context.window.ChildMorgonhus, listeners, context };
   }
 
   it('renderScene uses wayfinder chrome with labeled navigation', () => {
@@ -274,23 +274,21 @@ describe('ChildMorgonhus client module', () => {
     });
 
     assert.match(html, /cww-shell/);
-    assert.match(html, /mh-scene--illustrated/);
-    assert.match(html, /morg-scene-picture|morg-scene-bg/);
-    assert.match(html, /data-cww-action="garden"/);
-    assert.match(html, /Trädgården/);
-    assert.match(html, /data-cww-action="skatt"/);
+    assert.match(html, /Morgonhuset/);
+    assert.match(html, /Min värld/);
+    assert.match(html, /data-cww-action="back"/);
+    assert.doesNotMatch(html, /data-cww-action="garden"/);
     assert.doesNotMatch(html, /mh-nav-dock/);
-    assert.doesNotMatch(html, /data-nav="garden"/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
     assert.doesNotMatch(html, /mh-scene-title/);
   });
 
-  it('bindInteractions wires wayfinder skatt action', () => {
-    const { ChildMorgonhus } = loadModule();
-    const state = { gate_to_garden: true, props: [] };
-    let skattOpened = false;
-    const skattBtn = {
-      getAttribute: (name) => (name === 'data-cww-action' ? 'skatt' : null),
+  it('bindInteractions wires wayfinder back to hub', () => {
+    const { ChildMorgonhus, context } = loadModule();
+    const state = { gate_to_garden: true, props: [], display_name: 'Morgonhuset' };
+    let hubShown = false;
+    const backBtn = {
+      getAttribute: (name) => (name === 'data-cww-action' ? 'back' : null),
       disabled: false,
       classList: { contains: () => false },
       addEventListener: function (_evt, fn) { this._click = fn; },
@@ -300,17 +298,14 @@ describe('ChildMorgonhus client module', () => {
       innerHTML: ChildMorgonhus.renderScene(state),
       querySelector: function () { return null; },
       querySelectorAll: function (sel) {
-        if (sel === '[data-cww-action]') return [skattBtn];
+        if (sel === '[data-cww-action]') return [backBtn];
         return [];
       },
     };
-
-    ChildMorgonhus.bindInteractions(root, state, {
-      onSkattLink: function () { skattOpened = true; },
-    });
-
-    skattBtn.dispatchEvent();
-    assert.equal(skattOpened, true);
+    context.window.ChildWorldHub = { show: function () { hubShown = true; } };
+    ChildMorgonhus.bindInteractions(root, state, {});
+    backBtn.dispatchEvent();
+    assert.equal(hubShown, true);
   });
 
   it('applyUnlockedState marks locked and unlocked props', () => {
@@ -368,8 +363,8 @@ describe('ChildMorgonhus client module', () => {
     assert.match(worldSrc, /!window\.ChildMorgonhus/);
   });
 
-  it('bindWayfinder uses live state for garden enter (no stale closure)', () => {
-    assert.match(src, /findProp\(_state \|\| state/);
+  it('bindWayfinder returns to hub on back', () => {
+    assert.match(src, /ChildWorldHub\.show/);
     assert.match(src, /bindWayfinder/);
   });
 
@@ -395,7 +390,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
   });
 
-  it('loadRewards gates Morgonhus mount on morgonhus_playable feature', () => {
+  it('loadRewards shows world hub when morgonhus_playable is on', () => {
     const rewardsSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-rewards.js'),
       'utf8'
@@ -405,6 +400,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(rewardsSrc, /shouldPreferSkatt/);
     assert.match(rewardsSrc, /options\.force/);
     assert.match(rewardsSrc, /clearPreferSkatt/);
-    assert.match(rewardsSrc, /ChildMorgonhus\.tryMountWorld/);
+    assert.match(rewardsSrc, /ChildWorldHub\.tryShow/);
+    assert.match(rewardsSrc, /skipHub/);
   });
 });

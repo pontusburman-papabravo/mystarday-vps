@@ -115,15 +115,17 @@
   }
 
   function setActivePlace(documentRoot, placeId) {
-    if (documentRoot && documentRoot.body && documentRoot.body.classList) {
-      documentRoot.body.classList.add('child-wayfinder-active');
+    if (!documentRoot || !documentRoot.body || !documentRoot.body.classList) return;
+    documentRoot.body.classList.add('child-wayfinder-active');
+    if (typeof documentRoot.body.setAttribute === 'function') {
       documentRoot.body.setAttribute('data-cww-place', placeId || '');
     }
   }
 
   function clearActivePlace(documentRoot) {
-    if (documentRoot && documentRoot.body && documentRoot.body.classList) {
-      documentRoot.body.classList.remove('child-wayfinder-active');
+    if (!documentRoot || !documentRoot.body || !documentRoot.body.classList) return;
+    documentRoot.body.classList.remove('child-wayfinder-active');
+    if (typeof documentRoot.body.removeAttribute === 'function') {
       documentRoot.body.removeAttribute('data-cww-place');
     }
   }

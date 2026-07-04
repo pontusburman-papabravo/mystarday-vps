@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v516';
+const CACHE_NAME = 'stjarndag-v517';
 // stjarndag-v510: Morgonhus immersive full-bleed hotspots (Min värld 10/10 pass)
 // stjarndag-v509: museum-scene-master-high.png + museum scene-bg export
 // stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
@@ -445,6 +445,8 @@ const STATIC_ASSETS = [
   '/js/child-world-bg-lazy.js',
   '/js/child-world-wayfinder.js',
   '/css/child-world-wayfinder.css',
+  '/js/child-world-hub.js',
+  '/css/child-world-hub.css',
   '/js/child-morgonhus.js',
   '/css/child-morgonhus.css',
   '/css/child-living-world-transition.css',

@@ -134,33 +134,21 @@
   }
 
   function wayfinderConfig(state) {
-    const scenery = (state && state.scenery) || [];
-    const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
-    const pathUnlocked = Boolean(pathEntry && pathEntry.leads_to_memory_hall);
     const bed = getBedSlot();
     const bedLocked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
-    const actions = [{
-      id: 'bed',
-      label: bedAriaLabel(bed),
-      short: bedLocked ? 'Idag först' : 'Blomsterbädd',
-      icon: '🌻',
-      primary: true,
-      disabled: bedLocked,
-    }];
-    if (pathUnlocked) {
-      actions.push({
-        id: 'memory',
-        label: 'Gå till minnesrummet',
-        short: 'Minnen',
-        icon: '🖼️',
-      });
-    }
     return {
       placeId: 'garden',
       placeLabel: 'Trädgården',
       placeIcon: '🌻',
-      back: { label: 'Tillbaka till Morgonhuset', short: 'Morgonhus' },
-      actions: actions,
+      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      actions: [{
+        id: 'bed',
+        label: bedAriaLabel(bed),
+        short: bedLocked ? 'Idag först' : 'Blomsterbädd',
+        icon: '🌻',
+        primary: true,
+        disabled: bedLocked,
+      }],
     };
   }
 
@@ -189,15 +177,14 @@
           window.LivingWorldTransition.exitGarden();
           return;
         }
-        exitToMorgonhus();
+        deactivate();
+        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+          window.ChildWorldHub.show();
+        }
       },
       onAction: async function (id, btn) {
         if (id === 'bed') {
           await handleBedTap(root, btn);
-          return;
-        }
-        if (id === 'memory') {
-          await handleSceneryTap(root, 'garden_path', btn);
         }
       },
     });
@@ -573,6 +560,10 @@
   }
 
   async function remountMorgonhusOrSkatt() {
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+      const hubShown = await window.ChildWorldHub.show();
+      if (hubShown) return true;
+    }
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       const remounted = await window.ChildMorgonhus.tryMountWorld();
       if (remounted) return true;

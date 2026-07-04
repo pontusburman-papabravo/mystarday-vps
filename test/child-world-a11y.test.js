@@ -75,7 +75,7 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(html, /aria-label="Trädgården"/);
     assert.match(html, /data-cww-action="bed"/);
     assert.match(html, /Blomsterbädd/);
-    assert.match(html, /data-cww-action="memory"/);
+    assert.doesNotMatch(html, /data-cww-action="memory"/);
     assert.match(html, /role="status"/);
     assert.match(html, /aria-live="polite"/);
   });

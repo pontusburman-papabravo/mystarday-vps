@@ -41,48 +41,12 @@
   }
 
   function wayfinderConfig(state) {
-    const toGarden = Boolean(state && state.gate_to_garden);
-    const actions = [];
-    if (toGarden) {
-      actions.push({
-        id: 'garden',
-        label: 'Gå till trädgården',
-        short: 'Trädgården',
-        icon: '🌻',
-        primary: true,
-      });
-      actions.push({
-        id: 'hall',
-        label: 'Gå till hallen',
-        short: 'Hallen',
-        icon: '🚪',
-      });
-    } else {
-      actions.push({
-        id: 'hall',
-        label: 'Gå till hallen',
-        short: 'Hallen',
-        icon: '🚪',
-        primary: true,
-      });
-    }
-    actions.push({
-      id: 'skatt',
-      label: 'Öppna skattkammaren',
-      short: 'Skatt',
-      icon: '💎',
-    });
-    actions.push({
-      id: 'exterior',
-      label: 'Gå utanför huset',
-      short: 'Utanför',
-      icon: '🏡',
-    });
     return {
       placeId: 'morgonhus',
       placeLabel: (state && state.display_name) || 'Morgonhuset',
       placeIcon: '🏠',
-      actions: actions,
+      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      actions: [],
     };
   }
 
@@ -118,32 +82,13 @@
 
     const h = handlers || {};
     wf.bind(root, {
-      onAction: async function (id, btn) {
-        if (id === 'garden') {
-          const entered = await enterGardenFromDoor(root, btn);
-          if (entered && h.onGardenEnter) {
-            h.onGardenEnter(findProp(_state || state, 'door'));
-          }
-          return;
-        }
-        if (id === 'hall') {
-          await enterHall(root, btn);
-          return;
-        }
-        if (id === 'skatt' && h.onSkattLink) {
-          h.onSkattLink();
-          return;
-        }
-        if (id === 'exterior') {
-          if (window.LivingWorldTransition
-              && typeof window.LivingWorldTransition.enterWorld === 'function') {
-            const entered = await window.LivingWorldTransition.enterWorld('home_exterior', { triggerEl: btn });
-            if (!entered) {
-              showToast(root, 'Utanför är inte redo just nu.');
-            }
-          }
+      onBack: function () {
+        deactivate();
+        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+          window.ChildWorldHub.show();
         }
       },
+      onAction: async function () {},
     });
   }
 
