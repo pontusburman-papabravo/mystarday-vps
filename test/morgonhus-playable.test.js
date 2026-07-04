@@ -272,7 +272,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /mh-scene--illustrated/);
     assert.match(html, /morg-scene-picture|morg-scene-bg/);
     assert.match(html, /data-prop="welcome_mat"/);
-    assert.match(html, /data-prop="first_light"/);
+    assert.doesNotMatch(html, /data-prop="first_light"/);
     assert.match(html, /data-nav="garden"/);
     assert.match(html, /mh-door-hint/);
     assert.match(html, /Tryck på dörren/);

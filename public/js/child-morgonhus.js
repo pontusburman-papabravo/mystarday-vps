@@ -54,11 +54,11 @@
 
   function progressionHotspots(props) {
     return (props || []).filter(function (prop) {
-      return prop.prop_id !== 'door' && HOTSPOTS[prop.prop_id];
+      return prop.prop_id !== 'door' && HOTSPOTS[prop.prop_id]
+        && (prop.unlocked || prop.always_active);
     }).map(function (prop) {
       const hit = HOTSPOTS[prop.prop_id];
-      const lockedClass = prop.unlocked ? ' is-unlocked' : ' is-locked';
-      return '<button type="button" class="mh-hotspot mh-hotspot--' + esc(prop.prop_id) + lockedClass + '"' +
+      return '<button type="button" class="mh-hotspot mh-hotspot--' + esc(prop.prop_id) + ' is-unlocked"' +
         ' data-prop="' + esc(prop.prop_id) + '"' +
         ' data-node="' + esc(prop.node_id || '') + '"' +
         ' style="' + hotspotStyle(hit) + '"' +
