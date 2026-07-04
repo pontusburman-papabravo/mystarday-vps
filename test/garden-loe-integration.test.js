@@ -84,18 +84,32 @@ describe('garden LOE API — vertical gameplay slice (DB)', () => {
       }, db.query);
       assert.equal(planted.ok, true);
       assert.equal(planted.slot.state_key, 'planted');
-      assert.ok(planted.slot.timer_remaining_ms > 0);
+      assert.equal(planted.slot.timer_remaining_ms, undefined);
       assert.match(planted.child_message_sv, /planterade/i);
 
       const row = await livingObjectDb.getBySlot(childId, 'garden', 'bed_1', db.query);
       assert.ok(row);
       assert.equal(row.state_key, 'planted');
 
+      const watered = await gardenLoe.performVerb({
+        childId,
+        familyId,
+        slotId: 'bed_1',
+        verb: 'water',
+      }, db.query);
+      assert.equal(watered.ok, true);
+      assert.equal(watered.slot.state_key, 'watered');
+      assert.ok(watered.slot.timer_remaining_ms > 0);
+      assert.match(watered.child_message_sv, /vattnade/i);
+
+      const wateredRow = await livingObjectDb.getBySlot(childId, 'garden', 'bed_1', db.query);
+      assert.equal(wateredRow.state_key, 'watered');
+
       await db.query(
         `UPDATE living_object_instance
          SET state_data = $1::jsonb
          WHERE id = $2`,
-        [JSON.stringify({ timer_started_at: new Date(Date.now() - 35000).toISOString() }), row.id]
+        [JSON.stringify({ timer_started_at: new Date(Date.now() - 35000).toISOString() }), wateredRow.id]
       );
 
       const bloomingSlots = await gardenLoe.getSlots(childId, familyId, db.query);

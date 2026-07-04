@@ -277,10 +277,52 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /Morgonhuset/);
     assert.match(html, /Min värld/);
     assert.match(html, /data-cww-action="back"/);
+    assert.match(html, /data-prop="door"/);
+    assert.match(html, /mh-hotspot--door/);
+    assert.match(html, /cww-shell--scene-play/);
     assert.doesNotMatch(html, /data-cww-action="garden"/);
     assert.doesNotMatch(html, /mh-nav-dock/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
     assert.doesNotMatch(html, /mh-scene-title/);
+  });
+
+  it('bindInteractions wires door to garden transition', () => {
+    const { ChildMorgonhus, context } = loadModule();
+    const state = {
+      gate_to_garden: true,
+      props: [{ prop_id: 'door', label_sv: 'Dörren', unlocked: true, leads_to_garden: true }],
+      display_name: 'Morgonhuset',
+    };
+    let gardenEntered = false;
+    const doorBtn = {
+      getAttribute: function (name) {
+        if (name === 'data-prop') return 'door';
+        if (name === 'data-nav') return 'garden';
+        return null;
+      },
+      classList: { add: () => {}, remove: () => {} },
+      addEventListener: function (_evt, fn) { this._click = fn; },
+      dispatchEvent: function () { if (this._click) this._click(); return true; },
+    };
+    const root = {
+      innerHTML: ChildMorgonhus.renderScene(state),
+      querySelector: function (sel) {
+        if (sel === '[data-prop="door"]') return doorBtn;
+        return null;
+      },
+      querySelectorAll: function () { return []; },
+    };
+    context.window.LivingWorldTransition = {
+      enterGarden: async function () { gardenEntered = true; return true; },
+    };
+    ChildMorgonhus.bindInteractions(root, state, {});
+    doorBtn.dispatchEvent();
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        assert.equal(gardenEntered, true);
+        resolve();
+      }, 10);
+    });
   });
 
   it('bindInteractions wires wayfinder back to hub', () => {
@@ -390,7 +432,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
   });
 
-  it('loadRewards shows world hub when morgonhus_playable is on', () => {
+  it('loadRewards opens Morgonhus by default when morgonhus_playable is on', () => {
     const rewardsSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-rewards.js'),
       'utf8'
@@ -400,7 +442,9 @@ describe('ChildMorgonhus client module', () => {
     assert.match(rewardsSrc, /shouldPreferSkatt/);
     assert.match(rewardsSrc, /options\.force/);
     assert.match(rewardsSrc, /clearPreferSkatt/);
+    assert.match(rewardsSrc, /ChildMorgonhus\.tryMountWorld/);
     assert.match(rewardsSrc, /ChildWorldHub\.tryShow/);
     assert.match(rewardsSrc, /skipHub/);
+    assert.match(rewardsSrc, /showHub/);
   });
 });

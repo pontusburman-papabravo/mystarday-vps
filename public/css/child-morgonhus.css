@@ -115,6 +115,13 @@ body.child-morgonhus-active #skattkammarView {
   animation: mh-door-pulse 2.4s ease-in-out infinite;
 }
 
+.cww-shell--scene-play .mh-hotspot--door.mh-hotspot--nav {
+  left: 38%;
+  top: 42%;
+  width: 24%;
+  height: 38%;
+}
+
 .mh-hotspot--door.mh-hotspot--nav::after {
   content: '🚪';
   position: absolute;

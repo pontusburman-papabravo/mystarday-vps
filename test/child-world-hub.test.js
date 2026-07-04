@@ -27,10 +27,11 @@ describe('child-world-hub', () => {
     assert.match(html, /data-cwh-go="garden"/);
   });
 
-  it('loadRewards shows hub instead of auto-mounting morgonhus', () => {
+  it('loadRewards opens Morgonhus by default with hub fallback', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
+    assert.match(src, /ChildMorgonhus\.tryMountWorld/);
     assert.match(src, /ChildWorldHub\.tryShow/);
-    assert.doesNotMatch(src, /tryMountWorld\(\)/);
+    assert.match(src, /options\.showHub/);
   });
 
   it('hub CSS uses 72px minimum choice height', () => {

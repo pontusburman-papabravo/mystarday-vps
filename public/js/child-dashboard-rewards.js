@@ -81,17 +81,22 @@ async function loadRewardsInner(options) {
     }
 
     if (morgonhusAllowed && !window.ChildMorgonhus.shouldPreferSkatt() && !options.skipHub) {
-      if (window.ChildWorldHub && typeof window.ChildWorldHub.tryShow === 'function') {
-        const hubShown = await window.ChildWorldHub.tryShow();
-        if (hubShown) {
-          if (skeletonTimer) skeletonTimer.stop();
-          window.rewardsLoaded = true;
-          hideOfflineBanner();
-          if (window.ChildRewardsEngine && typeof window.ChildRewardsEngine.clearGoalChrome === 'function') {
-            window.ChildRewardsEngine.clearGoalChrome();
-          }
-          return;
+      let worldEntered = false;
+      if (!options.showHub && window.ChildMorgonhus
+          && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+        worldEntered = await window.ChildMorgonhus.tryMountWorld();
+      }
+      if (!worldEntered && window.ChildWorldHub && typeof window.ChildWorldHub.tryShow === 'function') {
+        worldEntered = await window.ChildWorldHub.tryShow();
+      }
+      if (worldEntered) {
+        if (skeletonTimer) skeletonTimer.stop();
+        window.rewardsLoaded = true;
+        hideOfflineBanner();
+        if (window.ChildRewardsEngine && typeof window.ChildRewardsEngine.clearGoalChrome === 'function') {
+          window.ChildRewardsEngine.clearGoalChrome();
         }
+        return;
       }
     }
     document.body.classList.remove('child-morgonhus-active');

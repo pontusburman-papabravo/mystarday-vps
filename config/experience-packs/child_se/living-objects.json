@@ -25,6 +25,11 @@
             {
               "state_key": "planted",
               "label_sv": "Fröet är planterat",
+              "visual_token": "sunflower_seed"
+            },
+            {
+              "state_key": "watered",
+              "label_sv": "Du vattnade fröet",
               "visual_token": "sunflower_seed",
               "timer_ms": 30000,
               "timer_next_state": "blooming"
@@ -46,6 +51,12 @@
               "from_state": "empty",
               "to_state": "planted",
               "child_message_sv": "Du planterade ett frö!"
+            },
+            {
+              "verb": "water",
+              "from_state": "planted",
+              "to_state": "watered",
+              "child_message_sv": "Du vattnade fröet!"
             },
             {
               "verb": "harvest",

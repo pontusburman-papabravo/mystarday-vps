@@ -215,9 +215,11 @@ describe('ChildGarden client module', () => {
     assert.match(html, /gd-scene-bg/);
     assert.match(html, /picture/);
     assert.match(html, /scene-bg/);
-    assert.match(html, /data-cww-action="bed"/);
-    assert.match(html, /Blomsterbädd/);
+    assert.match(html, /data-scenery="garden_bed"/);
+    assert.match(html, /gd-hotspot--bed/);
+    assert.match(html, /cww-shell--scene-play/);
     assert.match(html, /data-cww-action="back"|cww-back/);
+    assert.doesNotMatch(html, /data-cww-action="bed"/);
     assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
@@ -254,10 +256,11 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus wayfinder only goes back to hub (no scene hotspots)', () => {
+  it('morgonhus wayfinder only goes back; door hotspot leads to garden', () => {
     assert.match(mhSrc, /ChildWorldHub\.show/);
     assert.match(mhSrc, /actions:\s*\[\]/);
-    assert.doesNotMatch(mhSrc, /data-nav=/);
+    assert.match(mhSrc, /data-prop="door"/);
+    assert.match(mhSrc, /enterGardenFromDoor/);
     assert.doesNotMatch(mhSrc, /mh-prop-emoji/);
   });
 
@@ -298,14 +301,34 @@ describe('ChildGarden client module', () => {
     assert.match(mhSrc, /_cachedSceneState/);
   });
 
-  it('garden client implements LOE plant/harvest gameplay verbs', () => {
+  it('garden-loe accepts water verb', () => {
+    const gardenLoe = require('../src/lib/garden-loe');
+    assert.ok(gardenLoe.ALLOWED_VERBS.has('water'));
+    assert.ok(gardenLoe.ALLOWED_VERBS.has('plant'));
+    assert.ok(gardenLoe.ALLOWED_VERBS.has('harvest'));
+  });
+
+  it('garden client implements LOE plant/water/harvest gameplay verbs', () => {
     assert.match(src, /SLOTS_PATH/);
     assert.match(src, /applySlotVerb/);
     assert.match(src, /\bplant\b/);
+    assert.match(src, /\bwater\b/);
     assert.match(src, /\bharvest\b/);
+    assert.match(src, /data-scenery="garden_bed"/);
+    assert.match(src, /handleBedTap/);
     assert.match(src, /gdBedOverlay/);
     assert.match(src, /sunflower-bloom\.svg/);
     assert.match(src, /launchHarvestCelebration/);
     assert.doesNotMatch(src, /showToast/);
+  });
+
+  it('scene-play CSS enables bed and door hotspots', () => {
+    const css = fs.readFileSync(
+      path.join(__dirname, '../public/css/child-world-wayfinder.css'),
+      'utf8'
+    );
+    assert.match(css, /cww-shell--scene-play/);
+    assert.match(css, /gd-hotspot--bed/);
+    assert.match(css, /mh-hotspot--door/);
   });
 });

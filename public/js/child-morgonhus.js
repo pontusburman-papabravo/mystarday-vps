@@ -8,6 +8,7 @@
   const API_PATH = '/api/me/morgonhus';
   const REACTION_MS = 6500;
   const TAP_MS = 1800;
+  const DOOR_HIT = { x: 0.38, y: 0.42, w: 0.24, h: 0.38 };
 
   let _active = false;
   let _preferSkatt = false;
@@ -50,6 +51,21 @@
     };
   }
 
+  function renderDoorHotspot(state) {
+    const door = findProp(state, 'door');
+    if (!door || !door.leads_to_garden) return '';
+    const style = 'left:' + (DOOR_HIT.x * 100) + '%;top:' + (DOOR_HIT.y * 100) + '%;' +
+      'width:' + (DOOR_HIT.w * 100) + '%;height:' + (DOOR_HIT.h * 100) + '%;';
+    const hint = state.gate_to_garden
+      ? '<span class="mh-door-hint" aria-hidden="true">Trädgården</span>'
+      : '';
+    return hint +
+      '<button type="button" class="' + propClasses(door) + ' mh-hotspot--nav"' +
+        ' data-prop="door" data-nav="garden"' +
+        ' style="' + style + '"' +
+        ' aria-label="' + esc(door.label_sv || 'Dörren till trädgården') + '"></button>';
+  }
+
   function renderSceneInner(state) {
     const title = (state && state.display_name) || 'Morgonhuset';
 
@@ -57,6 +73,7 @@
       ' role="img" aria-label="' + esc(title) + '">' +
       '<div class="mh-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
+        renderDoorHotspot(state) +
         '<div class="mh-tap-pulse" id="mhTapPulse" aria-hidden="true"></div>' +
       '</div>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status"' +
@@ -70,7 +87,7 @@
     if (!wf || typeof wf.render !== 'function') {
       return inner;
     }
-    return '<div class="cww-shell">' +
+    return '<div class="cww-shell cww-shell--scene-play">' +
       wf.render(wayfinderConfig(state)) +
       '<div class="cww-scene-stage">' + inner + '</div>' +
     '</div>';
@@ -197,6 +214,13 @@
   function bindInteractions(root, state, handlers) {
     if (!root || !state) return;
     bindWayfinder(root, state, handlers);
+
+    const doorBtn = root.querySelector('[data-prop="door"]');
+    if (doorBtn) {
+      doorBtn.addEventListener('click', async function () {
+        await enterGardenFromDoor(root, doorBtn);
+      });
+    }
   }
 
   function bindAssetWatch(root) {
@@ -387,5 +411,7 @@
     tryRemountCached: tryRemountCached,
     shouldPreferSkatt: shouldPreferSkatt,
     clearPreferSkatt: clearPreferSkatt,
+    enterGardenFromDoor: enterGardenFromDoor,
+    renderDoorHotspot: renderDoorHotspot,
   };
 })();

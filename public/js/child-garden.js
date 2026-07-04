@@ -86,10 +86,12 @@
   function bedHotspotExtraClass(slot) {
     if (!slot) return '';
     if (slot.state_key === 'blooming') return ' gd-hotspot--bed-harvest';
-    if (slot.plant_locked) return ' gd-hotspot--bed-locked';
+    if (slot.plant_locked && slot.state_key === 'empty') return ' gd-hotspot--bed-locked';
     const canPlant = (slot.available_verbs || []).some(function (v) { return v.verb === 'plant'; });
     if (canPlant) return ' gd-hotspot--bed-ready';
-    if (slot.state_key === 'planted') return ' gd-hotspot--bed-growing';
+    const canWater = (slot.available_verbs || []).some(function (v) { return v.verb === 'water'; });
+    if (canWater) return ' gd-hotspot--bed-water';
+    if (slot.state_key === 'planted' || slot.state_key === 'watered') return ' gd-hotspot--bed-growing';
     return '';
   }
 
@@ -99,19 +101,32 @@
     if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
       return 'Skörda solrosen';
     }
+    if (verbs.some(function (v) { return v.verb === 'water'; })) {
+      return 'Vattna fröet';
+    }
     if (verbs.some(function (v) { return v.verb === 'plant'; })) {
       return 'Plantera i blomsterbädden';
     }
     if (slot.plant_locked && slot.state_key === 'empty') {
       return 'Blomsterbädden — klarmarkera Idag först';
     }
+    if (slot.state_key === 'watered') {
+      return 'Fröet växer';
+    }
     if (slot.state_key === 'planted') {
-      return 'Solrosen växer';
+      return 'Vattna fröet';
     }
     if (slot.state_key === 'harvested') {
       return slot.label_state_sv || 'Blomsterbädden';
     }
     return slot.label_sv || 'Blomsterbädden';
+  }
+
+  function renderBedHotspot(slot) {
+    const extra = bedHotspotExtraClass(slot);
+    return '<button type="button" class="gd-hotspot gd-hotspot--bed' + extra + '"' +
+      ' data-scenery="garden_bed"' +
+      ' aria-label="' + esc(bedAriaLabel(slot)) + '"></button>';
   }
 
   function loePlantImage(slot) {
@@ -126,11 +141,13 @@
 
   function renderBedOverlay(slot) {
     const tokenClass = loeVisualClass(slot);
+    const canPlant = slot && (slot.available_verbs || []).some(function (v) { return v.verb === 'plant'; });
+    const readyClass = canPlant ? ' gd-bed-overlay--ready' : '';
     const plantSrc = loePlantImage(slot);
     const plantImg = plantSrc
       ? '<img class="gd-bed-plant" src="' + esc(plantSrc) + '" alt="" decoding="async" />'
       : '';
-    return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true">' +
+    return '<div class="gd-bed-overlay ' + tokenClass + readyClass + '" id="gdBedOverlay" aria-hidden="true">' +
       plantImg +
     '</div>';
   }
@@ -142,6 +159,7 @@
       '<div class="gd-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
         renderBedOverlay(bedSlot) +
+        renderBedHotspot(bedSlot) +
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
@@ -150,21 +168,12 @@
   }
 
   function wayfinderConfig(state) {
-    const bed = getBedSlot();
-    const bedLocked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
     return {
       placeId: 'garden',
       placeLabel: 'Trädgården',
       placeIcon: '🌻',
       back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
-      actions: [{
-        id: 'bed',
-        label: bedAriaLabel(bed),
-        short: bedLocked ? 'Idag först' : 'Blomsterbädd',
-        icon: '🌻',
-        primary: true,
-        disabled: bedLocked,
-      }],
+      actions: [],
     };
   }
 
@@ -174,7 +183,7 @@
     if (!wf || typeof wf.render !== 'function') {
       return inner;
     }
-    return '<div class="cww-shell">' +
+    return '<div class="cww-shell cww-shell--scene-play">' +
       wf.render(wayfinderConfig(state)) +
       '<div class="cww-scene-stage">' + inner + '</div>' +
     '</div>';
@@ -198,11 +207,7 @@
           window.ChildWorldHub.show();
         }
       },
-      onAction: async function (id, btn) {
-        if (id === 'bed') {
-          await handleBedTap(root, btn);
-        }
-      },
+      onAction: async function () {},
     });
   }
 
@@ -224,10 +229,30 @@
     if (nextSlot.state_key === 'blooming') {
       return nextSlot.label_state_sv || 'Solrosen blommar!';
     }
+    if (nextSlot.state_key === 'watered' && (!prevSlot || prevSlot.state_key === 'planted')) {
+      return 'Fröet dricker vatten…';
+    }
     if (nextSlot.state_key === 'planted' && (!prevSlot || prevSlot.state_key === 'empty')) {
       return 'Fröet börjar växa…';
     }
     return null;
+  }
+
+  function triggerLoeHaptic() {
+    if (localStorage.getItem('stjarndag_haptics_enabled') === 'false') return;
+    if (window.Platform && window.Platform.haptics && typeof window.Platform.haptics.light === 'function') {
+      window.Platform.haptics.light();
+    }
+  }
+
+  function playVerbFeedback(root, verb) {
+    triggerLoeHaptic();
+    const overlay = root && root.querySelector('#gdBedOverlay');
+    if (!overlay || _prefersReducedMotion) return;
+    overlay.classList.remove('gd-verb--plant', 'gd-verb--water', 'gd-verb--harvest');
+    void overlay.offsetWidth;
+    overlay.classList.add('gd-verb--' + verb);
+    setTimeout(function () { overlay.classList.remove('gd-verb--' + verb); }, TAP_RESET_MS);
   }
 
   function updateBedVisual(root, slot) {
@@ -235,7 +260,22 @@
     const overlay = root.querySelector('#gdBedOverlay');
     const bedBtn = root.querySelector('[data-scenery="garden_bed"]');
     if (overlay) {
-      overlay.className = 'gd-bed-overlay ' + loeVisualClass(slot);
+      const canPlant = slot && (slot.available_verbs || []).some(function (v) { return v.verb === 'plant'; });
+      overlay.className = 'gd-bed-overlay ' + loeVisualClass(slot) + (canPlant ? ' gd-bed-overlay--ready' : '');
+      const plantSrc = loePlantImage(slot);
+      let plantImg = overlay.querySelector('.gd-bed-plant');
+      if (plantSrc) {
+        if (!plantImg) {
+          plantImg = document.createElement('img');
+          plantImg.className = 'gd-bed-plant';
+          plantImg.alt = '';
+          plantImg.decoding = 'async';
+          overlay.appendChild(plantImg);
+        }
+        plantImg.src = plantSrc;
+      } else if (plantImg) {
+        plantImg.remove();
+      }
     }
     if (bedBtn) {
       bedBtn.className = 'gd-hotspot gd-hotspot--bed' + bedHotspotExtraClass(slot);
@@ -253,7 +293,7 @@
   function scheduleTimerRefresh() {
     clearTimerPoll();
     const bed = getBedSlot();
-    if (!bed || bed.state_key !== 'planted') return;
+    if (!bed || bed.state_key !== 'planted' && bed.state_key !== 'watered') return;
 
     const remaining = bed.timer_remaining_ms;
     const delay = remaining != null && remaining > 0
@@ -274,7 +314,7 @@
       updateBedVisual(root, next);
       const transitionMsg = livingSlotTransitionMessage(prev, next);
       if (transitionMsg) showLoeFeedback(transitionMsg);
-      if (!next || next.state_key !== 'planted') {
+      if (!next || (next.state_key !== 'planted' && next.state_key !== 'watered')) {
         clearTimerPoll();
       }
     }, delay);
@@ -406,6 +446,8 @@
     let verb = null;
     if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
       verb = 'harvest';
+    } else if (verbs.some(function (v) { return v.verb === 'water'; })) {
+      verb = 'water';
     } else if (verbs.some(function (v) { return v.verb === 'plant'; })) {
       verb = 'plant';
     }
@@ -416,18 +458,22 @@
         const msg = (_slotsPayload && _slotsPayload.plant_locked_message_sv)
           || 'Gör klart något på Idag — då kan du plantera här.';
         showLoeFeedback(msg);
+      } else if (bed.state_key === 'watered') {
+        showLoeFeedback('Fröet växer…');
       } else if (bed.state_key === 'planted') {
-        showLoeFeedback('Solrosen växer…');
+        showLoeFeedback('Tryck för att vattna fröet.');
+      } else if (bed.state_key === 'harvested') {
+        showLoeFeedback(bed.label_state_sv || 'Tack för idag!');
       }
       return;
     }
 
     _verbInFlight = true;
-    btn.classList.add('is-acting');
+    if (btn && btn.classList) btn.classList.add('is-acting');
     const prev = bed;
     const result = await applySlotVerb(BED_SLOT_ID, verb);
     _verbInFlight = false;
-    btn.classList.remove('is-acting');
+    if (btn && btn.classList) btn.classList.remove('is-acting');
 
     if (!result || !result.ok) {
       triggerVisual(root, 'garden_bed');
@@ -448,9 +494,11 @@
       const transitionMsg = livingSlotTransitionMessage(prev, result.slot);
       const feedback = result.child_message_sv || transitionMsg;
       if (feedback) showLoeFeedback(feedback);
+      playVerbFeedback(root, verb);
       if (verb === 'harvest') launchHarvestCelebration(root);
-      if (result.slot.state_key === 'planted') scheduleTimerRefresh();
-      else clearTimerPoll();
+      if (result.slot.state_key === 'planted' || result.slot.state_key === 'watered') {
+        scheduleTimerRefresh();
+      } else clearTimerPoll();
     }
     triggerVisual(root, 'garden_bed');
   }
@@ -515,6 +563,8 @@
   function bindInteractions(root) {
     if (!root) return;
     bindWayfinder(root);
+    const bedBtn = root.querySelector('[data-scenery="garden_bed"]');
+    if (bedBtn) bindSceneryButton(root, bedBtn);
   }
 
   function finishEnterAnimation(root) {
@@ -687,6 +737,8 @@
     triggerVisual: triggerVisual,
     showLoeFeedback: showLoeFeedback,
     livingSlotTransitionMessage: livingSlotTransitionMessage,
+    handleBedTap: handleBedTap,
+    renderBedHotspot: renderBedHotspot,
     scheduleTimerRefresh: scheduleTimerRefresh,
   };
 })();

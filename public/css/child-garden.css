@@ -370,6 +370,71 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   cursor: default;
 }
 
+.gd-hotspot--bed-locked {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.gd-hotspot--bed-locked::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120, 110, 100, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.gd-hotspot--bed-water::before {
+  content: '💧';
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.85;
+  pointer-events: none;
+  animation: gd-bed-invite 2.2s ease-in-out infinite;
+}
+
+.gd-loe--garden_bed_empty.gd-bed-overlay--ready::after {
+  background: radial-gradient(ellipse at 50% 80%, rgba(101, 67, 33, 0.5), transparent 72%);
+  box-shadow: 0 0 18px rgba(245, 166, 35, 0.25);
+}
+
+.gd-verb--plant .gd-bed-plant {
+  animation: gd-verb-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gd-verb--water .gd-bed-plant,
+.gd-verb--water::after {
+  animation: gd-verb-water 0.7s ease-out forwards;
+}
+
+.gd-verb--water::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 70%, rgba(100, 180, 255, 0.35), transparent 65%);
+  pointer-events: none;
+}
+
+.gd-verb--harvest .gd-bed-plant {
+  animation: gd-verb-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes gd-verb-pop {
+  0%   { transform: scale(0.85); }
+  45%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes gd-verb-water {
+  0%   { opacity: 0; transform: translateY(6px); }
+  40%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
 .gd-hotspot.is-acting {
   opacity: 0.7;
 }

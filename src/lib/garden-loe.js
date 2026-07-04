@@ -15,7 +15,7 @@ const { getLocalDateStr } = require('./daily-log-generator');
 const PLANT_GATE_MESSAGE_SV = 'Klarmarkera något på Idag först!';
 const PLANT_LOCKED_HINT_SV = 'Gör klart något på Idag — då kan du plantera här.';
 
-const ALLOWED_VERBS = new Set(['plant', 'harvest']);
+const ALLOWED_VERBS = new Set(['plant', 'water', 'harvest']);
 
 function q(client) {
   if (!client) return db;

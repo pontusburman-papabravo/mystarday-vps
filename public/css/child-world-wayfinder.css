@@ -171,6 +171,25 @@ body.child-worlds-v2 .cww-shell {
   pointer-events: none;
 }
 
+/* Scene-play: tap objects in the illustration (door, flower bed) */
+.cww-shell--scene-play .mh-hotspot--door.mh-hotspot--nav,
+.cww-shell--scene-play .mh-door-hint,
+.cww-shell--scene-play .gd-hotspot--bed {
+  display: block !important;
+}
+
+.cww-shell--scene-play .mh-scene-canvas,
+.cww-shell--scene-play .gd-scene-canvas {
+  pointer-events: auto;
+}
+
+.cww-shell--scene-play .mh-scene-canvas picture,
+.cww-shell--scene-play .mh-scene-canvas img,
+.cww-shell--scene-play .gd-scene-canvas picture,
+.cww-shell--scene-play .gd-scene-canvas img {
+  pointer-events: none;
+}
+
 .cww-memory-panel {
   flex-shrink: 0;
   max-height: 38%;
