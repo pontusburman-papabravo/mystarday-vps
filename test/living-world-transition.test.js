@@ -195,6 +195,8 @@ describe('Living World transition — place mode', () => {
   it('garden path uses LivingWorldTransition.enterMemoryHall when gate open', () => {
     assert.match(GARDEN_SRC, /LivingWorldTransition\.enterMemoryHall/);
     assert.match(GARDEN_SRC, /leads_to_memory_hall/);
+    assert.match(GARDEN_SRC, /tryck igen om du vill gå dit/);
+    assert.match(GARDEN_SRC, /_pathConfirmUntil/);
   });
 
   it('enterMemoryHall and exitMemoryHall delegate to generic world API', () => {

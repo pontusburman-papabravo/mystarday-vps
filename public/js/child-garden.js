@@ -20,6 +20,9 @@
   let _assetCleanup = null;
   let _timerPollId = null;
   let _verbInFlight = false;
+  let _pathConfirmUntil = 0;
+
+  const PATH_CONFIRM_MS = 5000;
 
   function esc(str) {
     if (!str) return '';
@@ -307,7 +310,7 @@
     clearTimeout(showPathHint._timer);
     showPathHint._timer = setTimeout(function () {
       toast.classList.remove('is-visible');
-    }, 2600);
+    }, PATH_CONFIRM_MS);
   }
 
   function triggerVisual(root, sceneryId) {
@@ -411,6 +414,14 @@
 
     if (scenery && scenery.leads_to_memory_hall && window.LivingWorldTransition
         && typeof window.LivingWorldTransition.enterMemoryHall === 'function') {
+      const now = Date.now();
+      if (now > _pathConfirmUntil) {
+        _pathConfirmUntil = now + PATH_CONFIRM_MS;
+        triggerVisual(root, sceneryId);
+        showPathHint(root, 'Stigen till Minnesrummet — tryck igen om du vill gå dit.');
+        return;
+      }
+      _pathConfirmUntil = 0;
       const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
       if (!entered) {
         triggerVisual(root, sceneryId);

@@ -7,7 +7,7 @@
 
   const API_PATH = '/api/me/memory-hall';
   const TAP_RESET_MS = 1800;
-  const TOAST_MS = 2200;
+  const TOAST_MS = 6500;
   const MAX_WALL_FRAMES = 6;
   const ENTER_ANIM_MS = 650;
 
@@ -171,6 +171,7 @@
       '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
       '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
       (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
+      '<p class="mu-back-hint" aria-hidden="true">← Tillbaka till trädgården</p>' +
       '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
         '<span class="mu-back-icon" aria-hidden="true"></span>' +
       '</button>' +
@@ -188,10 +189,25 @@
     toast.classList.remove('mu-toast-off');
     toast.classList.add('is-visible');
     clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(function () {
+    function dismiss() {
       toast.classList.remove('is-visible');
       toast.classList.add('mu-toast-off');
-    }, TOAST_MS);
+      if (typeof toast.removeEventListener === 'function') {
+        toast.removeEventListener('click', dismiss);
+      }
+    }
+    if (toast.style) {
+      toast.style.pointerEvents = 'auto';
+      toast.style.cursor = 'pointer';
+    }
+    if (typeof toast.setAttribute === 'function') {
+      toast.setAttribute('role', 'button');
+      toast.setAttribute('aria-label', message + ' — tryck för att stänga');
+    }
+    if (typeof toast.addEventListener === 'function') {
+      toast.addEventListener('click', dismiss);
+    }
+    showToast._timer = setTimeout(dismiss, TOAST_MS);
   }
 
   function showFeedback(root, message) {

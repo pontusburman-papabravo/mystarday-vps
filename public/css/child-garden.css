@@ -142,12 +142,12 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   height: 30%;
 }
 
-/* Illustrated scene: gate + path sit mid-frame on mobile art */
+/* Illustrated scene: narrow path strip — avoid stealing taps from blomsterbädd */
 .gd-scene--illustrated .gd-hotspot--path {
-  left: 14%;
-  bottom: 22%;
-  width: 72%;
-  height: 48%;
+  left: 28%;
+  bottom: 28%;
+  width: 44%;
+  height: 32%;
   min-height: 44px;
 }
 
