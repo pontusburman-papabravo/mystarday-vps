@@ -279,14 +279,14 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   .gd-scene-canvas.is-bloom-tap .gd-scene-bg,
   .gd-scene-canvas.is-sky-tap .gd-scene-bg,
   .gd-hotspot.is-tapped::after,
-  .gd-loe--sunflower_seed::after,
+  .gd-loe--sunflower_bloom .gd-bed-plant,
   .gd-hotspot--bed-ready::before,
   .gd-harvest-celebrate .gd-harvest-burst {
     animation: none !important;
   }
 }
 
-/* ── Living Objects — bed overlay (visual_token driven) ── */
+/* ── Living Objects — bed overlay (illustrated plant sprites) ── */
 .gd-bed-overlay {
   position: absolute;
   right: 6%;
@@ -295,6 +295,33 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   height: 30%;
   pointer-events: none;
   z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.gd-bed-plant {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 4px 12px rgba(27, 35, 64, 0.18));
+  transform-origin: center bottom;
+}
+
+.gd-loe--sunflower_seed .gd-bed-plant {
+  width: 55%;
+  opacity: 0.95;
+}
+
+.gd-loe--sunflower_bloom .gd-bed-plant {
+  animation: gd-bloom-arrive 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gd-loe--sunflower_harvested .gd-bed-plant {
+  width: 70%;
+  opacity: 0.85;
 }
 
 .gd-loe--garden_bed_empty::after {
@@ -308,76 +335,9 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   background: radial-gradient(ellipse at 50% 80%, rgba(101, 67, 33, 0.35), transparent 72%);
 }
 
-.gd-loe--sunflower_seed::after {
-  content: '';
-  position: absolute;
-  left: 38%;
-  bottom: 18%;
-  width: 24%;
-  height: 18%;
-  border-radius: 50%;
-  background: radial-gradient(circle, #5c4033 0%, #3d2817 55%, transparent 70%);
-  box-shadow: 0 0 12px rgba(92, 64, 51, 0.4);
-  animation: gd-seed-grow 2.4s ease-in-out infinite;
-}
-
-@keyframes gd-seed-grow {
-  0%, 100% { transform: scale(1); opacity: 0.85; }
-  50%      { transform: scale(1.08); opacity: 1; }
-}
-
-.gd-loe--sunflower_seed::before {
-  content: '';
-  position: absolute;
-  left: 46%;
-  bottom: 8%;
-  width: 8%;
-  height: 22%;
-  border-radius: 4px;
-  background: linear-gradient(180deg, #4a7c3f, #2d5a27);
-}
-
-.gd-loe--sunflower_bloom::before {
-  content: '';
-  position: absolute;
-  left: 46%;
-  bottom: 6%;
-  width: 8%;
-  height: 28%;
-  border-radius: 4px;
-  background: linear-gradient(180deg, #4a7c3f, #2d5a27);
-}
-
-.gd-loe--sunflower_bloom::after {
-  content: '';
-  position: absolute;
-  left: 22%;
-  bottom: 28%;
-  width: 56%;
-  height: 52%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #5c3d1e 0%, #5c3d1e 22%, transparent 23%),
-    repeating-conic-gradient(from 0deg, #f5c842 0deg 18deg, #f0a820 18deg 36deg);
-  box-shadow: 0 4px 20px rgba(245, 166, 35, 0.45);
-  animation: gd-bloom-arrive 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
 @keyframes gd-bloom-arrive {
   from { transform: scale(0.4) translateY(12px); opacity: 0; }
   to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.gd-loe--sunflower_harvested::after {
-  content: '';
-  position: absolute;
-  left: 30%;
-  bottom: 20%;
-  width: 40%;
-  height: 30%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 200, 66, 0.25), transparent 70%);
-  opacity: 0.6;
 }
 
 /* ── Bed hotspot affordances ── */

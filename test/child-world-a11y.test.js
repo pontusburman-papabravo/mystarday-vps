@@ -98,12 +98,10 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /cww-action[\s\S]*min-height:\s*52px/);
   });
 
-  it('garden respects prefers-reduced-motion for all LOE visual tokens', () => {
+  it('garden LOE uses illustrated plant sprites, not CSS conic placeholders', () => {
     const css = read('public/css/child-garden.css');
-    assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
-    assert.match(css, /gd-loe--sunflower_seed/);
-    assert.match(css, /gd-loe--sunflower_bloom/);
-    assert.match(css, /gd-loe--sunflower_harvested/);
+    assert.match(css, /gd-bed-plant/);
+    assert.doesNotMatch(css, /repeating-conic-gradient/);
   });
 
   it('morgonhus hotspots meet minimum touch and reduced motion', () => {

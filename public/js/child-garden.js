@@ -114,9 +114,25 @@
     return slot.label_sv || 'Blomsterbädden';
   }
 
+  function loePlantImage(slot) {
+    if (!slot || !slot.visual_token) return null;
+    const map = {
+      sunflower_seed: '/images/child/world/garden/sunflower-sprout.svg',
+      sunflower_bloom: '/images/child/world/garden/sunflower-bloom.svg',
+      sunflower_harvested: '/images/child/world/garden/sunflower-stump.svg',
+    };
+    return map[slot.visual_token] || null;
+  }
+
   function renderBedOverlay(slot) {
     const tokenClass = loeVisualClass(slot);
-    return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true"></div>';
+    const plantSrc = loePlantImage(slot);
+    const plantImg = plantSrc
+      ? '<img class="gd-bed-plant" src="' + esc(plantSrc) + '" alt="" decoding="async" />'
+      : '';
+    return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true">' +
+      plantImg +
+    '</div>';
   }
 
   function renderSceneInner(state) {
