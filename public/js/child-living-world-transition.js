@@ -47,6 +47,10 @@
         }
       },
       remountParent: async function () {
+        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+          const remounted = await window.ChildMorgonhus.tryMountWorld();
+          if (remounted) return true;
+        }
         if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
           return window.ChildWorldHub.show();
         }

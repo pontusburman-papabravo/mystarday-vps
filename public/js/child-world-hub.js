@@ -1,5 +1,5 @@
 /**
- * child-world-hub.js — Min värld starts here: three clear choices, not a picture puzzle.
+ * child-world-hub.js — Min värld fallback hub (debug / when Morgonhus cannot mount).
  */
 (function () {
   'use strict';
