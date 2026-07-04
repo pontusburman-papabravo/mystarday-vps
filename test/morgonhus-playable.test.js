@@ -253,11 +253,15 @@ describe('ChildMorgonhus client module', () => {
       clearTimeout,
     };
 
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
     return { ChildMorgonhus: context.window.ChildMorgonhus, listeners };
   }
 
-  it('renderScene is immersive illustrated place with hotspots and nav dock', () => {
+  it('renderScene uses wayfinder chrome with labeled navigation', () => {
     const { ChildMorgonhus } = loadModule();
     const html = ChildMorgonhus.renderScene({
       display_name: 'Morgonhuset',
@@ -269,67 +273,44 @@ describe('ChildMorgonhus client module', () => {
       ],
     });
 
+    assert.match(html, /cww-shell/);
     assert.match(html, /mh-scene--illustrated/);
     assert.match(html, /morg-scene-picture|morg-scene-bg/);
-    assert.match(html, /data-prop="welcome_mat"/);
-    assert.doesNotMatch(html, /data-prop="first_light"/);
-    assert.match(html, /data-nav="garden"/);
-    assert.match(html, /mh-door-hint/);
-    assert.match(html, /Tryck på dörren/);
-    assert.match(html, /mh-nav-dock/);
-    assert.match(html, /mhHallLink/);
+    assert.match(html, /data-cww-action="garden"/);
+    assert.match(html, /Trädgården/);
+    assert.match(html, /data-cww-action="skatt"/);
+    assert.doesNotMatch(html, /mh-nav-dock/);
+    assert.doesNotMatch(html, /data-nav="garden"/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
     assert.doesNotMatch(html, /mh-scene-title/);
   });
 
-  it('bindInteractions fires on unlocked prop tap', () => {
+  it('bindInteractions wires wayfinder skatt action', () => {
     const { ChildMorgonhus } = loadModule();
-    const state = {
-      props: [
-        {
-          prop_id: 'welcome_mat',
-          label_sv: 'Välkomstmatta',
-          unlocked: true,
-          visual_token: 'welcome_mat_glow',
-          child_message: 'Morgonhuset känner att du kom.',
-        },
-      ],
-    };
-    const tapBtn = {
-      getAttribute: (name) => (name === 'data-prop' ? 'welcome_mat' : null),
-      classList: {
-        _set: new Set(['is-unlocked']),
-        add: function (...c) { c.forEach((x) => this._set.add(x)); },
-        remove: function (...c) { c.forEach((x) => this._set.delete(x)); },
-        contains: function (c) { return this._set.has(c); },
-      },
+    const state = { gate_to_garden: true, props: [] };
+    let skattOpened = false;
+    const skattBtn = {
+      getAttribute: (name) => (name === 'data-cww-action' ? 'skatt' : null),
+      disabled: false,
+      classList: { contains: () => false },
       addEventListener: function (_evt, fn) { this._click = fn; },
       dispatchEvent: function () { if (this._click) this._click(); return true; },
     };
     const root = {
       innerHTML: ChildMorgonhus.renderScene(state),
-      querySelector: function (sel) {
-        if (sel === '#mhSceneToast') {
-          return { textContent: '', classList: { remove: () => {}, add: () => {} } };
-        }
-        if (sel === '[data-prop="welcome_mat"]') return tapBtn;
-        return null;
-      },
+      querySelector: function () { return null; },
       querySelectorAll: function (sel) {
-        if (sel === '[data-prop]') return [tapBtn];
-        if (sel === '.mh-prop') return [tapBtn];
+        if (sel === '[data-cww-action]') return [skattBtn];
         return [];
       },
     };
 
-    let tapped = null;
     ChildMorgonhus.bindInteractions(root, state, {
-      onPropTap: (prop) => { tapped = prop.prop_id; },
+      onSkattLink: function () { skattOpened = true; },
     });
 
-    tapBtn.dispatchEvent();
-    assert.equal(tapped, 'welcome_mat');
-    assert.ok(tapBtn.classList.contains('is-unlocked'));
+    skattBtn.dispatchEvent();
+    assert.equal(skattOpened, true);
   });
 
   it('applyUnlockedState marks locked and unlocked props', () => {
@@ -387,9 +368,9 @@ describe('ChildMorgonhus client module', () => {
     assert.match(worldSrc, /!window\.ChildMorgonhus/);
   });
 
-  it('bindInteractions reads live state after refresh (no stale closure)', () => {
-    assert.match(src, /const liveState = _state \|\| state/);
-    assert.match(src, /findProp\(liveState, propId\)/);
+  it('bindWayfinder uses live state for garden enter (no stale closure)', () => {
+    assert.match(src, /findProp\(_state \|\| state/);
+    assert.match(src, /bindWayfinder/);
   });
 
   it('Skattkammaren round-trip uses preferSkatt, not session skip', () => {

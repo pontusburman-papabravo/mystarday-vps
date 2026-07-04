@@ -119,20 +119,8 @@
     return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true"></div>';
   }
 
-  function renderScene(state) {
-    const scenery = (state && state.scenery) || [];
-    const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
-    const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
+  function renderSceneInner(state) {
     const bedSlot = getBedSlot();
-
-    function hotspot(id, className, label, extraClass) {
-      if (hotspotIds.indexOf(id) === -1) return '';
-      return '<button type="button" class="gd-hotspot ' + className + (extraClass ? ' ' + extraClass : '') + '"' +
-        ' data-scenery="' + esc(id) + '"' +
-        ' aria-label="' + esc(label || id) + '"></button>';
-    }
-
-    const pathUnlocked = pathEntry && pathEntry.leads_to_memory_hall;
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
@@ -141,16 +129,78 @@
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      hotspot('garden_path', 'gd-hotspot--path', pathUnlocked ? 'Stigen till Minnesrummet' : 'Stigen',
-        pathUnlocked ? 'gd-hotspot--path-unlocked' : '') +
-      hotspot('garden_bed', 'gd-hotspot--bed' + bedHotspotExtraClass(bedSlot), bedAriaLabel(bedSlot)) +
-      hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
-      outdoorNavHotspots() +
       '<div class="gd-scene-status" id="gdSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
-      '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
-        '<span class="gd-back-icon" aria-hidden="true"></span>' +
-      '</button>' +
     '</div>';
+  }
+
+  function wayfinderConfig(state) {
+    const scenery = (state && state.scenery) || [];
+    const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
+    const pathUnlocked = Boolean(pathEntry && pathEntry.leads_to_memory_hall);
+    const bed = getBedSlot();
+    const bedLocked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
+    const actions = [{
+      id: 'bed',
+      label: bedAriaLabel(bed),
+      short: bedLocked ? 'Idag först' : 'Blomsterbädd',
+      icon: '🌻',
+      primary: true,
+      disabled: bedLocked,
+    }];
+    if (pathUnlocked) {
+      actions.push({
+        id: 'memory',
+        label: 'Gå till minnesrummet',
+        short: 'Minnen',
+        icon: '🖼️',
+      });
+    }
+    return {
+      placeId: 'garden',
+      placeLabel: 'Trädgården',
+      placeIcon: '🌻',
+      back: { label: 'Tillbaka till Morgonhuset', short: 'Morgonhus' },
+      actions: actions,
+    };
+  }
+
+  function renderScene(state) {
+    const inner = renderSceneInner(state);
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.render !== 'function') {
+      return inner;
+    }
+    return '<div class="cww-shell">' +
+      wf.render(wayfinderConfig(state)) +
+      '<div class="cww-scene-stage">' + inner + '</div>' +
+    '</div>';
+  }
+
+  function bindWayfinder(root) {
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.bind !== 'function' || !root) return;
+
+    wf.bind(root, {
+      onBack: function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.isActive === 'function'
+            && window.LivingWorldTransition.isActive()
+            && typeof window.LivingWorldTransition.exitGarden === 'function') {
+          window.LivingWorldTransition.exitGarden();
+          return;
+        }
+        exitToMorgonhus();
+      },
+      onAction: async function (id, btn) {
+        if (id === 'bed') {
+          await handleBedTap(root, btn);
+          return;
+        }
+        if (id === 'memory') {
+          await handleSceneryTap(root, 'garden_path', btn);
+        }
+      },
+    });
   }
 
   function showLoeFeedback(message) {
@@ -461,33 +511,7 @@
 
   function bindInteractions(root) {
     if (!root) return;
-
-    root.querySelectorAll('.gd-hotspot').forEach(function (btn) {
-      bindSceneryButton(root, btn);
-    });
-
-    root.querySelectorAll('[data-outdoor-nav]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const target = btn.getAttribute('data-outdoor-nav');
-        btn.classList.add('is-tapped');
-        setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        handleOutdoorNav(root, target, btn);
-      });
-    });
-
-    const backBtn = root.querySelector('#gdBackMorgonhus');
-    if (backBtn) {
-      backBtn.addEventListener('click', function () {
-        if (window.LivingWorldTransition
-            && typeof window.LivingWorldTransition.isActive === 'function'
-            && window.LivingWorldTransition.isActive()
-            && typeof window.LivingWorldTransition.exitGarden === 'function') {
-          window.LivingWorldTransition.exitGarden();
-          return;
-        }
-        exitToMorgonhus();
-      });
-    }
+    bindWayfinder(root);
   }
 
   function finishEnterAnimation(root) {
@@ -541,6 +565,9 @@
       _assetCleanup = null;
     }
     document.body.classList.remove('child-garden-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
+      window.ChildWorldWayfinder.clearActivePlace(document);
+    }
     const view = document.getElementById('skattkammarView');
     if (view) view.classList.remove('gd-exit-through-door');
   }
@@ -613,6 +640,9 @@
     hideLoader();
     document.body.classList.add('child-garden-active');
     document.body.classList.remove('child-morgonhus-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
+      window.ChildWorldWayfinder.setActivePlace(document, 'garden');
+    }
     return true;
   }
 

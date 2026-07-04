@@ -39,8 +39,8 @@ describe('catalog room wire-in (all exportable rooms)', () => {
 
   it('morgonhus exposes Hallen and Utanför entry points', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-morgonhus.js'), 'utf8');
-    assert.match(src, /mhHallLink/);
-    assert.match(src, /mhExteriorLink/);
+    assert.match(src, /id: 'hall'/);
+    assert.match(src, /id: 'exterior'/);
     assert.match(src, /enterWorld\('home_hall'/);
     assert.match(src, /enterWorld\('home_exterior'/);
   });

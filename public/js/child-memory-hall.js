@@ -164,18 +164,34 @@
       '</div>';
     }
 
-    return '<div class="' + sceneClass + '" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
-      '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
-      sceneryHtml +
-      renderExhibitSlots(state.exhibits, { illustrated: true }) +
-      '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
-      '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
-      (intro ? '<p class="mu-scene-intro">' + esc(intro) + '</p>' : '') +
-      '<p class="mu-back-hint" aria-hidden="true">← Tillbaka till trädgården</p>' +
-      '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
-        '<span class="mu-back-icon" aria-hidden="true"></span>' +
-      '</button>' +
-    '</div>';
+    if (illustrated) {
+      const wf = window.ChildWorldWayfinder;
+      const slots = (state.exhibits || []).map(function (slot) {
+        const copy = Object.assign({}, slot);
+        copy._tapMessage = exhibitTapMessage(slot);
+        return copy;
+      });
+      const sceneHtml = '<div class="' + sceneClass + '" data-world="memory_hall" role="img" aria-label="' + esc(title) + '">' +
+        '<div class="mu-scene-canvas" aria-hidden="true">' + canvasInner + '</div>' +
+        '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
+        '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
+      '</div>';
+      if (!wf || typeof wf.render !== 'function') {
+        return sceneHtml;
+      }
+      return '<div class="cww-shell">' +
+        wf.render({
+          placeId: 'memory_hall',
+          placeLabel: title,
+          placeIcon: '🖼️',
+          back: { label: 'Tillbaka till trädgården', short: 'Trädgården' },
+        }) +
+        '<div class="cww-scene-stage">' + sceneHtml + '</div>' +
+        wf.renderMemoryPanel(slots) +
+      '</div>';
+    }
+
+    return '';
   }
 
   function showToast(root, message) {
@@ -242,6 +258,27 @@
   function bindInteractions(root, state) {
     if (!root || !state) return;
 
+    var wf = window.ChildWorldWayfinder;
+    if (wf && typeof wf.bind === 'function') {
+      wf.bind(root, {
+        onBack: function () {
+          if (window.LivingWorldTransition
+              && typeof window.LivingWorldTransition.activeWorldId === 'function'
+              && window.LivingWorldTransition.activeWorldId() === 'memory_hall'
+              && typeof window.LivingWorldTransition.exitMemoryHall === 'function') {
+            window.LivingWorldTransition.exitMemoryHall();
+            return;
+          }
+          deactivate();
+        },
+      });
+    }
+    if (wf && typeof wf.bindMemoryPanel === 'function') {
+      wf.bindMemoryPanel(root, function (message) {
+        showToast(root, message);
+      });
+    }
+
     root.querySelectorAll('.mu-hotspot, .mu-window-tap').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.getAttribute('data-scenery');
@@ -260,7 +297,7 @@
     bindFrameInteractions(root);
 
     var backBtn = root.querySelector('#muBackGarden');
-    if (backBtn) {
+    if (backBtn && !(wf && typeof wf.bind === 'function')) {
       backBtn.addEventListener('click', function () {
         if (window.LivingWorldTransition
             && typeof window.LivingWorldTransition.activeWorldId === 'function'
@@ -346,6 +383,9 @@
     hideLoader();
     document.body.classList.add('child-memory-hall-active');
     document.body.classList.remove('child-morgonhus-active', 'child-garden-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
+      window.ChildWorldWayfinder.setActivePlace(document, 'memory_hall');
+    }
     return true;
   }
 
@@ -358,6 +398,9 @@
       _assetCleanup = null;
     }
     document.body.classList.remove('child-memory-hall-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
+      window.ChildWorldWayfinder.clearActivePlace(document);
+    }
   }
 
   function isActive() {

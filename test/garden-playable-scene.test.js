@@ -192,6 +192,10 @@ describe('ChildGarden client module', () => {
       setTimeout,
       clearTimeout,
     };
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
     return context.window.ChildGarden;
   }
@@ -206,19 +210,19 @@ describe('ChildGarden client module', () => {
         { scenery_id: 'garden_sky', label_sv: 'Himlen' },
       ],
     });
-    assert.match(html, /gd-scene/);
+    assert.match(html, /cww-shell/);
     assert.match(html, /gd-scene--illustrated/);
     assert.match(html, /gd-scene-bg/);
     assert.match(html, /picture/);
     assert.match(html, /scene-bg/);
-    assert.match(html, /gd-hotspot--path/);
-    assert.match(html, /gd-back-fab/);
-    assert.match(html, /aria-label="Tillbaka till Morgonhuset"/);
+    assert.match(html, /data-cww-action="bed"/);
+    assert.match(html, /Blomsterbädd/);
+    assert.match(html, /data-cww-action="back"|cww-back/);
+    assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
     assert.doesNotMatch(html, /gd-scene-toast/);
     assert.doesNotMatch(html, /gd-house-wall/);
-    assert.doesNotMatch(html, /Tillbaka till Morgonhuset<\/button>/);
   });
 
   it('garden uses visual feedback, not toast', () => {
@@ -250,10 +254,10 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus door navigates to garden when gate_to_garden', () => {
+  it('morgonhus wayfinder navigates to garden when gate_to_garden', () => {
     assert.match(mhSrc, /gate_to_garden/);
-    assert.match(mhSrc, /data-nav="/);
-    assert.match(mhSrc, /nav === 'garden'/);
+    assert.match(mhSrc, /id: 'garden'/);
+    assert.match(mhSrc, /id === 'garden'/);
     assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
     assert.match(mhSrc, /function deactivate/);
   });
