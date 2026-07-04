@@ -76,7 +76,7 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.doesNotMatch(src, /INSERT INTO features/);
   });
 
-  it('garden route is feature-gated with 503', () => {
+  it('garden route exposes LOE slots + verb endpoints', () => {
     const src = fs.readFileSync(
       path.join(__dirname, '../src/routes/garden.js'),
       'utf8'
@@ -84,6 +84,10 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.match(src, /isPlayableEnabled\(req\.user\.familyId\)/);
     assert.match(src, /503/);
     assert.match(src, /Trädgården ej aktiverad/);
+    assert.match(src, /\/garden\/slots/);
+    assert.match(src, /\/garden\/slots\/:slotId\/verb/);
+    assert.match(src, /garden-loe/);
+    assert.match(src, /plant_locked/);
   });
 
   it('buildSceneState returns ambient garden from pack — no verbs', async () => {
@@ -286,7 +290,13 @@ describe('ChildGarden client module', () => {
     assert.match(mhSrc, /_cachedSceneState/);
   });
 
-  it('no LOE gameplay verbs in garden client', () => {
-    assert.doesNotMatch(src, /\bverb\b.*plant|\bplant\b|\bharvest\b|timer_ms/i);
+  it('garden client implements LOE plant/harvest gameplay verbs', () => {
+    assert.match(src, /SLOTS_PATH/);
+    assert.match(src, /applySlotVerb/);
+    assert.match(src, /\bplant\b/);
+    assert.match(src, /\bharvest\b/);
+    assert.match(src, /gdBedOverlay/);
+    assert.match(src, /launchHarvestCelebration/);
+    assert.doesNotMatch(src, /showToast/);
   });
 });
