@@ -183,6 +183,9 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   bottom: 12%;
   width: 42%;
   height: 34%;
+  min-width: 44px;
+  min-height: 44px;
+  z-index: 6;
 }
 
 .gd-hotspot--sky {

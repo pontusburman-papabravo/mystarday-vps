@@ -38,4 +38,11 @@ describe('child-world-wayfinder', () => {
     assert.match(css, /cww-action[\s\S]*min-height:\s*52px/);
     assert.match(css, /cww-back[\s\S]*min-height:\s*44px/);
   });
+
+  it('CSS allows primary scene tap zones inside shell', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/child-world-wayfinder.css'), 'utf8');
+    assert.match(css, /gd-hotspot--bed/);
+    assert.match(css, /mh-hotspot--door/);
+    assert.match(css, /pointer-events:\s*auto/);
+  });
 });
