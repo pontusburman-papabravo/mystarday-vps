@@ -253,11 +253,15 @@ describe('ChildMorgonhus client module', () => {
       clearTimeout,
     };
 
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
-    return { ChildMorgonhus: context.window.ChildMorgonhus, listeners };
+    return { ChildMorgonhus: context.window.ChildMorgonhus, listeners, context };
   }
 
-  it('renderScene is immersive illustrated place with hotspots and nav dock', () => {
+  it('renderScene uses wayfinder chrome with labeled navigation', () => {
     const { ChildMorgonhus } = loadModule();
     const html = ChildMorgonhus.renderScene({
       display_name: 'Morgonhuset',
@@ -269,65 +273,39 @@ describe('ChildMorgonhus client module', () => {
       ],
     });
 
-    assert.match(html, /mh-scene--illustrated/);
-    assert.match(html, /morg-scene-picture|morg-scene-bg/);
-    assert.match(html, /data-prop="welcome_mat"/);
-    assert.match(html, /data-prop="first_light"/);
-    assert.match(html, /data-nav="garden"/);
-    assert.match(html, /mh-nav-dock/);
-    assert.match(html, /mhHallLink/);
+    assert.match(html, /cww-shell/);
+    assert.match(html, /Morgonhuset/);
+    assert.match(html, /Min värld/);
+    assert.match(html, /data-cww-action="back"/);
+    assert.doesNotMatch(html, /data-cww-action="garden"/);
+    assert.doesNotMatch(html, /mh-nav-dock/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
     assert.doesNotMatch(html, /mh-scene-title/);
   });
 
-  it('bindInteractions fires on unlocked prop tap', () => {
-    const { ChildMorgonhus } = loadModule();
-    const state = {
-      props: [
-        {
-          prop_id: 'welcome_mat',
-          label_sv: 'Välkomstmatta',
-          unlocked: true,
-          visual_token: 'welcome_mat_glow',
-          child_message: 'Morgonhuset känner att du kom.',
-        },
-      ],
-    };
-    const tapBtn = {
-      getAttribute: (name) => (name === 'data-prop' ? 'welcome_mat' : null),
-      classList: {
-        _set: new Set(['is-unlocked']),
-        add: function (...c) { c.forEach((x) => this._set.add(x)); },
-        remove: function (...c) { c.forEach((x) => this._set.delete(x)); },
-        contains: function (c) { return this._set.has(c); },
-      },
+  it('bindInteractions wires wayfinder back to hub', () => {
+    const { ChildMorgonhus, context } = loadModule();
+    const state = { gate_to_garden: true, props: [], display_name: 'Morgonhuset' };
+    let hubShown = false;
+    const backBtn = {
+      getAttribute: (name) => (name === 'data-cww-action' ? 'back' : null),
+      disabled: false,
+      classList: { contains: () => false },
       addEventListener: function (_evt, fn) { this._click = fn; },
       dispatchEvent: function () { if (this._click) this._click(); return true; },
     };
     const root = {
       innerHTML: ChildMorgonhus.renderScene(state),
-      querySelector: function (sel) {
-        if (sel === '#mhSceneToast') {
-          return { textContent: '', classList: { remove: () => {}, add: () => {} } };
-        }
-        if (sel === '[data-prop="welcome_mat"]') return tapBtn;
-        return null;
-      },
+      querySelector: function () { return null; },
       querySelectorAll: function (sel) {
-        if (sel === '[data-prop]') return [tapBtn];
-        if (sel === '.mh-prop') return [tapBtn];
+        if (sel === '[data-cww-action]') return [backBtn];
         return [];
       },
     };
-
-    let tapped = null;
-    ChildMorgonhus.bindInteractions(root, state, {
-      onPropTap: (prop) => { tapped = prop.prop_id; },
-    });
-
-    tapBtn.dispatchEvent();
-    assert.equal(tapped, 'welcome_mat');
-    assert.ok(tapBtn.classList.contains('is-unlocked'));
+    context.window.ChildWorldHub = { show: function () { hubShown = true; } };
+    ChildMorgonhus.bindInteractions(root, state, {});
+    backBtn.dispatchEvent();
+    assert.equal(hubShown, true);
   });
 
   it('applyUnlockedState marks locked and unlocked props', () => {
@@ -385,9 +363,9 @@ describe('ChildMorgonhus client module', () => {
     assert.match(worldSrc, /!window\.ChildMorgonhus/);
   });
 
-  it('bindInteractions reads live state after refresh (no stale closure)', () => {
-    assert.match(src, /const liveState = _state \|\| state/);
-    assert.match(src, /findProp\(liveState, propId\)/);
+  it('bindWayfinder returns to hub on back', () => {
+    assert.match(src, /ChildWorldHub\.show/);
+    assert.match(src, /bindWayfinder/);
   });
 
   it('Skattkammaren round-trip uses preferSkatt, not session skip', () => {
@@ -412,7 +390,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
   });
 
-  it('loadRewards gates Morgonhus mount on morgonhus_playable feature', () => {
+  it('loadRewards shows world hub when morgonhus_playable is on', () => {
     const rewardsSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-rewards.js'),
       'utf8'
@@ -422,6 +400,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(rewardsSrc, /shouldPreferSkatt/);
     assert.match(rewardsSrc, /options\.force/);
     assert.match(rewardsSrc, /clearPreferSkatt/);
-    assert.match(rewardsSrc, /ChildMorgonhus\.tryMountWorld/);
+    assert.match(rewardsSrc, /ChildWorldHub\.tryShow/);
+    assert.match(rewardsSrc, /skipHub/);
   });
 });

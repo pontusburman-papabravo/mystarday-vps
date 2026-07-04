@@ -1,18 +1,28 @@
 /**
- * child-garden.js — Trädgården illustrated asset scene (presentation only).
- * Primary visual: scene-bg.webp via <picture>. CSS = layout + animation only.
+ * child-garden.js — Trädgården illustrated scene + Living Objects gameplay.
+ * Primary visual: scene-bg.webp via <picture>. LOE bed_1: plant → grow → harvest.
  */
 (function () {
   'use strict';
 
   const API_PATH = '/api/me/garden';
+  const SLOTS_PATH = '/api/me/garden/slots';
   const FETCH_TIMEOUT_MS = 8000;
   const TAP_RESET_MS = 1200;
+  const TIMER_POLL_MS = 4000;
+  const HARVEST_CELEBRATE_MS = 1800;
+  const BED_SLOT_ID = 'bed_1';
 
   let _active = false;
   let _state = null;
+  let _slotsPayload = null;
   let _prefersReducedMotion = false;
   let _assetCleanup = null;
+  let _timerPollId = null;
+  let _verbInFlight = false;
+  let _pathConfirmUntil = 0;
+
+  const PATH_CONFIRM_MS = 5000;
 
   function esc(str) {
     if (!str) return '';
@@ -63,35 +73,279 @@
     }).join('');
   }
 
-  function renderScene(state) {
-    const scenery = (state && state.scenery) || [];
-    const hotspotIds = scenery.map(function (s) { return s.scenery_id; });
-    const pathEntry = scenery.find(function (s) { return s.scenery_id === 'garden_path'; });
+  function getBedSlot() {
+    const slots = (_slotsPayload && _slotsPayload.slots) || [];
+    return slots.find(function (s) { return s.slot_id === BED_SLOT_ID; }) || null;
+  }
 
-    function hotspot(id, className, label, extraClass) {
-      if (hotspotIds.indexOf(id) === -1) return '';
-      return '<button type="button" class="gd-hotspot ' + className + (extraClass ? ' ' + extraClass : '') + '"' +
-        ' data-scenery="' + esc(id) + '"' +
-        ' aria-label="' + esc(label || id) + '"></button>';
+  function loeVisualClass(slot) {
+    if (!slot || !slot.visual_token) return 'gd-loe--garden_bed_empty';
+    return 'gd-loe--' + slot.visual_token;
+  }
+
+  function bedHotspotExtraClass(slot) {
+    if (!slot) return '';
+    if (slot.state_key === 'blooming') return ' gd-hotspot--bed-harvest';
+    if (slot.plant_locked) return ' gd-hotspot--bed-locked';
+    const canPlant = (slot.available_verbs || []).some(function (v) { return v.verb === 'plant'; });
+    if (canPlant) return ' gd-hotspot--bed-ready';
+    if (slot.state_key === 'planted') return ' gd-hotspot--bed-growing';
+    return '';
+  }
+
+  function bedAriaLabel(slot) {
+    if (!slot) return 'Blomsterbädden';
+    const verbs = slot.available_verbs || [];
+    if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
+      return 'Skörda solrosen';
     }
+    if (verbs.some(function (v) { return v.verb === 'plant'; })) {
+      return 'Plantera i blomsterbädden';
+    }
+    if (slot.plant_locked && slot.state_key === 'empty') {
+      return 'Blomsterbädden — klarmarkera Idag först';
+    }
+    if (slot.state_key === 'planted') {
+      return 'Solrosen växer';
+    }
+    if (slot.state_key === 'harvested') {
+      return slot.label_state_sv || 'Blomsterbädden';
+    }
+    return slot.label_sv || 'Blomsterbädden';
+  }
 
-    const pathUnlocked = pathEntry && pathEntry.leads_to_memory_hall;
+  function loePlantImage(slot) {
+    if (!slot || !slot.visual_token) return null;
+    const map = {
+      sunflower_seed: '/images/child/world/garden/sunflower-sprout.svg',
+      sunflower_bloom: '/images/child/world/garden/sunflower-bloom.svg',
+      sunflower_harvested: '/images/child/world/garden/sunflower-stump.svg',
+    };
+    return map[slot.visual_token] || null;
+  }
+
+  function renderBedOverlay(slot) {
+    const tokenClass = loeVisualClass(slot);
+    const plantSrc = loePlantImage(slot);
+    const plantImg = plantSrc
+      ? '<img class="gd-bed-plant" src="' + esc(plantSrc) + '" alt="" decoding="async" />'
+      : '';
+    return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true">' +
+      plantImg +
+    '</div>';
+  }
+
+  function renderSceneInner(state) {
+    const bedSlot = getBedSlot();
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
       '<div class="gd-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
+        renderBedOverlay(bedSlot) +
         '<div class="gd-ambient gd-ambient--clouds" aria-hidden="true"></div>' +
         '<div class="gd-tap-pulse" id="gdTapPulse" aria-hidden="true"></div>' +
       '</div>' +
-      hotspot('garden_path', 'gd-hotspot--path', pathUnlocked ? 'Stigen till Minnesrummet' : 'Stigen',
-        pathUnlocked ? 'gd-hotspot--path-unlocked' : '') +
-      hotspot('garden_bed', 'gd-hotspot--bed', 'Blomsterbädden') +
-      hotspot('garden_sky', 'gd-hotspot--sky', 'Himlen') +
-      outdoorNavHotspots() +
-      '<button type="button" class="gd-back-fab" id="gdBackMorgonhus" aria-label="Tillbaka till Morgonhuset">' +
-        '<span class="gd-back-icon" aria-hidden="true"></span>' +
-      '</button>' +
+      '<div class="gd-scene-status" id="gdSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
     '</div>';
+  }
+
+  function wayfinderConfig(state) {
+    const bed = getBedSlot();
+    const bedLocked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
+    return {
+      placeId: 'garden',
+      placeLabel: 'Trädgården',
+      placeIcon: '🌻',
+      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      actions: [{
+        id: 'bed',
+        label: bedAriaLabel(bed),
+        short: bedLocked ? 'Idag först' : 'Blomsterbädd',
+        icon: '🌻',
+        primary: true,
+        disabled: bedLocked,
+      }],
+    };
+  }
+
+  function renderScene(state) {
+    const inner = renderSceneInner(state);
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.render !== 'function') {
+      return inner;
+    }
+    return '<div class="cww-shell">' +
+      wf.render(wayfinderConfig(state)) +
+      '<div class="cww-scene-stage">' + inner + '</div>' +
+    '</div>';
+  }
+
+  function bindWayfinder(root) {
+    const wf = window.ChildWorldWayfinder;
+    if (!wf || typeof wf.bind !== 'function' || !root) return;
+
+    wf.bind(root, {
+      onBack: function () {
+        if (window.LivingWorldTransition
+            && typeof window.LivingWorldTransition.isActive === 'function'
+            && window.LivingWorldTransition.isActive()
+            && typeof window.LivingWorldTransition.exitGarden === 'function') {
+          window.LivingWorldTransition.exitGarden();
+          return;
+        }
+        deactivate();
+        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+          window.ChildWorldHub.show();
+        }
+      },
+      onAction: async function (id, btn) {
+        if (id === 'bed') {
+          await handleBedTap(root, btn);
+        }
+      },
+    });
+  }
+
+  function showLoeFeedback(message) {
+    const root = document.getElementById('skattkammarView');
+    if (!root || !message) return;
+    const status = root.querySelector('#gdSceneStatus');
+    if (!status) return;
+    status.textContent = message;
+    clearTimeout(showLoeFeedback._timer);
+    showLoeFeedback._timer = setTimeout(function () {
+      if (status.textContent === message) status.textContent = '';
+    }, 2600);
+  }
+
+  function livingSlotTransitionMessage(prevSlot, nextSlot) {
+    if (!nextSlot) return null;
+    if (prevSlot && prevSlot.state_key === nextSlot.state_key) return null;
+    if (nextSlot.state_key === 'blooming') {
+      return nextSlot.label_state_sv || 'Solrosen blommar!';
+    }
+    if (nextSlot.state_key === 'planted' && (!prevSlot || prevSlot.state_key === 'empty')) {
+      return 'Fröet börjar växa…';
+    }
+    return null;
+  }
+
+  function updateBedVisual(root, slot) {
+    if (!root) return;
+    const overlay = root.querySelector('#gdBedOverlay');
+    const bedBtn = root.querySelector('[data-scenery="garden_bed"]');
+    if (overlay) {
+      overlay.className = 'gd-bed-overlay ' + loeVisualClass(slot);
+    }
+    if (bedBtn) {
+      bedBtn.className = 'gd-hotspot gd-hotspot--bed' + bedHotspotExtraClass(slot);
+      bedBtn.setAttribute('aria-label', bedAriaLabel(slot));
+    }
+  }
+
+  function clearTimerPoll() {
+    if (_timerPollId) {
+      clearInterval(_timerPollId);
+      _timerPollId = null;
+    }
+  }
+
+  function scheduleTimerRefresh() {
+    clearTimerPoll();
+    const bed = getBedSlot();
+    if (!bed || bed.state_key !== 'planted') return;
+
+    const remaining = bed.timer_remaining_ms;
+    const delay = remaining != null && remaining > 0
+      ? Math.min(Math.max(remaining + 500, 2000), TIMER_POLL_MS)
+      : TIMER_POLL_MS;
+
+    _timerPollId = setInterval(async function () {
+      if (!_active) {
+        clearTimerPoll();
+        return;
+      }
+      const prev = getBedSlot();
+      const payload = await fetchSlots();
+      if (!payload) return;
+      _slotsPayload = payload;
+      const next = getBedSlot();
+      const root = document.getElementById('skattkammarView');
+      updateBedVisual(root, next);
+      const transitionMsg = livingSlotTransitionMessage(prev, next);
+      if (transitionMsg) showLoeFeedback(transitionMsg);
+      if (!next || next.state_key !== 'planted') {
+        clearTimerPoll();
+      }
+    }, delay);
+  }
+
+  function dismissHarvestCelebration(root) {
+    if (!root) return;
+    const el = root.querySelector('.gd-harvest-celebrate');
+    if (el) el.remove();
+    clearTimeout(dismissHarvestCelebration._timer);
+  }
+
+  function launchHarvestCelebration(root) {
+    if (!root) return;
+    dismissHarvestCelebration(root);
+    const el = document.createElement('div');
+    el.className = 'gd-harvest-celebrate';
+    el.setAttribute('role', 'presentation');
+    el.innerHTML = '<div class="gd-harvest-burst" aria-hidden="true">🌻</div>';
+    root.querySelector('.gd-scene').appendChild(el);
+
+    function dismiss() {
+      el.classList.add('is-done');
+      setTimeout(function () { el.remove(); }, 200);
+    }
+
+    el.addEventListener('click', dismiss, { once: true });
+    dismissHarvestCelebration._timer = setTimeout(dismiss, HARVEST_CELEBRATE_MS);
+  }
+
+  async function apiFetch(path, options) {
+    if (!window.Auth || typeof window.Auth.api !== 'function') return null;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = controller
+      ? setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT_MS)
+      : null;
+
+    try {
+      const opts = Object.assign({}, options || {});
+      if (controller) opts.signal = controller.signal;
+      return await window.Auth.api(path, opts);
+    } catch (err) {
+      if (err && err.name === 'AbortError') {
+        console.warn('[garden] fetch timeout');
+      } else if (err && err.status === 503) {
+        return null;
+      } else {
+        console.warn('[garden] fetch failed:', err && err.message);
+      }
+      return null;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  async function fetchState() {
+    return apiFetch(API_PATH);
+  }
+
+  async function fetchSlots() {
+    return apiFetch(SLOTS_PATH);
+  }
+
+  async function applySlotVerb(slotId, verb) {
+    return apiFetch(SLOTS_PATH + '/' + encodeURIComponent(slotId) + '/verb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verb: verb }),
+    });
   }
 
   function showPathHint(root, message) {
@@ -109,7 +363,7 @@
     clearTimeout(showPathHint._timer);
     showPathHint._timer = setTimeout(function () {
       toast.classList.remove('is-visible');
-    }, 2600);
+    }, PATH_CONFIRM_MS);
   }
 
   function triggerVisual(root, sceneryId) {
@@ -140,13 +394,87 @@
     }
   }
 
+  async function handleBedTap(root, btn) {
+    if (_verbInFlight) return;
+    const bed = getBedSlot();
+    if (!bed) {
+      triggerVisual(root, 'garden_bed');
+      return;
+    }
+
+    const verbs = bed.available_verbs || [];
+    let verb = null;
+    if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
+      verb = 'harvest';
+    } else if (verbs.some(function (v) { return v.verb === 'plant'; })) {
+      verb = 'plant';
+    }
+
+    if (!verb) {
+      triggerVisual(root, 'garden_bed');
+      if (bed.plant_locked && bed.state_key === 'empty') {
+        const msg = (_slotsPayload && _slotsPayload.plant_locked_message_sv)
+          || 'Gör klart något på Idag — då kan du plantera här.';
+        showLoeFeedback(msg);
+      } else if (bed.state_key === 'planted') {
+        showLoeFeedback('Solrosen växer…');
+      }
+      return;
+    }
+
+    _verbInFlight = true;
+    btn.classList.add('is-acting');
+    const prev = bed;
+    const result = await applySlotVerb(BED_SLOT_ID, verb);
+    _verbInFlight = false;
+    btn.classList.remove('is-acting');
+
+    if (!result || !result.ok) {
+      triggerVisual(root, 'garden_bed');
+      const msg = (result && result.child_message_sv)
+        || (result && result.error === 'plant_locked' ? 'Klarmarkera något på Idag först!' : null)
+        || 'Det gick inte just nu — försök igen.';
+      showLoeFeedback(msg);
+      return;
+    }
+
+    if (result.slot) {
+      const slots = (_slotsPayload && _slotsPayload.slots) || [];
+      const idx = slots.findIndex(function (s) { return s.slot_id === BED_SLOT_ID; });
+      if (idx >= 0) slots[idx] = result.slot;
+      else slots.push(result.slot);
+      if (_slotsPayload) _slotsPayload.slots = slots;
+      updateBedVisual(root, result.slot);
+      const transitionMsg = livingSlotTransitionMessage(prev, result.slot);
+      const feedback = result.child_message_sv || transitionMsg;
+      if (feedback) showLoeFeedback(feedback);
+      if (verb === 'harvest') launchHarvestCelebration(root);
+      if (result.slot.state_key === 'planted') scheduleTimerRefresh();
+      else clearTimerPoll();
+    }
+    triggerVisual(root, 'garden_bed');
+  }
+
   async function handleSceneryTap(root, sceneryId, btn) {
+    if (sceneryId === 'garden_bed') {
+      await handleBedTap(root, btn);
+      return;
+    }
+
     const scenery = (_state && _state.scenery || []).find(function (s) {
       return s.scenery_id === sceneryId;
     });
 
     if (scenery && scenery.leads_to_memory_hall && window.LivingWorldTransition
         && typeof window.LivingWorldTransition.enterMemoryHall === 'function') {
+      const now = Date.now();
+      if (now > _pathConfirmUntil) {
+        _pathConfirmUntil = now + PATH_CONFIRM_MS;
+        triggerVisual(root, sceneryId);
+        showPathHint(root, 'Stigen till Minnesrummet — tryck igen om du vill gå dit.');
+        return;
+      }
+      _pathConfirmUntil = 0;
       const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
       if (!entered) {
         triggerVisual(root, sceneryId);
@@ -186,33 +514,7 @@
 
   function bindInteractions(root) {
     if (!root) return;
-
-    root.querySelectorAll('.gd-hotspot').forEach(function (btn) {
-      bindSceneryButton(root, btn);
-    });
-
-    root.querySelectorAll('[data-outdoor-nav]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const target = btn.getAttribute('data-outdoor-nav');
-        btn.classList.add('is-tapped');
-        setTimeout(function () { btn.classList.remove('is-tapped'); }, 280);
-        handleOutdoorNav(root, target, btn);
-      });
-    });
-
-    const backBtn = root.querySelector('#gdBackMorgonhus');
-    if (backBtn) {
-      backBtn.addEventListener('click', function () {
-        if (window.LivingWorldTransition
-            && typeof window.LivingWorldTransition.isActive === 'function'
-            && window.LivingWorldTransition.isActive()
-            && typeof window.LivingWorldTransition.exitGarden === 'function') {
-          window.LivingWorldTransition.exitGarden();
-          return;
-        }
-        exitToMorgonhus();
-      });
-    }
+    bindWayfinder(root);
   }
 
   function finishEnterAnimation(root) {
@@ -256,45 +558,28 @@
     if (view) view.style.display = '';
   }
 
-  async function fetchState() {
-    if (!window.Auth || typeof window.Auth.api !== 'function') return null;
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
-
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timer = controller
-      ? setTimeout(function () { controller.abort(); }, FETCH_TIMEOUT_MS)
-      : null;
-
-    try {
-      const options = controller ? { signal: controller.signal } : {};
-      return await window.Auth.api(API_PATH, options);
-    } catch (err) {
-      if (err && err.name === 'AbortError') {
-        console.warn('[garden] fetch timeout');
-      } else if (err && err.status === 503) {
-        return null;
-      } else {
-        console.warn('[garden] fetch failed:', err && err.message);
-      }
-      return null;
-    } finally {
-      if (timer) clearTimeout(timer);
-    }
-  }
-
   function deactivate() {
     _active = false;
     _state = null;
+    _slotsPayload = null;
+    clearTimerPoll();
     if (_assetCleanup) {
       _assetCleanup();
       _assetCleanup = null;
     }
     document.body.classList.remove('child-garden-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
+      window.ChildWorldWayfinder.clearActivePlace(document);
+    }
     const view = document.getElementById('skattkammarView');
     if (view) view.classList.remove('gd-exit-through-door');
   }
 
   async function remountMorgonhusOrSkatt() {
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+      const hubShown = await window.ChildWorldHub.show();
+      if (hubShown) return true;
+    }
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       const remounted = await window.ChildMorgonhus.tryMountWorld();
       if (remounted) return true;
@@ -325,8 +610,12 @@
       sceneState = null;
     }
 
-    sceneState = sceneState || await fetchState();
-    if (!sceneState || !sceneState.enabled) return false;
+    const [fetchedScene, fetchedSlots] = await Promise.all([
+      sceneState ? Promise.resolve(sceneState) : fetchState(),
+      fetchSlots(),
+    ]);
+
+    if (!fetchedScene || !fetchedScene.enabled) return false;
 
     const p = pipeline();
     if (p && typeof p.preloadScene === 'function') {
@@ -344,18 +633,23 @@
     _prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    _state = sceneState;
+    _state = fetchedScene;
+    _slotsPayload = fetchedSlots || { slots: [], plant_unlocked: false };
     _active = true;
     if (!viaTransition) {
       view.classList.add('gd-exit-through-door');
     }
-    view.innerHTML = renderScene(sceneState);
+    view.innerHTML = renderScene(fetchedScene);
     bindInteractions(view);
     bindAssetWatch(view);
     finishEnterAnimation(view);
+    scheduleTimerRefresh();
     hideLoader();
     document.body.classList.add('child-garden-active');
     document.body.classList.remove('child-morgonhus-active');
+    if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
+      window.ChildWorldWayfinder.setActivePlace(document, 'garden');
+    }
     return true;
   }
 
@@ -383,6 +677,7 @@
 
   window.ChildGarden = {
     API_PATH: API_PATH,
+    SLOTS_PATH: SLOTS_PATH,
     renderScene: renderScene,
     mount: mount,
     enterFromMorgonhus: enterFromMorgonhus,
@@ -390,5 +685,8 @@
     deactivate: deactivate,
     isActive: isActive,
     triggerVisual: triggerVisual,
+    showLoeFeedback: showLoeFeedback,
+    livingSlotTransitionMessage: livingSlotTransitionMessage,
+    scheduleTimerRefresh: scheduleTimerRefresh,
   };
 })();

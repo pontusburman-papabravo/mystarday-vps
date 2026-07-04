@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v510';
+const CACHE_NAME = 'stjarndag-v518';
 // stjarndag-v510: Morgonhus immersive full-bleed hotspots (Min värld 10/10 pass)
 // stjarndag-v509: museum-scene-master-high.png + museum scene-bg export
 // stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
@@ -443,6 +443,10 @@ const STATIC_ASSETS = [
   '/js/child-worlds-nav.js',
   '/js/child-layer-router.js',
   '/js/child-world-bg-lazy.js',
+  '/js/child-world-wayfinder.js',
+  '/css/child-world-wayfinder.css',
+  '/js/child-world-hub.js',
+  '/css/child-world-hub.css',
   '/js/child-morgonhus.js',
   '/css/child-morgonhus.css',
   '/css/child-living-world-transition.css',
@@ -485,6 +489,9 @@ const STATIC_ASSETS = [
   '/images/child/world/garden/scene-bg-430.webp',
   '/images/child/world/garden/scene-bg-860.webp',
   '/images/child/world/garden/scene-bg-1280.webp',
+  '/images/child/world/garden/sunflower-bloom.svg',
+  '/images/child/world/garden/sunflower-sprout.svg',
+  '/images/child/world/garden/sunflower-stump.svg',
   '/images/child/world/memory-hall/scene@2x.webp',
   '/images/child/world/memory-hall/scene-430.webp',
   '/images/child/world/memory-hall/scene-860.webp',

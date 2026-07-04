@@ -76,7 +76,7 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.doesNotMatch(src, /INSERT INTO features/);
   });
 
-  it('garden route is feature-gated with 503', () => {
+  it('garden route exposes LOE slots + verb endpoints', () => {
     const src = fs.readFileSync(
       path.join(__dirname, '../src/routes/garden.js'),
       'utf8'
@@ -84,6 +84,10 @@ describe('garden_playable — playable scene (experience slice)', () => {
     assert.match(src, /isPlayableEnabled\(req\.user\.familyId\)/);
     assert.match(src, /503/);
     assert.match(src, /Trädgården ej aktiverad/);
+    assert.match(src, /\/garden\/slots/);
+    assert.match(src, /\/garden\/slots\/:slotId\/verb/);
+    assert.match(src, /garden-loe/);
+    assert.match(src, /plant_locked/);
   });
 
   it('buildSceneState returns ambient garden from pack — no verbs', async () => {
@@ -188,6 +192,10 @@ describe('ChildGarden client module', () => {
       setTimeout,
       clearTimeout,
     };
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
     return context.window.ChildGarden;
   }
@@ -202,19 +210,19 @@ describe('ChildGarden client module', () => {
         { scenery_id: 'garden_sky', label_sv: 'Himlen' },
       ],
     });
-    assert.match(html, /gd-scene/);
+    assert.match(html, /cww-shell/);
     assert.match(html, /gd-scene--illustrated/);
     assert.match(html, /gd-scene-bg/);
     assert.match(html, /picture/);
     assert.match(html, /scene-bg/);
-    assert.match(html, /gd-hotspot--path/);
-    assert.match(html, /gd-back-fab/);
-    assert.match(html, /aria-label="Tillbaka till Morgonhuset"/);
+    assert.match(html, /data-cww-action="bed"/);
+    assert.match(html, /Blomsterbädd/);
+    assert.match(html, /data-cww-action="back"|cww-back/);
+    assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
     assert.doesNotMatch(html, /gd-scene-toast/);
     assert.doesNotMatch(html, /gd-house-wall/);
-    assert.doesNotMatch(html, /Tillbaka till Morgonhuset<\/button>/);
   });
 
   it('garden uses visual feedback, not toast', () => {
@@ -246,17 +254,21 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus door navigates to garden when gate_to_garden', () => {
-    assert.match(mhSrc, /gate_to_garden/);
-    assert.match(mhSrc, /data-nav="/);
-    assert.match(mhSrc, /nav === 'garden'/);
-    assert.match(mhSrc, /LivingWorldTransition\.enterGarden/);
-    assert.match(mhSrc, /function deactivate/);
+  it('morgonhus wayfinder only goes back to hub (no scene hotspots)', () => {
+    assert.match(mhSrc, /ChildWorldHub\.show/);
+    assert.match(mhSrc, /actions:\s*\[\]/);
+    assert.doesNotMatch(mhSrc, /data-nav=/);
+    assert.doesNotMatch(mhSrc, /mh-prop-emoji/);
   });
 
-  it('garden exit returns to morgonhus via tryMountWorld', () => {
+  it('garden exit returns to world hub', () => {
     assert.match(src, /exitToMorgonhus/);
-    assert.match(src, /ChildMorgonhus\.tryMountWorld/);
+    assert.match(src, /ChildWorldHub\.show/);
+    const transitionSrc = fs.readFileSync(
+      path.join(__dirname, '../public/js/child-living-world-transition.js'),
+      'utf8'
+    );
+    assert.match(transitionSrc, /ChildWorldHub\.show/);
   });
 
   it('child-dashboard showTab respects garden active state', () => {
@@ -286,7 +298,14 @@ describe('ChildGarden client module', () => {
     assert.match(mhSrc, /_cachedSceneState/);
   });
 
-  it('no LOE gameplay verbs in garden client', () => {
-    assert.doesNotMatch(src, /\bverb\b.*plant|\bplant\b|\bharvest\b|timer_ms/i);
+  it('garden client implements LOE plant/harvest gameplay verbs', () => {
+    assert.match(src, /SLOTS_PATH/);
+    assert.match(src, /applySlotVerb/);
+    assert.match(src, /\bplant\b/);
+    assert.match(src, /\bharvest\b/);
+    assert.match(src, /gdBedOverlay/);
+    assert.match(src, /sunflower-bloom\.svg/);
+    assert.match(src, /launchHarvestCelebration/);
+    assert.doesNotMatch(src, /showToast/);
   });
 });

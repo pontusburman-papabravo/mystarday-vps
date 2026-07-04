@@ -47,24 +47,14 @@
         }
       },
       remountParent: async function () {
-        let restored = false;
-        if (window.ChildMorgonhus) {
-          if (typeof window.ChildMorgonhus.tryRemountCached === 'function') {
-            restored = window.ChildMorgonhus.tryRemountCached();
-          }
-          if (!restored && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
-            restored = await window.ChildMorgonhus.tryMountWorld();
-          }
+        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+          return window.ChildWorldHub.show();
         }
-        if (!restored) {
-          if (window.ChildMorgonhus && typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
-            window.ChildMorgonhus.openSkattkammaren();
-          } else if (typeof window.loadRewards === 'function') {
-            window.rewardsLoaded = false;
-            window.loadRewards();
-          }
+        if (typeof window.loadRewards === 'function') {
+          window.rewardsLoaded = false;
+          window.loadRewards({ skipHub: true });
         }
-        return restored;
+        return false;
       },
     },
     memory_hall: {

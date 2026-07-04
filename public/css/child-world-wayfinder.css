@@ -1,0 +1,254 @@
+/**
+ * child-world-wayfinder.css — Synlig platsindikator + textknappar (Min värld).
+ */
+
+.cww-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100dvh - 3.25rem - env(safe-area-inset-top, 0px));
+  max-height: calc(100dvh - 3.25rem - env(safe-area-inset-top, 0px));
+  background: #e8dcc8;
+  overflow: hidden;
+}
+
+body.child-has-bottom-nav .cww-shell,
+body.child-worlds-v2 .cww-shell {
+  height: calc(100dvh - 3.25rem - 4.75rem - env(safe-area-inset-bottom, 0px));
+  max-height: calc(100dvh - 3.25rem - 4.75rem - env(safe-area-inset-bottom, 0px));
+}
+
+.cww-chrome {
+  flex-shrink: 0;
+  z-index: 8;
+  background: rgba(255, 252, 245, 0.97);
+  border-bottom: 1px solid rgba(27, 35, 64, 0.08);
+  box-shadow: 0 2px 12px rgba(27, 35, 64, 0.06);
+}
+
+.cww-place-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 10px 6px 6px;
+}
+
+.cww-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid rgba(27, 35, 64, 0.12);
+  border-radius: 12px;
+  background: #fff;
+  color: #1b2340;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cww-back--spacer {
+  width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+}
+
+.cww-back-arrow {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.cww-place-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1b2340;
+}
+
+.cww-place-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.cww-place-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cww-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.cww-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 8px 6px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(27, 35, 64, 0.12);
+  background: #fff;
+  color: #1b2340;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.06);
+}
+
+.cww-action--primary {
+  border-color: rgba(245, 166, 35, 0.55);
+  background: linear-gradient(180deg, #fff9ee, #fff0d0);
+  color: #7a4e00;
+}
+
+.cww-action.is-disabled,
+.cww-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cww-action-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.cww-scene-stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.cww-scene-stage .mh-scene,
+.cww-scene-stage .gd-scene,
+.cww-scene-stage .mu-scene {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+}
+
+/* Illustration is decorative — navigation via labeled buttons only */
+.cww-shell .mh-hotspot--nav,
+.cww-shell .mh-hotspot--door,
+.cww-shell .mh-door-hint,
+.cww-shell .mh-nav-dock,
+.cww-shell .gd-hotspot,
+.cww-shell .gd-back-fab,
+.cww-shell .mu-hotspot,
+.cww-shell .mu-window-tap,
+.cww-shell .mu-back-fab,
+.cww-shell .mu-back-hint,
+.cww-shell .mu-exhibits--illustrated,
+.cww-shell .mu-scene-intro {
+  display: none !important;
+}
+
+.cww-shell .mh-scene-canvas,
+.cww-shell .gd-scene-canvas,
+.cww-shell .mu-scene-canvas {
+  pointer-events: none;
+}
+
+.cww-memory-panel {
+  flex-shrink: 0;
+  max-height: 38%;
+  padding: 8px 10px 10px;
+  background: rgba(255, 252, 245, 0.96);
+  border-top: 1px solid rgba(27, 35, 64, 0.08);
+}
+
+.cww-memory-panel--empty {
+  padding: 14px 16px;
+}
+
+.cww-memory-empty {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #5a6178;
+  text-align: center;
+}
+
+.cww-memory-heading {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7a4e00;
+}
+
+.cww-memory-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cww-memory-card {
+  flex: 0 0 auto;
+  min-width: 88px;
+  max-width: 120px;
+  min-height: 72px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(180, 140, 90, 0.35);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.cww-memory-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.cww-memory-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1b2340;
+  text-align: center;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+body.child-wayfinder-active #childGoalProgressMount,
+body.child-wayfinder-active #childPendingRedemptionMount {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cww-action:active {
+    transform: none;
+  }
+}

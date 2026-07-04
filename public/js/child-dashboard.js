@@ -219,6 +219,7 @@ function showTab(tab) {
 
   if (isUniverse && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()
       && (!window.ChildGarden || !window.ChildGarden.isActive())
+      && (!window.ChildWorldHub || !window.ChildWorldHub.isActive())
       && (!window.LivingWorldTransition || !window.LivingWorldTransition.isActive())) {
     window.rewardsLoaded = false;
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
