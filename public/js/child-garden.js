@@ -203,9 +203,7 @@
           return;
         }
         deactivate();
-        if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
-          window.ChildWorldHub.show();
-        }
+        remountMorgonhusOrSkatt();
       },
       onAction: async function () {},
     });
@@ -626,27 +624,40 @@
   }
 
   async function remountMorgonhusOrSkatt() {
-    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
-      const hubShown = await window.ChildWorldHub.show();
-      if (hubShown) return true;
-    }
-    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
-      const remounted = await window.ChildMorgonhus.tryMountWorld();
-      if (remounted) return true;
+    if (window.ChildMorgonhus) {
       if (typeof window.ChildMorgonhus.tryRemountCached === 'function'
           && window.ChildMorgonhus.tryRemountCached()) {
         return true;
+      }
+      if (typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+        const remounted = await window.ChildMorgonhus.tryMountWorld();
+        if (remounted) return true;
       }
       if (typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
         window.ChildMorgonhus.openSkattkammaren();
         return true;
       }
     }
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+      const hubShown = await window.ChildWorldHub.show();
+      if (hubShown) return true;
+    }
     if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
       window.loadRewards();
     }
     return false;
+  }
+
+  async function refreshSlots() {
+    if (!_active) return false;
+    const payload = await fetchSlots();
+    if (!payload) return false;
+    _slotsPayload = payload;
+    const root = document.getElementById('skattkammarView');
+    updateBedVisual(root, getBedSlot());
+    scheduleTimerRefresh();
+    return true;
   }
 
   async function mount(state, opts) {
@@ -725,6 +736,20 @@
     return _active;
   }
 
+  function init() {
+    if (window.ChildEventBus) {
+      window.ChildEventBus.on('ActivityCompleted', function () {
+        if (_active) refreshSlots();
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
   window.ChildGarden = {
     API_PATH: API_PATH,
     SLOTS_PATH: SLOTS_PATH,
@@ -739,6 +764,7 @@
     livingSlotTransitionMessage: livingSlotTransitionMessage,
     handleBedTap: handleBedTap,
     renderBedHotspot: renderBedHotspot,
+    refreshSlots: refreshSlots,
     scheduleTimerRefresh: scheduleTimerRefresh,
   };
 })();

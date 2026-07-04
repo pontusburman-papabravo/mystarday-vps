@@ -192,6 +192,12 @@ describe('Living World transition — place mode', () => {
     assert.equal(mountArgs.opts.viaTransition, true);
   });
 
+  it('garden registry remounts Morgonhus before hub on exit', () => {
+    assert.match(TRANSITION_SRC, /remountParent[\s\S]*tryRemountCached/);
+    assert.match(TRANSITION_SRC, /remountParent[\s\S]*tryMountWorld/);
+    assert.match(TRANSITION_SRC, /remountParent[\s\S]*ChildWorldHub\.show/);
+  });
+
   it('garden path uses LivingWorldTransition.enterMemoryHall when gate open', () => {
     assert.match(GARDEN_SRC, /LivingWorldTransition\.enterMemoryHall/);
     assert.match(GARDEN_SRC, /leads_to_memory_hall/);

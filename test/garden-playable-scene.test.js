@@ -264,14 +264,23 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /mh-prop-emoji/);
   });
 
-  it('garden exit returns to world hub', () => {
+  it('garden exit returns to Morgonhus with hub fallback', () => {
     assert.match(src, /exitToMorgonhus/);
+    assert.match(src, /tryRemountCached/);
+    assert.match(src, /tryMountWorld/);
     assert.match(src, /ChildWorldHub\.show/);
     const transitionSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-living-world-transition.js'),
       'utf8'
     );
+    assert.match(transitionSrc, /tryRemountCached/);
+    assert.match(transitionSrc, /tryMountWorld/);
     assert.match(transitionSrc, /ChildWorldHub\.show/);
+  });
+
+  it('garden refreshes bed when Idag activity completed', () => {
+    assert.match(src, /ActivityCompleted/);
+    assert.match(src, /refreshSlots/);
   });
 
   it('child-dashboard showTab respects garden active state', () => {
