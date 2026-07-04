@@ -31,7 +31,7 @@ async function periodMetricFromTable(table) {
 }
 
 async function fetchKeyMetrics() {
-  const [weekRow, metaRow, stuckRow, totalFamiliesRow, founderLimitRow] = await Promise.all([
+  const [weekRow, stuckRow, totalFamiliesRow, founderLimitRow] = await Promise.all([
     db.query(
       `SELECT
          COUNT(*)::int AS signups_7d,
@@ -59,18 +59,6 @@ async function fetchKeyMetrics() {
          AND f.created_at >= NOW() - INTERVAL '7 days'`
     ),
     db.query(
-      `SELECT
-         COUNT(DISTINCT ae.family_id) FILTER (
-           WHERE ae.created_at >= NOW() - INTERVAL '7 days'
-         )::int AS meta_7d,
-         COUNT(DISTINCT ae.family_id) FILTER (
-           WHERE ae.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
-         )::int AS meta_today
-       FROM analytics_events ae
-       WHERE ae.event_type = 'signup_attribution'
-         AND LOWER(COALESCE(ae.metadata->>'utm_source', '')) = 'meta'`
-    ),
-    db.query(
       `SELECT COUNT(*)::int AS stuck
        FROM (
          SELECT f.id
@@ -92,7 +80,6 @@ async function fetchKeyMetrics() {
   ]);
 
   const week = weekRow.rows[0] || {};
-  const meta = metaRow.rows[0] || {};
   const signups7d = week.signups_7d || 0;
   const signupsPrev7d = week.signups_prev_7d || 0;
   const p0_48h = week.p0_48h || 0;
@@ -114,8 +101,6 @@ async function fetchKeyMetrics() {
     signupsToday: week.signups_today || 0,
     signups7d,
     signupsDelta: signups7d - signupsPrev7d,
-    metaSignups7d: meta.meta_7d || 0,
-    metaSignupsToday: meta.meta_today || 0,
     p0_48h,
     p0RatePct: rate(p0_48h, signups7d),
     p0TargetPct: 25,
