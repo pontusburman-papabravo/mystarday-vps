@@ -4,7 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { injectNoindexMeta } = require('../lib/seo-pages');
+const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/seo-pages');
 
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
@@ -196,6 +196,12 @@ function injectParentMagicHtml(body, reqPath) {
   return body;
 }
 
+function maybeSetNoindexHeader(res, reqPath) {
+  if (!isSeoIndexable(normalizeSeoPath(reqPath))) {
+    res.setHeader('X-Robots-Tag', 'noindex');
+  }
+}
+
 function injectPlatformHtml(body, reqPath) {
   if (typeof body !== 'string') return body;
   body = injectNoindexMeta(body, reqPath);
@@ -259,6 +265,7 @@ function platformHtmlInject(req, res, next) {
   res.send = function (body) {
     const ct = res.get('Content-Type') || '';
     if ((ct.includes('text/html') || (typeof body === 'string' && body.trim().startsWith('<!'))) && typeof body === 'string') {
+      maybeSetNoindexHeader(res, req.path);
       body = injectPlatformHtml(body, req.path);
       if (!ct.includes('text/html')) {
         res.type('html');
@@ -291,6 +298,7 @@ function platformHtmlInject(req, res, next) {
         return originalSendFile.call(self, filePath, opts, cb);
       }
       self.type('html');
+      maybeSetNoindexHeader(self, req.path);
       self.send(injectPlatformHtml(html, req.path));
       if (cb) cb(null);
     });

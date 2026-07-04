@@ -9,6 +9,7 @@ const {
   isSeoIndexable,
   injectNoindexMeta,
   SEO_INDEXABLE_PATHS,
+  buildRobotsTxt,
 } = require('../src/lib/seo-pages');
 const { buildSitemapXml } = require('../src/lib/sitemap');
 const {
@@ -102,6 +103,55 @@ test('faq and pedagoger JSON-LD blocks parse as valid JSON', () => {
   assert.equal(pedagog['@context'], 'https://schema.org');
   assert.ok(Array.isArray(pedagog['@graph']) && pedagog['@graph'].length >= 2);
   assert.equal(pedagog['@graph'][0]['@type'], 'WebPage');
+});
+
+test('SoftwareApplication JSON-LD uses numeric price (Search Console value type)', () => {
+  for (const file of ['public/index.html', 'public/bildschema-app.html']) {
+    const blocks = [...fs.readFileSync(path.join(ROOT, file), 'utf8').matchAll(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/g)];
+    const appBlock = blocks.map((m) => JSON.parse(m[1])).find((b) => b['@type'] === 'SoftwareApplication');
+    assert.ok(appBlock, `${file} should include SoftwareApplication JSON-LD`);
+    assert.equal(typeof appBlock.offers.price, 'number', `${file} offers.price should be number`);
+  }
+  const enHtml = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
+  assert.doesNotMatch(enHtml, /aggregateRating/);
+});
+
+test('robots.txt disallows app routes like activities and notifications', () => {
+  const txt = buildRobotsTxt();
+  assert.match(txt, /Disallow: \/activities/);
+  assert.match(txt, /Disallow: \/notifications/);
+  assert.match(txt, /Disallow: \/dashboard/);
+  assert.match(txt, /Sitemap: https:\/\/.+\/sitemap\.xml/);
+});
+
+test('injectPlatformHtml sets noindex on app pages', () => {
+  const html = '<!DOCTYPE html><html><head></head><body></body></html>';
+  const { injectPlatformHtml } = require('../src/middleware/platform-html');
+  assert.equal(isSeoIndexable('/activities'), false);
+  assert.equal(isSeoIndexable('/notifications'), false);
+  const out = injectPlatformHtml(html, '/activities');
+  assert.match(out, /name="robots" content="noindex"/);
+});
+
+test('GET /robots.txt and /activities SEO headers', async () => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+  }
+  const { createApp } = require('../app');
+  const { listenApp } = require('./helpers/http');
+  const http = await listenApp(createApp);
+  try {
+    const robots = await fetch(`${http.baseUrl}/robots.txt`);
+    assert.equal(robots.status, 200);
+    const robotsBody = await robots.text();
+    assert.match(robotsBody, /Disallow: \/activities/);
+
+    const activities = await fetch(`${http.baseUrl}/activities`);
+    assert.equal(activities.status, 200);
+    assert.equal(activities.headers.get('x-robots-tag'), 'noindex');
+  } finally {
+    await http.close();
+  }
 });
 
 test('pricing-info is public access information page', () => {

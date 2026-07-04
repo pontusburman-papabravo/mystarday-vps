@@ -1,4 +1,7 @@
+# Served dynamically by GET /robots.txt (src/lib/seo-pages.js buildRobotsTxt).
+# This file is a fallback if the route is unavailable.
+
 User-agent: *
 Allow: /
 
-Sitemap: https://mystarday.se/sitemap.xml
+Sitemap: [REDACTED]/sitemap.xml

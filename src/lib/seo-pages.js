@@ -7,6 +7,8 @@ const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
 const { R2_INDEXABLE_PATHS } = require('../../config/resurser-r2');
 const { R3_INDEXABLE_PATHS } = require('../../config/resurser-r3');
 
+const SITE_URL = (process.env.PUBLIC_SITE_URL || '[REDACTED]').replace(/\/$/, '');
+
 const SEO_INDEXABLE_PATHS = new Set([
   '/',
   '/register',
@@ -30,6 +32,40 @@ const SEO_INDEXABLE_PATHS = new Set([
   ...R3_INDEXABLE_PATHS,
 ]);
 
+/** App/auth/admin paths — noindex + robots Disallow (not marketing SEO). */
+const SEO_CRAWL_DISALLOW_PATHS = [
+  '/api/',
+  '/admin',
+  '/login',
+  '/child-login',
+  '/dashboard',
+  '/activities',
+  '/notifications',
+  '/schedule',
+  '/daily-log',
+  '/family',
+  '/settings',
+  '/library',
+  '/calendar',
+  '/onboarding',
+  '/child-wizard',
+  '/child-dashboard',
+  '/child/',
+  '/planning',
+  '/rewards',
+  '/for-dig',
+  '/assign-schedule',
+  '/verify-email',
+  '/forgot-password',
+  '/reset-password',
+  '/accept-invite',
+  '/pedagog-invite',
+  '/print-schema',
+  '/upgrade',
+  '/payment-success',
+  '/child-settings',
+];
+
 function normalizeSeoPath(path) {
   if (!path) return '';
   let p = String(path).split('?')[0].replace(/\/$/, '') || '/';
@@ -42,6 +78,17 @@ function isSeoIndexable(path) {
 }
 
 const NOINDEX_META = '<meta name="robots" content="noindex">';
+
+function buildRobotsTxt() {
+  const lines = [
+    'User-agent: *',
+    'Allow: /',
+    ...SEO_CRAWL_DISALLOW_PATHS.map((p) => `Disallow: ${p}`),
+    '',
+    `Sitemap: ${SITE_URL}/sitemap.xml`,
+  ];
+  return `${lines.join('\n')}\n`;
+}
 
 function injectNoindexMeta(html, reqPath) {
   if (typeof html !== 'string' || !html.includes('<html')) return html;
@@ -56,8 +103,11 @@ function injectNoindexMeta(html, reqPath) {
 
 module.exports = {
   SEO_INDEXABLE_PATHS,
+  SEO_CRAWL_DISALLOW_PATHS,
+  SITE_URL,
   normalizeSeoPath,
   isSeoIndexable,
   injectNoindexMeta,
+  buildRobotsTxt,
   NOINDEX_META,
 };
