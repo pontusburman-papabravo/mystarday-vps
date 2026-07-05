@@ -46,7 +46,7 @@ describe('living-object-runtime — garden sunflower loop', () => {
     assert.equal(slots[0].available_verbs[0].verb, 'plant');
   });
 
-  it('applyVerb plant creates instance in planted state with timer', async () => {
+  it('applyVerb plant creates instance in planted state without timer', async () => {
     const rows = [];
     const mock = injectMockDb();
     mock.setQuery(async (sql, params) => {
@@ -97,8 +97,57 @@ describe('living-object-runtime — garden sunflower loop', () => {
 
     assert.equal(result.ok, true);
     assert.equal(result.slot.state_key, 'planted');
-    assert.ok(result.slot.timer_remaining_ms > 0);
+    assert.equal(result.slot.timer_remaining_ms, undefined);
+    assert.equal(result.slot.available_verbs[0].verb, 'water');
     assert.match(result.child_message_sv, /frö/i);
+  });
+
+  it('applyVerb water starts timer on watered state', async () => {
+    const rows = [{
+      id: '11111111-1111-1111-1111-111111111111',
+      child_id: CHILD_ID,
+      family_id: FAMILY_ID,
+      world_slug: GARDEN,
+      archetype_id: 'sunflower',
+      slot_id: BED_SLOT,
+      state_key: 'planted',
+      state_data: {},
+      version: 1,
+    }];
+    const mock = injectMockDb();
+    mock.setQuery(async (sql, params) => {
+      const q = String(sql);
+      if (q.includes('SELECT') && q.includes('living_object_instance')) {
+        const slotId = params[2];
+        const hit = rows.find((r) => r.child_id === CHILD_ID && r.slot_id === slotId);
+        return { rows: hit ? [hit] : [] };
+      }
+      if (q.includes('UPDATE living_object_instance')) {
+        const row = rows[0];
+        if (row.version !== params[3]) return { rows: [] };
+        row.state_key = params[0];
+        row.state_data = JSON.parse(params[1]);
+        row.version += 1;
+        return { rows: [{ ...row }] };
+      }
+      return { rows: [] };
+    });
+
+    const { applyVerb } = loadRuntime();
+    const pack = loadPack('child_se');
+    const result = await applyVerb({
+      childId: CHILD_ID,
+      familyId: FAMILY_ID,
+      worldSlug: GARDEN,
+      slotId: BED_SLOT,
+      verb: 'water',
+      pack,
+    });
+
+    assert.equal(result.ok, true);
+    assert.equal(result.slot.state_key, 'watered');
+    assert.ok(result.slot.timer_remaining_ms > 0);
+    assert.match(result.child_message_sv, /vattnade/i);
   });
 
   it('applyVerb rejects invalid verb for current state', async () => {
@@ -125,7 +174,7 @@ describe('living-object-runtime — garden sunflower loop', () => {
     assert.equal(result.error, 'verb_not_allowed');
   });
 
-  it('loadLivingSlots auto-transitions planted to blooming when timer elapsed', async () => {
+  it('loadLivingSlots auto-transitions watered to blooming when timer elapsed', async () => {
     const rows = [{
       id: '22222222-2222-2222-2222-222222222222',
       child_id: CHILD_ID,
@@ -133,7 +182,7 @@ describe('living-object-runtime — garden sunflower loop', () => {
       world_slug: GARDEN,
       archetype_id: 'sunflower',
       slot_id: BED_SLOT,
-      state_key: 'planted',
+      state_key: 'watered',
       state_data: { timer_started_at: new Date(Date.now() - 60000).toISOString() },
       version: 2,
     }];
@@ -164,7 +213,7 @@ describe('living-object-runtime — garden sunflower loop', () => {
     assert.equal(slots[0].timer_remaining_ms, undefined);
   });
 
-  it('resolveTimerNextState returns blooming after elapsed planted timer', () => {
+  it('resolveTimerNextState legacy planted rows still bloom after elapsed timer', () => {
     clearPackCache();
     const { resolveTimerNextState } = loadRuntime();
     const pack = loadPack('child_se');
@@ -175,12 +224,23 @@ describe('living-object-runtime — garden sunflower loop', () => {
     assert.equal(next, 'blooming');
   });
 
-  it('resolveTimerNextState returns null while planted timer still running', () => {
+  it('resolveTimerNextState returns blooming after elapsed watered timer', () => {
     clearPackCache();
     const { resolveTimerNextState } = loadRuntime();
     const pack = loadPack('child_se');
     const archetype = getLivingArchetype(pack, GARDEN, 'sunflower');
-    const next = resolveTimerNextState(archetype, 'planted', {
+    const next = resolveTimerNextState(archetype, 'watered', {
+      timer_started_at: new Date(Date.now() - 35000).toISOString(),
+    });
+    assert.equal(next, 'blooming');
+  });
+
+  it('resolveTimerNextState returns null while watered timer still running', () => {
+    clearPackCache();
+    const { resolveTimerNextState } = loadRuntime();
+    const pack = loadPack('child_se');
+    const archetype = getLivingArchetype(pack, GARDEN, 'sunflower');
+    const next = resolveTimerNextState(archetype, 'watered', {
       timer_started_at: new Date().toISOString(),
     });
     assert.equal(next, null);

@@ -26,7 +26,7 @@ async function seedGardenAccess(query, familyId) {
 describe('garden LOE API — vertical gameplay slice (DB)', () => {
   beforeEach(() => clearPackCache());
 
-  it('plant locked until activity completed today, then full sunflower loop persists', async (t) => {
+  it('plant locked until activity completed today, then plant → water → bloom → harvest', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -52,6 +52,7 @@ describe('garden LOE API — vertical gameplay slice (DB)', () => {
       assert.equal(locked.slots[0].state_key, 'empty');
       assert.equal(locked.slots[0].plant_locked, true);
       assert.equal(locked.slots[0].available_verbs.length, 0);
+      assert.match(locked.plant_locked_message_sv, /Idag/);
 
       const plantDenied = await gardenLoe.performVerb({
         childId,
@@ -84,12 +85,26 @@ describe('garden LOE API — vertical gameplay slice (DB)', () => {
       }, db.query);
       assert.equal(planted.ok, true);
       assert.equal(planted.slot.state_key, 'planted');
-      assert.ok(planted.slot.timer_remaining_ms > 0);
+      assert.equal(planted.slot.timer_remaining_ms, undefined);
       assert.match(planted.child_message_sv, /planterade/i);
+
+      let afterPlant = await gardenLoe.getSlots(childId, familyId, db.query);
+      assert.equal(afterPlant.slots[0].available_verbs[0].verb, 'water');
+
+      const watered = await gardenLoe.performVerb({
+        childId,
+        familyId,
+        slotId: 'bed_1',
+        verb: 'water',
+      }, db.query);
+      assert.equal(watered.ok, true);
+      assert.equal(watered.slot.state_key, 'watered');
+      assert.ok(watered.slot.timer_remaining_ms > 0);
+      assert.match(watered.child_message_sv, /vattnade/i);
 
       const row = await livingObjectDb.getBySlot(childId, 'garden', 'bed_1', db.query);
       assert.ok(row);
-      assert.equal(row.state_key, 'planted');
+      assert.equal(row.state_key, 'watered');
 
       await db.query(
         `UPDATE living_object_instance
@@ -115,6 +130,39 @@ describe('garden LOE API — vertical gameplay slice (DB)', () => {
       const afterReload = await gardenLoe.getSlots(childId, familyId, db.query);
       assert.equal(afterReload.slots[0].state_key, 'harvested');
       assert.equal(afterReload.slots[0].available_verbs.length, 0);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('rejects invalid water verb on empty bed', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    try {
+      const fam = await db.query(
+        `INSERT INTO family (name, timezone) VALUES ('Garden LOE', 'Europe/Stockholm') RETURNING id`
+      );
+      const familyId = fam.rows[0].id;
+      await seedGardenAccess(db.query, familyId);
+      const child = await db.query(
+        `INSERT INTO child (family_id, name, emoji, username, pin, sort_order, timezone)
+         VALUES ($1, 'Olle', '🌻', 'olle', 'hash', 0, 'Europe/Stockholm') RETURNING id`,
+        [familyId]
+      );
+      const childId = child.rows[0].id;
+
+      const denied = await gardenLoe.performVerb({
+        childId,
+        familyId,
+        slotId: 'bed_1',
+        verb: 'water',
+      }, db.query);
+      assert.equal(denied.ok, false);
+      assert.equal(denied.error, 'verb_not_allowed');
     } finally {
       await db.cleanup();
     }

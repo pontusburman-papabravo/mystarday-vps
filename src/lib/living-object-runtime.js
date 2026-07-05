@@ -7,8 +7,20 @@ const {
   getLivingArchetype,
 } = require('./experience-pack');
 
+/** Legacy rows: planted + timer_started_at before water verb shipped */
+const LEGACY_PLANTED_TIMER_MS = 30000;
+
 function findStateDef(archetype, stateKey) {
   return (archetype.states || []).find((s) => s.state_key === stateKey) || null;
+}
+
+function resolveTimerMs(archetype, stateKey, stateData) {
+  const stateDef = findStateDef(archetype, stateKey);
+  if (stateDef?.timer_ms) return stateDef.timer_ms;
+  if (stateKey === 'planted' && stateData?.timer_started_at) {
+    return LEGACY_PLANTED_TIMER_MS;
+  }
+  return null;
 }
 
 function getVerbsForState(archetype, stateKey) {
@@ -17,22 +29,26 @@ function getVerbsForState(archetype, stateKey) {
 
 function resolveTimerNextState(archetype, stateKey, stateData) {
   const stateDef = findStateDef(archetype, stateKey);
-  if (!stateDef?.timer_ms || !stateDef.timer_next_state) return null;
+  const timerMs = resolveTimerMs(archetype, stateKey, stateData);
+  if (!timerMs) return null;
+  const nextState = stateDef?.timer_next_state
+    || (stateKey === 'planted' ? 'blooming' : null);
+  if (!nextState) return null;
   const startedAt = stateData?.timer_started_at;
   if (!startedAt) return null;
   const elapsed = Date.now() - new Date(startedAt).getTime();
-  if (elapsed >= stateDef.timer_ms) {
-    return stateDef.timer_next_state;
+  if (elapsed >= timerMs) {
+    return nextState;
   }
   return null;
 }
 
 function timerRemainingMs(archetype, stateKey, stateData) {
-  const stateDef = findStateDef(archetype, stateKey);
-  if (!stateDef?.timer_ms) return null;
+  const timerMs = resolveTimerMs(archetype, stateKey, stateData);
+  if (!timerMs) return null;
   const startedAt = stateData?.timer_started_at;
-  if (!startedAt) return stateDef.timer_ms;
-  const remaining = stateDef.timer_ms - (Date.now() - new Date(startedAt).getTime());
+  if (!startedAt) return timerMs;
+  const remaining = timerMs - (Date.now() - new Date(startedAt).getTime());
   return remaining > 0 ? remaining : 0;
 }
 

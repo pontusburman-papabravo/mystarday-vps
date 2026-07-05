@@ -1,6 +1,6 @@
 /**
  * child-garden.js — Trädgården illustrated scene + Living Objects gameplay.
- * Primary visual: scene-bg.webp via <picture>. LOE bed_1: plant → grow → harvest.
+ * Primary visual: scene-bg.webp via <picture>. LOE bed_1: plant → water → grow → harvest.
  */
 (function () {
   'use strict';
@@ -83,13 +83,23 @@
     return 'gd-loe--' + slot.visual_token;
   }
 
+  function loeHaptic(kind) {
+    if (!window.Platform || !window.Platform.haptics) return;
+    if (kind === 'harvest') window.Platform.haptics.heavy();
+    else if (kind === 'plant') window.Platform.haptics.medium();
+    else window.Platform.haptics.light();
+  }
+
   function bedHotspotExtraClass(slot) {
     if (!slot) return '';
     if (slot.state_key === 'blooming') return ' gd-hotspot--bed-harvest';
-    if (slot.plant_locked) return ' gd-hotspot--bed-locked';
-    const canPlant = (slot.available_verbs || []).some(function (v) { return v.verb === 'plant'; });
-    if (canPlant) return ' gd-hotspot--bed-ready';
-    if (slot.state_key === 'planted') return ' gd-hotspot--bed-growing';
+    if (slot.plant_locked && slot.state_key === 'empty') return ' gd-hotspot--bed-locked';
+    const verbs = slot.available_verbs || [];
+    if (verbs.some(function (v) { return v.verb === 'plant'; })) return ' gd-hotspot--bed-ready';
+    if (verbs.some(function (v) { return v.verb === 'water'; })) return ' gd-hotspot--bed-needs-water';
+    if (slot.state_key === 'watered') return ' gd-hotspot--bed-growing';
+    if (slot.state_key === 'planted') return ' gd-hotspot--bed-needs-water';
+    if (slot.state_key === 'harvested') return ' gd-hotspot--bed-memory';
     return '';
   }
 
@@ -99,17 +109,20 @@
     if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
       return 'Skörda solrosen';
     }
+    if (verbs.some(function (v) { return v.verb === 'water'; })) {
+      return 'Vattna fröet i blomsterbädden';
+    }
     if (verbs.some(function (v) { return v.verb === 'plant'; })) {
       return 'Plantera i blomsterbädden';
     }
     if (slot.plant_locked && slot.state_key === 'empty') {
-      return 'Blomsterbädden — klarmarkera Idag först';
+      return 'Blomsterbädden — gör en sak på Idag först';
     }
-    if (slot.state_key === 'planted') {
+    if (slot.state_key === 'watered' || slot.state_key === 'planted') {
       return 'Solrosen växer';
     }
     if (slot.state_key === 'harvested') {
-      return slot.label_state_sv || 'Blomsterbädden';
+      return slot.label_state_sv || 'Dagens blomma';
     }
     return slot.label_sv || 'Blomsterbädden';
   }
@@ -161,21 +174,12 @@
   }
 
   function wayfinderConfig(state) {
-    const bed = getBedSlot();
-    const bedLocked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
     return {
       placeId: 'garden',
       placeLabel: 'Trädgården',
       placeIcon: '🌻',
       back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
-      actions: [{
-        id: 'bed',
-        label: bedAriaLabel(bed),
-        short: bedLocked ? 'Idag först' : 'Blomsterbädd',
-        icon: '🌻',
-        primary: true,
-        disabled: bedLocked,
-      }],
+      actions: [],
     };
   }
 
@@ -205,6 +209,10 @@
           return;
         }
         deactivate();
+        if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+          window.ChildMorgonhus.tryMountWorld();
+          return;
+        }
         if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
           window.ChildWorldHub.show();
         }
@@ -235,8 +243,11 @@
     if (nextSlot.state_key === 'blooming') {
       return nextSlot.label_state_sv || 'Solrosen blommar!';
     }
+    if (nextSlot.state_key === 'watered' && (!prevSlot || prevSlot.state_key === 'planted')) {
+      return 'Fröet dricker vatten…';
+    }
     if (nextSlot.state_key === 'planted' && (!prevSlot || prevSlot.state_key === 'empty')) {
-      return 'Fröet börjar växa…';
+      return 'Fröet ligger i jorden — vattna det!';
     }
     return null;
   }
@@ -251,6 +262,9 @@
     if (bedBtn) {
       bedBtn.className = 'gd-hotspot gd-hotspot--bed' + bedHotspotExtraClass(slot);
       bedBtn.setAttribute('aria-label', bedAriaLabel(slot));
+      const locked = Boolean(slot.plant_locked && slot.state_key === 'empty');
+      if (locked) bedBtn.setAttribute('disabled', '');
+      else bedBtn.removeAttribute('disabled');
     }
   }
 
@@ -261,10 +275,17 @@
     }
   }
 
+  function isTimerGrowingState(slot) {
+    if (!slot) return false;
+    if (slot.state_key === 'watered') return true;
+    if (slot.state_key === 'planted' && slot.timer_remaining_ms != null) return true;
+    return false;
+  }
+
   function scheduleTimerRefresh() {
     clearTimerPoll();
     const bed = getBedSlot();
-    if (!bed || bed.state_key !== 'planted') return;
+    if (!isTimerGrowingState(bed)) return;
 
     const remaining = bed.timer_remaining_ms;
     const delay = remaining != null && remaining > 0
@@ -284,11 +305,37 @@
       const root = document.getElementById('skattkammarView');
       updateBedVisual(root, next);
       const transitionMsg = livingSlotTransitionMessage(prev, next);
-      if (transitionMsg) showLoeFeedback(transitionMsg);
-      if (!next || next.state_key !== 'planted') {
+      if (transitionMsg) {
+        showLoeFeedback(transitionMsg);
+        if (next && next.state_key === 'blooming') launchBloomJuice(root);
+      }
+      if (!isTimerGrowingState(next)) {
         clearTimerPoll();
       }
     }, delay);
+  }
+
+  function launchBloomJuice(root) {
+    if (!root || _prefersReducedMotion) return;
+    const overlay = root.querySelector('#gdBedOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('gd-juice--bloom');
+    void overlay.offsetWidth;
+    overlay.classList.add('gd-juice--bloom');
+    setTimeout(function () { overlay.classList.remove('gd-juice--bloom'); }, 2000);
+  }
+
+  function launchVerbJuice(root, verb) {
+    if (!root || _prefersReducedMotion) return;
+    const overlay = root.querySelector('#gdBedOverlay');
+    if (!overlay) return;
+    const cls = verb === 'plant' ? 'gd-juice--plant'
+      : verb === 'water' ? 'gd-juice--water' : null;
+    if (!cls) return;
+    overlay.classList.remove(cls);
+    void overlay.offsetWidth;
+    overlay.classList.add(cls);
+    setTimeout(function () { overlay.classList.remove(cls); }, 2000);
   }
 
   function dismissHarvestCelebration(root) {
@@ -417,6 +464,8 @@
     let verb = null;
     if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
       verb = 'harvest';
+    } else if (verbs.some(function (v) { return v.verb === 'water'; })) {
+      verb = 'water';
     } else if (verbs.some(function (v) { return v.verb === 'plant'; })) {
       verb = 'plant';
     }
@@ -425,9 +474,11 @@
       triggerVisual(root, 'garden_bed');
       if (bed.plant_locked && bed.state_key === 'empty') {
         const msg = (_slotsPayload && _slotsPayload.plant_locked_message_sv)
-          || 'Gör klart något på Idag — då kan du plantera här.';
+          || 'Gör en sak på Idag så vaknar jorden.';
         showLoeFeedback(msg);
       } else if (bed.state_key === 'planted') {
+        showLoeFeedback('Vattna fröet så växer det!');
+      } else if (bed.state_key === 'watered') {
         showLoeFeedback('Solrosen växer…');
       }
       return;
@@ -459,8 +510,10 @@
       const transitionMsg = livingSlotTransitionMessage(prev, result.slot);
       const feedback = result.child_message_sv || transitionMsg;
       if (feedback) showLoeFeedback(feedback);
+      loeHaptic(verb);
+      launchVerbJuice(root, verb);
       if (verb === 'harvest') launchHarvestCelebration(root);
-      if (result.slot.state_key === 'planted') scheduleTimerRefresh();
+      if (isTimerGrowingState(result.slot)) scheduleTimerRefresh();
       else clearTimerPoll();
     }
     triggerVisual(root, 'garden_bed');
@@ -590,10 +643,6 @@
   }
 
   async function remountMorgonhusOrSkatt() {
-    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
-      const hubShown = await window.ChildWorldHub.show();
-      if (hubShown) return true;
-    }
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       const remounted = await window.ChildMorgonhus.tryMountWorld();
       if (remounted) return true;
@@ -601,10 +650,14 @@
           && window.ChildMorgonhus.tryRemountCached()) {
         return true;
       }
-      if (typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
-        window.ChildMorgonhus.openSkattkammaren();
-        return true;
-      }
+    }
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+      const hubShown = await window.ChildWorldHub.show();
+      if (hubShown) return true;
+    }
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
+      window.ChildMorgonhus.openSkattkammaren();
+      return true;
     }
     if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;

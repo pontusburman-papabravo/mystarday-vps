@@ -279,6 +279,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /data-cww-action="back"/);
     assert.match(html, /mh-hotspot--door/);
     assert.match(html, /data-prop="door"/);
+    assert.match(html, /Gå ut till trädgården/);
     assert.doesNotMatch(html, /data-cww-action="garden"/);
     assert.doesNotMatch(html, /mh-nav-dock/);
     assert.doesNotMatch(html, /mh-prop-emoji/);
@@ -421,7 +422,7 @@ describe('ChildMorgonhus client module', () => {
     assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
   });
 
-  it('loadRewards shows world hub when morgonhus_playable is on', () => {
+  it('loadRewards mounts Morgonhus first with hub fallback', () => {
     const rewardsSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-rewards.js'),
       'utf8'
@@ -431,7 +432,11 @@ describe('ChildMorgonhus client module', () => {
     assert.match(rewardsSrc, /shouldPreferSkatt/);
     assert.match(rewardsSrc, /options\.force/);
     assert.match(rewardsSrc, /clearPreferSkatt/);
+    assert.match(rewardsSrc, /tryMountWorld/);
     assert.match(rewardsSrc, /ChildWorldHub\.tryShow/);
+    const morgonhusIdx = rewardsSrc.indexOf('tryMountWorld');
+    const hubIdx = rewardsSrc.indexOf('ChildWorldHub.tryShow');
+    assert.ok(morgonhusIdx < hubIdx);
     assert.match(rewardsSrc, /skipHub/);
   });
 });

@@ -215,11 +215,10 @@ describe('ChildGarden client module', () => {
     assert.match(html, /gd-scene-bg/);
     assert.match(html, /picture/);
     assert.match(html, /scene-bg/);
-    assert.match(html, /data-cww-action="bed"/);
-    assert.match(html, /Blomsterbädd/);
     assert.match(html, /gd-hotspot--bed/);
     assert.match(html, /data-scenery="garden_bed"/);
     assert.match(html, /data-cww-action="back"|cww-back/);
+    assert.doesNotMatch(html, /data-cww-action="bed"/);
     assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
@@ -269,13 +268,15 @@ describe('ChildGarden client module', () => {
     assert.match(src, /data-scenery="garden_bed"/);
   });
 
-  it('garden exit returns to world hub', () => {
+  it('garden exit returns to Morgonhus with hub fallback', () => {
     assert.match(src, /exitToMorgonhus/);
+    assert.match(src, /tryMountWorld/);
     assert.match(src, /ChildWorldHub\.show/);
     const transitionSrc = fs.readFileSync(
       path.join(__dirname, '../public/js/child-living-world-transition.js'),
       'utf8'
     );
+    assert.match(transitionSrc, /tryMountWorld/);
     assert.match(transitionSrc, /ChildWorldHub\.show/);
   });
 
@@ -306,14 +307,23 @@ describe('ChildGarden client module', () => {
     assert.match(mhSrc, /_cachedSceneState/);
   });
 
-  it('garden client implements LOE plant/harvest gameplay verbs', () => {
+  it('garden client implements LOE plant/water/harvest gameplay verbs', () => {
     assert.match(src, /SLOTS_PATH/);
     assert.match(src, /applySlotVerb/);
     assert.match(src, /\bplant\b/);
+    assert.match(src, /\bwater\b/);
     assert.match(src, /\bharvest\b/);
     assert.match(src, /gdBedOverlay/);
     assert.match(src, /sunflower-bloom\.svg/);
     assert.match(src, /launchHarvestCelebration/);
+    assert.match(src, /handleBedTap/);
+    assert.match(src, /gd-hotspot--bed-needs-water/);
     assert.doesNotMatch(src, /showToast/);
+  });
+
+  it('garden bed hotspot triggers handleBedTap via bindInteractions', () => {
+    assert.match(src, /bindSceneryButton/);
+    assert.match(src, /data-scenery="garden_bed"/);
+    assert.match(src, /handleBedTap\(root, btn\)/);
   });
 });

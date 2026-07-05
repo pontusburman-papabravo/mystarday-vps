@@ -52,9 +52,8 @@
 
   function renderDoorHotspot(state) {
     if (!state || !state.gate_to_garden) return '';
-    const door = findProp(state, 'door');
-    const label = (door && door.label_sv) || 'Ut till trädgården';
-    return '<p class="mh-door-hint" aria-hidden="true">Ut till trädgården</p>' +
+    const label = 'Gå ut till trädgården';
+    return '<p class="mh-door-hint" aria-hidden="true">' + esc(label) + '</p>' +
       '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav"' +
         ' data-prop="door" data-nav="garden"' +
         ' aria-label="' + esc(label) + '"></button>';

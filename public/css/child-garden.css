@@ -284,6 +284,10 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   .gd-hotspot.is-tapped::after,
   .gd-loe--sunflower_bloom .gd-bed-plant,
   .gd-hotspot--bed-ready::before,
+  .gd-hotspot--bed-needs-water::before,
+  .gd-juice--plant,
+  .gd-juice--water,
+  .gd-juice--bloom,
   .gd-harvest-celebrate .gd-harvest-burst {
     animation: none !important;
   }
@@ -323,8 +327,19 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
 }
 
 .gd-loe--sunflower_harvested .gd-bed-plant {
-  width: 70%;
-  opacity: 0.85;
+  width: 65%;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 8px rgba(245, 166, 35, 0.35));
+}
+
+.gd-loe--sunflower_harvested::after {
+  content: '✨';
+  position: absolute;
+  right: 18%;
+  top: 8%;
+  font-size: 1.1rem;
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 .gd-loe--garden_bed_empty::after {
@@ -354,6 +369,56 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
   pointer-events: none;
 }
 
+.gd-hotspot--bed-ready::after {
+  content: '🌱';
+  position: absolute;
+  right: 8%;
+  top: 6%;
+  font-size: 1.25rem;
+  opacity: 0.9;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(27, 35, 64, 0.2));
+}
+
+.gd-hotspot--bed-locked {
+  cursor: default;
+}
+
+.gd-hotspot--bed-locked::before {
+  content: '';
+  position: absolute;
+  inset: 8%;
+  border-radius: 50% 50% 42% 42%;
+  background: linear-gradient(180deg, rgba(160, 130, 90, 0.22), rgba(101, 67, 33, 0.18));
+  pointer-events: none;
+}
+
+.gd-hotspot--bed-needs-water::before {
+  content: '💧';
+  position: absolute;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  font-size: 1.35rem;
+  opacity: 0.85;
+  animation: gd-water-invite 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gd-water-invite {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.65; }
+  50%      { transform: translateX(-50%) translateY(-4px); opacity: 1; }
+}
+
+.gd-hotspot--bed-memory::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 220, 120, 0.2), transparent 72%);
+  pointer-events: none;
+}
+
 @keyframes gd-bed-invite {
   0%, 100% { opacity: 0.4; transform: scale(0.95); }
   50%      { opacity: 0.85; transform: scale(1.02); }
@@ -375,6 +440,52 @@ body.child-garden-active #skattkammarView.gd-exit-through-door {
 
 .gd-hotspot.is-acting {
   opacity: 0.7;
+}
+
+/* ── Juice: plant puff, water shine, bloom burst (≤2s) ── */
+.gd-juice--plant .gd-bed-plant {
+  animation: gd-plant-puff 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gd-juice--water::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(100, 180, 255, 0.35), transparent 55%);
+  animation: gd-water-shine 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+.gd-juice--bloom .gd-bed-plant {
+  animation: gd-bloom-arrive 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.gd-juice--bloom::after {
+  content: '⭐';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  font-size: 1.5rem;
+  animation: gd-bloom-star 1.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes gd-plant-puff {
+  0%   { transform: scale(0.6) translateY(8px); opacity: 0.4; }
+  45%  { transform: scale(1.08) translateY(-3px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 0.95; }
+}
+
+@keyframes gd-water-shine {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes gd-bloom-star {
+  0%   { transform: translate(-50%, 12px) scale(0.4); opacity: 0; }
+  40%  { transform: translate(-50%, -8px) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -20px) scale(0.8); opacity: 0; }
 }
 
 /* ── LOE status + harvest celebration (≤2s, skippable) ── */

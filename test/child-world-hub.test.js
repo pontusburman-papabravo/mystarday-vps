@@ -27,10 +27,13 @@ describe('child-world-hub', () => {
     assert.match(html, /data-cwh-go="garden"/);
   });
 
-  it('loadRewards shows hub instead of auto-mounting morgonhus', () => {
+  it('loadRewards mounts Morgonhus first with hub as fallback', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
-    assert.match(src, /ChildWorldHub\.tryShow/);
-    assert.doesNotMatch(src, /tryMountWorld\(\)/);
+    const morgonhusIdx = src.indexOf('tryMountWorld');
+    const hubIdx = src.indexOf('ChildWorldHub.tryShow');
+    assert.ok(morgonhusIdx > 0, 'tryMountWorld present');
+    assert.ok(hubIdx > 0, 'hub fallback present');
+    assert.ok(morgonhusIdx < hubIdx, 'Morgonhus before hub');
   });
 
   it('hub CSS uses 72px minimum choice height', () => {

@@ -14,7 +14,7 @@ const {
 
 const GARDEN_WORLD = 'garden';
 const SUNFLOWER = 'sunflower';
-const REQUIRED_STATES = ['empty', 'planted', 'blooming', 'harvested'];
+const REQUIRED_STATES = ['empty', 'planted', 'watered', 'blooming', 'harvested'];
 
 function validateLivingObjectsFile(raw) {
   const errors = [];
@@ -76,19 +76,24 @@ describe('garden living-objects pack (S0-2)', () => {
     assert.deepEqual(archetype.states.map((s) => s.state_key), REQUIRED_STATES);
   });
 
-  it('sunflower verbs and planted timer are defined', () => {
+  it('sunflower verbs and watered timer are defined', () => {
     const pack = loadPack('child_se');
     const archetype = getLivingArchetype(pack, GARDEN_WORLD, SUNFLOWER);
     const plant = archetype.verbs.find((v) => v.verb === 'plant');
+    const water = archetype.verbs.find((v) => v.verb === 'water');
     const harvest = archetype.verbs.find((v) => v.verb === 'harvest');
     assert.equal(plant.from_state, 'empty');
     assert.equal(plant.to_state, 'planted');
+    assert.equal(water.from_state, 'planted');
+    assert.equal(water.to_state, 'watered');
     assert.equal(harvest.from_state, 'blooming');
     assert.equal(harvest.to_state, 'harvested');
 
     const planted = archetype.states.find((s) => s.state_key === 'planted');
-    assert.equal(planted.timer_ms, 30000);
-    assert.equal(planted.timer_next_state, 'blooming');
+    assert.equal(planted.timer_ms, undefined);
+    const watered = archetype.states.find((s) => s.state_key === 'watered');
+    assert.equal(watered.timer_ms, 30000);
+    assert.equal(watered.timer_next_state, 'blooming');
   });
 
   it('worlds.json has garden display metadata', () => {
