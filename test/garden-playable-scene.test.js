@@ -217,7 +217,10 @@ describe('ChildGarden client module', () => {
     assert.match(html, /scene-bg/);
     assert.match(html, /gd-hotspot--bed/);
     assert.match(html, /data-scenery="garden_bed"/);
-    assert.match(html, /data-cww-action="back"|cww-back/);
+    assert.match(html, /gd-bed-mound/);
+    assert.match(html, /left:5%/);
+    assert.match(html, /cww-chrome--immersive/);
+    assert.match(html, /data-cww-action="back"|cww-back--float/);
     assert.doesNotMatch(html, /data-cww-action="bed"/);
     assert.doesNotMatch(html, /gd-hotspot--path/);
     assert.doesNotMatch(html, /gd-scenery-label/);

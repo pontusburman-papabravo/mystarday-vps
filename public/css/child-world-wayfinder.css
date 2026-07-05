@@ -163,6 +163,77 @@ body.child-worlds-v2 .cww-shell {
   display: none !important;
 }
 
+.cww-scene-stage .mu-scene-intro {
+  display: none !important;
+}
+
+/* Immersive mode — scene fills screen, chrome floats */
+.cww-shell:has(.cww-chrome--immersive) {
+  position: relative;
+  background: #000;
+}
+
+.cww-chrome--immersive {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.cww-chrome--immersive .cww-back--float {
+  pointer-events: auto;
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top, 0px));
+  left: max(0.5rem, env(safe-area-inset-left, 0px));
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.18);
+  border: none;
+}
+
+.cww-chrome--immersive .cww-back--float .cww-back-arrow {
+  margin: 0;
+}
+
+.cww-chrome--immersive .cww-place-pill {
+  position: absolute;
+  top: max(0.55rem, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(27, 35, 64, 0.72);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.2);
+}
+
+.cww-shell:has(.cww-chrome--immersive) .cww-scene-stage {
+  flex: 1;
+  height: 100%;
+}
+
+.cww-shell:has(.cww-chrome--immersive) .mh-scene,
+.cww-shell:has(.cww-chrome--immersive) .gd-scene {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+}
+
 .cww-shell .gd-hotspot--bed,
 .cww-shell .mh-hotspot--door.mh-hotspot--nav {
   display: block !important;

@@ -107,62 +107,61 @@ body.child-morgonhus-active #skattkammarView {
 }
 
 .mh-hotspot--door.mh-hotspot--nav {
-  left: 34%;
-  bottom: 14%;
-  width: 32%;
-  height: 48%;
+  left: 62%;
+  bottom: 10%;
+  width: 28%;
+  height: 54%;
   z-index: 4;
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 0 2px rgba(245, 166, 35, 0.55),
-    0 0 0 0 rgba(245, 166, 35, 0.35);
-  animation: mh-door-pulse 2.4s ease-in-out infinite;
+  border-radius: 8px;
+  box-shadow: none;
+  animation: none;
+}
+
+.mh-hotspot--door.mh-hotspot--nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: radial-gradient(ellipse 70% 80% at 50% 65%, rgba(255, 248, 210, 0.28), transparent 72%);
+  animation: mh-door-glow 2.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .mh-hotspot--door.mh-hotspot--nav::after {
-  content: '🚪';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  line-height: 1;
-  opacity: 0.72;
-  pointer-events: none;
-  filter: drop-shadow(0 1px 3px rgba(27, 35, 64, 0.25));
+  display: none;
 }
 
 .mh-door-hint {
   position: absolute;
-  left: 50%;
-  top: 22%;
+  left: auto;
+  right: 10%;
+  top: auto;
+  bottom: 52%;
   z-index: 3;
-  transform: translateX(-50%);
-  padding: 6px 14px;
+  transform: none;
+  padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(255, 252, 245, 0.92);
-  border: 1px solid rgba(245, 166, 35, 0.45);
-  color: #1b2340;
+  background: rgba(27, 35, 64, 0.72);
+  border: none;
+  color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.12);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.2);
   pointer-events: none;
   white-space: nowrap;
+  animation: mh-door-hint-fade 6s ease forwards;
 }
 
-@keyframes mh-door-pulse {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 0 2px rgba(245, 166, 35, 0.45),
-      0 0 0 0 rgba(245, 166, 35, 0.2);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 0 2px rgba(245, 166, 35, 0.75),
-      0 0 0 10px rgba(245, 166, 35, 0);
-  }
+@keyframes mh-door-glow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+@keyframes mh-door-hint-fade {
+  0%, 70%  { opacity: 1; }
+  100%     { opacity: 0; }
 }
 
 .mh-token--welcome_mat_glow.is-unlocked,
@@ -290,7 +289,9 @@ body.child-memory-hall-active #childPendingRedemptionMount {
 @media (prefers-reduced-motion: reduce) {
   .mh-scene--entering,
   .mh-tap-pulse.is-active,
-  .mh-hotspot--door.mh-hotspot--nav {
+  .mh-hotspot--door.mh-hotspot--nav,
+  .mh-hotspot--door.mh-hotspot--nav::before,
+  .mh-door-hint {
     animation: none !important;
   }
   .mh-hotspot.is-tapped,
