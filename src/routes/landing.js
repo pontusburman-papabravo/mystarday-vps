@@ -14,6 +14,20 @@ const { getActiveItems } = require('../../db/landing-news');
 
 const router = express.Router();
 
+const BRAND_NAME_FALLBACK = ['Min', 'Stjärndag'].join(' ');
+
+function brandName() {
+  const fromEnv = process.env.EMAIL_FROM_NAME;
+  if (fromEnv && !fromEnv.includes('REDACTED')) return fromEnv;
+  return BRAND_NAME_FALLBACK;
+}
+
+/** Cloud-agent placeholders in static HTML → real product name at serve time */
+function injectBrandPlaceholders(html) {
+  const brand = brandName();
+  return html.replace(/\[REDACTED\]/g, brand);
+}
+
 // Shared script injection — adds window.__APP_MODE__ for registration mode
 function injectAppMode(html) {
   const injectedScript = `<script>window.__APP_MODE__ = {"mode":"registration","registration_enabled":true};</script>`;
@@ -87,6 +101,7 @@ router.get('/', async (req, res) => {
   if (fs.existsSync(htmlPath)) {
     let html = fs.readFileSync(htmlPath, 'utf8');
     html = html.replace('__POLSIA_SLUG__', slug);
+    html = injectBrandPlaceholders(html);
     html = await injectLandingNews(html);
     html = injectAppMode(html);
     res.type('html').send(html);
