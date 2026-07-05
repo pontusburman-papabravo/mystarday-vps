@@ -18,18 +18,22 @@
    * @param {string} config.placeLabel — "Trädgården"
    * @param {string} [config.placeIcon]
    * @param {{ label?: string, short?: string }} [config.back]
+   * @param {boolean} [config.immersive] — floating chrome over scene
    * @param {Array<{id:string,label:string,short?:string,icon?:string,primary?:boolean,disabled?:boolean}>} [config.actions]
    */
   function render(config) {
     const cfg = config || {};
+    const immersive = Boolean(cfg.immersive);
     const back = cfg.back;
     const backHtml = back
-      ? '<button type="button" class="cww-back" data-cww-action="back"' +
+      ? '<button type="button" class="cww-back' + (immersive ? ' cww-back--float' : '') + '" data-cww-action="back"' +
           ' aria-label="' + esc(back.label || 'Tillbaka') + '">' +
           '<span class="cww-back-arrow" aria-hidden="true">←</span>' +
-          '<span class="cww-back-label">' + esc(back.short || back.label || 'Tillbaka') + '</span>' +
+          (immersive ? '' : '<span class="cww-back-label">' + esc(back.short || back.label || 'Tillbaka') + '</span>') +
         '</button>'
-      : '<div class="cww-back cww-back--spacer" aria-hidden="true"></div>';
+      : '';
+
+    const chromeCls = 'cww-chrome' + (immersive ? ' cww-chrome--immersive' : '');
 
     const actions = cfg.actions || [];
     const actionsHtml = actions.map(function (action) {
@@ -47,14 +51,21 @@
       '</button>';
     }).join('');
 
-    return '<div class="cww-chrome" data-cww-place="' + esc(cfg.placeId || '') + '">' +
-      '<header class="cww-place-bar">' +
-        backHtml +
-        '<p class="cww-place-title">' +
-          (cfg.placeIcon ? '<span class="cww-place-icon" aria-hidden="true">' + esc(cfg.placeIcon) + '</span>' : '') +
+    const placeBar = immersive
+      ? (backHtml || '<div class="cww-place-pill" aria-hidden="true">' +
+          (cfg.placeIcon ? '<span class="cww-place-icon">' + esc(cfg.placeIcon) + '</span>' : '') +
           '<span class="cww-place-text">' + esc(cfg.placeLabel || '') + '</span>' +
-        '</p>' +
-      '</header>' +
+        '</div>')
+      : '<header class="cww-place-bar">' +
+          (backHtml || '<div class="cww-back cww-back--spacer" aria-hidden="true"></div>') +
+          '<p class="cww-place-title">' +
+            (cfg.placeIcon ? '<span class="cww-place-icon" aria-hidden="true">' + esc(cfg.placeIcon) + '</span>' : '') +
+            '<span class="cww-place-text">' + esc(cfg.placeLabel || '') + '</span>' +
+          '</p>' +
+        '</header>';
+
+    return '<div class="' + chromeCls + '" data-cww-place="' + esc(cfg.placeId || '') + '">' +
+      placeBar +
       (actionsHtml
         ? '<nav class="cww-actions" aria-label="Vad vill du göra?">' + actionsHtml + '</nav>'
         : '') +

@@ -56,6 +56,31 @@
     return c && typeof c.getRoomByWorldId === 'function' ? c.getRoomByWorldId('garden') : null;
   }
 
+  const DEFAULT_BED_HIT = { x: 0.05, y: 0.6, w: 0.25, h: 0.25 };
+
+  function gardenBedHitArea() {
+    const room = catalogGardenRoom();
+    const bed = (room && room.hotspots || []).find(function (h) {
+      return h.hotspot_id === 'garden_bed';
+    });
+    return (bed && bed.hit_area) ? bed.hit_area : DEFAULT_BED_HIT;
+  }
+
+  function hitAreaStyle(hit) {
+    const h = hit || DEFAULT_BED_HIT;
+    return 'left:' + ((h.x || 0) * 100) + '%;top:' + ((h.y || 0) * 100) + '%;' +
+      'width:' + ((h.w || 0.15) * 100) + '%;height:' + ((h.h || 0.15) * 100) + '%;';
+  }
+
+  function bedCanvasStyle() {
+    const hit = gardenBedHitArea();
+    return hitAreaStyle(hit) +
+      '--bed-x:' + ((hit.x || 0) * 100) + '%;' +
+      '--bed-y:' + ((hit.y || 0) * 100) + '%;' +
+      '--bed-w:' + ((hit.w || 0.15) * 100) + '%;' +
+      '--bed-h:' + ((hit.h || 0.15) * 100) + '%;';
+  }
+
   function outdoorNavHotspots() {
     const room = catalogGardenRoom();
     if (!room || !room.hotspots) return '';
@@ -143,7 +168,8 @@
     const plantImg = plantSrc
       ? '<img class="gd-bed-plant" src="' + esc(plantSrc) + '" alt="" decoding="async" />'
       : '';
-    return '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true">' +
+    return '<div class="gd-bed-mound" aria-hidden="true"></div>' +
+      '<div class="gd-bed-overlay ' + tokenClass + '" id="gdBedOverlay" aria-hidden="true">' +
       plantImg +
     '</div>';
   }
@@ -153,6 +179,7 @@
     const locked = Boolean(bed && bed.plant_locked && bed.state_key === 'empty');
     return '<button type="button" class="gd-hotspot gd-hotspot--bed' + bedHotspotExtraClass(bed) + '"' +
       ' data-scenery="garden_bed"' +
+      ' style="' + hitAreaStyle(gardenBedHitArea()) + '"' +
       ' aria-label="' + esc(bedAriaLabel(bed)) + '"' +
       (locked ? ' disabled' : '') +
       '></button>';
@@ -162,7 +189,7 @@
     const bedSlot = getBedSlot();
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
-      '<div class="gd-scene-canvas" aria-hidden="true">' +
+      '<div class="gd-scene-canvas" style="' + bedCanvasStyle() + '" aria-hidden="true">' +
         scenePictureMarkup() +
         renderBedHotspot(bedSlot) +
         renderBedOverlay(bedSlot) +
@@ -178,7 +205,8 @@
       placeId: 'garden',
       placeLabel: 'Trädgården',
       placeIcon: '🌻',
-      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      immersive: true,
+      back: { label: 'Tillbaka till Morgonhuset', short: 'Hem' },
       actions: [],
     };
   }

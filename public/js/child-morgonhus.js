@@ -45,7 +45,7 @@
       placeId: 'morgonhus',
       placeLabel: (state && state.display_name) || 'Morgonhuset',
       placeIcon: '🏠',
-      back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+      immersive: true,
       actions: [],
     };
   }

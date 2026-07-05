@@ -274,9 +274,9 @@ describe('ChildMorgonhus client module', () => {
     });
 
     assert.match(html, /cww-shell/);
+    assert.match(html, /cww-chrome--immersive/);
     assert.match(html, /Morgonhuset/);
-    assert.match(html, /Min värld/);
-    assert.match(html, /data-cww-action="back"/);
+    assert.doesNotMatch(html, /data-cww-action="back"/);
     assert.match(html, /mh-hotspot--door/);
     assert.match(html, /data-prop="door"/);
     assert.match(html, /Gå ut till trädgården/);

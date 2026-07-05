@@ -33,6 +33,19 @@ describe('child-world-wayfinder', () => {
     assert.match(html, /Blomsterbädd/);
   });
 
+  it('immersive mode floats chrome over scene', () => {
+    const wf = loadWayfinder();
+    const html = wf.render({
+      placeId: 'morgonhus',
+      placeLabel: 'Morgonhuset',
+      placeIcon: '🏠',
+      immersive: true,
+    });
+    assert.match(html, /cww-chrome--immersive/);
+    assert.match(html, /cww-place-pill/);
+    assert.doesNotMatch(html, /data-cww-action="back"/);
+  });
+
   it('CSS enforces 44pt action targets', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/child-world-wayfinder.css'), 'utf8');
     assert.match(css, /cww-action[\s\S]*min-height:\s*52px/);
