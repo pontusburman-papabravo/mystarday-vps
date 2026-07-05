@@ -1470,3 +1470,103 @@ body.platform-web.landing-magic-bg {
 }
 
 .landing-guides-more a:hover { text-decoration: underline; }
+
+/* ── Sommarhälsning (founder letter) ─────────────────────── */
+.landing-sommar {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.landing-sommar__card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #FFF8E6, #FFF3D6);
+  border: 2px solid rgba(245, 166, 35, 0.28);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(28, 35, 64, 0.08);
+}
+
+.landing-sommar__figure {
+  margin: 0;
+  background: #f7f3ea;
+}
+
+.landing-sommar__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.landing-sommar__body {
+  padding: 1.75rem 1.5rem 2rem;
+  color: var(--text-2);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.landing-sommar__body p {
+  margin: 0 0 1rem;
+}
+
+.landing-sommar__lead {
+  font-family: 'Fraunces', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 0.75rem !important;
+}
+
+.landing-sommar__moments,
+.landing-sommar__thanks {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.landing-sommar__moments li,
+.landing-sommar__thanks li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.landing-sommar__moments li::before,
+.landing-sommar__thanks li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--amber-dk);
+  font-weight: 800;
+}
+
+.landing-sommar__thanks-label {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.landing-sommar__closing {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 1.25rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.landing-sommar__signoff {
+  margin-bottom: 0 !important;
+  font-size: 0.95rem;
+  color: var(--text-3);
+}
+
+.landing-sommar__signoff strong {
+  color: var(--navy);
+}
+
+@media (min-width: 768px) {
+  .landing-sommar__body {
+    padding: 2rem 2.25rem 2.25rem;
+  }
+}
