@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v521';
+const CACHE_NAME = 'stjarndag-v522';
+// stjarndag-v522: Sommarhälsning på landningssidan + glad-sommar-2026.jpg
 // stjarndag-v510: Morgonhus immersive full-bleed hotspots (Min värld 10/10 pass)
 // stjarndag-v509: museum-scene-master-high.png + museum scene-bg export
 // stjarndag-v508: full catalog wire-in (home exterior, outdoor rooms, trophy/reading)
