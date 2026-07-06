@@ -6,7 +6,10 @@ const fs = require('fs');
 const path = require('path');
 const {
   msUntilNextSunday2100Stockholm,
+  buildEncouragementMessage,
 } = require('../src/lib/weekly-summary-scheduler');
+const { buildNotificationEmailFooterHtml } = require('../src/lib/email-notification-footer');
+const { buildOptOutUrl } = require('../src/lib/notification-email-opt-out');
 
 describe('weekly summary scheduler', () => {
   it('uses a dedicated DB client for advisory locks', () => {
@@ -19,6 +22,28 @@ describe('weekly summary scheduler', () => {
     assert.ok(src.includes("apiKeyProfile: 'weekly'"), 'must use dedicated weekly Resend key profile');
     assert.ok(src.includes('stockholm-time'), 'must use timezone-safe Stockholm conversion');
     assert.ok(!src.includes('Fail-open'), 'must not fail open on lock errors');
+  });
+
+  it('counts earned stars only from completed routines', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../src/lib/weekly-summary-scheduler.js'),
+      'utf8'
+    );
+    assert.match(
+      src,
+      /SUM\(dli\.star_value\) FILTER \(WHERE dli\.completed = true\)/,
+      'must not sum potential stars from uncompleted schedule items'
+    );
+  });
+
+  it('includes List-Unsubscribe URL and settings footer links', () => {
+    const src = fs.readFileSync(
+      path.join(__dirname, '../src/lib/weekly-summary-scheduler.js'),
+      'utf8'
+    );
+    assert.ok(src.includes('unsubscribeUrl:'), 'must pass unsubscribe URL to sendEmail');
+    assert.ok(src.includes('buildNotificationEmailFooterHtml'), 'must use shared notification footer');
+    assert.ok(src.includes('email_opt_out_token'), 'must load opt-out token per parent');
   });
 
   it('waits until 21:00 Stockholm when the server starts at 19:00 Stockholm', () => {
@@ -43,5 +68,41 @@ describe('weekly summary scheduler', () => {
     const sunday2100 = new Date('2026-06-21T19:00:00.000Z'); // 21:00 Stockholm (CEST)
     const ms = msUntilNextSunday2100Stockholm({ afterRun: false, now: sunday2100 });
     assert.equal(ms, 0);
+  });
+});
+
+describe('buildEncouragementMessage', () => {
+  const child = { child: { name: 'Anna' }, stats: { routinesCompleted: 0, starsEarned: 0 } };
+
+  it('does not praise zero progress', () => {
+    const msg = buildEncouragementMessage([child]);
+    assert.match(msg, /ny vecka/i);
+    assert.doesNotMatch(msg, /fantastiska/i);
+  });
+
+  it('celebrates real completions', () => {
+    const msg = buildEncouragementMessage([
+      { child: { name: 'Anna' }, stats: { routinesCompleted: 3, starsEarned: 5 } },
+    ]);
+    assert.match(msg, /fantastiska/i);
+  });
+});
+
+describe('notification email footer', () => {
+  it('links to web settings and opt-out', () => {
+    const html = buildNotificationEmailFooterHtml({
+      optOutUrl: 'https://example.test/api/account/notifications/opt-out?token=abc',
+      optOutLabel: 'Stäng av veckosammanfattning',
+    });
+    assert.match(html, /settings#aviseringar/);
+    assert.match(html, /Stäng av veckosammanfattning/);
+    assert.doesNotMatch(html, /i appen/i);
+    assert.match(html, /Inställningar → Notiser/);
+  });
+
+  it('buildOptOutUrl encodes channel', () => {
+    const url = buildOptOutUrl('00000000-0000-4000-8000-000000000001', 'weekly_summary');
+    assert.match(url, /channel=weekly_summary/);
+    assert.match(url, /\/api\/account\/notifications\/opt-out/);
   });
 });

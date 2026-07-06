@@ -66,6 +66,7 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/account/change-email/confirm',
   // RFC 8058 one-click unsubscribe POST from Gmail/Yahoo (no CSRF cookie)
   '/newsletter/unsubscribe',
+  '/account/notifications/opt-out',
 ]);
 
 // Prefix-based exemptions for public endpoints with dynamic segments.
