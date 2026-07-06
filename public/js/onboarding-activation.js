@@ -57,13 +57,6 @@
     );
   }
 
-  function recordChildAccess(source) {
-    return api('/api/onboarding/child-access-complete', {
-      method: 'POST',
-      body: JSON.stringify({ child_id: childId, source: source }),
-    });
-  }
-
   function openChildLogin() {
     if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
       DashboardChildHandoff.startChildLogin();
@@ -75,10 +68,8 @@
   function startChildHandoff(source) {
     const src = source || 'handoff';
     if (isHandoffEnabled()) {
+      trackEvent('child_handoff_started', { child_id: childId, source: src });
       trackEvent('child_view_opened', { child_id: childId, source: src });
-      return recordChildAccess('child_view').finally(function () {
-        openChildLogin();
-      });
     }
     openChildLogin();
     return Promise.resolve();
@@ -177,7 +168,6 @@
     isHandoffEnabled: isHandoffEnabled,
     trackEvent: trackEvent,
     startChildHandoff: startChildHandoff,
-    recordChildAccess: recordChildAccess,
     openChildLogin: openChildLogin,
     notifyPinSet: notifyPinSet,
   };

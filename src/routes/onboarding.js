@@ -892,34 +892,14 @@ router.post('/update-pin', async (req, res) => {
 });
 
 // ─── POST /api/onboarding/child-access-complete ──────────
-// Marks child handoff when parent explicitly opens barninloggning (weak signal).
-// Verified child sessions set child_access via POST /api/auth/child-login.
-const VERIFIED_CHILD_ACCESS_SOURCES = new Set(['child_view', 'handoff']);
-
+// Deprecated: parent handoff clicks are not verified child access.
+// child_access_completed_at is written only by verified child login (POST /api/auth/child-login).
 router.post('/child-access-complete', async (req, res) => {
-  try {
-    const { child_id, source } = req.body || {};
-    const src = source || 'handoff';
-    if (!VERIFIED_CHILD_ACCESS_SOURCES.has(src)) {
-      return res.json({ success: true, skipped: true });
-    }
-    const { updateActivationState } = require('../lib/activation-p0');
-    const analytics = require('../../db/analytics');
-    if (src === 'child_view') {
-      analytics.track(req.user.familyId, 'child_view_opened', { child_id, source: src });
-    }
-    await updateActivationState(req.user.familyId, 'child_access', {
-      metadata: { child_id, source: src },
-    });
-    const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
-    await markParentOnboardingComplete(req.user.id, req.user.familyId).catch((err) => {
-      console.error('[ONBOARDING] mark onboarding complete after child access:', err.message);
-    });
-    res.json({ success: true });
-  } catch (err) {
-    console.error('[ONBOARDING] child-access-complete error:', err);
-    res.status(500).json({ error: 'Kunde inte spara barnåtkomst.' });
-  }
+  res.json({
+    success: true,
+    deprecated: true,
+    message: 'child_access_completed_at is only set by verified child login',
+  });
 });
 
 // ─── POST /api/onboarding/complete ───────────────────────

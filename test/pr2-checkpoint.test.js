@@ -17,10 +17,11 @@ describe('ACT-1 PR2 checkpoint', () => {
     assert.match(src, /isHandoffEnabled/);
     assert.match(src, /confirmHandoffSkip/);
     assert.match(src, /notifyPinSet/);
-    assert.match(src, /child-access-complete/);
+    assert.match(src, /child_handoff_started/);
     assert.match(src, /child_handoff_skipped/);
     assert.match(src, /child_view_opened/);
     assert.match(src, /activation_onboarding_started/);
+    assert.doesNotMatch(src, /child-access-complete/);
     assert.doesNotMatch(src, /patchSkipInvite/);
     assert.doesNotMatch(src, /showFirstStarGuide/);
   });
@@ -39,10 +40,12 @@ describe('ACT-1 PR2 checkpoint', () => {
     assert.match(src, /OnboardingActivation\.notifyPinSet/);
   });
 
-  it('child-access-complete route updates activation state', () => {
+  it('child-access-complete route is deprecated no-op (no activation state write)', () => {
     const src = read('src/routes/onboarding.js');
     assert.match(src, /child-access-complete/);
-    assert.match(src, /updateActivationState\(req\.user\.familyId, 'child_access'/);
+    const block = src.slice(src.indexOf("router.post('/child-access-complete'"), src.indexOf("router.post('/complete'"));
+    assert.match(block, /deprecated: true/);
+    assert.doesNotMatch(block, /updateActivationState\(req\.user\.familyId, 'child_access'/);
   });
 
   it('admin activation funnel API + UI (First Success 6-step funnel)', () => {
