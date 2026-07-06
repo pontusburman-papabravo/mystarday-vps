@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v526';
+const CACHE_NAME = 'stjarndag-v527';
+// stjarndag-v527: ambient object runtime — tappable Morgonhus + Trädgården play world
 // stjarndag-v526: sommarhälsning — riktigt varumärkesnamn i HTML (ej [REDACTED])
 // stjarndag-v525: server-side brand placeholder fix on landing page
 // stjarndag-v510: Morgonhus immersive full-bleed hotspots (Min värld 10/10 pass)
@@ -448,6 +449,9 @@ const STATIC_ASSETS = [
   '/js/child-world-bg-lazy.js',
   '/js/child-world-wayfinder.js',
   '/css/child-world-wayfinder.css',
+  '/js/ambient-objects-pack.js',
+  '/js/ambient-object-runtime.js',
+  '/css/ambient-object.css',
   '/js/child-world-hub.js',
   '/css/child-world-hub.css',
   '/js/child-morgonhus.js',

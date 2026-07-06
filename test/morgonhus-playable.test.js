@@ -257,6 +257,14 @@ describe('ChildMorgonhus client module', () => {
       fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
       context
     );
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/ambient-objects-pack.js'), 'utf8'),
+      context
+    );
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/ambient-object-runtime.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
     return { ChildMorgonhus: context.window.ChildMorgonhus, listeners, context };
   }
@@ -277,7 +285,8 @@ describe('ChildMorgonhus client module', () => {
     assert.match(html, /cww-chrome--immersive/);
     assert.match(html, /Morgonhuset/);
     assert.doesNotMatch(html, /data-cww-action="back"/);
-    assert.match(html, /mh-hotspot--door/);
+    assert.match(html, /ao-hotspot--door/);
+    assert.match(html, /data-ao-id="door"/);
     assert.match(html, /data-prop="door"/);
     assert.match(html, /Gå ut till trädgården/);
     assert.doesNotMatch(html, /data-cww-action="garden"/);
@@ -292,20 +301,30 @@ describe('ChildMorgonhus client module', () => {
     const state = { gate_to_garden: true, props: [], display_name: 'Morgonhuset' };
     const doorBtn = {
       getAttribute: function (name) {
-        if (name === 'data-prop') return 'door';
+        if (name === 'data-ao-id' || name === 'data-prop') return 'door';
         return null;
       },
+      getBoundingClientRect: () => ({ left: 0, top: 0, width: 44, height: 44 }),
       classList: { add: () => {}, remove: () => {} },
       addEventListener: function (_evt, fn) { this._click = fn; },
       dispatchEvent: function () { if (this._click) this._click(); return true; },
     };
+    const aoLayer = {
+      querySelector: function (sel) {
+        if (sel === '[data-ao-id="door"]') return doorBtn;
+        if (sel === '.ao-particle-layer') return { appendChild: () => {} };
+        return null;
+      },
+    };
     const root = {
       innerHTML: ChildMorgonhus.renderScene(state),
       querySelector: function (sel) {
-        if (sel === '[data-prop="door"]') return doorBtn;
+        if (sel === '.ao-layer[data-ao-scene="routine_home"]') return aoLayer;
+        if (sel === '[data-ao-id="door"]' || sel === '[data-prop="door"]') return doorBtn;
         return null;
       },
       querySelectorAll: function () { return []; },
+      closest: function () { return root; },
     };
     context.window.LivingWorldTransition = {
       enterGarden: async function () { gardenEntered = true; return true; },

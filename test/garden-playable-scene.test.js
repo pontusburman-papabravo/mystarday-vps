@@ -196,6 +196,14 @@ describe('ChildGarden client module', () => {
       fs.readFileSync(path.join(__dirname, '../public/js/child-world-wayfinder.js'), 'utf8'),
       context
     );
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/ambient-objects-pack.js'), 'utf8'),
+      context
+    );
+    vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/ambient-object-runtime.js'), 'utf8'),
+      context
+    );
     vm.runInNewContext(src, context);
     return context.window.ChildGarden;
   }
@@ -215,14 +223,16 @@ describe('ChildGarden client module', () => {
     assert.match(html, /gd-scene-bg/);
     assert.match(html, /picture/);
     assert.match(html, /scene-bg/);
-    assert.match(html, /gd-hotspot--bed/);
-    assert.match(html, /data-scenery="garden_bed"/);
+    assert.match(html, /ao-hotspot--garden_bed/);
+    assert.match(html, /data-ao-id="garden_bed"/);
+    assert.match(html, /ao-hotspot--bird/);
+    assert.match(html, /ao-hotspot--butterfly/);
     assert.match(html, /gd-bed-mound/);
     assert.match(html, /left:5%/);
     assert.match(html, /cww-chrome--immersive/);
     assert.match(html, /data-cww-action="back"|cww-back--float/);
     assert.doesNotMatch(html, /data-cww-action="bed"/);
-    assert.doesNotMatch(html, /gd-hotspot--path/);
+    assert.match(html, /ao-hotspot--garden_path/);
     assert.doesNotMatch(html, /gd-scenery-label/);
     assert.doesNotMatch(html, /gd-scene-title/);
     assert.doesNotMatch(html, /gd-scene-toast/);
@@ -258,17 +268,18 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(mhSrc, /gd-exit-through-door/);
   });
 
-  it('morgonhus scene has door hotspot when garden gate open', () => {
-    assert.match(mhSrc, /renderDoorHotspot/);
-    assert.match(mhSrc, /mh-hotspot--door/);
+  it('morgonhus scene uses ambient door hotspot when garden gate open', () => {
+    assert.match(mhSrc, /AmbientObjectRuntime/);
+    assert.match(mhSrc, /bindAmbientObjects/);
     assert.match(mhSrc, /enterGardenFromDoor/);
-    assert.match(mhSrc, /bindSceneHotspots/);
+    assert.doesNotMatch(mhSrc, /renderDoorHotspot/);
   });
 
-  it('garden bed is tappable in scene via bindInteractions', () => {
-    assert.match(src, /renderBedHotspot/);
-    assert.match(src, /bindSceneryButton/);
-    assert.match(src, /data-scenery="garden_bed"/);
+  it('garden bed is tappable via ambient runtime', () => {
+    assert.match(src, /bindAmbientObjects/);
+    assert.match(src, /garden_bed/);
+    assert.match(src, /onGameplayBed/);
+    assert.match(src, /handleBedTap\(root, btn\)/);
   });
 
   it('garden exit returns to Morgonhus with hub fallback', () => {
@@ -324,9 +335,9 @@ describe('ChildGarden client module', () => {
     assert.doesNotMatch(src, /showToast/);
   });
 
-  it('garden bed hotspot triggers handleBedTap via bindInteractions', () => {
-    assert.match(src, /bindSceneryButton/);
-    assert.match(src, /data-scenery="garden_bed"/);
+  it('garden bed hotspot triggers handleBedTap via ambient runtime', () => {
+    assert.match(src, /bindAmbientObjects/);
+    assert.match(src, /onGameplayBed/);
     assert.match(src, /handleBedTap\(root, btn\)/);
   });
 });
