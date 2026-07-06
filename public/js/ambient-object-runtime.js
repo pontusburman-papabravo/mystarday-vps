@@ -1,13 +1,12 @@
 /**
- * ambient-object-runtime.js — reusable tappable scene object layer for Min värld.
+ * ambient-object-runtime.js — spawn, tap, animation, emit action (Min värld).
  */
 (function () {
   'use strict';
 
   const TAP_RESET_MS = 1200;
   const DEFAULT_COOLDOWN_MS = 800;
-
-  const cooldownUntil = new Map();
+  const SOUND_MS = 400;
 
   function esc(str) {
     if (!str) return '';
@@ -15,6 +14,10 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function director() {
+    return window.AmbientDirector || null;
   }
 
   function prefersReducedMotion(ctx) {
@@ -31,6 +34,11 @@
       'width:' + ((h.w || 0.15) * 100) + '%;height:' + ((h.h || 0.15) * 100) + '%;';
   }
 
+  function tokenClass(prefix, token) {
+    if (!token) return '';
+    return prefix + token;
+  }
+
   function getPack() {
     return window.AmbientObjectsPack || null;
   }
@@ -45,25 +53,13 @@
       const keys = Object.keys(obj.show_when);
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
-        const expected = obj.show_when[key];
-        const actual = state && state[key];
-        if (actual !== expected) return false;
+        if ((state && state[key]) !== obj.show_when[key]) return false;
       }
     }
     if (typeof ctx.filterObject === 'function') {
       return ctx.filterObject(obj, state);
     }
     return true;
-  }
-
-  function feedbackForObject(obj, state) {
-    if (obj.prop_id) {
-      const prop = findProp(state, obj.prop_id);
-      if (prop && prop.unlocked && obj.feedback_unlocked_sv) {
-        return obj.feedback_unlocked_sv;
-      }
-    }
-    return obj.feedback_sv || null;
   }
 
   function ariaLabelForObject(obj, state, ctx) {
@@ -99,58 +95,75 @@
     return classes;
   }
 
-  function isOnCooldown(key) {
-    const until = cooldownUntil.get(key);
-    return until != null && Date.now() < until;
-  }
-
-  function setCooldown(key, ms) {
-    cooldownUntil.set(key, Date.now() + (ms || DEFAULT_COOLDOWN_MS));
-  }
-
-  function fireHaptic(kind) {
-    if (!window.Platform || !window.Platform.haptics) return;
-    if (kind === 'heavy' && window.Platform.haptics.heavy) window.Platform.haptics.heavy();
-    else if (kind === 'medium' && window.Platform.haptics.medium) window.Platform.haptics.medium();
-    else if (window.Platform.haptics.light) window.Platform.haptics.light();
-  }
-
-  function spawnParticle(container, btn, particleClass, reduced) {
-    if (!container || !btn || !particleClass || reduced) return;
-    const el = document.createElement('span');
-    el.className = 'ao-particle ' + particleClass;
-    el.setAttribute('aria-hidden', 'true');
-    if (typeof btn.appendChild === 'function') {
-      btn.appendChild(el);
-    } else {
-      const layer = container.querySelector('.ao-particle-layer');
-      if (!layer) return;
-      layer.appendChild(el);
-    }
-    setTimeout(function () { el.remove(); }, TAP_RESET_MS + 200);
+  function idleClasses(obj) {
+    const classes = [];
+    if (obj.idle) classes.push(tokenClass('ao-idle--', obj.idle));
+    return classes;
   }
 
   function playTapAnimation(btn, obj, reduced) {
+    const dir = director();
+    if (!obj.tap_animation || reduced) return false;
+    if (dir && !dir.requestAnimation(TAP_RESET_MS)) return false;
+
     btn.classList.add('ao-hotspot--tapped');
-    if (obj.tap_class) btn.classList.add(obj.tap_class);
-    if (!reduced && obj.visual_token) {
-      btn.classList.add('mh-token-active--' + obj.visual_token);
-    }
+    btn.classList.add(tokenClass('ao-tap--', obj.tap_animation));
+    if (obj.visual_token) btn.classList.add('mh-token-active--' + obj.visual_token);
+
     setTimeout(function () {
       btn.classList.remove('ao-hotspot--tapped');
-      if (obj.tap_class) btn.classList.remove(obj.tap_class);
+      btn.classList.remove(tokenClass('ao-tap--', obj.tap_animation));
       if (obj.visual_token) btn.classList.remove('mh-token-active--' + obj.visual_token);
     }, TAP_RESET_MS);
+    return true;
+  }
+
+  function spawnParticle(layer, btn, obj, reduced) {
+    if (!layer || !btn || !obj.particle || reduced) return false;
+    const dir = director();
+    if (dir && !dir.requestParticle(TAP_RESET_MS + 200)) return false;
+
+    const el = document.createElement('span');
+    el.className = 'ao-particle ' + tokenClass('ao-particle--', obj.particle);
+    el.setAttribute('aria-hidden', 'true');
+    if (obj.particle_glyph) el.setAttribute('data-ao-glyph', obj.particle_glyph);
+
+    if (typeof btn.appendChild === 'function') {
+      btn.appendChild(el);
+    } else {
+      const host = layer.querySelector('.ao-particle-layer');
+      if (!host) return false;
+      host.appendChild(el);
+    }
+
+    setTimeout(function () { el.remove(); }, TAP_RESET_MS + 200);
+    return true;
   }
 
   function triggerSceneEffect(canvas, effectId, reduced) {
-    if (!canvas || !effectId || reduced) return;
+    if (!canvas || !effectId || reduced) return false;
+    const dir = director();
+    if (dir && !dir.requestAnimation(TAP_RESET_MS)) return false;
+
     const cls = effectId === 'garden_path' ? 'is-path-tap'
       : effectId === 'garden_sky' ? 'is-sky-tap'
       : effectId === 'garden_bed' ? 'is-bloom-tap' : null;
-    if (!cls) return;
+    if (!cls) return false;
+
     canvas.classList.add(cls);
     setTimeout(function () { canvas.classList.remove(cls); }, TAP_RESET_MS);
+    return true;
+  }
+
+  function fireHaptic(kind, reduced) {
+    if (reduced || !kind) return false;
+    const dir = director();
+    if (dir && !dir.requestSound(SOUND_MS)) return false;
+    if (!window.Platform || !window.Platform.haptics) return false;
+    if (kind === 'heavy' && window.Platform.haptics.heavy) window.Platform.haptics.heavy();
+    else if (kind === 'medium' && window.Platform.haptics.medium) window.Platform.haptics.medium();
+    else if (window.Platform.haptics.light) window.Platform.haptics.light();
+    return true;
   }
 
   function renderHint(obj) {
@@ -163,11 +176,12 @@
     const extra = extraClassesForObject(obj, state, ctx);
     const classes = ['ao-hotspot', 'ao-hotspot--' + obj.object_id]
       .concat(extra)
-      .concat(obj.idle_class ? [obj.idle_class] : [])
+      .concat(idleClasses(obj))
       .join(' ');
 
     let attrs = ' data-ao-id="' + esc(obj.object_id) + '"';
     if (obj.prop_id) attrs += ' data-prop="' + esc(obj.prop_id) + '"';
+    if (obj.idle_glyph) attrs += ' data-ao-idle-glyph="' + esc(obj.idle_glyph) + '"';
     if (obj.data_attrs) {
       Object.keys(obj.data_attrs).forEach(function (key) {
         attrs += ' data-' + key + '="' + esc(obj.data_attrs[key]) + '"';
@@ -191,37 +205,24 @@
       return objectVisible(obj, state, ctx);
     });
 
-    const hints = objects.map(renderHint).join('');
-    const buttons = objects.map(function (obj) {
-      return renderObjectButton(obj, state, ctx);
-    }).join('');
-
     return '<div class="ao-layer" data-ao-scene="' + esc(sceneId) + '">' +
-      hints +
-      buttons +
+      objects.map(renderHint).join('') +
+      objects.map(function (obj) { return renderObjectButton(obj, state, ctx); }).join('') +
       '<div class="ao-particle-layer" aria-hidden="true"></div>' +
     '</div>';
   }
 
-  async function dispatchAction(obj, btn, root, state, ctx) {
-    const action = obj.action || 'ambient';
-
-    if (action === 'navigate_garden' && typeof ctx.onNavigateGarden === 'function') {
-      return ctx.onNavigateGarden(btn);
-    }
-    if (action === 'open_skattkammaren' && typeof ctx.onOpenSkattkammaren === 'function') {
-      ctx.onOpenSkattkammaren(btn);
-      return true;
-    }
-    if (action === 'gameplay_bed' && typeof ctx.onGameplayBed === 'function') {
-      return ctx.onGameplayBed(btn);
-    }
-    if (action === 'scenery_path' && typeof ctx.onSceneryPath === 'function') {
-      return ctx.onSceneryPath(btn);
-    }
-
-    if (typeof ctx.onAmbient === 'function') {
-      ctx.onAmbient(obj, btn);
+  function emitAction(obj, btn, sceneId, state, ctx) {
+    const payload = {
+      sceneId: sceneId,
+      objectId: obj.object_id,
+      action: obj.action || 'ambient',
+      object: obj,
+      button: btn,
+      state: state,
+    };
+    if (typeof ctx.onAction === 'function') {
+      return ctx.onAction(payload);
     }
     return true;
   }
@@ -242,27 +243,27 @@
 
       const onClick = async function () {
         if (btn.disabled) return;
+
         const key = sceneId + ':' + obj.object_id;
-        if (isOnCooldown(key)) return;
+        const dir = director();
+        const cooldown = obj.cooldown_ms != null ? obj.cooldown_ms : DEFAULT_COOLDOWN_MS;
+        if (dir) {
+          if (!dir.budgetCooldown(key, cooldown)) return;
+        } else if (window.AmbientObjectRuntime && window.AmbientObjectRuntime._isOnCooldown
+            && window.AmbientObjectRuntime._isOnCooldown(key)) {
+          return;
+        }
 
         const reduced = prefersReducedMotion(ctx);
-        const cooldown = obj.cooldown_ms != null ? obj.cooldown_ms : DEFAULT_COOLDOWN_MS;
-        setCooldown(key, cooldown);
-
         playTapAnimation(btn, obj, reduced);
-        if (obj.haptic && !reduced) fireHaptic(obj.haptic);
+        fireHaptic(obj.haptic, reduced);
 
         const canvas = root.querySelector('.mh-scene-canvas, .gd-scene-canvas');
         if (obj.scene_effect) triggerSceneEffect(canvas, obj.scene_effect, reduced);
-        spawnParticle(layer, btn, obj.particle_class, reduced);
+        spawnParticle(layer, btn, obj, reduced);
 
-        const feedback = feedbackForObject(obj, state);
-        if (feedback && typeof ctx.showFeedback === 'function') {
-          ctx.showFeedback(feedback);
-        }
         if (typeof ctx.onPulse === 'function') ctx.onPulse();
-
-        await dispatchAction(obj, btn, root, state, ctx);
+        await emitAction(obj, btn, sceneId, state, ctx);
       };
 
       btn.addEventListener('click', onClick);
@@ -286,7 +287,12 @@
     if (existing) existing.remove();
 
     canvas.insertAdjacentHTML('beforeend', html);
-    const unbind = bindLayer(canvas.closest('.mh-scene, .gd-scene, .cww-scene-stage') || canvas.parentElement || canvas, sceneId, state, ctx);
+    const unbind = bindLayer(
+      canvas.closest('.mh-scene, .gd-scene, .cww-scene-stage') || canvas.parentElement || canvas,
+      sceneId,
+      state,
+      ctx
+    );
 
     return {
       sceneId: sceneId,
@@ -311,13 +317,14 @@
       const btn = layer.querySelector('[data-ao-id="' + obj.object_id + '"]');
       if (!btn) return;
 
-      const extra = extraClassesForObject(obj, state, ctx);
       btn.className = ['ao-hotspot', 'ao-hotspot--' + obj.object_id]
-        .concat(extra)
-        .concat(obj.idle_class ? [obj.idle_class] : [])
+        .concat(extraClassesForObject(obj, state, ctx))
+        .concat(idleClasses(obj))
         .join(' ');
 
       btn.setAttribute('aria-label', ariaLabelForObject(obj, state, ctx));
+      if (obj.idle_glyph) btn.setAttribute('data-ao-idle-glyph', obj.idle_glyph);
+      else btn.removeAttribute('data-ao-idle-glyph');
 
       if (typeof ctx.isDisabled === 'function' && ctx.isDisabled(obj, state)) {
         btn.setAttribute('disabled', '');
@@ -328,13 +335,11 @@
   }
 
   function clearCooldowns(sceneId) {
-    if (!sceneId) {
-      cooldownUntil.clear();
+    const dir = director();
+    if (dir) {
+      dir.clearCooldowns(sceneId);
       return;
     }
-    cooldownUntil.forEach(function (_v, key) {
-      if (key.indexOf(sceneId + ':') === 0) cooldownUntil.delete(key);
-    });
   }
 
   window.AmbientObjectRuntime = {
@@ -344,8 +349,6 @@
     bindLayer: bindLayer,
     hitAreaStyle: hitAreaStyle,
     clearCooldowns: clearCooldowns,
-    _isOnCooldown: isOnCooldown,
-    _setCooldown: setCooldown,
     TAP_RESET_MS: TAP_RESET_MS,
   };
 })();

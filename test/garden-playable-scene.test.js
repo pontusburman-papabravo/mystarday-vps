@@ -278,7 +278,7 @@ describe('ChildGarden client module', () => {
   it('garden bed is tappable via ambient runtime', () => {
     assert.match(src, /bindAmbientObjects/);
     assert.match(src, /garden_bed/);
-    assert.match(src, /onGameplayBed/);
+    assert.match(src, /onAction/);
     assert.match(src, /handleBedTap\(root, btn\)/);
   });
 
@@ -337,7 +337,8 @@ describe('ChildGarden client module', () => {
 
   it('garden bed hotspot triggers handleBedTap via ambient runtime', () => {
     assert.match(src, /bindAmbientObjects/);
-    assert.match(src, /onGameplayBed/);
+    assert.match(src, /onAction/);
+    assert.match(src, /gameplay_bed/);
     assert.match(src, /handleBedTap\(root, btn\)/);
   });
 });

@@ -178,7 +178,6 @@
   function gardenAmbientContext(root) {
     return {
       prefersReducedMotion: _prefersReducedMotion,
-      showFeedback: function (msg) { showLoeFeedback(msg); },
       onPulse: function () {
         const pulse = root && root.querySelector('#gdTapPulse');
         if (pulse) {
@@ -188,8 +187,24 @@
           setTimeout(function () { pulse.classList.remove('is-active'); }, TAP_RESET_MS);
         }
       },
-      onGameplayBed: function (btn) { return handleBedTap(root, btn); },
-      onSceneryPath: function (btn) { return handleSceneryTap(root, 'garden_path', btn); },
+      onAction: async function (payload) {
+        const obj = payload && payload.object;
+        const btn = payload && payload.button;
+        const action = (payload && payload.action) || 'ambient';
+
+        if (action === 'gameplay_bed') {
+          return handleBedTap(root, btn);
+        }
+        if (action === 'scenery_path') {
+          const entered = await handleSceneryTap(root, 'garden_path', btn);
+          if (obj && obj.feedback_sv) showLoeFeedback(obj.feedback_sv);
+          return entered;
+        }
+        if (action === 'ambient' && obj && obj.feedback_sv) {
+          showLoeFeedback(obj.feedback_sv);
+        }
+        return true;
+      },
       getAriaLabel: function (obj) {
         if (obj.object_id === 'garden_bed') return bedAriaLabel(getBedSlot());
         return obj.aria_label_sv;
@@ -227,7 +242,7 @@
     const bedSlot = getBedSlot();
     const rt = window.AmbientObjectRuntime;
     const ambientHtml = rt && typeof rt.renderLayer === 'function'
-      ? rt.renderLayer('garden', state || _state, gardenAmbientContext({}))
+      ? rt.renderLayer('garden', state || _state, gardenAmbientContext({}, state))
       : '';
 
     return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
@@ -702,6 +717,9 @@
     }
     if (window.AmbientObjectRuntime && typeof window.AmbientObjectRuntime.clearCooldowns === 'function') {
       window.AmbientObjectRuntime.clearCooldowns('garden');
+    }
+    if (window.AmbientDirector && typeof window.AmbientDirector.reset === 'function') {
+      window.AmbientDirector.reset();
     }
     document.body.classList.remove('child-garden-active');
     if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {

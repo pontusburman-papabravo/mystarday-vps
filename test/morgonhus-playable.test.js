@@ -262,6 +262,10 @@ describe('ChildMorgonhus client module', () => {
       context
     );
     vm.runInNewContext(
+      fs.readFileSync(path.join(__dirname, '../public/js/ambient-director.js'), 'utf8'),
+      context
+    );
+    vm.runInNewContext(
       fs.readFileSync(path.join(__dirname, '../public/js/ambient-object-runtime.js'), 'utf8'),
       context
     );

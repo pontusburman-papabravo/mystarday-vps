@@ -51,13 +51,43 @@
     };
   }
 
-  function ambientContext(root) {
+  function feedbackForAmbientObject(obj, state) {
+    if (!obj) return null;
+    if (obj.prop_id && state) {
+      const prop = findProp(state, obj.prop_id);
+      if (prop && prop.unlocked && obj.feedback_unlocked_sv) {
+        return obj.feedback_unlocked_sv;
+      }
+    }
+    return obj.feedback_sv || null;
+  }
+
+  function handleAmbientAction(root, payload) {
+    const obj = payload && payload.object;
+    const btn = payload && payload.button;
+    const action = (payload && payload.action) || 'ambient';
+    const state = payload && payload.state;
+
+    const feedback = feedbackForAmbientObject(obj, state);
+    if (feedback) showToast(root, feedback);
+
+    if (action === 'navigate_garden') {
+      return enterGardenFromDoor(root, btn);
+    }
+    if (action === 'open_skattkammaren') {
+      openSkattkammaren();
+      return true;
+    }
+    return true;
+  }
+
+  function ambientContext(root, state) {
     return {
       prefersReducedMotion: _prefersReducedMotion,
-      showFeedback: function (msg) { showToast(root, msg); },
       onPulse: function () { triggerPulse(root); },
-      onNavigateGarden: function (btn) { return enterGardenFromDoor(root, btn); },
-      onOpenSkattkammaren: function () { openSkattkammaren(); },
+      onAction: function (payload) {
+        return handleAmbientAction(root, Object.assign({}, payload, { state: state || _state }));
+      },
     };
   }
 
@@ -87,7 +117,7 @@
     const title = (state && state.display_name) || 'Morgonhuset';
     const rt = window.AmbientObjectRuntime;
     const ambientHtml = rt && typeof rt.renderLayer === 'function'
-      ? rt.renderLayer('routine_home', state, ambientContext({}))
+      ? rt.renderLayer('routine_home', state, ambientContext({}, state))
       : '';
 
     return '<div class="mh-scene mh-scene--illustrated mh-scene--entering" data-world="routine_home"' +
@@ -303,6 +333,9 @@
     }
     if (window.AmbientObjectRuntime && typeof window.AmbientObjectRuntime.clearCooldowns === 'function') {
       window.AmbientObjectRuntime.clearCooldowns('routine_home');
+    }
+    if (window.AmbientDirector && typeof window.AmbientDirector.reset === 'function') {
+      window.AmbientDirector.reset();
     }
     document.body.classList.remove('child-morgonhus-active');
     if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
