@@ -15,6 +15,7 @@
   let _cachedSceneState = null;
   let _prefersReducedMotion = false;
   let _assetCleanup = null;
+  let _ambientMount = null;
 
   function esc(str) {
     if (!str) return '';
@@ -50,23 +51,80 @@
     };
   }
 
-  function renderDoorHotspot(state) {
-    if (!state || !state.gate_to_garden) return '';
-    const label = 'Gå ut till trädgården';
-    return '<p class="mh-door-hint" aria-hidden="true">' + esc(label) + '</p>' +
-      '<button type="button" class="mh-hotspot mh-hotspot--door mh-hotspot--nav"' +
-        ' data-prop="door" data-nav="garden"' +
-        ' aria-label="' + esc(label) + '"></button>';
+  function feedbackForAmbientObject(obj, state) {
+    if (!obj) return null;
+    if (obj.prop_id && state) {
+      const prop = findProp(state, obj.prop_id);
+      if (prop && prop.unlocked && obj.feedback_unlocked_sv) {
+        return obj.feedback_unlocked_sv;
+      }
+    }
+    return obj.feedback_sv || null;
+  }
+
+  function handleAmbientAction(root, payload) {
+    const obj = payload && payload.object;
+    const btn = payload && payload.button;
+    const action = (payload && payload.action) || 'ambient';
+    const state = payload && payload.state;
+
+    const feedback = feedbackForAmbientObject(obj, state);
+    if (feedback) showToast(root, feedback);
+
+    if (action === 'navigate_garden') {
+      return enterGardenFromDoor(root, btn);
+    }
+    if (action === 'open_skattkammaren') {
+      openSkattkammaren();
+      return true;
+    }
+    return true;
+  }
+
+  function ambientContext(root, state) {
+    return {
+      prefersReducedMotion: _prefersReducedMotion,
+      onPulse: function () { triggerPulse(root); },
+      onAction: function (payload) {
+        return handleAmbientAction(root, Object.assign({}, payload, { state: state || _state }));
+      },
+    };
+  }
+
+  function mountAmbientObjects(root, state) {
+    if (_ambientMount && typeof _ambientMount.destroy === 'function') {
+      _ambientMount.destroy();
+      _ambientMount = null;
+    }
+    const rt = window.AmbientObjectRuntime;
+    const canvas = root && root.querySelector('.mh-scene-canvas');
+    if (!rt || !canvas || typeof rt.mount !== 'function') return;
+    _ambientMount = rt.mount(canvas, {
+      sceneId: 'routine_home',
+      state: state,
+      context: ambientContext(root),
+    });
+  }
+
+  function refreshAmbientObjects(root, state) {
+    const rt = window.AmbientObjectRuntime;
+    if (!rt || typeof rt.refresh !== 'function' || !root) return;
+    rt.refresh(root, 'routine_home', state, ambientContext(root));
+    applyUnlockedState(root, state);
   }
 
   function renderSceneInner(state) {
     const title = (state && state.display_name) || 'Morgonhuset';
+    const rt = window.AmbientObjectRuntime;
+    const ambientHtml = rt && typeof rt.renderLayer === 'function'
+      ? rt.renderLayer('routine_home', state, ambientContext({}, state))
+      : '';
 
     return '<div class="mh-scene mh-scene--illustrated mh-scene--entering" data-world="routine_home"' +
       ' role="img" aria-label="' + esc(title) + '">' +
       '<div class="mh-scene-canvas" aria-hidden="true">' +
         scenePictureMarkup() +
-        renderDoorHotspot(state) +
+        ambientHtml +
         '<div class="mh-tap-pulse" id="mhTapPulse" aria-hidden="true"></div>' +
       '</div>' +
       '<div class="mh-scene-toast mh-toast-off" id="mhSceneToast" role="status"' +
@@ -157,7 +215,8 @@
   function applyUnlockedState(root, state) {
     if (!root || !state) return;
     (state.props || []).forEach(function (prop) {
-      const btn = root.querySelector('[data-prop="' + prop.prop_id + '"]');
+      const btn = root.querySelector('[data-prop="' + prop.prop_id + '"]')
+        || root.querySelector('[data-ao-id="' + prop.prop_id + '"]');
       if (!btn) return;
       btn.classList.toggle('is-unlocked', Boolean(prop.unlocked));
       btn.classList.toggle('is-locked', !prop.unlocked);
@@ -204,20 +263,21 @@
     return entered;
   }
 
-  function bindSceneHotspots(root, state) {
+  function bindAmbientObjects(root, state) {
     if (!root || !state) return;
-    const doorBtn = root.querySelector('[data-prop="door"]');
-    if (doorBtn && state.gate_to_garden) {
-      doorBtn.addEventListener('click', function () {
-        enterGardenFromDoor(root, doorBtn);
-      });
+    const rt = window.AmbientObjectRuntime;
+    if (!rt || typeof rt.bindLayer !== 'function') return;
+    if (_ambientMount && typeof _ambientMount.unbind === 'function') {
+      _ambientMount.unbind();
     }
+    const unbind = rt.bindLayer(root, 'routine_home', state, ambientContext(root));
+    _ambientMount = { unbind: unbind, destroy: function () { unbind(); } };
   }
 
   function bindInteractions(root, state, handlers) {
     if (!root || !state) return;
     bindWayfinder(root, state, handlers);
-    bindSceneHotspots(root, state);
+    bindAmbientObjects(root, state);
   }
 
   function bindAssetWatch(root) {
@@ -266,6 +326,16 @@
     if (_assetCleanup) {
       _assetCleanup();
       _assetCleanup = null;
+    }
+    if (_ambientMount && typeof _ambientMount.destroy === 'function') {
+      _ambientMount.destroy();
+      _ambientMount = null;
+    }
+    if (window.AmbientObjectRuntime && typeof window.AmbientObjectRuntime.clearCooldowns === 'function') {
+      window.AmbientObjectRuntime.clearCooldowns('routine_home');
+    }
+    if (window.AmbientDirector && typeof window.AmbientDirector.reset === 'function') {
+      window.AmbientDirector.reset();
     }
     document.body.classList.remove('child-morgonhus-active');
     if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.clearActivePlace === 'function') {
@@ -362,7 +432,7 @@
     if (!state) return false;
     _state = state;
     const view = document.getElementById('skattkammarView');
-    if (view) applyUnlockedState(view, state);
+    if (view) refreshAmbientObjects(view, state);
     return true;
   }
 
@@ -403,6 +473,7 @@
     refresh: refresh,
     isActive: isActive,
     openSkattkammaren: openSkattkammaren,
+    enterGardenFromDoor: enterGardenFromDoor,
     deactivate: deactivate,
     snapshotScene: snapshotScene,
     tryRemountCached: tryRemountCached,

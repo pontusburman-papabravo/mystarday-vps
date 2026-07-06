@@ -45,6 +45,9 @@ jobs:
       - name: Verify committed CSS matches build
         run: git diff --exit-code public/css/tailwind.build.css public/sw.js
 
+      - name: Verify ambient objects pack is in sync
+        run: npm run check:ambient-objects
+
       - name: Lint
         run: npm run lint
 
