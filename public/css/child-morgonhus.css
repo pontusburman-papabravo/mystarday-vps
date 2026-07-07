@@ -13,6 +13,24 @@ body.child-morgonhus-active #skattkammarView {
   animation: none;
 }
 
+/* Wayfinder shell: fit below header + legacy tabs + bottom nav (not full viewport). */
+body.child-morgonhus-active.child-has-bottom-nav .cww-shell,
+body.child-morgonhus-active.child-worlds-v2 .cww-shell {
+  height: calc(
+    100dvh - 3.25rem - 2.75rem - 4.75rem
+    - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
+  max-height: calc(
+    100dvh - 3.25rem - 2.75rem - 4.75rem
+    - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
+}
+
+body.living-world-active.child-morgonhus-active .cww-shell {
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
 /* ── Full-screen mobile scene ── */
 .mh-scene {
   position: relative;
@@ -41,11 +59,19 @@ body.child-morgonhus-active #skattkammarView {
   overflow: hidden;
 }
 
-.mh-scene-canvas picture,
-.mh-scene-canvas img {
+.morg-scene-picture,
+.morg-scene-bg {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.morg-scene-picture {
+  position: absolute;
+  inset: 0;
+}
+
+.morg-scene-bg {
   object-fit: cover;
   object-position: center center;
   user-select: none;
