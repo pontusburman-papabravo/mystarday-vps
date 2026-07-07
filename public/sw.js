@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v528';
+const CACHE_NAME = 'stjarndag-v529';
+// stjarndag-v529: child access semantics — handoff click no longer sets child_access_completed_at
 // stjarndag-v528: ambient hardening — generated pack, director budgets, generic tokens
 // stjarndag-v527: ambient object runtime — tappable Morgonhus + Trädgården play world
 // stjarndag-v526: sommarhälsning — riktigt varumärkesnamn i HTML (ej [REDACTED])

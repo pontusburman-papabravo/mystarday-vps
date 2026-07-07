@@ -27,23 +27,25 @@ describe('Onboarding handoff P0', () => {
     assert.match(src, /startChildHandoff/);
     assert.match(src, /isHandoffEnabled/);
     assert.match(src, /confirmHandoffSkip/);
-    assert.match(src, /recordChildAccess\('child_view'\)/);
-    assert.doesNotMatch(src, /recordChildAccess\('step5_continue'\)/);
-    assert.doesNotMatch(src, /recordChildAccess\('pin_set'\)/);
+    assert.doesNotMatch(src, /recordChildAccess/);
+    assert.match(src, /child_handoff_started/);
+    assert.doesNotMatch(src, /child-access-complete/);
     assert.doesNotMatch(src, /fsgDashboard/);
   });
 
-  it('notifyPinSet tracks child_pin_created only (no child_access)', () => {
+  it('notifyPinSet tracks child_pin_created only (no child access API)', () => {
     const src = read('public/js/onboarding-activation.js');
     const fn = src.slice(src.indexOf('function notifyPinSet'), src.indexOf('function init'));
     assert.match(fn, /child_pin_created/);
-    assert.doesNotMatch(fn, /recordChildAccess/);
+    assert.doesNotMatch(fn, /child-access-complete/);
   });
 
-  it('child-access-complete rejects non-verified sources', () => {
+  it('child-access-complete is deprecated no-op (no activation milestone write)', () => {
     const src = read('src/routes/onboarding.js');
-    assert.match(src, /VERIFIED_CHILD_ACCESS_SOURCES/);
-    assert.match(src, /skipped: true/);
+    const block = src.slice(src.indexOf("router.post('/child-access-complete'"), src.indexOf("router.post('/complete'"));
+    assert.match(block, /deprecated: true/);
+    assert.doesNotMatch(block, /updateActivationState/);
+    assert.doesNotMatch(block, /markParentOnboardingComplete/);
   });
 
   it('child-login sets child_session_started and child_access', () => {
