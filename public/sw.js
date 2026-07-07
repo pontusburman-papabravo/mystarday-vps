@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v531';
+const CACHE_NAME = 'stjarndag-v532';
+// stjarndag-v532: weekly summary email — settings#aviseringar anchor + opt-out footer
 // stjarndag-v531: Barnets samling Fas A — fyra flikar bakom barnets_samling gate (#588)
 // stjarndag-v529: child access semantics — handoff click no longer sets child_access_completed_at
 // stjarndag-v528: ambient hardening — generated pack, director budgets, generic tokens

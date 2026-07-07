@@ -5,8 +5,79 @@ const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
 const { validate } = require('../../middleware/validate');
 const { UpdateNotificationPrefsSchema, ReorderSchema } = require('../../lib/schemas');
+const { optOutByToken } = require('../../lib/notification-email-opt-out');
+const { renderUnsubscribePage, renderUnsubscribeErrorPage } = require('../../lib/newsletter-unsubscribe-pages');
+const config = require('../../lib/config');
 
 const router = express.Router();
+
+const OPT_OUT_LABELS = {
+  weekly_summary: {
+    title: 'Veckosammanfattning avstängd',
+    heading: 'Du får inte längre veckosammanfattning',
+    message: 'Vi skickar inte fler veckosammanfattningar till din e-post. Du kan slå på dem igen under Inställningar → Notiser.',
+    alreadyHeading: 'Du är redan avstängd',
+    alreadyMessage: 'Veckosammanfattning är redan avstängd för din e-post.',
+  },
+  reward_redemption: {
+    title: 'Belöningsaviseringar avstängda',
+    heading: 'Du får inte längre belöningsmejl',
+    message: 'Vi skickar inte fler mejl när barnet vill lösa in belöningar. Du kan slå på dem igen under Inställningar → Notiser.',
+    alreadyHeading: 'Du är redan avstängd',
+    alreadyMessage: 'Belöningsaviseringar är redan avstängda för din e-post.',
+  },
+  all_email: {
+    title: 'E-postaviseringar avstängda',
+    heading: `Du får inte längre mejl från ${config.email.fromName}`,
+    message: 'Alla e-postaviseringar är avstängda. Du kan slå på dem igen under Inställningar → Notiser.',
+    alreadyHeading: 'Du är redan avstängd',
+    alreadyMessage: 'E-postaviseringar är redan avstängda.',
+  },
+};
+
+async function handleOptOut(req, res) {
+  const token = req.query.token || req.body?.token;
+  const channel = req.query.channel || req.body?.channel || 'weekly_summary';
+  const labels = OPT_OUT_LABELS[channel] || OPT_OUT_LABELS.weekly_summary;
+
+  if (!token || typeof token !== 'string' || !/^[0-9a-f-]{36}$/i.test(token)) {
+    return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+  }
+
+  try {
+    const result = await optOutByToken(token, channel);
+
+    if (!result.ok && result.reason === 'unknown_token') {
+      return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+    }
+
+    if (result.alreadyOptedOut) {
+      return res.send(renderUnsubscribePage({
+        title: labels.title,
+        heading: labels.alreadyHeading,
+        message: labels.alreadyMessage,
+      }));
+    }
+
+    if (!result.ok) {
+      return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+    }
+
+    res.send(renderUnsubscribePage({
+      title: labels.title,
+      heading: labels.heading,
+      message: labels.message,
+    }));
+  } catch (err) {
+    console.error('[ACCOUNT] Notification opt-out error:', err);
+    res.status(500).send(renderUnsubscribeErrorPage('Något gick fel', 'Försök igen senare eller gå till Inställningar i appen.'));
+  }
+}
+
+// ─── GET/POST /api/account/notifications/opt-out ──────────
+// One-click opt-out via token — no login required (RFC 8058).
+router.get('/notifications/opt-out', handleOptOut);
+router.post('/notifications/opt-out', handleOptOut);
 
 // ─── PUT /api/account/notifications ─────────────────────
 router.put('/notifications', requireParent, validate(UpdateNotificationPrefsSchema), async (req, res) => {

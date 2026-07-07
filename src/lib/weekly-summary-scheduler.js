@@ -11,6 +11,8 @@
 
 const db = require('./db');
 const { sendEmail } = require('./email');
+const { buildNotificationEmailFooterHtml } = require('./email-notification-footer');
+const { buildOptOutUrl } = require('./notification-email-opt-out');
 const { WEEKLY_SUMMARY_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const {
   getStockholmDateParts,
@@ -53,7 +55,7 @@ function getStockholmWeekKey(date = new Date()) {
  */
 async function aggregateChildWeek(childId, startDate, endDate) {
   const starsResult = await db.query(
-    `SELECT COALESCE(SUM(dli.star_value), 0) AS stars_earned,
+    `SELECT COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed = true), 0) AS stars_earned,
             COUNT(*) FILTER (WHERE dli.completed = true) AS routines_completed,
             COUNT(*) AS routines_total
      FROM daily_log dl
@@ -61,6 +63,21 @@ async function aggregateChildWeek(childId, startDate, endDate) {
      WHERE dl.child_id = $1 AND dl.date >= $2 AND dl.date <= $3`,
     [childId, startDate, endDate]
   );
+
+  let manualStars = 0;
+  try {
+    const manualResult = await db.query(
+      `SELECT COALESCE(SUM(star_count), 0) AS manual
+       FROM manual_star_grant
+       WHERE child_id = $1
+         AND created_at >= $2::date
+         AND created_at < ($3::date + interval '1 day')`,
+      [childId, startDate, endDate]
+    );
+    manualStars = parseInt(manualResult.rows[0].manual, 10);
+  } catch (_) {
+    // Table may not exist on old instances
+  }
 
   // Mood: average of child ratings (score 1–10) from this week
   const moodResult = await db.query(
@@ -74,7 +91,7 @@ async function aggregateChildWeek(childId, startDate, endDate) {
   );
 
   return {
-    starsEarned: parseInt(starsResult.rows[0].stars_earned, 10),
+    starsEarned: parseInt(starsResult.rows[0].stars_earned, 10) + manualStars,
     routinesCompleted: parseInt(starsResult.rows[0].routines_completed, 10),
     routinesTotal: parseInt(starsResult.rows[0].routines_total, 10),
     avgMood: moodResult.rows[0].avg_mood ? parseFloat(moodResult.rows[0].avg_mood) : null,
@@ -112,9 +129,25 @@ function buildWeekHighlight(children) {
 }
 
 /**
+ * Encouragement copy matched to actual week activity — avoid praising zero progress.
+ */
+function buildEncouragementMessage(children) {
+  const totalCompleted = children.reduce((sum, c) => sum + c.stats.routinesCompleted, 0);
+  const totalStars = children.reduce((sum, c) => sum + c.stats.starsEarned, 0);
+
+  if (totalStars === 0 && totalCompleted === 0) {
+    return 'En ny vecka börjar snart — prova att bocka av en rutin tillsammans, det tar bara en stund.';
+  }
+  if (totalCompleted > 0) {
+    return '🌟 Fortsätt det fantastiska arbetet! Varje avklarad rutin bygger vanor för livet.';
+  }
+  return '🌟 Små steg räknas — prova att bocka av en rutin tillsammans den här veckan.';
+}
+
+/**
  * Build HTML email body for the weekly summary.
  */
-function buildWeeklySummaryHtml(parentName, weekLabel, children) {
+function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } = {}) {
   const firstName = (parentName || '').split(' ')[0] || 'Förälder';
   const highlight = buildWeekHighlight(children);
   const shareUrl = 'https://mystarday.se/?utm_source=weekly_summary&utm_medium=email&utm_campaign=share';
@@ -178,15 +211,16 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children) {
 
       <div style="background:#FFF3D6;border-left:4px solid #F5A623;border-radius:8px;padding:14px 16px;margin-top:8px;">
         <p style="margin:0;color:#1B2340;font-size:14px;">
-          🌟 Fortsätt det fantastiska arbetet! Varje avklarad rutin bygger vanor för livet.
+          ${buildEncouragementMessage(children)}
         </p>
       </div>
 
       ${shareBlock}
 
-      <p style="margin-top:24px;font-size:14px;color:#5A6178;">
-        Du kan hantera e-postaviseringar under <strong>Inställningar → Aviseringar</strong> i appen.
-      </p>
+      ${buildNotificationEmailFooterHtml({
+        optOutUrl,
+        optOutLabel: 'Stäng av veckosammanfattning',
+      })}
     </div>
   `;
 }
@@ -244,7 +278,8 @@ async function runWeeklySummaryJob() {
     console.log(`[WEEKLY-SUMMARY] Starting job for ${weekLabel}`);
 
     const parentsResult = await db.query(
-      `SELECT p.id AS parent_id, p.email, p.name AS parent_name, p.family_id
+      `SELECT p.id AS parent_id, p.email, p.name AS parent_name, p.family_id,
+              np.email_opt_out_token
        FROM parent p
        JOIN notification_preference np ON np.parent_id = p.id
        WHERE np.weekly_summary = true AND np.email_enabled = true
@@ -286,13 +321,17 @@ async function runWeeklySummaryJob() {
           continue;
         }
 
-        const html = buildWeeklySummaryHtml(parent.parent_name, weekLabel, childData);
+        const optOutUrl = parent.email_opt_out_token
+          ? buildOptOutUrl(parent.email_opt_out_token, 'weekly_summary')
+          : null;
+        const html = buildWeeklySummaryHtml(parent.parent_name, weekLabel, childData, { optOutUrl });
         await sendEmail({
           to: parent.email,
           subject: `Veckans sammanfattning ⭐ — ${weekLabel}`,
           html,
           apiKeyProfile: 'weekly',
           tags: [{ name: 'type', value: 'weekly_summary' }],
+          unsubscribeUrl: optOutUrl || undefined,
         });
 
         sentCount++;
@@ -358,4 +397,5 @@ module.exports = {
   runWeeklySummaryNow,
   msUntilNextSunday2100Stockholm,
   getStockholmWeekKey,
+  buildEncouragementMessage,
 };
