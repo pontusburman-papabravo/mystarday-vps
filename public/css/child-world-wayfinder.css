@@ -150,9 +150,11 @@ body.child-worlds-v2 .cww-shell {
 }
 
 /* Illustration is decorative except primary scene tap zones */
-.cww-shell .mh-hotspot--nav:not(.mh-hotspot--door),
+.cww-shell .mh-hotspot:not(.ao-hotspot),
+.cww-shell .mh-hotspot--nav:not(.mh-hotspot--door):not(.ao-hotspot),
 .cww-shell .mh-nav-dock,
-.cww-shell .gd-hotspot:not(.gd-hotspot--bed),
+.cww-shell .gd-hotspot:not(.ao-hotspot),
+.cww-shell .gd-hotspot:not(.gd-hotspot--bed):not(.ao-hotspot),
 .cww-shell .gd-back-fab,
 .cww-shell .mu-hotspot,
 .cww-shell .mu-window-tap,
@@ -234,11 +236,18 @@ body.child-worlds-v2 .cww-shell {
   max-height: none !important;
 }
 
+.cww-shell .ao-hotspot,
 .cww-shell .gd-hotspot--bed,
 .cww-shell .mh-hotspot--door.mh-hotspot--nav {
   display: block !important;
   pointer-events: auto !important;
   z-index: 6;
+}
+
+.cww-shell .ao-hint {
+  display: block !important;
+  pointer-events: none !important;
+  z-index: 5;
 }
 
 .cww-shell .mh-door-hint {
