@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "url": "/child-login",
+    "viewport": "390x844 (iPhone 13)",
+    "child": "Leo",
+    "pin": "3847",
+    "startedAt": "2026-07-07T06:46:30.522Z"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Open child login",
+      "ok": true,
+      "detail": "mode cards=0 manual=true",
+      "screenshot": "screenshots/01-child-login.png",
+      "loginMode": {
+        "hasCards": 0,
+        "hasKeypad": true,
+        "hasManual": true,
+        "title": "Vem är du?"
+      },
+      "ts": "2026-07-07T06:46:33.172Z"
+    },
+    {
+      "step": 2,
+      "name": "Select Leo",
+      "ok": true,
+      "detail": "profile selected / PIN step",
+      "screenshot": "screenshots/02-select-leo.png",
+      "ts": "2026-07-07T06:46:33.875Z"
+    },
+    {
+      "step": 3,
+      "name": "Enter PIN",
+      "ok": true,
+      "detail": "submitted 3847 (done)",
+      "screenshot": "screenshots/03-after-pin.png",
+      "ts": "2026-07-07T06:46:38.766Z"
+    },
+    {
+      "step": 4,
+      "name": "Child dashboard loads",
+      "ok": true,
+      "detail": "/child/today child=Leo firstStar=false",
+      "screenshot": "screenshots/04-child-dashboard.png",
+      "dash": {
+        "url": "/child/today#today",
+        "path": "/child/today",
+        "title": "Mitt Schema - App",
+        "bodyClass": "bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white child-worlds-v2 child-has-bottom-nav",
+        "morgonhusActive": false,
+        "gardenActive": false,
+        "wayfinderActive": false,
+        "livingWorldActive": false,
+        "placeLabel": null,
+        "aoHotspots": [],
+        "skattLoading": false,
+        "skattView": false,
+        "rewardsHidden": true,
+        "gdStatus": null,
+        "mhToast": null,
+        "memoryPanel": false,
+        "memoryCards": 0,
+        "tabRewards": false,
+        "childName": null
+      },
+      "ts": "2026-07-07T06:46:40.410Z"
+    },
+    {
+      "step": 5,
+      "name": "Open Min värld / Skattkammaren",
+      "ok": true,
+      "detail": "morgonhus=true skatt=true hotspots=0 firstStarCleared=true",
+      "screenshot": "screenshots/05-skattkammaren-flow.png",
+      "state": {
+        "url": "/child/world#universe",
+        "path": "/child/world",
+        "title": "Mitt Schema - App",
+        "bodyClass": "bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white child-worlds-v2 child-has-bottom-nav child-morgonhus-active child-wayfinder-active",
+        "morgonhusActive": true,
+        "gardenActive": false,
+        "wayfinderActive": true,
+        "livingWorldActive": false,
+        "placeLabel": "Morgonhuset",
+        "aoHotspots": [],
+        "skattLoading": false,
+        "skattView": true,
+        "rewardsHidden": false,
+        "gdStatus": null,
+        "mhToast": null,
+        "memoryPanel": false,
+        "memoryCards": 0,
+        "tabRewards": false,
+        "childName": null
+      },
+      "firstStar": {
+        "cleared": true,
+        "method": "not_active"
+      },
+      "screenshot4b": "screenshots/04b-after-first-star.png",
+      "ts": "2026-07-07T06:46:46.742Z"
+    },
+    {
+      "step": 6,
+      "name": "Morgonhuset opens",
+      "ok": true,
+      "detail": "place=Morgonhuset doorNodes=0",
+      "screenshot": "screenshots/06-morgonhus.png",
+      "ts": "2026-07-07T06:46:46.857Z"
+    },
+    {
+      "step": 7,
+      "name": "Tap door → Trädgården",
+      "ok": false,
+      "detail": "door hotspot not found after wait",
+      "screenshot": "screenshots/07-after-door-missing.png",
+      "ts": "2026-07-07T06:47:02.117Z"
+    },
+    {
+      "step": 8,
+      "name": "Tap garden objects",
+      "ok": false,
+      "detail": "skipped — not in garden",
+      "ts": "2026-07-07T06:47:02.117Z"
+    },
+    {
+      "step": 9,
+      "name": "Soil bed plant/water/harvest",
+      "ok": false,
+      "detail": "skipped — not in garden",
+      "ts": "2026-07-07T06:47:02.117Z"
+    },
+    {
+      "step": 10,
+      "name": "Treasure chest → Skattkammaren",
+      "ok": false,
+      "detail": "skattView=true morgonhus=true",
+      "screenshot": "screenshots/10-treasure-chest-skatt.png",
+      "chestTap": {
+        "ok": false,
+        "reason": "not_found"
+      },
+      "state": {
+        "url": "/child/world#universe",
+        "path": "/child/world",
+        "title": "Mitt Schema - App",
+        "bodyClass": "bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white child-worlds-v2 child-has-bottom-nav child-morgonhus-active child-wayfinder-active",
+        "morgonhusActive": true,
+        "gardenActive": false,
+        "wayfinderActive": true,
+        "livingWorldActive": false,
+        "placeLabel": "Morgonhuset",
+        "aoHotspots": [],
+        "skattLoading": false,
+        "skattView": true,
+        "rewardsHidden": false,
+        "gdStatus": null,
+        "mhToast": null,
+        "memoryPanel": false,
+        "memoryCards": 0,
+        "tabRewards": false,
+        "childName": null
+      },
+      "ts": "2026-07-07T06:47:04.739Z"
+    },
+    {
+      "step": 11,
+      "name": "Path → Minnesrummet",
+      "ok": false,
+      "detail": "memoryPanel=false cards=0 place=Morgonhuset",
+      "screenshot": "screenshots/11-memory-hall-path.png",
+      "pathTap1": {
+        "ok": false,
+        "reason": "not_found"
+      },
+      "pathTap2": {
+        "ok": false,
+        "reason": "not_found"
+      },
+      "state": {
+        "url": "/child/world#universe",
+        "path": "/child/world",
+        "title": "Mitt Schema - App",
+        "bodyClass": "bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white child-worlds-v2 child-has-bottom-nav child-morgonhus-active child-wayfinder-active",
+        "morgonhusActive": true,
+        "gardenActive": false,
+        "wayfinderActive": true,
+        "livingWorldActive": false,
+        "placeLabel": "Morgonhuset",
+        "aoHotspots": [],
+        "skattLoading": false,
+        "skattView": true,
+        "rewardsHidden": false,
+        "gdStatus": null,
+        "mhToast": null,
+        "memoryPanel": false,
+        "memoryCards": 0,
+        "tabRewards": false,
+        "childName": null
+      },
+      "ts": "2026-07-07T06:47:12.088Z"
+    }
+  ],
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 ()",
+      "url": "/child-login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child-login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child-login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child-login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child/today"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child/today"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child/world"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 403 ()",
+      "url": "/child/world"
+    }
+  ],
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "url": "/api/auth/me",
+      "status": 401,
+      "method": "GET"
+    },
+    {
+      "url": "/api/analytics/event",
+      "status": 403,
+      "method": "POST"
+    },
+    {
+      "url": "/api/analytics/event",
+      "status": 403,
+      "method": "POST"
+    },
+    {
+      "url": "/api/analytics/event",
+      "status": 403,
+      "method": "POST"
+    },
+    {
+      "url": "/api/subscription/access",
+      "status": 403,
+      "method": "GET"
+    },
+    {
+      "url": "/api/analytics/event",
+      "status": 403,
+      "method": "POST"
+    },
+    {
+      "url": "/api/subscription/access",
+      "status": 403,
+      "method": "GET"
+    },
+    {
+      "url": "/api/analytics/event",
+      "status": 403,
+      "method": "POST"
+    }
+  ],
+  "issues": [
+    "Door hotspot missing on Morgonhus — cannot enter garden",
+    "4 touch targets below 44px"
+  ],
+  "touchAudit": {
+    "smallTargets": [
+      {
+        "tag": "BUTTON",
+        "id": "switchChildBtn",
+        "w": 88,
+        "h": 38
+      },
+      {
+        "tag": "BUTTON",
+        "id": "logoutBtn",
+        "w": 91,
+        "h": 38
+      },
+      {
+        "tag": "BUTTON",
+        "id": "childSystemIconBtn",
+        "w": 88,
+        "h": 38
+      },
+      {
+        "tag": "BUTTON",
+        "id": "ctfSkattBtnBottom",
+        "w": 358,
+        "h": 41
+      }
+    ],
+    "horizontalOverflow": false,
+    "vw": 390
+  },
+  "finishedAt": "2026-07-07T06:47:12.090Z",
+  "passCount": 6,
+  "failCount": 5
+}
