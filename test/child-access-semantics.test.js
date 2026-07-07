@@ -54,9 +54,12 @@ describe('child access semantics — static contracts', () => {
     assert.doesNotMatch(fn, /child-access-complete/);
   });
 
-  it('child-handoff-reminder still requires child_access_completed_at IS NULL', () => {
+  it('child-handoff-reminder uses schema_saved segment', () => {
     const sched = read('src/lib/child-handoff-reminder-scheduler.js');
     assert.match(sched, /child_access_completed_at IS NULL/);
+    assert.match(sched, /schema_saved_at IS NOT NULL/);
+    assert.match(sched, /first_completion_at IS NULL/);
+    assert.doesNotMatch(sched, /analytics_events/);
   });
 });
 
