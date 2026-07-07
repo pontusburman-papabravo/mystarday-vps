@@ -13,7 +13,13 @@
         credentials: 'include',
         body: JSON.stringify({
           event_type: 'child_world_view',
-          metadata: { world: worldId, path: window.location.pathname },
+          metadata: {
+            world: worldId,
+            path: window.location.pathname,
+            nav_mode: window.ChildWorlds && ChildWorlds.analyticsNavMode
+              ? ChildWorlds.analyticsNavMode()
+              : 'legacy',
+          },
         }),
       });
     } catch (_) { /* silent */ }

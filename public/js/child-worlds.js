@@ -114,6 +114,29 @@
     return _barnetsSamling;
   }
 
+  /** Barn-UI: legacy hub-flik (gate av) vs samling (gate på). */
+  function worldTabLabel() {
+    return _barnetsSamling ? 'Min samling' : 'Min värld';
+  }
+
+  function worldBackLabel() {
+    return _barnetsSamling ? 'Tillbaka till Min samling' : 'Tillbaka till Min värld';
+  }
+
+  function worldBackShort() {
+    return worldTabLabel();
+  }
+
+  function worldHubSubcopy() {
+    return _barnetsSamling
+      ? 'Vad vill du göra här?'
+      : 'Vad vill du göra i din värld?';
+  }
+
+  function analyticsNavMode() {
+    return _barnetsSamling ? 'barnets_samling' : 'legacy';
+  }
+
   function isConfigured() {
     return _configured;
   }
@@ -231,6 +254,11 @@
     getChildWorlds: getChildWorlds,
     isBarnetsSamlingEnabled: isBarnetsSamlingEnabled,
     isConfigured: isConfigured,
+    worldTabLabel: worldTabLabel,
+    worldBackLabel: worldBackLabel,
+    worldBackShort: worldBackShort,
+    worldHubSubcopy: worldHubSubcopy,
+    analyticsNavMode: analyticsNavMode,
     configureFromFeatures: configureFromFeatures,
   };
 })();
