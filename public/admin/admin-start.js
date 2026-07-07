@@ -144,10 +144,12 @@
           '#analytics'
         )}
         ${kpiCard(
-          'Grundarmedlemmar kvar',
-          m.founderSlotsLeft ?? '–',
-          `${m.totalFamilies || 0} / ${m.founderLimit || 225} familjer totalt`,
-          (m.founderSlotsLeft || 0) < 30 ? 'text-gold-dark' : 'text-text-soft'
+          'Grundarprogram',
+          m.founderUnlimited ? 'Obegränsat' : (m.founderSlotsLeft ?? '–'),
+          m.founderUnlimited
+            ? `${m.totalFamilies || 0} familjer totalt`
+            : `${m.totalFamilies || 0} / ${m.founderLimit ?? '–'} familjer totalt`,
+          m.founderUnlimited ? 'text-green-700' : ((m.founderSlotsLeft || 0) < 30 ? 'text-gold-dark' : 'text-text-soft')
         )}
       </div>
       ${funnelHtml}`;

@@ -1,17 +1,22 @@
 /**
  * Payment policy — Model A:
- *   family signup # <= founder_limit  → lifetime free (Grundarmedlem)
- *   family signup # >  founder_limit  → subscription required (59 kr/mån)
+ *   founder_limit unset/null/0  → unlimited lifetime free (Grundarmedlem) for all signups
+ *   family signup # <= limit    → lifetime free (Grundarmedlem)
+ *   family signup # >  limit    → subscription required (59 kr/mån)
  */
 
 const appSettings = require('../../db/app-settings');
 const { getTotalFamilyCount } = require('../../db/family-stats');
 
-const DEFAULT_FOUNDER_LIMIT = 225;
-
 function parseLimit(value) {
+  if (value == null || value === '' || value === false) return null;
   const n = parseInt(value, 10);
-  return Number.isFinite(n) && n > 0 ? n : DEFAULT_FOUNDER_LIMIT;
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n;
+}
+
+function isUnlimitedFounderLimit(founderLimit) {
+  return founderLimit == null;
 }
 
 async function getFounderFamilyLimitWithClient(client) {
@@ -19,7 +24,7 @@ async function getFounderFamilyLimitWithClient(client) {
     `SELECT value FROM app_settings WHERE key = 'founder_family_limit'`
   );
   const raw = r.rows[0]?.value;
-  if (raw == null) return DEFAULT_FOUNDER_LIMIT;
+  if (raw == null) return null;
   return parseLimit(typeof raw === 'number' ? raw : raw);
 }
 
@@ -29,6 +34,7 @@ async function getFounderFamilyLimit() {
 }
 
 function qualifiesForLifetimeFree(familyCountBeforeInsert, founderLimit) {
+  if (isUnlimitedFounderLimit(founderLimit)) return true;
   return familyCountBeforeInsert < founderLimit;
 }
 
@@ -39,19 +45,22 @@ async function getFounderStatus() {
     appSettings.getBasicPrice(),
     appSettings.getPaymentEnabled(),
   ]);
-  const spots_remaining = Math.max(0, limit - count);
+  const unlimited = isUnlimitedFounderLimit(limit);
+  const spots_remaining = unlimited ? null : Math.max(0, limit - count);
   return {
     count,
     limit,
+    unlimited,
     spots_remaining,
     price_sek: price_sek ?? 59,
     payment_enabled: !!payment_enabled,
-    founder_program_active: spots_remaining > 0,
+    founder_program_active: unlimited || (spots_remaining != null && spots_remaining > 0),
   };
 }
 
 module.exports = {
-  DEFAULT_FOUNDER_LIMIT,
+  parseLimit,
+  isUnlimitedFounderLimit,
   getFounderFamilyLimit,
   getFounderFamilyLimitWithClient,
   qualifiesForLifetimeFree,

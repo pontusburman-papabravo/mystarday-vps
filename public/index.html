@@ -40,12 +40,13 @@
     "inLanguage": "sv"
   }
   </script>
+  <!-- pragma: allowlist secret -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Vad kostar Min Stjärndag?", "acceptedAnswer": { "@type": "Answer", "text": "De första 225 familjerna får Basic gratis som grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen." }},
+      { "@type": "Question", "name": "Vad kostar det?", "acceptedAnswer": { "@type": "Answer", "text": "Just nu är Basic kostnadsfritt för grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen." }},
       { "@type": "Question", "name": "Är det här rätt för barn med ADHD eller autism?", "acceptedAnswer": { "@type": "Answer", "text": "Min Stjärndag är inte byggd kring en diagnos, men passar ofta bra för barn som behöver tydlig struktur, bildstöd, förutsägbarhet eller mer motivation i vardagen." }},
       { "@type": "Question", "name": "Vad händer med stjärnorna om vi missar en dag?", "acceptedAnswer": { "@type": "Answer", "text": "Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld." }},
       { "@type": "Question", "name": "Kan flera vuxna använda appen tillsammans?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur." }},
@@ -192,7 +193,7 @@
         </div>
       </div>
       <div class="landing-hero__trust">
-        <span class="trust-chip">Gratis för de första <span id="founderLimitText">225</span> familjerna</span>
+        <span class="trust-chip" id="founderTrustChip">Gratis just nu för grundarmedlemmar</span>
         <span class="trust-chip">Barnets egen vy med PIN</span>
         <span class="trust-chip">Finns på App Store</span>
         <span class="trust-chip">Fungerar som app i mobilen</span>
@@ -607,7 +608,8 @@
     <div class="founder-block">
       <span class="section-eyebrow">Grundarprogrammet</span>
       <h2>Bli grundarmedlem – få Basic gratis för alltid</h2>
-      <p class="founder-block__intro">De första <span id="founderLimitText2">225</span> familjerna får livstids tillgång till Basic utan kostnad. Ingen betalning krävs i den nuvarande versionen.</p>
+      <p class="founder-block__intro">Just nu får nya familjer livstids tillgång till Basic utan kostnad som grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen.<span id="founderLimitText2" hidden></span></p>
+      <p class="founder-block__counter founder-spots-badge founder-spots-badge--block" id="founderLiveCounter" hidden aria-live="polite"></p>
       <ul class="founder-block__list">
         <li>Obegränsat antal barn</li>
         <li>Barnets egen vy med PIN</li>
@@ -632,7 +634,7 @@
     <div class="faq-list">
       <div class="faq-item" data-faq="kostnad">
         <button type="button" class="faq-question" aria-expanded="false">Vad kostar Min Stjärndag?<span class="faq-icon">+</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">De första 225 familjerna får Basic gratis som grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Just nu är Basic kostnadsfritt för grundarmedlemmar. Ingen betalning krävs i den nuvarande versionen.</div></div>
       </div>
       <div class="faq-item" data-faq="adhd-autism">
         <button type="button" class="faq-question" aria-expanded="false">Är det här rätt för barn med ADHD eller autism?<span class="faq-icon">+</span></button>
@@ -662,7 +664,7 @@
 <!-- 12. FINAL CTA -->
 <section class="final-cta landing-section--dark" id="kom-igang">
   <h2>Redo för en lugnare vardag?</h2>
-  <p>Skapa ett konto gratis och bygg barnets första schema på några minuter. De första 225 familjerna får Basic utan kostnad som grundarmedlemmar.</p>
+  <p>Skapa ett konto gratis och bygg barnets första schema på några minuter. Just nu ingår Basic utan kostnad som grundarmedlem.</p>
   <a href="/register" class="btn-primary" data-track="final_signup_click">Skapa konto gratis</a>
   <div class="final-cta__login-row">
     <a href="/login" class="final-cta__login" data-track="nav_login_click">Logga in som förälder</a>
@@ -675,7 +677,7 @@
 <footer class="landing-footer">
   <div class="landing-footer__cta">
     <h3>Skapa konto gratis</h3>
-    <p id="founderFooterSpots">Grundarprogrammet: Basic gratis för de första <span id="founderFooterLimit">225</span> familjerna</p>
+    <p id="founderFooterSpots">Grundarprogrammet: Basic gratis just nu<span id="founderFooterLimit" hidden></span></p>
     <a href="/register" class="btn-primary" data-track="footer_signup_click">Skapa konto gratis</a>
   </div>
   <div class="landing-footer__grid">

@@ -54,7 +54,7 @@ router.get('/', async (req, res, next) => {
       }),
       appSettings.getFounderFamilyLimit().catch((err) => {
         console.error('[admin:subscription] founder_limit read error:', err.message);
-        return 200;
+        return null;
       }),
       appConfig.getEntry('PACKAGES_ROLLOUT_MODE').catch((err) => {
         console.error('[admin:subscription] rollout read error:', err.message);
@@ -91,10 +91,15 @@ router.patch('/', async (req, res, next) => {
       updates.push('basic_trial_days');
     }
     if (founder_family_limit !== undefined) {
-      const n = parseInt(founder_family_limit, 10);
-      if (isNaN(n) || n < 1) return res.status(400).json({ error: 'founder_family_limit must be at least 1' });
-      await appSettings.setFounderFamilyLimit(n);
-      updates.push('founder_family_limit');
+      if (founder_family_limit === null || founder_family_limit === '' || founder_family_limit === 0) {
+        await appSettings.setFounderFamilyLimit(null);
+        updates.push('founder_family_limit');
+      } else {
+        const n = parseInt(founder_family_limit, 10);
+        if (isNaN(n) || n < 1) return res.status(400).json({ error: 'founder_family_limit must be at least 1, or null/0 for unlimited' });
+        await appSettings.setFounderFamilyLimit(n);
+        updates.push('founder_family_limit');
+      }
     }
     if (!updates.length) return res.status(400).json({ error: 'No valid fields to update' });
     const [price, trial, limit] = await Promise.all([

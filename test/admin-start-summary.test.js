@@ -46,7 +46,7 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
       return { rows: [{ total: 201 }] };
     }
     if (q.includes("key = 'founder_family_limit'")) {
-      return { rows: [{ value: 225 }] };
+      return { rows: [{ value: null }] };
     }
     if (q.includes('FROM package_interest') && q.includes('last7d')) {
       return { rows: [{ last7d: 2, prev7d: 1, total: 10 }] };
@@ -144,7 +144,8 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(body.keyMetrics.totalFamilies, 201);
     assert.equal(body.keyMetrics.p0_48h, 1);
     assert.equal(body.keyMetrics.stuckOnboarding, 4);
-    assert.equal(body.keyMetrics.founderSlotsLeft, 24);
+    assert.equal(body.keyMetrics.founderSlotsLeft, null);
+    assert.equal(body.keyMetrics.founderUnlimited, true);
     assert.equal(body.messages.unreadCount, 2);
     assert.equal(body.messages.needsFollowUpCount, 3);
     assert.equal(body.messages.disclaimer, null);

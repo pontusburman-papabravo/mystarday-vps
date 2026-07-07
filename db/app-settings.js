@@ -44,8 +44,9 @@ function setBasicTrialDays(days) {
 
 function getFounderFamilyLimit() {
   return getSetting('founder_family_limit').then(v => {
+    if (v == null || v === '') return null;
     const n = parseInt(v, 10);
-    return Number.isFinite(n) && n > 0 ? n : 225;
+    return Number.isFinite(n) && n > 0 ? n : null;
   });
 }
 

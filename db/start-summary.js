@@ -5,8 +5,6 @@ const db = require('../src/lib/db');
 const contactMessages = require('./contact-messages');
 const adminOperationalAlerts = require('./admin-operational-alerts');
 
-const DEFAULT_FOUNDER_LIMIT = 225;
-
 function buildPeriodMetric(row) {
   const last7d = parseInt(row.last7d, 10) || 0;
   const prev7d = parseInt(row.prev7d, 10) || 0;
@@ -90,7 +88,7 @@ async function fetchKeyMetrics() {
   const founderParsed = parseInt(founderRaw, 10);
   const founderLimit = Number.isFinite(founderParsed) && founderParsed > 0
     ? founderParsed
-    : DEFAULT_FOUNDER_LIMIT;
+    : null;
 
   function rate(n, d) {
     if (!d) return null;
@@ -113,8 +111,9 @@ async function fetchKeyMetrics() {
     starAfterAccessRatePct: rate(firstCompletion, childAccess || null),
     stuckOnboarding: stuckRow.rows[0]?.stuck || 0,
     totalFamilies,
-    founderSlotsLeft: Math.max(0, founderLimit - totalFamilies),
+    founderSlotsLeft: founderLimit == null ? null : Math.max(0, founderLimit - totalFamilies),
     founderLimit,
+    founderUnlimited: founderLimit == null,
   };
 }
 

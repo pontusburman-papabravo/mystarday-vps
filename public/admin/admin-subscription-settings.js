@@ -190,7 +190,7 @@ function renderSubscriptionSettings() {
   // Basic
   document.getElementById('basicPriceInput').value = subscriptionData.basic_price_sek ?? 59;
   document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
-  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 225;
+  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? '';
 
   // IAP billing path (RevenueCat / App Store / Play Store)
   const label = document.getElementById('iapStatusLabel');
@@ -293,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const price = document.getElementById('basicPriceInput').value;
     const trial = document.getElementById('basicTrialInput').value;
-    const founderLimit = document.getElementById('founderLimitInput').value;
+    const founderLimitRaw = document.getElementById('founderLimitInput').value.trim();
+    const founderLimit = founderLimitRaw === '' ? null : parseInt(founderLimitRaw, 10);
     const msg = document.getElementById('basicSettingsMsg');
     try {
       const data = await Auth.api('/api/admin/subscription-settings', {
@@ -301,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({
           basic_price_sek: parseInt(price, 10),
           basic_trial_days: parseInt(trial, 10),
-          founder_family_limit: parseInt(founderLimit, 10),
+          founder_family_limit: founderLimit,
         }),
       });
       msg.textContent = '✓ Sparat!';

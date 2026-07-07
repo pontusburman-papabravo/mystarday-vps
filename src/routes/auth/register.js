@@ -84,9 +84,8 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     try {
       await client.query('BEGIN');
 
-      // Determine is_lifetime_free: first N families (admin founder limit) get it automatically.
+      // Determine is_lifetime_free from founder limit (null/0 = unlimited).
       // Count + insert in same transaction to prevent race condition.
-      // Families beyond #200 require a paid subscription.
       const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
       const familyCount = countResult.rows[0].count;
       const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../../lib/payment-policy');
