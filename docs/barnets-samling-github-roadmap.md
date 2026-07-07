@@ -90,7 +90,15 @@ Skriptet (idempotent):
 4. Uppdaterar #594 med checklist (#583 först)
 5. Skapar/uppdaterar roadmap-issue `Barnets samling v1 roadmap`
 
-Efter #583 merge: ta bort `blocked`, lägg `ready` på #594 och #588–#593.
+Efter #583 merge: kör `./scripts/barnets-samling-post-583-merge.sh` (eller **Actions → Barnets samling post-583**).
+
+Det skriptet:
+- Stänger test-issues #596, #597
+- Tar bort `blocked`, lägger `ready` på #594 och #588–#593
+- Kommenterar på #594: *"Feature gate merged. Fas A kan börja."*
+
+**Fas A-ordning:** #588 → #589 → #590 → #591 → #592 → #593  
+**Inga Fas B–E tickets** förrän Fas A är klar.
 
 ### Project/milestone (pausad)
 

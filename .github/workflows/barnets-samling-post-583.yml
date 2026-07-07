@@ -1,0 +1,33 @@
+name: Barnets samling post-583
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/barnets-samling-post-583-merge.sh
+      - .github/workflows/barnets-samling-post-583.yml
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: barnets-samling-post-583
+  cancel-in-progress: false
+
+jobs:
+  post-merge:
+    name: Unblock Fas A + cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Post-583 merge steps
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          chmod +x ./scripts/barnets-samling-post-583-merge.sh
+          ./scripts/barnets-samling-post-583-merge.sh
