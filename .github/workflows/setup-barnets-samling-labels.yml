@@ -1,0 +1,33 @@
+name: Setup Barnets samling labels
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/setup-barnets-samling-labels.sh
+      - .github/workflows/setup-barnets-samling-labels.yml
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: setup-barnets-samling-labels
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: Labels + roadmap issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run label fallback setup
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          chmod +x ./scripts/setup-barnets-samling-labels.sh
+          ./scripts/setup-barnets-samling-labels.sh

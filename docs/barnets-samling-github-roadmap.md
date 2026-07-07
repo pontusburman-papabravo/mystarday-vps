@@ -1,14 +1,39 @@
 # Barnets samling — GitHub roadmap
 
-**Milestone:** `Barnets samling v1`  
-**Project:** `Barnets samling`  
+**Aktiv fallback:** labels + roadmap-issue (ingen project-scope krävs)  
 **Spec:** [barnets-samling-vision.md](barnets-samling-vision.md) · [npf-arkitektur-v1.md](npf-arkitektur-v1.md)
 
-> Kör `./scripts/setup-barnets-samling-github.sh` lokalt för att skapa milestone + project och skriva ut direktlänkar.
+> Kör `./scripts/setup-barnets-samling-labels.sh` — eller **Actions → Setup Barnets samling labels** (körs automatiskt vid merge till `main`).
+
+**Roadmap-issue:** `Barnets samling v1 roadmap` (skapas/uppdateras av skriptet)
 
 ---
 
-## Milestone: Barnets samling v1
+## Labels (ersätter Project/milestone tills vidare)
+
+| Label | Syfte |
+|-------|--------|
+| `barnets-samling` | Alla issues i initiativet |
+| `phase-a` … `phase-e` | Fas |
+| `ready` | Kan påbörjas nu (#583) |
+| `blocked` | Väntar på #583 (#594, #588–#593) |
+
+### Tilldelning
+
+| # | Labels |
+|---|--------|
+| **583** (PR) | `barnets-samling`, `phase-a`, `ready` |
+| **594**, **588–593** | `barnets-samling`, `phase-a`, `blocked` |
+| **584** | `barnets-samling`, `phase-b` |
+| **585** | `barnets-samling`, `phase-c` |
+| **586** | `barnets-samling`, `phase-d` |
+| **587** | `barnets-samling`, `phase-e` |
+
+**Blocker-kommentar** på #594 och #588–#593: *"Blocked by #583…"*
+
+---
+
+## Scope: Barnets samling v1
 
 | # | Typ | Titel |
 |---|-----|--------|
@@ -37,56 +62,39 @@ Fas B–E epics (#584–#587) väntar på Fas A.
 
 ---
 
-## Project: Barnets samling
+## Ordning (label `ready` / `blocked`)
 
-### Statusar
-
-`Backlog` · `Ready` · `In progress` · `Review` · `Done`
-
-### Ordning (överst → underst)
-
-| # | Startstatus |
-|---|-------------|
-| 583 PR | **Ready** |
-| 594 Fas A epic | Backlog → Ready efter #583 merge |
-| 588 | Backlog |
-| 589 | Backlog |
-| 590 | Backlog |
-| 591 | Backlog |
-| 592 | Backlog |
-| 593 | Backlog |
-| 584–587 epics | Backlog |
+| # | Start |
+|---|-------|
+| 583 PR | `ready` |
+| 594, 588–593 | `blocked` → `ready` efter #583 merge |
+| 584–587 | väntar på Fas A |
 
 ---
 
 ## Setup
 
-### Alternativ A — GitHub Actions (rekommenderat)
-
-1. Gå till **Actions → Setup Barnets samling GitHub → Run workflow**
-2. Om `GITHUB_TOKEN` saknar project-scope: lägg till repo secret `BARNETS_SAMLING_SETUP_TOKEN` (PAT med `project` + `repo`)
-
-### Alternativ B — lokalt
+### Label-fallback (aktiv — ingen project-scope)
 
 ```bash
-./scripts/setup-barnets-samling-github.sh
+./scripts/setup-barnets-samling-labels.sh
 ```
 
-Kräver `gh auth login` med `project` + `repo` scope (repo owner).
+Eller **Actions → Setup Barnets samling labels → Run workflow** (triggas automatiskt vid merge av skriptet till `main`).
 
-Skriptet:
+Skriptet (idempotent):
 
-1. Skapar milestone `Barnets samling v1` och tilldelar alla issues + PR #583
-2. Skapar project `Barnets samling` och länkar repot
-3. Lägger till items i ordning ovan + sorterar via GraphQL
-4. Sätter status: **#583 → Ready**, övriga → **Backlog**
-5. Sätter **#583 blockerar** Fas A-tickets (GraphQL `addBlockedBy`, med UI-fallback)
-6. Skriver ut milestone- och project-URL
+1. Skapar labels `barnets-samling`, `phase-a`–`phase-e`, `blocked`, `ready`
+2. Sätter labels på #583, #594, #588–#593, #584–#587
+3. Kommenterar blocker på Fas A-issues
+4. Uppdaterar #594 med checklist (#583 först)
+5. Skapar/uppdaterar roadmap-issue `Barnets samling v1 roadmap`
 
-Om Status-fältet saknar Backlog/Ready: justera kolumner manuellt till  
-`Backlog` · `Ready` · `In progress` · `Review` · `Done`
+Efter #583 merge: ta bort `blocked`, lägg `ready` på #594 och #588–#593.
 
-Efter #583 merge: flytta PR till **Done**, sätt #594 till **Ready**.
+### Project/milestone (pausad)
+
+Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.sh`.
 
 ---
 
