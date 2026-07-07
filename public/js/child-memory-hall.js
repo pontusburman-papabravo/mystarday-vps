@@ -17,6 +17,16 @@
   let _assetCleanup = null;
   let _illustratedScene = false;
 
+  function worldBackConfig() {
+    if (window.ChildWorlds && ChildWorlds.worldBackLabel) {
+      return {
+        label: ChildWorlds.worldBackLabel(),
+        short: ChildWorlds.worldBackShort(),
+      };
+    }
+    return { label: 'Tillbaka till Min värld', short: 'Min värld' };
+  }
+
   function pipeline() {
     return window.MemoryHallAssetPipeline || null;
   }
@@ -184,7 +194,7 @@
           placeId: 'memory_hall',
           placeLabel: title,
           placeIcon: '🖼️',
-          back: { label: 'Tillbaka till Min värld', short: 'Min värld' },
+          back: worldBackConfig(),
         }) +
         '<div class="cww-scene-stage">' + sceneHtml + '</div>' +
         wf.renderMemoryPanel(slots) +

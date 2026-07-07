@@ -1,0 +1,19 @@
+name: Close issue 588 after merge
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close #588 and update labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue close 588 --repo "${{ github.repository }}" \
+            --comment "Merged via PR #602. Fyra flikar bakom barnets_samling, legacy-nav oförändrad när gate av."
+          gh issue edit 588 --repo "${{ github.repository }}" --remove-label "ready" || true

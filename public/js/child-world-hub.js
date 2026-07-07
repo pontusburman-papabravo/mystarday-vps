@@ -56,10 +56,14 @@
       : 'Plantera och skörda solrosor';
     const gardenDisabled = Boolean(o.gardenLocked);
 
+    const hubSub = (window.ChildWorlds && ChildWorlds.worldHubSubcopy)
+      ? ChildWorlds.worldHubSubcopy()
+      : 'Vad vill du göra i din värld?';
+
     return '<div class="cwh-hub" data-world="hub">' +
       '<header class="cwh-header">' +
         '<h1 class="cwh-title">Hej ' + esc(childName()) + '!</h1>' +
-        '<p class="cwh-sub">Vad vill du göra i din värld?</p>' +
+        '<p class="cwh-sub">' + esc(hubSub) + '</p>' +
       '</header>' +
       '<div class="cwh-choices">' +
         '<button type="button" class="cwh-choice cwh-choice--primary' + (gardenDisabled ? ' is-disabled' : '') + '"' +
