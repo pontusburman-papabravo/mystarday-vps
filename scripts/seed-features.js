@@ -913,6 +913,26 @@ const FEATURES = [
     changelog: [],
   },
 
+  // ── Barnets samling (dev rollout via family_features) ───────────────────────
+  {
+    slug: 'barnets_samling',
+    name: 'Barnets samling',
+    description: 'Fyra-fliks barnnav + Min samling — per-familj dev-rollout tills produktklar',
+    status: 'dev',
+    tags: ['barn', 'belöningar'],
+    priority: 'high',
+    complexity: 6,
+    estimated_hours: 24.0,
+    documentation: {
+      purpose: 'Kontrollerad rollout av Barnets samling (Fas A–E) utan att exponera halvfärdig nav för alla familjer.',
+      user_story: 'Som barn i testfamilj vill jag se Min samling och fyra-fliks-nav när familjen har tillgång.',
+      acceptance_criteria: 'status=dev kräver family_features; allowlist pontus@burman.cc + testanvändaren; status=live först efter produktsign-off.',
+      technical_notes: 'hasAccess(familyId, barnets_samling). child-worlds.js / barnnav gate. docs/barnets-samling-vision.md.',
+    },
+    dev_notes: [],
+    changelog: [],
+  },
+
   // ── Haptisk påminnelse — timer-larm (R5-T5) ─────────────────────────────────
   {
     slug: 'haptik_paminnelse',
