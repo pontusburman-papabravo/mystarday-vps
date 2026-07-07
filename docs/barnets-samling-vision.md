@@ -36,7 +36,7 @@ Inte: *"Vad ska jag göra nu?"*
 
 ### Grundprincip
 
-Barn gör riktiga saker. appen firar dem. Inget annat.
+Barn gör riktiga saker. Appen firar dem. Inget annat.
 
 - **Rutiner är spelet.**
 - **Samlingen är belöningen.**
@@ -288,7 +288,7 @@ Varje fas ska vara shippbar — inget halvfärdigt spel i produktion.
 ```
 Barn gör riktiga saker
         ↓
-appen firar dem
+Appen firar dem
         ↓
 Samlingen växer
         ↓
