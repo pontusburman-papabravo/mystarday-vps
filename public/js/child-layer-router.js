@@ -61,7 +61,13 @@
 
   function setHash(layerOrWorld) {
     if (useV2) {
-      const hashMap = { today: 'today', world: 'universe', family: 'family' };
+      const hashMap = {
+        today: 'today',
+        collection: 'collection',
+        treasure: 'universe',
+        world: 'universe',
+        family: 'family',
+      };
       const target = '#' + (hashMap[layerOrWorld] || 'today');
       if (window.location.hash !== target) {
         history.replaceState(null, '', target);
@@ -88,8 +94,14 @@
     const homeView = document.getElementById('homeView');
 
     const isToday = layerOrWorld === 'today' || layerOrWorld === 'home';
-    const isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe';
+    const isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe' || layerOrWorld === 'treasure';
+    const isCollection = layerOrWorld === 'collection';
     const isFamily = layerOrWorld === 'family';
+
+    const collectionView = document.getElementById('collectionView');
+    if (collectionView) {
+      collectionView.setAttribute('data-active', isCollection ? 'true' : 'false');
+    }
 
     if (isToday && todayFocus && window.ChildTodayFocus) {
       ChildTodayFocus.onTabChange('schedule');
@@ -159,6 +171,11 @@
       : null;
 
     if (pathWorld && window.location.pathname.indexOf('/child/') === 0) {
+      if (ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled()
+          && window.location.pathname.replace(/\/$/, '') === '/child/world') {
+        window.location.replace('/child/treasure' + (window.location.hash || ''));
+        return;
+      }
       navigateToLayer(pathWorld.id);
       return;
     }

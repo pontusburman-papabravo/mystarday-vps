@@ -51,9 +51,10 @@
     );
     const activeId = active ? active.id : 'today';
     const ctx = labelContext();
+    const worlds = ChildWorlds.getChildWorlds ? ChildWorlds.getChildWorlds() : ChildWorlds.CHILD_WORLDS;
 
     let html = '';
-    ChildWorlds.CHILD_WORLDS.forEach(function (world) {
+    worlds.forEach(function (world) {
       const isActive = world.id === activeId;
       html +=
         '<button type="button" class="' +
@@ -99,10 +100,11 @@
     );
     const activeId = active ? active.id : 'today';
     const ctx = labelContext();
+    const worlds = ChildWorlds.getChildWorlds ? ChildWorlds.getChildWorlds() : ChildWorlds.CHILD_WORLDS;
 
     let inner =
       '<div class="flex max-w-lg mx-auto" role="navigation" aria-label="Barnnavigering">';
-    ChildWorlds.CHILD_WORLDS.forEach(function (world) {
+    worlds.forEach(function (world) {
       const isActive = world.id === activeId;
       inner +=
         '<button type="button" class="' +
@@ -132,6 +134,11 @@
   }
 
   function navigateWorld(worldId) {
+    if (ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled()
+        && worldId === 'treasure' && window.location.pathname.replace(/\/$/, '') === '/child/world') {
+      window.location.href = '/child/treasure';
+      return;
+    }
     const tabKey = ChildWorlds.worldIdToTabKey(worldId);
     const world = ChildWorlds.worldById(worldId);
     if (world && world.href && window.location.pathname.indexOf('/child/') === 0) {
@@ -198,8 +205,16 @@
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ChildWorlds && ChildWorlds.isConfigured && ChildWorlds.isConfigured()) {
+        init();
+      } else {
+        document.addEventListener('child-worlds-configured', init, { once: true });
+      }
+    });
+  } else if (window.ChildWorlds && ChildWorlds.isConfigured && ChildWorlds.isConfigured()) {
     init();
+  } else {
+    document.addEventListener('child-worlds-configured', init, { once: true });
   }
 })();

@@ -65,4 +65,9 @@
   } else {
     init();
   }
+
+  document.addEventListener('child-worlds-configured', function () {
+    if (!window.ChildWorlds || !ChildWorlds.V2_ENABLED) return;
+    if (window.ChildWorldsNav) ChildWorldsNav.renderBottomNav();
+  });
 })();

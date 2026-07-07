@@ -126,6 +126,8 @@ function registerRoutes(app) {
   // Barnmeny v2 — must register before /child/:childId A/B router in static-routes
   app.get('/child/today', (req, res) => res.sendFile(childDashboardHtml));
   app.get('/child/world', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/collection', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/treasure', (req, res) => res.sendFile(childDashboardHtml));
   app.get('/child/family', (req, res) => res.sendFile(childDashboardHtml));
 
   // ─── PWA + child view routes ─────────────────────────────────
