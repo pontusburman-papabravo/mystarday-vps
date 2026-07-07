@@ -5,7 +5,10 @@
 **Datum:** 2026-07  
 **Ersätter som riktning:** "Min värld" som spel (Toca Boca / Animal Crossing-förväntan)
 
-**Relaterat:** [barnmeny-v2.md](barnmeny-v2.md) · [skattkammaren-vision.md](skattkammaren-vision.md) · [handoff/spelgranskning-resultat.md](handoff/spelgranskning-resultat.md)
+**Relaterat:** [npf-arkitektur-v1.md](npf-arkitektur-v1.md) · [barnmeny-v2.md](barnmeny-v2.md) · [skattkammaren-vision.md](skattkammaren-vision.md) · [handoff/spelgranskning-resultat.md](handoff/spelgranskning-resultat.md)
+
+> **Vy-för-vy NPF-detaljer** (fokusläge, timglas, två saldon, fem statusar, sensorik): se [npf-arkitektur-v1.md](npf-arkitektur-v1.md).  
+> Det här dokumentet = **navigationspivot** och samlingens känsla.
 
 ---
 
@@ -25,6 +28,12 @@ Det vi **redan har** fungerar bättre som något annat:
 **Ny mental modell:** ett personligt skattgömme — en levande samling av barnets framsteg. Inte en värld att utforska.
 
 Spelgranskningen (juli 2026) bekräftar: Idag 7/10, Skattkammaren 6/10, spelhub 3/10. Vi dubblar ner på det som fungerar.
+
+### Befintligt före nytt
+
+Där funktion redan finns i koden ska v1 i första hand förbättra **känsla, språk och placering** — inte bygga parallella system.
+
+Se [npf-arkitektur-v1.md § Befintligt före nytt](npf-arkitektur-v1.md#befintligt-före-nytt).
 
 ---
 
@@ -66,11 +75,11 @@ Barnet ska alltid kunna svara på: *"Var ser jag mina medaljer?"* → Min samlin
 
 ## 1. Idag
 
-**Mål:** Precis som idag — bli ännu bättre.
+**Mål:** Precis som idag — bli ännu bättre. Se [npf-arkitektur-v1.md § Idag](npf-arkitektur-v1.md#-idag) för fokusläge, timglas och neutral avvikelsehantering.
 
 | Behåll | Förbättra |
 |--------|-----------|
-| En primär handling (nästa aktivitet) | Tydligare "klar för dagen"-känsla |
+| En primär handling (nästa aktivitet) | Fokusläge: en uppgift i taget (förstklassigt, inte gömt) |
 | Kort firande vid bockning (≤2 s) | Lugn efter sista aktiviteten — ingen ny destination som krävs |
 | Stjärnor synliga i rutinen | Koppling till samlingen utan att tvinga barnet dit |
 
@@ -83,6 +92,8 @@ Barnet ska alltid kunna svara på: *"Var ser jag mina medaljer?"* → Min samlin
 ## 2. Min samling — hjärtat
 
 Inte en lista. **En plats** barnet vill öppna även en lugn kväll.
+
+**Gräns mot Skattkammaren:** Min samling får inte innehålla användbar valuta, köpknappar eller inlösen. Den får visa **totalt intjänade stjärnor** och historik som stolthet. Se [npf-arkitektur-v1.md § Två stjärnsaldon](npf-arkitektur-v1.md#två-stjärnsaldon).
 
 ### Troféväggen
 
@@ -103,7 +114,7 @@ Inte en siffra i hörnet. En **växande kedja**:
 
 🔥 → 🔥🔥🔥 → 🔥🔥🔥🔥🔥🔥🔥
 
-Vid **30 dagar** blir kedjan guldig. Ingen skuldkänsla vid brutet — kedjan börjar om, utan straff.
+Vid **30 dagar** blir kedjan guldig. Ingen skuldkänsla vid brutet — föräldern kan välja pausdag/sjukdag/räddning i inställningar (se NPF-spec).
 
 ### Diplom (milstolpar i tid)
 
@@ -119,9 +130,12 @@ Varje diplom är ett fysiskt objekt på väggen — inte en badge i en lista.
 
 Små saker dyker upp **automatiskt** när barnet når prestationer. Exempel: 📚 bok · 🪴 växt · 🧸 nalle · 🪁 drake · 🎈 ballong · 🎂 tårta.
 
-- Inte köp
-- Inte valuta
-- Inte val hos barnet (C-01)
+- Inte köp · inte val hos barnet (C-01)
+- Inte användbar valuta — det bor i Skattkammaren
+
+### Minneskort
+
+Genomförda belöningar (status **Genomförd**, inte bara Godkänd) blir minneskort här. Se [npf-arkitektur-v1.md § Minneskort](npf-arkitektur-v1.md#minneskort).
 
 ### Årsboken
 
@@ -136,17 +150,18 @@ Barnet bläddrar — inte scrollar en feed.
 
 ### Stjärnglaset
 
-Alla livstidsstjärnor samlas i en stor glasburk. Den fylls **långsamt**. Barn älskar att fylla saker — det här är den lugna, passiva belöningen som alltid rör sig lite.
+**Totalt intjänade stjärnor** — minskar aldrig. Glasburken fylls långsamt. Det här är stolthet, inte saldo att handla med.
 
 ---
 
 ## 3. Skattkammaren
 
-Belöningar — men vackrare. [skattkammaren-vision.md](skattkammaren-vision.md) gäller fortfarande för innehåll och tillstånd.
+Belöningar — men vackrare. [skattkammaren-vision.md](skattkammaren-vision.md) gäller fortfarande. **Fem belöningsstatusar** (Sparar → Kan lösas in → Väntar på vuxen → Godkänd → Genomförd): se [npf-arkitektur-v1.md](npf-arkitektur-v1.md#fem-belöningsstatusar).
 
 | Skattkammaren är | Skattkammaren är inte |
 |------------------|----------------------|
 | Stjärnburken + mål + belöningslista | Spelhub eller världskarta |
+| **Stjärnor att använda** (saldo) | Livstidsstjärnor (de bor i Min samling) |
 | Hyllor, kistor, lådor | Meny med rum att teleportera till |
 | En primär handling (lösa in / välj mål) | Morgonhus, trädgård, avatar-byte |
 
@@ -192,10 +207,13 @@ Barnet samlar — inte bygger en värld:
 | Regel | Värde |
 |-------|-------|
 | Animation | Högst 2 sekunder — sedan lugn |
-| Ljud | Mjukt, varmt. Inga kasinoljud |
+| Ljud av | Full funktion utan ljud |
+| Lugnt läge | *Inte samma som mute* — reducerad rörelse, mildare effekter (på sikt i barnprofil) |
 | Rörelse | `prefers-reduced-motion` — alltid |
 | Estetik | Apple × Moleskine × IKEA × Astrid Lindgren |
-| **Inte** | Roblox · Fortnite · Disney-prinsessor |
+| **Inte** | Roblox · Fortnite · Disney-prinsessor · kasinoljud |
+
+Detaljer: [npf-arkitektur-v1.md § Sensorisk design](npf-arkitektur-v1.md#sensorisk-design).
 
 ---
 
@@ -226,8 +244,8 @@ Kod för spelvärld kan finnas kvar bakom flagga tills den städas — men **int
 ## Icke-mål
 
 - Konkurrera med Toca Boca / Animal Crossing
-- Ny valuta eller köp i samlingen (R-02)
-- Barnformulär eller inställningar (C-01)
+- Köp eller användbar valuta i **Min samling** (R-02) — saldo och inlösning hör till Skattkammaren
+- Barnformulär eller inställningar (C-01) — förälder styr i sina inställningar
 - Syskonleaderboard
 - Login-bonus eller daglig belöning för att öppna appen (G-01)
 - Fjerde coach eller ny "vad ska jag göra nu"-yta
@@ -277,7 +295,7 @@ Varje fas ska vara shippbar — inget halvfärdigt spel i produktion.
 1. **Magic vs klassisk vy** — samma fyra flikar i båda?
 2. **Befintliga rum-assets** — arkivera eller återbruka i samlingens estetik?
 3. **Årsbok** — månadsuppslag automatiskt från befintlig statistik, eller redaktionellt?
-4. **Skattkammaren vs samling** — exakt gräns: livstidsstjärnor i glaset, målstjärnor i Skattkammaren?
+4. ~~Skattkammaren vs samling~~ → **Beslutat:** två saldon — se [npf-arkitektur-v1.md](npf-arkitektur-v1.md#två-stjärnsaldon)
 
 *Beslut innan Fas B/C — inte blockera Fas A.*
 
