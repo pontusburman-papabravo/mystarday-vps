@@ -14,12 +14,13 @@ describe('ACT-1 growth completion', () => {
     assert.match(src, /child_profile_created/);
   });
 
-  it('child handoff 24h reminder scheduler is wired', () => {
+  it('child handoff reminder scheduler is wired', () => {
     const server = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
     assert.match(server, /startChildHandoffReminderScheduler/);
     const sched = fs.readFileSync(path.join(ROOT, 'src/lib/child-handoff-reminder-scheduler.js'), 'utf8');
-    assert.match(sched, /child_handoff_skipped/);
+    assert.match(sched, /schema_saved_at IS NOT NULL/);
     assert.match(sched, /child_handoff_reminder_sent/);
+    assert.doesNotMatch(sched, /analytics_events/);
   });
 
   it('admin funnel includes child access diagnostics and weekly report', () => {

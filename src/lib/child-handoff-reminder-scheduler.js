@@ -1,47 +1,73 @@
 'use strict';
 
 /**
- * ACT-1 D2 — email 24h after child_handoff_skipped if child access not completed.
+ * ACT-1 D2 — email reminder when schema is saved but child access not verified.
+ * Segment: schema_saved_at (2–48h window); state-based, not skip events.
  * Flag: activation_child_handoff_v1 (per-family cohort via activation-flags).
  */
 
 const db = require('./db');
+const config = require('./config');
 const { sendChildHandoffReminderEmail } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
+const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const { CHILD_HANDOFF_REMINDER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
+const HANDOFF_REMINDER_CANDIDATE_SQL = `
+  SELECT s.family_id, p.email, p.name AS parent_name
+  FROM family_activation_state s
+  JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+  LEFT JOIN notification_preference np ON np.parent_id = p.id
+  WHERE s.schema_saved_at IS NOT NULL
+    AND s.child_access_completed_at IS NULL
+    AND s.first_completion_at IS NULL
+    AND s.p0_activated_at IS NULL
+    AND s.child_handoff_reminder_sent_at IS NULL
+    AND s.schema_saved_at <= NOW() - INTERVAL '2 hours'
+    AND s.schema_saved_at >= NOW() - INTERVAL '48 hours'
+    AND p.email IS NOT NULL
+    AND COALESCE(np.email_enabled, true) = true
+  ORDER BY s.schema_saved_at ASC
+  LIMIT 50`;
+
 let _timer = null;
+
+function resolveHandoffReminderCtaUrl() {
+  const base = String(process.env.APP_URL || config.email?.baseUrl || '').replace(/\/$/, '');
+  if (!base) return '/onboarding';
+  return `${base}/onboarding`;
+}
+
+async function fetchHandoffReminderCandidates(client = db) {
+  return client.query(HANDOFF_REMINDER_CANDIDATE_SQL);
+}
 
 async function runChildHandoffReminderJob() {
   if (process.env.EMAIL_ENABLED === 'false') return;
 
   const outcome = await withAdvisoryLock(CHILD_HANDOFF_REMINDER_LOCK_ID, async () => {
-    const candidates = await db.query(
-      `SELECT DISTINCT ON (s.family_id)
-              s.family_id,
-              p.email,
-              p.name AS parent_name
-       FROM family_activation_state s
-       JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
-       JOIN analytics_events ae ON ae.family_id = s.family_id
-         AND ae.event_type = 'child_handoff_skipped'
-       WHERE s.child_access_completed_at IS NULL
-         AND s.child_handoff_reminder_sent_at IS NULL
-         AND ae.created_at <= NOW() - INTERVAL '23 hours'
-         AND ae.created_at >= NOW() - INTERVAL '26 hours'
-         AND p.email IS NOT NULL
-         AND COALESCE(p.newsletter_subscribed, true) = true
-       ORDER BY s.family_id, ae.created_at DESC
-       LIMIT 50`
-    );
+    const candidates = await fetchHandoffReminderCandidates();
+    console.log('[CHILD-HANDOFF-REMINDER] Candidates:', candidates.rows.length);
 
     for (const row of candidates.rows) {
       try {
         const flagOk = await isActivationFlagEnabled(FLAG_KEYS.childHandoff, row.family_id);
-        if (!flagOk) continue;
+        if (!flagOk) {
+          console.log(`[CHILD-HANDOFF-REMINDER] Skipped family ${row.family_id} — flag_off`);
+          continue;
+        }
+
+        const gate = await evaluateCommunicationGate(row.family_id, {
+          channel: 'email',
+          intent: 'legacy_child_handoff_reminder',
+        });
+        if (!gate.allowed) {
+          console.log(`[CHILD-HANDOFF-REMINDER] Skipped family ${row.family_id} — Gate: ${gate.reason}`);
+          continue;
+        }
 
         const claimed = await db.query(
           `UPDATE family_activation_state
@@ -50,12 +76,15 @@ async function runChildHandoffReminderJob() {
            RETURNING family_id`,
           [row.family_id]
         );
-        if (claimed.rows.length === 0) continue;
+        if (claimed.rows.length === 0) {
+          console.log(`[CHILD-HANDOFF-REMINDER] Skipped family ${row.family_id} — already_claimed`);
+          continue;
+        }
 
         await sendChildHandoffReminderEmail({
           to: row.email,
           parentName: row.parent_name,
-          ctaUrl: 'https://mystarday.se/onboarding',
+          ctaUrl: resolveHandoffReminderCtaUrl(),
         });
 
         require('../../db/analytics').track(row.family_id, 'child_handoff_reminder_sent', {
@@ -98,4 +127,7 @@ module.exports = {
   startChildHandoffReminderScheduler,
   stopChildHandoffReminderScheduler,
   runChildHandoffReminderJob,
+  fetchHandoffReminderCandidates,
+  resolveHandoffReminderCtaUrl,
+  HANDOFF_REMINDER_CANDIDATE_SQL,
 };
