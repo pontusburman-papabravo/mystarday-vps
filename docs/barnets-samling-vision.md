@@ -276,15 +276,17 @@ P-02 barnet är protagonist · C-03 en primär handling på Idag · C-04 firande
 
 ## Leverans i faser (översikt)
 
-Spec först. Sedan i små steg:
+Spec först. Sedan i små steg.
+
+**Viktigt:** Skattkammaren som egen flik hör till Fas A — så teamet inte bygger Min samling ovanpå gammal hub-/Min värld-struktur.
 
 | Fas | Vad | Resultat för barnet |
 |-----|-----|---------------------|
-| **A** | Namn + nav: fyra flikar, "Min samling" | Hittar rätt utan att leta |
+| **A** | Nav + namn + **Skattkammaren som egen flik** (hub bort) | Fyra flikar; barnet förstår: Idag = tjäna · Skattkammaren = spara/inlösa · Min samling = stolthet |
 | **B** | Min samling v1: vägg + glas + streak | "Titta vad jag samlat" |
-| **C** | Skattkammaren som egen flik, hub bort | Belöningar utan spelnav |
-| **D** | Hylla + diplom + årsbok | Samlingen känns levande |
-| **E** | Skattkammaren visuell polish (hyllor/kistor) | Skattkammaren 10/10 |
+| **C** | Skattkammaren v1: aktivt mål + fem statusar + historik | Tydligt sparande utan shop-känsla |
+| **D** | Minneskort + hylla + diplom | Belöningar blir minnen, inte bara transaktioner |
+| **E** | Årsbok + visuell polish (hyllor/kistor) | Samlingen och Skattkammaren känns färdiga |
 
 Varje fas ska vara shippbar — inget halvfärdigt spel i produktion.
 
