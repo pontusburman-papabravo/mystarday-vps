@@ -8,11 +8,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('barnmeny v2 — Sprint 0 config', () => {
-  it('child-worlds.js defines three worlds and activeChildNavItem', () => {
+  it('child-worlds.js defines legacy and gated samling nav', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     assert.match(src, /id: 'today'/);
-    assert.match(src, /id: 'world'/);
-    assert.match(src, /id: 'family'/);
+    assert.match(src, /LEGACY_WORLDS/);
+    assert.match(src, /SAMLING_WORLDS/);
     assert.match(src, /activeChildNavItem/);
     assert.match(src, /Mina personer/);
     assert.doesNotMatch(src, /id: 'more'/);

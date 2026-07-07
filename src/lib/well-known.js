@@ -43,6 +43,8 @@ function buildAppleAppSiteAssociation() {
           '/child-dashboard*',
           '/child/today*',
           '/child/world*',
+          '/child/collection*',
+          '/child/treasure*',
           '/child/family*',
         ],
       }],

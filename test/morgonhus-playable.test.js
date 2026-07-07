@@ -442,7 +442,8 @@ describe('ChildMorgonhus client module', () => {
       'utf8'
     );
     assert.match(dashSrc, /isUniverse && window\.ChildMorgonhus && !window\.ChildMorgonhus\.isActive\(\)/);
-    assert.match(dashSrc, /loadRewards\(\{ force: true \}\)/);
+    assert.match(dashSrc, /loadRewards\(\{ force: true, skipHub: skipHub \}\)/);
+    assert.match(dashSrc, /isBarnetsSamlingEnabled/);
   });
 
   it('loadRewards mounts Morgonhus first with hub fallback', () => {

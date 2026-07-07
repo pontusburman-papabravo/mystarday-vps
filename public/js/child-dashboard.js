@@ -180,6 +180,7 @@ function showTab(tab) {
   const hv = document.getElementById('homeView');
   const sv = document.getElementById('scheduleView');
   const rv = document.getElementById('rewardsView');
+  const cv = document.getElementById('collectionView');
   const fv = document.getElementById('familyView');
   const mv = document.getElementById('moreView');
   const weekNav = document.getElementById('weekNavDetails');
@@ -188,12 +189,14 @@ function showTab(tab) {
   const isHome = tab === 'home';
   const isToday = tab === 'schedule';
   const isUniverse = tab === 'rewards';
+  const isCollection = tab === 'collection';
   const isFamily = tab === 'family';
   const isMore = tab === 'more';
 
   if (hv) hv.classList.toggle('hidden', !isHome);
   if (sv) sv.classList.toggle('hidden', !isToday);
   if (rv) rv.classList.toggle('hidden', !isUniverse);
+  if (cv) cv.classList.toggle('hidden', !isCollection);
   if (fv) fv.classList.toggle('hidden', !isFamily);
   if (mv) mv.classList.toggle('hidden', !isMore);
 
@@ -225,10 +228,13 @@ function showTab(tab) {
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
       window.ChildMorgonhus.clearPreferSkatt();
     }
-    loadRewards({ force: true });
+    const skipHub = !!(window.ChildWorlds && ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled());
+    loadRewards({ force: true, skipHub: skipHub });
   } else if ((isHome || isUniverse) && !window.rewardsLoaded) {
-    loadRewards();
+    const skipHub = !!(window.ChildWorlds && ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled());
+    loadRewards({ skipHub: skipHub });
   }
+  if (isCollection && window.ChildSamlingView) ChildSamlingView.refresh();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
 
   if (window.ChildWorldsNav) {
@@ -518,16 +524,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     // Feature gate: hide mood rating if emotion_tracking is not available
+    let featureSlugs = [];
     try {
-      const featRes = await fetch('/api/features', { credentials: 'include' });
-      if (featRes.ok) {
-        const feats = await featRes.json();
-        const slugs = feats.map(f => f.slug);
-        if (!slugs.includes('emotion_tracking')) {
-          showMoodRating = false;
-        }
-        transitionSupportEnabled = slugs.includes('transition_support');
+      const feats = window.fetchStjarndagFeatures
+        ? await window.fetchStjarndagFeatures()
+        : await fetch('/api/features', { credentials: 'include' }).then(function (r) {
+          return r.ok ? r.json() : [];
+        });
+      featureSlugs = (feats || []).map(function (f) { return f.slug; });
+      if (window.ChildWorlds && ChildWorlds.configureFromFeatures) {
+        ChildWorlds.configureFromFeatures(feats || []);
       }
+      if (!featureSlugs.includes('emotion_tracking')) {
+        showMoodRating = false;
+      }
+      transitionSupportEnabled = featureSlugs.includes('transition_support');
     } catch { /* fail open for transition; mood stays gated below */ }
 
     me = await Auth.api('/api/auth/me');
@@ -556,15 +567,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     let minimalUiActive = false;
     try {
       const [featRes, viewCfgRes] = await Promise.all([
-        fetch('/api/features', { credentials: 'include' }),
+        window.fetchStjarndagFeatures
+          ? window.fetchStjarndagFeatures()
+          : fetch('/api/features', { credentials: 'include' }).then(function (r) {
+            return r.ok ? r.json() : [];
+          }),
         Auth.api(`/api/children/${me.id}/view-config`).catch(() => null),
       ]);
-      if (featRes.ok) {
-        const feats = await featRes.json();
-        const slugs = feats.map(f => f.slug);
-        if (slugs.includes('minimal_ui') && viewCfgRes && viewCfgRes.minimal_ui) {
-          minimalUiActive = true;
-        }
+      const slugs = (featRes || []).map(function (f) { return f.slug; });
+      if (slugs.includes('minimal_ui') && viewCfgRes && viewCfgRes.minimal_ui) {
+        minimalUiActive = true;
       }
     } catch { /* fail open */ }
     if (minimalUiActive) {
