@@ -213,13 +213,13 @@ ROADMAP_NUMBER="$(
 ROADMAP_CONTENT="$(roadmap_body)"
 
 if [[ -z "${ROADMAP_NUMBER}" ]]; then
-  ROADMAP_NUMBER="$(
+  roadmap_url="$(
     gh issue create --repo "${REPO}" \
       --title "${ROADMAP_TITLE}" \
       --body "${ROADMAP_CONTENT}" \
-      --label "barnets-samling,documentation" \
-      --json number -q .number
+      --label "barnets-samling,documentation"
   )"
+  ROADMAP_NUMBER="${roadmap_url##*/}"
   echo "    created #${ROADMAP_NUMBER}"
 else
   gh issue edit "${ROADMAP_NUMBER}" --repo "${REPO}" \
