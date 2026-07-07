@@ -1,0 +1,77 @@
+---
+description: Shipping philosophy — child-facing PRs must make the world more alive today. Hero flow before new systems.
+alwaysApply: true
+---
+
+# 045 — Shipping Philosophy
+
+**Not POS.** This rule governs *when* child-facing work ships — not product truth (see `010-product.mdc`).
+
+## Purpose
+
+Build a world children love exploring.
+
+Not a world with the most features.
+
+## Before merging any child-facing PR
+
+The PR must improve at least one of:
+
+- discoverability
+- delight
+- emotional warmth
+- direct manipulation
+- clarity
+
+If not, reconsider whether it belongs in the current milestone.
+
+**Litmus question:** Does this change make the game more alive for a child *today*? If no, it probably does not belong in the current milestone — even if the code is excellent.
+
+## Gameplay Gate
+
+Every child-facing PR should answer:
+
+- Has this been tested on a real phone/tablet?
+- Does it remove UI instead of adding UI?
+- Does the child interact with the world instead of menus?
+- Is the world easier to understand afterwards?
+
+For changes that affect the child's experience, use testing on a real device and — when possible — observation of the target audience before larger follow-on work.
+
+Technical tests passing is **necessary**. It is **not sufficient**.
+
+## Don't build ahead
+
+Do not create new rooms, new systems, or new gameplay until the existing hero flow feels great.
+
+**Hero flow:**
+
+```
+Idag → Morgonhuset → Trädgården → Skattkammaren
+```
+
+No more world PRs merge until this flow is verified on a real device (layout, hotspots, navigation).
+
+## Observation beats speculation
+
+If there is uncertainty: observe a child.
+
+Do not invent another architecture.
+
+## Small PRs
+
+Prefer: five PRs that each improve one feeling.
+
+Avoid: one PR that changes everything.
+
+## Reuse
+
+If a runtime already exists: extend it.
+
+Do not build a second one.
+
+## Definition of Done
+
+Done means: a child smiles sooner.
+
+Not: more code exists.

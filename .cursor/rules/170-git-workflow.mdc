@@ -25,6 +25,7 @@ fix(child): skip celebration when reduced-motion (MO-03, 03B)
 
 ## Pull request checklist
 
+- [ ] Child-facing? Shipping philosophy (045) — litmus + Gameplay Gate
 - [ ] POS sections cited
 - [ ] test:gate green (130)
 - [ ] Self-review (180) completed
