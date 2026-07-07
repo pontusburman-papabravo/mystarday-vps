@@ -61,6 +61,13 @@ Fas B–E epics (#584–#587) väntar på Fas A.
 
 ## Setup
 
+### Alternativ A — GitHub Actions (rekommenderat)
+
+1. Gå till **Actions → Setup Barnets samling GitHub → Run workflow**
+2. Om `GITHUB_TOKEN` saknar project-scope: lägg till repo secret `BARNETS_SAMLING_SETUP_TOKEN` (PAT med `project` + `repo`)
+
+### Alternativ B — lokalt
+
 ```bash
 ./scripts/setup-barnets-samling-github.sh
 ```
@@ -71,9 +78,13 @@ Skriptet:
 
 1. Skapar milestone `Barnets samling v1` och tilldelar alla issues + PR #583
 2. Skapar project `Barnets samling` och länkar repot
-3. Lägger till items i ordning ovan
-4. Sätter **#583 blockerar** Fas A-tickets (GraphQL `addBlockedBy`, med UI-fallback)
-5. Skriver ut milestone- och project-URL
+3. Lägger till items i ordning ovan + sorterar via GraphQL
+4. Sätter status: **#583 → Ready**, övriga → **Backlog**
+5. Sätter **#583 blockerar** Fas A-tickets (GraphQL `addBlockedBy`, med UI-fallback)
+6. Skriver ut milestone- och project-URL
+
+Om Status-fältet saknar Backlog/Ready: justera kolumner manuellt till  
+`Backlog` · `Ready` · `In progress` · `Review` · `Done`
 
 Efter #583 merge: flytta PR till **Done**, sätt #594 till **Ready**.
 
