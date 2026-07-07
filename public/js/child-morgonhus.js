@@ -366,6 +366,8 @@
   }
 
   function mountSceneIntoView(view, state) {
+    document.body.classList.add('child-morgonhus-active');
+    document.body.classList.remove('child-garden-active', 'child-catalog-room-active');
     view.innerHTML = renderScene(state);
     applyUnlockedState(view, state);
     bindInteractions(view, state, {
@@ -374,8 +376,6 @@
     bindAssetWatch(view);
     finishEnterAnimation(view);
     hideLoader();
-    document.body.classList.add('child-morgonhus-active');
-    document.body.classList.remove('child-garden-active', 'child-catalog-room-active');
     if (window.ChildWorldWayfinder && typeof window.ChildWorldWayfinder.setActivePlace === 'function') {
       window.ChildWorldWayfinder.setActivePlace(document, 'morgonhus');
     }

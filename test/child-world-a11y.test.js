@@ -110,6 +110,24 @@ describe('child world accessibility — Min värld (BL-028)', () => {
     assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
   });
 
+  it('morgonhus scene picture fills canvas on Safari (absolute inset + shell chrome budget)', () => {
+    const css = read('public/css/child-morgonhus.css');
+    assert.match(css, /\.morg-scene-picture[\s\S]*position:\s*absolute/);
+    assert.match(css, /\.morg-scene-picture[\s\S]*inset:\s*0/);
+    assert.match(css, /\.morg-scene-bg[\s\S]*object-fit:\s*cover/);
+    assert.match(css, /body\.child-morgonhus-active\.child-has-bottom-nav \.cww-shell[\s\S]*2\.75rem/);
+  });
+
+  it('morgonhus applies immersive class before scene HTML mount', () => {
+    const src = read('public/js/child-morgonhus.js');
+    const fn = src.slice(src.indexOf('function mountSceneIntoView'));
+    const body = fn.slice(0, fn.indexOf('function tryRemountCached'));
+    assert.match(body, /classList\.add\('child-morgonhus-active'\)/);
+    const addIdx = body.indexOf("classList.add('child-morgonhus-active')");
+    const htmlIdx = body.indexOf('innerHTML = renderScene');
+    assert.ok(addIdx >= 0 && htmlIdx > addIdx, 'child-morgonhus-active must be set before innerHTML');
+  });
+
   it('morgonhus scene has wayfinder actions and status region', () => {
     const ChildMorgonhus = loadChildMorgonhus();
     const html = ChildMorgonhus.renderScene({
