@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v539';
+const CACHE_NAME = 'stjarndag-v540';
+// stjarndag-v540: Fas B #615 — Min samling shell (child-samling-present)
 // stjarndag-v539: admin activation metrics — schema_saved_at only + handoff diagnostics
 // stjarndag-v538: onboarding activity guide — parent picks completion style defaults
 // stjarndag-v537: Barnets samling #593 — göm/avlänka gammal värld bakom gate ON
@@ -455,7 +456,9 @@ const STATIC_ASSETS = [
   '/js/child-worlds.js',
   '/js/child-worlds-nav.js',
   '/js/child-layer-router.js',
+  '/js/child-samling-present.js',
   '/js/child-samling-view.js',
+  '/css/child-samling.css',
   '/js/child-world-bg-lazy.js',
   '/js/child-world-wayfinder.js',
   '/css/child-world-wayfinder.css',
