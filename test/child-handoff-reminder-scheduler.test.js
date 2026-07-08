@@ -89,12 +89,12 @@ describe('child handoff reminder scheduler (PR 2)', () => {
     assert.doesNotMatch(src, /newsletter_subscribed/);
   });
 
-  it('CTA points to onboarding', () => {
+  it('CTA points to onboarding handoff resume', () => {
     const { resolveHandoffReminderCtaUrl } = require('../src/lib/child-handoff-reminder-scheduler');
     const prev = process.env.APP_URL;
     process.env.APP_URL = 'https://example.test';
     try {
-      assert.equal(resolveHandoffReminderCtaUrl(), 'https://example.test/onboarding');
+      assert.equal(resolveHandoffReminderCtaUrl(), 'https://example.test/onboarding?resume=child-handoff');
     } finally {
       if (prev === undefined) delete process.env.APP_URL;
       else process.env.APP_URL = prev;

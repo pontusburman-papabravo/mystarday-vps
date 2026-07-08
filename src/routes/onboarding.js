@@ -891,6 +891,44 @@ router.post('/update-pin', async (req, res) => {
   }
 });
 
+// ─── GET /api/onboarding/handoff-context ─────────────────
+// Read-only resume context for ?resume=child-handoff (PR 3). No PIN — hashed server-side.
+router.get('/handoff-context', async (req, res) => {
+  try {
+    const activationDb = require('../../db/family-activation-state');
+    const state = await activationDb.getByFamilyId(req.user.familyId);
+    const childRow = await db.query(
+      `SELECT id, name, username FROM child WHERE family_id = $1 ORDER BY created_at ASC LIMIT 1`,
+      [req.user.familyId]
+    );
+    const child = childRow.rows[0] || null;
+
+    if (!state?.schema_saved_at) {
+      return res.json({ can_resume_handoff: false, reason: 'no_schema' });
+    }
+    if (state.child_access_completed_at) {
+      return res.json({ can_resume_handoff: false, reason: 'child_access_done' });
+    }
+    if (state.first_completion_at || state.p0_activated_at) {
+      return res.json({ can_resume_handoff: false, reason: 'completion_or_p0_done' });
+    }
+    if (!child?.id) {
+      return res.json({ can_resume_handoff: false, reason: 'no_child' });
+    }
+
+    return res.json({
+      can_resume_handoff: true,
+      reason: 'schema_saved_no_child_access',
+      child_id: child.id,
+      child_name: child.name,
+      child_username: child.username,
+    });
+  } catch (err) {
+    console.error('[ONBOARDING] handoff-context error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta handoff-kontext' });
+  }
+});
+
 // ─── POST /api/onboarding/child-access-complete ──────────
 // Deprecated: parent handoff clicks are not verified child access.
 // child_access_completed_at is written only by verified child login (POST /api/auth/child-login).

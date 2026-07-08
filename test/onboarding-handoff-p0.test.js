@@ -74,4 +74,11 @@ describe('Onboarding handoff P0', () => {
     const fIdx = html.indexOf('onboarding-first-star.js');
     assert.ok(aIdx >= 0 && fIdx > aIdx);
   });
+
+  it('onboarding.html loads handoff-resume before onboarding.js', () => {
+    const html = read('public/onboarding.html');
+    const resumeIdx = html.indexOf('onboarding-handoff-resume.js');
+    const onboardingIdx = html.indexOf('/js/onboarding.js');
+    assert.ok(resumeIdx >= 0 && onboardingIdx > resumeIdx);
+  });
 });
