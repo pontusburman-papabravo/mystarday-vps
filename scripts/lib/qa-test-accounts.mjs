@@ -69,15 +69,6 @@ function isLocalBase(base) {
   }
 }
 
-function isProdBase(base) {
-  if (!base) return false;
-  try {
-    return new URL(base).hostname === REVIEW_DOMAIN;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Resolve smoke credentials from env with tier-appropriate defaults.
  * Prod base URL → no defaults (caller must set SMOKE_* or use PROD_REVIEW explicitly).
