@@ -66,6 +66,16 @@ describe('barnets_samling nav — #588', () => {
     assert.doesNotMatch(src, /star_cost/);
   });
 
+  it('child-samling-present B2 uses lifetime_stars not spendable saldo (#616)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
+    assert.match(src, /lifetime_stars/);
+    assert.match(src, /Totalt har du tjänat/);
+    assert.match(src, /De här stjärnorna visar allt du har klarat/);
+    assert.match(src, /STAR_MEDALS/);
+    assert.doesNotMatch(src, /starBalance/);
+    assert.doesNotMatch(src, /rewards/);
+  });
+
   it('child-dashboard.html includes Min samling present assets', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /id="collectionView"/);
