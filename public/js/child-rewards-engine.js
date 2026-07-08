@@ -70,6 +70,10 @@
   }
 
   function isWorldSceneActive() {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled
+        && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     if (window.LivingWorldTransition
         && typeof window.LivingWorldTransition.isActive === 'function'
         && window.LivingWorldTransition.isActive()) {

@@ -355,9 +355,16 @@
     if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
       window.ChildGarden.deactivate();
     }
+    const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+      && ChildWorlds.shouldSkipHubForRewards());
+    if (skipHub) {
+      if (window.ChildWorlds.prepareTreasureEntry) ChildWorlds.prepareTreasureEntry();
+      if (window.ChildWorlds.syncChildRoute) ChildWorlds.syncChildRoute('treasure');
+      if (typeof window.showTab === 'function') window.showTab('rewards');
+    }
     if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
-      window.loadRewards();
+      window.loadRewards({ force: true, skipHub: skipHub });
     }
   }
 
