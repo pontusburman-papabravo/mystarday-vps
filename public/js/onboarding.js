@@ -350,7 +350,7 @@ function populateStep5LoginInfo() {
   if (s5Pin && childPin) s5Pin.textContent = childPin;
 }
 
-/** After child + schema: default dagsvy, skip steps 2–4, go straight to handoff. */
+/** After child + schema: default dagsvy, activity guide, then handoff. */
 async function finalizeSchemaAndGoHandoff() {
   populateStep5LoginInfo();
   if (childId) {
@@ -362,7 +362,11 @@ async function finalizeSchemaAndGoHandoff() {
   if (window.OnboardingActivation && typeof OnboardingActivation.notifyPinSet === 'function') {
     OnboardingActivation.notifyPinSet('onboarding_auto');
   }
-  goToStep(5);
+  if (window.OnboardingActivityGuide && typeof OnboardingActivityGuide.goToActivityGuideStep === 'function') {
+    OnboardingActivityGuide.goToActivityGuideStep();
+  } else {
+    goToStep(5);
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────

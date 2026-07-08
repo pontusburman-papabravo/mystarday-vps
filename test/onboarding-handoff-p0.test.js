@@ -16,7 +16,7 @@ describe('Onboarding handoff P0', () => {
     const src = read('public/js/onboarding.js');
     assert.match(src, /finalizeSchemaAndGoHandoff/);
     assert.match(src, /view_type: 'timeline'/);
-    assert.match(src, /goToStep\(5\)/);
+    assert.match(src, /OnboardingActivityGuide\.goToActivityGuideStep/);
     assert.doesNotMatch(src, /hideWeekendModal\(\);\s*goToStep\(2\)/);
   });
 

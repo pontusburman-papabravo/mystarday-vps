@@ -364,6 +364,42 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
+         STEG 1b — Hur ska barnet bocka av?
+    ══════════════════════════════════════════════════════════ -->
+    <div class="step-card" id="stepActivityGuide">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-3">✅</div>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2">
+          Hur vill du att appen hjälper <span id="activityGuideChildName" class="text-gold">barnet</span> med dagens aktiviteter?
+        </h1>
+        <p class="text-text-soft text-sm">Du kan ändra detta när som helst i barnets inställningar.</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 mb-5">
+        <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="free_order" onclick="selectActivityGuide('free_order')">
+          <div class="font-heading font-bold text-navy text-base mb-1">Fri ordning</div>
+          <p class="text-text-soft text-sm">Barnet kan bocka av i valfri ordning.</p>
+        </button>
+
+        <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="one_at_a_time" onclick="selectActivityGuide('one_at_a_time')">
+          <div class="font-heading font-bold text-navy text-base mb-1">En sak i taget</div>
+          <p class="text-text-soft text-sm">Appen hjälper barnet att fokusera på nästa steg.</p>
+        </button>
+
+        <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="time_and_order" onclick="selectActivityGuide('time_and_order')">
+          <div class="font-heading font-bold text-navy text-base mb-1">Tydlig tid och ordning</div>
+          <p class="text-text-soft text-sm">Appen hjälper med både nästa steg och timglas där du sätter tid per aktivitet.</p>
+        </button>
+      </div>
+
+      <div id="stepActivityGuideError" class="hidden error-box mb-4"></div>
+
+      <button type="button" id="stepActivityGuideBtn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
+        Fortsätt →
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
          STEG 2 — Välj barnets vy (NY!)
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step2">
@@ -826,6 +862,7 @@
   <script src="/js/journey-context-client.js?v=1.0.0"></script>
   <script src="/js/activation-program-enroll-choice.js?v=1.0.0"></script>
   <script src="/js/onboarding-handoff-resume.js?v=1.0.0"></script>
+  <script src="/js/onboarding-activity-guide.js?v=1.0.0"></script>
   <script src="/js/onboarding.js?v=2.19.0"></script>
   <script src="/js/onboarding-starter-plan.js?v=1.4.0"></script>
   <script src="/js/onboarding-activation.js?v=1.4.0"></script>

@@ -21,6 +21,7 @@ const {
   OnboardingChildSchema,
   OnboardingScheduleSchema,
   OnboardingRewardSchema,
+  OnboardingActivityGuideSchema,
 } = require('../lib/schemas');
 const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
@@ -836,6 +837,60 @@ router.post('/child-view', async (req, res) => {
   } catch (err) {
     console.error('[ONBOARDING] child-view error:', err);
     res.status(500).json({ error: 'Kunde inte spara vy-val.' });
+  }
+});
+
+const ACTIVITY_GUIDE_PRESETS = {
+  free_order: {
+    require_sequential_completion: false,
+    show_now_next: false,
+    activity_timers_enabled: false,
+  },
+  one_at_a_time: {
+    require_sequential_completion: true,
+    show_now_next: true,
+    activity_timers_enabled: false,
+  },
+  time_and_order: {
+    require_sequential_completion: true,
+    show_now_next: true,
+    activity_timers_enabled: true,
+  },
+};
+
+// ─── POST /api/onboarding/child-activity-guide ───────────
+// Parent picks how the child completes daily activities (onboarding defaults).
+router.post('/child-activity-guide', validate(OnboardingActivityGuideSchema), async (req, res) => {
+  try {
+    const { child_id, mode } = req.body;
+    const preset = ACTIVITY_GUIDE_PRESETS[mode];
+    if (!preset) {
+      return res.status(400).json({ error: 'Ogiltigt val.' });
+    }
+
+    const check = await authz.getChildAccess(req.user.id, child_id);
+    if (!check) {
+      return res.status(403).json({ error: 'Inte tillåtet' });
+    }
+
+    await db.query(
+      `UPDATE child SET
+         require_sequential_completion = $1,
+         show_now_next = $2,
+         activity_timers_enabled = $3
+       WHERE id = $4`,
+      [
+        preset.require_sequential_completion,
+        preset.show_now_next,
+        preset.activity_timers_enabled,
+        child_id,
+      ]
+    );
+
+    res.json({ success: true, mode });
+  } catch (err) {
+    console.error('[ONBOARDING] child-activity-guide error:', err);
+    res.status(500).json({ error: 'Kunde inte spara aktivitetsval.' });
   }
 });
 
