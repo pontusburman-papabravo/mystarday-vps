@@ -1,20 +1,22 @@
 /**
  * Prod QA — Fas 8/9 smoke with parent + child login.
- * Env: BASE, SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD, SMOKE_CHILD_NAME, SMOKE_CHILD_PIN
+ * Credentials: scripts/lib/qa-test-accounts.mjs (SMOKE_* env overrides).
  */
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
-const BASE = process.env.BASE || 'https://mystarday.se';
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const smoke = resolveSmokeCredentials();
+const BASE = process.env.BASE || smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
 const ARTIFACTS = process.env.SMOKE_ARTIFACTS || '/workspace/artifacts/fas9-prod-qa';
 
 if (!PARENT_EMAIL || !PARENT_PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

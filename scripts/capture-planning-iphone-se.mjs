@@ -4,6 +4,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { resolvePlatformCredentials } from './lib/qa-test-accounts.mjs';
 
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:3000';
 const OUT_DIR = process.env.OUT_DIR || '/opt/cursor/artifacts/screenshots';
@@ -15,8 +16,7 @@ function sleep(ms) {
 }
 
 async function apiLogin(page) {
-  const email = process.env.PLANNING_QA_EMAIL || 'planning-qa-test@example.com';
-  const password = process.env.PLANNING_QA_PASSWORD || 'PlanningQa2026!';
+  const { email, password } = resolvePlatformCredentials();
   let login = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

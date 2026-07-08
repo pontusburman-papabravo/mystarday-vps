@@ -1,12 +1,14 @@
 /**
  * Prod smoke: login + POST /api/upload/avatar with a tiny JPEG.
- * Env: SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD, BASE
+ * Credentials: scripts/lib/qa-test-accounts.mjs (SMOKE_* env overrides).
  */
 import { chromium } from 'playwright';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
-const BASE = process.env.BASE;
-const EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
+const smoke = resolveSmokeCredentials();
+const BASE = process.env.BASE || smoke.base;
+const EMAIL = smoke.parentEmail;
+const PASSWORD = smoke.parentPassword;
 
 if (!EMAIL || !PASSWORD || !BASE) {
   console.error('Set BASE, SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');

@@ -10,8 +10,7 @@
  *   export BASE="https://mystarday.se"
  *   export SMOKE_PARENT_EMAIL="..."
  *   export SMOKE_PARENT_PASSWORD="..."
- *   export SMOKE_CHILD_NAME="astrid"
- *   export SMOKE_CHILD_PIN="1112"
+ *   export SMOKE_CHILD_NAME / SMOKE_CHILD_PIN — optional; defaults Anna/4455 on prod
  *   node scripts/smoke-prod-full-qa.mjs
  *
  * Options:
@@ -40,22 +39,24 @@ import {
   CHILD_BROWSER_CHECKS,
   CONTRACT_TEST_FILES,
 } from './lib/full-qa-manifest.mjs';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 
-const BASE = process.env.BASE || 'https://mystarday.se';
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const smoke = resolveSmokeCredentials();
+const BASE = process.env.BASE || smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
 const ARTIFACTS = process.env.SMOKE_ARTIFACTS || path.join(ROOT, 'artifacts/full-prod-qa');
 const EXPECT_SW = process.env.EXPECT_SW || readSwCacheName();
 const INCLUDE_CONTRACT = process.env.INCLUDE_CONTRACT_TESTS === '1';
 const SKIP_BROWSER = process.env.SKIP_BROWSER === '1';
 
 if (!PARENT_EMAIL || !PARENT_PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

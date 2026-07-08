@@ -1,19 +1,21 @@
 /**
  * Browser smoke: vuxenmeny v2 + barnmeny v2
- * Usage: BASE=http://127.0.0.1:3000 node scripts/smoke-meny-v2-browser.mjs
+ * Credentials: scripts/lib/qa-test-accounts.mjs (defaults on localhost).
  */
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
-const BASE = process.env.BASE || 'http://127.0.0.1:3000';
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'Astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const smoke = resolveSmokeCredentials();
+const BASE = smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
 
 if (!PARENT_EMAIL || !PARENT_PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

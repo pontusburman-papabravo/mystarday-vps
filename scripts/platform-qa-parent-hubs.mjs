@@ -5,6 +5,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { resolvePlatformCredentials } from './lib/qa-test-accounts.mjs';
 
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:3000';
 const OUT_DIR = process.env.OUT_DIR || '/opt/cursor/artifacts/screenshots';
@@ -49,8 +50,7 @@ async function ensureCsrf() {
 }
 
 async function ensureParent() {
-  const email = process.env.PLATFORM_QA_EMAIL || 'platform-qa-test@example.com';
-  const password = process.env.PLATFORM_QA_PASSWORD || 'PlatformQa2026!';
+  const { email, password } = resolvePlatformCredentials();
   await apiFetch('/api/auth/csrf-token');
   let login = await apiFetch('/api/auth/login', {
     method: 'POST',

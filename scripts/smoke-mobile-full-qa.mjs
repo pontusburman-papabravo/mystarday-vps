@@ -42,24 +42,26 @@ import {
   runChildRedeemGate,
   runParentApproveGate,
 } from './lib/mobile-qa-gate-flows.mjs';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 
 const QA_MODE = process.env.QA_MODE === 'gate' ? 'gate' : 'full';
-const BASE = process.env.BASE || 'http://127.0.0.1:3000';
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'Astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '4829';
-const CHILD2_NAME = process.env.SMOKE_CHILD2_NAME || 'Erik';
-const CHILD2_PIN = process.env.SMOKE_CHILD2_PIN || '7391';
+const smoke = resolveSmokeCredentials();
+const BASE = smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
+const CHILD2_NAME = smoke.child2Name;
+const CHILD2_PIN = smoke.child2Pin;
 const ARTIFACTS = process.env.SMOKE_ARTIFACTS || path.join(ROOT, 'artifacts/mobile-full-qa');
 const HEADED = process.env.SMOKE_HEADED === '1' || process.env.SMOKE_HEADED === 'true';
 const SLOW_MS = Number(process.env.SMOKE_SLOW_MS || (HEADED ? 60 : 0)) || 0;
 
 if (!PARENT_EMAIL || !PARENT_PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

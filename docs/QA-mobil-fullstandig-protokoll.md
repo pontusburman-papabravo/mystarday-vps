@@ -141,15 +141,11 @@ Varje `[M]`-test ska **implicit** verifiera detta om inget annat anges:
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
-export BASE="http://127.0.0.1:3000"   # eller https://mystarday.se
-export SMOKE_PARENT_EMAIL="qa.mobil@test.stjarndag.local"
-export SMOKE_PARENT_PASSWORD="QaMobilTest2026!Secure"
-export SMOKE_CHILD_NAME="Astrid"
-export SMOKE_CHILD_PIN="4829"
-export SMOKE_CHILD2_NAME="Erik"
-export SMOKE_CHILD2_PIN="7391"
+export BASE="http://127.0.0.1:3000"
 node scripts/seed-smoke-family.mjs
 ```
+
+Credentials: `scripts/lib/qa-test-accounts.mjs` → LOCAL_SMOKE (see [`qa-test-account.md`](qa-test-account.md)).
 
 | Roll | Användarnamn | PIN / lösenord |
 |------|---------------|----------------|
@@ -157,7 +153,7 @@ node scripts/seed-smoke-family.mjs
 | Barn 1 | Astrid | `4829` |
 | Barn 2 | Erik | `7391` |
 
-> **Prod:** Skapa aldrig testkonton utan godkännande. PIN `1112` är globalt upptagen — använd unika PIN.
+> **Prod:** Använd `review@[REDACTED].se` / Anna / `4455` — se [`qa-test-account.md`](qa-test-account.md). Skapa aldrig testkonton utan godkännande.
 
 ### 2.4 Körordning
 

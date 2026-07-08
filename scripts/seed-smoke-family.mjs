@@ -2,36 +2,20 @@
  * Seed smoke-test family (parent + two children) for mobile QA.
  * Idempotent: skips register if login already works.
  *
- * Usage:
- *   export SMOKE_PARENT_EMAIL="qa.mobil@test.stjarndag.local"
- *   export SMOKE_PARENT_PASSWORD="QaMobilTest2026!Secure"
- *   export SMOKE_CHILD_NAME="Astrid"
- *   export SMOKE_CHILD_PIN="4829"
- *   export SMOKE_CHILD2_NAME="Erik"
- *   export SMOKE_CHILD2_PIN="7391"
+ * Defaults: scripts/lib/qa-test-accounts.mjs → LOCAL_SMOKE
  *   node scripts/seed-smoke-family.mjs
  */
-const BASE = process.env.BASE || 'http://127.0.0.1:3000';
-const EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const PARENT_NAME = process.env.SMOKE_PARENT_NAME || 'QA Mobil';
-const CHILDREN = [
-  {
-    name: process.env.SMOKE_CHILD_NAME || 'Astrid',
-    pin: process.env.SMOKE_CHILD_PIN || '4829',
-    emoji: '⭐',
-    birthday: '2016-05-15',
-  },
-  {
-    name: process.env.SMOKE_CHILD2_NAME || 'Erik',
-    pin: process.env.SMOKE_CHILD2_PIN || '7391',
-    emoji: '🚀',
-    birthday: '2018-03-20',
-  },
-];
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
+
+const creds = resolveSmokeCredentials();
+const BASE = creds.base;
+const EMAIL = creds.parentEmail;
+const PASSWORD = creds.parentPassword;
+const PARENT_NAME = creds.parentName;
+const CHILDREN = creds.children;
 
 if (!EMAIL || !PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

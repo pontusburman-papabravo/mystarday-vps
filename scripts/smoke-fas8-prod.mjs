@@ -1,17 +1,18 @@
 /**
  * Fas 8 prod browser smoke — dashboard / schedule / child-dashboard split modules.
- * Requires BASE, SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD.
- * Optional: SMOKE_CHILD_NAME, SMOKE_CHILD_PIN (defaults astrid / 1112).
+ * Credentials: scripts/lib/qa-test-accounts.mjs (SMOKE_* env overrides).
  */
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
-const BASE = process.env.BASE;
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const smoke = resolveSmokeCredentials();
+const BASE = process.env.BASE || smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
 
 if (!BASE || !PARENT_EMAIL || !PARENT_PASSWORD) {
   console.error('Set BASE, SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD');

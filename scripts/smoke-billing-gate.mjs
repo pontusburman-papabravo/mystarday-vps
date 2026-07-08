@@ -1,12 +1,16 @@
 /**
  * HTTP smoke: BILLING_UI_DISABLED gates routes + API flag.
+ * Credentials: scripts/lib/qa-test-accounts.mjs (defaults on localhost).
  */
-const BASE = process.env.BASE || 'http://127.0.0.1:3000';
-const EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
+
+const smoke = resolveSmokeCredentials();
+const BASE = smoke.base;
+const EMAIL = smoke.parentEmail;
+const PASSWORD = smoke.parentPassword;
 
 if (!EMAIL || !PASSWORD) {
-  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD');
+  console.error('Set SMOKE_PARENT_EMAIL and SMOKE_PARENT_PASSWORD (required on prod base URL)');
   process.exit(1);
 }
 

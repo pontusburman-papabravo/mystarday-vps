@@ -2,10 +2,12 @@
  * Release spot-check: Planering → Bibliotek → tillbaka
  */
 import puppeteer from 'puppeteer';
+import { resolvePlatformCredentials } from './lib/qa-test-accounts.mjs';
 
 const BASE = 'http://127.0.0.1:3000';
-const EMAIL = process.env.PLATFORM_QA_EMAIL || 'platform-qa-test@example.com';
-const PASSWORD = process.env.PLATFORM_QA_PASSWORD || 'PlatformQa2026!';
+const platform = resolvePlatformCredentials();
+const EMAIL = platform.email;
+const PASSWORD = platform.password;
 
 let jar = '';
 function absorb(res) {

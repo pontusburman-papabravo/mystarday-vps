@@ -122,7 +122,7 @@ VALUES (
 
 | URL | Purpose |
 |-----|---------|
-| https://stjarndag.polsia.app | Main app |
-| https://stjarndag.polsia.app/privacy | Privacy Policy |
-| https://stjarndag.polsia.app/terms | Terms of Service |
-| https://mystarday.se | Marketing landing page |
+| https://[REDACTED] | Main app |
+| https://[REDACTED]/privacy | Privacy Policy |
+| https://[REDACTED]/terms | Terms of Service |
+| https://[REDACTED] | Marketing landing page |

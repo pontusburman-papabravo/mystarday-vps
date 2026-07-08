@@ -1,16 +1,18 @@
 /**
  * Deployed-site browser smoke — login flow check (legacy or v2 menus).
- * Requires BASE, SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD env vars.
+ * Credentials: scripts/lib/qa-test-accounts.mjs (SMOKE_* env overrides).
  */
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { resolveSmokeCredentials } from './lib/qa-test-accounts.mjs';
 
-const BASE = process.env.BASE;
-const PARENT_EMAIL = process.env.SMOKE_PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.SMOKE_PARENT_PASSWORD;
-const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'astrid';
-const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '1112';
+const smoke = resolveSmokeCredentials();
+const BASE = process.env.BASE || smoke.base;
+const PARENT_EMAIL = smoke.parentEmail;
+const PARENT_PASSWORD = smoke.parentPassword;
+const CHILD_NAME = smoke.childName;
+const CHILD_PIN = smoke.childPin;
 
 if (!BASE || !PARENT_EMAIL || !PARENT_PASSWORD) {
   console.error('Set BASE, SMOKE_PARENT_EMAIL, SMOKE_PARENT_PASSWORD');

@@ -3,7 +3,7 @@
 **Datum:** 2026-07-07  
 **URL:** `/child-login` (prod)  
 **Viewport:** iPhone 13 (390×844)  
-**Konto:** Leo · PIN `3847` (QA-testkonto, se team-docs)  
+**Konto:** Anna · PIN `4455` ([`qa-test-account.md`](../qa-test-account.md) → PROD_REVIEW)  
 **Resultat:** 6/11 steg passerade (login + Morgonhus OK; trädgård/LOE/minnesrum ej nådda)
 
 Skärmdumpar ligger i [`minvarld-mobile-qa/screenshots/`](minvarld-mobile-qa/screenshots/) och kan visas direkt i GitHub.
@@ -13,8 +13,8 @@ Skärmdumpar ligger i [`minvarld-mobile-qa/screenshots/`](minvarld-mobile-qa/scr
 | # | Steg | OK | Skärmdump |
 |---|------|----|-----------|
 | 1 | Barninloggning | ✅ | [01-child-login.png](minvarld-mobile-qa/screenshots/01-child-login.png) |
-| 2 | Välj Leo | ✅ | [02-select-leo.png](minvarld-mobile-qa/screenshots/02-select-leo.png) |
-| 3 | PIN 3847 | ✅ | [03-after-pin.png](minvarld-mobile-qa/screenshots/03-after-pin.png) |
+| 2 | Välj Anna | ✅ | [02-select-leo.png](minvarld-mobile-qa/screenshots/02-select-leo.png) |
+| 3 | PIN 4455 | ✅ | [03-after-pin.png](minvarld-mobile-qa/screenshots/03-after-pin.png) |
 | 4 | Barnvy laddas | ✅ | [04-child-dashboard.png](minvarld-mobile-qa/screenshots/04-child-dashboard.png) |
 | 4b | Efter första stjärnan (första körning) | — | [04b-after-first-star.png](minvarld-mobile-qa/screenshots/04b-after-first-star.png) |
 | 5 | Min värld / Skattkammaren | ✅ | [05-skattkammaren-flow.png](minvarld-mobile-qa/screenshots/05-skattkammaren-flow.png) |
