@@ -438,6 +438,11 @@ const OnboardingRewardSchema = z.object({
   requires_approval: z.boolean().optional().default(false),
 });
 
+const OnboardingActivityGuideSchema = z.object({
+  child_id: uuid,
+  mode: z.enum(['free_order', 'one_at_a_time', 'time_and_order']),
+});
+
 // ─── Messages ────────────────────────────────────────────
 
 const SendMessageSchema = z.object({
@@ -584,6 +589,7 @@ module.exports = {
   OnboardingChildSchema,
   OnboardingScheduleSchema,
   OnboardingRewardSchema,
+  OnboardingActivityGuideSchema,
   // Messages
   SendMessageSchema,
   // Contact
