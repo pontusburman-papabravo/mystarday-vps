@@ -61,14 +61,16 @@
 
   function setHash(layerOrWorld) {
     if (useV2) {
-      const hashMap = {
-        today: 'today',
-        collection: 'collection',
-        treasure: 'universe',
-        world: 'universe',
-        family: 'family',
-      };
-      const target = '#' + (hashMap[layerOrWorld] || 'today');
+      const hashKey = window.ChildWorlds && ChildWorlds.hashForWorld
+        ? ChildWorlds.hashForWorld(layerOrWorld)
+        : ({
+          today: 'today',
+          collection: 'collection',
+          treasure: 'universe',
+          world: 'universe',
+          family: 'family',
+        }[layerOrWorld] || 'today');
+      const target = '#' + hashKey;
       if (window.location.hash !== target) {
         history.replaceState(null, '', target);
       }
@@ -131,6 +133,10 @@
     setHash(layer);
     applyRouteGuards(layer);
 
+    if (useV2 && window.ChildWorlds && ChildWorlds.syncChildRoute) {
+      ChildWorlds.syncChildRoute(layer);
+    }
+
     if (window.ChildWorldsNav) ChildWorldsNav.highlightActive(tab);
 
     if (tab === 'schedule' && window.ChildTodayFocus) {
@@ -166,6 +172,23 @@
       if (layer) navigateToLayer(layer);
     });
 
+    window.addEventListener('popstate', function () {
+      if (!useV2 || !ChildWorlds.isBarnetsSamlingEnabled || !ChildWorlds.isBarnetsSamlingEnabled()) {
+        return;
+      }
+      const active = ChildWorlds.activeChildNavItem(
+        window.location.pathname,
+        window.location.hash
+      );
+      if (!active) return;
+      if (active.id === 'treasure' && typeof window.showTab === 'function') {
+        if (ChildWorlds.prepareTreasureEntry) ChildWorlds.prepareTreasureEntry();
+        window.showTab('rewards');
+        return;
+      }
+      navigateToLayer(active.id);
+    });
+
     const pathWorld = useV2 && ChildWorlds.activeChildNavItem
       ? ChildWorlds.activeChildNavItem(window.location.pathname, window.location.hash)
       : null;
@@ -178,6 +201,17 @@
       }
       navigateToLayer(pathWorld.id);
       return;
+    }
+
+    if (useV2 && ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled()) {
+      const dashPath = window.location.pathname.replace(/\/$/, '');
+      if (dashPath === '/child-dashboard') {
+        const hashLayer = layerFromHash();
+        if (hashLayer === 'treasure' || hashLayer === 'world') {
+          window.location.replace('/child/treasure' + (window.location.hash || '#treasure'));
+          return;
+        }
+      }
     }
 
     const initial = layerFromHash();

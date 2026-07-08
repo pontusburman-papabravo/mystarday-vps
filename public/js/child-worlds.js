@@ -164,16 +164,44 @@
     );
   }
 
+  function syncTreasurePath() {
+    if (typeof window === 'undefined' || !window.location) return;
+    if (!isWorldHubEntryDisabled()) return;
+    const target = '/child/treasure';
+    const current = normalizePath(window.location.pathname);
+    if (current !== target && current.indexOf('/child/') === 0) {
+      const next = target + (window.location.hash || '');
+      history.replaceState(null, '', next);
+    }
+  }
+
   /** Safe route när gate är på: Skattkammaren direkt, ingen hub. */
   async function exitToTreasureRoute() {
     deactivateWorldSubScenes();
+    syncTreasurePath();
     if (typeof window.showTab === 'function') {
       window.showTab('rewards');
     }
-    if (typeof window.loadRewards === 'function') {
+    if (window.ChildTreasureView && typeof ChildTreasureView.refresh === 'function') {
+      window.rewardsLoaded = false;
+      await ChildTreasureView.refresh({ force: true });
+    } else if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
       await window.loadRewards({ force: true, skipHub: true });
     }
+    return true;
+  }
+
+  /** Back/exit från Skattkammaren → Idag när gate är på (#591). */
+  async function exitFromTreasureRoute() {
+    if (!isWorldHubEntryDisabled()) {
+      return remountWorldHubLegacy();
+    }
+    deactivateWorldSubScenes();
+    if (typeof window.showTab === 'function') {
+      window.showTab('schedule');
+    }
+    syncChildRoute('today');
     return true;
   }
 
@@ -210,6 +238,72 @@
     return remountWorldHubLegacy();
   }
 
+  function treasureCanonicalPath() {
+    return _barnetsSamling ? '/child/treasure' : '/child/world';
+  }
+
+  function hashForWorld(worldId) {
+    if (_barnetsSamling) {
+      const map = { today: 'today', collection: 'collection', treasure: 'treasure', family: 'family' };
+      return map[worldId] || 'today';
+    }
+    const legacy = { today: 'today', world: 'universe', family: 'family' };
+    return legacy[worldId] || 'today';
+  }
+
+  function worldRoutePath(worldId) {
+    const w = worldById(worldId);
+    return (w && w.href) ? w.href : '/child/today';
+  }
+
+  /** Synka pathname + hash till canonical barn-route (#591). */
+  function syncChildRoute(worldId, opts) {
+    if (typeof window === 'undefined' || !worldId) return;
+    opts = opts || {};
+    const world = worldById(worldId);
+    if (!world) return;
+
+    const path = (world.href || '/child/today').replace(/\/$/, '');
+    const hash = '#' + hashForWorld(worldId);
+    const onChildPath = window.location.pathname.indexOf('/child/') === 0
+      || normalizePath(window.location.pathname) === '/child-dashboard';
+
+    if (_barnetsSamling && normalizePath(window.location.pathname) === '/child/world') {
+      window.location.replace(path + hash);
+      return;
+    }
+
+    if (!onChildPath) return;
+
+    const want = path + hash;
+    const have = normalizePath(window.location.pathname) + window.location.hash;
+    if (have === want) return;
+
+    const historyFn = opts.push ? 'pushState' : 'replaceState';
+    if (window.history && typeof window.history[historyFn] === 'function') {
+      window.history[historyFn](null, '', want);
+    }
+  }
+
+  /** Rensa hub/sub-scenes innan Skattkammaren visas (gate ON, #591). */
+  function prepareTreasureEntry() {
+    if (!isWorldHubEntryDisabled()) return;
+    deactivateWorldSubScenes();
+    document.body.classList.remove(
+      'living-world-active',
+      'living-world-entering',
+      'living-world-exiting',
+      'living-world-rewards-shell'
+    );
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
+      window.ChildMorgonhus.clearPreferSkatt();
+    }
+  }
+
+  function shouldSkipHubForRewards() {
+    return isWorldHubEntryDisabled();
+  }
+
   function isConfigured() {
     return _configured;
   }
@@ -234,6 +328,12 @@
         _barnetsSamling ? 'on' : 'off'
       );
       document.dispatchEvent(new CustomEvent('child-worlds-configured'));
+      if (_barnetsSamling) {
+        const p = normalizePath(window.location.pathname);
+        if (p === '/child/world') {
+          window.location.replace('/child/treasure' + (window.location.hash || ''));
+        }
+      }
     }
   }
 
@@ -334,9 +434,17 @@
     analyticsNavMode: analyticsNavMode,
     isWorldHubEntryDisabled: isWorldHubEntryDisabled,
     deactivateWorldSubScenes: deactivateWorldSubScenes,
+    syncTreasurePath: syncTreasurePath,
     exitToTreasureRoute: exitToTreasureRoute,
+    exitFromTreasureRoute: exitFromTreasureRoute,
     remountWorldHubLegacy: remountWorldHubLegacy,
     returnFromWorldSubScene: returnFromWorldSubScene,
+    treasureCanonicalPath: treasureCanonicalPath,
+    hashForWorld: hashForWorld,
+    worldRoutePath: worldRoutePath,
+    syncChildRoute: syncChildRoute,
+    prepareTreasureEntry: prepareTreasureEntry,
+    shouldSkipHubForRewards: shouldSkipHubForRewards,
     configureFromFeatures: configureFromFeatures,
   };
 })();
