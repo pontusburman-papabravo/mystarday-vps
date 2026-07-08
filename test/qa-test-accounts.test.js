@@ -5,14 +5,31 @@ import {
   LOCAL_SMOKE,
   PROTECTED_PARENT_EMAILS,
   isEphemeralTestEmail,
+  isProtectedParentEmail,
+  assertEmailsSafeToDelete,
   resolveSmokeCredentials,
 } from '../scripts/lib/qa-test-accounts.mjs';
 
 describe('qa-test-accounts', () => {
   it('protects prod review and local smoke emails', () => {
     assert.equal(isEphemeralTestEmail(PROD_REVIEW.parentEmail), false);
+    assert.equal(isProtectedParentEmail(PROD_REVIEW.parentEmail), true);
     assert.equal(isEphemeralTestEmail(LOCAL_SMOKE.parentEmail), false);
-    assert.equal(isEphemeralTestEmail('Pontus@burman.cc'), false);
+    assert.equal(isProtectedParentEmail('Pontus@burman.cc'), true);
+  });
+
+  it('blocks any review@ local-part on any domain', () => {
+    assert.equal(isProtectedParentEmail(PROD_REVIEW.parentEmail), true);
+    assert.equal(isProtectedParentEmail('Review@Example.com'), true);
+    assert.equal(isProtectedParentEmail('review@other.test'), true);
+    assert.equal(isEphemeralTestEmail('review@other.test'), false);
+  });
+
+  it('assertEmailsSafeToDelete throws for review account', () => {
+    assert.throws(
+      () => assertEmailsSafeToDelete([PROD_REVIEW.parentEmail]),
+      /BLOCKED.*protected/
+    );
   });
 
   it('flags ephemeral QA patterns', () => {

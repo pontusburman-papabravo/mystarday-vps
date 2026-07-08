@@ -41,10 +41,12 @@ node scripts/seed-smoke-family.mjs
 
 ## Agent rules
 
+- **`review@` (App Store review) must NEVER be deleted** — hard-blocked in `cleanup-qa-test-families.js` and all cleanup scripts
 - Use **PROD_REVIEW** for all logged-in browser/mobile QA on prod — do not invent new test users
 - Use **LOCAL_SMOKE** for local/CI automation — scripts read defaults from `qa-test-accounts.mjs`
 - Lifetime-free (`is_lifetime_free`) on review account — no paywall (402)
 - Do **not** delete Anna or run destructive prod tests without explicit approval
+- Cleanup (`npm run cleanup:qa-families`) only removes ephemeral `@example.com` families — **never** `review@`
 - Do **not** use globally reserved PIN `1112` on prod
 
 ## Ephemeral accounts (safe to delete)

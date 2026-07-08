@@ -16,6 +16,7 @@ Password and child PIN are in **`docs/app-store-demo-konto.md`** (same as App St
 
 ## Rules
 
+- **`review@` must NEVER be deleted** — App Store review account; cleanup scripts hard-block it
 - Prefer this account over inventing test users on prod
 - Do not delete Anna or run destructive tests without explicit user approval
 - Lifetime-free — expect no paywall (402)

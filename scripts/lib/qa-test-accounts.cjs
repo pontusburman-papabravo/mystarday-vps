@@ -32,6 +32,27 @@ const PROTECTED_PARENT_EMAILS = [
   'Pontus@burman.cc',
 ];
 
+const PROTECTED_EMAIL_LOCAL_PARTS = ['review'];
+
+function isProtectedParentEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  const lower = email.trim().toLowerCase();
+  if (PROTECTED_PARENT_EMAILS.some((p) => lower === p.toLowerCase())) return true;
+  const at = lower.indexOf('@');
+  if (at <= 0) return false;
+  const local = lower.slice(0, at);
+  return PROTECTED_EMAIL_LOCAL_PARTS.includes(local);
+}
+
+function assertEmailsSafeToDelete(emails, context = 'cleanup') {
+  const blocked = (emails || []).filter((e) => isProtectedParentEmail(e));
+  if (blocked.length) {
+    throw new Error(
+      `[${context}] BLOCKED: cannot delete protected account(s): ${blocked.join(', ')}`
+    );
+  }
+}
+
 const EPHEMERAL_EMAIL_PATTERNS = [
   /^act1-(e2e|curl|debug)-.+@example\.com$/i,
   /^feat1-qa-.+@example\.com$/i,
@@ -42,9 +63,9 @@ const EPHEMERAL_EMAIL_PATTERNS = [
 
 function isEphemeralTestEmail(email) {
   if (!email || typeof email !== 'string') return false;
+  if (isProtectedParentEmail(email)) return false;
   const lower = email.toLowerCase();
-  if (PROTECTED_PARENT_EMAILS.some((p) => lower === p.toLowerCase())) return false;
-  return EPHEMERAL_EMAIL_PATTERNS.some((re) => re.test(email));
+  return EPHEMERAL_EMAIL_PATTERNS.some((re) => re.test(lower));
 }
 
 module.exports = {
@@ -52,5 +73,7 @@ module.exports = {
   LOCAL_SMOKE,
   PROTECTED_PARENT_EMAILS,
   EPHEMERAL_EMAIL_PATTERNS,
+  isProtectedParentEmail,
+  assertEmailsSafeToDelete,
   isEphemeralTestEmail,
 };

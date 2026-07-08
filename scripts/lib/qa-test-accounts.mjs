@@ -40,6 +40,31 @@ export const PROTECTED_PARENT_EMAILS = [
   'Pontus@burman.cc',
 ];
 
+/** Local-part prefixes that must never be deleted on any domain (App Store review). */
+const PROTECTED_EMAIL_LOCAL_PARTS = ['review'];
+
+/**
+ * App Store review account — must never be deleted by cleanup or test scripts.
+ */
+export function isProtectedParentEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  const lower = email.trim().toLowerCase();
+  if (PROTECTED_PARENT_EMAILS.some((p) => lower === p.toLowerCase())) return true;
+  const at = lower.indexOf('@');
+  if (at <= 0) return false;
+  const local = lower.slice(0, at);
+  return PROTECTED_EMAIL_LOCAL_PARTS.includes(local);
+}
+
+export function assertEmailsSafeToDelete(emails, context = 'cleanup') {
+  const blocked = (emails || []).filter((e) => isProtectedParentEmail(e));
+  if (blocked.length) {
+    throw new Error(
+      `[${context}] BLOCKED: cannot delete protected account(s): ${blocked.join(', ')}`
+    );
+  }
+}
+
 /**
  * Ephemeral test families safe to delete (regex on parent email).
  * See scripts/cleanup-qa-test-families.js
@@ -54,9 +79,9 @@ export const EPHEMERAL_EMAIL_PATTERNS = [
 
 export function isEphemeralTestEmail(email) {
   if (!email || typeof email !== 'string') return false;
+  if (isProtectedParentEmail(email)) return false;
   const lower = email.toLowerCase();
-  if (PROTECTED_PARENT_EMAILS.some((p) => lower === p.toLowerCase())) return false;
-  return EPHEMERAL_EMAIL_PATTERNS.some((re) => re.test(email));
+  return EPHEMERAL_EMAIL_PATTERNS.some((re) => re.test(lower));
 }
 
 function isLocalBase(base) {

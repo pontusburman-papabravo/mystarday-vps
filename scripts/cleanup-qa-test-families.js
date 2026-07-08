@@ -18,8 +18,26 @@ const db = require('../src/lib/db');
 const {
   EPHEMERAL_EMAIL_PATTERNS,
   PROTECTED_PARENT_EMAILS,
+  PROD_REVIEW,
   isEphemeralTestEmail,
+  isProtectedParentEmail,
+  assertEmailsSafeToDelete,
 } = require('./lib/qa-test-accounts.cjs');
+
+async function loadParentEmailsForFamily(client, familyId) {
+  const { rows } = await client.query(
+    'SELECT email FROM parent WHERE family_id = $1',
+    [familyId]
+  );
+  return rows.map((r) => r.email);
+}
+
+async function assertFamilySafeToDelete(client, familyId, emailsFromScan = []) {
+  const emails = emailsFromScan.length
+    ? emailsFromScan
+    : await loadParentEmailsForFamily(client, familyId);
+  assertEmailsSafeToDelete(emails, `family ${familyId}`);
+}
 
 async function findEphemeralFamilies() {
   const { rows } = await db.query(`
@@ -47,7 +65,9 @@ async function findEphemeralFamilies() {
 }
 
 /** Same pattern as admin DELETE /api/admin/families/:id (simplified). */
-async function deleteFamily(client, familyId) {
+async function deleteFamily(client, familyId, emailsFromScan = []) {
+  await assertFamilySafeToDelete(client, familyId, emailsFromScan);
+
   const children = await client.query('SELECT id FROM child WHERE family_id = $1', [familyId]);
   for (const child of children.rows) {
     await client.query(
@@ -105,6 +125,9 @@ async function main() {
 
   console.log('[cleanup] Protected emails (never deleted):', PROTECTED_PARENT_EMAILS.join(', '));
   console.log(
+    `[cleanup] App Store review account (${PROD_REVIEW.parentEmail}) is HARD-BLOCKED — abort on any match`
+  );
+  console.log(
     '[cleanup] Ephemeral patterns:',
     EPHEMERAL_EMAIL_PATTERNS.map((re) => re.source).join(' | ')
   );
@@ -119,6 +142,15 @@ async function main() {
     console.log(`  - ${f.name} (${f.id}) → ${f.emails.join(', ')}`);
   }
 
+  // Belt-and-suspenders: abort before any DELETE if review slipped through matching.
+  const allEmails = families.flatMap((f) => f.emails);
+  assertEmailsSafeToDelete(allEmails, 'pre-delete scan');
+  for (const email of allEmails) {
+    if (isProtectedParentEmail(email)) {
+      throw new Error(`[cleanup] FATAL: protected email in delete queue: ${email}`);
+    }
+  }
+
   if (dryRun) {
     console.log('[cleanup] --dry-run: inget raderat.');
     return;
@@ -128,7 +160,7 @@ async function main() {
   try {
     await client.query('BEGIN');
     for (const f of families) {
-      await deleteFamily(client, f.id);
+      await deleteFamily(client, f.id, f.emails);
       console.log(`[cleanup] Raderade ${f.name}`);
     }
     await client.query('COMMIT');
