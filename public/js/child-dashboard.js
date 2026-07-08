@@ -231,13 +231,21 @@ function showTab(tab) {
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
       window.ChildMorgonhus.clearPreferSkatt();
     }
-    const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
-      && ChildWorlds.shouldSkipHubForRewards());
-    loadRewards({ force: true, skipHub: skipHub });
+    if (window.ChildTreasureView) {
+      ChildTreasureView.refresh({ force: true });
+    } else {
+      const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+        && ChildWorlds.shouldSkipHubForRewards());
+      loadRewards({ force: true, skipHub: skipHub });
+    }
   } else if ((isHome || isUniverse) && !window.rewardsLoaded) {
-    const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
-      && ChildWorlds.shouldSkipHubForRewards());
-    loadRewards({ skipHub: skipHub });
+    if (window.ChildTreasureView && isUniverse) {
+      ChildTreasureView.refresh();
+    } else {
+      const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+        && ChildWorlds.shouldSkipHubForRewards());
+      loadRewards({ skipHub: skipHub });
+    }
   }
   if (isCollection && window.ChildSamlingView) ChildSamlingView.refresh();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();

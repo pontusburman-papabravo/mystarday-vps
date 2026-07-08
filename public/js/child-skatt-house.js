@@ -355,7 +355,18 @@
   function bindRoomEvents() {
     if (!_view) return;
     const back = _view.querySelector('[data-back]');
-    if (back) back.addEventListener('click', showHub);
+    if (back) {
+      back.addEventListener('click', function () {
+        const gateOn = window.ChildWorlds
+          && ChildWorlds.isWorldHubEntryDisabled
+          && ChildWorlds.isWorldHubEntryDisabled();
+        if (gateOn && window.ChildWorlds && typeof ChildWorlds.exitFromTreasureRoute === 'function') {
+          ChildWorlds.exitFromTreasureRoute();
+          return;
+        }
+        showHub();
+      });
+    }
   }
 
   function bindChestTap() {

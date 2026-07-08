@@ -327,6 +327,11 @@ function resolveSkattState(rewardsData, goalData, options) {
 }
 
 function renderSkattkammaren(rewardsData, goalData, manualData) {
+  if (window.ChildTreasurePresent && ChildTreasurePresent.shouldUse()
+      && ChildTreasurePresent.render(rewardsData, goalData, manualData)) {
+    return;
+  }
+
   const { rewards, starBalance, redemptions } = rewardsData;
   const deniedRecent = redemptions.filter(r => r.status === 'denied').slice(0, 3);
   const grants = (manualData && manualData.grants) ? manualData.grants : [];

@@ -1,0 +1,349 @@
+/**
+ * child-treasure-present.js — Barnets samling Skattkammare (Fas A/C, gate: barnets_samling).
+ * Presentation only — reuses resolveSkattState/skattRewardState from child-dashboard-rewards.js.
+ * Godkänd som separat status kräver framtida fulfilled-fält i reward_redemption (ej i datamodellen än).
+ */
+(function () {
+  'use strict';
+
+  const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
+
+  function esc(str) {
+    if (typeof window.escHtml === 'function') return window.escHtml(str);
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  }
+
+  function shouldUse() {
+    return !!(window.ChildWorlds
+      && ChildWorlds.isBarnetsSamlingEnabled
+      && ChildWorlds.isBarnetsSamlingEnabled());
+  }
+
+  /**
+   * Maps existing redemption row data to child-facing status copy.
+   * approved/auto → Genomförd (no separate Godkänd field in API yet).
+   */
+  function rewardPresentStatus(st) {
+    if (st.isRedeemed) {
+      return { key: 'done', label: 'Genomförd', className: 'btp-status-done' };
+    }
+    if (st.hasPending) {
+      return { key: 'waiting', label: 'Väntar på vuxen', className: 'btp-status-waiting' };
+    }
+    if (st.ready) {
+      return { key: 'redeem', label: 'Kan lösas in', className: 'btp-status-redeem' };
+    }
+    return { key: 'saving', label: 'Sparar', className: 'btp-status-saving' };
+  }
+
+  function renderHeader(starBalance) {
+    const count = Number(starBalance) || 0;
+    const label = count === 1
+      ? 'Du har 1 stjärna att använda'
+      : 'Du har ' + count + ' stjärnor att använda';
+    return (
+      '<header class="btp-header" aria-label="Dina stjärnor">' +
+        '<p class="btp-kicker">🎁 Skattkammaren</p>' +
+        '<div class="btp-balance" aria-hidden="true">' +
+          '<span class="btp-balance-emoji">⭐</span>' +
+          '<span class="btp-balance-count">' + count + '</span>' +
+        '</div>' +
+        '<p class="btp-balance-label">' + esc(label) + '</p>' +
+      '</header>'
+    );
+  }
+
+  function renderGoalSection(skatt) {
+    const goal = skatt.goal;
+    if (!goal || !goal.reward_id) {
+      return (
+        '<section class="btp-goal btp-goal--empty" aria-label="Aktivt mål">' +
+          '<p class="btp-goal-empty-text">Välj en belöning att spara till</p>' +
+          '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
+            '✨ Välj belöning' +
+          '</button>' +
+        '</section>'
+      );
+    }
+
+    const remaining = Math.max(0, (goal.star_cost || 0) - (skatt.starBalance || 0));
+    const icon = goal.reward_icon || '🎁';
+    let html =
+      '<section class="btp-goal" aria-label="Aktivt mål">' +
+        '<p class="btp-goal-kicker">Du sparar till</p>' +
+        '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>' +
+        '<p class="btp-goal-progress">' +
+          esc(String(skatt.starBalance || 0)) + ' av ' + esc(String(goal.star_cost)) + ' stjärnor' +
+        '</p>';
+
+    if (remaining > 0) {
+      html += '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>';
+    } else {
+      html += '<p class="btp-goal-remaining btp-goal-remaining--ready">Du har tillräckligt!</p>';
+    }
+
+    html += '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + skatt.progressPct +
+      '" aria-valuemin="0" aria-valuemax="100">' +
+      '<div class="btp-goal-fill" style="width:' + skatt.progressPct + '%"></div>' +
+    '</div>';
+
+    if (goal.star_cost && window.ChildRewardsEngine && typeof ChildRewardsEngine.starGridHtml === 'function') {
+      html += ChildRewardsEngine.starGridHtml(skatt.starBalance, goal.star_cost, icon);
+    }
+
+    if (skatt.showGoalChangeLink) {
+      html += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
+    }
+
+    html += '</section>';
+    return html;
+  }
+
+  function renderPrimaryAction(skatt) {
+    if (skatt.primaryAction && skatt.primaryAction.type === 'redeem') {
+      return (
+        '<div class="btp-primary">' +
+          '<button type="button" class="btp-cta" onclick="requestRedeem(\'' +
+            esc(skatt.primaryAction.rewardId) + '\')">' +
+            '📨 Fråga om att lösa in' +
+          '</button>' +
+        '</div>'
+      );
+    }
+    if (skatt.primaryAction && skatt.primaryAction.type === 'pick_goal') {
+      return (
+        '<div class="btp-primary">' +
+          '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
+            '✨ Välj en belöning att spara till' +
+          '</button>' +
+        '</div>'
+      );
+    }
+    if (skatt.collectHint && skatt.collectHint.starsToGo > 0) {
+      return (
+        '<p class="btp-collect-hint" role="status">Fortsätt samla — ' +
+          skatt.collectHint.starsToGo + ' ⭐ kvar till målet</p>'
+      );
+    }
+    return '';
+  }
+
+  function renderStatusBanners(skatt, deniedRecent) {
+    let html = '';
+    const SKATT_STATES = window.SKATT_STATES || {};
+
+    if (skatt.pendingChangeReq) {
+      html +=
+        '<div class="btp-banner btp-banner--waiting" role="status">' +
+          '<span aria-hidden="true">⏳</span>' +
+          '<div><strong>Byter belöning</strong><p>Väntar på svar från vuxen</p></div>' +
+        '</div>';
+    }
+
+    if (skatt.state === SKATT_STATES.COMPLETED && skatt.completedReward) {
+      const cr = skatt.completedReward;
+      html +=
+        '<div class="btp-banner btp-banner--approved" role="status">' +
+          '<span aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
+          '<div><strong>' + esc(cr.reward_name) + '</strong>' +
+          '<p>Godkänd! Njut av belöningen 🌟</p></div>' +
+        '</div>';
+    }
+
+    if (skatt.pending && skatt.pending.length > 0) {
+      skatt.pending.forEach(function (r) {
+        html +=
+          '<div class="btp-banner btp-banner--waiting" role="status">' +
+            '<span aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
+            '<div><strong>' + esc(r.reward_name) + '</strong>' +
+            '<p>Väntar på vuxen</p></div>' +
+          '</div>';
+      });
+    }
+
+    if (deniedRecent && deniedRecent.length > 0) {
+      deniedRecent.forEach(function (r) {
+        html +=
+          '<div class="btp-banner btp-banner--gentle" role="status">' +
+            '<span aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
+            '<div><strong>' + esc(r.reward_name) + '</strong>' +
+            '<p>Inte den här gången — du kan försöka igen senare 💛</p></div>' +
+          '</div>';
+      });
+    }
+
+    return html ? '<section class="btp-status-banners">' + html + '</section>' : '';
+  }
+
+  function renderRewardCard(r, st, idx, starBalance) {
+    const status = rewardPresentStatus(st);
+    const color = PROGRESS_COLORS[idx % PROGRESS_COLORS.length];
+    const rowClass = 'btp-card ' + status.className +
+      (st.ready ? ' btp-card--actionable' : '');
+    const tap = st.ready && !st.isRedeemed && !st.hasPending
+      ? ' onclick="requestRedeem(\'' + r.id + '\')" role="button" tabindex="0"'
+      : '';
+
+    let cta = '';
+    if (st.ready && !st.isRedeemed && !st.hasPending) {
+      cta = '<button type="button" class="btp-card-cta" onclick="event.stopPropagation();requestRedeem(\'' +
+        r.id + '\')">Lös in</button>';
+    }
+
+    return (
+      '<article class="' + rowClass + '"' + tap + ' aria-label="' + esc(r.name) + '">' +
+        '<div class="btp-card-icon" aria-hidden="true">' + (r.icon || '🎁') + '</div>' +
+        '<div class="btp-card-body">' +
+          '<div class="btp-card-top">' +
+            '<h3 class="btp-card-name">' + esc(r.name) + '</h3>' +
+            '<span class="btp-card-status">' + esc(status.label) + '</span>' +
+          '</div>' +
+          '<div class="btp-card-bar" aria-hidden="true">' +
+            '<div class="btp-card-fill btp-card-fill--' + color + '" style="width:' + st.pct + '%"></div>' +
+          '</div>' +
+          '<p class="btp-card-meta">' +
+            '<span>' + starBalance + ' av ' + r.star_cost + ' stjärnor</span>' +
+            '<span class="btp-card-cost">⭐ ' + r.star_cost + '</span>' +
+          '</p>' +
+          cta +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderRewardsList(rewards, starBalance, redemptions, goal) {
+    if (!rewards || rewards.length === 0) {
+      return (
+        '<section class="btp-rewards" aria-label="Belöningar">' +
+          '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+          '<div class="btp-empty">' +
+            '<p class="btp-empty-emoji" aria-hidden="true">🎁</p>' +
+            '<p class="btp-empty-title">Inga belöningar ännu</p>' +
+            '<p class="btp-empty-sub">Be en vuxen lägga till belöningar du kan spara till.</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const sortFn = window.sortRewardsForList;
+    const stateFn = window.skattRewardState;
+    const sorted = sortFn ? sortRewardsForList(rewards, starBalance, redemptions, goal) : rewards;
+
+    let cards = '';
+    sorted.forEach(function (r, idx) {
+      const st = stateFn
+        ? skattRewardState(r, starBalance, redemptions, goal)
+        : { isRedeemed: false, hasPending: false, ready: false, pct: 0 };
+      cards += renderRewardCard(r, st, idx, starBalance);
+    });
+
+    return (
+      '<section class="btp-rewards" aria-label="Belöningar">' +
+        '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+        '<div class="btp-card-list">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderHistory(trophies) {
+    if (!trophies || trophies.length === 0) return '';
+
+    const items = trophies.slice().sort(function (a, b) {
+      return new Date(b.created_at) - new Date(a.created_at);
+    }).slice(0, 10);
+
+    let cards = '';
+    items.forEach(function (r) {
+      const d = new Date(r.created_at);
+      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      if (window.ChildDashboardWarmth && typeof ChildDashboardWarmth.renderHistoryStoryHtml === 'function') {
+        cards += ChildDashboardWarmth.renderHistoryStoryHtml(r);
+      } else {
+        cards +=
+          '<div class="btp-history-card">' +
+            '<span class="btp-history-icon" aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
+            '<div>' +
+              '<p class="btp-history-name">' + esc(r.reward_name) + '</p>' +
+              '<p class="btp-history-when">Genomförd · ' + esc(dateStr) + '</p>' +
+            '</div>' +
+          '</div>';
+      }
+    });
+
+    return (
+      '<section class="btp-history" aria-label="Inlösta belöningar">' +
+        '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
+        '<div class="btp-history-list">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderBonusGrants(grants) {
+    if (!grants || grants.length === 0) return '';
+    let rows = '';
+    grants.slice(0, 8).forEach(function (g) {
+      const d = new Date(g.created_at);
+      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      rows +=
+        '<div class="btp-grant">' +
+          '<span class="btp-grant-stars">+' + g.star_count + ' ⭐</span>' +
+          '<div class="btp-grant-body">' +
+            '<p class="btp-grant-reason">' + esc(g.reason) + '</p>' +
+            '<p class="btp-grant-meta">' + esc(g.parent_name || 'Vuxen') + ' · ' + esc(dateStr) + '</p>' +
+          '</div>' +
+        '</div>';
+    });
+    return (
+      '<section class="btp-grants" aria-label="Bonusstjärnor">' +
+        '<h2 class="btp-section-title">Extra stjärnor</h2>' +
+        rows +
+      '</section>'
+    );
+  }
+
+  function render(rewardsData, goalData, manualData) {
+    const resolveFn = window.resolveSkattState;
+    if (!resolveFn) return false;
+
+    const { rewards, starBalance, redemptions } = rewardsData;
+    const deniedRecent = (redemptions || []).filter(function (r) { return r.status === 'denied'; }).slice(0, 3);
+    const grants = (manualData && manualData.grants) ? manualData.grants : [];
+    const trophies = (redemptions || []).filter(function (r) {
+      return r.status === 'approved' || r.status === 'auto';
+    });
+    const skatt = resolveSkattState(rewardsData, goalData);
+
+    const loader = document.getElementById('skattkammarLoading');
+    const view = document.getElementById('skattkammarView');
+    if (loader) loader.style.display = 'none';
+    if (!view) return false;
+
+    view.style.display = '';
+    view.classList.add('btp-active');
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReduced) {
+      view.style.animation = 'btpEntrance 0.4s ease-out forwards';
+    }
+
+    let html = '<div class="btp-skatt">';
+    html += renderHeader(starBalance);
+    html += renderStatusBanners(skatt, deniedRecent);
+    html += renderGoalSection(skatt);
+    html += renderPrimaryAction(skatt);
+    html += renderRewardsList(rewards, starBalance, redemptions, skatt.goal);
+    html += renderHistory(trophies);
+    html += renderBonusGrants(grants);
+    html += '</div>';
+
+    view.innerHTML = html;
+    return true;
+  }
+
+  window.ChildTreasurePresent = {
+    shouldUse: shouldUse,
+    render: render,
+    rewardPresentStatus: rewardPresentStatus,
+  };
+})();

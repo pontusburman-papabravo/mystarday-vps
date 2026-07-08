@@ -36,6 +36,7 @@
 
   function bootstrapModules(worldId) {
     if (window.ChildToday && worldId === 'today') ChildToday.onEnter();
+    if (window.ChildTreasureView && worldId === 'treasure') ChildTreasureView.onEnter();
     if (window.ChildWorld && worldId === 'world') ChildWorld.onEnter();
     if (worldId === 'treasure') {
       if (window.ChildWorlds && ChildWorlds.prepareTreasureEntry) {

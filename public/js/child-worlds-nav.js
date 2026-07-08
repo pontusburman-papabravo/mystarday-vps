@@ -135,10 +135,12 @@
 
   function navigateWorld(worldId) {
     const gateOn = ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled();
-    if (gateOn && worldId === 'treasure'
-        && window.location.pathname.replace(/\/$/, '') === '/child/world') {
-      window.location.replace('/child/treasure');
-      return;
+    if (gateOn && worldId === 'treasure') {
+      const path = window.location.pathname.replace(/\/$/, '');
+      if (path === '/child/world' || path !== '/child/treasure') {
+        window.location.href = '/child/treasure';
+        return;
+      }
     }
     const tabKey = ChildWorlds.worldIdToTabKey(worldId);
     const world = ChildWorlds.worldById(worldId);
