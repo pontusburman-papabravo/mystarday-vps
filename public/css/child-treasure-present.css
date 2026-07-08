@@ -439,6 +439,28 @@
   color: #9aa0b8;
 }
 
+[data-barnets-samling="on"] .btp-history-empty {
+  padding: 1rem 0.75rem;
+  border-radius: 1rem;
+  background: rgba(107, 79, 168, 0.06);
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .btp-history-empty-lead {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1b2340;
+}
+
+[data-barnets-samling="on"] .btp-history-empty-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.dark [data-barnets-samling="on"] .btp-history-empty-lead { color: #f0f0f8; }
+
 [data-barnets-samling="on"] .btp-grant {
   display: flex;
   gap: 0.75rem;

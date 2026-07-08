@@ -60,7 +60,7 @@
     if (!goal || !goal.reward_id) {
       return (
         '<section class="btp-goal btp-goal--empty" aria-label="Aktivt mål">' +
-          '<p class="btp-goal-empty-text">Välj en belöning att spara till</p>' +
+          '<p class="btp-goal-empty-text">Här kan du välja vad du vill spara till</p>' +
           '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
             '✨ Välj belöning' +
           '</button>' +
@@ -81,7 +81,7 @@
     if (remaining > 0) {
       html += '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>';
     } else {
-      html += '<p class="btp-goal-remaining btp-goal-remaining--ready">Du har tillräckligt!</p>';
+      html += '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
     }
 
     html += '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + skatt.progressPct +
@@ -147,8 +147,8 @@
       html +=
         '<div class="btp-banner btp-banner--approved" role="status">' +
           '<span aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
-          '<div><strong>' + esc(cr.reward_name) + '</strong>' +
-          '<p>Godkänd! Njut av belöningen 🌟</p></div>' +
+          '<div><strong>Godkänd</strong>' +
+          '<p>' + esc(cr.reward_name) + ' — njut av belöningen 🌟</p></div>' +
         '</div>';
     }
 
@@ -220,8 +220,8 @@
           '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
           '<div class="btp-empty">' +
             '<p class="btp-empty-emoji" aria-hidden="true">🎁</p>' +
-            '<p class="btp-empty-title">Inga belöningar ännu</p>' +
-            '<p class="btp-empty-sub">Be en vuxen lägga till belöningar du kan spara till.</p>' +
+            '<p class="btp-empty-title">Här kan du välja vad du vill spara till</p>' +
+            '<p class="btp-empty-sub">Be en vuxen lägga till belöningar åt dig.</p>' +
           '</div>' +
         '</section>'
       );
@@ -229,12 +229,12 @@
 
     const sortFn = window.sortRewardsForList;
     const stateFn = window.skattRewardState;
-    const sorted = sortFn ? sortRewardsForList(rewards, starBalance, redemptions, goal) : rewards;
+    const sorted = sortFn ? sortFn(rewards, starBalance, redemptions, goal) : rewards;
 
     let cards = '';
     sorted.forEach(function (r, idx) {
       const st = stateFn
-        ? skattRewardState(r, starBalance, redemptions, goal)
+        ? stateFn(r, starBalance, redemptions, goal)
         : { isRedeemed: false, hasPending: false, ready: false, pct: 0 };
       cards += renderRewardCard(r, st, idx, starBalance);
     });
@@ -247,29 +247,45 @@
     );
   }
 
-  function renderHistory(trophies) {
-    if (!trophies || trophies.length === 0) return '';
+  function renderHistoryCard(r) {
+    const d = new Date(r.created_at);
+    const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const cost = r.star_cost ? ' · ⭐ ' + r.star_cost : '';
+    return (
+      '<div class="btp-history-card">' +
+        '<span class="btp-history-icon" aria-hidden="true">' + esc(r.reward_icon || '🎁') + '</span>' +
+        '<div>' +
+          '<p class="btp-history-name">' + esc(r.reward_name) + '</p>' +
+          '<p class="btp-history-when">Genomförd · ' + esc(dateStr) + esc(cost) + '</p>' +
+        '</div>' +
+      '</div>'
+    );
+  }
 
-    const items = trophies.slice().sort(function (a, b) {
+  function renderHistory(trophies) {
+    const items = (trophies || []).slice().sort(function (a, b) {
       return new Date(b.created_at) - new Date(a.created_at);
     }).slice(0, 10);
 
+    if (!items.length) {
+      return (
+        '<section class="btp-history btp-history--empty" aria-label="Inlösta belöningar">' +
+          '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
+          '<div class="btp-history-empty">' +
+            '<p class="btp-history-empty-lead">' +
+              esc('Här kommer belöningar du sparat ihop till att synas.') +
+            '</p>' +
+            '<p class="btp-history-empty-hint">' +
+              esc('När du löser in något dyker det upp här som ett minne.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
     let cards = '';
     items.forEach(function (r) {
-      const d = new Date(r.created_at);
-      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-      if (window.ChildDashboardWarmth && typeof ChildDashboardWarmth.renderHistoryStoryHtml === 'function') {
-        cards += ChildDashboardWarmth.renderHistoryStoryHtml(r);
-      } else {
-        cards +=
-          '<div class="btp-history-card">' +
-            '<span class="btp-history-icon" aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
-            '<div>' +
-              '<p class="btp-history-name">' + esc(r.reward_name) + '</p>' +
-              '<p class="btp-history-when">Genomförd · ' + esc(dateStr) + '</p>' +
-            '</div>' +
-          '</div>';
-      }
+      cards += renderHistoryCard(r);
     });
 
     return (
@@ -313,7 +329,7 @@
     const trophies = (redemptions || []).filter(function (r) {
       return r.status === 'approved' || r.status === 'auto';
     });
-    const skatt = resolveSkattState(rewardsData, goalData);
+    const skatt = resolveFn(rewardsData, goalData);
 
     const loader = document.getElementById('skattkammarLoading');
     const view = document.getElementById('skattkammarView');
