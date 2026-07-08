@@ -116,3 +116,123 @@
   line-height: 1;
   opacity: 0.85;
 }
+
+[data-barnets-samling="on"] .bsp-glass-total {
+  margin: 0 0 0.35rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1b2340;
+}
+
+.dark [data-barnets-samling="on"] .bsp-glass-total {
+  color: #e8ecf8;
+}
+
+[data-barnets-samling="on"] .bsp-glass-jar {
+  position: relative;
+  margin: 0.85rem auto 0;
+  width: 5.5rem;
+  height: 7.5rem;
+  border-radius: 1rem 1rem 0.65rem 0.65rem;
+  border: 2.5px solid rgba(245, 166, 35, 0.45);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 243, 214, 0.35) 100%);
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(245, 166, 35, 0.12);
+}
+
+.dark [data-barnets-samling="on"] .bsp-glass-jar {
+  background: linear-gradient(180deg, rgba(30, 37, 69, 0.9) 0%, rgba(245, 166, 35, 0.08) 100%);
+}
+
+[data-barnets-samling="on"] .bsp-glass-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #ffeaa7 0%, #f5a623 55%, #e8940f 100%);
+  transition: height 0.4s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .bsp-glass-fill {
+    transition: none;
+  }
+}
+
+[data-barnets-samling="on"] .bsp-glass-count {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1b2340;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+  pointer-events: none;
+}
+
+[data-barnets-samling="on"] .bsp-medal-ladder {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(74, 139, 196, 0.12);
+}
+
+[data-barnets-samling="on"] .bsp-medal-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #5a6178;
+}
+
+[data-barnets-samling="on"] .bsp-medal-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+[data-barnets-samling="on"] .bsp-medal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 2.25rem;
+  padding: 0.25rem 0.15rem;
+  border-radius: 0.65rem;
+}
+
+[data-barnets-samling="on"] .bsp-medal.is-unlocked .bsp-medal-disc {
+  opacity: 1;
+  filter: none;
+}
+
+[data-barnets-samling="on"] .bsp-medal.is-locked .bsp-medal-disc {
+  opacity: 0.28;
+  filter: grayscale(1);
+}
+
+[data-barnets-samling="on"] .bsp-medal-disc {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+[data-barnets-samling="on"] .bsp-medal-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #5a6178;
+}
+
+[data-barnets-samling="on"] .bsp-medal.is-unlocked .bsp-medal-label {
+  color: #1b2340;
+}
+
+.dark [data-barnets-samling="on"] .bsp-medal.is-unlocked .bsp-medal-label {
+  color: #e8ecf8;
+}
