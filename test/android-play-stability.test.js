@@ -23,10 +23,25 @@ describe('Android Play stability guards', () => {
     assert.doesNotMatch(src, /await import\('@capacitor\/haptics'\)/);
   });
 
-  it('platform-native.css disables backdrop-filter on Android native', () => {
+  it('platform-native.css disables backdrop-filter and filter blur on Android native', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
     assert.match(src, /is-native-android/);
     assert.match(src, /backdrop-filter: none !important/);
+    assert.match(src, /filter: none !important/);
+    assert.match(src, /\.cloud/);
+  });
+
+  it('platform-html injects synchronous is-native-android boot before CSS', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /is-native-android/);
+    assert.match(src, /getPlatform\(\)==="android"/);
+    assert.doesNotMatch(src, /DOMContentLoaded.*is-native-android/);
+  });
+
+  it('platform.js applies native DOM classes synchronously', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/platform.js'), 'utf8');
+    assert.match(src, /Synchronous — Android GPU guards/);
+    assert.match(src, /run\(\)/);
   });
 
   it('prepare-android-native.mjs strips Apple Sign In package', () => {
@@ -47,7 +62,7 @@ describe('Android Play stability guards', () => {
 
   it('android-version.json bumped for Play resubmission', () => {
     const versions = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
-    assert.ok(versions.versionCode >= 3);
+    assert.ok(versions.versionCode >= 4);
   });
 
   it('patch-android-version.mjs is idempotent when build.gradle already matches', () => {

@@ -1153,9 +1153,9 @@ window.Platform = Platform;
     if (Platform.isIOS()) html.classList.add('is-native-ios');
     if (Platform.isAndroid()) html.classList.add('is-native-android');
   }
+  // Synchronous — Android GPU guards must be active before first paint.
+  run();
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);
-  } else {
-    run();
   }
 })();
