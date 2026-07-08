@@ -47,22 +47,36 @@ describe('barnets_samling nav — #588', () => {
     assert.match(dash, /options\.skipHub/);
   });
 
-  it('child-samling-view provides safe placeholder', () => {
+  it('child-samling-view uses ChildSamlingPresent without shop/collections', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-view.js'), 'utf8');
     assert.match(src, /ChildSamlingView/);
-    assert.match(src, /Min samling/);
-    assert.match(src, /ChildAchievements/);
+    assert.match(src, /ChildSamlingPresent/);
+    assert.doesNotMatch(src, /ChildCollections/);
+    assert.doesNotMatch(src, /ChildAchievements/);
+    assert.doesNotMatch(src, /Mer kommer snart/);
+  });
+
+  it('child-samling-present defines Min samling shell sections', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
+    assert.match(src, /ChildSamlingPresent/);
+    assert.match(src, /Stjärnglaset/);
+    assert.match(src, /Trofévägg/);
+    assert.match(src, /Dagar i rad/);
+    assert.doesNotMatch(src, /ChildCollections/);
+    assert.doesNotMatch(src, /star_cost/);
+  });
+
+  it('child-dashboard.html includes Min samling present assets', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(html, /id="collectionView"/);
+    assert.match(html, /child-samling-present\.js/);
+    assert.match(html, /child-samling-view\.js/);
+    assert.match(html, /child-samling\.css/);
   });
 
   it('routes register collection and treasure child paths', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(src, /\/child\/collection/);
     assert.match(src, /\/child\/treasure/);
-  });
-
-  it('child-dashboard.html includes collection view mount', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
-    assert.match(html, /id="collectionView"/);
-    assert.match(html, /child-samling-view\.js/);
   });
 });
