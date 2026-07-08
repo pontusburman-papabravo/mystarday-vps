@@ -108,26 +108,25 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Fas A är **klar** (#588–#593 mergade). Nästa huvudspår: **Fas B (#584)** före Fas C (#585).
+Fas A är **klar** (#588–#593 mergade). **Fas B (#584) är klar** (#621–#626 mergade). Nästa huvudspår: **Fas C (#585)**.
 
 **Plan:** [barnets-samling-fas-b-plan.md](barnets-samling-fas-b-plan.md)
 
-### Fas B — Min samling v1 (vägg + glas + streak)
+### Fas B — Min samling v1 (vägg + glas + streak) ✓
 
-| Ticket | Titel |
-|--------|-------|
-| **584** | Epic: Min samling v1 |
-| **#615** | B1 Route + shell (ersätt #588 placeholder) |
-| **#616** | B2 Stjärnglas / totalt intjänade stjärnor |
-| **#617** | B3 Trofévägg / medaljer (återanvänd achievements) |
-| **#618** | B4 Streak-kedja |
-| **#619** | B5 NPF-copy + tomstatus |
-| **#620** | B6 Regression/gate-test |
+| Ticket | Titel | PR |
+|--------|-------|-----|
+| **584** | Epic: Min samling v1 | — |
+| **#615** | B1 Route + shell | #621 |
+| **#616** | B2 Stjärnglas / totalt intjänade stjärnor | #622 |
+| **#617** | B3 Trofévägg / medaljer | #623 |
+| **#618** | B4 Streak-kedja | #624 |
+| **#619** | B5 NPF-copy + tomstatus | #625 |
+| **#620** | B6 Regression/gate-test | #626 |
 
-**Fas B-ordning:** B1 → B2+B3+B4 → B5 → B6  
-**Out of scope:** årsbok · minneskort · diplom (ny modell) · Skattkammaren-logik · shop/loot · streak-räddning-backend
-
-Skapa GitHub-issues för B1–B6 under epic #584 (nummer TBD — kör label-skript eller manuellt).
+**Gate ON:** `/child/collection` → stjärnglas (`lifetime_stars`) + trofévägg (`achievements`) + streak-kedja (`stats.streak`). Ingen `ChildCollections`, ingen spendable saldo.  
+**Gate OFF:** legacy oförändrat.  
+**Tester:** `barnets-samling-*.test.js` (8 filer) i `test:gate`.
 
 ### Fas C–E (oförändrat)
 

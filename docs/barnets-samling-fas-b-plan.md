@@ -1,8 +1,8 @@
 # Fas B — Min samling v1 (plan)
 
-**Status:** Plan godkänd · issues skapade · B1 påbörjad (#615)  
-**Epic:** GitHub **#584**  
-**Issues:** #615 B1 · #616 B2 · #617 B3 · #618 B4 · #619 B5 · #620 B6  
+**Status:** **Klar** — B1–B6 mergade (#621–#626) · `test:gate` grön  
+**Epic:** GitHub **#584** (manuellt: stäng tickets #615–#620)  
+**Issues:** #615 B1 ✓ · #616 B2 ✓ · #617 B3 ✓ · #618 B4 ✓ · #619 B5 ✓ · #620 B6 ✓  
 **Spec:** [barnets-samling-vision.md](barnets-samling-vision.md) §2 · [npf-arkitektur-v1.md](npf-arkitektur-v1.md) § Två stjärnsaldon  
 **Förutsättning:** Fas A klar (#588–#593 mergade)
 
@@ -354,12 +354,23 @@ flowchart TB
 
 ## Definition of Done (Fas B)
 
-- [ ] Alla B1–B6 acceptance criteria
-- [ ] `npm run test:gate` grön
-- [ ] `npm run check:css` om Tailwind/static ändrats
-- [ ] SW bump om statiska assets ändrats
-- [ ] Self-review (180) — särskilt UX + Game + NPF
-- [ ] POS citerat i PR: vision §2, npf § Två stjärnsaldon, R-06
+- [x] Alla B1–B6 acceptance criteria
+- [x] `npm run test:gate` grön
+- [x] `npm run check:css` om Tailwind/static ändrats (SW v544)
+- [x] SW bump om statiska assets ändrats
+- [x] Self-review (180) — särskilt UX + Game + NPF
+- [x] POS citerat i PR: vision §2, npf § Två stjärnsaldon, R-06
+
+### Mergade PR:er
+
+| PR | Issue | Innehåll |
+|----|-------|----------|
+| #621 | #615 | Route + shell |
+| #622 | #616 | Stjärnglas + medaljtrappa |
+| #623 | #617 | Trofévägg |
+| #624 | #618 | Streak-kedja |
+| #625 | #619 | NPF-copy + tomstatus |
+| #626 | #620 | Regression/gate-test |
 
 ---
 
