@@ -66,7 +66,10 @@
   }
 
   function startChildHandoff(source) {
-    const src = source || 'handoff';
+    const resumeActive = window.OnboardingHandoffResume &&
+      typeof OnboardingHandoffResume.isActive === 'function' &&
+      OnboardingHandoffResume.isActive();
+    const src = resumeActive ? 'reminder_email' : (source || 'handoff');
     if (isHandoffEnabled()) {
       trackEvent('child_handoff_started', { child_id: childId, source: src });
       trackEvent('child_view_opened', { child_id: childId, source: src });

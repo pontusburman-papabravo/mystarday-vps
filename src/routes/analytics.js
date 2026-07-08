@@ -114,6 +114,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'child_pin_created',
   'child_view_opened',
   'child_handoff_started',
+  'child_handoff_reminder_landed',
   'child_session_started',
   'child_handoff_skipped',
   'first_completion_recorded',

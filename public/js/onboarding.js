@@ -1270,13 +1270,17 @@ function trackLegacyOnboardingIfNeeded() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const addChildReturnUrl = window.location.pathname + window.location.search;
+  const resumeHandoff = !IS_ADD_CHILD &&
+    window.OnboardingHandoffResume &&
+    typeof OnboardingHandoffResume.isResumeHandoffQuery === 'function' &&
+    OnboardingHandoffResume.isResumeHandoffQuery();
 
   if (!Auth.isLoggedIn()) {
     if (!IS_ADD_CHILD) {
       if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.traceLoginBounce) {
         AppleSignInDiagnostics.traceLoginBounce('onboarding_not_logged_in', { path: window.location.pathname });
       }
-      window.location.href = '/login';
+      window.location.href = '/login?next=' + encodeURIComponent(addChildReturnUrl);
       return;
     }
     const hydrated = await Auth.hydrateUserFromLoginPicker();
@@ -1302,12 +1306,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (IS_ADD_CHILD && me.type === 'child' && (await Auth.hydrateUserFromLoginPicker())) {
         me = Auth.getUser();
       }
-      if (!IS_ADD_CHILD && me.onboarding_completed) { window.location.href = '/dashboard'; return; }
+      if (!IS_ADD_CHILD && me.onboarding_completed && !resumeHandoff) { window.location.href = '/dashboard'; return; }
       if (me.is_admin) { window.location.href = '/admin'; return; }
       Auth.setAuth(null, me);
     } catch {
       window.location.href = '/login';
       return;
+    }
+  }
+
+  let handoffResumeHandled = false;
+  if (resumeHandoff && window.OnboardingHandoffResume &&
+      typeof OnboardingHandoffResume.handleResume === 'function') {
+    const resumeResult = await OnboardingHandoffResume.handleResume(window.apiFetch);
+    if (resumeResult.action === 'dashboard') {
+      window.location.href = '/dashboard';
+      return;
+    }
+    if (resumeResult.action === 'handoff') {
+      handoffResumeHandled = true;
+      goToStep(5);
     }
   }
 
@@ -1322,14 +1340,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     AppleSignInDiagnostics.endPostLoginTrace();
   }
 
-  if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
+  if (!handoffResumeHandled && window.OnboardingStarterPlan && typeof OnboardingStarterPlan.init === 'function') {
     await OnboardingStarterPlan.init().catch(() => 'inactive');
   }
-  const act1InitResult = window.OnboardingStarterPlan &&
+  const act1InitResult = !handoffResumeHandled && window.OnboardingStarterPlan &&
     typeof OnboardingStarterPlan.getInitResult === 'function' &&
     OnboardingStarterPlan.getInitResult();
   const act1Active = act1InitResult === 'active' || act1InitResult === 'resumed';
-  if (act1InitResult === 'resumed') {
+  if (handoffResumeHandled) {
+    // step 5 handoff from email reminder resume (PR 3)
+  } else if (act1InitResult === 'resumed') {
     // resumeAct1Onboarding already navigated (step 5 or dashboard)
   } else if (!act1Active) {
     trackLegacyOnboardingIfNeeded();
