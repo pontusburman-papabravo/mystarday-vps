@@ -75,11 +75,12 @@
 
     const funnelHtml = `
       <div class="mt-5 pt-4 border-t border-lavender/60">
-        <p class="text-xs font-bold uppercase text-text-soft mb-2">Tratt senaste 7 dagar (av ${m.signups7d || 0} registreringar)</p>
+        <p class="text-xs font-bold uppercase text-text-soft mb-2">Tratt rullande 7 dagar (av ${m.signups7d || 0} registreringar)</p>
+        <p class="text-[11px] text-text-soft mb-2">Samma definition som Aktivering-tratten: rutin = schema_saved_at, barnåtkomst = verifierad child login.</p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-sm">
           <div class="bg-sky/50 rounded-xl p-3 border border-lavender">
             <p class="text-2xl font-heading font-bold text-navy">${m.schemaSaved7d || 0}</p>
-            <p class="text-xs text-text-soft">Schema sparat</p>
+            <p class="text-xs text-text-soft">Rutin klar</p>
             <p class="text-xs font-semibold">${formatPct(m.schemaRatePct)}</p>
           </div>
           <div class="bg-sky/50 rounded-xl p-3 border border-lavender">

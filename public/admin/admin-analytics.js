@@ -1302,7 +1302,10 @@ function renderActivationFunnelFromReport(data) {
       return '<span class="inline-flex items-center gap-1 mr-4 mb-1"><span class="text-text-soft">' +
         esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
     }).join('');
-    diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-2">Child access — diagnostik (sub-metrics)</p>' + items;
+    const weeks = diag.window_weeks || 8;
+    diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-1">Barnåtkomst — diagnostik (sub-metrics)</p>' +
+      '<p class="text-[11px] text-text-soft mb-2">Veckokohort senaste ' + weeks + ' veckor. Huvudtratt använder verifierad barnåtkomst (child_access_completed_at), inte parent-klick.</p>' +
+      items;
     diagEl.classList.remove('hidden');
   }
 }

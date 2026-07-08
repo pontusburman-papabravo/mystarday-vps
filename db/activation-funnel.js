@@ -123,28 +123,36 @@ async function getActivationChildAccessDiagnostics(weeks = 8) {
          AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
      )
      SELECT
+       COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access_completed,
+       COUNT(DISTINCT CASE WHEN s.schema_saved_at IS NOT NULL AND s.child_access_completed_at IS NULL THEN c.family_id END)::int AS schema_without_verified_access,
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_handoff_started' THEN c.family_id END)::int AS child_handoff_started,
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_handoff_reminder_landed' THEN c.family_id END)::int AS child_handoff_reminder_landed,
        COUNT(DISTINCT CASE WHEN ae.event_type = 'child_profile_created' THEN c.family_id END)::int AS child_profile_created,
        COUNT(DISTINCT CASE WHEN ae.event_type = 'child_pin_created' THEN c.family_id END)::int AS child_pin_created,
        COUNT(DISTINCT CASE WHEN ae.event_type = 'child_view_opened' THEN c.family_id END)::int AS child_view_opened,
-       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_handoff_skipped' THEN c.family_id END)::int AS child_handoff_skipped,
-       COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access_completed
+       COUNT(DISTINCT CASE WHEN ae.event_type = 'child_handoff_skipped' THEN c.family_id END)::int AS child_handoff_skipped
      FROM cohort c
      LEFT JOIN family_activation_state s ON s.family_id = c.family_id
      LEFT JOIN analytics_events ae ON ae.family_id = c.family_id
        AND ae.event_type IN (
-         'child_profile_created', 'child_pin_created', 'child_view_opened', 'child_handoff_skipped'
+         'child_profile_created', 'child_pin_created', 'child_view_opened', 'child_handoff_skipped',
+         'child_handoff_started', 'child_handoff_reminder_landed'
        )`,
     [safeWeeks]
   );
   const row = result.rows[0] || {};
   const metrics = [
+    { key: 'child_access_completed', label: 'Verifierad barnåtkomst' },
+    { key: 'schema_without_verified_access', label: 'Rutin utan verifierad åtkomst' },
+    { key: 'child_handoff_started', label: 'Handoff startad (parent-klick)' },
+    { key: 'child_handoff_reminder_landed', label: 'Reminder resume landad' },
     { key: 'child_profile_created', label: 'Profil skapad' },
     { key: 'child_pin_created', label: 'PIN satt' },
-    { key: 'child_view_opened', label: 'Barnvy öppnad' },
+    { key: 'child_view_opened', label: 'Barnvy öppnad (intent)' },
     { key: 'child_handoff_skipped', label: 'Handoff hoppad över' },
-    { key: 'child_access_completed', label: 'Child access klar' },
   ];
   return {
+    window_weeks: safeWeeks,
     metrics,
     counts: Object.fromEntries(metrics.map((m) => [m.key, row[m.key] || 0])),
   };

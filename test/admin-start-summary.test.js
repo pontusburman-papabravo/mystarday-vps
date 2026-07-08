@@ -190,6 +190,12 @@ test('admin-start.js shows familjer KPI instead of Meta', () => {
   assert.doesNotMatch(js, /metaSignups/);
 });
 
+test('fetchKeyMetrics uses schema_saved_at only (no weekly_schedule fallback)', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  assert.match(src, /schema_saved_at IS NOT NULL/);
+  assert.doesNotMatch(src, /weekly_schedule/);
+});
+
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
   assert.match(html, /id="startKpiBlock"/);
