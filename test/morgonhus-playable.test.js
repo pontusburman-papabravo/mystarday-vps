@@ -443,7 +443,7 @@ describe('ChildMorgonhus client module', () => {
     );
     assert.match(dashSrc, /isUniverse && window\.ChildMorgonhus && !window\.ChildMorgonhus\.isActive\(\)/);
     assert.match(dashSrc, /loadRewards\(\{ force: true, skipHub: skipHub \}\)/);
-    assert.match(dashSrc, /isBarnetsSamlingEnabled/);
+    assert.match(dashSrc, /shouldSkipHubForRewards/);
   });
 
   it('loadRewards mounts Morgonhus first with hub fallback', () => {
