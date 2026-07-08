@@ -333,6 +333,11 @@
         if (p === '/child/world') {
           window.location.replace('/child/treasure' + (window.location.hash || ''));
         }
+      } else {
+        const pOff = normalizePath(window.location.pathname);
+        if (pOff === '/child/treasure') {
+          window.location.replace('/child/world' + (window.location.hash || ''));
+        }
       }
     }
   }

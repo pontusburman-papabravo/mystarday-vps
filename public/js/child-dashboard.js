@@ -271,7 +271,11 @@ function showTab(tab) {
   if (window.ChildTodayFocus) ChildTodayFocus.onTabChange(isHome ? 'home' : tab);
 
   if (isHome && window.rewardsLoaded && window.ChildSkattHouse) {
-    ChildSkattHouse.showHub();
+    const hubBlocked = window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled
+      && ChildWorlds.isWorldHubEntryDisabled();
+    if (!hubBlocked) {
+      ChildSkattHouse.showHub();
+    }
   }
 }
 

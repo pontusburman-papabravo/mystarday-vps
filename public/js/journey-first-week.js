@@ -73,13 +73,21 @@
     hideMount();
   }
 
+  function routeForExperience(expKey) {
+    if (expKey === 'fw_day4_discovery' && window.ChildWorlds
+        && typeof ChildWorlds.treasureCanonicalPath === 'function') {
+      return ChildWorlds.treasureCanonicalPath();
+    }
+    return FW_ROUTES[expKey];
+  }
+
   function bindCard(card, expKey, day) {
     const cta = card.querySelector('.journey-fw-cta');
     const dismiss = card.querySelector('.journey-fw-dismiss');
     if (cta) {
       cta.addEventListener('click', function () {
         track('first_week_cta_click', { experience: expKey, day });
-        const route = FW_ROUTES[expKey];
+        const route = routeForExperience(expKey);
         if (route) window.location.href = route;
         else dismissDay(day);
       });
