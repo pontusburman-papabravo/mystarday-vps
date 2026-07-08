@@ -48,3 +48,44 @@ describe('barnets_samling copy — #589', () => {
     assert.match(src, /analyticsNavMode/);
   });
 });
+
+describe('barnets_samling Min samling copy — #619', () => {
+  const FORBIDDEN = [
+    /du har inga/i,
+    /\bshop\b/i,
+    /\bloot\b/i,
+    /\bköp/i,
+    /\bbruten\b/i,
+    /\bförlor/i,
+    /\bmisslyck/i,
+    /\bvarning/i,
+    /text-red/,
+    /\bprestation/i,
+    /star_cost/,
+    /ChildCollections/,
+  ];
+
+  const REQUIRED = [
+    'Titta vad du har samlat',
+    'Här kommer dina medaljer att synas',
+    'Här växer din kedja när du är aktiv',
+    'Ditt stjärnglas fylls när du samlar stjärnor',
+  ];
+
+  it('child-samling-present avoids shame/shop copy', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
+    FORBIDDEN.forEach(function (pattern) {
+      assert.doesNotMatch(src, pattern, 'forbidden pattern: ' + pattern);
+    });
+    REQUIRED.forEach(function (phrase) {
+      assert.ok(src.includes(phrase), 'missing required phrase: ' + phrase);
+    });
+  });
+
+  it('child-samling-view fallback copy is neutral', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-view.js'), 'utf8');
+    assert.match(src, /Ett ögonblick/);
+    assert.doesNotMatch(src, /du har inga/i);
+    assert.doesNotMatch(src, /ChildCollections/);
+  });
+});

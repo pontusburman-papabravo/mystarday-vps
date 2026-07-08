@@ -1,6 +1,6 @@
 /**
  * child-samling-present.js — Min samling vy (Fas B, gate: barnets_samling).
- * B2: stjärnglas · B3: trofévägg · B4: streak-kedja från stats.streak.
+ * B5: NPF-copy och trygga tomstatusar i hela vyn.
  */
 (function () {
   'use strict';
@@ -35,8 +35,16 @@
   }
 
   function totalStarsLabel(total) {
+    if (total === 0) return 'Ditt stjärnglas fylls när du samlar stjärnor';
     if (total === 1) return 'Totalt har du tjänat 1 stjärna';
     return 'Totalt har du tjänat ' + total + ' stjärnor';
+  }
+
+  function glassLeadCopy(total) {
+    if (total === 0) {
+      return 'Här samlas alla stjärnor du tjänar — de visar vad du klarat och minskar aldrig.';
+    }
+    return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
   }
 
   function renderHeader() {
@@ -55,7 +63,7 @@
       return (
         '<li class="bsp-medal' + (unlocked ? ' is-unlocked' : ' is-locked') + '"' +
           ' title="' + esc(medal.title) + '"' +
-          ' aria-label="' + esc(medal.title + (unlocked ? ' — upplåst' : '')) + '">' +
+          ' aria-label="' + esc(medal.title) + '">' +
           '<span class="bsp-medal-disc" aria-hidden="true">🏅</span>' +
           '<span class="bsp-medal-label">' + esc(medal.label) + '</span>' +
         '</li>'
@@ -74,6 +82,10 @@
     const total = lifetimeStars(universe);
     const fillPct = glassFillPct(total);
 
+    const jarAria = total === 0
+      ? 'Stjärnglas som väntar på dina stjärnor'
+      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
+
     return (
       '<section class="bsp-section bsp-glass" aria-label="Stjärnglas">' +
         '<div class="bsp-section-head">' +
@@ -81,11 +93,9 @@
           '<h3 class="bsp-section-title">Stjärnglaset</h3>' +
         '</div>' +
         '<p class="bsp-glass-total" aria-live="polite">' + esc(totalStarsLabel(total)) + '</p>' +
-        '<p class="bsp-section-lead">' +
-          esc('De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.') +
-        '</p>' +
-        '<div class="bsp-glass-jar" role="img" aria-label="' +
-          esc('Stjärnglas fyllt till ' + fillPct + ' procent') + '">' +
+        '<p class="bsp-section-lead">' + esc(glassLeadCopy(total)) + '</p>' +
+        '<div class="bsp-glass-jar' + (total === 0 ? ' bsp-glass-jar--empty' : '') + '" role="img" aria-label="' +
+          esc(jarAria) + '">' +
           '<div class="bsp-glass-fill" style="height:' + fillPct + '%"></div>' +
           '<span class="bsp-glass-count" aria-hidden="true">' + total + ' ⭐</span>' +
         '</div>' +
@@ -117,7 +127,7 @@
               esc('Här kommer dina medaljer att synas när du samlar fler stjärnor.') +
             '</p>' +
             '<p class="bsp-wall-empty-hint">' +
-              esc('Fortsätt med det du gör i ☀️ Idag — dina prestationer dyker upp här.') +
+              esc('Fortsätt med det du gör i ☀️ Idag — det du klarar dyker upp här.') +
             '</p>' +
           '</div>' +
         '</section>'
@@ -148,7 +158,7 @@
           '</span>' +
         '</div>' +
         '<p class="bsp-section-lead">' +
-          esc('Riktiga prestationer du har klarat — inte bara poäng.') +
+          esc('Trofeer från saker du har klarat på riktigt.') +
         '</p>' +
         '<div class="bsp-trophy-wall">' +
           '<div class="bsp-trophy-grid">' + cards + '</div>' +
@@ -227,7 +237,7 @@
     }
 
     const goldNote = isGold
-      ? '<p class="bsp-streak-gold-note">' + esc('Din kedja lyser guld — vad duktigt!') + '</p>'
+      ? '<p class="bsp-streak-gold-note">' + esc('Din kedja lyser guld.') + '</p>'
       : '';
 
     return (

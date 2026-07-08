@@ -160,6 +160,16 @@
   }
 }
 
+[data-barnets-samling="on"] .bsp-glass-jar--empty {
+  border-style: dashed;
+  border-color: rgba(245, 166, 35, 0.28);
+}
+
+[data-barnets-samling="on"] .bsp-glass-jar--empty .bsp-glass-count {
+  opacity: 0.55;
+  font-size: 0.85rem;
+}
+
 [data-barnets-samling="on"] .bsp-glass-count {
   position: absolute;
   inset: 0;
