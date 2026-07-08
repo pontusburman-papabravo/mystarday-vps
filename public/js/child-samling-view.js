@@ -13,6 +13,9 @@
 
     if (window.ChildSamlingPresent && typeof ChildSamlingPresent.render === 'function') {
       mount.innerHTML = ChildSamlingPresent.render(universe);
+      if (typeof ChildSamlingPresent.bindInteractions === 'function') {
+        ChildSamlingPresent.bindInteractions(mount);
+      }
     } else {
       mount.innerHTML =
         '<div class="max-w-lg mx-auto px-4 pt-6 pb-8 text-center">' +

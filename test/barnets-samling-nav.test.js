@@ -73,7 +73,20 @@ describe('barnets_samling nav — #588', () => {
     assert.match(src, /De här stjärnorna visar allt du har klarat/);
     assert.match(src, /STAR_MEDALS/);
     assert.doesNotMatch(src, /starBalance/);
-    assert.doesNotMatch(src, /rewards/);
+    assert.doesNotMatch(src, /\/api\/me\/rewards/);
+  });
+
+  it('child-samling-present B3 trofévägg from achievements (#617)', () => {
+    const present = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
+    const view = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-view.js'), 'utf8');
+    assert.match(present, /universe\.achievements/);
+    assert.match(present, /bsp-trophy-card/);
+    assert.match(present, /bsp-wall-empty/);
+    assert.match(present, /bindInteractions/);
+    assert.doesNotMatch(present, /ChildAchievements/);
+    assert.doesNotMatch(present, /ChildCollections/);
+    assert.doesNotMatch(present, /skatt-section/);
+    assert.match(view, /bindInteractions/);
   });
 
   it('child-dashboard.html includes Min samling present assets', () => {
