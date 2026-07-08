@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v537';
-// stjarndag-v537: onboarding activity guide — parent picks completion style defaults
+const CACHE_NAME = 'stjarndag-v538';
+// stjarndag-v538: onboarding activity guide — parent picks completion style defaults
+// stjarndag-v537: Barnets samling #593 — göm/avlänka gammal värld bakom gate ON
 // stjarndag-v536: PR3 handoff reminder resume — /onboarding?resume=child-handoff
 // stjarndag-v535: Barnets samling — #591 route + första gated Fas C-slice belöningsvy
 // stjarndag-v532: weekly summary email — settings#aviseringar anchor + opt-out footer

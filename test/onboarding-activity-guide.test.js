@@ -59,4 +59,14 @@ describe('onboarding activity guide — parent defaults', () => {
     assert.match(src, /saveNnlMode/);
     assert.match(src, /toggle-activity_timers_enabled/);
   });
+
+  it('onboarding activity guide does not touch barnets_samling gate', () => {
+    const guide = read('public/js/onboarding-activity-guide.js');
+    const route = read('src/routes/onboarding.js').slice(
+      read('src/routes/onboarding.js').indexOf('child-activity-guide'),
+      read('src/routes/onboarding.js').indexOf('child-activity-guide') + 1200
+    );
+    assert.doesNotMatch(guide, /barnets_samling/);
+    assert.doesNotMatch(route, /barnets_samling/);
+  });
 });

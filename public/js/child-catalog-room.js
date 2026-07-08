@@ -270,6 +270,10 @@
   }
 
   async function mount(worldId, opts) {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled
+        && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 
