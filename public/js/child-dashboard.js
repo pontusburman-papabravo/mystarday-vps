@@ -224,6 +224,9 @@ function showTab(tab) {
       && (!window.ChildGarden || !window.ChildGarden.isActive())
       && (!window.ChildWorldHub || !window.ChildWorldHub.isActive())
       && (!window.LivingWorldTransition || !window.LivingWorldTransition.isActive())) {
+    if (window.ChildWorlds && ChildWorlds.prepareTreasureEntry) {
+      ChildWorlds.prepareTreasureEntry();
+    }
     window.rewardsLoaded = false;
     if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
       window.ChildMorgonhus.clearPreferSkatt();
@@ -231,14 +234,16 @@ function showTab(tab) {
     if (window.ChildTreasureView) {
       ChildTreasureView.refresh({ force: true });
     } else {
-      const skipHub = !!(window.ChildWorlds && ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled());
+      const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+        && ChildWorlds.shouldSkipHubForRewards());
       loadRewards({ force: true, skipHub: skipHub });
     }
   } else if ((isHome || isUniverse) && !window.rewardsLoaded) {
     if (window.ChildTreasureView && isUniverse) {
       ChildTreasureView.refresh();
     } else {
-      const skipHub = !!(window.ChildWorlds && ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled());
+      const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+        && ChildWorlds.shouldSkipHubForRewards());
       loadRewards({ skipHub: skipHub });
     }
   }

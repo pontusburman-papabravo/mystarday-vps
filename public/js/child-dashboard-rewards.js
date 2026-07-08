@@ -45,6 +45,14 @@ async function loadRewards(options) {
 }
 
 async function loadRewardsInner(options) {
+  options = options || {};
+  if (!options.skipHub && window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+      && ChildWorlds.shouldSkipHubForRewards()) {
+    options.skipHub = true;
+  }
+  if (options.skipHub && window.ChildWorlds && ChildWorlds.prepareTreasureEntry) {
+    ChildWorlds.prepareTreasureEntry();
+  }
   // Show loader, hide content
   const loader = document.getElementById('skattkammarLoading');
   const view = document.getElementById('skattkammarView');

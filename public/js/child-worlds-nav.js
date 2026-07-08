@@ -134,8 +134,8 @@
   }
 
   function navigateWorld(worldId) {
-    if (ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled()
-        && worldId === 'treasure') {
+    const gateOn = ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled();
+    if (gateOn && worldId === 'treasure') {
       const path = window.location.pathname.replace(/\/$/, '');
       if (path === '/child/world' || path !== '/child/treasure') {
         window.location.href = '/child/treasure';
@@ -144,14 +144,24 @@
     }
     const tabKey = ChildWorlds.worldIdToTabKey(worldId);
     const world = ChildWorlds.worldById(worldId);
-    if (world && world.href && window.location.pathname.indexOf('/child/') === 0) {
-      if (window.location.pathname !== world.href.replace(/\/$/, '')) {
+    if (world && world.href) {
+      const targetPath = world.href.replace(/\/$/, '');
+      const currentPath = window.location.pathname.replace(/\/$/, '');
+      const onChildShell = window.location.pathname.indexOf('/child/') === 0
+        || currentPath === '/child-dashboard';
+      if (onChildShell && currentPath !== targetPath) {
         window.location.href = world.href;
         return;
       }
     }
+    if (worldId === 'treasure' && gateOn && ChildWorlds.prepareTreasureEntry) {
+      ChildWorlds.prepareTreasureEntry();
+    }
     if (typeof window.showTab === 'function') {
       window.showTab(tabKey);
+    }
+    if (window.ChildWorlds && ChildWorlds.syncChildRoute) {
+      ChildWorlds.syncChildRoute(worldId, { push: true });
     }
   }
 

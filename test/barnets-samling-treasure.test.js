@@ -8,7 +8,15 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 
-describe('barnets_samling treasure tab — #591', () => {
+describe('barnets_samling Skattkammaren route — #591', () => {
+  it('SAMLING_WORLDS treasure tab uses /child/treasure', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    const block = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
+    assert.match(block, /id: 'treasure'/);
+    assert.match(block, /\/child\/treasure/);
+    assert.match(block, /Skattkammaren/);
+  });
+
   it('child-treasure-view delegates to loadRewards with skipHub when gate on', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-treasure-view.js'), 'utf8');
     assert.match(src, /ChildTreasureView/);
@@ -16,55 +24,76 @@ describe('barnets_samling treasure tab — #591', () => {
     assert.match(src, /skipHub/);
     assert.match(src, /isBarnetsSamlingEnabled/);
     assert.match(src, /deactivateWorldSubScenes/);
-    assert.match(src, /syncTreasurePath/);
   });
 
   it('child-worlds exposes treasure route helpers', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
-    assert.match(src, /syncTreasurePath/);
+    assert.match(src, /treasureCanonicalPath/);
+    assert.match(src, /syncChildRoute/);
+    assert.match(src, /prepareTreasureEntry/);
     assert.match(src, /exitFromTreasureRoute/);
-    assert.match(src, /exitToTreasureRoute/);
+    assert.match(src, /shouldSkipHubForRewards/);
+    assert.match(src, /hashForWorld/);
     assert.match(src, /\/child\/treasure/);
-    assert.match(src, /\/child\/today/);
   });
 
   it('exitFromTreasureRoute goes to Idag when gate on, legacy hub when off', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     const fn = src.slice(
       src.indexOf('async function exitFromTreasureRoute'),
-      src.indexOf('function isConfigured')
+      src.indexOf('async function remountWorldHubLegacy')
     );
     assert.match(fn, /isWorldHubEntryDisabled/);
-    assert.match(fn, /\/child\/today/);
+    assert.match(fn, /syncChildRoute\('today'\)/);
     assert.match(fn, /showTab\('schedule'\)/);
     assert.match(fn, /remountWorldHubLegacy/);
   });
 
-  it('child-shell bootstraps treasure world via ChildTreasureView', () => {
+  it('gate ON uses #treasure hash alias', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    const block = src.slice(src.indexOf('SAMLING_HASH'), src.indexOf('let _barnetsSamling'));
+    assert.match(block, /treasure: 'treasure'/);
+    assert.match(block, /skattkammaren: 'treasure'/);
+    assert.match(block, /world: 'treasure'/);
+  });
+
+  it('layer router syncs child route and redirects /child/world', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-layer-router.js'), 'utf8');
+    assert.match(src, /syncChildRoute/);
+    assert.match(src, /\/child\/treasure/);
+    assert.match(src, /\/child\/world/);
+    assert.match(src, /hashForWorld/);
+    assert.match(src, /prepareTreasureEntry/);
+  });
+
+  it('nav treasure goes to canonical path when gate on', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
+    const fn = src.slice(src.indexOf('function navigateWorld'), src.indexOf('function applyV2Chrome'));
+    assert.match(fn, /worldId === 'treasure'/);
+    assert.match(fn, /\/child\/treasure/);
+    assert.match(fn, /prepareTreasureEntry/);
+    assert.match(fn, /syncChildRoute/);
+  });
+
+  it('child-shell bootstraps treasure via ChildTreasureView and prepareTreasureEntry', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-shell.js'), 'utf8');
     assert.match(src, /worldId === 'treasure'/);
     assert.match(src, /ChildTreasureView\.onEnter/);
+    assert.match(src, /prepareTreasureEntry/);
   });
 
   it('child-dashboard uses ChildTreasureView for rewards tab', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
     assert.match(src, /ChildTreasureView\.refresh/);
+    assert.match(src, /shouldSkipHubForRewards/);
   });
 
-  it('child-worlds-nav treasure tab always uses /child/treasure when gate on', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
-    const fn = src.slice(src.indexOf('function navigateWorld'), src.indexOf('function applyV2Chrome'));
-    assert.match(fn, /worldId === 'treasure'/);
-    assert.match(fn, /\/child\/treasure/);
-    assert.match(fn, /\/child\/world/);
-  });
-
-  it('openSkattkammaren passes skipHub when gate on', () => {
+  it('openSkattkammaren uses skipHub and treasure route when gate on', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-morgonhus.js'), 'utf8');
     const fn = src.slice(src.indexOf('function openSkattkammaren'), src.indexOf('function shouldPreferSkatt'));
-    assert.match(fn, /isWorldHubEntryDisabled/);
+    assert.match(fn, /shouldSkipHubForRewards/);
+    assert.match(fn, /syncChildRoute\('treasure'\)/);
     assert.match(fn, /skipHub/);
-    assert.match(fn, /syncTreasurePath/);
   });
 
   it('skatt-house room back uses exitFromTreasureRoute when gate on', () => {
@@ -74,6 +103,25 @@ describe('barnets_samling treasure tab — #591', () => {
     assert.match(fn, /isWorldHubEntryDisabled/);
   });
 
+  it('rewards engine treats world scenes inactive when gate on', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-rewards-engine.js'), 'utf8');
+    const fn = src.slice(src.indexOf('function isWorldSceneActive'), src.indexOf('function clearGoalChrome'));
+    assert.match(fn, /isWorldHubEntryDisabled/);
+  });
+
+  it('loadRewards prepares treasure entry and skips hub when gate on', () => {
+    const rewards = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
+    assert.match(rewards, /prepareTreasureEntry/);
+    assert.match(rewards, /shouldSkipHubForRewards/);
+    assert.match(rewards, /isWorldHubEntryDisabled/);
+    assert.match(rewards, /options\.skipHub/);
+  });
+
+  it('server registers /child/treasure route', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+    assert.match(src, /\/child\/treasure/);
+  });
+
   it('child-dashboard.html includes treasure modules', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /child-treasure-view\.js/);
@@ -81,22 +129,16 @@ describe('barnets_samling treasure tab — #591', () => {
     assert.match(html, /child-treasure-present\.css/);
   });
 
-  it('legacy gate off keeps world tab and hub path', () => {
-    const worlds = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
-    const legacyBlock = worlds.slice(worlds.indexOf('LEGACY_WORLDS'), worlds.indexOf('SAMLING_WORLDS'));
-    assert.match(legacyBlock, /id: 'world'/);
-    assert.match(legacyBlock, /\/child\/world/);
-    assert.match(worlds, /remountWorldHubLegacy/);
-  });
-
-  it('loadRewards still gates hub mount when barnets_samling active', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
-    assert.match(src, /isWorldHubEntryDisabled/);
-    assert.match(src, /options\.skipHub/);
+  it('legacy LEGACY_WORLDS still uses /child/world when gate off', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    const block = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
+    assert.match(block, /\/child\/world/);
+    assert.match(block, /Min värld/);
+    assert.match(src, /remountWorldHubLegacy/);
   });
 });
 
-describe('barnets_samling treasure presentation — gate ON', () => {
+describe('barnets_samling treasure presentation — gate ON (Fas C slice)', () => {
   it('renderSkattkammaren delegates to ChildTreasurePresent when gate on', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
     const fn = src.slice(src.indexOf('function renderSkattkammaren'), src.indexOf('// ── Coin sound'));
@@ -120,12 +162,12 @@ describe('barnets_samling treasure presentation — gate ON', () => {
     assert.doesNotMatch(src, /\bloot\b/i);
   });
 
-  it('presentation maps five status labels from existing reward state', () => {
+  it('presentation maps status labels from existing reward state', () => {
     const presentSrc = fs.readFileSync(path.join(ROOT, 'public/js/child-treasure-present.js'), 'utf8');
     const rewardsSrc = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
     const ctx = {
       window: {},
-      document: { createElement: function () { return { textContent: '', innerHTML: '' }; } },
+      document: { getElementById: function () { return null; }, createElement: function () { return { textContent: '', innerHTML: '' }; } },
       console: console,
       minimalUiActive: false,
       childUiMagic: false,
@@ -151,5 +193,7 @@ describe('barnets_samling treasure presentation — gate ON', () => {
     assert.match(css, /\[data-barnets-samling="on"\]/);
     assert.match(css, /prefers-reduced-motion/);
     assert.match(css, /\.btp-header/);
+    assert.doesNotMatch(css, /^\.btp-/m);
+    assert.doesNotMatch(css, /^body\.btp/m);
   });
 });
