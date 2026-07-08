@@ -151,6 +151,8 @@ describe('barnets_samling treasure presentation — gate ON (Fas C slice)', () =
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-treasure-present.js'), 'utf8');
     assert.match(src, /stjärnor att använda/);
     assert.match(src, /Du sparar till/);
+    assert.match(src, /Du kan lösa in den här nu/);
+    assert.match(src, /Här kommer belöningar du sparat ihop till att synas/);
     assert.match(src, /Väntar på vuxen/);
     assert.match(src, /Kan lösas in/);
     assert.match(src, /Genomförd/);
