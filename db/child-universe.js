@@ -223,7 +223,7 @@ async function getYearStory(childId, year) {
   const start = `${y}-01-01`;
   const end = `${y}-12-31`;
 
-  const [completions, redemptions, achievements] = await Promise.all([
+  const [completions, redemptions, achievements, monthlyActivity] = await Promise.all([
     db.query(
       `SELECT COUNT(*)::int AS cnt
        FROM daily_log_item dli
@@ -250,13 +250,66 @@ async function getYearStory(childId, year) {
        ORDER BY ca.unlocked_at ASC`,
       [childId, start, end]
     ),
+    db.query(
+      `SELECT EXTRACT(MONTH FROM dl.date)::int AS month,
+              COUNT(DISTINCT dl.date)::int AS active_days,
+              COALESCE(SUM(dli.star_value), 0)::int AS stars
+       FROM daily_log dl
+       JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+       WHERE dl.child_id = $1 AND dl.date BETWEEN $2 AND $3 AND dli.completed = true
+       GROUP BY EXTRACT(MONTH FROM dl.date)
+       ORDER BY month ASC`,
+      [childId, start, end]
+    ),
   ]);
+
+  let manualByMonth = [];
+  try {
+    const manual = await db.query(
+      `SELECT EXTRACT(MONTH FROM created_at)::int AS month,
+              COALESCE(SUM(star_count), 0)::int AS stars
+       FROM manual_star_grant
+       WHERE child_id = $1 AND created_at::date BETWEEN $2 AND $3
+       GROUP BY EXTRACT(MONTH FROM created_at)
+       ORDER BY month ASC`,
+      [childId, start, end]
+    );
+    manualByMonth = manual.rows;
+  } catch (_) { /* table may not exist */ }
+
+  const monthMap = {};
+  monthlyActivity.rows.forEach(function (row) {
+    monthMap[row.month] = {
+      month: row.month,
+      active_days: row.active_days,
+      stars: row.stars,
+    };
+  });
+  manualByMonth.forEach(function (row) {
+    if (!monthMap[row.month]) {
+      monthMap[row.month] = { month: row.month, active_days: 0, stars: 0 };
+    }
+    monthMap[row.month].stars += row.stars;
+  });
+
+  const now = new Date();
+  const lastMonth = y < now.getFullYear() ? 12 : now.getMonth() + 1;
+  const months = [];
+  for (let m = 1; m <= lastMonth; m++) {
+    const entry = monthMap[m] || { month: m, active_days: 0, stars: 0 };
+    months.push({
+      month: m,
+      active_days: entry.active_days || 0,
+      stars: entry.stars || 0,
+    });
+  }
 
   return {
     year: y,
     completions: completions.rows[0].cnt,
     redemptions: redemptions.rows,
     achievements: achievements.rows,
+    months: months,
   };
 }
 

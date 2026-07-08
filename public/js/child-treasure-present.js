@@ -242,7 +242,10 @@
     return (
       '<section class="btp-rewards" aria-label="Belöningar">' +
         '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
-        '<div class="btp-card-list">' + cards + '</div>' +
+        '<div class="btp-shelf-stage" role="img" aria-label="Belöningshylla">' +
+          '<div class="btp-shelf-board" aria-hidden="true"></div>' +
+          '<div class="btp-card-list btp-shelf-items">' + cards + '</div>' +
+        '</div>' +
       '</section>'
     );
   }
@@ -291,7 +294,10 @@
     return (
       '<section class="btp-history" aria-label="Inlösta belöningar">' +
         '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
-        '<div class="btp-history-list">' + cards + '</div>' +
+        '<div class="btp-chest" role="img" aria-label="Minnesskattkista">' +
+          '<div class="btp-chest-lid" aria-hidden="true">📦</div>' +
+          '<div class="btp-history-list btp-chest-body">' + cards + '</div>' +
+        '</div>' +
       '</section>'
     );
   }

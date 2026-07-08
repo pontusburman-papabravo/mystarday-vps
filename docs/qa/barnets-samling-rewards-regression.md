@@ -65,10 +65,20 @@ Verifierar att befintligt belöningsflöde fungerar efter #588–#591. Ingen ny 
 
 **Automatiserat:** `node --test test/barnets-samling-treasure-v1.test.js` (ingår i `npm run test:gate`).
 
+## Fas E — Årsbok + polish (gate ON)
+
+1. Öppna **Min samling** (`/child/collection`).
+2. **Årsbok:** Sektion ”Min årsbok” — horisontell bläddring mellan månadsuppslag (snap).
+3. **Tomstatus:** Varm copy om inga månader med aktivitet ännu.
+4. **Skattkammaren:** Belöningskort på visuell hylla; historik i kista-estetik.
+5. **Ingen beteendeändring:** Inlösen, saldo, redeem oförändrat.
+
+**Automatiserat:** `node --test test/barnets-samling-yearbook.test.js` (ingår i `npm run test:gate`).
+
 ## Passkriterier
 
 - Gate ON och OFF: saldo, inlösen, pending, godkänd/historik fungerar.
-- Gate ON: Min samling visar glas + trofévägg + streak + minneskort/hylla/diplom utan shop-copy.
+- Gate ON: Min samling visar glas + trofévägg + streak + minneskort/hylla/diplom + årsbok utan shop-copy.
 - Gate ON: Skattkammaren visar mål + progress + statusar + historik utan shop-copy.
 - Gate OFF: legacy Min värld oförändrat.
 - Inga ändringar i API `/api/me/rewards/:id/redeem`.

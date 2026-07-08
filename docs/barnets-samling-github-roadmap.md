@@ -108,11 +108,15 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D (#586)** klara. Nästa: **Fas E (#587)**.
+Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D (#586)** klara. **Fas E (#587)** pågår.
 
-**Plan:** [barnets-samling-fas-d-plan.md](barnets-samling-fas-d-plan.md)
+**Plan:** [barnets-samling-fas-e-plan.md](barnets-samling-fas-e-plan.md)
 
-**Status:** **Klar** (efter merge) · epic **#586**
+### Fas E — Årsbok + visuell polish (pågår)
+
+| Epic | Innehåll |
+|------|----------|
+| **#587** | Årsbok i Min samling + Skattkammaren hylla/kista polish |
 
 ### Fas D — Minneskort + hylla + diplom ✓
 
