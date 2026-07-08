@@ -164,17 +164,50 @@
     );
   }
 
+  function syncTreasurePath() {
+    if (typeof window === 'undefined' || !window.location) return;
+    if (!isWorldHubEntryDisabled()) return;
+    const target = '/child/treasure';
+    const current = normalizePath(window.location.pathname);
+    if (current !== target && current.indexOf('/child/') === 0) {
+      const next = target + (window.location.hash || '');
+      history.replaceState(null, '', next);
+    }
+  }
+
   /** Safe route när gate är på: Skattkammaren direkt, ingen hub. */
   async function exitToTreasureRoute() {
     deactivateWorldSubScenes();
+    syncTreasurePath();
     if (typeof window.showTab === 'function') {
       window.showTab('rewards');
     }
-    if (typeof window.loadRewards === 'function') {
+    if (window.ChildTreasureView && typeof ChildTreasureView.refresh === 'function') {
+      window.rewardsLoaded = false;
+      await ChildTreasureView.refresh({ force: true });
+    } else if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
       await window.loadRewards({ force: true, skipHub: true });
     }
     return true;
+  }
+
+  /** Back/exit från Skattkammaren — gate ON: Idag, inte hub (#591). */
+  async function exitFromTreasureRoute() {
+    deactivateWorldSubScenes();
+    if (isWorldHubEntryDisabled()) {
+      const target = '/child/today';
+      const current = normalizePath(window.location.pathname);
+      if (current !== target && current.indexOf('/child/') === 0) {
+        window.location.href = target;
+        return true;
+      }
+      if (typeof window.showTab === 'function') {
+        window.showTab('schedule');
+      }
+      return true;
+    }
+    return remountWorldHubLegacy();
   }
 
   /** Legacy back: Morgonhus → WorldHub → Skattkammaren. */
@@ -334,7 +367,9 @@
     analyticsNavMode: analyticsNavMode,
     isWorldHubEntryDisabled: isWorldHubEntryDisabled,
     deactivateWorldSubScenes: deactivateWorldSubScenes,
+    syncTreasurePath: syncTreasurePath,
     exitToTreasureRoute: exitToTreasureRoute,
+    exitFromTreasureRoute: exitFromTreasureRoute,
     remountWorldHubLegacy: remountWorldHubLegacy,
     returnFromWorldSubScene: returnFromWorldSubScene,
     configureFromFeatures: configureFromFeatures,

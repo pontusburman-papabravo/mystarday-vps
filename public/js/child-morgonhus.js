@@ -355,9 +355,15 @@
     if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
       window.ChildGarden.deactivate();
     }
+    const skipHub = !!(window.ChildWorlds
+      && ChildWorlds.isWorldHubEntryDisabled
+      && ChildWorlds.isWorldHubEntryDisabled());
+    if (skipHub && window.ChildWorlds && typeof ChildWorlds.syncTreasurePath === 'function') {
+      ChildWorlds.syncTreasurePath();
+    }
     if (typeof window.loadRewards === 'function') {
       window.rewardsLoaded = false;
-      window.loadRewards();
+      window.loadRewards({ skipHub: skipHub });
     }
   }
 
