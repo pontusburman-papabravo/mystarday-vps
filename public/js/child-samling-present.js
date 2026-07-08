@@ -1,6 +1,6 @@
 /**
  * child-samling-present.js — Min samling vy (Fas B, gate: barnets_samling).
- * B2: stjärnglas · B3: trofévägg från universe.achievements.
+ * B2: stjärnglas · B3: trofévägg · B4: streak-kedja från stats.streak.
  */
 (function () {
   'use strict';
@@ -174,16 +174,73 @@
     bindTrophyCards(root);
   }
 
-  function renderStreakSection() {
+  const STREAK_GOLD_DAYS = 30;
+  const STREAK_CHAIN_CAP = 10;
+
+  function currentStreak(universe) {
+    const raw = universe && universe.stats && universe.stats.streak;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  }
+
+  function streakHeadline(days) {
+    if (days === 1) return 'Du har varit aktiv 1 dag i rad';
+    return 'Du har varit aktiv ' + days + ' dagar i rad';
+  }
+
+  function renderStreakChain(days) {
+    const visible = Math.min(days, STREAK_CHAIN_CAP);
+    let html = '';
+    for (let i = 0; i < visible; i++) {
+      html += '<span class="bsp-streak-link" aria-hidden="true">🔥</span>';
+    }
+    if (days > STREAK_CHAIN_CAP) {
+      html += '<span class="bsp-streak-more" aria-hidden="true">+' + (days - STREAK_CHAIN_CAP) + '</span>';
+    }
+    return html;
+  }
+
+  function renderStreakSection(universe) {
+    const days = currentStreak(universe);
+    const isGold = days >= STREAK_GOLD_DAYS;
+
+    if (days <= 0) {
+      return (
+        '<section class="bsp-section bsp-streak" aria-label="Dagar i rad">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">🔥</span>' +
+            '<h3 class="bsp-section-title">Dagar i rad</h3>' +
+          '</div>' +
+          '<div class="bsp-streak-empty">' +
+            '<div class="bsp-streak-chain bsp-streak-chain--seed" aria-hidden="true">' +
+              '<span class="bsp-streak-link bsp-streak-link--dim">🔥</span>' +
+            '</div>' +
+            '<p class="bsp-section-lead">' +
+              esc('Här växer din kedja när du är aktiv.') +
+            '</p>' +
+            '<p class="bsp-streak-hint">' +
+              esc('Varje dag du gör något i ☀️ Idag kan lägga till en länk.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const goldNote = isGold
+      ? '<p class="bsp-streak-gold-note">' + esc('Din kedja lyser guld — vad duktigt!') + '</p>'
+      : '';
+
     return (
-      '<section class="bsp-section bsp-streak" aria-label="Dagar i rad">' +
+      '<section class="bsp-section bsp-streak' + (isGold ? ' bsp-streak--gold' : '') + '" aria-label="Dagar i rad">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">🔥</span>' +
           '<h3 class="bsp-section-title">Dagar i rad</h3>' +
         '</div>' +
-        '<p class="bsp-section-lead">' +
-          esc('Här växer din kedja när du är aktiv.') +
-        '</p>' +
+        '<p class="bsp-streak-headline" aria-live="polite">' + esc(streakHeadline(days)) + '</p>' +
+        '<div class="bsp-streak-chain" role="img" aria-label="' + esc(streakHeadline(days)) + '">' +
+          renderStreakChain(days) +
+        '</div>' +
+        goldNote +
       '</section>'
     );
   }
@@ -194,7 +251,7 @@
         renderHeader() +
         renderGlassSection(universe) +
         renderWallSection(universe) +
-        renderStreakSection() +
+        renderStreakSection(universe) +
       '</div>'
     );
   }

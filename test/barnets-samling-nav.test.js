@@ -89,6 +89,18 @@ describe('barnets_samling nav — #588', () => {
     assert.match(view, /bindInteractions/);
   });
 
+  it('child-samling-present B4 streak-kedja from stats.streak (#618)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
+    assert.match(src, /stats\.streak/);
+    assert.match(src, /bsp-streak-chain/);
+    assert.match(src, /Här växer din kedja när du är aktiv/);
+    assert.match(src, /STREAK_GOLD_DAYS/);
+    assert.doesNotMatch(src, /bruten/i);
+    assert.doesNotMatch(src, /förlor/i);
+    assert.doesNotMatch(src, /varning/i);
+    assert.doesNotMatch(src, /text-red/);
+  });
+
   it('child-dashboard.html includes Min samling present assets', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /id="collectionView"/);
