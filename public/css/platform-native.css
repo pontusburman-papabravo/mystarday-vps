@@ -147,12 +147,16 @@ html.is-native #globalFeedbackBtn {
 }
 
 /* ── Android WebView GPU stability ───────────────────────────────────────
- * backdrop-filter crashes the renderer on many mid/low-end Android WebViews
- * (Play pre-launch report / Family Policy stability). Use solid backgrounds. */
+ * backdrop-filter and filter:blur crash the renderer on many mid/low-end
+ * Android WebViews (Play pre-launch / Family Policy stability).
+ * is-native-android is set synchronously in <head> before these rules apply. */
+html.is-native-android,
 html.is-native-android *,
-html.is-native-android {
+html.is-native-android *::before,
+html.is-native-android *::after {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+  filter: none !important;
 }
 
 html.is-native-android .native-tab-bar {
@@ -162,6 +166,17 @@ html.is-native-android .native-tab-bar {
 html.is-native-android.dark .native-tab-bar,
 html.is-native-android.parent-theme-dark .native-tab-bar {
   background: #1c1c1e !important;
+}
+
+html.is-native-android .cloud {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.is-native-android .role-card,
+html.is-native-android .entry-choice-btn,
+html.is-native-android .entry-highlight-chip {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
 }
 
 html.is-native-android .app-entry-screen .entry-choice-card,

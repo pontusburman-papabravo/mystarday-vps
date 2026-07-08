@@ -212,7 +212,12 @@ function injectPlatformHtml(body, reqPath) {
 
   const headParts = [INJECT_MARKER];
   headParts.push(
-    '<script>(function(){try{if(typeof Capacitor!=="undefined"&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())window.WEBVIEW_SERVER_URL=location.origin}catch(e){}})();<\/script>'
+    '<script>(function(){try{var c=typeof Capacitor!=="undefined"?Capacitor:null;' +
+      'if(c&&c.isNativePlatform&&c.isNativePlatform()){' +
+      'window.WEBVIEW_SERVER_URL=location.origin;' +
+      'var el=document.documentElement;el.classList.add("is-native");' +
+      'if(c.getPlatform&&c.getPlatform()==="android")el.classList.add("is-native-android");' +
+      '}}catch(e){}})();<\/script>'
   );
   if (!/\/js\/platform\.js/i.test(body)) {
     headParts.push('<script src="/js/platform.js?v=' + RELEASE_TAG + '"><\/script>');
@@ -224,7 +229,7 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.5">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.6">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'

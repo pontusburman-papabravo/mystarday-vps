@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v544';
+const CACHE_NAME = 'stjarndag-v545';
 // stjarndag-v544: Fas B #619 — NPF-copy + tomstatus Min samling
 // stjarndag-v543: Fas B #618 — streak-kedja från stats.streak
 // stjarndag-v542: Fas B #617 — trofévägg från achievements
