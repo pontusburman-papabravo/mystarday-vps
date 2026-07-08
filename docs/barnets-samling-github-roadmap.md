@@ -117,12 +117,12 @@ Fas A är **klar** (#588–#593 mergade). Nästa huvudspår: **Fas B (#584)** f�
 | Ticket | Titel |
 |--------|-------|
 | **584** | Epic: Min samling v1 |
-| **B1** | Route + shell (ersätt #588 placeholder) |
-| **B2** | Stjärnglas / totalt intjänade stjärnor |
-| **B3** | Trofévägg / medaljer (återanvänd achievements) |
-| **B4** | Streak-kedja |
-| **B5** | NPF-copy + tomstatus |
-| **B6** | Regression/gate-test |
+| **#615** | B1 Route + shell (ersätt #588 placeholder) |
+| **#616** | B2 Stjärnglas / totalt intjänade stjärnor |
+| **#617** | B3 Trofévägg / medaljer (återanvänd achievements) |
+| **#618** | B4 Streak-kedja |
+| **#619** | B5 NPF-copy + tomstatus |
+| **#620** | B6 Regression/gate-test |
 
 **Fas B-ordning:** B1 → B2+B3+B4 → B5 → B6  
 **Out of scope:** årsbok · minneskort · diplom (ny modell) · Skattkammaren-logik · shop/loot · streak-räddning-backend

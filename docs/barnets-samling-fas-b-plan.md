@@ -1,7 +1,8 @@
 # Fas B — Min samling v1 (plan)
 
-**Status:** Plan · väntar på godkännande innan implementation  
+**Status:** Plan godkänd · issues skapade · B1 påbörjad (#615)  
 **Epic:** GitHub **#584**  
+**Issues:** #615 B1 · #616 B2 · #617 B3 · #618 B4 · #619 B5 · #620 B6  
 **Spec:** [barnets-samling-vision.md](barnets-samling-vision.md) §2 · [npf-arkitektur-v1.md](npf-arkitektur-v1.md) § Två stjärnsaldon  
 **Förutsättning:** Fas A klar (#588–#593 mergade)
 
