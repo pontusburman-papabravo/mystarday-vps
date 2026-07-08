@@ -108,4 +108,31 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Bryt ner #584–#587 i implementation tickets. Lägg till i samma milestone + project.
+Fas A är **klar** (#588–#593 mergade). Nästa huvudspår: **Fas B (#584)** före Fas C (#585).
+
+**Plan:** [barnets-samling-fas-b-plan.md](barnets-samling-fas-b-plan.md)
+
+### Fas B — Min samling v1 (vägg + glas + streak)
+
+| Ticket | Titel |
+|--------|-------|
+| **584** | Epic: Min samling v1 |
+| **#615** | B1 Route + shell (ersätt #588 placeholder) |
+| **#616** | B2 Stjärnglas / totalt intjänade stjärnor |
+| **#617** | B3 Trofévägg / medaljer (återanvänd achievements) |
+| **#618** | B4 Streak-kedja |
+| **#619** | B5 NPF-copy + tomstatus |
+| **#620** | B6 Regression/gate-test |
+
+**Fas B-ordning:** B1 → B2+B3+B4 → B5 → B6  
+**Out of scope:** årsbok · minneskort · diplom (ny modell) · Skattkammaren-logik · shop/loot · streak-räddning-backend
+
+Skapa GitHub-issues för B1–B6 under epic #584 (nummer TBD — kör label-skript eller manuellt).
+
+### Fas C–E (oförändrat)
+
+| # | Epic |
+|---|------|
+| **585** | Fas C: Skattkammaren v1 |
+| **586** | Fas D: Minneskort + hylla + diplom |
+| **587** | Fas E: Årsbok + visuell polish |
