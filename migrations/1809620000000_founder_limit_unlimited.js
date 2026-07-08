@@ -2,7 +2,7 @@
 
 /**
  * Remove founder program cap — unlimited lifetime free Basic until admin sets a limit.
- * Backfill: real families that missed the 225 cap get is_lifetime_free (smoke @example.com excluded).
+ * Backfill: all existing non-archived families that missed the 225 cap (including smoke/test).
  */
 module.exports = {
   name: '1809620000000_founder_limit_unlimited',
@@ -15,16 +15,10 @@ module.exports = {
     `);
 
     await client.query(`
-      UPDATE family f
+      UPDATE family
       SET is_lifetime_free = true
-      WHERE f.is_lifetime_free = false
-        AND f.archived_at IS NULL
-        AND NOT EXISTS (
-          SELECT 1
-          FROM parent p
-          WHERE p.family_id = f.id
-            AND lower(p.email) LIKE '%@example.com'
-        )
+      WHERE is_lifetime_free = false
+        AND archived_at IS NULL
     `);
 
     // Settings UI reads family_subscriptions.tier — align with is_lifetime_free for backfilled families.
@@ -37,12 +31,6 @@ module.exports = {
       WHERE fs.family_id = f.id
         AND f.is_lifetime_free = true
         AND fs.tier = 'trial'
-        AND NOT EXISTS (
-          SELECT 1
-          FROM parent p
-          WHERE p.family_id = f.id
-            AND lower(p.email) LIKE '%@example.com'
-        )
     `);
   },
 

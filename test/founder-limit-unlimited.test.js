@@ -26,7 +26,7 @@ describe('founder family limit (unlimited default)', () => {
     assert.equal(paymentPolicy.parseLimit(100), 100);
   });
 
-  it('migration clears founder_family_limit and backfills real families', () => {
+  it('migration clears founder_family_limit and backfills all existing families', () => {
     const src = fs.readFileSync(
       path.join(ROOT, 'migrations/1809620000000_founder_limit_unlimited.js'),
       'utf8'
@@ -34,7 +34,10 @@ describe('founder family limit (unlimited default)', () => {
     assert.match(src, /founder_family_limit/);
     assert.match(src, /'null'::jsonb/);
     assert.match(src, /SET is_lifetime_free = true/);
-    assert.match(src, /lower\(p\.email\) LIKE '%@example\.com'/);
+    assert.match(src, /is_lifetime_free = false/);
+    assert.match(src, /archived_at IS NULL/);
+    assert.doesNotMatch(src, /@example\.com/);
     assert.match(src, /tier = 'lifetime_free'/);
+    // Post-deploy: SELECT COUNT(*) FROM family WHERE is_lifetime_free=false AND archived_at IS NULL → 0
   });
 });
