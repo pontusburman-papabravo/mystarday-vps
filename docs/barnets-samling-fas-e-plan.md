@@ -1,6 +1,6 @@
 # Fas E — Årsbok + visuell polish (plan)
 
-**Status:** Klar (PR pending merge)  
+**Status:** Klar (merged #634)  
 **Epic:** GitHub **#587**  
 **Spec:** [barnets-samling-vision.md](barnets-samling-vision.md) § Årsboken · Skattkammaren estetik  
 **Förutsättning:** Fas A–D klar

@@ -108,15 +108,20 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D (#586)** klara. **Fas E (#587)** pågår.
+**Barnets samling v1 — Fas A–E klara** (#588–#593, #584–#587). PR #633 (D), #634 (E).
 
-**Plan:** [barnets-samling-fas-e-plan.md](barnets-samling-fas-e-plan.md)
+**Slutlig QA:** [docs/qa/barnets-samling-constitution-qa.md](qa/barnets-samling-constitution-qa.md)
 
-### Fas E — Årsbok + visuell polish (pågår)
+**Öppen follow-up:** #631 (Godkänd ≠ Genomförd persistent)
+
+### Fas E — Årsbok + visuell polish ✓
 
 | Epic | Innehåll |
 |------|----------|
 | **#587** | Årsbok i Min samling + Skattkammaren hylla/kista polish |
+
+**Gate ON:** `/child/collection` → årsbok från `year_story.months`; Skattkammaren shelf/chest CSS.  
+**Tester:** `barnets-samling-yearbook.test.js` i `test:gate`. SW v548.
 
 ### Fas D — Minneskort + hylla + diplom ✓
 
@@ -151,10 +156,4 @@ Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D
 
 **Gate ON:** `/child/collection` → stjärnglas (`lifetime_stars`) + trofévägg (`achievements`) + streak-kedja (`stats.streak`). Ingen `ChildCollections`, ingen spendable saldo.  
 **Gate OFF:** legacy oförändrat.  
-**Tester:** `barnets-samling-*.test.js` (8 filer) i `test:gate`.
-
-### Fas E (nästa)
-
-| # | Epic |
-|---|------|
-| **587** | Fas E: Årsbok + visuell polish |
+**Tester:** `barnets-samling-*.test.js` (10+ filer) i `test:gate`.
