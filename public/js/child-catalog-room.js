@@ -173,6 +173,13 @@
   }
 
   async function remountMorgonhus() {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      if (typeof window.loadRewards === 'function') {
+        window.rewardsLoaded = false;
+        await window.loadRewards({ skipHub: true });
+      }
+      return false;
+    }
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       if (await window.ChildMorgonhus.tryMountWorld()) return true;
       if (typeof window.ChildMorgonhus.tryRemountCached === 'function'

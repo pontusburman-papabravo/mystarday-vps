@@ -280,6 +280,10 @@
             window.LivingWorldTransition.exitMemoryHall();
             return;
           }
+          if (window.ChildWorlds && typeof ChildWorlds.returnFromWorldSubScene === 'function') {
+            ChildWorlds.returnFromWorldSubScene();
+            return;
+          }
           if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
             window.ChildWorldHub.show();
           }
@@ -369,6 +373,9 @@
   }
 
   async function mount(container, opts) {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     var root = container || document.getElementById('skattkammarView');
     if (!root) return false;
 

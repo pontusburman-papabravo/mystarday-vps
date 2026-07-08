@@ -19,7 +19,11 @@
       });
     }
     if (!window.ChildMorgonhus && window.ChildSkattHouse && typeof ChildSkattHouse.showHub === 'function') {
-      ChildSkattHouse.showHub();
+      const hubBlocked = window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled
+        && ChildWorlds.isWorldHubEntryDisabled();
+      if (!hubBlocked) {
+        ChildSkattHouse.showHub();
+      }
     }
   }
 

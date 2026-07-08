@@ -152,6 +152,10 @@
     wf.bind(root, {
       onBack: function () {
         deactivate();
+        if (window.ChildWorlds && typeof ChildWorlds.returnFromWorldSubScene === 'function') {
+          ChildWorlds.returnFromWorldSubScene();
+          return;
+        }
         if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
           window.ChildWorldHub.show();
         }
@@ -407,6 +411,9 @@
   }
 
   async function tryMountWorld() {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     if (_preferSkatt) return false;
     if (window.ChildGarden && window.ChildGarden.isActive && window.ChildGarden.isActive()) return false;
     if (window.LivingWorldTransition && window.LivingWorldTransition.isActive

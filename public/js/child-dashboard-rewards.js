@@ -65,7 +65,9 @@ async function loadRewardsInner(options) {
     if (view) view.style.display = 'none';
   }
 
-  if (navigator.onLine && window.ChildMorgonhus && !window.ChildMorgonhus.isActive() && !options.skipHub) {
+  if (navigator.onLine && window.ChildMorgonhus && !window.ChildMorgonhus.isActive()
+      && !options.skipHub
+      && !(window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled())) {
     let morgonhusAllowed = false;
     try {
       const features = window.fetchStjarndagFeatures

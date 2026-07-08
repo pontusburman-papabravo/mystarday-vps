@@ -163,6 +163,9 @@
   }
 
   async function show() {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 
