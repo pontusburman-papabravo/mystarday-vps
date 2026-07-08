@@ -287,11 +287,14 @@ test('GET /api/admin/analytics/activation-funnel returns 6-step cohort with conv
     if (q.includes('child_profile_created') && q.includes('child_access_completed')) {
       return {
         rows: [{
+          child_access_completed: 5,
+          schema_without_verified_access: 2,
+          child_handoff_started: 4,
+          child_handoff_reminder_landed: 1,
           child_profile_created: 7,
           child_pin_created: 6,
           child_view_opened: 5,
           child_handoff_skipped: 1,
-          child_access_completed: 5,
         }],
       };
     }
@@ -332,7 +335,9 @@ test('GET /api/admin/analytics/activation-funnel returns 6-step cohort with conv
     assert.equal(body.cohorts[0].conversions.signup_to_child_created.rate_pct, 80);
     assert.equal(body.cohorts[0].conversions.first_completion_to_second_day_activity.rate_pct, 50);
     assert.ok(body.childAccessDiagnostics);
-    assert.equal(body.childAccessDiagnostics.counts.child_profile_created, 7);
+    assert.equal(body.childAccessDiagnostics.window_weeks, 4);
+    assert.equal(body.childAccessDiagnostics.counts.child_access_completed, 5);
+    assert.equal(body.childAccessDiagnostics.counts.child_handoff_started, 4);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     mock.restore();
