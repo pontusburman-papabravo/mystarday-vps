@@ -1,18 +1,23 @@
 # Fas C — manuell GitHub-uppföljning
 
-**Status:** Fas C **klar** på `main` (efter merge). Kvar: stäng epic #585.
+**Status:** Fas C **godkänd och klar** på `main` (#629 mergad).
 
 ## Epic
 
 | Epic | Innehåll | Status |
 |------|----------|--------|
-| **#585** | Skattkammaren v1: mål + statusar + historik | mergad |
+| **#585** | Skattkammaren v1 | stängd |
 
-## Manuellt (1 min)
+## Follow-up
 
-1. **Stäng** epic #585.
-2. **Follow-up issue** (valfritt): Godkänd ≠ Genomförd persistent (`fulfilled_at` i `reward_redemption`).
-3. **Nästa:** Fas D (#586) — minneskort i Min samling.
+| Issue | Innehåll |
+|-------|----------|
+| **#631** | Persistent Godkänd ≠ Genomförd (`fulfilled_at` + förälder ”markera genomförd”) |
+
+## Manuellt kvar
+
+1. **Stäng draft PR #628** — superseded by #629 (bot kan inte stänga PR).
+2. **Fas D:** epic **#586** — minneskort i Min samling.
 
 ## Tester
 
