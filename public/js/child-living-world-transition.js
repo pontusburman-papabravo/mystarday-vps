@@ -47,6 +47,13 @@
         }
       },
       remountParent: async function () {
+        if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+          if (typeof window.loadRewards === 'function') {
+            window.rewardsLoaded = false;
+            await window.loadRewards({ skipHub: true });
+          }
+          return false;
+        }
         if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
           const remounted = await window.ChildMorgonhus.tryMountWorld();
           if (remounted) return true;
@@ -221,6 +228,9 @@
   }
 
   async function enterWorld(worldId, opts) {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     const world = WORLD_REGISTRY[worldId];
     if (!world) return false;
 

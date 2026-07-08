@@ -294,6 +294,10 @@
           return;
         }
         deactivate();
+        if (window.ChildWorlds && typeof ChildWorlds.returnFromWorldSubScene === 'function') {
+          ChildWorlds.returnFromWorldSubScene();
+          return;
+        }
         if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
           window.ChildMorgonhus.tryMountWorld();
           return;
@@ -730,6 +734,9 @@
   }
 
   async function remountMorgonhusOrSkatt() {
+    if (window.ChildWorlds && typeof ChildWorlds.returnFromWorldSubScene === 'function') {
+      return ChildWorlds.returnFromWorldSubScene();
+    }
     if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
       const remounted = await window.ChildMorgonhus.tryMountWorld();
       if (remounted) return true;
@@ -754,6 +761,9 @@
   }
 
   async function mount(state, opts) {
+    if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled && ChildWorlds.isWorldHubEntryDisabled()) {
+      return false;
+    }
     const view = document.getElementById('skattkammarView');
     if (!view) return false;
 

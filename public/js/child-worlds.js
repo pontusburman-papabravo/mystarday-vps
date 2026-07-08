@@ -137,6 +137,79 @@
     return _barnetsSamling ? 'barnets_samling' : 'legacy';
   }
 
+  /** Gate ON: WorldHub/Morgonhus får inte vara ingång till barnflödet (#590). */
+  function isWorldHubEntryDisabled() {
+    return _barnetsSamling;
+  }
+
+  function deactivateWorldSubScenes() {
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.deactivate === 'function') {
+      window.ChildMorgonhus.deactivate();
+    }
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.deactivate === 'function') {
+      window.ChildWorldHub.deactivate();
+    }
+    if (window.ChildGarden && typeof window.ChildGarden.deactivate === 'function') {
+      window.ChildGarden.deactivate();
+    }
+    if (window.ChildMemoryHall && typeof window.ChildMemoryHall.deactivate === 'function') {
+      window.ChildMemoryHall.deactivate();
+    }
+    document.body.classList.remove(
+      'child-morgonhus-active',
+      'child-world-hub-active',
+      'child-garden-active',
+      'child-memory-hall-active',
+      'child-wayfinder-active'
+    );
+  }
+
+  /** Safe route när gate är på: Skattkammaren direkt, ingen hub. */
+  async function exitToTreasureRoute() {
+    deactivateWorldSubScenes();
+    if (typeof window.showTab === 'function') {
+      window.showTab('rewards');
+    }
+    if (typeof window.loadRewards === 'function') {
+      window.rewardsLoaded = false;
+      await window.loadRewards({ force: true, skipHub: true });
+    }
+    return true;
+  }
+
+  /** Legacy back: Morgonhus → WorldHub → Skattkammaren. */
+  async function remountWorldHubLegacy() {
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.tryMountWorld === 'function') {
+      const remounted = await window.ChildMorgonhus.tryMountWorld();
+      if (remounted) return true;
+      if (typeof window.ChildMorgonhus.tryRemountCached === 'function'
+          && window.ChildMorgonhus.tryRemountCached()) {
+        return true;
+      }
+    }
+    if (window.ChildWorldHub && typeof window.ChildWorldHub.show === 'function') {
+      const hubShown = await window.ChildWorldHub.show();
+      if (hubShown) return true;
+    }
+    if (window.ChildMorgonhus && typeof window.ChildMorgonhus.openSkattkammaren === 'function') {
+      window.ChildMorgonhus.openSkattkammaren();
+      return true;
+    }
+    if (typeof window.loadRewards === 'function') {
+      window.rewardsLoaded = false;
+      await window.loadRewards();
+    }
+    return false;
+  }
+
+  /** Back/exit från sub-scenes — gate-aware (#590). */
+  async function returnFromWorldSubScene() {
+    if (isWorldHubEntryDisabled()) {
+      return exitToTreasureRoute();
+    }
+    return remountWorldHubLegacy();
+  }
+
   function isConfigured() {
     return _configured;
   }
@@ -259,6 +332,11 @@
     worldBackShort: worldBackShort,
     worldHubSubcopy: worldHubSubcopy,
     analyticsNavMode: analyticsNavMode,
+    isWorldHubEntryDisabled: isWorldHubEntryDisabled,
+    deactivateWorldSubScenes: deactivateWorldSubScenes,
+    exitToTreasureRoute: exitToTreasureRoute,
+    remountWorldHubLegacy: remountWorldHubLegacy,
+    returnFromWorldSubScene: returnFromWorldSubScene,
     configureFromFeatures: configureFromFeatures,
   };
 })();
