@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v545';
-// stjarndag-v545: Fas C #585 — Skattkammaren v1 polish + regression
+const CACHE_NAME = 'stjarndag-v546';
+// stjarndag-v546: Fas D #586 — minneskort, hylla, diplom i Min samling
 // stjarndag-v543: Fas B #618 — streak-kedja från stats.streak
 // stjarndag-v542: Fas B #617 — trofévägg från achievements
 // stjarndag-v541: Fas B #616 — stjärnglas + medaljtrappa (lifetime_stars)

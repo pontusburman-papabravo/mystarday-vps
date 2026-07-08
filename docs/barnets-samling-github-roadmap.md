@@ -108,9 +108,20 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Fas A är **klar** (#588–#593 mergade). **Fas B (#584) är klar** (#621–#626). **Fas C (#585) är klar** — Skattkammaren v1. Nästa huvudspår: **Fas D (#586)**.
+Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D (#586)** klara. Nästa: **Fas E (#587)**.
 
-**Plan:** [barnets-samling-fas-c-plan.md](barnets-samling-fas-c-plan.md)
+**Plan:** [barnets-samling-fas-d-plan.md](barnets-samling-fas-d-plan.md)
+
+**Status:** **Klar** (efter merge) · epic **#586**
+
+### Fas D — Minneskort + hylla + diplom ✓
+
+| Epic | Innehåll |
+|------|----------|
+| **#586** | Minneskort, belöningshylla, diplom i Min samling |
+
+**Gate ON:** `/child/collection` → Fas B + minneskort/hylla/diplom från `redemptions` (read-only) + universe.  
+**Tester:** `barnets-samling-memory.test.js` i `test:gate`.
 
 ### Fas C — Skattkammaren v1 ✓
 
@@ -138,9 +149,8 @@ Fas A är **klar** (#588–#593 mergade). **Fas B (#584) är klar** (#621–#626
 **Gate OFF:** legacy oförändrat.  
 **Tester:** `barnets-samling-*.test.js` (8 filer) i `test:gate`.
 
-### Fas D–E (nästa)
+### Fas E (nästa)
 
 | # | Epic |
 |---|------|
-| **586** | Fas D: Minneskort + hylla + diplom |
 | **587** | Fas E: Årsbok + visuell polish |

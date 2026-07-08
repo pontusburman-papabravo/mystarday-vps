@@ -1,6 +1,6 @@
 /**
- * child-samling-present.js — Min samling vy (Fas B, gate: barnets_samling).
- * B5: NPF-copy och trygga tomstatusar i hela vyn.
+ * child-samling-present.js — Min samling vy (Fas B–D, gate: barnets_samling).
+ * B5: NPF-copy · D2–D4: minneskort, hylla, diplom.
  */
 (function () {
   'use strict';
@@ -104,6 +104,171 @@
     );
   }
 
+  function formatMemoryDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function getRewardMemories(extras) {
+    if (window.ChildSamlingMemory && typeof window.ChildSamlingMemory.rewardMemories === 'function') {
+      return window.ChildSamlingMemory.rewardMemories((extras && extras.redemptions) || []);
+    }
+    return [];
+  }
+
+  function renderMemoryCardsSection(memories) {
+    if (!memories.length) {
+      return (
+        '<section class="bsp-section bsp-memories" aria-label="Mina minneskort">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">🃏</span>' +
+            '<h3 class="bsp-section-title">Mina minneskort</h3>' +
+          '</div>' +
+          '<div class="bsp-memories-empty">' +
+            '<p class="bsp-section-lead">' +
+              esc('Här kommer minnen från belöningar du har sparat ihop till.') +
+            '</p>' +
+            '<p class="bsp-memories-hint">' +
+              esc('När du löser in något i 🎁 Skattkammaren dyker det upp här.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const cards = memories.map(function (m, i) {
+      const dateLabel = formatMemoryDate(m.created_at);
+      const cost = m.stars_saved ? ' · ⭐ ' + m.stars_saved : '';
+      return (
+        '<article class="bsp-memory-card" style="--bsp-memory-delay:' + (i * 40) + 'ms"' +
+          ' aria-label="' + esc((m.reward_name || 'Minneskort') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
+          '<span class="bsp-memory-icon" aria-hidden="true">' + esc(m.reward_icon || '🎁') + '</span>' +
+          '<h4 class="bsp-memory-name">' + esc(m.reward_name || '') + '</h4>' +
+          (dateLabel ? '<p class="bsp-memory-date">' + esc(dateLabel) + esc(cost) + '</p>' : '') +
+          '<p class="bsp-memory-tag">Sparad som minne</p>' +
+          '<p class="bsp-memory-note">Det här klarade du.</p>' +
+        '</article>'
+      );
+    }).join('');
+
+    return (
+      '<section class="bsp-section bsp-memories" aria-label="Mina minneskort">' +
+        '<div class="bsp-section-head">' +
+          '<span class="bsp-section-icon" aria-hidden="true">🃏</span>' +
+          '<h3 class="bsp-section-title">Mina minneskort</h3>' +
+        '</div>' +
+        '<p class="bsp-section-lead">' + esc('Saker jag har sparat ihop till.') + '</p>' +
+        '<div class="bsp-memory-grid">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderRewardShelfSection(memories) {
+    if (!memories.length) {
+      return (
+        '<section class="bsp-section bsp-shelf" aria-label="Min belöningshylla">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">📚</span>' +
+            '<h3 class="bsp-section-title">Min belöningshylla</h3>' +
+          '</div>' +
+          '<div class="bsp-shelf-empty">' +
+            '<p class="bsp-section-lead">' +
+              esc('Här står belöningar du har klarat och fått.') +
+            '</p>' +
+            '<p class="bsp-shelf-hint">' +
+              esc('Hylla växer fram när du sparat ihop till något.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const items = memories.slice(0, 8).map(function (m) {
+      return (
+        '<div class="bsp-shelf-item" title="' + esc(m.reward_name || '') + '">' +
+          '<span class="bsp-shelf-emoji" aria-hidden="true">' + esc(m.reward_icon || '🎁') + '</span>' +
+          '<span class="bsp-shelf-label">' + esc(m.reward_name || '') + '</span>' +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<section class="bsp-section bsp-shelf" aria-label="Min belöningshylla">' +
+        '<div class="bsp-section-head">' +
+          '<span class="bsp-section-icon" aria-hidden="true">📚</span>' +
+          '<h3 class="bsp-section-title">Min belöningshylla</h3>' +
+        '</div>' +
+        '<p class="bsp-section-lead">' + esc('Belöningar jag har sparat ihop till.') + '</p>' +
+        '<div class="bsp-shelf-stage" role="img" aria-label="Belöningshylla med ' + memories.length + ' föremål">' +
+          '<div class="bsp-shelf-board"></div>' +
+          '<div class="bsp-shelf-items">' + items + '</div>' +
+        '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderDiplomasSection(universe, memories) {
+    const earned = (window.ChildSamlingMemory && window.ChildSamlingMemory.earnedDiplomas)
+      ? window.ChildSamlingMemory.earnedDiplomas(universe, memories)
+      : [];
+
+    if (!earned.length) {
+      return (
+        '<section class="bsp-section bsp-diplomas" aria-label="Diplom">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">📜</span>' +
+            '<h3 class="bsp-section-title">Diplom</h3>' +
+          '</div>' +
+          '<div class="bsp-diplomas-empty">' +
+            '<p class="bsp-section-lead">' +
+              esc('Här kommer diplom när du samlat fina minnen.') +
+            '</p>' +
+            '<p class="bsp-diplomas-hint">' +
+              esc('Utmärkelser för saker du har klarat — inget att stressa över.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const cards = earned.map(function (d, i) {
+      return (
+        '<div class="bsp-diploma-card" style="--bsp-diploma-delay:' + (i * 50) + 'ms"' +
+          ' aria-label="' + esc(d.title + ': ' + d.subtitle) + '">' +
+          '<span class="bsp-diploma-emoji" aria-hidden="true">' + esc(d.emoji) + '</span>' +
+          '<p class="bsp-diploma-title">' + esc(d.title) + '</p>' +
+          '<p class="bsp-diploma-sub">' + esc(d.subtitle) + '</p>' +
+        '</div>'
+      );
+    }).join('');
+
+    return (
+      '<section class="bsp-section bsp-diplomas" aria-label="Diplom">' +
+        '<div class="bsp-section-head">' +
+          '<span class="bsp-section-icon" aria-hidden="true">📜</span>' +
+          '<h3 class="bsp-section-title">Diplom</h3>' +
+        '</div>' +
+        '<p class="bsp-section-lead">' + esc('Utmärkelser för saker du har klarat.') + '</p>' +
+        '<div class="bsp-diploma-grid">' + cards + '</div>' +
+      '</section>'
+    );
+  }
+
+  function bindMemoryCards(root) {
+    if (!root) return;
+    const peekMs = 600;
+    root.querySelectorAll('.bsp-memory-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        card.classList.add('is-peek');
+        window.setTimeout(function () {
+          card.classList.remove('is-peek');
+        }, peekMs);
+      });
+    });
+  }
+
   function formatTrophyDate(iso) {
     if (!iso) return '';
     const d = new Date(iso);
@@ -182,6 +347,7 @@
 
   function bindInteractions(root) {
     bindTrophyCards(root);
+    bindMemoryCards(root);
   }
 
   const STREAK_GOLD_DAYS = 30;
@@ -255,13 +421,17 @@
     );
   }
 
-  function render(universe) {
+  function render(universe, extras) {
+    const memories = getRewardMemories(extras);
     return (
       '<div class="bsp-page">' +
         renderHeader() +
         renderGlassSection(universe) +
         renderWallSection(universe) +
         renderStreakSection(universe) +
+        renderMemoryCardsSection(memories) +
+        renderRewardShelfSection(memories) +
+        renderDiplomasSection(universe, memories) +
       '</div>'
     );
   }
