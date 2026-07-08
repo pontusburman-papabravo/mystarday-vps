@@ -23,15 +23,18 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
-function loadChildSamlingPresent() {
+  function loadChildSamlingPresent() {
   const memoryCtx = { window: {} };
   vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), memoryCtx);
+  const yearbookCtx = { window: {} };
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-yearbook.js')), yearbookCtx);
   const context = {
     window: {
       escHtml: function (s) {
         return String(s == null ? '' : s);
       },
       ChildSamlingMemory: memoryCtx.window.ChildSamlingMemory,
+      ChildSamlingYearbook: yearbookCtx.window.ChildSamlingYearbook,
     },
     document: {
       createElement: function () {
@@ -210,6 +213,8 @@ describe('#620 Fas B — gate wiring and legacy isolation', () => {
     assert.match(css, /\.bsp-memory-card/);
     assert.match(css, /\.bsp-shelf-stage/);
     assert.match(css, /\.bsp-diploma-card/);
+    assert.match(css, /\.bsp-yearbook-page/);
+    assert.match(css, /scroll-snap-type/);
     let depth = 0;
     for (const ch of css) {
       if (ch === '{') depth += 1;

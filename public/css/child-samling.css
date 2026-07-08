@@ -691,3 +691,92 @@
   font-size: 0.78rem;
   color: #7a8198;
 }
+
+/* ── Fas E: årsbok ───────────────────────────────────── */
+
+[data-barnets-samling="on"] .bsp-yearbook-year {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b8fc4;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(74, 139, 196, 0.1);
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-book {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5rem 0.15rem 0.75rem;
+  margin: 0 -0.25rem;
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-page {
+  flex: 0 0 78%;
+  max-width: 16rem;
+  scroll-snap-align: center;
+  padding: 1.1rem 1rem;
+  border-radius: 1rem 1.25rem 1rem 1rem;
+  background: linear-gradient(160deg, #fffef8 0%, #f5f0e6 100%);
+  border: 1.5px solid rgba(139, 119, 88, 0.2);
+  box-shadow: 2px 4px 12px rgba(74, 60, 40, 0.1), inset -3px 0 8px rgba(74, 60, 40, 0.04);
+  text-align: center;
+}
+
+.dark [data-barnets-samling="on"] .bsp-yearbook-page {
+  background: linear-gradient(160deg, #2a2838 0%, #1e2545 100%);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-month {
+  margin: 0 0 0.5rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #5c4a32;
+}
+
+.dark [data-barnets-samling="on"] .bsp-yearbook-month { color: #e8dcc8; }
+
+[data-barnets-samling="on"] .bsp-yearbook-stars {
+  margin: 0 0 0.4rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  color: #d4a017;
+  line-height: 1.2;
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-phrase {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.dark [data-barnets-samling="on"] .bsp-yearbook-phrase { color: #c8cdd8; }
+
+[data-barnets-samling="on"] .bsp-yearbook-days {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #9aa0b8;
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-empty,
+[data-barnets-samling="on"] .bsp-yearbook-hint {
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .bsp-yearbook-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #7a8198;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .bsp-yearbook-book {
+    scroll-behavior: auto;
+  }
+}

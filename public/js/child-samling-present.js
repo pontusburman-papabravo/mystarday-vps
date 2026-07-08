@@ -421,6 +421,65 @@
     );
   }
 
+  function renderYearbookSection(universe) {
+    const yb = window.ChildSamlingYearbook;
+    const story = universe && universe.year_story;
+    const spreads = yb ? yb.monthSpreads(story) : [];
+    const year = (story && story.year) || new Date().getFullYear();
+    const hasActivity = spreads.some(function (s) {
+      return s.stars > 0 || s.active_days > 0;
+    });
+
+    if (!hasActivity) {
+      return (
+        '<section class="bsp-section bsp-yearbook" aria-label="Min årsbok">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">📖</span>' +
+            '<h3 class="bsp-section-title">Min årsbok</h3>' +
+          '</div>' +
+          '<div class="bsp-yearbook-empty">' +
+            '<p class="bsp-section-lead">' +
+              esc('Här kommer månadsuppslag när du samlat minnen under året.') +
+            '</p>' +
+            '<p class="bsp-yearbook-hint">' +
+              esc('Bläddra mellan månader — ett uppslag i taget.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const pages = spreads.map(function (s, i) {
+      const title = yb.monthTitle(s.month);
+      const stars = yb.starLine(s.stars);
+      const phrase = yb.spreadPhrase(s.active_days, s.stars);
+      const days = yb.daysLabel(s.active_days);
+      return (
+        '<article class="bsp-yearbook-page" style="--bsp-page-delay:' + (i * 40) + 'ms"' +
+          ' aria-label="' + esc(title + ' ' + year) + '">' +
+          '<p class="bsp-yearbook-month">' + esc(title) + '</p>' +
+          (stars ? '<p class="bsp-yearbook-stars" aria-hidden="true">' + esc(stars) + '</p>' : '') +
+          '<p class="bsp-yearbook-phrase">' + esc(phrase) + '</p>' +
+          (days ? '<p class="bsp-yearbook-days">' + esc(days) + '</p>' : '') +
+        '</article>'
+      );
+    }).join('');
+
+    return (
+      '<section class="bsp-section bsp-yearbook" aria-label="Min årsbok">' +
+        '<div class="bsp-section-head">' +
+          '<span class="bsp-section-icon" aria-hidden="true">📖</span>' +
+          '<h3 class="bsp-section-title">Min årsbok</h3>' +
+          '<span class="bsp-yearbook-year">' + esc(String(year)) + '</span>' +
+        '</div>' +
+        '<p class="bsp-section-lead">' + esc('Bläddra mellan månaderna — ett uppslag i taget.') + '</p>' +
+        '<div class="bsp-yearbook-book" role="group" aria-label="Årsbok ' + esc(String(year)) + '">' +
+          pages +
+        '</div>' +
+      '</section>'
+    );
+  }
+
   function render(universe, extras) {
     const memories = getRewardMemories(extras);
     return (
@@ -432,6 +491,7 @@
         renderMemoryCardsSection(memories) +
         renderRewardShelfSection(memories) +
         renderDiplomasSection(universe, memories) +
+        renderYearbookSection(universe) +
       '</div>'
     );
   }
