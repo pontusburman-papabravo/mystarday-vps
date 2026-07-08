@@ -1,6 +1,6 @@
 /**
  * child-samling-present.js — Min samling vy (Fas B, gate: barnets_samling).
- * B2: stjärnglas + medaljtrappa från stats.lifetime_stars.
+ * B2: stjärnglas · B3: trofévägg från universe.achievements.
  */
 (function () {
   'use strict';
@@ -94,18 +94,84 @@
     );
   }
 
-  function renderWallSection() {
+  function formatTrophyDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+  }
+
+  function renderWallSection(universe) {
+    const achievements = (universe && universe.achievements) || [];
+
+    if (!achievements.length) {
+      return (
+        '<section class="bsp-section bsp-wall" aria-label="Trofévägg">' +
+          '<div class="bsp-section-head">' +
+            '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
+            '<h3 class="bsp-section-title">Trofévägg</h3>' +
+          '</div>' +
+          '<div class="bsp-wall-empty">' +
+            '<span class="bsp-wall-empty-icon" aria-hidden="true">🏅</span>' +
+            '<p class="bsp-wall-empty-lead">' +
+              esc('Här kommer dina medaljer att synas när du samlar fler stjärnor.') +
+            '</p>' +
+            '<p class="bsp-wall-empty-hint">' +
+              esc('Fortsätt med det du gör i ☀️ Idag — dina prestationer dyker upp här.') +
+            '</p>' +
+          '</div>' +
+        '</section>'
+      );
+    }
+
+    const cards = achievements.map(function (a, i) {
+      const dateLabel = formatTrophyDate(a.unlocked_at);
+      const desc = a.description || '';
+      return (
+        '<button type="button" class="bsp-trophy-card" style="--bsp-trophy-delay:' + (i * 50) + 'ms"' +
+          ' aria-label="' + esc((a.name || 'Trofé') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
+          '<span class="bsp-trophy-emoji" aria-hidden="true">' + esc(a.emoji || '🏆') + '</span>' +
+          '<span class="bsp-trophy-name">' + esc(a.name || '') + '</span>' +
+          (dateLabel ? '<span class="bsp-trophy-date">' + esc(dateLabel) + '</span>' : '') +
+          (desc ? '<span class="bsp-trophy-desc">' + esc(desc) + '</span>' : '') +
+        '</button>'
+      );
+    }).join('');
+
     return (
       '<section class="bsp-section bsp-wall" aria-label="Trofévägg">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
           '<h3 class="bsp-section-title">Trofévägg</h3>' +
+          '<span class="bsp-wall-count" aria-label="' + esc(achievements.length + ' trofeer') + '">' +
+            esc(String(achievements.length)) +
+          '</span>' +
         '</div>' +
         '<p class="bsp-section-lead">' +
-          esc('Här kommer dina medaljer att synas när du samlar fler stjärnor.') +
+          esc('Riktiga prestationer du har klarat — inte bara poäng.') +
         '</p>' +
+        '<div class="bsp-trophy-wall">' +
+          '<div class="bsp-trophy-grid">' + cards + '</div>' +
+        '</div>' +
       '</section>'
     );
+  }
+
+  function bindTrophyCards(root) {
+    if (!root) return;
+    const peekMs = 600;
+    root.querySelectorAll('.bsp-trophy-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        card.classList.add('is-peek');
+        window.setTimeout(function () {
+          card.classList.remove('is-peek');
+        }, peekMs);
+      });
+    });
+  }
+
+  function bindInteractions(root) {
+    bindTrophyCards(root);
   }
 
   function renderStreakSection() {
@@ -127,11 +193,14 @@
       '<div class="bsp-page">' +
         renderHeader() +
         renderGlassSection(universe) +
-        renderWallSection() +
+        renderWallSection(universe) +
         renderStreakSection() +
       '</div>'
     );
   }
 
-  window.ChildSamlingPresent = { render: render };
+  window.ChildSamlingPresent = {
+    render: render,
+    bindInteractions: bindInteractions,
+  };
 })();

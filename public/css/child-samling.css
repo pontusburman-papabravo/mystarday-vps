@@ -236,3 +236,154 @@
 .dark [data-barnets-samling="on"] .bsp-medal.is-unlocked .bsp-medal-label {
   color: #e8ecf8;
 }
+
+[data-barnets-samling="on"] .bsp-wall-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(245, 166, 35, 0.15);
+  color: #b8790a;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+}
+
+[data-barnets-samling="on"] .bsp-wall-empty {
+  text-align: center;
+  padding: 1.25rem 0.5rem 0.5rem;
+}
+
+[data-barnets-samling="on"] .bsp-wall-empty-icon {
+  display: block;
+  font-size: 2.25rem;
+  line-height: 1;
+  opacity: 0.45;
+  margin-bottom: 0.65rem;
+}
+
+[data-barnets-samling="on"] .bsp-wall-empty-lead {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #5a6178;
+}
+
+[data-barnets-samling="on"] .bsp-wall-empty-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #7a8198;
+}
+
+.dark [data-barnets-samling="on"] .bsp-wall-empty-lead,
+.dark [data-barnets-samling="on"] .bsp-wall-empty-hint {
+  color: #b8bfd4;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-wall {
+  margin-top: 0.75rem;
+  padding: 0.85rem 0.65rem 0.65rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(253, 234, 214, 0.35) 0%, rgba(255, 255, 255, 0.5) 100%);
+  border: 1px solid rgba(245, 166, 35, 0.18);
+}
+
+.dark [data-barnets-samling="on"] .bsp-trophy-wall {
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.08) 0%, rgba(30, 37, 69, 0.4) 100%);
+}
+
+[data-barnets-samling="on"] .bsp-trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+@media (min-width: 380px) {
+  [data-barnets-samling="on"] .bsp-trophy-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 5.5rem;
+  padding: 0.65rem 0.4rem 0.5rem;
+  border: 1.5px solid rgba(245, 166, 35, 0.22);
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.06);
+  cursor: pointer;
+  text-align: center;
+  animation: bspTrophyIn 0.35s ease-out both;
+  animation-delay: var(--bsp-trophy-delay, 0ms);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dark [data-barnets-samling="on"] .bsp-trophy-card {
+  background: #252d52;
+  border-color: rgba(245, 166, 35, 0.2);
+}
+
+@keyframes bspTrophyIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes bspTrophyPeek {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg) scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .bsp-trophy-card {
+    animation: none;
+  }
+  [data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-emoji {
+    animation: none;
+  }
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card:active,
+[data-barnets-samling="on"] .bsp-trophy-card.is-peek {
+  transform: scale(0.98);
+  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.18);
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-emoji {
+  animation: bspTrophyPeek 0.55s ease-in-out;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-emoji {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1b2340;
+  line-height: 1.25;
+}
+
+.dark [data-barnets-samling="on"] .bsp-trophy-name {
+  color: #e8ecf8;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-date {
+  font-size: 0.62rem;
+  color: #7a8198;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-desc {
+  display: none;
+  font-size: 0.65rem;
+  line-height: 1.35;
+  color: #5a6178;
+  margin-top: 0.15rem;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-desc {
+  display: block;
+}

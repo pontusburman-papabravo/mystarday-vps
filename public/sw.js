@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v541';
+const CACHE_NAME = 'stjarndag-v542';
+// stjarndag-v542: Fas B #617 — trofévägg från achievements
 // stjarndag-v541: Fas B #616 — stjärnglas + medaljtrappa (lifetime_stars)
 // stjarndag-v540: Fas B #615 — Min samling shell (child-samling-present)
 // stjarndag-v539: admin activation metrics — schema_saved_at only + handoff diagnostics
