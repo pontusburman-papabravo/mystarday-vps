@@ -42,10 +42,34 @@ Verifierar att befintligt belöningsflöde fungerar efter #588–#591. Ingen ny 
 
 **Automatiserat:** `node --test test/barnets-samling-collection.test.js` (ingår i `npm run test:gate`).
 
+## Min samling Fas D (gate ON)
+
+1. **Minneskort:** genomförda belöningar (approved/auto) som varma kort.
+2. **Belöningshylla:** samma minnen som objekt — inte shop.
+3. **Diplom:** utmärkelser från achievements, streak, lifetime, minnen.
+4. **Tomstatus:** varm copy om inga minnen.
+5. **Ingen spendable saldo** i Min samling.
+
+**Automatiserat:** `node --test test/barnets-samling-memory.test.js` (ingår i `npm run test:gate`).
+
+## Skattkammaren v1 (Fas C, gate ON)
+
+1. Öppna **Skattkammaren** via `/child/treasure` eller fliken 🎁.
+2. **Saldo:** ”Du har X stjärnor att använda” (spendable, inte lifetime).
+3. **Aktivt mål:** ”Du sparar till …”, progress ”X av Y stjärnor”, ”Bara N kvar” eller ”Du kan lösa in den här nu”.
+4. **Statusar på kort:** Sparar · Kan lösas in · Väntar på vuxen · Genomförd.
+5. **Godkänd:** Kort flash-banner efter förälder godkänner (≤2 s).
+6. **Historik:** ”Belöningar jag sparat ihop till” — varm tomstatus om tom.
+7. **Inlösen:** `requestRedeem` oförändrat; pending blockerar ny inlösen.
+8. **Back:** Till Idag — inte WorldHub/Morgonhus.
+
+**Automatiserat:** `node --test test/barnets-samling-treasure-v1.test.js` (ingår i `npm run test:gate`).
+
 ## Passkriterier
 
 - Gate ON och OFF: saldo, inlösen, pending, godkänd/historik fungerar.
-- Gate ON: Min samling visar glas + trofévägg + streak utan shop-copy.
+- Gate ON: Min samling visar glas + trofévägg + streak + minneskort/hylla/diplom utan shop-copy.
+- Gate ON: Skattkammaren visar mål + progress + statusar + historik utan shop-copy.
 - Gate OFF: legacy Min värld oförändrat.
 - Inga ändringar i API `/api/me/rewards/:id/redeem`.
 - Route/back/exit påverkar inte inlösenlogik.

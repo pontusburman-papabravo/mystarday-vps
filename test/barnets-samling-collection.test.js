@@ -24,11 +24,14 @@ function read(file) {
 }
 
 function loadChildSamlingPresent() {
+  const memoryCtx = { window: {} };
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), memoryCtx);
   const context = {
     window: {
       escHtml: function (s) {
         return String(s == null ? '' : s);
       },
+      ChildSamlingMemory: memoryCtx.window.ChildSamlingMemory,
     },
     document: {
       createElement: function () {
@@ -74,7 +77,7 @@ function populatedUniverse() {
 describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
   it('empty universe shows shell + warm tomstatusar for glas, vägg, streak', () => {
     const present = loadChildSamlingPresent();
-    const html = present.render(emptyUniverse());
+    const html = present.render(emptyUniverse(), { redemptions: [] });
 
     assert.match(html, /bsp-page/);
     assert.match(html, /Min samling/);
@@ -94,7 +97,7 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
 
   it('populated universe shows glas, trofévägg and streak chain', () => {
     const present = loadChildSamlingPresent();
-    const html = present.render(populatedUniverse());
+    const html = present.render(populatedUniverse(), { redemptions: [] });
 
     assert.match(html, /Totalt har du tjänat 42 stjärnor/);
     assert.match(html, /bsp-glass-fill/);
@@ -111,7 +114,7 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
     const html = present.render({
       stats: { lifetime_stars: 100, streak: 35 },
       achievements: [],
-    });
+    }, { redemptions: [] });
 
     assert.match(html, /bsp-streak--gold/);
     assert.match(html, /Din kedja lyser guld/);
@@ -122,18 +125,23 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
 
   it('bindInteractions wires trophy peek without shop APIs', () => {
     const present = loadChildSamlingPresent();
-    const html = present.render(populatedUniverse());
+    const html = present.render(populatedUniverse(), { redemptions: [] });
     const clicked = [];
     const root = {
       querySelectorAll: function (sel) {
-        assert.equal(sel, '.bsp-trophy-card');
-        return [{
-          classList: { add: function (c) { clicked.push('add:' + c); }, remove: function (c) { clicked.push('remove:' + c); } },
-          addEventListener: function (evt, fn) {
-            assert.equal(evt, 'click');
-            fn();
-          },
-        }];
+        if (sel === '.bsp-trophy-card') {
+          return [{
+            classList: { add: function (c) { clicked.push('trophy:add:' + c); }, remove: function (c) { clicked.push('trophy:remove:' + c); } },
+            addEventListener: function (evt, fn) {
+              assert.equal(evt, 'click');
+              fn();
+            },
+          }];
+        }
+        if (sel === '.bsp-memory-card') {
+          return [];
+        }
+        assert.fail('unexpected selector: ' + sel);
       },
     };
     const timers = [];
@@ -149,19 +157,21 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
     };
     vm.runInNewContext(read(PRESENT_PATH), context);
     context.window.ChildSamlingPresent.bindInteractions(root);
-    assert.deepEqual(clicked, ['add:is-peek', 'remove:is-peek']);
+    assert.deepEqual(clicked, ['trophy:add:is-peek', 'trophy:remove:is-peek']);
     assert.deepEqual(timers, [600]);
   });
 });
 
 describe('#620 Fas B — gate wiring and legacy isolation', () => {
-  it('child-samling-view mounts ChildSamlingPresent only (no collections)', () => {
+  it('child-samling-view mounts ChildSamlingPresent and loads redemptions read-only', () => {
     const src = read(VIEW_PATH);
     assert.match(src, /ChildSamlingPresent\.render/);
     assert.match(src, /ChildSamlingPresent\.bindInteractions/);
     assert.match(src, /ChildUniverse\.load/);
+    assert.match(src, /\/api\/me\/rewards/);
+    assert.doesNotMatch(src, /\/redeem/);
+    assert.doesNotMatch(src, /starBalance/);
     assert.doesNotMatch(src, /ChildCollections/);
-    assert.doesNotMatch(src, /\/api\/me\/rewards/);
   });
 
   it('gate OFF keeps LEGACY_WORLDS with Min värld and no forced collection tab', () => {
@@ -197,6 +207,9 @@ describe('#620 Fas B — gate wiring and legacy isolation', () => {
     assert.match(css, /\[data-barnets-samling="on"\]/);
     assert.match(css, /\.bsp-glass-jar--empty/);
     assert.match(css, /\.bsp-glass-count/);
+    assert.match(css, /\.bsp-memory-card/);
+    assert.match(css, /\.bsp-shelf-stage/);
+    assert.match(css, /\.bsp-diploma-card/);
     let depth = 0;
     for (const ch of css) {
       if (ch === '{') depth += 1;
@@ -204,5 +217,44 @@ describe('#620 Fas B — gate wiring and legacy isolation', () => {
       assert.ok(depth >= 0, 'unbalanced closing brace in child-samling.css');
     }
     assert.equal(depth, 0, 'unclosed brace block in child-samling.css');
+  });
+});
+
+describe('#586 Fas D — Min samling minneskort, hylla, diplom', () => {
+  it('gate ON render includes Fas B + D sections without shop copy', () => {
+    const present = loadChildSamlingPresent();
+    const html = present.render(populatedUniverse(), {
+      redemptions: [{
+        reward_name: 'Filmkväll',
+        reward_icon: '🎬',
+        star_cost: 20,
+        status: 'approved',
+        created_at: '2026-06-15T12:00:00.000Z',
+      }],
+    });
+    assert.match(html, /Stjärnglaset/);
+    assert.match(html, /Trofévägg/);
+    assert.match(html, /Dagar i rad/);
+    assert.match(html, /Mina minneskort/);
+    assert.match(html, /Min belöningshylla/);
+    assert.match(html, /Diplom/);
+    assert.match(html, /Filmkväll/);
+    assert.doesNotMatch(html, /star_cost/);
+    assert.doesNotMatch(html, /starBalance/);
+    assert.doesNotMatch(html, /ChildCollections/);
+    assert.doesNotMatch(html, /\bshop\b/i);
+    assert.doesNotMatch(html, /\bköp/i);
+  });
+
+  it('memory module maps star_cost to stars_saved without exposing shop field in present', () => {
+    const memCtx = { window: {} };
+    vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), memCtx);
+    const rows = memCtx.window.ChildSamlingMemory.rewardMemories([
+      { reward_name: 'Glass', star_cost: 15, status: 'approved', created_at: '2026-07-01T10:00:00.000Z' },
+    ]);
+    assert.equal(rows[0].stars_saved, 15);
+    assert.equal(rows[0].star_cost, undefined);
+    const presentSrc = read(PRESENT_PATH);
+    assert.doesNotMatch(presentSrc, /star_cost/);
   });
 });

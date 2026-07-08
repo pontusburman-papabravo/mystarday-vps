@@ -108,9 +108,30 @@ Kräver `project` + `repo` scope — se `./scripts/setup-barnets-samling-github.
 
 ## Efter Fas A
 
-Fas A är **klar** (#588–#593 mergade). **Fas B (#584) är klar** (#621–#626 mergade). Nästa huvudspår: **Fas C (#585)**.
+Fas A är **klar** (#588–#593). **Fas B (#584)**, **Fas C (#585)** och **Fas D (#586)** klara. Nästa: **Fas E (#587)**.
 
-**Plan:** [barnets-samling-fas-b-plan.md](barnets-samling-fas-b-plan.md)
+**Plan:** [barnets-samling-fas-d-plan.md](barnets-samling-fas-d-plan.md)
+
+**Status:** **Klar** (efter merge) · epic **#586**
+
+### Fas D — Minneskort + hylla + diplom ✓
+
+| Epic | Innehåll |
+|------|----------|
+| **#586** | Minneskort, belöningshylla, diplom i Min samling |
+
+**Gate ON:** `/child/collection` → Fas B + minneskort/hylla/diplom från `redemptions` (read-only) + universe.  
+**Tester:** `barnets-samling-memory.test.js` i `test:gate`.
+
+### Fas C — Skattkammaren v1 ✓
+
+| Epic | Innehåll |
+|------|----------|
+| **#585** | Aktivt mål + progress + fem statusar + historik + NPF-copy + regression |
+
+**Gate ON:** `/child/treasure` → spendable saldo, mål, progress, statuskort, historik, redeem oförändrat.  
+**Gate OFF:** legacy Skattkammaren oförändrat.  
+**Tester:** `barnets-samling-treasure-v1.test.js` + `#592` regression i `test:gate`.
 
 ### Fas B — Min samling v1 (vägg + glas + streak) ✓
 
@@ -128,10 +149,8 @@ Fas A är **klar** (#588–#593 mergade). **Fas B (#584) är klar** (#621–#626
 **Gate OFF:** legacy oförändrat.  
 **Tester:** `barnets-samling-*.test.js` (8 filer) i `test:gate`.
 
-### Fas C–E (oförändrat)
+### Fas E (nästa)
 
 | # | Epic |
 |---|------|
-| **585** | Fas C: Skattkammaren v1 |
-| **586** | Fas D: Minneskort + hylla + diplom |
 | **587** | Fas E: Årsbok + visuell polish |

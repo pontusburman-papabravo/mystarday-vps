@@ -481,3 +481,213 @@
   font-weight: 600;
   color: #b8790a;
 }
+
+/* ── Fas D: minneskort ─────────────────────────────────── */
+
+[data-barnets-samling="on"] .bsp-memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.65rem;
+}
+
+[data-barnets-samling="on"] .bsp-memory-card {
+  padding: 0.75rem 0.65rem;
+  border-radius: 1rem;
+  background: linear-gradient(160deg, #fff9f0 0%, #fff 55%);
+  border: 1.5px solid rgba(245, 166, 35, 0.18);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-barnets-samling="on"] .bsp-memory-card.is-peek {
+  transform: scale(1.03);
+  box-shadow: 0 6px 18px rgba(27, 35, 64, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .bsp-memory-card {
+    transition: none;
+  }
+}
+
+.dark [data-barnets-samling="on"] .bsp-memory-card {
+  background: linear-gradient(160deg, #2a2540 0%, #1e2545 55%);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-barnets-samling="on"] .bsp-memory-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+[data-barnets-samling="on"] .bsp-memory-name {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1b2340;
+}
+
+.dark [data-barnets-samling="on"] .bsp-memory-name { color: #f0f0f8; }
+
+[data-barnets-samling="on"] .bsp-memory-date {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  color: #8a90a8;
+}
+
+[data-barnets-samling="on"] .bsp-memory-tag {
+  margin: 0.35rem 0 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #059669;
+}
+
+[data-barnets-samling="on"] .bsp-memory-note {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+[data-barnets-samling="on"] .bsp-memories-empty,
+[data-barnets-samling="on"] .bsp-memories-hint {
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .bsp-memories-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #7a8198;
+}
+
+/* ── Fas D: belöningshylla ───────────────────────────── */
+
+[data-barnets-samling="on"] .bsp-shelf-stage {
+  position: relative;
+  margin-top: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+[data-barnets-samling="on"] .bsp-shelf-board {
+  height: 0.55rem;
+  border-radius: 0.35rem;
+  background: linear-gradient(180deg, #c9a66b 0%, #a67c52 100%);
+  box-shadow: 0 3px 8px rgba(101, 67, 33, 0.25);
+}
+
+[data-barnets-samling="on"] .bsp-shelf-items {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.25rem 0.15rem;
+  margin-top: -1.35rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-barnets-samling="on"] .bsp-shelf-item {
+  flex: 0 0 auto;
+  min-width: 4.5rem;
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .bsp-shelf-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.25rem;
+  font-size: 1.6rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(74, 139, 196, 0.15);
+  box-shadow: 0 2px 6px rgba(27, 35, 64, 0.08);
+}
+
+.dark [data-barnets-samling="on"] .bsp-shelf-emoji {
+  background: rgba(30, 37, 69, 0.9);
+}
+
+[data-barnets-samling="on"] .bsp-shelf-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #4a5568;
+  line-height: 1.2;
+  max-width: 4.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-barnets-samling="on"] .bsp-shelf-empty,
+[data-barnets-samling="on"] .bsp-shelf-hint {
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .bsp-shelf-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #7a8198;
+}
+
+/* ── Fas D: diplom ───────────────────────────────────── */
+
+[data-barnets-samling="on"] .bsp-diploma-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.65rem;
+}
+
+[data-barnets-samling="on"] .bsp-diploma-card {
+  padding: 0.85rem 0.65rem;
+  border-radius: 1rem;
+  text-align: center;
+  background: linear-gradient(145deg, #fefce8 0%, #fef9c3 100%);
+  border: 1.5px solid rgba(202, 138, 4, 0.2);
+  box-shadow: 0 2px 8px rgba(202, 138, 4, 0.08);
+}
+
+.dark [data-barnets-samling="on"] .bsp-diploma-card {
+  background: linear-gradient(145deg, #3d3520 0%, #2a2540 100%);
+  border-color: rgba(250, 204, 21, 0.2);
+}
+
+[data-barnets-samling="on"] .bsp-diploma-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+[data-barnets-samling="on"] .bsp-diploma-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #854d0e;
+}
+
+.dark [data-barnets-samling="on"] .bsp-diploma-title { color: #fde68a; }
+
+[data-barnets-samling="on"] .bsp-diploma-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  color: #a16207;
+}
+
+[data-barnets-samling="on"] .bsp-diplomas-empty,
+[data-barnets-samling="on"] .bsp-diplomas-hint {
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .bsp-diplomas-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #7a8198;
+}
