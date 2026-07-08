@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v533';
-// stjarndag-v533: Barnets samling Fas A — hub/Morgonhus inte ingång bakom gate (#590)
+const CACHE_NAME = 'stjarndag-v534';
+// stjarndag-v534: PR3 handoff reminder resume — /onboarding?resume=child-handoff
 // stjarndag-v532: weekly summary email — settings#aviseringar anchor + opt-out footer
 // stjarndag-v531: Barnets samling Fas A — fyra flikar bakom barnets_samling gate (#588)
 // stjarndag-v529: child access semantics — handoff click no longer sets child_access_completed_at

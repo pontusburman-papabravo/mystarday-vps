@@ -37,8 +37,8 @@ let _timer = null;
 
 function resolveHandoffReminderCtaUrl() {
   const base = String(process.env.APP_URL || config.email?.baseUrl || '').replace(/\/$/, '');
-  if (!base) return '/onboarding';
-  return `${base}/onboarding`;
+  if (!base) return '/onboarding?resume=child-handoff';
+  return `${base}/onboarding?resume=child-handoff`;
 }
 
 async function fetchHandoffReminderCandidates(client = db) {
