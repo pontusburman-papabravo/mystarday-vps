@@ -1,18 +1,31 @@
 /**
- * child-samling-view.js — Min samling (Fas B / #615).
- * Gate ON: ChildSamlingPresent shell. Ingen köp-UI i denna vy.
+ * child-samling-view.js — Min samling (Fas B–D / #615).
+ * Gate ON: ChildSamlingPresent + reward memories (read-only GET /api/me/rewards).
  */
 (function () {
   'use strict';
 
   let _loaded = false;
 
-  function render(universe) {
+  function loadRewardRedemptions() {
+    if (typeof Auth === 'undefined' || !Auth.api) {
+      return Promise.resolve([]);
+    }
+    return Auth.api('/api/me/rewards')
+      .then(function (data) {
+        return (data && data.redemptions) ? data.redemptions : [];
+      })
+      .catch(function () {
+        return [];
+      });
+  }
+
+  function render(universe, redemptions) {
     const mount = document.getElementById('collectionViewMount');
     if (!mount) return;
 
     if (window.ChildSamlingPresent && typeof ChildSamlingPresent.render === 'function') {
-      mount.innerHTML = ChildSamlingPresent.render(universe);
+      mount.innerHTML = ChildSamlingPresent.render(universe, { redemptions: redemptions });
       if (typeof ChildSamlingPresent.bindInteractions === 'function') {
         ChildSamlingPresent.bindInteractions(mount);
       }
@@ -32,18 +45,20 @@
     if (mount) mount.innerHTML = '';
 
     if (window.ChildUniverse && typeof ChildUniverse.load === 'function') {
-      ChildUniverse.load(_loaded).then(function (universe) {
+      const universeP = ChildUniverse.load(_loaded);
+      const redemptionsP = loadRewardRedemptions();
+      Promise.all([universeP, redemptionsP]).then(function (results) {
         if (loader) loader.classList.add('hidden');
-        render(universe);
+        render(results[0], results[1]);
       }).catch(function () {
         if (loader) loader.classList.add('hidden');
-        render(null);
+        render(null, []);
       });
       return;
     }
 
     if (loader) loader.classList.add('hidden');
-    render(null);
+    render(null, []);
   }
 
   window.ChildSamlingView = {

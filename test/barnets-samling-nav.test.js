@@ -62,6 +62,9 @@ describe('barnets_samling nav — #588', () => {
     assert.match(src, /Stjärnglaset/);
     assert.match(src, /Trofévägg/);
     assert.match(src, /Dagar i rad/);
+    assert.match(src, /Mina minneskort/);
+    assert.match(src, /Min belöningshylla/);
+    assert.match(src, /Diplom/);
     assert.doesNotMatch(src, /ChildCollections/);
     assert.doesNotMatch(src, /star_cost/);
   });
@@ -104,6 +107,7 @@ describe('barnets_samling nav — #588', () => {
   it('child-dashboard.html includes Min samling present assets', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
     assert.match(html, /id="collectionView"/);
+    assert.match(html, /child-samling-memory\.js/);
     assert.match(html, /child-samling-present\.js/);
     assert.match(html, /child-samling-view\.js/);
     assert.match(html, /child-samling\.css/);

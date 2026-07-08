@@ -42,6 +42,16 @@ Verifierar att befintligt belöningsflöde fungerar efter #588–#591. Ingen ny 
 
 **Automatiserat:** `node --test test/barnets-samling-collection.test.js` (ingår i `npm run test:gate`).
 
+## Min samling Fas D (gate ON)
+
+1. **Minneskort:** genomförda belöningar (approved/auto) som varma kort.
+2. **Belöningshylla:** samma minnen som objekt — inte shop.
+3. **Diplom:** utmärkelser från achievements, streak, lifetime, minnen.
+4. **Tomstatus:** varm copy om inga minnen.
+5. **Ingen spendable saldo** i Min samling.
+
+**Automatiserat:** `node --test test/barnets-samling-memory.test.js` (ingår i `npm run test:gate`).
+
 ## Skattkammaren v1 (Fas C, gate ON)
 
 1. Öppna **Skattkammaren** via `/child/treasure` eller fliken 🎁.
@@ -58,7 +68,7 @@ Verifierar att befintligt belöningsflöde fungerar efter #588–#591. Ingen ny 
 ## Passkriterier
 
 - Gate ON och OFF: saldo, inlösen, pending, godkänd/historik fungerar.
-- Gate ON: Min samling visar glas + trofévägg + streak utan shop-copy.
+- Gate ON: Min samling visar glas + trofévägg + streak + minneskort/hylla/diplom utan shop-copy.
 - Gate ON: Skattkammaren visar mål + progress + statusar + historik utan shop-copy.
 - Gate OFF: legacy Min värld oförändrat.
 - Inga ändringar i API `/api/me/rewards/:id/redeem`.
