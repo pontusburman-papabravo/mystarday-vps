@@ -19,7 +19,7 @@
     } else {
       mount.innerHTML =
         '<div class="max-w-lg mx-auto px-4 pt-6 pb-8 text-center">' +
-          '<p class="text-sm text-text-soft">Min samling laddas…</p>' +
+          '<p class="text-sm text-text-soft">Ett ögonblick…</p>' +
         '</div>';
     }
     _loaded = true;
