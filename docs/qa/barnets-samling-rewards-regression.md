@@ -31,8 +31,21 @@ Verifierar att befintligt belöningsflöde fungerar efter #588–#591. Ingen ny 
 1. Logga in som förälder, öppna godkännanden för väntande inlösen.
 2. Godkänn eller neka — barnvy uppdateras vid refresh/navigering.
 
+## Min samling (Fas B, gate ON)
+
+1. Öppna **Min samling** via `/child/collection` eller fliken 🏆.
+2. **Shell:** Rubrik ”Min samling”, undertext ”Titta vad du har samlat”.
+3. **Stjärnglas:** Lifetime-stjärnor (inte spendable saldo). Vid 0 — varm tomstatus, ingen skam-copy.
+4. **Trofévägg:** Befintliga achievements som kort; tom vägg har uppmuntrande copy.
+5. **Streak-kedja:** Dagar i rad från universe; neutral vid 0, guldton vid lång kedja.
+6. **Ingen shop:** Ingen köp-UI, loot eller `ChildCollections` i vyn.
+
+**Automatiserat:** `node --test test/barnets-samling-collection.test.js` (ingår i `npm run test:gate`).
+
 ## Passkriterier
 
 - Gate ON och OFF: saldo, inlösen, pending, godkänd/historik fungerar.
+- Gate ON: Min samling visar glas + trofévägg + streak utan shop-copy.
+- Gate OFF: legacy Min värld oförändrat.
 - Inga ändringar i API `/api/me/rewards/:id/redeem`.
 - Route/back/exit påverkar inte inlösenlogik.
