@@ -1,0 +1,208 @@
+'use strict';
+
+/**
+ * #620 — Fas B regression: Min samling gate on/off.
+ * Verifierar shell + glas + trofévägg + streak + trygg copy när gate ON,
+ * och att legacy/Idag/Skattkammaren inte påverkas.
+ */
+
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const ROOT = path.join(__dirname, '..');
+const PRESENT_PATH = path.join(ROOT, 'public/js/child-samling-present.js');
+const VIEW_PATH = path.join(ROOT, 'public/js/child-samling-view.js');
+const WORLDS_PATH = path.join(ROOT, 'public/js/child-worlds.js');
+const DASH_PATH = path.join(ROOT, 'public/js/child-dashboard.js');
+const TODAY_PATH = path.join(ROOT, 'public/js/child-today-focus.js');
+
+function read(file) {
+  return fs.readFileSync(file, 'utf8');
+}
+
+function loadChildSamlingPresent() {
+  const context = {
+    window: {
+      escHtml: function (s) {
+        return String(s == null ? '' : s);
+      },
+    },
+    document: {
+      createElement: function () {
+        const el = { _text: '', innerHTML: '' };
+        Object.defineProperty(el, 'textContent', {
+          set: function (v) {
+            el._text = String(v == null ? '' : v);
+            el.innerHTML = el._text;
+          },
+          get: function () {
+            return el._text;
+          },
+        });
+        return el;
+      },
+    },
+  };
+  vm.runInNewContext(read(PRESENT_PATH), context);
+  return context.window.ChildSamlingPresent;
+}
+
+function emptyUniverse() {
+  return {
+    stats: { lifetime_stars: 0, streak: 0 },
+    achievements: [],
+  };
+}
+
+function populatedUniverse() {
+  return {
+    stats: { lifetime_stars: 42, streak: 5 },
+    achievements: [
+      {
+        name: 'Första stjärnan',
+        emoji: '⭐',
+        description: 'Du fick din första stjärna',
+        unlocked_at: '2026-06-01T08:00:00.000Z',
+      },
+    ],
+  };
+}
+
+describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
+  it('empty universe shows shell + warm tomstatusar for glas, vägg, streak', () => {
+    const present = loadChildSamlingPresent();
+    const html = present.render(emptyUniverse());
+
+    assert.match(html, /bsp-page/);
+    assert.match(html, /Min samling/);
+    assert.match(html, /Titta vad du har samlat/);
+    assert.match(html, /Stjärnglaset/);
+    assert.match(html, /Trofévägg/);
+    assert.match(html, /Dagar i rad/);
+    assert.match(html, /bsp-glass-jar--empty/);
+    assert.match(html, /Ditt stjärnglas fylls när du samlar stjärnor/);
+    assert.match(html, /Här kommer dina medaljer att synas/);
+    assert.match(html, /Här växer din kedja när du är aktiv/);
+    assert.doesNotMatch(html, /du har inga/i);
+    assert.doesNotMatch(html, /ChildCollections/);
+    assert.doesNotMatch(html, /star_cost/);
+    assert.doesNotMatch(html, /bsp-glass-total[^<]*0 stjärnor/);
+  });
+
+  it('populated universe shows glas, trofévägg and streak chain', () => {
+    const present = loadChildSamlingPresent();
+    const html = present.render(populatedUniverse());
+
+    assert.match(html, /Totalt har du tjänat 42 stjärnor/);
+    assert.match(html, /bsp-glass-fill/);
+    assert.doesNotMatch(html, /bsp-glass-jar--empty/);
+    assert.match(html, /bsp-trophy-card/);
+    assert.match(html, /Första stjärnan/);
+    assert.match(html, /Du har varit aktiv 5 dagar i rad/);
+    assert.match(html, /bsp-streak-chain/);
+    assert.doesNotMatch(html, /ChildCollections/);
+  });
+
+  it('gold streak styling at 30+ days without shame copy', () => {
+    const present = loadChildSamlingPresent();
+    const html = present.render({
+      stats: { lifetime_stars: 100, streak: 35 },
+      achievements: [],
+    });
+
+    assert.match(html, /bsp-streak--gold/);
+    assert.match(html, /Din kedja lyser guld/);
+    assert.doesNotMatch(html, /bruten/i);
+    assert.doesNotMatch(html, /förlor/i);
+    assert.doesNotMatch(html, /misslyck/i);
+  });
+
+  it('bindInteractions wires trophy peek without shop APIs', () => {
+    const present = loadChildSamlingPresent();
+    const html = present.render(populatedUniverse());
+    const clicked = [];
+    const root = {
+      querySelectorAll: function (sel) {
+        assert.equal(sel, '.bsp-trophy-card');
+        return [{
+          classList: { add: function (c) { clicked.push('add:' + c); }, remove: function (c) { clicked.push('remove:' + c); } },
+          addEventListener: function (evt, fn) {
+            assert.equal(evt, 'click');
+            fn();
+          },
+        }];
+      },
+    };
+    const timers = [];
+    const context = {
+      window: {
+        escHtml: function (s) { return String(s == null ? '' : s); },
+        setTimeout: function (fn, ms) {
+          timers.push(ms);
+          fn();
+        },
+      },
+      document: root,
+    };
+    vm.runInNewContext(read(PRESENT_PATH), context);
+    context.window.ChildSamlingPresent.bindInteractions(root);
+    assert.deepEqual(clicked, ['add:is-peek', 'remove:is-peek']);
+    assert.deepEqual(timers, [600]);
+  });
+});
+
+describe('#620 Fas B — gate wiring and legacy isolation', () => {
+  it('child-samling-view mounts ChildSamlingPresent only (no collections)', () => {
+    const src = read(VIEW_PATH);
+    assert.match(src, /ChildSamlingPresent\.render/);
+    assert.match(src, /ChildSamlingPresent\.bindInteractions/);
+    assert.match(src, /ChildUniverse\.load/);
+    assert.doesNotMatch(src, /ChildCollections/);
+    assert.doesNotMatch(src, /\/api\/me\/rewards/);
+  });
+
+  it('gate OFF keeps LEGACY_WORLDS with Min värld and no forced collection tab', () => {
+    const src = read(WORLDS_PATH);
+    const legacy = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
+    const samling = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
+    assert.match(legacy, /Min värld/);
+    assert.match(legacy, /id: 'world'/);
+    assert.doesNotMatch(legacy, /id: 'collection'/);
+    assert.match(samling, /id: 'collection'/);
+    assert.match(samling, /Min samling/);
+    assert.match(src, /return _barnetsSamling \? SAMLING_WORLDS : LEGACY_WORLDS/);
+  });
+
+  it('child-dashboard refreshes Min samling only on collection tab', () => {
+    const src = read(DASH_PATH);
+    assert.match(src, /isCollection && window\.ChildSamlingView\) ChildSamlingView\.refresh\(\)/);
+    const todaySrc = read(TODAY_PATH);
+    assert.doesNotMatch(todaySrc, /ChildSamlingView/);
+    assert.doesNotMatch(todaySrc, /collectionView/);
+  });
+
+  it('Idag (child-today-focus) has no barnets_samling or Min samling coupling', () => {
+    const src = read(TODAY_PATH);
+    assert.doesNotMatch(src, /barnets_samling/);
+    assert.doesNotMatch(src, /ChildSamling/);
+    assert.doesNotMatch(src, /collectionView/);
+    assert.doesNotMatch(src, /ChildCollections/);
+  });
+
+  it('child-samling CSS scopes presentation under data-barnets-samling gate', () => {
+    const css = read(path.join(ROOT, 'public/css/child-samling.css'));
+    assert.match(css, /\[data-barnets-samling="on"\]/);
+    assert.match(css, /\.bsp-glass-jar--empty/);
+    assert.match(css, /\.bsp-glass-count/);
+    let depth = 0;
+    for (const ch of css) {
+      if (ch === '{') depth += 1;
+      if (ch === '}') depth -= 1;
+      assert.ok(depth >= 0, 'unbalanced closing brace in child-samling.css');
+    }
+    assert.equal(depth, 0, 'unclosed brace block in child-samling.css');
+  });
+});
