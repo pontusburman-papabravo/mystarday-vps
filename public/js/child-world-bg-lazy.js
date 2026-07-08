@@ -32,7 +32,14 @@
 
   function onLayer(layer) {
     const key = layerToKey(layer);
-    if (key) loadBg(key);
+    if (!key) return;
+    if (key === 'world'
+        && window.ChildWorlds
+        && ChildWorlds.isWorldHubEntryDisabled
+        && ChildWorlds.isWorldHubEntryDisabled()) {
+      return;
+    }
+    loadBg(key);
   }
 
   function watchLayer() {
