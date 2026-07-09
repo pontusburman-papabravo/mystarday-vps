@@ -225,9 +225,10 @@
       document.querySelector('h1'),
     ].filter(Boolean);
     if (!targets.length) return;
+    if (targets[0].dataset.nativeDebugTapBound) return;
+    targets[0].dataset.nativeDebugTapBound = '1';
     let taps = 0;
     let timer = null;
-    targets[0].style.cursor = 'default';
     targets[0].addEventListener('click', function () {
       taps += 1;
       clearTimeout(timer);
@@ -240,26 +241,46 @@
     });
   }
 
-  function boot() {
-    if (!isNativeShell()) return;
-
+  function tryEnableFromConfig() {
     if (shouldEnableFromUrl()) {
       enable('url_param');
-      return;
+      return true;
     }
     if (readStoredEnable()) {
       enable('stored');
-      return;
+      return true;
     }
+    return false;
+  }
 
+  function fetchConfigAndEnable() {
     fetch('/api/app-config', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (cfg) {
         if (cfg && cfg.native_debug_overlay) enable('app_config');
       })
       .catch(function () {});
+  }
 
+  function boot() {
     bindSecretActivator();
+
+    if (!isNativeShell()) {
+      let attempts = 0;
+      const timer = setInterval(function () {
+        attempts += 1;
+        if (isNativeShell()) {
+          clearInterval(timer);
+          if (!tryEnableFromConfig()) fetchConfigAndEnable();
+        } else if (attempts >= 30) {
+          clearInterval(timer);
+        }
+      }, 100);
+      return;
+    }
+
+    if (tryEnableFromConfig()) return;
+    fetchConfigAndEnable();
   }
 
   window.NativeDebug = {

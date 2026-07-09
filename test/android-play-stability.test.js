@@ -88,6 +88,12 @@ describe('Android Play stability guards', () => {
     assert.ok(versions.versionCode >= 5);
   });
 
+  it('platform-html ensures native-debug assets even when already injected', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /ensureNativeDebugAssets/);
+    assert.match(src, /INJECT_MARKER\)\) \{[\s\S]*ensureNativeDebugAssets/);
+  });
+
   it('native-debug overlay script and WebView debugging patch exist', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/native-debug.js'), 'utf8');
     assert.match(js, /native_debug/);
