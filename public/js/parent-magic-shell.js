@@ -28,6 +28,7 @@
   }
 
   function isAndroidNative() {
+    if (document.documentElement.classList.contains('is-native-android')) return true;
     return typeof window.Platform !== 'undefined' &&
       typeof Platform.isAndroid === 'function' &&
       Platform.isAndroid();

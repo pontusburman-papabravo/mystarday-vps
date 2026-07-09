@@ -50,6 +50,20 @@ describe('Android Play stability guards', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-shell.js'), 'utf8');
     assert.match(src, /isAndroidNative/);
     assert.match(src, /if \(isAndroidNative\(\)\) return/);
+    assert.match(src, /is-native-android/);
+  });
+
+  it('platform-native.css flattens parent-magic 3D on Android', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
+    assert.match(src, /parent-magic-view \.magic-3d-scene/);
+    assert.match(src, /transform-style: flat !important/);
+    assert.match(src, /parent-ready-child:active/);
+  });
+
+  it('dashboard-home-hub skips magic-3d-scene on Android', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
+    assert.match(src, /isAndroidFlatMode/);
+    assert.match(src, /is-native-android/);
   });
 
   it('prepare-android-native.mjs strips Apple Sign In package', () => {

@@ -229,7 +229,7 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.7">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.8">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'

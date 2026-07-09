@@ -199,6 +199,51 @@ html.is-native-android .magic-3d-orbs {
   display: none !important;
 }
 
+/* Parent magic flat mode — perspective/translateZ/preserve-3d crash dashboard on Android */
+html.is-native-android body.parent-magic-view .magic-3d-scene,
+html.is-native-android body.parent-magic-view .magic-3d-orbs {
+  perspective: none !important;
+  transform-style: flat !important;
+}
+
+html.is-native-android body.parent-magic-view .magic-3d-card,
+html.is-native-android body.parent-magic-view .parent-glass-card,
+html.is-native-android body.parent-magic-view .library-magic-menu-card,
+html.is-native-android body.parent-magic-view .library-magic-schedule-card,
+html.is-native-android body.parent-magic-view .parent-action-tile,
+html.is-native-android body.parent-magic-view .parent-ready-child,
+html.is-native-android body.parent-magic-view .magic-settings-group-card,
+html.is-native-android body.parent-magic-view .magic-page-stat-card,
+html.is-native-android body.parent-magic-view .parent-hub-mascot,
+html.is-native-android body.parent-magic-view .library-magic-mascot,
+html.is-native-android body.parent-magic-view .magic-page-hero-icon,
+html.is-native-android body.parent-magic-view .parent-hub-family-avatar,
+html.is-native-android body.parent-magic-view .parent-hub-icon-btn,
+html.is-native-android body.parent-magic-view .parent-bottom-nav,
+html.is-native-android body.parent-magic-view .parent-handoff-primary,
+html.is-native-android body.parent-magic-view .library-magic-btn-primary,
+html.is-native-android body.parent-magic-view .magic-3d-btn-primary,
+html.is-native-android body.parent-magic-view .schedule-mode-btn.active,
+html.is-native-android body.parent-magic-view .library-magic-hub .library-magic-menu-card {
+  transform: none !important;
+  transform-style: flat !important;
+  animation: none !important;
+}
+
+html.is-native-android body.parent-magic-view .parent-ready-child:hover,
+html.is-native-android body.parent-magic-view .parent-ready-child.is-active,
+html.is-native-android body.parent-magic-view .library-magic-menu-card:hover,
+html.is-native-android body.parent-magic-view .magic-settings-group-card:hover,
+html.is-native-android body.parent-magic-view .parent-action-tile:active,
+html.is-native-android body.parent-magic-view .library-magic-menu-card:active,
+html.is-native-android body.parent-magic-view .parent-ready-child:active,
+html.is-native-android body.parent-magic-view .magic-settings-group-card:active,
+html.is-native-android body.parent-magic-view .parent-handoff-primary:active,
+html.is-native-android body.parent-magic-view .library-magic-btn-primary:active,
+html.is-native-android body.parent-magic-view .parent-bottom-nav-btn.is-active {
+  transform: none !important;
+}
+
 html.is-native-android .app-entry-screen .entry-choice-card,
 html.is-native-android #ppin-overlay > div {
   background: rgba(255, 255, 255, 0.98) !important;

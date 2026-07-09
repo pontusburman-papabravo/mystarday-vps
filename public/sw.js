@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v549';
+const CACHE_NAME = 'stjarndag-v550';
+// stjarndag-v550: Android dashboard flat mode — disable parent-magic-3d perspective/translateZ
 // stjarndag-v549: Android login contrast fix + disable magic 3D orbs post-login
 // stjarndag-v547: Android Play stability — early is-native-android + filter:blur GPU guard
 // stjarndag-v546: Fas D #586 — minneskort, hylla, diplom i Min samling
