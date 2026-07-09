@@ -127,42 +127,42 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
     assert.doesNotMatch(html, /misslyck/i);
   });
 
-  it('bindInteractions wires trophy peek without shop APIs', () => {
+  it('bindInteractions toggles persistent trophy selection', () => {
     const present = loadChildSamlingPresent();
-    const html = present.render(populatedUniverse(), { redemptions: [] });
     const clicked = [];
-    const root = {
-      querySelectorAll: function (sel) {
-        if (sel === '.bsp-trophy-card') {
-          return [{
-            classList: { add: function (c) { clicked.push('trophy:add:' + c); }, remove: function (c) { clicked.push('trophy:remove:' + c); } },
-            addEventListener: function (evt, fn) {
-              assert.equal(evt, 'click');
-              fn();
-            },
-          }];
-        }
-        if (sel === '.bsp-memory-card') {
-          return [];
-        }
-        assert.fail('unexpected selector: ' + sel);
+    const attrs = [];
+    let cardClick;
+    const card = {
+      classList: {
+        add: function (c) { clicked.push('trophy:add:' + c); },
+        remove: function (c) { clicked.push('trophy:remove:' + c); },
+        contains: function (c) { return c === 'is-selected' && clicked.includes('trophy:add:is-selected'); },
+      },
+      setAttribute: function (k, v) { attrs.push(k + ':' + v); },
+      addEventListener: function (evt, fn) {
+        assert.equal(evt, 'click');
+        cardClick = fn;
       },
     };
-    const timers = [];
-    const context = {
-      window: {
-        escHtml: function (s) { return String(s == null ? '' : s); },
-        setTimeout: function (fn, ms) {
-          timers.push(ms);
-          fn();
-        },
+    const root = {
+      querySelectorAll: function (sel) {
+        if (sel === '.bsp-trophy-card') return [card];
+        if (sel === '.bsp-trophy-card.is-selected') return [];
+        if (sel === '.bsp-memory-card') return [];
+        assert.fail('unexpected selector: ' + sel);
       },
+      addEventListener: function () {},
+      contains: function () { return true; },
+    };
+    const context = {
+      window: { escHtml: function (s) { return String(s == null ? '' : s); } },
       document: root,
     };
     vm.runInNewContext(read(PRESENT_PATH), context);
     context.window.ChildSamlingPresent.bindInteractions(root);
-    assert.deepEqual(clicked, ['trophy:add:is-peek', 'trophy:remove:is-peek']);
-    assert.deepEqual(timers, [600]);
+    cardClick({ stopPropagation: function () {} });
+    assert.ok(clicked.includes('trophy:add:is-selected'));
+    assert.ok(attrs.includes('aria-expanded:true'));
   });
 });
 

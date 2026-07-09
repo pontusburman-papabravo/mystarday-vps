@@ -173,26 +173,18 @@
     '</section>';
   }
 
-  function renderBelowFold(data) {
-    const hasSecondary = (data.projects && data.projects.length) ||
-      (data.story && data.story.length) ||
-      data.chestEnabled !== false;
-    if (!hasSecondary) return '';
-
-    return '<details class="cfh-below-fold">' +
-      '<summary class="cfh-below-fold-summary">Tidigare stunder och gemensamma mål</summary>' +
-      '<div class="cfh-below-fold-body">' +
-        '<section class="cfh-section cfh-section-muted">' +
-          '<h3 class="cfh-section-title">🎯 Gemensamma mål</h3>' +
-          renderProjects(data.projects) +
-        '</section>' +
-        renderChestSection(data) +
-        '<section class="cfh-section cfh-section-muted">' +
-          '<h3 class="cfh-section-title">📖 Våra stunder</h3>' +
-          renderStory(data.story) +
-        '</section>' +
-      '</div>' +
-    '</details>';
+  function renderSecondarySections(data) {
+    return '<div class="cfh-secondary-sections">' +
+      '<section class="cfh-section cfh-section-muted cfh-section--goals" aria-label="Gemensamma mål">' +
+        '<h3 class="cfh-section-title">🎯 Gemensamma mål</h3>' +
+        renderProjects(data.projects) +
+      '</section>' +
+      renderChestSection(data) +
+      '<section class="cfh-section cfh-section-muted cfh-section--story" aria-label="Våra stunder">' +
+        '<h3 class="cfh-section-title">📖 Våra stunder</h3>' +
+        renderStory(data.story) +
+      '</section>' +
+    '</div>';
   }
 
   function renderLoading() {
@@ -219,7 +211,7 @@
       '<section class="cfh-persons-primary" aria-label="Mina personer">' +
         renderPersonCards(state) +
       '</section>' +
-      renderBelowFold(data) +
+      renderSecondarySections(data) +
     '</div>';
   }
 

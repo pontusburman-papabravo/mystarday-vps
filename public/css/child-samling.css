@@ -30,9 +30,9 @@
   text-align: center;
   padding: 1.1rem 1rem 1rem;
   border-radius: 1.35rem;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1.5px solid rgba(27, 35, 64, 0.08);
-  box-shadow: 0 8px 28px rgba(27, 35, 64, 0.1);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(240, 248, 255, 0.94));
+  border: 1.5px solid rgba(74, 139, 196, 0.14);
+  box-shadow: 0 10px 32px rgba(27, 35, 64, 0.1);
 }
 
 .dark [data-barnets-samling="on"] .bsp-hero-panel {
@@ -120,9 +120,9 @@
 [data-barnets-samling="on"] .bsp-section {
   padding: 1rem 1.1rem;
   border-radius: 1.25rem;
-  background: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.92));
   border: 1.5px solid rgba(74, 139, 196, 0.14);
-  box-shadow: 0 2px 12px rgba(27, 35, 64, 0.05);
+  box-shadow: 0 6px 22px rgba(27, 35, 64, 0.07);
 }
 
 .dark [data-barnets-samling="on"] .bsp-section {
@@ -412,19 +412,57 @@
   [data-barnets-samling="on"] .bsp-trophy-card {
     animation: none;
   }
-  [data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-emoji {
+  [data-barnets-samling="on"] .bsp-trophy-card.is-selected .bsp-trophy-emoji {
     animation: none;
   }
 }
 
 [data-barnets-samling="on"] .bsp-trophy-card:active,
-[data-barnets-samling="on"] .bsp-trophy-card.is-peek {
-  transform: scale(0.98);
-  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.18);
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected {
+  transform: scale(0.99);
+  box-shadow: 0 6px 20px rgba(245, 166, 35, 0.2);
+  border-color: rgba(245, 166, 35, 0.45);
 }
 
-[data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-emoji {
-  animation: bspTrophyPeek 0.55s ease-in-out;
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  min-height: auto;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected .bsp-trophy-emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-date {
+  display: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #B45309;
+  margin-top: 0.15rem;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-desc {
+  display: none;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #5a6178;
+  margin-top: 0.2rem;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected .bsp-trophy-date,
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected .bsp-trophy-desc {
+  display: block;
+}
+
+[data-barnets-samling="on"] .bsp-trophy-card.is-selected .bsp-trophy-name {
+  font-size: 1rem;
 }
 
 [data-barnets-samling="on"] .bsp-trophy-emoji {
@@ -441,23 +479,6 @@
 
 .dark [data-barnets-samling="on"] .bsp-trophy-name {
   color: #e8ecf8;
-}
-
-[data-barnets-samling="on"] .bsp-trophy-date {
-  font-size: 0.62rem;
-  color: #7a8198;
-}
-
-[data-barnets-samling="on"] .bsp-trophy-desc {
-  display: none;
-  font-size: 0.65rem;
-  line-height: 1.35;
-  color: #5a6178;
-  margin-top: 0.15rem;
-}
-
-[data-barnets-samling="on"] .bsp-trophy-card.is-peek .bsp-trophy-desc {
-  display: block;
 }
 
 [data-barnets-samling="on"] .bsp-streak-empty {

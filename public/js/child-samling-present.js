@@ -95,6 +95,24 @@
     );
   }
 
+  function renderPreviewStrip(universe, extras) {
+    const achievements = (universe && universe.achievements) || [];
+    const memories = getRewardMemories(extras);
+    const streak = currentStreak(universe);
+    const chips = [
+      '<span class="bsp-preview-chip">🏅 ' + achievements.length + ' troféer</span>',
+      '<span class="bsp-preview-chip">🃏 ' + memories.length + ' minnen</span>',
+    ];
+    if (streak > 0) {
+      chips.push('<span class="bsp-preview-chip">🔥 ' + streak + ' dagar</span>');
+    }
+    return (
+      '<nav class="bsp-preview-strip" aria-label="Överblick">' +
+        chips.join('') +
+      '</nav>'
+    );
+  }
+
   function renderMedalSection(universe) {
     const total = lifetimeStars(universe);
     return (
@@ -285,7 +303,7 @@
 
     if (!achievements.length) {
       return (
-        '<section class="bsp-section bsp-wall" aria-label="Trofévägg">' +
+        '<section class="bsp-section bsp-wall" id="bsp-wall" aria-label="Trofévägg">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
             '<h3 class="bsp-section-title">Trofévägg</h3>' +
@@ -308,6 +326,7 @@
       const desc = a.description || '';
       return (
         '<button type="button" class="bsp-trophy-card" style="--bsp-trophy-delay:' + (i * 50) + 'ms"' +
+          ' aria-expanded="false"' +
           ' aria-label="' + esc((a.name || 'Trofé') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
           '<span class="bsp-trophy-emoji" aria-hidden="true">' + esc(a.emoji || '🏆') + '</span>' +
           '<span class="bsp-trophy-name">' + esc(a.name || '') + '</span>' +
@@ -338,13 +357,25 @@
 
   function bindTrophyCards(root) {
     if (!root) return;
-    const peekMs = 600;
     root.querySelectorAll('.bsp-trophy-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        card.classList.add('is-peek');
-        window.setTimeout(function () {
-          card.classList.remove('is-peek');
-        }, peekMs);
+      card.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const wasSelected = card.classList.contains('is-selected');
+        root.querySelectorAll('.bsp-trophy-card').forEach(function (c) {
+          c.classList.remove('is-selected');
+          c.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasSelected) {
+          card.classList.add('is-selected');
+          card.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('.bsp-trophy-card')) return;
+      root.querySelectorAll('.bsp-trophy-card.is-selected').forEach(function (c) {
+        c.classList.remove('is-selected');
+        c.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -489,6 +520,7 @@
     return (
       '<div class="bsp-page">' +
         renderHeroPanel(universe) +
+        renderPreviewStrip(universe, extras) +
         renderMedalSection(universe) +
         renderWallSection(universe) +
         renderStreakSection(universe) +

@@ -164,3 +164,128 @@ html[data-child-world-active='collection'] .cwb-world {
 [data-barnets-samling="on"] .btp-skatt {
   padding-bottom: 0.5rem;
 }
+
+/* ── Idag: checkbox/checkoff layout — no overlap ─────── */
+[data-barnets-samling="on"] #scheduleView .now-activity {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem;
+  grid-template-rows: auto auto;
+  gap: 0.45rem 0.75rem;
+  align-items: center;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-emoji {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.55rem;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-details {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-check {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  max-width: 2.75rem;
+  align-self: center;
+  justify-self: end;
+  border: 2px solid rgba(107, 79, 168, 0.22);
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.08);
+}
+
+[data-barnets-samling="on"] #scheduleView .time-timer-wrap,
+[data-barnets-samling="on"] #scheduleView .activity-timer-wrap {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-card:not(.done) {
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 28px rgba(245, 166, 35, 0.14);
+  border: 1.5px solid rgba(245, 166, 35, 0.28);
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center {
+  display: flex !important;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.65rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .text-3xl {
+  order: 1;
+  flex-shrink: 0;
+  font-size: 1.65rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .flex-1 {
+  order: 2;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .card-check {
+  order: 3;
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  min-width: 2.75rem !important;
+  max-width: 2.75rem !important;
+  flex: 0 0 2.75rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .drag-handle {
+  order: 0;
+}
+
+/* ── Mina personer: visible secondary sections ───────── */
+[data-barnets-samling="on"] .cfh-secondary-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+[data-barnets-samling="on"] .cfh-section--goals,
+[data-barnets-samling="on"] .cfh-section--story {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(255, 251, 243, 0.94));
+}
+
+[data-barnets-samling="on"] .cfh-person-grid {
+  gap: 0.65rem;
+}
+
+/* ── Storybook depth — shared card language ────────────── */
+[data-barnets-samling="on"] .bsp-hero-panel,
+[data-barnets-samling="on"] .bsp-section,
+[data-barnets-samling="on"] .btp-goal--chest,
+[data-barnets-samling="on"] .cfh-hero-panel,
+[data-barnets-samling="on"] .cfh-section-muted {
+  box-shadow: 0 10px 32px rgba(27, 35, 64, 0.09);
+}
+
+[data-barnets-samling="on"] .bsp-preview-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  margin: -0.25rem 0 0.15rem;
+}
+
+[data-barnets-samling="on"] .bsp-preview-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(74, 139, 196, 0.16);
+  color: #3d4a6b;
+  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.05);
+}

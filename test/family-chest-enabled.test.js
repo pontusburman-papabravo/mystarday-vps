@@ -32,7 +32,7 @@ describe('Family chest toggle (Option B)', () => {
       'utf8'
     );
     assert.match(src, /chestEnabled === false/);
-    assert.match(src, /cfh-below-fold/);
+    assert.match(src, /cfh-secondary-sections/);
   });
 
   it('parent toggle saves via /api/family/settings', () => {
