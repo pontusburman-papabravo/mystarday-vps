@@ -64,11 +64,19 @@ describe('barnets samling — presentation polish', () => {
     assert.doesNotMatch(state, /De som hjälper dig/);
   });
 
-  it('Idag checkoff uses grid layout without overlap', () => {
+  it('Våra stunder uses curated timeline not full activity log', () => {
+    const hall = read('public/js/child-family-hall.js');
+    assert.match(hall, /cfh-story-timeline/);
+    assert.match(hall, /cfh-story-chip/);
+    assert.match(hall, /prestationslista/);
+    assert.match(hall, /project_completed/);
+  });
+
+  it('Idag checkoff places checkbox on separate row', () => {
     const css = read('public/css/child-samling-shell.css');
-    assert.match(css, /#scheduleView \.now-activity/);
-    assert.match(css, /#scheduleView \.now-check/);
-    assert.match(css, /activity-card \.card-check/);
+    assert.match(css, /now-check[\s\S]*grid-row: 3/);
+    assert.match(css, /card-check[\s\S]*grid-row: 2/);
+    assert.match(css, /!important/);
   });
 
   it('Skattkammaren excludes active goal from reward list', () => {

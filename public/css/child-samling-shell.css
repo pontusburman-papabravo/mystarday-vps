@@ -167,16 +167,16 @@ html[data-child-world-active='collection'] .cwb-world {
 
 /* ── Idag: checkbox/checkoff layout — no overlap ─────── */
 [data-barnets-samling="on"] #scheduleView .now-activity {
-  display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem;
-  grid-template-rows: auto auto;
-  gap: 0.45rem 0.75rem;
-  align-items: center;
+  display: grid !important;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 0.35rem 0.75rem;
+  align-items: start;
 }
 
 [data-barnets-samling="on"] #scheduleView .now-emoji {
   grid-column: 1;
-  grid-row: 1 / span 2;
+  grid-row: 1 / 3;
   width: 3.25rem;
   height: 3.25rem;
   font-size: 1.55rem;
@@ -186,25 +186,33 @@ html[data-child-world-active='collection'] .cwb-world {
   grid-column: 2;
   grid-row: 1;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-[data-barnets-samling="on"] #scheduleView .now-check {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-  width: 2.75rem;
-  height: 2.75rem;
-  min-width: 2.75rem;
-  max-width: 2.75rem;
-  align-self: center;
-  justify-self: end;
-  border: 2px solid rgba(107, 79, 168, 0.22);
-  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.08);
+[data-barnets-samling="on"] #scheduleView .now-details .now-title {
+  overflow-wrap: anywhere;
 }
 
 [data-barnets-samling="on"] #scheduleView .time-timer-wrap,
 [data-barnets-samling="on"] #scheduleView .activity-timer-wrap {
   grid-column: 2;
   grid-row: 2;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-check {
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: end;
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  min-width: 2.75rem !important;
+  max-width: 2.75rem !important;
+  margin-top: 0.1rem;
+  align-self: end;
+  border: 2px solid rgba(107, 79, 168, 0.22) !important;
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.08);
+  flex-shrink: 0;
 }
 
 [data-barnets-samling="on"] #scheduleView .now-card:not(.done) {
@@ -214,35 +222,70 @@ html[data-child-world-active='collection'] .cwb-world {
 }
 
 [data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center {
-  display: flex !important;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.65rem !important;
+  display: grid !important;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 0.45rem 0.65rem !important;
+  align-items: start;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center:has(.drag-handle) {
+  grid-template-columns: 2.75rem 3rem minmax(0, 1fr);
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .drag-handle {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  order: unset;
 }
 
 [data-barnets-samling="on"] #scheduleView .activity-card .text-3xl {
-  order: 1;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  order: unset;
   flex-shrink: 0;
   font-size: 1.65rem !important;
+  align-self: start;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center:has(.drag-handle) .text-3xl {
+  grid-column: 2;
 }
 
 [data-barnets-samling="on"] #scheduleView .activity-card .flex-1 {
-  order: 2;
-  flex: 1 1 0%;
+  grid-column: 2;
+  grid-row: 1;
+  order: unset;
+  flex: unset;
   min-width: 0;
+  max-width: 100%;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center:has(.drag-handle) .flex-1 {
+  grid-column: 3;
 }
 
 [data-barnets-samling="on"] #scheduleView .activity-card .card-check {
-  order: 3;
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  order: unset;
   width: 2.75rem !important;
   height: 2.75rem !important;
   min-width: 2.75rem !important;
   max-width: 2.75rem !important;
-  flex: 0 0 2.75rem !important;
+  flex: none !important;
 }
 
-[data-barnets-samling="on"] #scheduleView .activity-card .drag-handle {
-  order: 0;
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center:has(.drag-handle) .card-check {
+  grid-column: 3;
+}
+
+html[data-barnets-samling="on"] body.first-star-mode #scheduleView .now-check {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  min-width: 2.75rem !important;
+  min-height: 2.75rem !important;
 }
 
 /* ── Mina personer: visible secondary sections ───────── */
@@ -256,6 +299,51 @@ html[data-child-world-active='collection'] .cwb-world {
 [data-barnets-samling="on"] .cfh-section--goals,
 [data-barnets-samling="on"] .cfh-section--story {
   background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(255, 251, 243, 0.94));
+}
+
+[data-barnets-samling="on"] .cfh-story-timeline-kicker {
+  margin: 0.65rem 0 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #7a8198;
+}
+
+[data-barnets-samling="on"] .cfh-story-item--featured {
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.98), rgba(255, 255, 255, 0.98));
+  border-color: rgba(245, 166, 35, 0.28);
+  box-shadow: 0 4px 16px rgba(245, 166, 35, 0.1);
+}
+
+[data-barnets-samling="on"] .cfh-story-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.45rem;
+  border-radius: 0.85rem;
+  background: rgba(248, 250, 255, 0.95);
+  border: 1px solid rgba(27, 35, 64, 0.06);
+}
+
+[data-barnets-samling="on"] .cfh-story-chip-date {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #9aa0b8;
+}
+
+[data-barnets-samling="on"] .cfh-story-chip-text {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #3d4a6b;
+}
+
+[data-barnets-samling="on"] .cfh-story-more {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: #7a8198;
+  text-align: center;
 }
 
 [data-barnets-samling="on"] .cfh-person-grid {

@@ -153,12 +153,43 @@
     if (!story || !story.length) {
       return '<p class="cfh-empty">Er berättelse börjar när ni gör något tillsammans ✨</p>';
     }
-    return story.map(function (s) {
-      return '<div class="cfh-story-item">' +
-        '<div class="cfh-story-date">📅 ' + formatDate(s.createdAt) + '</div>' +
-        '<div class="cfh-story-text">' + esc(s.text) + '</div>' +
-      '</div>';
-    }).join('');
+
+    const featured = story.filter(function (s) { return s.type === 'project_completed'; });
+    const routine = story.filter(function (s) { return s.type !== 'project_completed'; });
+    const recentRoutine = routine.slice(0, 4);
+    const shownCount = Math.min(featured.length, 3) + recentRoutine.length;
+    const moreCount = Math.max(0, story.length - shownCount);
+
+    let html = '<p class="cfh-section-hint">Höjdpunkter från er vardag — lugna stunder, inte en prestationslista.</p>';
+
+    if (featured.length) {
+      html += '<div class="cfh-story-featured" aria-label="Gemensamma höjdpunkter">';
+      featured.slice(0, 3).forEach(function (s) {
+        html += '<div class="cfh-story-item cfh-story-item--featured">' +
+          '<div class="cfh-story-date">🎉 ' + formatDate(s.createdAt) + '</div>' +
+          '<div class="cfh-story-text">' + esc(s.text) + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    if (recentRoutine.length) {
+      html += '<div class="cfh-story-timeline" aria-label="Senaste vardagsstunder">';
+      html += '<p class="cfh-story-timeline-kicker">Senaste från vardagen</p>';
+      recentRoutine.forEach(function (s) {
+        html += '<div class="cfh-story-chip">' +
+          '<span class="cfh-story-chip-date">' + formatDate(s.createdAt) + '</span>' +
+          '<span class="cfh-story-chip-text">' + esc(s.text) + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    if (moreCount > 0) {
+      html += '<p class="cfh-story-more">+' + moreCount + ' tidigare stunder finns kvar i er berättelse.</p>';
+    }
+
+    return html;
   }
 
   function renderChestSection(data) {
