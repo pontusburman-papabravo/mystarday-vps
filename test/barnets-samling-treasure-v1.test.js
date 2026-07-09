@@ -111,7 +111,8 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     assert.equal(render(data.rewardsData, data.goalData, data.manualData), true);
     assert.match(viewEl.innerHTML, /stjärnor att använda/);
     assert.match(viewEl.innerHTML, />15</);
-    assert.match(viewEl.innerHTML, /Ditt önskemål/);
+    assert.match(viewEl.innerHTML, /Mål/);
+    assert.match(viewEl.innerHTML, /Du sparar till/);
     assert.match(viewEl.innerHTML, /Biokväll/);
     assert.match(viewEl.innerHTML, /15 av 50 stjärnor/);
     assert.match(viewEl.innerHTML, /Bara 35 kvar/);

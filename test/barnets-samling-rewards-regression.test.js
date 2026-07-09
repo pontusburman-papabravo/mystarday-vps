@@ -218,6 +218,7 @@ describe('#592 reward flow regression — render saldo, pending, redeem, history
     });
     renderSkattkammaren(data.rewardsData, data.goalData, data.manualData);
     assert.match(viewEl.innerHTML, /Väntar på godkännande/);
+    assert.match(viewEl.innerHTML, /väntar på en vuxen\./);
     assert.doesNotMatch(viewEl.innerHTML, /Fråga om att lösa in/);
   });
 

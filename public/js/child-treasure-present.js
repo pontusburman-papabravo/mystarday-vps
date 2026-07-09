@@ -1,12 +1,12 @@
 /**
  * child-treasure-present.js — Barnets samling Skattkammare (Fas A/C, gate: barnets_samling).
  * Presentation only — reuses resolveSkattState/skattRewardState from child-dashboard-rewards.js.
- * Godkänd som separat status kräver framtida fulfilled-fält i reward_redemption (ej i datamodellen än).
  */
 (function () {
   'use strict';
 
   const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
+  const PROGRESS_STAR_MAX = 16;
 
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -21,9 +21,42 @@
       && ChildWorlds.isBarnetsSamlingEnabled());
   }
 
+  function computeProgressStars(filled, target) {
+    if (window.ChildRewardsEngine
+        && typeof window.ChildRewardsEngine.computeStarGridProgress === 'function') {
+      const engine = window.ChildRewardsEngine.computeStarGridProgress(filled, target);
+      const totalTarget = engine.totalTarget;
+      const totalFilled = engine.totalFilled;
+      const displayTarget = Math.min(totalTarget, PROGRESS_STAR_MAX);
+      let displayFilled;
+      if (totalTarget <= PROGRESS_STAR_MAX) {
+        displayFilled = Math.min(totalFilled, displayTarget);
+      } else {
+        displayFilled = Math.round((totalFilled / totalTarget) * displayTarget);
+        displayFilled = Math.max(0, Math.min(displayFilled, displayTarget));
+      }
+      return {
+        filled: displayFilled,
+        target: displayTarget,
+        totalFilled: totalFilled,
+        totalTarget: totalTarget,
+      };
+    }
+    const totalTarget = Math.max(1, parseInt(target, 10) || 1);
+    const totalFilled = Math.max(0, parseInt(filled, 10) || 0);
+    const displayTarget = Math.min(totalTarget, PROGRESS_STAR_MAX);
+    let displayFilled;
+    if (totalTarget <= PROGRESS_STAR_MAX) {
+      displayFilled = Math.min(totalFilled, displayTarget);
+    } else {
+      displayFilled = Math.round((totalFilled / totalTarget) * displayTarget);
+      displayFilled = Math.max(0, Math.min(displayFilled, displayTarget));
+    }
+    return { filled: displayFilled, target: displayTarget, totalFilled: totalFilled, totalTarget: totalTarget };
+  }
+
   /**
    * Maps existing redemption row data to child-facing status copy.
-   * approved/auto → Genomförd (no separate Godkänd field in API yet).
    */
   function rewardPresentStatus(st) {
     if (st.isRedeemed) {
@@ -38,26 +71,54 @@
     return { key: 'saving', label: 'Sparar', className: 'btp-status-saving' };
   }
 
-  function renderWishVisual(pct, icon) {
-    const clamped = Math.max(0, Math.min(100, Math.round(pct) || 0));
+  function renderScene() {
     return (
-      '<div class="btp-wish-visual" role="img" aria-label="Framsteg ' + clamped + ' procent">' +
-        '<div class="btp-wish-ring" style="--btp-pct:' + clamped + '">' +
-          '<div class="btp-wish-medallion" aria-hidden="true">' + icon + '</div>' +
+      '<div class="btp-scene" aria-hidden="true">' +
+        '<div class="btp-scene-vignette"></div>' +
+        '<div class="btp-scene-lantern"></div>' +
+        '<div class="btp-scene-shelf"></div>' +
+        '<div class="btp-scene-chest"></div>' +
+        '<div class="btp-scene-sparkles">' +
+          '<span class="btp-scene-sparkle btp-scene-sparkle--1">✦</span>' +
+          '<span class="btp-scene-sparkle btp-scene-sparkle--2">✦</span>' +
+          '<span class="btp-scene-sparkle btp-scene-sparkle--3">·</span>' +
         '</div>' +
-        '<p class="btp-wish-pct" aria-hidden="true">' + clamped + '%</p>' +
       '</div>'
     );
   }
 
-  function renderGemTrail(pct) {
-    const steps = [0, 25, 50, 75, 100];
-    let gems = '';
-    steps.forEach(function (threshold) {
-      const lit = pct >= threshold;
-      gems += '<span class="btp-gem' + (lit ? ' is-lit' : '') + '" aria-hidden="true"></span>';
-    });
-    return '<div class="btp-gem-trail" aria-hidden="true">' + gems + '</div>';
+  function renderRewardBadge(icon) {
+    return (
+      '<div class="btp-reward-badge" aria-hidden="true">' +
+        '<span class="btp-reward-badge-ring"></span>' +
+        '<span class="btp-reward-badge-icon">' + icon + '</span>' +
+      '</div>'
+    );
+  }
+
+  function renderProgressStars(filled, target) {
+    const progress = computeProgressStars(filled, target);
+    if (!progress.target) return '';
+    let html =
+      '<div class="btp-progress-stars" role="img" aria-label="' +
+        progress.totalFilled + ' av ' + progress.totalTarget + ' stjärnor mot målet">';
+    for (let i = 0; i < progress.target; i++) {
+      html += '<span class="btp-progress-star' + (i < progress.filled ? ' is-filled' : '') + '"></span>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderProgressBlock(starBalance, starCost, pct) {
+    const progressText = esc(String(starBalance || 0)) + ' av ' + esc(String(starCost)) + ' stjärnor';
+    return (
+      renderProgressStars(starBalance, starCost) +
+      '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + pct +
+        '" aria-valuemin="0" aria-valuemax="100">' +
+        '<div class="btp-goal-fill" style="width:' + pct + '%"></div>' +
+      '</div>' +
+      '<p class="btp-goal-progress">' + progressText + '</p>'
+    );
   }
 
   function renderHeader(starBalance) {
@@ -67,12 +128,7 @@
       : 'Du har ' + count + ' stjärnor att använda';
     return (
       '<header class="btp-header" aria-label="Dina stjärnor">' +
-        '<div class="btp-header-sparkles" aria-hidden="true">' +
-          '<span class="btp-sparkle btp-sparkle--a">✦</span>' +
-          '<span class="btp-sparkle btp-sparkle--b">✦</span>' +
-        '</div>' +
         '<p class="btp-kicker">🎁 Skattkammaren</p>' +
-        '<p class="btp-header-lead">Här sparar du till det du drömmer om</p>' +
         '<div class="btp-balance" aria-hidden="true">' +
           '<span class="btp-balance-emoji">⭐</span>' +
           '<span class="btp-balance-count">' + count + '</span>' +
@@ -86,11 +142,14 @@
     const goal = skatt.goal;
     if (!goal || !goal.reward_id) {
       return (
-        '<section class="btp-goal btp-goal--empty" aria-label="Aktivt mål">' +
-          '<p class="btp-goal-empty-text">Här kan du välja vad du vill spara till</p>' +
-          '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
-            '✨ Välj belöning' +
-          '</button>' +
+        '<section class="btp-plaque btp-plaque--empty" aria-label="Aktivt mål">' +
+          '<div class="btp-plaque-inner">' +
+            '<p class="btp-plaque-label">Mål</p>' +
+            '<p class="btp-goal-empty-text">Här kan du välja vad du vill spara till</p>' +
+            '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
+              '✨ Välj belöning' +
+            '</button>' +
+          '</div>' +
         '</section>'
       );
     }
@@ -99,17 +158,13 @@
     const icon = goal.reward_icon || '🎁';
     const pct = skatt.progressPct || 0;
     let html =
-      '<section class="btp-goal btp-goal--wish" aria-label="Aktivt mål">' +
-        '<div class="btp-wish-glow" aria-hidden="true"></div>' +
-        '<div class="btp-goal-wish-inner">' +
-        '<p class="btp-goal-kicker">Ditt önskemål</p>' +
-        '<div class="btp-wish-row">' +
-          renderWishVisual(pct, icon) +
-          '<div class="btp-wish-copy">' +
-            '<h2 class="btp-goal-title">' + esc(goal.reward_name) + '</h2>' +
-            '<p class="btp-goal-progress">' +
-              esc(String(skatt.starBalance || 0)) + ' av ' + esc(String(goal.star_cost)) + ' stjärnor' +
-            '</p>';
+      '<section class="btp-plaque" aria-label="Aktivt mål">' +
+        '<div class="btp-plaque-frame" aria-hidden="true"></div>' +
+        '<div class="btp-plaque-inner">' +
+          renderRewardBadge(icon) +
+          '<p class="btp-plaque-label">Mål</p>' +
+          '<p class="btp-plaque-sub">Du sparar till</p>' +
+          '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>';
 
     if (remaining > 0) {
       html += '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>';
@@ -117,14 +172,7 @@
       html += '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
     }
 
-    html += '</div></div>';
-
-    html += '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + pct +
-      '" aria-valuemin="0" aria-valuemax="100">' +
-      '<div class="btp-goal-fill" style="width:' + pct + '%"></div>' +
-    '</div>';
-
-    html += renderGemTrail(pct);
+    html += renderProgressBlock(skatt.starBalance, goal.star_cost, pct);
 
     if (skatt.showGoalChangeLink) {
       html += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
@@ -132,6 +180,23 @@
 
     html += '</div></section>';
     return html;
+  }
+
+  function renderPendingCard(pending) {
+    if (!pending || !pending.length) return '';
+    const count = pending.length;
+    const text = count === 1
+      ? '1 belöning väntar på en vuxen.'
+      : count + ' belöningar väntar på en vuxen.';
+    return (
+      '<section class="btp-pending-card" role="status" aria-label="Väntar på godkännande">' +
+        '<span class="btp-pending-icon" aria-hidden="true">⏳</span>' +
+        '<div class="btp-pending-body">' +
+          '<h3 class="btp-pending-title">Väntar på godkännande</h3>' +
+          '<p class="btp-pending-text">' + esc(text) + '</p>' +
+        '</div>' +
+      '</section>'
+    );
   }
 
   function renderPrimaryAction(skatt) {
@@ -176,20 +241,6 @@
           '<span aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
           '<div><strong>Godkänd</strong>' +
           '<p>' + esc(cr.reward_name) + ' — njut av belöningen 🌟</p></div>' +
-        '</div>';
-    }
-
-    if (skatt.pending && skatt.pending.length > 0) {
-      const count = skatt.pending.length;
-      const first = skatt.pending[0];
-      const label = count === 1
-        ? '1 belöning väntar på en vuxen'
-        : count + ' belöningar väntar på en vuxen';
-      html +=
-        '<div class="btp-banner btp-banner--waiting" role="status">' +
-          '<span aria-hidden="true">' + (first.reward_icon || '⏳') + '</span>' +
-          '<div><strong>Väntar på godkännande</strong>' +
-          '<p>' + esc(label) + '</p></div>' +
         '</div>';
     }
 
@@ -403,14 +454,17 @@
     }
 
     let html = '<div class="btp-skatt">';
+    html += renderScene();
+    html += '<div class="btp-skatt-stack">';
     html += renderHeader(starBalance);
+    html += renderPendingCard(skatt.pending);
     html += renderStatusBanners(skatt, deniedRecent);
     html += renderGoalSection(skatt);
     html += renderPrimaryAction(skatt);
     html += renderRewardsList(rewards, starBalance, redemptions, skatt.goal);
     html += renderHistory(trophies);
     html += renderBonusGrants(grants);
-    html += '</div>';
+    html += '</div></div>';
 
     view.innerHTML = html;
     return true;
@@ -420,5 +474,7 @@
     shouldUse: shouldUse,
     render: render,
     rewardPresentStatus: rewardPresentStatus,
+    computeProgressStars: computeProgressStars,
+    PROGRESS_STAR_MAX: PROGRESS_STAR_MAX,
   };
 })();
