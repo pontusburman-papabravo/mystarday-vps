@@ -47,13 +47,30 @@
     return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
   }
 
-  function renderHeader() {
+  function renderHeroPanel(universe) {
+    const total = lifetimeStars(universe);
+    const fillPct = glassFillPct(total);
+    const jarAria = total === 0
+      ? 'Stjärnglas som väntar på dina stjärnor'
+      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
+
     return (
-      '<header class="bsp-header" aria-label="Min samling">' +
+      '<section class="bsp-hero-panel" aria-label="Min samling">' +
         '<p class="bsp-kicker" aria-hidden="true">🏆</p>' +
         '<h2 class="bsp-title">Min samling</h2>' +
         '<p class="bsp-subtitle">Titta vad du har samlat</p>' +
-      '</header>'
+        '<div class="bsp-hero-glass-row">' +
+          '<div class="bsp-glass-jar bsp-glass-jar--hero' + (total === 0 ? ' bsp-glass-jar--empty' : '') +
+            '" role="img" aria-label="' + esc(jarAria) + '">' +
+            '<div class="bsp-glass-fill" style="height:' + fillPct + '%"></div>' +
+            '<span class="bsp-glass-count" aria-hidden="true">' + total + ' ⭐</span>' +
+          '</div>' +
+          '<div class="bsp-hero-glass-copy">' +
+            '<p class="bsp-glass-total" aria-live="polite">' + esc(totalStarsLabel(total)) + '</p>' +
+            '<p class="bsp-hero-glass-lead">' + esc(glassLeadCopy(total)) + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</section>'
     );
   }
 
@@ -78,26 +95,13 @@
     );
   }
 
-  function renderGlassSection(universe) {
+  function renderMedalSection(universe) {
     const total = lifetimeStars(universe);
-    const fillPct = glassFillPct(total);
-
-    const jarAria = total === 0
-      ? 'Stjärnglas som väntar på dina stjärnor'
-      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
-
     return (
-      '<section class="bsp-section bsp-glass" aria-label="Stjärnglas">' +
+      '<section class="bsp-section bsp-medals" aria-label="Stjärnmedaljer">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">✨</span>' +
-          '<h3 class="bsp-section-title">Stjärnglaset</h3>' +
-        '</div>' +
-        '<p class="bsp-glass-total" aria-live="polite">' + esc(totalStarsLabel(total)) + '</p>' +
-        '<p class="bsp-section-lead">' + esc(glassLeadCopy(total)) + '</p>' +
-        '<div class="bsp-glass-jar' + (total === 0 ? ' bsp-glass-jar--empty' : '') + '" role="img" aria-label="' +
-          esc(jarAria) + '">' +
-          '<div class="bsp-glass-fill" style="height:' + fillPct + '%"></div>' +
-          '<span class="bsp-glass-count" aria-hidden="true">' + total + ' ⭐</span>' +
+          '<h3 class="bsp-section-title">Stjärnmedaljer</h3>' +
         '</div>' +
         renderMedalLadder(total) +
       '</section>'
@@ -484,8 +488,8 @@
     const memories = getRewardMemories(extras);
     return (
       '<div class="bsp-page">' +
-        renderHeader() +
-        renderGlassSection(universe) +
+        renderHeroPanel(universe) +
+        renderMedalSection(universe) +
         renderWallSection(universe) +
         renderStreakSection(universe) +
         renderMemoryCardsSection(memories) +

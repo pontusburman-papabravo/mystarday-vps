@@ -97,7 +97,7 @@
 
   function renderPersonCards(state) {
     if (!state.persons.length) {
-      return '<p class="cfh-empty cfh-empty-hero">Här visas de som hjälper dig varje dag.</p>';
+      return '<p class="cfh-empty cfh-empty-hero">Här visas de som hjälper mig varje dag.</p>';
     }
     return '<div class="cfh-person-grid" role="list">' + state.persons.map(function (person) {
       const highlightCls = state.highlightPersonKey === person.key ? ' cfh-person-card--highlight' : '';
@@ -114,20 +114,25 @@
   }
 
   function renderHero(state) {
-    const warmCls = state.state === 'warm_moment' ? ' cfh-hero--warm' : '';
-    let togetherHtml = '';
-    if (state.togetherLine && state.state !== 'growing_circle') {
-      const warmLineCls = state.state === 'warm_moment' ? ' cfh-together-line--warm' : '';
-      togetherHtml = '<p class="cfh-together-line' + warmLineCls + '">' + esc(state.togetherLine) + '</p>';
-    }
-    return '<header class="cfh-hero' + warmCls + '">' +
+    return '<header class="cfh-hero cfh-hero-panel">' +
       '<h1 class="cfh-title">❤️ Mina personer</h1>' +
       '<p class="cfh-subtitle">De som hjälper mig</p>' +
-      (state.statusLine
-        ? '<p class="cfh-status">' + esc(state.statusLine) + '</p>'
-        : '') +
-      togetherHtml +
     '</header>';
+  }
+
+  function renderWarmBanner(state) {
+    if (state.state === 'warm_moment' && state.warmText) {
+      return '<p class="cfh-warm-banner" role="status">' + esc(state.warmText) + '</p>';
+    }
+    if (state.state === 'away' && state.togetherLine) {
+      return '<p class="cfh-warm-banner cfh-warm-banner--calm" role="status">' +
+        esc(state.togetherLine) + '</p>';
+    }
+    if (state.statusLine) {
+      return '<p class="cfh-warm-banner cfh-warm-banner--calm" role="status">' +
+        esc(state.statusLine) + '</p>';
+    }
+    return '';
   }
 
   function renderProjects(projects) {
@@ -210,6 +215,7 @@
     const state = resolveState(data);
     return '<div class="cfh-shell" data-cfh-state="' + esc(state.state) + '">' +
       renderHero(state) +
+      renderWarmBanner(state) +
       '<section class="cfh-persons-primary" aria-label="Mina personer">' +
         renderPersonCards(state) +
       '</section>' +

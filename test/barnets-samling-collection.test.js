@@ -85,7 +85,8 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
     assert.match(html, /bsp-page/);
     assert.match(html, /Min samling/);
     assert.match(html, /Titta vad du har samlat/);
-    assert.match(html, /Stjärnglaset/);
+    assert.match(html, /bsp-hero-panel/);
+    assert.match(html, /bsp-glass-jar--hero/);
     assert.match(html, /Trofévägg/);
     assert.match(html, /Dagar i rad/);
     assert.match(html, /bsp-glass-jar--empty/);
@@ -237,7 +238,8 @@ describe('#586 Fas D — Min samling minneskort, hylla, diplom', () => {
         created_at: '2026-06-15T12:00:00.000Z',
       }],
     });
-    assert.match(html, /Stjärnglaset/);
+    assert.match(html, /bsp-hero-panel/);
+    assert.match(html, /bsp-glass-jar--hero/);
     assert.match(html, /Trofévägg/);
     assert.match(html, /Dagar i rad/);
     assert.match(html, /Mina minneskort/);

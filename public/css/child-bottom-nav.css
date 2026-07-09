@@ -74,9 +74,11 @@ body.child-has-bottom-nav .child-bottom-nav {
 
 /* Extra bottom padding on scroll areas when bottom nav visible */
 body.child-has-bottom-nav #scheduleView,
+body.child-has-bottom-nav #collectionView,
 body.child-has-bottom-nav #rewardsView,
 body.child-has-bottom-nav #familyView,
 body.child-worlds-v2 #scheduleView,
+body.child-worlds-v2 #collectionView,
 body.child-worlds-v2 #rewardsView,
 body.child-worlds-v2 #familyView,
 body.child-home-active #homeView {

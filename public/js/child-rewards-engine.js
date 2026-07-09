@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  const STAR_GRID_MAX_CELLS = 50;
+  const STAR_GRID_MAX_CELLS = 24;
 
   let _goalData = null;
   let _rewardsData = null;
@@ -23,10 +23,23 @@
   }
 
   function computeStarGridProgress(filled, target) {
-    const safeTarget = Math.max(1, parseInt(target, 10) || 1);
-    const cappedTarget = Math.min(safeTarget, STAR_GRID_MAX_CELLS);
-    const safeFilled = Math.max(0, Math.min(parseInt(filled, 10) || 0, cappedTarget));
-    return { filled: safeFilled, target: cappedTarget, truncated: safeTarget > STAR_GRID_MAX_CELLS };
+    const totalTarget = Math.max(1, parseInt(target, 10) || 1);
+    const totalFilled = Math.max(0, parseInt(filled, 10) || 0);
+    const displayTarget = Math.min(totalTarget, STAR_GRID_MAX_CELLS);
+    let displayFilled;
+    if (totalTarget <= STAR_GRID_MAX_CELLS) {
+      displayFilled = Math.min(totalFilled, displayTarget);
+    } else {
+      displayFilled = Math.round((totalFilled / totalTarget) * displayTarget);
+      displayFilled = Math.max(0, Math.min(displayFilled, displayTarget));
+    }
+    return {
+      filled: displayFilled,
+      target: displayTarget,
+      totalFilled: totalFilled,
+      totalTarget: totalTarget,
+      truncated: totalTarget > STAR_GRID_MAX_CELLS,
+    };
   }
 
   function buildStarGridCells(filled, target) {
@@ -44,7 +57,7 @@
     const cells = buildStarGridCells(filled, target);
     let html = '<div class="skatt-star-grid-wrap">';
     html += '<div class="skatt-star-grid" role="img" aria-label="' +
-      progress.filled + ' av ' + target + ' stjärnor mot målet">';
+      progress.totalFilled + ' av ' + progress.totalTarget + ' stjärnor mot målet">';
     cells.forEach(function (cell) {
       html += '<span class="skatt-star-cell' + (cell.filled ? ' is-filled' : '') + '" aria-hidden="true">' +
         (cell.filled ? '⭐' : '☆') + '</span>';
@@ -54,7 +67,8 @@
       html += '<div class="skatt-star-grid-goal" aria-hidden="true">' + goalIcon + '</div>';
     }
     if (progress.truncated) {
-      html += '<p class="skatt-star-grid-more">+' + (parseInt(target, 10) - progress.target) + ' stjärnor till</p>';
+      html += '<p class="skatt-star-grid-more">+' + (progress.totalTarget - progress.target) +
+        ' stjärnor kvar — siffrorna ovan visar hela vägen</p>';
     }
     html += '</div>';
     return html;

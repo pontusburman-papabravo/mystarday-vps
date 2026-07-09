@@ -85,6 +85,23 @@ Relevanta suites: `barnets-samling-*.test.js`, `idag-*.test.js`, `mina-personer-
 
 ---
 
+## Presentation polish (mobil)
+
+Kör på **iPhone Safari** och **Android Chrome** med gate ON.
+
+| # | Kontroll |
+|---|----------|
+| 1 | Alla fyra flikar: text på läsbar yta (overlay/scrim), inte direkt på bakgrund |
+| 2 | Safe-area: bottom nav + Safari-bar täcker inte CTA eller rubriker |
+| 3 | Första viewport känns avsiktlig — inget viktigt avklippt |
+| 4 | **Min samling:** hero-kort med stjärnglas ovanför fold; scrollstart tydlig |
+| 5 | **Skattkammaren:** stort mål (t.ex. 350⭐) — max ~24 visuella stjärnor; text + progressbar korrekt |
+| 6 | **Mina personer:** rubrik ”Mina personer” + ”De som hjälper mig”; aktivitetsrad under hero |
+| 7 | **Idag:** Hej · Nu · aktivitet · progress synlig utan trängsel |
+| 8 | Gate OFF legacy: oförändrad layout (ingen regression) |
+
+---
+
 ## Passkriterier
 
 - [ ] Alla gate ON-flikar testade på mobil portrait
