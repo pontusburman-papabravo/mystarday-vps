@@ -475,8 +475,13 @@
             if (user && (user.isAdmin || user.is_admin)) {
               if (window.DeviceMode) DeviceMode.enterParent();
               window.location.href = loginNextUrl || '/admin';
-            } else {
-              if (window.DeviceMode) DeviceMode.enterParent();
+              return;
+            }
+            if (window.DeviceMode) DeviceMode.enterParent();
+            // Android WebView: avoid auto-bounce to dashboard (GPU crash loop).
+            // User stays on login and taps Förälder to continue explicitly.
+            var androidStayOnLogin = document.documentElement.classList.contains('is-native-android') && !loginNextUrl;
+            if (!androidStayOnLogin) {
               window.location.href = loginNextUrl || '/dashboard';
             }
             return;

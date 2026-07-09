@@ -248,3 +248,29 @@ html.is-native-android .app-entry-screen .entry-choice-card,
 html.is-native-android #ppin-overlay > div {
   background: rgba(255, 255, 255, 0.98) !important;
 }
+
+/* Dashboard uses parent-magic-dashboard (not only parent-magic-view) — flat 3D globally */
+html.is-native-android body.parent-magic-view,
+html.is-native-android body.parent-magic-dashboard {
+  perspective: none !important;
+  transform-style: flat !important;
+}
+
+html.is-native-android .magic-3d-scene,
+html.is-native-android body.parent-magic-dashboard .parent-home-hub {
+  perspective: none !important;
+  transform-style: flat !important;
+}
+
+html.is-native-android body.parent-magic-dashboard .parent-action-tile,
+html.is-native-android body.parent-magic-dashboard .parent-quick-tile,
+html.is-native-android body.parent-magic-dashboard .parent-handoff-primary,
+html.is-native-android body.parent-magic-dashboard .parent-handoff-secondary,
+html.is-native-android body.parent-magic-dashboard .parent-coparent-cta-btn,
+html.is-native-android body.parent-magic-dashboard .parent-ready-child,
+html.is-native-android body.parent-magic-dashboard .parent-glass-card,
+html.is-native-android body.parent-magic-dashboard .parent-hub-mascot {
+  transform: none !important;
+  transform-style: flat !important;
+  animation: none !important;
+}

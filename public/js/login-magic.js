@@ -390,8 +390,11 @@
 
   /* ── Init ──────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
-    generateStars(50);
-    generateClouds(5);
+    var androidNative = document.documentElement.classList.contains('is-native-android');
+    if (!androidNative) {
+      generateStars(50);
+      generateClouds(5);
+    }
     initRoleCards();
   });
 

@@ -105,6 +105,16 @@ describe('Android Play stability guards', () => {
     assert.match(patch, /setWebContentsDebuggingEnabled\(true\)/);
   });
 
+  it('login skips auto-redirect to dashboard on Android native (GPU crash loop)', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
+    assert.match(html, /is-native-android.*androidStayOnLogin|androidStayOnLogin[\s\S]*is-native-android/);
+  });
+
+  it('platform-native flat mode covers parent-magic-dashboard', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
+    assert.match(css, /body\.parent-magic-dashboard/);
+  });
+
   it('patch-android-version.mjs is idempotent when build.gradle already matches', () => {
     const src = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-version.mjs'), 'utf8');
     assert.match(src, /already at versionCode/);
