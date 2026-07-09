@@ -107,7 +107,14 @@ describe('Android Play stability guards', () => {
 
   it('login skips auto-redirect to dashboard on Android native (GPU crash loop)', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
-    assert.match(html, /is-native-android.*androidStayOnLogin|androidStayOnLogin[\s\S]*is-native-android/);
+    assert.match(html, /androidStayOnLogin/);
+    assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
+  });
+
+  it('app-entry shows role pick for logged-in Android native', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/app-entry.js'), 'utf8');
+    assert.match(js, /ENTRY_ROLE_PICK/);
+    assert.match(js, /is-native-android[\s\S]*Auth\.isLoggedIn/);
   });
 
   it('platform-native flat mode covers parent-magic-dashboard', () => {

@@ -25,7 +25,7 @@
   <script src="/js/auth.js?v=2.20.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
-  <script src="/js/app-entry.js?v=284"></script>
+  <script src="/js/app-entry.js?v=285"></script>
   <script src="/js/login-magic.js?v=156"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
   <script src="/js/google-auth-ui.js?v=2026-07-03b" defer></script>
@@ -483,8 +483,9 @@
             var androidStayOnLogin = document.documentElement.classList.contains('is-native-android') && !loginNextUrl;
             if (!androidStayOnLogin) {
               window.location.href = loginNextUrl || '/dashboard';
+              return;
             }
-            return;
+            // Android logged-in: fall through — AppEntry.init must run or UI stays blank (logo only).
           } else {
             Auth.clearAuth();
           }
