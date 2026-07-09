@@ -1,6 +1,6 @@
 /**
  * native-debug.js — On-screen diagnostics for Capacitor (Android/iOS).
- * Singleton — must not load twice (duplicate tags broke logging).
+ * Persists log to localStorage so crash logs survive app restart.
  */
 (function () {
   'use strict';
@@ -8,13 +8,16 @@
   if (window.__stjarndagNativeDebugLoaded) return;
   window.__stjarndagNativeDebugLoaded = true;
 
-  const MAX_LINES = 100;
+  const LOG_KEY = 'stjarndag_native_debug_log';
+  const LOG_TS_KEY = 'stjarndag_native_debug_log_ts';
+  const MAX_LINES = 200;
   const lines = [];
   let enabled = false;
   let panel = null;
   let listEl = null;
   let headerEl = null;
   let collapsed = true;
+  let lastServerMs = 0;
 
   function isNativeShell() {
     if (document.documentElement.classList.contains('is-native')) return true;
@@ -70,6 +73,54 @@
     return false;
   }
 
+  function persistLinesToStorage() {
+    try {
+      localStorage.setItem(LOG_KEY, JSON.stringify(lines.slice(-MAX_LINES)));
+      localStorage.setItem(LOG_TS_KEY, new Date().toISOString().slice(0, 19));
+    } catch (_) {}
+  }
+
+  function loadPersistedLog() {
+    try {
+      const raw = localStorage.getItem(LOG_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || !parsed.length) return false;
+      const stamp = localStorage.getItem(LOG_TS_KEY) || '?';
+      lines.push('════ föregående körning ' + stamp + ' ════');
+      parsed.forEach(function (l) { lines.push(l); });
+      lines.push('════ ny session ════');
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function serverLogMilestone(step, detail) {
+    const critical = /^(debug_enabled|login_redirect|dashboard_|window_error|unhandled|fetch_error|navigate|beforeunload|session_)/.test(step);
+    if (!critical) return;
+    if (detail && detail.url && String(detail.url).indexOf('/api/analytics') !== -1) return;
+    const now = Date.now();
+    if (now - lastServerMs < 1500) return;
+    lastServerMs = now;
+    try {
+      fetch('/api/client-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          channel: 'native_debug',
+          step: step,
+          detail: detail || null,
+          ts: now,
+          native: true,
+          android: document.documentElement.classList.contains('is-native-android'),
+        }),
+        keepalive: true,
+      }).catch(function () {});
+    } catch (_) {}
+  }
+
   function updateHeader() {
     if (!headerEl) return;
     const n = lines.length;
@@ -117,7 +168,10 @@
     panel.querySelector('#nativeDebugCopy').addEventListener('click', function () {
       const text = lines.join('\n');
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).catch(function () {});
+        navigator.clipboard.writeText(text).then(function () {
+          headerEl.textContent = 'Kopierad!';
+          setTimeout(updateHeader, 1500);
+        }).catch(function () {});
       }
     });
     updateHeader();
@@ -134,12 +188,15 @@
     lines.push(line);
     if (lines.length > MAX_LINES) lines.shift();
     console.log('[NATIVE-DEBUG]', step, detail || '');
+    persistLinesToStorage();
+    serverLogMilestone(step, detail);
     if (!panel && document.body) ensurePanel();
     if (panel) renderPanel();
   }
 
   function shouldLogFetch(url, status) {
     if (url.indexOf('/api/client-log') !== -1) return false;
+    if (url.indexOf('/api/analytics') !== -1) return false;
     if (status >= 400) return true;
     return /\/api\/auth\/(login|me|refresh|csrf-token)|\/api\/app-config|\/api\/family\//.test(url);
   }
@@ -157,16 +214,46 @@
     }, true);
   }
 
+  function hookNavigation() {
+    if (window.__nativeDebugNavHooked) return;
+    window.__nativeDebugNavHooked = true;
+    const origAssign = location.assign.bind(location);
+    const origReplace = location.replace.bind(location);
+    location.assign = function (url) {
+      if (window.NativeDebug && NativeDebug.isEnabled()) {
+        NativeDebug.log('navigate', { method: 'assign', to: String(url).slice(0, 120) });
+      }
+      return origAssign(url);
+    };
+    location.replace = function (url) {
+      if (window.NativeDebug && NativeDebug.isEnabled()) {
+        NativeDebug.log('navigate', { method: 'replace', to: String(url).slice(0, 120) });
+      }
+      return origReplace(url);
+    };
+  }
+
   function enable(reason) {
     if (enabled) return;
     enabled = true;
     collapsed = true;
+    const hadCrashLog = loadPersistedLog();
+    if (hadCrashLog) collapsed = false;
     persistEnabled();
     if (document.body) ensurePanel();
+    if (hadCrashLog && panel) {
+      panel.classList.remove('is-collapsed');
+      const btn = panel.querySelector('#nativeDebugCollapse');
+      if (btn) btn.textContent = '−';
+    }
     log('debug_enabled', { reason: reason || 'unknown', snap: platformSnapshot() });
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn()) {
+      log('session_already_logged_in', platformSnapshot());
+    }
     hookFetch();
     hookLifecycle();
     hookUiClicks();
+    hookNavigation();
   }
 
   function hookFetch() {
@@ -220,6 +307,9 @@
     });
     window.addEventListener('beforeunload', function () {
       if (window.NativeDebug) NativeDebug.log('beforeunload', platformSnapshot());
+    });
+    window.addEventListener('pagehide', function () {
+      persistLinesToStorage();
     });
     window.addEventListener('stjarndag-view-mode', function (ev) {
       if (window.NativeDebug) NativeDebug.log('view_mode', ev.detail || null);
@@ -312,6 +402,7 @@
     log: log,
     enable: enable,
     isEnabled: function () { return enabled; },
+    getLogText: function () { return lines.join('\n'); },
   };
 
   if (document.readyState === 'loading') {
