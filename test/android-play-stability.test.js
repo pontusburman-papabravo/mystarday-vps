@@ -88,6 +88,26 @@ describe('Android Play stability guards', () => {
     assert.ok(versions.versionCode >= 5);
   });
 
+  it('platform-html gates native-debug behind NATIVE_DEBUG_OVERLAY', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /shouldInjectNativeDebug/);
+    assert.match(src, /NATIVE_DEBUG_OVERLAY/);
+    const { injectPlatformHtml, shouldInjectNativeDebug } = require('../src/middleware/platform-html');
+    const html = '<!DOCTYPE html><html><head></head><body></body></html>';
+    const prev = process.env.NATIVE_DEBUG_OVERLAY;
+    try {
+      delete process.env.NATIVE_DEBUG_OVERLAY;
+      assert.equal(shouldInjectNativeDebug(null), false);
+      assert.doesNotMatch(injectPlatformHtml(html, '/login', null), /native-debug\.js/);
+      process.env.NATIVE_DEBUG_OVERLAY = 'true';
+      assert.equal(shouldInjectNativeDebug(null), true);
+      assert.match(injectPlatformHtml(html, '/login', null), /native-debug\.js/);
+    } finally {
+      if (prev === undefined) delete process.env.NATIVE_DEBUG_OVERLAY;
+      else process.env.NATIVE_DEBUG_OVERLAY = prev;
+    }
+  });
+
   it('platform-html ensures native-debug assets even when already injected', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /ensureNativeDebugAssets/);

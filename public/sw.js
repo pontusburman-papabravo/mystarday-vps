@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v559';
-// stjarndag-v559: fix login blank screen — AppEntry.init after Android stay
+const CACHE_NAME = 'stjarndag-v560';
+// stjarndag-v560: gate native-debug injection behind NATIVE_DEBUG_OVERLAY
 // stjarndag-v556: native-debug remove location.assign patch (read-only crash)
 // stjarndag-v550: Android dashboard flat mode — disable parent-magic-3d perspective/translateZ
 // stjarndag-v549: Android login contrast fix + disable magic 3D orbs post-login

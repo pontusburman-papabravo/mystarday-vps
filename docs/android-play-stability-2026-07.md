@@ -1,0 +1,71 @@
+# Android Play stability — incident log (2026-07-09)
+
+Internal reference for Family Policy resubmission and overnight fixes.
+
+## Rejection context
+
+Google Play rejected **versionCode 3** for app stability during Family Policy review. Symptoms on Android WebView (Samsung SM-S942B, Android 16):
+
+1. Crash / blank screen after login
+2. Session lost on app reopen
+3. Could not complete reviewer flow
+
+## Root causes found
+
+| Issue | Cause | Fix (main) |
+|-------|--------|------------|
+| JS error on every page | `native-debug.js` patched read-only `location.assign` | Removed patch; v1.0.5 |
+| Login → dashboard crash loop | Auto-redirect when already logged in + GPU crash on dashboard | Stop auto-redirect on Android; flat dashboard CSS |
+| Blank login (logo only) | Early `return` skipped `AppEntry.init()` | Fall through to init; show role pick |
+| Debug overlay on all users | `native-debug` injected unconditionally | Gate behind `NATIVE_DEBUG_OVERLAY=true` |
+
+## Server-side fixes (no new AAB required)
+
+Remote WebView loads UI from the deployed web app. Server-side fixes ship via git deploy:
+
+- `platform-native.css` — disable `backdrop-filter`, `filter:blur`, 3D transforms on `is-native-android`
+- `parent-magic-shell.js` — skip 3D orbs on Android
+- `dashboard-home-hub.js` — skip `magic-3d-scene` classes on Android
+- `login.html` / `app-entry.js` — Android login flow stability
+- `native-debug.js` — diagnostics (gated in prod)
+
+## AAB / native (when resubmitting)
+
+- **versionCode 5** in `assets/play-store/android-version.json`
+- `scripts/patch-android-main-activity.mjs` — `WebView.setWebContentsDebuggingEnabled(true)` for internal `chrome://inspect` (optional)
+- Build: `npm run cap:android` → signed AAB
+
+## Reviewer test path (updated)
+
+1. Install from Internal testing track
+2. App opens → redirects to `/login`
+3. Tap **Jag är vuxen** (not only "Logga in" on welcome)
+4. Email: review demo account (see `docs/app-store-demo-konto.md`)
+5. Parent dashboard (Hem) should load without crash
+6. Child: Anna, PIN `4455`
+
+## Re-enable debug (internal only)
+
+On VPS `.env`:
+
+```
+NATIVE_DEBUG_OVERLAY=true
+```
+
+Restart the application service. Or append `?native_debug=1` to any URL (injects overlay for that session).
+
+## Verification commands
+
+```bash
+curl -s "$APP_URL/login" | grep native-debug   # empty when overlay off
+curl -s "$APP_URL/sw.js" | grep CACHE_NAME
+```
+
+## Status (2026-07-09 evening)
+
+- [x] Fixes merged to `main` and deployed to VPS
+- [x] `NATIVE_DEBUG_OVERLAY` off in prod (normal users)
+- [ ] Human QA on physical Android (paused — tester)
+- [ ] AAB v5 upload + Play resubmission
+
+POS: 15 Section B (native stability)

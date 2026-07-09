@@ -202,6 +202,12 @@ function maybeSetNoindexHeader(res, reqPath) {
   }
 }
 
+function shouldInjectNativeDebug(req) {
+  if (process.env.NATIVE_DEBUG_OVERLAY === 'true') return true;
+  if (req && req.query && String(req.query.native_debug) === '1') return true;
+  return false;
+}
+
 function ensureNativeDebugAssets(body) {
   if (typeof body !== 'string') return body;
   const DEBUG_JS = '/js/native-debug.js?v=1.0.5';
@@ -227,15 +233,16 @@ function ensureNativeDebugAssets(body) {
   return body;
 }
 
-function injectPlatformHtml(body, reqPath) {
+function injectPlatformHtml(body, reqPath, req) {
   if (typeof body !== 'string') return body;
+  const injectDebug = shouldInjectNativeDebug(req);
   body = injectNoindexMeta(body, reqPath);
   if (body.includes(INJECT_MARKER)) {
     body = injectEarlyMagicHtml(body, reqPath);
     body = injectParentMagicRouter(body, reqPath);
     body = injectParentMagicHtml(body, reqPath);
     body = ensureMagicShellAssets(body, reqPath);
-    return ensureNativeDebugAssets(body);
+    return injectDebug ? ensureNativeDebugAssets(body) : body;
   }
 
   const headMarker = '<head>';
@@ -259,8 +266,12 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">',
+    '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>'
+  );
+  if (injectDebug) {
+    headParts.push('<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">');
+  }
+  headParts.push(
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.9">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
@@ -269,7 +280,7 @@ function injectPlatformHtml(body, reqPath) {
   const headInject = headParts.join('\n') + '\n';
 
   const bodyInject =
-    '<script src="/js/native-debug.js?v=1.0.5"><\/script>\n' +
+    (injectDebug ? '<script src="/js/native-debug.js?v=1.0.5"><\/script>\n' : '') +
     '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
@@ -295,7 +306,7 @@ function injectPlatformHtml(body, reqPath) {
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
   body = injectParentMagicHtml(body, reqPath);
-  return ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath));
+  return injectDebug ? ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath)) : ensureMagicShellAssets(body, reqPath);
 }
 
 function platformHtmlInject(req, res, next) {
@@ -304,7 +315,7 @@ function platformHtmlInject(req, res, next) {
     const ct = res.get('Content-Type') || '';
     if ((ct.includes('text/html') || (typeof body === 'string' && body.trim().startsWith('<!'))) && typeof body === 'string') {
       maybeSetNoindexHeader(res, req.path);
-      body = injectPlatformHtml(body, req.path);
+      body = injectPlatformHtml(body, req.path, req);
       if (!ct.includes('text/html')) {
         res.type('html');
       }
@@ -337,7 +348,7 @@ function platformHtmlInject(req, res, next) {
       }
       self.type('html');
       maybeSetNoindexHeader(self, req.path);
-      self.send(injectPlatformHtml(html, req.path));
+      self.send(injectPlatformHtml(html, req.path, req));
       if (cb) cb(null);
     });
   };
@@ -346,5 +357,6 @@ function platformHtmlInject(req, res, next) {
 }
 
 module.exports = platformHtmlInject;
+module.exports.shouldInjectNativeDebug = shouldInjectNativeDebug;
 module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;
